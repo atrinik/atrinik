@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -251,6 +251,23 @@ end
 arch floor_sand_d3
 x 2
 y 11
+end
+arch spawn_point
+x 2
+y 11
+arch demon_green
+randomitems mob_drow
+level 89
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+direction 3
+end
 end
 arch floor_sand_d3
 x 2
@@ -1928,6 +1945,22 @@ arch floor_sand_d4
 x 18
 y 12
 end
+arch spawn_point
+x 18
+y 12
+arch bone_devil
+randomitems mob_drow
+level 89
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
+end
 arch floor_sand_d2
 x 18
 y 13
@@ -2036,6 +2069,32 @@ end
 arch floor_sand_d1
 x 18
 y 20
+end
+arch spawn_point
+x 18
+y 20
+arch lom_lobon
+randomitems mob_drow_mage
+level 89
+exp 130
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+can_cast_spell 1
+maxsp 30
+Dex 2
+type 83
+arch ability_firestorm
+sp 1
+hp 1
+end
+arch ability_firestorm
+sp 7
+hp 8
+end
+end
 end
 arch floor_sand_d4
 x 18
@@ -2272,6 +2331,22 @@ end
 arch floor_sand_d3
 x 20
 y 6
+end
+arch spawn_point
+x 20
+y 6
+arch demon_green
+randomitems mob_drow
+level 89
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
 end
 arch floor_sand_d4
 x 20

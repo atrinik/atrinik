@@ -28,7 +28,6 @@
  * Command parsing related code. */
 
 #include <global.h>
-#include <ctype.h>
 
 /** Normal game commands */
 CommArray_s Commands[] =
@@ -303,7 +302,7 @@ int execute_newserver_command(object *pl, char *command)
 	 * something else after the slash. */
 	if (command[0] != '/' || !command[1])
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "'%s' is not a valid command.", command);
+		draw_info_format(COLOR_WHITE, pl, "'%s' is not a valid command.", command);
 		return 0;
 	}
 
@@ -354,26 +353,11 @@ int execute_newserver_command(object *pl, char *command)
 	/* We didn't find the command anywhere. */
 	if (!csp)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl, "'/%s' is not a valid command.", command);
+		draw_info_format(COLOR_WHITE, pl, "'/%s' is not a valid command.", command);
 		return 0;
 	}
 
 	pl->speed_left -= csp->time;
-
-	/* A character time can never exceed his speed (which in many cases,
-	 * if wearing armor, is less than one.)  Thus, in most cases, if
-	 * the command takes 1.0, the player's speed will be less than zero.
-	 * it is only really an issue if time goes below -1
-	 * Due to various reasons that are too long to go into here, we will
-	 * actually still execute player even if his time is less than 0,
-	 * but greater than -1.  This is to improve the performance of the
-	 * new client/server.  In theory, it shouldn't make much difference. */
-#ifdef DEBUG
-	if (csp->time && pl->speed_left < -2.0)
-	{
-		LOG(llevDebug, "execute_newclient_command: Player issued command that takes more time than he has left.\n");
-	}
-#endif
 
 	return csp->func(pl, cp);
 }

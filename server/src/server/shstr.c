@@ -28,13 +28,7 @@
  * This is a simple shared strings package with a simple interface.
  * @author Kjetil T. Homme, Oslo 1992. */
 
-#include <limits.h>
 #include <global.h>
-
-#if defined(__sun__) && defined(StupidSunHeaders)
-#	include <sys/time.h>
-#	include "sunos.h"
-#endif
 
 #define SS_STATISTICS
 #include "shstr.h"

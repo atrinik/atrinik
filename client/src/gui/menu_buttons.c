@@ -27,7 +27,7 @@
  * @file
  * Implements menu buttons code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The different buttons inside the widget. */
 enum
@@ -116,15 +116,19 @@ void widget_menubuttons(widgetdata *widget)
 		}
 		else if (i == BUTTON_SPELLS)
 		{
-			buttons[i].pressed = cur_widget[SPELLS_ID]->show;
+			buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;
 		}
 		else if (i == BUTTON_MPLAYER)
 		{
-			buttons[i].pressed = cur_widget[MPLAYER_ID]->show;
+			buttons[i].pressed_forced = cur_widget[MPLAYER_ID]->show;
 		}
 		else if (i == BUTTON_SKILLS)
 		{
-			buttons[i].pressed = cur_widget[SKILLS_ID]->show;
+			buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
+		}
+		else if (i == BUTTON_PARTY)
+		{
+			buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
 		}
 
 		buttons[i].x = widget->x1 + x;
@@ -170,12 +174,23 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_PARTY)
 			{
-				send_command("/party list");
+				if (cur_widget[PARTY_ID]->show)
+				{
+					cur_widget[PARTY_ID]->show = 0;
+				}
+				else
+				{
+					send_command_check("/party list");
+				}
 			}
 			else if (i == BUTTON_MPLAYER)
 			{
 				cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
 				SetPriorityWidget(cur_widget[MPLAYER_ID]);
+			}
+			else if (i == BUTTON_SETTINGS)
+			{
+				settings_open();
 			}
 			else if (i == BUTTON_MAP)
 			{
@@ -183,19 +198,11 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 			}
 			else if (i == BUTTON_QUEST)
 			{
-				process_macro_keys(KEYFUNC_QLIST, 0);
+				keybind_process_command("?QLIST");
 			}
 			else if (i == BUTTON_HELP)
 			{
-				show_help("main");
-			}
-			else if (i == BUTTON_SETTINGS)
-			{
-				/* Popup will block any future events, including the mouse
-				 * being released, so we have to take care of clearing the
-				 * pressed state of the button ourselves. */
-				buttons[i].pressed = 0;
-				settings_open();
+				help_show("main");
 			}
 
 			break;

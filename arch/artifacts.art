@@ -4700,6 +4700,16 @@ food 75
 value 200
 end
 
+Allowed none
+chance 1
+artifact beer_charob
+def_arch beer
+Object
+name Charob beer
+value 15
+food 600
+end
+
 ###########
 # Scrolls #
 ###########

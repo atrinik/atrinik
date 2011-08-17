@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Handle mouse events for target widget.
@@ -37,7 +37,7 @@ void widget_event_target(widgetdata *widget, int x, int y)
 {
 	/* Combat modes */
 	if (y > widget->y1 + 3 && y < widget->y1 + 38 && x > widget->x1 + 3 && x < widget->x1 + 30)
-		check_keys(SDLK_c);
+		keybind_process_command("?COMBAT");
 
 	/* Talk button */
 	if (y > widget->y1 + 7 && y < widget->y1 + 25 && x > widget->x1 + 223 && x < widget->x1 + 259)
@@ -98,7 +98,7 @@ void widget_show_target(widgetdata *widget)
 		sprite_blt(Bitmaps[BITMAP_TARGET_TALK], widget->x1 + 223, widget->y1 + 7, NULL, NULL);
 	}
 
-	if (options.show_target_self || cpl.target_code != 0)
+	if (setting_get_int(OPT_CAT_GENERAL, OPT_TARGET_SELF) || cpl.target_code != 0)
 	{
 		if (hp_tmp)
 		{
@@ -124,14 +124,13 @@ void widget_show_target(widgetdata *widget)
 		if (ptr)
 		{
 			/* Draw the name of the target */
-			StringBlt(ScreenSurface, &SystemFont, cpl.target_name, widget->x1 + 35, widget->y1 + 3, cpl.target_color, NULL, NULL);
+			string_blt(ScreenSurface, FONT_ARIAL10, cpl.target_name, widget->x1 + 35, widget->y1 + 2, cpl.target_color, 0, NULL);
 
 			/* Either draw HP remaining percent and description... */
 			if (hp_tmp > 0)
 			{
 				char hp_text[MAX_BUF];
-				int hp_color;
-				int xhpoffset = 0;
+				const char *hp_color;
 
 				snprintf(hp_text, sizeof(hp_text), "HP: %d%%", hp_tmp);
 
@@ -160,15 +159,13 @@ void widget_show_target(widgetdata *widget)
 					hp_color = COLOR_RED;
 				}
 
-				StringBlt(ScreenSurface, &SystemFont, hp_text, widget->x1 + 35, widget->y1 + 14, hp_color, NULL, NULL);
-				xhpoffset = 50;
-
-				StringBlt(ScreenSurface, &SystemFont, ptr, widget->x1 + 35 + xhpoffset, widget->y1 + 14, cpl.target_color, NULL, NULL);
+				string_blt(ScreenSurface, FONT_ARIAL10, hp_text, widget->x1 + 35, widget->y1 + 14, hp_color, 0, NULL);
+				string_blt(ScreenSurface, FONT_ARIAL10, ptr, widget->x1 + 85, widget->y1 + 14, cpl.target_color, 0, NULL);
 			}
 			/* Or draw just the description */
 			else
 			{
-				StringBlt(ScreenSurface, &SystemFont, ptr, widget->x1 + 35, widget->y1 + 14, cpl.target_color, NULL, NULL);
+				string_blt(ScreenSurface, FONT_ARIAL10, ptr, widget->x1 + 35, widget->y1 + 14, cpl.target_color, 0, NULL);
 			}
 		}
 	}

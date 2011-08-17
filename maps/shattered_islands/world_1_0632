@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -365,7 +365,7 @@ msg
 @match ^hi$|^hey$|^hello$
 Welcome to Charob Beer Inc.
 I'm Geoffrey Charob, the president and founder of Charob Beer Inc.!
-We produce the world famous ^Charob Beer^, although for some reason my shipments haven't been going out on time, and I have my suspicions about a certain ^lazy worker^...
+We produce the world famous <a>Charob Beer</a>, although for some reason my shipments haven't been going out on time, and I have my suspicions about a certain <a>lazy worker</a>...
 @match ^charob beer$
 We make it with my secret family recipe.
 @match ^lazy worker$

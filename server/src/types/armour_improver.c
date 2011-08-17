@@ -43,24 +43,24 @@ void apply_armour_improver(object *op, object *tmp)
 
 	if (blocks_magic(op->map, op->x, op->y))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Something blocks the magic of the scroll.");
+		draw_info(COLOR_WHITE, op, "Something blocks the magic of the scroll.");
 		return;
 	}
 
 	armor = find_marked_object(op);
 	if (!armor)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You need to mark an armor object.");
+		draw_info(COLOR_WHITE, op, "You need to mark an armor object.");
 		return;
 	}
 
 	if (armor->type != ARMOUR && armor->type != CLOAK && armor->type != BOOTS && armor->type != GLOVES && armor->type != BRACERS && armor->type != SHIELD && armor->type != HELMET)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Your marked item is not armour!\n");
+		draw_info(COLOR_WHITE, op, "Your marked item is not armour!\n");
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "Applying armour enchantment.");
+	draw_info(COLOR_WHITE, op, "Applying armour enchantment.");
 	improve_armour(op, tmp, armor);
 }
 
@@ -80,7 +80,7 @@ static void improve_armour(object *op, object *improver, object *armour)
 
 	if (armour->magic >= (op->level / 10 + 1) || new_armour > op->level)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are not yet powerful enough to improve this armour.");
+		draw_info(COLOR_WHITE, op, "You are not yet powerful enough to improve this armour.");
 		return;
 	}
 
@@ -91,7 +91,7 @@ static void improve_armour(object *op, object *improver, object *armour)
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "The armour value of this equipment cannot be further improved.");
+		draw_info(COLOR_WHITE, op, "The armour value of this equipment cannot be further improved.");
 	}
 
 	armour->magic++;

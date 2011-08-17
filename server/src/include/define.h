@@ -44,10 +44,6 @@
 #	error "Your ANSI C compiler should be defining __STDC__";
 #endif
 
-#ifndef WIN32
-#	include <autoconf.h>
-#endif
-
 /* Decstations have trouble with fabs()... */
 #define FABS(x) ((x) < 0 ? -(x) : (x))
 #define abs(x) ((x) < 0 ? -(x) : (x))
@@ -63,7 +59,7 @@
 #	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 #ifndef SGN
-#	define SGN(x) ((x) > 0 ? 1 : ((x) < 0 ? - 1 : 0))
+#	define SGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
 #endif
 
 #ifndef NAME_MAX
@@ -154,7 +150,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45, 28,
+ * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45,
  * 46, 24.
  *@{*/
 /**
@@ -319,6 +315,9 @@
 /**
  * Gem. */
 #define GEM 60
+/**
+ * Ambient sound effect. */
+#define SOUND_AMBIENT 61
 /**
  * Fire wall. */
 #define FIREWALL 62
@@ -1309,10 +1308,9 @@
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 
-#define EXIT_PATH(xyz) (xyz)->slaying
-#define EXIT_LEVEL(xyz) (xyz)->stats.food
-#define EXIT_X(xyz) (xyz)->stats.hp
-#define EXIT_Y(xyz) (xyz)->stats.sp
+#define EXIT_PATH(xyz) ((xyz)->slaying)
+#define EXIT_X(xyz) ((xyz)->stats.hp)
+#define EXIT_Y(xyz) ((xyz)->stats.sp)
 
 /**
  * @defgroup COST_xxx Cost modes

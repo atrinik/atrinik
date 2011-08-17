@@ -386,26 +386,26 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 
 	for (walk = Rooms + 1; walk->x != 0; walk++)
 	{
-		int x1 = walk->x, y1 = walk->y, x2 = (walk - 1)->x, y2 = (walk - 1)->y, in_wall = 0;
+		int x = walk->x, y = walk->y, x2 = (walk - 1)->x, y2 = (walk - 1)->y, in_wall = 0;
 
 		/* Connect in x direction first */
 		if (RANDOM() % 2)
 		{
 			/* horizontal connect */
 			/* swap (x1, y1) (x2, y2) if necessary */
-			if (x2 < x1)
+			if (x2 < x)
 			{
 				int tx = x2, ty = y2;
 
-				x2 = x1;
-				y2 = y1;
-				x1 = tx;
-				y1 = ty;
+				x2 = x;
+				y2 = y;
+				x = tx;
+				y = ty;
 			}
 
-			j = y1;
+			j = y;
 
-			for (i = x1; i < x2; i++)
+			for (i = x; i < x2; i++)
 			{
 				if (in_wall == 0 && maze[i][j] == '#')
 				{
@@ -423,7 +423,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 				}
 			}
 
-			j = MIN(y1, y2);
+			j = MIN(y, y2);
 
 			if (maze[i][j] == '.')
 			{
@@ -435,7 +435,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 				in_wall = 1;
 			}
 
-			for ( ; j < MAX(y1, y2); j++)
+			for ( ; j < MAX(y, y2); j++)
 			{
 				if (in_wall == 0 && maze[i][j] == '#')
 				{
@@ -459,20 +459,20 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 			in_wall = 0;
 
 			/* Swap if necessary */
-			if (y2 < y1)
+			if (y2 < y)
 			{
 				int tx = x2, ty = y2;
 
-				x2 = x1;
-				y2 = y1;
-				x1 = tx;
-				y1 = ty;
+				x2 = x;
+				y2 = y;
+				x = tx;
+				y = ty;
 			}
 
-			i = x1;
+			i = x;
 
 			/* vertical connect */
-			for (j = y1; j < y2; j++)
+			for (j = y; j < y2; j++)
 			{
 				if (in_wall == 0 && maze[i][j] == '#')
 				{
@@ -490,7 +490,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 				}
 			}
 
-			i = MIN(x1, x2);
+			i = MIN(x, x2);
 
 			if (maze[i][j] == '.')
 			{
@@ -502,7 +502,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
 				in_wall = 1;
 			}
 
-			for ( ; i < MAX(x1, x2); i++)
+			for ( ; i < MAX(x, x2); i++)
 			{
 				if (in_wall == 0 && maze[i][j] == '#')
 				{

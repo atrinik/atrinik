@@ -27,7 +27,7 @@
  * @file
  * Object management. */
 
-#include <include.h>
+#include <global.h>
 
 /** The list of free (unused) objects */
 static object *free_objects = NULL;

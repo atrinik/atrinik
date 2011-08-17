@@ -194,9 +194,9 @@ static void check_infection(object *disease)
 		return;
 	}
 
-	for (i = -range; i <= range; i++)
+	for (i = -range; i < range + 1; i++)
 	{
-		for (j = -range; j <= range; j++)
+		for (j = -range; j < range + 1; j++)
 		{
 			xt = x + i;
 			yt = y + j;
@@ -309,15 +309,15 @@ int infect_object(object *victim, object *disease, int force)
 	{
 		if (disease->env && disease->env->type == PLAYER)
 		{
-			object *player = disease->env;
+			object *pl = disease->env;
 
 			/* hm, we should for hit use the weapon? or the skill attached to this
 			 * specific disease? hmmm */
-			new_disease->chosen_skill = find_skill(player, SK_PRAYING);
+			new_disease->chosen_skill = find_skill(pl, SK_PRAYING);
 
 			if (new_disease->chosen_skill)
 			{
-				set_owner(new_disease, player);
+				set_owner(new_disease, pl);
 				new_disease->exp_obj = new_disease->chosen_skill->exp_obj;
 			}
 		}
@@ -342,17 +342,17 @@ int infect_object(object *victim, object *disease, int force)
 
 		if (victim->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, new_disease->owner, buf);
+			draw_info(COLOR_RED, new_disease->owner, buf);
 		}
 		else
 		{
-			new_draw_info(0, new_disease->owner, buf);
+			draw_info(COLOR_WHITE, new_disease->owner, buf);
 		}
 	}
 
 	if (victim->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, victim, "You suddenly feel ill.");
+		draw_info(COLOR_RED, victim, "You suddenly feel ill.");
 	}
 
 	return 1;
@@ -611,7 +611,7 @@ void move_symptom(object *symptom)
 
 	if (victim->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, victim, symptom->msg);
+		draw_info(COLOR_RED, victim, symptom->msg);
 	}
 }
 
@@ -660,7 +660,7 @@ int cure_disease(object *sufferer, object *caster)
 
 	if (caster != sufferer && sufferer->type == PLAYER)
 	{
-		new_draw_info_format(NDI_UNIQUE, sufferer, "%s casts cure disease on you!", caster->name ? caster->name : "someone");
+		draw_info_format(COLOR_WHITE, sufferer, "%s casts cure disease on you!", caster->name ? caster->name : "someone");
 	}
 
 	for (disease = sufferer->inv; disease; disease = next)
@@ -680,12 +680,12 @@ int cure_disease(object *sufferer, object *caster)
 			{
 				if (sufferer->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, sufferer, "You are healed from disease %s.", disease->name);
+					draw_info_format(COLOR_WHITE, sufferer, "You are healed from disease %s.", disease->name);
 				}
 
 				if (sufferer != caster && caster->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, caster, "You heal %s from disease %s.", sufferer->name, disease->name);
+					draw_info_format(COLOR_WHITE, caster, "You heal %s from disease %s.", sufferer->name, disease->name);
 				}
 
 				remove_symptoms(disease);
@@ -701,12 +701,12 @@ int cure_disease(object *sufferer, object *caster)
 			{
 				if (sufferer->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, sufferer, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(COLOR_WHITE, sufferer, "The disease %s resists the cure prayer!", disease->name);
 				}
 
 				if (sufferer != caster && caster->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, caster, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(COLOR_WHITE, caster, "The disease %s resists the cure prayer!", disease->name);
 				}
 			}
 		}
@@ -716,12 +716,12 @@ int cure_disease(object *sufferer, object *caster)
 	{
 		if (sufferer->type == PLAYER)
 		{
-			new_draw_info(NDI_UNIQUE, sufferer, "You are not diseased!");
+			draw_info(COLOR_WHITE, sufferer, "You are not diseased!");
 		}
 
 		if (sufferer != caster && caster->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, caster, "%s is not diseased!", sufferer->name ? sufferer->name : "someone");
+			draw_info_format(COLOR_WHITE, caster, "%s is not diseased!", sufferer->name ? sufferer->name : "someone");
 		}
 	}
 
@@ -755,7 +755,7 @@ int reduce_symptoms(object *sufferer, int reduction)
 
 	if (success)
 	{
-		new_draw_info(NDI_UNIQUE, sufferer, "Your illness seems less severe.");
+		draw_info(COLOR_WHITE, sufferer, "Your illness seems less severe.");
 	}
 
 	return success;

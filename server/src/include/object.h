@@ -30,10 +30,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * Get the weight of an object. If the object is a container or doesn't
  * have nrof, include the weight it is carrying. */
@@ -462,10 +458,6 @@ typedef struct obj
 	key_value *key_values;
 } object;
 
-#ifdef WIN32
-#pragma pack(pop)
-#endif
-
 /** Used to link together several objects. */
 typedef struct oblnk
 {
@@ -593,6 +585,11 @@ extern struct mempool_chunk *removed_objects;
 /** Total number of genders. */
 #define GENDER_MAX 4
 /*@}*/
+
+/**
+ * Value in percent of time above which the corpse will be highlighted
+ * in infravision mode. */
+#define CORPSE_INFRAVISION_PERCENT 75
 
 /**
  * Returns the head part of an object. For single-tile objects returns the

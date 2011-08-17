@@ -2,11 +2,11 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-06-08 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_1 rockforge_a_0303
 tile_path_3 rockforge_a_0301
@@ -37,6 +37,11 @@ arch wall_marble1.111a
 x 9
 y 2
 end
+arch flag_rockforge
+direction 7
+x 9
+y 2
+end
 arch blocked
 x 9
 y 3
@@ -66,6 +71,11 @@ x 9
 y 6
 end
 arch wall_marble1.111a
+x 9
+y 6
+end
+arch flag_rockforge
+direction 7
 x 9
 y 6
 end
@@ -98,6 +108,11 @@ x 9
 y 10
 end
 arch wall_marble1.111
+x 9
+y 10
+end
+arch flag_rockforge
+direction 7
 x 9
 y 10
 end
@@ -130,6 +145,11 @@ x 9
 y 14
 end
 arch wall_marble1.111
+x 9
+y 14
+end
+arch flag_rockforge
+direction 7
 x 9
 y 14
 end
@@ -162,6 +182,11 @@ x 9
 y 18
 end
 arch wall_marble1.111
+x 9
+y 18
+end
+arch flag_rockforge
+direction 7
 x 9
 y 18
 end
@@ -194,6 +219,11 @@ x 9
 y 22
 end
 arch wall_marble1.111
+x 9
+y 22
+end
+arch flag_rockforge
+direction 7
 x 9
 y 22
 end
@@ -206,6 +236,10 @@ x 9
 y 23
 end
 arch floor_marble2b
+x 10
+end
+arch lamp_wall
+direction 7
 x 10
 end
 arch floor_marble2b
@@ -224,6 +258,11 @@ arch floor_marble2a
 x 10
 y 4
 end
+arch lamp_wall
+direction 7
+x 10
+y 4
+end
 arch floor_marble2c
 x 10
 y 5
@@ -237,6 +276,11 @@ x 10
 y 7
 end
 arch floor_marble2b
+x 10
+y 8
+end
+arch lamp_wall
+direction 7
 x 10
 y 8
 end
@@ -256,6 +300,11 @@ arch floor_marble2b
 x 10
 y 12
 end
+arch lamp_wall
+direction 7
+x 10
+y 12
+end
 arch floor_marble2a
 x 10
 y 13
@@ -272,6 +321,11 @@ arch floor_marble2c
 x 10
 y 16
 end
+arch lamp_wall
+direction 7
+x 10
+y 16
+end
 arch floor_marble2c
 x 10
 y 17
@@ -285,6 +339,11 @@ x 10
 y 19
 end
 arch floor_marble2b
+x 10
+y 20
+end
+arch lamp_wall
+direction 7
 x 10
 y 20
 end
@@ -323,6 +382,10 @@ arch floor_marble2b
 x 11
 y 4
 end
+arch fmask_rockforge2
+x 11
+y 4
+end
 arch floor_marble2a
 x 11
 y 5
@@ -368,6 +431,10 @@ x 11
 y 15
 end
 arch floor_marble2a
+x 11
+y 16
+end
+arch fmask_rockforge2
 x 11
 y 16
 end

@@ -11,10 +11,10 @@ text = msg.split()
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello there, {0}. I am the jail manager, and I can assist you in hunting down criminals and putting them to this jail.\nSimply tell me which player to jail, and for how long, in the format of ~jail~ ~<name>~ ~<time>~, where |<name>| is the player name to jail, and |<time>| is how long to jail the player for, in seconds. If 0, the player will be jailed for life.\nTo unjail a player, you can use ~unjail~ ~<name>~.".format(activator.name))
+		me.SayTo(activator, "\nHello there, {0}. I am the jail manager, and I can assist you in hunting down criminals and putting them to this jail.\nSimply tell me which player to jail, and for how long, in the format of <green>jail</green> <green><name></green> <green><time></green>, where <yellow><name></yellow> is the player name to jail, and <yellow><time></yellow> is how long to jail the player for, in seconds. If 0, the player will be jailed for life.\nTo unjail a player, you can use <green>unjail</green> <green><name></green>.".format(activator.name))
 	elif msg[:6] == "unjail":
 		if len(text) < 2:
-			me.SayTo(activator, "\nUse, for example, ^unjail troublemakerxyxyx^.")
+			me.SayTo(activator, "\nUse, for example, <a>unjail troublemakerxyxyx</a>.")
 			return
 
 		pl = FindPlayer(text[1])
@@ -35,7 +35,7 @@ def main():
 
 	elif msg[:4] == "jail":
 		if len(text) < 3 or not text[2].isdigit():
-			me.SayTo(activator, "\nUse, for example, ^jail troublemakerxyxyx 60^.")
+			me.SayTo(activator, "\nUse, for example, <a>jail troublemakerxyxyx 60</a>.")
 			return
 
 		pl = FindPlayer(text[1])

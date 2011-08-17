@@ -34,9 +34,9 @@ def main():
 			return
 
 		if not qm.finished():
-			me.SayTo(activator, "\nHello {0}.\nI am the current ^archery^ commander after ^Chereth^ lost her eyes in this terrible fight with the ^wyverns^.".format(activator.name))
+			me.SayTo(activator, "\nHello {0}.\nI am the current <a>archery</a> commander after <a>Chereth</a> lost her eyes in this terrible fight with the <a>wyverns</a>.".format(activator.name))
 		else:
-			me.SayTo(activator, "\nAh, you are back.\nAnd I see you have the tooth!\nNow I will ^teach^ you two-hand mastery!")
+			me.SayTo(activator, "\nAh, you are back.\nAnd I see you have the tooth!\nNow I will <a>teach</a> you two-hand mastery!")
 
 	elif text[0] == "archery" or text[0] == "chereth":
 		me.SayTo(activator, "\nYou should ask Chereth about the three archery skills.\nShe still teaches archery and her knowledge about it is superior.\nAfter she lost her eyes she was transferred to the Tutorial Island.")
@@ -82,16 +82,16 @@ def main():
 			return
 
 		if not qm.finished():
-			me.SayTo(activator, "\nThe elder wyverns are the most aggressive and strongest of the wyverns in that cave.\nIf you can kill one or two I will help you too.\nI'll make a deal with you:\nBring me the tooth of an elder wyvern and I will teach you ^two-hand^ mastery.")
+			me.SayTo(activator, "\nThe elder wyverns are the most aggressive and strongest of the wyverns in that cave.\nIf you can kill one or two I will help you too.\nI'll make a deal with you:\nBring me the tooth of an elder wyvern and I will teach you <a>two-hand</a> mastery.")
 
 			if not qm.started():
-				me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+				me.SayTo(activator, "Do you <a>accept</a> this quest?", 1)
 
 	elif text[0] == "wyverns" or text[0] == "wyvern":
 		if qm.started() and qm.completed():
 			return
 
 		if not qm.finished():
- 			me.SayTo(activator, "\nThe wyverns live in a big cave southeast of Brynknot.\nThey are dangerous and attacked us several times.\nWe have sent some expeditions but there are a lot of them.\nThe biggest problem are the ^elder^ wyverns.")
+ 			me.SayTo(activator, "\nThe wyverns live in a big cave southeast of Brynknot.\nThey are dangerous and attacked us several times.\nWe have sent some expeditions but there are a lot of them.\nThe biggest problem are the <a>elder</a> wyverns.")
 
 main()

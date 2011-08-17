@@ -14,13 +14,13 @@ def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
 		if not guild.member_exists(activator.name):
 			if not guild.guild_check(guild.guild_closed):
-				me.SayTo(activator, "\nWelcome to the {}, {}!\nDo you want to ^join^ the guild by requesting a guild membership?".format(guild.get_name(), activator.name))
+				me.SayTo(activator, "\nWelcome to the {}, {}!\nDo you want to <a>join</a> the guild by requesting a guild membership?".format(guild.get_name(), activator.name))
 			else:
 				me.SayTo(activator, "\nWelcome {}.\nUnfortunately, this guild does not accept new members right now.".format(activator.name))
 		elif not guild.member_approved(activator.name):
-			me.SayTo(activator, "\nYour membership application request has not been decided yet. If you want to cancel it, say ~leave~.")
+			me.SayTo(activator, "\nYour membership application request has not been decided yet. If you want to cancel it, say <green>leave</green>.")
 		else:
-			me.SayTo(activator, "\nWelcome back {}. It's good to see you again.\nIf you want to enter the guild, say ^enter^. If you no longer wish to be a member of this guild, say ~leave~.".format(activator.name))
+			me.SayTo(activator, "\nWelcome back {}. It's good to see you again.\nIf you want to enter the guild, say <a>enter</a>. If you no longer wish to be a member of this guild, say <green>leave</green>.".format(activator.name))
 
 	# Enter the guild.
 	elif msg == "enter":

@@ -28,25 +28,9 @@
  * This file controls various event functions, like character mouse movement,
  * parsing macro keys etc. */
 
-#include "include.h"
+#include <global.h>
 
 int old_mouse_y = 0;
-
-int cursor_type = 0;
-
-/**
- * Table of all the keys recognized by SDL. If an element is 1, that key
- * is currently being held. */
-static uint8 keys_pressed[SDLK_LAST];
-
-/**
- * Check whether the specified key is being held.
- * @param key Key to check.
- * @return 1 if the keys is being held, 0 otherwise. */
-uint8 key_is_pressed(SDLKey key)
-{
-	return keys_pressed[key];
-}
 
 /* src:  (if != DRAG_GET_STATUS) set actual dragging source.
  * item: (if != NULL) set actual dragging item.
@@ -69,15 +53,10 @@ int draggingInvItem(int src)
  * @param height Height to set. */
 void resize_window(int width, int height)
 {
-	lists_handle_resize(height - Screensize->y);
+	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
+	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, height);
 
-	options.resolution_x = width;
-	options.resolution_y = height;
-
-	Screensize->x = width;
-	Screensize->y = height;
-
-	if (!options.allow_widgets_offscreen && width > 100 && height > 100)
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS) && width > 100 && height > 100)
 	{
 		widgets_ensure_onscreen();
 	}
@@ -91,7 +70,6 @@ int Event_PollInputDevice()
 	SDL_Event event;
 	int x, y, done = 0;
 	static Uint32 Ticks = 0;
-	Uint32 videoflags = get_video_flags();
 	int tx, ty;
 
 	/* Execute mouse actions, even if mouse button is being held. */
@@ -106,7 +84,7 @@ int Event_PollInputDevice()
 			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (!cpl.action_timer && cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID])
+			else if (!cpl.action_timer && widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 
@@ -123,44 +101,52 @@ int Event_PollInputDevice()
 
 	while (SDL_PollEvent(&event))
 	{
-		if (event.type == SDL_KEYUP)
-		{
-			keys_pressed[event.key.keysym.sym] = 0;
-		}
-		else if (event.type == SDL_KEYDOWN)
-		{
-			keys_pressed[event.key.keysym.sym] = 1;
-		}
-
 		x = event.motion.x;
 		y = event.motion.y;
 
-		if ((event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) && popup_handle_event(&event))
+		if (event.type == SDL_KEYDOWN)
 		{
-			continue;
+			if (!keys[event.key.keysym.sym].pressed)
+			{
+				keys[event.key.keysym.sym].repeated = 0;
+				keys[event.key.keysym.sym].pressed = 1;
+				keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
+			}
+		}
+		else if (event.type == SDL_KEYUP)
+		{
+			keys[event.key.keysym.sym].pressed = 0;
+		}
+
+		if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN)
+		{
+			if (popup_handle_event(&event))
+			{
+				continue;
+			}
+			else if (GameStatus <= GAME_STATUS_WAITFORPLAY && main_screen_event(&event))
+			{
+				continue;
+			}
 		}
 
 		switch (event.type)
 		{
 			/* Screen has been resized, update screen size. */
 			case SDL_VIDEORESIZE:
-				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, options.used_video_bpp, videoflags);
+				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
 				if (!ScreenSurface)
 				{
 					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
 				}
 
+				/* Set resolution to custom. */
+				setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
 				resize_window(event.resize.w, event.resize.h);
-				/* Custom resolution */
-				options.resolution = 0;
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				cursor_type = 0;
-
-				mb_clicked = 0;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;
@@ -171,40 +157,11 @@ int Event_PollInputDevice()
 					break;
 				}
 
-				/* Widget has higher priority than anything below, except menus
-				 * so break if we had a widget event */
-				if (widget_event_mouseup(x,y, &event))
+				if (widget_event_mouseup(x, y, &event))
 				{
-					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
-
 					/* Sanity handling */
 					draggingInvItem(DRAG_NONE);
 					break;
-				}
-
-				if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
-					break;
-
-				/* Only drop to ground has to be handled, the rest do the widget handlers */
-				if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
-				{
-					/* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
-					 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
-					int old_inv_win = cpl.inventory_win;
-					int old_inv_tag = cpl.win_inv_tag;
-					cpl.inventory_win = IWIN_INV;
-
-					/* Drop to ground */
-					if (mouse_to_tile_coords(x, y, NULL, NULL))
-					{
-						if (draggingInvItem(DRAG_GET_STATUS) != DRAG_QUICKSLOT_SPELL)
-						{
-							process_macro_keys(KEYFUNC_DROP, 0);
-						}
-					}
-
-					cpl.inventory_win = old_inv_win;
-					cpl.win_inv_tag = old_inv_tag;
 				}
 
 				draggingInvItem(DRAG_NONE);
@@ -212,8 +169,6 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEMOTION:
 			{
-				mb_clicked = 0;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;
@@ -227,16 +182,8 @@ int Event_PollInputDevice()
 				x_custom_cursor = x;
 				y_custom_cursor = y;
 
-				/* We have to break now when menu is active - menu is higher priority than any widget! */
-				if (cpl.menustatus != MENU_NO)
-				{
-					break;
-				}
-
 				if (widget_event_mousemv(x, y, &event))
 				{
-					/* NOTE: place here special handlings that have to be done, even if a widget owns it */
-
 					break;
 				}
 
@@ -245,53 +192,18 @@ int Event_PollInputDevice()
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				mb_clicked = 1;
-
 				if (lists_handle_mouse(x, y, &event))
 				{
 					break;
 				}
 
-				if (GameStatus == GAME_STATUS_WAITLOOP)
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
-					break;
-
-				/* For party GUI, we call the mouse event function that handles scrolling, selecting, etc. */
-				if (cpl.menustatus == MENU_PARTY)
-				{
-					if (event.button.button == SDL_BUTTON_WHEELUP || event.button.button == SDL_BUTTON_WHEELDOWN)
-					{
-						gui_party_interface_mouse(&event);
-						break;
-					}
-				}
-
-				/* If this is book GUI, handle the click */
-				if (cpl.menustatus == MENU_BOOK)
-				{
-					book_handle_event(&event);
-				}
-
-				if (cpl.menustatus == MENU_REGION_MAP)
-				{
-					region_map_handle_event(&event);
-				}
-
-				/* Beyond here only when no menu is active. */
-				if (cpl.menustatus != MENU_NO)
 				{
 					break;
 				}
 
-				/* Widget System */
 				if (widget_event_mousedn(x, y, &event))
 				{
-					/* NOTE: Place here special handlings that have to be done, even if a widget owns it */
-
 					break;
 				}
 
@@ -300,7 +212,7 @@ int Event_PollInputDevice()
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
-				done = event_poll_key(&event);
+				key_handle_event(&event.key);
 				break;
 
 			case SDL_QUIT:
@@ -314,16 +226,35 @@ int Event_PollInputDevice()
 		old_mouse_y = y;
 	}
 
-	/* OK, now we have processed all real events.
-	 * Now run through the list of keybinds and control repeat time value.
-	 * If the key is still marked as pressed in our keyboard mirror table,
-	 * and the time this is pressed <= keybind press value + repeat value,
-	 * we assume a repeat flag is true.
-	 * Sadly, SDL doesn't have a tick count inside the event messages, which
-	 * means the tick value when the event really was triggered. So, the
-	 * client can't simulate the buffered "rhythm" of the key pressings when
-	 * the client lags. */
-	key_repeat();
+	if (!text_input_string_flag)
+	{
+		size_t i;
+
+		for (i = 0; i < SDLK_LAST; i++)
+		{
+			/* Ignore modifier keys. */
+			if (KEY_IS_MODIFIER(i))
+			{
+				continue;
+			}
+
+			if (keys[i].pressed && keys[i].time + KEY_REPEAT_TIME - 5 < LastTick)
+			{
+				while ((keys[i].time += KEY_REPEAT_TIME - 5) < LastTick)
+				{
+					keys[i].repeated = 1;
+
+					event.type = SDL_KEYDOWN;
+					event.key.which = 0;
+					event.key.state = SDL_PRESSED;
+					event.key.keysym.unicode = 0;
+					event.key.keysym.mod = SDL_GetModState();
+					event.key.keysym.sym = i;
+					SDL_PushEvent(&event);
+				}
+			}
+		}
+	}
 
 	return done;
 }

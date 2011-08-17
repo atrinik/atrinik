@@ -81,7 +81,7 @@ class BaseTemple:
 	def handle_spell(self, spell):
 		if self._activator.PayAmount(self.services[spell][1]):
 			if self.services[spell][1]:
-				self._activator.Write("You pay {}.".format(CostString(self.services[spell][1])), 0)
+				self._activator.Write("You pay {}.".format(CostString(self.services[spell][1])), COLOR_WHITE)
 
 			self._me.SayTo(self._activator, "\nOk, I will cast {0} on you now.".format(spell))
 			self._me.Cast(GetSpellNr(spell), self._activator)
@@ -189,11 +189,11 @@ def handle_temple(temple, me, activator, msg):
 	temple.post_init()
 
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to the church of ^{0}^.".format(temple.name))
+		me.SayTo(activator, "\nWelcome to the church of <a>{0}</a>.".format(temple.name))
 
 		# We don't like enemy gods.
 		if temple.is_enemy_god():
-			me.SayTo(activator, "\n... I see that you are a follower of ^{0}^. It would be best for you to leave immediately.".format(temple.enemy_name), True)
+			me.SayTo(activator, "\n... I see that you are a follower of <a>{0}</a>. It would be best for you to leave immediately.".format(temple.enemy_name), True)
 			return True
 
 		# Custom message to say before services.
@@ -207,7 +207,7 @@ def handle_temple(temple, me, activator, msg):
 			me.SayTo(activator, "I can offer you the following services:\n", True)
 
 			for service in services:
-				me.SayTo(activator, "^{0}^ for {1}".format(service.capitalize(), temple.services[service][1] and CostString(temple.services[service][1]) or "free"), True)
+				me.SayTo(activator, "<a>{0}</a> for {1}".format(service.capitalize(), temple.services[service][1] and CostString(temple.services[service][1]) or "free"), True)
 
 		# Custom message to say after services.
 		if temple.hello_msg_after:

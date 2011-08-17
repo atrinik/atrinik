@@ -55,7 +55,7 @@
  *
  * @warning Don't change the order here without changing the skills.h
  * file */
-skill skills[NROFSKILLS] =
+skill_struct skills[NROFSKILLS] =
 {
 	{"alchemy", NULL, NULL, EXP_PERSONAL, 10},
 	{"common literacy", "This skill allows you to read the common language. You get experience by reading unread books.", NULL, EXP_MENTAL, 0},

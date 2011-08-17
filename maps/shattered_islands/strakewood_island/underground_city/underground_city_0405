@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -644,7 +644,7 @@ arch fstone1m8
 x 6
 y 16
 end
-arch water_still
+arch water_lt4
 x 6
 y 17
 end
@@ -652,7 +652,7 @@ arch fstone1m3
 x 6
 y 17
 end
-arch water_still
+arch water_lt2
 x 6
 y 18
 end
@@ -660,7 +660,7 @@ arch fstone1m9
 x 6
 y 18
 end
-arch water_still
+arch water_lt4
 x 6
 y 19
 end
@@ -822,7 +822,7 @@ arch fstone1m8
 x 7
 y 16
 end
-arch water_still
+arch water_lt4
 x 7
 y 17
 end
@@ -830,11 +830,11 @@ arch fstone1m12
 x 7
 y 17
 end
-arch water_still
+arch water_lt
 x 7
 y 18
 end
-arch water_still
+arch water_lt4
 x 7
 y 19
 end
@@ -970,7 +970,7 @@ arch fstone1m8
 x 8
 y 16
 end
-arch water_still
+arch water_lt2
 x 8
 y 17
 end
@@ -978,11 +978,11 @@ arch fstone1m12
 x 8
 y 17
 end
-arch water_still
+arch water_lt4
 x 8
 y 18
 end
-arch water_still
+arch water_lt3
 x 8
 y 19
 end
@@ -1108,7 +1108,7 @@ arch fstone1m8
 x 9
 y 16
 end
-arch water_still
+arch water_lt
 x 9
 y 17
 end
@@ -1116,7 +1116,7 @@ arch fstone1m4
 x 9
 y 17
 end
-arch water_still
+arch water_lt2
 x 9
 y 18
 end
@@ -1124,7 +1124,7 @@ arch fstone1m11
 x 9
 y 18
 end
-arch water_still
+arch water_lt3
 x 9
 y 19
 end

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Encoding=UTF-8
+Name=Atrinik
+Name[en]=Atrinik
+GenericName=Online RPG Game
+Comment=Multiplayer Online Role Playing Game
+Icon=atrinik.png
+Exec=atrinik
+Terminal=false
+StartupNotify=false
+Categories=Game;AdventureGame;

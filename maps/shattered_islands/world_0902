@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1153,17 +1153,13 @@ x 8
 y 1
 arch traveller_wife
 msg
-@match hi|hey
-What? Talking to me?
-@match hello|greetings
+@match ^hi$|^hey$|^hello$
 Good day, adventurer.
-I'm Cernye, I collect ^herbs^.
-@match herbs
-Eld Woods Island is home to a variety of herbs, but I'm especially fond of ^Athalas^.
-@match athalas
-Athalas would be very useful for me, but I don't know any accessible places to find it. Will you ^help^ me?
-@match help|quest|mission
-Well, if you're so keen on doing me a favour... Why don't you try to find Athalas?
+I'm Cernye, I collect <a>herbs</a>.
+@match ^herbs$
+Eld Woods Island is home to a variety of herbs, but I'm especially fond of <a>Athalas</a>.
+@match ^athalas$
+Athalas would be very useful for me, but I don't know any accessible places to find it. If you happen to find any on your travels, please tell me where you found it.
 endmsg
 name Cernye
 level 10

@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -20,75 +20,75 @@ tile_path_8 world_0104
 bg_music tutorialisland.mid
 region tutorial_island
 end
-arch water_still
+arch water_lt2
 end
-arch water_still
+arch water_lt2
 y 1
 end
-arch water_still
+arch water_lt
 y 2
 end
-arch water_still
+arch water_lt2
 y 3
 end
-arch water_still
+arch water_lt4
 y 4
 end
-arch water_still
+arch water_lt4
 y 5
 end
-arch water_still
+arch water_lt3
 y 6
 end
-arch water_still
+arch water_lt4
 y 7
 end
-arch water_still
+arch water_lt4
 y 8
 end
-arch water_still
+arch water_lt3
 y 9
 end
-arch water_still
+arch water_lt4
 y 10
 end
-arch water_still
+arch water_lt3
 y 11
 end
-arch water_still
+arch water_lt4
 y 12
 end
-arch water_still
+arch water_lt2
 y 13
 end
-arch water_still
+arch water_lt2
 y 14
 end
-arch water_still
+arch water_lt4
 y 15
 end
-arch water_still
+arch water_lt
 y 16
 end
-arch water_still
+arch water_lt
 y 17
 end
-arch water_still
+arch water_lt2
 y 18
 end
-arch water_still
+arch water_lt3
 y 19
 end
-arch water_still
+arch water_lt3
 y 20
 end
-arch water_still
+arch water_lt
 y 21
 end
-arch water_still
+arch water_lt3
 y 22
 end
-arch water_still
+arch water_lt4
 y 23
 end
 arch grassd_4
@@ -969,7 +969,7 @@ y 19
 end
 arch sign
 msg
-~Weapons~
+<green>Weapons</green>
 You can't take the weapons there on the floor, they are only examples.
 But you will eventually find them and *a lot* more weapons of every
 imaginable kind later in the game.
@@ -1036,10 +1036,10 @@ y 3
 end
 arch sign
 msg
-~Corpses~
+<green>Corpses</green>
 Corpses appear when you have killed an enemy.
-They are used like ~containers~ and will hold the loot - all the items your enemy carried when killed.
-If there is your name on the corpse ("bounty of yourname"), only |you| can access the corpse - no one else.
+They are used like <green>containers</green> and will hold the loot - all the items your enemy carried when killed.
+If there is your name on the corpse ("bounty of yourname"), only <yellow>you</yellow> can access the corpse - no one else.
 People will not be able to steal your loot from your kills.
 endmsg
 name Corpses
@@ -1206,7 +1206,7 @@ y 6
 end
 arch sign
 msg
-~Hit Points and Levels~
+<green>Hit Points and Levels</green>
 Every creature has an amount of hit points (short: HP).
 If the hit points drop to zero, the creature or player will die. The green line inside the target marker shows the current hit points of that creature in %.
 A full line means 100% hp, half a line 50%. Some monsters can have different level and hp! Always look for the target color, or the level 75 ant with 10000 hp will ruin your day.
@@ -1671,10 +1671,10 @@ y 7
 end
 arch sign
 msg
-~Monsters and Targets~
+<green>Monsters and Targets</green>
 Here you see some of your enemies. They are called monsters or mobs. Don't fear, they won't attack.
-You can target the monsters by pressing the ~x~ key.
-Pressing the ~x~ key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press ~x~ now!
+You can target the monsters by pressing the <green>x</green> key.
+Pressing the <green>x</green> key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press <green>x</green> now!
 After you target something its name is shown on the bottom of the screen, in the target box. The color of the name has a special meaning - read about it on the next sign.
 endmsg
 name Monsters and Targets
@@ -1687,11 +1687,11 @@ y 8
 end
 arch sign
 msg
-~The Con Color System~
+<green>The Con Color System</green>
 Con'ing (short: 'con') means considering whether you are able to be victorious over your target when you fight it.
 The color of your target's name in the target area will show you the general chances of it.
 There are 7 colors starting from "Too low to get experience" to "Too strong to kill even in your dreams".
-Remember: It's only a ~consider~. Some monsters have special powers and that is not considered.
+Remember: It's only a <green>consider</green>. Some monsters have special powers and that is not considered.
 You'll find an overview on the next sign.
 endmsg
 name The Con Color System
@@ -1704,8 +1704,8 @@ y 9
 end
 arch sign
 msg
-~Con Color Overview~
-Grey:      Very easy, but |no| loot and |no| experience.
+<green>Con Color Overview</green>
+Grey:      Very easy, but <yellow>no</yellow> loot and <yellow>no</yellow> experience.
 Green:     Easy and little experience.
 Blue:      Normal difficulty, average experience.
 Yellow:    Equal to your level, optimal experience.
@@ -1881,8 +1881,8 @@ y 13
 end
 arch sign
 msg
-~Armour and Protection~
-If you open your inventory you will see the armour you got from the start. There are various kinds of armour: body armours, helmets and more. Most of them give you ~protection~ against one or more ~attack types~ - for example slash or cleave.
+<green>Armour and Protection</green>
+If you open your inventory you will see the armour you got from the start. There are various kinds of armour: body armours, helmets and more. Most of them give you <green>protection</green> against one or more <green>attack types</green> - for example slash or cleave.
 If you apply the armour a message will say how much it protects - you can also see your current protection status in the armour protection table. The values tell how many percent of a hit your armour will absorb.
 endmsg
 name Armour and Protection

@@ -1,0 +1,36 @@
+Compiling the Atrinik client (GNU/Linux)
+=================================================
+
+Several libraries and programs are needed in order to compile and/or run
+the Atrinik client:
+
+    SDL: Required
+    SDL_image: Required
+    SDL_mixer: Optional, if not installed sound support will not be
+               available.
+    SDL_ttf: Required
+    Timidity: Optional, necessary to play MIDI background music files
+    cURL: Required
+    zlib: Required
+    libx11, libxmu: Optional, necessary for clipboard support
+
+In addition gcc and cmake are required to build the client. All the
+necessary packages may be installed on Debian-like systems using the
+following command:
+
+    apt-get install libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev timidity libsdl1.2debian libsdl1.2debian-all libcurl4-openssl-dev zlib1g-dev build-essential libx11-dev libxmu-dev cmake
+
+After installing the necessary packages, you need to create the Makefiles
+for the project using 'cmake .'. Then you can use 'make' to compile the
+client. When the compilation is done, you can execute the 'atrinik'
+binary to start the client.
+
+Compiling the Atrinik client (Windows)
+=================================================
+
+Go to make_win32 directory, and choose your IDE. See the README file in
+the chosen IDE's directory for further instructions.
+
+Make sure to read MIDI.txt in the make_win32 directory for instructions
+how to install GUS-compatible patches, in order to correctly play MIDI
+files in the client.

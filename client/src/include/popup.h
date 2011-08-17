@@ -41,10 +41,8 @@ typedef struct popup_struct
 	/** Bitmap ID to blit on the surface. */
 	int bitmap_id;
 
-	/**
-	 * Overlay image to draw before popup_struct::surface over the
-	 * ::ScreenSurface. */
-	SDL_Surface *overlay;
+	/** Disable automatically blitting the bitmap on the popup surface? */
+	uint8 disable_bitmap_blit;
 
 	/** Custom data. */
 	void *custom_data;
@@ -55,18 +53,36 @@ typedef struct popup_struct
 	/** Optional integers. */
 	sint64 i[3];
 
+	/** X position of the popup. */
+	int x;
+
+	/** Y position of the popup. */
+	int y;
+
+	/** X offset of the close button. */
+	int close_button_xoff;
+
+	/** Y offset of the close button. */
+	int close_button_yoff;
+
+	/** Next popup in a doubly-linked list. */
+	struct popup_struct *next;
+
+	/** Previous popup in a doubly-linked list. */
+	struct popup_struct *prev;
+
 	/**
 	 * Function used for drawing on the popup's surface.
-	 * @param popup The popup. */
-	void (*draw_func)(struct popup_struct *popup);
+	 * @param popup The popup.
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func)(struct popup_struct *popup);
 
 	/**
 	 * Function used for drawing after blitting the popup's surface on
 	 * the main surface.
 	 * @param popup The popup.
-	 * @param x X position of the popup.
-	 * @param y Y position of the popup. */
-	void (*draw_func_post)(struct popup_struct *popup, int x, int y);
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func_post)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.

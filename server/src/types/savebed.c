@@ -39,7 +39,7 @@ void apply_savebed(object *op)
 	CONTR(op)->bed_x = op->x;
 	CONTR(op)->bed_y = op->y;
 
-	new_draw_info(NDI_UNIQUE, op, "You save and your save bed location is updated.");
+	draw_info(COLOR_WHITE, op, "You save and your save bed location is updated.");
 	hiscore_check(op, 0);
 	save_player(op, 1);
 }

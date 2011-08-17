@@ -27,7 +27,7 @@
  * @file
  * Map effects handling. */
 
-#include <include.h>
+#include <global.h>
 
 /** Linked list of possible effects. */
 static effect_struct *effects = NULL;
@@ -300,6 +300,15 @@ void effects_init()
 			{
 				effect->sprites_per_move = atoi(buf + 17);
 			}
+			else if (!strncmp(buf, "sound_effect ", 13))
+			{
+				strncpy(effect->sound_effect, buf + 13, sizeof(effect->sound_effect) - 1);
+				effect->sound_effect[sizeof(effect->sound_effect) - 1] = '\0';
+			}
+			else if (!strncmp(buf, "sound_volume ", 13))
+			{
+				effect->sound_volume = atoi(buf + 13);
+			}
 			/* Start of sprite block. */
 			else if (!strncmp(buf, "sprite ", 7))
 			{
@@ -344,6 +353,8 @@ void effects_init()
 			effect->wind_mod = 1.0;
 			effect->max_sprites = -1;
 			effect->sprites_per_move = 1;
+			effect->sound_channel = -1;
+			effect->sound_volume = 100;
 		}
 	}
 
@@ -409,6 +420,14 @@ void effect_sprites_free(effect_struct *effect)
 	}
 
 	effect->sprites = effect->sprites_end = NULL;
+
+	if (effect->sound_channel != -1)
+	{
+#ifdef HAVE_SDL_MIXER
+		Mix_HaltChannel(effect->sound_channel);
+#endif
+		effect->sound_channel = -1;
+	}
 }
 
 /**
@@ -762,6 +781,11 @@ int effect_start(const char *name)
 				}
 			}
 
+			if (current_effect->sound_effect[0] != '\0')
+			{
+				current_effect->sound_channel = sound_play_effect_loop(current_effect->sound_effect, current_effect->sound_volume, -1);
+			}
+
 			return 1;
 		}
 	}
@@ -783,7 +807,7 @@ void effect_debug(const char *type)
 
 		if (!current_effect)
 		{
-			draw_info("No effect is currently playing.", COLOR_RED);
+			draw_info(COLOR_RED, "No effect is currently playing.");
 			return;
 		}
 
@@ -799,7 +823,7 @@ void effect_debug(const char *type)
 	}
 	else if (!strcmp(type, "sizeof"))
 	{
-		draw_info("Information about various data structures used by effects:\n", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "Information about various data structures used by effects:\n");
 		draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite_def));
 		draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U"</green>", (uint64) sizeof(effect_sprite));
 		draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U"</green>", (uint64) sizeof(effect_struct));
@@ -842,7 +866,7 @@ uint8 effect_has_overlay()
  * @param sprite The sprite to add overlay to. */
 void effect_scale(_Sprite *sprite)
 {
-	int j, k, r, g, b, a, index;
+	int j, k, r, g, b, a, idx;
 	Uint8 vals[4];
 	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
 
@@ -852,7 +876,7 @@ void effect_scale(_Sprite *sprite)
 		{
 			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
 
-			index = 0;
+			idx = 0;
 			EFFECT_SCALE_ADJUST(r, current_effect->overlay);
 			EFFECT_SCALE_ADJUST(g, current_effect->overlay);
 			EFFECT_SCALE_ADJUST(b, current_effect->overlay);

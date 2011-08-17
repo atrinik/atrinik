@@ -2,7 +2,7 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-05-19 Alex Tokar
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -1739,7 +1739,9 @@ x 11
 y 20
 end
 arch sign_pub
-name Aris Tavern
+msg
+Aris Tavern
+endmsg
 direction 3
 x 11
 y 20

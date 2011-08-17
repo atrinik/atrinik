@@ -216,17 +216,17 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			if (hitter->type == PLAYER)
 			{
 				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_player1.ogg", hitter->x, hitter->y, 0, 0);
-				new_draw_info_format(NDI_ORANGE, hitter, "You miss %s!", op->name);
+				draw_info_format(COLOR_ORANGE, hitter, "You miss %s!", op->name);
 
 				if (op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_PURPLE, op, "%s misses you!", hitter->name);
+					draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
 				}
 			}
 			else
 			{
 				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_mob1.ogg", hitter->x, hitter->y, 0, 0);
-				new_draw_info_format(NDI_PURPLE, op, "%s misses you!", hitter->name);
+				draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
 			}
 		}
 	}
@@ -331,7 +331,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	 * praying. */
 	if (op->type == PLAYER && CONTR(op)->was_praying)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Your praying is disrupted.");
+		draw_info(COLOR_WHITE, op, "Your praying is disrupted.");
 		CONTR(op)->praying = 0;
 		CONTR(op)->was_praying = 0;
 	}
@@ -746,12 +746,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You confuse %s!", op->name);
+						draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, op, "%s confused you!", hitter->name);
+						draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
 					}
 
 					confuse_living(op);
@@ -760,12 +760,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You slow %s!", op->name);
+						draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, op, "%s slowed you!", hitter->name);
+						draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
 					}
 
 					slow_living(op);
@@ -774,12 +774,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You paralyze %s!", op->name);
+						draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, op, "%s paralyzed you!", hitter->name);
+						draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
 					}
 
 					paralyze_living(op, (int) dam);
@@ -788,12 +788,12 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 				{
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_ORANGE, hitter, "You blind %s!", op->name);
+						draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
 					}
 
 					if (op->type == PLAYER)
 					{
-						new_draw_info_format(NDI_PURPLE, op, "%s blinded you!", hitter->name);
+						draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
 					}
 
 					blind_living(op, hitter, (int) dam);
@@ -835,12 +835,12 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 
 	if (op->type == PLAYER)
 	{
-		new_draw_info_format(NDI_PURPLE, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
+		draw_info_format(COLOR_PURPLE, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
 	}
 
 	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
 	{
-		new_draw_info_format(NDI_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attack_name[attacknum]);
+		draw_info_format(COLOR_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attack_name[attacknum]);
 	}
 }
 
@@ -857,7 +857,7 @@ static void share_kill_exp_one(object *op, sint64 exp, object *skill)
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "Your enemy wasn't worth any experience to you.");
+		draw_info(COLOR_WHITE, op, "Your enemy wasn't worth any experience to you.");
 	}
 }
 
@@ -991,17 +991,24 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	{
 		if (owner != hitter)
 		{
-			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
+			draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, owner, "You killed %s.", query_name(op, NULL));
+			draw_info_format(COLOR_WHITE, owner, "You killed %s.", query_name(op, NULL));
 		}
 
 		if (op->type == MONSTER)
 		{
+			shstr *faction, *faction_kill_penalty;
+
 			CONTR(owner)->stat_kills_mob++;
 			statistic_update("kills", owner, 1, op->name);
+
+			if ((faction = object_get_value(op, "faction")) && (faction_kill_penalty = object_get_value(op, "faction_kill_penalty")))
+			{
+				player_faction_reputation_update(CONTR(owner), faction, -atoll(faction_kill_penalty));
+			}
 		}
 		else if (op->type == PLAYER)
 		{
@@ -1012,7 +1019,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	/* Killed a player in PvP area. */
 	if (battleg && op->type == PLAYER && owner->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE, owner, "Your foe has fallen!\nVICTORY!!!");
+		draw_info(COLOR_WHITE, owner, "Your foe has fallen!\nVICTORY!!!");
 	}
 
 	/* Killed a monster and it wasn't in PvP area, so give exp. */
@@ -1047,11 +1054,11 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		/* Tell everyone that this player has died. */
 		if (get_owner(hitter))
 		{
-			new_draw_info_format(NDI_ALL, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
+			draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
 		}
 		else
 		{
-			new_draw_info_format(NDI_ALL, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
+			draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
 		}
 
 		/* Update player's killer. */
@@ -1364,12 +1371,12 @@ static void poison_player(object *op, object *hitter, float dam)
 				{
 					/* Insert the food force in player too */
 					create_food_force(op, hitter, tmp);
-					new_draw_info(NDI_UNIQUE, op, "You suddenly feel very ill.");
+					draw_info(COLOR_WHITE, op, "You suddenly feel very ill.");
 				}
 				/* We have hit with weapon or something */
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s has poisoned you!", query_name(hitter, NULL));
+					draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
 					insert_ob_in_ob(tmp, op);
 					SET_FLAG(tmp, FLAG_APPLIED);
 					fix_player(op);
@@ -1391,11 +1398,11 @@ static void poison_player(object *op, object *hitter, float dam)
 
 					if (hitter->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, hitter, "You poisoned %s!", query_name(op, NULL));
+						draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
 					}
 					else if (get_owner(hitter) && hitter->owner->type == PLAYER)
 					{
-						new_draw_info_format(NDI_UNIQUE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
+						draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
 					}
 
 				}
@@ -1427,7 +1434,7 @@ static void slow_living(object *op)
 	{
 		tmp = arch_to_object(at);
 		tmp = insert_ob_in_ob(tmp, op);
-		new_draw_info(NDI_UNIQUE, op, "The world suddenly moves very fast!");
+		draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
 	}
 	else
 	{
@@ -1467,7 +1474,7 @@ void confuse_living(object *op)
 
 	if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You suddenly feel very confused!");
+		draw_info(COLOR_WHITE, op, "You suddenly feel very confused!");
 	}
 
 	SET_FLAG(op, FLAG_CONFUSED);
@@ -1514,7 +1521,7 @@ static void blind_living(object *op, object *hitter, int dam)
 			owner = hitter;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, owner, "Your attack blinds %s!", query_name(op, NULL));
+		draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
 	}
 
 	tmp->stats.food += dam;

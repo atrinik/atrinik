@@ -36,14 +36,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#	include <netdb.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
 /** File descriptor used for sending datagrams. */
 static int fd = -1;
 /** Destination address. */
@@ -94,13 +86,13 @@ void statistic_update(const char *type, object *op, sint64 i, const char *buf)
 	sl.buf = sl_buf;
 	sl.len = 0;
 
-	SockList_AddString(&sl, (char *) type);
-	SockList_AddString(&sl, (char *) op->name);
+	SockList_AddString(&sl, type);
+	SockList_AddString(&sl, op->name);
 	SockList_AddInt64(&sl, i);
 
 	if (buf)
 	{
-		SockList_AddString(&sl, (char *) buf);
+		SockList_AddString(&sl, buf);
 	}
 
 	sendto(fd, (void *) sl.buf, sl.len, 0, (struct sockaddr *) &insock, sizeof(insock));

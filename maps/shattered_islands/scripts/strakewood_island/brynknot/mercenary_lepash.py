@@ -30,9 +30,9 @@ def main():
 			return
 
 		if not qm.finished():
-			me.SayTo(activator, "\nHello there. I am guard commander Lepash.\nI have taken ^home^ here in this mercenary guild.\nHmm, are you interested in a ^job^?")
+			me.SayTo(activator, "\nHello there. I am guard commander Lepash.\nI have taken <a>home</a> here in this mercenary guild.\nHmm, are you interested in a <a>job</a>?")
 		else:
-			me.SayTo(activator, "\nAh, you are back.\nAnd I see you have the clan horn!\nNow I will ^teach^ you polearm mastery.")
+			me.SayTo(activator, "\nAh, you are back.\nAnd I see you have the clan horn!\nNow I will <a>teach</a> you polearm mastery.")
 
 	elif text[0] == "home":
 		me.SayTo(activator, "\nYes, we still have heavy logistic problems.\nWe don't have half the men we need to control half of the area we should.\nWe don't have enough supply and enough rooms.\nWell, it means all is normal if you do such a heavy invasion like we're doing at the moment.")
@@ -78,9 +78,9 @@ def main():
 			return
 
 		if not qm.finished():
-			me.SayTo(activator, "\nThere is somewhere north of Brynknot a hill giant camp.\nPerhaps in a cave or something.\nWe noticed them around here.\nFind this hill giant camp and kill the camp leader.\nHe should have a sign of power like a clan horn or something. Show it to me and I will teach you ^polearm^ mastery.")
+			me.SayTo(activator, "\nThere is somewhere north of Brynknot a hill giant camp.\nPerhaps in a cave or something.\nWe noticed them around here.\nFind this hill giant camp and kill the camp leader.\nHe should have a sign of power like a clan horn or something. Show it to me and I will teach you <a>polearm</a> mastery.")
 
 			if not qm.started():
-				me.SayTo(activator, "Do you ^accept^ this quest?", 1)
+				me.SayTo(activator, "Do you <a>accept</a> this quest?", 1)
 
 main()

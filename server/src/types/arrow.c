@@ -47,7 +47,14 @@ sint32 bow_get_ws(object *bow, object *arrow)
  * @return The arrow's wc. */
 sint16 arrow_get_wc(object *op, object *bow, object *arrow)
 {
-	return arrow->stats.wc + bow->magic + arrow->magic + SK_level(op) + thaco_bonus[op->stats.Dex] + bow->stats.wc;
+	object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+
+	if (!skill)
+	{
+		return 0;
+	}
+
+	return arrow->stats.wc + bow->magic + arrow->magic + skill->level + thaco_bonus[op->stats.Dex] + bow->stats.wc;
 }
 
 /**
@@ -59,9 +66,15 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
 sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 {
 	sint16 dam;
+	object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+
+	if (!skill)
+	{
+		return 0;
+	}
 
 	dam = arrow->stats.dam + arrow->magic;
-	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(SK_level(op)))));
+	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(skill->level))));
 	dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
 
 	if (bow->item_condition > arrow->item_condition)
@@ -75,6 +88,27 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 
 	return dam;
 }
+
+/**
+ * Get skill required to use the specified bow object.
+ * @param bow The bow (could actually be a crossbow/sling/etc).
+ * @return Required skill to use the object. */
+int bow_get_skill(object *bow)
+{
+	if (bow->sub_type == RANGE_WEAP_BOW)
+	{
+		return SK_MISSILE_WEAPON;
+	}
+	else if (bow->sub_type == RANGE_WEAP_XBOWS)
+	{
+		return SK_XBOW_WEAP;
+	}
+	else
+	{
+		return SK_SLING_WEAP;
+	}
+}
+
 /**
  * Extended find arrow version, using tag and containers.
  *
@@ -82,67 +116,15 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
  * container (quiver).
  * @param op Player.
  * @param type Type of the ammunition (arrows, bolts, etc).
- * @param tag Firemode tag.
  * @return Pointer to the arrow, NULL if not found. */
-object *arrow_find(object *op, shstr *type, int tag)
+object *arrow_find(object *op, shstr *type)
 {
-if (op->type != PLAYER || CONTR(op)->socket.socket_version < 1048)
-{
-	object *tmp = NULL;
+	object *tmp;
 
-	if (tag == -2)
-	{
-		for (op = op->inv; op; op = op->below)
-		{
-			if (!tmp && op->type == CONTAINER && op->race == type && QUERY_FLAG(op, FLAG_APPLIED))
-			{
-				tmp = arrow_find(op, type, -2);
-			}
-			else if (op->type == ARROW && op->race == type)
-			{
-				return op;
-			}
-		}
-
-		return tmp;
-	}
-	else
-	{
-		if (tag == -1)
-		{
-			return tmp;
-		}
-
-		for (op = op->inv; op; op = op->below)
-		{
-			if (op->count == (tag_t) tag)
-			{
-				/* Simple task: we have an arrow marked */
-				if (op->race == type && op->type == ARROW)
-				{
-					return op;
-				}
-
-				/* we have container marked as missile source. Skip
-				 * search when there is nothing in. Use the standard
-				 * search now. */
-				if (op->race == type && op->type == CONTAINER)
-				{
-					tmp = arrow_find(op, type, -2);
-					return tmp;
-				}
-			}
-		}
-
-		return tmp;
-	}
-}
-else
-{
-	object *tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
+	tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
 
 	/* Nothing readied. */
-	if (!tmp)
+	if (!tmp || !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_ARROW]))
 	{
 		return NULL;
 	}
@@ -172,7 +154,6 @@ else
 
 	return NULL;
 }
-}
 
 /**
  * Player fires a bow.
@@ -193,7 +174,7 @@ void bow_fire(object *op, int dir)
 
 	if (!dir)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't shoot yourself!");
+		draw_info(COLOR_WHITE, op, "You can't shoot yourself!");
 		return;
 	}
 
@@ -206,19 +187,19 @@ void bow_fire(object *op, int dir)
 
 	if (!bow->race)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your %s is broken.", bow->name);
+		draw_info_format(COLOR_WHITE, op, "Your %s is broken.", bow->name);
 		return;
 	}
 
-	if ((arrow = arrow_find(op, bow->race, CONTR(op)->firemode_tag2)) == NULL)
+	if ((arrow = arrow_find(op, bow->race)) == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You have no %s left.", bow->race);
+		draw_info_format(COLOR_WHITE, op, "You have no %s left.", bow->race);
 		return;
 	}
 
 	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Something is in the way.");
+		draw_info(COLOR_WHITE, op, "Something is in the way.");
 		return;
 	}
 

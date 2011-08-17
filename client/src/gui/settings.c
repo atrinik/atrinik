@@ -25,419 +25,12 @@
 
 /**
  * @file
- *  */
+ * Settings GUI. */
 
-#include <include.h>
+#include <global.h>
 
-/** Option list set */
-struct _dialog_list_set option_list_set;
-
-/** Option tabs. */
-const char *opt_tab[] =
-{
-	"General",
-	"Client",
-	"Map",
-	"Sound",
-	"Fullscreen flags",
-	"Windowed flags",
-	"Debug",
-	NULL
-};
-
-/** Selection types */
-enum
-{
-	SEL_BUTTON,
-	SEL_CHECKBOX,
-	SEL_RANGE,
-	SEL_TEXT
-};
-// get drop both
-/** The actual options. */
-_option opt[] =
-{
-	/* General */
-	{"Playerdoll:", "Whether to always show the playerdoll.\nIf unchecked, the playerdoll is only shown while the inventory is open.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.playerdoll, VAL_BOOL},
-	{"Show yourself targeted:", "Show your name in the target area instead of blank.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_target_self, VAL_BOOL},
-	{"Show Tooltips:", "Show tooltips when hovering with the mouse over items.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.show_tooltips, VAL_BOOL},
-	{"Collect mode:", "If enabled, will get/drop all items in the stack instead of asking\nhow many to get/drop.", "None#Get#Drop#Both", SEL_RANGE, 0, 3, 1, 0, &options.collect_mode, VAL_INT},
-	{"Exp display:", "The format key is: ~4nl~ = For next level; ~tnl~ = Till next level;\n~LExp~ = Level exp; ~TExp~ = Total exp;", "Level/LExp#LExp\\%#LExp/LExp 4nl#TExp/TExp 4nl#(LExp\\%) LExp tnl", SEL_RANGE, 0, 4, 1, 4, &options.expDisplay, VAL_INT},
-	{"Chat Timestamps:", "Show a timestamp before each chat message.", "Disabled#HH:MM#HH:MM:SS#H:MM AM/PM#H:MM:SS AM/PM", SEL_RANGE, 0, 4, 1, 0, &options.chat_timestamp, VAL_INT},
-	{"Font size in chat boxes:", "Font size used in chat boxes on left and right.", "10px#11px#12px#13px#14px#15px#16px", SEL_RANGE, 0, 6, 1, 1, &options.chat_font_size, VAL_INT},
-	{"Maximum chat lines:", "Maximum number of lines in the chat boxes.", "", SEL_RANGE, 20, 1000, 10, 200, &options.chat_max_lines, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Client */
-	{"Fullscreen:", "Toggle fullscreen to windowed mode.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fullscreen, VAL_BOOL},
-	{"Resolution:", "The resolution of the screen/window.\nIf you change to lower resolutions your GUI-windows may be hidden.", "Custom#800x600#960x600#1024x768#1100x700#1280x720#1280x800#1280x960#1280x1024#1440x900#1400x1050#1600x1200#1680x1050#1920x1080#1920x1200#2048x1536#2560x1600", SEL_RANGE, 0, 15, 1, 0, &options.resolution, VAL_INT},
-	{"Automatic bpp:", "Use always the same bits per pixel like your default windows.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.auto_bpp_flag, VAL_BOOL},
-	{"Colordeep:", "Use this bpp for fullscreen mode. Overruled by automatic bpp.\nNOTE: You need to restart the client.", "8 bpp#16 bpp#32 bpp", SEL_RANGE, 0, 2, 1, 1, &options.video_bpp, VAL_INT},
-	{"Textwindows alpha value:", "Transparent value of text windows. Higher = darker", "", SEL_RANGE, 0, 255, 5, 255, &options.textwin_alpha, VAL_INT},
-	{"Use intelligent fps cap:", "Enables intelligent fps capping.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.intelligent_fps_cap, VAL_BOOL},
-	{"Save CPU time with sleep():", "Client eats less CPU time when set.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.max_speed, VAL_BOOL},
-	{"Sleep time in ms:", "Time the client will sleep. Used with Save CPU time.", "", SEL_RANGE, 0, 1000, 1, 25, &options.sleep, VAL_INT},
-	{"Key repeat speed:", "How fast to repeat a held down key.", "Off#Slow#Medium#Fast", SEL_RANGE, 0, 3, 1, 2, &options.key_repeat, VAL_INT},
-	{"Disable file updates:", "If on, will not update sound effects/background music/etc on server\nconnect. This may be useful for users with low bandwidth.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_updates, VAL_BOOL},
-	{"Minimize latency:", "Disables Nagle's Algorithm in order to minimize latency, at the expense\nof more outgoing bandwidth.\nRequires server re-connection.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.tcp_nodelay, VAL_BOOL},
-	{"Allow off-screen widgets:", "Allows moving (parts of) widgets off-screen.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.allow_widgets_offscreen, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Map */
-	{"Player Names:", "Show names of players above their heads.", "show no names#show all names#show only other#show only your", SEL_RANGE, 0, 3,1, 2, &options.player_names, VAL_INT},
-	{"Playfield zoom:", "The zoom percentage of the playfield.", "", SEL_RANGE, 50, 200, 5, 100, &options.zoom, VAL_INT},
-	{"Smooth zoom:", "Whether to use smooth zoom on the playfield.\nWarning: Very CPU intensive.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.zoom_smooth, VAL_BOOL},
-	{"Low health warning:", "Shows a low health warning above your head.\nActivated if health is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 0, &options.warning_hp, VAL_INT},
-	{"Low food warning:", "Shows a low food warning above your head.\nActivated if food is less than the given percent value.", "", SEL_RANGE, 0, 100, 5, 5, &options.warning_food, VAL_INT},
-	{"Map X size:", "The X size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_x, VAL_INT},
-	{"Map Y size:", "The Y size of the map. If you have very low bandwidth, you may\nwant to consider lowering this somewhat.", "", SEL_RANGE, 9, MAP_MAX_SIZE, 1, MAP_MAX_SIZE, &options.map_size_y, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Sound */
-	{"Sound volume:", "Set sound volume for effects.", "", SEL_RANGE, 0, 100, 5, 100, &options.sound_volume, VAL_INT},
-	{"Music volume:", "Set music volume for background.", "", SEL_RANGE, 0, 100, 5, 80, &options.music_volume, VAL_INT},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Fullscreen Flags */
-	{"Hardware Surface:", "Don't change unless you know what you're doing\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_HWSURFACE, VAL_BOOL},
-	{"Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_SWSURFACE, VAL_BOOL},
-	{"Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWACCEL, VAL_BOOL},
-	{"Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_DOUBLEBUF, VAL_BOOL},
-	{"Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_ANYFORMAT, VAL_BOOL},
-	{"Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_ASYNCBLIT, VAL_BOOL},
-	{"Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_HWPALETTE, VAL_BOOL},
-	{"Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "",SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_RESIZABLE, VAL_BOOL},
-	{"No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Full_NOFRAME, VAL_BOOL},
-	{"RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Full_RLEACCEL, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Windowed flags */
-	{"Window Hardware Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWSURFACE, VAL_BOOL},
-	{"Window Software Surface:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_SWSURFACE, VAL_BOOL},
-	{"Window Hardware Accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_HWACCEL, VAL_BOOL},
-	{"Window Doublebuffer:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_DOUBLEBUF, VAL_BOOL},
-	{"Window Any format:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_ANYFORMAT, VAL_BOOL},
-	{"Window Async blit:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_ASYNCBLIT, VAL_BOOL},
-	{"Window Hardware Palette:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_HWPALETTE, VAL_BOOL},
-	{"Window Resizeable:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RESIZABLE, VAL_BOOL},
-	{"Window No frame:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.Win_NOFRAME, VAL_BOOL},
-	{"Window RLE accel:", "Don't change unless you know what you're doing.\nNOTE: You need to restart the client.", "", SEL_CHECKBOX, 0, 1, 1, 1, &options.Win_RLEACCEL, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	/* Debug */
-	{"Show Framerate:", "Show the framerate.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.show_frame, VAL_BOOL},
-	{"Force Redraw:", "Forces the system to redraw EVERY frame.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.force_redraw, VAL_BOOL},
-	{"Use Update Rect:", "", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.use_rect, VAL_BOOL},
-	{"Reload user's graphics", "If on, always try to reload faces from user's graphics (gfx_user)\ndirectory, even if they have been reloaded previously.\nThis is especially useful when creating new images and testing out how\nthey look in the game.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.reload_gfx_user, VAL_BOOL},
-	{"Disable region map cache:", "Disables the region maps cache.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.disable_rm_cache, VAL_BOOL},
-	{"Enable quickport:", "Enables using middle-click on the region map for instant teleportation.", "", SEL_CHECKBOX, 0, 1, 1, 0, &options.fastport, VAL_BOOL},
-	{"#", "", "", 0, 0, 0, 0, 0, 0, 0},
-
-	{0, "", "", 0, 0, 0, 0, 0, 0, 0},
-};
-
-/**
- * Parse a given value to a string.
- * @param value Value to parse.
- * @param type @ref value_type "Type" of the value.
- * @return Static character array representing the given value. */
-static char *get_value(void *value, int type)
-{
-	static char txt_value[20];
-
-	switch (type)
-	{
-		case VAL_INT:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((int *) value));
-			return txt_value;
-
-		case VAL_U32:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((uint32 *) value));
-			return txt_value;
-
-		case VAL_CHAR:
-			snprintf(txt_value, sizeof(txt_value), "%d", *((uint8 *) value));
-			return txt_value;
-
-		default:
-			return NULL;
-	}
-}
-
-/**
- * Draw all options for the actual options group.
- * @param x X position.
- * @param y Y position. */
-void optwin_draw_options(int x, int y)
-{
-#define LEN_NAME 111
-	int i = -1, pos = 0, max = 0;
-	/* for info text */
-	int y2 = y + 344;
-	int mxy_opt = -1;
-	int page = option_list_set.group_nr;
-	int id = 0;
-	int mx, my, mb, tmp;
-
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-
-	/* Find actual page */
-	while (page && opt[++i].name)
-	{
-		if (opt[i].name[0] == '#')
-		{
-			page--;
-		}
-	}
-
-	/* Draw actual page */
-	while (opt[++i].name && opt[i].name[0] != '#')
-	{
-		max++;
-		StringBlt(ScreenSurface, &SystemFont, opt[i].name, x + 1, y + 3, COLOR_BLACK, NULL, NULL);
-
-		switch (opt[i].sel_type)
-		{
-			case SEL_CHECKBOX:
-				tmp = COLOR_WHITE;
-
-				if (option_list_set.entry_nr == max - 1)
-				{
-					tmp = COLOR_HGOLD;
-					/* Remember this tab for later use */
-					if (mxy_opt == -1)
-					{
-						mxy_opt = i;
-					}
-				}
-
-				if (mx > x && mx < x + 280 && my > y && my < y + 20 )
-				{
-					tmp = COLOR_GREEN;
-					/* Remember this tab for later use */
-					mxy_opt = i;
-				}
-
-				StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, tmp, NULL, NULL);
-
-				sprite_blt(Bitmaps[BITMAP_DIALOG_CHECKER], x + LEN_NAME, y, NULL, NULL);
-
-				if (*((int *) opt[i].value) == 1)
-				{
-					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 8, y + 2, COLOR_BLACK, NULL, NULL);
-					StringBlt(ScreenSurface, &SystemFont, "X", x + LEN_NAME + 7, y + 1, COLOR_WHITE, NULL, NULL);
-				}
-
-				if ((pos == option_list_set.entry_nr && option_list_set.key_change) || (mb && mb_clicked && active_button < 0 && mx > x + LEN_NAME && mx < x + LEN_NAME + 20 && my > y && my < y + 18))
-				{
-					mb_clicked = 0;
-					option_list_set.key_change = 0;
-
-					if (*((int *) opt[i].value) == 1)
-					{
-						*((int *) opt[i].value) = 0;
-					}
-					else
-					{
-						*((int *) opt[i].value) = 1;
-					}
-				}
-				break;
-
-			case SEL_RANGE:
-			{
-#define LEN_VALUE 100
-				SDL_Rect box;
-				box.x = x + LEN_NAME, box.y = y + 1;
-				box.h = 16, box.w = LEN_VALUE;
-
-				tmp = COLOR_WHITE;
-
-				if (option_list_set.entry_nr == max - 1)
-				{
-					tmp = COLOR_HGOLD;
-
-					/* Remember this tab for later use */
-					if (mxy_opt == -1)
-					{
-						mxy_opt = i;
-					}
-				}
-
-				if (mx > x && mx < x + 280 && my > y && my < y + 20)
-				{
-					tmp = COLOR_GREEN;
-					/* Remember this tab for later use */
-					mxy_opt = i;
-				}
-
-				StringBlt(ScreenSurface, &SystemFont, opt[i].name, x, y + 2, tmp, NULL, NULL);
-				SDL_FillRect(ScreenSurface, &box, 0);
-
-				if (*opt[i].val_text == '\0')
-				{
-					StringBlt(ScreenSurface, &SystemFont, get_value(opt[i].value, opt[i].value_type), box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
-				}
-				else
-				{
-#define MAX_LEN 40
-					char text[MAX_LEN + 1];
-					int o= *((int *) opt[i].value);
-					int p = 0, q = -1;
-
-					/* Find starting position of string */
-					while (o && opt[i].val_text[p])
-					{
-						if (opt[i].val_text[p++] == '#')
-						{
-							o--;
-						}
-					}
-
-					/* Find ending position of string */
-					while (q++ < MAX_LEN  && opt[i].val_text[p])
-					{
-						if ((text[q] = opt[i].val_text[p++]) == '#')
-						{
-							break;
-						}
-					}
-
-					text[q] = '\0';
-					StringBlt(ScreenSurface, &SystemFont,text, box.x + 2, y + 2, COLOR_WHITE, NULL, NULL);
-#undef MAX_LEN
-				}
-
-				sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
-
-				/* Keyboard event */
-				if (option_list_set.key_change && option_list_set.entry_nr == pos)
-				{
-					if (option_list_set.key_change == -1)
-					{
-						add_value(opt[i].value, opt[i].value_type,-opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-					}
-					else if (option_list_set.key_change == 1)
-					{
-						add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-					}
-
-					option_list_set.key_change = 0;
-				}
-
-				if (mx > x + LEN_NAME + LEN_VALUE && mx < x + LEN_NAME + LEN_VALUE + 14 && my > y && my < y + 18)
-				{
-					/* 2 buttons per row */
-					if (mb && active_button < 0)
-					{
-						active_button = id + 1;
-					}
-
-					if (active_button == id + 1)
-					{
-						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x + LEN_NAME + LEN_VALUE, y, NULL, NULL);
-
-						if (!mb)
-						{
-							add_value(opt[i].value, opt[i].value_type, -opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-						}
-					}
-				}
-				else if (mx > x + LEN_NAME + LEN_VALUE + 14 && mx < x + LEN_NAME + LEN_VALUE + 28 && my > y && my < y + 18)
-				{
-					if (mb && active_button < 0)
-					{
-						active_button = id;
-					}
-
-					if (active_button == id)
-					{
-						sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + LEN_NAME+LEN_VALUE + 14, y, NULL, NULL);
-
-						if (!mb)
-						{
-							add_value(opt[i].value, opt[i].value_type, opt[i].deltaRange, opt[i].minRange, opt[i].maxRange);
-						}
-					}
-				}
-#undef LEN_VALUE
-				break;
-			}
-
-			case SEL_BUTTON:
-				sprite_blt(Bitmaps[BITMAP_DIALOG_BUTTON_UP], x, y, NULL, NULL);
-				break;
-		}
-
-		y += 20;
-		pos++;
-		id += 2;
-	}
-
-	if (option_list_set.entry_nr > max - 1)
-	{
-		option_list_set.entry_nr = max - 1;
-	}
-
-	/* Print the info text */
-	x += 20;
-
-	if (mxy_opt >= 0)
-	{
-		char *cp, buf[MAX_BUF];
-		int y_tmp = 0;
-
-		strncpy(buf, opt[mxy_opt].info, sizeof(buf) - 1);
-		buf[sizeof(buf) - 1] = '\0';
-		cp = strtok(buf, "\n");
-
-		while (cp)
-		{
-			StringBlt(ScreenSurface, &SystemFont, cp, x + 11, y2 + 1 + y_tmp, COLOR_BLACK, NULL, NULL);
-			StringBlt(ScreenSurface, &SystemFont, cp, x + 10, y2 + y_tmp, COLOR_WHITE, NULL, NULL);
-			y_tmp += 12;
-			cp = strtok(NULL, "\n");
-		}
-	}
-#undef LEN_NAME
-}
-
-/**
- * Show the options window. */
-void show_optwin()
-{
-	char buf[128];
-	int x, y;
-	int mx, my, mb;
-	int numButton = 0;
-
-	mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	x = Screensize->x / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->w / 2;
-	y = Screensize->y / 2 - Bitmaps[BITMAP_DIALOG_BG]->bitmap->h / 2;
-	sprite_blt(Bitmaps[BITMAP_DIALOG_BG], x, y, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS], x + 250 - Bitmaps[BITMAP_DIALOG_TITLE_OPTIONS]->bitmap->w / 2, y + 14, NULL, NULL);
-	add_close_button(x, y, MENU_OPTION);
-
-	draw_tabs(opt_tab, &option_list_set.group_nr, "Option Group", x + 8, y + 70);
-	optwin_draw_options(x + 130, y + 90);
-
-	sprintf(buf, "~SHIFT~ + ~%c%c~ to select group            ~%c%c~ to select option          ~%c%c~ to change option", ASCII_UP, ASCII_DOWN, ASCII_UP, ASCII_DOWN, ASCII_RIGHT, ASCII_LEFT);
-	StringBlt(ScreenSurface, &SystemFont, buf, x + 135, y + 410, COLOR_WHITE, NULL, NULL);
-
-	/* Mark active entry */
-	StringBlt(ScreenSurface, &SystemFont, ">", x + TXT_START_NAME - 15, y + 10 + TXT_Y_START + option_list_set.entry_nr * 20, COLOR_HGOLD, NULL, NULL);
-
-	/* save button */
-	if (add_button(x + 25, y + 454, numButton++, BITMAP_DIALOG_BUTTON_UP, "Done", "~D~one"))
-	{
-		check_menu_keys(MENU_OPTION, SDLK_d);
-	}
-
-	if (!mb)
-	{
-		active_button = -1;
-	}
-}
+/** Password button. */
+static button_struct button_password;
 
 /** The different buttons of the settings popup. */
 enum
@@ -453,66 +46,691 @@ enum
 /** Names of the buttons. */
 static const char *const button_names[BUTTON_NUM] =
 {
-	"Client Settings", "Key settings", "Logout", "Back to play"
+	"Client Settings", "Key Settings", "Logout", "Back to Play"
 };
 
+/** Help filenames for setting actions. */
+static const char *const setting_type_help[SETTING_TYPE_NUM] =
+{
+	"esc menu", "client settings", "keybinding settings", "password change"
+};
+
+/** Currently selected setting type. */
+static uint8 setting_type = SETTING_TYPE_NONE;
 /** Currently selected button. */
 static size_t button_selected;
+/** Selected setting category. */
+static size_t setting_category_selected;
+/** Which row was clicked. */
+static uint32 list_row_clicked;
+/** 1 if there is a clicked to handle. */
+static uint32 list_clicked = 0;
+/** Step in the keybinding GUI. */
+static uint8 setting_keybind_step;
+/** Key of the shortcut being added/edited. */
+static SDLKey setting_keybind_key;
+/** Modifier for the shortcut. */
+static SDLMod setting_keybind_mod;
+/** If not -1, we're editing this keybinding ID. */
+static sint32 setting_keybind_id;
+/** Whether to ignore keybind keypress. */
+static uint8 setting_keybind_ignore = 0;
+/**
+ * Whether player has entered their current password in the password
+ * changing GUI. */
+static uint8 setting_password_confirmed;
+
+/**
+ * Reload the settings list.
+ * @param list The list. */
+static void settings_list_reload(list_struct *list)
+{
+	size_t i;
+
+	/* Clear all the rows. */
+	list_clear_rows(list);
+
+	/* Settings? */
+	if (setting_type == SETTING_TYPE_SETTINGS)
+	{
+		setting_struct *setting;
+
+		for (i = 0; i < setting_categories[setting_category_selected]->settings_num; i++)
+		{
+			setting = setting_categories[setting_category_selected]->settings[i];
+
+			/* Internal, no need to go any further. */
+			if (setting->internal)
+			{
+				break;
+			}
+
+			list_add(list, list->rows, 0, "");
+		}
+	}
+	/* Keybindings? */
+	else if (setting_type == SETTING_TYPE_KEYBINDINGS)
+	{
+		char buf[MAX_BUF];
+
+		for (i = 0; i < keybindings_num; i++)
+		{
+			list_add(list, i, 0, keybindings[i]->command);
+			list_add(list, i, 1, keybind_get_key_shortcut(keybindings[i]->key, keybindings[i]->mod, buf, sizeof(buf)));
+			list_add(list, i, 2, keybindings[i]->repeat ? "on" : "off");
+		}
+	}
+
+	list_offsets_ensure(list);
+}
+
+/**
+ * Handle mouse event in a list.
+ * @param list The list.
+ * @param row Row the mouse is over.
+ * @param event The mouse event. */
+static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *event)
+{
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		list_row_clicked = row;
+		list_clicked = 1;
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		list->row_selected = row + 1;
+	}
+}
+
+/**
+ * Handle ESC in a list.
+ *
+ * In this case, just destroys the visible popup.
+ * @param list The list. */
+static void list_handle_esc(list_struct *list)
+{
+	(void) list;
+	popup_destroy_all();
+}
+
+/**
+ * Change setting value.
+ * @param cat Category.
+ * @param set Setting.
+ * @param val Modifier. */
+static void setting_change_value(int cat, int set, sint64 val)
+{
+	setting_struct *setting = setting_categories[cat]->settings[set];
+
+	if (setting->type == OPT_TYPE_BOOL)
+	{
+		setting_set_int(cat, set, !setting_get_int(cat, set));
+	}
+	else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE)
+	{
+		sint64 old_val, new_val, advance;
+
+		if (!val)
+		{
+			return;
+		}
+
+		new_val = old_val = setting_get_int(cat, set);
+		advance = 1;
+
+		if (setting->type == OPT_TYPE_RANGE)
+		{
+			advance = SETTING_RANGE(setting)->advance;
+		}
+
+		new_val = old_val + (advance * val);
+
+		if (setting->type == OPT_TYPE_SELECT)
+		{
+			setting_select *s_select = SETTING_SELECT(setting);
+
+			if (new_val >= (sint64) s_select->options_len)
+			{
+				new_val = 0;
+			}
+			else if (new_val < 0)
+			{
+				new_val = s_select->options_len - 1;
+			}
+		}
+		else if (setting->type == OPT_TYPE_RANGE)
+		{
+			setting_range *range = SETTING_RANGE(setting);
+
+			new_val = MAX(range->min, MIN(range->max, new_val));
+		}
+
+		if (old_val != new_val)
+		{
+			setting_set_int(cat, set, new_val);
+		}
+	}
+}
+
+/**
+ * Do custom drawing after the list has finished drawing a column.
+ * @param list The list.
+ * @param row The row.
+ * @param col Column being drawn. */
+static void list_post_column(list_struct *list, uint32 row, uint32 col)
+{
+	int x, y;
+
+	(void) col;
+
+	x = list->x + list->frame_offset;
+	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+
+	/* Settings list. */
+	if (setting_type == SETTING_TYPE_SETTINGS)
+	{
+		setting_struct *setting;
+		int mx, my, mstate;
+
+		setting = setting_categories[setting_category_selected]->settings[row];
+
+		if (setting->internal)
+		{
+			return;
+		}
+
+		/* Show the actual setting name. */
+		string_blt_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 5, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
+
+		mstate = SDL_GetMouseState(&mx, &my);
+
+		/* Checkbox? */
+		if (setting->type == OPT_TYPE_BOOL)
+		{
+			SDL_Rect checkbox;
+
+			checkbox.x = x + list->width - 17;
+			checkbox.y = y + 1;
+			checkbox.w = 15;
+			checkbox.h = 15;
+			SDL_FillRect(list->surface, &checkbox, SDL_MapRGB(list->surface->format, 0, 0, 0));
+
+			if (setting_get_int(setting_category_selected, row))
+			{
+				lineRGBA(list->surface, checkbox.x, checkbox.y, checkbox.x + checkbox.w, checkbox.y + checkbox.h, 212, 213, 83, 255);
+				lineRGBA(list->surface, checkbox.x + checkbox.w, checkbox.y, checkbox.x, checkbox.y + checkbox.h, 212, 213, 83, 255);
+			}
+
+			draw_frame(list->surface, checkbox.x, checkbox.y, checkbox.w, checkbox.h);
+
+			if (mx >= checkbox.x && mx < checkbox.x + checkbox.w && my >= checkbox.y && my < checkbox.y + checkbox.h)
+			{
+				border_create_color(list->surface, &checkbox, "b09a9a");
+
+				if (list_clicked && list_row_clicked == row && mstate == SDL_BUTTON_LEFT)
+				{
+					setting_change_value(setting_category_selected, row, 0);
+					list_clicked = 0;
+				}
+			}
+			else
+			{
+				border_create_color(list->surface, &checkbox, "8c7a7a");
+			}
+		}
+		/* Select or range. */
+		else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE)
+		{
+			SDL_Rect dst;
+			sint64 val;
+
+			val = setting_get_int(setting_category_selected, row);
+
+			x += list->width - 1;
+			y += 1;
+
+			x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+
+			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				setting_change_value(setting_category_selected, row, 1);
+			}
+
+			dst.x = x - 150;
+			dst.y = y;
+			dst.w = 150;
+			dst.h = LIST_ROW_HEIGHT(list) - 2;
+
+			SDL_FillRect(list->surface, &dst, SDL_MapRGB(list->surface->format, 0, 0, 0));
+
+			if (setting->type == OPT_TYPE_SELECT)
+			{
+				string_blt(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
+			}
+			else if (setting->type == OPT_TYPE_RANGE)
+			{
+				string_blt_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
+			}
+
+			dst.x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w + 1;
+
+			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				setting_change_value(setting_category_selected, row, -1);
+			}
+		}
+	}
+}
+
+/**
+ * Apply keybinding changes - adds or edits a keybinding.
+ * @param list The keybinding list. */
+static void setting_keybind_apply(list_struct *list)
+{
+	/* Nothing to apply. */
+	if (text_input_string[0] == '\0' || setting_keybind_key == SDLK_UNKNOWN)
+	{
+		return;
+	}
+
+	/* Add new. */
+	if (setting_keybind_id == -1)
+	{
+		keybind_add(setting_keybind_key, setting_keybind_mod, text_input_string);
+		/* It'll be added to the end, so select it. */
+		list->row_selected = list->rows + 1;
+		list->row_offset = MIN(list->rows + 1 - list->max_rows, list->row_selected - 1);
+	}
+	/* Edit existing. */
+	else
+	{
+		keybind_edit(setting_keybind_id, setting_keybind_key, setting_keybind_mod, text_input_string);
+	}
+
+	text_input_string_flag = 0;
+	settings_list_reload(list);
+}
+
+/**
+ * Do an action related to the keybind settings list.
+ * @param key Key used.
+ * @param list The keybinding list.
+ * @return 1 if the action was handled, 0 otherwise. */
+static int setting_keybind_action(SDLKey key, list_struct *list)
+{
+	/* Create a new keybinding. */
+	if (key == SDLK_n)
+	{
+		text_input_open(255);
+		setting_keybind_step = KEYBIND_STEP_COMMAND;
+		setting_keybind_key = SDLK_UNKNOWN;
+		setting_keybind_mod = KMOD_NONE;
+		setting_keybind_id = -1;
+		setting_keybind_ignore = 0;
+		return 1;
+	}
+	/* Delete existing keybinding. */
+	else if (key == SDLK_DELETE)
+	{
+		keybind_remove(list->row_selected - 1);
+		settings_list_reload(list);
+		return 1;
+	}
+	/* Toggle repeat on/off. */
+	else if (key == SDLK_r)
+	{
+		keybind_repeat_toggle(list->row_selected - 1);
+		settings_list_reload(list);
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Change the currently selected setting category.
+ * @param advance If -1, change to the previous category; if 1, change to
+ * the next one. */
+static void setting_category_change(int advance)
+{
+	size_t new_cat = setting_category_selected;
+
+	if (advance == 1)
+	{
+		if (new_cat == setting_categories_num - 1)
+		{
+			new_cat = 0;
+		}
+		else
+		{
+			new_cat++;
+		}
+	}
+	else if (advance == -1)
+	{
+		if (new_cat == 0)
+		{
+			new_cat = setting_categories_num - 1;
+		}
+		else
+		{
+			new_cat--;
+		}
+	}
+
+	if (new_cat != setting_category_selected)
+	{
+		setting_category_selected = new_cat;
+		settings_list_reload(list_exists(LIST_SETTINGS));
+	}
+}
+
+/**
+ * Do drawing immediately after finishing drawing the settings popup.
+ * @param popup The settings popup. */
+static int settings_popup_draw_func_post(popup_struct *popup)
+{
+	list_struct *list = list_exists(LIST_SETTINGS);
+	int x, y, mx, my, mstate;
+
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		help_show(setting_type_help[setting_type]);
+		return 1;
+	}
+
+	mstate = SDL_GetMouseState(&mx, &my);
+
+	if (setting_type == SETTING_TYPE_NONE)
+	{
+		if (GameStatus == GAME_STATUS_PLAY)
+		{
+			button_password.x = popup->x + 15;
+			button_password.y = popup->y + 15;
+			button_render(&button_password, "Password");
+		}
+	}
+	else if (setting_type == SETTING_TYPE_SETTINGS)
+	{
+		setting_struct *setting;
+		SDL_Rect dst;
+
+		x = popup->x + 30;
+		y = popup->y + 50;
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			setting_category_change(-1);
+		}
+
+		dst.w = list->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+		dst.h = 0;
+
+		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			setting_category_change(1);
+		}
+
+		setting = setting_categories[setting_category_selected]->settings[list->row_selected - 1];
+
+		dst.w -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+		string_blt(list->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, x + Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w, y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &dst);
+
+		dst.h = 66;
+		string_blt_shadow(list->surface, FONT_ARIAL11, setting->desc ? setting->desc : "", x - 2, popup->y + popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &dst);
+
+		list_show(list, x, y);
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			settings_apply_change();
+		}
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			return 0;
+		}
+	}
+	else if (setting_type == SETTING_TYPE_KEYBINDINGS)
+	{
+		SDL_Rect dst;
+		char key_buf[MAX_BUF];
+
+		x = popup->x + 30;
+		y = popup->y + 50;
+		list_show(list, x, y);
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 74, "Add", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			setting_keybind_action(SDLK_n, list);
+		}
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 51, "Remove", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			setting_keybind_action(SDLK_DELETE, list);
+		}
+
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 28, "Repeat", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		{
+			setting_keybind_action(SDLK_r, list);
+		}
+
+		if (text_input_string_flag)
+		{
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Command: ", popup->x + 100, popup->y + popup->surface->h - 70, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Key: ", popup->x + 100, popup->y + popup->surface->h - 47, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+			string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Press ESC to cancel.", popup->x + 160, popup->y + popup->surface->h - 34, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+
+			dst.x = popup->x + 160;
+			dst.y = popup->y + popup->surface->h - 74;
+			dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
+			dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
+
+			if (mstate == SDL_BUTTON_LEFT && mx >= dst.x && mx < dst.x + dst.w && my >= dst.y && my < dst.y + dst.h)
+			{
+				setting_keybind_step = KEYBIND_STEP_COMMAND;
+			}
+
+			if (setting_keybind_step == KEYBIND_STEP_COMMAND)
+			{
+				text_input_show(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
+			}
+			else
+			{
+				text_input_draw_background(ScreenSurface, dst.x, dst.y, BITMAP_LOGIN_INP);
+				text_input_draw_text(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
+			}
+
+			dst.y += 20;
+
+			if (mstate == SDL_BUTTON_LEFT && mx >= dst.x && mx < dst.x + dst.w && my >= dst.y && my < dst.y + dst.h)
+			{
+				setting_keybind_step = KEYBIND_STEP_KEY;
+			}
+
+			if (setting_keybind_step == KEYBIND_STEP_COMMAND || setting_keybind_step == KEYBIND_STEP_DONE)
+			{
+				keybind_get_key_shortcut(setting_keybind_key, setting_keybind_mod, key_buf, sizeof(key_buf));
+			}
+			else if (setting_keybind_step == KEYBIND_STEP_KEY)
+			{
+				strcpy(key_buf, "Press keyboard shortcut");
+			}
+
+			text_input_draw_background(ScreenSurface, dst.x, dst.y, BITMAP_LOGIN_INP);
+			text_input_draw_text(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, key_buf, COLOR_WHITE, TEXT_ALIGN_CENTER, BITMAP_LOGIN_INP, NULL);
+
+			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, dst.x + dst.w - Bitmaps[BITMAP_BUTTON]->bitmap->w, dst.y + 20, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			{
+				setting_keybind_apply(list);
+			}
+		}
+	}
+
+	return 1;
+}
 
 /**
  * Draw the settings popup.
  * @param popup The popup. */
-static void settings_popup_draw_func(popup_struct *popup)
+static int settings_popup_draw_func(popup_struct *popup)
 {
 	SDL_Rect box;
-	size_t i;
-	int x, y, mx, my;
-	char buf[MAX_BUF];
-	uint64 flags;
 
 	box.x = 0;
 	box.y = 10;
 	box.w = popup->surface->w;
 	box.h = 0;
-	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
-	box.y += 50;
 
-	SDL_GetMouseState(&mx, &my);
+	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 
-	for (i = 0; i < BUTTON_NUM; i++)
+	if (setting_type == SETTING_TYPE_NONE)
 	{
-		if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
-		{
-			continue;
-		}
+		size_t i;
 
-		flags = TEXT_ALIGN_CENTER;
-		x = Screensize->x / 2 - popup->surface->w / 2 + box.x;
-		y = Screensize->y / 2 - popup->surface->h / 2 + box.y;
+		box.y += 50;
 
-		if (mx >= x && mx < x + popup->surface->w && my >= y && my < y + FONT_HEIGHT(FONT_SERIF40))
+		for (i = 0; i < BUTTON_NUM; i++)
 		{
-			snprintf(buf, sizeof(buf), "<u>%s</u>", button_names[i]);
-			flags |= TEXT_MARKUP;
-		}
-		else
-		{
-			strncpy(buf, button_names[i], sizeof(buf) - 1);
-			buf[sizeof(buf) - 1] = '\0';
-		}
+			if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+			{
+				continue;
+			}
 
-		if (button_selected == i)
-		{
-			string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), flags | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", buf);
-		}
-		else
-		{
+			if (button_selected == i)
+			{
+				string_blt_shadow_format(popup->surface, FONT_SERIF40, box.x, box.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", button_names[i]);
+			}
+			else
+			{
 
-			string_blt_shadow(popup->surface, FONT_SERIF40, buf, box.x, box.y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), flags, &box);
-		}
+				string_blt_shadow(popup->surface, FONT_SERIF40, button_names[i], box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			}
 
-		box.y += FONT_HEIGHT(FONT_SERIF40);
+			box.y += FONT_HEIGHT(FONT_SERIF40);
+		}
 	}
+	else if (setting_type == SETTING_TYPE_PASSWORD)
+	{
+		char buf[MAX_BUF];
+		int i;
+
+		for (i = 0; i < text_input_count; i++)
+		{
+			buf[i] = '*';
+		}
+
+		buf[i] = '\0';
+
+		box.x = popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
+		box.y = popup->surface->h / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h / 2 - 50;
+
+		text_input_show(popup->surface, box.x, box.y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
+
+		if (!setting_password_confirmed)
+		{
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Enter your current password:", 0, box.y - 14, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Allows you to change your character's", 0, box.y + 24, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "password. Press Esc to cancel.", 0, box.y + 36, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		}
+		else
+		{
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Enter the new password:", 0, box.y - 14, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "Make sure to use a strong password.", 0, box.y + 24, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "A good password usually consists of a ", 0, box.y + 36, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "mix of uppercase and lowercase letters,", 0, box.y + 48, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "numbers, symbols, and does not include", 0, box.y + 60, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_blt_shadow(popup->surface, FONT_ARIAL11, "words found in common dictionaries.", 0, box.y + 72, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		}
+	}
+
+	return 1;
+}
+
+/**
+ * Exit the settings popup.
+ * @param popup The popup.
+ * @return 1. */
+static int settings_popup_destroy_callback(popup_struct *popup)
+{
+	(void) popup;
+	settings_apply_change();
+	list_remove(list_exists(LIST_SETTINGS));
+
+	if (text_input_string_flag)
+	{
+		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+		text_input_string_flag = 0;
+	}
+
+	keybind_save();
+
+	return 1;
+}
+
+/**
+ * Handle using enter in the settings list.
+ * @param list The list. */
+static void list_handle_enter(list_struct *list)
+{
+	if (list->text && list->row_selected)
+	{
+		if (setting_type == SETTING_TYPE_KEYBINDINGS)
+		{
+			setting_keybind_action(SDLK_n, list);
+
+			setting_keybind_id = list->row_selected - 1;
+			text_input_add_string(keybindings[setting_keybind_id]->command);
+			setting_keybind_key = keybindings[setting_keybind_id]->key;
+			setting_keybind_mod = keybindings[setting_keybind_id]->mod;
+			setting_keybind_ignore = 1;
+		}
+		else if (setting_type == SETTING_TYPE_SETTINGS)
+		{
+			setting_change_value(setting_category_selected, list->row_selected - 1, 0);
+			list_clicked = 0;
+		}
+	}
+}
+
+/**
+ * Handle list key events.
+ * @param list List.
+ * @param key Key that was pressed.
+ * @return 1 if the key was handled, -1 otherwise. */
+static int list_key_event(list_struct *list, SDLKey key)
+{
+	switch (key)
+	{
+		case SDLK_RIGHT:
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				setting_category_change(1);
+			}
+			else
+			{
+				setting_change_value(setting_category_selected, list->row_selected - 1, 1);
+			}
+
+			break;
+
+		case SDLK_LEFT:
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				setting_category_change(-1);
+			}
+			else
+			{
+				setting_change_value(setting_category_selected, list->row_selected - 1, -1);
+			}
+
+			break;
+
+		default:
+			return -1;
+	}
+
+	return 1;
 }
 
 /**
@@ -520,14 +738,53 @@ static void settings_popup_draw_func(popup_struct *popup)
  * @param button The button ID. */
 static void settings_button_handle(size_t button)
 {
-	if (button == BUTTON_KEY_SETTINGS)
+	if (button == BUTTON_KEY_SETTINGS || button == BUTTON_SETTINGS)
 	{
-		keybind_status = KEYBIND_STATUS_NO;
-		cpl.menustatus = MENU_KEYBIND;
-	}
-	else if (button == BUTTON_SETTINGS)
-	{
-		cpl.menustatus = MENU_OPTION;
+		list_struct *list;
+		uint32 cols, max_rows;
+
+		if (button == BUTTON_SETTINGS)
+		{
+			setting_type = SETTING_TYPE_SETTINGS;
+			cols = 1;
+			max_rows = 9;
+		}
+		else if (button == BUTTON_KEY_SETTINGS)
+		{
+			setting_type = SETTING_TYPE_KEYBINDINGS;
+			cols = 3;
+			max_rows = 12;
+		}
+
+		setting_category_selected = 0;
+
+		list = list_create(LIST_SETTINGS, max_rows, cols, 8);
+		list->handle_esc_func = list_handle_esc;
+		list->handle_enter_func = list_handle_enter;
+		list_scrollbar_enable(list);
+
+		if (button == BUTTON_SETTINGS)
+		{
+			list_set_column(list, 0, 430, 7, NULL, -1);
+			list_set_font(list, FONT_SANS14);
+			list->handle_mouse_row_func = list_handle_mouse_row;
+			list->key_event_func = list_key_event;
+			list->row_highlight_func = NULL;
+			list->row_selected_func = NULL;
+			list->post_column_func = list_post_column;
+		}
+		else if (button == BUTTON_KEY_SETTINGS)
+		{
+			list_set_font(list, FONT_ARIAL11);
+			list_set_column(list, 0, 273, 7, "Command", -1);
+			list_set_column(list, 1, 93, 7, "Key", 1);
+			list_set_column(list, 2, 50, 7, "Repeat", 1);
+			list->header_height = 7;
+		}
+
+		list_set_focus(list);
+		settings_list_reload(list);
+		return;
 	}
 	else if (button == BUTTON_LOGOUT)
 	{
@@ -535,60 +792,210 @@ static void settings_button_handle(size_t button)
 		GameStatus = GAME_STATUS_INIT;
 	}
 
-	popup_destroy_visible();
+	popup_destroy_all();
 }
 
 /**
  * Handle events for the settings popup. */
 static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	if (event->type == SDL_KEYDOWN)
+	list_struct *list;
+
+	if (setting_type == SETTING_TYPE_NONE)
 	{
-		/* Move the selected button up and down. */
-		if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
+		if (GameStatus == GAME_STATUS_PLAY && button_event(&button_password, event))
 		{
-			int selected = button_selected, num_buttons;
-
-			selected += event->key.keysym.sym == SDLK_DOWN ? 1 : -1;
-			num_buttons = (GameStatus == GAME_STATUS_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
-
-			if (selected < 0)
-			{
-				selected = num_buttons;
-			}
-			else if (selected > num_buttons)
-			{
-				selected = 0;
-			}
-
-			button_selected = selected;
+			setting_type = SETTING_TYPE_PASSWORD;
+			setting_password_confirmed = 0;
+			text_input_open(64);
 			return 1;
 		}
-		else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER)
+
+		if (event->type == SDL_KEYDOWN)
 		{
-			settings_button_handle(button_selected);
-			return 1;
+			/* Move the selected button up and down. */
+			if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
+			{
+				int selected = button_selected, num_buttons;
+
+				selected += event->key.keysym.sym == SDLK_DOWN ? 1 : -1;
+				num_buttons = (GameStatus == GAME_STATUS_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
+
+				if (selected < 0)
+				{
+					selected = num_buttons;
+				}
+				else if (selected > num_buttons)
+				{
+					selected = 0;
+				}
+
+				button_selected = selected;
+				return 1;
+			}
+			else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER)
+			{
+				settings_button_handle(button_selected);
+				return 1;
+			}
 		}
-	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		if (event->button.button == SDL_BUTTON_LEFT)
+		else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION)
 		{
-			int x, y;
+			int x, y, width;
 			size_t i;
 
-			x = Screensize->x / 2 - popup->surface->w / 2;
-			y = Screensize->y / 2 - popup->surface->h / 2 + 60;
+			y = popup->y + 60;
 
 			for (i = 0; i < BUTTON_NUM; i++)
 			{
-				if (event->motion.x >= x && event->motion.x < x + popup->surface->w && event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
+				if (GameStatus != GAME_STATUS_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
 				{
-					settings_button_handle(i);
-					break;
+					continue;
+				}
+
+				if (event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
+				{
+					width = string_get_width(FONT_SERIF40, button_names[i], 0);
+					x = popup->x + popup->surface->w / 2 - width / 2;
+
+					if (event->motion.x >= x && event->motion.x < x + width)
+					{
+						if (event->type == SDL_MOUSEMOTION)
+						{
+							button_selected = i;
+						}
+						else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+						{
+							settings_button_handle(i);
+						}
+
+						break;
+					}
 				}
 
 				y += FONT_HEIGHT(FONT_SERIF40);
+			}
+		}
+	}
+	else if (setting_type == SETTING_TYPE_PASSWORD)
+	{
+		if (event->type == SDL_KEYDOWN)
+		{
+			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
+			{
+				if (!setting_password_confirmed)
+				{
+					if (!strcmp(text_input_string, cpl.password))
+					{
+						setting_password_confirmed = 1;
+						text_input_open(64);
+						return 1;
+					}
+					else
+					{
+						draw_info(COLOR_RED, "The current password did not match.");
+					}
+				}
+				else
+				{
+					if (text_input_string[0] == '\0')
+					{
+						draw_info(COLOR_WHITE, "Canceled password change.");
+					}
+					else
+					{
+						SockList sl;
+						unsigned char sockbuf[MAX_BUF];
+
+						sl.buf = sockbuf;
+						sl.len = 0;
+						SockList_AddString(&sl, "pc ");
+						SockList_AddStringTerminated(&sl, cpl.password);
+						SockList_AddStringTerminated(&sl, text_input_string);
+						send_socklist(sl);
+
+						strncpy(cpl.password, text_input_string, sizeof(cpl.password) - 1);
+						cpl.password[sizeof(cpl.password) - 1] = '\0';
+					}
+				}
+			}
+			else if (event->key.keysym.sym != SDLK_ESCAPE)
+			{
+				text_input_handle(&event->key);
+				return 1;
+			}
+
+			popup_destroy_all();
+			return 1;
+		}
+	}
+	else if ((list = list_exists(LIST_SETTINGS)))
+	{
+		if (setting_type == SETTING_TYPE_KEYBINDINGS && (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP))
+		{
+			if (text_input_string_flag && event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+			{
+				if (text_input_string_flag)
+				{
+					SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+					text_input_string_flag = 0;
+					return 1;
+				}
+			}
+			else if (text_input_string_flag && setting_keybind_step == KEYBIND_STEP_KEY)
+			{
+				if (event->type == SDL_KEYUP)
+				{
+					setting_keybind_key = event->key.keysym.sym;
+					setting_keybind_mod = event->key.keysym.mod;
+					setting_keybind_step = KEYBIND_STEP_DONE;
+				}
+
+				return 1;
+			}
+			else if (text_input_string_flag && (event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_TAB))
+			{
+				if (setting_keybind_ignore)
+				{
+					setting_keybind_ignore = 0;
+				}
+				else if (setting_keybind_step == KEYBIND_STEP_COMMAND && event->type == SDL_KEYUP)
+				{
+					setting_keybind_step = KEYBIND_STEP_KEY;
+				}
+				else if (setting_keybind_step == KEYBIND_STEP_DONE && event->type == SDL_KEYDOWN)
+				{
+					setting_keybind_apply(list);
+				}
+
+				return 1;
+			}
+			else if (text_input_string_flag && event->type == SDL_KEYDOWN)
+			{
+				if (setting_keybind_step == KEYBIND_STEP_COMMAND && text_input_handle(&event->key))
+				{
+					return 1;
+				}
+			}
+			else if (event->type == SDL_KEYDOWN && setting_keybind_action(event->key.keysym.sym, list))
+			{
+				return 1;
+			}
+		}
+
+		/* Handle list events. */
+		if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+		{
+			if (list_handle_keyboard(list, &event->key))
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
+			{
+				return 1;
 			}
 		}
 	}
@@ -602,9 +1009,15 @@ void settings_open()
 {
 	popup_struct *popup;
 
+	/* Create the popup. */
 	popup = popup_create(BITMAP_POPUP);
 	popup->draw_func = settings_popup_draw_func;
 	popup->event_func = settings_popup_event_func;
+	popup->destroy_callback_func = settings_popup_destroy_callback;
+	popup->draw_func_post = settings_popup_draw_func_post;
+	setting_type = SETTING_TYPE_NONE;
+
+	button_create(&button_password);
 
 	button_selected = GameStatus == GAME_STATUS_PLAY ? BUTTON_BACK : BUTTON_SETTINGS;
 }

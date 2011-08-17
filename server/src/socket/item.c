@@ -30,18 +30,9 @@
  * what items should be sent. */
 
 #include <global.h>
-#include <object.h>
-#include <newclient.h>
-#include <newserver.h>
 
 static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
-
-/**
- * Legacy macro to support older clients, and properly show skill items
- * in client's player doll.
- * @deprecated */
-#define SOCKET_OBJ_TYPE(ob, pl) (CONTR((pl))->socket.socket_version < 1031 ? (ob->type == SKILL_ITEM ? SKILL : (ob->type == SKILL ? 0 : ob->type)) : ob->type)
 
 /** This is the maximum number of bytes we expect any item to take up. */
 #define MAXITEMLEN 300
@@ -193,7 +184,7 @@ static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 
 
 	if (flags & UPD_TYPE)
 	{
-		SockList_AddChar(sl, SOCKET_OBJ_TYPE(op, pl));
+		SockList_AddChar(sl, op->type);
 		SockList_AddChar(sl, op->sub_type);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
@@ -843,7 +834,7 @@ void ExamineCmd(char *buf, int len, player *pl)
 		return;
 	}
 
-	examine(pl->ob, op);
+	examine(pl->ob, op, NULL);
 }
 
 /**
@@ -851,27 +842,6 @@ void ExamineCmd(char *buf, int len, player *pl)
  * @param slot ID of the quickslot to look for.
  * @param pl Inside which player to search in. */
 static void remove_quickslot(uint8 slot, player *pl)
-{
-if (pl->socket.socket_version < 1037)
-{
-	object *tmp;
-
-	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->quickslot && tmp->quickslot == slot)
-		{
-			if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.spell_quickslot)
-			{
-				remove_ob(tmp);
-			}
-			else
-			{
-				tmp->quickslot = 0;
-			}
-		}
-	}
-}
-else
 {
 	object *tmp;
 
@@ -889,48 +859,11 @@ else
 		}
 	}
 }
-}
 
 /**
  * Send quickslots to player.
  * @param pl Player to send the quickslots to. */
 void send_quickslots(player *pl)
-{
-if (pl->socket.socket_version < 1037)
-{
-	char tmp[HUGE_BUF * 12], tmpbuf[MAX_BUF];
-	object *op;
-
-	snprintf(tmp, sizeof(tmp), "X");
-
-	/* Go through the inventory */
-	for (op = pl->ob->inv; op; op = op->below)
-	{
-		/* If this has quickslot set */
-		if (op->quickslot)
-		{
-			/* It's a player info, so a spell! */
-			if (op->arch->name == shstr_cons.player_info && op->name == shstr_cons.spell_quickslot)
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "\ns %d %s", op->quickslot, op->slaying);
-			}
-			/* Otherwise an item */
-			else
-			{
-				snprintf(tmpbuf, sizeof(tmpbuf), "\ni %d %d", op->count, op->quickslot);
-			}
-
-			strncat(tmp, tmpbuf, sizeof(tmp) - strlen(tmpbuf) - 1);
-		}
-	}
-
-	/* Write it to the client if we found any quickslot entries */
-	if (strlen(tmp) != 1)
-	{
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_QUICKSLOT, tmp, strlen(tmp));
-	}
-}
-else
 {
 	SockList sl;
 	unsigned char buf[MAXSOCKBUF];
@@ -962,7 +895,6 @@ else
 
 	Send_With_Handling(&pl->socket, &sl);
 }
-}
 
 /**
  * Quick slot command.
@@ -970,90 +902,6 @@ else
  * @param len Length of 'buf'.
  * @param pl Player. */
 void QuickSlotCmd(uint8 *buf, int len, player *pl)
-{
-if (pl->socket.socket_version < 1037)
-{
-	long tag;
-	object *op;
-	char *cp, tmpbuf[MAX_BUF];
-	int quickslot;
-
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	/* Set command. We want to set an object's quickslot */
-	if (strncmp((char *) buf, "set ", 4) == 0)
-	{
-		buf += 4;
-
-		/* Get the slot ID */
-		quickslot = atoi((char *) buf);
-
-		if (!(cp = strchr((char *) buf, ' ')))
-		{
-			return;
-		}
-
-		/* Now get the count */
-		tag = atoi(cp);
-
-		/* And find the object */
-		op = esrv_get_ob_from_count(pl->ob, tag);
-
-		/* Sanity checks */
-		if (!op || quickslot < 1 || quickslot > MAX_QUICKSLOT)
-		{
-			return;
-		}
-
-		/* First, find any old items/spells for this quickslot */
-		remove_quickslot(quickslot, pl);
-
-		/* Then set this item a new quickslot ID */
-		op->quickslot = quickslot;
-	}
-	/* Bit different logic for spell quickslots */
-	else if (strncmp((char *) buf, "setspell ", 9) == 0)
-	{
-		buf += 9;
-
-		/* Get the slot ID */
-		quickslot = atoi((char *) buf);
-		snprintf(tmpbuf, sizeof(tmpbuf), "%d", quickslot);
-		buf += strlen(tmpbuf);
-
-		if (!(cp = strchr((char *) buf, ' ')))
-		{
-			return;
-		}
-
-		/* Sanity checks */
-		if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
-		{
-			return;
-		}
-
-		remove_quickslot(quickslot, pl);
-		replace_unprintable_chars(cp);
-
-		/* Create a new player_info */
-		op = get_archetype(shstr_cons.player_info);
-		FREE_AND_ADD_REF_HASH(op->name, shstr_cons.spell_quickslot);
-		FREE_AND_COPY_HASH(op->slaying, cp);
-		op->quickslot = quickslot;
-		insert_ob_in_ob(op, pl->ob);
-	}
-	/* Unset command. */
-	else if (strncmp((char *) buf, "unset ", 6) == 0)
-	{
-		buf += 6;
-
-		remove_quickslot(atoi((char *) buf), pl);
-	}
-}
-else
 {
 	uint8 command, quickslot;
 
@@ -1120,7 +968,6 @@ else
 		LOG(llevSystem, "Client %s@%s sent invalid quickslot command.\n", pl->ob->name, pl->socket.host);
 		pl->socket.status = Ns_Dead;
 	}
-}
 }
 
 /**
@@ -1190,7 +1037,7 @@ void LockItem(uint8 *data, int len, player *pl)
 	/* Only lock item inside the player's own inventory */
 	if (is_player_inv(op) != pl->ob)
 	{
-		new_draw_info(NDI_UNIQUE, pl->ob, "You can't lock items outside your inventory!");
+		draw_info(COLOR_WHITE, pl->ob, "You can't lock items outside your inventory!");
 		return;
 	}
 
@@ -1231,13 +1078,13 @@ void MarkItem(uint8 *data, int len, player *pl)
 
 	if (pl->mark_count == op->count)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
+		draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
 		pl->mark = NULL;
 		pl->mark_count = -1;
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "Marked item %s.", query_name(op, NULL));
+		draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
 		pl->mark_count = op->count;
 		pl->mark = op;
 	}
@@ -1273,11 +1120,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if ((tmp = check_container(pl, op)))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
+			draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(pl, FLAG_INV_LOCKED))
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't drop a container with locked items inside!");
+			draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
 		}
 		else
 		{
@@ -1322,15 +1169,15 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
 		if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't drop a container with locked items inside!");
+			draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
 		}
 		else if (tmp && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "First remove all god-given items from this container!");
+			draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
 		}
 		else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl)
 		{
-			new_draw_info(NDI_UNIQUE, pl, "You can't store god-given items outside your inventory!");
+			draw_info(COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
 		}
 		else
 		{

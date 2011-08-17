@@ -27,7 +27,7 @@
  * @file
  * This file holds ignore list related code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The ignore list. */
 static ignore_list_struct *ignore_list = NULL;
@@ -166,7 +166,7 @@ int ignore_check(const char *name, const char *type)
 /**
  * Parse /ignore command.
  * @param cmd The command to parse, without the "/ignore" part. */
-void ignore_command(char *cmd)
+void ignore_command(const char *cmd)
 {
 	char name[64], type[64];
 
@@ -174,8 +174,8 @@ void ignore_command(char *cmd)
 	{
 		ignore_list_struct *tmp;
 
-		draw_info("\nIGNORE LIST", COLOR_WHITE);
-		draw_info("--------------------------", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "\nIGNORE LIST");
+		draw_info(COLOR_WHITE, "--------------------------");
 
 		for (tmp = ignore_list; tmp; tmp = tmp->next)
 		{

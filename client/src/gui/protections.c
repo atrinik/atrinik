@@ -27,7 +27,7 @@
  * @file
  * Implements the protections table widget. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Show the protection table widget.
@@ -52,7 +52,7 @@ void widget_show_resist(widgetdata *widget)
 		bltfx.alpha = 0;
 
 		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
-		string_blt(widget->widgetSF, FONT_SERIF10, "Protection Table", x, y, COLOR_SIMPLE(COLOR_HGOLD), TEXT_OUTLINE, NULL);
+		string_blt(widget->widgetSF, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 	}
 
 	SDL_GetMouseState(&mx, &my);
@@ -67,12 +67,12 @@ void widget_show_resist(widgetdata *widget)
 
 		if (widget->redraw)
 		{
-			int color;
+			const char *color;
 
 			/* Figure out color for the protection value. */
 			if (!cpl.stats.protection[i])
 			{
-				color = COLOR_GREY;
+				color = COLOR_GRAY;
 			}
 			else if (cpl.stats.protection[i] < 0)
 			{
@@ -87,7 +87,7 @@ void widget_show_resist(widgetdata *widget)
 				color = COLOR_WHITE;
 			}
 
-			string_blt_format(widget->widgetSF, FONT_MONO9, x, y + 1, COLOR_SIMPLE(color), TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
+			string_blt_format(widget->widgetSF, FONT_MONO9, x, y + 1, color, TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
 		}
 
 		/* Show a tooltip with the protection's full name. */

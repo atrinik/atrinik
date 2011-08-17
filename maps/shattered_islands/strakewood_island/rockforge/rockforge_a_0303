@@ -2,11 +2,11 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-06-08 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_1 rockforge_a_0304
 tile_path_3 rockforge_a_0302
@@ -133,6 +133,9 @@ end
 arch wall_marble1.131a
 x 1
 end
+arch flag_rockforge
+x 1
+end
 arch floor_marble2c
 x 1
 y 1
@@ -330,6 +333,10 @@ arch wall_marble1.131
 x 3
 end
 arch floor_marble2a
+x 3
+y 1
+end
+arch lamp_wall
 x 3
 y 1
 end
@@ -525,11 +532,18 @@ end
 arch wall_marble1.131
 x 5
 end
+arch flag_rockforge
+x 5
+end
 arch floor_marble2b
 x 5
 y 1
 end
 arch floor_marble2c
+x 5
+y 2
+end
+arch fmask_rockforge2
 x 5
 y 2
 end
@@ -730,6 +744,10 @@ arch floor_marble2c
 x 7
 y 1
 end
+arch lamp_wall
+x 7
+y 1
+end
 arch floor_marble2c
 x 7
 y 2
@@ -919,7 +937,16 @@ end
 arch blocked
 x 9
 end
-arch wall_marble1.131a
+arch wall_marble1.141
+layer 4
+x 9
+end
+arch flag_rockforge
+layer 5
+x 9
+end
+arch flag_rockforge
+direction 7
 x 9
 end
 arch floor_marble2a
@@ -959,6 +986,11 @@ x 9
 y 7
 end
 arch wall_marble1.141
+x 9
+y 7
+end
+arch flag_rockforge
+direction 7
 x 9
 y 7
 end
@@ -1020,6 +1052,11 @@ arch wall_marble1.111
 x 9
 y 14
 end
+arch flag_rockforge
+direction 7
+x 9
+y 14
+end
 arch floor_marble_grey
 x 9
 y 15
@@ -1049,6 +1086,11 @@ x 9
 y 18
 end
 arch wall_marble1.111
+x 9
+y 18
+end
+arch flag_rockforge
+direction 7
 x 9
 y 18
 end
@@ -1084,6 +1126,11 @@ arch wall_marble1.111
 x 9
 y 22
 end
+arch flag_rockforge
+direction 7
+x 9
+y 22
+end
 arch blocked
 x 9
 y 23
@@ -1092,10 +1139,7 @@ arch wall_marble1.111a
 x 9
 y 23
 end
-arch blocked
-x 10
-end
-arch wall_marble1.131a
+arch floor_marble2c
 x 10
 end
 arch floor_marble2a
@@ -1122,6 +1166,11 @@ arch floor_marble2c
 x 10
 y 6
 end
+arch lamp_wall
+direction 7
+x 10
+y 6
+end
 arch floor_marble2a
 x 10
 y 7
@@ -1134,6 +1183,11 @@ arch floor_marble2a
 x 10
 y 9
 end
+arch lamp_wall
+direction 7
+x 10
+y 9
+end
 arch floor_marble2b
 x 10
 y 10
@@ -1143,6 +1197,11 @@ x 10
 y 11
 end
 arch floor_marble2b
+x 10
+y 12
+end
+arch lamp_wall
+direction 7
 x 10
 y 12
 end
@@ -1162,6 +1221,11 @@ arch floor_marble2b
 x 10
 y 16
 end
+arch lamp_wall
+direction 7
+x 10
+y 16
+end
 arch floor_marble2c
 x 10
 y 17
@@ -1178,6 +1242,11 @@ arch floor_marble2b
 x 10
 y 20
 end
+arch lamp_wall
+direction 7
+x 10
+y 20
+end
 arch floor_marble2b
 x 10
 y 21
@@ -1190,10 +1259,7 @@ arch floor_marble2c
 x 10
 y 23
 end
-arch blocked
-x 11
-end
-arch wall_marble1.131a
+arch floor_marble2c
 x 11
 end
 arch floor_marble2c
@@ -1232,6 +1298,10 @@ arch floor_marble2a
 x 11
 y 9
 end
+arch fmask_rockforge2
+x 11
+y 9
+end
 arch floor_marble2a
 x 11
 y 10
@@ -1272,6 +1342,10 @@ arch floor_marble2c
 x 11
 y 19
 end
+arch fmask_rockforge2
+x 11
+y 19
+end
 arch floor_marble2c
 x 11
 y 20
@@ -1288,10 +1362,7 @@ arch floor_marble2a
 x 11
 y 23
 end
-arch blocked
-x 12
-end
-arch wall_marble1.131a
+arch floor_marble2c
 x 12
 end
 arch floor_marble2b
@@ -1386,10 +1457,7 @@ arch floor_marble2b
 x 12
 y 23
 end
-arch blocked
-x 13
-end
-arch wall_marble1.131a
+arch floor_marble2b
 x 13
 end
 arch floor_marble2c
@@ -1484,10 +1552,10 @@ arch floor_marble2a
 x 13
 y 23
 end
-arch blocked
+arch floor_marble2b
 x 14
 end
-arch wall_marble1.131a
+arch wall_marble1.111a
 x 14
 end
 arch floor_marble2c

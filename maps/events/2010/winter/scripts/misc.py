@@ -65,7 +65,7 @@ elif event_num == EVENT_SAY:
 		if not enabled:
 			me.SayTo(activator, "There isn't much research going on at the moment, so most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard.", True)
 		else:
-			me.SayTo(activator, "Most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard, but I think I may have found something interesting just a moment ago.\n\n^What is it?^", True)
+			me.SayTo(activator, "Most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard, but I think I may have found something interesting just a moment ago.\n\n<a>What is it?</a>", True)
 	elif enabled:
 		if msg == "what is it?":
 			me.SayTo(activator, "\nApparently, about this time of the year, a cave in the mountains to the south of Morliana opens up. The rumor is that some creature called Hierro lurks inside... I'm not sure what could be inside, but I'm not too eager to find out, either.")

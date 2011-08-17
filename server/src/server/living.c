@@ -434,11 +434,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your hands begin to glow red.");
+			draw_info(COLOR_WHITE, op, "Your hands begin to glow red.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your hands stop glowing red.");
+			draw_info(COLOR_GRAY, op, "Your hands stop glowing red.");
 		}
 	}
 
@@ -448,11 +448,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel very protected.");
+			draw_info(COLOR_WHITE, op, "You feel very protected.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You don't feel protected anymore.");
+			draw_info(COLOR_GRAY, op, "You don't feel protected anymore.");
 		}
 	}
 
@@ -462,11 +462,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "A magic force shimmers around you.");
+			draw_info(COLOR_WHITE, op, "A magic force shimmers around you.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "The magic force fades away.");
+			draw_info(COLOR_GRAY, op, "The magic force fades away.");
 		}
 	}
 
@@ -476,11 +476,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel more safe now, somehow.");
+			draw_info(COLOR_WHITE, op, "You feel more safe now, somehow.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Suddenly you feel less safe, somehow.");
+			draw_info(COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
 		}
 	}
 
@@ -493,11 +493,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly higher */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You float a little higher in the air.");
+				draw_info(COLOR_WHITE, op, "You float a little higher in the air.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You start to float in the air!");
+				draw_info(COLOR_GRAY, op, "You start to float in the air!");
 
 				SET_MULTI_FLAG(op, FLAG_FLYING);
 
@@ -514,11 +514,11 @@ int change_abil(object *op, object *tmp)
 			/* If we're already flying then fly lower */
 			if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You float a little lower in the air.");
+				draw_info(COLOR_WHITE, op, "You float a little lower in the air.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You float down to the ground.");
+				draw_info(COLOR_GRAY, op, "You float down to the ground.");
 				check_walk_on(op, op, 0);
 			}
 		}
@@ -535,7 +535,7 @@ int change_abil(object *op, object *tmp)
 			if (flag > 0)
 			{
 				FREE_AND_COPY_HASH(op->race, "undead");
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your lifeforce drains away!");
+				draw_info(COLOR_GRAY, op, "Your lifeforce drains away!");
 			}
 			else
 			{
@@ -546,7 +546,7 @@ int change_abil(object *op, object *tmp)
 					FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 				}
 
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your lifeforce returns!");
+				draw_info(COLOR_WHITE, op, "Your lifeforce returns!");
 			}
 		}
 	}
@@ -557,11 +557,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You walk more quietly.");
+			draw_info(COLOR_WHITE, op, "You walk more quietly.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You walk more noisily.");
+			draw_info(COLOR_GRAY, op, "You walk more noisily.");
 		}
 	}
 
@@ -571,11 +571,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You see invisible things.");
+			draw_info(COLOR_WHITE, op, "You see invisible things.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your vision becomes less clear.");
+			draw_info(COLOR_GRAY, op, "Your vision becomes less clear.");
 		}
 	}
 
@@ -585,11 +585,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You become transparent.");
+			draw_info(COLOR_WHITE, op, "You become transparent.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You can see yourself.");
+			draw_info(COLOR_GRAY, op, "You can see yourself.");
 		}
 	}
 
@@ -603,11 +603,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Your mortal self is blinded.");
+				draw_info(COLOR_GRAY, op, "Your mortal self is blinded.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You are blinded.");
+				draw_info(COLOR_GRAY, op, "You are blinded.");
 				SET_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -620,11 +620,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your mortal self can now see again.");
+				draw_info(COLOR_WHITE, op, "Your mortal self can now see again.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision returns.");
+				draw_info(COLOR_WHITE, op, "Your vision returns.");
 				CLEAR_FLAG(op, FLAG_BLIND);
 
 				if (op->type == PLAYER)
@@ -641,11 +641,11 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision is better in the dark.");
+			draw_info(COLOR_WHITE, op, "Your vision is better in the dark.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You see less well in the dark.");
+			draw_info(COLOR_GRAY, op, "You see less well in the dark.");
 		}
 	}
 
@@ -657,11 +657,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision becomes a little clearer.");
+				draw_info(COLOR_WHITE, op, "Your vision becomes a little clearer.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Everything becomes transparent.");
+				draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
 
 				if (op->type == PLAYER)
 				{
@@ -673,11 +673,11 @@ int change_abil(object *op, object *tmp)
 		{
 			if (QUERY_FLAG(op, FLAG_WIZ))
 			{
-				new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "Your vision becomes a bit out of focus.");
+				draw_info(COLOR_WHITE, op, "Your vision becomes a bit out of focus.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op, "Everything suddenly looks very solid.");
+				draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
 
 				if (op->type == PLAYER)
 				{
@@ -693,11 +693,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel much more healthy!");
+			draw_info(COLOR_WHITE, op, "You feel much more healthy!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel much less healthy!");
+			draw_info(COLOR_GRAY, op, "You feel much less healthy!");
 		}
 	}
 
@@ -707,11 +707,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.sp) > 0 || (flag * tmp->stats.maxsp) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel one with the powers of magic!");
+			draw_info(COLOR_WHITE, op, "You feel one with the powers of magic!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You suddenly feel very mundane.");
+			draw_info(COLOR_GRAY, op, "You suddenly feel very mundane.");
 		}
 	}
 
@@ -721,11 +721,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((flag * tmp->stats.grace) > 0 || (flag * tmp->stats.maxgrace) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel closer to your deity!");
+			draw_info(COLOR_WHITE, op, "You feel closer to your deity!");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You suddenly feel less holy.");
+			draw_info(COLOR_GRAY, op, "You suddenly feel less holy.");
 		}
 	}
 
@@ -735,11 +735,11 @@ int change_abil(object *op, object *tmp)
 
 		if ((tmp->stats.food * flag) > 0)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_WHITE, op, "You feel your digestion slowing down.");
+			draw_info(COLOR_WHITE, op, "You feel your digestion slowing down.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREY, op, "You feel your digestion speeding up.");
+			draw_info(COLOR_GRAY, op, "You feel your digestion speeding up.");
 		}
 	}
 
@@ -752,11 +752,11 @@ int change_abil(object *op, object *tmp)
 
 			if (op->protection[i] > refop.protection[i])
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
+				draw_info_format(COLOR_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
 			}
 			else
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
+				draw_info_format(COLOR_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
 			}
 		}
 	}
@@ -778,11 +778,11 @@ int change_abil(object *op, object *tmp)
 
 				if ((i * flag) > 0)
 				{
-					new_draw_info(NDI_UNIQUE | NDI_WHITE, op, gain_msg[j]);
+					draw_info(COLOR_WHITE, op, gain_msg[j]);
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE | NDI_GREY, op, lose_msg[j]);
+					draw_info(COLOR_GRAY, op, lose_msg[j]);
 				}
 			}
 		}
@@ -825,7 +825,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, drain_msg[deplete_stats]);
+	draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
 	change_attr_value(&tmp->stats, deplete_stats, -1);
 	fix_player(op);
 }
@@ -849,7 +849,7 @@ void fix_player(object *op)
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
 	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
-	float f,max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
+	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
 
 	if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER))
@@ -1671,7 +1671,7 @@ fix_player_jump_resi:
 	else
 	{
 		/* Max kg we can carry */
-		f = ((float) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
+		double f = ((double) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
 
 		if (((sint32) f) <= op->carrying)
 		{
@@ -1682,9 +1682,9 @@ fix_player_jump_resi:
 			else
 			{
 				/* Total encumbrance weight part */
-				f = ((float) weight_limit[op->stats.Str] - f);
+				f = ((double) weight_limit[op->stats.Str] - f);
 				/* Value from 0.0 to 1.0 encumbrance */
-				f = ((float) weight_limit[op->stats.Str] - op->carrying) / f;
+				f = ((double) weight_limit[op->stats.Str] - op->carrying) / f;
 
 				if (f < 0.0f)
 				{
@@ -1721,14 +1721,14 @@ fix_player_jump_resi:
 	op->stats.maxsp += op->arch->clone.stats.maxsp + op->arch->clone.stats.maxsp;
 	op->stats.maxgrace += op->arch->clone.stats.maxgrace + op->arch->clone.stats.maxgrace;
 
-	for (i = 1; i <= op->level; i++)
+	for (i = 1; i < op->level + 1; i++)
 	{
 		op->stats.maxhp += pl->levhp[i];
 	}
 
 	if (mana_obj)
 	{
-		for (i = 1; i <= mana_obj->level; i++)
+		for (i = 1; i < mana_obj->level + 1; i++)
 		{
 			op->stats.maxsp += pl->levsp[i];
 		}
@@ -1736,7 +1736,7 @@ fix_player_jump_resi:
 
 	if (grace_obj)
 	{
-		for (i = 1; i <= grace_obj->level; i++)
+		for (i = 1; i < grace_obj->level + 1; i++)
 		{
 			op->stats.maxgrace += pl->levgrace[i];
 		}
@@ -1817,8 +1817,6 @@ fix_player_jump_resi:
 	/* No weapon in our hand - we must use our hands */
 	if (pl->set_skill_weapon == NO_SKILL_READY)
 	{
-		f = 1.0f;
-
 		if (skill_weapon)
 		{
 			/* Now we must add this special skill attack */
@@ -1846,8 +1844,6 @@ fix_player_jump_resi:
 	/* Weapon in hand */
 	else
 	{
-		f = (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
-
 		/* Weapon without the skill applied... */
 		if (!pl->skill_ptr[pl->set_skill_weapon])
 		{
@@ -1857,6 +1853,7 @@ fix_player_jump_resi:
 		{
 			op->stats.wc = wc + pl->skill_ptr[pl->set_skill_weapon]->level;
 			op->stats.dam = (sint16) ((float) op->stats.dam * LEVEL_DAMAGE(pl->skill_ptr[pl->set_skill_weapon]->level));
+			op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 		}
 	}
 
@@ -1868,7 +1865,6 @@ fix_player_jump_resi:
 		op->stats.dam = 0;
 	}
 
-	CONTR(op)->client_dam = (sint16) ((float) op->stats.dam * f);
 	op->stats.wc += thaco_bonus[op->stats.Dex];
 
 	/* For the client */
@@ -2141,8 +2137,8 @@ object *find_base_info_object(object *op)
  * 4/5 = mov is running/attack speed
  * 5/5 = mob is hasted and moving full speed
  * @param op Monster.
- * @param index Index. */
-void set_mobile_speed(object *op, int index)
+ * @param idx Index. */
+void set_mobile_speed(object *op, int idx)
 {
 	object *base;
 	float speed, tmp;
@@ -2153,9 +2149,9 @@ void set_mobile_speed(object *op, int index)
 
 	tmp = op->speed;
 
-	if (index)
+	if (idx)
 	{
-		op->speed = speed * index;
+		op->speed = speed * idx;
 	}
 	/* We will generate the speed by setting of the monster */
 	else

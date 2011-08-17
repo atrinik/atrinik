@@ -1,0 +1,16 @@
+arch map
+name Rockforge: City
+msg
+Created:  2011-06-12 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+region rockforge2
+darkness 3
+tile_path_1 rockforge_b_aa02
+tile_path_2 rockforge_b_0101
+tile_path_4 rockforge_b_ab01
+tile_path_5 rockforge_b_0102
+tile_path_8 rockforge_b_ab02
+end

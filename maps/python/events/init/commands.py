@@ -4,9 +4,9 @@
 
 from Atrinik import RegisterCommand
 
-RegisterCommand("guild", "/python/commands/guild.py", 0)
-RegisterCommand("guildmembers", "/python/commands/guildmembers.py", 0)
-RegisterCommand("roll", "/python/commands/roll.py", 0)
-RegisterCommand("stime", "/python/commands/stime.py", 0)
+RegisterCommand("guild", "/python/commands/guild.py", 1)
+RegisterCommand("guildmembers", "/python/commands/guildmembers.py", 1)
+RegisterCommand("roll", "/python/commands/roll.py", 1)
+RegisterCommand("stime", "/python/commands/stime.py", 1)
 #RegisterCommand("pirate_say", "/python/commands/pirate_say.py", 1)
 #RegisterCommand("pirate_shout", "/python/commands/pirate_shout.py", 1)

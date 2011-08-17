@@ -20,10 +20,10 @@ def main():
 
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		me.Communicate("/yawn")
-		me.SayTo(activator, "\nHello {0}, I am {1}.  So what ^brings^ you here?".format(activator.name, me.name))
+		me.SayTo(activator, "\nHello {0}, I am {1}.  So what <a>brings</a> you here?".format(activator.name, me.name))
 
 	elif msg == "brings":
-		me.SayTo(activator, "\nI don't suppose you've come about the ^key^.  Sorry, I can't give that to you.")
+		me.SayTo(activator, "\nI don't suppose you've come about the <a>key</a>.  Sorry, I can't give that to you.")
 
 	elif msg == "key":
 		me.SayTo(activator, "\nI told you, I can't give that to you.")

@@ -96,8 +96,8 @@ wood.s3m: Retro, battle
 = Dung Truong - http://www.yoyogames.com/downloads/resources/res03.zip - Freeware =
 ===================================================================================
 
-allusion_world.mid, allusion_world.ogg: Town music
-joyful_life.mid, joyful_life.ogg: Town music
+allusion_world.mid: Town music
+joyful_life.mid: Town music
 inner_peace.mid: Romance, peace
 inner_stampede.mid: Carnival, lively
 rock_on.mid: Tropical
@@ -113,7 +113,6 @@ dream.mid: Magic
 dream2.mid: Dream world
 dream3.mid: Dream world, ocean
 special.mid: Shops, marketplace
-lavaboil.ogg: Lava boiling
 lontala.mid: Town music, castle
 losing.mid: Houses
 memories.mid: University
@@ -143,6 +142,7 @@ hidden_passage.ogg: Night club
 world.ogg: Forest, magic forest, eerie
 world2.ogg: Eerie, cave
 town_music.ogg: Town music, sinister, Berri Lur
+travelling.ogg: Traveling music, ships
 
 =====================================
 = Edwin "Mamoru" Miltenburg - GPLv2 =
@@ -208,15 +208,15 @@ star.mid: Cave, slow
 treasure.mid: Creepy cave
 trial.mid: Courthouse
 yewtree.mid: Forest, peaceful
-egg.mid
-em.mid
-fboss.mid
-hill.mid
-laby.mid
-lava1.mid
-lava2.mid
-oil.mid
-scr.mid
+egg.mid: Market place, festival
+em.mid: Casino
+fboss.mid: Cave boss
+hill.mid: Meadow with treants and animals
+laby.mid: Shop, post office, trader selling stuff
+lava1.mid: In a town, quest
+lava2.mid: Fairies
+oil.mid: Egypt, tomb, snakes, rats, bats
+scr.mid: Raft being washed down the river
 
 ========================================
 = http://piano-midi.de/ - CC BY-SA 3.0 =
@@ -269,6 +269,7 @@ dg9.mid: Castle, fort, palace
 running.ogg: Dungeon
 evil_temple.ogg: Evil eerie temple, chanting
 lost_in_meadows.ogg: Peaceful, meadow
+sewer_rats.ogg: Sewers, abandoned church
 
 =================================================================
 = Gobusto - http://opengameart.org/users/gobusto - CC-BY-SA 3.0 =
@@ -276,79 +277,82 @@ lost_in_meadows.ogg: Peaceful, meadow
 
 hull_et_belle.ogg: Boss rush, pre-boss
 
-=============================================================
-= Jute - http://opengameart.org/users/qubodup - GNU GPL 2.0 =
-=============================================================
-
-rain.ogg: Rain
-rain2.ogg: Rain
-rain_indoors.ogg: Rain indoors
-rain_indoors2.ogg: Rain indoors
-wind_1.ogg: Wind
-wind_2.ogg: Wind
-wind_3.ogg: Wind
-wind_4.ogg: Wind
-
 ==============================================================
 = ZUN - http://en.touhouwiki.net/wiki/Touhou_Wiki:Copyrights =
 =        Transcribed by Gramlath based on sheet music        =
 ==============================================================
 
-th_01.mid: Faith is For the Transient People
-th_02.mid: Satori Maiden
-th_03.mid: Shanghai Alice of Meiji 17
-th_04.mid: Maidens Capriccio
-th_05.mid: Love Colored Master Spark
-th_06.mid: Apparitions Stalk the Night
-th_07.mid: The Gensokyo the Gods Loved
-th_08.mid: Deaf to All but the Song
-th_09.mid: Beloved Tomboyish Girl
-th_10.mid: U.N. Owen was her?
-th_11.mid: Broken Moon
-th_13.mid: Septette for the Dead Princess
+th_01.mid: Faith is For the Transient People: Castle, church
+th_02.mid: Satori Maiden ~ 3rd Eye: Mansion
+th_03.mid: Shanghai Alice of Meiji 17: Zelda and the fairies
+th_04.mid: Maiden's Capriccio: Chase
+th_05.mid: Love Colored Master Spark: Castle, fanfares, the hero returns
+th_06.mid: Apparitions Stalk the Night: Sinister sewers
+th_07.mid: The Gensokyo the Gods Loved: Village, overworld
+th_08.mid: Deaf to All but the Song: The king lost his crown; it must be found, everyone search
+th_09.mid: Beloved Tomboyish Girl: A passage, trying to get to your goal
+th_10.mid: U.N. Owen was her?: Fort, outpost
+th_11.mid: Broken Moon: Fanfares, castle, long live the king, the king's crown was found
+th_12.mid: Necrofantasia: Defeating a boss, graveyard, tomb, searching for something
+th_13.mid: Septette for the Dead Princess: Castle, forest clearing, jester
+th_14.mid: Lunate Elf: King's secret chamber
+th_15.mid: Corpse Voyage ~ Be of Good Cheer: Fanfares, fort
+th_16.mid: A Maiden's Illusory Funeral ~ Necrofantasy: Slime pit, place with quicksand traps
+th_17.mid: Lunar Clock ~ Luna Dial: Speciality shop, timed mini game
+th_18.mid: BAD Apple!!: Long windy cave looking for the other end, maze
+th_19.mid: Solar Sect of Mystic Wisdom ~ Nuclear Fusion: Pathway between two places for a quest
+th_20.mid: Beware the Umbrella Left There Forever: Haunted house, ghost boss
 
 =================================================================
 = http://sites.google.com/site/metaruka/GameGame - CC BY-SA 3.0 =
 =================================================================
 
-battle.mid
-endless_sands.mid
-game_over.mid
-gg.mid
-gg2.mid
-green_forest.mid
-high_mountains.mid
-interlude.mid
-lava_city.mid
-level_win.mid
-pirates.mid
-running_wild.mid
-ship.mid
-tethanus.mid
-the_end.mid
-underground.mid
-vonstantine.mid
+battle.mid: Boss battle
+endless_sands.mid: Maze
+game_over.mid: Sinister, eerie
+gg.mid: Slightly sinister, dark mountains, ancient passages under the mountains
+gg2.mid: Running, fighting, trek through something with a time limit
+green_forest.mid: Priest temple, peaceful place, pasture
+high_mountains.mid: Exploring, mountains
+interlude.mid: Shop of some sort
+lava_city.mid: Khazad-dum, balrog
+level_win.mid: Victory, quest done
+pirates.mid: Sinister, ships
+running_wild.mid: Sneaking, thieves hideout
+ship.mid: Stealing, thieves
+tethanus.mid: Thieves, obtaining quest item from a person
+the_end.mid: Outside of witches house, foreshadowing
+underground.mid: Large cavern, graveyard
+vonstantine.mid: Boss
 
-=====================
-= GPL (unconfirmed) =
-=====================
+==========================================================
+= Ecrivain - http://opengameart.org/users/Ecrivain - CC0 =
+==========================================================
+
+crystal_falls.ogg: Crystal cave
+
+====================
+= Bliss - Freeware =
+====================
 
 fuego.ogg: Tribal, luxury house
-ghostly_passage.ogg: Eerie/ghostly passage/cave
-travelling.ogg: Traveling music, ships
 
 ===========
 = Unknown =
 ===========
 
-bubblyghost.ogg: Eerie, ghostly
-ghostly.ogg: Ghostly/eerie temple, forbidden temple, graveyard
-thonkdonk.ogg: Tribal, dungeon-like
 swamp.ogg: Ducks and seagulls, ocean, docks
-sea_waves.ogg: Sea waves, ocean, ocean cliffs
-river.ogg: River
-rainthunder.ogg: Rain and thunder
 ocean.ogg: Sea waves, seagulls, ocean, docks
 jungle1.ogg: Jungle
-water_stream.ogg: Waterfall
 
+========================================================================
+= Future Wave Shaper - http://www.futurewaveshaper.com/ - CC BY-NC 3.0 =
+========================================================================
+
+thonkdonk.ogg: Tribal, dungeon-like
+
+=======================================================
+= Yo Frankie! - http://www.yofrankie.org/ - CC-BY 3.0 =
+=======================================================
+
+frankie.ogg: Thieves

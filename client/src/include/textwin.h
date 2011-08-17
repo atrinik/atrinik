@@ -30,14 +30,6 @@
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 
-/* Events */
-enum
-{
-	TW_CHECK_BUT_DOWN,
-	TW_CHECK_BUT_UP,
-	TW_CHECK_MOVE
-};
-
 /* Highlights */
 enum
 {
@@ -52,13 +44,11 @@ enum
 /* Flags */
 enum
 {
-	TW_SCROLL = 1,
-	TW_RESIZE = 2,
-	TW_RESIZE2 = 4
+	TW_SCROLL = 1
 };
 
 /** Custom attributes for text window widgets. */
-struct _textwin
+typedef struct textwin_struct
 {
 	/** startpos of the window */
 	int x, y;
@@ -86,13 +76,26 @@ struct _textwin
 
 	/** Font used. */
 	int font;
-};
+
+	/** Flags. */
+	int flags;
+
+	/** Whether there is anything in selection_start yet. */
+	uint8 selection_started;
+
+	/** Start of selection. */
+	sint64 selection_start;
+
+	/** End of selection. */
+	sint64 selection_end;
+
+	/** Slider position. */
+	int old_slider_pos;
+} textwin_struct;
 
 /** Get the maximum number of visible rows. */
 #define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))
 /** Get the base flags depending on the text window. */
 #define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE : TEXT_WORD_WRAP)
-
-int textwin_flags;
 
 #endif

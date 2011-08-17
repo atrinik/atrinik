@@ -205,7 +205,7 @@ int command_push_object(object *op, char *params)
 	/* We check for all conditions where player can't push anything. */
 	if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are unable to push anything.");
+		draw_info(COLOR_WHITE, op, "You are unable to push anything.");
 		return 0;
 	}
 
@@ -227,7 +227,7 @@ int command_push_object(object *op, char *params)
 
 	if (tmp == NULL || !QUERY_FLAG(tmp, FLAG_CAN_ROLL))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You fail to push anything.");
+		draw_info(COLOR_WHITE, op, "You fail to push anything.");
 		return 0;
 	}
 
@@ -236,13 +236,13 @@ int command_push_object(object *op, char *params)
 	/* Try to push the object. */
 	if (!push_ob(tmp, dir, op))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You fail to push the %s.", query_name(tmp, NULL));
+		draw_info_format(COLOR_WHITE, op, "You fail to push the %s.", query_name(tmp, NULL));
 		return 0;
 	}
 
 	/* Now we move the player who was pushing the object. */
 	move_ob(op, dir, op);
-	new_draw_info_format(NDI_UNIQUE, op, "You push the %s.", query_name(tmp, NULL));
+	draw_info_format(COLOR_WHITE, op, "You push the %s.", query_name(tmp, NULL));
 
 	return 1;
 }

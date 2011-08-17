@@ -13,10 +13,10 @@ def main():
 		return
 
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome, welcome... Heh-heh-heh...\n\n^Why do you have 2 brooms?^")
+		me.SayTo(activator, "\nWelcome, welcome... Heh-heh-heh...\n\n<a>Why do you have 2 brooms?</a>")
 
 	elif msg == "why do you have 2 brooms?":
-		me.SayTo(activator, "\nThat is none of your concern! Now go away before I get really mad!\n\n^Did you steal one?^")
+		me.SayTo(activator, "\nThat is none of your concern! Now go away before I get really mad!\n\n<a>Did you steal one?</a>")
 
 	elif msg == "did you steal one?":
 		me.SayTo(activator, "\nThat's it! Now you die!")

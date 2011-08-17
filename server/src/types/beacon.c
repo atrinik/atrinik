@@ -29,19 +29,30 @@
 
 #include <global.h>
 
-/** The beacons list. */
-static objectlink *beacons_list;
+/**
+ * One beacon. */
+typedef struct beacon_struct
+{
+	/** The beacon object. */
+	object *ob;
+
+	/** Hash handle. */
+	UT_hash_handle hh;
+} beacon_struct;
+
+/** Beacons hashtable. */
+static beacon_struct *beacons = NULL;
 
 /**
  * Add a beacon to ::beacons_list.
  * @param ob Beacon to add. */
 void beacon_add(object *ob)
 {
-	objectlink *ol = get_objectlink();
+	beacon_struct *beacon;
 
-	ol->objlink.ob = ob;
-	ol->id = ob->count;
-	objectlink_link(&beacons_list, NULL, NULL, beacons_list, ol);
+	beacon = malloc(sizeof(beacon_struct));
+	beacon->ob = ob;
+	HASH_ADD(hh, beacons, ob->name, sizeof(shstr *), beacon);
 }
 
 /**
@@ -49,16 +60,18 @@ void beacon_add(object *ob)
  * @param ob Beacon to remove. */
 void beacon_remove(object *ob)
 {
-	objectlink *ol;
+	beacon_struct *beacon;
 
-	for (ol = beacons_list; ol; ol = ol->next)
+	HASH_FIND(hh, beacons, &ob->name, sizeof(shstr *), beacon);
+
+	if (beacon)
 	{
-		if (ol->objlink.ob == ob)
-		{
-			objectlink_unlink(&beacons_list, NULL, ol);
-			return_poolchunk(ol, pool_objectlink);
-			break;
-		}
+		HASH_DEL(beacons, beacon);
+		free(beacon);
+	}
+	else
+	{
+		LOG(llevBug, "beacon_remove(): Could not remove beacon %s from hashtable.\n", ob->name);
 	}
 }
 
@@ -66,16 +79,15 @@ void beacon_remove(object *ob)
  * Locate a beacon object in ::beacons_list.
  * @param name Name of the beacon to locate. Must be a shared string.
  * @return The beacon object if found, NULL otherwise. */
-object *beacon_locate(const char *name)
+object *beacon_locate(shstr *name)
 {
-	objectlink *ol;
+	beacon_struct *beacon;
 
-	for (ol = beacons_list; ol; ol = ol->next)
+	HASH_FIND(hh, beacons, &name, sizeof(shstr *), beacon);
+
+	if (beacon)
 	{
-		if (ol->objlink.ob->name == name)
-		{
-			return ol->objlink.ob;
-		}
+		return beacon->ob;
 	}
 
 	return NULL;

@@ -40,8 +40,6 @@
  * </pre> */
 
 #include <global.h>
-#include <object.h>
-#include <ctype.h>
 
 /** Pointer to first recipelist. */
 static recipelist *formulalist;
@@ -221,7 +219,7 @@ void init_formulae()
 		}
 		else if (!strncmp(cp, "ingred", 6))
 		{
-			int numb_ingred = 1;
+			int num_ingred = 1;
 			cp = strchr(cp, ' ') + 1;
 
 			do
@@ -229,7 +227,7 @@ void init_formulae()
 				if ((next = strchr(cp, ',')) != NULL)
 				{
 					*(next++) = '\0';
-					numb_ingred++;
+					num_ingred++;
 				}
 
 				tmp = (linked_char *) malloc(sizeof(linked_char));
@@ -248,7 +246,7 @@ void init_formulae()
 			/* now find the correct (# of ingred ordered) formulalist */
 			fl = formulalist;
 
-			while (numb_ingred != 1)
+			while (num_ingred != 1)
 			{
 				if (!fl->next)
 				{
@@ -256,7 +254,7 @@ void init_formulae()
 				}
 
 				fl = fl->next;
-				numb_ingred--;
+				num_ingred--;
 			}
 
 			fl->total_chance += formula->chance;

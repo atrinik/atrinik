@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-05-29 emperorbma
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -490,7 +490,7 @@ y 11
 arch female3
 msg
 @match ^hi$|^hey$|^hello$
-Can't you see I'm ^reading^?
+Can't you see I'm <a>reading</a>?
 @match ^reading$
 Yes, reading.  Is it a crime for the daughter of a king to enjoy reading?
 endmsg
@@ -893,7 +893,9 @@ x 4
 y 18
 end
 arch sign_generic
-name Asteria Library
+msg
+Asteria Library
+endmsg
 direction 5
 x 4
 y 18
@@ -1054,12 +1056,12 @@ y 15
 arch priest_green
 msg
 @match ^hi$|^hey$|^hello$
-Welcome to the Asterian Royal Library, funded by our gracious ^king^.  Be sure to ask if you have any ^questions^.
+Welcome to the Asterian Royal Library, funded by our gracious <a>king</a>.  Be sure to ask if you have any <a>questions</a>.
 @match ^king$
 Believe it or not, King Romulus is quite generous to the intellectual pursuits.
 @match ^questions$
-The public area is free for all, but exercise your manners, please. The private area is only open to a privileged few. If you're unable to find a certain copy, notify me and I'll be sure to ^find it^.
-Be sure to ask if you need help with the ^categorization scheme^.
+The public area is free for all, but exercise your manners, please. The private area is only open to a privileged few. If you're unable to find a certain copy, notify me and I'll be sure to <a>find it</a>.
+Be sure to ask if you need help with the <a>categorization scheme</a>.
 @match ^find it$
 Even the largest libraries are needing. I have ample experience in this matter. If ever this becomes an issue, you had better first speak with me. I have more contacts than ways to name them.
 @match ^categorization scheme$
@@ -3626,7 +3628,9 @@ x 19
 y 6
 end
 arch sign_generic
-name Temple of Terria
+msg
+Temple of Terria
+endmsg
 direction 3
 x 19
 y 6

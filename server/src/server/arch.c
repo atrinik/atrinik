@@ -33,23 +33,48 @@
 /** If set, does a little timing on the archetype load. */
 #define TIME_ARCH_LOAD 0
 
-/** The arch table. */
-static archetype *arch_table[ARCHTABLE];
-/** How many strcmp's */
-int arch_cmp = 0;
-/** How many searches */
-int arch_search = 0;
+/**
+ * Archetype hash table structure. */
+typedef struct arch_table_struct
+{
+	/** The archetype. */
+	archetype *arch;
+
+	/** Hash handle. */
+	UT_hash_handle hh;
+} arch_table_struct;
+
+/** The archetype hash table. */
+static archetype *arch_table = NULL;
+
 /** True if doing arch initialization */
 int arch_init;
 
-static void clear_archetable();
-static void init_archetable();
-static archetype *get_archetype_struct();
-static void first_arch_pass(FILE *fp);
-static void second_arch_pass(FILE *fp_start);
 static void load_archetypes();
-static unsigned long hasharch(const char *str, int tablesize);
-static void add_arch(archetype *at);
+
+/**
+ * Finds, using the hashtable, which archetype matches the given name.
+ * @return Pointer to the found archetype, otherwise NULL. */
+archetype *find_archetype(const char *name)
+{
+	archetype *at;
+
+	if (name == NULL)
+	{
+		return NULL;
+	}
+
+	HASH_FIND_STR(arch_table, name, at);
+
+	return at;
+}
+
+/**
+ * Adds an archetype to the hashtable. */
+void arch_add(archetype *at)
+{
+	HASH_ADD_KEYPTR(hh, arch_table, at->name, strlen(at->name), at);
+}
 
 /**
  * Get the skill object for skill ID.
@@ -93,24 +118,6 @@ void init_archetypes()
 }
 
 /**
- * Prints how efficient the hashtable used for archetypes has been in.
- * @param op Player object to print the information to. */
-void arch_info(object *op)
-{
-	char buf[MAX_BUF];
-
-	snprintf(buf, sizeof(buf), "%d searches and %d strcmp()'s", arch_search, arch_cmp);
-	new_draw_info(NDI_WHITE, op, buf);
-}
-
-/**
- * Initialize the hashtable used by the archetypes. */
-static void clear_archetable()
-{
-	memset((void *) arch_table, 0, ARCHTABLE * sizeof(archetype *));
-}
-
-/**
  * An alternative way to init the hashtable which is slower, but
  * _works_... */
 static void init_archetable()
@@ -121,7 +128,7 @@ static void init_archetable()
 
 	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
 	{
-		add_arch(at);
+		arch_add(at);
 	}
 
 	LOG(llevDebug, " done.\n");
@@ -494,7 +501,6 @@ static void load_archetypes()
 		return;
 	}
 
-	clear_archetable();
 	LOG(llevDebug, "arch-pass 1...\n");
 
 #if TIME_ARCH_LOAD
@@ -599,100 +605,3 @@ object *get_archetype(const char *name)
 
 	return arch_to_object(at);
 }
-
-/**
- * Hash-function used by the arch-hashtable.
- * @param str Archetype name.
- * @param tablesize Size of the hash table
- * @return Hash of the archetype name */
-static unsigned long hasharch(const char *str, int tablesize)
-{
-	unsigned long hash = 0;
-	int i = 0;
-	const char *p;
-
-	for (p = str; i < MAXSTRING && *p; p++, i++)
-	{
-		hash += *p;
-		hash += hash << 10;
-		hash ^= hash >> 6;
-	}
-
-	hash += hash << 3;
-	hash ^= hash >> 11;
-	hash += hash << 15;
-
-	return hash % tablesize;
-}
-
-/**
- * Finds, using the hashtable, which archetype matches the given name.
- * @return Pointer to the found archetype, otherwise NULL. */
-archetype *find_archetype(const char *name)
-{
-	archetype *at;
-	unsigned long index;
-
-	if (name == NULL)
-	{
-		return NULL;
-	}
-
-	index = hasharch(name, ARCHTABLE);
-	arch_search++;
-
-	for (; ;)
-	{
-		at = arch_table[index];
-
-		/* Not in archetype list - let's try the artifacts file */
-		if (at == NULL)
-		{
-			return find_artifact_archtype(name);
-		}
-
-		arch_cmp++;
-
-		if (!strcmp(at->name, name))
-		{
-			return at;
-		}
-
-		if (++index >= ARCHTABLE)
-		{
-			index = 0;
-		}
-	}
-}
-
-/**
- * Adds an archetype to the hashtable. */
-static void add_arch(archetype *at)
-{
-	unsigned long index = hasharch(at->name, ARCHTABLE), org_index = index;
-
-	for (; ;)
-	{
-		if (arch_table[index] && !strcmp(arch_table[index]->name, at->name))
-		{
-			LOG(llevError, "add_arch(): Double use of arch name %s.\n", STRING_ARCH_NAME(at));
-		}
-
-		if (arch_table[index] == NULL)
-		{
-			arch_table[index] = at;
-			return;
-		}
-
-		if (++index == ARCHTABLE)
-		{
-			index = 0;
-		}
-
-		if (index == org_index)
-		{
-			LOG(llevError, "add_arch(): Archtable too small.\n");
-		}
-	}
-}
-

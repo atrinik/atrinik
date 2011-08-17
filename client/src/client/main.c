@@ -27,30 +27,14 @@
  * @file
  * Client main related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
-_Font MediumFont;
-/* our main font */
-_Font SystemFont;
-/* bigger special font */
-_Font BigFont;
-/* our main font with shadow */
-_Font Font6x3Out;
 /** Server's attributes */
 struct sockaddr_in insock;
 /** Client socket. */
 ClientSocket csocket;
-
-Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
-
-/** Whether the mouse button was clicked. */
-int mb_clicked = 0;
-
-/** Settings. */
-struct _options options;
-Uint32 videoflags_full, videoflags_win;
 
 struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
 int RangeFireMode;
@@ -65,10 +49,6 @@ static int argServerPort;
 
 /** System time counter in ms since program start. */
 uint32 LastTick;
-/** Used from several functions, just to store real ticks. */
-uint32 tmpGameTick;
-/** Number of frames drawn. */
-uint32 FrameCount = 0;
 
 int f_custom_cursor = 0;
 int x_custom_cursor = 0;
@@ -77,10 +57,6 @@ int y_custom_cursor = 0;
 /* update map area */
 int map_udate_flag, map_redraw_flag;
 
-/** The party GUI. */
-struct gui_party_struct *gui_interface_party;
-/** All the loaded help files. */
-help_files_struct *help_files;
 /** Global status identifier. */
 _game_status GameStatus;
 /** The stored "anim commands" we created out of anims.tmp. */
@@ -98,20 +74,14 @@ _face_struct FaceList[MAX_FACE_TILES];
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
 /** Last time we sent keepalive command. */
-static time_t last_keepalive;
+static uint32 last_keepalive;
 
 /** All the bitmaps. */
 static _bitmap_name bitmap_name[BITMAP_INIT] =
 {
-	{"palette.png", PIC_TYPE_PALETTE},
-	{"font7x4.png", PIC_TYPE_PALETTE},
-	{"font6x3out.png", PIC_TYPE_PALETTE},
-	{"font_big.png", PIC_TYPE_PALETTE},
-	{"font11x15.png", PIC_TYPE_PALETTE},
 	{"intro.png", PIC_TYPE_DEFAULT},
 
 	{"player_doll_bg.png", PIC_TYPE_TRANS},
-	{"black_tile.png", PIC_TYPE_DEFAULT},
 	{"login_inp.png", PIC_TYPE_DEFAULT},
 	{"invslot.png", PIC_TYPE_TRANS},
 
@@ -181,22 +151,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"warn_hp.png", PIC_TYPE_DEFAULT},
 	{"warn_food.png", PIC_TYPE_DEFAULT},
 
-	{"dialog_bg.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_options.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_keybind.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_skill.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_spell.png", PIC_TYPE_DEFAULT},
-	{"dialog_title_party.png", PIC_TYPE_DEFAULT},
-	{"dialog_button_up.png", PIC_TYPE_DEFAULT},
-	{"dialog_button_down.png", PIC_TYPE_DEFAULT},
-	{"dialog_tab_start.png", PIC_TYPE_DEFAULT},
-	{"dialog_tab.png", PIC_TYPE_DEFAULT},
-	{"dialog_tab_stop.png", PIC_TYPE_DEFAULT},
-	{"dialog_tab_sel.png", PIC_TYPE_DEFAULT},
-	{"dialog_checker.png", PIC_TYPE_DEFAULT},
-	{"dialog_range_off.png", PIC_TYPE_DEFAULT},
-	{"dialog_range_l.png", PIC_TYPE_DEFAULT},
-	{"dialog_range_r.png", PIC_TYPE_DEFAULT},
+	{"range_buttons_off.png", PIC_TYPE_DEFAULT},
+	{"range_buttons_left.png", PIC_TYPE_DEFAULT},
+	{"range_buttons_right.png", PIC_TYPE_DEFAULT},
 
 	{"target_hp.png", PIC_TYPE_DEFAULT},
 	{"target_hp_b.png", PIC_TYPE_DEFAULT},
@@ -256,7 +213,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"icon_party.png", PIC_TYPE_ALPHA},
 	{"icon_map.png", PIC_TYPE_ALPHA},
 	{"icon_cogs.png", PIC_TYPE_ALPHA},
-	{"icon_quest.png", PIC_TYPE_ALPHA}
+	{"icon_quest.png", PIC_TYPE_ALPHA},
+	{"fps.png", PIC_TYPE_DEFAULT}
 };
 
 /** Number of bitmaps. */
@@ -294,7 +252,6 @@ static void init_game_data()
 
 	init_widgets_fromCurrent();
 
-	memset(&options, 0, sizeof(struct _options));
 	init_map_data(0, 0, 0, 0);
 
 	for (i = 0; i < BITMAP_MAX; i++)
@@ -321,202 +278,19 @@ static void init_game_data()
 	text_input_string_flag = 0;
 	text_input_string_end_flag = 0;
 	text_input_string_esc_flag = 0;
-	csocket.fd = SOCKET_NO;
+	csocket.fd = -1;
 	RangeFireMode = 0;
-	gui_interface_party = NULL;
-	help_files = NULL;
-	options.resolution_x = WINDOW_DEFAULT_WIDTH;
-	options.resolution_y = WINDOW_DEFAULT_HEIGHT;
-	options.playerdoll = 0;
-#ifdef WIDGET_SNAP
-	options.widget_snap = 0;
-#endif
-
-	options.zoom = 100;
-
-	load_options_dat();
-
-	Screensize = (_screensize *) malloc(sizeof(_screensize));
-	Screensize->x = options.resolution_x;
-	Screensize->y = options.resolution_y;
-
-	change_textwin_font(options.chat_font_size);
 
 	text_input_history_clear();
 	delete_player_lists();
 	metaserver_init();
 
-	if (!options.allow_widgets_offscreen)
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 	{
 		widgets_ensure_onscreen();
 	}
 
 	SRANDOM(time(NULL));
-}
-
-/**
- * Save the options file. */
-void save_options_dat()
-{
-	char txtBuffer[20];
-	int i = -1, j = -1;
-	FILE *stream;
-
-	if (!(stream = fopen_wrapper(OPTION_FILE, "w")))
-	{
-		return;
-	}
-
-	fputs("##########################################\n", stream);
-	fputs("# This is the Atrinik client option file #\n", stream);
-	fputs("##########################################\n", stream);
-
-	snprintf(txtBuffer, sizeof(txtBuffer), "%%3x %d\n", options.resolution_x);
-	fputs(txtBuffer, stream);
-
-	snprintf(txtBuffer, sizeof(txtBuffer), "%%3y %d\n", options.resolution_y);
-	fputs(txtBuffer, stream);
-
-	while (opt_tab[++i])
-	{
-		fputs("\n# ", stream);
-		fputs(opt_tab[i], stream);
-		fputs("\n", stream);
-
-		while (opt[++j].name && opt[j].name[0] != '#')
-		{
-			fputs(opt[j].name, stream);
-
-			switch (opt[j].value_type)
-			{
-				case VAL_BOOL:
-				case VAL_INT:
-					snprintf(txtBuffer, sizeof(txtBuffer), " %d",  *((int *) opt[j].value));
-					break;
-
-				case VAL_U32:
-					snprintf(txtBuffer, sizeof(txtBuffer), " %d",  *((uint32 *) opt[j].value));
-					break;
-
-				case VAL_CHAR:
-					snprintf(txtBuffer, sizeof(txtBuffer), " %d",  *((uint8 *)opt[j].value));
-					break;
-			}
-
-			fputs(txtBuffer, stream);
-			fputs("\n", stream);
-		}
-	}
-
-	fclose(stream);
-}
-
-/**
- * Load the options file. */
-void load_options_dat()
-{
-	int i = -1, pos;
-	FILE *stream;
-	char line[256], keyword[256], parameter[256];
-
-	/* Fill all options with default values */
-	while (opt[++i].name)
-	{
-		if (opt[i].name[0] == '#')
-		{
-			continue;
-		}
-
-		switch (opt[i].value_type)
-		{
-			case VAL_BOOL:
-			case VAL_INT:
-				*((int *) opt[i].value) = opt[i].default_val;
-				break;
-
-			case VAL_U32:
-				*((uint32 *) opt[i].value) = opt[i].default_val;
-				break;
-
-			case VAL_CHAR:
-				*((uint8 *) opt[i].value)= (uint8) opt[i].default_val;
-				break;
-		}
-	}
-
-	/* Read the options from file */
-	if (!(stream = fopen_wrapper(OPTION_FILE, "r")))
-	{
-		LOG(llevInfo, "Can't find file %s. Using defaults.\n", OPTION_FILE);
-		return;
-	}
-
-	while (fgets(line, 255, stream))
-	{
-		if (line[0] == '#' || line[0] == '\n')
-			continue;
-
-		/* This are special settings which won't show in the options window, this has to be reworked in a general way */
-		if (line[0] == '%')
-		{
-			switch (line[1])
-			{
-				case '3':
-					switch (line[2])
-					{
-						case 'x':
-							options.resolution_x = atoi(line + 4);
-							break;
-
-						case 'y':
-							options.resolution_y = atoi(line + 4);
-							break;
-					}
-
-					break;
-			}
-
-			continue;
-		}
-
-		i = 0;
-
-		while (line[i] && line[i] != ':')
-		{
-			i++;
-		}
-
-		line[++i] = '\0';
-		strncpy(keyword, line, sizeof(keyword));
-		strncpy(parameter, line + i + 1, sizeof(parameter));
-		i = atoi(parameter);
-
-		pos = -1;
-
-		while (opt[++pos].name)
-		{
-			if (!strcmp(keyword, opt[pos].name))
-			{
-				switch (opt[pos].value_type)
-				{
-					case VAL_BOOL:
-					case VAL_INT:
-						*((int *) opt[pos].value) = i;
-						break;
-
-					case VAL_U32:
-						*((uint32 *) opt[pos].value) = i;
-						break;
-
-					case VAL_CHAR:
-						*((uint8 *) opt[pos].value)= (uint8) i;
-						break;
-				}
-			}
-		}
-	}
-
-	fclose(stream);
 }
 
 /** @cond */
@@ -594,8 +368,9 @@ static int game_status_chain()
 		map_udate_flag = 2;
 		delete_player_lists();
 		LOG(llevInfo, "GAMES_STATUS_INIT_2\n");
-		sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
+		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 		clear_map();
+		effect_stop();
 		LOG(llevInfo, "GAMES_STATUS_INIT_3\n");
 		LOG(llevInfo, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;
@@ -612,24 +387,14 @@ static int game_status_chain()
 			metaserver_add(argServerName, argServerPort, argServerName, -1, "user server", "Server from command line -server option.");
 		}
 
-		/* Skip if -nometa in command line */
-		if (options.no_meta)
-		{
-			draw_info("Metaserver ignored.", COLOR_GREEN);
-			ms_connecting(0);
-		}
-		else
-		{
-			metaserver_get_servers();
-		}
-
+		metaserver_get_servers();
 		GameStatus = GAME_STATUS_START;
 	}
 	else if (GameStatus == GAME_STATUS_START)
 	{
 		map_udate_flag = 2;
 
-		if ((int) csocket.fd != SOCKET_NO)
+		if (csocket.fd != -1)
 		{
 			socket_close(&csocket);
 		}
@@ -637,29 +402,27 @@ static int game_status_chain()
 		clear_map();
 		map_redraw_flag = 1;
 		clear_player();
-		reset_keys();
 		GameStatus = GAME_STATUS_WAITLOOP;
 	}
 	else if (GameStatus == GAME_STATUS_STARTCONNECT)
 	{
 		map_udate_flag = 2;
-		snprintf(buf, sizeof(buf), "Trying server %s (%d)...", selected_server->name, selected_server->port);
-		draw_info(buf, COLOR_GREEN);
-		last_keepalive = time(NULL);
+		draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
+		last_keepalive = SDL_GetTicks();
 		GameStatus = GAME_STATUS_CONNECT;
 	}
 	else if (GameStatus == GAME_STATUS_CONNECT)
 	{
 		if (!socket_open(&csocket, selected_server->ip, selected_server->port))
 		{
-			draw_info("Connection failed!", COLOR_RED);
+			draw_info(COLOR_RED, "Connection failed!");
 			GameStatus = GAME_STATUS_START;
 			return 1;
 		}
 
 		socket_thread_start();
 		GameStatus = GAME_STATUS_VERSION;
-		draw_info("Connected. Exchange version.", COLOR_GREEN);
+		draw_info(COLOR_GREEN, "Connected. Exchange version.");
 		cpl.name[0] = '\0';
 		cpl.password[0] = '\0';
 		region_map_clear();
@@ -671,7 +434,7 @@ static int game_status_chain()
 	}
 	else if (GameStatus == GAME_STATUS_SETUP)
 	{
-		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %dx%d", options.map_size_x, options.map_size_y);
+		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %"FMT64"x%"FMT64, setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH), setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
 		server_files_setup_add(buf, sizeof(buf));
 		cs_write_string(buf, strlen(buf));
 
@@ -696,7 +459,7 @@ static int game_status_chain()
 	{
 		if (text_input_string_esc_flag)
 		{
-			draw_info("Break login.", COLOR_RED);
+			draw_info(COLOR_RED, "Break login.");
 			GameStatus = GAME_STATUS_START;
 		}
 
@@ -751,7 +514,6 @@ static int game_status_chain()
 	else if (GameStatus == GAME_STATUS_WAITFORPLAY)
 	{
 		clear_map();
-		map_draw_map_clear();
 		map_udate_flag = 2;
 	}
 
@@ -769,42 +531,37 @@ static void load_bitmaps()
 	{
 		load_bitmap(i);
 	}
-
-	CreateNewFont(Bitmaps[BITMAP_FONT1], &SystemFont, 16, 16, 1);
-	CreateNewFont(Bitmaps[BITMAP_FONTMEDIUM], &MediumFont, 16, 16, 1);
-	CreateNewFont(Bitmaps[BITMAP_FONT6x3OUT], &Font6x3Out, 16, 16, -1);
-	CreateNewFont(Bitmaps[BITMAP_BIGFONT], &BigFont, 11, 16, 3);
 }
 
 /**
  * Load a single bitmap.
  * @param index ID of the bitmap to load.
  * @return 1 on success, 0 on failure. */
-static int load_bitmap(int index)
+static int load_bitmap(int idx)
 {
 	char buf[2048];
 	uint32 flags = 0;
 
-	snprintf(buf, sizeof(buf), DIRECTORY_BITMAPS"/%s", bitmap_name[index].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_BITMAPS"/%s", bitmap_name[idx].name);
 
-	if (bitmap_name[index].type == PIC_TYPE_PALETTE)
+	if (bitmap_name[idx].type == PIC_TYPE_PALETTE)
 	{
 		flags |= SURFACE_FLAG_PALETTE;
 	}
 
-	if (bitmap_name[index].type == PIC_TYPE_TRANS)
+	if (bitmap_name[idx].type == PIC_TYPE_TRANS)
 	{
 		flags |= SURFACE_FLAG_COLKEY_16M;
 	}
 
-	if (index >= BITMAP_INTRO && index != BITMAP_TEXTWIN_MASK)
+	if (idx >= BITMAP_INTRO && idx != BITMAP_TEXTWIN_MASK)
 	{
-		flags |= bitmap_name[index].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
+		flags |= bitmap_name[idx].type == PIC_TYPE_ALPHA ? SURFACE_FLAG_DISPLAYFORMATALPHA : SURFACE_FLAG_DISPLAYFORMAT;
 	}
 
-	Bitmaps[index] = sprite_load_file(buf, flags);
+	Bitmaps[idx] = sprite_load_file(buf, flags);
 
-	if (!Bitmaps[index] || !Bitmaps[index]->bitmap)
+	if (!Bitmaps[idx] || !Bitmaps[idx]->bitmap)
 	{
 		LOG(llevBug, "load_bitmap(): Can't load bitmap %s\n", buf);
 		return 0;
@@ -971,15 +728,11 @@ static void display_layer4()
 
 		if (cpl.input_mode == INPUT_MODE_CONSOLE)
 		{
-			do_console();
+			widget_input_do(cur_widget[IN_CONSOLE_ID]);
 		}
 		else if (cpl.input_mode == INPUT_MODE_NUMBER)
 		{
-			do_number();
-		}
-		else if (cpl.input_mode == INPUT_MODE_GETKEY)
-		{
-			do_keybind_input();
+			widget_input_do(cur_widget[IN_NUMBER_ID]);
 		}
 	}
 }
@@ -1004,9 +757,14 @@ int main(int argc, char *argv[])
 	int x, y, drag, done = 0;
 	uint32 anim_tick, frame_start_time;
 	size_t i;
+	char version[MAX_BUF];
 
 	init_signals();
+#ifndef WIN32
+	br_init(NULL);
+#endif
 	upgrader_init();
+	settings_init();
 	init_game_data();
 	curl_init();
 
@@ -1031,9 +789,9 @@ int main(int argc, char *argv[])
 
 			argc--;
 		}
-		else if (strcmp(argv[argc], "-nometa") == 0)
+		else if (!strcmp(argv[argc], "-nometa"))
 		{
-			options.no_meta = 1;
+			metaserver_disable();
 		}
 		else if (!strcmp(argv[argc], "-text-debug"))
 		{
@@ -1056,34 +814,12 @@ int main(int argc, char *argv[])
 	system_start();
 	list_vid_modes();
 
-	options.used_video_bpp = 16;
-
-	if (!options.fullscreen_flag)
-	{
-		if (options.auto_bpp_flag)
-		{
-			const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-			options.used_video_bpp = info->vfmt->BitsPerPixel;
-		}
-	}
-
 	if (!video_set_size())
 	{
 		LOG(llevError, "Couldn't set video size: %s\n", SDL_GetError());
 	}
 
 	sprite_init_system();
-
-	/* 60, 70*/
-	sdl_dgreen = SDL_MapRGB(ScreenSurface->format, 0x00, 0x80, 0x00);
-	sdl_gray1 = SDL_MapRGB(ScreenSurface->format, 0x45, 0x45, 0x45);
-	sdl_gray2 = SDL_MapRGB(ScreenSurface->format, 0x55, 0x55, 0x55);
-
-	sdl_gray3 = SDL_MapRGB(ScreenSurface->format, 0x55, 0x55, 0x55);
-	sdl_gray4 = SDL_MapRGB(ScreenSurface->format, 0x60, 0x60, 0x60);
-
-	sdl_blue1 = SDL_MapRGB(ScreenSurface->format, 0x00, 0x00, 0xef);
 
 	SDL_EnableUNICODE(1);
 
@@ -1098,24 +834,33 @@ int main(int argc, char *argv[])
 	}
 
 	sound_init();
-	read_keybind_file(KEYBIND_FILE);
+	keybind_load();
 	load_mapdef_dat();
 	read_bmaps_p0();
 	server_files_init();
 
-	sound_start_bg_music("orchestral.ogg", options.music_volume, -1);
+	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 
 	script_autoload();
 
-	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", PACKAGE_VERSION);
-	draw_info("Init network...", COLOR_GREEN);
+	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
+	draw_info(COLOR_GREEN, "Init network...");
 
 	if (!socket_initialize())
 	{
 		exit(1);
 	}
 
-	LastTick = tmpGameTick = anim_tick = SDL_GetTicks();
+	if (!clipboard_init())
+	{
+		draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
+	}
+
+	textwin_init();
+	fps_init();
+	settings_apply();
+
+	LastTick = anim_tick = SDL_GetTicks();
 
 	while (!done)
 	{
@@ -1127,7 +872,7 @@ int main(int argc, char *argv[])
 		{
 			GameStatus = GAME_STATUS_INIT;
 			/* Make sure no popup is visible. */
-			popup_destroy_visible();
+			popup_destroy_all();
 			list_remove_all();
 			continue;
 		}
@@ -1135,10 +880,10 @@ int main(int argc, char *argv[])
 		if (GameStatus > GAME_STATUS_CONNECT)
 		{
 			/* Send keepalive command every 2 minutes. */
-			if (time(NULL) - last_keepalive > 2 * 60)
+			if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000)
 			{
 				cs_write_string("ka", 2);
-				last_keepalive = time(NULL);
+				last_keepalive = SDL_GetTicks();
 			}
 
 			DoClient();
@@ -1170,40 +915,7 @@ int main(int argc, char *argv[])
 				SDL_FillRect(ScreenSurface, NULL, 0);
 			}
 
-			if (!options.force_redraw)
-			{
-				if (options.doublebuf_flag)
-				{
-					map_udate_flag--;
-				}
-				else
-				{
-					map_udate_flag = 0;
-				}
-			}
-		}
-
-		/* Get our ticks */
-		if ((LastTick - tmpGameTick) > 1000)
-		{
-			tmpGameTick = LastTick;
-			FrameCount = 0;
-		}
-
-		if (GameStatus == GAME_STATUS_PLAY)
-		{
-			if (cpl.input_mode == INPUT_MODE_CONSOLE)
-			{
-				do_console();
-			}
-			else if (cpl.input_mode == INPUT_MODE_NUMBER)
-			{
-				do_number();
-			}
-			else if (cpl.input_mode == INPUT_MODE_GETKEY)
-			{
-				do_keybind_input();
-			}
+			map_udate_flag = 0;
 		}
 
 		/* If not connected, walk through connection chain and/or wait for action */
@@ -1251,102 +963,24 @@ int main(int argc, char *argv[])
 
 		if (GameStatus <= GAME_STATUS_WAITFORPLAY)
 		{
-			show_meta_server();
+			main_screen_render();
 		}
-
-		/* Show all kind of the big dialog windows */
-		show_menu();
 
 		tooltip_show();
-
-		/* We have a non-standard mouse-pointer (win-size changer, etc.) */
-		if (cursor_type)
-		{
-			SDL_Rect rec;
-
-			SDL_GetMouseState(&x, &y);
-
-			if (cursor_type == 1)
-			{
-				rec.w = 14;
-				rec.h = 1;
-				rec.x = x - 7;
-				rec.y = y - 2;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-				rec.y = y - 5;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-			}
-			else if (cursor_type == 2)
-			{
-				rec.w = 1;
-				rec.h = 14;
-				rec.x = x - 2;
-				rec.y = y - 7;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-				rec.x = x - 5;
-				SDL_FillRect(ScreenSurface, &rec, -1);
-			}
-		}
 
 		if (f_custom_cursor)
 		{
 			DisplayCustomCursor();
 		}
 
-		FrameCount++;
 		LastTick = SDL_GetTicks();
 
 		script_process();
+		popup_render_head();
 
-		/* Process message animations */
-		if ((GameStatus == GAME_STATUS_PLAY) && msg_anim.message[0] != '\0')
-		{
-			map_udate_flag = 2;
+		SDL_Flip(ScreenSurface);
 
-			if ((LastTick - msg_anim.tick) < 3000)
-			{
-				_BLTFX bmbltfx;
-				int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
-				char *msg = strdup(msg_anim.message), *cp;
-
-				bmbltfx.alpha = 255;
-				bmbltfx.flags = BLTFX_FLAG_SRCALPHA;
-
-				if (LastTick - msg_anim.tick > 2000)
-				{
-					bmbltfx.alpha -= (int) (255.0f * ((float) (LastTick - msg_anim.tick - 2000) / 1000.0f));
-				}
-
-				cp = strtok(msg, "\n");
-
-				while (cp)
-				{
-					StringBlt(ScreenSurface, &BigFont, cp, Screensize->x / 2 - (StringWidth(&BigFont, cp) / 2), 300 - bmoff + y_offset, COLOR_BLACK, NULL, &bmbltfx);
-					StringBlt(ScreenSurface, &BigFont, cp, Screensize->x / 2 - (StringWidth(&BigFont, cp) / 2) - 2 , 300 - 2 - bmoff + y_offset, msg_anim.flags & 0xff, NULL, &bmbltfx);
-					y_offset += 16;
-					cp = strtok(NULL, "\n");
-				}
-
-				free(msg);
-			}
-			else
-			{
-				msg_anim.message[0] = '\0';
-			}
-		}
-
-		popup_draw();
-
-		if (options.use_rect)
-		{
-			SDL_UpdateRect(ScreenSurface, 0, 0, Screensize->x, Screensize->y);
-		}
-		else
-		{
-			SDL_Flip(ScreenSurface);
-		}
-
-		if (options.intelligent_fps_cap)
+		if (!setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME))
 		{
 			uint32 elapsed_time = SDL_GetTicks() - frame_start_time;
 
@@ -1355,11 +989,12 @@ int main(int argc, char *argv[])
 				SDL_Delay(1000 / FRAMES_PER_SECOND - elapsed_time);
 			}
 		}
-		/* Force the thread to sleep */
-		else if (options.max_speed)
+		else
 		{
-			SDL_Delay(options.sleep);
+			SDL_Delay(setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME));
 		}
+
+		fps_do();
 	}
 
 	system_end();

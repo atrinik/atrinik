@@ -27,19 +27,33 @@
  * @file
  * This file handles all text window related functions */
 
-#include <include.h>
+#include <global.h>
 
-int textwin_flags = 0;
-static int old_slider_pos = 0;
-static SDL_Surface *txtwinbg = NULL;
-static int old_txtwin_alpha = -1;
+/**
+ * The widget that player is making a selection in (or has finished doing
+ * so). */
+static widgetdata *selection_widget = NULL;
+/** Color to use for the text window border. */
+static Uint32 textwin_border_color;
+/**
+ * Color to use for the text window border when the mouse is hovering
+ * over it. */
+static Uint32 textwin_border_color_selected;
+
+/**
+ * Initialize text window variables. */
+void textwin_init()
+{
+	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
+	textwin_border_color_selected = SDL_MapRGB(ScreenSurface->format, 177, 126, 5);
+}
 
 /**
  * Makes sure textwin's scroll value is a sane number.
  * @param widget Text window's widget. */
 void textwin_scroll_adjust(widgetdata *widget)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 
 	if (textwin->scroll < TEXTWIN_ROWS_VISIBLE(widget))
 	{
@@ -56,9 +70,9 @@ void textwin_scroll_adjust(widgetdata *widget)
  * Readjust text window's scroll/entries counts due to a font size
  * change.
  * @param widget Text window's widget. */
-static void textwin_readjust(widgetdata *widget)
+void textwin_readjust(widgetdata *widget)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int scroll;
 
@@ -71,7 +85,7 @@ static void textwin_readjust(widgetdata *widget)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	/* Adjust the counts. */
@@ -79,30 +93,10 @@ static void textwin_readjust(widgetdata *widget)
 	textwin->num_entries = scroll;
 }
 
-/**
- * Draw info with format arguments.
- * @param flags Various flags, like color.
- * @param format Format arguments. */
-void draw_info_format(int flags, char *format, ...)
-{
-	char buf[4096];
-	va_list ap;
-
-	va_start(ap, format);
-	vsnprintf(buf, sizeof(buf), format, ap);
-	va_end(ap);
-
-	draw_info(buf, flags);
-}
-
-/**
- * Add string to the text window.
- * @param str The string.
- * @param flags Various flags, like color. */
-void draw_info(const char *str, int flags)
+void draw_info_flags(const char *color, int flags, const char *str)
 {
 	widgetdata *widget;
-	_textwin *textwin;
+	textwin_struct *textwin;
 	size_t len, scroll;
 	SDL_Rect box;
 
@@ -123,11 +117,16 @@ void draw_info(const char *str, int flags)
 
 	len = strlen(str);
 	/* Resize the characters array as needed. */
-	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 4);
+	textwin->entries = realloc(textwin->entries, textwin->entries_size + len + 9);
 	/* Tells the text module what color to use. */
 	textwin->entries[textwin->entries_size] = '\r';
-	textwin->entries[textwin->entries_size + 1] = (flags & 0xff) + 1;
-	textwin->entries_size += 2;
+	textwin->entries[textwin->entries_size + 1] = color[0];
+	textwin->entries[textwin->entries_size + 2] = color[1];
+	textwin->entries[textwin->entries_size + 3] = color[2];
+	textwin->entries[textwin->entries_size + 4] = color[3];
+	textwin->entries[textwin->entries_size + 5] = color[4];
+	textwin->entries[textwin->entries_size + 6] = color[5];
+	textwin->entries_size += 7;
 	/* Add the string, newline and terminating \0. */
 	strcpy(textwin->entries + textwin->entries_size, str);
 	textwin->entries[textwin->entries_size + len] = '\n';
@@ -136,7 +135,7 @@ void draw_info(const char *str, int flags)
 
 	box.y = 0;
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, str, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
 
 	/* Adjust the counts. */
@@ -144,11 +143,11 @@ void draw_info(const char *str, int flags)
 	textwin->num_entries += scroll;
 
 	/* Have the entries gone over maximum allowed lines? */
-	if (textwin->entries && textwin->num_entries >= (size_t) options.chat_max_lines)
+	if (textwin->entries && textwin->num_entries >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES))
 	{
 		char *cp;
 
-		while (textwin->num_entries >= (size_t) options.chat_max_lines && (cp = strchr(textwin->entries, '\n')))
+		while (textwin->num_entries >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES) && (cp = strchr(textwin->entries, '\n')))
 		{
 			size_t pos = cp - textwin->entries + 1;
 			char *buf = malloc(pos + 1);
@@ -160,7 +159,7 @@ void draw_info(const char *str, int flags)
 
 			/* Get the string's height. */
 			box.h = 0;
-			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 			scroll = box.h / FONT_HEIGHT(textwin->font);
 
 			free(buf);
@@ -176,6 +175,93 @@ void draw_info(const char *str, int flags)
 			textwin->num_entries -= scroll;
 		}
 	}
+
+	popup_overlay_redraw();
+}
+
+/**
+ * Draw info with format arguments.
+ * @param flags Various flags, like color.
+ * @param format Format arguments. */
+void draw_info_format(const char *color, char *format, ...)
+{
+	char buf[HUGE_BUF * 2];
+	va_list ap;
+
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
+	va_end(ap);
+
+	draw_info_flags(color, 0, buf);
+}
+
+/**
+ * Add string to the text window.
+ * @param flags Various flags, like color.
+ * @param str The string. */
+void draw_info(const char *color, const char *str)
+{
+	draw_info_flags(color, 0, str);
+}
+
+/**
+ * Handle ctrl+C. */
+void textwin_handle_copy()
+{
+	sint64 start, end;
+	textwin_struct *textwin;
+	char *str, *cp;
+	size_t i, pos;
+
+	/* Nothing to copy? */
+	if (!selection_widget)
+	{
+		return;
+	}
+
+	textwin = TEXTWIN(selection_widget);
+
+	start = textwin->selection_start;
+	end = textwin->selection_end;
+
+	if (end < start)
+	{
+		start = textwin->selection_end;
+		end = textwin->selection_start;
+	}
+
+	if (end - start <= 0)
+	{
+		return;
+	}
+
+	/* Get the string to copy, depending on the start and end positions. */
+	str = malloc(sizeof(char) * (end - start + 1 + 1));
+	memcpy(str, textwin->entries + start, end - start + 1);
+	str[end - start + 1] = '\0';
+
+	cp = malloc(sizeof(char) * (end - start + 1 + 1));
+	i = 0;
+
+	/* Remove the special \r color changers. */
+	for (pos = 0; pos < (size_t) (end - start + 1); pos++)
+	{
+		if (str[pos] == '\r')
+		{
+			pos += 6;
+		}
+		else
+		{
+			cp[i] = str[pos];
+			i++;
+		}
+	}
+
+	cp[i] = '\0';
+
+	clipboard_set(cp);
+	free(str);
+	free(cp);
 }
 
 /**
@@ -186,7 +272,7 @@ void draw_info(const char *str, int flags)
  * @param bltfx The surface. */
 static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 {
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int temp;
 
@@ -200,24 +286,24 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.w = widget->wd - Bitmaps[BITMAP_SLIDER]->bitmap->w - 7;
 		box.h = widget->ht;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
-		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
+		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		text_set_selection(NULL, NULL, NULL);
 	}
 
 	/* Only draw scrollbar if needed */
 	if (textwin->num_entries > (size_t) TEXTWIN_ROWS_VISIBLE(widget))
 	{
-		SDL_Rect box;
-
 		box.x = box.y = 0;
 		box.w = Bitmaps[BITMAP_SLIDER]->bitmap->w;
 		box.h = widget->ht - 12;
 
 		/* No textinput-line */
-		temp = -9;
-		sprite_blt(Bitmaps[BITMAP_SLIDER_UP], x + widget->wd - 11, y + 2, NULL, bltfx);
+		temp = -11;
+		sprite_blt(Bitmaps[BITMAP_SLIDER_UP], x + widget->wd - 11, y + 1, NULL, bltfx);
 		sprite_blt(Bitmaps[BITMAP_SLIDER_DOWN], x + widget->wd - 11, y + temp + widget->ht, NULL, bltfx);
 		sprite_blt(Bitmaps[BITMAP_SLIDER], x + widget->wd - 11, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + temp, &box, bltfx);
-		box.h += temp - 2;
+		box.h += temp - 1;
 		box.w -= 2;
 
 		/* Between 0.0 <-> 1.0 */
@@ -235,12 +321,12 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		}
 
 		box.h = textwin->slider_h;
-		sprite_blt(Bitmaps[BITMAP_TWIN_SCROLL], x + widget->wd - 9, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y, &box, bltfx);
+		sprite_blt(Bitmaps[BITMAP_TWIN_SCROLL], x + widget->wd - 9, y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + textwin->slider_y, &box, bltfx);
 
 		if (textwin->highlight == TW_HL_UP)
 		{
 			box.x = x + widget->wd - 11;
-			box.y = y + 2;
+			box.y = y + 1;
 			box.h = Bitmaps[BITMAP_SLIDER_UP]->bitmap->h;
 			box.w = 1;
 			SDL_FillRect(bltfx->surface, &box, -1);
@@ -256,7 +342,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		else if (textwin->highlight == TW_ABOVE)
 		{
 			box.x = x + widget->wd - 9;
-			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2;
+			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 1;
 			box.h = textwin->slider_y + 1;
 			box.w = 5;
 			SDL_FillRect(bltfx->surface, &box, 0);
@@ -264,7 +350,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		else if (textwin->highlight == TW_HL_SLIDER)
 		{
 			box.x = x + widget->wd - 9;
-			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y;
+			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + textwin->slider_y;
 			box.w = 1;
 			SDL_FillRect(bltfx->surface, &box, -1);
 			box.x += 4;
@@ -279,7 +365,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		else if (textwin->highlight == TW_UNDER)
 		{
 			box.x = x + widget->wd - 9;
-			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y + box.h;
+			box.y = y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 2 + textwin->slider_y + box.h;
 			box.h = widget->ht - 13 - textwin->slider_y - textwin->slider_h - 10;
 			box.w = 5;
 			SDL_FillRect(bltfx->surface, &box, 0);
@@ -287,7 +373,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		else if (textwin->highlight == TW_HL_DOWN)
 		{
 			box.x = x + widget->wd - 11;
-			box.y = y + widget->ht - 13 + 4;
+			box.y = y + widget->ht - 13 + 2;
 			box.h = Bitmaps[BITMAP_SLIDER_UP]->bitmap->h;
 			box.w = 1;
 			SDL_FillRect(bltfx->surface, &box, -1);
@@ -317,7 +403,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 void textwin_show(int x, int y, int w, int h)
 {
 	widgetdata *widget = cur_widget[MSGWIN_ID];
-	_textwin *textwin = TEXTWIN(widget);
+	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
 	int scroll;
 
@@ -325,7 +411,7 @@ void textwin_show(int x, int y, int w, int h)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 	scroll = box.h / FONT_HEIGHT(textwin->font);
 
 	box.x = x;
@@ -340,7 +426,7 @@ void textwin_show(int x, int y, int w, int h)
 
 	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_SIMPLE(COLOR_WHITE), TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
 }
 
 /**
@@ -348,12 +434,9 @@ void textwin_show(int x, int y, int w, int h)
  * @param widget The widget object. */
 void widget_textwin_show(widgetdata *widget)
 {
-	int len;
-	SDL_Rect box, box2;
-	_BLTFX bltfx;
-	_textwin *textwin = TEXTWIN(widget);
-	int x = widget->x1;
-	int y = widget->y1;
+	SDL_Rect box;
+	textwin_struct *textwin = TEXTWIN(widget);
+	int mx, my, alpha;
 
 	/* Sanity check. */
 	if (!textwin)
@@ -361,313 +444,266 @@ void widget_textwin_show(widgetdata *widget)
 		return;
 	}
 
-	box.x = box.y = 0;
-	box.w = widget->wd;
-	box.h = len = widget->ht;
-
 	/* If we don't have a backbuffer, create it */
-	if (!widget->widgetSF)
+	if (!widget->widgetSF || widget->wd != widget->widgetSF->w || widget->ht != widget->widgetSF->h)
 	{
-		/* Need to do this, or the foreground could be semi-transparent too. */
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->format, Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->flags);
-		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(widget->widgetSF->format, 0, 0, 0));
-	}
-
-	if (old_txtwin_alpha != options.textwin_alpha)
-	{
-		if (txtwinbg)
+		if (widget->widgetSF)
 		{
-			SDL_FreeSurface(txtwinbg);
+			SDL_FreeSurface(widget->widgetSF);
 		}
 
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, options.textwin_alpha);
-		txtwinbg = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
-		SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
-		old_txtwin_alpha = options.textwin_alpha;
+		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), widget->wd, widget->ht, video_get_bpp(), 0, 0, 0, 0);
+		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+	}
 
+	if (widget_mouse_event.owner != widget && widget == selection_widget && textwin->selection_start >= 0 && textwin->selection_end >= 0)
+	{
+		textwin->selection_start = -1;
+		textwin->selection_end = -1;
 		WIDGET_REDRAW(widget);
 	}
 
-	box2.x = x;
-	box2.y = y;
-	SDL_BlitSurface(txtwinbg, &box, ScreenSurface, &box2);
+	if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY)))
+	{
+		filledRectAlpha(ScreenSurface, widget->x1, widget->y1, widget->x1 + widget->wd - 1, widget->y1 + widget->ht - 1, alpha);
+	}
 
 	/* Let's draw the widgets in the backbuffer */
 	if (widget->redraw)
 	{
+		_BLTFX bltfx;
+
 		widget->redraw = 0;
 
-		SDL_FillRect(widget->widgetSF, NULL, SDL_MapRGBA(widget->widgetSF->format, 0, 0, 0, options.textwin_alpha));
+		SDL_FillRect(widget->widgetSF, NULL, 0);
 
 		bltfx.surface = widget->widgetSF;
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
-		box.x = 0;
-		box.y = 0;
-		box.h = 1;
-		box.w = widget->wd;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.y = len;
-		box.h = 1;
-		box.x = 0;
-		box.w = widget->wd;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.w = widget->wd;
-		box.x = box.w - 1;
-		box.w = 1;
-		box.y = 0;
-		box.h = len;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
-		box.x = 0;
-		box.y = 0;
-		box.h = len;
-		box.w = 1;
-		SDL_FillRect(widget->widgetSF, &box, SDL_MapRGBA(widget->widgetSF->format, 0x60, 0x60, 0x60, 255));
 
-		show_window(widget, x, y - 2, &bltfx);
+		show_window(widget, widget->x1, widget->y1 - 2, &bltfx);
 	}
 
-	box.x = x;
-	box.y = y;
-	box2.x = 0;
-	box2.y = 0;
-	box2.w = widget->wd;
-	box2.h = widget->ht + 1;
+	box.x = widget->x1;
+	box.y = widget->y1;
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 
-	SDL_BlitSurface(widget->widgetSF, &box2, ScreenSurface, &box);
-}
+	SDL_GetMouseState(&mx, &my);
 
-/**
- * Handle mouse button events inside the text window.
- * @param actWin The text window.
- * @param event SDL event type. */
-void textwin_button_event(widgetdata *widget, SDL_Event event)
-{
-	_textwin *textwin = TEXTWIN(widget);
-
-	/* Sanity check. */
-	if (!textwin)
+	if (mx < widget->x1 || mx > widget->x1 + widget->wd || my < widget->y1 || my > widget->y1 + widget->ht)
 	{
-		return;
+		textwin->flags &= ~TW_SCROLL;
+		widget->resize_flags = 0;
 	}
 
-	/* Scrolling or resizing */
-	if (event.motion.x < widget->x1 || (textwin_flags & (TW_SCROLL | TW_RESIZE | TW_RESIZE2)))
-	{
-		return;
-	}
-
-	/* Mousewheel up */
-	if (event.button.button == 4)
-	{
-		textwin->scroll--;
-		WIDGET_REDRAW(widget);
-	}
-	/* Mousewheel down */
-	else if (event.button.button == 5)
-	{
-		textwin->scroll++;
-		WIDGET_REDRAW(widget);
-	}
-	else if (event.button.button == SDL_BUTTON_LEFT)
-	{
-		WIDGET_REDRAW(widget);
-
-		/* Clicked scroller button up */
-		if (textwin->highlight == TW_HL_UP)
-		{
-			textwin->scroll--;
-		}
-		/* Clicked above the slider */
-		else if (textwin->highlight == TW_ABOVE)
-		{
-			textwin->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
-		}
-		else if (textwin->highlight == TW_HL_SLIDER)
-		{
-			/* Clicked on the slider */
-			textwin_flags |= TW_SCROLL;
-			textwin->highlight = TW_HL_SLIDER;
-			old_slider_pos = event.motion.y - textwin->slider_y;
-		}
-		/* Clicked under the slider */
-		else if (textwin->highlight == TW_UNDER)
-		{
-			textwin->scroll += TEXTWIN_ROWS_VISIBLE(widget);
-		}
-		/* Clicked scroller button down */
-		else if (textwin->highlight == TW_HL_DOWN)
-		{
-			textwin->scroll++;
-		}
-		/* Size change */
-		else if (event.motion.x < widget->x1 + widget->wd - 15 && event.motion.y > widget->y1 + 2 && event.motion.y < widget->y1 + 7 && cursor_type == 1)
-		{
-			textwin_flags |= TW_RESIZE;
-		}
-		else if (cursor_type == 2 && event.motion.x > widget->x1 + 2 && event.motion.x < widget->x1 + 7 && event.motion.y > widget->y1 && event.motion.y < widget->y1 + widget->ht)
-		{
-			textwin_flags |= TW_RESIZE2;
-		}
-	}
-
-	textwin_scroll_adjust(widget);
-}
-
-/**
- * Mouse move event inside the text window.
- * @param actWin The text window.
- * @param event SDL event type.
- * @return 1 if mouse is out of window, 0 otherwise. */
-int textwin_move_event(widgetdata *widget, SDL_Event event)
-{
-	_textwin *textwin = TEXTWIN(widget);
-
-	if (!textwin)
-	{
-		return 1;
-	}
-
-	if (textwin->highlight != TW_HL_NONE)
-	{
-		textwin->highlight = TW_HL_NONE;
-		WIDGET_REDRAW(widget);
-	}
-
-	/* Show resize cursor */
-	if ((event.motion.x > widget->x1 + 2 && event.motion.x < widget->x1 + 7 && event.motion.y > widget->y1 && event.motion.y < widget->y1 + widget->ht) || (event.button.button == SDL_BUTTON_LEFT && (textwin_flags & TW_RESIZE2)))
-	{
-		if (!(textwin_flags & TW_SCROLL))
-		{
-			cursor_type = 2;
-		}
-	}
-	else if ((event.motion.y > widget->y1 + 2 && event.motion.y < widget->y1 + 7 && (event.motion.x < widget->x1 + widget->wd - 15)) || (event.button.button == SDL_BUTTON_LEFT && (textwin_flags & (TW_SCROLL | TW_RESIZE))))
-	{
-		if (!(textwin_flags & TW_SCROLL) && event.motion.x > widget->x1)
-		{
-			cursor_type = 1;
-		}
-	}
-	else
-	{
-		cursor_type = 0;
-		textwin_flags &= ~(TW_SCROLL | TW_RESIZE | TW_RESIZE2);
-	}
-
-	/* Mouse out of window */
-	/* We have to leave this here! For sanity, also the widget stuff does some area checking */
-	if (event.motion.y < widget->y1 || event.motion.x > widget->x1 + widget->wd || event.motion.y > widget->y1 + widget->ht)
-	{
-		if (!(textwin_flags & (TW_RESIZE | TW_RESIZE2)))
-		{
-			return 1;
-		}
-	}
-
-	/* Highlighting */
-	if (event.motion.x > widget->x1 + widget->wd - 11 && event.motion.y > widget->y1 && event.motion.x < widget->x1 + widget->wd)
-	{
-#define OFFSET (textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h)
-		if (event.motion.y < OFFSET)
-		{
-			textwin->highlight = TW_HL_UP;
-		}
-		else if (event.motion.y < OFFSET + textwin->slider_y)
-		{
-			textwin->highlight = TW_ABOVE;
-		}
-		else if (event.motion.y < OFFSET + textwin->slider_y + textwin->slider_h + 3)
-		{
-			textwin->highlight = TW_HL_SLIDER;
-		}
-		else if (event.motion.y < widget->y1 + widget->ht - 12)
-		{
-			textwin->highlight = TW_UNDER;
-		}
-		else if (event.motion.y < widget->y1 + widget->ht)
-		{
-			textwin->highlight = TW_HL_DOWN;
-		}
-#undef OFFSET
-
-		WIDGET_REDRAW(widget);
-
-		if (event.button.button != SDL_BUTTON_LEFT)
-		{
-			return 0;
-		}
-	}
-
-	/* Slider scrolling */
-	if (textwin_flags & TW_SCROLL)
-	{
-		textwin->slider_y = event.motion.y - old_slider_pos;
-
-		textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
-		textwin_scroll_adjust(widget);
-
-		WIDGET_REDRAW(widget);
-
-		return 0;
-	}
-
-	/* Resizing */
-	if (textwin_flags & (TW_RESIZE | TW_RESIZE2))
-	{
-		if (cursor_type == 1)
-		{
-			resize_widget(widget, RESIZE_TOP, MAX(80, (widget->y1 + widget->ht) - event.motion.y));
-			textwin_scroll_adjust(widget);
-			WIDGET_REDRAW(widget);
-		}
-		else if (cursor_type == 2)
-		{
-			resize_widget(widget, RESIZE_LEFT, MIN(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap->w, MAX(80, widget->x1 - event.motion.x + widget->wd)));
-			textwin_readjust(widget);
-			WIDGET_REDRAW(widget);
-		}
-	}
-
-	return 0;
+	BORDER_CREATE_TOP(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_LEFT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_RIGHT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color, 1);
 }
 
 /**
  * Handle text window mouse events.
- * @param e Event.
  * @param event SDL event type.
  * @param WidgetID Widget ID. */
-void textwin_event(int e, SDL_Event *event, widgetdata *widget)
+void textwin_event(widgetdata *widget, SDL_Event *event)
 {
-	if (e == TW_CHECK_BUT_DOWN)
+	textwin_struct *textwin = TEXTWIN(widget);
+
+	if (!textwin)
 	{
-		textwin_button_event(widget, *event);
+		return;
 	}
-	else
+
+	if (event->button.button == SDL_BUTTON_LEFT)
 	{
-		textwin_move_event(widget, *event);
+		if (event->type == SDL_MOUSEBUTTONUP)
+		{
+			textwin->selection_started = 0;
+			textwin->flags &= ~TW_SCROLL;
+		}
+		else if (event->type == SDL_MOUSEBUTTONDOWN)
+		{
+			textwin->selection_started = 0;
+			textwin->selection_start = -1;
+			textwin->selection_end = -1;
+			selection_widget = widget;
+			WIDGET_REDRAW(widget);
+		}
+		else if (event->type == SDL_MOUSEMOTION)
+		{
+			WIDGET_REDRAW(widget);
+			textwin->selection_started = 1;
+		}
+	}
+
+	if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		int old_scroll;
+
+		/* Scrolling */
+		if (textwin->flags & TW_SCROLL)
+		{
+			return;
+		}
+
+		old_scroll = textwin->scroll;
+
+		if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			textwin->scroll--;
+		}
+		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			textwin->scroll++;
+		}
+		else if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			/* Clicked scroller button up */
+			if (textwin->highlight == TW_HL_UP)
+			{
+				textwin->scroll--;
+			}
+			/* Clicked above the slider */
+			else if (textwin->highlight == TW_ABOVE)
+			{
+				textwin->scroll -= TEXTWIN_ROWS_VISIBLE(widget);
+			}
+			/* Clicked on the slider */
+			else if (textwin->highlight == TW_HL_SLIDER)
+			{
+				textwin->flags |= TW_SCROLL;
+				textwin->highlight = TW_HL_SLIDER;
+				textwin->old_slider_pos = event->motion.y - textwin->slider_y;
+				WIDGET_REDRAW(widget);
+			}
+			/* Clicked under the slider */
+			else if (textwin->highlight == TW_UNDER)
+			{
+				textwin->scroll += TEXTWIN_ROWS_VISIBLE(widget);
+			}
+			/* Clicked scroller button down */
+			else if (textwin->highlight == TW_HL_DOWN)
+			{
+				textwin->scroll++;
+			}
+		}
+
+		textwin_scroll_adjust(widget);
+
+		if (textwin->scroll != old_scroll)
+		{
+			WIDGET_REDRAW(widget);
+		}
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		int old_highlight = textwin->highlight;
+
+		textwin->highlight = TW_HL_NONE;
+
+		/* Highlighting */
+		if (event->motion.x > widget->x1 + widget->wd - 11 && event->motion.y > widget->y1 + 2 && event->motion.x < widget->x1 + widget->wd - 2 && event->motion.y < widget->y1 + widget->ht - 2)
+		{
+			if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3)
+			{
+				textwin->highlight = TW_HL_UP;
+			}
+			else if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y)
+			{
+				textwin->highlight = TW_ABOVE;
+			}
+			else if (event->motion.y < textwin->y + Bitmaps[BITMAP_SLIDER_UP]->bitmap->h + 3 + textwin->slider_y + textwin->slider_h + 3)
+			{
+				textwin->highlight = TW_HL_SLIDER;
+			}
+			else if (event->motion.y < widget->y1 + widget->ht - 12)
+			{
+				textwin->highlight = TW_UNDER;
+			}
+			else if (event->motion.y < widget->y1 + widget->ht)
+			{
+				textwin->highlight = TW_HL_DOWN;
+			}
+		}
+
+		if (textwin->highlight != old_highlight)
+		{
+			WIDGET_REDRAW(widget);
+		}
+
+		/* Slider scrolling */
+		if (textwin->flags & TW_SCROLL && event->button.button == SDL_BUTTON_LEFT)
+		{
+			textwin->slider_y = event->motion.y - textwin->old_slider_pos;
+
+			textwin->scroll = TEXTWIN_ROWS_VISIBLE(widget) + MAX(0, textwin->slider_y) * textwin->num_entries / (widget->ht - 20);
+			textwin_scroll_adjust(widget);
+
+			WIDGET_REDRAW(widget);
+		}
 	}
 }
 
 /**
- * Change the font used for drawing text in text windows.
- * @param font ID of the font to change to. */
-void change_textwin_font(int font)
+ * The 'Clear' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_clear(widgetdata *widget, int x, int y)
 {
-	font = FONT_ARIAL10 + font;
+	textwin_struct *textwin;
 
-	if (TEXTWIN(cur_widget[MSGWIN_ID])->font != font)
-	{
-		TEXTWIN(cur_widget[MSGWIN_ID])->font = font;
-		textwin_readjust(cur_widget[MSGWIN_ID]);
-		WIDGET_REDRAW(cur_widget[MSGWIN_ID]);
-	}
+	(void) x;
+	(void) y;
 
-	if (TEXTWIN(cur_widget[CHATWIN_ID])->font != font)
+	textwin = TEXTWIN(widget);
+	free(textwin->entries);
+	textwin->entries = NULL;
+	textwin->num_entries = textwin->entries_size = textwin->scroll = textwin->slider_h = textwin->slider_y = 0;
+	WIDGET_REDRAW(widget);
+}
+
+/**
+ * Adjust the specified text window widget's font size.
+ * @param widget The text window.
+ * @param adjust How much to adjust the size by. */
+static void textwin_font_adjust(widgetdata *widget, int adjust)
+{
+	textwin_struct *textwin;
+	int font;
+
+	textwin = TEXTWIN(widget);
+	font = MAX(FONT_ARIAL10, MIN(FONT_ARIAL16, textwin->font + adjust));
+
+	if (textwin->font != font)
 	{
-		TEXTWIN(cur_widget[CHATWIN_ID])->font = font;
-		textwin_readjust(cur_widget[CHATWIN_ID]);
-		WIDGET_REDRAW(cur_widget[CHATWIN_ID]);
+		textwin->font = font;
+		textwin_readjust(widget);
+		WIDGET_REDRAW(widget);
 	}
+}
+
+/**
+ * The 'Increase Font Size' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_font_inc(widgetdata *widget, int x, int y)
+{
+	(void) x;
+	(void) y;
+	textwin_font_adjust(widget, 1);
+}
+
+/**
+ * The 'Decrease Font Size' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_font_dec(widgetdata *widget, int x, int y)
+{
+	(void) x;
+	(void) y;
+	textwin_font_adjust(widget, -1);
 }

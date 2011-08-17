@@ -1,0 +1,2083 @@
+arch map
+name Rockforge: City
+msg
+Created:  2011-06-07 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+darkness 3
+region rockforge2
+tile_path_1 rockforge_b_0105
+tile_path_2 rockforge_b_0204
+tile_path_3 rockforge_b_0103
+tile_path_4 rockforge_b_aa04
+tile_path_5 rockforge_b_0205
+tile_path_6 rockforge_b_0203
+tile_path_7 rockforge_b_aa03
+tile_path_8 rockforge_b_aa05
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_marble1.181
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_marble1.111a
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch wall_marble1.111a
+x 1
+y 12
+end
+arch wmask_fire_on_1
+direction 7
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch wall_marble1.111
+x 1
+y 13
+end
+arch blocked
+x 1
+y 14
+end
+arch wall_marble1.111
+x 1
+y 14
+end
+arch blocked
+x 1
+y 15
+end
+arch wall_marble1.111
+x 1
+y 15
+end
+arch wmask_fire_on_1
+direction 7
+x 1
+y 15
+end
+arch blocked
+x 1
+y 16
+end
+arch wall_marble1.111
+x 1
+y 16
+end
+arch blocked
+x 1
+y 17
+end
+arch wall_marble1.111
+x 1
+y 17
+end
+arch blocked
+x 1
+y 18
+end
+arch wall_marble1.111a
+x 1
+y 18
+end
+arch blocked
+x 1
+y 19
+end
+arch wall_marble1.111a
+x 1
+y 19
+end
+arch wmask_fire_on_1
+direction 7
+x 1
+y 19
+end
+arch blocked
+x 1
+y 20
+end
+arch wall_marble1.111a
+x 1
+y 20
+end
+arch blocked
+x 1
+y 21
+end
+arch wall_marble1.111
+x 1
+y 21
+end
+arch blocked
+x 2
+y 10
+end
+arch wall_marble1.131a
+x 2
+y 10
+end
+arch picture6.151
+x 2
+y 10
+end
+arch floor_marble1a
+x 2
+y 11
+end
+arch bed_1a.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 2
+y 11
+end
+arch floor_marble1a
+x 2
+y 12
+end
+arch lamp_wall
+direction 7
+x 2
+y 12
+end
+arch floor_marble1
+x 2
+y 13
+end
+arch wall_marble1.131a
+x 2
+y 13
+end
+arch floor_marble1b
+x 2
+y 14
+end
+arch bed_1a.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 2
+y 14
+end
+arch floor_marble1b
+x 2
+y 15
+end
+arch lamp_wall
+direction 7
+x 2
+y 15
+end
+arch floor_marble1
+x 2
+y 16
+end
+arch locker1.111
+direction 7
+x 2
+y 16
+end
+arch floor_marble1a
+x 2
+y 17
+end
+arch wall_marble1.131a
+x 2
+y 17
+end
+arch picture3.151
+x 2
+y 17
+end
+arch floor_marble1
+x 2
+y 18
+end
+arch bed_1a.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 2
+y 18
+end
+arch floor_marble1a
+x 2
+y 19
+end
+arch lamp_wall
+direction 7
+x 2
+y 19
+end
+arch floor_marble1b
+x 2
+y 20
+end
+arch locker2.111
+direction 7
+x 2
+y 20
+end
+arch floor_marble1a
+x 2
+y 21
+end
+arch wall_marble1.131
+x 2
+y 21
+end
+arch blocked
+x 3
+y 10
+end
+arch wall_marble1.131a
+x 3
+y 10
+end
+arch floor_marble1a
+x 3
+y 11
+end
+arch bed_1b.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 3
+y 11
+end
+arch floor_marble1a
+x 3
+y 12
+end
+arch floor_marble1a
+x 3
+y 13
+end
+arch wall_marble1.131
+x 3
+y 13
+end
+arch picture1.151
+x 3
+y 13
+end
+arch floor_marble1b
+x 3
+y 14
+end
+arch bed_1b.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 3
+y 14
+end
+arch floor_marble1a
+x 3
+y 15
+end
+arch floor_marble1b
+x 3
+y 16
+end
+arch floor_marble1b
+x 3
+y 17
+end
+arch wall_marble1.131
+x 3
+y 17
+end
+arch floor_marble1b
+x 3
+y 18
+end
+arch bed_1b.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 3
+y 18
+end
+arch floor_marble1b
+x 3
+y 19
+end
+arch floor_marble1
+x 3
+y 20
+end
+arch floor_marble1
+x 3
+y 21
+end
+arch wall_marble1.131
+x 3
+y 21
+end
+arch blocked
+x 4
+y 10
+end
+arch wall_marble1.131
+x 4
+y 10
+end
+arch floor_marble1a
+x 4
+y 11
+end
+arch locker4
+x 4
+y 11
+end
+arch floor_marble1b
+x 4
+y 12
+end
+arch floor_marble1
+x 4
+y 13
+end
+arch wall_marble1.131a
+x 4
+y 13
+end
+arch floor_marble1b
+x 4
+y 14
+end
+arch locker3.111
+x 4
+y 14
+end
+arch floor_marble1b
+x 4
+y 15
+end
+arch floor_marble1
+x 4
+y 16
+end
+arch floor_marble1
+x 4
+y 17
+end
+arch wall_marble1.131a
+x 4
+y 17
+end
+arch floor_marble1a
+x 4
+y 18
+end
+arch drawers1.111
+x 4
+y 18
+end
+arch floor_marble1
+x 4
+y 19
+end
+arch floor_marble1
+x 4
+y 20
+end
+arch floor_marble1a
+x 4
+y 21
+end
+arch wall_marble1.131
+x 4
+y 21
+end
+arch blocked
+x 5
+y 10
+end
+arch wall_marble1.131a
+x 5
+y 10
+end
+arch floor_marble1b
+x 5
+y 11
+end
+arch wall_marble1.111
+x 5
+y 11
+end
+arch floor_marble1a
+x 5
+y 12
+end
+arch door1_locked
+direction 3
+x 5
+y 12
+end
+arch floor_marble1
+x 5
+y 13
+end
+arch wall_marble1.141
+x 5
+y 13
+end
+arch floor_marble1
+x 5
+y 14
+end
+arch wall_marble1.111
+x 5
+y 14
+end
+arch floor_marble1a
+x 5
+y 15
+end
+arch door1_locked
+direction 3
+x 5
+y 15
+end
+arch floor_marble1a
+x 5
+y 16
+end
+arch wall_marble1.111
+x 5
+y 16
+end
+arch floor_marble1b
+x 5
+y 17
+end
+arch wall_marble1.141
+x 5
+y 17
+end
+arch picture4.151
+direction 7
+x 5
+y 17
+end
+arch floor_marble1
+x 5
+y 18
+end
+arch wall_marble1.111
+x 5
+y 18
+end
+arch floor_marble1
+x 5
+y 19
+end
+arch door1_locked
+direction 3
+x 5
+y 19
+end
+arch floor_marble1b
+x 5
+y 20
+end
+arch wall_marble1.111a
+x 5
+y 20
+end
+arch floor_marble1b
+x 5
+y 21
+end
+arch wall_marble1.141
+x 5
+y 21
+end
+arch blocked
+x 6
+y 10
+end
+arch wall_marble1.131
+x 6
+y 10
+end
+arch floor_marble1b
+x 6
+y 11
+end
+arch floor_marble1
+x 6
+y 12
+end
+arch floor_marble1b
+x 6
+y 13
+end
+arch floor_marble1b
+x 6
+y 14
+end
+arch lamp_wall
+direction 7
+x 6
+y 14
+end
+arch floor_marble1a
+x 6
+y 15
+end
+arch floor_marble1a
+x 6
+y 16
+end
+arch floor_marble1b
+x 6
+y 17
+end
+arch floor_marble1
+x 6
+y 18
+end
+arch lamp_wall
+direction 7
+x 6
+y 18
+end
+arch floor_marble1
+x 6
+y 19
+end
+arch floor_marble1b
+x 6
+y 20
+end
+arch floor_marble1
+x 6
+y 21
+end
+arch wall_marble1.131
+x 6
+y 21
+end
+arch blocked
+x 7
+y 10
+end
+arch wall_marble1.131
+x 7
+y 10
+end
+arch floor_marble1a
+x 7
+y 11
+end
+arch lamp_wall
+x 7
+y 11
+end
+arch floor_marble1b
+x 7
+y 12
+end
+arch floor_marble1b
+x 7
+y 13
+end
+arch wall_marble1.181
+x 7
+y 13
+end
+arch floor_marble1a
+x 7
+y 14
+end
+arch wall_marble1.111a
+x 7
+y 14
+end
+arch floor_marble1b
+x 7
+y 15
+end
+arch door1_locked
+direction 3
+x 7
+y 15
+end
+arch floor_marble1a
+x 7
+y 16
+end
+arch wall_marble1.111
+x 7
+y 16
+end
+arch floor_marble1
+x 7
+y 17
+end
+arch wall_marble1.111a
+x 7
+y 17
+end
+arch floor_marble1b
+x 7
+y 18
+end
+arch wall_marble1.111a
+x 7
+y 18
+end
+arch floor_marble1b
+x 7
+y 19
+end
+arch door1_locked
+direction 3
+x 7
+y 19
+end
+arch floor_marble1a
+x 7
+y 20
+end
+arch wall_marble1.111a
+x 7
+y 20
+end
+arch flag_04
+direction 7
+x 7
+y 20
+end
+arch floor_marble1
+x 7
+y 21
+end
+arch wall_marble1.141
+x 7
+y 21
+end
+arch blocked
+x 8
+y 10
+end
+arch wall_marble1.131a
+x 8
+y 10
+end
+arch floor_marble1
+x 8
+y 11
+end
+arch floor_marble1
+x 8
+y 12
+end
+arch floor_marble1a
+x 8
+y 13
+end
+arch wall_marble1.131
+x 8
+y 13
+end
+arch floor_marble1b
+x 8
+y 14
+end
+arch locker2.111
+x 8
+y 14
+end
+arch floor_marble1b
+x 8
+y 15
+end
+arch floor_marble1a
+x 8
+y 16
+end
+arch floor_marble1
+x 8
+y 17
+end
+arch wall_marble1.131
+x 8
+y 17
+end
+arch floor_marble1
+x 8
+y 18
+end
+arch locker1.111
+x 8
+y 18
+end
+arch floor_marble1
+x 8
+y 19
+end
+arch floor_marble1a
+x 8
+y 20
+end
+arch floor_marble1b
+x 8
+y 21
+end
+arch wall_marble1.131a
+x 8
+y 21
+end
+arch blocked
+x 9
+y 10
+end
+arch wall_marble1.131
+x 9
+y 10
+end
+arch flag_rockforge
+x 9
+y 10
+end
+arch floor_marble1a
+x 9
+y 11
+end
+arch floor_marble1
+x 9
+y 12
+end
+arch floor_marble1
+x 9
+y 13
+end
+arch wall_marble1.131
+x 9
+y 13
+end
+arch wmask_mirror
+x 9
+y 13
+end
+arch floor_marble1a
+x 9
+y 14
+end
+arch floor_marble1b
+x 9
+y 15
+end
+arch floor_marble1a
+x 9
+y 16
+end
+arch floor_marble1a
+x 9
+y 17
+end
+arch wall_marble1.131a
+x 9
+y 17
+end
+arch floor_marble1b
+x 9
+y 18
+end
+arch drawers1.111
+x 9
+y 18
+end
+arch floor_marble1a
+x 9
+y 19
+end
+arch floor_marble1b
+x 9
+y 20
+end
+arch floor_marble1
+x 9
+y 21
+end
+arch wall_marble1.131a
+x 9
+y 21
+end
+arch blocked
+x 10
+y 10
+end
+arch wall_marble1.131
+x 10
+y 10
+end
+arch floor_marble1
+x 10
+y 11
+end
+arch floor_marble1a
+x 10
+y 12
+end
+arch floor_marble1b
+x 10
+y 13
+end
+arch wall_marble1.131a
+x 10
+y 13
+end
+arch wmask_fire_on_1
+x 10
+y 13
+end
+arch floor_marble1b
+x 10
+y 14
+end
+arch lamp_wall
+x 10
+y 14
+end
+arch floor_marble1b
+x 10
+y 15
+end
+arch bed_1a.111
+name bed to reality
+direction 7
+no_magic 1
+damned 1
+type 106
+x 10
+y 15
+end
+arch floor_marble1b
+x 10
+y 16
+end
+arch bed_1b.111
+name bed to reality
+direction 7
+no_magic 1
+damned 1
+type 106
+x 10
+y 16
+end
+arch floor_marble1a
+x 10
+y 17
+end
+arch wall_marble1.131
+x 10
+y 17
+end
+arch wmask_fire_on_1
+x 10
+y 17
+end
+arch floor_marble1b
+x 10
+y 18
+end
+arch lamp_wall
+x 10
+y 18
+end
+arch floor_marble1a
+x 10
+y 19
+end
+arch bed_1a.111
+name bed to reality
+direction 7
+no_magic 1
+damned 1
+type 106
+x 10
+y 19
+end
+arch floor_marble1
+x 10
+y 20
+end
+arch bed_1b.111
+name bed to reality
+direction 7
+no_magic 1
+damned 1
+type 106
+x 10
+y 20
+end
+arch floor_marble1a
+x 10
+y 21
+end
+arch wall_marble1.131a
+x 10
+y 21
+end
+arch blocked
+x 11
+y 10
+end
+arch wall_marble1.131
+x 11
+y 10
+end
+arch floor_marble1
+x 11
+y 11
+end
+arch lamp_wall
+x 11
+y 11
+end
+arch floor_marble1b
+x 11
+y 12
+end
+arch floor_marble1b
+x 11
+y 13
+end
+arch wall_marble1.131
+x 11
+y 13
+end
+arch floor_marble1a
+x 11
+y 14
+end
+arch wall_marble1.111
+x 11
+y 14
+end
+arch floor_marble1b
+x 11
+y 15
+end
+arch wall_marble1.111a
+x 11
+y 15
+end
+arch floor_marble1a
+x 11
+y 16
+end
+arch wall_marble1.111
+x 11
+y 16
+end
+arch floor_marble1a
+x 11
+y 17
+end
+arch wall_marble1.141
+x 11
+y 17
+end
+arch floor_marble1a
+x 11
+y 18
+end
+arch wall_marble1.111a
+x 11
+y 18
+end
+arch floor_marble1
+x 11
+y 19
+end
+arch wall_marble1.111
+x 11
+y 19
+end
+arch floor_marble1
+x 11
+y 20
+end
+arch wall_marble1.111a
+x 11
+y 20
+end
+arch floor_marble1
+x 11
+y 21
+end
+arch wall_marble1.141
+x 11
+y 21
+end
+arch blocked
+x 12
+y 10
+end
+arch wall_marble1.131
+x 12
+y 10
+end
+arch floor_marble1a
+x 12
+y 11
+end
+arch floor_marble1a
+x 12
+y 12
+end
+arch floor_marble1
+x 12
+y 13
+end
+arch floor_marble1a
+x 12
+y 14
+end
+arch lamp_wall
+direction 7
+x 12
+y 14
+end
+arch floor_marble1b
+x 12
+y 15
+end
+arch stairs_stone_up
+direction 1
+slaying rockforge_a_0104
+hp 12
+sp 16
+x 12
+y 15
+end
+arch floor_marble1b
+z 20
+x 12
+y 16
+end
+arch stairs_stone_up
+direction 1
+slaying rockforge_a_0104
+hp 12
+sp 16
+walk_on 1
+fly_on 1
+x 12
+y 16
+end
+arch floor_marble1
+x 12
+y 17
+end
+arch fwall_marble2c
+x 12
+y 17
+end
+arch picture7
+x 12
+y 17
+end
+arch floor_marble1b
+x 12
+y 18
+end
+arch bed_1a.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 12
+y 18
+end
+arch floor_marble1b
+x 12
+y 19
+end
+arch locker4
+direction 7
+x 12
+y 19
+end
+arch floor_marble1a
+x 12
+y 20
+end
+arch locker2.111
+direction 7
+x 12
+y 20
+end
+arch floor_marble1
+x 12
+y 21
+end
+arch wall_marble1.131a
+x 12
+y 21
+end
+arch blocked
+x 13
+y 10
+end
+arch wall_marble1.131
+x 13
+y 10
+end
+arch flag_rockforge
+x 13
+y 10
+end
+arch floor_marble1b
+x 13
+y 11
+end
+arch floor_marble1
+x 13
+y 12
+end
+arch floor_marble1b
+x 13
+y 13
+end
+arch floor_marble1
+x 13
+y 14
+end
+arch floor_marble1
+x 13
+y 15
+end
+arch stairs_stone_up
+direction 1
+slaying rockforge_a_0104
+hp 13
+sp 16
+x 13
+y 15
+end
+arch floor_marble1
+z 20
+x 13
+y 16
+end
+arch stairs_stone_up
+direction 1
+slaying rockforge_a_0104
+hp 13
+sp 16
+walk_on 1
+fly_on 1
+x 13
+y 16
+end
+arch floor_marble1
+x 13
+y 17
+end
+arch fwall_marble2c
+x 13
+y 17
+end
+arch floor_marble1a
+x 13
+y 18
+end
+arch bed_1b.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 13
+y 18
+end
+arch floor_marble1
+x 13
+y 19
+end
+arch floor_marble1
+x 13
+y 20
+end
+arch floor_marble1a
+x 13
+y 21
+end
+arch wall_marble1.131
+x 13
+y 21
+end
+arch blocked
+x 14
+y 10
+end
+arch wall_marble1.131a
+x 14
+y 10
+end
+arch floor_marble1b
+x 14
+y 11
+end
+arch floor_marble1
+x 14
+y 12
+end
+arch floor_marble1a
+x 14
+y 13
+end
+arch wall_marble1.131a
+x 14
+y 13
+end
+arch floor_marble1
+x 14
+y 14
+end
+arch fwall_marble2c
+x 14
+y 14
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 14
+y 14
+end
+arch floor_marble1a
+x 14
+y 15
+end
+arch fwall_marble2b
+x 14
+y 15
+end
+arch floor_marble1a
+x 14
+y 16
+end
+arch fwall_marble2c
+x 14
+y 16
+end
+arch floor_marble1
+x 14
+y 17
+end
+arch fwall_marble2b
+x 14
+y 17
+end
+arch wmask_fire_on_1
+x 14
+y 17
+end
+arch floor_marble1a
+x 14
+y 18
+end
+arch lamp_wall
+x 14
+y 18
+end
+arch floor_marble1a
+x 14
+y 19
+end
+arch floor_marble1b
+x 14
+y 20
+end
+arch floor_marble1a
+x 14
+y 21
+end
+arch wall_marble1.131
+x 14
+y 21
+end
+arch blocked
+x 15
+y 10
+end
+arch wall_marble1.131a
+x 15
+y 10
+end
+arch floor_marble1a
+x 15
+y 11
+end
+arch lamp_wall
+x 15
+y 11
+end
+arch floor_marble1b
+x 15
+y 12
+end
+arch floor_marble1
+x 15
+y 13
+end
+arch door1_locked
+x 15
+y 13
+end
+arch floor_marble1
+x 15
+y 14
+end
+arch floor_marble1a
+x 15
+y 15
+end
+arch mirror_big.111
+direction 7
+x 15
+y 15
+end
+arch floor_marble1
+x 15
+y 16
+end
+arch beer_barrel.101
+x 15
+y 16
+end
+arch floor_marble1a
+x 15
+y 17
+end
+arch clock
+direction 7
+x 15
+y 17
+end
+arch floor_marble1a
+x 15
+y 18
+end
+arch floor_marble1
+x 15
+y 19
+end
+arch floor_marble1b
+x 15
+y 20
+end
+arch desk2
+direction 7
+x 15
+y 20
+end
+arch floor_marble1b
+x 15
+y 21
+end
+arch wall_marble1.131a
+x 15
+y 21
+end
+arch blocked
+x 16
+y 10
+end
+arch wall_marble1.131
+x 16
+y 10
+end
+arch floor_marble1a
+x 16
+y 11
+end
+arch floor_marble1a
+x 16
+y 12
+end
+arch floor_marble1a
+x 16
+y 13
+end
+arch wall_marble1.131
+x 16
+y 13
+end
+arch floor_marble1b
+x 16
+y 14
+end
+arch lamp_wall
+x 16
+y 14
+end
+arch floor_marble1
+x 16
+y 15
+end
+arch floor_marble1a
+x 16
+y 16
+end
+arch floor_marble1a
+x 16
+y 17
+end
+arch floor_marble1a
+x 16
+y 18
+end
+arch floor_marble1b
+x 16
+y 19
+end
+arch floor_marble1b
+x 16
+y 20
+end
+arch chair1_111
+direction 3
+x 16
+y 20
+end
+arch floor_marble1a
+x 16
+y 21
+end
+arch wall_marble1.131
+x 16
+y 21
+end
+arch blocked
+x 17
+y 10
+end
+arch wall_marble1.131
+x 17
+y 10
+end
+arch flag_rockforge
+x 17
+y 10
+end
+arch floor_marble1b
+x 17
+y 11
+end
+arch floor_marble1
+x 17
+y 12
+end
+arch floor_marble1b
+x 17
+y 13
+end
+arch wall_marble1.131a
+x 17
+y 13
+end
+arch floor_marble1
+x 17
+y 14
+end
+arch wall_marble1.111a
+x 17
+y 14
+end
+arch picture5.151
+direction 7
+x 17
+y 14
+end
+arch floor_marble1a
+x 17
+y 15
+end
+arch wall_marble1.111
+x 17
+y 15
+end
+arch floor_marble1a
+x 17
+y 16
+end
+arch wall_marble1.111
+x 17
+y 16
+end
+arch floor_marble1b
+x 17
+y 17
+end
+arch wall_marble1.111
+x 17
+y 17
+end
+arch floor_marble1b
+x 17
+y 18
+end
+arch wall_marble1.111
+x 17
+y 18
+end
+arch floor_marble1
+x 17
+y 19
+end
+arch wall_marble1.111
+x 17
+y 19
+end
+arch floor_marble1
+x 17
+y 20
+end
+arch wall_marble1.111
+x 17
+y 20
+end
+arch floor_marble1
+x 17
+y 21
+end
+arch wall_marble1.141
+x 17
+y 21
+end
+arch blocked
+x 18
+y 10
+end
+arch wall_marble1.131a
+x 18
+y 10
+end
+arch floor_marble1
+x 18
+y 11
+end
+arch floor_marble1
+x 18
+y 12
+end
+arch floor_marble1
+x 18
+y 13
+end
+arch wall_marble1.131a
+x 18
+y 13
+end
+arch floor_marble1b
+x 18
+y 14
+end
+arch lamp_wall
+x 18
+y 14
+end
+arch floor_marble1b
+x 18
+y 15
+end
+arch carpet1.131
+x 18
+y 15
+end
+arch locker3.111
+direction 7
+x 18
+y 15
+end
+arch floor_marble1b
+x 18
+y 16
+end
+arch carpet1.131
+x 18
+y 16
+end
+arch locker1.111
+direction 7
+x 18
+y 16
+end
+arch floor_marble1b
+x 18
+y 17
+end
+arch carpet1.131
+x 18
+y 17
+end
+arch locker2.111
+direction 7
+x 18
+y 17
+end
+arch floor_marble1a
+x 18
+y 18
+end
+arch carpet1.131
+x 18
+y 18
+end
+arch locker4
+direction 7
+x 18
+y 18
+end
+arch floor_marble1a
+x 18
+y 19
+end
+arch fireplace_left
+x 18
+y 19
+end
+arch light5
+x 18
+y 19
+end
+arch floor_marble1
+x 18
+y 20
+end
+arch light5
+x 18
+y 20
+end
+arch floor_marble1
+x 18
+y 21
+end
+arch wall_marble1.131
+x 18
+y 21
+end
+arch blocked
+x 19
+y 10
+end
+arch wall_marble1.131
+x 19
+y 10
+end
+arch floor_marble1a
+x 19
+y 11
+end
+arch lamp_wall
+x 19
+y 11
+end
+arch floor_marble1a
+x 19
+y 12
+end
+arch floor_marble1a
+x 19
+y 13
+end
+arch door1_locked
+x 19
+y 13
+end
+arch floor_marble1b
+x 19
+y 14
+end
+arch carpet1.151
+x 19
+y 14
+end
+arch floor_marble1
+x 19
+y 15
+end
+arch carpet1
+x 19
+y 15
+end
+arch floor_marble1
+x 19
+y 16
+end
+arch carpet1
+x 19
+y 16
+end
+arch floor_marble1b
+x 19
+y 17
+end
+arch carpet1
+x 19
+y 17
+end
+arch floor_marble1b
+x 19
+y 18
+end
+arch carpet1
+x 19
+y 18
+end
+arch floor_marble1b
+x 19
+y 19
+end
+arch carpet1.111
+x 19
+y 19
+end
+arch floor_marble1
+x 19
+y 20
+end
+arch wood_pile.101
+x 19
+y 20
+end
+arch floor_marble1b
+x 19
+y 21
+end
+arch wall_marble1.131a
+x 19
+y 21
+end
+arch blocked
+x 20
+y 10
+end
+arch wall_marble1.131
+x 20
+y 10
+end
+arch floor_marble1a
+x 20
+y 11
+end
+arch floor_marble1a
+x 20
+y 12
+end
+arch floor_marble1
+x 20
+y 13
+end
+arch door1_locked
+direction 7
+x 20
+y 13
+end
+arch floor_marble1
+x 20
+y 14
+end
+arch carpet1.151
+x 20
+y 14
+end
+arch floor_marble1b
+x 20
+y 15
+end
+arch carpet1
+x 20
+y 15
+end
+arch floor_marble1b
+x 20
+y 16
+end
+arch carpet1
+x 20
+y 16
+end
+arch floor_marble1a
+x 20
+y 17
+end
+arch carpet1
+x 20
+y 17
+end
+arch floor_marble1
+x 20
+y 18
+end
+arch carpet1
+x 20
+y 18
+end
+arch floor_marble1a
+x 20
+y 19
+end
+arch carpet1.111
+x 20
+y 19
+end
+arch floor_marble1b
+x 20
+y 20
+end
+arch bed_2a.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 20
+y 20
+end
+arch floor_marble1a
+x 20
+y 21
+end
+arch wall_marble1.131
+x 20
+y 21
+end
+arch blocked
+x 21
+y 10
+end
+arch wall_marble1.131
+x 21
+y 10
+end
+arch flag_rockforge
+x 21
+y 10
+end
+arch floor_marble1
+x 21
+y 11
+end
+arch floor_marble1a
+x 21
+y 12
+end
+arch floor_marble1b
+x 21
+y 13
+end
+arch wall_marble1.131a
+x 21
+y 13
+end
+arch floor_marble1
+x 21
+y 14
+end
+arch lamp_wall
+x 21
+y 14
+end
+arch floor_marble1a
+x 21
+y 15
+end
+arch carpet1.171
+x 21
+y 15
+end
+arch floor_marble1
+x 21
+y 16
+end
+arch carpet1.171
+x 21
+y 16
+end
+arch floor_marble1
+x 21
+y 17
+end
+arch carpet1.171
+x 21
+y 17
+end
+arch desk1.111
+z -4
+x 21
+y 17
+end
+arch floor_marble1b
+x 21
+y 18
+end
+arch carpet1.171
+x 21
+y 18
+end
+arch chair2_111
+direction 5
+x 21
+y 18
+end
+arch floor_marble1
+x 21
+y 19
+end
+arch floor_marble1
+x 21
+y 20
+end
+arch bed_2b.111
+name bed to reality
+no_magic 1
+damned 1
+type 106
+x 21
+y 20
+end
+arch floor_marble1
+x 21
+y 21
+end
+arch wall_marble1.131a
+x 21
+y 21
+end
+arch blocked
+x 22
+y 10
+end
+arch wall_marble1.131
+x 22
+y 10
+end
+arch floor_marble1
+x 22
+y 11
+end
+arch wall_marble1.111a
+x 22
+y 11
+end
+arch floor_marble1a
+x 22
+y 12
+end
+arch wall_marble1.111a
+x 22
+y 12
+end
+arch floor_marble1
+x 22
+y 13
+end
+arch wall_marble1.141
+x 22
+y 13
+end
+arch floor_marble1a
+x 22
+y 14
+end
+arch wall_marble1.111a
+x 22
+y 14
+end
+arch floor_marble1
+x 22
+y 15
+end
+arch wall_marble1.111a
+x 22
+y 15
+end
+arch floor_marble1b
+x 22
+y 16
+end
+arch wall_marble1.111a
+x 22
+y 16
+end
+arch floor_marble1
+x 22
+y 17
+end
+arch wall_marble1.111a
+x 22
+y 17
+end
+arch floor_marble1a
+x 22
+y 18
+end
+arch wall_marble1.111a
+x 22
+y 18
+end
+arch floor_marble1
+x 22
+y 19
+end
+arch candlelight4.101
+x 22
+y 19
+end
+arch wall_marble1.111a
+x 22
+y 19
+end
+arch light5
+x 22
+y 19
+end
+arch floor_marble1
+x 22
+y 20
+end
+arch wall_marble1.111
+x 22
+y 20
+end
+arch floor_marble1b
+x 22
+y 21
+end
+arch wall_marble1.141
+x 22
+y 21
+end

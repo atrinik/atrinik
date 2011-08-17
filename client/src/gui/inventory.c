@@ -27,7 +27,7 @@
  * @file
  * Handles inventory related functions. */
 
-#include "include.h"
+#include <global.h>
 
 char *skill_level_name[] =
 {
@@ -113,7 +113,7 @@ void inventory_filter_set(uint64 filter)
 	cpl.win_inv_slot = 0;
 	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-	draw_info("Inventory filter changed.", COLOR_GREEN);
+	draw_info(COLOR_GREEN, "Inventory filter changed.");
 }
 
 /**
@@ -133,7 +133,7 @@ void inventory_filter_toggle(uint64 filter)
 	cpl.win_inv_slot = 0;
 	cpl.win_inv_start = 0;
 	cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-	draw_info("Inventory filter changed.", COLOR_GREEN);
+	draw_info(COLOR_GREEN, "Inventory filter changed.");
 }
 
 /* This function returns number of items and adjusts the inventory window data */
@@ -227,43 +227,51 @@ int get_inventory_data(object *op, int *ctag, int *slot, int *start, int *count,
 static void show_inventory_item_stats(object *tmp, widgetdata *widget)
 {
 	char buf[MAX_BUF];
-	SDL_Rect tmp_rect;
-	tmp_rect.w = 222;
 
 	if (tmp->nrof > 1)
+	{
 		snprintf(buf, sizeof(buf), "%d %s", tmp->nrof, tmp->s_name);
+	}
 	else
+	{
 		snprintf(buf, sizeof(buf), "%s", tmp->s_name);
+	}
 
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 26, widget->y1 + 3, COLOR_HGOLD, &tmp_rect, NULL);
+	string_truncate_overflow(FONT_ARIAL10, buf, widget->wd - 26 - 4);
+	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 2, COLOR_HGOLD, 0, NULL);
 
-	snprintf(buf, sizeof(buf), "weight: %4.3f", tmp->weight * (float)tmp->nrof);
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 173, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+	snprintf(buf, sizeof(buf), "%4.3f kg", tmp->weight * (double) tmp->nrof);
+	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 	/* This comes from server when not identified */
 	if (tmp->item_qua == 255)
-		StringBlt(ScreenSurface, &SystemFont, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, NULL, NULL);
+	{
+		string_blt(ScreenSurface, FONT_ARIAL10, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, 0, NULL);
+	}
 	else
 	{
-		StringBlt(ScreenSurface, &SystemFont, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
-		snprintf(buf, sizeof(buf), "%d", tmp->item_qua);
-		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 60 - get_string_pixel_length(buf, &SystemFont), widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
-
-		snprintf(buf, sizeof(buf), "(%d)", tmp->item_con);
-		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 63, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+		snprintf(buf, sizeof(buf), "%d/%d", tmp->item_qua, tmp->item_con);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 		if (tmp->item_level)
 		{
 			snprintf(buf, sizeof(buf), "allowed: lvl %d %s", tmp->item_level, skill_level_name[tmp->item_skill]);
 
 			if ((!tmp->item_skill && tmp->item_level <= cpl.stats.level) || (tmp->item_skill && tmp->item_level <= cpl.stats.skill_level[tmp->item_skill - 1]))
-				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 103 , widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+			{
+				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+			}
 			else
-				StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 103, widget->y1 + 15, COLOR_RED, NULL, NULL);
+			{
+				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_RED, 0, NULL);
+			}
 		}
 		else
-			StringBlt(ScreenSurface, &SystemFont, "allowed: all", widget->x1 + 103, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+		{
+			string_blt(ScreenSurface, FONT_ARIAL10, "allowed: all", widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+		}
 	}
 }
 
@@ -290,7 +298,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 					/* We don't have to check for the coordinates, if we are here we are in the widget */
 
 					/* Drop to inventory */
-					process_macro_keys(KEYFUNC_APPLY, 0);
+					keybind_process_command("?APPLY");
 				}
 
 				cpl.inventory_win = old_inv_win;
@@ -298,8 +306,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 			else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_BELOW)
 			{
-				sound_play_effect("get.ogg", 100);
-				process_macro_keys(KEYFUNC_GET, 0);
+				keybind_process_command("?GET");
 			}
 
 			draggingInvItem(DRAG_NONE);
@@ -318,7 +325,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 			}
 
 			/* scrollbar */
-			if (mx > 226 && mx < 236)
+			if (mx > 258 && mx < 268)
 			{
 				if (my <= 39 && my >= 30 && cpl.win_inv_slot >= INVITEMXLEN)
 					cpl.win_inv_slot -= INVITEMXLEN;
@@ -351,7 +358,7 @@ void widget_inventory_event(widgetdata *widget, int x, int y, SDL_Event event)
 					cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
 
 					if (event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE)
-						process_macro_keys(KEYFUNC_MARK, 0);
+						keybind_process_command("?MARK");
 					else
 					{
 						if (cpl.inventory_win == IWIN_INV)
@@ -393,7 +400,7 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	if (cpl.inventory_win != IWIN_INV)
 	{
-		if (!options.playerdoll)
+		if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
 		{
 			/* do this for all player doll widgets, even though there shouldn't be more than one */
 			for (tmp_widget = cur_widget[PDOLL_ID]; tmp_widget; tmp_widget = tmp_widget->type_next)
@@ -409,22 +416,30 @@ void widget_show_inventory_window(widgetdata *widget)
 
 		sprite_blt(Bitmaps[BITMAP_INV_BG], widget->x1, widget->y1, NULL, NULL);
 
-		StringBlt(ScreenSurface, &SystemFont, "Carry", widget->x1 + 140, widget->y1 + 4, COLOR_HGOLD, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", cpl.real_weight);
-		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 140 + 35, widget->y1 + 4, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL);
 
-		StringBlt(ScreenSurface, &SystemFont, "Limit", widget->x1 + 140, widget->y1 + 15, COLOR_HGOLD, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 		snprintf(buf, sizeof(buf), "%4.3f kg", (float) cpl.weight_limit / 1000.0);
-		StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 140 + 35, widget->y1 + 15, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL);
 
-		StringBlt(ScreenSurface, &Font6x3Out, "(SHIFT for inventory)", widget->x1 + 32, widget->y1 + 9, COLOR_DEFAULT, NULL, NULL);
+		if (inventory_filter == INVENTORY_FILTER_ALL)
+		{
+			string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		}
+		else
+		{
+			string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+			string_blt(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x1 + 54, widget->y1 + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		}
 
 		return;
 	}
 
-	if (!options.playerdoll)
+	if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
 	{
 		/* do this for all player doll widgets, even though there shouldn't be more than one */
 		for (tmp_widget = cur_widget[PDOLL_ID]; tmp_widget; tmp_widget = tmp_widget->type_next)
@@ -443,7 +458,7 @@ void widget_show_inventory_window(widgetdata *widget)
 
 	sprite_blt(Bitmaps[BITMAP_INVENTORY], widget->x1, widget->y1, NULL, NULL);
 
-	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 229, widget->y1 + 40);
+	blt_window_slider(Bitmaps[BITMAP_INV_SCROLL], ((cpl.win_inv_count - 1) / invxlen) + 1, invylen, cpl.win_inv_start / invxlen, -1, widget->x1 + 261, widget->y1 + 42);
 
 	if (!cpl.ob)
 	{
@@ -490,7 +505,7 @@ void widget_show_inventory_window(widgetdata *widget)
 				sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 			}
 
-			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
+			blt_inv_item(tmp, widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31);
 
 			if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 			{
@@ -504,7 +519,7 @@ void widget_show_inventory_window(widgetdata *widget)
 		/* We have an open container - 'insert' the items inside in the panel */
 		if (cpl.container && cpl.container->tag == tmp->tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_CMARK_START], widget->x1 + ((i - 1) % invxlen) * 32 + 3, widget->y1 + ((i - 1) / invxlen) * 32 + 31, NULL, NULL);
 			tmpc = cpl.sack->inv;
 
 jump_in_container1:
@@ -515,7 +530,7 @@ jump_in_container1:
 					sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				}
 
-				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32);
+				blt_inv_item(tmpc, widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31);
 
 				if (cpl.inventory_win != IWIN_BELOW && i + cpl.win_inv_start == cpl.win_inv_slot)
 				{
@@ -524,13 +539,13 @@ jump_in_container1:
 					show_inventory_item_stats(tmpc, widget);
 				}
 
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 4, widget->y1 + (i / invxlen) * 32 + 32, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % invxlen) * 32 + 3, widget->y1 + (i / invxlen) * 32 + 31, NULL, NULL);
 				i++;
 			}
 
 			if (!tmpc)
 			{
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 4, widget->y1 + ((i - 1) / invxlen) * 32 + 32, NULL, NULL);
+				sprite_blt(Bitmaps[BITMAP_CMARK_END], widget->x1 + ((i - 1) % invxlen) * 32 + 3, widget->y1 + ((i - 1) / invxlen) * 32 + 31, NULL, NULL);
 			}
 		}
 	}
@@ -552,11 +567,14 @@ void widget_below_window_event(widgetdata *widget, int x, int y, int MEvent)
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
 		{
-			draggingInvItem(DRAG_IWIN_BELOW);
+			if (cpl.below->inv)
+			{
+				draggingInvItem(DRAG_IWIN_BELOW);
+			}
 		}
 		else
 		{
-			process_macro_keys(KEYFUNC_APPLY, 0);
+			keybind_process_command("?APPLY");
 		}
 	}
 	else if (y >= widget->y1 + 20 && y <= widget->y1 + 29 && x > widget->x1 + 262 && x < widget->x1 + 269 && MEvent == MOUSE_DOWN)
@@ -598,8 +616,6 @@ void widget_show_below_window(widgetdata *widget)
 	int i, slot,at;
 	object *tmp, *tmpc, *tmpx = NULL;
 	char buf[256];
-	SDL_Rect tmp_rect;
-	tmp_rect.w = 265;
 
 	sprite_blt(Bitmaps[BITMAP_BELOW], widget->x1, widget->y1, NULL, NULL);
 
@@ -664,7 +680,8 @@ void widget_show_below_window(widgetdata *widget)
 			else
 				snprintf(buf, sizeof(buf), "%s", tmp->s_name);
 
-			StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 5, COLOR_HGOLD, &tmp_rect, NULL);
+			string_truncate_overflow(FONT_ARIAL10, buf, 250);
+			string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 6, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
 		}
 
 		i++;
@@ -694,7 +711,8 @@ jump_in_container2:
 					else
 						snprintf(buf, sizeof(buf), "%s", tmpc->s_name);
 
-					StringBlt(ScreenSurface, &SystemFont, buf, widget->x1 + 6, widget->y1 + 4, COLOR_HGOLD, &tmp_rect, NULL);
+					string_truncate_overflow(FONT_ARIAL10, buf, 250);
+					string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 6, widget->y1 + 3, COLOR_HGOLD, 0, NULL);
 				}
 
 				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], widget->x1 + (i % INVITEMBELOWXLEN) * 32 + 5, widget->y1 + (i / INVITEMBELOWXLEN) * 32 + 19, NULL, NULL);
@@ -718,11 +736,6 @@ int blt_inv_item_centered(object *tmp, int x, int y)
 	bltfx.dark_level = 0;
 	bltfx.surface = NULL;
 	bltfx.alpha = 128;
-
-#if 0
-	bltfx.flags = 1;
-	bltfx.dark_level = 0;
-#endif
 
 	if (!FaceList[tmp->face].sprite)
 		return 0;
@@ -868,11 +881,11 @@ void blt_inv_item(object *tmp, int x, int y)
 			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + (ICONDEFLEN / 2) - (get_string_pixel_length(buf, &Font6x3Out) / 2), y + 18, COLOR_WHITE, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + ICONDEFLEN / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	/* Determine whether there is a readied object for firing or not. */
-	fire_ready = fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag;
+	fire_ready = (fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag) && tmp->env == cpl.ob;
 
 	if (tmp->flags & F_APPLIED)
 	{

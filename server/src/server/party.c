@@ -65,21 +65,15 @@ void add_party_member(party_struct *party, object *op)
 	CONTR(op)->party = party;
 
 	/* Tell the client what party we have joined. */
-	if (CONTR(op)->socket.socket_version < 1032)
-	{
-		char tmpbuf[MAX_BUF];
-
-		snprintf(tmpbuf, sizeof(tmpbuf), "Xjoin\nsuccess\n%s", party->name);
-		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
-	}
-	else
-	{
 	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_JOIN);
-	SockList_AddString(&sl, (char *) party->name);
+	SockList_AddString(&sl, party->name);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
-	}
+
+	CONTR(op)->last_party_hp = 0;
+	CONTR(op)->last_party_sp = 0;
+	CONTR(op)->last_party_grace = 0;
 }
 
 /**
@@ -103,6 +97,20 @@ void remove_party_member(party_struct *party, object *op)
 		}
 	}
 
+	sl.buf = buf;
+
+	if (party->members)
+	{
+		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+		SockList_AddChar(&sl, CMD_PARTY_REMOVE_MEMBER);
+		SockList_AddString(&sl, op->name);
+
+		for (ol = party->members; ol; ol = ol->next)
+		{
+			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
+		}
+	}
+
 	/* If no members left, remove the party. */
 	if (!party->members)
 	{
@@ -112,24 +120,12 @@ void remove_party_member(party_struct *party, object *op)
 	else if (op->name == party->leader)
 	{
 		FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
-		new_draw_info_format(NDI_UNIQUE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+		draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
-	/* Tell the client that we have left the party. */
-	if (CONTR(op)->socket.socket_version < 1032)
-	{
-		char tmpbuf[MAX_BUF];
-
-		strncpy(tmpbuf, "Xjoin\nsuccess\n ", sizeof(tmpbuf) - 1);
-		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_PARTY, tmpbuf, strlen(tmpbuf));
-	}
-	else
-	{
-	sl.buf = buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
 	SockList_AddChar(&sl, CMD_PARTY_LEAVE);
 	Send_With_Handling(&CONTR(op)->socket, &sl);
-	}
 
 	CONTR(op)->party = NULL;
 }
@@ -160,7 +156,7 @@ void form_party(object *op, const char *name)
 	party_struct *party = make_party(name);
 
 	add_party_member(party, op);
-	new_draw_info_format(NDI_UNIQUE, op, "You have formed party: %s", name);
+	draw_info_format(COLOR_WHITE, op, "You have formed party: %s", name);
 	FREE_AND_ADD_REF_HASH(party->leader, op->name);
 	CONTR(op)->stat_formed_party++;
 }
@@ -286,7 +282,7 @@ static void party_loot_random(object *pl, object *corpse)
 				{
 					if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof)))
 					{
-						new_draw_info_format(NDI_UNIQUE | NDI_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+						draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
 						esrv_del_item(CONTR(pl), tmp->count, tmp->env);
 						remove_ob(tmp);
 						tmp = insert_ob_in_ob(tmp, ol->objlink.ob);
@@ -312,7 +308,7 @@ int party_can_open_corpse(object *pl, object *corpse)
 	/* Check if the player is in the same party. */
 	if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name)
 	{
-		new_draw_info(NDI_UNIQUE, pl, "It's not your party's bounty.");
+		draw_info(COLOR_WHITE, pl, "It's not your party's bounty.");
 		return 0;
 	}
 
@@ -327,7 +323,7 @@ int party_can_open_corpse(object *pl, object *corpse)
 		case PARTY_LOOT_LEADER:
 			if (pl->name != CONTR(pl)->party->leader)
 			{
-				new_draw_info(NDI_UNIQUE, pl, "You're not the party's leader.");
+				draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
 				return 0;
 			}
 
@@ -375,11 +371,11 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
 
 		if (flag == PARTY_MESSAGE_STATUS)
 		{
-			new_draw_info(NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
+			draw_info(COLOR_YELLOW, ol->objlink.ob, msg);
 		}
 		else if (flag == PARTY_MESSAGE_CHAT)
 		{
-			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_YELLOW, ol->objlink.ob, msg);
+			draw_info_flags(NDI_PLAYER, COLOR_YELLOW, ol->objlink.ob, msg);
 		}
 	}
 }
@@ -422,166 +418,39 @@ void remove_party(party_struct *party)
 }
 
 /**
- * Party command used from client party GUI.
- * @param buf The incoming data.
- * @param len Length of the data.
- * @param pl Player.
- * @deprecated */
-void PartyCmd(char *buf, int len, player *pl)
+ * Update player's hp/sp/etc in the party widget of all party members.
+ * @param pl Player. */
+void party_update_who(player *pl)
 {
-	party_struct *party;
-	objectlink *ol;
-	StringBuffer *sb = NULL;
-	char tmpbuf[MAX_BUF];
+	unsigned char sockbuf[HUGE_BUF];
+	uint8 hp, sp, grace;
+	SockList sl;
 
-	if (!buf || !len)
+	if (!pl->party)
 	{
 		return;
 	}
 
-	/* List command */
-	if (!strcmp(buf, "list"))
-	{
-		sb = stringbuffer_new();
-		stringbuffer_append_string(sb, "Xlist");
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+	SockList_AddChar(&sl, CMD_PARTY_UPDATE);
 
-		for (party = first_party; party; party = party->next)
-		{
-			stringbuffer_append_printf(sb, "\nName: %s\tLeader: %s", party->name, party->leader);
-		}
-	}
-	/* Who command */
-	else if (!strcmp(buf, "who"))
-	{
-		if (!pl->party)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You are not a member of any party.");
-			return;
-		}
+	hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
+	sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
+	grace = MAX(1, MIN((double) pl->ob->stats.grace / pl->ob->stats.maxgrace * 100.0f, 100));
 
-		sb = stringbuffer_new();
-		stringbuffer_append_string(sb, "Xwho");
+	if (hp != pl->last_party_hp || sp != pl->last_party_sp || grace != pl->last_party_grace)
+	{
+		objectlink *ol;
+
+		SockList_AddString(&sl, pl->ob->name);
+		SockList_AddChar(&sl, hp);
+		SockList_AddChar(&sl, sp);
+		SockList_AddChar(&sl, grace);
 
 		for (ol = pl->party->members; ol; ol = ol->next)
 		{
-			stringbuffer_append_printf(sb, "\nName: %s\tMap: %s\tLevel: %d", ol->objlink.ob->name, ol->objlink.ob->map->name, ol->objlink.ob->level);
+			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
 		}
-	}
-	/* Join command */
-	else if (strncmp(buf, "join ", 5) == 0)
-	{
-		char partypassword[MAX_BUF];
-
-		buf += 5;
-		partypassword[0] = '\0';
-
-		if (pl->party)
-		{
-			new_draw_info(NDI_UNIQUE, pl->ob, "You must leave your current party before joining another.");
-			return;
-		}
-
-		/* This means we want to join a password protected party. */
-		if (strstr(buf, "Password: "))
-		{
-			sscanf(buf, "Name: %32[^\n]\nPassword: %32[^\n]", buf, partypassword);
-		}
-
-		party = find_party(buf);
-
-		if (!party)
-		{
-			new_draw_info_format(NDI_UNIQUE, pl->ob, "Party %s does not exist. You must form it first.", buf);
-			return;
-		}
-
-		if (pl->party != party)
-		{
-			/* If party password is not set or they've typed correct password... */
-			if (party->passwd[0] == '\0' || !strcmp(party->passwd, partypassword))
-			{
-				add_party_member(party, pl->ob);
-				pl->stat_joined_party++;
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, pl->ob, "You have joined party: %s", party->name);
-				snprintf(tmpbuf, sizeof(tmpbuf), "%s joined party %s.", pl->ob->name, party->name);
-				send_party_message(party, tmpbuf, PARTY_MESSAGE_STATUS, pl->ob);
-
-				sb = stringbuffer_new();
-				stringbuffer_append_printf(sb, "Xjoin\nsuccess\n%s", party->name);
-			}
-			/* Party password was typed but it wasn't correct. */
-			else if (partypassword[0] != '\0')
-			{
-				new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Incorrect party password.");
-				return;
-			}
-			/* Otherwise ask them to type the password */
-			else
-			{
-				new_draw_info_format(NDI_UNIQUE | NDI_YELLOW, pl->ob, "The party %s requires a password. Please type it now, or press ESC to cancel joining.", party->name);
-				sb = stringbuffer_new();
-				stringbuffer_append_printf(sb, "Xjoin\npassword\n%s", party->name);
-			}
-		}
-	}
-	/* Form command */
-	else if (strncmp(buf, "form ", 5) == 0)
-	{
-		buf += 5;
-
-		buf = cleanup_chat_string(buf);
-
-		if (!buf || *buf == '\0')
-		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Invalid party name to form.");
-			return;
-		}
-
-		if (pl->party)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You must leave your current party before forming a new one.");
-			return;
-		}
-
-		if (find_party(buf))
-		{
-			new_draw_info_format(NDI_UNIQUE, pl->ob, "The party %s already exists, pick another name.", buf);
-			return;
-		}
-
-		form_party(pl->ob, buf);
-		return;
-	}
-	/* Password command */
-	else if (strncmp(buf, "password ", 9) == 0)
-	{
-		buf += 9;
-
-		if (!pl->party)
-		{
-			new_draw_info(NDI_UNIQUE, pl->ob, "You are not a member of any party.");
-			return;
-		}
-
-		if (pl->party->leader != pl->ob->name)
-		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "Only the party's leader can change the password.");
-			return;
-		}
-
-		strncpy(pl->party->passwd, buf, sizeof(pl->party->passwd) - 1);
-		snprintf(tmpbuf, sizeof(tmpbuf), "The password for party %s changed to '%s'.", pl->party->name, pl->party->passwd);
-		send_party_message(pl->party, tmpbuf, PARTY_MESSAGE_STATUS, NULL);
-		return;
-	}
-
-	/* If we've got some data to send, send it. */
-	if (sb)
-	{
-		size_t cp_len = sb->pos;
-		char *cp = stringbuffer_finish(sb);
-
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_PARTY, cp, cp_len);
-		free(cp);
 	}
 }

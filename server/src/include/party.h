@@ -111,6 +111,12 @@ typedef struct party_struct
 /**
  * We're leaving a party. */
 #define CMD_PARTY_LEAVE 5
+/**
+ * Update party's who list. */
+#define CMD_PARTY_UPDATE 6
+/**
+ * Remove memebr from party's who list. */
+#define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 
 party_struct *first_party;

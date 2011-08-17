@@ -2,7 +2,7 @@ arch map
 name Expensive Treehouse
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 12
 height 12
@@ -295,22 +295,6 @@ x 3
 y 1
 end
 arch grassd_6
-x 3
-y 2
-end
-arch letter
-msg
-<tt="Welcome to your new treehouse!">
-You have several containers here
-you can use to store your valuable
-items. Notice that even the weapon
-rack there is a container.
-All items here will be PERMANENTLY
-saved - even after a server restart.
-To ensure that nothing bad can happen,
-type "/save" when you leave here to force
-the saving of this treehouse.
-endmsg
 x 3
 y 2
 end

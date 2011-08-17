@@ -175,66 +175,67 @@
 /*@}*/
 
 /**
- * @defgroup NDI_xxx New draw info flags
- * The following are the color flags passed to new_draw_info().
- *
- * We also set up some control flags.
+ * @defgroup COLOR_xxx Color HTML notations
+ * HTML notations of various common collors.
  *@{*/
-
-/** Default color is white (0), if no color is selected */
-#define NDI_WHITE   0
+/** White. */
+#define COLOR_WHITE "ffffff"
 /** Orange. */
-#define NDI_ORANGE  1
-/** Navy. */
-#define NDI_NAVY    2
+#define COLOR_ORANGE "ff9900"
+/** Navy (most used for NPC messages). */
+#define COLOR_NAVY "00ffff"
 /** Red. */
-#define NDI_RED     3
+#define COLOR_RED "ff3030"
 /** Green. */
-#define NDI_GREEN   4
+#define COLOR_GREEN "00ff00"
 /** Blue. */
-#define NDI_BLUE    5
-/** Grey. */
-#define NDI_GREY    6
+#define COLOR_BLUE "0080ff"
+/** Gray. */
+#define COLOR_GRAY "999999"
 /** Brown. */
-#define NDI_BROWN   7
+#define COLOR_BROWN "c07f40"
 /** Purple. */
-#define NDI_PURPLE  8
+#define COLOR_PURPLE "cc66ff"
 /** Pink. */
-#define NDI_PINK    9
+#define COLOR_PINK "ff9999"
 /** Yellow. */
-#define NDI_YELLOW  10
+#define COLOR_YELLOW "ffff33"
 /** Dark navy. */
-#define NDI_DK_NAVY 11
+#define COLOR_DK_NAVY "00c4c2"
 /** Dark green. */
-#define NDI_DK_GREEN 12
+#define COLOR_DK_GREEN "006600"
 /** Dark orange. */
-#define NDI_DK_ORANGE 17
+#define COLOR_DK_ORANGE "ff6600"
+/** Bright purple. */
+#define COLOR_BRIGHT_PURPLE "ff66ff"
+/** Gold. */
+#define COLOR_HGOLD "d4d553"
+/** Dark gold. */
+#define COLOR_DGOLD "999900"
+/** Black. */
+#define COLOR_BLACK "000000"
+/*@}*/
 
-/** Last color value in */
-#define NDI_MAX_COLOR 11
-/** Colors are first 8 bit - o bit digit */
-#define NDI_COLOR_MASK  0xff
-/** Second 8 bit are flags to define draw_info string */
-#define NDI_FLAG_MASK   0xffff
-
+/**
+ * @defgroup NDI_xxx New draw info flags
+ * Various flags for draw_info().
+ *@{*/
 /** Say command. */
-#define NDI_SAY     0x0100
+#define NDI_SAY 0x0100
 /** The message is a shout. */
-#define NDI_SHOUT   0x0200
+#define NDI_SHOUT 0x0200
 /** The message is a tell. */
-#define NDI_TELL    0x0400
+#define NDI_TELL 0x0400
 /** This message comes from a player. */
-#define NDI_PLAYER  0x0800
+#define NDI_PLAYER 0x0800
 /** Message is an emote command. */
-#define NDI_EMOTE   0x01000
+#define NDI_EMOTE 0x01000
 /**
  * Message will be played as animation in the middle of the client
  * screen. */
-#define NDI_ANIM    0x02000
-/** Print this out immediately, don't buffer. */
-#define NDI_UNIQUE  0x10000
+#define NDI_ANIM 0x02000
 /** Inform all players of this message. */
-#define NDI_ALL     0x20000
+#define NDI_ALL 0x20000
 /*@}*/
 
 /**
@@ -375,6 +376,7 @@ enum
 	SRV_CLIENT_ANIMS_V2,
 	SRV_CLIENT_EFFECTS,
 	SRV_CLIENT_SKILLS_V2,
+	SRV_CLIENT_HFILES_V2,
 	/* last index */
 	SRV_CLIENT_FILES
 };
@@ -382,20 +384,6 @@ enum
 extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 
 extern CS_Stats cst_tot, cst_lst;
-
-#define DATA_PACKED_CMD 0x80
-
-/** Data commands. */
-enum
-{
-	DATA_CMD_NO,
-	DATA_CMD_SKILL_LIST,
-	DATA_CMD_SPELL_LIST,
-	DATA_CMD_SETTINGS_LIST,
-	DATA_CMD_ANIM_LIST,
-	DATA_CMD_BMAP_LIST,
-	DATA_CMD_HFILES_LIST
-};
 
 /** Set binary socket command. */
 #define SOCKET_SET_BINARY_CMD(__s__, __bc__) \
@@ -451,6 +439,7 @@ enum
 	 * bolts, quivers, throwing knives, etc. */
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
+	BINARY_CMD_SOUND_AMBIENT,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,
@@ -488,6 +477,19 @@ enum
 #define QUICKSLOT_TYPE_ITEM 1
 /** Spell quickslot. */
 #define QUICKSLOT_TYPE_SPELL 2
+/*@}*/
+
+/**
+ * @defgroup CMD_TARGET_xxx Target command types
+ * Target command types; informs the client about whether the target is a
+ * friend, enemy, etc.
+ *@{*/
+/** Self (the player). */
+#define CMD_TARGET_SELF 0
+/** Enemy. */
+#define CMD_TARGET_ENEMY 1
+/** Friend. */
+#define CMD_TARGET_FRIEND 2
 /*@}*/
 
 #endif

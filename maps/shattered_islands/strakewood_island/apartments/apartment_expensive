@@ -2,7 +2,7 @@ arch map
 name Expensive Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-08-28 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 9
 height 9
@@ -13,47 +13,47 @@ no_harm 1
 bg_music harmony2.mid
 region strakewood_island
 end
-arch floor_grey1a1
+arch blocked
 end
 arch wall_pattern1.181
 end
-arch floor_grey1a1
+arch blocked
 y 1
 end
 arch wall_pattern1.131
 y 1
 end
-arch floor_grey1a1
+arch blocked
 y 2
 end
 arch wall_pattern1.131
 y 2
 end
-arch floor_grey1a1
+arch blocked
 y 3
 end
 arch wall_pattern1.131
 y 3
 end
-arch floor_grey1a1
+arch blocked
 y 4
 end
 arch wall_pattern1.131
 y 4
 end
-arch floor_grey1a1
+arch blocked
 y 5
 end
 arch wall_pattern1.131
 y 5
 end
-arch floor_grey1a1
+arch blocked
 y 6
 end
 arch wall_pattern1.131
 y 6
 end
-arch floor_grey1a1
+arch blocked
 y 7
 end
 arch wall_pattern1.131
@@ -63,13 +63,13 @@ arch wmask_fire_on_1
 direction 7
 y 7
 end
-arch floor_grey1a1
+arch blocked
 y 8
 end
 arch wall_pattern1.131
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 1
 end
 arch wall_pattern1.111
@@ -156,7 +156,7 @@ arch wall_pattern1.111
 x 1
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 2
 end
 arch wall_pattern1.111
@@ -234,7 +234,7 @@ arch wall_pattern1.111
 x 2
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 3
 end
 arch wall_pattern1.111
@@ -315,29 +315,13 @@ arch wall_pattern1.111
 x 3
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 4
 end
 arch wall_pattern1.111
 x 4
 end
 arch floor_grey1a1
-x 4
-y 1
-end
-arch letter
-msg
-<tt="Welcome to your new apartment!">
-You have several containers here
-you can use to store your valuable
-items. Notice that even the weapon
-rack there is a container.
-All items here will be PERMANENTLY
-saved - even after a server restart.
-To ensure that nothing bad can happen,
-type "/save" when you leave here to force
-the saving of this apartment.
-endmsg
 x 4
 y 1
 end
@@ -397,7 +381,7 @@ arch wall_pattern1.141
 x 4
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 5
 end
 arch wall_pattern1.111
@@ -476,7 +460,7 @@ arch wall_pattern1.111
 x 5
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 6
 end
 arch wall_pattern1.111
@@ -550,7 +534,7 @@ arch wall_pattern1.111
 x 6
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 7
 end
 arch wall_pattern1.111
@@ -619,7 +603,7 @@ arch wall_pattern1.111
 x 7
 y 8
 end
-arch floor_grey1a1
+arch blocked
 x 8
 end
 arch wall_pattern1.111

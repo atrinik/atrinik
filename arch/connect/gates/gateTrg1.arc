@@ -7,7 +7,7 @@ level 1
 no_pick 1
 no_teleport 1
 face gate_door1.111
-animation gateTrg1
+animation gate
 direction 1
 state 7
 is_turnable 1
@@ -32,7 +32,7 @@ layer 5
 no_pick 1
 face gate_door1.114
 level 1
-animation gateTrg1_open
+animation gate
 direction 1
 anim_speed 1
 is_animated 0

@@ -27,30 +27,30 @@
  * @file
  * Manages server file updates. */
 
-#include <include.h>
+#include <global.h>
 
 /** File names of the server files inside srv_files directory. */
 static const char *const server_file_names[SERVER_FILES_MAX] =
 {
 	NULL, NULL, NULL, NULL, "bmaps",
-	"hfiles", "updates", "spells", "settings",
-	"anims", "effects", "skills"
+	NULL, "updates", "spells", "settings",
+	"anims", "effects", "skills", "hfiles"
 };
 
 /** Identifiers of the server files used in the setup command. */
 static const char *const server_file_setup_names[SERVER_FILES_MAX] =
 {
 	NULL, NULL, NULL, NULL, "bpf",
-	"hpf", "upf", "spfv2", "ssf",
-	"amfv2", "eff", "skfv2"
+	NULL, "upf", "spfv2", "ssf",
+	"amfv2", "eff", "skfv2", "hpfv2"
 };
 
 /** Post-loading functions to call. */
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, read_bmaps,
-	read_help_files, file_updates_parse, spells_init, server_settings_init,
-	read_anims, effects_init, skills_init
+	NULL, file_updates_parse, spells_init, server_settings_init,
+	read_anims, effects_init, skills_init, hfiles_init
 };
 
 /** Functions to call if the server file was already loaded. */
@@ -58,7 +58,17 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
 	NULL, NULL, spells_reload, NULL,
-	anims_reset, effects_reinit, skills_reload
+	anims_reset, effects_reinit, skills_reload, NULL
+};
+
+/**
+ * Init-time functions to call. Needed for things like help files, which
+ * are necessary before we connect to a server. */
+static void (*server_file_funcs_init[SERVER_FILES_MAX])() =
+{
+	NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, hfiles_init
 };
 
 /** The server files. */
@@ -68,7 +78,17 @@ static server_files_struct server_files[SERVER_FILES_MAX];
  * Initialize the necessary structures. */
 void server_files_init()
 {
+	size_t i;
+
 	memset(&server_files, 0, sizeof(server_files));
+
+	for (i = 0; i < SERVER_FILES_MAX; i++)
+	{
+		if (server_file_funcs_init[i])
+		{
+			server_file_funcs_init[i]();
+		}
+	}
 }
 
 /**

@@ -37,7 +37,7 @@ qm = QuestManagerMulti(activator, quest)
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started():
-			me.SayTo(activator, "\nHello {0}. I can demonstrate how multi quest works.\nDo you ^accept^ this quest?".format(activator.name))
+			me.SayTo(activator, "\nHello {0}. I can demonstrate how multi quest works.\nDo you <a>accept</a> this quest?".format(activator.name))
 		elif qm.completed():
 			me.SayTo(activator, "\nThank you for helping me out.")
 		elif qm.finished():

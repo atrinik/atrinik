@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1466,7 +1466,7 @@ y 22
 end
 arch sign
 msg
-~Leaving Tutorial Island~
+<green>Leaving Tutorial Island<green>
 By now you should know most of the basics of Atrinik.
 Now you will enter the real world of Atrinik, with many dungeons and monsters to fight.
 Just enter the ship and talk to the captain for more instructions.

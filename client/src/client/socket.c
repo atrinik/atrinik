@@ -27,7 +27,7 @@
  * @file
  * Socket related code. */
 
-#include <include.h>
+#include <global.h>
 
 static SDL_Thread *input_thread;
 static SDL_mutex *input_buffer_mutex;
@@ -487,13 +487,13 @@ int socket_close(struct ClientSocket *csock)
 {
 	SDL_LockMutex(socket_mutex);
 
-	if ((int) csock->fd == SOCKET_NO)
+	if (csock->fd == -1)
 	{
 		SDL_UnlockMutex(socket_mutex);
 		return 1;
 	}
 
-#ifdef __LINUX
+#ifdef LINUX
 	if (shutdown(csock->fd, SHUT_RDWR))
 	{
 		perror("shutdown");
@@ -508,7 +508,7 @@ int socket_close(struct ClientSocket *csock)
 	closesocket(csock->fd);
 #endif
 
-	csock->fd = SOCKET_NO;
+	csock->fd = -1;
 
 	abort_thread = 1;
 
@@ -531,7 +531,7 @@ int socket_initialize()
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	int error;
 
-	csocket.fd = SOCKET_NO;
+	csocket.fd = -1;
 	error = WSAStartup(wVersionRequested, &w);
 
 	if (error)
@@ -561,7 +561,7 @@ int socket_initialize()
  * Deinitialize the socket. */
 void socket_deinitialize()
 {
-	if ((int) csocket.fd != SOCKET_NO)
+	if (csocket.fd != -1)
 	{
 		socket_close(&csocket);
 	}
@@ -577,14 +577,14 @@ void socket_deinitialize()
  * @param host Host to connect to.
  * @param port Port to use.
  * @return 1 on success, 0 on failure. */
-static int socket_create(SOCKET *fd, char *host, int port)
+static int socket_create(int *fd, char *host, int port)
 {
 	uint32 start_timer;
 
 	/* Use new (getaddrinfo()) or old (gethostbyname()) socket API */
 #if !defined(HAVE_GETADDRINFO) || defined(WIN32)
 	/* This method is preferable unless IPv6 is required, due to buggy distros. */
-	struct sockaddr_in insock;
+	struct sockaddr_in addr;
 #ifndef WIN32
 	struct protoent *protox;
 	int flags;
@@ -611,12 +611,12 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	*fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
-	insock.sin_family = AF_INET;
-	insock.sin_port = htons((unsigned short) port);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons((unsigned short) port);
 
 	if (isdigit(*host))
 	{
-		insock.sin_addr.s_addr = inet_addr(host);
+		addr.sin_addr.s_addr = inet_addr(host);
 	}
 	else
 	{
@@ -628,7 +628,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 			return 0;
 		}
 
-		memcpy(&insock.sin_addr, hostbn->h_addr, hostbn->h_length);
+		memcpy(&addr.sin_addr, hostbn->h_addr, hostbn->h_length);
 	}
 
 #ifndef WIN32
@@ -656,7 +656,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 	/* Try to connect. */
 	start_timer = SDL_GetTicks();
 
-	while (connect(*fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
+	while (connect(*fd, (struct sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		SDL_Delay(3);
 
@@ -739,7 +739,7 @@ static int socket_create(SOCKET *fd, char *host, int port)
 		if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1)
 		{
 			LOG(llevBug, "socket_create(): Error on switching to non-blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
+			*fd = -1;
 			return 0;
 		}
 
@@ -759,10 +759,10 @@ static int socket_create(SOCKET *fd, char *host, int port)
 		}
 
 		/* Set back to blocking. */
-		if (*fd != SOCKET_NO && fcntl(*fd, F_SETFL, flags) == -1)
+		if (*fd != -1 && fcntl(*fd, F_SETFL, flags) == -1)
 		{
 			LOG(llevBug, "socket_create(): Error on switching to blocking. fcntl %x.\n", fcntl(*fd, F_GETFL));
-			*fd = SOCKET_NO;
+			*fd = -1;
 			return 0;
 		}
 
@@ -811,7 +811,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 		LOG(llevBug, "Error on setsockopt LINGER\n");
 	}
 
-	if (options.tcp_nodelay)
+	if (setting_get_int(OPT_CAT_CLIENT, OPT_MINIMIZE_LATENCY))
 	{
 		int tmp = 1;
 

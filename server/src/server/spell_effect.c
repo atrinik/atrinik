@@ -66,26 +66,26 @@ int recharge(object *op)
 
 	if (wand == NULL || wand->type != WAND)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "You need to mark the wand you want to recharge.");
+		draw_info(COLOR_RED, op, "You need to mark the wand you want to recharge.");
 		return 0;
 	}
 
 	if (wand->stats.sp < 0 || wand->stats.sp >= NROFREALSPELLS || !spells[wand->stats.sp].charges)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "The %s cannot be recharged.", query_name(wand, NULL));
+		draw_info_format(COLOR_RED, op, "The %s cannot be recharged.", query_name(wand, NULL));
 		return 0;
 	}
 
 	if (!(rndm(0, 6)))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
+		draw_info_format(COLOR_WHITE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
 		play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 		esrv_del_item(CONTR(op), wand->count, wand->env);
 		remove_ob(wand);
 		return 1;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "The %s glows with power.", query_name(wand, NULL));
+	draw_info_format(COLOR_WHITE, op, "The %s glows with power.", query_name(wand, NULL));
 
 	wand->stats.food += 12 + rndm(1, spells[wand->stats.sp].charges);
 	cap = spells[wand->stats.sp].charges + 12;
@@ -166,7 +166,7 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 	 * never know */
 	if (!at)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't have enough experience to create any food.");
+		draw_info(COLOR_WHITE, op, "You don't have enough experience to create any food.");
 		return 0;
 	}
 
@@ -203,14 +203,14 @@ int probe(object *op)
 		{
 			if (op->owner && op->owner->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, op->owner, "Your probe analyzes %s.", tmp->name);
+				draw_info_format(COLOR_WHITE, op->owner, "Your probe analyzes %s.", tmp->name);
 
 				if (tmp->head != NULL)
 				{
 					tmp = tmp->head;
 				}
 
-				examine(op->owner, tmp);
+				examine(op->owner, tmp, NULL);
 				return 1;
 			}
 		}
@@ -238,7 +238,7 @@ int cast_wor(object *op, object *caster)
 
 	if (blocks_magic(op->map, op->x, op->y))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Something blocks your spell.");
+		draw_info(COLOR_WHITE, op, "Something blocks your spell.");
 		return 0;
 	}
 
@@ -266,7 +266,7 @@ int cast_wor(object *op, object *caster)
 	EXIT_Y(dummy) = CONTR(op)->bed_y;
 
 	insert_ob_in_ob(dummy, op);
-	new_draw_info(NDI_UNIQUE, op, "You feel a force starting to build up inside you.");
+	draw_info(COLOR_WHITE, op, "You feel a force starting to build up inside you.");
 
 	return 1;
 }
@@ -297,7 +297,7 @@ int cast_create_town_portal(object *op)
 	 * dummy is used to make a check inventory for the force */
 	if (!strncmp(op->map->path, settings.localdir, strlen(settings.localdir)))
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You can't cast that here.\n");
+		draw_info(COLOR_NAVY, op, "You can't cast that here.\n");
 		return 0;
 	}
 
@@ -326,7 +326,7 @@ int cast_create_town_portal(object *op)
 		dummy->speed = 0.0;
 		update_ob_speed(dummy);
 		insert_ob_in_ob(dummy, op);
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You fix this place in your mind.\nYou feel you are able to come here from anywhere.");
+		draw_info(COLOR_NAVY, op, "You fix this place in your mind.\nYou feel you are able to come here from anywhere.");
 		return 1;
 	}
 
@@ -470,7 +470,7 @@ int cast_create_town_portal(object *op)
 	/* If we were unable to load (ex. random map deleted), warn player */
 	if (exitmap == NULL)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "Something strange happened.\nYou can't remember where to go?!");
+		draw_info(COLOR_NAVY, op, "Something strange happened.\nYou can't remember where to go?!");
 		FREE_AND_CLEAR_HASH(exitpath);
 		return 1;
 	}
@@ -570,7 +570,7 @@ int cast_create_town_portal(object *op)
 	insert_ob_in_ob(force, op);
 
 	/* Describe the player what happened */
-	new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You see air moving and showing you the way home.");
+	draw_info(COLOR_NAVY, op, "You see air moving and showing you the way home.");
 	FREE_AND_CLEAR_HASH(exitpath);
 	return 1;
 }
@@ -597,9 +597,9 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
 	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
 
-	for (i = -range; i <= range; i++)
+	for (i = -range; i < range + 1; i++)
 	{
-		for (j = -range; j <= range; j++)
+		for (j = -range; j < range + 1; j++)
 		{
 			xt = op->x + i;
 			yt = op->y + j;
@@ -709,7 +709,7 @@ int cast_heal_around(object *op, int level, int type)
 			}
 			else if (!CONTR(op)->party)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You need to be in a party to cast this spell.");
+				draw_info(COLOR_WHITE, op, "You need to be in a party to cast this spell.");
 				return 0;
 			}
 
@@ -762,12 +762,12 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 			if (op != target && target->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
+				draw_info_format(COLOR_WHITE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
 			}
 
 			if (op != target && op->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You cast cure poison on %s!", target->name ? target->name : "someone");
+				draw_info_format(COLOR_WHITE, op, "You cast cure poison on %s!", target->name ? target->name : "someone");
 			}
 
 			for (temp = target->inv; temp != NULL; temp = temp->below)
@@ -783,24 +783,24 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (target->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, target, "Your body feels cleansed.");
+					draw_info(COLOR_WHITE, target, "Your body feels cleansed.");
 				}
 
 				if (op != target && op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s's body seems cleansed.", target->name ? target->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s's body seems cleansed.", target->name ? target->name : "Someone");
 				}
 			}
 			else
 			{
 				if (target->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, target, "You are not poisoned.");
+					draw_info(COLOR_WHITE, target, "You are not poisoned.");
 				}
 
 				if (op != target && op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s is not poisoned.", target->name ? target->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s is not poisoned.", target->name ? target->name : "Someone");
 				}
 			}
 
@@ -811,12 +811,12 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 			if (op != target && target->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
+				draw_info_format(COLOR_WHITE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
 			}
 
 			if (op != target && op->type == PLAYER)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You cast cure confusion on %s!", target->name ? target->name : "someone");
+				draw_info_format(COLOR_WHITE, op, "You cast cure confusion on %s!", target->name ? target->name : "someone");
 			}
 
 			for (temp = target->inv; temp != NULL; temp = temp->below)
@@ -832,24 +832,24 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (target->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, target, "Your mind feels clearer.");
+					draw_info(COLOR_WHITE, target, "Your mind feels clearer.");
 				}
 
 				if (op != target && op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s's mind seems clearer.", target->name ? target->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s's mind seems clearer.", target->name ? target->name : "Someone");
 				}
 			}
 			else
 			{
 				if (target->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, target, "You are not confused.");
+					draw_info(COLOR_WHITE, target, "You are not confused.");
 				}
 
 				if (op != target && op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s is not confused.", target->name ? target->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s is not confused.", target->name ? target->name : "Someone");
 				}
 			}
 
@@ -863,11 +863,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+					draw_info_format(COLOR_WHITE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "The healing prayer fails!");
+					draw_info(COLOR_WHITE, op, "The healing prayer fails!");
 				}
 			}
 
@@ -875,11 +875,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts minor healing on you healing %d hp!", op->name, heal);
+					draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you healing %d hp!", op->name, heal);
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts minor healing on you but it fails!", op->name);
+					draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you but it fails!", op->name);
 				}
 			}
 
@@ -893,11 +893,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+					draw_info_format(COLOR_WHITE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "The healing prayer fails!");
+					draw_info(COLOR_WHITE, op, "The healing prayer fails!");
 				}
 			}
 
@@ -905,11 +905,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts greater healing on you healing %d hp!", op->name, heal);
+					draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you healing %d hp!", op->name, heal);
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "%s casts greater healing on you but it fails!", op->name);
+					draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you but it fails!", op->name);
 				}
 			}
 
@@ -1034,7 +1034,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 				/* The old effect will be "refreshed" */
 				force = tmp2;
 				is_refresh = 1;
-				new_draw_info(NDI_UNIQUE, op, "You recast the spell while in effect.");
+				draw_info(COLOR_WHITE, op, "You recast the spell while in effect.");
 			}
 		}
 	}
@@ -1056,14 +1056,14 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 			{
 				if (op->type == PLAYER)
 				{
-					new_draw_info(NDI_UNIQUE, op, "You can't cast this kind of spell on your target.");
+					draw_info(COLOR_WHITE, op, "You can't cast this kind of spell on your target.");
 				}
 
 				return 0;
 			}
 			else if (op->type == PLAYER && op != tmp)
 			{
-				new_draw_info_format(NDI_UNIQUE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
+				draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
 			}
 
 			if (force->stats.Str < 2)
@@ -1072,17 +1072,17 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 				if (op->type == PLAYER && op != tmp)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
 				}
 			}
 			else
 			{
 				msg_flag = 0;
-				new_draw_info(NDI_UNIQUE, tmp, "You don't grow stronger but the spell is refreshed.");
+				draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
 
 				if (op->type == PLAYER && op != tmp)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
+					draw_info_format(COLOR_WHITE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
 				}
 			}
 
@@ -1113,7 +1113,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 	if (i)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Your protection to %s grows.", attack_name[i]);
+		draw_info_format(COLOR_WHITE, op, "Your protection to %s grows.", attack_name[i]);
 		force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1, 0), 50);
 	}
 
@@ -1151,7 +1151,7 @@ int create_bomb(object *op, object *caster, int dir, int spell_type)
 
 	if (wall(op->map, dx, dy))
 	{
-		new_draw_info(NDI_UNIQUE, op, "There is something in the way.");
+		draw_info(COLOR_WHITE, op, "There is something in the way.");
 		return 0;
 	}
 
@@ -1229,8 +1229,8 @@ int remove_depletion(object *op, object *target)
 		/* Fake messages for non player... */
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You cast depletion on %s.", query_base_name(target, NULL));
-			new_draw_info(NDI_UNIQUE, op, "There is no depletion.");
+			draw_info_format(COLOR_WHITE, op, "You cast depletion on %s.", query_base_name(target, NULL));
+			draw_info(COLOR_WHITE, op, "There is no depletion.");
 		}
 
 		return 0;
@@ -1240,11 +1240,11 @@ int remove_depletion(object *op, object *target)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You cast depletion on %s.", query_base_name(target, NULL));
+			draw_info_format(COLOR_WHITE, op, "You cast depletion on %s.", query_base_name(target, NULL));
 		}
 		else if (target->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, target, "%s casts remove depletion on you.", query_base_name(op, NULL));
+			draw_info_format(COLOR_WHITE, target, "%s casts remove depletion on you.", query_base_name(op, NULL));
 		}
 	}
 
@@ -1255,7 +1255,7 @@ int remove_depletion(object *op, object *target)
 			if (get_attr_value(&depl->stats, i))
 			{
 				success++;
-				new_draw_info(NDI_UNIQUE, target, restore_msg[i]);
+				draw_info(COLOR_WHITE, target, restore_msg[i]);
 			}
 		}
 
@@ -1267,18 +1267,18 @@ int remove_depletion(object *op, object *target)
 	{
 		if (success)
 		{
-			new_draw_info(NDI_UNIQUE, op, "Your prayer removes some depletion.");
+			draw_info(COLOR_WHITE, op, "Your prayer removes some depletion.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "There is no depletion.");
+			draw_info(COLOR_WHITE, op, "There is no depletion.");
 		}
 	}
 
 	/* If success, target got info before */
 	if (op != target && target->type == PLAYER && !success)
 	{
-		new_draw_info(NDI_UNIQUE, target, "There is no depletion.");
+		draw_info(COLOR_WHITE, target, "There is no depletion.");
 	}
 
 	insert_spell_effect(spells[SP_REMOVE_DEPLETION].archname, target->map, target->x, target->y);
@@ -1308,11 +1308,11 @@ int remove_curse(object *op, object *target, int type, int src)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You cast remove %s on %s.", type == SP_REMOVE_CURSE ? "curse" : "damnation", query_base_name(target, NULL));
+			draw_info_format(COLOR_WHITE, op, "You cast remove %s on %s.", type == SP_REMOVE_CURSE ? "curse" : "damnation", query_base_name(target, NULL));
 		}
 		else if (target->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, target, "%s casts remove %s on you.", query_base_name(op, NULL), type == SP_REMOVE_CURSE ? "curse" : "damnation");
+			draw_info_format(COLOR_WHITE, target, "%s casts remove %s on you.", query_base_name(op, NULL), type == SP_REMOVE_CURSE ? "curse" : "damnation");
 		}
 	}
 
@@ -1342,11 +1342,11 @@ int remove_curse(object *op, object *target, int type, int src)
 			{
 				if (target->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, target, "The %s's curse is stronger than the prayer!", query_base_name(tmp, NULL));
+					draw_info_format(COLOR_WHITE, target, "The %s's curse is stronger than the prayer!", query_base_name(tmp, NULL));
 				}
 				else if (op != target && op->type == PLAYER)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "The %s's curse of %s is stronger than your prayer!", query_base_name(tmp, NULL), query_base_name(target, NULL));
+					draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is stronger than your prayer!", query_base_name(tmp, NULL), query_base_name(target, NULL));
 				}
 			}
 		}
@@ -1356,11 +1356,11 @@ int remove_curse(object *op, object *target, int type, int src)
 	{
 		if (success)
 		{
-			new_draw_info(NDI_UNIQUE, op, "Your prayer removes some curses.");
+			draw_info(COLOR_WHITE, op, "Your prayer removes some curses.");
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s's items seem uncursed.", query_base_name(target, NULL));
+			draw_info_format(COLOR_WHITE, op, "%s's items seem uncursed.", query_base_name(target, NULL));
 		}
 	}
 
@@ -1368,17 +1368,17 @@ int remove_curse(object *op, object *target, int type, int src)
 	{
 		if (success)
 		{
-			new_draw_info(NDI_UNIQUE, target, "You feel like someone is helping you.");
+			draw_info(COLOR_WHITE, target, "You feel like someone is helping you.");
 		}
 		else
 		{
 			if (src == CAST_NORMAL)
 			{
-				new_draw_info(NDI_UNIQUE, target, "You are not using any cursed items.");
+				draw_info(COLOR_WHITE, target, "You are not using any cursed items.");
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, target, "You hear maniacal laughter in the distance.");
+				draw_info(COLOR_WHITE, target, "You hear maniacal laughter in the distance.");
 			}
 		}
 	}
@@ -1407,7 +1407,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 	{
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
+			draw_info_format(COLOR_WHITE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
 		}
 	}
 	else
@@ -1416,12 +1416,12 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You have %s.", long_desc(tmp, NULL));
+			draw_info_format(COLOR_WHITE, op, "You have %s.", long_desc(tmp, NULL));
 
 			if (tmp->msg)
 			{
-				new_draw_info(NDI_UNIQUE, op, "The item has a story:");
-				new_draw_info(NDI_UNIQUE, op, tmp->msg);
+				draw_info(COLOR_WHITE, op, "The item has a story:");
+				draw_info(COLOR_WHITE, op, tmp->msg);
 			}
 		}
 
@@ -1475,7 +1475,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 
 	if (op->type == PLAYER && !done)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't reach anything unidentified in your inventory.");
+		draw_info(COLOR_WHITE, op, "You can't reach anything unidentified in your inventory.");
 	}
 
 	return done;
@@ -1492,7 +1492,7 @@ int cast_consecrate(object *op)
 
 	if (!god)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't consecrate anything if you don't worship a god!");
+		draw_info(COLOR_WHITE, op, "You can't consecrate anything if you don't worship a god!");
 		return 0;
 	}
 
@@ -1509,12 +1509,12 @@ int cast_consecrate(object *op)
 			 * all the gods should give equal chance of re-consecrating altars */
 			if (tmp->level > SK_level(op))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You are not powerful enough to reconsecrate the %s.", tmp->name);
+				draw_info_format(COLOR_WHITE, op, "You are not powerful enough to reconsecrate the %s.", tmp->name);
 				return 0;
 			}
 			else if (tmp->other_arch == god->arch)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "That altar is already consecrated to %s.", god->name);
+				draw_info_format(COLOR_WHITE, op, "That altar is already consecrated to %s.", god->name);
 				return 0;
 			}
 			else
@@ -1548,13 +1548,13 @@ int cast_consecrate(object *op)
 				insert_ob_in_map(new_altar, tmp->map, NULL, 0);
 				remove_ob(tmp);
 
-				new_draw_info_format(NDI_UNIQUE, op, "You consecrated the altar to %s!", god->name);
+				draw_info_format(COLOR_WHITE, op, "You consecrated the altar to %s!", god->name);
 				return 1;
 			}
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "You are not standing over an altar!");
+	draw_info(COLOR_WHITE, op, "You are not standing over an altar!");
 	return 0;
 }
 
@@ -1573,7 +1573,7 @@ int finger_of_death(object *op, object *target)
 
 	if (QUERY_FLAG(target, FLAG_UNDEAD))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "The %s looks stronger!", query_name(target, NULL));
+		draw_info_format(COLOR_WHITE, op, "The %s looks stronger!", query_name(target, NULL));
 		target->stats.hp = target->stats.maxhp;
 
 		if (!OBJECT_VALID(target->enemy, target->enemy_count))
@@ -1594,7 +1594,7 @@ int finger_of_death(object *op, object *target)
 
 	if (spell_attack_missed(hitter, target))
 	{
-		new_draw_info_format(NDI_ORANGE, op, "Your finger of death misses %s!", target->name);
+		draw_info_format(COLOR_ORANGE, op, "Your finger of death misses %s!", target->name);
 		remove_ob(hitter);
 		return 1;
 	}
@@ -1743,7 +1743,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 
 			if (infect_object(walk, disease, 1))
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "You inflict %s on %s!", disease->name, walk->name);
+				draw_info_format(COLOR_WHITE, op, "You inflict %s on %s!", disease->name, walk->name);
 				return 1;
 			}
 		}
@@ -1755,7 +1755,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "No one caught anything!");
+	draw_info(COLOR_WHITE, op, "No one caught anything!");
 	return 0;
 }
 
@@ -1778,21 +1778,21 @@ int cast_transform_wealth(object *op)
 
 	if (!marked)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You need to mark an object to cast this spell.");
+		draw_info(COLOR_WHITE, op, "You need to mark an object to cast this spell.");
 		return 0;
 	}
 
 	/* Check that it's really money. */
 	if (marked->type != MONEY)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can only cast this spell on wealth objects.");
+		draw_info(COLOR_WHITE, op, "You can only cast this spell on wealth objects.");
 		return 0;
 	}
 
 	/* Only allow coppers and silvers to be transformed. */
 	if (strcmp(marked->arch->name, coins[NUM_COINS - 1]) && strcmp(marked->arch->name, coins[NUM_COINS - 2]))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You don't see a way to transform %s.", query_name(marked, op));
+		draw_info_format(COLOR_WHITE, op, "You don't see a way to transform %s.", query_name(marked, op));
 		return 0;
 	}
 
@@ -1803,6 +1803,6 @@ int cast_transform_wealth(object *op)
 	esrv_del_item(CONTR(op), marked->count, marked->env);
 	/* Now give the player the new money. */
 	insert_coins(op, val);
-	new_draw_info_format(NDI_UNIQUE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));
+	draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));
 	return 1;
 }

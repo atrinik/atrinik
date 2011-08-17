@@ -1,5 +1,5 @@
 Object fairy2
-name fairy2
+name fairy
 face fairy2.151
 race elemental
 randomitems mob_mage_l9

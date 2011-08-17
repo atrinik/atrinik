@@ -29,7 +29,7 @@ def main():
 		me.SayTo(activator, "\nHello {0}, I am {1}.".format(activator.name, me.name))
 
 		if not qm.started():
-			me.SayTo(activator, "Recently, I have been having terrible nightmares.\nI suspect it's because lately there have been sightings of lost souls in the forest. If you could help me out, that would be great.\nDo you ^accept^ my quest?", 1)
+			me.SayTo(activator, "Recently, I have been having terrible nightmares.\nI suspect it's because lately there have been sightings of lost souls in the forest. If you could help me out, that would be great.\nDo you <a>accept</a> my quest?", 1)
 		elif qm.completed():
 			me.SayTo(activator, "Thank you for helping me out. I no longer have nightmares.", 1)
 		elif qm.finished():

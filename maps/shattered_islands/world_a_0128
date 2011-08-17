@@ -1,0 +1,1417 @@
+arch map
+name Centennial
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2011-07-17 emperorbma
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 2
+no_harm 1
+bg_music yewtree.mid
+region centennial
+end
+arch blocked
+x 1
+y 2
+end
+arch wall_flagstone1.181
+x 1
+y 2
+end
+arch blocked
+x 1
+y 3
+end
+arch wall_flagstone1.131
+x 1
+y 3
+end
+arch blocked
+x 1
+y 4
+end
+arch wall_flagstone1.131
+x 1
+y 4
+end
+arch blocked
+x 1
+y 5
+end
+arch wall_flagstone1.131
+x 1
+y 5
+end
+arch blocked
+x 1
+y 6
+end
+arch wall_flagstone1.131
+x 1
+y 6
+end
+arch blocked
+x 1
+y 7
+end
+arch wall_flagstone1.131
+x 1
+y 7
+end
+arch blocked
+x 1
+y 8
+end
+arch wall_flagstone1.131
+x 1
+y 8
+end
+arch blocked
+x 1
+y 9
+end
+arch wall_flagstone1.131
+x 1
+y 9
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_flagstone1.131
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_flagstone1.131
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch wall_flagstone1.131
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch wall_flagstone1.131
+x 1
+y 13
+end
+arch blocked
+x 2
+y 2
+end
+arch wall_flagstone1b.111
+x 2
+y 2
+end
+arch floor_wood2_l1
+x 2
+y 3
+end
+arch shelf1_wall.111
+x 2
+y 3
+end
+arch light5
+x 2
+y 3
+end
+arch floor_wood2_l1
+x 2
+y 4
+end
+arch door_bar1
+msg
+Librarian only.
+endmsg
+direction 5
+slaying cent_school_librarian
+x 2
+y 4
+end
+arch floor_wood2_l1
+x 2
+y 5
+end
+arch shelf3a.111
+direction 7
+x 2
+y 5
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 6
+end
+arch shelf3b.111
+direction 7
+x 2
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 7
+end
+arch shelf3c.111
+direction 7
+x 2
+y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 8
+end
+arch shelf3a.111
+direction 7
+x 2
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 9
+end
+arch shelf3b.111
+direction 7
+x 2
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 10
+end
+arch shelf3c.111
+direction 7
+x 2
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 11
+end
+arch shelf3b.111
+direction 7
+x 2
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 12
+end
+arch shelf3a.111
+direction 7
+x 2
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 13
+end
+arch wall_flagstone1.111
+x 2
+y 13
+end
+arch blocked
+x 3
+y 2
+end
+arch wall_flagstone1b.111
+x 3
+y 2
+end
+arch floor_wood2_l1
+x 3
+y 3
+end
+arch shelf2_wall.111
+x 3
+y 3
+end
+arch spawn_point
+msg
+
+endmsg
+x 3
+y 3
+arch witch3
+msg
+@match ^hi$|^hey$|^hello$
+Welcome to the Library.  Please try to keep quiet so others can study in peace.
+@match ^Patchouli$|^Patchouli Knowledge$
+Ah, I see you like the <a>Eastern Project</a> series, too.  It's fairly obvious why I should be a fan of her, don't you think?
+@match ^Eastern Project$
+The name is translated from its original language, but it basically means the same thing.  You should be able to find a copy in the library but it's very popular here so someone may be reading them right now.
+@match ^Lindy Harlaown$|^Harlaown$|^Nanoha$|^lyrical$
+Excellent deduction.  Yes, my parents were, indeed, quite the fans of the Nanoha series.
+@match ^Ruri$
+Don't mind her.  She knows a bit too much but she's a hard worker.  You wouldn't really expect most fairies to be that smart, though... it's kind of weird.
+endmsg
+name Lindy, the librarian
+level 38
+can_cast_spell 1
+sp -1
+maxsp 15
+Dex 2
+type 83
+arch ability_cause_lig_wound
+name ability meteor
+sp 34
+hp 34
+maxsp 1
+end
+arch ability_cause_lig_wound
+name ability lightning
+sp 48
+hp 48
+maxsp 10
+end
+arch key_skull
+name key
+slaying cent_school_librarian
+end
+end
+end
+arch floor_wood2_l1
+x 3
+y 4
+end
+arch bar1
+x 3
+y 4
+end
+arch floor_wood2_l1
+x 3
+y 5
+end
+arch chair1_111
+x 3
+y 5
+end
+arch floor_wood2_l1
+x 3
+y 6
+end
+arch table_round2
+x 3
+y 6
+end
+arch floor_wood2_l1
+x 3
+y 7
+end
+arch chair1_111
+direction 5
+x 3
+y 7
+end
+arch spawn_point
+msg
+
+endmsg
+x 3
+y 7
+arch witch3
+msg
+@match ^hi$|^hey$|^hello$
+Shh, I'm trying to study.
+@match ^Patchouli$|^Patchouli Knowledge$
+Hmm.  I'm in a good mood today.  Maybe I'll just have to show you "Sun Sign: <a>Royal Flare</a>..."
+@match ^Royal Flare$
+Grr... take a hint or I'll show you to the <a>basement</a>.  Kihihihihihi.
+@match ^basement$
+Geez.  You must be as dumb as that <a>fairy</a>.
+@match ^Cirno$|^fairy$
+C'mon.  Let me study, man...
+endmsg
+name bookish student witch
+direction 1
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_wood2_l1
+x 3
+y 8
+end
+arch floor_wood2_l1
+x 3
+y 9
+end
+arch light5
+x 3
+y 9
+end
+arch floor_wood2_l1
+x 3
+y 10
+end
+arch wall_flagstone1.131
+x 3
+y 10
+end
+arch floor_wood2_l1
+x 3
+y 11
+end
+arch wall_flagstone1.131
+x 3
+y 11
+end
+arch floor_wood2_l1
+x 3
+y 12
+end
+arch wall_flagstone1.131
+x 3
+y 12
+end
+arch floor_wood2_l1
+x 3
+y 13
+end
+arch wall_flagstone1.141
+x 3
+y 13
+end
+arch blocked
+x 4
+y 2
+end
+arch wall_flagstone1b.111
+x 4
+y 2
+end
+arch floor_wood2_l1
+x 4
+y 3
+end
+arch bar1
+direction 3
+x 4
+y 3
+end
+arch floor_wood2_l1
+x 4
+y 4
+end
+arch bar1
+direction 4
+x 4
+y 4
+end
+arch floor_wood2_l1
+x 4
+y 5
+end
+arch floor_wood2_l1
+x 4
+y 6
+end
+arch chair1_111
+direction 3
+x 4
+y 6
+end
+arch floor_wood2_l1
+x 4
+y 7
+end
+arch floor_wood2_l1
+x 4
+y 8
+end
+arch chair1_111
+direction 7
+x 4
+y 8
+end
+arch floor_wood2_l1
+x 4
+y 9
+end
+arch floor_wood2_l1
+x 4
+y 10
+end
+arch shelf3c.111
+direction 7
+x 4
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 11
+end
+arch shelf3c.111
+direction 7
+x 4
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 12
+end
+arch shelf3a.111
+direction 7
+x 4
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 13
+end
+arch wall_flagstone1.111
+x 4
+y 13
+end
+arch blocked
+x 5
+y 2
+end
+arch wall_flagstone1b.111
+x 5
+y 2
+end
+arch floor_wood2_l1
+x 5
+y 3
+end
+arch carpet3.151
+x 5
+y 3
+end
+arch shelf3_wall.111
+x 5
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 5
+y 4
+end
+arch carpet3b
+x 5
+y 4
+end
+arch floor_wood2_l1
+x 5
+y 5
+end
+arch carpet3b
+x 5
+y 5
+end
+arch floor_wood2_l1
+x 5
+y 6
+end
+arch carpet3.111
+x 5
+y 6
+end
+arch floor_wood2_l1
+x 5
+y 7
+end
+arch chair1_111
+x 5
+y 7
+end
+arch spawn_point
+x 5
+y 7
+arch witch1
+msg
+@match ^hi$|^hey$|^hello$
+Hmm, still haven't learned how to cast <a>Master Spark</a>.  Maybe I can figure it out if I read some more of the <a>story</a>.
+@match ^Master Spark$
+Yeah, that's <a>Marisa's</a> favorite spell!
+@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
+She's the best, ze.
+@match ^story$
+That's "Eastern Project," ze.
+endmsg
+name trigger-happy student witch
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_wood2_l1
+x 5
+y 8
+end
+arch table_round2
+x 5
+y 8
+end
+arch floor_wood2_l1
+x 5
+y 9
+end
+arch floor_wood2_l1
+x 5
+y 10
+end
+arch wall_flagstone1.131
+x 5
+y 10
+end
+arch floor_wood2_l1
+x 5
+y 11
+end
+arch wall_flagstone1.131
+x 5
+y 11
+end
+arch floor_wood2_l1
+x 5
+y 12
+end
+arch wall_flagstone1.131
+x 5
+y 12
+end
+arch floor_wood2_l1
+x 5
+y 13
+end
+arch wall_flagstone1.141
+x 5
+y 13
+end
+arch blocked
+x 6
+y 2
+end
+arch wall_flagstone1b.111
+x 6
+y 2
+end
+arch floor_wood2_l1
+x 6
+y 3
+end
+arch shelf_wall.111
+x 6
+y 3
+end
+arch floor_wood2_l1
+x 6
+y 4
+end
+arch floor_wood2_l1
+x 6
+y 5
+end
+arch floor_wood2_l1
+x 6
+y 6
+end
+arch floor_wood2_l1
+x 6
+y 7
+end
+arch spawn_point
+x 6
+y 7
+arch fairy
+msg
+@match ^hi$|^hey$|^hello$
+Hi, there.  What's up?  Can I help you find a <a>book</a>?  Maybe you want to ask for other <a>information</a>?
+@match ^information$
+Try asking me some stuff about this town.  I might be able to help.
+@match ^book$|^books$
+Yeah.  You are probably interested in the <a>Eastern Project</a> series, right?  That's what everyone seems to be reading these days.
+@match ^the strongest$
+Nope, sorry.  Wrong fairy.  The <a>tomboyish fairy</a> who says that is on the river east of Aris in the early mornings.
+@match ^Cirno$|^tomboyish fairy$
+Yeah, that ice fairy by the lake has read way too many of those <a>stories</a> and now she thinks she's Cirno.
+@match ^baka$|^idiot$|^nineball$|^marukyuu$|^(9)$
+Hey, now!  Don't underestimate me.  Just because some fairies are stupid doesn't mean we all are.
+@match ^Daiyousei$
+Hehe, yeah.  I like that fan series that depicts her as cool and smart.
+@match ^stories$|^Touhou$|^eastern project$
+They're kinda cool stories with lots of <a>magic</a>, but some people seem a bit too hyped up about them.  The name is sort of a translation from the original language.  Anyway, they are over in the Fantasy aisle.
+@match ^magic$
+I guess that's what happens in a town of <a>magical girls</a>... I mean, witches.
+@match ^magical girls$|^magical girl$
+Interesting story about that.  In some languages, it's possible to change "magical girl" into "witch" by removing 2 of the symbols.  It kind of seems like our town has that as an in-joke.
+@match ^Ruri Hoshino$|^Nadesico$
+Hmm... I didn't realize someone would ever guess my namesake.  It's a pretty obscure series here in this town.
+@match ^Centennial$
+The name of this town is also a bit of an in-joke.  If you are really that concerned about it, it's found in the 6th title of the "Eastern Project" series in the "Extra" section.
+@match ^Ahriman's Prophecy$
+Good story.  Apparently the town founders liked it.  It's kind of why they founded the town where they did.
+@match ^Lindy$|^librarian$
+She's nice enough.  I'd love to chat, but I've got <a>books</a> to attend to...
+endmsg
+name Ruri, the fairy helper
+level 15
+can_cast_spell 1
+sp -1
+maxsp 12
+Pow 3
+Dex 2
+unaggressive 1
+friendly 1
+random_move 1
+item_race 8
+item_level 8
+type 83
+arch ability_mbullet
+name ability magic missile
+sp 43
+hp 43
+maxsp 5
+end
+arch ability_cause_lig_wound
+name ability minor healing
+sp 2
+hp 2
+maxsp 1
+end
+end
+end
+arch floor_wood2_l1
+x 6
+y 8
+end
+arch chair1_111
+direction 3
+x 6
+y 8
+end
+arch floor_wood2_l1
+x 6
+y 9
+end
+arch floor_wood2_l1
+x 6
+y 10
+end
+arch shelf3b.111
+direction 7
+x 6
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 11
+end
+arch shelf3a.111
+direction 7
+x 6
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 12
+end
+arch shelf3c.111
+direction 7
+x 6
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 13
+end
+arch wall_flagstone1.111
+x 6
+y 13
+end
+arch blocked
+x 7
+y 2
+end
+arch wall_flagstone1b.111
+x 7
+y 2
+end
+arch floor_wood2_l1
+x 7
+y 3
+end
+arch wall_flagstone1.131
+x 7
+y 3
+end
+arch floor_wood2_l1
+x 7
+y 4
+end
+arch door_wood1
+direction 3
+cursed 1
+x 7
+y 4
+end
+arch floor_wood2_l1
+x 7
+y 5
+end
+arch door_wood1
+direction 5
+cursed 1
+x 7
+y 5
+end
+arch floor_wood2_l1
+x 7
+y 6
+end
+arch wall_flagstone1.131
+x 7
+y 6
+end
+arch floor_wood2_l1
+x 7
+y 7
+end
+arch wall_flagstone1.131
+x 7
+y 7
+end
+arch floor_wood2_l1
+x 7
+y 8
+end
+arch floor_wood2_l1
+x 7
+y 9
+end
+arch floor_wood2_l1
+x 7
+y 10
+end
+arch wall_flagstone1.131
+x 7
+y 10
+end
+arch floor_wood2_l1
+x 7
+y 11
+end
+arch wall_flagstone1.131
+x 7
+y 11
+end
+arch floor_wood2_l1
+x 7
+y 12
+end
+arch wall_flagstone1.131
+x 7
+y 12
+end
+arch floor_wood2_l1
+x 7
+y 13
+end
+arch wall_flagstone1.141
+x 7
+y 13
+end
+arch blocked
+x 8
+y 2
+end
+arch wall_flagstone1b.111
+x 8
+y 2
+end
+arch floor_wood2_l1
+x 8
+y 3
+end
+arch torch_wall_1
+direction 7
+x 8
+y 3
+end
+arch floor_wood2_l1
+x 8
+y 4
+end
+arch floor_wood2_l1
+x 8
+y 5
+end
+arch floor_wood2_l1
+x 8
+y 6
+end
+arch torch_wall_1
+direction 7
+x 8
+y 6
+end
+arch floor_wood2_l1
+x 8
+y 7
+end
+arch wall_flagstone1.111
+x 8
+y 7
+end
+arch floor_wood2_l1
+x 8
+y 8
+end
+arch shelf3a.111
+x 8
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 9
+end
+arch floor_wood2_l1
+x 8
+y 10
+end
+arch shelf3c.111
+direction 7
+x 8
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 11
+end
+arch shelf3c.111
+direction 7
+x 8
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 12
+end
+arch shelf3c.111
+direction 7
+x 8
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 13
+end
+arch wall_flagstone1.111
+x 8
+y 13
+end
+arch blocked
+x 9
+y 2
+end
+arch wall_flagstone1b.111
+x 9
+y 2
+end
+arch floor_wood2_l1
+x 9
+y 3
+end
+arch floor_wood2_l1
+x 9
+y 4
+end
+arch floor_wood2_l1
+x 9
+y 5
+end
+arch floor_wood2_l1
+x 9
+y 6
+end
+arch floor_wood2_l1
+x 9
+y 7
+end
+arch wall_flagstone1.111
+x 9
+y 7
+end
+arch floor_wood2_l1
+x 9
+y 8
+end
+arch shelf1.111
+name Library Catalog
+x 9
+y 8
+arch catalog_touhou
+end
+end
+arch floor_wood2_l1
+x 9
+y 9
+end
+arch floor_wood2_l1
+x 9
+y 10
+end
+arch wall_flagstone1.131
+x 9
+y 10
+end
+arch floor_wood2_l1
+x 9
+y 11
+end
+arch wall_flagstone1.131
+x 9
+y 11
+end
+arch floor_wood2_l1
+x 9
+y 12
+end
+arch wall_flagstone1.131
+x 9
+y 12
+end
+arch floor_wood2_l1
+x 9
+y 13
+end
+arch wall_flagstone1.141
+x 9
+y 13
+end
+arch blocked
+x 10
+y 2
+end
+arch wall_flagstone1b.111
+x 10
+y 2
+end
+arch floor_wood2_l1
+x 10
+y 3
+end
+arch fwall_fstone2
+x 10
+y 3
+end
+arch floor_wood2_l1
+x 10
+y 4
+end
+arch fwall_fstone2
+x 10
+y 4
+end
+arch floor_wood2_l1
+x 10
+y 5
+end
+arch announcement
+msg
+Please return all books by the New Moon.
+endmsg
+x 10
+y 5
+end
+arch floor_wood2_l1
+x 10
+y 6
+end
+arch floor_wood2_l1
+x 10
+y 7
+end
+arch wall_flagstone1.111
+x 10
+y 7
+end
+arch floor_wood2_l1
+x 10
+y 8
+end
+arch shelf1_wall.111
+x 10
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 10
+y 9
+end
+arch floor_wood2_l1
+x 10
+y 10
+end
+arch shelf3c.111
+direction 7
+x 10
+y 10
+arch book_touhou_11
+end
+arch book_touhou_10_5
+end
+arch book_touhou_10
+end
+arch book_touhou_09_5
+end
+arch book_touhou_09
+end
+arch book_touhou_08
+end
+arch book_touhou_07_5
+end
+arch book_touhou_07
+end
+arch book_touhou_06
+end
+arch book_touhou_05
+end
+arch book_touhou_04
+end
+arch book_touhou_03
+end
+arch book_touhou_02
+end
+arch book_touhou_01
+end
+end
+arch floor_wood2_l1
+x 10
+y 11
+end
+arch shelf3c.111
+direction 7
+x 10
+y 11
+arch book_yukkuri
+end
+end
+arch floor_wood2_l1
+x 10
+y 12
+end
+arch shelf3b.111
+direction 7
+x 10
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 10
+y 13
+end
+arch wall_flagstone1.111
+x 10
+y 13
+end
+arch blocked
+x 11
+y 2
+end
+arch wall_flagstone1b.111
+x 11
+y 2
+end
+arch floor_wood2_l1
+x 11
+y 3
+end
+arch fwall_wood1c
+layer 4
+no_pass 0
+draw_double 0
+x 11
+y 3
+end
+arch stairs_wood_up
+z 22
+direction 5
+slaying world_0128
+hp 10
+sp 3
+x 11
+y 3
+end
+arch invis_exit
+slaying world_0128
+hp 10
+sp 3
+x 11
+y 3
+end
+arch light2
+x 11
+y 3
+end
+arch floor_wood2_l1
+x 11
+y 4
+end
+arch stairs_wood_up
+direction 5
+slaying world_0128
+hp 10
+sp 3
+x 11
+y 4
+end
+arch floor_wood2_l1
+x 11
+y 5
+end
+arch floor_wood2_l1
+x 11
+y 6
+end
+arch floor_wood2_l1
+x 11
+y 7
+end
+arch wall_flagstone1.111
+x 11
+y 7
+end
+arch floor_wood2_l1
+x 11
+y 8
+end
+arch shelf5_wall.111
+x 11
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 11
+y 9
+end
+arch floor_wood2_l1
+x 11
+y 10
+end
+arch floor_wood2_l1
+x 11
+y 11
+end
+arch light5
+x 11
+y 11
+end
+arch floor_wood2_l1
+x 11
+y 12
+end
+arch floor_wood2_l1
+x 11
+y 13
+end
+arch wall_flagstone1.111
+x 11
+y 13
+end
+arch blocked
+x 12
+y 2
+end
+arch wall_flagstone1b.111
+x 12
+y 2
+end
+arch floor_wood2_l1
+x 12
+y 3
+end
+arch wall_flagstone1.131
+x 12
+y 3
+end
+arch floor_wood2_l1
+x 12
+y 4
+end
+arch wall_flagstone1.131
+x 12
+y 4
+end
+arch floor_wood2_l1
+x 12
+y 5
+end
+arch wall_flagstone1.131
+x 12
+y 5
+end
+arch floor_wood2_l1
+x 12
+y 6
+end
+arch wall_flagstone1.131
+x 12
+y 6
+end
+arch floor_wood2_l1
+x 12
+y 7
+end
+arch wall_flagstone1.141
+x 12
+y 7
+end
+arch floor_wood2_l1
+x 12
+y 8
+end
+arch wall_flagstone1.131
+x 12
+y 8
+end
+arch floor_wood2_l1
+x 12
+y 9
+end
+arch wall_flagstone1.131
+x 12
+y 9
+end
+arch floor_wood2_l1
+x 12
+y 10
+end
+arch wall_flagstone1.131
+x 12
+y 10
+end
+arch floor_wood2_l1
+x 12
+y 11
+end
+arch wall_flagstone1.131
+x 12
+y 11
+end
+arch floor_wood2_l1
+x 12
+y 12
+end
+arch wall_flagstone1.131
+x 12
+y 12
+end
+arch floor_wood2_l1
+x 12
+y 13
+end
+arch wall_flagstone1.141
+x 12
+y 13
+end

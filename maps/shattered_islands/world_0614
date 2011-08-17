@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -385,11 +385,15 @@ arch grassd_2
 x 2
 y 8
 end
-arch grassd_4
+arch water_lt2
 x 2
 y 9
 end
-arch water_still
+arch grassd_m4
+x 2
+y 9
+end
+arch water_lt4
 x 2
 y 10
 end
@@ -515,19 +519,19 @@ arch rock_wall6
 x 3
 y 8
 end
-arch water_still
+arch water_lt4
 x 3
 y 9
 end
-arch grassd_m4
-x 3
-y 9
-end
-arch water_still
+arch water_lt4
 x 3
 y 10
 end
-arch water_still
+arch grassd_m14
+x 3
+y 10
+end
+arch water_lt2
 x 3
 y 11
 end
@@ -690,7 +694,7 @@ arch grassd_6
 x 4
 y 8
 end
-arch water_still
+arch water_lt4
 x 4
 y 9
 end
@@ -698,7 +702,7 @@ arch grassd_m6
 x 4
 y 9
 end
-arch water_still
+arch water_lt3
 x 4
 y 10
 end
@@ -706,11 +710,20 @@ arch grassd_m8
 x 4
 y 10
 end
-arch water_still
+arch water_lt
 x 4
 y 11
 end
-arch water_still
+arch grassd_m12
+x 4
+y 11
+end
+arch grassd_m14
+layer 3
+x 4
+y 11
+end
+arch water_lt2
 x 4
 y 12
 end
@@ -813,7 +826,7 @@ arch grassd_3
 x 5
 y 10
 end
-arch water_still
+arch water_lt
 x 5
 y 11
 end
@@ -821,7 +834,7 @@ arch grassd_m6
 x 5
 y 11
 end
-arch water_still
+arch water_lt2
 x 5
 y 12
 end

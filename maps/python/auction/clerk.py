@@ -403,7 +403,7 @@ def create_list(l, action, back = None, sort = None, start = None):
 
 		# If buying, add examine link as well.
 		if action == "buy":
-			s += ", <a=:/t_tell examine " + code_orig + ">examine</a>"
+			s += ", <a=:/t_tell examine " + code + ">examine</a>"
 
 		# Add the object's name and the cost.
 		s += "] " + obj.GetName() + ": <u>" + CostString(int(obj.ReadKey("auction_house_value"))) + "</u> (each)"
@@ -616,14 +616,20 @@ def main():
 	elif msg.startswith("helpsearch "):
 		back = msg[11:]
 		pl.target_object = me
-		create_interface("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\nTypes: <u>weapons</u> <size=8><a=:>X</a></size> [<a=:>slash</a>, <u>pierce</u> <size=8><a=:>X</a></size>, ...] [<a=:>1h</a>], <a=:>armour</a>, ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is <b>weapons</b>, so only weapons will appear in your search results, but the <b>pierce</b> sub-filter is also active, so only <b>pierce weapons</b> will appear. Clicking the <b>1h</b> sub-filter would only show <b>1h pierce weapons</b>, but clicking the <b>slash</b> sub-filter would switch from <b>pierce</b> weapons to <b>slash</b> weapons. Clicking the <b>armour</b> filter would deactivate the weapons filter. You can also click the <b>X</b> at top right of the filter name to deactivate that filter.\n\nFilters: <a=:>magical</a>, <a=:>identified</a>\n\nThe above are item filters, and any number of those can be active. Upon clicking <b>identified</b>, only <b>identified items</b> would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | <a=:>Next &gt;</a>\n[<a=:>buy</a>, <a=:>examine</a>] 10 beer: <u>1 silver coin</u> (each) [<a=:>1</a>; <a=:>5</a>]\n\nIf the <b>Next</b> button is active, it means there is another page of items and you can click it to see them. <b>Previous</b> button would take you to the previous page, if any. Clicking <b>buy</b> would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking <b>examine</b> (will appear in the message box, like normal examine). If there is a stock of items and you don't want to buy them all, the numbers like <b>1</b> and <b>5</b> after the item name and cost allow you to buy a smaller quantity. Click <a=:/t_tell " + back + ">here</a> to go back to your search.")
+		create_interface("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\nTypes: <u>weapons</u> <size=8><a=:>X</a></size> [<a=:>slash</a>, <u>pierce</u> <size=8><a=:>X</a></size>, ...] [<a=:>1h</a>], <a=:>armour</a>, ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is <b>weapons</b>, so only weapons will appear in your search results, but the <b>pierce</b> sub-filter is also active, so only <b>pierce weapons</b> will appear. Clicking the <b>1h</b> sub-filter would only show <b>1h pierce weapons</b>, but clicking the <b>slash</b> sub-filter would switch from <b>pierce</b> weapons to <b>slash</b> weapons. Clicking the <b>armour</b> filter would deactivate the weapons filter. You can also click the <b>X</b> at top right of the filter name to deactivate that filter.\n\nFilters: <a=:>magical</a>, <a=:>identified</a>\n\nThe above are item filters, and any number of those can be active. Upon clicking <b>identified</b>, only <b>identified items</b> would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | <a=:>Next &gt;</a>\n[<a=:>buy</a>, <a=:>examine</a>] 10 beer: <u>1 silver coin</u> (each) [<a=:>1</a>; <a=:>5</a>]\n\nIf the <b>Next</b> button is active, it means there is another page of items and you can click it to see them. <b>Previous</b> button would take you to the previous page, if any. Clicking <b>buy</b> would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking <b>examine</b>. If there is a stock of items and you don't want to buy them all, the numbers like <b>1</b> and <b>5</b> after the item name and cost allow you to buy a smaller quantity. Click <a=:/t_tell " + back + ">here</a> to go back to your search.")
 
 	# Examine an object.
 	elif msg.startswith("examine "):
-		t = parse_base64(WhatIsMessage().strip()[8:])
+		# Parse the data.
+		try:
+			l = WhatIsMessage().strip()[8:].split()
+			t = parse_base64(l[0])
+			back = b64decode(l[1].encode()).decode()
+		except:
+			t = None
+			back = None
 
-		if not t:
-			me.SayTo(activator, "\nSorry, I didn't quite catch that one.")
+		if not t or not back:
 			return
 
 		obj = find_item(t)
@@ -631,11 +637,10 @@ def main():
 		# The object could have been purchased before the player clicked
 		# the examine link in their interface.
 		if not obj:
-			me.SayTo(activator, "\nThat object is not available anymore.")
+			create_interface("That object is not available anymore.", back)
 			return
 
-		activator.Write("\nexamine {}".format(obj.GetName()), 65)
-		pl.Examine(obj)
+		create_interface("<b>{}</b>\n{}".format(obj.GetName(), pl.Examine(obj, True).strip()), back)
 
 	# Withdraw an item.
 	elif msg.startswith("withdraw "):
@@ -684,7 +689,6 @@ def main():
 			back = None
 
 		if not t or not back:
-			me.SayTo(activator, "\nSorry, I didn't quite catch that one.")
 			return
 
 		# Find the item.
@@ -728,7 +732,7 @@ def main():
 
 		# Cannot sell locked items.
 		if marked.f_inv_locked:
-			activator.Write("Unlock item first!", 65)
+			activator.Write("Unlock item first!", COLOR_DGOLD)
 			return
 		# Or containers with items.
 		elif marked.type == Type.CONTAINER and marked.inv:

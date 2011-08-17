@@ -29,19 +29,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include "../include/autoconf.h"
-#endif
-
 /**
  * Char comparison for sorting purposes.
  * @param p1 First pointer to compare.

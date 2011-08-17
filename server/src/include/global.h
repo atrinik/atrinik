@@ -209,7 +209,7 @@ typedef struct _money_block
 
 /** Normal map info, to everyone in range of 12 tiles. */
 #define MAP_INFO_NORMAL 12
-/** To everyone on a map; a value of 9999 should be enough. */
+/** To everyone on a map; this is a special value. */
 #define MAP_INFO_ALL 9999
 /*@}*/
 
@@ -677,11 +677,7 @@ typedef struct cache_struct
 #	define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
 #endif
 
-#ifdef GETTIMEOFDAY_TWO_ARGS
-#	define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
-#else
-#	define GETTIMEOFDAY(last_time) gettimeofday(last_time);
-#endif
+#define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
 
 /**
  * @defgroup SCRIPT_FIX_xxx For plugin events

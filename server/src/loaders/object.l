@@ -32,7 +32,6 @@
 
 #include <global.h>
 #include <loader.h>
-#include <newserver.h>
 
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
 #define MAXDEPTH 10
@@ -43,7 +42,8 @@ static char *yval();
 static void *cur_buffer;
 static int object_load_flag;
 static int lex_error;
-static char msgbuf[HUGE_BUF];
+static char msgbuf[HUGE_BUF * 4];
+static size_t msgbuf_len;
 static artifact *art_amask;
 
 /**
@@ -207,8 +207,6 @@ lex_error = 0;
 								copy_object(&tmp->arch->clone, tmp, 1);
 							}
 
-							strcpy(msgbuf, "");
-
 							(*depth)++;
 							items[*depth] = tmp;
 
@@ -217,8 +215,6 @@ lex_error = 0;
 
 							if (linemode == 0)
 							{
-								extern int arch_init;
-
 								lex_load(depth, items, maxdepth, map_flags, linemode);
 								(*depth)--;
 
@@ -334,25 +330,18 @@ lex_error = 0;
 ^msg{WS}            {
 						BEGIN(MESSAGE);
 						msgbuf[0] = '\0';
+						msgbuf_len = 0;
                     }
 <MESSAGE>^endmsg{WS} {
-						size_t len = strlen(msgbuf);
-
 						BEGIN(INITIAL);
 
 						/* Remove last newline. */
-						msgbuf[len - 1] = '\0';
+						msgbuf[msgbuf_len - 1] = '\0';
 						FREE_AND_COPY_HASH(op->msg, msgbuf);
-
-						/* Just print a warning so we can be reasonably safe
-					 	 * about not overflowing the buffer. */
-						if (len > (HUGE_BUF / 2))
-						{
-							LOG(llevDebug, "\n\tWarning: message length > %d (max allowed=%d): %"FMT64U"\n>%.80s<\n", HUGE_BUF / 2, HUGE_BUF, (uint64) strlen(op->msg), op->msg);
-						}
                      }
 <MESSAGE>.*{NL}	    {
-						strcat(msgbuf, yytext);
+						memcpy(msgbuf + msgbuf_len, yytext, MIN((size_t) yyleng, sizeof(msgbuf) - msgbuf_len - 1));
+						msgbuf_len += yyleng;
 					}
 ^name{S}            {
 						char *yv = yval();
@@ -405,23 +394,27 @@ lex_error = 0;
 
 ^other_arch{S}      op->other_arch = find_archetype(yval());
 ^animation{S}       {
-						if (strcmp(yval(), "NONE") == 0)
+						char *yv = yval();
+
+						if (!strcmp(yv, "NONE"))
 						{
 							op->animation_id = 0;
 						}
 						else
 						{
-							op->animation_id = find_animation(yval());
+							op->animation_id = find_animation(yv);
 						}
                     }
 ^inv_animation{S}   {
-						if (strcmp(yval(), "NONE") == 0)
+						char *yv = yval();
+
+						if (!strcmp(yv, "NONE"))
 						{
 							op->inv_animation_id = 0;
 						}
 						else
 						{
-							op->inv_animation_id = find_animation(yval());
+							op->inv_animation_id = find_animation(yv);
 						}
                     }
 
@@ -928,9 +921,10 @@ static char *yval()
 {
 	static char *em = "";
 	char *cp, *end;
+	size_t len = yyleng;
 
 	/* First skip over start of line, like animation or name */
-	for (cp = yytext; *cp != ' '; cp++)
+	for (cp = yytext; *cp != ' '; cp++, len--)
 	{
 		if (*cp == '\0')
 		{
@@ -939,7 +933,7 @@ static char *yval()
 	}
 
 	/* Skip over whitespace */
-	for (; *cp == ' '; cp++)
+	for (; *cp == ' '; cp++, len--)
 	{
 		if (*cp == '\0')
 		{
@@ -949,7 +943,7 @@ static char *yval()
 
 	/* Get last character before null and strip
 	 * off trailing whitespace. */
-	for (end = cp + strlen(cp) - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--)
+	for (end = cp + len - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--)
 	{
 		if (end == cp)
 		{
@@ -1024,7 +1018,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 	/* We assume an "arch" load as default */
 	object_load_flag = 0;
 
-	*msgbuf = '\0';
 	items[0] = op;
 	art_amask = NULL;
 
@@ -1187,7 +1180,6 @@ int set_variable(object *op, char *buf)
 	int retval, depth;
 	object *items[MAXDEPTH];
 
-	strcpy(msgbuf, "");
 	yy_push_state(INITIAL);
 	yybufstate = yy_scan_string(buf);
 

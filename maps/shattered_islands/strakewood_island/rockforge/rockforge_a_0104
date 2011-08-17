@@ -2,11 +2,11 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-07-10 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_1 rockforge_a_0105
 tile_path_2 rockforge_a_0204
@@ -30,7 +30,23 @@ arch blocked
 x 1
 y 11
 end
-arch wall_marble1.111
+arch wall_marble1.111a
+blocksview 0
+draw_double_always 1
+layer 4
+x 1
+y 11
+end
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
+z 44
+x 1
+y 11
+end
+arch pot_wall.131
+z 22
+direction 7
 x 1
 y 11
 end
@@ -38,7 +54,23 @@ arch blocked
 x 1
 y 12
 end
-arch wall_marble1.111
+arch wall_marble1.111a
+blocksview 0
+draw_double_always 1
+layer 4
+x 1
+y 12
+end
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
+z 44
+x 1
+y 12
+end
+arch pot_wall.131
+z 22
+direction 7
 x 1
 y 12
 end
@@ -47,6 +79,22 @@ x 1
 y 13
 end
 arch wall_marble1.111a
+blocksview 0
+draw_double_always 1
+layer 4
+x 1
+y 13
+end
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
+z 44
+x 1
+y 13
+end
+arch pot_wall.131
+z 22
+direction 7
 x 1
 y 13
 end
@@ -126,11 +174,46 @@ arch floor_marble1b
 x 2
 y 11
 end
+arch fwall_marble2a
+draw_double 0
+x 2
+y 11
+end
+arch steak
+layer 7
+z 25
+zoom 80
+align 5
+x 2
+y 11
+end
 arch floor_marble1a
 x 2
 y 12
 end
+arch fwall_marble2a
+draw_double 0
+x 2
+y 12
+end
+arch bowl2.101
+layer 7
+z 25
+x 2
+y 12
+end
 arch floor_marble1b
+x 2
+y 13
+end
+arch fwall_marble2a
+draw_double 0
+x 2
+y 13
+end
+arch bath_tub3
+layer 7
+z 25
 x 2
 y 13
 end
@@ -142,7 +225,16 @@ arch floor_marble1a
 x 2
 y 15
 end
+arch doorway_wood1_1
+x 2
+y 15
+end
 arch floor_marble1
+x 2
+y 16
+end
+arch lamp_wall
+direction 7
 x 2
 y 16
 end
@@ -150,7 +242,32 @@ arch floor_marble1
 x 2
 y 17
 end
+arch shelf_wall.111
+direction 7
+x 2
+y 17
+end
+arch whitewine
+layer 5
+z 34
+zoom 90
+x 2
+y 17
+end
+arch whitewine
+layer 7
+z 32
+zoom 90
+align -10
+x 2
+y 17
+end
 arch floor_marble1
+x 2
+y 18
+end
+arch shelf4_wall.111
+direction 7
 x 2
 y 18
 end
@@ -158,7 +275,17 @@ arch floor_marble1
 x 2
 y 19
 end
+arch shelf6_wall.111
+direction 7
+x 2
+y 19
+end
 arch floor_marble1a
+x 2
+y 20
+end
+arch shelf3_wall.111
+direction 7
 x 2
 y 20
 end
@@ -182,9 +309,20 @@ arch floor_marble1a
 x 3
 y 11
 end
+arch lamp_wall
+x 3
+y 11
+end
 arch floor_marble1
 x 3
 y 12
+end
+arch spawn_point
+x 3
+y 12
+arch chef
+type 83
+end
 end
 arch floor_marble1
 x 3
@@ -198,9 +336,66 @@ arch floor_marble1b
 x 3
 y 15
 end
+arch wall_marble1.131a
+x 3
+y 15
+end
 arch floor_marble1a
 x 3
 y 16
+end
+arch spawn_point
+x 3
+y 16
+arch barmaid
+msg
+@match ^hi$^hey$^hello$
+No time to talk, there are orders to manage! If you need provisions, speak to the tavern owner, Hayden Sloan.
+endmsg
+name Aisha Bernard
+movement_type 176
+type 83
+level 13
+arch key2
+slaying rockforge_tavern
+end
+arch waypoint
+name wp1
+title wp2
+hp 3
+sp 13
+wc 3
+cursed 1
+end
+arch waypoint
+name wp2
+title wp3
+hp 8
+sp 12
+wc 2
+end
+arch waypoint
+name wp3
+title wp4
+hp 10
+sp 17
+wc 1
+end
+arch waypoint
+name wp4
+title wp5
+hp 15
+sp 19
+wc 3
+end
+arch waypoint
+name wp5
+title wp1
+hp 3
+sp 16
+wc 30
+end
+end
 end
 arch floor_marble1
 x 3
@@ -215,6 +410,10 @@ x 3
 y 19
 end
 arch floor_marble1b
+x 3
+y 20
+end
+arch beer_barrel.101
 x 3
 y 20
 end
@@ -238,6 +437,10 @@ arch floor_marble1
 x 4
 y 11
 end
+arch forge_111
+x 4
+y 11
+end
 arch floor_marble1
 x 4
 y 12
@@ -251,6 +454,10 @@ x 4
 y 14
 end
 arch floor_marble1b
+x 4
+y 15
+end
+arch wall_marble1w.131
 x 4
 y 15
 end
@@ -270,7 +477,47 @@ arch floor_marble1a
 x 4
 y 19
 end
+arch spawn_point
+x 4
+y 19
+arch bartender
+type 83
+direction 3
+name Hayden Sloan
+level 19
+arch event_obj
+sub_type 6
+race /python/generic/bartender.py
+arch beer
+identified 1
+end
+arch drink_generic
+identified 1
+end
+arch booze_generic
+identified 1
+value 15
+end
+arch pineapple
+value 15
+identified 1
+end
+arch pizza
+value 700
+identified 1
+end
+arch whitewine
+value 90
+identified 1
+end
+end
+end
+end
 arch floor_marble1b
+x 4
+y 20
+end
+arch beer_barrel.101
 x 4
 y 20
 end
@@ -294,7 +541,15 @@ arch floor_marble1b
 x 5
 y 11
 end
+arch wall_marble1.111a
+x 5
+y 11
+end
 arch floor_marble1
+x 5
+y 12
+end
+arch wall_marble1.111
 x 5
 y 12
 end
@@ -302,7 +557,15 @@ arch floor_marble1b
 x 5
 y 13
 end
+arch wall_marble1.111
+x 5
+y 13
+end
 arch floor_marble1
+x 5
+y 14
+end
+arch wall_marble1.111
 x 5
 y 14
 end
@@ -310,7 +573,26 @@ arch floor_marble1b
 x 5
 y 15
 end
+arch wall_marble1.141
+x 5
+y 15
+end
 arch floor_marble1
+x 5
+y 16
+end
+arch door_bar1
+direction 3
+slaying rockforge_tavern
+x 5
+y 16
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying rockforge_tavern
+sp 1
+last_grace 1
 x 5
 y 16
 end
@@ -318,7 +600,25 @@ arch floor_marble1a
 x 5
 y 17
 end
+arch bar1
+direction 3
+x 5
+y 17
+end
 arch floor_marble1a
+x 5
+y 18
+end
+arch bar1
+direction 3
+x 5
+y 18
+end
+arch cup_coffee
+layer 7
+zoom 75
+z 21
+align 7
 x 5
 y 18
 end
@@ -326,7 +626,17 @@ arch floor_marble1b
 x 5
 y 19
 end
+arch bar1
+direction 3
+x 5
+y 19
+end
 arch floor_marble1
+x 5
+y 20
+end
+arch bar1
+direction 3
 x 5
 y 20
 end
@@ -334,7 +644,22 @@ arch floor_marble1b
 x 5
 y 21
 end
+arch candlelight4.101
+layer 3
+x 5
+y 21
+end
+arch bar1
+direction 3
+layer 4
+x 5
+y 21
+end
 arch wall_marble1.131a
+x 5
+y 21
+end
+arch light5
 x 5
 y 21
 end
@@ -350,11 +675,23 @@ arch floor_marble1a
 x 6
 y 11
 end
+arch broom.111
+x 6
+y 11
+end
 arch floor_marble1
 x 6
 y 12
 end
+arch wood_pile.101
+x 6
+y 12
+end
 arch floor_marble1a
+x 6
+y 13
+end
+arch fireplace_left
 x 6
 y 13
 end
@@ -363,6 +700,11 @@ x 6
 y 14
 end
 arch floor_marble1b
+x 6
+y 15
+end
+arch lamp_wall
+direction 7
 x 6
 y 15
 end
@@ -406,9 +748,40 @@ arch floor_marble1
 x 7
 y 11
 end
+arch table_wood1.111
+x 7
+y 11
+end
+arch pineapple
+layer 5
+z 30
+zoom 90
+align 5
+x 7
+y 11
+end
 arch floor_marble1b
 x 7
 y 12
+end
+arch chair2_111
+direction 5
+x 7
+y 12
+end
+arch spawn_point
+x 7
+y 12
+arch female3
+msg
+@match ^hi$|^hey$|^hello$
+Hmpf... This seems tricky to eat...
+endmsg
+type 83
+direction 1
+name Liz Pugh
+level 18
+end
 end
 arch floor_marble1a
 x 7
@@ -462,7 +835,28 @@ arch floor_marble1b
 x 8
 y 11
 end
+arch table_wood1.111
+x 8
+y 11
+end
+arch cup_empty
+zoom 80
+align 4
+z 28
+layer 7
+x 8
+y 11
+end
+arch light5
+x 8
+y 11
+end
 arch floor_marble1a
+x 8
+y 12
+end
+arch chair2_111
+direction 5
 x 8
 y 12
 end
@@ -471,6 +865,11 @@ x 8
 y 13
 end
 arch floor_marble1a
+x 8
+y 14
+end
+arch chair1_111
+direction 7
 x 8
 y 14
 end
@@ -487,6 +886,11 @@ x 8
 y 17
 end
 arch floor_marble1b
+x 8
+y 18
+end
+arch chair1_111
+direction 7
 x 8
 y 18
 end
@@ -518,11 +922,47 @@ arch floor_marble1
 x 9
 y 11
 end
+arch table_wood1.111
+x 9
+y 11
+end
+arch mushroom2
+layer 5
+z 15
+align -4
+zoom 90
+rotate 50
+x 9
+y 11
+end
 arch floor_marble1a
 x 9
 y 12
 end
+arch chair2_111
+direction 5
+x 9
+y 12
+end
+arch spawn_point
+x 9
+y 12
+arch dwarf_thunderer
+msg
+@match ^hi$|^hey$|^hello$
+Mmm, delicious shrooms!
+endmsg
+type 83
+direction 1
+name Vad Ironkiller
+level 37
+end
+end
 arch floor_marble1a
+x 9
+y 13
+end
+arch chair1_111
 x 9
 y 13
 end
@@ -530,9 +970,37 @@ arch floor_marble1
 x 9
 y 14
 end
+arch table_poker1
+x 9
+y 14
+end
+arch light9
+x 9
+y 14
+end
 arch floor_marble1b
 x 9
 y 15
+end
+arch chair1_111
+direction 5
+x 9
+y 15
+end
+arch spawn_point
+x 9
+y 15
+arch dwarf_guard
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*sighs*</yellow>
+No one available to play cards with me today... Oh, hello... would you like to play some cards with me? No? Well, I suppose you're busy too...
+endmsg
+type 83
+direction 1
+name Golico Beamload
+level 23
+end
 end
 arch floor_marble1b
 x 9
@@ -542,13 +1010,67 @@ arch floor_marble1b
 x 9
 y 17
 end
+arch chair1_111
+x 9
+y 17
+end
+arch spawn_point
+x 9
+y 17
+arch dwarf_fighter
+msg
+@match ^hi$|^hey$|^hello$
+Bah! This is not fair!
+endmsg
+type 83
+name Gar Redlock
+level 39
+end
+end
 arch floor_marble1
+x 9
+y 18
+end
+arch table_poker2
+x 9
+y 18
+end
+arch light9
 x 9
 y 18
 end
 arch floor_marble1a
 x 9
 y 19
+end
+arch chair1_111
+direction 5
+x 9
+y 19
+end
+arch spawn_point
+x 9
+y 19
+arch elvish_sharpshooter
+msg
+@match ^hi$|^hey$|^hello$
+Ha! I win again!
+endmsg
+type 83
+direction 1
+level 38
+name Nehitr Moonvine
+arch ability_stone_throw
+name arrow shooter
+race arrows
+end
+arch arrow_elven
+magic 3
+is_magical 1
+identified 1
+sys_object 1
+end
+end
 end
 arch floor_marble1b
 x 9
@@ -578,6 +1100,11 @@ arch wall_marble1.111
 x 9
 y 23
 end
+arch flag_rockforge
+direction 7
+x 9
+y 23
+end
 arch blocked
 x 10
 y 10
@@ -590,7 +1117,20 @@ arch floor_marble1
 x 10
 y 11
 end
+arch table_wood1.111
+x 10
+y 11
+end
+arch light5
+x 10
+y 11
+end
 arch floor_marble1
+x 10
+y 12
+end
+arch chair2_111
+direction 5
 x 10
 y 12
 end
@@ -599,6 +1139,11 @@ x 10
 y 13
 end
 arch floor_marble1a
+x 10
+y 14
+end
+arch chair1_111
+direction 3
 x 10
 y 14
 end
@@ -618,7 +1163,20 @@ arch floor_marble1a
 x 10
 y 18
 end
+arch carpet1.131
+x 10
+y 18
+end
+arch chair1_111
+direction 3
+x 10
+y 18
+end
 arch floor_marble1
+x 10
+y 19
+end
+arch carpet1.131
 x 10
 y 19
 end
@@ -630,7 +1188,15 @@ arch floor_marble1b
 x 10
 y 21
 end
+arch wall_marble1.131
+x 10
+y 21
+end
 arch floor_marble1a
+x 10
+y 22
+end
+arch lamp_wall
 x 10
 y 22
 end
@@ -650,232 +1216,477 @@ arch floor_marble1b
 x 11
 y 11
 end
-arch floor_marble1a
+arch table_wood1.111
 x 11
-y 12
-end
-arch floor_marble1
-x 11
-y 13
-end
-arch floor_marble1b
-x 11
-y 14
-end
-arch floor_marble1
-x 11
-y 15
-end
-arch floor_marble1b
-x 11
-y 16
-end
-arch floor_marble1a
-x 11
-y 17
-end
-arch floor_marble1a
-x 11
-y 18
-end
-arch floor_marble1a
-x 11
-y 19
-end
-arch floor_marble1b
-x 11
-y 20
-end
-arch floor_marble1a
-x 11
-y 21
-end
-arch floor_marble1a
-x 11
-y 22
-end
-arch floor_marble1
-x 11
-y 23
-end
-arch blocked
-x 12
-y 10
-end
-arch wall_marble1.131a
-x 12
-y 10
-end
-arch floor_marble1b
-x 12
 y 11
 end
-arch floor_marble1b
-x 12
-y 12
-end
-arch floor_marble1b
-x 12
-y 13
-end
-arch floor_marble1
-x 12
-y 14
-end
-arch floor_marble1a
-x 12
-y 15
-end
-arch floor_marble1a
-x 12
-y 16
-end
-arch floor_marble1a
-x 12
-y 17
-end
-arch floor_marble1a
-x 12
-y 18
-end
-arch floor_marble1b
-x 12
-y 19
-end
-arch floor_marble1b
-x 12
-y 20
-end
-arch floor_marble1b
-x 12
-y 21
-end
-arch floor_marble1a
-x 12
-y 22
-end
-arch floor_marble1
-x 12
-y 23
-end
-arch blocked
-x 13
-y 10
-end
-arch wall_marble1.131
-x 13
-y 10
-end
-arch floor_marble1a
-x 13
+arch bread2
+layer 5
+zoom 90
+z 22
+align 2
+rotate -70
+x 11
 y 11
 end
 arch floor_marble1a
-x 13
+x 11
+y 12
+end
+arch chair2_111
+direction 5
+x 11
 y 12
 end
 arch floor_marble1
-x 13
+x 11
 y 13
 end
-arch floor_marble1a
-x 13
+arch floor_marble1b
+x 11
 y 14
-end
-arch floor_marble1a
-x 13
-y 15
-end
-arch sign
-name tavern
-x 13
-y 15
-end
-arch floor_marble1
-x 13
-y 16
-end
-arch floor_marble1a
-x 13
-y 17
-end
-arch floor_marble1
-x 13
-y 18
-end
-arch floor_marble1b
-x 13
-y 19
-end
-arch floor_marble1b
-x 13
-y 20
-end
-arch floor_marble1
-x 13
-y 21
-end
-arch floor_marble1a
-x 13
-y 22
-end
-arch floor_marble1b
-x 13
-y 23
-end
-arch blocked
-x 14
-y 10
-end
-arch wall_marble1.131
-x 14
-y 10
-end
-arch floor_marble1a
-x 14
-y 11
-end
-arch floor_marble1b
-x 14
-y 12
-end
-arch floor_marble1a
-x 14
-y 13
-end
-arch floor_marble1a
-x 14
-y 14
-end
-arch floor_marble1
-x 14
-y 15
-end
-arch floor_marble1b
-x 14
-y 16
-end
-arch floor_marble1a
-x 14
-y 17
-end
-arch floor_marble1
-x 14
-y 18
-end
-arch floor_marble1a
-x 14
-y 19
-end
-arch floor_marble1a
-x 14
-y 20
-end
-arch floor_marble1a
-x 14
-y 21
 end
 arch wall_marble1.181
+blocksview 0
+draw_double 0
+x 11
+y 14
+end
+arch floor_marble1
+x 11
+y 15
+end
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
+x 11
+y 15
+end
+arch floor_marble1b
+x 11
+y 16
+end
+arch wall_marble1.111a
+blocksview 0
+draw_double 0
+x 11
+y 16
+end
+arch floor_marble1a
+x 11
+y 17
+end
+arch carpet1.151
+x 11
+y 17
+end
+arch floor_marble1a
+x 11
+y 18
+end
+arch carpet1
+x 11
+y 18
+end
+arch floor_marble1a
+x 11
+y 19
+end
+arch carpet1
+x 11
+y 19
+end
+arch floor_marble1b
+x 11
+y 20
+end
+arch carpet1.111
+x 11
+y 20
+end
+arch floor_marble1a
+x 11
+y 21
+end
+arch door1_locked
+x 11
+y 21
+end
+arch floor_marble1a
+x 11
+y 22
+end
+arch fmask_rockforge2
+x 11
+y 22
+end
+arch light9
+x 11
+y 22
+end
+arch floor_marble1
+x 11
+y 23
+end
+arch light9
+x 11
+y 23
+end
+arch blocked
+x 12
+y 10
+end
+arch wall_marble1.131a
+x 12
+y 10
+end
+arch floor_marble1b
+x 12
+y 11
+end
+arch table_wood1.111
+x 12
+y 11
+end
+arch light5
+x 12
+y 11
+end
+arch floor_marble1b
+x 12
+y 12
+end
+arch chair2_111
+direction 5
+x 12
+y 12
+end
+arch floor_marble1b
+x 12
+y 13
+end
+arch floor_marble1
+x 12
+y 14
+end
+arch wall_marble1.131
+blocksview 0
+draw_double 0
+x 12
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 12
+y 15
+end
+arch lamp_wall
+direction 7
+z -18
+x 12
+y 15
+end
+arch invis_exit
+slaying rockforge_b_0104
+hp 12
+sp 15
+x 12
+y 15
+end
+arch floor_marble1a
+x 12
+y 16
+end
+arch stairs_stone_down
+direction 1
+slaying rockforge_b_0104
+hp 12
+sp 15
+x 12
+y 16
+end
+arch floor_marble1a
+x 12
+y 17
+end
+arch carpet1.151
+x 12
+y 17
+end
+arch floor_marble1a
+x 12
+y 18
+end
+arch carpet1
+x 12
+y 18
+end
+arch floor_marble1b
+x 12
+y 19
+end
+arch carpet1
+x 12
+y 19
+end
+arch floor_marble1b
+x 12
+y 20
+end
+arch carpet1.111
+x 12
+y 20
+end
+arch floor_marble1b
+x 12
+y 21
+end
+arch door1_locked
+direction 7
+x 12
+y 21
+end
+arch floor_marble1a
+x 12
+y 22
+end
+arch light9
+x 12
+y 22
+end
+arch floor_marble1
+x 12
+y 23
+end
+arch light9
+x 12
+y 23
+end
+arch blocked
+x 13
+y 10
+end
+arch wall_marble1.131
+x 13
+y 10
+end
+arch floor_marble1a
+x 13
+y 11
+end
+arch table_wood1.111
+x 13
+y 11
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 13
+y 11
+end
+arch floor_marble1a
+x 13
+y 12
+end
+arch chair2_111
+direction 5
+x 13
+y 12
+end
+arch floor_marble1
+x 13
+y 13
+end
+arch floor_marble1a
+x 13
+y 14
+end
+arch wall_marble1.131
+blocksview 0
+draw_double 0
+x 13
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 13
+y 15
+end
+arch invis_exit
+slaying rockforge_b_0104
+hp 13
+sp 15
+x 13
+y 15
+end
+arch floor_marble1
+x 13
+y 16
+end
+arch stairs_stone_down
+direction 1
+slaying rockforge_b_0104
+hp 13
+sp 15
+x 13
+y 16
+end
+arch floor_marble1a
+x 13
+y 17
+end
+arch carpet1.151
+x 13
+y 17
+end
+arch floor_marble1
+x 13
+y 18
+end
+arch carpet1
+x 13
+y 18
+end
+arch floor_marble1b
+x 13
+y 19
+end
+arch carpet1
+x 13
+y 19
+end
+arch floor_marble1b
+x 13
+y 20
+end
+arch carpet1.111
+x 13
+y 20
+end
+arch floor_marble1
+x 13
+y 21
+end
+arch wall_marble1.131
+x 13
+y 21
+end
+arch floor_marble1a
+x 13
+y 22
+end
+arch lamp_wall
+x 13
+y 22
+end
+arch floor_marble1b
+x 13
+y 23
+end
+arch blocked
+x 14
+y 10
+end
+arch wall_marble1.131
+x 14
+y 10
+end
+arch floor_marble1a
+x 14
+y 11
+end
+arch table_wood1.111
+x 14
+y 11
+end
+arch light5
+x 14
+y 11
+end
+arch floor_marble1b
+x 14
+y 12
+end
+arch chair2_111
+direction 5
+x 14
+y 12
+end
+arch floor_marble1a
+x 14
+y 13
+end
+arch floor_marble1a
+x 14
+y 14
+end
+arch wall_marble1.131a
+blocksview 0
+draw_double 0
+x 14
+y 14
+end
+arch floor_marble1
+x 14
+y 15
+end
+arch fwall_marble2a
+blocksview 0
+draw_double 0
+x 14
+y 15
+end
+arch floor_marble1b
+x 14
+y 16
+end
+arch fwall_marble2a
+blocksview 0
+draw_double 0
+x 14
+y 16
+end
+arch floor_marble1a
+x 14
+y 17
+end
+arch carpet1.151
+x 14
+y 17
+end
+arch floor_marble1
+x 14
+y 18
+end
+arch carpet1
+x 14
+y 18
+end
+arch floor_marble1a
+x 14
+y 19
+end
+arch carpet1
+x 14
+y 19
+end
+arch floor_marble1a
+x 14
+y 20
+end
+arch carpet1.111
+x 14
+y 20
+end
+arch floor_marble1a
+x 14
+y 21
+end
+arch wall_marble1.131a
 x 14
 y 21
 end
@@ -907,7 +1718,24 @@ arch floor_marble1a
 x 15
 y 11
 end
+arch table_wood1.111
+x 15
+y 11
+end
+arch honeycomb
+z 25
+zoom 90
+layer 5
+align -2
+x 15
+y 11
+end
 arch floor_marble1a
+x 15
+y 12
+end
+arch chair2_111
+direction 5
 x 15
 y 12
 end
@@ -916,6 +1744,11 @@ x 15
 y 13
 end
 arch floor_marble1
+x 15
+y 14
+end
+arch chair1_111
+direction 7
 x 15
 y 14
 end
@@ -935,7 +1768,35 @@ arch floor_marble1a
 x 15
 y 18
 end
+arch carpet1.171
+x 15
+y 18
+end
+arch chair1_111
+direction 7
+x 15
+y 18
+end
+arch spawn_point
+x 15
+y 18
+arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*laughs*</yellow>
+Deal with it Aena, you are no good at this!
+endmsg
+type 83
+direction 3
+name Herlad Propsmiter
+level 42
+end
+end
 arch floor_marble1a
+x 15
+y 19
+end
+arch carpet1.171
 x 15
 y 19
 end
@@ -963,11 +1824,50 @@ arch floor_marble1b
 x 16
 y 11
 end
+arch table_wood1.111
+x 16
+y 11
+end
+arch melon
+z 27
+zoom 90
+align -2
+layer 5
+x 16
+y 11
+end
+arch light5
+x 16
+y 11
+end
 arch floor_marble1b
 x 16
 y 12
 end
+arch chair2_111
+direction 5
+x 16
+y 12
+end
+arch spawn_point
+x 16
+y 12
+arch mage_old
+msg
+@match ^hi$|^hey$|^hello$
+Ahhh... Delicious!
+endmsg
+type 83
+direction 1
+name Johnny Hurst
+level 62
+end
+end
 arch floor_marble1b
+x 16
+y 13
+end
+arch chair1_111
 x 16
 y 13
 end
@@ -975,7 +1875,20 @@ arch floor_marble1a
 x 16
 y 14
 end
+arch table_poker1
+x 16
+y 14
+end
+arch light9
+x 16
+y 14
+end
 arch floor_marble1b
+x 16
+y 15
+end
+arch chair1_111
+direction 5
 x 16
 y 15
 end
@@ -987,13 +1900,60 @@ arch floor_marble1
 x 16
 y 17
 end
+arch chair1_111
+x 16
+y 17
+end
+arch spawn_point
+x 16
+y 17
+arch dwarf_lord
+msg
+@match ^hi$|^hey$|^hello$
+Umm, would you mind helping me? Tell me what cards the other two have... Oh! It's my turn!
+endmsg
+type 83
+is_male 0
+is_female 1
+name Aena Slatepit
+level 35
+end
+end
 arch floor_marble1b
+x 16
+y 18
+end
+arch table_poker2
+x 16
+y 18
+end
+arch light9
 x 16
 y 18
 end
 arch floor_marble1a
 x 16
 y 19
+end
+arch chair1_111
+direction 5
+x 16
+y 19
+end
+arch spawn_point
+x 16
+y 19
+arch dwarf_lord
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*chuckles*</yellow>
+Quite right, Herlad, quite right.
+endmsg
+type 83
+direction 1
+name Hnom Deathslayer
+level 48
+end
 end
 arch floor_marble1a
 x 16
@@ -1019,7 +1979,16 @@ arch floor_marble1a
 x 17
 y 11
 end
+arch table_wood1.111
+x 17
+y 11
+end
 arch floor_marble1a
+x 17
+y 12
+end
+arch chair2_111
+direction 5
 x 17
 y 12
 end
@@ -1028,6 +1997,11 @@ x 17
 y 13
 end
 arch floor_marble1a
+x 17
+y 14
+end
+arch chair1_111
+direction 3
 x 17
 y 14
 end
@@ -1044,6 +2018,11 @@ x 17
 y 17
 end
 arch floor_marble1b
+x 17
+y 18
+end
+arch chair1_111
+direction 3
 x 17
 y 18
 end
@@ -1075,7 +2054,20 @@ arch floor_marble1
 x 18
 y 11
 end
+arch table_wood1.111
+x 18
+y 11
+end
+arch light5
+x 18
+y 11
+end
 arch floor_marble1
+x 18
+y 12
+end
+arch chair2_111
+direction 5
 x 18
 y 12
 end
@@ -1087,7 +2079,15 @@ arch floor_marble1b
 x 18
 y 14
 end
+arch wall_marble1.181
+x 18
+y 14
+end
 arch floor_marble1b
+x 18
+y 15
+end
+arch wall_marble1.111
 x 18
 y 15
 end
@@ -1095,7 +2095,16 @@ arch floor_marble1b
 x 18
 y 16
 end
+arch door_wood2
+direction 7
+x 18
+y 16
+end
 arch floor_marble1b
+x 18
+y 17
+end
+arch wall_marble1.111a
 x 18
 y 17
 end
@@ -1131,7 +2140,16 @@ arch floor_marble1a
 x 19
 y 11
 end
+arch table_wood1.111
+x 19
+y 11
+end
 arch floor_marble1a
+x 19
+y 12
+end
+arch chair2_111
+direction 5
 x 19
 y 12
 end
@@ -1143,7 +2161,15 @@ arch floor_marble1
 x 19
 y 14
 end
+arch wall_marble1.131a
+x 19
+y 14
+end
 arch floor_marble1a
+x 19
+y 15
+end
+arch grain1.101
 x 19
 y 15
 end
@@ -1152,6 +2178,10 @@ x 19
 y 16
 end
 arch floor_marble1
+x 19
+y 17
+end
+arch wall_marble1.131
 x 19
 y 17
 end
@@ -1187,7 +2217,28 @@ arch floor_marble1b
 x 20
 y 11
 end
+arch table_wood1.111
+x 20
+y 11
+end
+arch booze2
+layer 5
+z 33
+zoom 75
+align 5
+x 20
+y 11
+end
+arch light5
+x 20
+y 11
+end
 arch floor_marble1a
+x 20
+y 12
+end
+arch chair2_111
+direction 5
 x 20
 y 12
 end
@@ -1199,7 +2250,15 @@ arch floor_marble1b
 x 20
 y 14
 end
+arch wall_marble1.131
+x 20
+y 14
+end
 arch floor_marble1
+x 20
+y 15
+end
+arch grain1.101
 x 20
 y 15
 end
@@ -1207,11 +2266,23 @@ arch floor_marble1b
 x 20
 y 16
 end
+arch grain3.101
+x 20
+y 16
+end
 arch floor_marble1a
 x 20
 y 17
 end
+arch wall_marble1.131
+x 20
+y 17
+end
 arch floor_marble1b
+x 20
+y 18
+end
+arch lamp_wall
 x 20
 y 18
 end
@@ -1220,6 +2291,11 @@ x 20
 y 19
 end
 arch floor_marble1a
+x 20
+y 20
+end
+arch chair1_111
+direction 7
 x 20
 y 20
 end
@@ -1243,6 +2319,10 @@ arch floor_marble1
 x 21
 y 11
 end
+arch table_small1b
+x 21
+y 11
+end
 arch floor_marble1a
 x 21
 y 12
@@ -1255,7 +2335,21 @@ arch floor_marble1
 x 21
 y 14
 end
+arch wall_marble1.131a
+x 21
+y 14
+end
 arch floor_marble1
+x 21
+y 15
+end
+arch grain4.101
+x 21
+y 15
+end
+arch lamp_wall
+glow_radius 0
+animation lamp_wall_1_unlit
 x 21
 y 15
 end
@@ -1263,7 +2357,15 @@ arch floor_marble1a
 x 21
 y 16
 end
+arch grain2.101
+x 21
+y 16
+end
 arch floor_marble1
+x 21
+y 17
+end
+arch wall_marble1.131a
 x 21
 y 17
 end
@@ -1275,7 +2377,36 @@ arch floor_marble1
 x 21
 y 19
 end
+arch chair1_111
+x 21
+y 19
+end
+arch spawn_point
+x 21
+y 19
+arch dwarf_scout
+msg
+@match ^hi$|^hey$|^hello$
+<yellow>*HIC*</yellow>
+endmsg
+type 83
+name Nalko Witchslasher
+level 38
+end
+end
 arch floor_marble1
+x 21
+y 20
+end
+arch table_round1
+x 21
+y 20
+end
+arch beer
+layer 5
+z 18
+zoom 85
+align 6
 x 21
 y 20
 end
@@ -1323,7 +2454,7 @@ arch floor_marble1b
 x 22
 y 14
 end
-arch wall_marble1.111
+arch wall_marble1.141
 x 22
 y 14
 end
@@ -1331,7 +2462,7 @@ arch floor_marble1a
 x 22
 y 15
 end
-arch wall_marble1.111
+arch grain5.101
 x 22
 y 15
 end
@@ -1339,7 +2470,7 @@ arch floor_marble1
 x 22
 y 16
 end
-arch wall_marble1.111
+arch keg_big.101
 x 22
 y 16
 end
@@ -1347,7 +2478,7 @@ arch floor_marble1a
 x 22
 y 17
 end
-arch wall_marble1.111a
+arch wall_marble1.131
 x 22
 y 17
 end
@@ -1382,4 +2513,36 @@ end
 arch wall_marble1.141
 x 22
 y 21
+end
+arch blocked
+x 23
+y 14
+end
+arch wall_marble1.131
+x 23
+y 14
+end
+arch floor_marble1a
+x 23
+y 15
+end
+arch wall_marble1.111a
+x 23
+y 15
+end
+arch floor_marble1b
+x 23
+y 16
+end
+arch wall_marble1.111a
+x 23
+y 16
+end
+arch floor_marble1
+x 23
+y 17
+end
+arch wall_marble1.141
+x 23
+y 17
 end

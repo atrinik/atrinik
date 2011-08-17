@@ -8,7 +8,7 @@ no_teleport 1
 pass_thru 1
 no_pick 1
 face grate_door1.114
-animation grateTrg1_open
+animation grate
 is_turnable 1
 direction 1
 state 7
@@ -32,7 +32,7 @@ type 26
 layer 5
 no_pick 1
 face grate_door1.111
-animation grateTrg1
+animation grate
 is_turnable 1
 direction 1
 state 7

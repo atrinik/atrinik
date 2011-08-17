@@ -114,7 +114,7 @@ char *get_region_msg(const region *r)
 object *get_jail_exit(object *op)
 {
 	region *reg;
-	object *exit;
+	object *exit_ob;
 
 	if (op->type != PLAYER)
 	{
@@ -133,13 +133,13 @@ object *get_jail_exit(object *op)
 	{
 		if (reg->jailmap)
 		{
-			exit = get_object();
-			FREE_AND_COPY_HASH(EXIT_PATH(exit), reg->jailmap);
+			exit_ob = get_object();
+			FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), reg->jailmap);
 			/* Damned exits reset savebed and remove teleports, so the prisoner can't escape */
-			SET_FLAG(exit, FLAG_DAMNED);
-			EXIT_X(exit) = reg->jailx;
-			EXIT_Y(exit) = reg->jaily;
-			return exit;
+			SET_FLAG(exit_ob, FLAG_DAMNED);
+			EXIT_X(exit_ob) = reg->jailx;
+			EXIT_Y(exit_ob) = reg->jaily;
+			return exit_ob;
 		}
 		else
 		{

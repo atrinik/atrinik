@@ -31,7 +31,7 @@
 #include "spells.h"
 
 /** Array of all the spells. */
-spell spells[NROFREALSPELLS] =
+spell_struct spells[NROFREALSPELLS] =
 {
 	{"firestorm", SPELL_TYPE_WIZARD,
 	 "icon_firestorm.101", "A cone of fire you project in front of you. The spell gains strength as you grow in level, so it remains one of your best spells even at high level.",
@@ -90,7 +90,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"asteroid", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Fires an asteroid in front of you, which explodes into a cone of ice if it hits an object.",
+	 "icon_asteroid.101", "Fires an asteroid in front of you, which explodes into a cone of ice if it hits an object.",
 	 30, 20, 32, 2, 0, 3, 1.0,
 	 4, 10, 4, 16, 20, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -98,7 +98,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"frost nova", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Similar to the spell of asteroid, but this spell fires a bunch of asteroids in front of you, which then explode into cones of ice if they hit something.",
+	 "icon_frost_nova.101", "Similar to the spell of asteroid, but this spell fires a bunch of asteroids in front of you, which then explode into cones of ice if they hit something.",
 	 80, 70, 42, 2, 0, 3, 1.0,
 	 4, 10, 4, 8, 35, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -178,7 +178,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"create food", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Creates food in your inventory which you may eat, but will vanish if dropped.",
+	 "icon_create_food.101", "Creates food in your inventory which you may eat, but will vanish if dropped.",
 	 1, 30, 8, 1, 0, 3, 1.0,
 	 3, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -218,7 +218,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"protection from cold", SPELL_TYPE_PRIEST,
-	 "icon_default.101", "Raises your protection to cold. The protection raised by this spell depends on the caster's level.",
+	 "icon_prot_cold.101", "Raises your protection to cold. The protection raised by this spell depends on the caster's level.",
 	 24, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -226,7 +226,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"protection from fire", SPELL_TYPE_PRIEST,
-	 "icon_default.101", "Raises your protection to fire. The protection raised by this spell depends on the caster's level.",
+	 "icon_prot_fire.101", "Raises your protection to fire. The protection raised by this spell depends on the caster's level.",
 	 24, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -234,7 +234,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"protection from electricity", SPELL_TYPE_PRIEST,
-	 "icon_default.101", "Raises your protection to electricity. The protection raised by this spell depends on the caster's level.",
+	 "icon_prot_elec.101", "Raises your protection to electricity. The protection raised by this spell depends on the caster's level.",
 	 24, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -242,7 +242,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"protection from poison", SPELL_TYPE_PRIEST,
-	 "icon_default.101", "Raises your protection to poison. The protection raised by this spell depends on the caster's level.",
+	 "icon_prot_poison.101", "Raises your protection to poison. The protection raised by this spell depends on the caster's level.",
 	 24, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -330,7 +330,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"bullet swarm", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Fires 5 magic bullets in front of you at once.",
+	 "icon_bullet_swarm.101", "Fires 5 magic bullets in front of you at once.",
 	 25, 18, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -338,7 +338,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"bullet storm",SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Fires 3 magic bullets in front of you at once.",
+	 "icon_bullet_storm.101", "Fires 3 magic bullets in front of you at once.",
 	 20, 18, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -402,7 +402,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"frostbolt", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "A blast of cold is fired in straight line. Each part of it can hit enemies only once.",
+	 "icon_frostbolt.101", "A blast of cold is fired in straight line. Each part of it can hit enemies only once.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_ice.ogg",
 	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -418,7 +418,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"lightning", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
+	 "icon_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -426,7 +426,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"forked lightning", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls. The main line of lightning may create forks of lightning, which will do less damage.",
+	 "icon_forked_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls. The main line of lightning may create forks of lightning, which will do less damage.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 4, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -434,7 +434,7 @@ spell spells[NROFREALSPELLS] =
 	},
 
 	{"negative energy bolt", SPELL_TYPE_WIZARD,
-	 "icon_default.101", "A blast of negative energy is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
+	 "icon_negabolt.101", "A blast of negative energy is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,

@@ -82,7 +82,8 @@ class CommandHandler:
 	## Draw info command - only used for messages while still logging in.
 	## @param data The command's data.
 	def handle_command_draw_info(self, data):
-		data = " ".join(data.decode().split()[1:-1])
+		color = data.decode()[:6]
+		data = data.decode()[6:]
 
 		# Incompatibility warning, disconnect.
 		if data == "This Atrinik server is outdated and incompatible with your client's version. Try another server.":
@@ -94,8 +95,8 @@ class CommandHandler:
 		# Get the command flags.
 		(flags,) = struct.unpack("H", data[:2][::-1])
 		# Get the used color.
-		color = flags & 0xff
-		data = data[2:-1].decode()
+		color = data[2:8].decode()
+		data = data[9:-1].decode()
 
 		# Tell? Handle bot chat.
 		if flags & NDI.TELL:

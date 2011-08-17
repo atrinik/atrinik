@@ -37,7 +37,6 @@
 /*#define TREASURE_VERBOSE*/
 
 #include <global.h>
-#include <treasure.h>
 #include <spellist.h>
 #include <loader.h>
 
@@ -633,6 +632,8 @@ void init_artifacts()
 				first_artifactlist = al;
 			}
 
+			arch_add(&art->def_at);
+
 			art->next = al->items;
 			al->items = art;
 		}
@@ -953,7 +954,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					value *= (difficulty / 2) + 1;
 
 					/* So we have 80% to 120% of the fixed value */
-					value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+					value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 					for (i = 0; i < NUM_COINS; i++)
 					{
@@ -1134,12 +1135,13 @@ create_one_treasure_again_jmp:
 		else
 		{
 			/* If t->magic is != 0, that's our value - if not use default setting */
-			int i, value = t->magic ? t->magic : t->item->clone.value;
+			int i;
 
+			value = t->magic ? t->magic : t->item->clone.value;
 			value *= difficulty;
 
 			/* So we have 80% to 120% of the fixed value */
-			value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+			value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 			for (i = 0; i < NUM_COINS; i++)
 			{
@@ -2163,7 +2165,7 @@ jump_break1:
 
 						if (rndm_chance(4))
 						{
-							int d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+							d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 							if (set_ring_bonus(op, d, difficulty))
 							{
@@ -2184,6 +2186,7 @@ jump_break1:
 				if (!op->msg && !rndm_chance(10))
 				{
 					int level = 5;
+					size_t msg_len = 0;
 
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
@@ -2220,10 +2223,13 @@ jump_break1:
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);
 
+					msg_len = op->msg ? strlen(op->msg) : 0;
+
 					/* Books with info are worth more! */
-					if (op->msg && strlen(op->msg) > 0)
+					if (msg_len)
 					{
-						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
+						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
+						op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
 					}
 
 					/* For library, chained books! */
@@ -2237,9 +2243,6 @@ jump_break1:
 					{
 						FREE_AND_COPY_HASH(op->slaying, creator->slaying);
 					}
-
-					/* Add exp so reading it gives xp (once) */
-					op->stats.exp = op->value > 10000 ? op->value / 5 : op->value / 10;
 				}
 
 				break;

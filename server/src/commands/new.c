@@ -98,7 +98,7 @@ int command_run(object *op, char *params)
 
 	if (dir <= 0 || dir > 9)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can't run into a non-adjacent square.");
+		draw_info(COLOR_WHITE, op, "Can't run into a non-adjacent square.");
 		return 0;
 	}
 
@@ -130,138 +130,101 @@ int command_run_stop(object *op, char *params)
  * @param pl Player requesting this. */
 void send_target_command(player *pl)
 {
-	int aim_self_flag = 0;
-	char tmp[256];
+	SockList sl;
+	unsigned char sockbuf[HUGE_BUF];
 
 	if (!pl->ob->map)
 	{
 		return;
 	}
 
-	tmp[0] = BINARY_CMD_TARGET;
-	tmp[1] = pl->combat_mode;
-	/* Color mode */
-	tmp[2] = 0;
+	sl.buf = sockbuf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_TARGET);
+	SockList_AddChar(&sl, pl->combat_mode);
 
 	pl->ob->enemy = NULL;
 	pl->ob->enemy_count = 0;
 
-	/* Target still legal? */
-	/* that's we self */
-	if (!pl->target_object || !OBJECT_ACTIVE(pl->target_object) || pl->target_object == pl->ob)
+	if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob))
 	{
-		aim_self_flag = 1;
-	}
-	else if (pl->target_object_count == pl->target_object->count)
-	{
-		/* OK, a last check... i put it here to have clear code:
-		 * perhaps we have legal issues why we can't aim or attack
-		 * our target anymore... invisible & stuff are handled here.
-		 * stuff like a out of PvP area moved player are handled different.
-		 * we HOLD the target - perhaps the guy moved back.
-		 * this special stuff is handled deeper in attack() functions. */
-		if (QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))
-		{
-			aim_self_flag = 1;
-		}
-		else
-		{
-			/* friend */
-			if (is_friend_of(pl->ob, pl->target_object))
-			{
-				tmp[3] = 2;
-			}
-			/* enemy */
-			else
-			{
-				tmp[3] = 1;
-				pl->ob->enemy = pl->target_object;
-				pl->ob->enemy_count = pl->target_object_count;
-			}
+		SockList_AddChar(&sl, CMD_TARGET_SELF);
+		SockList_AddString(&sl, COLOR_YELLOW);
+		SockList_AddString(&sl, pl->ob->name);
 
-			if (pl->target_object->name)
-			{
-				strcpy(tmp + 4, pl->target_object->name);
-			}
-			else
-			{
-				strcpy(tmp + 4, "(null)");
-			}
-		}
-	}
-	else
-	{
-		aim_self_flag = 1;
-	}
-
-	/* OK... at last, target self */
-	if (aim_self_flag)
-	{
-		/* self */
-		tmp[3] = 0;
-		strcpy(tmp + 4, pl->ob->name);
 		pl->target_object = pl->ob;
 		pl->target_object_count = 0;
 		pl->target_map_pos = 0;
 	}
-
-	/* now we have a target - lets calculate the color code.
-	 * we can do it easy and send the real level to client and
-	 * let Calculate it there but this will allow to spoil that
-	 * data on client side. */
-	/* target is lower */
-	if (pl->target_object->level < level_color[pl->ob->level].yellow)
+	else
 	{
-		/* if < the green border value, the mob is gray */
-		if (pl->target_object->level < level_color[pl->ob->level].green)
+		const char *color;
+
+		if (is_friend_of(pl->ob, pl->target_object))
 		{
-			tmp[2] = NDI_GREY;
+			SockList_AddChar(&sl, CMD_TARGET_FRIEND);
 		}
-		/* calc green or blue */
 		else
 		{
-			if (pl->target_object->level < level_color[pl->ob->level].blue)
+			SockList_AddChar(&sl, CMD_TARGET_ENEMY);
+
+			pl->ob->enemy = pl->target_object;
+			pl->ob->enemy_count = pl->target_object_count;
+		}
+
+		if (pl->target_object->level < level_color[pl->ob->level].yellow)
+		{
+			if (pl->target_object->level < level_color[pl->ob->level].green)
 			{
-				tmp[2] = NDI_GREEN;
+				color = COLOR_GRAY;
 			}
 			else
 			{
-				tmp[2] = NDI_BLUE;
+				if (pl->target_object->level < level_color[pl->ob->level].blue)
+				{
+					color = COLOR_GREEN;
+				}
+				else
+				{
+					color = COLOR_BLUE;
+				}
 			}
-		}
-
-	}
-	/* target is higher or as yellow min. range */
-	else
-	{
-		if (pl->target_object->level >= level_color[pl->ob->level].purple)
-		{
-			tmp[2] = NDI_PURPLE;
-		}
-		else if (pl->target_object->level >= level_color[pl->ob->level].red)
-		{
-			tmp[2] = NDI_RED;
-		}
-		else if (pl->target_object->level >= level_color[pl->ob->level].orange)
-		{
-			tmp[2] = NDI_ORANGE;
 		}
 		else
 		{
-			tmp[2] = NDI_YELLOW;
+			if (pl->target_object->level >= level_color[pl->ob->level].purple)
+			{
+				color = COLOR_PURPLE;
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].red)
+			{
+				color = COLOR_RED;
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].orange)
+			{
+				color = COLOR_ORANGE;
+			}
+			else
+			{
+				color = COLOR_YELLOW;
+			}
+		}
+
+		SockList_AddString(&sl, color);
+
+		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
+			SockList_AddString(&sl, buf);
+		}
+		else
+		{
+			SockList_AddString(&sl, pl->target_object->name);
 		}
 	}
 
-	/* Some nice extra info for DMs */
-	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-	{
-		char buf[64];
-
-		snprintf(buf, sizeof(buf), " (lvl %d)", pl->target_object->level);
-		strcat(tmp + 4, buf);
-	}
-
-	Write_String_To_Socket(&pl->socket, BINARY_CMD_TARGET, tmp, strlen(tmp + 4) + 4);
+	Send_With_Handling(&pl->socket, &sl);
 }
 
 /**
@@ -312,136 +275,68 @@ int command_target(object *op, char *params)
 	/* !x y = mouse map target */
 	if (params[0] == '!')
 	{
-		if (CONTR(op)->socket.socket_version < 1042)
-		{
-		int xstart, ystart;
-		char *ctmp;
+		int x, y, i;
 
-		xstart = atoi(params + 1);
-
-		ctmp = strchr(params + 1, ' ');
-
-		/* bad format.. skip */
-		if (!ctmp)
+		/* Try to get the x/y for the target. */
+		if (sscanf(params + 1, "%d %d", &x, &y) != 2)
 		{
 			return 0;
 		}
 
-		ystart = atoi(ctmp + 1);
-
-		for (n = 0; n < SIZEOFFREE; n++)
+		/* Validate the passed x/y. */
+		if (x < 0 || x >= CONTR(op)->socket.mapx || y < 0 || y >= CONTR(op)->socket.mapy)
 		{
-			int xx, yy;
-
-			/* that's the trick: we get  op map pos, but we have 2 offsets:
-			 * the offset from the client mouse click - can be
-			 * +- CONTR(op)->socket.mapx/2 - and the freearr_x/y offset for
-			 * the search. */
-			xt = op->x + (xx = freearr_x[n] + xstart);
-			yt = op->y + (yy = freearr_y[n] + ystart);
-
-			if (xx < -(int) (CONTR(op)->socket.mapx_2) || xx > (int) (CONTR(op)->socket.mapx_2) || yy < -(int) (CONTR(op)->socket.mapy_2) || yy > (int) (CONTR(op)->socket.mapy_2))
-			{
-				continue;
-			}
-
-			block = CONTR(op)->blocked_los[xx + CONTR(op)->socket.mapx_2][yy + CONTR(op)->socket.mapy_2];
-
-			if (block > BLOCKED_LOS_BLOCKSVIEW || !(m = get_map_from_coord(op->map, &xt, &yt)))
-			{
-				continue;
-			}
-
-			/* we can have more as one possible target
-			 * on a square - but i try this first without
-			 * handle it. */
-			for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
-			{
-				/* this is a possible target */
-				/* ensure we have head */
-				tmp->head != NULL ? (head = tmp->head) : (head = tmp);
-
-				if ((QUERY_FLAG(head, FLAG_MONSTER) || QUERY_FLAG(head, FLAG_FRIENDLY)) || (head->type == PLAYER && pvp_area(op, head)))
-				{
-					/* this can happen when our old target has moved to next position */
-					if (head == CONTR(op)->target_object || head == op || QUERY_FLAG(head, FLAG_SYS_OBJECT) || (QUERY_FLAG(head, FLAG_IS_INVISIBLE) && !QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) || OBJECT_IS_HIDDEN(op, head))
-					{
-						continue;
-					}
-
-					CONTR(op)->target_object = head;
-					CONTR(op)->target_object_count = head->count;
-					CONTR(op)->target_map_pos = n;
-					goto found_target;
-				}
-			}
-		}
-		}
-		else
-		{
-			int x, y, i;
-
-			/* Try to get the x/y for the target. */
-			if (sscanf(params + 1, "%d %d", &x, &y) != 2)
-			{
-				return 0;
-			}
-
-			/* Validate the passed x/y. */
-			if (x < 0 || x >= CONTR(op)->socket.mapx || y < 0 || y >= CONTR(op)->socket.mapy)
-			{
-				return 0;
-			}
-
-			for (i = 0; i <= SIZEOFFREE1; i++)
-			{
-				/* Check whether we are still in range of the player's
-				 * viewport, and whether the player can see the square. */
-				if (x + freearr_x[i] < 0 || x + freearr_x[i] >= CONTR(op)->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= CONTR(op)->socket.mapy || CONTR(op)->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
-				{
-					continue;
-				}
-
-				/* The x/y we got above is from the client's map, so 0,0 is
-				 * actually topmost (northwest) corner of the map in the client,
-				 * and not 0,0 of the actual map, so we need to transform it to
-				 * actual map coordinates. */
-				xt = op->x + (x - CONTR(op)->socket.mapx_2) + freearr_x[i];
-				yt = op->y + (y - CONTR(op)->socket.mapy_2) + freearr_y[i];
-				m = get_map_from_coord(op->map, &xt, &yt);
-
-				/* Invalid x/y. */
-				if (!m)
-				{
-					continue;
-				}
-
-				/* Nothing alive on this spot. */
-				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
-				{
-					continue;
-				}
-
-				/* Try to find an alive object here. */
-				for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
-				{
-					head = HEAD(tmp);
-
-					if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op) || OBJECT_IS_HIDDEN(op, head))
-					{
-						continue;
-					}
-
-					CONTR(op)->target_object = head;
-					CONTR(op)->target_object_count = head->count;
-					CONTR(op)->target_map_pos = i;
-					send_target_command(CONTR(op));
-					return 1;
-				}
-			}
-
 			return 0;
 		}
+
+		for (i = 0; i <= SIZEOFFREE1; i++)
+		{
+			/* Check whether we are still in range of the player's
+			 * viewport, and whether the player can see the square. */
+			if (x + freearr_x[i] < 0 || x + freearr_x[i] >= CONTR(op)->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= CONTR(op)->socket.mapy || CONTR(op)->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
+			{
+				continue;
+			}
+
+			/* The x/y we got above is from the client's map, so 0,0 is
+			 * actually topmost (northwest) corner of the map in the client,
+			 * and not 0,0 of the actual map, so we need to transform it to
+			 * actual map coordinates. */
+			xt = op->x + (x - CONTR(op)->socket.mapx_2) + freearr_x[i];
+			yt = op->y + (y - CONTR(op)->socket.mapy_2) + freearr_y[i];
+			m = get_map_from_coord(op->map, &xt, &yt);
+
+			/* Invalid x/y. */
+			if (!m)
+			{
+				continue;
+			}
+
+			/* Nothing alive on this spot. */
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			{
+				continue;
+			}
+
+			/* Try to find an alive object here. */
+			for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+			{
+				head = HEAD(tmp);
+
+				if (!IS_LIVE(head) || head == CONTR(op)->target_object || head == op || IS_INVISIBLE(head, op) || OBJECT_IS_HIDDEN(op, head))
+				{
+					continue;
+				}
+
+				CONTR(op)->target_object = head;
+				CONTR(op)->target_object_count = head->count;
+				CONTR(op)->target_map_pos = i;
+				send_target_command(CONTR(op));
+				return 1;
+			}
+		}
+
+		return 0;
 	}
 	else if (params[0] == '0')
 	{
@@ -929,7 +824,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, op, "%s entered the game.", op->name);
+		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
 	}
 
 	CLEAR_FLAG(op, FLAG_WIZ);
@@ -952,70 +847,6 @@ void command_new_char(char *params, int len, player *pl)
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
 	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
-}
-
-/**
- * The fire command.
- *
- * Sent by the client by pressing Ctrl + numpad.
- * @param params Parameters.
- * @param len Length.
- * @param pl Player.
- * @deprecated */
-void command_fire_old(char *params, int len, player *pl)
-{
-	int dir = 0, type, tag1, tag2;
-	object *op = pl->ob;
-
-	if (!params || !len)
-	{
-		return;
-	}
-
-	CONTR(op)->fire_on = 1;
-
-	sscanf(params, "%d %d %d %d", &dir, &type, &tag1, &tag2);
-
-	if (type == FIRE_MODE_SPELL)
-	{
-		char *tmp;
-
-		tag2 = -1;
-		tmp = strchr(params, ' ');
-		tmp = strchr(tmp + 1, ' ');
-		tmp = strchr(tmp + 1, ' ');
-
-		strncpy(CONTR(op)->firemode_name, tmp + 1, sizeof(CONTR(op)->firemode_name) - 1);
-
-		if (!fire_cast_spell(op, CONTR(op)->firemode_name))
-		{
-			CONTR(op)->fire_on = 0;
-			/* marks no client fire action */
-			CONTR(op)->firemode_type = -1;
-			return;
-		}
-	}
-	else if (type == FIRE_MODE_SKILL)
-	{
-		char *tmp;
-
-		tag2 = -1;
-		tmp = strchr(params, ' ');
-		tmp = strchr(tmp + 1, ' ');
-		tmp = strchr(tmp + 1, ' ');
-
-		strncpy(CONTR(op)->firemode_name, tmp + 1, sizeof(CONTR(op)->firemode_name) - 1);
-	}
-
-	/* only here will this value be set */
-	CONTR(op)->firemode_type = type;
-	CONTR(op)->firemode_tag1 = tag1;
-	CONTR(op)->firemode_tag2 = tag2;
-
-	move_player(op, dir);
-	CONTR(op)->fire_on = 0;
-	/* marks no client fire action */
-	CONTR(op)->firemode_type = -1;
 }
 
 /**
@@ -1175,6 +1006,8 @@ void generate_ext_title(player *pl)
 	char rank[32] = "";
 	char align[32] = "";
 	char race[MAX_BUF];
+	char name[MAX_BUF];
+	shstr *godname;
 
 	for (walk = pl->ob->inv; walk; walk = walk->below)
 	{
@@ -1222,11 +1055,6 @@ void generate_ext_title(player *pl)
 		strcat(pl->quick_name, " [WIZ]");
 	}
 
-	if (pl->socket.socket_version >= 1044)
-	{
-	char name[MAX_BUF];
-	shstr *godname;
-
 	snprintf(name, sizeof(name), "%s%s%s", rank, pl->ob->name, title);
 
 	if (QUERY_FLAG(pl->ob, FLAG_WIZ))
@@ -1247,10 +1075,5 @@ void generate_ext_title(player *pl)
 	{
 		strncat(pl->ext_title, " follower of ", sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
 		strncat(pl->ext_title, godname, sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
-	}
-	}
-	else
-	{
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s%s%s\n%s\n%s\n%s\n%s\n%c\n", rank, pl->ob->name, title, QUERY_FLAG(pl->ob, FLAG_WIZ) ? (strcmp(title, "") ? " [WIZ] " : "[WIZ] ") : "", pl->afk ? (strcmp(title, "") ? " [AFK]" : "[AFK]") : "", player_get_race_class(pl->ob, race, sizeof(race)), prof, align, determine_god(pl->ob), *gender_noun[object_get_gender(pl->ob)]);
 	}
 }

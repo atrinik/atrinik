@@ -54,7 +54,7 @@
 
 /** Location of plugins */
 #ifndef PLUGINDIR
-#define PLUGINDIR "./plugins"
+#define PLUGINDIR "./"
 #endif
 
 /** Where the DM file is located. */
@@ -135,15 +135,6 @@
 
 #if CS_LOGSTATS
 #define CS_LOGTIME 600
-#endif
-
-/**
- * DEBUG generates copious amounts of output. By default, you probably
- * don't want this defined. */
-#ifndef WIN32
-#ifndef DEBUG
-#define DEBUG
-#endif
 #endif
 
 /**
@@ -291,8 +282,6 @@
 /** How many entries there is room for. */
 #define HIGHSCORE_LENGTH 1000
 
-/** Used when hashing archetypes. */
-#define ARCHTABLE 8192
 #define MAXSTRING 20
 
 /**
@@ -332,7 +321,7 @@
 #define NO_EMERGENCY_SAVE
 
 /** Socket version. */
-#define SOCKET_VERSION 1052
+#define SOCKET_VERSION 1057
 
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE

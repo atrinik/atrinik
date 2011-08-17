@@ -76,10 +76,6 @@ extern char *spellpathnames[NRSPELLPATHS];
  * Calculates damage based on level. */
 #define LEVEL_DAMAGE(level) (float) ((level) ? 0.75f + (level) * 0.25f : 1.0f)
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,
  * buttons, waypoints and a number of other objects. */
@@ -145,9 +141,5 @@ typedef struct liv
 	/** Power. */
 	sint8 Pow;
 } living;
-
-#ifdef WIN32
-#pragma pack(pop)
-#endif
 
 #endif

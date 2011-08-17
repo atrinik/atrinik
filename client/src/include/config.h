@@ -28,25 +28,22 @@
  * This is the config file for the client. */
 
 /** Socket version. */
-#define SOCKET_VERSION 1052
+#define SOCKET_VERSION 1057
 
-/** File with all the key bindings. */
-#define KEYBIND_FILE "keys.dat"
-/** File with the options. */
-#define OPTION_FILE "options.dat"
 /** File the the arch definitions. */
-#define ARCHDEF_FILE "archdef.dat"
+#define ARCHDEF_FILE "data/archdef.dat"
 /** File with the widgets' positions. */
-#define INTERFACE_FILE "interface.gui"
+#define INTERFACE_FILE "settings/interface.gui"
 /** What scripts to autoload on client startup. */
-#define SCRIPTS_AUTOLOAD "scripts_autoload"
+#define SCRIPTS_AUTOLOAD "settings/scripts_autoload"
 /** Log file. */
 #define LOG_FILE "client.log"
 /** Name of the icon. */
 #define CLIENT_ICON_NAME "icon.png"
-
-/* Experimental feature of widget snapping */
-/*#define WIDGET_SNAP*/
+/** File that contains the default settings. */
+#define FILE_SETTINGS_TXT "data/settings.txt"
+/** File that contains the user settings. */
+#define FILE_SETTINGS_DAT "settings/settings.dat"
 
 /** Maximum number of faces. */
 #define MAX_FACE_TILES 32767

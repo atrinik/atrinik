@@ -28,10 +28,10 @@ qm2 = QuestManager(activator, quest2)
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
 		if not qm.started():
-			me.SayTo(activator, "\nHello there. I am {0} the wizard, currently researching the ancient place of ^magic^ southeast of this tower.".format(me.name))
+			me.SayTo(activator, "\nHello there. I am {0} the wizard, currently researching the ancient place of <a>magic</a> southeast of this tower.".format(me.name))
 		elif qm.completed():
 			if not qm2.started():
-				me.SayTo(activator, "\nThank you for your help with the mana crystal.\nDid you know there is a secret to asteroid? It is possible to cast 3 asteroids at once with a single cast, through the use of ^frost nova^.")
+				me.SayTo(activator, "\nThank you for your help with the mana crystal.\nDid you know there is a secret to asteroid? It is possible to cast 3 asteroids at once with a single cast, through the use of <a>frost nova</a>.")
 			elif qm2.completed():
 				me.SayTo(activator, "\nGreat job fighting those ice giants. I hope frost nova will come in handy.")
 			elif qm2.finished():
@@ -51,10 +51,10 @@ def main():
 	# Way to start the first quest.
 	elif not qm.started():
 		if msg == "magic":
-			me.SayTo(activator, "\nIt is an old cave, made of ice. There are many ancient and powerful crystals in that cave that I have been examining, when I noticed that I was missing my ^mana crystal^!")
+			me.SayTo(activator, "\nIt is an old cave, made of ice. There are many ancient and powerful crystals in that cave that I have been examining, when I noticed that I was missing my <a>mana crystal</a>!")
 
 		elif msg == "mana crystal":
-			me.SayTo(activator, "\nI must have dropped it somewhere in the cave, and maybe one of the golems living there picked it up and ran away with it. I have been unable to find it.\n\n^Could I help you?^")
+			me.SayTo(activator, "\nI must have dropped it somewhere in the cave, and maybe one of the golems living there picked it up and ran away with it. I have been unable to find it.\n\n<a>Could I help you?</a>")
 
 		elif msg == "could i help you?":
 			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("wizardry spells"))

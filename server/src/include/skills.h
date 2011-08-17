@@ -106,6 +106,6 @@ typedef struct skill_struct
 
 	/** Base number of ticks it takes to use the skill */
 	short time;
-} skill;
+} skill_struct;
 
-extern skill skills[];
+skill_struct skills[NROFSKILLS];

@@ -1,0 +1,14 @@
+arch map
+name Rockforge: Mines
+msg
+Created:  2011-06-12 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+region rockforge_mines
+darkness 3
+tile_path_3 rockforge_c_0304
+tile_path_4 rockforge_c_0205
+tile_path_7 rockforge_c_0204
+end

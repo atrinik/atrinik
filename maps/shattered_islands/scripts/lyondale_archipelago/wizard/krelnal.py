@@ -20,7 +20,7 @@ spells = [
 
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
-		me.SayTo(activator, "\nHello, I am {0} the Thelras' spell teacher. I can teach you various spells, for a fee. I can offer you the following spells:\n{1}".format(me.name, ", ".join(map(lambda d: "^" + d["spell"] + "^", spells))))
+		me.SayTo(activator, "\nHello, I am {0} the Thelras' spell teacher. I can teach you various spells, for a fee. I can offer you the following spells:\n{1}".format(me.name, ", ".join(map(lambda d: "<a>" + d["spell"] + "</a>", spells))))
 
 	# Do we want to buy the spell?
 	elif msg[:6] == "learn ":
@@ -72,7 +72,7 @@ def main():
 			return
 
 		sp = l[0]
-		me.SayTo(activator, "\n{0}\nIt requires level {1} wizardry spells to use.\n{2} will cost you {3}. Do you want to ^learn {4}^?".format(sp["msg"], GetSpell(GetSpellNr(sp["spell"]))["level"], sp["spell"].capitalize(), CostString(sp["cost"]), sp["spell"]))
+		me.SayTo(activator, "\n{0}\nIt requires level {1} wizardry spells to use.\n{2} will cost you {3}. Do you want to <a>learn {4}</a>?".format(sp["msg"], GetSpell(GetSpellNr(sp["spell"]))["level"], sp["spell"].capitalize(), CostString(sp["cost"]), sp["spell"]))
 
 
 main()

@@ -27,7 +27,7 @@
  * @file
  * Handles code for file updates by the server. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * How many file updates have been requested. This is used to block the
@@ -117,7 +117,7 @@ void file_updates_parse()
 	char buf[HUGE_BUF];
 
 	/* Is the feature disabled? */
-	if (options.disable_updates)
+	if (setting_get_int(OPT_CAT_CLIENT, OPT_DISABLE_FILE_UPDATES))
 	{
 		return;
 	}

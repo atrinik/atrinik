@@ -254,12 +254,25 @@ enum
 #define TEXT_WIDTH 2048
 /*@}*/
 
-/**
- * Convenience macro to construct SDL_Color array from one of the
- * COLOR_xxx constants.
- * @param color Color.
- * @return SDL_Color array containing the rgb values. */
-#define COLOR_SIMPLE(color) ((SDL_Color) {Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].b, 0})
+#define COLOR_WHITE "ffffff"
+#define COLOR_ORANGE "ff9900"
+#define COLOR_NAVY "00ffff"
+#define COLOR_RED "ff3030"
+#define COLOR_GREEN "00ff00"
+#define COLOR_BLUE "0080ff"
+#define COLOR_GRAY "999999"
+#define COLOR_BROWN "c07f40"
+#define COLOR_PURPLE "cc66ff"
+#define COLOR_PINK "ff9999"
+#define COLOR_YELLOW "ffff33"
+#define COLOR_DK_NAVY "00c4c2"
+#define COLOR_DK_GREEN "006600"
+#define COLOR_DK_ORANGE "ff6600"
+#define COLOR_BRIGHT_PURPLE "ff66ff"
+#define COLOR_HGOLD "d4d553"
+#define COLOR_DGOLD "999900"
+#define COLOR_BLACK "000000"
+
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
 

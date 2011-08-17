@@ -60,12 +60,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#endif
-
 #ifdef MEMPOOL_OBJECT_TRACKING
 /* for debugging only! */
 static struct mempool_chunk *used_object_list = NULL;
@@ -457,7 +451,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 
 				if (op)
 				{
-					new_draw_info(NDI_UNIQUE, op, buf);
+					draw_info(COLOR_WHITE, op, buf);
 				}
 
 				LOG(llevSystem, "%s\n", buf);

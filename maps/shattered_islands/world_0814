@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -711,7 +711,7 @@ y 16
 arch mage_old
 msg
 @match ^hi$|^hey$|^hello$
-Hello. I'm Lothost the wizard. I'm currently studying the ^abandoned mine^ north of here.
+Hello. I'm Lothost the wizard. I'm currently studying the <a>abandoned mine</a> north of here.
 @match ^abandoned mine$
 It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about.
 

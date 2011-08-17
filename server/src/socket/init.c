@@ -28,23 +28,6 @@
  * Socket initialization related code. */
 
 #include <global.h>
-
-#ifndef WIN32
-#	include <sys/types.h>
-#	include <sys/time.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#	include <netdb.h>
-#	include <sys/stat.h>
-#	include <stdio.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
-#include <newserver.h>
 #include "zlib.h"
 
 /** All the server/client files. */
@@ -552,6 +535,9 @@ void init_srv_files()
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_HFILES);
 
+	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.datadir);
+	load_srv_file(buf, SRV_CLIENT_HFILES_V2);
+
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_ANIMS);
 
@@ -622,16 +608,8 @@ void send_srv_file(socket_struct *ns, int id)
 	sl.buf = malloc(SrvClientFiles[id].len + 6);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DATA);
-
-	if (ns->socket_version < 1036)
-	{
-		SockList_AddChar(&sl, (char) (id + 1) | DATA_PACKED_CMD);
-	}
-	else
-	{
 	SockList_AddChar(&sl, (char) id);
 	SockList_AddInt(&sl, SrvClientFiles[id].len_ucomp);
-	}
 
 	memcpy(sl.buf + sl.len, SrvClientFiles[id].file, SrvClientFiles[id].len);
 	sl.len += SrvClientFiles[id].len;

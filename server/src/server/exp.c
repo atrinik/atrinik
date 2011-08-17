@@ -360,7 +360,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	exp = adjust_exp(op, exp_skill, exp);
 
 	/* Notify the player of the exp gain */
-	new_draw_info_format(NDI_UNIQUE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
+	draw_info_format(COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
 	CONTR(op)->stat_exp_gained += exp;
 
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
@@ -481,7 +481,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 		else if (op->level > 1 && op->type == SKILL)
@@ -495,7 +495,7 @@ void player_lvl_adj(object *who, object *op)
 				}
 
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 		else
@@ -503,7 +503,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "You are now level %d.", op->level);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 
@@ -529,7 +529,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in %s based skills.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 		else if (op->type == SKILL)
@@ -537,7 +537,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d in the skill %s.", op->level, op->name);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 		else
@@ -545,7 +545,7 @@ void player_lvl_adj(object *who, object *op)
 			if (who)
 			{
 				snprintf(buf, sizeof(buf), "-You are now level %d.", op->level);
-				new_draw_info(NDI_UNIQUE | NDI_RED, who, buf);
+				draw_info(COLOR_RED, who, buf);
 			}
 		}
 
@@ -638,7 +638,7 @@ void apply_death_exp_penalty(object *op)
 {
 	object *tmp;
 	float loss_p;
-	sint64 level_exp, loss_exp;
+	sint64 lev_exp, loss_exp;
 
 	/* Mark the skills for update */
 	CONTR(op)->update_skills = 1;
@@ -650,26 +650,26 @@ void apply_death_exp_penalty(object *op)
 		if (tmp->type == SKILL && tmp->level && tmp->last_eat == 1)
 		{
 			/* Check there is experience we can drain. */
-			level_exp = tmp->stats.exp - new_levels[tmp->level];
+			lev_exp = tmp->stats.exp - new_levels[tmp->level];
 
 			/* Sanity check */
-			if (level_exp < 0)
+			if (lev_exp < 0)
 			{
 				LOG(llevBug, "apply_death_exp_penalty(): Skill %s (%d %"FMT64") for player %s -> less exp as level need!\n", query_name(tmp, NULL), tmp->level, tmp->stats.exp, query_name(op, NULL));
 			}
 
-			if (!level_exp)
+			if (!lev_exp)
 			{
 				continue;
 			}
 
 			if (tmp->level < 2)
 			{
-				loss_exp = level_exp - (int) ((float) level_exp * 0.9);
+				loss_exp = lev_exp - (int) ((float) lev_exp * 0.9);
 			}
 			else if (tmp->level < 3)
 			{
-				loss_exp = level_exp - (int) ((float) level_exp * 0.85);
+				loss_exp = lev_exp - (int) ((float) lev_exp * 0.85);
 			}
 			else
 			{
@@ -682,9 +682,9 @@ void apply_death_exp_penalty(object *op)
 				loss_exp = 0;
 			}
 
-			if (loss_exp > level_exp)
+			if (loss_exp > lev_exp)
 			{
-				loss_exp = level_exp;
+				loss_exp = lev_exp;
 			}
 
 			if (loss_exp > 0)

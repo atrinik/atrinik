@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-05-15 emperorbma
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -67,6 +67,14 @@ arch water_lt3
 y 15
 end
 arch water_lt2
+y 16
+end
+arch map_info
+hp 23
+sp 7
+race Centennial
+slaying yewtree.mid
+stand_still 1
 y 16
 end
 arch water_lt
@@ -1191,7 +1199,15 @@ arch grassd_1
 x 9
 y 19
 end
+arch wall_wood_8
+x 9
+y 19
+end
 arch grassd_6
+x 9
+y 20
+end
+arch wall_wood_3
 x 9
 y 20
 end
@@ -1199,15 +1215,23 @@ arch grassd_8
 x 9
 y 21
 end
+arch wall_wood_3
+x 9
+y 21
+end
 arch grassd_1
 x 9
 y 22
 end
-arch tree_big4b
+arch wall_wood_3
 x 9
 y 22
 end
 arch grassd_7
+x 9
+y 23
+end
+arch wall_wood3_3
 x 9
 y 23
 end
@@ -1306,23 +1330,44 @@ arch grassd_7
 x 10
 y 19
 end
-arch grassd_4
+arch wall_wood_1
+x 10
+y 19
+end
+arch floor_sand_d4
 x 10
 y 20
 end
-arch plant17
+arch prison_deco2.131
 x 10
 y 20
 end
-arch grassd_5
+arch floor_sand_d4
 x 10
 y 21
 end
-arch grassd_1
+arch ladder_tall_up
+direction 7
+slaying world_1_0129
+hp 10
+sp 21
+x 10
+y 21
+end
+arch floor_sand_d3
 x 10
 y 22
 end
-arch grassd_8
+arch broom.111
+direction 7
+x 10
+y 22
+end
+arch floor_sand_d1
+x 10
+y 23
+end
+arch wall_wood_1
 x 10
 y 23
 end
@@ -1425,19 +1470,62 @@ arch grassd_6
 x 11
 y 19
 end
-arch grassd_6
+arch wall_wood_1
+x 11
+y 19
+end
+arch floor_sand_d4
 x 11
 y 20
 end
-arch grassd_6
+arch floor_sand_d1
 x 11
 y 21
 end
-arch grassd_4
+arch spawn_point
+msg
+
+endmsg
+x 11
+y 21
+arch witch3
+msg
+@match ^hi$|^hey$|^hello$
+Shh, I'm trying to study.
+@match ^Patchouli$|^Patchouli Knowledge$
+Hmm.  I'm in a good mood today.  Maybe I'll just have to show you "Sun Sign: <a>Royal Flare</a>..."
+@match ^Royal Flare$
+Grr... take a hint or I'll show you to the <a>basement</a>.  Kihihihihihi.
+@match ^basement$
+Geez.  You must be as dumb as that <a>fairy</a>.
+@match ^Cirno$|^fairy$
+C'mon.  Let me study, man...
+endmsg
+name bookish student witch
+level 25
+spawn_time 16:00-8:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_sand_d1
 x 11
 y 22
 end
-arch grassd_7
+arch floor_sand_d4
+x 11
+y 23
+end
+arch wall_wood_1
+x 11
+y 23
+end
+arch plant2_wall.151
 x 11
 y 23
 end
@@ -1528,31 +1616,31 @@ arch grassd_2
 x 12
 y 19
 end
-arch tree_big4b
+arch wall_wood_1
 x 12
 y 19
 end
-arch grassd_5
+arch floor_sand_d4
 x 12
 y 20
 end
-arch grassd_7
+arch fire_cauld.131
+x 12
+y 20
+end
+arch floor_sand_d3
 x 12
 y 21
 end
-arch small_stones
-x 12
-y 21
-end
-arch grassd_2
+arch floor_sand_d4
 x 12
 y 22
 end
-arch grassd_5
+arch floor_sand_d3
 x 12
 y 23
 end
-arch tree_big4b
+arch wall_wood_1
 x 12
 y 23
 end
@@ -1651,23 +1739,40 @@ arch grassd_8
 x 13
 y 19
 end
-arch grassd_5
+arch wall_wood_1
+x 13
+y 19
+end
+arch floor_sand_d2
 x 13
 y 20
 end
-arch grassd_6
+arch wall_wood_3
+x 13
+y 20
+end
+arch floor_sand_d4
 x 13
 y 21
 end
-arch plant12
+arch wall_wood_3
 x 13
 y 21
 end
-arch grassd_2
+arch floor_sand_d2
 x 13
 y 22
 end
-arch grassd_8
+arch door_wood1
+direction 3
+x 13
+y 22
+end
+arch floor_sand_d2
+x 13
+y 23
+end
+arch wall_wood_4
 x 13
 y 23
 end
@@ -1762,11 +1867,27 @@ arch grassd_5
 x 14
 y 21
 end
-arch grassd_8
+arch sign_generic
+msg
+Dormitory A
+endmsg
+direction 3
+x 14
+y 21
+end
+arch floor_sand_d1
 x 14
 y 22
 end
-arch grassd_2
+arch grassd_m10
+x 14
+y 22
+end
+arch floor_sand_d4
+x 14
+y 23
+end
+arch grassd_m3
 x 14
 y 23
 end
@@ -1861,11 +1982,11 @@ arch grassd_m3
 x 15
 y 19
 end
-arch grassd_5
+arch grassd_1
 x 15
 y 20
 end
-arch grassd_2
+arch grassd_1
 x 15
 y 21
 end
@@ -1873,11 +1994,15 @@ arch plant_flower11
 x 15
 y 21
 end
-arch grassd_4
+arch floor_sand_d1
 x 15
 y 22
 end
-arch grassd_4
+arch grassd_m10
+x 15
+y 22
+end
+arch floor_sand_d2
 x 15
 y 23
 end
@@ -1964,7 +2089,7 @@ arch grassd_m7
 x 16
 y 19
 end
-arch grassd_6
+arch grassd_1
 x 16
 y 20
 end
@@ -1972,7 +2097,11 @@ arch grassd_3
 x 16
 y 21
 end
-arch grassd_7
+arch floor_sand_d2
+x 16
+y 22
+end
+arch grassd_m6
 x 16
 y 22
 end
@@ -1980,7 +2109,11 @@ arch plant_flower2
 x 16
 y 22
 end
-arch grassd_1
+arch floor_sand_d4
+x 16
+y 23
+end
+arch grassd_m8
 x 16
 y 23
 end
@@ -2099,7 +2232,15 @@ arch grassd_1
 x 17
 y 21
 end
+arch wall_wood_8
+x 17
+y 21
+end
 arch grassd_4
+x 17
+y 22
+end
+arch wall_wood_3
 x 17
 y 22
 end
@@ -2107,7 +2248,7 @@ arch grassd_7
 x 17
 y 23
 end
-arch tree_big
+arch wall_wood_3
 x 17
 y 23
 end
@@ -2214,11 +2355,27 @@ arch grassd_4
 x 18
 y 21
 end
-arch grassd_7
+arch wall_wood3_1
+x 18
+y 21
+end
+arch floor_sand_d1
 x 18
 y 22
 end
-arch grassd_2
+arch prison_deco2.131
+x 18
+y 22
+end
+arch floor_sand_d3
+x 18
+y 23
+end
+arch ladder_tall_up
+direction 7
+slaying world_1_0129
+hp 18
+sp 23
 x 18
 y 23
 end
@@ -2316,21 +2473,41 @@ arch swamp1
 x 19
 y 21
 end
-arch grassd_m3
+arch wall_wood3_1
 x 19
 y 21
 end
-arch grassd_2
+arch floor_sand_d1
 x 19
 y 22
 end
-arch grassd_7
+arch floor_sand_d4
 x 19
 y 23
 end
-arch plant_mushroom2
+arch spawn_point
 x 19
 y 23
+arch witch4
+msg
+@match ^hi$|^hey$|^hello$
+Hi, what's up?
+@match ^Alice$|^Alice's$|^Margatroid$|^Alice Margatroid$
+Ooh, she's the best.  I've even got a <a>Shanghai doll</a>!
+@match ^Shanghai doll$
+Yeah, they're <a>Alice's</a> favorite.
+endmsg
+name bored student witch
+level 26
+spawn_time 16:00-8:00
+can_cast_spell 1
+sp -1
+maxsp 12
+Dex 3
+type 83
+arch ability_cause_lig_wound
+end
+end
 end
 arch swamp1
 x 20
@@ -2419,15 +2596,19 @@ arch swamp1
 x 20
 y 21
 end
-arch grassd_m7
+arch wall_wood3_1
 x 20
 y 21
 end
-arch grassd_6
+arch floor_sand_d1
 x 20
 y 22
 end
-arch grassd_2
+arch fire_cauld.131
+x 20
+y 22
+end
+arch floor_sand_d4
 x 20
 y 23
 end
@@ -2526,19 +2707,23 @@ arch swamp1
 x 21
 y 21
 end
-arch grassd_m7
+arch wall_wood3_1
 x 21
 y 21
 end
-arch grassd_8
+arch floor_sand_d1
 x 21
 y 22
 end
-arch grassd_5
+arch wall_wood3_3
+x 21
+y 22
+end
+arch floor_sand_d1
 x 21
 y 23
 end
-arch plant_mushroom5
+arch wall_wood3_3
 x 21
 y 23
 end

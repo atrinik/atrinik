@@ -56,6 +56,8 @@ static fields_struct fields[] =
 	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
 	{"known_spells", FIELDTYPE_LIST, offsetof(player, known_spells), 0, FIELDTYPE_KNOWN_SPELLS},
 	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
+	{"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
+	{"fame", FIELDTYPE_SINT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
 
 	{"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},
@@ -194,15 +196,15 @@ static PyObject *Atrinik_Player_GetSkill(Atrinik_Player *pl, PyObject *args)
 static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 {
 	uint32 skill;
-	sint64 exp;
+	sint64 exp_gain;
 	int exact = 0;
 
-	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp, &exact))
+	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp_gain, &exact))
 	{
 		return NULL;
 	}
 
-	hooks->add_exp(pl->pl->ob, exp, skill, exact);
+	hooks->add_exp(pl->pl->ob, exp_gain, skill, exact);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -459,19 +461,38 @@ static PyObject *Atrinik_Player_Sound(Atrinik_Player *pl, PyObject *args, PyObje
 }
 
 /**
- * <h1>player.Examine(object obj)</h1>
+ * <h1>player.Examine(object obj, bool [ret = False])</h1>
  * Makes player examine the specified object.
  * @param obj Object to examine. */
 static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
 {
 	Atrinik_Object *obj;
+	int ret = 0;
+	StringBuffer *sb_capture = NULL;
 
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &obj))
+	if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &obj, &ret))
 	{
 		return NULL;
 	}
 
-	hooks->examine(pl->pl->ob, obj->obj);
+	if (ret)
+	{
+		sb_capture = hooks->stringbuffer_new();
+	}
+
+	hooks->examine(pl->pl->ob, obj->obj, sb_capture);
+
+	if (ret)
+	{
+		char *cp;
+		PyObject *retval;
+
+		cp = hooks->stringbuffer_finish(sb_capture);
+		retval = Py_BuildValue("s", cp);
+		free(cp);
+
+		return retval;
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;

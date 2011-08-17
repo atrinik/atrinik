@@ -27,7 +27,7 @@
  * @file
  * General convenience functions for the client. */
 
-#include <include.h>
+#include <global.h>
 
 static FILE *logstream = NULL;
 
@@ -102,18 +102,20 @@ void system_start()
  * End the system. */
 void system_end()
 {
+	popup_destroy_all();
 	list_remove_all();
 	script_killall();
 	save_interface_file();
-	save_options_dat();
 	kill_widgets();
 	curl_deinit();
 	socket_deinitialize();
+	effects_deinit();
 	sound_deinit();
 	free_bitmaps();
 	text_deinit();
-	free_help_files();
-	effects_deinit();
+	hfiles_deinit();
+	settings_deinit();
+	keybind_deinit();
 	SDL_Quit();
 }
 
@@ -200,7 +202,7 @@ static int mkdir_recurse(const char *path)
 void copy_file(const char *filename, const char *filename_out)
 {
 	FILE *fp, *fp_out;
-	char buf[MAX_BUF];
+	char buf[HUGE_BUF], *stmp;
 
 	fp = fopen(filename, "r");
 
@@ -208,6 +210,18 @@ void copy_file(const char *filename, const char *filename_out)
 	{
 		LOG(llevBug, "copy_file(): Failed to open '%s' for reading.\n", filename);
 		return;
+	}
+
+	stmp = strrchr(filename_out, '/');
+
+	if (stmp)
+	{
+		char ctmp;
+
+		ctmp = stmp[0];
+		stmp[0] = '\0';
+		mkdir_recurse(filename_out);
+		stmp[0] = ctmp;
 	}
 
 	fp_out = fopen(filename_out, "w");
@@ -229,13 +243,134 @@ void copy_file(const char *filename, const char *filename_out)
 }
 
 /**
+ * Copy a file/directory if it exists.
+ * @param from Directory where to copy from.
+ * @param to Directort to copy to.
+ * @param src File/directory to copy.
+ * @param dst Where to copy the file/directory to. */
+void copy_if_exists(const char *from, const char *to, const char *src, const char *dst)
+{
+	char src_path[HUGE_BUF], dst_path[HUGE_BUF];
+
+	snprintf(src_path, sizeof(src_path), "%s/%s", from, src);
+	snprintf(dst_path, sizeof(dst_path), "%s/%s", to, dst);
+
+	if (access(src_path, R_OK) == 0)
+	{
+		copy_rec(src_path, dst_path);
+	}
+}
+
+/**
+ * Recursively remove a directory and its contents.
+ *
+ * Effectively same as 'rf -rf path'.
+ * @param path What to remove. */
+void rmrf(const char *path)
+{
+	DIR *dir;
+	struct dirent *currentfile;
+	char buf[HUGE_BUF];
+	struct stat st;
+
+	dir = opendir(path);
+
+	if (!dir)
+	{
+		return;
+	}
+
+	while ((currentfile = readdir(dir)))
+	{
+		if (!strcmp(currentfile->d_name, ".") || !strcmp(currentfile->d_name, ".."))
+		{
+			continue;
+		}
+
+		snprintf(buf, sizeof(buf), "%s/%s", path, currentfile->d_name);
+
+		if (stat(buf, &st) != 0)
+		{
+			continue;
+		}
+
+		if (S_ISDIR(st.st_mode))
+		{
+			rmrf(buf);
+		}
+		else if (S_ISREG(st.st_mode))
+		{
+			unlink(buf);
+		}
+	}
+
+	closedir(dir);
+	rmdir(path);
+}
+
+/**
+ * Recursively copy a file or directory.
+ * @param src Source file/directory to copy.
+ * @param dst Where to copy to. */
+void copy_rec(const char *src, const char *dst)
+{
+	struct stat st;
+
+	/* Does it exist? */
+	if (stat(src, &st) != 0)
+	{
+		return;
+	}
+
+	/* Copy directory contents. */
+	if (S_ISDIR(st.st_mode))
+	{
+		DIR *dir;
+		struct dirent *currentfile;
+		char dir_src[HUGE_BUF], dir_dst[HUGE_BUF];
+
+		dir = opendir(src);
+
+		if (!dir)
+		{
+			return;
+		}
+
+		/* Try to make the new directory. */
+		if (access(dst, R_OK) != 0)
+		{
+			mkdir(dst, 0755);
+		}
+
+		while ((currentfile = readdir(dir)))
+		{
+			if (currentfile->d_name[0] == '.')
+			{
+				continue;
+			}
+
+			snprintf(dir_src, sizeof(dir_src), "%s/%s", src, currentfile->d_name);
+			snprintf(dir_dst, sizeof(dir_dst), "%s/%s", dst, currentfile->d_name);
+			copy_rec(dir_src, dir_dst);
+		}
+
+		closedir(dir);
+	}
+	/* Copy file. */
+	else
+	{
+		copy_file(src, dst);
+	}
+}
+
+/**
  * Get configuration directory.
  * @return The configuration directory. */
 const char *get_config_dir()
 {
 	const char *desc;
 
-#ifdef __LINUX
+#ifdef LINUX
 	desc = getenv("HOME");
 #else
 	desc = getenv("APPDATA");
@@ -252,6 +387,31 @@ const char *get_config_dir()
 }
 
 /**
+ * Get path to a file in the data directory.
+ * @param buf Buffer where to store the path.
+ * @param len Size of buf.
+ * @param fname File. */
+void get_data_dir_file(char *buf, size_t len, const char *fname)
+{
+	/* Try the current directory first. */
+	snprintf(buf, len, "./%s", fname);
+
+#ifdef INSTALL_SUBDIR_SHARE
+	/* Not found, try the share directory since it was defined... */
+	if (access(buf, R_OK))
+	{
+		char *prefix;
+
+		/* Get the prefix. */
+		prefix = br_find_prefix("./");
+		/* Construct the path. */
+		snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE"/%s", prefix, fname);
+		free(prefix);
+	}
+#endif
+}
+
+/**
  * Get path to file, to implement saving settings related data to user's
  * home directory.
  * @param fname The file path.
@@ -259,10 +419,10 @@ const char *get_config_dir()
  * @return The path to the file. */
 char *file_path(const char *fname, const char *mode)
 {
-	static char tmp[256];
-	char *stmp, ctmp;
+	static char tmp[HUGE_BUF];
+	char *stmp, ctmp, version[MAX_BUF];
 
-	snprintf(tmp, sizeof(tmp), "%s/.atrinik/"PACKAGE_VERSION"/%s", get_config_dir(), fname);
+	snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s/%s", get_config_dir(), package_get_version_partial(version, sizeof(version)), fname);
 
 	if (strchr(mode, 'w'))
 	{
@@ -278,9 +438,9 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, W_OK))
 		{
-			char otmp[256];
+			char otmp[HUGE_BUF];
 
-			snprintf(otmp, sizeof(otmp), "%s%s", SYSPATH, fname);
+			get_data_dir_file(otmp, sizeof(otmp), fname);
 
 			if ((stmp = strrchr(tmp, '/')))
 			{
@@ -297,7 +457,7 @@ char *file_path(const char *fname, const char *mode)
 	{
 		if (access(tmp, R_OK))
 		{
-			snprintf(tmp, sizeof(tmp), "%s%s", SYSPATH, fname);
+			get_data_dir_file(tmp, sizeof(tmp), fname);
 		}
 	}
 
@@ -316,8 +476,8 @@ char *file_path(const char *fname, const char *mode)
 
 /**
  * fopen wrapper.
- * @param fname The file name
- * @param mode File mode
+ * @param fname The file name.
+ * @param mode File mode.
  * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
@@ -331,5 +491,15 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
 	return IMG_Load(file_path(file, "r"));
+}
+
+/**
+ * TTF_OpenFont wrapper.
+ * @param file The file name.
+ * @param ptsize Size of font.
+ * @return Return value of TTF_OpenFont(). */
+TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
+{
+	return TTF_OpenFont(file_path(file, "r"), ptsize);
 }
 /*@}*/

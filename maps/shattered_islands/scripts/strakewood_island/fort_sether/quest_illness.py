@@ -57,13 +57,13 @@ def npc_gwenty():
 
 		# Not started yet.
 		if not qm.started_part(1):
-			TempleGrunhildeGwenty.hello_msg = "\nApologies, but I'm busy right now with the ^illness^ in Fort Sether, so I'm sorry I can't assist you."
+			TempleGrunhildeGwenty.hello_msg = "\nApologies, but I'm busy right now with the <a>illness</a> in Fort Sether, so I'm sorry I can't assist you."
 
 			if msg == "illness":
-				me.SayTo(activator, "\nMany guards are falling ill, one after one. Being the only priestess around, I'm quite busy tending the sick guards.\n\n^Do you know the reason?^")
+				me.SayTo(activator, "\nMany guards are falling ill, one after one. Being the only priestess around, I'm quite busy tending the sick guards.\n\n<a>Do you know the reason?</a>")
 				return
 			elif msg == "do you know the reason?":
-				me.SayTo(activator, "\nIf only! If I wasn't so busy, I would probably be able to figure it out... Hm, perhaps you could try to figure out the cause of this illness?\n\n^Alright^")
+				me.SayTo(activator, "\nIf only! If I wasn't so busy, I would probably be able to figure it out... Hm, perhaps you could try to figure out the cause of this illness?\n\n<a>Alright</a>")
 				return
 			elif msg == "alright":
 				me.SayTo(activator, "\nSplendid! I suspect it has something to do with the water, so I would begin investigating the water wells if I were you.")
@@ -80,7 +80,7 @@ def npc_gwenty():
 		# Asked Gwenty for advice and haven't given the potion to the
 		# kobold yet, but lost the potion.
 		elif qm.started_part(3) and not qm.completed_part(3) and not activator.FindObject(mode = INVENTORY_CONTAINERS, name = "Gwenty's Potion"):
-			me.SayTo(activator, "\nYou lost the potion?\n|Gwenty the priestess sighs heavily.|\nAlright, here is another... Please be more careful with it.")
+			me.SayTo(activator, "\nYou lost the potion?\n<yellow>Gwenty the priestess sighs heavily.</yellow>\nAlright, here is another... Please be more careful with it.")
 			create_potion()
 			return
 		# Persuaded the kobold to mix the potions.
@@ -103,10 +103,10 @@ def npc_brownrott():
 	# Agreed to investigate the illness.
 	if not qm.completed_part(1):
 		if msg == "hi" or msg == "hey" or msg == "hello":
-			me.SayTo(activator, "\nWell, hello there! I am {0} the kobold. Don't you think my ^garden^ is beautiful?".format(me.name))
+			me.SayTo(activator, "\nWell, hello there! I am {0} the kobold. Don't you think my <a>garden</a> is beautiful?".format(me.name))
 
 		elif msg == "garden":
-			me.SayTo(activator, "\nWhy yes! Just look around you! I use a specially crafted potion that keeps my garden looking nice. Do you want to see?\n\n^Why not...^")
+			me.SayTo(activator, "\nWhy yes! Just look around you! I use a specially crafted potion that keeps my garden looking nice. Do you want to see?\n\n<a>Why not...</a>")
 
 		elif msg == "why not...":
 			me.SayTo(activator, "\nHere it is! Doesn't it smell wonderful?")
@@ -133,7 +133,7 @@ def npc_brownrott():
 				if msg == "hi" or msg == "hey" or msg == "hello":
 					me.SayTo(activator, "\nWell, hello there again! My garden is just bea--")
 					activator.Write("You interrupt Brownrott and explain to him about the illness in Fort Sether and his potion...", COLOR_YELLOW)
-					me.SayTo(activator, "Are you sure? Hmm... I don't know... I don't really trust anyone with my potion except myself... But perhaps... If you bring me something tasty, I might change my mind...\n\n^Alright then^", True)
+					me.SayTo(activator, "Are you sure? Hmm... I don't know... I don't really trust anyone with my potion except myself... But perhaps... If you bring me something tasty, I might change my mind...\n\n<a>Alright then</a>", True)
 
 				elif msg == "alright then":
 					me.SayTo(activator, "\nIt's a deal then! Bring me 10 sword spider hearts, and I'll mix your potion with mine. You can find those spiders around in this cave. I usually stay far away from them, but their hearts sure are delicious...")
@@ -168,7 +168,7 @@ elif me.name == "Fortress Guard":
 		if qm.completed():
 			me.SayTo(activator, "\nThank you for solving the illness problem!")
 		else:
-			me.SayTo(activator, "\nI sure hope this ^illness^ problem gets resolved soon...")
+			me.SayTo(activator, "\nI sure hope this <a>illness</a> problem gets resolved soon...")
 
 	elif msg == "illness" and not qm.completed():
 		me.SayTo(activator, "\nHaven't you heard? You should speak to Gwenty the priestess... You can find her down the stairs in the main building.")

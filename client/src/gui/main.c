@@ -27,7 +27,7 @@
  * @file
  * Servers list, logging to a server, creating new character, etc. */
 
-#include <include.h>
+#include <global.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (10 * 1000)
@@ -40,13 +40,6 @@
 #define NEWS_MAX_HEIGHT 260
 /** Font of the news text. */
 #define NEWS_FONT FONT_SANS12
-
-/** X position where the dots start. */
-#define LOGIN_PROGRESS_X 75
-/** Number of dots shown. */
-#define LOGIN_PROGRESS_DOTS 5
-/** How often to advance the dots, in ticks. */
-#define LOGIN_PROGRESS_TICKS 275
 
 /**
  * Last server count to see when to re-create the servers list. Since the
@@ -75,15 +68,13 @@ static int char_points_assigned[7];
 /** Maximum number of character creation steps. */
 const int char_step_max = 2;
 
-/**
- * Stores ticks in order to update ::progress_dot every
- * @ref LOGIN_PROGRESS_TICKS ticks. */
-static uint32 progress_ticks = 0;
-/** Currently shown dot in the login progress. */
-static uint8 progress_dot = 0;
+/** Progress dots in login. */
+static progress_dots progress;
+/** Button buffer. */
+static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_quit;
 
 /** @copydoc popup_struct::draw_func */
-static void news_popup_draw_func(popup_struct *popup)
+static int news_popup_draw_func(popup_struct *popup)
 {
 	/* Got the news yet? */
 	if (popup->buf)
@@ -94,7 +85,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		box.w = popup->surface->w;
 		box.h = 0;
 		/* Show the news title. */
-		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		box.w = NEWS_MAX_WIDTH;
 		box.h = NEWS_MAX_HEIGHT;
@@ -102,7 +93,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Calculate number of last displayed lines. */
 		if (!popup->i[1])
 		{
-			string_blt(NULL, NEWS_FONT, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+			string_blt(NULL, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 			popup->i[1] = box.y;
 			popup->i[2] = box.h;
 			box.h = NEWS_MAX_HEIGHT;
@@ -111,13 +102,15 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Skip rows we scrolled past. */
 		box.y = popup->i[0];
 		/* Show the news. */
-		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_set(popup->x, popup->y);
+		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_reset();
 
 		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
 		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
 		/* Show scroll buttons. */
-		scroll_buttons_show(popup->surface, Screensize->x / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, Screensize->y / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i[0], popup->i[2] - popup->i[1], popup->i[1], &box);
-		return;
+		scroll_buttons_show(popup->surface, ScreenSurface->w / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, ScreenSurface->h / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i[0], popup->i[2] - popup->i[1], popup->i[1], &box);
+		return 1;
 	}
 	/* Haven't started downloading yet. */
 	else if (!popup->custom_data)
@@ -129,8 +122,7 @@ static void news_popup_draw_func(popup_struct *popup)
 		/* Shouldn't happen... */
 		if (!list)
 		{
-			popup_destroy_visible();
-			return;
+			return 0;
 		}
 
 		/* Initialize cURL, escape the selected row's text and construct
@@ -165,7 +157,8 @@ static void news_popup_draw_func(popup_struct *popup)
 	}
 
 	/* Haven't downloaded the text yet, inform the user. */
-	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 10, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, NULL);
+	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 10, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
+	return 1;
 }
 
 /** @copydoc popup_struct::event_func */
@@ -322,23 +315,23 @@ static void char_creation_enter(list_struct *list)
 /**
  * Adjust specified stat, taking into account the character's min/max
  * stats.
- * @param stat Stat ID.
+ * @param stat_id Stat ID.
  * @param adjust If higher than 0 the stat will be increased, if lower
  * than 0 it will be decreased. */
-static void char_stat_change(int stat, int adjust)
+static void char_stat_change(int stat_id, int adjust)
 {
-	int points = s_settings->characters[char_race_selected].stats_base[stat] + char_points_assigned[stat];
+	int points = s_settings->characters[char_race_selected].stats_base[stat_id] + char_points_assigned[stat_id];
 
 	/* Add to stat, if possible. */
-	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat])
+	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat_id])
 	{
-		char_points_assigned[stat]++;
+		char_points_assigned[stat_id]++;
 		char_points_left--;
 	}
 	/* Subtract from stat, if possible. */
-	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat])
+	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat_id])
 	{
-		char_points_assigned[stat]--;
+		char_points_assigned[stat_id]--;
 		char_points_left++;
 	}
 }
@@ -360,18 +353,21 @@ static int char_creation_key(list_struct *list, SDLKey key)
 }
 
 /** @copydoc popup_struct::draw_func_post */
-static void popup_draw_func_post(popup_struct *popup, int x, int y)
+static int popup_draw_func_post(popup_struct *popup)
 {
 	list_struct *list = NULL;
 	size_t i;
-	int face = 0;
+	int face = 0, x, y;
 	SDL_Rect box;
+
+	x = popup->x;
+	y = popup->y;
 
 	/* Not creating character, only show the message text window. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
 	{
 		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 132);
-		return;
+		return 1;
 	}
 
 	list = list_exists(LIST_CREATION);
@@ -386,7 +382,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	if (!list)
 	{
 		/* Create a new list. */
-		list = list_create(LIST_CREATION, x + 20, y, 7, 1, 0);
+		list = list_create(LIST_CREATION, 7, 1, 0);
 		list_set_focus(list);
 		list->handle_enter_func = char_creation_enter;
 
@@ -444,14 +440,14 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 		}
 	}
 
-	list_show(list);
+	list_show(list, x + 20, y);
 
 	/* Race picking, pick first possible gender. */
 	if (char_step == 0)
 	{
 		box.w = 460;
 		box.h = 96;
-		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 125, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		for (i = 0; i < GENDER_MAX; i++)
 		{
@@ -477,7 +473,7 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	{
 		box.w = 370;
 		box.h = 150;
-		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 10, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 10, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 	else
 	{
@@ -488,12 +484,11 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	if (char_step == 2)
 	{
 		int adjust = 0;
-		size_t i;
 
 		for (i = 0; i < NUM_STATS; i++)
 		{
 			/* Calculate the current stat value and show it. */
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_SIMPLE(COLOR_GREEN) : COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_GREEN : COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
 
 			/* One of the range buttons clicked? */
 			if (range_buttons_show(x + 80, y + 10 + i * 18, &adjust, 1))
@@ -502,8 +497,8 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 			}
 		}
 
-		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 150, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
-		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL, "%d", char_points_left);
+		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 150, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
 	}
 
 	y += 100;
@@ -516,96 +511,75 @@ static void popup_draw_func_post(popup_struct *popup, int x, int y)
 	/* Show previous button if we're not in the first step. */
 	if (char_step > 0)
 	{
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			char_creation_reset(list);
 		}
 	}
 
 	/* Show the next button, or the play button if we're in the last step. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		char_creation_enter(list);
 	}
+
+	return 1;
 }
 
 /**
  * Draw the server connection/character creation popup.
  * @param popup Popup. */
-static void popup_draw_func(popup_struct *popup)
+static int popup_draw_func(popup_struct *popup)
 {
-	_BLTFX bltfx;
 	uint8 downloading;
 	SDL_Rect box;
 	char buf[MAX_BUF];
-	int x, y, i;
+	int x, y;
 
 	/* Waiting to log in. */
 	if (GameStatus == GAME_STATUS_WAITFORPLAY)
 	{
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = Bitmaps[popup->bitmap_id]->bitmap->h;
-		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-		return;
+		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		return 1;
 	}
 	else if (GameStatus == GAME_STATUS_NEW_CHAR)
 	{
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 		box.h = 0;
-		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
+		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 40;
 		box.h = char_step == 2 ? 70 : 30;
-		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
-		return;
+		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		return 1;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
 	else if (GameStatus == GAME_STATUS_PLAY)
 	{
-		popup_destroy_visible();
 		list_remove_all();
-		return;
+		return 0;
 	}
 	/* Connection terminated while we were trying to login. */
 	else if (GameStatus <= GAME_STATUS_WAITLOOP)
 	{
-		popup_destroy_visible();
-		return;
+		return 0;
 	}
-
-	bltfx.surface = popup->surface;
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
 
 	/* Downloading the files, or updates haven't finished yet? */
 	downloading = GameStatus < GAME_STATUS_LOGIN || !file_updates_finished();
 
-	/* Show the progress dots. */
-	for (i = 0; i < LOGIN_PROGRESS_DOTS; i++)
-	{
-		sprite_blt(Bitmaps[progress_dot == i || !downloading ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], LOGIN_PROGRESS_X + Bitmaps[BITMAP_LOADING_ON]->bitmap->w * i, 30, NULL, &bltfx);
-	}
-
-	/* Progress the lit dot. */
-	if (downloading && SDL_GetTicks() - progress_ticks > LOGIN_PROGRESS_TICKS)
-	{
-		progress_ticks = SDL_GetTicks();
-		progress_dot++;
-
-		/* More than maximum, back to the first one. */
-		if (progress_dot >= LOGIN_PROGRESS_DOTS)
-		{
-			progress_dot = 0;
-		}
-	}
+	progress.done = !downloading;
+	progress_dots_show(&progress, popup->surface, 75, 30);
 
 	/* Show that we are connecting to the server. */
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
 	box.h = 0;
-	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 	if (downloading)
 	{
-		return;
+		return 1;
 	}
 
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w / 2;
@@ -615,15 +589,15 @@ static void popup_draw_func(popup_struct *popup)
 	/* Player name. */
 	if (GameStatus == GAME_STATUS_NAME)
 	{
-		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		text_input_string[0] = toupper(text_input_string[0]);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
-	else
+	else if (cpl.name[0])
 	{
 		cpl.name[0] = toupper(cpl.name[0]);
 		text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
-		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
 
 	y += 35;
@@ -642,13 +616,13 @@ static void popup_draw_func(popup_struct *popup)
 
 		if (GameStatus == GAME_STATUS_PSWD)
 		{
-			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 95, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 95, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 		}
 		else
 		{
 			text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
-			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 		}
 	}
 
@@ -666,8 +640,8 @@ static void popup_draw_func(popup_struct *popup)
 			*cp = '*';
 		}
 
-		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_SIMPLE(COLOR_WHITE), 0, BITMAP_LOGIN_INP, NULL);
+		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 		char_step = 0;
 		char_creation_reset(NULL);
 	}
@@ -676,7 +650,9 @@ static void popup_draw_func(popup_struct *popup)
 
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 45;
 	box.h = 120;
-	string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_LOGIN], x, y, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_LOGIN], x, y, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+
+	return 1;
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
@@ -766,8 +742,7 @@ static void list_handle_enter(list_struct *list)
 			popup->event_func = popup_event_func;
 			popup->destroy_callback_func = popup_destroy_callback_func;
 			GameStatus = GAME_STATUS_STARTCONNECT;
-			progress_dot = 0;
-			progress_ticks = SDL_GetTicks();
+			progress_dots_create(&progress);
 		}
 	}
 	else if (list->id == LIST_NEWS)
@@ -794,7 +769,7 @@ static void list_handle_esc(list_struct *list)
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
-void show_meta_server()
+void main_screen_render()
 {
 	int x, y;
 	list_struct *list;
@@ -804,21 +779,32 @@ void show_meta_server()
 	SDL_Rect box;
 
 	/* Active popup, no need to do anything. */
-	if (popup_get_visible() && !popup_overlay_need_update(popup_get_visible()))
+	if (popup_get_head() && !popup_overlay_need_update(popup_get_head()))
 	{
 		return;
 	}
 
 	x = 15;
-	y = Screensize->y - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
+	y = ScreenSurface->h - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
 
 	/* Background */
 	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
-	textwin_show(Bitmaps[BITMAP_INTRO]->bitmap->w, 1, Screensize->x - Bitmaps[BITMAP_INTRO]->bitmap->w - 2, Screensize->y - 3);
+	textwin_show(Bitmaps[BITMAP_INTRO]->bitmap->w, 1, ScreenSurface->w - Bitmaps[BITMAP_INTRO]->bitmap->w - 2, ScreenSurface->h - 3);
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
 
 	list = list_exists(LIST_SERVERS);
 	server_count = server_get_count();
+
+	/* Create the buttons. */
+	if (!list)
+	{
+		button_create(&button_play);
+		button_create(&button_refresh);
+		button_create(&button_settings);
+		button_create(&button_update);
+		button_create(&button_help);
+		button_create(&button_quit);
+	}
 
 	/* List doesn't exist or the count changed? Create new list. */
 	if (!list || last_server_count != server_count)
@@ -832,7 +818,7 @@ void show_meta_server()
 		}
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, x + 12, y + 8, 11, 3, 8);
+		list = list_create(LIST_SERVERS, 11, 3, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->handle_esc_func = list_handle_esc;
 		list_scrollbar_enable(list);
@@ -873,7 +859,7 @@ void show_meta_server()
 	}
 
 	/* Actually draw the list. */
-	list_show(list);
+	list_show(list, x + 12, y + 8);
 	node = server_get_id(list->row_selected - 1);
 
 	/* Do we have any selected server? If so, show its version and
@@ -881,21 +867,21 @@ void show_meta_server()
 	if (node)
 	{
 		snprintf(buf, sizeof(buf), "Version: %s", node->version);
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 
 		box.w = 410;
 		box.h = 48;
-		string_blt(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 197, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	/* Show whether we are connecting to the metaserver or not. */
 	if (ms_connecting(-1))
 	{
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 	}
 	else
 	{
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_SIMPLE(COLOR_GREEN), COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
 	}
 
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
@@ -905,7 +891,7 @@ void show_meta_server()
 
 	box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w;
 	box.h = 0;
-	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), TEXT_ALIGN_CENTER, &box);
+	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 	list = list_exists(LIST_NEWS);
 
@@ -915,7 +901,7 @@ void show_meta_server()
 		/* Start downloading. */
 		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
 
-		list = list_create(LIST_NEWS, x + 13, y + 10, 18, 1, 8);
+		list = list_create(LIST_NEWS, 18, 1, 8);
 		list->handle_enter_func = list_handle_enter;
 		list->handle_esc_func = list_handle_esc;
 		list_set_column(list, 0, 150, 7, NULL, -1);
@@ -956,7 +942,7 @@ void show_meta_server()
 	}
 
 	/* Show the news list. */
-	list_show(list);
+	list_show(list, x + 13, y + 10);
 
 	/* Calculate whether to show the eyes or not. Blinks every
 	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
@@ -972,23 +958,69 @@ void show_meta_server()
 		sprite_blt(Bitmaps[BITMAP_EYES], Bitmaps[BITMAP_INTRO]->bitmap->w - 90, 310, NULL, NULL);
 	}
 
-	/* Show the play button. */
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 10, "Play", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_quit.x = 489;
+	y += 2;
+
+	button_play.y = y + 10;
+	button_render(&button_play, "Play");
+
+	button_refresh.y = y + 35;
+	button_render(&button_refresh, "Refresh");
+
+	button_settings.y = y + 60;
+	button_render(&button_settings, "Settings");
+
+	button_update.y = y + 85;
+	button_render(&button_update, "Update");
+
+	button_help.y = y + 110;
+	button_render(&button_help, "Help");
+
+	button_quit.y = y + 224;
+	button_render(&button_quit, "Quit");
+}
+
+/**
+ * Handle event in the main screen.
+ * @param event The event to handle.
+ * @return 1 if the event was handled, 0 otherwise. */
+int main_screen_event(SDL_Event *event)
+{
+	if (button_event(&button_play, event))
 	{
 		list_handle_enter(list_exists(LIST_SERVERS));
+		return 1;
 	}
-
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 35, "Refresh", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+	else if (button_event(&button_refresh, event))
 	{
 		if (!ms_connecting(-1))
 		{
 			GameStatus = GAME_STATUS_META;
 		}
-	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, 489, y + 230, "Quit", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
+		return 1;
+	}
+	else if (button_event(&button_settings, event))
+	{
+		settings_open();
+		return 1;
+	}
+	else if (button_event(&button_update, event))
+	{
+		updater_open();
+		return 1;
+	}
+	else if (button_event(&button_help, event))
+	{
+		help_show("main screen");
+		return 1;
+	}
+	else if (button_event(&button_quit, event))
 	{
 		system_end();
 		exit(0);
+		return 1;
 	}
+
+	return 0;
 }

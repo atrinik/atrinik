@@ -27,45 +27,21 @@
  * @file
  * Sound related functions. */
 
-#include <include.h>
+#include <global.h>
 
 /** Path to the background music file being played. */
 static char *sound_background;
 /** If 1, will not allow music change based on map. */
 static uint8 sound_map_background_disabled = 0;
+/** Whether the sound system is active. */
+static uint8 enabled = 0;
+/** Doubly-linked list of all playing ambient sound effects. */
+static sound_ambient_struct *sound_ambient_head = NULL;
+
+#ifdef HAVE_SDL_MIXER
+
 /** Loaded sounds. */
 static sound_data_struct *sound_data;
-/** Number of ::sound_data. */
-static size_t sound_data_num;
-
-/**
- * Compare two sound data structure filenames.
- * @param a First sound data.
- * @param b Second sound data.
- * @return Return value of strcmp(). */
-static int sound_compare(const void *a, const void *b)
-{
-	return strcmp(((sound_data_struct *) a)->filename, ((sound_data_struct *) b)->filename);
-}
-
-/**
- * (Re-)Sort the ::sound_data array using Quicksort. */
-static void sound_sort()
-{
-	qsort((void *) sound_data, sound_data_num, sizeof(sound_data_struct), (void *) (int (*)()) sound_compare);
-}
-
-/**
- * Try to find the specified sound file name in ::sound_data.
- * @param filename What to look for.
- * @return The ::sound_data entry if found, NULL otherwise. */
-static sound_data_struct *sound_find(const char *filename)
-{
-	sound_data_struct key;
-
-	key.filename = (char *) filename;
-	return (sound_data_struct *) bsearch((void *) &key, (void *) sound_data, sound_data_num, sizeof(sound_data_struct), sound_compare);
-}
 
 /**
  * Add a sound entry to the ::sound_data array.
@@ -75,13 +51,15 @@ static sound_data_struct *sound_find(const char *filename)
  * @return Pointer to the entry in ::sound_data. */
 static sound_data_struct *sound_new(int type, const char *filename, void *data)
 {
-	sound_data_num++;
-	sound_data = realloc(sound_data, sizeof(sound_data_struct) * sound_data_num);
-	sound_data[sound_data_num - 1].type = type;
-	sound_data[sound_data_num - 1].filename = strdup(filename);
-	sound_data[sound_data_num - 1].data = data;
+	sound_data_struct *tmp;
 
-	return &sound_data[sound_data_num - 1];
+	tmp = malloc(sizeof(sound_data_struct));
+	tmp->type = type;
+	tmp->filename = strdup(filename);
+	tmp->data = data;
+	HASH_ADD_KEYPTR(hh, sound_data, tmp->filename, strlen(tmp->filename), tmp);
+
+	return tmp;
 }
 
 /**
@@ -101,65 +79,82 @@ static void sound_free(sound_data_struct *tmp)
 
 		default:
 			LOG(llevBug, "sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
-			return;
+			break;
 	}
 
 	free(tmp->filename);
+	free(tmp);
 }
+
+#endif
 
 /**
  * Initialize the sound system. */
 void sound_init()
 {
 	sound_background = NULL;
+
+#ifdef HAVE_SDL_MIXER
 	sound_data = NULL;
-	sound_data_num = 0;
+	enabled = 1;
 
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0)
 	{
-		LOG(llevError, "sound_init(): Couldn't set sound device. Reason: %s\n", SDL_GetError());
+		draw_info_format(COLOR_RED, "Could not initialize audio device; sound will not be heard. Reason: %s", Mix_GetError());
+		enabled = 0;
 	}
+#else
+	enabled = 0;
+#endif
 }
 
 /**
  * Deinitialize the sound system. */
 void sound_deinit()
 {
-	size_t i;
+#ifdef HAVE_SDL_MIXER
+	sound_data_struct *curr, *tmp;
 
-	for (i = 0; i < sound_data_num; i++)
+	HASH_ITER(hh, sound_data, curr, tmp)
 	{
-		sound_free(&sound_data[i]);
+		HASH_DEL(sound_data, curr);
+		sound_free(curr);
 	}
 
-	free(sound_data);
-	sound_data = NULL;
-	sound_data_num = 0;
 	Mix_CloseAudio();
+#endif
+
+	enabled = 0;
 }
 
 /**
  * Add sound effect to the playing queue.
  * @param filename Sound file name to play. Will be loaded as needed.
  * @param volume Volume to play at.
- * @param loop How many times to loop, -1 for infinite number. */
-static void sound_add_effect(const char *filename, int volume, int loop)
+ * @param loop How many times to loop, -1 for infinite number.
+ * @return Channel the sound effect is being played on, -1 on failure. */
+static int sound_add_effect(const char *filename, int volume, int loop)
 {
+#ifdef HAVE_SDL_MIXER
 	int channel;
 	sound_data_struct *tmp;
-	Mix_Chunk *chunk = NULL;
+
+	if (!enabled)
+	{
+		return -1;
+	}
 
 	/* Try to find the sound first. */
-	tmp = sound_find(filename);
+	HASH_FIND_STR(sound_data, filename, tmp);
 
 	if (!tmp)
 	{
-		chunk = Mix_LoadWAV(filename);
+		Mix_Chunk *chunk = Mix_LoadWAV(filename);
 
 		if (!chunk)
 		{
 			LOG(llevBug, "sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
-			return;
+			return -1;
 		}
 
 		/* We loaded it now, so add it to the array of loaded sounds. */
@@ -170,16 +165,19 @@ static void sound_add_effect(const char *filename, int volume, int loop)
 
 	if (channel == -1)
 	{
-		return;
+		return -1;
 	}
 
-	Mix_Volume(channel, (int) (((double) options.sound_volume / (double) 100) * ((double) volume * ((double) MIX_MAX_VOLUME / (double) 100))));
+	Mix_Volume(channel, (int) ((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) * ((double) volume * (MIX_MAX_VOLUME / 100.0))));
 
-	/* Re-sort the array as needed. */
-	if (chunk)
-	{
-		sound_sort();
-	}
+	return channel;
+#else
+	(void) filename;
+	(void) volume;
+	(void) loop;
+
+	return -1;
+#endif
 }
 
 /**
@@ -195,15 +193,36 @@ void sound_play_effect(const char *filename, int volume)
 }
 
 /**
+ * Same as sound_play_effect(), but allows specifying how many times to
+ * loop the sound effect.
+ * @param filename Sound file name to play.
+ * @param volume Volume to play at.
+ * @param loop How many times to loop the sound effect, -1 to loop it
+ * infinitely.
+ * @return Channel the sound effect will be playing on, -1 on failure. */
+int sound_play_effect_loop(const char *filename, int volume, int loop)
+{
+	char path[HUGE_BUF];
+
+	snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
+	return sound_add_effect(file_path(path, "r"), volume, loop);
+}
+
+/**
  * Start background music.
  * @param filename Filename of the music to start.
  * @param volume Volume to use.
  * @param loop How many times to loop, -1 for infinite number. */
 void sound_start_bg_music(const char *filename, int volume, int loop)
 {
+#ifdef HAVE_SDL_MIXER
 	char path[HUGE_BUF];
 	sound_data_struct *tmp;
-	Mix_Music *music = NULL;
+
+	if (!enabled)
+	{
+		return;
+	}
 
 	if (!strcmp(filename, "no_music") || !strcmp(filename, "Disable music"))
 	{
@@ -220,11 +239,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	}
 
 	/* Try to find the music. */
-	tmp = sound_find(path);
+	HASH_FIND_STR(sound_data, path, tmp);
 
 	if (!tmp)
 	{
-		music = Mix_LoadMUS(file_path(path, "r"));
+		Mix_Music *music = Mix_LoadMUS(file_path(path, "r"));
 
 		if (!music)
 		{
@@ -250,21 +269,27 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	{
 		Mix_PauseMusic();
 	}
-
-	/* Re-sort the array as needed. */
-	if (music)
-	{
-		sound_sort();
-	}
+#else
+	(void) filename;
+	(void) volume;
+	(void) loop;
+#endif
 }
 
 /**
  * Stop the background music, if there is any. */
 void sound_stop_bg_music()
 {
+	if (!enabled)
+	{
+		return;
+	}
+
 	if (sound_background)
 	{
+#ifdef HAVE_SDL_MIXER
 		Mix_HaltMusic();
+#endif
 		free(sound_background);
 		sound_background = NULL;
 	}
@@ -295,7 +320,7 @@ void update_map_bg_music(const char *bg_music)
 			return;
 		}
 
-		sound_start_bg_music(filename, options.music_volume + vol, loop);
+		sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + vol, loop);
 	}
 }
 
@@ -303,14 +328,20 @@ void update_map_bg_music(const char *bg_music)
  * Update volume of the background sound being played. */
 void sound_update_volume()
 {
-	Mix_VolumeMusic(options.music_volume);
+	if (!enabled)
+	{
+		return;
+	}
+
+#ifdef HAVE_SDL_MIXER
+	Mix_VolumeMusic(setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC));
 
 	/* If there is any background music, due to a bug in SDL_mixer, we
 	 * may need to pause or unpause the music. */
 	if (sound_background)
 	{
 		/* If the new volume is 0, pause the music. */
-		if (options.music_volume == 0)
+		if (setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) == 0)
 		{
 			if (!Mix_PausedMusic())
 			{
@@ -323,6 +354,7 @@ void sound_update_volume()
 			Mix_ResumeMusic();
 		}
 	}
+#endif
 }
 
 /**
@@ -394,27 +426,36 @@ void SoundCmd(uint8 *data, int len)
 	if (type == CMD_SOUND_EFFECT)
 	{
 		sint8 x, y;
-		int dist_volume;
-		char path[HUGE_BUF];
+		int channel;
 
 		x = data[pos++];
 		y = data[pos++];
-		dist_volume = isqrt(POW2(0 - x) + POW2(0 - y)) - 1;
 
-		if (dist_volume < 0)
+		channel = sound_play_effect_loop(filename, 100 + volume, loop);
+
+		if (channel != -1)
 		{
-			dist_volume = 0;
-		}
+			int angle, distance;
 
-		dist_volume = 100 - dist_volume * (100 / MAX_SOUND_DISTANCE);
-		snprintf(path, sizeof(path), DIRECTORY_SFX"/%s", filename);
-		sound_add_effect(path, dist_volume + volume, loop);
+			angle = 0;
+			distance = (255 * isqrt(POW2(x) + POW2(y))) / MAX_SOUND_DISTANCE;
+
+			if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance >= (255 / MAX_SOUND_DISTANCE) * 2)
+			{
+				angle = atan2(-y, x) * (180 / M_PI);
+				angle = 90 - angle;
+			}
+
+#ifdef HAVE_SDL_MIXER
+			Mix_SetPosition(channel, angle, distance);
+#endif
+		}
 	}
 	else if (type == CMD_SOUND_BACKGROUND)
 	{
 		if (!sound_map_background_disabled)
 		{
-			sound_start_bg_music(filename, options.music_volume + volume, loop);
+			sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume, loop);
 		}
 	}
 	else if (type == CMD_SOUND_ABSOLUTE)
@@ -426,4 +467,189 @@ void SoundCmd(uint8 *data, int len)
 		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
 		return;
 	}
+}
+
+/**
+ * Free an ambient sound effect.
+ *
+ * The sound effect
+ * @param tmp Sound effect to free. */
+static void sound_ambient_free(sound_ambient_struct *tmp)
+{
+	DL_DELETE(sound_ambient_head, tmp);
+#ifdef HAVE_SDL_MIXER
+	Mix_HaltChannel(tmp->channel);
+#endif
+	free(tmp);
+}
+
+/**
+ * Set distance and angle of an ambient sound effect.
+ * @param tmp Sound effect. */
+static void sound_ambient_set_position(sound_ambient_struct *tmp)
+{
+#ifdef HAVE_SDL_MIXER
+	int x, y, angle, distance, cx, cy;
+
+	cx = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2;
+	cy = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+
+	/* The x/y positions stored in the sound effect structure are the
+	 * positions on the map, so we have to convert it to coordinates
+	 * relative to the player. */
+	x = tmp->x - cx;
+	y = tmp->y - cy;
+
+	angle = 0;
+	/* Calculate the distance. */
+	distance = MIN(255, (255 * isqrt(POW2(x) + POW2(y))) / (tmp->max_range + (tmp->max_range / 2)));
+
+	/* Calculate the angle. */
+	if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance)
+	{
+		angle = atan2(-y, x) * (180 / M_PI);
+		angle = 90 - angle;
+	}
+
+	Mix_SetPosition(tmp->channel, angle, distance);
+#else
+	(void) tmp;
+#endif
+}
+
+/**
+ * Handle map scroll for ambient sound effects. We need to check whether
+ * the sound effect is now off-screen and if so, remove it. We also need
+ * to adjust the angle and distance effects of the channel the sound
+ * effect is playing on.
+ * @param xoff X offset.
+ * @param yoff Y offset. */
+void sound_ambient_mapcroll(int xoff, int yoff)
+{
+	sound_ambient_struct *sound_ambient, *tmp;
+
+	DL_FOREACH_SAFE(sound_ambient_head, sound_ambient, tmp)
+	{
+		/* Adjust the coordinates. */
+		sound_ambient->x -= xoff;
+		sound_ambient->y -= yoff;
+
+		/* If the sound effect is now off-screen, remove it. */
+		if (sound_ambient->x < 0 || sound_ambient->x >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) || sound_ambient->y < 0 || sound_ambient->y >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
+		{
+			sound_ambient_free(sound_ambient);
+			continue;
+		}
+
+		/* Adjust the distance and angle. */
+		sound_ambient_set_position(sound_ambient);
+	}
+}
+
+/**
+ * Stop all ambient sound effects. */
+void sound_ambient_clear()
+{
+	sound_ambient_struct *sound_ambient, *tmp;
+
+	DL_FOREACH_SAFE(sound_ambient_head, sound_ambient, tmp)
+	{
+		sound_ambient_free(sound_ambient);
+	}
+}
+
+/**
+ * The server informs us about the ambient sound effects to play/stop.
+ * @param data Data.
+ * @param len Length of 'data'. */
+void cmd_sound_ambient(uint8 *data, int len)
+{
+	int pos = 0, tag, tag_old;
+	uint8 x, y;
+	sound_ambient_struct *sound_ambient;
+
+	/* Loop through the data, as there may be multiple sound effects. */
+	while (pos < len)
+	{
+		x = data[pos++];
+		y = data[pos++];
+		tag_old = GetInt_String(data + pos);
+		pos += 4;
+		tag = GetInt_String(data + pos);
+		pos += 4;
+
+		/* If there is an old tag, the server is telling us to stop
+		 * playing a sound effect. */
+		if (tag_old)
+		{
+			DL_FOREACH(sound_ambient_head, sound_ambient)
+			{
+				if (sound_ambient->tag == tag_old)
+				{
+					sound_ambient_free(sound_ambient);
+					break;
+				}
+			}
+		}
+
+		/* Is there a new sound effect to start playing? */
+		if (tag)
+		{
+			char filename[MAX_BUF];
+			uint8 volume, max_range;
+			int channel;
+
+			/* Get the sound effect filename and volume. */
+			GetString_String(data, &pos, filename, sizeof(filename));
+			volume = data[pos++];
+			max_range = data[pos++];
+
+			/* Try to start playing the sound effect. */
+			channel = sound_play_effect_loop(filename, volume, -1);
+
+			/* Successfully started playing the effect, add it to the
+			 * list of active sound effects. */
+			if (channel != -1)
+			{
+				sound_ambient = calloc(1, sizeof(*sound_ambient));
+				sound_ambient->channel = channel;
+				sound_ambient->tag = tag;
+				sound_ambient->x = x;
+				sound_ambient->y = y;
+				sound_ambient->max_range = max_range;
+				sound_ambient_set_position(sound_ambient);
+				DL_APPEND(sound_ambient_head, sound_ambient);
+			}
+		}
+	}
+}
+
+/**
+ * Pause playing background music. */
+void sound_pause_music()
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_PauseMusic();
+#endif
+}
+
+/**
+ * Resume playing background music. */
+void sound_resume_music()
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_ResumeMusic();
+#endif
+}
+
+/**
+ * Check whether background music is being played.
+ * @return 1 if background music is being played, 0 otherwise. */
+int sound_playing_music()
+{
+#ifdef HAVE_SDL_MIXER
+	return Mix_PlayingMusic();
+#else
+	return 0;
+#endif
 }

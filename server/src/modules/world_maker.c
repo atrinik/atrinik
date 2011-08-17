@@ -357,6 +357,8 @@ void world_maker()
 	int x, y, layer, got_one;
 	int xpos = 0, ypos = 0;
 	FILE *def_fp;
+	object **info_objects = NULL;
+	size_t num_info_objects = 0;
 
 	/* Initialize the image colors. */
 	wm_images_init();
@@ -426,7 +428,7 @@ void world_maker()
 		/* Custom background to use? */
 		if (r->map_bg)
 		{
-			int im_r, im_g, im_b;
+			uint32 im_r, im_g, im_b;
 
 			/* Parse HTML color and fill the image with it. */
 			if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3)
@@ -441,9 +443,6 @@ void world_maker()
 			gdImageSaveAlpha(im, 1);
 			gdImageFill(im, 0, 0, gdTransparent);
 		}
-
-		object **info_objects = NULL;
-		size_t num_info_objects = 0;
 
 		/* Go through the maps. */
 		for (i = 0; i < wm_r->num_maps; i++)

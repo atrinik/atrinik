@@ -25,24 +25,48 @@
 
 /**
  * @file
- *  */
+ * Handles fps widget. */
 
-#include <include.h>
+#include <global.h>
+
+static Uint32 fps_lasttime;
+static Uint32 fps_current;
+/** Number of frames drawn. */
+static Uint32 fps_frames;
 
 /**
- * Show the frames per second widget.
- * @param x X position.
- * @param y Y position. */
+ * Initialize variables used by fps widget. */
+void fps_init()
+{
+	fps_lasttime = SDL_GetTicks();
+	fps_current = fps_frames = 0;
+}
+
+/**
+ * Called at the end of each frame to calculate the current fps (if
+ * applicable). */
+void fps_do()
+{
+	fps_frames++;
+
+	if (fps_lasttime < SDL_GetTicks() - 1000)
+	{
+		fps_lasttime = SDL_GetTicks();
+		fps_current = fps_frames;
+		fps_frames = 0;
+	}
+}
+
+/**
+ * Show the fps widget
+ * @param widget Widget. */
 void widget_show_fps(widgetdata *widget)
 {
 	char buf[MAX_BUF];
 
-	if (!options.show_frame || !FrameCount)
-	{
-		return;
-	}
+	sprite_blt(Bitmaps[BITMAP_FPS], widget->x1, widget->y1, NULL, NULL);
 
-	snprintf(buf, sizeof(buf), "fps %d (%d) (%d %d) %s%s%s%s%s%s%s%s%s%s %d %d", ((LastTick - tmpGameTick) / FrameCount) ? 1000 / ((LastTick - tmpGameTick) / FrameCount) : 0, (LastTick - tmpGameTick) / FrameCount, GameStatus, cpl.input_mode, ScreenSurface->flags & SDL_FULLSCREEN ? "F" : "", ScreenSurface->flags & SDL_HWSURFACE ? "H" : "S", ScreenSurface->flags & SDL_HWACCEL ? "A" : "", ScreenSurface->flags & SDL_DOUBLEBUF ? "D" : "", ScreenSurface->flags & SDL_ASYNCBLIT ? "a" : "", ScreenSurface->flags & SDL_ANYFORMAT ? "f" : "", ScreenSurface->flags & SDL_HWPALETTE ? "P" : "", options.rleaccel_flag ? "R" : "", options.force_redraw ? "r" : "", options.use_rect ? "u" : "", options.used_video_bpp, options.real_video_bpp);
-
-	StringBlt(ScreenSurface, &SystemFont, buf, widget->x1, widget->y1, COLOR_DEFAULT, NULL, NULL);
+	snprintf(buf, sizeof(buf), "%d", fps_current);
+	string_blt(ScreenSurface, FONT_ARIAL11, "fps:", widget->x1 + 5, widget->y1 + 4, COLOR_WHITE, 0, NULL);
+	string_blt(ScreenSurface, FONT_ARIAL11, buf, widget->x1 + widget->wd - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y1 + 4, COLOR_WHITE, 0, NULL);
 }

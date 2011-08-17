@@ -28,9 +28,6 @@
  * This file deals with the image related communication to the client. */
 
 #include <global.h>
-
-#include <newclient.h>
-#include <newserver.h>
 #include <loader.h>
 #include "zlib.h"
 
@@ -133,7 +130,7 @@ void read_client_images()
 {
 	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
 	FILE *infile, *fbmap;
-	int num, len, compressed, fileno, i;
+	int num, len, compressed, file_num, i;
 
 	memset(facesets, 0, sizeof(facesets));
 
@@ -176,17 +173,17 @@ void read_client_images()
 
 	/* Loaded the faceset information - now need to load up the
 	 * actual faces. */
-	for (fileno = 0; fileno < MAX_FACE_SETS; fileno++)
+	for (file_num = 0; file_num < MAX_FACE_SETS; file_num++)
 	{
 		/* If prefix is not set, this is not used */
-		if (!facesets[fileno].prefix)
+		if (!facesets[file_num].prefix)
 		{
 			continue;
 		}
 
-		facesets[fileno].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
+		facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
 
-		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.datadir, fileno);
+		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.datadir, file_num);
 		LOG(llevDebug, "Loading image file %s\n", filename);
 
 		/* We don't use more than one face set here! */
@@ -231,16 +228,16 @@ void read_client_images()
 
 			/* We don't actually care about the name if the image that
 			 * is embedded in the image file, so just ignore it. */
-			facesets[fileno].faces[num].datalen = len;
-			facesets[fileno].faces[num].data = malloc(len);
+			facesets[file_num].faces[num].datalen = len;
+			facesets[file_num].faces[num].data = malloc(len);
 
-			if ((i = fread(facesets[fileno].faces[num].data, len, 1, infile)) != 1)
+			if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1)
 			{
 				LOG(llevError, "read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
 			}
 
-			facesets[fileno].faces[num].checksum = (uint32) crc32(1L, facesets[fileno].faces[num].data, len);
-			snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[fileno].faces[num].checksum, new_faces[num].name);
+			facesets[file_num].faces[num].checksum = (uint32) crc32(1L, facesets[file_num].faces[num].data, len);
+			snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[file_num].faces[num].checksum, new_faces[num].name);
 			fputs(buf, fbmap);
 		}
 

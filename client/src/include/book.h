@@ -35,9 +35,4 @@
 /** Maximum height of the book content. */
 #define BOOK_CONTENT_HEIGHT (Bitmaps[BITMAP_BOOK]->bitmap->h - 80)
 
-/** X position of the book. */
-#define BOOK_BACKGROUND_X (Screensize->x / 2 - Bitmaps[BITMAP_BOOK]->bitmap->w / 2)
-/** Y position of the book. */
-#define BOOK_BACKGROUND_Y (Screensize->y / 2 - Bitmaps[BITMAP_BOOK]->bitmap->h / 2)
-
 #endif
