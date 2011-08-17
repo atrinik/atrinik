@@ -152,7 +152,7 @@ int read_bmap_names()
 
 	new_faces = (New_Face *) malloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
-	for (i = 0; i <= nrofpixmaps; i++)
+	for (i = 0; i < nrofpixmaps + 1; i++)
 	{
 		new_faces[i].name = "";
 		new_faces[i].number = i;

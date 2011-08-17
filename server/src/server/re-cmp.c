@@ -528,7 +528,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 								return NULL;
 							}
 #endif
-							for (i = first; i <= last; i++)
+							for (i = first; i < last + 1; i++)
 							{
 								sel->u.array[i] = !neg;
 							}

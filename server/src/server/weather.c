@@ -54,7 +54,7 @@ void init_world_darkness()
 		world_darkness -= season_timechange[tod.season][i];
 	}
 
-	for (i = 0; i <= tod.hour; i++)
+	for (i = 0; i < tod.hour + 1; i++)
 	{
 		world_darkness -= season_timechange[tod.season][i];
 	}

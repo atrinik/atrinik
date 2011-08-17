@@ -597,9 +597,9 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
 	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
 
-	for (i = -range; i <= range; i++)
+	for (i = -range; i < range + 1; i++)
 	{
-		for (j = -range; j <= range; j++)
+		for (j = -range; j < range + 1; j++)
 		{
 			xt = op->x + i;
 			yt = op->y + j;

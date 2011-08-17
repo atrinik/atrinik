@@ -1721,14 +1721,14 @@ fix_player_jump_resi:
 	op->stats.maxsp += op->arch->clone.stats.maxsp + op->arch->clone.stats.maxsp;
 	op->stats.maxgrace += op->arch->clone.stats.maxgrace + op->arch->clone.stats.maxgrace;
 
-	for (i = 1; i <= op->level; i++)
+	for (i = 1; i < op->level + 1; i++)
 	{
 		op->stats.maxhp += pl->levhp[i];
 	}
 
 	if (mana_obj)
 	{
-		for (i = 1; i <= mana_obj->level; i++)
+		for (i = 1; i < mana_obj->level + 1; i++)
 		{
 			op->stats.maxsp += pl->levsp[i];
 		}
@@ -1736,7 +1736,7 @@ fix_player_jump_resi:
 
 	if (grace_obj)
 	{
-		for (i = 1; i <= grace_obj->level; i++)
+		for (i = 1; i < grace_obj->level + 1; i++)
 		{
 			op->stats.maxgrace += pl->levgrace[i];
 		}
