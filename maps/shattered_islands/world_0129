@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-07-17 emperorbma
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -1868,7 +1868,9 @@ x 14
 y 21
 end
 arch sign_generic
-name Dormitory A
+msg
+Dormitory A
+endmsg
 direction 3
 x 14
 y 21

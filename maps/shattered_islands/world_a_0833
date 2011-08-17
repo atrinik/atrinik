@@ -1,7 +1,7 @@
 arch map
 name Asteria Sewers
 msg
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -632,9 +632,10 @@ y 10
 end
 arch sign
 msg
-In case of an invasion, this lever allows the sewers to be closed to intruders.
+Stupid maggots!  Don't just run away like an idiot the next time that invaders try to break in.  If invaders are coming, use the lever to close off the sewers first.  The last time we had some guests, we had to spend a week routing out the sewers.  Remember, the safety of this city relies on YOUR vigilence.
+
+~ Captain of the Guards
 endmsg
-name Invasion Gate control
 x 3
 y 10
 end
