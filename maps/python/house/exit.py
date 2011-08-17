@@ -25,9 +25,7 @@ if l[0] == "everlink":
 	# Going to Everlink, just map coords of Everlink.
 	else:
 		pos = house.get_everlink(house.everlink_pos)
-
-		if house.has_house():
-			house.set_last_house(l[1])
+		house.set_last_house(l[1])
 # Getting out of their house, get the location where they should appear.
 elif l[1] == "out":
 	pos = house.get(house.portal_out)
