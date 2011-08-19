@@ -207,6 +207,52 @@ enum
 };
 
 /**
+ * Structure that holds information about markup and other things when
+ * blitting. */
+typedef struct text_blit_info
+{
+	/** Anchor tag position. */
+	char *anchor_tag;
+
+	/** Action anchor tag should execute. */
+	char anchor_action[HUGE_BUF];
+
+	/** Outline tag color. */
+	SDL_Color outline_color;
+
+	/** Whether to show an outline. */
+	uint8 outline_show;
+
+	/** Whether we are in old-style book title. */
+	uint8 in_book_title;
+
+	/** Alpha. */
+	uint8 used_alpha;
+
+	/** Whether we are in bold tag. */
+	uint8 in_bold;
+
+	/** Whether we are in italic tag. */
+	uint8 in_italic;
+
+	/** Whether we are in underline tag. */
+	uint8 in_underline;
+
+	/**
+	 *  If 1, the character is not being drawn due to line skip (due to
+	 * scroll value for example). */
+	uint8 obscured;
+
+	/** Whether bold width is being calculated. */
+	uint8 calc_bold;
+
+	/**
+	 * Whether font width (font changed using a tag) is being
+	 * calculated. */
+	int calc_font;
+} text_blit_info;
+
+/**
  * @defgroup TEXT_xxx Text flags
  * Various text flags for controlling behavior of string_blt().
  *@{*/

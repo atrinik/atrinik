@@ -131,6 +131,9 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 	size_t pos = text_input_cursor_pos;
 	const char *cp = text;
 	int underscore_width = glyph_get_width(font, '_');
+	text_blit_info info;
+
+	blt_character_init(&info);
 
 	box2.w = 0;
 
@@ -143,7 +146,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 			break;
 		}
 
-		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL, NULL);
+		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL, NULL, &info);
 		pos--;
 	}
 
