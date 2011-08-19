@@ -30,8 +30,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define HUGE_BUF 4096
-#define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
 #define COLOR_BUF 7

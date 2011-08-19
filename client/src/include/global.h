@@ -174,6 +174,9 @@ typedef enum LogLevel
 	llevInfo
 } LogLevel;
 
+#define HUGE_BUF 4096
+#define MAX_BUF 256
+
 #include <version.h>
 #include <item.h>
 #include <text.h>
