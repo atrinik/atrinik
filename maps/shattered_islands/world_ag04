@@ -2,6 +2,7 @@ arch map
 name World
 msg
 Created:  2011-03-20 Alex Tokar
+Modified: 2011-08-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,6 +16,8 @@ tile_path_5 world_af05
 tile_path_6 world_af03
 tile_path_7 world_ah03
 tile_path_8 world_ah05
+bg_music campfire_tales.mid
+weather thunderstorm_heavy
 end
 arch water_lt3
 end
@@ -597,15 +600,15 @@ arch water_lt
 x 6
 y 8
 end
-arch water_lt4
+arch water_lt3
 x 6
 y 9
 end
-arch water_lt2
+arch water_lt
 x 6
 y 10
 end
-arch water_lt3
+arch water_lt
 x 6
 y 11
 end
@@ -613,23 +616,23 @@ arch water_lt2
 x 6
 y 12
 end
-arch water_lt4
+arch water_lt3
 x 6
 y 13
 end
-arch water_lt4
+arch water_lt3
 x 6
 y 14
 end
-arch water_lt4
+arch water_lt3
 x 6
 y 15
 end
-arch water_lt4
+arch water_lt
 x 6
 y 16
 end
-arch water_lt3
+arch water_lt2
 x 6
 y 17
 end
@@ -637,11 +640,11 @@ arch water_lt2
 x 6
 y 18
 end
-arch water_lt3
+arch water_lt
 x 6
 y 19
 end
-arch water_lt2
+arch water_lt3
 x 6
 y 20
 end
@@ -696,35 +699,79 @@ arch water_lt4
 x 7
 y 9
 end
-arch water_lt3
+arch ship_rail_s
+x 7
+y 9
+end
+arch ship_floor_ns_dark_1
 x 7
 y 10
 end
-arch water_lt3
+arch ship_rail_w
+x 7
+y 10
+end
+arch ship_floor_ns_dark_1
 x 7
 y 11
 end
-arch water_lt2
+arch ship_rail_w_hole
+x 7
+y 11
+end
+arch ship_floor_ns_dark_1
 x 7
 y 12
 end
-arch water_lt4
+arch ship_rail_w_hole
+x 7
+y 12
+end
+arch ship_floor_ns_dark_1
 x 7
 y 13
 end
-arch water_lt3
+arch ship_rail_w_hole
+x 7
+y 13
+end
+arch ship_floor_ns_dark_1
 x 7
 y 14
 end
-arch water_lt2
+arch ship_rail_w_hole
+x 7
+y 14
+end
+arch ship_floor_ns_dark_1
 x 7
 y 15
 end
-arch water_lt2
+arch tackelage_w_low
+x 7
+y 15
+end
+arch water_lt4
 x 7
 y 16
 end
-arch water_lt3
+arch ship_hull_prow_s_front_starboard_1_dark
+x 7
+y 16
+end
+arch ship_prow_s_starboard_a
+x 7
+y 16
+end
+arch water_lt2
+x 7
+y 17
+end
+arch ship_hull_prow_s_front_starboard_2_dark
+x 7
+y 17
+end
+arch ship_prow_s_starboard_b
 x 7
 y 17
 end
@@ -732,11 +779,11 @@ arch water_lt
 x 7
 y 18
 end
-arch water_lt
+arch water_lt4
 x 7
 y 19
 end
-arch water_lt
+arch water_lt3
 x 7
 y 20
 end
@@ -787,47 +834,108 @@ arch water_lt3
 x 8
 y 8
 end
-arch water_lt2
+arch sail_short_mast_s_3
+x 8
+y 8
+end
+arch water_lt3
 x 8
 y 9
 end
-arch water_lt4
+arch ship_rail_s
+x 8
+y 9
+end
+arch ship_floor_ns_dark_1
 x 8
 y 10
 end
-arch water_lt
+arch sail_short_mast_s_1
+x 8
+y 10
+end
+arch ship_floor_ns_dark_1
 x 8
 y 11
 end
-arch water_lt3
+arch spawn_point
+x 8
+y 11
+arch ranger
+type 83
+end
+end
+arch ship_floor_ns_dark_1
 x 8
 y 12
 end
-arch water_lt2
+arch ship_n_steering_wheel
+z 5
+x 8
+y 12
+end
+arch ship_rail_s_high
+x 8
+y 12
+end
+arch ship_floor_ns_dark_1
 x 8
 y 13
 end
-arch water_lt3
+arch ship_floor_ns_dark_1
 x 8
 y 14
 end
-arch water_lt3
+arch stairs_wood_down
+direction 5
+slaying deserted_tutorial_island/ship_lower_deck
+hp 2
+sp 6
+x 8
+y 14
+end
+arch ship_floor_ns_dark_1
 x 8
 y 15
 end
-arch water_lt3
+arch mast_s_short
+x 8
+y 15
+end
+arch ship_floor_ns_dark_1
 x 8
 y 16
 end
-arch water_lt
+arch sail_reffed_s
+z -40
+x 8
+y 16
+end
+arch ship_floor_ns_dark_1
 x 8
 y 17
 end
-arch water_lt4
+arch ship_prow_s_midship
+x 8
+y 17
+end
+arch water_lt3
 x 8
 y 18
 end
-arch water_lt4
+arch ship_hull_prow_s_front_3_dark
+x 8
+y 18
+end
+arch ship_prow_s_long
+x 8
+y 18
+end
+arch water_lt2
+x 8
+y 19
+end
+arch ship_hull_prow_s_front_2
 x 8
 y 19
 end
@@ -882,39 +990,84 @@ arch water_lt3
 x 9
 y 8
 end
-arch water_lt
+arch water_lt4
 x 9
 y 9
 end
-arch water_lt2
+arch ship_rail_s
+x 9
+y 9
+end
+arch ship_floor_ns_dark_1
 x 9
 y 10
 end
-arch water_lt
+arch ship_rail_e
+x 9
+y 10
+end
+arch ship_floor_ns_dark_1
 x 9
 y 11
 end
-arch water_lt2
+arch ship_rail_e_hole
+x 9
+y 11
+end
+arch ship_floor_ns_dark_1
 x 9
 y 12
 end
-arch water_lt4
+arch bollard_tied_e_3
+x 9
+y 12
+end
+arch ship_floor_ns_dark_1
 x 9
 y 13
 end
-arch water_lt3
+arch ship_floor_ns_dark_1
 x 9
 y 14
 end
-arch water_lt
+arch bollard_tied_e_3
+x 9
+y 14
+end
+arch ship_floor_ns_dark_1
 x 9
 y 15
 end
-arch water_lt4
+arch tackelage_e_low
+x 9
+y 15
+end
+arch ship_floor_ns_dark_1
 x 9
 y 16
 end
-arch water_lt
+arch ship_hull_prow_s_rear_2
+x 9
+y 16
+end
+arch ship_prow_s_strokeside_a
+x 9
+y 16
+end
+arch sail_reffed_s
+z -40
+x 9
+y 16
+end
+arch ship_floor_ns_dark_1
+x 9
+y 17
+end
+arch ship_hull_prow_s_rear_4
+x 9
+y 17
+end
+arch ship_prow_s_strokeside_b
 x 9
 y 17
 end
@@ -922,7 +1075,15 @@ arch water_lt3
 x 9
 y 18
 end
-arch water_lt3
+arch ship_hull_prow_s_rear_6
+x 9
+y 18
+end
+arch water_lt2
+x 9
+y 19
+end
+arch ship_hull_prow_s_front_1
 x 9
 y 19
 end
@@ -981,47 +1142,118 @@ arch water_lt2
 x 10
 y 9
 end
-arch water_lt
+arch floor_ruin6
+no_pass 1
 x 10
 y 10
 end
-arch water_lt
+arch water_lt_m
+direction 8
+x 10
+y 10
+end
+arch ship_hull_e_high_corner_n
+layer 3
+x 10
+y 10
+end
+arch floor_ruin2
+no_pass 1
 x 10
 y 11
 end
-arch water_lt3
+arch ship_hull_e_high
+x 10
+y 11
+end
+arch floor_ruin6
+no_pass 1
 x 10
 y 12
 end
-arch water_lt2
+arch ship_hull_e_high
+x 10
+y 12
+end
+arch bollard_tied_e_2
+x 10
+y 12
+end
+arch bridge_wood_EW.101
 x 10
 y 13
 end
-arch water_lt4
+arch floor_ruin2
+no_pass 1
 x 10
 y 14
 end
-arch water_lt3
+arch ship_hull_e_high
+x 10
+y 14
+end
+arch bollard_tied_e_2
+x 10
+y 14
+end
+arch floor_ruin2
+no_pass 1
 x 10
 y 15
 end
-arch water_lt4
+arch ship_hull_e_high
+x 10
+y 15
+end
+arch ship_hull_prow_s_rear_1
+no_pass 1
 x 10
 y 16
 end
-arch water_lt4
+arch sail_reffed_s
+z -40
+x 10
+y 16
+end
+arch floor_ruin3
+no_pass 1
 x 10
 y 17
 end
-arch water_lt2
+arch ship_hull_prow_s_rear_3
+x 10
+y 17
+end
+arch floor_ruin3
+no_pass 1
 x 10
 y 18
 end
-arch water_lt2
+arch water_lt2_m
+direction 7
+x 10
+y 18
+end
+arch ship_hull_prow_s_rear_5
+layer 3
+x 10
+y 18
+end
+arch floor_ruin2
 x 10
 y 19
 end
-arch water_lt2
+arch water_lt2_m
+direction 7
+x 10
+y 19
+end
+arch floor_ruin3
+x 10
+y 20
+end
+arch water_lt_m
+direction 6
 x 10
 y 20
 end
@@ -1072,55 +1304,73 @@ arch water_lt3
 x 11
 y 8
 end
-arch water_lt2
+arch floor_ruin2
 x 11
 y 9
 end
-arch water_lt
+arch water_lt_m
+direction 8
+x 11
+y 9
+end
+arch floor_ruin3
 x 11
 y 10
 end
-arch water_lt2
+arch floor_ruin5
 x 11
 y 11
 end
-arch water_lt2
+arch floor_ruin3
 x 11
 y 12
 end
-arch water_lt2
+arch bollard_tied_e_1
+x 11
+y 12
+end
+arch bridge_wood_EW.101
 x 11
 y 13
 end
-arch water_lt3
+arch floor_ruin3
 x 11
 y 14
 end
-arch water_lt4
+arch bollard_tied_e_1
+x 11
+y 14
+end
+arch floor_ruin5
 x 11
 y 15
 end
-arch water_lt
+arch floor_ruin6
 x 11
 y 16
 end
-arch water_lt4
+arch floor_ruin6
 x 11
 y 17
 end
-arch water_lt
+arch floor_ruin2
 x 11
 y 18
 end
-arch water_lt4
+arch floor_ruin2
 x 11
 y 19
 end
-arch water_lt
+arch floor_ruin5
 x 11
 y 20
 end
-arch water_lt4
+arch floor_ruin3
+x 11
+y 21
+end
+arch water_lt_m
+direction 6
 x 11
 y 21
 end
@@ -1163,63 +1413,77 @@ arch water_lt2
 x 12
 y 7
 end
-arch water_lt2
+arch floor_ruin3
 x 12
 y 8
 end
-arch water_lt4
+arch water_lt_m
+direction 8
+x 12
+y 8
+end
+arch floor_ruin6
 x 12
 y 9
 end
-arch water_lt2
+arch floor_ruin5
 x 12
 y 10
 end
-arch water_lt2
+arch floor_ruin2
 x 12
 y 11
 end
-arch water_lt2
+arch floor_ruin2
 x 12
 y 12
 end
-arch water_lt
+arch floor_ruin2
 x 12
 y 13
 end
-arch water_lt4
+arch bridge_wood_EW.131
+x 12
+y 13
+end
+arch floor_ruin3
 x 12
 y 14
 end
-arch water_lt
+arch floor_ruin3
 x 12
 y 15
 end
-arch water_lt
+arch floor_ruin5
 x 12
 y 16
 end
-arch water_lt2
+arch floor_ruin5
 x 12
 y 17
 end
-arch water_lt3
+arch floor_ruin5
 x 12
 y 18
 end
-arch water_lt2
+arch floor_ruin3
 x 12
 y 19
 end
-arch water_lt
+arch floor_ruin3
 x 12
 y 20
 end
-arch water_lt2
+arch floor_ruin2
 x 12
 y 21
 end
-arch water_lt
+arch floor_ruin3
+x 12
+y 22
+end
+arch water_lt_m
+direction 6
 x 12
 y 22
 end
@@ -1258,63 +1522,73 @@ arch water_lt
 x 13
 y 7
 end
-arch water_lt
+arch floor_ruin2
 x 13
 y 8
 end
-arch water_lt4
+arch water_lt_m
+direction 1
+x 13
+y 8
+end
+arch floor_ruin6
 x 13
 y 9
 end
-arch water_lt2
+arch floor_ruin5
 x 13
 y 10
 end
-arch water_lt4
+arch floor_ruin2
 x 13
 y 11
 end
-arch water_lt
+arch floor_ruin3
 x 13
 y 12
 end
-arch water_lt2
+arch floor_ruin5
 x 13
 y 13
 end
-arch water_lt4
+arch floor_ruin2
 x 13
 y 14
 end
-arch water_lt4
+arch floor_ruin6
 x 13
 y 15
 end
-arch water_lt2
+arch floor_ruin2
 x 13
 y 16
 end
-arch water_lt4
+arch floor_ruin3
 x 13
 y 17
 end
-arch water_lt3
+arch floor_ruin5
 x 13
 y 18
 end
-arch water_lt
+arch floor_ruin5
 x 13
 y 19
 end
-arch water_lt3
+arch floor_ruin5
 x 13
 y 20
 end
-arch water_lt2
+arch floor_ruin5
 x 13
 y 21
 end
-arch water_lt3
+arch floor_ruin3
+x 13
+y 22
+end
+arch water_lt_m
+direction 4
 x 13
 y 22
 end
@@ -1349,63 +1623,73 @@ arch water_lt4
 x 14
 y 6
 end
-arch water_lt4
+arch floor_ruin5
 x 14
 y 7
 end
-arch water_lt2
+arch water_lt3_m
+direction 1
+x 14
+y 7
+end
+arch floor_ruin3
 x 14
 y 8
 end
-arch water_lt
+arch floor_ruin5
 x 14
 y 9
 end
-arch water_lt
+arch floor_ruin5
 x 14
 y 10
 end
-arch water_lt3
+arch floor_ruin6
 x 14
 y 11
 end
-arch water_lt3
+arch floor_ruin6
 x 14
 y 12
 end
-arch water_lt2
+arch floor_ruin5
 x 14
 y 13
 end
-arch water_lt3
+arch floor_ruin3
 x 14
 y 14
 end
-arch water_lt3
+arch floor_ruin5
 x 14
 y 15
 end
-arch water_lt4
+arch floor_ruin2
 x 14
 y 16
 end
-arch water_lt4
+arch floor_ruin3
 x 14
 y 17
 end
-arch water_lt4
+arch floor_ruin3
 x 14
 y 18
 end
-arch water_lt3
+arch floor_ruin5
 x 14
 y 19
 end
-arch water_lt3
+arch floor_ruin5
 x 14
 y 20
 end
-arch water_lt2
+arch floor_ruin2
+x 14
+y 21
+end
+arch water_lt_m
+direction 4
 x 14
 y 21
 end
@@ -1444,63 +1728,73 @@ arch water_lt
 x 15
 y 6
 end
-arch water_lt2
+arch floor_ruin2
 x 15
 y 7
 end
-arch water_lt2
+arch water_lt_m
+direction 8
+x 15
+y 7
+end
+arch floor_ruin5
 x 15
 y 8
 end
-arch water_lt
+arch floor_ruin5
 x 15
 y 9
 end
-arch water_lt
+arch floor_ruin2
 x 15
 y 10
 end
-arch water_lt3
+arch floor_ruin2
 x 15
 y 11
 end
-arch water_lt3
+arch floor_ruin2
 x 15
 y 12
 end
-arch water_lt4
+arch floor_ruin2
 x 15
 y 13
 end
-arch water_lt
+arch floor_ruin5
 x 15
 y 14
 end
-arch water_lt
+arch floor_ruin6
 x 15
 y 15
 end
-arch water_lt3
+arch floor_ruin5
 x 15
 y 16
 end
-arch water_lt
+arch floor_ruin2
 x 15
 y 17
 end
-arch water_lt4
+arch floor_ruin6
 x 15
 y 18
 end
-arch water_lt
+arch floor_ruin5
 x 15
 y 19
 end
-arch water_lt
+arch floor_ruin2
 x 15
 y 20
 end
-arch water_lt3
+arch floor_ruin3
+x 15
+y 21
+end
+arch water_lt3_m
+direction 5
 x 15
 y 21
 end
@@ -1539,59 +1833,69 @@ arch water_lt2
 x 16
 y 6
 end
-arch water_lt2
+arch floor_ruin6
 x 16
 y 7
 end
-arch water_lt
+arch water_lt_m
+direction 2
+x 16
+y 7
+end
+arch floor_ruin5
 x 16
 y 8
 end
-arch water_lt
+arch floor_ruin3
 x 16
 y 9
 end
-arch water_lt
+arch floor_ruin2
 x 16
 y 10
 end
-arch water_lt
+arch floor_ruin5
 x 16
 y 11
 end
-arch water_lt
+arch floor_ruin3
 x 16
 y 12
 end
-arch water_lt2
+arch floor_ruin3
 x 16
 y 13
 end
-arch water_lt2
+arch floor_ruin5
 x 16
 y 14
 end
-arch water_lt
+arch floor_ruin2
 x 16
 y 15
 end
-arch water_lt4
+arch floor_ruin5
 x 16
 y 16
 end
-arch water_lt3
+arch floor_ruin5
 x 16
 y 17
 end
-arch water_lt3
+arch floor_ruin6
 x 16
 y 18
 end
-arch water_lt
+arch floor_ruin6
 x 16
 y 19
 end
-arch water_lt4
+arch floor_ruin6
+x 16
+y 20
+end
+arch water_lt_m
+direction 4
 x 16
 y 20
 end
@@ -1638,51 +1942,61 @@ arch water_lt
 x 17
 y 7
 end
-arch water_lt3
+arch floor_ruin2
 x 17
 y 8
 end
-arch water_lt2
+arch water_lt_m
+direction 2
+x 17
+y 8
+end
+arch floor_ruin2
 x 17
 y 9
 end
-arch water_lt4
+arch floor_ruin3
 x 17
 y 10
 end
-arch water_lt
+arch floor_ruin6
 x 17
 y 11
 end
-arch water_lt2
+arch floor_ruin6
 x 17
 y 12
 end
-arch water_lt3
+arch floor_ruin6
 x 17
 y 13
 end
-arch water_lt3
+arch floor_ruin6
 x 17
 y 14
 end
-arch water_lt2
+arch floor_ruin5
 x 17
 y 15
 end
-arch water_lt
+arch floor_ruin3
 x 17
 y 16
 end
-arch water_lt3
+arch floor_ruin2
 x 17
 y 17
 end
-arch water_lt4
+arch floor_ruin6
 x 17
 y 18
 end
-arch water_lt2
+arch floor_ruin6
+x 17
+y 19
+end
+arch water_lt2_m
+direction 5
 x 17
 y 19
 end
@@ -1737,47 +2051,57 @@ arch water_lt4
 x 18
 y 8
 end
-arch water_lt4
+arch floor_ruin2
 x 18
 y 9
 end
-arch water_lt4
+arch water_lt_m
+direction 2
+x 18
+y 9
+end
+arch floor_ruin3
 x 18
 y 10
 end
-arch water_lt4
+arch floor_ruin6
 x 18
 y 11
 end
-arch water_lt4
+arch floor_ruin3
 x 18
 y 12
 end
-arch water_lt2
+arch floor_ruin2
 x 18
 y 13
 end
-arch water_lt3
+arch floor_ruin3
 x 18
 y 14
 end
-arch water_lt3
+arch floor_ruin5
 x 18
 y 15
 end
-arch water_lt3
+arch floor_ruin2
 x 18
 y 16
 end
-arch water_lt3
+arch floor_ruin5
 x 18
 y 17
 end
-arch water_lt3
+arch floor_ruin2
 x 18
 y 18
 end
-arch water_lt4
+arch floor_ruin6
+x 18
+y 19
+end
+arch water_lt_m
+direction 4
 x 18
 y 19
 end
@@ -1836,39 +2160,49 @@ arch water_lt4
 x 19
 y 9
 end
-arch water_lt3
+arch floor_ruin2
 x 19
 y 10
 end
-arch water_lt3
+arch water_lt_m
+direction 2
+x 19
+y 10
+end
+arch floor_ruin3
 x 19
 y 11
 end
-arch water_lt2
+arch floor_ruin3
 x 19
 y 12
 end
-arch water_lt2
+arch floor_ruin5
 x 19
 y 13
 end
-arch water_lt2
+arch floor_ruin5
 x 19
 y 14
 end
-arch water_lt3
+arch floor_ruin3
 x 19
 y 15
 end
-arch water_lt2
+arch floor_ruin3
 x 19
 y 16
 end
-arch water_lt
+arch floor_ruin6
 x 19
 y 17
 end
-arch water_lt3
+arch floor_ruin3
+x 19
+y 18
+end
+arch water_lt2_m
+direction 5
 x 19
 y 18
 end
@@ -1935,35 +2269,45 @@ arch water_lt
 x 20
 y 10
 end
-arch water_lt4
+arch floor_ruin5
 x 20
 y 11
 end
-arch water_lt2
+arch water_lt_m
+direction 2
+x 20
+y 11
+end
+arch floor_ruin5
 x 20
 y 12
 end
-arch water_lt4
+arch floor_ruin6
 x 20
 y 13
 end
-arch water_lt
+arch floor_ruin6
 x 20
 y 14
 end
-arch water_lt4
+arch floor_ruin6
 x 20
 y 15
 end
-arch water_lt4
+arch floor_ruin6
 x 20
 y 16
 end
-arch water_lt4
+arch floor_ruin2
 x 20
 y 17
 end
-arch water_lt4
+arch floor_ruin6
+x 20
+y 18
+end
+arch water_lt_m
+direction 4
 x 20
 y 18
 end
@@ -2034,27 +2378,32 @@ arch water_lt4
 x 21
 y 11
 end
-arch water_lt2
+arch floor_ruin6
 x 21
 y 12
 end
-arch water_lt4
+arch water_lt_m
+direction 2
+x 21
+y 12
+end
+arch floor_ruin5
 x 21
 y 13
 end
-arch water_lt3
+arch floor_ruin2
 x 21
 y 14
 end
-arch water_lt
+arch floor_ruin6
 x 21
 y 15
 end
-arch water_lt
+arch floor_ruin2
 x 21
 y 16
 end
-arch water_lt2
+arch floor_ruin5
 x 21
 y 17
 end
