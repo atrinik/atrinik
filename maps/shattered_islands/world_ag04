@@ -16,8 +16,6 @@ tile_path_5 world_af05
 tile_path_6 world_af03
 tile_path_7 world_ah03
 tile_path_8 world_ah05
-bg_music campfire_tales.mid
-weather thunderstorm_heavy
 end
 arch water_lt3
 end

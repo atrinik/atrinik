@@ -201,6 +201,15 @@ direction 7
 x 1
 y 1
 end
+arch magic_mouth
+msg
+A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
+
+<yellow>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it, Alternatively, you can use the keyboard numpad to move around.</yellow>
+endmsg
+x 1
+y 1
+end
 arch ship_floor_ns_1
 x 1
 y 2
@@ -218,11 +227,31 @@ arch ship_floor_ns_3
 x 1
 y 4
 end
+arch magic_mouth
+msg
+You can see a huge hole in the boat's structure, which does not bode well. Hopefully it's not that bad...
+
+<yellow>Doors can be opened by walking into them, and will close automatically after a short while.</yellow>
+endmsg
+direction 1
+x 1
+y 4
+end
 arch ship_floor_ns_4
 x 1
 y 5
 end
 arch door_wood2
+x 1
+y 5
+end
+arch magic_mouth
+msg
+You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone shouting on the deck above, perhaps you should investigate.
+
+<yellow>Move on top of the stairs near you, and either press spacebar, or select them in the below inventory with arrow keys and press <b>A</b>, which stands for <b>Apply</b>, which is how you use objects.</yellow>
+endmsg
+direction 1
 x 1
 y 5
 end
