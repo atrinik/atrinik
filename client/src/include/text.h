@@ -254,24 +254,47 @@ enum
 #define TEXT_WIDTH 2048
 /*@}*/
 
+/**
+ * @defgroup COLOR_xxx Color HTML notations
+ * HTML notations of various common collors.
+ *@{*/
+/** White. */
 #define COLOR_WHITE "ffffff"
+/** Orange. */
 #define COLOR_ORANGE "ff9900"
+/** Navy (most used for NPC messages). */
 #define COLOR_NAVY "00ffff"
+/** Red. */
 #define COLOR_RED "ff3030"
+/** Green. */
 #define COLOR_GREEN "00ff00"
+/** Blue. */
 #define COLOR_BLUE "0080ff"
+/** Gray. */
 #define COLOR_GRAY "999999"
+/** Brown. */
 #define COLOR_BROWN "c07f40"
+/** Purple. */
 #define COLOR_PURPLE "cc66ff"
+/** Pink. */
 #define COLOR_PINK "ff9999"
+/** Yellow. */
 #define COLOR_YELLOW "ffff33"
+/** Dark navy. */
 #define COLOR_DK_NAVY "00c4c2"
+/** Dark green. */
 #define COLOR_DK_GREEN "006600"
+/** Dark orange. */
 #define COLOR_DK_ORANGE "ff6600"
+/** Bright purple. */
 #define COLOR_BRIGHT_PURPLE "ff66ff"
+/** Gold. */
 #define COLOR_HGOLD "d4d553"
+/** Dark gold. */
 #define COLOR_DGOLD "999900"
+/** Black. */
 #define COLOR_BLACK "000000"
+/*@}*/
 
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
