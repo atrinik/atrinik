@@ -582,6 +582,14 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		return;
 	}
 
+	if (tmp->map && sack->env)
+	{
+		if (trigger_event(EVENT_PICKUP, op, tmp, sack, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR))
+		{
+			return;
+		}
+	}
+
 	/* Trigger the map-wide put event. */
 	if (op->map && op->map->events && trigger_map_event(MEVENT_PUT, op->map, op, tmp, sack, NULL, nrof))
 	{
