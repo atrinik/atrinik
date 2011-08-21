@@ -167,7 +167,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 			/* Move the string after the found newline to the beginning,
 			 * effectively erasing the previous line. */
 			textwin->entries_size -= pos;
-			memcpy(textwin->entries, textwin->entries + pos, textwin->entries_size);
+			memmove(textwin->entries, textwin->entries + pos, textwin->entries_size);
 			textwin->entries[textwin->entries_size] = '\0';
 
 			/* Adjust the counts. */
