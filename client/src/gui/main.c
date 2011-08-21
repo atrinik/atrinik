@@ -779,7 +779,7 @@ void main_screen_render()
 	SDL_Rect box;
 
 	/* Active popup, no need to do anything. */
-	if (popup_get_head() && !popup_overlay_need_update(popup_get_head()))
+	if (popup_get_head() && !popup_overlay_need_update())
 	{
 		return;
 	}

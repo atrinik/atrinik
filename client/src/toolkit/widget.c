@@ -2090,7 +2090,7 @@ void process_widgets_rec(widgetdata *widget)
 	do
 	{
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible && (!popup || popup_overlay_need_update(popup)))
+		if (widget->show && widget->visible && (!popup || popup_overlay_need_update()))
 		{
 			process_widget(widget);
 		}
