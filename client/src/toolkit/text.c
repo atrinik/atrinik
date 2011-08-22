@@ -1452,7 +1452,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	}
 	else
 	{
-		LOG(llevBug, "string_blt(): Invalid color: %s\n", color_notation);
+		LOG(llevBug, "string_blt(): Invalid color: %s, text: %s\n", color_notation, text);
 		return;
 	}
 
