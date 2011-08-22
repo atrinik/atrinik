@@ -48,8 +48,6 @@
 #	define MODULEAPI
 #endif
 
-#include <global.h>
-
 /**
  * @defgroup PLUGIN_EVENT_xxx Plugin event types
  * The plugin event types.

@@ -174,11 +174,6 @@ extern struct mempool *pool_puddle;
 #define MEMPOOL_BYPASS_POOLS  2
 /*@}*/
 
-extern struct mempool *mempools[];
-extern struct mempool_chunk end_marker;
-extern struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties;
-extern int nrof_mempools;
-
 #define get_poolchunk(_pool_) get_poolchunk_array_real((_pool_), 0)
 #define get_poolarray(_pool_, _arraysize_) get_poolchunk_array_real((_pool_), nearest_pow_two_exp(_arraysize_))
 

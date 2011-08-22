@@ -36,9 +36,11 @@
 /** The archetype hash table. */
 static archetype *arch_table = NULL;
 
-/** True if doing arch initialization */
+/** True if doing arch initialization. */
 int arch_init;
 
+/** First archetype in a linked list. */
+archetype *first_archetype;
 /** Pointer to waypoint archetype. */
 archetype *wp_archetype;
 /** Pointer to empty_archetype archetype. */

@@ -381,10 +381,6 @@ enum
 	SRV_CLIENT_FILES
 };
 
-extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
-
-extern CS_Stats cst_tot, cst_lst;
-
 /** Set binary socket command. */
 #define SOCKET_SET_BINARY_CMD(__s__, __bc__) \
 	(__s__)->buf[0] = __bc__;                \

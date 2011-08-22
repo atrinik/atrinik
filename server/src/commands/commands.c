@@ -82,7 +82,7 @@ CommArray_s Commands[] =
 const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
 
 /** Emotion commands */
-CommArray_s CommunicationCommands [] =
+CommArray_s CommunicationCommands[] =
 {
 	{"nod",           command_nod,           1.0, 0},
 	{"dance",         command_dance,         1.0, 0},
@@ -150,7 +150,7 @@ CommArray_s CommunicationCommands [] =
 const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommArray_s);
 
 /** Wizard commands */
-CommArray_s WizCommands [] =
+CommArray_s WizCommands[] =
 {
 	{"dmsay",          command_dmsay,                  0.0, 0},
 	{"summon",         command_summon,                 0.0, 0},

@@ -27,6 +27,9 @@
  * @file
  * Artifact related structures */
 
+#ifndef ARTIFACT_H
+#define ARTIFACT_H
+
 /** The artifact structure. */
 typedef struct artifactstruct
 {
@@ -77,3 +80,5 @@ typedef struct artifactliststruct
 	 * -1 are "Allowed none" items. */
 	sint16 type;
 } artifactlist;
+
+#endif

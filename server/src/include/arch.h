@@ -56,7 +56,4 @@ typedef struct archt
 	UT_hash_handle hh;
 } archetype;
 
-archetype *first_archetype;
-int arch_init;
-
 #endif

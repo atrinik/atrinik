@@ -28,8 +28,6 @@
  * Object related code. */
 
 #include <global.h>
-
-#include <skillist.h>
 #include <loader.h>
 
 /**

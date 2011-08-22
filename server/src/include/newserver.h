@@ -319,8 +319,6 @@ typedef struct Socket_Info_struct
 	int allocated_sockets;
 } Socket_Info;
 
-extern Socket_Info socket_info;
-
 /**
  * A single file loaded from the updates directory that the client can
  * request. */

@@ -52,11 +52,11 @@ typedef struct ms_update_info
 
 /**
  * Mutex for protecting metaserver information. */
-pthread_mutex_t ms_info_mutex;
+static pthread_mutex_t ms_info_mutex;
 
 /**
  * The actual metaserver information. */
-ms_update_info metaserver_info;
+static ms_update_info metaserver_info;
 
 /**
  * Updates the ::metaserver_info. */

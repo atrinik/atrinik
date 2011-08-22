@@ -83,6 +83,7 @@
  * @file
  * This file handles the @ref plugin_arena "Arena plugin" functions. */
 
+#define GLOBAL_NO_PROTOTYPES
 #include <global.h>
 #include <stdarg.h>
 

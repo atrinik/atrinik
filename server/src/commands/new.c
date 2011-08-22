@@ -608,7 +608,7 @@ typedef struct new_char_struct
 } new_char_struct;
 
 /** All the loaded characters. */
-new_char_struct *new_chars = NULL;
+static new_char_struct *new_chars = NULL;
 /** Number of ::new_chars. */
 static size_t num_new_chars = 0;
 

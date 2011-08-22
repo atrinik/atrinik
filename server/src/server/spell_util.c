@@ -28,6 +28,7 @@
  * Spell related helper functions. */
 
 #include <global.h>
+#include <spellist.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick

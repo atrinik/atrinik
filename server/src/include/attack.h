@@ -108,7 +108,4 @@ typedef enum _attacks
 #define AT_INTERNAL			0x00800000
 /*@}*/
 
-char *attack_name[NROFATTACKS];
-char *attack_save[NROFATTACKS];
-
 #endif

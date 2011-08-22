@@ -27,8 +27,8 @@
  * @file
  * Spells list. */
 
-#include "sounds.h"
-#include "spells.h"
+#ifndef SPELLIST_H
+#define SPELLIST_H
 
 /** Array of all the spells. */
 spell_struct spells[NROFREALSPELLS] =
@@ -474,3 +474,5 @@ char *spellpathnames[NRSPELLPATHS] =
 	"Death",
 	"Light"
 };
+
+#endif

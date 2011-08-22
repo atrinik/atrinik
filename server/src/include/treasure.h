@@ -36,9 +36,6 @@
 /** Number of coin types */
 #define NUM_COINS 4
 
-extern char *coins[NUM_COINS + 1];
-extern archetype *coins_arch[NUM_COINS];
-
 /**
  * @defgroup GT_xxx Treasure generation flags
  * Treasure generation flags.

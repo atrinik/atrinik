@@ -1751,6 +1751,4 @@ enum apply_flag
  * @return The number of elements. */
 #define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
 
-const char *object_flag_names[NUM_FLAGS + 1];
-
 #endif

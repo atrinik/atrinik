@@ -34,9 +34,6 @@
 /** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
 
-int global_darkness_table[MAX_DARKNESS + 1];
-int map_tiled_reverse[TILED_MAPS];
-
 /** For exit objects: this is a player unique map */
 #define MAP_PLAYER_MAP 1
 
@@ -735,7 +732,5 @@ typedef struct rv_vector_s
 
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
 #define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
-
-region *first_region;
 
 #endif

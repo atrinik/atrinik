@@ -37,7 +37,6 @@
 /*#define TREASURE_VERBOSE*/
 
 #include <global.h>
-#include <spellist.h>
 #include <loader.h>
 
 /** All the coin arches. */

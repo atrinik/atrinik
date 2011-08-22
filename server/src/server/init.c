@@ -601,7 +601,7 @@ static void set_world_maker(const char *data)
 /** @endcond */
 
 /** One command line option definition. */
-struct Command_Line_Options
+typedef struct Command_Line_Options
 {
 	/** How it is called on the command line */
 	char *cmd_option;
@@ -618,7 +618,7 @@ struct Command_Line_Options
 	 * If num_args is true, then that gets passed to the function,
 	 * otherwise nothing is passed. */
 	void (*func)();
-};
+} Command_Line_Options;
 
 /**
  * Valid command line options.
@@ -628,7 +628,7 @@ struct Command_Line_Options
  * both in name and in pass (and we have enough options), we call the
  * associated function. This makes writing a multi pass system very easy,
  * and it is very easy to add in new options. */
-struct Command_Line_Options options[] =
+static struct Command_Line_Options options[] =
 {
 	/* Pass 1 functions - Stuff that can/should be called before we actually
 	 * initialize any data. */

@@ -489,11 +489,6 @@ typedef struct oblnk
 
 #define free_objectlink_simple(_chunk_) return_poolchunk((_chunk_), pool_objectlink);
 
-/** List of active objects */
-extern object *active_objects;
-
-extern struct mempool_chunk *removed_objects;
-
 #define CONTR(ob) ((player *) ((ob)->custom_attrset))
 
 /* This returns TRUE if the object is something that
@@ -617,12 +612,5 @@ typedef struct magic_mirror_struct
  * and y. Can be NULL in case of a magic mirror that is only used for zooming
  * or similar effect, and not mirroring. */
 #define MMIRROR(ob) ((magic_mirror_struct *) ((ob)->custom_attrset))
-
-extern const char *gender_noun[];
-extern const char *gender_subjective[];
-extern const char *gender_subjective_upper[];
-extern const char *gender_objective[];
-extern const char *gender_possessive[];
-extern const char *gender_reflexive[];
 
 #endif

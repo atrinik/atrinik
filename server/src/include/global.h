@@ -320,7 +320,6 @@ if (_nv_)                          \
 
 /** The maximum level. */
 #define MAXLEVEL 115
-extern uint64 new_levels[MAXLEVEL + 2];
 
 /**
  * Used to link together shared strings. */
@@ -363,44 +362,12 @@ typedef struct linked_char
  * as spell effect carrier. */
 #define special_potion(__op_sp) (__op_sp)->last_eat
 
-extern int arch_cmp;
-extern int arch_search;
-
 /** Move an object. */
 #define move_object(__op, __dir) move_ob(__op, __dir, __op)
 /** Is the object magical? */
 #define is_magical(__op_) QUERY_FLAG(__op_, FLAG_IS_MAGICAL)
 
-extern New_Face *new_faces;
-
 #define NROF_COMPRESS_METHODS 4
-char *uncomp[NROF_COMPRESS_METHODS][3];
-long nroferrors;
-
-player *first_player;
-mapstruct *first_map;
-treasurelist *first_treasurelist;
-artifactlist *first_artifactlist;
-godlink *first_god;
-player *last_player;
-long pticks;
-FILE *logfile;
-long nroftreasures;
-long nrofartifacts;
-long nrofallowedstr;
-long init_done;
-
-object void_container;
-
-/** The starting map. */
-char first_map_path[MAX_BUF];
-
-/** Round ticker. */
-uint32 global_round_tag;
-
-struct timeval last_time;
-Animations *animations;
-int num_animations, animations_allocated;
 
 /** Use to get a safe string, even if the string is NULL. */
 #define STRING_SAFE(__string__) (__string__ ? __string__ : ">NULL<")
@@ -426,21 +393,6 @@ int num_animations, animations_allocated;
 #define NUM_ANIMATIONS(ob) (animations[ob->animation_id].num_animations)
 /** Get the number of possible facings for object's animation. */
 #define NUM_FACINGS(ob) (animations[ob->animation_id].facings)
-
-extern int freearr_x[SIZEOFFREE], freearr_y[SIZEOFFREE];
-extern int maxfree[SIZEOFFREE], freedir[SIZEOFFREE];
-
-extern New_Face *blank_face, *next_item_face, *prev_item_face;
-
-extern long max_time;
-extern socket_struct *init_sockets;
-extern unsigned long todtick;
-extern int world_darkness;
-
-archetype *wp_archetype;
-archetype *empty_archetype;
-archetype *base_info_archetype;
-archetype *level_up_arch;
 
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
@@ -546,8 +498,6 @@ typedef struct Settings
 	uint8 timestamp;
 } Settings;
 
-extern Settings settings;
-
 /** Constant shared string pointers. */
 typedef struct shstr_constants
 {
@@ -583,10 +533,6 @@ typedef struct shstr_constants
 	const char *of_poison;
 	const char *of_hideous_poison;
 } shstr_constants;
-
-shstr_constants shstr_cons;
-
-void (*object_initializers[256])(object *);
 
 /** Ban structure. */
 typedef struct ban_struct
@@ -645,7 +591,11 @@ typedef struct cache_struct
 /*@}*/
 
 #include "random_map.h"
-#include "proto.h"
+
+#ifndef GLOBAL_NO_PROTOTYPES
+#	include "proto.h"
+#endif
+
 #include "plugin.h"
 
 #endif

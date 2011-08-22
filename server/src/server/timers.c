@@ -29,7 +29,7 @@
 
 #include <timers.h>
 
-cftimer timers_table[MAX_TIMERS];
+static cftimer timers_table[MAX_TIMERS];
 
 static void cftimer_process_event(object *ob);
 
