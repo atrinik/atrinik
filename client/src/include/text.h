@@ -345,6 +345,4 @@ typedef struct text_blit_info
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
 
-font_struct fonts[FONTS_MAX];
-
 #endif

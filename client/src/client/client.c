@@ -104,7 +104,7 @@ enum
 };
 
 /** Structure of all the socket commands */
-struct CmdMapping commands[] =
+static struct CmdMapping commands[] =
 {
 	/* Order of this table doesn't make a difference.  I tried to sort
 	 * of cluster the related stuff together. */

@@ -82,8 +82,6 @@ typedef struct msg_anim_struct
 	char color[COLOR_BUF];
 } msg_anim_struct;
 
-extern struct msg_anim_struct msg_anim;
-
 #define FILE_ATRINIK_P0 "data/atrinik.p0"
 
 /* Face requested from server - do it only one time */
@@ -275,15 +273,6 @@ typedef enum _game_status
 	GAME_STATUS_PLAY
 } _game_status;
 
-extern int f_custom_cursor;
-extern int x_custom_cursor;
-extern int y_custom_cursor;
-
-extern _game_status GameStatus;
-extern uint32 LastTick;
-extern server_struct *selected_server;
-extern int map_udate_flag, map_redraw_flag;
-
 enum
 {
 	ESC_MENU_KEYS,
@@ -470,26 +459,5 @@ enum
 {
 	MSCURSOR_MOVE = 1
 };
-
-extern char text_input_string[MAX_INPUT_STRING];
-extern int text_input_count;
-extern int text_input_string_flag;
-extern int text_input_string_end_flag;
-extern int text_input_string_esc_flag;
-uint32 text_input_opened;
-
-/* Range table */
-extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
-extern int RangeFireMode;
-
-extern struct _Sprite *Bitmaps[];
-
-/* Face data */
-extern _face_struct FaceList[MAX_FACE_TILES];
-
-extern SDL_Surface *ScreenSurface;
-
-/* Server's attributes */
-extern struct sockaddr_in insock;
 
 #endif

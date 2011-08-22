@@ -44,6 +44,4 @@ typedef struct _quickslot
 	spell_entry_struct *spell;
 } _quickslot;
 
-extern int quickslot_group;
-
 #endif

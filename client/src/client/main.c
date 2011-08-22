@@ -217,10 +217,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"fps.png", PIC_TYPE_DEFAULT}
 };
 
-/** Number of bitmaps. */
-#define BITMAP_MAX (sizeof(bitmap_name) / sizeof(_bitmap_name))
 /** The actual bitmaps. */
-_Sprite *Bitmaps[BITMAP_MAX];
+_Sprite *Bitmaps[BITMAP_INIT];
 
 static void init_game_data();
 static void delete_player_lists();
@@ -254,7 +252,7 @@ static void init_game_data(void)
 
 	init_map_data(0, 0, 0, 0);
 
-	for (i = 0; i < BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_INIT; i++)
 	{
 		Bitmaps[i] = NULL;
 	}
@@ -576,7 +574,7 @@ void free_bitmaps(void)
 {
 	size_t i;
 
-	for (i = 0; i < BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_INIT; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
 	}
@@ -828,7 +826,7 @@ int main(int argc, char *argv[])
 	load_bitmaps();
 
 	/* TODO: add later better error handling here */
-	for (i = BITMAP_DOLL; i < BITMAP_MAX; i++)
+	for (i = BITMAP_DOLL; i < BITMAP_INIT; i++)
 	{
 		load_bitmap(i);
 	}

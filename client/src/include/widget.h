@@ -336,9 +336,6 @@ typedef struct widgetresize
 	widgetdata *owner;
 } widgetresize;
 
-extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
-extern widgetevent widget_mouse_event;
-
 /** Macro to redraw widget using the array. */
 #define WIDGET_REDRAW(__tmp) __tmp->redraw = 1;
 
