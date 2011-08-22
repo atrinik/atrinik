@@ -33,22 +33,20 @@
 /** If set, does a little timing on the archetype load. */
 #define TIME_ARCH_LOAD 0
 
-/**
- * Archetype hash table structure. */
-typedef struct arch_table_struct
-{
-	/** The archetype. */
-	archetype *arch;
-
-	/** Hash handle. */
-	UT_hash_handle hh;
-} arch_table_struct;
-
 /** The archetype hash table. */
 static archetype *arch_table = NULL;
 
 /** True if doing arch initialization */
 int arch_init;
+
+/** Pointer to waypoint archetype. */
+archetype *wp_archetype;
+/** Pointer to empty_archetype archetype. */
+archetype *empty_archetype;
+/** Pointer to base_info archetype. */
+archetype *base_info_archetype;
+/** Pointer to level up effect archetype. */
+archetype *level_up_arch;
 
 static void load_archetypes();
 

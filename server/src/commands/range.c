@@ -169,7 +169,7 @@ int command_cast_spell(object *op, char *params)
 
 	if (value)
 	{
-		CONTR(op)->action_casting = ROUND_TAG + spells[spnum].time;
+		CONTR(op)->action_casting = global_round_tag + spells[spnum].time;
 
 		if (spells[spnum].type == SPELL_TYPE_PRIEST)
 		{

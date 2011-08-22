@@ -48,6 +48,26 @@ static const char *const branch_paths[] =
 /** Revision number of the branch, if any. */
 static uint32 branch_revision = 0;
 
+/**
+ * @defgroup first_xxx Beginnings of linked lists.
+ *@{*/
+/** First player. */
+player *first_player;
+/** First map. */
+mapstruct *first_map;
+/** First treasure. */
+treasurelist *first_treasurelist;
+/** First artifact. */
+artifactlist *first_artifactlist;
+/** God list. */
+godlink *first_god;
+/*@}*/
+
+/** Last player. */
+player *last_player;
+
+uint32 global_round_tag;
+
 static char *unclean_path(const char *src);
 static void process_players1();
 static void process_players2();

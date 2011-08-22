@@ -108,35 +108,7 @@ typedef enum _attacks
 #define AT_INTERNAL			0x00800000
 /*@}*/
 
-#ifndef INIT_C
-
-extern char *attack_name[NROFATTACKS];
-extern char *attack_save[NROFATTACKS];
-
-#else
-
-/**
- * Names of attack types to use when saving them to file.
- * @warning Cannot contain spaces. Use underscores instead. */
-EXTERN char *attack_save[NROFATTACKS] =
-{
-	"impact",   "slash", "cleave",      "pierce",    "weaponmagic",
-	"fire",     "cold",  "electricity", "poison",    "acid",
-	"magic",    "mind",  "blind",       "paralyze",  "force",
-	"godpower", "chaos", "drain",       "slow",      "confusion",
-	"internal"
-};
-
-/** Short description of names of the attack types. */
-EXTERN char *attack_name[NROFATTACKS] =
-{
-	"impact",   "slash", "cleave",      "pierce",    "weapon magic",
-	"fire",     "cold",  "electricity", "poison",    "acid",
-	"magic",    "mind",  "blind",       "paralyze",  "force",
-	"godpower", "chaos", "drain",       "slow",      "confusion",
-	"internal"
-};
-
-#endif
+char *attack_name[NROFATTACKS];
+char *attack_save[NROFATTACKS];
 
 #endif

@@ -983,10 +983,10 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			}
 		}
 
-		if (target->damage_round_tag != ROUND_TAG)
+		if (target->damage_round_tag != global_round_tag)
 		{
 			target->last_damage = 0;
-			target->damage_round_tag = ROUND_TAG;
+			target->damage_round_tag = global_round_tag;
 		}
 
 		target->last_damage -= heal;

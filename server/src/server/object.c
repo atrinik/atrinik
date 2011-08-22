@@ -271,6 +271,15 @@ int freedir[SIZEOFFREE] =
 };
 
 /**
+ * Progressive object counter (every new object will increase this, even
+ * if that object is later removed). */
+static long ob_count = 0;
+
+/**
+ * Object type-specific functions to call when initializing objects. */
+void (*object_initializers[256])(object *);
+
+/**
  * This is a list of pointers that correspond to the FLAG_.. values.
  * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15'th
  * element of this array should match that name.

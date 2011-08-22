@@ -29,7 +29,6 @@
  * such. */
 
 #define INIT_C
-#define EXTERN
 
 #include <global.h>
 
@@ -68,6 +67,9 @@ struct Settings settings =
 	0
 };
 
+/** The shared constants. */
+shstr_constants shstr_cons;
+
 /** World's darkness value. */
 int world_darkness;
 
@@ -76,6 +78,22 @@ unsigned long todtick;
 
 /** Pointer to archetype that is used as effect when player levels up. */
 archetype *level_up_arch = NULL;
+
+/** Ignores signals until init_done is true. */
+long init_done;
+
+/** Log file to use. */
+FILE *logfile;
+
+/** Number of treasures. */
+long nroftreasures;
+/** Number of artifacts. */
+long nrofartifacts;
+/** Number of allowed treasure combinations. */
+long nrofallowedstr;
+
+/** The starting map. */
+char first_map_path[MAX_BUF];
 
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
@@ -258,8 +276,6 @@ void init_globals(void)
 
 	/* Global round ticker */
 	global_round_tag = 1;
-	/* Global race counter */
-	global_race_counter = 0;
 
 	first_player = NULL;
 	last_player = NULL;

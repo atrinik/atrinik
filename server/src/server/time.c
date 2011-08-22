@@ -45,6 +45,8 @@ static long process_min_utime = 999999999;
 static long process_tot_mtime;
 long pticks;
 static long process_utime_long_count;
+/** Used for main loop timing. */
+struct timeval last_time;
 
 /** In-game seasons. */
 const char *season_name[SEASONS_PER_YEAR + 1] =

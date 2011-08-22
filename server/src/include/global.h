@@ -30,10 +30,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#ifndef EXTERN
-#define EXTERN extern
-#endif
-
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__
 #	define  __attribute__(x)
@@ -377,64 +373,34 @@ extern int arch_search;
 
 extern New_Face *new_faces;
 
-/**
- * @defgroup first_xxx Beginnings of linked lists.
- *@{*/
-/** First player. */
-player *first_player;
-/** First map. */
-mapstruct *first_map;
-/** First treasure. */
-treasurelist *first_treasurelist;
-/** First artifact. */
-artifactlist *first_artifactlist;
-/** God list. */
-godlink *first_god;
-/*@}*/
-
-/** Last player. */
-player *last_player;
-
 #define NROF_COMPRESS_METHODS 4
-EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];
+char *uncomp[NROF_COMPRESS_METHODS][3];
+long nroferrors;
 
-/** Ignores signals until init_done is true. */
-EXTERN long init_done;
-/** If this exceeds MAX_ERRORS, the server will shut down. */
-EXTERN long nroferrors;
+player *first_player;
+mapstruct *first_map;
+treasurelist *first_treasurelist;
+artifactlist *first_artifactlist;
+godlink *first_god;
+player *last_player;
+long pticks;
+FILE *logfile;
+long nroftreasures;
+long nrofartifacts;
+long nrofallowedstr;
+long init_done;
 
-/** Used by various function to determine how often to save the character. */
-extern long pticks;
-
-/** Log file to use. */
-EXTERN FILE *logfile;
-/** Number of treasures. */
-EXTERN long nroftreasures;
-/** Number of artifacts. */
-EXTERN long nrofartifacts;
-/** Number of allowed treasure combinations. */
-EXTERN long nrofallowedstr;
-
-extern object void_container;
+object void_container;
 
 /** The starting map. */
-EXTERN char first_map_path[MAX_BUF];
-/**
- * Progressive object counter (every new object will increase this, even
- * if that object is later removed). */
-EXTERN long ob_count;
+char first_map_path[MAX_BUF];
 
 /** Round ticker. */
-EXTERN uint32 global_round_tag;
-#define ROUND_TAG global_round_tag /* put this here because the DIFF */
+uint32 global_round_tag;
 
-/** Global race counter. */
-EXTERN int global_race_counter;
-
-/** Used for main loop timing. */
-EXTERN struct timeval last_time;
-EXTERN Animations *animations;
-EXTERN int num_animations, animations_allocated;
+struct timeval last_time;
+Animations *animations;
+int num_animations, animations_allocated;
 
 /** Use to get a safe string, even if the string is NULL. */
 #define STRING_SAFE(__string__) (__string__ ? __string__ : ">NULL<")
@@ -471,13 +437,10 @@ extern socket_struct *init_sockets;
 extern unsigned long todtick;
 extern int world_darkness;
 
-/** Pointer to waypoint archetype. */
-EXTERN archetype *wp_archetype;
-/** Pointer to empty_archetype archetype. */
-EXTERN archetype *empty_archetype;
-/** Pointer to base_info archetype. */
-EXTERN archetype *base_info_archetype;
-EXTERN archetype *level_up_arch;
+archetype *wp_archetype;
+archetype *empty_archetype;
+archetype *base_info_archetype;
+archetype *level_up_arch;
 
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
@@ -586,7 +549,7 @@ typedef struct Settings
 extern Settings settings;
 
 /** Constant shared string pointers. */
-EXTERN struct shstr_constants
+typedef struct shstr_constants
 {
 	const char *none;
 	const char *NONE;
@@ -619,9 +582,11 @@ EXTERN struct shstr_constants
 
 	const char *of_poison;
 	const char *of_hideous_poison;
-} shstr_cons;
+} shstr_constants;
 
-EXTERN void (*object_initializers[256])(object *);
+shstr_constants shstr_cons;
+
+void (*object_initializers[256])(object *);
 
 /** Ban structure. */
 typedef struct ban_struct

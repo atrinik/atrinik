@@ -29,6 +29,9 @@
 
 #include <global.h>
 
+Animations *animations;
+int num_animations, animations_allocated;
+
 /**
  * Free all animations loaded */
 void free_all_anim(void)
