@@ -2,12 +2,13 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-08-19 Alex Tokar
+Modified: 2011-08-22 Alex Tokar
 endmsg
 width 5
 height 14
 difficulty 1
 darkness -1
+bg_music fireside.mid
 end
 arch blocked
 end
@@ -203,9 +204,10 @@ y 1
 end
 arch magic_mouth
 msg
+
 A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
 
-<yellow>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it, Alternatively, you can use the keyboard numpad to move around.</yellow>
+<c=#FDD017>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it, Alternatively, you can use the keyboard numpad to move around.</c>
 endmsg
 x 1
 y 1
@@ -229,9 +231,10 @@ y 4
 end
 arch magic_mouth
 msg
+
 You can see a huge hole in the boat's structure, which does not bode well. Hopefully it's not that bad...
 
-<yellow>Doors can be opened by walking into them, and will close automatically after a short while.</yellow>
+<c=#FDD017>Doors can be opened by walking into them, and will close automatically after a short while.</c>
 endmsg
 direction 1
 x 1
@@ -247,9 +250,10 @@ y 5
 end
 arch magic_mouth
 msg
-You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone shouting on the deck above, perhaps you should investigate.
 
-<yellow>Move on top of the stairs near you, and either press spacebar, or select them in the below inventory with arrow keys and press <b>A</b>, which stands for <b>Apply</b>, which is how you use objects.</yellow>
+You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone walking about on the deck above, perhaps you should investigate.
+
+<c=#FDD017>Move on top of the stairs near you, and either press spacebar, or select them in the below inventory (the window at the bottom of the screen, in the middle) with arrow keys and press <b>A</b>, which stands for <b>Apply</b>, which is how you use objects. Stairs, ladders, ropes and the like can be applied to move between areas.</c>
 endmsg
 direction 1
 x 1
@@ -438,6 +442,12 @@ x 2
 y 6
 end
 arch stairs_wood_up
+msg
+
+You climb up to the main deck, and notice a man who looks like the captain. You vaguely remember boarding the boat with him...
+
+<c=#FDD017>Talk to NPCs (non-player characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
+endmsg
 direction 5
 slaying ../world_ag04
 hp 8

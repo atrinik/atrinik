@@ -1,7 +1,8 @@
 arch map
-name World
+name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
+Modified: 2011-08-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -360,6 +361,10 @@ arch water_lt
 x 3
 y 20
 end
+arch rock5
+x 3
+y 20
+end
 arch water_lt
 x 3
 y 21
@@ -464,6 +469,10 @@ x 4
 y 22
 end
 arch water_lt3
+x 4
+y 23
+end
+arch rock6
 x 4
 y 23
 end

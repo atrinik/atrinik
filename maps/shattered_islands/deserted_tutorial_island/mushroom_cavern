@@ -1,0 +1,627 @@
+arch map
+name Mushroom Cavern
+msg
+Created:  2011-08-20 Alex Tokar
+Modified: 2011-08-22 Alex Tokar
+endmsg
+width 12
+height 9
+difficulty 1
+darkness 2
+no_save 1
+bg_music fireside.mid
+end
+arch floor_cave6
+y 2
+end
+arch wall_cave2_nw1
+y 2
+end
+arch floor_cave5
+y 3
+end
+arch wall_cave2_w2
+y 3
+end
+arch floor_cave2
+y 4
+end
+arch wall_cave2_w1
+y 4
+end
+arch floor_cave1
+y 5
+end
+arch wall_cave2_w1
+y 5
+end
+arch floor_cave6
+y 6
+end
+arch wall_cave2_w2
+y 6
+end
+arch floor_cave5
+y 7
+end
+arch wall_cave2_w2
+y 7
+end
+arch floor_cave2
+y 8
+end
+arch wall_cave2_sw1
+y 8
+end
+arch floor_cave2
+x 1
+y 1
+end
+arch wall_cave2_nw1
+x 1
+y 1
+end
+arch floor_cave1
+x 1
+y 2
+end
+arch small_stones
+x 1
+y 2
+end
+arch wall_cave2_nw2
+x 1
+y 2
+end
+arch floor_cave6
+x 1
+y 3
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 1
+y 3
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave5
+x 1
+y 4
+end
+arch mushroom_medium
+name strange glowing mushroom
+x 1
+y 4
+end
+arch light3
+x 1
+y 4
+end
+arch floor_cave2
+x 1
+y 5
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 1
+y 5
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave6
+x 1
+y 6
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 1
+y 6
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave1
+x 1
+y 7
+end
+arch mushroom_giant4
+name poisonous giant mushroom
+x 1
+y 7
+end
+arch floor_cave2
+x 1
+y 8
+end
+arch wall_cave2_s2
+x 1
+y 8
+end
+arch floor_cave5
+x 2
+end
+arch wall_cave2_nw1
+x 2
+end
+arch floor_cave6
+x 2
+y 1
+end
+arch wall_cave2_nw2
+x 2
+y 1
+end
+arch floor_cave2
+x 2
+y 2
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 2
+y 2
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave1
+x 2
+y 3
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 2
+y 3
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave2
+x 2
+y 4
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 2
+y 4
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave2
+x 2
+y 5
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 2
+y 5
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave5
+x 2
+y 6
+end
+arch floor_cave6
+x 2
+y 7
+end
+arch floor_cave2
+x 2
+y 8
+end
+arch wall_cave2_s1
+x 2
+y 8
+end
+arch floor_cave2
+x 3
+end
+arch wall_cave2_n2
+x 3
+end
+arch floor_cave2
+x 3
+y 1
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 3
+y 1
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave6
+x 3
+y 2
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 3
+y 2
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave2
+x 3
+y 3
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 3
+y 3
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave6
+x 3
+y 4
+end
+arch small_stones
+x 3
+y 4
+end
+arch floor_cave2
+x 3
+y 5
+end
+arch floor_cave5
+x 3
+y 6
+end
+arch water_floor
+x 3
+y 6
+end
+arch floor_cave6
+x 3
+y 7
+end
+arch wall_cave2_m
+blocksview 0
+x 3
+y 7
+end
+arch floor_cave5
+x 3
+y 8
+end
+arch wall_cave2_s1
+x 3
+y 8
+end
+arch floor_cave2
+x 4
+end
+arch wall_cave2_n1
+x 4
+end
+arch floor_cave5
+x 4
+y 1
+end
+arch wall_cave2_mu1
+blocksview 0
+x 4
+y 1
+end
+arch floor_cave5
+x 4
+y 2
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 4
+y 2
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave1
+x 4
+y 3
+end
+arch floor_cave5
+x 4
+y 4
+end
+arch floor_cave2
+x 4
+y 5
+end
+arch floor_cave2
+x 4
+y 6
+end
+arch floor_cave5
+x 4
+y 7
+end
+arch wall_cave2_se2
+x 4
+y 7
+end
+arch floor_cave5
+x 4
+y 8
+end
+arch wall_cave2_se1
+x 4
+y 8
+end
+arch floor_cave1
+x 5
+end
+arch wall_cave2_n2
+x 5
+end
+arch floor_cave5
+x 5
+y 1
+end
+arch deserted_island_white_mushroom
+nrof 10
+x 5
+y 1
+arch event_obj
+sub_type 5
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave.py
+end
+end
+arch floor_cave2
+x 5
+y 2
+end
+arch dirt_floor4
+x 5
+y 2
+end
+arch floor_cave5
+x 5
+y 3
+end
+arch floor_cave1
+x 5
+y 4
+end
+arch pile_floor3
+x 5
+y 4
+end
+arch floor_cave1
+x 5
+y 5
+end
+arch floor_cave1
+x 5
+y 6
+end
+arch wall_cave2_se2
+x 5
+y 6
+end
+arch floor_cave6
+x 5
+y 7
+end
+arch wall_cave2_se1
+x 5
+y 7
+end
+arch floor_cave6
+x 6
+end
+arch wall_cave2_n1
+x 6
+end
+arch floor_cave2
+x 6
+y 1
+end
+arch rock5
+x 6
+y 1
+end
+arch floor_cave1
+x 6
+y 2
+end
+arch floor_cave6
+x 6
+y 3
+end
+arch floor_cave2
+x 6
+y 4
+end
+arch floor_cave6
+x 6
+y 5
+end
+arch wall_cave2_md1
+blocksview 0
+x 6
+y 5
+end
+arch floor_cave5
+x 6
+y 6
+end
+arch wall_cave2_s1
+x 6
+y 6
+end
+arch floor_cave6
+x 7
+end
+arch wall_cave2_ne1
+x 7
+end
+arch floor_cave6
+x 7
+y 1
+end
+arch wall_cave2_ne2
+x 7
+y 1
+end
+arch floor_cave2
+x 7
+y 2
+end
+arch plant_mushroom3
+x 7
+y 2
+end
+arch floor_cave1
+x 7
+y 3
+end
+arch floor_cave6
+x 7
+y 4
+end
+arch wall_cave2_se2
+x 7
+y 4
+end
+arch floor_cave2
+x 7
+y 5
+end
+arch wall_cave2_e1
+x 7
+y 5
+end
+arch floor_cave6
+x 7
+y 6
+end
+arch wall_cave2_se1
+x 7
+y 6
+end
+arch floor_cave2
+x 8
+y 1
+end
+arch wall_cave2_ne1
+x 8
+y 1
+end
+arch floor_cave1
+x 8
+y 2
+end
+arch wall_cave2_ne2
+x 8
+y 2
+end
+arch floor_cave5
+x 8
+y 3
+end
+arch magic_mouth
+x 8
+y 3
+arch event_obj
+sub_type 10
+race /shattered_islands/deserted_tutorial_island/scripts/mushroom_cave_trigger.py
+end
+end
+arch floor_cave2
+x 8
+y 4
+end
+arch wall_cave2_s2
+x 8
+y 4
+end
+arch floor_cave6
+x 9
+y 2
+end
+arch wall_cave2_n2
+x 9
+y 2
+end
+arch floor_cave6
+x 9
+y 3
+end
+arch floor_cave2
+x 9
+y 4
+end
+arch wall_cave2_s2
+x 9
+y 4
+end
+arch floor_cave1
+x 10
+y 2
+end
+arch wall_cave2_n2
+x 10
+y 2
+end
+arch floor_cave6
+x 10
+y 3
+end
+arch floor_cave5
+x 10
+y 4
+end
+arch wall_cave2_s2
+x 10
+y 4
+end
+arch floor_cave6
+x 11
+y 2
+end
+arch wall_cave2_n2
+x 11
+y 2
+end
+arch floor_cave6
+x 11
+y 3
+end
+arch invis_exit
+slaying /shattered_islands/world_af04
+hp 20
+sp 18
+x 11
+y 3
+end
+arch light3
+x 11
+y 3
+end
+arch floor_cave2
+x 11
+y 4
+end
+arch wall_cave2_s2
+x 11
+y 4
+end

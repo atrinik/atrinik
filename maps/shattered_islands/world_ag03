@@ -1,7 +1,8 @@
 arch map
-name World
+name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
+Modified: 2011-08-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,6 +16,7 @@ tile_path_5 world_af04
 tile_path_6 world_af02
 tile_path_7 world_ah02
 tile_path_8 world_ah04
+bg_music fireside.mid
 end
 arch water_lt
 end
@@ -1329,6 +1331,10 @@ arch water_lt
 x 14
 y 1
 end
+arch rock5
+x 14
+y 1
+end
 arch water_lt2
 x 14
 y 2
@@ -1608,6 +1614,9 @@ x 16
 y 23
 end
 arch water_lt3
+x 17
+end
+arch rock6
 x 17
 end
 arch water_lt4
@@ -1817,6 +1826,10 @@ x 19
 y 4
 end
 arch water_lt
+x 19
+y 5
+end
+arch rock6
 x 19
 y 5
 end
@@ -1904,6 +1917,10 @@ x 20
 y 2
 end
 arch water_lt2
+x 20
+y 3
+end
+arch rock5
 x 20
 y 3
 end
@@ -2090,6 +2107,10 @@ x 22
 y 1
 end
 arch water_lt4
+x 22
+y 2
+end
+arch rock6
 x 22
 y 2
 end
@@ -2213,6 +2234,10 @@ x 23
 y 8
 end
 arch water_lt4
+x 23
+y 9
+end
+arch rock5
 x 23
 y 9
 end
