@@ -312,14 +312,13 @@ void init_regions(void)
  * @return Initialized region structure. */
 static region *get_region_struct(void)
 {
-	region *new = (region *) CALLOC(1, sizeof(region));
+	region *new = (region *) calloc(1, sizeof(region));
 
 	if (new == NULL)
 	{
 		LOG(llevError, "get_region_struct(): Out of memory.");
 	}
 
-	memset(new, 0, sizeof(region));
 	return new;
 }
 
@@ -361,6 +360,6 @@ void free_regions(void)
 		FREE_AND_NULL_PTR(reg->longname);
 		FREE_AND_NULL_PTR(reg->msg);
 		FREE_AND_NULL_PTR(reg->jailmap);
-		CFREE(reg);
+		free(reg);
 	}
 }

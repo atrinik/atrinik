@@ -490,18 +490,6 @@ EXTERN archetype *level_up_arch;
 	_xyz_ = NULL;                \
 }
 
-#ifdef CALLOC
-#undef CALLOC
-#endif
-
-#ifdef USE_CALLOC
-#	define CALLOC(x, y) calloc(x, y)
-#	define CFREE(x) free(x)
-#else
-#	define CALLOC(x, y) malloc(x * y)
-#	define CFREE(x) free(x)
-#endif
-
 /** Settings structure */
 typedef struct Settings
 {

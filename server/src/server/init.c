@@ -1129,13 +1129,6 @@ void compile_info(void)
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 
 	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated[0], pool_object->nrof_free[0]);
-
-#ifdef USE_CALLOC
-	LOG(llevInfo, "Use_calloc:\t<true>\n");
-#else
-	LOG(llevInfo, "Use_calloc:\t<false>\n");
-#endif
-
 	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);

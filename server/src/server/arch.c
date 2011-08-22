@@ -215,7 +215,7 @@ static archetype *get_archetype_struct(void)
 {
 	archetype *new;
 
-	new = (archetype *) CALLOC(1, sizeof(archetype));
+	new = (archetype *) calloc(1, sizeof(archetype));
 
 	if (new == NULL)
 	{
