@@ -67,7 +67,7 @@ static object *attempt_recipe(object *caster, object *cauldron, int ability, rec
 
 /**
  * Returns a random selection from ::cauldron_effect. */
-static const char *cauldron_sound()
+static const char *cauldron_sound(void)
 {
 	int size = sizeof(cauldron_effect) / sizeof(char *);
 

@@ -36,7 +36,7 @@ archetype *spellarch[NROFREALSPELLS];
 
 /**
  * Initialize spells. */
-void init_spells()
+void init_spells(void)
 {
 	static int init_spells_done = 0;
 	int i;
@@ -169,7 +169,7 @@ void init_spells()
 
 /**
  * Dumps all the spells. */
-void dump_spells()
+void dump_spells(void)
 {
 	int i;
 

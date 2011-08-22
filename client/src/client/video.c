@@ -32,7 +32,7 @@
 /**
  * Get the bits per pixel value to use
  * @return Bits per pixel. */
-int video_get_bpp()
+int video_get_bpp(void)
 {
 	return SDL_GetVideoInfo()->vfmt->BitsPerPixel;
 }
@@ -40,7 +40,7 @@ int video_get_bpp()
 /**
  * Sets the screen surface to a new size, after updating ::Screensize.
  * @return 1 on success, 0 on failure. */
-int video_set_size()
+int video_set_size(void)
 {
 	SDL_Surface *new;
 
@@ -60,7 +60,7 @@ int video_set_size()
  * Calculate the video flags from the settings.
  * When settings are changed at runtime, this MUST be called again.
  * @return The flags */
-uint32 get_video_flags()
+uint32 get_video_flags(void)
 {
 	if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN))
 	{

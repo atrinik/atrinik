@@ -54,7 +54,7 @@ static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left,
 
 /**
  * Initialize the sprite system. */
-void sprite_init_system()
+void sprite_init_system(void)
 {
 	FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 	SDL_SetAlpha(FormatHolder, SDL_SRCALPHA, 255);
@@ -774,7 +774,7 @@ void remove_anim(struct _anim *anim)
 
 /**
  * Walk through the map anim list, and display the anims. */
-void play_anims()
+void play_anims(void)
 {
 	struct _anim *anim, *tmp;
 	int xpos, ypos, tmp_off;

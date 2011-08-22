@@ -42,7 +42,7 @@ static Uint32 textwin_border_color_selected;
 
 /**
  * Initialize text window variables. */
-void textwin_init()
+void textwin_init(void)
 {
 	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
 	textwin_border_color_selected = SDL_MapRGB(ScreenSurface->format, 177, 126, 5);
@@ -206,7 +206,7 @@ void draw_info(const char *color, const char *str)
 
 /**
  * Handle ctrl+C. */
-void textwin_handle_copy()
+void textwin_handle_copy(void)
 {
 	sint64 start, end;
 	textwin_struct *textwin;

@@ -26,7 +26,7 @@
 #include <global.h>
 #include <check.h>
 
-static void setup()
+static void setup(void)
 {
 	init_hash_table();
 }
@@ -112,7 +112,7 @@ START_TEST(test_free_string_shared)
 }
 END_TEST
 
-static Suite *shstr_suite()
+static Suite *shstr_suite(void)
 {
 	Suite *s = suite_create("shstr");
 	TCase *tc_core = tcase_create("Core");
@@ -129,7 +129,7 @@ static Suite *shstr_suite()
 	return s;
 }
 
-void check_server_shstr()
+void check_server_shstr(void)
 {
 	Suite *s = shstr_suite();
 	SRunner *sr = srunner_create(s);

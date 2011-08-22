@@ -329,7 +329,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
 
 /**
  * Init the regular expression structures. */
-static void re_init()
+static void re_init(void)
 {
 	int i;
 

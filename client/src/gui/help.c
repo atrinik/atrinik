@@ -45,7 +45,7 @@ static char command_buf[MAX_INPUT_STRING];
 
 /**
  * Frees the ::hfiles hashtable. */
-void hfiles_deinit()
+void hfiles_deinit(void)
 {
 	hfile_struct *hfile, *tmp;
 
@@ -66,7 +66,7 @@ void hfiles_deinit()
 
 /**
  * Read help files from file. */
-void hfiles_init()
+void hfiles_init(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], message[HUGE_BUF * 12], *end;
@@ -174,7 +174,7 @@ static int command_match_cmp(const void *a, const void *b)
 
 /**
  * Handle tabulator key in console text input. */
-void help_handle_tabulator()
+void help_handle_tabulator(void)
 {
 	size_t len;
 	char buf[MAX_INPUT_STRING], *space;

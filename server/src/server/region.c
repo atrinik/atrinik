@@ -153,7 +153,7 @@ object *get_jail_exit(object *op)
 
 /**
  * Initializes regions from the regions file. */
-void init_regions()
+void init_regions(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF];
@@ -310,7 +310,7 @@ void init_regions()
 /**
  * Allocates and zeros a region struct.
  * @return Initialized region structure. */
-static region *get_region_struct()
+static region *get_region_struct(void)
 {
 	region *new = (region *) CALLOC(1, sizeof(region));
 
@@ -325,7 +325,7 @@ static region *get_region_struct()
 
 /**
  * Links child with their parent from the parent_name field. */
-static void assign_region_parents()
+static void assign_region_parents(void)
 {
 	region *reg;
 	uint32 parent_count = 0, region_count = 0;
@@ -346,7 +346,7 @@ static void assign_region_parents()
 
 /**
  * Deinitializes all regions. */
-void free_regions()
+void free_regions(void)
 {
 	region *reg, *next;
 

@@ -115,7 +115,7 @@ static char *updater_get_dir(char *buf, size_t len)
 /**
  * Cleans up updater files - basically recursively removes the temporary
  * directory. */
-static void cleanup_patch_files()
+static void cleanup_patch_files(void)
 {
 	char dir_path[HUGE_BUF];
 
@@ -124,7 +124,7 @@ static void cleanup_patch_files()
 
 /**
  * Start updater download. */
-static void updater_download_start()
+static void updater_download_start(void)
 {
 	CURL *curl;
 	char url[HUGE_BUF], version[MAX_BUF], *version_escaped;
@@ -145,7 +145,7 @@ static void updater_download_start()
 
 /**
  * Cleanup after downloading. */
-static void updater_download_clean()
+static void updater_download_clean(void)
 {
 	size_t i;
 
@@ -418,7 +418,7 @@ static int popup_destroy_callback(popup_struct *popup)
 
 /**
  * Open the updater popup. */
-void updater_open()
+void updater_open(void)
 {
 	popup_struct *popup;
 

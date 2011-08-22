@@ -917,7 +917,7 @@ int yyerror(char *s)
  *
  * This skips over the space and returns the value, or "" if no value is
  * found. */
-static char *yval()
+static char *yval(void)
 {
 	static char *em = "";
 	char *cp, *end;

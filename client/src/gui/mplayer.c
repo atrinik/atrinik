@@ -117,7 +117,7 @@ static void mplayer_do_shuffle(list_struct *list)
 
 /**
  * Check whether we need to start another song. */
-static void mplayer_check_shuffle()
+static void mplayer_check_shuffle(void)
 {
 	if (!sound_playing_music())
 	{
@@ -525,7 +525,7 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 
 /**
  * Announce currently playing music to nearby players using /me. */
-void mplayer_now_playing()
+void mplayer_now_playing(void)
 {
 	char buf[HUGE_BUF];
 

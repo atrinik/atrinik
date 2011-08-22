@@ -112,7 +112,7 @@ static int clipboard_filter(const SDL_Event *event)
 /**
  * Initializes the clipboard
  * @return 1 on success, 0 on failure. */
-int clipboard_init()
+int clipboard_init(void)
 {
 	SDL_SysWMinfo info;
 
@@ -258,7 +258,7 @@ int clipboard_set(const char *str)
  * Get the contents of the clipboard.
  * @return Clipboard contents, must be freed. May be NULL in case of
  * failure to acquire the clipboard contents. */
-char *clipboard_get()
+char *clipboard_get(void)
 {
 	char *result;
 #if defined(HAVE_X11)

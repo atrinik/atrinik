@@ -1005,7 +1005,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 
 /**
  * Open the settings popup. */
-void settings_open()
+void settings_open(void)
 {
 	popup_struct *popup;
 

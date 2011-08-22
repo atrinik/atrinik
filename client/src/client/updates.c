@@ -104,14 +104,14 @@ void cmd_request_update(unsigned char *data, int len)
 /**
  * Check if we have finished downloading updated files from the server.
  * @return 1 if we have finished, 0 otherwise. */
-int file_updates_finished()
+int file_updates_finished(void)
 {
 	return file_updates_requested == 0;
 }
 
 /**
  * Parse the updates srv file, and request updated files as needed. */
-void file_updates_parse()
+void file_updates_parse(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF];

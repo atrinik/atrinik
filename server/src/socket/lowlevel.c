@@ -432,7 +432,7 @@ CS_Stats cst_lst;
  * Writes out the gathered stats.
  *
  * We clear ::cst_lst. */
-void write_cs_stats()
+void write_cs_stats(void)
 {
 	time_t now = time(NULL);
 

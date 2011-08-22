@@ -79,7 +79,7 @@ static int compar(struct bmappair *a, struct bmappair *b)
  * This reads the bmaps file to get all the bitmap names and stuff. It
  * only needs to be done once, because it is player independent (ie, what
  * display the person is on will not make a difference). */
-int read_bmap_names()
+int read_bmap_names(void)
 {
 	char buf[MAX_BUF], *cp;
 	FILE *fp;
@@ -208,7 +208,7 @@ int find_face(char *name, int error)
 }
 
 /** Deallocates memory allocated by read_bmap_names(). */
-void free_all_images()
+void free_all_images(void)
 {
 	int i;
 

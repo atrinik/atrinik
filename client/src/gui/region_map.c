@@ -295,7 +295,7 @@ static void rm_def_create(char *str)
 
 /**
  * Free ::rm_def. */
-static void rm_def_free()
+static void rm_def_free(void)
 {
 	size_t i;
 
@@ -432,7 +432,7 @@ static int region_map_is_same(const char *url)
 
 /**
  * Clears the cached png and definitions. */
-void region_map_clear()
+void region_map_clear(void)
 {
 	/* Free old cURL data and the parsed definitions. */
 	if (data_png)

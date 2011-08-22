@@ -101,7 +101,7 @@ archetype *get_skill_archetype(int skillnr)
  * ::base_info_archetype are initialized.
  *
  * Can be called multiple times, will just return. */
-void init_archetypes()
+void init_archetypes(void)
 {
 	/* Only do this once */
 	if (first_archetype != NULL)
@@ -120,7 +120,7 @@ void init_archetypes()
 /**
  * An alternative way to init the hashtable which is slower, but
  * _works_... */
-static void init_archetable()
+static void init_archetable(void)
 {
 	archetype *at;
 
@@ -136,7 +136,7 @@ static void init_archetable()
 
 /**
  * Dumps _all_ archetypes and artifacts to debug-level output. */
-void dump_all_archetypes()
+void dump_all_archetypes(void)
 {
 	archetype *at;
 	artifactlist *al;
@@ -177,7 +177,7 @@ void dump_all_archetypes()
  *
  * After calling this, it's possible to call again init_archetypes() to
  * reload data. */
-void free_all_archs()
+void free_all_archs(void)
 {
 	archetype *at, *next;
 	int i = 0;
@@ -211,7 +211,7 @@ void free_all_archs()
  * Allocates, initializes and returns the pointer to an archetype
  * structure.
  * @return New archetype structure, will never be NULL. */
-static archetype *get_archetype_struct()
+static archetype *get_archetype_struct(void)
 {
 	archetype *new;
 
@@ -483,7 +483,7 @@ static void second_arch_pass(FILE *fp_start)
  * Reads and parses the archetype file (with the first and second-pass
  * functions).
  * Then initializes treasures by calling load_treasures(). */
-static void load_archetypes()
+static void load_archetypes(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF];
@@ -567,7 +567,7 @@ object *arch_to_object(archetype *at)
 }
 
 /**
- * Creates a dummy object. This function is called by get_archetype()
+ * Creates a dummy object. This function is called by get_archetype(void)
  * if it fails to find the appropriate archetype.
  *
  * Thus get_archetype() will be guaranteed to always return

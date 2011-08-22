@@ -104,7 +104,7 @@ static void quickslot_unset(uint8 slot)
 	send_socklist(sl);
 }
 
-void quickslots_init()
+void quickslots_init(void)
 {
 	size_t slot;
 

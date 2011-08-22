@@ -98,7 +98,7 @@ const char *periodsofday[PERIODS_PER_DAY] = {
 
 /**
  * Initialize all variables used in the timing routines. */
-void reset_sleep()
+void reset_sleep(void)
 {
 	int i;
 
@@ -146,7 +146,7 @@ static void log_time(long process_utime)
  * Checks how much time has elapsed since last tick.
  * If it is less than max_time, the remaining time is slept with
  * select(). */
-void sleep_delta()
+void sleep_delta(void)
 {
 	static struct timeval new_time;
 	static struct timeval def_time = {0, 100000};
@@ -392,7 +392,7 @@ void time_info(object *op)
 /**
  * Gets the seconds.
  * @return Seconds. */
-long seconds()
+long seconds(void)
 {
 	struct timeval now;
 

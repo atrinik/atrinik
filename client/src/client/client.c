@@ -155,7 +155,7 @@ struct CmdMapping commands[] =
 /**
  * Do client. The main loop for commands. From this, the data and
  * commands from server are received. */
-void DoClient()
+void DoClient(void)
 {
 	command_buffer *cmd;
 

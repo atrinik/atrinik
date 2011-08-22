@@ -172,7 +172,7 @@ ob_race *race_find(shstr *name)
 /**
  * Randomly select a race.
  * @return Race, NULL if there are no races available. */
-ob_race *race_get_random()
+ob_race *race_get_random(void)
 {
 	if (!races || !num_races)
 	{
@@ -185,7 +185,7 @@ ob_race *race_get_random()
 /**
  * Initialize races by looking through all the archetypes and checking if
  * the archetype is a @ref MONSTER or @ref PLAYER. */
-void race_init()
+void race_init(void)
 {
 	archetype *at, *tmp;
 	size_t i;
@@ -233,7 +233,7 @@ void race_init()
 
 /**
  * Dumps all race information. */
-void race_dump()
+void race_dump(void)
 {
 	size_t i;
 	objectlink *ol;
@@ -253,7 +253,7 @@ void race_dump()
 
 /**
  * Frees all race related information. */
-void race_free()
+void race_free(void)
 {
 	size_t i;
 	objectlink *ol, *ol_next;

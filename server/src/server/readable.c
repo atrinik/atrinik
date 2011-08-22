@@ -322,7 +322,7 @@ int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 
 /**
  * Reads the messages file into the list pointed to by first_msg. */
-static void init_msgfile()
+static void init_msgfile(void)
 {
 	FILE *fp;
 	char buf[MAX_BUF], fname[MAX_BUF], *cp;
@@ -403,7 +403,7 @@ static void init_msgfile()
 
 /**
  * Initialize array of ::monsters. */
-static void init_mon_info()
+static void init_mon_info(void)
 {
 	archetype *at;
 
@@ -426,7 +426,7 @@ static void init_mon_info()
  *
  * This is the function called by the main routine to initialize
  * all the readable information. */
-void init_readable()
+void init_readable(void)
 {
 	LOG(llevDebug, "Initializing reading data... ");
 	init_msgfile();
@@ -538,7 +538,7 @@ static void change_book(object *book, int msgtype)
 /**
  * Returns a random monster from all the monsters in the game.
  * @return The monster object */
-object *get_random_mon()
+object *get_random_mon(void)
 {
 	/* Safety. */
 	if (!monsters || !num_monsters)
@@ -879,7 +879,7 @@ void tailor_readable_ob(object *book, int msg_type)
 
 /**
  * Cleanup routine for readable stuff. */
-void free_all_readable()
+void free_all_readable(void)
 {
 	size_t i;
 

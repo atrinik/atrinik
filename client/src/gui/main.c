@@ -769,7 +769,7 @@ static void list_handle_esc(list_struct *list)
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
-void main_screen_render()
+void main_screen_render(void)
 {
 	int x, y;
 	list_struct *list;

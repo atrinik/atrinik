@@ -1291,7 +1291,7 @@ void DeleteInventory(unsigned char *data)
 
 /**
  * Plays the footstep sounds when moving on the map. */
-static void map_play_footstep()
+static void map_play_footstep(void)
 {
 	static int step = 0;
 	static uint32 tick = 0;
@@ -1604,7 +1604,7 @@ void VersionCmd(char *data)
 /**
  * Sends version and client name.
  * @param csock Socket to send this information to. */
-void SendVersion()
+void SendVersion(void)
 {
 	char buf[MAX_BUF];
 
@@ -1627,7 +1627,7 @@ void RequestFile(int idx)
 /**
  * Send an addme command to the server.
  * @param csock Socket to send the command to. */
-void SendAddMe()
+void SendAddMe(void)
 {
 	cs_write_string("addme", 5);
 }
@@ -1635,7 +1635,7 @@ void SendAddMe()
 /**
  * New char command.
  * Used when server tells us to go to the new character creation. */
-void NewCharCmd()
+void NewCharCmd(void)
 {
 	GameStatus = GAME_STATUS_NEW_CHAR;
 }

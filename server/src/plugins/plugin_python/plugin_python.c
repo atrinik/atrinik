@@ -480,7 +480,7 @@ static int cmd_customPython(object *op, char *params);
 
 /**
  * Initialize the context stack. */
-static void initContextStack()
+static void initContextStack(void)
 {
 	current_context = NULL;
 	context_stack = NULL;
@@ -509,7 +509,7 @@ static void pushContext(PythonContext *context)
  * next one in the list.
  * @return NULL if there is no current context, the previous current
  * context otherwise. */
-static PythonContext *popContext()
+static PythonContext *popContext(void)
 {
 	PythonContext *oldcontext;
 
@@ -1394,7 +1394,7 @@ static PyMethodDef AtrinikMethods[] =
 /**
  * Log a Python exception. Will also send the exception to any online
  * DMs or those with /resetmap command permission. */
-static void PyErr_LOG()
+static void PyErr_LOG(void)
 {
 	PyObject *globals, *locals, *ret;
 	PyObject *ptype, *pvalue, *ptraceback;
@@ -1926,7 +1926,7 @@ static int cmd_customPython(object *op, char *params)
 	return rv;
 }
 
-MODULEAPI void postinitPlugin()
+MODULEAPI void postinitPlugin(void)
 {
 	char path[HUGE_BUF];
 	FILE *fp;
@@ -1967,7 +1967,7 @@ static PyModuleDef AtrinikModule =
 	NULL, NULL, NULL, NULL
 };
 
-static PyObject *PyInit_Atrinik()
+static PyObject *PyInit_Atrinik(void)
 {
 	PyObject *m = PyModule_Create(&AtrinikModule);
 	Py_INCREF(m);
@@ -2140,7 +2140,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "Python:  [Done]\n");
 }
 
-MODULEAPI void closePlugin()
+MODULEAPI void closePlugin(void)
 {
 	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);

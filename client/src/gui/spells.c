@@ -108,7 +108,7 @@ static const char *list_text_color_hook(list_struct *list, const char *default_c
 /**
  * Reload the spells list, due to a change of the spell path, filtering
  * options, etc. */
-static void spell_list_reload()
+static void spell_list_reload(void)
 {
 	list_struct *list;
 	size_t i;
@@ -477,7 +477,7 @@ spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
 
 /**
  * Initialize the spell list from file. */
-void spells_init()
+void spells_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
@@ -598,7 +598,7 @@ void spells_init()
 
 /**
  * Reload the icon IDs, as they may have changed due to an update. */
-void spells_reload()
+void spells_reload(void)
 {
 	size_t spell_path, spell_id;
 

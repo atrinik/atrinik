@@ -72,7 +72,7 @@ static void remove_ban_entry(objectlink *ol)
 
 /**
  * Load the ban file. */
-void load_bans_file()
+void load_bans_file(void)
 {
 	char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
 	FILE *fp;
@@ -107,7 +107,7 @@ void load_bans_file()
 
 /**
  * Save the bans file. */
-void save_bans_file()
+void save_bans_file(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;

@@ -200,7 +200,7 @@ int cache_remove(shstr *key)
 
 /**
  * Remove all cache entries. */
-void cache_remove_all()
+void cache_remove_all(void)
 {
 	/* Keep removing until there's nothing left. */
 	while (num_cache)

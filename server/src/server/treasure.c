@@ -92,7 +92,7 @@ static void free_artifact(artifact *at);
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
  *
  * Each treasure is parsed with the help of load_treasure(). */
-void load_treasures()
+void load_treasures(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF], buf[MAX_BUF], name[MAX_BUF];
@@ -189,7 +189,7 @@ void load_treasures()
  * Create money table, setting up pointers to the archetypes.
  *
  * This is done for faster access of the coins archetypes. */
-static void create_money_table()
+static void create_money_table(void)
 {
 	int i;
 
@@ -414,7 +414,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
  * Builds up the lists of artifacts from the file in the libdir.
  *
  * Can be called multiple times without ill effects. */
-void init_artifacts()
+void init_artifacts(void)
 {
 	static int has_been_inited = 0;
 	archetype *atemp;
@@ -671,7 +671,7 @@ void init_artifacts()
 
 /**
  * Initialize global archetype pointers. */
-void init_archetype_pointers()
+void init_archetype_pointers(void)
 {
 	if (ring_arch_normal == NULL)
 	{
@@ -717,7 +717,7 @@ void init_archetype_pointers()
 /**
  * Allocate and return the pointer to an empty treasurelist structure.
  * @return New structure, blanked, never NULL. */
-static treasurelist *get_empty_treasurelist()
+static treasurelist *get_empty_treasurelist(void)
 {
 	treasurelist *tl = (treasurelist *) malloc(sizeof(treasurelist));
 
@@ -742,7 +742,7 @@ static treasurelist *get_empty_treasurelist()
 /**
  * Allocate and return the pointer to an empty treasure structure.
  * @return New structure, blanked, never NULL. */
-static treasure *get_empty_treasure()
+static treasure *get_empty_treasure(void)
 {
 	treasure *t = (treasure *) malloc(sizeof(treasure));
 
@@ -2455,7 +2455,7 @@ jump_break1:
 /**
  * Allocate and return the pointer to an empty artifactlist structure.
  * @return New structure blanked, never NULL. */
-static artifactlist *get_empty_artifactlist()
+static artifactlist *get_empty_artifactlist(void)
 {
 	artifactlist *tl = (artifactlist *) malloc(sizeof(artifactlist));
 
@@ -2574,7 +2574,7 @@ artifact *find_artifact_type(const char *name, int type)
 
 /**
  * For debugging purposes. Dumps all tables. */
-void dump_artifacts()
+void dump_artifacts(void)
 {
 	artifactlist *al;
 	artifact *art;
@@ -2938,7 +2938,7 @@ static void free_artifact(artifact *at)
 
 /**
  * Free the artifact list. */
-static void free_artifactlist()
+static void free_artifactlist(void)
 {
 	artifactlist *al, *nextal;
 
@@ -2959,7 +2959,7 @@ static void free_artifactlist()
 
 /**
  * Free all treasure related memory. */
-void free_all_treasures()
+void free_all_treasures(void)
 {
 	treasurelist *tl, *next;
 

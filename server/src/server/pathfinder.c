@@ -143,7 +143,7 @@ void request_new_path(object *waypoint)
 
 /**
  * Get the next (valid) waypoint for which a path is requested */
-object *get_next_requested_path()
+object *get_next_requested_path(void)
 {
 	object *waypoint;
 	tag_t count;

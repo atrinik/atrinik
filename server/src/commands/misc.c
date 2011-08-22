@@ -74,7 +74,7 @@ int command_motd(object *op, char *params)
 /**
  * Counts the number of objects on the list of active objects.
  * @return The number of active objects. */
-static int count_active()
+static int count_active(void)
 {
 	int i = 0;
 	object *tmp = active_objects;

@@ -86,7 +86,7 @@ typedef struct wm_region
 
 /**
  * Initialize the face colors. */
-static void wm_images_init()
+static void wm_images_init(void)
 {
 	int i, x, y;
 	gdImagePtr im, im2;
@@ -345,7 +345,7 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 
 /**
  * The main world maker function. */
-void world_maker()
+void world_maker(void)
 {
 	mapstruct *m;
 	gdImagePtr im;

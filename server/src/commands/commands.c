@@ -225,7 +225,7 @@ static int compare_A(const void *a, const void *b)
  * Initialize all the commands and emotes.
  *
  * Sorts the commands and emotes using qsort(). */
-void init_commands()
+void init_commands(void)
 {
 	qsort((char *) Commands, CommandsSize, sizeof(CommArray_s), compare_A);
 	qsort((char *) CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);

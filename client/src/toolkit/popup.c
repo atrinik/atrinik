@@ -52,7 +52,7 @@ static uint8 popup_overlay_need_redraw = 0;
 
 /**
  * Create an overlay to be used as popup background. */
-static void popup_create_overlay()
+static void popup_create_overlay(void)
 {
 	popup_struct *popup;
 	int j, k;
@@ -148,7 +148,7 @@ void popup_destroy(popup_struct *popup)
 
 /**
  * Destroy all visible popups. */
-void popup_destroy_all()
+void popup_destroy_all(void)
 {
 	popup_struct *popup, *tmp;
 
@@ -162,7 +162,7 @@ void popup_destroy_all()
  * See if popup needs an overlay update due to screen resize or some
  * other reason.
  * @return Whether the overlay needs to be updated or not. */
-int popup_overlay_need_update()
+int popup_overlay_need_update(void)
 {
 	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h || popup_overlay_need_redraw;
 }
@@ -227,7 +227,7 @@ void popup_render(popup_struct *popup)
 
 /**
  * Render the first popup. */
-void popup_render_head()
+void popup_render_head(void)
 {
 	if (!popup_head)
 	{
@@ -281,14 +281,14 @@ int popup_handle_event(SDL_Event *event)
 /**
  * Get the currently visible popup.
  * @return The visible popup, or NULL if there isn't any. */
-popup_struct *popup_get_head()
+popup_struct *popup_get_head(void)
 {
 	return popup_head;
 }
 
 /**
  * Mark popup overlay as needing an update. */
-void popup_overlay_redraw()
+void popup_overlay_redraw(void)
 {
 	popup_overlay_need_redraw = 1;
 }

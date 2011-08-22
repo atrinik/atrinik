@@ -223,7 +223,7 @@ static void expand_sight(object *op);
  * these spaces could possibly get blocked, since these
  * are the only ones further out that are still possibly in the
  * sightline. */
-void init_block()
+void init_block(void)
 {
 	int x, y, dx, dy, i;
 	static const int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};

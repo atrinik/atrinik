@@ -32,7 +32,7 @@
 /**
  * Allocate a new objectlink structure and initialize it.
  * @return Pointer to the new objectlink */
-objectlink *get_objectlink()
+objectlink *get_objectlink(void)
 {
 	objectlink *ol = (objectlink *) get_poolchunk(pool_objectlink);
 

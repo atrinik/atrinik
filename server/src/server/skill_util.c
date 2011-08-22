@@ -371,7 +371,7 @@ sint64 calc_skill_exp(object *who, object *op, int level)
 /**
  * This routine looks through all the assembled archetypes for experience
  * objects then copies their values into the ::exp_cat array. */
-static void init_exp_obj()
+static void init_exp_obj(void)
 {
 	archetype *at;
 
@@ -405,7 +405,7 @@ static void init_exp_obj()
 
 /**
  * Initialize the experience system. */
-void init_new_exp_system()
+void init_new_exp_system(void)
 {
 	static int init_new_exp_done = 0;
 	int i;
@@ -463,7 +463,7 @@ void init_new_exp_system()
 
 /**
  * Free all previously initialized experience objects. */
-void free_exp_objects()
+void free_exp_objects(void)
 {
 	int i;
 
@@ -481,7 +481,7 @@ void free_exp_objects()
 
 /**
  * Dump debugging information about the skills. */
-void dump_skills()
+void dump_skills(void)
 {
 	int i;
 

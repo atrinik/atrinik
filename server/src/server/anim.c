@@ -31,7 +31,7 @@
 
 /**
  * Free all animations loaded */
-void free_all_anim()
+void free_all_anim(void)
 {
 	int i;
 
@@ -47,7 +47,7 @@ void free_all_anim()
 /**
  * Initialize animations structure, read the animations
  * data from a file. */
-void init_anim()
+void init_anim(void)
 {
 	char buf[MAX_BUF];
 	FILE *fp;

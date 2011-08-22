@@ -65,7 +65,7 @@ void resize_window(int width, int height)
 /**
  * Poll input device like mouse, keys, etc.
  * @return 1 if the the quit key was pressed, 0 otherwise */
-int Event_PollInputDevice()
+int Event_PollInputDevice(void)
 {
 	SDL_Event event;
 	int x, y, done = 0;

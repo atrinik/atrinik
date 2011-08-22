@@ -38,7 +38,7 @@ static curl_data *dl_data = NULL;
 
 // This would be your function where the user triggers something, for
 // example, clicks "Download" button or similar.
-void action_do()
+void action_do(void)
 {
 	// This is only necessary if you want to give the user a chance to retry,
 	// using for example, a "Retry" button. It may also be necessary if you
@@ -55,7 +55,7 @@ void action_do()
 }
 
 // Here would be your GUI drawing code, as an example.
-void draw_gui()
+void draw_gui(void)
 {
 	// The trigger action to start download could be something like:
 	// if button_pressed(xxx) then action_do()
@@ -105,7 +105,7 @@ void draw_gui()
 // Cleaning up should be done after exiting the GUI, to make sure
 // downloading process is stopped (if it's running) and cleanup the
 // structure.
-void exit_gui()
+void exit_gui(void)
 {
 	if (dl_data)
 	{
@@ -341,7 +341,7 @@ static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr)
 
 /**
  * Initialize cURL module. */
-void curl_init()
+void curl_init(void)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 	handle_share_mutex = SDL_CreateMutex();
@@ -355,7 +355,7 @@ void curl_init()
 
 /**
  * Deinitialize cURL module. */
-void curl_deinit()
+void curl_deinit(void)
 {
 	curl_share_cleanup(handle_share);
 	SDL_DestroyMutex(handle_share_mutex);

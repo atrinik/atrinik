@@ -144,7 +144,7 @@ font_struct fonts[FONTS_MAX] =
 
 /**
  * Initialize the text API. Should only be done once. */
-void text_init()
+void text_init(void)
 {
 	size_t i;
 	TTF_Font *font;
@@ -169,7 +169,7 @@ void text_init()
 
 /**
  * Deinitializes the text API. */
-void text_deinit()
+void text_deinit(void)
 {
 	size_t i;
 
@@ -200,7 +200,7 @@ void text_offset_set(int x, int y)
 /**
  * Reset the text offset. This must be done after text_offset_set() and
  * string_blt() calls eventually, */
-void text_offset_reset()
+void text_offset_reset(void)
 {
 	text_offset_mx = text_offset_my = -1;
 }
@@ -1861,7 +1861,7 @@ void string_truncate_overflow(int font, char *text, int max_width)
 
 /**
  * Enable text debugging. */
-void text_enable_debug()
+void text_enable_debug(void)
 {
 	text_debug = 1;
 }

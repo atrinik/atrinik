@@ -294,7 +294,7 @@ void book_load(const char *data, int len)
 
 /**
  * Redraw the book GUI. */
-void book_redraw()
+void book_redraw(void)
 {
 	redraw = 1;
 }

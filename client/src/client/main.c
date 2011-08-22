@@ -228,7 +228,7 @@ static int load_bitmap(int index);
 
 /**
  * Clear player lists like skill list, spell list, etc. */
-static void delete_player_lists()
+static void delete_player_lists(void)
 {
 	size_t i;
 
@@ -244,7 +244,7 @@ static void delete_player_lists()
 
 /**
  * Initialize game data. */
-static void init_game_data()
+static void init_game_data(void)
 {
 	size_t i;
 
@@ -343,7 +343,7 @@ static void rec_sigterm(int i)
 
 /**
  * Initialize the signal handlers. */
-static void init_signals()
+static void init_signals(void)
 {
 #ifndef WIN32
 	signal(SIGHUP, rec_sighup);
@@ -356,7 +356,7 @@ static void init_signals()
 /**
  * Game status chain.
  * @return 1. */
-static int game_status_chain()
+static int game_status_chain(void)
 {
 	char buf[1024];
 
@@ -522,7 +522,7 @@ static int game_status_chain()
 
 /**
  * Load the necessary bitmaps. */
-static void load_bitmaps()
+static void load_bitmaps(void)
 {
 	int i;
 
@@ -572,7 +572,7 @@ static int load_bitmap(int idx)
 
 /**
  * Free the bitmaps. */
-void free_bitmaps()
+void free_bitmaps(void)
 {
 	size_t i;
 
@@ -584,7 +584,7 @@ void free_bitmaps()
 
 /**
  * Play various action sounds. */
-static void play_action_sounds()
+static void play_action_sounds(void)
 {
 	if (cpl.warn_statdown)
 	{
@@ -615,7 +615,7 @@ static void play_action_sounds()
 
 /**
  * List video modes available. */
-void list_vid_modes()
+void list_vid_modes(void)
 {
 	const SDL_VideoInfo* vinfo = NULL;
 	SDL_Rect **modes;
@@ -663,7 +663,7 @@ void list_vid_modes()
 
 /**
  * Map, animations and other effects. */
-static void display_layer1()
+static void display_layer1(void)
 {
 	SDL_FillRect(ScreenSurface, NULL, 0);
 
@@ -675,7 +675,7 @@ static void display_layer1()
 
 /**
  * Inventory. */
-static void display_layer2()
+static void display_layer2(void)
 {
 	cpl.container = NULL;
 
@@ -691,7 +691,7 @@ static void display_layer2()
 
 /**
  * Process the widgets if we're playing. */
-static void display_layer3()
+static void display_layer3(void)
 {
 	/* Process the widgets */
 	if (GameStatus == GAME_STATUS_PLAY)
@@ -702,7 +702,7 @@ static void display_layer3()
 
 /**
  * Dialogs, highest priority layer. */
-static void display_layer4()
+static void display_layer4(void)
 {
 	if (GameStatus == GAME_STATUS_PLAY)
 	{
@@ -739,7 +739,7 @@ static void display_layer4()
 
 /**
  * Show a custom cursor. */
-static void DisplayCustomCursor()
+static void DisplayCustomCursor(void)
 {
 	if (f_custom_cursor == MSCURSOR_MOVE)
 	{

@@ -134,7 +134,7 @@ void bmap_add(bmap_struct *bmap)
 
 /**
  * Read bmaps from atrinik.p0, calculate checksums, etc. */
-void read_bmaps_p0()
+void read_bmaps_p0(void)
 {
 	FILE *fp;
 	size_t tmp_buf_size, pos;
@@ -215,7 +215,7 @@ void read_bmaps_p0()
 
 /**
  * Read bmaps server file. */
-void read_bmaps()
+void read_bmaps(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], name[MAX_BUF];

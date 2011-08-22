@@ -165,7 +165,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "Arena:  [Done]\n");
 }
 
-MODULEAPI void closePlugin()
+MODULEAPI void closePlugin(void)
 {
 	LOG(llevDebug, "Arena: Arena Plugin closing.\n");
 }
@@ -201,7 +201,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	return NULL;
 }
 
-MODULEAPI void postinitPlugin()
+MODULEAPI void postinitPlugin(void)
 {
 	LOG(llevDebug, "Arena: Start postinitPlugin.\n");
 

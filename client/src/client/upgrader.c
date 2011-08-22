@@ -359,7 +359,7 @@ static void upgrade_25_to_30(const char *from, const char *to)
 /**
  * Called before anything else on start, to check if we need to migrate
  * settings. */
-void upgrader_init()
+void upgrader_init(void)
 {
 	char tmp[HUGE_BUF], tmp2[HUGE_BUF], version[MAX_BUF];
 	size_t i;

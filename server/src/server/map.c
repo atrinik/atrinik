@@ -558,7 +558,7 @@ void dump_map(mapstruct *m)
  *
  * This basically just goes through all the maps and calls dump_map() on
  * each one. */
-void dump_all_maps()
+void dump_all_maps(void)
 {
 	mapstruct *m;
 
@@ -1407,7 +1407,7 @@ void set_map_darkness(mapstruct *m, int value)
 /**
  * Allocates, initializes, and returns a pointer to a mapstruct.
  * @return The new map structure. */
-mapstruct *get_linked_map()
+mapstruct *get_linked_map(void)
 {
 	mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
 
@@ -2143,7 +2143,7 @@ void clean_tmp_map(mapstruct *m)
 
 /**
  * Free all allocated maps. */
-void free_all_maps()
+void free_all_maps(void)
 {
 	int real_maps = 0;
 

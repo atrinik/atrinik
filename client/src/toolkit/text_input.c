@@ -57,7 +57,7 @@ uint32 text_input_opened;
 /**
  * Calculate X offset for centering a text input bitmap.
  * @return The offset. */
-int text_input_center_offset()
+int text_input_center_offset(void)
 {
 	return Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
 }
@@ -173,7 +173,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 
 /**
  * Clear text input. */
-void text_input_clear()
+void text_input_clear(void)
 {
 	text_input_string[0] = '\0';
 	text_input_count = 0;
@@ -221,7 +221,7 @@ void text_input_open(int maxchar)
 
 /**
  * Close previously opened text input. */
-void text_input_close()
+void text_input_close(void)
 {
 	cpl.input_mode = INPUT_MODE_NO;
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -261,7 +261,7 @@ static void text_input_history_add(const char *text)
 
 /**
  * Clear all the text window history. */
-void text_input_history_clear()
+void text_input_history_clear(void)
 {
 	size_t i;
 

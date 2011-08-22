@@ -93,7 +93,7 @@ static void init_clocks();
 
 /**
  * Initialize the ::shstr_cons structure. */
-static void init_strings()
+static void init_strings(void)
 {
 	shstr_cons.none = add_string("none");
 	shstr_cons.NONE = add_string("NONE");
@@ -129,7 +129,7 @@ static void init_strings()
 
 /**
  * Free the string constants. */
-void free_strings()
+void free_strings(void)
 {
 	int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
 	const char **ptr = (const char **) &shstr_cons;
@@ -151,7 +151,7 @@ void free_strings()
  * can replace the call to init_library() with init_globals() and
  * init_function_pointers(). Good idea to also call init_vars() and
  * init_hash_table() if you are doing any object loading. */
-void init_library()
+void init_library(void)
 {
 	init_environ();
 	init_hash_table();
@@ -187,7 +187,7 @@ void init_library()
  *
  * Needs to be called very early, since command line options should
  * overwrite these if specified. */
-static void init_environ()
+static void init_environ(void)
 {
 	char *cp;
 
@@ -244,7 +244,7 @@ static void init_environ()
 /**
  * Initializes all global variables.
  * Might use environment variables as default for some of them. */
-void init_globals()
+void init_globals(void)
 {
 	if (settings.logfilename[0] == '\0')
 	{
@@ -283,14 +283,14 @@ void init_globals()
  * Initializes global variables which can be changed by options.
  *
  * Called by init_library(). */
-static void init_defaults()
+static void init_defaults(void)
 {
 	nroferrors = 0;
 }
 
 /**
  * Initializes first_map_path from the archetype collection. */
-static void init_dynamic()
+static void init_dynamic(void)
 {
 	archetype *at = first_archetype;
 
@@ -311,7 +311,7 @@ static void init_dynamic()
 /**
  * Write out the current time to a file so time does not reset every
  * time the server reboots. */
-void write_todclock()
+void write_todclock(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;
@@ -332,7 +332,7 @@ void write_todclock()
  * Initializes the gametime and TOD counters.
  *
  * Called by init_library(). */
-static void init_clocks()
+static void init_clocks(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;
@@ -373,79 +373,79 @@ static void set_logfile(char *val)
 	settings.logfilename = val;
 }
 
-static void call_version()
+static void call_version(void)
 {
 	version(NULL);
 	exit(0);
 }
 
-static void showscores()
+static void showscores(void)
 {
 	hiscore_display(NULL, 9999, NULL);
 	exit(0);
 }
 
-static void set_debug()
+static void set_debug(void)
 {
 	settings.debug = llevDebug;
 }
 
-static void unset_debug()
+static void unset_debug(void)
 {
 	settings.debug = llevInfo;
 }
 
-static void set_timestamp()
+static void set_timestamp(void)
 {
 	settings.timestamp = 1;
 }
 
-static void set_dumpmon1()
+static void set_dumpmon1(void)
 {
 	settings.dumpvalues = DUMP_VALUE_MONSTERS;
 }
 
-static void set_dumpmon2()
+static void set_dumpmon2(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ABILITIES;
 }
 
-static void set_dumpmon3()
+static void set_dumpmon3(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ARTIFACTS;
 }
 
-static void set_dumpmon4()
+static void set_dumpmon4(void)
 {
 	settings.dumpvalues = DUMP_VALUE_SPELLS;
 }
 
-static void set_dumpmon5()
+static void set_dumpmon5(void)
 {
 	settings.dumpvalues = DUMP_VALUE_SKILLS;
 }
 
-static void set_dumpmon6()
+static void set_dumpmon6(void)
 {
 	settings.dumpvalues = DUMP_VALUE_RACES;
 }
 
-static void set_dumpmon7()
+static void set_dumpmon7(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY;
 }
 
-static void set_dumpmon8()
+static void set_dumpmon8(void)
 {
 	settings.dumpvalues = DUMP_VALUE_GODS;
 }
 
-static void set_dumpmon9()
+static void set_dumpmon9(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY_COSTS;
 }
 
-static void set_dumpmon10()
+static void set_dumpmon10(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ARCHETYPES;
 }
@@ -456,7 +456,7 @@ static void set_dumpmon11(char *name)
 	settings.dumparg = name;
 }
 
-static void set_dumpmon12()
+static void set_dumpmon12(void)
 {
 	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
 }
@@ -467,17 +467,17 @@ static void set_spell_dump(char *arg)
 	settings.dumparg = arg;
 }
 
-static void set_daemon()
+static void set_daemon(void)
 {
 	settings.daemonmode = 1;
 }
 
-static void set_watchdog()
+static void set_watchdog(void)
 {
 	settings.watchdog = 1;
 }
 
-static void set_interactive()
+static void set_interactive(void)
 {
 	settings.interactive = 1;
 }
@@ -535,27 +535,27 @@ static void set_csport(const char *val)
 #endif
 }
 
-static void stat_loss_on_death_true()
+static void stat_loss_on_death_true(void)
 {
 	settings.stat_loss_on_death = 1;
 }
 
-static void stat_loss_on_death_false()
+static void stat_loss_on_death_false(void)
 {
 	settings.stat_loss_on_death = 0;
 }
 
-static void balanced_stat_loss_true()
+static void balanced_stat_loss_true(void)
 {
 	settings.balanced_stat_loss = 1;
 }
 
-static void balanced_stat_loss_false()
+static void balanced_stat_loss_false(void)
 {
 	settings.balanced_stat_loss = 0;
 }
 
-static void set_unit_tests()
+static void set_unit_tests(void)
 {
 #if defined(HAVE_CHECK)
 	settings.unit_tests = 1;
@@ -743,7 +743,7 @@ static void parse_args(int argc, char *argv[], int pass)
  * There could be debate whether this should be here or in the common
  * directory - but since only the server needs this information, having
  * it here probably makes more sense. */
-static void load_settings()
+static void load_settings(void)
 {
 	char buf[MAX_BUF], *cp;
 	int	has_val, comp;
@@ -943,14 +943,14 @@ void init(int argc, char **argv)
 
 /**
  * Show the usage. */
-static void usage()
+static void usage(void)
 {
 	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
 }
 
 /**
  * Show help about the command line options. */
-static void help()
+static void help(void)
 {
 	LOG(llevInfo, "Flags:\n");
 	LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
@@ -1010,7 +1010,7 @@ static void help()
 
 /**
  * Initialize before playing. */
-static void init_beforeplay()
+static void init_beforeplay(void)
 {
 	init_archetypes();
 	init_spells();
@@ -1083,7 +1083,7 @@ static void init_beforeplay()
  *
  * It writes out information on how Imakefile and config.h was configured
  * at compile time. */
-void compile_info()
+void compile_info(void)
 {
 	int i = 0;
 
@@ -1248,7 +1248,7 @@ static void fatal_signal(int make_core)
 
 /**
  * Setup the signal handlers. */
-static void init_signals()
+static void init_signals(void)
 {
 #ifndef WIN32
 	/* init_signals() remove signals */
@@ -1266,7 +1266,7 @@ static void init_signals()
 
 /**
  * Dump level colors table. */
-static void dump_level_colors_table()
+static void dump_level_colors_table(void)
 {
 	int i, ii, range, tmp;
 

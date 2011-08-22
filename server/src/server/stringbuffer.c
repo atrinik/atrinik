@@ -51,7 +51,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 /**
  * Create a new string buffer.
  * @return The newly allocated string buffer. */
-StringBuffer *stringbuffer_new()
+StringBuffer *stringbuffer_new(void)
 {
 	StringBuffer *sb = malloc(sizeof(StringBuffer));
 

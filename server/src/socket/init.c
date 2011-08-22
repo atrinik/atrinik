@@ -148,7 +148,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 /**
  * This sets up the socket and reads all the image information into
  * memory. */
-void init_ericserver()
+void init_ericserver(void)
 {
 	struct sockaddr_in insock;
 	struct linger linger_opt;
@@ -270,7 +270,7 @@ void init_ericserver()
 
 /**
  * Frees all the memory that ericserver allocates. */
-void free_all_newserver()
+void free_all_newserver(void)
 {
 	LOG(llevDebug, "Freeing all new client/server information.\n");
 
@@ -391,7 +391,7 @@ static void load_srv_file(char *fname, int id)
 /**
  * Get the lib/settings default file and create the data/client_settings
  * file from it. */
-static void create_client_settings()
+static void create_client_settings(void)
 {
 	char buf[MAX_BUF * 4];
 	int i;
@@ -442,7 +442,7 @@ static void create_client_settings()
 /**
  * Get the lib/server_settings default file and create the
  * data/server_settings file from it. */
-static void create_server_settings()
+static void create_server_settings(void)
 {
 	char buf[MAX_BUF];
 	size_t i;
@@ -477,7 +477,7 @@ static void create_server_settings()
 
 /**
  * Initialize animations file for the client. */
-static void create_server_animations()
+static void create_server_animations(void)
 {
 	char buf[MAX_BUF];
 	FILE *fp, *fp2;
@@ -526,7 +526,7 @@ static void create_server_animations()
  *
  * client_bmaps is generated from the server at startup out of the
  * Atrinik png file. */
-void init_srv_files()
+void init_srv_files(void)
 {
 	char buf[MAX_BUF];
 
@@ -579,7 +579,7 @@ void init_srv_files()
 
 /**
  * Free all server files previously initialized by init_srv_files(). */
-void free_srv_files()
+void free_srv_files(void)
 {
 	int i;
 

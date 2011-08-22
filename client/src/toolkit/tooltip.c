@@ -56,7 +56,7 @@ void tooltip_create(int mx, int my, int font, const char *text)
 
 /**
  * Actually show the tooltip. */
-void tooltip_show()
+void tooltip_show(void)
 {
 	SDL_Rect box;
 
