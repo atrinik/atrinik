@@ -31,8 +31,6 @@
 
 #include <global.h>
 
-extern spell_struct spells[NROFREALSPELLS];
-
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
