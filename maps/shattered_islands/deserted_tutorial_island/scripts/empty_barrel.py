@@ -14,7 +14,7 @@ def main():
 
 	for (m, x, y) in activator.SquaresAround(1):
 		for obj in m.GetLayer(x, y, LAYER_FLOOR):
-			if obj.type == Types.FLOOR and obj.name == "clean water":
+			if obj.type == Type.FLOOR and obj.name == "clean water":
 				me.name = "water barrel"
 				me.face = "barrel_water.101"
 				me.weight = 20000
