@@ -2492,6 +2492,7 @@ arch invis_exit
 slaying deserted_tutorial_island/mushroom_cavern
 hp 10
 sp 3
+last_eat 1
 x 19
 y 17
 end
@@ -2509,6 +2510,7 @@ arch invis_exit
 slaying deserted_tutorial_island/mushroom_cavern
 hp 10
 sp 3
+last_eat 1
 x 19
 y 18
 end
@@ -2526,6 +2528,7 @@ arch invis_exit
 slaying deserted_tutorial_island/mushroom_cavern
 hp 10
 sp 3
+last_eat 1
 x 19
 y 19
 end
