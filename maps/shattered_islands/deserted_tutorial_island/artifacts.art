@@ -26,3 +26,26 @@ Object
 value 0
 type 79
 end
+
+Allowed none
+chance 1
+artifact deserted_island_branch
+def_arch tree_branch2
+Object
+name thick tree branch
+startequip 1
+quest_item 1
+weight 1000
+end
+
+Allowed none
+chance 1
+artifact sam_goodberry_saw
+def_arch saw
+Object
+name Sam Goodberry's saw
+no_drop 1
+msg
+Use this saw to cut some tree branches.
+endmsg
+end

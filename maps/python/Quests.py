@@ -40,5 +40,12 @@ EscapingDesertedIsland = {
 			"item_name": "wild white mushroom",
 			"num": 70,
 		},
+		{
+			"message": "In order to escape the Deserted Island, you will need to repair the boat. In order to do this, Sam Goodberry has asked you to collect some branches from the trees next to the lake using his saw.",
+			"type": QUEST_TYPE_KILL_ITEM,
+			"arch_name": "deserted_island_branch",
+			"item_name": "thick tree branch",
+			"num": 10,
+		},
 	],
 }

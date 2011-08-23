@@ -62,6 +62,26 @@ class QuestManagerBase:
 
 		return 0
 
+	def _get_quest_item_num(self, obj, quest):
+		# Just one item, easy.
+		if not obj.last_grace:
+			quest_item = self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"])
+
+			if quest_item and quest_item.f_quest_item:
+				return 1
+		# Got to count the objects otherwise.
+		else:
+			num = 0
+
+			# Find all matching objects, and count them.
+			for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
+				if tmp.f_quest_item:
+					num += max(1, tmp.nrof)
+
+			return num
+
+		return 0
+
 	## Check if (part of a) quest has been finished.
 	## @param obj Quest container object.
 	## @param quest Information about the quest.
@@ -73,26 +93,18 @@ class QuestManagerBase:
 				return True
 		# For the kill item quest type check for the quest item.
 		elif quest["type"] == QUEST_TYPE_KILL_ITEM:
-			# Just one item, easy.
-			if not obj.last_grace:
-				quest_item = self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"])
-
-				if quest_item and quest_item.f_quest_item:
-					return True
-			# Got to count the objects otherwise.
-			else:
-				num = 0
-
-				# Find all matching objects, and count them.
-				for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
-					if tmp.f_quest_item:
-						num += max(1, tmp.nrof)
-
-				# Have we found enough yet?
-				if num >= obj.last_grace:
-					return True
+			if self._get_quest_item_num(obj, quest) >= max(1, obj.last_grace):
+				return True
 
 		return False
+
+	def _num2finish(self, obj, quest):
+		if quest["type"] == QUEST_TYPE_KILL:
+			return obj.last_grace - obj.last_sp
+		elif quest["type"] == QUEST_TYPE_KILL_ITEM:
+			return max(1, obj.last_grace) - self._get_quest_item_num(obj, quest)
+
+		return 0
 
 	## Complete a quest object.
 	## @param obj The quest object.
@@ -229,7 +241,7 @@ class QuestManagerMulti(QuestManagerBase):
 	## Complete (part of) the quest.
 	## @param part If None, complete all parts of the quest, otherwise
 	## only the specified part.
-	def complete(self, part = None, sound = "learnspell.ogg"):
+	def complete(self, part = None, sound = "learnspell.ogg", skip_completion = False):
 		if sound:
 			self.activator.Controller().Sound(sound)
 
@@ -242,6 +254,9 @@ class QuestManagerMulti(QuestManagerBase):
 			if obj:
 				obj.magic = QUEST_STATUS_COMPLETED
 				self._complete(obj, self.quest["parts"][part - 1])
+
+			if skip_completion:
+				return
 
 			# Check all quest parts. If all are completed, complete the
 			# entire quest.
@@ -273,3 +288,14 @@ class QuestManagerMulti(QuestManagerBase):
 			return False
 
 		return True
+
+	def num2finish(self, part):
+		if not self.quest_object:
+			return -1
+
+		obj = self.quest_object.FindObject(name = "part " + str(part))
+
+		if not obj:
+			return -1
+
+		return self._num2finish(obj, self.quest["parts"][part - 1])

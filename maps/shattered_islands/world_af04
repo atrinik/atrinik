@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-22 Alex Tokar
+Modified: 2011-08-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2852,6 +2852,7 @@ x 21
 y 15
 end
 arch tree_a_08
+name thick branch tree
 x 21
 y 15
 end
@@ -2904,6 +2905,7 @@ x 21
 y 22
 end
 arch tree_a_05
+name thick branch tree
 x 21
 y 22
 end

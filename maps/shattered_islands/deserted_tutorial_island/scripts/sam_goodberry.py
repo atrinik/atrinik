@@ -90,4 +90,64 @@ def main():
 			qm.start(5)
 			qm.complete(4, sound = False)
 
+	elif qm.started_part(5) and not qm.completed_part(5):
+		if qm.finished(5):
+			if is_hello:
+				me.SayTo(activator, "\nVery good. We have enough mushrooms to last us for a while. Keep some of those, while I store the rest. There we go. Now, we should think about leaving this island.\n\n<a><b>How</b> do we do that?</a>")
+				activator.Write("Eating food is important - watch your food bar, because when it empties, you will start starving, which stops your health regeneration, and you slowly start losing health. If this happens, your character will blindly grab for some food in your inventory, even if unidentified, which can be dangerous, as the food could be poisonous. Thus it is important to always identify items you find in the game before using them.", "FDD017")
+				qm.complete(5, skip_completion = True)
+
+				mushrooms = me.FindObject(archname = "mushroom1").Clone()
+				mushrooms.InsertInto(activator)
+		else:
+			if is_hello:
+				from Language import int2english
+
+				num = qm.num2finish(5)
+
+				me.SayTo(activator, "\nAh, you're back soon, it seems! But have you found any mushrooms?")
+				activator.Write("{} checks how many mushrooms you have found.".format(me.name), COLOR_YELLOW)
+
+				if num == quest["parts"][5 - 1]["num"]:
+					me.SayTo(activator, "None? Well, keep looking, there are sure to be some edible ones around here somewhere, perhaps in a nearby cavern...", True)
+				else:
+					me.SayTo(activator, "Ah, you have found some! Very good. However, it seems we need at least {} more.".format(int2english(num)), True)
+
+	elif not qm.started_part(6):
+		if is_hello:
+			me.SayTo(activator, "\nWe should think about leaving this island soon, {}.\n\n<a><b>How</b> do we do that?</a>".format(activator.name))
+
+		elif msg == "how" or msg == "how do we do that?":
+			me.SayTo(activator, "\nObviously we need to repair the boat. Luckily this saw survived the storm we went through, however, our wood supplies did not. Which means we need to find some trees, but I can't see anything around here apart from palm trees, which are no good for repairing a boat.\n\n<a>I saw some <b>trees</b> next to the lake</a>")
+
+		elif msg == "trees" or msg == "i saw some trees next to the lake":
+			saw = me.FindObject(archname = "sam_goodberry_saw").Clone()
+
+			me.SayTo(activator, "\nWe are in luck then! This is good. Here, take this saw then, and bring me some thick branches from those trees. Ten really thick branches should be enough.")
+			activator.Write("{} gives you a saw.".format(me.name), COLOR_YELLOW)
+			activator.Write("You can apply (<b>A key</b>) the saw while standing next to a tree in order to cut down some branches.", "FDD017")
+
+			saw.InsertInto(activator)
+
+			qm.start(6)
+
+	elif qm.started_part(6) and not qm.completed_part(6):
+		if qm.finished(6):
+			if is_hello:
+				me.SayTo(activator, "\nAh, perfect! If you can lend me a hand, we can repair this boat in no time at all with the tree branches that you collected.\n\n<a>Where are we <b>heading</b> though?</a>")
+
+			elif msg == "heading" or msg == "where are we heading though?":
+				me.SayTo(activator, "\nI think we should head for Incuna - we should be close by, as I saw the island in the distance, before the storm hit us. We could take refuge there for a little while, and resupply, in order to continue the journey to Strakewood. And you need to regain your memory... Perhaps learning some basic fighting in Incuna from the townsfolk would refresh your memory.\n\n<a>Let's <b>go</b> then</a>")
+
+			elif msg == "go" or msg == "let's go then":
+				me.SayTo(activator, "\nIt's decided then! Now, help me with repairing this boat, and then we can be off.\n\n<a><b>Alright</b> then</a>")
+
+			elif msg == "alright" or msg == "alright then":
+				saw = activator.FindObject(INVENTORY_CONTAINERS, "sam_goodberry_saw")
+				saw.Remove()
+				qm.complete(6, sound = "fanfare6.ogg")
+		else:
+			me.SayTo(activator, "\nWe need some thick branches to repair the boat, {}.".format(activator.name))
+
+
 main()
