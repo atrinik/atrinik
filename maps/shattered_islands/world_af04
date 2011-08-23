@@ -2667,6 +2667,7 @@ y 16
 end
 arch magic_mouth
 msg
+
 <c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
 endmsg
 direction 3
@@ -2685,6 +2686,7 @@ y 17
 end
 arch magic_mouth
 msg
+
 <c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
 endmsg
 direction 3
@@ -2698,6 +2700,7 @@ y 18
 end
 arch magic_mouth
 msg
+
 <c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
 endmsg
 direction 3
@@ -2715,6 +2718,7 @@ y 19
 end
 arch magic_mouth
 msg
+
 <c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
 endmsg
 direction 3
@@ -2728,6 +2732,7 @@ y 20
 end
 arch magic_mouth
 msg
+
 <c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
 endmsg
 direction 4
