@@ -971,7 +971,7 @@ msg
 Sam Goodberry shouts at you:
 Hey, I need you over here, not back on the lower deck!
 
-<c=#FDD017>Talk to NPCs (non-player characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
+<c=#FDD017>Talk to NPCs (Non-Player Characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
 endmsg
 direction 5
 hp 8
