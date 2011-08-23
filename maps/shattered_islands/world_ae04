@@ -180,6 +180,10 @@ arch floor_ruin2
 x 1
 y 6
 end
+arch starfish
+x 1
+y 6
+end
 arch floor_ruin3
 x 1
 y 7
@@ -882,6 +886,10 @@ arch floor_ruin6
 x 5
 y 7
 end
+arch seashell3
+x 5
+y 7
+end
 arch floor_ruin3
 x 5
 y 8
@@ -1378,6 +1386,10 @@ x 8
 y 9
 end
 arch grassd_m14
+x 8
+y 9
+end
+arch starfish
 x 8
 y 9
 end
@@ -2014,6 +2026,10 @@ arch floor_ruin6
 x 12
 y 3
 end
+arch seashell2
+x 12
+y 3
+end
 arch floor_ruin6
 x 12
 y 4
@@ -2061,6 +2077,10 @@ x 12
 y 11
 end
 arch floor_ruin2
+x 12
+y 12
+end
+arch seashell2
 x 12
 y 12
 end
@@ -2365,6 +2385,10 @@ arch floor_ruin6
 x 14
 y 9
 end
+arch seashell
+x 14
+y 9
+end
 arch floor_ruin3
 x 14
 y 10
@@ -2408,6 +2432,10 @@ x 14
 y 17
 end
 arch floor_ruin2
+x 14
+y 18
+end
+arch seashell
 x 14
 y 18
 end
@@ -2716,6 +2744,10 @@ arch floor_ruin2
 x 17
 y 1
 end
+arch seashell2
+x 17
+y 1
+end
 arch floor_ruin5
 x 17
 y 2
@@ -2828,6 +2860,10 @@ x 17
 y 21
 end
 arch floor_ruin6
+x 17
+y 22
+end
+arch seashell2
 x 17
 y 22
 end
@@ -3274,6 +3310,10 @@ x 21
 y 7
 end
 arch floor_ruin3
+x 21
+y 8
+end
+arch starfish
 x 21
 y 8
 end

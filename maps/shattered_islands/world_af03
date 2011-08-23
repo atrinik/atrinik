@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-22 Alex Tokar
+Modified: 2011-08-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -548,6 +548,10 @@ arch floor_ruin3
 x 5
 y 10
 end
+arch seashell3
+x 5
+y 10
+end
 arch floor_ruin6
 x 5
 y 11
@@ -871,6 +875,9 @@ end
 arch floor_ruin5
 x 8
 end
+arch seashell
+x 8
+end
 arch floor_ruin6
 x 8
 y 1
@@ -906,6 +913,10 @@ x 8
 y 5
 end
 arch floor_ruin5
+x 8
+y 6
+end
+arch seashell
 x 8
 y 6
 end
@@ -950,6 +961,10 @@ x 8
 y 13
 end
 arch floor_ruin6
+x 8
+y 14
+end
+arch seashell
 x 8
 y 14
 end
@@ -1398,6 +1413,10 @@ arch floor_ruin2
 x 12
 y 3
 end
+arch seashell3
+x 12
+y 3
+end
 arch floor_ruin3
 x 12
 y 4
@@ -1459,6 +1478,10 @@ x 12
 y 14
 end
 arch floor_ruin5
+x 12
+y 15
+end
+arch seashell
 x 12
 y 15
 end
@@ -1806,6 +1829,10 @@ arch floor_ruin6
 x 15
 y 14
 end
+arch seashell3
+x 15
+y 14
+end
 arch floor_ruin5
 x 15
 y 15
@@ -2008,6 +2035,10 @@ x 17
 y 8
 end
 arch floor_ruin5
+x 17
+y 9
+end
+arch seashell2
 x 17
 y 9
 end
@@ -2463,6 +2494,10 @@ x 21
 y 5
 end
 arch floor_ruin2
+x 21
+y 6
+end
+arch seashell3
 x 21
 y 6
 end

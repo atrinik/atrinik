@@ -1475,6 +1475,10 @@ arch floor_ruin3
 x 11
 y 12
 end
+arch starfish
+x 11
+y 12
+end
 arch bridge_wood_EW.101
 x 11
 y 13
@@ -1500,6 +1504,10 @@ x 11
 y 17
 end
 arch floor_ruin2
+x 11
+y 18
+end
+arch seashell3
 x 11
 y 18
 end
@@ -1576,6 +1584,10 @@ arch floor_ruin5
 x 12
 y 10
 end
+arch seashell
+x 12
+y 10
+end
 arch floor_ruin2
 x 12
 y 11
@@ -1621,6 +1633,10 @@ x 12
 y 20
 end
 arch floor_ruin2
+x 12
+y 21
+end
+arch seashell
 x 12
 y 21
 end
@@ -2136,6 +2152,10 @@ arch floor_ruin6
 x 16
 y 19
 end
+arch seashell3
+x 16
+y 19
+end
 arch floor_ruin6
 x 16
 y 20
@@ -2198,6 +2218,10 @@ x 17
 y 8
 end
 arch floor_ruin2
+x 17
+y 9
+end
+arch starfish
 x 17
 y 9
 end
@@ -2383,6 +2407,10 @@ x 18
 y 16
 end
 arch floor_ruin5
+x 18
+y 17
+end
+arch seashell2
 x 18
 y 17
 end
@@ -2838,6 +2866,10 @@ arch floor_ruin3
 x 22
 y 17
 end
+arch starfish
+x 22
+y 17
+end
 arch floor_ruin3
 x 22
 y 18
@@ -2924,6 +2956,10 @@ x 23
 y 12
 end
 arch floor_ruin2
+x 23
+y 13
+end
+arch seashell
 x 23
 y 13
 end
