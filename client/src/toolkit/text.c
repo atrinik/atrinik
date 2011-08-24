@@ -1780,6 +1780,7 @@ int string_get_width(int font, const char *text, uint64 flags)
 	text_blit_info info;
 
 	blt_character_init(&info);
+	TTF_SetFontStyle(fonts[font].font, TTF_STYLE_NORMAL);
 
 	dest.w = 0;
 
