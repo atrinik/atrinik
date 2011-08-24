@@ -2394,6 +2394,14 @@ arch light1
 x 18
 y 18
 end
+arch sound_ambient
+race eerie.ogg
+item_condition 80
+item_level 4
+xrays 0
+x 18
+y 18
+end
 arch blocked
 x 18
 y 19

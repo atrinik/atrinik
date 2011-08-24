@@ -496,6 +496,61 @@ direction 3
 x 2
 y 20
 end
+arch spawn_point
+speed 0.1
+x 2
+y 20
+arch ant_red
+no_pass 1
+state 3
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_lt
 x 2
 y 21
@@ -658,6 +713,61 @@ direction 4
 x 3
 y 18
 end
+arch spawn_point
+speed 0.1
+x 3
+y 18
+arch ant_red
+no_pass 1
+state 1
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_md2
 x 3
 y 19
@@ -676,6 +786,61 @@ direction 3
 x 3
 y 20
 end
+arch spawn_point
+speed 0.1
+x 3
+y 20
+arch ant_red
+no_pass 1
+state 1
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_md
 x 3
 y 21
@@ -693,6 +858,60 @@ arch water_md_m
 direction 2
 x 3
 y 22
+end
+arch spawn_point
+speed 0.1
+x 3
+y 22
+arch ant_red
+no_pass 1
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt
 name clean water
@@ -835,6 +1054,61 @@ direction 5
 x 4
 y 17
 end
+arch spawn_point
+speed 0.1
+x 4
+y 17
+arch ant_red
+no_pass 1
+state 3
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_md3
 x 4
 y 18
@@ -848,6 +1122,60 @@ arch water_dk
 x 4
 y 19
 end
+arch spawn_point
+speed 0.1
+x 4
+y 19
+arch ant_red
+no_pass 1
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_dk4
 x 4
 y 20
@@ -855,6 +1183,60 @@ end
 arch water_dk4
 x 4
 y 21
+end
+arch spawn_point
+speed 0.1
+x 4
+y 21
+arch ant_red
+no_pass 1
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_md3
 x 4
@@ -1006,6 +1388,61 @@ direction 6
 x 5
 y 18
 end
+arch spawn_point
+speed 0.1
+x 5
+y 18
+arch ant_red
+no_pass 1
+state 2
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_md3
 x 5
 y 19
@@ -1015,9 +1452,119 @@ direction 6
 x 5
 y 19
 end
+arch spawn_point
+speed 0.1
+x 5
+y 19
+arch ant_red
+no_pass 1
+state 2
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
+end
 arch water_dk3
 x 5
 y 20
+end
+arch spawn_point
+speed 0.1
+x 5
+y 20
+arch ant_red
+no_pass 1
+state 3
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_md2
 x 5
@@ -1031,6 +1578,61 @@ end
 arch water_md
 x 5
 y 22
+end
+arch spawn_point
+speed 0.1
+x 5
+y 22
+arch ant_red
+no_pass 1
+state 3
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt3
 x 5
@@ -1194,6 +1796,61 @@ end
 arch water_md3
 x 6
 y 21
+end
+arch spawn_point
+speed 0.1
+x 6
+y 21
+arch ant_red
+no_pass 1
+state 2
+name fireflies
+layer 4
+face fireflies.101
+animation fireflies
+glow_radius 4
+sys_object 1
+randomitems none
+race insect
+invulnerable 1
+no_attack 1
+is_female 0
+spawn_time 19:00 - 07:00
+terrain_flag 2
+random_move 0
+type 83
+arch waypoint
+name wp5
+title wp6
+slaying world_0419
+hp 2
+sp 6
+grace 3
+cursed 1
+end
+arch waypoint
+name wp6
+title wp7
+slaying world_0319
+hp 1
+sp 10
+grace 3
+end
+arch waypoint
+name wp7
+title wp8
+slaying world_0219
+hp 3
+sp 16
+grace 3
+end
+arch waypoint
+name wp8
+slaying world_0119
+hp 2
+sp 11
+end
+end
 end
 arch water_lt
 x 6
@@ -3588,12 +4245,12 @@ arch water_md4
 x 22
 y 22
 end
-arch rock5
+arch water_lt_m
+direction 8
 x 22
 y 22
 end
-arch water_lt_m
-direction 8
+arch rock5
 x 22
 y 22
 end
