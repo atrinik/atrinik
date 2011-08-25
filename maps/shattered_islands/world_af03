@@ -883,10 +883,6 @@ arch grassd_m11
 x 7
 y 7
 end
-arch cactus6
-x 7
-y 7
-end
 arch floor_ruin2
 x 7
 y 8
@@ -1546,10 +1542,6 @@ x 11
 y 14
 end
 arch floor_ruin5
-x 11
-y 15
-end
-arch cactus10
 x 11
 y 15
 end
@@ -2374,10 +2366,6 @@ x 17
 y 9
 end
 arch floor_ruin5
-x 17
-y 10
-end
-arch cactus13
 x 17
 y 10
 end

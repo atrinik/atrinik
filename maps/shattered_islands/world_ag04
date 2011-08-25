@@ -1910,10 +1910,6 @@ arch floor_ruin2
 x 12
 y 21
 end
-arch cactus13
-x 12
-y 21
-end
 arch floor_ruin3
 x 12
 y 22
@@ -2436,10 +2432,6 @@ arch floor_ruin5
 x 16
 y 8
 end
-arch cactus12
-x 16
-y 8
-end
 arch floor_ruin3
 x 16
 y 9
@@ -2940,10 +2932,6 @@ y 18
 end
 arch water_lt2_m
 direction 5
-x 19
-y 18
-end
-arch cactus12
 x 19
 y 18
 end

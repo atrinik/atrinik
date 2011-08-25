@@ -643,10 +643,6 @@ arch floor_ruin3
 x 4
 y 10
 end
-arch cactus8
-x 4
-y 10
-end
 arch floor_ruin2
 x 4
 y 11
@@ -1525,10 +1521,6 @@ x 10
 y 9
 end
 arch floor_ruin3
-x 10
-y 10
-end
-arch cactus13
 x 10
 y 10
 end
