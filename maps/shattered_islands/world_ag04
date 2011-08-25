@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-24 Alex Tokar
+Modified: 2011-08-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -995,6 +995,13 @@ arch ship_prow_s_starboard_a
 x 7
 y 16
 end
+arch kitchen_bottle3
+rotate -45
+z 5
+align 21
+x 7
+y 16
+end
 arch water_lt2
 x 7
 y 17
@@ -1370,10 +1377,18 @@ x 9
 y 15
 end
 arch box_big.101
+layer 3
 x 9
 y 15
 end
 arch ship_rail_e
+x 9
+y 15
+end
+arch kitchen_bottle4
+z 23
+align 16
+rotate 135
 x 9
 y 15
 end
@@ -1722,6 +1737,11 @@ arch floor_ruin6
 x 11
 y 16
 end
+arch trash_wood1.101
+name broken wood
+x 11
+y 16
+end
 arch floor_ruin6
 x 11
 y 17
@@ -1748,6 +1768,11 @@ y 21
 end
 arch water_lt_m
 direction 6
+x 11
+y 21
+end
+arch trash_wood2.101
+name broken wood
 x 11
 y 21
 end
@@ -1820,6 +1845,19 @@ arch floor_ruin2
 x 12
 y 11
 end
+arch box_big.101
+layer 3
+x 12
+y 11
+end
+arch box_tinder
+z 22
+align 3
+layer 4
+zoom 85
+x 12
+y 11
+end
 arch floor_ruin2
 x 12
 y 12
@@ -1848,7 +1886,15 @@ arch floor_ruin5
 x 12
 y 17
 end
+arch small_stones
+x 12
+y 17
+end
 arch floor_ruin5
+x 12
+y 18
+end
+arch box1.101
 x 12
 y 18
 end
@@ -1864,7 +1910,7 @@ arch floor_ruin2
 x 12
 y 21
 end
-arch seashell
+arch cactus13
 x 12
 y 21
 end
@@ -1930,11 +1976,20 @@ arch floor_ruin6
 x 13
 y 9
 end
+arch plant22
+x 13
+y 9
+end
 arch floor_ruin5
 x 13
 y 10
 end
 arch floor_ruin2
+x 13
+y 11
+end
+arch trash_wood1.101
+name broken wood
 x 13
 y 11
 end
@@ -1991,6 +2046,10 @@ x 13
 y 20
 end
 arch floor_ruin5
+x 13
+y 21
+end
+arch pile_floor1
 x 13
 y 21
 end
@@ -2072,11 +2131,27 @@ arch floor_ruin5
 x 14
 y 10
 end
+arch campfire
+glow_radius 3
+x 14
+y 10
+end
+arch sound_ambient
+race campfire.ogg
+item_condition 80
+item_level 2
+x 14
+y 10
+end
 arch floor_ruin6
 x 14
 y 11
 end
 arch floor_ruin6
+x 14
+y 12
+end
+arch small_stones
 x 14
 y 12
 end
@@ -2125,6 +2200,11 @@ x 14
 y 18
 end
 arch floor_ruin5
+x 14
+y 19
+end
+arch trash_wood2.101
+name broken wood
 x 14
 y 19
 end
@@ -2198,7 +2278,15 @@ arch floor_ruin5
 x 15
 y 8
 end
+arch small_stones
+x 15
+y 8
+end
 arch floor_ruin5
+x 15
+y 9
+end
+arch dirt_floor4
 x 15
 y 9
 end
@@ -2250,6 +2338,10 @@ arch grassd_3
 x 15
 y 16
 end
+arch plant_flower8
+x 15
+y 16
+end
 arch grassd_3
 x 15
 y 17
@@ -2271,6 +2363,10 @@ x 15
 y 19
 end
 arch floor_ruin2
+x 15
+y 20
+end
+arch plant21
 x 15
 y 20
 end
@@ -2340,7 +2436,16 @@ arch floor_ruin5
 x 16
 y 8
 end
+arch cactus12
+x 16
+y 8
+end
 arch floor_ruin3
+x 16
+y 9
+end
+arch trash_wood2.101
+name broken wood
 x 16
 y 9
 end
@@ -2510,6 +2615,10 @@ arch grassd_2
 x 17
 y 12
 end
+arch plant3
+x 17
+y 12
+end
 arch grassd_7
 x 17
 y 13
@@ -2546,12 +2655,21 @@ arch floor_ruin6
 x 17
 y 18
 end
+arch small_stones
+x 17
+y 18
+end
 arch floor_ruin6
 x 17
 y 19
 end
 arch water_lt2_m
 direction 5
+x 17
+y 19
+end
+arch trash_wood2.101
+name broken wood
 x 17
 y 19
 end
@@ -2630,6 +2748,10 @@ x 18
 y 9
 end
 arch floor_ruin3
+x 18
+y 10
+end
+arch small_stones
 x 18
 y 10
 end
@@ -2821,6 +2943,10 @@ direction 5
 x 19
 y 18
 end
+arch cactus12
+x 19
+y 18
+end
 arch water_lt4
 x 19
 y 19
@@ -2907,7 +3033,16 @@ direction 2
 x 20
 y 11
 end
+arch trash_wood1.101
+name broken wood
+x 20
+y 11
+end
 arch floor_ruin5
+x 20
+y 12
+end
+arch plant18
 x 20
 y 12
 end
@@ -3161,6 +3296,10 @@ x 22
 y 13
 end
 arch floor_ruin5
+x 22
+y 14
+end
+arch small_stones
 x 22
 y 14
 end

@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-24 Alex Tokar
+Modified: 2011-08-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -88,6 +88,9 @@ end
 arch grassd_m8
 y 16
 end
+arch small_stones
+y 16
+end
 arch floor_ruin6
 y 17
 end
@@ -126,11 +129,11 @@ arch water_md
 x 1
 y 1
 end
-arch water_md3
+arch water_md2
 x 1
 y 2
 end
-arch water_md3
+arch water_md2
 x 1
 y 3
 end
@@ -208,6 +211,10 @@ arch grassd_7
 x 1
 y 16
 end
+arch plant12
+x 1
+y 16
+end
 arch grassd_3
 x 1
 y 17
@@ -232,6 +239,10 @@ arch floor_ruin6
 x 1
 y 20
 end
+arch small_stones
+x 1
+y 20
+end
 arch floor_ruin5
 x 1
 y 21
@@ -252,15 +263,15 @@ end
 arch water_md2
 x 2
 end
-arch water_md3
+arch water_md4
 x 2
 y 1
 end
-arch water_md3
+arch water_md
 x 2
 y 2
 end
-arch water_md3
+arch water_md2
 x 2
 y 3
 end
@@ -346,6 +357,10 @@ arch grassd_6
 x 2
 y 18
 end
+arch plant16
+x 2
+y 18
+end
 arch floor_ruin3
 x 2
 y 19
@@ -390,11 +405,11 @@ arch water_md4
 x 3
 y 1
 end
-arch water_md3
+arch water_md
 x 3
 y 2
 end
-arch water_md
+arch water_md4
 x 3
 y 3
 end
@@ -452,6 +467,10 @@ arch grassd_m7
 x 3
 y 13
 end
+arch small_stones
+x 3
+y 13
+end
 arch grassd_4
 x 3
 y 14
@@ -465,6 +484,14 @@ x 3
 y 16
 end
 arch grassd_2
+x 3
+y 17
+end
+arch plant5
+x 3
+y 17
+end
+arch plant14
 x 3
 y 17
 end
@@ -508,7 +535,7 @@ arch water_md3
 x 4
 y 1
 end
-arch water_md4
+arch water_md3
 x 4
 y 2
 end
@@ -562,6 +589,10 @@ arch floor_ruin2
 x 4
 y 11
 end
+arch cactus7
+x 4
+y 11
+end
 arch floor_ruin2
 x 4
 y 12
@@ -586,11 +617,23 @@ arch grassd_5
 x 4
 y 15
 end
+arch plant_flower6
+x 4
+y 15
+end
 arch grassd_2
 x 4
 y 16
 end
+arch plant_flower7
+x 4
+y 16
+end
 arch grassd_3
+x 4
+y 17
+end
+arch rock_big6
 x 4
 y 17
 end
@@ -619,6 +662,10 @@ x 4
 y 21
 end
 arch floor_ruin6
+x 4
+y 22
+end
+arch plant19
 x 4
 y 22
 end
@@ -724,11 +771,19 @@ arch grassd_7
 x 5
 y 17
 end
+arch small_stones
+x 5
+y 17
+end
 arch grassd_5
 x 5
 y 18
 end
 arch grassd_1
+x 5
+y 19
+end
+arch plant17
 x 5
 y 19
 end
@@ -833,6 +888,10 @@ arch grassd_7
 x 6
 y 14
 end
+arch plant11
+x 6
+y 14
+end
 arch grassd_8
 x 6
 y 15
@@ -858,6 +917,10 @@ x 6
 y 19
 end
 arch grassd_1
+x 6
+y 20
+end
+arch plant_flower11
 x 6
 y 20
 end
@@ -929,6 +992,10 @@ arch grassd_m11
 x 7
 y 10
 end
+arch plant21
+x 7
+y 10
+end
 arch floor_ruin2
 x 7
 y 11
@@ -942,6 +1009,10 @@ x 7
 y 12
 end
 arch grassd_8
+x 7
+y 13
+end
+arch plant_flower11
 x 7
 y 13
 end
@@ -990,6 +1061,10 @@ x 7
 y 21
 end
 arch floor_ruin6
+x 7
+y 22
+end
+arch small_stones
 x 7
 y 22
 end
@@ -1197,6 +1272,10 @@ arch grassd_6
 x 9
 y 12
 end
+arch plant11
+x 9
+y 12
+end
 arch grass_thick3
 x 9
 y 13
@@ -1285,6 +1364,10 @@ arch floor_ruin6
 x 10
 y 6
 end
+arch plant20
+x 10
+y 6
+end
 arch floor_ruin6
 x 10
 y 7
@@ -1310,6 +1393,10 @@ x 10
 y 10
 end
 arch grassd_1
+x 10
+y 11
+end
+arch small_stones
 x 10
 y 11
 end
@@ -1433,6 +1520,10 @@ arch grassd_7
 x 11
 y 10
 end
+arch plant_flower2
+x 11
+y 10
+end
 arch grassd_6
 x 11
 y 11
@@ -1489,6 +1580,10 @@ arch grassd_1
 x 11
 y 22
 end
+arch plant13
+x 11
+y 22
+end
 arch floor_ruin2
 x 11
 y 23
@@ -1525,6 +1620,10 @@ arch floor_ruin2
 x 12
 y 5
 end
+arch cactus12
+x 12
+y 5
+end
 arch floor_ruin5
 x 12
 y 6
@@ -1545,6 +1644,10 @@ arch grassd_m5
 x 12
 y 8
 end
+arch plant4
+x 12
+y 8
+end
 arch grassd_6
 x 12
 y 9
@@ -1554,6 +1657,10 @@ x 12
 y 10
 end
 arch grassd_2
+x 12
+y 11
+end
+arch plant_flower2
 x 12
 y 11
 end
@@ -1621,6 +1728,10 @@ arch grassd_4
 x 12
 y 23
 end
+arch stone1
+x 12
+y 23
+end
 arch water_lt3
 x 13
 end
@@ -1649,6 +1760,10 @@ arch floor_ruin6
 x 13
 y 5
 end
+arch small_stones
+x 13
+y 5
+end
 arch floor_ruin2
 x 13
 y 6
@@ -1665,6 +1780,10 @@ arch grassd_6
 x 13
 y 8
 end
+arch rock_big10
+x 13
+y 8
+end
 arch grassd_1
 x 13
 y 9
@@ -1678,6 +1797,10 @@ x 13
 y 11
 end
 arch grassd_5
+x 13
+y 12
+end
+arch plant9
 x 13
 y 12
 end
@@ -1781,11 +1904,23 @@ arch grassd_3
 x 14
 y 8
 end
+arch mushroom_giant8
+x 14
+y 8
+end
 arch grassd_5
 x 14
 y 9
 end
+arch plant15
+x 14
+y 9
+end
 arch grassd_8
+x 14
+y 10
+end
+arch plant_flower8
 x 14
 y 10
 end
@@ -1853,7 +1988,15 @@ arch grassd_4
 x 14
 y 22
 end
+arch small_stones
+x 14
+y 22
+end
 arch grassd_3
+x 14
+y 23
+end
+arch plant1
 x 14
 y 23
 end
@@ -1981,6 +2124,10 @@ arch grassd_2
 x 15
 y 22
 end
+arch stone1
+x 15
+y 22
+end
 arch grassd_4
 x 15
 y 23
@@ -2044,11 +2191,19 @@ arch grassd_2
 x 16
 y 10
 end
+arch small_stones
+x 16
+y 10
+end
 arch grassd_1
 x 16
 y 11
 end
 arch grassd_4
+x 16
+y 12
+end
+arch plant11
 x 16
 y 12
 end
@@ -2132,6 +2287,10 @@ arch grassd_4
 x 16
 y 23
 end
+arch plant2
+x 16
+y 23
+end
 arch water_lt3
 x 17
 end
@@ -2172,11 +2331,19 @@ arch grassd_3
 x 17
 y 7
 end
+arch plant15
+x 17
+y 7
+end
 arch grassd_6
 x 17
 y 8
 end
 arch grassd_7
+x 17
+y 9
+end
+arch plant11
 x 17
 y 9
 end
@@ -2300,6 +2467,10 @@ arch floor_ruin3
 x 18
 y 3
 end
+arch plant19
+x 18
+y 3
+end
 arch floor_ruin3
 x 18
 y 4
@@ -2320,7 +2491,15 @@ arch grassd_7
 x 18
 y 7
 end
+arch plant2
+x 18
+y 7
+end
 arch grassd_7
+x 18
+y 8
+end
+arch plant2
 x 18
 y 8
 end
@@ -2494,11 +2673,23 @@ arch grassd_6
 x 19
 y 8
 end
+arch plant11
+x 19
+y 8
+end
 arch grassd_2
 x 19
 y 9
 end
+arch plant2
+x 19
+y 9
+end
 arch grassd_4
+x 19
+y 10
+end
+arch plant16
 x 19
 y 10
 end
@@ -2660,6 +2851,10 @@ arch floor_ruin3
 x 20
 y 3
 end
+arch cactus10
+x 20
+y 3
+end
 arch floor_ruin3
 x 20
 y 4
@@ -2680,11 +2875,23 @@ arch grassd_5
 x 20
 y 7
 end
+arch small_stones
+x 20
+y 7
+end
 arch grassd_6
 x 20
 y 8
 end
+arch plant_flower14
+x 20
+y 8
+end
 arch grassd_6
+x 20
+y 9
+end
+arch plant15
 x 20
 y 9
 end
@@ -2879,6 +3086,10 @@ arch grassd_4
 x 21
 y 6
 end
+arch stone1
+x 21
+y 6
+end
 arch grassd_3
 x 21
 y 7
@@ -3049,7 +3260,15 @@ arch grassd_6
 x 22
 y 8
 end
+arch plant12
+x 22
+y 8
+end
 arch grassd_8
+x 22
+y 9
+end
+arch plant_flower9
 x 22
 y 9
 end
@@ -3206,6 +3425,10 @@ x 23
 y 9
 end
 arch grassd_1
+x 23
+y 10
+end
+arch plant1
 x 23
 y 10
 end

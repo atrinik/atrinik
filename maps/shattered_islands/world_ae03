@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-24 Alex Tokar
+Modified: 2011-08-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -47,6 +47,9 @@ arch plant7
 y 4
 end
 arch grassd_6
+y 5
+end
+arch plant_flower2
 y 5
 end
 arch floor_ruin2
@@ -174,6 +177,10 @@ x 1
 y 5
 end
 arch grassd_4
+x 1
+y 6
+end
+arch plant_flower2
 x 1
 y 6
 end
@@ -636,6 +643,10 @@ arch floor_ruin3
 x 4
 y 10
 end
+arch cactus8
+x 4
+y 10
+end
 arch floor_ruin2
 x 4
 y 11
@@ -780,6 +791,10 @@ x 5
 y 8
 end
 arch floor_ruin3
+x 5
+y 9
+end
+arch small_stones
 x 5
 y 9
 end
@@ -1079,6 +1094,10 @@ x 7
 y 9
 end
 arch floor_ruin3
+x 7
+y 10
+end
+arch plant22
 x 7
 y 10
 end
@@ -1509,6 +1528,10 @@ arch floor_ruin3
 x 10
 y 10
 end
+arch cactus13
+x 10
+y 10
+end
 arch floor_ruin3
 x 10
 y 11
@@ -1759,11 +1782,19 @@ arch floor_ruin6
 x 12
 y 5
 end
+arch small_stones
+x 12
+y 5
+end
 arch floor_ruin2
 x 12
 y 6
 end
 arch floor_ruin2
+x 12
+y 7
+end
+arch plant20
 x 12
 y 7
 end
@@ -2229,7 +2260,14 @@ end
 arch floor_ruin6
 x 16
 end
+arch small_stones
+x 16
+end
 arch floor_ruin6
+x 16
+y 1
+end
+arch plant19
 x 16
 y 1
 end
