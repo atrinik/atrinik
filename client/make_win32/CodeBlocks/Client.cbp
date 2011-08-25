@@ -104,6 +104,7 @@
 		<Unit filename="..\..\src\gui\textwin.c" />
 		<Unit filename="..\..\src\gui\updater.c" />
 		<Unit filename="..\..\src\gui\settings.c" />
+		<Unit filename="..\..\src\gui\interface.c" />
 		<Unit filename="..\..\src\gui\inventory.c" />
 		<Unit filename="..\..\src\gui\target.c" />
 		<Unit filename="..\..\src\gui\skills.c" />

@@ -168,6 +168,7 @@ set(SOURCES
 	src/gui/fps.c
 	src/gui/help.c
 	src/gui/input.c
+	src/gui/interface.c
 	src/gui/inventory.c
 	src/gui/main.c
 	src/gui/map.c
