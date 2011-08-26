@@ -356,6 +356,7 @@ extern void widget_show_number(widgetdata *widget);
 extern void widget_input_do(widgetdata *widget);
 /* src/gui/interface.c */
 extern void cmd_interface(uint8 *data, int len);
+extern void interface_redraw();
 /* src/gui/inventory.c */
 extern char *skill_level_name[];
 extern uint64 inventory_filter;

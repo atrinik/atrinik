@@ -31,7 +31,7 @@
 #define INTERFACE_H
 
 /**
- * One interface. */
+ * Interface data. */
 typedef struct interface_struct
 {
 	/** Message contents. */
@@ -45,6 +45,9 @@ typedef struct interface_struct
 
 	/** Array of the shortcut-supporting links. */
 	UT_array *links;
+
+	/** Whether to redraw the interface. */
+	uint8 redraw;
 } interface_struct;
 
 /**
@@ -65,6 +68,20 @@ typedef struct interface_struct
  * If found in the command, will open the console with any text followed
  * by this. */
 #define CMD_INTERFACE_INPUT 4
+/*@}*/
+
+/**
+ * @defgroup INTERFACE_ICON_xxx Interface icon coords
+ * Interface icon coordinates.
+ *@{*/
+/** X position of the icon. */
+#define INTERFACE_ICON_STARTX 8
+/** Y position of the icon. */
+#define INTERFACE_ICON_STARTY 8
+/** Width of the icon. */
+#define INTERFACE_ICON_WIDTH 55
+/** Height of the icon. */
+#define INTERFACE_ICON_HEIGHT 55
 /*@}*/
 
 #endif
