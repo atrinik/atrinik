@@ -147,6 +147,8 @@ void cmd_interface(uint8 *data, int len)
 	int pos = 0;
 	uint8 text_input = 0;
 	char type, text_input_content[HUGE_BUF];
+	StringBuffer *sb_message;
+	size_t links_len, i;
 
 	if (!interface)
 	{
@@ -167,6 +169,7 @@ void cmd_interface(uint8 *data, int len)
 	interface = calloc(1, sizeof(*interface));
 	interface->redraw = 1;
 	utarray_new(interface->links, &ut_str_icd);
+	sb_message = stringbuffer_new();
 
 	/* Parse the data. */
 	while (pos < len)
@@ -180,7 +183,7 @@ void cmd_interface(uint8 *data, int len)
 				char message[HUGE_BUF * 8];
 
 				GetString_String(data, &pos, message, sizeof(message));
-				interface->message = strdup(message);
+				stringbuffer_append_string(sb_message, message);
 				break;
 			}
 
@@ -225,6 +228,20 @@ void cmd_interface(uint8 *data, int len)
 	if (text_input)
 	{
 	}
+
+	links_len = utarray_len(interface->links);
+
+	if (links_len)
+	{
+		stringbuffer_append_string(sb_message, "\n");
+	}
+
+	for (i = 0; i < links_len; i++)
+	{
+		stringbuffer_append_printf(sb_message, "\n%s", *((char **) utarray_eltptr(interface->links, i)));
+	}
+
+	interface->message = stringbuffer_finish(sb_message);
 }
 
 void interface_redraw()

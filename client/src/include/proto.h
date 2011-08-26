@@ -682,7 +682,7 @@ extern int text_input_handle(SDL_KeyboardEvent *key);
 /* src/toolkit/tooltip.c */
 extern void tooltip_create(int mx, int my, int font, const char *text);
 extern void tooltip_show();
-/* src/toolkit/widget.c*/
+/* src/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
 extern void init_widgets_fromCurrent();
@@ -745,4 +745,11 @@ extern void menu_inv_filter_cursed();
 extern void menu_inv_filter_unidentified();
 extern void menu_inv_filter_locked();
 extern void menu_inv_filter_unapplied();
+/* src/toolkit/stringbuffer.c*/
+extern StringBuffer *stringbuffer_new();
+extern char *stringbuffer_finish(StringBuffer *sb);
+extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
+extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+extern size_t stringbuffer_length(StringBuffer *sb);
 #endif

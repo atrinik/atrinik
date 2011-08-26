@@ -178,6 +178,7 @@ typedef enum LogLevel
 #define MAX_BUF 256
 
 #include <version.h>
+#include <stringbuffer.h>
 #include <item.h>
 #include <text.h>
 #include <curl.h>

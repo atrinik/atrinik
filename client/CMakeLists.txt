@@ -192,14 +192,15 @@ set(SOURCES
 	src/toolkit/popup.c
 	src/toolkit/progress.c
 	src/toolkit/range_buttons.c
-	src/toolkit/scroll_buttons.c
+	src/toolkit/scrollbar.c
 	src/toolkit/SDL_gfx.c
 	src/toolkit/SDL_rotozoom.c
 	src/toolkit/sha1.c
 	src/toolkit/text.c
 	src/toolkit/text_input.c
 	src/toolkit/tooltip.c
-	src/toolkit/widget.c)
+	src/toolkit/widget.c
+	src/toolkit/stringbuffer.c)
 
 # Compile the sources into an executable.
 add_executable(atrinik ${SOURCES})
