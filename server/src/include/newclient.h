@@ -489,4 +489,24 @@ enum
 #define CMD_TARGET_FRIEND 2
 /*@}*/
 
+/**
+ * @defgroup CMD_INTERFACE_xxx Interface command types
+ * Interface command types.
+ *@{*/
+/** Text; the NPC message contents. */
+#define CMD_INTERFACE_TEXT 0
+/**
+ * Link, follows the actual text, but is a special command in order to
+ * support link shortcuts. */
+#define CMD_INTERFACE_LINK 1
+/** Icon; the image in the upper left corner square. */
+#define CMD_INTERFACE_ICON 2
+/** Title; text next to the icon. */
+#define CMD_INTERFACE_TITLE 3
+/**
+ * If found in the command, will open the console with any text followed
+ * by this. */
+#define CMD_INTERFACE_INPUT 4
+/*@}*/
+
 #endif
