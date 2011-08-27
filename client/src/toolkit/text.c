@@ -490,7 +490,7 @@ void text_anchor_execute(text_blit_info *info)
 				memcpy(buf2, "/say ", 5);
 			}
 
-			send_command(buf2);
+			send_command_check(buf2);
 		}
 	}
 	/* Help GUI. */

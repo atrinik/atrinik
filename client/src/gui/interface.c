@@ -55,14 +55,14 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 {
 	(void) len;
 
-	if (anchor_action[0] == '\0')
+	if (anchor_action[0] == '\0' && buf[0] != '/')
 	{
 		StringBuffer *sb = stringbuffer_new();
 		char *cp;
 
 		stringbuffer_append_printf(sb, "/t_tell %s", buf);
 		cp = stringbuffer_finish(sb);
-		send_command(cp);
+		send_command_check(cp);
 		free(cp);
 
 		return 1;
