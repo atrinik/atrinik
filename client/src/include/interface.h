@@ -98,11 +98,11 @@ typedef struct interface_struct
  * Interface text coordinates.
  *@{*/
 /** X position of the text. */
-#define INTERFACE_TEXT_STARTX 9
+#define INTERFACE_TEXT_STARTX 10
 /** Y position of the text. */
 #define INTERFACE_TEXT_STARTY 73
 /** Maximum width of the text. */
-#define INTERFACE_TEXT_WIDTH 414
+#define INTERFACE_TEXT_WIDTH 412
 /** Maximum height of the text. */
 #define INTERFACE_TEXT_HEIGHT 430
 /*@}*/
