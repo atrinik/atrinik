@@ -49,6 +49,10 @@ typedef struct interface_struct
 	/** Whether to redraw the interface. */
 	uint8 redraw;
 
+	uint32 scroll_offset;
+
+	uint32 num_lines;
+
 	/** Scrollbar. */
 	scrollbar_struct scrollbar;
 } interface_struct;

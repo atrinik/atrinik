@@ -111,7 +111,7 @@ static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box,
 	}
 }
 
-static void scrollbar_element_highlight_check(scrollbar_struct *scrollbar, int mx, int my, scrollbar_element *elem)
+static int scrollbar_element_highlight_check(scrollbar_struct *scrollbar, int mx, int my, scrollbar_element *elem)
 {
 	SDL_Rect box;
 
@@ -123,10 +123,12 @@ static void scrollbar_element_highlight_check(scrollbar_struct *scrollbar, int m
 	if (mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h)
 	{
 		elem->highlight = 1;
+		return 1;
 	}
 	else
 	{
 		elem->highlight = 0;
+		return 0;
 	}
 }
 
@@ -160,14 +162,18 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar, SDL_Surface *s
  * @param w Width of the scrollbar. Should be an odd number, otherwise
  * the arrow calculations will not work correctly.
  * @param h Height of the scrollbar. */
-void scrollbar_create(scrollbar_struct *scrollbar, int w, int h)
+void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines)
 {
 	memset(scrollbar, 0, sizeof(*scrollbar));
+
+	scrollbar->scroll_offset = scroll_offset;
+	scrollbar->num_lines = num_lines;
+	scrollbar->max_lines = max_lines;
 
 	scrollbar_element_init(&scrollbar->background, 0, 0, w, h);
 	scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
 	scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
-	scrollbar_element_init(&scrollbar->slider, 2, w + 1, w - 2 * 2, h - (w + 1) * 2);
+	scrollbar_element_init(&scrollbar->slider, 2, SLIDER_YPOS_START(scrollbar), w - 2 * 2, SLIDER_HEIGHT_FULL(scrollbar));
 
 	scrollbar->background.render_func = scrollbar_element_render_background;
 	scrollbar->arrow_up.render_func = scrollbar_element_render_arrow_up;
@@ -175,11 +181,113 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h)
 	scrollbar->slider.render_func = scrollbar_element_render_slider;
 }
 
+static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
+{
+	int scroll, ret = 0;
+
+	if (scrollbar->dragging)
+	{
+		return 0;
+	}
+
+	scroll = *scrollbar->scroll_offset;
+
+	if (scrollbar->arrow_up.highlight)
+	{
+		scroll--;
+		ret = 1;
+	}
+	else if (scrollbar->arrow_down.highlight)
+	{
+		scroll++;
+		ret = 1;
+	}
+	else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE)
+	{
+		if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP)
+		{
+			scroll -= scrollbar->max_lines;
+		}
+		else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN)
+		{
+			scroll += scrollbar->max_lines;
+		}
+
+		ret = 1;
+	}
+
+	if (scroll < 0)
+	{
+		scroll = 0;
+	}
+	else if ((uint32) scroll > *scrollbar->num_lines - scrollbar->max_lines)
+	{
+		scroll = *scrollbar->num_lines - scrollbar->max_lines;
+	}
+
+	if ((uint32) scroll != *scrollbar->scroll_offset)
+	{
+		*scrollbar->scroll_offset = scroll;
+
+		if (scrollbar->redraw)
+		{
+			*scrollbar->redraw = 1;
+		}
+	}
+
+	return ret;
+}
+
 void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
 {
+	int mx, my;
+
 	scrollbar->x = x;
 	scrollbar->y = y;
 	scrollbar->surface = surface;
+
+	if (scrollbar->scroll_direction != SCROLL_DIRECTION_NONE && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT)
+	{
+		scrollbar->scroll_direction = SCROLL_DIRECTION_NONE;
+	}
+
+	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON_LEFT && SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks)
+	{
+		if (scrollbar_click_scroll(scrollbar))
+		{
+			scrollbar->click_ticks = SDL_GetTicks();
+			scrollbar->click_repeat_ticks = 150;
+		}
+	}
+
+	if (*scrollbar->num_lines > scrollbar->max_lines)
+	{
+		int scroll;
+
+		scroll = scrollbar->max_lines + *scrollbar->scroll_offset;
+
+		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
+		scrollbar->slider.y = ((scroll - scrollbar->max_lines) * SLIDER_HEIGHT_FULL(scrollbar)) / *scrollbar->num_lines;
+
+		if (scrollbar->slider.h < 1)
+		{
+			scrollbar->slider.h = 1;
+		}
+
+#if 0
+		if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.y + scrollbar->slider.h < SLIDER_HEIGHT_FULL(scrollbar))
+		{
+			scrollbar->slider.y++;
+		}
+#endif
+	}
+	else
+	{
+		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar);
+		scrollbar->slider.y = 0;
+	}
+
+	scrollbar->slider.y += SLIDER_YPOS_START(scrollbar);
 
 	scrollbar_element_render(scrollbar, surface, &scrollbar->background);
 	scrollbar_element_render(scrollbar, surface, &scrollbar->arrow_up);
@@ -191,9 +299,85 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 {
 	if (event->type == SDL_MOUSEMOTION)
 	{
-		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_up);
-		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_down);
-		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->slider);
+		if (scrollbar->dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT))
+		{
+			scrollbar->dragging = 0;
+			return 0;
+		}
+
+		if (scrollbar->dragging)
+		{
+			int slider_y;
+			uint32 scroll_offset;
+
+			slider_y = event->motion.y - scrollbar->old_slider_pos;
+
+			if (slider_y > SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h)
+			{
+				slider_y = SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h;
+			}
+			else if (slider_y < 0)
+			{
+				slider_y = 0;
+			}
+
+			scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_y) * *scrollbar->num_lines / SLIDER_HEIGHT_FULL(scrollbar));
+
+			if (scroll_offset != *scrollbar->scroll_offset)
+			{
+				*scrollbar->scroll_offset = scroll_offset;
+
+				if (scrollbar->redraw)
+				{
+					*scrollbar->redraw = 1;
+				}
+			}
+
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_up))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_down))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->slider))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->background))
+		{
+			return 1;
+		}
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (scrollbar->slider.highlight)
+		{
+			scrollbar->old_slider_pos = event->motion.y - scrollbar->slider.y + SLIDER_YPOS_START(scrollbar);
+			scrollbar->dragging = 1;
+			return 1;
+		}
+		else if (scrollbar->background.highlight)
+		{
+			if (event->motion.y < scrollbar->slider.y)
+			{
+				scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
+			}
+			else if (event->motion.y > scrollbar->slider.y + scrollbar->slider.h)
+			{
+				scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
+			}
+		}
+
+		if (scrollbar_click_scroll(scrollbar))
+		{
+			scrollbar->click_ticks = SDL_GetTicks();
+			scrollbar->click_repeat_ticks = 400;
+			return 1;
+		}
 	}
 
 	return 0;

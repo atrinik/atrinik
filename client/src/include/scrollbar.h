@@ -45,18 +45,24 @@ typedef struct scrollbar_element
 	void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element);
 } scrollbar_element;
 
+#define SCROLL_DIRECTION_NONE 0
+#define SCROLL_DIRECTION_UP 1
+#define SCROLL_DIRECTION_DOWN 2
+
 /**
  * Holds scrollbar information. */
 typedef struct scrollbar_struct
 {
 	/** Pointer to the scroll offset. */
-	uint32 *scroll;
+	uint32 *scroll_offset;
 
 	/** Pointer to number of lines. */
 	uint32 *num_lines;
 
-	/** Pointer to maximum number of lines. */
-	uint32 *max_lines;
+	/** Maximum number of lines. */
+	uint32 max_lines;
+
+	int *redraw;
 
 	SDL_Surface *surface;
 
@@ -68,6 +74,16 @@ typedef struct scrollbar_struct
 
 	int py;
 
+	int old_slider_pos;
+
+	uint8 dragging;
+
+	uint32 click_ticks;
+
+	uint32 click_repeat_ticks;
+
+	int scroll_direction;
+
 	scrollbar_element background;
 
 	scrollbar_element arrow_up;
@@ -76,5 +92,8 @@ typedef struct scrollbar_struct
 
 	scrollbar_element slider;
 } scrollbar_struct;
+
+#define SLIDER_HEIGHT_FULL(_scrollbar) ((_scrollbar)->background.h - ((_scrollbar)->background.w + 1) * 2)
+#define SLIDER_YPOS_START(_scrollbar) ((_scrollbar)->background.w + 1)
 
 #endif

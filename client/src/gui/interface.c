@@ -193,7 +193,7 @@ void cmd_interface(uint8 *data, int len)
 	/* Create new interface. */
 	interface = calloc(1, sizeof(*interface));
 	interface->redraw = 1;
-	scrollbar_create(&interface->scrollbar, 11, 434);
+	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, 2);
 	utarray_new(interface->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 
