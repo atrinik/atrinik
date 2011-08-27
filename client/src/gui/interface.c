@@ -71,6 +71,22 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 	return 0;
 }
 
+static void interface_execute_link(size_t link_id)
+{
+	char **p;
+	text_blit_info info;
+
+	p = (char **) utarray_eltptr(interface->links, link_id);
+
+	if (!p)
+	{
+		return;
+	}
+
+	text_anchor_parse(&info, *p);
+	text_anchor_execute(&info);
+}
+
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
@@ -184,25 +200,50 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
-		if (event->key.keysym.sym == SDLK_DOWN)
+		switch (event->key.keysym.sym)
 		{
-			scrollbar_scroll_adjust(&interface->scrollbar, 1);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_UP)
-		{
-			scrollbar_scroll_adjust(&interface->scrollbar, -1);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
-		{
-			scrollbar_scroll_adjust(&interface->scrollbar, interface->scrollbar.max_lines);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_PAGEUP)
-		{
-			scrollbar_scroll_adjust(&interface->scrollbar, -interface->scrollbar.max_lines);
-			return 1;
+			case SDLK_DOWN:
+				scrollbar_scroll_adjust(&interface->scrollbar, 1);
+				return 1;
+
+			case SDLK_UP:
+				scrollbar_scroll_adjust(&interface->scrollbar, -1);
+				return 1;
+
+			case SDLK_PAGEDOWN:
+				scrollbar_scroll_adjust(&interface->scrollbar, interface->scrollbar.max_lines);
+				return 1;
+
+			case SDLK_PAGEUP:
+				scrollbar_scroll_adjust(&interface->scrollbar, -interface->scrollbar.max_lines);
+				return 1;
+
+			case SDLK_1:
+			case SDLK_2:
+			case SDLK_3:
+			case SDLK_4:
+			case SDLK_5:
+			case SDLK_6:
+			case SDLK_7:
+			case SDLK_8:
+			case SDLK_9:
+				interface_execute_link(event->key.keysym.sym - SDLK_1);
+				return 1;
+
+			case SDLK_KP1:
+			case SDLK_KP2:
+			case SDLK_KP3:
+			case SDLK_KP4:
+			case SDLK_KP5:
+			case SDLK_KP6:
+			case SDLK_KP7:
+			case SDLK_KP8:
+			case SDLK_KP9:
+				interface_execute_link(event->key.keysym.sym - SDLK_KP1);
+				return 1;
+
+			default:
+				break;
 		}
 	}
 	else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + Bitmaps[popup->bitmap_id]->bitmap->w && event->motion.y >= popup->y && event->motion.y < popup->y + Bitmaps[popup->bitmap_id]->bitmap->h)
@@ -330,7 +371,14 @@ void cmd_interface(uint8 *data, int len)
 
 	for (i = 0; i < links_len; i++)
 	{
-		stringbuffer_append_printf(sb_message, "\n%s", *((char **) utarray_eltptr(interface->links, i)));
+		stringbuffer_append_string(sb_message, "\n");
+
+		if (links_len < 9)
+		{
+			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%"FMT64U"]</c> ", (uint64) i + 1);
+		}
+
+		stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface->links, i)));
 	}
 
 	interface->message = stringbuffer_finish(sb_message);
