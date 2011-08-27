@@ -360,11 +360,11 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 		}
 		else if (scrollbar->background.highlight)
 		{
-			if (event->motion.y < scrollbar->slider.y)
+			if (event->motion.y < scrollbar->y + scrollbar->slider.y)
 			{
 				scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
 			}
-			else if (event->motion.y > scrollbar->slider.y + scrollbar->slider.h)
+			else if (event->motion.y > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
 			{
 				scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
 			}
