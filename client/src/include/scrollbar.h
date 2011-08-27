@@ -25,66 +25,56 @@
 
 /**
  * @file
- * Interface header file. */
+ * Scrollbar header file. */
 
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef SCROLLBAR_H
+#define SCROLLBAR_H
 
-/**
- * Interface data. */
-typedef struct interface_struct
+typedef struct scrollbar_element
 {
-	/** Message contents. */
-	char *message;
+	int x;
 
-	/** Title text. */
-	char *title;
+	int y;
 
-	/** Icon ID. */
-	int icon;
+	int w;
 
-	/** Array of the shortcut-supporting links. */
-	UT_array *links;
+	int h;
 
-	/** Whether to redraw the interface. */
-	uint8 redraw;
+	uint8 highlight;
 
-	/** Scrollbar. */
-	scrollbar_struct scrollbar;
-} interface_struct;
+	void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element);
+} scrollbar_element;
 
 /**
- * @defgroup CMD_INTERFACE_xxx Interface command types
- * Interface command types.
- *@{*/
-/** Text; the NPC message contents. */
-#define CMD_INTERFACE_TEXT 0
-/**
- * Link, follows the actual text, but is a special command in order to
- * support link shortcuts. */
-#define CMD_INTERFACE_LINK 1
-/** Icon; the image in the upper left corner square. */
-#define CMD_INTERFACE_ICON 2
-/** Title; text next to the icon. */
-#define CMD_INTERFACE_TITLE 3
-/**
- * If found in the command, will open the console with any text followed
- * by this. */
-#define CMD_INTERFACE_INPUT 4
-/*@}*/
+ * Holds scrollbar information. */
+typedef struct scrollbar_struct
+{
+	/** Pointer to the scroll offset. */
+	uint32 *scroll;
 
-/**
- * @defgroup INTERFACE_ICON_xxx Interface icon coords
- * Interface icon coordinates.
- *@{*/
-/** X position of the icon. */
-#define INTERFACE_ICON_STARTX 8
-/** Y position of the icon. */
-#define INTERFACE_ICON_STARTY 8
-/** Width of the icon. */
-#define INTERFACE_ICON_WIDTH 55
-/** Height of the icon. */
-#define INTERFACE_ICON_HEIGHT 55
-/*@}*/
+	/** Pointer to number of lines. */
+	uint32 *num_lines;
+
+	/** Pointer to maximum number of lines. */
+	uint32 *max_lines;
+
+	SDL_Surface *surface;
+
+	int x;
+
+	int y;
+
+	int px;
+
+	int py;
+
+	scrollbar_element background;
+
+	scrollbar_element arrow_up;
+
+	scrollbar_element arrow_down;
+
+	scrollbar_element slider;
+} scrollbar_struct;
 
 #endif

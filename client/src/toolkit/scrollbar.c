@@ -43,6 +43,162 @@
 
 #include <global.h>
 
+static SDL_Color scrollbar_color_bg;
+static SDL_Color scrollbar_color_fg;
+static SDL_Color scrollbar_color_highlight;
+
+/**
+ * Initialize the scrollbar API. */
+void scrollbar_init()
+{
+	text_color_parse("000000", &scrollbar_color_bg);
+	text_color_parse("b5a584", &scrollbar_color_fg);
+	text_color_parse("ffffff", &scrollbar_color_highlight);
+}
+
+static void scrollbar_element_init(scrollbar_element *elem, int x, int y, int w, int h)
+{
+	elem->x = x;
+	elem->y = y;
+	elem->w = w;
+	elem->h = h;
+}
+
+static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	(void) elem;
+	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_bg.r, scrollbar_color_bg.g, scrollbar_color_bg.b));
+	border_create_sdl_color(surface, box, &scrollbar_color_fg);
+}
+
+static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_Color *color = &scrollbar_color_fg;
+
+	if (elem->highlight)
+	{
+		color = &scrollbar_color_highlight;
+	}
+
+	border_create_sdl_color(surface, box, color);
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+}
+
+static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_Color *color = &scrollbar_color_fg;
+
+	if (elem->highlight)
+	{
+		color = &scrollbar_color_highlight;
+	}
+
+	border_create_sdl_color(surface, box, color);
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+}
+
+static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_fg.r, scrollbar_color_fg.g, scrollbar_color_fg.b));
+
+	if (elem->highlight)
+	{
+		border_create_sdl_color(surface, box, &scrollbar_color_highlight);
+	}
+}
+
+static void scrollbar_element_highlight_check(scrollbar_struct *scrollbar, int mx, int my, scrollbar_element *elem)
+{
+	SDL_Rect box;
+
+	box.x = scrollbar->x + elem->x;
+	box.y = scrollbar->y + elem->y;
+	box.w = elem->w;
+	box.h = elem->h;
+
+	if (mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h)
+	{
+		elem->highlight = 1;
+	}
+	else
+	{
+		elem->highlight = 0;
+	}
+}
+
+static void scrollbar_element_render(scrollbar_struct *scrollbar, SDL_Surface *surface, scrollbar_element *elem)
+{
+	SDL_Rect box;
+
+	box.x = scrollbar->x + elem->x;
+	box.y = scrollbar->y + elem->y;
+	box.w = elem->w;
+	box.h = elem->h;
+
+	if (elem->highlight)
+	{
+		int mx, my;
+
+		SDL_GetMouseState(&mx, &my);
+
+		mx -= scrollbar->px;
+		my -= scrollbar->py;
+
+		scrollbar_element_highlight_check(scrollbar, mx, my, elem);
+	}
+
+	elem->render_func(surface, &box, elem);
+}
+
+/**
+ * Initialize a single scrollbar structure.
+ * @param scrollbar Structure to initialize.
+ * @param w Width of the scrollbar. Should be an odd number, otherwise
+ * the arrow calculations will not work correctly.
+ * @param h Height of the scrollbar. */
+void scrollbar_create(scrollbar_struct *scrollbar, int w, int h)
+{
+	memset(scrollbar, 0, sizeof(*scrollbar));
+
+	scrollbar_element_init(&scrollbar->background, 0, 0, w, h);
+	scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
+	scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
+	scrollbar_element_init(&scrollbar->slider, 2, w + 1, w - 2 * 2, h - (w + 1) * 2);
+
+	scrollbar->background.render_func = scrollbar_element_render_background;
+	scrollbar->arrow_up.render_func = scrollbar_element_render_arrow_up;
+	scrollbar->arrow_down.render_func = scrollbar_element_render_arrow_down;
+	scrollbar->slider.render_func = scrollbar_element_render_slider;
+}
+
+void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
+{
+	scrollbar->x = x;
+	scrollbar->y = y;
+	scrollbar->surface = surface;
+
+	scrollbar_element_render(scrollbar, surface, &scrollbar->background);
+	scrollbar_element_render(scrollbar, surface, &scrollbar->arrow_up);
+	scrollbar_element_render(scrollbar, surface, &scrollbar->arrow_down);
+	scrollbar_element_render(scrollbar, surface, &scrollbar->slider);
+}
+
+int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
+{
+	if (event->type == SDL_MOUSEMOTION)
+	{
+		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_up);
+		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_down);
+		scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->slider);
+	}
+
+	return 0;
+}
+
 /**
  * Show one scroll button.
  * @param surface Surface to use.

@@ -271,6 +271,7 @@ extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
+extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, SDL_Color *color);
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
 /* src/client/tilestretcher.c */
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
@@ -529,7 +530,11 @@ extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, in
 extern int progress_dots_width(progress_dots *progress);
 /* src/toolkit/range_buttons.c */
 extern int range_buttons_show(int x, int y, int *val, int advance);
-/* src/toolkit/scroll_buttons.c */
+/* src/toolkit/scrollbar.c */
+extern void scrollbar_init();
+extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h);
+extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
+extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
 extern int scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 /* src/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);

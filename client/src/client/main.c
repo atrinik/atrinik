@@ -859,6 +859,7 @@ int main(int argc, char *argv[])
 	textwin_init();
 	fps_init();
 	settings_apply();
+	scrollbar_init();
 
 	LastTick = anim_tick = SDL_GetTicks();
 

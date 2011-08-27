@@ -122,11 +122,17 @@ static int popup_draw_func(popup_struct *popup)
 		box.h = FONT_HEIGHT(FONT_SERIF14);
 		string_blt(popup->surface, FONT_SERIF14, interface->title, 80, 38 + 22 / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
-		sprite_blt(Bitmaps[BITMAP_INTERFACE_BORDER], 0, 0, NULL, &bltfx);
-
 		interface->redraw = 0;
 	}
 
+	return 1;
+}
+
+/** @copydoc popup_struct::draw_func_post */
+static int popup_draw_func_post(popup_struct *popup)
+{
+	scrollbar_render(&interface->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
+	sprite_blt(Bitmaps[BITMAP_INTERFACE_BORDER], popup->x, popup->y, NULL, NULL);
 	return 1;
 }
 
@@ -136,6 +142,23 @@ static int popup_destroy_callback(popup_struct *popup)
 	(void) popup;
 	interface_destroy();
 	return 1;
+}
+
+/** @copydoc popup_struct::event_func */
+static int popup_event_func(popup_struct *popup, SDL_Event *event)
+{
+	int ret;
+
+	(void) popup;
+
+	ret = -1;
+
+	if (scrollbar_event(&interface->scrollbar, event))
+	{
+		return 1;
+	}
+
+	return ret;
 }
 
 /**
@@ -156,7 +179,9 @@ void cmd_interface(uint8 *data, int len)
 
 		popup = popup_create(BITMAP_INTERFACE);
 		popup->draw_func = popup_draw_func;
+		popup->draw_func_post = popup_draw_func_post;
 		popup->destroy_callback_func = popup_destroy_callback;
+		popup->event_func = popup_event_func;
 		popup->disable_bitmap_blit = 1;
 		popup->close_button_xoff = 10;
 		popup->close_button_yoff = 9;
@@ -168,6 +193,7 @@ void cmd_interface(uint8 *data, int len)
 	/* Create new interface. */
 	interface = calloc(1, sizeof(*interface));
 	interface->redraw = 1;
+	scrollbar_create(&interface->scrollbar, 11, 434);
 	utarray_new(interface->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 

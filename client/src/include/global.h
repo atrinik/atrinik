@@ -179,6 +179,7 @@ typedef enum LogLevel
 
 #include <version.h>
 #include <stringbuffer.h>
+#include <scrollbar.h>
 #include <item.h>
 #include <text.h>
 #include <curl.h>
