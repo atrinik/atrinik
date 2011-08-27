@@ -274,12 +274,10 @@ void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, 
 			scrollbar->slider.h = 1;
 		}
 
-#if 0
 		if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.y + scrollbar->slider.h < SLIDER_HEIGHT_FULL(scrollbar))
 		{
 			scrollbar->slider.y++;
 		}
-#endif
 	}
 	else
 	{
