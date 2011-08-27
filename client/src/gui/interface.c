@@ -155,18 +155,52 @@ static int popup_destroy_callback(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	int ret;
-
-	(void) popup;
-
-	ret = -1;
-
 	if (scrollbar_event(&interface->scrollbar, event))
 	{
 		return 1;
 	}
+	else if (event->type == SDL_KEYDOWN)
+	{
+		if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, 1);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_UP)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, -1);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, interface->scrollbar.max_lines);
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEUP)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, -interface->scrollbar.max_lines);
+			return 1;
+		}
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + Bitmaps[popup->bitmap_id]->bitmap->w && event->motion.y >= popup->y && event->motion.y < popup->y + Bitmaps[popup->bitmap_id]->bitmap->h)
+	{
+		if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, 1);
+		}
+		else if (event->button.button == SDL_BUTTON_WHEELUP)
+		{
+			scrollbar_scroll_adjust(&interface->scrollbar, -1);
+		}
+		else if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			interface->redraw = 1;
+		}
 
-	return ret;
+		return 1;
+	}
+
+	return -1;
 }
 
 /**
