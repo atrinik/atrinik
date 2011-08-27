@@ -667,6 +667,7 @@ extern void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int 
 extern int string_get_width(int font, const char *text, uint64 flags);
 extern int string_get_height(int font, const char *text, uint64 flags);
 extern void string_truncate_overflow(int font, char *text, int max_width);
+extern void text_anchor_parse(text_blit_info *info, const char *text);
 extern void text_enable_debug();
 /* src/toolkit/text_input.c */
 extern char text_input_string[256];

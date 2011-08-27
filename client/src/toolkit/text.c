@@ -882,10 +882,10 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Anchor tag. */
 		else if (!strncmp(cp, "<a>", 3) || !strncmp(cp, "<a=", 3))
 		{
-			if (color && (surface || info->obscured))
+			if (surface || info->obscured)
 			{
 				/* Change to light blue only if no custom color was specified. */
-				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
+				if (color && color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
 				{
 					color->r = text_link_color.r;
 					color->g = text_link_color.g;
@@ -906,9 +906,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</a>", 4))
 		{
-			if (color && (surface || info->obscured))
+			if (surface || info->obscured)
 			{
-				SDL_color_copy(color, orig_color);
+				if (color)
+				{
+					SDL_color_copy(color, orig_color);
+				}
+
 				info->anchor_tag = NULL;
 			}
 
@@ -1889,6 +1893,28 @@ void string_truncate_overflow(int font, char *text, int max_width)
 		}
 
 		pos++;
+	}
+}
+
+/**
+ * Utility function to parse text and store information about anchor tag,
+ * if any.
+ * @param info Where to store the information.
+ * @param text The text to parse. */
+void text_anchor_parse(text_blit_info *info, const char *text)
+{
+	const char *cp = text;
+	SDL_Rect dest;
+	int font = FONT_ARIAL10;
+
+	blt_character_init(info);
+	info->obscured = 1;
+
+	dest.w = 0;
+
+	while (*cp != '\0')
+	{
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
 	}
 }
 
