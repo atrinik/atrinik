@@ -655,6 +655,7 @@ extern const char *get_font_filename(int font);
 extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 extern int text_color_parse(const char *color_notation, SDL_Color *color);
+extern void text_anchor_execute(text_blit_info *info);
 extern void blt_character_init(text_blit_info *info);
 extern int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_blit_info *info);
 extern int glyph_get_width(int font, char c);

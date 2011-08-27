@@ -435,6 +435,80 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 }
 
 /**
+ * Execute anchor.
+ * @param info Text blit info, should contain the anchor action and tag
+ * position. */
+void text_anchor_execute(text_blit_info *info)
+{
+	size_t len;
+	char *buf2, *pos;
+
+	/* Sanity check. */
+	if (!info->anchor_action || !info->anchor_tag)
+	{
+		return;
+	}
+
+	pos = strchr(info->anchor_action, ':');
+
+	if (pos && pos + 1)
+	{
+		buf2 = strdup(pos + 1);
+		len = strlen(buf2);
+		info->anchor_action[pos - info->anchor_action] = '\0';
+	}
+	else
+	{
+		/* Get the length of the text until the ending </a>. */
+		len = strstr(info->anchor_tag, "</a>") - info->anchor_tag;
+		/* Allocate a temporary buffer and copy the text until the
+		 * ending </a>, so we have the text between the anchor tags. */
+		buf2 = malloc(len + 1);
+		memcpy(buf2, info->anchor_tag, len);
+		buf2[len] = '\0';
+	}
+
+	buf2 = text_strip_markup(buf2, &len, 1);
+
+	if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
+	{
+	}
+	/* No action specified. */
+	else if (info->anchor_action[0] == '\0')
+	{
+		if (GameStatus == GAME_STATUS_PLAY)
+		{
+			/* It's not a command, so prepend "/say " to it. */
+			if (buf2[0] != '/')
+			{
+				/* Resize the buffer so it can hold 5 more bytes. */
+				buf2 = realloc(buf2, len + 5 + 1);
+				/* Copy the existing bytes to the end, so we have 5
+				* we can use in the front. */
+				memmove(buf2 + 5, buf2, len + 1);
+				/* Prepend "/say ". */
+				memcpy(buf2, "/say ", 5);
+			}
+
+			send_command(buf2);
+		}
+	}
+	/* Help GUI. */
+	else if (!strcmp(info->anchor_action, "help"))
+	{
+		strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
+		text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
+		text_anchor_help_clicked = 1;
+	}
+	else if (!strcmp(info->anchor_action, "url"))
+	{
+		browser_open(buf2);
+	}
+
+	free(buf2);
+}
+
+/**
  * Initialize the 'info' argument of blt_character(). Should only be
  * called once.
  * @param info The text blit information to initialize. */
@@ -1256,68 +1330,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
-				size_t len;
-				char *buf2, *pos;
-
 				ticks = SDL_GetTicks();
 
-				pos = strchr(info->anchor_action, ':');
-
-				if (pos && pos + 1)
-				{
-					buf2 = strdup(pos + 1);
-					len = strlen(buf2);
-					info->anchor_action[pos - info->anchor_action] = '\0';
-				}
-				else
-				{
-					/* Get the length of the text until the ending </a>. */
-					len = strstr(info->anchor_tag, "</a>") - info->anchor_tag;
-					/* Allocate a temporary buffer and copy the text until the
-					 * ending </a>, so we have the text between the anchor tags. */
-					buf2 = malloc(len + 1);
-					memcpy(buf2, info->anchor_tag, len);
-					buf2[len] = '\0';
-				}
-
-				buf2 = text_strip_markup(buf2, &len, 1);
-
-				if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
-				{
-				}
-				/* No action specified. */
-				else if (info->anchor_action[0] == '\0')
-				{
-					if (GameStatus == GAME_STATUS_PLAY)
-					{
-						/* It's not a command, so prepend "/say " to it. */
-						if (buf2[0] != '/')
-						{
-							/* Resize the buffer so it can hold 5 more bytes. */
-							buf2 = realloc(buf2, len + 5 + 1);
-							/* Copy the existing bytes to the end, so we have 5
-							* we can use in the front. */
-							memmove(buf2 + 5, buf2, len + 1);
-							/* Prepend "/say ". */
-							memcpy(buf2, "/say ", 5);
-						}
-
-						send_command(buf2);
-					}
-				}
-				/* Help GUI. */
-				else if (!strcmp(info->anchor_action, "help"))
-				{
-					strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
-					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
-					text_anchor_help_clicked = 1;
-				}
-				else if (!strcmp(info->anchor_action, "url"))
-				{
-					browser_open(buf2);
-				}
-
-				free(buf2);
+				text_anchor_execute(info);
 			}
 		}
 
