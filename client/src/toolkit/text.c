@@ -1915,6 +1915,11 @@ void text_anchor_parse(text_blit_info *info, const char *text)
 	while (*cp != '\0')
 	{
 		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
+
+		if (info->anchor_tag)
+		{
+			return;
+		}
 	}
 }
 
