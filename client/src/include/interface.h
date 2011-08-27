@@ -43,6 +43,8 @@ typedef struct interface_struct
 	/** Icon ID. */
 	int icon;
 
+	int font;
+
 	/** Array of the shortcut-supporting links. */
 	UT_array *links;
 
@@ -90,5 +92,10 @@ typedef struct interface_struct
 /** Height of the icon. */
 #define INTERFACE_ICON_HEIGHT 55
 /*@}*/
+
+#define INTERFACE_TEXT_STARTX 9
+#define INTERFACE_TEXT_STARTY 73
+#define INTERFACE_TEXT_WIDTH 414
+#define INTERFACE_TEXT_HEIGHT 430
 
 #endif

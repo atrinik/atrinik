@@ -122,6 +122,12 @@ static int popup_draw_func(popup_struct *popup)
 		box.h = FONT_HEIGHT(FONT_SERIF14);
 		string_blt(popup->surface, FONT_SERIF14, interface->title, 80, 38 + 22 / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
+		box.w = INTERFACE_TEXT_WIDTH;
+		box.h = INTERFACE_TEXT_HEIGHT;
+		box.x = 0;
+		box.y = interface->scroll_offset;
+		string_blt(popup->surface, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+
 		interface->redraw = 0;
 	}
 
@@ -172,6 +178,7 @@ void cmd_interface(uint8 *data, int len)
 	char type, text_input_content[HUGE_BUF];
 	StringBuffer *sb_message;
 	size_t links_len, i;
+	SDL_Rect box;
 
 	if (!interface)
 	{
@@ -193,7 +200,9 @@ void cmd_interface(uint8 *data, int len)
 	/* Create new interface. */
 	interface = calloc(1, sizeof(*interface));
 	interface->redraw = 1;
-	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, 2);
+	interface->font = FONT_ARIAL11;
+	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, INTERFACE_TEXT_HEIGHT / FONT_HEIGHT(interface->font));
+	interface->scrollbar.redraw = &interface->redraw;
 	utarray_new(interface->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 
@@ -268,6 +277,11 @@ void cmd_interface(uint8 *data, int len)
 	}
 
 	interface->message = stringbuffer_finish(sb_message);
+
+	box.w = INTERFACE_TEXT_WIDTH;
+	box.h = INTERFACE_TEXT_HEIGHT;
+	string_blt(NULL, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	interface->num_lines = box.h;
 }
 
 void interface_redraw()
