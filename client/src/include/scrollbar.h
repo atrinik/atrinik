@@ -62,7 +62,7 @@ typedef struct scrollbar_struct
 	/** Maximum number of lines. */
 	uint32 max_lines;
 
-	int *redraw;
+	uint8 *redraw;
 
 	SDL_Surface *surface;
 
