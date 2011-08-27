@@ -1602,7 +1602,10 @@ void communicate(object *op, char *txt)
 				}
 				else if (QUERY_FLAG(npc, FLAG_ALIVE))
 				{
-					talk_to_npc(op, npc, txt);
+					if (talk_to_npc(op, npc, txt))
+					{
+						return;
+					}
 				}
 			}
 		}
@@ -1713,8 +1716,7 @@ static char *find_matching_message(const char *msg, const char *match)
  * @param op Who is talking.
  * @param npc Object to try to talk to. Can be an NPC or a MAGIC_EAR.
  * @param txt What op is saying.
- * @return 0 if text was handled by a plugin or not handled, 1 if handled
- * internally by the server. */
+ * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
 	object *cobj;
@@ -1724,7 +1726,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	{
 		/* Trigger the SAY event */
 		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-		return 0;
+		return 1;
 	}
 
 	/* Here we let the objects inside inventories hear and answer, too.
@@ -1736,7 +1738,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		{
 			/* Trigger the SAY event */
 			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-			return 0;
+			return 1;
 		}
 	}
 
