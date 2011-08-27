@@ -256,7 +256,7 @@ void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, 
 		if (scrollbar_click_scroll(scrollbar))
 		{
 			scrollbar->click_ticks = SDL_GetTicks();
-			scrollbar->click_repeat_ticks = 150;
+			scrollbar->click_repeat_ticks = 35;
 		}
 	}
 
