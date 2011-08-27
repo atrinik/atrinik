@@ -643,8 +643,6 @@ extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
 extern void sha1_hmac_reset(sha1_context *ctx);
 extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/text.c */
-extern SDL_Color text_link_color_default;
-extern SDL_Color text_link_color;
 extern font_struct fonts[FONTS_MAX];
 extern void text_init();
 extern void text_deinit();
@@ -652,6 +650,7 @@ extern void text_offset_set(int x, int y);
 extern void text_offset_reset();
 extern void text_color_set(int r, int g, int b);
 extern void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
+extern void text_set_anchor_handle(text_anchor_handle_func func);
 extern const char *get_font_filename(int font);
 extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);

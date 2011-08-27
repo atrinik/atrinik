@@ -58,9 +58,12 @@ static sint64 *selection_end = NULL;
 static uint8 *selection_started = NULL;
 
 /** Default link color. */
-SDL_Color text_link_color_default = {96, 160, 255, 0};
+static SDL_Color text_link_color_default = {96, 160, 255, 0};
 /** Current text link color. */
-SDL_Color text_link_color = {0, 0, 0, 0};
+static SDL_Color text_link_color = {0, 0, 0, 0};
+
+/** @copydoc text_anchor_handle_func */
+static text_anchor_handle_func text_anchor_handle = NULL;
 
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
@@ -231,6 +234,14 @@ void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
 	selection_start = start;
 	selection_end = end;
 	selection_started = started;
+}
+
+/**
+ * Set the anchor handler function.
+ * @param func The function. */
+void text_set_anchor_handle(text_anchor_handle_func func)
+{
+	text_anchor_handle = func;
 }
 
 /**
@@ -1269,24 +1280,30 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					buf2[len] = '\0';
 				}
 
-				/* Default to executing player commands such as /say. */
-				if (GameStatus == GAME_STATUS_PLAY && info->anchor_action[0] == '\0')
+				buf2 = text_strip_markup(buf2, &len, 1);
+
+				if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
 				{
-					buf2 = text_strip_markup(buf2, &len, 1);
-
-					/* It's not a command, so prepend "/say " to it. */
-					if (buf2[0] != '/')
+				}
+				/* No action specified. */
+				else if (info->anchor_action[0] == '\0')
+				{
+					if (GameStatus == GAME_STATUS_PLAY)
 					{
-						/* Resize the buffer so it can hold 5 more bytes. */
-						buf2 = realloc(buf2, len + 5 + 1);
-						/* Copy the existing bytes to the end, so we have 5
-						 * we can use in the front. */
-						memmove(buf2 + 5, buf2, len + 1);
-						/* Prepend "/say ". */
-						memcpy(buf2, "/say ", 5);
-					}
+						/* It's not a command, so prepend "/say " to it. */
+						if (buf2[0] != '/')
+						{
+							/* Resize the buffer so it can hold 5 more bytes. */
+							buf2 = realloc(buf2, len + 5 + 1);
+							/* Copy the existing bytes to the end, so we have 5
+							* we can use in the front. */
+							memmove(buf2 + 5, buf2, len + 1);
+							/* Prepend "/say ". */
+							memcpy(buf2, "/say ", 5);
+						}
 
-					send_command(buf2);
+						send_command(buf2);
+					}
 				}
 				/* Help GUI. */
 				else if (!strcmp(info->anchor_action, "help"))

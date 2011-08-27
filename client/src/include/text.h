@@ -345,4 +345,16 @@ typedef struct text_blit_info
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
 
+/**
+ * Anchor handler function to try and execute before the defaults.
+ * @param anchor_action The action to execute, which can be empty (but
+ * not NULL) - for example, 'help'.
+ * @param buf Text to pass to the action decided by the anchor action; in
+ * case of links, the URL to open, for example. Will not contain any
+ * markup, and should not be freed.
+ * @param len Length of 'buf'.
+ * @return 1 if handled the action and should not handle it using default
+ * actions, 0 otherwise. */
+typedef int (*text_anchor_handle_func)(const char *anchor_action, const char *buf, size_t len);
+
 #endif
