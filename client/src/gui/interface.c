@@ -201,8 +201,6 @@ void cmd_interface(uint8 *data, int len)
 	interface = calloc(1, sizeof(*interface));
 	interface->redraw = 1;
 	interface->font = FONT_ARIAL11;
-	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, INTERFACE_TEXT_HEIGHT / FONT_HEIGHT(interface->font));
-	interface->scrollbar.redraw = &interface->redraw;
 	utarray_new(interface->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 
@@ -282,6 +280,9 @@ void cmd_interface(uint8 *data, int len)
 	box.h = INTERFACE_TEXT_HEIGHT;
 	string_blt(NULL, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	interface->num_lines = box.h;
+
+	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, box.y);
+	interface->scrollbar.redraw = &interface->redraw;
 }
 
 void interface_redraw()
