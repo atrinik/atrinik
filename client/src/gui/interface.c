@@ -50,6 +50,27 @@ static void interface_destroy()
 	interface = NULL;
 }
 
+/** @copydoc text_anchor_handle_func */
+static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len)
+{
+	(void) len;
+
+	if (anchor_action[0] == '\0')
+	{
+		StringBuffer *sb = stringbuffer_new();
+		char *cp;
+
+		stringbuffer_append_printf(sb, "/t_tell %s", buf);
+		cp = stringbuffer_finish(sb);
+		send_command(cp);
+		free(cp);
+
+		return 1;
+	}
+
+	return 0;
+}
+
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
@@ -127,7 +148,9 @@ static int popup_draw_func(popup_struct *popup)
 		box.h = INTERFACE_TEXT_HEIGHT;
 		box.x = 0;
 		box.y = interface->scroll_offset;
+		text_set_anchor_handle(text_anchor_handle);
 		string_blt(popup->surface, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_set_anchor_handle(NULL);
 		text_offset_reset();
 
 		interface->redraw = 0;
