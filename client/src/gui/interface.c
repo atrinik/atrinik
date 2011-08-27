@@ -118,6 +118,7 @@ static int popup_draw_func(popup_struct *popup)
 			}
 		}
 
+		text_offset_set(popup->x, popup->y);
 		box.w = 350;
 		box.h = FONT_HEIGHT(FONT_SERIF14);
 		string_blt(popup->surface, FONT_SERIF14, interface->title, 80, 38 + 22 / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
@@ -127,6 +128,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.x = 0;
 		box.y = interface->scroll_offset;
 		string_blt(popup->surface, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_offset_reset();
 
 		interface->redraw = 0;
 	}
