@@ -93,9 +93,18 @@ typedef struct interface_struct
 #define INTERFACE_ICON_HEIGHT 55
 /*@}*/
 
+/**
+ * @defgroup INTERFACE_TEXT_xxx Interface text coords
+ * Interface text coordinates.
+ *@{*/
+/** X position of the text. */
 #define INTERFACE_TEXT_STARTX 9
+/** Y position of the text. */
 #define INTERFACE_TEXT_STARTY 73
+/** Maximum width of the text. */
 #define INTERFACE_TEXT_WIDTH 414
+/** Maximum height of the text. */
 #define INTERFACE_TEXT_HEIGHT 430
+/*@}*/
 
 #endif
