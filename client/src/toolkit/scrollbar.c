@@ -181,41 +181,14 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_
 	scrollbar->slider.render_func = scrollbar_element_render_slider;
 }
 
-static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
+void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
 {
-	int scroll, ret = 0;
+	int scroll;
 
-	if (scrollbar->dragging)
-	{
-		return 0;
-	}
+	/* Adjust the scroll offset. */
+	scroll = *scrollbar->scroll_offset + adjust;
 
-	scroll = *scrollbar->scroll_offset;
-
-	if (scrollbar->arrow_up.highlight)
-	{
-		scroll--;
-		ret = 1;
-	}
-	else if (scrollbar->arrow_down.highlight)
-	{
-		scroll++;
-		ret = 1;
-	}
-	else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE)
-	{
-		if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP)
-		{
-			scroll -= scrollbar->max_lines;
-		}
-		else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN)
-		{
-			scroll += scrollbar->max_lines;
-		}
-
-		ret = 1;
-	}
-
+	/* Make sure the scroll offset is in a valid range. */
 	if (scroll < 0)
 	{
 		scroll = 0;
@@ -225,6 +198,8 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 		scroll = *scrollbar->num_lines - scrollbar->max_lines;
 	}
 
+	/* If the scroll offset changed, update it and set the redraw flag,
+	 * if possible. */
 	if ((uint32) scroll != *scrollbar->scroll_offset)
 	{
 		*scrollbar->scroll_offset = scroll;
@@ -234,8 +209,40 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 			*scrollbar->redraw = 1;
 		}
 	}
+}
 
-	return ret;
+static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
+{
+	if (scrollbar->dragging)
+	{
+		return 0;
+	}
+
+	if (scrollbar->arrow_up.highlight)
+	{
+		scrollbar_scroll_adjust(scrollbar, -1);
+		return 1;
+	}
+	else if (scrollbar->arrow_down.highlight)
+	{
+		scrollbar_scroll_adjust(scrollbar, 1);
+		return 1;
+	}
+	else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE)
+	{
+		if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP)
+		{
+			scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
+			return 1;
+		}
+		else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN)
+		{
+			scrollbar_scroll_adjust(scrollbar, scrollbar->max_lines);
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
