@@ -192,14 +192,25 @@ static int popup_draw_func_post(popup_struct *popup)
 		return 1;
 	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		send_command_check("/t_tell hello");
 	}
 
-	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + INTERFACE_BUTTON_CLOSE_STARTX, popup->y + INTERFACE_BUTTON_CLOSE_STARTY, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_CLOSE_STARTX, popup->y + INTERFACE_BUTTON_CLOSE_STARTY, "Close", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		return 0;
+	}
+
+	if (text_input_string_flag)
+	{
+		SDL_Rect dst;
+
+		dst.x = popup->x + popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
+		dst.y = popup->y + popup->surface->h - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h - 15;
+		dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
+		dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
+		text_input_show(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
 
 	sprite_blt(Bitmaps[BITMAP_INTERFACE_BORDER], popup->x, popup->y, NULL, NULL);
@@ -211,6 +222,7 @@ static int popup_destroy_callback(popup_struct *popup)
 {
 	(void) popup;
 	interface_destroy();
+	text_input_close();
 	return 1;
 }
 
@@ -223,6 +235,31 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
+		if (text_input_string_flag)
+		{
+			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
+			{
+				StringBuffer *sb = stringbuffer_new();
+				char *cp;
+
+				stringbuffer_append_printf(sb, "/t_tell %s", text_input_string);
+				cp = stringbuffer_finish(sb);
+				send_command_check(cp);
+				free(cp);
+				text_input_close();
+				return 1;
+			}
+			else if (event->key.keysym.sym == SDLK_ESCAPE)
+			{
+				text_input_close();
+				return 1;
+			}
+			else if (text_input_handle(&event->key))
+			{
+				return 1;
+			}
+		}
+
 		switch (event->key.keysym.sym)
 		{
 			case SDLK_DOWN:
@@ -263,6 +300,11 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_KP8:
 			case SDLK_KP9:
 				interface_execute_link(event->key.keysym.sym - SDLK_KP1);
+				return 1;
+
+			case SDLK_RETURN:
+			case SDLK_KP_ENTER:
+				text_input_open(255);
 				return 1;
 
 			default:
@@ -316,6 +358,9 @@ void cmd_interface(uint8 *data, int len)
 		popup->close_button_xoff = 10;
 		popup->close_button_yoff = 9;
 	}
+
+	/* Make sure text input is not open. */
+	text_input_close();
 
 	/* Destroy previous interface data. */
 	interface_destroy();
@@ -383,6 +428,8 @@ void cmd_interface(uint8 *data, int len)
 
 	if (text_input)
 	{
+		text_input_open(255);
+		text_input_add_string(text_input_content);
 	}
 
 	links_len = utarray_len(interface->links);

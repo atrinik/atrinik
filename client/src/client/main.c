@@ -216,7 +216,10 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"icon_quest.png", PIC_TYPE_ALPHA},
 	{"fps.png", PIC_TYPE_DEFAULT},
 	{"interface.png", PIC_TYPE_ALPHA},
-	{"interface_border.png", PIC_TYPE_ALPHA}
+	{"interface_border.png", PIC_TYPE_ALPHA},
+	{"button_large.png", PIC_TYPE_ALPHA},
+	{"button_large_down.png", PIC_TYPE_ALPHA},
+	{"button_large_hover.png", PIC_TYPE_ALPHA}
 };
 
 /** The actual bitmaps. */

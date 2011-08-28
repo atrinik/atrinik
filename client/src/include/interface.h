@@ -129,14 +129,14 @@ typedef struct interface_struct
  * Interface button coordinates.
  *@{*/
 /** X position of the 'hello' button. */
-#define INTERFACE_BUTTON_HELLO_STARTX 20
+#define INTERFACE_BUTTON_HELLO_STARTX 7
 /** Y position of the 'hello' button. */
-#define INTERFACE_BUTTON_HELLO_STARTY 520
+#define INTERFACE_BUTTON_HELLO_STARTY 512
 
 /** X position of the 'close' button. */
-#define INTERFACE_BUTTON_CLOSE_STARTX 375
+#define INTERFACE_BUTTON_CLOSE_STARTX 337
 /** Y position of the 'close' button. */
-#define INTERFACE_BUTTON_CLOSE_STARTY 520
+#define INTERFACE_BUTTON_CLOSE_STARTY 512
 /*@}*/
 
 #endif
