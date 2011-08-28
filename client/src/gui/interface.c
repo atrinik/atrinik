@@ -88,7 +88,9 @@ static void interface_execute_link(size_t link_id)
 	}
 
 	text_anchor_parse(&info, *p);
+	text_set_anchor_handle(text_anchor_handle);
 	text_anchor_execute(&info);
+	text_set_anchor_handle(NULL);
 }
 
 /** @copydoc popup_struct::draw_func */
