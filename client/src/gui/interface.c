@@ -67,6 +67,10 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 
 		return 1;
 	}
+	else if (!strcmp(anchor_action, "close"))
+	{
+		interface->destroy = 1;
+	}
 
 	return 0;
 }
