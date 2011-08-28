@@ -13,6 +13,9 @@ Alex "Cleo" Tokar - GPLv2:
 	button_rect_hover.png
 	button_round.png
 	button_round_down.png
+	button_large.png
+	button_large_down.png
+	button_large_hover.png
 	checkbox.png
 	checkbox_on.png
 	cmark_end.png
