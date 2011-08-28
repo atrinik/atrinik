@@ -316,17 +316,17 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 		if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
 			scrollbar_scroll_adjust(&interface->scrollbar, 1);
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
 			scrollbar_scroll_adjust(&interface->scrollbar, -1);
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_LEFT)
 		{
 			interface->redraw = 1;
 		}
-
-		return 1;
 	}
 
 	return -1;
