@@ -6,7 +6,7 @@ class Interface:
 	def __init__(self, activator, npc):
 		self._activator = activator
 		self._npc = npc
-		self._icon = npc.face[0]
+		self._icon = npc.arch.clone.face[0]
 		self._title = npc.name
 
 	def add_msg(self, msg):
