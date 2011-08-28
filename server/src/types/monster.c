@@ -1758,9 +1758,29 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
-			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
-			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			if (CONTR(op)->socket.socket_version >= 1058)
+			{
+				unsigned char sock_buf[MAXSOCKBUF];
+				SockList sl;
+
+				sl.buf = sock_buf;
+				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
+				SockList_AddString(&sl, cp);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_ICON);
+				SockList_AddString(&sl, npc->arch->clone.face->name);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
+				SockList_AddString(&sl, npc->name);
+
+				Send_With_Handling(&CONTR(op)->socket, &sl);
+			}
+			else
+			{
+				draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
+			}
 		}
 		else
 		{
