@@ -36,4 +36,7 @@ class Interface:
 		if pl.s_socket_version >= 1058:
 			pl.SendInterface(self._msg, self._links, self._icon, self._title, self._text_input)
 		else:
-			self._me.SayTo(self._activator, "not implemented")
+			self._npc.SayTo(self._activator, "\n" + self._msg)
+
+			if self._links:
+				self._npc.SayTo(self._activator, "\n" + "\n".join(self._links), True)
