@@ -178,7 +178,7 @@ static int popup_draw_func(popup_struct *popup)
 		interface->redraw = 0;
 	}
 
-	return 1;
+	return !interface->destroy;
 }
 
 /** @copydoc popup_struct::draw_func_post */

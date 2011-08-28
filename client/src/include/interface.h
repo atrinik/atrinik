@@ -51,6 +51,9 @@ typedef struct interface_struct
 	/** Whether to redraw the interface. */
 	uint8 redraw;
 
+	/** Whether the interface should be destroyed. */
+	uint8 destroy;
+
 	uint32 scroll_offset;
 
 	uint32 num_lines;
