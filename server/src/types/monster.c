@@ -1604,6 +1604,9 @@ void communicate(object *op, char *txt)
 				{
 					if (talk_to_npc(op, npc, txt))
 					{
+						CONTR(op)->target_object = npc;
+						CONTR(op)->target_object_count = npc->count;
+						send_target_command(CONTR(op));
 						return;
 					}
 				}
