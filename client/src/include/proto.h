@@ -536,7 +536,6 @@ extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
 extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
-extern int scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
 /* src/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
