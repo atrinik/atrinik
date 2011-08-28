@@ -291,7 +291,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
 
-			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				setting_change_value(setting_category_selected, row, 1);
 			}
@@ -314,7 +314,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			dst.x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w + 1;
 
-			if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				setting_change_value(setting_category_selected, row, -1);
 			}
@@ -433,7 +433,7 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 	list_struct *list = list_exists(LIST_SETTINGS);
 	int x, y, mx, my, mstate;
 
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		help_show(setting_type_help[setting_type]);
 		return 1;
@@ -458,7 +458,7 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 		x = popup->x + 30;
 		y = popup->y + 50;
 
-		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			setting_category_change(-1);
 		}
@@ -466,7 +466,7 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 		dst.w = list->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
 		dst.h = 0;
 
-		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			setting_category_change(1);
 		}
@@ -481,12 +481,12 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 
 		list_show(list, x, y);
 
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			settings_apply_change();
 		}
 
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			return 0;
 		}
@@ -500,17 +500,17 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 		y = popup->y + 50;
 		list_show(list, x, y);
 
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 74, "Add", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 74, "Add", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			setting_keybind_action(SDLK_n, list);
 		}
 
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 51, "Remove", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 51, "Remove", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			setting_keybind_action(SDLK_DELETE, list);
 		}
 
-		if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 28, "Repeat", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 28, "Repeat", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 		{
 			setting_keybind_action(SDLK_r, list);
 		}
@@ -560,7 +560,7 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 			text_input_draw_background(ScreenSurface, dst.x, dst.y, BITMAP_LOGIN_INP);
 			text_input_draw_text(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, key_buf, COLOR_WHITE, TEXT_ALIGN_CENTER, BITMAP_LOGIN_INP, NULL);
 
-			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, dst.x + dst.w - Bitmaps[BITMAP_BUTTON]->bitmap->w, dst.y + 20, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, dst.x + dst.w - Bitmaps[BITMAP_BUTTON]->bitmap->w, dst.y + 20, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				setting_keybind_apply(list);
 			}

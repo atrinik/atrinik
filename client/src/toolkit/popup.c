@@ -122,6 +122,7 @@ popup_struct *popup_create(int bitmap_id)
 	button_create(&button_close);
 	button_close.bitmap = BITMAP_BUTTON_ROUND;
 	button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+	button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 
 	return popup;
 }

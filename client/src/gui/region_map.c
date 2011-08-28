@@ -497,7 +497,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	box.h = region_map_pos.h;
 
 	/* Show a close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w - 25, popup->y + 8, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w - 25, popup->y + 8, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		help_show("region map");
 		return 1;

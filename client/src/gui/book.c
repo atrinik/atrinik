@@ -277,6 +277,7 @@ void book_load(const char *data, int len)
 		button_create(&button_back);
 		button_back.bitmap = BITMAP_BUTTON_ROUND;
 		button_back.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_back.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);

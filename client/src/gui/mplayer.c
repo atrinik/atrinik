@@ -357,6 +357,7 @@ void widget_show_mplayer(widgetdata *widget)
 		button_create(&button_close);
 		button_blacklist.bitmap = button_help.bitmap = button_close.bitmap = BITMAP_BUTTON_ROUND;
 		button_blacklist.bitmap_pressed = button_help.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_blacklist.bitmap_over = button_help.bitmap_over = button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
