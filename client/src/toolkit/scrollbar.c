@@ -315,7 +315,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 			int slider_y;
 			uint32 scroll_offset;
 
-			slider_y = event->motion.y - scrollbar->old_slider_pos;
+			slider_y = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
 
 			if (slider_y > SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h)
 			{
@@ -340,19 +340,19 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 
 			return 1;
 		}
-		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_up))
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py, &scrollbar->arrow_up))
 		{
 			return 1;
 		}
-		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->arrow_down))
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py, &scrollbar->arrow_down))
 		{
 			return 1;
 		}
-		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->slider))
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py, &scrollbar->slider))
 		{
 			return 1;
 		}
-		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x, event->motion.y, &scrollbar->background))
+		else if (scrollbar_element_highlight_check(scrollbar, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py, &scrollbar->background))
 		{
 			return 1;
 		}
@@ -361,17 +361,17 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 	{
 		if (scrollbar->slider.highlight)
 		{
-			scrollbar->old_slider_pos = event->motion.y - scrollbar->slider.y + SLIDER_YPOS_START(scrollbar);
+			scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y + SLIDER_YPOS_START(scrollbar);
 			scrollbar->dragging = 1;
 			return 1;
 		}
 		else if (scrollbar->background.highlight)
 		{
-			if (event->motion.y < scrollbar->y + scrollbar->slider.y)
+			if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y)
 			{
 				scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
 			}
-			else if (event->motion.y > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
+			else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
 			{
 				scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
 			}

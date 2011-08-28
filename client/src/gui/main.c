@@ -72,6 +72,10 @@ const int char_step_max = 2;
 static progress_dots progress;
 /** Button buffer. */
 static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_quit;
+/** News scrollbar. */
+static scrollbar_struct scrollbar_news;
+/** Buffers for scrolling text in the news popup. */
+static uint32 news_scroll_offset, news_num_lines;
 
 /** @copydoc popup_struct::draw_func */
 static int news_popup_draw_func(popup_struct *popup)
@@ -91,25 +95,24 @@ static int news_popup_draw_func(popup_struct *popup)
 		box.h = NEWS_MAX_HEIGHT;
 
 		/* Calculate number of last displayed lines. */
-		if (!popup->i[1])
+		if (!news_num_lines)
 		{
 			string_blt(NULL, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
-			popup->i[1] = box.y;
-			popup->i[2] = box.h;
+			news_num_lines = box.h;
+			scrollbar_create(&scrollbar_news, 15, 250, &news_scroll_offset, &news_num_lines, box.y);
+			scrollbar_news.px = popup->x;
+			scrollbar_news.py = popup->y;
 			box.h = NEWS_MAX_HEIGHT;
 		}
 
 		/* Skip rows we scrolled past. */
-		box.y = popup->i[0];
+		box.y = news_scroll_offset;
 		/* Show the news. */
 		text_offset_set(popup->x, popup->y);
 		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 
-		box.x = Bitmaps[popup->bitmap_id]->bitmap->w - 30;
-		box.y = Bitmaps[popup->bitmap_id]->bitmap->h / 2 - 50;
-		/* Show scroll buttons. */
-		scroll_buttons_show(popup->surface, ScreenSurface->w / 2 - Bitmaps[popup->bitmap_id]->bitmap->w / 2 + box.x, ScreenSurface->h / 2 - Bitmaps[popup->bitmap_id]->bitmap->h / 2 + box.y, (int *) &popup->i[0], popup->i[2] - popup->i[1], popup->i[1], &box);
+		scrollbar_render(&scrollbar_news, popup->surface, Bitmaps[popup->bitmap_id]->bitmap->w - 28, 30);
 		return 1;
 	}
 	/* Haven't started downloading yet. */
@@ -164,7 +167,10 @@ static int news_popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	int old_i = popup->i[0];
+	if (popup->buf && scrollbar_event(&scrollbar_news, event))
+	{
+		return 1;
+	}
 
 	if (event->type == SDL_KEYDOWN)
 	{
@@ -179,50 +185,39 @@ static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 			}
 		}
 		/* Scroll the text. */
-		else if (event->key.keysym.sym == SDLK_DOWN)
+		else if (event->key.keysym.sym == SDLK_DOWN && popup->buf)
 		{
-			popup->i[0]++;
+			scrollbar_scroll_adjust(&scrollbar_news, 1);
+			return 1;
 		}
-		else if (event->key.keysym.sym == SDLK_UP)
+		else if (event->key.keysym.sym == SDLK_UP && popup->buf)
 		{
-			popup->i[0]--;
+			scrollbar_scroll_adjust(&scrollbar_news, -1);
+			return 1;
 		}
-		else if (event->key.keysym.sym == SDLK_PAGEUP)
+		else if (event->key.keysym.sym == SDLK_PAGEUP && popup->buf)
 		{
-			popup->i[0] -= NEWS_MAX_HEIGHT / FONT_HEIGHT(NEWS_FONT);
+			scrollbar_scroll_adjust(&scrollbar_news, -scrollbar_news.max_lines);
+			return 1;
 		}
-		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN && popup->buf)
 		{
-			popup->i[0] += NEWS_MAX_HEIGHT / FONT_HEIGHT(NEWS_FONT);
+			scrollbar_scroll_adjust(&scrollbar_news, scrollbar_news.max_lines);
+			return 1;
 		}
 	}
 	/* Mouse wheel? */
 	else if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
-		if (event->button.button == SDL_BUTTON_WHEELDOWN)
+		if (event->button.button == SDL_BUTTON_WHEELDOWN && popup->buf)
 		{
-			popup->i[0]++;
+			scrollbar_scroll_adjust(&scrollbar_news, 1);
+			return 1;
 		}
-		else if (event->button.button == SDL_BUTTON_WHEELUP)
+		else if (event->button.button == SDL_BUTTON_WHEELUP && popup->buf)
 		{
-			popup->i[0]--;
-		}
-	}
-
-	/* Scroll value was changed, verify it's in range. */
-	if (old_i != popup->i[0])
-	{
-		if (!popup->buf)
-		{
-			popup->i[0] = old_i;
-		}
-		else if (popup->i[0] < 0)
-		{
-			popup->i[0] = 0;
-		}
-		else if (popup->i[0] > popup->i[2] - popup->i[1])
-		{
-			popup->i[0] = popup->i[2] - popup->i[1];
+			scrollbar_scroll_adjust(&scrollbar_news, -1);
+			return 1;
 		}
 	}
 
@@ -753,6 +748,7 @@ static void list_handle_enter(list_struct *list)
 
 			popup->draw_func = news_popup_draw_func;
 			popup->event_func = news_popup_event_func;
+			news_scroll_offset = news_num_lines = 0;
 		}
 	}
 }
