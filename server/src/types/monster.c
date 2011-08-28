@@ -1590,7 +1590,7 @@ void communicate(object *op, char *txt)
 			continue;
 		}
 
-		for (npc = get_map_ob(m, xt, yt); npc; npc = npc->above)
+		for (npc = GET_MAP_OB(m, xt, yt); npc; npc = npc->above)
 		{
 			/* Avoid talking to self. */
 			if (op != npc)
