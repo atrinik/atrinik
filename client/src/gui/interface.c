@@ -162,9 +162,9 @@ static int popup_draw_func(popup_struct *popup)
 		}
 
 		text_offset_set(popup->x, popup->y);
-		box.w = 350;
+		box.w = INTERFACE_TITLE_WIDTH;
 		box.h = FONT_HEIGHT(FONT_SERIF14);
-		string_blt(popup->surface, FONT_SERIF14, interface->title, 80, 38 + 22 / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		string_blt(popup->surface, FONT_SERIF14, interface->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 		box.w = INTERFACE_TEXT_WIDTH;
 		box.h = INTERFACE_TEXT_HEIGHT;
@@ -185,6 +185,23 @@ static int popup_draw_func(popup_struct *popup)
 static int popup_draw_func_post(popup_struct *popup)
 {
 	scrollbar_render(&interface->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
+
+	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		help_show("npc interface");
+		return 1;
+	}
+
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		send_command_check("/t_tell hello");
+	}
+
+	if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, popup->x + INTERFACE_BUTTON_CLOSE_STARTX, popup->y + INTERFACE_BUTTON_CLOSE_STARTY, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	{
+		return 0;
+	}
+
 	sprite_blt(Bitmaps[BITMAP_INTERFACE_BORDER], popup->x, popup->y, NULL, NULL);
 	return 1;
 }

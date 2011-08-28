@@ -110,4 +110,33 @@ typedef struct interface_struct
 #define INTERFACE_TEXT_HEIGHT 430
 /*@}*/
 
+/**
+ * @defgroup INTERFACE_TITLE_xxx Interface title coords
+ * Interface title coordinates.
+ *@{*/
+/** X position of the title. */
+#define INTERFACE_TITLE_STARTX 80
+/** Y position of the title. */
+#define INTERFACE_TITLE_STARTY 38
+/** Maximum width of the title. */
+#define INTERFACE_TITLE_WIDTH 350
+/** Maximum height of the title. */
+#define INTERFACE_TITLE_HEIGHT 22
+/*@}*/
+
+/**
+ * @defgroup INTERFACE_BUTTON_xxx Interface button coords
+ * Interface button coordinates.
+ *@{*/
+/** X position of the 'hello' button. */
+#define INTERFACE_BUTTON_HELLO_STARTX 20
+/** Y position of the 'hello' button. */
+#define INTERFACE_BUTTON_HELLO_STARTY 520
+
+/** X position of the 'close' button. */
+#define INTERFACE_BUTTON_CLOSE_STARTX 375
+/** Y position of the 'close' button. */
+#define INTERFACE_BUTTON_CLOSE_STARTY 520
+/*@}*/
+
 #endif
