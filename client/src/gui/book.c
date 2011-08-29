@@ -99,12 +99,20 @@ static int popup_draw_func_post(popup_struct *popup)
 {
 	scrollbar_render(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
 
+	button_back.x = popup->x + 25;
+	button_back.y = popup->y + 25;
+
 	if (book_help_history_enabled)
 	{
-		button_back.x = popup->x + popup->close_button_xoff;
-		button_back.y = popup->y + popup->close_button_yoff;
 		button_render(&button_back, "<");
+		button_tooltip(&button_back, FONT_ARIAL10, "Go back");
 	}
+	else
+	{
+		button_render(&button_back, "");
+	}
+
+	sprite_blt(Bitmaps[BITMAP_BOOK_BORDER], popup->x, popup->y, NULL, NULL);
 
 	return 1;
 }
@@ -271,13 +279,17 @@ void book_load(const char *data, int len)
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->disable_bitmap_blit = 1;
-		popup->close_button_xoff = 30;
-		popup->close_button_yoff = 30;
+		popup->close_button_xoff = 25;
+		popup->close_button_yoff = 25;
+
+		popup->button_close.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+		popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+		popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 
 		button_create(&button_back);
-		button_back.bitmap = BITMAP_BUTTON_ROUND;
-		button_back.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-		button_back.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+		button_back.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+		button_back.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+		button_back.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 	}
 
 	scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);

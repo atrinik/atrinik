@@ -49,9 +49,6 @@ static SDL_Surface *popup_overlay = NULL;
 /**
  * Whether the popup overlay needs redrawing. */
 static uint8 popup_overlay_need_redraw = 0;
-/**
- * Close button of the popup. */
-static button_struct button_close;
 
 /**
  * Create an overlay to be used as popup background. */
@@ -119,10 +116,10 @@ popup_struct *popup_create(int bitmap_id)
 	/* Make sure the mouse is no longer moving any widget. */
 	widget_event_move_stop(mx, my);
 
-	button_create(&button_close);
-	button_close.bitmap = BITMAP_BUTTON_ROUND;
-	button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-	button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+	button_create(&popup->button_close);
+	popup->button_close.bitmap = BITMAP_BUTTON_ROUND;
+	popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+	popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 
 	return popup;
 }
@@ -216,6 +213,13 @@ void popup_render(popup_struct *popup)
 	box.y = popup->y;
 	SDL_BlitSurface(popup->surface, NULL, ScreenSurface, &box);
 
+	if (popup->button_close.bitmap != -1)
+	{
+		popup->button_close.x = box.x + popup->surface->w - Bitmaps[popup->button_close.bitmap]->bitmap->w - popup->close_button_xoff;
+		popup->button_close.y = box.y + popup->close_button_yoff;
+		button_render(&popup->button_close, "X");
+	}
+
 	if (popup->draw_func_post)
 	{
 		if (!popup->draw_func_post(popup))
@@ -224,10 +228,6 @@ void popup_render(popup_struct *popup)
 			return;
 		}
 	}
-
-	button_close.x = box.x + popup->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - popup->close_button_xoff;
-	button_close.y = box.y + popup->close_button_yoff;
-	button_render(&button_close, "X");
 }
 
 /**
@@ -279,7 +279,7 @@ int popup_handle_event(SDL_Event *event)
 			popup_destroy(popup_head);
 		}
 	}
-	else if (button_event(&button_close, event))
+	else if (button_event(&popup_head->button_close, event))
 	{
 		popup_destroy(popup_head);
 		return 1;
