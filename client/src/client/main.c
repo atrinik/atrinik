@@ -972,8 +972,6 @@ int main(int argc, char *argv[])
 			main_screen_render();
 		}
 
-		tooltip_show();
-
 		if (f_custom_cursor)
 		{
 			DisplayCustomCursor();
@@ -983,6 +981,8 @@ int main(int argc, char *argv[])
 
 		script_process();
 		popup_render_head();
+
+		tooltip_show();
 
 		SDL_Flip(ScreenSurface);
 
