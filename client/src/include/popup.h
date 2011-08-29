@@ -65,6 +65,9 @@ typedef struct popup_struct
 	/** Y offset of the close button. */
 	int close_button_yoff;
 
+	/** The close button. */
+	button_struct button_close;
+
 	/** Next popup in a doubly-linked list. */
 	struct popup_struct *next;
 

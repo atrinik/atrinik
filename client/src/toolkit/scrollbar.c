@@ -1,0 +1,465 @@
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
+*                                                                       *
+* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+* and Crossfire (Multiplayer game for X-windows).                       *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 2 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
+/**
+ * @file
+ * Scrollbar API. */
+
+#include <global.h>
+
+/** Scrollbar background color. */
+static SDL_Color scrollbar_color_bg;
+/** Scrollbar foreground color. */
+static SDL_Color scrollbar_color_fg;
+/** Highlight color. */
+static SDL_Color scrollbar_color_highlight;
+
+/**
+ * Initialize the scrollbar API. */
+void scrollbar_init()
+{
+	text_color_parse("000000", &scrollbar_color_bg);
+	text_color_parse("b5a584", &scrollbar_color_fg);
+	text_color_parse("ffffff", &scrollbar_color_highlight);
+}
+
+/**
+ * Initialize a single scrollbar element.
+ * @param elem Element to initialize.
+ * @param x X position.
+ * @param y Y position.
+ * @param w Width of the element.
+ * @param h Height of the element. */
+static void scrollbar_element_init(scrollbar_element *elem, int x, int y, int w, int h)
+{
+	elem->x = x;
+	elem->y = y;
+	elem->w = w;
+	elem->h = h;
+}
+
+/**
+ * Render the background element.
+ * @param surface Surface to render on.
+ * @param box Where to draw.
+ * @param elem The element. */
+static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	(void) elem;
+	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_bg.r, scrollbar_color_bg.g, scrollbar_color_bg.b));
+	border_create_sdl_color(surface, box, &scrollbar_color_fg);
+}
+
+/**
+ * Render the arrow up element.
+ * @param surface Surface to render on.
+ * @param box Where to draw.
+ * @param elem The element. */
+static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_Color *color = &scrollbar_color_fg;
+
+	/* If highlighted, use the highlight color. */
+	if (elem->highlight)
+	{
+		color = &scrollbar_color_highlight;
+	}
+
+	border_create_sdl_color(surface, box, color);
+
+	/* Create the arrow. */
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+}
+
+/**
+ * Render the arrow down element.
+ * @param surface Surface to render on.
+ * @param box Where to draw.
+ * @param elem The element. */
+static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_Color *color = &scrollbar_color_fg;
+
+	/* If highlighted, use the highlight color. */
+	if (elem->highlight)
+	{
+		color = &scrollbar_color_highlight;
+	}
+
+	border_create_sdl_color(surface, box, color);
+
+	/* Create the arrow. */
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+}
+
+/**
+ * Render the slider element.
+ * @param surface Surface to render on.
+ * @param box Where to draw.
+ * @param elem The element. */
+static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+{
+	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_fg.r, scrollbar_color_fg.g, scrollbar_color_fg.b));
+
+	/* If highlighted, create highlighted border around the edges of the
+	 * slider. */
+	if (elem->highlight)
+	{
+		border_create_sdl_color(surface, box, &scrollbar_color_highlight);
+	}
+}
+
+/**
+ * Check if scrollbar element should be highlighted.
+ * @param scrollbar The scrollbar.
+ * @param elem The element.
+ * @param mx Mouse X.
+ * @param my Mouse Y.
+ * @return 1 if the element is highlighted, 0 otherwise. */
+static int scrollbar_element_highlight_check(scrollbar_struct *scrollbar, scrollbar_element *elem, int mx, int my)
+{
+	SDL_Rect box;
+
+	box.x = scrollbar->x + elem->x;
+	box.y = scrollbar->y + elem->y;
+	box.w = elem->w;
+	box.h = elem->h;
+
+	if (mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h)
+	{
+		elem->highlight = 1;
+	}
+	else
+	{
+		elem->highlight = 0;
+	}
+
+	return elem->highlight;
+}
+
+/**
+ * Render a single scrollbar element.
+ * @param scrollbar The scrollbar.
+ * @param elem The element.
+ * @param surface The surface to draw on. */
+static void scrollbar_element_render(scrollbar_struct *scrollbar, scrollbar_element *elem, SDL_Surface *surface)
+{
+	SDL_Rect box;
+
+	box.x = scrollbar->x + elem->x;
+	box.y = scrollbar->y + elem->y;
+	box.w = elem->w;
+	box.h = elem->h;
+
+	/* Make sure the element should still be highlighted. */
+	if (elem->highlight)
+	{
+		int mx, my;
+
+		SDL_GetMouseState(&mx, &my);
+
+		mx -= scrollbar->px;
+		my -= scrollbar->py;
+
+		scrollbar_element_highlight_check(scrollbar, elem, mx, my);
+	}
+
+	elem->render_func(surface, &box, elem);
+}
+
+/**
+ * Handle clicking an element in scrollbar.
+ * @param scrollbar The scrollbar.
+ * @return 1 if the click was handled, 0 otherwise. */
+static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
+{
+	/* Dragging the slider, do not allow clicking anything. */
+	if (scrollbar->dragging)
+	{
+		return 0;
+	}
+
+	/* Mouse over the up arrow. */
+	if (scrollbar->arrow_up.highlight)
+	{
+		scrollbar_scroll_adjust(scrollbar, -1);
+		return 1;
+	}
+	/* Mouse over the down arrow. */
+	else if (scrollbar->arrow_down.highlight)
+	{
+		scrollbar_scroll_adjust(scrollbar, 1);
+		return 1;
+	}
+	/* Mouse over the background and there's a known scroll direction. */
+	else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE)
+	{
+		if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP)
+		{
+			scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
+			return 1;
+		}
+		else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN)
+		{
+			scrollbar_scroll_adjust(scrollbar, scrollbar->max_lines);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize a single scrollbar structure.
+ * @param scrollbar Structure to initialize.
+ * @param w Width of the scrollbar. Should be an odd number, otherwise
+ * the arrow calculations will not work correctly.
+ * @param h Height of the scrollbar. */
+void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines)
+{
+	memset(scrollbar, 0, sizeof(*scrollbar));
+
+	scrollbar->scroll_offset = scroll_offset;
+	scrollbar->num_lines = num_lines;
+	scrollbar->max_lines = max_lines;
+
+	/* Initialize the elements. */
+	scrollbar_element_init(&scrollbar->background, 0, 0, w, h);
+	scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
+	scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
+	scrollbar_element_init(&scrollbar->slider, 2, SLIDER_YPOS_START(scrollbar), w - 2 * 2, SLIDER_HEIGHT_FULL(scrollbar));
+
+	scrollbar->background.render_func = scrollbar_element_render_background;
+	scrollbar->arrow_up.render_func = scrollbar_element_render_arrow_up;
+	scrollbar->arrow_down.render_func = scrollbar_element_render_arrow_down;
+	scrollbar->slider.render_func = scrollbar_element_render_slider;
+}
+
+/**
+ * Scroll the scrollbar by the specified amount.
+ *
+ * If the scroll offset has changed at all, value of the
+ * scrollbar_struct::redraw pointer will be set to 1.
+ * @param scrollbar The scrollbar to scroll.
+ * @param adjust How much to scroll by. */
+void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
+{
+	int scroll;
+
+	/* Adjust the scroll offset. */
+	scroll = *scrollbar->scroll_offset + adjust;
+
+	/* Make sure the scroll offset is in a valid range. */
+	if (scroll < 0)
+	{
+		scroll = 0;
+	}
+	else if ((uint32) scroll > *scrollbar->num_lines - scrollbar->max_lines)
+	{
+		scroll = *scrollbar->num_lines - scrollbar->max_lines;
+	}
+
+	/* If the scroll offset changed, update it and set the redraw flag,
+	 * if possible. */
+	if ((uint32) scroll != *scrollbar->scroll_offset)
+	{
+		*scrollbar->scroll_offset = scroll;
+
+		if (scrollbar->redraw)
+		{
+			*scrollbar->redraw = 1;
+		}
+	}
+}
+
+/**
+ * Render a scrollbar.
+ * @param scrollbar The scrollbar to render.
+ * @param surface Surface to render on.
+ * @param x X position on the surface.
+ * @param y Y position on the surface. */
+void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
+{
+	int mx, my;
+
+	scrollbar->x = x;
+	scrollbar->y = y;
+
+	/* If the scroll direction is set but the left mouse button is no
+	 * longer being held, clear the scroll direction. */
+	if (scrollbar->scroll_direction != SCROLL_DIRECTION_NONE && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT)
+	{
+		scrollbar->scroll_direction = SCROLL_DIRECTION_NONE;
+	}
+
+	/* Handle click repeating. */
+	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON_LEFT && SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks)
+	{
+		if (scrollbar_click_scroll(scrollbar))
+		{
+			scrollbar->click_ticks = SDL_GetTicks();
+			scrollbar->click_repeat_ticks = 35;
+		}
+	}
+
+	/* Calculate slider height and y offset if necessary. */
+	if (*scrollbar->num_lines > scrollbar->max_lines)
+	{
+		int scroll;
+
+		scroll = scrollbar->max_lines + *scrollbar->scroll_offset;
+
+		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
+		scrollbar->slider.y = ((scroll - scrollbar->max_lines) * SLIDER_HEIGHT_FULL(scrollbar)) / *scrollbar->num_lines;
+
+		if (scrollbar->slider.h < 1)
+		{
+			scrollbar->slider.h = 1;
+		}
+
+		if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.y + scrollbar->slider.h < SLIDER_HEIGHT_FULL(scrollbar))
+		{
+			scrollbar->slider.y++;
+		}
+	}
+	/* Not necessary to calculate, so full slider height. */
+	else
+	{
+		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar);
+		scrollbar->slider.y = 0;
+	}
+
+
+	scrollbar->slider.y += SLIDER_YPOS_START(scrollbar);
+
+	/* Render the elements. */
+	scrollbar_element_render(scrollbar, &scrollbar->background, surface);
+	scrollbar_element_render(scrollbar, &scrollbar->arrow_up, surface);
+	scrollbar_element_render(scrollbar, &scrollbar->arrow_down, surface);
+	scrollbar_element_render(scrollbar, &scrollbar->slider, surface);
+}
+
+/**
+ * Try to handle a scrollbar event.
+ * @param scrollbar Scrollbar to handle the event for.
+ * @param event The event.
+ * @return 1 if the event was handled, 0 otherwise. */
+int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
+{
+	if (event->type == SDL_MOUSEMOTION)
+	{
+		/* If dragging but the left mouse button is no longer being held,
+		 * quit dragging the slider. */
+		if (scrollbar->dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT))
+		{
+			scrollbar->dragging = 0;
+		}
+
+		/* Try dragging the scrollbar. */
+		if (scrollbar->dragging)
+		{
+			int slider_y;
+			uint32 scroll_offset;
+
+			slider_y = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
+
+			if (slider_y > SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h)
+			{
+				slider_y = SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h;
+			}
+			else if (slider_y < 0)
+			{
+				slider_y = 0;
+			}
+
+			scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_y) * *scrollbar->num_lines / SLIDER_HEIGHT_FULL(scrollbar));
+
+			/* Redraw if the scroll offset changed. */
+			if (scroll_offset != *scrollbar->scroll_offset)
+			{
+				*scrollbar->scroll_offset = scroll_offset;
+
+				if (scrollbar->redraw)
+				{
+					*scrollbar->redraw = 1;
+				}
+			}
+
+			return 1;
+		}
+		/* Check highlight. */
+		else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_up, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_down, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->slider, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py))
+		{
+			return 1;
+		}
+		else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->background, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py))
+		{
+			return 1;
+		}
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		/* Start dragging the slider. */
+		if (scrollbar->slider.highlight)
+		{
+			scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y + SLIDER_YPOS_START(scrollbar);
+			scrollbar->dragging = 1;
+			return 1;
+		}
+		/* Set scroll direction if clicked on the background. */
+		else if (scrollbar->background.highlight)
+		{
+			if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y)
+			{
+				scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
+			}
+			else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
+			{
+				scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
+			}
+		}
+
+		if (scrollbar_click_scroll(scrollbar))
+		{
+			scrollbar->click_ticks = SDL_GetTicks();
+			scrollbar->click_repeat_ticks = 400;
+			return 1;
+		}
+	}
+
+	return 0;
+}

@@ -271,6 +271,7 @@ extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
+extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, SDL_Color *color);
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
 /* src/client/tilestretcher.c */
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
@@ -354,6 +355,9 @@ extern void widget_number_event(widgetdata *widget, int x, int y);
 extern void widget_show_console(widgetdata *widget);
 extern void widget_show_number(widgetdata *widget);
 extern void widget_input_do(widgetdata *widget);
+/* src/gui/interface.c */
+extern void cmd_interface(uint8 *data, int len);
+extern void interface_redraw();
 /* src/gui/inventory.c */
 extern char *skill_level_name[];
 extern uint64 inventory_filter;
@@ -526,8 +530,12 @@ extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, in
 extern int progress_dots_width(progress_dots *progress);
 /* src/toolkit/range_buttons.c */
 extern int range_buttons_show(int x, int y, int *val, int advance);
-/* src/toolkit/scroll_buttons.c */
-extern int scroll_buttons_show(SDL_Surface *surface, int x, int y, int *pos, int max_pos, int advance, SDL_Rect *box);
+/* src/toolkit/scrollbar.c */
+extern void scrollbar_init();
+extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
+extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
+extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
+extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
 /* src/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
@@ -634,8 +642,6 @@ extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
 extern void sha1_hmac_reset(sha1_context *ctx);
 extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/text.c */
-extern SDL_Color text_link_color_default;
-extern SDL_Color text_link_color;
 extern font_struct fonts[FONTS_MAX];
 extern void text_init();
 extern void text_deinit();
@@ -643,10 +649,12 @@ extern void text_offset_set(int x, int y);
 extern void text_offset_reset();
 extern void text_color_set(int r, int g, int b);
 extern void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
+extern void text_set_anchor_handle(text_anchor_handle_func func);
 extern const char *get_font_filename(int font);
 extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 extern int text_color_parse(const char *color_notation, SDL_Color *color);
+extern void text_anchor_execute(text_blit_info *info);
 extern void blt_character_init(text_blit_info *info);
 extern int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_blit_info *info);
 extern int glyph_get_width(int font, char c);
@@ -658,6 +666,7 @@ extern void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int 
 extern int string_get_width(int font, const char *text, uint64 flags);
 extern int string_get_height(int font, const char *text, uint64 flags);
 extern void string_truncate_overflow(int font, char *text, int max_width);
+extern void text_anchor_parse(text_blit_info *info, const char *text);
 extern void text_enable_debug();
 /* src/toolkit/text_input.c */
 extern char text_input_string[256];
@@ -679,7 +688,7 @@ extern int text_input_handle(SDL_KeyboardEvent *key);
 /* src/toolkit/tooltip.c */
 extern void tooltip_create(int mx, int my, int font, const char *text);
 extern void tooltip_show();
-/* src/toolkit/widget.c*/
+/* src/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
 extern void init_widgets_fromCurrent();
@@ -742,4 +751,11 @@ extern void menu_inv_filter_cursed();
 extern void menu_inv_filter_unidentified();
 extern void menu_inv_filter_locked();
 extern void menu_inv_filter_unapplied();
+/* src/toolkit/stringbuffer.c*/
+extern StringBuffer *stringbuffer_new();
+extern char *stringbuffer_finish(StringBuffer *sb);
+extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
+extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+extern size_t stringbuffer_length(StringBuffer *sb);
 #endif

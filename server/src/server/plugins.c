@@ -158,6 +158,8 @@ struct plugin_hooklist hooklist =
 	draw_info_format,
 	draw_info_flags,
 	draw_info_flags_format,
+	Send_With_Handling,
+	SockList_AddString,
 
 	season_name,
 	weekdays,

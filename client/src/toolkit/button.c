@@ -144,6 +144,7 @@ void button_create(button_struct *button)
 	button->bitmap = BITMAP_BUTTON;
 	button->bitmap_over = -1;
 	button->bitmap_pressed = BITMAP_BUTTON_DOWN;
+	button->bitmap_over = BITMAP_BUTTON_HOVER;
 	button->font = FONT_ARIAL10;
 	button->flags = 0;
 	button->color = COLOR_WHITE;

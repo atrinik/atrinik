@@ -298,6 +298,8 @@ struct plugin_hooklist
 	void (*draw_info_format)(const char *, object *, const char *, ...);
 	void (*draw_info_flags)(int, const char *, object *, const char *);
 	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
+	void (*Send_With_Handling)(socket_struct *, SockList *);
+	void (*SockList_AddString)(SockList *, const char *);
 
 	const char **season_name;
 	const char **weekdays;

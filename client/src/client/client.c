@@ -99,6 +99,7 @@ enum
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
 	BINARY_CMD_SOUND_AMBIENT,
+	BINARY_CMD_INTERFACE,
 	/* last entry */
 	BINAR_CMD
 };
@@ -146,6 +147,7 @@ static struct CmdMapping commands[] =
 	{"rd", ReadyCmd, INT_ARRAY},
 	{"ka", NULL, NODATA},
 	{"sound_ambient", cmd_sound_ambient, MIXED},
+	{"interface", cmd_interface, MIXED},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},

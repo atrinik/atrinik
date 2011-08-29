@@ -34,17 +34,21 @@ static char *book_content = NULL;
 /** Name of the book. */
 static char book_name[HUGE_BUF];
 /** Number of lines in the book. */
-static int book_lines = 0;
+static uint32 book_lines = 0;
 /** Number of lines at the end. */
-static int book_scroll_lines = 0;
+static uint32 book_scroll_lines = 0;
 /** Lines scrolled. */
-static int book_scroll = 0;
+static uint32 book_scroll = 0;
 /** Is it time to redraw? */
 static uint8 redraw = 1;
 /** Help history - used for the 'Back' button. */
 UT_array *book_help_history = NULL;
 /** Whether the help history is enabled for this book GUI. */
 static uint8 book_help_history_enabled = 0;
+/** Scrollbar in the book GUI. */
+static scrollbar_struct scrollbar;
+/** Back button. */
+static button_struct button_back;
 
 /**
  * Change the book's displayed name.
@@ -73,17 +77,17 @@ static int popup_draw_func(popup_struct *popup)
 		redraw = 0;
 
 		/* Draw the book name. */
-		box.w = popup->surface->w - 60;
-		box.h = 0;
+		box.w = BOOK_TITLE_WIDTH;
+		box.h = BOOK_TITLE_HEIGHT;
 		text_offset_set(popup->x, popup->y);
-		string_blt(popup->surface, FONT_SERIF16, book_name, 30, 30, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
-		box.w = BOOK_CONTENT_WIDTH;
-		box.h = BOOK_CONTENT_HEIGHT;
+		box.w = BOOK_TEXT_WIDTH;
+		box.h = BOOK_TEXT_HEIGHT;
 		box.y = book_scroll;
 		text_color_set(0, 0, 255);
-		string_blt(popup->surface, FONT_ARIAL11, book_content, 30, 50, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_blt(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 	}
 
@@ -93,46 +97,22 @@ static int popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::draw_func_post */
 static int popup_draw_func_post(popup_struct *popup)
 {
-	SDL_Rect box;
+	scrollbar_render(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
 
-	/* Show scroll buttons. */
-	box.x = popup->x + popup->surface->w - 50;
-	box.y = popup->y + popup->surface->h / 2 - 55;
-
-	if (scroll_buttons_show(ScreenSurface, box.x, box.y, &book_scroll, book_lines - book_scroll_lines, book_scroll_lines, &box))
-	{
-		redraw = 1;
-	}
+	button_back.x = popup->x + 25;
+	button_back.y = popup->y + 25;
 
 	if (book_help_history_enabled)
 	{
-		if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->close_button_xoff, popup->y + popup->close_button_yoff, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-		{
-			size_t len;
-
-			len = utarray_len(book_help_history);
-
-			if (len >= 2)
-			{
-				size_t pos;
-				char **p;
-
-				pos = len - 2;
-				p = (char **) utarray_eltptr(book_help_history, pos);
-
-				if (p)
-				{
-					help_show(*p);
-					utarray_erase(book_help_history, pos, 2);
-				}
-			}
-			else
-			{
-				utarray_clear(book_help_history);
-				help_show("main");
-			}
-		}
+		button_render(&button_back, "<");
+		button_tooltip(&button_back, FONT_ARIAL10, "Go back");
 	}
+	else
+	{
+		button_render(&button_back, "");
+	}
+
+	sprite_blt(Bitmaps[BITMAP_BOOK_BORDER], popup->x, popup->y, NULL, NULL);
 
 	return 1;
 }
@@ -140,72 +120,84 @@ static int popup_draw_func_post(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	int old_book_scroll, ret;
+	if (scrollbar_event(&scrollbar, event))
+	{
+		return 1;
+	}
+	else if (book_help_history_enabled && button_event(&button_back, event))
+	{
+		size_t len;
 
-	old_book_scroll = book_scroll;
-	ret = -1;
+		len = utarray_len(book_help_history);
+
+		if (len >= 2)
+		{
+			size_t pos;
+			char **p;
+
+			pos = len - 2;
+			p = (char **) utarray_eltptr(book_help_history, pos);
+
+			if (p)
+			{
+				help_show(*p);
+				utarray_erase(book_help_history, pos, 2);
+			}
+		}
+		else
+		{
+			utarray_clear(book_help_history);
+			help_show("main");
+		}
+
+		return 1;
+	}
 
 	/* Mouse event and the mouse is inside the book. */
-	if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x > popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y > popup->y && event->motion.y < popup->y + popup->surface->h)
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y && event->motion.y < popup->y + popup->surface->h)
 	{
 		/* Scroll the book. */
 		if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
-			book_scroll++;
+			scrollbar_scroll_adjust(&scrollbar, 1);
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
-			book_scroll--;
+			scrollbar_scroll_adjust(&scrollbar, -1);
+			return 1;
 		}
-
-		/* Always redraw, to make sure link clicks are handled correctly
-		 * by the text API. */
-		redraw = 1;
-		ret = 1;
+		else if (event->button.button == SDL_BUTTON_LEFT)
+		{
+			redraw = 1;
+		}
 	}
-
-	if (event->type == SDL_KEYDOWN)
+	else if (event->type == SDL_KEYDOWN)
 	{
 		/* Scrolling. */
 		if (event->key.keysym.sym == SDLK_DOWN)
 		{
-			book_scroll++;
-			ret = 1;
+			scrollbar_scroll_adjust(&scrollbar, 1);
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_UP)
 		{
-			book_scroll--;
-			ret = 1;
+			scrollbar_scroll_adjust(&scrollbar, -1);
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
 		{
-			book_scroll += book_scroll_lines;
-			ret = 1;
+			scrollbar_scroll_adjust(&scrollbar, book_scroll_lines);
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_PAGEUP)
 		{
-			book_scroll -= book_scroll_lines;
-			ret = 1;
+			scrollbar_scroll_adjust(&scrollbar, -book_scroll_lines);
+			return 1;
 		}
 	}
 
-	/* Make sure the new scroll value is within range. */
-	if (book_scroll < 0)
-	{
-		book_scroll = 0;
-	}
-	else if (book_scroll > book_lines - book_scroll_lines)
-	{
-		book_scroll = book_lines - book_scroll_lines;
-	}
-
-	/* If the scroll value changed, redraw. */
-	if (book_scroll != old_book_scroll)
-	{
-		redraw = 1;
-	}
-
-	return ret;
+	return -1;
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
@@ -269,9 +261,9 @@ void book_load(const char *data, int len)
 	}
 
 	/* Calculate the line numbers. */
-	box.w = BOOK_CONTENT_WIDTH;
-	box.h = BOOK_CONTENT_HEIGHT;
-	string_blt(NULL, FONT_ARIAL11, book_content, 30, 50, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	box.w = BOOK_TEXT_WIDTH;
+	box.h = BOOK_TEXT_HEIGHT;
+	string_blt(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
 	redraw = 1;
@@ -287,9 +279,21 @@ void book_load(const char *data, int len)
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->disable_bitmap_blit = 1;
-		popup->close_button_xoff = 30;
-		popup->close_button_yoff = 30;
+		popup->close_button_xoff = 25;
+		popup->close_button_yoff = 25;
+
+		popup->button_close.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+		popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+		popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
+
+		button_create(&button_back);
+		button_back.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+		button_back.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+		button_back.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 	}
+
+	scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);
+	scrollbar.redraw = &redraw;
 }
 
 /**

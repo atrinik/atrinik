@@ -170,6 +170,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_ALPHA},
+	{"book_border.png", PIC_TYPE_ALPHA},
 	{"region_map.png", PIC_TYPE_TRANS},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
@@ -190,20 +191,18 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"news_bg.png", PIC_TYPE_DEFAULT},
 	{"eyes.png", PIC_TYPE_DEFAULT},
 	{"popup.png", PIC_TYPE_ALPHA},
-	{"arrow_up.png", PIC_TYPE_DEFAULT},
-	{"arrow_up2.png", PIC_TYPE_DEFAULT},
-	{"arrow_down.png", PIC_TYPE_DEFAULT},
-	{"arrow_down2.png", PIC_TYPE_DEFAULT},
-	{"button_round.png", PIC_TYPE_DEFAULT},
-	{"button_round_down.png", PIC_TYPE_DEFAULT},
+	{"button_round.png", PIC_TYPE_ALPHA},
+	{"button_round_down.png", PIC_TYPE_ALPHA},
+	{"button_round_hover.png", PIC_TYPE_ALPHA},
 	{"button_rect.png", PIC_TYPE_DEFAULT},
 	{"button_rect_hover.png", PIC_TYPE_DEFAULT},
 	{"button_rect_down.png", PIC_TYPE_DEFAULT},
 	{"map_marker.png", PIC_TYPE_DEFAULT},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
-	{"button.png", PIC_TYPE_DEFAULT},
-	{"button_down.png", PIC_TYPE_DEFAULT},
+	{"button.png", PIC_TYPE_ALPHA},
+	{"button_down.png", PIC_TYPE_ALPHA},
+	{"button_hover.png", PIC_TYPE_ALPHA},
 	{"checkbox.png", PIC_TYPE_TRANS},
 	{"checkbox_on.png", PIC_TYPE_TRANS},
 	{"content.png", PIC_TYPE_DEFAULT},
@@ -214,7 +213,15 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"icon_map.png", PIC_TYPE_ALPHA},
 	{"icon_cogs.png", PIC_TYPE_ALPHA},
 	{"icon_quest.png", PIC_TYPE_ALPHA},
-	{"fps.png", PIC_TYPE_DEFAULT}
+	{"fps.png", PIC_TYPE_DEFAULT},
+	{"interface.png", PIC_TYPE_ALPHA},
+	{"interface_border.png", PIC_TYPE_ALPHA},
+	{"button_large.png", PIC_TYPE_ALPHA},
+	{"button_large_down.png", PIC_TYPE_ALPHA},
+	{"button_large_hover.png", PIC_TYPE_ALPHA},
+	{"button_round_large.png", PIC_TYPE_ALPHA},
+	{"button_round_large_down.png", PIC_TYPE_ALPHA},
+	{"button_round_large_hover.png", PIC_TYPE_ALPHA}
 };
 
 /** The actual bitmaps. */
@@ -857,6 +864,7 @@ int main(int argc, char *argv[])
 	textwin_init();
 	fps_init();
 	settings_apply();
+	scrollbar_init();
 
 	LastTick = anim_tick = SDL_GetTicks();
 
@@ -964,8 +972,6 @@ int main(int argc, char *argv[])
 			main_screen_render();
 		}
 
-		tooltip_show();
-
 		if (f_custom_cursor)
 		{
 			DisplayCustomCursor();
@@ -975,6 +981,8 @@ int main(int argc, char *argv[])
 
 		script_process();
 		popup_render_head();
+
+		tooltip_show();
 
 		SDL_Flip(ScreenSurface);
 

@@ -116,6 +116,11 @@ popup_struct *popup_create(int bitmap_id)
 	/* Make sure the mouse is no longer moving any widget. */
 	widget_event_move_stop(mx, my);
 
+	button_create(&popup->button_close);
+	popup->button_close.bitmap = BITMAP_BUTTON_ROUND;
+	popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+	popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+
 	return popup;
 }
 
@@ -208,6 +213,13 @@ void popup_render(popup_struct *popup)
 	box.y = popup->y;
 	SDL_BlitSurface(popup->surface, NULL, ScreenSurface, &box);
 
+	if (popup->button_close.bitmap != -1)
+	{
+		popup->button_close.x = box.x + popup->surface->w - Bitmaps[popup->button_close.bitmap]->bitmap->w - popup->close_button_xoff;
+		popup->button_close.y = box.y + popup->close_button_yoff;
+		button_render(&popup->button_close, "X");
+	}
+
 	if (popup->draw_func_post)
 	{
 		if (!popup->draw_func_post(popup))
@@ -215,13 +227,6 @@ void popup_render(popup_struct *popup)
 			popup_destroy(popup);
 			return;
 		}
-	}
-
-	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - popup->close_button_xoff, box.y + popup->close_button_yoff, "X", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		popup_destroy(popup);
-		return;
 	}
 }
 
@@ -273,6 +278,11 @@ int popup_handle_event(SDL_Event *event)
 		{
 			popup_destroy(popup_head);
 		}
+	}
+	else if (button_event(&popup_head->button_close, event))
+	{
+		popup_destroy(popup_head);
+		return 1;
 	}
 
 	return 1;

@@ -58,9 +58,12 @@ static sint64 *selection_end = NULL;
 static uint8 *selection_started = NULL;
 
 /** Default link color. */
-SDL_Color text_link_color_default = {96, 160, 255, 0};
+static SDL_Color text_link_color_default = {96, 160, 255, 0};
 /** Current text link color. */
-SDL_Color text_link_color = {0, 0, 0, 0};
+static SDL_Color text_link_color = {0, 0, 0, 0};
+
+/** @copydoc text_anchor_handle_func */
+static text_anchor_handle_func text_anchor_handle = NULL;
 
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
@@ -231,6 +234,14 @@ void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
 	selection_start = start;
 	selection_end = end;
 	selection_started = started;
+}
+
+/**
+ * Set the anchor handler function.
+ * @param func The function. */
+void text_set_anchor_handle(text_anchor_handle_func func)
+{
+	text_anchor_handle = func;
 }
 
 /**
@@ -421,6 +432,80 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 	}
 
 	return 0;
+}
+
+/**
+ * Execute anchor.
+ * @param info Text blit info, should contain the anchor action and tag
+ * position. */
+void text_anchor_execute(text_blit_info *info)
+{
+	size_t len;
+	char *buf2, *pos;
+
+	/* Sanity check. */
+	if (!info->anchor_action || !info->anchor_tag)
+	{
+		return;
+	}
+
+	pos = strchr(info->anchor_action, ':');
+
+	if (pos && pos + 1)
+	{
+		buf2 = strdup(pos + 1);
+		len = strlen(buf2);
+		info->anchor_action[pos - info->anchor_action] = '\0';
+	}
+	else
+	{
+		/* Get the length of the text until the ending </a>. */
+		len = strstr(info->anchor_tag, "</a>") - info->anchor_tag;
+		/* Allocate a temporary buffer and copy the text until the
+		 * ending </a>, so we have the text between the anchor tags. */
+		buf2 = malloc(len + 1);
+		memcpy(buf2, info->anchor_tag, len);
+		buf2[len] = '\0';
+	}
+
+	buf2 = text_strip_markup(buf2, &len, 1);
+
+	if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
+	{
+	}
+	/* No action specified. */
+	else if (info->anchor_action[0] == '\0')
+	{
+		if (GameStatus == GAME_STATUS_PLAY)
+		{
+			/* It's not a command, so prepend "/say " to it. */
+			if (buf2[0] != '/')
+			{
+				/* Resize the buffer so it can hold 5 more bytes. */
+				buf2 = realloc(buf2, len + 5 + 1);
+				/* Copy the existing bytes to the end, so we have 5
+				* we can use in the front. */
+				memmove(buf2 + 5, buf2, len + 1);
+				/* Prepend "/say ". */
+				memcpy(buf2, "/say ", 5);
+			}
+
+			send_command_check(buf2);
+		}
+	}
+	/* Help GUI. */
+	else if (!strcmp(info->anchor_action, "help"))
+	{
+		strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
+		text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
+		text_anchor_help_clicked = 1;
+	}
+	else if (!strcmp(info->anchor_action, "url"))
+	{
+		browser_open(buf2);
+	}
+
+	free(buf2);
 }
 
 /**
@@ -797,10 +882,10 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Anchor tag. */
 		else if (!strncmp(cp, "<a>", 3) || !strncmp(cp, "<a=", 3))
 		{
-			if (color && (surface || info->obscured))
+			if (surface || info->obscured)
 			{
 				/* Change to light blue only if no custom color was specified. */
-				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
+				if (color && color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
 				{
 					color->r = text_link_color.r;
 					color->g = text_link_color.g;
@@ -821,9 +906,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</a>", 4))
 		{
-			if (color && (surface || info->obscured))
+			if (surface || info->obscured)
 			{
-				SDL_color_copy(color, orig_color);
+				if (color)
+				{
+					SDL_color_copy(color, orig_color);
+				}
+
 				info->anchor_tag = NULL;
 			}
 
@@ -1245,62 +1334,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
-				size_t len;
-				char *buf2, *pos;
-
 				ticks = SDL_GetTicks();
 
-				pos = strchr(info->anchor_action, ':');
-
-				if (pos && pos + 1)
-				{
-					buf2 = strdup(pos + 1);
-					len = strlen(buf2);
-					info->anchor_action[pos - info->anchor_action] = '\0';
-				}
-				else
-				{
-					/* Get the length of the text until the ending </a>. */
-					len = strstr(info->anchor_tag, "</a>") - info->anchor_tag;
-					/* Allocate a temporary buffer and copy the text until the
-					 * ending </a>, so we have the text between the anchor tags. */
-					buf2 = malloc(len + 1);
-					memcpy(buf2, info->anchor_tag, len);
-					buf2[len] = '\0';
-				}
-
-				/* Default to executing player commands such as /say. */
-				if (GameStatus == GAME_STATUS_PLAY && info->anchor_action[0] == '\0')
-				{
-					buf2 = text_strip_markup(buf2, &len, 1);
-
-					/* It's not a command, so prepend "/say " to it. */
-					if (buf2[0] != '/')
-					{
-						/* Resize the buffer so it can hold 5 more bytes. */
-						buf2 = realloc(buf2, len + 5 + 1);
-						/* Copy the existing bytes to the end, so we have 5
-						 * we can use in the front. */
-						memmove(buf2 + 5, buf2, len + 1);
-						/* Prepend "/say ". */
-						memcpy(buf2, "/say ", 5);
-					}
-
-					send_command(buf2);
-				}
-				/* Help GUI. */
-				else if (!strcmp(info->anchor_action, "help"))
-				{
-					strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
-					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
-					text_anchor_help_clicked = 1;
-				}
-				else if (!strcmp(info->anchor_action, "url"))
-				{
-					browser_open(buf2);
-				}
-
-				free(buf2);
+				text_anchor_execute(info);
 			}
 		}
 
@@ -1857,6 +1893,33 @@ void string_truncate_overflow(int font, char *text, int max_width)
 		}
 
 		pos++;
+	}
+}
+
+/**
+ * Utility function to parse text and store information about anchor tag,
+ * if any.
+ * @param info Where to store the information.
+ * @param text The text to parse. */
+void text_anchor_parse(text_blit_info *info, const char *text)
+{
+	const char *cp = text;
+	SDL_Rect dest;
+	int font = FONT_ARIAL10;
+
+	blt_character_init(info);
+	info->obscured = 1;
+
+	dest.w = 0;
+
+	while (*cp != '\0')
+	{
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
+
+		if (info->anchor_tag)
+		{
+			return;
+		}
 	}
 }
 

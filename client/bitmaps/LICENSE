@@ -1,18 +1,23 @@
 Alex "Cleo" Tokar - GPLv2:
 	apply.png
-	arrow_down.png
-	arrow_down2.png
-	arrow_up.png
-	arrow_up2.png
 	below.png
 	below_scroll.png
 	button.png
 	button_down.png
+	button_hover.png
 	button_rect.png
 	button_rect_down.png
 	button_rect_hover.png
 	button_round.png
 	button_round_down.png
+	button_round_hover.png
+	button_large.png
+	button_large_down.png
+	button_large_hover.png
+	button_round_large.png
+	button_round_large_down.png
+	button_round_large_hover.png
+	book_border.png
 	checkbox.png
 	checkbox_on.png
 	cmark_end.png
@@ -90,9 +95,11 @@ Alex "Cleo" Tokar - GPLv2:
 	range_buttons_off.png
 	range_buttons_right.png
 	fps.png
+	interface.png
+	interface_border.png
 
 Glenn Hanna - GPLv2:
-	book.png (borders by: Alex "Cleo" Tokar - GPLv2)
+	book.png
 	news_bg.png (background by: Alex "Cleo" Tokar - GPLv2)
 	popup.png (background by: Alex "Cleo" Tokar - GPLv2)
 	servers_bg_over.png
