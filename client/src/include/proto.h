@@ -688,6 +688,7 @@ extern void text_input_add_string(const char *text);
 extern int text_input_handle(SDL_KeyboardEvent *key);
 /* src/toolkit/tooltip.c */
 extern void tooltip_create(int mx, int my, int font, const char *text);
+extern void tooltip_multiline(int max_width);
 extern void tooltip_show();
 /* src/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];

@@ -298,6 +298,10 @@ typedef struct text_blit_info
  * Like @ref TEXT_WORD_WRAP, but will stop drawing when the characters
  * width would be more than box->w. */
 #define TEXT_WIDTH 2048
+/**
+ * Calculate maximum width of the text, taking multi-line text into
+ * consideration. */
+#define TEXT_MAX_WIDTH 4096
 /*@}*/
 
 /**

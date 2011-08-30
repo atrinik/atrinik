@@ -1471,7 +1471,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 {
 	const char *cp = text;
 	SDL_Rect dest;
-	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
+	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, max_width, height = 0;
 	SDL_Color color, orig_color, select_color_orig;
 	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
@@ -1522,6 +1522,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	dest.w = 0;
 	height = 0;
 	max_height = 0;
+	max_width = 0;
 
 	while (cp[pos] != '\0')
 	{
@@ -1650,6 +1651,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				num_heights++;
 			}
 
+			if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)
+			{
+				max_width = dest.w / 2;
+			}
+
 			/* Jump over the newline, if any. */
 			if (is_lf)
 			{
@@ -1708,6 +1714,16 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		{
 			max_height = FONT_HEIGHT(font);
 		}
+	}
+
+	if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)
+	{
+		max_width = dest.w / 2;
+	}
+
+	if (box && flags & TEXT_MAX_WIDTH)
+	{
+		box->w = max_width;
 	}
 
 	/* Give caller access to the calculated height. */
