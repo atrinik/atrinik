@@ -71,6 +71,9 @@ typedef struct scrollbar_struct
 	/** Maximum number of lines. */
 	uint32 max_lines;
 
+	/** How much the arrows will adjust scroll offset. */
+	int arrow_adjust;
+
 	/**
 	 * Pointer that will be updated if redraw should be done due to
 	 * scroll offset change. Can be NULL, in which case it will not be

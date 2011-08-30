@@ -213,13 +213,13 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 	/* Mouse over the up arrow. */
 	if (scrollbar->arrow_up.highlight)
 	{
-		scrollbar_scroll_adjust(scrollbar, -1);
+		scrollbar_scroll_adjust(scrollbar, -scrollbar->arrow_adjust);
 		return 1;
 	}
 	/* Mouse over the down arrow. */
 	else if (scrollbar->arrow_down.highlight)
 	{
-		scrollbar_scroll_adjust(scrollbar, 1);
+		scrollbar_scroll_adjust(scrollbar, scrollbar->arrow_adjust);
 		return 1;
 	}
 	/* Mouse over the background and there's a known scroll direction. */
@@ -317,6 +317,7 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_
 	scrollbar->scroll_offset = scroll_offset;
 	scrollbar->num_lines = num_lines;
 	scrollbar->max_lines = max_lines;
+	scrollbar->arrow_adjust = 1;
 
 	/* Initialize the elements. */
 	scrollbar_element_init(&scrollbar->background, 0, 0, w, h);
