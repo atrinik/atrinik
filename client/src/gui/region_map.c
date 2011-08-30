@@ -63,9 +63,19 @@ static int region_map_zoom;
 static SDL_Rect region_map_pos;
 /** Count for mouse clicks. */
 static uint32 region_mouse_ticks = 0;
-
-/** Height of the tooltip area of the bitmap. */
-#define RM_TOOLTIP_HEIGHT 150
+/** Region map scrollbar. */
+static scrollbar_struct scrollbar;
+/** Storage for the scroll offset and the like of the scrollbar. */
+static scrollbar_info_struct scrollbar_info;
+/** Region map horizontal scrollbar. */
+static scrollbar_struct scrollbar_horizontal;
+/**
+ * Storage for the scroll offset and the like of the horizontal
+ * scrollbar. */
+static scrollbar_info_struct scrollbar_horizontal_info;
+/**
+ * Long name of the currently displayed region. */
+static char region_name[HUGE_BUF];
 
 /**
  * Find a map by path in ::rm_def.
@@ -491,23 +501,23 @@ static int popup_draw_func_post(popup_struct *popup)
 	int state, mx, my;
 	size_t i;
 
-	box.x = popup->x + RM_BORDER_SIZE;
-	box.y = popup->y + RM_BORDER_SIZE;
-	box.w = region_map_pos.w;
-	box.h = region_map_pos.h;
-
-	/* Show a close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, box.x + box.w - 25, popup->y + 8, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		help_show("region map");
-		return 1;
-	}
+	box.w = popup->surface->w;
+	box.h = popup->surface->h;
 
 	/* Show direction markers. */
-	string_blt(ScreenSurface, FONT_SERIF14, "N", box.x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "E", popup->x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "S", box.x, popup->y + Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2 - RM_TOOLTIP_HEIGHT, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y + (Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_TOOLTIP_HEIGHT) / 2 - FONT_HEIGHT(FONT_SERIF14), COLOR_HGOLD, TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "N", popup->x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "E", popup->x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "S", popup->x, popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+
+	box.w = RM_TITLE_WIDTH;
+	box.h = RM_TITLE_HEIGHT;
+	string_blt(ScreenSurface, FONT_SERIF14, region_name, popup->x + RM_TITLE_STARTX, popup->y + RM_TITLE_STARTY, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+
+	box.x = popup->x + RM_MAP_STARTX;
+	box.y = popup->y + RM_MAP_STARTY;
+	box.w = region_map_pos.w;
+	box.h = region_map_pos.h;
 
 	/* Check the status of the downloads. */
 	ret_png = curl_download_finished(data_png);
@@ -589,7 +599,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	state = SDL_GetMouseState(&mx, &my);
 
 	/* Move the map around with the mouse. */
-	if ((state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx > box.x && my < box.x + box.w && my > box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
+	if ((state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx > box.x && mx < box.x + box.w && my > box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
 	{
 		region_mouse_ticks = SDL_GetTicks();
 
@@ -628,6 +638,35 @@ static int popup_draw_func_post(popup_struct *popup)
 		}
 	}
 
+	if (scrollbar_info.redraw)
+	{
+		scrollbar_info.redraw = 0;
+		region_map_pos.y = scrollbar_info.scroll_offset;
+		surface_pan(region_map_png, &region_map_pos);
+	}
+	else
+	{
+		scrollbar_info.num_lines = region_map_png->h;
+		scrollbar_info.scroll_offset = region_map_pos.y;
+		scrollbar.max_lines = region_map_pos.h;
+	}
+
+	if (scrollbar_horizontal_info.redraw)
+	{
+		scrollbar_horizontal_info.redraw = 0;
+		region_map_pos.x = scrollbar_horizontal_info.scroll_offset;
+		surface_pan(region_map_png, &region_map_pos);
+	}
+	else
+	{
+		scrollbar_horizontal_info.num_lines = region_map_png->w;
+		scrollbar_horizontal_info.scroll_offset = region_map_pos.x;
+		scrollbar_horizontal.max_lines = region_map_pos.w;
+	}
+
+	scrollbar_render(&scrollbar, ScreenSurface, popup->x + RM_SCROLLBAR_STARTX, popup->y + RM_SCROLLBAR_STARTY);
+	scrollbar_render(&scrollbar_horizontal, ScreenSurface, popup->x + RM_SCROLLBARH_STARTX, popup->y + RM_SCROLLBARH_STARTY);
+
 	dest.x = box.x;
 	dest.y = box.y;
 
@@ -650,6 +689,14 @@ static int popup_draw_func_post(popup_struct *popup)
 	return 1;
 }
 
+/** @copydoc popup_button::event_func */
+static int popup_button_event_func(popup_button *button)
+{
+	(void) button;
+	help_show("region map");
+	return 1;
+}
+
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
@@ -658,6 +705,15 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	if (!region_map_png)
 	{
 		return -1;
+	}
+
+	if (scrollbar_event(&scrollbar, event))
+	{
+		return 1;
+	}
+	else if (scrollbar_event(&scrollbar_horizontal, event))
+	{
+		return 1;
 	}
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
@@ -754,6 +810,7 @@ void RegionMapCmd(uint8 *data, int len)
 	/* Get the region and the URL base for the maps. */
 	GetString_String(data, &pos, region, sizeof(region));
 	GetString_String(data, &pos, url_base, sizeof(url_base));
+	GetString_String(data, &pos, region_name, sizeof(region_name));
 
 	/* Rest of the data packet may be labels/tooltips/etc. */
 	while (pos < len)
@@ -780,6 +837,24 @@ void RegionMapCmd(uint8 *data, int len)
 	popup->draw_func_post = popup_draw_func_post;
 	popup->event_func = popup_event_func;
 
+	popup->button_left.x = RM_BUTTON_LEFT_STARTX;
+	popup->button_left.y = RM_BUTTON_LEFT_STARTY;
+	popup->button_left.event_func = popup_button_event_func;
+	popup_button_set_text(&popup->button_left, "?");
+
+	popup->button_right.x = RM_BUTTON_RIGHT_STARTX;
+	popup->button_right.y = RM_BUTTON_RIGHT_STARTY;
+
+	scrollbar_info_create(&scrollbar_info);
+	scrollbar_create(&scrollbar, RM_SCROLLBAR_WIDTH, RM_SCROLLBAR_HEIGHT, &scrollbar_info.scroll_offset, &scrollbar_info.num_lines, 0);
+	scrollbar.redraw = &scrollbar_info.redraw;
+	scrollbar.arrow_adjust = RM_SCROLL;
+
+	scrollbar_info_create(&scrollbar_horizontal_info);
+	scrollbar_create(&scrollbar_horizontal, RM_SCROLLBARH_WIDTH, RM_SCROLLBARH_HEIGHT, &scrollbar_horizontal_info.scroll_offset, &scrollbar_horizontal_info.num_lines, 0);
+	scrollbar_horizontal.redraw = &scrollbar_horizontal_info.redraw;
+	scrollbar_horizontal.arrow_adjust = RM_SCROLL;
+
 	/* Construct URL for the image. */
 	snprintf(url, sizeof(url), "%s/%s.png", url_base, region);
 
@@ -802,8 +877,8 @@ void RegionMapCmd(uint8 *data, int len)
 
 	region_map_pos.x = 0;
 	region_map_pos.y = 0;
-	region_map_pos.w = Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE * 2;
-	region_map_pos.h = Bitmaps[BITMAP_REGION_MAP]->bitmap->h - RM_BORDER_SIZE * 2 -RM_TOOLTIP_HEIGHT;
+	region_map_pos.w = RM_MAP_WIDTH;
+	region_map_pos.h = RM_MAP_HEIGHT;
 
 	/* The map is the same, no downloading needed. */
 	if (region_map_is_same(url))

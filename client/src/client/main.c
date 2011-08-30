@@ -171,7 +171,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_ALPHA},
 	{"book_border.png", PIC_TYPE_ALPHA},
-	{"region_map.png", PIC_TYPE_TRANS},
+	{"region_map.png", PIC_TYPE_ALPHA},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
