@@ -476,7 +476,7 @@ static void region_map_resize(int adjust)
 	}
 
 	/* Zoom the surface. */
-	region_map_png = zoomSurface(region_map_png_orig, region_map_zoom / 100.0, region_map_zoom / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+	region_map_png = zoomSurface(region_map_png_orig, region_map_zoom / 100.0, region_map_zoom / 100.0, 0);
 
 	if (adjust > 0)
 	{
@@ -599,7 +599,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	state = SDL_GetMouseState(&mx, &my);
 
 	/* Move the map around with the mouse. */
-	if ((state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx > box.x && mx < box.x + box.w && my > box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
+	if (!scrollbar.dragging && !scrollbar_horizontal.dragging && (state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
 	{
 		region_mouse_ticks = SDL_GetTicks();
 
