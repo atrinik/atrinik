@@ -119,6 +119,11 @@ void tooltip_show(void)
 		box.x -= (box.x + box.w + 1) - ScreenSurface->w;
 	}
 
+	if (box.y + box.h >= ScreenSurface->h)
+	{
+		box.y -= (box.y + box.h + 1) - ScreenSurface->h;
+	}
+
 	SDL_FillRect(ScreenSurface, &box, -1);
 	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
 
