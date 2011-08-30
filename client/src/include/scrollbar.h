@@ -132,11 +132,6 @@ typedef struct scrollbar_info_struct
 	uint8 redraw;
 } scrollbar_info_struct;
 
-/** Get the full slider height. */
-#define SLIDER_HEIGHT_FULL(_scrollbar) ((_scrollbar)->background.h - ((_scrollbar)->background.w + 1) * 2)
-/** Get the starting Y position of a slider. */
-#define SLIDER_YPOS_START(_scrollbar) ((_scrollbar)->background.w + 1)
-
 /**
  * @defgroup SCROLL_DIRECTION_xxx Scroll directions
  * Scroll directions.

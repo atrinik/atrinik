@@ -60,24 +60,17 @@ static void scrollbar_element_init(scrollbar_element *elem, int x, int y, int w,
 	elem->h = h;
 }
 
-/**
- * Render the background element.
- * @param surface Surface to render on.
- * @param box Where to draw.
- * @param elem The element. */
-static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+/** @copydoc scrollbar_element::render_func */
+static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
 {
 	(void) elem;
+	(void) horizontal;
 	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_bg.r, scrollbar_color_bg.g, scrollbar_color_bg.b));
 	border_create_sdl_color(surface, box, &scrollbar_color_fg);
 }
 
-/**
- * Render the arrow up element.
- * @param surface Surface to render on.
- * @param box Where to draw.
- * @param elem The element. */
-static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+/** @copydoc scrollbar_element::render_func */
+static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
 {
 	SDL_Color *color = &scrollbar_color_fg;
 
@@ -90,17 +83,22 @@ static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *bo
 	border_create_sdl_color(surface, box, color);
 
 	/* Create the arrow. */
-	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
-	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
-	lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	if (horizontal)
+	{
+		lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w - 3, box->y + box->h / 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w / 2, box->y + box->h - 2 - 1, color->r, color->g, color->b, 255);
+	}
+	else
+	{
+		lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	}
 }
 
-/**
- * Render the arrow down element.
- * @param surface Surface to render on.
- * @param box Where to draw.
- * @param elem The element. */
-static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+/** @copydoc scrollbar_element::render_func */
+static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
 {
 	SDL_Color *color = &scrollbar_color_fg;
 
@@ -113,18 +111,25 @@ static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *
 	border_create_sdl_color(surface, box, color);
 
 	/* Create the arrow. */
-	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
-	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
-	lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	if (horizontal)
+	{
+		lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
+	}
+	else
+	{
+		lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
+		lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
+	}
 }
 
-/**
- * Render the slider element.
- * @param surface Surface to render on.
- * @param box Where to draw.
- * @param elem The element. */
-static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem)
+/** @copydoc scrollbar_element::render_func */
+static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
 {
+	(void) horizontal;
+
 	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_fg.r, scrollbar_color_fg.g, scrollbar_color_fg.b));
 
 	/* If highlighted, create highlighted border around the edges of the
@@ -190,7 +195,7 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar, scrollbar_elem
 		scrollbar_element_highlight_check(scrollbar, elem, mx, my);
 	}
 
-	elem->render_func(surface, &box, elem);
+	elem->render_func(surface, &box, elem, scrollbar->background.w > scrollbar->background.h);
 }
 
 /**
@@ -236,6 +241,70 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 }
 
 /**
+ * Calculate scrollbar's slider X position.
+ * @param scrollbar The scrollbar.
+ * @return Slider's X position. */
+static int scrollbar_slider_startx(scrollbar_struct *scrollbar)
+{
+	if (scrollbar->background.w > scrollbar->background.h)
+	{
+		return scrollbar->background.h + 1;
+	}
+	else
+	{
+		return 2;
+	}
+}
+
+/**
+ * Calculate scrollbar's slider Y position.
+ * @param scrollbar The scrollbar.
+ * @return Slider's Y position. */
+static int scrollbar_slider_starty(scrollbar_struct *scrollbar)
+{
+	if (scrollbar->background.w > scrollbar->background.h)
+	{
+		return 2;
+	}
+	else
+	{
+		return scrollbar->background.w + 1;
+	}
+}
+
+/**
+ * Calculate scrollbar's slider width.
+ * @param scrollbar The scrollbar.
+ * @return Slider's width. */
+static int scrollbar_slider_width(scrollbar_struct *scrollbar)
+{
+	if (scrollbar->background.w > scrollbar->background.h)
+	{
+		return scrollbar->background.w - (scrollbar->background.h + 1) * 2;
+	}
+	else
+	{
+		return scrollbar->background.w - 2 * 2;
+	}
+}
+
+/**
+ * Calculate scrollbar's slider height.
+ * @param scrollbar The scrollbar.
+ * @return Slider's height. */
+static int scrollbar_slider_height(scrollbar_struct *scrollbar)
+{
+	if (scrollbar->background.w > scrollbar->background.h)
+	{
+		return scrollbar->background.h - 2 * 2;
+	}
+	else
+	{
+		return scrollbar->background.h - (scrollbar->background.w + 1) * 2;
+	}
+}
+
+/**
  * Initialize a single scrollbar structure.
  * @param scrollbar Structure to initialize.
  * @param w Width of the scrollbar. Should be an odd number, otherwise
@@ -251,14 +320,31 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_
 
 	/* Initialize the elements. */
 	scrollbar_element_init(&scrollbar->background, 0, 0, w, h);
-	scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
-	scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
-	scrollbar_element_init(&scrollbar->slider, 2, SLIDER_YPOS_START(scrollbar), w - 2 * 2, SLIDER_HEIGHT_FULL(scrollbar));
+	scrollbar_element_init(&scrollbar->slider, scrollbar_slider_startx(scrollbar), scrollbar_slider_starty(scrollbar), scrollbar_slider_width(scrollbar), scrollbar_slider_height(scrollbar));
+
+	if (w > h)
+	{
+		scrollbar_element_init(&scrollbar->arrow_up, 0, 0, h, h);
+		scrollbar_element_init(&scrollbar->arrow_down, w - h, 0, h, h);
+	}
+	else
+	{
+		scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
+		scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
+	}
 
 	scrollbar->background.render_func = scrollbar_element_render_background;
 	scrollbar->arrow_up.render_func = scrollbar_element_render_arrow_up;
 	scrollbar->arrow_down.render_func = scrollbar_element_render_arrow_down;
 	scrollbar->slider.render_func = scrollbar_element_render_slider;
+}
+
+/**
+ * Initialize scrollbar information structure.
+ * @param info The structure to initialize. */
+void scrollbar_info_create(scrollbar_info_struct *info)
+{
+	memset(info, 0, sizeof(*info));
 }
 
 /**
@@ -306,10 +392,12 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
  * @param y Y position on the surface. */
 void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
 {
-	int mx, my;
+	int mx, my, horizontal;
 
 	scrollbar->x = x;
 	scrollbar->y = y;
+
+	horizontal = scrollbar->background.w > scrollbar->background.h;
 
 	/* If the scroll direction is set but the left mouse button is no
 	 * longer being held, clear the scroll direction. */
@@ -335,28 +423,60 @@ void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, 
 
 		scroll = scrollbar->max_lines + *scrollbar->scroll_offset;
 
-		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
-		scrollbar->slider.y = ((scroll - scrollbar->max_lines) * SLIDER_HEIGHT_FULL(scrollbar)) / *scrollbar->num_lines;
-
-		if (scrollbar->slider.h < 1)
+		if (horizontal)
 		{
-			scrollbar->slider.h = 1;
+			scrollbar->slider.w = scrollbar_slider_width(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
+			scrollbar->slider.x = ((scroll - scrollbar->max_lines) * scrollbar_slider_width(scrollbar)) / *scrollbar->num_lines;
+
+			if (scrollbar->slider.w < 1)
+			{
+				scrollbar->slider.w = 1;
+			}
+
+			if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.x + scrollbar->slider.w < scrollbar_slider_width(scrollbar))
+			{
+				scrollbar->slider.x++;
+			}
 		}
-
-		if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.y + scrollbar->slider.h < SLIDER_HEIGHT_FULL(scrollbar))
+		else
 		{
-			scrollbar->slider.y++;
+			scrollbar->slider.h = scrollbar_slider_height(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
+			scrollbar->slider.y = ((scroll - scrollbar->max_lines) * scrollbar_slider_height(scrollbar)) / *scrollbar->num_lines;
+
+			if (scrollbar->slider.h < 1)
+			{
+				scrollbar->slider.h = 1;
+			}
+
+			if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.y + scrollbar->slider.h < scrollbar_slider_height(scrollbar))
+			{
+				scrollbar->slider.y++;
+			}
 		}
 	}
 	/* Not necessary to calculate, so full slider height. */
 	else
 	{
-		scrollbar->slider.h = SLIDER_HEIGHT_FULL(scrollbar);
-		scrollbar->slider.y = 0;
+		if (horizontal)
+		{
+			scrollbar->slider.w = scrollbar_slider_width(scrollbar);
+			scrollbar->slider.x = 0;
+		}
+		else
+		{
+			scrollbar->slider.h = scrollbar_slider_height(scrollbar);
+			scrollbar->slider.y = 0;
+		}
 	}
 
-
-	scrollbar->slider.y += SLIDER_YPOS_START(scrollbar);
+	if (horizontal)
+	{
+		scrollbar->slider.x += scrollbar_slider_startx(scrollbar);
+	}
+	else
+	{
+		scrollbar->slider.y += scrollbar_slider_starty(scrollbar);
+	}
 
 	/* Render the elements. */
 	scrollbar_element_render(scrollbar, &scrollbar->background, surface);
@@ -384,21 +504,39 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 		/* Try dragging the scrollbar. */
 		if (scrollbar->dragging)
 		{
-			int slider_y;
+			int slider_pos;
 			uint32 scroll_offset;
 
-			slider_y = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
-
-			if (slider_y > SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h)
+			if (scrollbar->background.w > scrollbar->background.h)
 			{
-				slider_y = SLIDER_HEIGHT_FULL(scrollbar) - scrollbar->slider.h;
-			}
-			else if (slider_y < 0)
-			{
-				slider_y = 0;
-			}
+				slider_pos = event->motion.x - scrollbar->px - scrollbar->old_slider_pos;
 
-			scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_y) * *scrollbar->num_lines / SLIDER_HEIGHT_FULL(scrollbar));
+				if (slider_pos > scrollbar_slider_width(scrollbar) - scrollbar->slider.w)
+				{
+					slider_pos = scrollbar_slider_width(scrollbar) - scrollbar->slider.w;
+				}
+				else if (slider_pos < 0)
+				{
+					slider_pos = 0;
+				}
+
+				scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_pos) * *scrollbar->num_lines / scrollbar_slider_width(scrollbar));
+			}
+			else
+			{
+				slider_pos = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
+
+				if (slider_pos > scrollbar_slider_height(scrollbar) - scrollbar->slider.h)
+				{
+					slider_pos = scrollbar_slider_height(scrollbar) - scrollbar->slider.h;
+				}
+				else if (slider_pos < 0)
+				{
+					slider_pos = 0;
+				}
+
+				scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_pos) * *scrollbar->num_lines / scrollbar_slider_height(scrollbar));
+			}
 
 			/* Redraw if the scroll offset changed. */
 			if (scroll_offset != *scrollbar->scroll_offset)
@@ -436,20 +574,42 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 		/* Start dragging the slider. */
 		if (scrollbar->slider.highlight)
 		{
-			scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y + SLIDER_YPOS_START(scrollbar);
+			if (scrollbar->background.w > scrollbar->background.h)
+			{
+				scrollbar->old_slider_pos = event->motion.x - scrollbar->px - scrollbar->slider.x + scrollbar_slider_startx(scrollbar);
+			}
+			else
+			{
+				scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y + scrollbar_slider_starty(scrollbar);
+			}
+
 			scrollbar->dragging = 1;
 			return 1;
 		}
 		/* Set scroll direction if clicked on the background. */
 		else if (scrollbar->background.highlight)
 		{
-			if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y)
+			if (scrollbar->background.w > scrollbar->background.h)
 			{
-				scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
+				if (event->motion.x - scrollbar->px < scrollbar->x + scrollbar->slider.x)
+				{
+					scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
+				}
+				else if (event->motion.x - scrollbar->px > scrollbar->x + scrollbar->slider.x + scrollbar->slider.w)
+				{
+					scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
+				}
 			}
-			else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
+			else
 			{
-				scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
+				if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y)
+				{
+					scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
+				}
+				else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h)
+				{
+					scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
+				}
 			}
 		}
 
