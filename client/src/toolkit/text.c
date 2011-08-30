@@ -1713,7 +1713,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	/* Give caller access to the calculated height. */
 	if (box && flags & TEXT_HEIGHT)
 	{
-		box->h = height;
+		box->h = height + max_height;
 	}
 
 	/* Calculating lines? */
