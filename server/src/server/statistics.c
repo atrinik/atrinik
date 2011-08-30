@@ -43,7 +43,7 @@ static struct sockaddr_in insock;
 
 /**
  * Initialize statistics; sets up the datagram file descriptor, etc. */
-void statistics_init()
+void statistics_init(void)
 {
 	struct protoent *protoent;
 

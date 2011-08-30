@@ -88,7 +88,7 @@ int is_valid_faceset(int fsn)
 
 /**
  * Free all the information in face sets. */
-void free_socket_images()
+void free_socket_images(void)
 {
 	int num, q;
 
@@ -126,7 +126,7 @@ void free_socket_images()
  *
  * At the moment, Atrinik only uses one face set file, no files like
  * atrinik.1, atrinik.2, etc. */
-void read_client_images()
+void read_client_images(void)
 {
 	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
 	FILE *infile, *fbmap;

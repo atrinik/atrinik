@@ -87,7 +87,7 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
  * If there is no focused list but there is at least one visible list,
  * will set the first list as the focused list.
  * @return Focused list, or NULL if there are no visible lists at all. */
-list_struct *list_get_focused()
+list_struct *list_get_focused(void)
 {
 	list_struct *tmp;
 
@@ -709,7 +709,7 @@ void list_remove(list_struct *list)
 
 /**
  * Remove all visible lists. */
-void list_remove_all()
+void list_remove_all(void)
 {
 	/* Loop until there is nothing left. */
 	while (list_head)

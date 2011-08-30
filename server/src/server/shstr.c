@@ -38,7 +38,7 @@ static shared_string *hash_table[TABLESIZE];
 
 /**
  * Initializes the hash-table used by the shared string library. */
-void init_hash_table()
+void init_hash_table(void)
 {
 	memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
 }

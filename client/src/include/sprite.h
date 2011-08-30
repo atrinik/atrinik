@@ -153,8 +153,4 @@ typedef struct _anim
 #define BORDER_CREATE_LEFT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_thickness), (_h), (_color))
 #define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x) + (_w) - (_thickness), (_y), (_thickness), (_h), (_color))
 
-extern struct _anim *start_anim;
-
-SDL_Surface *FormatHolder;
-
 #endif

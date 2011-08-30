@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** Dump to standard out the abilities of all monsters. */
-void dump_abilities()
+void dump_abilities(void)
 {
 	archetype *at;
 
@@ -66,7 +66,7 @@ void dump_abilities()
 }
 
 /** Like dump_abilities(), but with an alternative way of output. */
-void print_monsters()
+void print_monsters(void)
 {
 	archetype *at;
 	object *op;

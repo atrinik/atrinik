@@ -29,6 +29,29 @@
 
 #include <global.h>
 
+/**
+ * Names of attack types to use when saving them to file.
+ * @warning Cannot contain spaces. Use underscores instead. */
+char *attack_save[NROFATTACKS] =
+{
+	"impact",   "slash", "cleave",      "pierce",    "weaponmagic",
+	"fire",     "cold",  "electricity", "poison",    "acid",
+	"magic",    "mind",  "blind",       "paralyze",  "force",
+	"godpower", "chaos", "drain",       "slow",      "confusion",
+	"internal"
+};
+
+/**
+ * Short description of names of the attack types. */
+char *attack_name[NROFATTACKS] =
+{
+	"impact",   "slash", "cleave",      "pierce",    "weapon magic",
+	"fire",     "cold",  "electricity", "poison",    "acid",
+	"magic",    "mind",  "blind",       "paralyze",  "force",
+	"godpower", "chaos", "drain",       "slow",      "confusion",
+	"internal"
+};
+
 #define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
 #define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
 
@@ -374,10 +397,10 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	}
 
 	/* This is needed to send the hit number animations to the clients */
-	if (op->damage_round_tag != ROUND_TAG)
+	if (op->damage_round_tag != global_round_tag)
 	{
 		op->last_damage = 0;
-		op->damage_round_tag = ROUND_TAG;
+		op->damage_round_tag = global_round_tag;
 	}
 
 	if (hit_obj->type == PLAYER)
@@ -964,10 +987,10 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	maxdam = op->stats.hp - 1;
 
 	/* Only when some damage is stored, and we're on a map. */
-	if (op->damage_round_tag == ROUND_TAG && op->map)
+	if (op->damage_round_tag == global_round_tag && op->map)
 	{
 		SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
-		SET_MAP_RTAG(op->map, op->x, op->y, ROUND_TAG);
+		SET_MAP_RTAG(op->map, op->x, op->y, global_round_tag);
 	}
 
 	if (op->map)

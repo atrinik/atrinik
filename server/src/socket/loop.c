@@ -285,7 +285,7 @@ void handle_client(socket_struct *ns, player *pl)
  * Tell the Atrinik watchdog program that we are still alive by sending
  * datagrams to port 13325 on localhost.
  * @see atrinik_watchdog */
-void watchdog()
+void watchdog(void)
 {
 	static int fd = -1;
 	static struct sockaddr_in insock;
@@ -392,7 +392,7 @@ static int is_fd_valid(int fd)
  * thing.
  *
  * There are 2 lists we need to look through - init_sockets is a list */
-void doeric_server()
+void doeric_server(void)
 {
 	int i, pollret, rr;
 	struct sockaddr_in addr;
@@ -660,7 +660,7 @@ void doeric_server()
 
 /**
  * Write to players' sockets. */
-void doeric_server_write()
+void doeric_server_write(void)
 {
 	player *pl, *next;
 	uint32 update_below;

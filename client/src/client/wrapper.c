@@ -81,7 +81,7 @@ void LOG(LogLevel logLevel, char *format, ...)
 
 /**
  * Start the base system, setting caption name and window icon. */
-void system_start()
+void system_start(void)
 {
 	SDL_Surface *icon;
 
@@ -100,7 +100,7 @@ void system_start()
 
 /**
  * End the system. */
-void system_end()
+void system_end(void)
 {
 	popup_destroy_all();
 	list_remove_all();
@@ -366,7 +366,7 @@ void copy_rec(const char *src, const char *dst)
 /**
  * Get configuration directory.
  * @return The configuration directory. */
-const char *get_config_dir()
+const char *get_config_dir(void)
 {
 	const char *desc;
 

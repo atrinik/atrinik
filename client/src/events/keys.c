@@ -33,7 +33,7 @@ key_struct keys[SDLK_LAST];
 
 /**
  * Initialize keys. */
-void init_keys()
+void init_keys(void)
 {
 	memset(keys, 0, sizeof(*keys) * arraysize(keys));
 }

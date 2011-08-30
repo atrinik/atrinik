@@ -130,6 +130,7 @@ void widget_party_background(widgetdata *widget)
 		button_create(&button_chat);
 		button_close.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
 		button_close.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_close.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 
 		button_parties.flags = button_members.flags = TEXT_MARKUP;
 		widget->redraw = 1;

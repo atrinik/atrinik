@@ -30,10 +30,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#ifndef EXTERN
-#define EXTERN extern
-#endif
-
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__
 #	define  __attribute__(x)
@@ -324,7 +320,6 @@ if (_nv_)                          \
 
 /** The maximum level. */
 #define MAXLEVEL 115
-extern uint64 new_levels[MAXLEVEL + 2];
 
 /**
  * Used to link together shared strings. */
@@ -367,74 +362,12 @@ typedef struct linked_char
  * as spell effect carrier. */
 #define special_potion(__op_sp) (__op_sp)->last_eat
 
-extern int arch_cmp;
-extern int arch_search;
-
 /** Move an object. */
 #define move_object(__op, __dir) move_ob(__op, __dir, __op)
 /** Is the object magical? */
 #define is_magical(__op_) QUERY_FLAG(__op_, FLAG_IS_MAGICAL)
 
-extern New_Face *new_faces;
-
-/**
- * @defgroup first_xxx Beginnings of linked lists.
- *@{*/
-/** First player. */
-player *first_player;
-/** First map. */
-mapstruct *first_map;
-/** First treasure. */
-treasurelist *first_treasurelist;
-/** First artifact. */
-artifactlist *first_artifactlist;
-/** God list. */
-godlink *first_god;
-/*@}*/
-
-/** Last player. */
-player *last_player;
-
 #define NROF_COMPRESS_METHODS 4
-EXTERN char *uncomp[NROF_COMPRESS_METHODS][3];
-
-/** Ignores signals until init_done is true. */
-EXTERN long init_done;
-/** If this exceeds MAX_ERRORS, the server will shut down. */
-EXTERN long nroferrors;
-
-/** Used by various function to determine how often to save the character. */
-extern long pticks;
-
-/** Log file to use. */
-EXTERN FILE *logfile;
-/** Number of treasures. */
-EXTERN long nroftreasures;
-/** Number of artifacts. */
-EXTERN long nrofartifacts;
-/** Number of allowed treasure combinations. */
-EXTERN long nrofallowedstr;
-
-extern object void_container;
-
-/** The starting map. */
-EXTERN char first_map_path[MAX_BUF];
-/**
- * Progressive object counter (every new object will increase this, even
- * if that object is later removed). */
-EXTERN long ob_count;
-
-/** Round ticker. */
-EXTERN uint32 global_round_tag;
-#define ROUND_TAG global_round_tag /* put this here because the DIFF */
-
-/** Global race counter. */
-EXTERN int global_race_counter;
-
-/** Used for main loop timing. */
-EXTERN struct timeval last_time;
-EXTERN Animations *animations;
-EXTERN int num_animations, animations_allocated;
 
 /** Use to get a safe string, even if the string is NULL. */
 #define STRING_SAFE(__string__) (__string__ ? __string__ : ">NULL<")
@@ -461,24 +394,6 @@ EXTERN int num_animations, animations_allocated;
 /** Get the number of possible facings for object's animation. */
 #define NUM_FACINGS(ob) (animations[ob->animation_id].facings)
 
-extern int freearr_x[SIZEOFFREE], freearr_y[SIZEOFFREE];
-extern int maxfree[SIZEOFFREE], freedir[SIZEOFFREE];
-
-extern New_Face *blank_face, *next_item_face, *prev_item_face;
-
-extern long max_time;
-extern socket_struct *init_sockets;
-extern unsigned long todtick;
-extern int world_darkness;
-
-/** Pointer to waypoint archetype. */
-EXTERN archetype *wp_archetype;
-/** Pointer to empty_archetype archetype. */
-EXTERN archetype *empty_archetype;
-/** Pointer to base_info archetype. */
-EXTERN archetype *base_info_archetype;
-EXTERN archetype *level_up_arch;
-
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
 {                                \
@@ -489,18 +404,6 @@ EXTERN archetype *level_up_arch;
                                  \
 	_xyz_ = NULL;                \
 }
-
-#ifdef CALLOC
-#undef CALLOC
-#endif
-
-#ifdef USE_CALLOC
-#	define CALLOC(x, y) calloc(x, y)
-#	define CFREE(x) free(x)
-#else
-#	define CALLOC(x, y) malloc(x * y)
-#	define CFREE(x) free(x)
-#endif
 
 /** Settings structure */
 typedef struct Settings
@@ -595,10 +498,8 @@ typedef struct Settings
 	uint8 timestamp;
 } Settings;
 
-extern Settings settings;
-
 /** Constant shared string pointers. */
-EXTERN struct shstr_constants
+typedef struct shstr_constants
 {
 	const char *none;
 	const char *NONE;
@@ -631,9 +532,7 @@ EXTERN struct shstr_constants
 
 	const char *of_poison;
 	const char *of_hideous_poison;
-} shstr_cons;
-
-EXTERN void (*object_initializers[256])(object *);
+} shstr_constants;
 
 /** Ban structure. */
 typedef struct ban_struct
@@ -692,7 +591,11 @@ typedef struct cache_struct
 /*@}*/
 
 #include "random_map.h"
-#include "proto.h"
+
+#ifndef GLOBAL_NO_PROTOTYPES
+#	include "proto.h"
+#endif
+
 #include "plugin.h"
 
 #endif

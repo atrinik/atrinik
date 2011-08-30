@@ -43,6 +43,4 @@
 #define	LO_NOREAD   3
 #define LO_MEMORYMODE 4
 
-extern int nrofpixmaps;
-
 #endif

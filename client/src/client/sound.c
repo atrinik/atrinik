@@ -90,7 +90,7 @@ static void sound_free(sound_data_struct *tmp)
 
 /**
  * Initialize the sound system. */
-void sound_init()
+void sound_init(void)
 {
 	sound_background = NULL;
 
@@ -110,7 +110,7 @@ void sound_init()
 
 /**
  * Deinitialize the sound system. */
-void sound_deinit()
+void sound_deinit(void)
 {
 #ifdef HAVE_SDL_MIXER
 	sound_data_struct *curr, *tmp;
@@ -278,7 +278,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 /**
  * Stop the background music, if there is any. */
-void sound_stop_bg_music()
+void sound_stop_bg_music(void)
 {
 	if (!enabled)
 	{
@@ -326,7 +326,7 @@ void update_map_bg_music(const char *bg_music)
 
 /**
  * Update volume of the background sound being played. */
-void sound_update_volume()
+void sound_update_volume(void)
 {
 	if (!enabled)
 	{
@@ -360,7 +360,7 @@ void sound_update_volume()
 /**
  * Get the currently playing background music, if any.
  * @return Background music file name, NULL if no music is playing. */
-const char *sound_get_bg_music()
+const char *sound_get_bg_music(void)
 {
 	return sound_background;
 }
@@ -368,7 +368,7 @@ const char *sound_get_bg_music()
 /**
  * Get the background music base file name.
  * @return The background music base file name, if any. NULL otherwise. */
-const char *sound_get_bg_music_basename()
+const char *sound_get_bg_music_basename(void)
 {
 	const char *bg_music = sound_background;
 	char *cp;
@@ -548,7 +548,7 @@ void sound_ambient_mapcroll(int xoff, int yoff)
 
 /**
  * Stop all ambient sound effects. */
-void sound_ambient_clear()
+void sound_ambient_clear(void)
 {
 	sound_ambient_struct *sound_ambient, *tmp;
 
@@ -626,7 +626,7 @@ void cmd_sound_ambient(uint8 *data, int len)
 
 /**
  * Pause playing background music. */
-void sound_pause_music()
+void sound_pause_music(void)
 {
 #ifdef HAVE_SDL_MIXER
 	Mix_PauseMusic();
@@ -635,7 +635,7 @@ void sound_pause_music()
 
 /**
  * Resume playing background music. */
-void sound_resume_music()
+void sound_resume_music(void)
 {
 #ifdef HAVE_SDL_MIXER
 	Mix_ResumeMusic();
@@ -645,7 +645,7 @@ void sound_resume_music()
 /**
  * Check whether background music is being played.
  * @return 1 if background music is being played, 0 otherwise. */
-int sound_playing_music()
+int sound_playing_music(void)
 {
 #ifdef HAVE_SDL_MIXER
 	return Mix_PlayingMusic();

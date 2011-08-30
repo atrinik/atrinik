@@ -76,7 +76,7 @@ START_TEST(test_put_object_in_sack)
 }
 END_TEST
 
-static Suite *object_suite()
+static Suite *object_suite(void)
 {
 	Suite *s = suite_create("object");
 	TCase *tc_core = tcase_create("Core");
@@ -89,7 +89,7 @@ static Suite *object_suite()
 	return s;
 }
 
-void check_commands_object()
+void check_commands_object(void)
 {
 	Suite *s = object_suite();
 	SRunner *sr = srunner_create(s);

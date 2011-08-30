@@ -48,6 +48,26 @@ static const char *const branch_paths[] =
 /** Revision number of the branch, if any. */
 static uint32 branch_revision = 0;
 
+/**
+ * @defgroup first_xxx Beginnings of linked lists.
+ *@{*/
+/** First player. */
+player *first_player;
+/** First map. */
+mapstruct *first_map;
+/** First treasure. */
+treasurelist *first_treasurelist;
+/** First artifact. */
+artifactlist *first_artifactlist;
+/** God list. */
+godlink *first_god;
+/*@}*/
+
+/** Last player. */
+player *last_player;
+
+uint32 global_round_tag;
+
 static char *unclean_path(const char *src);
 static void process_players1();
 static void process_players2();
@@ -766,7 +786,7 @@ void enter_exit(object *op, object *exit_ob)
 /**
  * Do all player-related stuff before objects have been updated.
  * @sa process_players2(). */
-static void process_players1()
+static void process_players1(void)
 {
 	player *pl, *plnext;
 	int retval;
@@ -899,7 +919,7 @@ static void process_players1()
 /**
  * Do all player-related stuff after objects have been updated.
  * @sa process_players1(). */
-static void process_players2()
+static void process_players2(void)
 {
 	player *pl;
 
@@ -1084,7 +1104,7 @@ void process_events(mapstruct *map)
 
 /**
  * Clean temporary map files. */
-void clean_tmp_files()
+void clean_tmp_files(void)
 {
 	mapstruct *m, *next;
 
@@ -1113,7 +1133,7 @@ void clean_tmp_files()
 
 /**
  * Clean up everything before exiting. */
-void cleanup()
+void cleanup(void)
 {
 	LOG(llevDebug, "Cleanup called. Freeing data.\n");
 	clean_tmp_files();
@@ -1143,7 +1163,7 @@ void cleanup()
  * Dequeue path requests.
  * @todo Only compute time if there is something more in the queue,
  * something like if (path_request_queue_empty()) { break; } */
-static void dequeue_path_requests()
+static void dequeue_path_requests(void)
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
 	static struct timeval new_time;
@@ -1309,7 +1329,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
 /**
  * Collection of functions to call from time to time. */
-static void do_specials()
+static void do_specials(void)
 {
 	if (!(pticks % 2))
 	{
@@ -1344,7 +1364,7 @@ static void do_specials()
 
 /**
  * Iterate the main loop. */
-static void iterate_main_loop()
+static void iterate_main_loop(void)
 {
 	nroferrors = 0;
 

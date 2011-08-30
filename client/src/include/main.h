@@ -30,8 +30,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define HUGE_BUF 4096
-#define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
 #define COLOR_BUF 7
@@ -83,8 +81,6 @@ typedef struct msg_anim_struct
 	/** Color of the message animation. */
 	char color[COLOR_BUF];
 } msg_anim_struct;
-
-extern struct msg_anim_struct msg_anim;
 
 #define FILE_ATRINIK_P0 "data/atrinik.p0"
 
@@ -277,15 +273,6 @@ typedef enum _game_status
 	GAME_STATUS_PLAY
 } _game_status;
 
-extern int f_custom_cursor;
-extern int x_custom_cursor;
-extern int y_custom_cursor;
-
-extern _game_status GameStatus;
-extern uint32 LastTick;
-extern server_struct *selected_server;
-extern int map_udate_flag, map_redraw_flag;
-
 enum
 {
 	ESC_MENU_KEYS,
@@ -418,6 +405,7 @@ typedef enum _bitmap_index
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,
 	BITMAP_BOOK,
+	BITMAP_BOOK_BORDER,
 	BITMAP_REGION_MAP,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
@@ -438,12 +426,9 @@ typedef enum _bitmap_index
 	BITMAP_NEWS_BG,
 	BITMAP_EYES,
 	BITMAP_POPUP,
-	BITMAP_ARROW_UP,
-	BITMAP_ARROW_UP2,
-	BITMAP_ARROW_DOWN,
-	BITMAP_ARROW_DOWN2,
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
+	BITMAP_BUTTON_ROUND_HOVER,
 	BITMAP_BUTTON_RECT,
 	BITMAP_BUTTON_RECT_HOVER,
 	BITMAP_BUTTON_RECT_DOWN,
@@ -452,6 +437,7 @@ typedef enum _bitmap_index
 	BITMAP_LOADING_ON,
 	BITMAP_BUTTON,
 	BITMAP_BUTTON_DOWN,
+	BITMAP_BUTTON_HOVER,
 	BITMAP_CHECKBOX,
 	BITMAP_CHECKBOX_ON,
 	BITMAP_CONTENT,
@@ -463,6 +449,14 @@ typedef enum _bitmap_index
 	BITMAP_ICON_COGS,
 	BITMAP_ICON_QUEST,
 	BITMAP_FPS,
+	BITMAP_INTERFACE,
+	BITMAP_INTERFACE_BORDER,
+	BITMAP_BUTTON_LARGE,
+	BITMAP_BUTTON_LARGE_DOWN,
+	BITMAP_BUTTON_LARGE_HOVER,
+	BITMAP_BUTTON_ROUND_LARGE,
+	BITMAP_BUTTON_ROUND_LARGE_DOWN,
+	BITMAP_BUTTON_ROUND_LARGE_HOVER,
 
 	BITMAP_INIT
 }_bitmap_index;
@@ -472,26 +466,5 @@ enum
 {
 	MSCURSOR_MOVE = 1
 };
-
-extern char text_input_string[MAX_INPUT_STRING];
-extern int text_input_count;
-extern int text_input_string_flag;
-extern int text_input_string_end_flag;
-extern int text_input_string_esc_flag;
-uint32 text_input_opened;
-
-/* Range table */
-extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
-extern int RangeFireMode;
-
-extern struct _Sprite *Bitmaps[];
-
-/* Face data */
-extern _face_struct FaceList[MAX_FACE_TILES];
-
-extern SDL_Surface *ScreenSurface;
-
-/* Server's attributes */
-extern struct sockaddr_in insock;
 
 #endif

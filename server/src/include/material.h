@@ -121,7 +121,4 @@ typedef struct _material_real_struct
 	int def_race;
 } material_real_struct;
 
-extern materialtype materials[NROFMATERIALS];
-extern material_real_struct material_real[NROFMATERIALS * NROFMATERIALS_REAL + 1];
-
 #endif

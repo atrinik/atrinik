@@ -36,7 +36,7 @@ static Uint32 fps_frames;
 
 /**
  * Initialize variables used by fps widget. */
-void fps_init()
+void fps_init(void)
 {
 	fps_lasttime = SDL_GetTicks();
 	fps_current = fps_frames = 0;
@@ -45,7 +45,7 @@ void fps_init()
 /**
  * Called at the end of each frame to calculate the current fps (if
  * applicable). */
-void fps_do()
+void fps_do(void)
 {
 	fps_frames++;
 

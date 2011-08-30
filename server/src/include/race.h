@@ -64,6 +64,4 @@ typedef struct ob_race
  * Number of races in ::item_races. */
 #define NROF_ITEM_RACES 13
 
-const char *item_races[NROF_ITEM_RACES];
-
 #endif

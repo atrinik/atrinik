@@ -80,8 +80,6 @@ typedef struct _player_doll_pos
 	int ypos;
 } _player_doll_pos;
 
-const char *gender_noun[GENDER_MAX];
-
 /**
  * Enumerations of the READY_OBJ_xxx constants used by
  * @ref BINARY_CMD_READY.

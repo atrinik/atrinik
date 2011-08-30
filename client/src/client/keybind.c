@@ -53,7 +53,7 @@ size_t keybindings_num = 0;
 
 /**
  * Load keybindings. */
-void keybind_load()
+void keybind_load(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
@@ -129,7 +129,7 @@ void keybind_load()
 
 /**
  * Save the keybindings. */
-void keybind_save()
+void keybind_save(void)
 {
 	FILE *fp;
 	size_t i;
@@ -173,7 +173,7 @@ void keybind_free(keybind_struct *keybind)
 
 /**
  * Deinitialize all keybindings. */
-void keybind_deinit()
+void keybind_deinit(void)
 {
 	size_t i;
 
@@ -541,7 +541,7 @@ int keybind_process_command_up(const char *cmd)
 /**
  * Ensure that keybindings which should trigger on 'key up' event have
  * done so, even if the 'key up' event was handled by something else. */
-void keybind_state_ensure()
+void keybind_state_ensure(void)
 {
 	if (cpl.inventory_win != IWIN_BELOW && !keybind_command_matches_state("?INVENTORY"))
 	{

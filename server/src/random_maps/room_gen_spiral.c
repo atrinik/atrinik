@@ -58,8 +58,6 @@
 
 #define MAX_FINE .454545
 
-extern int surround_check(char **maze, int i, int j, int xsize, int ysize);
-
 /**
  * Generates a spiral layout.
  * @param xsize X size of the layout.

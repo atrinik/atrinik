@@ -228,14 +228,12 @@ int command_t_tell(object *op, char *params)
 				{
 					LOG(llevChat, "Talk to: %s: %s\n", op->name, params);
 					talk_to_npc(op, t_obj, params);
-					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "scroll.ogg", 0, 0, 0, 0);
 					return 1;
 				}
 			}
 		}
 	}
 
-	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
 	return 1;
 }
 

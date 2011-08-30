@@ -42,7 +42,7 @@ static Uint32 textwin_border_color_selected;
 
 /**
  * Initialize text window variables. */
-void textwin_init()
+void textwin_init(void)
 {
 	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
 	textwin_border_color_selected = SDL_MapRGB(ScreenSurface->format, 177, 126, 5);
@@ -74,7 +74,6 @@ void textwin_readjust(widgetdata *widget)
 {
 	textwin_struct *textwin = TEXTWIN(widget);
 	SDL_Rect box;
-	int scroll;
 
 	if (!textwin->entries)
 	{
@@ -85,12 +84,11 @@ void textwin_readjust(widgetdata *widget)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
-	scroll = box.h / FONT_HEIGHT(textwin->font);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 
 	/* Adjust the counts. */
-	textwin->scroll = scroll;
-	textwin->num_entries = scroll;
+	textwin->scroll = box.h - 1;
+	textwin->num_entries = box.h - 1;
 }
 
 void draw_info_flags(const char *color, int flags, const char *str)
@@ -135,8 +133,8 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 	box.y = 0;
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
-	scroll = box.h / FONT_HEIGHT(textwin->font) + 1;
+	string_blt(NULL, textwin->font, str, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	scroll = box.h;
 
 	/* Adjust the counts. */
 	textwin->scroll += scroll;
@@ -159,15 +157,15 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 			/* Get the string's height. */
 			box.h = 0;
-			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
-			scroll = box.h / FONT_HEIGHT(textwin->font);
+			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+			scroll = box.h - 1;
 
 			free(buf);
 
 			/* Move the string after the found newline to the beginning,
 			 * effectively erasing the previous line. */
 			textwin->entries_size -= pos;
-			memcpy(textwin->entries, textwin->entries + pos, textwin->entries_size);
+			memmove(textwin->entries, textwin->entries + pos, textwin->entries_size);
 			textwin->entries[textwin->entries_size] = '\0';
 
 			/* Adjust the counts. */
@@ -206,7 +204,7 @@ void draw_info(const char *color, const char *str)
 
 /**
  * Handle ctrl+C. */
-void textwin_handle_copy()
+void textwin_handle_copy(void)
 {
 	sint64 start, end;
 	textwin_struct *textwin;
@@ -411,8 +409,8 @@ void textwin_show(int x, int y, int w, int h)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
-	scroll = box.h / FONT_HEIGHT(textwin->font);
+	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	scroll = box.h;
 
 	box.x = x;
 	box.y = y;

@@ -332,7 +332,7 @@ object *pick_random_object(mapstruct *style)
 
 /**
  * Frees cached style maps. */
-void free_style_maps()
+void free_style_maps(void)
 {
 	mapstruct *next;
 	int style_maps = 0;

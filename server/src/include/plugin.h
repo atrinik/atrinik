@@ -48,8 +48,6 @@
 #	define MODULEAPI
 #endif
 
-#include <global.h>
-
 /**
  * @defgroup PLUGIN_EVENT_xxx Plugin event types
  * The plugin event types.
@@ -223,7 +221,7 @@ struct plugin_hooklist
 	int (*pay_for_amount)(sint64, object *);
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
-	object *(*get_object)();
+	object *(*get_object)(void);
 	void (*copy_object)(object *, object *, int);
 	void (*enter_exit)(object *, object *);
 	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
@@ -255,10 +253,10 @@ struct plugin_hooklist
 	void (*send_party_message)(party_struct *, const char *, int, object *);
 	void (*Write_String_To_Socket)(socket_struct *, char, const char *, int);
 	void (*dump_object)(object *, StringBuffer *);
-	StringBuffer *(*stringbuffer_new)();
+	StringBuffer *(*stringbuffer_new)(void);
 	char *(*stringbuffer_finish)(StringBuffer *);
 	char *(*cleanup_chat_string)(char *);
-	int (*cftimer_find_free_id)();
+	int (*cftimer_find_free_id)(void);
 	int (*cftimer_create)(int, long, object *, int);
 	int (*cftimer_destroy)(int);
 	int (*find_face)(char *, int);
@@ -300,6 +298,8 @@ struct plugin_hooklist
 	void (*draw_info_format)(const char *, object *, const char *, ...);
 	void (*draw_info_flags)(int, const char *, object *, const char *);
 	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
+	void (*Send_With_Handling)(socket_struct *, SockList *);
+	void (*SockList_AddString)(SockList *, const char *);
 
 	const char **season_name;
 	const char **weekdays;
@@ -333,7 +333,7 @@ typedef void *(*f_plug_api) (int *type, ...);
 /** First function called in a plugin. */
 typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
 /** Function called after the plugin was initialized. */
-typedef void *(*f_plug_pinit) ();
+typedef void *(*f_plug_pinit) (void);
 
 #ifndef WIN32
 	/** Library handle. */
@@ -408,11 +408,11 @@ extern MODULEAPI void *triggerEvent(int *type, ...);
 
 /**
  * Called by the server when the plugin loading is completed. */
-extern MODULEAPI void postinitPlugin();
+extern MODULEAPI void postinitPlugin(void);
 
 /**
  * Called when the plugin is about to be unloaded. */
-extern MODULEAPI void closePlugin();
+extern MODULEAPI void closePlugin(void);
 /*@}*/
 
 #endif

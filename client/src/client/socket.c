@@ -190,7 +190,7 @@ int send_socklist(SockList msg)
  * Get a command from the queue.
  * @return The command (being removed from queue), NULL if there is no
  * command. */
-command_buffer *get_next_input_command()
+command_buffer *get_next_input_command(void)
 {
 	command_buffer *buf;
 
@@ -392,7 +392,7 @@ static int writer_thread_loop(void *dummy)
 
 /**
  * Initialize and start up the worker threads. */
-void socket_thread_start()
+void socket_thread_start(void)
 {
 	LOG(llevInfo, "Starting socket threads.\n");
 
@@ -425,7 +425,7 @@ void socket_thread_start()
 /**
  * Wait for the socket threads to finish.
  * Closes the socket first, if it hasn't already been done. */
-void socket_thread_stop()
+void socket_thread_stop(void)
 {
 	LOG(llevInfo, "Stopping socket threads.\n");
 
@@ -443,7 +443,7 @@ void socket_thread_stop()
  *
  * The main thread should poll this function which detects connection
  * shutdowns and removes the threads if it happens. */
-int handle_socket_shutdown()
+int handle_socket_shutdown(void)
 {
 	if (abort_thread)
 	{
@@ -471,7 +471,7 @@ int handle_socket_shutdown()
 /**
  * Get error number.
  * @return The error number. */
-int socket_get_error()
+int socket_get_error(void)
 {
 #ifdef WIN32
 	return WSAGetLastError();
@@ -524,7 +524,7 @@ int socket_close(struct ClientSocket *csock)
 /**
  * Initialize the socket.
  * @return 1 on success, 0 on failure. */
-int socket_initialize()
+int socket_initialize(void)
 {
 #ifdef WIN32
 	WSADATA w;
@@ -559,7 +559,7 @@ int socket_initialize()
 
 /**
  * Deinitialize the socket. */
-void socket_deinitialize()
+void socket_deinitialize(void)
 {
 	if (csocket.fd != -1)
 	{

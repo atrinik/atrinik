@@ -193,7 +193,7 @@ START_TEST(test_format_number_comma)
 }
 END_TEST
 
-static Suite *shstr_suite()
+static Suite *shstr_suite(void)
 {
 	Suite *s = suite_create("utils");
 	TCase *tc_core = tcase_create("Core");
@@ -211,7 +211,7 @@ static Suite *shstr_suite()
 	return s;
 }
 
-void check_server_utils()
+void check_server_utils(void)
 {
 	Suite *s = shstr_suite();
 	SRunner *sr = srunner_create(s);

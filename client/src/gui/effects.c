@@ -38,7 +38,7 @@ static const char *overlay_cols[] = {"r", "g", "b", "a"};
 
 /**
  * Initialize effects from file. */
-void effects_init()
+void effects_init(void)
 {
 	FILE *fp;
 	char buf[MAX_BUF], *cp;
@@ -364,7 +364,7 @@ void effects_init()
 
 /**
  * Deinitialize ::effects linked list. */
-void effects_deinit()
+void effects_deinit(void)
 {
 	effect_struct *effect, *effect_next;
 	effect_sprite_def *sprite_def, *sprite_def_next;
@@ -392,7 +392,7 @@ void effects_deinit()
 /**
  * Makes sure all sprite definitions have correct sprite IDs and their
  * images are properly loaded. */
-void effects_reinit()
+void effects_reinit(void)
 {
 	effect_struct *effect;
 	effect_sprite_def *sprite_def;
@@ -547,7 +547,7 @@ static effect_sprite *effect_sprite_create(effect_struct *effect)
 
 /**
  * Try to play effect sprites. */
-void effect_sprites_play()
+void effect_sprites_play(void)
 {
 	effect_sprite *tmp, *next;
 	int num_sprites = 0;
@@ -837,7 +837,7 @@ void effect_debug(const char *type)
 
 /**
  * Stop currently playing effect. */
-void effect_stop()
+void effect_stop(void)
 {
 	if (!current_effect)
 	{
@@ -851,7 +851,7 @@ void effect_stop()
 /**
  * Check whether there is an overlay on the active effect (if any).
  * @return 1 if there is an overlay, 0 otherwise. */
-uint8 effect_has_overlay()
+uint8 effect_has_overlay(void)
 {
 	if (!current_effect)
 	{

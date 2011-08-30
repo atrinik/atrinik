@@ -277,7 +277,7 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep)
 /**
  * Returns a random direction (1..8).
  * @return The random direction. */
-int get_random_dir()
+int get_random_dir(void)
 {
 	return rndm(1, 8);
 }

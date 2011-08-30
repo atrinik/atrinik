@@ -27,6 +27,9 @@
  * @file
  * Skills header. */
 
+#ifndef SKILLS_H
+#define SKILLS_H
+
 /** Marks no skill being ready. */
 #define NO_SKILL_READY -1
 
@@ -108,4 +111,4 @@ typedef struct skill_struct
 	short time;
 } skill_struct;
 
-skill_struct skills[NROFSKILLS];
+#endif

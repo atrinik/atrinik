@@ -28,8 +28,6 @@
  * Object related code. */
 
 #include <global.h>
-
-#include <skillist.h>
 #include <loader.h>
 
 /**
@@ -170,7 +168,7 @@ static void remove_ob_inv(object *op);
 
 /**
  * Initialize materials from file. */
-void init_materials()
+void init_materials(void)
 {
 	int i;
 	char filename[MAX_BUF], buf[MAX_BUF];
@@ -271,6 +269,15 @@ int freedir[SIZEOFFREE] =
 };
 
 /**
+ * Progressive object counter (every new object will increase this, even
+ * if that object is later removed). */
+static long ob_count = 0;
+
+/**
+ * Object type-specific functions to call when initializing objects. */
+void (*object_initializers[256])(object *);
+
+/**
  * This is a list of pointers that correspond to the FLAG_.. values.
  * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15'th
  * element of this array should match that name.
@@ -343,7 +350,7 @@ void mark_object_removed(object *ob)
 
 /**
  * Go through all objects in the removed list and free the forgotten ones. */
-void object_gc()
+void object_gc(void)
 {
 	struct mempool_chunk *current, *next;
 	object *ob;
@@ -1104,7 +1111,7 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
  *
  * If there are no free objects, expand_objects() is called to get more.
  * @return The new object. */
-object *get_object()
+object *get_object(void)
 {
 	object *new_obj = (object *) get_poolchunk(pool_object);
 
@@ -3661,7 +3668,7 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 
 /**
  * Initialize the table of object initializers. */
-void init_object_initializers()
+void init_object_initializers(void)
 {
 	object_initializers[BEACON] = beacon_add;
 	object_initializers[MAGIC_MIRROR] = magic_mirror_init;

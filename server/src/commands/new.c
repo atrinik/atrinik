@@ -608,13 +608,13 @@ typedef struct new_char_struct
 } new_char_struct;
 
 /** All the loaded characters. */
-new_char_struct *new_chars = NULL;
+static new_char_struct *new_chars = NULL;
 /** Number of ::new_chars. */
 static size_t num_new_chars = 0;
 
 /**
  * Initialize ::new_chars by reading server_settings file. */
-void new_chars_init()
+void new_chars_init(void)
 {
 	char filename[HUGE_BUF], buf[HUGE_BUF];
 	FILE *fp;

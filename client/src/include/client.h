@@ -27,6 +27,9 @@
  * @file
  * Various defines. */
 
+#ifndef CLIENT_H
+#define CLIENT_H
+
 /** Default width. */
 #define WINDOW_DEFAULT_WIDTH 1024
 /** Default height. */
@@ -85,10 +88,6 @@ typedef struct _anim_table
 	char *anim_cmd;
 }_anim_table;
 
-extern _anim_table *anim_table;
-extern Animations *animations;
-extern size_t animations_num;
-
 /**
  * Timeout when attempting a connection in milliseconds. */
 #define SOCKET_TIMEOUT_MS 4000
@@ -132,8 +131,6 @@ typedef struct ClientSocket
 {
 	int fd;
 } ClientSocket;
-
-extern ClientSocket csocket;
 
 typedef struct Stat_struct
 {
@@ -335,9 +332,6 @@ typedef struct Player_Struct
 		spell_entry_struct *spell;
 	} dragging;
 } Client_Player;
-
-/* Player object. */
-extern Client_Player cpl;
 
 /* These are multiplication values that should be used when changing
  * floats to ints, and vice version.  MULTI is integer representation
@@ -608,3 +602,13 @@ extern Client_Player cpl;
 #define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
 /** Check if the keyword represents a false value. */
 #define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
+
+/** Copies information from one color structure into another. */
+#define SDL_color_copy(_color, _color2) \
+{ \
+	(_color)->r = (_color2)->r; \
+	(_color)->g = (_color2)->g; \
+	(_color)->b = (_color2)->b; \
+}
+
+#endif

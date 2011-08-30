@@ -119,8 +119,4 @@ typedef struct party_struct
 #define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 
-party_struct *first_party;
-const char *const party_loot_modes[PARTY_LOOT_MAX];
-const char *const party_loot_modes_help[PARTY_LOOT_MAX];
-
 #endif

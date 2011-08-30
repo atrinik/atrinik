@@ -130,7 +130,7 @@ static int IsMouseExclusive = 0;
 /**
  * Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
-static void init_widgets_fromDefault()
+static void init_widgets_fromDefault(void)
 {
 	int lp;
 
@@ -153,7 +153,7 @@ static void init_widgets_fromDefault()
 /**
  * Try to load the main interface file and initialize the priority list
  * On failure, initialize the widgets with init_widgets_fromDefault() */
-void init_widgets_fromCurrent()
+void init_widgets_fromCurrent(void)
 {
 	/* Exit, if there are no widgets */
 	if (!TOTAL_SUBWIDGETS)
@@ -524,7 +524,7 @@ void remove_widget_inv(widgetdata *widget)
 /** Wrapper function to initiate one of each widget. */
 /* TODO: this is looking more and more like a function to simply initiate all the widgets with their default attributes,
  * as loading from a file now creates nodes dynamically instead, so this function is now doomed to that role */
-void init_widgets()
+void init_widgets(void)
 {
 	int i;
 
@@ -553,7 +553,7 @@ void init_widgets()
 
 /**
  * Deinitialize all widgets, and free their SDL surfaces. */
-void kill_widgets()
+void kill_widgets(void)
 {
 	/* get rid of the pointer to the widgets first */
 	widget_mouse_event.owner = NULL;
@@ -623,7 +623,7 @@ static void widget_ensure_onscreen(widgetdata *widget)
 
 /**
  * Ensures all widgets are on-screen. */
-void widgets_ensure_onscreen()
+void widgets_ensure_onscreen(void)
 {
 	widgetdata *tmp;
 
@@ -1155,7 +1155,7 @@ static int load_interface_file(char *filename)
 
 /**
  * Save the widgets interface to a file. */
-void save_interface_file()
+void save_interface_file(void)
 {
 	FILE *stream;
 
@@ -1850,7 +1850,7 @@ int widget_event_respond(int x, int y)
 }
 
 /** Priority override function, we have to have that here for resizing... */
-int widget_event_override()
+int widget_event_override(void)
 {
 	return 0;
 }
@@ -2066,7 +2066,7 @@ static void process_widget_background(widgetdata *widget)
 /**
  * Traverse through all the widgets and call the corresponding handlers.
  * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
-void process_widgets()
+void process_widgets(void)
 {
 	/* sanity check */
 	if (!widget_list_foot)
@@ -2090,7 +2090,7 @@ void process_widgets_rec(widgetdata *widget)
 	do
 	{
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible && (!popup || popup_overlay_need_update(popup)))
+		if (widget->show && widget->visible && (!popup || popup_overlay_need_update()))
 		{
 			process_widget(widget);
 		}
@@ -2895,42 +2895,42 @@ void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX, 0);
 }
 
-void menu_inv_filter_all()
+void menu_inv_filter_all(void)
 {
 	inventory_filter_set(INVENTORY_FILTER_ALL);
 }
 
-void menu_inv_filter_applied()
+void menu_inv_filter_applied(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
 }
 
-void menu_inv_filter_containers()
+void menu_inv_filter_containers(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
 }
 
-void menu_inv_filter_magical()
+void menu_inv_filter_magical(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
 }
 
-void menu_inv_filter_cursed()
+void menu_inv_filter_cursed(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_CURSED);
 }
 
-void menu_inv_filter_unidentified()
+void menu_inv_filter_unidentified(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
 }
 
-void menu_inv_filter_locked()
+void menu_inv_filter_locked(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
 }
 
-void menu_inv_filter_unapplied()
+void menu_inv_filter_unapplied(void)
 {
 	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
 }

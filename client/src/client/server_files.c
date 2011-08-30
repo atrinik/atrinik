@@ -76,7 +76,7 @@ static server_files_struct server_files[SERVER_FILES_MAX];
 
 /**
  * Initialize the necessary structures. */
-void server_files_init()
+void server_files_init(void)
 {
 	size_t i;
 
@@ -226,7 +226,7 @@ void server_file_save(size_t id, unsigned char *data, size_t len)
 /**
  * Figure out whether there are server files being updated.
  * @return 1 if there are any server files being updated, 0 otherwise. */
-int server_files_updating()
+int server_files_updating(void)
 {
 	size_t i;
 
@@ -318,7 +318,7 @@ int server_files_parse_setup(const char *cmd, const char *param)
 
 /**
  * Clear update flag from all server files. */
-void server_files_clear_update()
+void server_files_clear_update(void)
 {
 	size_t i;
 

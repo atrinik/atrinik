@@ -31,7 +31,9 @@
 #define PLUGIN_PYTHON_H
 
 #include <Python.h>
-#include <plugin.h>
+
+#define GLOBAL_NO_PROTOTYPES
+#include <global.h>
 #include <timers.h>
 
 /** This is for allowing both python 3 and python 2. */

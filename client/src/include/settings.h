@@ -273,7 +273,4 @@ enum
 	KEYBIND_STEP_DONE
 };
 
-setting_category **setting_categories;
-size_t setting_categories_num;
-
 #endif

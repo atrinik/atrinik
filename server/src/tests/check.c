@@ -32,7 +32,7 @@
 
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
-void check_main()
+void check_main(void)
 {
 	/* bugs */
 	check_bug_85();

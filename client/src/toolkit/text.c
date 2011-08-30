@@ -58,9 +58,12 @@ static sint64 *selection_end = NULL;
 static uint8 *selection_started = NULL;
 
 /** Default link color. */
-SDL_Color text_link_color_default = {96, 160, 255, 0};
+static SDL_Color text_link_color_default = {96, 160, 255, 0};
 /** Current text link color. */
-SDL_Color text_link_color = {0, 0, 0, 0};
+static SDL_Color text_link_color = {0, 0, 0, 0};
+
+/** @copydoc text_anchor_handle_func */
+static text_anchor_handle_func text_anchor_handle = NULL;
 
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
@@ -144,7 +147,7 @@ font_struct fonts[FONTS_MAX] =
 
 /**
  * Initialize the text API. Should only be done once. */
-void text_init()
+void text_init(void)
 {
 	size_t i;
 	TTF_Font *font;
@@ -169,7 +172,7 @@ void text_init()
 
 /**
  * Deinitializes the text API. */
-void text_deinit()
+void text_deinit(void)
 {
 	size_t i;
 
@@ -200,7 +203,7 @@ void text_offset_set(int x, int y)
 /**
  * Reset the text offset. This must be done after text_offset_set() and
  * string_blt() calls eventually, */
-void text_offset_reset()
+void text_offset_reset(void)
 {
 	text_offset_mx = text_offset_my = -1;
 }
@@ -231,6 +234,14 @@ void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
 	selection_start = start;
 	selection_end = end;
 	selection_started = started;
+}
+
+/**
+ * Set the anchor handler function.
+ * @param func The function. */
+void text_set_anchor_handle(text_anchor_handle_func func)
+{
+	text_anchor_handle = func;
 }
 
 /**
@@ -288,23 +299,6 @@ int get_font_id(const char *name, size_t size)
 	}
 
 	return -1;
-}
-
-/**
- * Reset r, g, b values of 'color' to that of 'orig_color'.
- * @param surface If NULL, will not do anything.
- * @param color Values to copy to.
- * @param orig_color Values to copy from. */
-static void reset_color(SDL_Surface *surface, SDL_Color *color, SDL_Color *orig_color)
-{
-	if (!surface)
-	{
-		return;
-	}
-
-	color->r = orig_color->r;
-	color->g = orig_color->g;
-	color->b = orig_color->b;
 }
 
 /**
@@ -441,6 +435,98 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 }
 
 /**
+ * Execute anchor.
+ * @param info Text blit info, should contain the anchor action and tag
+ * position. */
+void text_anchor_execute(text_blit_info *info)
+{
+	size_t len;
+	char *buf2, *pos;
+
+	/* Sanity check. */
+	if (!info->anchor_action || !info->anchor_tag)
+	{
+		return;
+	}
+
+	pos = strchr(info->anchor_action, ':');
+
+	if (pos && pos + 1)
+	{
+		buf2 = strdup(pos + 1);
+		len = strlen(buf2);
+		info->anchor_action[pos - info->anchor_action] = '\0';
+	}
+	else
+	{
+		/* Get the length of the text until the ending </a>. */
+		len = strstr(info->anchor_tag, "</a>") - info->anchor_tag;
+		/* Allocate a temporary buffer and copy the text until the
+		 * ending </a>, so we have the text between the anchor tags. */
+		buf2 = malloc(len + 1);
+		memcpy(buf2, info->anchor_tag, len);
+		buf2[len] = '\0';
+	}
+
+	buf2 = text_strip_markup(buf2, &len, 1);
+
+	if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
+	{
+	}
+	/* No action specified. */
+	else if (info->anchor_action[0] == '\0')
+	{
+		if (GameStatus == GAME_STATUS_PLAY)
+		{
+			/* It's not a command, so prepend "/say " to it. */
+			if (buf2[0] != '/')
+			{
+				/* Resize the buffer so it can hold 5 more bytes. */
+				buf2 = realloc(buf2, len + 5 + 1);
+				/* Copy the existing bytes to the end, so we have 5
+				* we can use in the front. */
+				memmove(buf2 + 5, buf2, len + 1);
+				/* Prepend "/say ". */
+				memcpy(buf2, "/say ", 5);
+			}
+
+			send_command_check(buf2);
+		}
+	}
+	/* Help GUI. */
+	else if (!strcmp(info->anchor_action, "help"))
+	{
+		strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
+		text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
+		text_anchor_help_clicked = 1;
+	}
+	else if (!strcmp(info->anchor_action, "url"))
+	{
+		browser_open(buf2);
+	}
+
+	free(buf2);
+}
+
+/**
+ * Initialize the 'info' argument of blt_character(). Should only be
+ * called once.
+ * @param info The text blit information to initialize. */
+void blt_character_init(text_blit_info *info)
+{
+	info->anchor_tag = NULL;
+	info->anchor_action[0] = '\0';
+	info->outline_color.r = info->outline_color.g = info->outline_color.b = 0;
+	info->outline_show = 0;
+	info->in_book_title = 0;
+	info->used_alpha = 255;
+	info->in_bold = info->in_italic = info->in_underline = 0;
+	info->obscured = 0;
+	info->calc_bold = 0;
+	info->calc_font = -1;
+}
+
+/**
  * Draw one character on the screen or parse markup (if applicable).
  * @param[out] font Font to use. One of @ref FONT_xxx.
  * @param orig_font Original font, used for the font tag.
@@ -455,14 +541,10 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust)
+int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_blit_info *info)
 {
-	int width, minx, ret = 1, restore_font = -1;
+	int width, minx, ret = 1, restore_font = -1, new_style;
 	char c = *cp;
-	static char *anchor_tag = NULL, anchor_action[HUGE_BUF];
-	static SDL_Color outline_color = {0, 0, 0, 0};
-	static uint8 outline_show = 0, in_book_title = 0, used_alpha = 255, in_bold = 0;
-	static int in_font = -1;
 	uint8 remove_bold = 0;
 
 	if (c == '\r')
@@ -490,7 +572,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			char *pos;
 
-			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				uint32 r, g, b;
 
@@ -520,13 +602,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* End of color tag. */
 		else if (!strncmp(cp, "</c>", 4))
 		{
-			reset_color(surface, color, orig_color);
+			if (color && (surface || info->obscured))
+			{
+				SDL_color_copy(color, orig_color);
+			}
+
 			return 4;
 		}
 		/* Convenience tag to make string green. */
 		else if (!strncmp(cp, "<green>", 7))
 		{
-			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 0;
 				color->g = 255;
@@ -537,13 +623,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</green>", 8))
 		{
-			reset_color(surface, color, orig_color);
+			if (color && (surface || info->obscured))
+			{
+				SDL_color_copy(color, orig_color);
+			}
+
 			return 8;
 		}
 		/* Convenience tag to make string yellow. */
 		else if (!strncmp(cp, "<yellow>", 8))
 		{
-			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 255;
 				color->g = 255;
@@ -554,13 +644,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</yellow>", 9))
 		{
-			reset_color(surface, color, orig_color);
+			if (color && (surface || info->obscured))
+			{
+				SDL_color_copy(color, orig_color);
+			}
+
 			return 9;
 		}
 		/* Convenience tag to make string red. */
 		else if (!strncmp(cp, "<red>", 5))
 		{
-			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 255;
 				color->g = 0;
@@ -571,13 +665,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</red>", 6))
 		{
-			reset_color(surface, color, orig_color);
+			if (color && (surface || info->obscured))
+			{
+				SDL_color_copy(color, orig_color);
+			}
+
 			return 6;
 		}
 		/* Convenience tag to make string blue. */
 		else if (!strncmp(cp, "<blue>", 6))
 		{
-			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				color->r = 0;
 				color->g = 0;
@@ -588,32 +686,36 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</blue>", 7))
 		{
-			reset_color(surface, color, orig_color);
+			if (color && (surface || info->obscured))
+			{
+				SDL_color_copy(color, orig_color);
+			}
+
 			return 7;
 		}
 		/* Bold. */
 		else if (!strncmp(cp, "<b>", 3))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+				info->in_bold = 1;
 			}
 			else
 			{
-				in_bold = 1;
+				info->calc_bold = 1;
 			}
 
 			return 3;
 		}
 		else if (!strncmp(cp, "</b>", 4))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+				info->in_bold = 0;
 			}
 			else
 			{
-				in_bold = 0;
+				info->calc_bold = 0;
 			}
 
 			return 4;
@@ -621,18 +723,18 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Italic. */
 		else if (!strncmp(cp, "<i>", 3))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_ITALIC);
+				info->in_italic = 1;
 			}
 
 			return 3;
 		}
 		else if (!strncmp(cp, "</i>", 4))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_ITALIC);
+				info->in_italic = 0;
 			}
 
 			return 4;
@@ -640,18 +742,18 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Underscore. */
 		else if (!strncmp(cp, "<u>", 3))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+				info->in_underline = 1;
 			}
 
 			return 3;
 		}
 		else if (!strncmp(cp, "</u>", 4))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+				info->in_underline = 0;
 			}
 
 			return 4;
@@ -669,13 +771,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				if (font_id != -1)
 				{
-					if (surface)
+					if (surface || info->obscured)
 					{
 						*font = font_id;
 					}
 					else
 					{
-						in_font = font_id;
+						info->calc_font = font_id;
 					}
 				}
 			}
@@ -713,13 +815,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				if (font_id != -1)
 				{
-					if (surface)
+					if (surface || info->obscured)
 					{
 						*font = font_id;
 					}
 					else
 					{
-						in_font = font_id;
+						info->calc_font = font_id;
 					}
 				}
 			}
@@ -736,13 +838,13 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</font>", 7) || !strncmp(cp, "</size>", 7))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
 				*font = orig_font;
 			}
 			else
 			{
-				in_font = -1;
+				info->calc_font = -1;
 			}
 
 			return 7;
@@ -780,22 +882,22 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Anchor tag. */
 		else if (!strncmp(cp, "<a>", 3) || !strncmp(cp, "<a=", 3))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
 				/* Change to light blue only if no custom color was specified. */
-				if (color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
+				if (color && color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
 				{
 					color->r = text_link_color.r;
 					color->g = text_link_color.g;
 					color->b = text_link_color.b;
 				}
 
-				anchor_tag = strchr(cp, '>') + 1;
-				anchor_action[0] = '\0';
+				info->anchor_tag = strchr(cp, '>') + 1;
+				info->anchor_action[0] = '\0';
 			}
 
 			/* Scan for action other than the default. */
-			if (sscanf(cp, "<a=%1024[^>]>", anchor_action) == 1)
+			if (sscanf(cp, "<a=%1024[^>]>", info->anchor_action) == 1)
 			{
 				return strchr(cp + 3, '>') - cp + 1;
 			}
@@ -804,10 +906,14 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</a>", 4))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				reset_color(surface, color, orig_color);
-				anchor_tag = NULL;
+				if (color)
+				{
+					SDL_color_copy(color, orig_color);
+				}
+
+				info->anchor_tag = NULL;
 			}
 
 			return 4;
@@ -877,17 +983,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "<o=", 3))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
 				uint32 r, g, b;
 
 				/* Parse the r,g,b colors. */
 				if ((cp[3] == '#' && sscanf(cp, "<o=#%2X%2X%2X>", &r, &g, &b) == 3))
 				{
-					outline_color.r = r;
-					outline_color.g = g;
-					outline_color.b = b;
-					outline_show = 1;
+					info->outline_color.r = r;
+					info->outline_color.g = g;
+					info->outline_color.b = b;
+					info->outline_show = 1;
 				}
 			}
 
@@ -895,23 +1001,23 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</o>", 4))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				outline_color.r = outline_color.g = outline_color.b = 0;
-				outline_show = 0;
+				info->outline_color.r = info->outline_color.g = info->outline_color.b = 0;
+				info->outline_show = 0;
 			}
 
 			return 4;
 		}
 		else if (!strncmp(cp, "<alpha=", 7))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
 				int alpha;
 
 				if (sscanf(cp + 7, "%d>", &alpha) == 1)
 				{
-					used_alpha = alpha;
+					info->used_alpha = alpha;
 				}
 			}
 
@@ -919,11 +1025,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else if (!strncmp(cp, "</alpha>", 8))
 		{
-			if (surface)
-			{
-				used_alpha = 255;
-			}
-
+			info->used_alpha = 255;
 			return 8;
 		}
 		else if (!strncmp(cp, "<book=", 6))
@@ -1004,56 +1106,56 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		{
 			if (!(flags & TEXT_NO_FONT_CHANGE))
 			{
-				if (surface)
+				if (surface || info->obscured)
 				{
 					*font = FONT_SERIF14;
 				}
 				else
 				{
-					in_font = FONT_SERIF14;
+					info->calc_font = FONT_SERIF14;
 				}
 			}
 
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+				info->in_underline = 1;
 			}
 
 			return 7;
 		}
 		else if (!strncmp(cp, "</title>", 8))
 		{
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+				info->in_underline = 0;
 				*font = orig_font;
 			}
 			else
 			{
-				in_font = -1;
+				info->calc_font = -1;
 			}
 
 			return 8;
 		}
 		else if (!strncmp(cp, "<t t=\"", 6) || !strncmp(cp, "<tt=\"", 5))
 		{
-			in_book_title = 1;
+			info->in_book_title = 1;
 
 			if (!(flags & TEXT_NO_FONT_CHANGE))
 			{
-				if (surface)
+				if (surface || info->obscured)
 				{
 					*font = FONT_SERIF14;
 				}
 				else
 				{
-					in_font = FONT_SERIF14;
+					info->calc_font = FONT_SERIF14;
 				}
 			}
 
-			if (surface)
+			if (surface || info->obscured)
 			{
-				TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_UNDERLINE);
+				info->in_underline = 1;
 			}
 
 			return strchr(cp + 4, '"') - cp + 1;
@@ -1107,19 +1209,19 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
-	if (in_book_title && !strncmp(cp, "\">", 2))
+	if (info->in_book_title && !strncmp(cp, "\">", 2))
 	{
-		if (surface)
+		if (surface || info->obscured)
 		{
-			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_UNDERLINE);
+			info->in_underline = 0;
 			*font = orig_font;
 		}
 		else
 		{
-			in_font = -1;
+			info->calc_font = -1;
 		}
 
-		in_book_title = 0;
+		info->in_book_title = 0;
 		return 2;
 	}
 
@@ -1138,16 +1240,48 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 	}
 
-	if (in_font != -1 && !surface)
-	{
-		restore_font = *font;
-		*font = in_font;
-	}
+	new_style = 0;
 
-	if (in_bold && !surface && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
+	/* Try to set applicable font style. */
+	if (surface || info->obscured)
 	{
-		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
-		remove_bold = 1;
+		if (info->in_bold)
+		{
+			new_style |= TTF_STYLE_BOLD;
+		}
+
+		if (info->in_italic)
+		{
+			new_style |= TTF_STYLE_ITALIC;
+		}
+
+		if (info->in_underline)
+		{
+			new_style |= TTF_STYLE_UNDERLINE;
+		}
+
+		if (TTF_GetFontStyle(fonts[*font].font) != new_style)
+		{
+			TTF_SetFontStyle(fonts[*font].font, new_style);
+		}
+	}
+	/* Deals with the case when calculating width. */
+	else
+	{
+		/* Different font sizes affect the width, so we need to
+		 * temporarily change the current font. */
+		if (info->calc_font != -1)
+		{
+			restore_font = *font;
+			*font = info->calc_font;
+		}
+
+		/* Bold style also slightly affects the width. */
+		if (info->calc_bold && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
+		{
+			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+			remove_bold = 1;
+		}
 	}
 
 	/* Get the glyph's metrics. */
@@ -1156,14 +1290,15 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		return ret;
 	}
 
+	/* Remove temporary bold style. */
 	if (remove_bold)
 	{
 		TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 	}
 
+	/* Restore font. */
 	if (restore_font != -1)
 	{
-		in_font = -1;
 		*font = restore_font;
 		restore_font = -1;
 	}
@@ -1173,10 +1308,16 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		width -= minx;
 	}
 
+	/* Outline, add a little bit to the width. */
+	if (info->outline_show)
+	{
+		width += 2;
+	}
+
 	/* Draw the character (unless it's a space, since there's no point in
 	 * drawing whitespace [but only if underline style is not active,
 	 * since we do want the underline below the space]). */
-	if (surface && (c != ' ' || TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_UNDERLINE || anchor_tag))
+	if (surface && (c != ' ' || info->in_underline || info->anchor_tag))
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
@@ -1187,72 +1328,19 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		buf[1] = '\0';
 
 		/* Are we inside an anchor tag and we clicked the text? */
-		if (anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT))
+		if (info->anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT))
 		{
 			text_adjust_coords(surface, &mx, &my);
 
 			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
 			{
-				size_t len;
-				char *buf2, *pos;
-
 				ticks = SDL_GetTicks();
 
-				pos = strchr(anchor_action, ':');
-
-				if (pos && pos + 1)
-				{
-					buf2 = strdup(pos + 1);
-					len = strlen(buf2);
-					anchor_action[pos - anchor_action] = '\0';
-				}
-				else
-				{
-					/* Get the length of the text until the ending </a>. */
-					len = strstr(anchor_tag, "</a>") - anchor_tag;
-					/* Allocate a temporary buffer and copy the text until the
-					 * ending </a>, so we have the text between the anchor tags. */
-					buf2 = malloc(len + 1);
-					memcpy(buf2, anchor_tag, len);
-					buf2[len] = '\0';
-				}
-
-				/* Default to executing player commands such as /say. */
-				if (GameStatus == GAME_STATUS_PLAY && anchor_action[0] == '\0')
-				{
-					buf2 = text_strip_markup(buf2, &len, 1);
-
-					/* It's not a command, so prepend "/say " to it. */
-					if (buf2[0] != '/')
-					{
-						/* Resize the buffer so it can hold 5 more bytes. */
-						buf2 = realloc(buf2, len + 5 + 1);
-						/* Copy the existing bytes to the end, so we have 5
-						 * we can use in the front. */
-						memmove(buf2 + 5, buf2, len + 1);
-						/* Prepend "/say ". */
-						memcpy(buf2, "/say ", 5);
-					}
-
-					send_command(buf2);
-				}
-				/* Help GUI. */
-				else if (!strcmp(anchor_action, "help"))
-				{
-					strncpy(text_anchor_help, buf2, sizeof(text_anchor_help) - 1);
-					text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
-					text_anchor_help_clicked = 1;
-				}
-				else if (!strcmp(anchor_action, "url"))
-				{
-					browser_open(buf2);
-				}
-
-				free(buf2);
+				text_anchor_execute(info);
 			}
 		}
 
-		if (outline_show || flags & TEXT_OUTLINE)
+		if (info->outline_show || flags & TEXT_OUTLINE)
 		{
 			int outline_x, outline_y;
 			SDL_Rect outline_box;
@@ -1266,11 +1354,11 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 					if (flags & TEXT_SOLID)
 					{
-						ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, outline_color);
+						ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, info->outline_color);
 					}
 					else
 					{
-						ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, outline_color);
+						ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, info->outline_color);
 					}
 
 					SDL_BlitSurface(ttf_surface, NULL, surface, &outline_box);
@@ -1280,19 +1368,19 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 
 		/* Render the character. */
-		if (flags & TEXT_SOLID || used_alpha != 255)
+		if (flags & TEXT_SOLID || info->used_alpha != 255)
 		{
 			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *color);
 
 			/* Opacity. */
-			if (used_alpha != 255)
+			if (info->used_alpha != 255)
 			{
 				SDL_Surface *new_ttf_surface;
 
 				/* Remove black border. */
 				SDL_SetColorKey(ttf_surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
 				/* Set the opacity. */
-				SDL_SetAlpha(ttf_surface, SDL_SRCALPHA | SDL_RLEACCEL, used_alpha);
+				SDL_SetAlpha(ttf_surface, SDL_SRCALPHA | SDL_RLEACCEL, info->used_alpha);
 				/* Create new surface to blit. */
 				new_ttf_surface = SDL_DisplayFormatAlpha(ttf_surface);
 				/* Free the old one. */
@@ -1383,7 +1471,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 {
 	const char *cp = text;
 	SDL_Rect dest;
-	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, height = 0;
+	int pos = 0, last_space = 0, is_lf, ret, skip, max_height, max_width, height = 0;
 	SDL_Color color, orig_color, select_color_orig;
 	int orig_font = font, lines = 1, width = 0;
 	uint16 *heights = NULL;
@@ -1392,6 +1480,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	int mx, my, mstate = 0, old_x;
 	sint64 select_start = 0, select_end = 0;
 	uint8 select_color_changed = 0;
+	text_blit_info info;
 
 	if (text_color_parse(color_notation, &color))
 	{
@@ -1399,9 +1488,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	}
 	else
 	{
-		LOG(llevBug, "string_blt(): Invalid color: %s\n", color_notation);
+		LOG(llevBug, "string_blt(): Invalid color: %s, text: %s\n", color_notation, text);
 		return;
 	}
+
+	blt_character_init(&info);
 
 	if (text_debug && box && surface)
 	{
@@ -1431,6 +1522,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	dest.w = 0;
 	height = 0;
 	max_height = 0;
+	max_width = 0;
 
 	while (cp[pos] != '\0')
 	{
@@ -1496,7 +1588,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 						selection_box.w = 0;
 						selection_box.h = FONT_HEIGHT(font);
 
-						if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust) == 1)
+						if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1)
 						{
 							SDL_FillRect(surface, &selection_box, -1);
 
@@ -1507,7 +1599,9 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 					}
 				}
 
-				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
+				info.obscured = skip;
+				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
+				info.obscured = 0;
 
 				if (select_color_changed)
 				{
@@ -1557,6 +1651,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				num_heights++;
 			}
 
+			if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)
+			{
+				max_width = dest.w / 2;
+			}
+
 			/* Jump over the newline, if any. */
 			if (is_lf)
 			{
@@ -1587,7 +1686,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box, &x_adjust);
+			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box, &x_adjust, &info);
 		}
 	}
 
@@ -1608,7 +1707,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			width += w;
 		}
 
-		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust);
+		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 
 		/* If we changed font, there might be a larger one... */
 		if (font != orig_font && FONT_HEIGHT(font) > max_height)
@@ -1617,10 +1716,20 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		}
 	}
 
+	if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)
+	{
+		max_width = dest.w / 2;
+	}
+
+	if (box && flags & TEXT_MAX_WIDTH)
+	{
+		box->w = max_width;
+	}
+
 	/* Give caller access to the calculated height. */
 	if (box && flags & TEXT_HEIGHT)
 	{
-		box->h = height;
+		box->h = height + max_height;
 	}
 
 	/* Calculating lines? */
@@ -1720,12 +1829,16 @@ int string_get_width(int font, const char *text, uint64 flags)
 {
 	SDL_Rect dest;
 	const char *cp = text;
+	text_blit_info info;
+
+	blt_character_init(&info);
+	TTF_SetFontStyle(fonts[font].font, TTF_STYLE_NORMAL);
 
 	dest.w = 0;
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL);
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
 	}
 
 	return dest.w;
@@ -1747,6 +1860,7 @@ int string_get_height(int font, const char *text, uint64 flags)
 	SDL_Rect dest;
 	const char *cp;
 	int max_height;
+	text_blit_info info;
 
 	max_height = FONT_HEIGHT(font);
 
@@ -1756,12 +1870,14 @@ int string_get_height(int font, const char *text, uint64 flags)
 		return max_height;
 	}
 
+	blt_character_init(&info);
+
 	cp = text;
 	dest.w = 0;
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL);
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
 
 		if (FONT_HEIGHT(font) > max_height)
 		{
@@ -1797,8 +1913,35 @@ void string_truncate_overflow(int font, char *text, int max_width)
 }
 
 /**
+ * Utility function to parse text and store information about anchor tag,
+ * if any.
+ * @param info Where to store the information.
+ * @param text The text to parse. */
+void text_anchor_parse(text_blit_info *info, const char *text)
+{
+	const char *cp = text;
+	SDL_Rect dest;
+	int font = FONT_ARIAL10;
+
+	blt_character_init(info);
+	info->obscured = 1;
+
+	dest.w = 0;
+
+	while (*cp != '\0')
+	{
+		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
+
+		if (info->anchor_tag)
+		{
+			return;
+		}
+	}
+}
+
+/**
  * Enable text debugging. */
-void text_enable_debug()
+void text_enable_debug(void)
 {
 	text_debug = 1;
 }

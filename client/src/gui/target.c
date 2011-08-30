@@ -121,7 +121,7 @@ void widget_show_target(widgetdata *widget)
 			sprite_blt(Bitmaps[BITMAP_TARGET_HP], widget->x1 + 5, widget->y1 + 25, &box, NULL);
 		}
 
-		if (ptr)
+		if (ptr && cpl.target_name[0] != '\0')
 		{
 			/* Draw the name of the target */
 			string_blt(ScreenSurface, FONT_ARIAL10, cpl.target_name, widget->x1 + 35, widget->y1 + 2, cpl.target_color, 0, NULL);

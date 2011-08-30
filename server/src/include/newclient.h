@@ -381,10 +381,6 @@ enum
 	SRV_CLIENT_FILES
 };
 
-extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
-
-extern CS_Stats cst_tot, cst_lst;
-
 /** Set binary socket command. */
 #define SOCKET_SET_BINARY_CMD(__s__, __bc__) \
 	(__s__)->buf[0] = __bc__;                \
@@ -440,6 +436,7 @@ enum
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
 	BINARY_CMD_SOUND_AMBIENT,
+	BINARY_CMD_INTERFACE,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,
@@ -490,6 +487,26 @@ enum
 #define CMD_TARGET_ENEMY 1
 /** Friend. */
 #define CMD_TARGET_FRIEND 2
+/*@}*/
+
+/**
+ * @defgroup CMD_INTERFACE_xxx Interface command types
+ * Interface command types.
+ *@{*/
+/** Text; the NPC message contents. */
+#define CMD_INTERFACE_TEXT 0
+/**
+ * Link, follows the actual text, but is a special command in order to
+ * support link shortcuts. */
+#define CMD_INTERFACE_LINK 1
+/** Icon; the image in the upper left corner square. */
+#define CMD_INTERFACE_ICON 2
+/** Title; text next to the icon. */
+#define CMD_INTERFACE_TITLE 3
+/**
+ * If found in the command, will open the console with any text followed
+ * by this. */
+#define CMD_INTERFACE_INPUT 4
 /*@}*/
 
 #endif

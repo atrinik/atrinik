@@ -31,8 +31,6 @@
 
 #include <global.h>
 
-extern spell_struct spells[NROFREALSPELLS];
-
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
@@ -1592,7 +1590,7 @@ void communicate(object *op, char *txt)
 			continue;
 		}
 
-		for (npc = get_map_ob(m, xt, yt); npc; npc = npc->above)
+		for (npc = GET_MAP_OB(m, xt, yt); npc; npc = npc->above)
 		{
 			/* Avoid talking to self. */
 			if (op != npc)
@@ -1604,7 +1602,13 @@ void communicate(object *op, char *txt)
 				}
 				else if (QUERY_FLAG(npc, FLAG_ALIVE))
 				{
-					talk_to_npc(op, npc, txt);
+					if (talk_to_npc(op, npc, txt))
+					{
+						CONTR(op)->target_object = npc;
+						CONTR(op)->target_object_count = npc->count;
+						send_target_command(CONTR(op));
+						return;
+					}
 				}
 			}
 		}
@@ -1715,8 +1719,7 @@ static char *find_matching_message(const char *msg, const char *match)
  * @param op Who is talking.
  * @param npc Object to try to talk to. Can be an NPC or a MAGIC_EAR.
  * @param txt What op is saying.
- * @return 0 if text was handled by a plugin or not handled, 1 if handled
- * internally by the server. */
+ * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
 	object *cobj;
@@ -1726,7 +1729,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	{
 		/* Trigger the SAY event */
 		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-		return 0;
+		return 1;
 	}
 
 	/* Here we let the objects inside inventories hear and answer, too.
@@ -1738,7 +1741,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		{
 			/* Trigger the SAY event */
 			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-			return 0;
+			return 1;
 		}
 	}
 
@@ -1755,9 +1758,29 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
-			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
-			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			if (CONTR(op)->socket.socket_version >= 1058)
+			{
+				unsigned char sock_buf[MAXSOCKBUF];
+				SockList sl;
+
+				sl.buf = sock_buf;
+				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
+				SockList_AddString(&sl, cp);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_ICON);
+				SockList_AddString(&sl, npc->arch->clone.face->name);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
+				SockList_AddString(&sl, npc->name);
+
+				Send_With_Handling(&CONTR(op)->socket, &sl);
+			}
+			else
+			{
+				draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
+			}
 		}
 		else
 		{

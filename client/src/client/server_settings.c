@@ -34,7 +34,7 @@ server_settings *s_settings = NULL;
 
 /**
  * Initialize the server settings from the srv file. */
-void server_settings_init()
+void server_settings_init(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF * 4], *cp;
@@ -234,7 +234,7 @@ void server_settings_init()
 
 /**
  * Deinitialize the server settings. */
-void server_settings_deinit()
+void server_settings_deinit(void)
 {
 	size_t i, gender;
 

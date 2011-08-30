@@ -81,7 +81,7 @@ static int ignore_entry_remove(const char *name, const char *type)
 
 /**
  * Clear the ignore list. */
-void ignore_list_clear()
+void ignore_list_clear(void)
 {
 	ignore_list_struct *tmp, *tmp2;
 
@@ -96,7 +96,7 @@ void ignore_list_clear()
 
 /**
  * Clear the ignore list and load it from a file. */
-void ignore_list_load()
+void ignore_list_load(void)
 {
 	char buf[MAX_BUF], name[MAX_BUF], type[MAX_BUF], filename[MAX_BUF];
 	FILE *fp;
@@ -122,7 +122,7 @@ void ignore_list_load()
 
 /**
  * Save the ignore list to a file. */
-static void ignore_list_save()
+static void ignore_list_save(void)
 {
 	ignore_list_struct *tmp;
 	char filename[MAX_BUF];

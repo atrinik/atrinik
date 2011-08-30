@@ -31,7 +31,7 @@
 
 /**
  * Handle mouse hold events in number input widget. */
-void mouse_InputNumber()
+void mouse_InputNumber(void)
 {
 	static int timeVal = 1;
 	int x, y;

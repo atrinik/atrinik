@@ -86,7 +86,7 @@ typedef struct wm_region
 
 /**
  * Initialize the face colors. */
-static void wm_images_init()
+static void wm_images_init(void)
 {
 	int i, x, y;
 	gdImagePtr im, im2;
@@ -200,7 +200,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 				}
 				else
 				{
-					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][py == 1 && px == 1 ? 1 : 0]);
+					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][0]);
 				}
 
 				j++;
@@ -345,7 +345,7 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 
 /**
  * The main world maker function. */
-void world_maker()
+void world_maker(void)
 {
 	mapstruct *m;
 	gdImagePtr im;

@@ -55,7 +55,4 @@ typedef struct key_struct
 	uint8 repeated;
 } key_struct;
 
-int old_mouse_y;
-key_struct keys[SDLK_LAST];
-
 #endif

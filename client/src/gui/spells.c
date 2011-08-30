@@ -108,7 +108,7 @@ static const char *list_text_color_hook(list_struct *list, const char *default_c
 /**
  * Reload the spells list, due to a change of the spell path, filtering
  * options, etc. */
-static void spell_list_reload()
+static void spell_list_reload(void)
 {
 	list_struct *list;
 	size_t i;
@@ -252,6 +252,7 @@ void widget_spells_render(widgetdata *widget)
 		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
 		button_close.bitmap = button_path_left.bitmap = button_path_right.bitmap = button_filter_left.bitmap = button_filter_right.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
 		button_close.bitmap_pressed = button_path_left.bitmap_pressed = button_path_right.bitmap_pressed = button_filter_left.bitmap_pressed = button_filter_right.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_close.bitmap_over = button_path_left.bitmap_over = button_path_right.bitmap_over = button_filter_left.bitmap_over = button_filter_right.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
@@ -477,7 +478,7 @@ spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
 
 /**
  * Initialize the spell list from file. */
-void spells_init()
+void spells_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
@@ -598,7 +599,7 @@ void spells_init()
 
 /**
  * Reload the icon IDs, as they may have changed due to an update. */
-void spells_reload()
+void spells_reload(void)
 {
 	size_t spell_path, spell_id;
 

@@ -82,7 +82,7 @@ CommArray_s Commands[] =
 const int CommandsSize = sizeof(Commands) / sizeof(CommArray_s);
 
 /** Emotion commands */
-CommArray_s CommunicationCommands [] =
+CommArray_s CommunicationCommands[] =
 {
 	{"nod",           command_nod,           1.0, 0},
 	{"dance",         command_dance,         1.0, 0},
@@ -150,7 +150,7 @@ CommArray_s CommunicationCommands [] =
 const int CommunicationCommandSize = sizeof(CommunicationCommands)/ sizeof(CommArray_s);
 
 /** Wizard commands */
-CommArray_s WizCommands [] =
+CommArray_s WizCommands[] =
 {
 	{"dmsay",          command_dmsay,                  0.0, 0},
 	{"summon",         command_summon,                 0.0, 0},
@@ -225,7 +225,7 @@ static int compare_A(const void *a, const void *b)
  * Initialize all the commands and emotes.
  *
  * Sorts the commands and emotes using qsort(). */
-void init_commands()
+void init_commands(void)
 {
 	qsort((char *) Commands, CommandsSize, sizeof(CommArray_s), compare_A);
 	qsort((char *) CommunicationCommands, CommunicationCommandSize, sizeof(CommArray_s), compare_A);

@@ -49,7 +49,7 @@ static uint8 enabled;
 
 /**
  * Initialize the metaserver data. */
-void metaserver_init()
+void metaserver_init(void)
 {
 	/* Initialize the data. */
 	server_head = NULL;
@@ -64,7 +64,7 @@ void metaserver_init()
 
 /**
  * Disable the metaserver. */
-void metaserver_disable()
+void metaserver_disable(void)
 {
 	enabled = 0;
 	metaserver_connecting = 0;
@@ -111,7 +111,7 @@ server_struct *server_get_id(size_t num)
 /**
  * Get number of the servers in the list.
  * @return The number. */
-size_t server_get_count()
+size_t server_get_count(void)
 {
 	size_t count;
 
@@ -144,7 +144,7 @@ int ms_connecting(int val)
 
 /**
  * Clear all data in the linked list of servers reported by metaserver. */
-void metaserver_clear_data()
+void metaserver_clear_data(void)
 {
 	server_struct *node, *tmp;
 
@@ -244,7 +244,7 @@ int metaserver_thread(void *dummy)
  * Connect to metaserver and get the available servers.
  *
  * Works in a thread using SDL_CreateThread(). */
-void metaserver_get_servers()
+void metaserver_get_servers(void)
 {
 	SDL_Thread *thread;
 

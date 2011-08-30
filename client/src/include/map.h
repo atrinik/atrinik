@@ -106,7 +106,7 @@ typedef struct _mapdata
 } _mapdata;
 
 /** Map cell structure. */
-struct MapCell
+typedef struct MapCell
 {
 	/** Position. */
 	uint8 quick_pos[MAX_LAYERS + 1];
@@ -155,12 +155,10 @@ struct MapCell
 } MapCell;
 
 /** Map structure. */
-struct Map
+typedef struct Map
 {
 	/** Map cells. */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
-
-extern _mapdata MapData;
 
 #endif

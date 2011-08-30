@@ -56,6 +56,10 @@ static const char *const loglevel_names[] =
 static uint8 loglevel_name_disable = 0;
 
 /**
+ * If this exceeds MAX_ERRORS, the server will shut down. */
+long nroferrors = 0;
+
+/**
  * Put a string to either stderr or logfile.
  * @param buf String to put. */
 static void do_print(const char *buf)

@@ -48,7 +48,7 @@ static int old_map_mouse_x = 0, old_map_mouse_y = 0;
 static int right_click_ticks = -1;
 
 /* Load the multi arch offsets */
-void load_mapdef_dat()
+void load_mapdef_dat(void)
 {
 	FILE *stream;
 	int i, ii, x, y, d[32];
@@ -96,7 +96,7 @@ void widget_show_mapname(widgetdata *widget)
 
 /**
  * Clear the map. */
-void clear_map()
+void clear_map(void)
 {
 	memset(&the_map, 0, sizeof(Map));
 	sound_ambient_clear();
@@ -314,7 +314,7 @@ void align_tile_stretch(int x, int y)
  * in all directions. This is done to fix any inconsistencies, since the map
  * command doesn't send us the whole map all over again, but only new/changes
  * parts. */
-void adjust_tile_stretch()
+void adjust_tile_stretch(void)
 {
 	int x, y;
 
@@ -744,7 +744,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 
 /**
  * Draw the map. */
-void map_draw_map()
+void map_draw_map(void)
 {
 	int player_height_offset;
 	int x, y, layer;
@@ -963,7 +963,7 @@ void widget_map_render(widgetdata *widget)
 	}
 
 	/* We recreate the map only when there is a change. */
-	if (map_redraw_flag && (!popup_get_head() || popup_overlay_need_update(popup_get_head())))
+	if (map_redraw_flag && (!popup_get_head() || popup_overlay_need_update()))
 	{
 		SDL_FillRect(widget->widgetSF, NULL, 0);
 		map_draw_map();

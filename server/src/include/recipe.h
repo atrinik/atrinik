@@ -27,6 +27,9 @@
  * @file
  * Recipe header file. */
 
+#ifndef RECIPE_H
+#define RECIPE_H
+
 /** Recipe structure */
 typedef struct recipestruct
 {
@@ -77,3 +80,5 @@ typedef struct recipeliststruct
 	/** Pointer to next recipe list */
 	struct recipeliststruct *next;
 } recipelist;
+
+#endif

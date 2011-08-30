@@ -100,7 +100,7 @@ START_TEST(test_cache)
 }
 END_TEST
 
-static Suite *cache_suite()
+static Suite *cache_suite(void)
 {
 	Suite *s = suite_create("cache");
 	TCase *tc_core = tcase_create("Core");
@@ -111,7 +111,7 @@ static Suite *cache_suite()
 	return s;
 }
 
-void check_server_cache()
+void check_server_cache(void)
 {
 	Suite *s = cache_suite();
 	SRunner *sr = srunner_create(s);

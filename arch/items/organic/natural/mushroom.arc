@@ -1,7 +1,7 @@
 Object mushroom1
 name wild white mushroom
 face mushroom1.101
-food 50
+food 150
 item_quality 100
 item_condition 100
 nrof 1
@@ -15,7 +15,7 @@ end
 Object mushroom2
 name wild red mushroom
 face mushroom2.101
-food 50
+food 150
 item_quality 100
 item_condition 100
 nrof 1
@@ -29,7 +29,7 @@ end
 Object mushroom3
 name wild blue mushroom
 face mushroom3.101
-food 50
+food 150
 item_quality 100
 item_condition 100
 nrof 1

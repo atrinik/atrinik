@@ -327,7 +327,7 @@ void script_load(const char *cparams)
 }
 
 /** Print currently running scripts. */
-void script_list()
+void script_list(void)
 {
 	if (num_scripts == 0)
 	{
@@ -355,7 +355,7 @@ void script_list()
 
 /**
  * Process loaded scripts. */
-void script_process()
+void script_process(void)
 {
 	int i, r;
 #ifdef WIN32
@@ -1075,7 +1075,7 @@ void script_send(const char *params)
 /**
  * Kill all loaded scripts. Used by Win32 build of the client
  * when exiting the client. */
-void script_killall()
+void script_killall(void)
 {
 #ifdef WIN32
 	while (num_scripts > 0)
@@ -1164,7 +1164,7 @@ static int script_by_name(const char *name)
 /**
  * Automatically load selected scripts on startup of the client, read
  * from file. */
-void script_autoload()
+void script_autoload(void)
 {
 	FILE *fp;
 	char line[MAX_BUF];

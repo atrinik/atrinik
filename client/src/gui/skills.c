@@ -73,7 +73,7 @@ static const char *list_text_color_hook(list_struct *list, const char *default_c
 
 /**
  * Reload the skills list, due to a change of the skill type, for example. */
-static void skill_list_reload()
+static void skill_list_reload(void)
 {
 	list_struct *list;
 	size_t i;
@@ -180,6 +180,7 @@ void widget_skills_render(widgetdata *widget)
 		button_type_left.repeat_func = button_type_right.repeat_func = button_repeat_func;
 		button_close.bitmap = button_type_left.bitmap = button_type_right.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
 		button_close.bitmap_pressed = button_type_left.bitmap_pressed = button_type_right.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_close.bitmap_over = button_type_left.bitmap_over = button_type_right.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
@@ -368,7 +369,7 @@ skill_entry_struct *skill_get(size_t type, size_t id)
 
 /**
  * Read skills from file. */
-void skills_init()
+void skills_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
@@ -479,7 +480,7 @@ void skills_init()
 
 /**
  * Reload the icon IDs, as they may have changed due to an update. */
-void skills_reload()
+void skills_reload(void)
 {
 	size_t type, id;
 

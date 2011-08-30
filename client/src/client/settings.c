@@ -88,7 +88,7 @@ static void setting_load_value(setting_struct *setting, const char *str)
 
 /**
  * Initialize the setting defaults. */
-void settings_init()
+void settings_init(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
@@ -252,7 +252,7 @@ void settings_init()
 
 /**
  * Load user's settings (if any). */
-void settings_load()
+void settings_load(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *cp;
@@ -322,7 +322,7 @@ void settings_load()
 
 /**
  * Save the user's settings to file. */
-void settings_save()
+void settings_save(void)
 {
 	FILE *fp;
 	size_t cat, set;
@@ -364,7 +364,7 @@ void settings_save()
  * Deinitialize the settings.
  *
  * User's settings are also saved to file using settings_save(). */
-void settings_deinit()
+void settings_deinit(void)
 {
 	size_t cat, setting;
 
@@ -595,7 +595,7 @@ static void setting_apply_runtime(int cat, int setting)
 /**
  * Apply all settings that need to be applied at start-time (after
  * everything has been initialized successfully). */
-void settings_apply()
+void settings_apply(void)
 {
 	size_t i, j;
 
@@ -611,7 +611,7 @@ void settings_apply()
 /**
  * Apply a change of settings at run-time (through the settings GUI, for
  * example). */
-void settings_apply_change()
+void settings_apply_change(void)
 {
 	size_t cat, setting;
 

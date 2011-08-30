@@ -30,8 +30,6 @@
 #ifndef SPELLS_H
 #define SPELLS_H
 
-extern int cleric_chance[];
-
 /**
  * @defgroup spell_path_defines Spell paths
  * Spell path defines.
@@ -287,14 +285,9 @@ enum spellnrs
 	SP_HOLYWORD
 };
 
-spell_struct spells[NROFREALSPELLS];
-
 /** Multiplier for spell points / grace based on the attenuation. */
 #define PATH_SP_MULT(op, spell) (((op->path_attuned & spell->path) ? 0.8 : 1) * ((op->path_repelled & spell->path) ? 1.25 : 1))
 #define PATH_DMG_MULT(op, spell) (((op->path_attuned & spell->path) ? 1.25 : 1) * ((op->path_repelled & spell->path) ? 0.7 : 1))
-
-extern char *spellpathnames[NRSPELLPATHS];
-extern archetype *spellarch[NROFREALSPELLS];
 
 /**
  * @defgroup CAST_xxx Casting modes

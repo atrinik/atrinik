@@ -170,7 +170,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_ALPHA},
-	{"region_map.png", PIC_TYPE_TRANS},
+	{"book_border.png", PIC_TYPE_ALPHA},
+	{"region_map.png", PIC_TYPE_ALPHA},
 	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
@@ -190,20 +191,18 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"news_bg.png", PIC_TYPE_DEFAULT},
 	{"eyes.png", PIC_TYPE_DEFAULT},
 	{"popup.png", PIC_TYPE_ALPHA},
-	{"arrow_up.png", PIC_TYPE_DEFAULT},
-	{"arrow_up2.png", PIC_TYPE_DEFAULT},
-	{"arrow_down.png", PIC_TYPE_DEFAULT},
-	{"arrow_down2.png", PIC_TYPE_DEFAULT},
-	{"button_round.png", PIC_TYPE_DEFAULT},
-	{"button_round_down.png", PIC_TYPE_DEFAULT},
+	{"button_round.png", PIC_TYPE_ALPHA},
+	{"button_round_down.png", PIC_TYPE_ALPHA},
+	{"button_round_hover.png", PIC_TYPE_ALPHA},
 	{"button_rect.png", PIC_TYPE_DEFAULT},
 	{"button_rect_hover.png", PIC_TYPE_DEFAULT},
 	{"button_rect_down.png", PIC_TYPE_DEFAULT},
 	{"map_marker.png", PIC_TYPE_DEFAULT},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
-	{"button.png", PIC_TYPE_DEFAULT},
-	{"button_down.png", PIC_TYPE_DEFAULT},
+	{"button.png", PIC_TYPE_ALPHA},
+	{"button_down.png", PIC_TYPE_ALPHA},
+	{"button_hover.png", PIC_TYPE_ALPHA},
 	{"checkbox.png", PIC_TYPE_TRANS},
 	{"checkbox_on.png", PIC_TYPE_TRANS},
 	{"content.png", PIC_TYPE_DEFAULT},
@@ -214,13 +213,19 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"icon_map.png", PIC_TYPE_ALPHA},
 	{"icon_cogs.png", PIC_TYPE_ALPHA},
 	{"icon_quest.png", PIC_TYPE_ALPHA},
-	{"fps.png", PIC_TYPE_DEFAULT}
+	{"fps.png", PIC_TYPE_DEFAULT},
+	{"interface.png", PIC_TYPE_ALPHA},
+	{"interface_border.png", PIC_TYPE_ALPHA},
+	{"button_large.png", PIC_TYPE_ALPHA},
+	{"button_large_down.png", PIC_TYPE_ALPHA},
+	{"button_large_hover.png", PIC_TYPE_ALPHA},
+	{"button_round_large.png", PIC_TYPE_ALPHA},
+	{"button_round_large_down.png", PIC_TYPE_ALPHA},
+	{"button_round_large_hover.png", PIC_TYPE_ALPHA}
 };
 
-/** Number of bitmaps. */
-#define BITMAP_MAX (sizeof(bitmap_name) / sizeof(_bitmap_name))
 /** The actual bitmaps. */
-_Sprite *Bitmaps[BITMAP_MAX];
+_Sprite *Bitmaps[BITMAP_INIT];
 
 static void init_game_data();
 static void delete_player_lists();
@@ -228,7 +233,7 @@ static int load_bitmap(int index);
 
 /**
  * Clear player lists like skill list, spell list, etc. */
-static void delete_player_lists()
+static void delete_player_lists(void)
 {
 	size_t i;
 
@@ -244,7 +249,7 @@ static void delete_player_lists()
 
 /**
  * Initialize game data. */
-static void init_game_data()
+static void init_game_data(void)
 {
 	size_t i;
 
@@ -254,7 +259,7 @@ static void init_game_data()
 
 	init_map_data(0, 0, 0, 0);
 
-	for (i = 0; i < BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_INIT; i++)
 	{
 		Bitmaps[i] = NULL;
 	}
@@ -343,7 +348,7 @@ static void rec_sigterm(int i)
 
 /**
  * Initialize the signal handlers. */
-static void init_signals()
+static void init_signals(void)
 {
 #ifndef WIN32
 	signal(SIGHUP, rec_sighup);
@@ -356,7 +361,7 @@ static void init_signals()
 /**
  * Game status chain.
  * @return 1. */
-static int game_status_chain()
+static int game_status_chain(void)
 {
 	char buf[1024];
 
@@ -522,7 +527,7 @@ static int game_status_chain()
 
 /**
  * Load the necessary bitmaps. */
-static void load_bitmaps()
+static void load_bitmaps(void)
 {
 	int i;
 
@@ -572,11 +577,11 @@ static int load_bitmap(int idx)
 
 /**
  * Free the bitmaps. */
-void free_bitmaps()
+void free_bitmaps(void)
 {
 	size_t i;
 
-	for (i = 0; i < BITMAP_MAX; i++)
+	for (i = 0; i < BITMAP_INIT; i++)
 	{
 		sprite_free_sprite(Bitmaps[i]);
 	}
@@ -584,7 +589,7 @@ void free_bitmaps()
 
 /**
  * Play various action sounds. */
-static void play_action_sounds()
+static void play_action_sounds(void)
 {
 	if (cpl.warn_statdown)
 	{
@@ -615,7 +620,7 @@ static void play_action_sounds()
 
 /**
  * List video modes available. */
-void list_vid_modes()
+void list_vid_modes(void)
 {
 	const SDL_VideoInfo* vinfo = NULL;
 	SDL_Rect **modes;
@@ -663,7 +668,7 @@ void list_vid_modes()
 
 /**
  * Map, animations and other effects. */
-static void display_layer1()
+static void display_layer1(void)
 {
 	SDL_FillRect(ScreenSurface, NULL, 0);
 
@@ -675,7 +680,7 @@ static void display_layer1()
 
 /**
  * Inventory. */
-static void display_layer2()
+static void display_layer2(void)
 {
 	cpl.container = NULL;
 
@@ -691,7 +696,7 @@ static void display_layer2()
 
 /**
  * Process the widgets if we're playing. */
-static void display_layer3()
+static void display_layer3(void)
 {
 	/* Process the widgets */
 	if (GameStatus == GAME_STATUS_PLAY)
@@ -702,7 +707,7 @@ static void display_layer3()
 
 /**
  * Dialogs, highest priority layer. */
-static void display_layer4()
+static void display_layer4(void)
 {
 	if (GameStatus == GAME_STATUS_PLAY)
 	{
@@ -739,7 +744,7 @@ static void display_layer4()
 
 /**
  * Show a custom cursor. */
-static void DisplayCustomCursor()
+static void DisplayCustomCursor(void)
 {
 	if (f_custom_cursor == MSCURSOR_MOVE)
 	{
@@ -828,7 +833,7 @@ int main(int argc, char *argv[])
 	load_bitmaps();
 
 	/* TODO: add later better error handling here */
-	for (i = BITMAP_DOLL; i < BITMAP_MAX; i++)
+	for (i = BITMAP_DOLL; i < BITMAP_INIT; i++)
 	{
 		load_bitmap(i);
 	}
@@ -859,6 +864,7 @@ int main(int argc, char *argv[])
 	textwin_init();
 	fps_init();
 	settings_apply();
+	scrollbar_init();
 
 	LastTick = anim_tick = SDL_GetTicks();
 
@@ -966,8 +972,6 @@ int main(int argc, char *argv[])
 			main_screen_render();
 		}
 
-		tooltip_show();
-
 		if (f_custom_cursor)
 		{
 			DisplayCustomCursor();
@@ -977,6 +981,8 @@ int main(int argc, char *argv[])
 
 		script_process();
 		popup_render_head();
+
+		tooltip_show();
 
 		SDL_Flip(ScreenSurface);
 

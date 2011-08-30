@@ -168,6 +168,7 @@ set(SOURCES
 	src/gui/fps.c
 	src/gui/help.c
 	src/gui/input.c
+	src/gui/interface.c
 	src/gui/inventory.c
 	src/gui/main.c
 	src/gui/map.c
@@ -191,14 +192,15 @@ set(SOURCES
 	src/toolkit/popup.c
 	src/toolkit/progress.c
 	src/toolkit/range_buttons.c
-	src/toolkit/scroll_buttons.c
+	src/toolkit/scrollbar.c
 	src/toolkit/SDL_gfx.c
 	src/toolkit/SDL_rotozoom.c
 	src/toolkit/sha1.c
 	src/toolkit/text.c
 	src/toolkit/text_input.c
 	src/toolkit/tooltip.c
-	src/toolkit/widget.c)
+	src/toolkit/widget.c
+	src/toolkit/stringbuffer.c)
 
 # Compile the sources into an executable.
 add_executable(atrinik ${SOURCES})
@@ -242,7 +244,7 @@ endforeach (var)
 
 # Create a 'proto' build target, which generates the proto.h file.
 add_custom_target(proto
-	cproto -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
+	cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
 	COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
 	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
 	COMMAND cmake -E echo "#endif" >> src/include/proto.h

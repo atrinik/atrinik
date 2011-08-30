@@ -78,7 +78,7 @@ const char *gender_noun[GENDER_MAX] =
 
 /**
  * Clear the player data like quickslots, inventory items, etc. */
-void clear_player()
+void clear_player(void)
 {
 	memset(&cpl, 0, sizeof(cpl));
 	quickslots_init();
@@ -174,7 +174,7 @@ void set_weight_limit(uint32 wlim)
 
 /**
  * Initialize player data. */
-void init_player_data()
+void init_player_data(void)
 {
 	new_player(0, 0, 0);
 
@@ -526,7 +526,7 @@ void widget_skillgroups(widgetdata *widget)
 
 /**
  * Handle mouse events over player doll widget (dragging items). */
-void widget_show_player_doll_event()
+void widget_show_player_doll_event(void)
 {
 	int old_inv_win = cpl.inventory_win, old_inv_tag = cpl.win_inv_tag;
 	cpl.inventory_win = IWIN_INV;

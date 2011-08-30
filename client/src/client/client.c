@@ -99,12 +99,13 @@ enum
 	BINARY_CMD_READY,
 	BINARY_CMD_KEEPALIVE,
 	BINARY_CMD_SOUND_AMBIENT,
+	BINARY_CMD_INTERFACE,
 	/* last entry */
 	BINAR_CMD
 };
 
 /** Structure of all the socket commands */
-struct CmdMapping commands[] =
+static struct CmdMapping commands[] =
 {
 	/* Order of this table doesn't make a difference.  I tried to sort
 	 * of cluster the related stuff together. */
@@ -146,6 +147,7 @@ struct CmdMapping commands[] =
 	{"rd", ReadyCmd, INT_ARRAY},
 	{"ka", NULL, NODATA},
 	{"sound_ambient", cmd_sound_ambient, MIXED},
+	{"interface", cmd_interface, MIXED},
 
 	/* Unused! */
 	{"magicmap", MagicMapCmd, NODATA},
@@ -155,7 +157,7 @@ struct CmdMapping commands[] =
 /**
  * Do client. The main loop for commands. From this, the data and
  * commands from server are received. */
-void DoClient()
+void DoClient(void)
 {
 	command_buffer *cmd;
 

@@ -158,6 +158,8 @@ struct plugin_hooklist hooklist =
 	draw_info_format,
 	draw_info_flags,
 	draw_info_flags_format,
+	Send_With_Handling,
+	SockList_AddString,
 
 	season_name,
 	weekdays,
@@ -340,7 +342,7 @@ void display_plugins_list(object *op)
  * Initializes plugins. Browses the plugins directory and calls
  * init_plugin() for each plugin file found with the extension being
  * @ref PLUGIN_SUFFIX. */
-void init_plugins()
+void init_plugins(void)
 {
 	struct dirent *currentfile;
 	DIR *plugdir;
@@ -370,7 +372,7 @@ void init_plugins()
 /**
  * There is no dlerror() on Win32, so we make our own.
  * @return Returned error from loading a plugin. */
-static const char *plugins_dlerror()
+static const char *plugins_dlerror(void)
 {
 	static char buf[MAX_BUF];
 	DWORD err = GetLastError();
@@ -525,7 +527,7 @@ void remove_plugin(const char *id)
 
 /**
  * Deinitialize all plugins. */
-void remove_plugins()
+void remove_plugins(void)
 {
 	atrinik_plugin *plugin;
 

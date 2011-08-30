@@ -74,7 +74,7 @@ int command_motd(object *op, char *params)
 /**
  * Counts the number of objects on the list of active objects.
  * @return The number of active objects. */
-static int count_active()
+static int count_active(void)
 {
 	int i = 0;
 	object *tmp = active_objects;
@@ -1082,6 +1082,12 @@ int command_region_map(object *op, char *params)
 	SockList_AddShort(&sl, op->y);
 	SockList_AddString(&sl, r->name);
 	SockList_AddString(&sl, settings.client_maps_url);
+
+	if (CONTR(op)->socket.socket_version >= 1058)
+	{
+		SockList_AddString(&sl, r->longname);
+	}
+
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 
 	return 1;

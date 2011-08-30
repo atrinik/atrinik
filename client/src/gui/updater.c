@@ -115,7 +115,7 @@ static char *updater_get_dir(char *buf, size_t len)
 /**
  * Cleans up updater files - basically recursively removes the temporary
  * directory. */
-static void cleanup_patch_files()
+static void cleanup_patch_files(void)
 {
 	char dir_path[HUGE_BUF];
 
@@ -124,7 +124,7 @@ static void cleanup_patch_files()
 
 /**
  * Start updater download. */
-static void updater_download_start()
+static void updater_download_start(void)
 {
 	CURL *curl;
 	char url[HUGE_BUF], version[MAX_BUF], *version_escaped;
@@ -145,7 +145,7 @@ static void updater_download_start()
 
 /**
  * Cleanup after downloading. */
-static void updater_download_clean()
+static void updater_download_clean(void)
 {
 	size_t i;
 
@@ -230,7 +230,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			box.y += 20;
 
 			/* Give the user a chance to retry. */
-			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				updater_download_clean();
 				updater_download_start();
@@ -360,7 +360,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 60;
 
-			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				return 0;
 			}
@@ -383,7 +383,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			/* Show a restart button, which will call up_dater.exe to
 			 * apply the updates (using atrinik_updater.bat) and restarts
 			 * the client. */
-			if (button_show(BITMAP_BUTTON, -1, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Restart", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Restart", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 			{
 				char path[HUGE_BUF], wdir[HUGE_BUF];
 
@@ -418,7 +418,7 @@ static int popup_destroy_callback(popup_struct *popup)
 
 /**
  * Open the updater popup. */
-void updater_open()
+void updater_open(void)
 {
 	popup_struct *popup;
 
