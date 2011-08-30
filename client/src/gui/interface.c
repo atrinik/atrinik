@@ -451,7 +451,7 @@ void cmd_interface(uint8 *data, int len)
 	{
 		stringbuffer_append_string(sb_message, "\n");
 
-		if (links_len < 9)
+		if (i < 9)
 		{
 			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%"FMT64U"]</c> ", (uint64) i + 1);
 		}

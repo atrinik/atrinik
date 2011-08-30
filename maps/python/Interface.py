@@ -1,9 +1,8 @@
 class Interface:
-	_msg = ""
-	_links = []
-	_text_input = None
-
 	def __init__(self, activator, npc):
+		self._msg = ""
+		self._links = []
+		self._text_input = None
 		self._activator = activator
 		self._npc = npc
 		self._icon = npc.arch.clone.face[0]
