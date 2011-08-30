@@ -200,7 +200,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 				}
 				else
 				{
-					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][py == 1 && px == 1 ? 1 : 0]);
+					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][0]);
 				}
 
 				j++;
