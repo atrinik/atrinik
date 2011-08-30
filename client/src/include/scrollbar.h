@@ -49,8 +49,13 @@ typedef struct scrollbar_element
 	/** Highlight status; if 1, the mouse is over this element. */
 	uint8 highlight;
 
-	/** Rendering function of this element. */
-	void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element);
+	/**
+	 * Rendering function of this element.
+	 * @param surface Surface to render on.
+	 * @param box Where to draw.
+	 * @param elem The element.
+	 * @param horizontal Whether the scrollbar is horizontal. */
+	void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element, uint8 horizontal);
 } scrollbar_element;
 
 /**
@@ -111,6 +116,21 @@ typedef struct scrollbar_struct
 	/** The slider. */
 	scrollbar_element slider;
 } scrollbar_struct;
+
+/**
+ * Optional structure that can be used for storing scrollbar
+ * information. */
+typedef struct scrollbar_info_struct
+{
+	/** @copydoc scrollbar_struct::scroll_offset */
+	uint32 scroll_offset;
+
+	/** @copydoc scrollbar_struct::num_lines */
+	uint32 num_lines;
+
+	/** @copydoc scrollbar_struct::redraw */
+	uint8 redraw;
+} scrollbar_info_struct;
 
 /** Get the full slider height. */
 #define SLIDER_HEIGHT_FULL(_scrollbar) ((_scrollbar)->background.h - ((_scrollbar)->background.w + 1) * 2)

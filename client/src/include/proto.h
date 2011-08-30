@@ -534,6 +534,7 @@ extern int range_buttons_show(int x, int y, int *val, int advance);
 /* src/toolkit/scrollbar.c */
 extern void scrollbar_init();
 extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
+extern void scrollbar_info_create(scrollbar_info_struct *info);
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
 extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
