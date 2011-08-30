@@ -524,6 +524,7 @@ extern void popup_render_head();
 extern int popup_handle_event(SDL_Event *event);
 extern popup_struct *popup_get_head();
 extern void popup_overlay_redraw();
+extern void popup_button_set_text(popup_button *button, const char *text);
 /* src/toolkit/progress.c */
 extern void progress_dots_create(progress_dots *progress);
 extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);

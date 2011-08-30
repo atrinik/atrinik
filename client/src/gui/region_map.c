@@ -785,7 +785,6 @@ void RegionMapCmd(uint8 *data, int len)
 	popup = popup_create(BITMAP_REGION_MAP);
 	popup->draw_func_post = popup_draw_func_post;
 	popup->event_func = popup_event_func;
-	popup->close_button_yoff = 8;
 
 	/* Construct URL for the image. */
 	snprintf(url, sizeof(url), "%s/%s.png", url_base, region);

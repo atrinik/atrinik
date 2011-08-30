@@ -433,20 +433,14 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 	list_struct *list = list_exists(LIST_SETTINGS);
 	int x, y, mx, my, mstate;
 
-	if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		help_show(setting_type_help[setting_type]);
-		return 1;
-	}
-
 	mstate = SDL_GetMouseState(&mx, &my);
 
 	if (setting_type == SETTING_TYPE_NONE)
 	{
 		if (GameStatus == GAME_STATUS_PLAY)
 		{
-			button_password.x = popup->x + 15;
-			button_password.y = popup->y + 15;
+			button_password.x = popup->x + 10;
+			button_password.y = popup->y + 42;
 			button_render(&button_password, "Password");
 		}
 	}
@@ -577,12 +571,17 @@ static int settings_popup_draw_func(popup_struct *popup)
 {
 	SDL_Rect box;
 
+	box.x = 40;
+	box.y = 6;
+	box.w = 420;
+	box.h = 26;
+
+	string_blt(popup->surface, FONT_SERIF20, "Settings", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+
 	box.x = 0;
 	box.y = 10;
 	box.w = popup->surface->w;
 	box.h = 0;
-
-	string_blt(popup->surface, FONT_SERIF20, "<u>Settings</u>", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 
 	if (setting_type == SETTING_TYPE_NONE)
 	{
@@ -793,6 +792,14 @@ static void settings_button_handle(size_t button)
 	}
 
 	popup_destroy_all();
+}
+
+/** @copydoc popup_button::event_func */
+static int setting_popup_button_event_func(popup_button *button)
+{
+	(void) button;
+	help_show(setting_type_help[setting_type]);
+	return 1;
 }
 
 /**
@@ -1015,6 +1022,10 @@ void settings_open(void)
 	popup->event_func = settings_popup_event_func;
 	popup->destroy_callback_func = settings_popup_destroy_callback;
 	popup->draw_func_post = settings_popup_draw_func_post;
+
+	popup->button_left.event_func = setting_popup_button_event_func;
+	popup_button_set_text(&popup->button_left, "?");
+
 	setting_type = SETTING_TYPE_NONE;
 
 	button_create(&button_password);

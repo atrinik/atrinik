@@ -37,7 +37,7 @@
 /** Maximum width of the news text. */
 #define NEWS_MAX_WIDTH 455
 /** Maximum height of the news text. */
-#define NEWS_MAX_HEIGHT 260
+#define NEWS_MAX_HEIGHT 250
 /** Font of the news text. */
 #define NEWS_FONT FONT_SANS12
 
@@ -86,10 +86,10 @@ static int news_popup_draw_func(popup_struct *popup)
 		SDL_Rect box;
 		list_struct *list = list_exists(LIST_NEWS);
 
-		box.w = popup->surface->w;
-		box.h = 0;
+		box.w = 420;
+		box.h = 22;
 		/* Show the news title. */
-		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 0, 10, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 		box.w = NEWS_MAX_WIDTH;
 		box.h = NEWS_MAX_HEIGHT;
@@ -97,9 +97,9 @@ static int news_popup_draw_func(popup_struct *popup)
 		/* Calculate number of last displayed lines. */
 		if (!news_num_lines)
 		{
-			string_blt(NULL, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+			string_blt(NULL, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 			news_num_lines = box.h;
-			scrollbar_create(&scrollbar_news, 15, 250, &news_scroll_offset, &news_num_lines, box.y);
+			scrollbar_create(&scrollbar_news, 15, 240, &news_scroll_offset, &news_num_lines, box.y);
 			scrollbar_news.px = popup->x;
 			scrollbar_news.py = popup->y;
 			box.h = NEWS_MAX_HEIGHT;
@@ -109,10 +109,10 @@ static int news_popup_draw_func(popup_struct *popup)
 		box.y = news_scroll_offset;
 		/* Show the news. */
 		text_offset_set(popup->x, popup->y);
-		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 30, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 
-		scrollbar_render(&scrollbar_news, popup->surface, Bitmaps[popup->bitmap_id]->bitmap->w - 28, 30);
+		scrollbar_render(&scrollbar_news, popup->surface, Bitmaps[popup->bitmap_id]->bitmap->w - 28, 45);
 		return 1;
 	}
 	/* Haven't started downloading yet. */
@@ -160,7 +160,7 @@ static int news_popup_draw_func(popup_struct *popup)
 	}
 
 	/* Haven't downloaded the text yet, inform the user. */
-	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 10, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
+	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 40, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
 	return 1;
 }
 
@@ -361,13 +361,13 @@ static int popup_draw_func_post(popup_struct *popup)
 	/* Not creating character, only show the message text window. */
 	if (GameStatus != GAME_STATUS_NEW_CHAR)
 	{
-		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 30, 220, 132);
+		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 40, 220, 132);
 		return 1;
 	}
 
 	list = list_exists(LIST_CREATION);
 
-	y += 50;
+	y += 65;
 
 	if (char_step == 2)
 	{
@@ -492,7 +492,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			}
 		}
 
-		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 150, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 145, COLOR_WHITE, COLOR_BLACK, 0, NULL);
 		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
 	}
 
@@ -500,7 +500,7 @@ static int popup_draw_func_post(popup_struct *popup)
 
 	if (char_step == 2)
 	{
-		y += 70;
+		y += 65;
 	}
 
 	/* Show previous button if we're not in the first step. */
@@ -541,12 +541,12 @@ static int popup_draw_func(popup_struct *popup)
 	}
 	else if (GameStatus == GAME_STATUS_NEW_CHAR)
 	{
-		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
-		box.h = 0;
-		string_blt_shadow_format(popup->surface, FONT_SERIF14, 0, 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
+		box.w = 420;
+		box.h = 22;
+		string_blt_shadow_format(popup->surface, FONT_SERIF14, 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
 		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 40;
 		box.h = char_step == 2 ? 70 : 30;
-		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 30, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 45, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 		return 1;
 	}
 	/* Playing now, so destroy this popup and remove any lists. */
@@ -565,12 +565,12 @@ static int popup_draw_func(popup_struct *popup)
 	downloading = GameStatus < GAME_STATUS_LOGIN || !file_updates_finished();
 
 	progress.done = !downloading;
-	progress_dots_show(&progress, popup->surface, 75, 30);
+	progress_dots_show(&progress, popup->surface, 75, 42);
 
 	/* Show that we are connecting to the server. */
-	box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
-	box.h = 0;
-	string_blt_shadow(popup->surface, FONT_SERIF12, "Connecting to server, please wait...", 0, 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+	box.w = 420;
+	box.h = 22;
+	string_blt_shadow(popup->surface, FONT_SERIF14, "Character Login", 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	if (downloading)
 	{
@@ -579,12 +579,12 @@ static int popup_draw_func(popup_struct *popup)
 
 	box.w = Bitmaps[popup->bitmap_id]->bitmap->w / 2;
 	x = Bitmaps[popup->bitmap_id]->bitmap->w / 4 - text_input_center_offset();
-	y = 75;
+	y = 85;
 
 	/* Player name. */
 	if (GameStatus == GAME_STATUS_NAME)
 	{
-		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 55, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 65, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		text_input_string[0] = toupper(text_input_string[0]);
 		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
@@ -611,7 +611,7 @@ static int popup_draw_func(popup_struct *popup)
 
 		if (GameStatus == GAME_STATUS_PSWD)
 		{
-			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 95, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 105, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 		}
 		else
@@ -635,7 +635,7 @@ static int popup_draw_func(popup_struct *popup)
 			*cp = '*';
 		}
 
-		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 130, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 140, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 		char_step = 0;
 		char_creation_reset(NULL);

@@ -47,8 +47,6 @@ UT_array *book_help_history = NULL;
 static uint8 book_help_history_enabled = 0;
 /** Scrollbar in the book GUI. */
 static scrollbar_struct scrollbar;
-/** Back button. */
-static button_struct button_back;
 
 /**
  * Change the book's displayed name.
@@ -99,20 +97,44 @@ static int popup_draw_func_post(popup_struct *popup)
 {
 	scrollbar_render(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
 
-	button_back.x = popup->x + 25;
-	button_back.y = popup->y + 25;
-
 	if (book_help_history_enabled)
 	{
-		button_render(&button_back, "<");
-		button_tooltip(&button_back, FONT_ARIAL10, "Go back");
-	}
-	else
-	{
-		button_render(&button_back, "");
+		button_tooltip(&popup->button_left.button, FONT_ARIAL10, "Go back");
 	}
 
 	sprite_blt(Bitmaps[BITMAP_BOOK_BORDER], popup->x, popup->y, NULL, NULL);
+
+	return 1;
+}
+
+/** @copydoc popup_button::event_func */
+static int popup_button_event_func(popup_button *button)
+{
+	size_t len;
+
+	(void) button;
+
+	len = utarray_len(book_help_history);
+
+	if (len >= 2)
+	{
+		size_t pos;
+		char **p;
+
+		pos = len - 2;
+		p = (char **) utarray_eltptr(book_help_history, pos);
+
+		if (p)
+		{
+			help_show(*p);
+			utarray_erase(book_help_history, pos, 2);
+		}
+	}
+	else
+	{
+		utarray_clear(book_help_history);
+		help_show("main");
+	}
 
 	return 1;
 }
@@ -122,34 +144,6 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	if (scrollbar_event(&scrollbar, event))
 	{
-		return 1;
-	}
-	else if (book_help_history_enabled && button_event(&button_back, event))
-	{
-		size_t len;
-
-		len = utarray_len(book_help_history);
-
-		if (len >= 2)
-		{
-			size_t pos;
-			char **p;
-
-			pos = len - 2;
-			p = (char **) utarray_eltptr(book_help_history, pos);
-
-			if (p)
-			{
-				help_show(*p);
-				utarray_erase(book_help_history, pos, 2);
-			}
-		}
-		else
-		{
-			utarray_clear(book_help_history);
-			help_show("main");
-		}
-
 		return 1;
 	}
 
@@ -279,17 +273,18 @@ void book_load(const char *data, int len)
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->disable_bitmap_blit = 1;
-		popup->close_button_xoff = 25;
-		popup->close_button_yoff = 25;
 
-		popup->button_close.bitmap = BITMAP_BUTTON_ROUND_LARGE;
-		popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
-		popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
+		popup->button_left.x = 25;
+		popup->button_left.y = 25;
 
-		button_create(&button_back);
-		button_back.bitmap = BITMAP_BUTTON_ROUND_LARGE;
-		button_back.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
-		button_back.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
+		if (book_help_history_enabled)
+		{
+			popup->button_left.event_func = popup_button_event_func;
+			popup_button_set_text(&popup->button_left, "<");
+		}
+
+		popup->button_right.x = 649;
+		popup->button_right.y = 25;
 	}
 
 	scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);

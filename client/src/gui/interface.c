@@ -186,12 +186,6 @@ static int popup_draw_func_post(popup_struct *popup)
 {
 	scrollbar_render(&interface->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, popup->x + popup->surface->w - popup->close_button_xoff - 40, popup->y + popup->close_button_yoff, "?", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		help_show("npc interface");
-		return 1;
-	}
-
 	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
 		send_command_check("/t_tell hello");
@@ -223,6 +217,14 @@ static int popup_destroy_callback(popup_struct *popup)
 	(void) popup;
 	interface_destroy();
 	text_input_close();
+	return 1;
+}
+
+/** @copydoc popup_button::event_func */
+static int popup_button_event_func(popup_button *button)
+{
+	(void) button;
+	help_show("npc interface");
 	return 1;
 }
 
@@ -355,8 +357,14 @@ void cmd_interface(uint8 *data, int len)
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->event_func = popup_event_func;
 		popup->disable_bitmap_blit = 1;
-		popup->close_button_xoff = 10;
-		popup->close_button_yoff = 9;
+
+		popup->button_left.event_func = popup_button_event_func;
+		popup->button_left.x = 380;
+		popup->button_left.y = 4;
+		popup_button_set_text(&popup->button_left, "?");
+
+		popup->button_right.x = 411;
+		popup->button_right.y = 4;
 	}
 
 	/* Make sure text input is not open. */

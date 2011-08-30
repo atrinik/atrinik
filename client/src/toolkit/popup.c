@@ -106,8 +106,6 @@ popup_struct *popup_create(int bitmap_id)
 	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
 	/* Store the bitmap used. */
 	popup->bitmap_id = bitmap_id;
-	popup->close_button_xoff = 10;
-	popup->close_button_yoff = 12;
 	DL_PREPEND(popup_head, popup);
 
 	popup_create_overlay();
@@ -116,12 +114,32 @@ popup_struct *popup_create(int bitmap_id)
 	/* Make sure the mouse is no longer moving any widget. */
 	widget_event_move_stop(mx, my);
 
-	button_create(&popup->button_close);
-	popup->button_close.bitmap = BITMAP_BUTTON_ROUND;
-	popup->button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-	popup->button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+	button_create(&popup->button_left.button);
+	button_create(&popup->button_right.button);
+
+	popup->button_left.x = 6;
+	popup->button_left.y = 6;
+
+	popup->button_right.x = 468;
+	popup->button_right.y = 6;
+	popup->button_right.text = strdup("X");
+
+	popup->button_left.button.bitmap = popup->button_right.button.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+	popup->button_left.button.bitmap_pressed = popup->button_right.button.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+	popup->button_left.button.bitmap_over = popup->button_right.button.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 
 	return popup;
+}
+
+/**
+ * Free the data used by a popup button.
+ * @param button The button. */
+static void popup_button_free(popup_button *button)
+{
+	if (button->text)
+	{
+		free(button->text);
+	}
 }
 
 /**
@@ -140,6 +158,9 @@ void popup_destroy(popup_struct *popup)
 	{
 		free(popup->buf);
 	}
+
+	popup_button_free(&popup->button_right);
+	popup_button_free(&popup->button_left);
 
 	free(popup);
 
@@ -170,6 +191,20 @@ void popup_destroy_all(void)
 int popup_overlay_need_update(void)
 {
 	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h || popup_overlay_need_redraw;
+}
+
+/**
+ * Render a single popup button.
+ * @param popup Popup.
+ * @param button The button to render. */
+static void popup_button_render(popup_struct *popup, popup_button *button)
+{
+	if (button->button.bitmap != -1)
+	{
+		button->button.x = popup->x + button->x;
+		button->button.y = popup->y + button->y;
+		button_render(&button->button, button->text ? button->text : "");
+	}
 }
 
 /**
@@ -213,12 +248,8 @@ void popup_render(popup_struct *popup)
 	box.y = popup->y;
 	SDL_BlitSurface(popup->surface, NULL, ScreenSurface, &box);
 
-	if (popup->button_close.bitmap != -1)
-	{
-		popup->button_close.x = box.x + popup->surface->w - Bitmaps[popup->button_close.bitmap]->bitmap->w - popup->close_button_xoff;
-		popup->button_close.y = box.y + popup->close_button_yoff;
-		button_render(&popup->button_close, "X");
-	}
+	popup_button_render(popup, &popup->button_left);
+	popup_button_render(popup, &popup->button_right);
 
 	if (popup->draw_func_post)
 	{
@@ -248,11 +279,36 @@ void popup_render_head(void)
 }
 
 /**
+ * Handle popup button event.
+ * @param button The button.
+ * @param event The event.
+ * @retval 1 Handled the event.
+ * @retval -1 Handled the event and the button was handled by callback
+ * function.
+ * @retval 0 Did not handle the event. */
+static int popup_button_handle_event(popup_button *button, SDL_Event *event)
+{
+	if (button->text && button_event(&button->button, event))
+	{
+		if (button->event_func && button->event_func(button))
+		{
+			return -1;
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
  * Handle mouse and keyboard events when a popup is active.
  * @param event Event.
  * @return 1 to disable any other mouse/keyboard actions, 0 otherwise. */
 int popup_handle_event(SDL_Event *event)
 {
+	int ret;
+
 	/* No popup is visible. */
 	if (!popup_head)
 	{
@@ -262,7 +318,7 @@ int popup_handle_event(SDL_Event *event)
 	/* Handle custom events? */
 	if (popup_head->event_func)
 	{
-		int ret = popup_head->event_func(popup_head, event);
+		ret = popup_head->event_func(popup_head, event);
 
 		if (ret != -1)
 		{
@@ -279,9 +335,17 @@ int popup_handle_event(SDL_Event *event)
 			popup_destroy(popup_head);
 		}
 	}
-	else if (button_event(&popup_head->button_close, event))
+	else if ((ret = popup_button_handle_event(&popup_head->button_left, event)))
 	{
-		popup_destroy(popup_head);
+		return 1;
+	}
+	else if ((ret = popup_button_handle_event(&popup_head->button_right, event)))
+	{
+		if (ret == 1)
+		{
+			popup_destroy(popup_head);
+		}
+
 		return 1;
 	}
 
@@ -301,4 +365,18 @@ popup_struct *popup_get_head(void)
 void popup_overlay_redraw(void)
 {
 	popup_overlay_need_redraw = 1;
+}
+
+/**
+ * Set the text of a generic popup button.
+ * @param button The button.
+ * @param text Text to set. */
+void popup_button_set_text(popup_button *button, const char *text)
+{
+	if (button->text)
+	{
+		free(button->text);
+	}
+
+	button->text = text ? strdup(text) : NULL;
 }

@@ -30,6 +30,30 @@
 #ifndef POPUP_H
 #define POPUP_H
 
+/**
+ * A single "generic" button in a popup. */
+typedef struct popup_button
+{
+	/** X position in the popup of the button. */
+	int x;
+
+	/** Y position in the popup of the button. */
+	int y;
+
+	/** Text to show in the button. */
+	char *text;
+
+	/** The button. */
+	button_struct button;
+
+	/**
+	 * Callback function to call when the button is clicked.
+	 * @param button The clicked button.
+	 * @retval 1 Handled the event, should not do generic handling.
+	 * @retval 0 Did not handle the event. */
+	int (*event_func)(struct popup_button *button);
+} popup_button;
+
 /** A single popup. */
 typedef struct popup_struct
 {
@@ -59,14 +83,11 @@ typedef struct popup_struct
 	/** Y position of the popup. */
 	int y;
 
-	/** X offset of the close button. */
-	int close_button_xoff;
+	/** The left button, generally the help button. */
+	popup_button button_left;
 
-	/** Y offset of the close button. */
-	int close_button_yoff;
-
-	/** The close button. */
-	button_struct button_close;
+	/** The right button, generally the close button. */
+	popup_button button_right;
 
 	/** Next popup in a doubly-linked list. */
 	struct popup_struct *next;
