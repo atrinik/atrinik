@@ -636,18 +636,12 @@ static int popup_draw_func_post(popup_struct *popup)
 
 	if (mx >= box.x && mx <= box.x + box.w && my >= box.y && my <= box.y + box.h)
 	{
-		SDL_Rect tooltip_box;
-
-		tooltip_box.x = box.x + 3;
-		tooltip_box.y = box.y + box.h + RM_BORDER_SIZE + 3;
-		tooltip_box.w = box.w - 6;
-		tooltip_box.h = RM_TOOLTIP_HEIGHT - RM_BORDER_SIZE - 6;
-
 		for (i = 0; i < rm_def->num_tooltips; i++)
 		{
 			if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
 			{
-				string_blt(ScreenSurface, FONT_ARIAL11, rm_def->tooltips[i].text, tooltip_box.x, tooltip_box.y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_OUTLINE, &tooltip_box);
+				tooltip_create(mx, my, FONT_ARIAL11, rm_def->tooltips[i].text);
+				tooltip_multiline(200);
 				break;
 			}
 		}
