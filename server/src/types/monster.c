@@ -1732,8 +1732,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	if (HAS_EVENT(npc, EVENT_SAY))
 	{
 		/* Trigger the SAY event */
-		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-		return 1;
+		return trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 	}
 
 	/* Here we let the objects inside inventories hear and answer, too.
@@ -1744,8 +1743,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		if (HAS_EVENT(cobj, EVENT_SAY))
 		{
 			/* Trigger the SAY event */
-			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-			return 1;
+			return trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 		}
 	}
 
