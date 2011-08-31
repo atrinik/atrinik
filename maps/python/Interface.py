@@ -61,6 +61,7 @@ class Interface:
 			return
 
 		pl = self._activator.Controller()
+		SetReturnValue(1)
 
 		if pl.s_socket_version >= 1058:
 			pl.SendInterface(self._msg, self._links, self._icon, self._title, self._text_input)
