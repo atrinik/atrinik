@@ -1,35 +1,41 @@
 from Atrinik import *
 from QuestManager import QuestManagerMulti
 from Quests import EscapingDesertedIsland as quest
+from Interface import Interface
 
 activator = WhoIsActivator()
 me = WhoAmI()
 msg = WhatIsMessage().strip().lower()
 qm = QuestManagerMulti(activator, quest)
+inf = Interface(activator, me)
 
 def main():
 	is_hello = msg in ("hi", "hey", "hello")
 
 	if not qm.started_part(1):
 		if is_hello:
-			me.SayTo(activator, "\nThere you are, {}! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.\n\n<a><b>Who</b> are you?</a>".format(activator.name))
-			activator.Write("Click blue links in NPC dialogue to proceed with the conversation. You can also type out the blue link text contents in the chat input instead, or in the case of sentences, just the bold part of it, such as <b>Who</b> in this case.", "FDD017")
+			inf.add_msg("There you are, <i>{}</i>! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.".format(activator.name))
+			inf.add_msg("Click the blue links to proceed with the conversation, or press its shortcut number on the keyboard.", "FDD017")
+			inf.add_link("Who are you?")
 
-		elif msg == "who" or msg == "who are you?":
-			me.SayTo(activator, "\nHuh? Surely you know who I am! Unless... unless the head injury you received during the terrible storm caused you to lose part of your memory... I hope that is not the case.\n\n<a>I don't remember much... what <b>storm</b>?</a>")
-			activator.Write("If the conversation gets too lengthy or you just want to see what was said a few moments ago, you can use the scrollbars on the right of the text windows to scroll through the messages.", "FDD017")
+		elif msg == "who are you?":
+			inf.add_msg("Huh? Surely you know who I am! Unless... unless the head injury you received during the terrible storm caused you to lose part of your memory... I hope that is not the case.")
+			inf.add_link("I don't remember much... what storm?")
 
-		elif msg == "storm" or msg == "i don't remember much... what storm?":
-			me.SayTo(activator, "\nThis is bad luck... First the storm, now this... Well... Let me start from the beginning. My name is {} and you hired me and my boat to transport you to Strakewood Island. You didn't tell me why you had to get there urgently, but you paid me well so I accepted. Unfortunately, a terrible storm caught us while on our way to Strakewood, and you were knocked unconscious. The storm caused large amounts of damage to the boat, but we survived, and got washed up on this small, deserted island...\n\n<a><b>Deserted</b> island?</a>".format(me.name))
+		elif msg == "i don't remember much... what storm?":
+			inf.add_msg("This is bad luck... First the storm, now this... Well... Let me start from the beginning. My name is {} and you hired me and my boat to transport you to Strakewood Island. You didn't tell me why you had to travel there so urgently, but you offered me a nice sum of gold so I accepted. Unfortunately, a terrible storm caught us while on our way to Strakewood, and you were knocked unconscious. The storm caused large amounts of damage to the boat, but we survived, and got washed up on this small, deserted island...".format(me.name))
+			inf.add_link("Deserted island?")
 
-		elif msg == "deserted" or msg == "deserted island?":
-			me.SayTo(activator, "\nThat is what it appears like. No civilization or animals that I can see from here, and we have no source of food or clean water.\n\n<a>Should we take a <b>look</b> around?</a>")
+		elif msg == "deserted island?":
+			inf.add_msg("That is what it appears like. No civilization or animals that I can see from here, and we have no source of food or clean water.")
+			inf.add_link("Should we take a look around?")
 
-		elif msg == "look" or msg == "should we take a look around?":
-			me.SayTo(activator, "\nFeel free to, but be careful out there. Try and see if you can find some clean water, as that is the most important thing we need right now. A spring or a small lake would suffice. I'll stay here and examine the damage on the boat. Perhaps we could be able to fix it...\n\n<a>What if I get <b>lost</b>?</a>")
+		elif msg == "should we take a look around?":
+			inf.add_msg("Feel free to, but be careful out there. Try and see if you can find some clean water, as that is the most important thing we need right now. A spring or a small lake would suffice. I'll stay here and examine the damage on the boat. Perhaps we could be able to fix it...")
+			inf.add_link("What if I get lost?")
 
-		elif msg == "lost" or msg == "what if i get lost?":
-			me.SayTo(activator, "\nHm, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.")
+		elif msg == "what if i get lost?":
+			inf.add_msg("Hm, good point. We have to be careful out here... Well, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.")
 
 			compass = me.FindObject(archname = "compass").Clone()
 			torches = me.FindObject(archname = "torch").Clone()
@@ -151,3 +157,4 @@ def main():
 
 
 main()
+inf.finish()

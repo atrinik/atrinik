@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-08-23 Alex Tokar
+Modified: 2011-08-31 Alex Tokar
 endmsg
 width 5
 height 14
@@ -202,16 +202,6 @@ direction 7
 x 1
 y 1
 end
-arch magic_mouth
-msg
-
-A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
-
-<c=#FDD017>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it. Alternatively, you can use the keyboard numpad to move around. If you get lost, you can use the <b>?</b> button in the upper right corner to open the help screen.</c>
-endmsg
-x 1
-y 1
-end
 arch ship_floor_ns_1
 x 1
 y 2
@@ -222,6 +212,16 @@ x 1
 y 2
 end
 arch ship_floor_ns_3
+x 1
+y 3
+end
+arch magic_mouth
+msg
+
+A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
+
+<c=#FDD017>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it. Alternatively, you can use the keyboard numpad to move around. If you get lost, you can use the <b>?</b> button in the upper right corner to open the help screen.</c>
+endmsg
 x 1
 y 3
 end
