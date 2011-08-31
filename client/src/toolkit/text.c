@@ -1261,6 +1261,76 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return 10;
 		}
+		else if (!strncmp(cp, "<icon=", 6))
+		{
+			if (surface)
+			{
+				char face[MAX_BUF];
+				int wd, ht;
+
+				if (sscanf(cp + 6, "%128[^ ] %d %d>", face, &wd, &ht) == 3)
+				{
+					int id = get_bmap_id(face);
+
+					if (id != -1 && FaceList[id].sprite)
+					{
+						int icon_w, icon_h, icon_orig_w, icon_orig_h;
+						_Sprite *icon_sprite;
+						SDL_Rect icon_box, icon_dst;
+						double zoom_factor;
+
+						icon_sprite = FaceList[id].sprite;
+						icon_w = icon_orig_w = icon_sprite->bitmap->w - icon_sprite->border_left - icon_sprite->border_right;
+						icon_h = icon_orig_h = icon_sprite->bitmap->h - icon_sprite->border_up - icon_sprite->border_down;
+
+						if (icon_w > wd)
+						{
+							zoom_factor = (double) wd / icon_w;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
+						if (icon_h > ht)
+						{
+							zoom_factor = (double) ht / icon_h;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
+						icon_box.x = icon_sprite->border_left;
+						icon_box.y = icon_sprite->border_up;
+						icon_box.w = icon_w;
+						icon_box.h = icon_h;
+
+						icon_dst.x = dest->x + wd / 2 - icon_w / 2;
+						icon_dst.y = dest->y + ht / 2 - icon_h / 2;
+
+						if (icon_w != icon_orig_w || icon_h != icon_orig_h)
+						{
+							SDL_Surface *tmp_icon;
+							double zoom_x, zoom_y;
+
+							zoom_x = (double) icon_w / icon_orig_w;
+							zoom_y = (double) icon_h / icon_orig_h;
+
+							tmp_icon = zoomSurface(icon_sprite->bitmap, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+
+							icon_box.x *= zoom_x;
+							icon_box.y *= zoom_y;
+
+							SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
+							SDL_FreeSurface(tmp_icon);
+						}
+						else
+						{
+							SDL_BlitSurface(icon_sprite->bitmap, &icon_box, surface, &icon_dst);
+						}
+					}
+				}
+			}
+
+			return strchr(cp + 6, '>') - cp + 1;
+		}
 	}
 
 	if (info->in_book_title && !strncmp(cp, "\">", 2))
