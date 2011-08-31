@@ -29,6 +29,9 @@ class Interface:
 		self._msg += desc
 		self._msg += "</hcenter></padding>"
 
+	def add_msg_icon_object(self, obj):
+		self.add_msg_icon(obj.face[0], obj.GetName())
+
 	def add_link(self, link):
 		self._links.append("<a>" + link + "</a>")
 
