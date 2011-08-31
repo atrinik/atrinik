@@ -31,29 +31,29 @@
 
 /**
  * The current interface data. */
-static interface_struct *interface = NULL;
+static interface_struct *interface_data = NULL;
 
 /**
  * Destroy the interface data, if any. */
 static void interface_destroy()
 {
-	if (!interface)
+	if (!interface_data)
 	{
 		return;
 	}
 
-	free(interface->message);
-	free(interface->title);
+	free(interface_data->message);
+	free(interface_data->title);
 
-	if (interface->icon)
+	if (interface_data->icon)
 	{
-		free(interface->icon);
+		free(interface_data->icon);
 	}
 
-	utarray_free(interface->links);
-	free(interface);
+	utarray_free(interface_data->links);
+	free(interface_data);
 
-	interface = NULL;
+	interface_data = NULL;
 }
 
 /** @copydoc text_anchor_handle_func */
@@ -75,7 +75,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 	}
 	else if (!strcmp(anchor_action, "close"))
 	{
-		interface->destroy = 1;
+		interface_data->destroy = 1;
 	}
 
 	return 0;
@@ -86,7 +86,7 @@ static void interface_execute_link(size_t link_id)
 	char **p;
 	text_blit_info info;
 
-	p = (char **) utarray_eltptr(interface->links, link_id);
+	p = (char **) utarray_eltptr(interface_data->links, link_id);
 
 	if (!p)
 	{
@@ -102,7 +102,7 @@ static void interface_execute_link(size_t link_id)
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
-	if (interface->redraw)
+	if (interface_data->redraw)
 	{
 		_BLTFX bltfx;
 		SDL_Rect box;
@@ -112,35 +112,35 @@ static int popup_draw_func(popup_struct *popup)
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
 
-		if (interface->icon)
+		if (interface_data->icon)
 		{
-			string_blt_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+			string_blt_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
 		}
 
 		text_offset_set(popup->x, popup->y);
 		box.w = INTERFACE_TITLE_WIDTH;
 		box.h = FONT_HEIGHT(FONT_SERIF14);
-		string_blt(popup->surface, FONT_SERIF14, interface->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		string_blt(popup->surface, FONT_SERIF14, interface_data->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 		box.w = INTERFACE_TEXT_WIDTH;
 		box.h = INTERFACE_TEXT_HEIGHT;
 		box.x = 0;
-		box.y = interface->scroll_offset;
+		box.y = interface_data->scroll_offset;
 		text_set_anchor_handle(text_anchor_handle);
-		string_blt(popup->surface, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_blt(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_anchor_handle(NULL);
 		text_offset_reset();
 
-		interface->redraw = 0;
+		interface_data->redraw = 0;
 	}
 
-	return !interface->destroy;
+	return !interface_data->destroy;
 }
 
 /** @copydoc popup_struct::draw_func_post */
 static int popup_draw_func_post(popup_struct *popup)
 {
-	scrollbar_render(&interface->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
+	scrollbar_render(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
 	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
 	{
@@ -187,7 +187,7 @@ static int popup_button_event_func(popup_button *button)
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	if (scrollbar_event(&interface->scrollbar, event))
+	if (scrollbar_event(&interface_data->scrollbar, event))
 	{
 		return 1;
 	}
@@ -221,19 +221,19 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 		switch (event->key.keysym.sym)
 		{
 			case SDLK_DOWN:
-				scrollbar_scroll_adjust(&interface->scrollbar, 1);
+				scrollbar_scroll_adjust(&interface_data->scrollbar, 1);
 				return 1;
 
 			case SDLK_UP:
-				scrollbar_scroll_adjust(&interface->scrollbar, -1);
+				scrollbar_scroll_adjust(&interface_data->scrollbar, -1);
 				return 1;
 
 			case SDLK_PAGEDOWN:
-				scrollbar_scroll_adjust(&interface->scrollbar, interface->scrollbar.max_lines);
+				scrollbar_scroll_adjust(&interface_data->scrollbar, interface_data->scrollbar.max_lines);
 				return 1;
 
 			case SDLK_PAGEUP:
-				scrollbar_scroll_adjust(&interface->scrollbar, -interface->scrollbar.max_lines);
+				scrollbar_scroll_adjust(&interface_data->scrollbar, -interface_data->scrollbar.max_lines);
 				return 1;
 
 			case SDLK_1:
@@ -273,17 +273,17 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	{
 		if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
-			scrollbar_scroll_adjust(&interface->scrollbar, 1);
+			scrollbar_scroll_adjust(&interface_data->scrollbar, 1);
 			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
-			scrollbar_scroll_adjust(&interface->scrollbar, -1);
+			scrollbar_scroll_adjust(&interface_data->scrollbar, -1);
 			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_LEFT)
 		{
-			interface->redraw = 1;
+			interface_data->redraw = 1;
 		}
 	}
 
@@ -303,7 +303,7 @@ void cmd_interface(uint8 *data, int len)
 	size_t links_len, i;
 	SDL_Rect box;
 
-	if (!interface)
+	if (!interface_data)
 	{
 		popup_struct *popup;
 
@@ -330,10 +330,10 @@ void cmd_interface(uint8 *data, int len)
 	interface_destroy();
 
 	/* Create new interface. */
-	interface = calloc(1, sizeof(*interface));
-	interface->redraw = 1;
-	interface->font = FONT_ARIAL11;
-	utarray_new(interface->links, &ut_str_icd);
+	interface_data = calloc(1, sizeof(*interface_data));
+	interface_data->redraw = 1;
+	interface_data->font = FONT_ARIAL11;
+	utarray_new(interface_data->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 
 	/* Parse the data. */
@@ -358,7 +358,7 @@ void cmd_interface(uint8 *data, int len)
 
 				GetString_String(data, &pos, interface_link, sizeof(interface_link));
 				cp = interface_link;
-				utarray_push_back(interface->links, &cp);
+				utarray_push_back(interface_data->links, &cp);
 				break;
 			}
 
@@ -367,7 +367,7 @@ void cmd_interface(uint8 *data, int len)
 				char icon[MAX_BUF];
 
 				GetString_String(data, &pos, icon, sizeof(icon));
-				interface->icon = strdup(icon);
+				interface_data->icon = strdup(icon);
 				break;
 			}
 
@@ -376,7 +376,7 @@ void cmd_interface(uint8 *data, int len)
 				char title[HUGE_BUF];
 
 				GetString_String(data, &pos, title, sizeof(title));
-				interface->title = strdup(title);
+				interface_data->title = strdup(title);
 				break;
 			}
 
@@ -396,7 +396,7 @@ void cmd_interface(uint8 *data, int len)
 		text_input_add_string(text_input_content);
 	}
 
-	links_len = utarray_len(interface->links);
+	links_len = utarray_len(interface_data->links);
 
 	if (links_len)
 	{
@@ -412,24 +412,24 @@ void cmd_interface(uint8 *data, int len)
 			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%"FMT64U"]</c> ", (uint64) i + 1);
 		}
 
-		stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface->links, i)));
+		stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
 	}
 
-	interface->message = stringbuffer_finish(sb_message);
+	interface_data->message = stringbuffer_finish(sb_message);
 
 	box.w = INTERFACE_TEXT_WIDTH;
 	box.h = INTERFACE_TEXT_HEIGHT;
-	string_blt(NULL, interface->font, interface->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
-	interface->num_lines = box.h;
+	string_blt(NULL, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	interface_data->num_lines = box.h;
 
-	scrollbar_create(&interface->scrollbar, 11, 434, &interface->scroll_offset, &interface->num_lines, box.y);
-	interface->scrollbar.redraw = &interface->redraw;
+	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);
+	interface_data->scrollbar.redraw = &interface_data->redraw;
 }
 
 void interface_redraw()
 {
-	if (interface)
+	if (interface_data)
 	{
-		interface->redraw = 1;
+		interface_data->redraw = 1;
 	}
 }
