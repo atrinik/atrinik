@@ -1,3 +1,5 @@
+from Atrinik import SetReturnValue
+
 class Interface:
 	def __init__(self, activator, npc):
 		self._msg = ""
