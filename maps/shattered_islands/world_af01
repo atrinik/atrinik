@@ -2686,17 +2686,17 @@ name removable
 layer 4
 face rock_wall8.101
 animation NONE
+z -20
 sys_object 1
+direction 0
 randomitems none
 race insect
 invulnerable 1
 no_attack 1
 is_female 0
-object_int1 7000
 terrain_flag 2
 random_move 0
 type 83
-direction 0
 end
 arch ant_red
 no_pass 1
