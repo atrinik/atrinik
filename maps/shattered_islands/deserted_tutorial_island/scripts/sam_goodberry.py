@@ -36,15 +36,8 @@ def main():
 
 		elif msg == "what if i get lost?":
 			inf.add_msg("Hm, good point. We have to be careful out here... Well, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.")
-
-			compass = me.FindObject(archname = "compass").Clone()
-			torches = me.FindObject(archname = "torch").Clone()
-
-			activator.Write("You receive {} and {}es from {}.".format(compass.name, torches.GetName(), me.name), COLOR_YELLOW)
-			activator.Write("You can use the compass you received to figure out which way your character is currently facing. In order to interact with items in your inventory, hold <b>Shift</b> to open your inventory. While open, you can navigate your inventory using the arrow keys or the mouse, and use the <b>A</b> key to interact with objects, just like with items below your feet (below inventory). In order to use light sources such as a torch, you must first apply it inside your inventory, and then apply it again, which will ready it.", "FDD017")
-
-			compass.InsertInto(activator)
-			torches.InsertInto(activator)
+			inf.add_objects([me.FindObject(archname = "compass"), me.FindObject(archname = "torch")])
+			inf.add_msg("You can use the compass you received to figure out which way your character is currently facing. In order to interact with items in your inventory, hold <b>Shift</b> to open your inventory. While open, you can navigate your inventory using the arrow keys or the mouse, and use the <b>A</b> key to interact with objects, just like with items below your feet (below inventory). In order to use light sources such as a torch, you must first apply it inside your inventory, and then apply it again, which will ready it.", "FDD017")
 			qm.start(1)
 
 	elif not qm.completed_part(1):
