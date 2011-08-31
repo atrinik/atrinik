@@ -20,6 +20,15 @@ class Interface:
 		if color:
 			self._msg += "</c>"
 
+	def add_msg_icon(self, icon, desc = ""):
+		self._msg += "\n\n"
+		self._msg += "<bar=#000000 54 54><border=#606060 54 54><x=2><y=2><icon="
+		self._msg += icon
+		self._msg += " 50 50><x=-2><y=-2>"
+		self._msg += "<padding=60><hcenter=50>"
+		self._msg += desc
+		self._msg += "</hcenter></padding>"
+
 	def add_link(self, link):
 		self._links.append("<a>" + link + "</a>")
 
