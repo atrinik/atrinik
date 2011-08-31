@@ -8,8 +8,17 @@ class Interface:
 		self._icon = npc.arch.clone.face[0]
 		self._title = npc.name
 
-	def add_msg(self, msg):
+	def add_msg(self, msg, color = None, newline = True):
+		if newline and self._msg:
+			self._msg += "\n\n"
+
+		if color:
+			self._msg += "<c=#" + color + ">"
+
 		self._msg += msg
+
+		if color:
+			self._msg += "</c>"
 
 	def add_link(self, link):
 		self._links.append("<a>" + link + "</a>")
