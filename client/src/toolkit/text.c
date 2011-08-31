@@ -1207,6 +1207,21 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 6, '>') - cp + 1;
 		}
+		else if (!strncmp(cp, "<border=#", 9))
+		{
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			{
+				uint32 r, g, b;
+				int wd, ht, thickness = 1;
+
+				if (sscanf(cp + 9, "%2X%2X%2X %d %d %d>", &r, &g, &b, &wd, &ht, &thickness) >= 5)
+				{
+					border_create(surface, dest->x, dest->y, wd, ht, SDL_MapRGB(surface->format, r, g, b), thickness);
+				}
+			}
+
+			return strchr(cp + 9, '>') - cp + 1;
+		}
 	}
 
 	if (info->in_book_title && !strncmp(cp, "\">", 2))
