@@ -40,8 +40,8 @@ typedef struct interface_struct
 	/** Title text. */
 	char *title;
 
-	/** Icon ID. */
-	int icon;
+	/** Icon name. */
+	char *icon;
 
 	int font;
 

@@ -44,6 +44,12 @@ static void interface_destroy()
 
 	free(interface->message);
 	free(interface->title);
+
+	if (interface->icon)
+	{
+		free(interface->icon);
+	}
+
 	utarray_free(interface->links);
 	free(interface);
 
@@ -106,59 +112,9 @@ static int popup_draw_func(popup_struct *popup)
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
 
-		if (interface->icon != -1 && FaceList[interface->icon].sprite)
+		if (interface->icon)
 		{
-			int icon_w, icon_h, icon_orig_w, icon_orig_h;
-			_Sprite *icon_sprite;
-			SDL_Rect icon_box, icon_dst;
-			double zoom_factor;
-
-			icon_sprite = FaceList[interface->icon].sprite;
-			icon_w = icon_orig_w = icon_sprite->bitmap->w - icon_sprite->border_left - icon_sprite->border_right;
-			icon_h = icon_orig_h = icon_sprite->bitmap->h - icon_sprite->border_up - icon_sprite->border_down;
-
-			if (icon_w > INTERFACE_ICON_WIDTH)
-			{
-				zoom_factor = (double) INTERFACE_ICON_WIDTH / icon_w;
-				icon_w *= zoom_factor;
-				icon_h *= zoom_factor;
-			}
-
-			if (icon_h > INTERFACE_ICON_HEIGHT)
-			{
-				zoom_factor = (double) INTERFACE_ICON_HEIGHT / icon_h;
-				icon_w *= zoom_factor;
-				icon_h *= zoom_factor;
-			}
-
-			icon_box.x = icon_sprite->border_left;
-			icon_box.y = icon_sprite->border_up;
-			icon_box.w = icon_w;
-			icon_box.h = icon_h;
-
-			icon_dst.x = INTERFACE_ICON_STARTX + INTERFACE_ICON_WIDTH / 2 - icon_w / 2;
-			icon_dst.y = INTERFACE_ICON_STARTY + INTERFACE_ICON_HEIGHT / 2 - icon_h / 2;
-
-			if (icon_w != icon_orig_w || icon_h != icon_orig_h)
-			{
-				SDL_Surface *tmp_icon;
-				double zoom_x, zoom_y;
-
-				zoom_x = (double) icon_w / icon_orig_w;
-				zoom_y = (double) icon_h / icon_orig_h;
-
-				tmp_icon = zoomSurface(icon_sprite->bitmap, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
-
-				icon_box.x *= zoom_x;
-				icon_box.y *= zoom_y;
-
-				SDL_BlitSurface(tmp_icon, &icon_box, popup->surface, &icon_dst);
-				SDL_FreeSurface(tmp_icon);
-			}
-			else
-			{
-				SDL_BlitSurface(icon_sprite->bitmap, &icon_box, popup->surface, &icon_dst);
-			}
+			string_blt_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
 		}
 
 		text_offset_set(popup->x, popup->y);
@@ -411,7 +367,7 @@ void cmd_interface(uint8 *data, int len)
 				char icon[MAX_BUF];
 
 				GetString_String(data, &pos, icon, sizeof(icon));
-				interface->icon = get_bmap_id(icon);
+				interface->icon = strdup(icon);
 				break;
 			}
 
