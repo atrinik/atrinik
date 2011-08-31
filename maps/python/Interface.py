@@ -47,6 +47,15 @@ class Interface:
 	def set_text_input(self, text_input = ""):
 		self._text_input = text_input
 
+	def add_objects(self, objs):
+		if type(objs) != list:
+			objs = [objs]
+
+		for obj in objs:
+			obj = obj.Clone()
+			self.add_msg_icon_object(obj)
+			obj.InsertInto(self._activator)
+
 	def finish(self):
 		if not self._msg:
 			return
