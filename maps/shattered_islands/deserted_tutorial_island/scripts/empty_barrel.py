@@ -18,6 +18,7 @@ def main():
 				me.name = "water barrel"
 				me.face = "barrel_water.101"
 				me.weight = 20000
+				me.msg = None
 				activator.Write("\nYou fill the empty barrel up to the brim with the clean water. You should return to Sam Goodberry.", COLOR_YELLOW)
 				activator.Write("If you have too many heavy items in your inventory, your character's speed will go down. You can check your current carrying weight and carry limit by looking at the inventory window (while not holding <b>Shift</b>). The higher your <b>Strength</b> stat, the more items you can carry.", "FDD017")
 				qm.start(4)
