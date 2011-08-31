@@ -264,6 +264,17 @@ arch ship_rail_e
 x 2
 y 8
 end
+arch campfire
+layer 2
+face fountain_stream.101
+animation fountain_stream
+anim_speed 2
+z -25
+align 5
+rotate -135
+x 2
+y 8
+end
 arch water_dk
 x 2
 y 9
@@ -2694,6 +2705,7 @@ race insect
 invulnerable 1
 no_attack 1
 is_female 0
+object_int1 7000
 terrain_flag 2
 random_move 0
 type 83
