@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-25 Alex Tokar
+Modified: 2011-08-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -521,37 +521,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_lt
@@ -742,37 +712,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md2
@@ -815,37 +755,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md
@@ -887,37 +797,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_lt
@@ -1083,37 +963,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md3
@@ -1150,37 +1000,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_dk4
@@ -1212,37 +1032,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md3
@@ -1417,37 +1207,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md3
@@ -1481,37 +1241,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_dk3
@@ -1540,37 +1270,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_md2
@@ -1608,37 +1308,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_lt3
@@ -1830,37 +1500,7 @@ spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
 type 83
-arch waypoint
-name wp5
-title wp6
-slaying world_0419
-hp 2
-sp 6
-grace 3
-cursed 1
-end
-arch waypoint
-name wp6
-title wp7
-slaying world_0319
-hp 1
-sp 10
-grace 3
-end
-arch waypoint
-name wp7
-title wp8
-slaying world_0219
-hp 3
-sp 16
-grace 3
-end
-arch waypoint
-name wp8
-slaying world_0119
-hp 2
-sp 11
-end
+direction 0
 end
 end
 arch water_lt
