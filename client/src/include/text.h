@@ -250,6 +250,10 @@ typedef struct text_blit_info
 	 * Whether font width (font changed using a tag) is being
 	 * calculated. */
 	int calc_font;
+
+	/**
+	 * Used for calculations by the 'hcenter' tag. */
+	int hcenter_y;
 } text_blit_info;
 
 /**

@@ -524,6 +524,7 @@ void blt_character_init(text_blit_info *info)
 	info->obscured = 0;
 	info->calc_bold = 0;
 	info->calc_font = -1;
+	info->hcenter_y = 0;
 }
 
 /**
@@ -1221,6 +1222,44 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			}
 
 			return strchr(cp + 9, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "<hcenter=", 9))
+		{
+			if (surface)
+			{
+				int ht;
+
+				if (sscanf(cp + 9, "%d>", &ht) == 1)
+				{
+					size_t len;
+					char *tag_start, *tmpbuf;
+					SDL_Rect hcenter_box;
+
+					tag_start = strchr(cp + 9, '>') + 1;
+					len = strstr(tag_start, "</hcenter>") - tag_start;
+					tmpbuf = malloc(len + 1);
+					memcpy(tmpbuf, tag_start, len);
+					tmpbuf[len] = '\0';
+
+					hcenter_box.w = box->w - (dest->w - box->w);
+					hcenter_box.h = 0;
+					string_blt(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
+					dest->y += ht / 2 - hcenter_box.h / 2;
+					info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
+					free(tmpbuf);
+				}
+			}
+
+			return strchr(cp + 9, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</hcenter>", 10))
+		{
+			if (surface)
+			{
+				dest->y += info->hcenter_y;
+			}
+
+			return 10;
 		}
 	}
 
