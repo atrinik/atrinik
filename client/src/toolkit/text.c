@@ -524,6 +524,7 @@ void blt_character_init(text_blit_info *info)
 	info->obscured = 0;
 	info->calc_bold = 0;
 	info->calc_font = -1;
+	info->hcenter_y = 0;
 }
 
 /**
@@ -1202,6 +1203,129 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					bar_dst.w = bar_w;
 					bar_dst.h = bar_h;
 					SDL_FillRect(surface, &bar_dst, SDL_MapRGB(surface->format, r, g, b));
+				}
+			}
+
+			return strchr(cp + 6, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "<border=#", 9))
+		{
+			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
+			{
+				uint32 r, g, b;
+				int wd, ht, thickness = 1;
+
+				if (sscanf(cp + 9, "%2X%2X%2X %d %d %d>", &r, &g, &b, &wd, &ht, &thickness) >= 5)
+				{
+					border_create(surface, dest->x, dest->y, wd, ht, SDL_MapRGB(surface->format, r, g, b), thickness);
+				}
+			}
+
+			return strchr(cp + 9, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "<hcenter=", 9))
+		{
+			if (surface)
+			{
+				int ht;
+
+				if (sscanf(cp + 9, "%d>", &ht) == 1)
+				{
+					size_t len;
+					char *tag_start, *tmpbuf;
+					SDL_Rect hcenter_box;
+
+					tag_start = strchr(cp + 9, '>') + 1;
+					len = strstr(tag_start, "</hcenter>") - tag_start;
+					tmpbuf = malloc(len + 1);
+					memcpy(tmpbuf, tag_start, len);
+					tmpbuf[len] = '\0';
+
+					hcenter_box.w = box->w - (dest->w - box->w);
+					hcenter_box.h = 0;
+					string_blt(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
+					dest->y += ht / 2 - hcenter_box.h / 2;
+					info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
+					free(tmpbuf);
+				}
+			}
+
+			return strchr(cp + 9, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</hcenter>", 10))
+		{
+			if (surface)
+			{
+				dest->y += info->hcenter_y;
+			}
+
+			return 10;
+		}
+		else if (!strncmp(cp, "<icon=", 6))
+		{
+			if (surface)
+			{
+				char face[MAX_BUF];
+				int wd, ht;
+
+				if (sscanf(cp + 6, "%128[^ ] %d %d>", face, &wd, &ht) == 3)
+				{
+					int id = get_bmap_id(face);
+
+					if (id != -1 && FaceList[id].sprite)
+					{
+						int icon_w, icon_h, icon_orig_w, icon_orig_h;
+						_Sprite *icon_sprite;
+						SDL_Rect icon_box, icon_dst;
+						double zoom_factor;
+
+						icon_sprite = FaceList[id].sprite;
+						icon_w = icon_orig_w = icon_sprite->bitmap->w - icon_sprite->border_left - icon_sprite->border_right;
+						icon_h = icon_orig_h = icon_sprite->bitmap->h - icon_sprite->border_up - icon_sprite->border_down;
+
+						if (icon_w > wd)
+						{
+							zoom_factor = (double) wd / icon_w;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
+						if (icon_h > ht)
+						{
+							zoom_factor = (double) ht / icon_h;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
+						icon_box.x = icon_sprite->border_left;
+						icon_box.y = icon_sprite->border_up;
+						icon_box.w = icon_w;
+						icon_box.h = icon_h;
+
+						icon_dst.x = dest->x + wd / 2 - icon_w / 2;
+						icon_dst.y = dest->y + ht / 2 - icon_h / 2;
+
+						if (icon_w != icon_orig_w || icon_h != icon_orig_h)
+						{
+							SDL_Surface *tmp_icon;
+							double zoom_x, zoom_y;
+
+							zoom_x = (double) icon_w / icon_orig_w;
+							zoom_y = (double) icon_h / icon_orig_h;
+
+							tmp_icon = zoomSurface(icon_sprite->bitmap, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+
+							icon_box.x *= zoom_x;
+							icon_box.y *= zoom_y;
+
+							SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
+							SDL_FreeSurface(tmp_icon);
+						}
+						else
+						{
+							SDL_BlitSurface(icon_sprite->bitmap, &icon_box, surface, &icon_dst);
+						}
+					}
 				}
 			}
 
