@@ -61,8 +61,6 @@ static size_t num_cmd_tooltips = 0;
 static int region_map_zoom;
 /** Contains coordinates for the region map surface. */
 static SDL_Rect region_map_pos;
-/** Count for mouse clicks. */
-static uint32 region_mouse_ticks = 0;
 /** Region map scrollbar. */
 static scrollbar_struct scrollbar;
 /** Storage for the scroll offset and the like of the scrollbar. */
@@ -76,6 +74,9 @@ static scrollbar_info_struct scrollbar_horizontal_info;
 /**
  * Long name of the currently displayed region. */
 static char region_name[HUGE_BUF];
+/**
+ * Whether the region map is being dragged with the mouse. */
+static uint8 region_map_dragging = 0;
 
 /**
  * Find a map by path in ::rm_def.
@@ -498,7 +499,6 @@ static int popup_draw_func_post(popup_struct *popup)
 {
 	int ret_png, ret_def;
 	SDL_Rect box, dest;
-	int state, mx, my;
 	size_t i;
 
 	box.w = popup->surface->w;
@@ -596,48 +596,6 @@ static int popup_draw_func_post(popup_struct *popup)
 		}
 	}
 
-	state = SDL_GetMouseState(&mx, &my);
-
-	/* Move the map around with the mouse. */
-	if (!scrollbar.dragging && !scrollbar_horizontal.dragging && (state == SDL_BUTTON(SDL_BUTTON_LEFT) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h && (!region_mouse_ticks || state == SDL_BUTTON(SDL_BUTTON_MIDDLE) || SDL_GetTicks() - region_mouse_ticks > 125))
-	{
-		region_mouse_ticks = SDL_GetTicks();
-
-		if (state == SDL_BUTTON(SDL_BUTTON_LEFT))
-		{
-			/* The clicked position will become centered, unless it's too
-			 * close to an edge of the map, of course. */
-			region_map_pos.x += mx - box.x - region_map_pos.w / 2;
-			region_map_pos.y += my - box.y - region_map_pos.h / 2;
-			surface_pan(region_map_png, &region_map_pos);
-		}
-		else if (state == SDL_BUTTON(SDL_BUTTON_MIDDLE) && setting_get_int(OPT_CAT_DEVEL, OPT_QUICKPORT))
-		{
-			int xpos, ypos;
-
-			xpos = region_map_pos.x + mx - box.x;
-			ypos = region_map_pos.y + my - box.y;
-
-			for (i = 0; i < rm_def->num_maps; i++)
-			{
-				if (xpos >= rm_def->maps[i].xpos * (region_map_zoom / 100.0) && xpos <= (rm_def->maps[i].xpos + (rm_def->map_size_x * rm_def->pixel_size)) * (region_map_zoom / 100.0) && ypos >= rm_def->maps[i].ypos * (region_map_zoom / 100.0) && ypos <= (rm_def->maps[i].ypos + (rm_def->map_size_y * rm_def->pixel_size)) * (region_map_zoom / 100.0))
-				{
-					char buf[HUGE_BUF];
-
-					xpos = (xpos - rm_def->maps[i].xpos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
-					ypos = (ypos - rm_def->maps[i].ypos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
-					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
-					send_command(buf);
-
-					/* Workaround so the middle click doesn't also trigger a
-					 * fire action. */
-					cpl.action_timer = 0.0001f;
-					return 0;
-				}
-			}
-		}
-	}
-
 	if (scrollbar_info.redraw)
 	{
 		scrollbar_info.redraw = 0;
@@ -673,19 +631,6 @@ static int popup_draw_func_post(popup_struct *popup)
 	/* Actually blit the map. */
 	SDL_BlitSurface(region_map_png, &region_map_pos, ScreenSurface, &dest);
 
-	if (mx >= box.x && mx <= box.x + box.w && my >= box.y && my <= box.y + box.h)
-	{
-		for (i = 0; i < rm_def->num_tooltips; i++)
-		{
-			if (rm_def->tooltips[i].hidden < 1 && region_map_pos.x + mx - box.x >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && region_map_pos.x + mx - box.x <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && region_map_pos.y + my - box.y <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
-			{
-				tooltip_create(mx, my, FONT_ARIAL11, rm_def->tooltips[i].text);
-				tooltip_multiline(200);
-				break;
-			}
-		}
-	}
-
 	return 1;
 }
 
@@ -700,13 +645,36 @@ static int popup_button_event_func(popup_button *button)
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	(void) popup;
-
 	if (!region_map_png)
 	{
 		return -1;
 	}
 
+	/* Start dragging the map. */
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && RM_IN_MAP(popup, event->motion.x, event->motion.y))
+	{
+		region_map_dragging = 1;
+	}
+
+	/* Dragging the map? */
+	if (region_map_dragging)
+	{
+		/* Stop dragging the map if the left mouse button has been released. */
+		if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT)
+		{
+			region_map_dragging = 0;
+			return 1;
+		}
+
+		/* Fake slider events. */
+		scrollbar.slider.highlight = 1;
+		scrollbar_horizontal.slider.highlight = 1;
+		scrollbar_event(&scrollbar, event);
+		scrollbar_event(&scrollbar_horizontal, event);
+		return 1;
+	}
+
+	/* Handle scrollbars. */
 	if (scrollbar_event(&scrollbar, event))
 	{
 		return 1;
@@ -734,6 +702,55 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			{
 				region_map_resize(-RM_ZOOM_PROGRESS);
 				return 1;
+			}
+		}
+		/* Quickport. */
+		else if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_QUICKPORT) && RM_IN_MAP(popup, event->motion.x, event->motion.y))
+		{
+			int xpos, ypos;
+			size_t i;
+
+			xpos = region_map_pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
+			ypos = region_map_pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
+
+			for (i = 0; i < rm_def->num_maps; i++)
+			{
+				if (xpos >= rm_def->maps[i].xpos * (region_map_zoom / 100.0) && xpos <= (rm_def->maps[i].xpos + (rm_def->map_size_x * rm_def->pixel_size)) * (region_map_zoom / 100.0) && ypos >= rm_def->maps[i].ypos * (region_map_zoom / 100.0) && ypos <= (rm_def->maps[i].ypos + (rm_def->map_size_y * rm_def->pixel_size)) * (region_map_zoom / 100.0))
+				{
+					char buf[HUGE_BUF];
+
+					xpos = (xpos - rm_def->maps[i].xpos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
+					ypos = (ypos - rm_def->maps[i].ypos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
+					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
+					send_command(buf);
+
+					/* Workaround so the middle click doesn't also trigger a
+					 * fire action. */
+					cpl.action_timer = 0.0001f;
+					popup_destroy(popup);
+					return 1;
+				}
+			}
+		}
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		if (RM_IN_MAP(popup, event->motion.x, event->motion.y))
+		{
+			int xpos, ypos;
+			size_t i;
+
+			xpos = region_map_pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
+			ypos = region_map_pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
+
+			for (i = 0; i < rm_def->num_tooltips; i++)
+			{
+				if (rm_def->tooltips[i].hidden < 1 && xpos >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && xpos <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && ypos >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && ypos <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0))
+				{
+					tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, rm_def->tooltips[i].text);
+					tooltip_multiline(200);
+					break;
+				}
 			}
 		}
 	}

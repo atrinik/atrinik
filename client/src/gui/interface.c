@@ -35,7 +35,7 @@ static interface_struct *interface_data = NULL;
 
 /**
  * Destroy the interface data, if any. */
-static void interface_destroy()
+static void interface_destroy(void)
 {
 	if (!interface_data)
 	{
@@ -426,7 +426,9 @@ void cmd_interface(uint8 *data, int len)
 	interface_data->scrollbar.redraw = &interface_data->redraw;
 }
 
-void interface_redraw()
+/**
+ * Redraw the interface. */
+void interface_redraw(void)
 {
 	if (interface_data)
 	{

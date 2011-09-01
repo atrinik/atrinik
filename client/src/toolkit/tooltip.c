@@ -126,9 +126,12 @@ void tooltip_show(void)
 
 	SDL_FillRect(ScreenSurface, &box, -1);
 	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
+}
 
-	/* Set stored x/y back to -1, so the next frame the tooltip isn't
-	 * shown again, unless tooltip_create() gets called. */
+/**
+ * Dismiss the currently shown tooltip. */
+void tooltip_dismiss(void)
+{
 	tooltip_x = -1;
 	tooltip_y = -1;
 	tooltip_w = -1;
