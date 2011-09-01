@@ -26,16 +26,16 @@ Official titles (13):
 9. Phantasm. of Flower View
 10. Mountain of Faith
 11. Subterranean Animism
-12. Unid'd Fantastic Object (out)
+12. Unid'd Fantastic Object
 13. Ten Desires (being ordered)
 
 Extra official titles:
 Immaterial and Missing Power (7.5)
 Shoot the Bullet (9.5)
 Scarlet Weather Rhapsody (10.5)
-Unthinkable Natural Law (12.3) [out]
-Double Spoiler (12.5) [out]
-Fairy Wars (12.8) [out]
+Unthinkable Natural Law (12.3)
+Double Spoiler (12.5)
+Fairy Wars (12.8)
 
 Fan works:
 Take it Easy
@@ -373,6 +373,102 @@ Inside the pit beneath the courtyard, the heroines again encountered the cat.  A
 Marisa and Reimu, realizing that this could only be one person, decided to have a chat at a certain shrine on top of the mountain.  Sanae greeted her new guests with a quick combat, but was soon defeated.  Afterwards, they were met by another satori, Koishi Komeji who was the sister of Satori.  Unlike her sister, Koishi had closed her third eye and instead of mind reading, she had the ability to manipulate the subconscious.  Koishi had curiously decided to meet those who had defeated her sister and decided to have a battle to see if they were really that strong.  Koishi put up a hard fight but was defeated.  Afterward, they managed to find Kanako and Suwako and pressed them for the reason behind these shenanigans.  The plan was to cause an industrial revolution among the Kappa, which was effectively already acomplished as soon as Nitori learned about the hell crow's new power.
 
 Reimu, of course, was upset and suggested that they should tell people about these kinds of things so that she didn't have to get involved.
+
+<font=pecita 20>ZUN</font>
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_touhou_12
+def_arch tome
+Object
+face tome_metal_cyan.101
+name Eastern Project: Book 12
+msg
+<title>Eastern Project: Unidentified Fantastic Object</title>
+
+You read a story about the Eastern Wonderland of Gensokyo.  After the recent events involving a Reimu and Marisa's descent into the remains of the former Hell of Blazing Flames because of the Moriya Shrine's attempt to spur an industrial revolution amongst the Kappa, there were rumors of a strange flying object that had appeared in the skies of Gensokyo.  As the chief incident investigators, Reimu and Marisa set out to figure out what was going on.  Also joining this search would be Sanae Kochiya, the priestess of the Moriya Shrine.
+
+The first encounter was a mouse youkai named Nazrin who was searching for something using dowsing rods.  Along the way, the heroines had collected some of the strange objects that were floating around.  (To their perspective, at least, the objects appeared like little UFOs)  Nazrin attacked sensing these objects in the inventory of the adventurers.  After defeating Nazrin, the adventure continued skywards.
+
+Along the way, a Karakasa named Kogasa Totara attempted to surprise the adventurers.  Reimu quickly attempted to extract information from this interloping youkai.  After a quick fight, Kogasa tells them she doesn't know anything and expresses her disappointment about being unable to surprise anyone.
+
+The adventure continues on toward a strange flying ship.  On the Palanquin Ship, the heroines are met by Ichirin Kumoi and her friend, the thundercloud youkai, Unzan.  Marisa soon enquires about the treasures on the ship but Ichirin says there aren't any.  Battle ensues and the heroines are forced to dodge Unzan's massive cloud punches.
+
+After defeating them, the heroines continued into the ship.  They are met by a strange orb shaped creature that fights them but flies off soon.  (The true identity of this person would be revealed later)  Inside the ship, they meet the captain of the ship, Minamitsu Murasa, who tells them that this ship already underway to its destination.  She challenges the heroines for the artifacts since they were part of her intended objective in sailing to Makai.
+
+After defeating the captain, the heroines find that they were already in Makai.  There, they were met again by Nazrin who had acquired some more of the artifacts she had been searching for and was returning to her master to deliver them.  Nazrin, wanting to test the artifact's power, fought and was defeated.  The master, Shou Toramaru, the youkai avatar of Bishamonten, then arrived to claim the artifacts but is defeated as well.
+
+The heroines decide to use the artifacts anyway to break whatever seal these folks were intending to.  After the seal is broken, they are soon met by the Byakuren Hijiri, a Buddhist monk who used magic to extend her life and had devoted her life to promoting harmony with youkai.  After a misunderstanding with the heroines about harmony with youkai, the monk fought against them.  She was defeated but she and the ship later found their way into Gensokyo and set up a monestary near the Human village with the help of Suwako and Kanako who decided to try to make friends with the new people despite their priestess getting off on a bad foot.
+
+Later, Marisa was playing around with one of the UFOs and found that it turned into a normal piece of wood and dissolves in a puff of snake-like smoke.  She brings this discovery to Reimu and Sanae and they decide to follow up on this.  On the way, following the smoke trail of a "UFO," the heroines happen upon Kogasa who (surprise!) attempts to surprise them again.  After defeating the Karakasa, the heroines happen upon the Nue, Nue Houjuu, who had placed her Seeds of Unknown Form on these blocks of wood to get the heroines involved in helping to release Hijiri.  A battle ensues and eventually the mischevious Nue apologized for her actions.  Reimu then went home.  Marisa asked Nue how the Seeds work while Sanae went to fetch Aya to try to get a picture of Nue's true form.
+
+<font=pecita 20>ZUN</font>
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_touhou_12_3
+def_arch tome
+Object
+face tome_silver.101
+name Eastern Project: Book 12.3
+msg
+<title>Eastern Project: Hisoutensoku</title>
+
+You read a story about Gensokyo.  A strange giant human shaped object appeared suddenly in the mists and an investigation launched.  Sanae set out to discover what was going on.  She first met Cirno who was muttering something about defeating a Daidarabotchi.  Sensing Cirno might know something, she decided to probe further.  Cirno fought valiantly against the shrine maiden but was defeated.  After being defeated, Cirno went off on her own adventure and eventually ended up fighting Alice's new giant doll prototype.
+
+Next, Sanae ran across Hong Meirin at the Scarlet Devil Mansion.  Hong Meirin had been fighting to find out about her own Taisui Xingjun (which she believed the strange giant to be) but was also defeated.  After this, Hong Meirin, ended up defeating a giant catfish youkai that was pretending to be the people in Gensokyo to "test" her strength but this ended up being a dream and she was later reprimanded by Sakuya for being lazy.
+
+Sanae continued toward the strange giant and found Reimu investigating as well.  Reimu, being the suspicious sort, ended up challenging Sanae but was defeated.  Next, Sanae encountered Utsuho who was managing the nuclear reactor that had been built to harness her powers.  Sanae defeated the bird who had interpreted the invasion as a threat.
+
+After leaving the reactor, she found the giant was actually a large robot that had been built by Suwako without her knowledge to help create faith for the shrine.  Sanae was upset at Suwako and chastised her ancestor for causing an incident.  Sanae fought Suwako (who probably held back a bit, despite letting Sanae go all-out) and after Suwako lost then they went home.
+
+<font=pecita 20>ZUN</font>
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_touhou_12_5
+def_arch tome
+Object
+face tome_vellum.101
+name Eastern Project: Book 12.5
+msg
+<title>Eastern Project: Double Spoiler</title>
+
+You read a story about Aya's picture-taking shenanigans in Gensokyo and her rival Hatate Himekaido.  In this series, pictures were taken of Shizuha and Minoriko Aki, Hina Kagiyama, Parsee Mizuhashi, Kisume, Yamame Kurodani, Kogasa Tatara, Momiji Inubashiri, Nitori Kawashiro, Ichirin Kumoi (and Unzan), Minamitsu Murasa, Yuugi Hoshiguma, Suika Ibuki, Shou Toramaru, Nazrin, Rin Kaenbyou, Utsuho Reiuji, Satori and Koishi Komeji, Tenshi Hinanawi, Iku Nagae, Kanako Yasaka, Suwako Moriya, Byakuren Hijiri and Nue Houjuu.  The final picture challenge was to get pictures of the techniques of the heroines Reimu Hakurei, Marisa Kirisame and Sanae Kochiya.
+
+<font=pecita 20>ZUN</font>
+endmsg
+no_pick 1
+end
+
+Allowed none
+chance 1
+artifact book_touhou_12_8
+def_arch tome
+Object
+face tome_wintery.101
+name Eastern Project: Book 12.8
+msg
+<title>Eastern Project: The Great Fairy Wars</title>
+
+You read a story about the world of Gensokyo.  During the winter of this year, Cirno had built herself a special ice castle near the Misty Lake.  Three fairies sought to enlist Cirno's help for their grand plan to terrorize the human world.  To do convince Cirno that they should team up, they destroyed her castle.  Cirno, quite understandably, decided that she would rather declare war on the other fairies.
+
+As soon as spring rolled around, Cirno set out after the three mischevious fairies.  Being springtime, of course, Lily White was out and Cirno had to beat her first.  Then, Cirno found the first of the three fairies, Luna Child, in the Forest of Magic.  Luna's powers focused on the propagation of sound.  However, Cirno had a special advantage against most kinds of magical bullets that she had discovered during the winter.  Cirno had the ability to freeze bullets and use them against other fairies.  Luna was defeated and ran off to find the other fairies.
+
+Cirno, following on the warpath, decided to find the next fairy.  On the way, Daiyousei had heard about Cirno's declaration and tried to block Cirno from continuing.  Cirno pushed past Daiyousei's barrage and soon met the second of the three fairies, Star Sapphire.  Star's special power was being able to sense objects from far away.  Star, like Luna, was soon beaten and set out to find the other two.
+
+The search continued and Cirno was met by Lily Black (who may or may not be Lily White) who opened up with a massive bullet swarm.  Cirno got past her to find the final fairy, Sunny Milk, who had the power to manipulate light.  Despite being able to freeze bullets, Cirno suddenly found that she couldn't freeze fire or light beams.  Cirno's determination led her to keep on and eventually defeat Sunny.  After a while, the other two fairies arrived and joined to help their leader fight off Cirno.  Despite the team-effort, Cirno's sheer stubbornness managed to defeat the fairy trio.
+
+After winning the "war," Cirno was so full of steam she decided to try to defeat a powerful youkai.  Daiyousei and Lily White appeared again but were quickly wiped out.  Cirno happened next upon the famous incident solver, Marisa Kirisame.  Marisa wondered what was up with Cirno.  The ice fairy explained that she was looking for a youkai so she could have a challenge because she had beaten all the other fairies.  Marisa, being somewhat curious, decided she'd see what Cirno was going on about and decided to play combat.  Marisa explained that she'd be holding back so as not to kill the fairy.  Cirno fought the magician and, despite Marisa's obvious advantage having light attacks, in Cirno's excited state she managed to be strong enough to even give the witch some concern.  Cirno, after defeating the witch's combat, was finally tired out though and went home.  Marisa also went home, tired.
 
 <font=pecita 20>ZUN</font>
 endmsg
