@@ -23,7 +23,7 @@ def main():
 			inf.add_link("I don't remember much... what storm?")
 
 		elif msg == "i don't remember much... what storm?":
-			inf.add_msg("This is bad luck... First the storm, now this... Well... Let me start from the beginning. My name is {} and you hired me and my boat to transport you to Strakewood Island. You didn't tell me why you had to travel there so urgently, but you offered me a nice sum of gold so I accepted. Unfortunately, a terrible storm caught us while on our way to Strakewood, and you were knocked unconscious. The storm caused large amounts of damage to the boat, but we survived, and got washed up on this small, deserted island...".format(me.name))
+			inf.add_msg("This is bad luck... First the storm, now this... Well... Let me start from the beginning. My name is {} and you hired me and my boat to transport you to Strakewood Island. You didn't tell me why you had to travel there so urgently, but you offered me a generous sum of gold so I accepted. Unfortunately, a terrible storm caught us while on our way to Strakewood, and you were knocked unconscious. The storm caused large amounts of damage to the boat, but we survived, and got washed up on this small, deserted island...".format(me.name))
 			inf.add_link("Deserted island?")
 
 		elif msg == "deserted island?":
