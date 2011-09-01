@@ -32,6 +32,9 @@
 /**
  * The current interface data. */
 static interface_struct *interface_data = NULL;
+/**
+ * Button buffers. */
+static button_struct button_hello, button_close;
 
 /**
  * Destroy the interface data, if any. */
@@ -142,15 +145,13 @@ static int popup_draw_func_post(popup_struct *popup)
 {
 	scrollbar_render(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
-	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_HELLO_STARTX, popup->y + INTERFACE_BUTTON_HELLO_STARTY, "Hello", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		send_command_check("/t_tell hello");
-	}
+	button_hello.x = popup->x + INTERFACE_BUTTON_HELLO_STARTX;
+	button_hello.y = popup->y + INTERFACE_BUTTON_HELLO_STARTY;
+	button_render(&button_hello, "Hello");
 
-	if (button_show(BITMAP_BUTTON_LARGE, BITMAP_BUTTON_LARGE_HOVER, BITMAP_BUTTON_LARGE_DOWN, popup->x + INTERFACE_BUTTON_CLOSE_STARTX, popup->y + INTERFACE_BUTTON_CLOSE_STARTY, "Close", FONT_ARIAL13, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
-	{
-		return 0;
-	}
+	button_close.x = popup->x + INTERFACE_BUTTON_CLOSE_STARTX;
+	button_close.y = popup->y + INTERFACE_BUTTON_CLOSE_STARTY;
+	button_render(&button_close, "Close");
 
 	if (text_input_string_flag)
 	{
@@ -189,6 +190,16 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
 	if (scrollbar_event(&interface_data->scrollbar, event))
 	{
+		return 1;
+	}
+	else if (button_event(&button_hello, event))
+	{
+		send_command_check("/t_tell hello");
+		return 1;
+	}
+	else if (button_event(&button_close, event))
+	{
+		popup_destroy(popup);
 		return 1;
 	}
 	else if (event->type == SDL_KEYDOWN)
@@ -424,6 +435,14 @@ void cmd_interface(uint8 *data, int len)
 
 	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);
 	interface_data->scrollbar.redraw = &interface_data->redraw;
+
+	button_create(&button_hello);
+	button_create(&button_close);
+
+	button_hello.bitmap = button_close.bitmap = BITMAP_BUTTON_LARGE;
+	button_hello.bitmap_over = button_close.bitmap_over = BITMAP_BUTTON_LARGE_HOVER;
+	button_hello.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_LARGE_DOWN;
+	button_hello.font = button_close.font = FONT_ARIAL13;
 }
 
 /**
