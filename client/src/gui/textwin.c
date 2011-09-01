@@ -285,7 +285,7 @@ static void show_window(widgetdata *widget, int x, int y, _BLTFX *bltfx)
 		box.h = widget->ht;
 		box.y = MAX(0, textwin->scroll - TEXTWIN_ROWS_VISIBLE(widget));
 		text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+		string_blt(bltfx->surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
 	}
 
@@ -424,7 +424,7 @@ void textwin_show(int x, int y, int w, int h)
 
 	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_HEIGHT, &box);
+	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 }
 
 /**
