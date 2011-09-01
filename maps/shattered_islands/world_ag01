@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-31 Alex Tokar
+Modified: 2011-09-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1717,7 +1717,7 @@ y 3
 end
 arch duplicator
 slaying ant_red
-connected 112
+connected 102
 x 18
 y 3
 end
@@ -1725,9 +1725,8 @@ arch detector
 layer 0
 sys_object 1
 slaying removable
-connected 112
+connected 102
 speed 1.0
-direction 7
 x 18
 y 3
 end
@@ -1769,7 +1768,7 @@ y 12
 end
 arch duplicator
 slaying ant_red
-connected 112
+connected 101
 x 18
 y 12
 end
@@ -1777,7 +1776,7 @@ arch detector
 layer 0
 sys_object 1
 slaying removable
-connected 112
+connected 101
 speed 1.0
 x 18
 y 12
