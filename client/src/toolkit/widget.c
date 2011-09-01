@@ -2895,42 +2895,66 @@ void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX, 0);
 }
 
-void menu_inv_filter_all(void)
+void menu_inv_filter_all(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_set(INVENTORY_FILTER_ALL);
 }
 
-void menu_inv_filter_applied(void)
+void menu_inv_filter_applied(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
 }
 
-void menu_inv_filter_containers(void)
+void menu_inv_filter_containers(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
 }
 
-void menu_inv_filter_magical(void)
+void menu_inv_filter_magical(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
 }
 
-void menu_inv_filter_cursed(void)
+void menu_inv_filter_cursed(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CURSED);
 }
 
-void menu_inv_filter_unidentified(void)
+void menu_inv_filter_unidentified(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
 }
 
-void menu_inv_filter_locked(void)
+void menu_inv_filter_locked(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
 }
 
-void menu_inv_filter_unapplied(void)
+void menu_inv_filter_unapplied(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
 }
