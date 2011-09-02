@@ -33,12 +33,6 @@
 /** One list. */
 typedef struct list_struct
 {
-	/** Next list in a linked list. */
-	struct list_struct *next;
-
-	/** Previous list in a linked list. */
-	struct list_struct *prev;
-
 	/** X position of the list. */
 	int x;
 
