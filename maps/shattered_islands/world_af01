@@ -625,7 +625,7 @@ level 3
 direction 3
 arch event_obj
 sub_type 6
-race deserted_tutorial_island/sam_goodberry_ocean.py
+race deserted_tutorial_island/scripts/sam_goodberry_ocean.py
 end
 end
 end
