@@ -143,7 +143,13 @@ def main():
 			elif msg == "alright then.":
 				saw = activator.FindObject(INVENTORY_CONTAINERS, "sam_goodberry_saw")
 				saw.Remove()
+				inf.set_title("Sailing the Ocean")
+				inf.set_icon(activator.arch.clone.face[0])
+				inf.add_msg("You return the saw to {} and help him repair the boat.".format(me.name), COLOR_YELLOW)
+				inf.add_msg("After patching up the boat and setting everything in order, you set sail.", COLOR_YELLOW)
+				inf.add_msg("You feel tired after all that hard work, perhaps you should speak to {}...".format(me.name), COLOR_YELLOW)
 				qm.complete(6, sound = "fanfare6.ogg")
+				activator.TeleportTo("world_af01", 4, 6, sound = False)
 		else:
 			inf.add_msg("We need some thick branches to repair the boat, {}.".format(activator.name))
 
