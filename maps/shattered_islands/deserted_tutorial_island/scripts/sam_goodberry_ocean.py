@@ -14,7 +14,7 @@ def main():
 		inf.add_link("Very well.")
 
 	elif msg == "very well.":
-		activator.TeleportTo("incuna/ship_lower_deck", 3, 3, sound = False)
+		activator.TeleportTo("/shattered_islands/incuna/ship_lower_deck", 3, 3, sound = False)
 
 main()
 inf.finish()
