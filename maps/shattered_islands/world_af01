@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-01 Alex Tokar
+Modified: 2011-09-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -519,6 +519,10 @@ type 83
 name Sam Goodberry
 level 3
 direction 3
+arch event_obj
+sub_type 6
+race deserted_tutorial_island/sam_goodberry_ocean.py
+end
 end
 end
 arch ship_floor_we_dark_1
@@ -1090,6 +1094,8 @@ x 8
 y 8
 end
 arch barrel.101
+align 7
+z -5
 x 8
 y 8
 end
