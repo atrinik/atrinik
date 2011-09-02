@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-25 Alex Tokar
+Modified: 2011-09-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -820,6 +820,11 @@ x 6
 y 2
 end
 arch water_lt2
+x 6
+y 3
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 6
 y 3
 end
