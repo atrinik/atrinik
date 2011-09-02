@@ -77,6 +77,13 @@ static scrollbar_struct scrollbar_news;
 /** Buffers for scrolling text in the news popup. */
 static uint32 news_scroll_offset, news_num_lines;
 
+/** The news list. */
+static list_struct *list_news = NULL;
+/** The servers list. */
+static list_struct *list_servers = NULL;
+/** Character creation list. */
+static list_struct *list_creation = NULL;
+
 /** @copydoc popup_struct::draw_func */
 static int news_popup_draw_func(popup_struct *popup)
 {
@@ -84,12 +91,11 @@ static int news_popup_draw_func(popup_struct *popup)
 	if (popup->buf)
 	{
 		SDL_Rect box;
-		list_struct *list = list_exists(LIST_NEWS);
 
 		box.w = 420;
 		box.h = 22;
 		/* Show the news title. */
-		string_blt(popup->surface, FONT_SERIF12, list ? list->text[list->row_selected - 1][0] : "???", 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		string_blt(popup->surface, FONT_SERIF12, list_news->text[list_news->row_selected - 1][0], 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 		box.w = NEWS_MAX_WIDTH;
 		box.h = NEWS_MAX_HEIGHT;
@@ -118,20 +124,13 @@ static int news_popup_draw_func(popup_struct *popup)
 	/* Haven't started downloading yet. */
 	else if (!popup->custom_data)
 	{
-		list_struct *list = list_exists(LIST_NEWS);
 		char url[MAX_BUF], *id;
 		CURL *curl;
-
-		/* Shouldn't happen... */
-		if (!list)
-		{
-			return 0;
-		}
 
 		/* Initialize cURL, escape the selected row's text and construct
 		 * the url to use for downloading. */
 		curl = curl_easy_init();
-		id = curl_easy_escape(curl, list->text[list->row_selected - 1][0], 0);
+		id = curl_easy_escape(curl, list_news->text[list_news->row_selected - 1][0], 0);
 		snprintf(url, sizeof(url), "http://www.atrinik.org/client_news.php?news=%s", id);
 		curl_free(id);
 		curl_easy_cleanup(curl);
@@ -257,6 +256,7 @@ static void char_creation_reset(list_struct *list)
 	if (list)
 	{
 		list_remove(list);
+		list_creation = NULL;
 	}
 }
 
@@ -304,6 +304,7 @@ static void char_creation_enter(list_struct *list)
 	if (list)
 	{
 		list_remove(list);
+		list_creation = NULL;
 	}
 }
 
@@ -350,7 +351,6 @@ static int char_creation_key(list_struct *list, SDLKey key)
 /** @copydoc popup_struct::draw_func_post */
 static int popup_draw_func_post(popup_struct *popup)
 {
-	list_struct *list = NULL;
 	size_t i;
 	int face = 0, x, y;
 	SDL_Rect box;
@@ -365,8 +365,6 @@ static int popup_draw_func_post(popup_struct *popup)
 		return 1;
 	}
 
-	list = list_exists(LIST_CREATION);
-
 	y += 65;
 
 	if (char_step == 2)
@@ -374,21 +372,20 @@ static int popup_draw_func_post(popup_struct *popup)
 		y += 40;
 	}
 
-	if (!list)
+	if (!list_creation)
 	{
 		/* Create a new list. */
-		list = list_create(LIST_CREATION, 7, 1, 0);
-		list_set_focus(list);
-		list->handle_enter_func = char_creation_enter;
+		list_creation = list_create(7, 1, 0);
+		list_creation->handle_enter_func = char_creation_enter;
 
 		/* Show list of races. */
 		if (char_step == 0)
 		{
-			list_set_column(list, 0, 250, 7, NULL, -1);
+			list_set_column(list_creation, 0, 250, 7, NULL, -1);
 
 			for (i = 0; i < s_settings->num_characters; i++)
 			{
-				list_add(list, i, 0, s_settings->characters[i].name);
+				list_add(list_creation, i, 0, s_settings->characters[i].name);
 			}
 		}
 		/* List of genders. */
@@ -397,7 +394,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			char buf[30];
 			size_t row = 0;
 
-			list_set_column(list, 0, 250, 7, NULL, -1);
+			list_set_column(list_creation, 0, 250, 7, NULL, -1);
 
 			for (i = 0; i < GENDER_MAX; i++)
 			{
@@ -409,7 +406,7 @@ static int popup_draw_func_post(popup_struct *popup)
 					strncpy(buf, gender_noun[i], sizeof(buf) - 1);
 					buf[0] = toupper(buf[0]);
 					buf[sizeof(buf) - 1] = '\0';
-					list_add(list, row, 0, buf);
+					list_add(list_creation, row, 0, buf);
 					row++;
 				}
 			}
@@ -417,39 +414,39 @@ static int popup_draw_func_post(popup_struct *popup)
 		/* The stats. */
 		else if (char_step == 2)
 		{
-			list_set_column(list, 0, 30, 7, NULL, -1);
-			list->y += 2;
-			list->row_height_adjust = 6;
-			list->row_color_func = NULL;
-			list->row_highlight_func = NULL;
-			list->row_selected_func = NULL;
-			list->draw_frame_func = NULL;
-			list->key_event_func = char_creation_key;
-			list_add(list, 0, 0, "STR:");
-			list_add(list, 1, 0, "DEX:");
-			list_add(list, 2, 0, "CON:");
-			list_add(list, 3, 0, "INT:");
-			list_add(list, 4, 0, "WIS:");
-			list_add(list, 5, 0, "POW:");
-			list_add(list, 6, 0, "CHA:");
+			list_set_column(list_creation, 0, 30, 7, NULL, -1);
+			list_creation->y += 2;
+			list_creation->row_height_adjust = 6;
+			list_creation->row_color_func = NULL;
+			list_creation->row_highlight_func = NULL;
+			list_creation->row_selected_func = NULL;
+			list_creation->draw_frame_func = NULL;
+			list_creation->key_event_func = char_creation_key;
+			list_add(list_creation, 0, 0, "STR:");
+			list_add(list_creation, 1, 0, "DEX:");
+			list_add(list_creation, 2, 0, "CON:");
+			list_add(list_creation, 3, 0, "INT:");
+			list_add(list_creation, 4, 0, "WIS:");
+			list_add(list_creation, 5, 0, "POW:");
+			list_add(list_creation, 6, 0, "CHA:");
 		}
 	}
 
-	list_show(list, x + 20, y);
+	list_show(list_creation, x + 20, y);
 
 	/* Race picking, pick first possible gender. */
 	if (char_step == 0)
 	{
 		box.w = 460;
 		box.h = 96;
-		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list_creation->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		for (i = 0; i < GENDER_MAX; i++)
 		{
 			/* Does the selected race have this gender? */
-			if (s_settings->characters[list->row_selected - 1].gender_archetypes[i])
+			if (s_settings->characters[list_creation->row_selected - 1].gender_archetypes[i])
 			{
-				face = get_bmap_id(s_settings->characters[list->row_selected - 1].gender_faces[i]);
+				face = get_bmap_id(s_settings->characters[list_creation->row_selected - 1].gender_faces[i]);
 				break;
 			}
 		}
@@ -458,7 +455,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	{
 		char buf[MAX_BUF];
 
-		strncpy(buf, list->text[list->row_selected - 1][0], sizeof(buf) - 1);
+		strncpy(buf, list_creation->text[list_creation->row_selected - 1][0], sizeof(buf) - 1);
 		buf[0] = tolower(buf[0]);
 		buf[sizeof(buf) - 1] = '\0';
 		face = get_bmap_id(s_settings->characters[char_race_selected].gender_faces[gender_to_id(buf)]);
@@ -483,7 +480,7 @@ static int popup_draw_func_post(popup_struct *popup)
 		for (i = 0; i < NUM_STATS; i++)
 		{
 			/* Calculate the current stat value and show it. */
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list->row_selected - 1 ? COLOR_GREEN : COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
+			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list_creation->row_selected - 1 ? COLOR_GREEN : COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
 
 			/* One of the range buttons clicked? */
 			if (range_buttons_show(x + 80, y + 10 + i * 18, &adjust, 1))
@@ -506,16 +503,16 @@ static int popup_draw_func_post(popup_struct *popup)
 	/* Show previous button if we're not in the first step. */
 	if (char_step > 0)
 	{
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
-			char_creation_reset(list);
+			char_creation_reset(list_creation);
 		}
 	}
 
 	/* Show the next button, or the play button if we're in the last step. */
-	if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+	if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 	{
-		char_creation_enter(list);
+		char_creation_enter(list_creation);
 	}
 
 	return 1;
@@ -549,10 +546,9 @@ static int popup_draw_func(popup_struct *popup)
 		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 45, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 		return 1;
 	}
-	/* Playing now, so destroy this popup and remove any lists. */
+	/* Playing now, so destroy this popup. */
 	else if (GameStatus == GAME_STATUS_PLAY)
 	{
-		list_remove_all();
 		return 0;
 	}
 	/* Connection terminated while we were trying to login. */
@@ -653,15 +649,10 @@ static int popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::destroy_callback_func */
 static int popup_destroy_callback_func(popup_struct *popup)
 {
-	list_struct *list = list_exists(LIST_CREATION);
-
 	(void) popup;
 
-	if (list)
-	{
-		list_remove(list);
-		list_set_focus(list_exists(LIST_SERVERS));
-	}
+	list_remove(list_creation);
+	list_creation = NULL;
 
 	if (GameStatus != GAME_STATUS_PLAY)
 	{
@@ -679,24 +670,16 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	/* Handle events in character creation. */
 	if (GameStatus == GAME_STATUS_NEW_CHAR)
 	{
-		list_struct *list = list_exists(LIST_CREATION);
-
 		/* Handle list events. */
-		if (list)
+		if (list_creation)
 		{
-			if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+			if (list_handle_keyboard(list_creation, event))
 			{
-				if (lists_handle_keyboard(&event->key))
-				{
-					return 1;
-				}
+				return 1;
 			}
-			else
+			else if (list_handle_mouse(list_creation, event))
 			{
-				if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
-				{
-					return 1;
-				}
+				return 1;
 			}
 		}
 	}
@@ -722,7 +705,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 static void list_handle_enter(list_struct *list)
 {
 	/* Servers list? */
-	if (list->id == LIST_SERVERS)
+	if (list == list_servers)
 	{
 		/* Get selected server. */
 		selected_server = server_get_id(list->row_selected - 1);
@@ -740,7 +723,7 @@ static void list_handle_enter(list_struct *list)
 			progress_dots_create(&progress);
 		}
 	}
-	else if (list->id == LIST_NEWS)
+	else if (list == list_news)
 	{
 		if (list->text && list->text[list->row_selected - 1])
 		{
@@ -768,17 +751,10 @@ static void list_handle_esc(list_struct *list)
 void main_screen_render(void)
 {
 	int x, y;
-	list_struct *list;
 	size_t server_count;
 	server_struct *node;
 	char buf[MAX_BUF];
 	SDL_Rect box;
-
-	/* Active popup, no need to do anything. */
-	if (popup_get_head() && !popup_overlay_need_update())
-	{
-		return;
-	}
 
 	x = 15;
 	y = ScreenSurface->h - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
@@ -788,11 +764,10 @@ void main_screen_render(void)
 	textwin_show(Bitmaps[BITMAP_INTRO]->bitmap->w, 1, ScreenSurface->w - Bitmaps[BITMAP_INTRO]->bitmap->w - 2, ScreenSurface->h - 3);
 	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
 
-	list = list_exists(LIST_SERVERS);
 	server_count = server_get_count();
 
 	/* Create the buttons. */
-	if (!list)
+	if (!list_servers)
 	{
 		button_create(&button_play);
 		button_create(&button_refresh);
@@ -803,33 +778,33 @@ void main_screen_render(void)
 	}
 
 	/* List doesn't exist or the count changed? Create new list. */
-	if (!list || last_server_count != server_count)
+	if (!list_servers || last_server_count != server_count)
 	{
 		size_t i;
 
 		/* Remove it if it exists already. */
-		if (list)
+		if (list_servers)
 		{
-			list_remove(list);
+			list_remove(list_servers);
 		}
 
 		/* Create the servers list. */
-		list = list_create(LIST_SERVERS, 11, 3, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->handle_esc_func = list_handle_esc;
-		list_scrollbar_enable(list);
-		list_set_column(list, 0, 295, 7, "Server", -1);
-		list_set_column(list, 1, 50, 9, "Port", 1);
-		list_set_column(list, 2, 48, 7, "Players", 1);
+		list_servers = list_create(11, 3, 8);
+		list_servers->handle_enter_func = list_handle_enter;
+		list_servers->handle_esc_func = list_handle_esc;
+		list_scrollbar_enable(list_servers);
+		list_set_column(list_servers, 0, 295, 7, "Server", -1);
+		list_set_column(list_servers, 1, 50, 9, "Port", 1);
+		list_set_column(list_servers, 2, 48, 7, "Players", 1);
 
 		/* Add the servers to the list. */
 		for (i = 0; i < server_count; i++)
 		{
 			node = server_get_id(i);
 
-			list_add(list, i, 0, node->name);
+			list_add(list_servers, i, 0, node->name);
 			snprintf(buf, sizeof(buf), "%d", node->port);
-			list_add(list, i, 1, buf);
+			list_add(list_servers, i, 1, buf);
 
 			if (node->player >= 0)
 			{
@@ -840,14 +815,7 @@ void main_screen_render(void)
 				strcpy(buf, "-");
 			}
 
-			list_add(list, i, 2, buf);
-		}
-
-		/* Update the focus if we re-created the list, since it's no
-		 * longer the first one in the list. */
-		if (last_server_count != server_count)
-		{
-			list_set_focus(list);
+			list_add(list_servers, i, 2, buf);
 		}
 
 		/* Store the new count. */
@@ -855,8 +823,8 @@ void main_screen_render(void)
 	}
 
 	/* Actually draw the list. */
-	list_show(list, x + 12, y + 8);
-	node = server_get_id(list->row_selected - 1);
+	list_show(list_servers, x + 12, y + 8);
+	node = server_get_id(list_servers->row_selected - 1);
 
 	/* Do we have any selected server? If so, show its version and
 	 * description. */
@@ -889,19 +857,18 @@ void main_screen_render(void)
 	box.h = 0;
 	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
-	list = list_exists(LIST_NEWS);
-
 	/* No list yet, make one and start downloading the data. */
-	if (!list)
+	if (!list_news)
 	{
 		/* Start downloading. */
 		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
 
-		list = list_create(LIST_NEWS, 18, 1, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->handle_esc_func = list_handle_esc;
-		list_set_column(list, 0, 150, 7, NULL, -1);
-		list_set_font(list, FONT_ARIAL10);
+		list_news = list_create(18, 1, 8);
+		list_news->focus = 0;
+		list_news->handle_enter_func = list_handle_enter;
+		list_news->handle_esc_func = list_handle_esc;
+		list_set_column(list_news, 0, 150, 7, NULL, -1);
+		list_set_font(list_news, FONT_ARIAL10);
 	}
 
 	/* Download in progress? */
@@ -920,7 +887,7 @@ void main_screen_render(void)
 
 			while (cp)
 			{
-				list_add(list, i, 0, cp);
+				list_add(list_news, i, 0, cp);
 				i++;
 				cp = strtok(NULL, "\n");
 			}
@@ -938,7 +905,7 @@ void main_screen_render(void)
 	}
 
 	/* Show the news list. */
-	list_show(list, x + 13, y + 10);
+	list_show(list_news, x + 13, y + 10);
 
 	/* Calculate whether to show the eyes or not. Blinks every
 	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
@@ -982,9 +949,23 @@ void main_screen_render(void)
  * @return 1 if the event was handled, 0 otherwise. */
 int main_screen_event(SDL_Event *event)
 {
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y))
+		{
+			list_news->focus = 1;
+			list_servers->focus = 0;
+		}
+		else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y))
+		{
+			list_servers->focus = 1;
+			list_news->focus = 0;
+		}
+	}
+
 	if (button_event(&button_play, event))
 	{
-		list_handle_enter(list_exists(LIST_SERVERS));
+		list_handle_enter(list_servers);
 		return 1;
 	}
 	else if (button_event(&button_refresh, event))
@@ -1015,6 +996,30 @@ int main_screen_event(SDL_Event *event)
 	{
 		system_end();
 		exit(0);
+		return 1;
+	}
+	else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB)
+	{
+		int news_focus = 0;
+
+		if (list_servers->focus)
+		{
+			news_focus = 1;
+		}
+
+		list_news->focus = news_focus;
+		list_servers->focus = !news_focus;
+	}
+	else if (list_handle_keyboard(list_news->focus ? list_news : list_servers, event))
+	{
+		return 1;
+	}
+	else if (list_handle_mouse(list_news, event))
+	{
+		return 1;
+	}
+	else if (list_handle_mouse(list_servers, event))
+	{
 		return 1;
 	}
 

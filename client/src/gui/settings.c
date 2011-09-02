@@ -79,6 +79,12 @@ static uint8 setting_keybind_ignore = 0;
  * Whether player has entered their current password in the password
  * changing GUI. */
 static uint8 setting_password_confirmed;
+/**
+ * Pointer to the visible settings popup, if any. */
+static popup_struct *settings_popup = NULL;
+/**
+ * The settings list. */
+static list_struct *list_settings = NULL;
 
 /**
  * Reload the settings list.
@@ -263,7 +269,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			draw_frame(list->surface, checkbox.x, checkbox.y, checkbox.w, checkbox.h);
 
-			if (mx >= checkbox.x && mx < checkbox.x + checkbox.w && my >= checkbox.y && my < checkbox.y + checkbox.h)
+			if (popup_get_head() == settings_popup && mx >= checkbox.x && mx < checkbox.x + checkbox.w && my >= checkbox.y && my < checkbox.y + checkbox.h)
 			{
 				border_create_color(list->surface, &checkbox, "b09a9a");
 
@@ -291,7 +297,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
 
-			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == settings_popup))
 			{
 				setting_change_value(setting_category_selected, row, 1);
 			}
@@ -314,7 +320,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			dst.x -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w + 1;
 
-			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, dst.x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == settings_popup))
 			{
 				setting_change_value(setting_category_selected, row, -1);
 			}
@@ -421,7 +427,7 @@ static void setting_category_change(int advance)
 	if (new_cat != setting_category_selected)
 	{
 		setting_category_selected = new_cat;
-		settings_list_reload(list_exists(LIST_SETTINGS));
+		settings_list_reload(list_settings);
 	}
 }
 
@@ -430,7 +436,6 @@ static void setting_category_change(int advance)
  * @param popup The settings popup. */
 static int settings_popup_draw_func_post(popup_struct *popup)
 {
-	list_struct *list = list_exists(LIST_SETTINGS);
 	int x, y, mx, my, mstate;
 
 	mstate = SDL_GetMouseState(&mx, &my);
@@ -452,35 +457,35 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 		x = popup->x + 30;
 		y = popup->y + 50;
 
-		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x, y, "<", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
 			setting_category_change(-1);
 		}
 
-		dst.w = list->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
+		dst.w = list_settings->width + 8 - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
 		dst.h = 0;
 
-		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON_ROUND, BITMAP_BUTTON_ROUND_HOVER, BITMAP_BUTTON_ROUND_DOWN, x + dst.w, y, ">", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
 			setting_category_change(1);
 		}
 
-		setting = setting_categories[setting_category_selected]->settings[list->row_selected - 1];
+		setting = setting_categories[setting_category_selected]->settings[list_settings->row_selected - 1];
 
 		dst.w -= Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w;
-		string_blt(list->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, x + Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w, y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &dst);
+		string_blt(list_settings->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, x + Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w, y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &dst);
 
 		dst.h = 66;
-		string_blt_shadow(list->surface, FONT_ARIAL11, setting->desc ? setting->desc : "", x - 2, popup->y + popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &dst);
+		string_blt_shadow(list_settings->surface, FONT_ARIAL11, setting->desc ? setting->desc : "", x - 2, popup->y + popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &dst);
 
-		list_show(list, x, y);
+		list_show(list_settings, x, y);
 
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 55, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
 			settings_apply_change();
 		}
 
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + popup->surface->w - 10 - Bitmaps[BITMAP_BUTTON]->bitmap->w, popup->y + popup->surface->h - 30, "Done", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
 			return 0;
 		}
@@ -492,21 +497,21 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 
 		x = popup->x + 30;
 		y = popup->y + 50;
-		list_show(list, x, y);
+		list_show(list_settings, x, y);
 
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 74, "Add", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 74, "Add", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
-			setting_keybind_action(SDLK_n, list);
+			setting_keybind_action(SDLK_n, list_settings);
 		}
 
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 51, "Remove", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 51, "Remove", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
-			setting_keybind_action(SDLK_DELETE, list);
+			setting_keybind_action(SDLK_DELETE, list_settings);
 		}
 
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 28, "Repeat", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, popup->x + 30, popup->y + popup->surface->h - 28, "Repeat", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 		{
-			setting_keybind_action(SDLK_r, list);
+			setting_keybind_action(SDLK_r, list_settings);
 		}
 
 		if (text_input_string_flag)
@@ -554,9 +559,9 @@ static int settings_popup_draw_func_post(popup_struct *popup)
 			text_input_draw_background(ScreenSurface, dst.x, dst.y, BITMAP_LOGIN_INP);
 			text_input_draw_text(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, key_buf, COLOR_WHITE, TEXT_ALIGN_CENTER, BITMAP_LOGIN_INP, NULL);
 
-			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, dst.x + dst.w - Bitmaps[BITMAP_BUTTON]->bitmap->w, dst.y + 20, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, dst.x + dst.w - Bitmaps[BITMAP_BUTTON]->bitmap->w, dst.y + 20, "Apply", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 			{
-				setting_keybind_apply(list);
+				setting_keybind_apply(list_settings);
 			}
 		}
 	}
@@ -654,7 +659,8 @@ static int settings_popup_destroy_callback(popup_struct *popup)
 {
 	(void) popup;
 	settings_apply_change();
-	list_remove(list_exists(LIST_SETTINGS));
+	list_remove(list_settings);
+	list_settings = NULL;
 
 	if (text_input_string_flag)
 	{
@@ -663,6 +669,7 @@ static int settings_popup_destroy_callback(popup_struct *popup)
 	}
 
 	keybind_save();
+	settings_popup = NULL;
 
 	return 1;
 }
@@ -739,7 +746,6 @@ static void settings_button_handle(size_t button)
 {
 	if (button == BUTTON_KEY_SETTINGS || button == BUTTON_SETTINGS)
 	{
-		list_struct *list;
 		uint32 cols, max_rows;
 
 		if (button == BUTTON_SETTINGS)
@@ -757,32 +763,31 @@ static void settings_button_handle(size_t button)
 
 		setting_category_selected = 0;
 
-		list = list_create(LIST_SETTINGS, max_rows, cols, 8);
-		list->handle_esc_func = list_handle_esc;
-		list->handle_enter_func = list_handle_enter;
-		list_scrollbar_enable(list);
+		list_settings = list_create(max_rows, cols, 8);
+		list_settings->handle_esc_func = list_handle_esc;
+		list_settings->handle_enter_func = list_handle_enter;
+		list_scrollbar_enable(list_settings);
 
 		if (button == BUTTON_SETTINGS)
 		{
-			list_set_column(list, 0, 430, 7, NULL, -1);
-			list_set_font(list, FONT_SANS14);
-			list->handle_mouse_row_func = list_handle_mouse_row;
-			list->key_event_func = list_key_event;
-			list->row_highlight_func = NULL;
-			list->row_selected_func = NULL;
-			list->post_column_func = list_post_column;
+			list_set_column(list_settings, 0, 430, 7, NULL, -1);
+			list_set_font(list_settings, FONT_SANS14);
+			list_settings->handle_mouse_row_func = list_handle_mouse_row;
+			list_settings->key_event_func = list_key_event;
+			list_settings->row_highlight_func = NULL;
+			list_settings->row_selected_func = NULL;
+			list_settings->post_column_func = list_post_column;
 		}
 		else if (button == BUTTON_KEY_SETTINGS)
 		{
-			list_set_font(list, FONT_ARIAL11);
-			list_set_column(list, 0, 273, 7, "Command", -1);
-			list_set_column(list, 1, 93, 7, "Key", 1);
-			list_set_column(list, 2, 50, 7, "Repeat", 1);
-			list->header_height = 7;
+			list_set_font(list_settings, FONT_ARIAL11);
+			list_set_column(list_settings, 0, 273, 7, "Command", -1);
+			list_set_column(list_settings, 1, 93, 7, "Key", 1);
+			list_set_column(list_settings, 2, 50, 7, "Repeat", 1);
+			list_settings->header_height = 7;
 		}
 
-		list_set_focus(list);
-		settings_list_reload(list);
+		settings_list_reload(list_settings);
 		return;
 	}
 	else if (button == BUTTON_LOGOUT)
@@ -806,8 +811,6 @@ static int setting_popup_button_event_func(popup_button *button)
  * Handle events for the settings popup. */
 static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	list_struct *list;
-
 	if (setting_type == SETTING_TYPE_NONE)
 	{
 		if (GameStatus == GAME_STATUS_PLAY && button_event(&button_password, event))
@@ -874,6 +877,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 						else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 						{
 							settings_button_handle(i);
+							return 1;
 						}
 
 						break;
@@ -936,7 +940,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 			return 1;
 		}
 	}
-	else if ((list = list_exists(LIST_SETTINGS)))
+	else if (list_settings)
 	{
 		if (setting_type == SETTING_TYPE_KEYBINDINGS && (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP))
 		{
@@ -972,7 +976,7 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 				}
 				else if (setting_keybind_step == KEYBIND_STEP_DONE && event->type == SDL_KEYDOWN)
 				{
-					setting_keybind_apply(list);
+					setting_keybind_apply(list_settings);
 				}
 
 				return 1;
@@ -984,26 +988,19 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 					return 1;
 				}
 			}
-			else if (event->type == SDL_KEYDOWN && setting_keybind_action(event->key.keysym.sym, list))
+			else if (event->type == SDL_KEYDOWN && setting_keybind_action(event->key.keysym.sym, list_settings))
 			{
 				return 1;
 			}
 		}
 
-		/* Handle list events. */
-		if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+		if (list_handle_keyboard(list_settings, event))
 		{
-			if (list_handle_keyboard(list, &event->key))
-			{
-				return 1;
-			}
+			return 1;
 		}
-		else
+		else if (list_handle_mouse(list_settings, event))
 		{
-			if (list_handle_mouse(list, event->motion.x, event->motion.y, event))
-			{
-				return 1;
-			}
+			return 1;
 		}
 	}
 
@@ -1014,17 +1011,21 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
  * Open the settings popup. */
 void settings_open(void)
 {
-	popup_struct *popup;
+	/* Sanity check. */
+	if (settings_popup)
+	{
+		return;
+	}
 
 	/* Create the popup. */
-	popup = popup_create(BITMAP_POPUP);
-	popup->draw_func = settings_popup_draw_func;
-	popup->event_func = settings_popup_event_func;
-	popup->destroy_callback_func = settings_popup_destroy_callback;
-	popup->draw_func_post = settings_popup_draw_func_post;
+	settings_popup = popup_create(BITMAP_POPUP);
+	settings_popup->draw_func = settings_popup_draw_func;
+	settings_popup->event_func = settings_popup_event_func;
+	settings_popup->destroy_callback_func = settings_popup_destroy_callback;
+	settings_popup->draw_func_post = settings_popup_draw_func_post;
 
-	popup->button_left.event_func = setting_popup_button_event_func;
-	popup_button_set_text(&popup->button_left, "?");
+	settings_popup->button_left.event_func = setting_popup_button_event_func;
+	popup_button_set_text(&settings_popup->button_left, "?");
 
 	setting_type = SETTING_TYPE_NONE;
 

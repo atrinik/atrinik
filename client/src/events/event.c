@@ -151,11 +151,6 @@ int Event_PollInputDevice(void)
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
@@ -173,11 +168,6 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEMOTION:
 			{
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
@@ -196,11 +186,6 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;

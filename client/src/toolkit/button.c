@@ -29,6 +29,7 @@
 
 #include <global.h>
 
+static button_struct button_mousestate;
 /**
  * Last clicked ticks to prevent single button click from triggering many
  * actions at once. */
@@ -36,6 +37,11 @@ static uint32 ticks = 0;
 /**
  * How many milliseconds must past before a button repeat is triggered. */
 static uint32 ticks_delay;
+
+void button_init()
+{
+	button_create(&button_mousestate);
+}
 
 /**
  * Show a button.
@@ -58,7 +64,7 @@ static uint32 ticks_delay;
  * @param flags Text @ref TEXT_xxx "flags".
  * @return 1 if left mouse button is being held over the button, 0
  * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags)
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus)
 {
 	_Sprite *sprite = Bitmaps[bitmap_id];
 	int mx, my, ret = 0, state;
@@ -68,7 +74,7 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 	state = SDL_GetMouseState(&mx, &my);
 
 	/* Is the mouse inside the button? */
-	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
+	if (focus && mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
 	{
 		/* Change color. */
 		use_color = color_over;
@@ -151,8 +157,9 @@ void button_create(button_struct *button)
 	button->color_shadow = COLOR_BLACK;
 	button->color_over = COLOR_HGOLD;
 	button->color_over_shadow = COLOR_BLACK;
-
-	button->mouse_over = button->pressed = 0;
+	button->mouse_over = button->pressed = button->pressed_forced = button->disabled = 0;
+	button->pressed_ticks = button->hover_ticks = button->pressed_repeat_ticks = 0;
+	button->repeat_func = NULL;
 }
 
 /**

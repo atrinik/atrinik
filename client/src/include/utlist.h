@@ -467,6 +467,9 @@ do {                                                                            
 #define DL_FOREACH_SAFE(head,el,tmp)                                                           \
   for((el)=(head);(el) && (tmp = (el)->next, 1); (el) = tmp)
 
+#define DL_FOREACH_REVERSE_SAFE(head, el, tmp) \
+	for ((el) = (head) ? (head)->prev : NULL; (el) && ((tmp) = ((el)->prev == (head->prev) ? NULL : (el)->prev), 1); (el) = (tmp))
+
 /* these are identical to their singly-linked list counterparts */
 #define DL_SEARCH_SCALAR LL_SEARCH_SCALAR
 #define DL_SEARCH LL_SEARCH

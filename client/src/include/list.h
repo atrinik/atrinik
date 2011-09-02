@@ -39,9 +39,6 @@ typedef struct list_struct
 	/** Previous list in a linked list. */
 	struct list_struct *prev;
 
-	/** ID of the list, one of @ref LIST_xxx. */
-	uint32 id;
-
 	/** X position of the list. */
 	int x;
 
@@ -207,28 +204,6 @@ typedef struct list_struct
 
 	void (*handle_mouse_row_func)(struct list_struct *list, uint32 row, SDL_Event *event);
 } list_struct;
-
-/**
- * @defgroup LIST_xxx List IDs
- * IDs of lists in use. Each list used should have a unique ID.
- *@{*/
-/** The list showing servers. */
-#define LIST_SERVERS 1
-/** List of game news, right of the servers list. */
-#define LIST_NEWS 2
-/** List for use of displaying data in character creation screen. */
-#define LIST_CREATION 3
-/** List used in the music player widget. */
-#define LIST_MPLAYER 4
-/** List used in the spells widget. */
-#define LIST_SPELLS 5
-/** List used in the skills widget. */
-#define LIST_SKILLS 6
-/** Party list. */
-#define LIST_PARTY 7
-/** Settings list. */
-#define LIST_SETTINGS 8
-/*@}*/
 
 /** Calculate list's row height. */
 #define LIST_ROW_HEIGHT(list) (FONT_HEIGHT((list)->font) + (list)->row_height_adjust)

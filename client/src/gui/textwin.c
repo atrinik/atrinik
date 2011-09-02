@@ -173,8 +173,6 @@ void draw_info_flags(const char *color, int flags, const char *str)
 			textwin->num_entries -= scroll;
 		}
 	}
-
-	popup_overlay_redraw();
 }
 
 /**

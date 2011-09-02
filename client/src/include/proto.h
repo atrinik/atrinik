@@ -482,7 +482,8 @@ extern char *br_strcat(const char *str1, const char *str2);
 extern char *br_build_path(const char *dir, const char *file);
 extern char *br_dirname(const char *path);
 /* src/toolkit/button.c */
-extern int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags);
+extern void button_init(void);
+extern int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus);
 extern void button_create(button_struct *button);
 extern void button_render(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
@@ -492,10 +493,8 @@ extern int clipboard_init(void);
 extern int clipboard_set(const char *str);
 extern char *clipboard_get(void);
 /* src/toolkit/list.c */
-extern list_struct *list_get_focused(void);
-extern void list_set_focus(list_struct *list);
 extern void list_set_parent(list_struct *list, int px, int py);
-extern list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing);
+extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
 extern void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 extern void list_remove_row(list_struct *list, uint32 row);
 extern void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
@@ -506,24 +505,18 @@ extern void list_clear_rows(list_struct *list);
 extern void list_clear(list_struct *list);
 extern void list_offsets_ensure(list_struct *list);
 extern void list_remove(list_struct *list);
-extern void list_remove_all(void);
-extern int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event);
-extern int lists_handle_keyboard(SDL_KeyboardEvent *event);
-extern int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event);
-extern int lists_handle_mouse(int mx, int my, SDL_Event *event);
-extern list_struct *list_exists(uint32 id);
+extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
+extern int list_handle_mouse(list_struct *list, SDL_Event *event);
 extern void list_sort(list_struct *list, int type);
 extern int list_set_selected(list_struct *list, const char *str, uint32 col);
 /* src/toolkit/popup.c */
 extern popup_struct *popup_create(int bitmap_id);
 extern void popup_destroy(popup_struct *popup);
 extern void popup_destroy_all(void);
-extern int popup_overlay_need_update(void);
 extern void popup_render(popup_struct *popup);
 extern void popup_render_head(void);
 extern int popup_handle_event(SDL_Event *event);
 extern popup_struct *popup_get_head(void);
-extern void popup_overlay_redraw(void);
 extern void popup_button_set_text(popup_button *button, const char *text);
 /* src/toolkit/progress.c */
 extern void progress_dots_create(progress_dots *progress);

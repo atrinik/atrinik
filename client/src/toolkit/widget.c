@@ -2083,14 +2083,10 @@ void process_widgets(void)
  * This makes it as fast as a linear linked list if there are no child nodes. */
 void process_widgets_rec(widgetdata *widget)
 {
-	popup_struct *popup;
-
-	popup = popup_get_head();
-
 	do
 	{
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible && (!popup || popup_overlay_need_update()))
+		if (widget->show && widget->visible)
 		{
 			process_widget(widget);
 		}
