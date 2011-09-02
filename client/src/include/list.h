@@ -194,8 +194,20 @@ typedef struct list_struct
 	 * @return Color to use for the text. */
 	const char *(*text_color_hook)(struct list_struct *list, const char *default_color, uint32 row, uint32 col);
 
+	/**
+	 * Callback function to call after drawing one column in a list.
+	 * @param list The list.
+	 * @param row The row of the column that was drawn.
+	 * @param col The column. */
 	void (*post_column_func)(struct list_struct *list, uint32 row, uint32 col);
 
+	/**
+	 * Callback function to call when a mouse has been detected to be
+	 * located over a list row.
+	 * @param list The list.
+	 * @param row The row in the list the mouse is over.
+	 * @param event Event that triggered this - can be used to figure out
+	 * whether the event was a click, a motion, etc. */
 	void (*handle_mouse_row_func)(struct list_struct *list, uint32 row, SDL_Event *event);
 } list_struct;
 
