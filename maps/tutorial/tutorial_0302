@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2010-03-29 Edwin Miltenburg
-Modified: 2011-05-16 Edwin Miltenburg
+Modified: 2011-08-16 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -1771,13 +1771,13 @@ x 11
 y 9
 end
 arch exit
+speed 0.02
 face effect1_green.101
 animation meffect_green
 anim_speed 1
-slaying ../_itemple
+slaying /incuna/itemple
 hp 12
 sp 16
-speed 0.02
 x 11
 y 9
 arch event_obj
