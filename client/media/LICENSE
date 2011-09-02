@@ -141,7 +141,6 @@ hidden_passage.ogg: Night club
 world.ogg: Forest, magic forest, eerie
 world2.ogg: Eerie, cave
 town_music.ogg: Town music, sinister, Berri Lur
-travelling.ogg: Traveling music, ships
 
 =====================================
 = Edwin "Mamoru" Miltenburg - GPLv2 =
@@ -363,3 +362,10 @@ frankie.ogg: Thieves
 
 pure_romance.ogg
 trance.ogg
+
+=======================================================================================
+= bebeto - http://www.freesound.org/usersViewSingle.php?id=409 - CC Sampling Plus 1.0 =
+=======================================================================================
+
+travelling.ogg: Traveling music, ships
+jungle.ogg
