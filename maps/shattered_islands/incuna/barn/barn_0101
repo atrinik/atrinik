@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-08-16 Edwin Miltenburg
+Modified: 2011-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -743,6 +743,10 @@ arch floor_sand_d3
 x 8
 y 2
 end
+arch fwall_wood1b
+x 8
+y 2
+end
 arch floor_wood2_d2
 x 8
 y 3
@@ -847,9 +851,9 @@ x 9
 y 2
 end
 arch stairs_wood_up
-slaying /_incuna
-hp 71
-sp 74
+slaying ../../world_05ae
+hp 23
+sp 2
 x 9
 y 2
 end
@@ -2427,7 +2431,7 @@ y 20
 end
 arch stairs_wood_down
 direction 5
-slaying barn_a
+slaying barn_a_0101
 hp 22
 sp 11
 x 21

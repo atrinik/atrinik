@@ -51,9 +51,9 @@ arch floor_pattern_brown1
 y 7
 end
 arch stairs_stone_down
-slaying incuna/bank
-hp 7
-sp 1
+slaying world_a_05ad
+hp 1
+sp 7
 y 7
 end
 arch floor_pattern_brown1

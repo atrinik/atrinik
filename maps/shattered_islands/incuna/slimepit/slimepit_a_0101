@@ -2,7 +2,7 @@ arch map
 name Incuna - Slime Pit
 msg
 Created:  2010-10-23 Edwin Miltenburg
-Modified: 2011-08-16 Edwin Miltenburg
+Modified: 2011-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2490,8 +2490,8 @@ x 18
 y 4
 end
 arch invis_exit
-slaying slimepit
-hp 24
+slaying slimepit_0201
+hp 0
 sp 12
 x 18
 y 4

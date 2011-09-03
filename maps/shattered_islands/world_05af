@@ -2728,8 +2728,8 @@ y 13
 end
 arch hole
 layer 4
-slaying incuna/slimepit
-hp 42
+slaying incuna/slimepit/slimepit_0201
+hp 18
 sp 17
 x 20
 y 13

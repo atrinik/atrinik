@@ -3001,9 +3001,9 @@ y 20
 end
 arch stairs_stone_down
 direction 5
-slaying incuna/shop
-hp 5
-sp 3
+slaying world_a_04ad
+hp 16
+sp 20
 x 16
 y 20
 end

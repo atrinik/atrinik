@@ -1391,7 +1391,7 @@ y 6
 end
 arch stairs_stone_down
 direction 5
-slaying incuna/itemple
+slaying incuna/temple
 hp 3
 sp 1
 x 6
@@ -1631,7 +1631,7 @@ y 6
 end
 arch stairs_stone_down
 direction 5
-slaying incuna/itemple
+slaying incuna/temple
 hp 4
 sp 1
 x 7
@@ -1835,7 +1835,7 @@ y 6
 end
 arch stairs_stone_down
 direction 5
-slaying incuna/itemple
+slaying incuna/temple
 hp 5
 sp 1
 x 8
@@ -4666,7 +4666,7 @@ x 23
 y 2
 end
 arch stairs_wood_down
-slaying incuna/barn
+slaying incuna/barn/barn_0101
 hp 9
 sp 2
 x 23
