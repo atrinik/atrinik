@@ -235,4 +235,8 @@ typedef struct region_map_def
 #define RM_SCROLLBARH_HEIGHT 13
 /*@}*/
 
+/**
+ * Check whether the mouse is inside the region map. */
+#define RM_IN_MAP(_popup, _mx, _my) ((_mx) >= (_popup)->x + RM_MAP_STARTX && (_mx) < (_popup)->x + RM_MAP_STARTX + RM_MAP_WIDTH && (_my) >= (_popup)->y + RM_MAP_STARTY && (_my) < (_popup)->y + RM_MAP_STARTY + RM_MAP_HEIGHT)
+
 #endif

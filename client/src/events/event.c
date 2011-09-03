@@ -117,6 +117,10 @@ int Event_PollInputDevice(void)
 		{
 			keys[event.key.keysym.sym].pressed = 0;
 		}
+		else if (event.type == SDL_MOUSEMOTION)
+		{
+			tooltip_dismiss();
+		}
 
 		if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN)
 		{
@@ -147,11 +151,6 @@ int Event_PollInputDevice(void)
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
@@ -169,11 +168,6 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEMOTION:
 			{
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;
@@ -192,11 +186,6 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if (lists_handle_mouse(x, y, &event))
-				{
-					break;
-				}
-
 				if (GameStatus < GAME_STATUS_PLAY)
 				{
 					break;

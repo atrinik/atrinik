@@ -1756,6 +1756,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				{
 					max_height = FONT_HEIGHT(font);
 				}
+
+				if (info.calc_font != -1 && FONT_HEIGHT(info.calc_font) > max_height)
+				{
+					max_height = FONT_HEIGHT(info.calc_font);
+				}
 			}
 
 			/* Update the Y position. */
@@ -1837,6 +1842,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		if (font != orig_font && FONT_HEIGHT(font) > max_height)
 		{
 			max_height = FONT_HEIGHT(font);
+		}
+
+		if (info.calc_font != -1 && FONT_HEIGHT(info.calc_font) > max_height)
+		{
+			max_height = FONT_HEIGHT(info.calc_font);
 		}
 	}
 

@@ -25,72 +25,13 @@
 
 /**
  * @file
- * Popup API.
- *
- * Popup is basically a specified bitmap that appears in the middle of
- * the screen, graying out the background and disabling mouse clicks and
- * keyboard actions on the background.
- *
- * Graying out the background is managed by using an overlay image, which
- * is an SDL surface created when the popup is created. The pixels from
- * ::ScreenSurface are copied to this surface and grayed out, and the
- * surface is then copied over the ::ScreenSurface before doing any
- * actual popup drawing. When the screen size changes, the overlay is
- * re-created. */
+ * Popup API. */
 
 #include <global.h>
 
 /**
  * Doubly-linked list of the visible popups. */
 static popup_struct *popup_head = NULL;
-/**
- * Grayed out copy of ::ScreenSurface. */
-static SDL_Surface *popup_overlay = NULL;
-/**
- * Whether the popup overlay needs redrawing. */
-static uint8 popup_overlay_need_redraw = 0;
-
-/**
- * Create an overlay to be used as popup background. */
-static void popup_create_overlay(void)
-{
-	popup_struct *popup;
-	int j, k;
-	uint8 r, g, b, a;
-
-	DL_FOREACH_REVERSE(popup_head, popup)
-	{
-		if (popup == popup_head)
-		{
-			break;
-		}
-
-		popup_render(popup);
-	}
-
-	/* Already exists? Free it. */
-	if (popup_overlay)
-	{
-		SDL_FreeSurface(popup_overlay);
-	}
-
-	/* Create SDL surface with the same size as the ScreenSurface. */
-	popup_overlay = SDL_CreateRGBSurface(SDL_SWSURFACE, ScreenSurface->w, ScreenSurface->h, 32, 0, 0, 0, 0);
-
-	/* Copy pixels from ScreenSurface. */
-	for (k = 0; k < ScreenSurface->h; k++)
-	{
-		for (j = 0; j < ScreenSurface->w; j++)
-		{
-			SDL_GetRGBA(getpixel(ScreenSurface, j, k), ScreenSurface->format, &r, &g, &b, &a);
-			/* Gray out the pixel. */
-			r = g = b = (r + g + b) / 3;
-			putpixel(popup_overlay, j, k, SDL_MapRGBA(popup_overlay->format, r, g, b, a));
-		}
-	}
-
-	popup_overlay_need_redraw = 0;
-}
 
 /**
  * Create a new popup.
@@ -107,8 +48,6 @@ popup_struct *popup_create(int bitmap_id)
 	/* Store the bitmap used. */
 	popup->bitmap_id = bitmap_id;
 	DL_PREPEND(popup_head, popup);
-
-	popup_create_overlay();
 
 	SDL_GetMouseState(&mx, &my);
 	/* Make sure the mouse is no longer moving any widget. */
@@ -163,13 +102,6 @@ void popup_destroy(popup_struct *popup)
 	popup_button_free(&popup->button_left);
 
 	free(popup);
-
-	/* Free the overlay; will need to be re-created. */
-	if (popup_overlay)
-	{
-		SDL_FreeSurface(popup_overlay);
-		popup_overlay = NULL;
-	}
 }
 
 /**
@@ -182,15 +114,6 @@ void popup_destroy_all(void)
 	{
 		popup_destroy(popup);
 	}
-}
-
-/**
- * See if popup needs an overlay update due to screen resize or some
- * other reason.
- * @return Whether the overlay needs to be updated or not. */
-int popup_overlay_need_update(void)
-{
-	return !popup_overlay || popup_overlay->w != ScreenSurface->w || popup_overlay->h != ScreenSurface->h || popup_overlay_need_redraw;
 }
 
 /**
@@ -208,15 +131,11 @@ static void popup_button_render(popup_struct *popup, popup_button *button)
 }
 
 /**
- * Draw popup, if there is a visible one. */
+ * Render the specified popup.
+ * @param popup The popup to render. */
 void popup_render(popup_struct *popup)
 {
 	SDL_Rect box;
-
-	/* Draw the overlay. */
-	box.x = 0;
-	box.y = 0;
-	SDL_BlitSurface(popup_overlay, NULL, ScreenSurface, &box);
 
 	if (!popup->disable_bitmap_blit)
 	{
@@ -265,17 +184,12 @@ void popup_render(popup_struct *popup)
  * Render the first popup. */
 void popup_render_head(void)
 {
-	if (!popup_head)
-	{
-		return;
-	}
+	popup_struct *popup, *tmp;
 
-	if (popup_overlay_need_update())
+	DL_FOREACH_REVERSE_SAFE(popup_head, popup, tmp)
 	{
-		popup_create_overlay();
+		popup_render(popup);
 	}
-
-	popup_render(popup_head);
 }
 
 /**
@@ -358,13 +272,6 @@ int popup_handle_event(SDL_Event *event)
 popup_struct *popup_get_head(void)
 {
 	return popup_head;
-}
-
-/**
- * Mark popup overlay as needing an update. */
-void popup_overlay_redraw(void)
-{
-	popup_overlay_need_redraw = 1;
 }
 
 /**

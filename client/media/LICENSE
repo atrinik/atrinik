@@ -141,7 +141,6 @@ hidden_passage.ogg: Night club
 world.ogg: Forest, magic forest, eerie
 world2.ogg: Eerie, cave
 town_music.ogg: Town music, sinister, Berri Lur
-travelling.ogg: Traveling music, ships
 
 =====================================
 = Edwin "Mamoru" Miltenburg - GPLv2 =
@@ -301,6 +300,7 @@ th_17.mid: Lunar Clock ~ Luna Dial: Speciality shop, timed mini game
 th_18.mid: BAD Apple!!: Long windy cave looking for the other end, maze
 th_19.mid: Solar Sect of Mystic Wisdom ~ Nuclear Fusion: Pathway between two places for a quest
 th_20.mid: Beware the Umbrella Left There Forever: Haunted house, ghost boss
+th_21.mid: The Capital City of Flowers in the Sky
 
 =================================================================
 = http://sites.google.com/site/metaruka/GameGame - CC BY-SA 3.0 =
@@ -355,3 +355,17 @@ thonkdonk.ogg: Tribal, dungeon-like
 =======================================================
 
 frankie.ogg: Thieves
+
+=======================
+= Mike Koenig - CC-BY =
+=======================
+
+pure_romance.ogg
+trance.ogg
+
+=======================================================================================
+= bebeto - http://www.freesound.org/usersViewSingle.php?id=409 - CC Sampling Plus 1.0 =
+=======================================================================================
+
+travelling.ogg: Traveling music, ships
+jungle.ogg

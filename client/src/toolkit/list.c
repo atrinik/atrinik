@@ -29,14 +29,8 @@
 
 #include <global.h>
 
-/** Start of the visible lists. */
-static list_struct *list_head = NULL;
-/** End of the visible lists. */
-static list_struct *list_tail = NULL;
 /** Used to store scrollbar position. */
 static int old_scrollbar_pos = 0;
-
-static int list_handle_key(list_struct *list, SDLKey key);
 
 /**
  * Draw a frame in which the rows will be drawn.
@@ -82,69 +76,6 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 }
 
 /**
- * Get the currently focused list.
- *
- * If there is no focused list but there is at least one visible list,
- * will set the first list as the focused list.
- * @return Focused list, or NULL if there are no visible lists at all. */
-list_struct *list_get_focused(void)
-{
-	list_struct *tmp;
-
-	/* Try to find a focused list. */
-	for (tmp = list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp->focus)
-		{
-			return tmp;
-		}
-	}
-
-	/* Try to set the focus to the servers list, if possible. */
-	tmp = list_exists(LIST_SERVERS);
-
-	if (tmp)
-	{
-		tmp->focus = 1;
-		return tmp;
-	}
-
-	/* Failsafe in case there are lists, but none with active focus. */
-	if (list_head)
-	{
-		list_head->focus = 1;
-		return list_head;
-	}
-
-	return NULL;
-}
-
-/**
- * Set currently focused list.
- * @param list List to focus. */
-void list_set_focus(list_struct *list)
-{
-	list_struct *tmp;
-
-	/* Already focused, nothing to do. */
-	if (list->focus)
-	{
-		return;
-	}
-
-	/* Remove focus from previously focused list. */
-	for (tmp = list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp != list)
-		{
-			tmp->focus = 0;
-		}
-	}
-
-	list->focus = 1;
-}
-
-/**
  * Update list's parent X/Y coordinates.
  * @param list The list.
  * @param px Parent X.
@@ -157,12 +88,11 @@ void list_set_parent(list_struct *list, int px, int py)
 
 /**
  * Create new list.
- * @param id ID of the list, one of @ref LIST_xxx.
  * @param max_rows Maximum number of visible rows to show.
  * @param cols How many columns per row.
  * @param spacing Spacing between column names and the actual rows start.
  * @return The created list. */
-list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing)
+list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
 {
 	list_struct *list = calloc(1, sizeof(list_struct));
 
@@ -173,12 +103,12 @@ list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing)
 	}
 
 	/* Store the values. */
-	list->id = id;
 	list->max_rows = max_rows;
 	list->cols = cols;
 	list->spacing = spacing;
 	list->font = FONT_SANS10;
 	list->surface = ScreenSurface;
+	list->focus = 1;
 
 	/* Initialize defaults. */
 	list->frame_offset = -2;
@@ -196,23 +126,6 @@ list_struct *list_create(uint32 id, uint32 max_rows, uint32 cols, int spacing)
 	list->col_spacings = calloc(1, sizeof(*list->col_spacings) * list->cols);
 	list->col_names = calloc(1, sizeof(*list->col_names) * list->cols);
 	list->col_centered = calloc(1, sizeof(*list->col_centered) * list->cols);
-
-	/* First list. */
-	if (!list_head)
-	{
-		/* As this is the first list, by default it will have the focus. */
-		list->focus = 1;
-		list_head = list;
-		list->prev = NULL;
-	}
-	else
-	{
-		list_tail->next = list;
-		list->prev = list_tail;
-	}
-
-	list_tail = list;
-	list->next = NULL;
 
 	return list;
 }
@@ -663,31 +576,6 @@ void list_remove(list_struct *list)
 		return;
 	}
 
-	/* Remove it from the list. */
-	if (!list->prev)
-	{
-		list_head = list->next;
-	}
-	else
-	{
-		list->prev->next = list->next;
-	}
-
-	if (!list->next)
-	{
-		list_tail = list->prev;
-	}
-	else
-	{
-		list->next->prev = list->prev;
-	}
-
-	/* Removing the focused list, try to update the focus. */
-	if (list->focus)
-	{
-		list_get_focused();
-	}
-
 	list_clear(list);
 
 	free(list->col_widths);
@@ -705,17 +593,6 @@ void list_remove(list_struct *list)
 
 	free(list->col_names);
 	free(list);
-}
-
-/**
- * Remove all visible lists. */
-void list_remove_all(void)
-{
-	/* Loop until there is nothing left. */
-	while (list_head)
-	{
-		list_remove(list_head);
-	}
 }
 
 /**
@@ -784,15 +661,25 @@ static void list_scroll(list_struct *list, int up, int scroll)
 }
 
 /**
- * Handle one key press.
- * @param list List to do the keypress for.
- * @param key The key.
- * @return 1 if the key was handled, 0 otherwise. */
-static int list_handle_key(list_struct *list, SDLKey key)
+ * Handle keyboard event for the specified list.
+ * @param list List.
+ * @param event The event.
+ * @return 1 if we handled the event, 0 otherwise. */
+int list_handle_keyboard(list_struct *list, SDL_Event *event)
 {
+	if (!list)
+	{
+		return 0;
+	}
+
+	if (event->type != SDL_KEYDOWN)
+	{
+		return 0;
+	}
+
 	if (list->key_event_func)
 	{
-		int ret = list->key_event_func(list, key);
+		int ret = list->key_event_func(list, event->key.keysym.sym);
 
 		if (ret != -1)
 		{
@@ -800,27 +687,27 @@ static int list_handle_key(list_struct *list, SDLKey key)
 		}
 	}
 
-	switch (key)
+	switch (event->key.keysym.sym)
 	{
 		/* Up arrow. */
 		case SDLK_UP:
 			list_scroll(list, 1, 1);
-			break;
+			return 1;
 
 		/* Down arrow. */
 		case SDLK_DOWN:
 			list_scroll(list, 0, 1);
-			break;
+			return 1;
 
 		/* Page up. */
 		case SDLK_PAGEUP:
 			list_scroll(list, 1, list->max_rows);
-			break;
+			return 1;
 
 		/* Page down. */
 		case SDLK_PAGEDOWN:
 			list_scroll(list, 0, list->max_rows);
-			break;
+			return 1;
 
 		/* Esc, let the list creator handle this if they want to. */
 		case SDLK_ESCAPE:
@@ -829,7 +716,7 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_esc_func(list);
 			}
 
-			break;
+			return 1;
 
 		/* Enter. */
 		case SDLK_RETURN:
@@ -839,131 +726,61 @@ static int list_handle_key(list_struct *list, SDLKey key)
 				list->handle_enter_func(list);
 			}
 
-			break;
+			return 1;
 
 		/* Unhandled key. */
 		default:
-			return 0;
-	}
-
-	return 1;
-}
-
-/**
- * Handle keyboard event for the specified list.
- * @param list List.
- * @param event The keyboard event.
- * @return 1 if we handled the event, 0 otherwise. */
-int list_handle_keyboard(list_struct *list, SDL_KeyboardEvent *event)
-{
-	if (event->type == SDL_KEYDOWN)
-	{
-		/* Rotate between lists using tab. */
-		if (event->keysym.sym == SDLK_TAB)
-		{
-			/* Go backwards? */
-			if (event->keysym.mod & KMOD_SHIFT)
-			{
-				/* Previous list. */
-				if (list->prev)
-				{
-					list_set_focus(list->prev);
-				}
-				/* Last one. */
-				else
-				{
-					list_set_focus(list_tail);
-				}
-			}
-			else
-			{
-				/* Next list exists? */
-				if (list->next)
-				{
-					list_set_focus(list->next);
-				}
-				/* First one otherwise. */
-				else
-				{
-					list_set_focus(list_head);
-				}
-			}
-
-			return 1;
-		}
-
-		list_handle_key(list, event->keysym.sym);
-
-		return 1;
+			break;
 	}
 
 	return 0;
 }
 
 /**
- * Handle keyboard event.
+ * Handle mouse events for one list. Checking whether the mouse is over
+ * the list should have been done before calling this.
+ * @param list The list.
  * @param event Event.
- * @return 1 if we handled the event, 0 otherwise. */
-int lists_handle_keyboard(SDL_KeyboardEvent *event)
+ * @return 1 if the event was handled, 0 otherwise. */
+int list_handle_mouse(list_struct *list, SDL_Event *event)
 {
-	list_struct *list = list_get_focused();
+	uint32 row, old_highlighted, old_selected;
+	int mx, my;
 
-	/* No list exists. */
 	if (!list)
 	{
 		return 0;
 	}
 
-	if (list->surface != ScreenSurface)
+	if (event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEMOTION)
 	{
 		return 0;
 	}
 
-	return list_handle_keyboard(list, event);
-}
+	mx = event->motion.x - list->px;
+	my = event->motion.y - list->py;
 
-/**
- * Handle mouse events for one list. Checking whether the mouse is over
- * the list should have been done before calling this.
- * @param list The list.
- * @param mx Mouse X.
- * @param my Mouse Y.
- * @param event Event.
- * @return 1 if the event was handled, 0 otherwise. */
-int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
-{
-	uint32 row;
-
-	if (!LIST_MOUSE_OVER(list, mx, my) && !list->scrollbar_dragging)
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
-		return 0;
-	}
+		SDL_Rect scrollbar_box;
 
-	/* Left mouse button was pressed, update focused list. */
-	if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		list_set_focus(list);
-
-		if (event->button.button == SDL_BUTTON_LEFT)
+		if (list_slider_get_size(list, &scrollbar_box) && mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + list->scrollbar_h)
 		{
-			SDL_Rect scrollbar_box;
-
-			if (list_slider_get_size(list, &scrollbar_box) && mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + list->scrollbar_h)
-			{
-				old_scrollbar_pos = event->motion.y - list->scrollbar_y;
-				list->scrollbar_dragging = 1;
-				return 1;
-			}
+			old_scrollbar_pos = event->motion.y - list->scrollbar_y;
+			list->scrollbar_dragging = 1;
+			return 1;
 		}
 	}
 	else if (event->type == SDL_MOUSEBUTTONUP)
 	{
 		if (event->button.button == SDL_BUTTON_LEFT)
 		{
-			list->scrollbar_dragging = 0;
+			if (list->scrollbar_dragging)
+			{
+				list->scrollbar_dragging = 0;
+				return 1;
+			}
 		}
-
-		return 1;
 	}
 	else if (event->type == SDL_MOUSEMOTION)
 	{
@@ -995,20 +812,17 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 		}
 	}
 
-	if (mx >= list->x + list->width)
+	if (!LIST_MOUSE_OVER(list, mx, my))
 	{
-		return 1;
+		return 0;
 	}
+
+	old_highlighted = list->row_highlighted;
+	old_selected = list->row_selected;
 
 	/* No row is highlighted now. Will be switched back on as needed
 	 * below. */
 	list->row_highlighted = 0;
-
-	/* Handle mouse wheel for scrolling. */
-	if (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN)
-	{
-		list_scroll(list, event->button.button == SDL_BUTTON_WHEELUP, 1);
-	}
 
 	/* See which row the mouse is over. */
 	for (row = list->row_offset; row < list->rows; row++)
@@ -1065,48 +879,19 @@ int list_handle_mouse(list_struct *list, int mx, int my, SDL_Event *event)
 		}
 	}
 
-	return 1;
-}
-
-/**
- * Handle mouse events such as mouse motion and mouse click.
- * @param mx Mouse X.
- * @param my Mouse Y.
- * @param event The event.
- * @return 1 if we handled the event (mouse was inside the list), 0
- * otherwise. */
-int lists_handle_mouse(int mx, int my, SDL_Event *event)
-{
-	list_struct *tmp;
-
-	for (tmp = list_head; tmp; tmp = tmp->next)
+	/* Handle mouse wheel for scrolling. */
+	if (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN)
 	{
-		if (tmp->surface == ScreenSurface && list_handle_mouse(tmp, mx, my, event))
-		{
-			return 1;
-		}
+		list_scroll(list, event->button.button == SDL_BUTTON_WHEELUP, 1);
+		return 1;
+	}
+
+	if (old_highlighted != list->row_highlighted || old_selected != list->row_selected)
+	{
+		return 1;
 	}
 
 	return 0;
-}
-
-/**
- * Utility function: checks if list with the specified ID already exists.
- * @param id List ID. One of @ref LIST_xxx.
- * @return Pointer to the list if it exists, NULL otherwise. */
-list_struct *list_exists(uint32 id)
-{
-	list_struct *tmp;
-
-	for (tmp = list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp->id == id)
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
 }
 
 /**

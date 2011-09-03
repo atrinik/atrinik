@@ -189,7 +189,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	box.w = popup->surface->w;
 	box.h = popup->surface->h;
 
-	string_blt(ScreenSurface, FONT_SERIF20, "<u>Updater</u>", box.x, box.y + 10, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, FONT_SERIF20, "Updater", box.x, box.y - 5, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 	box.y += 50;
 
 	/* Show the progress dots. */
@@ -230,7 +230,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			box.y += 20;
 
 			/* Give the user a chance to retry. */
-			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 			{
 				updater_download_clean();
 				updater_download_start();
@@ -360,7 +360,7 @@ static int popup_draw_func_post(popup_struct *popup)
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 60;
 
-			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0))
+			if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, box.x + box.w / 2 - Bitmaps[BITMAP_BUTTON]->bitmap->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
 			{
 				return 0;
 			}

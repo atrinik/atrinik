@@ -865,6 +865,7 @@ int main(int argc, char *argv[])
 	fps_init();
 	settings_apply();
 	scrollbar_init();
+	button_init();
 
 	LastTick = anim_tick = SDL_GetTicks();
 
@@ -879,7 +880,6 @@ int main(int argc, char *argv[])
 			GameStatus = GAME_STATUS_INIT;
 			/* Make sure no popup is visible. */
 			popup_destroy_all();
-			list_remove_all();
 			continue;
 		}
 

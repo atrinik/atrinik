@@ -1604,7 +1604,7 @@ void communicate(object *op, char *txt)
 				{
 					if (talk_to_npc(op, npc, txt))
 					{
-						if (CONTR(op)->target_object != npc || CONTR(op)->target_object_count != npc->count)
+						if (op->type == PLAYER && (CONTR(op)->target_object != npc || CONTR(op)->target_object_count != npc->count))
 						{
 							CONTR(op)->target_object = npc;
 							CONTR(op)->target_object_count = npc->count;

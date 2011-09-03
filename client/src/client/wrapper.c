@@ -103,7 +103,6 @@ void system_start(void)
 void system_end(void)
 {
 	popup_destroy_all();
-	list_remove_all();
 	script_killall();
 	save_interface_file();
 	kill_widgets();

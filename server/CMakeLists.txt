@@ -369,7 +369,7 @@ endforeach (var)
 add_custom_target(proto
 	cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
 	COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
-	COMMAND sed -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/(void);/();/g" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
+	COMMAND sed -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
 	COMMAND cmake -E echo "#endif" >> src/include/proto.h
 	COMMAND cmake -E remove -f src/include/proto.h.bak
 	COMMAND python tools/adjust_proto.py src/include/proto.h || exit 5
@@ -388,7 +388,7 @@ if (CHECK_LIBRARY)
 	add_custom_target(proto_unit
 		cproto -ve -o src/tests/check_proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_CHECK_STRING}
 		COMMAND cmake -E echo "#ifndef __CPROTO__" > src/tests/check_proto.h
-		COMMAND sed -e "s/(void);/();/g" -e "s/\"\" //g" < src/tests/check_proto.h.bak >> src/tests/check_proto.h
+		COMMAND sed -e "s/\"\" //g" < src/tests/check_proto.h.bak >> src/tests/check_proto.h
 		COMMAND cmake -E echo "#endif" >> src/tests/check_proto.h
 		COMMAND cmake -E remove -f src/tests/check_proto.h.bak
 		COMMAND python tools/adjust_proto.py src/tests/check_proto.h || exit 5

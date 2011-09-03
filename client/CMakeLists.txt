@@ -246,7 +246,7 @@ endforeach (var)
 add_custom_target(proto
 	cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
 	COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
-	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/(void);/();/g" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
+	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
 	COMMAND cmake -E echo "#endif" >> src/include/proto.h
 	COMMAND cmake -E remove -f src/include/proto.h.bak
 	COMMAND python src/adjust_proto.py src/include/proto.h || exit 5

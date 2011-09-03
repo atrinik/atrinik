@@ -39,6 +39,9 @@
 /** Button buffer. */
 static button_struct button_close, button_help, button_parties, button_members, button_form, button_leave, button_password, button_chat;
 
+/** The party list. */
+static list_struct *list_party = NULL;
+
 /**
  * What type of data is currently in the list; -1 means no data,
  * otherwise one of @ref CMD_PARTY_xxx. */
@@ -95,29 +98,25 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
  * @param widget The widget. */
 void widget_party_background(widgetdata *widget)
 {
-	list_struct *list;
-
 	/* Create the surface. */
 	if (!widget->widgetSF)
 	{
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
 	}
 
-	list = list_exists(LIST_PARTY);
-
 	/* Create the party list. */
-	if (!list)
+	if (!list_party)
 	{
-		list = list_create(LIST_PARTY, 12, 2, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->surface = widget->widgetSF;
-		list->text_flags = TEXT_MARKUP;
-		list->row_highlight_func = list_row_highlight;
-		list->row_selected_func = list_row_selected;
-		list_scrollbar_enable(list);
-		list_set_column(list, 0, 130, 7, NULL, -1);
-		list_set_column(list, 1, 60, 7, NULL, -1);
-		list->header_height = 6;
+		list_party = list_create(12, 2, 8);
+		list_party->handle_enter_func = list_handle_enter;
+		list_party->surface = widget->widgetSF;
+		list_party->text_flags = TEXT_MARKUP;
+		list_party->row_highlight_func = list_row_highlight;
+		list_party->row_selected_func = list_row_selected;
+		list_scrollbar_enable(list_party);
+		list_set_column(list_party, 0, 130, 7, NULL, -1);
+		list_set_column(list_party, 1, 60, 7, NULL, -1);
+		list_party->header_height = 6;
 
 		/* Create various buttons... */
 		button_create(&button_close);
@@ -143,10 +142,7 @@ void widget_party_background(widgetdata *widget)
  * @param widget The widget. */
 void widget_party_render(widgetdata *widget)
 {
-	list_struct *list;
 	SDL_Rect box, dst;
-
-	list = list_exists(LIST_PARTY);
 
 	if (widget->redraw)
 	{
@@ -163,11 +159,10 @@ void widget_party_render(widgetdata *widget)
 		box.w = widget->wd;
 		string_blt(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
-		if (list)
+		if (list_party)
 		{
-			list->focus = 1;
-			list_set_parent(list, widget->x1, widget->y1);
-			list_show(list, 10, 23);
+			list_set_parent(list_party, widget->x1, widget->y1);
+			list_show(list_party, 10, 23);
 		}
 	}
 
@@ -214,11 +209,9 @@ void widget_party_render(widgetdata *widget)
  * @param event Event to handle. */
 void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 {
-	list_struct *list = list_exists(LIST_PARTY);
-
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
-	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
+	if (list_party && list_handle_mouse(list_party, event))
 	{
 		widget->redraw = 1;
 	}
@@ -277,9 +270,7 @@ void PartyCmd(unsigned char *data, int len)
 	/* List of parties, or list of party members. */
 	if (type == CMD_PARTY_LIST || type == CMD_PARTY_WHO)
 	{
-		list_struct *list = list_exists(LIST_PARTY);
-
-		list_clear(list);
+		list_clear(list_party);
 
 		while (pos < len)
 		{
@@ -289,8 +280,8 @@ void PartyCmd(unsigned char *data, int len)
 
 				GetString_String(data, &pos, party_name, sizeof(party_name));
 				GetString_String(data, &pos, party_leader, sizeof(party_leader));
-				list_add(list, list->rows, 0, party_name);
-				list_add(list, list->rows - 1, 1, party_leader);
+				list_add(list_party, list_party->rows, 0, party_name);
+				list_add(list_party, list_party->rows - 1, 1, party_leader);
 			}
 			else if (type == CMD_PARTY_WHO)
 			{
@@ -301,21 +292,21 @@ void PartyCmd(unsigned char *data, int len)
 				hp = data[pos++];
 				sp = data[pos++];
 				grace = data[pos++];
-				list_add(list, list->rows, 0, name);
+				list_add(list_party, list_party->rows, 0, name);
 				PARTY_STAT_BAR();
-				list_add(list, list->rows - 1, 1, bars);
+				list_add(list_party, list_party->rows - 1, 1, bars);
 			}
 		}
 
 		/* Sort the list of party members alphabetically. */
 		if (type == CMD_PARTY_WHO)
 		{
-			list_sort(list, LIST_SORT_ALPHA);
+			list_sort(list_party, LIST_SORT_ALPHA);
 		}
 
 		/* Update column names, depending on the list contents. */
-		list_set_column(list, 0, -1, -1, type == CMD_PARTY_LIST ? "Party name" : "Player", -1);
-		list_set_column(list, 1, -1, -1, type == CMD_PARTY_LIST ? "Leader" : "Stats", -1);
+		list_set_column(list_party, 0, -1, -1, type == CMD_PARTY_LIST ? "Party name" : "Player", -1);
+		list_set_column(list_party, 1, -1, -1, type == CMD_PARTY_LIST ? "Leader" : "Stats", -1);
 
 		list_contents = type;
 		cur_widget[PARTY_ID]->redraw = 1;
@@ -358,7 +349,6 @@ void PartyCmd(unsigned char *data, int len)
 	{
 		char name[MAX_BUF], bars[MAX_BUF];
 		uint8 hp, sp, grace;
-		list_struct *list;
 		uint32 row;
 
 		if (list_contents != CMD_PARTY_WHO)
@@ -370,30 +360,28 @@ void PartyCmd(unsigned char *data, int len)
 		hp = data[pos++];
 		sp = data[pos++];
 		grace = data[pos++];
-		list = list_exists(LIST_PARTY);
 
 		PARTY_STAT_BAR();
 		cur_widget[PARTY_ID]->redraw = 1;
 
-		for (row = 0; row < list->rows; row++)
+		for (row = 0; row < list_party->rows; row++)
 		{
-			if (!strcmp(list->text[row][0], name))
+			if (!strcmp(list_party->text[row][0], name))
 			{
-				free(list->text[row][1]);
-				list->text[row][1] = strdup(bars);
+				free(list_party->text[row][1]);
+				list_party->text[row][1] = strdup(bars);
 				return;
 			}
 		}
 
-		list_add(list, list->rows, 0, name);
-		list_add(list, list->rows - 1, 1, bars);
-		list_sort(list, LIST_SORT_ALPHA);
+		list_add(list_party, list_party->rows, 0, name);
+		list_add(list_party, list_party->rows - 1, 1, bars);
+		list_sort(list_party, LIST_SORT_ALPHA);
 	}
 	/* Remove member from the list of party members. */
 	else if (type == CMD_PARTY_REMOVE_MEMBER)
 	{
 		char name[MAX_BUF];
-		list_struct *list;
 		uint32 row;
 
 		if (list_contents != CMD_PARTY_WHO)
@@ -402,14 +390,13 @@ void PartyCmd(unsigned char *data, int len)
 		}
 
 		GetString_String(data, &pos, name, sizeof(name));
-		list = list_exists(LIST_PARTY);
 		cur_widget[PARTY_ID]->redraw = 1;
 
-		for (row = 0; row < list->rows; row++)
+		for (row = 0; row < list_party->rows; row++)
 		{
-			if (!strcmp(list->text[row][0], name))
+			if (!strcmp(list_party->text[row][0], name))
 			{
-				list_remove_row(list, row);
+				list_remove_row(list_party, row);
 				return;
 			}
 		}

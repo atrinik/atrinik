@@ -909,6 +909,51 @@ int filledRectAlpha(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2,
 	Uint8 alpha;
 	Uint32 mcolor;
 	int result = 0;
+	Sint16 left, right, top, bottom;
+
+	/*
+	* Check visibility of clipping rectangle
+	*/
+	if ((dst->clip_rect.w==0) || (dst->clip_rect.h==0)) {
+		return(0);
+	}
+
+	/*
+	* Get clipping boundary and
+	* check visibility of hline
+	*/
+	left = dst->clip_rect.x;
+	if (x2<left) {
+		return(0);
+	}
+	right = dst->clip_rect.x + dst->clip_rect.w - 1;
+	if (x>right) {
+		return(0);
+	}
+	top = dst->clip_rect.y;
+	if (y2<top) {
+		return(0);
+	}
+	bottom = dst->clip_rect.y + dst->clip_rect.h - 1;
+	if (y>bottom) {
+		return(0);
+	}
+
+	/*
+	* Clip x
+	*/
+	if (x < left) {
+		x = left;
+	}
+	if (x2 > right) {
+		x2 = right;
+	}
+	if (y < top) {
+		y = top;
+	}
+	if (y2 > bottom) {
+		y2 = bottom;
+	}
 
 	/*
 	* Lock the surface

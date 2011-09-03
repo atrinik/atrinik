@@ -43,12 +43,6 @@ void init_keys(void)
  * @param event The event to handle. */
 void key_handle_event(SDL_KeyboardEvent *event)
 {
-	/* Handle lists. */
-	if (lists_handle_keyboard(event))
-	{
-		return;
-	}
-
 	/* Handle text input. */
 	if (text_input_string_flag)
 	{
