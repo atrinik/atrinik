@@ -489,8 +489,8 @@ static int popup_draw_func_post(popup_struct *popup)
 			}
 		}
 
-		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 145, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
+		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 144, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 145, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
 	}
 
 	y += 100;
