@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-02 Alex Tokar
+Modified: 2011-09-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -666,6 +666,7 @@ arch dwarf_wheel
 zoom 60
 z 10
 align 10
+animation dwarf_wheel_reverse
 x 4
 y 10
 end
