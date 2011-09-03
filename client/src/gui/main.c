@@ -998,7 +998,7 @@ int main_screen_event(SDL_Event *event)
 		exit(0);
 		return 1;
 	}
-	else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB)
+	else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news)
 	{
 		int news_focus = 0;
 
@@ -1010,7 +1010,7 @@ int main_screen_event(SDL_Event *event)
 		list_news->focus = news_focus;
 		list_servers->focus = !news_focus;
 	}
-	else if (list_handle_keyboard(list_news->focus ? list_news : list_servers, event))
+	else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event))
 	{
 		return 1;
 	}
