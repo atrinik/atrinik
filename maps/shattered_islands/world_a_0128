@@ -11,6 +11,8 @@ darkness 2
 no_harm 1
 bg_music yewtree.mid
 region centennial
+tile_path_1 world_a_0129
+tile_path_5 world_a_0229
 end
 arch blocked
 x 1

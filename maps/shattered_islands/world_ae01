@@ -10,8 +10,11 @@ difficulty 1
 outdoor 1
 tile_path_1 world_ae02
 tile_path_2 world_ad01
+tile_path_3 world_aeaa
 tile_path_4 world_af01
 tile_path_5 world_ad02
+tile_path_6 world_adaa
+tile_path_7 world_afaa
 tile_path_8 world_af02
 end
 arch water_dk2
