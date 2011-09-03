@@ -2085,13 +2085,13 @@ void process_widgets_rec(widgetdata *widget)
 {
 	do
 	{
+		process_widget_background(widget);
+
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
 		if (widget->show && widget->visible)
 		{
 			process_widget(widget);
 		}
-
-		process_widget_background(widget);
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
