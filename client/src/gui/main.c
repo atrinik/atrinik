@@ -489,8 +489,8 @@ static int popup_draw_func_post(popup_struct *popup)
 			}
 		}
 
-		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 145, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 150, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
+		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 144, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 145, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
 	}
 
 	y += 100;
@@ -998,7 +998,7 @@ int main_screen_event(SDL_Event *event)
 		exit(0);
 		return 1;
 	}
-	else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB)
+	else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news)
 	{
 		int news_focus = 0;
 
@@ -1010,7 +1010,7 @@ int main_screen_event(SDL_Event *event)
 		list_news->focus = news_focus;
 		list_servers->focus = !news_focus;
 	}
-	else if (list_handle_keyboard(list_news->focus ? list_news : list_servers, event))
+	else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event))
 	{
 		return 1;
 	}
