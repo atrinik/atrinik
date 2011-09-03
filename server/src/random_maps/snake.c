@@ -27,9 +27,7 @@
  * @file
  * Snake-like layout generator. */
 
-#include <stdio.h>
 #include <global.h>
-#include <time.h>
 
 /**
  * Generate a snake-like layout.

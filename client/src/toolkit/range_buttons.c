@@ -27,7 +27,7 @@
  * @file
  * Range buttons API. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Last clicked ticks to prevent single button click from triggering many
@@ -50,23 +50,23 @@ int range_buttons_show(int x, int y, int *val, int advance)
 	state = SDL_GetMouseState(&mx, &my);
 
 	/* Show the two range buttons. */
-	sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_OFF], x, y, NULL, NULL);
+	sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_OFF], x, y, NULL, NULL);
 
 	/* Check the Y position. */
-	if (my > y && my < y + Bitmaps[BITMAP_DIALOG_RANGE_OFF]->bitmap->h && state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - ticks > 125))
+	if (my > y && my < y + Bitmaps[BITMAP_RANGE_BUTTONS_OFF]->bitmap->h && state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - ticks > 125))
 	{
 		/* If the left range button was clicked, decrease the value. */
-		if (mx > x && mx < x + Bitmaps[BITMAP_DIALOG_RANGE_L]->bitmap->w)
+		if (mx > x && mx < x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w)
 		{
-			sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_L], x, y, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_LEFT], x, y, NULL, NULL);
 			*val -= advance;
 			ticks = SDL_GetTicks();
 			return 1;
 		}
 		/* Otherwise increase it. */
-		else if (mx > x + Bitmaps[BITMAP_DIALOG_RANGE_L]->bitmap->w && mx < x + Bitmaps[BITMAP_DIALOG_RANGE_L]->bitmap->w + Bitmaps[BITMAP_DIALOG_RANGE_L]->bitmap->w)
+		else if (mx > x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w && mx < x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w)
 		{
-			sprite_blt(Bitmaps[BITMAP_DIALOG_RANGE_R], x + Bitmaps[BITMAP_DIALOG_RANGE_L]->bitmap->w, y, NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_RIGHT], x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w, y, NULL, NULL);
 			*val += advance;
 			ticks = SDL_GetTicks();
 			return 1;

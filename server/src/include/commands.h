@@ -48,9 +48,6 @@ typedef struct
 	int flags;
 } CommArray_s;
 
-extern CommArray_s Commands[], WizCommands[], CommunicationCommands[];
-extern const int CommandsSize, WizCommandsSize, CommunicationCommandSize;
-
 /**
  * @defgroup CMD_FLAG_xxx Command flags
  * Command flags used by CommArray_s::flags.

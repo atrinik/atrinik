@@ -143,7 +143,7 @@ void request_new_path(object *waypoint)
 
 /**
  * Get the next (valid) waypoint for which a path is requested */
-object *get_next_requested_path()
+object *get_next_requested_path(void)
 {
 	object *waypoint;
 	tag_t count;
@@ -603,8 +603,12 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 			searched_nodes++;
 #endif
 
+			if (QUERY_FLAG(HEAD(op), FLAG_WIZPASS))
+			{
+				block = 0;
+			}
 			/* Multi-arch or not? (blocked_link_2 works for normal archs too, but is more expensive) */
-			if (op->head || op->more)
+			else if (op->head || op->more)
 			{
 				block = blocked_link_2(op, map, x2, y2);
 			}

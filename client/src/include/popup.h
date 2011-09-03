@@ -30,6 +30,30 @@
 #ifndef POPUP_H
 #define POPUP_H
 
+/**
+ * A single "generic" button in a popup. */
+typedef struct popup_button
+{
+	/** X position in the popup of the button. */
+	int x;
+
+	/** Y position in the popup of the button. */
+	int y;
+
+	/** Text to show in the button. */
+	char *text;
+
+	/** The button. */
+	button_struct button;
+
+	/**
+	 * Callback function to call when the button is clicked.
+	 * @param button The clicked button.
+	 * @retval 1 Handled the event, should not do generic handling.
+	 * @retval 0 Did not handle the event. */
+	int (*event_func)(struct popup_button *button);
+} popup_button;
+
 /** A single popup. */
 typedef struct popup_struct
 {
@@ -41,10 +65,8 @@ typedef struct popup_struct
 	/** Bitmap ID to blit on the surface. */
 	int bitmap_id;
 
-	/**
-	 * Overlay image to draw before popup_struct::surface over the
-	 * ::ScreenSurface. */
-	SDL_Surface *overlay;
+	/** Disable automatically blitting the bitmap on the popup surface? */
+	uint8 disable_bitmap_blit;
 
 	/** Custom data. */
 	void *custom_data;
@@ -55,18 +77,36 @@ typedef struct popup_struct
 	/** Optional integers. */
 	sint64 i[3];
 
+	/** X position of the popup. */
+	int x;
+
+	/** Y position of the popup. */
+	int y;
+
+	/** The left button, generally the help button. */
+	popup_button button_left;
+
+	/** The right button, generally the close button. */
+	popup_button button_right;
+
+	/** Next popup in a doubly-linked list. */
+	struct popup_struct *next;
+
+	/** Previous popup in a doubly-linked list. */
+	struct popup_struct *prev;
+
 	/**
 	 * Function used for drawing on the popup's surface.
-	 * @param popup The popup. */
-	void (*draw_func)(struct popup_struct *popup);
+	 * @param popup The popup.
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func)(struct popup_struct *popup);
 
 	/**
 	 * Function used for drawing after blitting the popup's surface on
 	 * the main surface.
 	 * @param popup The popup.
-	 * @param x X position of the popup.
-	 * @param y Y position of the popup. */
-	void (*draw_func_post)(struct popup_struct *popup, int x, int y);
+	 * @return 0 to destroy the popup, 1 otherwise. */
+	int (*draw_func_post)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.

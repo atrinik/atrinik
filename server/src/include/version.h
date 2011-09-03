@@ -23,13 +23,13 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Version header file. */
+#ifndef VERSION_H
+#define VERSION_H
 
-/** Version of the server. */
-#ifdef MAKE
-#define Version "2.0"
-#else
-#define VERSION "2.0"
+/* Name of the package. */
+#define PACKAGE_NAME "Atrinik Server"
+
+/* Version of the package. */
+#define PACKAGE_VERSION "3.0"
+
 #endif

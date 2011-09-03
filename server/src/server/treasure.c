@@ -37,8 +37,6 @@
 /*#define TREASURE_VERBOSE*/
 
 #include <global.h>
-#include <treasure.h>
-#include <spellist.h>
 #include <loader.h>
 
 /** All the coin arches. */
@@ -93,7 +91,7 @@ static void free_artifact(artifact *at);
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
  *
  * Each treasure is parsed with the help of load_treasure(). */
-void load_treasures()
+void load_treasures(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF], buf[MAX_BUF], name[MAX_BUF];
@@ -190,7 +188,7 @@ void load_treasures()
  * Create money table, setting up pointers to the archetypes.
  *
  * This is done for faster access of the coins archetypes. */
-static void create_money_table()
+static void create_money_table(void)
 {
 	int i;
 
@@ -415,7 +413,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
  * Builds up the lists of artifacts from the file in the libdir.
  *
  * Can be called multiple times without ill effects. */
-void init_artifacts()
+void init_artifacts(void)
 {
 	static int has_been_inited = 0;
 	archetype *atemp;
@@ -633,6 +631,8 @@ void init_artifacts()
 				first_artifactlist = al;
 			}
 
+			arch_add(&art->def_at);
+
 			art->next = al->items;
 			al->items = art;
 		}
@@ -670,7 +670,7 @@ void init_artifacts()
 
 /**
  * Initialize global archetype pointers. */
-void init_archetype_pointers()
+void init_archetype_pointers(void)
 {
 	if (ring_arch_normal == NULL)
 	{
@@ -716,7 +716,7 @@ void init_archetype_pointers()
 /**
  * Allocate and return the pointer to an empty treasurelist structure.
  * @return New structure, blanked, never NULL. */
-static treasurelist *get_empty_treasurelist()
+static treasurelist *get_empty_treasurelist(void)
 {
 	treasurelist *tl = (treasurelist *) malloc(sizeof(treasurelist));
 
@@ -741,7 +741,7 @@ static treasurelist *get_empty_treasurelist()
 /**
  * Allocate and return the pointer to an empty treasure structure.
  * @return New structure, blanked, never NULL. */
-static treasure *get_empty_treasure()
+static treasure *get_empty_treasure(void)
 {
 	treasure *t = (treasure *) malloc(sizeof(treasure));
 
@@ -953,7 +953,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 					value *= (difficulty / 2) + 1;
 
 					/* So we have 80% to 120% of the fixed value */
-					value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+					value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 					for (i = 0; i < NUM_COINS; i++)
 					{
@@ -1134,12 +1134,13 @@ create_one_treasure_again_jmp:
 		else
 		{
 			/* If t->magic is != 0, that's our value - if not use default setting */
-			int i, value = t->magic ? t->magic : t->item->clone.value;
+			int i;
 
+			value = t->magic ? t->magic : t->item->clone.value;
 			value *= difficulty;
 
 			/* So we have 80% to 120% of the fixed value */
-			value = (int) ((float) value * 0.8f + (float) value * ((float) rndm(1, 40) / 100.0f));
+			value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
 			for (i = 0; i < NUM_COINS; i++)
 			{
@@ -2163,7 +2164,7 @@ jump_break1:
 
 						if (rndm_chance(4))
 						{
-							int d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+							d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
 							if (set_ring_bonus(op, d, difficulty))
 							{
@@ -2184,6 +2185,7 @@ jump_break1:
 				if (!op->msg && !rndm_chance(10))
 				{
 					int level = 5;
+					size_t msg_len = 0;
 
 					/* Set the book level properly. */
 					if (creator->level == 0 || IS_LIVE(creator))
@@ -2220,10 +2222,13 @@ jump_break1:
 					tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
 					generate_artifact(op, 1, T_STYLE_UNSET, 100);
 
+					msg_len = op->msg ? strlen(op->msg) : 0;
+
 					/* Books with info are worth more! */
-					if (op->msg && strlen(op->msg) > 0)
+					if (msg_len)
 					{
-						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((strlen(op->msg) / 250) + 1));
+						op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
+						op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
 					}
 
 					/* For library, chained books! */
@@ -2237,9 +2242,6 @@ jump_break1:
 					{
 						FREE_AND_COPY_HASH(op->slaying, creator->slaying);
 					}
-
-					/* Add exp so reading it gives xp (once) */
-					op->stats.exp = op->value > 10000 ? op->value / 5 : op->value / 10;
 				}
 
 				break;
@@ -2452,7 +2454,7 @@ jump_break1:
 /**
  * Allocate and return the pointer to an empty artifactlist structure.
  * @return New structure blanked, never NULL. */
-static artifactlist *get_empty_artifactlist()
+static artifactlist *get_empty_artifactlist(void)
 {
 	artifactlist *tl = (artifactlist *) malloc(sizeof(artifactlist));
 
@@ -2571,7 +2573,7 @@ artifact *find_artifact_type(const char *name, int type)
 
 /**
  * For debugging purposes. Dumps all tables. */
-void dump_artifacts()
+void dump_artifacts(void)
 {
 	artifactlist *al;
 	artifact *art;
@@ -2935,7 +2937,7 @@ static void free_artifact(artifact *at)
 
 /**
  * Free the artifact list. */
-static void free_artifactlist()
+static void free_artifactlist(void)
 {
 	artifactlist *al, *nextal;
 
@@ -2956,7 +2958,7 @@ static void free_artifactlist()
 
 /**
  * Free all treasure related memory. */
-void free_all_treasures()
+void free_all_treasures(void)
 {
 	treasurelist *tl, *next;
 

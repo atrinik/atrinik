@@ -30,37 +30,23 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define HUGE_BUF 4096
-#define MAX_BUF 256
 /** Maximum frames per second. */
 #define FRAMES_PER_SECOND 30
+#define COLOR_BUF 7
 
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
 
 /* For hash table (bmap, ...) */
 #define MAXSTRING 20
 
-/** Keymap structure */
-typedef struct _keymap
-{
-	/** The command text, submitted to server when key is pressed. */
-	char text[256];
-
-	/** Key name. */
-	char keyname[256];
-
-	/** Scan code of key. */
-	int key;
-
-	/** If true, key will be repeated when pressed. */
-	int repeatflag;
-}_keymap;
-
 /** The servers list, as given by the metaserver. */
 typedef struct server_struct
 {
 	/** Next server in the list. */
 	struct server_struct *next;
+
+	/** Previous server in the list. */
+	struct server_struct *prev;
 
 	/** IP of the server. */
 	char *ip;
@@ -92,117 +78,11 @@ typedef struct msg_anim_struct
 	/** Tick when it started. */
 	uint32 tick;
 
-	/** Flags as determined in DrawInfoCmd2(). */
-	int flags;
+	/** Color of the message animation. */
+	char color[COLOR_BUF];
 } msg_anim_struct;
 
-extern struct msg_anim_struct msg_anim;
-
-#ifndef SYSPATH
-#define SYSPATH "./"
-#endif
-
-#define FILE_ATRINIK_P0 "atrinik.p0"
-
-extern Uint32 sdl_dgreen, sdl_gray1, sdl_gray2, sdl_gray3, sdl_gray4, sdl_blue1;
-extern int mb_clicked;
-
-/* IMPORTANT: datatype must also be changed in dialog.c */
-typedef struct _options
-{
-	/* Sound */
-	int sound_volume;
-	int music_volume;
-
-	/* Visual */
-	int video_bpp;
-	int fullscreen;
-	int resolution_x;
-	int resolution_y;
-	int resolution;
-	int textwin_alpha;
-#ifdef WIDGET_SNAP
-	int widget_snap;
-#endif
-	int map_size_x;
-	int map_size_y;
-
-	/* Look & Feel */
-	int player_names;
-	int playerdoll;
-	int zoom;
-	int zoom_smooth;
-	int show_target_self;
-	int warning_hp;
-	int warning_food;
-	int show_tooltips;
-	int chat_timestamp;
-	int chat_font_size;
-	int chat_max_lines;
-
-	int collect_mode;
-	int key_repeat;
-
-	/* Exp display */
-	int expDisplay;
-
-	/* Debug */
-	int force_redraw;
-
-	/* True: show frame rate */
-	int show_frame;
-	int intelligent_fps_cap;
-	int sleep;
-	int max_speed;
-	int auto_bpp_flag;
-	int use_rect;
-
-	/* Fullscreen Flags */
-	int Full_HWSURFACE;
-	int Full_SWSURFACE;
-	int Full_HWACCEL;
-	int Full_DOUBLEBUF;
-	int Full_ANYFORMAT;
-	int Full_ASYNCBLIT;
-	int Full_HWPALETTE;
-	int Full_RESIZABLE;
-	int Full_NOFRAME;
-	int Full_RLEACCEL;
-
-	/* Windowed flags */
-	int Win_HWSURFACE;
-	int Win_SWSURFACE;
-	int Win_HWACCEL;
-	int Win_DOUBLEBUF;
-	int Win_ANYFORMAT;
-	int Win_ASYNCBLIT;
-	int Win_HWPALETTE;
-	int Win_RESIZABLE;
-	int Win_NOFRAME;
-	int Win_RLEACCEL;
-
-	/* INTERNAL FLAGS - Setup depends on option settings and selected mode */
-
-	/* We are in fullscreen mode */
-	int fullscreen_flag;
-
-	/* We doublebuf */
-	int doublebuf_flag;
-	int rleaccel_flag;
-	int no_meta;
-	Uint8 used_video_bpp;
-	Uint8 real_video_bpp;
-	uint32 videoflags_full;
-	uint32 videoflags_win;
-	int reload_gfx_user;
-	int disable_updates;
-	int tcp_nodelay;
-	int disable_rm_cache;
-	int fastport;
-	int allow_widgets_offscreen;
-}_options;
-
-extern struct _options options;
+#define FILE_ATRINIK_P0 "data/atrinik.p0"
 
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED		16
@@ -222,52 +102,6 @@ typedef struct _face_struct
 }_face_struct;
 
 #define NUM_STATS 7
-
-/* This entry is unused */
-#define LIST_ENTRY_UNUSED 	-1
-/* Entry is used but player doesn't have it */
-#define LIST_ENTRY_USED		1
-/* Player knows this used entry */
-#define LIST_ENTRY_KNOWN	2
-#define LIST_NAME_MAX		64
-#define DIALOG_LIST_ENTRY	26
-#define OPTWIN_MAX_TABLEN	14
-
-/* Skill list defines */
-
-/* Bind key list defines */
-
-/** Bindkey list max */
-#define BINDKEY_LIST_MAX 10
-
-/** Bindkey list structure */
-typedef struct _bindkey_list
-{
-	/** Entry */
-	_keymap entry[DIALOG_LIST_ENTRY];
-
-	/** Name */
-	char name[OPTWIN_MAX_TABLEN];
-
-	/** Size */
-	int size;
-}_bindkey_list;
-
-/** Dialog list structure */
-typedef struct _dialog_list_set
-{
-	/** Group number */
-	int group_nr;
-
-	/** Entry number */
-	int entry_nr;
-
-	/** For spell-list => spell, prayer, ... */
-	int class_nr;
-
-	/** Key change */
-	int key_change;
-}_dialog_list_set;
 
 typedef struct spell_entry_struct
 {
@@ -347,29 +181,22 @@ typedef struct _fire_mode
 	char name[128];
 }_fire_mode;
 
-/** Help files structure. */
-typedef struct help_files_struct
+/**
+ * A single help file entry. */
+typedef struct hfile_struct
 {
-	/** Help name, like "main", or "apply". */
-	char helpname[MAX_BUF];
+	char *key;
 
-	/** Help title (shown at the start of the book). */
-	char title[MAX_BUF];
+	char *msg;
 
-	/** The help message. */
-	char message[HUGE_BUF * 12];
+	size_t msg_len;
 
-	/** Is this for DMs only? */
-	int dm_only;
+	uint8 autocomplete;
 
-	/** Can the command be autocompleted using the tab key? */
-	int autocomplete;
+	uint8 autocomplete_wiz;
 
-	/** Next help entry. */
-	struct help_files_struct *next;
-} help_files_struct;
-
-extern help_files_struct *help_files;
+	UT_hash_handle hh;
+} hfile_struct;
 
 typedef enum _fire_mode_id
 {
@@ -446,17 +273,6 @@ typedef enum _game_status
 	GAME_STATUS_PLAY
 } _game_status;
 
-extern int f_custom_cursor;
-extern int x_custom_cursor;
-extern int y_custom_cursor;
-
-extern _game_status GameStatus;
-extern uint32 LastTick;
-extern uint32 tmpGameTick;
-extern uint32 FrameCount;
-extern server_struct *selected_server;
-extern int map_udate_flag, map_redraw_flag;
-
 enum
 {
 	ESC_MENU_KEYS,
@@ -496,17 +312,10 @@ typedef struct _bitmap_name
 
 typedef enum _bitmap_index
 {
-	BITMAP_PALETTE,
-	BITMAP_FONT1,
-	BITMAP_FONT6x3OUT,
-	BITMAP_BIGFONT,
-	BITMAP_FONTMEDIUM,
 	BITMAP_INTRO,
 
 	BITMAP_DOLL,
 
-	/* blacktile for map */
-	BITMAP_BLACKTILE,
 	BITMAP_LOGIN_INP,
 	BITMAP_INVSLOT,
 
@@ -577,22 +386,9 @@ typedef enum _bitmap_index
 	BITMAP_WARN_HP,
 	BITMAP_WARN_FOOD,
 
-	BITMAP_DIALOG_BG,
-	BITMAP_DIALOG_TITLE_OPTIONS,
-	BITMAP_DIALOG_TITLE_KEYBIND,
-	BITMAP_DIALOG_TITLE_SKILL,
-	BITMAP_DIALOG_TITLE_SPELL,
-	BITMAP_DIALOG_TITLE_PARTY,
-	BITMAP_DIALOG_BUTTON_UP,
-	BITMAP_DIALOG_BUTTON_DOWN,
-	BITMAP_DIALOG_TAB_START,
-	BITMAP_DIALOG_TAB,
-	BITMAP_DIALOG_TAB_STOP,
-	BITMAP_DIALOG_TAB_SEL,
-	BITMAP_DIALOG_CHECKER,
-	BITMAP_DIALOG_RANGE_OFF,
-	BITMAP_DIALOG_RANGE_L,
-	BITMAP_DIALOG_RANGE_R,
+	BITMAP_RANGE_BUTTONS_OFF,
+	BITMAP_RANGE_BUTTONS_LEFT,
+	BITMAP_RANGE_BUTTONS_RIGHT,
 
 	BITMAP_TARGET_HP,
 	BITMAP_TARGET_HP_B,
@@ -609,6 +405,7 @@ typedef enum _bitmap_index
 	BITMAP_TRAPPED,
 	BITMAP_PRAY,
 	BITMAP_BOOK,
+	BITMAP_BOOK_BORDER,
 	BITMAP_REGION_MAP,
 	BITMAP_SLIDER_LONG,
 	BITMAP_INVSLOT_MARKED,
@@ -629,12 +426,9 @@ typedef enum _bitmap_index
 	BITMAP_NEWS_BG,
 	BITMAP_EYES,
 	BITMAP_POPUP,
-	BITMAP_ARROW_UP,
-	BITMAP_ARROW_UP2,
-	BITMAP_ARROW_DOWN,
-	BITMAP_ARROW_DOWN2,
 	BITMAP_BUTTON_ROUND,
 	BITMAP_BUTTON_ROUND_DOWN,
+	BITMAP_BUTTON_ROUND_HOVER,
 	BITMAP_BUTTON_RECT,
 	BITMAP_BUTTON_RECT_HOVER,
 	BITMAP_BUTTON_RECT_DOWN,
@@ -643,6 +437,7 @@ typedef enum _bitmap_index
 	BITMAP_LOADING_ON,
 	BITMAP_BUTTON,
 	BITMAP_BUTTON_DOWN,
+	BITMAP_BUTTON_HOVER,
 	BITMAP_CHECKBOX,
 	BITMAP_CHECKBOX_ON,
 	BITMAP_CONTENT,
@@ -653,6 +448,15 @@ typedef enum _bitmap_index
 	BITMAP_ICON_MAP,
 	BITMAP_ICON_COGS,
 	BITMAP_ICON_QUEST,
+	BITMAP_FPS,
+	BITMAP_INTERFACE,
+	BITMAP_INTERFACE_BORDER,
+	BITMAP_BUTTON_LARGE,
+	BITMAP_BUTTON_LARGE_DOWN,
+	BITMAP_BUTTON_LARGE_HOVER,
+	BITMAP_BUTTON_ROUND_LARGE,
+	BITMAP_BUTTON_ROUND_LARGE_DOWN,
+	BITMAP_BUTTON_ROUND_LARGE_HOVER,
 
 	BITMAP_INIT
 }_bitmap_index;
@@ -662,38 +466,5 @@ enum
 {
 	MSCURSOR_MOVE = 1
 };
-
-extern struct gui_party_struct *gui_interface_party;
-
-extern struct _Font MediumFont;
-
-extern char text_input_string[MAX_INPUT_STRING];
-extern int text_input_count;
-extern int text_input_string_flag;
-extern int text_input_string_end_flag;
-extern int text_input_string_esc_flag;
-uint32 text_input_opened;
-
-/* Range table */
-extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
-extern int RangeFireMode;
-
-extern struct _Sprite *Bitmaps[];
-
-/* Face data */
-extern _face_struct FaceList[MAX_FACE_TILES];
-
-/* Bigger font */
-extern struct _Font BigFont;
-/* Our main font */
-extern struct _Font SystemFont;
-/* 6x3 mini font */
-extern struct _Font Font6x3Out;
-
-extern SDL_Surface *ScreenSurface;
-
-/* Server's attributes */
-extern struct sockaddr_in insock;
-
 
 #endif

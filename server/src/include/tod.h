@@ -59,11 +59,6 @@
 /** Hours per year. */
 #define HOURS_PER_YEAR      (HOURS_PER_MONTH * MONTHS_PER_YEAR)
 
-extern const char *season_name[SEASONS_PER_YEAR + 1];
-extern const char *weekdays[DAYS_PER_WEEK];
-extern const char *month_name[MONTHS_PER_YEAR];
-extern const char *periodsofday[PERIODS_PER_DAY];
-
 /** Represents the in-game time. */
 typedef struct _timeofday
 {

@@ -322,7 +322,7 @@ int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 
 /**
  * Reads the messages file into the list pointed to by first_msg. */
-static void init_msgfile()
+static void init_msgfile(void)
 {
 	FILE *fp;
 	char buf[MAX_BUF], fname[MAX_BUF], *cp;
@@ -403,7 +403,7 @@ static void init_msgfile()
 
 /**
  * Initialize array of ::monsters. */
-static void init_mon_info()
+static void init_mon_info(void)
 {
 	archetype *at;
 
@@ -426,7 +426,7 @@ static void init_mon_info()
  *
  * This is the function called by the main routine to initialize
  * all the readable information. */
-void init_readable()
+void init_readable(void)
 {
 	LOG(llevDebug, "Initializing reading data... ");
 	init_msgfile();
@@ -538,7 +538,7 @@ static void change_book(object *book, int msgtype)
 /**
  * Returns a random monster from all the monsters in the game.
  * @return The monster object */
-object *get_random_mon()
+object *get_random_mon(void)
 {
 	/* Safety. */
 	if (!monsters || !num_monsters)
@@ -557,7 +557,7 @@ object *get_random_mon()
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-	snprintf(buf, size, "<t t=\"%s\">%s", mon->name, describe_item(mon));
+	snprintf(buf, size, "<title>%s</title>\n%s", mon->name, describe_item(mon));
 	return buf;
 }
 
@@ -573,7 +573,7 @@ static char *mon_info_msg(char *buf, size_t booksize)
 	object *tmp;
 
 	/* Preamble */
-	strncpy(buf, "<t t=\"Bestiary\">Herein are detailed creatures found in the world around.\n", booksize - 1);
+	strncpy(buf, "<title>Bestiary</title>\nHerein are detailed creatures found in the world around.\n", booksize - 1);
 
 	/* Lets print info on as many monsters as will fit in our
 	 * document. */
@@ -603,7 +603,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 {
 	artifactlist *al;
 	artifact *art;
-	int chance, i, type, index;
+	int chance, i, type, idx;
 	int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
 	char *final, *ch;
 	object *tmp = NULL;
@@ -623,8 +623,8 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
 	do
 	{
-		index = rndm(1, arraysize(art_name_array)) - 1;
-		type = art_name_array[index].type;
+		idx = rndm(1, arraysize(art_name_array)) - 1;
+		type = art_name_array[idx].type;
 		al = find_artifactlist(type);
 		i++;
 	}
@@ -653,7 +653,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 	}
 
 	/* Ok, let's print out the contents */
-	snprintf(buf, booksize, "<t t=\"Magical %s\">Herein %s detailed %s...\n", art_name_array[index].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+	snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
 	/* Artifact msg attributes loop. Let's keep adding entries to the 'book'
 	 * as long as we have space up to the allowed max # (book_entries) */
@@ -669,7 +669,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 		give_artifact_abilities(tmp, art);
 		SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-		stringbuffer_append_printf(desc, "\n<t t=\"%s\">It is ", query_material_name(tmp));
+		stringbuffer_append_printf(desc, "\n<title>%s</title>\nIt is ", query_material_name(tmp));
 
 		/* Chance of finding. */
 		chance = 100 * ((float) art->chance / al->total_chance);
@@ -737,7 +737,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	buf[0] = '\0';
 
 	/* Preamble */
-	stringbuffer_append_printf(desc, "<t t=\"Path of %s\">Herein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
+	stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
 
 	/* Now go through the entire list of spells. Add appropriate spells
 	 * in our message buffer */
@@ -879,7 +879,7 @@ void tailor_readable_ob(object *book, int msg_type)
 
 /**
  * Cleanup routine for readable stuff. */
-void free_all_readable()
+void free_all_readable(void)
 {
 	size_t i;
 

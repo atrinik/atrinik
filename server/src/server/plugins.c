@@ -27,15 +27,8 @@
  * @file
  * Handles the plugins code. */
 
-#include <plugin.h>
+#include <global.h>
 #include <loader.h>
-
-/** The plugin suffix. */
-#ifndef WIN32
-#	define PLUGIN_SUFFIX ".so"
-#else
-#	define PLUGIN_SUFFIX ".dll"
-#endif
 
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
@@ -55,8 +48,7 @@ struct plugin_hooklist hooklist =
 	remove_ob,
 	fix_player,
 	insert_ob_in_ob,
-	new_info_map,
-	new_info_map_except,
+	draw_info_map,
 	spring_trap,
 	cast_spell,
 	update_ob_speed,
@@ -87,7 +79,6 @@ struct plugin_hooklist hooklist =
 	query_money,
 	pay_for_item,
 	pay_for_amount,
-	new_draw_info,
 	communicate,
 	object_create_clone,
 	get_object,
@@ -131,7 +122,6 @@ struct plugin_hooklist hooklist =
 	find_face,
 	find_animation,
 	play_sound_player_only,
-	new_draw_info_format,
 	was_destroyed,
 	object_get_gender,
 	change_abil,
@@ -164,6 +154,12 @@ struct plugin_hooklist hooklist =
 	send_target_command,
 	examine,
 	push_button,
+	draw_info,
+	draw_info_format,
+	draw_info_flags,
+	draw_info_flags_format,
+	Send_With_Handling,
+	SockList_AddString,
 
 	season_name,
 	weekdays,
@@ -311,12 +307,12 @@ void display_plugins_list(object *op)
 	DIR *plugdir;
 	atrinik_plugin *plugin;
 
-	new_draw_info(NDI_UNIQUE, op, "List of loaded plugins:");
-	new_draw_info(NDI_UNIQUE, op, "-----------------------");
+	draw_info(COLOR_WHITE, op, "List of loaded plugins:");
+	draw_info(COLOR_WHITE, op, "-----------------------");
 
 	for (plugin = plugins_list; plugin; plugin = plugin->next)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s, %s", plugin->id, plugin->fullname);
+		draw_info_format(COLOR_WHITE, op, "%s, %s", plugin->id, plugin->fullname);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/", PLUGINDIR);
@@ -327,17 +323,15 @@ void display_plugins_list(object *op)
 		return;
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "\nList of loadable plugins:");
-	new_draw_info(NDI_UNIQUE, op, "-----------------------");
+	draw_info(COLOR_WHITE, op, "\nList of loadable plugins:");
+	draw_info(COLOR_WHITE, op, "-----------------------");
 
 	/* Go through the files in the directory */
 	while ((currentfile = readdir(plugdir)))
 	{
-		size_t l = strlen(currentfile->d_name);
-
-		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
-			new_draw_info(NDI_UNIQUE, op, currentfile->d_name);
+			draw_info(COLOR_WHITE, op, currentfile->d_name);
 		}
 	}
 
@@ -348,7 +342,7 @@ void display_plugins_list(object *op)
  * Initializes plugins. Browses the plugins directory and calls
  * init_plugin() for each plugin file found with the extension being
  * @ref PLUGIN_SUFFIX. */
-void init_plugins()
+void init_plugins(void)
 {
 	struct dirent *currentfile;
 	DIR *plugdir;
@@ -363,9 +357,7 @@ void init_plugins()
 
 	while ((currentfile = readdir(plugdir)))
 	{
-		size_t l = strlen(currentfile->d_name);
-
-		if (l > strlen(PLUGIN_SUFFIX) && !strcmp(currentfile->d_name + l - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
 			snprintf(pluginfile, sizeof(pluginfile), "%s/%s", PLUGINDIR, currentfile->d_name);
 			LOG(llevInfo, "Loading plugin %s\n", currentfile->d_name);
@@ -380,7 +372,7 @@ void init_plugins()
 /**
  * There is no dlerror() on Win32, so we make our own.
  * @return Returned error from loading a plugin. */
-static const char *plugins_dlerror()
+static const char *plugins_dlerror(void)
 {
 	static char buf[MAX_BUF];
 	DWORD err = GetLastError();
@@ -535,7 +527,7 @@ void remove_plugin(const char *id)
 
 /**
  * Deinitialize all plugins. */
-void remove_plugins()
+void remove_plugins(void)
 {
 	atrinik_plugin *plugin;
 
@@ -629,7 +621,7 @@ void map_event_obj_deinit(object *ob)
  * @param text String related to this event.
  * @param parm Integer related to this event.
  * @return 1 if the event returns an event value, 0 otherwise. */
-int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, char *text, int parm)
+int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm)
 {
 	map_event *tmp;
 

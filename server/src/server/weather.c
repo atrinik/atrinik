@@ -41,7 +41,7 @@ const int season_timechange[5][HOURS_PER_DAY] =
 
 /**
  * Initializes the world darkness value. */
-void init_world_darkness()
+void init_world_darkness(void)
 {
 	int i;
 	timeofday_t tod;
@@ -54,7 +54,7 @@ void init_world_darkness()
 		world_darkness -= season_timechange[tod.season][i];
 	}
 
-	for (i = 0; i <= tod.hour; i++)
+	for (i = 0; i < tod.hour + 1; i++)
 	{
 		world_darkness -= season_timechange[tod.season][i];
 	}
@@ -66,7 +66,7 @@ void init_world_darkness()
  * saved on shutdown. Any time dependant functions should be called
  * from this function, and probably be passed tod as an argument.
  * Please don't modify tod in the dependant function. */
-void tick_the_clock()
+void tick_the_clock(void)
 {
 	timeofday_t tod;
 

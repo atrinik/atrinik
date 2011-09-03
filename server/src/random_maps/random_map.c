@@ -28,8 +28,6 @@
  * Random map generation main routines.
  * @todo Explain process, layout signs (# C D < >) and such. */
 
-#include <time.h>
-#include <stdio.h>
 #include <global.h>
 
 /**

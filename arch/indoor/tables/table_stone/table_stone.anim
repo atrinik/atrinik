@@ -1,0 +1,38 @@
+anim table_stone_a
+facings 9
+dummy.111
+table_stone_a.111
+table_stone_a.111
+table_stone_a.111
+table_stone_a.131
+table_stone_a.131
+table_stone_a.131
+table_stone_a.131
+table_stone_a.111
+mina
+
+anim table_stone_b
+facings 9
+dummy.111
+table_stone_b.111
+table_stone_b.111
+table_stone_b.111
+table_stone_b.131
+table_stone_b.131
+table_stone_b.131
+table_stone_b.131
+table_stone_b.111
+mina
+
+anim table_stone_c
+facings 9
+dummy.111
+table_stone_c.111
+table_stone_c.111
+table_stone_c.111
+table_stone_c.131
+table_stone_c.131
+table_stone_c.131
+table_stone_c.131
+table_stone_c.111
+mina

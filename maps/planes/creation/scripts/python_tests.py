@@ -25,7 +25,7 @@ def main_say():
 	marked = activator.Controller().FindMarkedObject()
 
 	if msg == "hello" or msg == "hey" or msg == "hi":
-		me.SayTo(activator, "\nAvailable tests:\n^equipment EQUIPMENT^, ^get god^, ^set god^\n^create object inside^, ^apply object^\n^drop and pickup^, ^get object name^\n^get gender^, ^set gender GENDER^\n^get key^, ^add key^, ^delete key^\n^sound^, ^savebed^, ^book^, ^ip^, ^exception^\n^player exists PLAYER^, ^find player PLAYER^\n^beacon BEACON^, ^timer^, ^compare^, ^region^, ^vector^")
+		me.SayTo(activator, "\nAvailable tests:\n<a>equipment EQUIPMENT</a>, <a>get god</a>, <a>set god</a>\n<a>create object inside</a>, <a>apply object</a>\n<a>drop and pickup</a>, <a>get object name</a>\n<a>get gender</a>, <a>set gender GENDER</a>\n<a>get key</a>, <a>add key</a>, <a>delete key</a>\n<a>sound</a>, <a>savebed</a>, <a>book</a>, <a>ip</a>, <a>exception</a>\n<a>player exists PLAYER</a>, <a>find player PLAYER</a>\n<a>beacon BEACON</a>, <a>timer</a>, <a>compare</a>, <a>region</a>, <a>vector</a>")
 
 	# GetEquipment is much more efficient than looping player's inventory for
 	# applied equipment.
@@ -46,7 +46,7 @@ def main_say():
 			else:
 				me.SayTo(activator, "\nYou have no equipment on slot {0}.".format(words[1]))
 		else:
-			me.SayTo(activator, "\nTry ^equipment armor^, ^equipment weapon^ or ^equipment 4^.")
+			me.SayTo(activator, "\nTry <a>equipment armor</a>, <a>equipment weapon</a> or <a>equipment 4</a>.")
 
 	# Get player's god.
 	elif msg == "get god":
@@ -120,7 +120,7 @@ def main_say():
 			activator.SetGender(Gender.HERMAPHRODITE)
 			me.SayTo(activator, "\nYour gender is now hermaphrodite.")
 		else:
-			me.SayTo(activator, "\nUnknown gender. Try one of:\n^set gender male^, ^set gender female^, ^set gender neuter^ or ^set gender hermaphrodite^.")
+			me.SayTo(activator, "\nUnknown gender. Try one of:\n<a>set gender male</a>, <a>set gender female</a>, <a>set gender neuter</a> or <a>set gender hermaphrodite</a>.")
 
 	# Example usage of key values.
 	elif (words[0] == "get" or words[0] == "add" or words[0] == "delete") and words[1] == "key":

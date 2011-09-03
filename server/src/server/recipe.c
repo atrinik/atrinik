@@ -40,8 +40,6 @@
  * </pre> */
 
 #include <global.h>
-#include <object.h>
-#include <ctype.h>
 
 /** Pointer to first recipelist. */
 static recipelist *formulalist;
@@ -56,7 +54,7 @@ static recipelist *get_random_recipelist();
 /**
  * Allocates a new recipelist.
  * @return New structure initialized. Never NULL. */
-static recipelist *init_recipelist()
+static recipelist *init_recipelist(void)
 {
 	recipelist *tl = (recipelist *) malloc(sizeof(recipelist));
 
@@ -75,7 +73,7 @@ static recipelist *init_recipelist()
 /**
  * Allocates a new recipe.
  * @return New structure initialized. Never NULL. */
-static recipe *get_empty_formula()
+static recipe *get_empty_formula(void)
 {
 	recipe *t = (recipe *) malloc(sizeof(recipe));
 
@@ -145,7 +143,7 @@ static int check_recipe(recipe *rp)
 
 /**
  * Builds up the lists of formula from the file in the libdir. */
-void init_formulae()
+void init_formulae(void)
 {
 	static int has_been_done = 0;
 	FILE *fp;
@@ -221,7 +219,7 @@ void init_formulae()
 		}
 		else if (!strncmp(cp, "ingred", 6))
 		{
-			int numb_ingred = 1;
+			int num_ingred = 1;
 			cp = strchr(cp, ' ') + 1;
 
 			do
@@ -229,7 +227,7 @@ void init_formulae()
 				if ((next = strchr(cp, ',')) != NULL)
 				{
 					*(next++) = '\0';
-					numb_ingred++;
+					num_ingred++;
 				}
 
 				tmp = (linked_char *) malloc(sizeof(linked_char));
@@ -248,7 +246,7 @@ void init_formulae()
 			/* now find the correct (# of ingred ordered) formulalist */
 			fl = formulalist;
 
-			while (numb_ingred != 1)
+			while (num_ingred != 1)
 			{
 				if (!fl->next)
 				{
@@ -256,7 +254,7 @@ void init_formulae()
 				}
 
 				fl = fl->next;
-				numb_ingred--;
+				num_ingred--;
 			}
 
 			fl->total_chance += formula->chance;
@@ -289,7 +287,7 @@ void init_formulae()
  * index value. Under the new nbatches code, it is possible to have
  * multiples of ingredients in a cauldron which could result in an index
  * formula mismatch. We *don't* check for that possibility here. */
-static void check_formulae()
+static void check_formulae(void)
 {
 	recipelist *fl;
 	recipe *check, *formula;
@@ -319,7 +317,7 @@ static void check_formulae()
 
 /**
  * Dumps alchemy recipes using LOG(). */
-void dump_alchemy()
+void dump_alchemy(void)
 {
 	recipelist *fl = formulalist;
 	recipe *formula = NULL;
@@ -600,7 +598,7 @@ static long find_ingred_cost(const char *name)
 
 /**
  * Dumps all costs of recipes using LOG(). */
-void dump_alchemy_costs()
+void dump_alchemy_costs(void)
 {
 	recipelist *fl = formulalist;
 	recipe *formula = NULL;
@@ -826,7 +824,7 @@ static int numb_ingred(const char *buf)
 /**
  * Gets a random recipe list.
  * @return Random recipe list. */
-static recipelist *get_random_recipelist()
+static recipelist *get_random_recipelist(void)
 {
 	recipelist *fl = NULL;
 	int number = 0, roll = 0;
@@ -913,7 +911,7 @@ recipe *get_random_recipe(recipelist *rpl)
 
 /**
  * Frees all memory allocated to recipes and recipes lists. */
-void free_all_recipes()
+void free_all_recipes(void)
 {
 	recipelist *fl = formulalist, *flnext;
 	recipe *formula = NULL, *next;

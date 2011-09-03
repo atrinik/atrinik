@@ -223,7 +223,7 @@ static void expand_sight(object *op);
  * these spaces could possibly get blocked, since these
  * are the only ones further out that are still possibly in the
  * sightline. */
-void init_block()
+void init_block(void)
 {
 	int x, y, dx, dy, i;
 	static const int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
@@ -311,10 +311,10 @@ void init_block()
  * @param by Blocked Y position */
 void set_block(int x, int y, int bx, int by)
 {
-	int index = block[x][y].index, i;
+	int idx = block[x][y].index, i;
 
 	/* Due to flipping, we may get duplicates - better safe than sorry. */
-	for (i = 0; i < index; i++)
+	for (i = 0; i < idx; i++)
 	{
 		if (block[x][y].x[i] == bx && block[x][y].y[i] == by)
 		{
@@ -322,8 +322,8 @@ void set_block(int x, int y, int bx, int by)
 		}
 	}
 
-	block[x][y].x[index] = bx;
-	block[x][y].y[index] = by;
+	block[x][y].x[idx] = bx;
+	block[x][y].y[idx] = by;
 	block[x][y].index++;
 
 #ifdef LOS_DEBUG
@@ -535,8 +535,6 @@ void update_los(object *op)
 		 * stacks to normal LOS. */
 		if (QUERY_FLAG(op, FLAG_XRAYS))
 		{
-			int x, y;
-
 			for (x = -3; x <= 3; x++)
 			{
 				for (y = -3; y <= 3; y++)

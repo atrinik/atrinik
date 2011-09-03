@@ -9,4 +9,4 @@ from Atrinik import *
 activator = WhoIsActivator()
 
 if activator.type == Type.PLAYER:
-	activator.Write(WhatIsEvent().msg, 0)
+	activator.Write(WhatIsEvent().msg, COLOR_WHITE)

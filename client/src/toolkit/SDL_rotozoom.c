@@ -6,12 +6,7 @@ LGPL (c) A. Schiffler
 
 */
 
-#include <include.h>
-#include <math.h>
-
-#ifndef M_PI
-#define M_PI	3.141592654
-#endif
+#include <global.h>
 
 /* ---- Internally used structures */
 
@@ -122,7 +117,7 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
 					sp++;
 				}
 				/* src dx loop */
-				sp = (tColorRGBA *)((Uint8*)sp + (src->pitch - 4*factorx)); // next y
+				sp = (tColorRGBA *)((Uint8*)sp + (src->pitch - 4*factorx)); /* next y */
 			}
 			/* src dy loop */
 
@@ -916,7 +911,7 @@ void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx,
 {
 	double x, y, cx, cy, sx, sy;
 	double radangle;
-	int dstwidthhalf, dstheighthalf;
+	double dstwidthhalf, dstheighthalf;
 
 	(void) zoomy;
 
@@ -935,12 +930,10 @@ void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx,
 	sx = *sanglezoom * x;
 	sy = *sanglezoom * y;
 
-	dstwidthhalf = MAX((int)
-		ceil(MAX(MAX(MAX(fabs(cx + sy), fabs(cx - sy)), fabs(-cx + sy)), fabs(-cx - sy))), 1);
-	dstheighthalf = MAX((int)
-		ceil(MAX(MAX(MAX(fabs(sx + cy), fabs(sx - cy)), fabs(-sx + cy)), fabs(-sx - cy))), 1);
-	*dstwidth = 2 * dstwidthhalf;
-	*dstheight = 2 * dstheighthalf;
+	dstwidthhalf = MAX(ceil(MAX(MAX(MAX(fabs(cx + sy), fabs(cx - sy)), fabs(-cx + sy)), fabs(-cx - sy))), 1);
+	dstheighthalf = MAX(ceil(MAX(MAX(MAX(fabs(sx + cy), fabs(sx - cy)), fabs(-sx + cy)), fabs(-sx - cy))), 1);
+	*dstwidth = (int) (dstwidthhalf * 2.0);
+	*dstheight = (int) (dstheighthalf * 2.0);
 }
 
 /*!

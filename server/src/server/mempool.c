@@ -60,12 +60,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#endif
-
 #ifdef MEMPOOL_OBJECT_TRACKING
 /* for debugging only! */
 static struct mempool_chunk *used_object_list = NULL;
@@ -181,7 +175,7 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
 
 /**
  * Initialize the mempools lists and related data structures. */
-void init_mempools()
+void init_mempools(void)
 {
 #ifdef MEMPOOL_TRACKING
 	pool_puddle = create_mempool("puddles", 10, sizeof(struct puddle_info), MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
@@ -211,7 +205,7 @@ static void free_mempool(struct mempool *pool)
 
 /**
  * Free all the mempools previously initialized by init_mempools(). */
-void free_mempools()
+void free_mempools(void)
 {
 	LOG(llevDebug, "Freeing memory pools.\n");
 #ifdef MEMPOOL_TRACKING
@@ -457,7 +451,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 
 				if (op)
 				{
-					new_draw_info(NDI_UNIQUE, op, buf);
+					draw_info(COLOR_WHITE, op, buf);
 				}
 
 				LOG(llevSystem, "%s\n", buf);
@@ -484,7 +478,7 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
  * object claims it's in an inventory we check the inventory - same for
  * map. If we have detached but not deleted a object - we will find it
  * here. */
-void check_use_object_list()
+void check_use_object_list(void)
 {
 	struct mempool_chunk *chunk;
 

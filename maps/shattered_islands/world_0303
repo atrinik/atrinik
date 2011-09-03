@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-11 Edwin Miltenburg
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -378,11 +378,11 @@ y 12
 end
 arch sign
 msg
-~Praying~
+<green>Praying</green>
 Every prayer needs grace for casting.
 Every time you cast a prayer, you will lose some of that grace.
 Without enough grace you can't cast a prayer.
-To recover grace you have to ~pray~.
+To recover grace you have to <green>pray</green>.
 Hit the 'p' key for 'p'raying.  You will pray until you reach your maximum grace.
 Be warned: You will stop fighting when you start praying - and moving, fighting and other actions will break praying.
 endmsg
@@ -1383,9 +1383,9 @@ y 8
 end
 arch sign
 msg
-~Prayers and Deities~
+<green>Prayers and Deities</green>
 To cast heal spells and other prayers you need contact with a holy force - a higher being called a 'deity' or a powerful artifact like the Tabernacle.
-Prayers are spells using ~grace~, a special power needed to cast prayers. You get grace by praying to your deity - in the case of the Tabernacle praying is a special form of meditation.
+Prayers are spells using <green>grace</green>, a special power needed to cast prayers. You get grace by praying to your deity - in the case of the Tabernacle praying is a special form of meditation.
 Talk to the priest Manard nearby (the white one). He will answer when you say "hello". He will also teach you your first prayer. The other church priest is a regular church priest like most towns have.
 endmsg
 name Prayers and Deities

@@ -57,19 +57,19 @@ static player *get_other_player_from_name(object *op, char *name)
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		draw_info(COLOR_WHITE, op, "No such player.");
 		return NULL;
 	}
 
 	if (pl->ob == op)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You can't do that to yourself.");
+		draw_info(COLOR_WHITE, op, "You can't do that to yourself.");
 		return NULL;
 	}
 
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info(NDI_UNIQUE, op, "That player is in no state for that right now.");
+		draw_info(COLOR_WHITE, op, "That player is in no state for that right now.");
 		return NULL;
 	}
 
@@ -199,6 +199,8 @@ static int dm_map_remove_players(mapstruct *m)
 			remove_ob(pl->ob);
 			pl->dm_removed_from_map = 1;
 			pl->ob->map = NULL;
+			/* So they will not be removed by object_gc(). */
+			CLEAR_FLAG(pl->ob, FLAG_REMOVED);
 		}
 	}
 
@@ -217,6 +219,8 @@ static void dm_map_reinsert_players(mapstruct *m, object *op)
 	{
 		if (pl->dm_removed_from_map)
 		{
+			/* Restore the removed flag. */
+			SET_FLAG(pl->ob, FLAG_REMOVED);
 			pl->dm_removed_from_map = 0;
 			insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
 			/* So that we don't access invalid values of old player's last_update map
@@ -227,12 +231,12 @@ static void dm_map_reinsert_players(mapstruct *m, object *op)
 			{
 				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 				{
-					new_draw_info_format(NDI_UNIQUE, pl->ob, "Map reset by %s.", op->name);
+					draw_info_format(COLOR_WHITE, pl->ob, "Map reset by %s.", op->name);
 				}
 				/* Write a nice little confusing message to the players */
 				else
 				{
-					new_draw_info(NDI_UNIQUE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
+					draw_info(COLOR_WHITE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
 				}
 			}
 		}
@@ -252,7 +256,7 @@ int command_setgod(object *op, char *params)
 
 	if (!params || !(str = strchr(params, ' ')))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /setgod object god");
+		draw_info(COLOR_WHITE, op, "Usage: /setgod object god");
 		return 0;
 	}
 
@@ -261,7 +265,7 @@ int command_setgod(object *op, char *params)
 
 	if (!(ob = find_object_both(op, params)))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Set whose god - can not find object %s?", params);
+		draw_info_format(COLOR_WHITE, op, "Set whose god - can not find object %s?", params);
 		return 1;
 	}
 
@@ -269,7 +273,7 @@ int command_setgod(object *op, char *params)
 	 * re-bless altars and the like? */
 	if (ob->type != PLAYER)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is not a player - can not change its god", ob->name);
+		draw_info_format(COLOR_WHITE, op, "%s is not a player - can not change its god", ob->name);
 		return 1;
 	}
 
@@ -277,7 +281,7 @@ int command_setgod(object *op, char *params)
 
 	if (!ob->chosen_skill || ob->chosen_skill->stats.sp != SK_PRAYING)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s doesn't have praying skill.", ob->name);
+		draw_info_format(COLOR_WHITE, op, "%s doesn't have praying skill.", ob->name);
 		return 1;
 	}
 
@@ -285,7 +289,7 @@ int command_setgod(object *op, char *params)
 
 	if (god == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "No such god %s.", str);
+		draw_info_format(COLOR_WHITE, op, "No such god %s.", str);
 		return 1;
 	}
 
@@ -307,13 +311,13 @@ int command_kick(object *ob, char *params)
 
 	if (ob && params == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, ob, "Use: /kick <name>");
+		draw_info_format(COLOR_WHITE, ob, "Use: /kick <name>");
 		return 1;
 	}
 
 	if (ob && ob->name && !strncasecmp(ob->name, params, MAX_NAME))
 	{
-		new_draw_info_format(NDI_UNIQUE, ob, "You can't /kick yourself!");
+		draw_info_format(COLOR_WHITE, ob, "You can't /kick yourself!");
 		return 1;
 	}
 
@@ -336,7 +340,7 @@ int command_kick(object *ob, char *params)
 
 			if (params)
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_ALL, ob, "%s was kicked out of the game.", op->name);
+				draw_info_flags_format(NDI_ALL, COLOR_WHITE, ob, "%s was kicked out of the game.", op->name);
 			}
 
 			LOG(llevChat, "Kick: %s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
@@ -385,7 +389,7 @@ int command_goto(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Go to what map?\nUsage: /goto <map> x y");
+		draw_info(COLOR_WHITE, op, "Go to what map?\nUsage: /goto <map> x y");
 		return 1;
 	}
 
@@ -400,7 +404,7 @@ int command_goto(object *op, char *params)
 
 	enter_exit(op, dummy);
 
-	new_draw_info_format(NDI_UNIQUE, op, "Difficulty: %d.", op->map->difficulty);
+	draw_info_format(COLOR_WHITE, op, "Difficulty: %d.", op->map->difficulty);
 
 	return 1;
 }
@@ -417,7 +421,7 @@ int command_freeze(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /freeze [ticks] <player>");
+		draw_info(COLOR_WHITE, op, "Usage: /freeze [ticks] <player>");
 		return 1;
 	}
 
@@ -432,7 +436,7 @@ int command_freeze(object *op, char *params)
 
 		if (*params == 0)
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: /freeze [ticks] <player>");
+			draw_info(COLOR_WHITE, op, "Usage: /freeze [ticks] <player>");
 			return 1;
 		}
 	}
@@ -448,9 +452,9 @@ int command_freeze(object *op, char *params)
 		return 1;
 	}
 
-	new_draw_info(NDI_UNIQUE | NDI_RED, pl->ob, "You have been frozen by the DM!");
+	draw_info(COLOR_RED, pl->ob, "You have been frozen by the DM!");
 
-	new_draw_info_format(NDI_UNIQUE, op, "You freeze %s for %d ticks.", pl->ob->name, ticks);
+	draw_info_format(COLOR_WHITE, op, "You freeze %s for %d ticks.", pl->ob->name, ticks);
 
 	pl->ob->speed_left = -(pl->ob->speed * ticks);
 	return 1;
@@ -473,7 +477,7 @@ int command_summon(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /summon <player>.");
+		draw_info(COLOR_WHITE, op, "Usage: /summon <player>.");
 		return 1;
 	}
 
@@ -488,7 +492,7 @@ int command_summon(object *op, char *params)
 
 	if (i == -1 || op->x + freearr_x[i] < 0 || op->y + freearr_y[i] < 0 || op->x + freearr_x[i] >= MAP_WIDTH(op->map) || op->y + freearr_y[i] >= MAP_HEIGHT(op->map))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to place summoned player.");
+		draw_info(COLOR_WHITE, op, "Can not find a free spot to place summoned player.");
 		return 1;
 	}
 
@@ -496,8 +500,8 @@ int command_summon(object *op, char *params)
 	pl->ob->x = op->x + freearr_x[i];
 	pl->ob->y = op->y + freearr_y[i];
 	insert_ob_in_map(pl->ob, op->map, NULL, INS_NO_MERGE);
-	new_draw_info(NDI_UNIQUE, pl->ob, "You are summoned.");
-	new_draw_info_format(NDI_UNIQUE, op, "You summon %s.", pl->ob->name);
+	draw_info(COLOR_WHITE, pl->ob, "You are summoned.");
+	draw_info_format(COLOR_WHITE, op, "You summon %s.", pl->ob->name);
 	return 1;
 }
 
@@ -518,7 +522,7 @@ int command_teleport(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /teleport <player>.");
+		draw_info(COLOR_WHITE, op, "Usage: /teleport <player>.");
 		return 1;
 	}
 
@@ -533,7 +537,7 @@ int command_teleport(object *op, char *params)
 
 	if (i == -1 || pl->ob->x + freearr_x[i] < 0 || pl->ob->y + freearr_y[i] < 0 || pl->ob->x + freearr_x[i] >= MAP_WIDTH(pl->ob->map) || pl->ob->y + freearr_y[i] >= MAP_HEIGHT(pl->ob->map))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Can not find a free spot to teleport to.");
+		draw_info(COLOR_WHITE, op, "Can not find a free spot to teleport to.");
 		return 1;
 	}
 
@@ -544,10 +548,10 @@ int command_teleport(object *op, char *params)
 
 	if (!CONTR(op)->dm_stealth)
 	{
-		new_draw_info(NDI_UNIQUE, pl->ob, "You see a portal open.");
+		draw_info(COLOR_WHITE, pl->ob, "You see a portal open.");
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "You teleport to %s.", pl->ob->name);
+	draw_info_format(COLOR_WHITE, op, "You teleport to %s.", pl->ob->name);
 
 	return 1;
 }
@@ -568,7 +572,7 @@ int command_create(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+		draw_info(COLOR_WHITE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 		return 1;
 	}
 
@@ -581,7 +585,7 @@ int command_create(object *op, char *params)
 	{
 		if (!(bp = strchr(params, ' ')))
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			draw_info(COLOR_WHITE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
@@ -595,7 +599,7 @@ int command_create(object *op, char *params)
 	{
 		if (!(bp = strchr(bp, ' ')))
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
+			draw_info(COLOR_WHITE, op, "Usage: /create [nr] [magic] <archetype> [ of <artifact>] [variable_to_patch setting]");
 			return 1;
 		}
 
@@ -622,7 +626,7 @@ int command_create(object *op, char *params)
 	/* First step: browse the archetypes for the name. */
 	if (!(at = find_archetype(bp)))
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such archetype or artifact name.");
+		draw_info(COLOR_WHITE, op, "No such archetype or artifact name.");
 		return 1;
 	}
 
@@ -630,7 +634,7 @@ int command_create(object *op, char *params)
 	{
 		if (find_artifactlist(at->clone.type) == NULL)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "No artifact list for type %d\n", at->clone.type);
+			draw_info_format(COLOR_WHITE, op, "No artifact list for type %d\n", at->clone.type);
 		}
 		else
 		{
@@ -648,7 +652,7 @@ int command_create(object *op, char *params)
 
 			if (!art)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
+				draw_info_format(COLOR_WHITE, op, "No such artifact ([%d] of %s)", at->clone.type, cp);
 			}
 		}
 	}
@@ -739,7 +743,7 @@ int command_create(object *op, char *params)
 			 * trying to recover is probably won't get anything useful
 			 * anyways, and we'd be confused about end of line pointers
 			 * anyways. */
-			new_draw_info_format(NDI_UNIQUE, op, "Malformed create line: %s", bp2);
+			draw_info_format(COLOR_WHITE, op, "Malformed create line: %s", bp2);
 			break;
 		}
 
@@ -747,11 +751,11 @@ int command_create(object *op, char *params)
 		 * with bp3 pointing to the end. */
 		if (set_variable(tmp, bp2) == -1)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", bp2);
+			draw_info_format(COLOR_WHITE, op, "Unknown variable %s", bp2);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", tmp->name, bp2);
+			draw_info_format(COLOR_WHITE, op, "(%s)->%s", tmp->name, bp2);
 		}
 
 		if (gotquote)
@@ -800,31 +804,31 @@ int command_create(object *op, char *params)
 	for (i = 0; i < (set_nrof ? nrof : 1); i++)
 	{
 		archetype *atmp;
-		object *prev = NULL, *head = NULL, *dup;
+		object *prev = NULL, *head = NULL, *ob_dup;
 
 		for (atmp = at; atmp; atmp = atmp->more)
 		{
-			dup = arch_to_object(atmp);
+			ob_dup = arch_to_object(atmp);
 
 			/* The head is what contains all the important bits,
 			 * so just copying it over should be fine. */
 			if (head == NULL)
 			{
-				head = dup;
-				copy_object(tmp, dup, 0);
+				head = ob_dup;
+				copy_object(tmp, ob_dup, 0);
 			}
 
-			dup->x = op->x + dup->arch->clone.x;
-			dup->y = op->y + dup->arch->clone.y;
-			dup->map = op->map;
+			ob_dup->x = op->x + ob_dup->arch->clone.x;
+			ob_dup->y = op->y + ob_dup->arch->clone.y;
+			ob_dup->map = op->map;
 
-			if (head != dup)
+			if (head != ob_dup)
 			{
-				dup->head = head;
-				prev->more = dup;
+				ob_dup->head = head;
+				prev->more = ob_dup;
 			}
 
-			prev = dup;
+			prev = ob_dup;
 		}
 
 		if (head->randomitems)
@@ -852,7 +856,7 @@ int command_create(object *op, char *params)
 
 		if (!set_nrof || nrof == 1)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Created %s (#%d)", query_name(head, NULL), head->count);
+			draw_info_format(COLOR_WHITE, op, "Created %s (#%d)", query_name(head, NULL), head->count);
 		}
 	}
 
@@ -872,7 +876,7 @@ int command_inventory(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Inventory of what object?");
+		draw_info(COLOR_WHITE, op, "Inventory of what object?");
 		return 0;
 	}
 
@@ -889,12 +893,12 @@ int command_inventory(object *op, char *params)
 
 		if (!ob)
 		{
-			new_draw_info(NDI_UNIQUE, op, "No such object.");
+			draw_info(COLOR_WHITE, op, "No such object.");
 			return 0;
 		}
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "\nInventory of '%s':\n", query_name(ob, op));
+	draw_info_format(COLOR_WHITE, op, "\nInventory of '%s':\n", query_name(ob, op));
 
 	for (tmp = ob->inv; tmp; tmp = tmp->below)
 	{
@@ -903,7 +907,7 @@ int command_inventory(object *op, char *params)
 			continue;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, op, "#~%d~: %s", tmp->count, query_name(tmp, op));
+		draw_info_format(COLOR_WHITE, op, "#<green>%d</green>: %s", tmp->count, query_name(tmp, op));
 	}
 
 	return 1;
@@ -926,7 +930,7 @@ int command_dump(object *op, char *params)
 	}
 	else if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Dump what object?");
+		draw_info(COLOR_WHITE, op, "Dump what object?");
 		return 1;
 	}
 
@@ -934,7 +938,7 @@ int command_dump(object *op, char *params)
 	stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 	dump_object(tmp, sb);
 	diff = stringbuffer_finish(sb);
-	new_draw_info(NDI_UNIQUE, op, diff);
+	draw_info(COLOR_WHITE, op, diff);
 	free(diff);
 	return 1;
 }
@@ -968,7 +972,7 @@ int command_patch(object *op, char *params)
 
 	if (tmp == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Patch what object?");
+		draw_info(COLOR_WHITE, op, "Patch what object?");
 		return 1;
 	}
 
@@ -976,7 +980,7 @@ int command_patch(object *op, char *params)
 
 	if (arg == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Patch what values?");
+		draw_info(COLOR_WHITE, op, "Patch what values?");
 		return 1;
 	}
 
@@ -994,7 +998,7 @@ int command_patch(object *op, char *params)
 		if (!arg || *arg == '\0')
 		{
 			FREE_AND_CLEAR_HASH(tmp->msg);
-			new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=", tmp->name, tmp->count);
+			draw_info_format(COLOR_WHITE, op, "(%s#%d)->msg=", tmp->name, tmp->count);
 			return 1;
 		}
 
@@ -1009,21 +1013,21 @@ int command_patch(object *op, char *params)
 
 		if (buf_overflow(buf, arg, sizeof(buf) - 1))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Message string would overflow.");
+			draw_info(COLOR_RED, op, "Message string would overflow.");
 			return 1;
 		}
 
 		strncat(buf, arg, sizeof(buf) - strlen(buf) - 1);
 		FREE_AND_COPY_HASH(tmp->msg, buf);
-		new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->msg=%s", tmp->name, tmp->count, buf);
+		draw_info_format(COLOR_WHITE, op, "(%s#%d)->msg=%s", tmp->name, tmp->count, buf);
 	}
 	else if (set_variable(tmp, arg) == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Unknown variable %s", arg);
+		draw_info_format(COLOR_WHITE, op, "Unknown variable %s", arg);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, arg, arg2);
+		draw_info_format(COLOR_WHITE, op, "(%s#%d)->%s=%s", tmp->name, tmp->count, arg, arg2);
 	}
 
 	return 1;
@@ -1040,19 +1044,19 @@ int command_remove(object *op, char *params)
 
 	if (params == NULL || !(tmp = find_object_both(op, params)))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Remove what object?");
+		draw_info(COLOR_WHITE, op, "Remove what object?");
 		return 1;
 	}
 
 	if (tmp->type == PLAYER)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Cannot remove a player!");
+		draw_info(COLOR_WHITE, op, "Cannot remove a player!");
 		return 1;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_REMOVED))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is already removed!", query_name(tmp, NULL));
+		draw_info_format(COLOR_WHITE, op, "%s is already removed!", query_name(tmp, NULL));
 		return 1;
 	}
 
@@ -1090,11 +1094,11 @@ int command_addexp(object *op, char *params)
 	{
 		int i;
 
-		new_draw_info(NDI_UNIQUE, op, "Usage: /addexp <who> <skill nr> <exp>\nSkills/Nr: ");
+		draw_info(COLOR_WHITE, op, "Usage: /addexp <who> <skill nr> <exp>\nSkills/Nr: ");
 
 		for (i = 0; i < NROFSKILLS; i++)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%d: %s", i, skills[i].name);
+			draw_info_format(COLOR_WHITE, op, "%d: %s", i, skills[i].name);
 		}
 
 		return 1;
@@ -1110,14 +1114,14 @@ int command_addexp(object *op, char *params)
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		draw_info(COLOR_WHITE, op, "No such player.");
 		return 1;
 	}
 
 	/* Safety check */
 	if (snr < 0 || snr >= NROFSKILLS)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such skill.");
+		draw_info(COLOR_WHITE, op, "No such skill.");
 		return 1;
 	}
 
@@ -1126,7 +1130,7 @@ int command_addexp(object *op, char *params)
 	/* Our player doesn't have this skill? */
 	if (!exp_skill)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr].name);
+		draw_info_format(COLOR_WHITE, op, "Player %s does not know the skill '%s'.", pl->ob->name, skills[snr].name);
 		return 0;
 	}
 
@@ -1169,13 +1173,13 @@ int command_speed(object *op, char *params)
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Current speed is %ld.", max_time);
+		draw_info_format(COLOR_WHITE, op, "Current speed is %ld.", max_time);
 		return 1;
 	}
 
 	set_max_time(i);
 	reset_sleep();
-	new_draw_info(NDI_UNIQUE, op, "The speed has changed.");
+	draw_info(COLOR_WHITE, op, "The speed has changed.");
 	return 1;
 }
 
@@ -1190,7 +1194,7 @@ int command_stats(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Who?");
+		draw_info(COLOR_WHITE, op, "Who?");
 		return 1;
 	}
 
@@ -1198,20 +1202,20 @@ int command_stats(object *op, char *params)
 	{
 		if (!strcmp(pl->ob->name, params))
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
-			new_draw_info_format(NDI_UNIQUE, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
-			new_draw_info_format(NDI_UNIQUE, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
-			new_draw_info_format(NDI_UNIQUE, op, "Wis : %-2d      EXP    : %"FMT64, pl->ob->stats.Wis, pl->ob->stats.exp);
-			new_draw_info_format(NDI_UNIQUE, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
-			new_draw_info_format(NDI_UNIQUE, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
-			new_draw_info_format(NDI_UNIQUE, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
+			draw_info_format(COLOR_WHITE, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
+			draw_info_format(COLOR_WHITE, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
+			draw_info_format(COLOR_WHITE, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
+			draw_info_format(COLOR_WHITE, op, "Wis : %-2d      EXP    : %"FMT64, pl->ob->stats.Wis, pl->ob->stats.exp);
+			draw_info_format(COLOR_WHITE, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
+			draw_info_format(COLOR_WHITE, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
+			draw_info_format(COLOR_WHITE, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
 			return 1;
 		}
 	}
 
 	if (pl == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		draw_info(COLOR_WHITE, op, "No such player.");
 	}
 
 	return 1;
@@ -1243,19 +1247,19 @@ int command_resetmap(object *op, char *params)
 
 	if (m == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such map.");
+		draw_info(COLOR_WHITE, op, "No such map.");
 		return 1;
 	}
 
 	if (MAP_UNIQUE(m) && MAP_NOSAVE(m))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Cannot reset unique no-save map.");
+		draw_info(COLOR_WHITE, op, "Cannot reset unique no-save map.");
 		return 1;
 	}
 
 	if (!strncmp(m->path, "/random/", 8))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You cannot reset a random map.");
+		draw_info(COLOR_WHITE, op, "You cannot reset a random map.");
 		return 1;
 	}
 
@@ -1265,18 +1269,21 @@ int command_resetmap(object *op, char *params)
 		return 0;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Start resetting map %s.", m->path);
-	new_draw_info_format(NDI_UNIQUE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
+	draw_info_format(COLOR_WHITE, op, "Start resetting map %s.", m->path);
+	draw_info_format(COLOR_WHITE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
 	m->reset_time = seconds();
 	m->map_flags |= MAP_FLAG_FIXED_RTIME;
 	/* Store the path, so we can load it after swapping is done. */
 	path = add_refcount(m->path);
 	flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
 	swap_map(m, 1);
+	/* Otherwise special objects such as beacons will not be properly
+	 * deinitialized this very instant, but the next tick instead. */
+	object_gc();
 
 	m = ready_map_name(path, flags);
 	free_string_shared(path);
-	new_draw_info(NDI_UNIQUE, op, "Resetmap done.");
+	draw_info(COLOR_WHITE, op, "Resetmap done.");
 	dm_map_reinsert_players(m, op);
 
 	return 1;
@@ -1299,7 +1306,7 @@ int command_nowiz(object *op, char *params)
 	CONTR(op)->socket.update_tile = 0;
 	esrv_send_inventory(op, op);
 	CONTR(op)->update_los = 1;
-	new_draw_info(NDI_UNIQUE, op, "DM mode deactivated.");
+	draw_info(COLOR_WHITE, op, "DM mode deactivated.");
 
 	return 1;
 }
@@ -1378,7 +1385,7 @@ int command_dm(object *op, char *params)
 		SET_FLAG(op, FLAG_WAS_WIZ);
 		SET_FLAG(op, FLAG_WIZPASS);
 
-		new_draw_info_format(NDI_UNIQUE, op, "DM mode activated for %s!", op->name);
+		draw_info_format(COLOR_WHITE, op, "DM mode activated for %s!", op->name);
 		SET_MULTI_FLAG(op, FLAG_FLYING);
 
 		esrv_send_inventory(op, op);
@@ -1414,13 +1421,13 @@ static int command_learn_spell_or_prayer(object *op, char *params, int special_p
 
 	if ((spell = look_up_spell_name(params)) < 0)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Unknown spell.");
+		draw_info(COLOR_WHITE, op, "Unknown spell.");
 		return 1;
 	}
 
 	if (check_spell_known(op, spell))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You already know the spell %s.", params);
+		draw_info_format(COLOR_WHITE, op, "You already know the spell %s.", params);
 		return 0;
 	}
 
@@ -1464,7 +1471,7 @@ int command_forget_spell(object *op, char *params)
 
 	if ((spell = look_up_spell_name(params)) < 0)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Unknown spell.");
+		draw_info(COLOR_WHITE, op, "Unknown spell.");
 		return 1;
 	}
 
@@ -1498,7 +1505,7 @@ int command_loadplugin(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Load what plugin?");
+		draw_info(COLOR_WHITE, op, "Load what plugin?");
 		return 1;
 	}
 
@@ -1519,7 +1526,7 @@ int command_unloadplugin(object *op, char *params)
 {
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Unload what plugin?");
+		draw_info(COLOR_WHITE, op, "Unload what plugin?");
 		return 1;
 	}
 
@@ -1562,20 +1569,20 @@ void shutdown_agent(int timer, char *reason)
 
 		sd_timer = timer;
 
-		new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: ** SERVER SHUTDOWN STARTED **");
+		draw_info_flags(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: ** SERVER SHUTDOWN STARTED **");
 
 		if (reason)
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: %s", reason);
+			draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: %s", reason);
 		}
 
 		if (t_sec)
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
+			draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
 		}
 		else
 		{
-			new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
+			draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
 		}
 
 		GETTIMEOFDAY(&tv1);
@@ -1592,11 +1599,11 @@ void shutdown_agent(int timer, char *reason)
 		/* End countdown */
 		if ((int) (tv2.tv_sec - tv1.tv_sec) >= sd_timer)
 		{
-			new_draw_info(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: ** SERVER GOES DOWN NOW!!! **");
+			draw_info_flags(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: ** SERVER GOES DOWN NOW!!! **");
 
 			if (reason)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: %s", reason);
+				draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: %s", reason);
 			}
 
 			sd_timer = -1;
@@ -1612,11 +1619,11 @@ void shutdown_agent(int timer, char *reason)
 
 			if (t_sec)
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
+				draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes and %d seconds", t_min, t_sec);
 			}
 			else
 			{
-				new_draw_info_format(NDI_PLAYER | NDI_UNIQUE | NDI_ALL | NDI_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
+				draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: SERVER REBOOT in %d minutes", t_min);
 			}
 		}
 	}
@@ -1635,7 +1642,7 @@ int command_motd_set(object *op, char *params)
 	/* No params, show usage. */
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage:\nRevert to original MotD: /motd_set original\nAppend to custom MotD: /motd_set message");
+		draw_info(COLOR_WHITE, op, "Usage:\nRevert to original MotD: /motd_set original\nAppend to custom MotD: /motd_set message");
 		return 0;
 	}
 
@@ -1648,19 +1655,19 @@ int command_motd_set(object *op, char *params)
 
 		if (!(fp = fopen(filename, "a")))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Could not open file for appending data.");
+			draw_info(COLOR_RED, op, "Could not open file for appending data.");
 			return 0;
 		}
 
 		fprintf(fp, "%s\n", params);
 		fclose(fp);
 
-		new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Appended to custom Message of the Day.");
+		draw_info(COLOR_GREEN, op, "Appended to custom Message of the Day.");
 	}
 	else
 	{
 		unlink(filename);
-		new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Reverted original Message of the Day.");
+		draw_info(COLOR_GREEN, op, "Reverted original Message of the Day.");
 	}
 
 	return 1;
@@ -1683,11 +1690,11 @@ int command_ban(object *op, char *params)
 	{
 		if (add_ban(params + 4))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Added new ban successfully.");
+			draw_info(COLOR_GREEN, op, "Added new ban successfully.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Failed to add new ban!");
+			draw_info(COLOR_RED, op, "Failed to add new ban!");
 		}
 	}
 	/* Remove ban */
@@ -1695,11 +1702,11 @@ int command_ban(object *op, char *params)
 	{
 		if (remove_ban(params + 7))
 		{
-			new_draw_info(NDI_UNIQUE | NDI_GREEN, op, "Removed ban successfully.");
+			draw_info(COLOR_GREEN, op, "Removed ban successfully.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE | NDI_RED, op, "Failed to remove ban!");
+			draw_info(COLOR_RED, op, "Failed to remove ban!");
 		}
 	}
 	/* List bans */
@@ -1722,12 +1729,12 @@ int command_debug(object *op, char *params)
 
 	if (params == NULL || !sscanf(params, "%d", &i))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Debug level is %d.", settings.debug);
+		draw_info_format(COLOR_WHITE, op, "Debug level is %d.", settings.debug);
 		return 1;
 	}
 
 	settings.debug = (enum LogLevel) FABS(i);
-	new_draw_info_format(NDI_UNIQUE, op, "Set debug level to %d.", i);
+	draw_info_format(COLOR_WHITE, op, "Set debug level to %d.", i);
 	return 1;
 }
 
@@ -1744,8 +1751,8 @@ int command_dumpbelowfull(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, op, "-------------------");
+	draw_info(COLOR_WHITE, op, "OBJECTS ON THIS TILE");
+	draw_info(COLOR_WHITE, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
@@ -1759,16 +1766,16 @@ int command_dumpbelowfull(object *op, char *params)
 		stringbuffer_append_printf(sb, "count %d\n", tmp->count);
 		dump_object(tmp, sb);
 		diff = stringbuffer_finish(sb);
-		new_draw_info(NDI_UNIQUE, op, diff);
+		draw_info(COLOR_WHITE, op, diff);
 		free(diff);
 
 		if (tmp->above && tmp->above != op)
 		{
-			new_draw_info(NDI_UNIQUE, op, ">next object<");
+			draw_info(COLOR_WHITE, op, ">next object<");
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "------------------");
+	draw_info(COLOR_WHITE, op, "------------------");
 
 	return 1;
 }
@@ -1785,8 +1792,8 @@ int command_dumpbelow(object *op, char *params)
 
 	(void) params;
 
-	new_draw_info(NDI_UNIQUE, op, "OBJECTS ON THIS TILE");
-	new_draw_info(NDI_UNIQUE, op, "-------------------");
+	draw_info(COLOR_WHITE, op, "OBJECTS ON THIS TILE");
+	draw_info(COLOR_WHITE, op, "-------------------");
 
 	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
 	{
@@ -1796,10 +1803,10 @@ int command_dumpbelow(object *op, char *params)
 			continue;
 		}
 
-		new_draw_info_format(NDI_UNIQUE, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
+		draw_info_format(COLOR_WHITE, op, "#%d  >%s<  >%s<  >%s<", i, query_name(tmp, NULL), tmp->arch ? (tmp->arch->name ? tmp->arch->name : "no arch name") : "NO ARCH", tmp->env ? query_name(tmp->env, NULL) : "");
 	}
 
-	new_draw_info(NDI_UNIQUE, op, "------------------");
+	draw_info(COLOR_WHITE, op, "------------------");
 
 	return 1;
 }
@@ -1829,12 +1836,12 @@ int command_wizpass(object *op, char *params)
 
 	if (i)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You will now walk through walls.");
+		draw_info(COLOR_WHITE, op, "You will now walk through walls.");
 		SET_FLAG(op, FLAG_WIZPASS);
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "You will now be stopped by walls.");
+		draw_info(COLOR_WHITE, op, "You will now be stopped by walls.");
 		CLEAR_FLAG(op, FLAG_WIZPASS);
 	}
 
@@ -1879,7 +1886,7 @@ int command_dm_stealth(object *op, char *params)
 		CONTR(op)->dm_stealth = 1;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
+	draw_info_format(COLOR_WHITE, op, "Toggled dm_stealth to %d.", CONTR(op)->dm_stealth);
 	return 1;
 }
 
@@ -1906,7 +1913,7 @@ int command_dm_light(object *op, char *params)
 		CONTR(op)->dm_light = 1;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
+	draw_info_format(COLOR_WHITE, op, "Toggled dm_light to %d.", CONTR(op)->dm_light);
 	return 1;
 }
 
@@ -1924,7 +1931,7 @@ int command_dm_password(object *op, char *params)
 
 	if (!params || sscanf(params, "%s %s", name, password) != 2)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /dm_password <player name> <new password>");
+		draw_info(COLOR_RED, op, "Usage: /dm_password <player name> <new password>");
 		return 0;
 	}
 
@@ -1933,7 +1940,7 @@ int command_dm_password(object *op, char *params)
 
 	if (!player_exists(name))
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Player %s doesn't exist.", name);
+		draw_info_format(COLOR_WHITE, op, "Player %s doesn't exist.", name);
 	}
 
 	strncpy(outfile, filename, sizeof(outfile));
@@ -1941,13 +1948,13 @@ int command_dm_password(object *op, char *params)
 
 	if (!(fp = fopen(filename, "r")))
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Error opening file %s.", filename);
+		draw_info_format(COLOR_RED, op, "Error opening file %s.", filename);
 		return 0;
 	}
 
 	if (!(fpout = fopen(outfile, "w")))
 	{
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "Error opening file %s.", outfile);
+		draw_info_format(COLOR_RED, op, "Error opening file %s.", outfile);
 		return 0;
 	}
 
@@ -1982,7 +1989,7 @@ int command_dm_password(object *op, char *params)
 	unlink(filename);
 	rename(outfile, filename);
 
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Done. Changed password of %s to %s!", name, password);
+	draw_info_format(COLOR_GREEN, op, "Done. Changed password of %s to %s!", name, password);
 	return 0;
 }
 
@@ -2004,7 +2011,7 @@ int command_dumpactivelist(object *op, char *params)
 		LOG(llevSystem, "%08d %03d %f %s (%s)\n", tmp->count, tmp->type, tmp->speed, query_short_name(tmp, NULL), tmp->arch->name ? tmp->arch->name : "<NA>");
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "Active objects: %d (dumped to log)", count);
+	draw_info_format(COLOR_WHITE, op, "Active objects: %d (dumped to log)", count);
 	LOG(llevSystem, "Active objects: %d\n", count);
 
 	return 1;
@@ -2022,7 +2029,7 @@ int command_shutdown(object *op, char *params)
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /shutdown <seconds> [reason]");
+		draw_info(COLOR_WHITE, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
@@ -2033,20 +2040,20 @@ int command_shutdown(object *op, char *params)
 		bp++;
 	}
 
-	if (bp && bp == 0)
+	if (bp && *bp == '\0')
 	{
 		bp = NULL;
 	}
 
 	if (i < -1)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Usage: /shutdown <seconds> [reason]");
+		draw_info(COLOR_WHITE, op, "Usage: /shutdown <seconds> [reason]");
 		return 1;
 	}
 
 	LOG(llevSystem, "Shutdown agent started!\n");
 	shutdown_agent(i, bp);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Shutdown agent started! Timer set to %d seconds.", i);
+	draw_info_format(COLOR_GREEN, op, "Shutdown agent started! Timer set to %d seconds.", i);
 
 	return 1;
 }
@@ -2067,7 +2074,7 @@ int command_setmaplight(object *op, char *params)
 
 	set_map_darkness(op->map, i);
 
-	new_draw_info_format(NDI_UNIQUE, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
+	draw_info_format(COLOR_WHITE, op, "WIZ: set map darkness: %d -> map:%s (%d)", i, op->map->path, MAP_OUTDOORS(op->map));
 
 	return 1;
 }
@@ -2122,7 +2129,7 @@ int command_malloc(object *op, char *params)
 
 		if (strcmp(params, "free") && strcmp(params, "force"))
 		{
-			new_draw_info(NDI_UNIQUE, op, "Usage: /malloc [free | force]");
+			draw_info(COLOR_WHITE, op, "Usage: /malloc [free | force]");
 			return 1;
 		}
 
@@ -2158,7 +2165,7 @@ int command_maps(object *op, char *params)
 {
 	(void) params;
 
-	map_info(op);
+	maps_info(op);
 	return 1;
 }
 
@@ -2176,11 +2183,11 @@ int command_strings(object *op, char *params)
 	LOG(llevSystem, "HASH TABLE DUMP\n");
 
 	ss_dump_statistics(buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, op, buf);
+	draw_info(COLOR_WHITE, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
 	ss_dump_table(SS_DUMP_TOTALS, buf, sizeof(buf));
-	new_draw_info(NDI_UNIQUE, op, buf);
+	draw_info(COLOR_WHITE, op, buf);
 	LOG(llevSystem, "%s\n", buf);
 
 	return 1;
@@ -2213,7 +2220,7 @@ int command_follow(object *op, char *params)
 	{
 		if (CONTR(op)->followed_player[0])
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "You stop following %s.", CONTR(op)->followed_player);
+			draw_info_format(COLOR_WHITE, op, "You stop following %s.", CONTR(op)->followed_player);
 			CONTR(op)->followed_player[0] = '\0';
 		}
 
@@ -2230,7 +2237,7 @@ int command_follow(object *op, char *params)
 	CONTR(op)->followed_player[0] = '\0';
 	strncpy(CONTR(op)->followed_player, params, sizeof(CONTR(op)->followed_player));
 
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Following %s.", params);
+	draw_info_format(COLOR_GREEN, op, "Following %s.", params);
 	return 0;
 }
 
@@ -2245,7 +2252,7 @@ int command_insert_into(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "What object to insert something into?");
+		draw_info(COLOR_RED, op, "What object to insert something into?");
 		return 0;
 	}
 
@@ -2253,7 +2260,7 @@ int command_insert_into(object *op, char *params)
 
 	if (!marked)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "You need to mark the object to insert.");
+		draw_info(COLOR_RED, op, "You need to mark the object to insert.");
 		return 0;
 	}
 
@@ -2261,7 +2268,7 @@ int command_insert_into(object *op, char *params)
 
 	if (!ob)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "No such object.");
+		draw_info(COLOR_RED, op, "No such object.");
 		return 0;
 	}
 
@@ -2269,7 +2276,7 @@ int command_insert_into(object *op, char *params)
 	insert_ob_in_ob(marked, ob);
 	esrv_send_item(op, marked);
 	fix_player(op);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
+	draw_info_format(COLOR_GREEN, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
 	return 0;
 }
 
@@ -2285,7 +2292,7 @@ int command_arrest(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /arrest <player>.");
+		draw_info(COLOR_RED, op, "Usage: /arrest <player>.");
 		return 1;
 	}
 
@@ -2301,12 +2308,12 @@ int command_arrest(object *op, char *params)
 	if (!dummy)
 	{
 		/* We have nowhere to send the prisoner....*/
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Can't jail player, there is no map to hold them.");
+		draw_info(COLOR_RED, op, "Can't jail player, there is no map to hold them.");
 		return 1;
 	}
 
 	enter_exit(pl->ob, dummy);
-	new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "Jailed %s.", pl->ob->name);
+	draw_info_format(COLOR_GREEN, op, "Jailed %s.", pl->ob->name);
 	LOG(llevChat, "Arrest: Player %s arrested by %s\n", pl->ob->name, op->name);
 	return 1;
 }
@@ -2324,7 +2331,7 @@ int command_cmd_permission(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /cmd_permission <player> <add-remove-list> [command]");
+		draw_info(COLOR_RED, op, "Usage: /cmd_permission <player> <add-remove-list> [command]");
 		return 1;
 	}
 
@@ -2341,7 +2348,7 @@ int command_cmd_permission(object *op, char *params)
 
 	if (!pl)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		draw_info(COLOR_WHITE, op, "No such player.");
 		return 1;
 	}
 
@@ -2358,7 +2365,7 @@ int command_cmd_permission(object *op, char *params)
 		{
 			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], cp))
 			{
-				new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "%s already has permission for /%s.", pl->ob->name, cp);
+				draw_info_format(COLOR_RED, op, "%s already has permission for /%s.", pl->ob->name, cp);
 				return 1;
 			}
 		}
@@ -2366,7 +2373,7 @@ int command_cmd_permission(object *op, char *params)
 		pl->num_cmd_permissions++;
 		pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
 		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
-		new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s has been granted permission for /%s.", pl->ob->name, cp);
+		draw_info_format(COLOR_GREEN, op, "%s has been granted permission for /%s.", pl->ob->name, cp);
 	}
 	else if (!strncmp(cp, "remove ", 7))
 	{
@@ -2382,30 +2389,30 @@ int command_cmd_permission(object *op, char *params)
 			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], cp))
 			{
 				FREE_AND_NULL_PTR(pl->cmd_permissions[i]);
-				new_draw_info_format(NDI_UNIQUE | NDI_GREEN, op, "%s has had permission for /%s command removed.", pl->ob->name, cp);
+				draw_info_format(COLOR_GREEN, op, "%s has had permission for /%s command removed.", pl->ob->name, cp);
 				return 1;
 			}
 		}
 
-		new_draw_info_format(NDI_UNIQUE | NDI_RED, op, "%s does not have permission for /%s.", pl->ob->name, cp);
+		draw_info_format(COLOR_RED, op, "%s does not have permission for /%s.", pl->ob->name, cp);
 	}
 	else if (!strncmp(cp, "list", 4))
 	{
 		if (pl->cmd_permissions)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s has permissions for the following commands:\n", pl->ob->name);
+			draw_info_format(COLOR_WHITE, op, "%s has permissions for the following commands:\n", pl->ob->name);
 
 			for (i = 0; i < pl->num_cmd_permissions; i++)
 			{
 				if (pl->cmd_permissions[i])
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "/%s", pl->cmd_permissions[i]);
+					draw_info_format(COLOR_WHITE, op, "/%s", pl->cmd_permissions[i]);
 				}
 			}
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s has no command permissions.", pl->ob->name);
+			draw_info_format(COLOR_WHITE, op, "%s has no command permissions.", pl->ob->name);
 		}
 	}
 
@@ -2428,7 +2435,7 @@ int command_map_save(object *op, char *params)
 	/* Don't allow doing this for unique or random maps. */
 	if (MAP_UNIQUE(op->map) || !strncmp(op->map->path, "/random/", 8))
 	{
-		new_draw_info(NDI_UNIQUE, op, "Cannot be used on unique or random maps.");
+		draw_info(COLOR_WHITE, op, "Cannot be used on unique or random maps.");
 		return 1;
 	}
 
@@ -2447,7 +2454,7 @@ int command_map_save(object *op, char *params)
 		if (!fp)
 		{
 			LOG(llevBug, "command_map_save(): Could not open '%s' for writing.\n", buf);
-			new_draw_info_format(NDI_UNIQUE, op, "Could not open '%s' for writing.", buf);
+			draw_info_format(COLOR_WHITE, op, "Could not open '%s' for writing.", buf);
 			return 1;
 		}
 
@@ -2464,11 +2471,11 @@ int command_map_save(object *op, char *params)
 	{
 		unlink(path);
 		rename(buf, path);
-		new_draw_info(NDI_UNIQUE, op, "Map save error!");
+		draw_info(COLOR_WHITE, op, "Map save error!");
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "Current map has been saved to the original map file.");
+		draw_info(COLOR_WHITE, op, "Current map has been saved to the original map file.");
 	}
 
 	free_map(m, 1);
@@ -2500,11 +2507,11 @@ int command_map_reset(object *op, char *params)
 	{
 		unlink(path);
 		rename(buf, path);
-		new_draw_info(NDI_UNIQUE, op, "Current map reset.");
+		draw_info(COLOR_WHITE, op, "Current map reset.");
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE, op, "There is no original map to reset to.");
+		draw_info(COLOR_WHITE, op, "There is no original map to reset to.");
 	}
 
 	return 1;
@@ -2519,17 +2526,17 @@ int command_map_patch(object *op, char *params)
 {
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Patch what values?");
+		draw_info(COLOR_WHITE, op, "Patch what values?");
 		return 1;
 	}
 
 	if (map_set_variable(op->map, params) == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "Unknown value for map header: %s", params);
+		draw_info_format(COLOR_WHITE, op, "Unknown value for map header: %s", params);
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "(%s)->%s", op->map->name, params);
+		draw_info_format(COLOR_WHITE, op, "(%s)->%s", op->map->name, params);
 	}
 
 	return 1;
@@ -2546,7 +2553,7 @@ int command_no_shout(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE | NDI_RED, op, "Usage: /no_shout <player>");
+		draw_info(COLOR_RED, op, "Usage: /no_shout <player>");
 		return 1;
 	}
 
@@ -2554,18 +2561,18 @@ int command_no_shout(object *op, char *params)
 
 	if (!pl)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such player.");
+		draw_info(COLOR_WHITE, op, "No such player.");
 		return 1;
 	}
 
 	if (pl->no_shout)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is able to shout again.", pl->ob->name);
+		draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
 		pl->no_shout = 0;
 	}
 	else
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "%s is now not able to shout.", pl->ob->name);
+		draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
 		pl->no_shout = 1;
 	}
 
@@ -2583,7 +2590,7 @@ int command_dmtake(object *op, char *params)
 
 	if (!params)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Take what object?");
+		draw_info(COLOR_WHITE, op, "Take what object?");
 		return 1;
 	}
 
@@ -2591,7 +2598,7 @@ int command_dmtake(object *op, char *params)
 
 	if (!tmp)
 	{
-		new_draw_info(NDI_UNIQUE, op, "No such object.");
+		draw_info(COLOR_WHITE, op, "No such object.");
 		return 1;
 	}
 
@@ -2628,11 +2635,11 @@ int command_server_shout(object *op, char *params)
 	{
 		if (can_do_wiz_command(pl, "server_shout"))
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_GREEN, pl->ob, "[Server] (%s): %s", op->name, params);
+			draw_info_flags_format(NDI_PLAYER, COLOR_GREEN, pl->ob, "[Server] (%s): %s", op->name, params);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_GREEN, pl->ob, "[Server]: %s", params);
+			draw_info_flags_format(NDI_PLAYER, COLOR_GREEN, pl->ob, "[Server]: %s", params);
 		}
 	}
 
@@ -2663,11 +2670,11 @@ int command_mod_shout(object *op, char *params)
 	{
 		if (can_do_wiz_command(pl, "mod_shout"))
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator] (%s): %s", op->name, params);
+			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator] (%s): %s", op->name, params);
 		}
 		else
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_PLAYER | NDI_RED, pl->ob, "[Moderator]: %s", params);
+			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator]: %s", params);
 		}
 	}
 

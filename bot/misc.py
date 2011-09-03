@@ -5,8 +5,8 @@ import subprocess
 
 ## NDI flags used for the drawinfo2 command.
 class NDI:
-	WHITE = 0
-	DK_ORANGE = 17
+	WHITE = "ffffff"
+	DK_ORANGE = "ff6600"
 
 	SAY = 0x0100
 	SHOUT = 0x0200

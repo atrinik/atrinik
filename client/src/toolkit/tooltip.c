@@ -27,16 +27,18 @@
  * @file
  * Tooltip API. */
 
-#include <include.h>
+#include <global.h>
 
 /** Tooltip's text. */
-static char tooltip_text[HUGE_BUF];
+static char tooltip_text[HUGE_BUF * 4];
 /** Font of the tooltip text. */
 static int tooltip_font;
 /** Tooltip's X position. */
 static int tooltip_x = -1;
 /** Tooltip's Y position. */
 static int tooltip_y = -1;
+static int tooltip_h = -1;
+static int tooltip_w = -1;
 
 /**
  * Creates a new tooltip. This must be called every frame in order for
@@ -55,35 +57,83 @@ void tooltip_create(int mx, int my, int font, const char *text)
 }
 
 /**
- * Actually show the tooltip. */
-void tooltip_show()
+ * Calculate multi-line tooltip height and width.
+ * @param max_width Maximum width of the tooltip. */
+void tooltip_multiline(int max_width)
 {
 	SDL_Rect box;
 
-	/* User doesn't want tooltips, or there isn't one to show. */
-	if (!options.show_tooltips || tooltip_x == -1 || tooltip_y == -1)
+	box.x = 0;
+	box.y = 0;
+	box.w = max_width;
+	box.h = 0;
+	string_blt(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+	tooltip_w = max_width;
+	tooltip_h = box.h;
+
+	box.h = 0;
+	string_blt(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+	tooltip_w = box.w;
+}
+
+/**
+ * Actually show the tooltip. */
+void tooltip_show(void)
+{
+	SDL_Rect box, text_box;
+
+	/* No tooltip to show. */
+	if (tooltip_x == -1 || tooltip_y == -1)
 	{
 		return;
+	}
+
+	if (tooltip_w != -1)
+	{
+		text_box.w = tooltip_w;
+	}
+	else
+	{
+		text_box.w = string_get_width(tooltip_font, tooltip_text, 0);
+	}
+
+	if (tooltip_h != -1)
+	{
+		text_box.h = tooltip_h;
+	}
+	else
+	{
+		text_box.h = FONT_HEIGHT(tooltip_font);
 	}
 
 	/* Generate the tooltip's background. */
 	box.x = tooltip_x + 9;
 	box.y = tooltip_y + 17;
-	box.w = string_get_width(tooltip_font, tooltip_text, 0) + 6;
-	box.h = FONT_HEIGHT(tooltip_font) + 1;
+	box.w = text_box.w + 6;
+	box.h = text_box.h + 1;
 
 	/* Push the tooltip to the left if it would go beyond maximum screen
 	 * size. */
-	if (box.x + box.w >= Screensize->x)
+	if (box.x + box.w >= ScreenSurface->w)
 	{
-		box.x -= (box.x + box.w + 1) - Screensize->x;
+		box.x -= (box.x + box.w + 1) - ScreenSurface->w;
+	}
+
+	if (box.y + box.h >= ScreenSurface->h)
+	{
+		box.y -= (box.y + box.h + 1) - ScreenSurface->h;
 	}
 
 	SDL_FillRect(ScreenSurface, &box, -1);
-	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y - 1, COLOR_SIMPLE(COLOR_BLACK), 0, NULL);
+	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
+}
 
-	/* Set stored x/y back to -1, so the next frame the tooltip isn't
-	 * shown again, unless tooltip_create() gets called. */
+/**
+ * Dismiss the currently shown tooltip. */
+void tooltip_dismiss(void)
+{
 	tooltip_x = -1;
 	tooltip_y = -1;
+	tooltip_w = -1;
+	tooltip_h = -1;
 }

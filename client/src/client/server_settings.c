@@ -27,14 +27,14 @@
  * @file
  * Server settings. */
 
-#include <include.h>
+#include <global.h>
 
 /** Server settings. */
 server_settings *s_settings = NULL;
 
 /**
  * Initialize the server settings from the srv file. */
-void server_settings_init()
+void server_settings_init(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF * 4], *cp;
@@ -140,28 +140,27 @@ void server_settings_init()
 		}
 		else if (!strncmp(buf, "level ", 6))
 		{
-			uint32 i;
+			uint32 lev;
 
 			s_settings->max_level = atoi(buf + 6);
 			s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
 
-			for (i = 0; i <= s_settings->max_level; i++)
+			for (lev = 0; lev <= s_settings->max_level; lev++)
 			{
 				if (!fgets(buf, sizeof(buf) - 1, fp))
 				{
 					break;
 				}
 
-				s_settings->level_exp[i] = strtoull(buf, NULL, 16);
+				s_settings->level_exp[lev] = strtoull(buf, NULL, 16);
 			}
 
-			s_settings->level_exp[i] = 0;
+			s_settings->level_exp[lev] = 0;
 		}
 		else if (!strncmp(buf, "text ", 5))
 		{
 			if (text_id < SERVER_TEXT_MAX)
 			{
-				char *cp;
 				size_t j = 0;
 
 				s_settings->text[text_id] = strdup(buf + 5);
@@ -235,7 +234,7 @@ void server_settings_init()
 
 /**
  * Deinitialize the server settings. */
-void server_settings_deinit()
+void server_settings_deinit(void)
 {
 	size_t i, gender;
 

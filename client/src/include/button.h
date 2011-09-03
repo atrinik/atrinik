@@ -64,22 +64,27 @@ typedef struct button_struct
 	uint64 flags;
 
 	/** Color of the text. */
-	SDL_Color color;
+	const char *color;
 
 	/** Color of the text's shadow. */
-	SDL_Color color_shadow;
+	const char *color_shadow;
 
 	/** Color of the text if the mouse is over the button. */
-	SDL_Color color_over;
+	const char *color_over;
 
 	/** Color of the text's shadow if the mouse is over the button. */
-	SDL_Color color_over_shadow;
+	const char *color_over_shadow;
 
 	/** 1 if the mouse is over the button. */
 	int mouse_over;
 
-	/** 1 if the button is being pressed. */
+	/**
+	 * 1 if the button is being pressed.
+	 * @private */
 	int pressed;
+
+	/** 1 if the button should be forced to be pressed. */
+	int pressed_forced;
 
 	/** If 1, the button is in disabled state and cannot be pressed. */
 	int disabled;

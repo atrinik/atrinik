@@ -28,14 +28,6 @@
  * Object related code. */
 
 #include <global.h>
-
-#ifndef WIN32
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#endif
-
-#include <skillist.h>
 #include <loader.h>
 
 /**
@@ -148,7 +140,7 @@ const char *gender_reflexive[GENDER_MAX] =
 };
 
 /** Material types. */
-materialtype material[NROFMATERIALS] =
+materialtype materials[NROFMATERIALS] =
 {
 	{"paper"},
 	{"metal"},
@@ -176,7 +168,7 @@ static void remove_ob_inv(object *op);
 
 /**
  * Initialize materials from file. */
-void init_materials()
+void init_materials(void)
 {
 	int i;
 	char filename[MAX_BUF], buf[MAX_BUF];
@@ -277,6 +269,15 @@ int freedir[SIZEOFFREE] =
 };
 
 /**
+ * Progressive object counter (every new object will increase this, even
+ * if that object is later removed). */
+static long ob_count = 0;
+
+/**
+ * Object type-specific functions to call when initializing objects. */
+void (*object_initializers[256])(object *);
+
+/**
  * This is a list of pointers that correspond to the FLAG_.. values.
  * This is a simple 1:1 mapping - if FLAG_FRIENDLY is 15, then the 15'th
  * element of this array should match that name.
@@ -349,7 +350,7 @@ void mark_object_removed(object *ob)
 
 /**
  * Go through all objects in the removed list and free the forgotten ones. */
-void object_gc()
+void object_gc(void)
 {
 	struct mempool_chunk *current, *next;
 	object *ob;
@@ -1110,7 +1111,7 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
  *
  * If there are no free objects, expand_objects() is called to get more.
  * @return The new object. */
-object *get_object()
+object *get_object(void)
 {
 	object *new_obj = (object *) get_poolchunk(pool_object);
 
@@ -1143,8 +1144,6 @@ void update_turn_face(object *op)
  * @param op The object */
 void update_ob_speed(object *op)
 {
-	extern int arch_init;
-
 	/* No reason putting the archetypes objects on the speed list,
 	 * since they never really need to be updated. */
 	if (OBJECT_FREE(op) && op->speed)
@@ -1447,10 +1446,8 @@ void drop_ob_inv(object *ob)
 		return;
 	}
 
-	/* TODO */
 	if (ob->env == NULL && (ob->map == NULL || ob->map->in_memory != MAP_IN_MEMORY))
 	{
-		LOG(llevDebug, "drop_ob_inv() - can't drop inventory of objects not in map yet: %s (%p)\n", ob->name, ob->map);
 		return;
 	}
 
@@ -1553,7 +1550,7 @@ void drop_ob_inv(object *ob)
 		}
 		else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED))
 		{
-			corpse->stats.food = 3;
+			corpse->stats.food = 5;
 		}
 
 		/* Change sub_type to mark this corpse */
@@ -1569,6 +1566,9 @@ void drop_ob_inv(object *ob)
 				corpse->sub_type = ST1_CONTAINER_CORPSE_player;
 			}
 		}
+
+		/* Store the original food value. */
+		corpse->last_eat = corpse->stats.food;
 
 		if (ob->env)
 		{
@@ -1672,13 +1672,6 @@ void destroy_object(object *ob)
 	{
 		beacon_remove(ob);
 	}
-	else if (ob->type == MAP_EVENT_OBJ)
-	{
-		if (ob->map->in_memory == MAP_IN_MEMORY)
-		{
-			map_event_obj_deinit(ob);
-		}
-	}
 
 	FREE_AND_CLEAR_HASH2(ob->name);
 	FREE_AND_CLEAR_HASH2(ob->title);
@@ -1740,22 +1733,7 @@ void remove_ob(object *op)
 	mark_object_removed(op);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->quickslot = 0;
-
-	/* If the object is ready and it's in inventory of the player, remove
-	 * it from the player's ready_object array, inform the client, and
-	 * clear the ready flag. */
-	if (QUERY_FLAG(op, FLAG_IS_READY) && op->env && op->env->type == PLAYER)
-	{
-		int type = cmd_ready_determine(op);
-
-		if (type != -1)
-		{
-			CONTR(op->env)->ready_object[type] = NULL;
-			cmd_ready_send(CONTR(op->env), -1, type);
-		}
-
-		CLEAR_FLAG(op, FLAG_IS_READY);
-	}
+	CLEAR_FLAG(op, FLAG_IS_READY);
 
 	/* In this case, the object to be removed is in someones
 	 * inventory. */
@@ -1903,6 +1881,10 @@ void remove_ob(object *op)
 		{
 			container_unlink(pltemp, NULL);
 		}
+	}
+	else if (op->type == MAP_EVENT_OBJ)
+	{
+		map_event_obj_deinit(op);
 	}
 
 	update_object(op, UP_OBJ_REMOVE);
@@ -2227,6 +2209,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		}
 
 		op->map->player_first = op;
+	}
+	else if (op->type == MAP_EVENT_OBJ)
+	{
+		map_event_obj_init(op);
 	}
 
 	/* We updated something here - mark this tile as changed! */
@@ -2954,14 +2940,14 @@ object *present_arch_in_ob(archetype *at, object *op)
  * @todo Document. */
 int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
-	int i, index = 0;
+	int i, inx = 0;
 	static int altern[SIZEOFFREE];
 
 	for (i = start; i < stop; i++)
 	{
 		if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i]))
 		{
-			altern[index++] = i;
+			altern[inx++] = i;
 		}
 		else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop)
 		{
@@ -2969,12 +2955,12 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
 		}
 	}
 
-	if (!index)
+	if (!inx)
 	{
 		return -1;
 	}
 
-	return altern[rndm(1, index) - 1];
+	return altern[rndm(1, inx) - 1];
 }
 
 /**
@@ -3515,13 +3501,13 @@ void free_key_values(object *op)
  * otherwise. */
 key_value *object_get_key_link(const object *ob, const char *key)
 {
-	key_value *link;
+	key_value *field;
 
-	for (link = ob->key_values; link; link = link->next)
+	for (field = ob->key_values; field; field = field->next)
 	{
-		if (link->key == key)
+		if (field->key == key)
 		{
-			return link;
+			return field;
 		}
 	}
 
@@ -3537,7 +3523,7 @@ key_value *object_get_key_link(const object *ob, const char *key)
  * @note The returned string is shared. */
 const char *object_get_value(const object *op, const char *const key)
 {
-	key_value *link;
+	key_value *field;
 	const char *canonical_key = find_string(key);
 
 	if (canonical_key == NULL)
@@ -3547,11 +3533,11 @@ const char *object_get_value(const object *op, const char *const key)
 
 	/* This is copied from object_get_key_link() above - only 4 lines, and
 	 * saves the function call overhead. */
-	for (link = op->key_values; link; link = link->next)
+	for (field = op->key_values; field; field = field->next)
 	{
-		if (link->key == canonical_key)
+		if (field->key == canonical_key)
 		{
-			return link->value;
+			return field->value;
 		}
 	}
 
@@ -3682,12 +3668,12 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 
 /**
  * Initialize the table of object initializers. */
-void init_object_initializers()
+void init_object_initializers(void)
 {
 	object_initializers[BEACON] = beacon_add;
-	object_initializers[MAP_EVENT_OBJ] = map_event_obj_init;
 	object_initializers[MAGIC_MIRROR] = magic_mirror_init;
 	object_initializers[MAP_INFO] = map_info_init;
+	object_initializers[SOUND_AMBIENT] = sound_ambient_init;
 }
 
 /**

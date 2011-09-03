@@ -33,7 +33,7 @@
 #define INVITEMBELOWXLEN 8
 #define INVITEMBELOWYLEN 1
 
-#define INVITEMXLEN 7
+#define INVITEMXLEN 8
 #define INVITEMYLEN 3
 
 /**
@@ -57,7 +57,5 @@
 /** Locked objects. */
 #define INVENTORY_FILTER_LOCKED 64
 /*@}*/
-
-uint64 inventory_filter;
 
 #endif

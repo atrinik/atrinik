@@ -33,20 +33,21 @@
 /** One list. */
 typedef struct list_struct
 {
-	/** Next list in a linked list. */
-	struct list_struct *next;
-
-	/** Previous list in a linked list. */
-	struct list_struct *prev;
-
-	/** ID of the list, one of @ref LIST_xxx. */
-	uint32 id;
-
 	/** X position of the list. */
 	int x;
 
 	/** Y position of the list. */
 	int y;
+
+	/**
+	 * Parent X position, ie, X position of the surface the list is being
+	 * drawn on. */
+	int px;
+
+	/**
+	 * Parent Y position, ie, Y position of the surface the list is being
+	 * drawn on. */
+	int py;
 
 	/** List's maximum width. */
 	int width;
@@ -114,14 +115,6 @@ typedef struct list_struct
 	 * ticks value). */
 	uint32 click_tick;
 
-	/** Which key to repeat. If -1, no key. */
-	sint32 repeat_key;
-
-	/**
-	 * Used for figuring out how many key repeats to simulate (keeps the
-	 * ticks value). */
-	uint32 repeat_key_ticks;
-
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
@@ -142,6 +135,9 @@ typedef struct list_struct
 
 	/** Surface used to draw the list on. */
 	SDL_Surface *surface;
+
+	/** Additional text API @ref TEXT_xxx "flags". */
+	uint64 text_flags;
 
 	/**
 	 * Function that will draw frame (and/or other effects) right before
@@ -183,9 +179,10 @@ typedef struct list_struct
 	 * Custom function to call for handling keyboard events.
 	 * @param list List.
 	 * @param key Key ID.
-	 * @retval -1 Did not handle the event.
-	 * @retval 0 Handled the event.
-	 * @retval 1 Handled the event, and allow keyboard repeating. */
+	 * @retval -1 Did not handle the event, but should still attempt to
+	 * handle generic list events (eg, scrolling with arrow keys).
+	 * @retval 0 Did not handle the event.
+	 * @retval 1 Handled the event. */
 	int (*key_event_func)(struct list_struct *list, SDLKey key);
 
 	/**
@@ -195,26 +192,24 @@ typedef struct list_struct
 	 * @param row Text row.
 	 * @param col Column.
 	 * @return Color to use for the text. */
-	SDL_Color (*text_color_hook)(struct list_struct *list, SDL_Color default_color, uint32 row, uint32 col);
-} list_struct;
+	const char *(*text_color_hook)(struct list_struct *list, const char *default_color, uint32 row, uint32 col);
 
-/**
- * @defgroup LIST_xxx List IDs
- * IDs of lists in use. Each list used should have a unique ID.
- *@{*/
-/** The list showing servers. */
-#define LIST_SERVERS 1
-/** List of game news, right of the servers list. */
-#define LIST_NEWS 2
-/** List for use of displaying data in character creation screen. */
-#define LIST_CREATION 3
-/** List used in the music player widget. */
-#define LIST_MPLAYER 4
-/** List used in the spells widget. */
-#define LIST_SPELLS 5
-/** List used in the skills widget. */
-#define LIST_SKILLS 6
-/*@}*/
+	/**
+	 * Callback function to call after drawing one column in a list.
+	 * @param list The list.
+	 * @param row The row of the column that was drawn.
+	 * @param col The column. */
+	void (*post_column_func)(struct list_struct *list, uint32 row, uint32 col);
+
+	/**
+	 * Callback function to call when a mouse has been detected to be
+	 * located over a list row.
+	 * @param list The list.
+	 * @param row The row in the list the mouse is over.
+	 * @param event Event that triggered this - can be used to figure out
+	 * whether the event was a click, a motion, etc. */
+	void (*handle_mouse_row_func)(struct list_struct *list, uint32 row, SDL_Event *event);
+} list_struct;
 
 /** Calculate list's row height. */
 #define LIST_ROW_HEIGHT(list) (FONT_HEIGHT((list)->font) + (list)->row_height_adjust)
@@ -245,9 +240,5 @@ typedef struct list_struct
 
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300
-/** Key repeat delay in ticks. */
-#define KEY_REPEAT_DELAY 25
-/** Initial delay value. */
-#define KEY_REPEAT_DELAY_INIT 175
 
 #endif

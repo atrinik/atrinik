@@ -27,6 +27,9 @@
  * @file
  * God (deities) related structures. */
 
+#ifndef GOD_H
+#define GOD_H
+
 /** Used to link together the gods. */
 typedef struct glnk
 {
@@ -42,3 +45,5 @@ typedef struct glnk
 	/** Next god. */
 	struct glnk *next;
 } godlink;
+
+#endif

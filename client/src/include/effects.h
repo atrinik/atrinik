@@ -98,6 +98,17 @@ typedef struct effect_struct
 	/** Sprites per move, defaults to 1. */
 	int sprites_per_move;
 
+	/** Sound effect filename. */
+	char sound_effect[MAX_BUF];
+
+	/** Volume for the sound effect, defaults to 100 (percent). */
+	int sound_volume;
+
+	/**
+	 * Channel the sound effect is playing on, or -1 if there isn't any
+	 * sound effect playing. */
+	int sound_channel;
+
 	/** Map overlay. */
 	struct effect_overlay *overlay;
 } effect_struct;
@@ -262,15 +273,15 @@ typedef struct effect_overlay
 
 /** Macro used in effect_scale(). */
 #define EFFECT_SCALE_ADJUST(i, overlay) \
-	(i) = (overlay)->col[index].val == -1 ? vals[index] : (overlay)->col[index].val; \
-	(i) += (int) (((double) vals[0] * (overlay)->col[index].mod[0] + (double) vals[1] * (overlay)->col[index].mod[1] + (double) vals[2] * (overlay)->col[index].mod[2] + (double) vals[3] * (overlay)->col[index].mod[3]) * (overlay)->col[index].mod[4]); \
+	(i) = (overlay)->col[idx].val == -1 ? vals[idx] : (overlay)->col[idx].val; \
+	(i) += (int) (((double) vals[0] * (overlay)->col[idx].mod[0] + (double) vals[1] * (overlay)->col[idx].mod[1] + (double) vals[2] * (overlay)->col[idx].mod[2] + (double) vals[3] * (overlay)->col[idx].mod[3]) * (overlay)->col[idx].mod[4]); \
 	\
-	if ((overlay)->col[index].rndm_max != 0) \
+	if ((overlay)->col[idx].rndm_max != 0) \
 	{ \
-		(i) += rndm((overlay)->col[index].rndm_min, (overlay)->col[index].rndm_max); \
+		(i) += rndm((overlay)->col[idx].rndm_min, (overlay)->col[idx].rndm_max); \
 	} \
 	\
 	(i) = MAX(0, MIN(255, (i))); \
-	index++;
+	idx++;
 
 #endif

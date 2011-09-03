@@ -34,9 +34,6 @@
 /** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
 
-int global_darkness_table[MAX_DARKNESS + 1];
-int map_tiled_reverse[TILED_MAPS];
-
 /** For exit objects: this is a player unique map */
 #define MAP_PLAYER_MAP 1
 
@@ -367,6 +364,9 @@ typedef struct MapSpace_s
 	/** Map info object bound to this tile. */
 	object *map_info;
 
+	/** Ambient sound effect object bound to this tile. */
+	object *sound_ambient;
+
 	/** Used to create chained light source list. */
 	struct MapSpace_s *prev_light;
 
@@ -378,6 +378,9 @@ typedef struct MapSpace_s
 
 	/** ID of ::map_info. */
 	tag_t map_info_count;
+
+	/** ID of ::sound_ambient. */
+	tag_t sound_ambient_count;
 
 	/** Counter for update tile */
 	uint32 update_tile;
@@ -532,7 +535,7 @@ typedef struct map_event
 
 	/**
 	 * Plugin the map event object is using. */
-	struct _atrinik_plugin *plugin;
+	struct atrinik_plugin *plugin;
 } map_event;
 
 /**
@@ -729,7 +732,5 @@ typedef struct rv_vector_s
 
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
 #define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
-
-region *first_region;
 
 #endif

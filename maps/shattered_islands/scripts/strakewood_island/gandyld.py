@@ -62,7 +62,7 @@ def upgrade_crystal(crystal, capacity):
 if msg == "hello" or msg == "hi" or msg == "hey":
 	if not player_info:
 		activator.Write("\nThe old mage {0} mumbles something and slowly turns his attention to you.".format(me.name))
-		me.SayTo(activator, "\nWhat is it? Can't you see I'm ^busy^ here?")
+		me.SayTo(activator, "\nWhat is it? Can't you see I'm <a>busy</a> here?")
 	else:
 		crystal = activator.FindObject(2, crystal_arch, crystal_name)
 		load_quests()
@@ -76,7 +76,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 			# First quest
 			if not qm.completed():
 				if not qm.started():
-					me.SayTo(activator, "Would you be interested in ^boosting^ your mana crystal?", 1)
+					me.SayTo(activator, "Would you be interested in <a>boosting</a> your mana crystal?", 1)
 				elif qm.finished():
 					upgrade_crystal(crystal, 100)
 					qm.complete()
@@ -85,7 +85,7 @@ if msg == "hello" or msg == "hi" or msg == "hey":
 			# Second quest
 			elif not qm2.completed():
 				if not qm2.started():
-					me.SayTo(activator, "Would you be interested in ^boosting^ your mana crystal even further?", 1)
+					me.SayTo(activator, "Would you be interested in <a>boosting</a> your mana crystal even further?", 1)
 				elif qm2.finished():
 					upgrade_crystal(crystal, 200)
 					qm2.complete()
@@ -109,16 +109,16 @@ elif msg == "boosting":
 
 elif not player_info:
 	if msg == "busy":
-		me.SayTo(activator, "\nYes, busy. I'm in the process of creating a very powerful ^mana crystal^.")
+		me.SayTo(activator, "\nYes, busy. I'm in the process of creating a very powerful <a>mana crystal</a>.")
 
 	elif msg == "mana crystal":
-		me.SayTo(activator, "\nYou just won't don't want to give up, do you? Okay, I will ^tell^ you about mana crystals...")
+		me.SayTo(activator, "\nYou just won't don't want to give up, do you? Okay, I will <a>tell</a> you about mana crystals...")
 
 	elif msg == "tell":
-		me.SayTo(activator, "\nMana crystals are items sought after by mages. They allow you to ^store^ a certain amount of mana, you see.")
+		me.SayTo(activator, "\nMana crystals are items sought after by mages. They allow you to <a>store</a> a certain amount of mana, you see.")
 
 	elif msg == "store":
-		me.SayTo(activator, "\nWhen a mage applies a mana crystal while he is full on mana, half of his mana will be transferred to the crystal. The mage can then apply the crystal at any time to get the mana back. Crystals have a maximum mana capacity, so mages are always after the ones that can hold the most.\nHmm, I seem to have a crystal I don't need right here. Do you ^want^ it?")
+		me.SayTo(activator, "\nWhen a mage applies a mana crystal while he is full on mana, half of his mana will be transferred to the crystal. The mage can then apply the crystal at any time to get the mana back. Crystals have a maximum mana capacity, so mages are always after the ones that can hold the most.\nHmm, I seem to have a crystal I don't need right here. Do you <a>want</a> it?")
 
 	elif msg == "want":
 		activator.CreatePlayerInfo(player_info_name)

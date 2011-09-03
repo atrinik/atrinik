@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-03-30 Alex Tokar
+Modified: 2011-06-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -927,6 +927,10 @@ x 5
 y 5
 end
 arch magic_ear
+msg
+@match ^sesame$
+Click.
+endmsg
 connected 102
 x 5
 y 5

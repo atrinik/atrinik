@@ -35,29 +35,6 @@
 
 #include <global.h>
 
-#include <newclient.h>
-#include <newserver.h>
-#include <living.h>
-#include <commands.h>
-
-#ifndef WIN32
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#include "sounds.h"
-
 #define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
@@ -246,6 +223,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		{
 			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
 		}
+		else if (!strcmp(cmd, "hpfv2"))
+		{
+			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES_V2);
+		}
 		else if (!strcmp(cmd, "upf"))
 		{
 			parse_srv_setup(param, cmdback, SRV_FILE_UPDATES);
@@ -334,18 +315,6 @@ void PlayerCmd(char *buf, int len, player *pl)
 		return;
 	}
 
-	if (pl->socket.socket_version < 1034)
-	{
-		if (len < 7)
-		{
-			return;
-		}
-
-		(void) GetShort_String(buf);
-		(void) GetInt_String(buf + 2);
-		buf += 6;
-	}
-
 	if (len >= MAX_BUF)
 	{
 		len = MAX_BUF - 1;
@@ -360,7 +329,7 @@ void PlayerCmd(char *buf, int len, player *pl)
 	 * them an idea of the problem, but they deserve what they get. */
 	if (pl->state != ST_PLAYING)
 	{
-		new_draw_info_format(NDI_UNIQUE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
+		draw_info_format(COLOR_WHITE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
 		return;
 	}
 
@@ -411,7 +380,7 @@ void ReplyCmd(char *buf, int len, player *pl)
  * @param ns The socket to send the message to */
 static void version_mismatch_msg(socket_struct *ns)
 {
-	send_socket_message(NDI_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
+	send_socket_message(COLOR_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
 }
 
 /**
@@ -507,6 +476,7 @@ void RequestFileCmd(char *buf, int len, socket_struct *ns)
 			break;
 
 		case SRV_CLIENT_HFILES:
+		case SRV_CLIENT_HFILES_V2:
 			if (ns->rf_hfiles)
 			{
 				ns->status = Ns_Dead;
@@ -549,16 +519,16 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 		return;
 	}
 
-	if (ns->socket_version == 991017)
+	if (ns->socket_version == 991017 || ns->socket_version < 1055)
 	{
 		version_mismatch_msg(ns);
 		ns->status = Ns_Zombie;
 		return;
 	}
 
-	if (ns->socket_version != 991017 && ns->socket_version > SOCKET_VERSION)
+	if (ns->socket_version > SOCKET_VERSION)
 	{
-		send_socket_message(NDI_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
+		send_socket_message(COLOR_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
 		ns->status = Ns_Zombie;
 		return;
 	}
@@ -728,8 +698,7 @@ void esrv_update_skills(player *pl)
  * commands for now. */
 void esrv_update_stats(player *pl)
 {
-	/* hm, in theory... can this all be more as 256 bytes?? *I* never tested it.*/
-	static char sock_buf[MAX_BUF];
+	static char sock_buf[HUGE_BUF];
 	SockList sl;
 	int i;
 	uint16 flags;
@@ -782,25 +751,14 @@ void esrv_update_stats(player *pl)
 		AddIfChar(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX);
 		AddIfChar(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON);
 		AddIfChar(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA);
-
-		if (pl->socket.socket_version < 1033)
-		{
-			AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
-		}
-		else
-		{
-			AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
-		}
-
+		AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
 		AddIfShort(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC);
 		AddIfShort(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC);
-		AddIfShort(pl->last_stats.dam, pl->client_dam, CS_STAT_DAM);
+		AddIfShort(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM);
 		AddIfShort(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD);
 		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
 
-		if (pl->socket.socket_version >= 1050)
-		{
-		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race, -1)))
+		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race)))
 		{
 			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
 			AddIfShort(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC);
@@ -812,20 +770,11 @@ void esrv_update_stats(player *pl)
 			AddIfShort(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC);
 			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS);
 		}
-		}
 	}
 
 	for (i = 0; i < pl->last_skill_index; i++)
 	{
-		if (pl->socket.socket_version < 1033)
-		{
-			AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		}
-		else
-		{
 		AddIfInt64(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		}
-
 		AddIfChar(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1);
 	}
 
@@ -876,14 +825,7 @@ void esrv_update_stats(player *pl)
 			break;
 		}
 
-		if (pl->socket.socket_version < 1035)
-		{
-			AddIfChar(pl->last_protection[i], MAX(0, pl->ob->protection[i]), CS_STAT_PROT_START + i);
-		}
-		else
-		{
 		AddIfChar(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i);
-		}
 	}
 
 	if (pl->socket.ext_title_flag)
@@ -899,7 +841,9 @@ void esrv_update_stats(player *pl)
 
 	/* Only send it away if we have some actual data */
 	if (sl.len > 1)
+	{
 		Send_With_Handling(&pl->socket, &sl);
+	}
 }
 
 /**
@@ -923,11 +867,6 @@ void esrv_new_player(player *pl, uint32 weight)
 	free(sl.buf);
 }
 
-/** Clears a map cell */
-#define map_clearcell(_cell_)                  \
-	memset((_cell_), 0, sizeof(MapCell));      \
-	(_cell_)->count = -1
-
 /**
  * Get ID of a tiled map by checking player::last_update.
  * @param pl Player.
@@ -946,7 +885,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
 	{
 		if (pl->last_update->tile_path[i] == map->path)
 		{
-			return i+1;
+			return i + 1;
 		}
 	}
 
@@ -1107,10 +1046,6 @@ void draw_client_map(object *pl)
 		unsigned char sock_buf[MAXSOCKBUF];
 		MapSpace *msp;
 
-		/* Newer clients support the MAPSTATS command, which is specially
-		 * for things like this. */
-		if (CONTR(pl)->socket.socket_version >= 1046)
-		{
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAPSTATS);
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
@@ -1185,85 +1120,50 @@ void draw_client_map(object *pl)
 		{
 			Send_With_Handling(&CONTR(pl)->socket, &sl);
 		}
-		}
-		/* Backwards compatibility... */
-		else if (CONTR(pl)->socket.socket_version >= 1044)
-		{
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
-		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
-
-		SockList_AddChar(&sl, MAP_UPDATE_CMD_NEW);
-
-		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
-		{
-			if ((msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name)) || (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music)))
-			{
-				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
-				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
-
-				if (msp->map_info->race)
-				{
-					strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
-					CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
-				}
-
-				if (msp->map_info->slaying)
-				{
-					strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
-					CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
-				}
-			}
-		}
-		else
-		{
-			if (CONTR(pl)->map_info_name[0] != '\0' || CONTR(pl)->map_info_music[0] != '\0')
-			{
-				SockList_AddMapName(&sl, pl, pl->map, NULL);
-				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
-				CONTR(pl)->map_info_name[0] = '\0';
-				CONTR(pl)->map_info_music[0] = '\0';
-			}
-		}
-
-		SockList_AddChar(&sl, 0);
-		SockList_AddChar(&sl, 0);
-		SockList_AddChar(&sl, pl->x);
-		SockList_AddChar(&sl, pl->y);
-
-		if (sl.len > 6)
-		{
-			Send_With_Handling(&CONTR(pl)->socket, &sl);
-		}
-		}
 	}
 }
 
 /**
- * Figure out player name color for the client to show.
+ * Figure out player name color for the client to show, in HTML notation.
  *
- * As you can see in this function, it is easy to add
- * new player name colors, just check for the match
- * and make it return the correct color.
- * @param pl Player object that will get the map drawn
- * @param op Player object on the map, to get the name from
- * @return NDI_WHITE if no custom color, otherwise other NDI color */
-static int get_playername_color(object *pl, object *op)
+ * As you can see in this function, it is easy to add new player name
+ * colors, just check for the match and make it return the correct color.
+ * @param pl Player object that will get the map data sent to.
+ * @param op Player object on the map, to get the name from.
+ * @return The color. */
+static const char *get_playername_color(object *pl, object *op)
 {
 	if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party)
 	{
-		return NDI_GREEN;
+		return COLOR_GREEN;
 	}
 	else if (pl != op && pvp_area(pl, op))
 	{
-		return NDI_RED;
+		return COLOR_RED;
 	}
 
-	return NDI_WHITE;
+	return COLOR_WHITE;
 }
 
 /** Darkness table */
 static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
+
+/** Clear a map cell. */
+#define map_clearcell(_cell_) \
+{ \
+	memset((void *) ((char *) (_cell_) + offsetof(MapCell, count)), 0, sizeof(MapCell) - offsetof(MapCell, count)); \
+	(_cell_)->count = -1; \
+}
+
+/** Clear a map cell, but only if it has not been cleared before. */
+#define map_if_clearcell() \
+{ \
+	if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1) \
+	{ \
+		SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR); \
+		map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
+	} \
+}
 
 /** Draw the client map. */
 void draw_client_map2(object *pl)
@@ -1276,8 +1176,8 @@ void draw_client_map2(object *pl)
 	int x_start, dm_light = 0;
 	int special_vision;
 	uint16 mask;
-	SockList sl, sl_layer;
-	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF];
+	SockList sl, sl_layer, sl_sound;
+	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF], sock_buf_sound[MAXSOCKBUF];
 	int wdark;
 	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE);
 	int layer, dark;
@@ -1285,6 +1185,7 @@ void draw_client_map2(object *pl)
 	int num_layers;
 	int oldlen, outdoor;
 	object *mirror = NULL;
+	uint8 have_sound_ambient;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1300,12 +1201,15 @@ void draw_client_map2(object *pl)
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
 
+	sl_sound.buf = sock_buf_sound;
+	SOCKET_SET_BINARY_CMD(&sl_sound, BINARY_CMD_SOUND_AMBIENT);
+
 	/* Marker */
 	SockList_AddChar(&sl, (char) CONTR(pl)->map_update_cmd);
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
-		MapSpace *msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
 		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
 		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
@@ -1359,16 +1263,12 @@ void draw_client_map2(object *pl)
 			d = CONTR(pl)->blocked_los[ax][ay];
 			/* Form the data packet for x and y positions. */
 			mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
+			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
 
 			/* Space is out of map or blocked. Update space and clear values if needed. */
-			if (d & (BLOCKED_LOS_OUT_OF_MAP | BLOCKED_LOS_BLOCKED))
+			if (d & BLOCKED_LOS_OUT_OF_MAP)
 			{
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
+				map_if_clearcell();
 				continue;
 			}
 
@@ -1377,21 +1277,57 @@ void draw_client_map2(object *pl)
 
 			if (!(m = get_map_from_coord(pl->map, &nx, &ny)))
 			{
-				if (!QUERY_FLAG(pl, FLAG_WIZ))
-				{
-					LOG(llevDebug, "draw_client_map2() get_map_from_coord for player <%s> map: %s (%d, %d)\n", query_name(pl, NULL), pl->map->path ? pl->map->path : "<no path?>", x, y);
-				}
-
-				if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-				{
-					SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-					map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-				}
-
+				map_if_clearcell();
 				continue;
 			}
 
 			msp = GET_MAP_SPACE_PTR(m, nx, ny);
+			/* Check whether there is ambient sound effect on this tile. */
+			have_sound_ambient = msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
+
+			/* If there is an ambient sound effect but it cannot be heard
+			 * through walls due to its configuration, we will pretend
+			 * there is no sound effect here. */
+			if (have_sound_ambient && !QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED)
+			{
+				have_sound_ambient = 0;
+			}
+
+			/* If there is an ambient sound effect and we haven't sent it
+			 * before, or there isn't one but it was sent before, send an
+			 * update. */
+			if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) || (!have_sound_ambient && mp->sound_ambient_count))
+			{
+				SockList_AddChar(&sl_sound, ax);
+				SockList_AddChar(&sl_sound, ay);
+				SockList_AddInt(&sl_sound, mp->sound_ambient_count);
+
+				if (have_sound_ambient)
+				{
+					SockList_AddInt(&sl_sound, msp->sound_ambient->count);
+					SockList_AddString(&sl_sound, msp->sound_ambient->race);
+					SockList_AddChar(&sl_sound, msp->sound_ambient->item_condition);
+
+					if (CONTR(pl)->socket.socket_version >= 1057)
+					{
+						SockList_AddChar(&sl_sound, msp->sound_ambient->item_level);
+					}
+
+					mp->sound_ambient_count = msp->sound_ambient->count;
+				}
+				else
+				{
+					SockList_AddInt(&sl_sound, 0);
+
+					mp->sound_ambient_count = 0;
+				}
+			}
+
+			if (d & BLOCKED_LOS_BLOCKED)
+			{
+				map_if_clearcell();
+				continue;
+			}
 
 			/* Border tile, we can ignore every LOS change */
 			if (!(d & BLOCKED_LOS_IGNORE))
@@ -1483,12 +1419,7 @@ void draw_client_map2(object *pl)
 				}
 				else
 				{
-					if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1)
-					{
-						SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR);
-						map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]);
-					}
-
+					map_if_clearcell();
 					continue;
 				}
 			}
@@ -1521,8 +1452,6 @@ void draw_client_map2(object *pl)
 			{
 				d = 30;
 			}
-
-			mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
 
 			/* Initialize default values for some variables. */
 			dark = NO_FACE_SEND;
@@ -1618,7 +1547,7 @@ void draw_client_map2(object *pl)
 				{
 					sint16 face;
 					uint8 quick_pos = tmp->quick_pos;
-					uint8 flags = 0, probe = 0;
+					uint8 flags = 0, probe_val = 0;
 					uint32 flags2 = 0;
 					object *head = tmp->head ? tmp->head : tmp;
 
@@ -1673,7 +1602,7 @@ void draw_client_map2(object *pl)
 					if (head->count == CONTR(pl)->target_object_count)
 					{
 						flags |= MAP2_FLAG_PROBE;
-						probe = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+						probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
 					}
 
 					/* Z position set? */
@@ -1686,28 +1615,19 @@ void draw_client_map2(object *pl)
 					 * should affect the zoom value of this layer. */
 					if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1040)
-						{
 						flags |= MAP2_FLAG_ZOOM;
-						}
 					}
 
 					if (head->align || (mirror && mirror->align))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1041)
-						{
 						flags |= MAP2_FLAG_ALIGN;
-						}
 					}
 
 					/* Draw the object twice if set, but only if it's not
 					 * in the bottom quadrant of the map. */
 					if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
 					{
-						if (CONTR(pl)->socket.socket_version >= 1043)
-						{
 						flags |= MAP2_FLAG_DOUBLE;
-						}
 					}
 
 					if (head->alpha)
@@ -1715,21 +1635,23 @@ void draw_client_map2(object *pl)
 						flags2 |= MAP2_FLAG2_ALPHA;
 					}
 
-					if (head->rotate && CONTR(pl)->socket.socket_version >= 1049)
+					if (head->rotate)
 					{
 						flags2 |= MAP2_FLAG2_ROTATE;
 					}
 
+					if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0)))
+					{
+						flags2 |= MAP2_FLAG2_INFRAVISION;
+					}
+
 					if (flags2)
 					{
-						if (CONTR(pl)->socket.socket_version >= 1043)
-						{
 						flags |= MAP2_FLAG_MORE;
-						}
 					}
 
 					/* Damage animation? Store it for later. */
-					if (tmp->last_damage && tmp->damage_round_tag == ROUND_TAG)
+					if (tmp->last_damage && tmp->damage_round_tag == global_round_tag)
 					{
 						ext_flags |= MAP2_FLAG_EXT_ANIM;
 						anim_type = ANIM_DAMAGE;
@@ -1737,7 +1659,7 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe)
+					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe_val)
 					{
 						continue;
 					}
@@ -1749,7 +1671,7 @@ void draw_client_map2(object *pl)
 
 					if (layer == LAYER_LIVING - 1)
 					{
-						mp->probe = probe;
+						mp->probe = probe_val;
 					}
 
 					if (OBJECT_IS_HIDDEN(pl, head))
@@ -1794,13 +1716,13 @@ void draw_client_map2(object *pl)
 					if (flags & MAP2_FLAG_NAME)
 					{
 						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
-						SockList_AddChar(&sl_layer, (char) get_playername_color(pl, tmp));
+						SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
 					}
 
 					/* Target's HP bar. */
 					if (flags & MAP2_FLAG_PROBE)
 					{
-						SockList_AddChar(&sl_layer, (char) probe);
+						SockList_AddChar(&sl_layer, (char) probe_val);
 					}
 
 					/* Z position. */
@@ -1878,7 +1800,7 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Kill animation? */
-			if (GET_MAP_RTAG(m, nx, ny) == ROUND_TAG)
+			if (GET_MAP_RTAG(m, nx, ny) == global_round_tag)
 			{
 				ext_flags |= MAP2_FLAG_EXT_ANIM;
 				anim_type = ANIM_KILL;
@@ -1911,6 +1833,11 @@ void draw_client_map2(object *pl)
 	{
 		Send_With_Handling(&CONTR(pl)->socket, &sl);
 	}
+
+	if (sl_sound.len > 1 && CONTR(pl)->socket.socket_version >= 1056)
+	{
+		Send_With_Handling(&CONTR(pl)->socket, &sl_sound);
+	}
 }
 
 /**
@@ -1942,14 +1869,7 @@ void QuestListCmd(char *data, int len, player *pl)
 
 	if (!quest_container || !quest_container->inv)
 	{
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_string(sb, "qlist <title>No quests to speak of.</title>");
-		}
-		else
-		{
-		stringbuffer_append_string(sb, "qlist <t t=\"No quests to speak of.\">");
-		}
 
 		cp_len = sb->pos;
 		cp = stringbuffer_finish(sb);
@@ -1958,14 +1878,7 @@ void QuestListCmd(char *data, int len, player *pl)
 		return;
 	}
 
-	if (pl->socket.socket_version >= 1043)
-	{
 	stringbuffer_append_string(sb, "qlist <book=Quest List><title>Incomplete quests:</title>\n");
-	}
-	else
-	{
-	stringbuffer_append_string(sb, "qlist <b t=\"Quest List\"><t t=\"|Incomplete quests:|\">");
-	}
 
 	/* First show incomplete quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
@@ -1975,14 +1888,7 @@ void QuestListCmd(char *data, int len, player *pl)
 			continue;
 		}
 
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
-		else
-		{
-		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
 
 		if (tmp->sub_type == QUEST_TYPE_MULTI)
 		{
@@ -2027,14 +1933,7 @@ void QuestListCmd(char *data, int len, player *pl)
 		}
 	}
 
-	if (pl->socket.socket_version >= 1043)
-	{
 	stringbuffer_append_string(sb, "<p>\n<title>Completed quests:</title>\n");
-	}
-	else
-	{
-	stringbuffer_append_string(sb, "<p><t t=\"|Completed quests:|\">");
-	}
 
 	/* Now show completed quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
@@ -2044,14 +1943,7 @@ void QuestListCmd(char *data, int len, player *pl)
 			continue;
 		}
 
-		if (pl->socket.socket_version >= 1043)
-		{
 		stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
-		else
-		{
-		stringbuffer_append_printf(sb, "\n<t t=\"%s\">%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
-		}
 	}
 
 	cp_len = sb->pos;
@@ -2201,7 +2093,7 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 				/* Inform the client about the change. */
 				cmd_ready_send(pl, -1, type);
 
-				new_draw_info_format(NDI_UNIQUE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
+				draw_info_format(COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
 			}
 			/* Otherwise ready it. */
 			else
@@ -2210,16 +2102,17 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 				cmd_ready_clear(pl->ob, type);
 				SET_FLAG(tmp, FLAG_IS_READY);
 				pl->ready_object[type] = tmp;
+				pl->ready_object_tag[type] = tmp->count;
 				/* Inform the client about the change. */
 				cmd_ready_send(pl, tag, type);
 
 				if (type == READY_OBJ_ARROW)
 				{
-					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
+					draw_info_format(COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
 				}
 				else if (type == READY_OBJ_THROW)
 				{
-					new_draw_info_format(NDI_UNIQUE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
+					draw_info_format(COLOR_WHITE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
 				}
 			}
 
@@ -2285,4 +2178,57 @@ void cmd_keepalive(char *buf, int len, socket_struct *ns)
 	(void) buf;
 	(void) len;
 	ns->keepalive = 0;
+}
+
+/**
+ * Client requests a password change for a player.
+ * @param buf Data.
+ * @param len Length of data.
+ * @param pl The player. */
+void cmd_password_change(uint8 *buf, int len, player *pl)
+{
+	char pswd_current[MAX_BUF], pswd_new[MAX_BUF];
+	int pos = 0;
+	size_t pswd_len;
+
+	/* This makes the assumption that there is at least 1 character
+	 * in both current and new password. */
+	if (len < 4)
+	{
+		return;
+	}
+
+	/* Get the current and new password. */
+	GetString_String(buf, len, &pos, pswd_current, sizeof(pswd_current));
+	GetString_String(buf, len, &pos, pswd_new, sizeof(pswd_new));
+
+	/* Make sure there are no untypeable characters... */
+	cleanup_chat_string(pswd_current);
+	cleanup_chat_string(pswd_new);
+
+	/* Make sure there is current and new password. */
+	if (!*pswd_current || !*pswd_new)
+	{
+		return;
+	}
+
+	pswd_len = strlen(pswd_new);
+
+	/* Make sure the new password has a valid length. */
+	if (pswd_len < PLAYER_PASSWORD_MIN || pswd_len > PLAYER_PASSWORD_MAX)
+	{
+		draw_info_format(COLOR_RED, pl->ob, "That password has an invalid length (must be %d-%d).", PLAYER_PASSWORD_MIN, PLAYER_PASSWORD_MAX);
+		return;
+	}
+
+	/* Ensure the current password matches, but silently ignore if it
+	 * doesn't as the client should handle this. */
+	if (!strcmp(crypt_string(pswd_current, NULL), pl->password))
+	{
+		return;
+	}
+
+	/* Update the player's password. */
+	strcpy(pl->password, crypt_string(pswd_new, NULL));
+	draw_info(COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
 }

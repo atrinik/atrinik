@@ -117,7 +117,7 @@ START_TEST(test_find_archetype)
 }
 END_TEST
 
-static Suite *arch_suite()
+static Suite *arch_suite(void)
 {
 	Suite *s = suite_create("arch");
 	TCase *tc_core = tcase_create("Core");
@@ -135,7 +135,7 @@ static Suite *arch_suite()
 	return s;
 }
 
-void check_server_arch()
+void check_server_arch(void)
 {
 	Suite *s = arch_suite();
 	SRunner *sr = srunner_create(s);

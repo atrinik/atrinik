@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2011-06-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -673,7 +673,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 50
@@ -1051,7 +1051,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 47
@@ -1735,6 +1735,22 @@ arch floor_sand_d3
 x 6
 y 20
 end
+arch spawn_point
+x 6
+y 20
+arch demon_green
+randomitems mob_drow
+level 90
+exp 122
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 100
+type 83
+end
+end
 arch floor_sand_d1
 x 6
 y 21
@@ -2095,7 +2111,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 50
@@ -3045,6 +3061,22 @@ arch floor_sand_d1
 x 12
 y 20
 end
+arch spawn_point
+x 12
+y 20
+arch bone_devil
+randomitems mob_drow
+level 90
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
+end
 arch floor_sand_d1
 x 12
 y 21
@@ -3134,7 +3166,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 35
@@ -3247,7 +3279,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 38
@@ -4068,6 +4100,22 @@ arch floor_sand_d4
 x 18
 y 18
 end
+arch spawn_point
+x 18
+y 18
+arch bone_devil
+randomitems mob_drow
+level 90
+exp 112
+dam 58
+wc 5
+maxhp 70
+ac 11
+Con 3
+attack_cleave 90
+type 83
+end
+end
 arch floor_sand_d3
 x 18
 y 19
@@ -4720,7 +4768,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 50
@@ -4862,7 +4910,7 @@ sp -1
 maxsp 30
 Pow 10
 Dex 2
-sleep 1
+Wis 4
 type 83
 arch ability_firestorm
 sp 38

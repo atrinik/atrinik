@@ -49,13 +49,16 @@
  * If a skill has the primary stat set to NO_STAT_VAL then it defaults to a
  * 'miscellaneous skill'. */
 
+#ifndef SKILLIST_H
+#define SKILLIST_H
+
 /**
  * The default skills array, values can be overwritten by init_skills()
  * in skill_util.c.
  *
  * @warning Don't change the order here without changing the skills.h
  * file */
-skill skills[NROFSKILLS] =
+skill_struct skills[NROFSKILLS] =
 {
 	{"alchemy", NULL, NULL, EXP_PERSONAL, 10},
 	{"common literacy", "This skill allows you to read the common language. You get experience by reading unread books.", NULL, EXP_MENTAL, 0},
@@ -86,3 +89,5 @@ skill skills[NROFSKILLS] =
 	{"polearm mastery", "This skill allows the use of polearm weapons. This skill is auto-used from other skills.", NULL, EXP_PHYSICAL, 0},
 	{"inscription", "Allows writing content into books.", NULL, EXP_MENTAL, 0},
 };
+
+#endif

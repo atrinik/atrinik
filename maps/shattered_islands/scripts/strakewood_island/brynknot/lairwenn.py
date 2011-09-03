@@ -45,7 +45,7 @@ def main():
 			pen = me.FindObject(name = "writing pen")
 
 			if activator.PayAmount(pen.value):
-				activator.Write("You pay {}.".format(CostString(pen.value)), 0)
+				activator.Write("You pay {}.".format(CostString(pen.value)), COLOR_WHITE)
 				me.SayTo(activator, "\nHere you go dear, a top-quality writing pen!")
 				pen.Clone().InsertInto(activator)
 			else:

@@ -2,11 +2,11 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-06-08 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_2 rockforge_a_aa05
 tile_path_3 rockforge_a_ab04
@@ -1009,6 +1009,11 @@ arch wall_marble1.111
 x 9
 y 4
 end
+arch flag_rockforge
+direction 7
+x 9
+y 4
+end
 arch floor_marble2c
 x 9
 y 5
@@ -1038,6 +1043,11 @@ x 9
 y 8
 end
 arch wall_marble1.111
+x 9
+y 8
+end
+arch flag_rockforge
+direction 7
 x 9
 y 8
 end
@@ -1091,6 +1101,11 @@ arch wall_marble1.141
 x 9
 y 14
 end
+arch flag_rockforge
+direction 7
+x 9
+y 14
+end
 arch floor_marble2c
 x 9
 y 15
@@ -1120,6 +1135,11 @@ x 9
 y 18
 end
 arch wall_marble1.111
+x 9
+y 18
+end
+arch flag_rockforge
+direction 7
 x 9
 y 18
 end
@@ -1178,6 +1198,11 @@ arch floor_marble2c
 x 10
 y 2
 end
+arch lamp_wall
+direction 7
+x 10
+y 2
+end
 arch floor_marble2a
 x 10
 y 3
@@ -1191,6 +1216,11 @@ x 10
 y 5
 end
 arch floor_marble2a
+x 10
+y 6
+end
+arch lamp_wall
+direction 7
 x 10
 y 6
 end
@@ -1210,6 +1240,11 @@ arch floor_marble2b
 x 10
 y 10
 end
+arch lamp_wall
+direction 7
+x 10
+y 10
+end
 arch floor_marble2a
 x 10
 y 11
@@ -1222,6 +1257,11 @@ arch floor_marble2b
 x 10
 y 13
 end
+arch lamp_wall
+direction 7
+x 10
+y 13
+end
 arch floor_marble2c
 x 10
 y 14
@@ -1231,6 +1271,11 @@ x 10
 y 15
 end
 arch floor_marble2a
+x 10
+y 16
+end
+arch lamp_wall
+direction 7
 x 10
 y 16
 end
@@ -1250,11 +1295,21 @@ arch floor_marble2a
 x 10
 y 20
 end
+arch lamp_wall
+direction 7
+x 10
+y 20
+end
 arch floor_marble2c
 x 10
 y 21
 end
 arch floor_marble2b
+x 10
+y 22
+end
+arch lamp_wall
+direction 7
 x 10
 y 22
 end
@@ -1296,6 +1351,10 @@ arch floor_marble2a
 x 11
 y 7
 end
+arch fmask_rockforge2
+x 11
+y 7
+end
 arch floor_marble2c
 x 11
 y 8
@@ -1329,6 +1388,10 @@ x 11
 y 15
 end
 arch floor_marble2c
+x 11
+y 16
+end
+arch fmask_rockforge2
 x 11
 y 16
 end
@@ -1367,6 +1430,10 @@ arch wall_marble1.131
 x 12
 end
 arch floor_marble2b
+x 12
+y 1
+end
+arch lamp_wall
 x 12
 y 1
 end

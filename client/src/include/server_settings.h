@@ -120,6 +120,4 @@ typedef struct server_settings
 	char skill_types[SKILL_LIST_TYPES][MAX_BUF];
 } server_settings;
 
-server_settings *s_settings;
-
 #endif

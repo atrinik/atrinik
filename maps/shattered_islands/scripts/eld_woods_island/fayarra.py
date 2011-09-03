@@ -25,7 +25,7 @@ def main():
 		me.SayTo(activator, "\nHello {0}, I am {1}.".format(activator.name, me.name))
 
 		if not qm.started():
-			me.SayTo(activator, "In the past few weeks there have been sightings of wolves near the town, and food disappearing from my storage.\nI think the wolves have been stealing my food. If you helped me and taught the wolves a lesson or two, I would reward you.\nDo you ^accept^ my quest?", 1)
+			me.SayTo(activator, "In the past few weeks there have been sightings of wolves near the town, and food disappearing from my storage.\nI think the wolves have been stealing my food. If you helped me and taught the wolves a lesson or two, I would reward you.\nDo you <a>accept</a> my quest?", 1)
 		elif qm.completed():
 			me.SayTo(activator, "Thank you for helping me out. The wolves have stopped coming.", 1)
 		elif qm.finished():

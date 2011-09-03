@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -20,30 +20,30 @@ tile_path_8 world_1417
 bg_music ocean.ogg
 region berri_lur
 end
-arch water_still
+arch water_lt
 end
-arch water_still
+arch water_lt3
 y 1
 end
-arch water_still
+arch water_lt4
 y 2
 end
-arch water_still
+arch water_lt3
 y 3
 end
-arch water_still
+arch water_lt3
 y 4
 end
-arch water_still
+arch water_lt3
 y 5
 end
-arch water_still
+arch water_lt
 y 6
 end
-arch water_still
+arch water_lt4
 y 7
 end
-arch water_still
+arch water_lt
 y 8
 end
 arch bridge_wood_EW.111
@@ -55,77 +55,77 @@ end
 arch bridge_wood_EW.101
 y 11
 end
-arch water_still
+arch water_lt3
 y 12
 end
 arch bridge_wood_EW.151
 y 12
 end
-arch water_still
+arch water_lt3
 y 13
 end
-arch water_still
+arch water_lt4
 y 14
 end
-arch water_still
+arch water_lt4
 y 15
 end
-arch water_still
+arch water_lt4
 y 16
 end
-arch water_still
+arch water_lt3
 y 17
 end
-arch water_still
+arch water_lt
 y 18
 end
-arch water_still
+arch water_lt3
 y 19
 end
-arch water_still
+arch water_lt4
 y 20
 end
-arch water_still
+arch water_lt3
 y 21
 end
-arch water_still
+arch water_lt4
 y 22
 end
-arch water_still
+arch water_lt3
 y 23
 end
-arch water_still
+arch water_lt2
 x 1
 end
-arch water_still
+arch water_lt4
 x 1
 y 1
 end
-arch water_still
+arch water_lt3
 x 1
 y 2
 end
-arch water_still
+arch water_lt2
 x 1
 y 3
 end
-arch water_still
+arch water_lt4
 x 1
 y 4
 end
-arch water_still
+arch water_lt4
 x 1
 y 5
 end
-arch water_still
+arch water_lt
 x 1
 y 6
 end
-arch water_still
+arch water_lt
 x 1
 y 7
 end
-arch water_still
+arch water_lt3
 x 1
 y 8
 end
@@ -149,7 +149,7 @@ arch light7
 x 1
 y 11
 end
-arch water_still
+arch water_lt
 x 1
 y 12
 end
@@ -157,82 +157,82 @@ arch bridge_wood_EW.151
 x 1
 y 12
 end
-arch water_still
+arch water_lt4
 x 1
 y 13
 end
-arch water_still
+arch water_lt2
 x 1
 y 14
 end
-arch water_still
+arch water_lt4
 x 1
 y 15
 end
-arch water_still
+arch water_lt4
 x 1
 y 16
 end
-arch water_still
+arch water_lt2
 x 1
 y 17
 end
-arch water_still
+arch water_lt2
 x 1
 y 18
 end
-arch water_still
+arch water_lt3
 x 1
 y 19
 end
-arch water_still
+arch water_lt4
 x 1
 y 20
 end
-arch water_still
+arch water_lt2
 x 1
 y 21
 end
-arch water_still
+arch water_lt4
 x 1
 y 22
 end
-arch water_still
+arch water_lt4
 x 1
 y 23
 end
-arch water_still
+arch water_lt4
 x 2
 end
-arch water_still
+arch water_lt
 x 2
 y 1
 end
-arch water_still
+arch water_lt
 x 2
 y 2
 end
-arch water_still
+arch water_lt
 x 2
 y 3
 end
-arch water_still
+arch water_lt2
 x 2
 y 4
 end
-arch water_still
+arch water_lt4
 x 2
 y 5
 end
-arch water_still
+arch water_lt
 x 2
 y 6
 end
-arch water_still
+arch water_lt2
 x 2
 y 7
 end
-arch water_still
+arch water_lt2
 x 2
 y 8
 end
@@ -248,7 +248,7 @@ arch bridge_wood_EW.101
 x 2
 y 11
 end
-arch water_still
+arch water_lt
 x 2
 y 12
 end
@@ -256,82 +256,82 @@ arch bridge_wood_EW.151
 x 2
 y 12
 end
-arch water_still
+arch water_lt
 x 2
 y 13
 end
-arch water_still
+arch water_lt
 x 2
 y 14
 end
-arch water_still
+arch water_lt
 x 2
 y 15
 end
-arch water_still
+arch water_lt4
 x 2
 y 16
 end
-arch water_still
+arch water_lt2
 x 2
 y 17
 end
-arch water_still
+arch water_lt
 x 2
 y 18
 end
-arch water_still
+arch water_lt4
 x 2
 y 19
 end
-arch water_still
+arch water_lt4
 x 2
 y 20
 end
-arch water_still
+arch water_lt4
 x 2
 y 21
 end
-arch water_still
+arch water_lt4
 x 2
 y 22
 end
-arch water_still
+arch water_lt
 x 2
 y 23
 end
-arch water_still
+arch water_lt3
 x 3
 end
-arch water_still
+arch water_lt2
 x 3
 y 1
 end
-arch water_still
+arch water_lt4
 x 3
 y 2
 end
-arch water_still
+arch water_lt4
 x 3
 y 3
 end
-arch water_still
+arch water_lt3
 x 3
 y 4
 end
-arch water_still
+arch water_lt2
 x 3
 y 5
 end
-arch water_still
+arch water_lt2
 x 3
 y 6
 end
-arch water_still
+arch water_lt
 x 3
 y 7
 end
-arch water_still
+arch water_lt2
 x 3
 y 8
 end
@@ -347,7 +347,7 @@ arch bridge_wood_EW.101
 x 3
 y 11
 end
-arch water_still
+arch water_lt4
 x 3
 y 12
 end
@@ -355,82 +355,82 @@ arch bridge_wood_EW.151
 x 3
 y 12
 end
-arch water_still
+arch water_lt2
 x 3
 y 13
 end
-arch water_still
+arch water_lt
 x 3
 y 14
 end
-arch water_still
+arch water_lt2
 x 3
 y 15
 end
-arch water_still
+arch water_lt2
 x 3
 y 16
 end
-arch water_still
+arch water_lt4
 x 3
 y 17
 end
-arch water_still
+arch water_lt4
 x 3
 y 18
 end
-arch water_still
+arch water_lt4
 x 3
 y 19
 end
-arch water_still
+arch water_lt2
 x 3
 y 20
 end
-arch water_still
+arch water_lt4
 x 3
 y 21
 end
-arch water_still
+arch water_lt
 x 3
 y 22
 end
-arch water_still
+arch water_lt4
 x 3
 y 23
 end
-arch water_still
+arch water_lt4
 x 4
 end
-arch water_still
+arch water_lt4
 x 4
 y 1
 end
-arch water_still
+arch water_lt
 x 4
 y 2
 end
-arch water_still
+arch water_lt
 x 4
 y 3
 end
-arch water_still
+arch water_lt4
 x 4
 y 4
 end
-arch water_still
+arch water_lt
 x 4
 y 5
 end
-arch water_still
+arch water_lt3
 x 4
 y 6
 end
-arch water_still
+arch water_lt4
 x 4
 y 7
 end
-arch water_still
+arch water_lt4
 x 4
 y 8
 end
@@ -454,7 +454,7 @@ arch light7
 x 4
 y 11
 end
-arch water_still
+arch water_lt2
 x 4
 y 12
 end
@@ -462,82 +462,82 @@ arch bridge_wood_EW.151
 x 4
 y 12
 end
-arch water_still
+arch water_lt4
 x 4
 y 13
 end
-arch water_still
+arch water_lt2
 x 4
 y 14
 end
-arch water_still
+arch water_lt4
 x 4
 y 15
 end
-arch water_still
+arch water_lt
 x 4
 y 16
 end
-arch water_still
+arch water_lt
 x 4
 y 17
 end
-arch water_still
+arch water_lt3
 x 4
 y 18
 end
-arch water_still
+arch water_lt2
 x 4
 y 19
 end
-arch water_still
+arch water_lt3
 x 4
 y 20
 end
-arch water_still
+arch water_lt
 x 4
 y 21
 end
-arch water_still
+arch water_lt2
 x 4
 y 22
 end
-arch water_still
+arch water_lt
 x 4
 y 23
 end
-arch water_still
+arch water_lt4
 x 5
 end
-arch water_still
+arch water_lt3
 x 5
 y 1
 end
-arch water_still
+arch water_lt3
 x 5
 y 2
 end
-arch water_still
+arch water_lt3
 x 5
 y 3
 end
-arch water_still
+arch water_lt4
 x 5
 y 4
 end
-arch water_still
+arch water_lt4
 x 5
 y 5
 end
-arch water_still
+arch water_lt4
 x 5
 y 6
 end
-arch water_still
+arch water_lt2
 x 5
 y 7
 end
-arch water_still
+arch water_lt4
 x 5
 y 8
 end
@@ -553,7 +553,7 @@ arch bridge_wood_EW.101
 x 5
 y 11
 end
-arch water_still
+arch water_lt
 x 5
 y 12
 end
@@ -561,82 +561,82 @@ arch bridge_wood_EW.151
 x 5
 y 12
 end
-arch water_still
+arch water_lt4
 x 5
 y 13
 end
-arch water_still
+arch water_lt
 x 5
 y 14
 end
-arch water_still
+arch water_lt4
 x 5
 y 15
 end
-arch water_still
+arch water_lt
 x 5
 y 16
 end
-arch water_still
+arch water_lt3
 x 5
 y 17
 end
-arch water_still
+arch water_lt4
 x 5
 y 18
 end
-arch water_still
+arch water_lt4
 x 5
 y 19
 end
-arch water_still
+arch water_lt3
 x 5
 y 20
 end
-arch water_still
+arch water_lt
 x 5
 y 21
 end
-arch water_still
+arch water_lt
 x 5
 y 22
 end
-arch water_still
+arch water_lt
 x 5
 y 23
 end
-arch water_still
+arch water_lt3
 x 6
 end
-arch water_still
+arch water_lt
 x 6
 y 1
 end
-arch water_still
+arch water_lt
 x 6
 y 2
 end
-arch water_still
+arch water_lt2
 x 6
 y 3
 end
-arch water_still
+arch water_lt2
 x 6
 y 4
 end
-arch water_still
+arch water_lt3
 x 6
 y 5
 end
-arch water_still
+arch water_lt
 x 6
 y 6
 end
-arch water_still
+arch water_lt2
 x 6
 y 7
 end
-arch water_still
+arch water_lt2
 x 6
 y 8
 end
@@ -652,7 +652,7 @@ arch bridge_wood_EW.101
 x 6
 y 11
 end
-arch water_still
+arch water_lt2
 x 6
 y 12
 end
@@ -660,62 +660,62 @@ arch bridge_wood_EW.151
 x 6
 y 12
 end
-arch water_still
+arch water_lt2
 x 6
 y 13
 end
-arch water_still
+arch water_lt4
 x 6
 y 14
 end
-arch water_still
+arch water_lt4
 x 6
 y 15
 end
-arch water_still
+arch water_lt3
 x 6
 y 16
 end
-arch water_still
+arch water_lt4
 x 6
 y 17
 end
-arch water_still
+arch water_lt4
 x 6
 y 18
 end
-arch water_still
+arch water_lt4
 x 6
 y 19
 end
-arch water_still
+arch water_lt4
 x 6
 y 20
 end
-arch water_still
+arch water_lt3
 x 6
 y 21
 end
-arch water_still
+arch water_lt
 x 6
 y 22
 end
-arch water_still
+arch water_lt4
 x 6
 y 23
 end
-arch water_still
+arch water_lt4
 x 7
 end
-arch water_still
+arch water_lt4
 x 7
 y 1
 end
-arch water_still
+arch water_lt
 x 7
 y 2
 end
-arch water_still
+arch water_lt
 x 7
 y 3
 end
@@ -795,7 +795,7 @@ arch bollard
 x 7
 y 16
 end
-arch water_still
+arch water_lt
 x 7
 y 17
 end
@@ -803,42 +803,42 @@ arch bridge_wood_EW.151
 x 7
 y 17
 end
-arch water_still
+arch water_lt
 x 7
 y 18
 end
-arch water_still
+arch water_lt4
 x 7
 y 19
 end
-arch water_still
+arch water_lt4
 x 7
 y 20
 end
-arch water_still
+arch water_lt2
 x 7
 y 21
 end
-arch water_still
+arch water_lt3
 x 7
 y 22
 end
-arch water_still
+arch water_lt
 x 7
 y 23
 end
-arch water_still
+arch water_lt2
 x 8
 end
-arch water_still
+arch water_lt4
 x 8
 y 1
 end
-arch water_still
+arch water_lt
 x 8
 y 2
 end
-arch water_still
+arch water_lt3
 x 8
 y 3
 end
@@ -894,7 +894,7 @@ arch bridge_wood_NS.101
 x 8
 y 16
 end
-arch water_still
+arch water_lt3
 x 8
 y 17
 end
@@ -902,42 +902,42 @@ arch bridge_wood_EW.151
 x 8
 y 17
 end
-arch water_still
+arch water_lt
 x 8
 y 18
 end
-arch water_still
+arch water_lt
 x 8
 y 19
 end
-arch water_still
+arch water_lt2
 x 8
 y 20
 end
-arch water_still
+arch water_lt2
 x 8
 y 21
 end
-arch water_still
+arch water_lt2
 x 8
 y 22
 end
-arch water_still
+arch water_lt2
 x 8
 y 23
 end
-arch water_still
+arch water_lt4
 x 9
 end
-arch water_still
+arch water_lt
 x 9
 y 1
 end
-arch water_still
+arch water_lt
 x 9
 y 2
 end
-arch water_still
+arch water_lt4
 x 9
 y 3
 end
@@ -1009,7 +1009,7 @@ arch bollard
 x 9
 y 16
 end
-arch water_still
+arch water_lt3
 x 9
 y 17
 end
@@ -1017,46 +1017,46 @@ arch bridge_wood_EW.151
 x 9
 y 17
 end
-arch water_still
+arch water_lt4
 x 9
 y 18
 end
-arch water_still
+arch water_lt4
 x 9
 y 19
 end
-arch water_still
+arch water_lt2
 x 9
 y 20
 end
-arch water_still
+arch water_lt4
 x 9
 y 21
 end
-arch water_still
+arch water_lt3
 x 9
 y 22
 end
-arch water_still
+arch water_lt4
 x 9
 y 23
 end
-arch water_still
+arch water_lt4
 x 10
 end
-arch water_still
+arch water_lt3
 x 10
 y 1
 end
-arch water_still
+arch water_lt4
 x 10
 y 2
 end
-arch water_still
+arch water_lt3
 x 10
 y 3
 end
-arch water_still
+arch water_lt2
 x 10
 y 4
 end
@@ -1064,7 +1064,7 @@ arch bridge_wood_NS.131
 x 10
 y 4
 end
-arch water_still
+arch water_lt
 x 10
 y 5
 end
@@ -1072,7 +1072,7 @@ arch bridge_wood_NS.131
 x 10
 y 5
 end
-arch water_still
+arch water_lt4
 x 10
 y 6
 end
@@ -1080,7 +1080,7 @@ arch bridge_wood_NS.131
 x 10
 y 6
 end
-arch water_still
+arch water_lt2
 x 10
 y 7
 end
@@ -1088,7 +1088,7 @@ arch bridge_wood_NS.131
 x 10
 y 7
 end
-arch water_still
+arch water_lt4
 x 10
 y 8
 end
@@ -1116,7 +1116,7 @@ arch light7
 x 10
 y 11
 end
-arch water_still
+arch water_lt2
 x 10
 y 12
 end
@@ -1124,7 +1124,7 @@ arch bridge_wood_03
 x 10
 y 12
 end
-arch water_still
+arch water_lt4
 x 10
 y 13
 end
@@ -1132,7 +1132,7 @@ arch bridge_wood_NS.131
 x 10
 y 13
 end
-arch water_still
+arch water_lt
 x 10
 y 14
 end
@@ -1140,7 +1140,7 @@ arch bridge_wood_NS.131
 x 10
 y 14
 end
-arch water_still
+arch water_lt
 x 10
 y 15
 end
@@ -1148,7 +1148,7 @@ arch bridge_wood_NS.131
 x 10
 y 15
 end
-arch water_still
+arch water_lt4
 x 10
 y 16
 end
@@ -1156,7 +1156,7 @@ arch bridge_wood_NS.131
 x 10
 y 16
 end
-arch water_still
+arch water_lt2
 x 10
 y 17
 end
@@ -1164,62 +1164,62 @@ arch bridge_wood_01
 x 10
 y 17
 end
-arch water_still
+arch water_lt4
 x 10
 y 18
 end
-arch water_still
+arch water_lt3
 x 10
 y 19
 end
-arch water_still
+arch water_lt2
 x 10
 y 20
 end
-arch water_still
+arch water_lt
 x 10
 y 21
 end
-arch water_still
+arch water_lt3
 x 10
 y 22
 end
-arch water_still
+arch water_lt
 x 10
 y 23
 end
-arch water_still
+arch water_lt2
 x 11
 end
-arch water_still
+arch water_lt
 x 11
 y 1
 end
-arch water_still
+arch water_lt3
 x 11
 y 2
 end
-arch water_still
+arch water_lt
 x 11
 y 3
 end
-arch water_still
+arch water_lt
 x 11
 y 4
 end
-arch water_still
+arch water_lt
 x 11
 y 5
 end
-arch water_still
+arch water_lt3
 x 11
 y 6
 end
-arch water_still
+arch water_lt4
 x 11
 y 7
 end
-arch water_still
+arch water_lt2
 x 11
 y 8
 end
@@ -1235,7 +1235,7 @@ arch bridge_wood_EW.101
 x 11
 y 11
 end
-arch water_still
+arch water_lt
 x 11
 y 12
 end
@@ -1243,82 +1243,82 @@ arch bridge_wood_EW.151
 x 11
 y 12
 end
-arch water_still
+arch water_lt4
 x 11
 y 13
 end
-arch water_still
+arch water_lt3
 x 11
 y 14
 end
-arch water_still
+arch water_lt2
 x 11
 y 15
 end
-arch water_still
+arch water_lt
 x 11
 y 16
 end
-arch water_still
+arch water_lt4
 x 11
 y 17
 end
-arch water_still
+arch water_lt4
 x 11
 y 18
 end
-arch water_still
+arch water_lt2
 x 11
 y 19
 end
-arch water_still
+arch water_lt2
 x 11
 y 20
 end
-arch water_still
+arch water_lt2
 x 11
 y 21
 end
-arch water_still
+arch water_lt4
 x 11
 y 22
 end
-arch water_still
+arch water_lt3
 x 11
 y 23
 end
-arch water_still
+arch water_lt2
 x 12
 end
-arch water_still
+arch water_lt
 x 12
 y 1
 end
-arch water_still
+arch water_lt2
 x 12
 y 2
 end
-arch water_still
+arch water_lt3
 x 12
 y 3
 end
-arch water_still
+arch water_lt2
 x 12
 y 4
 end
-arch water_still
+arch water_lt3
 x 12
 y 5
 end
-arch water_still
+arch water_lt4
 x 12
 y 6
 end
-arch water_still
+arch water_lt3
 x 12
 y 7
 end
-arch water_still
+arch water_lt2
 x 12
 y 8
 end
@@ -1334,7 +1334,7 @@ arch bridge_wood_EW.101
 x 12
 y 11
 end
-arch water_still
+arch water_lt3
 x 12
 y 12
 end
@@ -1342,82 +1342,82 @@ arch bridge_wood_EW.151
 x 12
 y 12
 end
-arch water_still
+arch water_lt2
 x 12
 y 13
 end
-arch water_still
+arch water_lt4
 x 12
 y 14
 end
-arch water_still
+arch water_lt2
 x 12
 y 15
 end
-arch water_still
+arch water_lt3
 x 12
 y 16
 end
-arch water_still
+arch water_lt2
 x 12
 y 17
 end
-arch water_still
+arch water_lt
 x 12
 y 18
 end
-arch water_still
+arch water_lt2
 x 12
 y 19
 end
-arch water_still
+arch water_lt3
 x 12
 y 20
 end
-arch water_still
+arch water_lt3
 x 12
 y 21
 end
-arch water_still
+arch water_lt
 x 12
 y 22
 end
-arch water_still
+arch water_lt
 x 12
 y 23
 end
-arch water_still
+arch water_lt2
 x 13
 end
-arch water_still
+arch water_lt
 x 13
 y 1
 end
-arch water_still
+arch water_lt4
 x 13
 y 2
 end
-arch water_still
+arch water_lt
 x 13
 y 3
 end
-arch water_still
+arch water_lt
 x 13
 y 4
 end
-arch water_still
+arch water_lt
 x 13
 y 5
 end
-arch water_still
+arch water_lt4
 x 13
 y 6
 end
-arch water_still
+arch water_lt3
 x 13
 y 7
 end
-arch water_still
+arch water_lt4
 x 13
 y 8
 end
@@ -1441,7 +1441,7 @@ arch light7
 x 13
 y 11
 end
-arch water_still
+arch water_lt
 x 13
 y 12
 end
@@ -1449,82 +1449,82 @@ arch bridge_wood_EW.151
 x 13
 y 12
 end
-arch water_still
+arch water_lt
 x 13
 y 13
 end
-arch water_still
+arch water_lt4
 x 13
 y 14
 end
-arch water_still
+arch water_lt
 x 13
 y 15
 end
-arch water_still
+arch water_lt
 x 13
 y 16
 end
-arch water_still
+arch water_lt4
 x 13
 y 17
 end
-arch water_still
+arch water_lt4
 x 13
 y 18
 end
-arch water_still
+arch water_lt
 x 13
 y 19
 end
-arch water_still
+arch water_lt
 x 13
 y 20
 end
-arch water_still
+arch water_lt4
 x 13
 y 21
 end
-arch water_still
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
+arch water_lt3
 x 13
 y 23
 end
-arch water_still
+arch water_lt3
 x 14
 end
-arch water_still
+arch water_lt4
 x 14
 y 1
 end
-arch water_still
+arch water_lt
 x 14
 y 2
 end
-arch water_still
+arch water_lt3
 x 14
 y 3
 end
-arch water_still
+arch water_lt4
 x 14
 y 4
 end
-arch water_still
+arch water_lt4
 x 14
 y 5
 end
-arch water_still
+arch water_lt3
 x 14
 y 6
 end
-arch water_still
+arch water_lt4
 x 14
 y 7
 end
-arch water_still
+arch water_lt
 x 14
 y 8
 end
@@ -1540,7 +1540,7 @@ arch bridge_wood_EW.101
 x 14
 y 11
 end
-arch water_still
+arch water_lt3
 x 14
 y 12
 end
@@ -1548,82 +1548,82 @@ arch bridge_wood_EW.151
 x 14
 y 12
 end
-arch water_still
+arch water_lt3
 x 14
 y 13
 end
-arch water_still
+arch water_lt2
 x 14
 y 14
 end
-arch water_still
+arch water_lt2
 x 14
 y 15
 end
-arch water_still
+arch water_lt4
 x 14
 y 16
 end
-arch water_still
+arch water_lt2
 x 14
 y 17
 end
-arch water_still
+arch water_lt4
 x 14
 y 18
 end
-arch water_still
+arch water_lt
 x 14
 y 19
 end
-arch water_still
+arch water_lt3
 x 14
 y 20
 end
-arch water_still
+arch water_lt3
 x 14
 y 21
 end
-arch water_still
+arch water_lt
 x 14
 y 22
 end
-arch water_still
+arch water_lt
 x 14
 y 23
 end
-arch water_still
+arch water_lt4
 x 15
 end
-arch water_still
+arch water_lt2
 x 15
 y 1
 end
-arch water_still
+arch water_lt4
 x 15
 y 2
 end
-arch water_still
+arch water_lt2
 x 15
 y 3
 end
-arch water_still
+arch water_lt3
 x 15
 y 4
 end
-arch water_still
+arch water_lt2
 x 15
 y 5
 end
-arch water_still
+arch water_lt4
 x 15
 y 6
 end
-arch water_still
+arch water_lt3
 x 15
 y 7
 end
-arch water_still
+arch water_lt3
 x 15
 y 8
 end
@@ -1639,7 +1639,7 @@ arch bridge_wood_EW.101
 x 15
 y 11
 end
-arch water_still
+arch water_lt3
 x 15
 y 12
 end
@@ -1647,82 +1647,82 @@ arch bridge_wood_EW.151
 x 15
 y 12
 end
-arch water_still
+arch water_lt3
 x 15
 y 13
 end
-arch water_still
+arch water_lt4
 x 15
 y 14
 end
-arch water_still
+arch water_lt
 x 15
 y 15
 end
-arch water_still
+arch water_lt3
 x 15
 y 16
 end
-arch water_still
+arch water_lt
 x 15
 y 17
 end
-arch water_still
+arch water_lt2
 x 15
 y 18
 end
-arch water_still
+arch water_lt
 x 15
 y 19
 end
-arch water_still
+arch water_lt2
 x 15
 y 20
 end
-arch water_still
+arch water_lt4
 x 15
 y 21
 end
-arch water_still
+arch water_lt2
 x 15
 y 22
 end
-arch water_still
+arch water_lt3
 x 15
 y 23
 end
-arch water_still
+arch water_lt2
 x 16
 end
-arch water_still
+arch water_lt2
 x 16
 y 1
 end
-arch water_still
+arch water_lt3
 x 16
 y 2
 end
-arch water_still
+arch water_lt2
 x 16
 y 3
 end
-arch water_still
+arch water_lt
 x 16
 y 4
 end
-arch water_still
+arch water_lt3
 x 16
 y 5
 end
-arch water_still
+arch water_lt2
 x 16
 y 6
 end
-arch water_still
+arch water_lt4
 x 16
 y 7
 end
-arch water_still
+arch water_lt
 x 16
 y 8
 end
@@ -1746,7 +1746,7 @@ arch light7
 x 16
 y 11
 end
-arch water_still
+arch water_lt3
 x 16
 y 12
 end
@@ -1754,82 +1754,82 @@ arch bridge_wood_EW.151
 x 16
 y 12
 end
-arch water_still
+arch water_lt
 x 16
 y 13
 end
-arch water_still
+arch water_lt3
 x 16
 y 14
 end
-arch water_still
+arch water_lt
 x 16
 y 15
 end
-arch water_still
+arch water_lt3
 x 16
 y 16
 end
-arch water_still
+arch water_lt4
 x 16
 y 17
 end
-arch water_still
+arch water_lt2
 x 16
 y 18
 end
-arch water_still
+arch water_lt
 x 16
 y 19
 end
-arch water_still
+arch water_lt2
 x 16
 y 20
 end
-arch water_still
+arch water_lt3
 x 16
 y 21
 end
-arch water_still
+arch water_lt
 x 16
 y 22
 end
-arch water_still
+arch water_lt4
 x 16
 y 23
 end
-arch water_still
+arch water_lt2
 x 17
 end
-arch water_still
+arch water_lt2
 x 17
 y 1
 end
-arch water_still
+arch water_lt
 x 17
 y 2
 end
-arch water_still
+arch water_lt4
 x 17
 y 3
 end
-arch water_still
+arch water_lt
 x 17
 y 4
 end
-arch water_still
+arch water_lt
 x 17
 y 5
 end
-arch water_still
+arch water_lt4
 x 17
 y 6
 end
-arch water_still
+arch water_lt3
 x 17
 y 7
 end
-arch water_still
+arch water_lt4
 x 17
 y 8
 end
@@ -1853,7 +1853,7 @@ arch bollard_tied_w_1
 x 17
 y 11
 end
-arch water_still
+arch water_lt3
 x 17
 y 12
 end
@@ -1861,51 +1861,51 @@ arch bridge_wood_EW.151
 x 17
 y 12
 end
-arch water_still
+arch water_lt4
 x 17
 y 13
 end
-arch water_still
+arch water_lt2
 x 17
 y 14
 end
-arch water_still
+arch water_lt2
 x 17
 y 15
 end
-arch water_still
+arch water_lt3
 x 17
 y 16
 end
-arch water_still
+arch water_lt
 x 17
 y 17
 end
-arch water_still
+arch water_lt
 x 17
 y 18
 end
-arch water_still
+arch water_lt4
 x 17
 y 19
 end
-arch water_still
+arch water_lt3
 x 17
 y 20
 end
-arch water_still
+arch water_lt
 x 17
 y 21
 end
-arch water_still
+arch water_lt4
 x 17
 y 22
 end
-arch water_still
+arch water_lt3
 x 17
 y 23
 end
-arch water_still
+arch water_lt4
 x 18
 end
 arch ship_rail_s
@@ -2036,7 +2036,7 @@ arch ship_rail_w
 x 18
 y 14
 end
-arch water_still
+arch water_lt2
 x 18
 y 15
 end
@@ -2048,7 +2048,7 @@ arch ship_hull_prow_s_front_starboard_1_light
 x 18
 y 15
 end
-arch water_still
+arch water_lt2
 x 18
 y 16
 end
@@ -2060,19 +2060,19 @@ arch ship_hull_prow_s_front_starboard_2_light
 x 18
 y 16
 end
-arch water_still
+arch water_lt
 x 18
 y 17
 end
-arch water_still
+arch water_lt
 x 18
 y 18
 end
-arch water_still
+arch water_lt3
 x 18
 y 19
 end
-arch water_still
+arch water_lt4
 x 18
 y 20
 end
@@ -2082,19 +2082,19 @@ sub_type 2
 x 18
 y 20
 end
-arch water_still
+arch water_lt4
 x 18
 y 21
 end
-arch water_still
+arch water_lt3
 x 18
 y 22
 end
-arch water_still
+arch water_lt4
 x 18
 y 23
 end
-arch water_still
+arch water_lt4
 x 19
 end
 arch ship_rail_s
@@ -2228,7 +2228,7 @@ arch light7
 x 19
 y 16
 end
-arch water_still
+arch water_lt3
 x 19
 y 17
 end
@@ -2240,7 +2240,7 @@ arch ship_hull_prow_s_front_starboard_1_light
 x 19
 y 17
 end
-arch water_still
+arch water_lt4
 x 19
 y 18
 end
@@ -2252,27 +2252,27 @@ arch ship_hull_prow_s_front_starboard_2_light
 x 19
 y 18
 end
-arch water_still
+arch water_lt4
 x 19
 y 19
 end
-arch water_still
+arch water_lt
 x 19
 y 20
 end
-arch water_still
+arch water_lt2
 x 19
 y 21
 end
-arch water_still
+arch water_lt3
 x 19
 y 22
 end
-arch water_still
+arch water_lt2
 x 19
 y 23
 end
-arch water_still
+arch water_lt3
 x 20
 end
 arch ship_rail_s
@@ -2439,7 +2439,7 @@ arch light7
 x 20
 y 18
 end
-arch water_still
+arch water_lt
 x 20
 y 19
 end
@@ -2451,7 +2451,7 @@ arch ship_prow_s_long
 x 20
 y 19
 end
-arch water_still
+arch water_lt4
 x 20
 y 20
 end
@@ -2459,19 +2459,19 @@ arch ship_hull_prow_s_front_2
 x 20
 y 20
 end
-arch water_still
+arch water_lt4
 x 20
 y 21
 end
-arch water_still
+arch water_lt
 x 20
 y 22
 end
-arch water_still
+arch water_lt3
 x 20
 y 23
 end
-arch water_still
+arch water_lt
 x 21
 end
 arch ship_rail_s
@@ -2629,7 +2629,7 @@ arch ship_hull_prow_s_rear_4
 x 21
 y 18
 end
-arch water_still
+arch water_lt4
 x 21
 y 19
 end
@@ -2637,7 +2637,7 @@ arch ship_hull_prow_s_rear_6
 x 21
 y 19
 end
-arch water_still
+arch water_lt2
 x 21
 y 20
 end
@@ -2645,19 +2645,19 @@ arch ship_hull_prow_s_front_1
 x 21
 y 20
 end
-arch water_still
+arch water_lt2
 x 21
 y 21
 end
-arch water_still
+arch water_lt3
 x 21
 y 22
 end
-arch water_still
+arch water_lt3
 x 21
 y 23
 end
-arch water_still
+arch water_lt2
 x 22
 end
 arch ship_rail_s
@@ -2803,7 +2803,7 @@ arch ship_hull_prow_s_rear_4
 x 22
 y 16
 end
-arch water_still
+arch water_lt
 x 22
 y 17
 end
@@ -2811,7 +2811,7 @@ arch ship_hull_prow_s_rear_6
 x 22
 y 17
 end
-arch water_still
+arch water_lt4
 x 22
 y 18
 end
@@ -2819,7 +2819,7 @@ arch ship_hull_prow_s_rear_3
 x 22
 y 18
 end
-arch water_still
+arch water_lt3
 x 22
 y 19
 end
@@ -2827,23 +2827,23 @@ arch ship_hull_prow_s_rear_5
 x 22
 y 19
 end
-arch water_still
+arch water_lt2
 x 22
 y 20
 end
-arch water_still
+arch water_lt3
 x 22
 y 21
 end
-arch water_still
+arch water_lt3
 x 22
 y 22
 end
-arch water_still
+arch water_lt
 x 22
 y 23
 end
-arch water_still
+arch water_lt2
 x 23
 end
 arch client_map_info
@@ -2851,7 +2851,7 @@ name berri_lur_ship_greyton
 sub_type 2
 x 23
 end
-arch water_still
+arch water_lt4
 x 23
 y 1
 end
@@ -2859,7 +2859,7 @@ arch ship_hull_e_high_corner_n
 x 23
 y 1
 end
-arch water_still
+arch water_lt4
 x 23
 y 2
 end
@@ -2867,7 +2867,7 @@ arch ship_hull_e_high
 x 23
 y 2
 end
-arch water_still
+arch water_lt
 x 23
 y 3
 end
@@ -2875,7 +2875,7 @@ arch ship_hull_e_high
 x 23
 y 3
 end
-arch water_still
+arch water_lt3
 x 23
 y 4
 end
@@ -2883,7 +2883,7 @@ arch ship_hull_e_high
 x 23
 y 4
 end
-arch water_still
+arch water_lt4
 x 23
 y 5
 end
@@ -2891,7 +2891,7 @@ arch ship_hull_e_high
 x 23
 y 5
 end
-arch water_still
+arch water_lt3
 x 23
 y 6
 end
@@ -2899,7 +2899,7 @@ arch ship_hull_e_high
 x 23
 y 6
 end
-arch water_still
+arch water_lt4
 x 23
 y 7
 end
@@ -2907,7 +2907,7 @@ arch ship_hull_e_high
 x 23
 y 7
 end
-arch water_still
+arch water_lt4
 x 23
 y 8
 end
@@ -2915,7 +2915,7 @@ arch ship_hull_e_high
 x 23
 y 8
 end
-arch water_still
+arch water_lt3
 x 23
 y 9
 end
@@ -2927,7 +2927,7 @@ arch sail_reffed_s
 x 23
 y 9
 end
-arch water_still
+arch water_lt2
 x 23
 y 10
 end
@@ -2935,7 +2935,7 @@ arch ship_hull_e_high
 x 23
 y 10
 end
-arch water_still
+arch water_lt
 x 23
 y 11
 end
@@ -2943,7 +2943,7 @@ arch ship_hull_e_high
 x 23
 y 11
 end
-arch water_still
+arch water_lt2
 x 23
 y 12
 end
@@ -2951,7 +2951,7 @@ arch ship_hull_e_high
 x 23
 y 12
 end
-arch water_still
+arch water_lt2
 x 23
 y 13
 end
@@ -2959,7 +2959,7 @@ arch ship_hull_e_high
 x 23
 y 13
 end
-arch water_still
+arch water_lt3
 x 23
 y 14
 end
@@ -2971,7 +2971,7 @@ arch sail_reffed_s
 x 23
 y 14
 end
-arch water_still
+arch water_lt3
 x 23
 y 15
 end
@@ -2979,7 +2979,7 @@ arch ship_hull_prow_s_rear_1
 x 23
 y 15
 end
-arch water_still
+arch water_lt3
 x 23
 y 16
 end
@@ -2987,7 +2987,7 @@ arch ship_hull_prow_s_rear_3
 x 23
 y 16
 end
-arch water_still
+arch water_lt3
 x 23
 y 17
 end
@@ -2995,27 +2995,27 @@ arch ship_hull_prow_s_rear_5
 x 23
 y 17
 end
-arch water_still
+arch water_lt2
 x 23
 y 18
 end
-arch water_still
+arch water_lt3
 x 23
 y 19
 end
-arch water_still
+arch water_lt
 x 23
 y 20
 end
-arch water_still
+arch water_lt3
 x 23
 y 21
 end
-arch water_still
+arch water_lt
 x 23
 y 22
 end
-arch water_still
+arch water_lt2
 x 23
 y 23
 end

@@ -30,6 +30,7 @@
  * Location: http://bugzilla.atrinik.org/show_bug.cgi?id=85 */
 
 #include <global.h>
+#include <check_proto.h>
 #include <check.h>
 
 START_TEST(test_run)
@@ -57,7 +58,7 @@ START_TEST(test_run)
 }
 END_TEST
 
-static Suite *bug_suite()
+static Suite *bug_suite(void)
 {
 	Suite *s = suite_create("bug");
 	TCase *tc_core = tcase_create("Core");
@@ -70,7 +71,7 @@ static Suite *bug_suite()
 	return s;
 }
 
-void check_bug_85()
+void check_bug_85(void)
 {
 	Suite *s = bug_suite();
 	SRunner *sr = srunner_create(s);

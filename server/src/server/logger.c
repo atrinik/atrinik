@@ -56,42 +56,24 @@ static const char *const loglevel_names[] =
 static uint8 loglevel_name_disable = 0;
 
 /**
+ * If this exceeds MAX_ERRORS, the server will shut down. */
+long nroferrors = 0;
+
+/**
  * Put a string to either stderr or logfile.
  * @param buf String to put. */
 static void do_print(const char *buf)
 {
-#ifdef WIN32
-	if (logfile)
-	{
-		/* Write to file or stdout */
-		fputs(buf, logfile);
-	}
-	else
-	{
-		fputs(buf, stderr);
-	}
+	fputs(buf, logfile);
 
-	if (logfile && logfile != stderr)
+	/* Is logfile a custom file, and not stderr (default)? */
+	if (logfile != stderr)
 	{
+		/* Log to stderr as well. */
 		fputs(buf, stderr);
-	}
-#else
-	if (logfile)
-	{
-		fputs(buf, logfile);
-	}
-	else
-	{
-		fputs(buf, stderr);
-	}
-#endif
-
-#ifdef DEBUG
-	if (logfile)
-	{
+		/* Flush the log file. */
 		fflush(logfile);
 	}
-#endif
 }
 
 /**

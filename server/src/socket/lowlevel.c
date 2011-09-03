@@ -28,28 +28,13 @@
  * Low level socket related functions. */
 
 #include <global.h>
-#include <newclient.h>
-
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
 #include <zlib.h>
-
-#ifndef WIN32
-#	include <netinet/tcp.h>
-#endif
 
 /**
  * Add a NULL terminated string.
  * @param sl SockList instance to add to.
  * @param data The string to add. */
-void SockList_AddString(SockList *sl, char *data)
+void SockList_AddString(SockList *sl, const char *data)
 {
 	char c;
 
@@ -61,6 +46,31 @@ void SockList_AddString(SockList *sl, char *data)
 
 	sl->buf[sl->len] = c;
 	sl->len++;
+}
+
+/**
+ * Construct a string from data packet.
+ * @param data Data packet.
+ * @param len Length of 'data'.
+ * @param[out] pos Position in the data packet.
+ * @param dest Will contain the string from data packet.
+ * @param dest_size Size of 'dest'.
+ * @return 'dest'. */
+char *GetString_String(uint8 *data, int len, int *pos, char *dest, size_t dest_size)
+{
+	size_t i = 0;
+	char c;
+
+	while (*pos < len && (c = (char) (data[(*pos)++])))
+	{
+		if (i < dest_size - 1)
+		{
+			dest[i++] = c;
+		}
+	}
+
+	dest[i] = '\0';
+	return dest;
 }
 
 /**
@@ -346,7 +356,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 	len = msg->len;
 
 #if COMPRESS_DATA_PACKETS
-	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA && ns->socket_version >= 1039)
+	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA)
 	{
 		size_t new_size = compressBound(len);
 
@@ -422,7 +432,7 @@ CS_Stats cst_lst;
  * Writes out the gathered stats.
  *
  * We clear ::cst_lst. */
-void write_cs_stats()
+void write_cs_stats(void)
 {
 	time_t now = time(NULL);
 

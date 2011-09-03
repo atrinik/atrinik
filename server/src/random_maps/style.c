@@ -29,19 +29,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#ifdef NO_ERRNO_H
-extern int errno;
-#else
-#   include <errno.h>
-#endif
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include "../include/autoconf.h"
-#endif
-
 /**
  * Char comparison for sorting purposes.
  * @param p1 First pointer to compare.
@@ -345,7 +332,7 @@ object *pick_random_object(mapstruct *style)
 
 /**
  * Frees cached style maps. */
-void free_style_maps()
+void free_style_maps(void)
 {
 	mapstruct *next;
 	int style_maps = 0;

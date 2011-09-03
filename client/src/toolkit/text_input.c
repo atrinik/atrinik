@@ -27,7 +27,7 @@
  * @file
  * Text input API. */
 
-#include <include.h>
+#include <global.h>
 
 /** Current text input string. */
 char text_input_string[MAX_INPUT_STRING];
@@ -57,7 +57,7 @@ uint32 text_input_opened;
 /**
  * Calculate X offset for centering a text input bitmap.
  * @return The offset. */
-int text_input_center_offset()
+int text_input_center_offset(void)
 {
 	return Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
 }
@@ -85,11 +85,11 @@ void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap)
  * @param y Y position.
  * @param font Font to use.
  * @param text Text to draw.
- * @param color Color to use.
+ * @param color_notation Color to use.
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
+void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	if (!box)
 	{
@@ -110,7 +110,7 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
 	box->x = 0;
 	box->y = 0;
 
-	string_blt(surface, font, text, x, y, color, flags | TEXT_WIDTH, box);
+	string_blt(surface, font, text, x, y, color_notation, flags | TEXT_WIDTH, box);
 }
 
 /**
@@ -120,17 +120,20 @@ void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const ch
  * @param y Y position.
  * @param font Font to use.
  * @param text Text to draw.
- * @param color Color to use.
+ * @param color_notation Color to use.
  * @param flags Text @ref TEXT_xxx "flags".
  * @param bitmap Bitmap to use.
  * @param box Contains coordinates to use and maximum string width. */
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, SDL_Color color, uint64 flags, int bitmap, SDL_Rect *box)
+void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
 {
 	char buf[HUGE_BUF];
 	SDL_Rect box2;
 	size_t pos = text_input_cursor_pos;
 	const char *cp = text;
 	int underscore_width = glyph_get_width(font, '_');
+	text_blit_info info;
+
+	blt_character_init(&info);
 
 	box2.w = 0;
 
@@ -143,7 +146,7 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 			break;
 		}
 
-		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL, NULL);
+		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL, NULL, &info);
 		pos--;
 	}
 
@@ -165,12 +168,12 @@ void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *t
 	}
 
 	/* Draw the text. */
-	text_input_draw_text(surface, x, y, font, buf, color, flags, bitmap, box);
+	text_input_draw_text(surface, x, y, font, buf, color_notation, flags, bitmap, box);
 }
 
 /**
  * Clear text input. */
-void text_input_clear()
+void text_input_clear(void)
 {
 	text_input_string[0] = '\0';
 	text_input_count = 0;
@@ -187,8 +190,10 @@ void text_input_clear()
  * @param maxchar Maximum number of allowed characters. */
 void text_input_open(int maxchar)
 {
-	int interval = (options.key_repeat > 0) ? 70 / options.key_repeat : 0;
-	int delay = (options.key_repeat > 0) ? interval + 280 / options.key_repeat : 0;
+	int interval, delay;
+
+	interval = 120 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
+	delay = interval + 300 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
 
 	text_input_clear();
 	text_input_max = maxchar;
@@ -207,10 +212,23 @@ void text_input_open(int maxchar)
 	else if (cpl.input_mode == INPUT_MODE_CONSOLE)
 	{
 		SetPriorityWidget(cur_widget[IN_CONSOLE_ID]);
+		sound_play_effect("console.ogg", 100);
 	}
 
 	text_input_string_flag = 1;
 	text_input_opened = SDL_GetTicks();
+}
+
+/**
+ * Close previously opened text input. */
+void text_input_close(void)
+{
+	cpl.input_mode = INPUT_MODE_NO;
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+	text_input_string_flag = 0;
+	text_input_string_end_flag = 0;
+	text_input_string_esc_flag = 0;
+	keybind_state_ensure();
 }
 
 /**
@@ -243,7 +261,7 @@ static void text_input_history_add(const char *text)
 
 /**
  * Clear all the text window history. */
-void text_input_history_clear()
+void text_input_history_clear(void)
 {
 	size_t i;
 
@@ -299,6 +317,31 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		return 0;
 	}
 
+	if (keybind_command_matches_event("?PASTE", key))
+	{
+		char *clipboard_contents;
+
+		clipboard_contents = clipboard_get();
+
+		if (clipboard_contents)
+		{
+			strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
+			text_input_cursor_pos = text_input_count = strlen(text_input_string);
+
+			for (i = 0; i < text_input_count; i++)
+			{
+				if (text_input_string[i] < ' ' || text_input_string[i] > '~')
+				{
+					text_input_string[i] = ' ';
+				}
+			}
+
+			free(clipboard_contents);
+		}
+
+		return 1;
+	}
+
 	switch (key->keysym.sym)
 	{
 		case SDLK_ESCAPE:
@@ -326,53 +369,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 			}
 			else if (key->keysym.sym == SDLK_TAB)
 			{
-				help_files_struct *help_files_tmp;
-				int possibilities = 0;
-				char cmd_buf[MAX_BUF];
-
-				if (text_input_string[0] != '/' || strrchr(text_input_string, ' '))
-				{
-					return 1;
-				}
-
-				for (help_files_tmp = help_files; help_files_tmp; help_files_tmp = help_files_tmp->next)
-				{
-					if (strcmp(help_files_tmp->title + strlen(help_files_tmp->title) - 8, " Command"))
-					{
-						continue;
-					}
-
-					if (!strncmp(help_files_tmp->helpname, text_input_string + 1, text_input_count - 1))
-					{
-						if ((help_files_tmp->dm_only && !cpl.dm) || !help_files_tmp->autocomplete)
-						{
-							continue;
-						}
-
-						if (possibilities == 0)
-						{
-							strncpy(cmd_buf, help_files_tmp->helpname, sizeof(cmd_buf));
-						}
-						else
-						{
-							if (possibilities == 1)
-							{
-								draw_info_format(COLOR_WHITE, "\nMatching commands:\n%s", cmd_buf);
-							}
-
-							draw_info(help_files_tmp->helpname, COLOR_WHITE);
-						}
-
-						possibilities++;
-					}
-				}
-
-				if (possibilities == 1)
-				{
-					snprintf(text_input_string, sizeof(text_input_string), "/%s ", cmd_buf);
-					text_input_count = text_input_cursor_pos = (int) strlen(text_input_string);
-				}
-
+				help_handle_tabulator();
 				return 1;
 			}
 
@@ -506,16 +503,6 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		{
 			char c;
 
-			/* If we are in number console mode, use GET as quick enter
-			 * mode. */
-			if (cpl.input_mode == INPUT_MODE_NUMBER && (key->keysym.sym == get_action_keycode || key->keysym.sym == drop_action_keycode))
-			{
-				SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-				text_input_string_flag = 0;
-				text_input_string_end_flag = 1;
-				return 1;
-			}
-
 			if (text_input_count < text_input_max)
 			{
 				c = 0;
@@ -621,62 +608,4 @@ int text_input_handle(SDL_KeyboardEvent *key)
 	}
 
 	return 0;
-}
-
-/**
- * Show string that is being inputted.
- * @param text String to show.
- * @param font Font to use.
- * @param wlen Maximum length of the string.
- * @return String to show, based on the cursor position.
- * @deprecated Use text_input_show() instead. */
-const char *show_input_string(const char *text, struct _Font *font, int wlen)
-{
-	int i, len;
-	size_t j;
-	static char buf[MAX_INPUT_STR];
-
-	strcpy(buf, text);
-
-	len = (int) strlen(buf);
-
-	while (len >= text_input_cursor_pos)
-	{
-		buf[len + 1] = buf[len];
-		len--;
-	}
-
-	buf[text_input_cursor_pos] = '_';
-
-	for (len = 25, i = text_input_cursor_pos; i >= 0; i--)
-	{
-		if (!buf[i])
-		{
-			continue;
-		}
-
-		if (len + font->c[(int) (buf[i])].w + font->char_offset >= wlen)
-		{
-			i--;
-			break;
-		}
-
-		len += font->c[(int) (buf[i])].w + font->char_offset;
-	}
-
-	len -= 25;
-
-	for (j = text_input_cursor_pos; j <= strlen(buf); j++)
-	{
-		if (len + font->c[(int) (buf[j])].w + font->char_offset >= wlen)
-		{
-			break;
-		}
-
-		len += font->c[(int) (buf[j])].w + font->char_offset;
-	}
-
-	buf[j] = '\0';
-
-	return &buf[++i];
 }

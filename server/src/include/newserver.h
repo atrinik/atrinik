@@ -36,10 +36,6 @@
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * @defgroup MAP2_FLAG_xxx Map2 layer flags
  * Flags used to mark what kind of data there is on layers
@@ -72,6 +68,8 @@
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
 #define MAP2_FLAG2_ROTATE 2
+/** The object should be highlighted in red. */
+#define MAP2_FLAG2_INFRAVISION 4
 /*@}*/
 
 /**
@@ -127,6 +125,12 @@
  * to the client. */
 typedef struct MapCell_struct
 {
+	/** Cache of last sent ambient sound. */
+	tag_t sound_ambient_count;
+
+	/* Everything below will be cleared by memset() in when the map
+	 * cell is no longer visible. */
+
 	/** Darkness cache. */
 	int	count;
 
@@ -186,10 +190,6 @@ typedef struct socket_buffer
 	/** If 1, will send this packet without delay. */
 	uint8 ndelay;
 } socket_buffer;
-
-#ifdef WIN32
-#pragma pack(pop)
-#endif
 
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct
@@ -301,7 +301,7 @@ typedef struct socket_struct
 /**
  * How many seconds must pass since the last keep alive command for the
  * socket to be disconnected. */
-#define SOCKET_KEEPALIVE_TIMEOUT (60 * 5)
+#define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct
@@ -318,8 +318,6 @@ typedef struct Socket_Info_struct
 	/** Number of allocated in init_sockets. */
 	int allocated_sockets;
 } Socket_Info;
-
-extern Socket_Info socket_info;
 
 /**
  * A single file loaded from the updates directory that the client can

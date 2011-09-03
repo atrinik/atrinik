@@ -30,10 +30,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
 /**
  * Get the weight of an object. If the object is a container or doesn't
  * have nrof, include the weight it is carrying. */
@@ -462,10 +458,6 @@ typedef struct obj
 	key_value *key_values;
 } object;
 
-#ifdef WIN32
-#pragma pack(pop)
-#endif
-
 /** Used to link together several objects. */
 typedef struct oblnk
 {
@@ -496,11 +488,6 @@ typedef struct oblnk
 } objectlink;
 
 #define free_objectlink_simple(_chunk_) return_poolchunk((_chunk_), pool_objectlink);
-
-/** List of active objects */
-extern object *active_objects;
-
-extern struct mempool_chunk *removed_objects;
 
 #define CONTR(ob) ((player *) ((ob)->custom_attrset))
 
@@ -595,6 +582,11 @@ extern struct mempool_chunk *removed_objects;
 /*@}*/
 
 /**
+ * Value in percent of time above which the corpse will be highlighted
+ * in infravision mode. */
+#define CORPSE_INFRAVISION_PERCENT 75
+
+/**
  * Returns the head part of an object. For single-tile objects returns the
  * object itself.
  * @param op The object.
@@ -620,12 +612,5 @@ typedef struct magic_mirror_struct
  * and y. Can be NULL in case of a magic mirror that is only used for zooming
  * or similar effect, and not mirroring. */
 #define MMIRROR(ob) ((magic_mirror_struct *) ((ob)->custom_attrset))
-
-extern const char *gender_noun[];
-extern const char *gender_subjective[];
-extern const char *gender_subjective_upper[];
-extern const char *gender_objective[];
-extern const char *gender_possessive[];
-extern const char *gender_reflexive[];
 
 #endif

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-02-25 Alex Tokar
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -86,7 +86,6 @@ msg
 The home of the world famous Jektar, slayer of fell beasts.
 endmsg
 direction 3
-name Jektar the Adventurer
 y 10
 end
 arch grassd_5
@@ -3735,16 +3734,13 @@ z 50
 x 22
 y 22
 end
-arch couch1b
+arch bed_double2
+direction 7
 x 22
 y 22
 end
 arch floor_fs_grey1b
 z 50
-x 22
-y 23
-end
-arch couch1b
 x 22
 y 23
 end
@@ -3907,16 +3903,8 @@ z 50
 x 23
 y 22
 end
-arch couch1a
-x 23
-y 22
-end
 arch floor_red1
 z 50
-x 23
-y 23
-end
-arch couch1a
 x 23
 y 23
 end

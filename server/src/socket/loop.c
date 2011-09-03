@@ -30,24 +30,6 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#	include <sys/types.h>
-#	include <sys/time.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netdb.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#	include <unistd.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
-#include <newserver.h>
-
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
 /** Prototype for functions the client sends without player interaction. */
@@ -89,15 +71,14 @@ static const struct player_cmd_mapping player_commands[] =
 	{"cm",          PlayerCmd, 0},
 	{"lock",        (func_uint8_int_pl) LockItem, 0},
 	{"mark",        (func_uint8_int_pl) MarkItem, 0},
-	{"/fire", command_fire_old, 0},
 	{"fire", (func_uint8_int_pl) command_fire, 0},
 	{"nc",          command_new_char, 0},
-	{"pt",          PartyCmd, 0},
 	{"qs",          (func_uint8_int_pl) QuickSlotCmd, 0},
 	{"shop",        ShopCmd, 0},
 	{"qlist",       QuestListCmd, 0},
 	{"mp", (func_uint8_int_pl) command_move_path, 0},
 	{"rd", (func_uint8_int_pl) cmd_ready, 0},
+	{"pc", (func_uint8_int_pl) cmd_password_change, 0},
 	{NULL, NULL, 0}
 };
 
@@ -304,7 +285,7 @@ void handle_client(socket_struct *ns, player *pl)
  * Tell the Atrinik watchdog program that we are still alive by sending
  * datagrams to port 13325 on localhost.
  * @see atrinik_watchdog */
-void watchdog()
+void watchdog(void)
 {
 	static int fd = -1;
 	static struct sockaddr_in insock;
@@ -345,7 +326,7 @@ void remove_ns_dead_player(player *pl)
 
 		if (!pl->dm_stealth)
 		{
-			new_draw_info_format(NDI_UNIQUE | NDI_ALL | NDI_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+			draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
 		}
 
 		/* If this player is in a party, leave the party */
@@ -411,7 +392,7 @@ static int is_fd_valid(int fd)
  * thing.
  *
  * There are 2 lists we need to look through - init_sockets is a list */
-void doeric_server()
+void doeric_server(void)
 {
 	int i, pollret, rr;
 	struct sockaddr_in addr;
@@ -452,8 +433,9 @@ void doeric_server()
 		{
 			if (init_sockets[i].status > Ns_Wait)
 			{
-				if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+				if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 				{
+					LOG(llevInfo, "Keepalive: disconnecting %s: %d\n", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
 					FREE_SOCKET(i);
 					continue;
 				}
@@ -475,8 +457,9 @@ void doeric_server()
 			pl->socket.status = Ns_Dead;
 		}
 
-		if (pl->socket.status != Ns_Dead && pl->socket.socket_version >= 1052 && pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT * (1000000 / MAX_TIME))
+		if (pl->socket.status != Ns_Dead && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 		{
+			LOG(llevInfo, "Keepalive: disconnecting %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
 			pl->socket.status = Ns_Dead;
 		}
 
@@ -677,7 +660,7 @@ void doeric_server()
 
 /**
  * Write to players' sockets. */
-void doeric_server_write()
+void doeric_server_write(void)
 {
 	player *pl, *next;
 	uint32 update_below;
@@ -694,6 +677,7 @@ void doeric_server_write()
 		}
 
 		esrv_update_stats(pl);
+		party_update_who(pl);
 
 		if (pl->update_skills)
 		{

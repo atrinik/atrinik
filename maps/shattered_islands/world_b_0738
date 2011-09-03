@@ -2,7 +2,7 @@ arch map
 name Asteria Royal Catacombs
 msg
 -Enter Description Here-
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-08-16 emperorbma
 endmsg
 width 24
 height 24
@@ -604,7 +604,9 @@ x 22
 y 19
 end
 arch sign
-name TODO: Undead infestation in caves to the north
+msg
+WARNING: Undead infestation in caves to the north
+endmsg
 x 22
 y 19
 end

@@ -1,3 +1,4 @@
+# General
 .dedit
 *.log
 *.pyc
@@ -15,26 +16,34 @@ editor/*.conf
 tools/map-checker/config.cfg
 codeblocks.txt
 visualc*.txt
+logfile.log
+RE:server/unit/.*
+./server/tools/upgrade/config.cfg
+*.db
 
-Makefile
+# GNU/Linux
 core
-configure
-config.status
-server/src/atrinik_server
-server/src/include/autoconf.h
+core.*
 server/src/loaders/*.c
-server/tools/atrinikloop
-server/tools/atrinik_watchdog
-aclocal.m4
-autom4te.cache
-atrinik-client
-client-2.0
-client/src/include/define.h
 *.o
 *.so
-server/atrinik_server
-server/atrinikloop
+server/atrinik-server
+CMakeCache.txt
+CMakeFiles
+cmake.h
+cmake_install.cmake
+client/atrinik
+*.kdev*
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+*.deb
+*.rpm
+install_manifest.txt
+Makefile
+build.user
 
+# Win32
 Thumbs.db
 atrinik.exe
 atrinik_server.exe
@@ -42,13 +51,16 @@ client/stdout.txt
 client/stderr.txt
 *.cbTemp
 *.depend
-plugin*.layout
 .objs
-curl
-sdl_inc
-sdl_lib
 Release
 pthread.h
 sched.h
 semaphore.h
 *.dll
+*.layout
+**/CodeBlocks/bin
+**/CodeBlocks/include
+**/CodeBlocks/lib
+client/timidity/
+client/timidity.cfg
+client/up_dater.exe

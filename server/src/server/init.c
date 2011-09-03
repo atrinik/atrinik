@@ -29,7 +29,6 @@
  * such. */
 
 #define INIT_C
-#define EXTERN
 
 #include <global.h>
 
@@ -42,11 +41,7 @@ struct Settings settings =
 	"",
 	/* Client/server port */
 	CSPORT,
-#ifdef DEBUG
 	llevDebug,
-#else
-	llevInfo,
-#endif
 	/* dumpvalues, dumparg, daemonmode */
 	0, NULL, 0,
 	DATADIR,
@@ -72,6 +67,9 @@ struct Settings settings =
 	0
 };
 
+/** The shared constants. */
+shstr_constants shstr_cons;
+
 /** World's darkness value. */
 int world_darkness;
 
@@ -80,6 +78,22 @@ unsigned long todtick;
 
 /** Pointer to archetype that is used as effect when player levels up. */
 archetype *level_up_arch = NULL;
+
+/** Ignores signals until init_done is true. */
+long init_done;
+
+/** Log file to use. */
+FILE *logfile;
+
+/** Number of treasures. */
+long nroftreasures;
+/** Number of artifacts. */
+long nrofartifacts;
+/** Number of allowed treasure combinations. */
+long nrofallowedstr;
+
+/** The starting map. */
+char first_map_path[MAX_BUF];
 
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
@@ -97,7 +111,7 @@ static void init_clocks();
 
 /**
  * Initialize the ::shstr_cons structure. */
-static void init_strings()
+static void init_strings(void)
 {
 	shstr_cons.none = add_string("none");
 	shstr_cons.NONE = add_string("NONE");
@@ -133,7 +147,7 @@ static void init_strings()
 
 /**
  * Free the string constants. */
-void free_strings()
+void free_strings(void)
 {
 	int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
 	const char **ptr = (const char **) &shstr_cons;
@@ -155,7 +169,7 @@ void free_strings()
  * can replace the call to init_library() with init_globals() and
  * init_function_pointers(). Good idea to also call init_vars() and
  * init_hash_table() if you are doing any object loading. */
-void init_library()
+void init_library(void)
 {
 	init_environ();
 	init_hash_table();
@@ -163,7 +177,7 @@ void init_library()
 	/* Inits the pooling memory manager and the new object system */
 	init_mempools();
 	init_block();
-	LOG(llevInfo, "Atrinik Server, v%s\n", VERSION);
+	LOG(llevInfo, "Atrinik Server, v%s\n", PACKAGE_VERSION);
 	LOG(llevInfo, "Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team.\n");
 	read_bmap_names();
 	init_materials();
@@ -191,7 +205,7 @@ void init_library()
  *
  * Needs to be called very early, since command line options should
  * overwrite these if specified. */
-static void init_environ()
+static void init_environ(void)
 {
 	char *cp;
 
@@ -248,7 +262,7 @@ static void init_environ()
 /**
  * Initializes all global variables.
  * Might use environment variables as default for some of them. */
-void init_globals()
+void init_globals(void)
 {
 	if (settings.logfilename[0] == '\0')
 	{
@@ -262,8 +276,6 @@ void init_globals()
 
 	/* Global round ticker */
 	global_round_tag = 1;
-	/* Global race counter */
-	global_race_counter = 0;
 
 	first_player = NULL;
 	last_player = NULL;
@@ -287,14 +299,14 @@ void init_globals()
  * Initializes global variables which can be changed by options.
  *
  * Called by init_library(). */
-static void init_defaults()
+static void init_defaults(void)
 {
 	nroferrors = 0;
 }
 
 /**
  * Initializes first_map_path from the archetype collection. */
-static void init_dynamic()
+static void init_dynamic(void)
 {
 	archetype *at = first_archetype;
 
@@ -315,7 +327,7 @@ static void init_dynamic()
 /**
  * Write out the current time to a file so time does not reset every
  * time the server reboots. */
-void write_todclock()
+void write_todclock(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;
@@ -336,7 +348,7 @@ void write_todclock()
  * Initializes the gametime and TOD counters.
  *
  * Called by init_library(). */
-static void init_clocks()
+static void init_clocks(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;
@@ -377,79 +389,79 @@ static void set_logfile(char *val)
 	settings.logfilename = val;
 }
 
-static void call_version()
+static void call_version(void)
 {
 	version(NULL);
 	exit(0);
 }
 
-static void showscores()
+static void showscores(void)
 {
 	hiscore_display(NULL, 9999, NULL);
 	exit(0);
 }
 
-static void set_debug()
+static void set_debug(void)
 {
 	settings.debug = llevDebug;
 }
 
-static void unset_debug()
+static void unset_debug(void)
 {
 	settings.debug = llevInfo;
 }
 
-static void set_timestamp()
+static void set_timestamp(void)
 {
 	settings.timestamp = 1;
 }
 
-static void set_dumpmon1()
+static void set_dumpmon1(void)
 {
 	settings.dumpvalues = DUMP_VALUE_MONSTERS;
 }
 
-static void set_dumpmon2()
+static void set_dumpmon2(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ABILITIES;
 }
 
-static void set_dumpmon3()
+static void set_dumpmon3(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ARTIFACTS;
 }
 
-static void set_dumpmon4()
+static void set_dumpmon4(void)
 {
 	settings.dumpvalues = DUMP_VALUE_SPELLS;
 }
 
-static void set_dumpmon5()
+static void set_dumpmon5(void)
 {
 	settings.dumpvalues = DUMP_VALUE_SKILLS;
 }
 
-static void set_dumpmon6()
+static void set_dumpmon6(void)
 {
 	settings.dumpvalues = DUMP_VALUE_RACES;
 }
 
-static void set_dumpmon7()
+static void set_dumpmon7(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY;
 }
 
-static void set_dumpmon8()
+static void set_dumpmon8(void)
 {
 	settings.dumpvalues = DUMP_VALUE_GODS;
 }
 
-static void set_dumpmon9()
+static void set_dumpmon9(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ALCHEMY_COSTS;
 }
 
-static void set_dumpmon10()
+static void set_dumpmon10(void)
 {
 	settings.dumpvalues = DUMP_VALUE_ARCHETYPES;
 }
@@ -460,7 +472,7 @@ static void set_dumpmon11(char *name)
 	settings.dumparg = name;
 }
 
-static void set_dumpmon12()
+static void set_dumpmon12(void)
 {
 	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
 }
@@ -471,17 +483,17 @@ static void set_spell_dump(char *arg)
 	settings.dumparg = arg;
 }
 
-static void set_daemon()
+static void set_daemon(void)
 {
 	settings.daemonmode = 1;
 }
 
-static void set_watchdog()
+static void set_watchdog(void)
 {
 	settings.watchdog = 1;
 }
 
-static void set_interactive()
+static void set_interactive(void)
 {
 	settings.interactive = 1;
 }
@@ -539,27 +551,27 @@ static void set_csport(const char *val)
 #endif
 }
 
-static void stat_loss_on_death_true()
+static void stat_loss_on_death_true(void)
 {
 	settings.stat_loss_on_death = 1;
 }
 
-static void stat_loss_on_death_false()
+static void stat_loss_on_death_false(void)
 {
 	settings.stat_loss_on_death = 0;
 }
 
-static void balanced_stat_loss_true()
+static void balanced_stat_loss_true(void)
 {
 	settings.balanced_stat_loss = 1;
 }
 
-static void balanced_stat_loss_false()
+static void balanced_stat_loss_false(void)
 {
 	settings.balanced_stat_loss = 0;
 }
 
-static void set_unit_tests()
+static void set_unit_tests(void)
 {
 #if defined(HAVE_CHECK)
 	settings.unit_tests = 1;
@@ -571,7 +583,7 @@ static void set_unit_tests()
 
 static void set_world_maker(const char *data)
 {
-#if defined(HAVE_GD)
+#if defined(HAVE_WORLD_MAKER)
 	settings.world_maker = 1;
 
 	if (data)
@@ -589,7 +601,7 @@ static void set_world_maker(const char *data)
 /** @endcond */
 
 /** One command line option definition. */
-struct Command_Line_Options
+typedef struct Command_Line_Options
 {
 	/** How it is called on the command line */
 	char *cmd_option;
@@ -606,7 +618,7 @@ struct Command_Line_Options
 	 * If num_args is true, then that gets passed to the function,
 	 * otherwise nothing is passed. */
 	void (*func)();
-};
+} Command_Line_Options;
 
 /**
  * Valid command line options.
@@ -616,7 +628,7 @@ struct Command_Line_Options
  * both in name and in pass (and we have enough options), we call the
  * associated function. This makes writing a multi pass system very easy,
  * and it is very easy to add in new options. */
-struct Command_Line_Options options[] =
+static struct Command_Line_Options options[] =
 {
 	/* Pass 1 functions - Stuff that can/should be called before we actually
 	 * initialize any data. */
@@ -747,7 +759,7 @@ static void parse_args(int argc, char *argv[], int pass)
  * There could be debate whether this should be here or in the common
  * directory - but since only the server needs this information, having
  * it here probably makes more sense. */
-static void load_settings()
+static void load_settings(void)
 {
 	char buf[MAX_BUF], *cp;
 	int	has_val, comp;
@@ -947,14 +959,14 @@ void init(int argc, char **argv)
 
 /**
  * Show the usage. */
-static void usage()
+static void usage(void)
 {
 	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
 }
 
 /**
  * Show help about the command line options. */
-static void help()
+static void help(void)
 {
 	LOG(llevInfo, "Flags:\n");
 	LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
@@ -1001,7 +1013,7 @@ static void help()
 	LOG(llevInfo, " -tests      Runs unit tests.\n");
 #endif
 
-#if defined(HAVE_GD)
+#if defined(HAVE_WORLD_MAKER)
 	LOG(llevInfo, " -world_maker <path> Generates region maps and stores them in the specified path.\n");
 #endif
 
@@ -1014,7 +1026,7 @@ static void help()
 
 /**
  * Initialize before playing. */
-static void init_beforeplay()
+static void init_beforeplay(void)
 {
 	init_archetypes();
 	init_spells();
@@ -1087,7 +1099,7 @@ static void init_beforeplay()
  *
  * It writes out information on how Imakefile and config.h was configured
  * at compile time. */
-void compile_info()
+void compile_info(void)
 {
 	int i = 0;
 
@@ -1133,13 +1145,6 @@ void compile_info()
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
 
 	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated[0], pool_object->nrof_free[0]);
-
-#ifdef USE_CALLOC
-	LOG(llevInfo, "Use_calloc:\t<true>\n");
-#else
-	LOG(llevInfo, "Use_calloc:\t<false>\n");
-#endif
-
 	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);
@@ -1200,19 +1205,11 @@ static void rec_sigpipe(int i)
 {
 	(void) i;
 
-	/* Keep running if we receive a sigpipe.  Crossfire should really be able
-	 * to handle this signal (at least at some point in the future if not
-	 * right now).  By causing a dump right when it is received, it is not
-	 * doing much good.  However, if it core dumps later on, at least it can
-	 * be looked at later on, and maybe fix the problem that caused it to
-	 * dump core.  There is no reason that SIGPIPES should be fatal */
-#if 1 && !defined(WIN32) /* ***win32: we don't want send SIGPIPE */
-	LOG(llevSystem, "\nReceived SIGPIPE, ignoring...\n");
-	/* hocky-pux clears signal handlers */
+#ifndef WIN32
+	LOG(llevSystem, "\nSIGPIPE received, ignoring\n");
 	signal(SIGPIPE, rec_sigpipe);
 #else
-	LOG(llevSystem, "\nSIGPIPE received, not ignoring...\n");
-	/* Might consider to uncomment this line */
+	LOG(llevSystem, "\nSIGPIPE received\n");
 	fatal_signal(1);
 #endif
 }
@@ -1260,7 +1257,7 @@ static void fatal_signal(int make_core)
 
 /**
  * Setup the signal handlers. */
-static void init_signals()
+static void init_signals(void)
 {
 #ifndef WIN32
 	/* init_signals() remove signals */
@@ -1269,16 +1266,16 @@ static void init_signals()
 	signal(SIGQUIT, rec_sigquit);
 	signal(SIGSEGV, rec_sigsegv);
 	signal(SIGPIPE, rec_sigpipe);
-#ifdef SIGBUS
+#	ifdef SIGBUS
 	signal(SIGBUS, rec_sigbus);
-#endif
+#	endif
 	signal(SIGTERM, rec_sigterm);
 #endif
 }
 
 /**
  * Dump level colors table. */
-static void dump_level_colors_table()
+static void dump_level_colors_table(void)
 {
 	int i, ii, range, tmp;
 

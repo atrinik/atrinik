@@ -2,11 +2,11 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-07-10 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_2 rockforge_a_0205
 tile_path_3 rockforge_a_0104
@@ -144,11 +144,18 @@ end
 arch wall_marble1.131a
 x 1
 end
+arch flag_rockforge
+x 1
+end
 arch floor_marble2c
 x 1
 y 1
 end
 arch floor_marble2c
+x 1
+y 2
+end
+arch fmask_rockforge2
 x 1
 y 2
 end
@@ -250,7 +257,7 @@ x 1
 y 14
 end
 arch steak_dragon
-z 36
+z 21
 zoom 75
 layer 5
 rotate -45
@@ -481,6 +488,10 @@ arch wall_marble1.131
 x 3
 end
 arch floor_marble2a
+x 3
+y 1
+end
+arch lamp_wall
 x 3
 y 1
 end
@@ -782,6 +793,9 @@ arch blocked
 x 5
 end
 arch wall_marble1.131a
+x 5
+end
+arch flag_rockforge
 x 5
 end
 arch floor_marble2c
@@ -1113,6 +1127,10 @@ arch floor_marble2b
 x 7
 y 1
 end
+arch lamp_wall
+x 7
+y 1
+end
 arch floor_marble2b
 x 7
 y 2
@@ -1411,6 +1429,9 @@ arch blocked
 x 9
 end
 arch wall_marble1.131a
+x 9
+end
+arch flag_rockforge
 x 9
 end
 arch floor_marble2a
@@ -1758,6 +1779,10 @@ arch floor_marble2c
 x 11
 y 1
 end
+arch lamp_wall
+x 11
+y 1
+end
 arch floor_marble2c
 x 11
 y 2
@@ -1803,17 +1828,29 @@ x 11
 y 9
 end
 arch spawn_point
+speed -0.05
+last_grace 0
 x 11
 y 9
 arch dwarf_pathfinder
 msg
 @match ^hi$|^hey$|^hello$
 No, you can't fool me! That cake is surely a lie! ... or is it? Hmm....
+@match ^portal$
+What? I just want cake!
 endmsg
-type 83
 name Fede Greatblade
 level 38
+spawn_time 08:30 - 23:00
+type 83
 end
+end
+arch check_inv
+layer 0
+sys_object 1
+last_grace 1
+x 11
+y 9
 end
 arch floor_marble1a
 x 11
@@ -1922,6 +1959,10 @@ x 12
 y 1
 end
 arch floor_marble2a
+x 12
+y 2
+end
+arch fmask_rockforge2
 x 12
 y 2
 end
@@ -2074,6 +2115,9 @@ arch blocked
 x 13
 end
 arch wall_marble1.131
+x 13
+end
+arch flag_rockforge
 x 13
 end
 arch floor_marble2a
@@ -2438,6 +2482,10 @@ arch floor_marble2c
 x 15
 y 1
 end
+arch lamp_wall
+x 15
+y 1
+end
 arch floor_marble2a
 x 15
 y 2
@@ -2696,6 +2744,9 @@ arch blocked
 x 17
 end
 arch wall_marble1.131a
+x 17
+end
+arch flag_rockforge
 x 17
 end
 arch floor_marble2c
@@ -2973,6 +3024,10 @@ arch floor_marble2b
 x 19
 y 1
 end
+arch lamp_wall
+x 19
+y 1
+end
 arch floor_marble2b
 x 19
 y 2
@@ -3219,6 +3274,9 @@ end
 arch wall_marble1.131
 x 21
 end
+arch flag_rockforge
+x 21
+end
 arch floor_marble2c
 x 21
 y 1
@@ -3334,6 +3392,10 @@ x 22
 y 1
 end
 arch floor_marble2a
+x 22
+y 2
+end
+arch fmask_rockforge2
 x 22
 y 2
 end
@@ -3456,6 +3518,10 @@ arch wall_marble1.131a
 x 23
 end
 arch floor_marble2a
+x 23
+y 1
+end
+arch lamp_wall
 x 23
 y 1
 end

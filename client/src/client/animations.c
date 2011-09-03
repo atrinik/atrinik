@@ -27,11 +27,11 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Load animations. */
-void read_anims()
+void read_anims(void)
 {
 	int anim_len = 0, new_anim = 1;
 	uint8 faces = 0;
@@ -143,7 +143,7 @@ void read_anims()
 /**
  * Reset the necessary values in animations table instead of reloading
  * them from file. */
-void anims_reset()
+void anims_reset(void)
 {
 	size_t i;
 

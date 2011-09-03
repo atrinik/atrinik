@@ -27,7 +27,7 @@
  * @file
  * Handles music player widget code. */
 
-#include <include.h>
+#include <global.h>
 
 /** File where the blacklist data is stored. */
 #define FILE_MPLAYER_BLACKLIST "mplayer.blacklist"
@@ -42,27 +42,29 @@ static uint8 shuffle = 0;
 static uint8 *shuffle_blacklist = NULL;
 /** Button buffer. */
 static button_struct button_play, button_shuffle, button_blacklist, button_close, button_help;
+/** The music player list. */
+static list_struct *list_mplayer = NULL;
 
 /**
  * Handle music list double-click and "Play" button.
  * @param list The music list. */
 static void list_handle_enter(list_struct *list)
 {
-	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, -1);
+	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 	sound_map_background(1);
 	shuffle = 0;
 }
 
 /**
  * Handle list::text_color_hook in the music player list. */
-static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
 {
 	(void) list;
 	(void) col;
 
 	if (shuffle_blacklist[row])
 	{
-		return COLOR_SIMPLE(COLOR_RED);
+		return COLOR_RED;
 	}
 
 	return default_color;
@@ -111,17 +113,17 @@ static void mplayer_do_shuffle(list_struct *list)
 
 	list->row_selected = selected + 1;
 	list->row_offset = MIN(list->rows - list->max_rows, selected);
-	sound_start_bg_music(list->text[list->row_selected - 1][0], options.music_volume, 0);
+	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), 0);
 	cur_widget[MPLAYER_ID]->redraw = 1;
 }
 
 /**
  * Check whether we need to start another song. */
-static void mplayer_check_shuffle()
+static void mplayer_check_shuffle(void)
 {
-	if (!Mix_PlayingMusic())
+	if (!sound_playing_music())
 	{
-		mplayer_do_shuffle(list_exists(LIST_MPLAYER));
+		mplayer_do_shuffle(list_mplayer);
 	}
 }
 
@@ -275,7 +277,6 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 void widget_show_mplayer(widgetdata *widget)
 {
 	SDL_Rect box, box2;
-	list_struct *list;
 	const char *bg_music;
 	char buf[HUGE_BUF];
 
@@ -284,29 +285,31 @@ void widget_show_mplayer(widgetdata *widget)
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
 	}
 
-	list = list_exists(LIST_MPLAYER);
-
 	/* The list doesn't exist yet, create it. */
-	if (!list)
+	if (!list_mplayer)
 	{
+		char version[MAX_BUF];
+
 		/* Create the list and set up settings. */
-		list = list_create(LIST_MPLAYER, 10, 2, 12, 1, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->text_color_hook = list_text_color_hook;
-		list->surface = widget->widgetSF;
-		list_scrollbar_enable(list);
-		list_set_column(list, 0, 130, 7, NULL, -1);
-		list_set_font(list, FONT_ARIAL10);
+		list_mplayer = list_create(12, 1, 8);
+		list_mplayer->handle_enter_func = list_handle_enter;
+		list_mplayer->text_color_hook = list_text_color_hook;
+		list_mplayer->surface = widget->widgetSF;
+		list_scrollbar_enable(list_mplayer);
+		list_set_column(list_mplayer, 0, 130, 7, NULL, -1);
+		list_set_font(list_mplayer, FONT_ARIAL10);
 
 		/* Add default media directory songs. */
-		mplayer_list_init(list, DIRECTORY_MEDIA, 0);
-		snprintf(buf, sizeof(buf), "%s/.atrinik/"PACKAGE_VERSION"/"DIRECTORY_MEDIA, get_config_dir());
+		get_data_dir_file(buf, sizeof(buf), DIRECTORY_MEDIA);
+		mplayer_list_init(list_mplayer, buf, 0);
+
 		/* Now add custom ones, but ignore duplicates. */
-		mplayer_list_init(list, buf, 1);
+		snprintf(buf, sizeof(buf), "%s/.atrinik/%s/"DIRECTORY_MEDIA, package_get_version_partial(version, sizeof(version)), get_config_dir());
+		mplayer_list_init(list_mplayer, buf, 1);
 
 		/* If we added any, sort the list alphabetically and add an entry
 		 * to disable background music. */
-		if (list->rows)
+		if (list_mplayer->rows)
 		{
 			FILE *fp;
 
@@ -314,24 +317,23 @@ void widget_show_mplayer(widgetdata *widget)
 			 * further down. It is not actually used by the blacklist as
 			 * it's not possible to toggle it on/off using the button, but
 			 * it simplifies other logic checks. */
-			shuffle_blacklist = calloc(1, sizeof(*shuffle_blacklist) * (list->rows + 1));
+			shuffle_blacklist = calloc(1, sizeof(*shuffle_blacklist) * (list_mplayer->rows + 1));
 
 			/* Sort the list. */
-			list_sort(list, LIST_SORT_ALPHA);
+			list_sort(list_mplayer, LIST_SORT_ALPHA);
 
 			/* Read the blacklist file contents. */
 			fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "r");
 
 			if (fp)
 			{
-				char buf[MAX_BUF];
 				size_t row;
 
 				while (fgets(buf, sizeof(buf) - 1, fp))
 				{
-					for (row = 0; row < list->rows; row++)
+					for (row = 0; row < list_mplayer->rows; row++)
 					{
-						if (!strncmp(buf, list->text[row][0], strlen(buf) - 1))
+						if (!strncmp(buf, list_mplayer->text[row][0], strlen(buf) - 1))
 						{
 							shuffle_blacklist[row] = 1;
 							break;
@@ -342,10 +344,8 @@ void widget_show_mplayer(widgetdata *widget)
 				fclose(fp);
 			}
 
-			list_add(list, list->rows, 0, "Disable music");
+			list_add(list_mplayer, list_mplayer->rows, 0, "Disable music");
 		}
-
-		list_set_focus(list);
 
 		button_create(&button_play);
 		button_create(&button_shuffle);
@@ -354,6 +354,7 @@ void widget_show_mplayer(widgetdata *widget)
 		button_create(&button_close);
 		button_blacklist.bitmap = button_help.bitmap = button_close.bitmap = BITMAP_BUTTON_ROUND;
 		button_blacklist.bitmap_pressed = button_help.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_blacklist.bitmap_over = button_help.bitmap_over = button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
@@ -369,14 +370,14 @@ void widget_show_mplayer(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		list->focus = 1;
-		list_show(list);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_mplayer, widget->x1, widget->y1);
+		list_show(list_mplayer, 10, 2);
 		box.w /= 2;
-		string_blt(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		box.h = 120;
 		box.w -= 6;
-		string_blt(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_blt(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	box2.x = widget->x1;
@@ -397,7 +398,7 @@ void widget_show_mplayer(widgetdata *widget)
 	}
 
 	/* Show the music that is being played. */
-	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 	button_play.x = widget->x1 + 10;
 	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
@@ -405,28 +406,23 @@ void widget_show_mplayer(widgetdata *widget)
 
 	button_shuffle.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
 	button_shuffle.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
-
-	if (shuffle)
-	{
-		button_shuffle.pressed = 1;
-	}
-
+	button_shuffle.pressed_forced = shuffle;
 	button_render(&button_shuffle, "Shuffle");
 
 	button_blacklist.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w * 2 + 5 * 2;
 	button_blacklist.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
-	button_blacklist.disabled = list->row_selected == list->rows;
+	button_blacklist.disabled = list_mplayer->row_selected == list_mplayer->rows;
 
 	/* Do mass blacklist status change if the button has been held for
 	 * some time. */
 	if (button_blacklist.pressed && SDL_GetTicks() - button_blacklist.pressed_ticks > BLACKLIST_ALL_DELAY)
 	{
-		mplayer_blacklist_mass_toggle(list, mplayer_blacklisted(list));
-		mplayer_blacklist_save(list);
+		mplayer_blacklist_mass_toggle(list_mplayer, mplayer_blacklisted(list_mplayer));
+		mplayer_blacklist_save(list_mplayer);
 		button_blacklist.pressed_ticks = SDL_GetTicks();
 	}
 
-	button_render(&button_blacklist, mplayer_blacklisted(list) ? "+" : "-");
+	button_render(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
 
 	/* Show close button. */
 	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
@@ -471,11 +467,9 @@ void widget_mplayer_deinit(widgetdata *widget)
  * @param event The event. */
 void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 {
-	list_struct *list = list_exists(LIST_MPLAYER);
-
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
-	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
+	if (list_mplayer && list_handle_mouse(list_mplayer, event))
 	{
 		widget->redraw = 1;
 	}
@@ -490,7 +484,7 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 		}
 		else
 		{
-			list_handle_enter(list);
+			list_handle_enter(list_mplayer);
 		}
 	}
 	else if (button_event(&button_shuffle, event))
@@ -499,7 +493,7 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 
 		if (shuffle)
 		{
-			mplayer_do_shuffle(list);
+			mplayer_do_shuffle(list_mplayer);
 			sound_map_background(1);
 		}
 		else
@@ -511,33 +505,32 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_blacklist, event))
 	{
 		/* Toggle the blacklist state of the selected row. */
-		mplayer_blacklist_toggle(list);
-		mplayer_blacklist_save(list);
+		mplayer_blacklist_toggle(list_mplayer);
+		mplayer_blacklist_save(list_mplayer);
 	}
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("music player");
+		help_show("music player");
 	}
 }
 
 /**
  * Announce currently playing music to nearby players using /me. */
-void mplayer_now_playing()
+void mplayer_now_playing(void)
 {
 	char buf[HUGE_BUF];
 
-	if (sound_map_background(-1) && Mix_PlayingMusic())
+	if (sound_map_background(-1) && sound_playing_music())
 	{
 		snprintf(buf, sizeof(buf), "/me is currently listening to: %s", sound_get_bg_music_basename());
 		send_command(buf);
 	}
 	else
 	{
-		draw_info("You are not playing any custom music.", COLOR_RED);
+		draw_info(COLOR_RED, "You are not playing any custom music.");
 	}
 }

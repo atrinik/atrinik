@@ -19,7 +19,7 @@ editor.
 
 == Server ==
 
-You need to download Python 2.6 from the Python website (http://www.python.org) and install
+You need to download Python 3.2 from the Python website (http://www.python.org) and install
 it to the default location.
 
 Simply double-click w32_start_server.bat and the server should start.
@@ -31,8 +31,7 @@ Double-click w32_start_client.bat.
 == Map Checker ==
 
 Map checker is a tool to check your maps located in tools/map-checker. To run it, you need
-Python 2.6 (which you should have by now from the above server step) and PyGTK, which can
-be downloaded here: http://www.pygtk.org
+Python 2.6 and PyGTK, which can be downloaded here: http://www.pygtk.org
 
 Then simply execute map-checker.py in tools/map-checker with Python.
 

@@ -149,14 +149,53 @@ msg
 endmsg
 end
 
-# Rockforge.
+# Rockforge Palace.
+region rockforge_palace
+parent strakewood_island
+longname Rockforge Palace
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_0101
+end
+
+# Rockforge City.
 region rockforge
 parent strakewood_island
-longname Rockforge
+longname Rockforge City
 msg
 
 endmsg
 map_first /shattered_islands/strakewood_island/rockforge/rockforge_a_0101
+end
+
+# Rockforge City basement.
+region rockforge2
+parent strakewood_island
+longname Rockforge City Basement
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_b_0101
+end
+
+# Rockforge Mines.
+region rockforge_mines
+parent strakewood_island
+longname Rockforge Mines
+msg
+
+endmsg
+map_first /shattered_islands/strakewood_island/rockforge/rockforge_c_0101
+end
+
+# Centennial, city of witches.
+region centennial
+parent strakewood_island
+longname Centennial
+msg
+Centennial, a festive magical town where young girls train to learn the art of being witches.
+endmsg
 end
 
 ##########################

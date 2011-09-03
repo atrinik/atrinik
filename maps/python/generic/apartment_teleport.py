@@ -26,7 +26,7 @@ else:
 
 	# No apartment, teleport them back
 	if pinfo == None:
-		activator.Write("You don't own an apartment here!", 0)
+		activator.Write("You don't own an apartment here!", COLOR_WHITE)
 		activator.SetPosition(me.hp, me.sp)
 	else:
 		if apartments[pinfo.slaying]:

@@ -30,62 +30,31 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-/** Party tabs. */
-enum
-{
-	PARTY_TAB_LIST,
-	PARTY_TAB_WHO,
-	PARTY_TAB_LEAVE,
-	PARTY_TAB_PASSWORD,
-	PARTY_TABS
-};
-
-/** The main party GUI structure. */
-typedef struct gui_party_struct
-{
-	/** Command to run. Something like "list", "who", etc. */
-	char command[MAX_BUF];
-
-	/** Linked list of lines. */
-	struct gui_party_line *start;
-
-	/** Number of lines. */
-	int lines;
-
-	/** Scroll bar position. */
-	int yoff;
-
-	/** Selected row. */
-	int selected;
-
-	/** Selected tab. */
-	int tab;
-} _gui_party_struct;
-
-/** Structure for the party GUI lines. */
-typedef struct gui_party_line
-{
-	/** The next line. */
-	struct gui_party_line *next;
-
-	/** Line contents. */
-	char line[MAX_BUF + 1];
-} _gui_party_line;
-
 /**
  * @defgroup CMD_PARTY_xxx Party socket command types
  * Various types of the BINARY_CMD_PARTY socket command.
  *@{*/
-/** Show a list of all parties in the game. */
+/**
+ * Show a list of all parties in the game. */
 #define CMD_PARTY_LIST 1
-/** Show current members of your party. */
+/**
+ * Show current members of your party. */
 #define CMD_PARTY_WHO 2
-/** Successfully joined a party. */
+/**
+ * Successfully joined a party. */
 #define CMD_PARTY_JOIN 3
-/** Joining a party requires a password. */
+/**
+ * Joining a party requires a password. */
 #define CMD_PARTY_PASSWORD 4
-/** We're leaving a party. */
+/**
+ * We're leaving a party. */
 #define CMD_PARTY_LEAVE 5
+/**
+ * Update party's who list. */
+#define CMD_PARTY_UPDATE 6
+/**
+ * Remove memebr from party's who list. */
+#define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 
 #endif

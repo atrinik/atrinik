@@ -26,11 +26,14 @@ def main():
 	# Get the guild founder.
 	founder = guild.get_founder()
 
-	# Online marker for the founder.
-	online_marker = all_members and FindPlayer(founder) and "~" or ""
+	activator.Write("\n{} of {}:".format("Members" if all_members else "Online members", g[0]), COLOR_WHITE)
 
-	activator.Write("\n{0} of {1}:".format(all_members and "Members" or "Online members", g[0]), COLOR_WHITE)
-	activator.Write("Founder: " + online_marker + founder + online_marker, COLOR_WHITE)
+	if all_members and FindPlayer(founder):
+		name = "<green>{}</green>".format(founder)
+	else:
+		name = founder
+
+	activator.Write("Founder: {}".format(name), COLOR_WHITE)
 
 	admins = []
 	members = []
@@ -48,22 +51,24 @@ def main():
 		if not all_members and not player:
 			continue
 
-		# Online marker for the member.
-		online_marker = all_members and player and "~" or ""
+		if all_members and player:
+			name = "<green>{}</green>".format(member)
+		else:
+			name = member
 
 		# Regular member?
 		if not guild.member_is_admin(member):
-			members.append(online_marker + member + online_marker)
+			members.append(name)
 		# Otherwise an administrator, check that it's not the founder (which we showed above).
 		elif member != founder:
-			admins.append(online_marker + member + online_marker)
+			admins.append(name)
 
 	if admins:
 		admins.sort()
-		activator.Write("\nAdministrators:\n" + ", ".join(admins), COLOR_WHITE)
+		activator.Write("\nAdministrators:\n{}".format(", ".join(admins)), COLOR_WHITE)
 
 	if members:
 		members.sort()
-		activator.Write("\nMembers:\n" + ", ".join(members), COLOR_WHITE)
+		activator.Write("\nMembers:\n{}".format(", ".join(members)), COLOR_WHITE)
 
 main()

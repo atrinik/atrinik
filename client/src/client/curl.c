@@ -25,9 +25,99 @@
 
 /**
  * @file
- * cURL module for downloading data from URLs. */
+ * cURL module for downloading data from URLs.
+ *
+ * The module uses SDL threads to download data in the background. This
+ * makes the API slightly more complicated, but does not freeze the
+ * client GUI while the download is in progress.
+ *
+ * Common API usage is something like this:
+ *
+ * @code
+static curl_data *dl_data = NULL;
 
-#include <include.h>
+// This would be your function where the user triggers something, for
+// example, clicks "Download" button or similar.
+void action_do(void)
+{
+	// This is only necessary if you want to give the user a chance to retry,
+	// using for example, a "Retry" button. It may also be necessary if you
+	// do not properly cleanup in your GUI exiting code.
+	if (dl_data)
+	{
+		curl_data_free(dl_data);
+	}
+
+	// Start downloading; now dl_data will not be NULL anymore, and a new
+	// thread will be created, which will start downloading the data from
+	// the provided URL.
+	dl_data = curl_download_start("http://www.atrinik.org/")
+}
+
+// Here would be your GUI drawing code, as an example.
+void draw_gui(void)
+{
+	// The trigger action to start download could be something like:
+	// if button_pressed(xxx) then action_do()
+
+	// Here you check for the dl_data; if non-NULL, there is something
+	// being downloaded (or perhaps an error occurred that you can check
+	// for.
+	if (dl_data)
+	{
+		sint8 ret;
+
+		// This checks the state of the download.
+		ret = curl_download_finished(dl_data);
+
+		// -1 return value means that some kind of an error occurred;
+		// 404 error, connection timed out, etc.
+		if (ret == -1)
+		{
+			// Here you can either cleanup using curl_data_free(dl_data); dl_data = NULL;
+			// and exit, or show the user that something has gone wrong, and (optionally)
+			// show them a button to retry.
+		}
+		// 0 means the download is still in progress.
+		else if (ret == 0)
+		{
+			// Here you can show the user that download is still in progress with
+			// some text, for example.
+		}
+		// 1 means the download finished.
+		else if (ret == 1)
+		{
+			// What you do here depends on what type of GUI you are creating. For
+			// example, in the case of the metaserver, the downloaded data is parsed
+			// and added to the servers list, and then dl_data is freed and NULLed.
+			// However, cleaning up the dl_data pointer can be left up to exit_gui(),
+			// and here you can just show the raw data to the user, by accessing
+			// dl_data->memory (this can also be used to split the data or whatever).
+			// dl_data->size will contain the number of bytes in dl_data->memory.
+			// Note that dl_data->memory may be NULL, in case no data was downloaded
+			// (empty page).
+			// dl_data->memory is always NUL-terminated (unless, of course, there is
+			// no data, as previously mentioned).
+		}
+	}
+}
+
+// Cleaning up should be done after exiting the GUI, to make sure
+// downloading process is stopped (if it's running) and cleanup the
+// structure.
+void exit_gui(void)
+{
+	if (dl_data)
+	{
+		curl_data_free(dl_data);
+		dl_data = NULL;
+	}
+}
+@endcode
+ *
+ * @author Alex Tokar */
+
+#include <global.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;
@@ -71,19 +161,21 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 int curl_connect(void *c_data)
 {
 	curl_data *data = (curl_data *) c_data;
-	char user_agent[MAX_BUF];
+	char user_agent[MAX_BUF], version[MAX_BUF];
 	CURL *handle;
 	CURLcode res;
 	long http_code;
 
+	package_get_version_full(version, sizeof(version));
+
 	/* Store user agent for cURL, including if this is GNU/Linux build of client
 	 * or Windows one. */
-#if defined(__LINUX)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+#if defined(LINUX)
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)", version, SOCKET_VERSION);
 #elif defined(WIN32)
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Win32)/%s (%d)", version, SOCKET_VERSION);
 #else
-	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
+	snprintf(user_agent, sizeof(user_agent), "Atrinik Client (Unknown)/%s (%d)", version, SOCKET_VERSION);
 #endif
 
 	/* Init "easy" cURL */
@@ -230,11 +322,11 @@ void curl_data_free(curl_data *data)
 
 /**
  * Lock the share handle. */
-static void curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr)
+static void curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access lock_access, void *userptr)
 {
 	(void) handle;
 	(void) data;
-	(void) access;
+	(void) lock_access;
 	SDL_LockMutex(userptr);
 }
 
@@ -249,7 +341,7 @@ static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr)
 
 /**
  * Initialize cURL module. */
-void curl_init()
+void curl_init(void)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 	handle_share_mutex = SDL_CreateMutex();
@@ -263,7 +355,7 @@ void curl_init()
 
 /**
  * Deinitialize cURL module. */
-void curl_deinit()
+void curl_deinit(void)
 {
 	curl_share_cleanup(handle_share);
 	SDL_DestroyMutex(handle_share_mutex);

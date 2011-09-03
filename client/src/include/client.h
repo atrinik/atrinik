@@ -27,7 +27,8 @@
  * @file
  * Various defines. */
 
-#include "include.h"
+#ifndef CLIENT_H
+#define CLIENT_H
 
 /** Default width. */
 #define WINDOW_DEFAULT_WIDTH 1024
@@ -52,33 +53,13 @@
 #define FFLAG_BLINDED	0x10
 /* Object is invisible (but when sent, player can see it) */
 #define FFLAG_INVISIBLE	0x20
-/* Object is ethereal - but when sent, object can be seen */
-#define FFLAG_ETHEREAL	0x40
-/* Object is target of player */
-#define FFLAG_PROBE		0x80
 
 #define INPUT_MODE_NO		0
 #define INPUT_MODE_CONSOLE	1
-#define INPUT_MODE_NUMBER	4
-#define INPUT_MODE_GETKEY	8
+#define INPUT_MODE_NUMBER	2
 
 #define NUM_MODE_GET  1
 #define NUM_MODE_DROP 2
-
-/* Values for send_command option */
-#define SC_NORMAL 0
-
-/** Screensize structure */
-typedef struct screensize
-{
-	/** Screen X */
-	int x;
-
-	/** Screen Y */
-	int y;
-} _screensize;
-
-extern struct screensize *Screensize;
 
 typedef struct Animations
 {
@@ -107,9 +88,26 @@ typedef struct _anim_table
 	char *anim_cmd;
 }_anim_table;
 
-extern _anim_table *anim_table;
-extern Animations *animations;
-extern size_t animations_num;
+/**
+ * Timeout when attempting a connection in milliseconds. */
+#define SOCKET_TIMEOUT_MS 4000
+
+/**
+ * One command buffer. */
+typedef struct command_buffer
+{
+	/** Next command in queue. */
+	struct command_buffer *next;
+
+	/** Previous command in queue. */
+	struct command_buffer *prev;
+
+	/** Length of the data. */
+	int len;
+
+	/** The data. */
+	uint8 data[1];
+} command_buffer;
 
 /**
  * Contains the base information we use to make up a packet we want to send. */
@@ -131,11 +129,8 @@ typedef struct SockList
  * of globals. */
 typedef struct ClientSocket
 {
-	/* Typedef your socket type to SOCKET */
-	SOCKET fd;
+	int fd;
 } ClientSocket;
-
-extern ClientSocket csocket;
 
 typedef struct Stat_struct
 {
@@ -143,7 +138,7 @@ typedef struct Stat_struct
 
 	/* Weapon Class and Armour Class */
 	sint16 wc, ac;
-	sint8 level;
+	uint32 level;
 
 	/* Hit Points. */
 	sint32 hp;
@@ -239,13 +234,10 @@ typedef struct Player_Struct
 	int	target_code;
 
 	/* Target's color */
-	int	target_color;
+	char target_color[COLOR_BUF];
 
 	/* Inventory windows */
 	int inventory_win;
-
-	/* Menu that is opened */
-	int menustatus;
 
 	int loc;
 	int tag;
@@ -322,8 +314,13 @@ typedef struct Player_Struct
 	/* Range attack chosen */
 	char range[MAX_BUF];
 
-	/* Party name this player is member of */
+	/** Party name this player is member of. */
 	char partyname[MAX_BUF];
+
+	/**
+	 * Buffer for party name the player is joining, but has to enter
+	 * password first. */
+	char partyjoin[MAX_BUF];
 
 	/** Whom to reply to. */
 	char player_reply[64];
@@ -335,9 +332,6 @@ typedef struct Player_Struct
 		spell_entry_struct *spell;
 	} dragging;
 } Client_Player;
-
-/* Player object. */
-extern Client_Player cpl;
 
 /* These are multiplication values that should be used when changing
  * floats to ints, and vice version.  MULTI is integer representation
@@ -492,26 +486,6 @@ extern Client_Player cpl;
 #define UPD_NROF		0x80
 #define UPD_DIRECTION	0x100
 
-/* White */
-#define COLOR_DEFAULT 	0
-#define COLOR_WHITE  	0
-#define COLOR_ORANGE 	1
-/* Navy */
-#define COLOR_LBLUE  	2
-#define COLOR_RED		3
-#define COLOR_GREEN 	4
-#define COLOR_BLUE  	5
-#define COLOR_GREY  	6
-#define COLOR_YELLOW  	7
-#define COLOR_DK_NAVY  	8
-
-/* Client only colors */
-#define COLOR_HGOLD 	64
-#define COLOR_DGOLD		65
-#define COLOR_DBROWN  	44
-
-#define COLOR_BLACK 	255
-
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
@@ -548,6 +522,8 @@ extern Client_Player cpl;
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
 #define MAP2_FLAG2_ROTATE 2
+/** The object should be highlighted in red. */
+#define MAP2_FLAG2_INFRAVISION 4
 /*@}*/
 
 /**
@@ -621,3 +597,18 @@ extern Client_Player cpl;
 /** Change map weather. */
 #define CMD_MAPSTATS_WEATHER 3
 /*@}*/
+
+/** Check if the keyword represents a true value. */
+#define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
+/** Check if the keyword represents a false value. */
+#define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
+
+/** Copies information from one color structure into another. */
+#define SDL_color_copy(_color, _color2) \
+{ \
+	(_color)->r = (_color2)->r; \
+	(_color)->g = (_color2)->g; \
+	(_color)->b = (_color2)->b; \
+}
+
+#endif

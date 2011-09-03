@@ -56,7 +56,7 @@ def check_send(player, object):
 
 def main():
 	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to our Post Office. You can check if someone has sent you ^items^, or ^send^ an item to someone.\nI can also ^explain^ how to use this post office.")
+		me.SayTo(activator, "\nWelcome to our Post Office. You can check if someone has sent you <a>items</a>, or <a>send</a> an item to someone.\nI can also <a>explain</a> how to use this post office.")
 
 	# Send an item to someone, showing how much to pay.
 	elif text[0] == "send":
@@ -65,9 +65,9 @@ def main():
 			text[1] = text[1].capitalize()
 
 			if check_send(text[1], marked):
-				me.SayTo(activator, "\nIt will cost you {0} to send the '{1}'. If you are pleased with that, say ^sendto {2}^ to send the item.".format(CostString(post.get_price(marked)), marked.GetName(), text[1]))
+				me.SayTo(activator, "\nIt will cost you {0} to send the '{1}'. If you are pleased with that, say <a>sendto {2}</a> to send the item.".format(CostString(post.get_price(marked)), marked.GetName(), text[1]))
 		else:
-			me.SayTo(activator, "\nSend to whom? Do you want me to ^explain^ how to use the post office?")
+			me.SayTo(activator, "\nSend to whom? Do you want me to <a>explain</a> how to use the post office?")
 
 	# Actually send an item to someone.
 	elif text[0] == "sendto" and len(text) > 1:
@@ -91,9 +91,9 @@ def main():
 			me.SayTo(activator, "\nThe following items have been sent to you:\n")
 
 			for i, item in enumerate(post.get_items()):
-				activator.Write("#{0} {1} ({2}){3}".format(i + 1, item["name"], item["from"], item["accepted"] and " (accepted)" or " (^accept " + str(i + 1) + "^)"), COLOR_NAVY)
+				activator.Write("#{0} {1} ({2}){3}".format(i + 1, item["name"], item["from"], item["accepted"] and " (accepted)" or " (<a>accept " + str(i + 1) + "</a>)"), COLOR_NAVY)
 
-			activator.Write("\nYou can ^accept all^ or ^decline all^.", COLOR_NAVY)
+			activator.Write("\nYou can <a>accept all</a> or <a>decline all</a>.", COLOR_NAVY)
 		else:
 			me.SayTo(activator, "\nThere is no mail for you right now.")
 
@@ -117,7 +117,7 @@ def main():
 					post.decline_item(id)
 					me.SayTo(activator, "\nYou have declined the item #{0}.".format(id))
 		else:
-			me.SayTo(activator, "\nDecline what? Check for ^items^ to get ID of the item to decline, and then use \"decline ID\", for example, ^decline 1^ or ^decline all^.")
+			me.SayTo(activator, "\nDecline what? Check for <a>items</a> to get ID of the item to decline, and then use \"decline ID\", for example, <a>decline 1</a> or <a>decline all</a>.")
 
 	# Accept an item.
 	elif text[0] == "accept":
@@ -139,11 +139,11 @@ def main():
 					post.accept_item(id)
 					me.SayTo(activator, "\nYou have accepted the item #{0}.".format(id))
 		else:
-			me.SayTo(activator, "\nAccept what? Check for ^items^ to get ID of the item to accept, and then use \"accept ID\", for example, ^accept 1^ or ^accept all^.")
+			me.SayTo(activator, "\nAccept what? Check for <a>items</a> to get ID of the item to accept, and then use \"accept ID\", for example, <a>accept 1</a> or <a>accept all</a>.")
 
 	# Explain how the office works.
 	elif msg == "explain":
-		me.SayTo(activator, "\nWith post office, you can send items to other players, without the need of them being online. Items you send will stay forever with us, until the player comes and accepts or declines them. If they decline an item, the item will be sent back to the original sender.\nSending an item is simple, just mark the object you want to send, and say \"send <player>\".\nYou can check if someone has sent you ^items^ and if so, you can ^accept^ or ^decline^ them. If you accept, you can get them from one of the mailboxes in this post office.")
+		me.SayTo(activator, "\nWith post office, you can send items to other players, without the need of them being online. Items you send will stay forever with us, until the player comes and accepts or declines them. If they decline an item, the item will be sent back to the original sender.\nSending an item is simple, just mark the object you want to send, and say \"send <player>\".\nYou can check if someone has sent you <a>items</a> and if so, you can <a>accept</a> or <a>decline</a> them. If you accept, you can get them from one of the mailboxes in this post office.")
 
 try:
 	main()

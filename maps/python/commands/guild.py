@@ -31,7 +31,7 @@ def main():
 	# Simply switch the guild name we are managing.
 	guild.set(g[0])
 	guildname = guild.get_name()
-	LOG(llevInfo, "CLOG GUILD: {0} [{1}] >{2}<\n".format(activator.name, guildname, message))
+	LOG(llevChat, "Guild: {0} [{1}] >{2}<\n".format(activator.name, guildname, message))
 
 	for member in guild.get_members():
 		if not guild.member_approved(member):
@@ -41,6 +41,6 @@ def main():
 		player = FindPlayer(member)
 
 		if player:
-			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE | NDI_PLAYER)
+			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE, NDI_PLAYER)
 
 main()

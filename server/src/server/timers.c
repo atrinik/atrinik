@@ -29,13 +29,13 @@
 
 #include <timers.h>
 
-cftimer timers_table[MAX_TIMERS];
+static cftimer timers_table[MAX_TIMERS];
 
 static void cftimer_process_event(object *ob);
 
 /**
  * Processes all timers. */
-void cftimer_process_timers()
+void cftimer_process_timers(void)
 {
 	int i;
 
@@ -153,7 +153,7 @@ int cftimer_destroy(int id)
  * Finds a free ID for a new timer.
  * @return TIMER_ERR_ID if no free ID is available, a nonzero free ID
  * otherwise. */
-int cftimer_find_free_id()
+int cftimer_find_free_id(void)
 {
 	int i;
 
@@ -170,7 +170,7 @@ int cftimer_find_free_id()
 
 /**
  * Initialize timers. */
-void cftimer_init()
+void cftimer_init(void)
 {
 	memset(&timers_table[0], 0, sizeof(cftimer) * MAX_TIMERS);
 }

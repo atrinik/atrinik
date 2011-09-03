@@ -2,7 +2,7 @@ arch map
 name Tutorial Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-08-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -120,11 +120,11 @@ x 1
 end
 arch sign
 msg
-~Range System and Throwing~
+<green>Range System and Throwing</green>
 Atrinik has a complex range system allowing you to throw items, fire bows or spells but also use skills.
-By using the ~tab~ key you can cycle through the range actions. You can have different range actions prepared but you can use only |one| at time.
-To throw/fire/control something you press and hold the ~control~ (ctrl) key and choose a direction with your movement keys. The object or spell will be fired in that direction.
-If you have a target and you press ~control~ (ctrl) key and 5 on numpad, your character will attempt to fire in the direction of the target.
+By using the <green>tab</green> key you can cycle through the range actions. You can have different range actions prepared but you can use only <yellow>one</yellow> at time.
+To throw/fire/control something you press and hold the <green>control</green> (ctrl) key and choose a direction with your movement keys. The object or spell will be fired in that direction.
+If you have a target and you press <green>control</green> (ctrl) key and 5 on numpad, your character will attempt to fire in the direction of the target.
 endmsg
 name Range System and Throwing
 x 1
@@ -255,7 +255,7 @@ y 23
 end
 arch sign
 msg
-~Mercenary Quest~
+<green>Mercenary Quest</green>
 One of your first quests is to join the Mercenary guild. Say "hello" to Cashin nearby for more details about the quest.
 endmsg
 name Mercenary Quest
@@ -457,9 +457,9 @@ x 3
 end
 arch sign
 msg
-~Throwing~
+<green>Throwing</green>
 You can test out the throwing system right here, in the range testing area. Use the throwing daggers you found in the starting tutorial.
-To ready a throwing item or ammunition, locate the daggers in your inventory, and press 'f' (fire) key on them to ready them. Then press ~tab~ key until you can see it in the range chooser below your player name at top left.
+To ready a throwing item or ammunition, locate the daggers in your inventory, and press 'f' (fire) key on them to ready them. Then press <green>tab</green> key until you can see it in the range chooser below your player name at top left.
 When a missile hits a wall or another solid object, it will be dropped on the floor before the object.
 endmsg
 name Throwing
@@ -499,10 +499,10 @@ y 7
 end
 arch sign
 msg
-~How to Fight~
+<green>How to Fight</green>
 If you have visited Twitriel, the weapon master, you now have a weapon in your hand. If not, go see him now. To fight with it you need two things: A target and to be in combat mode.
-Target with the 'x' key, and change from ~safe~ to ~combat~ mode with the 'c' key.
-When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to ~safe~. You don't have to press 'c' before every attack.
+Target with the 'x' key, and change from <green>safe</green> to <green>combat</green> mode with the 'c' key.
+When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to <green>safe</green>. You don't have to press 'c' before every attack.
 endmsg
 name How to Fight
 x 3
@@ -514,11 +514,11 @@ y 8
 end
 arch sign
 msg
-~Skills and Experience~
+<green>Skills and Experience</green>
 If you have been to Twitriel, the weapon master, you got a weapon AND a weapon skill. If not, go see him now.
 Press F10 or click the skill button for the skill list.
-When you kill an enemy you will |only| gain experience in the skill you do the final hit with!
-Under the armor protection table you will see the currently used skill. It is automatically updated depending on your actions. You will see ~action timer~ there as well. When using a skill, your action timer will gain a number of seconds before you can use the skill again. It will count down to zero, by which time you can use the skill again.
+When you kill an enemy you will <yellow>only</yellow> gain experience in the skill you do the final hit with!
+Under the armor protection table you will see the currently used skill. It is automatically updated depending on your actions. You will see <green>action timer</green> there as well. When using a skill, your action timer will gain a number of seconds before you can use the skill again. It will count down to zero, by which time you can use the skill again.
 endmsg
 name Skills and Experience
 x 3
@@ -534,10 +534,10 @@ y 9
 end
 arch sign
 msg
-~Attack the Combat Dummies~
+<green>Attack the Combat Dummies</green>
 Now attack one of the combat dummies behind this fence. Do not fear, it's only a training dummy. It will not fight back or die.
 Press the 'x' key to target the golem and 'c' to get into combat mode. Move next to the golem and watch the hit messages and the hit numbers over your target's head.
-Try to play around with 'x' and 'c' key - this is an easy fight but most times you have |a lot| more action.
+Try to play around with 'x' and 'c' key - this is an easy fight but most times you have <yellow>a lot</yellow> more action.
 endmsg
 name Attack the Combat Dummies
 x 3
@@ -1715,7 +1715,7 @@ y 4
 end
 arch sign
 msg
-~Shops~
+<green>Shops</green>
 Shops like this one are available in most towns and cities. Just drop ('d') any items you would like to sell and pick up ('g') anything you want to buy. When you sell something to a shop it will pay you less than the regular price, you can see this by examining ('e') the object.
 endmsg
 name Shops
@@ -3830,98 +3830,98 @@ arch fwall_fstone2
 x 22
 y 23
 end
-arch water_still
+arch water_lt
 x 23
 end
-arch water_still
+arch water_lt3
 x 23
 y 1
 end
-arch water_still
+arch water_lt
 x 23
 y 2
 end
-arch water_still
+arch water_lt3
 x 23
 y 3
 end
-arch water_still
+arch water_lt4
 x 23
 y 4
 end
-arch water_still
+arch water_lt
 x 23
 y 5
 end
-arch water_still
+arch water_lt
 x 23
 y 6
 end
-arch water_still
+arch water_lt2
 x 23
 y 7
 end
-arch water_still
+arch water_lt4
 x 23
 y 8
 end
-arch water_still
+arch water_lt3
 x 23
 y 9
 end
-arch water_still
+arch water_lt2
 x 23
 y 10
 end
-arch water_still
+arch water_lt
 x 23
 y 11
 end
-arch water_still
+arch water_lt
 x 23
 y 12
 end
-arch water_still
+arch water_lt2
 x 23
 y 13
 end
-arch water_still
+arch water_lt4
 x 23
 y 14
 end
-arch water_still
+arch water_lt
 x 23
 y 15
 end
-arch water_still
+arch water_lt2
 x 23
 y 16
 end
-arch water_still
+arch water_lt
 x 23
 y 17
 end
-arch water_still
+arch water_lt
 x 23
 y 18
 end
-arch water_still
+arch water_lt3
 x 23
 y 19
 end
-arch water_still
+arch water_lt3
 x 23
 y 20
 end
-arch water_still
+arch water_lt2
 x 23
 y 21
 end
-arch water_still
+arch water_lt4
 x 23
 y 22
 end
-arch water_still
+arch water_lt2
 x 23
 y 23
 end

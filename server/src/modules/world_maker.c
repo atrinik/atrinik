@@ -86,7 +86,7 @@ typedef struct wm_region
 
 /**
  * Initialize the face colors. */
-static void wm_images_init()
+static void wm_images_init(void)
 {
 	int i, x, y;
 	gdImagePtr im, im2;
@@ -200,7 +200,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 				}
 				else
 				{
-					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][py == 1 && px == 1 ? 1 : 0]);
+					gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][0]);
 				}
 
 				j++;
@@ -345,7 +345,7 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 
 /**
  * The main world maker function. */
-void world_maker()
+void world_maker(void)
 {
 	mapstruct *m;
 	gdImagePtr im;
@@ -357,6 +357,8 @@ void world_maker()
 	int x, y, layer, got_one;
 	int xpos = 0, ypos = 0;
 	FILE *def_fp;
+	object **info_objects = NULL;
+	size_t num_info_objects = 0;
 
 	/* Initialize the image colors. */
 	wm_images_init();
@@ -426,7 +428,7 @@ void world_maker()
 		/* Custom background to use? */
 		if (r->map_bg)
 		{
-			int im_r, im_g, im_b;
+			uint32 im_r, im_g, im_b;
 
 			/* Parse HTML color and fill the image with it. */
 			if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3)
@@ -441,9 +443,6 @@ void world_maker()
 			gdImageSaveAlpha(im, 1);
 			gdImageFill(im, 0, 0, gdTransparent);
 		}
-
-		object **info_objects = NULL;
-		size_t num_info_objects = 0;
 
 		/* Go through the maps. */
 		for (i = 0; i < wm_r->num_maps; i++)

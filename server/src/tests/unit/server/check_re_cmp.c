@@ -44,7 +44,7 @@ START_TEST(test_re_cmp)
 }
 END_TEST
 
-static Suite *re_cmp_suite()
+static Suite *re_cmp_suite(void)
 {
 	Suite *s = suite_create("re_cmp");
 	TCase *tc_core = tcase_create("Core");
@@ -57,7 +57,7 @@ static Suite *re_cmp_suite()
 	return s;
 }
 
-void check_server_re_cmp()
+void check_server_re_cmp(void)
 {
 	Suite *s = re_cmp_suite();
 	SRunner *sr = srunner_create(s);

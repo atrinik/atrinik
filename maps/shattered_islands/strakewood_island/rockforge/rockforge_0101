@@ -2,13 +2,14 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-03 Alex Tokar
+Modified: 2011-07-10 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 tile_path_1 rockforge_0102
+region rockforge_palace
 end
 arch blocked
 x 5
@@ -185,7 +186,7 @@ arch fmask_rockforge
 rotate -15
 layer 4
 align -14
-z 12
+z 2
 x 7
 y 2
 end
@@ -193,7 +194,7 @@ arch fmask_rockforge
 rotate 15
 layer 5
 align 12
-z 12
+z 2
 x 7
 y 2
 end
@@ -291,8 +292,14 @@ arch spawn_point
 x 8
 y 3
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1b
@@ -596,8 +603,14 @@ arch spawn_point
 x 10
 y 8
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
@@ -649,8 +662,14 @@ arch spawn_point
 x 10
 y 13
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -702,8 +721,14 @@ arch spawn_point
 x 10
 y 18
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We'll have no trouble here, stranger.
+endmsg
 type 83
 direction 3
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
@@ -1241,7 +1266,13 @@ arch spawn_point
 x 13
 y 8
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+Keep moving.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1b
@@ -1289,6 +1320,8 @@ x 13
 y 13
 arch dwarf_steelclad
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -1335,7 +1368,13 @@ arch spawn_point
 x 13
 y 18
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1a
@@ -1596,7 +1635,13 @@ arch spawn_point
 x 15
 y 3
 arch dwarf_steelclad
+msg
+@match ^hi$|^hey$|^hello$
+We're watching you.
+endmsg
 type 83
+level 45
+name dwarf guard
 end
 end
 arch floor_marble1
@@ -1661,7 +1706,7 @@ arch fmask_rockforge
 rotate -15
 layer 4
 align -14
-z 12
+z 2
 x 16
 y 2
 end
@@ -1669,7 +1714,7 @@ arch fmask_rockforge
 rotate 15
 layer 5
 align 12
-z 12
+z 2
 x 16
 y 2
 end

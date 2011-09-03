@@ -27,7 +27,7 @@
  * @file
  * Handles image related code. */
 
-#include <include.h>
+#include <global.h>
 
 /** Default bmaps loaded from atrinik.p0. */
 static bmap_struct *bmaps_default[BMAPS_MAX];
@@ -68,18 +68,18 @@ static unsigned long bmap_hash(const char *str)
 bmap_struct *bmap_find(const char *name)
 {
 	bmap_struct *bmap;
-	unsigned long index;
+	unsigned long idx;
 
 	if (name == NULL)
 	{
 		return NULL;
 	}
 
-	index = bmap_hash(name);
+	idx = bmap_hash(name);
 
 	for (; ;)
 	{
-		bmap = bmaps_default[index];
+		bmap = bmaps_default[idx];
 
 		/* Not in the array. */
 		if (!bmap)
@@ -92,9 +92,9 @@ bmap_struct *bmap_find(const char *name)
 			return bmap;
 		}
 
-		if (++index >= BMAPS_MAX)
+		if (++idx >= BMAPS_MAX)
 		{
-			index = 0;
+			idx = 0;
 		}
 	}
 }
@@ -104,27 +104,27 @@ bmap_struct *bmap_find(const char *name)
  * @param at The bitmap to add. */
 void bmap_add(bmap_struct *bmap)
 {
-	unsigned long index = bmap_hash(bmap->name), orig_index = index;
+	unsigned long idx = bmap_hash(bmap->name), orig_idx = idx;
 
 	for (; ;)
 	{
-		if (bmaps_default[index] && !strcmp(bmaps_default[index]->name, bmap->name))
+		if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name))
 		{
 			LOG(llevBug, "bmap_add(): Double use of bmap name %s.\n", bmap->name);
 		}
 
-		if (!bmaps_default[index])
+		if (!bmaps_default[idx])
 		{
-			bmaps_default[index] = bmap;
+			bmaps_default[idx] = bmap;
 			return;
 		}
 
-		if (++index == BMAPS_MAX)
+		if (++idx == BMAPS_MAX)
 		{
-			index = 0;
+			idx = 0;
 		}
 
-		if (index == orig_index)
+		if (idx == orig_idx)
 		{
 			LOG(llevBug, "bmap_add(): bmaps array is too small for %s.\n", bmap->name);
 			return;
@@ -134,7 +134,7 @@ void bmap_add(bmap_struct *bmap)
 
 /**
  * Read bmaps from atrinik.p0, calculate checksums, etc. */
-void read_bmaps_p0()
+void read_bmaps_p0(void)
 {
 	FILE *fp;
 	size_t tmp_buf_size, pos;
@@ -215,11 +215,11 @@ void read_bmaps_p0()
 
 /**
  * Read bmaps server file. */
-void read_bmaps()
+void read_bmaps(void)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], name[MAX_BUF];
-	uint32 len, crc32;
+	uint32 len, crc;
 	bmap_struct *bmap;
 	size_t i;
 
@@ -233,8 +233,6 @@ void read_bmaps()
 	/* Free previously allocated bmaps. */
 	if (bmaps)
 	{
-		size_t i;
-
 		for (i = 0; i < bmaps_size; i++)
 		{
 			free(bmaps[i].name);
@@ -260,7 +258,7 @@ void read_bmaps()
 
 	while (fgets(buf, sizeof(buf) - 1, fp))
 	{
-		if (sscanf(buf, "%x %x %s", &len, &crc32, name) != 3)
+		if (sscanf(buf, "%x %x %s", &len, &crc, name) != 3)
 		{
 			LOG(llevBug, "Syntax error in server bmaps file: %s\n", buf);
 			break;
@@ -272,7 +270,7 @@ void read_bmaps()
 		bmaps = realloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
 
 		/* Does it exist, and the lengths and checksums match? */
-		if (bmap && bmap->len == len && bmap->crc32 == crc32)
+		if (bmap && bmap->len == len && bmap->crc32 == crc)
 		{
 			bmaps[bmaps_size].pos = bmap->pos;
 		}
@@ -283,7 +281,7 @@ void read_bmaps()
 		}
 
 		bmaps[bmaps_size].len = len;
-		bmaps[bmaps_size].crc32 = crc32;
+		bmaps[bmaps_size].crc32 = crc;
 		bmaps[bmaps_size].name = strdup(name);
 
 		bmaps_size++;
@@ -473,7 +471,7 @@ int request_face(int pnum)
 	char buf[MAX_BUF];
 	uint16 num = (uint16) (pnum &~ 0x8000);
 
-	if (options.reload_gfx_user && load_gfx_user_face(num))
+	if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) && load_gfx_user_face(num))
 	{
 		return 1;
 	}

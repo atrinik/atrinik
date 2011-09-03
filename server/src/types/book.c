@@ -86,20 +86,20 @@ void apply_book(object *op, object *tmp)
 
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are unable to read while blind.");
+		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
 		return;
 	}
 
 	if (tmp->msg == NULL)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You open the %s and find it empty.", tmp->name);
+		draw_info_format(COLOR_WHITE, op, "You open the %s and find it empty.", tmp->name);
 		return;
 	}
 
 	/* Need a literacy skill to read stuff! */
 	if (!change_skill(op, SK_LITERACY))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
+		draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
 		return;
 	}
 
@@ -109,80 +109,42 @@ void apply_book(object *op, object *tmp)
 	{
 		if (lev_diff < 2)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is just barely beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is just barely beyond your comprehension.");
 		}
 		else if (lev_diff < 3)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is slightly beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is slightly beyond your comprehension.");
 		}
 		else if (lev_diff < 5)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is beyond your comprehension.");
 		}
 		else if (lev_diff < 8)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is quite a bit beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is quite a bit beyond your comprehension.");
 		}
 		else if (lev_diff < 15)
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is way beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is way beyond your comprehension.");
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "This book is totally beyond your comprehension.");
+			draw_info(COLOR_WHITE, op, "This book is totally beyond your comprehension.");
 		}
 
 		return;
 	}
 
-	new_draw_info_format(NDI_UNIQUE, op, "You open the %s and start reading.", tmp->name);
+	draw_info_format(COLOR_WHITE, op, "You open the %s and start reading.", tmp->name);
 	CONTR(op)->stat_books_read++;
 
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
 
-	if (CONTR(op)->socket.socket_version >= 1043)
-	{
-	char buf[MAXSOCKBUF - 10];
-	const char *cp = tmp->msg;
-	size_t pos = 0, len = 0;
-
-	while (cp[pos] != '\0')
-	{
-		if (!strncmp(cp + pos, "\">", 2))
-		{
-			strncpy(buf + len, "\">\n", sizeof(buf) - len - 1);
-			len += 3;
-			pos += 1;
-		}
-		else
-		{
-			buf[len] = cp[pos];
-			len++;
-		}
-
-		pos++;
-
-		if (len > sizeof(buf) - 1)
-		{
-			break;
-		}
-	}
-
 	SockList_AddStringUnterm(&sl, "<book>");
 	SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
 	SockList_AddStringUnterm(&sl, "</book>");
-
-	buf[len] = '\0';
-	strcpy((char *) sl.buf + sl.len, buf);
-	sl.len += strlen(buf) + 1;
-	}
-	else
-	{
-	SockList_AddInt(&sl, tmp->weight_limit);
-	strcpy((char *) sl.buf + sl.len, tmp->msg);
-	sl.len += strlen(tmp->msg) + 1;
-	}
+	SockList_AddString(&sl, tmp->msg);
 
 	Send_With_Handling(&CONTR(op)->socket, &sl);
 

@@ -184,7 +184,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	{
 		if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
 		{
-			new_draw_info(NDI_NAVY, op, trap->msg);
+			draw_info(COLOR_NAVY, op, trap->msg);
 		}
 
 		enter_exit(op, trap);

@@ -52,15 +52,15 @@ typedef struct ms_update_info
 
 /**
  * Mutex for protecting metaserver information. */
-pthread_mutex_t ms_info_mutex;
+static pthread_mutex_t ms_info_mutex;
 
 /**
  * The actual metaserver information. */
-ms_update_info metaserver_info;
+static ms_update_info metaserver_info;
 
 /**
  * Updates the ::metaserver_info. */
-void metaserver_info_update()
+void metaserver_info_update(void)
 {
 	player *pl;
 	uint32 num_players = 0;
@@ -100,7 +100,7 @@ void metaserver_info_update()
 
 /**
  * Initialize the metaserver. */
-void metaserver_init()
+void metaserver_init(void)
 {
 	int ret;
 	pthread_t thread_id;
@@ -147,7 +147,7 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 
 /**
  * Do the metaserver updating. */
-static void metaserver_update()
+static void metaserver_update(void)
 {
 	struct curl_httppost *formpost = NULL, *lastptr = NULL;
 	CURL *curl;
@@ -157,7 +157,7 @@ static void metaserver_update()
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.meta_host, CURLFORM_END);
 
 	/* Server version. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, VERSION, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, PACKAGE_VERSION, CURLFORM_END);
 
 	/* Server comment. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);

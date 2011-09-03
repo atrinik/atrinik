@@ -31,7 +31,9 @@
 #define PLUGIN_PYTHON_H
 
 #include <Python.h>
-#include <plugin.h>
+
+#define GLOBAL_NO_PROTOTYPES
+#include <global.h>
 #include <timers.h>
 
 /** This is for allowing both python 3 and python 2. */
@@ -59,18 +61,6 @@
 #	define PyString_FromFormat PyUnicode_FromFormat
 #else
 #	define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
-#endif
-
-#undef MODULEAPI
-
-#ifdef WIN32
-#	ifdef PYTHON_PLUGIN_EXPORTS
-#		define MODULEAPI __declspec(dllexport)
-#	else
-#		define MODULEAPI __declspec(dllimport)
-#	endif
-#else
-#	define MODULEAPI
 #endif
 
 /** Name of the plugin. */
@@ -265,7 +255,9 @@ typedef enum
 	/** Player's known spells array. */
 	FIELDTYPE_KNOWN_SPELLS,
 	/** Player's command permissions. */
-	FIELDTYPE_CMD_PERMISSIONS
+	FIELDTYPE_CMD_PERMISSIONS,
+	/** Player's faction reputations. */
+	FIELDTYPE_FACTIONS
 } field_type;
 
 /**
@@ -401,7 +393,7 @@ typedef struct
 } Atrinik_AttrList;
 
 /** This structure is used to define one Python-implemented command. */
-typedef struct PythonCmdStruct
+typedef struct python_cmd
 {
 	/** The name of the command, as known in the game. */
 	char *name;
@@ -411,7 +403,26 @@ typedef struct PythonCmdStruct
 
 	/** The speed of the command execution. */
 	double speed;
-} PythonCmd;
+
+	/** Hash handle. */
+	UT_hash_handle hh;
+} python_cmd;
+
+/** One cache entry. */
+typedef struct python_cache_entry
+{
+	/** The script file. */
+	char *file;
+
+	/** The cached code. */
+	PyCodeObject *code;
+
+	/** Last cached time. */
+	time_t cached_time;
+
+	/** Hash handle. */
+	UT_hash_handle hh;
+} python_cache_entry;
 
 /**
  * General structure for Python object fields. */
@@ -442,9 +453,6 @@ typedef struct
  * Get number of fields in the fields array.
  * @return Number of fields. */
 #define NUM_FIELDS (sizeof(fields) / sizeof(fields[0]))
-
-/** Number of custom commands to allow. */
-#define NR_CUSTOM_CMD 1024
 
 #define OBJEXISTCHECK_INT(ob) \
 { \

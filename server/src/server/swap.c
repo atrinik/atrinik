@@ -32,7 +32,7 @@
 #if RECYCLE_TMP_MAPS
 /**
  * Write maps log. */
-static void write_map_log()
+static void write_map_log(void)
 {
 	FILE *fp;
 	mapstruct *map;
@@ -67,7 +67,7 @@ static void write_map_log()
 
 /**
  * Read map log. */
-void read_map_log()
+void read_map_log(void)
 {
 	FILE *fp;
 	mapstruct *map;
@@ -162,7 +162,7 @@ void swap_map(mapstruct *map, int force_flag)
 		if (map->events)
 		{
 			/* Trigger the map reset event */
-			trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, (void *) map->path, 0);
+			trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, map->path, 0);
 		}
 
 		map = map->next;
@@ -190,7 +190,7 @@ void swap_map(mapstruct *map, int force_flag)
 
 /**
  * Check active maps and swap them out. */
-void check_active_maps()
+void check_active_maps(void)
 {
 	mapstruct *map, *next;
 
@@ -227,7 +227,7 @@ void check_active_maps()
  * they are visited.
  *
  * This is very useful if the tmp-disk is very full. */
-void flush_old_maps()
+void flush_old_maps(void)
 {
 	mapstruct *m = first_map, *oldmap;
 	long sec = seconds();
@@ -261,7 +261,7 @@ void flush_old_maps()
 			if (m->events)
 			{
 				/* Trigger the map reset event */
-				trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, (void *) m->path, 0);
+				trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);
 			}
 
 			clean_tmp_map(m);

@@ -27,17 +27,14 @@
  * @file
  * Menu related functions. */
 
-#include <include.h>
-
-/** Keybind menu */
-int keybind_status;
+#include <global.h>
 
 /**
  * Analyze /cmd type commands the player has typed in the console or bound to a key.
  * Sort out the "client intern" commands and expand or pre process them for the server.
  * @param cmd Command to check
  * @return 0 to send command to server, 1 to not send it */
-int client_command_check(char *cmd)
+int client_command_check(const char *cmd)
 {
 	if (!strncasecmp(cmd, "/ready_spell", 12))
 	{
@@ -45,7 +42,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /ready_spell <spell name>", COLOR_GREEN);
+			draw_info(COLOR_GREEN, "Usage: /ready_spell <spell name>");
 		}
 		else
 		{
@@ -70,7 +67,7 @@ int client_command_check(char *cmd)
 			}
 		}
 
-		draw_info("Unknown spell.", COLOR_RED);
+		draw_info(COLOR_RED, "Unknown spell.");
 		return 1;
 	}
 	else if (!strncasecmp(cmd, "/ready_skill", 12))
@@ -79,7 +76,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /ready_skill <skill name>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /ready_skill <skill name>");
 		}
 		else
 		{
@@ -109,7 +106,7 @@ int client_command_check(char *cmd)
 			}
 		}
 
-		draw_info("Unknown skill.", COLOR_RED);
+		draw_info(COLOR_RED, "Unknown skill.");
 		return 1;
 	}
 	else if (!strncasecmp(cmd, "/pray", 5))
@@ -117,46 +114,22 @@ int client_command_check(char *cmd)
 		/* Give out "You are at full grace." when needed -
 		 * server will not send us anything when this happens */
 		if (cpl.stats.grace == cpl.stats.maxgrace)
-			draw_info("You are at full grace. You stop praying.", COLOR_WHITE);
-	}
-	else if (!strncasecmp(cmd, "/keybind", 8))
-	{
-		map_udate_flag = 2;
-
-		if (cpl.menustatus != MENU_KEYBIND)
 		{
-			keybind_status = KEYBIND_STATUS_NO;
-			cpl.menustatus = MENU_KEYBIND;
+			draw_info(COLOR_WHITE, "You are at full grace. You stop praying.");
 		}
-		else
-		{
-			save_keybind_file(KEYBIND_FILE);
-			cpl.menustatus = MENU_NO;
-		}
-
-		sound_play_effect("scroll.ogg", 100);
-		reset_keys();
-		return 1;
-	}
-	else if (!strncmp(cmd, "/target", 7))
-	{
-		/* Logic is: if first parameter char is a digit, is enemy, friend or self.
-		 * If first char a character - then it's a name of a living object. */
-		if (!strncmp(cmd, "/target friend", 14))
-			strcpy(cmd, "/target 1");
-		else if (!strncmp(cmd,"/target enemy", 13))
-			strcpy(cmd, "/target 0");
-		else if (!strncmp(cmd, "/target self", 12))
-			strcpy(cmd, "/target 2");
 	}
 	else if (!strncmp(cmd, "/help", 5))
 	{
 		cmd += 5;
 
-		if (cmd == NULL || strcmp(cmd, "") == 0)
-			show_help("main");
+		if (!cmd || *cmd == '\0')
+		{
+			help_show("main");
+		}
 		else
-			show_help(cmd + 1);
+		{
+			help_show(cmd + 1);
+		}
 
 		return 1;
 	}
@@ -200,13 +173,13 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /reply <message>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /reply <message>");
 		}
 		else
 		{
 			if (!cpl.player_reply[0])
 			{
-				draw_info("There is no one you can /reply.", COLOR_RED);
+				draw_info(COLOR_RED, "There is no one you can /reply.");
 			}
 			else
 			{
@@ -230,7 +203,7 @@ int client_command_check(char *cmd)
 
 		if (!cmd || *++cmd == '\0')
 		{
-			draw_info("Usage: /resetwidget <name>", COLOR_RED);
+			draw_info(COLOR_RED, "Usage: /resetwidget <name>");
 		}
 		else
 		{
@@ -244,7 +217,7 @@ int client_command_check(char *cmd)
 		if (!strcmp(cmd + 8, "none"))
 		{
 			effect_stop();
-			draw_info("Stopped effect.", COLOR_GREEN);
+			draw_info(COLOR_GREEN, "Stopped effect.");
 			return 1;
 		}
 
@@ -271,12 +244,65 @@ int client_command_check(char *cmd)
 	}
 	else if (!strncmp(cmd, "/music_pause", 12))
 	{
-		Mix_PauseMusic();
+		sound_pause_music();
 		return 1;
 	}
 	else if (!strncmp(cmd, "/music_resume", 13))
 	{
-		Mix_ResumeMusic();
+		sound_resume_music();
+		return 1;
+	}
+	else if (!strncmp(cmd, "/party joinpassword ", 20))
+	{
+		cmd += 20;
+
+		if (cpl.partyjoin[0] != '\0')
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "/party join %s\t%s", cpl.partyjoin, cmd ? cmd : " ");
+			send_command(buf);
+		}
+
+		return 1;
+	}
+	else if (!strncmp(cmd, "/invfilter ", 11))
+	{
+		cmd += 11;
+
+		if (!strcmp(cmd, "all"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_ALL);
+		}
+		else if (!strcmp(cmd, "applied"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_APPLIED);
+		}
+		else if (!strcmp(cmd, "container"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_CONTAINER);
+		}
+		else if (!strcmp(cmd, "magical"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_MAGICAL);
+		}
+		else if (!strcmp(cmd, "cursed"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_CURSED);
+		}
+		else if (!strcmp(cmd, "unidentified"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
+		}
+		else if (!strcmp(cmd, "unapplied"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_UNAPPLIED);
+		}
+		else if (!strcmp(cmd, "locked"))
+		{
+			inventory_filter_set(INVENTORY_FILTER_LOCKED);
+		}
+
 		return 1;
 	}
 
@@ -284,42 +310,14 @@ int client_command_check(char *cmd)
 }
 
 /**
- * Blit face from inventory located by tag.
- * @param tag Item tag to locate
- * @param x X position to blit the item
- * @param y Y position to blit the item */
-void blt_inventory_face_from_tag(int tag, int x, int y)
+ * Same as send_command(), but also check client commands.
+ * @param cmd Command to send. */
+void send_command_check(const char *cmd)
 {
-	object *tmp;
-
-	/* Check item is in inventory and faces are loaded, etc */
-	tmp = object_find(tag);
-
-	if (!tmp)
-		return;
-
-	blt_inv_item_centered(tmp, x, y);
-}
-
-/**
- * Show one of the menus (book, party, etc). */
-void show_menu()
-{
-	if (!cpl.menustatus)
-		return;
-
-	if (cpl.menustatus == MENU_KEYBIND)
-		show_keybind();
-	else if (cpl.menustatus == MENU_BOOK)
-		book_show();
-	else if (cpl.menustatus == MENU_REGION_MAP)
+	if (!client_command_check(cmd))
 	{
-		region_map_show();
+		send_command(cmd);
 	}
-	else if (cpl.menustatus == MENU_PARTY)
-		show_party();
-	else if (cpl.menustatus == MENU_OPTION)
-		show_optwin();
 }
 
 /**

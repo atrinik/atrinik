@@ -79,7 +79,7 @@ class Bot(BaseSocket):
 
 	## Sends connect data to the game server.
 	def _post_connect(self):
-		self.send(b"version 1046 1046 Atrinikbot")
+		self.send(b"version 1055 1055 Atrinikbot")
 		self.send(b"setup bot 1")
 
 	## Handles queue command sending.

@@ -141,6 +141,9 @@ class House:
 		if not self._player_info:
 			self._load_player_info(False)
 
+		if not self._player_info:
+			return
+
 		self._player_info.slaying = house
 
 	## Get the houses player has previously purchased.

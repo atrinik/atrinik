@@ -1,0 +1,43 @@
+This work was packaged for Debian by:
+
+    Alex Tokar <admin@atokar.net> on Fri, 15 Jul 2011 18:40:15 +0200
+
+It was downloaded from:
+
+    http://www.atrinik.org/
+
+Upstream Author(s):
+
+    Alex Tokar <admin@atokar.net>
+
+Copyright:
+
+    Copyright (C) 2009-2011, Alex Tokar <admin@atokar.net>
+
+License:
+
+    This package is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This package is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this package; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU General
+Public License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is:
+
+    Copyright (C) 2011 Alex Tokar <admin@atokar.net>
+
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.

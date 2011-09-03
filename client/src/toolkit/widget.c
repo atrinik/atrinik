@@ -35,7 +35,7 @@
  * -# If applicable, add handler code to get_widget_owner().
  * -# Add handler function to process_widget(). */
 
-#include <include.h>
+#include <global.h>
 
 static int load_interface_file(char *filename);
 static void process_widget(widgetdata *widget);
@@ -51,37 +51,38 @@ static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 {
 	/* base widgets */
-	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"TARGET",          336, 681, 264,  31, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAININV",           1, 508, 239,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"FPS",             123,  47,  70,  12, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1},
+	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0},
+	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0},
+	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"TARGET",          336, 681, 264,  31, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAININV",           1, 508, 271,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"FPS",             123,  47,  70,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	/* subwidgets */
-	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
-	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0},
+	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 
@@ -115,6 +116,12 @@ static widgetmove widget_event_move =
 	0, NULL, 0, 0
 };
 
+/** This is used when resizing a widget with the mouse. */
+static widgetresize widget_event_resize =
+{
+	0, NULL
+};
+
 /**
  * A way to steal the mouse, and to prevent widgets from using mouse events
  * Example: Prevents widgets from using mouse events during dragging procedure */
@@ -123,7 +130,7 @@ static int IsMouseExclusive = 0;
 /**
  * Load the defaults and initialize the priority list.
  * Create the interface file, if it doesn't exist */
-static void init_widgets_fromDefault()
+static void init_widgets_fromDefault(void)
 {
 	int lp;
 
@@ -146,7 +153,7 @@ static void init_widgets_fromDefault()
 /**
  * Try to load the main interface file and initialize the priority list
  * On failure, initialize the widgets with init_widgets_fromDefault() */
-void init_widgets_fromCurrent()
+void init_widgets_fromCurrent(void)
 {
 	/* Exit, if there are no widgets */
 	if (!TOTAL_SUBWIDGETS)
@@ -172,7 +179,7 @@ void init_widgets_fromCurrent()
 widgetdata *create_widget_object(int widget_subtype_id)
 {
 	widgetdata *widget;
-	_textwin *textwin;
+	textwin_struct *textwin;
 	_widget_container *container;
 	_widget_container_strip *container_strip;
 	_menu *menu;
@@ -219,17 +226,19 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	{
 		case CHATWIN_ID:
 		case MSGWIN_ID:
-			textwin = calloc(1, sizeof(_textwin));
+			textwin = calloc(1, sizeof(textwin_struct));
 
 			if (!textwin)
 			{
 				exit(0);
 			}
 
-			textwin->font = FONT_ARIAL10;
+			textwin->font = FONT_ARIAL11;
+			textwin->selection_start = -1;
+			textwin->selection_end = -1;
 			/* that's right, a void * cast to _textwin *.
 			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
-			widget->subwidget = (_textwin *) textwin;
+			widget->subwidget = (textwin_struct *) textwin;
 			break;
 
 		case MAPNAME_ID:
@@ -336,8 +345,8 @@ widgetdata *create_widget_object(int widget_subtype_id)
 
 			/* begin initializing the members */
 			label->text = "";
-			label->font = &SystemFont;
-			label->color = COLOR_DEFAULT;
+			label->font = FONT_ARIAL10;
+			label->color = COLOR_WHITE;
 			/* have the subwidget point to it */
 			widget->subwidget = (_widget_label *) label;
 			break;
@@ -400,6 +409,11 @@ void remove_widget_object_intern(widgetdata *widget)
 		widget_event_move.owner = NULL;
 	}
 
+	if (widget_event_resize.owner == widget)
+	{
+		widget_event_resize.owner = NULL;
+	}
+
 	/* If any menu is open and this widget is the owner, bad things could happen here too. Clear the pointers. */
 	if (cur_widget[MENU_ID] && (MENU(cur_widget[MENU_ID]))->owner == widget)
 	{
@@ -444,7 +458,7 @@ void remove_widget_object_intern(widgetdata *widget)
 			case CHATWIN_ID:
 			case MSGWIN_ID:
 			{
-				_textwin *textwin = TEXTWIN(widget);
+				textwin_struct *textwin = TEXTWIN(widget);
 
 				if (textwin->entries)
 				{
@@ -510,7 +524,7 @@ void remove_widget_inv(widgetdata *widget)
 /** Wrapper function to initiate one of each widget. */
 /* TODO: this is looking more and more like a function to simply initiate all the widgets with their default attributes,
  * as loading from a file now creates nodes dynamically instead, so this function is now doomed to that role */
-void init_widgets()
+void init_widgets(void)
 {
 	int i;
 
@@ -526,6 +540,11 @@ void init_widgets()
 	/* initiate the widget tree and everything else that links to it. */
 	for (i = 0; i < TOTAL_SUBWIDGETS; ++i)
 	{
+		if (!con_widget[i].no_kill)
+		{
+			continue;
+		}
+
 	    create_widget_object(i);
 	}
 
@@ -534,11 +553,12 @@ void init_widgets()
 
 /**
  * Deinitialize all widgets, and free their SDL surfaces. */
-void kill_widgets()
+void kill_widgets(void)
 {
 	/* get rid of the pointer to the widgets first */
 	widget_mouse_event.owner = NULL;
 	widget_event_move.owner = NULL;
+	widget_event_resize.owner = NULL;
 
 	/* kick off the chain reaction, there's no turning back now :) */
 	if (widget_list_head)
@@ -584,18 +604,18 @@ static void widget_ensure_onscreen(widgetdata *widget)
 	{
 		dx = -widget->x1;
 	}
-	else if (widget->x1 + widget->wd > Screensize->x)
+	else if (widget->x1 + widget->wd > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
 	{
-		dx = Screensize->x - widget->wd - widget->x1;
+		dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->wd - widget->x1;
 	}
 
 	if (widget->y1 < 0)
 	{
 		dy = -widget->y1;
 	}
-	else if (widget->y1 + widget->ht > Screensize->y)
+	else if (widget->y1 + widget->ht > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
 	{
-		dy = Screensize->y - widget->ht - widget->y1;
+		dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->ht - widget->y1;
 	}
 
 	move_widget_rec(widget, dx, dy);
@@ -603,7 +623,7 @@ static void widget_ensure_onscreen(widgetdata *widget)
 
 /**
  * Ensures all widgets are on-screen. */
-void widgets_ensure_onscreen()
+void widgets_ensure_onscreen(void)
 {
 	widgetdata *tmp;
 
@@ -946,7 +966,9 @@ static int load_interface_file(char *filename)
 	char line[256], keyword[256], parameter[256];
 	int found_widget[TOTAL_SUBWIDGETS] = {0};
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "Entering load_interface_file()..\n");
+#endif
 
 	/* Sanity check - if the file doesn't exist, exit with error */
 	if (!(stream = fopen_wrapper(filename, "r")))
@@ -982,7 +1004,9 @@ static int load_interface_file(char *filename)
 		/* Beginning */
 		if (strncmp(keyword, "Widget:", 7) == 0)
 		{
+#ifdef DEBUG_WIDGET
 			LOG(llevDebug, "..Trying to find \"Widget: %s\"\n", parameter);
+#endif
 
 			pos = 0;
 
@@ -1000,6 +1024,11 @@ static int load_interface_file(char *filename)
 			/* Get the block */
 			else
 			{
+				if (!con_widget[pos].no_kill)
+				{
+					continue;
+				}
+
 				/* If we haven't found this widget, mark it */
 				if (!found_widget[pos])
 				{
@@ -1015,7 +1044,9 @@ static int load_interface_file(char *filename)
 				/* in case something went wrong */
 				if (!widget)
 				{
+#ifdef DEBUG_WIDGET
 					LOG(llevDebug, ".. Failed to create widget!\n");
+#endif
 					continue;
 				}
 
@@ -1046,32 +1077,55 @@ static int load_interface_file(char *filename)
 					if (strncmp(keyword, "x:", 2) == 0)
 					{
 						widget->x1 = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->x1);
+#endif
 					}
 					else if (strncmp(keyword, "y:", 2) == 0)
 					{
 						widget->y1 = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->y1);
+#endif
 					}
 					else if (strncmp(keyword, "moveable:", 9) == 0)
 					{
 						widget->moveable = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->moveable);
+#endif
 					}
 					else if (strncmp(keyword, "active:", 7) == 0)
 					{
 						widget->show = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->show);
+#endif
 					}
 					else if (strncmp(keyword, "width:", 6) == 0)
 					{
 						widget->wd = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->wd);
+#endif
 					}
 					else if (strncmp(keyword, "height:", 7) == 0)
 					{
 						widget->ht = atoi(parameter);
+#ifdef DEBUG_WIDGET
 						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->ht);
+#endif
+					}
+					else if (!strncmp(keyword, "font:", 5))
+					{
+						textwin_struct *textwin = TEXTWIN(widget);
+						char font_name[MAX_BUF];
+						int font_size, font_id;
+
+						if (textwin && sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1)
+						{
+							textwin->font = font_id;
+						}
 					}
 				}
 			}
@@ -1092,14 +1146,16 @@ static int load_interface_file(char *filename)
 		}
 	}
 
+#ifdef DEBUG_WIDGET
 	LOG(llevDebug, "..load_interface_file(): Done.\n");
+#endif
 
 	return 1;
 }
 
 /**
  * Save the widgets interface to a file. */
-void save_interface_file()
+void save_interface_file(void)
 {
 	FILE *stream;
 
@@ -1151,6 +1207,18 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
 			fprintf(stream, "height: %d\n", widget->ht);
 		}
 
+		switch (widget->WidgetTypeID)
+		{
+			case CHATWIN_ID:
+			case MSGWIN_ID:
+			{
+				textwin_struct *textwin = TEXTWIN(widget);
+
+				fprintf(stream, "font: %s %"FMT64U"\n", get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+				break;
+			}
+		}
+
 		/* End of block */
 		fputs("end\n", stream);
 
@@ -1169,9 +1237,16 @@ void save_interface_file_rec(widgetdata *widget, FILE *stream)
  * @return 1 if this is a widget and we're handling the mouse, 0 otherwise. */
 int widget_event_mousedn(int x, int y, SDL_Event *event)
 {
-	widgetdata *widget, *menu, *tmp;
+	widgetdata *widget;
 
-	/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
+	/* Try to put down a widget that is being moved. */
+	if (widget_event_move.active)
+	{
+		return widget_event_move_stop(x, y);
+	}
+
+	/* Update the widget event struct if the mouse is in a widget, or
+	 * else get out of here for sanity reasons. */
 	if (!widget_event_respond(x, y))
 	{
 		return 0;
@@ -1189,43 +1264,35 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON(SDL_BUTTON_RIGHT) && widget->WidgetTypeID != MAP_ID)
+	if (event->button.button == SDL_BUTTON_RIGHT && widget->WidgetTypeID != MAP_ID && !cur_widget[MENU_ID])
 	{
-		/* For some reason, checking for the ctrl key won't work here. */
-		if (cpl.fire_on)
-		{
-			/* Move the widget. */
-			if (!widget_event_start_move(widget, x, y))
-			{
-				return 0;
-			}
-		}
-		/* Normal right click. */
-		else if (!cur_widget[MENU_ID])
-		{
-			/* Create a context menu for the widget clicked on. */
-			menu = create_menu(x, y, widget);
-			/* This bit probably shouldn't be hard coded in future. */
-			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Create Widget", &menu_create_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Remove Widget", &menu_remove_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Detach Widget", &menu_detach_widget, MENU_NORMAL, 0);
-			add_separator(menu);
+		widgetdata *menu;
 
-			if (widget->WidgetSubtypeID == MAIN_INV_ID)
-			{
-				add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
-			}
-#if 0
-			else
-			{
-				add_menuitem(menu, "Chat Window Filters", &menu_detach_widget, MENU_SUBMENU, 0);
-			}
-#endif
+		/* Create a context menu for the widget clicked on. */
+		menu = create_menu(x, y, widget);
+		/* This bit probably shouldn't be hard coded in future. */
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
 
-			/* Bit hack-ish, but this is to fix the menu from disappearing. */
-			widget = menu;
+		if (widget->WidgetSubtypeID == MAIN_INV_ID)
+		{
+			add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
 		}
+		else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+		{
+			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
+			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+		}
+
+		menu_finalize(menu);
+
+		return 1;
+	}
+	/* Start resizing. */
+	else if (widget->resizeable && widget->resize_flags && event->button.button == SDL_BUTTON_LEFT)
+	{
+		widget_event_resize.active = 1;
+		widget_event_resize.owner = widget;
 	}
 	/* Normal condition - respond to mouse down event */
 	else
@@ -1248,7 +1315,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-				textwin_event(TW_CHECK_BUT_DOWN, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case RANGE_ID:
@@ -1290,12 +1357,18 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			case SKILLS_ID:
 				widget_skills_mevent(widget, event);
 				break;
+
+			case PARTY_ID:
+				widget_party_mevent(widget, event);
+				break;
 		}
 	}
 
 	/* User didn't click on a menu, so remove any menus that exist. */
 	if (widget->WidgetSubtypeID != MENU_ID)
 	{
+		widgetdata *menu, *tmp;
+
 		for (menu = cur_widget[MENU_ID]; menu; menu = tmp)
 		{
 			tmp = menu->type_next;
@@ -1316,44 +1389,17 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 int widget_event_mouseup(int x, int y, SDL_Event *event)
 {
 	widgetdata *widget;
-	widgetdata *widget_container = NULL;
 
-	/* Widget moving condition */
+	/* Widget is now being moved, don't do anything. */
 	if (widget_event_move.active)
 	{
-		widget = widget_mouse_event.owner;
-
-		widget_event_move.active = 0;
-		widget_mouse_event.x = x;
-		widget_mouse_event.y = y;
-		/* no widgets are being moved now */
-		widget_event_move.owner = NULL;
-
-		/* Disable the custom cursor */
-		f_custom_cursor = 0;
-
-		/* Show the system cursor */
-		SDL_ShowCursor(1);
-
-		/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
-		 * while in fullscreen with the cursor hidden, so we must take care
-		 * of it ourselves. Apparently SDL 1.3 should fix it.
-		 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
-		 * for details. */
-		SDL_WarpMouse(x, y);
-
-		/* Somehow the owner before the widget dragging is gone now. Not a good idea to carry on... */
-		if (!widget)
-		{
-			return 0;
-		}
-
-		/* check to see if it's on top of a widget container */
-		widget_container = get_widget_owner(x, y, widget->next, NULL);
-
-		/* attempt to insert it into the widget container if it exists */
-		insert_widget_in_container(widget_container, widget);
-
+		return 1;
+	}
+	/* End resizing. */
+	else if (widget_event_resize.active)
+	{
+		widget_event_resize.active = 0;
+		widget_event_resize.owner = NULL;
 		return 1;
 	}
 	/* Normal condition - respond to mouse up event */
@@ -1382,7 +1428,7 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-				textwin_event(TW_CHECK_BUT_UP, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case PDOLL_ID:
@@ -1416,6 +1462,10 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 			case SKILLS_ID:
 				widget_skills_mevent(widget, event);
 				break;
+
+			case PARTY_ID:
+				widget_party_mevent(widget, event);
+				break;
 		}
 
 		return 1;
@@ -1432,14 +1482,12 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 int widget_event_mousemv(int x, int y, SDL_Event *event)
 {
 	widgetdata *widget;
-	int dx = 0, dy = 0;
-
-	/* With widgets we have to clear every loop the txtwin cursor */
-	cursor_type = 0;
 
 	/* Widget moving condition */
 	if (widget_event_move.active)
 	{
+		int nx, ny;
+
 		widget = widget_event_move.owner;
 
 		/* The widget being moved doesn't exist. Sanity check in case something mad like this happens. */
@@ -1448,91 +1496,119 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			return 0;
 		}
 
-#ifdef WIDGET_SNAP
-		if (options.widget_snap > 0)
+		x -= widget_event_move.xOffset;
+		y -= widget_event_move.yOffset;
+		nx = x;
+		ny = y;
+
+		/* Widget snapping logic courtesy of OpenTTD (GPLv2). */
+		if (setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS))
 		{
-			if (event->motion.xrel != 0 && event->motion.yrel != 0)
+			widgetdata *tmp;
+			int delta, hsnap, vsnap;
+
+			delta = 0;
+			hsnap = vsnap = setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS);
+
+			for (tmp = widget_list_head; tmp; tmp = tmp->next)
 			{
-				int mID = widget_event_move.owner->WidgetTypeID;
-				widget_node *node;
-
-				for (node = priority_list_head; node; node = node->next)
+				if (tmp == widget || tmp->disable_snapping || !tmp->show || !tmp->visible)
 				{
-					int nID = node->WidgetID;
-					int done = 0;
+					continue;
+				}
 
-					if (nID == mID || !cur_widget[nID].show)
+				if (y + widget->ht > tmp->y1 && y < tmp->y1 + tmp->ht)
+				{
+					/* Your left border <-> other right border */
+					delta = abs(tmp->x1 + tmp->wd - x);
+
+					if (delta <= hsnap)
 					{
-						continue;
+						nx = tmp->x1 + tmp->wd;
+						hsnap = delta;
 					}
 
-					if ((TOP(mID) >= TOP(nID) && TOP(mID) <= BOTTOM (nID)) || (BOTTOM(mID) >= TOP(nID) && BOTTOM(mID) <= BOTTOM(nID)))
+					/* Your right border <-> other left border */
+					delta = abs(tmp->x1 - x - widget->wd);
+
+					if (delta <= hsnap)
 					{
-						if (event->motion.xrel < 0 && LEFT(mID) <= RIGHT(nID) + options.widget_snap && LEFT(mID) > RIGHT(nID))
-						{
-#if 0
-							adjx = RIGHT(nID);
-#endif
-							event->motion.x = RIGHT(nID) + widget_event_move.xOffset;
-							done = 1;
-						}
-						else if (event->motion.xrel > 0 && RIGHT(mID) >= LEFT(nID) - options.widget_snap && RIGHT(mID) < LEFT(nID))
-						{
-#if 0
-							adjx = LEFT(nID) - cur_widget[mID].wd;
-#endif
-							event->motion.x = LEFT(nID) - cur_widget[mID].wd + widget_event_move.xOffset;
-							done = 1;
-						}
+						nx = tmp->x1 - widget->wd;
+						hsnap = delta;
+					}
+				}
+
+				if (widget->y1 + widget->ht >= tmp->y1 && widget->y1 <= tmp->y1 + tmp->ht)
+				{
+					/* Your left border <-> other left border */
+					delta = abs(tmp->x1 - x);
+
+					if (delta <= hsnap)
+					{
+						nx = tmp->x1;
+						hsnap = delta;
 					}
 
-					if ((LEFT(mID) >= LEFT(nID) && LEFT(mID) <= RIGHT(nID)) || (RIGHT(mID) >= LEFT(nID) && RIGHT(mID) <= RIGHT(nID)))
+					/* Your right border <-> other right border */
+					delta = abs(tmp->x1 + tmp->wd - x - widget->wd);
+
+					if (delta <= hsnap)
 					{
-						if (event->motion.yrel < 0 && TOP(mID) <= BOTTOM(nID) + options.widget_snap && TOP(mID) > BOTTOM(nID))
-						{
-#if 0
-							adjy = BOTTOM(nID);
-#endif
-							event->motion.y = BOTTOM(nID) + widget_event_move.yOffset;
-							done = 1;
-						}
-						else if (event->motion.yrel > 0 && BOTTOM(mID) >= TOP(nID) - options.widget_snap && BOTTOM(mID) < TOP(nID))
-						{
-#if 0
-							adjy = TOP(nID) - cur_widget[mID].ht;
-#endif
-							event->motion.y = TOP(nID) - cur_widget[mID].ht + widget_event_move.yOffset;
-							done = 1;
-						}
+						nx = tmp->x1 + tmp->wd - widget->wd;
+						hsnap = delta;
+					}
+				}
+
+				if (x + widget->wd > tmp->x1 && x < tmp->x1 + tmp->wd)
+				{
+					/* Your top border <-> other bottom border */
+					delta = abs(tmp->y1 + tmp->ht - y);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 + tmp->ht;
+						vsnap = delta;
 					}
 
-					if (done)
-					{
-#if 0
-						draw_info_format(COLOR_RED, "%s l=%d r=%d t=%d b=%d", cur_widget[nID].name, LEFT(nID), RIGHT(nID), TOP(nID), BOTTOM(nID));
-#endif
-						sound_play_effect("scroll.ogg", 10);
+					/* Your bottom border <-> other top border */
+					delta = abs(tmp->y1 - y - widget->ht);
 
-						/* Acts as a brake, preventing mID from 'skipping' through a stack of nodes */
-						event->motion.xrel = event->motion.yrel = 0;
-						SDL_PushEvent(event);
-						break;
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 - widget->ht;
+						vsnap = delta;
+					}
+				}
+
+				if (widget->x1 + widget->wd >= tmp->x1 && widget->x1 <= tmp->x1 + tmp->wd)
+				{
+					/* Your top border <-> other top border */
+					delta = abs(tmp->y1 - y);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1;
+						vsnap = delta;
+					}
+
+					/* Your bottom border <-> other bottom border */
+					delta = abs(tmp->y1 + tmp->ht - y - widget->ht);
+
+					if (delta <= vsnap)
+					{
+						ny = tmp->y1 + tmp->ht - widget->ht;
+						vsnap = delta;
 					}
 				}
 			}
 		}
-#endif
-
-		/* get the offset */
-		dx = x - widget_event_move.xOffset - widget->x1;
-		dy = y - widget_event_move.yOffset - widget->y1;
 
 		/* we move the widget here, as well as all the widgets inside it if they exist */
 		/* we use the recursive version since we already have the outermost container */
-		move_widget_rec(widget, dx, dy);
+		move_widget_rec(widget, nx - widget->x1, ny - widget->y1);
 
 		/* Ensure widget is on-screen. */
-		if (!options.allow_widgets_offscreen)
+		if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 		{
 			widget_ensure_onscreen(widget);
 		}
@@ -1541,10 +1617,39 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 		return 1;
 	}
+	else if (widget_event_resize.active)
+	{
+		widget = widget_event_resize.owner;
+
+		if (!widget)
+		{
+			return 0;
+		}
+
+		if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+		{
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x1 - x + widget->wd : x - widget->x1));
+		}
+
+		if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
+		{
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y1 - y + widget->ht : y - widget->y1));
+		}
+
+		switch (widget->WidgetTypeID)
+		{
+			case MSGWIN_ID:
+			case CHATWIN_ID:
+				textwin_readjust(widget);
+				break;
+		}
+
+		return 1;
+	}
 	/* Normal condition - respond to mouse move event */
 	else
 	{
-		_textwin *textwin = NULL;
+		textwin_struct *textwin = NULL;
 
 		/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
 		if (!widget_event_respond(x, y))
@@ -1558,6 +1663,30 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		if (!widget)
 		{
 			return 0;
+		}
+
+		if (widget->resizeable)
+		{
+			widget->resizeable = 1;
+			widget->resize_flags = 0;
+
+			if (y >= widget->y1 && y <= widget->y1 + 2)
+			{
+				widget->resize_flags |= RESIZE_TOP;
+			}
+			else if (y >= widget->y1 + widget->ht - 2 && y <= widget->y1 + widget->ht)
+			{
+				widget->resize_flags |= RESIZE_BOTTOM;
+			}
+
+			if (x >= widget->x1 && x <= widget->x1 + 2)
+			{
+				widget->resize_flags |= RESIZE_LEFT;
+			}
+			else if (x >= widget->x1 + widget->wd - 2 && x <= widget->x1 + widget->wd)
+			{
+				widget->resize_flags |= RESIZE_RIGHT;
+			}
 		}
 
 		/* Handlers for miscellaneous mouse movements go here */
@@ -1579,7 +1708,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 					}
 				}
 
-				textwin_event(TW_CHECK_MOVE, event, widget);
+				textwin_event(widget, event);
 				break;
 
 			case MAIN_INV_ID:
@@ -1604,6 +1733,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			case SKILLS_ID:
 				widget_skills_mevent(widget, event);
+				break;
+
+			case PARTY_ID:
+				widget_party_mevent(widget, event);
 				break;
 		}
 
@@ -1641,9 +1774,55 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 	 * is in the center of the screen if we are in fullscreen mode. */
 	if (ScreenSurface->flags & SDL_FULLSCREEN)
 	{
-		SDL_WarpMouse(Screensize->x / 2, Screensize->y / 2);
+		SDL_WarpMouse(ScreenSurface->w / 2, ScreenSurface->h / 2);
 	}
 #endif
+
+	return 1;
+}
+
+int widget_event_move_stop(int x, int y)
+{
+	widgetdata *widget, *widget_container;
+
+	if (!widget_event_move.active)
+	{
+		return 0;
+	}
+
+	widget = widget_mouse_event.owner;
+
+	widget_event_move.active = 0;
+	widget_mouse_event.x = x;
+	widget_mouse_event.y = y;
+	/* No widgets are being moved now. */
+	widget_event_move.owner = NULL;
+
+	/* Disable the custom cursor. */
+	f_custom_cursor = 0;
+
+	/* Show the system cursor. */
+	SDL_ShowCursor(1);
+
+	/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
+	 * while in fullscreen with the cursor hidden, so we must take care
+	 * of it ourselves. Apparently SDL 1.3 should fix it.
+	 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
+	 * for details. */
+	SDL_WarpMouse(x, y);
+
+	/* Somehow the owner before the widget dragging is gone now. Not a
+	 * good idea to carry on... */
+	if (!widget)
+	{
+		return 0;
+	}
+
+	/* Check to see if it's on top of a widget container. */
+	widget_container = get_widget_owner(x, y, widget->next, NULL);
+
+	/* Attempt to insert it into the widget container if it exists. */
+	insert_widget_in_container(widget_container, widget);
 
 	return 1;
 }
@@ -1671,13 +1850,8 @@ int widget_event_respond(int x, int y)
 }
 
 /** Priority override function, we have to have that here for resizing... */
-int widget_event_override()
+int widget_event_override(void)
 {
-	if (textwin_flags & (TW_RESIZE | TW_RESIZE2))
-	{
-		return 1;
-	}
-
 	return 0;
 }
 
@@ -1864,6 +2038,10 @@ static void process_widget(widgetdata *widget)
 		case SKILLS_ID:
 			widget_skills_render(widget);
 			break;
+
+		case PARTY_ID:
+			widget_party_render(widget);
+			break;
 	}
 }
 
@@ -1878,13 +2056,17 @@ static void process_widget_background(widgetdata *widget)
 		case MPLAYER_ID:
 			widget_mplayer_background(widget);
 			break;
+
+		case PARTY_ID:
+			widget_party_background(widget);
+			break;
 	}
 }
 
 /**
  * Traverse through all the widgets and call the corresponding handlers.
  * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
-void process_widgets()
+void process_widgets(void)
 {
 	/* sanity check */
 	if (!widget_list_foot)
@@ -1901,19 +2083,15 @@ void process_widgets()
  * This makes it as fast as a linear linked list if there are no child nodes. */
 void process_widgets_rec(widgetdata *widget)
 {
-	popup_struct *popup;
-
-	popup = popup_get_visible();
-
 	do
 	{
+		process_widget_background(widget);
+
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible && (!popup || popup_overlay_need_update(popup)))
+		if (widget->show && widget->visible)
 		{
 			process_widget(widget);
 		}
-
-		process_widget_background(widget);
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
@@ -2459,7 +2637,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 }
 
 /** Creates a label with the given text, font and colour, and sets the size of the widget to the correct boundaries. */
-widgetdata *add_label(char *text, _Font *font, int color)
+widgetdata *add_label(char *text, int font, const char *color)
 {
 	widgetdata *widget;
 	_widget_label *label;
@@ -2472,8 +2650,8 @@ widgetdata *add_label(char *text, _Font *font, int color)
 	label->font = font;
 	label->color = color;
 
-	resize_widget(widget, RESIZE_RIGHT, get_string_pixel_length(text, font));
-	resize_widget(widget, RESIZE_BOTTOM, font->c[0].h);
+	resize_widget(widget, RESIZE_RIGHT, string_get_width(font, text, 0));
+	resize_widget(widget, RESIZE_BOTTOM, string_get_height(font, text, 0) + 3);
 
 	return widget;
 }
@@ -2508,10 +2686,10 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
 	/* Magic numbers for now, maybe it will be possible in future to customize this in files. */
-	container_menu->outer_padding_left = 4;
-	container_menu->outer_padding_right = 4;
-	container_menu->outer_padding_top = 4;
-	container_menu->outer_padding_bottom = 4;
+	container_menu->outer_padding_left = 2;
+	container_menu->outer_padding_right = 2;
+	container_menu->outer_padding_top = 2;
+	container_menu->outer_padding_bottom = 2;
 	container_strip_menu->inner_padding = 0;
 
 	return widget_menu;
@@ -2531,14 +2709,14 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 	container_strip_menuitem = CONTAINER_STRIP(widget_menuitem);
 
 	/* Initialize attributes. */
-	container_menuitem->outer_padding_left = 2;
+	container_menuitem->outer_padding_left = 4;
 	container_menuitem->outer_padding_right = 2;
-	container_menuitem->outer_padding_top = 0;
+	container_menuitem->outer_padding_top = 2;
 	container_menuitem->outer_padding_bottom = 0;
 	container_strip_menuitem->inner_padding = 4;
 	container_strip_menuitem->horizontal = 1;
 
-	widget_label = add_label(text, &SystemFont, COLOR_WHITE);
+	widget_label = add_label(text, FONT_ARIAL10, COLOR_WHITE);
 
 	if (menu_type == MENU_CHECKBOX)
 	{
@@ -2586,6 +2764,48 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 void add_separator(widgetdata *widget)
 {
 	(void) widget;
+}
+
+/**
+ * Finalizes menu creation.
+ *
+ * Makes sure the menu does not go over the screen size by adding x/y,
+ * using standard GUI behavior.
+ * @param widget The menu to finalize. */
+void menu_finalize(widgetdata *widget)
+{
+	int xoff = 0, yoff = 0;
+
+	/* Would the menu go over the maximum screen width? */
+	if (widget->x1 + widget->wd > ScreenSurface->w)
+	{
+		/* Will appear to the left of the cursor instead of right of it. */
+		xoff = -widget->wd;
+
+		/* Take submenus into account, and shift them depending on the
+		 * parent menu's width. */
+		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		{
+			xoff += -widget->type_prev->wd + 4;
+		}
+	}
+
+	/* Similar checks for screen height. */
+	if (widget->y1 + widget->ht > ScreenSurface->h)
+	{
+		/* Submenu, shift it up, so all of it can appear. */
+		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		{
+			yoff = ScreenSurface->h - widget->ht - widget->y1 - 1;
+		}
+		/* Will appear above the cursor. */
+		else
+		{
+			yoff = -widget->ht;
+		}
+	}
+
+	move_widget(widget, xoff, yoff);
 }
 
 /** Redraws all widgets of a particular type. */
@@ -2671,42 +2891,66 @@ void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
 	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX, 0);
 }
 
-void menu_inv_filter_all()
+void menu_inv_filter_all(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_set(INVENTORY_FILTER_ALL);
 }
 
-void menu_inv_filter_applied()
+void menu_inv_filter_applied(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
 }
 
-void menu_inv_filter_containers()
+void menu_inv_filter_containers(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
 }
 
-void menu_inv_filter_magical()
+void menu_inv_filter_magical(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
 }
 
-void menu_inv_filter_cursed()
+void menu_inv_filter_cursed(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CURSED);
 }
 
-void menu_inv_filter_unidentified()
+void menu_inv_filter_unidentified(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
 }
 
-void menu_inv_filter_locked()
+void menu_inv_filter_locked(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
 }
 
-void menu_inv_filter_unapplied()
+void menu_inv_filter_unapplied(widgetdata *widget, int x, int y)
 {
+	(void) widget;
+	(void) x;
+	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
 }

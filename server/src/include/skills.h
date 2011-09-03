@@ -27,6 +27,9 @@
  * @file
  * Skills header. */
 
+#ifndef SKILLS_H
+#define SKILLS_H
+
 /** Marks no skill being ready. */
 #define NO_SKILL_READY -1
 
@@ -106,6 +109,6 @@ typedef struct skill_struct
 
 	/** Base number of ticks it takes to use the skill */
 	short time;
-} skill;
+} skill_struct;
 
-extern skill skills[];
+#endif

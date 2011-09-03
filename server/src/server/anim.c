@@ -29,9 +29,12 @@
 
 #include <global.h>
 
+Animations *animations;
+int num_animations, animations_allocated;
+
 /**
  * Free all animations loaded */
-void free_all_anim()
+void free_all_anim(void)
 {
 	int i;
 
@@ -47,7 +50,7 @@ void free_all_anim()
 /**
  * Initialize animations structure, read the animations
  * data from a file. */
-void init_anim()
+void init_anim(void)
 {
 	char buf[MAX_BUF];
 	FILE *fp;
@@ -209,6 +212,7 @@ void animate_object(object *op, int count)
 	/* starting index # to draw from */
 	int base_state;
 	int	dir;
+	New_Face *old_face;
 
 	numanim = NUM_ANIMATIONS(op);
 	numfacing = NUM_FACINGS(op);
@@ -270,7 +274,6 @@ void animate_object(object *op, int count)
 			op->state = 0;
 		}
 	}
-
 	/* that's the new extended animation: base_state is */
 	/* 0:     that's the dying anim - "non direction" facing */
 	/* 1-8:   guard/stand_still anim frames */
@@ -465,7 +468,11 @@ void animate_object(object *op, int count)
 		}
 	}
 
+	old_face = op->face;
 	SET_ANIMATION(op, op->state + base_state);
 
-	update_object(op, UP_OBJ_FACE);
+	if (op->face != old_face)
+	{
+		update_object(op, UP_OBJ_FACE);
+	}
 }

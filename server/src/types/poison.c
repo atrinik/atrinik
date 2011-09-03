@@ -38,7 +38,7 @@ void apply_poison(object *op, object *tmp)
 	if (op->type == PLAYER)
 	{
 		play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "poison.ogg", 0, 0, 0, 0);
-		new_draw_info(NDI_UNIQUE, op, "Yech! That tasted poisonous!");
+		draw_info(COLOR_WHITE, op, "Yech! That tasted poisonous!");
 		strcpy(CONTR(op)->killer, "poisonous food");
 	}
 
@@ -72,7 +72,7 @@ void poison_more(object *op)
 		{
 			CLEAR_FLAG(op, FLAG_APPLIED);
 			fix_player(op->env);
-			new_draw_info(NDI_UNIQUE, op->env, "You feel much better now.");
+			draw_info(COLOR_WHITE, op->env, "You feel much better now.");
 		}
 
 		remove_ob(op);
@@ -83,7 +83,7 @@ void poison_more(object *op)
 	if (op->env->type == PLAYER)
 	{
 		op->env->stats.food--;
-		new_draw_info(NDI_UNIQUE, op->env, "You feel very sick...");
+		draw_info(COLOR_WHITE, op->env, "You feel very sick...");
 	}
 
 	/* If we successfully do damage to the player, the poison effects
@@ -100,7 +100,7 @@ void poison_more(object *op)
 				/* Now deplete the stat. Relatively small chance that the depletion
 				 * will be worse than usual. */
 				change_attr_value(&op->stats, i, !(RANDOM() % 6) ? -2 : -1);
-				new_draw_info(NDI_UNIQUE | NDI_GREY, op->env, lose_msg[i]);
+				draw_info(COLOR_GRAY, op->env, lose_msg[i]);
 			}
 		}
 

@@ -33,8 +33,6 @@
 /* If you want (a LOT of) debug info about widgets, uncomment this */
 /*#define DEBUG_WIDGET*/
 
-typedef struct _textwin _textwin;
-
 /** Information about a widget. */
 typedef struct widgetdata
 {
@@ -115,6 +113,16 @@ typedef struct widgetdata
 
 	/** A unique ID for the widget object. */
 	int WidgetObjID;
+
+	uint8 resizeable;
+
+	int min_w;
+
+	int min_h;
+
+	int resize_flags;
+
+	int disable_snapping;
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
@@ -160,10 +168,10 @@ typedef struct _widget_label
 	char *text;
 
 	/** The font of the text. */
-	_Font *font;
+	int font;
 
-	/** The colour of the text. */
-	int color;
+	/** The color of the text. */
+	const char *color;
 } _widget_label;
 
 typedef struct _widget_bitmap
@@ -246,6 +254,7 @@ typedef enum WidgetID
 	MPLAYER_ID,
 	SPELLS_ID,
 	SKILLS_ID,
+	PARTY_ID,
 	CONTAINER_ID,
 	LABEL_ID,
 	BITMAP_ID,
@@ -317,8 +326,15 @@ typedef struct widgetmove
 	int yOffset;
 } widgetmove;
 
-extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
-extern widgetevent widget_mouse_event;
+/** This is used when resizing a widget with the mouse. */
+typedef struct widgetresize
+{
+	/** Is the widget active? */
+	int active;
+
+	/** The widget involved in the resize event. */
+	widgetdata *owner;
+} widgetresize;
 
 /** Macro to redraw widget using the array. */
 #define WIDGET_REDRAW(__tmp) __tmp->redraw = 1;
@@ -327,7 +343,7 @@ extern widgetevent widget_mouse_event;
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
 
 /** Macros to grab extended widget attributes. This works similar to inheritance. */
-#define TEXTWIN(__textwin) ((_textwin *) ((__textwin)->subwidget))
+#define TEXTWIN(__textwin) ((textwin_struct *) ((__textwin)->subwidget))
 #define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
 #define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)
@@ -337,19 +353,5 @@ extern widgetevent widget_mouse_event;
 	(_menu *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menu->subwidget)) ->subcontainer)) ->subcontainer_strip))
 #define MENUITEM(__menuitem) \
 	(_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
-
-#ifdef WIDGET_SNAP
-/** Left position. */
-#define LEFT(ID) (cur_widget[(ID)].x1)
-
-/** Right position. */
-#define RIGHT(ID) (cur_widget[(ID)].x1 + cur_widget[(ID)].wd)
-
-/** Top position. */
-#define TOP(ID) (cur_widget[(ID)].y1)
-
-/** Bottom position. */
-#define BOTTOM(ID) (cur_widget[(ID)].y1 + cur_widget[(ID)].ht)
-#endif
 
 #endif

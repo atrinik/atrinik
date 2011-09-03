@@ -114,7 +114,7 @@ char *get_region_msg(const region *r)
 object *get_jail_exit(object *op)
 {
 	region *reg;
-	object *exit;
+	object *exit_ob;
 
 	if (op->type != PLAYER)
 	{
@@ -133,13 +133,13 @@ object *get_jail_exit(object *op)
 	{
 		if (reg->jailmap)
 		{
-			exit = get_object();
-			FREE_AND_COPY_HASH(EXIT_PATH(exit), reg->jailmap);
+			exit_ob = get_object();
+			FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), reg->jailmap);
 			/* Damned exits reset savebed and remove teleports, so the prisoner can't escape */
-			SET_FLAG(exit, FLAG_DAMNED);
-			EXIT_X(exit) = reg->jailx;
-			EXIT_Y(exit) = reg->jaily;
-			return exit;
+			SET_FLAG(exit_ob, FLAG_DAMNED);
+			EXIT_X(exit_ob) = reg->jailx;
+			EXIT_Y(exit_ob) = reg->jaily;
+			return exit_ob;
 		}
 		else
 		{
@@ -153,7 +153,7 @@ object *get_jail_exit(object *op)
 
 /**
  * Initializes regions from the regions file. */
-void init_regions()
+void init_regions(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF];
@@ -310,22 +310,21 @@ void init_regions()
 /**
  * Allocates and zeros a region struct.
  * @return Initialized region structure. */
-static region *get_region_struct()
+static region *get_region_struct(void)
 {
-	region *new = (region *) CALLOC(1, sizeof(region));
+	region *new = (region *) calloc(1, sizeof(region));
 
 	if (new == NULL)
 	{
 		LOG(llevError, "get_region_struct(): Out of memory.");
 	}
 
-	memset(new, 0, sizeof(region));
 	return new;
 }
 
 /**
  * Links child with their parent from the parent_name field. */
-static void assign_region_parents()
+static void assign_region_parents(void)
 {
 	region *reg;
 	uint32 parent_count = 0, region_count = 0;
@@ -346,7 +345,7 @@ static void assign_region_parents()
 
 /**
  * Deinitializes all regions. */
-void free_regions()
+void free_regions(void)
 {
 	region *reg, *next;
 
@@ -361,6 +360,6 @@ void free_regions()
 		FREE_AND_NULL_PTR(reg->longname);
 		FREE_AND_NULL_PTR(reg->msg);
 		FREE_AND_NULL_PTR(reg->jailmap);
-		CFREE(reg);
+		free(reg);
 	}
 }

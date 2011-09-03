@@ -54,7 +54,7 @@
 
 /** Location of plugins */
 #ifndef PLUGINDIR
-#define PLUGINDIR "./plugins"
+#define PLUGINDIR "./"
 #endif
 
 /** Where the DM file is located. */
@@ -135,15 +135,6 @@
 
 #if CS_LOGSTATS
 #define CS_LOGTIME 600
-#endif
-
-/**
- * DEBUG generates copious amounts of output. By default, you probably
- * don't want this defined. */
-#ifndef WIN32
-#ifndef DEBUG
-#define DEBUG
-#endif
 #endif
 
 /**
@@ -252,20 +243,6 @@
 #define MEMORY_DEBUG 0
 
 /**
- * If undefined, malloc is always used.
- * It looks like this can be obsoleted.  However, it can be useful to
- * track down some bugs, as it will make sure that the entire data structure
- * is set to 0, at the expense of speed.
- *
- * Rupert Goldie has run Purify against the code, and if this is disabled,
- * apparently there are a lot of uninitialized memory reads - I haven't
- * seen any problem (maybe the memory reads are copies, and the destination
- * doesn't actually use the garbage values either?), but the impact on speed
- * of using this probably isn't great, and should make things more stable.
- * Msw 8-9-97 */
-#define USE_CALLOC
-
-/**
  * These define the players starting map and location on that map, and where
  * emergency saves are defined. This should be left as is unless you make
  * major changes to the map. */
@@ -291,8 +268,6 @@
 /** How many entries there is room for. */
 #define HIGHSCORE_LENGTH 1000
 
-/** Used when hashing archetypes. */
-#define ARCHTABLE 8192
 #define MAXSTRING 20
 
 /**
@@ -332,7 +307,7 @@
 #define NO_EMERGENCY_SAVE
 
 /** Socket version. */
-#define SOCKET_VERSION 1052
+#define SOCKET_VERSION 1058
 
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE

@@ -27,7 +27,7 @@
  * @file
  * Object management. */
 
-#include <include.h>
+#include <global.h>
 
 /** The list of free (unused) objects */
 static object *free_objects = NULL;
@@ -35,7 +35,7 @@ static object *free_objects = NULL;
 /**
  * Allocates a new object.
  * @return The object. */
-static object *object_new()
+static object *object_new(void)
 {
 	object *op = calloc(1, sizeof(object));
 
@@ -477,7 +477,7 @@ void ready_object(object *op)
 /**
  * Initializes the various objects of ::cpl structure, freeing them first
  * if necessary. */
-void objects_init()
+void objects_init(void)
 {
 	objects_free(cpl.sack);
 	objects_free(cpl.below);
@@ -565,7 +565,7 @@ static void animate_object(object *ob)
 
 /**
  * Animate all possible objects. */
-void animate_objects()
+void animate_objects(void)
 {
 	object *ob;
 

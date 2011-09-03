@@ -158,8 +158,8 @@ static void check_cleanup_chat_string(const char *str, const char *expected)
 
 START_TEST(test_cleanup_chat_string)
 {
-	check_cleanup_chat_string("   ---   ~ ~;   ", "---      ;   ");
-	check_cleanup_chat_string("   ^test^ ping", "test  ping");
+	check_cleanup_chat_string("   ---   ~ ~;   ", "---   ~ ~;   ");
+	check_cleanup_chat_string("   ^test^ ping", "^test^ ping");
 	check_cleanup_chat_string("              ", "");
 }
 END_TEST
@@ -193,7 +193,7 @@ START_TEST(test_format_number_comma)
 }
 END_TEST
 
-static Suite *shstr_suite()
+static Suite *shstr_suite(void)
 {
 	Suite *s = suite_create("utils");
 	TCase *tc_core = tcase_create("Core");
@@ -211,7 +211,7 @@ static Suite *shstr_suite()
 	return s;
 }
 
-void check_server_utils()
+void check_server_utils(void)
 {
 	Suite *s = shstr_suite();
 	SRunner *sr = srunner_create(s);

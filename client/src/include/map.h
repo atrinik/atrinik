@@ -106,13 +106,13 @@ typedef struct _mapdata
 } _mapdata;
 
 /** Map cell structure. */
-struct MapCell
+typedef struct MapCell
 {
 	/** Position. */
 	uint8 quick_pos[MAX_LAYERS + 1];
 
 	/** Player name color on this cell. */
-	uint8 pcolor[MAX_LAYERS + 1];
+	char pcolor[MAX_LAYERS + 1][COLOR_BUF];
 
 	/** If this is where our enemy is. */
 	uint8 probe[MAX_LAYERS + 1];
@@ -144,6 +144,9 @@ struct MapCell
 	/** Rotate. */
 	sint16 rotate[MAX_LAYERS + 1];
 
+	/** Whether to show the object in red. */
+	uint8 infravision[MAX_LAYERS + 1];
+
 	/** How we stretch this is really 8 char for N S E W. */
 	uint32 stretch;
 
@@ -152,12 +155,10 @@ struct MapCell
 } MapCell;
 
 /** Map structure. */
-struct Map
+typedef struct Map
 {
 	/** Map cells. */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
-
-extern _mapdata MapData;
 
 #endif

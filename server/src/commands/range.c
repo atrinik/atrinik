@@ -28,7 +28,6 @@
  * Range related commands (casting, shooting, throwing, etc.). */
 
 #include <global.h>
-#include <newclient.h>
 
 /**
  * Finds spell by name.
@@ -107,13 +106,13 @@ int command_cast_spell(object *op, char *params)
 
 	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't know any spells.");
+		draw_info(COLOR_WHITE, op, "You don't know any spells.");
 		return 0;
 	}
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Cast which spell?");
+		draw_info(COLOR_WHITE, op, "Cast which spell?");
 		return 0;
 	}
 
@@ -141,7 +140,7 @@ int command_cast_spell(object *op, char *params)
 	/* We don't know this spell name */
 	if (spnum == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You don't know the spell %s.", params);
+		draw_info_format(COLOR_WHITE, op, "You don't know the spell %s.", params);
 		return 0;
 	}
 
@@ -170,7 +169,7 @@ int command_cast_spell(object *op, char *params)
 
 	if (value)
 	{
-		CONTR(op)->action_casting = ROUND_TAG + spells[spnum].time;
+		CONTR(op)->action_casting = global_round_tag + spells[spnum].time;
 
 		if (spells[spnum].type == SPELL_TYPE_PRIEST)
 		{
@@ -208,13 +207,13 @@ int fire_cast_spell(object *op, char *params)
 
 	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You don't know any spells.");
+		draw_info(COLOR_WHITE, op, "You don't know any spells.");
 		return 0;
 	}
 
 	if (params == NULL)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Cast which spell?");
+		draw_info(COLOR_WHITE, op, "Cast which spell?");
 		return 0;
 	}
 
@@ -242,7 +241,7 @@ int fire_cast_spell(object *op, char *params)
 	/* We don't know this spell name */
 	if (spnum == -1)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You don't know the spell %s.", params);
+		draw_info_format(COLOR_WHITE, op, "You don't know the spell %s.", params);
 		return 0;
 	}
 

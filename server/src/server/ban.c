@@ -72,7 +72,7 @@ static void remove_ban_entry(objectlink *ol)
 
 /**
  * Load the ban file. */
-void load_bans_file()
+void load_bans_file(void)
 {
 	char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
 	FILE *fp;
@@ -107,7 +107,7 @@ void load_bans_file()
 
 /**
  * Save the bans file. */
-void save_bans_file()
+void save_bans_file(void)
 {
 	char filename[MAX_BUF];
 	FILE *fp;
@@ -214,7 +214,7 @@ void list_bans(object *op)
 
 	if (op)
 	{
-		new_draw_info(NDI_UNIQUE, op, "List of bans:");
+		draw_info(COLOR_WHITE, op, "List of bans:");
 	}
 	else
 	{
@@ -225,7 +225,7 @@ void list_bans(object *op)
 	{
 		if (op)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
+			draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
 		}
 		else
 		{

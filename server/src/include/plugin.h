@@ -48,16 +48,6 @@
 #	define MODULEAPI
 #endif
 
-#include <global.h>
-
-#ifdef HAVE_TIME_H
-#	include <time.h>
-#endif
-
-#ifndef WIN32
-#include <dirent.h>
-#endif
-
 /**
  * @defgroup PLUGIN_EVENT_xxx Plugin event types
  * The plugin event types.
@@ -198,8 +188,7 @@ struct plugin_hooklist
 	void (*remove_ob)(object *);
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
-	void (*new_info_map)(int, mapstruct *, int, int, int, const char *);
-	void (*new_info_map_except)(int , mapstruct *, int, int, int, object *, object *, const char *);
+	void (*draw_info_map)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
 	void (*spring_trap)(object *, object *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
@@ -230,10 +219,9 @@ struct plugin_hooklist
 	sint64 (*query_money)(object *);
 	int (*pay_for_item)(object *, object *);
 	int (*pay_for_amount)(sint64, object *);
-	void (*new_draw_info)(int, object *, const char *);
 	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
-	object *(*get_object)();
+	object *(*get_object)(void);
 	void (*copy_object)(object *, object *, int);
 	void (*enter_exit)(object *, object *);
 	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
@@ -256,7 +244,7 @@ struct plugin_hooklist
 	int (*object_set_value)(object *, const char *, const char *, int);
 	void (*drop)(object *, object *, int);
 	char *(*query_short_name)(object *, object *);
-	object *(*beacon_locate)(const char *);
+	object *(*beacon_locate)(shstr *);
 	char *(*strdup_local)(const char *);
 	void (*adjust_player_name)(char *);
 	party_struct *(*find_party)(const char *);
@@ -265,16 +253,15 @@ struct plugin_hooklist
 	void (*send_party_message)(party_struct *, const char *, int, object *);
 	void (*Write_String_To_Socket)(socket_struct *, char, const char *, int);
 	void (*dump_object)(object *, StringBuffer *);
-	StringBuffer *(*stringbuffer_new)();
+	StringBuffer *(*stringbuffer_new)(void);
 	char *(*stringbuffer_finish)(StringBuffer *);
 	char *(*cleanup_chat_string)(char *);
-	int (*cftimer_find_free_id)();
+	int (*cftimer_find_free_id)(void);
 	int (*cftimer_create)(int, long, object *, int);
 	int (*cftimer_destroy)(int);
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
-	void (*new_draw_info_format)(int, object *, char *, ...);
 	int (*was_destroyed)(object *, tag_t);
 	int (*object_get_gender)(object *);
 	int (*change_abil)(object *, object *);
@@ -305,14 +292,20 @@ struct plugin_hooklist
 	void (*set_map_darkness)(mapstruct *, int);
 	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
 	void (*send_target_command)(player *);
-	void (*examine)(object *, object *);
+	void (*examine)(object *, object *, StringBuffer *sb_capture);
 	void (*push_button)(object *);
+	void (*draw_info)(const char *, object *, const char *);
+	void (*draw_info_format)(const char *, object *, const char *, ...);
+	void (*draw_info_flags)(int, const char *, object *, const char *);
+	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
+	void (*Send_With_Handling)(socket_struct *, SockList *);
+	void (*SockList_AddString)(SockList *, const char *);
 
 	const char **season_name;
 	const char **weekdays;
 	const char **month_name;
 	const char **periodsofday;
-	spell *spells;
+	spell_struct *spells;
 	struct shstr_constants *shstr_cons;
 	const char **gender_noun;
 	const char **gender_subjective;
@@ -340,7 +333,7 @@ typedef void *(*f_plug_api) (int *type, ...);
 /** First function called in a plugin. */
 typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
 /** Function called after the plugin was initialized. */
-typedef void *(*f_plug_pinit) ();
+typedef void *(*f_plug_pinit) (void);
 
 #ifndef WIN32
 	/** Library handle. */
@@ -360,8 +353,11 @@ typedef void *(*f_plug_pinit) ();
 #	define plugins_dlsym(lib, name) GetProcAddress(lib, name)
 #endif
 
+/** Check if the specified filename is a plugin file. */
+#define FILENAME_IS_PLUGIN(_path) (strstr((_path), "plugin_") && !strcmp((_path) + strlen((_path)) - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
+
 /** One loaded plugin. */
-typedef struct _atrinik_plugin
+typedef struct atrinik_plugin
 {
 	/** Event handler function. */
 	f_plug_api eventfunc;
@@ -385,7 +381,7 @@ typedef struct _atrinik_plugin
 	sint8 gevent[GEVENT_NUM];
 
 	/** Next plugin in list. */
-	struct _atrinik_plugin *next;
+	struct atrinik_plugin *next;
 } atrinik_plugin;
 
 /**
@@ -412,11 +408,11 @@ extern MODULEAPI void *triggerEvent(int *type, ...);
 
 /**
  * Called by the server when the plugin loading is completed. */
-extern MODULEAPI void postinitPlugin();
+extern MODULEAPI void postinitPlugin(void);
 
 /**
  * Called when the plugin is about to be unloaded. */
-extern MODULEAPI void closePlugin();
+extern MODULEAPI void closePlugin(void);
 /*@}*/
 
 #endif

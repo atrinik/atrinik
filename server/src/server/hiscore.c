@@ -172,7 +172,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
 	if (sc->killer[0] == '\0')
 	{
-		snprintf(buf, size, "~%3d~ %s ~%s~ the %s (%s) <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s (%s) <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 	else
 	{
@@ -189,7 +189,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 			s2 = sc->killer;
 		}
 
-		snprintf(buf, size, "~%3d~ %s ~%s~ the %s %s %s on map %s <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s %s %s on map %s <%d><%d><%d>.", sc->position, format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
 	}
 
 	return buf;
@@ -323,7 +323,7 @@ static void hiscore_load(score_table *table)
 
 /**
  * Initializes the module. */
-void hiscore_init()
+void hiscore_init(void)
 {
 	snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/%s", settings.localdir, HIGHSCORE);
 	hiscore_load(&hiscore_table);
@@ -350,7 +350,7 @@ void hiscore_check(object *op, int quiet)
 	{
 		if (!quiet)
 		{
-			new_draw_info(NDI_UNIQUE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
+			draw_info(COLOR_WHITE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
 		}
 
 		return;
@@ -428,14 +428,14 @@ void hiscore_check(object *op, int quiet)
 		}
 	}
 
-	new_draw_info(NDI_UNIQUE, op, message);
+	draw_info(COLOR_WHITE, op, message);
 
 	if (old_score.position != -1)
 	{
-		new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&old_score, bufscore, sizeof(bufscore)));
+		draw_info(COLOR_WHITE, op, draw_one_high_score(&old_score, bufscore, sizeof(bufscore)));
 	}
 
-	new_draw_info(NDI_UNIQUE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
+	draw_info(COLOR_WHITE, op, draw_one_high_score(&new_score, bufscore, sizeof(bufscore)));
 }
 
 /**
@@ -449,7 +449,7 @@ void hiscore_display(object *op, int max, const char *match)
 	int printed_entries = 0;
 	size_t j;
 
-	new_draw_info(NDI_UNIQUE, op, "Nr    Score   Who <max hp><max sp><max grace>");
+	draw_info(COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp><max grace>");
 
 	for (j = 0; j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max; j++)
 	{
@@ -469,7 +469,7 @@ void hiscore_display(object *op, int max, const char *match)
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, scorebuf);
+			draw_info(COLOR_WHITE, op, scorebuf);
 		}
 	}
 }

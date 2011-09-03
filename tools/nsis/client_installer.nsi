@@ -2,20 +2,22 @@
 ; To make the installer, place this script in your client directory and
 ; run `makensis client_installer.nsi`
 
+!define CLIENT_VERSION "3.0"
+
 ; Installer name.
-Name "Atrinik Client 2.0"
+Name "Atrinik Client ${CLIENT_VERSION}"
 
 ; Installer filename.
-OutFile "atrinik-client-2.0.exe"
+OutFile "atrinik-client-${CLIENT_VERSION}.exe"
 
 ; Installer icon.
 Icon "bitmaps\icon.ico"
 
 ; Default installation directory.
-InstallDir "$PROGRAMFILES\Atrinik Client 2.0"
+InstallDir "$PROGRAMFILES\Atrinik Client ${CLIENT_VERSION}"
 
 ; Registry key.
-InstallDirRegKey HKLM "Software\Atrinik-Client-2.0" "Install_Dir"
+InstallDirRegKey HKLM "Software\Atrinik-Client-${CLIENT_VERSION}" "Install_Dir"
 
 ; Pages.
 Page components
@@ -34,37 +36,47 @@ Section "Client (required)"
 
   SetOutPath $INSTDIR
   File "atrinik.exe"
-  File "atrinik.p0"
+  File "up_dater.exe"
   File "*.dll"
-  File "License"
-  File "*.dat"
-  File "README.txt"
-  File "scripts_autoload"
-  FILE "timidity.cfg"
+  File "COPYING"
+  File "README"
+  File "INSTALL"
+  File "timidity.cfg"
+  File "make_win32/tools/gunzip.exe"
+  File "make_win32/tools/tar.exe"
+  File "make_win32/tools/atrinik_updater.bat"
 
   CreateDirectory $INSTDIR\bitmaps
   SetOutPath $INSTDIR\bitmaps
-  File "bitmaps\*.*"
+  File /r "bitmaps\*.*"
 
   CreateDirectory $INSTDIR\cache
   SetOutPath $INSTDIR\cache
-  File "cache\*.*"
+  File /r "cache\*.*"
+
+  CreateDirectory $INSTDIR\data
+  SetOutPath $INSTDIR\data
+  File /r "data\*.*"
+
+  CreateDirectory $INSTDIR\fonts
+  SetOutPath $INSTDIR\fonts
+  File /r "fonts\*.*"
 
   CreateDirectory $INSTDIR\gfx_user
   SetOutPath $INSTDIR\gfx_user
-  File "gfx_user\*.*"
-
-  CreateDirectory $INSTDIR\icons
-  SetOutPath $INSTDIR\icons
-  File "icons\*.*"
+  File /r "gfx_user\*.*"
 
   CreateDirectory $INSTDIR\media
   SetOutPath $INSTDIR\media
-  File "media\*.*"
+  File /r "media\*.*"
+
+  CreateDirectory $INSTDIR\settings
+  SetOutPath $INSTDIR\settings
+  File /r "settings\*.*"
 
   CreateDirectory $INSTDIR\sfx
   SetOutPath $INSTDIR\sfx
-  File "sfx\*.*"
+  File /r "sfx\*.*"
 
   CreateDirectory $INSTDIR\srv_files
   SetOutPath $INSTDIR\srv_files
@@ -74,21 +86,17 @@ Section "Client (required)"
   SetOutPath $INSTDIR\timidity
   File /r "timidity\*.*"
 
-  CreateDirectory $INSTDIR\fonts
-  SetOutPath $INSTDIR\fonts
-  File /r "fonts\*.*"
-
   SetOutPath $INSTDIR
 
-  WriteRegStr HKLM SOFTWARE\Atrinik-Client-2.0 "Install_Dir" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayName" "Atrinik Client"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayVersion" "2.0"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "DisplayIcon" "$INSTDIR\bitmaps\icon.ico"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "Publisher" "Atrinik Team"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "HelpLink" "http://www.atrinik.org"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0" "NoRepair" 1
+  WriteRegStr HKLM "SOFTWARE\Atrinik-Client-${CLIENT_VERSION}" "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "DisplayName" "Atrinik Client"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "DisplayVersion" "${CLIENT_VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "DisplayIcon" "$INSTDIR\bitmaps\icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "Publisher" "Atrinik Team"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "HelpLink" "http://www.atrinik.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
 SectionEnd
 
@@ -96,16 +104,16 @@ SectionEnd
 Section "Start Menu Shortcuts"
   SetShellVarContext all
 
-  CreateDirectory "$SMPROGRAMS\Atrinik Client 2.0"
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 2.0\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Atrinik Client 2.0\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateDirectory "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}"
+  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}\Atrinik Client.lnk" "$INSTDIR\up_dater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Optional desktop shortcut.
 Section /o "Desktop Shortcut"
   SetShellVarContext all
   
-  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\atrinik.exe" "" "$INSTDIR\bitmaps\icon.ico"
+  CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\up_dater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
 ; Uninstaller.
@@ -113,10 +121,10 @@ Section "Uninstall"
   SetShellVarContext all
 
   ; Remove registry keys.
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-2.0"
-  DeleteRegKey HKLM SOFTWARE\Atrinik-Client-2.0
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Atrinik-Client-${CLIENT_VERSION}"
+  DeleteRegKey HKLM "SOFTWARE\Atrinik-Client-${CLIENT_VERSION}"
 
   Delete /REBOOTOK "$DESKTOP\Atrinik Client.lnk"
-  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client 2.0"
+  RMDir /r /REBOOTOK "$SMPROGRAMS\Atrinik Client ${CLIENT_VERSION}"
   RMDir /r /REBOOTOK "$INSTDIR"
 SectionEnd

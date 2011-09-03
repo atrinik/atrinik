@@ -27,7 +27,7 @@
  * @file
  * Implements the skills widget. */
 
-#include <include.h>
+#include <global.h>
 
 /** The skill list. */
 static skill_entry_struct **skill_list[SKILL_LIST_TYPES];
@@ -40,6 +40,8 @@ static size_t skill_list_type = 0;
 static uint8 skill_list_filter_known;
 /** Button buffer. */
 static button_struct button_type_left, button_type_right, button_close, button_filter_known, button_help;
+/** The party list. */
+static list_struct *list_skills = NULL;
 
 /**
  * Handle double click inside the skills list.
@@ -58,14 +60,14 @@ static void list_handle_enter(list_struct *list)
 
 /**
  * Handle list::text_color_hook in the skills list. */
-static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
 {
 	size_t id;
 
 	/* If the skill is not known, use gray instead of the default color. */
 	if (skill_find_type_selected(list->text[row][col], &id) && !skill_list[skill_list_type][id]->known)
 	{
-		return COLOR_SIMPLE(COLOR_GREY);
+		return COLOR_GRAY;
 	}
 
 	return default_color;
@@ -73,23 +75,20 @@ static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color
 
 /**
  * Reload the skills list, due to a change of the skill type, for example. */
-static void skill_list_reload()
+static void skill_list_reload(void)
 {
-	list_struct *list;
 	size_t i;
 	uint32 offset, rows, selected;
 
-	list = list_exists(LIST_SKILLS);
-
-	if (!list)
+	if (!list_skills)
 	{
 		return;
 	}
 
-	offset = list->row_offset;
-	selected = list->row_selected;
-	rows = list->rows;
-	list_clear_rows(list);
+	offset = list_skills->row_offset;
+	selected = list_skills->row_selected;
+	rows = list_skills->rows;
+	list_clear(list_skills);
 
 	for (i = 0; i < skill_list_num[skill_list_type]; i++)
 	{
@@ -98,15 +97,15 @@ static void skill_list_reload()
 			continue;
 		}
 
-		list_add(list, list->rows, 0, skill_list[skill_list_type][i]->name);
+		list_add(list_skills, list_skills->rows, 0, skill_list[skill_list_type][i]->name);
 	}
 
-	list_sort(list, LIST_SORT_ALPHA);
+	list_sort(list_skills, LIST_SORT_ALPHA);
 
-	if (list->rows == rows)
+	if (list_skills->rows == rows)
 	{
-		list->row_offset = offset;
-		list->row_selected = selected;
+		list_skills->row_offset = offset;
+		list_skills->row_selected = selected;
 	}
 
 	cur_widget[SKILLS_ID]->redraw = 1;
@@ -146,7 +145,6 @@ static void button_repeat_func(button_struct *button)
  * @param widget The widget to render. */
 void widget_skills_render(widgetdata *widget)
 {
-	list_struct *list;
 	SDL_Rect box, box2;
 
 	/* Create the surface. */
@@ -155,20 +153,18 @@ void widget_skills_render(widgetdata *widget)
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
 	}
 
-	list = list_exists(LIST_SKILLS);
-
 	/* Create the skill list. */
-	if (!list)
+	if (!list_skills)
 	{
 		skill_list_filter_known = 0;
 
-		list = list_create(LIST_SKILLS, 10, 2, 12, 1, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->text_color_hook = list_text_color_hook;
-		list->surface = widget->widgetSF;
-		list_scrollbar_enable(list);
-		list_set_column(list, 0, 130, 7, NULL, -1);
-		list_set_font(list, FONT_ARIAL10);
+		list_skills = list_create(12, 1, 8);
+		list_skills->handle_enter_func = list_handle_enter;
+		list_skills->text_color_hook = list_text_color_hook;
+		list_skills->surface = widget->widgetSF;
+		list_scrollbar_enable(list_skills);
+		list_set_column(list_skills, 0, 130, 7, NULL, -1);
+		list_set_font(list_skills, FONT_ARIAL10);
 		skill_list_reload();
 
 		/* Create various buttons... */
@@ -180,6 +176,7 @@ void widget_skills_render(widgetdata *widget)
 		button_type_left.repeat_func = button_type_right.repeat_func = button_repeat_func;
 		button_close.bitmap = button_type_left.bitmap = button_type_right.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
 		button_close.bitmap_pressed = button_type_left.bitmap_pressed = button_type_right.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_close.bitmap_over = button_type_left.bitmap_over = button_type_right.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
@@ -196,23 +193,23 @@ void widget_skills_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		list->focus = 1;
-		list_show(list);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_skills, widget->x1, widget->y1);
+		list_show(list_skills, 10, 2);
 
 		box.w = 160;
-		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->skill_types[skill_list_type], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->skill_types[skill_list_type], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		/* Show the skill's description. */
-		if (list->text && skill_find_type_selected(list->text[list->row_selected - 1][0], &skill_id))
+		if (list_skills->text && skill_find_type_selected(list_skills->text[list_skills->row_selected - 1][0], &skill_id))
 		{
 			box.h = 120;
 			box.w = 150;
-			string_blt(widget->widgetSF, FONT_ARIAL10, skill_list[skill_list_type][skill_id]->desc, 160, 40, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+			string_blt(widget->widgetSF, FONT_ARIAL10, skill_list[skill_list_type][skill_id]->desc, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 		}
 
 		/* Show the skill's icon, if it's known. */
-		if (list->text && skill_list[skill_list_type][skill_id]->known)
+		if (list_skills->text && skill_list[skill_list_type][skill_id]->known)
 		{
 			_Sprite *icon = FaceList[skill_list[skill_list_type][skill_id]->icon].sprite;
 			char level_buf[MAX_BUF], exp_buf[MAX_BUF];
@@ -237,8 +234,8 @@ void widget_skills_render(widgetdata *widget)
 				exp_buf[sizeof(exp_buf) - 1] = '\0';
 			}
 
-			string_blt(widget->widgetSF, FONT_ARIAL10, level_buf, 160, widget->ht - 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL);
-			string_blt(widget->widgetSF, FONT_ARIAL10, exp_buf, 160, widget->ht - 18, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL);
+			string_blt(widget->widgetSF, FONT_ARIAL10, level_buf, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL);
+			string_blt(widget->widgetSF, FONT_ARIAL10, exp_buf, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL);
 
 			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
 			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);
@@ -266,11 +263,7 @@ void widget_skills_render(widgetdata *widget)
 	button_type_right.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
 	button_render(&button_type_right, ">");
 
-	if (skill_list_filter_known)
-	{
-		button_filter_known.pressed = 1;
-	}
-
+	button_filter_known.pressed_forced = skill_list_filter_known;
 	button_filter_known.x = widget->x1 + 158;
 	button_filter_known.y = widget->y1 + 22;
 	button_render(&button_filter_known, "Known");
@@ -282,11 +275,9 @@ void widget_skills_render(widgetdata *widget)
  * @param event The event to handle. */
 void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 {
-	list_struct *list = list_exists(LIST_SKILLS);
-
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
-	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
+	if (list_skills && list_handle_mouse(list_skills, event))
 	{
 		widget->redraw = 1;
 	}
@@ -302,7 +293,6 @@ void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_filter_known, event))
 	{
@@ -311,7 +301,7 @@ void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("skill list");
+		help_show("skill list");
 	}
 }
 
@@ -372,7 +362,7 @@ skill_entry_struct *skill_get(size_t type, size_t id)
 
 /**
  * Read skills from file. */
-void skills_init()
+void skills_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
@@ -483,7 +473,7 @@ void skills_init()
 
 /**
  * Reload the icon IDs, as they may have changed due to an update. */
-void skills_reload()
+void skills_reload(void)
 {
 	size_t type, id;
 

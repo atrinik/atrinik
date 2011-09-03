@@ -34,7 +34,7 @@ static void add_god_to_list(archetype *god_arch);
 
 /**
  * Initializes a god structure. */
-static godlink *init_godslist()
+static godlink *init_godslist(void)
 {
 	godlink *gl = (godlink *) malloc(sizeof(godlink));
 
@@ -58,7 +58,7 @@ static godlink *init_godslist()
 /**
  * This takes a look at all of the archetypes to find the objects which
  * correspond to the @ref GOD "gods". */
-void init_gods()
+void init_gods(void)
 {
 	archetype *at = NULL;
 
@@ -113,7 +113,7 @@ static void add_god_to_list(archetype *god_arch)
 /**
  * Returns a random god.
  * @return A random god, or NULL if no god was found. */
-godlink *get_rand_god()
+godlink *get_rand_god(void)
 {
 	godlink *god = first_god;
 	int i;
@@ -154,7 +154,7 @@ object *pntr_to_god_obj(godlink *godlnk)
 }
 
 /** Frees all god information. */
-void free_all_god()
+void free_all_god(void)
 {
 	godlink *god, *godnext;
 
@@ -170,7 +170,7 @@ void free_all_god()
 
 /**
  * Prints all gods using LOG(). */
-void dump_gods()
+void dump_gods(void)
 {
 	godlink *glist;
 

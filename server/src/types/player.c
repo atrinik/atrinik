@@ -28,11 +28,6 @@
  * Player related functions. */
 
 #include <global.h>
-#ifndef WIN32
-#include <pwd.h>
-#endif
-#include <sounds.h>
-#include <newclient.h>
 
 static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);
@@ -96,11 +91,11 @@ void display_motd(object *op)
 			*cp = '\0';
 		}
 
-		new_draw_info(NDI_UNIQUE, op, buf);
+		draw_info(COLOR_WHITE, op, buf);
 	}
 
 	fclose(fp);
-	new_draw_info(NDI_UNIQUE, op, " ");
+	draw_info(COLOR_WHITE, op, " ");
 }
 
 /**
@@ -166,7 +161,7 @@ static player *get_player(player *p)
 	/* Init. respawn position */
 	strcpy(p->savebed_map, first_map_path);
 
-	p->firemode_type = p->firemode_tag1 = p->firemode_tag2 = -1;
+	p->firemode_type = -1;
 	/* This is where we set up initial CONTR(op) */
 	op->custom_attrset = p;
 	p->ob = op;
@@ -248,6 +243,23 @@ void free_player(player *pl)
 		}
 
 		free(pl->cmd_permissions);
+	}
+
+	if (pl->faction_ids)
+	{
+		int i;
+
+		for (i = 0; i < pl->num_faction_ids; i++)
+		{
+			FREE_ONLY_HASH(pl->faction_ids[i]);
+		}
+
+		free(pl->faction_ids);
+	}
+
+	if (pl->faction_reputation)
+	{
+		free(pl->faction_reputation);
 	}
 
 	player_path_clear(pl);
@@ -492,7 +504,7 @@ void fire(object *op, int dir)
 			}
 
 			/* Special case - we must redirect the fire cmd to throwing something */
-			tmp = find_throw_tag(op, (tag_t) CONTR(op)->firemode_tag1);
+			tmp = find_throw_tag(op);
 
 			if (tmp)
 			{
@@ -548,22 +560,19 @@ void fire(object *op, int dir)
 			return;
 
 		case range_bow:
-			if (CONTR(op)->firemode_tag2 != -1 || CONTR(op)->socket.socket_version >= 1048)
+			/* Still need to recover from range action? */
+			if (!check_skill_action_time(op, op->chosen_skill))
 			{
-				/* Still need to recover from range action? */
-				if (!check_skill_action_time(op, op->chosen_skill))
-				{
-					return;
-				}
+				return;
+			}
 
-				bow_fire(op, dir);
-				get_skill_time(op, op->chosen_skill->stats.sp);
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
+			bow_fire(op, dir);
+			get_skill_time(op, op->chosen_skill->stats.sp);
+			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
-				if (CONTR(op)->last_action_timer > 0)
-				{
-					CONTR(op)->action_timer *= -1;
-				}
+			if (CONTR(op)->last_action_timer > 0)
+			{
+				CONTR(op)->action_timer *= -1;
 			}
 
 			return;
@@ -589,7 +598,7 @@ void fire(object *op, int dir)
 			/* Only change the action timer if the spell required mana/grace cost (ie, was successful). */
 			if (spellcost)
 			{
-				CONTR(op)->action_casting = ROUND_TAG + spells[CONTR(op)->chosen_spell].time;
+				CONTR(op)->action_casting = global_round_tag + spells[CONTR(op)->chosen_spell].time;
 				CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 
 				if (CONTR(op)->last_action_timer > 0)
@@ -623,11 +632,11 @@ void fire(object *op, int dir)
 			if (weap->stats.food <= 0)
 			{
 				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
-				new_draw_info(NDI_UNIQUE, op, "The wand says poof.");
+				draw_info(COLOR_WHITE, op, "The wand says poof.");
 				return;
 			}
 
-			new_draw_info(NDI_UNIQUE, op, "fire wand");
+			draw_info(COLOR_WHITE, op, "fire wand");
 
 			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CAST_WAND, NULL))
 			{
@@ -683,7 +692,7 @@ trick_jump:
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You have no tool readied.");
+					draw_info_format(COLOR_WHITE, op, "You have no tool readied.");
 					return;
 				}
 			}
@@ -697,7 +706,7 @@ trick_jump:
 			 * don't allow using the device. */
 			if (!CONTR(op)->exp_ptr[EXP_MAGICAL] || weap->level > CONTR(op)->exp_ptr[EXP_MAGICAL]->level + settings.magic_devices_level)
 			{
-				new_draw_info_format(NDI_UNIQUE, op, "The %s is impossible to handle for you.", weap->name);
+				draw_info_format(COLOR_WHITE, op, "The %s is impossible to handle for you.", weap->name);
 				return;
 			}
 
@@ -707,11 +716,11 @@ trick_jump:
 
 				if (CONTR(op)->shoottype == range_rod)
 				{
-					new_draw_info(NDI_UNIQUE, op, "The rod whines for a while, but nothing happens.");
+					draw_info(COLOR_WHITE, op, "The rod whines for a while, but nothing happens.");
 				}
 				else
 				{
-					new_draw_info(NDI_UNIQUE, op, "No matter how hard you try you can't get another note out.");
+					draw_info(COLOR_WHITE, op, "No matter how hard you try you can't get another note out.");
 				}
 
 				return;
@@ -744,13 +753,13 @@ trick_jump:
 			if (!op->chosen_skill)
 			{
 				if (op->type == PLAYER)
-					new_draw_info(NDI_UNIQUE, op, "You have no applicable skill to use.");
+					draw_info(COLOR_WHITE, op, "You have no applicable skill to use.");
 				return;
 			}
 
 			if (op->chosen_skill->sub_type != ST1_SKILL_USE)
 			{
-				new_draw_info(NDI_UNIQUE, op, "You can't use this skill in this way.");
+				draw_info(COLOR_WHITE, op, "You can't use this skill in this way.");
 			}
 			else
 			{
@@ -760,7 +769,7 @@ trick_jump:
 			return;
 
 		default:
-			new_draw_info(NDI_UNIQUE, op, "Illegal shoot type.");
+			draw_info(COLOR_WHITE, op, "Illegal shoot type.");
 			return;
 	}
 }
@@ -910,7 +919,7 @@ static int save_life(object *op)
 		if (QUERY_FLAG(tmp, FLAG_APPLIED) && QUERY_FLAG(tmp, FLAG_LIFESAVE))
 		{
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
-			new_draw_info_format(NDI_UNIQUE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
+			draw_info_format(COLOR_WHITE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
 			if (CONTR(op))
 			{
@@ -983,7 +992,7 @@ static void remove_unpaid_objects(object *op, object *env)
 static int get_regen_amount(uint16 regen, uint16 *remainder)
 {
 	int ret = 0;
-	float div;
+	float division;
 
 	/* Check whether it's time to update the remainder variable (which
 	 * will distribute the remainder evenly over time). */
@@ -994,18 +1003,18 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 
 	/* First check if we can distribute it evenly, if not, try to remove
 	 * leftovers, if any. */
-	for (div = (float) 1000000 / MAX_TIME; ; div = 1.0f)
+	for (division = (float) 1000000 / MAX_TIME; ; division = 1.0f)
 	{
-		if (*remainder / 10.0f / div >= 1.0f)
+		if (*remainder / 10.0f / division >= 1.0f)
 		{
-			int add = (int) *remainder / 10.0f / div;
+			int add = (int) *remainder / 10.0f / division;
 
 			ret += add;
 			*remainder -= add * 10;
 			break;
 		}
 
-		if (div == 1.0f)
+		if (division == 1.0f)
 		{
 			break;
 		}
@@ -1128,20 +1137,20 @@ void do_some_living(object *op)
 			{
 				if (CONTR(op)->combat_mode)
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You stop combat and start praying to %s...", god->name);
+					draw_info_format(COLOR_WHITE, op, "You stop combat and start praying to %s...", god->name);
 					CONTR(op)->combat_mode = 0;
 					send_target_command(CONTR(op));
 				}
 				else
 				{
-					new_draw_info_format(NDI_UNIQUE, op, "You start praying to %s...", god->name);
+					draw_info_format(COLOR_WHITE, op, "You start praying to %s...", god->name);
 				}
 
 				CONTR(op)->was_praying = 1;
 			}
 			else
 			{
-				new_draw_info(NDI_UNIQUE, op, "You worship no deity to pray to!");
+				draw_info(COLOR_WHITE, op, "You worship no deity to pray to!");
 				CONTR(op)->praying = 0;
 			}
 		}
@@ -1153,7 +1162,7 @@ void do_some_living(object *op)
 	}
 	else if (!CONTR(op)->praying && CONTR(op)->was_praying)
 	{
-		new_draw_info(NDI_UNIQUE, op, "You stop praying.");
+		draw_info(COLOR_WHITE, op, "You stop praying.");
 		CONTR(op)->was_praying = 0;
 	}
 
@@ -1183,7 +1192,7 @@ void do_some_living(object *op)
 		if (op->stats.grace >= op->stats.maxgrace)
 		{
 			op->stats.grace = op->stats.maxgrace;
-			new_draw_info(NDI_UNIQUE, op, "You are full of grace and stop praying.");
+			draw_info(COLOR_WHITE, op, "You are full of grace and stop praying.");
 			CONTR(op)->was_praying = 0;
 		}
 	}
@@ -1220,7 +1229,7 @@ void do_some_living(object *op)
 			{
 				if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
 				{
-					new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+					draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
 					manual_apply(op, tmp, 0);
 
 					if (op->stats.food >= 0 || op->stats.hp < 0)
@@ -1239,7 +1248,7 @@ void do_some_living(object *op)
 		 * eat flesh instead. */
 		if (op->stats.food < 0 && op->stats.hp >= 0 && flesh)
 		{
-			new_draw_info(NDI_UNIQUE, op, "You blindly grab for a bite of food.");
+			draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
 			manual_apply(op, flesh, 0);
 		}
 	}
@@ -1252,7 +1261,7 @@ void do_some_living(object *op)
 
 	if ((op->stats.hp <= 0 || op->stats.food < 0) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
-		new_draw_info_format(NDI_ALL, NULL, "%s starved to death.", op->name);
+		draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s starved to death.", op->name);
 		strcpy(CONTR(op)->killer, "starvation");
 		kill_player(op);
 	}
@@ -1276,7 +1285,7 @@ void kill_player(object *op)
 
 	if (pvp_area(NULL, op))
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
+		draw_info(COLOR_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
 
 		/* Restore player */
 		cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
@@ -1370,7 +1379,7 @@ void kill_player(object *op)
 			check_stat_bounds(&(op->stats));
 			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
 			check_stat_bounds(&(CONTR(op)->orig_stats));
-			new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
+			draw_info(COLOR_WHITE, op, lose_msg[i]);
 			lost_a_stat = 1;
 		}
 		else if (op->level > 3)
@@ -1435,7 +1444,7 @@ void kill_player(object *op)
 				{
 					change_attr_value(&(dep->stats), i, -1);
 					SET_FLAG(dep, FLAG_APPLIED);
-					new_draw_info(NDI_UNIQUE, op, lose_msg[i]);
+					draw_info(COLOR_WHITE, op, lose_msg[i]);
 					fix_player(op);
 					lost_a_stat = 1;
 				}
@@ -1450,11 +1459,11 @@ void kill_player(object *op)
 
 		if (god && god != shstr_cons.none)
 		{
-			new_draw_info_format(NDI_UNIQUE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
+			draw_info_format(COLOR_WHITE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
 		}
 		else
 		{
-			new_draw_info(NDI_UNIQUE, op, "For a brief moment you feel a holy presence protecting you.");
+			draw_info(COLOR_WHITE, op, "For a brief moment you feel a holy presence protecting you.");
 		}
 	}
 
@@ -1507,7 +1516,7 @@ void kill_player(object *op)
 	enter_player_savebed(op);
 
 	/* Show a nasty message */
-	new_draw_info(NDI_UNIQUE, op, "YOU HAVE DIED.");
+	draw_info(COLOR_WHITE, op, "YOU HAVE DIED.");
 	save_player(op, 1);
 }
 
@@ -1556,7 +1565,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (op->type == PLAYER && arch)
 	{
-		new_draw_info_format(NDI_UNIQUE, op, "You cast %s.", query_name(throw_ob, NULL));
+		draw_info_format(COLOR_WHITE, op, "You cast %s.", query_name(throw_ob, NULL));
 	}
 
 	if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))
@@ -1818,4 +1827,50 @@ void player_path_handle(player *pl)
 			pl->ob->speed_left--;
 		}
 	}
+}
+
+/**
+ * Get player's reputation for the specified faction.
+ * @param pl The player.
+ * @param faction The faction name.
+ * @return The faction reputation. */
+sint64 player_faction_reputation(player *pl, shstr *faction)
+{
+	int i;
+
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i] == faction)
+		{
+			return pl->faction_reputation[i];
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Update player's faction reputation.
+ * @param pl The player.
+ * @param faction Name of the faction.
+ * @param add How much to modify the player's faction reputation (if
+ * any). */
+void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
+{
+	int i;
+
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i] == faction)
+		{
+			pl->faction_reputation[i] += add;
+			return;
+		}
+	}
+
+	pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+	pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+	pl->faction_ids[pl->num_faction_ids] = add_string(faction);
+	pl->faction_reputation[pl->num_faction_ids] = add;
+	pl->num_faction_ids++;
 }

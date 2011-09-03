@@ -27,7 +27,7 @@
  * @file
  * Handles scripts structures and function prototype declarations. */
 
-#include <include.h>
+#include <global.h>
 
 #ifndef SCRIPTS_H
 #define SCRIPTS_H

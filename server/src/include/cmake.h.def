@@ -1,0 +1,149 @@
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
+*                                                                       *
+* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+* and Crossfire (Multiplayer game for X-windows).                       *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 2 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
+#ifndef CMAKE_H
+#define CMAKE_H
+
+/* Is pthread available? */
+#cmakedefine HAVE_THREADS
+
+/* Is cURL available? */
+#cmakedefine HAVE_CURL
+
+/* Is zlib available? */
+#cmakedefine HAVE_ZLIB
+
+/* Is crypt available? */
+#cmakedefine HAVE_CRYPT
+
+/* Is libcheck (unit tests) available? */
+#cmakedefine HAVE_CHECK
+
+/* Build the world maker module? */
+#cmakedefine HAVE_WORLD_MAKER
+
+/* Are we compiling on GNU/Linux? */
+#cmakedefine LINUX
+
+/* The size of 'long'. */
+#define SIZEOF_LONG @SIZEOF_LONG@
+
+/* The size of 'long long'. */
+#define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+#ifndef HAVE_FCNTL_H
+#cmakedefine HAVE_FCNTL_H
+#endif
+
+#ifndef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H
+#endif
+
+#ifndef HAVE_SYS_TIME_H
+#cmakedefine HAVE_SYS_TIME_H
+#endif
+
+#ifndef HAVE_TIME_H
+#cmakedefine HAVE_TIME_H
+#endif
+
+#ifndef HAVE_STDDEF_H
+#cmakedefine HAVE_STDDEF_H
+#endif
+
+#ifndef HAVE_DIRENT_H
+#cmakedefine HAVE_DIRENT_H
+#endif
+
+#ifndef HAVE_SYS_NDIR_H
+#cmakedefine HAVE_SYS_NDIR_H
+#endif
+
+#ifndef HAVE_SYS_NDIR_H
+#cmakedefine HAVE_SYS_DIR_H
+#endif
+
+#ifndef HAVE_NDIR_H
+#cmakedefine HAVE_NDIR_H
+#endif
+
+#ifndef HAVE_CRYPT_H
+#cmakedefine HAVE_CRYPT_H
+#endif
+
+#ifndef HAVE_ARPA_INET_H
+#cmakedefine HAVE_ARPA_INET_H
+#endif
+
+#ifndef HAVE_STRERROR
+#cmakedefine HAVE_STRERROR
+#endif
+
+#ifndef HAVE_STRCASECMP
+#cmakedefine HAVE_STRCASECMP
+#endif
+
+#ifndef HAVE_STRNCASECMP
+#cmakedefine HAVE_STRNCASECMP
+#endif
+
+#ifndef HAVE_STRICMP
+#cmakedefine HAVE_STRICMP
+#endif
+
+#ifndef HAVE_STRNICMP
+#cmakedefine HAVE_STRNICMP
+#endif
+
+#ifndef HAVE_SRANDOM
+#cmakedefine HAVE_SRANDOM
+#endif
+
+#ifndef HAVE_SRAND48
+#cmakedefine HAVE_SRAND48
+#endif
+
+#ifndef HAVE_SRAND
+#cmakedefine HAVE_SRAND
+#endif
+
+#ifndef HAVE_GETDTABLESIZE
+#cmakedefine HAVE_GETDTABLESIZE
+#endif
+
+#ifndef HAVE_SYSCONF
+#cmakedefine HAVE_SYSCONF
+#endif
+
+#define COMPRESS "@COMPRESS@"
+#define UNCOMPRESS "@UNCOMPRESS@"
+#define GZIP "@GZIP@"
+#define GUNZIP "@GUNZIP@"
+#define BZIP "@BZIP@"
+#define BUNZIP "@BUNZUP@"
+
+#define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
+
+#endif

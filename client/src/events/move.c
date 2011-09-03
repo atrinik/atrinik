@@ -27,7 +27,7 @@
  * @file
  * Handles movement events. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Number of the possible directions. */
@@ -76,7 +76,7 @@ void move_keys(int num)
 		{
 			if (!fire_mode_tab[FIRE_MODE_SKILL].skill)
 			{
-				draw_info("No skill selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No skill selected.");
 				return;
 			}
 
@@ -86,7 +86,7 @@ void move_keys(int num)
 		{
 			if (!fire_mode_tab[FIRE_MODE_SPELL].spell)
 			{
-				draw_info("No spell selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No spell selected.");
 				return;
 			}
 
@@ -96,12 +96,12 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
 			{
-				draw_info("No range weapon selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No range weapon selected.");
 				return;
 			}
 			else if (fire_mode_tab[FIRE_MODE_BOW].amun == FIRE_ITEM_NO)
 			{
-				draw_info("No ammunition selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No ammunition selected.");
 				return;
 			}
 		}
@@ -109,7 +109,7 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_THROW].item == FIRE_ITEM_NO)
 			{
-				draw_info("No item selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No item selected.");
 				return;
 			}
 		}
@@ -117,7 +117,7 @@ void move_keys(int num)
 		{
 			if (fire_mode_tab[FIRE_MODE_WAND].item == FIRE_ITEM_NO)
 			{
-				draw_info("No device selected.", COLOR_WHITE);
+				draw_info(COLOR_WHITE, "No device selected.");
 				return;
 			}
 		}
@@ -146,7 +146,7 @@ void move_keys(int num)
  * @return The direction, 1-9. */
 int dir_from_tile_coords(int tx, int ty)
 {
-	int player_tile_x = options.map_size_x / 2, player_tile_y = options.map_size_y / 2;
+	int player_tile_x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2, player_tile_y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
 	int q, x, y;
 
 	if (tx == player_tile_x && ty == player_tile_y)

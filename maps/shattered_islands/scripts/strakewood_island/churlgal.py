@@ -27,7 +27,7 @@ def main():
 		me.SayTo(activator, "\nHello {0}, I am {1}.".format(activator.name, me.name))
 
 		if not qm.started():
-			me.SayTo(activator, "We've had some problems with ants, living under Fort Ghzal.\nIf you kill the ant queen, their leader, I will teach you the knowledge of the spell destruction.\nDo you ^accept^ my quest?", 1)
+			me.SayTo(activator, "We've had some problems with ants, living under Fort Ghzal.\nIf you kill the ant queen, their leader, I will teach you the knowledge of the spell destruction.\nDo you <a>accept</a> my quest?", 1)
 		elif qm.completed():
 			me.SayTo(activator, "Thank you for helping us out.", 1)
 		elif qm.finished():

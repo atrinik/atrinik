@@ -24,11 +24,11 @@ def main():
 		me.SayTo(activator, "\nHello {0}, I am {1}.".format(activator.name, me.name))
 
 		if not qm.started():
-			me.SayTo(activator, "We're currently under attack by ^orcs^ north of here. They seem to be coming out of the ^Underground City^.", 1)
+			me.SayTo(activator, "We're currently under attack by <a>orcs</a> north of here. They seem to be coming out of the <a>Underground City</a>.", 1)
 		elif qm.completed():
-			me.SayTo(activator, "Thank you for your help, we think we can keep the ^orcs^ from the ^Underground City^ at bay now.", 1)
+			me.SayTo(activator, "Thank you for your help, we think we can keep the <a>orcs</a> from the <a>Underground City</a> at bay now.", 1)
 		elif qm.finished():
-			me.SayTo(activator, "You have done very well against the ^orcs^.", 1)
+			me.SayTo(activator, "You have done very well against the <a>orcs</a>.", 1)
 			skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr("divine prayers"))
 			spell = GetSpellNr("greater healing")
 			spell_level = GetSpell(spell)["level"]
@@ -42,23 +42,23 @@ def main():
 				activator.Controller().AcquireSpell(spell)
 				qm.complete()
 		else:
-			me.SayTo(activator, "Continue fighting the ^orcs^ from the ^Underground City^ a bit more, we almost got them now!", 1)
+			me.SayTo(activator, "Continue fighting the <a>orcs</a> from the <a>Underground City</a> a bit more, we almost got them now!", 1)
 
 	elif msg == "underground city":
-		me.SayTo(activator, "\nThe Underground City is a huge city under the ground. Even right now, we're standing right above it! It has been populated by ^orcs^ and ^worse creatures^ for a long time now...")
+		me.SayTo(activator, "\nThe Underground City is a huge city under the ground. Even right now, we're standing right above it! It has been populated by <a>orcs</a> and <a>worse creatures</a> for a long time now...")
 
 	elif msg == "worse creatures":
-		me.SayTo(activator, "\nThere have been rumors of drows, skeletons, ghosts and dragons living in the ^Underground City^.")
+		me.SayTo(activator, "\nThere have been rumors of drows, skeletons, ghosts and dragons living in the <a>Underground City</a>.")
 
 	elif msg == "orcs":
-		me.SayTo(activator, "\nThe orcs have been around the ^Underground City^ for a long time, but recently have started attacking humans here in Fort Ghzal.")
+		me.SayTo(activator, "\nThe orcs have been around the <a>Underground City</a> for a long time, but recently have started attacking humans here in Fort Ghzal.")
 
 		if not qm.started():
-			me.SayTo(activator, "Do you think you could ^help^ us by fighting the orcs with us?", 1)
+			me.SayTo(activator, "Do you think you could <a>help</a> us by fighting the orcs with us?", 1)
 
 	elif msg == "help":
 		if not qm.started():
-			me.SayTo(activator, "\nHelp us by fighting the ^orcs^ north of here. Then return to me for a reward.")
+			me.SayTo(activator, "\nHelp us by fighting the <a>orcs</a> north of here. Then return to me for a reward.")
 			qm.start()
 
 main()

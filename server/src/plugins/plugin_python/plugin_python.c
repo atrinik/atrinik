@@ -28,8 +28,9 @@
  * Atrinik python plugin. */
 
 #ifdef WIN32
-#include <fcntl.h>
+#	include <fcntl.h>
 #endif
+
 #include <plugin_python.h>
 
 #include <compile.h>
@@ -150,21 +151,6 @@ static const Atrinik_Constant constants[] =
 	{"EXP_PERSONAL", EXP_PERSONAL},
 	{"EXP_PHYSICAL", EXP_PHYSICAL},
 	{"EXP_WISDOM", EXP_WISDOM},
-
-	{"COLOR_WHITE", NDI_WHITE},
-	{"COLOR_ORANGE", NDI_ORANGE},
-	{"COLOR_NAVY", NDI_NAVY},
-	{"COLOR_RED", NDI_RED},
-	{"COLOR_GREEN", NDI_GREEN},
-	{"COLOR_BLUE", NDI_BLUE},
-	{"COLOR_GREY", NDI_GREY},
-	{"COLOR_BROWN", NDI_BROWN},
-	{"COLOR_PURPLE", NDI_PURPLE},
-	{"COLOR_PINK", NDI_PINK},
-	{"COLOR_YELLOW", NDI_YELLOW},
-	{"COLOR_DK_NAVY", NDI_DK_NAVY},
-	{"COLOR_DK_GREEN", NDI_DK_GREEN},
-	{"COLOR_DK_ORANGE", NDI_DK_ORANGE},
 
 	{"NDI_SAY", NDI_SAY},
 	{"NDI_SHOUT", NDI_SHOUT},
@@ -433,6 +419,7 @@ static const Atrinik_Constant constants_types[] =
 	{"MAP_EVENT_OBJ", MAP_EVENT_OBJ},
 	{"MAP_INFO", MAP_INFO},
 	{"COMPASS", COMPASS},
+	{"SOUND_AMBIENT", SOUND_AMBIENT},
 
 	{NULL, 0}
 };
@@ -454,38 +441,46 @@ static const Atrinik_Constant constants_gender[] =
 };
 /* @endcparser */
 
-/** All the custom commands. */
-static PythonCmd CustomCommand[NR_CUSTOM_CMD];
-/** Contains the index of the next command that needs to be run. */
-static int NextCustomCommand;
-
-/** Maximum number of cached scripts. */
-#define PYTHON_CACHE_SIZE 256
-
-/** One cache entry. */
-typedef struct
+/**
+ * Color constants */
+/* @cparser
+ * @page plugin_python_constants_colors Python color constants
+ * <h2>Python color constants</h2>
+ * List of the Python plugin color constants and their meaning. */
+static const char *const constants_colors[][2] =
 {
-	/** The script file. */
-	const char *file;
+	{"COLOR_WHITE", COLOR_WHITE},
+	{"COLOR_ORANGE", COLOR_ORANGE},
+	{"COLOR_NAVY", COLOR_NAVY},
+	{"COLOR_RED", COLOR_RED},
+	{"COLOR_GREEN", COLOR_GREEN},
+	{"COLOR_BLUE", COLOR_BLUE},
+	{"COLOR_GRAY", COLOR_GRAY},
+	{"COLOR_BROWN", COLOR_BROWN},
+	{"COLOR_PURPLE", COLOR_PURPLE},
+	{"COLOR_PINK", COLOR_PINK},
+	{"COLOR_YELLOW", COLOR_YELLOW},
+	{"COLOR_DK_NAVY", COLOR_DK_NAVY},
+	{"COLOR_DK_GREEN", COLOR_DK_GREEN},
+	{"COLOR_DK_ORANGE", COLOR_DK_ORANGE},
+	{"COLOR_HGOLD", COLOR_HGOLD},
+	{"COLOR_DGOLD", COLOR_DGOLD},
+	{NULL, NULL}
+};
+/* @endcparser */
 
-	/** The cached code. */
-	PyCodeObject *code;
-
-	/** Last cached time. */
-	time_t cached_time;
-
-	/** Last used time. */
-	time_t used_time;
-} cacheentry;
-
+/** All the custom commands. */
+static python_cmd *python_commands = NULL;
+/** Next command that needs to be run. */
+static python_cmd *next_python_command = NULL;
 /** The Python cache. */
-static cacheentry python_cache[PYTHON_CACHE_SIZE];
+static python_cache_entry *python_cache = NULL;
 
 static int cmd_customPython(object *op, char *params);
 
 /**
  * Initialize the context stack. */
-static void initContextStack()
+static void initContextStack(void)
 {
 	current_context = NULL;
 	context_stack = NULL;
@@ -514,7 +509,7 @@ static void pushContext(PythonContext *context)
  * next one in the list.
  * @return NULL if there is no current context, the previous current
  * context otherwise. */
-static PythonContext *popContext()
+static PythonContext *popContext(void)
 {
 	PythonContext *oldcontext;
 
@@ -858,7 +853,7 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
  * <h1>RegisterCommand(string name, string path, float speed)</h1>
  * Register a custom command ran using Python script.
  * @param name Name of the command. For example, "roll" in order to create /roll
- * command. Note the lack forward slash in the name.
+ * command. Note the lack of forward slash in the name.
  * @param path Path to the Python script to be executed when the command is used.
  * @param speed How long it takes to execute the command; 1.0 is usually fine.
  * @throws ValueError if the command is already registered. */
@@ -866,7 +861,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
 	const char *name, *path;
 	double speed;
-	size_t i;
+	python_cmd *command;
 
 	(void) self;
 
@@ -875,28 +870,19 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
+	HASH_FIND_STR(python_commands, name, command);
+
+	if (command)
 	{
-		if (CustomCommand[i].name)
-		{
-			if (!strcmp(CustomCommand[i].name, name))
-			{
-				PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
-				return NULL;
-			}
-		}
+		PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
+		return NULL;
 	}
 
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
-	{
-		if (!CustomCommand[i].name)
-		{
-			CustomCommand[i].name = hooks->strdup_local(name);
-			CustomCommand[i].script = hooks->strdup_local(path);
-			CustomCommand[i].speed = speed;
-			break;
-		}
-	}
+	command = malloc(sizeof(python_cmd));
+	command->name = hooks->strdup_local(name);
+	command->script = hooks->strdup_local(path);
+	command->speed = speed;
+	HASH_ADD_KEYPTR(hh, python_commands, command->name, strlen(command->name), command);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1406,42 +1392,63 @@ static PyMethodDef AtrinikMethods[] =
 };
 
 /**
- * Open a Python file.
- * @param filename File to open.
- * @return Python object of the file, NULL on failure. */
-static PyObject *python_openfile(char *filename)
+ * Log a Python exception. Will also send the exception to any online
+ * DMs or those with /resetmap command permission. */
+static void PyErr_LOG(void)
 {
-	PyObject *scriptfile;
-#ifdef IS_PY3K
-	int fd = open(filename, O_RDONLY);
+	PyObject *globals, *locals, *ret;
+	PyObject *ptype, *pvalue, *ptraceback;
+	const char *err_handle =
+"from Atrinik import *\n"
+"import traceback\n"
+"exception = \"\".join(traceback.format_exception(exc_type, exc_value, exc_traceback))\n"
+"LOG(llevDebug, exception)\n"
+"def markup_escape(text):\n"
+"	markup_escape_table = {\n"
+"		\">\": \"&gt;\",\n"
+"		\"<\": \"&lt;\",\n"
+"	}\n"
+"	return \"\".join(markup_escape_table.get(c, c) for c in text)\n"
+"exception = markup_escape(exception)\n"
+"player = GetFirst(\"player\")\n"
+"while player:\n"
+"	if player.ob.f_wiz or \"resetmap\" in player.cmd_permissions:\n"
+"		player.ob.Write(exception, COLOR_RED)\n"
+"	player = player.next\n";
 
-	if (fd == -1)
+	/* Fetch the exception data. */
+	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+	PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+
+	/* Construct globals dictionary. */
+	globals = PyDict_New();
+	PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
+
+	/* Construct locals dictionary, with the exception data. */
+	locals = PyDict_New();
+	PyDict_SetItemString(locals, "exc_type", ptype);
+	PyDict_SetItemString(locals, "exc_value", pvalue);
+
+	if (ptraceback)
 	{
-		return NULL;
+		PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
+	}
+	else
+	{
+		Py_INCREF(Py_None);
+		PyDict_SetItemString(locals, "exc_traceback", Py_None);
 	}
 
-	scriptfile = PyFile_FromFd(fd, filename, "r", -1, NULL, NULL, NULL, 1);
-#else
-	if (!(scriptfile = PyFile_FromString(filename, "r")))
-	{
-		return NULL;
-	}
-#endif
+	/* Run the Python code. */
+	ret = PyRun_String(err_handle, Py_file_input, globals, locals);
 
-	return scriptfile;
-}
+	Py_XDECREF(ptype);
+	Py_XDECREF(pvalue);
+	Py_XDECREF(ptraceback);
 
-/**
- * Return a FILE object from a Python file object.
- * @param obj Python object of the file.
- * @return FILE pointer to the file. */
-static FILE *python_pyfile_asfile(PyObject *obj)
-{
-#ifdef IS_PY3K
-	return fdopen(PyObject_AsFileDescriptor(obj), "r");
-#else
-	return PyFile_AsFile(obj);
-#endif
+	Py_DECREF(globals);
+	Py_DECREF(locals);
+	Py_XDECREF(ret);
 }
 
 /**
@@ -1449,115 +1456,82 @@ static FILE *python_pyfile_asfile(PyObject *obj)
  * caching of bytecode. */
 static PyCodeObject *compilePython(char *filename)
 {
-	PyObject *scriptfile;
-	shstr *sh_path = NULL;
 	struct stat stat_buf;
-	struct _node *n;
-	int i;
-	cacheentry *replace = NULL, *run = NULL;
-
-	if (!(scriptfile = python_openfile(filename)))
-	{
-		LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
-		return NULL;
-	}
+	python_cache_entry *cache;
 
 	if (stat(filename, &stat_buf))
 	{
 		LOG(llevDebug, "Python: The script file %s can't be stat()ed.\n", filename);
-		Py_DECREF(scriptfile);
 		return NULL;
 	}
 
-	FREE_AND_COPY_HASH(sh_path, filename);
+	HASH_FIND_STR(python_cache, filename, cache);
 
-	/* Search through cache. Three cases:
-	 * 1) script in cache, but older than file  -> replace cached
-	 * 2) script in cache and up to date        -> use cached
-	 * 3) script not in cache, cache not full   -> add to end of cache
-	 * 4) script not in cache, cache full       -> replace least recently used */
-	for (i = 0; i < PYTHON_CACHE_SIZE; i++)
+	if (!cache || cache->cached_time < stat_buf.st_mtime)
 	{
-		/* Script not in cache, cache not full */
-		if (python_cache[i].file == NULL)
+		FILE *fp;
+		struct _node *n;
+		PyCodeObject *code = NULL;
+
+		if (cache)
 		{
-			/* Add to end of cache. */
-			replace = &python_cache[i];
-			break;
+			HASH_DEL(python_cache, cache);
+			Py_XDECREF(cache->code);
+			free(cache->file);
+			free(cache);
 		}
-		else if (python_cache[i].file == sh_path)
-		{
-			/* Script in cache */
-			if (python_cache[i].code == NULL || (python_cache[i].cached_time < stat_buf.st_mtime))
-			{
-				/* Cache older than file, replace cached. */
-				replace = &python_cache[i];
-			}
-			else
-			{
-				/* cache up-to-date, use cached*/
-				replace = NULL;
-				run = &python_cache[i];
-			}
 
-			break;
+		fp = fopen(filename, "r");
+
+		if (!fp)
+		{
+			LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
+			return NULL;
 		}
-		else if (replace == NULL || python_cache[i].used_time < replace->used_time)
+
+#ifdef WIN32
 		{
-			/* If we haven't found it yet, set replace to the oldest cache */
-			replace = &python_cache[i];
-		}
-	}
+			char buf[HUGE_BUF], *pystr = NULL;
+			size_t buf_len = 0, pystr_len = 0;
 
-	/* Replace a specific cache index with the file. */
-	if (replace)
-	{
-		FILE *pyfile;
-
-		Py_XDECREF(replace->code);
-		replace->code = NULL;
-
-		/* Need to replace path string? */
-		if (replace->file != sh_path)
-		{
-			if (replace->file)
+			while (fgets(buf, sizeof(buf), fp))
 			{
-				FREE_AND_CLEAR_HASH(replace->file);
+				buf_len = strlen(buf);
+				pystr_len += buf_len;
+				pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
+				strcpy(pystr + pystr_len - buf_len, buf);
+				pystr[pystr_len] = '\0';
 			}
 
-			FREE_AND_COPY_HASH(replace->file, sh_path);
+			n = PyParser_SimpleParseString(pystr, Py_file_input);
+			free(pystr);
 		}
+#else
+		n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
+#endif
 
-		pyfile = python_pyfile_asfile(scriptfile);
-
-		if ((n = PyParser_SimpleParseFile(pyfile, filename, Py_file_input)))
+		if (n)
 		{
-			replace->code = PyNode_Compile(n, filename);
+			code = PyNode_Compile(n, filename);
 			PyNode_Free(n);
 		}
 
+		fclose(fp);
+
 		if (PyErr_Occurred())
 		{
-			PyErr_Print();
-		}
-		else
-		{
-			replace->cached_time = stat_buf.st_mtime;
-			replace->used_time = time(NULL);
+			PyErr_LOG();
+			return NULL;
 		}
 
-		run = replace;
+		cache = malloc(sizeof(*cache));
+		cache->file = hooks->strdup_local(filename);
+		cache->code = code;
+		cache->cached_time = stat_buf.st_mtime;
+		HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
 	}
 
-	FREE_AND_CLEAR_HASH(sh_path);
-	Py_DECREF(scriptfile);
-
-	if (run)
-	{
-		return run->code;
-	}
-
-	return NULL;
+	return cache->code;
 }
 
 static int do_script(PythonContext *context, const char *filename, object *event)
@@ -1617,7 +1591,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 				if (PyErr_Occurred())
 				{
-					PyErr_Print();
+					PyErr_LOG();
 				}
 			}
 		}
@@ -1626,11 +1600,16 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		pushContext(context);
 		dict = PyDict_New();
 		PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins());
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
+		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
+#else
 		ret = PyEval_EvalCode(pycode, dict, NULL);
+#endif
 
 		if (PyErr_Occurred())
 		{
-			PyErr_Print();
+			PyErr_LOG();
 		}
 
 		Py_XDECREF(ret);
@@ -1859,7 +1838,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 {
 	va_list args;
 	const char *propname;
-	int i, size;
+	int size;
 	char *buf;
 
 	va_start(args, type);
@@ -1869,23 +1848,20 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	{
 		const char *cmdname = va_arg(args, const char *);
 		CommArray_s *rtn_cmd = va_arg(args, CommArray_s *);
+		python_cmd *command;
 
 		va_end(args);
 
-		for (i = 0; i < NR_CUSTOM_CMD; i++)
+		HASH_FIND_STR(python_commands, cmdname, command);
+
+		if (command)
 		{
-			if (CustomCommand[i].name != NULL)
-			{
-				if (!strcmp(CustomCommand[i].name, cmdname))
-				{
-					rtn_cmd->name = CustomCommand[i].name;
-					rtn_cmd->time = (float) CustomCommand[i].speed;
-					rtn_cmd->func = cmd_customPython;
-					rtn_cmd->flags = 0;
-					NextCustomCommand = i;
-					return rtn_cmd;
-				}
-			}
+			rtn_cmd->name = command->name;
+			rtn_cmd->time = command->speed;
+			rtn_cmd->func = cmd_customPython;
+			rtn_cmd->flags = 0;
+			next_python_command = command;
+			return rtn_cmd;
 		}
 
 		return NULL;
@@ -1921,7 +1897,7 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-	LOG(llevDebug, "Python: handling command %s using script: %s\n", CustomCommand[NextCustomCommand].name, CustomCommand[NextCustomCommand].script);
+	LOG(llevDebug, "Python: handling command %s using script: %s\n", next_python_command->name, next_python_command->script);
 
 	context->activator = op;
 	context->who = op;
@@ -1935,7 +1911,7 @@ static int cmd_customPython(object *op, char *params)
 	context->options = NULL;
 	context->returnvalue = 0;
 
-	if (!do_script(context, CustomCommand[NextCustomCommand].script, NULL))
+	if (!do_script(context, next_python_command->script, NULL))
 	{
 		freeContext(context);
 		return 0;
@@ -1950,24 +1926,33 @@ static int cmd_customPython(object *op, char *params)
 	return rv;
 }
 
-MODULEAPI void postinitPlugin()
+MODULEAPI void postinitPlugin(void)
 {
-	PyObject *scriptfile;
 	char path[HUGE_BUF];
+	FILE *fp;
 
 	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
 	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
-	scriptfile = python_openfile(path);
+	fp = fopen(path, "r");
 
-	if (scriptfile)
+	if (fp)
 	{
-		FILE *pyfile = python_pyfile_asfile(scriptfile);
+#ifdef WIN32
+		char *pystring;
 
-		PyRun_SimpleFile(pyfile, path);
-		Py_DECREF(scriptfile);
+		fclose(fp);
+
+		pystring = malloc(strlen(path) + 64);
+		sprintf(pystring, "exec(open('%s').read())", path);
+		PyRun_SimpleString(pystring);
+		free(pystring);
+#else
+		PyRun_SimpleFile(fp, path);
+		fclose(fp);
+#endif
 	}
 }
 
@@ -1982,7 +1967,7 @@ static PyModuleDef AtrinikModule =
 	NULL, NULL, NULL, NULL
 };
 
-static PyObject *PyInit_Atrinik()
+static PyObject *PyInit_Atrinik(void)
 {
 	PyObject *m = PyModule_Create(&AtrinikModule);
 	Py_INCREF(m);
@@ -2009,7 +1994,7 @@ static PyObject *module_create(const char *name)
  * @param module Module to add to.
  * @param name Name of the created module.
  * @param constants Constants to add. */
-static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *constants)
+static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *consts)
 {
 	size_t i = 0;
 	PyObject *module_tmp;
@@ -2018,9 +2003,9 @@ static void module_add_constants(PyObject *module, const char *name, const Atrin
 	module_tmp = module_create(name);
 
 	/* Append constants. */
-	while (constants[i].name)
+	while (consts[i].name)
 	{
-		PyModule_AddIntConstant(module_tmp, constants[i].name, constants[i].value);
+		PyModule_AddIntConstant(module_tmp, consts[i].name, consts[i].value);
 		i++;
 	}
 
@@ -2060,6 +2045,7 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 	PyDict_SetItemString(PyModule_GetDict(module), name, list);
 }
 
+#ifndef WIN32
 /**
  * Open a log file in replacement for stdout and stderr.
  * @param fp File pointer.
@@ -2073,10 +2059,11 @@ static PyObject *python_openlogfile(FILE *fp, char *name)
 	return PyFile_FromFile(fp, name, "w", 0);
 #endif
 }
+#endif
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d, *module_tmp, *logfile;
+	PyObject *m, *d, *module_tmp, *logfile_ptr;
 	int i;
 
 	hooks = hooklist;
@@ -2105,24 +2092,19 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
 	PyDict_SetItemString(d, "AtrinikError", AtrinikError);
 
-	for (i = 0; i < NR_CUSTOM_CMD; i++)
-	{
-		CustomCommand[i].name = NULL;
-		CustomCommand[i].script = NULL;
-		CustomCommand[i].speed = 0.0;
-	}
-
 	if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m))
 	{
 		return;
 	}
 
-	logfile = python_openlogfile(*hooks->logfile, "<stdout>");
-	PySys_SetObject("stdout", logfile);
-	PySys_SetObject("__stdout__", logfile);
-	logfile = python_openlogfile(*hooks->logfile, "<stderr>");
-	PySys_SetObject("stderr", logfile);
-	PySys_SetObject("__stderr__", logfile);
+#ifndef WIN32
+	logfile_ptr = python_openlogfile(*hooks->logfile, "<stdout>");
+	PySys_SetObject("stdout", logfile_ptr);
+	PySys_SetObject("__stdout__", logfile_ptr);
+	logfile_ptr = python_openlogfile(*hooks->logfile, "<stderr>");
+	PySys_SetObject("stderr", logfile_ptr);
+	PySys_SetObject("__stderr__", logfile_ptr);
+#endif
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
@@ -2132,6 +2114,12 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	for (i = 0; constants[i].name; i++)
 	{
 		PyModule_AddIntConstant(m, constants[i].name, constants[i].value);
+	}
+
+	/* Initialize integer constants */
+	for (i = 0; constants_colors[i][0]; i++)
+	{
+		PyModule_AddStringConstant(m, constants_colors[i][0], constants_colors[i][1]);
 	}
 
 	module_tmp = module_create("Gender");
@@ -2152,7 +2140,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	LOG(llevDebug, "Python:  [Done]\n");
 }
 
-MODULEAPI void closePlugin()
+MODULEAPI void closePlugin(void)
 {
 	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
@@ -2430,11 +2418,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 		case FIELDTYPE_FLOAT:
 			if (PyFloat_Check(value))
 			{
-				*(float *) field_ptr = (float) PyFloat_AsDouble(value);
+				*(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
 			}
 			else if (PyInt_Check(value))
 			{
-				*(float *) field_ptr = (float) PyLong_AsLong(value);
+				*(float *) field_ptr = PyLong_AsLong(value) * 1.0;
 			}
 			else
 			{

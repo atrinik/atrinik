@@ -159,4 +159,84 @@ typedef struct region_map_def
 #define RM_TYPE_TOOLTIP 2
 /*@}*/
 
+/**
+ * @defgroup RM_MAP_xxx Region map content coords
+ * Region map content coordinates.
+ *@{*/
+/** The map X position. */
+#define RM_MAP_STARTX 25
+/** The map Y position. */
+#define RM_MAP_STARTY 60
+/** Maximum width of the map. */
+#define RM_MAP_WIDTH 630
+/** Maximum height of the map. */
+#define RM_MAP_HEIGHT 345
+/*@}*/
+
+/**
+ * @defgroup RM_BUTTON_LEFT_xxx Region map left button coords
+ * Region map left button coordinates.
+ *@{*/
+/** X position of the left button. */
+#define RM_BUTTON_LEFT_STARTX 25
+/** Y position of the left button. */
+#define RM_BUTTON_LEFT_STARTY 25
+/*@}*/
+
+/**
+ * @defgroup RM_BUTTON_RIGHT_xxx Region map right button coords
+ * Region map right button coordinates.
+ *@{*/
+/** X position of the right button. */
+#define RM_BUTTON_RIGHT_STARTX 649
+/** Y position of the right button. */
+#define RM_BUTTON_RIGHT_STARTY 25
+/*@}*/
+
+/**
+ * @defgroup RM_TITLE_xxx Region map title coords
+ * Region map title coordinates.
+ *@{*/
+/** X position of the title text. */
+#define RM_TITLE_STARTX 60
+/** Y position of the title text. */
+#define RM_TITLE_STARTY 27
+/** Maximum width of the title text. */
+#define RM_TITLE_WIDTH 580
+/** Maximum height of the title text. */
+#define RM_TITLE_HEIGHT 22
+/*@}*/
+
+/**
+ * @defgroup RM_SCROLLBAR_xxx Region map scrollbar coords
+ * Region map scrollbar coordinates.
+ *@{*/
+/** X position of the vertical scrollbar. */
+#define RM_SCROLLBAR_STARTX 662
+/** Y position of the vertical scrollbar. */
+#define RM_SCROLLBAR_STARTY 60
+/** Width of the vertical scrollbar. */
+#define RM_SCROLLBAR_WIDTH 13
+/** Height of the vertical scrollbar. */
+#define RM_SCROLLBAR_HEIGHT 345
+/*@}*/
+
+/**
+ * @defgroup RM_SCROLLBARH_xxx Region map horizontal scrollbar coords
+ * Region map horizontal scrollbar coordinates.
+ *@{*/
+/** X position of the horizontal scrollbar. */
+#define RM_SCROLLBARH_STARTX 25
+/** Y position of the horizontal scrollbar. */
+#define RM_SCROLLBARH_STARTY 412
+/** Width of the horizontal scrollbar. */
+#define RM_SCROLLBARH_WIDTH 630
+/** Height of the horizontal scrollbar. */
+#define RM_SCROLLBARH_HEIGHT 13
+/*@}*/
+
+/**
+ * Check whether the mouse is inside the region map. */
+#define RM_IN_MAP(_popup, _mx, _my) ((_mx) >= (_popup)->x + RM_MAP_STARTX && (_mx) < (_popup)->x + RM_MAP_STARTX + RM_MAP_WIDTH && (_my) >= (_popup)->y + RM_MAP_STARTY && (_my) < (_popup)->y + RM_MAP_STARTY + RM_MAP_HEIGHT)
+
 #endif

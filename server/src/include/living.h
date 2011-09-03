@@ -58,27 +58,9 @@
 /* needed by skills code -b.t. */
 #define NO_STAT_VAL 99
 
-extern int dam_bonus[MAX_STAT + 1];
-extern int thaco_bonus[MAX_STAT + 1];
-extern float cha_bonus[MAX_STAT + 1];
-extern float speed_bonus[MAX_STAT + 1];
-extern uint32 weight_limit[MAX_STAT + 1];
-extern int learn_spell[MAX_STAT + 1];
-extern int savethrow[MAXLEVEL + 1];
-extern const char *const restore_msg[NUM_STATS];
-extern const char *const lose_msg[NUM_STATS];
-extern const char *const statname[NUM_STATS];
-extern const char *const short_stat_name[NUM_STATS];
-
-extern char *spellpathnames[NRSPELLPATHS];
-
 /**
  * Calculates damage based on level. */
 #define LEVEL_DAMAGE(level) (float) ((level) ? 0.75f + (level) * 0.25f : 1.0f)
-
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
 
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,
@@ -145,9 +127,5 @@ typedef struct liv
 	/** Power. */
 	sint8 Pow;
 } living;
-
-#ifdef WIN32
-#pragma pack(pop)
-#endif
 
 #endif

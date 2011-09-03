@@ -188,7 +188,7 @@ static void updates_traverse(const char *path)
 /**
  * Initialize all the file updates, traversing the updates directory,
  * creating the srv updates file, etc. */
-void updates_init()
+void updates_init(void)
 {
 	char path[HUGE_BUF];
 	FILE *fp;

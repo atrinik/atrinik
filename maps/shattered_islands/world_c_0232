@@ -2,7 +2,7 @@ arch map
 name Outpost of Dr'kass
 msg
 Created:  2011-03-26 emperorbma
-Modified: 2011-04-03 Alex Tokar
+Modified: 2011-08-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1731,7 +1731,9 @@ x 20
 y 20
 end
 arch sign
-name Into the Deep Underworld
+msg
+Into the Deep Underworld
+endmsg
 x 20
 y 20
 end

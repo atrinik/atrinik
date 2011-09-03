@@ -65,14 +65,14 @@ int apply_shop_mat(object *shop_mat, object *op)
 
 		if (shop_mat->msg)
 		{
-			new_draw_info(NDI_UNIQUE, op, shop_mat->msg);
+			draw_info(COLOR_WHITE, op, shop_mat->msg);
 		}
 		/* This check below is a bit simplistic - generally it should be correct,
 		 * but there is never a guarantee that the bottom space on the map is
 		 * actually the shop floor. */
 		else if (!rv && (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0)) != NULL && tmp->type != SHOP_FLOOR)
 		{
-			new_draw_info(NDI_UNIQUE, op, "Thank you for visiting our shop.");
+			draw_info(COLOR_WHITE, op, "Thank you for visiting our shop.");
 		}
 	}
 	/* If we get here, a player tried to leave a shop but was not able

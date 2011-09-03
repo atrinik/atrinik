@@ -27,7 +27,7 @@
  * @file
  * This file holds ignore list related code. */
 
-#include <include.h>
+#include <global.h>
 
 /** The ignore list. */
 static ignore_list_struct *ignore_list = NULL;
@@ -81,7 +81,7 @@ static int ignore_entry_remove(const char *name, const char *type)
 
 /**
  * Clear the ignore list. */
-void ignore_list_clear()
+void ignore_list_clear(void)
 {
 	ignore_list_struct *tmp, *tmp2;
 
@@ -96,7 +96,7 @@ void ignore_list_clear()
 
 /**
  * Clear the ignore list and load it from a file. */
-void ignore_list_load()
+void ignore_list_load(void)
 {
 	char buf[MAX_BUF], name[MAX_BUF], type[MAX_BUF], filename[MAX_BUF];
 	FILE *fp;
@@ -122,7 +122,7 @@ void ignore_list_load()
 
 /**
  * Save the ignore list to a file. */
-static void ignore_list_save()
+static void ignore_list_save(void)
 {
 	ignore_list_struct *tmp;
 	char filename[MAX_BUF];
@@ -166,7 +166,7 @@ int ignore_check(const char *name, const char *type)
 /**
  * Parse /ignore command.
  * @param cmd The command to parse, without the "/ignore" part. */
-void ignore_command(char *cmd)
+void ignore_command(const char *cmd)
 {
 	char name[64], type[64];
 
@@ -174,8 +174,8 @@ void ignore_command(char *cmd)
 	{
 		ignore_list_struct *tmp;
 
-		draw_info("\nIGNORE LIST", COLOR_WHITE);
-		draw_info("--------------------------", COLOR_WHITE);
+		draw_info(COLOR_WHITE, "\nIGNORE LIST");
+		draw_info(COLOR_WHITE, "--------------------------");
 
 		for (tmp = ignore_list; tmp; tmp = tmp->next)
 		{

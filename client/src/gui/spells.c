@@ -27,7 +27,7 @@
  * @file
  * Handles the spells widget code. */
 
-#include <include.h>
+#include <global.h>
 
 /**
  * Available filter types.
@@ -68,6 +68,8 @@ static const char *const filter_names[SPELLS_FILTER_ALL + 1] =
 
 /** Button buffer. */
 static button_struct button_path_left, button_path_right, button_close, button_filter_left, button_filter_right, button_filter_known, button_help;
+/** The spells list. */
+static list_struct *list_spells = NULL;
 
 /**
  * Handle double click inside the spells list.
@@ -86,7 +88,7 @@ static void list_handle_enter(list_struct *list)
 
 /**
  * Handle list::text_color_hook in the spells list. */
-static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color, uint32 row, uint32 col)
+static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
 {
 	size_t spell_id;
 	spell_entry_struct *spell;
@@ -98,7 +100,7 @@ static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color
 
 		if (!spell->known)
 		{
-			return COLOR_SIMPLE(COLOR_GREY);
+			return COLOR_GRAY;
 		}
 	}
 
@@ -108,23 +110,20 @@ static SDL_Color list_text_color_hook(list_struct *list, SDL_Color default_color
 /**
  * Reload the spells list, due to a change of the spell path, filtering
  * options, etc. */
-static void spell_list_reload()
+static void spell_list_reload(void)
 {
-	list_struct *list;
 	size_t i;
 	uint32 offset, rows, selected;
 
-	list = list_exists(LIST_SPELLS);
-
-	if (!list)
+	if (!list_spells)
 	{
 		return;
 	}
 
-	offset = list->row_offset;
-	selected = list->row_selected;
-	rows = list->rows;
-	list_clear_rows(list);
+	offset = list_spells->row_offset;
+	selected = list_spells->row_selected;
+	rows = list_spells->rows;
+	list_clear(list_spells);
 
 	for (i = 0; i < spell_list_num[spell_list_path]; i++)
 	{
@@ -146,15 +145,15 @@ static void spell_list_reload()
 			}
 		}
 
-		list_add(list, list->rows, 0, spell_list[spell_list_path][i]->name);
+		list_add(list_spells, list_spells->rows, 0, spell_list[spell_list_path][i]->name);
 	}
 
-	list_sort(list, LIST_SORT_ALPHA);
+	list_sort(list_spells, LIST_SORT_ALPHA);
 
-	if (list->rows == rows)
+	if (list_spells->rows == rows)
 	{
-		list->row_offset = offset;
-		list->row_selected = selected;
+		list_spells->row_offset = offset;
+		list_spells->row_selected = selected;
 	}
 
 	cur_widget[SPELLS_ID]->redraw = 1;
@@ -215,7 +214,6 @@ static void button_filter_adjust(int adj)
  * @param widget The widget to render. */
 void widget_spells_render(widgetdata *widget)
 {
-	list_struct *list;
 	SDL_Rect box, box2;
 
 	/* Create the surface. */
@@ -224,21 +222,19 @@ void widget_spells_render(widgetdata *widget)
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
 	}
 
-	list = list_exists(LIST_SPELLS);
-
 	/* Create the spell list. */
-	if (!list)
+	if (!list_spells)
 	{
 		spell_list_filter_known = 0;
 		spell_list_filter_type = SPELLS_FILTER_ALL;
 
-		list = list_create(LIST_SPELLS, 10, 2, 12, 1, 8);
-		list->handle_enter_func = list_handle_enter;
-		list->text_color_hook = list_text_color_hook;
-		list->surface = widget->widgetSF;
-		list_scrollbar_enable(list);
-		list_set_column(list, 0, 130, 7, NULL, -1);
-		list_set_font(list, FONT_ARIAL10);
+		list_spells = list_create(12, 1, 8);
+		list_spells->handle_enter_func = list_handle_enter;
+		list_spells->text_color_hook = list_text_color_hook;
+		list_spells->surface = widget->widgetSF;
+		list_scrollbar_enable(list_spells);
+		list_set_column(list_spells, 0, 130, 7, NULL, -1);
+		list_set_font(list_spells, FONT_ARIAL10);
 		spell_list_reload();
 
 		/* Create various buttons... */
@@ -252,6 +248,7 @@ void widget_spells_render(widgetdata *widget)
 		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
 		button_close.bitmap = button_path_left.bitmap = button_path_right.bitmap = button_filter_left.bitmap = button_filter_right.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
 		button_close.bitmap_pressed = button_path_left.bitmap_pressed = button_path_right.bitmap_pressed = button_filter_left.bitmap_pressed = button_filter_right.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
+		button_close.bitmap_over = button_path_left.bitmap_over = button_path_right.bitmap_over = button_filter_left.bitmap_over = button_filter_right.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
 	}
 
 	if (widget->redraw)
@@ -268,32 +265,32 @@ void widget_spells_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Spells", 0, 3, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
-		list->focus = 1;
-		list_show(list);
+		string_blt(widget->widgetSF, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_spells, widget->x1, widget->y1);
+		list_show(list_spells, 10, 2);
 
 		box.w = 160;
-		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_SIMPLE(COLOR_HGOLD), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		box.w = 80;
-		string_blt(widget->widgetSF, FONT_ARIAL10, filter_names[spell_list_filter_type], 160, 24, COLOR_SIMPLE(COLOR_WHITE), TEXT_ALIGN_CENTER, &box);
+		string_blt(widget->widgetSF, FONT_ARIAL10, filter_names[spell_list_filter_type], 160, 24, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 
 		/* Show the spell's description. */
-		if (list->text && spell_find_path_selected(list->text[list->row_selected - 1][0], &spell_id))
+		if (list_spells->text && spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
 		{
 			box.h = 120;
 			box.w = 150;
-			string_blt(widget->widgetSF, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->desc, 160, 40, COLOR_SIMPLE(COLOR_WHITE), TEXT_WORD_WRAP, &box);
+			string_blt(widget->widgetSF, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->desc, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP, &box);
 		}
 
 		/* Show info such as the spell cost, path status, etc if there is
 		 * a selected spell and it's a known one. */
-		if (list->text && spell_list[spell_list_path][spell_id]->known)
+		if (list_spells->text && spell_list[spell_list_path][spell_id]->known)
 		{
 			_Sprite *icon = FaceList[spell_list[spell_list_path][spell_id]->icon].sprite;
 			const char *status;
 
-			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
+			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
 
 			switch (spell_list[spell_list_path][spell_id]->path)
 			{
@@ -314,7 +311,7 @@ void widget_spells_render(widgetdata *widget)
 					break;
 			}
 
-			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_SIMPLE(COLOR_WHITE), TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
+			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
 			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
 			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);
 		}
@@ -349,11 +346,7 @@ void widget_spells_render(widgetdata *widget)
 	button_filter_right.y = widget->y1 + 24;
 	button_render(&button_filter_right, ">");
 
-	if (spell_list_filter_known)
-	{
-		button_filter_known.pressed = 1;
-	}
-
+	button_filter_known.pressed_forced = spell_list_filter_known;
 	button_filter_known.x = widget->x1 + 243;
 	button_filter_known.y = widget->y1 + 22;
 	button_render(&button_filter_known, "Known");
@@ -365,11 +358,9 @@ void widget_spells_render(widgetdata *widget)
  * @param event The event to handle. */
 void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 {
-	list_struct *list = list_exists(LIST_SPELLS);
-
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
-	if (list && list_handle_mouse(list, event->motion.x - widget->x1, event->motion.y - widget->y1, event))
+	if (list_spells && list_handle_mouse(list_spells, event))
 	{
 		widget->redraw = 1;
 	}
@@ -385,7 +376,6 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
-		button_close.pressed = 0;
 	}
 	else if (button_event(&button_filter_left, event))
 	{
@@ -402,14 +392,14 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (button_event(&button_help, event))
 	{
-		show_help("spell list");
+		help_show("spell list");
 	}
-	else if (list->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !draggingInvItem(DRAG_GET_STATUS))
+	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !draggingInvItem(DRAG_GET_STATUS))
 	{
 		size_t spell_id;
 		_Sprite *icon;
 
-		if (!spell_find_path_selected(list->text[list->row_selected - 1][0], &spell_id) || !spell_list[spell_list_path][spell_id]->known)
+		if (!spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id) || !spell_list[spell_list_path][spell_id]->known)
 		{
 			return;
 		}
@@ -481,7 +471,7 @@ spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
 
 /**
  * Initialize the spell list from file. */
-void spells_init()
+void spells_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
@@ -602,7 +592,7 @@ void spells_init()
 
 /**
  * Reload the icon IDs, as they may have changed due to an update. */
-void spells_reload()
+void spells_reload(void)
 {
 	size_t spell_path, spell_id;
 

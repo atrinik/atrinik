@@ -26,7 +26,6 @@
 
 #include <global.h>
 #include <loader.h>
-#include <newserver.h>
 
 #define YY_DECL int rmap_lex_read(RMParms *RP)
 
@@ -115,7 +114,7 @@ rmap_lex_error = 0;
  * processing mechanism here instead using something like bison
  * This skips over the space and returns the value, or "" if no value
  * is found. */
-static char *rmap_yval()
+static char *rmap_yval(void)
 {
 	static char *em = "";
 	char *cp;

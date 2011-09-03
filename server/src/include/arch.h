@@ -51,8 +51,9 @@ typedef struct archt
 
 	/** An object from which to do copy_object() */
 	object clone;
-} archetype;
 
-EXTERN archetype *first_archetype;
+	/** Hash handle. */
+	UT_hash_handle hh;
+} archetype;
 
 #endif

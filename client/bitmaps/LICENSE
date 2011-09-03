@@ -1,24 +1,39 @@
 Alex "Cleo" Tokar - GPLv2:
-	arrow_down.png
-	arrow_down2.png
-	arrow_up.png
-	arrow_up2.png
+	apply.png
 	below.png
+	below_scroll.png
 	button.png
 	button_down.png
+	button_hover.png
 	button_rect.png
 	button_rect_down.png
 	button_rect_hover.png
 	button_round.png
 	button_round_down.png
+	button_round_hover.png
+	button_large.png
+	button_large_down.png
+	button_large_hover.png
+	button_round_large.png
+	button_round_large_down.png
+	button_round_large_hover.png
+	book_border.png
 	checkbox.png
 	checkbox_on.png
+	cmark_end.png
+	cmark_middle.png
+	cmark_start.png
+	confused.png
 	content.png
-	dialog_title_keybind.png
-	dialog_title_options.png
-	dialog_title_party.png
-	dialog_title_skill.png
-	dialog_title_spell.png
+	cursed.png
+	damned.png
+	exp_border.png
+	exp_bubble.png
+	exp_bubble2.png
+	exp_line.png
+	exp_skill_border.png
+	exp_skill_bubble.png
+	exp_skill_line.png
 	eyes.png
 	fire_ready.png
 	food.png
@@ -30,40 +45,84 @@ Alex "Cleo" Tokar - GPLv2:
 	icon.ico
 	icon.png
 	icon_cogs.png
-	icon_magic.png
+	icon_magic.png  (based on: range_wizard.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
 	icon_map.png
 	icon_music.png
 	icon_party.png
-	icon_quest.png
-	icon_skill.png
+	icon_quest.png (based on: book_red.101.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
+	icon_skill.png (based on: range_skill.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
+	inv_scroll.png
 	inventory.png
 	inventory_bg.png
+	invslot.png
+	invslot_marked.png
+	invslot_u.png
 	loading_off.png
 	loading_on.png
+	lock.png
+	login_inp.png
+	magic.png
 	main_level_bg.png
 	main_stats.png
 	map_marker.png
 	menu_buttons.png
 	number.png
+	paralyzed.png
 	player_doll_bg.png (doll picture by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
 	player_info_bg.png
 	regen_bg.png
 	region_map.png
 	resist_bg.png
+	scared.png
 	servers_bg.png
 	skill_exp_bg.png
 	skill_lvl_bg.png
+	slider.png
+	slider_down.png
+	slider_long.png
+	slider_up.png
+	sp.png
+	sp_back.png
 	square_highlight.png
 	target_bg.png
+	target_hp.png
+	target_hp_b.png
 	textinput.png
 	textwin_mask.png
+	textwin_scroll.png
+	unpaid.png
+	range_buttons_left.png
+	range_buttons_off.png
+	range_buttons_right.png
+	fps.png
+	interface.png
+	interface_border.png
+	popup.png
 
 Glenn Hanna - GPLv2:
-	book.png (borders by: Alex "Cleo" Tokar - GPLv2)
+	book.png
 	news_bg.png (background by: Alex "Cleo" Tokar - GPLv2)
-	popup.png (background by: Alex "Cleo" Tokar - GPLv2)
 	servers_bg_over.png
 
-Sammy Broock - Freeware:
+Sammy Broock - GPLv2:
 	intro.png
 	intro-1024x768.png
+
+David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
+	blind.png
+	death.png
+	range.png (from player_doll_bg.png)
+	range_marker.png
+	range_skill.png
+	range_skill_no.png
+	range_throw.png
+	range_throw_no.png
+	range_tool.png
+	range_tool_no.png
+	range_wizard.png
+	range_wizard_no.png
+	target_attack.png
+	target_normal.png
+	trapped.png
+	warn_food.png
+	warn_hp.png

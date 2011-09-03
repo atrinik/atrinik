@@ -27,12 +27,21 @@
  * @file
  * Button API. */
 
-#include <include.h>
+#include <global.h>
 
+static button_struct button_mousestate;
 /**
  * Last clicked ticks to prevent single button click from triggering many
  * actions at once. */
 static uint32 ticks = 0;
+/**
+ * How many milliseconds must past before a button repeat is triggered. */
+static uint32 ticks_delay;
+
+void button_init()
+{
+	button_create(&button_mousestate);
+}
 
 /**
  * Show a button.
@@ -55,25 +64,24 @@ static uint32 ticks = 0;
  * @param flags Text @ref TEXT_xxx "flags".
  * @return 1 if left mouse button is being held over the button, 0
  * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, SDL_Color color, SDL_Color color_shadow, SDL_Color color_over, SDL_Color color_over_shadow, uint64 flags)
+int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus)
 {
 	_Sprite *sprite = Bitmaps[bitmap_id];
 	int mx, my, ret = 0, state;
-	SDL_Color use_color = color, use_color_shadow = color_shadow;
+	const char *use_color = color, *use_color_shadow = color_shadow;
 
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
 
-	/* Is the mouse inside the button, and also not on top of button's
-	 * transparent pixel? */
-	if (mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
+	/* Is the mouse inside the button? */
+	if (focus && mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
 	{
 		/* Change color. */
 		use_color = color_over;
 		use_color_shadow = color_over_shadow;
 
 		/* Left button clicked? */
-		if (state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - ticks > 125))
+		if (state == SDL_BUTTON_LEFT)
 		{
 			/* Change bitmap. */
 			if (bitmap_id_clicked != -1)
@@ -81,8 +89,12 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 				sprite = Bitmaps[bitmap_id_clicked];
 			}
 
-			ticks = SDL_GetTicks();
-			ret = 1;
+			if (!ticks || SDL_GetTicks() - ticks > ticks_delay)
+			{
+				ticks_delay = ticks ? 125 : 700;
+				ticks = SDL_GetTicks();
+				ret = 1;
+			}
 		}
 		else
 		{
@@ -90,6 +102,8 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 			{
 				sprite = Bitmaps[bitmap_id_over];
 			}
+
+			ticks = 0;
 		}
 	}
 
@@ -136,14 +150,16 @@ void button_create(button_struct *button)
 	button->bitmap = BITMAP_BUTTON;
 	button->bitmap_over = -1;
 	button->bitmap_pressed = BITMAP_BUTTON_DOWN;
+	button->bitmap_over = BITMAP_BUTTON_HOVER;
 	button->font = FONT_ARIAL10;
 	button->flags = 0;
-	button->color = COLOR_SIMPLE(COLOR_WHITE);
-	button->color_shadow = COLOR_SIMPLE(COLOR_BLACK);
-	button->color_over = COLOR_SIMPLE(COLOR_HGOLD);
-	button->color_over_shadow = COLOR_SIMPLE(COLOR_BLACK);
-
-	button->mouse_over = button->pressed = 0;
+	button->color = COLOR_WHITE;
+	button->color_shadow = COLOR_BLACK;
+	button->color_over = COLOR_HGOLD;
+	button->color_over_shadow = COLOR_BLACK;
+	button->mouse_over = button->pressed = button->pressed_forced = button->disabled = 0;
+	button->pressed_ticks = button->hover_ticks = button->pressed_repeat_ticks = 0;
+	button->repeat_func = NULL;
 }
 
 /**
@@ -155,16 +171,27 @@ void button_render(button_struct *button, const char *text)
 	_Sprite *sprite;
 
 	/* Make sure the mouse is still over the button. */
-	if (button->mouse_over)
+	if (button->mouse_over || button->pressed)
 	{
-		int mx, my;
+		int state, mx, my, mover;
 
-		SDL_GetMouseState(&mx, &my);
+		state = SDL_GetMouseState(&mx, &my);
+		mover = BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]);
 
-		if (!BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]))
+		if (!mover)
 		{
 			button->mouse_over = 0;
 		}
+
+		if (!mover || state != SDL_BUTTON_LEFT)
+		{
+			button->pressed = 0;
+		}
+	}
+
+	if (button->pressed_forced)
+	{
+		button->pressed = 1;
 	}
 
 	sprite = button_determine_sprite(button);
@@ -172,7 +199,7 @@ void button_render(button_struct *button, const char *text)
 
 	if (text)
 	{
-		SDL_Color color, color_shadow;
+		const char *color, *color_shadow;
 
 		if (button->mouse_over)
 		{
@@ -205,6 +232,11 @@ int button_event(button_struct *button, SDL_Event *event)
 {
 	_Sprite *sprite;
 	int old_mouse_over;
+
+	if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEMOTION)
+	{
+		return 0;
+	}
 
 	/* Mouse button is released, the button is no longer being pressed. */
 	if (event->type == SDL_MOUSEBUTTONUP)

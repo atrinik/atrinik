@@ -27,7 +27,7 @@
  * @file
  *  */
 
-#include <include.h>
+#include <global.h>
 
 /** Quick slot entries */
 static _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
@@ -104,7 +104,7 @@ static void quickslot_unset(uint8 slot)
 	send_socklist(sl);
 }
 
-void quickslots_init()
+void quickslots_init(void)
 {
 	size_t slot;
 
@@ -141,7 +141,7 @@ static void quickslots_remove(int tag)
 }
 
 /* Handle quickslot key event. */
-void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
+void quickslots_handle_key(int slot)
 {
 	int tag, real_slot;
 
@@ -149,7 +149,7 @@ void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
 	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
 
 	/* Put item into quickslot */
-	if (key && key->keysym.mod & KMOD_SHIFT && cpl.inventory_win == IWIN_INV)
+	if (cpl.inventory_win == IWIN_INV)
 	{
 		tag = cpl.win_inv_tag;
 
@@ -176,7 +176,7 @@ void quickslots_handle_key(SDL_KeyboardEvent *key, int slot)
 		}
 	}
 	/* Apply item or ready spell */
-	else if (key)
+	else
 	{
 		if (quick_slots[slot].spell)
 		{
@@ -276,7 +276,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			blit_face(quick_slots[j].spell->icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 
 			/* If mouse is over the quickslot, show a tooltip */
-			if (cpl.menustatus == MENU_NO && mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
+			if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 			{
 				tooltip_create(mx, my, FONT_ARIAL10, quick_slots[j].spell->name);
 			}
@@ -295,14 +295,14 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 				/* And show tooltip, if mouse is over it */
 				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
 				{
-					show_tooltip(mx, my, tmp->s_name);
+					tooltip_create(mx, my, FONT_ARIAL10, tmp->s_name);
 				}
 			}
 		}
 
 		/* For each quickslot, output the F1-F8 shortcut */
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 6, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
@@ -310,11 +310,11 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x + 3, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		StringBlt(ScreenSurface, &Font6x3Out, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_DEFAULT, NULL, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 
@@ -375,7 +375,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 
 				if (!object_find_object_inv(cpl.ob, cpl.dragging.tag))
 				{
-					draw_info("Only items from main inventory are allowed in quickslots.", COLOR_RED);
+					draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
 				}
 				else
 				{

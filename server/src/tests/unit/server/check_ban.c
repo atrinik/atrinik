@@ -69,7 +69,7 @@ START_TEST(test_remove_ban)
 }
 END_TEST
 
-static Suite *ban_suite()
+static Suite *ban_suite(void)
 {
 	Suite *s = suite_create("ban");
 	TCase *tc_core = tcase_create("Core");
@@ -84,7 +84,7 @@ static Suite *ban_suite()
 	return s;
 }
 
-void check_server_ban()
+void check_server_ban(void)
 {
 	Suite *s = ban_suite();
 	SRunner *sr = srunner_create(s);

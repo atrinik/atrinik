@@ -28,23 +28,6 @@
  * Socket initialization related code. */
 
 #include <global.h>
-
-#ifndef WIN32
-#	include <sys/types.h>
-#	include <sys/time.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#	include <netdb.h>
-#	include <sys/stat.h>
-#	include <stdio.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
-#include <newserver.h>
 #include "zlib.h"
 
 /** All the server/client files. */
@@ -165,7 +148,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 /**
  * This sets up the socket and reads all the image information into
  * memory. */
-void init_ericserver()
+void init_ericserver(void)
 {
 	struct sockaddr_in insock;
 	struct linger linger_opt;
@@ -287,7 +270,7 @@ void init_ericserver()
 
 /**
  * Frees all the memory that ericserver allocates. */
-void free_all_newserver()
+void free_all_newserver(void)
 {
 	LOG(llevDebug, "Freeing all new client/server information.\n");
 
@@ -408,7 +391,7 @@ static void load_srv_file(char *fname, int id)
 /**
  * Get the lib/settings default file and create the data/client_settings
  * file from it. */
-static void create_client_settings()
+static void create_client_settings(void)
 {
 	char buf[MAX_BUF * 4];
 	int i;
@@ -459,7 +442,7 @@ static void create_client_settings()
 /**
  * Get the lib/server_settings default file and create the
  * data/server_settings file from it. */
-static void create_server_settings()
+static void create_server_settings(void)
 {
 	char buf[MAX_BUF];
 	size_t i;
@@ -494,7 +477,7 @@ static void create_server_settings()
 
 /**
  * Initialize animations file for the client. */
-static void create_server_animations()
+static void create_server_animations(void)
 {
 	char buf[MAX_BUF];
 	FILE *fp, *fp2;
@@ -543,7 +526,7 @@ static void create_server_animations()
  *
  * client_bmaps is generated from the server at startup out of the
  * Atrinik png file. */
-void init_srv_files()
+void init_srv_files(void)
 {
 	char buf[MAX_BUF];
 
@@ -551,6 +534,9 @@ void init_srv_files()
 
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_HFILES);
+
+	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.datadir);
+	load_srv_file(buf, SRV_CLIENT_HFILES_V2);
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
 	load_srv_file(buf, SRV_CLIENT_ANIMS);
@@ -593,7 +579,7 @@ void init_srv_files()
 
 /**
  * Free all server files previously initialized by init_srv_files(). */
-void free_srv_files()
+void free_srv_files(void)
 {
 	int i;
 
@@ -622,16 +608,8 @@ void send_srv_file(socket_struct *ns, int id)
 	sl.buf = malloc(SrvClientFiles[id].len + 6);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DATA);
-
-	if (ns->socket_version < 1036)
-	{
-		SockList_AddChar(&sl, (char) (id + 1) | DATA_PACKED_CMD);
-	}
-	else
-	{
 	SockList_AddChar(&sl, (char) id);
 	SockList_AddInt(&sl, SrvClientFiles[id].len_ucomp);
-	}
 
 	memcpy(sl.buf + sl.len, SrvClientFiles[id].file, SrvClientFiles[id].len);
 	sl.len += SrvClientFiles[id].len;

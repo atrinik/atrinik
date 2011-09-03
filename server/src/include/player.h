@@ -27,6 +27,9 @@
  * @file
  * Handles player related structures, enums and defines. */
 
+#ifndef PLAYER_H
+#define PLAYER_H
+
 /** Level color structure. */
 typedef struct _level_color
 {
@@ -48,8 +51,6 @@ typedef struct _level_color
 	/** Purple level. */
 	int purple;
 }_level_color;
-
-extern _level_color level_color[201];
 
 /** Fire modes submitted from client. */
 enum
@@ -182,9 +183,17 @@ enum
 	READY_OBJ_MAX
 };
 
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
+/** Minimum length a player name must have. */
+#define PLAYER_NAME_MIN 2
+
+/** Maximum length a player name can have. */
+#define PLAYER_NAME_MAX 12
+
+/** Minimum length a player password must have. */
+#define PLAYER_PASSWORD_MIN 2
+
+/** Maximum length a player password can have. */
+#define PLAYER_PASSWORD_MAX 30
 
 /** The player structure. */
 typedef struct pl_player
@@ -230,14 +239,17 @@ typedef struct pl_player
 	/** Holds arbitrary input from client. */
 	char write_buf[MAX_BUF];
 
-	/** 2 (seed) + 11 (crypted) + 1 (EOS) + 2 (safety) = 16 */
-	char password[16];
+	/** The player's password. May be encrypted. */
+	char password[PLAYER_PASSWORD_MAX + 1];
 
 	/** Player the DM is following. */
 	char followed_player[BIG_NAME];
 
 	/** DM command permissions. */
 	char **cmd_permissions;
+
+	/** Faction IDs. */
+	shstr **faction_ids;
 
 	/** Last map info name sent. */
 	char map_info_name[HUGE_BUF];
@@ -303,13 +315,11 @@ typedef struct pl_player
 	/** Player's quest container. */
 	object *quest_container;
 
-	/**
-	 * Readied objects (arrows, quivers, bolts, etc). Whenever a readied
-	 * object is removed by remove_ob(), the applicable entry is removed
-	 * from this array (set to NULL), thus no additional checking like
-	 * "is the object still in player's inventory" or "does the object
-	 * even exist" is necessary. */
+	/** Readied objects (arrows, quivers, bolts, etc). */
 	object *ready_object[READY_OBJ_MAX];
+
+	/** UIDs of the readied objects. */
+	tag_t ready_object_tag[READY_OBJ_MAX];
 
 	/** For the client target HP marker. */
 	int target_hp;
@@ -328,12 +338,6 @@ typedef struct pl_player
 
 	/** firemode_xxx are set from command_fire() */
 	int firemode_type;
-
-	/** ID of the object being thrown. @deprecated */
-	int firemode_tag1;
-
-	/** ID of the object being used as ammunition for bow/crossbow/etc. @deprecated */
-	int firemode_tag2;
 
 	/**
 	 * Array showing what spaces the player can see. For maps smaller
@@ -363,6 +367,15 @@ typedef struct pl_player
 
 	/** Number of player::cmd_permissions. */
 	int num_cmd_permissions;
+
+	/** Number of faction IDs. */
+	int num_faction_ids;
+
+	/** Reputations with the various factions. */
+	sint64 *faction_reputation;
+
+	/** Fame rating in the world. */
+	sint64 fame;
 
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
 	float action_timer;
@@ -637,9 +650,6 @@ typedef struct pl_player
 	/** Last regeneration of grace sent to client. */
 	uint16 last_gen_grace;
 
-	/** Condition adjusted damage sent to client. */
-	sint16 client_dam;
-
 	/** Table of last skill levels sent to client. */
 	sint16 skill_level[NROFSKILLS];
 
@@ -678,6 +688,15 @@ typedef struct pl_player
 	 * no entry in /who list. */
 	uint8 dm_stealth;
 
+	/** Last HP sent to party members. */
+	uint8 last_party_hp;
+
+	/** Last SP sent to party members. */
+	uint8 last_party_sp;
+
+	/** Last grace sent to party members. */
+	uint8 last_party_grace;
+
 	/** Which range attack is being used by player. */
 	rangetype shoottype;
 
@@ -697,12 +716,4 @@ typedef struct pl_player
 	player_path *move_path_end;
 } player;
 
-/** Minimum length a player name must have. */
-#define PLAYER_NAME_MIN 2
-
-/** Maximum length a player name can have. */
-#define PLAYER_NAME_MAX 12
-
-#ifdef WIN32
-#pragma pack(pop)
 #endif

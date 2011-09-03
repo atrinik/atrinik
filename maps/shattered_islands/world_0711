@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-08-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -95,16 +95,16 @@ end
 arch reed_sm3
 y 20
 end
-arch water_still
+arch water_lt4
 y 21
 end
 arch grassd_m10
 y 21
 end
-arch water_still
+arch water_lt3
 y 22
 end
-arch water_still
+arch water_lt3
 y 23
 end
 arch grassd_7
@@ -210,7 +210,7 @@ arch reed_sm3
 x 1
 y 19
 end
-arch water_still
+arch water_lt3
 x 1
 y 20
 end
@@ -218,7 +218,7 @@ arch grassd_m4
 x 1
 y 20
 end
-arch water_still
+arch water_lt2
 x 1
 y 21
 end
@@ -226,11 +226,11 @@ arch grassd_m13
 x 1
 y 21
 end
-arch water_still
+arch water_lt2
 x 1
 y 22
 end
-arch water_still
+arch water_lt3
 x 1
 y 23
 end
@@ -333,7 +333,7 @@ arch reed_sm10
 x 2
 y 18
 end
-arch water_still
+arch water_lt2
 x 2
 y 19
 end
@@ -341,7 +341,7 @@ arch grassd_m4
 x 2
 y 19
 end
-arch water_still
+arch water_lt4
 x 2
 y 20
 end
@@ -349,15 +349,15 @@ arch grassd_m13
 x 2
 y 20
 end
-arch water_still
+arch water_lt4
 x 2
 y 21
 end
-arch water_still
+arch water_lt3
 x 2
 y 22
 end
-arch water_still
+arch water_lt4
 x 2
 y 23
 end
@@ -460,7 +460,7 @@ arch reed_sm10
 x 3
 y 18
 end
-arch water_still
+arch water_lt4
 x 3
 y 19
 end
@@ -468,19 +468,19 @@ arch grassd_m10
 x 3
 y 19
 end
-arch water_still
+arch water_lt
 x 3
 y 20
 end
-arch water_still
+arch water_lt
 x 3
 y 21
 end
-arch water_still
+arch water_lt3
 x 3
 y 22
 end
-arch water_still
+arch water_lt
 x 3
 y 23
 end
@@ -587,7 +587,7 @@ arch reed_sm3
 x 4
 y 18
 end
-arch water_still
+arch water_lt3
 x 4
 y 19
 end
@@ -595,19 +595,19 @@ arch grassd_m10
 x 4
 y 19
 end
-arch water_still
+arch water_lt2
 x 4
 y 20
 end
-arch water_still
+arch water_lt3
 x 4
 y 21
 end
-arch water_still
+arch water_lt4
 x 4
 y 22
 end
-arch water_still
+arch water_lt
 x 4
 y 23
 end
@@ -702,7 +702,7 @@ arch reed_sm10
 x 5
 y 17
 end
-arch water_still
+arch water_lt4
 x 5
 y 18
 end
@@ -710,7 +710,7 @@ arch grassd_m4
 x 5
 y 18
 end
-arch water_still
+arch water_lt
 x 5
 y 19
 end
@@ -718,19 +718,19 @@ arch grassd_m13
 x 5
 y 19
 end
-arch water_still
+arch water_lt4
 x 5
 y 20
 end
-arch water_still
+arch water_lt
 x 5
 y 21
 end
-arch water_still
+arch water_lt4
 x 5
 y 22
 end
-arch water_still
+arch water_lt3
 x 5
 y 23
 end
@@ -825,7 +825,7 @@ arch reed_sm10
 x 6
 y 17
 end
-arch water_still
+arch water_lt
 x 6
 y 18
 end
@@ -833,23 +833,23 @@ arch grassd_m10
 x 6
 y 18
 end
-arch water_still
+arch water_lt
 x 6
 y 19
 end
-arch water_still
+arch water_lt3
 x 6
 y 20
 end
-arch water_still
+arch water_lt
 x 6
 y 21
 end
-arch water_still
+arch water_lt4
 x 6
 y 22
 end
-arch water_still
+arch water_lt2
 x 6
 y 23
 end
@@ -936,7 +936,7 @@ arch reed_sm10
 x 7
 y 17
 end
-arch water_still
+arch water_lt4
 x 7
 y 18
 end
@@ -944,23 +944,23 @@ arch grassd_m10
 x 7
 y 18
 end
-arch water_still
+arch water_lt2
 x 7
 y 19
 end
-arch water_still
+arch water_lt
 x 7
 y 20
 end
-arch water_still
+arch water_lt2
 x 7
 y 21
 end
-arch water_still
+arch water_lt2
 x 7
 y 22
 end
-arch water_still
+arch water_lt3
 x 7
 y 23
 end
@@ -1062,7 +1062,7 @@ arch reed_sm10
 x 8
 y 17
 end
-arch water_still
+arch water_lt4
 x 8
 y 18
 end
@@ -1070,23 +1070,23 @@ arch grassd_m10
 x 8
 y 18
 end
-arch water_still
+arch water_lt3
 x 8
 y 19
 end
-arch water_still
+arch water_lt3
 x 8
 y 20
 end
-arch water_still
+arch water_lt4
 x 8
 y 21
 end
-arch water_still
+arch water_lt2
 x 8
 y 22
 end
-arch water_still
+arch water_lt
 x 8
 y 23
 end
@@ -1181,7 +1181,7 @@ arch reed_sm10
 x 9
 y 17
 end
-arch water_still
+arch water_lt
 x 9
 y 18
 end
@@ -1189,23 +1189,23 @@ arch grassd_m10
 x 9
 y 18
 end
-arch water_still
+arch water_lt
 x 9
 y 19
 end
-arch water_still
+arch water_lt4
 x 9
 y 20
 end
-arch water_still
+arch water_lt
 x 9
 y 21
 end
-arch water_still
+arch water_lt3
 x 9
 y 22
 end
-arch water_still
+arch water_lt4
 x 9
 y 23
 end
@@ -1296,7 +1296,7 @@ arch reed_sm10
 x 10
 y 17
 end
-arch water_still
+arch water_lt3
 x 10
 y 18
 end
@@ -1304,7 +1304,7 @@ arch grassd_m6
 x 10
 y 18
 end
-arch water_still
+arch water_lt3
 x 10
 y 19
 end
@@ -1312,19 +1312,19 @@ arch grassd_m12
 x 10
 y 19
 end
-arch water_still
+arch water_lt2
 x 10
 y 20
 end
-arch water_still
+arch water_lt
 x 10
 y 21
 end
-arch water_still
+arch water_lt3
 x 10
 y 22
 end
-arch water_still
+arch water_lt4
 x 10
 y 23
 end
@@ -1423,7 +1423,7 @@ arch reed_sm2
 x 11
 y 18
 end
-arch water_still
+arch water_lt
 x 11
 y 19
 end
@@ -1431,19 +1431,19 @@ arch grassd_m10
 x 11
 y 19
 end
-arch water_still
+arch water_lt2
 x 11
 y 20
 end
-arch water_still
+arch water_lt4
 x 11
 y 21
 end
-arch water_still
+arch water_lt4
 x 11
 y 22
 end
-arch water_still
+arch water_lt4
 x 11
 y 23
 end
@@ -1541,7 +1541,7 @@ arch reed_sm10
 x 12
 y 18
 end
-arch water_still
+arch water_lt
 x 12
 y 19
 end
@@ -1549,19 +1549,19 @@ arch grassd_m10
 x 12
 y 19
 end
-arch water_still
+arch water_lt4
 x 12
 y 20
 end
-arch water_still
+arch water_lt
 x 12
 y 21
 end
-arch water_still
+arch water_lt3
 x 12
 y 22
 end
-arch water_still
+arch water_lt2
 x 12
 y 23
 end
@@ -1660,7 +1660,7 @@ arch reed_sm10
 x 13
 y 18
 end
-arch water_still
+arch water_lt
 x 13
 y 19
 end
@@ -1668,19 +1668,19 @@ arch grassd_m10
 x 13
 y 19
 end
-arch water_still
+arch water_lt2
 x 13
 y 20
 end
-arch water_still
+arch water_lt3
 x 13
 y 21
 end
-arch water_still
+arch water_lt2
 x 13
 y 22
 end
-arch water_still
+arch water_lt3
 x 13
 y 23
 end
@@ -1771,7 +1771,7 @@ arch reed_sm10
 x 14
 y 18
 end
-arch water_still
+arch water_lt4
 x 14
 y 19
 end
@@ -1779,19 +1779,19 @@ arch grassd_m10
 x 14
 y 19
 end
-arch water_still
+arch water_lt2
 x 14
 y 20
 end
-arch water_still
+arch water_lt3
 x 14
 y 21
 end
-arch water_still
+arch water_lt4
 x 14
 y 22
 end
-arch water_still
+arch water_lt
 x 14
 y 23
 end
@@ -1894,7 +1894,7 @@ arch reed_sm10
 x 15
 y 18
 end
-arch water_still
+arch water_lt2
 x 15
 y 19
 end
@@ -1902,7 +1902,7 @@ arch grassd_m6
 x 15
 y 19
 end
-arch water_still
+arch water_lt3
 x 15
 y 20
 end
@@ -1910,15 +1910,15 @@ arch grassd_m12
 x 15
 y 20
 end
-arch water_still
+arch water_lt3
 x 15
 y 21
 end
-arch water_still
+arch water_lt3
 x 15
 y 22
 end
-arch water_still
+arch water_lt4
 x 15
 y 23
 end
@@ -2024,7 +2024,7 @@ arch reed_sm2
 x 16
 y 19
 end
-arch water_still
+arch water_lt3
 x 16
 y 20
 end
@@ -2032,15 +2032,15 @@ arch grassd_m10
 x 16
 y 20
 end
-arch water_still
+arch water_lt3
 x 16
 y 21
 end
-arch water_still
+arch water_lt3
 x 16
 y 22
 end
-arch water_still
+arch water_lt
 x 16
 y 23
 end
@@ -2135,7 +2135,7 @@ arch reed_sm10
 x 17
 y 19
 end
-arch water_still
+arch water_lt3
 x 17
 y 20
 end
@@ -2143,15 +2143,15 @@ arch grassd_m10
 x 17
 y 20
 end
-arch water_still
+arch water_lt4
 x 17
 y 21
 end
-arch water_still
+arch water_lt4
 x 17
 y 22
 end
-arch water_still
+arch water_lt
 x 17
 y 23
 end
@@ -2250,7 +2250,7 @@ arch reed_sm10
 x 18
 y 19
 end
-arch water_still
+arch water_lt
 x 18
 y 20
 end
@@ -2258,15 +2258,15 @@ arch grassd_m10
 x 18
 y 20
 end
-arch water_still
+arch water_lt3
 x 18
 y 21
 end
-arch water_still
+arch water_lt4
 x 18
 y 22
 end
-arch water_still
+arch water_lt4
 x 18
 y 23
 end
@@ -2377,7 +2377,7 @@ arch reed_sm10
 x 19
 y 19
 end
-arch water_still
+arch water_lt
 x 19
 y 20
 end
@@ -2385,15 +2385,15 @@ arch grassd_m10
 x 19
 y 20
 end
-arch water_still
+arch water_lt3
 x 19
 y 21
 end
-arch water_still
+arch water_lt2
 x 19
 y 22
 end
-arch water_still
+arch water_lt4
 x 19
 y 23
 end
@@ -2496,7 +2496,7 @@ arch reed_sm10
 x 20
 y 19
 end
-arch water_still
+arch water_lt
 x 20
 y 20
 end
@@ -2504,15 +2504,15 @@ arch grassd_m10
 x 20
 y 20
 end
-arch water_still
+arch water_lt4
 x 20
 y 21
 end
-arch water_still
+arch water_lt
 x 20
 y 22
 end
-arch water_still
+arch water_lt2
 x 20
 y 23
 end
@@ -2614,7 +2614,7 @@ arch reed_sm10
 x 21
 y 19
 end
-arch water_still
+arch water_lt4
 x 21
 y 20
 end
@@ -2622,15 +2622,15 @@ arch grassd_m10
 x 21
 y 20
 end
-arch water_still
+arch water_lt2
 x 21
 y 21
 end
-arch water_still
+arch water_lt2
 x 21
 y 22
 end
-arch water_still
+arch water_lt2
 x 21
 y 23
 end
@@ -2741,7 +2741,7 @@ arch reed_sm10
 x 22
 y 19
 end
-arch water_still
+arch water_lt
 x 22
 y 20
 end
@@ -2749,15 +2749,15 @@ arch grassd_m10
 x 22
 y 20
 end
-arch water_still
+arch water_lt2
 x 22
 y 21
 end
-arch water_still
+arch water_lt3
 x 22
 y 22
 end
-arch water_still
+arch water_lt
 x 22
 y 23
 end
@@ -2852,7 +2852,7 @@ arch reed_sm10
 x 23
 y 19
 end
-arch water_still
+arch water_lt
 x 23
 y 20
 end
@@ -2860,15 +2860,15 @@ arch grassd_m10
 x 23
 y 20
 end
-arch water_still
+arch water_lt2
 x 23
 y 21
 end
-arch water_still
+arch water_lt2
 x 23
 y 22
 end
-arch water_still
+arch water_lt4
 x 23
 y 23
 end

@@ -30,69 +30,6 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define MAX_KEYS 512
-
-/** All the key functions. */
-typedef enum key_funcs
-{
-	KEYFUNC_NO,
-	KEYFUNC_RUN,
-	KEYFUNC_MOVE,
-	KEYFUNC_CONSOLE,
-	KEYFUNC_CURSOR,
-	KEYFUNC_RANGE,
-	KEYFUNC_APPLY,
-	KEYFUNC_DROP,
-	KEYFUNC_GET,
-	KEYFUNC_LOCK,
-	KEYFUNC_MARK,
-	KEYFUNC_EXAMINE,
-	KEYFUNC_PAGEUP,
-	KEYFUNC_PAGEDOWN,
-	KEYFUNC_HELP,
-	KEYFUNC_PAGEUP_TOP,
-	KEYFUNC_PAGEDOWN_TOP,
-	KEYFUNC_OPTION,
-	KEYFUNC_SPELL,
-	KEYFUNC_KEYBIND,
-	KEYFUNC_SKILL,
-	KEYFUNC_TARGET_ENEMY,
-	KEYFUNC_TARGET_FRIEND,
-	KEYFUNC_TARGET_SELF,
-	KEYFUNC_FIREREADY,
-	KEYFUNC_COMBAT,
-	KEYFUNC_QLIST,
-} key_funcs;
-
-/** One key macro. */
-typedef struct key_macro
-{
-	/** The macro's name. */
-	char macro[64];
-
-	/** Command to run. */
-	char cmd[64];
-
-	/** One of ::key_funcs. */
-	key_funcs key;
-
-	/** A default value for commands. */
-	int value;
-
-	/** The default send mode. */
-	int mode;
-} key_macro;
-
-/** In what status we are in the key binding dialog. */
-enum
-{
-	KEYBIND_STATUS_NO,
-	KEYBIND_STATUS_EDIT,
-	KEYBIND_STATUS_EDITKEY
-};
-
-extern int old_mouse_y;
-
 enum
 {
 	DRAG_GET_STATUS = -1,
@@ -104,16 +41,18 @@ enum
 	DRAG_PDOLL
 };
 
-extern int cursor_type;
-
-SDLKey get_action_keycode, drop_action_keycode;
-
-typedef struct _keys
+/**
+ * Key information. */
+typedef struct key_struct
 {
-	int pressed; /*true: key is pressed*/
-	uint32 time; /*tick time last repeat is initiated*/
-} _keys;
+	/** If 1, the key is pressed. */
+	uint8 pressed;
 
-_keys keys[MAX_KEYS];
+	/** Last repeat time. */
+	uint32 time;
+
+	/** Whether the key is being repeated. */
+	uint8 repeated;
+} key_struct;
 
 #endif

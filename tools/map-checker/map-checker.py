@@ -65,6 +65,8 @@ class types:
 	magic_mirror = 28
 	door = 20
 	gate = 91
+	book = 8
+	magic_ear = 29
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -182,6 +184,8 @@ decor_wall_l2 = off
 decor_wall_l3 = off
 decor_wall_l4 = off
 sys_not_on_top = on
+deprecated_control_chars = off
+suspicious_dialogue_match = off
 """)
 
 config = ConfigParser()
@@ -400,6 +404,40 @@ def check_map(map):
 					if not "unpaid" in obj or obj["unpaid"] == 0:
 						add_error(map["file"], "Object '{0}' is on a shop tile but is not unpaid.".format(obj["archname"]), errors.high, x, y)
 
+## Check whether a message contains control characters like '^'.
+## @param msg The message to check.
+## @return True if the message contains any control characters, False
+## otherwise.
+def check_msg_control_chars(msg):
+	for line in msg.split("\n"):
+		# Ignore @match lines.
+		if line.startswith("@match "):
+			continue
+
+		for c in line:
+			if c == "^" or c == "~" or c == "|":
+				return True
+
+	return False
+
+## Check whether @match in the dialogue message is not using regex.
+## @param msg Message to check.
+## @return True if one of the @match tests doesn't use regex, False
+## otherwise.
+def check_msg_suspicious_match(msg):
+	for line in msg.split("\n"):
+		if line.startswith("@match "):
+			parts = line[7:].split("|")
+
+			for part in parts:
+				if part == "*":
+					continue
+
+				if part[:1] != "^" or part[-1:] != "$":
+					return True
+
+	return False
+
 # Recursively check object.
 # @param obj Object to check.
 # @param map Map.
@@ -551,6 +589,20 @@ def check_obj(obj, map):
 
 		if get_entry(obj, "no_magic") == 1:
 			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	if obj["type"] in (types.spawn_point_mob, types.book, types.sign) and config.getboolean("Errors", "deprecated_control_chars"):
+		msg = get_entry(obj, "msg")
+
+		if msg:
+			if check_msg_control_chars(msg):
+				add_error(map["file"], "Object {0} contains deprecated control characters.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+	if obj["type"] in (types.spawn_point_mob, types.magic_ear) and config.getboolean("Errors", "suspicious_dialogue_match"):
+		msg = get_entry(obj, "msg")
+
+		if msg:
+			if check_msg_suspicious_match(msg):
+				add_error(map["file"], "Object {0} has a @match that doesn't use regex.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
@@ -803,6 +855,7 @@ class ObjectParser:
 			msg = self.msg_buf[:-1]
 			# Add it to the dict without the last newline.
 			d["msg"] = msg
+			self.msg_buf = ""
 			return ("msg", msg)
 		# We are in a message, store it in a buffer.
 		elif self.in_msg:
@@ -991,6 +1044,8 @@ if not cli:
 				[pref_types.checkbox, "Layer 3 object on square with a wall", ("Errors", "decor_wall_l3")],
 				[pref_types.checkbox, "Layer 4 object on square with a wall", ("Errors", "decor_wall_l4")],
 				[pref_types.checkbox, "System object not on top of normal objects", ("Errors", "sys_not_on_top")],
+				[pref_types.checkbox, "Check for deprecated control characters", ("Errors", "deprecated_control_chars")],
+				[pref_types.checkbox, "Suspicious @match (not using regex)", ("Errors", "suspicious_dialogue_match")],
 			], "\n<b>Note:</b> You need to do a new scan to see the results."],
 			["Suppress", "These allow you to suppress an entire category of error messages.", [
 				[pref_types.checkbox, "Warning", ("Suppress", "warning")],

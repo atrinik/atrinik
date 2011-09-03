@@ -27,7 +27,7 @@
  * @file
  * Map drawing. */
 
-#include <include.h>
+#include <global.h>
 
 /** Font used for the map name. */
 #define MAP_NAME_FONT FONT_SERIF14
@@ -48,7 +48,7 @@ static int old_map_mouse_x = 0, old_map_mouse_y = 0;
 static int right_click_ticks = -1;
 
 /* Load the multi arch offsets */
-void load_mapdef_dat()
+void load_mapdef_dat(void)
 {
 	FILE *stream;
 	int i, ii, x, y, d[32];
@@ -91,14 +91,15 @@ void widget_show_mapname(widgetdata *widget)
 
 	box.w = widget->wd;
 	box.h = 0;
-	string_blt(ScreenSurface, MAP_NAME_FONT, MapData.name, widget->x1, widget->y1, COLOR_SIMPLE(COLOR_HGOLD), TEXT_MARKUP, &box);
+	string_blt(ScreenSurface, MAP_NAME_FONT, MapData.name, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box);
 }
 
 /**
  * Clear the map. */
-void clear_map()
+void clear_map(void)
 {
 	memset(&the_map, 0, sizeof(Map));
+	sound_ambient_clear();
 }
 
 /**
@@ -110,11 +111,11 @@ void display_mapscroll(int dx, int dy)
 	int x, y;
 	struct Map newmap;
 
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
-			if (x + dx < 0 || x + dx >= options.map_size_x || y + dy < 0 || y + dy >= options.map_size_y)
+			if (x + dx < 0 || x + dx >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) || y + dy < 0 || y + dy >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 			{
 				memset((char *) &(newmap.cells[x][y]), 0, sizeof(struct MapCell));
 			}
@@ -125,24 +126,8 @@ void display_mapscroll(int dx, int dy)
 		}
 	}
 
-	memcpy((char *) &the_map, (char *) & newmap, sizeof(struct Map));
-}
-
-/**
- * Draw black tiles over the map. */
-void map_draw_map_clear()
-{
-	int ypos, xpos, x, y;
-
-	for (x = 0; x < options.map_size_x; x++)
-	{
-		for (y = 0; y < options.map_size_y; y++)
-		{
-			xpos = x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
-			ypos = x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-			sprite_blt_map(Bitmaps[BITMAP_BLACKTILE], xpos, ypos, NULL, NULL, 0, 0, 0);
-		}
-	}
+	memcpy((char *) &the_map, (char *) &newmap, sizeof(struct Map));
+	sound_ambient_mapcroll(dx, dy);
 }
 
 /**
@@ -215,7 +200,7 @@ void init_map_data(int xl, int yl, int px, int py)
  * @return The height. */
 static int calc_map_cell_height(int x, int y)
 {
-	if (x >= 0 && x < options.map_size_x && y >= 0 && y < options.map_size_y)
+	if (x >= 0 && x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && y >= 0 && y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 	{
 		return the_map.cells[x][y].height[1];
 	}
@@ -236,7 +221,7 @@ void align_tile_stretch(int x, int y)
 	uint32 h;
 	int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height, my_height;
 
-	if (x < 0 || y < 0 || x >= options.map_size_x || y >= options.map_size_y)
+	if (x < 0 || y < 0 || x >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) || y >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 	{
 		return;
 	}
@@ -329,13 +314,13 @@ void align_tile_stretch(int x, int y)
  * in all directions. This is done to fix any inconsistencies, since the map
  * command doesn't send us the whole map all over again, but only new/changes
  * parts. */
-void adjust_tile_stretch()
+void adjust_tile_stretch(void)
 {
 	int x, y;
 
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
 			align_tile_stretch(x - 1, y - 1);
 			align_tile_stretch(x , y - 1);
@@ -366,8 +351,9 @@ void adjust_tile_stretch()
  * @param probe Target's HP bar.
  * @param zoom How much to zoom the face by.
  * @param align X align.
- * @param rotate Rotation in degrees. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, uint8 name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate)
+ * @param rotate Rotation in degrees.
+ * @param infravision Whether to show the object in red. */
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -375,14 +361,19 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].probe[layer] = probe;
 	the_map.cells[x][y].quick_pos[layer] = quick_pos;
 
-	the_map.cells[x][y].pcolor[layer] = name_color;
-	strncpy(the_map.cells[x][y].pname[layer], name, sizeof(the_map.cells[x][y].pname[layer]));
+	strncpy(the_map.cells[x][y].pcolor[layer], name_color, sizeof(the_map.cells[x][y].pcolor[layer]) - 1);
+	the_map.cells[x][y].pcolor[layer][sizeof(the_map.cells[x][y].pcolor[layer]) - 1] = '\0';
+
+	strncpy(the_map.cells[x][y].pname[layer], name, sizeof(the_map.cells[x][y].pname[layer]) - 1);
+	the_map.cells[x][y].pname[layer][sizeof(the_map.cells[x][y].pname[layer]) - 1] = '\0';
+
 	the_map.cells[x][y].height[layer] = height;
 	the_map.cells[x][y].zoom[layer] = zoom;
 	the_map.cells[x][y].align[layer] = align;
 	the_map.cells[x][y].draw_double[layer] = draw_double;
 	the_map.cells[x][y].alpha[layer] = alpha;
 	the_map.cells[x][y].rotate[layer] = rotate;
+	the_map.cells[x][y].infravision[layer] = infravision;
 }
 
 /**
@@ -406,6 +397,7 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].zoom[i] = 0;
 		the_map.cells[x][y].align[i] = 0;
 		the_map.cells[x][y].rotate[i] = 0;
+		the_map.cells[x][y].infravision[i] = 0;
 	}
 }
 
@@ -458,7 +450,11 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bitmap_h = face_sprite->bitmap->h;
 	bitmap_w = face_sprite->bitmap->w;
 
-	if (map->zoom[layer] && map->zoom[layer] != 100)
+	if (map->rotate[layer])
+	{
+		rotozoomSurfaceSize(bitmap_w, bitmap_h, map->rotate[layer], map->zoom[layer] ? map->zoom[layer] / 100.0 : 1.0, &bitmap_w, &bitmap_h);
+	}
+	else if (map->zoom[layer] && map->zoom[layer] != 100)
 	{
 		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[layer] / 100.0, map->zoom[layer] / 100.0, &bitmap_w, &bitmap_h);
 	}
@@ -541,7 +537,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
 
-	if (cpl.stats.flags & SF_INFRAVISION && layer == 6 && map->darkness < 150)
+	if (map->infravision[layer])
 	{
 		bltfx.flags |= BLTFX_FLAG_RED;
 	}
@@ -598,11 +594,11 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	}
 
 	/* Do we have a playername? Then print it! */
-	if (options.player_names && map->pname[layer][0])
+	if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[layer][0])
 	{
-		if (options.player_names == 1 || (options.player_names == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (options.player_names == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
+		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[layer], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[layer], 0) / 2 - 2, yl - 24, COLOR_SIMPLE(map->pcolor[layer]), TEXT_OUTLINE, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[layer], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[layer], 0) / 2 - 2, yl - 24, map->pcolor[layer], TEXT_OUTLINE, NULL);
 		}
 	}
 
@@ -638,9 +634,10 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 
 	if (map->probe[layer] && cpl.target_code)
 	{
-		int hp_col;
+		const char *hp_col;
 		Uint32 sdl_col;
 		SDL_Rect rect;
+		SDL_Color color;
 
 		if (cpl.target_hp > 90)
 		{
@@ -698,7 +695,8 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		rect.x = 0;
 		rect.y = 0;
 
-		sdl_col = SDL_MapRGB(cur_widget[MAP_ID]->widgetSF->format, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[hp_col].b);
+		text_color_parse(hp_col, &color);
+		sdl_col = SDL_MapRGB(cur_widget[MAP_ID]->widgetSF->format, color.r, color.g, color.b);
 
 		/* First draw the bar */
 		rect.x = xmpos + xtemp - 1;
@@ -728,9 +726,9 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 
 		/* Draw the name of target if it's not a player */
-		if (!(options.player_names && map->pname[layer][0]))
+		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[layer][0]))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2 - 2, yl - 24, COLOR_SIMPLE(cpl.target_color), TEXT_OUTLINE, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2 - 2, yl - 24, cpl.target_color, TEXT_OUTLINE, NULL);
 		}
 
 		/* Draw HP remaining percent */
@@ -739,25 +737,25 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 			char hp_text[9];
 
 			snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, hp_text, 0) / 2 - 2, yl - 36, COLOR_SIMPLE(hp_col), TEXT_OUTLINE, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, hp_text, 0) / 2 - 2, yl - 36, hp_col, TEXT_OUTLINE, NULL);
 		}
 	}
 }
 
 /**
  * Draw the map. */
-void map_draw_map()
+void map_draw_map(void)
 {
 	int player_height_offset;
 	int x, y, layer;
 	int tx, ty;
 
-	player_height_offset = the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1];
+	player_height_offset = the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1];
 
 	/* First draw floor and floor masks. */
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
 			for (layer = 1; layer <= 2; layer++)
 			{
@@ -767,9 +765,9 @@ void map_draw_map()
 	}
 
 	/* Now draw everything else. */
-	for (x = 0; x < options.map_size_x; x++)
+	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
-		for (y = 0; y < options.map_size_y; y++)
+		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
 			for (layer = 3; layer <= MAX_LAYERS; layer++)
 			{
@@ -778,7 +776,7 @@ void map_draw_map()
 		}
 	}
 
-	if (cpl.menustatus == MENU_NO && widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
+	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
 		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
 	}
@@ -801,7 +799,7 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 
 	if (the_map.cells[x][y].faces[1])
 	{
-		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]);
+		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1]);
 	}
 
 	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0);
@@ -854,9 +852,21 @@ void widget_map_mevent(widgetdata *widget, SDL_Event *event)
 
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
+		/* Drop item. */
+		if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
+		{
+			int old_inv_win = cpl.inventory_win;
+			int old_inv_tag = cpl.win_inv_tag;
+
+			cpl.inventory_win = IWIN_INV;
+			keybind_process_command("?DROP");
+
+			cpl.inventory_win = old_inv_win;
+			cpl.win_inv_tag = old_inv_tag;
+		}
 		/* Send target command if we released the right button in time;
 		 * otherwise the widget menu will be created. */
-		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
+		else if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
 		{
 			send_target(tx, ty);
 		}
@@ -937,44 +947,44 @@ void widget_map_render(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), 850, 600, options.used_video_bpp, 0, 0, 0, 0);
+		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), 850, 600, video_get_bpp(), 0, 0, 0, 0);
 	}
 
 	/* Make sure the map widget is always the last to handle events for. */
 	SetPriorityWidget_reverse(widget);
 
-	if (options.zoom != 100)
+	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
 	{
 		int w, h;
 
-		zoomSurfaceSize(widget->widgetSF->w, widget->widgetSF->h, options.zoom / 100.0, options.zoom / 100.0, &w, &h);
+		zoomSurfaceSize(widget->widgetSF->w, widget->widgetSF->h, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, &w, &h);
 		widget->wd = w;
 		widget->ht = h;
 	}
 
 	/* We recreate the map only when there is a change. */
-	if (map_redraw_flag && (!popup_get_visible() || popup_overlay_need_update(popup_get_visible())))
+	if (map_redraw_flag)
 	{
 		SDL_FillRect(widget->widgetSF, NULL, 0);
 		map_draw_map();
 		map_redraw_flag = 0;
 		effect_sprites_play();
 
-		if (options.zoom != 100)
+		if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
 		{
 			if (zoomed)
 			{
 				SDL_FreeSurface(zoomed);
 			}
 
-			zoomed = zoomSurface(widget->widgetSF, options.zoom / 100.0, options.zoom / 100.0, options.zoom_smooth);
+			zoomed = zoomSurface(widget->widgetSF, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 		}
 	}
 
 	box.x = widget->x1;
 	box.y = widget->y1;
 
-	if (options.zoom == 100)
+	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) == 100)
 	{
 		SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
 	}
@@ -989,17 +999,42 @@ void widget_map_render(widgetdata *widget)
 	/* Draw warning icons above player */
 	if ((gfx_toggle++ & 63) < 25)
 	{
-		if (options.warning_hp && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= options.warning_hp)
+		if (setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING) && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING))
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_HP], widget->x1 + 393 * (options.zoom / 100.0), widget->y1 + 298 * (options.zoom / 100.0), NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_WARN_HP], widget->x1 + 393 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 298 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, NULL);
 		}
 	}
 	else
 	{
 		/* Low food */
-		if (options.warning_food && ((float) cpl.stats.food / 1000.0f) * 100 <= options.warning_food)
+		if (setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING) && ((float) cpl.stats.food / 1000.0f) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING))
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], widget->x1 + 390 * (options.zoom / 100.0), widget->y1 + 294 * (options.zoom / 100.0), NULL, NULL);
+			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], widget->x1 + 390 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 294 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, NULL);
+		}
+	}
+
+	/* Process message animations */
+	if (msg_anim.message[0] != '\0')
+	{
+		if ((LastTick - msg_anim.tick) < 3000)
+		{
+			int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
+			char *msg = strdup(msg_anim.message), *cp;
+
+			cp = strtok(msg, "\n");
+
+			while (cp)
+			{
+				string_blt(ScreenSurface, FONT_SERIF16, cp, widget->x1 + widget->widgetSF->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y1 + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
+				y_offset += FONT_HEIGHT(FONT_SERIF16);
+				cp = strtok(NULL, "\n");
+			}
+
+			free(msg);
+		}
+		else
+		{
+			msg_anim.message[0] = '\0';
 		}
 	}
 
@@ -1012,6 +1047,7 @@ void widget_map_render(widgetdata *widget)
 		add_menuitem(menu, "Walk Here", &menu_map_walk_here, MENU_NORMAL, 0);
 		add_menuitem(menu, "Talk To NPC", &menu_map_talk_to, MENU_NORMAL, 0);
 		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		menu_finalize(menu);
 		right_click_ticks = -1;
 	}
 }
@@ -1062,28 +1098,28 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 
 	/* Adjust mouse x/y, making it look as if the map was drawn from
 	 * top left corner, in order to simplify comparisons below. */
-	mx -= (MAP_START_XOFF * (options.zoom / 100.0)) + cur_widget[MAP_ID]->x1;
-	my -= (MAP_START_YOFF * (options.zoom / 100.0)) + cur_widget[MAP_ID]->y1;
+	mx -= (MAP_START_XOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->x1;
+	my -= (MAP_START_YOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->y1;
 
 	/* Go through all the map squares. */
-	for (x = options.map_size_x - 1; x >= 0; x--)
+	for (x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - 1; x >= 0; x--)
 	{
-		for (y = options.map_size_y - 1; y >= 0; y--)
+		for (y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - 1; y >= 0; y--)
 		{
 			/* X/Y position of the map square. */
-			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (options.zoom / 100.0);
-			ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * (options.zoom / 100.0);
+			xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
+			ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
 
 			if (the_map.cells[x][y].faces[1])
 			{
-				ypos = (ypos - (the_map.cells[x][y].height[1]) * (options.zoom / 100.0)) + (the_map.cells[options.map_size_x - (options.map_size_x / 2) - 1][options.map_size_y - (options.map_size_y / 2) - 1].height[1]) * (options.zoom / 100.0);
+				ypos = (ypos - (the_map.cells[x][y].height[1]) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + (the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1]) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
 			}
 
 			/* See if this square matches our 48x24 box shape. */
-			if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * (options.zoom / 100.0)) && my >= ypos && my < ypos + (MAP_TILE_YOFF * (options.zoom / 100.0)))
+			if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) && my >= ypos && my < ypos + (MAP_TILE_YOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)))
 			{
 				/* See if the square matches isometric 48x24 tile. */
-				if (tile_off[(int) ((my - ypos) / (options.zoom / 100.0))][(int) ((mx - xpos) / (options.zoom / 100.0))] == '2')
+				if (tile_off[(int) ((my - ypos) / (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0))][(int) ((mx - xpos) / (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0))] == '2')
 				{
 					if (tx)
 					{

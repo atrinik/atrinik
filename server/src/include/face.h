@@ -27,6 +27,9 @@
  * @file
  * Face related structures. */
 
+#ifndef FACE_H
+#define FACE_H
+
 /**
  * Face structure - this enforces the notion that data is face by
  * face only - you can not change the color of an item - you need to instead
@@ -70,3 +73,5 @@ typedef struct
 	/** How many facings (9 and 25 are allowed only with the new ext anim system). */
 	uint8 facings;
 } Animations;
+
+#endif

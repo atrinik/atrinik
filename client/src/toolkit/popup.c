@@ -25,69 +25,13 @@
 
 /**
  * @file
- * Popup API.
- *
- * Popup is basically a specified bitmap that appears in the middle of
- * the screen, graying out the background and disabling mouse clicks and
- * keyboard actions on the background.
- *
- * Graying out the background is managed by using an overlay image, which
- * is an SDL surface created when the popup is created. The pixels from
- * ::ScreenSurface are copied to this surface and grayed out, and the
- * surface is then copied over the ::ScreenSurface before doing any
- * actual popup drawing. When the screen size changes, the overlay is
- * re-created. */
+ * Popup API. */
 
-#include <include.h>
-
-/** The currently visible popup. NULL if there is no visible popup. */
-static popup_struct *popup_visible = NULL;
+#include <global.h>
 
 /**
- * Create an overlay to be used by popup.
- * @param popup The popup. */
-static void popup_create_overlay(popup_struct *popup)
-{
-	int j, k;
-	uint8 r, g, b, a;
-
-	/* Already exists? Free it. */
-	if (popup->overlay)
-	{
-		SDL_FreeSurface(popup->overlay);
-	}
-
-	/* Create SDL surface with the same size as the ScreenSurface. */
-	popup->overlay = SDL_CreateRGBSurface(SDL_SWSURFACE, ScreenSurface->w, ScreenSurface->h, 32, 0, 0, 0, 0);
-
-	/* Copy pixels from ScreenSurface. */
-	for (k = 0; k < ScreenSurface->h; k++)
-	{
-		for (j = 0; j < ScreenSurface->w; j++)
-		{
-			SDL_GetRGBA(getpixel(ScreenSurface, j, k), ScreenSurface->format, &r, &g, &b, &a);
-			/* Gray out the pixel. */
-			r = g = b = (r + g + b) / 3;
-			putpixel(popup->overlay, j, k, SDL_MapRGBA(popup->overlay->format, r, g, b, a));
-		}
-	}
-}
-
-/**
- * Free popup structure and the popup itself.
- * @param popup Popup to free. */
-static void popup_free(popup_struct *popup)
-{
-	SDL_FreeSurface(popup->surface);
-	SDL_FreeSurface(popup->overlay);
-
-	if (popup->buf)
-	{
-		free(popup->buf);
-	}
-
-	free(popup);
-}
+ * Doubly-linked list of the visible popups. */
+static popup_struct *popup_head = NULL;
 
 /**
  * Create a new popup.
@@ -95,102 +39,180 @@ static void popup_free(popup_struct *popup)
  * @return The created popup. */
 popup_struct *popup_create(int bitmap_id)
 {
-	popup_struct *popup = calloc(1, sizeof(popup_struct));
+	popup_struct *popup;
+	int mx, my;
 
+	popup = calloc(1, sizeof(popup_struct));
 	/* Create the surface used by the popup. */
 	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
 	/* Store the bitmap used. */
 	popup->bitmap_id = bitmap_id;
-	/* Create overlay. */
-	popup_create_overlay(popup);
-	popup_visible = popup;
+	DL_PREPEND(popup_head, popup);
+
+	SDL_GetMouseState(&mx, &my);
+	/* Make sure the mouse is no longer moving any widget. */
+	widget_event_move_stop(mx, my);
+
+	button_create(&popup->button_left.button);
+	button_create(&popup->button_right.button);
+
+	popup->button_left.x = 6;
+	popup->button_left.y = 6;
+
+	popup->button_right.x = 468;
+	popup->button_right.y = 6;
+	popup->button_right.text = strdup("X");
+
+	popup->button_left.button.bitmap = popup->button_right.button.bitmap = BITMAP_BUTTON_ROUND_LARGE;
+	popup->button_left.button.bitmap_pressed = popup->button_right.button.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
+	popup->button_left.button.bitmap_over = popup->button_right.button.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 
 	return popup;
 }
 
 /**
- * Destroys the currently visible popup, freeing it.
- *
- * If there is no visible popup, nothing is done. */
-void popup_destroy_visible()
+ * Free the data used by a popup button.
+ * @param button The button. */
+static void popup_button_free(popup_button *button)
 {
-	if (popup_visible)
+	if (button->text)
 	{
-		if (popup_visible->destroy_callback_func && !popup_visible->destroy_callback_func(popup_visible))
-		{
-			return;
-		}
-
-		popup_free(popup_visible);
-		popup_visible = NULL;
+		free(button->text);
 	}
 }
 
 /**
- * See if popup needs an overlay update due to screen resize.
- * @param popup Popup.
- * @return Whether the overlay needs to be updated or not. */
-int popup_overlay_need_update(popup_struct *popup)
+ * Destroy the visible popup, freeing it. */
+void popup_destroy(popup_struct *popup)
 {
-	return popup->overlay->w != ScreenSurface->w || popup->overlay->h != ScreenSurface->h;
+	if (popup->destroy_callback_func && !popup->destroy_callback_func(popup))
+	{
+		return;
+	}
+
+	DL_DELETE(popup_head, popup);
+	SDL_FreeSurface(popup->surface);
+
+	if (popup->buf)
+	{
+		free(popup->buf);
+	}
+
+	popup_button_free(&popup->button_right);
+	popup_button_free(&popup->button_left);
+
+	free(popup);
 }
 
 /**
- * Draw popup, if there is a visible one. */
-void popup_draw()
+ * Destroy all visible popups. */
+void popup_destroy_all(void)
+{
+	popup_struct *popup, *tmp;
+
+	DL_FOREACH_SAFE(popup_head, popup, tmp)
+	{
+		popup_destroy(popup);
+	}
+}
+
+/**
+ * Render a single popup button.
+ * @param popup Popup.
+ * @param button The button to render. */
+static void popup_button_render(popup_struct *popup, popup_button *button)
+{
+	if (button->button.bitmap != -1)
+	{
+		button->button.x = popup->x + button->x;
+		button->button.y = popup->y + button->y;
+		button_render(&button->button, button->text ? button->text : "");
+	}
+}
+
+/**
+ * Render the specified popup.
+ * @param popup The popup to render. */
+void popup_render(popup_struct *popup)
 {
 	SDL_Rect box;
-	_BLTFX bltfx;
 
-	/* No visible popup, nothing to do. */
-	if (!popup_visible)
+	if (!popup->disable_bitmap_blit)
 	{
-		return;
+		_BLTFX bltfx;
+
+		/* Draw the background of the popup. */
+		bltfx.surface = popup->surface;
+		bltfx.flags = 0;
+		bltfx.alpha = 0;
+		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
 	}
 
-	/* Update the overlay if surface size was changed. */
-	if (popup_overlay_need_update(popup_visible))
-	{
-		popup_create_overlay(popup_visible);
-	}
-
-	/* Draw the overlay. */
-	box.x = 0;
-	box.y = 0;
-	SDL_BlitSurface(popup_visible->overlay, NULL, ScreenSurface, &box);
-
-	/* Draw the background of the popup. */
-	bltfx.surface = popup_visible->surface;
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
-	sprite_blt(Bitmaps[popup_visible->bitmap_id], 0, 0, NULL, &bltfx);
+	/* Calculate the popup's X/Y positions. */
+	popup->x = ScreenSurface->w / 2 - popup->surface->w / 2;
+	popup->y = ScreenSurface->h / 2 - popup->surface->h / 2;
 
 	/* Handle drawing inside the popup. */
-	if (popup_visible->draw_func)
+	if (popup->draw_func)
 	{
-		popup_visible->draw_func(popup_visible);
-	}
-
-	if (!popup_visible)
-	{
-		return;
+		if (!popup->draw_func(popup))
+		{
+			popup_destroy(popup);
+			return;
+		}
 	}
 
 	/* Show the popup in the middle of the screen. */
-	box.x = Screensize->x / 2 - popup_visible->surface->w / 2;
-	box.y = Screensize->y / 2 - popup_visible->surface->h / 2;
-	SDL_BlitSurface(popup_visible->surface, NULL, ScreenSurface, &box);
+	box.x = popup->x;
+	box.y = popup->y;
+	SDL_BlitSurface(popup->surface, NULL, ScreenSurface, &box);
 
-	if (popup_visible->draw_func_post)
+	popup_button_render(popup, &popup->button_left);
+	popup_button_render(popup, &popup->button_right);
+
+	if (popup->draw_func_post)
 	{
-		popup_visible->draw_func_post(popup_visible, box.x, box.y);
+		if (!popup->draw_func_post(popup))
+		{
+			popup_destroy(popup);
+			return;
+		}
+	}
+}
+
+/**
+ * Render the first popup. */
+void popup_render_head(void)
+{
+	popup_struct *popup, *tmp;
+
+	DL_FOREACH_REVERSE_SAFE(popup_head, popup, tmp)
+	{
+		popup_render(popup);
+	}
+}
+
+/**
+ * Handle popup button event.
+ * @param button The button.
+ * @param event The event.
+ * @retval 1 Handled the event.
+ * @retval -1 Handled the event and the button was handled by callback
+ * function.
+ * @retval 0 Did not handle the event. */
+static int popup_button_handle_event(popup_button *button, SDL_Event *event)
+{
+	if (button->text && button_event(&button->button, event))
+	{
+		if (button->event_func && button->event_func(button))
+		{
+			return -1;
+		}
+
+		return 1;
 	}
 
-	/* Show close button. */
-	if (button_show(BITMAP_BUTTON_ROUND, -1, BITMAP_BUTTON_ROUND_DOWN, box.x + popup_visible->surface->w - Bitmaps[BITMAP_BUTTON_ROUND_DOWN]->bitmap->w - 10, box.y + 12, "X", FONT_ARIAL10, COLOR_SIMPLE(COLOR_WHITE), COLOR_SIMPLE(COLOR_BLACK), COLOR_SIMPLE(COLOR_HGOLD), COLOR_SIMPLE(COLOR_BLACK), 0))
-	{
-		popup_destroy_visible();
-	}
+	return 0;
 }
 
 /**
@@ -199,16 +221,18 @@ void popup_draw()
  * @return 1 to disable any other mouse/keyboard actions, 0 otherwise. */
 int popup_handle_event(SDL_Event *event)
 {
+	int ret;
+
 	/* No popup is visible. */
-	if (!popup_visible)
+	if (!popup_head)
 	{
 		return 0;
 	}
 
 	/* Handle custom events? */
-	if (popup_visible->event_func)
+	if (popup_head->event_func)
 	{
-		int ret = popup_visible->event_func(popup_visible, event);
+		ret = popup_head->event_func(popup_head, event);
 
 		if (ret != -1)
 		{
@@ -222,8 +246,21 @@ int popup_handle_event(SDL_Event *event)
 		/* Escape, destroy the popup. */
 		if (event->key.keysym.sym == SDLK_ESCAPE)
 		{
-			popup_destroy_visible();
+			popup_destroy(popup_head);
 		}
+	}
+	else if ((ret = popup_button_handle_event(&popup_head->button_left, event)))
+	{
+		return 1;
+	}
+	else if ((ret = popup_button_handle_event(&popup_head->button_right, event)))
+	{
+		if (ret == 1)
+		{
+			popup_destroy(popup_head);
+		}
+
+		return 1;
 	}
 
 	return 1;
@@ -232,7 +269,21 @@ int popup_handle_event(SDL_Event *event)
 /**
  * Get the currently visible popup.
  * @return The visible popup, or NULL if there isn't any. */
-popup_struct *popup_get_visible()
+popup_struct *popup_get_head(void)
 {
-	return popup_visible;
+	return popup_head;
+}
+
+/**
+ * Set the text of a generic popup button.
+ * @param button The button.
+ * @param text Text to set. */
+void popup_button_set_text(popup_button *button, const char *text)
+{
+	if (button->text)
+	{
+		free(button->text);
+	}
+
+	button->text = text ? strdup(text) : NULL;
 }

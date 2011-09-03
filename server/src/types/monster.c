@@ -31,8 +31,6 @@
 
 #include <global.h>
 
-extern spell spells[NROFREALSPELLS];
-
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
@@ -942,7 +940,7 @@ static int can_hit(object *ob1, rv_vector *rv)
 static object *monster_choose_random_spell(object *monster, uint32 flags)
 {
 	object *altern[MAX_KNOWN_SPELLS], *tmp;
-	spell *spell;
+	spell_struct *spell;
 	int i = 0, j;
 
 	for (tmp = monster->inv; tmp != NULL; tmp = tmp->below)
@@ -1010,7 +1008,7 @@ static int monster_spell_useful(object *target, int spell_id)
 static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags)
 {
 	object *spell_item, *target = NULL;
-	spell *sp;
+	spell_struct *sp;
 	int sp_typ, ability;
 
 	if ((spell_item = monster_choose_random_spell(head, flags)) == NULL)
@@ -1569,11 +1567,11 @@ void communicate(object *op, char *txt)
 
 	if (op->type == PLAYER)
 	{
-		new_info_map(NDI_WHITE | NDI_PLAYER | NDI_SAY, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+		draw_info_map(NDI_PLAYER | NDI_SAY, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 	}
 	else
 	{
-		new_info_map(NDI_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, buf);
+		draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 	}
 
 	for (i = 0; i <= SIZEOFFREE2; i++)
@@ -1592,7 +1590,7 @@ void communicate(object *op, char *txt)
 			continue;
 		}
 
-		for (npc = get_map_ob(m, xt, yt); npc; npc = npc->above)
+		for (npc = GET_MAP_OB(m, xt, yt); npc; npc = npc->above)
 		{
 			/* Avoid talking to self. */
 			if (op != npc)
@@ -1604,7 +1602,17 @@ void communicate(object *op, char *txt)
 				}
 				else if (QUERY_FLAG(npc, FLAG_ALIVE))
 				{
-					talk_to_npc(op, npc, txt);
+					if (talk_to_npc(op, npc, txt))
+					{
+						if (op->type == PLAYER && (CONTR(op)->target_object != npc || CONTR(op)->target_object_count != npc->count))
+						{
+							CONTR(op)->target_object = npc;
+							CONTR(op)->target_object_count = npc->count;
+							send_target_command(CONTR(op));
+						}
+
+						return;
+					}
 				}
 			}
 		}
@@ -1655,13 +1663,13 @@ static char *find_matching_message(const char *msg, const char *match)
 			}
 			else
 			{
-				char *pipe, *pnext = NULL;
+				char *pipe_sep, *pnext = NULL;
 
 				/* Need to parse all the | separators.  Our re_cmp isn't
 				 * really a fully blown regex parser. */
-				for (pipe = regex; pipe; pipe = pnext)
+				for (pipe_sep = regex; pipe_sep; pipe_sep = pnext)
 				{
-					pnext = strchr(pipe, '|');
+					pnext = strchr(pipe_sep, '|');
 
 					if (pnext)
 					{
@@ -1669,7 +1677,7 @@ static char *find_matching_message(const char *msg, const char *match)
 						pnext ++;
 					}
 
-					if (re_cmp(match, pipe))
+					if (re_cmp(match, pipe_sep))
 					{
 						gotmatch = 1;
 						break;
@@ -1715,8 +1723,7 @@ static char *find_matching_message(const char *msg, const char *match)
  * @param op Who is talking.
  * @param npc Object to try to talk to. Can be an NPC or a MAGIC_EAR.
  * @param txt What op is saying.
- * @return 0 if text was handled by a plugin or not handled, 1 if handled
- * internally by the server. */
+ * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
 	object *cobj;
@@ -1725,8 +1732,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	if (HAS_EVENT(npc, EVENT_SAY))
 	{
 		/* Trigger the SAY event */
-		trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-		return 0;
+		return trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 	}
 
 	/* Here we let the objects inside inventories hear and answer, too.
@@ -1737,8 +1743,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		if (HAS_EVENT(cobj, EVENT_SAY))
 		{
 			/* Trigger the SAY event */
-			trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-			return 0;
+			return trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
 		}
 	}
 
@@ -1755,14 +1760,34 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			new_draw_info_format(NDI_NAVY | NDI_UNIQUE, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
-			snprintf(buf, sizeof(buf), "%s talks to %s.", query_name(npc, NULL), query_name(op, NULL));
-			new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			if (CONTR(op)->socket.socket_version >= 1058)
+			{
+				unsigned char sock_buf[MAXSOCKBUF];
+				SockList sl;
+
+				sl.buf = sock_buf;
+				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
+				SockList_AddString(&sl, cp);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_ICON);
+				SockList_AddString(&sl, npc->arch->clone.face->name);
+
+				SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
+				SockList_AddString(&sl, npc->name);
+
+				Send_With_Handling(&CONTR(op)->socket, &sl);
+			}
+			else
+			{
+				draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
+			}
 		}
 		else
 		{
 			snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
-			new_info_map_except(NDI_UNIQUE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
 
 		free(cp);
@@ -1797,11 +1822,11 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 
 	if (QUERY_FLAG(npc, FLAG_XRAYS))
 	{
-		new_info_map(NDI_NAVY | NDI_UNIQUE, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, cp);
+		draw_info_map(0, COLOR_NAVY, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, NULL, NULL, cp);
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, cp);
+		draw_info(COLOR_NAVY, op, cp);
 	}
 
 	use_trigger(npc);
@@ -1811,12 +1836,56 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 }
 
 /**
+ * Check if player is a friend or enemy of monster's faction.
+ * @param mon Monster.
+ * @param pl The player.
+ * @retval -1 Neutral.
+ * @retval 0 Enemy.
+ * @retval 1 Friend. */
+int faction_is_friend_of(object *mon, object *pl)
+{
+	shstr *faction, *faction_rep;
+	sint64 pl_rep, rep;
+
+	faction = object_get_value(mon, "faction");
+
+	if (!faction)
+	{
+		return -1;
+	}
+
+	faction_rep = object_get_value(mon, "faction_rep");
+
+	if (!faction_rep)
+	{
+		return -1;
+	}
+
+	rep = atoll(faction_rep);
+	pl_rep = player_faction_reputation(CONTR(pl), faction);
+
+	if (rep < 0)
+	{
+		return pl_rep <= rep ? 0 : -1;
+	}
+	else if (rep > 0)
+	{
+		return pl_rep >= rep ? 1 : -1;
+	}
+
+	return -1;
+}
+
+/**
  * Check if object op is friend of obj.
  * @param op The first object
  * @param obj The second object to check against the first one
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
+	uint8 friend = 0;
+	sint8 faction_friend = -1;
+
 	/* We are obviously friends with ourselves. */
 	if (op == obj)
 	{
@@ -1846,23 +1915,37 @@ int is_friend_of(object *op, object *obj)
 		return 0;
 	}
 
-	/* TODO: This needs to be sorted out better */
 	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
 	{
 		if (!QUERY_FLAG(obj, FLAG_MONSTER) || QUERY_FLAG(obj, FLAG_FRIENDLY) || obj->type == PLAYER)
 		{
-			return 1;
+			friend = 1;
 		}
 	}
 	else
 	{
 		if (!QUERY_FLAG(obj, FLAG_FRIENDLY) && obj->type != PLAYER)
 		{
-			return 1;
+			friend = 1;
 		}
 	}
 
-	return 0;
+	/* Check factions. */
+	if (op->type == PLAYER)
+	{
+		faction_friend = faction_is_friend_of(obj, op);
+	}
+	else if (obj->type == PLAYER)
+	{
+		faction_friend = faction_is_friend_of(op, obj);
+	}
+
+	if (faction_friend != -1)
+	{
+		friend = faction_friend;
+	}
+
+	return friend;
 }
 
 /**

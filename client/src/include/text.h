@@ -207,6 +207,56 @@ enum
 };
 
 /**
+ * Structure that holds information about markup and other things when
+ * blitting. */
+typedef struct text_blit_info
+{
+	/** Anchor tag position. */
+	char *anchor_tag;
+
+	/** Action anchor tag should execute. */
+	char anchor_action[HUGE_BUF];
+
+	/** Outline tag color. */
+	SDL_Color outline_color;
+
+	/** Whether to show an outline. */
+	uint8 outline_show;
+
+	/** Whether we are in old-style book title. */
+	uint8 in_book_title;
+
+	/** Alpha. */
+	uint8 used_alpha;
+
+	/** Whether we are in bold tag. */
+	uint8 in_bold;
+
+	/** Whether we are in italic tag. */
+	uint8 in_italic;
+
+	/** Whether we are in underline tag. */
+	uint8 in_underline;
+
+	/**
+	 *  If 1, the character is not being drawn due to line skip (due to
+	 * scroll value for example). */
+	uint8 obscured;
+
+	/** Whether bold width is being calculated. */
+	uint8 calc_bold;
+
+	/**
+	 * Whether font width (font changed using a tag) is being
+	 * calculated. */
+	int calc_font;
+
+	/**
+	 * Used for calculations by the 'hcenter' tag. */
+	int hcenter_y;
+} text_blit_info;
+
+/**
  * @defgroup TEXT_xxx Text flags
  * Various text flags for controlling behavior of string_blt().
  *@{*/
@@ -252,17 +302,67 @@ enum
  * Like @ref TEXT_WORD_WRAP, but will stop drawing when the characters
  * width would be more than box->w. */
 #define TEXT_WIDTH 2048
+/**
+ * Calculate maximum width of the text, taking multi-line text into
+ * consideration. */
+#define TEXT_MAX_WIDTH 4096
 /*@}*/
 
 /**
- * Convenience macro to construct SDL_Color array from one of the
- * COLOR_xxx constants.
- * @param color Color.
- * @return SDL_Color array containing the rgb values. */
-#define COLOR_SIMPLE(color) ((SDL_Color) {Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].r, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].g, Bitmaps[BITMAP_PALETTE]->bitmap->format->palette->colors[color].b, 0})
+ * @defgroup COLOR_xxx Color HTML notations
+ * HTML notations of various common collors.
+ *@{*/
+/** White. */
+#define COLOR_WHITE "ffffff"
+/** Orange. */
+#define COLOR_ORANGE "ff9900"
+/** Navy (most used for NPC messages). */
+#define COLOR_NAVY "00ffff"
+/** Red. */
+#define COLOR_RED "ff3030"
+/** Green. */
+#define COLOR_GREEN "00ff00"
+/** Blue. */
+#define COLOR_BLUE "0080ff"
+/** Gray. */
+#define COLOR_GRAY "999999"
+/** Brown. */
+#define COLOR_BROWN "c07f40"
+/** Purple. */
+#define COLOR_PURPLE "cc66ff"
+/** Pink. */
+#define COLOR_PINK "ff9999"
+/** Yellow. */
+#define COLOR_YELLOW "ffff33"
+/** Dark navy. */
+#define COLOR_DK_NAVY "00c4c2"
+/** Dark green. */
+#define COLOR_DK_GREEN "006600"
+/** Dark orange. */
+#define COLOR_DK_ORANGE "ff6600"
+/** Bright purple. */
+#define COLOR_BRIGHT_PURPLE "ff66ff"
+/** Gold. */
+#define COLOR_HGOLD "d4d553"
+/** Dark gold. */
+#define COLOR_DGOLD "999900"
+/** Black. */
+#define COLOR_BLACK "000000"
+/*@}*/
+
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
 
-font_struct fonts[FONTS_MAX];
+/**
+ * Anchor handler function to try and execute before the defaults.
+ * @param anchor_action The action to execute, which can be empty (but
+ * not NULL) - for example, 'help'.
+ * @param buf Text to pass to the action decided by the anchor action; in
+ * case of links, the URL to open, for example. Will not contain any
+ * markup, and should not be freed.
+ * @param len Length of 'buf'.
+ * @return 1 if handled the action and should not handle it using default
+ * actions, 0 otherwise. */
+typedef int (*text_anchor_handle_func)(const char *anchor_action, const char *buf, size_t len);
 
 #endif

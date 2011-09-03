@@ -48,7 +48,7 @@ def npc_albar():
 	if not qm.completed():
 		if is_hello:
 			if not qm.started_part(1):
-				me.SayTo(activator, "\nWell, hello there! Isn't this ^experiment^ simply fascinating?")
+				me.SayTo(activator, "\nWell, hello there! Isn't this <a>experiment</a> simply fascinating?")
 			elif not qm.completed_part(1):
 				if not qm.finished(1):
 					me.SayTo(activator, "\nHave you found the crystal shard yet?")
@@ -62,7 +62,7 @@ def npc_albar():
 					me.SayTo(activator, "\nPlease, go back to Brynknot and ask Jonaslen whether there were reports of a flash in the sky just before the earthquake.")
 				else:
 					activator.Write("You pass the information from Jonaslen the mage to {}.".format(me.name), COLOR_YELLOW)
-					me.SayTo(activator, "\nThat makes sense... Quite interesting, it seems the crystal that shattered in Brynknot was the same as the one here in Morliana, the Great Blue Crystal, and both fell from the sky... Well, I need to construct a telescope so I can study the sky to see if there are any more crystals we should know about. But I need some special glass lens crystal first... Would you get it for me, please?\n\n^Sure^")
+					me.SayTo(activator, "\nThat makes sense... Quite interesting, it seems the crystal that shattered in Brynknot was the same as the one here in Morliana, the Great Blue Crystal, and both fell from the sky... Well, I need to construct a telescope so I can study the sky to see if there are any more crystals we should know about. But I need some special glass lens crystal first... Would you get it for me, please?\n\n<a>Sure</a>")
 			elif qm.started_part(4) and not qm.started_part(5):
 				obj = activator.FindObject(archname = "jewel_generic", name = "clear crystal")
 
@@ -87,9 +87,9 @@ def npc_albar():
 
 		elif not qm.started_part(1):
 			if msg == "experiment":
-				me.SayTo(activator, "\nYou don't know about it? We are trying to figure out the exact properties of this shard, which came from the Great Blue Crystal. But I assume you know all about that already.\n\n^How's it going?^")
+				me.SayTo(activator, "\nYou don't know about it? We are trying to figure out the exact properties of this shard, which came from the Great Blue Crystal. But I assume you know all about that already.\n\n<a>How's it going?</a>")
 			elif msg == "how's it going?":
-				me.SayTo(activator, "\nWell... not very well, actually. We have been looking for more shards of the Great Blue Crystal, but we can't find any. There have been reports about some blue crystal shards in Brynknot, but we have been unable to locate any there. However, it sounds plausible, as there was huge earthquake in Brynknot recently, just like the one that happened on this island when the Great Blue Crystal fell here... Hm...\n\n^Can I help you?^")
+				me.SayTo(activator, "\nWell... not very well, actually. We have been looking for more shards of the Great Blue Crystal, but we can't find any. There have been reports about some blue crystal shards in Brynknot, but we have been unable to locate any there. However, it sounds plausible, as there was huge earthquake in Brynknot recently, just like the one that happened on this island when the Great Blue Crystal fell here... Hm...\n\n<a>Can I help you?</a>")
 			elif msg == "can i help you?":
 				me.SayTo(activator, "\nHm... Sorry? Oh, do you really want to help me? Very well then. Please go to Brynknot and find someone who collected a shard of the crystal, and bring it back to me. The owner will probably be a mage or alchemist. I heard there was an alchemist in Brynknot, it could be him...")
 				qm.start(1)
@@ -107,16 +107,16 @@ def npc_albar():
 def npc_jonaslen():
 	if qm.started_part(2) and not qm.completed_part(2):
 		if is_hello:
-			me.SayTo(activator, "\nHello again, {}. I'm still rather busy, so please excuse me...\n\n^Have there been reports about a flash in the sky just before the earthquake?^".format(activator.name))
+			me.SayTo(activator, "\nHello again, {}. I'm still rather busy, so please excuse me...\n\n<a>Have there been reports about a flash in the sky just before the earthquake?</a>".format(activator.name))
 		elif msg == "have there been reports about a flash in the sky just before the earthquake?":
 			me.SayTo(activator, "\nHm... Why yes... Many of the townsfolk, including the guards on duty that day, swore they saw a flash in the sky just before the earthquake... In fact, I think it's possible the crystal that shattered here fell from the sky, which caused the earthquake and the hole. Perhaps you should take this information to Albar, it might help him.")
 			qm.start(3)
 			qm.complete(2, sound = False)
 	elif qm.started_part(1) and not qm.finished(1) and not qm.completed_part(1):
 		if is_hello:
-			me.SayTo(activator, "\nHello there. I am {}. I'm sorry, but I'm rather busy at the moment, so please excuse me...\n\n^Have you seen any blue crystal shards around?^".format(me.name))
+			me.SayTo(activator, "\nHello there. I am {}. I'm sorry, but I'm rather busy at the moment, so please excuse me...\n\n<a>Have you seen any blue crystal shards around?</a>".format(me.name))
 		elif msg == "have you seen any blue crystal shards around?":
-			me.SayTo(activator, "\nWhy yes, I have. The recent earthquake opened up a huge hole north of Brynknot, and there were blue shards all around the place. I collected most of them for my own research. But why are you asking this?\n\n^Albar from Morliana Research Center sent me to look for blue crystal shard^")
+			me.SayTo(activator, "\nWhy yes, I have. The recent earthquake opened up a huge hole north of Brynknot, and there were blue shards all around the place. I collected most of them for my own research. But why are you asking this?\n\n<a>Albar from Morliana Research Center sent me to look for blue crystal shard</a>")
 		elif msg == "albar from morliana research center sent me to look for blue crystal shard":
 			me.SayTo(activator, "\nI see. I have heard of the Morliana Research Center. Hm... Very well then. Go back to Albar and tell him that the day the earthquake happened, we went to investigate the hole. Inside was a crystal charged with a tremendous amount of energy, with which it seemed to be protecting itself. We decided to investigate the hole more, but when we came back to look at the crystal, it was shattered completely, and only a few fragments were left. Here, take this fragment and bring it safely to Albar.")
 			obj = me.FindObject(name = quest["parts"][0]["item_name"]).Clone()
@@ -130,11 +130,11 @@ def npc_jonaslen():
 def npc_silmedsen():
 	if qm.started_part(5) and not qm.started_part(6):
 		if is_hello:
-			activator.Write("The tree doesn't seem to notice your presence...\n\n^Can I have some of your branches?^", COLOR_YELLOW)
+			activator.Write("The tree doesn't seem to notice your presence...\n\n<a>Can I have some of your branches?</a>", COLOR_YELLOW)
 
 		elif msg == "can i have some of your branches?":
 			activator.Write("The tree shifts slightly, then starts speaking in a deep voice...", COLOR_YELLOW)
-			me.SayTo(activator, "\nHo-hum... No... You cannot have my branches... Unless... Unless you could bring me some refreshing water... The swamp water here is not very healthy...\n\n^Alright^")
+			me.SayTo(activator, "\nHo-hum... No... You cannot have my branches... Unless... Unless you could bring me some refreshing water... The swamp water here is not very healthy...\n\n<a>Alright</a>")
 
 		elif msg == "alright":
 			me.SayTo(activator, "\nGood... I have heard the water that surrounds the Great Blue Crystal in Morliana is clean and fresh... Bring me some in this empty potion bottle and you can have some of my branches...")

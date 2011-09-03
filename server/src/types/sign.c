@@ -40,7 +40,7 @@ void apply_sign(object *op, object *sign)
 {
 	if (!sign->msg && !sign->title)
 	{
-		new_draw_info(NDI_UNIQUE, op, "Nothing is written on it.");
+		draw_info(COLOR_WHITE, op, "Nothing is written on it.");
 		return;
 	}
 
@@ -50,7 +50,7 @@ void apply_sign(object *op, object *sign)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 			{
-				new_draw_info(NDI_UNIQUE, op, "You cannot read it anymore.");
+				draw_info(COLOR_WHITE, op, "You cannot read it anymore.");
 			}
 
 			return;
@@ -67,7 +67,7 @@ void apply_sign(object *op, object *sign)
 	 * for magic mouths that have been made visible. */
 	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 	{
-		new_draw_info(NDI_UNIQUE, op, "You are unable to read while blind.");
+		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
 		return;
 	}
 
@@ -79,7 +79,7 @@ void apply_sign(object *op, object *sign)
 		{
 			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
 			{
-				new_draw_info(NDI_UNIQUE, op, "You are unable to decipher the strange symbols.");
+				draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
 			}
 
 			return;
@@ -112,10 +112,6 @@ void apply_sign(object *op, object *sign)
 
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
-		if (CONTR(op)->socket.socket_version < 1043)
-		{
-			SockList_AddInt(&sl, 0);
-		}
 		strcpy((char *) sl.buf + sl.len, sign->msg);
 		sl.len += strlen(sign->msg) + 1;
 		Send_With_Handling(&CONTR(op)->socket, &sl);
@@ -125,6 +121,6 @@ void apply_sign(object *op, object *sign)
 	}
 	else
 	{
-		new_draw_info(NDI_UNIQUE | NDI_NAVY, op, sign->msg);
+		draw_info(COLOR_NAVY, op, sign->msg);
 	}
 }

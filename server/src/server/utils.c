@@ -277,7 +277,7 @@ size_t split_string(char *str, char *array[], size_t array_size, char sep)
 /**
  * Returns a random direction (1..8).
  * @return The random direction. */
-int get_random_dir()
+int get_random_dir(void)
 {
 	return rndm(1, 8);
 }
@@ -345,7 +345,7 @@ char *cleanup_chat_string(char *ustring)
 	/* Now clear all special characters. */
 	for (i = 0; *(ustring + i) != '\0'; i++)
 	{
-		if (*(ustring + i) == '~' || *(ustring + i) == '^' || *(ustring + i) == '|' || *(ustring + i) < ' ' || *(ustring + i) > '~')
+		if (*(ustring + i) < ' ' || *(ustring + i) > '~')
 		{
 			*(ustring + i) = ' ';
 		}

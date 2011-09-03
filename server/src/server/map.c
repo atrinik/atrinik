@@ -30,10 +30,6 @@
 #include <global.h>
 #include <loader.h>
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
-
 int	global_darkness_table[MAX_DARKNESS + 1] =
 {
 	0, 20, 40, 80, 160, 320, 640, 1280
@@ -562,7 +558,7 @@ void dump_map(mapstruct *m)
  *
  * This basically just goes through all the maps and calls dump_map() on
  * each one. */
-void dump_all_maps()
+void dump_all_maps(void)
 {
 	mapstruct *m;
 
@@ -1411,7 +1407,7 @@ void set_map_darkness(mapstruct *m, int value)
 /**
  * Allocates, initializes, and returns a pointer to a mapstruct.
  * @return The new map structure. */
-mapstruct *get_linked_map()
+mapstruct *get_linked_map(void)
 {
 	mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
 
@@ -2147,7 +2143,7 @@ void clean_tmp_map(mapstruct *m)
 
 /**
  * Free all allocated maps. */
-void free_all_maps()
+void free_all_maps(void)
 {
 	int real_maps = 0;
 
@@ -2892,7 +2888,7 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *m
 	switch (flags & (0x04 | 0x08))
 	{
 		case RV_MANHATTAN_DISTANCE:
-			retval->distance =  abs(retval->distance_x) + abs(retval->distance_y);
+			retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
 			break;
 
 		case RV_EUCLIDIAN_DISTANCE:
@@ -2981,20 +2977,10 @@ int wall_blocked(mapstruct *m, int x, int y)
  * holds map name, it will be used to override the actual map's name. */
 void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
-	if (!pl || CONTR(pl)->socket.socket_version >= 1045)
-	{
-		SockList_AddString(sl, "<b><o=0,0,0>");
-		/* Ignore the terminating NUL. */
-		sl->len--;
-		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
-		/* Ignore the terminating NUL. */
-		sl->len--;
-		SockList_AddString(sl, "</o></b>");
-	}
-	else
-	{
-		SockList_AddString(sl, map_info && map_info->race ? (char *) map_info->race : map->name);
-	}
+	(void) pl;
+	SockList_AddStringUnterm(sl, "<b><o=0,0,0>");
+	SockList_AddStringUnterm(sl, map_info && map_info->race ? map_info->race : map->name);
+	SockList_AddString(sl, "</o></b>");
 }
 
 /**
@@ -3007,27 +2993,8 @@ void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_i
  * holds map music, it will be used to override the actual map's music. */
 void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
-	if (pl && CONTR(pl)->socket.socket_version < 1038)
-	{
-		if (!map->bg_music && (!map_info || !map_info->slaying))
-		{
-			SockList_AddString(sl, "no_music");
-		}
-		else
-		{
-			char bg_music_tmp[MAX_BUF];
-
-			/* Replace .mid uses with .ogg variant. */
-			replace(map_info && map_info->slaying ? map_info->slaying : map->bg_music, ".mid", ".ogg", bg_music_tmp, sizeof(bg_music_tmp) - 20);
-			/* Add the fade/loop settings older clients require. */
-			strncat(bg_music_tmp, "|0|-1", sizeof(bg_music_tmp) - strlen(bg_music_tmp) - 1);
-			SockList_AddString(sl, bg_music_tmp);
-		}
-	}
-	else
-	{
-		SockList_AddString(sl, map_info && map_info->slaying ? (char *) map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
-	}
+	(void) pl;
+	SockList_AddString(sl, map_info && map_info->slaying ? map_info->slaying : (map->bg_music ? map->bg_music : "no_music"));
 }
 
 /**
@@ -3040,10 +3007,6 @@ void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_
  * holds map weather, it will be used to override the actual map's weather. */
 void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info)
 {
-	if (pl && CONTR(pl)->socket.socket_version < 1047)
-	{
-		return;
-	}
-
-	SockList_AddString(sl, map_info && map_info->title ? (char *) map_info->title : (map->weather ? map->weather : "none"));
+	(void) pl;
+	SockList_AddString(sl, map_info && map_info->title ? map_info->title : (map->weather ? map->weather : "none"));
 }
