@@ -2670,7 +2670,7 @@ x 15
 y 2
 end
 arch invis_exit
-slaying incuna/well/well_0001
+slaying incuna/well/well_aa01
 hp 5
 sp 4
 x 15
@@ -3252,7 +3252,7 @@ x 18
 y 2
 end
 arch invis_exit
-slaying incuna/well/well_0001
+slaying incuna/well/well_aa01
 hp 8
 sp 4
 x 18

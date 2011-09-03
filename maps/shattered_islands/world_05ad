@@ -1182,7 +1182,7 @@ y 17
 end
 arch well_stone
 player_only 1
-slaying incuna/well/well_0001
+slaying incuna/well/well_aa01
 hp 20
 sp 19
 x 6

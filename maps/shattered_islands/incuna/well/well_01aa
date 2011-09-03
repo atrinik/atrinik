@@ -11,8 +11,8 @@ enter_y 1
 difficulty 1
 darkness 2
 tile_path_1 well_0101
-tile_path_2 well_0200
-tile_path_8 well_0001
+tile_path_2 well_02aa
+tile_path_8 well_aa01
 region Incuna
 end
 arch floor_sand_d3

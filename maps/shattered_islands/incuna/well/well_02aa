@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 1
 outdoor 1
-tile_path_4 well_0100
+tile_path_4 well_01aa
 tile_path_8 well_0101
 region Incuna
 end
