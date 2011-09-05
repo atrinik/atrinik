@@ -185,7 +185,8 @@ struct plugin_hooklist hooklist =
 	&first_map,
 	&first_party,
 	&first_region,
-	&logfile
+	&logfile,
+	&pticks
 };
 
 /** The list of loaded plugins. */

@@ -1324,7 +1324,7 @@ static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
  * garbage collector.
  * @param archname Name of the arch to create.
  * @throws AtrinikError if 'archname' is not a valid archetype.
- * @return The newly created object. * */
+ * @return The newly created object. */
 static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
 {
 	const char *archname;
@@ -1346,6 +1346,18 @@ static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
 	}
 
 	return wrap_object(hooks->arch_to_object(at));
+}
+
+/**
+ * <h1>GetTicks()</h1>
+ * Acquires the current server ticks value.
+ * @return The server ticks. * */
+static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *args)
+{
+	(void) self;
+	(void) args;
+
+	return Py_BuildValue("l", *hooks->pticks);
 }
 
 /*@}*/
@@ -1388,6 +1400,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetFirst", Atrinik_GetFirst, METH_VARARGS, 0},
 	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
 	{"CreateObject", Atrinik_CreateObject, METH_VARARGS, 0},
+	{"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
