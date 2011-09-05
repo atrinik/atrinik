@@ -2,7 +2,7 @@
 ## Implements the studious student witch's card game responses.
 
 from Atrinik import *
-from Interface import *
+from Interface import Interface
 
 activator = WhoIsActivator()
 me = WhoAmI()

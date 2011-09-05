@@ -2,7 +2,7 @@
 ## Implements Ruri, the fairy helper's dialog.
 
 from Atrinik import *
-from Interface import *
+from Interface import Interface
 
 activator = WhoIsActivator()
 me = WhoAmI()
@@ -12,10 +12,10 @@ inf = Interface(activator, me)
 
 # used in 2 places.  Easier to add options this way.
 def main_menu():
-		inf.add_link2("<a=:book>Find a book.</a>")
-		inf.add_link2("<a=:town>Ask about the town.</a>")
-		inf.add_link2("<a=:librarian>Ask about the librarian.</a>")
-		inf.add_link2("<a=close:>Goodbye.</a>")
+	inf.add_link2("<a=:book>Find a book.</a>")
+	inf.add_link2("<a=:town>Ask about the town.</a>")
+	inf.add_link2("<a=:librarian>Ask about the librarian.</a>")
+	inf.add_link2("<a=close:>Goodbye.</a>")
 
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
