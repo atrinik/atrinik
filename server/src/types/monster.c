@@ -354,6 +354,61 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 }
 
 /**
+ * Check whether the monster is able to move at will. Certain things
+ * may disable normal movement, such as player talking to the monster,
+ * and the monster responding to the player and setting a period of time
+ * to wait for until resuming movement.
+ * @param op Monster>
+ * @return 1 if the monster can move, 0 otherwise. */
+static int monster_can_move(object *op)
+{
+	shstr *timeout;
+
+	timeout = object_get_value(op, "npc_move_timeout");
+
+	if (!timeout)
+	{
+		return 1;
+	}
+
+	if (pticks >= atol(timeout))
+	{
+		object_set_value(op, "npc_move_timeout", NULL, 1);
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Update monster's move timeout value due to player talking to the NPC,
+ * based on message length 'len'.
+ * @param op Monster.
+ * @param len The length of the message NPC responds with. */
+static void monster_update_move_timeout(object *op, int len)
+{
+	shstr *timeout;
+	long ticks;
+
+	/* No movement type or random movement set, no need to set timeout. */
+	if (!op->move_type && !QUERY_FLAG(op, FLAG_RANDOM_MOVE))
+	{
+		return;
+	}
+
+	timeout = object_get_value(op, "npc_move_timeout");
+	ticks = pticks + ((long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 / MAX_TIME);
+
+	if (!timeout || ticks > atol(timeout))
+	{
+		char buf[MAX_BUF];
+
+		snprintf(buf, sizeof(buf), "%ld", ticks);
+		object_set_value(op, "npc_move_timeout", buf, 1);
+	}
+}
+
+/**
  * Monster moves its tick.
  * @param op The monster.
  * @return 1 if the object has been freed, 0 otherwise. */
@@ -485,6 +540,11 @@ int move_monster(object *op)
 		{
 			if (op->move_type & HI4)
 			{
+				if (!monster_can_move(op))
+				{
+					return 0;
+				}
+
 				switch (op->move_type & HI4)
 				{
 					case CIRCLE1:
@@ -528,7 +588,10 @@ int move_monster(object *op)
 			}
 			else if (QUERY_FLAG(op, FLAG_RANDOM_MOVE))
 			{
-				move_randomly(op);
+				if (monster_can_move(op))
+				{
+					move_randomly(op);
+				}
 			}
 		}
 
@@ -1764,12 +1827,15 @@ int talk_to_npc(object *op, object *npc, char *txt)
 			{
 				unsigned char sock_buf[MAXSOCKBUF];
 				SockList sl;
+				int cp_len;
 
 				sl.buf = sock_buf;
 				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
 
 				SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
+				cp_len = sl.len;
 				SockList_AddString(&sl, cp);
+				cp_len = sl.len - cp_len - 1;
 
 				SockList_AddChar(&sl, CMD_INTERFACE_ICON);
 				SockList_AddString(&sl, npc->arch->clone.face->name);
@@ -1778,6 +1844,9 @@ int talk_to_npc(object *op, object *npc, char *txt)
 				SockList_AddString(&sl, npc->name);
 
 				Send_With_Handling(&CONTR(op)->socket, &sl);
+
+				/* Update the movement timeout if necessary. */
+				monster_update_move_timeout(npc, cp_len);
 			}
 			else
 			{

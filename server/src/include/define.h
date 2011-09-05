@@ -1751,4 +1751,24 @@ enum apply_flag
  * @return The number of elements. */
 #define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
 
+/**
+ * @defgroup INTERFACE_TIMEOUT_xxx Interface timeout definitions
+ * Settings for interface timeout, a setting which makes NPC stop
+ * movement certain amount of time when they respond to player's message.
+ *
+ * The length of the message affects the timeout value.
+ *@{*/
+/**
+ * After this many characters in the message, for each X characters,
+ * @ref INTERFACE_TIMEOUT_SECONDS will be added to the timeout, where X =
+ * the value of this constant. */
+#define INTERFACE_TIMEOUT_CHARS 500
+/**
+ * @see INTERFACE_TIMEOUT_CHARS */
+#define INTERFACE_TIMEOUT_SECONDS 30
+/**
+ * Initial number of seconds for the timeout. */
+#define INTERFACE_TIMEOUT_INITIAL 60
+/*@}*/
+
 #endif
