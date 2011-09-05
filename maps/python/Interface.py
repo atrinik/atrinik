@@ -67,6 +67,17 @@ class Interface:
 
 		if pl.s_socket_version >= 1058:
 			pl.SendInterface(self._msg, self._links, self._icon, self._title, self._text_input)
+
+			# If there is any movement behavior, update the amount of time
+			# the NPC should pause moving for.
+			if self._npc.move_type or self._npc.f_random_move:
+				from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
+
+				timeout = self._npc.ReadKey("npc_move_timeout")
+				ticks = GetTicks() + ((int(max(INTERFACE_TIMEOUT_CHARS, len(self._msg)) / INTERFACE_TIMEOUT_CHARS * INTERFACE_TIMEOUT_SECONDS)) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 // MAX_TIME)
+
+				if not timeout or ticks > int(timeout):
+					self._npc.WriteKey("npc_move_timeout", str(ticks))
 		else:
 			self._npc.SayTo(self._activator, "\n" + self._msg)
 
