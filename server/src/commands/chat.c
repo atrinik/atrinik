@@ -194,10 +194,6 @@ int command_tell(object *op, char *params)
  * @return 1 on success, 0 on failure. */
 int command_t_tell(object *op, char *params)
 {
-	object *t_obj;
-	int i, xt, yt;
-	mapstruct *m;
-
 	params = cleanup_chat_string(params);
 
 	if (!params || *params == '\0')
@@ -205,33 +201,39 @@ int command_t_tell(object *op, char *params)
 		return 0;
 	}
 
-	if (op->type == PLAYER)
+	if (op->type != PLAYER)
 	{
-		t_obj = CONTR(op)->target_object;
+		return 1;
+	}
 
-		if (t_obj && CONTR(op)->target_object_count == t_obj->count)
+	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	{
+		int i, xt, yt;
+		mapstruct *m;
+
+		for (i = 0; i <= SIZEOFFREE2; i++)
 		{
-			/* Why do I do this and not direct distance calculation?
-			 * Because the player perhaps has left the mapset with the
-			 * target which will invoke some nasty searchings. */
-			for (i = 0; i <= SIZEOFFREE2; i++)
+			xt = op->x + freearr_x[i];
+			yt = op->y + freearr_y[i];
+
+			if (!(m = get_map_from_coord(op->map, &xt, &yt)))
 			{
-				xt = op->x + freearr_x[i];
-				yt = op->y + freearr_y[i];
+				continue;
+			}
 
-				if (!(m = get_map_from_coord(op->map, &xt, &yt)))
-				{
-					continue;
-				}
-
-				if (m == t_obj->map && xt == t_obj->x && yt == t_obj->y)
-				{
-					LOG(llevChat, "Talk to: %s: %s\n", op->name, params);
-					talk_to_npc(op, t_obj, params);
-					return 1;
-				}
+			if (m == CONTR(op)->target_object->map && xt == CONTR(op)->target_object->x && yt == CONTR(op)->target_object->y)
+			{
+				LOG(llevChat, "Talk to: %s: [%s]: %s\n", op->name, CONTR(op)->target_object->name, params);
+				talk_to_npc(op, CONTR(op)->target_object, params);
+				return 1;
 			}
 		}
+
+		draw_info_format(COLOR_WHITE, op, "You are too far away from %s.", CONTR(op)->target_object->name);
+	}
+	else
+	{
+		draw_info(COLOR_WHITE, op, "You do not have a target selected.");
 	}
 
 	return 1;
