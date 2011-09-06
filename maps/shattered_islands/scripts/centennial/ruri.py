@@ -12,17 +12,10 @@ inf = Interface(activator, me)
 
 # used in 2 places.  Easier to add options this way.
 def main_menu():
-<<<<<<< TREE
-		inf.add_link2("<a=:book>Find a book.</a>")
-		inf.add_link2("<a=:town>Ask about the town.</a>")
-		inf.add_link2("<a=:librarian>Ask about the librarian.</a>")
-		inf.add_link2("<a=close:>Goodbye.</a>")
-=======
 	inf.add_link("<a=:book>Find a book.</a>")
 	inf.add_link("<a=:town>Ask about the town.</a>")
 	inf.add_link("<a=:librarian>Ask about the librarian.</a>")
 	inf.add_link("<a=close:>Goodbye.</a>")
->>>>>>> MERGE-SOURCE
 
 def main():
 	if msg == "hello" or msg == "hi" or msg == "hey":
