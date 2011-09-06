@@ -2,173 +2,127 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-08-31 Alex Tokar
+Modified: 2011-09-06 Alex Tokar
 endmsg
 width 5
 height 14
 difficulty 1
-darkness -1
+darkness 5
 bg_music fireside.mid
 end
 arch blocked
 end
-arch ship_rail_e
-z 3
-align -20
+arch ship_rail_s_high
 end
-arch blocked
+arch ship_floor_ns_3
 y 1
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch ship_rail_w_high
+y 1
+end
+arch bed_4a
 no_pass 1
-y 1
-end
-arch ship_rail_e
-z 13
-y 1
-end
-arch blocked
-y 2
-end
-arch ship_rail_e
-layer 4
-blocksview 1
-no_pass 1
-y 2
-end
-arch ship_rail_e
-z 13
-layer 5
-y 2
-end
-arch picture1.151
 direction 7
+layer 7
+y 1
+end
+arch ship_floor_ns_3
 y 2
 end
-arch blocked
-y 3
+arch ship_rail_w_high
+y 2
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch bed_4b
 no_pass 1
+direction 7
+layer 7
+y 2
+end
+arch ship_floor_ns_3
 y 3
 end
-arch ship_rail_e
-z 13
+arch ship_rail_w_high
 y 3
 end
-arch blocked
+arch ship_floor_ns_3
 y 4
 end
-arch ship_rail_e
-layer 4
-blocksview 1
-no_pass 1
+arch water_lt3_m
 y 4
 end
-arch ship_rail_e
-z 13
-layer 5
+arch ship_rail_w_high
+no_pass 1
 y 4
 end
 arch hole2
 layer 7
-align 8
-z 2
+align -8
+z 14
+zoom 90
 y 4
 end
-arch blocked
+arch ship_floor_ns_3
 y 5
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch ship_rail_sw_high
 no_pass 1
+blocksview 1
 y 5
 end
-arch ship_rail_e
-z 13
-y 5
-end
-arch blocked
+arch ship_floor_ns_3
 y 6
 end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
+arch trash_wood1.101
 y 6
 end
-arch ship_rail_e
-z 13
+arch ship_rail_w_high
 y 6
 end
-arch blocked
+arch ship_floor_ns_3
 y 7
 end
-arch ship_rail_e
-layer 4
-blocksview 1
-no_pass 1
+arch ship_rail_w_high
 y 7
 end
-arch ship_rail_e
-z 13
-layer 5
-y 7
-end
-arch flag_04
-direction 7
-y 7
-end
-arch blocked
+arch ship_floor_ns_3
 y 8
 end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-y 8
-end
-arch ship_rail_e
-z 13
+arch ship_rail_w_high
 y 8
 end
 arch blocked
 y 9
 end
-arch ship_rail_e
-layer 4
+arch ship_hull_prow_s_front_starboard_1
+y 9
+end
+arch table_small1b
+align 8
+z -3
+y 9
+end
+arch ship_prow_s_starboard_a
 blocksview 1
-no_pass 1
 y 9
 end
-arch ship_rail_e
-z 13
-layer 5
-y 9
-end
-arch hole
+arch ship_prow_s_starboard_a
+z 12
 layer 7
-z 3
-align 5
 y 9
 end
 arch blocked
 y 10
 end
-arch ship_rail_e
-layer 5
-no_pass 1
+arch ship_hull_prow_s_front_starboard_2
+y 10
+end
+arch ship_prow_s_starboard_b
 blocksview 1
 y 10
 end
-arch ship_rail_e
-align 5
-z 15
+arch ship_prow_s_starboard_b
+z 12
+layer 7
 y 10
 end
 arch blocked
@@ -183,22 +137,22 @@ end
 arch blocked
 x 1
 end
-arch ship_rail_s
+arch ship_rail_s_high
 layer 5
-blocksview 1
-no_pass 1
 x 1
 end
-arch ship_rail_s
-z 13
+arch hole2
+layer 7
+align -4
+z 4
+zoom 85
 x 1
 end
 arch ship_floor_ns_4
 x 1
 y 1
 end
-arch bed_4a
-direction 7
+arch table_small1
 x 1
 y 1
 end
@@ -206,8 +160,13 @@ arch ship_floor_ns_1
 x 1
 y 2
 end
-arch bed_4b
-direction 7
+arch magic_mouth
+msg
+
+A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
+
+<c=#FDD017>Use the mouse to move in front of the nearby door, by clicking on the highlighted tile in front of it. Alternatively, you can use the keyboard numpad to move around.</c>
+endmsg
 x 1
 y 2
 end
@@ -215,28 +174,12 @@ arch ship_floor_ns_3
 x 1
 y 3
 end
-arch magic_mouth
-msg
-
-A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
-
-<c=#FDD017>Use the mouse to move in front of the door, by clicking on the highlighted tile in front of it. Alternatively, you can use the keyboard numpad to move around. If you get lost, you can use the <b>?</b> button in the upper right corner to open the help screen.</c>
-endmsg
-x 1
-y 3
-end
 arch ship_floor_ns_3
 x 1
 y 4
 end
-arch magic_mouth
-msg
-
-You can see a huge hole in the boat's structure, which does not bode well. Hopefully it's not that bad...
-
-<c=#FDD017>Doors can be opened by walking into them, and will close automatically after a short while.</c>
-endmsg
-direction 1
+arch box_big.101
+z -4
 x 1
 y 4
 end
@@ -244,18 +187,9 @@ arch ship_floor_ns_4
 x 1
 y 5
 end
-arch door_wood2
-x 1
-y 5
-end
-arch magic_mouth
-msg
-
-You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone walking about on the deck above, perhaps you should investigate.
-
-<c=#FDD017>Move on top of the stairs near you, and either press spacebar, or select them in the below inventory (the window at the bottom of the screen, in the middle) with arrow keys and press <b>A</b>, which stands for <b>Apply</b>, which is how you use objects. Stairs, ladders, ropes and the like can be applied to move between areas.</c>
-endmsg
-direction 1
+arch ship_rail_s_high
+no_pass 1
+blocksview 1
 x 1
 y 5
 end
@@ -292,7 +226,12 @@ x 1
 y 10
 end
 arch ship_prow_s_starboard_c
-z 13
+no_pass 1
+x 1
+y 10
+end
+arch ship_prow_s_starboard_c
+z 12
 layer 7
 x 1
 y 10
@@ -316,12 +255,16 @@ x 1
 y 11
 end
 arch ship_prow_s_starboard_a
-z 13
+z 12
 layer 7
 x 1
 y 11
 end
 arch blocked
+x 1
+y 12
+end
+arch ship_hull_prow_s_front_starboard_2
 x 1
 y 12
 end
@@ -331,12 +274,8 @@ x 1
 y 12
 end
 arch ship_prow_s_starboard_b
-z 13
+z 12
 layer 7
-x 1
-y 12
-end
-arch ship_hull_prow_s_front_starboard_2
 x 1
 y 12
 end
@@ -347,29 +286,14 @@ end
 arch blocked
 x 2
 end
-arch ship_rail_s
-layer 5
-blocksview 1
-no_pass 1
-x 2
-end
-arch ship_rail_s
-z 13
+arch ship_rail_s_high
 x 2
 end
 arch ship_floor_ns_1
 x 2
 y 1
 end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 2
-y 1
-end
-arch ship_rail_e
-z 13
+arch table_small1b
 x 2
 y 1
 end
@@ -377,31 +301,11 @@ arch ship_floor_ns_1
 x 2
 y 2
 end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 2
-y 2
-end
-arch ship_rail_e
-z 13
+arch water_floor
 x 2
 y 2
 end
 arch ship_floor_ns_1
-x 2
-y 3
-end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 2
-y 3
-end
-arch ship_rail_e
-z 13
 x 2
 y 3
 end
@@ -409,15 +313,13 @@ arch ship_floor_ns_4
 x 2
 y 4
 end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 2
-y 4
-end
-arch ship_rail_e
-z 13
+arch magic_mouth
+msg
+
+<c=#FDD017>Doors can be opened by walking into them, and will close automatically after a short while.</c>
+endmsg
+direction 1
+splitting 1
 x 2
 y 4
 end
@@ -425,15 +327,9 @@ arch ship_floor_ns_1
 x 2
 y 5
 end
-arch ship_rail_se
-layer 5
-blocksview 1
+arch ship_rail_s_high
 no_pass 1
-x 2
-y 5
-end
-arch ship_rail_se
-z 13
+blocksview 1
 x 2
 y 5
 end
@@ -448,10 +344,10 @@ You climb up to the main deck, and notice a man who looks like the captain. You 
 
 <c=#FDD017>Talk to NPCs (Non-Player Characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
 endmsg
-direction 5
 slaying ../world_ag04
 hp 8
 sp 14
+direction 5
 x 2
 y 6
 end
@@ -505,7 +401,7 @@ x 2
 y 12
 end
 arch ship_prow_s_midship
-z 13
+z 12
 layer 7
 x 2
 y 12
@@ -521,25 +417,16 @@ x 2
 y 13
 end
 arch ship_prow_s_long
-z 13
+z 12
 x 2
 y 13
 end
 arch blocked
 x 3
 end
-arch ship_rail_s
-layer 4
-blocksview 1
-no_pass 1
-x 3
-end
-arch ship_rail_s
-z 13
-layer 5
-x 3
-end
-arch picture6.151
+arch ship_rail_s_high
+ldraw_double 1
+ayer 5
 x 3
 end
 arch ship_floor_ns_4
@@ -547,7 +434,10 @@ x 3
 y 1
 end
 arch bed_7a
+no_pass 1
 direction 7
+align 8
+z -4
 x 3
 y 1
 end
@@ -556,7 +446,10 @@ x 3
 y 2
 end
 arch bed_7b
+no_pass 1
 direction 7
+align 8
+z -4
 x 3
 y 2
 end
@@ -564,12 +457,17 @@ arch ship_floor_ns_4
 x 3
 y 3
 end
-arch wall_well.131
-direction 7
-x 3
-y 3
-end
 arch ship_floor_ns_3
+x 3
+y 4
+end
+arch magic_mouth
+msg
+
+<c=#FDD017>Doors can be opened by walking into them, and will close automatically after a short while.</c>
+endmsg
+direction 1
+splitting 1
 x 3
 y 4
 end
@@ -581,11 +479,19 @@ arch door_wood2
 x 3
 y 5
 end
-arch ship_floor_ns_3
+arch magic_mouth
+msg
+
+You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone walking about on the deck above, perhaps you should investigate.
+
+<c=#FDD017>Move on top of the stairs near you, and either press spacebar, or select them in the below inventory (the window at the bottom of the screen, in the middle) with arrow keys and press <b>A</b>, which stands for <b>Apply</b>, which is how you use objects. Stairs, ladders, ropes and the like can be applied to move between areas.</c>
+endmsg
+direction 1
+splitting 1
 x 3
-y 6
+y 5
 end
-arch trash_wood1.101
+arch ship_floor_ns_3
 x 3
 y 6
 end
@@ -616,7 +522,7 @@ x 3
 y 10
 end
 arch ship_prow_s_strokeside_c
-z 13
+z 12
 x 3
 y 10
 end
@@ -631,7 +537,7 @@ x 3
 y 11
 end
 arch ship_prow_s_strokeside_a
-z 13
+z 12
 x 3
 y 11
 end
@@ -646,7 +552,7 @@ x 3
 y 12
 end
 arch ship_prow_s_strokeside_b
-z 13
+z 12
 x 3
 y 12
 end
@@ -657,29 +563,15 @@ end
 arch blocked
 x 4
 end
-arch ship_rail_s
-layer 5
-blocksview 1
-no_pass 1
-x 4
-end
-arch ship_rail_s
-z 13
+arch ship_rail_s_high
 x 4
 end
 arch ship_floor_ns_4
 x 4
 y 1
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch ship_rail_e_high
 no_pass 1
-x 4
-y 1
-end
-arch ship_rail_e
-z 13
 x 4
 y 1
 end
@@ -687,119 +579,77 @@ arch ship_floor_ns_4
 x 4
 y 2
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch ship_rail_e_high
 no_pass 1
 x 4
 y 2
 end
-arch ship_rail_e
-z 13
-x 4
-y 2
-end
 arch ship_floor_ns_4
 x 4
 y 3
 end
-arch ship_rail_e
-layer 5
-blocksview 1
+arch ship_rail_e_high
 no_pass 1
 x 4
 y 3
 end
-arch ship_rail_e
-z 13
-x 4
-y 3
-end
-arch ship_floor_ns_3
-x 4
-y 4
-end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 4
-y 4
-end
-arch ship_rail_e
-z 13
-x 4
-y 4
-end
 arch ship_floor_ns_4
 x 4
-y 5
+y 4
 end
-arch ship_rail_se
-layer 5
-blocksview 1
+arch ship_rail_e_high
 no_pass 1
-x 4
-y 5
-end
-arch ship_rail_se
-z 13
-x 4
-y 5
-end
-arch ship_floor_ns_4
-x 4
-y 6
-end
-arch ship_rail_e
-layer 5
-blocksview 1
-no_pass 1
-x 4
-y 6
-end
-arch ship_rail_e
-z 13
-x 4
-y 6
-end
-arch ship_floor_ns_3
-x 4
-y 7
-end
-arch ship_rail_e
-layer 4
-blocksview 1
-no_pass 1
-x 4
-y 7
-end
-arch ship_rail_e
-z 13
 layer 5
 x 4
-y 7
+y 4
 end
 arch hole2
 layer 7
 align 8
-z 2
 x 4
-y 7
+y 4
 end
-arch ship_floor_ns_2
+arch ship_floor_ns_4
 x 4
-y 8
+y 5
 end
-arch ship_rail_e
-layer 5
+arch ship_rail_se_high
 blocksview 1
 no_pass 1
 x 4
+y 5
+end
+arch ship_floor_ns_4
+x 4
+y 6
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 6
+end
+arch ship_floor_ns_4
+x 4
+y 7
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 7
+end
+arch ship_floor_ns_4
+x 4
 y 8
 end
-arch ship_rail_e
-z 13
+arch ship_rail_e_high
+no_pass 1
+layer 5
+x 4
+y 8
+end
+arch hole2
+layer 7
+align 8
 x 4
 y 8
 end
@@ -814,7 +664,7 @@ x 4
 y 9
 end
 arch ship_prow_s_strokeside_a
-z 13
+z 12
 x 4
 y 9
 end
@@ -829,7 +679,7 @@ x 4
 y 10
 end
 arch ship_prow_s_strokeside_b
-z 13
+z 12
 x 4
 y 10
 end
