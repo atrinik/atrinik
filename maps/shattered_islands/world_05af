@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -73,31 +73,16 @@ end
 arch bridge_wood_EW.151
 y 11
 end
-arch ship_floor_we_light_1
+arch water_lt3
 y 12
 end
-arch ship_rail_ne
-y 12
-end
-arch ship_floor_we_light_4
+arch water_lt3
 y 13
 end
-arch ship_w_steering_wheel
-y 13
-end
-arch ship_rail_e
-y 13
-end
-arch ship_floor_we_light_1
-y 14
-end
-arch ship_rail_se
+arch water_lt4
 y 14
 end
 arch water_lt3
-y 15
-end
-arch ship_hull_s_high
 y 15
 end
 arch water_lt
@@ -190,21 +175,11 @@ arch water_lt3
 x 1
 y 12
 end
-arch ship_hull_e_low_corner_n
-x 1
-y 12
-end
-arch client_map_info
-name incuna_ship_clearhaven
-sub_type 2
-x 1
-y 12
-end
 arch water_lt
 x 1
 y 13
 end
-arch ship_hull_e_low
+arch sail_short_mast_e_3
 x 1
 y 13
 end
@@ -212,15 +187,7 @@ arch water_lt4
 x 1
 y 14
 end
-arch ship_hull_e_low
-x 1
-y 14
-end
 arch water_lt4
-x 1
-y 15
-end
-arch ship_hull_se_low_astern_e
 x 1
 y 15
 end
@@ -381,7 +348,19 @@ arch water_lt4
 x 2
 y 12
 end
+arch ship_rail_e
+x 2
+y 12
+end
 arch water_lt4
+x 2
+y 13
+end
+arch ship_rail_e
+x 2
+y 13
+end
+arch sail_short_mast_e_2
 x 2
 y 13
 end
@@ -389,7 +368,7 @@ arch water_lt2
 x 2
 y 14
 end
-arch rudder_e
+arch ship_rail_e
 x 2
 y 14
 end
@@ -513,19 +492,41 @@ arch bridge_wood_EW.151
 x 3
 y 11
 end
-arch water_lt4
+arch ship_floor_we_dark_1
 x 3
 y 12
 end
-arch water_lt
+arch ship_rail_n
+x 3
+y 12
+end
+arch ship_floor_we_dark_1
 x 3
 y 13
 end
-arch water_lt
+arch sail_short_mast_e_1
+x 3
+y 13
+end
+arch ship_floor_we_dark_1
+x 3
+y 14
+end
+arch ship_rail_s
+x 3
+y 14
+end
+arch lamp_wall
+z 12
+align 8
 x 3
 y 14
 end
 arch water_lt
+x 3
+y 15
+end
+arch ship_hull_s_high_corner_w
 x 3
 y 15
 end
@@ -615,8 +616,7 @@ arch bridge_wood_corner.181
 x 4
 y 10
 end
-arch bollard
-no_pass 1
+arch bollard_tied_n_1
 x 4
 y 10
 end
@@ -628,15 +628,37 @@ arch bridge_wood_EW.151
 x 4
 y 11
 end
-arch water_lt4
+arch bollard_tied_n_2
+x 4
+y 11
+end
+arch ship_floor_we_dark_1
 x 4
 y 12
 end
-arch water_lt3
+arch bollard_tied_n_3
+x 4
+y 12
+end
+arch ship_floor_we_dark_1
 x 4
 y 13
 end
-arch water_lt3
+arch spawn_point
+x 4
+y 13
+arch ranger
+type 83
+name Sam Goodberry
+level 3
+direction 3
+end
+end
+arch ship_floor_we_dark_1
+x 4
+y 14
+end
+arch ship_rail_s_hole
 x 4
 y 14
 end
@@ -644,7 +666,20 @@ arch water_lt3
 x 4
 y 15
 end
+arch ship_hull_s_high
+x 4
+y 15
+end
 arch water_lt4
+x 4
+y 16
+end
+arch dwarf_wheel
+zoom 60
+z 10
+align 10
+face dwarf_wheel_stopped.101
+is_animated 0
 x 4
 y 16
 end
@@ -764,19 +799,40 @@ arch bridge_wood_01
 x 5
 y 11
 end
-arch water_lt3
+arch ship_floor_we_dark_1
 x 5
 y 12
 end
-arch water_lt
+arch ship_rail_n_hole
+x 5
+y 12
+end
+arch ship_floor_we_dark_1
 x 5
 y 13
 end
-arch water_lt3
+arch ship_w_steering_wheel
+z 5
+x 5
+y 13
+end
+arch ship_rail_e_high
+x 5
+y 13
+end
+arch ship_floor_we_dark_1
+x 5
+y 14
+end
+arch ship_rail_s_hole
 x 5
 y 14
 end
 arch water_lt4
+x 5
+y 15
+end
+arch ship_hull_s_high
 x 5
 y 15
 end
@@ -880,32 +936,41 @@ arch bridge_wood_NS.171
 x 6
 y 10
 end
-arch water_lt
-x 6
-y 11
-end
-arch bridge_wood_NS.151
+arch bridge_wood_NS.101
 x 6
 y 11
 end
 arch bridge_wood_02
-layer 3
 x 6
 y 11
 end
-arch water_lt
+arch ship_floor_we_dark_1
 x 6
 y 12
 end
-arch water_lt3
+arch ship_floor_we_dark_1
 x 6
 y 13
 end
-arch water_lt
+arch lamp_wall
+z -16
+direction 7
+x 6
+y 13
+end
+arch ship_floor_we_dark_1
+x 6
+y 14
+end
+arch ship_rail_s_hole
 x 6
 y 14
 end
 arch water_lt4
+x 6
+y 15
+end
+arch ship_hull_s_high
 x 6
 y 15
 end
@@ -1012,6 +1077,10 @@ arch bridge_wood_corner.181
 x 7
 y 10
 end
+arch bollard_tied_n_1
+x 7
+y 10
+end
 arch water_lt
 x 7
 y 11
@@ -1020,19 +1089,39 @@ arch bridge_wood_EW.151
 x 7
 y 11
 end
-arch water_lt
+arch bollard_tied_n_2
+x 7
+y 11
+end
+arch ship_floor_we_dark_1
 x 7
 y 12
 end
-arch water_lt
+arch ship_rail_n_hole
+x 7
+y 12
+end
+arch ship_floor_we_dark_1
 x 7
 y 13
 end
-arch water_lt
+arch stairs_wood_down
+x 7
+y 13
+end
+arch ship_floor_we_dark_1
+x 7
+y 14
+end
+arch ship_rail_s_hole
 x 7
 y 14
 end
 arch water_lt4
+x 7
+y 15
+end
+arch ship_hull_s_high
 x 7
 y 15
 end
@@ -1134,15 +1223,6 @@ arch bridge_wood_corner.121
 x 8
 y 10
 end
-arch bridge_wood_NS.131
-x 8
-y 10
-end
-arch bollard
-no_pass 1
-x 8
-y 10
-end
 arch water_lt4
 x 8
 y 11
@@ -1151,19 +1231,53 @@ arch bridge_wood_EW.151
 x 8
 y 11
 end
-arch water_lt2
+arch ship_floor_we_dark_1
 x 8
 y 12
 end
-arch water_lt4
+arch tackelage_n_low
+layer 4
+x 8
+y 12
+end
+arch box_big.101
+layer 5
+x 8
+y 12
+end
+arch ship_floor_we_dark_1
 x 8
 y 13
 end
-arch water_lt2
+arch mast_e_short
+x 8
+y 13
+end
+arch ship_floor_we_dark_1
+x 8
+y 14
+end
+arch barrel.101
+align 7
+z -5
+x 8
+y 14
+end
+arch lamp_wall
+z 12
+align 8
+x 8
+y 14
+end
+arch tackelage_s_low
 x 8
 y 14
 end
 arch water_lt
+x 8
+y 15
+end
+arch ship_hull_s_high
 x 8
 y 15
 end
@@ -1287,15 +1401,55 @@ arch water_lt2
 x 9
 y 12
 end
-arch water_lt2
+arch ship_hull_prow_e_front_strokeside_1_dark
+x 9
+y 12
+end
+arch ship_prow_e_strokeside_a
+x 9
+y 12
+end
+arch ship_floor_we_dark_1
 x 9
 y 13
 end
-arch water_lt2
+arch box_big.101
+layer 3
+x 9
+y 13
+end
+arch sail_reffed_e
+z -40
+x 9
+y 13
+end
+arch ship_floor_we_dark_1
+x 9
+y 14
+end
+arch ship_prow_e_starboard_a
+x 9
+y 14
+end
+arch ship_hull_prow_e_rear_2
+x 9
+y 14
+end
+arch sail_reffed_e
+z -40
 x 9
 y 14
 end
 arch water_lt
+x 9
+y 15
+end
+arch ship_hull_prow_e_rear_1
+x 9
+y 15
+end
+arch sail_reffed_e
+z -40
 x 9
 y 15
 end
@@ -1397,6 +1551,14 @@ arch box_big.101
 x 10
 y 9
 end
+arch box_big.101
+z 23
+zoom 65
+align 8
+layer 5
+x 10
+y 9
+end
 arch bridge_wood_EW.101
 x 10
 y 10
@@ -1418,7 +1580,23 @@ arch water_lt2
 x 10
 y 12
 end
-arch water_lt
+arch ship_hull_prow_e_front_strokeside_2_dark
+x 10
+y 12
+end
+arch ship_prow_e_strokeside_b
+x 10
+y 12
+end
+arch ship_floor_we_dark_1
+x 10
+y 13
+end
+arch basket1.101
+x 10
+y 13
+end
+arch ship_prow_e_midship
 x 10
 y 13
 end
@@ -1426,7 +1604,19 @@ arch water_lt3
 x 10
 y 14
 end
+arch ship_prow_e_starboard_b
+x 10
+y 14
+end
+arch ship_hull_prow_e_rear_4
+x 10
+y 14
+end
 arch water_lt2
+x 10
+y 15
+end
+arch ship_hull_prow_e_rear_3
 x 10
 y 15
 end
@@ -1572,14 +1762,6 @@ arch barrel.101
 x 11
 y 10
 end
-arch box_big.101
-z 47
-zoom 65
-align 8
-layer 5
-x 11
-y 10
-end
 arch water_lt3
 x 11
 y 11
@@ -1597,11 +1779,27 @@ arch water_lt3
 x 11
 y 13
 end
+arch ship_hull_prow_e_front_3_dark
+x 11
+y 13
+end
+arch ship_prow_e_long
+x 11
+y 13
+end
 arch water_lt
 x 11
 y 14
 end
+arch ship_hull_prow_e_rear_6
+x 11
+y 14
+end
 arch water_lt2
+x 11
+y 15
+end
+arch ship_hull_prow_e_rear_5
 x 11
 y 15
 end

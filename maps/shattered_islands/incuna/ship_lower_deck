@@ -8,6 +8,7 @@ width 14
 height 5
 difficulty 1
 darkness 5
+bg_music adventurers_wish.ogg
 end
 arch blocked
 end
@@ -250,6 +251,9 @@ x 6
 y 2
 end
 arch stairs_wood_up
+slaying ../world_05af
+hp 7
+sp 13
 x 6
 y 2
 end
