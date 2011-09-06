@@ -18,7 +18,7 @@ def main():
 		inf.set_title("smug student witch")
 		inf.set_icon("witch1.131")
 		inf.add_msg("It ain't cheating, I'm just playing creatively.  Haha.~")
-		inf.add_link2("<a=close:>&lt;end&gt;</a>")
+		inf.add_link("<a=close:>&lt;end&gt;</a>")
 
 main()
 inf.finish()

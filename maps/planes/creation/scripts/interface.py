@@ -12,7 +12,7 @@ def main():
 		inf.add_msg("Well, hello there! Would you care for a refreshing bottle of booze?")
 		inf.add_link("Sure, thanks.")
 		inf.add_link("No thanks.")
-		inf.add_link2("<a=close:>&lt;exit&gt;</a>")
+		inf.add_link("<a=close:>&lt;exit&gt;</a>")
 
 	elif msg == "sure, thanks.":
 		inf.add_msg("Fooled ya!")
