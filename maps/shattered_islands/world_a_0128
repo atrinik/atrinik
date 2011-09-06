@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-31 emperorbma
+Modified: 2011-09-04 emperorbma
 endmsg
 width 24
 height 24
@@ -689,36 +689,6 @@ arch spawn_point
 x 6
 y 7
 arch fairy
-msg
-@match ^hi$|^hey$|^hello$
-Hi, there.  What's up?  Can I help you find a <a>book</a>?  Maybe you want to ask for other <a>information</a>?
-@match ^information$
-Try asking me some stuff about this town.  I might be able to help.
-@match ^book$|^books$
-Yeah.  You are probably interested in the <a>Eastern Project</a> series, right?  That's what everyone seems to be reading these days.
-@match ^the strongest$
-Nope, sorry.  Wrong fairy.  The <a>tomboyish fairy</a> who says that is on the river east of Aris in the early mornings.
-@match ^Cirno$|^tomboyish fairy$
-Yeah, that ice fairy by the lake has read way too many of those <a>stories</a> and now she thinks she's Cirno.
-@match ^baka$|^idiot$|^nineball$|^marukyuu$|^(9)$
-Hey, now!  Don't underestimate me.  Just because some fairies are stupid doesn't mean we all are.
-@match ^Daiyousei$
-Hehe, yeah.  I like that fan series that depicts her as cool and smart.
-@match ^stories$|^Touhou$|^eastern project$
-They're kinda cool stories with lots of <a>magic</a>, but some people seem a bit too hyped up about them.  The name is sort of a translation from the original language.  Anyway, they are over in the Fantasy aisle.
-@match ^magic$
-I guess that's what happens in a town of <a>magical girls</a>... I mean, witches.
-@match ^magical girls$|^magical girl$
-Interesting story about that.  In some languages, it's possible to change "magical girl" into "witch" by removing 2 of the symbols.  It kind of seems like our town has that as an in-joke.
-@match ^Ruri Hoshino$|^Nadesico$
-Hmm... I didn't realize someone would ever guess my namesake.  It's a pretty obscure series here in this town.
-@match ^Centennial$
-The name of this town is also a bit of an in-joke.  If you are really that concerned about it, it's found in the 6th title of the "Eastern Project" series in the "Extra" section.
-@match ^Ahriman's Prophecy$
-Good story.  Apparently the town founders liked it.  It's kind of why they founded the town where they did.
-@match ^Lindy$|^librarian$
-She's nice enough.  I'd love to chat, but I've got <a>books</a> to attend to...
-endmsg
 name Ruri, the fairy helper
 level 15
 can_cast_spell 1
@@ -743,6 +713,10 @@ name ability minor healing
 sp 2
 hp 2
 maxsp 1
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/ruri.py
 end
 end
 end
