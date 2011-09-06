@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-09-06 Alex Tokar
+Modified: 2011-08-31 Alex Tokar
 endmsg
 width 5
 height 14
@@ -12,154 +12,163 @@ bg_music fireside.mid
 end
 arch blocked
 end
-arch ship_rail_s
+arch ship_rail_e
+z 3
+align -20
+end
+arch blocked
+y 1
+end
+arch ship_rail_e
 layer 5
 blocksview 1
 no_pass 1
-end
-arch ship_rail_s
-z 13
-end
-arch ship_floor_ns_3
 y 1
 end
-arch ship_rail_w
-blocksview 1
-no_pass 1
+arch ship_rail_e
+z 13
+y 1
+end
+arch blocked
+y 2
+end
+arch ship_rail_e
 layer 4
-y 1
-end
-arch ship_rail_w
-z 13
-y 1
-end
-arch table_small1
-layer 7
-y 1
-end
-arch ship_floor_ns_3
-y 2
-end
-arch ship_rail_w
 blocksview 1
 no_pass 1
 y 2
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
+layer 5
 y 2
 end
-arch ship_floor_ns_3
+arch picture1.151
+direction 7
+y 2
+end
+arch blocked
 y 3
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 5
 blocksview 1
 no_pass 1
 y 3
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
 y 3
 end
-arch ship_floor_ns_3
+arch blocked
 y 4
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 4
 blocksview 1
 no_pass 1
 y 4
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
+layer 5
 y 4
 end
-arch ship_floor_ns_3
+arch hole2
+layer 7
+align 8
+z 2
+y 4
+end
+arch blocked
 y 5
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 5
 blocksview 1
 no_pass 1
 y 5
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
 y 5
 end
-arch ship_floor_ns_3
+arch blocked
 y 6
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 5
 blocksview 1
 no_pass 1
 y 6
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
 y 6
 end
-arch ship_floor_ns_3
+arch blocked
 y 7
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 4
 blocksview 1
 no_pass 1
 y 7
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
+layer 5
 y 7
 end
-arch ship_floor_ns_3
+arch flag_04
+direction 7
+y 7
+end
+arch blocked
 y 8
 end
-arch ship_rail_w
+arch ship_rail_e
+layer 5
 blocksview 1
 no_pass 1
 y 8
 end
-arch ship_rail_w
-layer 7
+arch ship_rail_e
 z 13
 y 8
 end
 arch blocked
 y 9
 end
-arch ship_hull_prow_s_front_starboard_1
-y 9
-end
-arch metal_bucket.101
-align 9
-y 9
-end
-arch ship_prow_s_starboard_a
+arch ship_rail_e
+layer 4
 blocksview 1
+no_pass 1
 y 9
 end
-arch ship_prow_s_starboard_a
+arch ship_rail_e
 z 13
+layer 5
+y 9
+end
+arch hole
 layer 7
+z 3
+align 5
 y 9
 end
 arch blocked
 y 10
 end
-arch ship_prow_s_starboard_b
+arch ship_rail_e
+layer 5
+no_pass 1
 blocksview 1
 y 10
 end
-arch ship_prow_s_starboard_b
-z 13
-layer 7
-y 10
-end
-arch ship_hull_prow_s_front_starboard_2
+arch ship_rail_e
+align 5
+z 15
 y 10
 end
 arch blocked
@@ -353,17 +362,14 @@ x 2
 y 1
 end
 arch ship_rail_e
-z 4
 layer 5
 blocksview 1
 no_pass 1
-align -8
 x 2
 y 1
 end
 arch ship_rail_e
-z 17
-align -8
+z 13
 x 2
 y 1
 end
@@ -372,17 +378,14 @@ x 2
 y 2
 end
 arch ship_rail_e
-z 4
 layer 5
 blocksview 1
 no_pass 1
-align -8
 x 2
 y 2
 end
 arch ship_rail_e
-z 17
-align -8
+z 13
 x 2
 y 2
 end
@@ -391,36 +394,30 @@ x 2
 y 3
 end
 arch ship_rail_e
-z 4
 layer 5
 blocksview 1
 no_pass 1
-align -8
 x 2
 y 3
 end
 arch ship_rail_e
-z 17
-align -8
+z 13
 x 2
 y 3
 end
-arch ship_floor_ns_1
+arch ship_floor_ns_4
 x 2
 y 4
 end
 arch ship_rail_e
-z 4
 layer 5
 blocksview 1
 no_pass 1
-align -8
 x 2
 y 4
 end
 arch ship_rail_e
-z 17
-align -8
+z 13
 x 2
 y 4
 end
@@ -551,8 +548,6 @@ y 1
 end
 arch bed_7a
 direction 7
-align -4
-z 2
 x 3
 y 1
 end
@@ -562,12 +557,15 @@ y 2
 end
 arch bed_7b
 direction 7
-align -4
-z 2
 x 3
 y 2
 end
 arch ship_floor_ns_4
+x 3
+y 3
+end
+arch wall_well.131
+direction 7
 x 3
 y 3
 end
@@ -670,12 +668,6 @@ z 13
 x 4
 end
 arch ship_floor_ns_4
-x 4
-y 1
-end
-arch table_small1
-align -11
-z 7
 x 4
 y 1
 end
