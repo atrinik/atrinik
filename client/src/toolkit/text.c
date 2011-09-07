@@ -1392,6 +1392,8 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	/* Deals with the case when calculating width. */
 	else
 	{
+		uint8 is_bold;
+
 		/* Different font sizes affect the width, so we need to
 		 * temporarily change the current font. */
 		if (info->calc_font != -1)
@@ -1400,11 +1402,17 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			*font = info->calc_font;
 		}
 
+		is_bold = TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD;
+
 		/* Bold style also slightly affects the width. */
-		if (info->calc_bold && !(TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD))
+		if (info->calc_bold && !is_bold)
 		{
 			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
 			remove_bold = 1;
+		}
+		else if (!info->calc_bold && is_bold)
+		{
+			TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
 		}
 	}
 
