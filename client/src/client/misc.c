@@ -233,3 +233,25 @@ char *package_get_version_partial(char *dst, size_t dstlen)
 	snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
 	return dst;
 }
+
+/**
+ * Transforms a string to uppercase, in-place.
+ * @param str String to transform, will be modified. */
+void strtoupper(char *str)
+{
+	while (*str != '\0')
+	{
+		*str++ = toupper(*str);
+	}
+}
+
+/**
+ * Transforms a string to lowercase, in-place.
+ * @param str String to transform, will be modified. */
+void strtolower(char *str)
+{
+	while (*str != '\0')
+	{
+		*str++ = tolower(*str);
+	}
+}
