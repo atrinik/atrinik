@@ -1401,3 +1401,39 @@ Resumes previously paused music.
 <a=help>music_pause</a>
 endmsg
 end
+
+help basics_movement
+title Basics: Movement
+msg
+<title>Movement</title>
+There are two choices for movement in Atrinik: keyboard and mouse. Mouse-based movement is easier to use, however, the keyboard is more accurate.
+
+<b>Mouse:</b>
+Move the mouse over the map area, and you'll see the tile below your mouse highlighted with green borders. If you click that area, your character will try to move there.
+
+<b>Keyboard:</b>
+You can use the keyboard numpad to move around, for example, <b>3</b> on the numpad would move your character one step east. You can hold down the numpad key to run in this manner in the direction specified by the numpad key you are holding down. If you want to stop running, simply release the key.
+
+<title>Obstacles</title>
+There are many obstacles to walk around in the world, ranging from trees to rocks, walls, deep water, doors, gates and the like.
+
+Doors can be opened by walking into them with your character and will stay open for a short amount of time. Note that some doors require keys to open.
+
+Gates can usually be opened using levers, switches, buttons and the like. Some may even require a secret activation phrase to open - thus it is a good idea to explore around.
+endmsg
+end
+
+help basics_object_interaction
+title Basics: Object Interaction
+msg
+<title>Interacting With Objects</title>
+
+Interacting with objects is an often-used part of the game. The objects right below your feet appear in a screen near the middle bottom. You can select them using the mouse, or with the arrow keys. In order to interact with them, you apply them, either by middle-clicking them, or pressing <b>A</b> key to interact with the selected object.
+
+The outcome of your interaction depends on the object you applied - stairs, ropes, ladders, etc will allow you to move across areas. Levers may be used to open gates or secret passages, light sources such as torches or lamps can be lit, etc.
+
+Pressing the <b>E</b> key will examine the currently selected object, which may reveal more information about it.
+
+The spacebar may be used in order to quickly apply the first object below your feet that you can interact with.
+endmsg
+end
