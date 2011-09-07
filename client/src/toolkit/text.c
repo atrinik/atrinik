@@ -1669,7 +1669,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 		/* Is this a newline, or word wrap was set and we are over
 		 * maximum width? */
-		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + glyph_get_width(font, cp[pos]) > box->w))
+		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '<' ? 0 : glyph_get_width(font, cp[pos])) > box->w))
 		{
 			/* Store the last space. */
 			if (is_lf || last_space == 0)
