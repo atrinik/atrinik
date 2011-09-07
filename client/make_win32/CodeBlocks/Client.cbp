@@ -96,6 +96,7 @@
 		<Unit filename="..\..\src\gui\main.c" />
 		<Unit filename="..\..\src\gui\range.c" />
 		<Unit filename="..\..\src\gui\mplayer.c" />
+		<Unit filename="..\..\src\gui\notification.c" />
 		<Unit filename="..\..\src\gui\menu_buttons.c" />
 		<Unit filename="..\..\src\gui\region_map.c" />
 		<Unit filename="..\..\src\gui\spells.c" />

@@ -174,6 +174,7 @@ set(SOURCES
 	src/gui/map.c
 	src/gui/menu_buttons.c
 	src/gui/mplayer.c
+	src/gui/notification.c
 	src/gui/party.c
 	src/gui/protections.c
 	src/gui/quickslots.c

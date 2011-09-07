@@ -76,6 +76,7 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"NOTIFICATION_ID", 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1361,6 +1362,10 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			case PARTY_ID:
 				widget_party_mevent(widget, event);
 				break;
+
+			case NOTIFICATION_ID:
+				widget_notification_event(widget, event);
+				break;
 		}
 	}
 
@@ -2041,6 +2046,10 @@ static void process_widget(widgetdata *widget)
 
 		case PARTY_ID:
 			widget_party_render(widget);
+			break;
+
+		case NOTIFICATION_ID:
+			widget_notification_render(widget);
 			break;
 	}
 }
