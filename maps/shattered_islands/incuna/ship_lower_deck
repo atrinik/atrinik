@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-09-06 Alex Tokar
-Modified: 2011-09-06 Alex Tokar
+Modified: 2011-09-07 Alex Tokar
 endmsg
 width 14
 height 5
@@ -103,6 +103,15 @@ x 2
 y 1
 end
 arch ship_floor_we_1
+x 2
+y 2
+end
+arch magic_mouth
+msg
+You wake up and find that the boat is not sailing anymore...
+
+You have reached Incuna.
+endmsg
 x 2
 y 2
 end
@@ -251,6 +260,9 @@ x 6
 y 2
 end
 arch stairs_wood_up
+msg
+You go up the stairs and find that the captain is still on the main deck, even though it seems the boat has been docked for some time. Perhaps you should talk to him...
+endmsg
 slaying ../world_05af
 hp 7
 sp 13
