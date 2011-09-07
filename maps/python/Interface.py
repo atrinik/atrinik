@@ -58,6 +58,9 @@ class Interface:
 			self.add_msg_icon_object(obj)
 			obj.InsertInto(self._activator)
 
+	def dialog_close(self):
+		self._activator.Controller().WriteToSocket(39, "X")
+
 	def finish(self):
 		if not self._msg:
 			return
