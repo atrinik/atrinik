@@ -19,7 +19,8 @@ def main():
 			inf.add_link("<a=:remember>Not really...</a>")
 
 		elif msg == "remember":
-			inf.add_msg("Well, at any rate, I think you should visit the local church priest")
+			inf.add_msg("Well, at any rate, I think you should visit the local church priest. Manard is his name, if I remember correctly.")
+			inf.add_link("<a=close:>I'll do that.</a>")
 			qm.start(1)
 
 	elif qm.completed():
