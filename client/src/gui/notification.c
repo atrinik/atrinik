@@ -1,0 +1,302 @@
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
+*                                                                       *
+* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
+* and Crossfire (Multiplayer game for X-windows).                       *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 2 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
+/**
+ * @file
+ * Implements notification widget. Similar to tooltips, but instead
+ * triggered by player actions. Such a notification can even define an
+ * action to execute when the notification is clicked, or if the
+ * notification has a keybinding shortcut assigned to it, when the
+ * shortcut key is pressed (thus overruling normal behavior of that
+ * shortcut).
+ *
+ * @author Alex Tokar */
+
+#include <global.h>
+#include <notification.h>
+
+/**
+ * The notification data. */
+static notification_struct *notification = NULL;
+
+/**
+ * Destroy notification data. */
+void notification_destroy(void)
+{
+	if (!notification)
+	{
+		return;
+	}
+
+	if (notification->action)
+	{
+		free(notification->action);
+	}
+
+	if (notification->shortcut)
+	{
+		free(notification->shortcut);
+	}
+
+	free(notification);
+	notification = NULL;
+	cur_widget[NOTIFICATION_ID]->show = 0;
+}
+
+/**
+ * Process notification's action, if any. */
+static void notification_action_do(void)
+{
+	if (notification && notification->action)
+	{
+		/* Macro or command? */
+		if (*notification->action == '?')
+		{
+			keybind_process_command(notification->action);
+		}
+		else
+		{
+			send_command_check(notification->action);
+		}
+
+		/* Done the action, destroy it... */
+		notification_destroy();
+	}
+}
+
+/**
+ * Check whether notification should handle keybinding macro.
+ * @param cmd Macro to check.
+ * @return 1 if the notification handled the keybinding, 0 otherwise. */
+int notification_keybind_check(const char *cmd)
+{
+	if (notification && notification->action && notification->shortcut && !strcmp(notification->shortcut, cmd))
+	{
+		notification_action_do();
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Render the notification widget.
+ * @param widget The widget. */
+void widget_notification_render(widgetdata *widget)
+{
+	SDL_Rect dst;
+
+	/* Nothing to render... */
+	if (!notification)
+	{
+		return;
+	}
+
+	/* Update the widget's position to below map name. */
+	widget->x1 = cur_widget[MAPNAME_ID]->x1;
+	widget->y1 = cur_widget[MAPNAME_ID]->y1 + cur_widget[MAPNAME_ID]->ht;
+
+	/* Check whether we should do fade out. */
+	if (SDL_GetTicks() - notification->start_ticks > notification->delay - NOTIFICATION_DEFAULT_FADEOUT)
+	{
+		int fade;
+
+		/* Calculate how far into the fading animation we are. */
+		fade = SDL_GetTicks() - notification->start_ticks - (notification->delay - NOTIFICATION_DEFAULT_FADEOUT);
+
+		/* Completed the fading animation? */
+		if (fade > NOTIFICATION_DEFAULT_FADEOUT)
+		{
+			notification_destroy();
+			return;
+		}
+
+		/* Adjust the alpha value... */
+		notification->alpha = 255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double) NOTIFICATION_DEFAULT_FADEOUT);
+	}
+
+	/* Blit the surface. */
+	dst.x = widget->x1;
+	dst.y = widget->y1;
+	SDL_SetAlpha(widget->widgetSF, SDL_SRCALPHA, notification->alpha);
+	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &dst);
+
+	/* Do highlight. */
+	if (widget_mouse_event.owner == widget && notification->action)
+	{
+		filledRectAlpha(ScreenSurface, dst.x, dst.y, dst.x + widget->wd, dst.y + widget->ht, 0xffffff3c);
+	}
+}
+
+/**
+ * Handle notification widget event.
+ * @param widget The widget.
+ * @param event The event to handle. */
+void widget_notification_event(widgetdata *widget, SDL_Event *event)
+{
+	(void) widget;
+
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		notification_action_do();
+	}
+}
+
+/**
+ * Process notification binary command.
+ * @param data The data.
+ * @param len Length of 'data'. */
+void cmd_notification(uint8 *data, int len)
+{
+	int pos = 0, wd, ht;
+	char type, *cp;
+	SDL_Rect box;
+	StringBuffer *sb;
+	SDL_Color color;
+
+	/* Destroy previous notification, if any. */
+	notification_destroy();
+	/* Show the widget... */
+	cur_widget[NOTIFICATION_ID]->show = 1;
+	/* Create the data structure and initialize default values. */
+	notification = calloc(1, sizeof(*notification));
+	notification->start_ticks = SDL_GetTicks();
+	notification->alpha = 255;
+	notification->delay = NOTIFICATION_DEFAULT_DELAY;
+	sb = stringbuffer_new();
+
+	/* Parse the data. */
+	while (pos < len)
+	{
+		type = data[pos++];
+
+		switch (type)
+		{
+			case CMD_NOTIFICATION_TEXT:
+			{
+				char message[HUGE_BUF];
+
+				GetString_String(data, &pos, message, sizeof(message));
+				stringbuffer_append_string(sb, message);
+				break;
+			}
+
+			case CMD_NOTIFICATION_ACTION:
+			{
+				char action[HUGE_BUF];
+
+				GetString_String(data, &pos, action, sizeof(action));
+				notification->action = strdup(action);
+				break;
+			}
+
+			case CMD_NOTIFICATION_SHORTCUT:
+			{
+				char shortcut[HUGE_BUF];
+
+				GetString_String(data, &pos, shortcut, sizeof(shortcut));
+				notification->shortcut = strdup(shortcut);
+				break;
+			}
+
+			case CMD_NOTIFICATION_DELAY:
+				notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, GetInt_String(data + pos));
+				pos += 4;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/* Shortcut specified, add the shortcut name to the notification
+	 * message. */
+	if (notification->shortcut)
+	{
+		keybind_struct *keybind = keybind_find_by_command(notification->shortcut);
+
+		if (keybind)
+		{
+			char key_buf[MAX_BUF];
+
+			keybind_get_key_shortcut(keybind->key, keybind->mod, key_buf, sizeof(key_buf));
+			strtoupper(key_buf);
+			stringbuffer_append_printf(sb, " (click or <b>%s</b>)", key_buf);
+		}
+	}
+	/* No shortcut, clicking is the best one can do... */
+	else if (notification->action)
+	{
+		stringbuffer_append_string(sb, " (click)");
+	}
+
+	cp = stringbuffer_finish(sb);
+
+	/* Calculate the maximum height the text will need. */
+	box.x = 0;
+	box.y = 0;
+	box.w = NOTIFICATION_DEFAULT_WIDTH;
+	box.h = 0;
+	string_blt(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+	ht = box.h;
+
+	/* Calculate the maximum text width. */
+	box.h = 0;
+	string_blt(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+	wd = box.w;
+
+	box.x = 0;
+	box.y = 0;
+	box.w = wd + 6;
+	box.h = ht + 6;
+
+	/* Update the notification widget width/height. */
+	resize_widget(cur_widget[NOTIFICATION_ID], RESIZE_RIGHT, box.w);
+	resize_widget(cur_widget[NOTIFICATION_ID], RESIZE_BOTTOM, box.h);
+
+	if (cur_widget[NOTIFICATION_ID]->widgetSF)
+	{
+		SDL_FreeSurface(cur_widget[NOTIFICATION_ID]->widgetSF);
+	}
+
+	/* Create a new surface. */
+	cur_widget[NOTIFICATION_ID]->widgetSF = SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
+
+	/* Fill the surface with the background color. */
+	if (text_color_parse("e6e796", &color))
+	{
+		SDL_FillRect(cur_widget[NOTIFICATION_ID]->widgetSF, &box, SDL_MapRGB(cur_widget[NOTIFICATION_ID]->widgetSF->format, color.r, color.g, color.b));
+	}
+
+	/* Create a border. */
+	border_create_color(cur_widget[NOTIFICATION_ID]->widgetSF, &box, "606060");
+
+	/* Render the text. */
+	box.w = wd;
+	box.h = ht;
+	string_blt(cur_widget[NOTIFICATION_ID]->widgetSF, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+
+	free(cp);
+}
