@@ -154,6 +154,8 @@ extern void browser_open(const char *url);
 extern int rndm(int min, int max);
 extern char *package_get_version_full(char *dst, size_t dstlen);
 extern char *package_get_version_partial(char *dst, size_t dstlen);
+extern void strtoupper(char *str);
+extern void strtolower(char *str);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
