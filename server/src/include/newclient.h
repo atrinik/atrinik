@@ -437,6 +437,7 @@ enum
 	BINARY_CMD_KEEPALIVE,
 	BINARY_CMD_SOUND_AMBIENT,
 	BINARY_CMD_INTERFACE,
+	BINARY_CMD_NOTIFICATION,
 
 	/* old, unused or outdated crossfire cmds! */
 	BINARY_CMD_MAGICMAP,
@@ -507,6 +508,22 @@ enum
  * If found in the command, will open the console with any text followed
  * by this. */
 #define CMD_INTERFACE_INPUT 4
+/*@}*/
+
+/**
+ * @defgroup CMD_NOTIFICATION_xxx Notification command types
+ * Notification command types.
+ *@{*/
+/** The notification contents. */
+#define CMD_NOTIFICATION_TEXT 0
+/** What macro or command to execute. */
+#define CMD_NOTIFICATION_ACTION 1
+/** Macro temporarily assigned to this notification. */
+#define CMD_NOTIFICATION_SHORTCUT 2
+/**
+ * How many milliseconds must pass before the notification is
+ * dismissed. */
+#define CMD_NOTIFICATION_DELAY 3
 /*@}*/
 
 #endif
