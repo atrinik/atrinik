@@ -314,6 +314,16 @@ void cmd_interface(uint8 *data, int len)
 	size_t links_len, i;
 	SDL_Rect box;
 
+	if (!data || !len)
+	{
+		if (interface_data)
+		{
+			interface_data->destroy = 1;
+		}
+
+		return;
+	}
+
 	if (!interface_data)
 	{
 		popup_struct *popup;
