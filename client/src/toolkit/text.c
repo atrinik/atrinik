@@ -1695,6 +1695,11 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				skip = box->y && lines - 1 < box->y;
 			}
 
+			if (flags & TEXT_MAX_WIDTH)
+			{
+				skip = 1;
+			}
+
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)
 			{
