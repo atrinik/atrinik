@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1190,12 +1190,18 @@ arch stairs_wood_down
 msg
 Sam Goodberry shouts at you:
 Hey, I need you over here, not back on the lower deck!
-
-<c=#FDD017>Talk to NPCs (Non-Player Characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
 endmsg
 direction 5
 hp 8
 sp 14
+x 8
+y 14
+end
+arch magic_mouth
+notification_message Tutorial Available: Talking
+notification_action /help basics_talking
+notification_shortcut ?HELP
+notification_delay 90000
 x 8
 y 14
 end

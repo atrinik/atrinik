@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-09-07 Alex Tokar
+Modified: 2011-09-08 Alex Tokar
 endmsg
 width 5
 height 14
@@ -333,8 +333,6 @@ arch stairs_wood_up
 msg
 
 You climb up to the main deck, and notice a man who looks like the captain. You vaguely remember boarding the boat with him...
-
-<c=#FDD017>Talk to NPCs (Non-Player Characters) by approaching them and bringing up the chat input with <b>Enter</b> key, typing <b>hello</b> and pressing <b>Enter</b> again. Alternatively, you can highlight the space the NPC is on with the mouse, hold right-click for a short amount of time, and select the <b>Talk To NPC</b> option.</c>
 endmsg
 slaying ../world_ag04
 hp 8
