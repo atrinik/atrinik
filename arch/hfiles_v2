@@ -1409,7 +1409,7 @@ msg
 There are two choices for movement in Atrinik: keyboard and mouse. Mouse-based movement is easier to use, however, the keyboard is more accurate.
 
 <b>Mouse:</b>
-Move the mouse over the map area, and you'll see the tile below your mouse highlighted with green borders. If you click that area, your character will try to move there.
+Move the mouse over the map area, and you'll see the square below your mouse highlighted with green borders. If you click that area, your character will try to move there.
 
 <b>Keyboard:</b>
 You can use the keyboard numpad to move around, for example, <b>3</b> on the numpad would move your character one step east. You can hold down the numpad key to run in this manner in the direction specified by the numpad key you are holding down. If you want to stop running, simply release the key.
@@ -1435,5 +1435,20 @@ The outcome of your interaction depends on the object you applied - stairs, rope
 Pressing the <b>E</b> key will examine the currently selected object, which may reveal more information about it.
 
 The spacebar may be used in order to quickly apply the first object below your feet that you can interact with.
+endmsg
+end
+
+help basics_talking
+title Basics: Talking
+msg
+<title>Talking To NPCs</title>
+
+You can talk to nearby NPCs (Non-Player Characters) and players by bringing up the text input using <b>ENTER</b>, typing in your text, and pressing <b>ENTER</b> again. Your message will be heard by all nearby NPCs and players, but in order to start a conversation with NPCs, you usually need to greet them with <b>hi</b> or <b>hey</b>, for example.
+
+Alternatively, you can talk to NPCs using the mouse - simply target the NPC by right-clicking them on the map and click the <b>Hello</b> button near the bottom middle part of the screen. Another way is right-clicking the square the NPC is standing on and holding the right mouse button for a short amount of time, then selecting <b>Talk To NPC</b> option in the menu that pops up.
+
+<title>Talking To Players</title>
+
+As explained above, you can use the text input to talk to nearby players and NPCs. However, it is also possible to use commands in the text input. For example, typing <b>/shout Hello all!</b> in the text input and pressing <b>ENTER</b> would shout out the message <b>Hello all!</b> for all online players to see. There are other chat-related commands, such as <b>/tell &lt;player&gt; Private message</b>, among others. See the <a=help:chat_guide>Chat Guide</a> for more details. You can also check out the list of <a=help:commands>commands</a> that you can use in the text input.
 endmsg
 end
