@@ -1337,7 +1337,7 @@ The list of latest game news keeps you updated about game updates on the <b>Main
 
 By default, the servers list is focused. Focus is a keyboard-only concept, which means that only the focused list will receive keyboard events, such as using the arrow keys to move in the list. If there is more than one active list on the screen, such as the main screen, you can use the <b>Tab</b> key to cycle between them.
 
-Lists use standard GUI behavior - that is, up and down arrow keys to scroll, page up/down to scroll several lines at once, enter to trigger an action, etc. The mouse may also be used to use the lists, such as dragging the list slider (if any) and dragging it to scroll the list quickly, or using the mouse wheel. Clicking an entry in the list once will select it (which is otherwise accomplied with arrow keys), while double-click triggers an action (like enter).
+Lists use standard GUI behavior - that is, up and down arrow keys to scroll, page up/down to scroll several lines at once, enter to trigger an action, etc. The mouse may also be used to use the lists, such as dragging the list slider (if any) to scroll the list quickly, or using the mouse wheel. Clicking an entry in the list once will select it (which is otherwise accomplished with arrow keys), while double-click triggers an action (like enter).
 
 The <b>Play</b> button will connect you to the selected game server - same as using enter in the servers list. <b>Refresh</b> will re-download the list of servers, if you want to see updated player counts, for example.
 
