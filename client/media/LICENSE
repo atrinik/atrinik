@@ -360,12 +360,13 @@ frankie.ogg: Thieves
 = Mike Koenig - CC-BY =
 =======================
 
-pure_romance.ogg
-trance.ogg
+pure_romance.ogg: Techno, cave
+trance.ogg: Disco, techno
+trance_uplifting.ogg
 
 =======================================================================================
 = bebeto - http://www.freesound.org/usersViewSingle.php?id=409 - CC Sampling Plus 1.0 =
 =======================================================================================
 
 travelling.ogg: Traveling music, ships
-jungle.ogg
+jungle.ogg: Overworld

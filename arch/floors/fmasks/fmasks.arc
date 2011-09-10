@@ -44,3 +44,12 @@ mpart_nr 3
 y 1
 x 1
 end
+
+Object fmask_snowflake
+name snowflake
+face fmask_snowflake.101
+no_teleport 1
+layer 2
+type 79
+no_pick 1
+end

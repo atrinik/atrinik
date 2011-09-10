@@ -241,7 +241,8 @@ void strtoupper(char *str)
 {
 	while (*str != '\0')
 	{
-		*str++ = toupper(*str);
+		*str = toupper(*str);
+		str++;
 	}
 }
 
@@ -252,6 +253,7 @@ void strtolower(char *str)
 {
 	while (*str != '\0')
 	{
-		*str++ = tolower(*str);
+		*str = tolower(*str);
+		str++;
 	}
 }
