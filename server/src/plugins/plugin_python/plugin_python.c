@@ -51,6 +51,9 @@ PyObject *AtrinikError;
 static PythonContext *context_stack;
 /** Current context. */
 PythonContext *current_context;
+/**
+ * The global variables dictionary. */
+static PyObject *py_globals_dict = NULL;
 
 /**
  * Useful constants */
@@ -1617,8 +1620,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 #endif
 
 		pushContext(context);
-		dict = PyDict_New();
-		PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins());
+		dict = PyDict_Copy(py_globals_dict);
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
 		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
@@ -2155,6 +2157,13 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	}
 
 	PyDict_SetItemString(d, "Gender", module_tmp);
+
+	/* Create the global scope dictionary. */
+	py_globals_dict = PyDict_New();
+	/* Add the builtings to the global scope. */
+	PyDict_SetItemString(py_globals_dict, "__builtins__", PyEval_GetBuiltins());
+	/* Add Atrinik module members to the global scope. */
+	PyRun_String("from Atrinik import *", Py_file_input, py_globals_dict, NULL);
 
 	LOG(llevDebug, "Python:  [Done]\n");
 }
