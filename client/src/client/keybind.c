@@ -565,6 +565,11 @@ void keybind_state_ensure(void)
  * @return 1 if the command was handled, 0 otherwise. */
 int keybind_process_command(const char *cmd)
 {
+	if (notification_keybind_check(cmd))
+	{
+		return 1;
+	}
+
 	if (*cmd == '?')
 	{
 		int tag = 0, loc = 0;

@@ -154,6 +154,8 @@ extern void browser_open(const char *url);
 extern int rndm(int min, int max);
 extern char *package_get_version_full(char *dst, size_t dstlen);
 extern char *package_get_version_partial(char *dst, size_t dstlen);
+extern void strtoupper(char *str);
+extern void strtolower(char *str);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
@@ -403,6 +405,12 @@ extern void widget_mplayer_background(widgetdata *widget);
 extern void widget_mplayer_deinit(widgetdata *widget);
 extern void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
 extern void mplayer_now_playing(void);
+/* src/gui/notification.c */
+extern void notification_destroy(void);
+extern int notification_keybind_check(const char *cmd);
+extern void widget_notification_render(widgetdata *widget);
+extern void widget_notification_event(widgetdata *widget, SDL_Event *event);
+extern void cmd_notification(uint8 *data, int len);
 /* src/gui/party.c */
 extern void widget_party_background(widgetdata *widget);
 extern void widget_party_render(widgetdata *widget);

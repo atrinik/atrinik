@@ -30,7 +30,16 @@
 #ifndef PLUGIN_PYTHON_H
 #define PLUGIN_PYTHON_H
 
+#if defined(__GNUC__)
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #include <Python.h>
+
+#if defined(__GNUC__)
+#	pragma GCC diagnostic pop
+#endif
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
