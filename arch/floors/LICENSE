@@ -14,7 +14,8 @@ Zerosumtiles - Freeware:
 	grass
 	grey
 	grit
-	ice (based on: cave)
+	ice (based on: fwall_ice_transparent.png, smoothing and touches up: Alex "Cleo" Tokar - GPLv2)
+	ice_cave (based on: cave)
 	marble
 	misc
 	natural
