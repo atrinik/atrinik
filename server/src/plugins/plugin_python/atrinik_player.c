@@ -498,7 +498,6 @@ static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
 	return Py_None;
 }
 
-
 /**
  * <h1>player.SendInterface(string msg, list links, string icon, string title, string text_input)</h1>
  * Sends off interface data to the player.
