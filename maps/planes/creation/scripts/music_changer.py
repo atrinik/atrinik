@@ -2,7 +2,7 @@
 ## Helpful NPC to change background music of a map.
 
 from Atrinik import *
-import re, struct
+import re
 
 activator = WhoIsActivator()
 me = WhoAmI()
@@ -25,9 +25,6 @@ def main():
 
 		for player in me.map.GetPlayers():
 			if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:
-				if player.Controller().s_socket_version >= 1046:
-					player.Controller().WriteToSocket(17, struct.pack("2b" + str(len(map_name) + 1) + "sb" + str(len(info.slaying) + 1) + "s", 1, 1, map_name, 2, info.slaying))
-				else:
-					player.Controller().WriteToSocket(2, struct.pack("2b" + str(len(map_name) + 1) + "s" + str(len(info.slaying) + 1) + "s4b", 1, 1, map_name, info.slaying, 0, 0, player.x, player.y))
+				player.Controller().SendPacket(17, "BsBs", 1, map_name, 2, info.slaying)
 
 main()
