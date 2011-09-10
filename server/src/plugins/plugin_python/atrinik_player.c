@@ -557,6 +557,161 @@ static PyObject *Atrinik_Player_SendInterface(Atrinik_Player *pl, PyObject *args
 	return Py_None;
 }
 
+/**
+ * <h1>player.SendPacket(int command, string format, ...)</h1>
+ * Constructs and sends a packet to the player's client.
+ * @param command The command ID.
+ * @param format Format specifier. For example, "Bs" would imply uint8 +
+ * string data, and the format specifier would need to be followed by an
+ * integer that is within uint8 data range and a string. */
+static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
+{
+	long cmd;
+	char *format;
+	unsigned char sock_buf[MAXSOCKBUF];
+	SockList sl;
+	size_t i;
+	PyObject *value;
+
+	/* Must have at least 3 arguments. */
+	if (PyTuple_Size(args) < 3)
+	{
+		PyErr_SetString(PyExc_ValueError, "player.SendPacket(): Insufficient number of arguments.");
+		return NULL;
+	}
+
+	/* The first argument must be an integer. */
+	if (!PyInt_Check(PyTuple_GET_ITEM(args, 0)))
+	{
+		PyErr_SetString(PyExc_OverflowError, "player.SendPacket(): Illegal value for 'cmd' function argument.");
+		return NULL;
+	}
+
+	cmd = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
+
+	/* It also must be uint8. */
+	if (cmd < 0 || (unsigned long) cmd > UINT8_MAX)
+	{
+		PyErr_SetString(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for 'cmd' function argument.");
+		return NULL;
+	}
+
+	sl.buf = sock_buf;
+	SOCKET_SET_BINARY_CMD(&sl, (char) cmd);
+
+	/* Get the format specifier. */
+	format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
+
+	for (i = 0; format[i] != '\0'; i++)
+	{
+		value = PyTuple_GetItem(args, 2 + i);
+
+		if (!value)
+		{
+			PyErr_SetString(PyExc_ValueError, "player.SendPacket(): Insufficient number of arguments.");
+			return NULL;
+		}
+
+		if (format[i] == 'B')
+		{
+			if (PyInt_Check(value))
+			{
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT8_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				SockList_AddChar(&sl, (char) val);
+			}
+			else
+			{
+				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+				return NULL;
+			}
+		}
+		else if (format[i] == 'h')
+		{
+			if (PyInt_Check(value))
+			{
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT16_MIN || val > SINT16_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				SockList_AddShort(&sl, (short) val);
+			}
+			else
+			{
+				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+				return NULL;
+			}
+		}
+		else if (format[i] == 'i')
+		{
+			if (PyInt_Check(value))
+			{
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT32_MIN || val > SINT32_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				SockList_AddInt(&sl, (int) val);
+			}
+			else
+			{
+				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+				return NULL;
+			}
+		}
+		else if (format[i] == 'L')
+		{
+			if (PyInt_Check(value))
+			{
+				PY_LONG_LONG val = PyLong_AsLongLong(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				SockList_AddInt64(&sl, val);
+			}
+			else
+			{
+				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+				return NULL;
+			}
+		}
+		else if (format[i] == 's')
+		{
+			if (PyString_Check(value))
+			{
+				hooks->SockList_AddString(&sl, PyString_AsString(value));
+			}
+			else
+			{
+				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+				return NULL;
+			}
+		}
+	}
+
+	hooks->Send_With_Handling(&pl->pl->socket, &sl);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -580,6 +735,7 @@ static PyMethodDef methods[] =
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
 	{"SendInterface", (PyCFunction) Atrinik_Player_SendInterface, METH_VARARGS, 0},
+	{"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
