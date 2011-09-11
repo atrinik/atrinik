@@ -1507,6 +1507,17 @@ Each item in your inventory has a certain weight, which is cumulatively added to
 endmsg
 end
 
+help basics_caverns
+title Basics: Caverns
+msg
+<title>Caverns</title>
+
+Caverns can usually be entered by walking on top of one of the dark squares. The wind often makes eerie noises around the entrance, so it's easy to tell if you're near one.
+
+If you enter a cavern, you can tell where to exit it, due to the light coming from the outside.
+endmsg
+end
+
 help basics_hunger
 title Basics: Hunger
 msg
