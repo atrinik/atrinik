@@ -1478,13 +1478,11 @@ In order to open your inventory, hold the <b>SHIFT</b>, or click the bag icon on
 Various items can be interacted with, such as compasses, which will tell you the direction you are currently facing, or light sources such as torches, which can be lit inside your inventory, and then wielded with a second interaction. Armor can be worn, weapons can be wielded, magic devices such as wands can be readied for firing, etc.
 
 <b>Keyboard:</b>
-
 Select an item in your inventory using the arrow keys. Now, if you press the <b>A</b> key, you will apply the selected item, thus interacting with it. If the item is, for example, a piece of armor, you will put it on your character - or if you're already wearing it, you'll unwear it.
 
 You can use the <b>E</b> key to learn more about the selected item, if it's identified. The <b>M</b> key will mark the selected item, which is used in some NPC dialogues, such as when you want to send an item using the post office. Ammunition can be readied for firing using the <b>F</b> key.
 
 <b>Mouse:</b>
-
 In order to interact with an item using the mouse, you can drag-and-drop the item from your inventory into the player doll. If the item is, for example, a piece of armor, you will put it on your character. In order to unwear/unwield an item, drag it from your player doll back into the inventory.
 
 Marking an item can be done by pressing the middle mouse button on the item you want to mark, which is used in some NPC dialogues, such as when you want to send an item using the post office. Note that some inventory-related actions can currently only be done using the keyboard shortcuts, such as examining items.
