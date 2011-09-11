@@ -1489,6 +1489,15 @@ Marking an item can be done by pressing the middle mouse button on the item you 
 endmsg
 end
 
+help basics_weight
+title Basics: Weight
+msg
+<title>Weight Of Items</title>
+
+Each item in your inventory has a certain weight, which is cumulatively added to your carrying weight. The closer your carrying weight is to your maximum weight capacity (which is affected by the <b>Strength</b> stat), the slower your character will move.
+endmsg
+end
+
 help basics_hunger
 title Basics: Hunger
 msg
