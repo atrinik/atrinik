@@ -20,6 +20,7 @@ logfile.log
 RE:server/unit/.*
 ./server/tools/upgrade/config.cfg
 *.db
+__pycache__
 
 # GNU/Linux
 core
