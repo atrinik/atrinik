@@ -1545,6 +1545,10 @@ If you want to drop an item from your inventory, <a=help:basics_inventory_intera
 In order to take an item from the ground, drag it from the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and drop it into your inventory screen.
 
 If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a>, drag the item to drop, and drop it anywhere on the visible map area.
+
+<title>Multiple Items</title>
+
+If you try to take or drop items from a stack, you will be asked how many to take/drop. By default, the value to take/drop will be all in the stack, so you can just press the take/drop key again, press enter, or click the enter icon in the popup.
 endmsg
 end
 
