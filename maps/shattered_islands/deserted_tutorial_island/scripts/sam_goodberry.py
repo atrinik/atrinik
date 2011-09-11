@@ -16,7 +16,6 @@ def main():
 	if not qm.started_part(1):
 		if is_hello:
 			inf.add_msg("There you are, <i>{}</i>! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.".format(activator.name))
-			inf.add_msg("Click the blue links to proceed with the conversation, or press its shortcut number on the keyboard.", "FDD017")
 			inf.add_link("Who are you?")
 
 		elif msg == "who are you?":
@@ -51,7 +50,7 @@ def main():
 			inf.add_msg("You tell {} about the lake.".format(me.name), COLOR_YELLOW)
 			inf.add_msg("Fantastic! Here, take this empty barrel and go fill it up with the water from that lake. We will need it if we are to escape this island.")
 			inf.add_objects(me.FindObject(archname = "deserted_island_empty_barrel"))
-			inf.add_msg("You can use the <b>E</b> key to examine items below your feet or in your inventory. Examining items reveals more detailed description about the item - for example, if you drop the so-called god-given items, they will vanish forever - but often there is a way to get them again, if they were important. To prevent losing important items however, even non-god-given ones, you can lock them using the <b>L</b> key - the same key will also unlock a locked item. Locked items cannot be dropped, even by accident.", "FDD017")
+			Notification(activator.Controller(), "Tutorial Available: Quest List", "/help basics_quest_list", "?HELP", 90000)
 			qm.start(3)
 			qm.complete(2, sound = False)
 
@@ -80,10 +79,8 @@ def main():
 			inf.add_link("I'll go have a look around.")
 
 		elif msg == "i'll go have a look around.":
-			inf.add_msg("Very well. However, be careful. Even if this looks like a deserted island, you never know... Here, take some more torches, just in case. Also, take this sack so you have some place to put the mushrooms, if you find any.")
-			inf.add_objects([me.FindObject(archname = "torch"), me.FindObject(archname = "sack")])
-			inf.add_msg("Containers are useful for organizing items inside your inventory - for example, food container. Use <b>A</b> (apply) to ready a container in your inventory. Another apply will open the container and you can see the items inside. You can also open containers below your feet, and this only requires one apply.", "FDD017")
-
+			inf.add_msg("Very well. However, be careful. Even if this looks like a deserted island, you never know... Here, take some more torches, just in case.")
+			inf.add_objects(me.FindObject(archname = "torch"))
 			qm.start(5)
 			qm.complete(4, sound = False)
 
@@ -91,7 +88,7 @@ def main():
 		if qm.finished(5):
 			if is_hello:
 				inf.add_msg("Very good. We have enough mushrooms to last us for a while now. Keep some of those, while I store the rest. There we go. Now, we should think about leaving this island.")
-				inf.add_msg("Eating food is important - watch your food bar, because when it empties, you will start starving, which stops your health regeneration, and you slowly start losing health. If this happens, your character will blindly grab for some food in your inventory, even if unidentified, which can be dangerous, as the food could be poisonous. Thus it is important to always identify items you find in the game before using them.", "FDD017")
+				Notification(activator.Controller(), "Tutorial Available: Hunger", "/help basics_hunger", "?HELP", 90000)
 				inf.add_link("How do we do that?")
 				qm.complete(5, skip_completion = True)
 
@@ -122,7 +119,7 @@ def main():
 
 		elif msg == "i saw some trees next to the lake.":
 			inf.add_msg("We are in luck then! This is good. Here, take this saw then, and bring me some thick branches from those trees. Ten really thick branches should be enough.")
-			inf.add_msg("You can apply (<b>A</b> key) the saw while standing next to a tree in order to cut down some branches.", "FDD017")
+			inf.add_msg("You can interact with the saw while standing next to a tree in order to cut down some branches.", COLOR_YELLOW)
 			inf.add_objects(me.FindObject(archname = "sam_goodberry_saw"))
 
 			qm.start(6)

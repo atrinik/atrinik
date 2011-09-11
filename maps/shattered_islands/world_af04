@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-02 Alex Tokar
+Modified: 2011-09-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2937,12 +2937,11 @@ x 20
 y 16
 end
 arch magic_mouth
-msg
-
-<c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
-endmsg
 direction 3
 splitting 1
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
 x 20
 y 16
 end
@@ -2956,12 +2955,11 @@ x 20
 y 17
 end
 arch magic_mouth
-msg
-
-<c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
-endmsg
 direction 3
 splitting 1
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
 x 20
 y 17
 end
@@ -2970,12 +2968,11 @@ x 20
 y 18
 end
 arch magic_mouth
-msg
-
-<c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
-endmsg
 direction 3
 splitting 1
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
 x 20
 y 18
 end
@@ -2988,12 +2985,11 @@ x 20
 y 19
 end
 arch magic_mouth
-msg
-
-<c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
-endmsg
 direction 3
 splitting 1
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
 x 20
 y 19
 end
@@ -3002,12 +2998,19 @@ x 20
 y 20
 end
 arch magic_mouth
-msg
-
-<c=#FDD017>Caverns such as the one in front of you can be entered by walking on one of the the dark spaces.</c>
-endmsg
 direction 4
 splitting 1
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
+x 20
+y 20
+end
+arch magic_mouth
+direction 2
+notification_message Tutorial Available: Caverns
+notification_action /help basics_caverns
+notification_shortcut ?HELP
 x 20
 y 20
 end
