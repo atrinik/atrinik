@@ -1478,15 +1478,91 @@ In order to open your inventory, hold the <b>SHIFT</b>, or click the bag icon on
 Various items can be interacted with, such as compasses, which will tell you the direction you are currently facing, or light sources such as torches, which can be lit inside your inventory, and then wielded with a second interaction. Armor can be worn, weapons can be wielded, magic devices such as wands can be readied for firing, etc.
 
 <b>Keyboard:</b>
-
 Select an item in your inventory using the arrow keys. Now, if you press the <b>A</b> key, you will apply the selected item, thus interacting with it. If the item is, for example, a piece of armor, you will put it on your character - or if you're already wearing it, you'll unwear it.
 
 You can use the <b>E</b> key to learn more about the selected item, if it's identified. The <b>M</b> key will mark the selected item, which is used in some NPC dialogues, such as when you want to send an item using the post office. Ammunition can be readied for firing using the <b>F</b> key.
 
 <b>Mouse:</b>
-
 In order to interact with an item using the mouse, you can drag-and-drop the item from your inventory into the player doll. If the item is, for example, a piece of armor, you will put it on your character. In order to unwear/unwield an item, drag it from your player doll back into the inventory.
 
 Marking an item can be done by pressing the middle mouse button on the item you want to mark, which is used in some NPC dialogues, such as when you want to send an item using the post office. Note that some inventory-related actions can currently only be done using the keyboard shortcuts, such as examining items.
+endmsg
+end
+
+help basics_quest_list
+title Basics: Quest List
+msg
+<title>Quest List</title>
+
+The quest list is a mini-journal that you can view at any time using the <b>Q</b> key, or by clicking the button with book icon near the top right. It lists unfinished quests, as well as those that you have finished in the past. However, the unfinished ones have more detailed instructions about your current objective(s).
+endmsg
+end
+
+help basics_weight
+title Basics: Weight
+msg
+<title>Weight Of Items</title>
+
+Each item in your inventory has a certain weight, which is cumulatively added to your carrying weight. The closer your carrying weight is to your maximum weight capacity (which is affected by the <b>Strength</b> stat), the slower your character will move.
+endmsg
+end
+
+help basics_caverns
+title Basics: Caverns
+msg
+<title>Caverns</title>
+
+Caverns can usually be entered by walking on top of one of the dark squares. The wind often makes eerie noises around the entrance, so it's easy to tell if you're near one.
+
+If you enter a cavern, you can tell where to exit it, due to the light coming from the outside.
+endmsg
+end
+
+help basics_hunger
+title Basics: Hunger
+msg
+<title>Eating Food To Prevent Hunger</title>
+
+In order to avoid starving to death, you have to eat food or drink nutricious liquids. Certain food often drops from monsters, and taverns always have plenty of food to sell.
+
+The food bar is the brown bar in the <b>Stats</b> window near the top of the screen. Once it completely empties, you will start losing HP, and you will eventually starve to death, so be careful. Food items can be eaten by interacting with them (applying them), either from your inventory, or below your feet. Beware of unidentified food however, as it can be poisonous.
+
+If you start starving, your character will attempt to grab the first food item in your inventory, which can be dangerous because, as mentioned above, food can be poisonous.
+endmsg
+end
+
+help basics_taking_dropping
+title Basics: Taking And Dropping Items
+msg
+<title>Taking And Dropping Items</title>
+
+<b>Keyboard:</b>
+In order to take an item from the ground, select it in the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and press <b>G</b> key. The object will be picked up straight into your inventory.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a> and select the item that you want to drop, then press the <b>D</b> key.
+
+<b>Mouse:</b>
+In order to take an item from the ground, drag it from the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and drop it into your inventory screen.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a>, drag the item to drop, and drop it anywhere on the visible map area.
+
+<title>Multiple Items</title>
+
+If you try to take or drop items from a stack, you will be asked how many to take/drop. By default, the value to take/drop will be all in the stack, so you can just press the take/drop key again, press enter, or click the enter icon in the popup.
+endmsg
+end
+
+help basics_containers
+title Basics: Containers
+msg
+<title>Using Containers</title>
+
+Containers are useful for sorting items in your inventory, for example, a container loot, important items, or food. You can even have your character automatically pick up items into the specified container, instead of into the inventory. Containers are also often used part of areas such as treasure vaults, buildings, homes, etc, such as chests, lockers, drawers, shelves, etc, and sometimes contain items of importance, loot, quest items, etc.
+
+In order to open a container <a=help:basics_object_interaction>below your feet</b>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
+
+Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become <i>readied</i>, and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
+
+You can only have one container open at any time (be it in your inventory, or below your feet).
 endmsg
 end
