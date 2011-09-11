@@ -2,6 +2,7 @@ from Atrinik import *
 from QuestManager import QuestManagerMulti
 from Quests import EscapingDesertedIsland as quest
 from Interface import Interface
+from Packet import Notification
 
 activator = WhoIsActivator()
 me = WhoAmI()
@@ -37,7 +38,7 @@ def main():
 		elif msg == "what if i get lost?":
 			inf.add_msg("Hm, good point. We have to be careful out here... Well, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.")
 			inf.add_objects([me.FindObject(archname = "compass"), me.FindObject(archname = "torch")])
-			inf.add_msg("You can use the compass you received to figure out which way your character is currently facing. In order to interact with items in your inventory, hold <b>Shift</b> to open your inventory. While open, you can navigate your inventory using the arrow keys or the mouse, and use the <b>A</b> key to interact with objects, just like with items below your feet (below inventory). In order to use light sources such as a torch, you must first apply it inside your inventory, and then apply it again, which will ready it.", "FDD017")
+			Notification(activator.Controller(), "Tutorial Available: Inventory Interaction", "/help basics_inventory_interaction", "?HELP", 90000)
 			qm.start(1)
 
 	elif not qm.completed_part(1):
