@@ -1490,3 +1490,16 @@ In order to interact with an item using the mouse, you can drag-and-drop the ite
 Marking an item can be done by pressing the middle mouse button on the item you want to mark, which is used in some NPC dialogues, such as when you want to send an item using the post office. Note that some inventory-related actions can currently only be done using the keyboard shortcuts, such as examining items.
 endmsg
 end
+
+help basics_hunger
+title Basics: Hunger
+msg
+<title>Eating food to prevent hunger</title>
+
+In order to avoid starving to death, you have to eat food or drink nutricious liquids. Certain food often drops from monsters, and taverns always have plenty of food to sell.
+
+The food bar is the brown bar in the <b>Stats</b> window near the top of the screen. Once it completely empties, you will start losing HP, and you will eventually starve to death, so be careful. Food items can be eaten by interacting with them (applying them), either from your inventory, or below your feet. Beware of unidentified food however, as it can be poisonous.
+
+If you start starving, your character will attempt to grab the first food item in your inventory, which can be dangerous because, as mentioned above, food can be poisonous.
+endmsg
+end
