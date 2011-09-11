@@ -1510,3 +1510,20 @@ The food bar is the brown bar in the <b>Stats</b> window near the top of the scr
 If you start starving, your character will attempt to grab the first food item in your inventory, which can be dangerous because, as mentioned above, food can be poisonous.
 endmsg
 end
+
+help basics_taking_dropping
+title Basics: Taking And Dropping Items
+msg
+<title>Taking And Dropping Items</title>
+
+<b>Keyboard:</b>
+In order to take an item from the ground, select it in the screen that shows items <a=help:basics_object_interation>below your feet</a>, and press <b>G</b> key. The object will be picked up straight into your inventory.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a> and select the item that you want to drop, then press the <b>D</b> key.
+
+<b>Mouse:</b>
+In order to take an item from the ground, drag it from the screen that shows items <a=help:basics_object_interation>below your feet</a>, and drop it into your inventory screen.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a>, drag the item to drop, and drop it anywhere on the visible map area.
+endmsg
+end
