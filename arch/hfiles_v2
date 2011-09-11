@@ -1489,6 +1489,15 @@ Marking an item can be done by pressing the middle mouse button on the item you 
 endmsg
 end
 
+help basics_quest_list
+title Basics: Quest List
+msg
+<title>Quest List</title>
+
+The quest list is a mini-journal that you can view at any time using the <b>Q</b> key, or by clicking the button with book icon near the top right. It lists unfinished quests, as well as those that you have finished in the past. However, the unfinished ones have more detailed instructions about your current objective(s).
+endmsg
+end
+
 help basics_weight
 title Basics: Weight
 msg
