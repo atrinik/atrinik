@@ -20,7 +20,7 @@ def main():
 			inf.add_link("<a=:remember>Not really...</a>")
 
 		elif msg == "remember":
-			inf.add_msg("Well, at any rate, I think you should visit the local church priest. Manard is his name, if I remember correctly. You should be able to find directions to him easily, perhaps by asking around the local townsfolk. A map would come in handy, if someone could spare one... Might be worth checking out the dock house...")
+			inf.add_msg("Well, at any rate, I think you should visit the local church priest. Manard is his name, if I remember correctly. You should be able to find directions to him easily, perhaps by asking around the local townsfolk. A map would come in handy, hmm... I know, go visit Gulliver in the dock house. He's an old friend of mine, he might have a spare map for you.")
 			inf.add_msg("Ah, one last thing! Here, take the rest of our mushroom supplies - I'll get us something better. No offense, but I feel I wouldn't be able to stomach any more of those things...")
 			sack = me.FindObject(archname = "sack").Clone()
 			inf.add_msg_icon(sack.face[0], "sack with mushroom supplies")

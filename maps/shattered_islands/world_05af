@@ -851,6 +851,10 @@ name Gulliver
 direction 7
 stand_still 1
 type 83
+arch event_obj
+sub_type 6
+race incuna/scripts/gulliver.py
+end
 end
 end
 arch bridge_wood_EW.101
