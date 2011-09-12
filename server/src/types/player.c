@@ -262,6 +262,21 @@ void free_player(player *pl)
 		free(pl->faction_reputation);
 	}
 
+	if (pl->region_maps)
+	{
+		int i;
+
+		for (i = 0; i < pl->num_region_maps; i++)
+		{
+			if (pl->region_maps[i])
+			{
+				free(pl->region_maps[i]);
+			}
+		}
+
+		free(pl->region_maps);
+	}
+
 	player_path_clear(pl);
 
 	/* Now remove from list of players. */
@@ -1873,4 +1888,25 @@ void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
 	pl->faction_ids[pl->num_faction_ids] = add_string(faction);
 	pl->faction_reputation[pl->num_faction_ids] = add;
 	pl->num_faction_ids++;
+}
+
+/**
+ * Check whether player has a region map of the specified region.
+ * @param pl The player.
+ * @param r The region to check.
+ * @return 1 if the player has region map of the specified region, 0
+ * otherwise. */
+int player_has_region_map(player *pl, region *r)
+{
+	int i;
+
+	for (i = 0; i < pl->num_region_maps; i++)
+	{
+		if (pl->region_maps[i] && !strcmp(r->name, pl->region_maps[i]))
+		{
+			return 1;
+		}
+	}
+
+	return 0;
 }

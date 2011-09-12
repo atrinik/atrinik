@@ -58,6 +58,7 @@ static fields_struct fields[] =
 	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
 	{"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
 	{"fame", FIELDTYPE_SINT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
+	{"region_maps", FIELDTYPE_LIST, offsetof(player, region_maps), 0, FIELDTYPE_REGION_MAPS},
 
 	{"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
 	{"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},

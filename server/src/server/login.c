@@ -251,6 +251,14 @@ int save_player(object *op, int flag)
 		}
 	}
 
+	for (i = 0; i < pl->num_region_maps; i++)
+	{
+		if (pl->region_maps[i])
+		{
+			fprintf(fp, "rmap %s\n", pl->region_maps[i]);
+		}
+	}
+
 	fprintf(fp, "fame %"FMT64"\n", pl->fame);
 	fprintf(fp, "endplst\n");
 
@@ -648,6 +656,18 @@ void check_login(object *op)
 		else if (!strcmp(buf, "fame"))
 		{
 			pl->fame = value;
+		}
+		else if (!strcmp(buf, "rmap"))
+		{
+			char *cp = strchr(bufall, '\n');
+
+			*cp = '\0';
+			cp = strchr(bufall, ' ');
+			cp++;
+
+			pl->region_maps = realloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
+			pl->region_maps[pl->num_region_maps] = strdup_local(cp);
+			pl->num_region_maps++;
 		}
 	}
 

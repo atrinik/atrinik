@@ -266,7 +266,9 @@ typedef enum
 	/** Player's command permissions. */
 	FIELDTYPE_CMD_PERMISSIONS,
 	/** Player's faction reputations. */
-	FIELDTYPE_FACTIONS
+	FIELDTYPE_FACTIONS,
+	/** Player's region maps. */
+	FIELDTYPE_REGION_MAPS
 } field_type;
 
 /**

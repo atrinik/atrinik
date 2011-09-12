@@ -1559,10 +1559,21 @@ msg
 
 Containers are useful for sorting items in your inventory, for example, a container loot, important items, or food. You can even have your character automatically pick up items into the specified container, instead of into the inventory. Containers are also often used part of areas such as treasure vaults, buildings, homes, etc, such as chests, lockers, drawers, shelves, etc, and sometimes contain items of importance, loot, quest items, etc.
 
-In order to open a container <a=help:basics_object_interaction>below your feet</b>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
+In order to open a container <a=help:basics_object_interaction>below your feet</a>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
 
 Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become <i>readied</i>, and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
 
 You can only have one container open at any time (be it in your inventory, or below your feet).
+endmsg
+end
+
+help basics_region_map
+title Basics: Region Map
+msg
+<title>Region Map</title>
+
+The region map allows you to see the whole map of the region you're located in, for example, Incuna or Strakewood Island. In order to see the map of the region, you must have found the map first - either by talking to NPCs who sell or just give out maps, finding it in dungeon or a chest, or completing quests.
+
+In order to bring up the map of the current region, either press the <b>R</b> key, or click the button with map icon near the top right.
 endmsg
 end

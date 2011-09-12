@@ -477,16 +477,16 @@ typedef struct MapSpace_s
  *
  * Each map is in a given region of the game world and links to a region
  * definition. */
-typedef struct regiondef
+typedef struct region
 {
 	/** Pointer to next region, NULL for the last one */
-	struct regiondef *next;
+	struct region *next;
 
 	/**
 	 * Pointer to the region that is a parent of the current
 	 * region, if a value isn't defined in the current region
 	 * we traverse this series of pointers until it is. */
-	struct regiondef *parent;
+	struct region *parent;
 
 	/** Shortened name of the region as maps refer to it */
 	char *name;
@@ -515,6 +515,11 @@ typedef struct regiondef
 
 	/** Client map background to use: if not set, will use transparency. */
 	char *map_bg;
+
+	/**
+	 * If 1, the map will not be available unless the player has done
+	 * the quest to obtain it. */
+	uint8 map_quest;
 
 	/** X coodinate in jailmap to which the player should be sent. */
 	sint16 jailx;
@@ -585,7 +590,7 @@ typedef struct mapdef
 	MapSpace *first_light;
 
 	/** Pointer to the region this map is in. */
-	struct regiondef *region;
+	struct region *region;
 
 	/** Map-wide events for this map. */
 	struct map_event *events;
