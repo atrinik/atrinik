@@ -355,4 +355,5 @@ A port town, somewhere south of Strakewood Island.
 endmsg
 map_first /shattered_islands/world_05af
 map_bg #009ffb
+map_quest true
 end
