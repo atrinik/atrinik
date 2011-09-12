@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-07 Alex Tokar
+Modified: 2011-09-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,6 +24,9 @@ end
 arch wall_wood2_1
 end
 arch bridge_wood_NS.101
+y 1
+end
+arch box1.101
 y 1
 end
 arch torch_wall_1
@@ -139,7 +142,7 @@ arch bridge_wood_NS.101
 x 1
 y 5
 end
-arch doorway_wood1_1
+arch door_wood1
 x 1
 y 5
 end
@@ -160,6 +163,10 @@ x 1
 y 9
 end
 arch bridge_wood_EW.101
+x 1
+y 10
+end
+arch barrel_water.101
 x 1
 y 10
 end
@@ -234,8 +241,6 @@ x 2
 y 1
 end
 arch wall_wood_3
-draw_double 0
-blocksview 0
 x 2
 y 1
 end
@@ -243,9 +248,8 @@ arch bridge_wood_NS.101
 x 2
 y 2
 end
-arch wall_wood3_3
-draw_double 0
-blocksview 0
+arch doorway_wood1_1
+direction 7
 x 2
 y 2
 end
@@ -254,8 +258,6 @@ x 2
 y 3
 end
 arch wall_wood3_3
-draw_double 0
-blocksview 0
 x 2
 y 3
 end
@@ -264,8 +266,6 @@ x 2
 y 4
 end
 arch wall_wood2_3
-draw_double 0
-blocksview 0
 x 2
 y 4
 end
@@ -273,14 +273,7 @@ arch bridge_wood_NS.101
 x 2
 y 5
 end
-arch wall_wood2_3
-draw_double 0
-blocksview 0
-layer 4
-x 2
-y 5
-end
-arch wall_wood3_1
+arch wall_wood_4
 x 2
 y 5
 end
@@ -288,43 +281,15 @@ arch bridge_wood_corner.181
 x 2
 y 6
 end
-arch wall_wood3_3
-x 2
-y 6
-end
 arch bridge_wood_NS.101
 x 2
 y 7
 end
-arch door_wood1
-slaying incuna_docks
-direction 3
-x 2
-y 7
-end
-arch check_inv
-layer 0
-sys_object 1
-direction 3
-slaying incuna_docks
-sp 1
-last_grace 1
-x 2
-y 7
-end
 arch bridge_wood_EW.101
 x 2
 y 8
 end
-arch wall_wood3_3
-x 2
-y 8
-end
 arch bridge_wood_EW.101
-x 2
-y 9
-end
-arch wall_wood_3
 x 2
 y 9
 end
@@ -332,7 +297,7 @@ arch bridge_wood_EW.101
 x 2
 y 10
 end
-arch wall_wood3_3
+arch barrel_water.101
 x 2
 y 10
 end
@@ -434,25 +399,16 @@ arch bridge_wood_EW.101
 x 3
 y 4
 end
-arch box1.101
-z -3
-align -3
-x 3
-y 4
-end
 arch bridge_wood_EW.101
 x 3
 y 5
 end
-arch wall_wood_1
+arch door_wood1
+cursed 1
 x 3
 y 5
 end
 arch bridge_wood_EW.101
-x 3
-y 6
-end
-arch barrel_water.101
 x 3
 y 6
 end
@@ -464,23 +420,11 @@ arch bridge_wood_corner.121
 x 3
 y 8
 end
-arch barrel_water.101
-x 3
-y 8
-end
 arch bridge_wood_EW.101
 x 3
 y 9
 end
-arch barrel_water.101
-x 3
-y 9
-end
 arch bridge_wood_EW.101
-x 3
-y 10
-end
-arch barrel_water.101
 x 3
 y 10
 end
@@ -592,7 +536,9 @@ arch bridge_wood_EW.101
 x 4
 y 5
 end
-arch doorway_wood1_1
+arch door_wood1
+direction 7
+cursed 1
 x 4
 y 5
 end
@@ -655,6 +601,13 @@ direction 3
 arch event_obj
 sub_type 6
 race incuna/scripts/sam_goodberry.py
+end
+arch sack
+identified 1
+arch mushroom1
+identified 1
+nrof 14
+end
 end
 end
 end
