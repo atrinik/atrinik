@@ -1061,17 +1061,15 @@ int command_region_map(object *op, char *params)
 		}
 	}
 
-	if (!r)
+	if (!r && params_check)
 	{
-		if (params_check)
-		{
-			draw_info(COLOR_WHITE, op, "That region doesn't have a map.");
-		}
-		else
-		{
-			draw_info(COLOR_WHITE, op, "You cannot use that command here.");
-		}
+		draw_info(COLOR_WHITE, op, "That region doesn't have a map.");
+		return 1;
+	}
 
+	if (!r || (r->map_quest && !params_check && !player_has_region_map(CONTR(op), r)))
+	{
+		draw_info(COLOR_WHITE, op, "You don't have a map of this region.");
 		return 1;
 	}
 

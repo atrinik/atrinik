@@ -81,6 +81,10 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
 	{
 		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_faction_ids)));
 	}
+	else if (al->field == FIELDTYPE_REGION_MAPS)
+	{
+		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_region_maps)));
+	}
 
 	/* Not reached. */
 	return NULL;
@@ -96,7 +100,7 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 	{
 		return *(uint16 *) attr_list_len_ptr(al);
 	}
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS)
+	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		return *(int *) attr_list_len_ptr(al);
 	}
@@ -122,7 +126,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
 		field.type = FIELDTYPE_SINT16;
 		ptr = &((sint16 *) ptr)[*(unsigned PY_LONG_LONG *) idx];
 	}
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS)
+	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		field.type = FIELDTYPE_CSTR;
 		ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
@@ -229,7 +233,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 		ptr = &((sint16 *) ptr)[i];
 	}
 	/* Command permissions. */
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS)
+	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		i = *(unsigned PY_LONG_LONG *) idx;
 
@@ -304,7 +308,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 		{
 			/* We tried to add a new command permission and we have already
 			 * resized the array, so shrink it back now, as we failed. */
-			if (al->field == FIELDTYPE_CMD_PERMISSIONS)
+			if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
 			{
 				/* Decrease the number of commands... */
 				(*(int *) attr_list_len_ptr(al))--;

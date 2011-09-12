@@ -239,6 +239,11 @@ void init_regions(void)
 			*end = '\0';
 			new->map_bg = strdup_local(value);
 		}
+		else if (!strcmp(key, "map_quest"))
+		{
+			*end = '\0';
+			new->map_quest = KEYWORD_IS_TRUE(value);
+		}
 		/* Jail entries are of the form: /path/to/map x y */
 		else if (!strcmp(key, "jail"))
 		{
