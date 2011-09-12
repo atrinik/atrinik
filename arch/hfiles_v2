@@ -1566,3 +1566,14 @@ Containers in your <a=help:basics_inventory_interaction>inventory</a> behave sli
 You can only have one container open at any time (be it in your inventory, or below your feet).
 endmsg
 end
+
+help basics_region_map
+title Basics: Region Map
+msg
+<title>Region Map</title>
+
+The region map allows you to see the whole map of the region you're located in, for example, Incuna or Strakewood Island. In order to see the map of the region, you must have found the map first - either by talking to NPCs who sell or just give out maps, finding it in dungeon or a chest, or completing quests.
+
+In order to bring up the map of the current region, either press the <b>R</b> key, or click the button with map icon near the top right.
+endmsg
+end
