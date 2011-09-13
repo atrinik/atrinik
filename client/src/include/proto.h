@@ -297,6 +297,7 @@ extern void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(prin
 extern void system_start(void);
 extern void system_end(void);
 extern char *get_word_from_string(char *str, int *pos);
+extern void mkdir_ensure(const char *path);
 extern void copy_file(const char *filename, const char *filename_out);
 extern void copy_if_exists(const char *from, const char *to, const char *src, const char *dst);
 extern void rmrf(const char *path);
