@@ -2,13 +2,13 @@ arch map
 name Incuna - Slime Pit
 msg
 Created:  2010-10-23 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-13 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 1
-region Incuna
+region incuna
 end
 arch swamp1
 y 8
