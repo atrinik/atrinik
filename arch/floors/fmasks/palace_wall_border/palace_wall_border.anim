@@ -1,0 +1,38 @@
+anim palace_wall_border_1
+facings 9
+dummy.111
+palace_wall_border_sw.101
+palace_wall_border_sw.101
+palace_wall_border_nw.101
+palace_wall_border_nw.101
+palace_wall_border_ne.101
+palace_wall_border_ne.101
+palace_wall_border_se.101
+palace_wall_border_se.101
+mina
+
+anim palace_wall_border_2
+facings 9
+dummy.111
+palace_wall_border_s.101
+palace_wall_border_s.101
+palace_wall_border_w.101
+palace_wall_border_w.101
+palace_wall_border_n.101
+palace_wall_border_n.101
+palace_wall_border_e.101
+palace_wall_border_e.101
+mina
+
+anim palace_wall_border_3
+facings 9
+dummy.111
+palace_wall_border_sw2.101
+palace_wall_border_sw2.101
+palace_wall_border_nw2.101
+palace_wall_border_nw2.101
+palace_wall_border_ne2.101
+palace_wall_border_ne2.101
+palace_wall_border_se2.101
+palace_wall_border_se2.101
+mina
