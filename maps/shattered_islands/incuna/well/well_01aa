@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -188,13 +188,20 @@ arch fwall_grit2b
 x 1
 y 15
 end
-arch duplicator
-slaying damager
-connected 113
+arch floor_cave2
 x 1
 y 16
 end
-arch floor_cave2
+arch stairs_wood_up
+hp 16
+sp 11
+direction 5
+x 1
+y 16
+end
+arch duplicator
+slaying damager
+connected 113
 x 1
 y 16
 end
@@ -219,20 +226,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch stairs_wood_up
-hp 16
-sp 11
-direction 5
+arch floor_cave5
 x 1
-y 16
+y 17
 end
 arch duplicator
 slaying damager
 connected 113
-x 1
-y 17
-end
-arch floor_cave5
 x 1
 y 17
 end
@@ -257,13 +257,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
+arch floor_cave1
 x 1
 y 18
 end
-arch floor_cave1
+arch duplicator
+slaying damager
+connected 113
 x 1
 y 18
 end
@@ -288,13 +288,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
+arch floor_cave2
 x 1
 y 19
 end
-arch floor_cave2
+arch duplicator
+slaying damager
+connected 113
 x 1
 y 19
 end
@@ -319,36 +319,9 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
-x 1
-y 20
-end
 arch floor_cave2
 x 1
 y 20
-end
-arch creator
-connected 130
-lifesave 1
-one_drop 1
-x 1
-y 20
-arch damager
-terrain_type 1
-is_floor 1
-layer 1
-face lake.101
-animation water_still
-anim_speed 10
-is_animated 1
-sys_object 0
-no_teleport 1
-name drowning
-speed 0.4
-attack_internal 80
-end
 end
 arch stairs_wood_up
 hp 16
@@ -356,6 +329,33 @@ sp 16
 direction 1
 x 1
 y 20
+end
+arch duplicator
+slaying damager
+connected 113
+x 1
+y 20
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 1
+y 20
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+face lake.101
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
 end
 arch floor_sand_d2
 x 1
@@ -450,13 +450,20 @@ arch fwall_grit2a
 x 2
 y 15
 end
-arch duplicator
-slaying damager
-connected 113
+arch floor_cave2
 x 2
 y 16
 end
-arch floor_cave2
+arch stairs_wood_up
+hp 17
+sp 11
+direction 5
+x 2
+y 16
+end
+arch duplicator
+slaying damager
+connected 113
 x 2
 y 16
 end
@@ -481,20 +488,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch stairs_wood_up
-hp 17
-sp 11
-direction 5
+arch floor_cave6
 x 2
-y 16
+y 17
 end
 arch duplicator
 slaying damager
 connected 113
-x 2
-y 17
-end
-arch floor_cave6
 x 2
 y 17
 end
@@ -519,13 +519,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
+arch floor_cave2
 x 2
 y 18
 end
-arch floor_cave2
+arch duplicator
+slaying damager
+connected 113
 x 2
 y 18
 end
@@ -550,16 +550,16 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
-x 2
-y 19
-end
 arch floor_cave2
 x 2
 y 19
 end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 19
+end
 arch creator
 connected 130
 lifesave 1
@@ -581,36 +581,9 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 113
-x 2
-y 20
-end
 arch floor_cave6
 x 2
 y 20
-end
-arch creator
-connected 130
-lifesave 1
-one_drop 1
-x 2
-y 20
-arch damager
-terrain_type 1
-is_floor 1
-layer 1
-face lake.101
-animation water_still
-anim_speed 10
-is_animated 1
-sys_object 0
-no_teleport 1
-name drowning
-speed 0.4
-attack_internal 80
-end
 end
 arch stairs_wood_up
 hp 17
@@ -618,6 +591,33 @@ sp 16
 direction 1
 x 2
 y 20
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 20
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 2
+y 20
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+face lake.101
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
 end
 arch floor_sand_d3
 x 2
@@ -1663,6 +1663,13 @@ x 9
 y 18
 end
 arch wall_cave1.111
+layer 4
+align -5
+z 2
+x 9
+y 18
+end
+arch wall_cave1.111
 x 9
 y 18
 end
@@ -1821,6 +1828,13 @@ y 15
 end
 arch floor_sand_d3
 z 14
+x 10
+y 18
+end
+arch wall_cave1.111
+layer 4
+align -5
+z 2
 x 10
 y 18
 end
@@ -2012,6 +2026,13 @@ y 15
 end
 arch floor_sand_d2
 z 8
+x 11
+y 18
+end
+arch wall_cave1.111
+layer 4
+align -5
+z 2
 x 11
 y 18
 end
@@ -2218,14 +2239,20 @@ x 12
 y 18
 end
 arch wall_cave1.111
-z 3
 layer 4
+align -6
+z 2
+x 12
+y 18
+end
+arch wall_cave1.111
 x 12
 y 18
 end
 arch gate_open
 direction 7
 connected 111
+layer 7
 x 12
 y 18
 end
@@ -2281,15 +2308,17 @@ slaying boulder
 connected 112
 x 13
 end
-arch pedestal_trigger
-slaying boulder
-connected 110
-x 13
-end
 arch grate_open
 anim_speed 4
 connected 113
 layer 4
+x 13
+end
+arch pedestal_trigger
+slaying boulder
+connected 110
+layer 0
+sys_object 1
 x 13
 end
 arch floor_black2a
@@ -2444,6 +2473,12 @@ arch blocked
 x 13
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 13
+y 13
+end
 arch water_lt3
 z 18
 layer 4
@@ -2455,6 +2490,12 @@ arch rock_big2_waterfall
 z 10
 x 13
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 13
+y 14
 end
 arch water_lt2
 z 18
@@ -2480,13 +2521,13 @@ arch wall_cave1.111
 x 13
 y 18
 end
-arch duplicator
-slaying damager
-connected 138
+arch floor_sand_d1
 x 13
 y 19
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 138
 x 13
 y 19
 end
@@ -2511,13 +2552,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 138
+arch floor_sand_d3
 x 13
 y 20
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 138
 x 13
 y 20
 end
@@ -2686,12 +2727,24 @@ layer 3
 x 14
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 14
+y 13
+end
 arch water_still
 z 18
 layer 4
 type 79
 x 14
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 14
+y 14
 end
 arch water_still
 z 18
@@ -2720,13 +2773,13 @@ arch wall_cave1.111
 x 14
 y 18
 end
-arch duplicator
-slaying damager
-connected 139
+arch floor_sand_d1
 x 14
 y 19
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 139
 x 14
 y 19
 end
@@ -2751,13 +2804,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 139
+arch floor_sand_d4
 x 14
 y 20
 end
-arch floor_sand_d4
+arch duplicator
+slaying damager
+connected 139
 x 14
 y 20
 end
@@ -2952,12 +3005,24 @@ blocksview 0
 x 15
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 15
+y 13
+end
 arch water_still
 z 18
 layer 4
 type 79
 x 15
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 15
+y 14
 end
 arch water_still
 z 18
@@ -3005,13 +3070,13 @@ arch wall_cave1.141
 x 15
 y 18
 end
-arch duplicator
-slaying damager
-connected 140
+arch floor_sand_d3
 x 15
 y 19
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 140
 x 15
 y 19
 end
@@ -3036,13 +3101,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 140
+arch floor_sand_d4
 x 15
 y 20
 end
-arch floor_sand_d4
+arch duplicator
+slaying damager
+connected 140
 x 15
 y 20
 end
@@ -3067,13 +3132,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 141
+arch floor_sand_d2
 x 15
 y 21
 end
-arch floor_sand_d2
+arch duplicator
+slaying damager
+connected 141
 x 15
 y 21
 end
@@ -3098,17 +3163,17 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 141
-x 15
-y 22
-end
 arch floor_sand_d1
 x 15
 y 22
 end
 arch rock1
+x 15
+y 22
+end
+arch duplicator
+slaying damager
+connected 141
 x 15
 y 22
 end
@@ -3232,6 +3297,12 @@ x 16
 y 5
 end
 arch wall_cave1b.121
+layer 4
+z 2
+x 16
+y 5
+end
+arch wall_cave1b.121
 x 16
 y 5
 end
@@ -3280,12 +3351,24 @@ blocksview 0
 x 16
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 16
+y 13
+end
 arch water_lt
 z 18
 layer 4
 type 79
 x 16
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 16
+y 14
 end
 arch water_lt
 z 18
@@ -3303,13 +3386,20 @@ blocksview 0
 x 16
 y 15
 end
-arch duplicator
-slaying damager
-connected 138
+arch floor_sand_d2
 x 16
 y 16
 end
-arch floor_sand_d2
+arch stairs_wood_down
+hp 1
+sp 20
+direction 1
+x 16
+y 16
+end
+arch duplicator
+slaying damager
+connected 138
 x 16
 y 16
 end
@@ -3334,20 +3424,18 @@ speed 0.4
 attack_internal 80
 end
 end
-arch stairs_wood_down
-hp 1
-sp 20
-direction 1
+arch floor_sand_d4
 x 16
-y 16
+y 17
+end
+arch grate_closed
+connected 199
+x 16
+y 17
 end
 arch duplicator
 slaying damager
 connected 138
-x 16
-y 17
-end
-arch floor_sand_d4
 x 16
 y 17
 end
@@ -3372,18 +3460,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch grate_closed
-connected 199
+arch floor_sand_d4
 x 16
-y 17
+y 18
 end
 arch duplicator
 slaying damager
 connected 139
-x 16
-y 18
-end
-arch floor_sand_d4
 x 16
 y 18
 end
@@ -3415,13 +3498,13 @@ endmsg
 x 16
 y 18
 end
-arch duplicator
-slaying damager
-connected 140
+arch floor_sand_d1
 x 16
 y 19
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 140
 x 16
 y 19
 end
@@ -3446,13 +3529,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 141
+arch floor_sand_d3
 x 16
 y 20
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 141
 x 16
 y 20
 end
@@ -3477,13 +3560,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 141
+arch floor_sand_d3
 x 16
 y 21
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 141
 x 16
 y 21
 end
@@ -3508,13 +3591,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 142
+arch floor_sand_d1
 x 16
 y 22
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 142
 x 16
 y 22
 end
@@ -3694,12 +3777,24 @@ layer 3
 x 17
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 13
+end
 arch water_lt3
 z 18
 layer 4
 type 79
 x 17
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 14
 end
 arch water_lt2
 z 18
@@ -3717,13 +3812,20 @@ blocksview 0
 x 17
 y 15
 end
-arch duplicator
-slaying damager
-connected 138
+arch floor_sand_d1
 x 17
 y 16
 end
-arch floor_sand_d1
+arch stairs_wood_down
+direction 1
+hp 2
+sp 20
+x 17
+y 16
+end
+arch duplicator
+slaying damager
+connected 138
 x 17
 y 16
 end
@@ -3748,20 +3850,18 @@ speed 0.4
 attack_internal 80
 end
 end
-arch stairs_wood_down
-direction 1
-hp 2
-sp 20
+arch floor_sand_d4
 x 17
-y 16
+y 17
+end
+arch grate_closed
+connected 199
+x 17
+y 17
 end
 arch duplicator
 slaying damager
 connected 138
-x 17
-y 17
-end
-arch floor_sand_d4
 x 17
 y 17
 end
@@ -3785,11 +3885,6 @@ name drowning
 speed 0.4
 attack_internal 80
 end
-end
-arch grate_closed
-connected 199
-x 17
-y 17
 end
 arch floor_sand_d4
 x 17
@@ -3815,13 +3910,13 @@ arch wall_cave1.161
 x 17
 y 20
 end
-arch duplicator
-slaying damager
-connected 142
+arch floor_sand_d3
 x 17
 y 21
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 142
 x 17
 y 21
 end
@@ -3846,13 +3941,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 142
+arch floor_sand_d3
 x 17
 y 22
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 142
 x 17
 y 22
 end
@@ -3931,17 +4026,19 @@ connected 125
 x 18
 y 2
 end
-arch pedestal_trigger
-exp 70
-slaying boulder
-connected 199
-x 18
-y 2
-end
 arch grate_open
 anim_speed 4
 connected 126
 layer 4
+x 18
+y 2
+end
+arch pedestal_trigger
+exp 70
+slaying boulder
+connected 199
+layer 0
+sys_object 1
 x 18
 y 2
 end
@@ -4032,12 +4129,24 @@ blocksview 0
 x 18
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 18
+y 13
+end
 arch water_lt2
 z 18
 layer 4
 type 79
 x 18
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 18
+y 14
 end
 arch water_lt3
 z 18
@@ -4105,13 +4214,13 @@ arch wall_cave1.111
 x 18
 y 20
 end
-arch duplicator
-slaying damager
-connected 142
+arch floor_sand_d4
 x 18
 y 21
 end
-arch floor_sand_d4
+arch duplicator
+slaying damager
+connected 142
 x 18
 y 21
 end
@@ -4300,12 +4409,24 @@ layer 3
 x 19
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 19
+y 13
+end
 arch water_lt
 z 18
 layer 4
 type 79
 x 19
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 19
+y 14
 end
 arch water_lt4
 z 18
@@ -4354,13 +4475,13 @@ arch wall_cave1.141
 x 19
 y 20
 end
-arch duplicator
-slaying damager
-connected 142
+arch floor_sand_d1
 x 19
 y 21
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 142
 x 19
 y 21
 end
@@ -4533,6 +4654,12 @@ layer 3
 x 20
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 20
+y 13
+end
 arch water_lt4
 z 18
 layer 4
@@ -4540,6 +4667,12 @@ type 79
 blocksview 1
 x 20
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 20
+y 14
 end
 arch water_lt3
 z 18
@@ -4577,17 +4710,17 @@ arch wall_cave1.141
 x 20
 y 18
 end
-arch duplicator
-slaying damager
-connected 143
-x 20
-y 19
-end
 arch floor_sand_d4
 x 20
 y 19
 end
 arch rock6
+x 20
+y 19
+end
+arch duplicator
+slaying damager
+connected 143
 x 20
 y 19
 end
@@ -4612,13 +4745,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d1
 x 20
 y 20
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 143
 x 20
 y 20
 end
@@ -4643,13 +4776,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d4
 x 20
 y 21
 end
-arch floor_sand_d4
+arch duplicator
+slaying damager
+connected 143
 x 20
 y 21
 end
@@ -4817,12 +4950,24 @@ layer 3
 x 21
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 21
+y 13
+end
 arch water_lt2
 z 18
 layer 4
 type 79
 x 21
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 21
+y 14
 end
 arch water_lt
 z 18
@@ -4856,17 +5001,17 @@ arch wall_cave1.141
 x 21
 y 17
 end
-arch duplicator
-slaying damager
-connected 143
-x 21
-y 18
-end
 arch floor_sand_d4
 x 21
 y 18
 end
 arch rock2
+x 21
+y 18
+end
+arch duplicator
+slaying damager
+connected 143
 x 21
 y 18
 end
@@ -4891,13 +5036,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d3
 x 21
 y 19
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 143
 x 21
 y 19
 end
@@ -4922,13 +5067,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d2
 x 21
 y 20
 end
-arch floor_sand_d2
+arch duplicator
+slaying damager
+connected 143
 x 21
 y 20
 end
@@ -4953,13 +5098,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d3
 x 21
 y 21
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 143
 x 21
 y 21
 end
@@ -5115,12 +5260,24 @@ arch wall_dungeon_3
 x 22
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 22
+y 13
+end
 arch water_lt2
 z 18
 layer 4
 type 79
 x 22
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 22
+y 14
 end
 arch water_lt2
 z 18
@@ -5138,13 +5295,20 @@ blocksview 0
 x 22
 y 15
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d3
 x 22
 y 16
 end
-arch floor_sand_d3
+arch torch_wall_1
+z 10
+align -12
+direction 5
+x 22
+y 16
+end
+arch duplicator
+slaying damager
+connected 143
 x 22
 y 16
 end
@@ -5169,20 +5333,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch torch_wall_1
-z 10
-align -12
-direction 5
+arch floor_sand_d4
 x 22
-y 16
+y 17
 end
 arch duplicator
 slaying damager
 connected 143
-x 22
-y 17
-end
-arch floor_sand_d4
 x 22
 y 17
 end
@@ -5207,13 +5364,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d2
 x 22
 y 18
 end
-arch floor_sand_d2
+arch duplicator
+slaying damager
+connected 143
 x 22
 y 18
 end
@@ -5246,13 +5403,13 @@ sys_object 1
 x 22
 y 18
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d1
 x 22
 y 19
 end
-arch floor_sand_d1
+arch duplicator
+slaying damager
+connected 143
 x 22
 y 19
 end
@@ -5277,13 +5434,13 @@ speed 0.4
 attack_internal 80
 end
 end
-arch duplicator
-slaying damager
-connected 143
+arch floor_sand_d3
 x 22
 y 20
 end
-arch floor_sand_d3
+arch duplicator
+slaying damager
+connected 143
 x 22
 y 20
 end
@@ -5433,6 +5590,12 @@ layer 3
 x 23
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 23
+y 13
+end
 arch water_lt2
 z 18
 layer 4
@@ -5445,6 +5608,12 @@ layer 5
 z 18
 x 23
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 23
+y 14
 end
 arch water_lt
 z 18
@@ -5462,18 +5631,18 @@ blocksview 0
 x 23
 y 15
 end
-arch duplicator
-slaying damager
-connected 143
-x 23
-y 16
-end
 arch floor_sand_d1
 x 23
 y 16
 end
 arch chest7_111
 identified 0
+x 23
+y 16
+end
+arch duplicator
+slaying damager
+connected 143
 x 23
 y 16
 end

@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-05-14 Edwin Miltenburg
+Modified: 2011-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -55,11 +55,21 @@ arch wall_cave1b.141
 layer 3
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+y 13
+end
 arch water_lt2
 z 18
 layer 4
 type 79
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+y 14
 end
 arch water_lt2
 z 18
@@ -97,6 +107,12 @@ arch flagwall_short_brick1.111
 x 1
 y 11
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 12
+end
 arch floor_ruin1
 z 18
 layer 4
@@ -118,12 +134,24 @@ z 18
 x 1
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 13
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 1
 y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 14
 end
 arch water_lt
 z 18
@@ -137,6 +165,12 @@ layer 5
 z 18
 x 1
 y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 15
 end
 arch floor_ruin1
 terrain_type 2
@@ -159,6 +193,12 @@ z 18
 x 1
 y 15
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 11
+end
 arch floor_ruin6
 z 18
 layer 4
@@ -174,12 +214,24 @@ direction 4
 x 2
 y 11
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 12
+end
 arch water_lt3
 z 18
 layer 4
 type 79
 x 2
 y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 13
 end
 arch water_lt3
 z 18
@@ -194,12 +246,24 @@ z 18
 x 2
 y 13
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 14
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 2
 y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 10
 end
 arch water_lt4
 z 18
@@ -214,6 +278,12 @@ z 18
 x 3
 y 10
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 11
+end
 arch water_lt4
 z 18
 layer 4
@@ -221,12 +291,24 @@ type 79
 x 3
 y 11
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 12
+end
 arch water_lt3
 z 18
 layer 4
 type 79
 x 3
 y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 13
 end
 arch water_lt
 z 18
@@ -235,12 +317,24 @@ type 79
 x 3
 y 13
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 9
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 4
 y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 10
 end
 arch water_lt3
 z 18
@@ -249,12 +343,24 @@ type 79
 x 4
 y 10
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 11
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 4
 y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 12
 end
 arch water_lt
 z 18
@@ -269,6 +375,12 @@ z 18
 x 4
 y 12
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 8
+end
 arch water_lt2
 z 18
 layer 4
@@ -276,12 +388,24 @@ type 79
 x 5
 y 8
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 9
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 5
 y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 10
 end
 arch water_lt
 z 18
@@ -290,12 +414,24 @@ type 79
 x 5
 y 10
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 11
+end
 arch water_lt3
 z 18
 layer 4
 type 79
 x 5
 y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 8
 end
 arch water_lt2
 z 18
@@ -304,12 +440,24 @@ type 79
 x 6
 y 8
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 9
+end
 arch water_lt4
 z 18
 layer 4
 type 79
 x 6
 y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 10
 end
 arch water_lt3
 z 18

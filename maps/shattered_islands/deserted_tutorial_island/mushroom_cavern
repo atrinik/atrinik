@@ -2,7 +2,7 @@ arch map
 name Mushroom Cavern
 msg
 Created:  2011-08-20 Alex Tokar
-Modified: 2011-08-24 Alex Tokar
+Modified: 2011-09-13 Alex Tokar
 endmsg
 width 12
 height 9
@@ -62,10 +62,6 @@ x 1
 y 1
 end
 arch floor_cave1
-x 1
-y 2
-end
-arch small_stones
 x 1
 y 2
 end

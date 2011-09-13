@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1018,9 +1018,9 @@ x 8
 y 14
 end
 arch invis_exit
-slaying /_incuna
-hp 57
-sp 21
+slaying ../../world_04ac
+hp 4
+sp 15
 x 8
 y 14
 end
@@ -1679,9 +1679,9 @@ x 12
 y 14
 end
 arch invis_exit
-slaying /_incuna
-hp 59
-sp 21
+slaying ../../world_04ac
+hp 8
+sp 15
 x 12
 y 14
 end
