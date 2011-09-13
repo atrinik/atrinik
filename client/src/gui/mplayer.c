@@ -304,7 +304,7 @@ void widget_show_mplayer(widgetdata *widget)
 		mplayer_list_init(list_mplayer, buf, 0);
 
 		/* Now add custom ones, but ignore duplicates. */
-		snprintf(buf, sizeof(buf), "%s/.atrinik/%s/"DIRECTORY_MEDIA, package_get_version_partial(version, sizeof(version)), get_config_dir());
+		snprintf(buf, sizeof(buf), "%s/.atrinik/%s/"DIRECTORY_MEDIA, get_config_dir(), package_get_version_partial(version, sizeof(version)));
 		mplayer_list_init(list_mplayer, buf, 1);
 
 		/* If we added any, sort the list alphabetically and add an entry
