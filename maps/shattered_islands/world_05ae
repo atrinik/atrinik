@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -227,60 +227,22 @@ end
 arch plant10
 y 23
 end
-arch grassd_7
-x 1
-end
-arch sand_dm5
-x 1
-end
-arch fence_01.131
+arch grassd_6
 x 1
 end
 arch grassd_3
 x 1
 y 1
 end
-arch sand_dm9
-x 1
-y 1
-end
-arch fence_01.131
-x 1
-y 1
-end
-arch grassd_7
+arch grassd_6
 x 1
 y 2
 end
-arch sand_dm9
-x 1
-y 2
-end
-arch fence_01.131
-x 1
-y 2
-end
-arch grassd_3
+arch grassd_5
 x 1
 y 3
 end
-arch sand_dm5
-x 1
-y 3
-end
-arch fence_01.131
-x 1
-y 3
-end
-arch grassd_8
-x 1
-y 4
-end
-arch sand_dm5
-x 1
-y 4
-end
-arch fence_01.131
+arch grassd_2
 x 1
 y 4
 end
@@ -288,76 +250,23 @@ arch grassd_1
 x 1
 y 5
 end
-arch sand_dm9
-x 1
-y 5
-end
-arch fence_01.131
-x 1
-y 5
-end
-arch grassd_7
-x 1
-y 6
-end
-arch sand_dm5
-x 1
-y 6
-end
-arch fence_01.131
-x 1
-y 6
-end
-arch grassd_2
-x 1
-y 7
-end
-arch sand_dm5
-x 1
-y 7
-end
-arch fence_01.131
-x 1
-y 7
-end
 arch grassd_8
 x 1
-y 8
+y 6
 end
-arch sand_dm9
+arch grassd_1
+x 1
+y 7
+end
+arch grassd_5
 x 1
 y 8
 end
-arch fence_01.131
-x 1
-y 8
-end
-arch grassd_7
+arch grassd_4
 x 1
 y 9
 end
-arch sand_dm5
-x 1
-y 9
-end
-arch fence_01.131
-x 1
-y 9
-end
-arch grassd_6
-x 1
-y 10
-end
-arch sand_dm2
-x 1
-y 10
-end
-arch plant_flower1
-z 2
-x 1
-y 10
-end
-arch fence_01.122
+arch grassd_2
 x 1
 y 10
 end
@@ -470,98 +379,46 @@ arch plant11
 x 1
 y 23
 end
-arch grass_flowers1
+arch grassd_1
 x 2
 end
-arch grass_flowers2
+arch grassd_1
 x 2
 y 1
 end
-arch sand_dm12
-x 2
-y 1
-end
-arch grass_flowers2
+arch grassd_3
 x 2
 y 2
-end
-arch sand_dm12
-x 2
-y 2
-end
-arch grass_flowers3
-x 2
-y 3
-end
-arch sand_dm12
-x 2
-y 3
-end
-arch grass_flowers3
-x 2
-y 4
-end
-arch sand_dm8
-x 2
-y 4
-end
-arch grass_flowers1
-x 2
-y 5
-end
-arch sand_dm8
-x 2
-y 5
-end
-arch plant_flower2
-x 2
-y 5
-end
-arch grass_flowers2
-x 2
-y 6
-end
-arch sand_dm8
-x 2
-y 6
-end
-arch grass_flowers2
-x 2
-y 7
-end
-arch sand_dm12
-x 2
-y 7
-end
-arch plant_flower1
-x 2
-y 7
-end
-arch grass_flowers1
-x 2
-y 8
-end
-arch sand_dm8
-x 2
-y 8
-end
-arch grass_flowers3
-x 2
-y 9
-end
-arch sand_dm13
-x 2
-y 9
 end
 arch grassd_2
 x 2
-y 10
+y 3
 end
-arch sand_dm10
+arch grassd_7
 x 2
-y 10
+y 4
 end
-arch fence_01.111
+arch grassd_4
+x 2
+y 5
+end
+arch grassd_1
+x 2
+y 6
+end
+arch grassd_2
+x 2
+y 7
+end
+arch grassd_3
+x 2
+y 8
+end
+arch grassd_5
+x 2
+y 9
+end
+arch grassd_1
 x 2
 y 10
 end
@@ -668,93 +525,98 @@ arch plant3
 x 2
 y 23
 end
-arch grass_flowers3
+arch floor_fs_grey1d
 x 3
 end
-arch plant_flower2
+arch border_top_w1
 x 3
 end
-arch grass_flowers3
+arch wall_palace_03
+direction 3
+x 3
+end
+arch floor_fs_grey1c
 x 3
 y 1
 end
-arch plant_flower14
+arch border_top_w1
 x 3
 y 1
 end
-arch grass_flowers2
+arch floor_fs_grey1d
 x 3
 y 2
 end
-arch plant_flower1
+arch border_top_w1
 x 3
 y 2
 end
-arch grass_flowers1
+arch floor_fs_grey1d
 x 3
 y 3
 end
-arch plant_flower1
+arch border_top_w1
 x 3
 y 3
 end
-arch grass_flowers2
+arch floor_fs_grey1d
 x 3
 y 4
 end
-arch plant_flower12
+arch border_top_w1
 x 3
 y 4
 end
-arch grass_flowers1
+arch floor_fs_grey1d
 x 3
 y 5
 end
-arch plant_flower1
+arch border_top_w1
 x 3
 y 5
 end
-arch grass_flowers1
+arch floor_fs_grey1b
 x 3
 y 6
 end
-arch plant_flower12
+arch border_top_w1
 x 3
 y 6
 end
-arch grass_flowers3
+arch floor_fs_grey1b
 x 3
 y 7
 end
-arch plant_flower13
+arch border_top_w1
 x 3
 y 7
 end
-arch grass_flowers2
+arch floor_fs_grey1a
 x 3
 y 8
 end
-arch plant_flower14
+arch border_top_w1
 x 3
 y 8
 end
-arch grass_flowers3
+arch floor_fs_grey1b
 x 3
 y 9
 end
-arch sand_dm11
+arch border_top_w1
 x 3
 y 9
 end
-arch grassd_5
+arch wall_palace_03
+direction 3
+x 3
+y 9
+end
+arch floor_fs_grey1d
 x 3
 y 10
 end
-arch sand_dm6
-x 3
-y 10
-end
-arch fence_01.111
+arch border_top_sw2
 x 3
 y 10
 end
@@ -762,8 +624,7 @@ arch grassd_2
 x 3
 y 11
 end
-arch plant10
-z -3
+arch border_wall_n2
 x 3
 y 11
 end
@@ -857,101 +718,149 @@ arch plant15
 x 3
 y 23
 end
-arch grass_flowers3
+arch floor_marble1f
 x 4
 end
-arch plant_flower1
+arch wall_palace_14
 x 4
 end
-arch floor_white1e
-x 4
-y 1
-end
-arch pillar_white2c
+arch floor_marble1f
 x 4
 y 1
 end
-arch floor_white1b
+arch palace_wall_border_2
+direction 3
+x 4
+y 1
+end
+arch wall_palace_02
+direction 3
+x 4
+y 1
+end
+arch floor_marble1g
 x 4
 y 2
 end
-arch pillar_small_01
+arch palace_wall_border_2
+direction 3
 x 4
 y 2
 end
-arch floor_white1a
+arch wall_palace_01
+direction 3
+x 4
+y 2
+end
+arch floor_marble1g
 x 4
 y 3
 end
-arch ped_white_hw1
+arch palace_wall_border_2
+direction 3
 x 4
 y 3
 end
-arch floor_white1c
+arch wall_palace_09
+direction 3
+x 4
+y 3
+end
+arch floor_marble1h
 x 4
 y 4
 end
-arch pillar_small_01
+arch palace_wall_border_2
+direction 3
 x 4
 y 4
 end
-arch floor_white1c
+arch wall_palace_01
+direction 3
+x 4
+y 4
+end
+arch floor_marble1g
 x 4
 y 5
 end
-arch ped_white_hws1
+arch palace_wall_border_2
+direction 3
 x 4
 y 5
 end
-arch floor_white1d
+arch wall_palace_01
+direction 3
+x 4
+y 5
+end
+arch floor_marble1f
 x 4
 y 6
 end
-arch pillar_small_01
+arch palace_wall_border_2
+direction 3
 x 4
 y 6
 end
-arch floor_white1a
+arch wall_palace_09
+direction 3
+x 4
+y 6
+end
+arch floor_marble1h
 x 4
 y 7
 end
-arch pillar_white2c
+arch palace_wall_border_2
+direction 3
 x 4
 y 7
 end
-arch grass_flowers3
+arch wall_palace_01
+direction 3
+x 4
+y 7
+end
+arch floor_marble1h
 x 4
 y 8
 end
-arch plant_flower12
+arch palace_wall_border_2
+direction 3
 x 4
 y 8
 end
-arch grass_flowers3
+arch wall_palace_02
+direction 3
+x 4
+y 8
+end
+arch floor_marble1h
 x 4
 y 9
 end
-arch sand_dm7
+arch wall_palace_14
 x 4
 y 9
 end
-arch plant_flower1
-x 4
-y 9
-end
-arch grassd_5
+arch floor_fs_grey1c
 x 4
 y 10
 end
-arch sand_dm6
+arch border_top_s1
 x 4
 y 10
 end
-arch fence_01.111
+arch wall_palace_03
 x 4
 y 10
 end
 arch grassd_1
+x 4
+y 11
+end
+arch border_wall_n1
 x 4
 y 11
 end
@@ -1050,128 +959,97 @@ arch grassd_6
 x 4
 y 23
 end
-arch grass_flowers2
+arch floor_marble1h
 x 5
 end
-arch plant_flower12
-no_pass 1
+arch palace_wall_border_2
+direction 5
 x 5
 end
-arch floor_white1d
+arch wall_palace_02
+x 5
+end
+arch floor_marble1h
 x 5
 y 1
 end
-arch pillar_small_01
-x 5
-y 1
-end
-arch floor_white1a
+arch floor_marble1g
 x 5
 y 2
 end
-arch carpet2.151
+arch chair1_111
+direction 8
 x 5
 y 2
 end
-arch light3
-x 5
-y 2
-end
-arch floor_white1c
+arch floor_marble1h
 x 5
 y 3
 end
-arch carpet2e
+arch chair1_111
+direction 8
 x 5
 y 3
 end
-arch basin1.101
-msg
-The basin is empty.
-endmsg
-x 5
-y 3
-end
-arch floor_white1e
+arch floor_marble1h
 x 5
 y 4
 end
-arch carpet2e
+arch chair1_111
+direction 8
 x 5
 y 4
 end
-arch light4
-x 5
-y 4
-end
-arch floor_white1d
+arch floor_marble1h
 x 5
 y 5
 end
-arch carpet2e
-x 5
-y 5
-end
-arch basin1_full.101
-msg
-You wash your hands with water from the basin.
-endmsg
-x 5
-y 5
-end
-arch floor_white1e
+arch floor_marble1f
 x 5
 y 6
 end
-arch carpet2.111
+arch altar_tabernacle
+direction 7
 x 5
 y 6
 end
-arch light3
+arch light2
 x 5
 y 6
 end
-arch floor_white1c
+arch floor_marble1f
 x 5
 y 7
 end
-arch pillar_small_01
-x 5
-y 7
-end
-arch grass_flowers3
+arch floor_marble1g
 x 5
 y 8
 end
-arch plant_flower11
-x 5
-y 8
-end
-arch grass_flowers1
+arch floor_marble1g
 x 5
 y 9
 end
-arch sand_dm7
+arch palace_wall_border_2
 x 5
 y 9
 end
-arch plant_flower1
+arch wall_palace_02
 x 5
 y 9
 end
-arch grassd_1
+arch floor_fs_grey1a
 x 5
 y 10
 end
-arch sand_dm6
-x 5
-y 10
-end
-arch fence_01.111
+arch border_top_s1
 x 5
 y 10
 end
 arch grassd_8
+x 5
+y 11
+end
+arch border_wall_n1
 x 5
 y 11
 end
@@ -1267,183 +1145,93 @@ arch grassd_4
 x 5
 y 23
 end
-arch floor_white1b
+arch floor_marble1f
 x 6
 end
-arch pillar_small_01
-x 6
-end
-arch floor_white1c
-x 6
-y 1
-end
-arch carpet2.151
-x 6
-y 1
-end
-arch floor_white1d
-x 6
-y 2
-end
-arch carpet2e
-x 6
-y 2
-end
-arch floor_white1c
-x 6
-y 3
-end
-arch carpet2g
-x 6
-y 3
-end
-arch key_ring
-no_teleport 1
-slaying locked
-startequip 1
-name DEV key ring
-x 6
-y 3
-arch key2
-slaying incuna_tom_storage
-name incuna_tom_storage
-end
-arch key2
-slaying incuna_docks_ranger
-name incuna_docks_ranger
-end
-arch key2
-slaying incuna_docks_priest
-name incuna_docks_priest
-end
-arch key2
-slaying incuna_ellamin
-name incuna_ellamin
-end
-arch key2
-slaying incuna_bank
-name incuna_bank
-end
-arch key2
-slaying incuna_tom
-name incuna_tom
-end
-arch key2
-slaying incuna_gate
-name incuna_gate
-end
-arch key2
-slaying incuna_jail
-name incuna_jail
-end
-arch key2
-slaying incuna_marshes
-name incuna_marshes
-end
-arch key2
-slaying incuna_tavern_storage
-name incuna_tavern_storage
-end
-arch key2
-slaying incuna_tavern
-name incuna_tavern
-end
-arch key2
-slaying incuna_docks
-name incuna_docks
-end
-arch key2
-slaying incuna_stable
-name incuna_stable
-end
-arch key2
-slaying incuna_temple
-name incuna_temple
-end
-arch key2
-slaying forgotten_tunnels_kobold_key
-name forgotten_tunnels_kobold_key
-end
-end
-arch floor_white1a
-x 6
-y 4
-end
-arch carpet2c
-x 6
-y 4
-end
-arch floor_white1b
-x 6
-y 5
-end
-arch carpet2g
-x 6
-y 5
-end
-arch floor_white1e
-x 6
-y 6
-end
-arch carpet2j
-x 6
-y 6
-end
-arch stairs_stone_down
+arch palace_wall_border_2
 direction 5
-slaying incuna/temple
-hp 3
-sp 1
+x 6
+end
+arch wall_palace_04
+direction 8
+x 6
+end
+arch floor_marble1f
+x 6
+y 1
+end
+arch basin1_full.101
+x 6
+y 1
+end
+arch floor_marble1h
+x 6
+y 2
+end
+arch chair1_111
+direction 8
+x 6
+y 2
+end
+arch floor_marble1h
+x 6
+y 3
+end
+arch chair1_111
+direction 8
+x 6
+y 3
+end
+arch floor_marble1g
+x 6
+y 4
+end
+arch chair1_111
+direction 8
+x 6
+y 4
+end
+arch floor_marble1h
+x 6
+y 5
+end
+arch floor_marble1h
 x 6
 y 6
 end
-arch floor_white1d
+arch floor_marble1f
 x 6
 y 7
 end
-arch ped_white_h1
-x 6
-y 7
-end
-arch grass_flowers1
+arch floor_marble1f
 x 6
 y 8
 end
-arch plant_flower12
-x 6
-y 8
-end
-arch grass_flowers2
+arch floor_marble1g
 x 6
 y 9
 end
-arch sand_dm11
+arch palace_wall_border_2
 x 6
 y 9
 end
-arch plant_flower2
+arch wall_palace_01
 x 6
 y 9
 end
-arch grassd_1
+arch floor_fs_grey1a
 x 6
 y 10
 end
-arch sand_dm10
-x 6
-y 10
-end
-arch fence_01.111
-x 6
-y 10
-end
-arch plant_flower2
-align -5
-z -5
+arch border_top_s1
 x 6
 y 10
 end
 arch grassd_2
+x 6
+y 11
+end
+arch border_wall_n1
 x 6
 y 11
 end
@@ -1559,125 +1347,116 @@ arch plant5
 x 6
 y 23
 end
-arch floor_white1e
+arch floor_marble1f
 x 7
 end
-arch carpet2.151
+arch door1_locked
+cursed 1
 x 7
 end
-arch light3
-x 7
-end
-arch floor_white1a
+arch floor_marble1g
 x 7
 y 1
 end
-arch carpet2b
+arch carpet5.151
 x 7
 y 1
 end
-arch floor_white1a
+arch floor_marble1g
 x 7
 y 2
 end
-arch carpet2g
+arch carpet5e
 x 7
 y 2
+end
+arch floor_marble1g
+x 7
+y 3
+end
+arch carpet5e
+x 7
+y 3
 end
 arch light4
 x 7
-y 2
-end
-arch floor_white1b
-x 7
 y 3
 end
-arch carpet2d
+arch floor_marble1h
 x 7
-y 3
+y 4
+end
+arch carpet5e
+x 7
+y 4
+end
+arch floor_marble1h
+x 7
+y 5
+end
+arch carpet5e
+x 7
+y 5
+end
+arch floor_marble1h
+x 7
+y 6
+end
+arch carpet5.111
+x 7
+y 6
+end
+arch light4
+x 7
+y 6
+end
+arch floor_bw4
+x 7
+y 7
 end
 arch spawn_point
 x 7
-y 3
+y 7
 arch priest_church
 name church priest Manard
 level 20
 type 83
+direction 1
 end
 end
-arch floor_yellow2
-x 7
-y 4
-end
-arch light3
-x 7
-y 4
-end
-arch floor_white1e
-x 7
-y 5
-end
-arch carpet2f
-x 7
-y 5
-end
-arch floor_white1b
-x 7
-y 6
-end
-arch carpet2d
-x 7
-y 6
-end
-arch stairs_stone_down
-direction 5
-slaying incuna/temple
-hp 4
-sp 1
-x 7
-y 6
-end
-arch light4
-x 7
-y 6
-end
-arch floor_white1a
-x 7
-y 7
-end
-arch pillar_small_01
-x 7
-y 7
-end
-arch grass_flowers1
+arch floor_marble1f
 x 7
 y 8
 end
-arch plant_flower13
+arch border_wall_n2
 x 7
 y 8
 end
-arch grass_flowers3
+arch floor_marble1h
 x 7
 y 9
 end
-arch sand_dm11
+arch palace_wall_border_2
 x 7
 y 9
 end
-arch grassd_6
+arch wall_palace_13
+x 7
+y 9
+end
+arch floor_fs_grey1b
 x 7
 y 10
 end
-arch sand_dm6
-x 7
-y 10
-end
-arch fence_01.111
+arch border_top_s1
 x 7
 y 10
 end
 arch grassd_3
+x 7
+y 11
+end
+arch border_wall_n1
 x 7
 y 11
 end
@@ -1779,105 +1558,121 @@ arch plant12
 x 7
 y 23
 end
-arch floor_white1b
+arch floor_marble1f
 x 8
 end
-arch pillar_small_01
+arch door1_locked
+direction 7
+cursed 1
 x 8
 end
-arch floor_white1d
-x 8
-y 1
-end
-arch carpet2.151
+arch floor_marble1f
 x 8
 y 1
 end
-arch floor_white1d
+arch carpet5.151
+x 8
+y 1
+end
+arch floor_marble1g
 x 8
 y 2
 end
-arch carpet2c
+arch carpet5c
 x 8
 y 2
 end
-arch floor_white1c
+arch floor_marble1f
 x 8
 y 3
 end
-arch carpet2g
+arch carpet5c
 x 8
 y 3
 end
-arch floor_white1a
+arch light4
+x 8
+y 3
+end
+arch floor_marble1f
 x 8
 y 4
 end
-arch carpet2e
+arch carpet5c
 x 8
 y 4
 end
-arch floor_white1d
+arch floor_marble1f
 x 8
 y 5
 end
-arch carpet2g
+arch carpet5c
 x 8
 y 5
 end
-arch floor_white1c
+arch floor_marble1g
 x 8
 y 6
 end
-arch carpet2k
+arch carpet5.111
 x 8
 y 6
 end
-arch stairs_stone_down
-direction 5
-slaying incuna/temple
-hp 5
-sp 1
+arch light4
 x 8
 y 6
 end
-arch floor_white1a
+arch floor_marble1f
 x 8
 y 7
 end
-arch ped_white_hs1
+arch border_wall_w2
 x 8
 y 7
 end
-arch grass_flowers2
+arch flagwall_short_brick1.131
+no_pass 1
+x 8
+y 7
+end
+arch floor_marble1f
 x 8
 y 8
 end
-arch plant_flower11
+arch border_wall_nw2
 x 8
 y 8
 end
-arch grass_flowers1
+arch flagwall_short_brick1.131
+no_pass 1
+x 8
+y 8
+end
+arch floor_marble1f
 x 8
 y 9
 end
-arch sand_dm11
+arch palace_wall_border_2
 x 8
 y 9
 end
-arch grassd_5
+arch wall_palace_13
+x 8
+y 9
+end
+arch floor_fs_grey1a
 x 8
 y 10
 end
-arch sand_dm6
-x 8
-y 10
-end
-arch fence_01.111
+arch border_top_s1
 x 8
 y 10
 end
 arch grassd_6
+x 8
+y 11
+end
+arch border_wall_n1
 x 8
 y 11
 end
@@ -1983,124 +1778,101 @@ arch grassd_1
 x 8
 y 23
 end
-arch grass_flowers3
+arch floor_marble1g
 x 9
 end
-arch plant_flower2
-no_pass 1
+arch palace_wall_border_2
+direction 5
 x 9
 end
-arch floor_white1a
+arch wall_palace_04
+direction 4
+x 9
+end
+arch floor_marble1h
 x 9
 y 1
 end
-arch pillar_small_01
+arch basin1_full.101
 x 9
 y 1
 end
-arch floor_white1a
+arch floor_marble1h
 x 9
 y 2
 end
-arch carpet2.151
+arch chair1_111
+direction 8
 x 9
 y 2
 end
-arch light3
-x 9
-y 2
-end
-arch floor_white1d
+arch floor_marble1f
 x 9
 y 3
 end
-arch carpet2c
+arch chair1_111
+direction 8
 x 9
 y 3
 end
-arch basin1.101
-msg
-The basin is empty.
-endmsg
-x 9
-y 3
-end
-arch floor_white1c
+arch floor_marble1g
 x 9
 y 4
 end
-arch carpet2c
+arch chair1_111
+direction 8
 x 9
 y 4
 end
-arch light4
-x 9
-y 4
-end
-arch floor_white1e
+arch floor_marble1g
 x 9
 y 5
 end
-arch carpet2c
+arch chair1_111
+direction 8
 x 9
 y 5
 end
-arch basin1.101
-msg
-The basin is empty.
-endmsg
-x 9
-y 5
-end
-arch floor_white1b
+arch floor_marble1f
 x 9
 y 6
 end
-arch carpet2.111
-x 9
-y 6
-end
-arch light3
-x 9
-y 6
-end
-arch floor_white1a
+arch floor_marble1f
 x 9
 y 7
 end
-arch pillar_small_01
+arch stairs_stone_down
+direction 5
 x 9
 y 7
 end
-arch grass_flowers1
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 8
 end
-arch plant_flower2
+arch invis_exit
 x 9
 y 8
 end
-arch grass_flowers3
+arch floor_marble1h
 x 9
 y 9
 end
-arch sand_dm7
+arch palace_wall_border_2
 x 9
 y 9
 end
-arch plant_flower1
+arch wall_palace_01
 x 9
 y 9
 end
-arch grassd_8
+arch floor_fs_grey1a
 x 9
 y 10
 end
-arch sand_dm6
-x 9
-y 10
-end
-arch fence_01.111
+arch border_top_s1
 x 9
 y 10
 end
@@ -2108,9 +1880,7 @@ arch grassd_4
 x 9
 y 11
 end
-arch plant_flower1
-align 7
-z -3
+arch border_wall_n1
 x 9
 y 11
 end
@@ -2194,97 +1964,104 @@ arch sand_dm19
 x 9
 y 23
 end
-arch grass_flowers1
+arch floor_marble1g
 x 10
 end
-arch plant_flower13
+arch palace_wall_border_2
+direction 5
 x 10
 end
-arch floor_white1a
+arch wall_palace_02
+x 10
+end
+arch floor_marble1h
 x 10
 y 1
 end
-arch pillar_white2c
-x 10
-y 1
-end
-arch floor_white1d
+arch floor_marble1g
 x 10
 y 2
 end
-arch pillar_small_01
+arch chair1_111
+direction 8
 x 10
 y 2
 end
-arch floor_white1b
+arch floor_marble1f
 x 10
 y 3
 end
-arch ped_white_hws1
+arch chair1_111
+direction 8
 x 10
 y 3
 end
-arch floor_white1b
+arch floor_marble1h
 x 10
 y 4
 end
-arch pillar_small_01
+arch chair1_111
+direction 8
 x 10
 y 4
 end
-arch floor_white1c
+arch floor_marble1f
 x 10
 y 5
 end
-arch ped_white_hw1
+arch chair1_111
+direction 8
 x 10
 y 5
 end
-arch floor_white1d
+arch floor_marble1f
 x 10
 y 6
 end
-arch pillar_small_01
-x 10
-y 6
-end
-arch floor_white1d
+arch floor_marble1f
 x 10
 y 7
 end
-arch pillar_white2c
+arch stairs_stone_down
+direction 5
 x 10
 y 7
 end
-arch grass_flowers3
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 8
 end
-arch plant_flower11
+arch invis_exit
 x 10
 y 8
 end
-arch grass_flowers2
+arch floor_marble1h
 x 10
 y 9
 end
-arch sand_dm7
+arch palace_wall_border_2
 x 10
 y 9
 end
-arch grassd_6
+arch wall_palace_02
+x 10
+y 9
+end
+arch floor_fs_grey1a
 x 10
 y 10
 end
-arch sand_dm10
-x 10
-y 10
-end
-arch fence_01.111
+arch border_top_s1
 x 10
 y 10
 end
 arch grassd_1
+x 10
+y 11
+end
+arch border_wall_n1
 x 10
 y 11
 end
@@ -2372,97 +2149,149 @@ arch sand_dm22
 x 10
 y 23
 end
-arch grass_flowers3
+arch floor_marble1f
 x 11
 end
-arch plant_flower12
+arch wall_palace_14
 x 11
 end
-arch grass_flowers1
-x 11
-y 1
-end
-arch plant_flower11
+arch floor_marble1g
 x 11
 y 1
 end
-arch grass_flowers3
+arch palace_wall_border_2
+direction 7
+x 11
+y 1
+end
+arch wall_palace_02
+direction 3
+x 11
+y 1
+end
+arch floor_marble1g
 x 11
 y 2
 end
-arch plant_flower14
+arch palace_wall_border_2
+direction 7
 x 11
 y 2
 end
-arch grass_flowers3
+arch wall_palace_01
+direction 3
+x 11
+y 2
+end
+arch floor_marble1f
 x 11
 y 3
 end
-arch plant_flower11
+arch palace_wall_border_2
+direction 7
 x 11
 y 3
 end
-arch grass_flowers2
+arch wall_palace_11
+direction 3
+x 11
+y 3
+end
+arch floor_marble1h
 x 11
 y 4
 end
-arch plant_flower14
+arch palace_wall_border_2
+direction 7
 x 11
 y 4
 end
-arch grass_flowers2
+arch wall_palace_01
+direction 3
+x 11
+y 4
+end
+arch floor_marble1f
 x 11
 y 5
 end
-arch plant_flower12
+arch palace_wall_border_2
+direction 7
 x 11
 y 5
 end
-arch grass_flowers3
+arch wall_palace_01
+direction 3
+x 11
+y 5
+end
+arch floor_marble1f
 x 11
 y 6
 end
-arch plant_flower11
+arch palace_wall_border_2
+direction 7
 x 11
 y 6
 end
-arch grass_flowers3
+arch wall_palace_11
+direction 3
+x 11
+y 6
+end
+arch floor_marble1h
 x 11
 y 7
 end
-arch plant_flower14
+arch palace_wall_border_2
+direction 7
 x 11
 y 7
 end
-arch grass_flowers3
+arch wall_palace_01
+direction 3
+x 11
+y 7
+end
+arch floor_marble1g
 x 11
 y 8
 end
-arch plant_flower13
+arch palace_wall_border_2
+direction 7
 x 11
 y 8
 end
-arch grass_flowers3
+arch wall_palace_02
+direction 3
+x 11
+y 8
+end
+arch floor_marble1h
 x 11
 y 9
 end
-arch sand_dm11
+arch wall_palace_14
 x 11
 y 9
 end
-arch grassd_2
+arch floor_fs_grey1a
 x 11
 y 10
 end
-arch sand_dm6
+arch border_top_s1
 x 11
 y 10
 end
-arch fence_01.111
+arch wall_palace_03
 x 11
 y 10
 end
 arch grassd_5
+x 11
+y 11
+end
+arch border_wall_n1
 x 11
 y 11
 end
@@ -2568,112 +2397,106 @@ arch plant10
 x 11
 y 23
 end
-arch grass_flowers3
+arch floor_fs_grey1b
 x 12
 end
-arch sand_dm5
+arch border_top_e1
 x 12
 end
-arch plant_flower1
+arch wall_palace_03
+direction 7
 x 12
 end
-arch grass_flowers1
-x 12
-y 1
-end
-arch sand_dm9
+arch floor_fs_grey1a
 x 12
 y 1
 end
-arch grass_flowers1
+arch border_top_e1
+x 12
+y 1
+end
+arch floor_fs_grey1a
 x 12
 y 2
 end
-arch sand_dm9
+arch border_top_e1
 x 12
 y 2
 end
-arch plant_flower1
-x 12
-y 2
-end
-arch grass_flowers2
+arch floor_fs_grey1c
 x 12
 y 3
 end
-arch sand_dm5
+arch border_top_e1
 x 12
 y 3
 end
-arch grass_flowers1
+arch floor_fs_grey1d
 x 12
 y 4
 end
-arch sand_dm5
+arch border_top_e1
 x 12
 y 4
 end
-arch grass_flowers2
+arch floor_fs_grey1b
 x 12
 y 5
 end
-arch sand_dm5
+arch border_top_e1
 x 12
 y 5
 end
-arch plant_flower1
-x 12
-y 5
-end
-arch grass_flowers3
+arch floor_fs_grey1a
 x 12
 y 6
 end
-arch sand_dm9
+arch border_top_e1
 x 12
 y 6
 end
-arch grass_flowers3
+arch floor_fs_grey1d
 x 12
 y 7
 end
-arch sand_dm9
+arch border_top_e1
 x 12
 y 7
 end
-arch grass_flowers1
+arch floor_fs_grey1c
 x 12
 y 8
 end
-arch sand_dm9
+arch border_top_e1
 x 12
 y 8
 end
-arch plant_flower2
-x 12
-y 8
-end
-arch grass_flowers2
+arch floor_fs_grey1a
 x 12
 y 9
 end
-arch sand_dm16
+arch border_top_e1
 x 12
 y 9
 end
-arch grassd_5
+arch wall_palace_03
+direction 7
+x 12
+y 9
+end
+arch floor_fs_grey1d
 x 12
 y 10
 end
-arch sand_dm10
-x 12
-y 10
-end
-arch fence_01.111
+arch border_top_se2
 x 12
 y 10
 end
 arch grassd_1
+x 12
+y 11
+end
+arch border_wall_n1
 x 12
 y 11
 end
@@ -2765,132 +2588,89 @@ arch small_stones
 x 12
 y 23
 end
-arch grassd_5
+arch grassd_2
 x 13
 end
-arch sand_dm12
+arch border_wall_w1
 x 13
 end
-arch fence_01.171
-x 13
-end
-arch grassd_3
+arch grassd_4
 x 13
 y 1
 end
-arch sand_dm8
+arch border_wall_w1
 x 13
 y 1
 end
-arch fence_01.171
+arch grassd_8
 x 13
-y 1
+y 2
+end
+arch border_wall_w1
+x 13
+y 2
+end
+arch grassd_6
+x 13
+y 3
+end
+arch border_wall_w1
+x 13
+y 3
+end
+arch grassd_1
+x 13
+y 4
+end
+arch border_wall_w1
+x 13
+y 4
+end
+arch grassd_7
+x 13
+y 5
+end
+arch border_wall_w1
+x 13
+y 5
 end
 arch grassd_2
 x 13
-y 2
+y 6
 end
-arch sand_dm12
-x 13
-y 2
-end
-arch fence_01.171
-x 13
-y 2
-end
-arch grassd_7
-x 13
-y 3
-end
-arch sand_dm8
-x 13
-y 3
-end
-arch fence_01.171
-x 13
-y 3
-end
-arch grassd_4
-x 13
-y 4
-end
-arch sand_dm12
-x 13
-y 4
-end
-arch fence_01.171
-x 13
-y 4
-end
-arch grassd_3
-x 13
-y 5
-end
-arch sand_dm8
-x 13
-y 5
-end
-arch fence_01.171
-x 13
-y 5
-end
-arch grassd_3
+arch border_wall_w1
 x 13
 y 6
 end
-arch sand_dm12
-x 13
-y 6
-end
-arch fence_01.171
-x 13
-y 6
-end
-arch grassd_8
+arch grassd_2
 x 13
 y 7
 end
-arch sand_dm12
+arch border_wall_w1
 x 13
 y 7
 end
-arch fence_01.171
-x 13
-y 7
-end
-arch grassd_4
+arch grassd_5
 x 13
 y 8
 end
-arch sand_dm8
+arch border_wall_w1
 x 13
 y 8
 end
-arch fence_01.171
-x 13
-y 8
-end
-arch grassd_7
+arch grassd_2
 x 13
 y 9
 end
-arch sand_dm8
+arch border_wall_w1
 x 13
 y 9
 end
-arch fence_01.171
-x 13
-y 9
-end
-arch grassd_4
+arch grassd_6
 x 13
 y 10
 end
-arch sand_dm3
-x 13
-y 10
-end
-arch fence_01.182
+arch border_wall_w1
 x 13
 y 10
 end
@@ -2898,11 +2678,7 @@ arch grassd_8
 x 13
 y 11
 end
-arch sand_dm1
-x 13
-y 11
-end
-arch plant_flower6
+arch border_wall_nw2
 x 13
 y 11
 end
@@ -3101,6 +2877,10 @@ x 14
 y 11
 end
 arch floor_sand_d4
+x 14
+y 12
+end
+arch grassd_m13
 x 14
 y 12
 end
@@ -3671,6 +3451,7 @@ x 18
 y 4
 end
 arch grassd_7
+player_only 1
 x 18
 y 5
 end

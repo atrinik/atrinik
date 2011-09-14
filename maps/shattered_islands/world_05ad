@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -289,23 +289,7 @@ arch grassd_1
 x 1
 y 22
 end
-arch sand_dm1
-x 1
-y 22
-end
-arch fence_01.142
-x 1
-y 22
-end
 arch grassd_3
-x 1
-y 23
-end
-arch sand_dm9
-x 1
-y 23
-end
-arch fence_01.131
 x 1
 y 23
 end
@@ -458,27 +442,11 @@ arch sand_dm10
 x 2
 y 21
 end
-arch grassd_2
+arch grassd_8
 x 2
 y 22
 end
-arch sand_dm11
-x 2
-y 22
-end
-arch fence_01.151
-x 2
-y 22
-end
-arch grass_flowers3
-x 2
-y 23
-end
-arch sand_dm14
-x 2
-y 23
-end
-arch plant_flower2
+arch grassd_1
 x 2
 y 23
 end
@@ -639,27 +607,15 @@ arch sand_dm6
 x 3
 y 21
 end
-arch grassd_4
+arch grassd_6
 x 3
 y 22
 end
-arch sand_dm11
-x 3
-y 22
-end
-arch fence_01.151
-x 3
-y 22
-end
-arch grass_flowers1
+arch floor_fs_grey1c
 x 3
 y 23
 end
-arch sand_dm6
-x 3
-y 23
-end
-arch plant_flower1
+arch border_top_nw2
 x 3
 y 23
 end
@@ -852,27 +808,20 @@ arch sand_dm6
 x 4
 y 21
 end
-arch grassd_8
+arch grassd_5
 x 4
 y 22
 end
-arch sand_dm11
-x 4
-y 22
-end
-arch fence_01.151
-x 4
-y 22
-end
-arch grass_flowers3
+arch floor_fs_grey1d
 x 4
 y 23
 end
-arch sand_dm6
+arch border_top_n1
 x 4
 y 23
 end
-arch plant_flower2
+arch wall_palace_03
+direction 5
 x 4
 y 23
 end
@@ -1026,35 +975,23 @@ arch floor_sand_d4
 x 5
 y 20
 end
-arch grassd_2
+arch grassd_4
 x 5
 y 21
 end
-arch sand_dm15
+arch sand_dm6
 x 5
 y 21
 end
-arch grassd_5
+arch grassd_6
 x 5
 y 22
 end
-arch sand_dm16
-x 5
-y 22
-end
-arch fence_01.152
-x 5
-y 22
-end
-arch grass_flowers3
+arch floor_fs_grey1d
 x 5
 y 23
 end
-arch sand_dm10
-x 5
-y 23
-end
-arch plant_flower14
+arch border_top_n1
 x 5
 y 23
 end
@@ -1200,32 +1137,35 @@ arch floor_sand_d3
 x 6
 y 20
 end
-arch floor_sand_d3
+arch grassd_5
 x 6
 y 21
 end
-arch grassd_5
+arch sand_dm6
+x 6
+y 21
+end
+arch floor_fs_grey1c
 x 6
 y 22
 end
-arch sand_dm18
+arch border_top_nw2
 x 6
 y 22
 end
-arch pillar_small_01
+arch statue_fire
 x 6
 y 22
 end
-arch grass_flowers1
+arch light5
+x 6
+y 22
+end
+arch floor_fs_grey1a
 x 6
 y 23
 end
-arch sand_dm3
-x 6
-y 23
-end
-arch plant_flower13
-no_pass 1
+arch border_top_nw1
 x 6
 y 23
 end
@@ -1355,16 +1295,23 @@ arch floor_sand_d2
 x 7
 y 20
 end
-arch floor_sand_d3
+arch floor_fs_grey1b
 x 7
 y 21
 end
-arch floor_sand_d4
-player_only 1
+arch border_top_nw2
+x 7
+y 21
+end
+arch floor_fs_grey1a
 x 7
 y 22
 end
-arch floor_white1b
+arch border_top_nw1
+x 7
+y 22
+end
+arch floor_fs_grey1c
 x 7
 y 23
 end
@@ -1496,33 +1443,23 @@ arch floor_sand_d2
 x 8
 y 20
 end
-arch floor_sand_d1
+arch floor_fs_grey1b
 x 8
 y 21
 end
-arch grassd_3
+arch border_top_ne2
+x 8
+y 21
+end
+arch floor_fs_grey1a
 x 8
 y 22
 end
-arch sand_dm18
+arch border_top_ne1
 x 8
 y 22
 end
-arch pillar_small_01
-layer 4
-x 8
-y 22
-end
-arch grass_flowers3
-x 8
-y 23
-end
-arch sand_dm2
-x 8
-y 23
-end
-arch plant_flower12
-no_pass 1
+arch floor_fs_grey1c
 x 8
 y 23
 end
@@ -1643,35 +1580,40 @@ arch floor_sand_d3
 x 9
 y 20
 end
-arch grassd_5
+arch grassd_1
 x 9
 y 21
-end
-arch sand_dm14
-x 9
-y 21
-end
-arch grassd_6
-x 9
-y 22
-end
-arch sand_dm13
-x 9
-y 22
-end
-arch fence_01.153
-x 9
-y 22
-end
-arch grass_flowers1
-x 9
-y 23
 end
 arch sand_dm6
 x 9
+y 21
+end
+arch border_wall_w2
+layer 3
+x 9
+y 21
+end
+arch floor_fs_grey1d
+x 9
+y 22
+end
+arch border_top_ne2
+x 9
+y 22
+end
+arch statue_fire
+x 9
+y 22
+end
+arch light5
+x 9
+y 22
+end
+arch floor_fs_grey1d
+x 9
 y 23
 end
-arch plant_flower2
+arch border_top_ne1
 x 9
 y 23
 end
@@ -1807,27 +1749,19 @@ arch sand_dm6
 x 10
 y 21
 end
-arch grassd_5
+arch grassd_3
 x 10
 y 22
 end
-arch sand_dm11
+arch border_wall_w2
 x 10
 y 22
 end
-arch fence_01.151
-x 10
-y 22
-end
-arch grass_flowers1
+arch floor_fs_grey1c
 x 10
 y 23
 end
-arch sand_dm10
-x 10
-y 23
-end
-arch plant_flower11
+arch border_top_n1
 x 10
 y 23
 end
@@ -1980,23 +1914,20 @@ arch sand_dm10
 x 11
 y 21
 end
-arch grassd_1
+arch grassd_2
 x 11
 y 22
 end
-arch sand_dm11
-x 11
-y 22
-end
-arch fence_01.151
-x 11
-y 22
-end
-arch grass_flowers2
+arch floor_fs_grey1c
 x 11
 y 23
 end
-arch sand_dm10
+arch border_top_n1
+x 11
+y 23
+end
+arch wall_palace_03
+direction 5
 x 11
 y 23
 end
@@ -2151,23 +2082,15 @@ arch plant_flower6
 x 12
 y 21
 end
-arch grassd_6
+arch grassd_5
 x 12
 y 22
 end
-arch sand_dm7
-x 12
-y 22
-end
-arch fence_01.151
-x 12
-y 22
-end
-arch grass_flowers3
+arch floor_fs_grey1d
 x 12
 y 23
 end
-arch sand_dm15
+arch border_top_ne2
 x 12
 y 23
 end
@@ -2329,27 +2252,15 @@ arch sand_dm10
 x 13
 y 21
 end
-arch grassd_6
-x 13
-y 22
-end
-arch sand_dm4
-x 13
-y 22
-end
-arch fence_01.162
-x 13
-y 22
-end
 arch grassd_2
 x 13
-y 23
+y 22
 end
-arch sand_dm12
+arch grassd_8
 x 13
 y 23
 end
-arch fence_01.171
+arch border_wall_w2
 x 13
 y 23
 end
