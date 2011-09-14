@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-12 Alex Tokar
+Modified: 2011-09-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -29,7 +29,7 @@ end
 arch box1.101
 y 1
 end
-arch torch_wall_1
+arch lamp_wall
 y 1
 end
 arch bridge_wood_NS.101
@@ -516,7 +516,7 @@ arch bridge_wood_EW.101
 x 4
 y 1
 end
-arch torch_wall_1
+arch lamp_wall
 x 4
 y 1
 end
@@ -724,7 +724,7 @@ arch bridge_wood_NS.101
 x 5
 y 6
 end
-arch torch_wall_1
+arch lamp_wall
 x 5
 y 6
 end
@@ -1160,7 +1160,7 @@ arch bridge_wood_NS.101
 x 8
 y 5
 end
-arch torch_wall_1
+arch lamp_wall
 x 8
 y 5
 end
@@ -1285,6 +1285,11 @@ x 9
 y 1
 end
 arch sand_dm2
+x 9
+y 1
+end
+arch lamp_wall
+direction 7
 x 9
 y 1
 end
