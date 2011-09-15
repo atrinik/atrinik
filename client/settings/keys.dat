@@ -345,3 +345,8 @@ bind
 	mod 192
 	command ?PASTE
 end
+bind
+	# t
+	key 116
+	command /t_tell hello
+end
