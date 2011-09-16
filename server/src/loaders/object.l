@@ -519,8 +519,16 @@ lex_error = 0;
 ^path_denied{S}     op->path_denied = IVAL;
 ^magic{S}           op->magic = IVAL;
 ^state{S}           op->state = IVAL;
-^layer{S}           op->layer = IVAL;
-^sub_layer{S}       op->sub_layer = IVAL;
+^layer{S}           {
+						int val = IVAL;
+
+						op->layer = MAX(0, MIN(NUM_LAYERS, val));
+                    }
+^sub_layer{S}       {
+						int val = IVAL;
+
+						op->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, val));
+                    }
 ^door_closed{S}     SET_OR_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
 ^cursed_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
 ^damned_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL);
