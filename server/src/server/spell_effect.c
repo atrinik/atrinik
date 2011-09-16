@@ -197,7 +197,7 @@ int probe(object *op)
 {
 	object *tmp;
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
 		if (IS_LIVE(tmp))
 		{
@@ -682,7 +682,7 @@ int cast_heal_around(object *op, int level, int type)
 					continue;
 				}
 
-				for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+				for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 				{
 					tmp = HEAD(tmp);
 

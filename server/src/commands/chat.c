@@ -241,7 +241,7 @@ int command_t_tell(object *op, char *params)
 			continue;
 		}
 
-		for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+		for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 		{
 			if (QUERY_FLAG(tmp, FLAG_ALIVE) && tmp->type == MONSTER && (tmp->msg || HAS_EVENT(tmp, EVENT_SAY)))
 			{

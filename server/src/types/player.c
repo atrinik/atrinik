@@ -1520,7 +1520,7 @@ void kill_player(object *op)
 	/* Check to see if the player is in a shop. Ii so, then check to see
 	 * if the player has any unpaid items. If so, remove them and put
 	 * them back in the map. */
-	tmp = get_map_ob(op->map, op->x, op->y);
+	tmp = GET_MAP_OB(op->map, op->x, op->y);
 
 	if (tmp && tmp->type == SHOP_FLOOR)
 	{

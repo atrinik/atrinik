@@ -70,7 +70,7 @@ int apply_shop_mat(object *shop_mat, object *op)
 		/* This check below is a bit simplistic - generally it should be correct,
 		 * but there is never a guarantee that the bottom space on the map is
 		 * actually the shop floor. */
-		else if (!rv && (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0)) != NULL && tmp->type != SHOP_FLOOR)
+		else if (!rv && (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0)) != NULL && tmp->type != SHOP_FLOOR)
 		{
 			draw_info(COLOR_WHITE, op, "Thank you for visiting our shop.");
 		}

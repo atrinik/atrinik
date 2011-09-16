@@ -531,7 +531,7 @@ int hit_map(object *op, int dir, int reduce)
 		return 0;
 	}
 
-	next = get_map_ob(map, x, y);
+	next = GET_MAP_OB(map, x, y);
 
 	if (next)
 	{

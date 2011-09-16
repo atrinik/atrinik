@@ -135,13 +135,13 @@ typedef struct MapCell_struct
 	int	count;
 
 	/** Faces we sent. */
-	sint16 faces[NUM_LAYERS];
+	sint16 faces[NUM_REAL_LAYERS];
 
 	/** Multi-arch cache. */
-	uint8 quick_pos[NUM_LAYERS];
+	uint8 quick_pos[NUM_REAL_LAYERS];
 
 	/** Flags cache. */
-	uint8 flags[NUM_LAYERS];
+	uint8 flags[NUM_REAL_LAYERS];
 
 	/**
 	 * Probe cache. No need for an array, since this only appears

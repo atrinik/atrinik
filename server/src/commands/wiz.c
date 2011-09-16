@@ -151,7 +151,7 @@ static object *find_object_both(object *op, char *params)
 	}
 
 	/* Otherwise search below the DM */
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
 		tmp2 = find_object_rec(tmp, name, count);
 
@@ -166,7 +166,7 @@ static object *find_object_both(object *op, char *params)
 	{
 		for (y = 0; y < MAP_HEIGHT(op->map); y++)
 		{
-			for (tmp = get_map_ob(op->map, x, y); tmp; tmp = tmp->above)
+			for (tmp = GET_MAP_OB(op->map, x, y); tmp; tmp = tmp->above)
 			{
 				tmp2 = find_object_rec(tmp, name, count);
 
@@ -1754,7 +1754,7 @@ int command_dumpbelowfull(object *op, char *params)
 	draw_info(COLOR_WHITE, op, "OBJECTS ON THIS TILE");
 	draw_info(COLOR_WHITE, op, "-------------------");
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
 		/* Exclude the DM player object */
 		if (tmp == op)
@@ -1795,7 +1795,7 @@ int command_dumpbelow(object *op, char *params)
 	draw_info(COLOR_WHITE, op, "OBJECTS ON THIS TILE");
 	draw_info(COLOR_WHITE, op, "-------------------");
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above, i++)
 	{
 		/* Exclude the DM player object */
 		if (tmp == op)

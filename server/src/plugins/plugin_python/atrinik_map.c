@@ -191,7 +191,7 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 	}
 	else
 	{
-		for (tmp = GET_MAP_OB_LAYER(m, x, y, layer - 1); tmp && tmp->layer == layer; tmp = tmp->above)
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, layer, 0); tmp && tmp->layer == layer; tmp = tmp->above)
 		{
 			PyList_Append(list, wrap_object(tmp));
 		}

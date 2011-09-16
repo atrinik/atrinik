@@ -499,18 +499,8 @@ lex_error = 0;
 ^wc_range_add{S}    op->stats.wc_range += IVAL;
 ^ac{S}              op->stats.ac = IVAL;
 ^ac_add{S}          op->stats.ac += IVAL;
-^x{S}               {
-						op->x = IVAL;
-#ifdef POSITION_DEBUG
-						op->ox = op->x;
-#endif
-                    }
-^y{S}               {
-						op->y = IVAL;
-#ifdef POSITION_DEBUG
-						op->oy = op->y;
-#endif
-                    }
+^x{S}               op->x = IVAL;
+^y{S}               op->y = IVAL;
 ^z{S}               op->z = IVAL;
 ^zoom{S}            op->zoom = IVAL;
 ^align{S}           op->align = IVAL;
@@ -530,6 +520,7 @@ lex_error = 0;
 ^magic{S}           op->magic = IVAL;
 ^state{S}           op->state = IVAL;
 ^layer{S}           op->layer = IVAL;
+^sub_layer{S}       op->sub_layer = IVAL;
 ^door_closed{S}     SET_OR_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
 ^cursed_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
 ^damned_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL);
@@ -1588,6 +1579,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->layer != op2->layer)
 	{
 		FAST_SAVE_LONG(sb, "layer ", op->layer);
+	}
+
+	if (op->sub_layer != op2->sub_layer)
+	{
+		FAST_SAVE_LONG(sb, "sub_layer ", op->sub_layer);
 	}
 
 	if (op->path_attuned != op2->path_attuned)

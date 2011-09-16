@@ -387,7 +387,6 @@ extern void display_mapscroll(int dx, int dy);
 extern void update_map_name(const char *name);
 extern void update_map_weather(const char *weather);
 extern void init_map_data(int xl, int yl, int px, int py);
-extern void align_tile_stretch(int x, int y);
 extern void adjust_tile_stretch(void);
 extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision);
 extern void map_clear_cell(int x, int y);

@@ -506,14 +506,14 @@ static int is_legal_2ways_exit(object *op, object *exit_ob)
 
 	if (exitmap)
 	{
-		tmp = get_map_ob(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob));
+		tmp = GET_MAP_OB(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob));
 
 		if (!tmp)
 		{
 			return 0;
 		}
 
-		for ((tmp = get_map_ob(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob))); tmp; tmp = tmp->above)
+		for ((tmp = GET_MAP_OB(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob))); tmp; tmp = tmp->above)
 		{
 			/* Not an exit */
 			if (tmp->type != EXIT)

@@ -1256,7 +1256,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 			return 0;
 		}
 
-		for (tmp = get_map_ob(m, xt, yt); tmp; tmp = tmp->above)
+		for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above)
 		{
 			if ((IS_LIVE(tmp) && (tmp->head == NULL ? tmp->stats.hp > 0 : tmp->head->stats.hp > 0)) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || tmp->type == DOOR)
 			{

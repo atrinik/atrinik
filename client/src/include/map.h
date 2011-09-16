@@ -54,8 +54,40 @@
 /** Map tile Y offset */
 #define MAP_TILE_YOFF 24
 
-/** Maximum number of layers. */
-#define MAX_LAYERS 7
+/**
+ * @defgroup LAYER_xxx Layer types
+ * The layer types used for different objects.
+ *@{*/
+/** System objects. */
+#define LAYER_SYS 0
+/** Floor. */
+#define LAYER_FLOOR 1
+/** Floor masks. */
+#define LAYER_FMASK 2
+/** Items: weapons, armour, books, etc. */
+#define LAYER_ITEM 3
+/** Another layer for items, often decoration. */
+#define LAYER_ITEM2 4
+/** Walls. */
+#define LAYER_WALL 5
+/** Living objects like players and monsters. */
+#define LAYER_LIVING 6
+/** Spell effects. */
+#define LAYER_EFFECT 7
+/*@}*/
+
+/**
+ * The number of object layers. */
+#define NUM_LAYERS 7
+/**
+ * Number of sub-layers. */
+#define NUM_SUB_LAYERS 5
+/**
+ * Effective number of all the visible layers. */
+#define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
+
+#define GET_MAP_LAYER(_layer, _sub_layer) \
+	(NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
 /** Multi part object tile structure */
 typedef struct _multi_part_tile
@@ -109,49 +141,49 @@ typedef struct _mapdata
 typedef struct MapCell
 {
 	/** Position. */
-	uint8 quick_pos[MAX_LAYERS + 1];
+	uint8 quick_pos[NUM_REAL_LAYERS];
 
 	/** Player name color on this cell. */
-	char pcolor[MAX_LAYERS + 1][COLOR_BUF];
+	char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
 
 	/** If this is where our enemy is. */
-	uint8 probe[MAX_LAYERS + 1];
+	uint8 probe[NUM_REAL_LAYERS];
 
 	/** Cell darkness. */
 	uint8 darkness;
 
 	/** Object flags. */
-	uint8 flags[MAX_LAYERS + 1];
+	uint8 flags[NUM_REAL_LAYERS];
 
 	/** Double drawing. */
-	uint8 draw_double[MAX_LAYERS + 1];
+	uint8 draw_double[NUM_REAL_LAYERS];
 
 	/** Alpha value. */
-	uint8 alpha[MAX_LAYERS + 1];
+	uint8 alpha[NUM_REAL_LAYERS];
 
 	/** Faces. */
-	sint16 faces[MAX_LAYERS + 1];
+	sint16 faces[NUM_REAL_LAYERS];
 
 	/** Height of this maptile. */
-	sint16 height[MAX_LAYERS + 1];
+	sint16 height[NUM_REAL_LAYERS];
 
 	/** Zoom. */
-	sint16 zoom[MAX_LAYERS + 1];
+	sint16 zoom[NUM_REAL_LAYERS];
 
 	/** Align. */
-	sint16 align[MAX_LAYERS + 1];
+	sint16 align[NUM_REAL_LAYERS];
 
 	/** Rotate. */
-	sint16 rotate[MAX_LAYERS + 1];
+	sint16 rotate[NUM_REAL_LAYERS];
 
 	/** Whether to show the object in red. */
-	uint8 infravision[MAX_LAYERS + 1];
+	uint8 infravision[NUM_REAL_LAYERS];
 
 	/** How we stretch this is really 8 char for N S E W. */
-	uint32 stretch;
+	uint32 stretch[NUM_SUB_LAYERS];
 
 	/** Name of player on this cell. */
-	char pname[MAX_LAYERS + 1][64];
+	char pname[NUM_REAL_LAYERS][64];
 } MapCell;
 
 /** Map structure. */

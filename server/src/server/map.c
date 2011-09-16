@@ -1135,7 +1135,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 	{
 		for (j = 0; j < MAP_HEIGHT(m); j++)
 		{
-			for (op = get_map_ob (m, i, j); op; op = otmp)
+			for (op = GET_MAP_OB (m, i, j); op; op = otmp)
 			{
 				otmp = op->above;
 
@@ -1167,7 +1167,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1228,7 +1228,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1262,7 +1262,7 @@ save_objects_jump1:
 								/* Should be really rare */
 								else
 								{
-									otmp = get_map_ob(m, i, j);
+									otmp = GET_MAP_OB(m, i, j);
 								}
 							}
 						}
@@ -1288,7 +1288,7 @@ save_objects_jump1:
 		{
 			unique = 0;
 
-			for (op = get_map_ob(m, i, j); op; op = otmp)
+			for (op = GET_MAP_OB(m, i, j); op; op = otmp)
 			{
 				otmp = op->above;
 
@@ -1343,7 +1343,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1378,7 +1378,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 				}
@@ -1667,7 +1667,7 @@ static void delete_unique_items(mapstruct *m)
 		{
 			unique = 0;
 
-			for (op = get_map_ob(m, i, j); op; op = next)
+			for (op = GET_MAP_OB(m, i, j); op; op = next)
 			{
 				next = op->above;
 
@@ -2196,7 +2196,7 @@ void update_position(mapstruct *m, int x, int y)
 		move_flags = 0;
 
 		/* This is a key function and highly often called - every saved tick is good. */
-		for (tmp = get_map_ob (m, x, y); tmp; tmp = tmp->above)
+		for (tmp = GET_MAP_OB (m, x, y); tmp; tmp = tmp->above)
 		{
 			if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY))
 			{

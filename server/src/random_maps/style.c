@@ -316,7 +316,7 @@ object *pick_random_object(mapstruct *style)
 
 		x = i / MAP_HEIGHT(style);
 		y = i % MAP_HEIGHT(style);
-		new_obj = get_map_ob(style, x, y);
+		new_obj = GET_MAP_OB(style, x, y);
 	}
 	while (new_obj == NULL);
 

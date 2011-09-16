@@ -1179,7 +1179,6 @@ void draw_client_map2(object *pl)
 	SockList sl, sl_layer, sl_sound;
 	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF], sock_buf_sound[MAXSOCKBUF];
 	int wdark;
-	int inv_flag = QUERY_FLAG(pl, FLAG_SEE_INVISIBLE);
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
@@ -1485,308 +1484,308 @@ void draw_client_map2(object *pl)
 			num_layers = 0;
 
 			/* Go through the visible layers. */
-			for (layer = 0; layer < NUM_LAYERS; layer++)
+			for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++)
 			{
-				object *tmp = GET_MAP_SPACE_LAYER(msp, layer);
+				int sub_layer, socket_layer;
 
-				/* Double check that we can actually see this object. */
-				if (tmp && ((QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) && !inv_flag) || QUERY_FLAG(tmp, FLAG_HIDDEN)))
+				for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
 				{
-					tmp = NULL;
-				}
+					object *tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
 
-				/* If we didn't find a layer but we can see invisible,
-				 * try in the invisible layers. */
-				if (!tmp && inv_flag)
-				{
-					tmp = GET_MAP_SPACE_LAYER(msp, layer + 7);
-				}
-
-				/* This is done so that the player image is always shown
-				 * to the player, even if they are standing on top of another
-				 * player or monster. */
-				if (tmp && tmp->layer == LAYER_LIVING && pl->x == nx && pl->y == ny)
-				{
-					tmp = pl;
-				}
-
-				/* Still nothing, but there's a magic mirror on this tile? */
-				if (!tmp && mirror)
-				{
-					magic_mirror_struct *m_data = MMIRROR(mirror);
-					mapstruct *mirror_map;
-
-					if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
-					{
-						tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer);
-					}
-				}
-
-				/* Handle objects that are shown based on their direction
-				 * and the player's position. */
-				if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION))
-				{
-					/* If the object is dir [0124568] and not in the top
-					 * or right quadrant or on the central square, do not
-					 * show it. */
-					if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2)))
+					/* Double check that we can actually see this object. */
+					if (tmp && QUERY_FLAG(tmp, FLAG_HIDDEN))
 					{
 						tmp = NULL;
 					}
-					/* If the object is dir [0234768] and not in the top
-					 * or left quadrant or on the central square, do not
-					 * show it. */
-					else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2)))
+
+					/* This is done so that the player image is always shown
+					* to the player, even if they are standing on top of another
+					* player or monster. */
+					if (tmp && tmp->layer == LAYER_LIVING && pl->x == nx && pl->y == ny)
 					{
-						tmp = NULL;
+						tmp = pl;
 					}
-				}
 
-				/* Found something. */
-				if (tmp)
-				{
-					sint16 face;
-					uint8 quick_pos = tmp->quick_pos;
-					uint8 flags = 0, probe_val = 0;
-					uint32 flags2 = 0;
-					object *head = tmp->head ? tmp->head : tmp;
-
-					/* If we have a multi-arch object. */
-					if (quick_pos)
+					/* Still nothing, but there's a magic mirror on this tile? */
+					if (!tmp && mirror)
 					{
-						flags |= MAP2_FLAG_MULTI;
+						magic_mirror_struct *m_data = MMIRROR(mirror);
+						mapstruct *mirror_map;
 
-						/* Tail? */
-						if (tmp->head)
+						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
 						{
-							/* If true, we have sent a part of this in this map
-							 * update before, so skip it. */
-							if (head->update_tag == map2_count)
+							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
+						}
+					}
+
+					/* Handle objects that are shown based on their direction
+					* and the player's position. */
+					if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION))
+					{
+						/* If the object is dir [0124568] and not in the top
+						* or right quadrant or on the central square, do not
+						* show it. */
+						if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2)))
+						{
+							tmp = NULL;
+						}
+						/* If the object is dir [0234768] and not in the top
+						* or left quadrant or on the central square, do not
+						* show it. */
+						else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2)))
+						{
+							tmp = NULL;
+						}
+					}
+
+					socket_layer = NUM_LAYERS * sub_layer + layer - 1;
+
+					/* Found something. */
+					if (tmp)
+					{
+						sint16 face;
+						uint8 quick_pos = tmp->quick_pos;
+						uint8 flags = 0, probe_val = 0;
+						uint32 flags2 = 0;
+						object *head = tmp->head ? tmp->head : tmp;
+
+						/* If we have a multi-arch object. */
+						if (quick_pos)
+						{
+							flags |= MAP2_FLAG_MULTI;
+
+							/* Tail? */
+							if (tmp->head)
 							{
-								face = 0;
+								/* If true, we have sent a part of this in this map
+								 * update before, so skip it. */
+								if (head->update_tag == map2_count)
+								{
+									face = 0;
+								}
+								else
+								{
+									/* Mark this object as sent. */
+									head->update_tag = map2_count;
+									face = head->face->number;
+								}
 							}
+							/* Head. */
 							else
 							{
-								/* Mark this object as sent. */
-								head->update_tag = map2_count;
-								face = head->face->number;
+								if (tmp->update_tag == map2_count)
+								{
+									face = 0;
+								}
+								else
+								{
+									tmp->update_tag = map2_count;
+									face = tmp->face->number;
+								}
 							}
 						}
-						/* Head. */
 						else
 						{
-							if (tmp->update_tag == map2_count)
-							{
-								face = 0;
-							}
-							else
-							{
-								tmp->update_tag = map2_count;
-								face = tmp->face->number;
-							}
+							face = tmp->face->number;
 						}
-					}
-					else
-					{
-						face = tmp->face->number;
-					}
 
-					/* Player? So we want to send their name. */
-					if (tmp->type == PLAYER)
-					{
-						flags |= MAP2_FLAG_NAME;
-					}
+						/* Player? So we want to send their name. */
+						if (tmp->type == PLAYER)
+						{
+							flags |= MAP2_FLAG_NAME;
+						}
 
-					/* If our player has this object as their target, we want to
-					 * know its HP percent. */
-					if (head->count == CONTR(pl)->target_object_count)
-					{
-						flags |= MAP2_FLAG_PROBE;
-						probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
-					}
+						/* If our player has this object as their target, we want to
+						 * know its HP percent. */
+						if (head->count == CONTR(pl)->target_object_count)
+						{
+							flags |= MAP2_FLAG_PROBE;
+							probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+						}
 
-					/* Z position set? */
-					if (head->z)
-					{
-						flags |= MAP2_FLAG_HEIGHT;
-					}
+						/* Z position set? */
+						if (head->z)
+						{
+							flags |= MAP2_FLAG_HEIGHT;
+						}
 
-					/* Check if the object has zoom, or check if the magic mirror
-					 * should affect the zoom value of this layer. */
-					if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << layer)))
-					{
-						flags |= MAP2_FLAG_ZOOM;
-					}
+						/* Check if the object has zoom, or check if the magic mirror
+						 * should affect the zoom value of this layer. */
+						if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1))))
+						{
+							flags |= MAP2_FLAG_ZOOM;
+						}
 
-					if (head->align || (mirror && mirror->align))
-					{
-						flags |= MAP2_FLAG_ALIGN;
-					}
+						if (head->align || (mirror && mirror->align))
+						{
+							flags |= MAP2_FLAG_ALIGN;
+						}
 
-					/* Draw the object twice if set, but only if it's not
-					 * in the bottom quadrant of the map. */
-					if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
-					{
-						flags |= MAP2_FLAG_DOUBLE;
-					}
+						/* Draw the object twice if set, but only if it's not
+						 * in the bottom quadrant of the map. */
+						if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS))
+						{
+							flags |= MAP2_FLAG_DOUBLE;
+						}
 
-					if (head->alpha)
-					{
-						flags2 |= MAP2_FLAG2_ALPHA;
-					}
+						if (head->alpha)
+						{
+							flags2 |= MAP2_FLAG2_ALPHA;
+						}
 
-					if (head->rotate)
-					{
-						flags2 |= MAP2_FLAG2_ROTATE;
-					}
+						if (head->rotate)
+						{
+							flags2 |= MAP2_FLAG2_ROTATE;
+						}
 
-					if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0)))
-					{
-						flags2 |= MAP2_FLAG2_INFRAVISION;
-					}
+						if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0)))
+						{
+							flags2 |= MAP2_FLAG2_INFRAVISION;
+						}
 
-					if (flags2)
-					{
-						flags |= MAP2_FLAG_MORE;
-					}
+						if (flags2)
+						{
+							flags |= MAP2_FLAG_MORE;
+						}
 
-					/* Damage animation? Store it for later. */
-					if (tmp->last_damage && tmp->damage_round_tag == global_round_tag)
-					{
-						ext_flags |= MAP2_FLAG_EXT_ANIM;
-						anim_type = ANIM_DAMAGE;
-						anim_value = tmp->last_damage;
-					}
+						/* Damage animation? Store it for later. */
+						if (tmp->last_damage && tmp->damage_round_tag == global_round_tag)
+						{
+							ext_flags |= MAP2_FLAG_EXT_ANIM;
+							anim_type = ANIM_DAMAGE;
+							anim_value = tmp->last_damage;
+						}
 
-					/* Now, check if we have cached this. */
-					if (mp->faces[layer] == face && mp->quick_pos[layer] == quick_pos && mp->flags[layer] == flags && mp->probe == probe_val)
-					{
-						continue;
-					}
+						/* Now, check if we have cached this. */
+						if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && mp->probe == probe_val)
+						{
+							continue;
+						}
 
-					/* Different from cache, add it to the cache now. */
-					mp->faces[layer] = face;
-					mp->quick_pos[layer] = quick_pos;
-					mp->flags[layer] = flags;
+						/* Different from cache, add it to the cache now. */
+						mp->faces[socket_layer] = face;
+						mp->quick_pos[socket_layer] = quick_pos;
+						mp->flags[socket_layer] = flags;
 
-					if (layer == LAYER_LIVING - 1)
-					{
-						mp->probe = probe_val;
-					}
+						if (layer == LAYER_LIVING)
+						{
+							mp->probe = probe_val;
+						}
 
-					if (OBJECT_IS_HIDDEN(pl, head))
-					{
-						/* Update target if applicable. */
+						if (OBJECT_IS_HIDDEN(pl, head))
+						{
+							/* Update target if applicable. */
+							if (flags & MAP2_FLAG_PROBE)
+							{
+								CONTR(pl)->target_object = NULL;
+								CONTR(pl)->target_object_count = 0;
+								send_target_command(CONTR(pl));
+							}
+
+							if (mp->faces[socket_layer])
+							{
+								SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
+								SockList_AddChar(&sl_layer, (char) socket_layer);
+								num_layers++;
+							}
+
+							continue;
+						}
+
+						num_layers++;
+
+						/* Add its layer. */
+						SockList_AddChar(&sl_layer, (char) socket_layer);
+						/* The face. */
+						SockList_AddShort(&sl_layer, face);
+						/* Get the first several flags of this object (like paralyzed,
+						* sleeping, etc). */
+						SockList_AddChar(&sl_layer, (char) GET_CLIENT_FLAGS(head));
+						/* Flags we figured out above. */
+						SockList_AddChar(&sl_layer, flags);
+
+						/* Multi-arch? Add it's quick pos. */
+						if (flags & MAP2_FLAG_MULTI)
+						{
+							SockList_AddChar(&sl_layer, (char) quick_pos);
+						}
+
+						/* Player name? Add the player's name, and their player name color. */
+						if (flags & MAP2_FLAG_NAME)
+						{
+							SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
+							SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
+						}
+
+						/* Target's HP bar. */
 						if (flags & MAP2_FLAG_PROBE)
 						{
-							CONTR(pl)->target_object = NULL;
-							CONTR(pl)->target_object_count = 0;
-							send_target_command(CONTR(pl));
+							SockList_AddChar(&sl_layer, (char) probe_val);
 						}
 
-						if (mp->faces[layer])
+						/* Z position. */
+						if (flags & MAP2_FLAG_HEIGHT)
 						{
-							SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
-							SockList_AddChar(&sl_layer, (char) layer + 1);
-							num_layers++;
+							if (mirror && mirror->last_eat)
+							{
+								SockList_AddShort(&sl_layer, head->z + mirror->last_eat);
+							}
+							else
+							{
+								SockList_AddShort(&sl_layer, head->z);
+							}
 						}
 
-						continue;
+						if (flags & MAP2_FLAG_ZOOM)
+						{
+							/* First check mirror, even if the object *does* have custom zoom. */
+							if (mirror && mirror->last_heal)
+							{
+								SockList_AddShort(&sl_layer, mirror->last_heal);
+							}
+							else
+							{
+								SockList_AddShort(&sl_layer, head->zoom);
+							}
+						}
+
+						if (flags & MAP2_FLAG_ALIGN)
+						{
+							if (mirror && mirror->align)
+							{
+								SockList_AddShort(&sl_layer, head->align + mirror->align);
+							}
+							else
+							{
+								SockList_AddShort(&sl_layer, head->align);
+							}
+						}
+
+						if (flags & MAP2_FLAG_MORE)
+						{
+							SockList_AddInt(&sl_layer, flags2);
+
+							if (flags2 & MAP2_FLAG2_ALPHA)
+							{
+								SockList_AddChar(&sl_layer, head->alpha);
+							}
+
+							if (flags2 & MAP2_FLAG2_ROTATE)
+							{
+								SockList_AddShort(&sl_layer, head->rotate);
+							}
+						}
 					}
-
-					num_layers++;
-
-					/* Add its layer. */
-					SockList_AddChar(&sl_layer, (char) layer + 1);
-					/* The face. */
-					SockList_AddShort(&sl_layer, face);
-					/* Get the first several flags of this object (like paralyzed,
-					 * sleeping, etc). */
-					SockList_AddChar(&sl_layer, (char) GET_CLIENT_FLAGS(head));
-					/* Flags we figured out above. */
-					SockList_AddChar(&sl_layer, flags);
-
-					/* Multi-arch? Add it's quick pos. */
-					if (flags & MAP2_FLAG_MULTI)
+					/* Didn't find anything. Now, if we have previously seen a face
+					 * on this layer, we will want the client to clear it. */
+					else if (mp->faces[socket_layer])
 					{
-						SockList_AddChar(&sl_layer, (char) quick_pos);
+						mp->faces[socket_layer] = 0;
+						mp->quick_pos[socket_layer] = 0;
+						SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
+						SockList_AddChar(&sl_layer, (char) socket_layer);
+						num_layers++;
 					}
-
-					/* Player name? Add the player's name, and their player name color. */
-					if (flags & MAP2_FLAG_NAME)
-					{
-						SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
-						SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
-					}
-
-					/* Target's HP bar. */
-					if (flags & MAP2_FLAG_PROBE)
-					{
-						SockList_AddChar(&sl_layer, (char) probe_val);
-					}
-
-					/* Z position. */
-					if (flags & MAP2_FLAG_HEIGHT)
-					{
-						if (mirror && mirror->last_eat)
-						{
-							SockList_AddShort(&sl_layer, head->z + mirror->last_eat);
-						}
-						else
-						{
-							SockList_AddShort(&sl_layer, head->z);
-						}
-					}
-
-					if (flags & MAP2_FLAG_ZOOM)
-					{
-						/* First check mirror, even if the object *does* have custom zoom. */
-						if (mirror && mirror->last_heal)
-						{
-							SockList_AddShort(&sl_layer, mirror->last_heal);
-						}
-						else
-						{
-							SockList_AddShort(&sl_layer, head->zoom);
-						}
-					}
-
-					if (flags & MAP2_FLAG_ALIGN)
-					{
-						if (mirror && mirror->align)
-						{
-							SockList_AddShort(&sl_layer, head->align + mirror->align);
-						}
-						else
-						{
-							SockList_AddShort(&sl_layer, head->align);
-						}
-					}
-
-					if (flags & MAP2_FLAG_MORE)
-					{
-						SockList_AddInt(&sl_layer, flags2);
-
-						if (flags2 & MAP2_FLAG2_ALPHA)
-						{
-							SockList_AddChar(&sl_layer, head->alpha);
-						}
-
-						if (flags2 & MAP2_FLAG2_ROTATE)
-						{
-							SockList_AddShort(&sl_layer, head->rotate);
-						}
-					}
-				}
-				/* Didn't find anything. Now, if we have previously seen a face
-				 * on this layer, we will want the client to clear it. */
-				else if (mp->faces[layer])
-				{
-					mp->faces[layer] = 0;
-					mp->quick_pos[layer] = 0;
-					SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
-					SockList_AddChar(&sl_layer, (char) layer + 1);
-					num_layers++;
 				}
 			}
 

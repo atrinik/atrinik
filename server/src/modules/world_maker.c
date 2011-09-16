@@ -354,7 +354,7 @@ void world_maker(void)
 	region *r;
 	wm_region *wm_r;
 	char buf[MAX_BUF];
-	int x, y, layer, got_one;
+	int x, y, layer, sub_layer, got_one;
 	int xpos = 0, ypos = 0;
 	FILE *def_fp;
 	object **info_objects = NULL;
@@ -503,9 +503,12 @@ void world_maker(void)
 
 					for (layer = LAYER_FLOOR; layer <= LAYER_FMASK; layer++)
 					{
-						if (render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer - 1)))
+						for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
 						{
-							got_one = 1;
+							if (render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)))
+							{
+								got_one = 1;
+							}
 						}
 					}
 
@@ -527,7 +530,10 @@ void world_maker(void)
 
 					for (layer = LAYER_ITEM; layer < NUM_LAYERS; layer++)
 					{
-						render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer - 1));
+						for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
+						{
+							render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer, sub_layer));
+						}
 					}
 				}
 			}
