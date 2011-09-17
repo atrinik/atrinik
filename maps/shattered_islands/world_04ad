@@ -2,12 +2,13 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-15 Alex Tokar
+Modified: 2011-09-17 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 3
 outdoor 1
+no_harm 1
 tile_path_1 world_04ac
 tile_path_2 world_05ad
 tile_path_3 world_04ae
@@ -20,6 +21,11 @@ bg_music tutorialisland.mid
 region incuna
 end
 arch bridge_wood_NS.171
+end
+arch map_info
+hp 23
+sp 5
+stand_still 1
 end
 arch grassd_1
 y 1
@@ -40,6 +46,12 @@ arch grassd_5
 y 5
 end
 arch grassd_8
+y 6
+end
+arch map_info
+hp 7
+sp 14
+stand_still 1
 y 6
 end
 arch grassd_8

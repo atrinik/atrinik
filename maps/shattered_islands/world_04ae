@@ -2,12 +2,13 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-17 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 3
 outdoor 1
+no_harm 1
 tile_path_1 world_04ad
 tile_path_2 world_05ae
 tile_path_3 world_04af
@@ -23,6 +24,11 @@ arch grassd_1
 end
 arch reed_sm4
 layer 3
+end
+arch map_info
+hp 7
+sp 23
+stand_still 1
 end
 arch grassd_6
 y 1
@@ -2191,6 +2197,12 @@ x 8
 y 14
 end
 arch grassd_3
+x 8
+y 15
+end
+arch map_info
+sp 4
+stand_still 1
 x 8
 y 15
 end

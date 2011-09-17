@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 3
 outdoor 1
+no_harm 1
 tile_path_1 world_06ac
 tile_path_2 world_07ad
 tile_path_3 world_06ae

@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 1
 darkness -1
+no_harm 1
 tile_path_2 world_a_05ad
 bg_music tutorialisland.mid
 region incuna

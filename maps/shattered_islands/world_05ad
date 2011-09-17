@@ -8,6 +8,7 @@ width 24
 height 24
 difficulty 3
 outdoor 1
+no_harm 1
 tile_path_1 world_05ac
 tile_path_2 world_06ad
 tile_path_3 world_05ae
@@ -22,6 +23,11 @@ end
 arch floor_ruin3
 end
 arch grassd_m7
+end
+arch map_info
+hp 23
+sp 5
+stand_still 1
 end
 arch grassd_5
 y 1
