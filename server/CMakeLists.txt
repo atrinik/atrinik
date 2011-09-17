@@ -207,6 +207,7 @@ set(SOURCES
 	src/server/info.c
 	src/server/init.c
 	src/server/item.c
+	src/server/light.c
 	src/server/links.c
 	src/server/living.c
 	src/server/logger.c
