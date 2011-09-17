@@ -3824,11 +3824,6 @@ z 5
 x 23
 y 15
 end
-arch sand_dm1
-layer 3
-x 23
-y 15
-end
 arch grassd_4
 x 23
 y 16
