@@ -102,6 +102,8 @@ void popup_destroy(popup_struct *popup)
 	popup_button_free(&popup->button_left);
 
 	free(popup);
+
+	keybind_state_ensure();
 }
 
 /**
