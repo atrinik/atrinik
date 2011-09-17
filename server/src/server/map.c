@@ -234,13 +234,13 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 						*x -= MAP_WIDTH(map1->tile_map[i]);
 						return 1;
 
-					/* Northest */
+					/* Northeast */
 					case 4:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x += MAP_WIDTH(map1);
 						return 1;
 
-					/* Southest */
+					/* Southeast */
 					case 5:
 						*y += MAP_HEIGHT(map1);
 						*x += MAP_WIDTH(map1);
