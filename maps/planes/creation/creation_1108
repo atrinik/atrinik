@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-03-25 Alex Tokar
+Modified: 2011-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -795,7 +795,7 @@ arch floor_flagm2
 x 7
 y 12
 end
-arch floor_flagm3
+arch floor_flagm2
 x 7
 y 13
 end
@@ -803,7 +803,7 @@ arch border_top_s1
 x 7
 y 13
 end
-arch water_lt3
+arch water_lt2
 x 7
 y 14
 end
@@ -811,15 +811,15 @@ arch border_wall_n1
 x 7
 y 14
 end
-arch water_lt2
+arch water_lt
 x 7
 y 15
 end
-arch water_lt
+arch water_lt2
 x 7
 y 16
 end
-arch water_lt2
+arch water_lt3
 x 7
 y 17
 end
@@ -827,23 +827,23 @@ arch water_lt
 x 7
 y 18
 end
-arch water_lt4
+arch water_lt
 x 7
 y 19
 end
-arch water_lt3
+arch water_lt4
 x 7
 y 20
 end
-arch water_lt
+arch water_lt2
 x 7
 y 21
 end
-arch water_lt3
+arch water_lt2
 x 7
 y 22
 end
-arch water_lt4
+arch water_lt3
 x 7
 y 23
 end
@@ -902,55 +902,91 @@ arch floor_flagm2
 x 8
 y 12
 end
-arch floor_flagm2
+arch floor_flagm3
 x 8
 y 13
 end
-arch border_top_s1
+arch border_top_sw1
 x 8
 y 13
 end
-arch water_lt3
+arch floor_flagm4
 x 8
 y 14
 end
-arch border_wall_n1
+arch border_top_w1
 x 8
 y 14
 end
-arch water_lt4
+arch floor_flagm4
 x 8
 y 15
 end
-arch water_lt3
+arch border_top_w1
+x 8
+y 15
+end
+arch floor_flagm3
 x 8
 y 16
 end
-arch water_lt2
+arch border_top_w1
+x 8
+y 16
+end
+arch floor_flagm3
 x 8
 y 17
 end
-arch water_lt2
+arch border_top_w1
+x 8
+y 17
+end
+arch floor_flagm3
 x 8
 y 18
 end
-arch water_lt4
+arch border_top_w1
+x 8
+y 18
+end
+arch floor_flagm2
 x 8
 y 19
 end
-arch water_lt3
+arch border_top_w1
+x 8
+y 19
+end
+arch floor_flagm3
 x 8
 y 20
 end
-arch water_lt
+arch border_top_w1
+x 8
+y 20
+end
+arch floor_flagm1
 x 8
 y 21
 end
-arch water_lt3
+arch border_top_w1
+x 8
+y 21
+end
+arch floor_flagm2
 x 8
 y 22
 end
-arch water_lt3
+arch border_top_w1
+x 8
+y 22
+end
+arch floor_flagm1
+x 8
+y 23
+end
+arch border_top_w1
 x 8
 y 23
 end
@@ -1009,55 +1045,47 @@ arch floor_flagm3
 x 9
 y 12
 end
-arch floor_flagm3
+arch floor_flagm2
 x 9
 y 13
 end
-arch border_top_s1
-x 9
-y 13
-end
-arch water_lt3
+arch floor_flagm1
 x 9
 y 14
 end
-arch border_wall_n1
-x 9
-y 14
-end
-arch water_lt3
+arch floor_flagm1
 x 9
 y 15
 end
-arch water_lt2
+arch floor_flagm1
 x 9
 y 16
 end
-arch water_lt3
+arch floor_flagm2
 x 9
 y 17
 end
-arch water_lt3
+arch floor_flagm4
 x 9
 y 18
 end
-arch water_lt
+arch floor_flagm4
 x 9
 y 19
 end
-arch water_lt3
+arch floor_flagm2
 x 9
 y 20
 end
-arch water_lt
+arch floor_flagm3
 x 9
 y 21
 end
-arch water_lt
+arch floor_flagm1
 x 9
 y 22
 end
-arch water_lt
+arch floor_flagm3
 x 9
 y 23
 end
@@ -1116,55 +1144,47 @@ arch floor_flagm1
 x 10
 y 12
 end
-arch floor_flagm4
+arch floor_flagm3
 x 10
 y 13
 end
-arch border_top_s1
-x 10
-y 13
-end
-arch water_lt
+arch floor_flagm3
 x 10
 y 14
 end
-arch border_wall_n1
-x 10
-y 14
-end
-arch water_lt4
+arch floor_flagm2
 x 10
 y 15
 end
-arch water_lt2
+arch floor_flagm1
 x 10
 y 16
 end
-arch water_lt3
+arch floor_flagm4
 x 10
 y 17
 end
-arch water_lt3
+arch floor_flagm4
 x 10
 y 18
 end
-arch water_lt3
+arch floor_flagm2
 x 10
 y 19
 end
-arch water_lt3
+arch floor_flagm4
 x 10
 y 20
 end
-arch water_lt
+arch floor_flagm4
 x 10
 y 21
 end
-arch water_lt4
+arch floor_flagm4
 x 10
 y 22
 end
-arch water_lt2
+arch floor_flagm2
 x 10
 y 23
 end
@@ -1223,55 +1243,47 @@ arch floor_flagm1
 x 11
 y 12
 end
-arch floor_flagm2
+arch floor_flagm4
 x 11
 y 13
 end
-arch border_top_s1
-x 11
-y 13
-end
-arch water_lt2
+arch floor_flagm4
 x 11
 y 14
 end
-arch border_wall_n1
-x 11
-y 14
-end
-arch water_lt
+arch floor_flagm1
 x 11
 y 15
 end
-arch water_lt2
+arch floor_flagm2
 x 11
 y 16
 end
-arch water_lt3
+arch floor_flagm3
 x 11
 y 17
 end
-arch water_lt4
+arch floor_flagm1
 x 11
 y 18
 end
-arch water_lt4
+arch floor_flagm3
 x 11
 y 19
 end
-arch water_lt3
+arch floor_flagm2
 x 11
 y 20
 end
-arch water_lt4
+arch floor_flagm2
 x 11
 y 21
 end
-arch water_lt4
+arch floor_flagm3
 x 11
 y 22
 end
-arch water_lt
+arch floor_flagm4
 x 11
 y 23
 end
@@ -1330,55 +1342,91 @@ arch floor_flagm4
 x 12
 y 12
 end
-arch floor_flagm4
+arch floor_flagm2
 x 12
 y 13
 end
-arch border_top_s1
+arch border_top_se1
 x 12
 y 13
 end
-arch water_lt3
+arch floor_flagm2
 x 12
 y 14
 end
-arch border_wall_n1
+arch border_top_e1
 x 12
 y 14
 end
-arch water_lt
+arch floor_flagm1
 x 12
 y 15
 end
-arch water_lt4
+arch border_top_e1
+x 12
+y 15
+end
+arch floor_flagm1
 x 12
 y 16
 end
-arch water_lt2
+arch border_top_e1
+x 12
+y 16
+end
+arch floor_flagm3
 x 12
 y 17
 end
-arch water_lt3
+arch border_top_e1
+x 12
+y 17
+end
+arch floor_flagm3
 x 12
 y 18
 end
-arch water_lt2
+arch border_top_e1
+x 12
+y 18
+end
+arch floor_flagm2
 x 12
 y 19
 end
-arch water_lt
+arch border_top_e1
+x 12
+y 19
+end
+arch floor_flagm4
 x 12
 y 20
 end
-arch water_lt3
+arch border_top_e1
+x 12
+y 20
+end
+arch floor_flagm3
 x 12
 y 21
 end
-arch water_lt4
+arch border_top_e1
+x 12
+y 21
+end
+arch floor_flagm2
 x 12
 y 22
 end
-arch water_lt2
+arch border_top_e1
+x 12
+y 22
+end
+arch floor_flagm1
+x 12
+y 23
+end
+arch border_top_e1
 x 12
 y 23
 end
@@ -1437,7 +1485,7 @@ arch floor_flagm4
 x 13
 y 12
 end
-arch floor_flagm3
+arch floor_flagm4
 x 13
 y 13
 end
@@ -1445,47 +1493,83 @@ arch border_top_s1
 x 13
 y 13
 end
+arch water_lt3
+x 13
+y 14
+end
+arch border_wall_nw1
+x 13
+y 14
+end
 arch water_lt
-x 13
-y 14
-end
-arch border_wall_n1
-x 13
-y 14
-end
-arch water_lt2
 x 13
 y 15
 end
-arch water_lt
+arch border_wall_w1
 x 13
-y 16
-end
-arch water_lt3
-x 13
-y 17
-end
-arch water_lt2
-x 13
-y 18
+y 15
 end
 arch water_lt4
 x 13
-y 19
+y 16
+end
+arch border_wall_w1
+x 13
+y 16
+end
+arch water_lt2
+x 13
+y 17
+end
+arch border_wall_w1
+x 13
+y 17
 end
 arch water_lt3
+x 13
+y 18
+end
+arch border_wall_w1
+x 13
+y 18
+end
+arch water_lt2
+x 13
+y 19
+end
+arch border_wall_w1
+x 13
+y 19
+end
+arch water_lt
 x 13
 y 20
 end
-arch water_lt2
+arch border_wall_w1
+x 13
+y 20
+end
+arch water_lt3
 x 13
 y 21
 end
-arch water_lt2
+arch border_wall_w1
+x 13
+y 21
+end
+arch water_lt4
 x 13
 y 22
 end
-arch water_lt3
+arch border_wall_w1
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch border_wall_w4
 x 13
 y 23
 end
@@ -1544,7 +1628,7 @@ arch floor_flagm4
 x 14
 y 12
 end
-arch floor_flagm2
+arch floor_flagm3
 x 14
 y 13
 end
@@ -1552,7 +1636,7 @@ arch border_top_s1
 x 14
 y 13
 end
-arch water_lt4
+arch water_lt
 x 14
 y 14
 end
@@ -1560,31 +1644,31 @@ arch border_wall_n1
 x 14
 y 14
 end
-arch water_lt
+arch water_lt2
 x 14
 y 15
 end
-arch water_lt4
+arch water_lt
 x 14
 y 16
 end
-arch water_lt4
+arch water_lt3
 x 14
 y 17
 end
-arch water_lt4
+arch water_lt2
 x 14
 y 18
 end
-arch water_lt
+arch water_lt4
 x 14
 y 19
 end
-arch water_lt2
+arch water_lt3
 x 14
 y 20
 end
-arch water_lt3
+arch water_lt2
 x 14
 y 21
 end
@@ -1592,7 +1676,7 @@ arch water_lt2
 x 14
 y 22
 end
-arch water_lt
+arch water_lt3
 x 14
 y 23
 end
