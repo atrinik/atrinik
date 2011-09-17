@@ -108,7 +108,7 @@ void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y
 	}
 
 	/* Check tiled maps for players. */
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY)
 		{

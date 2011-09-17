@@ -881,7 +881,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
 		return 0;
 	}
 
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (pl->last_update->tile_path[i] == map->path)
 		{

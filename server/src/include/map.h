@@ -557,7 +557,7 @@ typedef struct mapdef
 	struct mapdef *next;
 
 	/** Any maps tiled together to this one */
-	struct mapdef *tile_map[TILED_MAPS];
+	struct mapdef *tile_map[TILED_NUM];
 
 	/** Name of map as given by its creator */
 	char *name;
@@ -578,7 +578,7 @@ typedef struct mapdef
 	shstr *path;
 
 	/** Path to adjoining maps (shared strings) */
-	shstr *tile_path[TILED_MAPS];
+	shstr *tile_path[TILED_NUM];
 
 	/** Array of spaces on this map */
 	MapSpace *spaces;

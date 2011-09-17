@@ -36,7 +36,7 @@ int	global_darkness_table[MAX_DARKNESS + 1] =
 };
 
 /** To get the reverse direction for all 8 tiled map index */
-int map_tiled_reverse[TILED_MAPS] =
+int map_tiled_reverse[TILED_NUM] =
 {
 	2, 3, 0, 1, 6, 7, 4, 5
 };
@@ -95,7 +95,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 	map1->traversed = id;
 
 	/* Depth-first search for the destination map */
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map1->tile_path[i])
 		{
@@ -198,7 +198,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 		return 1;
 	}
 
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map1->tile_path[i])
 		{
@@ -1947,7 +1947,7 @@ void free_map(mapstruct *m, int flag)
 	m->buttons = NULL;
 	m->first_light = NULL;
 
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		/* Delete the backlinks in other tiled maps to our map */
 		if (m->tile_map[i])

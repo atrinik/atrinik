@@ -186,7 +186,7 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 	}
 
 	/* Try tiled maps. */
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY)
 		{
