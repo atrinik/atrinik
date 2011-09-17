@@ -285,7 +285,7 @@ arch grassd_3
 x 1
 y 20
 end
-arch wall_wood3_3
+arch wall_wood_w_3
 x 1
 y 20
 end
@@ -348,11 +348,25 @@ arch floor_wood1b
 x 2
 y 5
 end
+arch locker1.111
+direction 7
+x 2
+y 5
+end
 arch floor_wood1b
 x 2
 y 6
 end
+arch locker4
+direction 7
+x 2
+y 6
+end
 arch floor_wood1b
+x 2
+y 7
+end
+arch bed_1a.111
 x 2
 y 7
 end
@@ -368,11 +382,25 @@ arch floor_wood1b
 x 2
 y 9
 end
+arch chest_w1
+direction 7
+x 2
+y 9
+end
 arch floor_wood1b
 x 2
 y 10
 end
+arch locker4
+direction 7
+x 2
+y 10
+end
 arch floor_wood1b
+x 2
+y 11
+end
+arch bed_1a.111
 x 2
 y 11
 end
@@ -388,11 +416,30 @@ arch floor_wood1b
 x 2
 y 13
 end
+arch table_round1
+x 2
+y 13
+end
 arch floor_wood1b
 x 2
 y 14
 end
+arch cupboard
+direction 7
+x 2
+y 14
+end
+arch chair1_111
+direction 5
+layer 5
+x 2
+y 14
+end
 arch floor_wood1b
+x 2
+y 15
+end
+arch bed_1a.111
 x 2
 y 15
 end
@@ -417,7 +464,16 @@ arch wall_wood_1
 x 2
 y 18
 end
+arch picture6.151
+z 6
+x 2
+y 18
+end
 arch floor_pattern_brown2
+x 2
+y 19
+end
+arch bed_double
 x 2
 y 19
 end
@@ -429,7 +485,17 @@ arch floor_pattern_brown1
 x 2
 y 21
 end
+arch drawers1.111
+direction 7
+x 2
+y 21
+end
 arch floor_pattern_brown1
+x 2
+y 22
+end
+arch locker2.111
+direction 7
 x 2
 y 22
 end
@@ -472,6 +538,10 @@ arch wall_wood_1
 x 3
 y 4
 end
+arch flag_05
+x 3
+y 4
+end
 arch floor_wood1b
 x 3
 y 5
@@ -481,6 +551,10 @@ x 3
 y 6
 end
 arch floor_wood1b
+x 3
+y 7
+end
+arch bed_1b.111
 x 3
 y 7
 end
@@ -496,6 +570,10 @@ arch floor_wood1b
 x 3
 y 9
 end
+arch rack.111
+x 3
+y 9
+end
 arch floor_wood1b
 x 3
 y 10
@@ -504,11 +582,19 @@ arch floor_wood1b
 x 3
 y 11
 end
+arch bed_1b.111
+x 3
+y 11
+end
 arch floor_wood1b
 x 3
 y 12
 end
 arch wall_wood_1
+x 3
+y 12
+end
+arch picture5.151
 x 3
 y 12
 end
@@ -521,6 +607,10 @@ x 3
 y 14
 end
 arch floor_wood1b
+x 3
+y 15
+end
+arch bed_1b.111
 x 3
 y 15
 end
@@ -723,7 +813,23 @@ arch floor_pattern_brown2
 x 4
 y 19
 end
+arch wall_wood3_3
+x 4
+y 19
+end
 arch floor_pattern_brown1
+x 4
+y 20
+end
+arch candlelight4.101
+x 4
+y 20
+end
+arch wall_wood3_3
+x 4
+y 20
+end
+arch light5
 x 4
 y 20
 end
@@ -731,7 +837,21 @@ arch floor_pattern_brown1
 x 4
 y 21
 end
+arch wall_wood2_3
+x 4
+y 21
+end
+arch picture2.151
+direction 7
+x 4
+y 21
+end
 arch floor_pattern_brown1
+x 4
+y 22
+end
+arch curtain1
+direction 3
 x 4
 y 22
 end
@@ -739,7 +859,7 @@ arch floor_pattern_brown2
 x 4
 y 23
 end
-arch wall_wood2_1
+arch wall_wood_4
 x 4
 y 23
 end
@@ -909,7 +1029,16 @@ arch floor_pattern_brown2
 x 5
 y 19
 end
+arch desk2
+x 5
+y 19
+end
 arch floor_pattern_brown2
+x 5
+y 20
+end
+arch chair2_111
+direction 5
 x 5
 y 20
 end
@@ -1107,6 +1236,10 @@ arch floor_pattern_brown1
 x 6
 y 19
 end
+arch beer_barrel.101
+x 6
+y 19
+end
 arch floor_pattern_brown2
 x 6
 y 20
@@ -1123,7 +1256,7 @@ arch floor_pattern_brown2
 x 6
 y 23
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 6
 y 23
 end
@@ -1285,7 +1418,7 @@ arch floor_pattern_brown2
 x 7
 y 20
 end
-arch wall_wood2_3
+arch wall_wood_w_3
 x 7
 y 20
 end
@@ -1531,6 +1664,11 @@ x 8
 y 22
 end
 arch sand_dm10
+x 8
+y 22
+end
+arch lamp_wall
+direction 7
 x 8
 y 22
 end
