@@ -7,6 +7,7 @@ direction 1
 no_pick 1
 type 79
 layer 4
+no_pass 1
 end
 
 Object forge_on
@@ -18,4 +19,5 @@ direction 1
 no_pick 1
 type 79
 layer 4
+no_pass 1
 end
