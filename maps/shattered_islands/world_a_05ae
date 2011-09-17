@@ -8,7 +8,10 @@ width 24
 height 24
 difficulty 1
 darkness 3
+no_harm 1
 tile_path_2 world_a_06ae
+bg_music tutorialisland.mid
+region incuna
 end
 arch blocked
 x 12
