@@ -452,7 +452,6 @@ extern void set_block(int x, int y, int bx, int by);
 extern void update_los(object *op);
 extern void clear_los(object *op);
 extern int obj_in_line_of_sight(object *obj, rv_vector *rv);
-extern int can_see_to(rv_vector* rv, mapstruct* m, int x, int y, mapstruct* m2, int x2, int y2);
 /* src/server/main.c */
 extern player *first_player;
 extern mapstruct *first_map;
