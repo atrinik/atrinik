@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -68,93 +68,40 @@ arch grassd_6
 z 3
 y 12
 end
-arch reed_sm2
-y 12
-end
-arch sand_dm2
-layer 3
-y 12
-end
 arch grassd_5
 z 1
-y 13
-end
-arch sand_dm1
-layer 3
 y 13
 end
 arch grassd_1
 z 3
 y 14
 end
-arch sand_dm1
-layer 3
-y 14
-end
-arch plant_flower1
-y 14
-end
 arch grassd_5
 z 3
-y 15
-end
-arch reed_sm8
-y 15
-end
-arch sand_dm2
-layer 3
 y 15
 end
 arch grassd_6
 y 16
 end
-arch reed_sm11
-y 16
+arch grassd_8
+y 17
+end
+arch grassd_2
+y 18
+end
+arch grassd_1
+y 19
+end
+arch grassd_6
+y 20
 end
 arch grassd_4
-y 17
-end
-arch sand_dm3
-layer 3
-y 17
-end
-arch grassd_5
-y 18
-end
-arch reed_sm10
-y 18
-end
-arch floor_farm1a
-y 19
-end
-arch reed_sm8
-y 19
-end
-arch floor_farm1e
-y 20
-end
-arch reed_sm6
-y 20
-end
-arch trash_wood1.101
-y 20
-end
-arch floor_farm1b
 y 21
 end
-arch reed_sm2
-y 21
-end
-arch floor_farm1i
+arch grassd_1
 y 22
 end
-arch reed_sm9
-y 22
-end
-arch floor_farm1b
-y 23
-end
-arch reed_sm4
+arch grassd_6
 y 23
 end
 arch water_lt
@@ -240,22 +187,8 @@ z 1
 x 1
 y 13
 end
-arch sand_dm2
-layer 3
-x 1
-y 13
-end
 arch grassd_2
 z 3
-x 1
-y 14
-end
-arch reed_sm10
-x 1
-y 14
-end
-arch sand_dm11
-layer 3
 x 1
 y 14
 end
@@ -264,21 +197,7 @@ z 2
 x 1
 y 15
 end
-arch sand_dm21
-layer 3
-x 1
-y 15
-end
 arch grassd_8
-x 1
-y 16
-end
-arch sand_dm2
-layer 3
-x 1
-y 16
-end
-arch plant_flower2
 x 1
 y 16
 end
@@ -286,61 +205,27 @@ arch grassd_5
 x 1
 y 17
 end
-arch sand_dm1
-layer 3
+arch grassd_8
 x 1
-y 17
+y 18
+end
+arch grassd_3
+x 1
+y 19
 end
 arch grassd_4
 x 1
-y 18
-end
-arch reed_sm11
-x 1
-y 18
-end
-arch sand_dm1
-layer 3
-x 1
-y 18
-end
-arch floor_farm1a
-x 1
-y 19
-end
-arch reed_sm2
-x 1
-y 19
-end
-arch floor_farm1f
-x 1
 y 20
 end
-arch reed_sm10
-x 1
-y 20
-end
-arch floor_farm1p
+arch grassd_7
 x 1
 y 21
 end
-arch reed_sm11
-x 1
-y 21
-end
-arch floor_farm1i
+arch grassd_1
 x 1
 y 22
 end
-arch reed_sm4
-x 1
-y 22
-end
-arch floor_farm1g
-x 1
-y 23
-end
-arch reed_sm3
+arch grassd_6
 x 1
 y 23
 end
@@ -396,10 +281,6 @@ arch floor_ruin1
 x 2
 y 11
 end
-arch reed_sm8
-x 2
-y 11
-end
 arch floor_ruin4
 x 2
 y 12
@@ -413,106 +294,44 @@ z 1
 x 2
 y 13
 end
-arch sand_dm4
-layer 3
-x 2
-y 13
-end
 arch grassd_4
 z 2
 x 2
 y 14
-end
-arch reed_sm6
-x 2
-y 14
-end
-arch sand_dm4
-layer 3
-x 2
-y 14
-end
-arch grassd_4
-z 4
-x 2
-y 15
-end
-arch sand_dm13
-layer 3
-x 2
-y 15
-end
-arch plant_flower6
-x 2
-y 15
 end
 arch grassd_8
-z 2
 x 2
-y 16
+y 15
 end
-arch sand_dm19
-layer 3
+arch grassd_1
 x 2
 y 16
 end
 arch grassd_1
-z 3
 x 2
 y 17
 end
-arch sand_dm2
-layer 3
-x 2
-y 17
-end
-arch grassd_5
-z 3
+arch grassd_2
 x 2
 y 18
 end
-arch grassd_7
+arch grassd_8
 x 2
 y 19
 end
-arch reed_sm4
+arch grassd_2
 x 2
-y 19
+y 20
 end
-arch sand_dm4
-layer 3
+arch grassd_8
 x 2
-y 19
+y 21
 end
 arch grassd_3
 x 2
-y 20
-end
-arch reed_sm6
-x 2
-y 20
-end
-arch floor_farm1b
-x 2
-y 21
-end
-arch reed_sm3
-x 2
-y 21
-end
-arch floor_farm1m
-x 2
 y 22
 end
-arch reed_sm5
-x 2
-y 22
-end
-arch floor_farm1b
-x 2
-y 23
-end
-arch reed_sm7
+arch grassd_4
 x 2
 y 23
 end
@@ -588,118 +407,111 @@ arch grassd_7
 x 3
 y 14
 end
-arch reed_sm3
-x 3
-y 14
-end
-arch sand_dm2
-layer 3
-x 3
-y 14
-end
-arch grassd_3
-z 2
+arch floor_farm1a
 x 3
 y 15
 end
-arch sand_dm4
-layer 3
+arch grassd_m4
 x 3
 y 15
 end
-arch grassd_3
-z 4
+arch fence_01.181
+x 3
+y 15
+end
+arch floor_farm1a
 x 3
 y 16
 end
-arch sand_dm22
-layer 3
+arch grassd_m9
 x 3
 y 16
 end
-arch grassd_1
-z 7
+arch fence_01.171
+x 3
+y 16
+end
+arch floor_farm1a
 x 3
 y 17
 end
-arch reed_sm1
+arch grassd_m9
 x 3
 y 17
 end
-arch sand_dm22
-layer 3
+arch fence_01.171
 x 3
 y 17
 end
-arch plant_flower6
-x 3
-y 17
-end
-arch grassd_2
-z 7
+arch floor_farm1a
 x 3
 y 18
 end
-arch reed_sm5
+arch grassd_m9
 x 3
 y 18
 end
-arch sand_dm4
-layer 3
+arch fence_01.171
 x 3
 y 18
 end
-arch grassd_7
-z 5
+arch floor_farm1a
 x 3
 y 19
 end
-arch sand_dm1
-layer 3
+arch grassd_m9
 x 3
 y 19
 end
-arch grassd_1
-z 5
+arch fence_01.171
+x 3
+y 19
+end
+arch floor_farm1a
 x 3
 y 20
 end
-arch sand_dm3
-layer 3
+arch grassd_m9
 x 3
 y 20
 end
-arch grassd_2
+arch fence_01.171
+x 3
+y 20
+end
+arch floor_farm1a
 x 3
 y 21
 end
-arch reed_sm8
+arch grassd_m9
 x 3
 y 21
 end
-arch sand_dm1
-layer 3
+arch fence_01.171
 x 3
 y 21
 end
-arch grassd_3
+arch floor_farm1a
 x 3
 y 22
 end
-arch reed_sm1
+arch grassd_m9
 x 3
 y 22
 end
-arch sand_dm1
-layer 3
+arch fence_01.171
 x 3
 y 22
 end
-arch grassd_3
+arch floor_farm1a
 x 3
 y 23
 end
-arch reed_sm9
+arch grassd_m3
+x 3
+y 23
+end
+arch fence_01.161
 x 3
 y 23
 end
@@ -759,7 +571,7 @@ arch floor_ruin4
 x 4
 y 12
 end
-arch reed_sm2
+arch grassd_m14
 x 4
 y 12
 end
@@ -775,100 +587,55 @@ arch grassd_7
 x 4
 y 14
 end
-arch reed_sm11
-x 4
-y 14
-end
-arch grassd_5
-z 1
+arch floor_farm1a
 x 4
 y 15
 end
-arch sand_dm1
-layer 3
+arch grassd_m10
 x 4
 y 15
 end
-arch grassd_6
-z 3
+arch fence_01.111
+x 4
+y 15
+end
+arch floor_farm1j
 x 4
 y 16
 end
-arch sand_dm4
-layer 3
-x 4
-y 16
-end
-arch grassd_5
-z 7
+arch floor_farm1j
 x 4
 y 17
 end
-arch sand_dm19
-layer 3
-x 4
-y 17
-end
-arch grassd_6
-z 7
+arch floor_farm1j
 x 4
 y 18
 end
-arch reed_sm6
-x 4
-y 18
-end
-arch sand_dm21
-layer 3
-x 4
-y 18
-end
-arch grassd_4
-z 7
+arch floor_farm1j
 x 4
 y 19
 end
-arch sand_dm22
-layer 3
-x 4
-y 19
-end
-arch grassd_7
-z 5
+arch floor_farm1j
 x 4
 y 20
 end
-arch sand_dm4
-layer 3
-x 4
-y 20
-end
-arch grassd_2
-z 5
+arch floor_farm1j
 x 4
 y 21
 end
-arch sand_dm4
-layer 3
-x 4
-y 21
-end
-arch grassd_4
-z 5
+arch floor_farm1j
 x 4
 y 22
 end
-arch grassd_2
-z 5
+arch floor_farm1a
 x 4
 y 23
 end
-arch reed_sm10
+arch grassd_m7
 x 4
 y 23
 end
-arch sand_dm2
-layer 3
+arch fence_01.151
 x 4
 y 23
 end
@@ -944,94 +711,55 @@ arch grassd_m3
 x 5
 y 14
 end
-arch grassd_8
+arch floor_farm1a
 x 5
 y 15
 end
-arch grassd_1
-z 3
+arch grassd_m10
+x 5
+y 15
+end
+arch fence_01.111
+x 5
+y 15
+end
+arch floor_farm1j
 x 5
 y 16
 end
-arch sand_dm2
-layer 3
-x 5
-y 16
-end
-arch grassd_7
-z 3
+arch floor_farm1j
 x 5
 y 17
 end
-arch plant_flower2
-x 5
-y 17
-end
-arch grassd_7
-z 7
+arch floor_farm1j
 x 5
 y 18
 end
-arch sand_dm21
-layer 3
-x 5
-y 18
-end
-arch grassd_4
-z 9
+arch floor_farm1j
 x 5
 y 19
 end
-arch sand_dm20
-layer 3
-x 5
-y 19
-end
-arch grassd_6
-z 9
+arch floor_farm1j
 x 5
 y 20
 end
-arch sand_dm21
-layer 3
-x 5
-y 20
-end
-arch plant_flower1
-x 5
-y 20
-end
-arch grassd_1
-z 9
+arch floor_farm1j
 x 5
 y 21
 end
-arch reed_sm1
-x 5
-y 21
-end
-arch sand_dm21
-layer 3
-x 5
-y 21
-end
-arch grassd_8
-z 9
+arch floor_farm1j
 x 5
 y 22
 end
-arch sand_dm19
-layer 3
-x 5
-y 22
-end
-arch grassd_3
-z 3
+arch floor_farm1a
 x 5
 y 23
 end
-arch sand_dm19
-layer 3
+arch grassd_m7
+x 5
+y 23
+end
+arch fence_01.152
 x 5
 y 23
 end
@@ -1095,6 +823,10 @@ arch floor_ruin2
 x 6
 y 13
 end
+arch grassd_m14
+x 6
+y 13
+end
 arch floor_ruin2
 x 6
 y 14
@@ -1103,102 +835,51 @@ arch grassd_m3
 x 6
 y 14
 end
-arch grassd_8
+arch floor_farm1a
 x 6
 y 15
 end
-arch grassd_m3
+arch grassd_m10
 x 6
 y 15
 end
-arch grassd_2
+arch fence_01.111
+x 6
+y 15
+end
+arch floor_farm1a
 x 6
 y 16
 end
-arch sand_dm3
-layer 3
-x 6
-y 16
-end
-arch grassd_1
-z 3
+arch floor_farm1a
 x 6
 y 17
 end
-arch reed_sm7
-x 6
-y 17
-end
-arch sand_dm4
-layer 3
-x 6
-y 17
-end
-arch grassd_7
-z 5
+arch floor_farm1a
 x 6
 y 18
 end
-arch reed_sm4
-x 6
-y 18
-end
-arch grassd_7
-z 5
+arch floor_farm1a
 x 6
 y 19
 end
-arch reed_sm1
-x 6
-y 19
-end
-arch grassd_2
-z 5
+arch floor_farm1a
 x 6
 y 20
 end
-arch reed_sm5
-x 6
-y 20
-end
-arch grassd_8
-z 5
+arch floor_farm1a
 x 6
 y 21
 end
-arch reed_sm10
-x 6
-y 21
-end
-arch grassd_8
-z 9
+arch floor_farm1a
 x 6
 y 22
 end
-arch sand_dm21
-layer 3
-x 6
-y 22
-end
-arch plant_flower6
-x 6
-y 22
-end
-arch grassd_2
-z 9
+arch floor_farm1a
 x 6
 y 23
 end
-arch reed_sm9
-x 6
-y 23
-end
-arch sand_dm19
-layer 3
-x 6
-y 23
-end
-arch plant_flower6
+arch gate1_locked
 x 6
 y 23
 end
@@ -1266,84 +947,63 @@ arch floor_ruin3
 x 7
 y 14
 end
-arch reed_sm8
+arch grassd_m14
 x 7
 y 14
 end
-arch floor_ruin4
+arch floor_farm1g
 x 7
 y 15
 end
-arch grassd_m9
+arch grassd_m13
 x 7
 y 15
 end
-arch floor_ruin2
+arch fence_01.111
+x 7
+y 15
+end
+arch floor_farm1c
 x 7
 y 16
 end
-arch grassd_m3
-x 7
-y 16
-end
-arch grassd_3
-z 3
+arch floor_farm1c
 x 7
 y 17
 end
-arch grassd_m3
-x 7
-y 17
-end
-arch grassd_2
-z 3
+arch floor_farm1c
 x 7
 y 18
 end
-arch grassd_8
-z 3
+arch water_lt
 x 7
 y 19
 end
-arch reed_sm2
+arch border_wall_nw1
 x 7
 y 19
 end
-arch sand_dm1
-layer 3
-x 7
-y 19
-end
-arch grassd_4
-z 3
+arch floor_farm1l
 x 7
 y 20
 end
-arch reed_sm8
-x 7
-y 20
-end
-arch sand_dm1
-layer 3
-x 7
-y 20
-end
-arch grassd_2
-z 5
+arch floor_farm1l
 x 7
 y 21
 end
-arch grassd_2
-z 5
+arch floor_farm1l
 x 7
 y 22
 end
-arch grassd_4
-z 5
+arch floor_farm1p
 x 7
 y 23
 end
-arch reed_sm1
+arch grassd_m7
+x 7
+y 23
+end
+arch fence_01.153
 x 7
 y 23
 end
@@ -1416,76 +1076,55 @@ direction 3
 x 8
 y 14
 end
-arch floor_ruin6
+arch floor_farm1e
 x 8
 y 15
 end
-arch reed_sm2
+arch fence_01.111
 x 8
 y 15
 end
-arch floor_ruin3
+arch floor_farm1c
 x 8
 y 16
 end
-arch reed_sm3
-x 8
-y 16
-end
-arch floor_ruin4
+arch floor_farm1c
 x 8
 y 17
 end
-arch grassd_m9
-x 8
-y 17
-end
-arch floor_ruin6
+arch floor_farm1c
 x 8
 y 18
 end
-arch grassd_m3
-x 8
-y 18
-end
-arch grassd_3
+arch water_lt2
 x 8
 y 19
 end
-arch grassd_m3
+arch border_wall_n1
 x 8
 y 19
 end
-arch sand_dm2
-layer 3
-x 8
-y 19
-end
-arch grassd_8
-z 3
+arch floor_farm1l
 x 8
 y 20
 end
-arch grassd_5
-z 3
+arch floor_farm1l
 x 8
 y 21
 end
-arch reed_sm7
-x 8
-y 21
-end
-arch grassd_8
-z 3
+arch floor_farm1l
 x 8
 y 22
 end
-arch grassd_6
-z 7
+arch floor_farm1j
 x 8
 y 23
 end
-arch reed_sm1
+arch grassd_m7
+x 8
+y 23
+end
+arch fence_01.151
 x 8
 y 23
 end
@@ -1558,73 +1197,55 @@ arch water_lt4
 x 9
 y 14
 end
-arch floor_ruin1
+arch floor_farm1p
 x 9
 y 15
 end
-arch water_lt_m
-direction 2
+arch fence_01.111
 x 9
 y 15
 end
-arch floor_ruin2
+arch floor_farm1c
 x 9
 y 16
 end
-arch water_lt_m
-direction 3
-x 9
-y 16
-end
-arch floor_ruin5
+arch floor_farm1c
 x 9
 y 17
 end
-arch floor_ruin5
+arch floor_farm1c
 x 9
 y 18
 end
-arch reed_sm2
-x 9
-y 18
-end
-arch floor_ruin3
+arch water_lt
 x 9
 y 19
 end
-arch grassd_m9
+arch border_wall_n1
 x 9
 y 19
 end
-arch floor_ruin2
+arch floor_farm1l
 x 9
 y 20
 end
-arch grassd_m9
-x 9
-y 20
-end
-arch floor_ruin2
+arch floor_farm1l
 x 9
 y 21
 end
-arch grassd_m9
-x 9
-y 21
-end
-arch floor_ruin3
+arch floor_farm1l
 x 9
 y 22
 end
-arch grassd_m3
-x 9
-y 22
-end
-arch grassd_7
+arch floor_farm1p
 x 9
 y 23
 end
-arch grassd_m3
+arch grassd_m7
+x 9
+y 23
+end
+arch fence_01.151
 x 9
 y 23
 end
@@ -1707,65 +1328,55 @@ arch water_lt
 x 10
 y 14
 end
-arch water_lt4
+arch floor_farm1g
 x 10
 y 15
 end
-arch water_lt
+arch fence_01.111
+x 10
+y 15
+end
+arch floor_farm1c
 x 10
 y 16
 end
-arch floor_ruin4
+arch floor_farm1c
 x 10
 y 17
 end
-arch water_lt_m
-direction 2
-x 10
-y 17
-end
-arch floor_ruin3
+arch floor_farm1c
 x 10
 y 18
 end
-arch water_lt2_m
-direction 3
-x 10
-y 18
-end
-arch floor_ruin6
+arch water_lt
 x 10
 y 19
 end
-arch reed_sm4
+arch border_wall_n1
 x 10
 y 19
 end
-arch floor_ruin4
+arch floor_farm1l
 x 10
 y 20
 end
-arch reed_sm10
-x 10
-y 20
-end
-arch floor_ruin2
+arch floor_farm1l
 x 10
 y 21
 end
-arch floor_ruin1
+arch floor_farm1l
 x 10
 y 22
 end
-arch reed_sm7
-x 10
-y 22
-end
-arch floor_ruin3
+arch floor_farm1j
 x 10
 y 23
 end
-arch grassd_m3
+arch grassd_m7
+x 10
+y 23
+end
+arch fence_01.151
 x 10
 y 23
 end
@@ -1828,263 +1439,252 @@ end
 arch water_lt4
 x 11
 y 13
+end
+arch water_lt2
+x 11
+y 14
+end
+arch floor_farm1e
+x 11
+y 15
+end
+arch fence_01.111
+x 11
+y 15
+end
+arch floor_farm1c
+x 11
+y 16
+end
+arch floor_farm1c
+x 11
+y 17
+end
+arch floor_farm1c
+x 11
+y 18
+end
+arch water_lt4
+x 11
+y 19
+end
+arch border_wall_n1
+x 11
+y 19
+end
+arch floor_farm1l
+x 11
+y 20
+end
+arch floor_farm1l
+x 11
+y 21
+end
+arch floor_farm1l
+x 11
+y 22
+end
+arch floor_farm1j
+x 11
+y 23
+end
+arch fence_01.151
+x 11
+y 23
+end
+arch water_lt
+x 12
+end
+arch water_lt4
+x 12
+y 1
+end
+arch water_lt2
+x 12
+y 2
+end
+arch water_lt
+x 12
+y 3
+end
+arch water_lt3
+x 12
+y 4
+end
+arch water_lt3
+x 12
+y 5
+end
+arch water_md3
+x 12
+y 6
+end
+arch water_md4
+x 12
+y 7
+end
+arch water_md3
+x 12
+y 8
+end
+arch water_md3
+x 12
+y 9
+end
+arch water_md4
+x 12
+y 10
+end
+arch water_md3
+x 12
+y 11
+end
+arch water_md
+x 12
+y 12
+end
+arch water_lt2
+x 12
+y 13
+end
+arch water_md_m
+direction 2
+x 12
+y 13
+end
+arch water_lt3
+x 12
+y 14
+end
+arch floor_farm1j
+x 12
+y 15
+end
+arch fence_01.111
+x 12
+y 15
+end
+arch floor_farm1c
+x 12
+y 16
+end
+arch floor_farm1c
+x 12
+y 17
+end
+arch floor_farm1c
+x 12
+y 18
+end
+arch water_lt2
+x 12
+y 19
+end
+arch border_wall_n1
+x 12
+y 19
+end
+arch floor_farm1l
+x 12
+y 20
+end
+arch floor_farm1l
+x 12
+y 21
+end
+arch floor_farm1l
+x 12
+y 22
+end
+arch floor_farm1n
+x 12
+y 23
+end
+arch fence_01.151
+x 12
+y 23
+end
+arch water_lt2
+x 13
+end
+arch water_lt4
+x 13
+y 1
+end
+arch water_lt2
+x 13
+y 2
+end
+arch water_lt
+x 13
+y 3
+end
+arch water_lt3
+x 13
+y 4
+end
+arch water_lt2
+x 13
+y 5
+end
+arch water_md3
+x 13
+y 6
+end
+arch water_md2
+x 13
+y 7
+end
+arch water_md
+x 13
+y 8
+end
+arch water_md4
+x 13
+y 9
+end
+arch water_md3
+x 13
+y 10
+end
+arch water_md4
+x 13
+y 11
+end
+arch water_md2
+x 13
+y 12
+end
+arch water_md3
+x 13
+y 13
+end
+arch water_lt
+x 13
+y 14
 end
 arch water_md2_m
-direction 3
-x 11
-y 13
-end
-arch water_lt2
-x 11
-y 14
-end
-arch water_lt4
-x 11
-y 15
-end
-arch water_lt4
-x 11
-y 16
-end
-arch water_lt2
-x 11
-y 17
-end
-arch water_lt3
-x 11
-y 18
-end
-arch floor_ruin1
-x 11
-y 19
-end
-arch water_lt_m
-direction 2
-x 11
-y 19
-end
-arch floor_ruin3
-x 11
-y 20
-end
-arch water_lt_m
-direction 3
-x 11
-y 20
-end
-arch floor_ruin2
-x 11
-y 21
-end
-arch water_lt_m
-direction 3
-x 11
-y 21
-end
-arch floor_ruin2
-x 11
-y 22
-end
-arch water_lt2_m
-direction 3
-x 11
-y 22
-end
-arch floor_ruin6
-x 11
-y 23
-end
-arch reed_sm11
-x 11
-y 23
-end
-arch water_lt
-x 12
-end
-arch water_lt4
-x 12
-y 1
-end
-arch water_lt2
-x 12
-y 2
-end
-arch water_lt
-x 12
-y 3
-end
-arch water_lt3
-x 12
-y 4
-end
-arch water_lt3
-x 12
-y 5
-end
-arch water_md3
-x 12
-y 6
-end
-arch water_md4
-x 12
-y 7
-end
-arch water_md3
-x 12
-y 8
-end
-arch water_md3
-x 12
-y 9
-end
-arch water_md4
-x 12
-y 10
-end
-arch water_md3
-x 12
-y 11
-end
-arch water_md
-x 12
-y 12
-end
-arch water_md4
-x 12
-y 13
-end
-arch water_lt
-x 12
-y 14
-end
-arch water_md_m
-direction 2
-x 12
-y 14
-end
-arch water_lt4
-x 12
-y 15
-end
-arch water_lt4
-x 12
-y 16
-end
-arch water_lt2
-x 12
-y 17
-end
-arch water_lt4
-x 12
-y 18
-end
-arch water_lt2
-x 12
-y 19
-end
-arch water_lt
-x 12
-y 20
-end
-arch water_lt
-x 12
-y 21
-end
-arch water_lt4
-x 12
-y 22
-end
-arch floor_ruin2
-x 12
-y 23
-end
-arch water_lt_m
-direction 2
-x 12
-y 23
-end
-arch water_lt2
-x 13
-end
-arch water_lt4
-x 13
-y 1
-end
-arch water_lt2
-x 13
-y 2
-end
-arch water_lt
-x 13
-y 3
-end
-arch water_lt3
-x 13
-y 4
-end
-arch water_lt2
-x 13
-y 5
-end
-arch water_md3
-x 13
-y 6
-end
-arch water_md2
-x 13
-y 7
-end
-arch water_md
-x 13
-y 8
-end
-arch water_md4
-x 13
-y 9
-end
-arch water_md3
-x 13
-y 10
-end
-arch water_md4
-x 13
-y 11
-end
-arch water_md2
-x 13
-y 12
-end
-arch water_md3
-x 13
-y 13
-end
-arch water_md
+direction 1
 x 13
 y 14
 end
-arch water_lt3
+arch floor_farm1e
 x 13
 y 15
 end
-arch water_md_m
-direction 2
+arch fence_01.112
 x 13
 y 15
 end
-arch water_lt2
+arch floor_farm1c
 x 13
 y 16
 end
-arch water_md_m
-direction 3
-x 13
-y 16
-end
-arch water_lt3
+arch floor_farm1c
 x 13
 y 17
 end
-arch water_lt
+arch floor_farm1c
 x 13
 y 18
 end
@@ -2092,19 +1692,27 @@ arch water_lt4
 x 13
 y 19
 end
-arch water_lt4
+arch border_wall_n1
+x 13
+y 19
+end
+arch floor_farm1l
 x 13
 y 20
 end
-arch water_lt
+arch floor_farm1l
 x 13
 y 21
 end
-arch water_lt2
+arch floor_farm1l
 x 13
 y 22
 end
-arch water_lt
+arch floor_farm1p
+x 13
+y 23
+end
+arch fence_01.152
 x 13
 y 23
 end
@@ -2163,43 +1771,83 @@ arch water_md
 x 14
 y 13
 end
-arch water_md2
+arch water_lt2
 x 14
 y 14
-end
-arch water_md2
-x 14
-y 15
-end
-arch water_md3
-x 14
-y 16
-end
-arch water_lt
-x 14
-y 17
 end
 arch water_md_m
 direction 2
 x 14
-y 17
+y 14
 end
-arch water_lt
+arch water_lt2
 x 14
-y 18
+y 15
 end
 arch water_md_m
 direction 3
 x 14
-y 18
+y 15
 end
-arch water_lt4
+arch border_wall_w2
+sub_layer 1
 x 14
-y 19
+y 15
+end
+arch water_lt
+x 14
+y 16
 end
 arch water_md2_m
 direction 3
 x 14
+y 16
+end
+arch border_wall_w1
+sub_layer 1
+x 14
+y 16
+end
+arch water_lt
+x 14
+y 17
+end
+arch water_md2_m
+direction 3
+x 14
+y 17
+end
+arch border_wall_w1
+sub_layer 1
+x 14
+y 17
+end
+arch water_lt
+x 14
+y 18
+end
+arch water_md_m
+direction 3
+x 14
+y 18
+end
+arch border_wall_w1
+sub_layer 1
+x 14
+y 18
+end
+arch water_lt4
+x 14
+y 19
+end
+arch water_md2_m
+direction 3
+x 14
+y 19
+end
+arch border_wall_nw2
+sub_layer 1
+x 14
 y 19
 end
 arch water_lt3
@@ -2208,6 +1856,11 @@ y 20
 end
 arch water_md_m
 direction 3
+x 14
+y 20
+end
+arch border_wall_w2
+sub_layer 1
 x 14
 y 20
 end
@@ -2220,11 +1873,26 @@ direction 2
 x 14
 y 21
 end
+arch border_wall_w1
+sub_layer 1
+x 14
+y 21
+end
 arch water_lt3
 x 14
 y 22
 end
+arch border_wall_w1
+sub_layer 1
+x 14
+y 22
+end
 arch water_lt4
+x 14
+y 23
+end
+arch border_wall_w1
+sub_layer 1
 x 14
 y 23
 end

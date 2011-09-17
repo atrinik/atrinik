@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-15 Alex Tokar
+Modified: 2011-09-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3319,16 +3319,8 @@ z 7
 x 19
 y 18
 end
-arch reed_sm3
-x 19
-y 18
-end
 arch grassd_5
 z 5
-x 19
-y 19
-end
-arch reed_sm3
 x 19
 y 19
 end
@@ -3337,16 +3329,8 @@ z 4
 x 19
 y 20
 end
-arch reed_sm4
-x 19
-y 20
-end
 arch grassd_1
 z 3
-x 19
-y 21
-end
-arch reed_sm7
 x 19
 y 21
 end
@@ -3403,10 +3387,6 @@ x 20
 y 6
 end
 arch floor_ruin3
-x 20
-y 7
-end
-arch reed_sm3
 x 20
 y 7
 end
@@ -3467,66 +3447,34 @@ z 8
 x 20
 y 16
 end
-arch reed_sm3
-x 20
-y 16
-end
 arch grassd_2
 z 3
 x 20
 y 17
 end
-arch reed_sm10
-x 20
-y 17
-end
 arch grassd_7
 z 3
 x 20
 y 18
 end
-arch reed_sm2
-x 20
-y 18
-end
-arch grassd_3
+arch grassd_2
 z 3
 x 20
 y 19
 end
-arch reed_sm4
-x 20
-y 19
-end
-arch floor_farm1b
+arch grassd_1
 x 20
 y 20
 end
-arch reed_sm9
-x 20
-y 20
-end
-arch floor_farm1b
+arch grassd_5
 x 20
 y 21
 end
-arch reed_sm4
-x 20
-y 21
-end
-arch grassd_7
-x 20
-y 22
-end
-arch reed_sm1
+arch grassd_4
 x 20
 y 22
 end
 arch grassd_5
-x 20
-y 23
-end
-arch reed_sm5
 x 20
 y 23
 end
@@ -3601,10 +3549,6 @@ z 8
 x 21
 y 11
 end
-arch reed_sm10
-x 21
-y 11
-end
 arch grassd_1
 z 10
 x 21
@@ -3633,20 +3577,8 @@ z 8
 x 21
 y 15
 end
-arch reed_sm11
-x 21
-y 15
-end
 arch grassd_6
 z 8
-x 21
-y 16
-end
-arch reed_sm10
-x 21
-y 16
-end
-arch straw2.111
 x 21
 y 16
 end
@@ -3655,66 +3587,29 @@ z 4
 x 21
 y 17
 end
-arch reed_sm1
-x 21
-y 17
-end
-arch wagon_big
-layer 3
-x 21
-y 17
-end
-arch floor_farm1a
+arch grassd_1
 z 2
 x 21
 y 18
 end
-arch reed_sm4
-x 21
-y 18
-end
-arch floor_farm1b
+arch grassd_4
 z 2
 x 21
 y 19
 end
-arch reed_sm7
-x 21
-y 19
-end
-arch floor_farm1b
+arch grassd_7
 x 21
 y 20
 end
-arch reed_sm1
-x 21
-y 20
-end
-arch trash_wood2.101
-x 21
-y 20
-end
-arch floor_farm1a
+arch grassd_3
 x 21
 y 21
 end
-arch reed_sm8
-x 21
-y 21
-end
-arch floor_farm1b
-x 21
-y 22
-end
-arch reed_sm8
+arch grassd_4
 x 21
 y 22
 end
 arch grassd_4
-x 21
-y 23
-end
-arch reed_sm1
 x 21
 y 23
 end
@@ -3803,19 +3698,7 @@ z 8
 x 22
 y 14
 end
-arch reed_sm8
-x 22
-y 14
-end
-arch plant_flower2
-x 22
-y 14
-end
 arch grassd_1
-x 22
-y 15
-end
-arch reed_sm11
 x 22
 y 15
 end
@@ -3824,71 +3707,31 @@ z 4
 x 22
 y 16
 end
-arch reed_sm7
-x 22
-y 16
-end
-arch straw1.101
-x 22
-y 16
-end
 arch grassd_1
 x 22
 y 17
 end
-arch reed_sm2
-x 22
-y 17
-end
-arch floor_farm1b
+arch grassd_6
 x 22
 y 18
 end
-arch reed_sm11
-x 22
-y 18
-end
-arch floor_farm1a
+arch grassd_5
 x 22
 y 19
 end
-arch reed_sm5
-x 22
-y 19
-end
-arch floor_farm1o
+arch grassd_6
 x 22
 y 20
 end
-arch reed_sm7
-x 22
-y 20
-end
-arch floor_farm1f
+arch grassd_2
 x 22
 y 21
 end
-arch reed_sm3
-x 22
-y 21
-end
-arch floor_farm1o
+arch grassd_3
 x 22
 y 22
 end
-arch reed_sm5
-x 22
-y 22
-end
-arch trash_wood2.101
-x 22
-y 22
-end
-arch floor_farm1b
-x 22
-y 23
-end
-arch reed_sm7
+arch grassd_2
 x 22
 y 23
 end
@@ -3960,16 +3803,8 @@ arch grassd_7
 x 23
 y 12
 end
-arch reed_sm8
-x 23
-y 12
-end
 arch grassd_7
 z 5
-x 23
-y 13
-end
-arch reed_sm6
 x 23
 y 13
 end
@@ -3992,63 +3827,31 @@ arch grassd_4
 x 23
 y 16
 end
-arch reed_sm4
-x 23
-y 16
-end
 arch grassd_3
 x 23
 y 17
 end
-arch reed_sm8
-x 23
-y 17
-end
-arch floor_farm1a
+arch grassd_7
 x 23
 y 18
 end
-arch reed_sm11
-x 23
-y 18
-end
-arch floor_farm1h
+arch grassd_3
 x 23
 y 19
 end
-arch reed_sm10
-x 23
-y 19
-end
-arch floor_farm1f
+arch grassd_2
 x 23
 y 20
 end
-arch reed_sm1
-x 23
-y 20
-end
-arch floor_farm1j
+arch grassd_6
 x 23
 y 21
 end
-arch reed_sm6
-x 23
-y 21
-end
-arch floor_farm1e
+arch grassd_1
 x 23
 y 22
 end
-arch reed_sm1
-x 23
-y 22
-end
-arch floor_farm1a
-x 23
-y 23
-end
-arch reed_sm1
+arch grassd_5
 x 23
 y 23
 end

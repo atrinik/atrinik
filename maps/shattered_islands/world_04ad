@@ -1355,13 +1355,6 @@ arch wall_fortified_high.111
 x 8
 y 17
 end
-arch wall_pattern4.181
-draw_direction 1
-direction 7
-layer 7
-x 8
-y 17
-end
 arch grassd_4
 x 8
 y 18
@@ -1370,25 +1363,11 @@ arch wall_fortified_high.111
 x 8
 y 18
 end
-arch wall_pattern4.131
-draw_direction 1
-direction 7
-layer 7
-x 8
-y 18
-end
 arch grassd_4
 x 8
 y 19
 end
 arch wall_fortified_high.111
-x 8
-y 19
-end
-arch wall_pattern4.131
-draw_direction 1
-direction 7
-layer 7
 x 8
 y 19
 end
@@ -1397,13 +1376,6 @@ x 8
 y 20
 end
 arch wall_fortified_high.111
-x 8
-y 20
-end
-arch wall_pattern4.131
-draw_direction 1
-direction 7
-layer 7
 x 8
 y 20
 end
@@ -1417,13 +1389,6 @@ x 8
 y 21
 end
 arch wall_fortified_high.111
-x 8
-y 21
-end
-arch wall_pattern4.131
-draw_direction 1
-direction 7
-layer 7
 x 8
 y 21
 end
@@ -1609,56 +1574,23 @@ arch grassd_3
 x 9
 y 17
 end
-arch wall_pattern4.111
-x 9
-y 17
-end
-arch shop_floor
+arch grassd_7
 x 9
 y 18
 end
-arch quiver_s
-unpaid 1
-no_pick 1
-identified 1
-x 9
-y 18
-end
-arch shop_floor
+arch grassd_8
 x 9
 y 19
 end
-arch sstone
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 9
-y 19
-end
-arch shop_floor
+arch grassd_2
 x 9
 y 20
 end
-arch sling_small
-unpaid 1
-no_pick 1
-identified 1
-x 9
-y 20
-end
-arch shop_floor_normal
-x 9
-y 21
-end
-arch wall_pattern4.111
+arch grassd_2
 x 9
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 9
 y 21
 end
@@ -1792,60 +1724,23 @@ arch grassd_3
 x 10
 y 17
 end
-arch wall_pattern4.111
-x 10
-y 17
-end
-arch shop_floor
+arch grassd_3
 x 10
 y 18
 end
-arch quiver_b
-unpaid 1
-no_pick 1
-identified 1
-x 10
-y 18
-end
-arch torch_wall_1
-x 10
-y 18
-end
-arch shop_floor
+arch grassd_8
 x 10
 y 19
 end
-arch bolt
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 10
-y 19
-end
-arch shop_floor
+arch grassd_3
 x 10
 y 20
 end
-arch crossbow_small
-unpaid 1
-no_pick 1
-identified 1
-x 10
-y 20
-end
-arch shop_floor_normal
-x 10
-y 21
-end
-arch wall_pattern4.111
+arch grassd_4
 x 10
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 10
 y 21
 end
@@ -2004,56 +1899,23 @@ arch grassd_3
 x 11
 y 17
 end
-arch wall_pattern4_w.111
-x 11
-y 17
-end
-arch shop_floor
+arch grassd_2
 x 11
 y 18
 end
-arch quiver
-unpaid 1
-no_pick 1
-identified 1
-x 11
-y 18
-end
-arch shop_floor
+arch grassd_1
 x 11
 y 19
 end
-arch arrow
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 11
-y 19
-end
-arch shop_floor
+arch grassd_8
 x 11
 y 20
 end
-arch bow_short
-unpaid 1
-no_pick 1
-identified 1
-x 11
-y 20
-end
-arch shop_floor_normal
-x 11
-y 21
-end
-arch wall_pattern4.111
+arch grassd_7
 x 11
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 11
 y 21
 end
@@ -2180,56 +2042,23 @@ arch grassd_1
 x 12
 y 17
 end
-arch wall_pattern4.111
-x 12
-y 17
-end
-arch shop_floor
+arch grassd_4
 x 12
 y 18
 end
-arch lamp
-unpaid 1
-no_pick 1
-identified 1
-x 12
-y 18
-end
-arch shop_floor
+arch grassd_8
 x 12
 y 19
 end
-arch t_hammer
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 12
-y 19
-end
-arch shop_floor
+arch grassd_7
 x 12
 y 20
 end
-arch hammer_small
-unpaid 1
-no_pick 1
-identified 1
-x 12
-y 20
-end
-arch shop_floor_normal
-x 12
-y 21
-end
-arch wall_pattern4.111
+arch grassd_2
 x 12
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 12
 y 21
 end
@@ -2373,61 +2202,23 @@ arch grassd_7
 x 13
 y 17
 end
-arch wall_pattern4.111
-x 13
-y 17
-end
-arch shop_floor
+arch grassd_5
 x 13
 y 18
 end
-arch oil_lamp
-unpaid 1
-no_pick 1
-identified 1
-nrof 5
-x 13
-y 18
-end
-arch torch_wall_1
-x 13
-y 18
-end
-arch shop_floor
+arch grassd_5
 x 13
 y 19
 end
-arch t_axe
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 13
-y 19
-end
-arch shop_floor
+arch grassd_2
 x 13
 y 20
 end
-arch axe_small
-unpaid 1
-no_pick 1
-identified 1
-x 13
-y 20
-end
-arch shop_floor_normal
-x 13
-y 21
-end
-arch wall_pattern4.111
+arch grassd_4
 x 13
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 13
 y 21
 end
@@ -2574,56 +2365,23 @@ arch grassd_2
 x 14
 y 17
 end
-arch wall_pattern4.111
-x 14
-y 17
-end
-arch shop_floor
+arch grassd_8
 x 14
 y 18
 end
-arch torch
-unpaid 1
-no_pick 1
-identified 1
-x 14
-y 18
-end
-arch shop_floor
+arch grassd_4
 x 14
 y 19
 end
-arch t_dagger
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 14
-y 19
-end
-arch shop_floor
+arch grassd_4
 x 14
 y 20
 end
-arch dagger
-unpaid 1
-no_pick 1
-identified 1
-x 14
-y 20
-end
-arch shop_floor_normal
-x 14
-y 21
-end
-arch wall_pattern4.111
+arch grassd_6
 x 14
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 14
 y 21
 end
@@ -2779,49 +2537,23 @@ arch sand_dm2
 x 15
 y 17
 end
-arch wall_pattern4_w.111
-x 15
-y 17
-end
-arch shop_floor
+arch grassd_2
 x 15
 y 18
 end
-arch shop_floor
+arch grassd_2
 x 15
 y 19
 end
-arch t_star
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 15
-y 19
-end
-arch shop_floor
+arch grassd_2
 x 15
 y 20
 end
-arch shortsword
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 20
-end
-arch shop_floor_normal
-x 15
-y 21
-end
-arch wall_pattern4.111
+arch grassd_8
 x 15
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 15
 y 21
 end
@@ -2976,57 +2708,23 @@ arch sand_dm10
 x 16
 y 17
 end
-arch wall_pattern4.111
-x 16
-y 17
-end
-arch shop_floor_normal
+arch grassd_5
 x 16
 y 18
 end
-arch shop_mat
-x 16
-y 18
-end
-arch torch_wall_1
-x 16
-y 18
-end
-arch shop_floor
+arch grassd_1
 x 16
 y 19
 end
-arch sign
-msg
-Go down the stairs for some more shopping!
-endmsg
-x 16
-y 19
-end
-arch shop_floor
+arch grassd_4
 x 16
 y 20
 end
-arch stairs_stone_down
-direction 5
-slaying world_a_04ad
-hp 16
-sp 20
-x 16
-y 20
-end
-arch shop_floor_normal
-x 16
-y 21
-end
-arch wall_pattern4.111
+arch grassd_7
 x 16
 y 21
 end
 arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
 x 16
 y 21
 end
@@ -3180,51 +2878,19 @@ arch sand_dm19
 x 17
 y 17
 end
-arch wall_pattern4.111
-x 17
-y 17
-end
-arch shop_floor_normal
+arch grassd_6
 x 17
 y 18
 end
-arch grate1_3
-x 17
-y 18
-end
-arch shop_floor_normal
+arch grassd_7
 x 17
 y 19
 end
-arch grate1_3
-x 17
-y 19
-end
-arch shop_floor_normal
+arch grassd_3
 x 17
 y 20
 end
-arch grate1_3
-x 17
-y 20
-end
-arch shop_floor_normal
-x 17
-y 21
-end
-arch wall_pattern4.111
-layer 4
-x 17
-y 21
-end
-arch grate1_3
-x 17
-y 21
-end
-arch wall_flagstone1.111
-draw_direction 1
-direction 1
-layer 7
+arch grassd_6
 x 17
 y 21
 end
@@ -3233,10 +2899,6 @@ x 17
 y 22
 end
 arch sand_dm7
-x 17
-y 22
-end
-arch torch_wall_1
 x 17
 y 22
 end
@@ -3373,20 +3035,11 @@ arch grassd_m2
 x 18
 y 18
 end
-arch shop_mat
-x 18
-y 18
-end
 arch grassd_3
 x 18
 y 19
 end
 arch grassd_4
-x 18
-y 20
-end
-arch forge_111
-player_only 1
 x 18
 y 20
 end
@@ -3583,17 +3236,6 @@ arch grassd_m7
 x 19
 y 21
 end
-arch spawn_point
-x 19
-y 21
-arch smith
-name Twitriel, the weapon master
-direction 3
-level 10
-behavior 0
-type 83
-end
-end
 arch grassd_1
 x 19
 y 22
@@ -3763,10 +3405,6 @@ x 20
 y 21
 end
 arch grassd_m5
-x 20
-y 21
-end
-arch anvil_111
 x 20
 y 21
 end
