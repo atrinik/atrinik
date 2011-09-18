@@ -198,11 +198,11 @@ void init_map_data(int xl, int yl, int px, int py)
  * @param x X position.
  * @param y Y position.
  * @return The height. */
-static int calc_map_cell_height(int x, int y)
+static int calc_map_cell_height(int x, int y, int sub_layer)
 {
 	if (x >= 0 && x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && y >= 0 && y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
 	{
-		return the_map.cells[x][y].height[1];
+		return the_map.cells[x][y].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
 	}
 
 	return 0;
@@ -215,7 +215,7 @@ static int calc_map_cell_height(int x, int y)
  * Align tile stretch based on X/Y.
  * @param x X position.
  * @param y Y position. */
-void align_tile_stretch(int x, int y)
+static void align_tile_stretch(int x, int y, int sub_layer)
 {
 	uint8 top, bottom, right, left, min_ht;
 	uint32 h;
@@ -226,15 +226,15 @@ void align_tile_stretch(int x, int y)
 		return;
 	}
 
-	nw_height = calc_map_cell_height(x - 1, y - 1);
-	n_height = calc_map_cell_height(x, y - 1);
-	ne_height = calc_map_cell_height(x + 1, y - 1);
-	sw_height = calc_map_cell_height(x - 1, y + 1);
-	s_height = calc_map_cell_height(x, y + 1);
-	se_height = calc_map_cell_height(x + 1, y + 1);
-	w_height = calc_map_cell_height(x - 1, y);
-	e_height = calc_map_cell_height(x + 1, y);
-	my_height = calc_map_cell_height(x, y);
+	nw_height = calc_map_cell_height(x - 1, y - 1, sub_layer);
+	n_height = calc_map_cell_height(x, y - 1, sub_layer);
+	ne_height = calc_map_cell_height(x + 1, y - 1, sub_layer);
+	sw_height = calc_map_cell_height(x - 1, y + 1, sub_layer);
+	s_height = calc_map_cell_height(x, y + 1, sub_layer);
+	se_height = calc_map_cell_height(x + 1, y + 1, sub_layer);
+	w_height = calc_map_cell_height(x - 1, y, sub_layer);
+	e_height = calc_map_cell_height(x + 1, y, sub_layer);
+	my_height = calc_map_cell_height(x, y, sub_layer);
 
 	if (abs(my_height - e_height) > MAX_STRETCH)
 	{
@@ -304,7 +304,7 @@ void align_tile_stretch(int x, int y)
 	right -= min_ht;
 
 	h = bottom + (left << 8) + (right << 16) + (top << 24);
-	the_map.cells[x][y].stretch = h;
+	the_map.cells[x][y].stretch[sub_layer] = h;
 }
 
 /**
@@ -316,23 +316,26 @@ void align_tile_stretch(int x, int y)
  * parts. */
 void adjust_tile_stretch(void)
 {
-	int x, y;
+	int x, y, sub_layer;
 
 	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
 		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
-			align_tile_stretch(x - 1, y - 1);
-			align_tile_stretch(x , y - 1);
-			align_tile_stretch(x + 1, y - 1);
-			align_tile_stretch(x + 1, y);
+			for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
+			{
+				align_tile_stretch(x - 1, y - 1, sub_layer);
+				align_tile_stretch(x , y - 1, sub_layer);
+				align_tile_stretch(x + 1, y - 1, sub_layer);
+				align_tile_stretch(x + 1, y, sub_layer);
 
-			align_tile_stretch(x + 1, y + 1);
-			align_tile_stretch(x, y + 1);
-			align_tile_stretch(x - 1, y + 1);
-			align_tile_stretch(x - 1, y);
+				align_tile_stretch(x + 1, y + 1, sub_layer);
+				align_tile_stretch(x, y + 1, sub_layer);
+				align_tile_stretch(x - 1, y + 1, sub_layer);
+				align_tile_stretch(x - 1, y, sub_layer);
 
-			align_tile_stretch(x, y);
+				align_tile_stretch(x, y, sub_layer);
+			}
 		}
 	}
 }
@@ -382,22 +385,22 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
  * @param y Y of the cell. */
 void map_clear_cell(int x, int y)
 {
-	int i;
+	int layer;
 
 	the_map.cells[x][y].darkness = 0;
 
-	for (i = 1; i <= MAX_LAYERS; i++)
+	for (layer = 0; layer < NUM_REAL_LAYERS; layer++)
 	{
-		the_map.cells[x][y].faces[i] = 0;
-		the_map.cells[x][y].flags[i] = 0;
-		the_map.cells[x][y].probe[i] = 0;
-		the_map.cells[x][y].quick_pos[i] = 0;
-		the_map.cells[x][y].pname[i][0] = '\0';
-		the_map.cells[x][y].height[i] = 0;
-		the_map.cells[x][y].zoom[i] = 0;
-		the_map.cells[x][y].align[i] = 0;
-		the_map.cells[x][y].rotate[i] = 0;
-		the_map.cells[x][y].infravision[i] = 0;
+		the_map.cells[x][y].faces[layer] = 0;
+		the_map.cells[x][y].flags[layer] = 0;
+		the_map.cells[x][y].probe[layer] = 0;
+		the_map.cells[x][y].quick_pos[layer] = 0;
+		the_map.cells[x][y].pname[layer][0] = '\0';
+		the_map.cells[x][y].height[layer] = 0;
+		the_map.cells[x][y].zoom[layer] = 0;
+		the_map.cells[x][y].align[layer] = 0;
+		the_map.cells[x][y].rotate[layer] = 0;
+		the_map.cells[x][y].infravision[layer] = 0;
 	}
 }
 
@@ -412,12 +415,36 @@ void map_set_darkness(int x, int y, uint8 darkness)
 }
 
 /**
+ * Get the height of the topmost floor on the specified square.
+ * @param x X position.
+ * @param y Y position.
+ * @return The height. */
+static int get_top_floor_height(int x, int y)
+{
+	int top_height, height, sub_layer;
+
+	top_height = 0;
+
+	for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
+	{
+		height = the_map.cells[x][y].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
+
+		if (height > top_height)
+		{
+			top_height = height;
+		}
+	}
+
+	return top_height;
+}
+
+/**
  * Draw a single object on the map.
  * @param x X position of the object.
  * @param y Y position of the object.
  * @param k Layer.
  * @param player_height_offset Player's height offset. */
-static void draw_map_object(int x, int y, int layer, int player_height_offset)
+static void draw_map_object(int x, int y, int layer, int sub_layer, int player_height_offset)
 {
 	struct MapCell *map = &the_map.cells[x][y];
 	_Sprite *face_sprite;
@@ -433,7 +460,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bltfx.surface = NULL;
 	xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 	ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-	face = map->faces[layer];
+	face = map->faces[GET_MAP_LAYER(layer, sub_layer)];
 
 	if (face <= 0 || face >= MAX_FACE_TILES)
 	{
@@ -450,19 +477,19 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bitmap_h = face_sprite->bitmap->h;
 	bitmap_w = face_sprite->bitmap->w;
 
-	if (map->rotate[layer])
+	if (map->rotate[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		rotozoomSurfaceSize(bitmap_w, bitmap_h, map->rotate[layer], map->zoom[layer] ? map->zoom[layer] / 100.0 : 1.0, &bitmap_w, &bitmap_h);
+		rotozoomSurfaceSize(bitmap_w, bitmap_h, map->rotate[GET_MAP_LAYER(layer, sub_layer)], map->zoom[GET_MAP_LAYER(layer, sub_layer)] ? map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0 : 1.0, &bitmap_w, &bitmap_h);
 	}
-	else if (map->zoom[layer] && map->zoom[layer] != 100)
+	else if (map->zoom[GET_MAP_LAYER(layer, sub_layer)] && map->zoom[GET_MAP_LAYER(layer, sub_layer)] != 100)
 	{
-		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[layer] / 100.0, map->zoom[layer] / 100.0, &bitmap_w, &bitmap_h);
+		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0, map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0, &bitmap_w, &bitmap_h);
 	}
 
 	/* We have a set quick_pos = multi tile */
-	if (map->quick_pos[layer])
+	if (map->quick_pos[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		mnr = map->quick_pos[layer];
+		mnr = map->quick_pos[GET_MAP_LAYER(layer, sub_layer)];
 		mid = mnr >> 4;
 		mnr &= 0x0f;
 		xml = MultiArchs[mid].xlen;
@@ -493,9 +520,9 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		}
 	}
 
-	if (map->align[layer])
+	if (map->align[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		xl += map->align[layer];
+		xl += map->align[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
 	/* Blit the face in the darkness level the tile pos has */
@@ -537,7 +564,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	bltfx.flags = 0;
 	bltfx.alpha = 0;
 
-	if (map->infravision[layer])
+	if (map->infravision[GET_MAP_LAYER(layer, sub_layer)])
 	{
 		bltfx.flags |= BLTFX_FLAG_RED;
 	}
@@ -546,42 +573,51 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		bltfx.flags |= BLTFX_FLAG_DARK;
 	}
 
-	if (map->flags[layer] & FFLAG_INVISIBLE)
+	if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_INVISIBLE)
 	{
 		bltfx.flags &= ~BLTFX_FLAG_DARK;
 		bltfx.flags |= BLTFX_FLAG_GREY;
 	}
 
-	if (map->alpha[layer])
+	if (map->alpha[GET_MAP_LAYER(layer, sub_layer)])
 	{
 		bltfx.flags &= ~BLTFX_FLAG_DARK;
 		bltfx.flags |= BLTFX_FLAG_SRCALPHA;
-		bltfx.alpha = map->alpha[layer];
+		bltfx.alpha = map->alpha[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
 	stretch = 0;
 
-	if (layer <= 2 && map->stretch)
+	if (layer <= 2 && map->stretch[sub_layer])
 	{
 		bltfx.flags |= BLTFX_FLAG_STRETCH;
-		stretch = map->stretch;
+		stretch = map->stretch[sub_layer];
 	}
 
-	yl = (yl - map->height[1]) + player_height_offset;
+	if (layer == LAYER_LIVING || layer == LAYER_EFFECT || layer == LAYER_ITEM || layer == LAYER_ITEM2)
+	{
+		yl -= get_top_floor_height(x, y);
+	}
+	else
+	{
+		yl -= map->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
+	}
+
+	yl += player_height_offset;
 
 	if (layer > 1)
 	{
-		yl -= map->height[layer];
+		yl -= map->height[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[layer], map->rotate[layer]);
+	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
-	if (map->draw_double[layer])
+	if (map->draw_double[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[layer], map->rotate[layer]);
+		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 	}
 
 	if (xml == MAP_TILE_POS_XOFF)
@@ -594,45 +630,45 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 	}
 
 	/* Do we have a playername? Then print it! */
-	if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[layer][0])
+	if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[GET_MAP_LAYER(layer, sub_layer)][0])
 	{
-		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[layer], cpl.name, strlen(map->pname[layer]))))
+		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[layer], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[layer], 0) / 2 - 2, yl - 24, map->pcolor[layer], TEXT_OUTLINE, NULL);
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
 		}
 	}
 
 	/* Perhaps the object has a marked effect, blit it now */
-	if (map->flags[layer])
+	if (map->flags[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		if (map->flags[layer] & FFLAG_SLEEP)
+		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
-		if (map->flags[layer] & FFLAG_CONFUSED)
+		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
-		if (map->flags[layer] & FFLAG_SCARED)
+		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
-		if (map->flags[layer] & FFLAG_BLINDED)
+		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
-		if (map->flags[layer] & FFLAG_PARALYZED)
+		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[layer], map->rotate[layer]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 	}
 
-	if (map->probe[layer] && cpl.target_code)
+	if (map->probe[GET_MAP_LAYER(layer, sub_layer)] && cpl.target_code)
 	{
 		const char *hp_col;
 		Uint32 sdl_col;
@@ -676,7 +712,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 			temp = 300;
 		}
 
-		mid = map->probe[layer];
+		mid = map->probe[GET_MAP_LAYER(layer, sub_layer)];
 
 		if (mid <= 0)
 		{
@@ -726,7 +762,7 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
 
 		/* Draw the name of target if it's not a player */
-		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[layer][0]))
+		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[GET_MAP_LAYER(layer, sub_layer)][0]))
 		{
 			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2 - 2, yl - 24, cpl.target_color, TEXT_OUTLINE, NULL);
 		}
@@ -747,20 +783,18 @@ static void draw_map_object(int x, int y, int layer, int player_height_offset)
 void map_draw_map(void)
 {
 	int player_height_offset;
-	int x, y, layer;
+	int x, y, layer, sub_layer;
 	int tx, ty;
 
-	player_height_offset = the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1];
+	player_height_offset = get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 
-	/* First draw floor and floor masks. */
+	/* Draw floor and fmasks. */
 	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
 		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
-			for (layer = 1; layer <= 2; layer++)
-			{
-				draw_map_object(x, y, layer, player_height_offset);
-			}
+			draw_map_object(x, y, LAYER_FLOOR, 0, player_height_offset);
+			draw_map_object(x, y, LAYER_FMASK, 0, player_height_offset);
 		}
 	}
 
@@ -769,9 +803,17 @@ void map_draw_map(void)
 	{
 		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
-			for (layer = 3; layer <= MAX_LAYERS; layer++)
+			for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++)
 			{
-				draw_map_object(x, y, layer, player_height_offset);
+				for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
+				{
+					if (sub_layer == 0 && (layer == LAYER_FLOOR || layer == LAYER_FMASK))
+					{
+						continue;
+					}
+
+					draw_map_object(x, y, layer, sub_layer, player_height_offset);
+				}
 			}
 		}
 	}
@@ -799,7 +841,7 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 
 	if (the_map.cells[x][y].faces[1])
 	{
-		ypos = (ypos - (the_map.cells[x][y].height[1])) + (the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1]);
+		ypos = (ypos - get_top_floor_height(x, y)) + get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 	}
 
 	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0);
@@ -1112,7 +1154,7 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 
 			if (the_map.cells[x][y].faces[1])
 			{
-				ypos = (ypos - (the_map.cells[x][y].height[1]) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + (the_map.cells[setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1][setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1].height[1]) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
+				ypos = (ypos - (get_top_floor_height(x, y)) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + (get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1)) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
 			}
 
 			/* See if this square matches our 48x24 box shape. */

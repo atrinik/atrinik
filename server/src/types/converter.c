@@ -99,7 +99,7 @@ int convert_item(object *item, object *converter)
 		item->nrof *= nr;
 	}
 
-	for (tmp = get_map_ob(converter->map, converter->x, converter->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(converter->map, converter->x, converter->y); tmp != NULL; tmp = tmp->above)
 	{
 		if (tmp->type == SHOP_FLOOR)
 		{

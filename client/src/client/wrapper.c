@@ -196,13 +196,37 @@ static int mkdir_recurse(const char *path)
 }
 
 /**
+ * Use mkdir_recurse() to ensure that destination 'path' exists, creating
+ * sub-directories of the path, if they do not exist yet. If you're using
+ * this to ensure directory path exists, make sure to end the 'path'
+ * string with a forward slash, otherwise the function will assume that
+ * the path is a file path.
+ * @param path The path to ensure. */
+void mkdir_ensure(const char *path)
+{
+	char *stmp;
+
+	stmp = strrchr(path, '/');
+
+	if (stmp)
+	{
+		char ctmp;
+
+		ctmp = stmp[0];
+		stmp[0] = '\0';
+		mkdir_recurse(path);
+		stmp[0] = ctmp;
+	}
+}
+
+/**
  * Copy a file.
  * @param filename Source file.
  * @param filename_out Destination file. */
 void copy_file(const char *filename, const char *filename_out)
 {
 	FILE *fp, *fp_out;
-	char buf[HUGE_BUF], *stmp;
+	char buf[HUGE_BUF];
 
 	fp = fopen(filename, "r");
 
@@ -212,17 +236,7 @@ void copy_file(const char *filename, const char *filename_out)
 		return;
 	}
 
-	stmp = strrchr(filename_out, '/');
-
-	if (stmp)
-	{
-		char ctmp;
-
-		ctmp = stmp[0];
-		stmp[0] = '\0';
-		mkdir_recurse(filename_out);
-		stmp[0] = ctmp;
-	}
+	mkdir_ensure(filename_out);
 
 	fp_out = fopen(filename_out, "w");
 

@@ -56,7 +56,7 @@ sint64 find_traps(object *pl, int level)
 			continue;
 		}
 
-		for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
+		for (tmp = GET_MAP_OB(m, xt, yt); tmp != NULL; tmp = tmp->above)
 		{
 			/* And now we'd better do an inventory traversal of each
 			 * of these objects' inventory */
@@ -147,7 +147,7 @@ sint64 remove_trap(object *op)
 		}
 
 		/* Check everything in the square for trapness */
-		for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
+		for (tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above)
 		{
 			/* And now we'd better do an inventory traversal of each
 			 * of these objects' inventory */

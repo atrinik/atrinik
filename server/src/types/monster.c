@@ -1663,19 +1663,9 @@ void communicate(object *op, char *txt)
 				{
 					talk_to_wall(op, npc, txt);
 				}
-				else if (QUERY_FLAG(npc, FLAG_ALIVE))
+				else if (QUERY_FLAG(npc, FLAG_ALIVE) && npc->type == MONSTER && op->type != PLAYER)
 				{
-					if (talk_to_npc(op, npc, txt))
-					{
-						if (op->type == PLAYER && (CONTR(op)->target_object != npc || CONTR(op)->target_object_count != npc->count))
-						{
-							CONTR(op)->target_object = npc;
-							CONTR(op)->target_object_count = npc->count;
-							send_target_command(CONTR(op));
-						}
-
-						return;
-					}
+					talk_to_npc(op, npc, txt);
 				}
 			}
 		}
@@ -1789,25 +1779,12 @@ static char *find_matching_message(const char *msg, const char *match)
  * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
-	object *cobj;
 	char *cp;
 
 	if (HAS_EVENT(npc, EVENT_SAY))
 	{
 		/* Trigger the SAY event */
 		return trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-	}
-
-	/* Here we let the objects inside inventories hear and answer, too.
-	 * This allows the existence of "intelligent" weapons you can discuss
-	 * with. */
-	for (cobj = npc->inv; cobj; cobj = cobj->below)
-	{
-		if (HAS_EVENT(cobj, EVENT_SAY))
-		{
-			/* Trigger the SAY event */
-			return trigger_event(EVENT_SAY, op, cobj, npc, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
-		}
 	}
 
 	if (!npc->msg || *npc->msg != '@')

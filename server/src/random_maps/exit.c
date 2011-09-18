@@ -455,7 +455,7 @@ void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
 		{
 			if (maze[x][y] == '>' || maze[x][y] == '<')
 			{
-				for (walk = get_map_ob(map, x, y); walk != NULL; walk = walk->above)
+				for (walk = GET_MAP_OB(map, x, y); walk != NULL; walk = walk->above)
 				{
 					if (QUERY_FLAG(walk, FLAG_NO_PASS) && walk->type != DOOR)
 					{

@@ -403,6 +403,10 @@ extern char *describe_item(object *op);
 extern int need_identify(object *op);
 extern void identify(object *op);
 extern void set_trapped_flag(object *op);
+/* src/server/light.c */
+extern void adjust_light_source(mapstruct *map, int x, int y, int light);
+extern void check_light_source_list(mapstruct *map);
+extern void remove_light_source_list(mapstruct *map);
 /* src/server/links.c */
 extern objectlink *get_objectlink(void);
 extern void free_objectlink(objectlink *ol);
@@ -447,9 +451,6 @@ extern void init_block(void);
 extern void set_block(int x, int y, int bx, int by);
 extern void update_los(object *op);
 extern void clear_los(object *op);
-extern void adjust_light_source(mapstruct *map, int x, int y, int light);
-extern void check_light_source_list(mapstruct *map);
-extern void remove_light_source_list(mapstruct *map);
 extern int obj_in_line_of_sight(object *obj, rv_vector *rv);
 /* src/server/main.c */
 extern player *first_player;

@@ -1770,10 +1770,6 @@ void remove_ob(object *op)
 		 * to the caller to decide what we want to do. */
 		op->x = op->env->x, op->y = op->env->y;
 
-#ifdef POSITION_DEBUG
-		op->ox = op->x, op->oy = op->y;
-#endif
-
 		op->map = op->env->map;
 		op->above = NULL, op->below = NULL;
 		op->env = NULL;
@@ -1792,29 +1788,13 @@ void remove_ob(object *op)
 
 	if (op->layer)
 	{
-		if (GET_MAP_SPACE_LAYER(msp, op->layer - 1) == op)
+		if (op->above && op->above->layer == op->layer && op->above->sub_layer == op->sub_layer)
 		{
-			/* Don't kick the inv objects of this layer to normal layer */
-			if (op->above && op->above->layer == op->layer && GET_MAP_SPACE_LAYER(msp, op->layer + 6) != op->above)
-			{
-				SET_MAP_SPACE_LAYER(msp, op->layer - 1, op->above);
-			}
-			else
-			{
-				SET_MAP_SPACE_LAYER(msp, op->layer - 1, NULL);
-			}
+			SET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer, op->above);
 		}
-		/* Inv layer? */
-		else if (GET_MAP_SPACE_LAYER(msp, op->layer + 6) == op)
+		else
 		{
-			if (op->above && op->above->layer == op->layer)
-			{
-				SET_MAP_SPACE_LAYER(msp, op->layer + 6, op->above);
-			}
-			else
-			{
-				SET_MAP_SPACE_LAYER(msp, op->layer + 6, NULL);
-			}
+			SET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer, NULL);
 		}
 	}
 
@@ -1925,7 +1905,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 {
 	object *tmp = NULL, *top;
 	MapSpace *mc;
-	int x, y, lt, layer, layer_inv;
+	int x, y, lt;
 
 	/* some tests to check all is ok... some CPU ticks
 	 * which tracks we have problems or not */
@@ -1968,11 +1948,6 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	}
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
-
-#ifdef POSITION_DEBUG
-	op->ox = op->x;
-	op->oy = op->y;
-#endif
 
 	/* this is now a key part of this function, because
 	 * we adjust multi arches here when they cross map boarders! */
@@ -2017,163 +1992,59 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	mc = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
 
 	/* So we have a non system object */
-	if (op->layer)
+	if (op->layer && !QUERY_FLAG(op, FLAG_IS_INVISIBLE))
 	{
-		layer = op->layer - 1;
-		layer_inv = layer + 7;
+		top = GET_MAP_SPACE_LAYER(mc, op->layer, op->sub_layer);
 
-		/* Not invisible? */
-		if (!QUERY_FLAG(op, FLAG_IS_INVISIBLE))
+		/* Do we have another object on this layer? */
+		if (!top)
 		{
-			/* Do we have another object on this layer? */
-			if ((top = GET_MAP_SPACE_LAYER(mc, layer)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, layer_inv)) == NULL)
+			int slt;
+
+			/* No, we are the first on this layer - let's search something above us we can chain with. */
+			for (lt = op->layer; lt < NUM_LAYERS && !top; lt++)
 			{
-				/* No, we are the first on this layer - let's search something above us we can chain with. */
-				for (lt = op->layer; lt < NUM_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
+				for (slt = op->sub_layer; slt < NUM_SUB_LAYERS && !top; slt++)
 				{
+					top = GET_MAP_SPACE_LAYER(mc, lt, slt);
 				}
-			}
-
-			SET_MAP_SPACE_LAYER(mc, layer, op);
-
-			/* Easy - we chain our object before this one */
-			if (top)
-			{
-				if (top->below)
-				{
-					top->below->above = op;
-				}
-				/* If no object before, we are starting new object */
-				else
-				{
-					SET_MAP_SPACE_FIRST(mc, op);
-				}
-
-				op->below = top->below;
-				top->below = op;
-				op->above = top;
-			}
-			/* We are first object here or one is before us - chain to it */
-			else
-			{
-				if ((top = GET_MAP_SPACE_LAST(mc)) != NULL)
-				{
-					top->above = op;
-					op->below = top;
-
-				}
-				/* First object, set first and last object */
-				else
-				{
-					SET_MAP_SPACE_FIRST(mc, op);
-				}
-
-				SET_MAP_SPACE_LAST(mc, op);
 			}
 		}
-		/* Invisible object */
+
+		SET_MAP_SPACE_LAYER(mc, op->layer, op->sub_layer, op);
+
+		/* Easy - we chain our object before this one */
+		if (top)
+		{
+			if (top->below)
+			{
+				top->below->above = op;
+			}
+			/* If no object before, we are starting new object */
+			else
+			{
+				SET_MAP_SPACE_FIRST(mc, op);
+			}
+
+			op->below = top->below;
+			top->below = op;
+			op->above = top;
+		}
+		/* We are first object here or one is before us - chain to it */
 		else
 		{
-			int tmp_flag;
-
-			/* Check the layers */
-			if ((top = GET_MAP_SPACE_LAYER(mc, layer_inv)) != NULL)
+			if ((top = GET_MAP_SPACE_LAST(mc)) != NULL)
 			{
-				tmp_flag = 1;
+				top->above = op;
+				op->below = top;
 			}
-			else if ((top = GET_MAP_SPACE_LAYER(mc, layer)) != NULL)
-			{
-				/* In this case, we have 1 or more normal objects on this layer,
-				 * so we must skip all of them. Easiest way is to get an upper layer
-				 * valid object. */
-				for (lt = op->layer; lt < NUM_LAYERS && (tmp = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (tmp = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
-				{
-				}
-
-				tmp_flag = 2;
-			}
+			/* First object, set first and last object */
 			else
 			{
-				/* We are the first on this layer - let's search something above us we can chain with. */
-				for (lt = op->layer; lt < NUM_LAYERS && (top = GET_MAP_SPACE_LAYER(mc, lt)) == NULL && (top = GET_MAP_SPACE_LAYER(mc, lt + 7)) == NULL; lt++)
-				{
-				}
-
-				tmp_flag = 3;
+				SET_MAP_SPACE_FIRST(mc, op);
 			}
 
-			/* In all cases, we are the new inv base layer */
-			SET_MAP_SPACE_LAYER(mc, layer_inv, op);
-
-			if (top)
-			{
-				/* If top is set, this can be:
-				 * - the inv layer of same layer id (and tmp_flag will be 1)
-				 * - the normal layer of same layer id (tmp_flag == 2)
-				 * - the inv or normal layer of an upper layer (tmp_flag == 3)
-				 * If tmp_flag = 1, it's easy - we just get in front of top and use
-				 * the same links.
-				 * If tmp_flag = 2 AND tmp is set, tmp is the object we chain before.
-				 * If tmp is NULL, we get ->last and chain after it.
-				 * If tmp_flag = 3, we chain all times to top (before). */
-				if (tmp_flag == 2)
-				{
-					if (tmp)
-					{
-						/* We can't be first, there is always one before us */
-						tmp->below->above = op;
-						op->below = tmp->below;
-						/* And one after us... */
-						tmp->below = op;
-						op->above = tmp;
-					}
-					else
-					{
-						/* There is one before us, so this is always valid */
-						tmp = GET_MAP_SPACE_LAST(mc);
-						/* New last object */
-						SET_MAP_SPACE_LAST(mc, op);
-						op->below = tmp;
-						tmp->above = op;
-					}
-				}
-				/* tmp_flag 1 and tmp_flag 3 are done the same way */
-				else
-				{
-					if (top->below)
-					{
-						top->below->above = op;
-					}
-					/* If no object before, we are starting new object */
-					else
-					{
-						SET_MAP_SPACE_FIRST(mc, op);
-					}
-
-					op->below = top->below;
-					top->below = op;
-					op->above = top;
-				}
-			}
-			/* We are first object here or one is before us - chain to it */
-			else
-			{
-				/* There is something down */
-				if ((top = GET_MAP_SPACE_LAST(mc)) != NULL)
-				{
-					/* Just chain to it */
-					top->above = op;
-					op->below = top;
-
-				}
-				/* First object, set first and last object */
-				else
-				{
-					SET_MAP_SPACE_FIRST(mc, op);
-				}
-
-				SET_MAP_SPACE_LAST(mc, op);
-			}
+			SET_MAP_SPACE_LAST(mc, op);
 		}
 	}
 	/* op->layer == 0 - let's just put this object in front of all others */
@@ -2577,10 +2448,6 @@ object *insert_ob_in_ob(object *op, object *where)
 	op->above = NULL;
 	op->below = NULL;
 	op->x = 0, op->y = 0;
-
-#ifdef POSITION_DEBUG
-	op->ox = 0, op->oy = 0;
-#endif
 
 	/* Client has no idea of ordering so let's not bother ordering it here.
 	 * It sure simplifies this function... */

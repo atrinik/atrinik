@@ -89,7 +89,8 @@ const char *month_name[MONTHS_PER_YEAR] =
 };
 
 /** Periods of day. */
-const char *periodsofday[PERIODS_PER_DAY] = {
+const char *periodsofday[PERIODS_PER_DAY] =
+{
 	"Night",
 	"Dawn",
 	"Morning",

@@ -36,7 +36,7 @@ int	global_darkness_table[MAX_DARKNESS + 1] =
 };
 
 /** To get the reverse direction for all 8 tiled map index */
-int map_tiled_reverse[TILED_MAPS] =
+int map_tiled_reverse[TILED_NUM] =
 {
 	2, 3, 0, 1, 6, 7, 4, 5
 };
@@ -95,7 +95,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 	map1->traversed = id;
 
 	/* Depth-first search for the destination map */
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map1->tile_path[i])
 		{
@@ -198,7 +198,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 		return 1;
 	}
 
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (map1->tile_path[i])
 		{
@@ -234,13 +234,13 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 						*x -= MAP_WIDTH(map1->tile_map[i]);
 						return 1;
 
-					/* Northest */
+					/* Northeast */
 					case 4:
 						*y -= MAP_HEIGHT(map1->tile_map[i]);
 						*x += MAP_WIDTH(map1);
 						return 1;
 
-					/* Southest */
+					/* Southeast */
 					case 5:
 						*y += MAP_HEIGHT(map1);
 						*x += MAP_WIDTH(map1);
@@ -1135,7 +1135,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 	{
 		for (j = 0; j < MAP_HEIGHT(m); j++)
 		{
-			for (op = get_map_ob (m, i, j); op; op = otmp)
+			for (op = GET_MAP_OB (m, i, j); op; op = otmp)
 			{
 				otmp = op->above;
 
@@ -1167,7 +1167,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1228,7 +1228,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1262,7 +1262,7 @@ save_objects_jump1:
 								/* Should be really rare */
 								else
 								{
-									otmp = get_map_ob(m, i, j);
+									otmp = GET_MAP_OB(m, i, j);
 								}
 							}
 						}
@@ -1288,7 +1288,7 @@ save_objects_jump1:
 		{
 			unique = 0;
 
-			for (op = get_map_ob(m, i, j); op; op = otmp)
+			for (op = GET_MAP_OB(m, i, j); op; op = otmp)
 			{
 				otmp = op->above;
 
@@ -1343,7 +1343,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 
@@ -1378,7 +1378,7 @@ save_objects_jump1:
 						/* Should be really rare */
 						else
 						{
-							otmp = get_map_ob(m, i, j);
+							otmp = GET_MAP_OB(m, i, j);
 						}
 					}
 				}
@@ -1667,7 +1667,7 @@ static void delete_unique_items(mapstruct *m)
 		{
 			unique = 0;
 
-			for (op = get_map_ob(m, i, j); op; op = next)
+			for (op = GET_MAP_OB(m, i, j); op; op = next)
 			{
 				next = op->above;
 
@@ -1947,7 +1947,7 @@ void free_map(mapstruct *m, int flag)
 	m->buttons = NULL;
 	m->first_light = NULL;
 
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		/* Delete the backlinks in other tiled maps to our map */
 		if (m->tile_map[i])
@@ -2196,7 +2196,7 @@ void update_position(mapstruct *m, int x, int y)
 		move_flags = 0;
 
 		/* This is a key function and highly often called - every saved tick is good. */
-		for (tmp = get_map_ob (m, x, y); tmp; tmp = tmp->above)
+		for (tmp = GET_MAP_OB (m, x, y); tmp; tmp = tmp->above)
 		{
 			if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY))
 			{

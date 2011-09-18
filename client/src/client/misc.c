@@ -257,3 +257,22 @@ void strtolower(char *str)
 		str++;
 	}
 }
+
+/**
+ * Convert BMP file to PNG, if supported by the platform.
+ * @param path File to convert. */
+void bmp2png(const char *path)
+{
+#if defined(LINUX)
+	char buf[HUGE_BUF];
+
+	snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
+
+	if (system(buf) != 0)
+	{
+		LOG(llevInfo, "bmp2png(): Could not convert %s from BMP to PNG.\n", path);
+	}
+#else
+	(void) path;
+#endif
+}

@@ -89,6 +89,8 @@ class checker:
 
 	# Highest layer value any archetype can have.
 	max_layers = 7
+	# Number of sub-layers.
+	num_sub_layers = 5
 	# Maximum level.
 	max_level = 115
 	## Known plugins.
@@ -331,7 +333,7 @@ def check_map(map):
 				continue
 
 			# Our layers.
-			layers = [0] * (checker.max_layers + 1)
+			layers = [[0] * checker.num_sub_layers for i in range(checker.max_layers + 1)]
 			# Number of objects. Layer 0 objects are not counted.
 			obj_count = 0
 			# Total number of objects, with layer 0 objects.
@@ -343,10 +345,11 @@ def check_map(map):
 
 			# Go through the objects on this map space.
 			for obj in map["tiles"][x][y]:
-				# Get our layer.
+				# Get our layer and sub-layer.
 				layer = "layer" in obj and obj["layer"] or 0
+				sub_layer = "sub_layer" in obj and obj["sub_layer"] or 0
 				# Increase number of layers.
-				layers[layer] += 1
+				layers[layer][sub_layer] += 1
 
 				# Increase number of objects, if we're not on layer 0.
 				if layer != 0:
@@ -371,22 +374,23 @@ def check_map(map):
 							sys_not_on_top = True
 
 			# No layer 1 objects and there are other non-layer-0 objects? Missing floor.
-			if layers[1] == 0 and obj_count > 0:
+			if sum(layers[1]) == 0 and obj_count > 0:
 				add_error(map["file"], "Missing layer 1 object on tile with some objects -- missing floor?", errors.medium, x, y)
 
 			# Go through the layers (ignoring layer 0), and check if we have more than one
 			# object of the same layer on this space.
 			for i in xrange(1, checker.max_layers):
-				if layers[i] > 1:
-					add_error(map["file"], "More than 1 object ({0}) with layer {1} on same tile.".format(layers[i], i), errors.warning, x, y)
+				for j in xrange(0, checker.num_sub_layers):
+					if layers[i][j] > 1:
+						add_error(map["file"], "More than 1 object ({0}) with layer {1}, sub-layer {2} on same tile.".format(layers[i][j], i, j), errors.warning, x, y)
 
-			if layers[5] and layers[2] and config.getboolean("Errors", "decor_wall_l2"):
+			if sum(layers[5]) and sum(layers[2]) and config.getboolean("Errors", "decor_wall_l2"):
 				add_error(map["file"], "Layer 5 object on tile with layer 2 object(s).", errors.warning, x, y)
 
-			if layers[5] and layers[3] and config.getboolean("Errors", "decor_wall_l3"):
+			if sum(layers[5]) and sum(layers[3]) and config.getboolean("Errors", "decor_wall_l3"):
 				add_error(map["file"], "Layer 5 object on tile with layer 3 object(s).", errors.warning, x, y)
 
-			if layers[5] and layers[4] and config.getboolean("Errors", "decor_wall_l4"):
+			if sum(layers[5]) and sum(layers[4]) and config.getboolean("Errors", "decor_wall_l4"):
 				add_error(map["file"], "Layer 5 object on tile with layer 4 object(s).", errors.warning, x, y)
 
 			if sys_below_floor:

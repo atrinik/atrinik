@@ -722,7 +722,7 @@ object *esrv_get_ob_from_count(object *pl, tag_t count)
 			}
 		}
 
-		for (op = get_map_ob(pl->map, pl->x, pl->y); op; op = op->above)
+		for (op = GET_MAP_OB(pl->map, pl->x, pl->y); op; op = op->above)
 		{
 			if (op->count == count)
 			{
@@ -763,7 +763,7 @@ object *esrv_get_ob_from_count(object *pl, tag_t count)
 		}
 	}
 
-	for (op = get_map_ob(pl->map, pl->x, pl->y); op; op = op->above)
+	for (op = GET_MAP_OB(pl->map, pl->x, pl->y); op; op = op->above)
 	{
 		if (op->count == count)
 		{

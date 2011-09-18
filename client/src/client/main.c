@@ -895,35 +895,6 @@ int main(int argc, char *argv[])
 			DoClient();
 		}
 
-		if (GameStatus == GAME_STATUS_PLAY)
-		{
-			if (LastTick - anim_tick > 110)
-			{
-				anim_tick = LastTick;
-				animate_objects();
-				map_udate_flag = 2;
-			}
-
-			play_action_sounds();
-		}
-
-		map_udate_flag = 2;
-
-		if (map_udate_flag > 0)
-		{
-			display_layer1();
-			display_layer2();
-			display_layer3();
-			display_layer4();
-
-			if (GameStatus != GAME_STATUS_PLAY)
-			{
-				SDL_FillRect(ScreenSurface, NULL, 0);
-			}
-
-			map_udate_flag = 0;
-		}
-
 		/* If not connected, walk through connection chain and/or wait for action */
 		if (GameStatus != GAME_STATUS_PLAY)
 		{
@@ -933,66 +904,105 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		/* Show the current dragged item */
-		if ((drag = draggingInvItem(DRAG_GET_STATUS)))
+		if (SDL_GetAppState() & SDL_APPACTIVE)
 		{
-			object *Item = NULL;
+			if (GameStatus == GAME_STATUS_PLAY)
+			{
+				if (LastTick - anim_tick > 110)
+				{
+					anim_tick = LastTick;
+					animate_objects();
+					map_udate_flag = 2;
+				}
 
-			if (drag == DRAG_IWIN_INV)
-			{
-				Item = object_find(cpl.win_inv_tag);
-			}
-			else if (drag == DRAG_IWIN_BELOW)
-			{
-				Item = object_find(cpl.win_below_tag);
-			}
-			else if (drag == DRAG_QUICKSLOT)
-			{
-				Item = object_find(cpl.dragging.tag);
-			}
-			else if (drag == DRAG_PDOLL)
-			{
-				Item = object_find(cpl.win_pdoll_tag);
+				play_action_sounds();
 			}
 
-			SDL_GetMouseState(&x, &y);
+			map_udate_flag = 2;
 
-			if (drag == DRAG_QUICKSLOT_SPELL)
+			if (map_udate_flag > 0)
 			{
-				blit_face(cpl.dragging.spell->icon, x, y);
+				display_layer1();
+				display_layer2();
+				display_layer3();
+				display_layer4();
+
+				if (GameStatus != GAME_STATUS_PLAY)
+				{
+					SDL_FillRect(ScreenSurface, NULL, 0);
+				}
+
+				map_udate_flag = 0;
 			}
-			else
+
+			/* Show the current dragged item */
+			if ((drag = draggingInvItem(DRAG_GET_STATUS)))
 			{
-				blt_inv_item_centered(Item, x, y);
+				object *Item = NULL;
+
+				if (drag == DRAG_IWIN_INV)
+				{
+					Item = object_find(cpl.win_inv_tag);
+				}
+				else if (drag == DRAG_IWIN_BELOW)
+				{
+					Item = object_find(cpl.win_below_tag);
+				}
+				else if (drag == DRAG_QUICKSLOT)
+				{
+					Item = object_find(cpl.dragging.tag);
+				}
+				else if (drag == DRAG_PDOLL)
+				{
+					Item = object_find(cpl.win_pdoll_tag);
+				}
+
+				SDL_GetMouseState(&x, &y);
+
+				if (drag == DRAG_QUICKSLOT_SPELL)
+				{
+					blit_face(cpl.dragging.spell->icon, x, y);
+				}
+				else
+				{
+					blt_inv_item_centered(Item, x, y);
+				}
 			}
+
+			if (GameStatus <= GAME_STATUS_WAITFORPLAY)
+			{
+				main_screen_render();
+			}
+
+			if (f_custom_cursor)
+			{
+				DisplayCustomCursor();
+			}
+
+			script_process();
+			popup_render_head();
+
+			tooltip_show();
 		}
-
-		if (GameStatus <= GAME_STATUS_WAITFORPLAY)
-		{
-			main_screen_render();
-		}
-
-		if (f_custom_cursor)
-		{
-			DisplayCustomCursor();
-		}
-
-		LastTick = SDL_GetTicks();
-
-		script_process();
-		popup_render_head();
-
-		tooltip_show();
 
 		SDL_Flip(ScreenSurface);
 
+		LastTick = SDL_GetTicks();
+
 		if (!setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME))
 		{
-			uint32 elapsed_time = SDL_GetTicks() - frame_start_time;
+			uint32 elapsed_time = SDL_GetTicks() - frame_start_time, wanted_fps;
 
-			if (elapsed_time < 1000 / FRAMES_PER_SECOND)
+			wanted_fps = FRAMES_PER_SECOND;
+
+			if (!(SDL_GetAppState() & SDL_APPACTIVE))
 			{
-				SDL_Delay(1000 / FRAMES_PER_SECOND - elapsed_time);
+				wanted_fps = 2;
+			}
+
+			if (elapsed_time < 1000 / wanted_fps)
+			{
+				SDL_Delay(1000 / wanted_fps - elapsed_time);
 			}
 		}
 		else

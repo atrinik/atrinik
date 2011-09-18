@@ -1253,7 +1253,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 	{
 		for (j = 0; j < MAP_HEIGHT(oldmap); j++)
 		{
-			for (ob = get_map_ob(oldmap, i, j); ob; ob = tmp2)
+			for (ob = GET_MAP_OB(oldmap, i, j); ob; ob = tmp2)
 			{
 				tmp2 = ob->above;
 

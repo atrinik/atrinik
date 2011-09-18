@@ -65,7 +65,7 @@ int gettimeofday(struct timeval *tv, struct timezone *timezone_Info)
 	 * Tests found floating point to be 10x faster than 64bit int math. */
 	timed = ((time.dwHighDateTime * 4294967296e-7) - 11644473600.0) + (time.dwLowDateTime * 1e-7);
 
-	tv->tv_sec  = (long) timed;
+	tv->tv_sec = (long) timed;
 	tv->tv_usec = (long) ((timed - tv->tv_sec) * 1e6);
 
 	/* Get the timezone, if they want it */

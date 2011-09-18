@@ -62,6 +62,12 @@
 /**
  * The number of object layers. */
 #define NUM_LAYERS 7
+/**
+ * Number of sub-layers. */
+#define NUM_SUB_LAYERS 5
+/**
+ * Effective number of all the visible layers. */
+#define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
 /**
  * @defgroup map_struct_macros Map structure macros
@@ -166,15 +172,15 @@
 	((M_)->first)
 #define GET_MAP_SPACE_LAST(M_) \
 	((M_)->last)
-#define GET_MAP_SPACE_LAYER(M_, L_) \
-	((M_)->layer[L_])
+#define GET_MAP_SPACE_LAYER(M_, L_, SL_) \
+	((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1])
 
 #define SET_MAP_SPACE_FIRST(M_, O_) \
 	((M_)->first = (O_))
 #define SET_MAP_SPACE_LAST(M_, O_) \
 	((M_)->last = (O_))
-#define SET_MAP_SPACE_LAYER(M_, L_, O_) \
-	((M_)->layer[L_] = (O_))
+#define SET_MAP_SPACE_LAYER(M_, L_, SL_, O_) \
+	((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1] = (O_))
 
 #define GET_MAP_UPDATE_COUNTER(M, X, Y) \
 	((M)->spaces[(X) + (M)->width * (Y)].update_tile)
@@ -199,17 +205,8 @@
 	((M)->spaces[(X) + (M)->width * (Y)].first)
 #define GET_MAP_OB_LAST(M, X, Y) \
 	((M)->spaces[(X) + (M)->width * (Y)].last)
-#define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_) \
-	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_])
-#define get_map_ob GET_MAP_OB
-
-#define SET_MAP_OB(M, X, Y, tmp) \
-	((M)->spaces[(X) + (M)->width * (Y)].first = (tmp))
-#define SET_MAP_OB_LAST(M, X, Y, tmp) \
-	((M)->spaces[(X) + (M)->width * (Y)].last = (tmp))
-#define SET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, tmp) \
-	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[_Z_] = (tmp))
-#define set_map_ob SET_MAP_OB
+#define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, _SL_) \
+	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) - 1])
 
 #define SET_MAP_DAMAGE(M, X, Y, tmp) \
 	((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
@@ -355,8 +352,8 @@ typedef struct MapSpace_s
 	/** Start of the objects on this map tile */
 	object *first;
 
-	/** Array of visible layer objects + for invisible (*2) */
-	object *layer[NUM_LAYERS * 2];
+	/** Array of visible layer objects. */
+	object *layer[NUM_REAL_LAYERS];
 
 	/** Last object in this list */
 	object *last;
@@ -560,7 +557,7 @@ typedef struct mapdef
 	struct mapdef *next;
 
 	/** Any maps tiled together to this one */
-	struct mapdef *tile_map[TILED_MAPS];
+	struct mapdef *tile_map[TILED_NUM];
 
 	/** Name of map as given by its creator */
 	char *name;
@@ -581,7 +578,7 @@ typedef struct mapdef
 	shstr *path;
 
 	/** Path to adjoining maps (shared strings) */
-	shstr *tile_path[TILED_MAPS];
+	shstr *tile_path[TILED_NUM];
 
 	/** Array of spaces on this map */
 	MapSpace *spaces;

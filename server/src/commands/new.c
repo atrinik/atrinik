@@ -319,7 +319,7 @@ int command_target(object *op, char *params)
 			}
 
 			/* Try to find an alive object here. */
-			for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+			for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 			{
 				head = HEAD(tmp);
 
@@ -381,7 +381,7 @@ int command_target(object *op, char *params)
 			/* we can have more as one possible target
 			 * on a square - but i try this first without
 			 * handle it. */
-			for (tmp = get_map_ob(m, xt, yt); tmp != NULL; tmp = tmp->above)
+			for (tmp = GET_MAP_OB(m, xt, yt); tmp != NULL; tmp = tmp->above)
 			{
 				/* this is a possible target */
 				/* ensure we have head */
@@ -480,7 +480,7 @@ dirty_jump_in1:
 				 * handle it. */
 				if (get_ob_flag)
 				{
-					tmp = get_map_ob(m, xt, yt);
+					tmp = GET_MAP_OB(m, xt, yt);
 				}
 
 				for (get_ob_flag = 1; tmp != NULL; tmp = tmp->above)

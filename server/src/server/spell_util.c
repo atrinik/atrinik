@@ -825,7 +825,7 @@ static int ok_to_put_more(mapstruct *m, int x, int y, object *op)
 		return 0;
 	}
 
-	for (tmp = get_map_ob(m, x, y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above)
 	{
 		/* Only one part for cone/explosion per tile! */
 		if (op->type == tmp->type && op->weight_limit == tmp->weight_limit)
@@ -1306,7 +1306,7 @@ int reflwall(mapstruct *m, int x, int y, object *sp_op)
 		return 0;
 	}
 
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 	{
 		if (QUERY_FLAG(tmp->head ? tmp->head : tmp, FLAG_REFL_SPELL) && (rndm(0, 99)) < 90 - (sp_op->level / 10))
 		{
@@ -1506,7 +1506,7 @@ void check_fired_arch(object *op)
 		hitter = hitter->head;
 	}
 
-	for (tmp = get_map_ob(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
 	{
 		head = tmp->head;
 

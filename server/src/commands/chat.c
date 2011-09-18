@@ -194,6 +194,15 @@ int command_tell(object *op, char *params)
  * @return 1 on success, 0 on failure. */
 int command_t_tell(object *op, char *params)
 {
+	int i, xt, yt;
+	mapstruct *m;
+	object *tmp;
+
+	if (op->type != PLAYER)
+	{
+		return 1;
+	}
+
 	params = cleanup_chat_string(params);
 
 	if (!params || *params == '\0')
@@ -201,16 +210,8 @@ int command_t_tell(object *op, char *params)
 		return 0;
 	}
 
-	if (op->type != PLAYER)
-	{
-		return 1;
-	}
-
 	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
-		int i, xt, yt;
-		mapstruct *m;
-
 		for (i = 0; i <= SIZEOFFREE2; i++)
 		{
 			xt = op->x + freearr_x[i];
@@ -228,12 +229,46 @@ int command_t_tell(object *op, char *params)
 				return 1;
 			}
 		}
+	}
 
+	for (i = 0; i <= SIZEOFFREE2; i++)
+	{
+		xt = op->x + freearr_x[i];
+		yt = op->y + freearr_y[i];
+
+		if (!(m = get_map_from_coord(op->map, &xt, &yt)))
+		{
+			continue;
+		}
+
+		for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+		{
+			if (QUERY_FLAG(tmp, FLAG_ALIVE) && tmp->type == MONSTER && (tmp->msg || HAS_EVENT(tmp, EVENT_SAY)))
+			{
+				LOG(llevChat, "Talk to: %s: [%s]: %s\n", op->name, tmp->name, params);
+
+				if (talk_to_npc(op, tmp, params))
+				{
+					if (CONTR(op)->target_object != tmp || CONTR(op)->target_object_count != tmp->count)
+					{
+						CONTR(op)->target_object = tmp;
+						CONTR(op)->target_object_count = tmp->count;
+						send_target_command(CONTR(op));
+					}
+				}
+
+				return 1;
+			}
+		}
+	}
+
+	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	{
 		draw_info_format(COLOR_WHITE, op, "You are too far away from %s.", CONTR(op)->target_object->name);
 	}
 	else
 	{
-		draw_info(COLOR_WHITE, op, "You do not have a target selected.");
+		draw_info(COLOR_WHITE, op, "There are no NPCs nearby.");
 	}
 
 	return 1;

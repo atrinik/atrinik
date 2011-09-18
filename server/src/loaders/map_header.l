@@ -114,7 +114,7 @@ lex_error = 0;
 ^tile_path_[1-8]{S}  {
 						int tile = atoi(yytext + 10);
 
-						if (tile < 1 || tile > TILED_MAPS)
+						if (tile < 1 || tile > TILED_NUM)
 						{
 							LOG(llevBug, "load_map_header(): Tile location %d out of bounds (%s)\n", tile, m->path);
 						}
@@ -426,7 +426,7 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 	}
 
 	/* Save any tiling information */
-	for (i = 0; i < TILED_MAPS; i++)
+	for (i = 0; i < TILED_NUM; i++)
 	{
 		if (m->tile_path[i])
 		{

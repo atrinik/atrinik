@@ -804,7 +804,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			{
 				draw_info(COLOR_WHITE, op, "The shop magic put it back to the storage.");
 
-				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
+				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
 				/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
 				if (floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
@@ -834,7 +834,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	}
 #endif
 
-	floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
+	floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
 	if (floor && floor->type == SHOP_FLOOR && !QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY)
 	{
@@ -1004,27 +1004,17 @@ int command_take(object *op, char *params)
 
 	if (did_one)
 	{
-		int layer;
-
 		fix_player(op);
 
 		/* Update below inventory positions for all players on this tile. */
-		for (layer = LAYER_LIVING; ; layer = LAYER_LIVING + NUM_LAYERS)
+		for (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 		{
-			for (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, layer - 1); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
+			/* Ensures the below inventory position is not higher than
+			 * the actual number of visible items on the tile. */
+			if (tmp->type == PLAYER && CONTR(tmp) && CONTR(tmp)->socket.look_position > ground_total)
 			{
-				/* Ensures the below inventory position is not higher than
-				 * the actual number of visible items on the tile. */
-				if (tmp->type == PLAYER && CONTR(tmp) && CONTR(tmp)->socket.look_position > ground_total)
-				{
-					/* Update the visible row of objects. */
-					CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
-				}
-			}
-
-			if (layer != LAYER_LIVING)
-			{
-				break;
+				/* Update the visible row of objects. */
+				CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
 			}
 		}
 	}
@@ -1745,7 +1735,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 			object *floor;
 dirty_little_jump1:
 
-			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, 0);
+			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
 			if (floor && floor->type == SHOP_FLOOR && tmp->type != MONEY)
 			{

@@ -272,7 +272,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 				continue;
 			}
 
-			other_teleporter = get_map_ob(m, xt, yt);
+			other_teleporter = GET_MAP_OB(m, xt, yt);
 
 			while (other_teleporter)
 			{
@@ -356,7 +356,7 @@ int push_ob(object *op, int dir, object *pusher)
 		return 0;
 	}
 
-	floor = GET_MAP_OB_LAYER(m, x, y, 0);
+	floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, 0);
 
 	/* Floor has no-push flag set? */
 	if (floor && QUERY_FLAG(floor, FLAG_XRAYS))

@@ -303,8 +303,29 @@ if (_nv_)                          \
 #define SEND_FACE_NO_DATA        2
 /*@}*/
 
-/** Number of connected maps from a tiled map */
-#define TILED_MAPS 8
+/**
+ * @defgroup TILED_xxx Tiled map constants
+ * Constants of tiled map IDs.
+ *@{*/
+/** North. */
+#define TILED_NORTH 0
+/** East. */
+#define TILED_EAST 1
+/** South. */
+#define TILED_SOUTH 2
+/** West. */
+#define TILED_WEST 3
+/** Northeast. */
+#define TILED_NORTHEAST 4
+/** Southeast. */
+#define TILED_SOUTHEAST 5
+/** Southwest. */
+#define TILED_SOUTHWEST 6
+/** Northwest. */
+#define TILED_NORTHWEST 7
+/** Maximum number of tiled maps. */
+#define TILED_NUM 8
+/*@}*/
 
 #define EXP_AGILITY 1
 #define EXP_MENTAL 2

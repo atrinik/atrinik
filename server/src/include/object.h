@@ -298,11 +298,6 @@ typedef struct obj
 	/** An index into the animation array for the client inv */
 	uint16 inv_animation_id;
 
-#ifdef POSITION_DEBUG
-	/** For debugging: Where it was last inserted */
-	sint16 ox, oy;
-#endif
-
 	/**
 	 * X align of the object on the actual map. Similar to object::z,
 	 * a value of 100 = object is moved 100 pixels to the right, -50 and
@@ -398,6 +393,9 @@ typedef struct obj
 
 	/** the layer in a map, this object will be sorted in */
 	uint8 layer;
+
+	/** Sub layer. */
+	uint8 sub_layer;
 
 	/** Quickslot ID this object goes in */
 	uint8 quickslot;

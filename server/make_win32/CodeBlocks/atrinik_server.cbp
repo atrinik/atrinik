@@ -541,6 +541,10 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="../../src/server/light.c">
+			<Option compilerVar="CC" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../src/server/links.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

@@ -156,6 +156,7 @@ extern char *package_get_version_full(char *dst, size_t dstlen);
 extern char *package_get_version_partial(char *dst, size_t dstlen);
 extern void strtoupper(char *str);
 extern void strtolower(char *str);
+extern void bmp2png(const char *path);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
@@ -297,6 +298,7 @@ extern void LOG(LogLevel logLevel, char *format, ...) __attribute__((format(prin
 extern void system_start(void);
 extern void system_end(void);
 extern char *get_word_from_string(char *str, int *pos);
+extern void mkdir_ensure(const char *path);
 extern void copy_file(const char *filename, const char *filename_out);
 extern void copy_if_exists(const char *from, const char *to, const char *src, const char *dst);
 extern void rmrf(const char *path);
@@ -385,7 +387,6 @@ extern void display_mapscroll(int dx, int dy);
 extern void update_map_name(const char *name);
 extern void update_map_weather(const char *weather);
 extern void init_map_data(int xl, int yl, int px, int py);
-extern void align_tile_stretch(int x, int y);
 extern void adjust_tile_stretch(void);
 extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision);
 extern void map_clear_cell(int x, int y);
