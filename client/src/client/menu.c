@@ -351,7 +351,11 @@ int client_command_check(const char *cmd)
 		if (SDL_SaveBMP(surface_save, path) == 0)
 		{
 			draw_info_format(COLOR_GREEN, "Saved screenshot as %s successfully.", path);
-			bmp2png(path);
+
+			if (bmp2png(path))
+			{
+				draw_info(COLOR_GREEN, "Converted to PNG successfully.");
+			}
 		}
 		else
 		{
