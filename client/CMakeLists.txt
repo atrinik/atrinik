@@ -127,6 +127,7 @@ check_function_exists(srandom HAVE_SRANDOM)
 check_function_exists(srand48 HAVE_SRAND48)
 check_function_exists(srand HAVE_SRAND)
 check_function_exists(strtok_r HAVE_STRTOK_R)
+check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 
 # Add our includes.
 include_directories(src/include)

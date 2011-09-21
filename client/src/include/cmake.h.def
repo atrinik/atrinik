@@ -137,4 +137,8 @@
 #cmakedefine HAVE_STRTOK_R
 #endif
 
+#ifndef HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_GETTIMEOFDAY
+#endif
+
 #endif
