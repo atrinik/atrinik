@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-17 Alex Tokar
+Modified: 2011-09-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1433,10 +1433,14 @@ arch spawn_point
 x 7
 y 7
 arch priest_church
-name church priest Manard
+name Brelend Lee
 level 20
 type 83
 direction 1
+arch event_obj
+sub_type 6
+race incuna/scripts/brelend_lee.py
+end
 end
 end
 arch floor_marble1f
