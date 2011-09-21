@@ -122,12 +122,4 @@
 #	define W_OK 2
 #endif
 
-#ifndef HAVE_STRTOK_R
-extern char *strtok_r(char *s, const char *delim, char **save_ptr);
-#endif
-
-#ifndef HAVE_GETTIMEOFDAY
-extern int gettimeofday(struct timeval *tv, struct timezone *tz);
-#endif
-
 #endif

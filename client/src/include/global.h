@@ -161,6 +161,22 @@ typedef signed char sint8;
 #	define FABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
+#ifndef HAVE_STRTOK_R
+extern char *strtok_r(char *s, const char *delim, char **save_ptr);
+#endif
+
+#ifndef HAVE_GETTIMEOFDAY
+struct timezone
+{
+	/* Minutes west of Greenwich. */
+	int tz_minuteswest;
+	/* Type of DST correction. */
+	int tz_dsttime;
+};
+
+extern int gettimeofday(struct timeval *tv, struct timezone *tz);
+#endif
+
 /** The log levels. */
 typedef enum LogLevel
 {
