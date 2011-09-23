@@ -210,7 +210,7 @@ int command_t_tell(object *op, char *params)
 		return 0;
 	}
 
-	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && OBJECT_CAN_TALK(CONTR(op)->target_object))
 	{
 		for (i = 0; i <= SIZEOFFREE2; i++)
 		{
@@ -243,7 +243,7 @@ int command_t_tell(object *op, char *params)
 
 		for (tmp = GET_MAP_OB_LAYER(m, xt, yt, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
 		{
-			if (QUERY_FLAG(tmp, FLAG_ALIVE) && tmp->type == MONSTER && (tmp->msg || HAS_EVENT(tmp, EVENT_SAY)))
+			if (OBJECT_CAN_TALK(tmp))
 			{
 				LOG(llevChat, "Talk to: %s: [%s]: %s\n", op->name, tmp->name, params);
 
@@ -262,7 +262,7 @@ int command_t_tell(object *op, char *params)
 		}
 	}
 
-	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	if (OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count) && OBJECT_CAN_TALK(CONTR(op)->target_object))
 	{
 		draw_info_format(COLOR_WHITE, op, "You are too far away from %s.", CONTR(op)->target_object->name);
 	}

@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-05-12 Alex Tokar
+Modified: 2011-09-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2834,7 +2834,7 @@ is_evil 0
 is_good 1
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/quest_illness.py
+race scripts/strakewood_island/fort_sether/brownrott.py
 end
 end
 end

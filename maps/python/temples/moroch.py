@@ -1,14 +1,14 @@
 ## @file
 ## Script for Moroch temple priests.
 
-from Atrinik import *
+from Interface import Interface
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
 
 def main():
-	Temple.handle_temple(Temple.TempleMoroch, me, activator, msg)
+	temple = Temple.TempleMoroch(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
+inf.finish()

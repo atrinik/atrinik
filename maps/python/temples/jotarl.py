@@ -1,14 +1,14 @@
 ## @file
 ## Script for Jotarl temple priests.
 
-from Atrinik import *
+from Interface import Interface
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
 
 def main():
-	Temple.handle_temple(Temple.TempleJotarl, me, activator, msg)
+	temple = Temple.TempleJotarl(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
+inf.finish()

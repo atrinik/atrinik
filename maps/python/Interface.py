@@ -34,8 +34,10 @@ class Interface:
 	def add_msg_icon_object(self, obj):
 		self.add_msg_icon(obj.face[0], obj.GetName())
 
-	def add_link(self, link):
-		if not link.startswith("<a"):
+	def add_link(self, link, action = "", dest = ""):
+		if dest or action:
+			self._links.append("<a=" + action + ":" + dest + ">" + link + "</a>")
+		elif not link.startswith("<a"):
 			self._links.append("<a>" + link + "</a>")
 		else:
 			self._links.append(link)

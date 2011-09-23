@@ -260,8 +260,9 @@ void strtolower(char *str)
 
 /**
  * Convert BMP file to PNG, if supported by the platform.
- * @param path File to convert. */
-void bmp2png(const char *path)
+ * @param path File to convert.
+ * @return 1 if the file was converted to PNG, 0 otherwise. */
+int bmp2png(const char *path)
 {
 #if defined(LINUX)
 	char buf[HUGE_BUF];
@@ -271,8 +272,12 @@ void bmp2png(const char *path)
 	if (system(buf) != 0)
 	{
 		LOG(llevInfo, "bmp2png(): Could not convert %s from BMP to PNG.\n", path);
+		return 0;
 	}
+
+	return 1;
 #else
 	(void) path;
+	return 0;
 #endif
 }

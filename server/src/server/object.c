@@ -1786,7 +1786,7 @@ void remove_ob(object *op)
 	/* If this is the base layer object, we assign the next object to be it if it is from same layer type */
 	msp = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
 
-	if (op->layer)
+	if (op->layer && GET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer) == op)
 	{
 		if (op->above && op->above->layer == op->layer && op->above->sub_layer == op->sub_layer)
 		{

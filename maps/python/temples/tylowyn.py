@@ -1,14 +1,14 @@
 ## @file
 ## Script for Tylowyn temple priests.
 
-from Atrinik import *
+from Interface import Interface
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
 
 def main():
-	Temple.handle_temple(Temple.TempleTylowyn, me, activator, msg)
+	temple = Temple.TempleTylowyn(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
+inf.finish()

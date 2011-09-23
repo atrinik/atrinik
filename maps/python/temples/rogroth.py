@@ -1,15 +1,14 @@
 ## @file
 ## Script for Rogroth temple priests.
 
-from Atrinik import *
+from Interface import Interface
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
 
 def main():
-	Temple.handle_temple(Temple.TempleRogroth, me, activator, msg)
+	temple = Temple.TempleRogroth(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
-
+inf.finish()

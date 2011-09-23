@@ -1458,13 +1458,17 @@ title Basics: Talking
 msg
 <title>Talking To NPCs</title>
 
-You can talk to nearby NPCs (Non-Player Characters) and players by bringing up the text input using <b>ENTER</b>, typing in your text, and pressing <b>ENTER</b> again. Your message will be heard by all nearby NPCs and players, but in order to start a conversation with NPCs, you usually need to greet them with <b>hi</b> or <b>hey</b>, for example.
+<b>Keyboard:</b>
+Press the <b>T</b> key to talk to the nearest NPC.
 
-Alternatively, you can talk to NPCs using the mouse - simply target the NPC by right-clicking them on the map and click the <b>Hello</b> button near the bottom middle part of the screen. Another way is right-clicking the square the NPC is standing on and holding the right mouse button for a short amount of time, then selecting <b>Talk To NPC</b> option in the menu that pops up.
+<b>Mouse:</b>
+Target the NPC by right-clicking them on the map, and then click the <b>Heloo</b> button near the bottom middle part of the screen. Another way is right-clicking the square the NPC is standing on and holding the right mouse button for a short amount of time, then selecting <b>Talk To NPC</b> option in the menu that pops up.
 
 <title>Talking To Players</title>
 
-As explained above, you can use the text input to talk to nearby players and NPCs. However, it is also possible to use commands in the text input. For example, typing <b>/shout Hello all!</b> in the text input and pressing <b>ENTER</b> would shout out the message <b>Hello all!</b> for all online players to see. There are other chat-related commands, such as <b>/tell &lt;player&gt; Private message</b>, among others. See the <a=help:chat_guide>Chat Guide</a> for more details. You can also check out the list of <a=help:commands>commands</a> that you can use in the text input.
+You can use the text input to talk to nearby players. This can be accessed by pressing <b>ENTER</b>. If you type text in the text input and then press <b>ENTER</b> again, your message will be heard by all nearby players.
+
+It is also possible to use commands in the text input. For example, typing <b>/shout Hello all!</b> in the text input and pressing <b>ENTER</b> would shout out the message <b>Hello all!</b> for all online players to see. There are other chat-related commands, such as <b>/tell &lt;player&gt; Private message</b>, among others. See the <a=help:chat_guide>Chat Guide</a> for more details. You can also check out the list of <a=help:commands>commands</a> that you can use in the text input.
 endmsg
 end
 

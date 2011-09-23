@@ -122,8 +122,4 @@
 #	define W_OK 2
 #endif
 
-#ifndef HAVE_STRTOK_R
-char *strtok_r(char *s, const char *delim, char **save_ptr);
-#endif
-
 #endif

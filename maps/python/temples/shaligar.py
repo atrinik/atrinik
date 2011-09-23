@@ -1,14 +1,14 @@
 ## @file
 ## Script for Shaligar temple priests.
 
-from Atrinik import *
+from Interface import Interface
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
 
 def main():
-	Temple.handle_temple(Temple.TempleShaligar, me, activator, msg)
+	temple = Temple.TempleShaligar(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
+inf.finish()

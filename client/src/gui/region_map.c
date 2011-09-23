@@ -669,6 +669,9 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 		/* Fake slider events. */
 		scrollbar.slider.highlight = 1;
 		scrollbar_horizontal.slider.highlight = 1;
+		/* Reverse the x/y, so "dragging the map" makes more sense. */
+		event->motion.x = -event->motion.x;
+		event->motion.y = -event->motion.y;
 		scrollbar_event(&scrollbar, event);
 		scrollbar_event(&scrollbar_horizontal, event);
 		return 1;
