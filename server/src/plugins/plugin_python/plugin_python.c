@@ -1561,6 +1561,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 	PyCodeObject *pycode;
 	PyObject *dict, *ret;
 	char path[HUGE_BUF];
+	PyGILState_STATE gilstate;
 
 	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
 
@@ -1580,6 +1581,8 @@ static int do_script(PythonContext *context, const char *filename, object *event
 			strncpy(path, hooks->create_pathname(tmp_path), sizeof(path) - 1);
 		}
 	}
+
+	gilstate = PyGILState_Ensure();
 
 	pycode = compilePython(path);
 
@@ -1636,8 +1639,12 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		Py_XDECREF(ret);
 		Py_DECREF(dict);
 
+		PyGILState_Release(gilstate);
+
 		return 1;
 	}
+
+	PyGILState_Release(gilstate);
 
 	return 0;
 }
@@ -1755,6 +1762,9 @@ static int handle_global_event(int event_type, va_list args)
 			if (flags & CACHE_FLAG_PYOBJ)
 			{
 				PyObject *retval;
+				PyGILState_STATE gilstate;
+
+				gilstate = PyGILState_Ensure();
 
 				/* Attempt to close file/database/etc objects. */
 				retval = PyObject_CallMethod((PyObject *) ptr, "close", "");
@@ -1769,6 +1779,8 @@ static int handle_global_event(int event_type, va_list args)
 
 				/* Decrease the reference count. */
 				Py_DECREF((PyObject *) ptr);
+
+				PyGILState_Release(gilstate);
 			}
 
 			return 0;
@@ -1951,6 +1963,7 @@ MODULEAPI void postinitPlugin(void)
 {
 	char path[HUGE_BUF];
 	FILE *fp;
+	PyGILState_STATE gilstate;
 
 	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
@@ -1958,6 +1971,8 @@ MODULEAPI void postinitPlugin(void)
 
 	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
 	fp = fopen(path, "r");
+
+	gilstate = PyGILState_Ensure();
 
 	if (fp)
 	{
@@ -1975,6 +1990,8 @@ MODULEAPI void postinitPlugin(void)
 		fclose(fp);
 #endif
 	}
+
+	PyGILState_Release(gilstate);
 }
 
 #ifdef IS_PY3K
@@ -2086,6 +2103,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
 	PyObject *m, *d, *module_tmp, *logfile_ptr;
 	int i;
+	PyThreadState *py_tstate = NULL;
 
 	hooks = hooklist;
 
@@ -2100,6 +2118,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 #endif
 
 	Py_Initialize();
+	PyEval_InitThreads();
 
 	LOG(llevDebug, "Python: Start initAtrinik.\n");
 
@@ -2165,6 +2184,9 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	/* Add Atrinik module members to the global scope. */
 	PyRun_String("from Atrinik import *", Py_file_input, py_globals_dict, NULL);
 
+	py_tstate = PyGILState_GetThisThreadState();
+	PyEval_ReleaseThread(py_tstate);
+
 	LOG(llevDebug, "Python:  [Done]\n");
 }
 
@@ -2172,6 +2194,7 @@ MODULEAPI void closePlugin(void)
 {
 	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
+	PyGILState_Ensure();
 	Py_Finalize();
 }
 
