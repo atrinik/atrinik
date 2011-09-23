@@ -1,0 +1,468 @@
+arch map
+name Incuna - Water Well
+msg
+Created:  2011-05-09 Edwin Miltenburg
+Modified: 2011-09-13 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_4 well_01aa
+tile_path_8 well_0101
+region incuna
+end
+arch floor_sand_d2
+y 6
+end
+arch wall_cave1b.121
+y 6
+end
+arch floor_sand_d3
+y 7
+end
+arch wall_cave1.131
+y 7
+end
+arch floor_sand_d3
+y 8
+end
+arch wall_cave1.131
+y 8
+end
+arch floor_sand_d1
+y 9
+end
+arch wall_cave1.131
+y 9
+end
+arch floor_sand_d1
+y 10
+end
+arch wall_cave1.131
+y 10
+end
+arch floor_sand_d2
+y 11
+end
+arch wall_cave1.131
+y 11
+end
+arch floor_sand_d2
+y 12
+end
+arch wall_cave1b.141
+layer 3
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+y 13
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+y 14
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+y 14
+end
+arch floor_sand_d4
+y 15
+end
+arch wall_cave1b.121
+y 15
+end
+arch floor_sand_d2
+y 16
+end
+arch wall_cave1.131
+y 16
+end
+arch floor_sand_d2
+y 17
+end
+arch wall_cave1b.141
+y 17
+end
+arch blocked
+y 18
+end
+arch blocked
+z 18
+x 1
+y 11
+end
+arch flagwall_short_brick1.111
+x 1
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 12
+end
+arch floor_ruin1
+z 18
+layer 4
+type 79
+terrain_type 2
+x 1
+y 12
+end
+arch water_lt_m
+layer 5
+z 18
+direction 4
+x 1
+y 12
+end
+arch grassd_m9
+layer 7
+z 18
+x 1
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 13
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 1
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 14
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 1
+y 14
+end
+arch reed_sm7
+layer 5
+z 18
+x 1
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 1
+y 15
+end
+arch floor_ruin1
+terrain_type 2
+z 18
+layer 4
+type 79
+x 1
+y 15
+end
+arch water_lt_m
+layer 5
+z 18
+direction 2
+x 1
+y 15
+end
+arch flagwall_short_brick1.111
+layer 7
+z 18
+x 1
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 11
+end
+arch floor_ruin6
+z 18
+layer 4
+type 79
+terrain_type 2
+x 2
+y 11
+end
+arch water_lt5_m
+layer 5
+z 18
+direction 4
+x 2
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 12
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 2
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 13
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 2
+y 13
+end
+arch reed_sm6
+layer 5
+z 18
+x 2
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 2
+y 14
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 2
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 10
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 3
+y 10
+end
+arch reed_sm4
+layer 5
+z 18
+x 3
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 11
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 3
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 12
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 3
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 13
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 3
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 9
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 4
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 10
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 4
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 11
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 4
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 4
+y 12
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 4
+y 12
+end
+arch reed_sm4
+layer 5
+z 18
+x 4
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 8
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 5
+y 8
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 9
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 5
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 10
+end
+arch water_lt
+z 18
+layer 4
+type 79
+x 5
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 11
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 5
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 8
+end
+arch water_lt2
+z 18
+layer 4
+type 79
+x 6
+y 8
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 9
+end
+arch water_lt4
+z 18
+layer 4
+type 79
+x 6
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 10
+end
+arch water_lt3
+z 18
+layer 4
+type 79
+x 6
+y 10
+end

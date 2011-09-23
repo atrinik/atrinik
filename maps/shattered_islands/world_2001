@@ -8,7 +8,9 @@ height 24
 difficulty 1
 outdoor 1
 tile_path_1 world_2002
+tile_path_3 world_20aa
 tile_path_4 world_1901
+tile_path_7 world_19aa
 tile_path_8 world_1902
 end
 arch water_lt

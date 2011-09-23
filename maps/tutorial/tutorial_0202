@@ -1,0 +1,4313 @@
+arch map
+name Tutorial Island
+msg
+Created:  2010-03-29 Edwin Miltenburg
+Modified: 2011-03-18 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+tile_path_2 tutorial_0302
+tile_path_3 tutorial_0201
+tile_path_4 tutorial_0102
+tile_path_6 tutorial_0301
+tile_path_7 tutorial_0101
+bg_music tutorialisland.mid
+region creation
+end
+arch water_dk2
+end
+arch water_md4
+y 1
+end
+arch water_dk5_m
+direction 8
+y 1
+end
+arch water_md4
+y 2
+end
+arch water_dk2_m
+direction 8
+y 2
+end
+arch water_md3
+y 3
+end
+arch water_md2
+y 4
+end
+arch water_lt
+y 5
+end
+arch water_md5_m
+direction 8
+y 5
+end
+arch water_lt3
+y 6
+end
+arch water_md2_m
+direction 8
+y 6
+end
+arch water_lt2
+y 7
+end
+arch water_lt2
+y 8
+end
+arch water_lt4
+y 9
+end
+arch floor_ruin2
+y 10
+end
+arch water_lt_m
+direction 8
+y 10
+end
+arch floor_ruin5
+y 11
+end
+arch water_lt2_m
+direction 8
+y 11
+end
+arch floor_ruin3
+y 12
+end
+arch grass_thickm6
+y 12
+end
+arch grass_thick2
+y 13
+end
+arch plant_flower11
+y 13
+end
+arch grassd_8
+y 14
+end
+arch grass_thickm4
+y 14
+end
+arch grassd_7
+y 15
+end
+arch sand_dm7
+y 15
+end
+arch grassd_1
+y 16
+end
+arch sand_dm15
+y 16
+end
+arch grassd_8
+y 17
+end
+arch grass_thickm8
+y 17
+end
+arch grassd_5
+y 18
+end
+arch grassd_m13
+y 18
+end
+arch grassd_6
+y 19
+end
+arch grass_thickm2
+y 19
+end
+arch light2
+y 19
+end
+arch grass_thick2
+y 20
+end
+arch floor_ruin5
+y 21
+end
+arch grass_thickm1
+y 21
+end
+arch floor_ruin4
+y 22
+end
+arch grassd_m13
+y 22
+end
+arch floor_ruin5
+y 23
+end
+arch water_lt5_m
+direction 4
+y 23
+end
+arch water_dk3
+x 1
+end
+arch water_md
+x 1
+y 1
+end
+arch water_dk5_m
+direction 1
+x 1
+y 1
+end
+arch water_md3
+x 1
+y 2
+end
+arch water_md
+x 1
+y 3
+end
+arch water_md
+x 1
+y 4
+end
+arch water_lt3
+x 1
+y 5
+end
+arch water_md5_m
+direction 1
+x 1
+y 5
+end
+arch water_lt3
+x 1
+y 6
+end
+arch water_lt3
+x 1
+y 7
+end
+arch water_lt2
+x 1
+y 8
+end
+arch floor_ruin6
+x 1
+y 9
+end
+arch water_lt5_m
+direction 8
+x 1
+y 9
+end
+arch floor_ruin6
+x 1
+y 10
+end
+arch water_lt2_m
+direction 8
+x 1
+y 10
+end
+arch floor_ruin6
+x 1
+y 11
+end
+arch grassd_m11
+x 1
+y 11
+end
+arch floor_ruin2
+x 1
+y 12
+end
+arch grass_thickm2
+x 1
+y 12
+end
+arch light2
+x 1
+y 12
+end
+arch grassd_6
+x 1
+y 13
+end
+arch grass_thickm1
+x 1
+y 13
+end
+arch stone1
+x 1
+y 13
+end
+arch grassd_7
+x 1
+y 14
+end
+arch grassd_2
+x 1
+y 15
+end
+arch sand_dm16
+x 1
+y 15
+end
+arch light2
+x 1
+y 15
+end
+arch grassd_2
+x 1
+y 16
+end
+arch grass_thickm2
+x 1
+y 16
+end
+arch grassd_8
+x 1
+y 17
+end
+arch grass_thickm2
+x 1
+y 17
+end
+arch floor_ruin5
+x 1
+y 18
+end
+arch grass_thickm1
+x 1
+y 18
+end
+arch floor_ruin6
+x 1
+y 19
+end
+arch grass_thickm8
+x 1
+y 19
+end
+arch floor_ruin1
+x 1
+y 20
+end
+arch grass_thickm8
+x 1
+y 20
+end
+arch floor_ruin1
+x 1
+y 21
+end
+arch grassd_m13
+x 1
+y 21
+end
+arch floor_ruin1
+x 1
+y 22
+end
+arch water_lt_m
+direction 4
+x 1
+y 22
+end
+arch floor_ruin2
+x 1
+y 23
+end
+arch water_lt5_m
+x 1
+y 23
+end
+arch water_dk3
+x 2
+end
+arch water_md
+x 2
+y 1
+end
+arch water_dk3_m
+direction 1
+x 2
+y 1
+end
+arch water_md
+x 2
+y 2
+end
+arch water_md
+x 2
+y 3
+end
+arch water_md
+x 2
+y 4
+end
+arch water_lt
+x 2
+y 5
+end
+arch water_md3_m
+direction 1
+x 2
+y 5
+end
+arch water_lt
+x 2
+y 6
+end
+arch water_lt
+x 2
+y 7
+end
+arch floor_ruin2
+x 2
+y 8
+end
+arch water_lt_m
+direction 8
+x 2
+y 8
+end
+arch floor_ruin2
+x 2
+y 9
+end
+arch grassd_m11
+x 2
+y 9
+end
+arch floor_ruin6
+x 2
+y 10
+end
+arch grass_thickm7
+x 2
+y 10
+end
+arch floor_ruin5
+x 2
+y 11
+end
+arch grass_thickm2
+x 2
+y 11
+end
+arch grass_thick3
+x 2
+y 12
+end
+arch grassd_3
+x 2
+y 13
+end
+arch grass_thickm1
+x 2
+y 13
+end
+arch grassd_8
+x 2
+y 14
+end
+arch sand_dm1
+x 2
+y 14
+end
+arch grassd_4
+x 2
+y 15
+end
+arch sand_dm14
+x 2
+y 15
+end
+arch grass_thick3
+x 2
+y 16
+end
+arch floor_ruin4
+x 2
+y 17
+end
+arch grass_thickm1
+x 2
+y 17
+end
+arch rock2
+x 2
+y 17
+end
+arch light2
+x 2
+y 17
+end
+arch floor_ruin3
+x 2
+y 18
+end
+arch grassd_m13
+x 2
+y 18
+end
+arch floor_ruin6
+x 2
+y 19
+end
+arch water_lt2_m
+direction 4
+x 2
+y 19
+end
+arch floor_ruin5
+x 2
+y 20
+end
+arch water_lt2_m
+direction 3
+x 2
+y 20
+end
+arch floor_ruin2
+x 2
+y 21
+end
+arch water_lt_m
+direction 4
+x 2
+y 21
+end
+arch water_lt3
+x 2
+y 22
+end
+arch water_lt4
+x 2
+y 23
+end
+arch water_md2_m
+direction 3
+x 2
+y 23
+end
+arch water_dk4
+x 3
+end
+arch water_md2
+x 3
+y 1
+end
+arch water_dk5_m
+direction 1
+x 3
+y 1
+end
+arch water_md2
+x 3
+y 2
+end
+arch water_md
+x 3
+y 3
+end
+arch water_md
+x 3
+y 4
+end
+arch water_lt3
+x 3
+y 5
+end
+arch water_md5_m
+direction 2
+x 3
+y 5
+end
+arch water_lt4
+x 3
+y 6
+end
+arch water_md2_m
+direction 2
+x 3
+y 6
+end
+arch water_lt3
+x 3
+y 7
+end
+arch floor_ruin5
+x 3
+y 8
+end
+arch water_lt_m
+direction 2
+x 3
+y 8
+end
+arch floor_ruin1
+x 3
+y 9
+end
+arch grassd_m7
+x 3
+y 9
+end
+arch grass_thick3
+x 3
+y 10
+end
+arch light2
+x 3
+y 10
+end
+arch grass_thick2
+x 3
+y 11
+end
+arch grassd_8
+x 3
+y 12
+end
+arch grass_thickm1
+x 3
+y 12
+end
+arch plant_flower12
+x 3
+y 12
+end
+arch grassd_2
+x 3
+y 13
+end
+arch sign
+msg
+<green>The Below Window</green>
+You will find the below window below the map. It shows you all the objects under your feet. Select an object in the below window by using the <green>cursor</green> keys. The blue box indicates the selected object. You "use" an object by pressing the <green>A</green> key, which stands for 'a'pply. Now, go to the nearby apple tree, use the cursor (arrow) keys to move the blue box over an apple and press <green>A</green> to apply it. You need to eat food when you are hungry or you might starve to death.
+The next sign will require you to 'a'pply it.
+endmsg
+walk_on 1
+fly_on 1
+x 3
+y 13
+end
+arch light6
+x 3
+y 13
+end
+arch pedestal
+name pedestal 100
+layer 0
+sys_object 1
+no_teleport 1
+connected 100
+x 3
+y 13
+end
+arch grassd_2
+x 3
+y 14
+end
+arch sand_dm7
+x 3
+y 14
+end
+arch grassd_8
+x 3
+y 15
+end
+arch sand_dm3
+x 3
+y 15
+end
+arch grass_thick2
+x 3
+y 16
+end
+arch plant_flower2
+x 3
+y 16
+end
+arch floor_ruin1
+x 3
+y 17
+end
+arch grass_thickm4
+x 3
+y 17
+end
+arch floor_ruin6
+x 3
+y 18
+end
+arch floor_ruin3
+x 3
+y 19
+end
+arch water_lt5_m
+direction 4
+x 3
+y 19
+end
+arch water_lt3
+x 3
+y 20
+end
+arch water_lt
+x 3
+y 21
+end
+arch water_md2_m
+direction 4
+x 3
+y 21
+end
+arch water_lt2
+x 3
+y 22
+end
+arch water_md_m
+direction 4
+x 3
+y 22
+end
+arch water_md
+x 3
+y 23
+end
+arch water_dk
+x 4
+end
+arch water_md2
+x 4
+y 1
+end
+arch water_dk5_m
+direction 2
+x 4
+y 1
+end
+arch water_md2
+x 4
+y 2
+end
+arch water_dk2_m
+direction 2
+x 4
+y 2
+end
+arch water_md4
+x 4
+y 3
+end
+arch water_md
+x 4
+y 4
+end
+arch water_md4
+x 4
+y 5
+end
+arch water_lt2
+x 4
+y 6
+end
+arch water_md2_m
+direction 1
+x 4
+y 6
+end
+arch water_lt2
+x 4
+y 7
+end
+arch floor_ruin1
+x 4
+y 8
+end
+arch water_lt3_m
+direction 1
+x 4
+y 8
+end
+arch floor_ruin5
+x 4
+y 9
+end
+arch grassd_m14
+x 4
+y 9
+end
+arch floor_ruin5
+x 4
+y 10
+end
+arch grassd_m3
+x 4
+y 10
+end
+arch grassd_2
+x 4
+y 11
+end
+arch grass_thickm1
+x 4
+y 11
+end
+arch grassd_6
+x 4
+y 12
+end
+arch grass_thickm4
+x 4
+y 12
+end
+arch grassd_6
+x 4
+y 13
+end
+arch sand_dm1
+x 4
+y 13
+end
+arch grassd_2
+x 4
+y 14
+end
+arch sand_dm3
+x 4
+y 14
+end
+arch grassd_1
+x 4
+y 15
+end
+arch grass_thickm2
+x 4
+y 15
+end
+arch grass_thick2
+x 4
+y 16
+end
+arch floor_ruin3
+x 4
+y 17
+end
+arch grass_thickm4
+x 4
+y 17
+end
+arch floor_ruin4
+x 4
+y 18
+end
+arch water_lt_m
+direction 5
+x 4
+y 18
+end
+arch water_lt
+x 4
+y 19
+end
+arch water_lt2
+x 4
+y 20
+end
+arch water_md2_m
+direction 4
+x 4
+y 20
+end
+arch water_lt3
+x 4
+y 21
+end
+arch water_md5_m
+direction 4
+x 4
+y 21
+end
+arch water_md3
+x 4
+y 22
+end
+arch water_md
+x 4
+y 23
+end
+arch water_dk2
+x 5
+end
+arch water_dk4
+x 5
+y 1
+end
+arch water_md
+x 5
+y 2
+end
+arch water_dk_m
+direction 1
+x 5
+y 2
+end
+arch water_md2
+x 5
+y 3
+end
+arch water_md4
+x 5
+y 4
+end
+arch water_md2
+x 5
+y 5
+end
+arch water_lt
+x 5
+y 6
+end
+arch water_md_m
+direction 1
+x 5
+y 6
+end
+arch water_lt3
+x 5
+y 7
+end
+arch floor_ruin2
+x 5
+y 8
+end
+arch water_lt5_m
+direction 2
+x 5
+y 8
+end
+arch floor_ruin2
+x 5
+y 9
+end
+arch water_lt2_m
+direction 2
+x 5
+y 9
+end
+arch floor_ruin1
+x 5
+y 10
+end
+arch grassd_m7
+x 5
+y 10
+end
+arch grass_thick3
+x 5
+y 11
+end
+arch grassd_3
+x 5
+y 12
+end
+arch grass_thickm4
+x 5
+y 12
+end
+arch apple
+name apple - Press the 'a' key to eat me
+can_stack 0
+no_pick 1
+x 5
+y 12
+end
+arch creator
+name apple creator 100
+connected 100
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 5
+y 12
+arch apple
+name apple - Press the 'a' key to eat me
+can_stack 0
+no_pick 1
+end
+end
+arch pedestal
+name pedestal 100
+layer 0
+sys_object 1
+no_teleport 1
+connected 100
+x 5
+y 12
+end
+arch grassd_2
+x 5
+y 13
+end
+arch sand_dm11
+x 5
+y 13
+end
+arch grassd_4
+x 5
+y 14
+end
+arch sand_dm1
+x 5
+y 14
+end
+arch grass_thick1
+x 5
+y 15
+end
+arch plant_flower6
+x 5
+y 15
+end
+arch floor_ruin4
+x 5
+y 16
+end
+arch grass_thickm1
+x 5
+y 16
+end
+arch light2
+x 5
+y 16
+end
+arch floor_ruin6
+x 5
+y 17
+end
+arch grassd_m13
+x 5
+y 17
+end
+arch floor_ruin2
+x 5
+y 18
+end
+arch water_lt_m
+direction 5
+x 5
+y 18
+end
+arch water_lt2
+x 5
+y 19
+end
+arch water_lt4
+x 5
+y 20
+end
+arch water_md_m
+direction 5
+x 5
+y 20
+end
+arch water_md4
+x 5
+y 21
+end
+arch water_md3
+x 5
+y 22
+end
+arch water_md
+x 5
+y 23
+end
+arch water_dk4
+x 6
+end
+arch water_dk2
+x 6
+y 1
+end
+arch water_md
+x 6
+y 2
+end
+arch water_dk_m
+direction 2
+x 6
+y 2
+end
+arch water_md4
+x 6
+y 3
+end
+arch water_dk2_m
+direction 2
+x 6
+y 3
+end
+arch water_md2
+x 6
+y 4
+end
+arch water_md2
+x 6
+y 5
+end
+arch water_lt4
+x 6
+y 6
+end
+arch water_md_m
+direction 2
+x 6
+y 6
+end
+arch water_lt3
+x 6
+y 7
+end
+arch water_md2_m
+direction 2
+x 6
+y 7
+end
+arch water_lt2
+x 6
+y 8
+end
+arch floor_ruin6
+x 6
+y 9
+end
+arch water_lt_m
+direction 2
+x 6
+y 9
+end
+arch floor_ruin4
+x 6
+y 10
+end
+arch grassd_m14
+x 6
+y 10
+end
+arch floor_ruin4
+x 6
+y 11
+end
+arch grassd_m3
+x 6
+y 11
+end
+arch creator
+name apple creator 101
+connected 101
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 6
+y 11
+arch apple
+can_stack 0
+no_pick 1
+name apple - Press the 'a' key to eat me
+end
+end
+arch pedestal
+name pedestal 101
+layer 0
+sys_object 1
+no_teleport 1
+connected 101
+x 6
+y 11
+end
+arch grassd_7
+x 6
+y 12
+end
+arch grass_thickm3
+x 6
+y 12
+end
+arch tree_apple
+x 6
+y 12
+end
+arch light2
+x 6
+y 12
+end
+arch grassd_1
+x 6
+y 13
+end
+arch sand_dm4
+x 6
+y 13
+end
+arch grassd_2
+x 6
+y 14
+end
+arch sand_dm10
+x 6
+y 14
+end
+arch grass_thick2
+x 6
+y 15
+end
+arch floor_ruin3
+x 6
+y 16
+end
+arch grassd_m10
+x 6
+y 16
+end
+arch floor_ruin3
+x 6
+y 17
+end
+arch floor_ruin2
+x 6
+y 18
+end
+arch water_lt_m
+direction 4
+x 6
+y 18
+end
+arch water_lt
+x 6
+y 19
+end
+arch water_lt4
+x 6
+y 20
+end
+arch water_md_m
+direction 4
+x 6
+y 20
+end
+arch water_md4
+x 6
+y 21
+end
+arch water_md4
+x 6
+y 22
+end
+arch water_md2
+x 6
+y 23
+end
+arch water_dk2
+x 7
+end
+arch water_dk2
+x 7
+y 1
+end
+arch water_dk2
+x 7
+y 2
+end
+arch water_md2
+x 7
+y 3
+end
+arch water_dk_m
+direction 1
+x 7
+y 3
+end
+arch water_md2
+x 7
+y 4
+end
+arch water_md2
+x 7
+y 5
+end
+arch water_md2
+x 7
+y 6
+end
+arch water_lt
+x 7
+y 7
+end
+arch water_md_m
+direction 1
+x 7
+y 7
+end
+arch water_lt
+x 7
+y 8
+end
+arch floor_ruin6
+x 7
+y 9
+end
+arch water_lt5_m
+direction 2
+x 7
+y 9
+end
+arch floor_ruin1
+x 7
+y 10
+end
+arch water_lt2_m
+direction 2
+x 7
+y 10
+end
+arch floor_ruin4
+x 7
+y 11
+end
+arch grassd_m7
+x 7
+y 11
+end
+arch light2
+x 7
+y 11
+end
+arch grass_thick2
+x 7
+y 12
+end
+arch grassd_7
+x 7
+y 13
+end
+arch grass_thickm3
+x 7
+y 13
+end
+arch creator
+name apple creator 102
+connected 102
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 7
+y 13
+arch apple
+can_stack 0
+no_pick 1
+name apple - Press the 'a' key to eat me
+end
+end
+arch pedestal
+name pedestal 102
+layer 0
+sys_object 1
+no_teleport 1
+connected 102
+x 7
+y 13
+end
+arch grassd_4
+x 7
+y 14
+end
+arch sand_dm15
+x 7
+y 14
+end
+arch light2
+x 7
+y 14
+end
+arch grassd_3
+x 7
+y 15
+end
+arch grass_thickm5
+x 7
+y 15
+end
+arch floor_ruin4
+x 7
+y 16
+end
+arch grassd_m6
+x 7
+y 16
+end
+arch floor_ruin5
+x 7
+y 17
+end
+arch grassd_m12
+x 7
+y 17
+end
+arch floor_ruin1
+x 7
+y 18
+end
+arch water_lt3_m
+direction 5
+x 7
+y 18
+end
+arch water_lt2
+x 7
+y 19
+end
+arch water_md2_m
+direction 5
+x 7
+y 19
+end
+arch water_md2
+x 7
+y 20
+end
+arch water_md
+x 7
+y 21
+end
+arch water_md
+x 7
+y 22
+end
+arch water_dk2_m
+direction 4
+x 7
+y 22
+end
+arch water_md
+x 7
+y 23
+end
+arch water_dk5_m
+direction 4
+x 7
+y 23
+end
+arch water_dk4
+x 8
+end
+arch water_dk2
+x 8
+y 1
+end
+arch water_dk3
+x 8
+y 2
+end
+arch water_md
+x 8
+y 3
+end
+arch water_dk_m
+direction 2
+x 8
+y 3
+end
+arch water_md4
+x 8
+y 4
+end
+arch water_md3
+x 8
+y 5
+end
+arch water_md4
+x 8
+y 6
+end
+arch water_lt4
+x 8
+y 7
+end
+arch water_md_m
+direction 2
+x 8
+y 7
+end
+arch water_lt
+x 8
+y 8
+end
+arch water_lt4
+x 8
+y 9
+end
+arch floor_ruin1
+x 8
+y 10
+end
+arch water_lt_m
+direction 1
+x 8
+y 10
+end
+arch floor_ruin4
+x 8
+y 11
+end
+arch grassd_m14
+x 8
+y 11
+end
+arch floor_ruin4
+x 8
+y 12
+end
+arch grass_thickm6
+x 8
+y 12
+end
+arch grassd_8
+x 8
+y 13
+end
+arch grass_thickm1
+x 8
+y 13
+end
+arch grassd_8
+x 8
+y 14
+end
+arch sand_dm4
+x 8
+y 14
+end
+arch grassd_1
+x 8
+y 15
+end
+arch grass_thickm6
+x 8
+y 15
+end
+arch grass_thick2
+x 8
+y 16
+end
+arch light2
+x 8
+y 16
+end
+arch floor_ruin1
+x 8
+y 17
+end
+arch grass_thickm4
+x 8
+y 17
+end
+arch floor_ruin3
+x 8
+y 18
+end
+arch water_lt_m
+direction 6
+x 8
+y 18
+end
+arch water_lt4
+x 8
+y 19
+end
+arch water_md_m
+direction 5
+x 8
+y 19
+end
+arch water_md2
+x 8
+y 20
+end
+arch water_md
+x 8
+y 21
+end
+arch water_md2
+x 8
+y 22
+end
+arch water_dk_m
+direction 4
+x 8
+y 22
+end
+arch water_dk4
+x 8
+y 23
+end
+arch water_dk4
+x 9
+end
+arch water_dk4
+x 9
+y 1
+end
+arch water_dk2
+x 9
+y 2
+end
+arch water_dk2
+x 9
+y 3
+end
+arch water_md4
+x 9
+y 4
+end
+arch water_dk5_m
+direction 2
+x 9
+y 4
+end
+arch water_md
+x 9
+y 5
+end
+arch water_md4
+x 9
+y 6
+end
+arch water_lt4
+x 9
+y 7
+end
+arch water_md3_m
+direction 1
+x 9
+y 7
+end
+arch water_lt3
+x 9
+y 8
+end
+arch water_lt3
+x 9
+y 9
+end
+arch floor_ruin5
+x 9
+y 10
+end
+arch water_lt_m
+direction 2
+x 9
+y 10
+end
+arch floor_ruin3
+x 9
+y 11
+end
+arch water_lt2_m
+direction 2
+x 9
+y 11
+end
+arch floor_ruin5
+x 9
+y 12
+end
+arch grass_thickm6
+x 9
+y 12
+end
+arch grassd_1
+x 9
+y 13
+end
+arch grass_thickm3
+x 9
+y 13
+end
+arch grassd_5
+x 9
+y 14
+end
+arch sand_dm7
+x 9
+y 14
+end
+arch grassd_8
+x 9
+y 15
+end
+arch grass_thickm6
+x 9
+y 15
+end
+arch grass_thick3
+x 9
+y 16
+end
+arch floor_ruin3
+x 9
+y 17
+end
+arch grass_thickm4
+x 9
+y 17
+end
+arch floor_ruin6
+x 9
+y 18
+end
+arch water_lt2_m
+direction 5
+x 9
+y 18
+end
+arch water_lt4
+x 9
+y 19
+end
+arch water_md2_m
+direction 6
+x 9
+y 19
+end
+arch water_lt
+x 9
+y 20
+end
+arch water_md5_m
+direction 6
+x 9
+y 20
+end
+arch water_md
+x 9
+y 21
+end
+arch water_md4
+x 9
+y 22
+end
+arch water_dk_m
+direction 6
+x 9
+y 22
+end
+arch water_dk
+x 9
+y 23
+end
+arch water_dk3
+x 10
+end
+arch water_dk3
+x 10
+y 1
+end
+arch water_dk
+x 10
+y 2
+end
+arch water_dk4
+x 10
+y 3
+end
+arch water_md
+x 10
+y 4
+end
+arch water_dk3_m
+direction 1
+x 10
+y 4
+end
+arch water_md
+x 10
+y 5
+end
+arch water_md3
+x 10
+y 6
+end
+arch water_md3
+x 10
+y 7
+end
+arch water_lt2
+x 10
+y 8
+end
+arch water_md_m
+direction 1
+x 10
+y 8
+end
+arch water_lt
+x 10
+y 9
+end
+arch water_lt2
+x 10
+y 10
+end
+arch floor_ruin1
+x 10
+y 11
+end
+arch water_lt2_m
+direction 1
+x 10
+y 11
+end
+arch floor_ruin5
+x 10
+y 12
+end
+arch grassd_m7
+x 10
+y 12
+end
+arch light2
+x 10
+y 12
+end
+arch grass_thick2
+x 10
+y 13
+end
+arch plant_flower13
+x 10
+y 13
+end
+arch grassd_6
+x 10
+y 14
+end
+arch grass_thickm3
+x 10
+y 14
+end
+arch grassd_3
+x 10
+y 15
+end
+arch sand_dm2
+x 10
+y 15
+end
+arch grass_thick1
+x 10
+y 16
+end
+arch plant_flower2
+x 10
+y 16
+end
+arch floor_ruin4
+x 10
+y 17
+end
+arch grass_thickm4
+x 10
+y 17
+end
+arch floor_ruin3
+x 10
+y 18
+end
+arch floor_ruin1
+x 10
+y 19
+end
+arch water_lt3_m
+direction 5
+x 10
+y 19
+end
+arch water_lt3
+x 10
+y 20
+end
+arch water_md2_m
+direction 5
+x 10
+y 20
+end
+arch water_md2
+x 10
+y 21
+end
+arch water_md3
+x 10
+y 22
+end
+arch water_dk2_m
+direction 6
+x 10
+y 22
+end
+arch water_md2
+x 10
+y 23
+end
+arch water_dk5_m
+direction 6
+x 10
+y 23
+end
+arch water_dk2
+x 11
+end
+arch water_dk3
+x 11
+y 1
+end
+arch water_dk4
+x 11
+y 2
+end
+arch water_dk2
+x 11
+y 3
+end
+arch water_md
+x 11
+y 4
+end
+arch water_dk_m
+direction 8
+x 11
+y 4
+end
+arch water_md4
+x 11
+y 5
+end
+arch water_md3
+x 11
+y 6
+end
+arch water_md3
+x 11
+y 7
+end
+arch water_lt
+x 11
+y 8
+end
+arch water_md2_m
+direction 1
+x 11
+y 8
+end
+arch water_lt4
+x 11
+y 9
+end
+arch water_lt2
+x 11
+y 10
+end
+arch floor_ruin6
+x 11
+y 11
+end
+arch water_lt_m
+direction 2
+x 11
+y 11
+end
+arch floor_ruin5
+x 11
+y 12
+end
+arch grassd_m14
+x 11
+y 12
+end
+arch floor_ruin1
+x 11
+y 13
+end
+arch grassd_m3
+x 11
+y 13
+end
+arch grass_thick3
+x 11
+y 14
+end
+arch sign
+msg
+<green>Using Objects</green>
+The <green>A</green> key will apply (use) an object. If you apply a weapon, you will wield it. If you apply food you will eat it. You apply signs to read them. You can also <green>get</green> items. Find an orange near the orange tree and press <green>G</green> to get it. Then press <green>shift</green> and look in your inventory. Move the blue box over the food with the cursor (arrow) keys and press <green>a</green>. Now you have eaten the food.
+The <green>space bar</green> may be used to apply the first usable object under your feet.
+endmsg
+name sign - Press the 'a' key to read me
+x 11
+y 14
+end
+arch light6
+x 11
+y 14
+end
+arch grassd_8
+x 11
+y 15
+end
+arch sand_dm1
+x 11
+y 15
+end
+arch grassd_3
+x 11
+y 16
+end
+arch grass_thickm5
+x 11
+y 16
+end
+arch light2
+x 11
+y 16
+end
+arch floor_ruin4
+x 11
+y 17
+end
+arch grassd_m6
+x 11
+y 17
+end
+arch floor_ruin4
+x 11
+y 18
+end
+arch grassd_m12
+x 11
+y 18
+end
+arch floor_ruin1
+x 11
+y 19
+end
+arch water_lt_m
+direction 6
+x 11
+y 19
+end
+arch water_lt4
+x 11
+y 20
+end
+arch water_lt2
+x 11
+y 21
+end
+arch water_md_m
+direction 6
+x 11
+y 21
+end
+arch water_md2
+x 11
+y 22
+end
+arch water_md
+x 11
+y 23
+end
+arch water_dk4_m
+direction 5
+x 11
+y 23
+end
+arch water_dk2
+x 12
+end
+arch water_dk3
+x 12
+y 1
+end
+arch water_dk2
+x 12
+y 2
+end
+arch water_dk3
+x 12
+y 3
+end
+arch water_md
+x 12
+y 4
+end
+arch water_dk2_m
+direction 1
+x 12
+y 4
+end
+arch water_md3
+x 12
+y 5
+end
+arch water_md4
+x 12
+y 6
+end
+arch water_lt3
+x 12
+y 7
+end
+arch water_md5_m
+direction 8
+x 12
+y 7
+end
+arch water_lt2
+x 12
+y 8
+end
+arch water_md2_m
+direction 8
+x 12
+y 8
+end
+arch water_lt2
+x 12
+y 9
+end
+arch water_lt
+x 12
+y 10
+end
+arch floor_ruin2
+x 12
+y 11
+end
+arch water_lt3_m
+direction 1
+x 12
+y 11
+end
+arch water_plant3
+x 12
+y 11
+end
+arch floor_ruin5
+x 12
+y 12
+end
+arch grassd_m11
+x 12
+y 12
+end
+arch floor_ruin5
+x 12
+y 13
+end
+arch grass_thickm2
+x 12
+y 13
+end
+arch grass_thick1
+x 12
+y 14
+end
+arch grassd_3
+x 12
+y 15
+end
+arch sand_dm4
+x 12
+y 15
+end
+arch grassd_4
+x 12
+y 16
+end
+arch sand_dm2
+x 12
+y 16
+end
+arch grassd_2
+x 12
+y 17
+end
+arch plant_flower12
+x 12
+y 17
+end
+arch floor_ruin2
+x 12
+y 18
+end
+arch grassd_m10
+x 12
+y 18
+end
+arch floor_ruin1
+x 12
+y 19
+end
+arch floor_ruin4
+x 12
+y 20
+end
+arch water_lt_m
+direction 6
+x 12
+y 20
+end
+arch water_lt4
+x 12
+y 21
+end
+arch water_md2_m
+direction 6
+x 12
+y 21
+end
+arch water_lt
+x 12
+y 22
+end
+arch water_md_m
+direction 6
+x 12
+y 22
+end
+arch water_md
+x 12
+y 23
+end
+arch water_dk
+x 13
+end
+arch water_dk3
+x 13
+y 1
+end
+arch water_dk2
+x 13
+y 2
+end
+arch water_md
+x 13
+y 3
+end
+arch water_dk5_m
+direction 8
+x 13
+y 3
+end
+arch water_md3
+x 13
+y 4
+end
+arch water_dk2_m
+direction 8
+x 13
+y 4
+end
+arch water_md3
+x 13
+y 5
+end
+arch water_lt
+x 13
+y 6
+end
+arch water_md5_m
+direction 8
+x 13
+y 6
+end
+arch water_lt2
+x 13
+y 7
+end
+arch water_md2_m
+direction 8
+x 13
+y 7
+end
+arch water_lt
+x 13
+y 8
+end
+arch water_lt4
+x 13
+y 9
+end
+arch floor_ruin5
+x 13
+y 10
+end
+arch water_lt5_m
+direction 8
+x 13
+y 10
+end
+arch water_plant4
+x 13
+y 10
+end
+arch floor_ruin5
+x 13
+y 11
+end
+arch water_lt_m
+direction 8
+x 13
+y 11
+end
+arch water_plant2
+x 13
+y 11
+end
+arch floor_ruin3
+x 13
+y 12
+end
+arch grassd_m7
+x 13
+y 12
+end
+arch grass_thick2
+x 13
+y 13
+end
+arch plant1
+x 13
+y 13
+end
+arch grassd_6
+x 13
+y 14
+end
+arch grass_thickm1
+x 13
+y 14
+end
+arch creator
+name orange creator 103
+other_arch orange
+connected 103
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 13
+y 14
+end
+arch pedestal
+name pedestal 103
+layer 0
+sys_object 1
+no_teleport 1
+connected 103
+x 13
+y 14
+end
+arch grassd_1
+x 13
+y 15
+end
+arch grassd_5
+x 13
+y 16
+end
+arch sand_dm4
+x 13
+y 16
+end
+arch grassd_6
+x 13
+y 17
+end
+arch sand_dm2
+x 13
+y 17
+end
+arch floor_ruin5
+x 13
+y 18
+end
+arch grassd_m6
+x 13
+y 18
+end
+arch light2
+x 13
+y 18
+end
+arch floor_ruin3
+x 13
+y 19
+end
+arch grassd_m12
+x 13
+y 19
+end
+arch floor_ruin5
+x 13
+y 20
+end
+arch water_lt2_m
+direction 6
+x 13
+y 20
+end
+arch floor_ruin1
+x 13
+y 21
+end
+arch water_lt_m
+direction 6
+x 13
+y 21
+end
+arch water_lt3
+x 13
+y 22
+end
+arch water_md2_m
+direction 5
+x 13
+y 22
+end
+arch water_md4
+x 13
+y 23
+end
+arch water_dk3
+x 14
+end
+arch water_dk2
+x 14
+y 1
+end
+arch water_dk2
+x 14
+y 2
+end
+arch water_md
+x 14
+y 3
+end
+arch water_dk_m
+direction 1
+x 14
+y 3
+end
+arch water_md4
+x 14
+y 4
+end
+arch water_md3
+x 14
+y 5
+end
+arch water_lt
+x 14
+y 6
+end
+arch water_md5_m
+direction 1
+x 14
+y 6
+end
+arch water_lt
+x 14
+y 7
+end
+arch water_lt3
+x 14
+y 8
+end
+arch floor_ruin4
+x 14
+y 9
+end
+arch water_lt_m
+direction 8
+x 14
+y 9
+end
+arch plant17
+x 14
+y 9
+end
+arch floor_ruin3
+x 14
+y 10
+end
+arch water_lt2_m
+direction 8
+x 14
+y 10
+end
+arch floor_ruin6
+x 14
+y 11
+end
+arch grassd_m11
+x 14
+y 11
+end
+arch floor_ruin5
+x 14
+y 12
+end
+arch grass_thickm2
+x 14
+y 12
+end
+arch light1
+x 14
+y 12
+end
+arch grassd_3
+x 14
+y 13
+end
+arch grass_thickm1
+x 14
+y 13
+end
+arch grassd_6
+x 14
+y 14
+end
+arch grass_thickm7
+x 14
+y 14
+end
+arch tree_orange
+x 14
+y 14
+end
+arch light2
+x 14
+y 14
+end
+arch grassd_4
+x 14
+y 15
+end
+arch grass_thickm7
+x 14
+y 15
+end
+arch grassd_5
+x 14
+y 16
+end
+arch grassd_m12
+x 14
+y 16
+end
+arch light2
+x 14
+y 16
+end
+arch grassd_8
+x 14
+y 17
+end
+arch sand_dm4
+x 14
+y 17
+end
+arch grassd_2
+x 14
+y 18
+end
+arch sand_dm2
+x 14
+y 18
+end
+arch floor_ruin1
+x 14
+y 19
+end
+arch grassd_m6
+x 14
+y 19
+end
+arch floor_ruin4
+x 14
+y 20
+end
+arch grassd_m12
+x 14
+y 20
+end
+arch floor_ruin3
+x 14
+y 21
+end
+arch water_lt2_m
+direction 5
+x 14
+y 21
+end
+arch water_lt4
+x 14
+y 22
+end
+arch water_md2_m
+direction 6
+x 14
+y 22
+end
+arch water_lt3
+x 14
+y 23
+end
+arch water_md5_m
+direction 6
+x 14
+y 23
+end
+arch water_dk2
+x 15
+end
+arch water_dk
+x 15
+y 1
+end
+arch water_dk2
+x 15
+y 2
+end
+arch water_md
+x 15
+y 3
+end
+arch water_dk2_m
+direction 8
+x 15
+y 3
+end
+arch water_md
+x 15
+y 4
+end
+arch water_md
+x 15
+y 5
+end
+arch water_lt3
+x 15
+y 6
+end
+arch water_md_m
+direction 8
+x 15
+y 6
+end
+arch water_lt4
+x 15
+y 7
+end
+arch floor_ruin5
+x 15
+y 8
+end
+arch water_lt5_m
+direction 8
+x 15
+y 8
+end
+arch floor_ruin2
+x 15
+y 9
+end
+arch grassd_m11
+x 15
+y 9
+end
+arch floor_ruin2
+x 15
+y 10
+end
+arch grass_thickm7
+x 15
+y 10
+end
+arch floor_ruin5
+x 15
+y 11
+end
+arch grassd_m5
+x 15
+y 11
+end
+arch light2
+x 15
+y 11
+end
+arch grassd_4
+x 15
+y 12
+end
+arch plant_flower6
+x 15
+y 12
+end
+arch grassd_6
+x 15
+y 13
+end
+arch creator
+name orange creator 104
+other_arch orange
+connected 104
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 15
+y 13
+end
+arch pedestal
+name pedestal 104
+layer 0
+sys_object 1
+no_teleport 1
+connected 104
+x 15
+y 13
+end
+arch grass_thick1
+x 15
+y 14
+end
+arch plant13
+x 15
+y 14
+end
+arch grass_thick2
+x 15
+y 15
+end
+arch creator
+name orange creator 105
+other_arch orange
+connected 105
+connect_no_release 1
+lifesave 1
+one_drop 1
+x 15
+y 15
+end
+arch pedestal
+name pedestal 105
+layer 0
+sys_object 1
+no_teleport 1
+connected 105
+x 15
+y 15
+end
+arch grassd_2
+x 15
+y 16
+end
+arch grass_thickm3
+x 15
+y 16
+end
+arch grassd_7
+x 15
+y 17
+end
+arch grass_thickm7
+x 15
+y 17
+end
+arch grassd_8
+x 15
+y 18
+end
+arch sand_dm7
+x 15
+y 18
+end
+arch floor_ruin3
+x 15
+y 19
+end
+arch grassd_m4
+x 15
+y 19
+end
+arch floor_ruin6
+x 15
+y 20
+end
+arch grassd_m13
+x 15
+y 20
+end
+arch floor_ruin2
+x 15
+y 21
+end
+arch water_lt_m
+direction 5
+x 15
+y 21
+end
+arch water_lt3
+x 15
+y 22
+end
+arch water_lt2
+x 15
+y 23
+end
+arch water_md2_m
+direction 6
+x 15
+y 23
+end
+arch water_dk4
+x 16
+end
+arch water_dk3
+x 16
+y 1
+end
+arch water_dk4
+x 16
+y 2
+end
+arch water_md4
+x 16
+y 3
+end
+arch water_md
+x 16
+y 4
+end
+arch water_md4
+x 16
+y 5
+end
+arch water_lt2
+x 16
+y 6
+end
+arch water_md_m
+direction 1
+x 16
+y 6
+end
+arch water_lt4
+x 16
+y 7
+end
+arch floor_ruin2
+x 16
+y 8
+end
+arch water_lt3_m
+direction 1
+x 16
+y 8
+end
+arch water_plant3
+x 16
+y 8
+end
+arch floor_ruin1
+x 16
+y 9
+end
+arch grass_thickm6
+x 16
+y 9
+end
+arch grassd_8
+x 16
+y 10
+end
+arch plant_flower5
+x 16
+y 10
+end
+arch grassd_2
+x 16
+y 11
+end
+arch plant_flower3
+x 16
+y 11
+end
+arch light4
+x 16
+y 11
+end
+arch floor_ruin1
+x 16
+y 12
+end
+arch grassd_m4
+x 16
+y 12
+end
+arch plant5
+x 16
+y 12
+end
+arch light2
+x 16
+y 12
+end
+arch floor_ruin2
+x 16
+y 13
+end
+arch grassd_m9
+x 16
+y 13
+end
+arch floor_ruin6
+x 16
+y 14
+end
+arch grass_thickm8
+x 16
+y 14
+end
+arch light1
+x 16
+y 14
+end
+arch floor_ruin3
+x 16
+y 15
+end
+arch grassd_m9
+x 16
+y 15
+end
+arch floor_ruin2
+x 16
+y 16
+end
+arch grassd_m9
+x 16
+y 16
+end
+arch floor_ruin5
+x 16
+y 17
+end
+arch grass_thickm5
+x 16
+y 17
+end
+arch sign
+msg
+<green>The Inventory</green>
+You can access your inventory by pressing the <green>shift</green> key. <green>Shift</green> toggles between inventory and the below window. Press <green>shift</green> and hold it. You can move around in your inventory with the cursor (arrow) keys like in the below window. With the mouse, you can click the bag icon on the inventory window, which will open the inventory without the need of holding <green>shift</green>. While your inventory is open, your player doll is shown as well.
+endmsg
+x 16
+y 17
+end
+arch light6
+x 16
+y 17
+end
+arch grassd_4
+x 16
+y 18
+end
+arch sand_dm7
+x 16
+y 18
+end
+arch floor_ruin2
+x 16
+y 19
+end
+arch grassd_m6
+x 16
+y 19
+end
+arch light2
+x 16
+y 19
+end
+arch floor_ruin4
+x 16
+y 20
+end
+arch grassd_m12
+x 16
+y 20
+end
+arch floor_ruin6
+x 16
+y 21
+end
+arch water_lt2_m
+direction 6
+x 16
+y 21
+end
+arch floor_ruin3
+x 16
+y 22
+end
+arch water_lt_m
+direction 6
+x 16
+y 22
+end
+arch water_lt2
+x 16
+y 23
+end
+arch water_dk3
+x 17
+end
+arch water_dk3
+x 17
+y 1
+end
+arch water_dk4
+x 17
+y 2
+end
+arch water_md2
+x 17
+y 3
+end
+arch water_dk2_m
+direction 2
+x 17
+y 3
+end
+arch water_md2
+x 17
+y 4
+end
+arch water_md3
+x 17
+y 5
+end
+arch water_lt
+x 17
+y 6
+end
+arch water_md_m
+direction 1
+x 17
+y 6
+end
+arch water_lt
+x 17
+y 7
+end
+arch floor_ruin6
+x 17
+y 8
+end
+arch water_lt5_m
+direction 1
+x 17
+y 8
+end
+arch water_plant4
+x 17
+y 8
+end
+arch floor_ruin3
+x 17
+y 9
+end
+arch grassd_m14
+x 17
+y 9
+end
+arch floor_ruin3
+x 17
+y 10
+end
+arch grassd_m3
+x 17
+y 10
+end
+arch plant9
+x 17
+y 10
+end
+arch light2
+x 17
+y 10
+end
+arch grassd_8
+x 17
+y 11
+end
+arch plant_flower1
+x 17
+y 11
+end
+arch floor_ruin1
+x 17
+y 12
+end
+arch grassd_m10
+x 17
+y 12
+end
+arch floor_ruin6
+x 17
+y 13
+end
+arch water_lt2_m
+direction 4
+x 17
+y 13
+end
+arch floor_ruin4
+x 17
+y 14
+end
+arch water_lt2_m
+direction 2
+x 17
+y 14
+end
+arch plant17
+x 17
+y 14
+end
+arch floor_ruin3
+x 17
+y 15
+end
+arch water_lt_m
+direction 4
+x 17
+y 15
+end
+arch floor_ruin4
+x 17
+y 16
+end
+arch water_lt_m
+direction 2
+x 17
+y 16
+end
+arch floor_ruin3
+x 17
+y 17
+end
+arch grassd_m7
+x 17
+y 17
+end
+arch grassd_1
+x 17
+y 18
+end
+arch sand_dm7
+x 17
+y 18
+end
+arch grassd_4
+x 17
+y 19
+end
+arch sand_dm10
+x 17
+y 19
+end
+arch floor_ruin4
+x 17
+y 20
+end
+arch grassd_m10
+x 17
+y 20
+end
+arch floor_ruin5
+x 17
+y 21
+end
+arch floor_ruin6
+x 17
+y 22
+end
+arch floor_ruin4
+x 17
+y 23
+end
+arch water_lt_m
+direction 6
+x 17
+y 23
+end
+arch fence_01.153
+x 17
+y 23
+end
+arch water_dk
+x 18
+end
+arch water_dk2
+x 18
+y 1
+end
+arch water_dk3
+x 18
+y 2
+end
+arch water_md4
+x 18
+y 3
+end
+arch water_dk_m
+direction 1
+x 18
+y 3
+end
+arch water_md2
+x 18
+y 4
+end
+arch water_md2
+x 18
+y 5
+end
+arch water_lt3
+x 18
+y 6
+end
+arch water_md_m
+direction 2
+x 18
+y 6
+end
+arch water_lt
+x 18
+y 7
+end
+arch floor_ruin4
+x 18
+y 8
+end
+arch water_lt5_m
+direction 2
+x 18
+y 8
+end
+arch floor_ruin5
+x 18
+y 9
+end
+arch water_lt2_m
+direction 2
+x 18
+y 9
+end
+arch floor_ruin4
+x 18
+y 10
+end
+arch grassd_m14
+x 18
+y 10
+end
+arch floor_ruin5
+x 18
+y 11
+end
+arch grassd_m9
+x 18
+y 11
+end
+arch floor_ruin3
+x 18
+y 12
+end
+arch grassd_m13
+x 18
+y 12
+end
+arch floor_ruin5
+x 18
+y 13
+end
+arch water_lt5_m
+direction 4
+x 18
+y 13
+end
+arch water_plant1
+x 18
+y 13
+end
+arch floor_ruin5
+x 18
+y 14
+end
+arch water_lt5_m
+direction 2
+x 18
+y 14
+end
+arch water_plant4
+x 18
+y 14
+end
+arch floor_ruin2
+x 18
+y 15
+end
+arch water_lt5_m
+direction 4
+x 18
+y 15
+end
+arch water_plant2
+x 18
+y 15
+end
+arch floor_ruin6
+x 18
+y 16
+end
+arch water_lt3_m
+direction 1
+x 18
+y 16
+end
+arch water_plant3
+x 18
+y 16
+end
+arch floor_ruin2
+x 18
+y 17
+end
+arch grassd_m7
+x 18
+y 17
+end
+arch grassd_3
+x 18
+y 18
+end
+arch light1
+x 18
+y 18
+end
+arch grassd_3
+x 18
+y 19
+end
+arch floor_ruin4
+x 18
+y 20
+end
+arch grassd_m6
+x 18
+y 20
+end
+arch plant5
+x 18
+y 20
+end
+arch floor_ruin2
+x 18
+y 21
+end
+arch grassd_m8
+x 18
+y 21
+end
+arch woods_tree
+x 18
+y 21
+end
+arch floor_ruin1
+x 18
+y 22
+end
+arch grassd_m12
+x 18
+y 22
+end
+arch floor_ruin6
+x 18
+y 23
+end
+arch water_lt2_m
+direction 6
+x 18
+y 23
+end
+arch fence_01.151
+x 18
+y 23
+end
+arch water_dk2
+x 19
+end
+arch water_dk3
+x 19
+y 1
+end
+arch water_dk
+x 19
+y 2
+end
+arch water_md3
+x 19
+y 3
+end
+arch water_dk_m
+direction 2
+x 19
+y 3
+end
+arch water_md3
+x 19
+y 4
+end
+arch water_md2
+x 19
+y 5
+end
+arch water_lt4
+x 19
+y 6
+end
+arch water_md3_m
+direction 1
+x 19
+y 6
+end
+arch water_lt3
+x 19
+y 7
+end
+arch water_lt4
+x 19
+y 8
+end
+arch floor_ruin6
+x 19
+y 9
+end
+arch water_lt_m
+direction 2
+x 19
+y 9
+end
+arch plant10
+x 19
+y 9
+end
+arch floor_ruin3
+x 19
+y 10
+end
+arch water_lt2_m
+direction 2
+x 19
+y 10
+end
+arch floor_ruin2
+x 19
+y 11
+end
+arch floor_ruin4
+x 19
+y 12
+end
+arch water_lt2_m
+direction 4
+x 19
+y 12
+end
+arch plant17
+x 19
+y 12
+end
+arch floor_ruin6
+x 19
+y 13
+end
+arch water_lt3_m
+direction 5
+x 19
+y 13
+end
+arch water_plant2
+x 19
+y 13
+end
+arch water_lt2
+x 19
+y 14
+end
+arch water_plant3
+x 19
+y 14
+end
+arch water_lt3
+x 19
+y 15
+end
+arch water_plant4
+x 19
+y 15
+end
+arch floor_ruin6
+x 19
+y 16
+end
+arch water_lt5_m
+direction 1
+x 19
+y 16
+end
+arch floor_ruin5
+x 19
+y 17
+end
+arch grassd_m14
+x 19
+y 17
+end
+arch plant1
+x 19
+y 17
+end
+arch floor_ruin4
+x 19
+y 18
+end
+arch grassd_m3
+x 19
+y 18
+end
+arch plant17
+x 19
+y 18
+end
+arch grassd_8
+x 19
+y 19
+end
+arch sand_dm4
+x 19
+y 19
+end
+arch grassd_4
+x 19
+y 20
+end
+arch sand_dm2
+x 19
+y 20
+end
+arch floor_ruin1
+x 19
+y 21
+end
+arch grassd_m1
+x 19
+y 21
+end
+arch plant13
+x 19
+y 21
+end
+arch light2
+x 19
+y 21
+end
+arch floor_ruin5
+x 19
+y 22
+end
+arch grass_thickm3
+x 19
+y 22
+end
+arch floor_ruin5
+x 19
+y 23
+end
+arch grass_thickm2
+x 19
+y 23
+end
+arch fence_01.151
+x 19
+y 23
+end
+arch water_dk3
+x 20
+end
+arch water_dk4
+x 20
+y 1
+end
+arch water_dk
+x 20
+y 2
+end
+arch water_md2
+x 20
+y 3
+end
+arch water_dk5_m
+x 20
+y 3
+end
+arch water_md
+x 20
+y 4
+end
+arch water_dk_m
+direction 2
+x 20
+y 4
+end
+arch water_md2
+x 20
+y 5
+end
+arch water_lt
+x 20
+y 6
+end
+arch water_md5_m
+direction 2
+x 20
+y 6
+end
+arch water_lt2
+x 20
+y 7
+end
+arch water_md2_m
+direction 2
+x 20
+y 7
+end
+arch water_lt4
+x 20
+y 8
+end
+arch water_lt
+x 20
+y 9
+end
+arch floor_ruin3
+x 20
+y 10
+end
+arch water_lt5_m
+direction 2
+x 20
+y 10
+end
+arch floor_ruin6
+x 20
+y 11
+end
+arch water_lt5_m
+direction 3
+x 20
+y 11
+end
+arch water_plant2
+x 20
+y 11
+end
+arch floor_ruin2
+x 20
+y 12
+end
+arch water_lt5_m
+direction 4
+x 20
+y 12
+end
+arch water_plant3
+x 20
+y 12
+end
+arch water_lt
+x 20
+y 13
+end
+arch water_plant4
+x 20
+y 13
+end
+arch water_lt
+x 20
+y 14
+end
+arch water_lt
+x 20
+y 15
+end
+arch floor_ruin6
+x 20
+y 16
+end
+arch water_lt3_m
+direction 1
+x 20
+y 16
+end
+arch floor_ruin4
+x 20
+y 17
+end
+arch grassd_m11
+x 20
+y 17
+end
+arch plant1
+x 20
+y 17
+end
+arch floor_ruin1
+x 20
+y 18
+end
+arch grassd_m5
+x 20
+y 18
+end
+arch plant1
+x 20
+y 18
+end
+arch grassd_6
+x 20
+y 19
+end
+arch sign
+msg
+<green>Using Exits</green>
+There are two kinds of <green>exits</green>. Some exits like magic portals or invisible map exits will transfer you to a different location when you step on them. The other class of <green>exits</green> are objects like stairs, ladders and holes. To enter this kind of exits you have to 'a'pply them like other usable objects.
+
+Step over the ladder there and <green>apply</green> it. You will enter the cave below.
+endmsg
+x 20
+y 19
+end
+arch light6
+x 20
+y 19
+end
+arch grassd_5
+x 20
+y 20
+end
+arch sand_dm4
+x 20
+y 20
+end
+arch grassd_1
+x 20
+y 21
+end
+arch grassd_8
+x 20
+y 22
+end
+arch grass_thickm5
+x 20
+y 22
+end
+arch grass_thick2
+x 20
+y 23
+end
+arch fence_01.151
+x 20
+y 23
+end
+arch water_dk4
+x 21
+end
+arch water_dk3
+x 21
+y 1
+end
+arch water_dk3
+x 21
+y 2
+end
+arch water_dk3
+x 21
+y 3
+end
+arch water_md2
+x 21
+y 4
+end
+arch water_dk5_m
+direction 1
+x 21
+y 4
+end
+arch water_md3
+x 21
+y 5
+end
+arch water_md
+x 21
+y 6
+end
+arch water_lt
+x 21
+y 7
+end
+arch water_md5_m
+direction 2
+x 21
+y 7
+end
+arch water_lt4
+x 21
+y 8
+end
+arch water_md2_m
+direction 2
+x 21
+y 8
+end
+arch water_lt3
+x 21
+y 9
+end
+arch water_lt2
+x 21
+y 10
+end
+arch water_lt
+x 21
+y 11
+end
+arch water_lt2
+x 21
+y 12
+end
+arch water_lt
+x 21
+y 13
+end
+arch water_plant1
+x 21
+y 13
+end
+arch water_lt2
+x 21
+y 14
+end
+arch water_lt2
+x 21
+y 15
+end
+arch water_lily3
+x 21
+y 15
+end
+arch floor_ruin2
+x 21
+y 16
+end
+arch water_lt_m
+direction 8
+x 21
+y 16
+end
+arch floor_ruin1
+x 21
+y 17
+end
+arch grassd_m14
+x 21
+y 17
+end
+arch plant16
+x 21
+y 17
+end
+arch floor_ruin2
+x 21
+y 18
+end
+arch grassd_m3
+x 21
+y 18
+end
+arch plant4
+x 21
+y 18
+end
+arch grassd_1
+x 21
+y 19
+end
+arch plant16
+x 21
+y 19
+end
+arch grassd_4
+x 21
+y 20
+end
+arch plant10
+x 21
+y 20
+end
+arch grassd_4
+x 21
+y 21
+end
+arch grassd_2
+x 21
+y 22
+end
+arch light1
+x 21
+y 22
+end
+arch grassd_4
+x 21
+y 23
+end
+arch fence_01.151
+x 21
+y 23
+end
+arch water_dk
+x 22
+end
+arch water_dk
+x 22
+y 1
+end
+arch water_dk4
+x 22
+y 2
+end
+arch water_dk4
+x 22
+y 3
+end
+arch water_md4
+x 22
+y 4
+end
+arch water_dk5_m
+direction 2
+x 22
+y 4
+end
+arch water_md
+x 22
+y 5
+end
+arch water_dk2_m
+direction 2
+x 22
+y 5
+end
+arch water_md
+x 22
+y 6
+end
+arch water_md4
+x 22
+y 7
+end
+arch water_lt3
+x 22
+y 8
+end
+arch water_md_m
+direction 2
+x 22
+y 8
+end
+arch water_lt4
+x 22
+y 9
+end
+arch water_md_m
+direction 4
+x 22
+y 9
+end
+arch water_lt4
+x 22
+y 10
+end
+arch water_md_m
+direction 2
+x 22
+y 10
+end
+arch water_lt2
+x 22
+y 11
+end
+arch water_md_m
+direction 3
+x 22
+y 11
+end
+arch water_lt3
+x 22
+y 12
+end
+arch water_md2_m
+direction 2
+x 22
+y 12
+end
+arch water_lt
+x 22
+y 13
+end
+arch water_plant4
+x 22
+y 13
+end
+arch water_lt3
+x 22
+y 14
+end
+arch floor_ruin2
+x 22
+y 15
+end
+arch water_lt5_m
+direction 8
+x 22
+y 15
+end
+arch water_plant3
+x 22
+y 15
+end
+arch floor_ruin6
+x 22
+y 16
+end
+arch water_lt2_m
+direction 8
+x 22
+y 16
+end
+arch plant4
+x 22
+y 16
+end
+arch floor_ruin3
+x 22
+y 17
+end
+arch grassd_m11
+x 22
+y 17
+end
+arch plant9
+x 22
+y 17
+end
+arch floor_ruin3
+x 22
+y 18
+end
+arch grassd_m5
+x 22
+y 18
+end
+arch plant11
+x 22
+y 18
+end
+arch light1
+x 22
+y 18
+end
+arch grassd_1
+x 22
+y 19
+end
+arch plant14
+x 22
+y 19
+end
+arch grassd_1
+x 22
+y 20
+end
+arch plant2
+x 22
+y 20
+end
+arch grassd_2
+x 22
+y 21
+end
+arch plant15
+x 22
+y 21
+end
+arch grassd_4
+x 22
+y 22
+end
+arch plant16
+x 22
+y 22
+end
+arch floor_ruin2
+x 22
+y 23
+end
+arch grassd_m1
+x 22
+y 23
+end
+arch plant11
+x 22
+y 23
+end
+arch fence_01.151
+x 22
+y 23
+end
+arch water_dk4
+x 23
+end
+arch water_dk2
+x 23
+y 1
+end
+arch water_dk2
+x 23
+y 2
+end
+arch water_dk2
+x 23
+y 3
+end
+arch water_dk4
+x 23
+y 4
+end
+arch water_md
+x 23
+y 5
+end
+arch water_dk5_m
+direction 2
+x 23
+y 5
+end
+arch water_md3
+x 23
+y 6
+end
+arch water_dk2_m
+direction 2
+x 23
+y 6
+end
+arch water_md4
+x 23
+y 7
+end
+arch water_md4
+x 23
+y 8
+end
+arch water_md3
+x 23
+y 9
+end
+arch light2
+x 23
+y 9
+end
+arch water_md4
+x 23
+y 10
+end
+arch water_md
+x 23
+y 11
+end
+arch light1
+x 23
+y 11
+end
+arch water_lt4
+x 23
+y 12
+end
+arch water_md_m
+direction 2
+x 23
+y 12
+end
+arch water_lt2
+x 23
+y 13
+end
+arch water_lt4
+x 23
+y 14
+end
+arch water_plant2
+x 23
+y 14
+end
+arch floor_ruin1
+x 23
+y 15
+end
+arch water_lt5_m
+direction 2
+x 23
+y 15
+end
+arch water_plant4
+x 23
+y 15
+end
+arch floor_ruin1
+x 23
+y 16
+end
+arch water_lt2_m
+direction 2
+x 23
+y 16
+end
+arch plant9
+x 23
+y 16
+end
+arch floor_ruin1
+x 23
+y 17
+end
+arch grassd_m7
+x 23
+y 17
+end
+arch plant17
+x 23
+y 17
+end
+arch light2
+x 23
+y 17
+end
+arch floor_ruin5
+x 23
+y 18
+end
+arch grassd_m1
+x 23
+y 18
+end
+arch plant14
+x 23
+y 18
+end
+arch grassd_6
+x 23
+y 19
+end
+arch ladder_down
+slaying cave
+hp 23
+sp 19
+last_eat 1
+x 23
+y 19
+arch event_obj
+sub_type 1
+race scripts/exit.py
+slaying cave-enter
+end
+end
+arch light2
+x 23
+y 19
+end
+arch grassd_6
+x 23
+y 20
+end
+arch plant11
+x 23
+y 20
+end
+arch grassd_1
+x 23
+y 21
+end
+arch plant16
+x 23
+y 21
+end
+arch light2
+x 23
+y 21
+end
+arch grassd_5
+x 23
+y 22
+end
+arch plant2
+x 23
+y 22
+end
+arch grassd_6
+x 23
+y 23
+end
+arch fence_01.151
+x 23
+y 23
+end

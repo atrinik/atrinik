@@ -336,6 +336,7 @@ msg
 
 endmsg
 end
+
 region everlink
 parent world
 longname Everlink
@@ -344,4 +345,15 @@ No one knows where this place is in the world, but only proud house owners can a
 endmsg
 map_first /shattered_islands/everlink/everlink_0102
 map_bg #009ffb
+end
+
+region incuna
+parent world
+longname Incuna
+msg
+A port town, somewhere south of Strakewood Island.
+endmsg
+map_first /shattered_islands/world_05af
+map_bg #009ffb
+map_quest true
 end

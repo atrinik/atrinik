@@ -1,0 +1,51 @@
+Allowed none
+chance 1
+artifact deserted_island_empty_barrel
+def_arch barrel.101
+Object
+quest_item 1
+no_drop 1
+item_quality 80
+item_condition 80
+name empty barrel
+no_pick 0
+no_pass 0
+startequip 1
+identified 1
+weight 1000
+msg
+Fill up this barrel with some clean water from the lake on this deserted island.
+endmsg
+end
+
+Allowed none
+chance 1
+artifact deserted_island_white_mushroom
+def_arch mushroom1
+Object
+value 0
+type 79
+end
+
+Allowed none
+chance 1
+artifact deserted_island_branch
+def_arch tree_branch2
+Object
+name thick tree branch
+startequip 1
+quest_item 1
+weight 1000
+end
+
+Allowed none
+chance 1
+artifact sam_goodberry_saw
+def_arch saw
+Object
+name Sam Goodberry's saw
+no_drop 1
+msg
+Use this saw to cut some tree branches.
+endmsg
+end

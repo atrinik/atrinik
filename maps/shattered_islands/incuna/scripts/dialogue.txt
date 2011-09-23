@@ -1,0 +1,37 @@
+Bank guards:
+Move along.
+Watch yourself. We don't want any trouble here.
+Watch yourself, stranger.
+I have my eye on you.
+I wouldn't cause any fuss if I were you.
+We're watching you!
+...
+
+Poker guards:
+He's cheating! Waaaah!
+Don't distract me, I'm trying to win for once here!
+Won again! Who's your daddy, and what is his name?!
+Hey! Stop looking at my cards you rat!
+That's it, keep him distracted!
+Would you mind telling me what cards the other guy has? Teeheehee!
+
+Off-duty guard in tavern:
+/me hiccups.
+i can haz beer?
+*sings* I am a guard aaaand I am havin' a beer. Drinky drinky guard, drinky drinky guard.
+Get away from my *hic* beer *hic*!
+I can see you! *hic!* Don' make me come af'er you! *hic!* ... Can ye find my sword? I think I losst it!
+Bartender, 'nother beer here!
+
+A ranger outside the gate:
+Careful friend, there are monsters worse than ants and wolves in the wild here!
+Quiet! I can hear something nearby...
+Quiet... I can hear something... footsteps... they stopped... oh. That's you. Hello.
+
+Wolf hunter by day:
+If you hear wolves howling, it's dinner time!
+Howdy, friend! Are you hunting these canine fiends too?
+Howdy, friend! A lovely day to hunt us down some canine fiends eh?
+
+Wolf hunter by night:
+Zzzzz... come here... come here you little bastards... *snort* zzz...

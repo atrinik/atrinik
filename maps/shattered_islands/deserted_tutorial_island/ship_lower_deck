@@ -1,0 +1,679 @@
+arch map
+name Lower Deck
+msg
+Created:  2011-08-18 Alex Tokar
+Modified: 2011-09-08 Alex Tokar
+endmsg
+width 5
+height 14
+difficulty 1
+darkness 5
+bg_music fireside.mid
+end
+arch blocked
+end
+arch ship_rail_s_high
+end
+arch ship_floor_ns_3
+y 1
+end
+arch ship_rail_w_high
+y 1
+end
+arch bed_4a
+no_pass 1
+direction 7
+layer 7
+y 1
+end
+arch ship_floor_ns_3
+y 2
+end
+arch ship_rail_w_high
+y 2
+end
+arch bed_4b
+no_pass 1
+direction 7
+layer 7
+y 2
+end
+arch ship_floor_ns_3
+y 3
+end
+arch ship_rail_w_high
+y 3
+end
+arch ship_floor_ns_3
+y 4
+end
+arch water_lt3_m
+y 4
+end
+arch ship_rail_w_high
+no_pass 1
+y 4
+end
+arch hole2
+layer 7
+align -8
+z 14
+zoom 90
+y 4
+end
+arch ship_floor_ns_3
+y 5
+end
+arch ship_rail_sw_high
+no_pass 1
+blocksview 1
+y 5
+end
+arch ship_floor_ns_3
+y 6
+end
+arch trash_wood1.101
+y 6
+end
+arch ship_rail_w_high
+y 6
+end
+arch ship_floor_ns_3
+y 7
+end
+arch ship_rail_w_high
+y 7
+end
+arch ship_floor_ns_3
+y 8
+end
+arch ship_rail_w_high
+y 8
+end
+arch blocked
+y 9
+end
+arch ship_hull_prow_s_front_starboard_1
+y 9
+end
+arch table_small1b
+align 8
+z -3
+y 9
+end
+arch ship_prow_s_starboard_a
+blocksview 1
+y 9
+end
+arch ship_prow_s_starboard_a
+z 12
+layer 7
+y 9
+end
+arch blocked
+y 10
+end
+arch ship_hull_prow_s_front_starboard_2
+y 10
+end
+arch ship_prow_s_starboard_b
+blocksview 1
+y 10
+end
+arch ship_prow_s_starboard_b
+z 12
+layer 7
+y 10
+end
+arch blocked
+y 11
+end
+arch blocked
+y 12
+end
+arch blocked
+y 13
+end
+arch blocked
+x 1
+end
+arch ship_rail_s_high
+layer 5
+x 1
+end
+arch hole2
+layer 7
+align -4
+z 4
+zoom 85
+x 1
+end
+arch ship_floor_ns_4
+x 1
+y 1
+end
+arch table_small1
+x 1
+y 1
+end
+arch ship_floor_ns_1
+x 1
+y 2
+end
+arch magic_mouth
+msg
+
+A loud noise awakens you. You slowly get up, and as you do so, you become aware of the pain on the back of your head. You look around, and notice cracks in the walls of the boat you are on. Perhaps you should take a look around...
+endmsg
+notification_message Tutorial Available: Movement
+notification_action /help basics_movement
+notification_shortcut ?HELP
+notification_delay 120000
+x 1
+y 2
+end
+arch ship_floor_ns_3
+x 1
+y 3
+end
+arch ship_floor_ns_3
+x 1
+y 4
+end
+arch box_big.101
+z -4
+x 1
+y 4
+end
+arch ship_floor_ns_4
+x 1
+y 5
+end
+arch ship_rail_s_high
+no_pass 1
+blocksview 1
+x 1
+y 5
+end
+arch ship_floor_ns_4
+x 1
+y 6
+end
+arch ship_floor_ns_3
+x 1
+y 7
+end
+arch ship_floor_ns_2
+x 1
+y 8
+end
+arch water_lt3_m
+x 1
+y 8
+end
+arch ship_floor_ns_4
+x 1
+y 9
+end
+arch box1.101
+x 1
+y 9
+end
+arch ship_floor_ns_4
+x 1
+y 10
+end
+arch barrel2.101
+x 1
+y 10
+end
+arch ship_prow_s_starboard_c
+no_pass 1
+x 1
+y 10
+end
+arch ship_prow_s_starboard_c
+z 12
+layer 7
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch ship_hull_prow_s_front_starboard_1
+x 1
+y 11
+end
+arch metal_bucket.101
+align 9
+x 1
+y 11
+end
+arch ship_prow_s_starboard_a
+blocksview 1
+x 1
+y 11
+end
+arch ship_prow_s_starboard_a
+z 12
+layer 7
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch ship_hull_prow_s_front_starboard_2
+x 1
+y 12
+end
+arch ship_prow_s_starboard_b
+blocksview 1
+x 1
+y 12
+end
+arch ship_prow_s_starboard_b
+z 12
+layer 7
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch blocked
+x 2
+end
+arch ship_rail_s_high
+x 2
+end
+arch ship_floor_ns_1
+x 2
+y 1
+end
+arch table_small1b
+x 2
+y 1
+end
+arch ship_floor_ns_1
+x 2
+y 2
+end
+arch water_floor
+x 2
+y 2
+end
+arch ship_floor_ns_1
+x 2
+y 3
+end
+arch ship_floor_ns_4
+x 2
+y 4
+end
+arch ship_floor_ns_1
+x 2
+y 5
+end
+arch ship_rail_s_high
+no_pass 1
+blocksview 1
+x 2
+y 5
+end
+arch ship_floor_ns_1
+x 2
+y 6
+end
+arch stairs_wood_up
+msg
+
+You climb up to the main deck, and notice a man who looks like the captain. You vaguely remember boarding the boat with him...
+endmsg
+slaying ../world_ag04
+hp 8
+sp 14
+direction 5
+x 2
+y 6
+end
+arch ship_floor_ns_3
+x 2
+y 7
+end
+arch chair1_drop_171
+x 2
+y 7
+end
+arch ship_floor_ns_3
+x 2
+y 8
+end
+arch chair1_drop_111
+x 2
+y 8
+end
+arch ship_floor_ns_4
+x 2
+y 9
+end
+arch lab_cauld_brk
+x 2
+y 9
+end
+arch ship_floor_ns_4
+x 2
+y 10
+end
+arch barrel2.101
+x 2
+y 10
+end
+arch ship_floor_ns_4
+x 2
+y 11
+end
+arch barrel.101
+x 2
+y 11
+end
+arch ship_floor_ns_2
+x 2
+y 12
+end
+arch ship_prow_s_midship
+no_pass 1
+x 2
+y 12
+end
+arch ship_prow_s_midship
+z 12
+layer 7
+x 2
+y 12
+end
+arch blocked
+x 2
+y 13
+end
+arch ship_prow_s
+layer 5
+blocksview 1
+x 2
+y 13
+end
+arch ship_prow_s_long
+z 12
+x 2
+y 13
+end
+arch blocked
+x 3
+end
+arch ship_rail_s_high
+ldraw_double 1
+ayer 5
+x 3
+end
+arch ship_floor_ns_4
+x 3
+y 1
+end
+arch bed_7a
+no_pass 1
+direction 7
+align 8
+z -4
+x 3
+y 1
+end
+arch ship_floor_ns_3
+x 3
+y 2
+end
+arch bed_7b
+no_pass 1
+direction 7
+align 8
+z -4
+x 3
+y 2
+end
+arch ship_floor_ns_4
+x 3
+y 3
+end
+arch ship_floor_ns_3
+x 3
+y 4
+end
+arch ship_floor_ns_4
+x 3
+y 5
+end
+arch door_wood2
+x 3
+y 5
+end
+arch magic_mouth
+msg
+
+You see a right mess in front of your eyes - barrels of water smashed and their contents, along with most food supplies on the floor. You wonder what happened here... You can hear someone walking about on the deck above, perhaps you should investigate by taking the stairs next to you.
+endmsg
+direction 1
+splitting 1
+notification_message Tutorial Available: Object Interaction
+notification_action /help basics_object_interaction
+notification_shortcut ?HELP
+notification_delay 600000
+x 3
+y 5
+end
+arch ship_floor_ns_3
+x 3
+y 6
+end
+arch ship_floor_ns_4
+x 3
+y 7
+end
+arch ship_floor_ns_4
+x 3
+y 8
+end
+arch table_small1b
+x 3
+y 8
+end
+arch ship_floor_ns_4
+x 3
+y 9
+end
+arch ship_floor_ns_3
+x 3
+y 10
+end
+arch ship_prow_s_strokeside_c
+layer 5
+no_pass 1
+x 3
+y 10
+end
+arch ship_prow_s_strokeside_c
+z 12
+x 3
+y 10
+end
+arch blocked
+x 3
+y 11
+end
+arch ship_prow_s_strokeside_a
+layer 5
+blocksview 1
+x 3
+y 11
+end
+arch ship_prow_s_strokeside_a
+z 12
+x 3
+y 11
+end
+arch blocked
+x 3
+y 12
+end
+arch ship_prow_s_strokeside_b
+layer 5
+blocksview 1
+x 3
+y 12
+end
+arch ship_prow_s_strokeside_b
+z 12
+x 3
+y 12
+end
+arch blocked
+x 3
+y 13
+end
+arch blocked
+x 4
+end
+arch ship_rail_s_high
+x 4
+end
+arch ship_floor_ns_4
+x 4
+y 1
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 1
+end
+arch ship_floor_ns_4
+x 4
+y 2
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 2
+end
+arch ship_floor_ns_4
+x 4
+y 3
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 3
+end
+arch ship_floor_ns_4
+x 4
+y 4
+end
+arch ship_rail_e_high
+no_pass 1
+layer 5
+x 4
+y 4
+end
+arch hole2
+layer 7
+align 8
+x 4
+y 4
+end
+arch ship_floor_ns_4
+x 4
+y 5
+end
+arch ship_rail_se_high
+blocksview 1
+no_pass 1
+x 4
+y 5
+end
+arch ship_floor_ns_4
+x 4
+y 6
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 6
+end
+arch ship_floor_ns_4
+x 4
+y 7
+end
+arch ship_rail_e_high
+no_pass 1
+x 4
+y 7
+end
+arch ship_floor_ns_4
+x 4
+y 8
+end
+arch ship_rail_e_high
+no_pass 1
+layer 5
+x 4
+y 8
+end
+arch hole2
+layer 7
+align 8
+x 4
+y 8
+end
+arch blocked
+x 4
+y 9
+end
+arch ship_prow_s_strokeside_a
+layer 5
+blocksview 1
+x 4
+y 9
+end
+arch ship_prow_s_strokeside_a
+z 12
+x 4
+y 9
+end
+arch blocked
+x 4
+y 10
+end
+arch ship_prow_s_strokeside_b
+layer 5
+blocksview 1
+x 4
+y 10
+end
+arch ship_prow_s_strokeside_b
+z 12
+x 4
+y 10
+end
+arch blocked
+x 4
+y 11
+end
+arch blocked
+x 4
+y 12
+end
+arch blocked
+x 4
+y 13
+end

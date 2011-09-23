@@ -1,7 +1,7 @@
 Object map
 layer 1
 type 22
-slaying /tutorial
+slaying /tutorial/tutorial_0102
 face info.101
 x 16
 y 16
