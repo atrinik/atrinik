@@ -1624,6 +1624,13 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 		pushContext(context);
 		dict = PyDict_Copy(py_globals_dict);
+		PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
+		PyDict_SetItemString(dict, "me", wrap_object(context->who));
+
+		if (context->text)
+		{
+			PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
+		}
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
 		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
