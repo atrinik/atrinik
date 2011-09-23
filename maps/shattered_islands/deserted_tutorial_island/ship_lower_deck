@@ -2,10 +2,12 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-09-08 Alex Tokar
+Modified: 2011-09-23 Alex Tokar
 endmsg
 width 5
 height 14
+enter_x 1
+enter_y 2
 difficulty 1
 darkness 5
 bg_music fireside.mid
