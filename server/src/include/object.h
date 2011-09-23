@@ -611,4 +611,8 @@ typedef struct magic_mirror_struct
  * or similar effect, and not mirroring. */
 #define MMIRROR(ob) ((magic_mirror_struct *) ((ob)->custom_attrset))
 
+/**
+ * Check whether the specified object can talk. */
+#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || HAS_EVENT((ob), EVENT_SAY)))
+
 #endif
