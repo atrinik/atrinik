@@ -80,11 +80,13 @@ class BaseTemple:
 	## @return True if the chat was handled, False otherwise.
 	def handle_chat(self, msg):
 		if msg == "hello":
-			self._inf.add_msg("Welcome to the church of <a>{}</a>.".format(self._name))
+			self._inf.add_msg("Welcome to the church of {}.".format(self._name))
+			self._inf.add_link("Who is {}?".format(self._name), dest = self._name)
 
 			# We don't like enemy gods.
 			if self.is_enemy_god():
-				self._inf.add_msg("... I see that you are a follower of <a>{}</a>. It would be best for you to leave immediately.".format(self._enemy_name))
+				self._inf.add_msg("... I see that you are a follower of {}. It would be best for you to leave immediately.".format(self._enemy_name))
+				self._inf.add_link("Who is {}?".format(self._enemy_name), dest = self._enemy_name)
 				return True
 
 			# Custom message to say before services.
@@ -95,18 +97,18 @@ class BaseTemple:
 			services = sorted(self.services, key = lambda key: self.services[key][2], reverse = True)
 
 			if services:
-				self._inf.add_msg("I can offer you the following services:")
+				self._inf.add_msg("I can offer you the following services.")
 
 				for service in services:
-					self._inf.add_link(service.capitalize())
+					self._inf.add_link(service.capitalize() + ".", dest = service)
 
 			return True
 		# Explain about the temple's god.
-		elif msg == self._name.lower():
+		elif msg == self._name:
 			self._inf.add_msg(self._desc)
 			return True
 		# Explain about the temple's enemy god, if there is one.
-		elif self._enemy_name and msg == self._enemy_name.lower():
+		elif self._enemy_name and msg == self._enemy_name:
 			self._inf.add_msg(self._enemy_desc)
 			return True
 
