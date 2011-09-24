@@ -48,8 +48,9 @@ class Interface:
 	def set_title(self, title):
 		self._title = title
 
-	def set_text_input(self, text_input = ""):
-		self._text_input = text_input
+	def set_text_input(self, text = "", prepend = None):
+		self._text_input = text
+		self._text_input_prepend = prepend
 
 	def add_objects(self, objs):
 		if type(objs) != list:
@@ -61,7 +62,7 @@ class Interface:
 			obj.InsertInto(self._activator)
 
 	def dialog_close(self):
-		self._activator.Controller().WriteToSocket(39, "X")
+		self._activator.Controller().SendPacket(39, "", None)
 
 	def finish(self):
 		if not self._msg:
@@ -70,21 +71,35 @@ class Interface:
 		pl = self._activator.Controller()
 		SetReturnValue(1)
 
-		if pl.s_socket_version >= 1058:
-			pl.SendInterface(self._msg, self._links, self._icon, self._title, self._text_input)
+		# Construct the base data packet; contains the interface message,
+		# the icon and the title.
+		fmt = "BsBsBs"
+		data = [0, self._msg, 2, self._icon, 3, self._title]
 
-			# If there is any movement behavior, update the amount of time
-			# the NPC should pause moving for.
-			if self._npc.move_type or self._npc.f_random_move:
-				from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
+		# Add links to the data packet, if any.
+		for link in self._links:
+			fmt += "Bs"
+			data += [1, link]
 
-				timeout = self._npc.ReadKey("npc_move_timeout")
-				ticks = GetTicks() + ((int(max(INTERFACE_TIMEOUT_CHARS, len(self._msg)) / INTERFACE_TIMEOUT_CHARS * INTERFACE_TIMEOUT_SECONDS)) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 // MAX_TIME)
+		# Add the text input, if any.
+		if self._text_input != None:
+			fmt += "Bs"
+			data += [4, self._text_input]
 
-				if not timeout or ticks > int(timeout):
-					self._npc.WriteKey("npc_move_timeout", str(ticks))
-		else:
-			self._npc.SayTo(self._activator, "\n" + self._msg)
+			if self._text_input_prepend:
+				fmt += "Bs"
+				data += [5, self._text_input_prepend]
 
-			if self._links:
-				self._npc.SayTo(self._activator, "\n" + "\n".join(self._links), True)
+		# Send the data.
+		pl.SendPacket(39, fmt, *data)
+
+		# If there is any movement behavior, update the amount of time
+		# the NPC should pause moving for.
+		if self._npc.move_type or self._npc.f_random_move:
+			from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
+
+			timeout = self._npc.ReadKey("npc_move_timeout")
+			ticks = GetTicks() + ((int(max(INTERFACE_TIMEOUT_CHARS, len(self._msg)) / INTERFACE_TIMEOUT_CHARS * INTERFACE_TIMEOUT_SECONDS)) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 // MAX_TIME)
+
+			if not timeout or ticks > int(timeout):
+				self._npc.WriteKey("npc_move_timeout", str(ticks))
