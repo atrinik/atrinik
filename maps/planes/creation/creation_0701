@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-08-26 Alex Tokar
+Modified: 2011-09-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -334,7 +334,7 @@ direction 3
 type 83
 arch event_obj
 sub_type 6
-race scripts/interface_test.py
+race scripts/interface.py
 end
 end
 end
@@ -2408,19 +2408,6 @@ end
 arch floor_stone_b2
 x 16
 y 16
-end
-arch spawn_point
-x 16
-y 16
-arch monk
-name Interface Guy
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/interface.py
-end
-end
 end
 arch floor_stone_b4
 x 16
