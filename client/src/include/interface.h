@@ -43,6 +43,10 @@ typedef struct interface_struct
 	/** Icon name. */
 	char *icon;
 
+	/** Text to prepend to the text input string when sending it to NPC. */
+	char *text_input_prepend;
+
+	/** Font used. */
 	int font;
 
 	/** Array of the shortcut-supporting links. */
@@ -54,8 +58,10 @@ typedef struct interface_struct
 	/** Whether the interface should be destroyed. */
 	uint8 destroy;
 
+	/** Scroll offset. */
 	uint32 scroll_offset;
 
+	/** Number of lines. */
 	uint32 num_lines;
 
 	/** Scrollbar. */
@@ -80,6 +86,10 @@ typedef struct interface_struct
  * If found in the command, will open the console with any text followed
  * by this. */
 #define CMD_INTERFACE_INPUT 4
+/**
+ * Hidden text to prepend to the final text input string, when sent to
+ * the NPC. */
+#define CMD_INTERFACE_INPUT_PREPEND 5
 /*@}*/
 
 /**

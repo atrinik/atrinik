@@ -53,6 +53,11 @@ static void interface_destroy(void)
 		free(interface_data->icon);
 	}
 
+	if (interface_data->text_input_prepend)
+	{
+		free(interface_data->text_input_prepend);
+	}
+
 	utarray_free(interface_data->links);
 	free(interface_data);
 
@@ -208,13 +213,26 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 		{
 			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
 			{
-				StringBuffer *sb = stringbuffer_new();
-				char *cp;
+				if (text_input_string[0] != '\0')
+				{
+					StringBuffer *sb;
+					char *cp;
 
-				stringbuffer_append_printf(sb, "/t_tell %s", text_input_string);
-				cp = stringbuffer_finish(sb);
-				send_command_check(cp);
-				free(cp);
+					sb = stringbuffer_new();
+					stringbuffer_append_string(sb, "/t_tell ");
+
+					if (interface_data->text_input_prepend)
+					{
+						stringbuffer_append_string(sb, interface_data->text_input_prepend);
+					}
+
+					stringbuffer_append_string(sb, text_input_string);
+
+					cp = stringbuffer_finish(sb);
+					send_command_check(cp);
+					free(cp);
+				}
+
 				text_input_close();
 				return 1;
 			}
@@ -405,6 +423,15 @@ void cmd_interface(uint8 *data, int len)
 				text_input = 1;
 				GetString_String(data, &pos, text_input_content, sizeof(text_input_content));
 				break;
+
+			case CMD_INTERFACE_INPUT_PREPEND:
+			{
+				char text_input_prepend[HUGE_BUF];
+
+				GetString_String(data, &pos, text_input_prepend, sizeof(text_input_prepend));
+				interface_data->text_input_prepend = strdup(text_input_prepend);
+				break;
+			}
 
 			default:
 				break;
