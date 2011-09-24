@@ -212,29 +212,6 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 }
 
 /**
- * <h1>player.WriteToSocket(int command_id, string command_data)</h1>
- * Send a socket command to player's client. This can be used to fake a
- * book GUI, for example.
- * @param command_id The command's ID to send.
- * @param command_data Data to send. */
-static PyObject *Atrinik_Player_WriteToSocket(Atrinik_Player *pl, PyObject *args)
-{
-	char command_id;
-	const char *command_data;
-	int command_data_len;
-
-	if (!PyArg_ParseTuple(args, "bs#", &command_id, &command_data, &command_data_len))
-	{
-		return NULL;
-	}
-
-	hooks->Write_String_To_Socket(&pl->pl->socket, command_id, command_data, command_data_len);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>player.BankDeposit(string text)</h1>
  * Deposit money to bank.
  * @param text How much money to deposit, in string representation.
@@ -663,7 +640,6 @@ static PyMethodDef methods[] =
 	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
 	{"GetSkill", (PyCFunction) Atrinik_Player_GetSkill, METH_VARARGS, 0},
 	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
-	{"WriteToSocket", (PyCFunction) Atrinik_Player_WriteToSocket, METH_VARARGS, 0},
 	{"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
 	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
