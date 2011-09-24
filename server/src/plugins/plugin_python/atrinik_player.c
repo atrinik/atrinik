@@ -500,65 +500,6 @@ static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
 }
 
 /**
- * <h1>player.SendInterface(string msg, list links, string icon, string title, string text_input)</h1>
- * Sends off interface data to the player.
- * @param msg Conversation contents.
- * @param links List of shortcut-enabled links.
- * @param icon Icon to show in the interface.
- * @param title Title of the interface window.
- * @param text_input If not None, will automatically open the text input
- * console in the interface, with the specified message contents in it. */
-static PyObject *Atrinik_Player_SendInterface(Atrinik_Player *pl, PyObject *args)
-{
-	unsigned char sock_buf[MAXSOCKBUF];
-	SockList sl;
-	const char *msg, *icon, *title, *text_input;
-	PyObject *links;
-	Py_ssize_t i, links_len;
-
-	if (!PyArg_ParseTuple(args, "sO!ssz", &msg, &PyList_Type, &links, &icon, &title, &text_input))
-	{
-		return NULL;
-	}
-
-	sl.buf = sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
-
-	/* Add the message. */
-	SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
-	hooks->SockList_AddString(&sl, msg);
-
-	/* Add the links, one by one. */
-	links_len = PyList_Size(links);
-
-	for (i = 0; i < links_len; i++)
-	{
-		SockList_AddChar(&sl, CMD_INTERFACE_LINK);
-		hooks->SockList_AddString(&sl, PyString_AsString(PyList_GetItem(links, i)));
-	}
-
-	/* Add the icon. */
-	SockList_AddChar(&sl, CMD_INTERFACE_ICON);
-	hooks->SockList_AddString(&sl, icon);
-
-	/* Add the title. */
-	SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
-	hooks->SockList_AddString(&sl, title);
-
-	/* Add the text input, if any. */
-	if (text_input)
-	{
-		SockList_AddChar(&sl, CMD_INTERFACE_INPUT);
-		hooks->SockList_AddString(&sl, text_input);
-	}
-
-	hooks->Send_With_Handling(&pl->pl->socket, &sl);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>player.SendPacket(int command, string format, ...)</h1>
  * Constructs and sends a packet to the player's client.
  * @param command The command ID.
@@ -735,7 +676,6 @@ static PyMethodDef methods[] =
 	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
-	{"SendInterface", (PyCFunction) Atrinik_Player_SendInterface, METH_VARARGS, 0},
 	{"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
