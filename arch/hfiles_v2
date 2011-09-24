@@ -1354,7 +1354,7 @@ title NPC Interface
 msg
 This is the main interface used for conversations with NPCs.
 
-<title>Controls</b>
+<title>Controls</title>
 
 In order to proceed with the conversation, you need to select a response from the blue links below the NPC's message. You can either click the link, or press its shortcut number on the keyboard, as indicated in front of the link (for example, if there's [1] in front of the link, you need to press <b>1</b> on the keyboard).
 
