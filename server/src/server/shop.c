@@ -992,12 +992,10 @@ sint64 bank_get_balance(object *op)
  * @return One of @ref BANK_xxx. */
 int bank_deposit(object *op, const char *text, sint64 *value)
 {
-	int pos = 0;
 	_money_block money;
 	object *bank;
 
-	get_word_from_string(text, &pos);
-	get_money_from_string(text + pos, &money);
+	get_money_from_string(text, &money);
 	*value = 0;
 
 	if (!money.mode)
@@ -1083,13 +1081,11 @@ int bank_deposit(object *op, const char *text, sint64 *value)
  * @return One of @ref BANK_xxx. */
 int bank_withdraw(object *op, const char *text, sint64 *value)
 {
-	int pos = 0;
 	sint64 big_value;
 	_money_block money;
 	object *bank;
 
-	get_word_from_string(text, &pos);
-	get_money_from_string(text + pos, &money);
+	get_money_from_string(text, &money);
 
 	bank = bank_get_info(op);
 	*value = 0;
