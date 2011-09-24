@@ -358,7 +358,7 @@ def create_interface(msg, back = None):
 		msg += "\n\n<a=:/t_tell " + back + ">Go Back</a>"
 
 	# Send the command to the player.
-	pl.WriteToSocket(30, "x<book>" + me.map.region.longname + " Auction House</book>\n" + msg)
+	pl.SendPacket(30, "s", "<book>" + me.map.region.longname + " Auction House</book>\n" + msg)
 
 ## Creates list of objects using client markup.
 ## @param l The list of objects.
