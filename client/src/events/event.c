@@ -122,6 +122,12 @@ int Event_PollInputDevice(void)
 			tooltip_dismiss();
 		}
 
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINT)
+		{
+			screenshot_create(ScreenSurface);
+			continue;
+		}
+
 		if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN)
 		{
 			if (popup_handle_event(&event))
