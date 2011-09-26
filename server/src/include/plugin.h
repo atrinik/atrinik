@@ -254,6 +254,8 @@ struct plugin_hooklist
 	void (*Write_String_To_Socket)(socket_struct *, char, const char *, int);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)(void);
+	void (*stringbuffer_append_string)(StringBuffer *, const char *);
+	void (*stringbuffer_append_printf)(StringBuffer *, const char *, ...);
 	char *(*stringbuffer_finish)(StringBuffer *);
 	char *(*cleanup_chat_string)(char *);
 	int (*cftimer_find_free_id)(void);

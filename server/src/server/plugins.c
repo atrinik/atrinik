@@ -114,6 +114,8 @@ struct plugin_hooklist hooklist =
 	Write_String_To_Socket,
 	dump_object,
 	stringbuffer_new,
+	stringbuffer_append_string,
+	stringbuffer_append_printf,
 	stringbuffer_finish,
 	cleanup_chat_string,
 	cftimer_find_free_id,
