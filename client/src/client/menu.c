@@ -308,9 +308,6 @@ int client_command_check(const char *cmd)
 	else if (!strncasecmp(cmd, "/screenshot", 11))
 	{
 		SDL_Surface *surface_save;
-		char path[HUGE_BUF], timebuf[MAX_BUF];
-		struct timeval tv;
-		struct tm *tm;
 
 		cmd += 11;
 
@@ -329,39 +326,7 @@ int client_command_check(const char *cmd)
 			return 1;
 		}
 
-		gettimeofday(&tv, NULL);
-		tm = localtime(&tv.tv_sec);
-
-		if (tm)
-		{
-			char timebuf2[MAX_BUF];
-
-			strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
-			snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
-		}
-		else
-		{
-			draw_info(COLOR_RED, "Could not get time information.");
-			return 1;
-		}
-
-		snprintf(path, sizeof(path), "%s/.atrinik/screenshots/Atrinik-%s.bmp", get_config_dir(), timebuf);
-		mkdir_ensure(path);
-
-		if (SDL_SaveBMP(surface_save, path) == 0)
-		{
-			draw_info_format(COLOR_GREEN, "Saved screenshot as %s successfully.", path);
-
-			if (bmp2png(path))
-			{
-				draw_info(COLOR_GREEN, "Converted to PNG successfully.");
-			}
-		}
-		else
-		{
-			draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
-		}
-
+		screenshot_create(surface_save);
 		return 1;
 	}
 
