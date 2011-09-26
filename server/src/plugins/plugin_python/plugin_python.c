@@ -1430,6 +1430,45 @@ static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *args)
 	return Py_BuildValue("l", *hooks->pticks);
 }
 
+/**
+ * <h1>print(...)</h1>
+ * Prints the string representations of the given objects to the server
+ * log, as well as all online DMs. */
+static PyObject *Atrinik_print(PyObject *self, PyObject *args)
+{
+	Py_ssize_t i;
+	StringBuffer *sb;
+	char *cp;
+	PyObject *locals;
+
+	(void) self;
+
+	sb = hooks->stringbuffer_new();
+
+	for (i = 0; i < PyTuple_Size(args); i++)
+	{
+		if (i > 0)
+		{
+			hooks->stringbuffer_append_string(sb, " ");
+		}
+
+		hooks->stringbuffer_append_string(sb, PyString_AsString(PyObject_Str(PyTuple_GetItem(args, i))));
+	}
+
+	hooks->stringbuffer_append_string(sb, "\n");
+	cp = hooks->stringbuffer_finish(sb);
+
+	locals = PyDict_New();
+	PyDict_SetItemString(locals, "print_msg", Py_BuildValue("s", cp));
+	free(cp);
+
+	py_runfile_simple("/python/events/python_print.py", locals);
+	Py_DECREF(locals);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /**
@@ -1471,6 +1510,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
 	{"CreateObject", Atrinik_CreateObject, METH_VARARGS, 0},
 	{"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
+	{"print", Atrinik_print, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
