@@ -541,6 +541,67 @@ static void freeContext(PythonContext *context)
 }
 
 /**
+ * Run a Python file. 'path' is automatically resolved to the current
+ * maps directory.
+ * @param path The Python file in the maps directory to run (absolute).
+ * @param globals Globals dictionary.
+ * @param locals Locals dictionary. May be NULL.
+ * @return The returned object, if any. */
+static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *locals)
+{
+	char *fullpath;
+	FILE *fp;
+	PyObject *ret = NULL;
+
+	fullpath = hooks->strdup_local(hooks->create_pathname(path));
+
+	fp = fopen(fullpath, "r");
+
+	if (fp)
+	{
+#ifdef WIN32
+		StringBuffer *sb;
+		char *cp;
+
+		fclose(fp);
+
+		sb = hooks->stringbuffer_new();
+		hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())", fullpath);
+		cp = hooks->stringbuffer_finish(sb);
+		PyRun_String(cp, Py_file_input, globals, locals);
+		free(cp);
+#else
+		ret = PyRun_File(fp, fullpath, Py_file_input, globals, locals);
+		fclose(fp);
+#endif
+	}
+
+	free(fullpath);
+
+	return ret;
+}
+
+/**
+ * Simplified interface to py_runfile(); automatically constructs the
+ * globals dictionary with the Python builtins.
+ * @param path The Python file in the maps directory to run (absolute).
+ * @param locals Locals dictionary. May be NULL. */
+static void py_runfile_simple(const char *path, PyObject *locals)
+{
+	PyObject *globals, *ret;
+
+	/* Construct globals dictionary. */
+	globals = PyDict_New();
+	PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
+
+	/* Run the Python code. */
+	ret = py_runfile(path, globals, locals);
+
+	Py_DECREF(globals);
+	Py_XDECREF(ret);
+}
+
+/**
  * @defgroup plugin_python_functions Python functions
  *@{*/
 
@@ -1968,36 +2029,14 @@ static int cmd_customPython(object *op, char *params)
 
 MODULEAPI void postinitPlugin(void)
 {
-	char path[HUGE_BUF];
-	FILE *fp;
 	PyGILState_STATE gilstate;
 
 	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
-	strncpy(path, hooks->create_pathname("/python/events/python_init.py"), sizeof(path) - 1);
-	fp = fopen(path, "r");
-
 	gilstate = PyGILState_Ensure();
-
-	if (fp)
-	{
-#ifdef WIN32
-		char *pystring;
-
-		fclose(fp);
-
-		pystring = malloc(strlen(path) + 64);
-		sprintf(pystring, "exec(open('%s').read())", path);
-		PyRun_SimpleString(pystring);
-		free(pystring);
-#else
-		PyRun_SimpleFile(fp, path);
-		fclose(fp);
-#endif
-	}
-
+	py_runfile_simple("/python/events/python_init.py", NULL);
 	PyGILState_Release(gilstate);
 }
 
