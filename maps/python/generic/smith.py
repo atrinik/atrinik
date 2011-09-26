@@ -1,71 +1,14 @@
 ## @file
 ## Generic script for smiths in shops.
 
-from Atrinik import *
+from Interface import Interface
+from Smith import Smith
 
-activator = WhoIsActivator()
-me = WhoAmI()
-
-msg = WhatIsMessage().strip().lower()
-text = msg.split()
-
-## Dictionary of all possible costs of services. Based on player's level.
-costs = {
-	"identify": 50 + (10 * activator.level),
-	"identify_all": 200 + (50 * activator.level),
-}
-
-## If the activator is under this level, some of the services are free.
-level_free = 5
+inf = Interface(activator, me)
 
 def main():
-	if msg == "hello" or msg == "hi" or msg == "hey":
-		## Cost strings.
-		cost_strings = {
-			"identify": CostString(costs["identify"]),
-			"identify_all": CostString(costs["identify_all"]),
-		}
-
-		# Some of the services are free if the player is under certain level
-		if activator.level < level_free:
-			cost_strings["identify"] = "free"
-			cost_strings["identify_all"] = "free"
-
-		me.SayTo(activator, "\nWelcome to my shop. We have what you want!\nI can offer you the following <a>services</a>:\n<a>identify</a> for {0}\n<a>identify all</a> for {1}.".format(cost_strings["identify"], cost_strings["identify_all"]))
-
-	# Identify a single marked item
-	elif msg == "identify":
-		## Get the marked object.
-		marked_object = activator.Controller().FindMarkedObject()
-
-		if marked_object == None:
-			me.SayTo(activator, "\nYou must mark an item first.")
-		else:
-			if activator.level < level_free:
-				me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
-				me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
-			else:
-				if activator.PayAmount(costs["identify"]):
-					activator.Write("You pay {}.".format(CostString(costs["identify"])), COLOR_WHITE)
-					me.SayTo(activator, "\nOk, I will identify the {0}.".format(marked_object.name))
-					me.CastIdentify(activator, IDENTIFY_MARKED, marked_object)
-				else:
-					me.SayTo(activator, "\nSorry, you do not have enough money.")
-
-	# Identify all items
-	elif msg == "identify all":
-		if activator.level < level_free:
-			me.SayTo(activator, "\nYou are under level {0}. I will do this service for free this time!".format(level_free))
-			me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
-		else:
-			if activator.PayAmount(costs["identify_all"]):
-				activator.Write("You pay {}.".format(CostString(costs["identify_all"])), COLOR_WHITE)
-				me.SayTo(activator, "\nOk, I will identify all your items.")
-				me.CastIdentify(activator, IDENTIFY_ALL, activator.Controller().FindMarkedObject())
-			else:
-				me.SayTo(activator, "\nSorry, you do not have enough money.")
-
-	elif msg == "services":
-		me.SayTo(activator, "\n<green>identify</green> will identify only one item, the one which you have marked with <yellow>M</yellow>.\n<green>identify all</green> will identify all items in your inventory, or if you have a marked container, all items inside it.")
+	smith = Smith(activator, me, inf)
+	smith.handle_chat(msg)
 
 main()
+inf.finish()
