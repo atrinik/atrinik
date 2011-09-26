@@ -1479,33 +1479,12 @@ static PyMethodDef AtrinikMethods[] =
  * DMs or those with /resetmap command permission. */
 static void PyErr_LOG(void)
 {
-	PyObject *globals, *locals, *ret;
+	PyObject *locals;
 	PyObject *ptype, *pvalue, *ptraceback;
-	const char *err_handle =
-"from Atrinik import *\n"
-"import traceback\n"
-"exception = \"\".join(traceback.format_exception(exc_type, exc_value, exc_traceback))\n"
-"LOG(llevDebug, exception)\n"
-"def markup_escape(text):\n"
-"	markup_escape_table = {\n"
-"		\">\": \"&gt;\",\n"
-"		\"<\": \"&lt;\",\n"
-"	}\n"
-"	return \"\".join(markup_escape_table.get(c, c) for c in text)\n"
-"exception = markup_escape(exception)\n"
-"player = GetFirst(\"player\")\n"
-"while player:\n"
-"	if player.ob.f_wiz or \"resetmap\" in player.cmd_permissions:\n"
-"		player.ob.Write(exception, COLOR_RED)\n"
-"	player = player.next\n";
 
 	/* Fetch the exception data. */
 	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
 	PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
-
-	/* Construct globals dictionary. */
-	globals = PyDict_New();
-	PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
 
 	/* Construct locals dictionary, with the exception data. */
 	locals = PyDict_New();
@@ -1522,16 +1501,12 @@ static void PyErr_LOG(void)
 		PyDict_SetItemString(locals, "exc_traceback", Py_None);
 	}
 
-	/* Run the Python code. */
-	ret = PyRun_String(err_handle, Py_file_input, globals, locals);
+	py_runfile_simple("/python/events/python_exception.py", locals);
+	Py_DECREF(locals);
 
 	Py_XDECREF(ptype);
 	Py_XDECREF(pvalue);
 	Py_XDECREF(ptraceback);
-
-	Py_DECREF(globals);
-	Py_DECREF(locals);
-	Py_XDECREF(ret);
 }
 
 /**
