@@ -271,7 +271,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
 			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
 			{
-				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL), num + 1, quest_object->last_grace);
+				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL), num + 1, MAX(1, quest_object->last_grace));
 			}
 			else
 			{
