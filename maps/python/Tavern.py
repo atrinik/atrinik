@@ -57,7 +57,7 @@ class Bartender:
 	## @param obj The provision the player has chosen.
 	def _chat_buy1(self, obj):
 		self._inf.add_msg("Ah, excellent choice!")
-		self._inf.add_msg_icon(obj.face[0], obj.GetName())
+		self._inf.add_msg_icon(obj.face[0], obj.GetName() + " for " + CostString(obj.value))
 		self._inf.add_msg("How many do you want to purchase?")
 		self._create_provision_numbers(obj)
 
