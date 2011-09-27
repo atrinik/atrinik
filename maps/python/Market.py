@@ -3,119 +3,132 @@
 
 from Atrinik import *
 
-## Handle merchants.
-##
-## Merchants sell goods specified in the event's inventory one at a time,
-## until their supply runs short.
-## @param activator Player.
-## @param me The NPC.
-## @param event Event object that activated this script. If None, no goods
-## or services will be available for purchase.
-## @param hello_msg Message to display before the list of goods/services.
-## @param hello_msg_after Message to display after the list of goods/services.
-def handle_merchant(activator, me, msg, event = None, hello_msg = None, hello_msg_after = None):
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome, dear customer!")
+## Merchant API.
+class Merchant:
+	## Initialize the merchant API.
+	## @param activator The script activator.
+	## @param me The merchant.
+	## @param event The event.
+	## @param inf The interface to use.
+	def __init__(self, activator, me, event, inf):
+		self._activator = activator
+		self._me = me
+		self._inf = inf
+		self._event = event
 
-		if hello_msg:
-			me.SayTo(activator, hello_msg, True)
+	## Handle a message.
+	## @param msg Message to handle.
+	## @return True if the message was handled, False otherwise.
+	def handle_msg(self, msg):
+		if msg == "hello":
+			self._inf.add_msg("Welcome, dear customer!")
 
-		# Display list of goods/services and their cost
-		if event:
 			# Message in event, create treasure.
-			if event.msg:
+			if self._event.msg:
 				import json
 
 				# Parse data, create the treasure.
-				for (treasure, num, a_chance) in json.loads(event.msg):
+				for (treasure, num, a_chance) in json.loads(self._event.msg):
 					for i in range(num):
-						event.CreateTreasure(treasure, me.level, GT_ONLY_GOOD, a_chance)
+						self._event.CreateTreasure(treasure, self._me.level, GT_ONLY_GOOD, a_chance)
 
-				event.msg = None
+				self._event.msg = None
 
-			# Make sure all objects in the merchant's inventory have
-			# stock_nrof attribute, which stores the actual number of
-			# items left.
-			for obj in event.inv:
-				if not obj.ReadKey("stock_nrof"):
+			if self._event.inv and not self._event.inv.ReadKey("stock_nrof"):
+				# Make sure all objects in the merchant's inventory have
+				# stock_nrof attribute, which stores the actual number of
+				# items left.
+				for obj in self._event.inv:
 					obj.f_identified = True
 					obj.WriteKey("stock_nrof", str(max(1, obj.nrof)))
 					obj.nrof = 1
 
-			# Create list of goods/services on sale.
-			goods = "\n".join("<a>" + obj.GetName() + "</a> for " + CostString(obj.GetCost(obj, COST_TRUE)) for obj in sorted(event.inv, key = lambda obj: len(obj.GetName())) if obj.ReadKey("stock_nrof") != "0")
+			found_goods = False
 
-			if not goods:
-				me.SayTo(activator, "Sorry, it seems I am out of stock! Please come back later.", True)
+			for obj in sorted(self._event.inv, key = lambda obj: obj.GetName()):
+				if obj.ReadKey("stock_nrof") == "0":
+					continue
+
+				name = obj.GetName()
+				self._inf.add_link(name.capitalize(), dest = "buy1 " + name)
+				found_goods = True
+
+			if not found_goods:
+				self._inf.add_msg("Sorry, it seems I am out of stock! Please come back later.")
 			else:
-				me.SayTo(activator, "I can offer you the following:\n" + goods, True)
+				self._inf.add_msg("I can offer you the following.")
 
-		if hello_msg_after:
-			me.SayTo(activator, hello_msg_after, True)
+			return True
+		elif msg.startswith("buy1 "):
+			name = msg[5:]
 
-	elif event:
-		# Allowed commands for services
-		cmds = {
-			"fortune telling": [["fortune", "-s", "fortunes"], ["fortune", "-s"], ["fortune"]],
-			"random adage": [["fortune", "-s"], ["fortune"]],
-		}
+			for obj in self._event.inv:
+				if obj.GetName() == name:
+					stock_nrof = int(obj.ReadKey("stock_nrof"))
 
-		for obj in event.inv:
-			if obj.GetName().lower() == msg:
-				stock_nrof = int(obj.ReadKey("stock_nrof"))
-
-				if not obj.f_sys_object:
 					# No more goods left.
 					if stock_nrof <= 0:
-						me.SayTo(activator, "\nOh my, it seems we don't have any {} left... Please come back later.".format(obj.GetName()))
+						self._inf.add_msg("Oh my, it seems we don't have any {} left... Please come back later.".format(name))
 						break
 
-					# Can't carry the item?
-					if not activator.Controller().CanCarry(obj.weight + obj.carrying):
-						me.SayTo(activator, "\nYou can't carry that...")
-						break
+					self._inf.add_msg("Splendid choice!")
+					self._inf.add_msg_icon(obj.face[0], name + " for " + CostString(obj.GetCost(obj, COST_TRUE)))
+					self._inf.add_msg("How many do you want to purchase?")
 
-				cost = obj.GetCost(obj, COST_TRUE)
+					from Language import int2english
 
-				if not activator.PayAmount(cost):
-					me.SayTo(activator, "\nSorry, you don't have enough money...")
+					for x in [1, 5, 10, 25, 50, 100, 500, 1000]:
+						if x > stock_nrof:
+							break
+
+						self._inf.add_link(int2english(x).capitalize(), dest = "buy2 " + str(x) + " " + name)
+
 					break
 
-				activator.Write("You pay {} to {}.".format(CostString(cost), me.name), COLOR_YELLOW)
+			return True
+		elif msg.startswith("buy2 "):
+			import re
 
-				# Execute command.
-				if obj.f_sys_object:
-					import subprocess
+			# Attempt to get the number of the items to buy and the item name.
+			match = re.match(r"(\d+) (.*)", msg[5:])
 
-					# Default output is in the object's message.
-					output = obj.msg
+			if not match:
+				return True
 
-					for cmd in cmds[msg]:
-						# Try to execute the command.
-						try:
-							output = subprocess.check_output(cmd).decode()[:-1].replace("\t", "    ")
-						# Command didn't return 0.
-						except subprocess.CalledProcessError:
-							continue
-						# Command not found.
-						except OSError:
-							continue
+			# Acquire the number and the name.
+			(num, name) = match.groups()
 
-						# Success, break out.
+			for obj in self._event.inv:
+				if obj.GetName() == name:
+					stock_nrof = int(obj.ReadKey("stock_nrof"))
+
+					# No more goods left.
+					if stock_nrof <= 0:
+						self._inf.add_msg("Oh my, it seems we don't have any {} left... Please come back later.".format(name))
 						break
 
-					me.SayTo(activator, "\n{}".format(output))
-				else:
+					# Make sure the number does not overflow.
+					num = max(1, min(int(num), stock_nrof))
+					cost = obj.GetCost(obj, COST_TRUE) * num
+
+					if not self._activator.PayAmount(cost):
+						self._inf.add_msg("Sorry, you don't have enough money...")
+						break
+
+					self._inf.add_msg("You pay {}.".format(CostString(cost)), COLOR_YELLOW)
+
 					clone = obj.Clone()
 					clone.WriteKey("stock_nrof")
-					activator.Write("{} hands you {}.".format(me.name, clone.GetName()), COLOR_GREEN)
-					clone.InsertInto(activator)
+					clone.nrof = num
+					self._inf.add_msg_icon(clone.face[0], clone.GetName())
+					clone.InsertInto(self._activator)
 
-					me.SayTo(activator, "\nThank you, pleasure doing business with you!")
+					self._inf.add_msg("Thank you, pleasure doing business with you!")
 
-					if stock_nrof == 1:
-						me.SayTo(activator, "That was the last {} I had in stock too! I'll have to restock...".format(obj.GetName()), True)
+					obj.WriteKey("stock_nrof", str(stock_nrof - num))
 
-					obj.WriteKey("stock_nrof", str(stock_nrof - 1))
+					break
 
-				break
+			return True
+
+		return False

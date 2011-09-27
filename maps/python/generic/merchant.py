@@ -1,7 +1,14 @@
 ## @file
 ## Generic script to handle merchants.
 
-from Atrinik import *
-from Market import handle_merchant
+from Interface import Interface
+from Market import Merchant
 
-handle_merchant(WhoIsActivator(), WhoAmI(), WhatIsMessage().strip().lower(), WhatIsEvent())
+inf = Interface(activator, me)
+
+def main():
+	merchant = Merchant(activator, me, WhatIsEvent(), inf)
+	merchant.handle_msg(msg)
+
+main()
+inf.finish()
