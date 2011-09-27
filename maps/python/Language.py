@@ -6,16 +6,16 @@ _denom = ["", "thousand", "million", "billion", "trillion", "quadrillion", "quin
 
 def int2english(number):
 	if number < 0:
-		return "minus " + inttoeng(-number)
+		return "minus " + int2english(-number)
 
 	unit = int(math.log(number, 1000))
 
 	if unit:
 		unit_amount, number = divmod(number, 1000 ** unit)
-		res = (inttoeng(unit_amount) + " " + _denom[unit])
+		res = (int2english(unit_amount) + " " + _denom[unit])
 
 		if number:
-			res += " and " + inttoeng(number) if number < 100 else " " + inttoeng(number)
+			res += " and " + int2english(number) if number < 100 else " " + int2english(number)
 
 		return res
 	else:
@@ -24,7 +24,7 @@ def int2english(number):
 
 		hundreds, under_100 = divmod(number, 100)
 		ten, unit = divmod(under_100, 10)
-		res = inttoeng(hundreds) + " hundred " if hundreds else ""
+		res = int2english(hundreds) + " hundred " if hundreds else ""
 
 		if not under_100:
 			return res
