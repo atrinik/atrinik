@@ -1,8 +1,14 @@
 ## @file
 ## Generic script to handle bartenders, using the Tavern API.
 
-from Atrinik import *
+from Interface import Interface
 from Tavern import Bartender
 
-bartender = Bartender(WhoIsActivator(), WhoAmI(), WhatIsEvent())
-bartender.handle_msg(WhatIsMessage().strip().lower())
+inf = Interface(activator, me)
+
+def main():
+	bartender = Bartender(activator, me, WhatIsEvent(), inf)
+	bartender.handle_msg(msg)
+
+main()
+inf.finish()
