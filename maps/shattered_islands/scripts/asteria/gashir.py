@@ -1,61 +1,62 @@
 ## @file
 ## Gashir the bartender.
 
-from Atrinik import *
-from QuestManager import QuestManager
+from Interface import Interface
+from QuestManager import QuestManagerMulti
 from Quests import ShipmentOfCharobBeer as quest
 from Tavern import Bartender
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
-qm = QuestManager(activator, quest)
+inf = Interface(activator, me)
+qm = QuestManagerMulti(activator, quest)
 
 ## Implements Gashir the bartender.
 class BartenderGashir(Bartender):
 	def _chat_greeting(self):
-		if qm.finished():
-			self.me.Communicate("/smile")
-			self.me.SayTo(self.activator, "\nFinally, I get my shipment of Charob Beer!")
-			self.activator.Write("You give the {0} to {1}.".format(quest["item_name"], self.me.name), COLOR_WHITE)
-			self.me.SayTo(self.activator, "Thank you! Now I can serve you with <a>Charob Beer</a>. I am sure you'll get a nice reward for your delivery too!", 1)
-			qm.complete()
-		else:
-			self.me.SayTo(self.activator, "\nWelcome to Asterian Arms Tavern.\nI'm Gashir, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following <a>provisions</a>:\n\n{}\n\nThe <a>Charob beer</a> is our specialty, and the large booze is really strong, so please do not <a>complain</a> about its quality.".format("\n".join(self._get_provisions())))
+		self._inf.add_msg("Welcome to Asterian Arms Tavern.")
+		self._inf.add_msg("I'm {}, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following provisions.".format(self._me.name))
 
-	def _can_buy(self, name):
-		if name == "charob beer" and not qm.completed():
+		if not qm.completed_part(1):
+			self._inf.add_msg("Unfortunately, it appears we are fresh out of our local specialty, the Charob Beer. If you want to buy some, you'll have to wait until the shipment arrives. In the meantime, maybe you could check down at the brewery to see what is holding my shipment up...")
+
+			if qm.finished(1):
+				self._inf.add_link("I have your shipment of Charob Beer.", dest = "shipment")
+
+		self._create_provisions()
+
+	def _can_buy(self, obj):
+		if obj.arch.name == "beer_charob" and not qm.completed_part(1):
 			return False
 
 		return True
 
-	def _chat_cannot_buy(self, name):
-		if name == "charob beer":
-			self.me.SayTo(self.activator, "\nAh, sorry. We are fresh out! Maybe you could check down at the brewery to see what is holding my shipment up?")
-
-	def _chat_buy(self, num, obj):
+	def _chat_buy2_success(self, obj):
 		arch_name = obj.arch.name
 
-		self.me.SayTo(self.activator, "\nHere you go, {} {}!".format(num, obj.name))
+		self._inf.add_msg("Here you go!")
+		self._inf.add_msg_icon(obj.face[0], obj.GetName() + " for " + CostString(obj.value))
 
 		if arch_name == "booze_generic":
-			self.me.SayTo(self.activator, "Enjoy!", True)
+			self._inf.add_msg("Enjoy!")
 		elif arch_name == "booze2":
-			self.me.SayTo(self.activator, "Please be careful though, it is really strong!", True)
+			self._inf.add_msg("Please be careful though, it is really strong!")
 		elif arch_name == "food_generic":
-			self.me.SayTo(self.activator, "It's really tasty, I tell you.", True)
+			self._inf.add_msg("It's really tasty, I tell you.")
 		elif arch_name == "drink_generic":
-			self.me.SayTo(self.activator, "Thirsty? Nothing like fresh water!", True)
+			self._inf.add_msg("Thirsty? Nothing like fresh water!")
 		elif arch_name == "beer_charob":
-			self.me.SayTo(self.activator, "It is quite good quality!", True)
+			self._inf.add_msg("It is quite good quality!")
 
 def main():
-	if msg == "complain":
-		me.SayTo(activator, "\nI told you it is really strong! What did you expect? Elvish wine?")
-	elif msg == "this ale stinks":
-		me.SayTo(activator, "\nIf you don't like it, find another tavern!")
+	if msg == "shipment":
+		if qm.started_part(1) and qm.finished(1):
+			inf.add_msg("Finally, I get my shipment of Charob Beer!")
+			inf.add_msg("You hand over the shipment of the Charob Beer.", COLOR_YELLOW)
+			inf.add_msg("Thank you! Now I can serve you with Charob Beer. I am sure you'll get a payment for your delivery too!")
+			qm.start(2)
+			qm.complete(1, sound = None)
 	else:
-		bartender = BartenderGashir(activator, me, WhatIsEvent())
+		bartender = BartenderGashir(activator, me, WhatIsEvent(), inf)
 		bartender.handle_msg(msg)
 
 main()
+inf.finish()
