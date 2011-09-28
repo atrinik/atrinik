@@ -194,3 +194,135 @@ I hear their war cries. We have no means of esca... <img=wall_blood1.u.151 -5 -1
 endmsg
 no_pick 1
 end
+
+Allowed none
+chance 1
+artifact book_morliana_bard1
+def_arch book_green
+Object
+name Hierro's Story
+msg
+Hierro lived in his home,
+admiring his gems and precious stones...
+
+Until one day, something caused a stir.
+Intruders were coming to take his treasure...
+
+Defend his dwelling, defend it fast.
+Removing the torches, from their path...
+
+Darkness his friend, filled his house.
+He could see the heat that they gave out...
+
+Picking them off, one by one.
+Like a thief, it had to be done...
+
+He drove them off, from his house.
+But they would come back, for another bout...
+
+They brought a wizard, who set a trap.
+To teleport Hierro all the way back...
+
+All the way back, to the bottom of the cave,
+He would have to find his way...
+
+To the exit, not easy to find.
+Hierro searched for a very long time...
+
+He sees the exit, it is so near.
+But it is just as he feared...
+
+He could not leave, because of the spell.
+It trapped him there, his home now his hell...
+
+Gone from his home, his gems and stones.
+Whatever happened to Hierro, no one knows.
+endmsg
+end
+
+Allowed none
+chance 1
+artifact book_morliana_bard2
+def_arch book_green
+Object
+name About Hierro
+msg
+Look and see, what I have found.
+Crystals and gems, in the walls and on the ground...
+
+In a cave, just south of the town.
+Is where to look, they are all around...
+
+Spread the word, there is more than enough.
+Getting these riches should not be tough...
+
+A party has formed, we are going to mine.
+These riches will be ours in good time...
+
+As we got started, something took us by surprise.
+All we could see were glowing eyes...
+
+It picked us off, one by one.
+That is when we started to run...
+
+Away from that place, away from the cave.
+Before we ended up, in a grave...
+
+As we left, we heard a bellow.
+Stay out of my house, my name is Hierro...
+
+What was this creature that took us out.
+I think it's time that we found out...
+
+To the wizard, he will set a trap.
+To get rid of the creature, that started the attack...
+
+The spell succeeded, Hierro has been teleported away.
+The cave is ours, we can mine it today...
+
+To this day, we still do not know
+what kind of creature was Hierro.
+endmsg
+end
+
+Allowed none
+chance 1
+artifact book_morliana_bard3
+def_arch book_green
+Object
+name History of the Founding of Morliana
+msg
+They saw an object, when they looked up high.
+Getting brighter and brighter in the sky...
+
+They looked with wonder and started to fear.
+The object looked to be getting near...
+
+They looked for cover, thinking this was their fate.
+No time to run, it was too late...
+
+The object missed them, it went right by.
+It crashed on an island that was near by...
+
+They gathered the people, to investigate.
+Although the task would be very great...
+
+The island was known, to be very cold.
+With proper supplies and only the bold...
+
+Would be sent, on the day.
+The party was off on their way...
+
+In due time, they found the place.
+A glowing Blue Crystal in front of their face...
+
+The closer they got, they could not believe.
+All of the crystals and gems beneath their feet...
+
+The Great Blue Crystal, seemed to be the source.
+It glowed with power, giving off warmth...
+
+They gathered the crystals, all they could take.
+And built a village with the money they made.
+endmsg
+end
