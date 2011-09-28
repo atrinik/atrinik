@@ -1813,7 +1813,9 @@ int talk_to_npc(object *op, object *npc, char *txt)
 			cp_len = sl.len - cp_len - 1;
 
 			SockList_AddChar(&sl, CMD_INTERFACE_ICON);
-			SockList_AddString(&sl, npc->arch->clone.face->name);
+			SockList_AddStringUnterm(&sl, npc->face->name);
+			sl.len--;
+			SockList_AddString(&sl, "1");
 
 			SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
 			SockList_AddString(&sl, npc->name);

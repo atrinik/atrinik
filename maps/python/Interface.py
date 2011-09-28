@@ -7,7 +7,7 @@ class Interface:
 		self._text_input = None
 		self._activator = activator
 		self._npc = npc
-		self._icon = npc.arch.clone.face[0]
+		self._icon = npc.face[0][:-1] + "1"
 		self._title = npc.name
 
 	def add_msg(self, msg, color = None, newline = True):
