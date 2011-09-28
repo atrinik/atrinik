@@ -1800,35 +1800,28 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			if (CONTR(op)->socket.socket_version >= 1058)
-			{
-				unsigned char sock_buf[MAXSOCKBUF];
-				SockList sl;
-				int cp_len;
+			unsigned char sock_buf[MAXSOCKBUF];
+			SockList sl;
+			int cp_len;
 
-				sl.buf = sock_buf;
-				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
+			sl.buf = sock_buf;
+			SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
 
-				SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
-				cp_len = sl.len;
-				SockList_AddString(&sl, cp);
-				cp_len = sl.len - cp_len - 1;
+			SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
+			cp_len = sl.len;
+			SockList_AddString(&sl, cp);
+			cp_len = sl.len - cp_len - 1;
 
-				SockList_AddChar(&sl, CMD_INTERFACE_ICON);
-				SockList_AddString(&sl, npc->arch->clone.face->name);
+			SockList_AddChar(&sl, CMD_INTERFACE_ICON);
+			SockList_AddString(&sl, npc->arch->clone.face->name);
 
-				SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
-				SockList_AddString(&sl, npc->name);
+			SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
+			SockList_AddString(&sl, npc->name);
 
-				Send_With_Handling(&CONTR(op)->socket, &sl);
+			Send_With_Handling(&CONTR(op)->socket, &sl);
 
-				/* Update the movement timeout if necessary. */
-				monster_update_move_timeout(npc, cp_len);
-			}
-			else
-			{
-				draw_info_format(COLOR_NAVY, op, "\n%s says:\n%s", query_name(npc, NULL), cp);
-			}
+			/* Update the movement timeout if necessary. */
+			monster_update_move_timeout(npc, cp_len);
 		}
 		else
 		{
