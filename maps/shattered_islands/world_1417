@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-08-15 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -394,29 +394,13 @@ arch spawn_point
 x 3
 y 5
 arch guard_pole
-msg
-@match ^portu baserrian$
-It's an old harbour town on the isle of <a>Berri Lur</a>. Jarri Osoa still builds boats for the fishermen up the road there.
-@match ^berri lur$
-The island is large and warm, almost tropical. There are many <a>dangers</a> here though, so be careful when you're out exploring.
-@match ^dangers$|^danger$
-I don't mean to scare you! But beware of the <a>Bog of Eternal Stench</a>, and rumour has it there's an old abandoned <a>temple</a> somewhere around here.
-@match ^bog of eternal stench$|^bog$
-Eeew, you don't wanna go there. Legend has it if you touch the swamp, the smell will stay with you <a>forever</a>! If the wind is blowing the wrong way, you get the occasional waft of that stink even here.
-@match ^forever$
-Well, unless you can find the magical pool of <a>cleansing</a>. Legend says that will remove the stink from a cursed soul.
-@match ^cleansing$
-I've not seen it myself, but people say it's somewhere in the forest south west of town.
-@match ^temple$
-Yeah, I've no idea where exactly. But people say it's a dangerous place, with all sorts of goings on. Some even say it's a temple of <a>Loki</a>.
-@match ^loki$
-Weird, eh? Well if it is his temple, you wouldn't catch me there. I prefer law and order to unbridled chaos!
-@match ^hi$|^hey$|^hello$
-Hey there, you new in town? Welcome to <a>Portu Baserrian</a> watch house.
-endmsg
 name Officer Bacon
 level 30
 type 83
+arch event_obj
+sub_type 6
+race scripts/berri_lur/portu_baserrian/officer_bacon.py
+end
 end
 end
 arch floor_marble2a
