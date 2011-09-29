@@ -357,3 +357,11 @@ map_first /shattered_islands/world_05af
 map_bg #009ffb
 map_quest true
 end
+
+region deserted_tutorial_island
+parent world
+longname Deserted Island
+msg
+A deserted island, somewhere in the ocean...
+endmsg
+end
