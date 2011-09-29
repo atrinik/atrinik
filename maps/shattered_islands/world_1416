@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-08-15 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2395,7 +2395,7 @@ x 17
 y 3
 arch peasant
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hi there! Don't worry about taxes at the moment. The governor has declared an amnesty for the time being, so enjoy your stay!
 endmsg
 name Lana Ohiturak
