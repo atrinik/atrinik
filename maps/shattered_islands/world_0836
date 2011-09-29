@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-16 emperorbma
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2568,19 +2568,13 @@ arch spawn_point
 x 14
 y 10
 arch guard_royal
-msg
-@match ^hi$|^hey$|^hello$
-Oh, hello there.
-
-<a>Where is Lynren?</a>
-@match ^where is lynren\?$
-Hmm, well, that is a good question... We don't know. You see, she left without a word, except the explanation on the <a>sign</a> outside. She has been gone for a long time now, and we don't know whether she is okay or not...
-@match ^sign$
-She left a message on the sign outside that she left on a mission to destroy all evil, starting with Moroch Temple.
-endmsg
 level 75
 type 83
-name Brelgrim the guard
+name Brelgrim
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/asteria/brelgrim.py
+end
 end
 end
 arch floor_ostone2
