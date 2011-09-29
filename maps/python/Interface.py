@@ -22,11 +22,16 @@ class Interface:
 		if color:
 			self._msg += "</c>"
 
-	def add_msg_icon(self, icon, desc = ""):
+	def add_msg_icon(self, icon, desc = "", fit = False):
 		self._msg += "\n\n"
-		self._msg += "<bar=#000000 54 54><border=#606060 54 54><x=2><y=2><icon="
+		self._msg += "<bar=#000000 52 52><border=#606060 52 52><x=1><y=1><icon="
 		self._msg += icon
-		self._msg += " 50 50><x=-2><y=-2>"
+		self._msg += " 50 50"
+
+		if fit:
+			self._msg += " 1"
+
+		self._msg += "><x=-1><y=-1>"
 		self._msg += "<padding=60><hcenter=50>"
 		self._msg += desc
 		self._msg += "</hcenter></padding>"
