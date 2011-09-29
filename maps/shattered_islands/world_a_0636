@@ -2,7 +2,7 @@ arch map
 name Asteria Palace Dungeon
 msg
 -Enter Description Here-
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -356,7 +356,7 @@ end
 end
 arch event_obj
 sub_type 6
-race scripts/asteria/warden_argoth.py
+race scripts/strakewood_island/asteria/warden_argoth.py
 end
 end
 end
