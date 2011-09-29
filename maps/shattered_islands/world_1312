@@ -2,7 +2,7 @@ arch map
 name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1256,7 +1256,7 @@ x 10
 y 17
 arch peasant
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hello there. I can take you to Asteria by my ship.
 endmsg
 name Ship Captain
@@ -2582,7 +2582,7 @@ x 20
 y 4
 arch peasant
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Welcome aboard! If you want safe passage to Berri Lur, go down the stairs and take the other stairs in there.
 endmsg
 name Arraunak Almirante
