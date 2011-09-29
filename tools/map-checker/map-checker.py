@@ -188,6 +188,8 @@ decor_wall_l4 = off
 sys_not_on_top = on
 deprecated_control_chars = off
 suspicious_dialogue_match = off
+[Ignore]
+ignore_events = on
 """)
 
 config = ConfigParser()
@@ -631,6 +633,9 @@ def scan_dirs(dir):
 			if file in ("styles", "python") or not rec:
 				continue
 
+			if file == "events" and config.getboolean("Ignore", "ignore_events"):
+				continue
+
 			scan_dirs(dir + "/" + file)
 		else:
 			check_file(dir + "/" + file)
@@ -1057,6 +1062,9 @@ if not cli:
 				[pref_types.checkbox, "Medium", ("Suppress", "medium")],
 				[pref_types.checkbox, "High", ("Suppress", "high")],
 				[pref_types.checkbox, "Critical", ("Suppress", "critical")],
+			], None],
+			["Ignore", "Allows you to ignore certain maps from being checked in global-scan.", [
+				[pref_types.checkbox, "Ignore event maps", ("Ignore", "ignore_events")],
 			], None],
 		]
 
