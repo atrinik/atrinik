@@ -3575,7 +3575,7 @@ level 19
 type 83
 arch event_obj
 sub_type 6
-race strakewood_island/asteria/scripts/breldor.py
+race scripts/strakewood_island/asteria/breldor.py
 end
 end
 end
