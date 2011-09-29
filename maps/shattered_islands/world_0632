@@ -1584,8 +1584,8 @@ x 9
 y 16
 arch guard_pole
 msg
-@match ^hi$|^hey$|^hello$
-Ah!  The beer is almost ready!
+@match ^hello$
+Ah! The beer is almost ready!
 endmsg
 name Sven Ericsson
 type 83
