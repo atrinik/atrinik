@@ -3226,7 +3226,7 @@ x 17
 y 4
 arch smith
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hey there! I am proud to be working in the province capital, Asteria!
 endmsg
 name Dan
