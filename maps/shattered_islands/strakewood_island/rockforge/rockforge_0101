@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-07-10 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -292,14 +292,14 @@ arch spawn_point
 x 8
 y 3
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We'll have no trouble here, stranger.
-endmsg
 type 83
 direction 3
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1b
@@ -603,14 +603,14 @@ arch spawn_point
 x 10
 y 8
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We're watching you.
-endmsg
 type 83
 direction 3
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1
@@ -662,14 +662,14 @@ arch spawn_point
 x 10
 y 13
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We'll have no trouble here, stranger.
-endmsg
 type 83
 direction 3
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1a
@@ -721,14 +721,14 @@ arch spawn_point
 x 10
 y 18
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We'll have no trouble here, stranger.
-endmsg
 type 83
 direction 3
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1
@@ -1266,13 +1266,13 @@ arch spawn_point
 x 13
 y 8
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-Keep moving.
-endmsg
 type 83
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1b
@@ -1322,6 +1322,10 @@ arch dwarf_steelclad
 type 83
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1a
@@ -1368,13 +1372,13 @@ arch spawn_point
 x 13
 y 18
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We're watching you.
-endmsg
 type 83
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1a
@@ -1635,13 +1639,13 @@ arch spawn_point
 x 15
 y 3
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-We're watching you.
-endmsg
 type 83
 level 45
 name dwarf guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1
