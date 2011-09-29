@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-06-15 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -721,7 +721,7 @@ x 4
 y 9
 arch guard_royal
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Welcome to Greyton!
 endmsg
 type 83
