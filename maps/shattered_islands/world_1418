@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-08-15 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -442,7 +442,7 @@ x 2
 y 21
 arch traveller_parka
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 I can't believe she's beaten me again. Double or nothin' ?
 endmsg
 name Galera Apustua
@@ -617,7 +617,7 @@ x 3
 y 22
 arch woman_old
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Shoo, will ya. Leave me alone, I'm winning here.
 endmsg
 name Maltzur Zaharra
@@ -1216,13 +1216,11 @@ x 7
 y 18
 arch barmaid
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hi there stranger, is there anything I can get ya?
 endmsg
 name Birjina Neskamea
 level 13
-is_male 0
-is_female 1
 movement_type 176
 type 83
 arch key2
