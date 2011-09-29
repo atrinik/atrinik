@@ -1266,9 +1266,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int wd, ht;
+				int wd, ht, fit_to_size = 0;
 
-				if (sscanf(cp + 6, "%128[^ ] %d %d>", face, &wd, &ht) == 3)
+				if (sscanf(cp + 6, "%128[^ ] %d %d %d>", face, &wd, &ht, &fit_to_size) >= 3)
 				{
 					int id = get_bmap_id(face);
 
@@ -1295,6 +1295,23 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 							zoom_factor = (double) ht / icon_h;
 							icon_w *= zoom_factor;
 							icon_h *= zoom_factor;
+						}
+
+						if (fit_to_size)
+						{
+							if (icon_w < wd)
+							{
+								zoom_factor = (double) wd / icon_w;
+								icon_w *= zoom_factor;
+								icon_h *= zoom_factor;
+							}
+
+							if (icon_h < ht)
+							{
+								zoom_factor = (double) ht / icon_h;
+								icon_w *= zoom_factor;
+								icon_h *= zoom_factor;
+							}
 						}
 
 						icon_box.x = icon_sprite->border_left;
