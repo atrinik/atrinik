@@ -365,3 +365,11 @@ msg
 A deserted island, somewhere in the ocean...
 endmsg
 end
+
+region ocean
+parent world
+longname The Ocean
+msg
+Somewhere in the middle of the ocean...
+endmsg
+end
