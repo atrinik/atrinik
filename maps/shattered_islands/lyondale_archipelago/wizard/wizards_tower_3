@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 17
 height 15
@@ -528,19 +528,6 @@ arch spawn_point
 x 4
 y 4
 arch mage_old
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to my shop. Here you can buy various scrolls to help you in your adventures.
-
-Have you heard of the legendary <a>smoking pipe</a>? They say it's the best smoking pipe for smoking pipeweed.
-@match ^smoking pipe$
-If you smoke some pipeweed using that smoking pipe, you will be granted confusion and weapon magic protection, or so the rumour says.
-It has long been <a>lost</a>, however...
-@match ^lost$
-Apparently it has long been lost, but some rumours say it that the fierce dragon leader <a>Scursaur</a> has it in his possession.
-@match ^Scursaur$
-He is the leader of the dragons on the Dragons Island. Apparently it's possible to get to Dragons Island by completing the Underground Maze under Promethia Island.
-endmsg
 name Daril
 face thelra_m.131
 animation thelra_male
@@ -549,6 +536,10 @@ level 30
 race thelra
 can_cast_spell 0
 type 83
+arch event_obj
+sub_type 6
+race ../../scripts/lyondale_archipelago/wizard/daril.py
+end
 end
 end
 arch floor_bw1
@@ -1637,7 +1628,6 @@ name Krelnal
 level 30
 race thelra
 can_cast_spell 0
-friendly 1
 type 83
 direction 1
 arch event_obj
