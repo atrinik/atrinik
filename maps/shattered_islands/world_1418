@@ -863,17 +863,13 @@ arch spawn_point
 x 5
 y 14
 arch tailor
-msg
-@match ^hi$|^hey$|^hello$
-I'll haff ano'er <a>beer</a> peesh.
-@match ^beer$
-Yeah! Beer ish my life!
-@match ^pisshead$|^drunk$|^alcoholic$|^alcy$|^drunkard$
-I'm noh dwunk! I jus' lika dwenk. Or two.
-endmsg
 name Betiko Mozkortuta
 level 8
 type 83
+arch event_obj
+sub_type 6
+race scripts/berri_lur/portu_baserrian/betiko_mozkortuta.py
+end
 end
 end
 arch floor_marble3a
