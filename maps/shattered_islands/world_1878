@@ -2064,18 +2064,6 @@ arch spawn_point
 x 13
 y 5
 arch mage_old
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to the Wizards' Tower island in Lyondale Archipelago.
-If you are seeking the knowledge about <a>Thelras</a> or <a>magic</a>, go see <a>Teldach</a> inside the tower.
-@match ^thelras$
-As I said, go see <a>Teldach</a> to learn about Thelras.
-@match ^magic$
-We Thelras are heavy users of magic. Spellcasting, wands, potions, horns, things like that.
-Our magic abilities are far greater than that of any other race.
-@match ^teldach$
-Teldach is the oldest of our race. He's just inside the tower; you should go see him.
-endmsg
 name Baldoth
 face thelra_m.131
 animation thelra_male
@@ -2087,6 +2075,10 @@ item_race 1
 item_level 1
 stand_still 0
 type 83
+arch event_obj
+sub_type 6
+race scripts/lyondale_archipelago/wizard/baldoth.py
+end
 end
 end
 arch floor_sand_d1
