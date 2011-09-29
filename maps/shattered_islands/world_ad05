@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-08-24 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_ac06
 tile_path_6 world_ac04
 tile_path_7 world_ae04
 tile_path_8 world_ae06
+region deserted_tutorial_island
 end
 arch water_dk2
 end
