@@ -410,39 +410,47 @@ def check_map(map):
 					if not "unpaid" in obj or obj["unpaid"] == 0:
 						add_error(map["file"], "Object '{0}' is on a shop tile but is not unpaid.".format(obj["archname"]), errors.high, x, y)
 
-## Check whether a message contains control characters like '^'.
+## Check for errors in object message.
 ## @param msg The message to check.
-## @return True if the message contains any control characters, False
-## otherwise.
-def check_msg_control_chars(msg):
-	for line in msg.split("\n"):
-		# Ignore @match lines.
-		if line.startswith("@match "):
-			continue
+## @return List of the errors.
+def check_obj_msg(msg):
+	errors = []
+	has_hello = False
 
-		for c in line:
-			if c == "^" or c == "~" or c == "|":
-				return True
+	test_msg = re.sub(r"\<([^\>]+)\>", r"\1", msg)
 
-	return False
+	if test_msg.find("<") != -1 or test_msg.find(">") != -1:
+		errors.append("unescaped-markup")
 
-## Check whether @match in the dialogue message is not using regex.
-## @param msg Message to check.
-## @return True if one of the @match tests doesn't use regex, False
-## otherwise.
-def check_msg_suspicious_match(msg):
 	for line in msg.split("\n"):
 		if line.startswith("@match "):
-			parts = line[7:].split("|")
+			line = line[7:]
+
+			if line.find("^hello$") != -1 and line != "^hello$":
+				errors.append("invalid-hello")
+
+			if line == "^hello$":
+				has_hello = True
+
+			parts = line.split("|")
 
 			for part in parts:
 				if part == "*":
 					continue
 
 				if part[:1] != "^" or part[-1:] != "$":
-					return True
+					errors.append("suspicious-regex")
+		else:
+			if line.find("<a") != -1:
+				errors.append("link-in-msg")
 
-	return False
+			if re.search(r"[\^\~\|].*[\^\~\|]", line):
+				errors.append("control-chars")
+
+	if not has_hello:
+		errors.append("missing-hello")
+
+	return errors
 
 # Recursively check object.
 # @param obj Object to check.
@@ -596,19 +604,35 @@ def check_obj(obj, map):
 		if get_entry(obj, "no_magic") == 1:
 			add_error(map["file"], "Object {0} has 'no_magic 1' flag set, which may be an error, as this flag is usually set on floor objects.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
-	if obj["type"] in (types.spawn_point_mob, types.book, types.sign) and config.getboolean("Errors", "deprecated_control_chars"):
+	if obj["type"] in (types.spawn_point_mob, types.magic_ear, types.book, types.sign):
 		msg = get_entry(obj, "msg")
 
 		if msg:
-			if check_msg_control_chars(msg):
-				add_error(map["file"], "Object {0} contains deprecated control characters.".format(obj["archname"]), errors.low, env["x"], env["y"])
+			is_mob_dialogue = obj["type"] == types.spawn_point_mob
+			is_ear_dialogue = obj["type"] == types.magic_ear
+			is_dialogue = is_mob_dialogue or is_ear_dialogue
 
-	if obj["type"] in (types.spawn_point_mob, types.magic_ear) and config.getboolean("Errors", "suspicious_dialogue_match"):
-		msg = get_entry(obj, "msg")
+			msg_errors = check_obj_msg(msg)
 
-		if msg:
-			if check_msg_suspicious_match(msg):
-				add_error(map["file"], "Object {0} has a @match that doesn't use regex.".format(obj["archname"]), errors.low, env["x"], env["y"])
+			if is_mob_dialogue:
+				if "missing-hello" in msg_errors:
+					add_error(map["file"], "Object {0} has a @match dialogue that is missing '@match ^hello$'.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+			if is_dialogue:
+				if "invalid-hello" in msg_errors:
+					add_error(map["file"], "Object {0} has a @match dialogue that has invalid '@match ^hello$'.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+				if "suspicious-regex" in msg_errors and config.getboolean("Errors", "suspicious_dialogue_match"):
+					add_error(map["file"], "Object {0} has a @match that doesn't use regex.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+				if "link-in-msg" in msg_errors:
+					add_error(map["file"], "Object {0} has a @match which uses links of some sort - this is not recommended.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+			if "control-chars" in msg_errors and config.getboolean("Errors", "deprecated_control_chars"):
+				add_error(map["file"], "Object {0} contains deprecated control characters in message.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+			if "unescaped-markup" in msg_errors:
+				add_error(map["file"], "Object {0} contains unescaped markup in message.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
