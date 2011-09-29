@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-09-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1776,7 +1776,7 @@ x 18
 y 18
 arch guard
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hello there. Be careful, please! Right up ahead is nasty quicksand. It is blocking the road to Brynknot; you will have to take a ship from Greyton to Asteria instead.
 endmsg
 level 28
