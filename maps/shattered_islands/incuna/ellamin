@@ -2,7 +2,7 @@ arch map
 name Incuna - Below Ellamin's House
 msg
 Created:  2010-10-22 Edwin Miltenburg
-Modified: 2011-09-13 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -627,7 +627,7 @@ x 3
 y 21
 end
 arch mushroom_giant3
-layer 5
+sub_layer 1
 x 3
 y 21
 end
@@ -3061,7 +3061,6 @@ x 18
 y 15
 end
 arch fwall_rock1
-layer 4
 x 18
 y 15
 end
@@ -3071,7 +3070,7 @@ x 18
 y 15
 end
 arch plant1_wall.151
-layer 5
+sub_layer 1
 x 18
 y 15
 end
