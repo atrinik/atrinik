@@ -2,7 +2,7 @@ arch map
 name Incuna Bank
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2011-09-17 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -262,11 +262,11 @@ x 21
 y 9
 end
 arch grate1_3
-layer 4
 x 21
 y 9
 end
 arch wall_flagstone1.111
+sub_layer 1
 draw_double 0
 x 21
 y 9
@@ -428,11 +428,11 @@ x 23
 y 12
 end
 arch grate1_3
-layer 4
 x 23
 y 12
 end
 arch wall_flagstone1.111
+sub_layer 1
 draw_double 0
 x 23
 y 12
