@@ -109,7 +109,7 @@ arch snow_fmask.105
 y 16
 end
 arch bridge_wood_EW.161
-layer 3
+sub_layer 1
 y 16
 end
 arch water_lt4
@@ -229,7 +229,7 @@ x 1
 y 16
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 1
 y 16
 end
@@ -1260,7 +1260,7 @@ x 8
 y 12
 end
 arch ship_hull_e_high_corner_n
-layer 3
+sub_layer 1
 x 8
 y 12
 end
