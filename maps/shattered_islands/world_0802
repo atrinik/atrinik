@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-11 Edwin Miltenburg
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -122,7 +122,7 @@ arch grassd_m9
 y 21
 end
 arch bridge_wood_EW.131
-layer 3
+sub_layer 1
 y 21
 end
 arch floor_sand_d3
