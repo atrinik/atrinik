@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1306,11 +1306,11 @@ x 8
 y 13
 end
 arch bar1
-layer 4
 x 8
 y 13
 end
 arch wall_stone4_3
+sub_layer 1
 x 8
 y 13
 end
@@ -2293,12 +2293,7 @@ arch floor_red1
 x 14
 y 13
 end
-arch carpet1.131
-x 14
-y 13
-end
-arch carpet1.151
-layer 3
+arch carpet1.141
 x 14
 y 13
 end
@@ -2808,12 +2803,7 @@ arch floor_red1
 x 17
 y 14
 end
-arch carpet1.171
-x 17
-y 14
-end
-arch carpet1.111
-layer 3
+arch carpet1.181
 x 17
 y 14
 end
