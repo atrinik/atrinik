@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-06-07 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -526,7 +526,7 @@ x 2
 y 4
 end
 arch border_lava_se2
-layer 3
+sub_layer 1
 x 2
 y 4
 end
@@ -4251,7 +4251,7 @@ x 16
 y 6
 end
 arch border_lava_s1
-layer 3
+sub_layer 1
 x 16
 y 6
 end
@@ -4532,7 +4532,7 @@ x 17
 y 6
 end
 arch border_lava_n1
-layer 3
+sub_layer 1
 x 17
 y 6
 end
@@ -5062,7 +5062,7 @@ x 19
 y 16
 end
 arch border_lava_nw1
-layer 3
+sub_layer 1
 x 19
 y 16
 end
@@ -5084,7 +5084,7 @@ x 19
 y 17
 end
 arch border_lava_e1
-layer 3
+sub_layer 1
 x 19
 y 17
 end
@@ -5289,7 +5289,7 @@ x 20
 y 16
 end
 arch border_lava_s1
-layer 3
+sub_layer 1
 x 20
 y 16
 end
