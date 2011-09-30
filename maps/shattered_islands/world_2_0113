@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -206,16 +206,13 @@ arch spawn_point
 x 14
 y 15
 arch priest_green
-msg
-@match ^hi$|^hey$|^hello$
-Very impressive, adventurer! You found out about the illusionary wall, did you? Very well then.
-I'm Orlney, the president for <a>Banks Inc</a>.
-@match ^banks inc$
-Our job is to provide citizens of this world a way to access their funds from anywhere, including when paying from shops or when paying for various services.
-endmsg
-name Orlney the Banks Inc. President
+name Orlney Silvertongue
 level 47
 type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/orlney_silvertongue.py
+end
 end
 end
 arch floor_ostone13
