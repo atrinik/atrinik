@@ -1347,12 +1347,12 @@ arch ship_floor_we_1
 x 10
 y 1
 end
-arch tackelage_n_high
+arch ship_rail_n
 x 10
 y 1
 end
-arch ship_rail_n
-layer 4
+arch tackelage_n_high
+sub_layer 1
 x 10
 y 1
 end
@@ -1502,11 +1502,11 @@ x 11
 y 1
 end
 arch ship_rail_n_hole
-layer 4
 x 11
 y 1
 end
 arch sail_reffed_e
+sub_layer 1
 x 11
 y 1
 end
@@ -1990,7 +1990,8 @@ x 14
 y 2
 end
 arch barrel_water.101
-layer 7
+layer 5
+sub_layer 1
 x 14
 y 2
 end
