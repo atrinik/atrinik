@@ -2,7 +2,7 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-16 emperorbma
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1704,10 +1704,8 @@ x 11
 y 16
 arch peasant
 msg
-@match ^hi$|^hey$|^hello$
-Hello! If you're interested in wizardry, visit <a>Gandyld</a> the mage. He might have something useful for you.
-@match ^Gandyld$
-Gandyld is a mage who you'll probably find in a hut northeast of Aris.
+@match ^hello$
+Hello! If you're interested in wizardry, visit Gandyld the mage. He might have something useful for you. You can likely find him in a hut northeast of Aris.
 endmsg
 name Tom Jacobson
 level 6
