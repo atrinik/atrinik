@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-21 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -66,15 +66,6 @@ arch floor_pattern_brown1
 y 8
 end
 arch floor_pattern_brown1
-y 9
-end
-arch wall_flagstone1.181
-blocksview 0
-no_pass 0
-align 2
-z -1
-layer 7
-name stone pillar
 y 9
 end
 arch floor_pattern_brown2
@@ -557,8 +548,9 @@ x 3
 y 13
 end
 arch candlelight4.101
+sub_layer 1
 glow_radius 4
-layer 7
+layer 5
 z -3
 align 8
 x 3
@@ -574,7 +566,7 @@ x 3
 y 14
 end
 arch wall_flagstone1.181
-layer 7
+sub_layer 1
 x 3
 y 14
 end
@@ -757,11 +749,11 @@ y 14
 end
 arch bar1
 direction 5
-layer 4
 x 4
 y 14
 end
 arch wall_flagstone1b.141
+sub_layer 1
 x 4
 y 14
 end
@@ -1365,11 +1357,11 @@ x 8
 y 6
 end
 arch wall_flagstone1_w.111
-layer 4
 x 8
 y 6
 end
 arch wall_fortified_high_c.131
+sub_layer 1
 x 8
 y 6
 end
@@ -1612,7 +1604,7 @@ x 9
 y 21
 end
 arch border_wall_w2
-layer 3
+sub_layer 1
 x 9
 y 21
 end
