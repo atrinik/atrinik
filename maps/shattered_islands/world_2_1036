@@ -2,7 +2,7 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2011-01-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -804,7 +804,6 @@ x 10
 y 3
 end
 arch stairs_stone_up
-layer 4
 x 10
 y 3
 end
@@ -1616,11 +1615,11 @@ x 15
 y 6
 end
 arch grate1_1
-layer 4
 x 15
 y 6
 end
 arch wall_stone_3
+sub_layer 1
 x 15
 y 6
 end
