@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-17 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -175,11 +175,6 @@ x 1
 y 12
 end
 arch grassd_m3
-x 1
-y 12
-end
-arch sand_dm4
-layer 3
 x 1
 y 12
 end
