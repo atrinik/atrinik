@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Edwin Miltenburg
-Modified: 2011-02-24 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1224,86 +1224,6 @@ y 11
 end
 arch blocked
 x 9
-y 13
-end
-arch wall_stone_8
-x 9
-y 13
-end
-arch map_info
-hp 9
-sp 8
-race Brynknot Mercenaries
-slaying theme.mid
-x 9
-y 13
-end
-arch blocked
-x 9
-y 14
-end
-arch wall_stone_3
-x 9
-y 14
-end
-arch blocked
-x 9
-y 15
-end
-arch wall_stone_3
-x 9
-y 15
-end
-arch blocked
-x 9
-y 16
-end
-arch wall_stone_3
-x 9
-y 16
-end
-arch blocked
-x 9
-y 17
-end
-arch wall_stone_3
-x 9
-y 17
-end
-arch blocked
-x 9
-y 18
-end
-arch wall_stone_3
-x 9
-y 18
-end
-arch blocked
-x 9
-y 19
-end
-arch wall_stone_3
-x 9
-y 19
-end
-arch blocked
-x 9
-y 20
-end
-arch wall_stone_3
-x 9
-y 20
-end
-arch blocked
-x 9
-y 21
-end
-arch wall_stone_3
-x 9
-y 21
-end
-arch blocked
-x 9
 y 22
 end
 arch wall_flagstone1b.111
@@ -1392,80 +1312,6 @@ y 11
 end
 arch blocked
 x 10
-y 13
-end
-arch wall_stone_1
-x 10
-y 13
-end
-arch floor_stone_b3
-x 10
-y 14
-end
-arch amphora1.101
-x 10
-y 14
-end
-arch floor_stone_b3
-x 10
-y 15
-end
-arch floor_stone_b3
-x 10
-y 16
-end
-arch floor_stone_b3
-x 10
-y 17
-end
-arch wall_stone_1
-x 10
-y 17
-end
-arch light5
-x 10
-y 17
-end
-arch floor_stone_b3
-x 10
-y 18
-end
-arch rack.111
-x 10
-y 18
-end
-arch floor_stone_b3
-x 10
-y 19
-end
-arch announcement
-msg
-Welcome to mercenary guild!
-Please report to the commanders for jobs and quests.
-endmsg
-direction 7
-x 10
-y 19
-end
-arch floor_stone_b3
-x 10
-y 20
-end
-arch rack.111
-direction 7
-x 10
-y 20
-end
-arch floor_stone_b1
-x 10
-y 21
-end
-arch wall_stone_1
-x 10
-y 21
-end
-arch blocked
-x 10
 y 22
 end
 arch wall_flagstone1b.111
@@ -1539,70 +1385,6 @@ end
 arch wall_flagstone1b.111
 x 11
 y 11
-end
-arch blocked
-x 11
-y 13
-end
-arch wall_stone_1
-x 11
-y 13
-end
-arch floor_stone_b3
-x 11
-y 14
-end
-arch stairs_stone_up
-slaying ../../../world_0112
-hp 19
-sp 10
-direction 5
-x 11
-y 14
-end
-arch floor_stone_b3
-x 11
-y 15
-end
-arch light5
-x 11
-y 15
-end
-arch floor_stone_b3
-x 11
-y 16
-end
-arch floor_stone_b3
-x 11
-y 17
-end
-arch doorway_wood1_1
-x 11
-y 17
-end
-arch floor_stone_b3
-x 11
-y 18
-end
-arch floor_stone_b3
-x 11
-y 19
-end
-arch light5
-x 11
-y 19
-end
-arch floor_stone_b3
-x 11
-y 20
-end
-arch floor_stone_b3
-x 11
-y 21
-end
-arch wall_stone_1
-x 11
-y 21
 end
 arch blocked
 x 11
@@ -1701,62 +1483,6 @@ y 11
 end
 arch blocked
 x 12
-y 13
-end
-arch wall_stone_1
-x 12
-y 13
-end
-arch floor_stone_b3
-x 12
-y 14
-end
-arch amphora1.101
-x 12
-y 14
-end
-arch floor_stone_b3
-x 12
-y 15
-end
-arch floor_stone_b3
-x 12
-y 16
-end
-arch floor_stone_b3
-x 12
-y 17
-end
-arch wall_stone_1
-x 12
-y 17
-end
-arch wmask_bflag_fire1_1
-x 12
-y 17
-end
-arch floor_stone_b3
-x 12
-y 18
-end
-arch floor_stone_b3
-x 12
-y 19
-end
-arch floor_stone_b3
-x 12
-y 20
-end
-arch floor_stone_b3
-x 12
-y 21
-end
-arch wall_stone_1
-x 12
-y 21
-end
-arch blocked
-x 12
 y 22
 end
 arch wall_flagstone1b.111
@@ -1848,123 +1574,6 @@ x 13
 y 11
 end
 arch blocked
-x 13
-y 13
-end
-arch wall_stone_1
-x 13
-y 13
-end
-arch floor_stone_b3
-x 13
-y 14
-end
-arch wall_stone_3
-x 13
-y 14
-end
-arch floor_stone_b3
-x 13
-y 15
-end
-arch wall_stone_3
-x 13
-y 15
-end
-arch floor_stone_b3
-x 13
-y 16
-end
-arch wall_stone_3
-x 13
-y 16
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 13
-y 16
-end
-arch floor_stone_b3
-x 13
-y 17
-end
-arch wall_stone_4
-x 13
-y 17
-end
-arch floor_stone_b3
-x 13
-y 18
-end
-arch wall_stone_3
-x 13
-y 18
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 13
-y 18
-end
-arch floor_stone_b3
-x 13
-y 19
-end
-arch doorway_wood1_1
-direction 5
-x 13
-y 19
-end
-arch floor_stone_b3
-x 13
-y 20
-end
-arch wall_stone_3
-x 13
-y 20
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 13
-y 20
-end
-arch floor_stone_b3
-x 13
-y 21
-end
-arch wall_stone_4
-x 13
-y 21
-end
-arch blocked
-x 13
-y 22
-end
-arch wall_stone_3
-x 13
-y 22
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 13
-y 22
-end
-arch map_info
-hp 5
-sp 1
-race Brynknot Mercenaries
-slaying theme.mid
-x 13
-y 22
-end
-arch blocked
-x 13
-y 23
-end
-arch wall_stone_3
-x 13
-y 23
-end
-arch blocked
 x 14
 y 1
 end
@@ -2023,70 +1632,6 @@ end
 arch wall_flagstone1b.111
 x 14
 y 11
-end
-arch blocked
-x 14
-y 13
-end
-arch wall_stone_1
-x 14
-y 13
-end
-arch floor_stone_b3
-x 14
-y 14
-end
-arch candlelight1.101
-x 14
-y 14
-end
-arch light4
-x 14
-y 14
-end
-arch floor_stone_b3
-x 14
-y 15
-end
-arch floor_stone_b3
-x 14
-y 16
-end
-arch floor_stone_b3
-x 14
-y 17
-end
-arch light5
-x 14
-y 17
-end
-arch floor_stone_b3
-x 14
-y 18
-end
-arch floor_stone_b3
-x 14
-y 19
-end
-arch floor_stone_b3
-x 14
-y 20
-end
-arch floor_stone_b3
-x 14
-y 21
-end
-arch light5
-x 14
-y 21
-end
-arch floor_stone_b3
-x 14
-y 22
-end
-arch floor_stone_b3
-x 14
-y 23
 end
 arch blocked
 x 15
@@ -2151,58 +1696,6 @@ end
 arch wall_flagstone1b.111
 x 15
 y 11
-end
-arch blocked
-x 15
-y 13
-end
-arch wall_stone_1
-x 15
-y 13
-end
-arch wmask_fire_on_1
-x 15
-y 13
-end
-arch floor_stone_b3
-x 15
-y 14
-end
-arch floor_stone_b3
-x 15
-y 15
-end
-arch floor_stone_b3
-x 15
-y 16
-end
-arch floor_stone_b3
-x 15
-y 17
-end
-arch floor_stone_b3
-x 15
-y 18
-end
-arch floor_stone_b3
-x 15
-y 19
-end
-arch floor_stone_b3
-x 15
-y 20
-end
-arch floor_stone_b3
-x 15
-y 21
-end
-arch floor_stone_b3
-x 15
-y 22
-end
-arch floor_stone_b3
-x 15
-y 23
 end
 arch blocked
 x 16
@@ -2277,96 +1770,6 @@ x 16
 y 11
 end
 arch blocked
-x 16
-y 13
-end
-arch wall_stone_1
-x 16
-y 13
-end
-arch wmask_fire_on_1
-x 16
-y 13
-end
-arch floor_stone_b3
-x 16
-y 14
-end
-arch floor_stone_b3
-x 16
-y 15
-end
-arch spawn_point
-x 16
-y 15
-arch guard_pole
-name Guard Commander Lepash
-type 83
-level 91
-friendly 1
-arch event_obj
-sub_type 6
-race ../../../scripts/strakewood_island/brynknot/mercenary_lepash.py
-end
-end
-end
-arch floor_stone_b3
-x 16
-y 16
-end
-arch floor_stone_b3
-x 16
-y 17
-end
-arch table_wood1.111
-direction 5
-x 16
-y 17
-end
-arch floor_stone_b3
-x 16
-y 18
-end
-arch floor_stone_b3
-x 16
-y 19
-end
-arch table_wood1.111
-direction 5
-x 16
-y 19
-end
-arch light5
-x 16
-y 19
-end
-arch floor_stone_b3
-x 16
-y 20
-end
-arch floor_stone_b3
-x 16
-y 21
-end
-arch table_wood1.111
-direction 5
-x 16
-y 21
-end
-arch floor_stone_b3
-x 16
-y 22
-end
-arch floor_stone_b3
-x 16
-y 23
-end
-arch table_wood1.111
-direction 5
-x 16
-y 23
-end
-arch blocked
 x 17
 y 1
 end
@@ -2435,82 +1838,6 @@ x 17
 y 11
 end
 arch blocked
-x 17
-y 13
-end
-arch wall_stone_1
-x 17
-y 13
-end
-arch floor_stone_b3
-x 17
-y 14
-end
-arch candlelight1.101
-x 17
-y 14
-end
-arch light4
-x 17
-y 14
-end
-arch floor_stone_b3
-x 17
-y 15
-end
-arch floor_stone_b3
-x 17
-y 16
-end
-arch floor_stone_b3
-x 17
-y 17
-end
-arch chair2_111
-direction 3
-x 17
-y 17
-end
-arch floor_stone_b3
-x 17
-y 18
-end
-arch floor_stone_b3
-x 17
-y 19
-end
-arch chair2_111
-direction 3
-x 17
-y 19
-end
-arch floor_stone_b3
-x 17
-y 20
-end
-arch floor_stone_b3
-x 17
-y 21
-end
-arch chair2_111
-direction 3
-x 17
-y 21
-end
-arch floor_stone_b3
-x 17
-y 22
-end
-arch floor_stone_b3
-x 17
-y 23
-end
-arch chair2_111
-direction 3
-x 17
-y 23
-end
-arch blocked
 x 18
 y 1
 end
@@ -2568,89 +1895,17 @@ y 11
 end
 arch blocked
 x 18
-y 13
+y 22
 end
-arch wall_stone_1
-x 18
-y 13
-end
-arch floor_stone_b3
-x 18
-y 14
-end
-arch wall_stone_3
-x 18
-y 14
-end
-arch floor_stone_b3
-x 18
-y 15
-end
-arch wall_stone_3
-x 18
-y 15
-end
-arch floor_stone_b3
-x 18
-y 16
-end
-arch wall_stone_3
-x 18
-y 16
-end
-arch floor_stone_b3
-x 18
-y 17
-end
-arch wall_stone_3
-x 18
-y 17
-end
-arch floor_stone_b3
-x 18
-y 18
-end
-arch wall_stone_3
-x 18
-y 18
-end
-arch floor_stone_b3
-x 18
-y 19
-end
-arch wall_stone_3
-x 18
-y 19
-end
-arch floor_stone_b3
-x 18
-y 20
-end
-arch wall_stone_3
-x 18
-y 20
-end
-arch floor_stone_b3
-x 18
-y 21
-end
-arch wall_stone_3
-x 18
-y 21
-end
-arch floor_stone_b3
+arch wall_wood_8
 x 18
 y 22
 end
-arch wall_stone_3
-x 18
-y 22
-end
-arch floor_stone_b3
+arch blocked
 x 18
 y 23
 end
-arch wall_stone_3
+arch wall_wood2_3
 x 18
 y 23
 end
