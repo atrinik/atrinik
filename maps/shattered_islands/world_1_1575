@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2010-12-08 Alex Tokar
-Modified: 2010-12-08 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -191,11 +191,11 @@ x 15
 y 14
 end
 arch grate1_3
-layer 4
 x 15
 y 14
 end
 arch grate1_1
+sub_layer 1
 x 15
 y 14
 end
