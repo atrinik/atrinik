@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-22 Edwin Miltenburg
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1514,7 +1514,7 @@ x 10
 y 14
 end
 arch bridge_wood_EW.161
-layer 3
+sub_layer 1
 x 10
 y 14
 end
@@ -1658,7 +1658,7 @@ x 11
 y 14
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 11
 y 14
 end
@@ -2847,7 +2847,7 @@ x 20
 y 14
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 20
 y 14
 end
