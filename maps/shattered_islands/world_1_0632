@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 -Enter Description Here-
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -241,13 +241,12 @@ x 2
 y 15
 arch priest_green
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Papers, papers...  When will my job be done?
 endmsg
 name Nancy Erhart
 level 22
 type 83
-friendly 1
 direction 1
 end
 end
