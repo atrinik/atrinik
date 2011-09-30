@@ -2,13 +2,14 @@ arch map
 name Lower Deck
 msg
 Created:  2011-09-06 Alex Tokar
-Modified: 2011-09-07 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 14
 height 5
 difficulty 1
 darkness 5
 bg_music adventurers_wish.ogg
+region incuna
 end
 arch blocked
 end
