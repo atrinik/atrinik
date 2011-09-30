@@ -763,7 +763,6 @@ x 7
 y 11
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 12
 end
@@ -772,7 +771,6 @@ x 7
 y 12
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 13
 end
@@ -781,7 +779,6 @@ x 7
 y 13
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 14
 end
@@ -790,47 +787,38 @@ x 7
 y 14
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 15
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 16
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 17
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 18
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 19
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 20
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 21
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 22
 end
 arch bridge_wood_NS.171
-name pier
 x 7
 y 23
 end
@@ -894,12 +882,10 @@ x 8
 y 12
 end
 arch bridge_wood_NS.151
-name pier
 x 8
 y 12
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 13
 end
@@ -908,52 +894,42 @@ x 8
 y 13
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 14
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 15
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 16
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 17
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 18
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 19
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 20
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 21
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 22
 end
 arch bridge_wood_NS.101
-name pier
 x 8
 y 23
 end
@@ -1005,7 +981,6 @@ x 9
 y 11
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 12
 end
@@ -1016,7 +991,6 @@ x 9
 y 12
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 13
 end
@@ -1028,52 +1002,42 @@ x 9
 y 13
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 14
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 15
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 16
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 17
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 18
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 19
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 20
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 21
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 22
 end
 arch bridge_wood_NS.101
-name pier
 x 9
 y 23
 end
@@ -1129,57 +1093,46 @@ x 10
 y 12
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 13
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 14
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 15
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 16
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 17
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 18
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 19
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 20
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 21
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 22
 end
 arch bridge_wood_NS.101
-name pier
 x 10
 y 23
 end
@@ -1235,57 +1188,46 @@ x 11
 y 12
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 13
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 14
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 15
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 16
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 17
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 18
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 19
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 20
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 21
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 22
 end
 arch bridge_wood_NS.101
-name pier
 x 11
 y 23
 end
@@ -1341,57 +1283,46 @@ x 12
 y 12
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 13
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 14
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 15
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 16
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 17
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 18
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 19
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 20
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 21
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 22
 end
 arch bridge_wood_NS.101
-name pier
 x 12
 y 23
 end
@@ -1459,7 +1390,6 @@ x 13
 y 13
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 13
 end
@@ -1468,7 +1398,6 @@ x 13
 y 14
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 14
 end
@@ -1477,7 +1406,6 @@ x 13
 y 15
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 15
 end
@@ -1486,7 +1414,6 @@ x 13
 y 16
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 16
 end
@@ -1495,7 +1422,6 @@ x 13
 y 17
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 17
 end
@@ -1504,7 +1430,6 @@ x 13
 y 18
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 18
 end
@@ -1513,7 +1438,6 @@ x 13
 y 19
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 19
 end
@@ -1522,7 +1446,6 @@ x 13
 y 20
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 20
 end
@@ -1531,7 +1454,6 @@ x 13
 y 21
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 21
 end
@@ -1540,7 +1462,6 @@ x 13
 y 22
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 22
 end
@@ -1549,7 +1470,6 @@ x 13
 y 23
 end
 arch bridge_wood_NS.131
-name pier
 x 13
 y 23
 end
