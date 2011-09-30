@@ -194,7 +194,7 @@ level 48
 type 83
 arch event_obj
 msg
-{0} shouts:
+{} shouts:
 Alert the city! We have failed!
 endmsg
 sub_type 3
@@ -413,7 +413,7 @@ level 48
 type 83
 arch event_obj
 msg
-{0} shouts:
+{} shouts:
 Call in re enforcements!
 endmsg
 sub_type 3
@@ -1378,7 +1378,7 @@ level 47
 type 83
 arch event_obj
 msg
-{0} shouts:
+{} shouts:
 We need backup!
 endmsg
 sub_type 3
@@ -1399,7 +1399,7 @@ level 47
 type 83
 arch event_obj
 msg
-{0} shouts:
+{} shouts:
 Hold the Line!
 endmsg
 sub_type 3
@@ -2103,7 +2103,7 @@ level 46
 type 83
 arch event_obj
 msg
-{0} shouts:
+{} shouts:
 Beware the restless ones!
 endmsg
 sub_type 3
