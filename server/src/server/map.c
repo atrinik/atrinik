@@ -1023,6 +1023,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 				/* Adjust the single object specific data except flags. */
 				tmp->type = op->type;
 				tmp->layer = op->layer;
+				tmp->sub_layer = op->sub_layer;
 
 				/* Link the tail object... */
 				tmp->head = prev, last_more->more = tmp, last_more = tmp;
