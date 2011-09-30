@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-16 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -514,13 +514,12 @@ x 3
 y 10
 arch peasant
 msg
-@match *
+@match ^hello$
 Welcome to the Greyton arena entrance!
 endmsg
 name Galend
 type 83
 level 20
-friendly 1
 direction 3
 end
 end
