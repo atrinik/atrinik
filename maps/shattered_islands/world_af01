@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1280,11 +1280,11 @@ x 8
 y 6
 end
 arch tackelage_n_low
-layer 4
 x 8
 y 6
 end
 arch box_big.101
+sub_layer 1
 layer 5
 x 8
 y 6
@@ -1467,7 +1467,6 @@ x 9
 y 7
 end
 arch box_big.101
-layer 3
 x 9
 y 7
 end
