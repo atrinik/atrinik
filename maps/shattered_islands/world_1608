@@ -22,13 +22,11 @@ end
 arch water_lt4
 end
 arch reed_sm9
-layer 3
 end
 arch water_lt
 y 1
 end
 arch reed_sm11
-layer 3
 y 1
 end
 arch grassd_2
@@ -133,7 +131,6 @@ arch water_lt3
 x 1
 end
 arch reed_sm8
-layer 3
 x 1
 end
 arch rock5
@@ -144,7 +141,6 @@ x 1
 y 1
 end
 arch reed_sm6
-layer 3
 x 1
 y 1
 end
@@ -153,7 +149,6 @@ x 1
 y 2
 end
 arch reed_sm4
-layer 3
 x 1
 y 2
 end
@@ -162,7 +157,6 @@ x 1
 y 3
 end
 arch reed_sm2
-layer 3
 x 1
 y 3
 end
@@ -265,7 +259,6 @@ arch water_lt2
 x 2
 end
 arch reed_sm6
-layer 3
 x 2
 end
 arch water_lt3
@@ -273,7 +266,6 @@ x 2
 y 1
 end
 arch reed_sm6
-layer 3
 x 2
 y 1
 end
@@ -286,7 +278,6 @@ x 2
 y 2
 end
 arch reed_sm2
-layer 3
 x 2
 y 2
 end
@@ -295,7 +286,6 @@ x 2
 y 3
 end
 arch reed_sm10
-layer 3
 x 2
 y 3
 end
@@ -308,7 +298,6 @@ x 2
 y 4
 end
 arch reed_sm3
-layer 3
 x 2
 y 4
 end
@@ -317,7 +306,6 @@ x 2
 y 5
 end
 arch reed_sm11
-layer 3
 x 2
 y 5
 end
@@ -326,7 +314,6 @@ x 2
 y 6
 end
 arch reed_sm8
-layer 3
 x 2
 y 6
 end
@@ -507,7 +494,6 @@ x 3
 y 5
 end
 arch reed_sm5
-layer 3
 x 3
 y 5
 end
@@ -524,7 +510,6 @@ x 3
 y 7
 end
 arch reed_sm3
-layer 3
 x 3
 y 7
 end
@@ -715,7 +700,6 @@ x 5
 y 5
 end
 arch reed_sm6
-layer 3
 x 5
 y 5
 end
@@ -724,7 +708,6 @@ x 5
 y 6
 end
 arch reed_sm9
-layer 3
 x 5
 y 6
 end
@@ -733,7 +716,6 @@ x 5
 y 7
 end
 arch reed_sm8
-layer 3
 x 5
 y 7
 end
@@ -805,7 +787,6 @@ arch water_lt2
 x 6
 end
 arch reed_sm2
-layer 3
 x 6
 end
 arch water_lt2
@@ -813,7 +794,6 @@ x 6
 y 1
 end
 arch reed_sm5
-layer 3
 x 6
 y 1
 end
@@ -822,7 +802,6 @@ x 6
 y 2
 end
 arch reed_sm6
-layer 3
 x 6
 y 2
 end
@@ -835,7 +814,6 @@ x 6
 y 3
 end
 arch reed_sm7
-layer 3
 x 6
 y 3
 end
@@ -844,7 +822,6 @@ x 6
 y 4
 end
 arch reed_sm11
-layer 3
 x 6
 y 4
 end
@@ -853,7 +830,6 @@ x 6
 y 5
 end
 arch reed_sm10
-layer 3
 x 6
 y 5
 end
@@ -862,7 +838,6 @@ x 6
 y 6
 end
 arch reed_sm4
-layer 3
 x 6
 y 6
 end
@@ -1030,7 +1005,6 @@ x 7
 y 1
 end
 arch reed_sm6
-layer 3
 x 7
 y 1
 end
@@ -1039,7 +1013,6 @@ x 7
 y 2
 end
 arch reed_sm10
-layer 3
 x 7
 y 2
 end
@@ -1048,7 +1021,6 @@ x 7
 y 3
 end
 arch reed_sm1
-layer 3
 x 7
 y 3
 end
@@ -1151,7 +1123,6 @@ arch water_lt3
 x 8
 end
 arch reed_sm4
-layer 3
 x 8
 end
 arch water_lt
@@ -1159,7 +1130,6 @@ x 8
 y 1
 end
 arch reed_sm4
-layer 3
 x 8
 y 1
 end
