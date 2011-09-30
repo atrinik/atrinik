@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2011-02-06 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -545,7 +545,7 @@ x 6
 y 19
 end
 arch luggage
-layer 5
+sub_layer 1
 z 22
 align 4
 zoom 80
