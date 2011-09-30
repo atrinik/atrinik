@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-17 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1198,11 +1198,11 @@ x 8
 y 12
 end
 arch tackelage_n_low
-layer 4
 x 8
 y 12
 end
 arch box_big.101
+sub_layer 1
 layer 5
 x 8
 y 12
@@ -1304,7 +1304,7 @@ x 9
 y 2
 end
 arch grassd_m10
-layer 3
+sub_layer 1
 x 9
 y 2
 end
@@ -1381,7 +1381,6 @@ x 9
 y 13
 end
 arch box_big.101
-layer 3
 x 9
 y 13
 end
@@ -1476,7 +1475,7 @@ x 10
 y 2
 end
 arch grassd_m10
-layer 3
+sub_layer 1
 x 10
 y 2
 end
@@ -1519,10 +1518,10 @@ x 10
 y 9
 end
 arch box_big.101
+sub_layer 1
 z 23
 zoom 65
 align 8
-layer 5
 x 10
 y 9
 end
@@ -1647,7 +1646,7 @@ x 11
 y 2
 end
 arch bridge_wood_NS.121
-layer 3
+sub_layer 1
 x 11
 y 2
 end
@@ -1662,7 +1661,7 @@ x 11
 y 3
 end
 arch bridge_wood_NS.131
-layer 3
+sub_layer 1
 x 11
 y 3
 end
@@ -1677,7 +1676,7 @@ x 11
 y 4
 end
 arch bridge_wood_NS.131
-layer 3
+sub_layer 1
 x 11
 y 4
 end
