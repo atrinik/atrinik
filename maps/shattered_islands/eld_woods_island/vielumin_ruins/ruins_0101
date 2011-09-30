@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -523,7 +523,7 @@ x 3
 y 5
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 3
 y 5
 end
@@ -684,7 +684,7 @@ x 4
 y 4
 end
 arch fmask_ruin1_s3.101
-layer 3
+sub_layer 1
 x 4
 y 4
 end
@@ -697,7 +697,7 @@ x 4
 y 5
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 4
 y 5
 end
@@ -710,7 +710,7 @@ x 4
 y 6
 end
 arch water_floor
-layer 3
+sub_layer 1
 x 4
 y 6
 end
@@ -723,7 +723,7 @@ x 4
 y 7
 end
 arch fmask_ruin1_s1.101
-layer 3
+sub_layer 1
 x 4
 y 7
 end
@@ -867,7 +867,7 @@ x 5
 y 3
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 5
 y 3
 end
@@ -880,7 +880,7 @@ x 5
 y 4
 end
 arch fmask_ruin1_s1.101
-layer 3
+sub_layer 1
 x 5
 y 4
 end
@@ -1058,7 +1058,7 @@ x 6
 y 3
 end
 arch dirt_floor1
-layer 3
+sub_layer 1
 x 6
 y 3
 end
@@ -1099,7 +1099,7 @@ x 6
 y 7
 end
 arch dirt_floor2
-layer 3
+sub_layer 1
 x 6
 y 7
 end
@@ -1268,7 +1268,7 @@ x 7
 y 6
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 7
 y 6
 end
@@ -1297,7 +1297,7 @@ x 7
 y 9
 end
 arch dirt_floor1
-layer 3
+sub_layer 1
 x 7
 y 9
 end
@@ -1461,12 +1461,12 @@ x 8
 y 9
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 8
 y 9
 end
 arch water_floor
-layer 4
+sub_layer 2
 x 8
 y 9
 end
@@ -1598,7 +1598,7 @@ x 9
 y 3
 end
 arch fmask_ruin1_s1.101
-layer 3
+sub_layer 1
 x 9
 y 3
 end
@@ -1619,7 +1619,7 @@ x 9
 y 5
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 9
 y 5
 end
@@ -1652,7 +1652,7 @@ x 9
 y 8
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 9
 y 8
 end
@@ -1772,7 +1772,7 @@ x 10
 y 3
 end
 arch fmask_ruin1_s3.101
-layer 3
+sub_layer 1
 x 10
 y 3
 end
@@ -1785,7 +1785,7 @@ x 10
 y 4
 end
 arch dirt_floor4
-layer 3
+sub_layer 1
 x 10
 y 4
 end
@@ -1831,7 +1831,7 @@ x 10
 y 8
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 10
 y 8
 end
@@ -1861,7 +1861,7 @@ x 10
 y 10
 end
 arch fmask_ruin1_s1.101
-layer 3
+sub_layer 1
 x 10
 y 10
 end
@@ -2196,7 +2196,7 @@ x 12
 y 9
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 12
 y 9
 end
