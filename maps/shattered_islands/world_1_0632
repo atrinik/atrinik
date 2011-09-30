@@ -360,23 +360,15 @@ arch spawn_point
 x 3
 y 19
 arch ranger
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to Charob Beer Inc.
-I'm Geoffrey Charob, the president and founder of Charob Beer Inc.!
-We produce the world famous <a>Charob Beer</a>, although for some reason my shipments haven't been going out on time, and I have my suspicions about a certain <a>lazy worker</a>...
-@match ^charob beer$
-We make it with my secret family recipe.
-@match ^lazy worker$
-I suspect that it's that no good Steve Bruck.
-@match ^your beer stinks$
-If you don't like it, go drink some slime!
-endmsg
 name Geoffrey Charob
 level 26
 type 83
 weight 550
 direction 3
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/asteria/geoffrey_charob.py
+end
 end
 end
 arch floor_wood2
