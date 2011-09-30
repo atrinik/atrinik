@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -143,10 +143,10 @@ arch sand_dm5
 y 20
 end
 arch fence_01.131
-layer 4
 y 20
 end
 arch wall_wood2_1
+sub_layer 1
 y 20
 end
 arch grassd_6
@@ -159,7 +159,6 @@ arch grassd_7
 y 22
 end
 arch reed_sm4
-layer 3
 y 22
 end
 arch grassd_2
@@ -271,16 +270,6 @@ arch sand_dm19
 x 1
 y 18
 end
-arch fence_01.122
-align -18
-z -9
-no_pass 0
-blocksview 0
-name wooden pillar
-layer 7
-x 1
-y 18
-end
 arch floor_earth_light1b
 x 1
 y 19
@@ -321,10 +310,10 @@ x 2
 end
 arch rock1
 align 6
-layer 4
 x 2
 end
 arch bridge_wood_NS.131
+sub_layer 1
 layer 5
 no_pass 1
 x 2
@@ -581,11 +570,11 @@ x 3
 y 20
 end
 arch fence_01.131
-layer 4
 x 3
 y 20
 end
 arch wall_wood3_1
+sub_layer 1
 x 3
 y 20
 end
@@ -606,7 +595,6 @@ x 3
 y 23
 end
 arch reed_sm11
-layer 3
 x 3
 y 23
 end
@@ -716,16 +704,6 @@ arch sand_dm12
 x 4
 y 18
 end
-arch fence_01.122
-align -18
-z -9
-no_pass 0
-blocksview 0
-name wooden pillar
-layer 7
-x 4
-y 18
-end
 arch floor_earth_light1b
 x 4
 y 19
@@ -763,7 +741,6 @@ x 4
 y 23
 end
 arch reed_sm9
-layer 3
 x 4
 y 23
 end
@@ -901,7 +878,6 @@ x 5
 y 22
 end
 arch reed_sm7
-layer 3
 x 5
 y 22
 end
@@ -1057,7 +1033,6 @@ x 6
 y 22
 end
 arch reed_sm2
-layer 3
 x 6
 y 22
 end
@@ -1180,7 +1155,6 @@ x 7
 y 22
 end
 arch reed_sm7
-layer 3
 x 7
 y 22
 end
@@ -1189,7 +1163,6 @@ x 7
 y 23
 end
 arch reed_sm8
-layer 3
 x 7
 y 23
 end
@@ -1278,11 +1251,11 @@ y 12
 end
 arch grate_closed
 direction 7
-layer 4
 x 8
 y 12
 end
 arch wall_fortified_high_a.111
+sub_layer 1
 x 8
 y 12
 end
@@ -1299,8 +1272,8 @@ x 8
 y 13
 end
 arch wall_fortified_high_c.111
+sub_layer 1
 no_pass 0
-layer 7
 x 8
 y 13
 end
@@ -1318,7 +1291,7 @@ x 8
 y 14
 end
 arch wall_fortified_high_c.111
-layer 7
+sub_layer 1
 no_pass 0
 x 8
 y 14
@@ -1343,11 +1316,11 @@ y 15
 end
 arch grate_closed
 direction 7
-layer 4
 x 8
 y 15
 end
 arch wall_fortified_high_b.111
+sub_layer 1
 x 8
 y 15
 end
@@ -1396,11 +1369,11 @@ x 8
 y 21
 end
 arch wall_fortified_high_3.171
-layer 4
 x 8
 y 21
 end
 arch wall_fortified_high.111
+sub_layer 1
 x 8
 y 21
 end
@@ -2300,11 +2273,11 @@ x 14
 y 6
 end
 arch wall_flagstone1_w.111
-layer 4
 x 14
 y 6
 end
 arch wall_fortified_high_c.131
+sub_layer 1
 x 14
 y 6
 end
@@ -2426,11 +2399,11 @@ x 15
 y 1
 end
 arch rock1
-layer 4
 x 15
 y 1
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 15
 y 1
 end
