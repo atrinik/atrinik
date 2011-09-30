@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -763,7 +763,6 @@ x 8
 y 1
 end
 arch reed_sm8
-layer 3
 x 8
 y 1
 end
@@ -772,7 +771,6 @@ x 8
 y 2
 end
 arch reed_sm9
-layer 3
 x 8
 y 2
 end
@@ -864,7 +862,6 @@ arch water_lt3
 x 9
 end
 arch reed_sm1
-layer 3
 x 9
 end
 arch water_lt
@@ -872,7 +869,6 @@ x 9
 y 1
 end
 arch reed_sm4
-layer 3
 x 9
 y 1
 end
@@ -881,7 +877,6 @@ x 9
 y 2
 end
 arch reed_sm10
-layer 3
 x 9
 y 2
 end
@@ -890,7 +885,6 @@ x 9
 y 3
 end
 arch reed_sm5
-layer 3
 x 9
 y 3
 end
@@ -899,7 +893,6 @@ x 9
 y 4
 end
 arch reed_sm3
-layer 3
 x 9
 y 4
 end
@@ -912,7 +905,6 @@ x 9
 y 6
 end
 arch reed_sm6
-layer 3
 x 9
 y 6
 end
@@ -988,7 +980,6 @@ arch water_lt
 x 10
 end
 arch reed_sm5
-layer 3
 x 10
 end
 arch floor_ruin5
@@ -1001,7 +992,7 @@ x 10
 y 1
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 10
 y 1
 end
@@ -1015,7 +1006,7 @@ x 10
 y 2
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 10
 y 2
 end
@@ -1029,7 +1020,7 @@ x 10
 y 3
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 10
 y 3
 end
@@ -1038,7 +1029,6 @@ x 10
 y 4
 end
 arch reed_sm4
-layer 3
 x 10
 y 4
 end
@@ -1047,7 +1037,6 @@ x 10
 y 5
 end
 arch reed_sm9
-layer 3
 x 10
 y 5
 end
@@ -1060,7 +1049,6 @@ x 10
 y 7
 end
 arch reed_sm3
-layer 3
 x 10
 y 7
 end
@@ -1069,7 +1057,6 @@ x 10
 y 8
 end
 arch reed_sm8
-layer 3
 x 10
 y 8
 end
@@ -1141,7 +1128,7 @@ direction 8
 x 11
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 11
 end
 arch floor_ruin5
@@ -1153,7 +1140,7 @@ x 11
 y 1
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 11
 y 1
 end
@@ -1166,7 +1153,7 @@ x 11
 y 2
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 11
 y 2
 end
@@ -1179,7 +1166,7 @@ x 11
 y 3
 end
 arch reed_sm1
-layer 3
+sub_layer 1
 x 11
 y 3
 end
@@ -1193,7 +1180,7 @@ x 11
 y 4
 end
 arch reed_sm1
-layer 3
+sub_layer 1
 x 11
 y 4
 end
@@ -1207,7 +1194,7 @@ x 11
 y 5
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 11
 y 5
 end
@@ -1225,7 +1212,7 @@ x 11
 y 6
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 11
 y 6
 end
@@ -1234,7 +1221,6 @@ x 11
 y 7
 end
 arch reed_sm2
-layer 3
 x 11
 y 7
 end
@@ -1243,7 +1229,6 @@ x 11
 y 8
 end
 arch reed_sm8
-layer 3
 x 11
 y 8
 end
@@ -1252,7 +1237,6 @@ x 11
 y 9
 end
 arch reed_sm9
-layer 3
 x 11
 y 9
 end
@@ -1316,7 +1300,6 @@ arch floor_ruin5
 x 12
 end
 arch reed_sm7
-layer 3
 x 12
 end
 arch floor_ruin3
@@ -1328,7 +1311,7 @@ x 12
 y 1
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 12
 y 1
 end
@@ -1337,7 +1320,6 @@ x 12
 y 2
 end
 arch reed_sm3
-layer 3
 x 12
 y 2
 end
@@ -1346,7 +1328,6 @@ x 12
 y 3
 end
 arch reed_sm4
-layer 3
 x 12
 y 3
 end
@@ -1359,7 +1340,7 @@ x 12
 y 4
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 12
 y 4
 end
@@ -1372,7 +1353,7 @@ x 12
 y 5
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 12
 y 5
 end
@@ -1394,7 +1375,7 @@ x 12
 y 7
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 12
 y 7
 end
@@ -1408,7 +1389,7 @@ x 12
 y 8
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 12
 y 8
 end
@@ -1417,7 +1398,6 @@ x 12
 y 9
 end
 arch reed_sm11
-layer 3
 x 12
 y 9
 end
@@ -1426,7 +1406,6 @@ x 12
 y 10
 end
 arch reed_sm4
-layer 3
 x 12
 y 10
 end
@@ -1489,7 +1468,7 @@ arch grassd_m8
 x 13
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 13
 end
 arch floor_ruin6
@@ -1501,7 +1480,7 @@ x 13
 y 1
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 13
 y 1
 end
@@ -1510,7 +1489,6 @@ x 13
 y 2
 end
 arch reed_sm5
-layer 3
 x 13
 y 2
 end
@@ -1524,7 +1502,7 @@ x 13
 y 3
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 13
 y 3
 end
@@ -1538,7 +1516,7 @@ x 13
 y 4
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 13
 y 4
 end
@@ -1547,7 +1525,6 @@ x 13
 y 5
 end
 arch reed_sm6
-layer 3
 x 13
 y 5
 end
@@ -1568,7 +1545,7 @@ x 13
 y 7
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 13
 y 7
 end
@@ -1581,7 +1558,7 @@ x 13
 y 8
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 13
 y 8
 end
@@ -1595,7 +1572,7 @@ x 13
 y 9
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 13
 y 9
 end
@@ -1604,7 +1581,6 @@ x 13
 y 10
 end
 arch reed_sm5
-layer 3
 x 13
 y 10
 end
@@ -1613,7 +1589,6 @@ x 13
 y 11
 end
 arch reed_sm6
-layer 3
 x 13
 y 11
 end
@@ -1669,7 +1644,6 @@ arch grassd_5
 x 14
 end
 arch reed_sm9
-layer 3
 x 14
 end
 arch grassd_5
@@ -1682,7 +1656,7 @@ x 14
 y 1
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 14
 y 1
 end
@@ -1696,7 +1670,7 @@ x 14
 y 2
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 14
 y 2
 end
@@ -1709,7 +1683,6 @@ x 14
 y 3
 end
 arch reed_sm3
-layer 3
 x 14
 y 3
 end
@@ -1727,7 +1700,7 @@ x 14
 y 4
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 14
 y 4
 end
@@ -1741,7 +1714,7 @@ x 14
 y 5
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 14
 y 5
 end
@@ -1750,7 +1723,6 @@ x 14
 y 6
 end
 arch reed_sm1
-layer 3
 x 14
 y 6
 end
@@ -1763,7 +1735,6 @@ x 14
 y 7
 end
 arch reed_sm6
-layer 3
 x 14
 y 7
 end
@@ -1776,7 +1747,7 @@ x 14
 y 8
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 14
 y 8
 end
@@ -1790,7 +1761,7 @@ x 14
 y 9
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 14
 y 9
 end
@@ -1799,7 +1770,6 @@ x 14
 y 10
 end
 arch reed_sm11
-layer 3
 x 14
 y 10
 end
@@ -1808,7 +1778,6 @@ x 14
 y 11
 end
 arch reed_sm4
-layer 3
 x 14
 y 11
 end
@@ -1817,7 +1786,6 @@ x 14
 y 12
 end
 arch reed_sm11
-layer 3
 x 14
 y 12
 end
@@ -1826,7 +1794,6 @@ x 14
 y 13
 end
 arch reed_sm4
-layer 3
 x 14
 y 13
 end
@@ -1878,7 +1845,7 @@ direction 4
 x 15
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 15
 end
 arch grassd_3
@@ -1891,7 +1858,7 @@ x 15
 y 1
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 15
 y 1
 end
@@ -1900,7 +1867,6 @@ x 15
 y 2
 end
 arch reed_sm3
-layer 3
 x 15
 y 2
 end
@@ -1913,7 +1879,6 @@ x 15
 y 3
 end
 arch reed_sm4
-layer 3
 x 15
 y 3
 end
@@ -1931,7 +1896,7 @@ x 15
 y 4
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 15
 y 4
 end
@@ -1945,7 +1910,7 @@ x 15
 y 5
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 15
 y 5
 end
@@ -1959,7 +1924,7 @@ x 15
 y 6
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 15
 y 6
 end
@@ -1989,7 +1954,7 @@ x 15
 y 9
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 15
 y 9
 end
@@ -2003,7 +1968,7 @@ x 15
 y 10
 end
 arch reed_sm1
-layer 3
+sub_layer 1
 x 15
 y 10
 end
@@ -2012,7 +1977,6 @@ x 15
 y 11
 end
 arch reed_sm5
-layer 3
 x 15
 y 11
 end
@@ -2021,7 +1985,6 @@ x 15
 y 12
 end
 arch reed_sm2
-layer 3
 x 15
 y 12
 end
@@ -2030,7 +1993,6 @@ x 15
 y 13
 end
 arch reed_sm5
-layer 3
 x 15
 y 13
 end
@@ -2082,7 +2044,7 @@ direction 5
 x 16
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 16
 end
 arch water_lt4
@@ -2090,7 +2052,6 @@ x 16
 y 1
 end
 arch reed_sm6
-layer 3
 x 16
 y 1
 end
@@ -2103,7 +2064,6 @@ x 16
 y 2
 end
 arch reed_sm2
-layer 3
 x 16
 y 2
 end
@@ -2116,7 +2076,6 @@ x 16
 y 3
 end
 arch reed_sm9
-layer 3
 x 16
 y 3
 end
@@ -2134,7 +2093,7 @@ x 16
 y 4
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 16
 y 4
 end
@@ -2148,7 +2107,7 @@ x 16
 y 5
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 16
 y 5
 end
@@ -2157,7 +2116,6 @@ x 16
 y 6
 end
 arch reed_sm6
-layer 3
 x 16
 y 6
 end
@@ -2175,7 +2133,7 @@ x 16
 y 7
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 16
 y 7
 end
@@ -2189,7 +2147,7 @@ x 16
 y 8
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 16
 y 8
 end
@@ -2202,7 +2160,7 @@ x 16
 y 9
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 16
 y 9
 end
@@ -2215,7 +2173,7 @@ x 16
 y 10
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 16
 y 10
 end
@@ -2229,7 +2187,7 @@ x 16
 y 11
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 16
 y 11
 end
@@ -2247,7 +2205,7 @@ x 16
 y 12
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 16
 y 12
 end
@@ -2256,7 +2214,6 @@ x 16
 y 13
 end
 arch reed_sm11
-layer 3
 x 16
 y 13
 end
@@ -2265,7 +2222,6 @@ x 16
 y 14
 end
 arch reed_sm4
-layer 3
 x 16
 y 14
 end
@@ -2313,7 +2269,7 @@ direction 6
 x 17
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 17
 end
 arch grassd_4
@@ -2326,7 +2282,7 @@ x 17
 y 1
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 17
 y 1
 end
@@ -2340,7 +2296,7 @@ x 17
 y 2
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 17
 y 2
 end
@@ -2354,7 +2310,7 @@ x 17
 y 3
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 17
 y 3
 end
@@ -2363,7 +2319,6 @@ x 17
 y 4
 end
 arch reed_sm8
-layer 3
 x 17
 y 4
 end
@@ -2381,7 +2336,7 @@ x 17
 y 5
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 17
 y 5
 end
@@ -2390,7 +2345,6 @@ x 17
 y 6
 end
 arch reed_sm10
-layer 3
 x 17
 y 6
 end
@@ -2403,7 +2357,6 @@ x 17
 y 7
 end
 arch reed_sm4
-layer 3
 x 17
 y 7
 end
@@ -2421,7 +2374,7 @@ x 17
 y 8
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 17
 y 8
 end
@@ -2430,7 +2383,6 @@ x 17
 y 9
 end
 arch reed_sm3
-layer 3
 x 17
 y 9
 end
@@ -2443,7 +2395,7 @@ x 17
 y 10
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 17
 y 10
 end
@@ -2456,7 +2408,7 @@ x 17
 y 11
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 17
 y 11
 end
@@ -2469,7 +2421,7 @@ x 17
 y 12
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 17
 y 12
 end
@@ -2483,7 +2435,7 @@ x 17
 y 13
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 17
 y 13
 end
@@ -2492,7 +2444,6 @@ x 17
 y 14
 end
 arch reed_sm1
-layer 3
 x 17
 y 14
 end
@@ -2501,7 +2452,6 @@ x 17
 y 15
 end
 arch reed_sm9
-layer 3
 x 17
 y 15
 end
@@ -2552,7 +2502,6 @@ x 18
 y 1
 end
 arch reed_sm10
-layer 3
 x 18
 y 1
 end
@@ -2561,7 +2510,6 @@ x 18
 y 2
 end
 arch reed_sm1
-layer 3
 x 18
 y 2
 end
@@ -2574,7 +2522,6 @@ x 18
 y 4
 end
 arch reed_sm1
-layer 3
 x 18
 y 4
 end
@@ -2592,7 +2539,7 @@ x 18
 y 6
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 18
 y 6
 end
@@ -2601,7 +2548,6 @@ x 18
 y 7
 end
 arch reed_sm3
-layer 3
 x 18
 y 7
 end
@@ -2619,7 +2565,7 @@ x 18
 y 8
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 18
 y 8
 end
@@ -2633,7 +2579,7 @@ x 18
 y 9
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 18
 y 9
 end
@@ -2651,7 +2597,7 @@ x 18
 y 10
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 18
 y 10
 end
@@ -2660,7 +2606,6 @@ x 18
 y 11
 end
 arch reed_sm1
-layer 3
 x 18
 y 11
 end
@@ -2673,7 +2618,7 @@ x 18
 y 12
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 18
 y 12
 end
@@ -2687,7 +2632,7 @@ x 18
 y 13
 end
 arch reed_sm1
-layer 3
+sub_layer 1
 x 18
 y 13
 end
@@ -2696,7 +2641,6 @@ x 18
 y 14
 end
 arch reed_sm11
-layer 3
 x 18
 y 14
 end
@@ -2705,7 +2649,6 @@ x 18
 y 15
 end
 arch reed_sm5
-layer 3
 x 18
 y 15
 end
@@ -2749,7 +2692,7 @@ direction 1
 x 19
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 19
 end
 arch grassd_7
@@ -2757,7 +2700,6 @@ x 19
 y 1
 end
 arch reed_sm6
-layer 3
 x 19
 y 1
 end
@@ -2771,7 +2713,7 @@ x 19
 y 2
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 19
 y 2
 end
@@ -2785,7 +2727,7 @@ x 19
 y 3
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 19
 y 3
 end
@@ -2799,7 +2741,7 @@ x 19
 y 4
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 19
 y 4
 end
@@ -2813,7 +2755,7 @@ x 19
 y 5
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 19
 y 5
 end
@@ -2827,7 +2769,7 @@ x 19
 y 6
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 19
 y 6
 end
@@ -2841,7 +2783,7 @@ x 19
 y 7
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 19
 y 7
 end
@@ -2855,7 +2797,7 @@ x 19
 y 8
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 19
 y 8
 end
@@ -2869,7 +2811,7 @@ x 19
 y 9
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 19
 y 9
 end
@@ -2878,7 +2820,6 @@ x 19
 y 10
 end
 arch reed_sm8
-layer 3
 x 19
 y 10
 end
@@ -2896,7 +2837,7 @@ x 19
 y 11
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 19
 y 11
 end
@@ -2909,7 +2850,7 @@ x 19
 y 12
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 19
 y 12
 end
@@ -2931,7 +2872,7 @@ x 19
 y 14
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 19
 y 14
 end
@@ -2940,7 +2881,6 @@ x 19
 y 15
 end
 arch reed_sm10
-layer 3
 x 19
 y 15
 end
@@ -2949,7 +2889,6 @@ x 19
 y 16
 end
 arch reed_sm8
-layer 3
 x 19
 y 16
 end
@@ -2989,7 +2928,7 @@ direction 1
 x 20
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 20
 end
 arch grassd_7
@@ -3002,7 +2941,7 @@ x 20
 y 1
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 20
 y 1
 end
@@ -3015,7 +2954,6 @@ x 20
 y 2
 end
 arch reed_sm6
-layer 3
 x 20
 y 2
 end
@@ -3028,7 +2966,6 @@ x 20
 y 3
 end
 arch reed_sm4
-layer 3
 x 20
 y 3
 end
@@ -3041,7 +2978,6 @@ x 20
 y 4
 end
 arch reed_sm1
-layer 3
 x 20
 y 4
 end
@@ -3059,7 +2995,7 @@ x 20
 y 5
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 20
 y 5
 end
@@ -3068,7 +3004,6 @@ x 20
 y 6
 end
 arch reed_sm7
-layer 3
 x 20
 y 6
 end
@@ -3077,7 +3012,6 @@ x 20
 y 7
 end
 arch reed_sm1
-layer 3
 x 20
 y 7
 end
@@ -3086,7 +3020,6 @@ x 20
 y 8
 end
 arch reed_sm5
-layer 3
 x 20
 y 8
 end
@@ -3100,7 +3033,7 @@ x 20
 y 9
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 20
 y 9
 end
@@ -3114,7 +3047,7 @@ x 20
 y 10
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 20
 y 10
 end
@@ -3137,7 +3070,7 @@ x 20
 y 12
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 20
 y 12
 end
@@ -3150,7 +3083,7 @@ x 20
 y 13
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 20
 y 13
 end
@@ -3168,7 +3101,7 @@ x 20
 y 14
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 20
 y 14
 end
@@ -3177,7 +3110,6 @@ x 20
 y 15
 end
 arch reed_sm11
-layer 3
 x 20
 y 15
 end
@@ -3186,7 +3118,6 @@ x 20
 y 16
 end
 arch reed_sm2
-layer 3
 x 20
 y 16
 end
@@ -3195,7 +3126,6 @@ x 20
 y 17
 end
 arch reed_sm10
-layer 3
 x 20
 y 17
 end
@@ -3231,7 +3161,7 @@ direction 1
 x 21
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 21
 end
 arch grassd_3
@@ -3244,7 +3174,7 @@ x 21
 y 1
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 21
 y 1
 end
@@ -3258,7 +3188,7 @@ x 21
 y 2
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 21
 y 2
 end
@@ -3272,7 +3202,7 @@ x 21
 y 3
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 21
 y 3
 end
@@ -3286,7 +3216,7 @@ x 21
 y 4
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 21
 y 4
 end
@@ -3300,7 +3230,7 @@ x 21
 y 5
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 21
 y 5
 end
@@ -3309,7 +3239,6 @@ x 21
 y 6
 end
 arch reed_sm9
-layer 3
 x 21
 y 6
 end
@@ -3318,7 +3247,6 @@ x 21
 y 7
 end
 arch reed_sm5
-layer 3
 x 21
 y 7
 end
@@ -3336,7 +3264,7 @@ x 21
 y 8
 end
 arch reed_sm7
-layer 3
+sub_layer 1
 x 21
 y 8
 end
@@ -3345,7 +3273,6 @@ x 21
 y 9
 end
 arch reed_sm11
-layer 3
 x 21
 y 9
 end
@@ -3363,7 +3290,7 @@ x 21
 y 10
 end
 arch reed_sm1
-layer 3
+sub_layer 1
 x 21
 y 10
 end
@@ -3372,7 +3299,6 @@ x 21
 y 11
 end
 arch reed_sm8
-layer 3
 x 21
 y 11
 end
@@ -3381,7 +3307,6 @@ x 21
 y 12
 end
 arch reed_sm2
-layer 3
 x 21
 y 12
 end
@@ -3394,7 +3319,7 @@ x 21
 y 13
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 21
 y 13
 end
@@ -3407,7 +3332,7 @@ x 21
 y 14
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 21
 y 14
 end
@@ -3421,7 +3346,7 @@ x 21
 y 15
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 21
 y 15
 end
@@ -3435,7 +3360,7 @@ x 21
 y 16
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 21
 y 16
 end
@@ -3444,7 +3369,6 @@ x 21
 y 17
 end
 arch reed_sm10
-layer 3
 x 21
 y 17
 end
@@ -3453,7 +3377,6 @@ x 21
 y 18
 end
 arch reed_sm8
-layer 3
 x 21
 y 18
 end
@@ -3481,7 +3404,6 @@ arch grassd_7
 x 22
 end
 arch reed_sm9
-layer 3
 x 22
 end
 arch grassd_1
@@ -3501,7 +3423,6 @@ x 22
 y 3
 end
 arch reed_sm1
-layer 3
 x 22
 y 3
 end
@@ -3510,7 +3431,6 @@ x 22
 y 4
 end
 arch reed_sm6
-layer 3
 x 22
 y 4
 end
@@ -3519,7 +3439,6 @@ x 22
 y 5
 end
 arch reed_sm8
-layer 3
 x 22
 y 5
 end
@@ -3532,7 +3451,6 @@ x 22
 y 6
 end
 arch reed_sm6
-layer 3
 x 22
 y 6
 end
@@ -3546,7 +3464,7 @@ x 22
 y 7
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 22
 y 7
 end
@@ -3560,7 +3478,7 @@ x 22
 y 8
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 22
 y 8
 end
@@ -3574,7 +3492,7 @@ x 22
 y 9
 end
 arch reed_sm2
-layer 3
+sub_layer 1
 x 22
 y 9
 end
@@ -3588,7 +3506,7 @@ x 22
 y 10
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 22
 y 10
 end
@@ -3605,7 +3523,6 @@ x 22
 y 12
 end
 arch reed_sm3
-layer 3
 x 22
 y 12
 end
@@ -3614,7 +3531,6 @@ x 22
 y 13
 end
 arch reed_sm3
-layer 3
 x 22
 y 13
 end
@@ -3627,7 +3543,7 @@ x 22
 y 14
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 22
 y 14
 end
@@ -3640,7 +3556,7 @@ x 22
 y 15
 end
 arch reed_sm3
-layer 3
+sub_layer 1
 x 22
 y 15
 end
@@ -3654,7 +3570,7 @@ x 22
 y 16
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 22
 y 16
 end
@@ -3663,7 +3579,6 @@ x 22
 y 17
 end
 arch reed_sm9
-layer 3
 x 22
 y 17
 end
@@ -3672,7 +3587,6 @@ x 22
 y 18
 end
 arch reed_sm1
-layer 3
 x 22
 y 18
 end
@@ -3681,7 +3595,6 @@ x 22
 y 19
 end
 arch reed_sm4
-layer 3
 x 22
 y 19
 end
@@ -3714,7 +3627,7 @@ x 23
 y 1
 end
 arch reed_sm9
-layer 3
+sub_layer 1
 x 23
 y 1
 end
@@ -3728,7 +3641,7 @@ x 23
 y 2
 end
 arch reed_sm6
-layer 3
+sub_layer 1
 x 23
 y 2
 end
@@ -3742,7 +3655,7 @@ x 23
 y 3
 end
 arch reed_sm10
-layer 3
+sub_layer 1
 x 23
 y 3
 end
@@ -3760,7 +3673,7 @@ x 23
 y 4
 end
 arch reed_sm8
-layer 3
+sub_layer 1
 x 23
 y 4
 end
@@ -3774,7 +3687,7 @@ x 23
 y 5
 end
 arch reed_sm11
-layer 3
+sub_layer 1
 x 23
 y 5
 end
@@ -3783,7 +3696,6 @@ x 23
 y 6
 end
 arch reed_sm6
-layer 3
 x 23
 y 6
 end
@@ -3792,7 +3704,6 @@ x 23
 y 7
 end
 arch reed_sm10
-layer 3
 x 23
 y 7
 end
@@ -3805,7 +3716,6 @@ x 23
 y 9
 end
 arch reed_sm3
-layer 3
 x 23
 y 9
 end
@@ -3818,7 +3728,6 @@ x 23
 y 11
 end
 arch reed_sm5
-layer 3
 x 23
 y 11
 end
@@ -3827,7 +3736,6 @@ x 23
 y 12
 end
 arch reed_sm5
-layer 3
 x 23
 y 12
 end
@@ -3850,7 +3758,7 @@ x 23
 y 14
 end
 arch reed_sm5
-layer 3
+sub_layer 1
 x 23
 y 14
 end
@@ -3863,7 +3771,7 @@ x 23
 y 15
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 23
 y 15
 end
@@ -3881,7 +3789,7 @@ x 23
 y 16
 end
 arch reed_sm4
-layer 3
+sub_layer 1
 x 23
 y 16
 end
@@ -3890,7 +3798,6 @@ x 23
 y 17
 end
 arch reed_sm3
-layer 3
 x 23
 y 17
 end
@@ -3899,7 +3806,6 @@ x 23
 y 18
 end
 arch reed_sm2
-layer 3
 x 23
 y 18
 end
@@ -3908,7 +3814,6 @@ x 23
 y 19
 end
 arch reed_sm5
-layer 3
 x 23
 y 19
 end
