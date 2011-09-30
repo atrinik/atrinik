@@ -2001,16 +2001,15 @@ x 15
 y 17
 end
 arch fwall_sand1b
-layer 4
 x 15
 y 17
 end
 arch flag_kobold
-layer 5
 x 15
 y 17
 end
 arch flag_kobold
+sub_layer 1
 direction 7
 x 15
 y 17
