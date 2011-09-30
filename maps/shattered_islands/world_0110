@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -213,7 +213,7 @@ x 1
 y 17
 end
 arch sail_short_mast_e_2
-layer 7
+sub_layer 1
 x 1
 y 17
 end
@@ -1326,7 +1326,7 @@ arch grassd_m4
 x 10
 end
 arch bridge_wood_NS.131
-layer 3
+sub_layer 1
 x 10
 end
 arch water_lt2
@@ -2507,7 +2507,8 @@ x 18
 y 6
 end
 arch box_big.101
-layer 7
+sub_layer 1
+layer 5
 x 18
 y 6
 end
@@ -2897,7 +2898,6 @@ x 20
 y 6
 end
 arch sail_short_mast_s_2
-layer 7
 x 20
 y 6
 end
