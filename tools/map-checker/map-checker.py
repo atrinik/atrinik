@@ -187,7 +187,7 @@ decor_wall_l3 = off
 decor_wall_l4 = off
 sys_not_on_top = on
 deprecated_control_chars = off
-suspicious_dialogue_match = off
+layer_changed = off
 [Ignore]
 ignore_events = on
 """)
@@ -465,6 +465,8 @@ def check_obj(obj, map):
 	if not "type" in obj or not "type" in env:
 		return
 
+	archetype = get_archetype(obj["archname"])
+
 	# Spawn point without an inventory is an error.
 	if obj["type"] == types.spawn_point and not obj["inv"]:
 		add_error(map["file"], "Empty spawn point object.", errors.medium, env["x"], env["y"])
@@ -622,7 +624,7 @@ def check_obj(obj, map):
 				if "invalid-hello" in msg_errors:
 					add_error(map["file"], "Object {0} has a @match dialogue that has invalid '@match ^hello$'.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
-				if "suspicious-regex" in msg_errors and config.getboolean("Errors", "suspicious_dialogue_match"):
+				if "suspicious-regex" in msg_errors:
 					add_error(map["file"], "Object {0} has a @match that doesn't use regex.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 				if "link-in-msg" in msg_errors:
@@ -633,6 +635,9 @@ def check_obj(obj, map):
 
 			if "unescaped-markup" in msg_errors:
 				add_error(map["file"], "Object {0} contains unescaped markup in message.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
+	if "layer" in obj and obj["layer"] != 0 and "layer" in archetype and archetype["layer"] != 0 and obj["layer"] != archetype["layer"] and config.getboolean("Errors", "layer_changed"):
+		add_error(map["file"], "Object {0} has had layer changed to {1} from the default value of {2} - this is not recommended.".format(obj["archname"], obj["layer"], archetype["layer"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
@@ -1078,7 +1083,7 @@ if not cli:
 				[pref_types.checkbox, "Layer 4 object on square with a wall", ("Errors", "decor_wall_l4")],
 				[pref_types.checkbox, "System object not on top of normal objects", ("Errors", "sys_not_on_top")],
 				[pref_types.checkbox, "Check for deprecated control characters", ("Errors", "deprecated_control_chars")],
-				[pref_types.checkbox, "Suspicious @match (not using regex)", ("Errors", "suspicious_dialogue_match")],
+				[pref_types.checkbox, "Layer changed from the default value", ("Errors", "layer_changed")],
 			], "\n<b>Note:</b> You need to do a new scan to see the results."],
 			["Suppress", "These allow you to suppress an entire category of error messages.", [
 				[pref_types.checkbox, "Warning", ("Suppress", "warning")],
