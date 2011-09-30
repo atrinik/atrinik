@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-18 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2152,7 +2152,7 @@ x 16
 y 12
 end
 arch desert_fmask.116
-layer 3
+sub_layer 1
 x 16
 y 12
 end
