@@ -860,22 +860,6 @@ arch spawn_point
 x 6
 y 5
 arch mage_old
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to the Wizards' Tower. This island is part of Lyondale Archipelago, mostly inhabited by <a>Thelras</a>.
-@match ^thelras$
-Thelras are a powerful, tall and fierce race. They excel in <a>magic</a>, where they can overpower even the strongest elvish spellcasters.
-Long ago, we Thelras decided to help the Thraal army in the <a>fight</a> against Moroch.
-@match ^fight$
-We fought - and still do - together against Moroch, and became friends with the other races.
-Many humans, <a>dwarves</a> and other races come to this tower to learn about magic.
-@match ^dwarves$
-When we first met the dwarves, we called them 'shorties', which made many of them furious. We eventually became friends with them, though.
-@match ^magic$
-Since most Thelras excel in magic as wizards, this <a>tower</a> was built for those who wanted to practice in the arts of magic.
-@match ^tower$
-In this tower you can find various things that could help you in using your magical skills, including shops with magic tools, spells, potions, and so on.
-endmsg
 name Teldach
 level 30
 race thelra
@@ -883,6 +867,10 @@ can_cast_spell 0
 stand_still 0
 movement_type 64
 type 83
+arch event_obj
+sub_type 6
+race scripts/lyondale_archipelago/wizard/teldach.py
+end
 end
 end
 arch floor_bw1
