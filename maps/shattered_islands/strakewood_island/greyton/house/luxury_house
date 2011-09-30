@@ -2,7 +2,7 @@ arch map
 name Greyton Luxury House
 msg
 Created:  2010-07-13 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 48
 height 34
@@ -2641,7 +2641,7 @@ x 12
 y 25
 end
 arch bridge_wood_NS.121
-layer 3
+sub_layer 1
 x 12
 y 25
 end
@@ -2654,7 +2654,7 @@ x 12
 y 26
 end
 arch bridge_wood_NS.131
-layer 3
+sub_layer 1
 x 12
 y 26
 end
@@ -2667,7 +2667,7 @@ x 12
 y 27
 end
 arch bridge_wood_NS.131
-layer 3
+sub_layer 1
 x 12
 y 27
 end
@@ -2822,12 +2822,7 @@ arch floor_wood3b
 x 13
 y 18
 end
-arch carpet1.151
-x 13
-y 18
-end
-arch carpet1.131
-layer 3
+arch carpet1.141
 x 13
 y 18
 end
@@ -3119,11 +3114,11 @@ x 14
 y 23
 end
 arch flagwall_short_brick1.131
-layer 4
 x 14
 y 23
 end
 arch lantern2_magic.131
+sub_layer 1
 x 14
 y 23
 end
@@ -3670,7 +3665,7 @@ x 16
 y 26
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 16
 y 26
 end
@@ -6177,7 +6172,7 @@ x 25
 y 25
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 25
 y 25
 end
@@ -6728,7 +6723,7 @@ x 27
 y 26
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 27
 y 26
 end
@@ -10116,7 +10111,7 @@ x 39
 y 25
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 39
 y 25
 end
@@ -10380,7 +10375,7 @@ x 40
 y 26
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 40
 y 26
 end
@@ -10707,7 +10702,7 @@ x 41
 y 27
 end
 arch grassd_m14
-layer 3
+sub_layer 1
 x 41
 y 27
 end
@@ -11495,7 +11490,7 @@ x 45
 y 23
 end
 arch grassd_m13
-layer 3
+sub_layer 1
 x 45
 y 23
 end
