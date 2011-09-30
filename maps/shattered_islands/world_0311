@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -886,10 +886,12 @@ x 6
 y 9
 end
 arch table_small1
+layer 5
 x 6
 y 9
 end
 arch book_journal_garland
+sub_layer 1
 layer 5
 z 15
 zoom 75
