@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -392,7 +392,7 @@ x 2
 y 8
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 2
 y 8
 end
@@ -413,7 +413,7 @@ x 2
 y 10
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 2
 y 10
 end
@@ -1853,7 +1853,7 @@ x 9
 y 12
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 9
 y 12
 end
@@ -2070,7 +2070,7 @@ x 10
 y 12
 end
 arch blood_floor1
-layer 3
+sub_layer 1
 x 10
 y 12
 end
@@ -2608,7 +2608,7 @@ x 13
 y 2
 end
 arch blood_floor2
-layer 3
+sub_layer 1
 x 13
 y 2
 end
