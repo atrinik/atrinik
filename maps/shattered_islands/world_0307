@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-03-09 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -48,7 +48,6 @@ arch floor_volcano_1
 y 5
 end
 arch fstone1m8
-layer 3
 y 5
 end
 arch cave_deco_f1.101
@@ -144,7 +143,7 @@ x 1
 y 5
 end
 arch fstone1m7
-layer 3
+sub_layer 1
 x 1
 y 5
 end
@@ -157,7 +156,7 @@ x 1
 y 6
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 6
 end
@@ -170,7 +169,7 @@ x 1
 y 7
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 7
 end
@@ -183,7 +182,7 @@ x 1
 y 8
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 8
 end
@@ -240,7 +239,7 @@ x 1
 y 15
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 15
 end
@@ -253,7 +252,7 @@ x 1
 y 16
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 16
 end
@@ -266,7 +265,7 @@ x 1
 y 17
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 17
 end
@@ -279,7 +278,7 @@ x 1
 y 18
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 18
 end
@@ -292,7 +291,7 @@ x 1
 y 19
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 19
 end
@@ -305,7 +304,7 @@ x 1
 y 20
 end
 arch fstone1m9
-layer 3
+sub_layer 1
 x 1
 y 20
 end
@@ -405,7 +404,7 @@ x 2
 y 11
 end
 arch fstone1m8
-layer 3
+sub_layer 1
 x 2
 y 11
 end
@@ -422,7 +421,7 @@ x 2
 y 13
 end
 arch fstone1m3
-layer 3
+sub_layer 1
 x 2
 y 13
 end
@@ -435,7 +434,7 @@ x 2
 y 14
 end
 arch fstone1m5
-layer 3
+sub_layer 1
 x 2
 y 14
 end
