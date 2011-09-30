@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -595,11 +595,11 @@ y 9
 end
 arch lantern_magic.131
 direction 3
-layer 4
 x 3
 y 9
 end
 arch flagwall_short_brick1.141
+sub_layer 1
 x 3
 y 9
 end
@@ -629,11 +629,11 @@ y 13
 end
 arch lantern_magic.131
 direction 7
-layer 4
 x 3
 y 13
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 3
 y 13
 end
@@ -1232,11 +1232,11 @@ y 20
 end
 arch lantern_magic.131
 direction 3
-layer 4
 x 6
 y 20
 end
 arch flagwall_short_brick1.111
+sub_layer 1
 x 6
 y 20
 end
@@ -1271,12 +1271,12 @@ x 7
 y 1
 end
 arch lantern_magic.131
-layer 4
 direction 7
 x 7
 y 1
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 7
 y 1
 end
@@ -1337,12 +1337,12 @@ x 7
 y 6
 end
 arch lantern_magic.131
-layer 4
 direction 5
 x 7
 y 6
 end
 arch flagwall_short_brick1.141
+sub_layer 1
 x 7
 y 6
 end
@@ -1432,12 +1432,12 @@ x 7
 y 16
 end
 arch lantern_magic.131
-layer 4
 direction 5
 x 7
 y 16
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 7
 y 16
 end
@@ -1925,11 +1925,11 @@ x 11
 y 6
 end
 arch lantern_magic.131
-layer 4
 x 11
 y 6
 end
 arch flagwall_short_brick1.111
+sub_layer 1
 x 11
 y 6
 end
@@ -2280,11 +2280,11 @@ y 20
 end
 arch lantern_magic.131
 direction 3
-layer 4
 x 12
 y 20
 end
 arch flagwall_short_brick1.141
+sub_layer 1
 x 12
 y 20
 end
@@ -2559,11 +2559,11 @@ x 14
 y 10
 end
 arch lantern_magic.131
-layer 4
 x 14
 y 10
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 14
 y 10
 end
@@ -2589,11 +2589,11 @@ x 14
 y 12
 end
 arch lantern_magic.131
-layer 4
 x 14
 y 12
 end
 arch flagwall_short_brick1.131
+sub_layer 1
 x 14
 y 12
 end
