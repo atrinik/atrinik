@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-28 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -425,7 +425,7 @@ x 2
 y 7
 arch mage_old
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hmm... This note sure talks about some strange things... Hmm...
 
 <yellow>Clayrell doesn't seem to notice you...</yellow>
@@ -1688,7 +1688,7 @@ x 9
 y 8
 arch mage_old
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Ahh... Isn't the Great Blue Crystal beautiful? The way it sparkles!...
 endmsg
 level 38
