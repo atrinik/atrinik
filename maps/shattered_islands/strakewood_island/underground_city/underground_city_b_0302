@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -827,7 +827,7 @@ x 4
 y 15
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 4
 y 15
 end
@@ -1418,7 +1418,7 @@ x 6
 y 15
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 6
 y 15
 end
@@ -1751,7 +1751,7 @@ x 7
 y 15
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 7
 y 15
 end
@@ -2049,7 +2049,7 @@ x 8
 y 15
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 8
 y 15
 end
@@ -2586,7 +2586,7 @@ x 10
 y 15
 end
 arch bridge_wood_EW.151
-layer 3
+sub_layer 1
 x 10
 y 15
 end
