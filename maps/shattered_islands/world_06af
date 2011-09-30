@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-17 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -23,27 +23,23 @@ end
 arch grassd_2
 end
 arch sand_dm22
-layer 3
 end
 arch grassd_1
 y 1
 end
 arch sand_dm21
-layer 3
 y 1
 end
 arch grassd_7
 y 2
 end
 arch sand_dm20
-layer 3
 y 2
 end
 arch grassd_7
 y 3
 end
 arch sand_dm19
-layer 3
 y 3
 end
 arch rock_big1
@@ -166,7 +162,6 @@ x 1
 y 2
 end
 arch sand_dm22
-layer 3
 x 1
 y 2
 end
@@ -175,7 +170,6 @@ x 1
 y 3
 end
 arch sand_dm21
-layer 3
 x 1
 y 3
 end
@@ -188,7 +182,7 @@ x 1
 y 4
 end
 arch sand_dm20
-layer 3
+sub_layer 1
 x 1
 y 4
 end
@@ -205,7 +199,7 @@ x 1
 y 5
 end
 arch sand_dm19
-layer 3
+sub_layer 1
 x 1
 y 5
 end
@@ -317,7 +311,6 @@ x 2
 y 2
 end
 arch sand_dm20
-layer 3
 x 2
 y 2
 end
@@ -330,7 +323,7 @@ x 2
 y 3
 end
 arch sand_dm19
-layer 3
+sub_layer 1
 x 2
 y 3
 end
@@ -343,7 +336,7 @@ x 2
 y 4
 end
 arch sand_dm22
-layer 3
+sub_layer 1
 x 2
 y 4
 end
@@ -352,7 +345,6 @@ x 2
 y 5
 end
 arch sand_dm21
-layer 3
 x 2
 y 5
 end
@@ -382,11 +374,11 @@ x 2
 y 7
 end
 arch rock1
-layer 4
 x 2
 y 7
 end
 arch plant10
+sub_layer 1
 layer 5
 x 2
 y 7
@@ -470,7 +462,6 @@ x 3
 y 2
 end
 arch sand_dm22
-layer 3
 x 3
 y 2
 end
@@ -483,7 +474,7 @@ x 3
 y 3
 end
 arch sand_dm21
-layer 3
+sub_layer 1
 x 3
 y 3
 end
