@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-21 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -449,11 +449,11 @@ y 18
 end
 arch wood_pile.101
 no_pass 1
-layer 3
 x 2
 y 18
 end
 arch wood_pile.101
+sub_layer 1
 zoom 115
 align -2
 z 14
@@ -1286,12 +1286,12 @@ x 6
 y 15
 end
 arch grain1.101
-layer 3
 no_pass 1
 x 6
 y 15
 end
 arch grain2.101
+sub_layer 1
 z 8
 zoom 110
 align -14
@@ -3580,7 +3580,7 @@ x 18
 y 17
 end
 arch grass_thickm2
-layer 3
+sub_layer 1
 x 18
 y 17
 end
@@ -3761,7 +3761,7 @@ x 19
 y 17
 end
 arch grass_thickm8
-layer 3
+sub_layer 1
 x 19
 y 17
 end
@@ -3779,7 +3779,7 @@ x 19
 y 18
 end
 arch grass_thickm1
-layer 3
+sub_layer 1
 x 19
 y 18
 end
@@ -3825,7 +3825,7 @@ x 19
 y 22
 end
 arch grassd_m8
-layer 3
+sub_layer 1
 x 19
 y 22
 end
@@ -3976,7 +3976,7 @@ x 20
 y 16
 end
 arch grass_thickm2
-layer 3
+sub_layer 1
 x 20
 y 16
 end
@@ -3990,7 +3990,7 @@ x 20
 y 17
 end
 arch grass_thickm1
-layer 3
+sub_layer 1
 x 20
 y 17
 end
@@ -4008,7 +4008,7 @@ x 20
 y 18
 end
 arch grass_thickm5
-layer 3
+sub_layer 1
 x 20
 y 18
 end
@@ -4025,7 +4025,7 @@ x 20
 y 19
 end
 arch grass_thickm1
-layer 3
+sub_layer 1
 x 20
 y 19
 end
@@ -4038,7 +4038,7 @@ x 20
 y 20
 end
 arch grass_thickm1
-layer 3
+sub_layer 1
 x 20
 y 20
 end
@@ -4179,7 +4179,7 @@ x 21
 y 16
 end
 arch grass_thickm3
-layer 3
+sub_layer 1
 x 21
 y 16
 end
@@ -4192,7 +4192,7 @@ x 21
 y 17
 end
 arch grass_thickm1
-layer 3
+sub_layer 1
 x 21
 y 17
 end
