@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -333,7 +333,7 @@ x 2
 y 18
 end
 arch bridge_wood_NS.121
-layer 3
+sub_layer 1
 x 2
 y 18
 end
@@ -347,7 +347,7 @@ y 19
 end
 arch bridge_wood_NS.131
 no_pass 1
-layer 3
+sub_layer 1
 x 2
 y 19
 end
@@ -362,7 +362,7 @@ y 20
 end
 arch bridge_wood_NS.131
 no_pass 1
-layer 3
+sub_layer 1
 x 2
 y 20
 end
@@ -393,7 +393,7 @@ y 23
 end
 arch bridge_wood_NS.131
 no_pass 1
-layer 3
+sub_layer 1
 x 2
 y 23
 end
