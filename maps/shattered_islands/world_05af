@@ -3297,7 +3297,6 @@ arch grassd_3
 x 23
 end
 arch sand_dm20
-layer 3
 x 23
 end
 arch rock_big3
@@ -3308,7 +3307,6 @@ x 23
 y 1
 end
 arch sand_dm19
-layer 3
 x 23
 y 1
 end
