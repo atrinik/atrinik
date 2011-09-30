@@ -363,7 +363,6 @@ arch ranger
 name Geoffrey Charob
 level 26
 type 83
-weight 550
 direction 3
 arch event_obj
 sub_type 6
