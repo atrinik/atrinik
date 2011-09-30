@@ -1052,24 +1052,15 @@ arch spawn_point
 x 5
 y 15
 arch priest_green
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to the Asterian Royal Library, funded by our gracious <a>king</a>.  Be sure to ask if you have any <a>questions</a>.
-@match ^king$
-Believe it or not, King Romulus is quite generous to the intellectual pursuits.
-@match ^questions$
-The public area is free for all, but exercise your manners, please. The private area is only open to a privileged few. If you're unable to find a certain copy, notify me and I'll be sure to <a>find it</a>.
-Be sure to ask if you need help with the <a>categorization scheme</a>.
-@match ^find it$
-Even the largest libraries are needing. I have ample experience in this matter. If ever this becomes an issue, you had better first speak with me. I have more contacts than ways to name them.
-@match ^categorization scheme$
-The categorization scheme is rather simple at the moment.  F denotes a fiction shelf. NF denotes a non-fiction shelf.  The shelf is also labeled by general topic.
-endmsg
 name Evelina Thash
 level 20
 is_male 0
 is_female 1
 type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/asteria/evelina_thash.py
+end
 end
 end
 arch floor_fs_grey1b
