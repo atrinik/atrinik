@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 5
 height 14
@@ -24,9 +24,10 @@ arch ship_rail_w_high
 y 1
 end
 arch bed_4a
-no_pass 1
+layer 5
+sub_layer 1
 direction 7
-layer 7
+no_pass 1
 y 1
 end
 arch ship_floor_ns_3
@@ -36,9 +37,10 @@ arch ship_rail_w_high
 y 2
 end
 arch bed_4b
-no_pass 1
+layer 5
+sub_layer 1
 direction 7
-layer 7
+no_pass 1
 y 2
 end
 arch ship_floor_ns_3
@@ -58,7 +60,7 @@ no_pass 1
 y 4
 end
 arch hole2
-layer 7
+sub_layer 1
 align -8
 z 14
 zoom 90
@@ -109,8 +111,8 @@ blocksview 1
 y 9
 end
 arch ship_prow_s_starboard_a
+sub_layer 1
 z 12
-layer 7
 y 9
 end
 arch blocked
@@ -125,7 +127,7 @@ y 10
 end
 arch ship_prow_s_starboard_b
 z 12
-layer 7
+sub_layer 1
 y 10
 end
 arch blocked
@@ -141,10 +143,10 @@ arch blocked
 x 1
 end
 arch ship_rail_s_high
-layer 5
 x 1
 end
 arch hole2
+sub_layer 1
 layer 7
 align -4
 z 4
@@ -236,8 +238,8 @@ x 1
 y 10
 end
 arch ship_prow_s_starboard_c
+sub_layer 1
 z 12
-layer 7
 x 1
 y 10
 end
@@ -260,8 +262,8 @@ x 1
 y 11
 end
 arch ship_prow_s_starboard_a
+sub_layer 1
 z 12
-layer 7
 x 1
 y 11
 end
@@ -279,8 +281,8 @@ x 1
 y 12
 end
 arch ship_prow_s_starboard_b
+sub_layer 1
 z 12
-layer 7
 x 1
 y 12
 end
@@ -394,8 +396,8 @@ x 2
 y 12
 end
 arch ship_prow_s_midship
+sub_layer 1
 z 12
-layer 7
 x 2
 y 12
 end
@@ -404,12 +406,12 @@ x 2
 y 13
 end
 arch ship_prow_s
-layer 5
 blocksview 1
 x 2
 y 13
 end
 arch ship_prow_s_long
+sub_layer 1
 z 12
 x 2
 y 13
@@ -501,12 +503,12 @@ x 3
 y 10
 end
 arch ship_prow_s_strokeside_c
-layer 5
 no_pass 1
 x 3
 y 10
 end
 arch ship_prow_s_strokeside_c
+sub_layer 1
 z 12
 x 3
 y 10
@@ -516,12 +518,12 @@ x 3
 y 11
 end
 arch ship_prow_s_strokeside_a
-layer 5
 blocksview 1
 x 3
 y 11
 end
 arch ship_prow_s_strokeside_a
+sub_layer 1
 z 12
 x 3
 y 11
@@ -531,12 +533,12 @@ x 3
 y 12
 end
 arch ship_prow_s_strokeside_b
-layer 5
 blocksview 1
 x 3
 y 12
 end
 arch ship_prow_s_strokeside_b
+sub_layer 1
 z 12
 x 3
 y 12
@@ -584,11 +586,11 @@ y 4
 end
 arch ship_rail_e_high
 no_pass 1
-layer 5
 x 4
 y 4
 end
 arch hole2
+sub_layer 1
 layer 7
 align 8
 x 4
@@ -628,11 +630,11 @@ y 8
 end
 arch ship_rail_e_high
 no_pass 1
-layer 5
 x 4
 y 8
 end
 arch hole2
+sub_layer 1
 layer 7
 align 8
 x 4
@@ -643,12 +645,12 @@ x 4
 y 9
 end
 arch ship_prow_s_strokeside_a
-layer 5
 blocksview 1
 x 4
 y 9
 end
 arch ship_prow_s_strokeside_a
+sub_layer 1
 z 12
 x 4
 y 9
@@ -658,12 +660,12 @@ x 4
 y 10
 end
 arch ship_prow_s_strokeside_b
-layer 5
 blocksview 1
 x 4
 y 10
 end
 arch ship_prow_s_strokeside_b
+sub_layer 1
 z 12
 x 4
 y 10
