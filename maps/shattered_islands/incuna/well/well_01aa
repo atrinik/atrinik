@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-09-13 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1663,13 +1663,14 @@ x 9
 y 18
 end
 arch wall_cave1.111
-layer 4
 align -5
 z 2
 x 9
 y 18
 end
 arch wall_cave1.111
+sub_layer 1
+z 20
 x 9
 y 18
 end
@@ -1832,13 +1833,14 @@ x 10
 y 18
 end
 arch wall_cave1.111
-layer 4
 align -5
 z 2
 x 10
 y 18
 end
 arch wall_cave1.111
+sub_layer 1
+z 14
 x 10
 y 18
 end
@@ -2001,7 +2003,6 @@ x 11
 y 12
 end
 arch wall_cave1.111
-layer 3
 x 11
 y 12
 end
@@ -2030,13 +2031,14 @@ x 11
 y 18
 end
 arch wall_cave1.111
-layer 4
 align -5
 z 2
 x 11
 y 18
 end
 arch wall_cave1.111
+sub_layer 1
+z 8
 x 11
 y 18
 end
@@ -2239,20 +2241,20 @@ x 12
 y 18
 end
 arch wall_cave1.111
-layer 4
 align -6
 z 2
 x 12
 y 18
 end
 arch wall_cave1.111
+sub_layer 1
 x 12
 y 18
 end
 arch gate_open
+sub_layer 2
 direction 7
 connected 111
-layer 7
 x 12
 y 18
 end
@@ -2284,11 +2286,11 @@ y 21
 end
 arch wall_cave1.151
 z 3
-layer 4
 x 12
 y 21
 end
 arch gate_open
+sub_layer 1
 direction 7
 connected 111
 x 12
@@ -2473,16 +2475,9 @@ arch blocked
 x 13
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 13
-y 13
-end
 arch water_lt3
 z 18
-layer 4
-type 79
+sub_layer 1
 x 13
 y 13
 end
@@ -2491,16 +2486,9 @@ z 10
 x 13
 y 13
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 13
-y 14
-end
 arch water_lt2
 z 18
-layer 4
-type 79
+sub_layer 1
 x 13
 y 14
 end
@@ -2723,33 +2711,18 @@ x 14
 y 12
 end
 arch wall_cave1.151
-layer 3
 x 14
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch water_still
+z 18
+sub_layer 1
 x 14
 y 13
 end
 arch water_still
 z 18
-layer 4
-type 79
-x 14
-y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 14
-y 14
-end
-arch water_still
-z 18
-layer 4
-type 79
+sub_layer 1
 x 14
 y 14
 end
@@ -3000,34 +2973,19 @@ x 15
 y 12
 end
 arch wall_cave1b.161
-layer 3
 blocksview 0
 x 15
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch water_still
+z 18
+sub_layer 1
 x 15
 y 13
 end
 arch water_still
 z 18
-layer 4
-type 79
-x 15
-y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 15
-y 14
-end
-arch water_still
-z 18
-layer 4
-type 79
+sub_layer 1
 x 15
 y 14
 end
@@ -3053,11 +3011,11 @@ x 15
 y 17
 end
 arch wall_cave1.171
-layer 4
 x 15
 y 17
 end
 arch grate_closed
+sub_layer 1
 connected 199
 x 15
 y 17
@@ -3297,12 +3255,12 @@ x 16
 y 5
 end
 arch wall_cave1b.121
-layer 4
 z 2
 x 16
 y 5
 end
 arch wall_cave1b.121
+sub_layer 1
 x 16
 y 5
 end
@@ -3346,34 +3304,19 @@ x 16
 y 12
 end
 arch wall_cave1.151
-layer 3
 blocksview 0
 x 16
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch water_lt
+z 18
+sub_layer 1
 x 16
 y 13
 end
 arch water_lt
 z 18
-layer 4
-type 79
-x 16
-y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 16
-y 14
-end
-arch water_lt
-z 18
-layer 4
-type 79
+sub_layer 1
 x 16
 y 14
 end
@@ -3773,33 +3716,18 @@ y 12
 end
 arch wall_cave1.151
 blocksview 0
-layer 3
 x 17
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 17
-y 13
-end
 arch water_lt3
 z 18
-layer 4
-type 79
+sub_layer 1
 x 17
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 17
-y 14
 end
 arch water_lt2
 z 18
-layer 4
-type 79
+sub_layer 1
 x 17
 y 14
 end
@@ -4124,34 +4052,19 @@ x 18
 y 12
 end
 arch wall_cave1b.141
-layer 3
 blocksview 0
 x 18
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 18
-y 13
-end
 arch water_lt2
 z 18
-layer 4
-type 79
+sub_layer 1
 x 18
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 18
-y 14
 end
 arch water_lt3
 z 18
-layer 4
-type 79
+sub_layer 1
 x 18
 y 14
 end
@@ -4177,11 +4090,11 @@ x 18
 y 17
 end
 arch wall_cave1.131
-layer 4
 x 18
 y 17
 end
 arch grate_closed
+sub_layer 1
 connected 199
 x 18
 y 17
@@ -4364,7 +4277,6 @@ x 19
 y 7
 end
 arch wall_cave1.101
-layer 4
 x 19
 y 7
 end
@@ -4405,33 +4317,18 @@ x 19
 y 12
 end
 arch wall_cave1.151
-layer 3
 x 19
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 19
-y 13
-end
 arch water_lt
 z 18
-layer 4
-type 79
+sub_layer 1
 x 19
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 19
-y 14
 end
 arch water_lt4
 z 18
-layer 4
-type 79
+sub_layer 1
 x 19
 y 14
 end
@@ -4605,11 +4502,11 @@ x 20
 y 5
 end
 arch wall_cave1.111
-layer 4
 x 20
 y 5
 end
 arch gate_open
+sub_layer 1
 direction 7
 connected 111
 x 20
@@ -4631,11 +4528,11 @@ x 20
 y 7
 end
 arch wall_cave1.151
-layer 4
 x 20
 y 7
 end
 arch gate_open
+sub_layer 1
 direction 7
 connected 111
 x 20
@@ -4650,34 +4547,19 @@ x 20
 y 12
 end
 arch wall_cave1.151
-layer 3
 x 20
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 20
-y 13
-end
 arch water_lt4
 z 18
-layer 4
-type 79
+sub_layer 1
 blocksview 1
 x 20
 y 13
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 20
-y 14
-end
 arch water_lt3
 z 18
-layer 4
-type 79
+sub_layer 1
 blocksview 1
 x 20
 y 14
@@ -4946,33 +4828,18 @@ x 21
 y 12
 end
 arch wall_cave1.151
-layer 3
 x 21
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 13
-end
 arch water_lt2
 z 18
-layer 4
-type 79
+sub_layer 1
 x 21
 y 13
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 14
-end
 arch water_lt
+sub_layer 1
 z 18
-layer 4
-type 79
 x 21
 y 14
 end
@@ -5252,37 +5119,23 @@ x 22
 y 12
 end
 arch wall_cave1.151
-layer 3
 x 22
 y 12
 end
 arch wall_dungeon_3
+sub_layer 1
 x 22
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch water_lt2
+z 18
+sub_layer 1
 x 22
 y 13
 end
 arch water_lt2
 z 18
-layer 4
-type 79
-x 22
-y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 14
-end
-arch water_lt2
-z 18
-layer 4
-type 79
+sub_layer 1
 x 22
 y 14
 end
@@ -5586,39 +5439,23 @@ y 12
 end
 arch wall_cave1.151
 blocksview 0
-layer 3
 x 23
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 13
-end
 arch water_lt2
 z 18
-layer 4
-type 79
+sub_layer 1
 x 23
 y 13
 end
 arch reed_sm7
-layer 5
-z 18
+sub_layer 1
 x 23
 y 13
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 14
-end
 arch water_lt
 z 18
-layer 4
-type 79
+sub_layer 1
 x 23
 y 14
 end
