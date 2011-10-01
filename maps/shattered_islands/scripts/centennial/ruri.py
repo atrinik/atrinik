@@ -1,12 +1,9 @@
 ## @file
 ## Implements Ruri, the fairy helper's dialog.
 
-from Atrinik import *
 from Interface import Interface
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().lower().strip()
+msg = msg.lower()
 
 inf = Interface(activator, me)
 
