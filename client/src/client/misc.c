@@ -359,3 +359,33 @@ char *whitespace_trim(char *str)
 
 	return str;
 }
+
+/**
+ * Remove extraneous whitespace in a string.
+ *
+ * @note Does in-place modification.
+ * @param str The string.
+ * @return 'str'. */
+char *whitespace_squeeze(char *str)
+{
+	size_t r, w;
+
+	for (r = 0, w = 0; str[r] != '\0'; r++)
+	{
+		if (isspace(str[r]))
+		{
+			if (!w || !isspace(str[w - 1]))
+			{
+				str[w++] = ' ';
+			}
+		}
+		else
+		{
+			str[w++] = str[r];
+		}
+	}
+
+	str[w] = '\0';
+
+	return str;
+}
