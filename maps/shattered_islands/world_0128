@@ -365,7 +365,7 @@ hp 48
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/usagi.py
+race scripts/strakewood_island/centennial/usagi.py
 end
 end
 end
@@ -422,7 +422,7 @@ arch ability_firestorm
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/madoka.py
+race scripts/strakewood_island/centennial/madoka.py
 end
 end
 end
@@ -850,6 +850,11 @@ Dex 3
 type 83
 arch ability_cause_lig_wound
 end
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/centennial/studious_student_witch.py
+slaying classTime
+end
 end
 end
 arch floor_wood2_l1
@@ -891,7 +896,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/smug_student_witch.py
+race scripts/strakewood_island/centennial/smug_student_witch.py
 slaying classTime
 end
 end
@@ -960,7 +965,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/trigger-happy_student_witch.py
+race scripts/strakewood_island/centennial/trigger-happy_student_witch.py
 slaying classTime
 end
 end
@@ -1130,7 +1135,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/cynical_student_witch.py
+race scripts/strakewood_island/centennial/cynical_student_witch.py
 end
 end
 end
@@ -1539,7 +1544,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race scripts/centennial/miyoko.py
+race scripts/strakewood_island/centennial/miyoko.py
 arch potion_cure_illness
 nrof 100
 identified 1
