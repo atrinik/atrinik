@@ -348,5 +348,5 @@ end
 bind
 	# t
 	key 116
-	command /t_tell hello
+	command ?HELLO
 end
