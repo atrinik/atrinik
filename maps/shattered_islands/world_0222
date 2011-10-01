@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -404,10 +404,6 @@ Dex 2
 Wis 5
 arch ability_mbullet
 end
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1e
@@ -474,10 +470,6 @@ randomitems mob_fighter_l9
 level 7
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -714,10 +706,6 @@ Wis 5
 type 83
 arch ability_mbullet
 end
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -771,10 +759,6 @@ randomitems mob_fighter_l9
 level 7
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -954,10 +938,6 @@ randomitems mob_fighter_l9
 level 6
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch grassd_4
@@ -1042,10 +1022,6 @@ maxsp 16
 Dex 2
 Wis 5
 arch ability_mbullet
-end
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
 end
 end
 end
@@ -1212,10 +1188,6 @@ randomitems mob_fighter_l9
 level 7
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -1239,10 +1211,6 @@ randomitems mob_fighter_l9
 level 6
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1e
@@ -1632,10 +1600,6 @@ randomitems mob_fighter_l9
 level 6
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -2005,10 +1969,6 @@ randomitems mob_fighter_l9
 level 7
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1a
@@ -2444,10 +2404,6 @@ randomitems mob_fighter_l9
 level 6
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1e
@@ -2729,10 +2685,6 @@ randomitems mob_fighter_l9
 level 7
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1c
@@ -2910,10 +2862,6 @@ randomitems mob_fighter_l9
 level 6
 last_eat -5
 Wis 5
-arch quest_container
-name Forgotten Graveyard at Strakewood Island
-sub_type 1
-end
 end
 end
 arch floor_earth1a
