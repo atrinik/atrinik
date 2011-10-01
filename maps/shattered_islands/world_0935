@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1004,9 +1004,9 @@ y 23
 arch peasant
 msg
 @match ^hello$
-Sorry, I'm quite busy.
+Sorry, as the Prime Minister of Asteria, I'm quite busy.
 endmsg
-name Arkomir, Prime Minister of Asteria
+name Arkomir
 level 22
 type 83
 end

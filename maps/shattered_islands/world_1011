@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-01-26 emperorbma
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2954,10 +2954,9 @@ arch spawn_point
 x 21
 y 11
 arch monk
-name Edwar, the apartment keeper
+name Edwar
 type 83
 level 34
-friendly 1
 arch event_obj
 sub_type 6
 race /python/generic/apartment_seller.py

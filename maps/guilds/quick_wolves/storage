@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Storage
 msg
 Created:  2009-10-14 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 25
 height 26
@@ -1897,7 +1897,7 @@ arch spawn_point
 x 10
 y 9
 arch monk
-name Guild Storage Manager
+name Paenyl Kane
 level 30
 type 83
 arch event_obj

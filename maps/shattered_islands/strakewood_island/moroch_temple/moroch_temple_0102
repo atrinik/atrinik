@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-02-12 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1478,7 +1478,7 @@ arch spawn_point
 x 10
 y 18
 arch guard_female
-name Lynren the paladin
+name Lynren
 direction 3
 level 115
 invulnerable 1

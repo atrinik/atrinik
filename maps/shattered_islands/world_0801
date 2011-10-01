@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3387,7 +3387,7 @@ Welcome to the Clearhaven Inn.
 
 You may rest here for as long you like.
 endmsg
-name Portshaw, the innkeeper
+name Portshaw
 type 83
 level 9
 end

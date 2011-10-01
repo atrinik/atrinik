@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2286,7 +2286,7 @@ arch spawn_point
 x 13
 y 12
 arch bartender
-name Roldan the bartender
+name Roldan
 direction 3
 level 26
 type 83
@@ -2995,6 +2995,7 @@ My services are not currently for sale, come back later.
 endmsg
 type 83
 direction 3
+name Myryell Turner
 end
 end
 arch floor_wood1b

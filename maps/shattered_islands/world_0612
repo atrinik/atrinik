@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-03-10 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1389,7 +1389,7 @@ arch spawn_point
 x 9
 y 8
 arch guard_pole
-name Tolowen, the guard captain
+name Tolowen
 reflect_missile 0
 direction 1
 level 52
@@ -2506,14 +2506,13 @@ arch spawn_point
 x 16
 y 10
 arch guard
-name Forest guard
+name forest guard
 reflect_missile 0
 level 25
 dam 50
 maxhp 90
 can_see_in_dark 1
 unaggressive 0
-friendly 1
 stand_still 0
 protect_impact 15
 protect_slash 15

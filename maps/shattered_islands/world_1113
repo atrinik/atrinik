@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2772,6 +2772,7 @@ Welcome to the arena medics house! If you get defeated in the arena, the medics 
 endmsg
 type 83
 level 30
+name Althar
 end
 end
 arch floor_flagm2

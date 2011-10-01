@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -678,7 +678,7 @@ type 83
 level 70
 unaggressive 0
 stand_still 0
-name Alvaro, the royal guard
+name Alvaro Stormcrow
 end
 end
 arch floor_flagm2

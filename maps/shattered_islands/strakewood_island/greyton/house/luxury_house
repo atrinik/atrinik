@@ -2,7 +2,7 @@ arch map
 name Greyton Luxury House
 msg
 Created:  2010-07-13 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 48
 height 34
@@ -1119,7 +1119,7 @@ Hello there! I'm the gardener who will take care of your house. I will stroll ar
 
 You will be able to access the chest and its contents even if you don't pay your fees.
 endmsg
-name Wardon the Gardener
+name Wardon
 glow_radius 3
 direction 3
 level 60
@@ -3635,10 +3635,9 @@ arch spawn_point
 x 16
 y 24
 arch priest_green
-name Lawlag the bard
+name Lawlag
 glow_radius 3
 level 40
-is_male 1
 is_female 0
 type 83
 arch event_obj

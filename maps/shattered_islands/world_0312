@@ -200,7 +200,7 @@ y 6
 arch priest_church
 type 83
 level 65
-friendly 1
+name Conuld Burch
 arch event_obj
 sub_type 6
 race /python/temples/tabernacle.py

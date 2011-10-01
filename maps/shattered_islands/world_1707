@@ -2,7 +2,7 @@ arch map
 name Burnt Forest
 msg
 Created:  2010-08-17 Idicus
-Modified: 2011-02-18 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1578,7 +1578,7 @@ arch spawn_point
 x 13
 y 4
 arch mage_old
-name Alptha the mage
+name Alptha
 level 38
 race elf
 can_cast_spell 1
@@ -1957,7 +1957,7 @@ arch spawn_point
 x 16
 y 7
 arch priest_green
-name Turium the priest
+name Turium
 level 37
 race elf
 can_cast_spell 1

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-26 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1101,9 +1101,8 @@ arch spawn_point
 x 6
 y 9
 arch female1
-name Post Office Clerk
+name Taeriss Palmer
 direction 3
-friendly 1
 type 83
 arch event_obj
 sub_type 6
@@ -1147,9 +1146,8 @@ arch spawn_point
 x 6
 y 15
 arch female1
-name Post Office Clerk
+name Sivinn Palmer
 direction 3
-friendly 1
 type 83
 arch event_obj
 sub_type 6

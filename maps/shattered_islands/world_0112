@@ -592,10 +592,9 @@ arch spawn_point
 x 4
 y 5
 arch monk
-name Darlin, the apartment keeper
+name Darlin
 type 83
 level 34
-friendly 1
 arch event_obj
 sub_type 6
 race /python/generic/apartment_seller.py
