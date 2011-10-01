@@ -1282,7 +1282,7 @@ arch ability_icestorm
 end
 arch event_obj
 sub_type 6
-race scripts/tomboyish_fairy.py
+race scripts/strakewood_island/tomboyish_fairy.py
 end
 end
 end
