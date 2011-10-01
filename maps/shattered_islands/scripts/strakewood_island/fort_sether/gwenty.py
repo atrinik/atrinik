@@ -88,7 +88,7 @@ def main():
 		elif msg == "yes":
 			inf.add_msg("That's great news, {}! I knew I could count on you. You have my thanks, as well as that of all the people in the fort. We can now drink the water safely again...".format(activator.name))
 			inf.add_msg("As for your reward... Please, accept this spell from me. Also, since I'm no longer busy tending all the sick guards, I can now resume offering you my regular services.")
-			inf.add_msg_icon("icon_cure_disease.101", "cure disease")
+			inf.add_msg_icon("icon_cure_disease.101", "cure disease", True)
 			activator.Controller().AcquireSpell(GetSpellNr("cure disease"))
 			qm.complete(sound = None)
 
