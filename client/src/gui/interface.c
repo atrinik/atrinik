@@ -213,7 +213,13 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 		{
 			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
 			{
-				if (text_input_string[0] != '\0')
+				char *input_string;
+
+				input_string = strdup(text_input_string);
+				whitespace_squeeze(input_string);
+				whitespace_trim(input_string);
+
+				if (input_string[0] != '\0')
 				{
 					StringBuffer *sb;
 					char *cp;
@@ -226,12 +232,14 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 						stringbuffer_append_string(sb, interface_data->text_input_prepend);
 					}
 
-					stringbuffer_append_string(sb, text_input_string);
+					stringbuffer_append_string(sb, input_string);
 
 					cp = stringbuffer_finish(sb);
 					send_command_check(cp);
 					free(cp);
 				}
+
+				free(input_string);
 
 				text_input_close();
 				return 1;
