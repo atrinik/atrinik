@@ -112,6 +112,9 @@ class MapObjectParser:
 			self.fp.write("endplst\n")
 			self.player = []
 
+		if not arch["archname"]:
+			return
+
 		self.fp.write("arch {0}\n".format(arch["archname"]))
 
 		# Save the attributes.
