@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -985,14 +985,13 @@ arch spawn_point
 x 10
 y 4
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-<yellow>*grumbles*</yellow>
-What is it, stranger? We do not want any trouble here, so watch yourself.
-endmsg
 type 83
 level 40
 name dwarf bank guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1b
@@ -1051,15 +1050,14 @@ arch spawn_point
 x 10
 y 11
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-<yellow>*grumbles*</yellow>
-What is it, stranger? We do not want any trouble here, so watch yourself.
-endmsg
 type 83
 level 40
 direction 3
 name dwarf bank guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1
@@ -1078,15 +1076,14 @@ arch spawn_point
 x 10
 y 14
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-<yellow>*grumbles*</yellow>
-What is it, stranger? We do not want any trouble here, so watch yourself.
-endmsg
 type 83
 level 40
 direction 3
 name dwarf bank guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1
@@ -1401,14 +1398,13 @@ arch spawn_point
 x 13
 y 4
 arch dwarf_steelclad
-msg
-@match ^hi$|^hey$|^hello$
-<yellow>*grumbles*</yellow>
-What is it, stranger? We do not want any trouble here, so watch yourself.
-endmsg
 type 83
 level 40
 name dwarf bank guard
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble1

@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -349,7 +349,7 @@ x 3
 y 16
 arch barmaid
 msg
-@match ^hi$^hey$^hello$
+@match ^hello$
 No time to talk, there are orders to manage! If you need provisions, speak to the tavern owner, Hayden Sloan.
 endmsg
 name Aisha Bernard
@@ -773,7 +773,7 @@ x 7
 y 12
 arch female3
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Hmpf... This seems tricky to eat...
 endmsg
 type 83
@@ -948,7 +948,7 @@ x 9
 y 12
 arch dwarf_thunderer
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Mmm, delicious shrooms!
 endmsg
 type 83
@@ -991,7 +991,7 @@ x 9
 y 15
 arch dwarf_guard
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 <yellow>*sighs*</yellow>
 No one available to play cards with me today... Oh, hello... would you like to play some cards with me? No? Well, I suppose you're busy too...
 endmsg
@@ -1018,7 +1018,7 @@ x 9
 y 17
 arch dwarf_fighter
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Bah! This is not fair!
 endmsg
 type 83
@@ -1052,7 +1052,7 @@ x 9
 y 19
 arch elvish_sharpshooter
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Ha! I win again!
 endmsg
 type 83
@@ -1781,7 +1781,7 @@ x 15
 y 18
 arch dwarf_steelclad
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 <yellow>*laughs*</yellow>
 Deal with it Aena, you are no good at this!
 endmsg
@@ -1853,7 +1853,7 @@ x 16
 y 12
 arch mage_old
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Ahhh... Delicious!
 endmsg
 type 83
@@ -1908,7 +1908,7 @@ x 16
 y 17
 arch dwarf_lord
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Umm, would you mind helping me? Tell me what cards the other two have... Oh! It's my turn!
 endmsg
 type 83
@@ -1944,7 +1944,7 @@ x 16
 y 19
 arch dwarf_lord
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 <yellow>*chuckles*</yellow>
 Quite right, Herlad, quite right.
 endmsg
@@ -2385,7 +2385,7 @@ x 21
 y 19
 arch dwarf_scout
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 <yellow>*HIC*</yellow>
 endmsg
 type 83

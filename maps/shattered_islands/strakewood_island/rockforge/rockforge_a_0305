@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1828,21 +1828,13 @@ arch spawn_point
 x 11
 y 19
 arch dwarf_fighter2
-msg
-@match ^hi$|^hey$|^hello$
-Tread carefully, please, dear visitor! This farm is very important to us. Since Rockforge is a fortress, we usually do not go outside to collect timber, so we grow various plants here, inside the fortress.
-
-<a>Don't plants need <b>sunlight</b>?</a>
-@match ^don't plants need sunlight\?$|^sunlight$
-Yes, indeed. Just look up! It was quite amazing actually. We found this miles-long opening into the sky while digging tunnels. We reckon it is still part of the Giant Mountains, since it goes so high up! Anyway, we thought it may be good enough to grow plants, and it works!
-
-<a>Those trees are somewhat <b>small</b>.</a>
-@match ^those trees are somewhat small\.$|^small$
-Yes, yes. That is because we are still underground, and even the opening above us doesn't provide enough sunlight for them to grow as tall as trees on the surface. Still, it's good enough for our needs.
-endmsg
 type 83
 name Hrec Blackcopper
 level 38
+arch event_obj
+sub_type 6
+race scripts/hrec_blackcopper.py
+end
 end
 end
 arch earth_brown4

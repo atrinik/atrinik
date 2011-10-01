@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-07-10 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -238,7 +238,7 @@ x 1
 y 13
 arch dwarf_scout
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 <yellow>*chews* *chews* *nomnomnom* *chews*</yellow>
 Mmm, this steak is delicious! But it's expensive, since it's so difficult to acquire steaks from dragons...
 endmsg
@@ -1546,19 +1546,14 @@ arch spawn_point
 x 9
 y 15
 arch dwarf_fighter2
-msg
-@match ^hi$|^hey$|^hello$
-Lembas... <a>again</a>....
-@match ^again$
-I don't know why the <a>cooks</a> keep purchasing so much waybread from the elves...
-@match ^cooks$
-<yellow>*grumbles*</yellow>
-Lazy buggers...
-endmsg
 type 83
 name Kendo Flamecutter
 level 40
 direction 1
+arch event_obj
+sub_type 6
+race scripts/kendo_flamecutter.py
+end
 end
 end
 arch floor_marble1b
@@ -1833,16 +1828,15 @@ last_grace 0
 x 11
 y 9
 arch dwarf_pathfinder
-msg
-@match ^hi$|^hey$|^hello$
-No, you can't fool me! That cake is surely a lie! ... or is it? Hmm....
-@match ^portal$
-What? I just want cake!
-endmsg
 name Fede Greatblade
 level 38
 spawn_time 08:30 - 23:00
 type 83
+arch event_obj
+sub_type 6
+race scripts/fede_greatblade.py
+slaying dining_hall
+end
 end
 end
 arch check_inv
@@ -2270,7 +2264,7 @@ x 13
 y 19
 arch dwarf_runemaster
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Eh? What is this? Bonbons? Blech!
 endmsg
 type 83
@@ -2411,20 +2405,16 @@ arch spawn_point
 x 14
 y 15
 arch dwarf_guard
-msg
-@match ^hi$|^hey$|^hello$
-Hello there! My name is Raru Mountainsmiter, but please excuse me, I'm about to start <a>eating</a>.
-@match ^eating$
-Well, since this is the Dining Hall, yes! Well, as soon as the cooks quit being lazy and bring me my meal...
-<yellow>The dwarf yells:</yellow>
-Oi! Hurry up, you lazy cooks!
-endmsg
 type 83
 direction 1
 name Raru Mountainsmiter
 level 37
 is_male 0
 is_female 1
+arch event_obj
+sub_type 6
+race scripts/raru_mountainsmiter.py
+end
 end
 end
 arch floor_marble1a
@@ -2535,7 +2525,7 @@ x 15
 y 9
 arch dwarf_fighter2
 msg
-@match ^hi$|^hey$|^hello$
+@match ^hello$
 Mmm! Those cooks sure are slow and lazy, but they make the most delicious pizza in all the land. Yummy!
 endmsg
 name Calsi Ettinkiller
@@ -3107,14 +3097,8 @@ type 83
 name Fhod Grimfist
 level 30
 arch event_obj
-msg
-{
-	"welcome_text": "\n<yellow>*grumbles*</yellow>\nAnother customer... Very well... I am {}.",
-	"buy_text": "\nHere you go, {} {}, just as you ordered. Now off with ya."
-}
-endmsg
 sub_type 6
-race /python/generic/bartender.py
+race scripts/fhod_grimfist.py
 arch beer
 identified 1
 value 40
