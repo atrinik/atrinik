@@ -1077,6 +1077,10 @@ int keybind_process_command(const char *cmd)
 		{
 			textwin_handle_copy();
 		}
+		else if (!strcmp(cmd, "HELLO"))
+		{
+			send_command("/t_tell hello");
+		}
 
 		return 1;
 	}
