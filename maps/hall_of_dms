@@ -2,7 +2,7 @@ arch map
 name Hall of DMs
 msg
 Created:  2009-12-19 Alex Tokar
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,7 +10,6 @@ enter_x 5
 enter_y 19
 difficulty 1
 darkness -1
-tile_path_3 /dmworld
 region creation
 end
 arch blocked
@@ -361,8 +360,7 @@ arch floor_stone_b4
 x 5
 y 23
 end
-arch door1_locked
-cursed 1
+arch wall_stone4_1
 x 5
 y 23
 end
@@ -416,9 +414,7 @@ arch floor_stone_b4
 x 6
 y 23
 end
-arch door1_locked
-direction 7
-cursed 1
+arch wall_stone4_1
 x 6
 y 23
 end
