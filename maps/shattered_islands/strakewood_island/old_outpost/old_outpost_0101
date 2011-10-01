@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -233,10 +233,6 @@ type 83
 level 12
 Wis 2
 direction 3
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -266,10 +262,6 @@ type 83
 level 12
 Wis 2
 direction 3
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -304,10 +296,6 @@ type 83
 level 12
 Wis 2
 direction 3
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -337,10 +325,6 @@ type 83
 level 12
 Wis 2
 direction 3
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -367,10 +351,6 @@ type 83
 level 12
 Wis 2
 direction 1
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -752,10 +732,6 @@ type 83
 level 12
 Wis 2
 direction 1
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1125,10 +1101,6 @@ type 83
 level 12
 Wis 2
 direction 7
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1151,10 +1123,6 @@ type 83
 level 12
 Wis 2
 direction 7
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1189,10 +1157,6 @@ type 83
 level 12
 Wis 2
 direction 7
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1215,10 +1179,6 @@ type 83
 level 12
 Wis 2
 direction 7
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1493,10 +1453,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1516,10 +1472,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -1556,10 +1508,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -1583,10 +1531,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -1643,10 +1587,6 @@ type 83
 glow_radius 3
 level 13
 Wis 2
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -2709,10 +2649,6 @@ type 83
 glow_radius 3
 level 13
 Wis 2
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -3081,10 +3017,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 7
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
@@ -3124,10 +3056,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 7
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -3147,10 +3075,6 @@ glow_radius 3
 level 13
 Wis 2
 direction 7
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b

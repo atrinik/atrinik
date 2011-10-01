@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-05-17 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -216,10 +216,6 @@ maxhp 100
 ac 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -278,10 +274,6 @@ maxhp 100
 ac 13
 Wis 2
 direction 3
-arch quest_container
-name Lava Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -891,10 +883,6 @@ wc 13
 maxhp 100
 ac 13
 Wis 2
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -1308,10 +1296,6 @@ wc 13
 maxhp 100
 ac 13
 Wis 2
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3b
@@ -1778,10 +1762,6 @@ wc 13
 maxhp 100
 ac 13
 Wis 2
-arch quest_container
-name Ice Golems in Old Outpost
-sub_type 1
-end
 end
 end
 arch floor_stone3d
