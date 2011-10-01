@@ -1564,7 +1564,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race /python/generic/merchant.py
+race scripts/centennial/miyoko.py
 arch potion_cure_illness
 nrof 100
 identified 1
