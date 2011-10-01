@@ -313,6 +313,12 @@ def check_map(map):
 	if "region" in map and not map["region"] in regions:
 		add_error(map["file"], "Map's region '{0}' is not defined in regions.reg file.".format(map["region"]), errors.high)
 
+	if not "msg" in map:
+		add_error(map["file"], "Map is missing message.", errors.low)
+	else:
+		if not re.match(r"^Created\:\s*\d{4}-\d{2}-\d{2} [^\n]*(\nModified\:\s*\d{4}-\d{2}-\d{2} [^\n]*)?$", map["msg"]):
+			add_error(map["file"], "Map's message is in incorrect format.", errors.low)
+
 	# If there is no height or width, there's no point going on.
 	if not "height" or not "width":
 		return
