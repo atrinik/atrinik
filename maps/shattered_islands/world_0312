@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -690,7 +690,7 @@ arch spawn_point
 x 3
 y 20
 arch woman_old
-name Lairwenn the librarian
+name Lairwenn
 direction 3
 level 14
 movement_type 176
