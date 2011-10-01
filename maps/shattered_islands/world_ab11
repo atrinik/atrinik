@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1987,88 +1987,39 @@ arch grassd_8
 x 11
 y 8
 end
-arch grassd_5
+arch grassd_1
 x 11
 y 9
 end
-arch wall_stone16_8
+arch grassd_8
 x 11
-y 9
+y 10
 end
-arch client_map_info
-msg
-Brynknot Quest Giver.
-endmsg
-name brynknot_quest_giver
-sub_type 2
-stand_still 1
+arch grassd_1
 x 11
-y 9
+y 11
+end
+arch plant_flower1
+x 11
+y 11
+end
+arch grassd_1
+x 11
+y 12
 end
 arch grassd_4
 x 11
-y 10
-end
-arch wall_stone16_3
-x 11
-y 10
-end
-arch grassd_1
-x 11
-y 11
-end
-arch wall_stone16_3
-x 11
-y 11
-end
-arch grassd_2
-x 11
-y 12
-end
-arch wall_stone16_3
-x 11
-y 12
-end
-arch grassd_3
-x 11
 y 13
 end
-arch wall_stone16_3
-x 11
-y 13
-end
-arch wmask_fire_on_1
-direction 7
-x 11
-y 13
-end
-arch grassd_1
+arch grassd_5
 x 11
 y 14
 end
-arch wall_stone16_3
-x 11
-y 14
-end
-arch grassd_6
+arch grassd_4
 x 11
 y 15
 end
-arch wall_stone16_3
-x 11
-y 15
-end
-arch grassd_6
-x 11
-y 16
-end
-arch wall_stone16_3
-x 11
-y 16
-end
-arch client_map_info
-name brynknot_quest_giver
-sub_type 2
+arch grassd_4
 x 11
 y 16
 end
@@ -2175,137 +2126,47 @@ arch grassd_1
 x 12
 y 8
 end
+arch grassd_1
+x 12
+y 9
+end
 arch grassd_3
 x 12
-y 9
+y 10
 end
-arch wall_stone16_1
-x 12
-y 9
-end
-arch floor_ostone10
+arch plant16
 x 12
 y 10
 end
-arch chest_4.111
-x 12
-y 10
-end
-arch floor_ostone10
+arch grassd_3
 x 12
 y 11
 end
-arch floor_ostone10
+arch grassd_4
 x 12
 y 12
 end
-arch spawn_point
-x 12
-y 12
-arch monk
-name Derowyn
-type 83
-level 20
-friendly 1
-direction 3
-arch event_obj
-sub_type 6
-race /python/generic/quest_giver.py
-slaying /shattered_islands/scripts/strakewood_island/quests.py
-end
-arch sack
-name Ogres near Brynknot
-sys_object 1
-arch scroll_min_heal
-nrof 5
-level 5
-identified 1
-value 9
-end
-end
-arch sack
-name Evil Trees at Brynknot
-sys_object 1
-arch wand
-identified 1
-is_magical 1
-sp 0
-level 8
-food 19
-material_real 257
-item_quality 80
-item_condition 80
-end
-end
-arch sack
-name Forgotten Graveyard at Strakewood Island
-sys_object 1
-arch scroll_recharge
-nrof 7
-level 10
-identified 1
-value 7
-end
-end
-arch sack
-name Wyverns at Strakewood Island
-sys_object 1
-arch amulet_generic
-value 1725
-identified 1
-is_magical 1
-ac 1
-end
-end
-arch sack
-name Ice Golems in Old Outpost
-sys_object 1
-arch silvercoin
-nrof 10
-end
-end
-arch sack
-name Lava Golems in Old Outpost
-sys_object 1
-arch silvercoin
-nrof 15
-end
-end
-arch sack
-name Giant Wasps at Strakewood Island
-sys_object 1
-arch silvercoin
-nrof 7
-end
-end
-end
-end
-arch light5
-x 12
-y 12
-end
-arch floor_ostone10
+arch grassd_2
 x 12
 y 13
 end
-arch floor_ostone10
+arch plant_flower14
+x 12
+y 13
+end
+arch grassd_5
 x 12
 y 14
 end
-arch floor_ostone10
+arch plant5
+x 12
+y 14
+end
+arch grassd_1
 x 12
 y 15
 end
-arch chest_w1
-direction 7
-x 12
-y 15
-end
-arch floor_ostone10
-x 12
-y 16
-end
-arch wall_stone16_1
+arch grassd_3
 x 12
 y 16
 end
@@ -2392,103 +2253,39 @@ arch grassd_5
 x 13
 y 8
 end
+arch grassd_4
+x 13
+y 9
+end
+arch plant_flower7
+x 13
+y 9
+end
+arch grassd_3
+x 13
+y 10
+end
+arch grassd_6
+x 13
+y 11
+end
+arch grassd_6
+x 13
+y 12
+end
 arch grassd_8
 x 13
-y 9
-end
-arch wall_stone16_1
-x 13
-y 9
-end
-arch floor_ostone10
-x 13
-y 10
-end
-arch bank2c
-no_pass 1
-direction 5
-x 13
-y 10
-end
-arch floor_ostone10
-x 13
-y 11
-end
-arch carpet7.131
-x 13
-y 11
-end
-arch bank2b
-no_pass 1
-direction 7
-x 13
-y 11
-end
-arch light4
-x 13
-y 11
-end
-arch floor_ostone10
-x 13
-y 12
-end
-arch carpet7.131
-x 13
-y 12
-end
-arch bank2b
-no_pass 1
-direction 7
-x 13
-y 12
-end
-arch floor_ostone10
-x 13
 y 13
 end
-arch carpet7.131
-x 13
-y 13
-end
-arch bank2b
-no_pass 1
-direction 7
-x 13
-y 13
-end
-arch floor_ostone10
+arch grassd_1
 x 13
 y 14
 end
-arch carpet7.131
-x 13
-y 14
-end
-arch bank2b
-no_pass 1
-direction 7
-x 13
-y 14
-end
-arch light4
-x 13
-y 14
-end
-arch floor_ostone10
+arch grassd_4
 x 13
 y 15
 end
-arch bank2a
-no_pass 1
-direction 5
-x 13
-y 15
-end
-arch floor_ostone10
-x 13
-y 16
-end
-arch wall_stone16_1
+arch grassd_8
 x 13
 y 16
 end
@@ -2584,76 +2381,51 @@ arch grassd_7
 x 14
 y 8
 end
+arch grassd_1
+x 14
+y 9
+end
+arch grassd_2
+x 14
+y 10
+end
+arch tree_big3
+x 14
+y 10
+end
 arch grassd_7
 x 14
-y 9
-end
-arch wall_stone16_1
-x 14
-y 9
-end
-arch floor_ostone10
-x 14
-y 10
-end
-arch carpet7.151
-x 14
-y 10
-end
-arch fireplace_right
-x 14
-y 10
-end
-arch floor_ostone10
-x 14
 y 11
 end
-arch carpet7i
-x 14
-y 11
-end
-arch floor_ostone10
+arch grassd_2
 x 14
 y 12
 end
-arch carpet7e
+arch plant12
 x 14
 y 12
 end
-arch floor_ostone10
+arch grassd_5
 x 14
 y 13
 end
-arch carpet7e
+arch tree_big
 x 14
 y 13
 end
-arch floor_ostone10
+arch grassd_6
 x 14
 y 14
 end
-arch carpet7j
-x 14
-y 14
-end
-arch floor_ostone10
+arch grassd_1
 x 14
 y 15
 end
-arch carpet7.111
+arch plant_flower14
 x 14
 y 15
 end
-arch chair1_111
-direction 7
-x 14
-y 15
-end
-arch floor_ostone10
-x 14
-y 16
-end
-arch wall_stone16_1
+arch grassd_5
 x 14
 y 16
 end
@@ -2743,87 +2515,43 @@ arch grassd_3
 x 15
 y 8
 end
+arch grassd_5
+x 15
+y 9
+end
 arch grassd_7
 x 15
-y 9
-end
-arch wall_stone16_1
-x 15
-y 9
-end
-arch floor_ostone10
-x 15
 y 10
 end
-arch carpet7.151
-x 15
-y 10
-end
-arch floor_ostone10
+arch grassd_3
 x 15
 y 11
 end
-arch carpet7h
-x 15
-y 11
-end
-arch light3
-x 15
-y 11
-end
-arch floor_ostone10
+arch grassd_1
 x 15
 y 12
 end
-arch carpet7c
+arch plant5
 x 15
 y 12
 end
-arch floor_ostone10
+arch grassd_2
 x 15
 y 13
 end
-arch carpet7c
-x 15
-y 13
-end
-arch light5
-x 15
-y 13
-end
-arch floor_ostone10
+arch grassd_2
 x 15
 y 14
 end
-arch carpet7k
+arch plant_flower14
 x 15
 y 14
 end
-arch chair1_111
-x 15
-y 14
-end
-arch floor_ostone10
+arch grassd_7
 x 15
 y 15
 end
-arch carpet7.111
-x 15
-y 15
-end
-arch table_round5
-x 15
-y 15
-end
-arch light3
-x 15
-y 15
-end
-arch floor_ostone10
-x 15
-y 16
-end
-arch wall_stone16_w.111
+arch grassd_2
 x 15
 y 16
 end
@@ -2910,74 +2638,35 @@ arch grassd_8
 x 16
 y 8
 end
+arch grassd_1
+x 16
+y 9
+end
+arch grassd_8
+x 16
+y 10
+end
 arch grassd_5
 x 16
-y 9
-end
-arch wall_stone16_1
-x 16
-y 9
-end
-arch client_map_info
-name brynknot_quest_giver
-sub_type 2
-x 16
-y 9
-end
-arch floor_ostone10
-x 16
-y 10
-end
-arch wall_stone16_3
-x 16
-y 10
-end
-arch floor_ostone10
-x 16
 y 11
 end
-arch wall_stone16_3
-x 16
-y 11
-end
-arch floor_ostone10
+arch grassd_6
 x 16
 y 12
 end
-arch wall_stone16_3
-x 16
-y 12
-end
-arch floor_ostone10
+arch grassd_8
 x 16
 y 13
 end
-arch door1_locked
-direction 3
-x 16
-y 13
-end
-arch floor_ostone10
+arch grassd_2
 x 16
 y 14
 end
-arch wall_stone16_3
-x 16
-y 14
-end
-arch floor_ostone10
+arch grassd_1
 x 16
 y 15
 end
-arch wall_stone16_3
-x 16
-y 15
-end
-arch floor_ostone10
-x 16
-y 16
-end
-arch wall_stone16_4
+arch grassd_1
 x 16
 y 16
 end
@@ -3085,8 +2774,8 @@ arch grassd_6
 x 17
 y 10
 end
-arch lantern2_magic.131
-direction 7
+arch lantern_magic.131
+direction 5
 x 17
 y 10
 end
@@ -3094,35 +2783,19 @@ arch light7
 x 17
 y 10
 end
-arch grassd_6
+arch grassd_7
 x 17
 y 11
 end
-arch floor_flagm2
+arch grassd_8
 x 17
 y 12
 end
-arch grassd_m4
-x 17
-y 12
-end
-arch floor_flagm1
+arch grassd_3
 x 17
 y 13
 end
-arch floor_flagm1
-x 17
-y 14
-end
-arch grassd_m3
-x 17
-y 14
-end
-arch announcement
-msg
-Derowyn, the quest giver
-endmsg
-direction 7
+arch grassd_7
 x 17
 y 14
 end
@@ -3134,8 +2807,8 @@ arch grassd_5
 x 17
 y 16
 end
-arch lantern2_magic.131
-direction 7
+arch lantern_magic.131
+direction 5
 x 17
 y 16
 end
