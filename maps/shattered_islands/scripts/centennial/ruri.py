@@ -15,7 +15,7 @@ def main_menu():
 	inf.add_link("<a=close:>Goodbye.</a>")
 
 def main():
-	if msg == "hello" or msg == "hi" or msg == "hey":
+	if msg == "hello":
 		inf.add_msg("Hi, there {}.  What's up?  Can I help you find a book?  Maybe you want to ask about other information?".format(activator.name))
 		main_menu()
 	elif msg == "main_menu":

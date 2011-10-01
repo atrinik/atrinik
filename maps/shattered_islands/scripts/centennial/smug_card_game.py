@@ -8,7 +8,7 @@ msg = msg.lower()
 inf = Interface(activator, me)
 
 def main():
-	if msg == "hello" or msg == "hi" or msg == "hey":
+	if msg == "hello":
 		inf.add_msg("Heh.  This sucker keeps falling for the same trick.")
 		inf.add_link("Are you cheating?")
 	elif msg == "are you cheating?":
