@@ -67,6 +67,7 @@ class types:
 	gate = 91
 	book = 8
 	magic_ear = 29
+	light_source = 74
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -661,8 +662,21 @@ def check_obj(obj, map):
 			if "unescaped-markup" in msg_errors:
 				add_error(map["file"], "Object {0} contains unescaped markup in message.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
-	if "layer" in obj and obj["layer"] != 0 and "layer" in archetype and archetype["layer"] != 0 and obj["layer"] != archetype["layer"] and config.getboolean("Errors", "layer_changed"):
+	if config.getboolean("Errors", "layer_changed") and "layer" in obj and obj["layer"] != 0 and "layer" in archetype and archetype["layer"] != 0 and obj["layer"] != archetype["layer"]:
 		add_error(map["file"], "Object {0} has had layer changed to {1} from the default value of {2} - this is not recommended.".format(obj["archname"], obj["layer"], archetype["layer"]), errors.warning, env["x"], env["y"])
+
+	if "carrying" in obj:
+		add_error(map["file"], "Object {0} has carrying attribute set.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	if "animation" in obj and obj["animation"] == "NONE":
+		add_error(map["file"], "Object {0} has animation attribute set to NONE.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+	if get_entry(obj, "face") != get_entry(archetype, "face"):
+		if get_entry(obj, "is_turnable") == 1 or get_entry(obj, "is_animated") == 1:
+			add_error(map["file"], "Object {0} is animated/turnable but has had face changed.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+		if obj["type"] == types.light_source:
+			add_error(map["file"], "Object {0} is a light source but has had face changed.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
