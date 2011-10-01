@@ -505,6 +505,25 @@ def check_obj(obj, map):
 			if not "undead" in obj or obj["undead"] != 1:
 				add_error(map["file"], "Monster '{0}' is of race 'undead', but has no 'undead 1' flag set.".format(obj["archname"]), errors.medium, env["x"], env["y"])
 
+		if get_entry(obj, "friendly") == 1 and obj["name"] not in ("guard", "knight"):
+			if obj["name"] == archetype["name"] and get_entry(map, "region") != "creation":
+				has_say_event = False
+				has_generic_guard_script = False
+
+				for tmp in obj["inv"]:
+					if get_entry(tmp, "type") == types.event_object and get_entry(tmp, "sub_type") == 6:
+						if get_entry(tmp, "race") == "/python/generic/guard.py":
+							has_generic_guard_script = True
+
+						has_say_event = True
+						break
+
+				if not has_generic_guard_script:
+					if "msg" in obj or has_say_event:
+						add_error(map["file"], "NPC '{0}' has no custom name, but has a dialog.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+			elif obj["name"][:1].istitle() and not re.match(r"^([A-Z][a-z\']*)( [A-Z][a-z\']*)?( (XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))?$", obj["name"]):
+				add_error(map["file"], "NPC '{0}' has name in incorrect format.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
 	if obj["type"] == types.spawn_point_mob:
 		if not "env" in obj or obj["env"]["type"] != types.spawn_point:
 			add_error(map["file"], "Monster '{0}' is a spawn point monster but is not inside a spawn point.".format(obj["archname"]), errors.critical, env["x"], env["y"])
@@ -871,7 +890,7 @@ class ObjectParser:
 				if parsed:
 					(attr, value) = parsed
 
-					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "z", "zoom", "alpha", "align"):
+					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "alpha", "align"):
 						archetype["modified_artifact"] = True
 
 		if invalid_arch:
@@ -925,6 +944,12 @@ def parse_archetypes():
 	parser = ObjectParser(fp)
 	d = parser.archetypes()
 	fp.close()
+
+	# Post-processing.
+	for arch in d:
+		if not "name" in d[arch]:
+			d[arch]["name"] = arch
+
 	return d
 
 # Parse the artifacts.
