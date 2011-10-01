@@ -1,4 +1,4 @@
-import os
+import os, shutil
 
 # Check whether the passed string is an integer.
 # @param s String.
@@ -236,13 +236,20 @@ class ObjectUpgrader:
 	# Initialize.
 	# @param files The files we're going to upgrade.
 	# @param upgrade_func Function we'll call for each object.
-	def __init__(self, files, upgrade_func):
+	def __init__(self, files, upgrade_func = None):
 		self.files = files
 		self.upgrade_func = upgrade_func
+		self.player_upgrade_func = None
+
+	def set_player_upgrade_func(self, upgrade_func):
+		self.player_upgrade_func = upgrade_func
 
 	# Do the actual upgrading.
 	def upgrade(self):
 		for file in self.files:
+			if not os.path.exists(file):
+				continue
+
 			fp = open(file, "r")
 			# Load object parser.
 			parser = MapObjectParser(fp, self.upgrade_func)
@@ -257,6 +264,13 @@ class ObjectUpgrader:
 
 			# If we found anything, save the objects.
 			if arches:
+				if parser.player and self.player_upgrade_func:
+					(parser.player, arches) = self.player_upgrade_func(parser.player, arches)
+
+					if not parser.player:
+						shutil.rmtree(os.path.dirname(file))
+						continue
+
 				fp = open(file, "w")
 				parser.set_fp(fp)
 				parser.save()
