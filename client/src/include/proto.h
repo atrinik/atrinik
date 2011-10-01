@@ -158,6 +158,8 @@ extern void strtoupper(char *str);
 extern void strtolower(char *str);
 extern int bmp2png(const char *path);
 extern void screenshot_create(SDL_Surface *surface);
+extern char *whitespace_trim(char *str);
+extern char *whitespace_squeeze(char *str);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
