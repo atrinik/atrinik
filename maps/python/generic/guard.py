@@ -35,6 +35,8 @@ def main():
 			"There is something suspicious about you. I'll be watching you.",
 			"You better not be up to anything unlawful.",
 			"Have you come here to cause trouble? If so, you came to the wrong place.",
+			"I haven't seen you before, so I'll make a deal with you. Stay out of trouble and I won't have a reason to hurt you.",
+			"You look like a shady character. Make one wrong move and you will wish you had never came here.",
 		]
 
 		inf.add_msg(random.choice(replies))
