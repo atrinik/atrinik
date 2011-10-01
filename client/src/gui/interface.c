@@ -71,19 +71,26 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 
 	if (anchor_action[0] == '\0' && buf[0] != '/')
 	{
-		StringBuffer *sb = stringbuffer_new();
-		char *cp;
+		if (!interface_data->progressed || SDL_GetTicks() >= interface_data->progressed_ticks)
+		{
+			StringBuffer *sb = stringbuffer_new();
+			char *cp;
 
-		stringbuffer_append_printf(sb, "/t_tell %s", buf);
-		cp = stringbuffer_finish(sb);
-		send_command_check(cp);
-		free(cp);
+			stringbuffer_append_printf(sb, "/t_tell %s", buf);
+			cp = stringbuffer_finish(sb);
+			send_command_check(cp);
+			free(cp);
+
+			interface_data->progressed = 1;
+			interface_data->progressed_ticks = SDL_GetTicks() + INTERFACE_PROGRESSED_TICKS;
+		}
 
 		return 1;
 	}
 	else if (!strcmp(anchor_action, "close"))
 	{
 		interface_data->destroy = 1;
+		return 1;
 	}
 
 	return 0;
@@ -190,6 +197,18 @@ static int popup_button_event_func(popup_button *button)
 	return 1;
 }
 
+/**
+ * Handles clicking the 'hello' button. */
+static void button_hello_event(void)
+{
+	if (!interface_data->progressed || SDL_GetTicks() >= interface_data->progressed_ticks)
+	{
+		keybind_process_command("?HELLO");
+		interface_data->progressed = 1;
+		interface_data->progressed_ticks = SDL_GetTicks() + INTERFACE_PROGRESSED_TICKS;
+	}
+}
+
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
@@ -199,7 +218,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	}
 	else if (button_event(&button_hello, event))
 	{
-		keybind_process_command("?HELLO");
+		button_hello_event();
 		return 1;
 	}
 	else if (button_event(&button_close, event))
@@ -282,7 +301,11 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_7:
 			case SDLK_8:
 			case SDLK_9:
-				interface_execute_link(event->key.keysym.sym - SDLK_1);
+				if (!keys[event->key.keysym.sym].repeated)
+				{
+					interface_execute_link(event->key.keysym.sym - SDLK_1);
+				}
+
 				return 1;
 
 			case SDLK_KP1:
@@ -294,7 +317,11 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_KP7:
 			case SDLK_KP8:
 			case SDLK_KP9:
-				interface_execute_link(event->key.keysym.sym - SDLK_KP1);
+				if (!keys[event->key.keysym.sym].repeated)
+				{
+					interface_execute_link(event->key.keysym.sym - SDLK_KP1);
+				}
+
 				return 1;
 
 			case SDLK_RETURN:
@@ -304,6 +331,12 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 			default:
 				break;
+		}
+
+		if (keybind_command_matches_event("?HELLO", &event->key) && !keys[event->key.keysym.sym].repeated)
+		{
+			button_hello_event();
+			return 1;
 		}
 	}
 	else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + Bitmaps[popup->bitmap_id]->bitmap->w && event->motion.y >= popup->y && event->motion.y < popup->y + Bitmaps[popup->bitmap_id]->bitmap->h)

@@ -66,6 +66,15 @@ typedef struct interface_struct
 
 	/** Scrollbar. */
 	scrollbar_struct scrollbar;
+
+	/** Whether the user has progressed through the dialog. */
+	uint8 progressed;
+
+	/**
+	 * If progressed, how long until another progression may happen
+	 * (unless a new dialog has been opened of course, in which case this
+	 * is reset). */
+	uint32 progressed_ticks;
 } interface_struct;
 
 /**
@@ -148,5 +157,10 @@ typedef struct interface_struct
 /** Y position of the 'close' button. */
 #define INTERFACE_BUTTON_CLOSE_STARTY 512
 /*@}*/
+
+/**
+ * How many ticks must pass before the user may use the hello button
+ * again or click a link again in the same dialog. */
+#define INTERFACE_PROGRESSED_TICKS 125
 
 #endif
