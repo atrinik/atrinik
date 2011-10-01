@@ -626,7 +626,6 @@ You lift the plate and enter the sewers.
 endmsg
 name sewer hole plate
 face sewer_plate2.101
-animation NONE
 is_turnable 0
 slaying strakewood_island/brynknot/sewers/sewers_0102
 hp 23
@@ -780,7 +779,6 @@ You lift the plate and enter the sewers.
 endmsg
 name sewer hole plate
 face sewer_plate2.101
-animation NONE
 is_turnable 0
 slaying strakewood_island/brynknot/sewers/sewers_0101
 hp 23

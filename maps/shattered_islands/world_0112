@@ -1530,7 +1530,6 @@ You lift the plate and enter the sewers.
 endmsg
 name sewer hole plate
 face sewer_plate2.101
-animation NONE
 is_turnable 0
 direction 0
 slaying strakewood_island/brynknot/sewers/sewers_0101
