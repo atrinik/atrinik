@@ -103,3 +103,11 @@ LostMemories = {
 		},
 	],
 }
+
+LairwennsNotes = {
+	"quest_name": "Lairwenn's Notes",
+	"type": QUEST_TYPE_KILL_ITEM,
+	"arch_name": "note",
+	"item_name": "Lairwenn's Notes",
+	"message": "Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.",
+}
