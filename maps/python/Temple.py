@@ -81,7 +81,7 @@ class BaseTemple:
 	## @return True if the chat was handled, False otherwise.
 	def handle_chat(self, msg):
 		if msg == "hello":
-			self._inf.add_msg("Welcome to the church of {}. I am {}.".format(self._name, self._me.name))
+			self._inf.add_msg("Welcome to the church of {0}. I am {1}, a devoted servant of {0}.".format(self._name, self._me.name))
 
 			# We don't like enemy gods.
 			if self.is_enemy_god():
