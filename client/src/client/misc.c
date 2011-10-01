@@ -329,3 +329,33 @@ void screenshot_create(SDL_Surface *surface)
 		draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
 	}
 }
+
+/**
+ * Trim left and right whitespace in string.
+ *
+ * @note Does in-place modification.
+ * @param str String to trim.
+ * @return 'str'. */
+char *whitespace_trim(char *str)
+{
+	char *cp;
+	size_t len;
+
+	cp = str;
+	len = strlen(cp);
+
+	while (isspace(cp[len - 1]))
+	{
+		cp[--len] = '\0';
+	}
+
+	while (isspace(*cp))
+	{
+		cp++;
+		len--;
+	}
+
+	memmove(str, cp, len + 1);
+
+	return str;
+}
