@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-01 emperorbma
 endmsg
 width 24
 height 24
@@ -1216,15 +1216,6 @@ arch fwall_fstone2
 x 8
 y 9
 end
-arch magic_ear
-msg
-@match ^eagle$
-Correct, you may pass.
-endmsg
-connected 101
-x 8
-y 9
-end
 arch floor_fs_grey1b
 z 50
 x 8
@@ -1386,6 +1377,10 @@ arch guard
 name Asterian Guard
 type 83
 level 32
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_fs_grey1b
@@ -1410,6 +1405,10 @@ arch guard
 name Asterian Guard
 type 83
 level 32
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_fs_grey1b
@@ -2106,6 +2105,10 @@ arch guard
 name Asterian Guard
 type 83
 level 32
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_fs_grey1b
@@ -2114,15 +2117,6 @@ x 13
 y 9
 end
 arch grate_open
-connected 101
-x 13
-y 9
-end
-arch magic_ear
-msg
-@match ^eagle$
-Correct, you may pass.
-endmsg
 connected 101
 x 13
 y 9
@@ -2139,6 +2133,10 @@ arch guard
 name Asterian Guard
 type 83
 level 32
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_fs_grey1b
