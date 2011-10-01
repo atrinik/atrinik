@@ -43,7 +43,9 @@ void widget_event_target(widgetdata *widget, int x, int y)
 	if (y > widget->y1 + 7 && y < widget->y1 + 25 && x > widget->x1 + 223 && x < widget->x1 + 259)
 	{
 		if (cpl.target_code)
-			send_command("/t_tell hello");
+		{
+			keybind_process_command("?HELLO");
+		}
 	}
 }
 

@@ -199,7 +199,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	}
 	else if (button_event(&button_hello, event))
 	{
-		send_command_check("/t_tell hello");
+		keybind_process_command("?HELLO");
 		return 1;
 	}
 	else if (button_event(&button_close, event))

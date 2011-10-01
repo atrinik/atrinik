@@ -974,7 +974,7 @@ static void menu_map_talk_to(widgetdata *widget, int x, int y)
 	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
 	{
 		send_target(tx, ty);
-		send_command("/t_tell hi");
+		keybind_process_command("?HELLO");
 	}
 }
 
