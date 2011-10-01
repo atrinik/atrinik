@@ -2,7 +2,7 @@ arch map
 name Everlink
 msg
 Created:  2010-07-21 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -559,7 +559,6 @@ x 5
 y 7
 end
 arch exit
-face portal_big.101
 animation portal_big
 x 5
 y 7

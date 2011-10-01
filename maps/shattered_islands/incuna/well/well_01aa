@@ -215,7 +215,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -246,7 +245,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -277,7 +275,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -308,7 +305,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -346,7 +342,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -477,7 +472,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -508,7 +502,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -539,7 +532,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -570,7 +562,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -608,7 +599,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -2529,7 +2519,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -2560,7 +2549,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -2766,7 +2754,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -2797,7 +2784,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3048,7 +3034,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3079,7 +3064,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3110,7 +3094,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3145,7 +3128,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3356,7 +3338,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3392,7 +3373,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3423,7 +3403,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3461,7 +3440,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3492,7 +3470,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3523,7 +3500,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3554,7 +3530,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3767,7 +3742,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3803,7 +3777,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3858,7 +3831,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -3889,7 +3861,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4147,7 +4118,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4392,7 +4362,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4616,7 +4585,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4647,7 +4615,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4678,7 +4645,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4892,7 +4858,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4923,7 +4888,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4954,7 +4918,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -4985,7 +4948,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5175,7 +5137,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5206,7 +5167,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5237,7 +5197,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5276,7 +5235,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5307,7 +5265,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1
@@ -5493,7 +5450,6 @@ arch damager
 terrain_type 1
 is_floor 1
 layer 1
-face lake.101
 animation water_still
 anim_speed 10
 is_animated 1

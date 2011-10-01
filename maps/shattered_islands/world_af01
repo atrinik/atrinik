@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -326,7 +326,6 @@ y 8
 end
 arch campfire
 layer 2
-face fountain_stream.101
 animation fountain_stream
 anim_speed 2
 z -25
@@ -652,7 +651,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -822,7 +820,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -987,7 +984,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -1153,7 +1149,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -1328,7 +1323,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -1508,7 +1502,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -1677,7 +1670,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -8
 align -8
@@ -1835,7 +1827,6 @@ end
 arch campfire
 glow_radius 0
 animation stream
-face stream.101
 anim_speed 1
 z -4
 align 5
@@ -3196,7 +3187,6 @@ no_pass 1
 name removable
 layer 4
 face trash_wood2.101
-animation NONE
 sys_object 1
 randomitems none
 race insect
@@ -3209,13 +3199,13 @@ object_int1 8000
 type 83
 direction 0
 z -20
+is_animated 0
 end
 arch ant_red
 no_pass 1
 name removable
 layer 4
 face rock_wall8.101
-animation NONE
 z -20
 sys_object 1
 direction 0
@@ -3228,13 +3218,13 @@ object_int1 7000
 terrain_flag 2
 random_move 0
 type 83
+is_animated 0
 end
 arch ant_red
 no_pass 1
 name removable
 layer 4
 face trash_wood1.101
-animation NONE
 sys_object 1
 randomitems none
 race insect
@@ -3246,13 +3236,13 @@ random_move 0
 object_int1 8500
 type 83
 direction 0
+is_animated 0
 end
 arch ant_red
 no_pass 1
 name removable
 layer 4
 face rock6.101
-animation NONE
 sys_object 1
 randomitems none
 race insect
@@ -3264,13 +3254,13 @@ random_move 0
 object_int1 9000
 type 83
 direction 0
+is_animated 0
 end
 arch ant_red
 no_pass 1
 name removable
 layer 4
 face rock5.101
-animation NONE
 sys_object 1
 randomitems none
 race insect
@@ -3282,6 +3272,7 @@ terrain_flag 2
 random_move 0
 type 83
 direction 0
+is_animated 0
 end
 end
 arch water_dk

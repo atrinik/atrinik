@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -509,7 +509,6 @@ no_pass 1
 state 3
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -700,7 +699,6 @@ no_pass 1
 state 1
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -743,7 +741,6 @@ no_pass 1
 state 1
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -785,7 +782,6 @@ arch ant_red
 no_pass 1
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -951,7 +947,6 @@ no_pass 1
 state 3
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -988,7 +983,6 @@ arch ant_red
 no_pass 1
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1020,7 +1014,6 @@ arch ant_red
 no_pass 1
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1195,7 +1188,6 @@ no_pass 1
 state 2
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1229,7 +1221,6 @@ no_pass 1
 state 2
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1258,7 +1249,6 @@ no_pass 1
 state 3
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1296,7 +1286,6 @@ no_pass 1
 state 3
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1
@@ -1488,7 +1477,6 @@ no_pass 1
 state 2
 name fireflies
 layer 4
-face fireflies.101
 animation fireflies
 glow_radius 4
 sys_object 1

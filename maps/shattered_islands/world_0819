@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 emperorbma
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -593,7 +593,6 @@ arch ant_red
 no_pass 1
 name removable
 face tree_branch3.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -609,6 +608,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -1503,7 +1504,6 @@ arch ant_red
 no_pass 1
 name removable
 face tree_branch2.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -1519,6 +1519,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -1668,7 +1670,6 @@ arch ant_red
 no_pass 1
 name removable
 face tree_branch2.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -1684,6 +1685,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -2230,7 +2233,6 @@ arch ant_red
 no_pass 1
 name removable
 face water_lily2.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -2246,6 +2248,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -2857,7 +2861,6 @@ arch ant_red
 no_pass 1
 name removable
 face nugget_mit_l.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -2873,6 +2876,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -3172,7 +3177,6 @@ arch ant_red
 no_pass 1
 name removable
 face stone3.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -3188,6 +3192,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -3395,7 +3401,6 @@ arch ant_red
 no_pass 1
 name removable
 face stone4.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -3411,6 +3416,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -3500,7 +3507,6 @@ arch ant_red
 no_pass 1
 name removable
 face stone6.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -3516,6 +3522,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2
@@ -3646,7 +3654,6 @@ arch ant_red
 no_pass 1
 name removable
 face tree_branch3.101
-animation NONE
 sys_object 1
 randomitems none
 race log
@@ -3662,6 +3669,8 @@ protect_confusion 100
 protect_internal 100
 type 83
 layer 4
+direction 0
+is_animated 0
 arch waypoint
 name wp1
 title wp2

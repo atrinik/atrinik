@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 17
 height 15
@@ -127,7 +127,6 @@ msg
 That amulet should belong to me, of course!
 endmsg
 name Dewynn
-face thelra_f.131
 animation thelra_female
 level 30
 race thelra
@@ -387,7 +386,6 @@ msg
 Have you seen the library upstairs? You should definitely take a look, and read a book or two.
 endmsg
 name Tolann
-face thelra_m.131
 animation thelra_male
 level 30
 race thelra
@@ -1689,14 +1687,12 @@ x 14
 y 2
 arch mage_old
 name Dornynn
-face thelra_f.131
 animation thelra_female
 level 30
 race thelra
 is_male 0
 is_female 1
 can_cast_spell 0
-friendly 1
 type 83
 direction 1
 end
@@ -1779,12 +1775,10 @@ x 14
 y 11
 arch mage_old
 name Olain
-face thelra_m.131
 animation thelra_male
 level 30
 race thelra
 can_cast_spell 0
-friendly 1
 type 83
 direction 1
 end

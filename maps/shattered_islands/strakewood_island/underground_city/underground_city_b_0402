@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-03-12 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -29,7 +29,6 @@ y 2
 end
 arch exit
 name portal
-face portal_yellow.101
 animation portal_yellow
 y 2
 end
@@ -161,7 +160,6 @@ y 1
 arch dragon_water_small
 weapon_speed 0.037
 name young skeletal dragon
-face dragon_skeletal.131
 animation dragon_skeletal
 weight 154000
 zoom 60

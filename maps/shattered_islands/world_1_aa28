@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-07-16 emperorbma
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -524,7 +524,6 @@ y 14
 end
 arch wmask_ruin1a.111
 name door
-face door_wood1.111
 animation door_wood2
 zoom 80
 x 18

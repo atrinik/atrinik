@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -405,7 +405,6 @@ y 7
 end
 arch lamp
 layer 7
-face lamp_lit1.101
 is_animated 1
 z 27
 zoom 65
@@ -431,7 +430,6 @@ Hmm... This note sure talks about some strange things... Hmm...
 <yellow>Clayrell doesn't seem to notice you...</yellow>
 endmsg
 name Clayrell
-face thelra_m.131
 animation thelra_male
 z -5
 align -10
@@ -945,7 +943,6 @@ x 5
 y 9
 arch mage_old
 name thelra sorceress
-face thelra_f.131
 animation thelra_female
 direction 3
 level 40
@@ -1403,7 +1400,6 @@ x 7
 y 21
 arch mage_old
 name thelra sorcerer
-face thelra_m.131
 animation thelra_male
 level 38
 race thelra
@@ -2891,7 +2887,6 @@ x 15
 y 22
 arch mage_old
 name thelra sorcerer
-face thelra_m.131
 animation thelra_male
 level 30
 race thelra

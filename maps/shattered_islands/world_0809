@@ -2,7 +2,7 @@ arch map
 name Dragons Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-05-18 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2429,7 +2429,6 @@ x 19
 y 22
 end
 arch exit_green
-face portal_red.101
 animation portal_red
 slaying world_0708
 hp 17

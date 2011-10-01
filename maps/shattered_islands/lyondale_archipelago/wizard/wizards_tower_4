@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-09-11 Alex Tokar
-Modified: 2011-06-04 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 17
 height 15
@@ -1525,7 +1525,6 @@ x 15
 y 7
 end
 arch exit
-face effect1_purble.104
 animation meffect_purple
 slaying ../../world_2077
 hp 5
