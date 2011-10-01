@@ -18,26 +18,6 @@ map_first /planes/creation/creation_0101
 map_bg #009ffb
 end
 
-region tutorial
-parent world
-longname The Starting Tutorial
-msg
-No one knows where this place is, but all have seen it.
-
-As mysterious as it is, it's just another part of life.
-endmsg
-end
-
-region tutorial_island
-parent world
-longname The Tutorial Island
-msg
-This island is the starting place of all new players.
-endmsg
-map_first /shattered_islands/world_0303
-map_bg #009ffb
-end
-
 #########################
 ### Strakewood island ###
 #########################

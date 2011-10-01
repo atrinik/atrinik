@@ -2,7 +2,7 @@ arch map
 name Ship
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2010-09-13 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -118,9 +118,9 @@ x 1
 y 2
 end
 arch stairs_wood_up
-slaying ../world_0305
-hp 13
-sp 18
+slaying /emergency
+hp 0
+sp 0
 x 1
 y 2
 end
@@ -620,16 +620,12 @@ x 6
 y 2
 end
 arch stairs_wood_up
-slaying ../world_0110
-hp 8
-sp 17
+slaying /emergency
+hp 0
+sp 0
 direction 7
 x 6
 y 2
-arch event_obj
-sub_type 1
-race ../scripts/tutorial_island/ship_exit.py
-end
 end
 arch floor_wood2_l1
 x 6

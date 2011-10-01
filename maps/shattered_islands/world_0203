@@ -1,14 +1,13 @@
 arch map
-name Tutorial Island
+name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-08-15 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-no_harm 1
 tile_path_1 world_0204
 tile_path_2 world_0303
 tile_path_3 world_0202
@@ -17,10 +16,8 @@ tile_path_5 world_0304
 tile_path_6 world_0302
 tile_path_7 world_0102
 tile_path_8 world_0104
-bg_music tutorialisland.mid
-region tutorial_island
 end
-arch water_lt2
+arch water_lt4
 end
 arch water_lt2
 y 1
@@ -28,28 +25,28 @@ end
 arch water_lt
 y 2
 end
-arch water_lt2
+arch water_lt3
 y 3
 end
-arch water_lt4
+arch water_lt
 y 4
 end
-arch water_lt4
+arch water_lt3
 y 5
 end
 arch water_lt3
 y 6
 end
-arch water_lt4
+arch water_lt3
 y 7
 end
 arch water_lt4
 y 8
 end
-arch water_lt3
+arch water_lt
 y 9
 end
-arch water_lt4
+arch water_lt2
 y 10
 end
 arch water_lt3
@@ -64,3360 +61,2215 @@ end
 arch water_lt2
 y 14
 end
+arch water_lt2
+y 15
+end
+arch water_lt3
+y 16
+end
+arch water_lt3
+y 17
+end
 arch water_lt4
+y 18
+end
+arch water_lt2
+y 19
+end
+arch water_lt3
+y 20
+end
+arch water_lt2
+y 21
+end
+arch water_lt4
+y 22
+end
+arch water_lt3
+y 23
+end
+arch water_lt
+x 1
+end
+arch water_lt
+x 1
+y 1
+end
+arch water_lt
+x 1
+y 2
+end
+arch water_lt4
+x 1
+y 3
+end
+arch water_lt4
+x 1
+y 4
+end
+arch water_lt
+x 1
+y 5
+end
+arch water_lt4
+x 1
+y 6
+end
+arch water_lt4
+x 1
+y 7
+end
+arch water_lt2
+x 1
+y 8
+end
+arch water_lt
+x 1
+y 9
+end
+arch water_lt4
+x 1
+y 10
+end
+arch water_lt4
+x 1
+y 11
+end
+arch water_lt4
+x 1
+y 12
+end
+arch water_lt3
+x 1
+y 13
+end
+arch water_lt2
+x 1
+y 14
+end
+arch water_lt4
+x 1
+y 15
+end
+arch water_lt3
+x 1
+y 16
+end
+arch water_lt2
+x 1
+y 17
+end
+arch water_lt4
+x 1
+y 18
+end
+arch water_lt
+x 1
+y 19
+end
+arch water_lt
+x 1
+y 20
+end
+arch water_lt3
+x 1
+y 21
+end
+arch water_lt3
+x 1
+y 22
+end
+arch water_lt
+x 1
+y 23
+end
+arch water_lt3
+x 2
+end
+arch water_lt3
+x 2
+y 1
+end
+arch water_lt
+x 2
+y 2
+end
+arch water_lt3
+x 2
+y 3
+end
+arch water_lt2
+x 2
+y 4
+end
+arch water_lt
+x 2
+y 5
+end
+arch water_lt
+x 2
+y 6
+end
+arch water_lt3
+x 2
+y 7
+end
+arch water_lt4
+x 2
+y 8
+end
+arch water_lt2
+x 2
+y 9
+end
+arch water_lt4
+x 2
+y 10
+end
+arch water_lt2
+x 2
+y 11
+end
+arch water_lt4
+x 2
+y 12
+end
+arch water_lt3
+x 2
+y 13
+end
+arch water_lt
+x 2
+y 14
+end
+arch water_lt3
+x 2
+y 15
+end
+arch water_lt3
+x 2
+y 16
+end
+arch water_lt4
+x 2
+y 17
+end
+arch water_lt2
+x 2
+y 18
+end
+arch water_lt4
+x 2
+y 19
+end
+arch water_lt
+x 2
+y 20
+end
+arch water_lt4
+x 2
+y 21
+end
+arch water_lt
+x 2
+y 22
+end
+arch water_lt2
+x 2
+y 23
+end
+arch water_lt2
+x 3
+end
+arch water_lt2
+x 3
+y 1
+end
+arch water_lt3
+x 3
+y 2
+end
+arch water_lt
+x 3
+y 3
+end
+arch water_lt4
+x 3
+y 4
+end
+arch water_lt
+x 3
+y 5
+end
+arch water_lt4
+x 3
+y 6
+end
+arch water_lt2
+x 3
+y 7
+end
+arch water_lt3
+x 3
+y 8
+end
+arch water_lt2
+x 3
+y 9
+end
+arch water_lt3
+x 3
+y 10
+end
+arch water_lt2
+x 3
+y 11
+end
+arch water_lt2
+x 3
+y 12
+end
+arch water_lt3
+x 3
+y 13
+end
+arch water_lt3
+x 3
+y 14
+end
+arch water_lt2
+x 3
 y 15
 end
 arch water_lt
+x 3
 y 16
 end
-arch water_lt
+arch water_lt4
+x 3
 y 17
 end
-arch water_lt2
+arch water_lt4
+x 3
 y 18
 end
-arch water_lt3
+arch water_lt2
+x 3
 y 19
 end
 arch water_lt3
+x 3
 y 20
 end
 arch water_lt
+x 3
 y 21
 end
-arch water_lt3
+arch water_lt4
+x 3
 y 22
 end
 arch water_lt4
-y 23
-end
-arch grassd_4
-x 1
-end
-arch fwall_fstone2
-x 1
-end
-arch grassd_6
-x 1
-y 1
-end
-arch fwall_fstone2
-x 1
-y 1
-end
-arch grassd_1
-x 1
-y 2
-end
-arch fwall_fstone2
-x 1
-y 2
-end
-arch grassd_1
-x 1
-y 3
-end
-arch fwall_fstone2
-x 1
-y 3
-end
-arch grassd_1
-x 1
-y 4
-end
-arch fwall_fstone2
-x 1
-y 4
-end
-arch grassd_2
-x 1
-y 5
-end
-arch fwall_fstone2
-x 1
-y 5
-end
-arch grassd_6
-x 1
-y 6
-end
-arch fwall_fstone2
-x 1
-y 6
-end
-arch grassd_2
-x 1
-y 7
-end
-arch fwall_fstone2
-x 1
-y 7
-end
-arch grassd_5
-x 1
-y 8
-end
-arch fwall_fstone2
-x 1
-y 8
-end
-arch grassd_6
-x 1
-y 9
-end
-arch fwall_fstone2
-x 1
-y 9
-end
-arch grassd_3
-x 1
-y 10
-end
-arch fwall_fstone2
-x 1
-y 10
-end
-arch grassd_8
-x 1
-y 11
-end
-arch fwall_fstone2
-x 1
-y 11
-end
-arch grassd_3
-x 1
-y 12
-end
-arch fwall_fstone2
-x 1
-y 12
-end
-arch grassd_1
-x 1
-y 13
-end
-arch fwall_fstone2
-x 1
-y 13
-end
-arch grassd_7
-x 1
-y 14
-end
-arch fwall_fstone2
-x 1
-y 14
-end
-arch grassd_2
-x 1
-y 15
-end
-arch fwall_fstone2
-x 1
-y 15
-end
-arch grassd_6
-x 1
-y 16
-end
-arch fwall_fstone2
-x 1
-y 16
-end
-arch grassd_6
-x 1
-y 17
-end
-arch fwall_fstone2
-x 1
-y 17
-end
-arch grassd_2
-x 1
-y 18
-end
-arch fwall_fstone2
-x 1
-y 18
-end
-arch grassd_2
-x 1
-y 19
-end
-arch fwall_fstone2
-x 1
-y 19
-end
-arch grassd_8
-x 1
-y 20
-end
-arch fwall_fstone2
-x 1
-y 20
-end
-arch grassd_2
-x 1
-y 21
-end
-arch fwall_fstone2
-x 1
-y 21
-end
-arch grassd_6
-x 1
-y 22
-end
-arch fwall_fstone2
-x 1
-y 22
-end
-arch grassd_4
-x 1
-y 23
-end
-arch fwall_fstone2
-x 1
-y 23
-end
-arch grassd_5
-x 2
-end
-arch grassd_4
-x 2
-y 1
-end
-arch grassd_1
-x 2
-y 2
-end
-arch grassd_1
-x 2
-y 3
-end
-arch grassd_5
-x 2
-y 4
-end
-arch grassd_2
-x 2
-y 5
-end
-arch grassd_5
-x 2
-y 6
-end
-arch grassd_2
-x 2
-y 7
-end
-arch grassd_7
-x 2
-y 8
-end
-arch grassd_1
-x 2
-y 9
-end
-arch grassd_6
-x 2
-y 10
-end
-arch grassd_5
-x 2
-y 11
-end
-arch grassd_8
-x 2
-y 12
-end
-arch grassd_6
-x 2
-y 13
-end
-arch small_stones
-x 2
-y 13
-end
-arch grassd_3
-x 2
-y 14
-end
-arch grassd_2
-x 2
-y 15
-end
-arch grassd_4
-x 2
-y 16
-end
-arch grassd_7
-x 2
-y 17
-end
-arch grassd_4
-x 2
-y 18
-end
-arch grassd_8
-x 2
-y 19
-end
-arch grassd_8
-x 2
-y 20
-end
-arch grassd_5
-x 2
-y 21
-end
-arch grassd_2
-x 2
-y 22
-end
-arch grassd_8
-x 2
-y 23
-end
-arch plant_flower6
-x 2
-y 23
-end
-arch grassd_2
-x 3
-end
-arch grassd_6
-x 3
-y 1
-end
-arch grassd_8
-x 3
-y 2
-end
-arch grassd_7
-x 3
-y 3
-end
-arch grassd_4
-x 3
-y 4
-end
-arch grassd_8
-x 3
-y 5
-end
-arch tree_big2
-x 3
-y 5
-end
-arch grassd_6
-x 3
-y 6
-end
-arch grassd_7
-x 3
-y 7
-end
-arch plant_flower5
-x 3
-y 7
-end
-arch grassd_5
-x 3
-y 8
-end
-arch grassd_3
-x 3
-y 9
-end
-arch grassd_3
-x 3
-y 10
-end
-arch grassd_3
-x 3
-y 11
-end
-arch grassd_3
-x 3
-y 12
-end
-arch grassd_2
-x 3
-y 13
-end
-arch grassd_2
-x 3
-y 14
-end
-arch grassd_7
-x 3
-y 15
-end
-arch tree_apple
-x 3
-y 15
-end
-arch grassd_4
-x 3
-y 16
-end
-arch grassd_3
-x 3
-y 17
-end
-arch grassd_1
-x 3
-y 18
-end
-arch plant_flower6
-x 3
-y 18
-end
-arch grassd_4
-x 3
-y 19
-end
-arch grassd_1
-x 3
-y 20
-end
-arch grassd_2
-x 3
-y 21
-end
-arch grassd_4
-x 3
-y 22
-end
-arch grassd_1
 x 3
 y 23
 end
-arch grassd_6
+arch water_lt3
 x 4
 end
-arch grassd_2
+arch water_lt
 x 4
 y 1
 end
-arch grassd_1
+arch water_lt4
 x 4
 y 2
 end
-arch grassd_7
+arch water_lt
 x 4
 y 3
 end
-arch grassd_4
+arch water_lt
 x 4
 y 4
 end
-arch grassd_1
+arch water_lt4
 x 4
 y 5
 end
-arch grassd_8
+arch water_lt4
 x 4
 y 6
 end
-arch grassd_1
+arch water_lt4
 x 4
 y 7
 end
-arch grassd_6
+arch water_lt3
 x 4
 y 8
 end
-arch grassd_2
+arch water_lt2
 x 4
 y 9
 end
-arch grassd_6
+arch water_lt4
 x 4
 y 10
 end
-arch grassd_7
+arch water_lt2
 x 4
 y 11
 end
-arch grassd_3
+arch water_lt
 x 4
 y 12
 end
-arch grassd_7
+arch water_lt2
 x 4
 y 13
 end
-arch grassd_5
+arch water_lt4
 x 4
 y 14
 end
-arch grassd_1
+arch water_lt
 x 4
 y 15
 end
-arch grassd_4
+arch water_lt3
 x 4
 y 16
 end
-arch grassd_8
+arch water_lt2
 x 4
 y 17
 end
-arch grassd_1
+arch water_lt4
 x 4
 y 18
 end
-arch grassd_1
+arch water_lt
 x 4
 y 19
 end
-arch grassd_5
+arch water_lt
 x 4
 y 20
 end
-arch grassd_4
+arch water_lt3
 x 4
 y 21
 end
-arch grassd_3
+arch water_lt2
 x 4
 y 22
 end
-arch grassd_4
+arch water_lt3
 x 4
 y 23
 end
-arch plant10
-x 4
-y 23
-end
-arch grassd_3
+arch water_lt
 x 5
 end
-arch grassd_1
+arch water_lt2
 x 5
 y 1
 end
-arch wall_wood_8
-x 5
-y 1
-end
-arch grassd_8
+arch water_lt
 x 5
 y 2
 end
-arch wall_wood1_3
-x 5
-y 2
-end
-arch grassd_7
+arch water_lt3
 x 5
 y 3
 end
-arch wall_wood3_3
-x 5
-y 3
-end
-arch grassd_5
+arch water_lt2
 x 5
 y 4
 end
-arch wall_wood_w_3
-x 5
-y 4
-end
-arch grassd_7
+arch water_lt2
 x 5
 y 5
 end
-arch wall_wood2_3
-x 5
-y 5
-end
-arch grassd_7
+arch water_lt2
 x 5
 y 6
 end
-arch wall_wood2_3
-x 5
-y 6
-end
-arch grassd_4
+arch water_lt4
 x 5
 y 7
 end
-arch wall_wood3_3
-x 5
-y 7
-end
-arch grassd_4
+arch water_lt
 x 5
 y 8
 end
-arch wall_wood_w_3
-x 5
-y 8
-end
-arch grassd_7
+arch water_lt4
 x 5
 y 9
 end
-arch wall_wood3_3
-x 5
-y 9
-end
-arch grassd_3
+arch water_lt4
 x 5
 y 10
 end
-arch wall_wood2_3
-x 5
-y 10
-end
-arch grassd_5
+arch water_lt4
 x 5
 y 11
 end
-arch grassd_4
+arch water_lt2
 x 5
 y 12
 end
-arch wall_stone5_8
-x 5
-y 12
-end
-arch grassd_4
+arch water_lt4
 x 5
 y 13
 end
-arch wall_stone6_3
-x 5
-y 13
-end
-arch grassd_2
+arch water_lt3
 x 5
 y 14
 end
-arch wall_stone6_3
-x 5
-y 14
-end
-arch grassd_7
+arch water_lt
 x 5
 y 15
 end
-arch wall_stone6_w.131
-x 5
-y 15
-end
-arch grassd_4
+arch water_lt4
 x 5
 y 16
 end
-arch wall_stone6_3
-x 5
-y 16
-end
-arch grassd_1
+arch water_lt3
 x 5
 y 17
 end
-arch wall_stone6_3
-x 5
-y 17
-end
-arch grassd_8
+arch water_lt
 x 5
 y 18
 end
-arch wall_stone6_w.131
-x 5
-y 18
-end
-arch grassd_7
+arch water_lt4
 x 5
 y 19
 end
-arch wall_stone6_3
-x 5
-y 19
-end
-arch grassd_8
+arch water_lt3
 x 5
 y 20
 end
-arch wall_stone6_3
-x 5
-y 20
-end
-arch grassd_8
+arch water_lt4
 x 5
 y 21
 end
-arch grassd_3
+arch water_lt3
 x 5
 y 22
 end
-arch grassd_4
+arch water_lt4
 x 5
 y 23
 end
-arch grassd_1
+arch water_lt
 x 6
 end
-arch grassd_7
-x 6
-y 1
-end
-arch wall_wood2_1
+arch water_lt2
 x 6
 y 1
 end
-arch floor_wood2_l2
+arch water_lt4
 x 6
 y 2
 end
-arch floor_wood2_l1
+arch water_lt2
 x 6
 y 3
 end
-arch floor_wood2_l1
+arch water_lt
 x 6
 y 4
 end
-arch candlelight1.101
-x 6
-y 4
-end
-arch light5
-x 6
-y 4
-end
-arch floor_wood2_l2
+arch water_lt4
 x 6
 y 5
 end
-arch spawn_point
-x 6
-y 5
-arch jelly_blue
-type 83
-level 4
-invulnerable 1
-no_attack 1
-stand_still 1
-end
-end
-arch floor_wood2_l1
+arch water_lt
 x 6
 y 6
 end
-arch spawn_point
-x 6
-y 6
-arch blob_acid
-type 83
-level 3
-invulnerable 1
-no_attack 1
-stand_still 1
-end
-end
-arch floor_wood2_l2
+arch water_lt2
 x 6
 y 7
 end
-arch spawn_point
-x 6
-y 7
-arch pudding_red
-type 83
-level 2
-invulnerable 1
-no_attack 1
-stand_still 1
-end
-end
-arch floor_wood2_l2
+arch water_lt2
 x 6
 y 8
 end
-arch floor_wood2_l2
+arch water_lt3
 x 6
 y 9
 end
-arch spawn_point
-x 6
-y 9
-arch ogre
-type 83
-invulnerable 1
-no_attack 1
-stand_still 1
-direction 3
-end
-end
-arch floor_wood2_l2
+arch water_lt2
 x 6
 y 10
 end
-arch wall_wood3_1
-x 6
-y 10
-end
-arch grassd_4
+arch water_lt3
 x 6
 y 11
 end
-arch grassd_8
+arch water_lt
 x 6
 y 12
 end
-arch wall_stone6_1
-x 6
-y 12
-end
-arch floor_ostone11
+arch water_lt2
 x 6
 y 13
 end
-arch axe_double
-name double axe (cleave weapon)
-no_pick 1
-identified 1
-item_level 0
-item_skill 0
-x 6
-y 13
-end
-arch floor_ostone11
+arch water_lt3
 x 6
 y 14
 end
-arch longsword
-name longsword (slash weapon)
-no_pick 1
-identified 1
-item_level 0
-item_skill 0
-x 6
-y 14
-end
-arch light3
-x 6
-y 14
-end
-arch floor_ostone11
+arch water_lt4
 x 6
 y 15
 end
-arch spawn_point
-x 6
-y 15
-arch smith
-name Twitriel, the weapon master
-type 83
-level 10
-friendly 1
-direction 3
-arch event_obj
-sub_type 6
-race scripts/tutorial_island/weapons_master.py
-end
-end
-end
-arch floor_ostone11
+arch water_lt2
 x 6
 y 16
 end
-arch degen
-name degen (pierce weapon)
-no_pick 1
-identified 1
-item_level 0
-item_skill 0
-x 6
-y 16
-end
-arch light3
-x 6
-y 16
-end
-arch floor_ostone11
+arch water_lt3
 x 6
 y 17
 end
-arch mace_spiked
-name spiked mace (impact weapon)
-no_pick 1
-identified 1
-item_level 0
-item_skill 0
-x 6
-y 17
-end
-arch floor_ostone11
+arch water_lt2
 x 6
 y 18
 end
-arch floor_ostone11
+arch water_lt3
 x 6
 y 19
 end
-arch sign
-msg
-<green>Weapons</green>
-You can't take the weapons there on the floor, they are only examples.
-But you will eventually find them and *a lot* more weapons of every
-imaginable kind later in the game.
-Impact and slash weapons are most common in the game.
-Pierce weapons are more exotic and you will not find that many in the
-game but because most protection focus more on impact, slash and cleave,
-they will become more dangerous at higher levels.
-Cleave weapons (for example axes) are also dangerous.
-endmsg
-name Weapons
-x 6
-y 19
-end
-arch light3
-x 6
-y 19
-end
-arch floor_ostone11
+arch water_lt3
 x 6
 y 20
 end
-arch wall_stone6_1
-x 6
-y 20
-end
-arch grassd_7
+arch water_lt3
 x 6
 y 21
 end
-arch grassd_4
+arch water_lt3
 x 6
 y 22
 end
-arch tree_big3
-x 6
-y 22
-end
-arch grassd_8
+arch water_lt
 x 6
 y 23
 end
-arch grassd_7
+arch water_lt
 x 7
 end
-arch grassd_1
-x 7
-y 1
-end
-arch wall_wood2_1
+arch water_lt
 x 7
 y 1
 end
-arch floor_wood2_l2
+arch water_lt2
 x 7
 y 2
 end
-arch light2
-x 7
-y 2
-end
-arch floor_wood2_l1
+arch water_lt2
 x 7
 y 3
 end
-arch sign
-msg
-<green>Corpses</green>
-Corpses appear when you have killed an enemy.
-They are used like <green>containers</green> and will hold the loot - all the items your enemy carried when killed.
-If there is your name on the corpse ("bounty of yourname"), only <yellow>you</yellow> can access the corpse - no one else.
-People will not be able to steal your loot from your kills.
-endmsg
-name Corpses
-x 7
-y 3
-end
-arch floor_wood2_l2
+arch water_lt3
 x 7
 y 4
 end
-arch floor_wood2_l2
+arch water_lt4
 x 7
 y 5
 end
-arch floor_wood2_l1
+arch water_lt3
 x 7
 y 6
 end
-arch floor_wood2_l2
+arch water_lt
 x 7
 y 7
 end
-arch floor_wood2_l1
+arch water_lt4
 x 7
 y 8
 end
-arch light3
-x 7
-y 8
-end
-arch floor_wood2_l1
+arch water_lt
 x 7
 y 9
 end
-arch floor_wood2_l2
+arch water_lt2
 x 7
 y 10
 end
-arch wall_wood3_1
-x 7
-y 10
-end
-arch grassd_4
+arch water_lt3
 x 7
 y 11
 end
-arch plant_flower7
-x 7
-y 11
-end
-arch grassd_4
+arch water_lt2
 x 7
 y 12
 end
-arch wall_stone6_1
-x 7
-y 12
-end
-arch floor_ostone11
+arch water_lt
 x 7
 y 13
 end
-arch floor_ostone11
+arch water_lt
 x 7
 y 14
 end
-arch floor_ostone11
+arch water_lt
 x 7
 y 15
 end
-arch carpet1.131
-x 7
-y 15
-end
-arch floor_ostone11
+arch water_lt2
 x 7
 y 16
 end
-arch carpet1.131
-x 7
-y 16
-end
-arch floor_ostone11
+arch water_lt3
 x 7
 y 17
 end
-arch carpet1.131
-x 7
-y 17
-end
-arch floor_ostone11
+arch water_lt2
 x 7
 y 18
 end
-arch floor_ostone11
+arch water_lt2
 x 7
 y 19
 end
-arch floor_ostone11
+arch water_lt3
 x 7
 y 20
 end
-arch wall_stone6_1
-x 7
-y 20
-end
-arch grassd_7
+arch water_lt2
 x 7
 y 21
 end
-arch grassd_1
+arch water_lt4
 x 7
 y 22
 end
-arch grassd_5
+arch water_lt3
 x 7
 y 23
 end
-arch grassd_7
+arch water_lt4
 x 8
 end
-arch grassd_6
-x 8
-y 1
-end
-arch wall_wood_w_1
+arch water_lt3
 x 8
 y 1
 end
-arch floor_wood2_l2
+arch water_lt2
 x 8
 y 2
 end
-arch floor_wood2_l1
+arch water_lt2
 x 8
 y 3
 end
-arch corpse_human
-speed 0.0
-name decaying corpse
-is_used_up 0
-x 8
-y 3
-end
-arch floor_wood2_l2
+arch water_lt4
 x 8
 y 4
 end
-arch floor_wood2_l1
+arch water_lt4
 x 8
 y 5
 end
-arch candlelight4.101
-x 8
-y 5
-end
-arch light7
-x 8
-y 5
-end
-arch floor_wood2_l1
+arch water_lt3
 x 8
 y 6
 end
-arch sign
-msg
-<green>Hit Points and Levels</green>
-Every creature has an amount of hit points (short: HP).
-If the hit points drop to zero, the creature or player will die. The green line inside the target marker shows the current hit points of that creature in %.
-A full line means 100% hp, half a line 50%. Some monsters can have different level and hp! Always look for the target color, or the level 75 ant with 10000 hp will ruin your day.
-endmsg
-name Hit Points and Levels
-x 8
-y 6
-end
-arch floor_wood2_l2
+arch water_lt4
 x 8
 y 7
 end
-arch floor_wood2_l2
+arch water_lt2
 x 8
 y 8
 end
-arch floor_wood2_l2
+arch water_lt4
 x 8
 y 9
 end
-arch spawn_point
-x 8
-y 9
-arch slime
-type 83
-level 0
-invulnerable 1
-no_attack 1
-stand_still 1
-end
-end
-arch floor_wood2_l1
+arch water_lt
 x 8
 y 10
 end
-arch wall_wood_w_1
-x 8
-y 10
-end
-arch grassd_4
+arch water_lt3
 x 8
 y 11
 end
-arch plant15
-x 8
-y 11
-end
-arch grassd_4
+arch water_lt3
 x 8
 y 12
 end
-arch wall_stone6_w.111
-x 8
-y 12
-end
-arch floor_ostone11
+arch water_lt3
 x 8
 y 13
 end
-arch floor_ostone11
+arch water_lt3
 x 8
 y 14
 end
-arch carpet1.151
-x 8
-y 14
-end
-arch floor_ostone11
+arch water_lt3
 x 8
 y 15
 end
-arch carpet1
-x 8
-y 15
-end
-arch floor_ostone11
+arch water_lt4
 x 8
 y 16
 end
-arch carpet1
-x 8
-y 16
-end
-arch floor_ostone11
+arch water_lt3
 x 8
 y 17
 end
-arch carpet1
-x 8
-y 17
-end
-arch floor_ostone11
+arch water_lt4
 x 8
 y 18
 end
-arch carpet1.111
-x 8
-y 18
-end
-arch floor_ostone11
+arch water_lt2
 x 8
 y 19
 end
-arch floor_ostone11
+arch water_lt4
 x 8
 y 20
 end
-arch wall_stone6_w.111
-x 8
-y 20
-end
-arch grassd_4
+arch water_lt2
 x 8
 y 21
 end
-arch grassd_2
+arch water_lt2
 x 8
 y 22
 end
-arch grassd_3
+arch water_lt4
 x 8
 y 23
 end
-arch grassd_1
+arch water_lt4
 x 9
 end
-arch grassd_1
-x 9
-y 1
-end
-arch wall_wood3_1
+arch water_lt4
 x 9
 y 1
 end
-arch floor_wood2_l2
+arch water_lt2
 x 9
 y 2
 end
-arch floor_wood2_l2
+arch water_lt4
 x 9
 y 3
 end
-arch light2
-x 9
-y 3
-end
-arch floor_wood2_l1
+arch water_lt3
 x 9
 y 4
 end
-arch floor_wood2_l2
+arch water_lt3
 x 9
 y 5
 end
-arch floor_wood2_l1
+arch water_lt
 x 9
 y 6
 end
-arch floor_wood2_l1
+arch water_lt
 x 9
 y 7
 end
-arch floor_wood2_l1
+arch water_lt2
 x 9
 y 8
 end
-arch floor_wood2_l2
+arch water_lt2
 x 9
 y 9
 end
-arch floor_wood2_l1
+arch water_lt
 x 9
 y 10
 end
-arch wall_wood2_1
-x 9
-y 10
-end
-arch grassd_3
+arch water_lt4
 x 9
 y 11
 end
-arch grassd_4
+arch water_lt4
 x 9
 y 12
 end
-arch wall_stone6_1
-x 9
-y 12
-end
-arch floor_ostone11
+arch water_lt4
 x 9
 y 13
 end
-arch floor_ostone11
+arch water_lt
 x 9
 y 14
 end
-arch carpet1.151
-x 9
-y 14
-end
-arch floor_ostone11
+arch water_lt3
 x 9
 y 15
 end
-arch carpet1
-x 9
-y 15
-end
-arch floor_ostone11
+arch water_lt
 x 9
 y 16
 end
-arch carpet1
-x 9
-y 16
-end
-arch candlelight4.101
-x 9
-y 16
-end
-arch light9
-x 9
-y 16
-end
-arch floor_ostone11
+arch water_lt
 x 9
 y 17
 end
-arch carpet1
-x 9
-y 17
-end
-arch floor_ostone11
+arch water_lt2
 x 9
 y 18
 end
-arch carpet1.111
-x 9
-y 18
-end
-arch floor_ostone11
+arch water_lt3
 x 9
 y 19
 end
-arch floor_ostone11
+arch water_lt4
 x 9
 y 20
 end
-arch wall_stone6_1
-x 9
-y 20
-end
-arch grassd_3
+arch water_lt3
 x 9
 y 21
 end
-arch plant9
-x 9
-y 21
-end
-arch grassd_7
+arch water_lt4
 x 9
 y 22
 end
-arch grassd_3
+arch water_lt3
 x 9
 y 23
 end
-arch grassd_4
+arch water_lt4
 x 10
 end
-arch grassd_1
-x 10
-y 1
-end
-arch wall_wood2_1
+arch water_lt3
 x 10
 y 1
 end
-arch floor_wood2_l1
+arch water_lt3
 x 10
 y 2
 end
-arch floor_wood2_l1
+arch water_lt
 x 10
 y 3
 end
-arch floor_wood2_l1
+arch water_lt3
 x 10
 y 4
 end
-arch floor_wood2_l1
+arch water_lt4
 x 10
 y 5
 end
-arch floor_wood2_l2
+arch water_lt2
 x 10
 y 6
 end
-arch floor_wood2_l2
+arch water_lt
 x 10
 y 7
 end
-arch floor_wood2_l2
+arch water_lt2
 x 10
 y 8
 end
-arch floor_wood2_l1
+arch water_lt2
 x 10
 y 9
 end
-arch floor_wood2_l2
+arch water_lt4
 x 10
 y 10
 end
-arch wall_wood1_1
-x 10
-y 10
-end
-arch grassd_6
+arch water_lt2
 x 10
 y 11
 end
-arch plant_flower14
-x 10
-y 11
-end
-arch grassd_8
+arch water_lt3
 x 10
 y 12
 end
-arch wall_stone6_1
-x 10
-y 12
-end
-arch floor_ostone11
+arch water_lt4
 x 10
 y 13
 end
-arch splint_mail
-no_pick 1
-identified 1
-x 10
-y 13
-end
-arch light3
-x 10
-y 13
-end
-arch floor_ostone11
+arch water_lt4
 x 10
 y 14
 end
-arch carpet1.151
-x 10
-y 14
-end
-arch floor_ostone11
+arch water_lt2
 x 10
 y 15
 end
-arch carpet1
-x 10
-y 15
-end
-arch floor_ostone11
+arch water_lt4
 x 10
 y 16
 end
-arch carpet1
-x 10
-y 16
-end
-arch floor_ostone11
+arch water_lt4
 x 10
 y 17
 end
-arch carpet1
-x 10
-y 17
-end
-arch floor_ostone11
+arch water_lt
 x 10
 y 18
 end
-arch carpet1.111
-x 10
-y 18
-end
-arch floor_ostone11
+arch water_lt
 x 10
 y 19
 end
-arch floor_ostone11
+arch water_lt
 x 10
 y 20
 end
-arch wall_stone6_1
-x 10
-y 20
-end
-arch grassd_8
+arch water_lt
 x 10
 y 21
 end
-arch grassd_5
+arch water_lt
 x 10
 y 22
 end
-arch grassd_1
+arch water_lt3
 x 10
 y 23
 end
-arch grassd_6
+arch water_lt4
 x 11
 end
-arch grassd_3
-x 11
-y 1
-end
-arch wall_wood_w_1
+arch water_lt3
 x 11
 y 1
 end
-arch floor_wood2_l1
+arch water_lt2
 x 11
 y 2
 end
-arch candlelight4.101
-x 11
-y 2
-end
-arch light4
-x 11
-y 2
-end
-arch floor_wood2_l1
+arch water_lt3
 x 11
 y 3
 end
-arch floor_wood2_l1
+arch water_lt2
 x 11
 y 4
 end
-arch floor_wood2_l1
+arch water_lt
 x 11
 y 5
 end
-arch floor_wood2_l2
+arch water_lt
 x 11
 y 6
 end
-arch light2
-x 11
-y 6
-end
-arch floor_wood2_l2
+arch water_lt3
 x 11
 y 7
 end
-arch sign
-msg
-<green>Monsters and Targets</green>
-Here you see some of your enemies. They are called monsters or mobs. Don't fear, they won't attack.
-You can target the monsters by pressing the <green>x</green> key.
-Pressing the <green>x</green> key several times will loop through all visible targets. A green marker above the head of the mob will mark your current target. Press <green>x</green> now!
-After you target something its name is shown on the bottom of the screen, in the target box. The color of the name has a special meaning - read about it on the next sign.
-endmsg
-name Monsters and Targets
-x 11
-y 7
-end
-arch floor_wood2_l2
+arch water_lt3
 x 11
 y 8
 end
-arch sign
-msg
-<green>The Con Color System</green>
-Con'ing (short: 'con') means considering whether you are able to be victorious over your target when you fight it.
-The color of your target's name in the target area will show you the general chances of it.
-There are 7 colors starting from "Too low to get experience" to "Too strong to kill even in your dreams".
-Remember: It's only a <green>consider</green>. Some monsters have special powers and that is not considered.
-You'll find an overview on the next sign.
-endmsg
-name The Con Color System
-x 11
-y 8
-end
-arch floor_wood2_l2
+arch water_lt3
 x 11
 y 9
 end
-arch sign
-msg
-<green>Con Color Overview</green>
-Grey:      Very easy, but <yellow>no</yellow> loot and <yellow>no</yellow> experience.
-Green:     Easy and little experience.
-Blue:      Normal difficulty, average experience.
-Yellow:    Equal to your level, optimal experience.
-Orange:    Difficult to kill, but possible and good experience.
-Red:       Very difficult to kill, not very likely, great experience
-Purple:    Too difficult to kill, but awesome experience.
-Use 'x' to target the monsters again to see what the con color system really looks like.
-endmsg
-name Con Color Overview
-x 11
-y 9
-end
-arch floor_wood2_l2
+arch water_lt2
 x 11
 y 10
 end
-arch wall_wood_w_1
-x 11
-y 10
-end
-arch grassd_3
+arch water_lt3
 x 11
 y 11
 end
-arch grassd_2
+arch water_lt
 x 11
 y 12
 end
-arch wall_stone6_w.111
-x 11
-y 12
-end
-arch floor_ostone11
+arch water_lt
 x 11
 y 13
 end
-arch helm_war
-no_pick 1
-identified 1
-x 11
-y 13
-end
-arch floor_ostone11
+arch water_lt
 x 11
 y 14
 end
-arch floor_ostone11
+arch water_lt4
 x 11
 y 15
 end
-arch carpet1.171
-x 11
-y 15
-end
-arch floor_ostone11
+arch water_lt4
 x 11
 y 16
 end
-arch carpet1.171
-x 11
-y 16
-end
-arch floor_ostone11
+arch water_lt
 x 11
 y 17
 end
-arch carpet1.171
-x 11
-y 17
-end
-arch floor_ostone11
+arch water_lt2
 x 11
 y 18
 end
-arch floor_ostone11
+arch water_lt
 x 11
 y 19
 end
-arch floor_ostone11
+arch water_lt
 x 11
 y 20
 end
-arch wall_stone6_w.111
-x 11
-y 20
-end
-arch grassd_1
+arch water_lt4
 x 11
 y 21
 end
-arch grassd_3
+arch water_lt4
 x 11
 y 22
 end
-arch grassd_5
+arch water_lt
 x 11
 y 23
 end
-arch grassd_3
+arch water_lt2
 x 12
 end
-arch grassd_8
-x 12
-y 1
-end
-arch wall_wood3_1
+arch water_lt2
 x 12
 y 1
 end
-arch floor_wood2_l2
+arch water_lt2
 x 12
 y 2
 end
-arch floor_wood2_l1
+arch water_lt
 x 12
 y 3
 end
-arch floor_wood2_l1
+arch water_lt4
 x 12
 y 4
 end
-arch floor_wood2_l2
+arch water_lt4
 x 12
 y 5
 end
-arch floor_wood2_l1
+arch water_lt
 x 12
 y 6
 end
-arch floor_wood2_l1
+arch water_lt
 x 12
 y 7
 end
-arch floor_wood2_l2
+arch water_lt2
 x 12
 y 8
 end
-arch floor_wood2_l2
+arch water_lt2
 x 12
 y 9
 end
-arch candlelight1.101
-x 12
-y 9
-end
-arch light4
-x 12
-y 9
-end
-arch floor_wood2_l2
+arch water_lt2
 x 12
 y 10
 end
-arch wall_wood2_1
-x 12
-y 10
-end
-arch grassd_4
+arch water_lt3
 x 12
 y 11
 end
-arch grassd_5
+arch water_lt4
 x 12
 y 12
 end
-arch wall_stone6_1
-x 12
-y 12
-end
-arch floor_ostone11
+arch water_lt3
 x 12
 y 13
 end
-arch sign
-msg
-<green>Armour and Protection</green>
-If you open your inventory you will see the armour you got from the start. There are various kinds of armour: body armours, helmets and more. Most of them give you <green>protection</green> against one or more <green>attack types</green> - for example slash or cleave.
-If you apply the armour a message will say how much it protects - you can also see your current protection status in the armour protection table. The values tell how many percent of a hit your armour will absorb.
-endmsg
-name Armour and Protection
-x 12
-y 13
-end
-arch light3
-x 12
-y 13
-end
-arch floor_ostone11
+arch water_lt3
 x 12
 y 14
 end
-arch floor_ostone11
+arch water_lt2
 x 12
 y 15
 end
-arch floor_ostone11
+arch water_lt2
 x 12
 y 16
 end
-arch floor_ostone11
+arch water_lt
 x 12
 y 17
 end
-arch floor_ostone11
+arch water_lt2
 x 12
 y 18
 end
-arch floor_ostone11
+arch water_lt4
 x 12
 y 19
 end
-arch floor_ostone11
+arch water_lt4
 x 12
 y 20
 end
-arch wall_stone6_1
-x 12
-y 20
-end
-arch grassd_7
+arch water_lt3
 x 12
 y 21
 end
-arch grassd_3
+arch water_lt2
 x 12
 y 22
 end
-arch grassd_1
+arch water_lt3
 x 12
 y 23
 end
-arch grassd_3
+arch water_lt
 x 13
 end
-arch grassd_8
-x 13
-y 1
-end
-arch wall_wood2_1
+arch water_lt4
 x 13
 y 1
 end
-arch floor_wood2_l1
+arch water_lt3
 x 13
 y 2
 end
-arch wall_wood3_3
-x 13
-y 2
-end
-arch floor_wood2_l2
+arch water_lt4
 x 13
 y 3
 end
-arch wall_wood_w_3
-x 13
-y 3
-end
-arch floor_wood2_l1
+arch water_lt2
 x 13
 y 4
 end
-arch wall_wood2_3
-x 13
-y 4
-end
-arch floor_wood2_l1
+arch water_lt2
 x 13
 y 5
 end
-arch wall_wood3_3
-x 13
-y 5
-end
-arch floor_wood2_l2
+arch water_lt2
 x 13
 y 6
 end
-arch door_wood1
-direction 3
-x 13
-y 6
-end
-arch floor_wood2_l2
+arch water_lt
 x 13
 y 7
 end
-arch wall_wood3_3
-x 13
-y 7
-end
-arch floor_wood2_l2
+arch water_lt3
 x 13
 y 8
 end
-arch wall_wood3_3
-x 13
-y 8
-end
-arch floor_wood2_l2
+arch water_lt4
 x 13
 y 9
 end
-arch wall_wood_w_3
-x 13
-y 9
-end
-arch floor_wood2_l1
+arch water_lt4
 x 13
 y 10
 end
-arch wall_wood_4
-x 13
-y 10
-end
-arch grassd_2
+arch water_lt4
 x 13
 y 11
 end
-arch grassd_8
+arch water_lt
 x 13
 y 12
 end
-arch wall_stone6_1
-x 13
-y 12
-end
-arch floor_ostone11
+arch water_lt4
 x 13
 y 13
 end
-arch wall_stone6_3
-x 13
-y 13
-end
-arch floor_ostone11
+arch water_lt
 x 13
 y 14
 end
-arch wall_stone6_3
-x 13
-y 14
-end
-arch floor_ostone11
+arch water_lt
 x 13
 y 15
 end
-arch wall_stone6_w.131
-x 13
-y 15
-end
-arch floor_ostone11
+arch water_lt2
 x 13
 y 16
 end
-arch door1_locked
-cursed 1
-direction 3
-x 13
-y 16
-end
-arch floor_ostone11
+arch water_lt4
 x 13
 y 17
 end
-arch door1_locked
-cursed 1
-direction 5
-x 13
-y 17
-end
-arch floor_ostone11
+arch water_lt2
 x 13
 y 18
 end
-arch wall_stone6_w.131
-x 13
-y 18
-end
-arch floor_ostone11
+arch water_lt
 x 13
 y 19
 end
-arch wall_stone6_3
-x 13
-y 19
-end
-arch floor_ostone11
+arch water_lt2
 x 13
 y 20
 end
-arch wall_stone6_4
-x 13
-y 20
-end
-arch grassd_7
+arch water_lt
 x 13
 y 21
 end
-arch grassd_1
+arch water_lt4
 x 13
 y 22
 end
-arch grassd_2
+arch water_lt3
 x 13
 y 23
 end
-arch grassd_4
+arch water_lt
 x 14
 end
-arch grassd_2
-x 14
-y 1
-end
-arch plant11
+arch water_lt2
 x 14
 y 1
 end
-arch grassd_5
+arch water_lt2
 x 14
 y 2
 end
-arch grassd_2
+arch water_lt3
 x 14
 y 3
 end
-arch grassd_2
+arch water_lt3
 x 14
 y 4
 end
-arch lantern2_magic.131
-direction 7
-x 14
-y 4
-end
-arch light6
-x 14
-y 4
-end
-arch floor_flagm2
+arch water_lt
 x 14
 y 5
 end
-arch grassd_m4
-x 14
-y 5
-end
-arch sign
-name Monsters, hitpoints, looting and levels
-x 14
-y 5
-end
-arch floor_flagm3
+arch water_lt4
 x 14
 y 6
 end
-arch floor_flagm1
+arch water_lt3
 x 14
 y 7
 end
-arch grassd_m3
-x 14
-y 7
-end
-arch grassd_5
+arch water_lt4
 x 14
 y 8
 end
-arch lantern2_magic.131
-direction 7
-x 14
-y 8
-end
-arch light6
-x 14
-y 8
-end
-arch grassd_4
+arch water_lt4
 x 14
 y 9
 end
-arch grassd_5
+arch water_lt4
 x 14
 y 10
 end
-arch grassd_2
+arch water_lt
 x 14
 y 11
 end
-arch grassd_5
+arch water_lt4
 x 14
 y 12
 end
-arch grassd_2
+arch water_lt3
 x 14
 y 13
 end
-arch grassd_6
+arch water_lt3
 x 14
 y 14
 end
-arch lantern2_magic.131
-direction 7
-x 14
-y 14
-end
-arch light6
-x 14
-y 14
-end
-arch floor_flagm4
+arch water_lt4
 x 14
 y 15
 end
-arch grassd_m4
-x 14
-y 15
-end
-arch sign
-name Twitriel, the weapon master
-x 14
-y 15
-end
-arch floor_flagm2
+arch water_lt4
 x 14
 y 16
 end
-arch floor_flagm1
+arch water_lt
 x 14
 y 17
 end
-arch floor_flagm1
+arch water_lt3
 x 14
 y 18
 end
-arch grassd_m3
-x 14
-y 18
-end
-arch grassd_3
+arch water_lt2
 x 14
 y 19
 end
-arch lantern2_magic.131
-direction 7
-x 14
-y 19
-end
-arch light6
-x 14
-y 19
-end
-arch grassd_5
+arch water_lt2
 x 14
 y 20
 end
-arch grassd_1
+arch water_lt2
 x 14
 y 21
 end
-arch grassd_4
+arch water_lt4
 x 14
 y 22
 end
-arch grassd_7
+arch water_lt4
 x 14
 y 23
 end
-arch grassd_4
+arch water_lt
 x 15
 end
-arch lantern2_magic.131
-x 15
-end
-arch light6
-x 15
-end
-arch floor_flagm3
+arch water_lt
 x 15
 y 1
 end
-arch grassd_m4
-x 15
-y 1
-end
-arch floor_flagm3
+arch water_lt
 x 15
 y 2
 end
-arch grassd_m9
-x 15
-y 2
-end
-arch floor_flagm1
+arch water_lt2
 x 15
 y 3
 end
-arch grassd_m9
-x 15
-y 3
-end
-arch floor_flagm4
+arch water_lt4
 x 15
 y 4
 end
-arch grassd_m9
-x 15
-y 4
-end
-arch floor_flagm1
+arch water_lt
 x 15
 y 5
 end
-arch grassd_m13
-x 15
-y 5
-end
-arch floor_flagm3
+arch water_lt2
 x 15
 y 6
 end
-arch floor_flagm2
+arch water_lt2
 x 15
 y 7
 end
-arch grassd_m14
-x 15
-y 7
-end
-arch floor_flagm1
+arch water_lt3
 x 15
 y 8
 end
-arch grassd_m9
-x 15
-y 8
-end
-arch floor_flagm1
+arch water_lt4
 x 15
 y 9
 end
-arch grassd_m9
-x 15
-y 9
-end
-arch floor_flagm1
+arch water_lt3
 x 15
 y 10
 end
-arch grassd_m9
-x 15
-y 10
-end
-arch floor_flagm4
+arch water_lt3
 x 15
 y 11
 end
-arch grassd_m9
-x 15
-y 11
-end
-arch floor_flagm3
+arch water_lt4
 x 15
 y 12
 end
-arch grassd_m9
-x 15
-y 12
-end
-arch floor_flagm4
+arch water_lt
 x 15
 y 13
 end
-arch grassd_m9
-x 15
-y 13
-end
-arch floor_flagm3
+arch water_lt
 x 15
 y 14
 end
-arch grassd_m9
-x 15
-y 14
-end
-arch floor_flagm4
+arch water_lt4
 x 15
 y 15
 end
-arch grassd_m13
-x 15
-y 15
-end
-arch floor_flagm1
+arch water_lt2
 x 15
 y 16
 end
-arch floor_flagm1
+arch water_lt4
 x 15
 y 17
 end
-arch floor_flagm2
+arch water_lt
 x 15
 y 18
 end
-arch grassd_m14
-x 15
-y 18
-end
-arch floor_flagm2
+arch water_lt2
 x 15
 y 19
 end
-arch grassd_m9
-x 15
-y 19
-end
-arch floor_flagm2
+arch water_lt
 x 15
 y 20
 end
-arch grassd_m9
-x 15
-y 20
-end
-arch floor_flagm3
+arch water_lt
 x 15
 y 21
 end
-arch grassd_m9
-x 15
-y 21
-end
-arch floor_flagm2
+arch water_lt3
 x 15
 y 22
 end
-arch grassd_m9
-x 15
-y 22
-end
-arch floor_flagm1
+arch water_lt
 x 15
 y 23
 end
-arch grassd_m9
-x 15
-y 23
-end
-arch floor_flagm2
+arch water_lt4
 x 16
 end
-arch grassd_m4
-x 16
-end
-arch sign
-name Talking
-x 16
-end
-arch floor_flagm3
+arch water_lt2
 x 16
 y 1
 end
-arch grassd_m13
-x 16
-y 1
-end
-arch floor_flagm1
+arch water_lt
 x 16
 y 2
 end
-arch floor_flagm3
+arch water_lt
 x 16
 y 3
 end
-arch floor_flagm4
+arch water_lt4
 x 16
 y 4
 end
-arch floor_flagm1
+arch water_lt3
 x 16
 y 5
 end
-arch floor_flagm2
+arch water_lt
 x 16
 y 6
 end
-arch floor_flagm1
+arch water_lt
 x 16
 y 7
 end
-arch floor_flagm1
+arch water_lt3
 x 16
 y 8
 end
-arch floor_flagm1
+arch water_lt3
 x 16
 y 9
 end
-arch floor_flagm3
+arch water_lt3
 x 16
 y 10
 end
-arch floor_flagm4
+arch water_lt3
 x 16
 y 11
 end
-arch floor_flagm4
+arch water_lt4
 x 16
 y 12
 end
-arch floor_flagm2
+arch water_lt
 x 16
 y 13
 end
-arch floor_flagm1
+arch water_lt
 x 16
 y 14
 end
-arch floor_flagm2
+arch water_lt2
 x 16
 y 15
 end
-arch floor_flagm1
+arch water_lt
 x 16
 y 16
 end
-arch floor_flagm1
+arch water_lt2
 x 16
 y 17
 end
-arch floor_flagm2
+arch water_lt2
 x 16
 y 18
 end
-arch floor_flagm2
+arch water_lt4
 x 16
 y 19
 end
-arch floor_flagm1
+arch water_lt2
 x 16
 y 20
 end
-arch floor_flagm2
+arch water_lt
 x 16
 y 21
 end
-arch floor_flagm2
+arch water_lt4
 x 16
 y 22
 end
-arch floor_flagm1
+arch water_lt
 x 16
 y 23
 end
-arch floor_flagm3
+arch water_lt4
 x 17
 end
-arch floor_flagm2
+arch water_lt4
 x 17
 y 1
 end
-arch floor_flagm3
+arch water_lt2
 x 17
 y 2
 end
-arch floor_flagm1
+arch water_lt4
 x 17
 y 3
 end
-arch floor_flagm3
+arch water_lt2
 x 17
 y 4
 end
-arch floor_flagm4
+arch water_lt
 x 17
 y 5
 end
-arch floor_flagm1
+arch water_lt3
 x 17
 y 6
 end
-arch floor_flagm1
+arch water_lt
 x 17
 y 7
 end
-arch floor_flagm2
+arch water_lt2
 x 17
 y 8
 end
-arch floor_flagm4
+arch water_lt4
 x 17
 y 9
 end
-arch floor_flagm3
+arch water_lt4
 x 17
 y 10
 end
-arch floor_flagm3
+arch water_lt4
 x 17
 y 11
 end
-arch floor_flagm4
+arch water_lt2
 x 17
 y 12
 end
-arch floor_flagm1
+arch water_lt3
 x 17
 y 13
 end
-arch floor_flagm3
+arch water_lt4
 x 17
 y 14
 end
-arch floor_flagm3
+arch water_lt3
 x 17
 y 15
 end
-arch floor_flagm1
+arch water_lt2
 x 17
 y 16
 end
-arch floor_flagm3
+arch water_lt
 x 17
 y 17
 end
-arch floor_flagm4
+arch water_lt4
 x 17
 y 18
 end
-arch floor_flagm3
+arch water_lt3
 x 17
 y 19
 end
-arch floor_flagm1
+arch water_lt4
 x 17
 y 20
 end
-arch floor_flagm1
+arch water_lt3
 x 17
 y 21
 end
-arch floor_flagm2
+arch water_lt2
 x 17
 y 22
 end
-arch floor_flagm1
+arch water_lt
 x 17
 y 23
 end
-arch floor_flagm4
+arch water_lt
 x 18
 end
-arch grassd_m6
-x 18
-end
-arch floor_flagm4
+arch water_lt4
 x 18
 y 1
 end
-arch grassd_m12
-x 18
-y 1
-end
-arch floor_flagm2
+arch water_lt2
 x 18
 y 2
 end
-arch floor_flagm2
+arch water_lt4
 x 18
 y 3
 end
-arch floor_flagm2
+arch water_lt2
 x 18
 y 4
 end
-arch floor_flagm2
+arch water_lt2
 x 18
 y 5
 end
-arch floor_flagm2
+arch water_lt3
 x 18
 y 6
 end
-arch floor_flagm3
+arch water_lt4
 x 18
 y 7
 end
-arch floor_flagm1
+arch water_lt4
 x 18
 y 8
 end
-arch floor_flagm3
+arch water_lt
 x 18
 y 9
 end
-arch floor_flagm3
+arch water_lt4
 x 18
 y 10
 end
-arch floor_flagm2
+arch water_lt
 x 18
 y 11
 end
-arch floor_flagm1
+arch water_lt
 x 18
 y 12
 end
-arch floor_flagm3
+arch water_lt3
 x 18
 y 13
 end
-arch floor_flagm2
+arch water_lt4
 x 18
 y 14
 end
-arch floor_flagm2
+arch water_lt3
 x 18
 y 15
 end
-arch floor_flagm3
+arch water_lt
 x 18
 y 16
 end
-arch floor_flagm3
+arch water_lt4
 x 18
 y 17
 end
-arch floor_flagm2
+arch water_lt4
 x 18
 y 18
 end
-arch floor_flagm4
+arch water_lt
 x 18
 y 19
 end
-arch floor_flagm2
+arch water_lt3
 x 18
 y 20
 end
-arch floor_flagm1
+arch water_lt3
 x 18
 y 21
 end
-arch floor_flagm1
+arch water_lt2
 x 18
 y 22
 end
-arch floor_flagm2
+arch water_lt3
 x 18
 y 23
 end
-arch grassd_1
+arch water_lt4
 x 19
 end
-arch lantern2_magic.131
-x 19
-end
-arch light6
-x 19
-end
-arch floor_flagm4
+arch water_lt3
 x 19
 y 1
 end
-arch grassd_m10
-x 19
-y 1
-end
-arch floor_flagm3
+arch water_lt4
 x 19
 y 2
 end
-arch floor_flagm4
+arch water_lt4
 x 19
 y 3
 end
-arch floor_flagm1
+arch water_lt3
 x 19
 y 4
 end
-arch floor_flagm1
+arch water_lt
 x 19
 y 5
 end
-arch grassd_m11
-x 19
-y 5
-end
-arch floor_flagm3
+arch water_lt2
 x 19
 y 6
 end
-arch grassd_m8
-x 19
-y 6
-end
-arch floor_flagm4
+arch water_lt4
 x 19
 y 7
 end
-arch grassd_m8
-x 19
-y 7
-end
-arch floor_flagm4
+arch water_lt2
 x 19
 y 8
 end
-arch grassd_m8
-x 19
-y 8
-end
-arch floor_flagm1
+arch water_lt
 x 19
 y 9
 end
-arch grassd_m8
-x 19
-y 9
-end
-arch floor_flagm3
+arch water_lt
 x 19
 y 10
 end
-arch grassd_m8
-x 19
-y 10
-end
-arch floor_flagm2
+arch water_lt
 x 19
 y 11
 end
-arch grassd_m8
-x 19
-y 11
-end
-arch floor_flagm1
+arch water_lt4
 x 19
 y 12
 end
-arch grassd_m8
-x 19
-y 12
-end
-arch floor_flagm2
+arch water_lt2
 x 19
 y 13
 end
-arch grassd_m8
-x 19
-y 13
-end
-arch floor_flagm4
+arch water_lt3
 x 19
 y 14
 end
-arch grassd_m8
-x 19
-y 14
-end
-arch floor_flagm3
+arch water_lt4
 x 19
 y 15
 end
-arch grassd_m8
-x 19
-y 15
-end
-arch floor_flagm1
+arch water_lt2
 x 19
 y 16
 end
-arch grassd_m8
-x 19
-y 16
-end
-arch floor_flagm4
+arch water_lt3
 x 19
 y 17
 end
-arch grassd_m8
-x 19
-y 17
-end
-arch floor_flagm1
+arch water_lt
 x 19
 y 18
 end
-arch grassd_m8
-x 19
-y 18
-end
-arch floor_flagm4
+arch water_lt4
 x 19
 y 19
 end
-arch grassd_m8
-x 19
-y 19
-end
-arch floor_flagm1
+arch water_lt2
 x 19
 y 20
 end
-arch grassd_m8
-x 19
-y 20
-end
-arch floor_flagm4
+arch water_lt4
 x 19
 y 21
 end
-arch grassd_m8
-x 19
-y 21
-end
-arch floor_flagm3
+arch water_lt4
 x 19
 y 22
 end
-arch grassd_m8
-x 19
-y 22
-end
-arch floor_flagm4
+arch water_lt2
 x 19
 y 23
 end
-arch grassd_m8
-x 19
-y 23
-end
-arch grassd_3
+arch water_lt4
 x 20
 end
-arch floor_flagm2
+arch water_lt
 x 20
 y 1
 end
-arch grassd_m10
-x 20
-y 1
-end
-arch floor_flagm4
+arch water_lt
 x 20
 y 2
 end
-arch floor_flagm1
+arch water_lt3
 x 20
 y 3
 end
-arch floor_flagm2
+arch water_lt2
 x 20
 y 4
 end
-arch floor_flagm3
+arch water_lt2
 x 20
 y 5
 end
-arch grassd_m7
-x 20
-y 5
-end
-arch grassd_2
+arch water_lt3
 x 20
 y 6
 end
-arch marker3
-msg
-West: Explanation of monster colors and corpses
-South: Twitriel the weapon master, jail, Mercenary Guild Quest...
-East: Church, Combat and range practice...
-endmsg
-direction 5
-x 20
-y 6
-end
-arch grassd_8
+arch water_lt
 x 20
 y 7
 end
-arch grassd_7
+arch water_lt
 x 20
 y 8
 end
-arch grassd_4
+arch water_lt
 x 20
 y 9
 end
-arch grassd_3
+arch water_lt3
 x 20
 y 10
 end
-arch grassd_5
+arch water_lt
 x 20
 y 11
 end
-arch lantern_magic.131
-x 20
-y 11
-end
-arch light6
-x 20
-y 11
-end
-arch grassd_6
+arch water_lt4
 x 20
 y 12
 end
-arch grassd_3
+arch water_lt2
 x 20
 y 13
 end
-arch grassd_5
+arch water_lt
 x 20
 y 14
 end
-arch grassd_1
+arch water_lt2
 x 20
 y 15
 end
-arch grassd_4
+arch water_lt2
 x 20
 y 16
 end
-arch lantern_magic.131
-x 20
-y 16
-end
-arch light6
-x 20
-y 16
-end
-arch grassd_2
+arch water_lt
 x 20
 y 17
 end
-arch grassd_8
+arch water_lt3
 x 20
 y 18
 end
-arch grassd_7
+arch water_lt3
 x 20
 y 19
 end
-arch grassd_2
+arch water_lt
 x 20
 y 20
 end
-arch grassd_6
+arch water_lt
 x 20
 y 21
 end
-arch grassd_6
+arch water_lt2
 x 20
 y 22
 end
-arch lantern_magic.131
-x 20
-y 22
-end
-arch light6
-x 20
-y 22
-end
-arch grassd_2
+arch water_lt
 x 20
 y 23
 end
-arch grassd_7
+arch water_lt
 x 21
 end
-arch floor_flagm1
-x 21
-y 1
-end
-arch grassd_m10
+arch water_lt4
 x 21
 y 1
 end
-arch floor_flagm1
+arch water_lt2
 x 21
 y 2
 end
-arch floor_flagm1
+arch water_lt4
 x 21
 y 3
 end
-arch floor_flagm2
+arch water_lt3
 x 21
 y 4
 end
-arch floor_flagm1
+arch water_lt2
 x 21
 y 5
 end
-arch grassd_m7
-x 21
-y 5
-end
-arch grassd_7
+arch water_lt4
 x 21
 y 6
 end
-arch lantern_magic.131
-direction 7
-x 21
-y 6
-end
-arch light6
-x 21
-y 6
-end
-arch grassd_1
+arch water_lt4
 x 21
 y 7
 end
-arch grassd_4
+arch water_lt4
 x 21
 y 8
 end
-arch grassd_6
+arch water_lt4
 x 21
 y 9
 end
-arch grassd_6
+arch water_lt3
 x 21
 y 10
 end
-arch grassd_2
+arch water_lt2
 x 21
 y 11
 end
-arch grassd_5
+arch water_lt4
 x 21
 y 12
 end
-arch grassd_2
+arch water_lt4
 x 21
 y 13
 end
-arch grassd_4
+arch water_lt3
 x 21
 y 14
 end
-arch tree_big3
-x 21
-y 14
-end
-arch grassd_6
+arch water_lt4
 x 21
 y 15
 end
-arch grassd_3
+arch water_lt
 x 21
 y 16
 end
-arch grassd_5
+arch water_lt3
 x 21
 y 17
 end
-arch grassd_2
+arch water_lt4
 x 21
 y 18
 end
-arch grassd_2
+arch water_lt3
 x 21
 y 19
 end
-arch grassd_1
+arch water_lt4
 x 21
 y 20
 end
-arch grassd_5
+arch water_lt4
 x 21
 y 21
 end
-arch grassd_7
+arch water_lt3
 x 21
 y 22
 end
-arch grassd_8
+arch water_lt
 x 21
 y 23
 end
-arch grassd_3
+arch water_lt3
 x 22
 end
-arch plant_mushroom4
-x 22
-end
-arch floor_flagm3
+arch water_lt2
 x 22
 y 1
 end
-arch grassd_m10
-x 22
-y 1
-end
-arch floor_flagm4
+arch water_lt2
 x 22
 y 2
 end
-arch floor_flagm4
+arch water_lt
 x 22
 y 3
 end
-arch floor_flagm2
+arch water_lt2
 x 22
 y 4
 end
-arch floor_flagm2
+arch water_lt4
 x 22
 y 5
 end
-arch grassd_m7
-x 22
-y 5
-end
-arch grassd_4
+arch water_lt3
 x 22
 y 6
 end
-arch grassd_5
+arch water_lt3
 x 22
 y 7
 end
-arch grassd_5
+arch water_lt4
 x 22
 y 8
 end
-arch grassd_6
+arch water_lt4
 x 22
 y 9
 end
-arch tree_big
-x 22
-y 9
-end
-arch grassd_8
+arch water_lt2
 x 22
 y 10
 end
-arch grassd_8
+arch water_lt
 x 22
 y 11
 end
-arch grassd_3
+arch water_lt
 x 22
 y 12
 end
-arch grassd_5
+arch water_lt3
 x 22
 y 13
 end
-arch grassd_5
+arch water_lt
 x 22
 y 14
 end
-arch grassd_7
+arch water_lt
 x 22
 y 15
 end
-arch grassd_6
+arch water_lt
 x 22
 y 16
 end
-arch grassd_4
+arch water_lt3
 x 22
 y 17
 end
-arch grassd_1
+arch water_lt2
 x 22
 y 18
 end
-arch grassd_5
+arch water_lt
 x 22
 y 19
 end
-arch grassd_3
+arch water_lt2
 x 22
 y 20
 end
-arch tree_big4b
-x 22
-y 20
-end
-arch grassd_8
+arch water_lt2
 x 22
 y 21
 end
-arch plant_flower1
-x 22
-y 21
-end
-arch grassd_1
+arch water_lt4
 x 22
 y 22
 end
-arch grassd_4
+arch water_lt4
 x 22
 y 23
 end
-arch grassd_6
+arch water_lt2
 x 23
 end
-arch floor_flagm1
-x 23
-y 1
-end
-arch grassd_m10
+arch water_lt3
 x 23
 y 1
 end
-arch floor_flagm3
+arch water_lt2
 x 23
 y 2
 end
-arch floor_flagm2
+arch water_lt2
 x 23
 y 3
 end
-arch floor_flagm4
+arch water_lt
 x 23
 y 4
 end
-arch floor_flagm4
+arch water_lt2
 x 23
 y 5
 end
-arch grassd_m7
-x 23
-y 5
-end
-arch grassd_3
+arch water_lt2
 x 23
 y 6
 end
-arch grassd_4
+arch water_lt2
 x 23
 y 7
 end
-arch grassd_4
+arch water_lt3
 x 23
 y 8
 end
-arch grassd_3
+arch water_lt3
 x 23
 y 9
 end
-arch grassd_6
+arch water_lt3
 x 23
 y 10
 end
-arch grassd_2
+arch water_lt3
 x 23
 y 11
 end
-arch grassd_5
+arch water_lt3
 x 23
 y 12
 end
-arch grassd_3
+arch water_lt
 x 23
 y 13
 end
-arch grassd_1
+arch water_lt4
 x 23
 y 14
 end
-arch plant_flower1
-x 23
-y 14
-end
-arch grassd_4
+arch water_lt4
 x 23
 y 15
 end
-arch grassd_1
+arch water_lt
 x 23
 y 16
 end
-arch grassd_1
+arch water_lt4
 x 23
 y 17
 end
-arch plant_mushroom1
-x 23
-y 17
-end
-arch grassd_1
+arch water_lt2
 x 23
 y 18
 end
-arch grassd_5
+arch water_lt4
 x 23
 y 19
 end
-arch grassd_7
+arch water_lt3
 x 23
 y 20
 end
-arch grassd_4
+arch water_lt
 x 23
 y 21
 end
-arch grassd_6
+arch water_lt2
 x 23
 y 22
 end
-arch grassd_4
+arch water_lt3
 x 23
 y 23
 end

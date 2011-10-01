@@ -1,14 +1,13 @@
 arch map
-name Tutorial Island
+name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-08-15 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-no_harm 1
 tile_path_1 world_0404
 tile_path_2 world_0503
 tile_path_3 world_0402
@@ -17,3851 +16,2200 @@ tile_path_5 world_0504
 tile_path_6 world_0502
 tile_path_7 world_0302
 tile_path_8 world_0304
-bg_music tutorialisland.mid
-region tutorial_island
 end
-arch grassd_7
-end
-arch floor_flagm2
-y 1
-end
-arch grassd_m10
-y 1
-end
-arch floor_flagm3
-y 2
-end
-arch floor_flagm1
-y 3
-end
-arch floor_flagm1
-y 4
-end
-arch floor_flagm4
-y 5
-end
-arch grassd_m7
-y 5
-end
-arch grassd_8
-y 6
-end
-arch grassd_8
-y 7
-end
-arch fence_01.111
-y 7
-end
-arch grassd_7
-y 8
-end
-arch grassd_3
-y 9
-end
-arch grassd_2
-y 10
-end
-arch grassd_5
-y 11
-end
-arch grassd_5
-y 12
-end
-arch grassd_5
-y 13
-end
-arch plant_mushroom3
-y 13
-end
-arch grassd_7
-y 14
-end
-arch grassd_8
-y 15
-end
-arch fence_01.151
-y 15
-end
-arch grassd_1
-y 16
-end
-arch plant_flower5
-y 16
-end
-arch grassd_5
-y 17
-end
-arch grassd_1
-y 18
-end
-arch wall_stone_1
-y 18
-end
-arch floor_stone_b4
-y 19
-end
-arch floor_stone_b4
-y 20
-end
-arch floor_stone_b4
-y 21
-end
-arch floor_stone_b4
-y 22
-end
-arch doorway_wood1_1
-y 22
-end
-arch floor_stone_b4
-y 23
-end
-arch grassd_6
-x 1
-end
-arch sign
-msg
-<green>Range System and Throwing</green>
-Atrinik has a complex range system allowing you to throw items, fire bows or spells but also use skills.
-By using the <green>tab</green> key you can cycle through the range actions. You can have different range actions prepared but you can use only <yellow>one</yellow> at time.
-To throw/fire/control something you press and hold the <green>control</green> (ctrl) key and choose a direction with your movement keys. The object or spell will be fired in that direction.
-If you have a target and you press <green>control</green> (ctrl) key and 5 on numpad, your character will attempt to fire in the direction of the target.
-endmsg
-name Range System and Throwing
-x 1
-end
-arch floor_flagm3
-x 1
-y 1
-end
-arch grassd_m10
-x 1
-y 1
-end
-arch floor_flagm3
-x 1
-y 2
-end
-arch floor_flagm1
-x 1
-y 3
-end
-arch floor_flagm3
-x 1
-y 4
-end
-arch floor_flagm3
-x 1
-y 5
-end
-arch grassd_m7
-x 1
-y 5
-end
-arch grassd_6
-x 1
-y 6
-end
-arch grassd_8
-x 1
-y 7
-end
-arch fence_01.111
-x 1
-y 7
-end
-arch grassd_2
-x 1
-y 8
-end
-arch grassd_8
-x 1
-y 9
-end
-arch plant15
-x 1
-y 9
-end
-arch grassd_5
-x 1
-y 10
-end
-arch grassd_3
-x 1
-y 11
-end
-arch grassd_2
-x 1
-y 12
-end
-arch grassd_2
-x 1
-y 13
-end
-arch grassd_5
-x 1
-y 14
-end
-arch grassd_3
-x 1
-y 15
-end
-arch fence_01.151
-x 1
-y 15
-end
-arch grassd_8
-x 1
-y 16
-end
-arch grassd_7
-x 1
-y 17
-end
-arch grassd_3
-x 1
-y 18
-end
-arch wall_stone_1
-x 1
-y 18
-end
-arch floor_stone_b4
-x 1
-y 19
-end
-arch floor_stone_b4
-x 1
-y 20
-end
-arch floor_stone_b4
-x 1
-y 21
-end
-arch floor_stone_b4
-x 1
-y 22
-end
-arch wall_stone_1
-x 1
-y 22
-end
-arch wmask_bflag_fire1_1
-x 1
-y 22
-end
-arch floor_stone_b4
-x 1
-y 23
-end
-arch sign
-msg
-<green>Mercenary Quest</green>
-One of your first quests is to join the Mercenary guild. Say "hello" to Cashin nearby for more details about the quest.
-endmsg
-name Mercenary Quest
-x 1
-y 23
-end
-arch grassd_7
-x 2
-end
-arch lantern_magic.131
-direction 3
-x 2
-end
-arch light6
-x 2
-end
-arch floor_flagm1
-x 2
-y 1
-end
-arch grassd_m10
-x 2
-y 1
-end
-arch floor_flagm3
-x 2
-y 2
-end
-arch floor_flagm1
-x 2
-y 3
-end
-arch floor_flagm2
-x 2
-y 4
-end
-arch floor_flagm1
-x 2
-y 5
-end
-arch grassd_m7
-x 2
-y 5
-end
-arch grassd_2
-x 2
-y 6
-end
-arch lantern_magic.131
-direction 7
-x 2
-y 6
-end
-arch light6
-x 2
-y 6
-end
-arch grassd_5
-x 2
-y 7
-end
-arch fence_01.121
-x 2
-y 7
-end
-arch grassd_6
-x 2
-y 8
-end
-arch fence_01.131
-x 2
-y 8
-end
-arch grassd_8
-x 2
-y 9
-end
-arch fence_01.132
-x 2
-y 9
-end
-arch grassd_8
-x 2
-y 10
-end
-arch grassd_6
-x 2
-y 11
-end
-arch light6
-x 2
-y 11
-end
-arch grassd_6
-x 2
-y 12
-end
-arch grassd_6
-x 2
-y 13
-end
-arch fence_01.133
-x 2
-y 13
-end
-arch grassd_5
-x 2
-y 14
-end
-arch fence_01.131
-x 2
-y 14
-end
-arch grassd_3
-x 2
-y 15
-end
-arch fence_01.141
-x 2
-y 15
-end
-arch grassd_2
-x 2
-y 16
-end
-arch grassd_7
-x 2
-y 17
-end
-arch grassd_7
-x 2
-y 18
-end
-arch wall_stone_1
-x 2
-y 18
-end
-arch floor_stone_b4
-x 2
-y 19
-end
-arch wall_stone_3
-x 2
-y 19
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 2
-y 19
-end
-arch floor_stone_b4
-x 2
-y 20
-end
-arch door1_locked
-face door_lock1.131
-direction 3
-x 2
-y 20
-end
-arch light7
-x 2
-y 20
-end
-arch floor_stone_b4
-x 2
-y 21
-end
-arch wall_stone_3
-x 2
-y 21
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 2
-y 21
-end
-arch floor_stone_b4
-x 2
-y 22
-end
-arch wall_stone_4
-x 2
-y 22
-end
-arch floor_stone_b4
-x 2
-y 23
-end
-arch wall_stone_3
-x 2
-y 23
-end
-arch floor_flagm1
-x 3
-end
-arch grassd_m4
-x 3
-end
-arch sign
-msg
-<green>Throwing</green>
-You can test out the throwing system right here, in the range testing area. Use the throwing daggers you found in the starting tutorial.
-To ready a throwing item or ammunition, locate the daggers in your inventory, and press 'f' (fire) key on them to ready them. Then press <green>tab</green> key until you can see it in the range chooser below your player name at top left.
-When a missile hits a wall or another solid object, it will be dropped on the floor before the object.
-endmsg
-name Throwing
-x 3
-end
-arch floor_flagm3
-x 3
-y 1
-end
-arch floor_flagm2
-x 3
-y 2
-end
-arch floor_flagm2
-x 3
-y 3
-end
-arch floor_flagm3
-x 3
-y 4
-end
-arch floor_flagm3
-x 3
-y 5
-end
-arch grassd_m7
-x 3
-y 5
-end
-arch grassd_4
-x 3
-y 6
-end
-arch grassd_2
-x 3
-y 7
-end
-arch sign
-msg
-<green>How to Fight</green>
-If you have visited Twitriel, the weapon master, you now have a weapon in your hand. If not, go see him now. To fight with it you need two things: A target and to be in combat mode.
-Target with the 'x' key, and change from <green>safe</green> to <green>combat</green> mode with the 'c' key.
-When you press 'c' the shield symbol in front of the target name area will change to two crossed swords. Pressing 'c' again will change back to <green>safe</green>. You don't have to press 'c' before every attack.
-endmsg
-name How to Fight
-x 3
-y 7
-end
-arch grassd_8
-x 3
-y 8
-end
-arch sign
-msg
-<green>Skills and Experience</green>
-If you have been to Twitriel, the weapon master, you got a weapon AND a weapon skill. If not, go see him now.
-Press F10 or click the skill button for the skill list.
-When you kill an enemy you will <yellow>only</yellow> gain experience in the skill you do the final hit with!
-Under the armor protection table you will see the currently used skill. It is automatically updated depending on your actions. You will see <green>action timer</green> there as well. When using a skill, your action timer will gain a number of seconds before you can use the skill again. It will count down to zero, by which time you can use the skill again.
-endmsg
-name Skills and Experience
-x 3
-y 8
-end
-arch floor_flagm1
-x 3
-y 9
-end
-arch grassd_m4
-x 3
-y 9
-end
-arch sign
-msg
-<green>Attack the Combat Dummies</green>
-Now attack one of the combat dummies behind this fence. Do not fear, it's only a training dummy. It will not fight back or die.
-Press the 'x' key to target the golem and 'c' to get into combat mode. Move next to the golem and watch the hit messages and the hit numbers over your target's head.
-Try to play around with 'x' and 'c' key - this is an easy fight but most times you have <yellow>a lot</yellow> more action.
-endmsg
-name Attack the Combat Dummies
-x 3
-y 9
-end
-arch floor_flagm4
-x 3
-y 10
-end
-arch grassd_m9
-x 3
-y 10
-end
-arch floor_flagm2
-x 3
-y 11
-end
-arch grassd_m9
-x 3
-y 11
-end
-arch floor_flagm2
-x 3
-y 12
-end
-arch grassd_m9
-x 3
-y 12
-end
-arch floor_flagm2
-x 3
-y 13
-end
-arch grassd_m3
-x 3
-y 13
-end
-arch sign
-name Combat Practice
-x 3
-y 13
-end
-arch grassd_5
-x 3
-y 14
-end
-arch grassd_1
-x 3
-y 15
-end
-arch grassd_4
-x 3
-y 16
-end
-arch plant_flower14
-x 3
-y 16
-end
-arch grassd_1
-x 3
-y 17
-end
-arch lantern_magic.131
-direction 5
-x 3
-y 17
-end
-arch light6
-x 3
-y 17
-end
-arch grassd_3
-x 3
-y 18
-end
-arch wall_stone_1w
-x 3
-y 18
-end
-arch floor_flagm2
-x 3
-y 19
-end
-arch grassd_m4
-x 3
-y 19
-end
-arch floor_flagm3
-x 3
-y 20
-end
-arch floor_flagm4
-x 3
-y 21
-end
-arch grassd_m3
-x 3
-y 21
-end
-arch grassd_6
-x 3
-y 22
-end
-arch sign
-name Mercenary Guild
-x 3
-y 22
-end
-arch grassd_1
-x 3
-y 23
-end
-arch wagon_small.111
-direction 5
-x 3
-y 23
-end
-arch floor_flagm3
-x 4
-end
-arch grassd_m10
-x 4
-end
-arch floor_flagm3
-x 4
-y 1
-end
-arch floor_flagm1
-x 4
-y 2
-end
-arch floor_flagm4
-x 4
-y 3
-end
-arch floor_flagm2
-x 4
-y 4
-end
-arch floor_flagm2
-x 4
-y 5
-end
-arch grassd_m14
-x 4
-y 5
-end
-arch floor_flagm4
-x 4
-y 6
-end
-arch grassd_m9
-x 4
-y 6
-end
-arch floor_flagm3
-x 4
-y 7
-end
-arch grassd_m9
-x 4
-y 7
-end
-arch floor_flagm4
-x 4
-y 8
-end
-arch grassd_m9
-x 4
-y 8
-end
-arch floor_flagm1
-x 4
-y 9
-end
-arch grassd_m13
-x 4
-y 9
-end
-arch floor_flagm2
-x 4
-y 10
-end
-arch floor_flagm1
-x 4
-y 11
-end
-arch floor_flagm1
-x 4
-y 12
-end
-arch floor_flagm3
-x 4
-y 13
-end
-arch grassd_m14
-x 4
-y 13
-end
-arch floor_flagm1
-x 4
-y 14
-end
-arch grassd_m9
-x 4
-y 14
-end
-arch floor_flagm4
-x 4
-y 15
-end
-arch grassd_m9
-x 4
-y 15
-end
-arch floor_flagm2
-x 4
-y 16
-end
-arch grassd_m9
-x 4
-y 16
-end
-arch floor_flagm3
-x 4
-y 17
-end
-arch grassd_m9
-x 4
-y 17
-end
-arch floor_flagm4
-x 4
-y 18
-end
-arch grassd_m9
-x 4
-y 18
-end
-arch floor_flagm1
-x 4
-y 19
-end
-arch grassd_m13
-x 4
-y 19
-end
-arch floor_flagm1
-x 4
-y 20
-end
-arch floor_flagm2
-x 4
-y 21
-end
-arch grassd_m14
-x 4
-y 21
-end
-arch floor_flagm2
-x 4
-y 22
-end
-arch grassd_m9
-x 4
-y 22
-end
-arch floor_flagm3
-x 4
-y 23
-end
-arch grassd_m9
-x 4
-y 23
-end
-arch floor_flagm2
-x 5
-end
-arch grassd_m10
-x 5
-end
-arch floor_flagm1
-x 5
-y 1
-end
-arch floor_flagm2
-x 5
-y 2
-end
-arch floor_flagm4
-x 5
-y 3
-end
-arch floor_flagm2
-x 5
-y 4
-end
-arch floor_flagm3
-x 5
-y 5
-end
-arch floor_flagm1
-x 5
-y 6
-end
-arch floor_flagm1
-x 5
-y 7
-end
-arch floor_flagm3
-x 5
-y 8
-end
-arch floor_flagm2
-x 5
-y 9
-end
-arch floor_flagm2
-x 5
-y 10
-end
-arch floor_flagm1
-x 5
-y 11
-end
-arch floor_flagm2
-x 5
-y 12
-end
-arch floor_flagm2
-x 5
-y 13
-end
-arch floor_flagm1
-x 5
-y 14
-end
-arch floor_flagm1
-x 5
-y 15
-end
-arch floor_flagm1
-x 5
-y 16
-end
-arch floor_flagm1
-x 5
-y 17
-end
-arch floor_flagm1
-x 5
-y 18
-end
-arch floor_flagm4
-x 5
-y 19
-end
-arch floor_flagm1
-x 5
-y 20
-end
-arch floor_flagm1
-x 5
-y 21
-end
-arch floor_flagm3
-x 5
-y 22
-end
-arch floor_flagm1
-x 5
-y 23
-end
-arch floor_flagm2
-x 6
-end
-arch grassd_m10
-x 6
-end
-arch floor_flagm1
-x 6
-y 1
-end
-arch floor_flagm1
-x 6
-y 2
-end
-arch floor_flagm4
-x 6
-y 3
-end
-arch floor_flagm4
-x 6
-y 4
-end
-arch floor_flagm1
-x 6
-y 5
-end
-arch floor_flagm2
-x 6
-y 6
-end
-arch floor_flagm3
-x 6
-y 7
-end
-arch floor_flagm3
-x 6
-y 8
-end
-arch floor_flagm2
-x 6
-y 9
-end
-arch floor_flagm1
-x 6
-y 10
-end
-arch floor_flagm2
-x 6
-y 11
-end
-arch floor_flagm4
-x 6
-y 12
-end
-arch floor_flagm2
-x 6
-y 13
-end
-arch floor_flagm3
-x 6
-y 14
-end
-arch floor_flagm2
-x 6
-y 15
-end
-arch floor_flagm3
-x 6
-y 16
-end
-arch floor_flagm1
-x 6
-y 17
-end
-arch floor_flagm4
-x 6
-y 18
-end
-arch floor_flagm2
-x 6
-y 19
-end
-arch floor_flagm2
-x 6
-y 20
-end
-arch floor_flagm4
-x 6
-y 21
-end
-arch floor_flagm2
-x 6
-y 22
-end
-arch floor_flagm1
-x 6
-y 23
-end
-arch floor_flagm4
-x 7
-end
-arch grassd_m6
-x 7
-end
-arch sign
-name Range Practice
-x 7
-end
-arch floor_flagm4
-x 7
-y 1
-end
-arch grassd_m12
-x 7
-y 1
-end
-arch floor_flagm4
-x 7
-y 2
-end
-arch floor_flagm2
-x 7
-y 3
-end
-arch floor_flagm1
-x 7
-y 4
-end
-arch floor_flagm2
-x 7
-y 5
-end
-arch floor_flagm4
-x 7
-y 6
-end
-arch floor_flagm1
-x 7
-y 7
-end
-arch floor_flagm1
-x 7
-y 8
-end
-arch floor_flagm3
-x 7
-y 9
-end
-arch floor_flagm1
-x 7
-y 10
-end
-arch floor_flagm2
-x 7
-y 11
-end
-arch floor_flagm4
-x 7
-y 12
-end
-arch floor_flagm4
-x 7
-y 13
-end
-arch floor_flagm1
-x 7
-y 14
-end
-arch floor_flagm2
-x 7
-y 15
-end
-arch floor_flagm2
-x 7
-y 16
-end
-arch floor_flagm4
-x 7
-y 17
-end
-arch floor_flagm2
-x 7
-y 18
-end
-arch floor_flagm2
-x 7
-y 19
-end
-arch floor_flagm4
-x 7
-y 20
-end
-arch floor_flagm1
-x 7
-y 21
-end
-arch floor_flagm2
-x 7
-y 22
-end
-arch floor_flagm4
-x 7
-y 23
-end
-arch grassd_5
-x 8
-end
-arch light3
-x 8
-end
-arch floor_flagm1
-x 8
-y 1
-end
-arch grassd_m6
-x 8
-y 1
-end
-arch floor_flagm4
-x 8
-y 2
-end
-arch grassd_m8
-x 8
-y 2
-end
-arch floor_flagm4
-x 8
-y 3
-end
-arch grassd_m8
-x 8
-y 3
-end
-arch floor_flagm2
-x 8
-y 4
-end
-arch grassd_m8
-x 8
-y 4
-end
-arch floor_flagm3
-x 8
-y 5
-end
-arch grassd_m8
-x 8
-y 5
-end
-arch floor_flagm2
-x 8
-y 6
-end
-arch grassd_m12
-x 8
-y 6
-end
-arch floor_flagm3
-x 8
-y 7
-end
-arch grassd_m11
-x 8
-y 7
-end
-arch floor_flagm4
-x 8
-y 8
-end
-arch grassd_m8
-x 8
-y 8
-end
-arch floor_flagm3
-x 8
-y 9
-end
-arch grassd_m8
-x 8
-y 9
-end
-arch floor_flagm1
-x 8
-y 10
-end
-arch grassd_m8
-x 8
-y 10
-end
-arch floor_flagm2
-x 8
-y 11
-end
-arch grassd_m8
-x 8
-y 11
-end
-arch floor_flagm1
-x 8
-y 12
-end
-arch grassd_m8
-x 8
-y 12
-end
-arch floor_flagm2
-x 8
-y 13
-end
-arch grassd_m8
-x 8
-y 13
-end
-arch floor_flagm2
-x 8
-y 14
-end
-arch grassd_m8
-x 8
-y 14
-end
-arch floor_flagm3
-x 8
-y 15
-end
-arch grassd_m8
-x 8
-y 15
-end
-arch floor_flagm3
-x 8
-y 16
-end
-arch grassd_m8
-x 8
-y 16
-end
-arch floor_flagm2
-x 8
-y 17
-end
-arch grassd_m8
-x 8
-y 17
-end
-arch floor_flagm2
-x 8
-y 18
-end
-arch grassd_m8
-x 8
-y 18
-end
-arch floor_flagm4
-x 8
-y 19
-end
-arch grassd_m12
-x 8
-y 19
-end
-arch floor_flagm3
-x 8
-y 20
-end
-arch floor_flagm1
-x 8
-y 21
-end
-arch grassd_m11
-x 8
-y 21
-end
-arch floor_flagm3
-x 8
-y 22
-end
-arch grassd_m8
-x 8
-y 22
-end
-arch floor_flagm2
-x 8
-y 23
-end
-arch grassd_m8
-x 8
-y 23
-end
-arch grassd_8
-x 9
-end
-arch small_stones
-x 9
-end
-arch grassd_6
-x 9
-y 1
-end
-arch grassd_5
-x 9
-y 2
-end
-arch grassd_7
-x 9
-y 3
-end
-arch grassd_7
-x 9
-y 4
-end
-arch lantern_magic.131
-x 9
-y 4
-end
-arch light6
-x 9
-y 4
-end
-arch grassd_8
-x 9
-y 5
-end
-arch floor_flagm2
-x 9
-y 6
-end
-arch grassd_m10
-x 9
-y 6
-end
-arch floor_flagm4
-x 9
-y 7
-end
-arch grassd_m7
-x 9
-y 7
-end
-arch grassd_7
-x 9
-y 8
-end
-arch sign
-name Shop & Smith
-x 9
-y 8
-end
-arch grassd_8
-x 9
-y 9
-end
-arch plant10
-x 9
-y 9
-end
-arch grassd_3
-x 9
-y 10
-end
-arch lantern_magic.131
-x 9
-y 10
-end
-arch light6
-x 9
-y 10
-end
-arch grassd_6
-x 9
-y 11
-end
-arch grassd_3
-x 9
-y 12
-end
-arch grassd_5
-x 9
-y 13
-end
-arch grassd_5
-x 9
-y 14
-end
-arch plant_mushroom1
-x 9
-y 14
-end
-arch grassd_3
-x 9
-y 15
-end
-arch grassd_6
-x 9
-y 16
-end
-arch grassd_1
-x 9
-y 17
-end
-arch lantern_magic.131
-x 9
-y 17
-end
-arch light6
-x 9
-y 17
-end
-arch grassd_7
-x 9
-y 18
-end
-arch floor_flagm1
-x 9
-y 19
-end
-arch grassd_m10
-x 9
-y 19
-end
-arch floor_flagm2
-x 9
-y 20
-end
-arch floor_flagm2
-x 9
-y 21
-end
-arch grassd_m7
-x 9
-y 21
-end
-arch sign
-name Bank
-x 9
-y 21
-end
-arch grassd_7
-x 9
-y 22
-end
-arch grassd_8
-x 9
-y 23
-end
-arch grassd_1
-x 10
-end
-arch grassd_4
-x 10
-y 1
-end
-arch wall_stone_8
-x 10
-y 1
-end
-arch grassd_6
-x 10
-y 2
-end
-arch wall_stone_3
-x 10
-y 2
-end
-arch grassd_8
-x 10
-y 3
-end
-arch wall_stone_w.131
-x 10
-y 3
-end
-arch light3
-x 10
-y 3
-end
-arch grassd_7
-x 10
-y 4
-end
-arch wall_stone_3
-x 10
-y 4
-end
-arch grassd_7
-x 10
-y 5
-end
-arch wall_stone_3
-x 10
-y 5
-end
-arch floor_flagm3
-x 10
-y 6
-end
-arch grassd_m10
-x 10
-y 6
-end
-arch door1_locked
-direction 3
-x 10
-y 6
-end
-arch floor_flagm1
-x 10
-y 7
-end
-arch grassd_m7
-x 10
-y 7
-end
-arch door1_locked
-direction 5
-x 10
-y 7
-end
-arch grassd_8
-x 10
-y 8
-end
-arch wall_stone_3
-x 10
-y 8
-end
-arch grassd_3
-x 10
-y 9
-end
-arch wall_stone_3
-x 10
-y 9
-end
-arch grassd_7
-x 10
-y 10
-end
-arch wall_stone_w.131
-x 10
-y 10
-end
-arch light3
-x 10
-y 10
-end
-arch grassd_6
-x 10
-y 11
-end
-arch wall_stone_3
-x 10
-y 11
-end
-arch grassd_7
-x 10
-y 12
-end
-arch wall_stone_3
-x 10
-y 12
-end
-arch grassd_8
-x 10
-y 13
-end
-arch grassd_2
-x 10
-y 14
-end
-arch wall_stone_8
-x 10
-y 14
-end
-arch client_map_info
-msg
-Tutorial Island Bank.
-endmsg
-name tutorial_bank
-sub_type 2
-stand_still 1
-x 10
-y 14
-end
-arch grassd_6
-x 10
-y 15
-end
-arch wall_stone_3
-x 10
-y 15
-end
-arch grassd_3
-x 10
-y 16
-end
-arch wall_stone_3
-x 10
-y 16
-end
-arch grassd_7
-x 10
-y 17
-end
-arch wall_stone_3
-x 10
-y 17
-end
-arch grassd_3
-x 10
-y 18
-end
-arch wall_stone_3
-x 10
-y 18
-end
-arch floor_flagm1
-x 10
-y 19
-end
-arch grassd_m6
-x 10
-y 19
-end
-arch wall_stone_3
-x 10
-y 19
-end
-arch flag_04
-direction 7
-x 10
-y 19
-end
-arch floor_flagm1
-x 10
-y 20
-end
-arch door1_locked
-direction 3
-x 10
-y 20
-end
-arch floor_flagm3
-x 10
-y 21
-end
-arch grassd_m5
-x 10
-y 21
-end
-arch wall_stone_3
-x 10
-y 21
-end
-arch flag_04
-direction 7
-x 10
-y 21
-end
-arch grassd_5
-x 10
-y 22
-end
-arch wall_stone_3
-x 10
-y 22
-end
-arch grassd_5
-x 10
-y 23
-end
-arch wall_stone_3
-x 10
-y 23
-end
-arch grassd_1
-x 11
-end
-arch plant_flower14
-x 11
-end
-arch grassd_4
-x 11
-y 1
-end
-arch wall_stone_1
-x 11
-y 1
-end
-arch shop_floor_normal
-x 11
-y 2
-end
-arch shop_floor_normal
-x 11
-y 3
-end
-arch shop_floor_normal
-x 11
-y 4
-end
-arch sign
-msg
-<green>Shops</green>
-Shops like this one are available in most towns and cities. Just drop ('d') any items you would like to sell and pick up ('g') anything you want to buy. When you sell something to a shop it will pay you less than the regular price, you can see this by examining ('e') the object.
-endmsg
-name Shops
-x 11
-y 4
-end
-arch shop_floor_normal
-x 11
-y 5
-end
-arch shop_floor_normal
-x 11
-y 6
-end
-arch shop_floor_normal
-x 11
-y 7
-end
-arch shop_floor_normal
-x 11
-y 8
-end
-arch shop_floor_normal
-x 11
-y 9
-end
-arch light4
-x 11
-y 9
-end
-arch shop_floor_normal
-x 11
-y 10
-end
-arch shop_floor_normal
-x 11
-y 11
-end
-arch shop_floor_normal
-x 11
-y 12
-end
-arch wall_stone_1
-x 11
-y 12
-end
-arch grassd_1
-x 11
-y 13
-end
-arch grassd_6
-x 11
-y 14
-end
-arch wall_stone_1
-x 11
-y 14
-end
-arch floor_ostone13
-x 11
-y 15
-end
-arch chest_4.111
-x 11
-y 15
-end
-arch floor_ostone13
-x 11
-y 16
-end
-arch candlelight1.101
-x 11
-y 16
-end
-arch light2
-x 11
-y 16
-end
-arch floor_ostone13
-x 11
-y 17
-end
-arch bar1
-x 11
-y 17
-end
-arch floor_ostone13
-x 11
-y 18
-end
-arch spawn_point
-x 11
-y 18
-arch guard
-name bank guard
-type 83
-level 18
-friendly 1
-direction 2
-end
-end
-arch floor_ostone13
-x 11
-y 19
-end
-arch carpet1.131
-x 11
-y 19
-end
-arch floor_ostone13
-x 11
-y 20
-end
-arch carpet1.131
-x 11
-y 20
-end
-arch floor_ostone13
-x 11
-y 21
-end
-arch carpet1.131
-x 11
-y 21
-end
-arch light7
-x 11
-y 21
-end
-arch floor_ostone13
-x 11
-y 22
-end
-arch spawn_point
-x 11
-y 22
-arch guard
-name bank guard
-type 83
-level 18
-friendly 1
-direction 2
-end
-end
-arch floor_ostone13
-x 11
-y 23
-end
-arch bar1
-x 11
-y 23
-end
-arch grassd_6
-x 12
-end
-arch grassd_1
-x 12
-y 1
-end
-arch wall_stone_1
-x 12
-y 1
-end
-arch shop_floor_normal
-x 12
-y 2
-end
-arch shop_mat
-x 12
-y 2
-end
-arch shop_floor_normal
-x 12
-y 3
-end
-arch shop_floor_normal
-x 12
-y 4
-end
-arch light8
-x 12
-y 4
-end
-arch shop_floor_normal
-x 12
-y 5
-end
-arch shop_floor_normal
-x 12
-y 6
-end
-arch shop_floor_normal
-x 12
-y 7
-end
-arch light8
-x 12
-y 7
-end
-arch shop_floor_normal
-x 12
-y 8
-end
-arch shop_floor_normal
-x 12
-y 9
-end
-arch shop_floor_normal
-x 12
-y 10
-end
-arch spawn_point
-x 12
-y 10
-arch smith
-type 83
-level 20
-friendly 1
-arch event_obj
-sub_type 6
-race ../python/generic/smith.py
-end
-end
-end
-arch shop_floor_normal
-x 12
-y 11
-end
-arch anvil_111
-direction 5
-x 12
-y 11
-end
-arch light4
-x 12
-y 11
-end
-arch shop_floor_normal
-x 12
-y 12
-end
-arch wall_stone_1
-x 12
-y 12
-end
-arch grassd_8
-x 12
-y 13
-end
-arch grassd_1
-x 12
-y 14
-end
-arch wall_stone_1
-x 12
-y 14
-end
-arch wmask_bflag_fire1_1
-x 12
-y 14
-end
-arch floor_ostone13
-x 12
-y 15
-end
-arch light7
-x 12
-y 15
-end
-arch floor_ostone13
-x 12
-y 16
-end
-arch floor_ostone13
-x 12
-y 17
-end
-arch bar1
-x 12
-y 17
-end
-arch floor_ostone13
-x 12
-y 18
-end
-arch carpet1.151
-x 12
-y 18
-end
-arch floor_ostone13
-x 12
-y 19
-end
-arch carpet1
-x 12
-y 19
-end
-arch floor_ostone13
-x 12
-y 20
-end
-arch carpet1
-x 12
-y 20
-end
-arch floor_ostone13
-x 12
-y 21
-end
-arch carpet1
-x 12
-y 21
-end
-arch floor_ostone13
-x 12
-y 22
-end
-arch carpet1.111
-x 12
-y 22
-end
-arch floor_ostone13
-x 12
-y 23
-end
-arch bar1
-x 12
-y 23
-end
-arch grassd_8
-x 13
-end
-arch grassd_6
-x 13
-y 1
-end
-arch wall_stone_1
-x 13
-y 1
-end
-arch shop_floor_normal
-x 13
-y 2
-end
-arch grate1_3
-x 13
-y 2
-end
-arch shop_floor_normal
-x 13
-y 3
-end
-arch grate1_3
-x 13
-y 3
-end
-arch shop_floor_normal
-x 13
-y 4
-end
-arch grate1_3
-x 13
-y 4
-end
-arch shop_floor_normal
-x 13
-y 5
-end
-arch grate1_3
-x 13
-y 5
-end
-arch shop_floor_normal
-x 13
-y 6
-end
-arch grate1_3
-x 13
-y 6
-end
-arch shop_floor_normal
-x 13
-y 7
-end
-arch grate1_3
-x 13
-y 7
-end
-arch shop_floor_normal
-x 13
-y 8
-end
-arch grate1_3
-x 13
-y 8
-end
-arch shop_floor_normal
-x 13
-y 9
-end
-arch grate1_3
-x 13
-y 9
-end
-arch shop_floor_normal
-x 13
-y 10
-end
-arch grate1_3
-x 13
-y 10
-end
-arch shop_floor_normal
-x 13
-y 11
-end
-arch grate1_3
-x 13
-y 11
-end
-arch shop_floor_normal
-x 13
-y 12
-end
-arch wall_stone_4
-x 13
-y 12
-end
-arch grassd_3
-x 13
-y 13
-end
-arch grassd_7
-x 13
-y 14
-end
-arch wall_stone_1
-x 13
-y 14
-end
-arch floor_ostone13
-x 13
-y 15
-end
-arch floor_ostone13
-x 13
-y 16
-end
-arch spawn_point
-x 13
-y 16
-arch priest_green
-name Nevrast
-type 83
-level 15
-friendly 1
-arch event_obj
-sub_type 6
-race ../python/generic/bank.py
-end
-end
-end
-arch floor_ostone13
-x 13
-y 17
-end
-arch bar1
-x 13
-y 17
-end
-arch floor_ostone13
-x 13
-y 18
-end
-arch carpet1.151
-x 13
-y 18
-end
-arch light7
-x 13
-y 18
-end
-arch floor_ostone13
-x 13
-y 19
-end
-arch carpet1
-x 13
-y 19
-end
-arch floor_ostone13
-x 13
-y 20
-end
-arch carpet1
-x 13
-y 20
-end
-arch floor_ostone13
-x 13
-y 21
-end
-arch carpet1
-x 13
-y 21
-end
-arch floor_ostone13
-x 13
-y 22
-end
-arch carpet1.111
-x 13
-y 22
-end
-arch light7
-x 13
-y 22
-end
-arch floor_ostone13
-x 13
-y 23
-end
-arch bar1
-x 13
-y 23
-end
-arch grassd_4
-x 14
-end
-arch grassd_6
-x 14
-y 1
-end
-arch wall_stone_1
-x 14
-y 1
-end
-arch shop_floor_normal
-x 14
-y 2
-end
-arch shop_mat
-x 14
-y 2
-end
-arch shop_floor
-x 14
-y 3
-end
-arch shop_floor
-x 14
-y 4
-end
-arch shop_floor
-x 14
-y 5
-end
-arch shop_floor
-x 14
-y 6
-end
-arch shop_floor
-x 14
-y 7
-end
-arch shop_floor
-x 14
-y 8
-end
-arch shop_floor
-x 14
-y 9
-end
-arch shop_floor
-x 14
-y 10
-end
-arch shop_floor
-x 14
-y 11
-end
-arch shop_floor_normal
-x 14
-y 12
-end
-arch wall_stone_1
-x 14
-y 12
-end
-arch grassd_4
-x 14
-y 13
-end
-arch grassd_5
-x 14
-y 14
-end
-arch wall_stone_1
-x 14
-y 14
-end
-arch floor_ostone13
-x 14
-y 15
-end
-arch floor_ostone13
-x 14
-y 16
-end
-arch floor_ostone13
-x 14
-y 17
-end
-arch bar1
-x 14
-y 17
-end
-arch floor_ostone13
-x 14
-y 18
-end
-arch carpet1.151
-x 14
-y 18
-end
-arch floor_ostone13
-x 14
-y 19
-end
-arch carpet1
-x 14
-y 19
-end
-arch floor_ostone13
-x 14
-y 20
-end
-arch carpet1
-x 14
-y 20
-end
-arch floor_ostone13
-x 14
-y 21
-end
-arch carpet1
-x 14
-y 21
-end
-arch floor_ostone13
-x 14
-y 22
-end
-arch carpet1.111
-x 14
-y 22
-end
-arch floor_ostone13
-x 14
-y 23
-end
-arch bar1
-x 14
-y 23
-end
-arch grassd_8
-x 15
-end
-arch plant1
-x 15
-end
-arch grassd_4
-x 15
-y 1
-end
-arch wall_stone_1
-x 15
-y 1
-end
-arch shop_floor
-x 15
-y 2
-end
-arch shop_floor
-x 15
-y 3
-end
-arch spear
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 3
-end
-arch shop_floor
-x 15
-y 4
-end
-arch sword2h
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 4
-end
-arch light8
-x 15
-y 4
-end
-arch shop_floor
-x 15
-y 5
-end
-arch quaterstaff
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 5
-end
-arch shop_floor
-x 15
-y 6
-end
-arch axe_2h
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 6
-end
-arch shop_floor
-x 15
-y 7
-end
-arch axe_small
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 7
-end
-arch light8
-x 15
-y 7
-end
-arch shop_floor
-x 15
-y 8
-end
-arch shortsword
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 8
-end
-arch shop_floor
-x 15
-y 9
-end
-arch hammer_small
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 9
-end
-arch shop_floor
-x 15
-y 10
-end
-arch dagger
-unpaid 1
-no_pick 1
-identified 1
-x 15
-y 10
-end
-arch shop_floor
-x 15
-y 11
-end
-arch shop_floor_normal
-x 15
-y 12
-end
-arch wall_stone_1
-x 15
-y 12
-end
-arch grassd_7
-x 15
-y 13
-end
-arch grassd_6
-x 15
-y 14
-end
-arch wall_stone_1
-x 15
-y 14
-end
-arch wmask_bflag_fire1_1
-x 15
-y 14
-end
-arch floor_ostone13
-x 15
-y 15
-end
-arch light7
-x 15
-y 15
-end
-arch floor_ostone13
-x 15
-y 16
-end
-arch floor_ostone13
-x 15
-y 17
-end
-arch bar1
-x 15
-y 17
-end
-arch floor_ostone13
-x 15
-y 18
-end
-arch table_small1
-x 15
-y 18
-end
-arch floor_ostone13
-x 15
-y 19
-end
-arch carpet1.171
-x 15
-y 19
-end
-arch floor_ostone13
-x 15
-y 20
-end
-arch carpet1.171
-x 15
-y 20
-end
-arch floor_ostone13
-x 15
-y 21
-end
-arch carpet1.171
-x 15
-y 21
-end
-arch floor_ostone13
-x 15
-y 22
-end
-arch table_small1
-x 15
-y 22
-end
-arch floor_ostone13
-x 15
-y 23
-end
-arch bar1
-x 15
-y 23
-end
-arch grassd_2
-x 16
-end
-arch grassd_7
-x 16
-y 1
-end
-arch wall_stone_1
-x 16
-y 1
-end
-arch shop_floor
-x 16
-y 2
-end
-arch food_generic
-unpaid 1
-no_pick 1
-identified 1
-nrof 5
-x 16
-y 2
-end
-arch shop_floor
-x 16
-y 3
-end
-arch potion_cure_sickness
-value 79
-no_pick 1
-identified 1
-unpaid 1
-level 15
-x 16
-y 3
-end
-arch shop_floor
-x 16
-y 4
-end
-arch shop_floor
-x 16
-y 5
-end
-arch shop_floor
-x 16
-y 6
-end
-arch shop_floor
-x 16
-y 7
-end
-arch shop_floor
-x 16
-y 8
-end
-arch shop_floor
-x 16
-y 9
-end
-arch light4
-x 16
-y 9
-end
-arch shop_floor
-x 16
-y 10
-end
-arch light4
-x 16
-y 10
-end
-arch shop_floor
-x 16
-y 11
-end
-arch shop_floor_normal
-x 16
-y 12
-end
-arch wall_stone_1
-x 16
-y 12
-end
-arch grassd_2
-x 16
-y 13
-end
-arch grassd_4
-x 16
-y 14
-end
-arch wall_stone_1
-x 16
-y 14
-end
-arch floor_ostone13
-x 16
-y 15
-end
-arch chest7_111
-name bank chest
-x 16
-y 15
-end
-arch floor_ostone13
-x 16
-y 16
-end
-arch candlelight3.101
-x 16
-y 16
-end
-arch light2
-x 16
-y 16
-end
-arch floor_ostone13
-x 16
-y 17
-end
-arch bar1
-x 16
-y 17
-end
-arch light7
-x 16
-y 17
-end
-arch floor_ostone13
-x 16
-y 18
-end
-arch table_round1
-x 16
-y 18
-end
-arch floor_ostone13
-x 16
-y 19
-end
-arch table_small1
-x 16
-y 19
-end
-arch floor_ostone13
-x 16
-y 20
-end
-arch potted_plant1
-x 16
-y 20
-end
-arch light7
-x 16
-y 20
-end
-arch floor_ostone13
-x 16
-y 21
-end
-arch table_small1
-x 16
-y 21
-end
-arch floor_ostone13
-x 16
-y 22
-end
-arch table_poker1
-x 16
-y 22
-end
-arch floor_ostone13
-x 16
-y 23
-end
-arch bar1
-x 16
-y 23
-end
-arch light7
-x 16
-y 23
-end
-arch grassd_4
-x 17
-end
-arch grassd_1
-x 17
-y 1
-end
-arch wall_stone_w.111
-x 17
-y 1
-end
-arch light3
-x 17
-y 1
-end
-arch shop_floor
-x 17
-y 2
-end
-arch sack
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 2
-end
-arch shop_floor
-x 17
-y 3
-end
-arch leather_armour
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 3
-end
-arch shop_floor
-x 17
-y 4
-end
-arch helm_leather
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 4
-end
-arch shop_floor
-x 17
-y 5
-end
-arch girdle
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 5
-end
-arch shop_floor
-x 17
-y 6
-end
-arch gloves
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 6
-end
-arch shop_floor
-x 17
-y 7
-end
-arch cloak
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 7
-end
-arch light8
-x 17
-y 7
-end
-arch shop_floor
-x 17
-y 8
-end
-arch low_boots
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 8
-end
-arch shop_floor
-x 17
-y 9
-end
-arch buckler
-unpaid 1
-no_pick 1
-identified 1
-x 17
-y 9
-end
-arch shop_floor
-x 17
-y 10
-end
-arch t_axe
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 17
-y 10
-end
-arch shop_floor
-x 17
-y 11
-end
-arch t_star
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 17
-y 11
-end
-arch shop_floor_normal
-x 17
-y 12
-end
-arch wall_stone_w.111
-x 17
-y 12
-end
-arch light3
-x 17
-y 12
-end
-arch grassd_1
-x 17
-y 13
-end
-arch grassd_3
-x 17
-y 14
-end
-arch wall_stone_1
-x 17
-y 14
-end
-arch client_map_info
-name tutorial_bank
-sub_type 2
-x 17
-y 14
-end
-arch floor_ostone13
-x 17
-y 15
-end
-arch wall_stone_3
-x 17
-y 15
-end
-arch floor_ostone13
-x 17
-y 16
-end
-arch wall_stone_3
-x 17
-y 16
-end
-arch floor_ostone13
-x 17
-y 17
-end
-arch wall_stone_4
-x 17
-y 17
-end
-arch floor_ostone13
-x 17
-y 18
-end
-arch wall_stone_3
-x 17
-y 18
-end
-arch floor_ostone13
-x 17
-y 19
-end
-arch wall_stone_3
-x 17
-y 19
-end
-arch floor_ostone13
-x 17
-y 20
-end
-arch wall_stone_3
-x 17
-y 20
-end
-arch floor_ostone13
-x 17
-y 21
-end
-arch wall_stone_3
-x 17
-y 21
-end
-arch floor_ostone13
-x 17
-y 22
-end
-arch wall_stone_3
-x 17
-y 22
-end
-arch floor_ostone13
-x 17
-y 23
-end
-arch wall_stone_4
-x 17
-y 23
-end
-arch grassd_8
-x 18
-end
-arch grassd_1
-x 18
-y 1
-end
-arch wall_stone_1
-x 18
-y 1
-end
-arch shop_floor
-x 18
-y 2
-end
-arch pouch
-unpaid 1
-no_pick 1
-identified 1
-x 18
-y 2
-end
-arch shop_floor
-x 18
-y 3
-end
-arch arrow
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 18
-y 3
-end
-arch light8
-x 18
-y 3
-end
-arch shop_floor
-x 18
-y 4
-end
-arch bow_short
-unpaid 1
-no_pick 1
-identified 1
-x 18
-y 4
-end
-arch shop_floor
-x 18
-y 5
-end
-arch bolt
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 18
-y 5
-end
-arch shop_floor
-x 18
-y 6
-end
-arch crossbow_small
-unpaid 1
-no_pick 1
-identified 1
-x 18
-y 6
-end
-arch light9
-x 18
-y 6
-end
-arch shop_floor
-x 18
-y 7
-end
-arch sstone
-unpaid 1
-no_pick 1
-identified 1
-nrof 25
-x 18
-y 7
-end
-arch shop_floor
-x 18
-y 8
-end
-arch sling_small
-unpaid 1
-no_pick 1
-identified 1
-x 18
-y 8
-end
-arch shop_floor
-x 18
-y 9
-end
-arch light4
-x 18
-y 9
-end
-arch shop_floor
-x 18
-y 10
-end
-arch t_hammer
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 18
-y 10
-end
-arch shop_floor
-x 18
-y 11
-end
-arch t_dagger
-unpaid 1
-no_pick 1
-identified 1
-nrof 10
-x 18
-y 11
-end
-arch shop_floor_normal
-x 18
-y 12
-end
-arch wall_stone_1
-x 18
-y 12
-end
-arch grassd_5
-x 18
-y 13
-end
-arch grassd_1
-x 18
-y 14
-end
-arch grassd_6
-x 18
-y 15
-end
-arch grassd_3
-x 18
-y 16
-end
-arch grassd_1
-x 18
-y 17
-end
-arch grassd_2
-x 18
-y 18
-end
-arch grassd_8
-x 18
-y 19
-end
-arch grassd_3
-x 18
-y 20
-end
-arch grassd_7
-x 18
-y 21
-end
-arch grassd_1
-x 18
-y 22
-end
-arch grassd_6
-x 18
-y 23
-end
-arch grassd_7
-x 19
-end
-arch grassd_1
-x 19
-y 1
-end
-arch wall_stone_1
-x 19
-y 1
-end
-arch shop_floor
-x 19
-y 2
-end
-arch lamp
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 2
-end
-arch light4
-x 19
-y 2
-end
-arch shop_floor
-x 19
-y 3
-end
-arch oil_lamp
-unpaid 1
-no_pick 1
-identified 1
-nrof 5
-x 19
-y 3
-end
-arch shop_floor
-x 19
-y 4
-end
-arch torch
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 4
-end
-arch shop_floor
-x 19
-y 5
-end
-arch quiver
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 5
-end
-arch shop_floor
-x 19
-y 6
-end
-arch quiver_b
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 6
-end
-arch shop_floor
-x 19
-y 7
-end
-arch quiver_s
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 7
-end
-arch shop_floor
-x 19
-y 8
-end
-arch glaive
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 8
-end
-arch light4
-x 19
-y 8
-end
-arch shop_floor
-x 19
-y 9
-end
-arch partisan
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 9
-end
-arch shop_floor
-x 19
-y 10
-end
-arch lucern_hammer
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 10
-end
-arch light4
-x 19
-y 10
-end
-arch shop_floor
-x 19
-y 11
-end
-arch bardiche
-unpaid 1
-no_pick 1
-identified 1
-x 19
-y 11
-end
-arch shop_floor_normal
-x 19
-y 12
-end
-arch wall_stone_1
-x 19
-y 12
-end
-arch grassd_2
-x 19
-y 13
-end
-arch grassd_1
-x 19
-y 14
-end
-arch grassd_8
-x 19
-y 15
-end
-arch tree_big
-x 19
-y 15
-end
-arch grassd_1
-x 19
-y 16
-end
-arch grassd_3
-x 19
-y 17
-end
-arch grassd_4
-x 19
-y 18
-end
-arch grassd_7
-x 19
-y 19
-end
-arch grassd_8
-x 19
-y 20
-end
-arch grassd_2
-x 19
-y 21
-end
-arch grassd_4
-x 19
-y 22
-end
-arch grassd_3
-x 19
-y 23
-end
-arch grassd_1
-x 20
-end
-arch grassd_4
-x 20
-y 1
-end
-arch wall_stone_1
-x 20
-y 1
-end
-arch shop_floor_normal
-x 20
-y 2
-end
-arch wall_stone_3
-x 20
-y 2
-end
-arch shop_floor_normal
-x 20
-y 3
-end
-arch wall_stone_3
-x 20
-y 3
-end
-arch shop_floor_normal
-x 20
-y 4
-end
-arch wall_stone_w.131
-x 20
-y 4
-end
-arch light3
-x 20
-y 4
-end
-arch shop_floor_normal
-x 20
-y 5
-end
-arch wall_stone_3
-x 20
-y 5
-end
-arch shop_floor_normal
-x 20
-y 6
-end
-arch wall_stone_3
-x 20
-y 6
-end
-arch shop_floor_normal
-x 20
-y 7
-end
-arch wall_stone_3
-x 20
-y 7
-end
-arch shop_floor_normal
-x 20
-y 8
-end
-arch wall_stone_3
-x 20
-y 8
-end
-arch shop_floor_normal
-x 20
-y 9
-end
-arch wall_stone_w.131
-x 20
-y 9
-end
-arch light3
-x 20
-y 9
-end
-arch shop_floor_normal
-x 20
-y 10
-end
-arch wall_stone_3
-x 20
-y 10
-end
-arch shop_floor_normal
-x 20
-y 11
-end
-arch wall_stone_3
-x 20
-y 11
-end
-arch shop_floor_normal
-x 20
-y 12
-end
-arch wall_stone_4
-x 20
-y 12
-end
-arch grassd_7
-x 20
-y 13
-end
-arch grassd_1
-x 20
-y 14
-end
-arch grassd_7
-x 20
-y 15
-end
-arch grassd_8
-x 20
-y 16
-end
-arch grassd_6
-x 20
-y 17
-end
-arch grassd_3
-x 20
-y 18
-end
-arch grassd_7
-x 20
-y 19
-end
-arch small_stones
-x 20
-y 19
-end
-arch grassd_1
-x 20
-y 20
-end
-arch grassd_7
-x 20
-y 21
-end
-arch grassd_1
-x 20
-y 22
-end
-arch tree_big4b
-x 20
-y 22
-end
-arch grassd_4
-x 20
-y 23
-end
-arch grassd_3
-x 21
-end
-arch grassd_6
-x 21
-y 1
-end
-arch grassd_5
-x 21
-y 2
-end
-arch grassd_7
-x 21
-y 3
-end
-arch grassd_2
-x 21
-y 4
-end
-arch grassd_8
-x 21
-y 5
-end
-arch plant_mushroom2
-x 21
-y 5
-end
-arch grassd_6
-x 21
-y 6
-end
-arch grassd_3
-x 21
-y 7
-end
-arch grassd_6
-x 21
-y 8
-end
-arch grassd_5
-x 21
-y 9
-end
-arch grassd_2
-x 21
-y 10
-end
-arch grassd_5
-x 21
-y 11
-end
-arch grassd_3
-x 21
-y 12
-end
-arch grassd_1
-x 21
-y 13
-end
-arch grassd_7
-x 21
-y 14
-end
-arch grassd_4
-x 21
-y 15
-end
-arch grassd_8
-x 21
-y 16
-end
-arch grassd_4
-x 21
-y 17
-end
-arch grassd_7
-x 21
-y 18
-end
-arch grassd_3
-x 21
-y 19
-end
-arch grassd_6
-x 21
-y 20
-end
-arch grassd_5
-x 21
-y 21
-end
-arch grassd_7
-x 21
-y 22
-end
-arch grassd_1
-x 21
-y 23
-end
-arch grassd_8
-x 22
-end
-arch fwall_fstone2
-x 22
-end
-arch grassd_6
-x 22
-y 1
-end
-arch fwall_fstone2
-x 22
-y 1
-end
-arch grassd_3
-x 22
-y 2
-end
-arch fwall_fstone2
-x 22
-y 2
-end
-arch grassd_2
-x 22
-y 3
-end
-arch fwall_fstone2
-x 22
-y 3
-end
-arch grassd_7
-x 22
-y 4
-end
-arch fwall_fstone2
-x 22
-y 4
-end
-arch grassd_3
-x 22
-y 5
-end
-arch fwall_fstone2
-x 22
-y 5
-end
-arch grassd_6
-x 22
-y 6
-end
-arch fwall_fstone2
-x 22
-y 6
-end
-arch grassd_6
-x 22
-y 7
-end
-arch fwall_fstone2
-x 22
-y 7
-end
-arch grassd_4
-x 22
-y 8
-end
-arch fwall_fstone2
-x 22
-y 8
-end
-arch grassd_4
-x 22
-y 9
-end
-arch fwall_fstone2
-x 22
-y 9
-end
-arch grassd_7
-x 22
-y 10
-end
-arch fwall_fstone2
-x 22
-y 10
-end
-arch grassd_5
-x 22
-y 11
-end
-arch fwall_fstone2
-x 22
-y 11
-end
-arch grassd_8
-x 22
-y 12
-end
-arch fwall_fstone2
-x 22
-y 12
-end
-arch grassd_8
-x 22
-y 13
-end
-arch fwall_fstone2
-x 22
-y 13
-end
-arch grassd_4
-x 22
-y 14
-end
-arch fwall_fstone2
-x 22
-y 14
-end
-arch grassd_7
-x 22
-y 15
-end
-arch fwall_fstone2
-x 22
-y 15
-end
-arch grassd_4
-x 22
-y 16
-end
-arch fwall_fstone2
-x 22
-y 16
-end
-arch grassd_2
-x 22
-y 17
-end
-arch fwall_fstone2
-x 22
-y 17
-end
-arch grassd_8
-x 22
-y 18
-end
-arch fwall_fstone2
-x 22
-y 18
-end
-arch grassd_5
-x 22
-y 19
-end
-arch fwall_fstone2
-x 22
-y 19
-end
-arch grassd_4
-x 22
-y 20
-end
-arch fwall_fstone2
-x 22
-y 20
-end
-arch grassd_7
-x 22
-y 21
-end
-arch fwall_fstone2
-x 22
-y 21
-end
-arch grassd_6
-x 22
-y 22
-end
-arch fwall_fstone2
-x 22
-y 22
-end
-arch grassd_5
-x 22
-y 23
-end
-arch fwall_fstone2
-x 22
-y 23
+arch water_lt4
 end
 arch water_lt
-x 23
+y 1
+end
+arch water_lt2
+y 2
+end
+arch water_lt2
+y 3
 end
 arch water_lt3
-x 23
+y 4
+end
+arch water_lt3
+y 5
+end
+arch water_lt3
+y 6
+end
+arch water_lt
+y 7
+end
+arch water_lt
+y 8
+end
+arch water_lt3
+y 9
+end
+arch water_lt3
+y 10
+end
+arch water_lt4
+y 11
+end
+arch water_lt2
+y 12
+end
+arch water_lt2
+y 13
+end
+arch water_lt4
+y 14
+end
+arch water_lt3
+y 15
+end
+arch water_lt
+y 16
+end
+arch water_lt
+y 17
+end
+arch water_lt2
+y 18
+end
+arch water_lt2
+y 19
+end
+arch water_lt2
+y 20
+end
+arch water_lt3
+y 21
+end
+arch water_lt
+y 22
+end
+arch water_lt3
+y 23
+end
+arch water_lt2
+x 1
+end
+arch water_lt4
+x 1
 y 1
 end
 arch water_lt
-x 23
+x 1
 y 2
 end
+arch water_lt4
+x 1
+y 3
+end
+arch water_lt
+x 1
+y 4
+end
+arch water_lt
+x 1
+y 5
+end
 arch water_lt3
-x 23
+x 1
+y 6
+end
+arch water_lt4
+x 1
+y 7
+end
+arch water_lt
+x 1
+y 8
+end
+arch water_lt2
+x 1
+y 9
+end
+arch water_lt
+x 1
+y 10
+end
+arch water_lt3
+x 1
+y 11
+end
+arch water_lt4
+x 1
+y 12
+end
+arch water_lt4
+x 1
+y 13
+end
+arch water_lt
+x 1
+y 14
+end
+arch water_lt2
+x 1
+y 15
+end
+arch water_lt2
+x 1
+y 16
+end
+arch water_lt
+x 1
+y 17
+end
+arch water_lt4
+x 1
+y 18
+end
+arch water_lt2
+x 1
+y 19
+end
+arch water_lt
+x 1
+y 20
+end
+arch water_lt4
+x 1
+y 21
+end
+arch water_lt2
+x 1
+y 22
+end
+arch water_lt
+x 1
+y 23
+end
+arch water_lt4
+x 2
+end
+arch water_lt4
+x 2
+y 1
+end
+arch water_lt3
+x 2
+y 2
+end
+arch water_lt2
+x 2
+y 3
+end
+arch water_lt
+x 2
+y 4
+end
+arch water_lt3
+x 2
+y 5
+end
+arch water_lt4
+x 2
+y 6
+end
+arch water_lt2
+x 2
+y 7
+end
+arch water_lt2
+x 2
+y 8
+end
+arch water_lt2
+x 2
+y 9
+end
+arch water_lt2
+x 2
+y 10
+end
+arch water_lt3
+x 2
+y 11
+end
+arch water_lt2
+x 2
+y 12
+end
+arch water_lt3
+x 2
+y 13
+end
+arch water_lt2
+x 2
+y 14
+end
+arch water_lt4
+x 2
+y 15
+end
+arch water_lt3
+x 2
+y 16
+end
+arch water_lt3
+x 2
+y 17
+end
+arch water_lt3
+x 2
+y 18
+end
+arch water_lt3
+x 2
+y 19
+end
+arch water_lt4
+x 2
+y 20
+end
+arch water_lt3
+x 2
+y 21
+end
+arch water_lt2
+x 2
+y 22
+end
+arch water_lt4
+x 2
+y 23
+end
+arch water_lt4
+x 3
+end
+arch water_lt
+x 3
+y 1
+end
+arch water_lt3
+x 3
+y 2
+end
+arch water_lt2
+x 3
 y 3
 end
 arch water_lt4
-x 23
+x 3
+y 4
+end
+arch water_lt4
+x 3
+y 5
+end
+arch water_lt2
+x 3
+y 6
+end
+arch water_lt3
+x 3
+y 7
+end
+arch water_lt3
+x 3
+y 8
+end
+arch water_lt3
+x 3
+y 9
+end
+arch water_lt4
+x 3
+y 10
+end
+arch water_lt
+x 3
+y 11
+end
+arch water_lt2
+x 3
+y 12
+end
+arch water_lt3
+x 3
+y 13
+end
+arch water_lt3
+x 3
+y 14
+end
+arch water_lt3
+x 3
+y 15
+end
+arch water_lt4
+x 3
+y 16
+end
+arch water_lt4
+x 3
+y 17
+end
+arch water_lt3
+x 3
+y 18
+end
+arch water_lt2
+x 3
+y 19
+end
+arch water_lt4
+x 3
+y 20
+end
+arch water_lt
+x 3
+y 21
+end
+arch water_lt2
+x 3
+y 22
+end
+arch water_lt4
+x 3
+y 23
+end
+arch water_lt2
+x 4
+end
+arch water_lt2
+x 4
+y 1
+end
+arch water_lt4
+x 4
+y 2
+end
+arch water_lt
+x 4
+y 3
+end
+arch water_lt3
+x 4
 y 4
 end
 arch water_lt
-x 23
+x 4
 y 5
 end
 arch water_lt
-x 23
+x 4
 y 6
 end
+arch water_lt4
+x 4
+y 7
+end
+arch water_lt
+x 4
+y 8
+end
+arch water_lt4
+x 4
+y 9
+end
 arch water_lt2
-x 23
+x 4
+y 10
+end
+arch water_lt4
+x 4
+y 11
+end
+arch water_lt3
+x 4
+y 12
+end
+arch water_lt2
+x 4
+y 13
+end
+arch water_lt
+x 4
+y 14
+end
+arch water_lt3
+x 4
+y 15
+end
+arch water_lt4
+x 4
+y 16
+end
+arch water_lt
+x 4
+y 17
+end
+arch water_lt
+x 4
+y 18
+end
+arch water_lt3
+x 4
+y 19
+end
+arch water_lt3
+x 4
+y 20
+end
+arch water_lt2
+x 4
+y 21
+end
+arch water_lt4
+x 4
+y 22
+end
+arch water_lt3
+x 4
+y 23
+end
+arch water_lt2
+x 5
+end
+arch water_lt4
+x 5
+y 1
+end
+arch water_lt4
+x 5
+y 2
+end
+arch water_lt4
+x 5
+y 3
+end
+arch water_lt3
+x 5
+y 4
+end
+arch water_lt3
+x 5
+y 5
+end
+arch water_lt
+x 5
+y 6
+end
+arch water_lt
+x 5
+y 7
+end
+arch water_lt
+x 5
+y 8
+end
+arch water_lt2
+x 5
+y 9
+end
+arch water_lt4
+x 5
+y 10
+end
+arch water_lt
+x 5
+y 11
+end
+arch water_lt2
+x 5
+y 12
+end
+arch water_lt4
+x 5
+y 13
+end
+arch water_lt4
+x 5
+y 14
+end
+arch water_lt
+x 5
+y 15
+end
+arch water_lt3
+x 5
+y 16
+end
+arch water_lt
+x 5
+y 17
+end
+arch water_lt
+x 5
+y 18
+end
+arch water_lt
+x 5
+y 19
+end
+arch water_lt
+x 5
+y 20
+end
+arch water_lt
+x 5
+y 21
+end
+arch water_lt3
+x 5
+y 22
+end
+arch water_lt3
+x 5
+y 23
+end
+arch water_lt
+x 6
+end
+arch water_lt4
+x 6
+y 1
+end
+arch water_lt
+x 6
+y 2
+end
+arch water_lt4
+x 6
+y 3
+end
+arch water_lt3
+x 6
+y 4
+end
+arch water_lt3
+x 6
+y 5
+end
+arch water_lt2
+x 6
+y 6
+end
+arch water_lt
+x 6
 y 7
 end
 arch water_lt4
+x 6
+y 8
+end
+arch water_lt4
+x 6
+y 9
+end
+arch water_lt
+x 6
+y 10
+end
+arch water_lt3
+x 6
+y 11
+end
+arch water_lt4
+x 6
+y 12
+end
+arch water_lt4
+x 6
+y 13
+end
+arch water_lt
+x 6
+y 14
+end
+arch water_lt4
+x 6
+y 15
+end
+arch water_lt
+x 6
+y 16
+end
+arch water_lt4
+x 6
+y 17
+end
+arch water_lt2
+x 6
+y 18
+end
+arch water_lt3
+x 6
+y 19
+end
+arch water_lt3
+x 6
+y 20
+end
+arch water_lt2
+x 6
+y 21
+end
+arch water_lt2
+x 6
+y 22
+end
+arch water_lt4
+x 6
+y 23
+end
+arch water_lt3
+x 7
+end
+arch water_lt2
+x 7
+y 1
+end
+arch water_lt4
+x 7
+y 2
+end
+arch water_lt
+x 7
+y 3
+end
+arch water_lt
+x 7
+y 4
+end
+arch water_lt
+x 7
+y 5
+end
+arch water_lt3
+x 7
+y 6
+end
+arch water_lt
+x 7
+y 7
+end
+arch water_lt
+x 7
+y 8
+end
+arch water_lt2
+x 7
+y 9
+end
+arch water_lt
+x 7
+y 10
+end
+arch water_lt3
+x 7
+y 11
+end
+arch water_lt
+x 7
+y 12
+end
+arch water_lt3
+x 7
+y 13
+end
+arch water_lt2
+x 7
+y 14
+end
+arch water_lt4
+x 7
+y 15
+end
+arch water_lt2
+x 7
+y 16
+end
+arch water_lt
+x 7
+y 17
+end
+arch water_lt
+x 7
+y 18
+end
+arch water_lt4
+x 7
+y 19
+end
+arch water_lt4
+x 7
+y 20
+end
+arch water_lt3
+x 7
+y 21
+end
+arch water_lt3
+x 7
+y 22
+end
+arch water_lt3
+x 7
+y 23
+end
+arch water_lt2
+x 8
+end
+arch water_lt4
+x 8
+y 1
+end
+arch water_lt
+x 8
+y 2
+end
+arch water_lt4
+x 8
+y 3
+end
+arch water_lt4
+x 8
+y 4
+end
+arch water_lt3
+x 8
+y 5
+end
+arch water_lt3
+x 8
+y 6
+end
+arch water_lt3
+x 8
+y 7
+end
+arch water_lt4
+x 8
+y 8
+end
+arch water_lt2
+x 8
+y 9
+end
+arch water_lt
+x 8
+y 10
+end
+arch water_lt
+x 8
+y 11
+end
+arch water_lt4
+x 8
+y 12
+end
+arch water_lt3
+x 8
+y 13
+end
+arch water_lt
+x 8
+y 14
+end
+arch water_lt4
+x 8
+y 15
+end
+arch water_lt2
+x 8
+y 16
+end
+arch water_lt4
+x 8
+y 17
+end
+arch water_lt
+x 8
+y 18
+end
+arch water_lt3
+x 8
+y 19
+end
+arch water_lt4
+x 8
+y 20
+end
+arch water_lt2
+x 8
+y 21
+end
+arch water_lt3
+x 8
+y 22
+end
+arch water_lt2
+x 8
+y 23
+end
+arch water_lt3
+x 9
+end
+arch water_lt3
+x 9
+y 1
+end
+arch water_lt4
+x 9
+y 2
+end
+arch water_lt2
+x 9
+y 3
+end
+arch water_lt
+x 9
+y 4
+end
+arch water_lt4
+x 9
+y 5
+end
+arch water_lt
+x 9
+y 6
+end
+arch water_lt4
+x 9
+y 7
+end
+arch water_lt2
+x 9
+y 8
+end
+arch water_lt4
+x 9
+y 9
+end
+arch water_lt3
+x 9
+y 10
+end
+arch water_lt3
+x 9
+y 11
+end
+arch water_lt2
+x 9
+y 12
+end
+arch water_lt4
+x 9
+y 13
+end
+arch water_lt3
+x 9
+y 14
+end
+arch water_lt
+x 9
+y 15
+end
+arch water_lt4
+x 9
+y 16
+end
+arch water_lt4
+x 9
+y 17
+end
+arch water_lt2
+x 9
+y 18
+end
+arch water_lt
+x 9
+y 19
+end
+arch water_lt4
+x 9
+y 20
+end
+arch water_lt4
+x 9
+y 21
+end
+arch water_lt2
+x 9
+y 22
+end
+arch water_lt3
+x 9
+y 23
+end
+arch water_lt3
+x 10
+end
+arch water_lt2
+x 10
+y 1
+end
+arch water_lt
+x 10
+y 2
+end
+arch water_lt4
+x 10
+y 3
+end
+arch water_lt3
+x 10
+y 4
+end
+arch water_lt2
+x 10
+y 5
+end
+arch water_lt4
+x 10
+y 6
+end
+arch water_lt
+x 10
+y 7
+end
+arch water_lt2
+x 10
+y 8
+end
+arch water_lt4
+x 10
+y 9
+end
+arch water_lt4
+x 10
+y 10
+end
+arch water_lt2
+x 10
+y 11
+end
+arch water_lt4
+x 10
+y 12
+end
+arch water_lt
+x 10
+y 13
+end
+arch water_lt2
+x 10
+y 14
+end
+arch water_lt4
+x 10
+y 15
+end
+arch water_lt4
+x 10
+y 16
+end
+arch water_lt
+x 10
+y 17
+end
+arch water_lt4
+x 10
+y 18
+end
+arch water_lt2
+x 10
+y 19
+end
+arch water_lt
+x 10
+y 20
+end
+arch water_lt
+x 10
+y 21
+end
+arch water_lt3
+x 10
+y 22
+end
+arch water_lt3
+x 10
+y 23
+end
+arch water_lt2
+x 11
+end
+arch water_lt3
+x 11
+y 1
+end
+arch water_lt
+x 11
+y 2
+end
+arch water_lt4
+x 11
+y 3
+end
+arch water_lt4
+x 11
+y 4
+end
+arch water_lt
+x 11
+y 5
+end
+arch water_lt2
+x 11
+y 6
+end
+arch water_lt3
+x 11
+y 7
+end
+arch water_lt2
+x 11
+y 8
+end
+arch water_lt2
+x 11
+y 9
+end
+arch water_lt
+x 11
+y 10
+end
+arch water_lt
+x 11
+y 11
+end
+arch water_lt3
+x 11
+y 12
+end
+arch water_lt
+x 11
+y 13
+end
+arch water_lt3
+x 11
+y 14
+end
+arch water_lt4
+x 11
+y 15
+end
+arch water_lt2
+x 11
+y 16
+end
+arch water_lt
+x 11
+y 17
+end
+arch water_lt4
+x 11
+y 18
+end
+arch water_lt2
+x 11
+y 19
+end
+arch water_lt4
+x 11
+y 20
+end
+arch water_lt2
+x 11
+y 21
+end
+arch water_lt4
+x 11
+y 22
+end
+arch water_lt2
+x 11
+y 23
+end
+arch water_lt3
+x 12
+end
+arch water_lt
+x 12
+y 1
+end
+arch water_lt2
+x 12
+y 2
+end
+arch water_lt
+x 12
+y 3
+end
+arch water_lt2
+x 12
+y 4
+end
+arch water_lt2
+x 12
+y 5
+end
+arch water_lt2
+x 12
+y 6
+end
+arch water_lt4
+x 12
+y 7
+end
+arch water_lt4
+x 12
+y 8
+end
+arch water_lt2
+x 12
+y 9
+end
+arch water_lt3
+x 12
+y 10
+end
+arch water_lt3
+x 12
+y 11
+end
+arch water_lt2
+x 12
+y 12
+end
+arch water_lt4
+x 12
+y 13
+end
+arch water_lt4
+x 12
+y 14
+end
+arch water_lt3
+x 12
+y 15
+end
+arch water_lt2
+x 12
+y 16
+end
+arch water_lt
+x 12
+y 17
+end
+arch water_lt
+x 12
+y 18
+end
+arch water_lt3
+x 12
+y 19
+end
+arch water_lt
+x 12
+y 20
+end
+arch water_lt3
+x 12
+y 21
+end
+arch water_lt
+x 12
+y 22
+end
+arch water_lt
+x 12
+y 23
+end
+arch water_lt4
+x 13
+end
+arch water_lt4
+x 13
+y 1
+end
+arch water_lt3
+x 13
+y 2
+end
+arch water_lt
+x 13
+y 3
+end
+arch water_lt2
+x 13
+y 4
+end
+arch water_lt2
+x 13
+y 5
+end
+arch water_lt
+x 13
+y 6
+end
+arch water_lt
+x 13
+y 7
+end
+arch water_lt3
+x 13
+y 8
+end
+arch water_lt
+x 13
+y 9
+end
+arch water_lt2
+x 13
+y 10
+end
+arch water_lt4
+x 13
+y 11
+end
+arch water_lt4
+x 13
+y 12
+end
+arch water_lt4
+x 13
+y 13
+end
+arch water_lt2
+x 13
+y 14
+end
+arch water_lt
+x 13
+y 15
+end
+arch water_lt
+x 13
+y 16
+end
+arch water_lt4
+x 13
+y 17
+end
+arch water_lt4
+x 13
+y 18
+end
+arch water_lt
+x 13
+y 19
+end
+arch water_lt3
+x 13
+y 20
+end
+arch water_lt2
+x 13
+y 21
+end
+arch water_lt4
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch water_lt
+x 14
+end
+arch water_lt4
+x 14
+y 1
+end
+arch water_lt3
+x 14
+y 2
+end
+arch water_lt2
+x 14
+y 3
+end
+arch water_lt2
+x 14
+y 4
+end
+arch water_lt3
+x 14
+y 5
+end
+arch water_lt
+x 14
+y 6
+end
+arch water_lt3
+x 14
+y 7
+end
+arch water_lt
+x 14
+y 8
+end
+arch water_lt3
+x 14
+y 9
+end
+arch water_lt3
+x 14
+y 10
+end
+arch water_lt3
+x 14
+y 11
+end
+arch water_lt4
+x 14
+y 12
+end
+arch water_lt2
+x 14
+y 13
+end
+arch water_lt4
+x 14
+y 14
+end
+arch water_lt
+x 14
+y 15
+end
+arch water_lt4
+x 14
+y 16
+end
+arch water_lt3
+x 14
+y 17
+end
+arch water_lt3
+x 14
+y 18
+end
+arch water_lt3
+x 14
+y 19
+end
+arch water_lt
+x 14
+y 20
+end
+arch water_lt3
+x 14
+y 21
+end
+arch water_lt4
+x 14
+y 22
+end
+arch water_lt
+x 14
+y 23
+end
+arch water_lt2
+x 15
+end
+arch water_lt2
+x 15
+y 1
+end
+arch water_lt3
+x 15
+y 2
+end
+arch water_lt3
+x 15
+y 3
+end
+arch water_lt4
+x 15
+y 4
+end
+arch water_lt4
+x 15
+y 5
+end
+arch water_lt3
+x 15
+y 6
+end
+arch water_lt3
+x 15
+y 7
+end
+arch water_lt2
+x 15
+y 8
+end
+arch water_lt4
+x 15
+y 9
+end
+arch water_lt3
+x 15
+y 10
+end
+arch water_lt2
+x 15
+y 11
+end
+arch water_lt4
+x 15
+y 12
+end
+arch water_lt3
+x 15
+y 13
+end
+arch water_lt2
+x 15
+y 14
+end
+arch water_lt4
+x 15
+y 15
+end
+arch water_lt
+x 15
+y 16
+end
+arch water_lt4
+x 15
+y 17
+end
+arch water_lt2
+x 15
+y 18
+end
+arch water_lt2
+x 15
+y 19
+end
+arch water_lt4
+x 15
+y 20
+end
+arch water_lt2
+x 15
+y 21
+end
+arch water_lt2
+x 15
+y 22
+end
+arch water_lt3
+x 15
+y 23
+end
+arch water_lt4
+x 16
+end
+arch water_lt
+x 16
+y 1
+end
+arch water_lt3
+x 16
+y 2
+end
+arch water_lt
+x 16
+y 3
+end
+arch water_lt
+x 16
+y 4
+end
+arch water_lt2
+x 16
+y 5
+end
+arch water_lt3
+x 16
+y 6
+end
+arch water_lt4
+x 16
+y 7
+end
+arch water_lt3
+x 16
+y 8
+end
+arch water_lt4
+x 16
+y 9
+end
+arch water_lt3
+x 16
+y 10
+end
+arch water_lt
+x 16
+y 11
+end
+arch water_lt4
+x 16
+y 12
+end
+arch water_lt4
+x 16
+y 13
+end
+arch water_lt2
+x 16
+y 14
+end
+arch water_lt4
+x 16
+y 15
+end
+arch water_lt2
+x 16
+y 16
+end
+arch water_lt3
+x 16
+y 17
+end
+arch water_lt3
+x 16
+y 18
+end
+arch water_lt4
+x 16
+y 19
+end
+arch water_lt2
+x 16
+y 20
+end
+arch water_lt2
+x 16
+y 21
+end
+arch water_lt3
+x 16
+y 22
+end
+arch water_lt
+x 16
+y 23
+end
+arch water_lt2
+x 17
+end
+arch water_lt2
+x 17
+y 1
+end
+arch water_lt2
+x 17
+y 2
+end
+arch water_lt
+x 17
+y 3
+end
+arch water_lt
+x 17
+y 4
+end
+arch water_lt4
+x 17
+y 5
+end
+arch water_lt2
+x 17
+y 6
+end
+arch water_lt3
+x 17
+y 7
+end
+arch water_lt2
+x 17
+y 8
+end
+arch water_lt
+x 17
+y 9
+end
+arch water_lt4
+x 17
+y 10
+end
+arch water_lt4
+x 17
+y 11
+end
+arch water_lt
+x 17
+y 12
+end
+arch water_lt2
+x 17
+y 13
+end
+arch water_lt4
+x 17
+y 14
+end
+arch water_lt4
+x 17
+y 15
+end
+arch water_lt
+x 17
+y 16
+end
+arch water_lt2
+x 17
+y 17
+end
+arch water_lt3
+x 17
+y 18
+end
+arch water_lt3
+x 17
+y 19
+end
+arch water_lt4
+x 17
+y 20
+end
+arch water_lt4
+x 17
+y 21
+end
+arch water_lt2
+x 17
+y 22
+end
+arch water_lt3
+x 17
+y 23
+end
+arch water_lt2
+x 18
+end
+arch water_lt3
+x 18
+y 1
+end
+arch water_lt2
+x 18
+y 2
+end
+arch water_lt4
+x 18
+y 3
+end
+arch water_lt3
+x 18
+y 4
+end
+arch water_lt4
+x 18
+y 5
+end
+arch water_lt
+x 18
+y 6
+end
+arch water_lt4
+x 18
+y 7
+end
+arch water_lt
+x 18
+y 8
+end
+arch water_lt4
+x 18
+y 9
+end
+arch water_lt3
+x 18
+y 10
+end
+arch water_lt3
+x 18
+y 11
+end
+arch water_lt3
+x 18
+y 12
+end
+arch water_lt3
+x 18
+y 13
+end
+arch water_lt4
+x 18
+y 14
+end
+arch water_lt4
+x 18
+y 15
+end
+arch water_lt4
+x 18
+y 16
+end
+arch water_lt2
+x 18
+y 17
+end
+arch water_lt2
+x 18
+y 18
+end
+arch water_lt3
+x 18
+y 19
+end
+arch water_lt2
+x 18
+y 20
+end
+arch water_lt
+x 18
+y 21
+end
+arch water_lt2
+x 18
+y 22
+end
+arch water_lt3
+x 18
+y 23
+end
+arch water_lt
+x 19
+end
+arch water_lt
+x 19
+y 1
+end
+arch water_lt
+x 19
+y 2
+end
+arch water_lt
+x 19
+y 3
+end
+arch water_lt4
+x 19
+y 4
+end
+arch water_lt2
+x 19
+y 5
+end
+arch water_lt4
+x 19
+y 6
+end
+arch water_lt
+x 19
+y 7
+end
+arch water_lt2
+x 19
+y 8
+end
+arch water_lt4
+x 19
+y 9
+end
+arch water_lt4
+x 19
+y 10
+end
+arch water_lt2
+x 19
+y 11
+end
+arch water_lt4
+x 19
+y 12
+end
+arch water_lt3
+x 19
+y 13
+end
+arch water_lt3
+x 19
+y 14
+end
+arch water_lt4
+x 19
+y 15
+end
+arch water_lt3
+x 19
+y 16
+end
+arch water_lt3
+x 19
+y 17
+end
+arch water_lt4
+x 19
+y 18
+end
+arch water_lt3
+x 19
+y 19
+end
+arch water_lt
+x 19
+y 20
+end
+arch water_lt2
+x 19
+y 21
+end
+arch water_lt4
+x 19
+y 22
+end
+arch water_lt
+x 19
+y 23
+end
+arch water_lt3
+x 20
+end
+arch water_lt
+x 20
+y 1
+end
+arch water_lt
+x 20
+y 2
+end
+arch water_lt3
+x 20
+y 3
+end
+arch water_lt4
+x 20
+y 4
+end
+arch water_lt2
+x 20
+y 5
+end
+arch water_lt2
+x 20
+y 6
+end
+arch water_lt3
+x 20
+y 7
+end
+arch water_lt4
+x 20
+y 8
+end
+arch water_lt4
+x 20
+y 9
+end
+arch water_lt
+x 20
+y 10
+end
+arch water_lt3
+x 20
+y 11
+end
+arch water_lt3
+x 20
+y 12
+end
+arch water_lt3
+x 20
+y 13
+end
+arch water_lt4
+x 20
+y 14
+end
+arch water_lt2
+x 20
+y 15
+end
+arch water_lt
+x 20
+y 16
+end
+arch water_lt3
+x 20
+y 17
+end
+arch water_lt
+x 20
+y 18
+end
+arch water_lt4
+x 20
+y 19
+end
+arch water_lt3
+x 20
+y 20
+end
+arch water_lt2
+x 20
+y 21
+end
+arch water_lt3
+x 20
+y 22
+end
+arch water_lt3
+x 20
+y 23
+end
+arch water_lt3
+x 21
+end
+arch water_lt2
+x 21
+y 1
+end
+arch water_lt4
+x 21
+y 2
+end
+arch water_lt2
+x 21
+y 3
+end
+arch water_lt2
+x 21
+y 4
+end
+arch water_lt
+x 21
+y 5
+end
+arch water_lt3
+x 21
+y 6
+end
+arch water_lt2
+x 21
+y 7
+end
+arch water_lt4
+x 21
+y 8
+end
+arch water_lt4
+x 21
+y 9
+end
+arch water_lt2
+x 21
+y 10
+end
+arch water_lt3
+x 21
+y 11
+end
+arch water_lt
+x 21
+y 12
+end
+arch water_lt3
+x 21
+y 13
+end
+arch water_lt2
+x 21
+y 14
+end
+arch water_lt4
+x 21
+y 15
+end
+arch water_lt2
+x 21
+y 16
+end
+arch water_lt3
+x 21
+y 17
+end
+arch water_lt2
+x 21
+y 18
+end
+arch water_lt
+x 21
+y 19
+end
+arch water_lt2
+x 21
+y 20
+end
+arch water_lt4
+x 21
+y 21
+end
+arch water_lt3
+x 21
+y 22
+end
+arch water_lt
+x 21
+y 23
+end
+arch water_lt
+x 22
+end
+arch water_lt2
+x 22
+y 1
+end
+arch water_lt
+x 22
+y 2
+end
+arch water_lt
+x 22
+y 3
+end
+arch water_lt4
+x 22
+y 4
+end
+arch water_lt3
+x 22
+y 5
+end
+arch water_lt
+x 22
+y 6
+end
+arch water_lt
+x 22
+y 7
+end
+arch water_lt3
+x 22
+y 8
+end
+arch water_lt4
+x 22
+y 9
+end
+arch water_lt2
+x 22
+y 10
+end
+arch water_lt3
+x 22
+y 11
+end
+arch water_lt
+x 22
+y 12
+end
+arch water_lt2
+x 22
+y 13
+end
+arch water_lt2
+x 22
+y 14
+end
+arch water_lt2
+x 22
+y 15
+end
+arch water_lt4
+x 22
+y 16
+end
+arch water_lt4
+x 22
+y 17
+end
+arch water_lt
+x 22
+y 18
+end
+arch water_lt2
+x 22
+y 19
+end
+arch water_lt2
+x 22
+y 20
+end
+arch water_lt3
+x 22
+y 21
+end
+arch water_lt
+x 22
+y 22
+end
+arch water_lt4
+x 22
+y 23
+end
+arch water_lt4
+x 23
+end
+arch water_lt2
+x 23
+y 1
+end
+arch water_lt4
+x 23
+y 2
+end
+arch water_lt3
+x 23
+y 3
+end
+arch water_lt
+x 23
+y 4
+end
+arch water_lt4
+x 23
+y 5
+end
+arch water_lt3
+x 23
+y 6
+end
+arch water_lt3
+x 23
+y 7
+end
+arch water_lt
 x 23
 y 8
 end
@@ -3869,19 +2217,19 @@ arch water_lt3
 x 23
 y 9
 end
-arch water_lt2
+arch water_lt
 x 23
 y 10
 end
-arch water_lt
+arch water_lt2
 x 23
 y 11
 end
-arch water_lt
+arch water_lt4
 x 23
 y 12
 end
-arch water_lt2
+arch water_lt
 x 23
 y 13
 end
@@ -3893,7 +2241,7 @@ arch water_lt
 x 23
 y 15
 end
-arch water_lt2
+arch water_lt3
 x 23
 y 16
 end
@@ -3901,27 +2249,27 @@ arch water_lt
 x 23
 y 17
 end
-arch water_lt
+arch water_lt4
 x 23
 y 18
 end
-arch water_lt3
+arch water_lt
 x 23
 y 19
 end
-arch water_lt3
+arch water_lt
 x 23
 y 20
 end
-arch water_lt2
+arch water_lt3
 x 23
 y 21
 end
-arch water_lt4
+arch water_lt3
 x 23
 y 22
 end
-arch water_lt2
+arch water_lt
 x 23
 y 23
 end
