@@ -1,8 +1,8 @@
+## @file
+## Generic script for guards.
+
 from Interface import Interface
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
 inf = Interface(activator, me)
 
 def main():
