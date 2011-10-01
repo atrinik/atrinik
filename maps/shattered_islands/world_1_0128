@@ -414,14 +414,6 @@ arch spawn_point
 x 2
 y 3
 arch witch2
-msg
-@match ^hi$|^hey$|^hello$
-Aww, maybe tomorrow I'll learn how to summon a <a>fairy</a>.
-@match ^fairy$
-Fairies are kinda cute.
-@match ^Reimu$|^Hakurei$|^Reimu Hakurei$
-Neko Miko Reimu.  Aishite'ru...
-endmsg
 name fairy-crazed student witch
 level 28
 spawn_time 14:00-16:00
@@ -432,6 +424,11 @@ Dex 3
 type 83
 direction 3
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/fairy-crazed_student_witch.py
+slaying clubTime
 end
 end
 end
@@ -488,15 +485,7 @@ arch spawn_point
 x 2
 y 7
 arch witch4
-msg
-@match ^hi$|^hey$|^hello$
-Welcome to the Centennial Witch Academy.  How can I <a>help</a> you?
-@match ^help$
-As the headmistress of the school, it is my duty to ensure all of our guests are taken care of.
-@match ^Alice$|^Margatroid$|^Alice Margatroid$
-*laughs*  That's a pretty amusing association you have made.
-endmsg
-name Margaret, the Headmistress
+name Margaret
 direction 1
 level 45
 can_cast_spell 1
@@ -506,6 +495,10 @@ Pow 4
 Dex 2
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/margaret.py
 end
 end
 end
@@ -1273,14 +1266,6 @@ arch spawn_point
 x 7
 y 4
 arch witch2
-msg
-@match ^hi$|^hey$|^hello$
-Whoa.  Hey!  Maybe I can learn to summon a <a>fairy</a>!
-@match ^fairy$
-Fairies are kinda cute.
-@match ^Reimu$|^Hakurei$|^Reimu Hakurei$
-Neko Miko Reimu.  Aishite'ru...
-endmsg
 name fairy-crazed student witch
 level 28
 spawn_time 8:00-14:00
@@ -1291,6 +1276,11 @@ Dex 3
 type 83
 direction 3
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/fairy-crazed_student_witch.py
+slaying classTime
 end
 end
 end
@@ -1491,12 +1481,6 @@ arch spawn_point
 x 8
 y 12
 arch witch4
-msg
-@match ^hi$|^hey$|^hello$
-Being on the student council is hard work.
-@match ^Alice$|^Margatroid$|^Alice Margatroid$
-Maybe later, I've got a student council to run.
-endmsg
 name bored student witch
 level 25
 spawn_time 14:00-16:00
@@ -1507,6 +1491,11 @@ Dex 3
 type 83
 direction 1
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/bored_student_witch.py
+slaying clubTime
 end
 end
 end
@@ -1600,12 +1589,7 @@ x 9
 y 3
 arch witch5
 msg
-@match ^hi$|^hey$|^hello$
-Hey.  You're not in my summoning class...
-@match ^Sanae$|^Kotiya$|^Sanae Kotiya$
-I'll remind you not to pry into other people's hobbies, thank you.
-@match ^Kanako Yasaka$
-Somebody wants to be put through the wringer, do they?
+
 endmsg
 name Kanako, the witch instructor
 level 35
@@ -1620,6 +1604,10 @@ arch ability_mbullet
 name ability lightning
 sp 48
 hp 48
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/kanako.py
 end
 end
 end
@@ -1978,12 +1966,6 @@ endmsg
 x 11
 y 3
 arch witch3
-msg
-@match ^hi$|^hey$|^hello$
-Shh, I'm trying to learn here.
-@match ^Patchouli$|^Patchouli Knowledge$
-C'mon.  Let me listen to the teacher, man...
-endmsg
 name bookish student witch
 level 25
 spawn_time 8:00-14:00
@@ -1993,6 +1975,11 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/bookish_student_witch.py
+slaying classTime
 end
 end
 end
@@ -2018,12 +2005,6 @@ arch spawn_point
 x 11
 y 5
 arch witch4
-msg
-@match ^hi$|^hey$|^hello$
-She only summons the boring animals!
-@match ^Alice$|^Margatroid$|^Alice Margatroid$
-Now she can summon exploding dolls!  Awesome!
-endmsg
 name bored student witch
 level 25
 spawn_time 8:00-14:00
@@ -2034,6 +2015,11 @@ Dex 3
 type 83
 direction 7
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/bored_student_witch.py
+slaying classTime
 end
 end
 end

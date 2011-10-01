@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-06-25 emperorbma
+Modified: 2011-10-01 emperorbma
 endmsg
 width 24
 height 24
@@ -1834,6 +1834,11 @@ arch floor_wood1b
 x 15
 y 13
 end
+arch torch_wall_1
+direction 7
+x 15
+y 13
+end
 arch floor_wood1b
 x 15
 y 14
@@ -1934,6 +1939,10 @@ x 16
 y 7
 end
 arch floor_wood1b
+x 16
+y 8
+end
+arch torch_wall_1
 x 16
 y 8
 end
@@ -2191,21 +2200,6 @@ arch floor_wood1b
 x 18
 y 8
 end
-arch magic_ear
-msg
-@match ^Sanae$|^Kochiya$|^Sanae Kochiya$|^Kotiya$
-
-Ami, priestess of Drolaxi says:
-Even though I'm an ocean priestess, I still think she's awesome.
-@match ^Mizuno Ami$|^Ami Mizuno$
-
-Ami, priestess of Drolaxi says:
-Good guess, but how do you know my namesake wasn't Ami Kawashima, instead? *snickers*
-endmsg
-name Ami_bonus_dialog
-x 18
-y 8
-end
 arch spawn_point
 x 18
 y 8
@@ -2225,7 +2219,7 @@ hp 48
 end
 arch event_obj
 sub_type 6
-race /python/temples/drolaxi.py
+race scripts/centennial/ami.py
 end
 end
 end
@@ -2502,6 +2496,10 @@ x 20
 y 7
 end
 arch floor_wood1b
+x 20
+y 8
+end
+arch torch_wall_1
 x 20
 y 8
 end

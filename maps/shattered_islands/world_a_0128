@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-30 emperorbma
+Modified: 2011-10-01 emperorbma
 endmsg
 width 24
 height 24
@@ -278,7 +278,7 @@ endmsg
 x 3
 y 3
 arch witch3
-name Lindy, the librarian
+name Lindy
 level 38
 can_cast_spell 1
 sp -1
@@ -347,18 +347,6 @@ endmsg
 x 3
 y 7
 arch witch3
-msg
-@match ^hi$|^hey$|^hello$
-Shh, I'm trying to study.
-@match ^Patchouli$|^Patchouli Knowledge$
-Hmm.  I'm in a good mood today.  Maybe I'll just have to show you "Sun Sign: <a>Royal Flare</a>..."
-@match ^Royal Flare$
-Grr... take a hint or I'll show you to the <a>basement</a>.  Kihihihihihi.
-@match ^basement$
-Geez.  You must be as dumb as that <a>fairy</a>.
-@match ^Cirno$|^fairy$
-C'mon.  Let me study, man...
-endmsg
 name bookish student witch
 direction 1
 level 25
@@ -369,6 +357,11 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/bookish_student_witch.py
+slaying clubTime
 end
 end
 end
@@ -580,14 +573,7 @@ x 5
 y 7
 arch witch1
 msg
-@match ^hi$|^hey$|^hello$
-Hmm, still haven't learned how to cast <a>Master Spark</a>.  Maybe I can figure it out if I read some more of the <a>story</a>.
-@match ^Master Spark$
-Yeah, that's <a>Marisa's</a> favorite spell!
-@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
-She's the best, ze.
-@match ^story$
-That's "Eastern Project," ze.
+
 endmsg
 name trigger-happy student witch
 level 25
@@ -598,6 +584,11 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/trigger-happy_student_witch.py
+slaying clubTime
 end
 end
 end
@@ -681,7 +672,7 @@ arch spawn_point
 x 6
 y 7
 arch fairy
-name Ruri, the fairy helper
+name Ruri
 level 15
 can_cast_spell 1
 sp -1

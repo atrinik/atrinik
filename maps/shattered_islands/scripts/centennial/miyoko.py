@@ -1,5 +1,5 @@
 ## @file
-## Generic script to handle merchants.
+## Implements Miyoko, the potion seller's script.
 
 from Interface import Interface
 from Market import Merchant

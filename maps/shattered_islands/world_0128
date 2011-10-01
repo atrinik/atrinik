@@ -346,14 +346,9 @@ x 2
 y 5
 arch witch1
 msg
-@match ^hi$|^hey$|^hello$
-You don't look like one of my students...
-@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
-Hey, I don't knock your hobbies.
-@match ^Sailor Moon$
-No, I won't do an "In the name of the Moon" speech for you.  Go away.
+
 endmsg
-name Usagi, the witch instructor
+name Usagi
 direction 3
 level 35
 spawn_time 8:00-16:00
@@ -367,6 +362,10 @@ arch ability_mbullet
 name ability lightning
 sp 48
 hp 48
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/usagi.py
 end
 end
 end
@@ -407,18 +406,9 @@ x 2
 y 10
 arch witch3
 msg
-@match ^hi$|^hey$|^hello$
-*sigh* I wish they'd stop talking about those novels all day.
-@match ^Patchouli$|^Patchouli Knowledge$
-Well, they say Patchouli is a gateway herb, or character as the case may be...  *chuckle*
-@match ^Puella Magi Madoka Magica$|^Puella$
-Yeah, everyone in town is named from one novel or other.  The town is weird like that.
-@match ^contract$
-What?  Are you trying to be <a>Kyubey</a> or something?
-@match ^Kyubey$
-No, we don't have a Kyubey...
+
 endmsg
-name Madoka, the witch instructor
+name Madoka
 direction 3
 level 32
 spawn_time 8:00-16:00
@@ -429,6 +419,10 @@ Pow 4
 Dex 2
 type 83
 arch ability_firestorm
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/madoka.py
 end
 end
 end
@@ -846,12 +840,6 @@ arch spawn_point
 x 5
 y 3
 arch witch4
-msg
-@match ^hi$|^hey$|^hello$
-Hey.  Listening to the teacher...
-@match ^Alice$|^Margatroid$|^Alice Margatroid$
-Maybe later, I've really gotta pass this test.
-endmsg
 name studious student witch
 level 25
 spawn_time 8:00-14:00
@@ -960,14 +948,6 @@ arch spawn_point
 x 5
 y 12
 arch witch1
-msg
-@match ^hi$|^hey$|^hello$
-I wonder when I learn how to cast <a>Master Spark</a>.
-@match ^Master Spark$
-Yeah, that's <a>Marisa's</a> favorite spell!
-@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
-She's the best, ze.
-endmsg
 name trigger-happy student witch
 level 25
 spawn_time 8:00-14:00
@@ -977,6 +957,11 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/trigger-happy_student_witch.py
+slaying classTime
 end
 end
 end
@@ -1131,10 +1116,7 @@ x 6
 y 8
 arch witch2
 msg
-@match ^hi$|^hey$|^hello$
-Just cause she's a fan of Marisa doesn't mean that's all she's gotta go on about.  Geez.
-@match ^Reimu$|^Hakurei$|^Reimu Hakurei$
-Now Reimu *is* totally awesome...
+
 endmsg
 name cynical student witch
 level 28
@@ -1145,6 +1127,10 @@ maxsp 12
 Dex 3
 type 83
 arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race scripts/centennial/cynical_student_witch.py
 end
 end
 end
@@ -1380,6 +1366,10 @@ arch broom.111
 x 7
 y 16
 end
+arch torch_wall_1
+x 7
+y 16
+end
 arch floor_green1
 x 7
 y 17
@@ -1534,26 +1524,11 @@ arch floor_green1
 x 8
 y 17
 end
-arch magic_ear
-msg
-@match ^Marisa's$|^Marisa$|^Kirisame$|^Marisa Kirisame$
-
-Miyoko, the potion shopkeeper says:
-Yeah, she's pretty awesome.
-@match ^Takano$|^Miyo Takano$|^Tanishi$|^Miyoko Tanishi$|^Higurashi no Naku Koro ni$
-
-Miyoko, the potion shopkeeper says:
-Hihihi,  Good job guessing where my name is from.  Don't worry, I don't turn out like her...
-endmsg
-name Miyoko_bonus_dialog
-x 8
-y 17
-end
 arch spawn_point
 x 8
 y 17
 arch witch1
-name Miyoko, the potion shopkeeper
+name Miyoko
 level 32
 can_cast_spell 1
 sp -1
@@ -1698,6 +1673,10 @@ x 9
 y 16
 end
 arch table_lab1.111
+x 9
+y 16
+end
+arch light2
 x 9
 y 16
 end
