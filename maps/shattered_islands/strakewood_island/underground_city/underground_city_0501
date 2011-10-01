@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-07-26 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -882,7 +882,6 @@ x 7
 y 10
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 7
 y 10
@@ -1570,7 +1569,6 @@ x 12
 y 20
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 12
 y 20

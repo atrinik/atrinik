@@ -364,16 +364,10 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-carrying 6300
-weight 5000
-friendly 1
 unaggressive 0
 arch key_blue
-quest_item 1
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-startequip 1
-one_drop 1
 end
 end
 end
@@ -426,16 +420,10 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-carrying 6400
-weight 5000
-friendly 1
 unaggressive 0
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-startequip 1
-quest_item 1
-one_drop 1
 end
 end
 end
@@ -885,9 +873,7 @@ msg
 You need Asteria Dungeon Key 1 to enter here.
 endmsg
 slaying asteria_dungeon_key1
-face door_lock1.131
 direction 3
-last_sp -1
 x 6
 y 7
 end
@@ -1293,10 +1279,6 @@ x 10
 y 8
 end
 arch grate_open
-maxsp 0
-speed_left -0.500000
-path_attuned 110
-value 1
 connected 110
 x 10
 y 8

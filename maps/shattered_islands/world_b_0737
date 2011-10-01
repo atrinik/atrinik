@@ -268,9 +268,7 @@ x 16
 y 8
 arch giant_hill
 name Orgloroth, the Key Guardian
-weight 5000
 level 35
-carrying 5500
 Wis 2
 type 83
 arch quest_container

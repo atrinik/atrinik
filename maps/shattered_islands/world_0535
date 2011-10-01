@@ -3628,7 +3628,6 @@ x 22
 y 14
 end
 arch door_wood1
-face door_wood1.131
 direction 5
 x 22
 y 14

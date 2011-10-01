@@ -2,7 +2,7 @@ arch map
 name Expensive Apartment
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 9
 height 9
@@ -245,7 +245,6 @@ x 3
 y 1
 end
 arch door_wood2
-face door_wood2.131
 direction 3
 x 3
 y 1
@@ -368,7 +367,6 @@ x 4
 y 7
 end
 arch curtain1
-face curtain1.131
 direction 3
 x 4
 y 7

@@ -2503,7 +2503,6 @@ x 17
 y 19
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 17
 y 19

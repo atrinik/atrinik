@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -453,7 +453,7 @@ y 8
 end
 arch grave_fire.101
 glow_radius 5
-face grave_fire_on.101
+is_animated 1
 x 4
 y 8
 end
@@ -1196,7 +1196,7 @@ y 17
 end
 arch grave_fire.101
 glow_radius 5
-face grave_fire_on.101
+is_animated 1
 x 8
 y 17
 end
@@ -1629,7 +1629,7 @@ y 2
 end
 arch grave_fire.101
 glow_radius 5
-face grave_fire_on.101
+is_animated 1
 x 12
 y 2
 end
@@ -2849,7 +2849,7 @@ y 15
 end
 arch grave_fire.101
 glow_radius 5
-face grave_fire_on.101
+is_animated 1
 x 20
 y 15
 end

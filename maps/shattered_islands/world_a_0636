@@ -849,9 +849,7 @@ x 22
 y 17
 end
 arch door1_locked
-face door_lock1.131
 direction 3
-last_sp -1
 x 22
 y 17
 end

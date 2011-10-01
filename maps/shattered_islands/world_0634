@@ -3580,7 +3580,6 @@ x 20
 y 17
 end
 arch door1_locked
-last_sp -1
 x 20
 y 17
 end

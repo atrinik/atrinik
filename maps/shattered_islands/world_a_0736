@@ -245,9 +245,7 @@ x 1
 y 15
 end
 arch door1_locked
-face door_lock1.131
 direction 3
-last_sp -1
 x 1
 y 15
 end
@@ -1558,8 +1556,6 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-carrying 4600
-weight 5000
 unaggressive 0
 arch key_blue
 name Asteria Dungeon Key 1
@@ -3517,7 +3513,6 @@ x 23
 y 6
 end
 arch door1_locked
-face door_lock1.131
 direction 3
 x 23
 y 6

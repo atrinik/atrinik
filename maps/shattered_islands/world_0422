@@ -705,10 +705,11 @@ decorstyle cave
 decorchance 2
 endmsg
 name open grave
-face grave_open.131
+animation grave_open.111
 slaying /random/
 hp 0
 sp 0
+direction 7
 x 4
 y 21
 end

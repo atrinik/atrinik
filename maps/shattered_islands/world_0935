@@ -2594,9 +2594,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-carrying 5200
-weight 5000
-friendly 1
 unaggressive 0
 end
 end
@@ -2626,9 +2623,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-carrying 5200
-weight 5000
-friendly 1
 unaggressive 0
 end
 end
@@ -2931,8 +2925,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-weight 5000
-friendly 1
 unaggressive 0
 end
 end
@@ -2962,8 +2954,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-weight 5000
-friendly 1
 unaggressive 0
 end
 end

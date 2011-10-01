@@ -521,8 +521,6 @@ x 4
 y 3
 end
 arch gate1_locked
-last_sp -1
-blocksview 1
 x 4
 y 3
 end
