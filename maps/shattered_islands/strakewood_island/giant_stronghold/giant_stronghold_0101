@@ -2,7 +2,7 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-10-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -289,15 +289,6 @@ name hill giant clan leader
 type 83
 level 10
 Wis 3
-arch quest_container
-name Hill Giants Stronghold
-sub_type 2
-arch horn
-name clan horn of the hill giants
-type 79
-value 0
-end
-end
 end
 end
 arch floor_stone1b
