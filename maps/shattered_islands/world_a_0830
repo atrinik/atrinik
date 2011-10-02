@@ -2,7 +2,7 @@ arch map
 name Slime Tunnels
 msg
 Created:  2011-01-29 emperorbma
-Modified: 2011-05-13 Alex Tokar
+Modified: 2011-10-01 emperorbma
 endmsg
 width 24
 height 24
@@ -97,6 +97,9 @@ x 9
 y 2
 end
 arch earth_brown2
+x 10
+end
+arch light2
 x 10
 end
 arch earth_brown2

@@ -1078,6 +1078,10 @@ z 50
 x 7
 y 18
 end
+arch light2
+x 7
+y 18
+end
 arch floor_fs_grey1b
 z 50
 x 7
@@ -2694,6 +2698,10 @@ arch grain5.101
 x 17
 y 18
 end
+arch light2
+x 17
+y 18
+end
 arch floor_fs_grey1b
 z 50
 x 17
@@ -2800,6 +2808,10 @@ direction 7
 slaying world_0736
 hp 18
 sp 13
+x 18
+y 13
+end
+arch light5
 x 18
 y 13
 end
@@ -3143,6 +3155,10 @@ x 20
 y 18
 end
 arch grain5.101
+x 20
+y 18
+end
+arch light2
 x 20
 y 18
 end
@@ -3572,6 +3588,10 @@ z 50
 x 23
 y 14
 end
+arch light2
+x 23
+y 14
+end
 arch floor_fs_grey1b
 z 50
 x 23
@@ -3605,6 +3625,10 @@ x 23
 y 18
 end
 arch grain3.101
+x 23
+y 18
+end
+arch light2
 x 23
 y 18
 end

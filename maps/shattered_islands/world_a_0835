@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-01 emperorbma
 endmsg
 width 24
 height 24
@@ -374,6 +374,10 @@ y 22
 end
 arch water_lt4
 z 50
+x 9
+y 23
+end
+arch light2
 x 9
 y 23
 end
@@ -1048,7 +1052,7 @@ y 17
 end
 arch sign
 msg
-Perfectly Legal Not-Thief Guild
+Agnes Shipping Company
 endmsg
 x 19
 y 17
@@ -1057,6 +1061,19 @@ arch floor_wood2
 z 50
 x 19
 y 18
+end
+arch spawn_point
+x 19
+y 18
+arch pirate3
+name John
+level 28
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/smith.py
+end
+end
 end
 arch floor_wood2
 z 50
@@ -1475,4 +1492,17 @@ arch floor_wood2
 z 50
 x 23
 y 23
+end
+arch spawn_point
+x 23
+y 23
+arch peasant
+name Serge Aster
+level 34
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/asteria/serge_aster.py
+end
+end
 end
