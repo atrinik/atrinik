@@ -198,9 +198,9 @@ arch spawn_point
 x 1
 y 6
 arch priest_church
-type 83
-level 65
 name Conuld Burch
+level 65
+type 83
 arch event_obj
 sub_type 6
 race /python/temples/tabernacle.py
@@ -1716,12 +1716,14 @@ arch spawn_point
 x 9
 y 14
 arch guard
-type 83
+direction 3
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_8

@@ -2491,12 +2491,14 @@ arch spawn_point
 x 15
 y 20
 arch guard
-type 83
+direction 3
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_6

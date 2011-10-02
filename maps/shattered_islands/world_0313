@@ -726,10 +726,9 @@ arch smith
 msg
 
 endmsg
-type 83
-level 30
-friendly 1
 name Galann
+level 30
+type 83
 arch event_obj
 sub_type 6
 race scripts/strakewood_island/brynknot/galann.py
@@ -1363,11 +1362,13 @@ arch spawn_point
 x 8
 y 21
 arch guard
-type 83
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm2
@@ -2650,12 +2651,14 @@ arch spawn_point
 x 17
 y 13
 arch guard
-type 83
+direction 3
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_sand_d1
@@ -2690,12 +2693,14 @@ arch spawn_point
 x 17
 y 17
 arch guard
-type 83
+direction 3
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_8
@@ -2988,14 +2993,12 @@ arch spawn_point
 x 19
 y 13
 arch ranger
-type 83
+direction 3
 level 70
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
 arch ability_stone_throw
 race arrows
 wc 200
@@ -3035,14 +3038,12 @@ arch spawn_point
 x 19
 y 17
 arch ranger
-type 83
+direction 3
 level 70
 Dex 1
 can_use_bow 1
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
 arch ability_stone_throw
 race arrows
 wc 200

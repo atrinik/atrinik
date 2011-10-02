@@ -374,6 +374,20 @@ arch floor_grey1a1
 x 16
 y 16
 end
+arch spawn_point
+x 16
+y 16
+arch guard
+direction 3
+level 60
+unaggressive 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
 arch floor_grey1a1
 x 16
 y 17

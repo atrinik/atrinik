@@ -721,12 +721,14 @@ arch spawn_point
 x 4
 y 16
 arch guard
-type 83
+direction 3
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_3
@@ -1453,11 +1455,13 @@ arch spawn_point
 x 10
 y 8
 arch guard
-type 83
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm3
@@ -2782,12 +2786,14 @@ arch spawn_point
 x 20
 y 18
 arch guard
-type 83
+direction 7
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
-direction 7
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_4

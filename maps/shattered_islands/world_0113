@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -170,13 +170,12 @@ arch spawn_point
 x 1
 y 5
 arch ranger
-type 83
+direction 3
 level 73
 Dex 1
 can_use_bow 1
 unaggressive 0
-stand_still 0
-direction 3
+type 83
 arch ability_stone_throw
 race arrows
 wc 200
@@ -209,6 +208,10 @@ level 66
 unaggressive 0
 stand_still 0
 direction 3
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_7
@@ -231,11 +234,14 @@ arch spawn_point
 x 1
 y 10
 arch guard
-type 83
+direction 3
 level 66
 unaggressive 0
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_7
@@ -296,11 +302,14 @@ arch spawn_point
 x 1
 y 18
 arch guard
-type 83
+direction 3
 level 66
 unaggressive 0
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_2
@@ -849,13 +858,12 @@ arch spawn_point
 x 5
 y 5
 arch ranger
-type 83
+direction 3
 level 73
 Dex 1
 can_use_bow 1
 unaggressive 0
-stand_still 0
-direction 3
+type 83
 arch ability_stone_throw
 race arrows
 wc 200
@@ -883,11 +891,14 @@ arch spawn_point
 x 5
 y 7
 arch guard
-type 83
+direction 3
 level 66
 unaggressive 0
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_5
@@ -910,11 +921,14 @@ arch spawn_point
 x 5
 y 10
 arch guard
-type 83
+direction 3
 level 66
 unaggressive 0
-stand_still 0
-direction 3
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch grassd_3
@@ -1618,11 +1632,13 @@ arch spawn_point
 x 9
 y 21
 arch guard
-type 83
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm3
@@ -2219,9 +2235,8 @@ x 13
 y 15
 arch priest_green
 name Fallain
-type 83
 level 42
-friendly 1
+type 83
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -2523,9 +2538,12 @@ x 15
 y 14
 arch guard
 name bank guard
-type 83
 level 45
-friendly 1
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_ostone13
@@ -2827,9 +2845,12 @@ x 17
 y 14
 arch guard
 name bank guard
-type 83
 level 45
-friendly 1
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_ostone13
@@ -3299,12 +3320,11 @@ x 20
 y 15
 arch monk
 name Tolmir
-type 83
 level 41
-friendly 1
+type 83
 arch event_obj
 sub_type 6
-race ../python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end

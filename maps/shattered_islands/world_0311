@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -315,11 +315,11 @@ last_grace 0
 x 2
 y 7
 arch dragon_water_small
-type 83
 last_eat 3
 unaggressive 1
 friendly 1
 random_move 1
+type 83
 end
 end
 arch water_lt2
@@ -1177,11 +1177,13 @@ arch spawn_point
 x 8
 y 14
 arch guard
-type 83
 level 60
 unaggressive 0
-friendly 1
-stand_still 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm2
