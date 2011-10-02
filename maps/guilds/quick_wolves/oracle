@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2011-06-12 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 12
 height 12
@@ -487,7 +487,7 @@ friendly 1
 direction 1
 arch event_obj
 sub_type 6
-race ../../python/guilds/guild_oracle.py
+race /python/guilds/guild_oracle.py
 slaying Quick Wolves
 end
 end

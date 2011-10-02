@@ -2349,7 +2349,7 @@ x 17
 y 13
 arch event_obj
 sub_type 10
-race ../python/generic/apartment_teleport.py
+race /python/generic/apartment_teleport.py
 slaying strakewood_island
 end
 end

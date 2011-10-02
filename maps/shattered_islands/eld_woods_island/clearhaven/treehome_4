@@ -2,7 +2,7 @@ arch map
 name Clearhaven Treehome
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 11
 height 11
@@ -330,7 +330,7 @@ x 4
 y 7
 arch event_obj
 sub_type 10
-race ../../../python/generic/apartment_teleport.py
+race /python/generic/apartment_teleport.py
 slaying eld_woods_island
 end
 end
@@ -451,7 +451,7 @@ type 83
 level 34
 arch event_obj
 sub_type 6
-race ../../../python/generic/apartment_seller.py
+race /python/generic/apartment_seller.py
 slaying eld_woods_island
 end
 end
