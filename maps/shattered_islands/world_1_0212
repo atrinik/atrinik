@@ -25,6 +25,9 @@ end
 arch floor_grey1a1
 y 7
 end
+arch rack.111
+y 7
+end
 arch floor_grey1a1
 y 8
 end
@@ -41,6 +44,9 @@ arch wall_flagstone1.111
 y 11
 end
 arch floor_grey1a1
+y 12
+end
+arch chest_w1
 y 12
 end
 arch floor_grey1a1

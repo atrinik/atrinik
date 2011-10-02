@@ -7,3 +7,18 @@ name Brynknot Maze Key
 face key_yervas.111
 slaying brynknot_maze_key
 end
+
+Allowed none
+chance 1
+artifact llwyfen_portal_nyhelobo_note
+def_arch note
+Object
+name Letter from Nyhelobo to oty captain
+msg
+oty captain,
+
+This war with the humans has been going on for far too long. I've found a way to make an end to this. With the help of Moroch we can wipe those humans from the surface. Come and visit me tomorrow with all oty under your control! I will show you how we'll do it. I've asked the ghouls to help you dig a tunnel. They will come tomorrow too, don't be late!
+
+Nyhelobo
+endmsg
+end

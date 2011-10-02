@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Edwin Miltenburg
-Modified: 2011-03-06 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2193,15 +2193,13 @@ direction 3
 level 50
 type 83
 arch quest_container
-name Investigation for Maplevale
+name Portal of Llwyfen
+sub_type 4
+arch quest_container
+name part 2
 sub_type 2
-arch note
-msg
-oty captain,
-This war with the humans has been going on for far too long. I've found a way to make an end to this. With the help of Moroch we can wipe those humans from the surface. Come and visit me tomorrow with all oty under your contro! I will show you how we'll do it. I've asked the ghouls to help you dig a tunnel. They will come tomorrow too, don't be late!
-Nyhelobo
-endmsg
-name Letter from Nyhelobo to oty captain
+arch llwyfen_portal_nyhelobo_note
+end
 end
 end
 arch key2
@@ -2373,9 +2371,9 @@ arch floor_earth1c
 x 18
 y 11
 end
-arch door1_locked
+arch gate1_locked
 msg
-The lock bears the symbol of Brynknot. Only the guard captain has the key, he probably wouldn't give it to you without a reason though.
+The lock bears the symbol of Brynknot.
 endmsg
 slaying brynknot_maze_key
 x 18

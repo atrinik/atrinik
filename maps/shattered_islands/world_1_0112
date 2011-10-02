@@ -227,6 +227,11 @@ arch floor_grey1a1
 x 15
 y 14
 end
+arch torch_wall_1
+direction 7
+x 15
+y 14
+end
 arch floor_grey1a1
 x 15
 y 15
@@ -307,6 +312,11 @@ arch floor_grey1a1
 x 16
 y 8
 end
+arch torch_wall_1
+direction 7
+x 16
+y 8
+end
 arch floor_grey1a1
 x 16
 y 9
@@ -344,6 +354,10 @@ arch floor_grey1a1
 x 16
 y 12
 end
+arch chest_4.111
+x 16
+y 12
+end
 arch floor_grey1a1
 x 16
 y 13
@@ -373,6 +387,10 @@ x 17
 y 6
 end
 arch wall_flagstone1.111
+x 17
+y 6
+end
+arch picture4.151
 x 17
 y 6
 end
@@ -574,6 +592,11 @@ arch wall_flagstone1.131
 x 18
 y 9
 end
+arch wmask_bflag_fire1_1
+direction 7
+x 18
+y 9
+end
 arch floor_grey1a1
 x 18
 y 10
@@ -591,6 +614,14 @@ x 18
 y 11
 end
 arch floor_grey1a1
+x 18
+y 12
+end
+arch chest_sw_1
+x 18
+y 12
+end
+arch torch_wall_1
 x 18
 y 12
 end
@@ -627,6 +658,14 @@ x 19
 y 6
 end
 arch floor_grey1a1
+x 19
+y 7
+end
+arch fireplace_right
+x 19
+y 7
+end
+arch light5
 x 19
 y 7
 end
@@ -735,6 +774,10 @@ x 20
 y 6
 end
 arch floor_grey1a1
+x 20
+y 7
+end
+arch light5
 x 20
 y 7
 end
@@ -840,6 +883,10 @@ arch floor_grey1a1
 x 21
 y 12
 end
+arch torch_wall_1
+x 21
+y 12
+end
 arch floor_grey1a1
 x 21
 y 13
@@ -924,6 +971,10 @@ arch floor_grey1a1
 x 22
 y 7
 end
+arch rack.111
+x 22
+y 7
+end
 arch floor_grey1a1
 x 22
 y 8
@@ -932,7 +983,17 @@ arch floor_grey1a1
 x 22
 y 9
 end
+arch shelf1_wall.111
+direction 7
+x 22
+y 9
+end
 arch floor_grey1a1
+x 22
+y 10
+end
+arch shelf2_wall.111
+direction 7
 x 22
 y 10
 end
@@ -945,6 +1006,10 @@ x 22
 y 11
 end
 arch floor_grey1a1
+x 22
+y 12
+end
+arch chest_sw_1
 x 22
 y 12
 end
@@ -984,6 +1049,10 @@ arch floor_grey1a1
 x 23
 y 7
 end
+arch chest_w1
+x 23
+y 7
+end
 arch floor_grey1a1
 x 23
 y 8
@@ -993,6 +1062,10 @@ x 23
 y 9
 end
 arch table_lab3.111
+x 23
+y 9
+end
+arch light3
 x 23
 y 9
 end
@@ -1018,6 +1091,9 @@ sub_type 6
 race scripts/strakewood_island/brynknot/talthor_redeye.py
 end
 arch key_brynknot_sewer_maze
+end
+arch goldcoin
+nrof 20
 end
 end
 end

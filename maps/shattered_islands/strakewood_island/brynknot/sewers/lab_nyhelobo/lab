@@ -2,7 +2,7 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2083,13 +2083,12 @@ arch dirt_floor1
 x 11
 y 12
 end
-arch portal_green
+arch exit
+animation portal_green
+anim_speed 2
 slaying /shattered_islands/strakewood_island/underground_city/underground_city_0104
 hp 23
 sp 13
-walk_on 1
-fly_on 1
-type 66
 x 11
 y 12
 end
@@ -3400,10 +3399,6 @@ arch earth_brown3
 x 18
 y 12
 end
-arch fwall_sand1b
-x 18
-y 12
-end
 arch floor_earth1d
 x 18
 y 13
@@ -3588,26 +3583,20 @@ arch earth_brown4
 x 19
 y 11
 end
-arch fwall_sand1a
-x 19
-y 11
-end
 arch earth_brown2
 x 19
 y 12
 end
-arch fwall_sand1a
+arch exit
+slaying ../sewers_a_0404
+hp 14
+sp 21
+animation portal_green
+anim_speed 2
 x 19
 y 12
 end
 arch earth_brown1
-x 19
-y 13
-end
-arch ladder_up
-slaying sewers_a_0404
-hp 14
-sp 21
 x 19
 y 13
 end
@@ -3774,10 +3763,6 @@ x 20
 y 11
 end
 arch earth_brown3
-x 20
-y 12
-end
-arch fwall_sand1b
 x 20
 y 12
 end

@@ -124,7 +124,7 @@ LlwyfenPortal = {
 		{
 			"message": "Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.",
 			"type": QUEST_TYPE_KILL_ITEM,
-			"arch_name": "note",
+			"arch_name": "llwyfen_portal_nyhelobo_note",
 			"item_name": "Letter from Nyhelobo to oty captain",
 		},
 		{
@@ -134,7 +134,7 @@ LlwyfenPortal = {
 		{
 			"message": "Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.",
 			"type": QUEST_TYPE_KILL,
-			"kills": 1,
+			"num": 1,
 		},
 	],
 }

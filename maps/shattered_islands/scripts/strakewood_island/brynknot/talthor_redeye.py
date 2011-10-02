@@ -1,3 +1,6 @@
+## @file
+## Script for Talthor Redeye, the captain of the Brynknot guards.
+
 from Interface import Interface
 from QuestManager import QuestManagerMulti
 from Quests import LlwyfenPortal as quest
@@ -18,7 +21,7 @@ def main():
 
 		elif msg == "yesuc":
 			inf.add_msg("Hmm. According to the information the mayor sent me, your description of the place beyond the portal matches that of a part of the Brynknot sewer system that has been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this.")
-			inf.add_msg("How can I get to that part of the sewers?", dest = "getto")
+			inf.add_link("How can I get to that part of the sewers?", dest = "getto")
 
 		elif msg == "getto":
 			inf.add_msg("Here, you'll need this key. The gate is sealed shut, but this key should still be able to open it.")
@@ -27,7 +30,7 @@ def main():
 			qm.start(4)
 			qm.complete(3, sound = None)
 
-	elif qm.started_part(4):
+	elif qm.started_part(4) and not qm.completed_part(4):
 		if msg == "hello":
 			inf.add_msg("Have you found whoever is responsible for the attack?")
 

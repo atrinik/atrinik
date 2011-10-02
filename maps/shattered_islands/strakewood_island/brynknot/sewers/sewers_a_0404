@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2133,13 +2133,15 @@ arch floor_earth1b
 x 12
 y 21
 end
-arch portal_green
-slaying sewers_b_0404
+arch exit
+msg
+It appears that Nyhelobo's lab has been claimed by the creatures living around in the area...
+endmsg
+slaying lab_nyhelobo/lab
 hp 19
 sp 13
-walk_on 1
-fly_on 1
-type 66
+animation portal_green
+anim_speed 2
 x 12
 y 21
 arch event_obj
@@ -2152,15 +2154,6 @@ x 12
 y 22
 end
 arch dirt_floor1
-x 12
-y 22
-end
-arch magic_mouth
-msg
-Only one person may enter this portal at a time! The portal makes you feel dizzy.
-endmsg
-direction 5
-splitting 1
 x 12
 y 22
 end
@@ -2294,15 +2287,6 @@ x 13
 y 20
 end
 arch floor_earth1a
-x 13
-y 21
-end
-arch magic_mouth
-msg
-Only one person may enter this portal at a time! The portal makes you feel dizzy.
-endmsg
-splitting 1
-direction 3
 x 13
 y 21
 end

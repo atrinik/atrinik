@@ -2,7 +2,7 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1490,10 +1490,8 @@ x 10
 y 4
 arch beholder_dread
 name Nyhelobo
-randomitems none
 level 72
 exp 200
-corpse 0
 maxhp 87
 ac 12
 Con 5
@@ -1518,8 +1516,12 @@ type 83
 arch ability_cause_lig_wound
 end
 arch quest_container
-name Enemies beneath Brynknot
+name Portal of Llwyfen
+sub_type 4
+arch quest_container
+name part 4
 sub_type 1
+end
 end
 arch event_obj
 sub_type 3
@@ -1769,7 +1771,10 @@ x 11
 y 12
 end
 arch portal_green
-glow_radius 5
+x 11
+y 12
+end
+arch light5
 x 11
 y 12
 end
@@ -2878,13 +2883,12 @@ arch floor_flagstone1b
 x 19
 y 12
 end
-arch portal_green
+arch exit
 slaying /shattered_islands/strakewood_island/brynknot/sewers/sewers_a_0404
 hp 14
 sp 21
-walk_on 1
-fly_on 1
-type 66
+animation portal_green
+anim_speed 2
 x 19
 y 12
 end

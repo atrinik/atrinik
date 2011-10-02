@@ -17,7 +17,7 @@ def main():
 		if msg == "hello":
 			greeting()
 
-	elif not qm.complerted_part(1):
+	elif not qm.completed_part(1):
 		if msg == "hello":
 			greeting()
 			inf.add_link("I have found a portal sealed by the powers of Llwyfen.", dest = "sealedportal")
@@ -33,7 +33,7 @@ def main():
 			qm.start(2)
 			qm.complete(1, sound = None)
 
-	elif qm.started_part(2):
+	elif qm.started_part(2) and not qm.completed_part(2):
 		if msg == "hello":
 			inf.add_msg("I have asked you to investigate the area beyond the strange portal that you told me about in the Underground City. Have you learned anything yet?")
 
@@ -44,8 +44,8 @@ def main():
 
 		elif qm.finished(2):
 			if msg == "foundnote":
-				inf.add_msg("You hand over the notes...", COLOR_YLLOW)
-				inf.add_msg("Hmm! These notes are most troubling indeed.")
+				inf.add_msg("You hand over the note...", COLOR_YELLOW)
+				inf.add_msg("Hmm! This note is most troubling indeed.")
 				inf.add_msg("Please go see Talthor Redeye, the captain of the Brynknot guards, immediately. I'll send a runner to explain the situation to him, but he'll likely have some orders for you. You should be able to find him in his office, above the guard barracks.")
 				qm.start(3)
 				qm.complete(2, sound = None)
