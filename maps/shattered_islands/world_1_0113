@@ -10,6 +10,8 @@ difficulty 1
 darkness 3
 no_harm 1
 tile_path_2 world_1_0213
+tile_path_3 world_1_0112
+tile_path_6 world_1_0212
 bg_music lontala.mid
 region brynknot
 end

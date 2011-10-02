@@ -1,18 +1,28 @@
 ## @file
 ## Script for the Brynknot Lake portal in UC I.
 
-from Atrinik import *
 import random
+from QuestManager import QuestManagerMulti
+from Quests import LlwyfenPortal as quest
 
-activator = WhoIsActivator()
+qm = QuestManagerMulti(activator, quest)
 
-if not activator.FindObject(2, "key2", "Maplevale's amulet", "of Llwyfen"):
-	quest_container = activator.Controller().quest_container
+def main():
+	if not qm.started_part(1) or not qm.completed_part(1):
+		activator.Write("The portal bounces you away as soon as you touch it. It appears to be sealed by the powers of the elven god Llwyfen.", COLOR_RED)
 
-	if not quest_container.ReadKey("underground_city_lake_portal"):
-		quest_container.WriteKey("underground_city_lake_portal", "true")
+		if not qm.started_part(1):
+			activator.Write("Perhaps you should search for a priest of Llwyfen to learn more.", COLOR_YELLOW)
+			qm.start(1)
 
-	activator.Write("The portal bounces you away as soon as you touch it. Only ones in possession of an amulet blessed by the elven god Llwyfen can pass through.", COLOR_RED)
-	d = random.randint(1, SIZEOFFREE1)
-	activator.TeleportTo(activator.map.path, activator.x + freearr_x[d], activator.y + freearr_y[d])
-	SetReturnValue(1)
+		d = random.randint(1, SIZEOFFREE1)
+		activator.TeleportTo(activator.map.path, activator.x + freearr_x[d], activator.y + freearr_y[d])
+		SetReturnValue(1)
+	else:
+		amulet = activator.FindObject(INVENTORY_CONTAINERS, "amulet_llwyfen")
+
+		if amulet:
+			activator.Write("Upon coming into contact with the portal, the amulet of Llwyfen shatters and you feel as if an invisible force was being removed! The seal is broken.", COLOR_GREEN)
+			amulet.Remove()
+
+main()

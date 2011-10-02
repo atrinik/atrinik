@@ -10,6 +10,7 @@ difficulty 1
 darkness 3
 no_harm 1
 tile_path_4 world_a_05ae
+tile_path_8 world_a_05ad
 bg_music tutorialisland.mid
 region incuna
 end

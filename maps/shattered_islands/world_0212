@@ -43,46 +43,163 @@ end
 arch grassd_2
 y 6
 end
-arch plant11
+arch wall_flagstone1.111
 y 6
 end
-arch grassd_1
+arch floor_grey1a1
 y 7
 end
-arch grassd_6
+arch bed_1b.111
+direction 3
+y 7
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+y 7
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+y 7
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
+y 7
+end
+arch floor_grey1a1
 y 8
 end
-arch grassd_4
+arch floor_grey1a1
 y 9
 end
-arch grassd_4
+arch bed_1b.111
+direction 3
+y 9
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+y 9
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+y 9
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
+y 9
+end
+arch floor_grey1a1
 y 10
 end
-arch grassd_4
+arch floor_grey1a1
 y 11
 end
-arch plant3
+arch bed_1b.111
+direction 3
 y 11
 end
-arch grassd_5
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+y 11
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+y 11
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
+y 11
+end
+arch floor_grey1a1
 y 12
 end
-arch grassd_8
+arch floor_grey1a1
 y 13
 end
-arch grassd_4
+arch bed_1b.111
+direction 3
+y 13
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
+y 13
+end
+arch floor_grey1a1
 y 14
 end
-arch grassd_8
+arch floor_grey1a1
 y 15
 end
-arch grassd_6
+arch bed_1b.111
+direction 3
+y 15
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+y 15
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+y 15
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
+y 15
+end
+arch floor_grey1a1
 y 16
 end
-arch grassd_5
+arch floor_grey1a1
 y 17
 end
-arch plant12
+arch wall_flagstone1.111
 y 17
 end
 arch grassd_3
@@ -149,59 +266,95 @@ arch grassd_4
 x 1
 y 6
 end
-arch grassd_1
+arch wall_flagstone1.111
+x 1
+y 6
+end
+arch floor_grey1a1
 x 1
 y 7
 end
-arch grassd_7
+arch wall_flagstone1.131
+x 1
+y 7
+end
+arch floor_grey1a1
 x 1
 y 8
 end
-arch tree_big3
+arch wall_flagstone1_w.131
 x 1
 y 8
 end
-arch grassd_7
+arch floor_grey1a1
 x 1
 y 9
 end
-arch grassd_4
+arch wall_flagstone1.131
+x 1
+y 9
+end
+arch floor_grey1a1
 x 1
 y 10
 end
-arch grassd_8
+arch wall_flagstone1.131
+x 1
+y 10
+end
+arch floor_grey1a1
 x 1
 y 11
 end
-arch grassd_7
+arch wall_flagstone1.131
+x 1
+y 11
+end
+arch floor_grey1a1
 x 1
 y 12
 end
-arch grassd_2
+arch wall_flagstone1_w.131
+x 1
+y 12
+end
+arch floor_grey1a1
 x 1
 y 13
 end
-arch grassd_1
+arch wall_flagstone1.131
+x 1
+y 13
+end
+arch floor_grey1a1
 x 1
 y 14
 end
-arch grassd_2
+arch wall_flagstone1.131
+x 1
+y 14
+end
+arch floor_grey1a1
 x 1
 y 15
 end
-arch plant13
+arch wall_flagstone1.131
 x 1
 y 15
 end
-arch grassd_6
+arch floor_grey1a1
 x 1
 y 16
 end
-arch tree_big3
+arch wall_flagstone1_w.131
 x 1
 y 16
 end
-arch grassd_6
+arch floor_grey1a1
+x 1
+y 17
+end
+arch wall_flagstone1.141
 x 1
 y 17
 end

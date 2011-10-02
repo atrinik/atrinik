@@ -9,7 +9,9 @@ height 24
 difficulty 1
 darkness -1
 no_harm 1
+tile_path_3 world_a_05ae
 tile_path_4 world_a_04ad
+tile_path_6 world_a_06ae
 bg_music tutorialisland.mid
 region incuna
 end

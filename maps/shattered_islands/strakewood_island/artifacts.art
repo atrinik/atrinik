@@ -1,0 +1,9 @@
+Allowed none
+chance 1
+artifact key_brynknot_sewer_maze
+def_arch key2
+Object
+name Brynknot Maze Key
+face key_yervas.111
+slaying brynknot_maze_key
+end

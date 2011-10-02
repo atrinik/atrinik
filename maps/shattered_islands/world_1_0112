@@ -1,0 +1,1155 @@
+arch map
+name Brynknot
+msg
+Created:  2011-10-02 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+no_harm 1
+tile_path_1 world_1_0113
+tile_path_2 world_1_0212
+tile_path_5 world_1_0213
+bg_music lontala.mid
+region brynknot
+end
+arch blocked
+x 14
+y 6
+end
+arch wall_flagstone1.181
+x 14
+y 6
+end
+arch blocked
+x 14
+y 7
+end
+arch wall_flagstone1.131
+x 14
+y 7
+end
+arch blocked
+x 14
+y 8
+end
+arch wall_flagstone1.131
+x 14
+y 8
+end
+arch blocked
+x 14
+y 9
+end
+arch wall_flagstone1.131
+x 14
+y 9
+end
+arch blocked
+x 14
+y 10
+end
+arch wall_flagstone1.131
+x 14
+y 10
+end
+arch blocked
+x 14
+y 11
+end
+arch wall_flagstone1.131
+x 14
+y 11
+end
+arch blocked
+x 14
+y 12
+end
+arch grassd_m6
+x 14
+y 12
+end
+arch wall_flagstone1.131
+x 14
+y 12
+end
+arch blocked
+x 14
+y 13
+end
+arch wall_flagstone1.131
+x 14
+y 13
+end
+arch blocked
+x 14
+y 14
+end
+arch wall_flagstone1.131
+x 14
+y 14
+end
+arch blocked
+x 14
+y 15
+end
+arch grassd_m5
+x 14
+y 15
+end
+arch wall_flagstone1.131
+x 14
+y 15
+end
+arch blocked
+x 14
+y 16
+end
+arch wall_flagstone1.131
+x 14
+y 16
+end
+arch blocked
+x 14
+y 17
+end
+arch wall_flagstone1.131
+x 14
+y 17
+end
+arch blocked
+x 15
+y 6
+end
+arch wall_flagstone1.111
+x 15
+y 6
+end
+arch floor_grey1a1
+x 15
+y 7
+end
+arch fwall_fstone2
+x 15
+y 7
+end
+arch floor_grey1a1
+x 15
+y 8
+end
+arch fwall_fstone2
+x 15
+y 8
+end
+arch floor_grey1a1
+x 15
+y 9
+end
+arch fwall_fstone2
+x 15
+y 9
+end
+arch floor_grey1a1
+x 15
+y 10
+end
+arch fwall_fstone2
+x 15
+y 10
+end
+arch floor_grey1a1
+x 15
+y 11
+end
+arch fwall_fstone2
+x 15
+y 11
+end
+arch floor_grey1a1
+x 15
+y 12
+end
+arch bed_1a.111
+direction 7
+x 15
+y 12
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 15
+y 12
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 15
+y 12
+end
+arch floor_grey1a1
+x 15
+y 13
+end
+arch bed_1b.111
+direction 7
+x 15
+y 13
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 15
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 15
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 15
+y 13
+end
+arch floor_grey1a1
+x 15
+y 14
+end
+arch floor_grey1a1
+x 15
+y 15
+end
+arch bed_1a.111
+direction 7
+x 15
+y 15
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 15
+y 15
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 15
+y 15
+end
+arch floor_grey1a1
+x 15
+y 16
+end
+arch bed_1b.111
+direction 7
+x 15
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 15
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 15
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 15
+y 16
+end
+arch floor_grey1a1
+x 15
+y 17
+end
+arch wall_flagstone1.111
+x 15
+y 17
+end
+arch blocked
+x 16
+y 6
+end
+arch wall_flagstone1.111
+x 16
+y 6
+end
+arch floor_grey1a1
+x 16
+y 7
+end
+arch floor_grey1a1
+x 16
+y 8
+end
+arch floor_grey1a1
+x 16
+y 9
+end
+arch stairs_stone_down
+direction 5
+slaying world_0112
+hp 16
+sp 10
+x 16
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 16
+y 10
+end
+arch invis_exit
+slaying world_0112
+hp 16
+sp 10
+x 16
+y 10
+end
+arch floor_grey1a1
+x 16
+y 11
+end
+arch fwall_fstone2
+x 16
+y 11
+end
+arch floor_grey1a1
+x 16
+y 12
+end
+arch floor_grey1a1
+x 16
+y 13
+end
+arch floor_grey1a1
+x 16
+y 14
+end
+arch floor_grey1a1
+x 16
+y 15
+end
+arch floor_grey1a1
+x 16
+y 16
+end
+arch floor_grey1a1
+x 16
+y 17
+end
+arch wall_flagstone1.111
+x 16
+y 17
+end
+arch blocked
+x 17
+y 6
+end
+arch wall_flagstone1.111
+x 17
+y 6
+end
+arch floor_grey1a1
+x 17
+y 7
+end
+arch floor_grey1a1
+x 17
+y 8
+end
+arch floor_grey1a1
+x 17
+y 9
+end
+arch stairs_stone_down
+direction 5
+slaying world_0112
+hp 17
+sp 10
+x 17
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 10
+end
+arch invis_exit
+slaying world_0112
+hp 17
+sp 10
+x 17
+y 10
+end
+arch floor_grey1a1
+x 17
+y 11
+end
+arch fwall_fstone2
+x 17
+y 11
+end
+arch floor_grey1a1
+x 17
+y 12
+end
+arch bed_1a.111
+direction 7
+x 17
+y 12
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 17
+y 12
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 17
+y 12
+end
+arch floor_grey1a1
+x 17
+y 13
+end
+arch bed_1b.111
+direction 7
+x 17
+y 13
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 17
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 17
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 17
+y 13
+end
+arch floor_grey1a1
+x 17
+y 14
+end
+arch floor_grey1a1
+x 17
+y 15
+end
+arch bed_1a.111
+direction 7
+x 17
+y 15
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 17
+y 15
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 17
+y 15
+end
+arch floor_grey1a1
+x 17
+y 16
+end
+arch bed_1b.111
+direction 7
+x 17
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 17
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 17
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 17
+y 16
+end
+arch floor_grey1a1
+x 17
+y 17
+end
+arch wall_flagstone1.111
+x 17
+y 17
+end
+arch blocked
+x 18
+y 6
+end
+arch wall_flagstone1.111
+x 18
+y 6
+end
+arch floor_grey1a1
+x 18
+y 7
+end
+arch wall_flagstone1.131
+x 18
+y 7
+end
+arch floor_grey1a1
+x 18
+y 8
+end
+arch door1_locked
+direction 3
+x 18
+y 8
+end
+arch floor_grey1a1
+x 18
+y 9
+end
+arch wall_flagstone1.131
+x 18
+y 9
+end
+arch floor_grey1a1
+x 18
+y 10
+end
+arch wall_flagstone1.131
+x 18
+y 10
+end
+arch floor_grey1a1
+x 18
+y 11
+end
+arch fwall_fstone2
+x 18
+y 11
+end
+arch floor_grey1a1
+x 18
+y 12
+end
+arch floor_grey1a1
+x 18
+y 13
+end
+arch floor_grey1a1
+x 18
+y 14
+end
+arch floor_grey1a1
+x 18
+y 15
+end
+arch floor_grey1a1
+x 18
+y 16
+end
+arch floor_grey1a1
+x 18
+y 17
+end
+arch wall_flagstone1.111
+x 18
+y 17
+end
+arch blocked
+x 19
+y 6
+end
+arch wall_flagstone1.111
+x 19
+y 6
+end
+arch floor_grey1a1
+x 19
+y 7
+end
+arch floor_grey1a1
+x 19
+y 8
+end
+arch floor_grey1a1
+x 19
+y 9
+end
+arch floor_grey1a1
+x 19
+y 10
+end
+arch floor_grey1a1
+x 19
+y 11
+end
+arch door1_locked
+x 19
+y 11
+end
+arch floor_grey1a1
+x 19
+y 12
+end
+arch floor_grey1a1
+x 19
+y 13
+end
+arch floor_grey1a1
+x 19
+y 14
+end
+arch floor_grey1a1
+x 19
+y 15
+end
+arch bed_1a.111
+direction 7
+x 19
+y 15
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 19
+y 15
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 19
+y 15
+end
+arch floor_grey1a1
+x 19
+y 16
+end
+arch bed_1b.111
+direction 7
+x 19
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 19
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 19
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 19
+y 16
+end
+arch floor_grey1a1
+x 19
+y 17
+end
+arch wall_flagstone1.111
+x 19
+y 17
+end
+arch blocked
+x 20
+y 6
+end
+arch wall_flagstone1.111
+x 20
+y 6
+end
+arch floor_grey1a1
+x 20
+y 7
+end
+arch floor_grey1a1
+x 20
+y 8
+end
+arch floor_grey1a1
+x 20
+y 9
+end
+arch floor_grey1a1
+x 20
+y 10
+end
+arch floor_grey1a1
+x 20
+y 11
+end
+arch door1_locked
+direction 7
+x 20
+y 11
+end
+arch floor_grey1a1
+x 20
+y 12
+end
+arch floor_grey1a1
+x 20
+y 13
+end
+arch floor_grey1a1
+x 20
+y 14
+end
+arch floor_grey1a1
+x 20
+y 15
+end
+arch floor_grey1a1
+x 20
+y 16
+end
+arch floor_grey1a1
+x 20
+y 17
+end
+arch wall_flagstone1.111
+x 20
+y 17
+end
+arch blocked
+x 21
+y 6
+end
+arch wall_flagstone1.111
+x 21
+y 6
+end
+arch floor_grey1a1
+x 21
+y 7
+end
+arch wall_flagstone1.131
+x 21
+y 7
+end
+arch floor_grey1a1
+x 21
+y 8
+end
+arch door1_locked
+direction 3
+x 21
+y 8
+end
+arch floor_grey1a1
+x 21
+y 9
+end
+arch wall_flagstone1.131
+x 21
+y 9
+end
+arch floor_grey1a1
+x 21
+y 10
+end
+arch wall_flagstone1.131
+x 21
+y 10
+end
+arch floor_grey1a1
+x 21
+y 11
+end
+arch wall_flagstone1.141
+x 21
+y 11
+end
+arch floor_grey1a1
+x 21
+y 12
+end
+arch floor_grey1a1
+x 21
+y 13
+end
+arch floor_grey1a1
+x 21
+y 14
+end
+arch floor_grey1a1
+x 21
+y 15
+end
+arch bed_1a.111
+direction 7
+x 21
+y 15
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 21
+y 15
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 21
+y 15
+end
+arch floor_grey1a1
+x 21
+y 16
+end
+arch bed_1b.111
+direction 7
+x 21
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 21
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 21
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 21
+y 16
+end
+arch floor_grey1a1
+x 21
+y 17
+end
+arch wall_flagstone1.111
+x 21
+y 17
+end
+arch blocked
+x 22
+y 6
+end
+arch wall_flagstone1.111
+x 22
+y 6
+end
+arch floor_grey1a1
+x 22
+y 7
+end
+arch floor_grey1a1
+x 22
+y 8
+end
+arch floor_grey1a1
+x 22
+y 9
+end
+arch floor_grey1a1
+x 22
+y 10
+end
+arch floor_grey1a1
+x 22
+y 11
+end
+arch wall_flagstone1.111
+x 22
+y 11
+end
+arch floor_grey1a1
+x 22
+y 12
+end
+arch floor_grey1a1
+x 22
+y 13
+end
+arch floor_grey1a1
+x 22
+y 14
+end
+arch floor_grey1a1
+x 22
+y 15
+end
+arch floor_grey1a1
+x 22
+y 16
+end
+arch floor_grey1a1
+x 22
+y 17
+end
+arch wall_flagstone1.111
+x 22
+y 17
+end
+arch blocked
+x 23
+y 6
+end
+arch wall_flagstone1.111
+x 23
+y 6
+end
+arch floor_grey1a1
+x 23
+y 7
+end
+arch floor_grey1a1
+x 23
+y 8
+end
+arch floor_grey1a1
+x 23
+y 9
+end
+arch table_lab3.111
+x 23
+y 9
+end
+arch floor_grey1a1
+x 23
+y 10
+end
+arch chair2_111
+direction 5
+x 23
+y 10
+end
+arch spawn_point
+x 23
+y 10
+arch guard_royal
+type 83
+level 60
+name Talthor Redeye
+direction 1
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/talthor_redeye.py
+end
+arch key_brynknot_sewer_maze
+end
+end
+end
+arch floor_grey1a1
+x 23
+y 11
+end
+arch wall_flagstone1.111
+x 23
+y 11
+end
+arch floor_grey1a1
+x 23
+y 12
+end
+arch bed_1a.111
+direction 7
+x 23
+y 12
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 23
+y 12
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 23
+y 12
+end
+arch floor_grey1a1
+x 23
+y 13
+end
+arch bed_1b.111
+direction 7
+x 23
+y 13
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 23
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 23
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 23
+y 13
+end
+arch floor_grey1a1
+x 23
+y 14
+end
+arch floor_grey1a1
+x 23
+y 15
+end
+arch bed_1a.111
+direction 7
+x 23
+y 15
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 23
+y 15
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 23
+y 15
+end
+arch floor_grey1a1
+x 23
+y 16
+end
+arch bed_1b.111
+direction 7
+x 23
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 23
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 23
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 23
+y 16
+end
+arch floor_grey1a1
+x 23
+y 17
+end
+arch wall_flagstone1.111
+x 23
+y 17
+end
