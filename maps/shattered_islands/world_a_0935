@@ -708,7 +708,7 @@ y 21
 end
 arch announcement
 msg
-<The message is written in a special code.>
+&lt;The message is written in a special code.&gt;
 endmsg
 direction 7
 x 6
