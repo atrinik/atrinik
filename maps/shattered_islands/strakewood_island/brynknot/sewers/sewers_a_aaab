@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-02-24 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1936,6 +1936,7 @@ x 13
 y 13
 end
 arch stone_1
+race polished_rock
 weight 300000
 can_roll 1
 terrain_flag 1

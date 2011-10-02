@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -37,6 +37,7 @@ arch floor_grey6
 y 4
 end
 arch stone_2
+race polished_rock
 weight 300000
 can_roll 1
 terrain_flag 1
@@ -438,14 +439,16 @@ msg
 Click.
 endmsg
 connected 201
+connect_no_release 1
+walk_on 0
+fly_on 0
 x 3
 y 7
 end
-arch button_plate
+arch pedestal
 layer 0
 sys_object 1
-no_teleport 1
-weight 290000
+slaying polished_rock
 connected 201
 x 3
 y 7
@@ -489,14 +492,16 @@ msg
 Click.
 endmsg
 connected 204
+connect_no_release 1
+walk_on 0
+fly_on 0
 x 3
 y 15
 end
-arch button_plate
+arch pedestal
 layer 0
 sys_object 1
-no_teleport 1
-weight 290000
+slaying polished_rock
 connected 204
 x 3
 y 15
@@ -1062,9 +1067,6 @@ x 7
 y 11
 end
 arch exit
-msg
-The rocks have moved back to their resting place and you have received a key.
-endmsg
 hp 7
 sp 13
 x 7
@@ -1079,10 +1081,6 @@ slaying brynknot_sewers1
 end
 arch event_obj
 sub_type 10
-race scripts/rocks_puzzle.py
-end
-arch event_obj
-sub_type 12
 race scripts/rocks_puzzle.py
 end
 end
@@ -1636,14 +1634,16 @@ msg
 Click.
 endmsg
 connected 202
+connect_no_release 1
+walk_on 0
+fly_on 0
 x 11
 y 7
 end
-arch button_plate
+arch pedestal
 layer 0
 sys_object 1
-no_teleport 1
-weight 290000
+slaying polished_rock
 connected 202
 x 11
 y 7
@@ -1716,14 +1716,16 @@ msg
 Click.
 endmsg
 connected 203
+connect_no_release 1
+walk_on 0
+fly_on 0
 x 11
 y 15
 end
-arch button_plate
+arch pedestal
 layer 0
 sys_object 1
-no_teleport 1
-weight 290000
+slaying polished_rock
 connected 203
 x 11
 y 15
