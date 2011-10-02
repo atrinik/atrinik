@@ -374,6 +374,11 @@ z 50
 x 3
 y 14
 end
+arch shelf3_wall.111
+direction 7
+x 3
+y 14
+end
 arch floor_wood2
 z 50
 x 3
@@ -399,6 +404,11 @@ z 50
 x 3
 y 18
 end
+arch shelf1_wall.111
+direction 7
+x 3
+y 18
+end
 arch floor_wood2
 z 50
 x 3
@@ -411,6 +421,11 @@ y 20
 end
 arch floor_wood2
 z 50
+x 3
+y 21
+end
+arch shelf2_wall.111
+direction 7
 x 3
 y 21
 end
@@ -691,6 +706,14 @@ z 50
 x 6
 y 21
 end
+arch announcement
+msg
+<The message is written in a special code.>
+endmsg
+direction 7
+x 6
+y 21
+end
 arch floor_wood2
 z 50
 x 6
@@ -796,8 +819,26 @@ arch desk1.111
 x 8
 y 13
 end
+arch kitchen_cup
+layer 5
+z 29
+align 30
+x 8
+y 13
+end
+arch kitchen_knife2
+layer 6
+z 30
+align 10
+x 8
+y 13
+end
 arch floor_wood2
 z 50
+x 8
+y 14
+end
+arch chair3
 x 8
 y 14
 end
@@ -958,6 +999,10 @@ y 12
 end
 arch floor_wood2
 z 50
+x 10
+y 13
+end
+arch clock
 x 10
 y 13
 end

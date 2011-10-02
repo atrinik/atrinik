@@ -185,6 +185,11 @@ z 50
 x 6
 y 1
 end
+arch broom.111
+direction 7
+x 6
+y 1
+end
 arch floor_wood2
 z 50
 x 6
@@ -313,6 +318,12 @@ y 3
 end
 arch floor_wood2
 z 50
+x 11
+end
+arch candlelight4.101
+x 11
+end
+arch light3
 x 11
 end
 arch floor_wood2

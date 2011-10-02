@@ -1090,6 +1090,11 @@ z 50
 x 19
 y 20
 end
+arch sack
+no_pick 1
+x 19
+y 20
+end
 arch floor_wood2
 z 50
 x 19
@@ -1200,6 +1205,10 @@ y 22
 end
 arch floor_wood2
 z 50
+x 20
+y 23
+end
+arch shelf2_wall.111
 x 20
 y 23
 end
