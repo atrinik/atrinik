@@ -2,7 +2,7 @@ arch map
 name Asteria Palace
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-10-02 emperorbma
 endmsg
 width 24
 height 24
@@ -4307,6 +4307,14 @@ arch floor_fs_grey1b
 z 30
 x 19
 y 15
+end
+arch shelf3a.111
+direction 7
+x 19
+y 15
+arch edict_asteria_temples
+no_pick 1
+end
 end
 arch floor_fs_grey1b
 z 30

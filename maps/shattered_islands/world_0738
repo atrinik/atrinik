@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-01 emperorbma
+Modified: 2011-10-02 emperorbma
 endmsg
 width 24
 height 24
@@ -2677,6 +2677,12 @@ y 16
 end
 arch floor_marble1g
 z 50
+x 16
+y 17
+end
+arch stairs_stone_down
+direction 5
+name stairs down to Parsonage
 x 16
 y 17
 end
