@@ -268,7 +268,7 @@ int command_t_tell(object *op, char *params)
 	}
 	else
 	{
-		draw_info(COLOR_WHITE, op, "There are no NPCs nearby.");
+		draw_info(COLOR_WHITE, op, "There are no NPCs that you can talk to nearby.");
 	}
 
 	return 1;
