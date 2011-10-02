@@ -548,6 +548,7 @@ def check_obj(obj, map):
 
 	abilities = []
 	wps = []
+	events = []
 
 	for tmp in obj["inv"]:
 		if not "type" in tmp:
@@ -557,6 +558,19 @@ def check_obj(obj, map):
 			abilities.append(tmp)
 		elif tmp["type"] == types.waypoint:
 			wps.append(tmp)
+		elif tmp["type"] == types.event_object:
+			events.append(tmp)
+
+	for event in events:
+		num = 0
+
+		for event2 in events:
+			if get_entry(event, "sub_type") == get_entry(event2, "sub_type"):
+				num += 1
+
+		if num > 1:
+			add_error(map["file"], "NPC '{0}' has events with two or more events with the same event type.".format(obj["archname"]), errors.low, env["x"], env["y"])
+			break
 
 	if "can_cast_spell" in obj and obj["can_cast_spell"] == 1:
 		if not abilities:
@@ -608,6 +622,10 @@ def check_obj(obj, map):
 			add_error(map["file"], "Event object '{0}' is missing plugin name.".format(obj["archname"]), errors.high, env["x"], env["y"])
 		elif not obj["name"] in checker.plugins:
 			add_error(map["file"], "Event object '{0}' has unknown plugin '{1}'.".format(obj["archname"], obj["name"]), errors.critical, env["x"], env["y"])
+
+		if "race" in obj:
+			if obj["race"].startswith("..") and obj["race"].find("/python") != -1:
+				add_error(map["file"], "Event object '{0}' is using a relative path to point to the global /python directory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
 	if obj["type"] == types.beacon:
 		if not "name" in obj:
