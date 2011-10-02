@@ -2388,8 +2388,60 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 	return NULL;
 }
 
+/**
+ * Atrinik object bool check.
+ * @param obj The object. */
+static int atrinik_object_bool(Atrinik_Object *obj)
+{
+	if (!obj || !obj->obj || obj->obj->count != obj->count || OBJECT_FREE(obj->obj))
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 /** This is filled in when we initialize our object type. */
 static PyGetSetDef getseters[NUM_FIELDS + NUM_FLAGS + 1];
+
+/**
+ * The number protocol for Atrinik objects. */
+static PyNumberMethods AtrinikObjectNumber =
+{
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	(inquiry) atrinik_object_bool,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
 
 /** Our actual Python ObjectType. */
 PyTypeObject Atrinik_ObjectType =
@@ -2410,7 +2462,9 @@ PyTypeObject Atrinik_ObjectType =
 #else
 	(cmpfunc) Atrinik_Object_InternalCompare,
 #endif
-	0, 0, 0, 0, 0, 0,
+	NULL,
+	&AtrinikObjectNumber,
+	0, 0, 0, 0,
 	(reprfunc) Atrinik_Object_str,
 	0, 0, 0,
 	Py_TPFLAGS_DEFAULT,
