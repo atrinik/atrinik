@@ -2829,6 +2829,22 @@ x 17
 y 14
 end
 arch bed_1a.111
+direction 3
+x 17
+y 14
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 17
+y 14
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 17
 y 14
 end
@@ -2837,9 +2853,39 @@ z 50
 x 17
 y 15
 end
+arch floor_marble_grey
+z 50
+x 17
+y 16
+end
+arch bed_1a.111
+direction 3
+x 17
+y 16
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 17
+y 16
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 17
+y 16
+end
+arch floor_marble_grey
+z 50
+x 17
+y 17
+end
 arch spawn_point
 x 17
-y 15
+y 17
 arch guard
 name Asterian Guard
 type 83
@@ -2849,20 +2895,6 @@ sub_type 6
 race /python/generic/guard.py
 end
 end
-end
-arch floor_marble_grey
-z 50
-x 17
-y 16
-end
-arch bed_1a.111
-x 17
-y 16
-end
-arch floor_marble_grey
-z 50
-x 17
-y 17
 end
 arch floor_marble_grey
 z 50
@@ -3035,6 +3067,30 @@ x 18
 y 14
 end
 arch bed_1b.111
+direction 3
+x 18
+y 14
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 18
+y 14
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 18
+y 14
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 18
 y 14
 end
@@ -3049,6 +3105,30 @@ x 18
 y 16
 end
 arch bed_1b.111
+direction 3
+x 18
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 18
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 18
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 18
 y 16
 end
@@ -3355,6 +3435,22 @@ x 20
 y 14
 end
 arch bed_1a.111
+direction 3
+x 20
+y 14
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 20
+y 14
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 20
 y 14
 end
@@ -3369,6 +3465,22 @@ x 20
 y 16
 end
 arch bed_1a.111
+direction 3
+x 20
+y 16
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 20
+y 16
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 20
 y 16
 end
@@ -3525,6 +3637,30 @@ x 21
 y 14
 end
 arch bed_1b.111
+direction 3
+x 21
+y 14
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 21
+y 14
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 21
+y 14
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 21
 y 14
 end
@@ -3539,6 +3675,30 @@ x 21
 y 16
 end
 arch bed_1b.111
+direction 3
+x 21
+y 16
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 21
+y 16
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 21
+y 16
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 21
 y 16
 end

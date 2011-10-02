@@ -2258,15 +2258,6 @@ arch floor_ostone10
 x 15
 y 6
 end
-arch spawn_point
-x 15
-y 6
-arch guard
-name Asterian Guard
-type 83
-level 25
-end
-end
 arch floor_ostone10
 x 15
 y 7
@@ -2379,6 +2370,22 @@ x 16
 y 4
 end
 arch bed_1a.111
+direction 3
+x 16
+y 4
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 16
+y 4
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 16
 y 4
 end
@@ -2391,6 +2398,22 @@ x 16
 y 6
 end
 arch bed_1a.111
+direction 3
+x 16
+y 6
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 16
+y 6
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 16
 y 6
 end
@@ -2398,11 +2421,20 @@ arch floor_ostone10
 x 16
 y 7
 end
-arch floor_ostone10
+arch spawn_point
 x 16
-y 8
+y 7
+arch guard
+name Asterian Guard
+type 83
+level 25
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
 end
-arch bed_1a.111
+end
+end
+arch floor_ostone10
 x 16
 y 8
 end
@@ -2530,6 +2562,30 @@ x 17
 y 4
 end
 arch bed_1b.111
+direction 3
+x 17
+y 4
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 17
+y 4
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 17
+y 4
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 17
 y 4
 end
@@ -2542,6 +2598,30 @@ x 17
 y 6
 end
 arch bed_1b.111
+direction 3
+x 17
+y 6
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 17
+y 6
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 17
+y 6
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 17
 y 6
 end
@@ -2550,10 +2630,6 @@ x 17
 y 7
 end
 arch floor_ostone10
-x 17
-y 8
-end
-arch bed_1b.111
 x 17
 y 8
 end
@@ -2671,14 +2747,6 @@ end
 arch floor_ostone10
 x 18
 y 6
-end
-arch spawn_point
-x 18
-y 6
-arch ranger
-type 83
-level 28
-end
 end
 arch floor_ostone10
 x 18
@@ -2803,6 +2871,22 @@ x 19
 y 4
 end
 arch bed_1a.111
+direction 3
+x 19
+y 4
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 19
+y 4
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 19
 y 4
 end
@@ -2815,12 +2899,40 @@ x 19
 y 6
 end
 arch bed_1a.111
+direction 3
+x 19
+y 6
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 19
+y 6
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 19
 y 6
 end
 arch floor_ostone10
 x 19
 y 7
+end
+arch spawn_point
+x 19
+y 7
+arch ranger
+type 83
+level 28
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
 end
 arch floor_ostone10
 x 19
@@ -2949,6 +3061,30 @@ x 20
 y 4
 end
 arch bed_1b.111
+direction 3
+x 20
+y 4
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 20
+y 4
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 20
+y 4
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 20
 y 4
 end
@@ -2961,6 +3097,30 @@ x 20
 y 6
 end
 arch bed_1b.111
+direction 3
+x 20
+y 6
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 20
+y 6
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 20
+y 6
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 20
 y 6
 end
