@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-16 emperorbma
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2009,10 +2009,6 @@ arch floor_fs_grey1b
 x 14
 y 23
 end
-arch grassd_m11
-x 14
-y 23
-end
 arch water_lt3
 x 15
 end
@@ -2127,15 +2123,7 @@ arch floor_fs_grey1b
 x 15
 y 22
 end
-arch grassd_m11
-x 15
-y 22
-end
 arch floor_fs_grey1b
-x 15
-y 23
-end
-arch grassd_m5
 x 15
 y 23
 end
@@ -2245,19 +2233,11 @@ arch floor_fs_grey1b
 x 16
 y 21
 end
-arch grassd_m11
-x 16
-y 21
-end
 arch floor_fs_grey1b
 x 16
 y 22
 end
-arch grassd_m5
-x 16
-y 22
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 16
 y 23
 end
@@ -2375,27 +2355,19 @@ arch floor_fs_grey1b
 x 17
 y 20
 end
-arch grassd_m11
-x 17
-y 20
-end
 arch floor_fs_grey1b
 x 17
 y 21
 end
-arch grassd_m5
-x 17
-y 21
-end
-arch grassd_2
+arch floor_fs_grey1b
 x 17
 y 22
 end
-arch plant_flower2
+arch floor_fs_grey1b
 x 17
-y 22
+y 23
 end
-arch grassd_3
+arch grassd_m11
 x 17
 y 23
 end
@@ -2501,31 +2473,27 @@ arch floor_fs_grey1b
 x 18
 y 19
 end
-arch grassd_m11
-x 18
-y 19
-end
 arch floor_fs_grey1b
 x 18
 y 20
 end
-arch grassd_m5
-x 18
-y 20
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 18
 y 21
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 18
 y 22
 end
-arch grassd_4
+arch grassd_m11
+x 18
+y 22
+end
+arch floor_fs_grey1b
 x 18
 y 23
 end
-arch plant11
+arch grassd_m5
 x 18
 y 23
 end
@@ -2627,27 +2595,27 @@ arch floor_fs_grey1b
 x 19
 y 18
 end
-arch grassd_m11
-x 19
-y 18
-end
 arch floor_fs_grey1b
 x 19
 y 19
 end
-arch grassd_m5
-x 19
-y 19
-end
-arch grassd_3
+arch floor_fs_grey1b
 x 19
 y 20
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 19
 y 21
 end
-arch grassd_4
+arch grassd_m11
+x 19
+y 21
+end
+arch floor_fs_grey1b
+x 19
+y 22
+end
+arch grassd_m5
 x 19
 y 22
 end
@@ -2746,31 +2714,27 @@ arch floor_fs_grey1b
 x 20
 y 17
 end
-arch grassd_m11
-x 20
-y 17
-end
 arch floor_fs_grey1b
 x 20
 y 18
 end
-arch grassd_m5
-x 20
-y 18
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 20
 y 19
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 20
 y 20
 end
-arch grassd_3
+arch grassd_m11
+x 20
+y 20
+end
+arch floor_fs_grey1b
 x 20
 y 21
 end
-arch plant_flower2
+arch grassd_m5
 x 20
 y 21
 end
@@ -2861,27 +2825,27 @@ arch floor_fs_grey1b
 x 21
 y 16
 end
-arch grassd_m11
-x 21
-y 16
-end
 arch floor_fs_grey1b
 x 21
 y 17
 end
-arch grassd_m5
-x 21
-y 17
-end
-arch grassd_6
+arch floor_fs_grey1b
 x 21
 y 18
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 21
 y 19
 end
-arch grassd_6
+arch grassd_m11
+x 21
+y 19
+end
+arch floor_fs_grey1b
+x 21
+y 20
+end
+arch grassd_m5
 x 21
 y 20
 end
@@ -2889,11 +2853,11 @@ arch grassd_5
 x 21
 y 21
 end
-arch tree_big
-x 21
-y 21
-end
 arch grassd_8
+x 21
+y 22
+end
+arch tree_big
 x 21
 y 22
 end
@@ -2984,31 +2948,27 @@ arch floor_fs_grey1b
 x 22
 y 15
 end
-arch grassd_m11
-x 22
-y 15
-end
 arch floor_fs_grey1b
 x 22
 y 16
 end
-arch grassd_m5
-x 22
-y 16
-end
-arch grassd_1
+arch floor_fs_grey1b
 x 22
 y 17
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 22
 y 18
 end
-arch grassd_3
+arch grassd_m11
+x 22
+y 18
+end
+arch floor_fs_grey1b
 x 22
 y 19
 end
-arch plant_flower7
+arch grassd_m5
 x 22
 y 19
 end
@@ -3111,31 +3071,27 @@ arch floor_fs_grey1b
 x 23
 y 14
 end
-arch grassd_m11
-x 23
-y 14
-end
 arch floor_fs_grey1b
 x 23
 y 15
 end
-arch grassd_m5
-x 23
-y 15
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 23
 y 16
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 23
 y 17
 end
-arch grassd_8
+arch grassd_m11
+x 23
+y 17
+end
+arch floor_fs_grey1b
 x 23
 y 18
 end
-arch tree_big
+arch grassd_m5
 x 23
 y 18
 end

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-05-08 emperorbma
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1563,15 +1563,11 @@ arch floor_fs_grey1b
 x 11
 y 2
 end
-arch grassd_m11
-x 11
-y 2
-end
 arch floor_fs_grey1b
 x 11
 y 3
 end
-arch grassd_m5
+arch grassd_m7
 x 11
 y 3
 end
@@ -1693,19 +1689,15 @@ arch floor_fs_grey1b
 x 12
 y 1
 end
-arch grassd_m11
-x 12
-y 1
-end
 arch floor_fs_grey1b
 x 12
 y 2
 end
-arch grassd_m5
+arch floor_fs_grey1b
 x 12
-y 2
+y 3
 end
-arch grassd_3
+arch grassd_m7
 x 12
 y 3
 end
@@ -1832,22 +1824,19 @@ end
 arch floor_fs_grey1b
 x 13
 end
-arch grassd_m11
-x 13
-end
 arch floor_fs_grey1b
 x 13
 y 1
 end
-arch grassd_m5
-x 13
-y 1
-end
-arch grassd_6
+arch floor_fs_grey1b
 x 13
 y 2
 end
-arch grassd_8
+arch floor_fs_grey1b
+x 13
+y 3
+end
+arch grassd_m7
 x 13
 y 3
 end
@@ -1978,22 +1967,23 @@ end
 arch floor_fs_grey1b
 x 14
 end
-arch grassd_m5
-x 14
-end
-arch grassd_4
+arch floor_fs_grey1b
 x 14
 y 1
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 14
 y 2
 end
-arch grassd_7
+arch grassd_m11
+x 14
+y 2
+end
+arch floor_fs_grey1b
 x 14
 y 3
 end
-arch plant11
+arch grassd_m5
 x 14
 y 3
 end
@@ -2121,22 +2111,26 @@ arch floor_sand_d4
 x 14
 y 23
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 15
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 15
 y 1
 end
-arch grassd_2
+arch grassd_m11
+x 15
+y 1
+end
+arch floor_fs_grey1b
+x 15
+y 2
+end
+arch grassd_m5
 x 15
 y 2
 end
 arch grassd_3
-x 15
-y 3
-end
-arch tree_big3
 x 15
 y 3
 end
@@ -2256,10 +2250,17 @@ arch floor_sand_d3
 x 15
 y 23
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 16
 end
-arch grassd_8
+arch grassd_m11
+x 16
+end
+arch floor_fs_grey1b
+x 16
+y 1
+end
+arch grassd_m5
 x 16
 y 1
 end
@@ -2272,6 +2273,10 @@ x 16
 y 3
 end
 arch grassd_1
+x 16
+y 4
+end
+arch tree_big2
 x 16
 y 4
 end
@@ -2375,10 +2380,10 @@ arch floor_sand_d2
 x 16
 y 23
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 17
 end
-arch plant_flower14
+arch grassd_m5
 x 17
 end
 arch grassd_6
@@ -2520,10 +2525,6 @@ arch grassd_1
 x 18
 y 2
 end
-arch tree_big3
-x 18
-y 2
-end
 arch grassd_3
 x 18
 y 3
@@ -2628,6 +2629,10 @@ x 19
 y 1
 end
 arch grassd_4
+x 19
+y 2
+end
+arch tree_big3
 x 19
 y 2
 end

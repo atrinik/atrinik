@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -344,35 +344,60 @@ arch grassd_7
 x 2
 y 15
 end
-arch grassd_5
+arch grassd_3
 x 2
 y 16
 end
-arch grassd_4
+arch wall_fortified_high_1.111
+x 2
+y 16
+end
+arch grassd_8
 x 2
 y 17
 end
-arch grassd_1
+arch wall_fortified_high_2.111
+blocksview 0
+x 2
+y 17
+end
+arch grassd_3
 x 2
 y 18
 end
-arch grassd_1
+arch wall_fortified_high_3.111
+blocksview 0
+x 2
+y 18
+end
+arch grassd_3
 x 2
 y 19
 end
-arch tree_big
+arch wall_fortified_high_4.111
+blocksview 0
 x 2
 y 19
 end
-arch grassd_6
+arch grassd_8
 x 2
 y 20
 end
-arch grassd_5
+arch wall_fortified_high.111
+blocksview 0
+x 2
+y 20
+end
+arch grassd_8
 x 2
 y 21
 end
-arch water_lt2
+arch wall_fortified_high.111
+blocksview 0
+x 2
+y 21
+end
+arch water_lt
 x 2
 y 22
 end
@@ -380,7 +405,15 @@ arch grassd_m10
 x 2
 y 22
 end
-arch water_lt3
+arch wall_fortified_high_a.111
+x 2
+y 22
+end
+arch water_lt2
+x 2
+y 23
+end
+arch wall_fortified_high_c.111
 x 2
 y 23
 end
@@ -463,31 +496,66 @@ arch grassd_4
 x 3
 y 13
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 3
 y 14
 end
-arch grassd_5
+arch grassd_m4
+x 3
+y 14
+end
+arch floor_fs_grey1b
 x 3
 y 15
 end
-arch grassd_3
+arch grassd_m9
+x 3
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 3
 y 16
 end
-arch plant_flower5
+arch floor_fs_grey1b
+sub_layer 1
 x 3
 y 16
 end
-arch grassd_5
+arch blocked
+no_pass 0
+blocksview 0
 x 3
 y 17
 end
-arch grassd_7
+arch floor_fs_grey1b
+sub_layer 1
+z 8
+x 3
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 3
 y 18
 end
-arch grassd_3
+arch floor_fs_grey1b
+sub_layer 1
+z 16
+x 3
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 3
+y 19
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 24
 x 3
 y 19
 end
@@ -495,23 +563,49 @@ arch grassd_6
 x 3
 y 20
 end
-arch water_lt2
+arch reed_sm10
+x 3
+y 20
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 32
+x 3
+y 20
+end
+arch grassd_5
 x 3
 y 21
 end
-arch grassd_m4
+arch floor_fs_grey1b
+sub_layer 1
+z 40
 x 3
 y 21
 end
-arch water_lt3
+arch water_lt4
+terrain_type 1
 x 3
 y 22
 end
-arch grassd_m13
+arch grassd_m10
+x 3
+y 22
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
 x 3
 y 22
 end
 arch water_lt4
+terrain_type 1
+x 3
+y 23
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
 x 3
 y 23
 end
@@ -581,7 +675,11 @@ arch grassd_4
 x 4
 y 12
 end
-arch grassd_8
+arch floor_fs_grey1b
+x 4
+y 13
+end
+arch grassd_m4
 x 4
 y 13
 end
@@ -589,7 +687,7 @@ arch floor_fs_grey1b
 x 4
 y 14
 end
-arch grassd_m4
+arch grassd_m13
 x 4
 y 14
 end
@@ -597,48 +695,104 @@ arch floor_fs_grey1b
 x 4
 y 15
 end
-arch grassd_m9
+arch blocked
+no_pass 0
+blocksview 0
 x 4
-y 15
+y 16
 end
 arch floor_fs_grey1b
-x 4
-y 16
-end
-arch grassd_m9
-x 4
-y 16
-end
-arch bridge_wood_NS.181
 sub_layer 1
 x 4
 y 16
 end
-arch bridge_wood_NS.171
+arch blocked
+no_pass 0
+blocksview 0
 x 4
 y 17
 end
-arch bridge_wood_NS.171
+arch floor_fs_grey1b
+sub_layer 1
+z 8
+x 4
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 4
 y 18
 end
-arch bridge_wood_NS.171
+arch floor_fs_grey1b
+sub_layer 1
+z 16
+x 4
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 4
 y 19
 end
-arch bridge_wood_NS.171
+arch floor_fs_grey1b
+sub_layer 1
+z 24
+x 4
+y 19
+end
+arch grassd_5
 x 4
 y 20
 end
-arch bridge_wood_NS.171
+arch reed_sm4
+x 4
+y 20
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 32
+x 4
+y 20
+end
+arch grassd_8
 x 4
 y 21
 end
-arch bridge_wood_NS.171
+arch reed_sm10
+x 4
+y 21
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 40
+x 4
+y 21
+end
+arch water_lt4
+terrain_type 1
 x 4
 y 22
 end
-arch bridge_wood_NS.171
+arch grassd_m10
+x 4
+y 22
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
+x 4
+y 22
+end
+arch water_lt4
+terrain_type 1
+x 4
+y 23
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
 x 4
 y 23
 end
@@ -716,7 +870,7 @@ arch floor_fs_grey1b
 x 5
 y 13
 end
-arch grassd_m9
+arch grassd_m13
 x 5
 y 13
 end
@@ -728,39 +882,104 @@ arch floor_fs_grey1b
 x 5
 y 15
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 5
+y 16
+end
 arch floor_fs_grey1b
+sub_layer 1
 x 5
 y 16
 end
-arch bridge_wood_NS.111
-x 5
-y 16
-end
-arch bridge_wood_NS.101
+arch blocked
+no_pass 0
+blocksview 0
 x 5
 y 17
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 8
+x 5
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 5
 y 18
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 16
+x 5
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 5
 y 19
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 24
+x 5
+y 19
+end
+arch grassd_5
 x 5
 y 20
 end
-arch bridge_wood_NS.101
+arch reed_sm3
+x 5
+y 20
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 32
+x 5
+y 20
+end
+arch grassd_8
 x 5
 y 21
 end
-arch bridge_wood_NS.101
+arch reed_sm1
+x 5
+y 21
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 40
+x 5
+y 21
+end
+arch water_lt4
+terrain_type 1
 x 5
 y 22
 end
-arch bridge_wood_NS.101
+arch grassd_m10
+x 5
+y 22
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
+x 5
+y 22
+end
+arch water_lt4
+terrain_type 1
+x 5
+y 23
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
 x 5
 y 23
 end
@@ -866,44 +1085,135 @@ arch grassd_m8
 x 6
 y 15
 end
+arch blocked
+no_pass 0
+blocksview 0
+x 6
+y 16
+end
 arch floor_fs_grey1b
-x 6
-y 16
-end
-arch grassd_m8
-x 6
-y 16
-end
-arch bridge_wood_NS.111
 sub_layer 1
 x 6
 y 16
 end
-arch bridge_wood_NS.101
+arch wall_fortified_high_1.111
+x 6
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 17
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 8
+x 6
+y 17
+end
+arch wall_fortified_high_2.111
+blocksview 0
+x 6
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 18
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 16
+x 6
+y 18
+end
+arch wall_fortified_high_3.111
+blocksview 0
+x 6
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 19
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 24
+x 6
+y 19
+end
+arch wall_fortified_high_4.111
+blocksview 0
+x 6
+y 19
+end
+arch grassd_2
 x 6
 y 20
 end
-arch bridge_wood_NS.101
+arch floor_fs_grey1b
+sub_layer 1
+z 32
+x 6
+y 20
+end
+arch wall_fortified_high.111
+blocksview 0
+x 6
+y 20
+end
+arch grassd_6
 x 6
 y 21
 end
-arch bridge_wood_NS.101
+arch reed_sm8
+x 6
+y 21
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 40
+x 6
+y 21
+end
+arch wall_fortified_high.111
+blocksview 0
+x 6
+y 21
+end
+arch water_lt
 x 6
 y 22
 end
-arch bridge_wood_NS.101
+arch grassd_m10
+x 6
+y 22
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
+x 6
+y 22
+end
+arch wall_fortified_high_a.111
+x 6
+y 22
+end
+arch water_lt2
+x 6
+y 23
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 48
+x 6
+y 23
+end
+arch wall_fortified_high_c.111
 x 6
 y 23
 end
@@ -1017,21 +1327,11 @@ arch reed_sm1
 x 7
 y 16
 end
-arch bridge_wood_NS.121
-sub_layer 1
-x 7
-y 16
-end
 arch water_lt
 x 7
 y 17
 end
 arch grassd_m4
-x 7
-y 17
-end
-arch bridge_wood_NS.131
-sub_layer 1
 x 7
 y 17
 end
@@ -1043,16 +1343,7 @@ arch grassd_m13
 x 7
 y 18
 end
-arch bridge_wood_NS.131
-sub_layer 1
-x 7
-y 18
-end
 arch water_lt3
-x 7
-y 19
-end
-arch bridge_wood_NS.131
 x 7
 y 19
 end
@@ -1060,31 +1351,15 @@ arch water_lt2
 x 7
 y 20
 end
-arch bridge_wood_NS.131
-x 7
-y 20
-end
 arch water_lt3
 x 7
 y 21
 end
-arch bridge_wood_NS.131
-x 7
-y 21
-end
 arch water_lt3
-x 7
-y 22
-end
-arch bridge_wood_NS.131
 x 7
 y 22
 end
 arch water_lt2
-x 7
-y 23
-end
-arch bridge_wood_NS.131
 x 7
 y 23
 end
