@@ -4,9 +4,9 @@
 from Interface import Interface
 
 inf = Interface(activator, me)
+msg = msg.lower()
 
 def main():
-	msg = msg.lower()
 	location = GetOptions()
 
 	if location == "dining_hall":
