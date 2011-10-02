@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-01-13 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -541,7 +541,7 @@ hp 13
 end
 end
 arch beacon
-name underground_city_a_0602_skelly
+name uc_torch_gate_closer
 end
 end
 arch floor_cave1
@@ -893,7 +893,7 @@ connected 101
 x 7
 y 13
 arch beacon
-name underground_city_a_0602_switch
+name uc_torch_switch
 end
 end
 arch floor_cave6

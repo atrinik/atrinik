@@ -1,15 +1,7 @@
 ## @file
 ## Script for the gate closer monster.
 
-from Atrinik import *
+def main():
+	me.Apply(LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
 
-# Find beacon for the gate's switch.
-beacon_name = "underground_city_a_0602_switch"
-beacon = LocateBeacon(beacon_name)
-
-# No beacon?
-if not beacon:
-	raise AtrinikError("Could not find beacon named '" + beacon_name + "'.")
-
-# Make the waypoint apply the switch, so the click sound is not heard.
-WhoAmI().Apply(beacon.env, APPLY_TOGGLE)
+main()

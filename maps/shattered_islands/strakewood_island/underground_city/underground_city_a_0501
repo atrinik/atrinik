@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-24 Alex Tokar
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1049,14 +1049,10 @@ food 2
 x 9
 y 9
 arch beacon
-name underground_city_a_0501_torch_2
+name uc_torch_2
 end
 arch event_obj
 sub_type 1
-race scripts/torches.py
-end
-arch event_obj
-sub_type 12
 race scripts/torches.py
 end
 end
@@ -1090,14 +1086,10 @@ direction 7
 x 9
 y 13
 arch beacon
-name underground_city_a_0501_torch_1
+name uc_torch_1
 end
 arch event_obj
 sub_type 1
-race scripts/torches.py
-end
-arch event_obj
-sub_type 12
 race scripts/torches.py
 end
 end
@@ -1190,14 +1182,10 @@ food 3
 x 10
 y 6
 arch beacon
-name underground_city_a_0501_torch_3
+name uc_torch_3
 end
 arch event_obj
 sub_type 1
-race scripts/torches.py
-end
-arch event_obj
-sub_type 12
 race scripts/torches.py
 end
 end
@@ -1648,14 +1636,10 @@ food 4
 x 14
 y 6
 arch beacon
-name underground_city_a_0501_torch_4
+name uc_torch_4
 end
 arch event_obj
 sub_type 1
-race scripts/torches.py
-end
-arch event_obj
-sub_type 12
 race scripts/torches.py
 end
 end
