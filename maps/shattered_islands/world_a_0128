@@ -344,6 +344,8 @@ arch spawn_point
 msg
 
 endmsg
+speed 0.05
+last_grace 0
 x 3
 y 7
 arch witch3
@@ -569,6 +571,8 @@ x 5
 y 7
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 5
 y 7
 arch witch1

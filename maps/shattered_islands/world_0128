@@ -342,6 +342,8 @@ x 2
 y 5
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 2
 y 5
 arch witch1
@@ -402,6 +404,8 @@ x 2
 y 10
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 2
 y 10
 arch witch3
@@ -837,6 +841,8 @@ x 5
 y 3
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 5
 y 3
 arch witch4
@@ -880,6 +886,8 @@ x 5
 y 6
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 5
 y 6
 arch witch1
@@ -950,6 +958,8 @@ x 5
 y 12
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 5
 y 12
 arch witch1
@@ -1107,7 +1117,8 @@ arch wall_wood_1
 x 6
 y 7
 end
-arch floor_wood2_l1
+arch grassd_3
+z 50
 x 6
 y 8
 end
@@ -1117,6 +1128,8 @@ x 6
 y 8
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 6
 y 8
 arch witch2

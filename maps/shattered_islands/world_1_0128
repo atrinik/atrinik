@@ -411,6 +411,8 @@ x 2
 y 3
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 2
 y 3
 arch witch2
@@ -541,6 +543,8 @@ x 2
 y 12
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 2
 y 12
 arch witch4
@@ -700,6 +704,8 @@ x 3
 y 11
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 3
 y 11
 arch witch1
@@ -1263,6 +1269,8 @@ x 7
 y 4
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 7
 y 4
 arch witch2
@@ -1478,6 +1486,8 @@ x 8
 y 12
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 8
 y 12
 arch witch4
@@ -1585,6 +1595,8 @@ x 9
 y 3
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 9
 y 3
 arch witch5
@@ -1962,6 +1974,8 @@ arch spawn_point
 msg
 
 endmsg
+speed 0.05
+last_grace 0
 x 11
 y 3
 arch witch3
@@ -2001,6 +2015,8 @@ x 11
 y 5
 end
 arch spawn_point
+speed 0.05
+last_grace 0
 x 11
 y 5
 arch witch4
