@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-16 emperorbma
+Modified: 2011-10-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -838,6 +838,14 @@ arch grassd_m7
 x 4
 y 23
 end
+arch lantern_black
+x 4
+y 23
+end
+arch light7
+x 4
+y 23
+end
 arch grassd_4
 z 50
 x 5
@@ -985,14 +993,6 @@ x 5
 y 23
 end
 arch grassd_m7
-x 5
-y 23
-end
-arch lantern_black
-x 5
-y 23
-end
-arch light7
 x 5
 y 23
 end
@@ -3544,6 +3544,11 @@ z 50
 x 22
 y 2
 end
+arch mirror_big.111
+direction 7
+x 22
+y 2
+end
 arch floor_marble_grey
 z 50
 x 22
@@ -3558,17 +3563,14 @@ z 50
 x 22
 y 4
 end
-arch bed_2a.111
+arch bed_double
+direction 7
+no_pass 1
 x 22
 y 4
 end
 arch floor_marble_grey
 z 50
-x 22
-y 5
-end
-arch mirror_big.111
-direction 7
 x 22
 y 5
 end
@@ -3718,6 +3720,9 @@ arch floor_marble_grey
 z 50
 x 23
 end
+arch torch_wall_1
+x 23
+end
 arch floor_marble_grey
 z 50
 x 23
@@ -3744,10 +3749,6 @@ y 3
 end
 arch floor_marble_grey
 z 50
-x 23
-y 4
-end
-arch bed_2b.111
 x 23
 y 4
 end

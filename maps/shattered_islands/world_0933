@@ -205,10 +205,6 @@ arch grassd_1
 x 1
 y 15
 end
-arch tree_big4b
-x 1
-y 15
-end
 arch grassd_6
 x 1
 y 16
@@ -341,6 +337,14 @@ x 2
 y 14
 end
 arch grassd_7
+x 2
+y 15
+end
+arch lantern_black
+x 2
+y 15
+end
+arch light7
 x 2
 y 15
 end
@@ -845,6 +849,14 @@ z 6
 x 5
 y 9
 end
+arch lantern_black
+x 5
+y 9
+end
+arch light7
+x 5
+y 9
+end
 arch grassd_1
 z 2
 x 5
@@ -969,6 +981,10 @@ end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
+x 5
+y 22
+end
+arch light7
 x 5
 y 22
 end
@@ -1199,7 +1215,13 @@ z 48
 x 6
 y 22
 end
+arch lantern_black
+sub_layer 1
+x 6
+y 22
+end
 arch wall_fortified_high_a.111
+sub_layer 2
 x 6
 y 22
 end
@@ -1233,6 +1255,14 @@ y 2
 end
 arch grassd_5
 z 22
+x 7
+y 3
+end
+arch lantern_black
+x 7
+y 3
+end
+arch light7
 x 7
 y 3
 end
@@ -2201,6 +2231,14 @@ y 1
 end
 arch grassd_7
 z 6
+x 14
+y 2
+end
+arch lantern_black
+x 14
+y 2
+end
+arch light7
 x 14
 y 2
 end

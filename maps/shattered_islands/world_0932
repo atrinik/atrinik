@@ -339,6 +339,14 @@ arch grassd_m10
 x 2
 y 10
 end
+arch lantern_black
+x 2
+y 10
+end
+arch light7
+x 2
+y 10
+end
 arch floor_fs_grey1b
 x 2
 y 11
@@ -827,6 +835,10 @@ z 48
 x 5
 y 3
 end
+arch light7
+x 5
+y 3
+end
 arch grassd_5
 x 5
 y 4
@@ -1025,7 +1037,13 @@ z 48
 x 6
 y 3
 end
+arch lantern_black
+sub_layer 1
+x 6
+y 3
+end
 arch wall_fortified_high_b.111
+sub_layer 2
 x 6
 y 3
 end

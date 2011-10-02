@@ -2213,6 +2213,14 @@ arch grassd_2
 x 16
 y 18
 end
+arch lantern_black
+x 16
+y 18
+end
+arch light7
+x 16
+y 18
+end
 arch floor_fs_grey1b
 x 16
 y 19
@@ -2928,6 +2936,14 @@ arch grassd_5
 x 22
 y 12
 end
+arch lantern_black
+x 22
+y 12
+end
+arch light7
+x 22
+y 12
+end
 arch floor_fs_grey1b
 x 22
 y 13
@@ -3096,6 +3112,14 @@ x 23
 y 18
 end
 arch grassd_1
+x 23
+y 19
+end
+arch lantern_black
+x 23
+y 19
+end
+arch light7
 x 23
 y 19
 end

@@ -22,6 +22,10 @@ region asteria
 end
 arch grassd_8
 end
+arch lantern_black
+end
+arch light7
+end
 arch map_info
 hp 23
 sp 8
@@ -43,6 +47,12 @@ arch grassd_m7
 y 3
 end
 arch grassd_3
+y 4
+end
+arch lantern_black
+y 4
+end
+arch light7
 y 4
 end
 arch grassd_7
@@ -699,7 +709,10 @@ end
 arch grassd_8
 x 5
 end
-arch plant16
+arch lantern_black
+x 5
+end
+arch light7
 x 5
 end
 arch floor_fs_grey1b
@@ -726,7 +739,11 @@ arch grassd_5
 x 5
 y 4
 end
-arch tree_big5
+arch lantern_black
+x 5
+y 4
+end
+arch light7
 x 5
 y 4
 end
@@ -1417,6 +1434,12 @@ end
 arch grassd_7
 x 10
 end
+arch lantern_black
+x 10
+end
+arch light7
+x 10
+end
 arch floor_fs_grey1b
 x 10
 y 1
@@ -1438,6 +1461,14 @@ x 10
 y 3
 end
 arch grassd_5
+x 10
+y 4
+end
+arch lantern_black
+x 10
+y 4
+end
+arch light7
 x 10
 y 4
 end
@@ -2387,6 +2418,14 @@ arch grassd_m5
 x 17
 end
 arch grassd_6
+x 17
+y 1
+end
+arch lantern_black
+x 17
+y 1
+end
+arch light7
 x 17
 y 1
 end

@@ -55,7 +55,7 @@ z 50
 auto_apply 1
 cursed 1
 randomitems random_equipment
-exp 75
+exp 10
 y 16
 end
 arch torch_wall_1
@@ -65,40 +65,45 @@ arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 20
 y 17
 end
 arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 10
 y 18
 end
 arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 15
 y 19
 end
 arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 20
 y 20
 end
 arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 15
 y 21
 end
 arch floor_wood2
@@ -153,7 +158,7 @@ z 50
 auto_apply 1
 cursed 1
 randomitems random_equipment
-exp 75
+exp 10
 x 1
 y 16
 end
@@ -161,8 +166,9 @@ arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 20
 x 1
 y 17
 end
@@ -170,8 +176,9 @@ arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 15
 x 1
 y 18
 end
@@ -180,7 +187,7 @@ z 50
 auto_apply 1
 cursed 1
 randomitems random_equipment
-exp 75
+exp 15
 x 1
 y 19
 end
@@ -188,8 +195,9 @@ arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 25
 x 1
 y 20
 end
@@ -197,8 +205,9 @@ arch shop_floor
 z 50
 auto_apply 1
 cursed 1
+damned 1
 randomitems random_equipment
-exp 75
+exp 30
 x 1
 y 21
 end
