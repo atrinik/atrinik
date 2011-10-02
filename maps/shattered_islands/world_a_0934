@@ -213,28 +213,12 @@ direction 5
 x 7
 y 1
 end
-arch bed_1a.111
-sub_layer 1
-z 20
-no_pass 1
-direction 5
-x 7
-y 1
-end
 arch floor_wood2
 z 50
 x 7
 y 2
 end
 arch bed_1b.111
-direction 5
-x 7
-y 2
-end
-arch bed_1b.111
-sub_layer 1
-z 20
-no_pass 1
 direction 5
 x 7
 y 2
@@ -285,28 +269,12 @@ direction 5
 x 9
 y 1
 end
-arch bed_1a.111
-sub_layer 1
-z 20
-no_pass 1
-direction 5
-x 9
-y 1
-end
 arch floor_wood2
 z 50
 x 9
 y 2
 end
 arch bed_1b.111
-direction 5
-x 9
-y 2
-end
-arch bed_1b.111
-sub_layer 1
-z 20
-no_pass 1
 direction 5
 x 9
 y 2
@@ -357,28 +325,12 @@ direction 5
 x 11
 y 1
 end
-arch bed_1a.111
-sub_layer 1
-z 20
-no_pass 1
-direction 5
-x 11
-y 1
-end
 arch floor_wood2
 z 50
 x 11
 y 2
 end
 arch bed_1b.111
-direction 5
-x 11
-y 2
-end
-arch bed_1b.111
-sub_layer 1
-z 20
-no_pass 1
 direction 5
 x 11
 y 2
