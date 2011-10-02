@@ -10,7 +10,7 @@ inf = Interface(activator, me)
 def main():
 	options = GetOptions()
 	if options == "classTime":
-		if msg == "hello"
+		if msg == "hello":
 			inf.add_msg("Hey.  Listening to the teacher...")
 		elif msg == "alice" or msg == "margatroid" or msg == "alice margatroid":
 			inf.add_msg("Maybe later, I've really gotta pass this test.")
