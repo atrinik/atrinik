@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1230,10 +1230,6 @@ hp 9
 sp 15
 wc 10
 cursed 1
-arch event_obj
-sub_type 10
-race scripts/berri_lur/portu_baserrian/foodready.py
-end
 end
 arch waypoint
 name bar
@@ -1248,10 +1244,6 @@ title bar
 hp 9
 sp 15
 wc 10
-arch event_obj
-sub_type 10
-race scripts/berri_lur/portu_baserrian/foodready.py
-end
 end
 arch waypoint
 name table
@@ -1702,10 +1694,6 @@ arch chef
 name Bero Elikadura
 level 18
 type 83
-arch event_obj
-sub_type 6
-race scripts/berri_lur/portu_baserrian/cook.py
-end
 end
 end
 arch light7
