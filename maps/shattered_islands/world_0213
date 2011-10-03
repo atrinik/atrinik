@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1568,6 +1568,19 @@ direction 7
 x 9
 y 13
 end
+arch spawn_point
+x 9
+y 13
+arch guard
+direction 1
+level 58
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard_drunk.py
+end
+end
+end
 arch floor_wood3a
 x 9
 y 14
@@ -1726,6 +1739,15 @@ y 13
 end
 arch bar1
 direction 7
+x 10
+y 13
+end
+arch beer
+sub_layer 1
+layer 5
+z 24
+zoom 80
+no_pick 1
 x 10
 y 13
 end
@@ -2097,19 +2119,6 @@ arch chair1_111
 direction 5
 x 12
 y 17
-end
-arch spawn_point
-x 12
-y 17
-arch guard
-direction 1
-level 58
-type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard_drunk.py
-end
-end
 end
 arch floor_wood3a
 x 12
@@ -3282,7 +3291,7 @@ arch grassd_4
 x 19
 y 16
 end
-arch wall_stone9_w.131
+arch wall_stone9_3
 x 19
 y 16
 end
@@ -3425,45 +3434,54 @@ arch wall_stone9_1
 x 20
 y 13
 end
-arch shop_floor
-is_magical 1
+arch floor_red1
 x 20
 y 14
 end
-arch shop_floor
-is_magical 1
+arch barrel.101
+x 20
+y 14
+end
+arch floor_red1
 x 20
 y 15
 end
-arch shop_floor_normal
+arch forge_111
+direction 7
+x 20
+y 15
+end
+arch floor_red1
 x 20
 y 16
 end
-arch shop_mat
+arch forge_111
+direction 7
 x 20
 y 16
 end
-arch shop_floor_normal
+arch floor_red1
 x 20
 y 17
 end
-arch grate1_1
+arch forge_on
+direction 7
 x 20
 y 17
 end
-arch shop_floor_normal
+arch floor_red1
 x 20
 y 18
 end
-arch shop_mat
+arch fireplace_left
 x 20
 y 18
 end
-arch shop_floor_normal
+arch floor_red1
 x 20
 y 19
 end
-arch shop_floor_normal
+arch floor_red1
 x 20
 y 20
 end
@@ -3472,6 +3490,10 @@ x 20
 y 20
 end
 arch grassd_2
+x 20
+y 21
+end
+arch lantern2_magic.131
 x 20
 y 21
 end
@@ -3586,34 +3608,31 @@ arch wall_stone9_1
 x 21
 y 13
 end
-arch shop_floor
-is_magical 1
+arch floor_red1
 x 21
 y 14
 end
-arch shop_floor
-is_magical 1
+arch anvil_111
+x 21
+y 14
+end
+arch floor_red1
 x 21
 y 15
 end
-arch light5
-x 21
-y 15
-end
-arch shop_floor
-is_magical 1
+arch floor_red1
 x 21
 y 16
 end
-arch shop_floor_normal
+arch floor_red1
 x 21
 y 17
 end
-arch grate1_1
+arch light2
 x 21
 y 17
 end
-arch shop_floor_normal
+arch floor_red1
 x 21
 y 18
 end
@@ -3621,15 +3640,19 @@ arch light5
 x 21
 y 18
 end
-arch shop_floor_normal
+arch floor_red1
 x 21
 y 19
 end
-arch shop_floor_normal
+arch light5
+x 21
+y 19
+end
+arch floor_red1
 x 21
 y 20
 end
-arch wall_stone9_w.111
+arch wall_stone9_1
 x 21
 y 20
 end
@@ -3736,42 +3759,74 @@ arch wall_stone9_1
 x 22
 y 13
 end
-arch shop_floor
-is_magical 1
+arch floor_red1
 x 22
 y 14
 end
-arch shop_floor
-is_magical 1
+arch anvil_big_111
+x 22
+y 14
+end
+arch floor_red1
 x 22
 y 15
 end
-arch shop_floor
-is_magical 1
+arch carpet1.131
+x 22
+y 15
+end
+arch floor_red1
 x 22
 y 16
 end
-arch shop_floor_normal
+arch carpet1.131
+x 22
+y 16
+end
+arch spawn_point
+x 22
+y 16
+arch smith
+name Galann Strongfist
+level 30
+type 83
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/brynknot/galann_strongfist.py
+end
+arch ring_prayers
+end
+end
+end
+arch floor_red1
 x 22
 y 17
 end
-arch grate1_1
+arch carpet1.131
 x 22
 y 17
 end
-arch shop_floor_normal
+arch floor_red1
 x 22
 y 18
 end
-arch shop_floor_normal
+arch carpet1.131
+x 22
+y 18
+end
+arch floor_red1
 x 22
 y 19
 end
-arch shop_floor_normal
+arch barrel_water.101
+x 22
+y 19
+end
+arch floor_red1
 x 22
 y 20
 end
-arch wall_stone9_1
+arch wall_stone9_w.111
 x 22
 y 20
 end
@@ -3874,38 +3929,63 @@ arch wall_stone9_1
 x 23
 y 13
 end
-arch shop_floor
-is_magical 1
+arch floor_red1
 x 23
 y 14
 end
-arch shop_floor
-is_magical 1
+arch carpet1.151
+x 23
+y 14
+end
+arch torch_wall_1
+x 23
+y 14
+end
+arch floor_red1
 x 23
 y 15
 end
-arch shop_floor
-is_magical 1
+arch carpet1
+x 23
+y 15
+end
+arch floor_red1
 x 23
 y 16
 end
-arch shop_floor_normal
+arch carpet1
+x 23
+y 16
+end
+arch floor_red1
 x 23
 y 17
 end
-arch grate1_1
+arch carpet1
 x 23
 y 17
 end
-arch shop_floor_normal
+arch floor_red1
 x 23
 y 18
 end
-arch shop_floor_normal
+arch carpet1
+x 23
+y 18
+end
+arch floor_red1
 x 23
 y 19
 end
-arch shop_floor_normal
+arch carpet1.111
+x 23
+y 19
+end
+arch barrel_water.101
+x 23
+y 19
+end
+arch floor_red1
 x 23
 y 20
 end
@@ -3914,14 +3994,6 @@ x 23
 y 20
 end
 arch grassd_4
-x 23
-y 21
-end
-arch lantern2_magic.131
-x 23
-y 21
-end
-arch light7
 x 23
 y 21
 end
