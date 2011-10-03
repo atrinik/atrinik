@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1556,18 +1556,14 @@ arch spawn_point
 x 9
 y 6
 arch female2
-name Rienn
+name Rienn Howell
 level 21
-friendly 1
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/tortwald_rienn.py
+race scripts/strakewood_island/fort_ghzal/rienn_howell.py
 end
-arch letter
-name Rienn's Letter
-startequip 1
-type 79
+arch two_lovers_doomed_letter2
 end
 end
 end

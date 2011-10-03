@@ -6,6 +6,9 @@ Object
 name Brynknot Maze Key
 face key_yervas.111
 slaying brynknot_maze_key
+msg
+Key to the lower Brynknot sewers system.
+endmsg
 end
 
 Allowed none
@@ -20,5 +23,45 @@ oty captain,
 This war with the humans has been going on for far too long. I've found a way to make an end to this. With the help of Moroch we can wipe those humans from the surface. Come and visit me tomorrow with all oty under your control! I will show you how we'll do it. I've asked the ghouls to help you dig a tunnel. They will come tomorrow too, don't be late!
 
 Nyhelobo
+endmsg
+end
+
+Allowed none
+chance 1
+artifact two_lovers_doomed_letter1
+def_arch letter
+Object
+name Tortwald's letter
+msg
+The letter appears to contain some private information... You stop reading.
+endmsg
+identified 1
+quest_item 1
+no_drop 1
+end
+
+Allowed none
+chance 1
+artifact two_lovers_doomed_letter2
+def_arch letter
+Object
+name Rienn's letter
+msg
+The letter appears to contain some private information... You stop reading.
+endmsg
+identified 1
+quest_item 1
+no_drop 1
+end
+
+Allowed none
+chance 1
+artifact uc_ii_skull_key
+def_arch key_skull
+Object
+name Underground City Skull Key
+slaying underground_city_key3
+msg
+Key given to you by the captured guard, Tortwald, in the Underground City level 2.
 endmsg
 end
