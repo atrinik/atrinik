@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3303,34 +3303,6 @@ x 22
 y 9
 end
 arch well_stone
-msg
-layoutstyle snake
-monsterstyle ants
-exitstyle ladder
-doorstyle none
-decorstyle ants
-decorchance 3
-dungeon_depth 20
-dungeon_level 15
-xsize 16
-ysize 16
-floorstyle dungeon
-wallstyle dungeon
-num_monsters 10
-darkness 3
-orientation 1
-dungeon_name Ant Well
-bg_music thonkdonk.ogg
-symmetry 1
-final_map /shattered_islands/strakewood_island/ant_well
-endmsg
-slaying /random/
-hp 0
-sp 0
-x 22
-y 9
-end
-arch light3
 x 22
 y 9
 end
