@@ -165,3 +165,11 @@ GallansRevenge = {
 	"kills": 1,
 	"message": "Galann Strongfist, the old smith of Brynknot has asked you to go to the Old Outpost north of Aris in the Giant Mountains and kill Torathog the stone giant in revenge.",
 }
+
+MelanyesLostWalkingStick = {
+	"quest_name": "Melanye's Lost Walking Stick",
+	"type": QUEST_TYPE_KILL_ITEM,
+	"arch_name": "melanye_walking_stick",
+	"item_name": "Melanye's Walking Stick",
+	"message": "Melanye in Brynknot Tavern has asked you to bring her back her walking stick, which was stolen in the middle of the night by some evil treant, waking up the old woman, who saw the evil treant running to the east...",
+}

@@ -1096,6 +1096,9 @@ arch event_obj
 sub_type 6
 race scripts/strakewood_island/brynknot/melanye.py
 end
+arch silvercoin
+nrof 10
+end
 end
 end
 arch floor_wood3a
