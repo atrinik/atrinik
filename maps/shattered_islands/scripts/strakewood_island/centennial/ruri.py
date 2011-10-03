@@ -9,10 +9,10 @@ inf = Interface(activator, me)
 
 # used in 2 places.  Easier to add options this way.
 def main_menu():
-	inf.add_link("Find a book.", dest="book")
-	inf.add_link("Ask about the town.", dest="town")
-	inf.add_link("Ask about the librarian.", dest="librarian")
-	inf.add_link("Goodbye.", action="close")
+	inf.add_link("Find a book.", dest = "book")
+	inf.add_link("Ask about the town.", dest = "town")
+	inf.add_link("Ask about the librarian.", dest = "librarian")
+	inf.add_link("Goodbye.", action = "close")
 
 def main():
 	if msg == "hello":
@@ -84,7 +84,7 @@ def main():
 		inf.add_msg("She is klepto witch who has a thing for beam spells.  She's basically one of the main characters and pretty popular.  You can recognize folks that like her by their long blonde hair and black-white witch motif.")
 		inf.add_link("Witch?  Isn't that what this school teaches?", dest = "witch")
 		inf.add_link("Ask about the other characters.", dest = "th_chars")
-		inf.add_link("Ask about something else.", dest="main_menu")
+		inf.add_link("Ask about something else.", dest = "main_menu")
 	elif msg == "patchouli":
 		inf.add_msg("She is a youkai magician who lives in the Scarlet Devil Mansion library.  For obvious reasons, the librarian is a bit of a fan.  They tend to dress up in the lavender night robe, crescent moon hat with the purple hair.  Obviously she's not to be confused with the aromatic herb.")
 		inf.add_link("Ask about the librarian.", dest = "librarian")
