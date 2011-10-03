@@ -14,7 +14,6 @@
 	<listentry value="9" name="throw" />
 	<listentry value="10" name="trigger" />
 	<listentry value="11" name="close" />
-	<listentry value="12" name="timer" />
 	<listentry value="14" name="ask show" />
 	<listentry value="15" name="AI" />
 </list>

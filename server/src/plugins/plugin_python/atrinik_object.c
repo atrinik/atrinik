@@ -1465,40 +1465,6 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *what, PyObject *args)
 }
 
 /**
- * <h1>object.CreateTimer(long delay, int mode)</h1>
- * Create a timer for an object.
- * @param delay How long until the timer event gets executed for the object
- * @param mode If 1, delay is in seconds, if 2, delay is in ticks (8 ticks = 1 second)
- * @return 0 and higher means success (and represents ID of the created timer),
- * anything lower means a failure of some sort. */
-static PyObject *Atrinik_Object_CreateTimer(Atrinik_Object *what, PyObject *args)
-{
-	int mode, timer;
-	long delay;
-
-	if (!PyArg_ParseTuple(args, "li", &delay, &mode))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(what);
-
-	timer = hooks->cftimer_find_free_id();
-
-	if (timer != TIMER_ERR_ID)
-	{
-		int res = hooks->cftimer_create(timer, delay, what->obj, mode);
-
-		if (res != TIMER_ERR_NONE)
-		{
-			timer = res;
-		}
-	}
-
-	return Py_BuildValue("i", timer);
-}
-
-/**
  * <h1>object.Controller()</h1>
  * Get object's controller (the player).
  * @throws AtrinikError if 'object' is not a player.
@@ -2027,7 +1993,6 @@ static PyMethodDef methods[] =
 	{"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
 	{"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
 	{"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
-	{"CreateTimer", (PyCFunction) Atrinik_Object_CreateTimer, METH_VARARGS, 0},
 	{"Controller", (PyCFunction) Atrinik_Object_Controller, METH_NOARGS, 0},
 	{"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS, 0},
 	{"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS, 0},

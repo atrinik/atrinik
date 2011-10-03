@@ -676,10 +676,6 @@
 			<Option compilerVar="CC" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="../../src/server/timers.c">
-			<Option compilerVar="CC" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="../../src/server/treasure.c">
 			<Option compilerVar="CC" />
 			<Option target="Release" />

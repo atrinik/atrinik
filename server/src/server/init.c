@@ -937,7 +937,6 @@ void init(int argc, char **argv)
 	/* Load up the old temp map files */
 	read_map_log();
 	parse_args(argc, argv, 3);
-	cftimer_init();
 	init_regions();
 	hiscore_init();
 

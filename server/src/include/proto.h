@@ -850,12 +850,6 @@ extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds(void);
-/* src/server/timers.c */
-extern void cftimer_process_timers(void);
-extern int cftimer_create(int id, long delay, object *ob, int mode);
-extern int cftimer_destroy(int id);
-extern int cftimer_find_free_id(void);
-extern void cftimer_init(void);
 /* src/server/treasure.c */
 extern char *coins[4 + 1];
 extern archetype *coins_arch[4];

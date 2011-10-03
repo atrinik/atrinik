@@ -90,8 +90,6 @@
 #define EVENT_TRIGGER 10
 /** Container closed. */
 #define EVENT_CLOSE	11
-/** Timer connected triggered it. */
-#define EVENT_TIMER 12
 /** Marks that we should process quests in this object. */
 #define EVENT_QUEST 13
 /** Ask script whether to show this object on map. */
@@ -258,9 +256,6 @@ struct plugin_hooklist
 	void (*stringbuffer_append_printf)(StringBuffer *, const char *, ...);
 	char *(*stringbuffer_finish)(StringBuffer *);
 	char *(*cleanup_chat_string)(char *);
-	int (*cftimer_find_free_id)(void);
-	int (*cftimer_create)(int, long, object *, int);
-	int (*cftimer_destroy)(int);
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);

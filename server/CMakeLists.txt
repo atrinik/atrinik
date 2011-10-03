@@ -240,7 +240,6 @@ set(SOURCES
 	src/server/stringbuffer.c
 	src/server/swap.c
 	src/server/time.c
-	src/server/timers.c
 	src/server/treasure.c
 	src/server/utils.c
 	src/server/weather.c

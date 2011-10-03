@@ -1383,9 +1383,6 @@ static void iterate_main_loop(void)
 	/* "do" something with objects with speed */
 	process_events(NULL);
 
-	/* Process the timers */
-	cftimer_process_timers();
-
 	/* Removes unused maps after a certain timeout */
 	check_active_maps();
 

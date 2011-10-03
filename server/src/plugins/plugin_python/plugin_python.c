@@ -94,7 +94,6 @@ static const Atrinik_Constant constants[] =
 	{"EVENT_THROW", EVENT_THROW},
 	{"EVENT_TRIGGER", EVENT_TRIGGER},
 	{"EVENT_CLOSE", EVENT_CLOSE},
-	{"EVENT_TIMER", EVENT_TIMER},
 	{"EVENT_ASK_SHOW", EVENT_ASK_SHOW},
 
 	{"MEVENT_ENTER", MEVENT_ENTER},
@@ -1118,25 +1117,6 @@ static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>DestroyTimer(int timer)</h1>
- * Destroy an existing timer.
- * @param timer ID of the timer.
- * @return True on success, False on failure. */
-static PyObject *Atrinik_DestroyTimer(PyObject *self, PyObject *args)
-{
-	int id;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "i", &id))
-	{
-		return NULL;
-	}
-
-	Py_ReturnBoolean(hooks->cftimer_destroy(id) == TIMER_ERR_NONE);
-}
-
-/**
  * <h1>GetRangeVectorFromMapCoords(map map, int x, int y, map map2, int x2, int y2, int [flags = 0])</h1>
  * Get the distance and direction from one map coordinate to another.
  * @param map From which map to get distance from.
@@ -1500,7 +1480,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
 	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
 	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
-	{"DestroyTimer", Atrinik_DestroyTimer, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
