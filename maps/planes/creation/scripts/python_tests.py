@@ -1,23 +1,9 @@
 ## @file
 ## Used to test Python functions.
 
-from Atrinik import *
-
-activator = WhoIsActivator()
 pl = activator.Controller()
-me = WhoAmI()
 
-event_num = GetEventNumber()
-
-def main_timer():
-	pl = FindPlayer(me.ReadKey("timer_player"))
-
-	if pl:
-		pl.Write("5 seconds are up!")
-
-	me.WriteKey("timer_player")
-
-def main_say():
+def main():
 	msg = WhatIsMessage().lower()
 	words = msg.split()
 
@@ -25,7 +11,7 @@ def main_say():
 	marked = activator.Controller().FindMarkedObject()
 
 	if msg == "hello" or msg == "hey" or msg == "hi":
-		me.SayTo(activator, "\nAvailable tests:\n<a>equipment EQUIPMENT</a>, <a>get god</a>, <a>set god</a>\n<a>create object inside</a>, <a>apply object</a>\n<a>drop and pickup</a>, <a>get object name</a>\n<a>get gender</a>, <a>set gender GENDER</a>\n<a>get key</a>, <a>add key</a>, <a>delete key</a>\n<a>sound</a>, <a>savebed</a>, <a>book</a>, <a>ip</a>, <a>exception</a>\n<a>player exists PLAYER</a>, <a>find player PLAYER</a>\n<a>beacon BEACON</a>, <a>timer</a>, <a>compare</a>, <a>region</a>, <a>vector</a>")
+		me.SayTo(activator, "\nAvailable tests:\n<a>equipment EQUIPMENT</a>, <a>get god</a>, <a>set god</a>\n<a>create object inside</a>, <a>apply object</a>\n<a>drop and pickup</a>, <a>get object name</a>\n<a>get gender</a>, <a>set gender GENDER</a>\n<a>get key</a>, <a>add key</a>, <a>delete key</a>\n<a>sound</a>, <a>savebed</a>, <a>book</a>, <a>ip</a>, <a>exception</a>\n<a>player exists PLAYER</a>, <a>find player PLAYER</a>\n<a>beacon BEACON</a>, <a>compare</a>, <a>region</a>, <a>vector</a>")
 
 	# GetEquipment is much more efficient than looping player's inventory for
 	# applied equipment.
@@ -191,14 +177,6 @@ def main_say():
 			else:
 				me.SayTo(activator, "On map '{0}' ({1}, {2}).".format(beacon.map.path, beacon.x, beacon.y), 1)
 
-	elif msg == "timer":
-		if me.ReadKey("timer_player"):
-			me.SayTo(activator, "\nAlready talking to someone...")
-		else:
-			me.WriteKey("timer_player", activator.name)
-			me.CreateTimer(5, 1)
-			me.SayTo(activator, "\nOK! Will tell you when 5 seconds pass.")
-
 	elif msg == "compare":
 		me.SayTo(activator, "\nComparing some objects...\n")
 		me.SayTo(activator, "{0} {1} {2}".format(activator.name, activator == me and "==" or "!=", me.name), 1)
@@ -239,7 +217,4 @@ def main_say():
 		rv = GetRangeVectorFromMapCoords(me.map, me.x, me.y, me.map, 5, 1)
 		me.SayTo(activator, "\nTesting GetRangeVectorFromMapCoords(): Direction to 5,1: {0}, distance: {1}, distance_x: {2}, distance_y: {3}".format(rv[0], rv[1], rv[2], rv[3]), 1)
 
-if event_num == EVENT_TIMER:
-	main_timer()
-elif event_num == EVENT_SAY:
-	main_say()
+main()
