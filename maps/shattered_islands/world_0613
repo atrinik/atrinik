@@ -848,15 +848,6 @@ arch wall_wood2_3
 x 5
 y 8
 end
-arch wmask_fire_on_1
-direction 7
-x 5
-y 8
-end
-arch light3
-x 5
-y 8
-end
 arch floor_wood2_l2
 x 5
 y 9
@@ -1024,7 +1015,15 @@ arch wall_wood1_1
 x 6
 y 5
 end
+arch wmask_fire_on_1
+x 6
+y 5
+end
 arch floor_wood2_l1
+x 6
+y 6
+end
+arch wood_pile.101
 x 6
 y 6
 end
@@ -1044,11 +1043,22 @@ arch carpet7.131
 x 6
 y 8
 end
+arch wall_wood2_1
+draw_double 0
+x 6
+y 8
+end
 arch floor_wood2_l2
+z 22
 x 6
 y 9
 end
-arch wood_pile.101
+arch stairs_wood_up
+slaying world_1_0613
+hp 6
+sp 9
+walk_on 1
+fly_on 1
 x 6
 y 9
 end
@@ -1056,7 +1066,7 @@ arch floor_wood2_l2
 x 6
 y 10
 end
-arch wall_wood_w_1
+arch fwall_wood1a
 x 6
 y 10
 end
@@ -1223,6 +1233,13 @@ x 7
 y 9
 end
 arch carpet7.111
+x 7
+y 9
+end
+arch stairs_wood_up
+slaying world_1_0613
+hp 6
+sp 9
 x 7
 y 9
 end
@@ -1591,7 +1608,7 @@ arch floor_wood2_l2
 x 9
 y 10
 end
-arch wall_wood1_1
+arch wall_wood_w_1
 x 9
 y 10
 end
