@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2107,10 +2107,6 @@ name Rirain
 type 83
 level 10
 friendly 1
-arch event_obj
-sub_type 6
-race scripts/eld_woods_island/rirain.py
-end
 end
 end
 arch floor_wood2_l2

@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3530,7 +3530,6 @@ x 20
 y 18
 end
 arch altar_dalosha
-vielumin_ruins_altar 1
 direction 7
 x 20
 y 18

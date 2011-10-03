@@ -2,7 +2,7 @@ arch map
 name Cave of Morlarg
 msg
 Created:  2009-11-16 Alex Tokar
-Modified: 2009-11-20 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -111,10 +111,6 @@ type 83
 level 7
 Wis 3
 direction 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1d
@@ -379,10 +375,6 @@ type 83
 level 8
 Wis 3
 direction 1
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch light1
@@ -429,10 +421,6 @@ type 83
 level 8
 Wis 3
 direction 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1d
@@ -645,10 +633,6 @@ type 83
 level 7
 Wis 3
 direction 1
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1d
@@ -690,10 +674,6 @@ arch wolf
 type 83
 level 8
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1a
@@ -867,10 +847,6 @@ arch wolf
 type 83
 level 7
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1d
@@ -1323,10 +1299,6 @@ arch wolf
 type 83
 level 7
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1d
@@ -1498,10 +1470,6 @@ arch wolf
 type 83
 level 9
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1c
@@ -1825,10 +1793,6 @@ arch wolf
 type 83
 level 9
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1c
@@ -2268,10 +2232,6 @@ type 83
 level 10
 Wis 3
 direction 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch light1
@@ -2605,10 +2565,6 @@ arch wolf
 type 83
 level 10
 Wis 3
-arch quest_container
-name Hungry Wolves
-sub_type 1
-end
 end
 end
 arch floor_marble_b1b
