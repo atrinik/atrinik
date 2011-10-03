@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1560,13 +1560,6 @@ race arrows
 end
 arch arrow
 sys_object 1
-end
-arch rand_drop
-container 18
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
 end
 end
 end

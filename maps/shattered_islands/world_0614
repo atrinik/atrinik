@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -681,13 +681,6 @@ end
 arch t_rock
 sys_object 1
 end
-arch rand_drop
-container 30
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
-end
 end
 end
 arch grassd_6
@@ -1259,13 +1252,6 @@ arch orc_warlord
 type 83
 Wis 6
 level 30
-arch rand_drop
-container 18
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
-end
 end
 arch orc_warlord
 name Warlord Ghorl
@@ -1281,13 +1267,6 @@ type 83
 arch rand_drop
 container 150
 arch ring_ice
-end
-end
-arch rand_drop
-container 12
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
 end
 end
 end
@@ -1473,13 +1452,6 @@ Wis 9
 type 83
 arch ability_cause_lig_wound
 sp 1
-end
-arch rand_drop
-container 5
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
 end
 end
 end
@@ -1883,13 +1855,6 @@ race arrows
 end
 arch arrow
 sys_object 1
-end
-arch rand_drop
-container 15
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
 end
 end
 end
@@ -3556,13 +3521,6 @@ race arrows
 end
 arch arrow
 sys_object 1
-end
-arch rand_drop
-container 15
-arch quest_container
-name Battle of Fort Ghzal
-sub_type 1
-end
 end
 end
 end
