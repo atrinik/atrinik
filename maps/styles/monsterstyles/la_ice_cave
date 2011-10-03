@@ -2,7 +2,7 @@ arch map
 name ice
 msg
 Created:  2010-09-10 Alex Tokar
-Modified: 2010-09-11 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 8
 height 2
@@ -89,10 +89,6 @@ Dex 2
 protect_fire -25
 protect_cold 100
 type 83
-arch quest_container
-name Improved Asteroid
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -101,18 +97,6 @@ arch icegolem
 item_condition 4
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -122,18 +106,6 @@ arch icegolem
 item_condition 4
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -157,10 +129,6 @@ arch ability_icestorm
 sp 21
 hp 21
 last_grace 0
-end
-arch quest_container
-name Improved Asteroid
-sub_type 1
 end
 end
 end
@@ -189,10 +157,6 @@ hp 7
 end
 arch ability_icestorm
 end
-arch quest_container
-name Improved Asteroid
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -220,10 +184,6 @@ hp 7
 end
 arch ability_icestorm
 end
-arch quest_container
-name Improved Asteroid
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -248,10 +208,6 @@ last_grace 2
 end
 arch ability_icestorm
 end
-arch quest_container
-name Improved Asteroid
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -262,18 +218,6 @@ exp 111
 attack_cold 100
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -292,10 +236,6 @@ Dex 2
 protect_fire -25
 protect_cold 100
 type 83
-arch quest_container
-name Improved Asteroid
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -307,18 +247,6 @@ attack_cold 100
 movement_type 128
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -333,18 +261,6 @@ item_race 3
 item_level 3
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -355,18 +271,6 @@ exp 111
 attack_cold 100
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end
 arch spawn_point
@@ -381,17 +285,5 @@ item_race 3
 item_level 3
 protect_fire -25
 type 83
-arch rand_drop
-container 80
-arch quest_container
-name Quidton's Mana Crystal
-sub_type 2
-arch power_crystal
-identified 1
-type 79
-name Quidton's Mana Crystal
-end
-end
-end
 end
 end

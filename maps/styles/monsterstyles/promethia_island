@@ -1,7 +1,7 @@
 arch map
-name <unnamed>
+name promethia
 msg
-Modified: 2010-06-01 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 6
 height 1
@@ -11,14 +11,6 @@ arch spawn_point
 arch demon_fire
 item_condition 3
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -27,14 +19,6 @@ arch demon_fire
 item_condition 4
 exp 105
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 end
 end
 arch spawn_point
@@ -48,14 +32,6 @@ maxsp 30
 Pow 6
 Dex 2
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 arch ability_firestorm
 end
 end
@@ -71,14 +47,6 @@ maxsp 30
 Pow 6
 Dex 2
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 arch ability_firestorm
 sp 34
 hp 34
@@ -96,14 +64,6 @@ maxsp 30
 Pow 6
 Dex 2
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 arch ability_firestorm
 sp 34
 hp 34
@@ -122,14 +82,6 @@ Pow 6
 Dex 2
 behavior 3
 type 83
-arch quest_container
-name Knowledge of Meteor
-sub_type 1
-end
-arch quest_container
-name Knowledge of Meteor Swarm
-sub_type 1
-end
 arch ability_firestorm
 sp 2
 hp 2
