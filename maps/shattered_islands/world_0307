@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1289,6 +1289,10 @@ arch grassd_7
 x 9
 y 6
 end
+arch plant_mushroom4
+x 9
+y 6
+end
 arch grassd_5
 x 9
 y 7
@@ -1420,59 +1424,35 @@ arch grassd_7
 x 10
 y 6
 end
-arch grassd_5
-x 10
-y 7
-end
-arch fstone1m6
+arch grassd_7
 x 10
 y 7
 end
 arch grassd_5
 x 10
 y 8
-end
-arch fstone1m11
-x 10
-y 8
-end
-arch grassd_3
-x 10
-y 9
-end
-arch fstone1m11
-x 10
-y 9
-end
-arch grassd_2
-x 10
-y 10
-end
-arch fstone1m11
-x 10
-y 10
 end
 arch grassd_8
 x 10
-y 11
+y 9
 end
-arch fstone1m11
+arch grassd_6
 x 10
-y 11
+y 10
 end
 arch grassd_2
 x 10
-y 12
+y 11
 end
-arch fstone1m11
+arch grassd_8
 x 10
 y 12
 end
-arch grassd_5
+arch grassd_2
 x 10
 y 13
 end
-arch fstone1m2
+arch fstone1m8
 x 10
 y 13
 end
@@ -1532,13 +1512,10 @@ arch grassd_2
 x 10
 y 23
 end
-arch grassd_8
+arch grassd_3
 x 11
 end
-arch small_stones
-x 11
-end
-arch grassd_6
+arch grassd_5
 x 11
 y 1
 end
@@ -1546,15 +1523,7 @@ arch grassd_5
 x 11
 y 2
 end
-arch fstone1m6
-x 11
-y 2
-end
-arch grassd_7
-x 11
-y 3
-end
-arch fstone1m11
+arch grassd_6
 x 11
 y 3
 end
@@ -1562,59 +1531,59 @@ arch grassd_2
 x 11
 y 4
 end
-arch fstone1m11
-x 11
-y 4
-end
-arch grassd_5
+arch grassd_3
 x 11
 y 5
-end
-arch fstone1m11
-x 11
-y 5
-end
-arch grassd_7
-x 11
-y 6
-end
-arch fstone1m11
-x 11
-y 6
 end
 arch grassd_8
 x 11
-y 7
+y 6
 end
-arch fstone1m2
+arch grassd_5
 x 11
 y 7
 end
-arch fstone1a
+arch tree_big4b
+x 11
+y 7
+end
+arch grassd_1
 x 11
 y 8
 end
-arch fstone1a
+arch grassd_1
 x 11
 y 9
 end
-arch fstone1a
+arch plant_flower2
+x 11
+y 9
+end
+arch grassd_8
 x 11
 y 10
 end
-arch fstone1b
+arch grassd_5
 x 11
 y 11
 end
-arch fstone1c
+arch grassd_8
 x 11
 y 12
 end
-arch fstone1a
+arch grassd_5
 x 11
 y 13
 end
-arch fstone1b
+arch fstone1m7
+x 11
+y 13
+end
+arch grassd_4
+x 11
+y 14
+end
+arch fstone1m9
 x 11
 y 14
 end
@@ -1622,7 +1591,7 @@ arch grassd_6
 x 11
 y 15
 end
-arch fstone1m3
+arch fstone1m9
 x 11
 y 15
 end
@@ -1677,102 +1646,74 @@ end
 arch grassd_5
 x 12
 end
-arch fstone1m11
+arch plant_mushroom5
 x 12
 end
-arch grassd_4
-x 12
-y 1
-end
-arch fstone1m11
+arch grassd_8
 x 12
 y 1
 end
 arch grassd_4
 x 12
 y 2
-end
-arch fstone1m2
-x 12
-y 2
-end
-arch fstone1c
-x 12
-y 3
-end
-arch fstone1a
-x 12
-y 4
-end
-arch fstone1a
-x 12
-y 5
-end
-arch fstone1b
-x 12
-y 6
-end
-arch fstone1b
-x 12
-y 7
-end
-arch fstone1b
-x 12
-y 8
-end
-arch grassd_4
-x 12
-y 9
-end
-arch fstone1m3
-x 12
-y 9
-end
-arch grassd_4
-x 12
-y 10
-end
-arch fstone1m9
-x 12
-y 10
 end
 arch grassd_2
 x 12
-y 11
+y 3
 end
-arch fstone1m9
+arch grassd_1
 x 12
-y 11
+y 4
 end
-arch grassd_4
+arch grassd_7
 x 12
-y 12
+y 5
 end
-arch fstone1m9
+arch plant_mushroom3
 x 12
-y 12
-end
-arch grassd_4
-x 12
-y 13
-end
-arch fstone1m9
-x 12
-y 13
+y 5
 end
 arch grassd_3
 x 12
-y 14
+y 6
 end
-arch fstone1m9
+arch grassd_8
+x 12
+y 7
+end
+arch grassd_2
+x 12
+y 8
+end
+arch plant_flower5
+x 12
+y 8
+end
+arch grassd_7
+x 12
+y 9
+end
+arch grassd_7
+x 12
+y 10
+end
+arch grassd_4
+x 12
+y 11
+end
+arch grassd_2
+x 12
+y 12
+end
+arch grassd_1
+x 12
+y 13
+end
+arch grassd_7
 x 12
 y 14
 end
 arch grassd_7
-x 12
-y 15
-end
-arch fstone1m5
 x 12
 y 15
 end
@@ -1820,66 +1761,50 @@ arch tree_big4b
 x 12
 y 23
 end
-arch fstone1a
+arch grassd_3
 x 13
 end
-arch fstone1c
+arch grassd_5
 x 13
 y 1
 end
-arch fstone1b
+arch grassd_1
 x 13
 y 2
 end
-arch fstone1c
+arch plant16
+x 13
+y 2
+end
+arch grassd_6
 x 13
 y 3
 end
-arch grassd_6
+arch grassd_3
 x 13
 y 4
 end
-arch fstone1m3
-x 13
-y 4
-end
-arch grassd_3
+arch grassd_7
 x 13
 y 5
 end
-arch fstone1m9
-x 13
-y 5
-end
-arch grassd_3
+arch grassd_8
 x 13
 y 6
 end
-arch fstone1m9
+arch plant15
 x 13
 y 6
 end
-arch grassd_2
+arch grassd_4
 x 13
 y 7
 end
-arch fstone1m9
+arch grassd_7
 x 13
-y 7
+y 8
 end
 arch grassd_1
-x 13
-y 8
-end
-arch fstone1m9
-x 13
-y 8
-end
-arch grassd_6
-x 13
-y 9
-end
-arch fstone1m5
 x 13
 y 9
 end
@@ -1892,6 +1817,10 @@ x 13
 y 11
 end
 arch grassd_2
+x 13
+y 12
+end
+arch plant16
 x 13
 y 12
 end
@@ -1950,22 +1879,11 @@ end
 arch grassd_5
 x 14
 end
-arch fstone1m9
-x 14
-end
-arch grassd_7
+arch grassd_4
 x 14
 y 1
 end
-arch fstone1m9
-x 14
-y 1
-end
-arch grassd_1
-x 14
-y 2
-end
-arch fstone1m9
+arch grassd_2
 x 14
 y 2
 end
@@ -1973,31 +1891,23 @@ arch grassd_6
 x 14
 y 3
 end
-arch fstone1m9
-x 14
-y 3
-end
-arch grassd_6
+arch grassd_4
 x 14
 y 4
 end
-arch fstone1m5
-x 14
-y 4
-end
-arch grassd_8
+arch grassd_4
 x 14
 y 5
 end
-arch grassd_3
+arch grassd_5
 x 14
 y 6
 end
-arch grassd_3
+arch grassd_6
 x 14
 y 7
 end
-arch grassd_1
+arch grassd_2
 x 14
 y 8
 end

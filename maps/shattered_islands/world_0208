@@ -2,7 +2,7 @@ arch map
 name Promethia Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-04-11 Alex Tokar
+Modified: 2011-10-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1408,19 +1408,11 @@ arch plant10
 x 11
 y 6
 end
-arch grassd_7
+arch grassd_8
 x 11
 y 7
 end
-arch fstone1m6
-x 11
-y 7
-end
-arch grassd_1
-x 11
-y 8
-end
-arch fstone1m11
+arch grassd_3
 x 11
 y 8
 end
@@ -1428,55 +1420,27 @@ arch grassd_8
 x 11
 y 9
 end
-arch fstone1m11
+arch grassd_8
 x 11
-y 9
+y 10
+end
+arch grassd_6
+x 11
+y 11
+end
+arch grassd_3
+x 11
+y 12
+end
+arch grassd_3
+x 11
+y 13
 end
 arch grassd_1
-x 11
-y 10
-end
-arch fstone1m11
-x 11
-y 10
-end
-arch grassd_7
-x 11
-y 11
-end
-arch fstone1m11
-x 11
-y 11
-end
-arch grassd_5
-x 11
-y 12
-end
-arch fstone1m11
-x 11
-y 12
-end
-arch grassd_4
-x 11
-y 13
-end
-arch fstone1m11
-x 11
-y 13
-end
-arch grassd_7
-x 11
-y 14
-end
-arch fstone1m11
 x 11
 y 14
 end
 arch grassd_1
-x 11
-y 15
-end
-arch fstone1m10
 x 11
 y 15
 end
@@ -1571,47 +1535,39 @@ arch small_stones
 x 12
 y 6
 end
-arch grassd_3
+arch grassd_5
 x 12
 y 7
 end
-arch fstone1m8
-x 12
-y 7
-end
-arch fstone1b
+arch grassd_7
 x 12
 y 8
 end
-arch fstone1b
+arch grassd_8
 x 12
 y 9
 end
-arch fstone1a
+arch grassd_6
 x 12
 y 10
 end
-arch fstone1a
+arch grassd_6
 x 12
 y 11
 end
-arch fstone1b
+arch grassd_3
 x 12
 y 12
 end
-arch fstone1b
+arch grassd_8
 x 12
 y 13
 end
-arch fstone1b
+arch grassd_2
 x 12
 y 14
 end
-arch grassd_1
-x 12
-y 15
-end
-arch fstone1m12
+arch grassd_3
 x 12
 y 15
 end
@@ -1698,71 +1654,51 @@ arch grassd_4
 x 13
 y 6
 end
-arch grassd_4
+arch grassd_1
 x 13
 y 7
 end
-arch fstone1m8
-x 13
-y 7
-end
-arch fstone1b
+arch grassd_1
 x 13
 y 8
 end
-arch grassd_5
+arch grassd_2
 x 13
 y 9
 end
-arch fstone1m3
+arch grassd_6
 x 13
-y 9
+y 10
+end
+arch grassd_1
+x 13
+y 11
+end
+arch plant_flower11
+x 13
+y 11
+end
+arch grassd_5
+x 13
+y 12
+end
+arch grassd_1
+x 13
+y 13
 end
 arch grassd_4
 x 13
-y 10
-end
-arch fstone1m9
-x 13
-y 10
-end
-arch grassd_3
-x 13
-y 11
-end
-arch fstone1m9
-x 13
-y 11
-end
-arch grassd_8
-x 13
-y 12
-end
-arch fstone1m9
-x 13
-y 12
-end
-arch grassd_5
-x 13
-y 13
-end
-arch fstone1m1
-x 13
-y 13
-end
-arch fstone1a
-x 13
 y 14
 end
-arch grassd_5
-x 13
-y 15
-end
-arch fstone1m12
+arch grassd_3
 x 13
 y 15
 end
 arch grassd_6
+x 13
+y 16
+end
+arch tree_big2
 x 13
 y 16
 end
@@ -1845,106 +1781,63 @@ arch grassd_3
 x 14
 y 6
 end
-arch grassd_8
+arch grassd_4
 x 14
 y 7
 end
-arch fstone1m8
-x 14
-y 7
-end
-arch fstone1a
+arch grassd_5
 x 14
 y 8
 end
-arch grassd_3
+arch plant_mushroom5
 x 14
-y 9
-end
-arch fstone1m12
-x 14
-y 9
-end
-arch grassd_5
-x 14
-y 10
-end
-arch wall_pattern1.181
-x 14
-y 10
-end
-arch grassd_2
-x 14
-y 11
-end
-arch wall_pattern1.131
-x 14
-y 11
-end
-arch grassd_8
-x 14
-y 12
-end
-arch wall_pattern1.131
-x 14
-y 12
-end
-arch wmask_fire_on_1
-direction 7
-x 14
-y 12
-end
-arch grassd_5
-x 14
-y 13
-end
-arch fstone1m8
-x 14
-y 13
-end
-arch wall_pattern1.131
-x 14
-y 13
-end
-arch fstone1c
-x 14
-y 14
-end
-arch door1_locked
-direction 3
-x 14
-y 14
-end
-arch grassd_8
-x 14
-y 15
-end
-arch fstone1m12
-x 14
-y 15
-end
-arch wall_pattern1.131
-x 14
-y 15
-end
-arch grassd_5
-x 14
-y 16
-end
-arch wall_pattern1.131
-x 14
-y 16
-end
-arch wmask_bflag_fire1_1
-direction 7
-x 14
-y 16
+y 8
 end
 arch grassd_1
 x 14
-y 17
+y 9
 end
-arch wall_pattern1.131
+arch tree_big2
+x 14
+y 9
+end
+arch grassd_8
+x 14
+y 10
+end
+arch grassd_8
+x 14
+y 11
+end
+arch grassd_4
+x 14
+y 12
+end
+arch grassd_7
+x 14
+y 13
+end
+arch tree_big3
+x 14
+y 13
+end
+arch grassd_2
+x 14
+y 14
+end
+arch grassd_8
+x 14
+y 15
+end
+arch plant5
+x 14
+y 15
+end
+arch grassd_5
+x 14
+y 16
+end
+arch grassd_5
 x 14
 y 17
 end
@@ -1952,20 +1845,11 @@ arch grassd_5
 x 14
 y 18
 end
-arch wall_pattern1.131
+arch plant_flower1
 x 14
 y 18
 end
-arch picture2.151
-direction 7
-x 14
-y 18
-end
-arch grassd_3
-x 14
-y 19
-end
-arch wall_pattern1.131
+arch grassd_2
 x 14
 y 19
 end
@@ -2032,88 +1916,51 @@ arch grassd_4
 x 15
 y 7
 end
-arch fstone1m8
-x 15
-y 7
-end
-arch fstone1c
+arch grassd_4
 x 15
 y 8
 end
-arch grassd_4
-x 15
-y 9
-end
-arch fstone1m12
-x 15
-y 9
-end
 arch grassd_7
 x 15
-y 10
+y 9
 end
-arch wall_pattern1.111
+arch grassd_6
 x 15
 y 10
 end
-arch floor_marble_grey
+arch grassd_4
 x 15
 y 11
 end
-arch shelf5_wall.111
-x 15
-y 11
-end
-arch floor_marble_grey
+arch grassd_2
 x 15
 y 12
 end
-arch floor_marble_grey
+arch grassd_7
 x 15
 y 13
 end
-arch floor_marble_grey
+arch grassd_3
 x 15
 y 14
 end
-arch carpet1.131
-x 15
-y 14
-end
-arch floor_marble_grey
+arch grassd_5
 x 15
 y 15
 end
-arch carpet1.131
-x 15
-y 15
-end
-arch floor_marble_grey
+arch grassd_4
 x 15
 y 16
 end
-arch carpet1.131
-x 15
-y 16
-end
-arch floor_marble_grey
+arch grassd_5
 x 15
 y 17
 end
-arch clock
-direction 7
-x 15
-y 17
-end
-arch floor_marble_grey
+arch grassd_3
 x 15
 y 18
 end
-arch floor_marble_grey
-x 15
-y 19
-end
-arch wall_pattern1.111
+arch grassd_4
 x 15
 y 19
 end
@@ -2180,15 +2027,11 @@ arch grassd_8
 x 16
 y 6
 end
-arch grassd_3
+arch grassd_8
 x 16
 y 7
 end
-arch fstone1m8
-x 16
-y 7
-end
-arch fstone1a
+arch grassd_1
 x 16
 y 8
 end
@@ -2196,87 +2039,47 @@ arch grassd_6
 x 16
 y 9
 end
-arch fstone1m12
-x 16
-y 9
-end
-arch grassd_8
+arch grassd_4
 x 16
 y 10
 end
-arch wall_pattern1.111
+arch plant_mushroom5
 x 16
 y 10
 end
-arch floor_marble_grey
+arch grassd_7
 x 16
 y 11
 end
-arch shelf6_wall.111
-x 16
-y 11
-end
-arch floor_marble_grey
+arch grassd_2
 x 16
 y 12
 end
-arch light9
-x 16
-y 12
-end
-arch floor_marble_grey
+arch grassd_1
 x 16
 y 13
 end
-arch carpet1.151
-x 16
-y 13
-end
-arch floor_marble_grey
+arch grassd_1
 x 16
 y 14
 end
-arch carpet1
-x 16
-y 14
-end
-arch floor_marble_grey
+arch grassd_5
 x 16
 y 15
 end
-arch carpet1
-x 16
-y 15
-end
-arch floor_marble_grey
+arch grassd_6
 x 16
 y 16
 end
-arch carpet1
-x 16
-y 16
-end
-arch floor_marble_grey
+arch grassd_3
 x 16
 y 17
 end
-arch carpet1.111
-x 16
-y 17
-end
-arch light9
-x 16
-y 17
-end
-arch floor_marble_grey
+arch grassd_3
 x 16
 y 18
 end
-arch floor_marble_grey
-x 16
-y 19
-end
-arch wall_pattern1.111
+arch grassd_6
 x 16
 y 19
 end
@@ -2351,87 +2154,55 @@ arch grassd_7
 x 17
 y 7
 end
-arch fstone1m8
+arch plant_flower2
 x 17
 y 7
 end
-arch plant1
-x 17
-y 7
-end
-arch fstone1c
+arch grassd_6
 x 17
 y 8
 end
-arch grassd_6
+arch grassd_8
 x 17
 y 9
 end
-arch fstone1m12
-x 17
-y 9
-end
-arch grassd_6
+arch grassd_4
 x 17
 y 10
 end
-arch wall_pattern1.111
-x 17
-y 10
-end
-arch flag_04
-x 17
-y 10
-end
-arch floor_marble_grey
+arch grassd_2
 x 17
 y 11
 end
-arch floor_marble_grey
+arch grassd_6
 x 17
 y 12
 end
-arch floor_marble_grey
+arch grassd_7
 x 17
 y 13
 end
-arch floor_marble_grey
+arch grassd_5
 x 17
 y 14
 end
-arch carpet1.171
-x 17
-y 14
-end
-arch floor_marble_grey
+arch grassd_3
 x 17
 y 15
 end
-arch carpet1.171
-x 17
-y 15
-end
-arch floor_marble_grey
+arch grassd_1
 x 17
 y 16
 end
-arch carpet1.171
-x 17
-y 16
-end
-arch floor_marble_grey
+arch grassd_2
 x 17
 y 17
 end
-arch floor_marble_grey
+arch grassd_4
 x 17
 y 18
 end
-arch floor_marble_grey
-x 17
-y 19
-end
-arch wall_pattern1.111
+arch grassd_6
 x 17
 y 19
 end
@@ -2502,94 +2273,67 @@ arch plant8
 x 18
 y 6
 end
+arch grassd_3
+x 18
+y 7
+end
 arch grassd_6
-x 18
-y 7
-end
-arch fstone1m8
-x 18
-y 7
-end
-arch fstone1b
 x 18
 y 8
 end
+arch grassd_1
+x 18
+y 9
+end
 arch grassd_2
 x 18
-y 9
-end
-arch fstone1m12
-x 18
-y 9
-end
-arch grassd_8
-x 18
 y 10
 end
-arch wall_pattern1.111
-x 18
-y 10
-end
-arch floor_marble_grey
+arch grassd_5
 x 18
 y 11
 end
-arch shelf3c.111
+arch tree_big3
 x 18
 y 11
 end
-arch floor_marble_grey
+arch grassd_1
 x 18
 y 12
 end
-arch floor_marble_grey
+arch grassd_2
 x 18
 y 13
 end
-arch candlelight4.101
-x 18
-y 13
-end
-arch floor_marble_grey
+arch grassd_8
 x 18
 y 14
 end
-arch table_lab2.111
-direction 7
+arch stone1
 x 18
 y 14
 end
-arch floor_marble_grey
+arch grassd_3
 x 18
 y 15
 end
-arch table_lab3.111
-direction 7
-x 18
-y 15
-end
-arch floor_marble_grey
+arch grassd_1
 x 18
 y 16
 end
-arch table_lab1.111
-direction 7
+arch plant_mushroom4
 x 18
 y 16
 end
-arch floor_marble_grey
+arch grassd_3
 x 18
 y 17
 end
-arch floor_marble_grey
+arch grassd_7
 x 18
 y 18
 end
-arch floor_marble_grey
-x 18
-y 19
-end
-arch wall_pattern1.111
+arch grassd_5
 x 18
 y 19
 end
@@ -2656,15 +2400,11 @@ arch plant7
 x 19
 y 6
 end
-arch grassd_3
+arch grassd_8
 x 19
 y 7
 end
-arch fstone1m8
-x 19
-y 7
-end
-arch fstone1c
+arch grassd_2
 x 19
 y 8
 end
@@ -2672,87 +2412,51 @@ arch grassd_3
 x 19
 y 9
 end
-arch fstone1m12
-x 19
-y 9
-end
 arch grassd_4
 x 19
 y 10
 end
-arch wall_pattern1.111
+arch plant1
 x 19
 y 10
 end
-arch floor_marble_grey
+arch grassd_8
 x 19
 y 11
 end
-arch shelf2.111
-x 19
-y 11
-end
-arch floor_marble_grey
+arch grassd_2
 x 19
 y 12
 end
-arch light9
-x 19
-y 12
-end
-arch floor_marble_grey
+arch grassd_2
 x 19
 y 13
 end
-arch floor_marble_grey
+arch grassd_4
 x 19
 y 14
 end
-arch floor_marble_grey
+arch grassd_4
 x 19
 y 15
 end
-arch chair1_111
-direction 3
-x 19
-y 15
-end
-arch spawn_point
-x 19
-y 15
-arch mage_old
-name Fayshaw
-direction 7
-level 80
-friendly 1
-type 83
-arch event_obj
-sub_type 6
-race scripts/promethia_island/fayshaw.py
-end
-end
-end
-arch floor_marble_grey
+arch grassd_7
 x 19
 y 16
 end
-arch floor_marble_grey
+arch grassd_8
 x 19
 y 17
 end
-arch light9
-x 19
-y 17
-end
-arch floor_marble_grey
+arch grassd_8
 x 19
 y 18
 end
-arch floor_marble_grey
+arch tree_big3
 x 19
-y 19
+y 18
 end
-arch wall_pattern1.111
+arch grassd_3
 x 19
 y 19
 end
@@ -2831,99 +2535,59 @@ arch grassd_5
 x 20
 y 7
 end
-arch fstone1m8
+arch small_stones
 x 20
 y 7
 end
-arch fstone1c
+arch grassd_5
 x 20
 y 8
 end
-arch grassd_4
+arch grassd_8
 x 20
 y 9
 end
-arch fstone1m12
+arch grassd_5
 x 20
-y 9
+y 10
 end
 arch grassd_7
 x 20
-y 10
-end
-arch wall_pattern1.111
-x 20
-y 10
-end
-arch floor_marble_grey
-x 20
 y 11
 end
-arch wall_pattern1.131
-x 20
-y 11
-end
-arch floor_marble_grey
+arch grassd_8
 x 20
 y 12
 end
-arch wall_pattern1.131
-x 20
-y 12
-end
-arch floor_marble_grey
+arch grassd_6
 x 20
 y 13
 end
-arch wall_pattern1.131
+arch plant_flower14
 x 20
 y 13
 end
-arch floor_marble_grey
+arch grassd_5
 x 20
 y 14
 end
-arch wall_pattern1.131
-x 20
-y 14
-end
-arch floor_marble_grey
+arch grassd_6
 x 20
 y 15
 end
-arch wall_pattern1.131
-x 20
-y 15
-end
-arch floor_marble_grey
+arch grassd_1
 x 20
 y 16
 end
-arch wall_pattern1.131
-x 20
-y 16
-end
-arch floor_marble_grey
+arch grassd_3
 x 20
 y 17
 end
-arch wall_pattern1.131
-x 20
-y 17
-end
-arch floor_marble_grey
+arch grassd_8
 x 20
 y 18
 end
-arch wall_pattern1.131
-x 20
-y 18
-end
-arch floor_marble_grey
-x 20
-y 19
-end
-arch wall_pattern1.141
+arch grassd_1
 x 20
 y 19
 end
@@ -2998,27 +2662,15 @@ arch grassd_6
 x 21
 y 6
 end
+arch grassd_3
+x 21
+y 7
+end
 arch grassd_4
-x 21
-y 7
-end
-arch fstone1m8
-x 21
-y 7
-end
-arch fstone1b
 x 21
 y 8
 end
-arch grassd_3
-x 21
-y 9
-end
-arch fstone1m12
-x 21
-y 9
-end
-arch tree_branch3
+arch grassd_7
 x 21
 y 9
 end
@@ -3129,23 +2781,15 @@ arch grassd_7
 x 22
 y 6
 end
-arch grassd_8
+arch grassd_2
 x 22
 y 7
 end
-arch fstone1m8
-x 22
-y 7
-end
-arch fstone1b
+arch grassd_1
 x 22
 y 8
 end
-arch grassd_7
-x 22
-y 9
-end
-arch fstone1m12
+arch grassd_4
 x 22
 y 9
 end
@@ -3276,19 +2920,11 @@ arch grassd_2
 x 23
 y 7
 end
-arch fstone1m8
-x 23
-y 7
-end
-arch fstone1c
+arch grassd_6
 x 23
 y 8
 end
-arch grassd_3
-x 23
-y 9
-end
-arch fstone1m12
+arch grassd_6
 x 23
 y 9
 end
