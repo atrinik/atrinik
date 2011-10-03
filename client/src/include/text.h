@@ -238,6 +238,9 @@ typedef struct text_blit_info
 	/** Whether we are in underline tag. */
 	uint8 in_underline;
 
+	/** Whether we are in strikethrough tag. */
+	uint8 in_strikethrough;
+
 	/**
 	 *  If 1, the character is not being drawn due to line skip (due to
 	 * scroll value for example). */

@@ -520,7 +520,7 @@ void blt_character_init(text_blit_info *info)
 	info->outline_show = 0;
 	info->in_book_title = 0;
 	info->used_alpha = 255;
-	info->in_bold = info->in_italic = info->in_underline = 0;
+	info->in_bold = info->in_italic = info->in_underline = info->in_strikethrough = 0;
 	info->obscured = 0;
 	info->calc_bold = 0;
 	info->calc_font = -1;
@@ -755,6 +755,25 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			if (surface || info->obscured)
 			{
 				info->in_underline = 0;
+			}
+
+			return 4;
+		}
+		/* Strikethrough. */
+		else if (!strncmp(cp, "<s>", 3))
+		{
+			if (surface || info->obscured)
+			{
+				info->in_strikethrough = 1;
+			}
+
+			return 3;
+		}
+		else if (!strncmp(cp, "</s>", 4))
+		{
+			if (surface || info->obscured)
+			{
+				info->in_strikethrough = 0;
 			}
 
 			return 4;
@@ -1540,6 +1559,14 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		else
 		{
 			ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *color);
+		}
+
+		if (info->in_strikethrough)
+		{
+			int font_height;
+
+			font_height = TTF_FontHeight(fonts[*font].font);
+			lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, color->r, color->g, color->b, 255);
 		}
 
 		/* Output the rendered character to the screen and free the
