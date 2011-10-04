@@ -13,7 +13,7 @@ def main():
 		inf.add_link("Tell me about your shop.", dest = "aboutshop")
 
 	elif msg == "useship":
-		inf.add_msg("Hmm... well, the business is slow right now, so I don't need it at the moment. Feel free to use it to sail the Brynknot.")
+		inf.add_msg("Hmm... well, the business is slow right now, so I don't need it at the moment. Feel free to use it to sail to Brynknot.")
 		inf.add_msg("You can find a spare key in my chest with goods which will open the gate. Don't worry, the ship has an enchantment! It can travel between Brynknot and Asteria by itself, no steering necessary. I can also recall it if need be! That was a costly enchantment, though...")
 
 	elif msg == "aboutshop":
