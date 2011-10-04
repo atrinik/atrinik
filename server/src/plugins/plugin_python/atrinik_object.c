@@ -1190,19 +1190,14 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
  * Takes the object out of whatever map or inventory it is in. The object
  * can then be inserted or teleported somewhere else, or just left alone
  * for the garbage collection to take care of.
- * @throws AtrinikError if one of the involved objects is attempted to be
- * removed (activator, who or other). */
+ * @warning Be careful when removing one of the objects involved in the
+ * event activation (such as the activator/event/etc). It is recommended
+ * you use "SetReturnValue(1)" or similar before the script exits if
+ * doing so. */
 static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
 	OBJEXISTCHECK(obj);
-
-	/* Don't allow removing any of the involved objects. Messes things up... */
-	if (current_context->activator == obj->obj || current_context->who == obj->obj || current_context->other == obj->obj)
-	{
-		RAISE("You are not allowed to remove one of the active objects.");
-	}
-
 	hooks->object_remove_esrv_update(obj->obj);
 
 	Py_INCREF(Py_None);
