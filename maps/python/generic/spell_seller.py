@@ -31,6 +31,11 @@ def main():
 			inf.add_msg("... but it seems you already know {}.".format(name))
 			return
 
+		skill_name = {"wizard": "wizardry spells", "priest": "divine prayers"}[spell["type"]]
+		skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr(skill_name))
+		color = COLOR_GREEN if skill.level >= spell["level"] else COLOR_RED
+		inf.add_msg("{} requires level to {} use. Your {} skill is level {}.".format(name.capitalize(), spell["level"], skill_name, skill.level), color)
+
 		inf.add_msg("{} will cost you {}. Is that okay?".format(name.capitalize(), CostString(spell["cost"])))
 		inf.add_link("Buy {}".format(name), dest = "buy2 " + name)
 
