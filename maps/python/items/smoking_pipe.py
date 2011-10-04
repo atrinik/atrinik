@@ -1,15 +1,7 @@
 ## @file
 ## Script for the smoking pipe item.
 
-from Atrinik import *
-
-activator = WhoIsActivator()
-
 def main():
-	# Safety.
-	if activator.type != Type.PLAYER:
-		return
-
 	# Find the marked pipeweed.
 	marked = activator.Controller().FindMarkedObject()
 
@@ -50,7 +42,5 @@ def main():
 	# Decrease number of pipeweeds.
 	marked.Decrease()
 
-try:
-	main()
-finally:
-	SetReturnValue(1)
+SetReturnValue(1)
+main()
