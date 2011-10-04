@@ -1,10 +1,7 @@
-from Atrinik import *
 from QuestManager import QuestManagerMulti
 from Quests import EscapingDesertedIsland as quest
 from Packet import Notification
 
-activator = WhoIsActivator()
-me = WhoAmI()
 qm = QuestManagerMulti(activator, quest)
 
 def main():
