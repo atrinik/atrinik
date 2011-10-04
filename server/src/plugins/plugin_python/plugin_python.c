@@ -892,9 +892,10 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 
 	PyDict_SetItemString(dict, "name", Py_BuildValue("s", hooks->spells[spell].name));
 	PyDict_SetItemString(dict, "level", Py_BuildValue("i", hooks->spells[spell].level));
+	PyDict_SetItemString(dict, "desc", Py_BuildValue("s", hooks->spells[spell].description));
+	PyDict_SetItemString(dict, "icon", Py_BuildValue("s", hooks->spells[spell].icon));
 	PyDict_SetItemString(dict, "type", Py_BuildValue("s", hooks->spells[spell].type == SPELL_TYPE_WIZARD ? "wizard" : "priest"));
-	PyDict_SetItemString(dict, "sp", Py_BuildValue("i", hooks->spells[spell].sp));
-	PyDict_SetItemString(dict, "time", Py_BuildValue("i", hooks->spells[spell].time));
+	PyDict_SetItemString(dict, "cost", Py_BuildValue("i", hooks->spells[spell].cost));
 
 	return dict;
 }

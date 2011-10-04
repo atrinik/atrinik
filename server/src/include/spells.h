@@ -214,6 +214,9 @@ typedef struct spell_struct
 
 	/** Pointer to archetype used by spell. */
 	char *archname;
+
+	/** How much money the spell costs to buy. */
+	int cost;
 } spell_struct;
 
 /** Marks no spell. */

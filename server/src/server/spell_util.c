@@ -1795,7 +1795,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 int SP_level_strength_adjust(object *caster, int spell_type)
 {
 	int level = SK_level(caster);
-	int adj = (level - spells[spell_type].level);
+	int adj = (level);
 
 	if (adj < 0)
 	{
@@ -1831,7 +1831,7 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 
 	if (spells[spell_type].spl)
 	{
-		sp = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float) (level - spells[spell_type].level) / (float) spells[spell_type].spl))));
+		sp = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float) (level) / (float) spells[spell_type].spl))));
 	}
 	else
 	{
