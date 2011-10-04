@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 emperorbma
+Modified: 2011-10-03 emperorbma
 endmsg
 width 24
 height 24
@@ -2087,6 +2087,10 @@ z 50
 x 13
 y 7
 end
+arch tree_big4b
+x 13
+y 7
+end
 arch grassd_7
 z 50
 x 13
@@ -2385,103 +2389,57 @@ z 50
 x 15
 y 5
 end
+arch grassd_3
+z 50
+x 15
+y 6
+end
+arch grassd_1
+z 50
+x 15
+y 7
+end
 arch grassd_6
 z 50
 x 15
-y 6
-end
-arch wall_marble1.181
-x 15
-y 6
-end
-arch client_map_info
-msg
-Temple of Tabernacle.
-endmsg
-name asteria_temple_tabernacle
-sub_type 2
-stand_still 1
-x 15
-y 6
+y 8
 end
 arch grassd_1
-z 50
-x 15
-y 7
-end
-arch wall_marble1.111a
-x 15
-y 7
-end
-arch grassd_8
-z 50
-x 15
-y 8
-end
-arch wall_marble1.111
-x 15
-y 8
-end
-arch grassd_3
 z 50
 x 15
 y 9
 end
-arch wall_marble1w.111
+arch small_stones
 x 15
 y 9
-end
-arch grassd_8
-z 50
-x 15
-y 10
-end
-arch wall_marble1.111a
-x 15
-y 10
-end
-arch grassd_1
-z 50
-x 15
-y 11
-end
-arch wall_marble1.111
-x 15
-y 11
-end
-arch grassd_1
-z 50
-x 15
-y 12
-end
-arch wall_marble1w.111
-x 15
-y 12
 end
 arch grassd_3
 z 50
 x 15
-y 13
-end
-arch wall_marble1.111
-x 15
-y 13
-end
-arch grassd_1
-z 50
-x 15
-y 14
-end
-arch wall_marble1.111a
-x 15
-y 14
+y 10
 end
 arch grassd_7
 z 50
 x 15
-y 15
+y 11
 end
-arch wall_marble1w.111
+arch grassd_8
+z 50
+x 15
+y 12
+end
+arch grassd_2
+z 50
+x 15
+y 13
+end
+arch grassd_5
+z 50
+x 15
+y 14
+end
+arch grassd_3
+z 50
 x 15
 y 15
 end
@@ -2490,31 +2448,13 @@ z 50
 x 15
 y 16
 end
-arch wall_marble1.111a
-x 15
-y 16
-end
 arch grassd_8
 z 50
 x 15
 y 17
 end
-arch wall_marble1.111
-x 15
-y 17
-end
-arch grassd_4
+arch grassd_6
 z 50
-x 15
-y 18
-end
-arch wall_marble1.111
-x 15
-y 18
-end
-arch client_map_info
-name asteria_temple_tabernacle
-sub_type 2
 x 15
 y 18
 end
@@ -2596,102 +2536,84 @@ arch plant_flower5
 x 16
 y 5
 end
-arch grassd_8
+arch grassd_3
 z 50
 x 16
 y 6
 end
-arch wall_marble1.131
-x 16
-y 6
-end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 16
 y 7
 end
-arch shrine1.111
+arch plant_flower11
 x 16
 y 7
 end
-arch map_info
-hp 7
-sp 10
-slaying courage.mid
-x 16
-y 7
-end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 16
 y 8
 end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 16
 y 9
 end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 16
 y 10
 end
-arch statue_black_small1
-x 16
-y 10
-end
-arch floor_marble1g
+arch grassd_8
 z 50
 x 16
 y 11
 end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 16
 y 12
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 16
 y 13
 end
-arch floor_marble1g
+arch plant_flower1
+x 16
+y 13
+end
+arch grassd_8
 z 50
 x 16
 y 14
 end
-arch shrine1.111
-direction 5
+arch tree_big2
 x 16
 y 14
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 16
 y 15
 end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 16
 y 16
 end
-arch floor_marble1g
+arch stone1
+x 16
+y 16
+end
+arch grassd_4
 z 50
 x 16
 y 17
 end
-arch stairs_stone_down
-direction 5
-name stairs down to Parsonage
-x 16
-y 17
-end
-arch floor_marble1g
+arch grassd_6
 z 50
-x 16
-y 18
-end
-arch wall_marble1.131a
 x 16
 y 18
 end
@@ -2768,88 +2690,68 @@ z 50
 x 17
 y 5
 end
-arch grassd_2
+arch grassd_1
 z 50
 x 17
 y 6
 end
-arch wall_marble1.131a
-x 17
-y 6
-end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 17
 y 7
 end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 17
 y 8
 end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 17
 y 9
 end
-arch light9
-x 17
-y 9
-end
-arch floor_marble1g
+arch grassd_8
 z 50
 x 17
 y 10
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 17
 y 11
 end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 17
 y 12
 end
-arch light9
-x 17
-y 12
-end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 17
 y 13
 end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 17
 y 14
 end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 17
 y 15
 end
-arch light9
-x 17
-y 15
-end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 17
 y 16
 end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 17
 y 17
 end
-arch floor_marble1g
+arch grassd_4
 z 50
-x 17
-y 18
-end
-arch wall_marble1.131
 x 17
 y 18
 end
@@ -2927,92 +2829,68 @@ z 50
 x 18
 y 5
 end
-arch grassd_2
+arch grassd_8
 z 50
 x 18
 y 6
 end
-arch wall_marble1w.131
-x 18
-y 6
-end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 18
 y 7
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 18
 y 8
 end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 18
 y 9
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 18
 y 10
 end
-arch bank1.111
-x 18
-y 10
-end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 18
 y 11
 end
-arch floor_marble1g
+arch grassd_6
 z 50
 x 18
 y 12
 end
-arch bank1.111
-x 18
-y 12
-end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 18
 y 13
 end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 18
 y 14
 end
-arch bank1.111
-x 18
-y 14
-end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 18
 y 15
 end
-arch floor_marble1g
+arch grassd_8
 z 50
 x 18
 y 16
 end
-arch bank1.111
-x 18
-y 16
-end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 18
 y 17
 end
-arch floor_marble1g
+arch grassd_2
 z 50
-x 18
-y 18
-end
-arch wall_marble1w.131
 x 18
 y 18
 end
@@ -3108,100 +2986,128 @@ z 50
 x 19
 y 5
 end
-arch grassd_7
+arch grassd_3
 z 50
 x 19
 y 6
 end
-arch plant_flower7
+arch plant_flower2
 x 19
 y 6
 end
-arch wall_marble1.131
-x 19
-y 6
-end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 19
 y 7
 end
-arch statue_black_big1
-x 19
-y 7
-end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 19
 y 8
 end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 19
 y 9
 end
-arch floor_marble1g
+arch plant_flower7
+x 19
+y 9
+end
+arch tree_big2
+x 19
+y 9
+end
+arch grassd_5
 z 50
 x 19
 y 10
 end
-arch bank1.111
-x 19
-y 10
-end
-arch floor_marble1g
+arch grassd_6
 z 50
 x 19
 y 11
 end
-arch floor_marble1g
+arch wall_marble1.181
+x 19
+y 11
+end
+arch client_map_info
+msg
+Temple of Tabernacle.
+endmsg
+name asteria_temple_tabernacle
+sub_type 2
+stand_still 1
+x 19
+y 11
+end
+arch grassd_1
 z 50
 x 19
 y 12
 end
-arch bank1.111
+arch wall_marble1.111a
 x 19
 y 12
 end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 19
 y 13
 end
-arch floor_marble1g
+arch wall_marble1w.111
+x 19
+y 13
+end
+arch grassd_3
 z 50
 x 19
 y 14
 end
-arch bank1.111
+arch wall_marble1.111
 x 19
 y 14
 end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 19
 y 15
 end
-arch floor_marble1g
+arch wall_marble1w.111
+x 19
+y 15
+end
+arch grassd_1
 z 50
 x 19
 y 16
 end
-arch bank1.111
+arch wall_marble1.111a
 x 19
 y 16
 end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 19
 y 17
 end
-arch floor_marble1g
+arch wall_marble1.111a
+x 19
+y 17
+end
+arch grassd_4
 z 50
 x 19
 y 18
 end
-arch wall_marble1.131
+arch wall_marble1.111
+x 19
+y 18
+end
+arch client_map_info
+name asteria_temple_tabernacle
+sub_type 2
 x 19
 y 18
 end
@@ -3275,42 +3181,57 @@ z 50
 x 20
 y 5
 end
-arch grassd_8
+arch tree_big
+x 20
+y 5
+end
+arch grassd_4
 z 50
 x 20
 y 6
 end
-arch wall_marble1.131a
-x 20
-y 6
-end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 20
 y 7
 end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 20
 y 8
 end
-arch floor_marble1g
+arch grassd_8
 z 50
 x 20
 y 9
 end
-arch floor_marble1g
+arch grassd_3
 z 50
 x 20
 y 10
 end
-arch floor_marble1g
+arch grassd_7
 z 50
+x 20
+y 11
+end
+arch wall_marble1.131
 x 20
 y 11
 end
 arch floor_marble1g
 z 50
+x 20
+y 12
+end
+arch shrine1.111
+x 20
+y 12
+end
+arch map_info
+hp 3
+sp 6
+slaying courage.mid
 x 20
 y 12
 end
@@ -3336,6 +3257,14 @@ y 16
 end
 arch floor_marble1g
 z 50
+x 20
+y 17
+end
+arch statue_black_small1
+x 20
+y 17
+end
+arch light8
 x 20
 y 17
 end
@@ -3362,14 +3291,6 @@ z 50
 x 20
 y 20
 end
-arch sign_generic
-msg
-Cathedral of Holy Wisdom
-endmsg
-direction 5
-x 20
-y 20
-end
 arch floor_fs_grey1b
 z 50
 x 20
@@ -3433,65 +3354,41 @@ z 50
 x 21
 y 5
 end
+arch grassd_3
+z 50
+x 21
+y 6
+end
 arch grassd_4
 z 50
 x 21
-y 6
+y 7
 end
-arch wall_marble1w.131
-x 21
-y 6
-end
-arch floor_marble1g
-z 50
+arch plant_flower1
 x 21
 y 7
 end
-arch grave_cross2.111
-name icon
-no_pass 0
-x 21
-y 7
-end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 21
 y 8
 end
-arch floor_marble1g
+arch grassd_7
 z 50
 x 21
 y 9
 end
-arch spawn_point
-x 21
-y 9
-arch priest_church
-name Archbishop Theodorus
-type 83
-level 65
-arch event_obj
-sub_type 6
-race /python/temples/tabernacle.py
-end
-end
-end
-arch light9
-x 21
-y 9
-end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 21
 y 10
 end
-arch altar_tabernacle
-xrays 1
-x 21
-y 10
-end
-arch floor_marble1g
+arch grassd_8
 z 50
+x 21
+y 11
+end
+arch wall_marble1.131
 x 21
 y 11
 end
@@ -3500,7 +3397,7 @@ z 50
 x 21
 y 12
 end
-arch light9
+arch light8
 x 21
 y 12
 end
@@ -3514,17 +3411,21 @@ z 50
 x 21
 y 14
 end
+arch bank1.111
+x 21
+y 14
+end
 arch floor_marble1g
 z 50
 x 21
 y 15
 end
-arch light9
-x 21
-y 15
-end
 arch floor_marble1g
 z 50
+x 21
+y 16
+end
+arch bank1.111
 x 21
 y 16
 end
@@ -3538,22 +3439,26 @@ z 50
 x 21
 y 18
 end
-arch door_wood1
+arch wall_marble1w.131
 x 21
 y 18
 end
-arch floor_flagm2
+arch grassd_1
 z 50
 x 21
 y 19
 end
-arch floor_flagm1
+arch grassd_2
 z 50
 x 21
 y 20
 end
 arch floor_fs_grey1b
 z 50
+x 21
+y 21
+end
+arch grassd_m10
 x 21
 y 21
 end
@@ -3612,37 +3517,41 @@ arch plant17
 x 22
 y 5
 end
-arch grassd_6
+arch grassd_4
 z 50
 x 22
 y 6
 end
-arch wall_marble1.131
-x 22
-y 6
-end
-arch floor_marble1g
+arch grassd_1
 z 50
 x 22
 y 7
 end
-arch floor_marble1g
+arch tree_big
+x 22
+y 7
+end
+arch grassd_4
 z 50
 x 22
 y 8
 end
-arch floor_marble1g
+arch grassd_4
 z 50
 x 22
 y 9
 end
-arch floor_marble1g
+arch grassd_2
 z 50
 x 22
 y 10
 end
-arch floor_marble1g
+arch grassd_2
 z 50
+x 22
+y 11
+end
+arch wall_marble1.131a
 x 22
 y 11
 end
@@ -3661,6 +3570,10 @@ z 50
 x 22
 y 14
 end
+arch bank1.111
+x 22
+y 14
+end
 arch floor_marble1g
 z 50
 x 22
@@ -3668,6 +3581,10 @@ y 15
 end
 arch floor_marble1g
 z 50
+x 22
+y 16
+end
+arch bank1.111
 x 22
 y 16
 end
@@ -3690,8 +3607,24 @@ z 50
 x 22
 y 19
 end
+arch sign_generic
+msg
+Church of Tabernacle
+endmsg
+direction 3
+x 22
+y 19
+end
 arch grassd_8
 z 50
+x 22
+y 20
+end
+arch lantern_black
+x 22
+y 20
+end
+arch light7
 x 22
 y 20
 end
@@ -3758,45 +3691,41 @@ z 50
 x 23
 y 5
 end
+arch grassd_6
+z 50
+x 23
+y 6
+end
 arch grassd_8
 z 50
 x 23
-y 6
-end
-arch wall_marble1.131a
-x 23
-y 6
-end
-arch floor_marble1g
-z 50
-x 23
 y 7
 end
-arch statue_black1
-x 23
-y 7
-end
-arch floor_marble1g
+arch grassd_5
 z 50
 x 23
 y 8
 end
-arch floor_marble1g
+arch plant_mushroom5
+x 23
+y 8
+end
+arch grassd_5
 z 50
 x 23
 y 9
 end
-arch floor_marble1g
+arch grassd_6
 z 50
 x 23
 y 10
 end
-arch bank1.111
-x 23
-y 10
-end
-arch floor_marble1g
+arch grassd_4
 z 50
+x 23
+y 11
+end
+arch wall_marble1w.131
 x 23
 y 11
 end
@@ -3805,21 +3734,31 @@ z 50
 x 23
 y 12
 end
-arch bank1.111
+arch spawn_point
 x 23
 y 12
+arch priest_church
+name Archbishop Theodorus
+type 83
+level 22
+arch event_obj
+sub_type 6
+race /python/temples/tabernacle.py
+end
+end
 end
 arch floor_marble1g
 z 50
 x 23
 y 13
 end
+arch altar_tabernacle
+xrays 1
+x 23
+y 13
+end
 arch floor_marble1g
 z 50
-x 23
-y 14
-end
-arch bank1.111
 x 23
 y 14
 end
@@ -3833,10 +3772,6 @@ z 50
 x 23
 y 16
 end
-arch bank1.111
-x 23
-y 16
-end
 arch floor_marble1g
 z 50
 x 23
@@ -3847,34 +3782,22 @@ z 50
 x 23
 y 18
 end
-arch wall_marble1.131a
+arch door_wood1
 x 23
 y 18
 end
-arch grassd_3
+arch floor_flagm1
 z 50
 x 23
 y 19
 end
-arch grassd_3
+arch floor_flagm1
 z 50
-x 23
-y 20
-end
-arch lantern_black
-x 23
-y 20
-end
-arch light7
 x 23
 y 20
 end
 arch floor_fs_grey1b
 z 50
-x 23
-y 21
-end
-arch grassd_m10
 x 23
 y 21
 end
