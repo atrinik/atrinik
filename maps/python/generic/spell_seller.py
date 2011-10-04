@@ -53,6 +53,7 @@ def main():
 		spell = GetSpell(spell_nr)
 
 		if activator.PayAmount(spell["cost"]):
+			inf.add_msg("You pay {}.".format(CostString(spell["cost"])), COLOR_YELLOW)
 			inf.add_msg("Pleasure doing business with you!")
 			inf.add_msg_icon(spell["icon"], name, fit = True)
 			activator.Controller().AcquireSpell(spell_nr)
