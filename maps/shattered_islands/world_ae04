@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2320,7 +2320,7 @@ x 11
 y 21
 arch event_obj
 sub_type 10
-race deserted_tutorial_island/scripts/lake_trigger.py
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
 end
 arch grassd_1
@@ -2334,7 +2334,7 @@ x 11
 y 22
 arch event_obj
 sub_type 10
-race deserted_tutorial_island/scripts/lake_trigger.py
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
 end
 arch grassd_2
@@ -2348,7 +2348,7 @@ x 11
 y 23
 arch event_obj
 sub_type 10
-race deserted_tutorial_island/scripts/lake_trigger.py
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
 end
 arch floor_ruin3

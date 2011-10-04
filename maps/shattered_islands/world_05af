@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -601,7 +601,7 @@ level 3
 direction 3
 arch event_obj
 sub_type 6
-race incuna/scripts/sam_goodberry.py
+race scripts/incuna/sam_goodberry.py
 end
 arch sack
 identified 1
@@ -854,7 +854,7 @@ stand_still 1
 type 83
 arch event_obj
 sub_type 6
-race incuna/scripts/gulliver.py
+race scripts/incuna/gulliver.py
 end
 end
 end
