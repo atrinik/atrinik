@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-03 emperorbma
+Modified: 2011-10-04 emperorbma
 endmsg
 width 24
 height 24
@@ -20,93 +20,148 @@ tile_path_8 world_ab40
 bg_music courage.mid
 region asteria
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
 y 1
 end
-arch floor_rhomb
+arch grassd_4
 sub_layer 1
 z 50
 y 2
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 y 3
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 y 4
 end
-arch floor_rhomb
+arch grassd_5
 sub_layer 1
 z 50
 y 5
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 y 6
 end
-arch floor_rhomb
+arch floor_marble1e
 sub_layer 1
 z 50
 y 7
 end
-arch floor_rhomb
+arch wall_palace_06
+sub_layer 1
+direction 7
+y 7
+end
+arch floor_marble1b
 sub_layer 1
 z 50
 y 8
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+direction 7
+y 8
+end
+arch floor_marble1e
 sub_layer 1
 z 50
 y 9
 end
-arch floor_rhomb
+arch wall_palace_11
+sub_layer 1
+direction 7
+y 9
+end
+arch floor_marble1
 sub_layer 1
 z 50
 y 10
 end
-arch floor_rhomb
+arch wall_palace_02
+sub_layer 1
+direction 7
+y 10
+end
+arch floor_marble1c
 sub_layer 1
 z 50
 y 11
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+direction 7
+y 11
+end
+arch floor_marble1g
 sub_layer 1
 z 50
 y 12
 end
-arch floor_rhomb
+arch wall_palace_10
+sub_layer 1
+direction 7
+y 12
+end
+arch floor_marble1a
 sub_layer 1
 z 50
 y 13
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+direction 7
+y 13
+end
+arch floor_marble1g
 sub_layer 1
 z 50
 y 14
 end
-arch floor_rhomb
+arch wall_palace_02
+sub_layer 1
+direction 7
+y 14
+end
+arch floor_marble1a
 sub_layer 1
 z 50
 y 15
 end
-arch floor_rhomb
+arch wall_palace_11
+sub_layer 1
+direction 7
+y 15
+end
+arch floor_marble1d
 sub_layer 1
 z 50
 y 16
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+direction 7
+y 16
+end
+arch floor_marble1c
 sub_layer 1
 z 50
+y 17
+end
+arch wall_palace_06
+sub_layer 1
+direction 5
 y 17
 end
 arch floor_rhomb
@@ -139,110 +194,120 @@ sub_layer 1
 z 50
 y 23
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 x 1
 end
-arch floor_rhomb
+arch grassd_5
 sub_layer 1
 z 50
 x 1
 y 1
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 x 1
 y 2
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
 x 1
 y 3
 end
-arch floor_rhomb
+arch grassd_4
 sub_layer 1
 z 50
 x 1
 y 4
 end
-arch floor_rhomb
+arch grassd_7
 sub_layer 1
 z 50
 x 1
 y 5
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
 x 1
 y 6
 end
-arch floor_rhomb
+arch floor_marble1g
 sub_layer 1
 z 50
 x 1
 y 7
 end
-arch floor_rhomb
+arch wall_palace_02
+sub_layer 1
+x 1
+y 7
+end
+arch floor_marble1e
 sub_layer 1
 z 50
 x 1
 y 8
 end
-arch floor_rhomb
+arch floor_marble1c
 sub_layer 1
 z 50
 x 1
 y 9
 end
-arch floor_rhomb
+arch floor_marble1h
 sub_layer 1
 z 50
 x 1
 y 10
 end
-arch floor_rhomb
+arch floor_marble1b
 sub_layer 1
 z 50
 x 1
 y 11
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 1
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 sub_layer 1
 z 50
 x 1
 y 13
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 1
 y 14
 end
-arch floor_rhomb
+arch floor_marble1
 sub_layer 1
 z 50
 x 1
 y 15
 end
-arch floor_rhomb
+arch floor_marble1b
 sub_layer 1
 z 50
 x 1
 y 16
 end
-arch floor_rhomb
+arch floor_marble1c
 sub_layer 1
 z 50
+x 1
+y 17
+end
+arch wall_palace_02
+sub_layer 1
 x 1
 y 17
 end
@@ -282,110 +347,120 @@ z 50
 x 1
 y 23
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 x 2
 end
-arch floor_rhomb
+arch grassd_7
 sub_layer 1
 z 50
 x 2
 y 1
 end
-arch floor_rhomb
+arch grassd_6
 sub_layer 1
 z 50
 x 2
 y 2
 end
-arch floor_rhomb
+arch grassd_4
 sub_layer 1
 z 50
 x 2
 y 3
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 x 2
 y 4
 end
-arch floor_rhomb
+arch grassd_5
 sub_layer 1
 z 50
 x 2
 y 5
 end
-arch floor_rhomb
+arch grassd_4
 sub_layer 1
 z 50
 x 2
 y 6
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 2
 y 7
 end
-arch floor_rhomb
+arch wall_palace_10
+sub_layer 1
+x 2
+y 7
+end
+arch floor_marble1c
 sub_layer 1
 z 50
 x 2
 y 8
 end
-arch floor_rhomb
+arch floor_marble1g
 sub_layer 1
 z 50
 x 2
 y 9
 end
-arch floor_rhomb
+arch floor_marble1
 sub_layer 1
 z 50
 x 2
 y 10
 end
-arch floor_rhomb
+arch floor_marble1
 sub_layer 1
 z 50
 x 2
 y 11
 end
-arch floor_rhomb
+arch floor_marble1a
 sub_layer 1
 z 50
 x 2
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 sub_layer 1
 z 50
 x 2
 y 13
 end
-arch floor_rhomb
+arch floor_marble1b
 sub_layer 1
 z 50
 x 2
 y 14
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 2
 y 15
 end
-arch floor_rhomb
+arch floor_marble1b
 sub_layer 1
 z 50
 x 2
 y 16
 end
-arch floor_rhomb
+arch floor_marble1
 sub_layer 1
 z 50
+x 2
+y 17
+end
+arch wall_palace_10
+sub_layer 1
 x 2
 y 17
 end
@@ -425,95 +500,107 @@ z 50
 x 2
 y 23
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 x 3
 end
-arch floor_rhomb
+arch grassd_7
 sub_layer 1
 z 50
 x 3
 y 1
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 x 3
 y 2
 end
-arch floor_rhomb
+arch grassd_6
 z 50
 x 3
 y 3
 end
-arch floor_rhomb
+arch grassd_2
 z 50
 x 3
 y 4
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 3
 y 5
 end
-arch floor_rhomb
+arch grassd_4
 z 50
 x 3
 y 6
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 3
 y 7
 end
-arch floor_rhomb
+arch wall_palace_01
+x 3
+y 7
+end
+arch floor_marble1b
 z 50
 x 3
 y 8
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 3
 y 9
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 3
 y 10
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 3
 y 11
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 3
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 3
 y 13
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 3
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 3
 y 15
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 3
 y 16
 end
-arch floor_rhomb
+arch statue_white2
+x 3
+y 16
+end
+arch floor_marble1g
 z 50
+x 3
+y 17
+end
+arch wall_palace_01
 x 3
 y 17
 end
@@ -547,95 +634,107 @@ z 50
 x 3
 y 23
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
 x 4
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 x 4
 y 1
 end
-arch floor_rhomb
+arch grassd_6
 sub_layer 1
 z 50
 x 4
 y 2
 end
-arch floor_rhomb
+arch grassd_7
 z 50
 x 4
 y 3
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 4
 y 4
 end
-arch floor_rhomb
+arch grassd_7
 z 50
 x 4
 y 5
 end
-arch floor_rhomb
+arch grassd_8
 z 50
 x 4
 y 6
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 4
 y 7
 end
-arch floor_rhomb
+arch wall_palace_02
+x 4
+y 7
+end
+arch floor_marble1g
 z 50
 x 4
 y 8
 end
-arch floor_rhomb
+arch statue_white3
+x 4
+y 8
+end
+arch floor_marble1g
 z 50
 x 4
 y 9
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 4
 y 10
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 4
 y 11
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 4
 y 12
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 4
 y 13
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 4
 y 14
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 4
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 4
 y 16
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
+x 4
+y 17
+end
+arch wall_palace_02
 x 4
 y 17
 end
@@ -669,95 +768,115 @@ z 50
 x 4
 y 23
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 x 5
 end
-arch floor_rhomb
+arch grassd_4
 sub_layer 1
 z 50
 x 5
 y 1
 end
-arch floor_rhomb
+arch grassd_7
 sub_layer 1
 z 50
 x 5
 y 2
 end
-arch floor_rhomb
+arch grassd_4
 z 50
 x 5
 y 3
 end
-arch floor_rhomb
+arch grassd_2
 z 50
 x 5
 y 4
 end
-arch floor_rhomb
+arch grassd_5
 z 50
 x 5
 y 5
 end
-arch floor_rhomb
+arch grassd_3
 z 50
 x 5
 y 6
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 5
 y 7
 end
-arch floor_rhomb
+arch wall_palace_09
+x 5
+y 7
+end
+arch floor_marble1g
 z 50
 x 5
 y 8
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 5
 y 9
 end
-arch floor_rhomb
+arch light9
+x 5
+y 9
+end
+arch floor_marble1e
 z 50
 x 5
 y 10
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 5
 y 11
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 5
 y 12
 end
-arch floor_rhomb
+arch light9
+x 5
+y 12
+end
+arch floor_marble1b
 z 50
 x 5
 y 13
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 5
 y 14
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 5
 y 15
 end
-arch floor_rhomb
+arch light9
+x 5
+y 15
+end
+arch floor_marble1d
 z 50
 x 5
 y 16
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
+x 5
+y 17
+end
+arch wall_palace_09
 x 5
 y 17
 end
@@ -791,95 +910,103 @@ z 50
 x 5
 y 23
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
 x 6
 end
-arch floor_rhomb
+arch grassd_6
 sub_layer 1
 z 50
 x 6
 y 1
 end
-arch floor_rhomb
+arch grassd_6
 sub_layer 1
 z 50
 x 6
 y 2
 end
-arch floor_rhomb
+arch grassd_3
 z 50
 x 6
 y 3
 end
-arch floor_rhomb
+arch grassd_6
 z 50
 x 6
 y 4
 end
-arch floor_rhomb
+arch grassd_5
 z 50
 x 6
 y 5
 end
-arch floor_rhomb
+arch grassd_8
 z 50
 x 6
 y 6
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 6
 y 7
 end
-arch floor_rhomb
+arch wall_palace_01
+x 6
+y 7
+end
+arch floor_marble1h
 z 50
 x 6
 y 8
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 6
 y 9
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 6
 y 10
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 6
 y 11
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 6
 y 12
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 6
 y 13
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 6
 y 14
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 6
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 6
 y 16
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
+x 6
+y 17
+end
+arch wall_palace_01
 x 6
 y 17
 end
@@ -913,95 +1040,138 @@ z 50
 x 6
 y 23
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 x 7
 end
-arch floor_rhomb
+arch wall_marble1.181
+sub_layer 1
+x 7
+end
+arch grassd_8
 sub_layer 1
 z 50
 x 7
 y 1
 end
-arch floor_rhomb
+arch wall_marble1w2.111
+sub_layer 1
+x 7
+y 1
+end
+arch grassd_7
 sub_layer 1
 z 50
 x 7
 y 2
 end
-arch floor_rhomb
+arch wall_marble1.111
+sub_layer 1
+x 7
+y 2
+end
+arch grassd_8
 z 50
 x 7
 y 3
 end
-arch floor_rhomb
+arch door_wood2
+direction 7
+x 7
+y 3
+end
+arch grassd_4
 z 50
 x 7
 y 4
 end
-arch floor_rhomb
+arch wall_marble1.111
+x 7
+y 4
+end
+arch grassd_6
 z 50
 x 7
 y 5
 end
-arch floor_rhomb
+arch wall_marble1w2.111
+x 7
+y 5
+end
+arch grassd_4
 z 50
 x 7
 y 6
 end
-arch floor_rhomb
+arch wall_marble1.111
+x 7
+y 6
+end
+arch floor_marble1c
 z 50
 x 7
 y 7
 end
-arch floor_rhomb
+arch wall_palace_14
+x 7
+y 7
+end
+arch wmask_ruin1a.111
+x 7
+y 7
+end
+arch floor_marble1
 z 50
 x 7
 y 8
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 7
 y 9
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 7
 y 10
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 7
 y 11
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 7
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 7
 y 13
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 7
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 7
 y 15
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 7
 y 16
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
+x 7
+y 17
+end
+arch wall_palace_14
 x 7
 y 17
 end
@@ -1035,9 +1205,13 @@ z 50
 x 7
 y 23
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
+x 8
+end
+arch wall_marble1.131a
+sub_layer 1
 x 8
 end
 arch floor_rhomb
@@ -1072,58 +1246,67 @@ z 50
 x 8
 y 6
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 8
 y 7
 end
-arch floor_rhomb
+arch curtain1
+x 8
+y 7
+end
+arch floor_marble1a
 z 50
 x 8
 y 8
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 8
 y 9
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 8
 y 10
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 8
 y 11
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 8
 y 12
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 8
 y 13
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 8
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 8
 y 15
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 8
 y 16
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
+x 8
+y 17
+end
+arch door_wood1
+cursed 1
 x 8
 y 17
 end
@@ -1157,9 +1340,13 @@ z 50
 x 8
 y 23
 end
-arch floor_rhomb
+arch grassd_5
 sub_layer 1
 z 50
+x 9
+end
+arch wall_marble1w2.131
+sub_layer 1
 x 9
 end
 arch floor_rhomb
@@ -1194,58 +1381,68 @@ z 50
 x 9
 y 6
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 9
 y 7
 end
-arch floor_rhomb
+arch curtain1
+x 9
+y 7
+end
+arch floor_marble1g
 z 50
 x 9
 y 8
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 9
 y 9
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 9
 y 10
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 9
 y 11
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 9
 y 12
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 9
 y 13
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 9
 y 14
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 9
 y 15
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 9
 y 16
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
+x 9
+y 17
+end
+arch door_wood1
+direction 7
+cursed 1
 x 9
 y 17
 end
@@ -1279,9 +1476,13 @@ z 50
 x 9
 y 23
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
+x 10
+end
+arch wall_marble1.131a
+sub_layer 1
 x 10
 end
 arch floor_rhomb
@@ -1311,63 +1512,95 @@ z 50
 x 10
 y 5
 end
+arch wall_marble1.181
+x 10
+y 5
+end
 arch floor_rhomb
 z 50
 x 10
 y 6
 end
-arch floor_rhomb
+arch wall_marble1.111
+x 10
+y 6
+end
+arch floor_marble1g
 z 50
 x 10
 y 7
 end
-arch floor_rhomb
+arch wall_palace_14
+x 10
+y 7
+end
+arch wmask_ruin1a.111
+x 10
+y 7
+end
+arch floor_marble1e
 z 50
 x 10
 y 8
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 10
 y 9
 end
-arch floor_rhomb
+arch light9
+x 10
+y 9
+end
+arch floor_marble1
 z 50
 x 10
 y 10
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 10
 y 11
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 10
 y 12
 end
-arch floor_rhomb
+arch light9
+x 10
+y 12
+end
+arch floor_marble1a
 z 50
 x 10
 y 13
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 10
 y 14
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 10
 y 15
 end
-arch floor_rhomb
+arch light9
+x 10
+y 15
+end
+arch floor_marble1e
 z 50
 x 10
 y 16
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
+x 10
+y 17
+end
+arch wall_palace_14
 x 10
 y 17
 end
@@ -1401,9 +1634,13 @@ z 50
 x 10
 y 23
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
+x 11
+end
+arch wall_marble1.131a
+sub_layer 1
 x 11
 end
 arch floor_rhomb
@@ -1433,63 +1670,75 @@ z 50
 x 11
 y 5
 end
-arch floor_rhomb
+arch wall_marble1.131
+x 11
+y 5
+end
+arch grassd_3
 z 50
 x 11
 y 6
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 11
 y 7
 end
-arch floor_rhomb
+arch wall_palace_11
+x 11
+y 7
+end
+arch floor_marble1d
 z 50
 x 11
 y 8
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 11
 y 9
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 11
 y 10
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 11
 y 11
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 11
 y 12
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 11
 y 13
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 11
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 11
 y 15
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 11
 y 16
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
+x 11
+y 17
+end
+arch wall_palace_11
 x 11
 y 17
 end
@@ -1523,9 +1772,13 @@ z 50
 x 11
 y 23
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
+x 12
+end
+arch wall_marble1.131a
+sub_layer 1
 x 12
 end
 arch floor_rhomb
@@ -1555,63 +1808,83 @@ z 50
 x 12
 y 5
 end
-arch floor_rhomb
+arch wall_marble1.131
+x 12
+y 5
+end
+arch grassd_6
 z 50
 x 12
 y 6
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 12
 y 7
 end
-arch floor_rhomb
+arch wall_palace_01
+x 12
+y 7
+end
+arch floor_marble1g
 z 50
 x 12
 y 8
 end
-arch floor_rhomb
+arch statue_fire
+x 12
+y 8
+end
+arch floor_marble1c
 z 50
 x 12
 y 9
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 12
 y 10
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 12
 y 11
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 12
 y 12
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 12
 y 13
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 12
 y 14
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 12
 y 15
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 12
 y 16
 end
-arch floor_rhomb
+arch statue_fire
+x 12
+y 16
+end
+arch floor_marble1c
 z 50
+x 12
+y 17
+end
+arch wall_palace_01
 x 12
 y 17
 end
@@ -1645,9 +1918,13 @@ z 50
 x 12
 y 23
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
+x 13
+end
+arch wall_marble1w2.131
+sub_layer 1
 x 13
 end
 arch floor_rhomb
@@ -1677,63 +1954,75 @@ z 50
 x 13
 y 5
 end
-arch floor_rhomb
+arch wall_marble1.131
+x 13
+y 5
+end
+arch grassd_7
 z 50
 x 13
 y 6
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 13
 y 7
 end
-arch floor_rhomb
+arch wall_palace_02
+x 13
+y 7
+end
+arch floor_marble1g
 z 50
 x 13
 y 8
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 13
 y 9
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 13
 y 10
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 13
 y 11
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 13
 y 12
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 13
 y 13
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 13
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 13
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 13
 y 16
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
+x 13
+y 17
+end
+arch wall_palace_02
 x 13
 y 17
 end
@@ -1767,9 +2056,13 @@ z 50
 x 13
 y 23
 end
-arch floor_rhomb
+arch grassd_1
 sub_layer 1
 z 50
+x 14
+end
+arch wall_marble1.131a
+sub_layer 1
 x 14
 end
 arch floor_rhomb
@@ -1799,63 +2092,75 @@ z 50
 x 14
 y 5
 end
-arch floor_rhomb
+arch wall_marble1.131
+x 14
+y 5
+end
+arch grassd_4
 z 50
 x 14
 y 6
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 14
 y 7
 end
-arch floor_rhomb
+arch wall_palace_12
+x 14
+y 7
+end
+arch floor_marble1e
 z 50
 x 14
 y 8
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 14
 y 9
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 14
 y 10
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 14
 y 11
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 14
 y 12
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 14
 y 13
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 14
 y 14
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 14
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 14
 y 16
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
+x 14
+y 17
+end
+arch wall_palace_12
 x 14
 y 17
 end
@@ -1889,14 +2194,23 @@ z 50
 x 14
 y 23
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
+x 15
+end
+arch wall_marble1.131a
+sub_layer 1
 x 15
 end
 arch floor_rhomb
 sub_layer 1
 z 50
+x 15
+y 1
+end
+arch wall_marble1.111
+sub_layer 1
 x 15
 y 1
 end
@@ -1906,8 +2220,17 @@ z 50
 x 15
 y 2
 end
+arch wall_marble1.111
+sub_layer 1
+x 15
+y 2
+end
 arch floor_rhomb
 z 50
+x 15
+y 3
+end
+arch wall_marble1w2.111
 x 15
 y 3
 end
@@ -1916,68 +2239,96 @@ z 50
 x 15
 y 4
 end
+arch wall_marble1.111
+x 15
+y 4
+end
 arch floor_rhomb
 z 50
 x 15
 y 5
 end
-arch floor_rhomb
+arch wall_marble1.141
+x 15
+y 5
+end
+arch grassd_1
 z 50
 x 15
 y 6
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 15
 y 7
 end
-arch floor_rhomb
+arch wall_palace_01
+x 15
+y 7
+end
+arch floor_marble1d
 z 50
 x 15
 y 8
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 15
 y 9
 end
-arch floor_rhomb
+arch light9
+x 15
+y 9
+end
+arch floor_marble1
 z 50
 x 15
 y 10
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 15
 y 11
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 15
 y 12
 end
-arch floor_rhomb
+arch light9
+x 15
+y 12
+end
+arch floor_marble1d
 z 50
 x 15
 y 13
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 15
 y 14
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 15
 y 15
 end
-arch floor_rhomb
+arch light9
+x 15
+y 15
+end
+arch floor_marble1g
 z 50
 x 15
 y 16
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
+x 15
+y 17
+end
+arch wall_palace_01
 x 15
 y 17
 end
@@ -2011,95 +2362,103 @@ z 50
 x 15
 y 23
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 x 16
 end
-arch floor_rhomb
+arch grassd_5
 sub_layer 1
 z 50
 x 16
 y 1
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 x 16
 y 2
 end
-arch floor_rhomb
+arch grassd_8
 z 50
 x 16
 y 3
 end
-arch floor_rhomb
+arch grassd_7
 z 50
 x 16
 y 4
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 16
 y 5
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 16
 y 6
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 16
 y 7
 end
-arch floor_rhomb
+arch wall_palace_02
+x 16
+y 7
+end
+arch floor_marble1h
 z 50
 x 16
 y 8
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 16
 y 9
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 16
 y 10
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 16
 y 11
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 16
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 16
 y 13
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 16
 y 14
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 16
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 16
 y 16
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
+x 16
+y 17
+end
+arch wall_palace_02
 x 16
 y 17
 end
@@ -2133,95 +2492,103 @@ z 50
 x 16
 y 23
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 x 17
 end
-arch floor_rhomb
+arch grassd_3
 sub_layer 1
 z 50
 x 17
 y 1
 end
-arch floor_rhomb
+arch grassd_8
 sub_layer 1
 z 50
 x 17
 y 2
 end
-arch floor_rhomb
+arch grassd_3
 z 50
 x 17
 y 3
 end
-arch floor_rhomb
+arch grassd_5
 z 50
 x 17
 y 4
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 17
 y 5
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 17
 y 6
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 17
 y 7
 end
-arch floor_rhomb
+arch wall_palace_13
+x 17
+y 7
+end
+arch floor_marble1e
 z 50
 x 17
 y 8
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 17
 y 9
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 17
 y 10
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 17
 y 11
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 17
 y 12
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 17
 y 13
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 17
 y 14
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 17
 y 15
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 17
 y 16
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
+x 17
+y 17
+end
+arch wall_palace_13
 x 17
 y 17
 end
@@ -2255,95 +2622,111 @@ z 50
 x 17
 y 23
 end
-arch floor_rhomb
+arch grassd_2
 sub_layer 1
 z 50
 x 18
 end
-arch floor_rhomb
+arch grassd_7
 sub_layer 1
 z 50
 x 18
 y 1
 end
-arch floor_rhomb
+arch grassd_6
 sub_layer 1
 z 50
 x 18
 y 2
 end
-arch floor_rhomb
+arch grassd_5
 z 50
 x 18
 y 3
 end
-arch floor_rhomb
+arch grassd_8
 z 50
 x 18
 y 4
 end
-arch floor_rhomb
+arch grassd_4
 z 50
 x 18
 y 5
 end
-arch floor_rhomb
+arch grassd_1
 z 50
 x 18
 y 6
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 18
 y 7
 end
-arch floor_rhomb
+arch wall_palace_01
+x 18
+y 7
+end
+arch floor_marble1h
 z 50
 x 18
 y 8
 end
-arch floor_rhomb
+arch statue_white
+x 18
+y 8
+end
+arch floor_marble1b
 z 50
 x 18
 y 9
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 18
 y 10
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 18
 y 11
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 18
 y 12
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 18
 y 13
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 18
 y 14
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 18
 y 15
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 18
 y 16
 end
-arch floor_rhomb
+arch statue_white
+x 18
+y 16
+end
+arch floor_marble1
 z 50
+x 18
+y 17
+end
+arch wall_palace_01
 x 18
 y 17
 end
@@ -2377,612 +2760,829 @@ z 50
 x 18
 y 23
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 19
 end
-arch floor_rhomb
+arch wall_palace_06
+sub_layer 1
+direction 7
+x 19
+end
+arch floor_marble1h
 sub_layer 1
 z 50
 x 19
 y 1
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+direction 7
+x 19
+y 1
+end
+arch floor_marble1d
 sub_layer 1
 z 50
 x 19
 y 2
 end
-arch floor_rhomb
+arch wall_palace_11
+sub_layer 1
+direction 7
+x 19
+y 2
+end
+arch floor_marble1h
 z 50
 x 19
 y 3
 end
-arch floor_rhomb
+arch wall_palace_02
+direction 7
+x 19
+y 3
+end
+arch floor_marble1c
 z 50
 x 19
 y 4
 end
-arch floor_rhomb
+arch wall_palace_01
+direction 7
+x 19
+y 4
+end
+arch floor_marble1
 z 50
 x 19
 y 5
 end
-arch floor_rhomb
+arch wall_palace_12
+direction 7
+x 19
+y 5
+end
+arch floor_marble1c
 z 50
 x 19
 y 6
 end
-arch floor_rhomb
+arch wall_palace_02
+direction 7
+x 19
+y 6
+end
+arch floor_marble1
 z 50
 x 19
 y 7
 end
-arch floor_rhomb
+arch wall_palace_06
+direction 3
+x 19
+y 7
+end
+arch floor_marble1g
 z 50
 x 19
 y 8
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 19
 y 9
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 19
 y 10
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 19
 y 11
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 19
 y 12
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 19
 y 13
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 19
 y 14
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 19
 y 15
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 19
 y 16
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 19
 y 17
 end
-arch floor_rhomb
+arch wall_palace_06
+x 19
+y 17
+end
+arch floor_marble1
 z 50
 x 19
 y 18
 end
-arch floor_rhomb
+arch wall_palace_02
+direction 7
+x 19
+y 18
+end
+arch floor_marble1b
 z 50
 x 19
 y 19
 end
-arch floor_rhomb
+arch wall_palace_12
+direction 7
+x 19
+y 19
+end
+arch floor_marble1g
 z 50
 x 19
 y 20
 end
-arch floor_rhomb
+arch wall_palace_01
+direction 7
+x 19
+y 20
+end
+arch floor_marble1g
 z 50
 x 19
 y 21
 end
-arch floor_rhomb
+arch wall_palace_02
+direction 7
+x 19
+y 21
+end
+arch floor_marble1a
 z 50
 x 19
 y 22
 end
-arch floor_rhomb
+arch wall_palace_11
+direction 7
+x 19
+y 22
+end
+arch floor_marble1e
 z 50
 x 19
 y 23
 end
-arch floor_rhomb
+arch wall_palace_01
+direction 7
+x 19
+y 23
+end
+arch floor_marble1g
 sub_layer 1
 z 50
 x 20
 end
-arch floor_rhomb
+arch wall_palace_02
+sub_layer 1
+x 20
+end
+arch floor_marble1a
 sub_layer 1
 z 50
 x 20
 y 1
 end
-arch floor_rhomb
+arch statue_white2
+sub_layer 1
+x 20
+y 1
+end
+arch light5
+x 20
+y 1
+end
+arch floor_marble1c
 sub_layer 1
 z 50
 x 20
 y 2
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 20
 y 3
 end
-arch floor_rhomb
+arch light9
+x 20
+y 3
+end
+arch floor_marble1g
 z 50
 x 20
 y 4
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 20
 y 5
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 20
 y 6
 end
-arch floor_rhomb
+arch light9
+x 20
+y 6
+end
+arch floor_marble1g
 z 50
 x 20
 y 7
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 20
 y 8
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 20
 y 9
 end
-arch floor_rhomb
+arch light9
+x 20
+y 9
+end
+arch floor_marble1g
 z 50
 x 20
 y 10
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 20
 y 11
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 20
 y 12
 end
-arch floor_rhomb
+arch light9
+x 20
+y 12
+end
+arch floor_marble1g
 z 50
 x 20
 y 13
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 20
 y 14
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 20
 y 15
 end
-arch floor_rhomb
+arch light9
+x 20
+y 15
+end
+arch floor_marble1g
 z 50
 x 20
 y 16
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 20
 y 17
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 20
 y 18
 end
-arch floor_rhomb
+arch light9
+x 20
+y 18
+end
+arch floor_marble1b
 z 50
 x 20
 y 19
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 20
 y 20
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 20
 y 21
 end
-arch floor_rhomb
+arch light9
+x 20
+y 21
+end
+arch floor_marble1a
 z 50
 x 20
 y 22
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 20
 y 23
 end
-arch floor_rhomb
+arch statue_white
+x 20
+y 23
+end
+arch light5
+x 20
+y 23
+end
+arch floor_marble1a
 sub_layer 1
 z 50
 x 21
 end
-arch floor_rhomb
+arch wall_palace_13
+sub_layer 1
+x 21
+end
+arch floor_marble1e
 sub_layer 1
 z 50
 x 21
 y 1
 end
-arch floor_rhomb
+arch floor_marble1d
 sub_layer 1
 z 50
 x 21
 y 2
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 21
 y 3
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 4
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 5
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 21
 y 6
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 21
 y 7
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 8
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 21
 y 9
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 21
 y 10
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 21
 y 11
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 21
 y 12
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 13
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 14
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 21
 y 15
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 21
 y 16
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 21
 y 17
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 21
 y 18
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 21
 y 19
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 21
 y 20
 end
-arch floor_rhomb
+arch floor_marble1d
 z 50
 x 21
 y 21
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 22
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 21
 y 23
 end
-arch floor_rhomb
+arch floor_marble1c
 sub_layer 1
 z 50
 x 22
 end
-arch floor_rhomb
+arch wall_palace_01
+sub_layer 1
+x 22
+end
+arch floor_marble1g
 sub_layer 1
 z 50
 x 22
 y 1
 end
-arch floor_rhomb
+arch floor_marble1a
 sub_layer 1
 z 50
 x 22
 y 2
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 2
+end
+arch floor_marble1d
 z 50
 x 22
 y 3
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 3
+end
+arch floor_marble1c
 z 50
 x 22
 y 4
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 4
+end
+arch floor_marble1
 z 50
 x 22
 y 5
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 22
 y 6
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 22
 y 7
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 7
+end
+arch floor_marble1h
 z 50
 x 22
 y 8
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 8
+end
+arch floor_marble1d
 z 50
 x 22
 y 9
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 9
+end
+arch floor_marble1
 z 50
 x 22
 y 10
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 22
 y 11
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 22
 y 12
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 22
 y 13
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 22
 y 14
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 22
 y 15
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 15
+end
+arch floor_marble1g
 z 50
 x 22
 y 16
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 16
+end
+arch floor_marble1e
 z 50
 x 22
 y 17
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 17
+end
+arch floor_marble1
 z 50
 x 22
 y 18
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 22
 y 19
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 22
 y 20
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 20
+end
+arch floor_marble1d
 z 50
 x 22
 y 21
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 21
+end
+arch floor_marble1d
 z 50
 x 22
 y 22
 end
-arch floor_rhomb
+arch bench2.111
+direction 7
+name pew
+x 22
+y 22
+end
+arch floor_marble1c
 z 50
 x 22
 y 23
 end
-arch floor_rhomb
+arch floor_marble1g
 sub_layer 1
 z 50
 x 23
 end
-arch floor_rhomb
+arch wall_palace_02
+sub_layer 1
+x 23
+end
+arch floor_marble1c
 sub_layer 1
 z 50
 x 23
 y 1
 end
-arch floor_rhomb
+arch floor_marble1e
 sub_layer 1
 z 50
 x 23
 y 2
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 23
 y 3
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 23
 y 4
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 5
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 6
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 7
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 23
 y 8
 end
-arch floor_rhomb
+arch wall_palace_00
+x 23
+y 8
+end
+arch floor_marble1d
 z 50
 x 23
 y 9
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 23
 y 10
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 11
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 23
 y 12
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 23
 y 13
 end
-arch floor_rhomb
+arch floor_marble1g
 z 50
 x 23
 y 14
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 23
 y 15
 end
-arch floor_rhomb
+arch floor_marble1b
 z 50
 x 23
 y 16
 end
-arch floor_rhomb
+arch wall_palace_00
+x 23
+y 16
+end
+arch floor_marble1c
 z 50
 x 23
 y 17
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 18
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
 x 23
 y 19
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
 x 23
 y 20
 end
-arch floor_rhomb
+arch floor_marble1h
 z 50
 x 23
 y 21
 end
-arch floor_rhomb
+arch floor_marble1
 z 50
 x 23
 y 22
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
 x 23
 y 23

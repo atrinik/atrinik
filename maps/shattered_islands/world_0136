@@ -586,6 +586,7 @@ x 4
 y 7
 end
 arch wall_cave1.161
+blocksview 0
 x 4
 y 7
 end
@@ -723,6 +724,7 @@ x 5
 y 7
 end
 arch wall_cave1b.121
+blocksview 0
 x 5
 y 7
 end
@@ -733,6 +735,7 @@ x 5
 y 8
 end
 arch wall_cave1.161
+blocksview 0
 x 5
 y 8
 end
@@ -866,6 +869,7 @@ x 6
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 6
 y 7
 end
@@ -876,6 +880,7 @@ x 6
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 6
 y 8
 end
@@ -1009,6 +1014,7 @@ x 7
 y 7
 end
 arch wall_cave1.141
+blocksview 0
 x 7
 y 7
 end
@@ -1019,6 +1025,7 @@ x 7
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 7
 y 8
 end
@@ -1152,6 +1159,7 @@ x 8
 y 7
 end
 arch wall_cave1.161
+blocksview 0
 x 8
 y 7
 end
@@ -1162,6 +1170,7 @@ x 8
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 8
 y 8
 end
@@ -1295,6 +1304,7 @@ x 9
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 9
 y 7
 end
@@ -1305,6 +1315,7 @@ x 9
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 9
 y 8
 end
@@ -1438,6 +1449,7 @@ x 10
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 10
 y 7
 end
@@ -1448,6 +1460,7 @@ x 10
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 10
 y 8
 end
@@ -1581,6 +1594,7 @@ x 11
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 11
 y 7
 end
@@ -1591,6 +1605,7 @@ x 11
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 11
 y 8
 end
@@ -1724,6 +1739,7 @@ x 12
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 12
 y 7
 end
@@ -1734,6 +1750,7 @@ x 12
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 12
 y 8
 end
@@ -1867,6 +1884,7 @@ x 13
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 13
 y 7
 end
@@ -1877,6 +1895,7 @@ x 13
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 13
 y 8
 end
@@ -2010,6 +2029,7 @@ x 14
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 14
 y 7
 end
@@ -2020,6 +2040,7 @@ x 14
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 14
 y 8
 end
@@ -2153,6 +2174,7 @@ x 15
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 15
 y 7
 end
@@ -2163,6 +2185,7 @@ x 15
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 15
 y 8
 end
@@ -2296,6 +2319,7 @@ x 16
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 16
 y 7
 end
@@ -2306,6 +2330,7 @@ x 16
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 16
 y 8
 end
@@ -2439,6 +2464,7 @@ x 17
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 17
 y 7
 end
@@ -2449,6 +2475,7 @@ x 17
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 17
 y 8
 end
@@ -2459,6 +2486,7 @@ x 17
 y 9
 end
 arch wall_cave1.161
+blocksview 0
 x 17
 y 9
 end
@@ -2588,6 +2616,7 @@ x 18
 y 7
 end
 arch wall_cave1.111
+blocksview 0
 x 18
 y 7
 end
@@ -2598,6 +2627,7 @@ x 18
 y 8
 end
 arch wall_cave1.111
+blocksview 0
 x 18
 y 8
 end
@@ -2608,6 +2638,7 @@ x 18
 y 9
 end
 arch wall_cave1.111
+blocksview 0
 x 18
 y 9
 end
@@ -2618,6 +2649,7 @@ x 18
 y 10
 end
 arch wall_cave1.161
+blocksview 0
 x 18
 y 10
 end

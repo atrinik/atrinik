@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-03 emperorbma
+Modified: 2011-10-04 emperorbma
 endmsg
 width 24
 height 24
@@ -1122,6 +1122,7 @@ x 8
 y 6
 end
 arch grassd_8
+z 4
 x 8
 y 7
 end
@@ -1246,17 +1247,19 @@ blocksview 0
 x 9
 y 6
 end
-arch wall_fortified_high_c.131
+arch wall_fortified_high.141
 z 2
 sub_layer 3
 x 9
 y 6
 end
 arch grassd_1
+z 8
 x 9
 y 7
 end
 arch grassd_2
+z 4
 x 9
 y 8
 end
@@ -1351,43 +1354,29 @@ y 5
 end
 arch floor_fs_grey1b
 sub_layer 1
-z 50
+z 32
 x 10
 y 6
 end
-arch wall_flagstone1.111
-draw_double 0
-blocksview 0
-x 10
-y 6
-end
-arch wall_flagstone1.111
-draw_double 0
-sub_layer 1
-z -26
-blocksview 0
-x 10
-y 6
-end
-arch wall_flagstone1.111
-draw_double 0
-sub_layer 2
-z 34
-blocksview 0
-x 10
-y 6
-end
-arch wall_fortified_high_c.131
-z 2
-sub_layer 3
+arch stairs_stone_up
+z 32
+direction 5
 x 10
 y 6
 end
 arch grassd_7
+z 12
+x 10
+y 7
+end
+arch stairs_stone_up
+z 2
+direction 5
 x 10
 y 7
 end
 arch grassd_6
+z 8
 x 10
 y 8
 end
@@ -1482,43 +1471,29 @@ y 5
 end
 arch floor_fs_grey1b
 sub_layer 1
-z 50
+z 32
 x 11
 y 6
 end
-arch wall_flagstone1.111
-draw_double 0
-blocksview 0
-x 11
-y 6
-end
-arch wall_flagstone1.111
-draw_double 0
-sub_layer 1
-z -26
-blocksview 0
-x 11
-y 6
-end
-arch wall_flagstone1.111
-draw_double 0
-sub_layer 2
-z 34
-blocksview 0
-x 11
-y 6
-end
-arch wall_fortified_high_c.131
-z 2
-sub_layer 3
+arch stairs_stone_up
+z 32
+direction 5
 x 11
 y 6
 end
 arch grassd_5
+z 12
+x 11
+y 7
+end
+arch stairs_stone_up
+z 2
+direction 5
 x 11
 y 7
 end
 arch grassd_2
+z 8
 x 11
 y 8
 end
@@ -1646,10 +1621,12 @@ x 12
 y 6
 end
 arch grassd_4
+z 8
 x 12
 y 7
 end
 arch grassd_3
+z 4
 x 12
 y 8
 end
@@ -1777,6 +1754,7 @@ x 13
 y 6
 end
 arch grassd_6
+z 4
 x 13
 y 7
 end

@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-03 emperorbma
+Modified: 2011-10-04 emperorbma
 endmsg
 width 24
 height 24
@@ -2329,8 +2329,12 @@ z 50
 x 18
 y 23
 end
-arch floor_rhomb
+arch floor_marble1a
 z 50
+x 19
+end
+arch wall_palace_06
+direction 5
 x 19
 end
 arch floor_rhomb
@@ -2448,8 +2452,11 @@ z 50
 x 19
 y 23
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
+x 20
+end
+arch wall_palace_02
 x 20
 end
 arch floor_rhomb
@@ -2567,8 +2574,11 @@ z 50
 x 20
 y 23
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
+x 21
+end
+arch wall_palace_13
 x 21
 end
 arch floor_rhomb
@@ -2686,8 +2696,11 @@ z 50
 x 21
 y 23
 end
-arch floor_rhomb
+arch floor_marble1c
 z 50
+x 22
+end
+arch wall_palace_01
 x 22
 end
 arch floor_rhomb
@@ -2805,8 +2818,11 @@ z 50
 x 22
 y 23
 end
-arch floor_rhomb
+arch floor_marble1e
 z 50
+x 23
+end
+arch wall_palace_02
 x 23
 end
 arch floor_rhomb
