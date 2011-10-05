@@ -1,151 +1,81 @@
 ## @file
 ## Generic script for post office clerks.
 
-from Atrinik import *
-from PostOffice import *
+from Interface import Interface
+from PostOffice import PostOffice
 
-## Activator object.
-activator = WhoIsActivator()
-## Object who has the event object in their inventory.
-me = WhoAmI()
-
-msg = WhatIsMessage().strip().lower()
-text = msg.split()
+inf = Interface(activator, me)
 post = PostOffice(activator.name)
 
-## Check for common situations where activator cannot send marked item.
-## @param player Who we're sending object to.
-## @param object The marked object.
-def check_send(player, object):
-	# No object?
-	if not object:
-		me.SayTo(activator, "\nYou need to mark the item you want to send.")
-		return False
-	# Cannot send locked objects...
-	elif object.f_inv_locked:
-		me.SayTo(activator, "\nYou must first unlock that item.")
-		return False
-	# Nor applied ones
-	elif object.f_applied:
-		me.SayTo(activator, "\nYou must first unapply that item.")
-		return False
-	# Don't allow sending containers with items inside it.
-	elif object.type == Type.CONTAINER and object.inv:
-		me.SayTo(activator, "\nDue to heightened security levels all items must be removed from containers and sent separately.")
-		return False
-	# Check if the item can be sent.
-	elif not post.can_be_sent(object):
-		me.SayTo(activator, "\nYou cannot send that item.")
-		return False
-	elif object.quickslot:
-		me.SayTo(activator, "\nYou must first remove that item from your quickslots.")
-		return False
-	elif object.type == Type.MONEY:
-		me.SayTo(activator, "\nI'm terribly sorry, but we do not allow money to be sent.")
-		return False
-	# Sending to ourselves?
-	elif player == activator.name:
-		me.SayTo(activator, "\nYou cannot send an item to yourself.")
-		return False
-	# The player doesn't exist?
-	elif not PlayerExists(player):
-		me.SayTo(activator, "\nThat player doesn't exist.")
-		return False
-
-	return True
-
 def main():
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to our Post Office. You can check if someone has sent you <a>items</a>, or <a>send</a> an item to someone.\nI can also <a>explain</a> how to use this post office.")
+	if msg == "hello":
+		inf.add_msg("Welcome to our Post Office. You can check if someone has sent you items, or send an item to someone.")
+		inf.add_link("I'd like to see items I have been sent.", dest = "items")
+		inf.add_link("I'd like to send an item.", dest = "send1")
 
-	# Send an item to someone, showing how much to pay.
-	elif text[0] == "send":
-		if len(text) > 1:
-			marked = activator.Controller().FindMarkedObject()
-			text[1] = text[1].capitalize()
-
-			if check_send(text[1], marked):
-				me.SayTo(activator, "\nIt will cost you {0} to send the '{1}'. If you are pleased with that, say <a>sendto {2}</a> to send the item.".format(CostString(post.get_price(marked)), marked.GetName(), text[1]))
-		else:
-			me.SayTo(activator, "\nSend to whom? Do you want me to <a>explain</a> how to use the post office?")
-
-	# Actually send an item to someone.
-	elif text[0] == "sendto" and len(text) > 1:
+	elif msg == "send1":
 		marked = activator.Controller().FindMarkedObject()
-		text[1] = text[1].capitalize()
+		error = post.check_send(marked)
 
-		if check_send(text[1], marked):
-			if activator.PayAmount(post.get_price(marked)):
-				activator.Write("You pay {0}.".format(CostString(post.get_price(marked))))
-				post.send_item(marked, text[1])
-				me.SayTo(activator, "\nThe '{0}' has been sent to {1} successfully.".format(marked.GetName(), text[1]))
-				marked.Remove()
-			else:
-				me.SayTo(activator, "\nYou don't have enough money.")
+		if error:
+			inf.add_msg(error)
+			return
 
-	# Check for items.
+		inf.add_msg("It will cost you {} to send the '{}'.".format(CostString(post.get_price(marked)), marked.GetName()))
+		inf.add_msg_icon(marked.face[0], marked.GetName())
+		inf.add_msg("If you are pleased with that, please type in the player's name that you want to send this item to.")
+		inf.set_text_input(prepend = "send2 ")
+
+	elif msg.startswith("send2 "):
+		marked = activator.Controller().FindMarkedObject()
+		name = msg[6:].capitalize()
+		error = post.check_send(marked, name)
+
+		if error:
+			inf.add_msg(error)
+			return
+
+		cost = post.get_price(marked)
+
+		if activator.PayAmount(cost):
+			inf.add_msg("You pay {}.".format(CostString(cost)), COLOR_YELLOW)
+			post.send_item(marked, name)
+			inf.add_msg("The '{}' has been sent to {} successfully.".format(marked.GetName(), name))
+			marked.Remove()
+		else:
+			inf.add_msg("You don't have enough money.")
+
 	elif msg == "items":
 		items = post.get_items()
 
 		if items:
-			me.SayTo(activator, "\nThe following items have been sent to you:\n")
+			inf.add_msg("The following items have been sent to you:\n", newline = False)
 
-			for i, item in enumerate(post.get_items()):
-				activator.Write("#{0} {1} ({2}){3}".format(i + 1, item["name"], item["from"], item["accepted"] and " (accepted)" or " (<a>accept " + str(i + 1) + "</a>)"), COLOR_NAVY)
+			for i, item in enumerate(items):
+				inf.add_msg("\n#{0}: {1} ({2}) (<a=:withdraw {0}>withdraw</a>, <a=:delete {0}>delete</a>)".format(i + 1, item["name"], item["from"]), newline = False)
 
-			activator.Write("\nYou can <a>accept all</a> or <a>decline all</a>.", COLOR_NAVY)
+			inf.add_link("I'd like to withdraw all.", dest = "withdraw 0")
 		else:
-			me.SayTo(activator, "\nThere is no mail for you right now.")
+			inf.add_msg("There is no mail for you right now.")
 
-	# Decline an item, sending it back to the sender.
-	elif text[0] == "decline":
-		if len(text) > 1:
-			if text[1] == "all":
-				declined = False
+	elif msg.startswith("withdraw "):
+		try:
+			i = int(msg[9:])
+		except:
+			return
 
-				for i, item in enumerate(post.get_items()):
-					if post.can_accept_or_decline(i + 1):
-						post.decline_item(i + 1)
-						declined = True
+		inf.add_msg("\n".join(post.withdraw(activator, i)))
 
-				if declined:
-					me.SayTo(activator, "\nYou have declined all items.")
-			elif text[1].isdigit():
-				id = int(text[1])
+	elif msg.startswith("delete "):
+		try:
+			i = int(msg[7:])
+		except:
+			return
 
-				if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
-					post.decline_item(id)
-					me.SayTo(activator, "\nYou have declined the item #{0}.".format(id))
-		else:
-			me.SayTo(activator, "\nDecline what? Check for <a>items</a> to get ID of the item to decline, and then use \"decline ID\", for example, <a>decline 1</a> or <a>decline all</a>.")
-
-	# Accept an item.
-	elif text[0] == "accept":
-		if len(text) > 1:
-			if text[1] == "all":
-				accepted = False
-
-				for i, item in enumerate(post.get_items()):
-					if post.can_accept_or_decline(i + 1):
-						post.accept_item(i + 1)
-						accepted = True
-
-				if accepted:
-					me.SayTo(activator, "\nYou have accepted all items.")
-			elif text[1].isdigit():
-				id = int(text[1])
-
-				if id > 0 and id <= len(post.get_items()) and post.can_accept_or_decline(id):
-					post.accept_item(id)
-					me.SayTo(activator, "\nYou have accepted the item #{0}.".format(id))
-		else:
-			me.SayTo(activator, "\nAccept what? Check for <a>items</a> to get ID of the item to accept, and then use \"accept ID\", for example, <a>accept 1</a> or <a>accept all</a>.")
-
-	# Explain how the office works.
-	elif msg == "explain":
-		me.SayTo(activator, "\nWith post office, you can send items to other players, without the need of them being online. Items you send will stay forever with us, until the player comes and accepts or declines them. If they decline an item, the item will be sent back to the original sender.\nSending an item is simple, just mark the object you want to send, and say \"send <player>\".\nYou can check if someone has sent you <a>items</a> and if so, you can <a>accept</a> or <a>decline</a> them. If you accept, you can get them from one of the mailboxes in this post office.")
+		inf.add_msg(post.delete(i))
 
 try:
 	main()
+	inf.finish()
 finally:
 	post.db.close()
