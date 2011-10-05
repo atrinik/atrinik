@@ -3,14 +3,12 @@
 ## player has paid their fees, and if not, will try to pay with the money
 ## on them, if that doesn't work, they'll be kicked out of the house.
 
-from Atrinik import *
-from House import *
+from House import House
 
-activator = WhoIsActivator()
-# We don't want the exits to actually work no matter what.
-SetReturnValue(1)
+def main():
+	if activator.type != Type.PLAYER:
+		return
 
-if activator.type == Type.PLAYER:
 	house = House(activator, GetOptions())
 
 	# Have the fees expires?
@@ -20,13 +18,16 @@ if activator.type == Type.PLAYER:
 
 		# Paid successfully?
 		if activator.PayAmount(cost):
-			activator.Write("You have paid {0} as your daily fee.".format(CostString(cost)), COLOR_GREEN)
+			activator.Write("You have paid {} as your daily fee.".format(CostString(cost)), COLOR_GREEN)
 			# Reset it to the current time.
 			house.fees_reset()
 			# Now add one more day.
 			house.fees_add()
 		# Failed to pay!
 		else:
-			activator.Write("Your prepaid fees have expired and you do not have {0} to pay for one more day.".format(CostString(cost)), COLOR_RED)
+			activator.Write("Your prepaid fees have expired and you do not have {} to pay for one more day.".format(CostString(cost)), COLOR_RED)
 			(x, y) = house.get(house.fees_unpaid)
 			activator.SetPosition(x, y)
+
+main()
+SetReturnValue(1)
