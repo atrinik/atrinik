@@ -1,61 +1,91 @@
 ## @file
 ## Jail manager NPC.
 
-from Atrinik import *
+from Interface import Interface
 from Jail import Jail
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
-text = msg.split()
+inf = Interface(activator, me)
 
 def main():
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello there, {0}. I am the jail manager, and I can assist you in hunting down criminals and putting them to this jail.\nSimply tell me which player to jail, and for how long, in the format of <green>jail</green> <green><name></green> <green><time></green>, where <yellow><name></yellow> is the player name to jail, and <yellow><time></yellow> is how long to jail the player for, in seconds. If 0, the player will be jailed for life.\nTo unjail a player, you can use <green>unjail</green> <green><name></green>.".format(activator.name))
-	elif msg[:6] == "unjail":
-		if len(text) < 2:
-			me.SayTo(activator, "\nUse, for example, <a>unjail troublemakerxyxyx</a>.")
-			return
+	if msg == "hello":
+		inf.add_msg("Hello there, {}. I am the jail manager, and I can assist you in hunting down criminals and putting them to this jail.".format(activator.name))
+		inf.add_link("I'd like to jail a criminal.", dest = "jail1")
+		inf.add_link("I'd like to release a criminal from the jail.", dest = "release1")
 
-		pl = FindPlayer(text[1])
+	elif msg == "jail1":
+		inf.add_msg("Please type the criminal's name that you want to jail.")
+		inf.set_text_input(prepend = "jail2 ")
+
+	elif msg.startswith("jail2 "):
+		name = msg[6:]
+		pl = FindPlayer(name)
 
 		if not pl:
-			me.SayTo(activator, "\nNo such player.")
+			inf.add_msg("Hm, I don't know about this criminal. Are you sure you typed their name correctly?")
+			inf.set_text_input(prepend = "jail2 ")
 			return
 
-		j = Jail(me)
-		force = j.get_jail_force(pl)
+		inf.add_msg("How long do you want to jail <green>{}</green> for?".format(activator.name))
+		inf.add_msg("For example, type <green>1 hour</green> or <green>10 minutes and 15 seconds</green>, etc.")
+		inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
+
+	elif msg.startswith("jail3 "):
+		import re
+
+		match = re.match("\"([^\"]*)\" (.*)", msg[6:])
+
+		if not match:
+			inf.add_msg("Sorry, I didn't quite catch that one.")
+			return
+
+		(name, timeamount) = match.groups()
+
+		from Language import time2seconds
+		seconds = time2seconds(timeamount)
+		pl = FindPlayer(name)
+
+		if not pl:
+			inf.add_msg("Hm, I don't know about this criminal.")
+			return
+
+		if not seconds:
+			inf.add_msg("You need to enter a valid amount of time to jail <green>{}</green> for.".format(activator.name))
+			inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
+			return
+		elif seconds > 30000:
+			inf.add_msg("That's a ridiculous amount of time to jail <green>{}</green> for! Try again.".format(activator.name))
+			inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
+			return
+
+		jail = Jail(me)
+
+		if jail.jail(pl, seconds):
+			inf.add_msg("{} has been jailed successfully.".format(pl.name))
+		else:
+			inf.add_msg("{} is already in jail.".format(pl.name))
+
+	elif msg == "release1":
+		inf.add_msg("Please type the criminal's name that you want to release.")
+		inf.set_text_input(prepend = "release2 ")
+
+	elif msg.startswith("release2 "):
+		name = msg[9:]
+		pl = FindPlayer(name)
+
+		if not pl:
+			inf.add_msg("Hm, I don't know about this criminal. Are you sure you typed their name correctly?")
+			inf.set_text_input(prepend = "release2 ")
+			return
+
+		jail = Jail(activator)
+		force = jail.get_jail_force(pl)
 
 		if not force:
-			me.SayTo(activator, "\n{0} is not in jail.".format(pl.name))
+			inf.add_msg("{} is not in jail... yet.".format(pl.name))
 		else:
 			force.Remove()
-			me.SayTo(activator, "\n{0} has been released.".format(pl.name))
+			inf.add_msg("{} has been released early.".format(pl.name))
 			pl.Write("You have been released early.", COLOR_GREEN)
 
-	elif msg[:4] == "jail":
-		if len(text) < 3 or not text[2].isdigit():
-			me.SayTo(activator, "\nUse, for example, <a>jail troublemakerxyxyx 60</a>.")
-			return
-
-		pl = FindPlayer(text[1])
-
-		if not pl:
-			me.SayTo(activator, "\nNo such player.")
-			return
-
-		seconds = int(text[2])
-
-		# Need to put a limit on it...
-		if seconds > 30000:
-			me.SayTo(activator, "\nMaximum amount of time you can jail a player for is: 30,000 seconds.")
-			return
-
-		j = Jail(me)
-
-		if j.jail(pl, seconds):
-			me.SayTo(activator, "\n{0} has been jailed successfully.".format(pl.name))
-		else:
-			me.SayTo(activator, "\n{0} is already in jail.".format(pl.name))
-
 main()
+inf.finish()
