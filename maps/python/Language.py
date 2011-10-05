@@ -104,3 +104,33 @@ def pluralize(singular, n = 0, plural = None):
 
 	plural = root + suffix
 	return plural
+
+_timeunits = [
+	("second", 1),
+	("minute", 60),
+	("hour", 60 * 60),
+	("day", 60 * 60 * 24),
+	("week", 60 * 60 * 24 * 7),
+	("fortnight", 60 * 60 * 24 * 7 * 2),
+	("month", 60 * 60 * 24 * 30),
+	("year", 60 * 60 * 24 * 265),
+	("decade", 60 * 60 * 24 * 265 * 10),
+	("century", 60 * 60 * 24 * 265 * 100),
+	("millennium", 60 * 60 * 24 * 265 * 1000),
+]
+
+def time2seconds(s):
+	import re
+
+	total = 0
+
+	for (num, unit) in re.findall("(\d+)\s?([a-zA-Z]+)", s):
+		num = int(num)
+		unit = unit.lower()
+
+		for (timeunit, unitseconds) in _timeunits:
+			if unit.startswith(timeunit) or pluralize(unit, num) == timeunit:
+				total += unitseconds * num
+				break
+
+	return total
