@@ -16,10 +16,6 @@
 ##
 ## The event may hold a message, which will be printed to the activator.
 
-from Atrinik import *
-
-me = WhoAmI()
-activator = WhoIsActivator()
 event = WhatIsEvent()
 
 def main():

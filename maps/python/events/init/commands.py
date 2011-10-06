@@ -2,7 +2,7 @@
 ## This script initialized the various Python-powered commands at
 ## startup time.
 
-from Atrinik import RegisterCommand
+from Atrinik import *
 
 RegisterCommand("guild", "/python/commands/guild.py", 1)
 RegisterCommand("guildmembers", "/python/commands/guildmembers.py", 1)
