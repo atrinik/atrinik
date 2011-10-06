@@ -4,10 +4,8 @@
 ##
 ## The command provides a chat for guild members.
 
-from Atrinik import *
 from Guild import Guild
 
-activator = WhoIsActivator()
 guild = Guild(None)
 
 def main():

@@ -3,10 +3,8 @@
 ## members to look who else is in the guild, and whether they are online
 ## or not.
 
-from Atrinik import *
 from Guild import Guild
 
-activator = WhoIsActivator()
 guild = Guild(None)
 
 def main():
