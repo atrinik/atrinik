@@ -487,10 +487,14 @@ x 2
 y 8
 end
 arch fountain
+z -3
+align -3
 x 2
 y 8
 end
 arch fountain_stream
+z -3
+align -3
 x 2
 y 8
 end
