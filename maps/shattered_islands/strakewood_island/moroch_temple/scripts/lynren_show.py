@@ -1,11 +1,14 @@
 ## @file
 ## Handles the 'ask show' event for Lynren.
 
-from Atrinik import WhoIsActivator, QUEST_STATUS_COMPLETED, SetReturnValue
-from QuestManager import get_quest_object
+from QuestManager import QuestManager
+from Quests import RescuingLynren as quest
 
-ob = get_quest_object(WhoIsActivator(), "Rescuing Lynren")
+qm = QuestManager(activator, quest)
 
-# If we completed the quest, hide the NPC.
-if ob and ob.magic == QUEST_STATUS_COMPLETED:
-	SetReturnValue(1)
+def main():
+	# If we completed the quest, hide the NPC.
+	if qm.completed():
+		SetReturnValue(1)
+
+main()

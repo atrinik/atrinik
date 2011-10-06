@@ -209,3 +209,11 @@ ConstructionOfTelescope = {
 		},
 	],
 }
+
+RescuingLynren = {
+	"quest_name": "Rescuing Lynren",
+	"type": QUEST_TYPE_KILL_ITEM,
+	"arch_name": "book",
+	"item_name": "Lynren's book of holy word",
+	"message": "Rescue Lynren the paladin, who is imprisoned in Moroch Temple, by locating her book of holy word in her home in Asteria, among the various temples, and bringing the book to her.",
+}
