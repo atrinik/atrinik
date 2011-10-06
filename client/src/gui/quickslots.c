@@ -239,7 +239,7 @@ int get_quickslot(int x, int y)
  * @param vertical_quickslot Is the quickslot vertical? 1 for vertical, 0 for horizontal. */
 void show_quickslots(int x, int y, int vertical_quickslot)
 {
-	int i, j, mx, my;
+	int i, j;
 	char buf[16];
 	int qsx, qsy, xoff;
 
@@ -259,7 +259,6 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 		sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
 	}
 
-	SDL_GetMouseState(&mx, &my);
 	quickslots_remove(-1);
 
 	/* Loop through quickslots. Do not loop through all the quickslots,
@@ -274,12 +273,6 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 		{
 			/* Output the sprite */
 			blit_face(quick_slots[j].spell->icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
-
-			/* If mouse is over the quickslot, show a tooltip */
-			if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
-			{
-				tooltip_create(mx, my, FONT_ARIAL10, quick_slots[j].spell->name);
-			}
 		}
 		/* Item in quickslot */
 		else if (quick_slots[j].tag != -1)
@@ -291,12 +284,6 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			{
 				/* Show it */
 				blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
-
-				/* And show tooltip, if mouse is over it */
-				if (mx >= x + quickslots_pos[i][qsx] + xoff && mx < x + quickslots_pos[i][qsx] + xoff + 33 && my >= y + quickslots_pos[i][qsy] && my < y + quickslots_pos[i][qsy] + 33)
-				{
-					tooltip_create(mx, my, FONT_ARIAL10, tmp->s_name);
-				}
 			}
 		}
 
@@ -427,6 +414,47 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 			widget->wd = 282;
 			widget->ht = 34;
 			widget->x1 -= 266;
+		}
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		int i, j, qsx, qsy, xoff;
+
+		if (widget->ht > 34)
+		{
+			qsx = 1;
+			qsy = 0;
+			xoff = 0;
+		}
+		else
+		{
+			qsx = 0;
+			qsy = 1;
+			xoff = -17;
+		}
+
+		for (i = 0; i < MAX_QUICK_SLOTS; i++)
+		{
+			/* Now calculate the real quickslot, according to the selected group */
+			j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
+
+			if (event->motion.x >= widget->x1 + quickslots_pos[i][qsx] + xoff && event->motion.x < widget->x1 + quickslots_pos[i][qsx] + xoff + 33 && event->motion.y >= widget->y1 + quickslots_pos[i][qsy] && event->motion.y < widget->y1 + quickslots_pos[i][qsy] + 33)
+			{
+				if (quick_slots[j].spell)
+				{
+					tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, quick_slots[j].spell->name);
+				}
+				else if (quick_slots[j].tag != -1)
+				{
+					object *tmp = object_find_object(cpl.ob, quick_slots[j].tag);
+
+					/* If we located the item */
+					if (tmp)
+					{
+						tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, tmp->s_name);
+					}
+				}
+			}
 		}
 	}
 }

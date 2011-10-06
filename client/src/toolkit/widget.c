@@ -1743,6 +1743,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			case PARTY_ID:
 				widget_party_mevent(widget, event);
 				break;
+
+			case QUICKSLOT_ID:
+				widget_quickslots_mouse_event(widget, event);
+				break;
 		}
 
 		return 1;
