@@ -2323,6 +2323,10 @@ z 12
 x 18
 y 9
 end
+arch plant_mushroom5
+x 18
+y 9
+end
 arch grassd_5
 z 18
 x 18
@@ -2842,23 +2846,11 @@ sub_layer 1
 x 21
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 13
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
 x 21
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 14
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -2866,23 +2858,11 @@ z 40
 x 21
 y 14
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 15
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 32
 x 21
 y 15
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 16
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -2890,23 +2870,11 @@ z 24
 x 21
 y 16
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 17
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 16
 x 21
 y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 21
-y 18
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3032,23 +3000,11 @@ sub_layer 1
 x 22
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 13
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
 x 22
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 14
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3056,23 +3012,11 @@ z 40
 x 22
 y 14
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 15
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 32
 x 22
 y 15
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 16
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3080,23 +3024,11 @@ z 24
 x 22
 y 16
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 17
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 16
 x 22
 y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 22
-y 18
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3208,23 +3140,11 @@ sub_layer 1
 x 23
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 13
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
 x 23
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 14
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3232,23 +3152,11 @@ z 40
 x 23
 y 14
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 15
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 32
 x 23
 y 15
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 16
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -3256,23 +3164,11 @@ z 24
 x 23
 y 16
 end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 17
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 16
 x 23
 y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 23
-y 18
 end
 arch floor_fs_grey1b
 sub_layer 1

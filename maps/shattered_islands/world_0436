@@ -2762,6 +2762,10 @@ arch grassd_5
 x 13
 y 12
 end
+arch plant11
+x 13
+y 12
+end
 arch grassd_3
 x 13
 y 13
@@ -3421,6 +3425,10 @@ sub_layer 2
 x 16
 y 12
 end
+arch tree_branch2
+x 16
+y 12
+end
 arch grassd_1
 sub_layer 2
 x 16
@@ -3596,6 +3604,10 @@ sub_layer 2
 x 17
 y 13
 end
+arch tree_branch3
+x 17
+y 13
+end
 arch grassd_1
 z 6
 x 17
@@ -3603,6 +3615,10 @@ y 14
 end
 arch grassd_7
 z 6
+x 17
+y 15
+end
+arch plant_flower2
 x 17
 y 15
 end
@@ -3648,6 +3664,10 @@ end
 arch grassd_3
 sub_layer 1
 z 6
+x 17
+y 21
+end
+arch tree_branch2
 x 17
 y 21
 end
@@ -3778,6 +3798,10 @@ z 12
 x 18
 y 14
 end
+arch plant15
+x 18
+y 14
+end
 arch grassd_2
 z 12
 x 18
@@ -3833,6 +3857,10 @@ z 12
 x 18
 y 22
 end
+arch plant15
+x 18
+y 22
+end
 arch grassd_1
 z 12
 x 18
@@ -3868,6 +3896,10 @@ y 4
 end
 arch grassd_4
 z 18
+x 19
+y 5
+end
+arch plant1
 x 19
 y 5
 end
@@ -4008,6 +4040,10 @@ y 21
 end
 arch grassd_5
 z 18
+x 19
+y 22
+end
+arch plant_mushroom5
 x 19
 y 22
 end
@@ -4419,6 +4455,10 @@ y 5
 end
 arch grassd_6
 z 36
+x 22
+y 6
+end
+arch plant_mushroom1
 x 22
 y 6
 end

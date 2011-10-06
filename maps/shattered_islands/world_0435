@@ -2271,6 +2271,10 @@ arch grassd_1
 x 16
 y 1
 end
+arch plant_mushroom3
+x 16
+y 1
+end
 arch grassd_1
 x 16
 y 2

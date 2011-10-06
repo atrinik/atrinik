@@ -106,11 +106,6 @@ end
 arch wall_fortified_high_b.111
 y 10
 end
-arch blocked
-no_pass 0
-blocksview 0
-y 11
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
@@ -119,11 +114,6 @@ end
 arch wall_fortified_high.111
 blocksview 0
 y 11
-end
-arch blocked
-no_pass 0
-blocksview 0
-y 12
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -134,11 +124,6 @@ arch wall_fortified_high.111
 blocksview 0
 y 12
 end
-arch blocked
-no_pass 0
-blocksview 0
-y 13
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 48
@@ -147,11 +132,6 @@ end
 arch wall_fortified_high.111
 blocksview 0
 y 13
-end
-arch blocked
-no_pass 0
-blocksview 0
-y 14
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -162,11 +142,6 @@ arch wall_fortified_high.111
 blocksview 0
 y 14
 end
-arch blocked
-no_pass 0
-blocksview 0
-y 15
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 32
@@ -175,11 +150,6 @@ end
 arch wall_fortified_high.111
 blocksview 0
 y 15
-end
-arch blocked
-no_pass 0
-blocksview 0
-y 16
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -190,11 +160,6 @@ arch wall_fortified_high_4.151
 blocksview 0
 y 16
 end
-arch blocked
-no_pass 0
-blocksview 0
-y 17
-end
 arch floor_fs_grey1b
 sub_layer 1
 z 16
@@ -203,11 +168,6 @@ end
 arch wall_fortified_high_3.151
 blocksview 0
 y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
-y 18
 end
 arch floor_fs_grey1b
 sub_layer 1
@@ -418,6 +378,7 @@ x 1
 y 19
 end
 arch stone1
+sub_layer 2
 x 1
 y 19
 end
@@ -769,6 +730,7 @@ x 3
 y 18
 end
 arch tree_big3
+sub_layer 2
 x 3
 y 18
 end
