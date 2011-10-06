@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-05 emperorbma
+Modified: 2011-10-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2192,117 +2192,117 @@ arch grassd_3
 z 50
 x 16
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 16
 y 1
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 16
 y 2
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 3
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 16
 y 4
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 16
 y 5
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 6
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 7
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 8
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 16
 y 9
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 16
 y 10
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 16
 y 11
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 16
 y 12
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 16
 y 13
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 14
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 16
 y 15
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 16
 y 16
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 16
 y 17
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 16
 y 18
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 16
 y 19
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 16
 y 20
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 16
 y 21
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 16
 y 22
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 16
 y 23
@@ -2311,117 +2311,117 @@ arch grassd_7
 z 50
 x 17
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 17
 y 1
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 17
 y 2
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 3
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 17
 y 4
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 17
 y 5
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 17
 y 6
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 17
 y 7
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 17
 y 8
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 17
 y 9
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 10
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 11
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 17
 y 12
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 17
 y 13
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 17
 y 14
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 17
 y 15
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 17
 y 16
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 17
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 18
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 17
 y 19
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 17
 y 20
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 17
 y 21
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 17
 y 22
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 17
 y 23
@@ -2430,117 +2430,141 @@ arch grassd_5
 z 50
 x 18
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 18
 y 1
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 2
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 3
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 18
 y 4
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 18
 y 5
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 18
 y 6
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 18
 y 7
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 8
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 18
 y 9
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 18
 y 10
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 18
 y 11
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 18
 y 12
 end
-arch floor_white1a
+arch border_top_se1
+x 18
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 13
 end
-arch floor_white1b
+arch border_top_e1
+x 18
+y 13
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 14
 end
-arch floor_white1d
+arch border_top_e1
+x 18
+y 14
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 15
 end
-arch floor_white1a
+arch border_top_e1
+x 18
+y 15
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 16
 end
-arch floor_white1a
+arch border_top_e1
+x 18
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 17
 end
-arch floor_white1d
+arch border_top_ne1
+x 18
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 18
 y 18
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 19
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 20
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 21
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 18
 y 22
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 18
 y 23
@@ -2553,117 +2577,171 @@ arch wall_palace_06
 direction 5
 x 19
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 19
 y 1
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 19
 y 2
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 19
 y 3
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 19
 y 4
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 19
 y 5
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 19
 y 6
 end
-arch floor_white1e
+arch border_top_se1
+x 19
+y 6
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 7
 end
-arch floor_white1d
+arch border_top_e1
+x 19
+y 7
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 8
 end
-arch floor_white1c
+arch border_top_e1
+x 19
+y 8
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 9
 end
-arch floor_white2b
+arch border_top_e1
+x 19
+y 9
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 10
 end
-arch floor_white1c
+arch border_top_e1
+x 19
+y 10
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 11
 end
-arch floor_white1a
+arch border_top_e1
+x 19
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 12
 end
-arch floor_flagm3
+arch border_top_s1
+x 19
+y 12
+end
+arch border_top_ne1
+sub_layer 1
+z 50
+x 19
+y 12
+end
+arch water_lt3
 z 50
 x 19
 y 13
 end
-arch floor_flagm1
+arch border_wall_nw1
+x 19
+y 13
+end
+arch water_lt4
 z 50
 x 19
 y 14
 end
-arch floor_flagm1
+arch border_wall_w1
+x 19
+y 14
+end
+arch water_lt
 z 50
 x 19
 y 15
 end
-arch floor_flagm4
+arch border_wall_w1
+x 19
+y 15
+end
+arch water_lt4
 z 50
 x 19
 y 16
 end
-arch floor_white1a
+arch border_wall_w1
+x 19
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 17
 end
-arch floor_white1b
+arch border_top_n1
+x 19
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 18
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 19
 y 19
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 19
 y 20
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 19
 y 21
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 19
 y 22
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 19
 y 23
@@ -2675,68 +2753,110 @@ end
 arch wall_palace_02
 x 20
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 20
 y 1
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 20
 y 2
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 20
 y 3
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 20
 y 4
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 20
 y 5
 end
-arch floor_white1d
+arch border_top_se1
+x 20
+y 5
+end
+arch floor_fs_grey1b
 z 50
 x 20
 y 6
 end
-arch floor_flagm2
+arch border_top_se2
+x 20
+y 6
+end
+arch water_lt2
 z 50
 x 20
 y 7
 end
-arch floor_flagm3
+arch border_wall_nw1
+x 20
+y 7
+end
+arch water_lt4
 z 50
 x 20
 y 8
 end
-arch floor_flagm1
+arch border_wall_w1
+x 20
+y 8
+end
+arch water_lt2
 z 50
 x 20
 y 9
 end
-arch floor_flagm1
+arch border_wall_w1
+x 20
+y 9
+end
+arch water_lt
 z 50
 x 20
 y 10
 end
-arch floor_flagm2
+arch border_wall_w1
+x 20
+y 10
+end
+arch water_lt3
 z 50
 x 20
 y 11
 end
-arch floor_white1a
+arch border_wall_w1
+x 20
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 20
 y 12
 end
-arch floor_flagm4
+arch border_top_se2
+x 20
+y 12
+end
+arch border_top_ne2
+sub_layer 1
 z 50
+x 20
+y 12
+end
+arch water_lt4
+z 50
+x 20
+y 13
+end
+arch border_wall_n1
 x 20
 y 13
 end
@@ -2745,47 +2865,63 @@ z 50
 x 20
 y 14
 end
+arch border_top_nw2
+x 20
+y 14
+end
 arch floor_blue3
 z 50
 x 20
 y 15
 end
-arch floor_flagm4
+arch border_top_sw2
+x 20
+y 15
+end
+arch water_lt
 z 50
 x 20
 y 16
 end
-arch floor_white1d
+arch border_wall_n2
+x 20
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 20
 y 17
 end
-arch floor_white1d
+arch border_top_n1
+x 20
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 20
 y 18
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 20
 y 19
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 20
 y 20
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 20
 y 21
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 20
 y 22
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 20
 y 23
@@ -2797,38 +2933,54 @@ end
 arch wall_palace_14
 x 21
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 21
 y 1
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 21
 y 2
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 21
 y 3
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 21
 y 4
 end
-arch floor_white1a
+arch border_top_se1
+x 21
+y 4
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 5
 end
-arch floor_flagm4
+arch border_top_se2
+x 21
+y 5
+end
+arch water_lt4
 z 50
 x 21
 y 6
 end
-arch floor_flagm3
+arch border_wall_nw1
+x 21
+y 6
+end
+arch water_lt
 z 50
+x 21
+y 7
+end
+arch border_wall_nw2
 x 21
 y 7
 end
@@ -2837,8 +2989,16 @@ z 50
 x 21
 y 8
 end
+arch border_top_nw2
+x 21
+y 8
+end
 arch floor_blue3
 z 50
+x 21
+y 9
+end
+arch border_top_w1
 x 21
 y 9
 end
@@ -2847,18 +3007,34 @@ z 50
 x 21
 y 10
 end
-arch floor_flagm3
+arch border_top_sw2
+x 21
+y 10
+end
+arch water_lt3
 z 50
 x 21
 y 11
 end
-arch floor_flagm3
+arch border_wall_n2
+x 21
+y 11
+end
+arch water_lt2
 z 50
 x 21
 y 12
 end
-arch floor_flagm2
+arch border_wall_w2
+x 21
+y 12
+end
+arch water_lt4
 z 50
+x 21
+y 13
+end
+arch border_wall_nw2
 x 21
 y 13
 end
@@ -2867,47 +3043,63 @@ z 50
 x 21
 y 14
 end
+arch border_top_n1
+x 21
+y 14
+end
 arch floor_blue3
 z 50
 x 21
 y 15
 end
-arch floor_flagm4
+arch border_top_s1
+x 21
+y 15
+end
+arch water_lt
 z 50
 x 21
 y 16
 end
-arch floor_white1d
+arch border_wall_n1
+x 21
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 17
 end
-arch floor_white2b
+arch border_top_n1
+x 21
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 18
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 21
 y 19
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 21
 y 20
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 21
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 22
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 21
 y 23
@@ -2920,33 +3112,49 @@ arch door_wood1
 cursed 1
 x 22
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 22
 y 1
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 2
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 22
 y 3
 end
-arch floor_white1c
+arch border_top_se1
+x 22
+y 3
+end
+arch floor_fs_grey1b
 z 50
 x 22
 y 4
 end
-arch floor_flagm3
+arch border_top_se2
+x 22
+y 4
+end
+arch water_lt4
 z 50
 x 22
 y 5
 end
-arch floor_flagm1
+arch border_wall_nw1
+x 22
+y 5
+end
+arch water_lt3
 z 50
+x 22
+y 6
+end
+arch border_wall_nw2
 x 22
 y 6
 end
@@ -2955,8 +3163,16 @@ z 50
 x 22
 y 7
 end
+arch border_top_nw2
+x 22
+y 7
+end
 arch floor_blue3
 z 50
+x 22
+y 8
+end
+arch border_top_nw1
 x 22
 y 8
 end
@@ -2970,17 +3186,29 @@ z 50
 x 22
 y 10
 end
+arch border_top_sw1
+x 22
+y 10
+end
 arch floor_blue3
 z 50
 x 22
 y 11
 end
-arch floor_flagm2
+arch border_top_sw2
+x 22
+y 11
+end
+arch water_lt
 z 50
 x 22
 y 12
 end
-arch floor_flagm3
+arch border_wall_n2
+x 22
+y 12
+end
+arch water_lt
 z 50
 x 22
 y 13
@@ -2990,47 +3218,63 @@ z 50
 x 22
 y 14
 end
+arch border_top_n1
+x 22
+y 14
+end
 arch floor_blue3
 z 50
 x 22
 y 15
 end
-arch floor_flagm1
+arch border_top_s1
+x 22
+y 15
+end
+arch water_lt2
 z 50
 x 22
 y 16
 end
-arch floor_white1b
+arch border_wall_n1
+x 22
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 22
 y 17
 end
-arch floor_white1a
+arch border_top_n1
+x 22
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 22
 y 18
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 19
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 22
 y 20
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 22
 y 21
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 22
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 23
@@ -3044,28 +3288,44 @@ direction 7
 cursed 1
 x 23
 end
-arch floor_white1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 1
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 23
 y 2
 end
-arch floor_white1d
+arch border_top_se1
+x 23
+y 2
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 3
 end
-arch floor_flagm2
+arch border_top_se2
+x 23
+y 3
+end
+arch water_lt
 z 50
 x 23
 y 4
 end
-arch floor_flagm3
+arch border_wall_nw1
+x 23
+y 4
+end
+arch water_lt
 z 50
+x 23
+y 5
+end
+arch border_wall_nw2
 x 23
 y 5
 end
@@ -3074,7 +3334,21 @@ z 50
 x 23
 y 6
 end
+arch border_top_nw2
+x 23
+y 6
+end
 arch floor_blue3
+z 50
+x 23
+y 7
+end
+arch border_top_se1
+x 23
+y 7
+end
+arch border_top_nw1
+sub_layer 1
 z 50
 x 23
 y 7
@@ -3084,8 +3358,16 @@ z 50
 x 23
 y 8
 end
+arch border_top_e1
+x 23
+y 8
+end
 arch floor_blue3
 z 50
+x 23
+y 9
+end
+arch border_top_e1
 x 23
 y 9
 end
@@ -3094,7 +3376,21 @@ z 50
 x 23
 y 10
 end
+arch border_top_e1
+x 23
+y 10
+end
 arch floor_blue3
+z 50
+x 23
+y 11
+end
+arch border_top_sw1
+x 23
+y 11
+end
+arch border_top_ne1
+sub_layer 1
 z 50
 x 23
 y 11
@@ -3104,8 +3400,16 @@ z 50
 x 23
 y 12
 end
-arch floor_flagm1
+arch border_top_sw2
+x 23
+y 12
+end
+arch water_lt
 z 50
+x 23
+y 13
+end
+arch border_wall_n2
 x 23
 y 13
 end
@@ -3114,47 +3418,63 @@ z 50
 x 23
 y 14
 end
+arch border_top_n1
+x 23
+y 14
+end
 arch floor_blue3
 z 50
 x 23
 y 15
 end
-arch floor_flagm1
+arch border_top_s1
+x 23
+y 15
+end
+arch water_lt2
 z 50
 x 23
 y 16
 end
-arch floor_white1b
+arch border_wall_n1
+x 23
+y 16
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 17
 end
-arch floor_white1e
+arch border_top_n1
+x 23
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 18
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 19
 end
-arch floor_white1b
+arch floor_fs_grey1b
 z 50
 x 23
 y 20
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 21
 end
-arch floor_white2b
+arch floor_fs_grey1b
 z 50
 x 23
 y 22
 end
-arch floor_white1c
+arch floor_fs_grey1b
 z 50
 x 23
 y 23
