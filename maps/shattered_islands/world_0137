@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-03 emperorbma
+Modified: 2011-10-05 emperorbma
 endmsg
 width 24
 height 24
@@ -19,10 +19,10 @@ tile_path_8 world_aa38
 bg_music courage.mid
 region asteria
 end
-arch floor_rhomb
+arch floor_white2b
 z 50
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 y 1
 end
@@ -114,11 +114,11 @@ arch floor_rhomb
 z 50
 y 23
 end
-arch floor_rhomb
+arch floor_flagm4
 z 50
 x 1
 end
-arch floor_rhomb
+arch floor_white1a
 z 50
 x 1
 y 1
@@ -233,11 +233,11 @@ z 50
 x 1
 y 23
 end
-arch floor_rhomb
+arch floor_flagm4
 z 50
 x 2
 end
-arch floor_rhomb
+arch floor_white1a
 z 50
 x 2
 y 1
@@ -352,11 +352,11 @@ z 50
 x 2
 y 23
 end
-arch floor_rhomb
+arch floor_flagm2
 z 50
 x 3
 end
-arch floor_rhomb
+arch floor_white1b
 z 50
 x 3
 y 1
@@ -471,11 +471,11 @@ z 50
 x 3
 y 23
 end
-arch floor_rhomb
+arch floor_flagm3
 z 50
 x 4
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 4
 y 1
@@ -590,11 +590,11 @@ z 50
 x 4
 y 23
 end
-arch floor_rhomb
+arch floor_flagm4
 z 50
 x 5
 end
-arch floor_rhomb
+arch floor_white1a
 z 50
 x 5
 y 1
@@ -709,11 +709,11 @@ z 50
 x 5
 y 23
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 6
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 x 6
 y 1
@@ -828,11 +828,11 @@ z 50
 x 6
 y 23
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 x 7
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 7
 y 1
@@ -947,11 +947,11 @@ z 50
 x 7
 y 23
 end
-arch floor_rhomb
+arch floor_white1b
 z 50
 x 8
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 x 8
 y 1
@@ -1066,11 +1066,11 @@ z 50
 x 8
 y 23
 end
-arch floor_rhomb
+arch floor_white2b
 z 50
 x 9
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 x 9
 y 1
@@ -1185,11 +1185,11 @@ z 50
 x 9
 y 23
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 10
 end
-arch floor_rhomb
+arch floor_white2b
 z 50
 x 10
 y 1
@@ -1304,11 +1304,11 @@ z 50
 x 10
 y 23
 end
-arch floor_rhomb
+arch floor_white1e
 z 50
 x 11
 end
-arch floor_rhomb
+arch floor_white1b
 z 50
 x 11
 y 1
@@ -1423,11 +1423,11 @@ z 50
 x 11
 y 23
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 12
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 12
 y 1
@@ -1542,11 +1542,11 @@ z 50
 x 12
 y 23
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 13
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 13
 y 1
@@ -1661,11 +1661,11 @@ z 50
 x 13
 y 23
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 14
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 14
 y 1
@@ -1780,11 +1780,11 @@ z 50
 x 14
 y 23
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 15
 end
-arch floor_rhomb
+arch floor_white2b
 z 50
 x 15
 y 1
@@ -1899,11 +1899,11 @@ z 50
 x 15
 y 23
 end
-arch floor_rhomb
+arch floor_white1d
 z 50
 x 16
 end
-arch floor_rhomb
+arch floor_white1c
 z 50
 x 16
 y 1
