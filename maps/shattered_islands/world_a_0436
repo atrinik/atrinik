@@ -1,0 +1,1032 @@
+arch map
+name Asteria
+msg
+Created:  2011-10-07 Alex Tokar
+Modified: 2011-10-07 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+no_harm 1
+tile_path_3 world_a_0435
+bg_music chether.mid
+region asteria
+end
+arch blocked
+x 4
+y 13
+end
+arch wall_flagstone1.181
+x 4
+y 13
+end
+arch blocked
+x 4
+y 14
+end
+arch wall_flagstone1.131
+x 4
+y 14
+end
+arch blocked
+x 4
+y 15
+end
+arch wall_flagstone1.131
+x 4
+y 15
+end
+arch blocked
+x 4
+y 16
+end
+arch wall_flagstone1.131
+x 4
+y 16
+end
+arch blocked
+x 4
+y 17
+end
+arch wall_flagstone1.131
+x 4
+y 17
+end
+arch blocked
+x 4
+y 18
+end
+arch wall_flagstone1.131
+x 4
+y 18
+end
+arch blocked
+x 4
+y 19
+end
+arch wall_flagstone1.131
+x 4
+y 19
+end
+arch blocked
+x 4
+y 20
+end
+arch wall_flagstone1.131
+x 4
+y 20
+end
+arch blocked
+x 4
+y 21
+end
+arch wall_flagstone1.131
+x 4
+y 21
+end
+arch blocked
+x 4
+y 22
+end
+arch wall_flagstone1.131
+x 4
+y 22
+end
+arch blocked
+x 4
+y 23
+end
+arch wall_flagstone1.131
+x 4
+y 23
+end
+arch blocked
+x 5
+y 13
+end
+arch wall_flagstone1.111
+x 5
+y 13
+end
+arch floor_fs_grey1d
+x 5
+y 14
+end
+arch chest_m
+slaying locked
+x 5
+y 14
+end
+arch floor_fs_grey1d
+x 5
+y 15
+end
+arch rack.111
+slaying locked
+direction 7
+x 5
+y 15
+end
+arch floor_fs_grey1d
+x 5
+y 16
+end
+arch rack.111
+slaying locked
+direction 7
+x 5
+y 16
+end
+arch floor_fs_grey1a
+x 5
+y 17
+end
+arch floor_fs_grey1d
+x 5
+y 18
+end
+arch torch_wall_1
+direction 7
+x 5
+y 18
+end
+arch floor_fs_grey1d
+x 5
+y 19
+end
+arch spawn_point
+x 5
+y 19
+arch guard
+name Asterian Guard
+type 83
+level 35
+direction 3
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1d
+x 5
+y 20
+end
+arch wall_flagstone1_w.111
+x 5
+y 20
+end
+arch floor_fs_grey1a
+x 5
+y 21
+end
+arch chest_w1
+direction 7
+x 5
+y 21
+end
+arch floor_fs_grey1a
+x 5
+y 22
+end
+arch chest_w1
+direction 7
+x 5
+y 22
+end
+arch floor_fs_grey1d
+x 5
+y 23
+end
+arch chest_w1
+direction 7
+x 5
+y 23
+end
+arch blocked
+x 6
+y 13
+end
+arch wall_flagstone1.111
+x 6
+y 13
+end
+arch floor_fs_grey1d
+x 6
+y 14
+end
+arch chest_m
+slaying locked
+x 6
+y 14
+end
+arch floor_fs_grey1a
+x 6
+y 15
+end
+arch floor_fs_grey1d
+x 6
+y 16
+end
+arch floor_fs_grey1a
+x 6
+y 17
+end
+arch floor_fs_grey1a
+x 6
+y 18
+end
+arch floor_fs_grey1a
+x 6
+y 19
+end
+arch floor_fs_grey1d
+x 6
+y 20
+end
+arch gate1_locked
+slaying locked
+x 6
+y 20
+end
+arch floor_fs_grey1d
+x 6
+y 21
+end
+arch floor_fs_grey1a
+x 6
+y 22
+end
+arch floor_fs_grey1a
+x 6
+y 23
+end
+arch blocked
+x 7
+y 13
+end
+arch wall_flagstone1.111
+x 7
+y 13
+end
+arch floor_fs_grey1d
+x 7
+y 14
+end
+arch chest_m
+slaying locked
+x 7
+y 14
+end
+arch floor_fs_grey1a
+x 7
+y 15
+end
+arch floor_fs_grey1a
+x 7
+y 16
+end
+arch light7
+x 7
+y 16
+end
+arch floor_fs_grey1d
+x 7
+y 17
+end
+arch floor_fs_grey1d
+x 7
+y 18
+end
+arch floor_fs_grey1a
+x 7
+y 19
+end
+arch floor_fs_grey1a
+x 7
+y 20
+end
+arch wall_flagstone1_w.111
+x 7
+y 20
+end
+arch floor_fs_grey1d
+x 7
+y 21
+end
+arch floor_fs_grey1a
+x 7
+y 22
+end
+arch light7
+x 7
+y 22
+end
+arch floor_fs_grey1a
+x 7
+y 23
+end
+arch table_wood1.111
+x 7
+y 23
+end
+arch mitcoin
+z 26
+layer 4
+sub_layer 1
+x 7
+y 23
+end
+arch blocked
+x 8
+y 13
+end
+arch wall_flagstone1.111
+x 8
+y 13
+end
+arch floor_fs_grey1a
+x 8
+y 14
+end
+arch chest_m
+slaying locked
+x 8
+y 14
+end
+arch floor_fs_grey1a
+x 8
+y 15
+end
+arch floor_fs_grey1a
+x 8
+y 16
+end
+arch floor_fs_grey1d
+x 8
+y 17
+end
+arch floor_fs_grey1a
+x 8
+y 18
+end
+arch floor_fs_grey1d
+x 8
+y 19
+end
+arch fwall_fstone2
+x 8
+y 19
+end
+arch floor_fs_grey1d
+x 8
+y 20
+end
+arch fwall_fstone2
+x 8
+y 20
+end
+arch floor_fs_grey1a
+x 8
+y 21
+end
+arch rack3
+x 8
+y 21
+end
+arch floor_fs_grey1a
+x 8
+y 22
+end
+arch floor_fs_grey1d
+x 8
+y 23
+end
+arch table_wood1.111
+x 8
+y 23
+end
+arch amulet_empowerment
+layer 4
+sub_layer 1
+z 24
+x 8
+y 23
+end
+arch blocked
+x 9
+y 13
+end
+arch wall_flagstone1.111
+x 9
+y 13
+end
+arch floor_fs_grey1a
+x 9
+y 14
+end
+arch box1.101
+x 9
+y 14
+end
+arch floor_fs_grey1a
+x 9
+y 15
+end
+arch grain1.101
+x 9
+y 15
+end
+arch floor_fs_grey1a
+x 9
+y 16
+end
+arch floor_fs_grey1d
+x 9
+y 17
+end
+arch floor_fs_grey1a
+x 9
+y 18
+end
+arch stairs_stone_up
+direction 1
+slaying world_0436
+hp 9
+sp 19
+x 9
+y 18
+end
+arch floor_fs_grey1d
+x 9
+y 19
+end
+arch fwall_fstone2
+blocksview 0
+no_pass 0
+draw_double 0
+x 9
+y 19
+end
+arch stairs_stone_up
+sub_layer 1
+z 22
+direction 1
+slaying world_0436
+hp 9
+sp 19
+walk_on 1
+fly_on 1
+x 9
+y 19
+end
+arch floor_fs_grey1d
+x 9
+y 20
+end
+arch fwall_fstone2
+x 9
+y 20
+end
+arch floor_fs_grey1d
+x 9
+y 21
+end
+arch desk2
+x 9
+y 21
+end
+arch floor_fs_grey1a
+x 9
+y 22
+end
+arch floor_fs_grey1a
+x 9
+y 23
+end
+arch table_wood1.111
+x 9
+y 23
+end
+arch book_touhou_07
+layer 4
+sub_layer 1
+z 25
+x 9
+y 23
+end
+arch blocked
+x 10
+y 13
+end
+arch wall_flagstone1.111
+x 10
+y 13
+end
+arch floor_fs_grey1a
+x 10
+y 14
+end
+arch barrel.101
+x 10
+y 14
+end
+arch floor_fs_grey1d
+x 10
+y 15
+end
+arch grain1.101
+x 10
+y 15
+end
+arch floor_fs_grey1d
+x 10
+y 16
+end
+arch floor_fs_grey1a
+x 10
+y 17
+end
+arch floor_fs_grey1d
+x 10
+y 18
+end
+arch floor_fs_grey1d
+x 10
+y 19
+end
+arch fwall_fstone2
+draw_double 0
+x 10
+y 19
+end
+arch floor_fs_grey1d
+x 10
+y 20
+end
+arch fwall_fstone2
+x 10
+y 20
+end
+arch floor_fs_grey1a
+x 10
+y 21
+end
+arch rack3
+x 10
+y 21
+end
+arch floor_fs_grey1d
+x 10
+y 22
+end
+arch floor_fs_grey1d
+x 10
+y 23
+end
+arch table_wood1.111
+x 10
+y 23
+end
+arch armour_skel_lord
+layer 4
+sub_layer 1
+z 24
+x 10
+y 23
+end
+arch blocked
+x 11
+y 13
+end
+arch wall_flagstone1.111
+x 11
+y 13
+end
+arch floor_fs_grey1d
+x 11
+y 14
+end
+arch barrel.101
+x 11
+y 14
+end
+arch floor_fs_grey1a
+x 11
+y 15
+end
+arch box_big.101
+x 11
+y 15
+end
+arch floor_fs_grey1d
+x 11
+y 16
+end
+arch grain2.101
+x 11
+y 16
+end
+arch floor_fs_grey1a
+x 11
+y 17
+end
+arch floor_fs_grey1a
+x 11
+y 18
+end
+arch floor_fs_grey1d
+x 11
+y 19
+end
+arch torch_wall_1
+direction 7
+x 11
+y 19
+end
+arch spawn_point
+x 11
+y 19
+arch guard
+name Asterian Guard
+type 83
+level 35
+direction 3
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1d
+x 11
+y 20
+end
+arch wall_flagstone1_w.111
+x 11
+y 20
+end
+arch floor_fs_grey1a
+x 11
+y 21
+end
+arch floor_fs_grey1a
+x 11
+y 22
+end
+arch floor_fs_grey1d
+x 11
+y 23
+end
+arch table_wood1.111
+x 11
+y 23
+end
+arch bracers_int
+layer 4
+sub_layer 1
+z 22
+x 11
+y 23
+end
+arch blocked
+x 12
+y 13
+end
+arch wall_flagstone1.111
+x 12
+y 13
+end
+arch floor_fs_grey1a
+x 12
+y 14
+end
+arch barrel.101
+x 12
+y 14
+end
+arch floor_fs_grey1d
+x 12
+y 15
+end
+arch beer_barrel.101
+x 12
+y 15
+end
+arch floor_fs_grey1a
+x 12
+y 16
+end
+arch grain4.101
+x 12
+y 16
+end
+arch light7
+x 12
+y 16
+end
+arch floor_fs_grey1a
+x 12
+y 17
+end
+arch floor_fs_grey1d
+x 12
+y 18
+end
+arch floor_fs_grey1a
+x 12
+y 19
+end
+arch floor_fs_grey1d
+x 12
+y 20
+end
+arch gate1_locked
+slaying locked
+x 12
+y 20
+end
+arch floor_fs_grey1a
+x 12
+y 21
+end
+arch floor_fs_grey1a
+x 12
+y 22
+end
+arch light7
+x 12
+y 22
+end
+arch floor_fs_grey1a
+x 12
+y 23
+end
+arch table_wood1.111
+x 12
+y 23
+end
+arch horn_normal
+layer 4
+sub_layer 1
+z 24
+x 12
+y 23
+end
+arch blocked
+x 13
+y 13
+end
+arch wall_flagstone1.111
+x 13
+y 13
+end
+arch floor_fs_grey1d
+x 13
+y 14
+end
+arch barrel.101
+x 13
+y 14
+end
+arch floor_fs_grey1d
+x 13
+y 15
+end
+arch beer_barrel.101
+x 13
+y 15
+end
+arch floor_fs_grey1d
+x 13
+y 16
+end
+arch box_big.101
+x 13
+y 16
+end
+arch floor_fs_grey1a
+x 13
+y 17
+end
+arch grain4.101
+x 13
+y 17
+end
+arch floor_fs_grey1a
+x 13
+y 18
+end
+arch floor_fs_grey1d
+x 13
+y 19
+end
+arch floor_fs_grey1d
+x 13
+y 20
+end
+arch gate1_locked
+direction 7
+slaying locked
+x 13
+y 20
+end
+arch floor_fs_grey1d
+x 13
+y 21
+end
+arch floor_fs_grey1d
+x 13
+y 22
+end
+arch floor_fs_grey1d
+x 13
+y 23
+end
+arch table_wood1.111
+x 13
+y 23
+end
+arch amulet_adamant
+layer 4
+sub_layer 1
+z 27
+x 13
+y 23
+end
+arch blocked
+x 14
+y 13
+end
+arch wall_flagstone1.111
+x 14
+y 13
+end
+arch floor_fs_grey1a
+x 14
+y 14
+end
+arch barrel.101
+x 14
+y 14
+end
+arch floor_fs_grey1a
+x 14
+y 15
+end
+arch barrel_water.101
+x 14
+y 15
+end
+arch floor_fs_grey1a
+x 14
+y 16
+end
+arch basket2.101
+x 14
+y 16
+end
+arch floor_fs_grey1a
+x 14
+y 17
+end
+arch box1.101
+x 14
+y 17
+end
+arch floor_fs_grey1a
+x 14
+y 18
+end
+arch box2.101
+x 14
+y 18
+end
+arch floor_fs_grey1d
+x 14
+y 19
+end
+arch grain5.101
+x 14
+y 19
+end
+arch floor_fs_grey1d
+x 14
+y 20
+end
+arch wall_flagstone1_w.111
+x 14
+y 20
+end
+arch floor_fs_grey1d
+x 14
+y 21
+end
+arch floor_fs_grey1a
+x 14
+y 22
+end
+arch floor_fs_grey1d
+x 14
+y 23
+end
+arch table_wood1.111
+x 14
+y 23
+end
+arch crown_magi
+layer 4
+sub_layer 1
+z 20
+x 14
+y 23
+end
+arch blocked
+x 15
+y 13
+end
+arch wall_flagstone1.111
+x 15
+y 13
+end
+arch floor_fs_grey1a
+x 15
+y 14
+end
+arch wall_flagstone1.131
+x 15
+y 14
+end
+arch floor_fs_grey1d
+x 15
+y 15
+end
+arch wall_flagstone1.131
+x 15
+y 15
+end
+arch floor_fs_grey1d
+x 15
+y 16
+end
+arch wall_flagstone1.131
+x 15
+y 16
+end
+arch floor_fs_grey1d
+x 15
+y 17
+end
+arch wall_flagstone1.131
+x 15
+y 17
+end
+arch floor_fs_grey1d
+x 15
+y 18
+end
+arch wall_flagstone1.131
+x 15
+y 18
+end
+arch floor_fs_grey1a
+x 15
+y 19
+end
+arch wall_flagstone1.131
+x 15
+y 19
+end
+arch floor_fs_grey1a
+x 15
+y 20
+end
+arch wall_flagstone1.141
+x 15
+y 20
+end
+arch floor_fs_grey1d
+x 15
+y 21
+end
+arch wall_flagstone1.131
+x 15
+y 21
+end
+arch floor_fs_grey1a
+x 15
+y 22
+end
+arch wall_flagstone1.131
+x 15
+y 22
+end
+arch floor_fs_grey1d
+x 15
+y 23
+end
+arch wall_flagstone1.131
+x 15
+y 23
+end
