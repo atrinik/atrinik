@@ -331,18 +331,18 @@ spell_struct spells[NROFREALSPELLS] =
 
 	{"bullet swarm", SPELL_TYPE_WIZARD,
 	 "icon_bullet_swarm.101", "Fires 5 magic bullets in front of you at once.",
-	 50, 5, 86, 2, 0, 3, 1.0,
+	 65, 5, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 9, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-	 PATH_MISSILE, "bullet", 0
+	 PATH_MISSILE, "bullet", 175000
 	},
 
 	{"bullet storm",SPELL_TYPE_WIZARD,
 	 "icon_bullet_storm.101", "Fires 3 magic bullets in front of you at once.",
-	 40, 4, 86, 2, 0, 3, 1.0,
+	 50, 4, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 9, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-	 PATH_MISSILE, "bullet", 0
+	 PATH_MISSILE, "bullet", 125000
 	},
 
 	{"destruction", SPELL_TYPE_WIZARD,
