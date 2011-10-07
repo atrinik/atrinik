@@ -42,6 +42,7 @@
 int open_door(object *op, mapstruct *m, int x, int y, int mode)
 {
 	object *tmp, *key = NULL;
+	int sub_layer;
 
 	/* Make sure a monster/NPC can actually open doors */
 	if (op->type == MONSTER && !(op->behavior & BEHAVIOR_OPEN_DOORS))
@@ -49,11 +50,16 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 		return 0;
 	}
 
-	/* Look for objects on layer 5. */
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL, 0); tmp && tmp->layer == LAYER_WALL; tmp = tmp->above)
+	for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
 	{
-		if (tmp->type == DOOR)
+		/* Look for objects on layer 5. */
+		for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL, sub_layer); tmp && tmp->layer == LAYER_WALL && tmp->sub_layer == sub_layer; tmp = tmp->above)
 		{
+			if (tmp->type != DOOR)
+			{
+				continue;
+			}
+
 			/* Door needs a key? */
 			if (tmp->slaying)
 			{
