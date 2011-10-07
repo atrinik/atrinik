@@ -2756,6 +2756,18 @@ z 50
 x 15
 y 23
 end
+arch shelf2_wall.111
+direction 7
+x 15
+y 23
+arch tome
+msg
+You are unable to figure out the weird symbols.
+endmsg
+name Tome of Recipes
+no_pick 1
+end
+end
 arch grassd_3
 z 50
 x 16
@@ -2895,15 +2907,6 @@ y 21
 end
 arch floor_marble6a
 z 50
-x 16
-y 22
-end
-arch tome
-msg
-You are unable to figure out the weird symbols.
-endmsg
-name Tome of Recipies
-no_pick 1
 x 16
 y 22
 end
