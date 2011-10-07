@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-06 Alex Tokar
+Modified: 2011-10-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1708,8 +1708,7 @@ blocksview 0
 x 13
 y 7
 end
-arch wall_pattern4.131
-sub_layer 1
+arch wall_pattern4_w.131
 z 50
 x 13
 y 7
@@ -1725,6 +1724,12 @@ y 8
 end
 arch wall_pattern4.131
 sub_layer 1
+z 50
+x 13
+y 8
+end
+arch picture2.151
+direction 7
 z 50
 x 13
 y 8
@@ -1946,9 +1951,19 @@ z 50
 x 14
 y 7
 end
+arch chair1_111
+direction 7
+x 14
+y 7
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 14
+y 8
+end
+arch mirror_big.111
+direction 7
 x 14
 y 8
 end
@@ -1958,9 +1973,22 @@ z 50
 x 14
 y 9
 end
+arch fireplace_left
+sub_layer 1
+x 14
+y 9
+end
+arch light7
+x 14
+y 9
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 14
+y 10
+end
+arch light7
 x 14
 y 10
 end
@@ -1970,9 +1998,19 @@ z 50
 x 14
 y 11
 end
+arch wall_pattern4.111
+sub_layer 1
+x 14
+y 11
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 14
+y 12
+end
+arch bed_double
+direction 7
 x 14
 y 12
 end
@@ -1985,6 +2023,11 @@ end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 14
+y 14
+end
+arch locker2.111
+direction 7
 x 14
 y 14
 end
@@ -2143,9 +2186,18 @@ z 50
 x 15
 y 5
 end
+arch picture1.151
+z 50
+x 15
+y 5
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 15
+y 6
+end
+arch chair1_111
 x 15
 y 6
 end
@@ -2155,9 +2207,23 @@ z 50
 x 15
 y 7
 end
+arch table_poker2
+x 15
+y 7
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 15
+y 8
+end
+arch carpet1.131
+sub_layer 1
+x 15
+y 8
+end
+arch chair1_111
+direction 5
 x 15
 y 8
 end
@@ -2167,9 +2233,19 @@ z 50
 x 15
 y 9
 end
+arch carpet1.131
+sub_layer 1
+x 15
+y 9
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 15
+y 10
+end
+arch carpet1.131
+sub_layer 1
 x 15
 y 10
 end
@@ -2179,9 +2255,19 @@ z 50
 x 15
 y 11
 end
+arch wall_pattern4.111
+sub_layer 1
+x 15
+y 11
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 15
+y 12
+end
+arch torch_wall_1
+sub_layer 1
 x 15
 y 12
 end
@@ -2208,7 +2294,7 @@ blocksview 0
 x 15
 y 15
 end
-arch wall_pattern4.111
+arch wall_pattern4_w.111
 sub_layer 1
 x 15
 y 15
@@ -2246,9 +2332,18 @@ sub_layer 1
 x 15
 y 20
 end
+arch kettle_table
+x 15
+y 20
+end
 arch floor_wood2
 z 50
 sub_layer 1
+x 15
+y 21
+end
+arch chair2_111
+direction 5
 x 15
 y 21
 end
@@ -2258,9 +2353,22 @@ sub_layer 1
 x 15
 y 22
 end
+arch fireplace_left
+sub_layer 1
+x 15
+y 22
+end
+arch light5
+x 15
+y 22
+end
 arch floor_wood2
 z 50
 sub_layer 1
+x 15
+y 23
+end
+arch light5
 x 15
 y 23
 end
@@ -2308,9 +2416,24 @@ z 50
 x 16
 y 6
 end
+arch torch_wall_1
+sub_layer 1
+x 16
+y 6
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 16
+y 7
+end
+arch carpet1.151
+sub_layer 1
+x 16
+y 7
+end
+arch chair1_111
+direction 3
 x 16
 y 7
 end
@@ -2320,9 +2443,19 @@ z 50
 x 16
 y 8
 end
+arch carpet1
+sub_layer 1
+x 16
+y 8
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 16
+y 9
+end
+arch carpet1
+sub_layer 1
 x 16
 y 9
 end
@@ -2332,9 +2465,24 @@ z 50
 x 16
 y 10
 end
+arch carpet1
+sub_layer 1
+x 16
+y 10
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 16
+y 11
+end
+arch carpet1.111
+sub_layer 1
+x 16
+y 11
+end
+arch wall_pattern4.111
+sub_layer 1
 x 16
 y 11
 end
@@ -2406,6 +2554,11 @@ sub_layer 1
 x 16
 y 20
 end
+arch chair2_111
+direction 3
+x 16
+y 20
+end
 arch floor_wood2
 z 50
 sub_layer 1
@@ -2418,8 +2571,18 @@ sub_layer 1
 x 16
 y 22
 end
+arch carpet5.131
+sub_layer 1
+x 16
+y 22
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 16
+y 23
+end
+arch carpet5.131
 sub_layer 1
 x 16
 y 23
@@ -2473,9 +2636,18 @@ z 50
 x 17
 y 6
 end
+arch clock
+x 17
+y 6
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 17
+y 7
+end
+arch carpet1.151
+sub_layer 1
 x 17
 y 7
 end
@@ -2485,9 +2657,27 @@ z 50
 x 17
 y 8
 end
+arch carpet1
+sub_layer 1
+x 17
+y 8
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 17
+y 9
+end
+arch carpet1
+sub_layer 1
+x 17
+y 9
+end
+arch glower.101
+x 17
+y 9
+end
+arch light7
 x 17
 y 9
 end
@@ -2497,9 +2687,24 @@ z 50
 x 17
 y 10
 end
+arch carpet1
+sub_layer 1
+x 17
+y 10
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 17
+y 11
+end
+arch carpet1.111
+sub_layer 1
+x 17
+y 11
+end
+arch wall_pattern4.111
+sub_layer 1
 x 17
 y 11
 end
@@ -2509,15 +2714,36 @@ z 50
 x 17
 y 12
 end
+arch wall_pattern4.131
+sub_layer 1
+x 17
+y 12
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
 x 17
 y 13
 end
+arch curtain1
+sub_layer 1
+direction 3
+x 17
+y 13
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 17
+y 14
+end
+arch wall_pattern4.131
+sub_layer 1
+x 17
+y 14
+end
+arch flag_eagle
+direction 7
 x 17
 y 14
 end
@@ -2532,7 +2758,7 @@ blocksview 0
 x 17
 y 15
 end
-arch wall_pattern4.111
+arch wall_pattern4.141
 sub_layer 1
 x 17
 y 15
@@ -2576,8 +2802,17 @@ sub_layer 1
 x 17
 y 20
 end
+arch beer_barrel.101
+x 17
+y 20
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 17
+y 21
+end
+arch carpet5.151
 sub_layer 1
 x 17
 y 21
@@ -2588,8 +2823,18 @@ sub_layer 1
 x 17
 y 22
 end
+arch carpet5i
+sub_layer 1
+x 17
+y 22
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 17
+y 23
+end
+arch carpet5e
 sub_layer 1
 x 17
 y 23
@@ -2635,8 +2880,7 @@ blocksview 0
 x 18
 y 5
 end
-arch wall_pattern4.111
-sub_layer 1
+arch wall_pattern4_w.111
 z 50
 x 18
 y 5
@@ -2647,9 +2891,18 @@ z 50
 x 18
 y 6
 end
+arch amphora2.101
+x 18
+y 6
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 18
+y 7
+end
+arch carpet1.151
+sub_layer 1
 x 18
 y 7
 end
@@ -2659,9 +2912,19 @@ z 50
 x 18
 y 8
 end
+arch carpet1
+sub_layer 1
+x 18
+y 8
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 18
+y 9
+end
+arch carpet1
+sub_layer 1
 x 18
 y 9
 end
@@ -2671,15 +2934,31 @@ z 50
 x 18
 y 10
 end
+arch carpet1
+sub_layer 1
+x 18
+y 10
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
 x 18
 y 11
 end
+arch carpet1.111
+sub_layer 1
+x 18
+y 11
+end
 arch floor_wood2_l2
 sub_layer 1
 z 50
+x 18
+y 12
+end
+arch torch_wall_1
+sub_layer 1
+direction 7
 x 18
 y 12
 end
@@ -2754,8 +3033,17 @@ sub_layer 1
 x 18
 y 20
 end
+arch clock
+x 18
+y 20
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 18
+y 21
+end
+arch carpet5.151
 sub_layer 1
 x 18
 y 21
@@ -2766,8 +3054,18 @@ sub_layer 1
 x 18
 y 22
 end
+arch carpet5h
+sub_layer 1
+x 18
+y 22
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 18
+y 23
+end
+arch carpet5c
 sub_layer 1
 x 18
 y 23
@@ -2817,6 +3115,10 @@ z 50
 x 19
 y 6
 end
+arch metal_bucket.101
+x 19
+y 6
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
@@ -2829,15 +3131,30 @@ z 50
 x 19
 y 8
 end
+arch carpet1.171
+sub_layer 1
+x 19
+y 8
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
 x 19
 y 9
 end
+arch carpet1.171
+sub_layer 1
+x 19
+y 9
+end
 arch floor_wood2_l1
 sub_layer 1
 z 50
+x 19
+y 10
+end
+arch carpet1.171
+sub_layer 1
 x 19
 y 10
 end
@@ -2876,7 +3193,7 @@ blocksview 0
 x 19
 y 15
 end
-arch wall_pattern4.111
+arch wall_pattern4_w.111
 sub_layer 1
 x 19
 y 15
@@ -2924,6 +3241,10 @@ sub_layer 1
 x 19
 y 20
 end
+arch barrel.101
+x 19
+y 20
+end
 arch floor_wood2
 z 50
 sub_layer 1
@@ -2936,8 +3257,18 @@ sub_layer 1
 x 19
 y 22
 end
+arch carpet5.171
+sub_layer 1
+x 19
+y 22
+end
 arch floor_wood2
 z 50
+sub_layer 1
+x 19
+y 23
+end
+arch carpet5.171
 sub_layer 1
 x 19
 y 23
@@ -3030,8 +3361,8 @@ x 20
 y 7
 end
 arch door_wood2
+sub_layer 1
 direction 3
-z 50
 x 20
 y 7
 end
@@ -3196,8 +3527,8 @@ x 20
 y 21
 end
 arch door1_locked
+sub_layer 1
 direction 3
-z 50
 x 20
 y 21
 end
@@ -3264,6 +3595,12 @@ sub_layer 1
 x 21
 y 6
 end
+arch torch_wall_1
+sub_layer 1
+direction 7
+x 21
+y 6
+end
 arch floor_fs_grey1b
 z 50
 sub_layer 1
@@ -3273,6 +3610,12 @@ end
 arch floor_fs_grey1b
 z 50
 sub_layer 1
+x 21
+y 8
+end
+arch torch_wall_1
+sub_layer 1
+direction 7
 x 21
 y 8
 end
@@ -3303,6 +3646,12 @@ end
 arch floor_fs_grey1b
 z 50
 sub_layer 1
+x 21
+y 13
+end
+arch torch_wall_1
+sub_layer 1
+direction 7
 x 21
 y 13
 end
@@ -3348,6 +3697,12 @@ sub_layer 1
 x 21
 y 20
 end
+arch torch_wall_1
+sub_layer 1
+direction 7
+x 21
+y 20
+end
 arch floor_fs_grey1b
 z 50
 sub_layer 1
@@ -3357,6 +3712,12 @@ end
 arch floor_fs_grey1b
 z 50
 sub_layer 1
+x 21
+y 22
+end
+arch torch_wall_1
+sub_layer 1
+direction 7
 x 21
 y 22
 end

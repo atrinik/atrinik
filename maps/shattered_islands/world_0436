@@ -3548,6 +3548,14 @@ blocksview 0
 x 15
 y 17
 end
+arch torch_wall_1
+sub_layer 1
+align -6
+z -10
+direction 7
+x 15
+y 17
+end
 arch floor_fs_grey1b
 sub_layer 1
 z 50
@@ -3568,6 +3576,13 @@ y 20
 end
 arch wall_fortified_high.181
 blocksview 0
+x 15
+y 20
+end
+arch torch_wall_1
+sub_layer 1
+align 10
+direction 7
 x 15
 y 20
 end
