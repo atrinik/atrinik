@@ -28,6 +28,39 @@ def upgrade_func(arch):
 		if i != -1:
 			if arch["attrs"][i][1] == "Letter from Nyhelobo to oty captain":
 				arch["archname"] = None
+	elif arch["archname"] == "pillar_blue10":
+		i = Upgrader.arch_get_attr_num(arch, "name", None)
+
+		if i != -1:
+			if arch["attrs"][i][1] == "blue crystal fragment":
+				arch["archname"] = None
+	elif arch["archname"] == "empty_archetype":
+		i = Upgrader.arch_get_attr_num(arch, "name", None)
+
+		if i != -1:
+			if arch["attrs"][i][1] == "Silmedsen's potion bottle":
+				i = Upgrader.arch_get_attr_num(arch, "face", None)
+
+				if i != -1:
+					if arch["attrs"][i][1] == "potion_cyan.101":
+						arch["archname"] = "silmedsen_potion_bottle_filled"
+						arch["attrs"] = []
+					else:
+						arch["archname"] = "silmedsen_potion_bottle"
+						arch["attrs"] = []
+	elif arch["archname"] == "event_obj":
+		i = Upgrader.arch_get_attr_num(arch, "race", None)
+
+		if i != -1:
+			if arch["attrs"][i][1] == "/shattered_islands/scripts/lyondale_archipelago/morliana/telescope_quest.py":
+				arch["attrs"][i][1] = "/python/items/silmedsen_potion_bottle.py"
+	elif arch["archname"] == "tree_branch1":
+		i = Upgrader.arch_get_attr_num(arch, "name", None)
+
+		if i != -1:
+			if arch["attrs"][i][1] == "Silmedsen's branches":
+				arch["archname"] = "silmedsen_branches"
+				arch["attrs"] = []
 
 	return arch
 
