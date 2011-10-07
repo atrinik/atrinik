@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2011-10-04 Alex Tokar
+Modified: 2011-10-08 Alex Tokar
 endmsg
 width 17
 height 15
@@ -1694,6 +1694,12 @@ arch spawn_point
 x 14
 y 2
 arch mage_old
+msg
+@match ^hello$
+I'm working on a spell that could duplicate any item.
+
+But it's not going well...
+endmsg
 name Dornynn
 animation thelra_female
 level 30
@@ -1789,6 +1795,11 @@ race thelra
 can_cast_spell 0
 type 83
 direction 1
+arch event_obj
+sub_type 6
+race /python/generic/spell_seller.py
+slaying bullet storm,bullet swarm
+end
 end
 end
 arch floor_bw1
