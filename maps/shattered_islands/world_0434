@@ -1503,11 +1503,21 @@ arch plant7
 x 13
 y 13
 end
+arch wall_fortified_high.181
+blocksview 0
+x 13
+y 13
+end
 arch grassd_1
 x 13
 y 14
 end
 arch plant7
+x 13
+y 14
+end
+arch wall_fortified_high.111
+blocksview 0
 x 13
 y 14
 end
@@ -1519,6 +1529,11 @@ arch plant8
 x 13
 y 15
 end
+arch wall_fortified_high.111
+blocksview 0
+x 13
+y 15
+end
 arch grassd_7
 x 13
 y 16
@@ -1527,11 +1542,21 @@ arch plant8
 x 13
 y 16
 end
+arch wall_fortified_high.111
+blocksview 0
+x 13
+y 16
+end
 arch grassd_2
 x 13
 y 17
 end
 arch reed_sm1
+x 13
+y 17
+end
+arch wall_fortified_high.111
+blocksview 0
 x 13
 y 17
 end
@@ -1728,27 +1753,52 @@ arch grassd_6
 x 14
 y 13
 end
-arch grassd_3
+arch wall_fortified_high.131
+blocksview 0
+x 14
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 14
 y 14
 end
-arch tree_big4b
+arch cannon
+direction 7
+sub_layer 1
+z 5
 x 14
 y 14
 end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 14
 y 15
 end
-arch grassd_3
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 14
 y 16
 end
-arch grassd_5
+arch cannon
+direction 7
+sub_layer 1
+align 10
+z 5
+x 14
+y 16
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 14
 y 17
 end
-arch plant7
+arch wall_fortified_high.131
+blocksview 0
 x 14
 y 17
 end
@@ -1933,19 +1983,37 @@ arch grassd_8
 x 15
 y 13
 end
-arch grassd_6
+arch wall_fortified_high.131
+blocksview 0
+x 15
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 15
 y 14
 end
-arch grassd_3
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 15
 y 15
 end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 15
 y 16
 end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 15
+y 17
+end
+arch wall_fortified_high.131
+blocksview 0
 x 15
 y 17
 end
@@ -2118,31 +2186,60 @@ z 2
 x 16
 y 13
 end
-arch grassd_3
+arch wall_fortified_high.131
+blocksview 0
+z -2
+x 16
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 16
 y 14
 end
-arch tree_branch1
+arch ladder_down3
+sub_layer 1
 x 16
 y 14
 end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 16
 y 15
 end
-arch grassd_6
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 16
 y 16
 end
-arch grassd_4
+arch spawn_point
+x 16
+y 16
+arch guard
+name Asterian Guard
+type 83
+level 30
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 16
+y 17
+end
+arch wall_fortified_high.131
+blocksview 0
 x 16
 y 17
 end
 arch grassd_5
-x 16
-y 18
-end
-arch tree_big
 x 16
 y 18
 end
@@ -2333,24 +2430,53 @@ z 6
 x 17
 y 13
 end
-arch grassd_6
-z 2
+arch wall_fortified_high.131
+blocksview 0
+z -6
+x 17
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 17
 y 14
 end
-arch grassd_1
+arch wall_fortified_high.111
+blocksview 0
+x 17
+y 14
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 17
 y 15
 end
-arch grassd_2
+arch wall_fortified_high.111
+blocksview 0
+x 17
+y 15
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 17
 y 16
 end
-arch grassd_5
+arch wall_fortified_high.111
+blocksview 0
+x 17
+y 16
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 17
 y 17
 end
-arch plant5
+arch wall_fortified_high.141
+blocksview 0
 x 17
 y 17
 end
@@ -2508,10 +2634,6 @@ y 14
 end
 arch grassd_5
 z 2
-x 18
-y 15
-end
-arch tree_big
 x 18
 y 15
 end

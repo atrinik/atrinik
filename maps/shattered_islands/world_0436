@@ -20,12 +20,28 @@ tile_path_8 world_0337
 bg_music ocean.ogg
 region asteria
 end
-arch grassd_4
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 end
-arch grassd_6
+arch ballista
+direction 7
+sub_layer 1
+align 6
+z 2
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 y 1
 end
-arch grassd_5
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+y 2
+end
+arch wall_fortified_high.131
+blocksview 0
 y 2
 end
 arch grassd_3
@@ -169,18 +185,25 @@ end
 arch grassd_m12
 y 23
 end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 1
 end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 1
 y 1
 end
-arch tree_big2
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 1
-y 1
+y 2
 end
-arch grassd_1
+arch wall_fortified_high.131
+blocksview 0
 x 1
 y 2
 end
@@ -353,14 +376,25 @@ arch grassd_m6
 x 1
 y 23
 end
-arch grassd_6
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 2
 end
-arch grassd_5
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 2
 y 1
 end
-arch grassd_7
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 2
+y 2
+end
+arch wall_fortified_high.131
+blocksview 0
 x 2
 y 2
 end
@@ -521,14 +555,34 @@ arch reed_sm1
 x 2
 y 23
 end
-arch grassd_4
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 3
 end
-arch grassd_1
+arch wall_fortified_high.111
+blocksview 0
+x 3
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 3
 y 1
 end
-arch grassd_2
+arch wall_fortified_high.111
+blocksview 0
+x 3
+y 1
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 3
+y 2
+end
+arch wall_fortified_high.141
+blocksview 0
 x 3
 y 2
 end
@@ -673,10 +727,6 @@ arch grassd_3
 x 4
 end
 arch grassd_5
-x 4
-y 1
-end
-arch tree_big
 x 4
 y 1
 end

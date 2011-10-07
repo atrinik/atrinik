@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-10-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2202,6 +2202,11 @@ arch plant7
 x 21
 y 19
 end
+arch wall_fortified_high.181
+blocksview 0
+x 21
+y 19
+end
 arch grassd_2
 x 21
 y 20
@@ -2210,7 +2215,17 @@ arch plant8
 x 21
 y 20
 end
+arch wall_fortified_high.111
+blocksview 0
+x 21
+y 20
+end
 arch grassd_1
+x 21
+y 21
+end
+arch wall_fortified_high.111
+blocksview 0
 x 21
 y 21
 end
@@ -2218,7 +2233,8 @@ arch grassd_7
 x 21
 y 22
 end
-arch tree_big3
+arch wall_fortified_high.111
+blocksview 0
 x 21
 y 22
 end
@@ -2226,7 +2242,8 @@ arch grassd_1
 x 21
 y 23
 end
-arch plant_mushroom1
+arch wall_fortified_high.111
+blocksview 0
 x 21
 y 23
 end
@@ -2381,23 +2398,52 @@ arch grassd_5
 x 22
 y 19
 end
-arch grassd_7
+arch wall_fortified_high.131
+blocksview 0
+x 22
+y 19
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 20
 end
-arch grassd_6
+arch cannon
+direction 7
+sub_layer 1
+z 5
+x 22
+y 20
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 21
 end
-arch grassd_8
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 22
 end
-arch grassd_5
+arch spawn_point
 x 22
-y 23
+y 22
+arch guard
+name Asterian Guard
+type 83
+level 30
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
 end
-arch tree_big4b
+end
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 23
 end
@@ -2556,31 +2602,32 @@ arch grassd_5
 x 23
 y 19
 end
-arch tree_big
+arch wall_fortified_high.131
+blocksview 0
 x 23
 y 19
 end
-arch grassd_4
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 20
 end
-arch small_stones
-x 23
-y 20
-end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 21
 end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 22
 end
-arch plant_flower11
-x 23
-y 22
-end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 23
 end
