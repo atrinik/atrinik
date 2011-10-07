@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-10-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -91,61 +91,113 @@ arch grassd_1
 z 46
 y 11
 end
-arch grassd_3
-z 46
+arch wall_fortified_high.131
+blocksview 0
+z -46
+y 11
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 y 12
 end
-arch grassd_7
-z 46
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 y 13
 end
-arch stone1
-y 13
-end
-arch grassd_6
-z 46
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 y 14
 end
-arch grassd_1
-z 46
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 y 15
 end
-arch grassd_1
-z 46
+arch lantern_black
+sub_layer 1
+y 15
+end
+arch wall_fortified_high.181
+sub_layer 2
+blocksview 0
+y 15
+end
+arch light7
+y 15
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 16
 end
-arch plant_flower7
+arch wall_fortified_high_c.111
 y 16
 end
-arch grassd_3
-z 46
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 17
 end
-arch grassd_3
-z 46
+arch wall_fortified_high_c.111
+y 17
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 18
 end
-arch grassd_3
-z 46
+arch wall_fortified_high_c.111
+y 18
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 19
 end
-arch grassd_6
-z 46
+arch wall_fortified_high_c.111
+y 19
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 20
 end
-arch plant_flower1
+arch lantern_black
+sub_layer 1
 y 20
 end
-arch grassd_8
-z 46
+arch wall_fortified_high_c.111
+sub_layer 2
+y 20
+end
+arch light7
+y 20
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 21
 end
-arch grassd_3
-z 46
+arch wall_fortified_high_c.111
+y 21
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 22
 end
-arch grassd_4
-z 46
+arch wall_fortified_high_c.111
+y 22
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
+y 23
+end
+arch wall_fortified_high_c.111
 y 23
 end
 arch grassd_3
@@ -227,250 +279,310 @@ z 50
 x 1
 y 11
 end
-arch grassd_4
+arch wall_fortified_high.131
+blocksview 0
+z -50
+x 1
+y 11
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 1
 y 12
 end
-arch plant_mushroom4
-x 1
-y 12
-end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 1
 y 13
 end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 1
 y 14
 end
-arch plant_mushroom3
-x 1
-y 14
-end
-arch grassd_1
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 1
 y 15
 end
-arch tree_big4b
+arch wall_fortified_high_c.131
 x 1
 y 15
 end
-arch grassd_3
+arch earth_brown2
 z 50
+sub_layer 2
 x 1
 y 16
 end
-arch grassd_7
+arch plant_flower8
+x 1
+y 16
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 1
 y 17
 end
-arch grassd_8
+arch plant_flower4
+x 1
+y 17
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 1
 y 18
-end
-arch stone1
-x 1
-y 18
-end
-arch grassd_3
-z 50
-x 1
-y 19
-end
-arch grassd_1
-z 50
-x 1
-y 20
-end
-arch tree_big4b
-x 1
-y 20
-end
-arch grassd_1
-z 50
-x 1
-y 21
-end
-arch grassd_2
-z 50
-x 1
-y 22
-end
-arch tree_big
-x 1
-y 22
-end
-arch grassd_1
-z 50
-x 1
-y 23
-end
-arch plant5
-x 1
-y 23
-end
-arch grassd_2
-z 46
-x 2
-end
-arch grassd_3
-z 50
-x 2
-y 1
-end
-arch fwall_fstone2c
-x 2
-y 1
-end
-arch fstone1c
-z 50
-x 2
-y 2
-end
-arch fwall_fstone2d
-x 2
-y 2
-end
-arch fstone1a
-z 50
-x 2
-y 3
-end
-arch fstone1c
-z 50
-x 2
-y 4
-end
-arch fstone1a
-z 50
-x 2
-y 5
-end
-arch fstone1b
-z 50
-x 2
-y 6
-end
-arch fstone1c
-z 50
-x 2
-y 7
-end
-arch fstone1b
-z 50
-x 2
-y 8
-end
-arch fstone1c
-z 50
-x 2
-y 9
-end
-arch fwall_fstone2a
-x 2
-y 9
-end
-arch fstone1b
-z 50
-x 2
-y 10
-end
-arch grassd_m3
-x 2
-y 10
-end
-arch fwall_fstone2b
-x 2
-y 10
-end
-arch grassd_8
-z 50
-x 2
-y 11
 end
 arch plant_flower5
-x 2
-y 11
-end
-arch grassd_8
-z 50
-x 2
-y 12
-end
-arch grassd_6
-z 50
-x 2
-y 13
-end
-arch tree_big
-x 2
-y 13
-end
-arch grassd_1
-z 50
-x 2
-y 14
-end
-arch grassd_8
-z 50
-x 2
-y 15
-end
-arch plant_mushroom3
-x 2
-y 15
-end
-arch grassd_4
-z 50
-x 2
-y 16
-end
-arch grassd_5
-z 50
-x 2
-y 17
-end
-arch grassd_5
-z 50
-x 2
+x 1
 y 18
 end
-arch tree_big2
+arch earth_brown1
+z 50
+sub_layer 2
+x 1
+y 19
+end
+arch plant_flower13
+x 1
+y 19
+end
+arch earth_brown4
+z 50
+sub_layer 2
+x 1
+y 20
+end
+arch plant_flower12
+x 1
+y 20
+end
+arch earth_brown3
+z 50
+sub_layer 2
+x 1
+y 21
+end
+arch plant_flower13
+x 1
+y 21
+end
+arch earth_brown1
+z 50
+sub_layer 2
+x 1
+y 22
+end
+arch plant_flower11
+x 1
+y 22
+end
+arch earth_brown2
+z 50
+sub_layer 2
+x 1
+y 23
+end
+arch plant_flower1
+x 1
+y 23
+end
+arch grassd_2
+z 46
 x 2
-y 18
 end
 arch grassd_3
 z 50
 x 2
-y 19
+y 1
+end
+arch fwall_fstone2c
+x 2
+y 1
+end
+arch fstone1c
+z 50
+x 2
+y 2
+end
+arch fwall_fstone2d
+x 2
+y 2
+end
+arch fstone1a
+z 50
+x 2
+y 3
+end
+arch fstone1c
+z 50
+x 2
+y 4
+end
+arch fstone1a
+z 50
+x 2
+y 5
+end
+arch fstone1b
+z 50
+x 2
+y 6
+end
+arch fstone1c
+z 50
+x 2
+y 7
+end
+arch fstone1b
+z 50
+x 2
+y 8
+end
+arch fstone1c
+z 50
+x 2
+y 9
+end
+arch fwall_fstone2a
+x 2
+y 9
+end
+arch fstone1b
+z 50
+x 2
+y 10
+end
+arch grassd_m3
+x 2
+y 10
+end
+arch fwall_fstone2b
+x 2
+y 10
 end
 arch grassd_8
 z 50
 x 2
+y 11
+end
+arch wall_fortified_high.131
+blocksview 0
+z -50
+x 2
+y 11
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 2
+y 12
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 2
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 2
+y 14
+end
+arch floor_fs_grey1b
+sub_layer 1
+z 50
+x 2
+y 15
+end
+arch wall_fortified_high_c.131
+x 2
+y 15
+end
+arch earth_brown4
+z 50
+sub_layer 2
+x 2
+y 16
+end
+arch plant13
+x 2
+y 16
+end
+arch earth_brown4
+z 50
+sub_layer 2
+x 2
+y 17
+end
+arch plant11
+x 2
+y 17
+end
+arch earth_brown4
+z 50
+sub_layer 2
+x 2
+y 18
+end
+arch plant12
+x 2
+y 18
+end
+arch earth_brown2
+z 50
+sub_layer 2
+x 2
+y 19
+end
+arch plant_flower7
+x 2
+y 19
+end
+arch earth_brown2
+z 50
+sub_layer 2
+x 2
 y 20
 end
-arch grassd_7
+arch plant_flower14
+x 2
+y 20
+end
+arch earth_brown2
 z 50
+sub_layer 2
 x 2
 y 21
 end
-arch plant_mushroom1
+arch plant_flower3
 x 2
 y 21
 end
-arch grassd_2
+arch earth_brown3
 z 50
+sub_layer 2
 x 2
 y 22
 end
-arch grassd_2
+arch plant_flower12
+x 2
+y 22
+end
+arch earth_brown1
 z 50
+sub_layer 2
+x 2
+y 23
+end
+arch plant_flower10
 x 2
 y 23
 end
@@ -532,84 +644,132 @@ z 50
 x 3
 y 10
 end
-arch fwall_fstone2a
+arch fwall_fstone2
 x 3
 y 10
 end
-arch grassd_4
+arch grassd_1
 z 50
 x 3
 y 11
 end
-arch fwall_fstone2b
+arch wall_fstone_round.106
 x 3
 y 11
 end
-arch grassd_4
+arch wall_fortified_low.131
+sub_layer 1
+z 48
+x 3
+y 11
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 3
 y 12
 end
-arch grassd_2
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 3
 y 13
 end
-arch grassd_8
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 3
 y 14
 end
-arch grassd_4
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 3
 y 15
 end
-arch grassd_3
+arch wall_fortified_high_c.131
+x 3
+y 15
+end
+arch floor_fs_grey1b
 z 50
 x 3
 y 16
 end
-arch plant_flower7
+arch wall_fstone_round.108
 x 3
 y 16
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 3
 y 17
 end
-arch grassd_6
+arch fwall_fstone2
+x 3
+y 17
+end
+arch floor_fs_grey1b
 z 50
 x 3
 y 18
 end
-arch grassd_1
+arch fwall_fstone2
+x 3
+y 18
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 3
 y 19
 end
-arch grassd_1
+arch wall_fstone_round.106
+sub_layer 2
+x 3
+y 19
+end
+arch plant14
+x 3
+y 19
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 3
 y 20
 end
-arch grassd_2
+arch plant10
+x 3
+y 20
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 3
 y 21
 end
-arch grassd_2
+arch plant16
+x 3
+y 21
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 3
 y 22
 end
-arch grassd_3
+arch plant17
+x 3
+y 22
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 3
 y 23
 end
-arch plant_flower7
+arch plant2
 x 3
 y 23
 end
@@ -679,57 +839,49 @@ z 50
 x 4
 y 10
 end
-arch fstone1b
+arch fwall_fstone2
+x 4
+y 10
+end
+arch floor_fs_grey1b
 z 50
 x 4
 y 11
 end
-arch fwall_fstone2a
+arch wall_fstone_round.104
 x 4
 y 11
 end
-arch fstone1c
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 4
 y 12
 end
-arch fwall_fstone2
-x 4
-y 12
-end
-arch fstone1a
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 4
 y 13
 end
-arch fwall_fstone2
-x 4
-y 13
-end
-arch fstone1c
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 4
 y 14
 end
-arch fwall_fstone2
-x 4
-y 14
-end
-arch fstone1b
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 4
 y 15
 end
-arch fwall_fstone2
-x 4
-y 15
-end
-arch fstone1a
+arch floor_fs_grey1b
 z 50
 x 4
 y 16
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 x 4
 y 16
 end
@@ -862,38 +1014,79 @@ z 50
 x 5
 y 10
 end
-arch fstone1c
+arch fwall_fstone2
+x 5
+y 10
+end
+arch floor_fs_grey1b
 z 50
 x 5
 y 11
 end
-arch fstone1a
+arch spawn_point
+x 5
+y 11
+arch guard
+name Asterian Guard
+type 83
+level 100
+unaggressive 0
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 5
 y 12
 end
-arch fstone1b
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 5
 y 13
 end
-arch fstone1c
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 5
 y 14
 end
-arch fstone1a
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 5
 y 15
 end
-arch fstone1c
+arch floor_fs_grey1b
 z 50
 x 5
 y 16
 end
+arch spawn_point
+x 5
+y 16
+arch guard
+name Asterian Guard
+type 83
+level 100
+unaggressive 0
+direction 1
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
 arch fstone1a
 z 50
+x 5
+y 17
+end
+arch fwall_fstone2
 x 5
 y 17
 end
@@ -985,38 +1178,82 @@ z 50
 x 6
 y 10
 end
-arch fstone1a
+arch fwall_fstone2
+x 6
+y 10
+end
+arch floor_fs_grey1b
 z 50
 x 6
 y 11
 end
-arch fstone1c
+arch wall_fstone_round.106
+x 6
+y 11
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 6
 y 12
 end
-arch fstone1c
+arch grate_open
+sub_layer 1
+direction 3
+x 6
+y 12
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 6
 y 13
 end
-arch fstone1b
+arch grate_open
+sub_layer 1
+direction 3
+x 6
+y 13
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 6
 y 14
 end
-arch fstone1c
+arch grate_open
+sub_layer 1
+direction 3
+x 6
+y 14
+end
+arch floor_fs_grey1b
+sub_layer 1
 z 50
 x 6
 y 15
 end
-arch fstone1a
+arch grate_open
+sub_layer 1
+direction 3
+x 6
+y 15
+end
+arch floor_fs_grey1b
 z 50
+x 6
+y 16
+end
+arch wall_fstone_round.108
 x 6
 y 16
 end
 arch fstone1c
 z 50
+x 6
+y 17
+end
+arch fwall_fstone2
 x 6
 y 17
 end
@@ -1108,61 +1345,61 @@ z 50
 x 7
 y 10
 end
-arch fwall_fstone2c
+arch fwall_fstone2
 x 7
 y 10
 end
-arch fstone1b
+arch floor_fs_grey1b
 z 50
 x 7
 y 11
 end
-arch fwall_fstone2
+arch grassd_m6
 x 7
 y 11
 end
-arch fstone1c
+arch wall_fstone_round.104
+x 7
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 7
 y 12
 end
-arch fwall_fstone2
+arch grassd_m12
 x 7
 y 12
 end
-arch fstone1b
+arch floor_fs_grey1b
 z 50
 x 7
 y 13
 end
-arch fwall_fstone2
-x 7
-y 13
-end
-arch fstone1b
+arch floor_fs_grey1b
 z 50
 x 7
 y 14
 end
-arch fwall_fstone2
-x 7
-y 14
-end
-arch fstone1a
+arch floor_fs_grey1b
 z 50
 x 7
 y 15
 end
-arch fwall_fstone2
+arch grassd_m11
 x 7
 y 15
 end
-arch fstone1c
+arch floor_fs_grey1b
 z 50
 x 7
 y 16
 end
-arch fwall_fstone2
+arch grassd_m5
+x 7
+y 16
+end
+arch wall_fstone_round.102
 x 7
 y 16
 end
@@ -1189,7 +1426,22 @@ z 50
 x 7
 y 19
 end
-arch fwall_fstone2
+arch door1_locked
+msg
+You need Asteria Dungeon Key 1 to enter here.
+endmsg
+slaying asteria_dungeon_key1
+direction 3
+x 7
+y 19
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying asteria_dungeon_key1
+sp 1
+last_grace 1
+direction 3
 x 7
 y 19
 end
@@ -1303,23 +1555,45 @@ z 50
 x 8
 y 11
 end
-arch grassd_1
+arch spawn_point
+x 8
+y 11
+arch guard
+name Asterian Guard
+type 83
+level 100
+unaggressive 0
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1b
 z 50
 x 8
 y 12
 end
-arch grassd_6
+arch grassd_m10
+x 8
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 8
 y 13
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 8
 y 14
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
+x 8
+y 15
+end
+arch grassd_m7
 x 8
 y 15
 end
@@ -1327,6 +1601,21 @@ arch grassd_4
 z 50
 x 8
 y 16
+end
+arch spawn_point
+x 8
+y 16
+arch guard
+name Asterian Guard
+type 83
+level 100
+unaggressive 0
+direction 1
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
 end
 arch grassd_2
 z 50
@@ -1433,27 +1722,39 @@ z 50
 x 9
 y 11
 end
-arch grassd_7
+arch lantern_black
+x 9
+y 11
+end
+arch light7
+x 9
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 9
 y 12
 end
-arch plant_flower11
+arch grassd_m10
 x 9
 y 12
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 9
 y 13
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 9
 y 14
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
+x 9
+y 15
+end
+arch grassd_m7
 x 9
 y 15
 end
@@ -1462,7 +1763,11 @@ z 50
 x 9
 y 16
 end
-arch tree_big4b
+arch lantern_black
+x 9
+y 16
+end
+arch light7
 x 9
 y 16
 end
@@ -1551,7 +1856,22 @@ z 50
 x 10
 y 6
 end
-arch fwall_fstone2
+arch door1_locked
+msg
+You need Asteria Dungeon Key 1 to enter here.
+endmsg
+slaying asteria_dungeon_key1
+direction 3
+x 10
+y 6
+end
+arch check_inv
+layer 0
+sys_object 1
+slaying asteria_dungeon_key1
+sp 1
+last_grace 1
+direction 3
 x 10
 y 6
 end
@@ -1588,23 +1908,31 @@ z 50
 x 10
 y 11
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 10
 y 12
 end
-arch grassd_3
+arch grassd_m10
+x 10
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 10
 y 13
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 10
 y 14
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
+x 10
+y 15
+end
+arch grassd_m7
 x 10
 y 15
 end
@@ -1727,27 +2055,31 @@ z 50
 x 11
 y 11
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 11
 y 12
 end
-arch tree_big
+arch grassd_m10
 x 11
 y 12
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 11
 y 13
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 11
 y 14
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
+x 11
+y 15
+end
+arch grassd_m7
 x 11
 y 15
 end
@@ -1862,27 +2194,31 @@ z 50
 x 12
 y 11
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 12
 y 12
 end
-arch grassd_8
+arch grassd_m10
+x 12
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 12
 y 13
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
 x 12
 y 14
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 12
 y 15
 end
-arch plant16
+arch grassd_m7
 x 12
 y 15
 end
@@ -2017,23 +2353,31 @@ z 50
 x 13
 y 11
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 13
 y 12
 end
-arch grassd_3
+arch grassd_m10
+x 13
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 13
 y 13
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 13
 y 14
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
+x 13
+y 15
+end
+arch grassd_m7
 x 13
 y 15
 end
@@ -2151,31 +2495,39 @@ z 50
 x 14
 y 11
 end
-arch plant_flower2
+arch lantern_black
 x 14
 y 11
 end
-arch grassd_3
+arch light7
+x 14
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 14
 y 12
 end
-arch tree_big
+arch grassd_m10
 x 14
 y 12
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 14
 y 13
 end
-arch grassd_8
+arch floor_fs_grey1b
 z 50
 x 14
 y 14
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
+x 14
+y 15
+end
+arch grassd_m7
 x 14
 y 15
 end
@@ -2184,7 +2536,11 @@ z 50
 x 14
 y 16
 end
-arch tree_big3
+arch lantern_black
+x 14
+y 16
+end
+arch light7
 x 14
 y 16
 end
@@ -2309,27 +2665,31 @@ z 50
 x 15
 y 11
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 15
 y 12
 end
-arch grassd_2
+arch grassd_m10
+x 15
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 15
 y 13
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 15
 y 14
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 15
 y 15
 end
-arch plant_mushroom2
+arch grassd_m7
 x 15
 y 15
 end
@@ -2467,23 +2827,31 @@ z 50
 x 16
 y 11
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 16
 y 12
 end
-arch grassd_5
+arch grassd_m10
+x 16
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 16
 y 13
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 16
 y 14
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
+x 16
+y 15
+end
+arch grassd_m7
 x 16
 y 15
 end
@@ -2606,27 +2974,31 @@ z 50
 x 17
 y 11
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 17
 y 12
 end
-arch grassd_4
+arch grassd_m10
+x 17
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 17
 y 13
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 17
 y 14
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 17
 y 15
 end
-arch plant_flower14
+arch grassd_m7
 x 17
 y 15
 end
@@ -2756,27 +3128,31 @@ z 50
 x 18
 y 11
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 18
 y 12
 end
-arch tree_big4b
+arch grassd_m10
 x 18
 y 12
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 18
 y 13
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 18
 y 14
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
+x 18
+y 15
+end
+arch grassd_m7
 x 18
 y 15
 end
@@ -2909,32 +3285,52 @@ z 50
 x 19
 y 11
 end
-arch tree_branch1
+arch lantern_black
 x 19
 y 11
 end
-arch grassd_1
+arch light7
+x 19
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 12
 end
-arch grassd_6
+arch grassd_m10
+x 19
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 19
 y 13
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
 x 19
 y 14
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
+x 19
+y 15
+end
+arch grassd_m7
 x 19
 y 15
 end
 arch grassd_6
 z 50
+x 19
+y 16
+end
+arch lantern_black
+x 19
+y 16
+end
+arch light7
 x 19
 y 16
 end
@@ -3073,40 +3469,36 @@ z 50
 x 20
 y 11
 end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
 x 20
 y 12
 end
-arch grassd_3
+arch grassd_m10
+x 20
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 20
 y 13
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 20
 y 14
 end
-arch plant_flower11
-x 20
-y 14
-end
-arch grassd_4
+arch floor_fs_grey1b
 z 50
 x 20
 y 15
 end
-arch small_stones
+arch grassd_m7
 x 20
 y 15
 end
 arch grassd_5
 z 50
-x 20
-y 16
-end
-arch tree_big2
 x 20
 y 16
 end
@@ -3240,27 +3632,31 @@ arch tree_big3
 x 21
 y 11
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 21
 y 12
 end
-arch plant17
+arch grassd_m10
 x 21
 y 12
 end
-arch grassd_5
+arch floor_fs_grey1b
 z 50
 x 21
 y 13
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 21
 y 14
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
+x 21
+y 15
+end
+arch grassd_m7
 x 21
 y 15
 end
@@ -3380,27 +3776,31 @@ z 50
 x 22
 y 11
 end
-arch grassd_6
+arch floor_fs_grey1b
 z 50
 x 22
 y 12
 end
-arch grassd_2
+arch grassd_m10
+x 22
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 22
 y 13
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
 x 22
 y 14
 end
-arch grassd_1
+arch floor_fs_grey1b
 z 50
 x 22
 y 15
 end
-arch plant_flower5
+arch grassd_m7
 x 22
 y 15
 end
@@ -3539,23 +3939,31 @@ z 50
 x 23
 y 11
 end
-arch grassd_2
+arch floor_fs_grey1b
 z 50
 x 23
 y 12
 end
-arch grassd_8
+arch grassd_m10
+x 23
+y 12
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 13
 end
-arch grassd_3
+arch floor_fs_grey1b
 z 50
 x 23
 y 14
 end
-arch grassd_7
+arch floor_fs_grey1b
 z 50
+x 23
+y 15
+end
+arch grassd_m7
 x 23
 y 15
 end

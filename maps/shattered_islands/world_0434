@@ -1667,6 +1667,7 @@ x 14
 y 4
 end
 arch wall_stone4_w.131
+sub_layer 1
 z 50
 x 14
 y 4

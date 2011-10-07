@@ -410,6 +410,10 @@ arch grassd_2
 x 2
 y 5
 end
+arch tree_big2
+x 2
+y 5
+end
 arch grassd_5
 x 2
 y 6
@@ -941,6 +945,10 @@ arch grassd_3
 x 5
 y 5
 end
+arch tree_big3
+x 5
+y 5
+end
 arch grassd_3
 x 5
 y 6
@@ -1412,70 +1420,41 @@ z 50
 x 6
 y 23
 end
-arch grassd_7
+arch grassd_2
 x 7
 end
-arch wall_fortified_low.111
+arch plant17
 x 7
-end
-arch grassd_3
-x 7
-y 1
-end
-arch wall_fortified_high_1.111
-x 7
-y 1
-end
-arch grassd_8
-x 7
-y 2
-end
-arch wall_fortified_high_2.111
-blocksview 0
-x 7
-y 2
-end
-arch grassd_3
-x 7
-y 3
-end
-arch wall_fortified_high_3.111
-blocksview 0
-x 7
-y 3
-end
-arch grassd_3
-x 7
-y 4
-end
-arch wall_fortified_high_4.111
-blocksview 0
-x 7
-y 4
-end
-arch grassd_8
-x 7
-y 5
-end
-arch wall_fortified_high.111
-blocksview 0
-x 7
-y 5
-end
-arch grassd_8
-x 7
-y 6
-end
-arch wall_fortified_high.111
-blocksview 0
-x 7
-y 6
 end
 arch grassd_1
 x 7
+y 1
+end
+arch grassd_3
+x 7
+y 2
+end
+arch grassd_2
+x 7
+y 3
+end
+arch grassd_3
+x 7
+y 4
+end
+arch grassd_5
+x 7
+y 5
+end
+arch grassd_5
+x 7
+y 6
+end
+arch grassd_8
+x 7
 y 7
 end
-arch wall_fortified_high.141
+arch wall_fortified_high.131
 blocksview 0
 x 7
 y 7
@@ -1633,83 +1612,39 @@ z 50
 x 7
 y 23
 end
-arch floor_fs_grey1b
+arch grassd_1
 x 8
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_6
 x 8
 y 1
 end
-arch floor_fs_grey1b
-sub_layer 1
-x 8
-y 1
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_2
 x 8
 y 2
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 8
-x 8
-y 2
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_7
 x 8
 y 3
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 16
-x 8
-y 3
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_6
 x 8
 y 4
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 24
-x 8
-y 4
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_7
 x 8
 y 5
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 32
+arch grassd_3
 x 8
-y 5
+y 6
 end
-arch blocked
-no_pass 0
+arch grassd_8
+x 8
+y 7
+end
+arch wall_fortified_high.131
 blocksview 0
-x 8
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 40
-x 8
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 48
 x 8
 y 7
 end
@@ -1878,83 +1813,47 @@ z 50
 x 8
 y 23
 end
-arch floor_fs_grey1b
+arch grassd_2
 x 9
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_4
 x 9
 y 1
 end
-arch floor_fs_grey1b
-sub_layer 1
+arch plant_flower6
 x 9
 y 1
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_3
 x 9
 y 2
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 8
-x 9
-y 2
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_2
 x 9
 y 3
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 16
-x 9
-y 3
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_8
 x 9
 y 4
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 24
+arch plant17
 x 9
 y 4
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_8
 x 9
 y 5
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 32
+arch grassd_1
 x 9
-y 5
+y 6
 end
-arch blocked
-no_pass 0
+arch grassd_8
+x 9
+y 7
+end
+arch wall_fortified_high.131
 blocksview 0
-x 9
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 40
-x 9
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 48
 x 9
 y 7
 end
@@ -2131,83 +2030,46 @@ z 50
 x 9
 y 23
 end
-arch floor_fs_grey1b
+arch grassd_5
 x 10
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch tree_big
 x 10
-y 1
 end
-arch floor_fs_grey1b
-sub_layer 1
+arch grassd_3
 x 10
 y 1
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_2
 x 10
 y 2
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 8
-x 10
-y 2
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_1
 x 10
 y 3
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 16
-x 10
-y 3
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_5
 x 10
 y 4
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 24
+arch tree_big2
 x 10
 y 4
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_2
 x 10
 y 5
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 32
+arch grassd_1
 x 10
-y 5
+y 6
 end
-arch blocked
-no_pass 0
+arch grassd_8
+x 10
+y 7
+end
+arch wall_fortified_high.131
 blocksview 0
-x 10
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 40
-x 10
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 48
 x 10
 y 7
 end
@@ -2399,120 +2261,39 @@ z 50
 x 10
 y 23
 end
-arch floor_fs_grey1b
+arch grassd_8
 x 11
 end
-arch wall_fortified_low.111
-x 11
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_5
 x 11
 y 1
 end
-arch floor_fs_grey1b
-sub_layer 1
-x 11
-y 1
-end
-arch wall_fortified_high_1.111
-x 11
-y 1
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_4
 x 11
 y 2
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 8
-x 11
-y 2
-end
-arch wall_fortified_high_2.111
-blocksview 0
-x 11
-y 2
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_2
 x 11
 y 3
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 16
-x 11
-y 3
-end
-arch wall_fortified_high_3.111
-blocksview 0
-x 11
-y 3
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_3
 x 11
 y 4
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 24
-x 11
-y 4
-end
-arch wall_fortified_high_4.111
-blocksview 0
-x 11
-y 4
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_8
 x 11
 y 5
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 32
-x 11
-y 5
-end
-arch wall_fortified_high.111
-blocksview 0
-x 11
-y 5
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_6
 x 11
 y 6
 end
-arch floor_fs_grey1b
-sub_layer 1
-z 40
-x 11
-y 6
-end
-arch wall_fortified_high.111
-blocksview 0
-x 11
-y 6
-end
-arch floor_fs_grey1b
-sub_layer 1
-z 48
+arch grassd_8
 x 11
 y 7
 end
-arch wall_fortified_low.111
-sub_layer 1
+arch wall_fortified_high.131
+blocksview 0
 x 11
 y 7
 end
@@ -4393,16 +4174,23 @@ z 18
 x 19
 y 23
 end
-arch grassd_3
+arch grassd_6
 z 24
 x 20
 end
-arch grassd_3
+arch wall_fortified_high.111
+blocksview 0
+z -24
+x 20
+end
+arch grassd_6
 z 24
 x 20
 y 1
 end
-arch plant_mushroom5
+arch wall_fortified_high.111
+blocksview 0
+z -24
 x 20
 y 1
 end
@@ -4411,17 +4199,31 @@ z 24
 x 20
 y 2
 end
-arch grassd_1
+arch wall_fortified_high.111
+blocksview 0
+z -24
+x 20
+y 2
+end
+arch grassd_6
 z 24
 x 20
 y 3
 end
-arch grassd_8
+arch wall_fortified_high.111
+blocksview 0
+z -24
+x 20
+y 3
+end
+arch grassd_6
 z 24
 x 20
 y 4
 end
-arch tree_big4b
+arch wall_fortified_high.111
+blocksview 0
+z -24
 x 20
 y 4
 end
@@ -4430,8 +4232,20 @@ z 24
 x 20
 y 5
 end
+arch wall_fortified_high.111
+blocksview 0
+z -24
+x 20
+y 5
+end
 arch grassd_6
 z 24
+x 20
+y 6
+end
+arch wall_fortified_high.111
+blocksview 0
+z -24
 x 20
 y 6
 end
@@ -4440,7 +4254,7 @@ z 24
 x 20
 y 7
 end
-arch wall_fortified_high.131
+arch wall_fortified_high.141
 blocksview 0
 z -24
 x 20
@@ -4500,23 +4314,23 @@ y 11
 end
 arch grassd_6
 z 24
-sub_layer 2
 x 20
 y 12
 end
 arch wall_fortified_high.111
 blocksview 0
+z -24
 x 20
 y 12
 end
 arch grassd_6
 z 24
-sub_layer 2
 x 20
 y 13
 end
 arch wall_fortified_high.111
 blocksview 0
+z -24
 x 20
 y 13
 end
@@ -4620,52 +4434,50 @@ z -24
 x 20
 y 23
 end
-arch grassd_5
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 end
-arch grassd_2
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 1
 end
-arch grassd_6
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 2
 end
-arch grassd_4
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 3
 end
-arch grassd_7
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 4
 end
-arch tree_big2
-x 21
-y 4
-end
-arch grassd_7
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 5
 end
-arch grassd_2
-z 30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 6
 end
-arch grassd_5
-z 30
-x 21
-y 7
-end
-arch wall_fortified_high.131
-blocksview 0
-z -30
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 21
 y 7
 end
@@ -4773,52 +4585,50 @@ sub_layer 1
 x 21
 y 23
 end
-arch grassd_3
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 end
-arch grassd_4
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 1
 end
-arch grassd_5
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 2
 end
-arch grassd_5
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 3
 end
-arch grassd_3
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 4
 end
-arch grassd_8
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 5
 end
-arch grassd_6
-z 36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 6
 end
-arch plant_mushroom1
-x 22
-y 6
-end
-arch grassd_8
-z 36
-x 22
-y 7
-end
-arch wall_fortified_high.131
-blocksview 0
-z -36
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 22
 y 7
 end
@@ -4918,56 +4728,50 @@ sub_layer 1
 x 22
 y 23
 end
-arch grassd_3
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 end
-arch grassd_5
-z 42
-x 23
-y 1
-end
-arch tree_big4b
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 1
 end
-arch grassd_8
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 2
 end
-arch grassd_7
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 3
 end
-arch grassd_7
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 4
 end
-arch plant15
-x 23
-y 4
-end
-arch grassd_2
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 5
 end
-arch grassd_5
-z 42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 6
 end
-arch grassd_7
-z 42
-x 23
-y 7
-end
-arch wall_fortified_high.131
-blocksview 0
-z -42
+arch floor_fs_grey1b
+sub_layer 1
+z 50
 x 23
 y 7
 end

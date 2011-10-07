@@ -20,45 +20,82 @@ tile_path_8 world_0437
 bg_music chether.mid
 region asteria
 end
-arch grassd_2
-z 46
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 end
-arch tree_big2
+arch wall_fortified_high_c.111
 end
-arch grassd_4
-z 46
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 1
 end
-arch grassd_8
-z 46
+arch wall_fortified_high_c.111
+y 1
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 2
 end
-arch grassd_8
-z 46
+arch lantern_black
+sub_layer 1
+y 2
+end
+arch wall_fortified_high_c.111
+sub_layer 2
+y 2
+end
+arch light7
+y 2
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 3
 end
-arch plant_mushroom2
+arch wall_fortified_high_c.111
 y 3
 end
-arch grassd_6
-z 46
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 4
 end
-arch grassd_7
-z 46
+arch wall_fortified_high_c.111
+y 4
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 5
 end
-arch grassd_4
-z 46
+arch wall_fortified_high_c.111
+y 5
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 6
 end
-arch grassd_2
-z 46
+arch wall_fortified_high_c.111
+y 6
+end
+arch floor_fs_grey1b
+z 50
+sub_layer 1
 y 7
 end
-arch wall_fortified_high.131
-blocksview 0
-z -46
+arch lantern_black
+sub_layer 1
+y 7
+end
+arch wall_fortified_high_c.111
+sub_layer 2
+y 7
+end
+arch light7
 y 7
 end
 arch floor_fs_grey1b
@@ -81,8 +118,8 @@ sub_layer 1
 z 50
 y 11
 end
-arch wall_fortified_low.181
-sub_layer 1
+arch wall_fortified_high.181
+blocksview 0
 y 11
 end
 arch floor_fs_grey1b
@@ -205,60 +242,85 @@ end
 arch wall_fortified_high_c.111
 y 23
 end
-arch grassd_2
+arch earth_brown3
 z 50
+sub_layer 2
 x 1
 end
-arch grassd_7
+arch plant_flower4
+x 1
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 1
 y 1
 end
-arch plant_flower1
+arch plant_flower3
 x 1
 y 1
 end
-arch grassd_3
+arch earth_brown1
 z 50
+sub_layer 2
 x 1
 y 2
 end
-arch tree_big
+arch plant_flower8
 x 1
 y 2
 end
-arch grassd_6
+arch earth_brown1
 z 50
+sub_layer 2
 x 1
 y 3
 end
-arch grassd_3
+arch plant_flower10
+x 1
+y 3
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 1
 y 4
 end
-arch grassd_3
+arch plant_flower2
+x 1
+y 4
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 1
 y 5
 end
-arch grassd_7
+arch plant_flower10
+x 1
+y 5
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 1
 y 6
 end
-arch tree_big3
+arch plant_flower14
 x 1
 y 6
 end
-arch grassd_5
+arch earth_brown3
 z 50
+sub_layer 2
 x 1
 y 7
 end
-arch wall_fortified_high.131
-blocksview 0
-z -50
+arch plant_flower4
+x 1
+y 7
+end
+arch wall_fortified_high_c.131
 x 1
 y 7
 end
@@ -286,19 +348,13 @@ z 50
 x 1
 y 11
 end
-arch wall_fortified_low.131
-sub_layer 1
-z -2
+arch wall_fortified_high_c.131
 x 1
 y 11
 end
 arch earth_brown4
 z 50
 sub_layer 2
-x 1
-y 12
-end
-arch plant_flower8
 x 1
 y 12
 end
@@ -412,55 +468,86 @@ arch plant_flower3
 x 1
 y 23
 end
-arch grassd_3
+arch earth_brown2
 z 50
+sub_layer 2
 x 2
 end
 arch fwall_fstone2b
+sub_layer 2
 x 2
 end
-arch grassd_3
+arch earth_brown4
 z 50
+sub_layer 2
 x 2
 y 1
 end
-arch grassd_2
+arch plant10
+x 2
+y 1
+end
+arch earth_brown4
 z 50
+sub_layer 2
 x 2
 y 2
 end
-arch grassd_3
+arch plant_flower9
+x 2
+y 2
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 2
 y 3
 end
-arch grassd_3
+arch plant_flower3
+x 2
+y 3
+end
+arch earth_brown1
 z 50
+sub_layer 2
 x 2
 y 4
 end
-arch grassd_3
+arch plant_flower12
+x 2
+y 4
+end
+arch earth_brown4
 z 50
+sub_layer 2
 x 2
 y 5
 end
-arch grassd_6
-z 50
-x 2
-y 6
-end
 arch plant_flower1
 x 2
+y 5
+end
+arch earth_brown4
+z 50
+sub_layer 2
+x 2
 y 6
 end
-arch grassd_7
+arch plant_flower12
+x 2
+y 6
+end
+arch earth_brown2
 z 50
+sub_layer 2
 x 2
 y 7
 end
-arch wall_fortified_high.131
-blocksview 0
-z -50
+arch plant_flower3
+x 2
+y 7
+end
+arch wall_fortified_high_c.131
 x 2
 y 7
 end
@@ -488,9 +575,7 @@ z 50
 x 2
 y 11
 end
-arch wall_fortified_low.131
-sub_layer 1
-z -2
+arch wall_fortified_high_c.131
 x 2
 y 11
 end
@@ -621,48 +706,79 @@ end
 arch fwall_fstone2a
 x 3
 end
-arch grassd_7
+arch earth_brown4
 z 50
+sub_layer 2
 x 3
 y 1
 end
 arch fwall_fstone2b
+sub_layer 2
 x 3
 y 1
 end
-arch grassd_3
+arch earth_brown3
 z 50
+sub_layer 2
 x 3
 y 2
 end
-arch grassd_1
+arch plant13
+x 3
+y 2
+end
+arch earth_brown4
 z 50
+sub_layer 2
 x 3
 y 3
 end
-arch grassd_1
+arch plant14
+x 3
+y 3
+end
+arch earth_brown2
 z 50
+sub_layer 2
 x 3
 y 4
 end
-arch grassd_4
+arch wall_fstone_round.108
+sub_layer 2
+x 3
+y 4
+end
+arch floor_fs_grey1b
 z 50
 x 3
 y 5
 end
-arch grassd_5
+arch fwall_fstone2
+x 3
+y 5
+end
+arch floor_fs_grey1b
 z 50
 x 3
 y 6
 end
-arch grassd_8
+arch fwall_fstone2
+x 3
+y 6
+end
+arch earth_brown3
 z 50
+sub_layer 2
 x 3
 y 7
 end
-arch wall_fortified_high.131
-blocksview 0
-z -50
+arch wall_fstone_round.106
+sub_layer 2
+x 3
+y 7
+end
+arch wall_fortified_high_c.131
+sub_layer 3
 x 3
 y 7
 end
@@ -690,9 +806,7 @@ z 50
 x 3
 y 11
 end
-arch wall_fortified_low.131
-sub_layer 1
-z -2
+arch wall_fortified_high_c.131
 x 3
 y 11
 end
@@ -702,27 +816,26 @@ sub_layer 2
 x 3
 y 12
 end
-arch plant13
+arch wall_fstone_round.108
+sub_layer 2
 x 3
 y 12
 end
-arch earth_brown2
+arch floor_fs_grey1b
 z 50
-sub_layer 2
 x 3
 y 13
 end
-arch plant11
+arch fwall_fstone2
 x 3
 y 13
 end
-arch earth_brown3
+arch floor_fs_grey1b
 z 50
-sub_layer 2
 x 3
 y 14
 end
-arch plant1
+arch fwall_fstone2
 x 3
 y 14
 end
@@ -732,7 +845,8 @@ sub_layer 2
 x 3
 y 15
 end
-arch plant10
+arch wall_fstone_round.106
+sub_layer 2
 x 3
 y 15
 end

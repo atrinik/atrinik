@@ -2865,10 +2865,6 @@ arch grassd_2
 x 21
 y 1
 end
-arch grassd_1
-x 21
-y 1
-end
 arch wall_fortified_high.111
 blocksview 0
 x 21
@@ -3055,6 +3051,10 @@ x 22
 y 3
 end
 arch grassd_3
+x 22
+y 4
+end
+arch tree_big4b
 x 22
 y 4
 end

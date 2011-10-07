@@ -1709,6 +1709,7 @@ x 13
 y 7
 end
 arch wall_pattern4_w.131
+sub_layer 1
 z 50
 x 13
 y 7
@@ -2881,6 +2882,7 @@ x 18
 y 5
 end
 arch wall_pattern4_w.111
+sub_layer 1
 z 50
 x 18
 y 5
