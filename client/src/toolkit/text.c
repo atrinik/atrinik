@@ -1501,7 +1501,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		buf[1] = '\0';
 
 		/* Are we inside an anchor tag and we clicked the text? */
-		if (info->anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT))
+		if (info->anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT) && (!selection_start || !selection_end || (*selection_start == -1 && *selection_end == -1)))
 		{
 			text_adjust_coords(surface, &mx, &my);
 
