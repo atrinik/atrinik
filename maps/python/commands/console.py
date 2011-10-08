@@ -128,6 +128,16 @@ def main():
 			inf.dialog_close()
 
 		return
+	elif msg == "marked()":
+		if thread:
+			marked = activator.Controller().FindMarkedObject()
+
+			if marked and marked.msg:
+				thread.commands_lock.acquire()
+				thread.commands += marked.msg.split("\n")
+				thread.commands_lock.release()
+
+		return
 	# Add the command to the existing thread's commands, if it exists.
 	elif thread:
 		thread.commands_lock.acquire()
