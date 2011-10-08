@@ -31,6 +31,7 @@
 
 /** Current text input string. */
 char text_input_string[MAX_INPUT_STRING];
+static char text_input_string_editing[MAX_INPUT_STRING];
 /** Number of characters in the text input string. */
 int text_input_count;
 /** Cursor position in the text input string. */
@@ -39,7 +40,9 @@ static int text_input_cursor_pos = 0;
 static int text_input_max;
 
 /** Text input history. */
-static char text_input_history[MAX_HISTORY_LINES][MAX_INPUT_STRING];
+static UT_array *text_input_history = NULL;
+/** Stores console history. */
+static UT_array *console_history = NULL;
 /**
  * Position in the text input history -- used when browsing through the
  * history. */
@@ -178,7 +181,7 @@ void text_input_clear(void)
 	text_input_string[0] = '\0';
 	text_input_count = 0;
 	text_input_history_pos = 0;
-	text_input_history[0][0] = '\0';
+	text_input_history = NULL;
 	text_input_cursor_pos = 0;
 	text_input_string_flag = 0;
 	text_input_string_end_flag = 0;
@@ -217,6 +220,17 @@ void text_input_open(int maxchar)
 
 	text_input_string_flag = 1;
 	text_input_opened = SDL_GetTicks();
+	text_input_history = NULL;
+
+	if (cpl.input_mode == INPUT_MODE_CONSOLE)
+	{
+		if (!console_history)
+		{
+			utarray_new(console_history, &ut_str_icd);
+		}
+
+		text_input_set_history(console_history);
+	}
 }
 
 /**
@@ -234,42 +248,36 @@ void text_input_close(void)
 /**
  * Add string to the text input history.
  * @param text The text to add to the history. */
-static void text_input_history_add(const char *text)
+void text_input_history_add(const char *text)
 {
-	size_t i;
+	char **p;
 
-	/* If new line is empty or identical to last inserted one, skip it */
-	if (text[0] == '\0' || !strcmp(text_input_history[1], text))
+	if (!text_input_history)
 	{
 		return;
 	}
 
-	/* Shift history lines. */
-	for (i = MAX_HISTORY_LINES - 1; i > 1; i--)
+	p = (char **) utarray_back(text_input_history);
+
+	if (p && !strcmp(*p, text))
 	{
-		strncpy(text_input_history[i], text_input_history[i - 1], sizeof(*text_input_history) - 1);
-		text_input_history[i][sizeof(*text_input_history) - 1] = '\0';
+		return;
 	}
 
-	/* Insert new one. */
-	strncpy(text_input_history[1], text, sizeof(*text_input_history) - 1);
-	text_input_history[1][sizeof(*text_input_history) - 1] = '\0';
-	/* Clear temporary editing line. */
-	text_input_history[0][0] = '\0';
-	text_input_history_pos = 0;
+	utarray_push_back(text_input_history, &text);
+
+	if (utarray_len(text_input_history) > (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES))
+	{
+		utarray_erase(text_input_history, 0, utarray_len(text_input_history) - (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES));
+	}
 }
 
 /**
- * Clear all the text window history. */
-void text_input_history_clear(void)
+ * Set the history array to use.
+ * @param history The array to use. */
+void text_input_set_history(UT_array *history)
 {
-	size_t i;
-
-	for (i = 0; i < MAX_HISTORY_LINES; i++)
-	{
-		text_input_history[i][0] = '\0';
-	}
-
+	text_input_history = history;
 	text_input_history_pos = 0;
 }
 
@@ -384,13 +392,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 				text_input_string_flag = 0;
 				/* Mark that we've got something here. */
 				text_input_string_end_flag = 1;
-
-				/* Record this line in input history only if we are in console mode. */
-				if (cpl.input_mode == INPUT_MODE_CONSOLE)
-				{
-					text_input_history_add(text_input_string);
-				}
-
+				text_input_history_add(text_input_string);
 				return 1;
 			}
 			else if (key->keysym.sym == SDLK_TAB)
@@ -488,29 +490,57 @@ int text_input_handle(SDL_KeyboardEvent *key)
 
 		/* Scroll forward in history. */
 		case SDLK_UP:
-			if (cpl.input_mode == INPUT_MODE_CONSOLE && text_input_history_pos < MAX_HISTORY_LINES - 1 && text_input_history[text_input_history_pos + 1][0])
+			if (text_input_history)
 			{
-				/* First history line is special, it records what we were
-				 * writing before scrolling back the history; so, by
-				 * returning back to zero, we can continue our editing
-				 * where we left it. */
-				if (text_input_history_pos == 0)
-				{
-					strncpy(text_input_history[0], text_input_string, text_input_count);
-				}
+				char **p;
 
-				text_input_history_pos++;
-				text_input_set_string(text_input_history[text_input_history_pos]);
+				p = (char **) utarray_eltptr(text_input_history, utarray_len(text_input_history) - 1 - text_input_history_pos);
+
+				if (p)
+				{
+					if (text_input_history_pos == 0)
+					{
+						strncpy(text_input_string_editing, text_input_string, sizeof(text_input_string_editing) - 1);
+						text_input_string_editing[sizeof(text_input_string_editing) - 1] = '\0';
+					}
+
+					text_input_history_pos++;
+					text_input_set_string(*p);
+				}
 			}
 
 			return 1;
 
 		/* Scroll backward in history. */
 		case SDLK_DOWN:
-			if (cpl.input_mode == INPUT_MODE_CONSOLE && text_input_history_pos > 0)
+			if (text_input_history)
 			{
-				text_input_history_pos--;
-				text_input_set_string(text_input_history[text_input_history_pos]);
+				if (text_input_history_pos > 0)
+				{
+					text_input_history_pos--;
+
+					if (text_input_history_pos == 0)
+					{
+						text_input_set_string(text_input_string_editing);
+						text_input_string_editing[0] = '\0';
+					}
+					else
+					{
+						char **p;
+
+						p = (char **) utarray_eltptr(text_input_history, utarray_len(text_input_history) - text_input_history_pos);
+
+						if (p)
+						{
+							text_input_set_string(*p);
+						}
+					}
+				}
+				else if (text_input_string[0] != '\0')
+				{
+					text_input_history_add(text_input_string);
+					text_input_set_string("");
+				}
 			}
 
 			return 1;

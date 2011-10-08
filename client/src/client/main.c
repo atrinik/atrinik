@@ -286,7 +286,6 @@ static void init_game_data(void)
 	csocket.fd = -1;
 	RangeFireMode = 0;
 
-	text_input_history_clear();
 	delete_player_lists();
 	metaserver_init();
 

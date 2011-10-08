@@ -44,6 +44,13 @@ category General
 		default 200
 		desc Maximum number of lines in text windows.
 	end
+	setting Maximum text input history
+		type range
+		range 5 - 500
+		advance 5
+		default 40
+		desc Maximum number of lines in text input history.
+	end
 	setting Snap radius
 		type range
 		range 0 - 100

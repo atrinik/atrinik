@@ -689,7 +689,8 @@ extern void text_input_show(SDL_Surface *surface, int x, int y, int font, const 
 extern void text_input_clear(void);
 extern void text_input_open(int maxchar);
 extern void text_input_close(void);
-extern void text_input_history_clear(void);
+extern void text_input_history_add(const char *text);
+extern void text_input_set_history(UT_array *history);
 extern void text_input_set_string(const char *text);
 extern void text_input_add_char(char c);
 extern int text_input_handle(SDL_KeyboardEvent *key);

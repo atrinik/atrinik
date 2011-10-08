@@ -68,6 +68,8 @@ enum
 	OPT_CHAT_TIMESTAMPS,
 	/** Maximum number of chat lines. */
 	OPT_MAX_CHAT_LINES,
+	/** Maximum number of lines in text input history. */
+	OPT_MAX_INPUT_HISTORY_LINES,
 	/** Widget snap radius. */
 	OPT_SNAP_RADIUS
 };
