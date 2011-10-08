@@ -462,6 +462,9 @@ x 9
 y 15
 end
 arch grain1.101
+msg
+Hmm... is this the famous grain of truth...? Perhaps not...
+endmsg
 x 9
 y 15
 end
@@ -564,6 +567,9 @@ x 10
 y 15
 end
 arch grain1.101
+msg
+Might be the grain of lies, for all you know.
+endmsg
 x 10
 y 15
 end
