@@ -67,6 +67,9 @@ popup_struct *popup_create(int bitmap_id)
 	popup->button_left.button.bitmap_pressed = popup->button_right.button.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
 	popup->button_left.button.bitmap_over = popup->button_right.button.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
 
+	popup->selection_start = popup->selection_end = -1;
+	popup->redraw = 1;
+
 	return popup;
 }
 
@@ -229,6 +232,68 @@ int popup_handle_event(SDL_Event *event)
 	if (!popup_head)
 	{
 		return 0;
+	}
+
+	if (popup_head->clipboard_copy_func)
+	{
+		if (event->type == SDL_KEYDOWN && keybind_command_matches_event("?COPY", &event->key))
+		{
+			const char *contents;
+			sint64 start, end;
+			char *str;
+
+			contents = popup_head->clipboard_copy_func(popup_head);
+
+			if (!contents)
+			{
+				return 1;
+			}
+
+			start = popup_head->selection_start;
+			end = popup_head->selection_end;
+
+			if (end < start)
+			{
+				start = popup_head->selection_end;
+				end = popup_head->selection_start;
+			}
+
+			if (end - start <= 0)
+			{
+				return 1;
+			}
+
+			/* Get the string to copy, depending on the start and end positions. */
+			str = malloc(sizeof(char) * (end - start + 1 + 1));
+			memcpy(str, contents + start, end - start + 1);
+			str[end - start + 1] = '\0';
+			clipboard_set(str);
+			free(str);
+
+			return 1;
+		}
+		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + Bitmaps[popup_head->bitmap_id]->bitmap->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + Bitmaps[popup_head->bitmap_id]->bitmap->h)
+		{
+			if (event->button.button == SDL_BUTTON_LEFT)
+			{
+				if (event->type == SDL_MOUSEBUTTONUP)
+				{
+					popup_head->selection_started = 0;
+				}
+				else if (event->type == SDL_MOUSEBUTTONDOWN)
+				{
+					popup_head->selection_started = 0;
+					popup_head->selection_start = -1;
+					popup_head->selection_end = -1;
+					popup_head->redraw = 1;
+				}
+				else if (event->type == SDL_MOUSEMOTION)
+				{
+					popup_head->redraw = 1;
+					popup_head->selection_started = 1;
+				}
+			}
+		}
 	}
 
 	/* Handle custom events? */

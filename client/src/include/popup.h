@@ -95,6 +95,18 @@ typedef struct popup_struct
 	/** Previous popup in a doubly-linked list. */
 	struct popup_struct *prev;
 
+	/** Start of selection. */
+	sint64 selection_start;
+
+	/** End of selection. */
+	sint64 selection_end;
+
+	/** Whether the selection has started. */
+	uint8 selection_started;
+
+	/** Whether redrawing is in order. */
+	uint8 redraw;
+
 	/**
 	 * Function used for drawing on the popup's surface.
 	 * @param popup The popup.
@@ -124,6 +136,12 @@ typedef struct popup_struct
 	 * @return 1 to proceed with the destruction of the popup, 0
 	 * otherwise. */
 	int (*destroy_callback_func)(struct popup_struct *popup);
+
+	/**
+	 * Function used to get contents for clipboard copy operation.
+	 * @param popup Popup.
+	 * @return Contents to copy. */
+	const char *(*clipboard_copy_func)(struct popup_struct *popup);
 } popup_struct;
 
 #endif

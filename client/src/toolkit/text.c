@@ -1641,6 +1641,68 @@ int glyph_get_height(int font, char c)
 }
 
 /**
+ * Begin handling text mouse-based selection. */
+#define STRING_BLT_SELECT_BEGIN() \
+{ \
+	if (!skip && selection_start && selection_end) \
+	{ \
+		select_start = *selection_start; \
+		select_end = *selection_end; \
+\
+		if (select_end < select_start) \
+		{ \
+			select_start = *selection_end; \
+			select_end = *selection_start; \
+		} \
+\
+		if (select_start >= 0 && select_end >= 0 && cp - text >= select_start && cp - text <= select_end) \
+		{ \
+			SDL_Rect selection_box; \
+\
+			selection_box.x = dest.x; \
+			selection_box.y = dest.y; \
+			selection_box.w = 0; \
+			selection_box.h = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)); \
+\
+			if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1) \
+			{ \
+				SDL_FillRect(surface, &selection_box, -1); \
+\
+				select_color_orig = color; \
+				color.r = color.g = color.b = 0; \
+				select_color_changed = 1; \
+			} \
+		} \
+	} \
+}
+
+/**
+ * End handling text mouse-based selection. */
+#define STRING_BLT_SELECT_END() \
+{ \
+	if (select_color_changed) \
+	{ \
+		color = select_color_orig; \
+		select_color_changed = 0; \
+	} \
+\
+	if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && *cp != '\r') \
+	{ \
+		if (my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= old_x && mx <= old_x + glyph_get_width(FONT_TRY_INFO(font, info, surface), *cp)) \
+		{ \
+			if (*selection_started) \
+			{ \
+				*selection_end = cp - text; \
+			} \
+			else \
+			{ \
+				*selection_start = cp - text; \
+			} \
+		} \
+	} \
+}
+
+/**
  * Draw a string on the specified surface.
  * @param surface Surface to draw on.
  * @param font Font to use. One of @ref FONT_xxx.
@@ -1713,7 +1775,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	while (cp[pos] != '\0')
 	{
 		/* Have we gone over the height limit yet? */
-		if (box && box->h && dest.y + FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) - y > box->h)
+		if (box && box->h && dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) - y > box->h)
 		{
 			/* We are calculating height/lines, keep going on but without
 			 * any more drawing. */
@@ -1731,7 +1793,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 		/* Is this a newline, or word wrap was set and we are over
 		 * maximum width? */
-		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '<' ? 0 : glyph_get_width(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font, cp[pos])) > box->w))
+		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '<' ? 0 : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) > box->w))
 		{
 			/* Store the last space. */
 			if (is_lf || last_space == 0)
@@ -1740,7 +1802,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			}
 
 			/* See if we should skip drawing. */
-			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) < box->y;
+			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) < box->y;
 
 			max_height = 0;
 
@@ -1759,82 +1821,26 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			{
 				old_x = dest.x;
 
-				if (!skip && selection_start && selection_end)
-				{
-					select_start = *selection_start;
-					select_end = *selection_end;
-
-					if (select_end < select_start)
-					{
-						select_start = *selection_end;
-						select_end = *selection_start;
-					}
-
-					if (select_start >= 0 && select_end >= 0 && cp - text >= select_start && cp - text <= select_end)
-					{
-						SDL_Rect selection_box;
-
-						selection_box.x = dest.x;
-						selection_box.y = dest.y;
-						selection_box.w = 0;
-						selection_box.h = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
-
-						if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1)
-						{
-							SDL_FillRect(surface, &selection_box, -1);
-
-							select_color_orig = color;
-							color.r = color.g = color.b = 0;
-							select_color_changed = 1;
-						}
-					}
-				}
+				STRING_BLT_SELECT_BEGIN();
 
 				info.obscured = skip;
 				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 				info.obscured = 0;
 
-				if (select_color_changed)
-				{
-					color = select_color_orig;
-					select_color_changed = 0;
-				}
-
-				if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && *cp != '\r')
-				{
-					if (my >= dest.y && my <= dest.y + FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) && mx >= old_x && mx <= old_x + glyph_get_width(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font, *cp))
-					{
-						if (*selection_started)
-						{
-							*selection_end = cp - text;
-						}
-						else
-						{
-							*selection_start = cp - text;
-						}
-					}
-				}
+				STRING_BLT_SELECT_END();
 
 				cp += ret;
 				last_space -= ret;
 
-				/* If we changed font, there might be a larger one... */
-				if (info.calc_font != -1 && !surface && !info.obscured)
+				if (FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) > max_height)
 				{
-					if (FONT_HEIGHT(info.calc_font) > max_height)
-					{
-						max_height = FONT_HEIGHT(info.calc_font);
-					}
-				}
-				else if (FONT_HEIGHT(font) > max_height)
-				{
-					max_height = FONT_HEIGHT(font);
+					max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
 				}
 			}
 
 			if (!max_height)
 			{
-				max_height = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
+				max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
 			}
 
 			/* Update the Y position. */
@@ -1910,25 +1916,23 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			width += w;
 		}
 
+		old_x = dest.x;
+		skip = 0;
+		STRING_BLT_SELECT_BEGIN();
+
 		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 
-		/* If we changed font, there might be a larger one... */
-		if (info.calc_font != -1 && !surface && !info.obscured)
+		STRING_BLT_SELECT_END();
+
+		if (FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) > max_height)
 		{
-			if (FONT_HEIGHT(info.calc_font) > max_height)
-			{
-				max_height = FONT_HEIGHT(info.calc_font);
-			}
-		}
-		else if (FONT_HEIGHT(font) > max_height)
-		{
-			max_height = FONT_HEIGHT(font);
+			max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
 		}
 	}
 
 	if (!max_height)
 	{
-		max_height = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
+		max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
 	}
 
 	if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)

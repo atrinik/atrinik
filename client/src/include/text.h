@@ -356,6 +356,8 @@ typedef struct text_blit_info
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) (fonts[(font)].height)
 
+#define FONT_TRY_INFO(_font, _info, _surface) ((_info).calc_font != -1 && !(_surface) && !(_info).obscured ? (_info).calc_font : (_font))
+
 /**
  * Anchor handler function to try and execute before the defaults.
  * @param anchor_action The action to execute, which can be empty (but

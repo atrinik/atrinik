@@ -52,9 +52,6 @@ typedef struct interface_struct
 	/** Array of the shortcut-supporting links. */
 	UT_array *links;
 
-	/** Whether to redraw the interface. */
-	uint8 redraw;
-
 	/** Whether the interface should be destroyed. */
 	uint8 destroy;
 

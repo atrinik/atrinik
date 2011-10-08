@@ -33,6 +33,9 @@
  * The current interface data. */
 static interface_struct *interface_data = NULL;
 /**
+ * The interface popup. */
+static popup_struct *interface_popup = NULL;
+/**
  * Button buffers. */
 static button_struct button_hello, button_close;
 
@@ -117,7 +120,7 @@ static void interface_execute_link(size_t link_id)
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
-	if (interface_data->redraw)
+	if (popup->redraw)
 	{
 		_BLTFX bltfx;
 		SDL_Rect box;
@@ -142,11 +145,13 @@ static int popup_draw_func(popup_struct *popup)
 		box.x = 0;
 		box.y = interface_data->scroll_offset;
 		text_set_anchor_handle(text_anchor_handle);
+		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
 		string_blt(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_set_selection(NULL, NULL, NULL);
 		text_set_anchor_handle(NULL);
 		text_offset_reset();
 
-		interface_data->redraw = 0;
+		popup->redraw = 0;
 	}
 
 	return !interface_data->destroy;
@@ -186,6 +191,7 @@ static int popup_destroy_callback(popup_struct *popup)
 	(void) popup;
 	interface_destroy();
 	text_input_close();
+	interface_popup = NULL;
 	return 1;
 }
 
@@ -363,13 +369,16 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			scrollbar_scroll_adjust(&interface_data->scrollbar, -1);
 			return 1;
 		}
-		else if (event->button.button == SDL_BUTTON_LEFT)
-		{
-			interface_data->redraw = 1;
-		}
 	}
 
 	return -1;
+}
+
+/** @copydoc popup_struct::clipboard_copy_func */
+static const char *popup_clipboard_copy_func(popup_struct *popup)
+{
+	(void) popup;
+	return interface_data->message;
 }
 
 /**
@@ -395,24 +404,23 @@ void cmd_interface(uint8 *data, int len)
 		return;
 	}
 
-	if (!interface_data)
+	if (!interface_popup)
 	{
-		popup_struct *popup;
+		interface_popup = popup_create(BITMAP_INTERFACE);
+		interface_popup->draw_func = popup_draw_func;
+		interface_popup->draw_func_post = popup_draw_func_post;
+		interface_popup->destroy_callback_func = popup_destroy_callback;
+		interface_popup->event_func = popup_event_func;
+		interface_popup->clipboard_copy_func = popup_clipboard_copy_func;
+		interface_popup->disable_bitmap_blit = 1;
 
-		popup = popup_create(BITMAP_INTERFACE);
-		popup->draw_func = popup_draw_func;
-		popup->draw_func_post = popup_draw_func_post;
-		popup->destroy_callback_func = popup_destroy_callback;
-		popup->event_func = popup_event_func;
-		popup->disable_bitmap_blit = 1;
+		interface_popup->button_left.event_func = popup_button_event_func;
+		interface_popup->button_left.x = 380;
+		interface_popup->button_left.y = 4;
+		popup_button_set_text(&interface_popup->button_left, "?");
 
-		popup->button_left.event_func = popup_button_event_func;
-		popup->button_left.x = 380;
-		popup->button_left.y = 4;
-		popup_button_set_text(&popup->button_left, "?");
-
-		popup->button_right.x = 411;
-		popup->button_right.y = 4;
+		interface_popup->button_right.x = 411;
+		interface_popup->button_right.y = 4;
 	}
 
 	/* Make sure text input is not open. */
@@ -423,7 +431,7 @@ void cmd_interface(uint8 *data, int len)
 
 	/* Create new interface. */
 	interface_data = calloc(1, sizeof(*interface_data));
-	interface_data->redraw = 1;
+	interface_popup->redraw = 1;
 	interface_data->font = FONT_ARIAL11;
 	utarray_new(interface_data->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
@@ -540,7 +548,7 @@ void cmd_interface(uint8 *data, int len)
 	interface_data->num_lines = box.h;
 
 	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);
-	interface_data->scrollbar.redraw = &interface_data->redraw;
+	interface_data->scrollbar.redraw = &interface_popup->redraw;
 
 	if (scroll_bottom)
 	{
@@ -560,8 +568,8 @@ void cmd_interface(uint8 *data, int len)
  * Redraw the interface. */
 void interface_redraw(void)
 {
-	if (interface_data)
+	if (interface_popup)
 	{
-		interface_data->redraw = 1;
+		interface_popup->redraw = 1;
 	}
 }
