@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-10-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -812,7 +812,8 @@ x 6
 y 21
 end
 arch floor_flagm1
-z 40
+z 50
+sub_layer 1
 x 6
 y 22
 end
@@ -840,6 +841,8 @@ end
 end
 arch floor_flagm2
 terrain_type 32
+sub_layer 1
+z 50
 x 6
 y 23
 end
@@ -952,12 +955,14 @@ x 7
 y 21
 end
 arch floor_flagm1
-z 40
+z 50
+sub_layer 1
 x 7
 y 22
 end
 arch ladder_down2
 direction 7
+sub_layer 1
 slaying world_a_0320
 hp 7
 sp 22
@@ -966,6 +971,8 @@ y 22
 end
 arch floor_flagm2
 terrain_type 32
+sub_layer 1
+z 50
 x 7
 y 23
 end
@@ -1111,6 +1118,8 @@ y 21
 end
 arch floor_flagm4
 terrain_type 32
+z 50
+sub_layer 1
 x 8
 y 22
 end
@@ -1122,6 +1131,8 @@ y 22
 end
 arch floor_flagm3
 terrain_type 32
+sub_layer 1
+z 50
 x 8
 y 23
 end
@@ -2328,7 +2339,8 @@ x 17
 y 21
 end
 arch floor_flagm1
-z 40
+z 50
+sub_layer 1
 x 17
 y 22
 end
@@ -2342,6 +2354,8 @@ y 22
 end
 arch floor_flagm2
 terrain_type 32
+sub_layer 1
+z 50
 x 17
 y 23
 end
@@ -2454,7 +2468,8 @@ x 18
 y 21
 end
 arch floor_flagm1
-z 40
+z 50
+sub_layer 1
 x 18
 y 22
 end
@@ -2482,6 +2497,8 @@ end
 end
 arch floor_flagm2
 terrain_type 32
+sub_layer 1
+z 50
 x 18
 y 23
 end
@@ -2619,6 +2636,8 @@ y 21
 end
 arch floor_flagm4
 terrain_type 32
+z 50
+sub_layer 1
 x 19
 y 22
 end
@@ -2630,6 +2649,8 @@ y 22
 end
 arch floor_flagm3
 terrain_type 32
+sub_layer 1
+z 50
 x 19
 y 23
 end
