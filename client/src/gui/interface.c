@@ -36,6 +36,9 @@ static interface_struct *interface_data = NULL;
  * The interface popup. */
 static popup_struct *interface_popup = NULL;
 /**
+ * History. */
+static UT_array *history = NULL;
+/**
  * Button buffers. */
 static button_struct button_hello, button_close;
 
@@ -244,6 +247,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			{
 				char *input_string;
 
+				text_input_history_add(text_input_string);
 				input_string = strdup(text_input_string);
 
 				if (!interface_data->input_cleanup_disable)
@@ -345,6 +349,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
 				text_input_open(255);
+				text_input_set_history(history);
 				return 1;
 
 			default:
@@ -437,6 +442,12 @@ void cmd_interface(uint8 *data, int len)
 	utarray_new(interface_data->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
 
+	/* Create new history array if it doesn't exist yet. */
+	if (!history)
+	{
+		utarray_new(history, &ut_str_icd);
+	}
+
 	/* Parse the data. */
 	while (pos < len)
 	{
@@ -519,6 +530,7 @@ void cmd_interface(uint8 *data, int len)
 	if (text_input)
 	{
 		text_input_open(255);
+		text_input_set_history(history);
 		text_input_set_string(text_input_content);
 	}
 
