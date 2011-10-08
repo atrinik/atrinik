@@ -421,12 +421,20 @@ typedef struct obj
 	sint8 item_power;
 
 	/**
-	 * How much to zoom the object.
+	 * How much to zoom the object horizontally.
 	 *
 	 * 0 = 100 = 100% zoom of the object, which means the original (no
 	 * actual zooming is done). 50 = 50% of the original object's size,
 	 * 200 = 200% of the original object's size. */
-	uint8 zoom;
+	sint16 zoom_x;
+
+	/**
+	 * How much to zoom the object vertically.
+	 *
+	 * 0 = 100 = 100% zoom of the object, which means the original (no
+	 * actual zooming is done). 50 = 50% of the original object's size,
+	 * 200 = 200% of the original object's size. */
+	sint16 zoom_y;
 
 	/** Object's alpha value. */
 	uint8 alpha;

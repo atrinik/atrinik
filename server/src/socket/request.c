@@ -1611,7 +1611,7 @@ void draw_client_map2(object *pl)
 
 						/* Check if the object has zoom, or check if the magic mirror
 						 * should affect the zoom value of this layer. */
-						if ((head->zoom && head->zoom != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1))))
+						if ((head->zoom_x && head->zoom_x != 100) || (head->zoom_y && head->zoom_y != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1))))
 						{
 							flags |= MAP2_FLAG_ZOOM;
 						}
@@ -1742,10 +1742,12 @@ void draw_client_map2(object *pl)
 							if (mirror && mirror->last_heal)
 							{
 								SockList_AddShort(&sl_layer, mirror->last_heal);
+								SockList_AddShort(&sl_layer, mirror->last_heal);
 							}
 							else
 							{
-								SockList_AddShort(&sl_layer, head->zoom);
+								SockList_AddShort(&sl_layer, head->zoom_x);
+								SockList_AddShort(&sl_layer, head->zoom_y);
 							}
 						}
 

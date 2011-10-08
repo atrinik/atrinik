@@ -356,7 +356,7 @@ void adjust_tile_stretch(void)
  * @param align X align.
  * @param rotate Rotation in degrees.
  * @param infravision Whether to show the object in red. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision)
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -371,7 +371,8 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].pname[layer][sizeof(the_map.cells[x][y].pname[layer]) - 1] = '\0';
 
 	the_map.cells[x][y].height[layer] = height;
-	the_map.cells[x][y].zoom[layer] = zoom;
+	the_map.cells[x][y].zoom_x[layer] = zoom_x;
+	the_map.cells[x][y].zoom_y[layer] = zoom_y;
 	the_map.cells[x][y].align[layer] = align;
 	the_map.cells[x][y].draw_double[layer] = draw_double;
 	the_map.cells[x][y].alpha[layer] = alpha;
@@ -397,7 +398,8 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].quick_pos[layer] = 0;
 		the_map.cells[x][y].pname[layer][0] = '\0';
 		the_map.cells[x][y].height[layer] = 0;
-		the_map.cells[x][y].zoom[layer] = 0;
+		the_map.cells[x][y].zoom_x[layer] = 0;
+		the_map.cells[x][y].zoom_y[layer] = 0;
 		the_map.cells[x][y].align[layer] = 0;
 		the_map.cells[x][y].rotate[layer] = 0;
 		the_map.cells[x][y].infravision[layer] = 0;
@@ -456,6 +458,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	uint32 stretch = 0;
 	_BLTFX bltfx;
 	int bitmap_h, bitmap_w;
+	int zoom_x, zoom_y;
 
 	bltfx.surface = NULL;
 	xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
@@ -477,13 +480,16 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	bitmap_h = face_sprite->bitmap->h;
 	bitmap_w = face_sprite->bitmap->w;
 
+	zoom_x = map->zoom_x[GET_MAP_LAYER(layer, sub_layer)];
+	zoom_y = map->zoom_y[GET_MAP_LAYER(layer, sub_layer)];
+
 	if (map->rotate[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		rotozoomSurfaceSize(bitmap_w, bitmap_h, map->rotate[GET_MAP_LAYER(layer, sub_layer)], map->zoom[GET_MAP_LAYER(layer, sub_layer)] ? map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0 : 1.0, &bitmap_w, &bitmap_h);
+		rotozoomSurfaceSizeXY(bitmap_w, bitmap_h, map->rotate[GET_MAP_LAYER(layer, sub_layer)], zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &bitmap_w, &bitmap_h);
 	}
-	else if (map->zoom[GET_MAP_LAYER(layer, sub_layer)] && map->zoom[GET_MAP_LAYER(layer, sub_layer)] != 100)
+	else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
 	{
-		zoomSurfaceSize(bitmap_w, bitmap_h, map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0, map->zoom[GET_MAP_LAYER(layer, sub_layer)] / 100.0, &bitmap_w, &bitmap_h);
+		zoomSurfaceSize(bitmap_w, bitmap_h, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &bitmap_w, &bitmap_h);
 	}
 
 	/* We have a set quick_pos = multi tile */
@@ -610,14 +616,14 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		yl -= map->height[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
 	if (map->draw_double[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 	}
 
 	if (xml == MAP_TILE_POS_XOFF)
@@ -643,28 +649,27 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 9, yl + 3, NULL, NULL, 0, map->zoom[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 	}
 
@@ -844,7 +849,7 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 		ypos = (ypos - get_top_floor_height(x, y)) + get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 	}
 
-	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0);
+	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0, 0);
 }
 
 /**

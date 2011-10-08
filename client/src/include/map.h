@@ -167,8 +167,11 @@ typedef struct MapCell
 	/** Height of this maptile. */
 	sint16 height[NUM_REAL_LAYERS];
 
-	/** Zoom. */
-	sint16 zoom[NUM_REAL_LAYERS];
+	/** Zoom X. */
+	sint16 zoom_x[NUM_REAL_LAYERS];
+
+	/** Zoom Y. */
+	sint16 zoom_y[NUM_REAL_LAYERS];
 
 	/** Align. */
 	sint16 align[NUM_REAL_LAYERS];

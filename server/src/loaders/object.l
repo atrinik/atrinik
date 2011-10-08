@@ -502,7 +502,9 @@ lex_error = 0;
 ^x{S}               op->x = IVAL;
 ^y{S}               op->y = IVAL;
 ^z{S}               op->z = IVAL;
-^zoom{S}            op->zoom = IVAL;
+^zoom{S}            op->zoom_x = op->zoom_y = IVAL;
+^zoom_x{S}          op->zoom_x = IVAL;
+^zoom_y{S}          op->zoom_y = IVAL;
 ^align{S}           op->align = IVAL;
 ^alpha{S}           op->alpha = IVAL;
 ^rotate{S}          op->rotate = IVAL;
@@ -1437,9 +1439,14 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "y ", op->y);
 	}
 
-	if (op->zoom != op2->zoom)
+	if (op->zoom_x != op2->zoom_x)
 	{
-		FAST_SAVE_LONG(sb, "zoom ", op->zoom);
+		FAST_SAVE_LONG(sb, "zoom_x ", op->zoom_x);
+	}
+
+	if (op->zoom_y != op2->zoom_y)
+	{
+		FAST_SAVE_LONG(sb, "zoom_y ", op->zoom_y);
 	}
 
 	if (op->align != op2->align)

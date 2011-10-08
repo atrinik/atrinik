@@ -258,10 +258,11 @@ void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
  * @param box Box.
  * @param bltfx Bltfx.
  * @param stretch How much to stretch the sprite. */
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom, sint16 rotate)
+void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
 	SDL_Rect dst;
 	SDL_Surface *surface, *blt_sprite, *tmp;
+	int smooth;
 
 	if (!sprite)
 	{
@@ -394,18 +395,28 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		return;
 	}
 
+	/* If this is just a flip with no rotate, force disabled interpolation. */
+	if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) && (zoom_y == 0 || zoom_y == -100 || zoom_y == 100))
+	{
+		smooth = 0;
+	}
+	else
+	{
+		smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
+	}
+
 	if (rotate)
 	{
-		blt_sprite = rotozoomSurface(blt_sprite, rotate, zoom ? zoom / 100.0 : 1.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+		blt_sprite = rotozoomSurfaceXY(blt_sprite, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
 		if (!blt_sprite)
 		{
 			return;
 		}
 	}
-	else if (zoom && zoom != 100)
+	else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
 	{
-		blt_sprite = zoomSurface(blt_sprite, zoom / 100.0, zoom / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+		blt_sprite = zoomSurface(blt_sprite, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
 		if (!blt_sprite)
 		{
@@ -425,7 +436,7 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
-	if (stretch || (zoom && zoom != 100) || rotate)
+	if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate)
 	{
 		SDL_FreeSurface(blt_sprite);
 	}
