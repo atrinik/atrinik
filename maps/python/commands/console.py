@@ -10,6 +10,8 @@ import threading, code
 __VERSION__ = "1.0"
 ## The beginning of the thread name.
 __THREADNAME__ = "PyConsoleThread-"
+## Lock used for stdout.
+stdout_lock = threading.Lock()
 
 ## Handles the console data.
 class PyConsole(code.InteractiveConsole):
@@ -48,9 +50,7 @@ def py_console_thread():
 	console = PyConsole()
 	console.inf_data = inf_data
 
-	old_stdout = sys.stdout
-	# Redirect stdout.
-	sys.stdout = stdout_inf(inf_data)
+	stdout = stdout_inf(inf_data)
 
 	# Send the greeting message.
 	inf_data.append("Atrinik Python Console v{}".format(__VERSION__))
@@ -63,28 +63,40 @@ def py_console_thread():
 		if not thread.activator:
 			break
 
-		# Acquire the commands lost.
+		# Acquire the commands lock.
 		thread.commands_lock.acquire()
 
-		for command in thread.commands:
-			if command == None:
-				continue
-
-			inf_data.append(">>> {}".format(command))
-			console.push(command)
-
-		# If there were any commands, send an interface and clear the
-		# commands list.
 		if thread.commands:
-			send_inf(thread.activator, "\n".join(inf_data))
+			# Acquire the stdout lock.
+			stdout_lock.acquire()
+			# Redirect stdout.
+			old_stdout = sys.stdout
+			sys.stdout = stdout
+
+			for command in thread.commands:
+				if command == None:
+					continue
+
+				if command.startswith("noinf::"):
+					command = command[7:]
+
+				inf_data.append(">>> {}".format(command))
+				console.push(command)
+
+			sys.stdout = old_stdout
+			stdout_lock.release()
+
+			# Send the interface, but only if the first command didn't
+			# start with "noinf::".
+			if not thread.commands[0] or not thread.commands[0].startswith("noinf::"):
+				send_inf(thread.activator, "\n".join(inf_data))
+
 			thread.commands = []
 
 		# Release the lock.
 		thread.commands_lock.release()
 		# Save CPU.
 		time.sleep(0.30)
-
-	sys.stdout = old_stdout
 
 ## Setups the console thread.
 class PyConsoleThread(threading.Thread):
