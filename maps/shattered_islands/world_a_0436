@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2011-10-07 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2011-10-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -262,6 +262,33 @@ arch floor_fs_grey1a
 x 6
 y 23
 end
+arch spawn_point
+x 7
+y 12
+arch ant_red
+msg
+@match ^hello$
+Hello! I'm Clippy, the Cheerful Paperclip, and it seems you have discovered some chests that you want to loot. Do you need help with that? I am sure the guards won't notice!
+@match ^[a]+[h]+$|^n[o]+$|^[a]+$
+You can't escape me! I know you have affection for me, in that heart of yours somewhere!
+@match ^gates$
+Mmmmmmmmhhh!
+@match ^yes$
+Ops, gotta go!
+endmsg
+name Clippy
+face eyes.101
+is_animated 0
+direction 0
+randomitems none
+level 95
+invulnerable 1
+no_attack 1
+friendly 1
+stand_still 1
+type 83
+end
+end
 arch blocked
 x 7
 y 13
@@ -493,7 +520,7 @@ arch floor_fs_grey1d
 x 9
 y 21
 end
-arch desk2
+arch chest_m
 x 9
 y 21
 end
@@ -768,9 +795,11 @@ x 12
 y 23
 end
 arch horn_normal
+zoom_x -100
 layer 4
 sub_layer 1
 z 24
+align 10
 x 12
 y 23
 end
@@ -923,7 +952,42 @@ arch floor_fs_grey1d
 x 14
 y 21
 end
+arch desk2
+x 14
+y 21
+end
+arch spawn_point
+x 14
+y 21
+arch ant_red
+msg
+@match ^hello$
+*yawn*
+
+Care to take me out for some hot action? It's boring being a sword of a noble, you know. No action. Ever.
+endmsg
+name sword of Rhyz
+face sword.101
+is_animated 0
+z 13
+zoom 80
+align 10
+rotate 100
+direction 0
+randomitems none
+invulnerable 1
+no_attack 1
+friendly 1
+stand_still 1
+type 83
+end
+end
 arch floor_fs_grey1a
+x 14
+y 22
+end
+arch chair2_111
+direction 5
 x 14
 y 22
 end
