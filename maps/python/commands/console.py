@@ -10,6 +10,8 @@ import threading, code
 __VERSION__ = "1.0"
 ## The beginning of the thread name.
 __THREADNAME__ = "PyConsoleThread-"
+## Maximum number of history lines.
+__HISTORY__ = 40
 ## Lock used for stdout.
 stdout_lock = threading.Lock()
 
@@ -42,7 +44,7 @@ def py_console_thread():
 				self._inf_data += s.split("\n")
 
 	# Create a ring buffer.
-	inf_data = collections.deque(maxlen = 20)
+	inf_data = collections.deque(maxlen = __HISTORY__)
 	# Get the current thread.
 	thread = threading.current_thread()
 
