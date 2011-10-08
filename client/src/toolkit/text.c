@@ -1713,7 +1713,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	while (cp[pos] != '\0')
 	{
 		/* Have we gone over the height limit yet? */
-		if (box && box->h && dest.y + FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font) - y > box->h)
+		if (box && box->h && dest.y + FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) - y > box->h)
 		{
 			/* We are calculating height/lines, keep going on but without
 			 * any more drawing. */
@@ -1731,7 +1731,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 		/* Is this a newline, or word wrap was set and we are over
 		 * maximum width? */
-		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '<' ? 0 : glyph_get_width(info.calc_font != -1 ? info.calc_font : font, cp[pos])) > box->w))
+		if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '<' ? 0 : glyph_get_width(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font, cp[pos])) > box->w))
 		{
 			/* Store the last space. */
 			if (is_lf || last_space == 0)
@@ -1740,7 +1740,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			}
 
 			/* See if we should skip drawing. */
-			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font) < box->y;
+			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) < box->y;
 
 			max_height = 0;
 
@@ -1777,7 +1777,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 						selection_box.x = dest.x;
 						selection_box.y = dest.y;
 						selection_box.w = 0;
-						selection_box.h = FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font);
+						selection_box.h = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
 
 						if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1)
 						{
@@ -1802,7 +1802,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 				if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && *cp != '\r')
 				{
-					if (my >= dest.y && my <= dest.y + FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font) && mx >= old_x && mx <= old_x + glyph_get_width(info.calc_font != -1 ? info.calc_font : font, *cp))
+					if (my >= dest.y && my <= dest.y + FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font) && mx >= old_x && mx <= old_x + glyph_get_width(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font, *cp))
 					{
 						if (*selection_started)
 						{
@@ -1819,7 +1819,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				last_space -= ret;
 
 				/* If we changed font, there might be a larger one... */
-				if (info.calc_font != -1)
+				if (info.calc_font != -1 && !surface && !info.obscured)
 				{
 					if (FONT_HEIGHT(info.calc_font) > max_height)
 					{
@@ -1834,7 +1834,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			if (!max_height)
 			{
-				max_height = FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font);
+				max_height = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
 			}
 
 			/* Update the Y position. */
@@ -1913,7 +1913,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 
 		/* If we changed font, there might be a larger one... */
-		if (info.calc_font != -1)
+		if (info.calc_font != -1 && !surface && !info.obscured)
 		{
 			if (FONT_HEIGHT(info.calc_font) > max_height)
 			{
@@ -1928,7 +1928,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 	if (!max_height)
 	{
-		max_height = FONT_HEIGHT(info.calc_font != -1 ? info.calc_font : font);
+		max_height = FONT_HEIGHT(info.calc_font != -1 && !surface && !info.obscured ? info.calc_font : font);
 	}
 
 	if (flags & TEXT_MAX_WIDTH && dest.w / 2 > max_width)
