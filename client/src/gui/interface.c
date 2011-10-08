@@ -432,6 +432,7 @@ void cmd_interface(uint8 *data, int len)
 	/* Create new interface. */
 	interface_data = calloc(1, sizeof(*interface_data));
 	interface_popup->redraw = 1;
+	interface_popup->selection_start = interface_popup->selection_end = -1;
 	interface_data->font = FONT_ARIAL11;
 	utarray_new(interface_data->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
