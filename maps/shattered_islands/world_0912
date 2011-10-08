@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1923,23 +1923,11 @@ arch water_lt4
 x 14
 y 5
 end
-arch wall_fortified_low.181
-x 14
-y 5
-end
 arch water_lt3
 x 14
 y 6
 end
-arch wall_fortified_low_b.111
-x 14
-y 6
-end
 arch water_lt
-x 14
-y 7
-end
-arch wall_fortified_low_b.111
 x 14
 y 7
 end
@@ -1987,24 +1975,11 @@ arch water_lt
 x 14
 y 15
 end
-arch wall_fortified_low.181
-no_pass 0
-x 14
-y 15
-end
 arch water_lt3
 x 14
 y 16
 end
-arch wall_fortified_low_b.111
-x 14
-y 16
-end
 arch water_lt2
-x 14
-y 17
-end
-arch wall_fortified_low_b.111
 x 14
 y 17
 end
@@ -2055,16 +2030,7 @@ arch water_lt2
 x 15
 y 5
 end
-arch wall_fortified_low.131
-x 15
-y 5
-end
-arch floor_flagm1
-player_only 1
-x 15
-y 6
-end
-arch stairs_stone_down
+arch water_lt4
 x 15
 y 6
 end
@@ -2108,27 +2074,338 @@ arch water_lt4
 x 15
 y 15
 end
-arch wall_fortified_low.131
-no_pass 0
+arch water_lt3
 x 15
+y 16
+end
+arch water_lt2
+x 15
+y 17
+end
+arch water_lt3
+x 15
+y 18
+end
+arch water_lt
+x 15
+y 19
+end
+arch water_lt
+x 15
+y 20
+end
+arch water_lt3
+x 15
+y 21
+end
+arch water_lt3
+x 15
+y 22
+end
+arch water_lt4
+x 15
+y 23
+end
+arch water_lt3
+x 16
+end
+arch water_lt3
+x 16
+y 1
+end
+arch water_lt
+x 16
+y 2
+end
+arch water_lt
+x 16
+y 3
+end
+arch water_lt4
+x 16
+y 4
+end
+arch water_lt2
+x 16
+y 5
+end
+arch water_lt
+x 16
+y 6
+end
+arch wall_fortified_high.181
+blocksview 0
+no_pass 0
+x 16
+y 6
+end
+arch water_lt
+x 16
+y 7
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 7
+end
+arch water_lt
+x 16
+y 8
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 8
+end
+arch water_lt
+x 16
+y 9
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 9
+end
+arch water_lt
+x 16
+y 10
+end
+arch bridge_wood_EW.111
+x 16
+y 11
+end
+arch bridge_wood_EW.101
+x 16
+y 12
+end
+arch bridge_wood_EW.101
+x 16
+y 13
+end
+arch water_lt2
+x 16
+y 14
+end
+arch bridge_wood_EW.151
+x 16
+y 14
+end
+arch water_lt
+x 16
 y 15
 end
-arch floor_flagm1
-x 15
+arch water_lt
+x 16
 y 16
 end
-arch spawn_point
-x 15
+arch wall_fortified_high.181
+blocksview 0
+no_pass 0
+x 16
 y 16
+end
+arch water_lt
+x 16
+y 17
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 17
+end
+arch water_lt
+x 16
+y 18
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 18
+end
+arch water_lt
+x 16
+y 19
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
+y 19
+end
+arch water_lt
+x 16
+y 20
+end
+arch water_lt2
+x 16
+y 21
+end
+arch water_lt
+x 16
+y 22
+end
+arch water_lt3
+x 16
+y 23
+end
+arch water_lt2
+x 17
+end
+arch water_lt4
+x 17
+y 1
+end
+arch water_lt
+x 17
+y 2
+end
+arch water_lt
+x 17
+y 3
+end
+arch water_lt4
+x 17
+y 4
+end
+arch water_lt2
+x 17
+y 5
+end
+arch water_lt2
+x 17
+y 6
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 17
+y 6
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
+y 7
+end
+arch light6
+x 17
+y 7
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
+y 8
+end
+arch spawn_point
+x 17
+y 8
 arch archer
+level 75
+Dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+Wis 12
+type 83
+z -5
+arch ability_stone_throw
+race arrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+end
+end
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
+y 9
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 17
+y 9
+end
+arch water_lt4
+x 17
+y 10
+end
+arch bridge_wood_EW.111
+x 17
+y 11
+end
+arch bridge_wood_EW.101
+x 17
+y 12
+end
+arch bridge_wood_EW.101
+x 17
+y 13
+end
+arch water_lt4
+x 17
+y 14
+end
+arch bridge_wood_EW.151
+x 17
+y 14
+end
+arch water_lt3
+x 17
+y 15
+end
+arch water_lt2
+x 17
+y 16
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 17
+y 16
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
+y 17
+end
+arch spawn_point
+x 17
+y 17
+arch archer
+level 75
+Dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+Wis 12
+type 83
+align 5
 direction 1
-level 75
-Dex 1
-can_use_bow 1
-unaggressive 0
-stand_still 1
-Wis 12
-type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2152,85 +2429,97 @@ attack_poison 100
 end
 end
 end
-arch floor_flagm1
-player_only 1
-x 15
-y 17
-end
-arch stairs_stone_down
-x 15
-y 17
-end
-arch light6
-x 15
-y 17
-end
-arch water_lt4
-x 15
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
 y 18
 end
-arch water_lt2
-x 15
+arch light6
+x 17
+y 18
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
 y 19
 end
-arch water_lt
-x 15
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 17
+y 19
+end
+arch water_lt4
+x 17
 y 20
 end
-arch water_lt3
-x 15
+arch water_lt4
+x 17
 y 21
 end
-arch water_lt3
-x 15
+arch water_lt
+x 17
 y 22
 end
 arch water_lt4
-x 15
+x 17
 y 23
 end
-arch water_lt3
-x 16
+arch water_lt
+x 18
 end
 arch water_lt3
-x 16
+x 18
 y 1
 end
-arch water_lt
-x 16
+arch water_lt4
+x 18
 y 2
 end
-arch water_lt
-x 16
+arch water_lt2
+x 18
 y 3
 end
-arch water_lt4
-x 16
+arch water_lt
+x 18
 y 4
 end
+arch water_lt3
+x 18
+y 5
+end
 arch water_lt2
-x 16
-y 5
-end
-arch wall_fortified_low.131
-x 16
-y 5
-end
-arch floor_flagm1
-x 16
+x 18
 y 6
 end
-arch light6
-x 16
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 18
 y 6
 end
-arch floor_flagm2
-x 16
+arch floor_flagm3
+z 50
+sub_layer 1
+x 18
 y 7
+end
+arch ladder_down2
+sub_layer 1
+x 18
+y 7
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 18
+y 8
 end
 arch spawn_point
-x 16
-y 7
+x 18
+y 8
 arch archer
 level 75
 Dex 1
@@ -2239,6 +2528,7 @@ unaggressive 0
 stand_still 1
 Wis 12
 type 83
+z -5
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2263,68 +2553,82 @@ end
 end
 end
 arch floor_flagm1
-x 16
-y 8
-end
-arch water_lt
-x 16
+z 50
+sub_layer 1
+x 18
 y 9
 end
-arch wall_fortified_high.111
+arch wall_fortified_high.131
 blocksview 0
 no_pass 0
-x 16
+x 18
 y 9
 end
 arch water_lt
-x 16
+x 18
 y 10
 end
 arch bridge_wood_EW.111
-x 16
+x 18
+y 11
+end
+arch light5
+x 18
 y 11
 end
 arch bridge_wood_EW.101
-x 16
+x 18
 y 12
 end
 arch bridge_wood_EW.101
-x 16
+x 18
 y 13
 end
-arch water_lt2
-x 16
+arch water_lt
+x 18
 y 14
 end
 arch bridge_wood_EW.151
-x 16
+x 18
 y 14
 end
-arch water_lt
-x 16
+arch light5
+x 18
+y 14
+end
+arch water_lt3
+x 18
 y 15
 end
-arch wall_fortified_low.131
-no_pass 0
-x 16
-y 15
-end
-arch floor_flagm1
-x 16
+arch water_lt2
+x 18
 y 16
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 18
+y 16
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 18
+y 17
 end
 arch spawn_point
-x 16
-y 16
+x 18
+y 17
 arch archer
+level 75
+Dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+Wis 12
+type 83
+align 5
 direction 1
-level 75
-Dex 1
-can_use_bow 1
-unaggressive 0
-stand_still 1
-Wis 12
-type 83
 arch ability_stone_throw
 race arrows
 sp 1
@@ -2348,352 +2652,106 @@ attack_poison 100
 end
 end
 end
-arch floor_flagm2
-x 16
-y 17
-end
-arch light6
-x 16
-y 17
-end
-arch floor_flagm1
-x 16
+arch floor_flagm3
+z 50
+sub_layer 1
+x 18
 y 18
 end
-arch water_lt2
-x 16
+arch ladder_down2
+sub_layer 1
+direction 5
+x 18
+y 18
+end
+arch floor_flagm1
+z 50
+sub_layer 1
+x 18
 y 19
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 18
+y 19
+end
+arch water_lt
+x 18
+y 20
+end
+arch water_lt4
+x 18
+y 21
+end
+arch water_lt4
+x 18
+y 22
+end
+arch water_lt
+x 18
+y 23
+end
+arch water_lt
+x 19
+end
+arch water_lt2
+x 19
+y 1
+end
+arch water_lt3
+x 19
+y 2
+end
+arch water_lt2
+x 19
+y 3
+end
+arch water_lt2
+x 19
+y 4
+end
+arch water_lt
+x 19
+y 5
+end
+arch water_lt2
+x 19
+y 6
+end
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 19
+y 6
+end
+arch floor_flagm3
+z 50
+sub_layer 1
+x 19
+y 7
 end
 arch wall_fortified_high.111
-x 16
-y 19
-end
-arch water_lt
-x 16
-y 20
-end
-arch water_lt2
-x 16
-y 21
-end
-arch water_lt
-x 16
-y 22
-end
-arch water_lt3
-x 16
-y 23
-end
-arch water_lt2
-x 17
-end
-arch water_lt4
-x 17
-y 1
-end
-arch water_lt
-x 17
-y 2
-end
-arch water_lt
-x 17
-y 3
-end
-arch water_lt4
-x 17
-y 4
-end
-arch water_lt2
-x 17
-y 5
-end
-arch floor_flagm3
-x 17
-y 6
-end
-arch light6
-x 17
-y 6
-end
-arch floor_flagm4
-x 17
-y 7
-end
-arch spawn_point
-x 17
-y 7
-arch archer
-level 75
-Dex 1
-can_use_bow 1
-unaggressive 0
-stand_still 1
-Wis 12
-type 83
-arch ability_stone_throw
-race arrows
-sp 1
-wc 300
-wc_range 150
-magic 5
-end
-arch arrow_fey
-name elemental arrow
-no_pick 1
-sys_object 1
-dam 100
-last_grace 1
-last_sp 7
-wc 200
-magic 5
-attack_fire 100
-attack_electricity 100
-attack_cold 100
-attack_poison 100
-end
-end
-end
-arch floor_flagm4
-x 17
-y 8
-end
-arch floor_flagm4
-x 17
-y 9
-end
-arch wall_fortified_high.131
 blocksview 0
 no_pass 0
-x 17
-y 9
-end
-arch water_lt4
-x 17
-y 10
-end
-arch bridge_wood_EW.111
-x 17
-y 11
-end
-arch bridge_wood_EW.101
-x 17
-y 12
-end
-arch bridge_wood_EW.101
-x 17
-y 13
-end
-arch water_lt4
-x 17
-y 14
-end
-arch bridge_wood_EW.151
-x 17
-y 14
-end
-arch water_lt3
-x 17
-y 15
-end
-arch floor_flagm3
-x 17
-y 16
-end
-arch floor_flagm4
-x 17
-y 17
-end
-arch floor_flagm4
-x 17
-y 18
-end
-arch floor_flagm4
-x 17
-y 19
-end
-arch wall_fortified_high.131
-blocksview 0
-no_pass 0
-x 17
-y 19
-end
-arch water_lt4
-x 17
-y 20
-end
-arch water_lt4
-x 17
-y 21
-end
-arch water_lt
-x 17
-y 22
-end
-arch water_lt4
-x 17
-y 23
-end
-arch water_lt
-x 18
-end
-arch water_lt3
-x 18
-y 1
-end
-arch water_lt4
-x 18
-y 2
-end
-arch water_lt2
-x 18
-y 3
-end
-arch water_lt
-x 18
-y 4
-end
-arch water_lt3
-x 18
-y 5
-end
-arch water_lt2
-x 18
-y 6
-end
-arch floor_flagm1
-x 18
-y 7
-end
-arch floor_flagm3
-x 18
-y 8
-end
-arch floor_flagm1
-x 18
-y 9
-end
-arch wall_fortified_high.131
-blocksview 0
-no_pass 0
-x 18
-y 9
-end
-arch water_lt
-x 18
-y 10
-end
-arch bridge_wood_EW.111
-x 18
-y 11
-end
-arch light5
-x 18
-y 11
-end
-arch bridge_wood_EW.101
-x 18
-y 12
-end
-arch bridge_wood_EW.101
-x 18
-y 13
-end
-arch water_lt
-x 18
-y 14
-end
-arch bridge_wood_EW.151
-x 18
-y 14
-end
-arch light5
-x 18
-y 14
-end
-arch water_lt3
-x 18
-y 15
-end
-arch water_lt
-x 18
-y 16
-end
-arch floor_flagm1
-x 18
-y 17
-end
-arch floor_flagm3
-x 18
-y 18
-end
-arch floor_flagm1
-x 18
-y 19
-end
-arch wall_fortified_high.131
-x 18
-y 19
-end
-arch water_lt
-x 18
-y 20
-end
-arch water_lt4
-x 18
-y 21
-end
-arch water_lt4
-x 18
-y 22
-end
-arch water_lt
-x 18
-y 23
-end
-arch water_lt
-x 19
-end
-arch water_lt2
-x 19
-y 1
-end
-arch water_lt3
-x 19
-y 2
-end
-arch water_lt2
-x 19
-y 3
-end
-arch water_lt2
-x 19
-y 4
-end
-arch water_lt
-x 19
-y 5
-end
-arch water_lt3
-x 19
-y 6
-end
-arch water_lt2
-x 19
-y 7
-end
-arch wall_fortified_high.131
 x 19
 y 7
 end
 arch floor_flagm3
+z 50
+sub_layer 1
 x 19
 y 8
 end
 arch wall_fortified_high.111
+blocksview 0
+no_pass 0
 x 19
 y 8
 end
 arch floor_flagm2
+z 50
+sub_layer 1
 x 19
 y 9
 end
@@ -2731,31 +2789,49 @@ arch water_lt
 x 19
 y 15
 end
-arch water_lt
+arch water_lt2
 x 19
 y 16
 end
-arch water_lt3
+arch wall_fortified_high.131
+blocksview 0
+no_pass 0
+x 19
+y 16
+end
+arch floor_flagm3
+z 50
+sub_layer 1
 x 19
 y 17
 end
-arch wall_fortified_high.131
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
 x 19
 y 17
 end
 arch floor_flagm3
+z 50
+sub_layer 1
 x 19
 y 18
 end
 arch wall_fortified_high.111
+blocksview 0
+no_pass 0
 x 19
 y 18
 end
 arch floor_flagm2
+z 50
+sub_layer 1
 x 19
 y 19
 end
 arch wall_fortified_high.141
+blocksview 0
+no_pass 0
 x 19
 y 19
 end
