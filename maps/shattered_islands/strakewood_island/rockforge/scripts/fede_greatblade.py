@@ -16,6 +16,9 @@ def main():
 		elif msg == "portal":
 			inf.add_msg("What? I just want cake!")
 
+		elif msg == "arcanum":
+			inf.add_msg("Never heard of it! Is it some sort of delicious cake?")
+
 	elif location == "house":
 		if msg == "hello":
 			inf.add_msg("The dwarf appears to be sleeping like a stone... Suddenly, he yells out, as if from a dream:", COLOR_YELLOW)
