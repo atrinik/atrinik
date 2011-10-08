@@ -230,21 +230,33 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	{
 		if (text_input_string_flag)
 		{
-			if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
+			if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab)
+			{
+				text_input_add_char('\t');
+			}
+			else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
 			{
 				char *input_string;
 
 				input_string = strdup(text_input_string);
-				whitespace_squeeze(input_string);
-				whitespace_trim(input_string);
 
-				if (input_string[0] != '\0')
+				if (!interface_data->input_cleanup_disable)
+				{
+					whitespace_squeeze(input_string);
+					whitespace_trim(input_string);
+				}
+
+				if (input_string[0] != '\0' || interface_data->input_allow_empty)
 				{
 					StringBuffer *sb;
 					char *cp;
 
 					sb = stringbuffer_new();
-					stringbuffer_append_string(sb, "/t_tell ");
+
+					if (!interface_data->text_input_prepend || interface_data->text_input_prepend[0] != '/')
+					{
+						stringbuffer_append_string(sb, "/t_tell ");
+					}
 
 					if (interface_data->text_input_prepend)
 					{
@@ -367,7 +379,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 void cmd_interface(uint8 *data, int len)
 {
 	int pos = 0;
-	uint8 text_input = 0;
+	uint8 text_input = 0, scroll_bottom = 0;
 	char type, text_input_content[HUGE_BUF];
 	StringBuffer *sb_message;
 	size_t links_len, i;
@@ -474,6 +486,22 @@ void cmd_interface(uint8 *data, int len)
 				break;
 			}
 
+			case CMD_INTERFACE_ALLOW_TAB:
+				interface_data->allow_tab = 1;
+				break;
+
+			case CMD_INTERFACE_INPUT_CLEANUP_DISABLE:
+				interface_data->input_cleanup_disable = 1;
+				break;
+
+			case CMD_INTERFACE_INPUT_ALLOW_EMPTY:
+				interface_data->input_allow_empty = 1;
+				break;
+
+			case CMD_INTERFACE_SCROLL_BOTTOM:
+				scroll_bottom = 1;
+				break;
+
 			default:
 				break;
 		}
@@ -482,7 +510,7 @@ void cmd_interface(uint8 *data, int len)
 	if (text_input)
 	{
 		text_input_open(255);
-		text_input_add_string(text_input_content);
+		text_input_set_string(text_input_content);
 	}
 
 	links_len = utarray_len(interface_data->links);
@@ -513,6 +541,11 @@ void cmd_interface(uint8 *data, int len)
 
 	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);
 	interface_data->scrollbar.redraw = &interface_data->redraw;
+
+	if (scroll_bottom)
+	{
+		interface_data->scroll_offset = interface_data->num_lines - box.y;
+	}
 
 	button_create(&button_hello);
 	button_create(&button_close);

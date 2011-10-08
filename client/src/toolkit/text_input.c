@@ -276,13 +276,39 @@ void text_input_history_clear(void)
 /**
  * Put string to the text input.
  * @param text The string. */
-void text_input_add_string(const char *text)
+void text_input_set_string(const char *text)
 {
 	/* Copy to input buffer. */
 	strncpy(text_input_string, text, sizeof(text_input_string) - 1);
 	text_input_string[sizeof(text_input_string) - 1] = '\0';
 	/* Set cursor after inserted text. */
 	text_input_cursor_pos = text_input_count = strlen(text);
+}
+
+/**
+ * Add character to the text input.
+ * @param c Character to add. */
+void text_input_add_char(char c)
+{
+	int i;
+
+	if (text_input_count >= text_input_max)
+	{
+		return;
+	}
+
+	i = text_input_count;
+
+	while (i >= text_input_cursor_pos)
+	{
+		text_input_string[i + 1] = text_input_string[i];
+		i--;
+	}
+
+	text_input_string[text_input_cursor_pos] = c;
+	text_input_cursor_pos++;
+	text_input_count++;
+	text_input_string[text_input_count] = '\0';
 }
 
 /**
@@ -474,7 +500,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 				}
 
 				text_input_history_pos++;
-				text_input_add_string(text_input_history[text_input_history_pos]);
+				text_input_set_string(text_input_history[text_input_history_pos]);
 			}
 
 			return 1;
@@ -484,7 +510,7 @@ int text_input_handle(SDL_KeyboardEvent *key)
 			if (cpl.input_mode == INPUT_MODE_CONSOLE && text_input_history_pos > 0)
 			{
 				text_input_history_pos--;
-				text_input_add_string(text_input_history[text_input_history_pos]);
+				text_input_set_string(text_input_history[text_input_history_pos]);
 			}
 
 			return 1;
@@ -503,103 +529,85 @@ int text_input_handle(SDL_KeyboardEvent *key)
 		{
 			char c;
 
-			if (text_input_count < text_input_max)
+			/* We want only numbers in number mode - even when shift is held. */
+			if (cpl.input_mode == INPUT_MODE_NUMBER)
 			{
-				c = 0;
-
-				/* We want only numbers in number mode - even when shift is held. */
-				if (cpl.input_mode == INPUT_MODE_NUMBER)
+				switch (key->keysym.sym)
 				{
-					switch (key->keysym.sym)
-					{
-						case SDLK_0:
-						case SDLK_KP0:
-							c = '0';
-							break;
+					case SDLK_0:
+					case SDLK_KP0:
+						c = '0';
+						break;
 
-						case SDLK_KP1:
-						case SDLK_1:
-							c = '1';
-							break;
+					case SDLK_KP1:
+					case SDLK_1:
+						c = '1';
+						break;
 
-						case SDLK_KP2:
-						case SDLK_2:
-							c = '2';
-							break;
+					case SDLK_KP2:
+					case SDLK_2:
+						c = '2';
+						break;
 
-						case SDLK_KP3:
-						case SDLK_3:
-							c = '3';
-							break;
+					case SDLK_KP3:
+					case SDLK_3:
+						c = '3';
+						break;
 
-						case SDLK_KP4:
-						case SDLK_4:
-							c = '4';
-							break;
+					case SDLK_KP4:
+					case SDLK_4:
+						c = '4';
+						break;
 
-						case SDLK_KP5:
-						case SDLK_5:
-							c = '5';
-							break;
+					case SDLK_KP5:
+					case SDLK_5:
+						c = '5';
+						break;
 
-						case SDLK_KP6:
-						case SDLK_6:
-							c = '6';
-							break;
+					case SDLK_KP6:
+					case SDLK_6:
+						c = '6';
+						break;
 
-						case SDLK_KP7:
-						case SDLK_7:
-							c = '7';
-							break;
+					case SDLK_KP7:
+					case SDLK_7:
+						c = '7';
+						break;
 
-						case SDLK_KP8:
-						case SDLK_8:
-							c = '8';
-							break;
+					case SDLK_KP8:
+					case SDLK_8:
+						c = '8';
+						break;
 
-						case SDLK_KP9:
-						case SDLK_9:
-							c = '9';
-							break;
+					case SDLK_KP9:
+					case SDLK_9:
+						c = '9';
+						break;
 
-						default:
-							c = 0;
-							break;
-					}
-
-					if (c)
-					{
-						text_input_string[text_input_cursor_pos++] = c;
-						text_input_count++;
-						text_input_string[text_input_count] = 0;
-						return 1;
-					}
+					default:
+						c = '\0';
+						break;
 				}
-				else
+
+				if (c)
 				{
-					c = key->keysym.unicode & 0xff;
+					text_input_add_char(c);
+					return 1;
+				}
+			}
+			else
+			{
+				c = key->keysym.unicode & 0xff;
 
-					if (c >= 32)
+				if (c >= 32)
+				{
+					if (key->keysym.mod & KMOD_SHIFT)
 					{
-						if (key->keysym.mod & KMOD_SHIFT)
-						{
-							c = toupper(c);
-						}
-
-						i = text_input_count;
-
-						while (i >= text_input_cursor_pos)
-						{
-							text_input_string[i + 1] = text_input_string[i];
-							i--;
-						}
-
-						text_input_string[text_input_cursor_pos] = c;
-						text_input_cursor_pos++;
-						text_input_count++;
-						text_input_string[text_input_count] = 0;
-						return 1;
+						c = toupper(c);
 					}
+
+					text_input_add_char(c);
+					return 1;
 				}
 			}
 

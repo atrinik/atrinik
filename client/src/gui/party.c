@@ -235,13 +235,13 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	{
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
-		text_input_add_string("/party form ");
+		text_input_set_string("/party form ");
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
 	{
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
-		text_input_add_string("/party password ");
+		text_input_set_string("/party password ");
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
 	{
@@ -251,7 +251,7 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	{
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
-		text_input_add_string("/gsay ");
+		text_input_set_string("/gsay ");
 	}
 }
 
@@ -342,7 +342,7 @@ void PartyCmd(unsigned char *data, int len)
 		GetString_String(data, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
-		text_input_add_string("/party joinpassword ");
+		text_input_set_string("/party joinpassword ");
 	}
 	/* Update list of party members. */
 	else if (type == CMD_PARTY_UPDATE)

@@ -686,7 +686,7 @@ static void list_handle_enter(list_struct *list)
 			setting_keybind_action(SDLK_n, list);
 
 			setting_keybind_id = list->row_selected - 1;
-			text_input_add_string(keybindings[setting_keybind_id]->command);
+			text_input_set_string(keybindings[setting_keybind_id]->command);
 			setting_keybind_key = keybindings[setting_keybind_id]->key;
 			setting_keybind_mod = keybindings[setting_keybind_id]->mod;
 			setting_keybind_ignore = 1;

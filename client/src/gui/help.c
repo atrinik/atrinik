@@ -217,7 +217,7 @@ void help_handle_tabulator(void)
 	}
 
 	snprintf(buf, sizeof(buf), "/%s ", *((char **) utarray_eltptr(command_matches, command_index)));
-	text_input_add_string(buf);
+	text_input_set_string(buf);
 	strcpy(command_buf, buf);
 
 	command_index++;

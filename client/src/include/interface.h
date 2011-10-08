@@ -75,6 +75,15 @@ typedef struct interface_struct
 	 * (unless a new dialog has been opened of course, in which case this
 	 * is reset). */
 	uint32 progressed_ticks;
+
+	/** Whether to allow entering tabs. */
+	uint8 allow_tab;
+
+	/** If 1, disable cleaning up text input string. */
+	uint8 input_cleanup_disable;
+
+	/** If 1, allow sending empty text input string. */
+	uint8 input_allow_empty;
 } interface_struct;
 
 /**
@@ -99,6 +108,14 @@ typedef struct interface_struct
  * Hidden text to prepend to the final text input string, when sent to
  * the NPC. */
 #define CMD_INTERFACE_INPUT_PREPEND 5
+/** Allow tabs to be entered. */
+#define CMD_INTERFACE_ALLOW_TAB 6
+/** Disable cleaning up text input. */
+#define CMD_INTERFACE_INPUT_CLEANUP_DISABLE 7
+/** Allow empty text input to be sent. */
+#define CMD_INTERFACE_INPUT_ALLOW_EMPTY 8
+/** Scroll to the bottom when the interface is created. */
+#define CMD_INTERFACE_SCROLL_BOTTOM 9
 /*@}*/
 
 /**

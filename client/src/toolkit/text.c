@@ -1453,7 +1453,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	}
 
 	/* Get the glyph's metrics. */
-	if (TTF_GlyphMetrics(fonts[*font].font, c, &minx, NULL, NULL, NULL, &width) == -1)
+	if (TTF_GlyphMetrics(fonts[*font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) == -1)
 	{
 		return ret;
 	}
@@ -1482,10 +1482,15 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		width += 2;
 	}
 
+	if (c == '\t')
+	{
+		width *= 4;
+	}
+
 	/* Draw the character (unless it's a space, since there's no point in
 	 * drawing whitespace [but only if underline style is not active,
 	 * since we do want the underline below the space]). */
-	if (surface && (c != ' ' || info->in_underline || info->anchor_tag))
+	if (surface && ((c != ' ' && c != '\t') || info->in_underline || info->anchor_tag))
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
@@ -1595,11 +1600,16 @@ int glyph_get_width(int font, char c)
 {
 	int minx, width;
 
-	if (TTF_GlyphMetrics(fonts[font].font, c, &minx, NULL, NULL, NULL, &width) != -1)
+	if (TTF_GlyphMetrics(fonts[font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1)
 	{
 		if (minx < 0)
 		{
 			width -= minx;
+		}
+
+		if (c == '\t')
+		{
+			return width * 4;
 		}
 
 		return width;
@@ -1732,7 +1742,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			/* See if we should skip drawing. */
 			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(font) < box->y;
 
-			max_height = FONT_HEIGHT(font);
+			max_height = 0;
 
 			if (flags & TEXT_LINES_SKIP)
 			{
@@ -1809,14 +1819,16 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				last_space -= ret;
 
 				/* If we changed font, there might be a larger one... */
-				if (font != orig_font && FONT_HEIGHT(font) > max_height)
+				if (info.calc_font != -1)
+				{
+					if (FONT_HEIGHT(info.calc_font) > max_height)
+					{
+						max_height = FONT_HEIGHT(info.calc_font);
+					}
+				}
+				else if (FONT_HEIGHT(font) > max_height)
 				{
 					max_height = FONT_HEIGHT(font);
-				}
-
-				if (info.calc_font != -1 && FONT_HEIGHT(info.calc_font) > max_height)
-				{
-					max_height = FONT_HEIGHT(info.calc_font);
 				}
 			}
 

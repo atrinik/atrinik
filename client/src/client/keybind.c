@@ -836,7 +836,7 @@ int keybind_process_command(const char *cmd)
 				cpl.nrof = nrof;
 				cpl.nummode = NUM_MODE_GET;
 				snprintf(buf, sizeof(buf), "%d", nrof);
-				text_input_add_string(buf);
+				text_input_set_string(buf);
 				strncpy(cpl.num_text, it->s_name, sizeof(cpl.num_text) - 1);
 				cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
 				return 0;
@@ -906,7 +906,7 @@ int keybind_process_command(const char *cmd)
 				cpl.nrof = nrof;
 				cpl.nummode = NUM_MODE_DROP;
 				snprintf(buf, sizeof(buf), "%d", nrof);
-				text_input_add_string(buf);
+				text_input_set_string(buf);
 				strncpy(cpl.num_text, it->s_name, sizeof(cpl.num_text) - 1);
 				cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
 				return 0;
@@ -986,7 +986,7 @@ int keybind_process_command(const char *cmd)
 				cmd++;
 			}
 
-			text_input_add_string(cmd);
+			text_input_set_string(cmd);
 		}
 		else if (!strcmp(cmd, "UP"))
 		{

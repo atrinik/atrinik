@@ -7,8 +7,10 @@ class Interface:
 		self._text_input = None
 		self._activator = activator
 		self._npc = npc
-		self._icon = npc.face[0][:-1] + "1"
-		self._title = npc.name
+
+		if npc:
+			self._icon = npc.face[0][:-1] + "1"
+			self._title = npc.name
 
 	def add_msg(self, msg, color = None, newline = True):
 		if newline and self._msg:
@@ -53,9 +55,13 @@ class Interface:
 	def set_title(self, title):
 		self._title = title
 
-	def set_text_input(self, text = "", prepend = None):
+	def set_text_input(self, text = "", prepend = None, allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False):
 		self._text_input = text
 		self._text_input_prepend = prepend
+		self._allow_tab = allow_tab
+		self._allow_empty = allow_empty
+		self._cleanup_text = cleanup_text
+		self._scroll_bottom = scroll_bottom
 
 	def add_objects(self, objs):
 		if type(objs) != list:
@@ -74,7 +80,9 @@ class Interface:
 			return
 
 		pl = self._activator.Controller()
-		SetReturnValue(1)
+
+		if self._npc:
+			SetReturnValue(1)
 
 		# Construct the base data packet; contains the interface message,
 		# the icon and the title.
@@ -95,12 +103,28 @@ class Interface:
 				fmt += "Bs"
 				data += [5, self._text_input_prepend]
 
+			if self._allow_tab:
+				fmt += "B"
+				data += [6]
+
+			if not self._cleanup_text:
+				fmt += "B"
+				data += [7]
+
+			if self._allow_empty:
+				fmt += "B"
+				data += [8]
+
+			if self._scroll_bottom:
+				fmt += "B"
+				data += [9]
+
 		# Send the data.
 		pl.SendPacket(39, fmt, *data)
 
 		# If there is any movement behavior, update the amount of time
 		# the NPC should pause moving for.
-		if self._npc.move_type or self._npc.f_random_move:
+		if self._npc and (self._npc.move_type or self._npc.f_random_move):
 			from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
 
 			timeout = self._npc.ReadKey("npc_move_timeout")
