@@ -25,7 +25,7 @@ def py_console_thread():
 		inf = Interface(activator, None)
 		inf.set_icon(activator.face[0])
 		inf.set_title(activator.name + "'s Python Console")
-		inf.set_text_input(prepend = "/roll \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True)
+		inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True)
 		inf.add_msg("<font=mono 12>" + msg + "</font>")
 		inf.finish()
 
@@ -48,6 +48,7 @@ def py_console_thread():
 	console = PyConsole()
 	console.inf_data = inf_data
 
+	old_stdout = sys.stdout
 	# Redirect stdout.
 	sys.stdout = stdout_inf(inf_data)
 
@@ -82,6 +83,8 @@ def py_console_thread():
 		thread.commands_lock.release()
 		# Save CPU.
 		time.sleep(0.30)
+
+	sys.stdout = old_stdout
 
 ## Setups the console thread.
 class PyConsoleThread(threading.Thread):
