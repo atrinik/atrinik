@@ -530,45 +530,6 @@ char *normalize_path(const char *src, const char *dst, char *path)
 }
 
 /**
- * Prints out debug-information about a map.
- * @param m Map to dump. */
-void dump_map(mapstruct *m)
-{
-	LOG(llevSystem, "Map %s status: %d.\n", m->path, m->in_memory);
-	LOG(llevSystem, "Size: %dx%d Start: %d, %d\n", MAP_WIDTH(m), MAP_HEIGHT(m), MAP_ENTER_X(m), MAP_ENTER_Y(m));
-
-	if (m->msg != NULL)
-	{
-		LOG(llevSystem, "Message:\n%s", m->msg);
-	}
-
-	if (m->tmpname != NULL)
-	{
-		LOG(llevSystem, "Tmpname: %s\n", m->tmpname);
-	}
-
-	LOG(llevSystem, "Difficulty: %d\n", m->difficulty);
-	LOG(llevSystem, "Darkness: %d\n", m->darkness);
-	LOG(llevSystem, "Light: %d\n", m->light_value);
-	LOG(llevSystem, "Outdoor: %d\n", MAP_OUTDOORS(m));
-}
-
-/**
- * Prints out debug information about all maps.
- *
- * This basically just goes through all the maps and calls dump_map() on
- * each one. */
-void dump_all_maps(void)
-{
-	mapstruct *m;
-
-	for (m = first_map; m != NULL; m = m->next)
-	{
-		dump_map(m);
-	}
-}
-
-/**
  * Check if there is a wall on specified map at x, y.
  *
  * Caller should check for @ref P_PASS_THRU in the return value to see if
