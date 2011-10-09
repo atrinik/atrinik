@@ -600,62 +600,6 @@ int command_dm(object *op, char *params)
 }
 
 /**
- * Lists all plugins currently loaded with their IDs and full names.
- * @param op DM.
- * @param params Unused.
- * @return 1. */
-int command_listplugins(object *op, char *params)
-{
-	(void) params;
-
-	display_plugins_list(op);
-	return 1;
-}
-
-/**
- * Loads the given plugin. The DM specifies the name of the library to
- * load (no pathname is needed). Do not ever attempt to load the same
- * plugin more than once at a time, or undefined behavior could happen.
- * @param op DM loading a plugin.
- * @param params Should be the plugin's name, eg plugin_python.so.
- * @return 1. */
-int command_loadplugin(object *op, char *params)
-{
-	char buf[MAX_BUF];
-
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Load what plugin?");
-		return 1;
-	}
-
-	snprintf(buf, sizeof(buf), "%s/%s", PLUGINDIR, params);
-	init_plugin(buf);
-
-	return 1;
-}
-
-/**
- * Unloads the given plugin. The DM specified the ID of the library to
- * unload. Note that some things may behave strangely if the correct
- * plugins are not loaded.
- * @param op DM unloading a plugin.
- * @param params Should be the plugin's internal name, eg Python.
- * @return 1. */
-int command_unloadplugin(object *op, char *params)
-{
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Unload what plugin?");
-		return 1;
-	}
-
-	remove_plugin(params);
-
-	return 1;
-}
-
-/**
  * Start the shutdown agent.
  * @param timer If -1 count the shutdown timer, reset the shutdown value
  * otherwise.
