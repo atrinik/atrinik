@@ -32,6 +32,7 @@ class PyConsole(code.InteractiveConsole):
 ## The actual function that is called in the per-player console thread.
 def py_console_thread():
 	import time, collections, sys
+	from Markup import markup_escape
 
 	# Sends an interface to the activator.
 	def send_inf(activator, msg):
@@ -100,7 +101,7 @@ def py_console_thread():
 			# Send the interface, but only if the first command didn't
 			# start with "noinf::".
 			if not thread.commands[0] or not thread.commands[0].startswith("noinf::"):
-				send_inf(thread.activator, "\n".join(inf_data))
+				send_inf(thread.activator, markup_escape("\n".join(inf_data)))
 
 			thread.commands = []
 
