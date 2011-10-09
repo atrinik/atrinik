@@ -1865,38 +1865,6 @@ int command_no_shout(object *op, char *params)
 }
 
 /**
- * Take an object and put it in DM's inventory.
- * @param op DM.
- * @param params Object to take.
- * @return 1. */
-int command_dmtake(object *op, char *params)
-{
-	object *tmp;
-
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Take what object?");
-		return 1;
-	}
-
-	tmp = find_object_both(op, params);
-
-	if (!tmp)
-	{
-		draw_info(COLOR_WHITE, op, "No such object.");
-		return 1;
-	}
-
-	if (tmp->env == op)
-	{
-		return 1;
-	}
-
-	pick_up(op, tmp, 0);
-	return 1;
-}
-
-/**
  * /server_shout command. Shouts a message in green and prefixes it with
  * [Server]. For those with this command permission will also see who
  * used the command in the message, but not anyone else.
