@@ -151,7 +151,6 @@ extern int command_summon(object *op, char *params);
 extern int command_teleport(object *op, char *params);
 extern int command_addexp(object *op, char *params);
 extern int command_speed(object *op, char *params);
-extern int command_stats(object *op, char *params);
 extern int command_resetmap(object *op, char *params);
 extern int command_nowiz(object *op, char *params);
 extern int command_dm(object *op, char *params);

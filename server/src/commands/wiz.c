@@ -608,44 +608,6 @@ int command_speed(object *op, char *params)
 }
 
 /**
- * Displays the statistics of a player.
- * @param op DM.
- * @param params Player's name.
- * @return 1. */
-int command_stats(object *op, char *params)
-{
-	player *pl;
-
-	if (params == NULL)
-	{
-		draw_info(COLOR_WHITE, op, "Who?");
-		return 1;
-	}
-
-	for (pl = first_player; pl != NULL; pl = pl->next)
-	{
-		if (!strcmp(pl->ob->name, params))
-		{
-			draw_info_format(COLOR_WHITE, op, "Str : %-2d      H.P.   : %-4d  MAX : %d", pl->ob->stats.Str, pl->ob->stats.hp, pl->ob->stats.maxhp);
-			draw_info_format(COLOR_WHITE, op, "Dex : %-2d      S.P.   : %-4d  MAX : %d", pl->ob->stats.Dex, pl->ob->stats.sp, pl->ob->stats.maxsp);
-			draw_info_format(COLOR_WHITE, op, "Con : %-2d      AC     : %-4d  WC  : %d", pl->ob->stats.Con, pl->ob->stats.ac, pl->ob->stats.wc);
-			draw_info_format(COLOR_WHITE, op, "Wis : %-2d      EXP    : %"FMT64, pl->ob->stats.Wis, pl->ob->stats.exp);
-			draw_info_format(COLOR_WHITE, op, "Cha : %-2d      Food   : %d", pl->ob->stats.Cha, pl->ob->stats.food);
-			draw_info_format(COLOR_WHITE, op, "Int : %-2d      Damage : %d", pl->ob->stats.Int, pl->ob->stats.dam);
-			draw_info_format(COLOR_WHITE, op, "Pow : %-2d      Grace  : %d", pl->ob->stats.Pow, pl->ob->stats.grace);
-			return 1;
-		}
-	}
-
-	if (pl == NULL)
-	{
-		draw_info(COLOR_WHITE, op, "No such player.");
-	}
-
-	return 1;
-}
-
-/**
  * Resets a map.
  * @param op DM.
  * @param params Map to reset. Can be NULL for current op's map, or a map
