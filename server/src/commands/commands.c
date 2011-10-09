@@ -166,7 +166,6 @@ CommArray_s WizCommands[] =
 	{"shutdown_now",   command_shutdown_now,           0.0, 0},
 	{"resetmap",       command_resetmap,               0.0, 0},
 	{"plugout",        command_unloadplugin,           0.0, 0},
-	{"create",         command_create,                 0.0, 0},
 	{"addexp",         command_addexp,                 0.0, 0},
 	{"malloc",         command_malloc,                 0.0, 0},
 	{"maps",           command_maps,                   0.0, 0},
