@@ -708,22 +708,40 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
  * <h1>WhoAmI()</h1>
  * Get the owner of the active script (the object that has the event
  * handler).
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The script owner. */
 static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return wrap_object(current_context->who);
 }
 
 /**
  * <h1>WhoIsActivator()</h1>
  * Get the object that activated the current event.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The script activator. */
 static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return wrap_object(current_context->activator);
 }
 
@@ -731,72 +749,128 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
  * <h1>WhoIsOther()</h1>
  * Get another object related to the event. What this object is depends
  * on the event.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The other object. */
 static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return wrap_object(current_context->other);
 }
 
 /**
  * <h1>WhatIsEvent()</h1>
  * Get the event object that caused this event to trigger.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The event object. */
 static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return wrap_object(current_context->event);
 }
 
 /**
  * <h1>GetEventNumber()</h1>
  * Get the ID of the event that is being triggered.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return Event ID. */
 static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return Py_BuildValue("i", current_context->event->sub_type);
 }
 
 /**
  * <h1>WhatIsMessage()</h1>
  * Gets the actual message in SAY events.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The message. */
 static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return Py_BuildValue("s", current_context->text);
 }
 
 /**
  * <h1>GetOptions()</h1>
  * Gets the script options (as passed in the event's slaying field).
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The script options. */
 static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return Py_BuildValue("s", current_context->options);
 }
 
 /**
  * <h1>GetReturnValue()</h1>
  * Gets the script's return value.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return The return value. */
 static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
 {
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
+
 	return Py_BuildValue("i", current_context->returnvalue);
 }
 
 /**
  * <h1>SetReturnValue(int value)</h1>
  * Sets the script's return value.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @param value The new return value. */
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 {
@@ -806,6 +880,12 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "i", &value))
 	{
+		return NULL;
+	}
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
 		return NULL;
 	}
 
@@ -820,6 +900,8 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
  * Get the parameters of an event. This varies from event to event, and
  * some events pass all parameters as 0. EVENT_ATTACK usually passes damage
  * done and the WC of the hit as second and third parameter, respectively.
+ * @throws AtrinikError if there's no event context (for example, the
+ * script is running in a thread).
  * @return A list of the event parameters. The last entry is the event flags,
  * used to determine whom to call fix_player() on after executing the script. */
 static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
@@ -829,6 +911,12 @@ static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
 
 	(void) self;
 	(void) args;
+
+	if (!current_context)
+	{
+		PyErr_SetString(AtrinikError, "There is no event context.");
+		return NULL;
+	}
 
 	for (i = 0; i < sizeof(current_context->parms) / sizeof(current_context->parms[0]); i++)
 	{
