@@ -183,7 +183,6 @@ extern int command_arrest(object *op, char *params);
 extern int command_cmd_permission(object *op, char *params);
 extern int command_map_save(object *op, char *params);
 extern int command_map_reset(object *op, char *params);
-extern int command_map_patch(object *op, char *params);
 extern int command_no_shout(object *op, char *params);
 extern int command_dmtake(object *op, char *params);
 extern int command_server_shout(object *op, char *params);

@@ -1828,31 +1828,6 @@ int command_map_reset(object *op, char *params)
 }
 
 /**
- * Patch map header variables of a map.
- * @param op Player.
- * @param params Parameters.
- * @return 1. */
-int command_map_patch(object *op, char *params)
-{
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Patch what values?");
-		return 1;
-	}
-
-	if (map_set_variable(op->map, params) == -1)
-	{
-		draw_info_format(COLOR_WHITE, op, "Unknown value for map header: %s", params);
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, op, "(%s)->%s", op->map->name, params);
-	}
-
-	return 1;
-}
-
-/**
  * The /no_shout command.
  * @param op Wizard.
  * @param params Parameters.
