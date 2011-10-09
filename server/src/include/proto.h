@@ -149,7 +149,6 @@ extern int command_goto(object *op, char *params);
 extern int command_freeze(object *op, char *params);
 extern int command_summon(object *op, char *params);
 extern int command_teleport(object *op, char *params);
-extern int command_patch(object *op, char *params);
 extern int command_remove(object *op, char *params);
 extern int command_addexp(object *op, char *params);
 extern int command_speed(object *op, char *params);

@@ -181,7 +181,6 @@ CommArray_s WizCommands[] =
 	{"learn_spell",    command_learn_spell,            0.0, 0},
 	{"learn_prayer",   command_learn_special_prayer,   0.0, 0},
 	{"ssdumptable",    command_ssdumptable,            0.0, 0},
-	{"patch",          command_patch,                  0.0, 0},
 	{"speed",          command_speed,                  0.0, 0},
 	{"strings",        command_strings,                0.0, 0},
 	{"debug",          command_debug,                  0.0, 0},
