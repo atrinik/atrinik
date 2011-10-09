@@ -17,6 +17,15 @@ stdout_lock = threading.Lock()
 
 ## Handles the console data.
 class PyConsole(code.InteractiveConsole):
+	def __init__(self, activator):
+		_locals = {
+			"__name__": "__console-" + activator.name.lower() + "__",
+			"__doc__": None,
+			"activator": activator,
+		}
+		# The thread name will have the activator's name for uniqueness.
+		super(PyConsole, self).__init__(locals = _locals)
+
 	def write(self, data):
 		self.inf_data.append(data)
 
@@ -49,7 +58,7 @@ def py_console_thread():
 	thread = threading.current_thread()
 
 	# Create the console.
-	console = PyConsole()
+	console = PyConsole(thread.activator)
 	console.inf_data = inf_data
 
 	stdout = stdout_inf(inf_data)
