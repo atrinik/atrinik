@@ -39,8 +39,6 @@ static uint32 book_lines = 0;
 static uint32 book_scroll_lines = 0;
 /** Lines scrolled. */
 static uint32 book_scroll = 0;
-/** Is it time to redraw? */
-static uint8 redraw = 1;
 /** Help history - used for the 'Back' button. */
 UT_array *book_help_history = NULL;
 /** Whether the help history is enabled for this book GUI. */
@@ -62,7 +60,7 @@ void book_name_change(const char *name, size_t len)
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
-	if (redraw)
+	if (popup->redraw)
 	{
 		_BLTFX bltfx;
 		SDL_Rect box;
@@ -71,8 +69,6 @@ static int popup_draw_func(popup_struct *popup)
 		bltfx.flags = 0;
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
-
-		redraw = 0;
 
 		/* Draw the book name. */
 		box.w = BOOK_TITLE_WIDTH;
@@ -85,8 +81,12 @@ static int popup_draw_func(popup_struct *popup)
 		box.h = BOOK_TEXT_HEIGHT;
 		box.y = book_scroll;
 		text_color_set(0, 0, 255);
+		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
 		string_blt(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_set_selection(NULL, NULL, NULL);
 		text_offset_reset();
+
+		popup->redraw = 0;
 	}
 
 	return 1;
@@ -161,10 +161,6 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			scrollbar_scroll_adjust(&scrollbar, -1);
 			return 1;
 		}
-		else if (event->button.button == SDL_BUTTON_LEFT)
-		{
-			redraw = 1;
-		}
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
@@ -207,6 +203,13 @@ static int popup_destroy_callback(popup_struct *popup)
 
 	book_help_history_enabled = 0;
 	return 1;
+}
+
+/** @copydoc popup_struct::clipboard_copy_func */
+static const char *popup_clipboard_copy_func(popup_struct *popup)
+{
+	(void) popup;
+	return book_content;
 }
 
 /**
@@ -260,7 +263,6 @@ void book_load(const char *data, int len)
 	string_blt(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
-	redraw = 1;
 
 	/* Create the book popup if it doesn't exist yet. */
 	if (!popup_get_head() || popup_get_head()->bitmap_id != BITMAP_BOOK)
@@ -272,6 +274,7 @@ void book_load(const char *data, int len)
 		popup->draw_func_post = popup_draw_func_post;
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
+		popup->clipboard_copy_func = popup_clipboard_copy_func;
 		popup->disable_bitmap_blit = 1;
 
 		popup->button_left.x = 25;
@@ -288,14 +291,19 @@ void book_load(const char *data, int len)
 	}
 
 	scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);
-	scrollbar.redraw = &redraw;
+	scrollbar.redraw = &popup_get_head()->redraw;
+
+	popup_get_head()->redraw = 1;
 }
 
 /**
  * Redraw the book GUI. */
 void book_redraw(void)
 {
-	redraw = 1;
+	if (popup_get_head() && popup_get_head()->bitmap_id == BITMAP_BOOK)
+	{
+		popup_get_head()->redraw = 1;
+	}
 }
 
 /**
