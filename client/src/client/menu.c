@@ -347,6 +347,8 @@ int client_command_check(const char *cmd)
 			return 1;
 		}
 
+		send_command("/console noinf::");
+
 		while (fgets(buf, sizeof(buf) - 1, fp))
 		{
 			cp = strchr(buf, '\n');
