@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-06 emperorbma
+Modified: 2011-10-09 emperorbma
 endmsg
 width 24
 height 24
@@ -189,7 +189,7 @@ arch wall_white2_3
 sub_layer 1
 y 18
 end
-arch grassd_4
+arch grassd_3
 z 50
 sub_layer 1
 y 19
@@ -198,24 +198,40 @@ arch wall_white2_3
 sub_layer 1
 y 19
 end
-arch floor_rhomb
-sub_layer 1
+arch grassd_8
 z 50
+sub_layer 1
 y 20
 end
-arch floor_rhomb
+arch wall_white2_3
 sub_layer 1
+y 20
+end
+arch grassd_6
 z 50
+sub_layer 1
 y 21
 end
-arch floor_rhomb
+arch wall_white2_3
 sub_layer 1
+y 21
+end
+arch grassd_8
 z 50
+sub_layer 1
 y 22
 end
-arch floor_rhomb
+arch wall_white2_3
 sub_layer 1
+y 22
+end
+arch grassd_6
 z 50
+sub_layer 1
+y 23
+end
+arch wall_white2_3
+sub_layer 1
 y 23
 end
 arch floor_rhomb
@@ -337,11 +353,6 @@ z 50
 x 1
 y 19
 end
-arch wall_white2_1
-sub_layer 1
-x 1
-y 19
-end
 arch floor_rhomb
 sub_layer 1
 z 50
@@ -485,11 +496,6 @@ z 50
 x 2
 y 19
 end
-arch wall_white2_1
-sub_layer 1
-x 2
-y 19
-end
 arch floor_rhomb
 sub_layer 1
 z 50
@@ -613,10 +619,6 @@ z 50
 x 3
 y 19
 end
-arch wall_white2_1
-x 3
-y 19
-end
 arch floor_rhomb
 z 50
 x 3
@@ -736,10 +738,6 @@ z 50
 x 4
 y 19
 end
-arch wall_white2_1
-x 4
-y 19
-end
 arch floor_rhomb
 z 50
 x 4
@@ -856,10 +854,6 @@ y 18
 end
 arch floor_rhomb
 z 50
-x 5
-y 19
-end
-arch wall_white2_1
 x 5
 y 19
 end
@@ -982,10 +976,6 @@ z 50
 x 6
 y 19
 end
-arch wall_white2_1
-x 6
-y 19
-end
 arch floor_rhomb
 z 50
 x 6
@@ -1105,10 +1095,6 @@ z 50
 x 7
 y 19
 end
-arch wall_white2_1
-x 7
-y 19
-end
 arch floor_rhomb
 z 50
 x 7
@@ -1228,10 +1214,6 @@ z 50
 x 8
 y 19
 end
-arch wall_white2_1
-x 8
-y 19
-end
 arch floor_rhomb
 z 50
 x 8
@@ -1351,10 +1333,6 @@ z 50
 x 9
 y 19
 end
-arch wall_white2_1
-x 9
-y 19
-end
 arch floor_rhomb
 z 50
 x 9
@@ -1471,10 +1449,6 @@ y 18
 end
 arch floor_rhomb
 z 50
-x 10
-y 19
-end
-arch wall_white2_1
 x 10
 y 19
 end
@@ -1597,10 +1571,6 @@ z 50
 x 11
 y 19
 end
-arch wall_white2_1
-x 11
-y 19
-end
 arch floor_rhomb
 z 50
 x 11
@@ -1717,10 +1687,6 @@ y 18
 end
 arch floor_rhomb
 z 50
-x 12
-y 19
-end
-arch wall_white2_1
 x 12
 y 19
 end
@@ -1843,10 +1809,6 @@ z 50
 x 13
 y 19
 end
-arch wall_white2_1
-x 13
-y 19
-end
 arch floor_rhomb
 z 50
 x 13
@@ -1963,10 +1925,6 @@ y 18
 end
 arch floor_rhomb
 z 50
-x 14
-y 19
-end
-arch wall_white2_1
 x 14
 y 19
 end
@@ -2101,7 +2059,10 @@ z 50
 x 15
 y 12
 end
-arch wall_white2_3
+arch door_wood1
+direction 3
+slaying no_entry
+cursed 1
 x 15
 y 12
 end
@@ -2110,7 +2071,10 @@ z 50
 x 15
 y 13
 end
-arch wall_white2_3
+arch door_wood1
+direction 5
+slaying no_entry
+cursed 1
 x 15
 y 13
 end
@@ -2164,7 +2128,7 @@ z 50
 x 15
 y 19
 end
-arch wall_white2_4
+arch wall_white2_3
 x 15
 y 19
 end
@@ -2173,8 +2137,16 @@ z 50
 x 15
 y 20
 end
+arch wall_white2_3
+x 15
+y 20
+end
 arch floor_rhomb
 z 50
+x 15
+y 21
+end
+arch wall_white2_3
 x 15
 y 21
 end
@@ -2183,8 +2155,16 @@ z 50
 x 15
 y 22
 end
+arch wall_white2_3
+x 15
+y 22
+end
 arch floor_rhomb
 z 50
+x 15
+y 23
+end
+arch wall_white2_3
 x 15
 y 23
 end
@@ -2445,6 +2425,10 @@ z 50
 x 18
 y 3
 end
+arch light6
+x 18
+y 3
+end
 arch floor_fs_grey1b
 z 50
 x 18
@@ -2467,6 +2451,10 @@ y 7
 end
 arch floor_fs_grey1b
 z 50
+x 18
+y 8
+end
+arch light6
 x 18
 y 8
 end
@@ -2500,6 +2488,10 @@ x 18
 y 13
 end
 arch border_top_e1
+x 18
+y 13
+end
+arch light6
 x 18
 y 13
 end
@@ -2544,6 +2536,10 @@ z 50
 x 18
 y 18
 end
+arch light6
+x 18
+y 18
+end
 arch floor_fs_grey1b
 z 50
 x 18
@@ -2566,6 +2562,10 @@ y 22
 end
 arch floor_fs_grey1b
 z 50
+x 18
+y 23
+end
+arch light6
 x 18
 y 23
 end
@@ -2935,13 +2935,23 @@ arch floor_marble1c
 z 50
 x 21
 end
-arch wall_palace_14
+arch wall_palace_04
+direction 7
 x 21
 end
 arch floor_fs_grey1b
 z 50
 x 21
 y 1
+end
+arch spawn_point
+x 21
+y 1
+arch guard_pole
+name cathedral guard
+level 35
+type 83
+end
 end
 arch floor_fs_grey1b
 z 50
@@ -3316,6 +3326,10 @@ arch border_top_se2
 x 23
 y 3
 end
+arch light6
+x 23
+y 3
+end
 arch water_lt
 z 50
 x 23
@@ -3364,6 +3378,10 @@ x 23
 y 8
 end
 arch border_top_e1
+x 23
+y 8
+end
+arch light6
 x 23
 y 8
 end
@@ -3418,6 +3436,10 @@ arch border_wall_n2
 x 23
 y 13
 end
+arch light6
+x 23
+y 13
+end
 arch floor_blue3
 z 50
 x 23
@@ -3459,6 +3481,10 @@ z 50
 x 23
 y 18
 end
+arch light6
+x 23
+y 18
+end
 arch floor_fs_grey1b
 z 50
 x 23
@@ -3481,6 +3507,10 @@ y 22
 end
 arch floor_fs_grey1b
 z 50
+x 23
+y 23
+end
+arch light6
 x 23
 y 23
 end
