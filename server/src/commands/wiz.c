@@ -244,61 +244,6 @@ static void dm_map_reinsert_players(mapstruct *m, object *op)
 }
 
 /**
- * Sets the god for some objects.
- * @param op The DM.
- * @param params Should contain two values - first the object to change,
- * followed by the god to change it to.
- * @return 0 on syntax error, 1 otherwise. */
-int command_setgod(object *op, char *params)
-{
-	object *ob, *god;
-	char *str;
-
-	if (!params || !(str = strchr(params, ' ')))
-	{
-		draw_info(COLOR_WHITE, op, "Usage: /setgod object god");
-		return 0;
-	}
-
-	/* Kill the space, and set string to the next param */
-	*str++ = '\0';
-
-	if (!(ob = find_object_both(op, params)))
-	{
-		draw_info_format(COLOR_WHITE, op, "Set whose god - can not find object %s?", params);
-		return 1;
-	}
-
-	/* Perhaps this is overly restrictive? Should we perhaps be able to
-	 * re-bless altars and the like? */
-	if (ob->type != PLAYER)
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is not a player - can not change its god", ob->name);
-		return 1;
-	}
-
-	change_skill(ob, SK_PRAYING);
-
-	if (!ob->chosen_skill || ob->chosen_skill->stats.sp != SK_PRAYING)
-	{
-		draw_info_format(COLOR_WHITE, op, "%s doesn't have praying skill.", ob->name);
-		return 1;
-	}
-
-	god = find_god(str);
-
-	if (god == NULL)
-	{
-		draw_info_format(COLOR_WHITE, op, "No such god %s.", str);
-		return 1;
-	}
-
-	become_follower(ob, god);
-
-	return 1;
-}
-
-/**
  * Kicks a player from the server.
  *
  * If both parameters are NULL, will kick all players.

@@ -143,7 +143,6 @@ extern int command_cast_spell(object *op, char *params);
 extern int fire_cast_spell(object *op, char *params);
 extern int legal_range(object *op, int r);
 /* src/commands/wiz.c */
-extern int command_setgod(object *op, char *params);
 extern int command_kick(object *ob, char *params);
 extern int command_shutdown_now(object *op, char *params);
 extern int command_goto(object *op, char *params);
