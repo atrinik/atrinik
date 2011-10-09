@@ -502,50 +502,6 @@ int command_teleport(object *op, char *params)
 }
 
 /**
- * Remove an object from its position.
- * @param op DM.
- * @param params Object to remove.
- * @return 1. */
-int command_remove(object *op, char *params)
-{
-	object *tmp;
-
-	if (params == NULL || !(tmp = find_object_both(op, params)))
-	{
-		draw_info(COLOR_WHITE, op, "Remove what object?");
-		return 1;
-	}
-
-	if (tmp->type == PLAYER)
-	{
-		draw_info(COLOR_WHITE, op, "Cannot remove a player!");
-		return 1;
-	}
-
-	if (QUERY_FLAG(tmp, FLAG_REMOVED))
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is already removed!", query_name(tmp, NULL));
-		return 1;
-	}
-
-	/* Ensure we have head. */
-	if (tmp->head)
-	{
-		tmp = tmp->head;
-	}
-
-	if (tmp->speed != 0)
-	{
-		tmp->speed = 0;
-		update_ob_speed(tmp);
-	}
-
-	remove_ob(tmp);
-	check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED);
-	return 1;
-}
-
-/**
  * Adds experience to a player.
  * @param op DM.
  * @param params Should be "\<who\> \<skill nr\> \<exp\>".

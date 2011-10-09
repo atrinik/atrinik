@@ -185,7 +185,6 @@ CommArray_s WizCommands[] =
 	{"strings",        command_strings,                0.0, 0},
 	{"debug",          command_debug,                  0.0, 0},
 	{"freeze",         command_freeze,                 0.0, 0},
-	{"remove",         command_remove,                 0.0, 0},
 	{"stats",          command_stats,                  0.0, 0},
 	{"forget_spell",   command_forget_spell,           0.0, 0},
 	{"dm_password",    command_dm_password,            0.0, 0},
