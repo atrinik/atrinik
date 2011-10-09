@@ -78,7 +78,7 @@ deep_forest.ogg: Forest
 sacred_moments.ogg: Scene with awe, hopeful sorrow, chapel
 magical_tower.ogg: Magic, dark
 mystical_aura.ogg: Magic place, crystal, ice
-new_hope.ogg: Nostalgic Amiga-like
+new_hope.ogg: Church, pipe organ
 
 ======================================================
 = Meritous - http://www.asceai.net/meritous/ - GPLv3 =
@@ -264,7 +264,7 @@ dg9.mid: Castle, fort, palace
 = Brandon Morris - http://opengameart.org/users/brandon-morris - CC-BY 3.0 =
 ============================================================================
 
-running.ogg: Dungeon
+running.ogg: Dungeon, giants stronghold on top of a mountain
 evil_temple.ogg: Evil eerie temple, chanting
 lost_in_meadows.ogg: Peaceful, meadow
 sewer_rats.ogg: Sewers, abandoned church
@@ -280,9 +280,9 @@ hull_et_belle.ogg: Boss rush, pre-boss
 =        Transcribed by Gramlath based on sheet music        =
 ==============================================================
 
-th_01.mid: Faith is For the Transient People: Castle, church
-th_02.mid: Satori Maiden ~ 3rd Eye: Mansion
-th_03.mid: Shanghai Alice of Meiji 17: Zelda and the fairies
+th_01.mid: Faith is For the Transient People: Castle, church, searching for something
+th_02.mid: Satori Maiden ~ 3rd Eye: Mansion, courtyard
+th_03.mid: Shanghai Alice of Meiji 17: Fairies
 th_04.mid: Maiden's Capriccio: Chase
 th_05.mid: Love Colored Master Spark: Castle, fanfares, the hero returns
 th_06.mid: Apparitions Stalk the Night: Sinister sewers
@@ -300,11 +300,11 @@ th_17.mid: Lunar Clock ~ Luna Dial: Speciality shop, timed mini game
 th_18.mid: BAD Apple!!: Long windy cave looking for the other end, maze
 th_19.mid: Solar Sect of Mystic Wisdom ~ Nuclear Fusion: Pathway between two places for a quest
 th_20.mid: Beware the Umbrella Left There Forever: Haunted house, ghost boss
-th_21.mid: The Capital City of Flowers in the Sky
-th_22.mid: The Young Descendant of Tepes
-th_23.mid: Year-Round Absorbed Curiosity
-th_24.mid: The Dark Side of Fate
-th_25.mid: Centennial Festival for Magical Girls
+th_21.mid: The Capital City of Flowers in the Sky: Country side after leaving a town, exploring, wilderness
+th_22.mid: The Young Descendant of Tepes: Monsters in a fort/castle, something is going to happen
+th_23.mid: Year-Round Absorbed Curiosity: Thieves shop, guild
+th_24.mid: The Dark Side of Fate: Catacombs
+th_25.mid: Centennial Festival for Magical Girls: Friendly place, town
 
 =================================================================
 = http://sites.google.com/site/metaruka/GameGame - CC BY-SA 3.0 =
@@ -358,7 +358,7 @@ thonkdonk.ogg: Tribal, dungeon-like
 = Yo Frankie! - http://www.yofrankie.org/ - CC-BY 3.0 =
 =======================================================
 
-frankie.ogg: Thieves
+frankie.ogg: Thieves, under city, caves
 
 =======================
 = Mike Koenig - CC-BY =
@@ -366,11 +366,11 @@ frankie.ogg: Thieves
 
 pure_romance.ogg: Techno, cave
 trance.ogg: Disco, techno
-trance_uplifting.ogg
+trance_uplifting.ogg: Quest, going to save something
 
 =======================================================================================
 = bebeto - http://www.freesound.org/usersViewSingle.php?id=409 - CC Sampling Plus 1.0 =
 =======================================================================================
 
-travelling.ogg: Traveling music, ships
-jungle.ogg: Overworld
+travelling.ogg: Traveling, ships
+jungle.ogg: Overworld, traveling, shop
