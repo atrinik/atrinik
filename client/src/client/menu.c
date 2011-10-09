@@ -329,6 +329,47 @@ int client_command_check(const char *cmd)
 		screenshot_create(surface_save);
 		return 1;
 	}
+	else if (!strncasecmp(cmd, "/console-load ", 14))
+	{
+		FILE *fp;
+		char path[HUGE_BUF], buf[HUGE_BUF * 4], *cp;
+		StringBuffer *sb;
+
+		cmd += 14;
+
+		snprintf(path, sizeof(path), "%s/.atrinik/console/%s", get_config_dir(), cmd);
+
+		fp = fopen(path, "r");
+
+		if (!fp)
+		{
+			draw_info_format(COLOR_RED, "Could not read %s.", path);
+			return 1;
+		}
+
+		while (fgets(buf, sizeof(buf) - 1, fp))
+		{
+			cp = strchr(buf, '\n');
+
+			if (cp)
+			{
+				*cp = '\0';
+			}
+
+			sb = stringbuffer_new();
+			stringbuffer_append_string(sb, "/console noinf::");
+			stringbuffer_append_string(sb, buf);
+			cp = stringbuffer_finish(sb);
+			send_command(cp);
+			free(cp);
+		}
+
+		send_command("/console noinf::");
+
+		fclose(fp);
+
+		return 1;
+	}
 
 	return 0;
 }
