@@ -1947,6 +1947,59 @@ static PyObject *Atrinik_Object_Activate(Atrinik_Object *obj, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>object.Artificate(string name)</h1>
+ * Copies artifact abilities to the specified object.
+ * @param name Name of the artifact to copy abilities from.
+ * @throws AtrinikError if the object already has artifact abilities.
+ * @throws AtrinikError if the object's type doesn't match any artifact list.
+ * @throws AtrinikError if the artifact name is invalid. */
+static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
+{
+	const char *name = NULL;
+	artifactlist *artlist;
+	artifact *art;
+
+	if (!PyArg_ParseTuple(args, "s", &name))
+	{
+		return NULL;
+	}
+
+	OBJEXISTCHECK(obj);
+
+	if (obj->obj->artifact)
+	{
+		PyErr_SetString(AtrinikError, "Object already has artifact abilities.");
+		return NULL;
+	}
+
+	artlist = hooks->find_artifactlist(obj->obj->arch->clone.type);
+
+	if (!artlist)
+	{
+		PyErr_SetString(AtrinikError, "No artifact list matching the object's type.");
+		return NULL;
+	}
+
+	for (art = artlist->items; art; art = art->next)
+	{
+		if (!strcmp(art->name, name))
+		{
+			hooks->give_artifact_abilities(obj->obj, art);
+			break;
+		}
+	}
+
+	if (!art)
+	{
+		PyErr_SetString(AtrinikError, "Invalid artifact name.");
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -2001,6 +2054,7 @@ static PyMethodDef methods[] =
 	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
 	{"Activate", (PyCFunction) Atrinik_Object_Activate, METH_NOARGS, 0},
+	{"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
