@@ -1552,45 +1552,6 @@ int command_follow(object *op, char *params)
 }
 
 /**
- * Insert marked object into another, specified by params.
- * @param op Wizard.
- * @param params Object name or \#ID to insert something into.
- * @return 0. */
-int command_insert_into(object *op, char *params)
-{
-	object *ob, *marked;
-
-	if (!params)
-	{
-		draw_info(COLOR_RED, op, "What object to insert something into?");
-		return 0;
-	}
-
-	marked = find_marked_object(op);
-
-	if (!marked)
-	{
-		draw_info(COLOR_RED, op, "You need to mark the object to insert.");
-		return 0;
-	}
-
-	ob = find_object_both(op, params);
-
-	if (!ob)
-	{
-		draw_info(COLOR_RED, op, "No such object.");
-		return 0;
-	}
-
-	remove_ob(marked);
-	insert_ob_in_ob(marked, ob);
-	esrv_send_item(op, marked);
-	fix_player(op);
-	draw_info_format(COLOR_GREEN, op, "Successfully inserted '%s' into '%s'.", query_name(marked, NULL), ob->name);
-	return 0;
-}
-
-/**
  * Wizard jails player.
  * @param op Wizard.
  * @param params Player to jail.

@@ -178,7 +178,6 @@ extern int command_maps(object *op, char *params);
 extern int command_strings(object *op, char *params);
 extern int command_ssdumptable(object *op, char *params);
 extern int command_follow(object *op, char *params);
-extern int command_insert_into(object *op, char *params);
 extern int command_arrest(object *op, char *params);
 extern int command_cmd_permission(object *op, char *params);
 extern int command_map_save(object *op, char *params);

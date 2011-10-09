@@ -185,7 +185,6 @@ CommArray_s WizCommands[] =
 	{"freeze",         command_freeze,                 0.0, 0},
 	{"dm_password",    command_dm_password,            0.0, 0},
 	{"follow",         command_follow,                 0.0, 0},
-	{"insert_into",    command_insert_into,            0.0, 0},
 	{"arrest",         command_arrest,                 0.0, 0},
 	{"cmd_permission", command_cmd_permission,         0.0, 0},
 	{"map_save",       command_map_save,               0.0, 0},
