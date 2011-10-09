@@ -155,7 +155,6 @@ CommArray_s WizCommands[] =
 	{"dmsay",          command_dmsay,                  0.0, 0},
 	{"summon",         command_summon,                 0.0, 0},
 	{"kick",           command_kick,                   0.0, 0},
-	{"inventory",      command_inventory,              0.0, 0},
 	{"plugin",         command_loadplugin,             0.0, 0},
 	{"pluglist",       command_listplugins,            0.0, 0},
 	{"motd_set",       command_motd_set,               0.0, 0},

@@ -502,56 +502,6 @@ int command_teleport(object *op, char *params)
 }
 
 /**
- * Shows the inventory of some object.
- * @param op Player.
- * @param params Object count to get the inventory of. If NULL then
- * defaults to op.
- * @return 1 unless params is NULL. */
-int command_inventory(object *op, char *params)
-{
-	object *ob = NULL, *tmp;
-	char *cp;
-
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Inventory of what object?");
-		return 0;
-	}
-
-	params = strtok(params, "$");
-	cp = strtok(NULL, "$");
-
-	if (!strncmp(params, "me", 2))
-	{
-		ob = op;
-	}
-	else
-	{
-		ob = find_object_both(op, params);
-
-		if (!ob)
-		{
-			draw_info(COLOR_WHITE, op, "No such object.");
-			return 0;
-		}
-	}
-
-	draw_info_format(COLOR_WHITE, op, "\nInventory of '%s':\n", query_name(ob, op));
-
-	for (tmp = ob->inv; tmp; tmp = tmp->below)
-	{
-		if (cp && !item_matched_string(op, tmp, cp))
-		{
-			continue;
-		}
-
-		draw_info_format(COLOR_WHITE, op, "#<green>%d</green>: %s", tmp->count, query_name(tmp, op));
-	}
-
-	return 1;
-}
-
-/**
  * Dumps the difference between an object and its archetype.
  * @param op DM.
  * @param params Object to dump.
