@@ -502,36 +502,6 @@ int command_teleport(object *op, char *params)
 }
 
 /**
- * Dumps the difference between an object and its archetype.
- * @param op DM.
- * @param params Object to dump.
- * @return 1. */
-int command_dump(object *op, char *params)
-{
-	object *tmp;
-	StringBuffer *sb;
-	char *diff;
-
-	if (params != NULL && !strcmp(params, "me"))
-	{
-		tmp = op;
-	}
-	else if (params == NULL || !(tmp = find_object_both(op, params)))
-	{
-		draw_info(COLOR_WHITE, op, "Dump what object?");
-		return 1;
-	}
-
-	sb = stringbuffer_new();
-	stringbuffer_append_printf(sb, "count %d\n", tmp->count);
-	dump_object(tmp, sb);
-	diff = stringbuffer_finish(sb);
-	draw_info(COLOR_WHITE, op, diff);
-	free(diff);
-	return 1;
-}
-
-/**
  * DM wants to alter an object.
  * @param op DM.
  * @param params Object and what to patch.

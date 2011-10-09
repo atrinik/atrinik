@@ -168,7 +168,6 @@ CommArray_s WizCommands[] =
 	{"addexp",         command_addexp,                 0.0, 0},
 	{"malloc",         command_malloc,                 0.0, 0},
 	{"maps",           command_maps,                   0.0, 0},
-	{"dump",           command_dump,                   0.0, 0},
 	{"dm_stealth",     command_dm_stealth,             0.0, 0},
 	{"dm_light",       command_dm_light,               0.0, 0},
 	{"d_active",       command_dumpactivelist,         0.0, 0},
