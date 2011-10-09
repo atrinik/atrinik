@@ -7,7 +7,7 @@ from Interface import Interface
 import threading, code
 
 ## Version of the command.
-__VERSION__ = "1.0"
+__VERSION__ = "1.1"
 ## The beginning of the thread name.
 __THREADNAME__ = "PyConsoleThread-"
 ## Maximum number of history lines.
