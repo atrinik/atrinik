@@ -139,8 +139,8 @@ static fields_struct fields[] =
 
 	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
 	{"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
-	{"zoom_x", FIELDTYPE_UINT8, offsetof(object, zoom_x), 0, 0},
-	{"zoom_y", FIELDTYPE_UINT8, offsetof(object, zoom_y), 0, 0},
+	{"zoom_x", FIELDTYPE_SINT16, offsetof(object, zoom_x), 0, 0},
+	{"zoom_y", FIELDTYPE_SINT16, offsetof(object, zoom_y), 0, 0},
 	{"rotate", FIELDTYPE_SINT16, offsetof(object, rotate), 0, 0},
 	{"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
 	{"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
