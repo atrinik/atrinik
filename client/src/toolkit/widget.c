@@ -1281,6 +1281,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
 		{
 			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+			add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
 			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
 			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
 		}
@@ -2439,6 +2440,25 @@ widgetdata *widget_find_by_surface(SDL_Surface *surface)
 	for (tmp = widget_list_head; tmp; tmp = tmp->next)
 	{
 		if (tmp->widgetSF == surface)
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Find the first widget to do a copy operation from, depending on the
+ * priority list.
+ * @return Widget to copy from, can be NULL. */
+widgetdata *widget_find_copy_from(void)
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		if (tmp->WidgetTypeID == CHATWIN_ID || tmp->WidgetTypeID == MSGWIN_ID)
 		{
 			return tmp;
 		}

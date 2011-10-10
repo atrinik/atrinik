@@ -1075,7 +1075,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "COPY"))
 		{
-			textwin_handle_copy();
+			textwin_handle_copy(NULL);
 		}
 		else if (!strcmp(cmd, "HELLO"))
 		{

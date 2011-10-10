@@ -29,10 +29,6 @@
 
 #include <global.h>
 
-/**
- * The widget that player is making a selection in (or has finished doing
- * so). */
-static widgetdata *selection_widget = NULL;
 /** Color to use for the text window border. */
 static Uint32 textwin_border_color;
 /**
@@ -201,21 +197,27 @@ void draw_info(const char *color, const char *str)
 }
 
 /**
- * Handle ctrl+C. */
-void textwin_handle_copy(void)
+ * Handle ctrl+C for textwin widget
+ * @param widget The textwin widget. If NULL, try to find the first one
+ * in the priority list. */
+void textwin_handle_copy(widgetdata *widget)
 {
 	sint64 start, end;
 	textwin_struct *textwin;
 	char *str, *cp;
 	size_t i, pos;
 
-	/* Nothing to copy? */
-	if (!selection_widget)
+	if (!widget)
 	{
-		return;
+		widget = widget_find_copy_from();
+
+		if (!widget)
+		{
+			return;
+		}
 	}
 
-	textwin = TEXTWIN(selection_widget);
+	textwin = TEXTWIN(widget);
 
 	start = textwin->selection_start;
 	end = textwin->selection_end;
@@ -452,13 +454,6 @@ void widget_textwin_show(widgetdata *widget)
 		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
 	}
 
-	if (widget_mouse_event.owner != widget && widget == selection_widget && textwin->selection_start >= 0 && textwin->selection_end >= 0)
-	{
-		textwin->selection_start = -1;
-		textwin->selection_end = -1;
-		WIDGET_REDRAW(widget);
-	}
-
 	if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY)))
 	{
 		filledRectAlpha(ScreenSurface, widget->x1, widget->y1, widget->x1 + widget->wd - 1, widget->y1 + widget->ht - 1, alpha);
@@ -523,7 +518,6 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			textwin->selection_started = 0;
 			textwin->selection_start = -1;
 			textwin->selection_end = -1;
-			selection_widget = widget;
 			WIDGET_REDRAW(widget);
 		}
 		else if (event->type == SDL_MOUSEMOTION)
@@ -658,6 +652,19 @@ void menu_textwin_clear(widgetdata *widget, int x, int y)
 	textwin->entries = NULL;
 	textwin->num_entries = textwin->entries_size = textwin->scroll = textwin->slider_h = textwin->slider_y = 0;
 	WIDGET_REDRAW(widget);
+}
+
+/**
+ * Handle the 'Copy' menu action for text windows.
+ * @param widget The text window widget.
+ * @param x X.
+ * @param y Y. */
+void menu_textwin_copy(widgetdata *widget, int x, int y)
+{
+	(void) x;
+	(void) y;
+
+	textwin_handle_copy(widget);
 }
 
 /**
