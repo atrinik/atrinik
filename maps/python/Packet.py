@@ -33,3 +33,30 @@ def Notification(pl, msg, action = None, shortcut = None, delay = 0):
 
 	# Send it off...
 	pl.SendPacket(40, fmt, *data)
+
+## Send a map stats command.
+## @pl Player to send the command to.
+## @name Map name to update.
+## @music Map music to update.
+## @weather Map weather to update.
+def MapStats(pl, name = None, music = None, weather = None):
+	fmt = ""
+	data = []
+
+	# Add map name.
+	if name:
+		fmt += "Bs"
+		data += [1, name]
+
+	# Add map music.
+	if music:
+		fmt += "Bs"
+		data += [2, music]
+
+	# Add map weather.
+	if weather:
+		fmt += "Bs"
+		data += [3, weather]
+
+	# Send it off...
+	pl.SendPacket(17, fmt, *data)
