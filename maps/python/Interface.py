@@ -75,7 +75,7 @@ class Interface:
 	def dialog_close(self):
 		self._activator.Controller().SendPacket(39, "", None)
 
-	def finish(self):
+	def finish(self, disable_timeout = False):
 		if not self._msg:
 			return
 
@@ -124,7 +124,7 @@ class Interface:
 
 		# If there is any movement behavior, update the amount of time
 		# the NPC should pause moving for.
-		if self._npc and (self._npc.move_type or self._npc.f_random_move):
+		if self._npc and not disable_timeout and (self._npc.move_type or self._npc.f_random_move):
 			from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
 
 			timeout = self._npc.ReadKey("npc_move_timeout")
