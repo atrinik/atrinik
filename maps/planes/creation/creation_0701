@@ -251,47 +251,17 @@ arch floor_stone_b2
 x 1
 y 1
 end
-arch wall_stone_3
-x 1
-y 1
-end
 arch floor_stone_b4
 x 1
 y 2
 end
-arch wall_stone_4
-x 1
-y 2
-end
 arch floor_stone_b4
-x 1
-y 3
-end
-arch sign
-msg
-Python tester.
-
-This NPC script provides many examples how to use various Atrinik Python plugin functions.
-endmsg
 x 1
 y 3
 end
 arch floor_stone_b1
 x 1
 y 4
-end
-arch spawn_point
-x 1
-y 4
-arch monk
-name Python Tester
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/python_tests.py
-end
-end
 end
 arch floor_stone_b3
 x 1
@@ -301,15 +271,7 @@ arch floor_stone_b3
 x 1
 y 6
 end
-arch wall_stone_1
-x 1
-y 6
-end
 arch floor_stone_b2
-x 1
-y 7
-end
-arch wall_stone_4
 x 1
 y 7
 end
@@ -321,19 +283,6 @@ arch floor_stone_b2
 x 1
 y 9
 end
-arch spawn_point
-x 1
-y 9
-arch monk
-name Interface Guy
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/interface.py
-end
-end
-end
 arch floor_stone_b4
 x 1
 y 10
@@ -342,15 +291,7 @@ arch floor_stone_b2
 x 1
 y 11
 end
-arch wall_stone_1
-x 1
-y 11
-end
 arch floor_stone_b4
-x 1
-y 12
-end
-arch wall_stone_4
 x 1
 y 12
 end
@@ -416,15 +357,6 @@ arch wall_stone_1
 x 2
 end
 arch floor_stone_b3
-x 2
-y 1
-end
-arch sign
-msg
-This lever has a beacon in its inventory. Beacons are objects that can easily be found by scripts, wherever in the game they are.
-
-Go to the Python Tester and tell him <a>beacon plane_of_creation_python</a>.
-endmsg
 x 2
 y 1
 end
@@ -536,13 +468,6 @@ end
 arch floor_stone_b3
 x 3
 y 1
-end
-arch handle_lever
-x 3
-y 1
-arch beacon
-name plane_of_creation_python
-end
 end
 arch floor_stone_b1
 x 3

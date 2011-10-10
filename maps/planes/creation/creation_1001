@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-03-29 Alex Tokar
+Modified: 2011-10-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -251,16 +251,7 @@ arch floor_stone_b1
 x 1
 y 1
 end
-arch candlelight4.101
-x 1
-y 1
-end
 arch floor_stone_b1
-x 1
-y 2
-end
-arch forge_111
-direction 7
 x 1
 y 2
 end
@@ -269,10 +260,6 @@ x 1
 y 3
 end
 arch floor_stone_b2
-x 1
-y 4
-end
-arch anvil_111
 x 1
 y 4
 end
@@ -552,10 +539,6 @@ arch floor_stone_b2
 x 3
 y 1
 end
-arch anvil_big_111
-x 3
-y 1
-end
 arch floor_stone_b1
 x 3
 y 2
@@ -563,18 +546,6 @@ end
 arch floor_stone_b3
 x 3
 y 3
-end
-arch spawn_point
-x 3
-y 3
-arch smith
-name Skills Teacher
-type 83
-arch event_obj
-sub_type 6
-race scripts/skills_teacher.py
-end
-end
 end
 arch floor_stone_b3
 x 3
