@@ -201,8 +201,9 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar, scrollbar_elem
 /**
  * Handle clicking an element in scrollbar.
  * @param scrollbar The scrollbar.
+ * @param test If 1, only test whether anything can be clicked.
  * @return 1 if the click was handled, 0 otherwise. */
-static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
+static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test)
 {
 	/* Dragging the slider, do not allow clicking anything. */
 	if (scrollbar->dragging)
@@ -213,13 +214,21 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 	/* Mouse over the up arrow. */
 	if (scrollbar->arrow_up.highlight)
 	{
-		scrollbar_scroll_adjust(scrollbar, -scrollbar->arrow_adjust);
+		if (!test)
+		{
+			scrollbar_scroll_adjust(scrollbar, -scrollbar->arrow_adjust);
+		}
+
 		return 1;
 	}
 	/* Mouse over the down arrow. */
 	else if (scrollbar->arrow_down.highlight)
 	{
-		scrollbar_scroll_adjust(scrollbar, scrollbar->arrow_adjust);
+		if (!test)
+		{
+			scrollbar_scroll_adjust(scrollbar, scrollbar->arrow_adjust);
+		}
+
 		return 1;
 	}
 	/* Mouse over the background and there's a known scroll direction. */
@@ -227,14 +236,36 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar)
 	{
 		if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP)
 		{
-			scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
+			if (!test)
+			{
+				scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
+			}
+
 			return 1;
 		}
 		else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN)
 		{
-			scrollbar_scroll_adjust(scrollbar, scrollbar->max_lines);
+			if (!test)
+			{
+				scrollbar_scroll_adjust(scrollbar, scrollbar->max_lines);
+			}
+
 			return 1;
 		}
+	}
+
+	return 0;
+}
+
+/**
+ * Check whether scrollbar needs redrawing.
+ * @param scrollbar Scrollbar to check.
+ * @return 1 if the scrollbar needs redrawing, 0 otherwise. */
+int scrollbar_need_redraw(scrollbar_struct *scrollbar)
+{
+	if (scrollbar_click_scroll(scrollbar, 1) && SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT)
+	{
+		return 1;
 	}
 
 	return 0;
@@ -367,9 +398,9 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
 	{
 		scroll = 0;
 	}
-	else if ((uint32) scroll > *scrollbar->num_lines - scrollbar->max_lines)
+	else if ((uint32) scroll > MAX(0, (int) *scrollbar->num_lines - (int) scrollbar->max_lines))
 	{
-		scroll = *scrollbar->num_lines - scrollbar->max_lines;
+		scroll = MAX(0, (int) *scrollbar->num_lines - (int) scrollbar->max_lines);
 	}
 
 	/* If the scroll offset changed, update it and set the redraw flag,
@@ -393,7 +424,7 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
  * @param y Y position on the surface. */
 void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
 {
-	int mx, my, horizontal;
+	int horizontal;
 
 	scrollbar->x = x;
 	scrollbar->y = y;
@@ -408,9 +439,9 @@ void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, 
 	}
 
 	/* Handle click repeating. */
-	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON_LEFT && SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks)
+	if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT && SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks)
 	{
-		if (scrollbar_click_scroll(scrollbar))
+		if (scrollbar_click_scroll(scrollbar, 0))
 		{
 			scrollbar->click_ticks = SDL_GetTicks();
 			scrollbar->click_repeat_ticks = 35;
@@ -614,7 +645,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 			}
 		}
 
-		if (scrollbar_click_scroll(scrollbar))
+		if (scrollbar_click_scroll(scrollbar, 0))
 		{
 			scrollbar->click_ticks = SDL_GetTicks();
 			scrollbar->click_repeat_ticks = 400;

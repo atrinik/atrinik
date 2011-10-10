@@ -795,7 +795,7 @@ void main_screen_render(void)
 		list_scrollbar_enable(list_servers);
 		list_set_column(list_servers, 0, 295, 7, "Server", -1);
 		list_set_column(list_servers, 1, 50, 9, "Port", 1);
-		list_set_column(list_servers, 2, 48, 7, "Players", 1);
+		list_set_column(list_servers, 2, 46, 7, "Players", 1);
 
 		/* Add the servers to the list. */
 		for (i = 0; i < server_count; i++)

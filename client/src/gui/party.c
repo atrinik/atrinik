@@ -153,8 +153,6 @@ void widget_party_render(widgetdata *widget)
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
 
-		widget->redraw = 0;
-
 		box.h = 0;
 		box.w = widget->wd;
 		string_blt(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
@@ -164,6 +162,8 @@ void widget_party_render(widgetdata *widget)
 			list_set_parent(list_party, widget->x1, widget->y1);
 			list_show(list_party, 10, 23);
 		}
+
+		widget->redraw = list_need_redraw(list_party);
 	}
 
 	dst.x = widget->x1;

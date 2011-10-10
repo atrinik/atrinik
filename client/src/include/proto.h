@@ -513,6 +513,7 @@ extern void list_remove_row(list_struct *list, uint32 row);
 extern void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
 extern void list_set_font(list_struct *list, int font);
 extern void list_scrollbar_enable(list_struct *list);
+extern int list_need_redraw(list_struct *list);
 extern void list_show(list_struct *list, int x, int y);
 extern void list_clear_rows(list_struct *list);
 extern void list_clear(list_struct *list);
@@ -539,6 +540,7 @@ extern int progress_dots_width(progress_dots *progress);
 extern int range_buttons_show(int x, int y, int *val, int advance);
 /* src/toolkit/scrollbar.c */
 extern void scrollbar_init(void);
+extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
 extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
 extern void scrollbar_info_create(scrollbar_info_struct *info);
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);

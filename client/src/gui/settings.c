@@ -766,7 +766,6 @@ static void settings_button_handle(size_t button)
 		list_settings = list_create(max_rows, cols, 8);
 		list_settings->handle_esc_func = list_handle_esc;
 		list_settings->handle_enter_func = list_handle_enter;
-		list_scrollbar_enable(list_settings);
 
 		if (button == BUTTON_SETTINGS)
 		{
@@ -787,6 +786,7 @@ static void settings_button_handle(size_t button)
 			list_settings->header_height = 7;
 		}
 
+		list_scrollbar_enable(list_settings);
 		settings_list_reload(list_settings);
 		return;
 	}

@@ -189,8 +189,6 @@ void widget_skills_render(widgetdata *widget)
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
 
-		widget->redraw = 0;
-
 		box.h = 0;
 		box.w = widget->wd;
 		string_blt(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
@@ -240,6 +238,8 @@ void widget_skills_render(widgetdata *widget)
 			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
 			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);
 		}
+
+		widget->redraw = list_need_redraw(list_skills);
 	}
 
 	box2.x = widget->x1;

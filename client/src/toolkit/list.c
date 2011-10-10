@@ -29,9 +29,6 @@
 
 #include <global.h>
 
-/** Used to store scrollbar position. */
-static int old_scrollbar_pos = 0;
-
 /**
  * Draw a frame in which the rows will be drawn.
  * @param list List to draw the frame for. */
@@ -267,109 +264,27 @@ void list_set_font(list_struct *list, int font)
  * @param list List to enable scrollbar on. */
 void list_scrollbar_enable(list_struct *list)
 {
-	list->scrollbar = 1;
+	list->scrollbar_enabled = 1;
+	scrollbar_create(&list->scrollbar, 9, LIST_ROWS_HEIGHT(list) + 1, &list->row_offset, &list->rows, list->max_rows);
 }
 
 /**
- * Get scrollbar's size.
- * @param list List.
- * @param box Where to store the size of the scrollbar.
- * @return 1 on success, 0 on failure (no scrollbar active). */
-static int list_scrollbar_get_size(list_struct *list, SDL_Rect *box)
+ * Check whether the list needs redrawing.
+ * @param list List to check.
+ * @return 1 if the list needs redrawing, 0 otherwise. */
+int list_need_redraw(list_struct *list)
 {
-	uint32 col;
-
-	if (!list->scrollbar)
+	if (!list)
 	{
 		return 0;
 	}
 
-	box->x = list->x + list->frame_offset + 1;
-	box->y = LIST_ROWS_START(list) + list->frame_offset;
-	box->w = LIST_SCROLLBAR_WIDTH;
-	box->h = LIST_ROW_HEIGHT(list) * list->max_rows;
-
-	for (col = 0; col < list->cols; col++)
+	if (list->scrollbar_enabled && scrollbar_need_redraw(&list->scrollbar))
 	{
-		box->x += list->col_widths[col] + list->col_spacings[col];
+		return 1;
 	}
 
-	return 1;
-}
-
-/**
- * Get slider's size.
- * @param list List.
- * @param box Where to store the size of the slider.
- * @return 1 on success, 0 on failure (no scrollbar active, so no slider
- * either). */
-static int list_slider_get_size(list_struct *list, SDL_Rect *box)
-{
-	if (!list_scrollbar_get_size(list, box))
-	{
-		return 0;
-	}
-
-	box->x += 1;
-	box->y += 1;
-	box->w -= 1;
-	box->h -= 1;
-
-	if (list->rows > list->max_rows)
-	{
-		int scroll;
-
-		scroll = list->max_rows + list->row_offset;
-		list->scrollbar_h = box->h * list->max_rows / list->rows;
-		list->scrollbar_y = ((scroll - list->max_rows) * box->h) / list->rows;
-
-		if (list->scrollbar_h < 1)
-		{
-			list->scrollbar_h = 1;
-		}
-
-		if (scroll - list->max_rows > 0 && list->scrollbar_y + list->scrollbar_h < box->h)
-		{
-			list->scrollbar_y++;
-		}
-
-		box->h = list->scrollbar_h;
-		box->y += list->scrollbar_y;
-	}
-
-	return 1;
-}
-
-/**
- * Render scrollbar for a list.
- * @param list The list. */
-static void list_scrollbar_render(list_struct *list)
-{
-	SDL_Rect scrollbar_box;
-	int mx, my;
-
-	if (!list_scrollbar_get_size(list, &scrollbar_box))
-	{
-		return;
-	}
-
-	SDL_GetMouseState(&mx, &my);
-
-	draw_frame(list->surface, scrollbar_box.x, scrollbar_box.y, scrollbar_box.w, scrollbar_box.h);
-
-	list_slider_get_size(list, &scrollbar_box);
-
-	mx -= list->px;
-	my -= list->py;
-
-	if (mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + scrollbar_box.h)
-	{
-		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 175, 154, 110, 255));
-	}
-	else
-	{
-		SDL_FillRect(list->surface, &scrollbar_box, SDL_MapRGBA(list->surface->format, 157, 139, 98, 255));
-	}
+	return 0;
 }
 
 /**
@@ -422,7 +337,10 @@ void list_show(list_struct *list, int x, int y)
 	box.w = list->width;
 	box.h = LIST_ROW_HEIGHT(list);
 
-	list_scrollbar_render(list);
+	if (list->scrollbar_enabled)
+	{
+		scrollbar_render(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list) + list->frame_offset);
+	}
 
 	/* Doing coloring of each row? */
 	if (list->row_color_func)
@@ -760,54 +678,13 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
 	mx = event->motion.x - list->px;
 	my = event->motion.y - list->py;
 
-	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	if (list->scrollbar_enabled)
 	{
-		SDL_Rect scrollbar_box;
+		list->scrollbar.px = list->px;
+		list->scrollbar.py = list->py;
 
-		if (list_slider_get_size(list, &scrollbar_box) && mx >= scrollbar_box.x && mx < scrollbar_box.x + scrollbar_box.w && my >= scrollbar_box.y && my < scrollbar_box.y + list->scrollbar_h)
+		if (scrollbar_event(&list->scrollbar, event))
 		{
-			old_scrollbar_pos = event->motion.y - list->scrollbar_y;
-			list->scrollbar_dragging = 1;
-			return 1;
-		}
-	}
-	else if (event->type == SDL_MOUSEBUTTONUP)
-	{
-		if (event->button.button == SDL_BUTTON_LEFT)
-		{
-			if (list->scrollbar_dragging)
-			{
-				list->scrollbar_dragging = 0;
-				return 1;
-			}
-		}
-	}
-	else if (event->type == SDL_MOUSEMOTION)
-	{
-		if (list->scrollbar_dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT))
-		{
-			list->scrollbar_dragging = 0;
-			return 0;
-		}
-
-		if (list->scrollbar_dragging)
-		{
-			SDL_Rect scrollbar_box;
-
-			if (!list_scrollbar_get_size(list, &scrollbar_box))
-			{
-				return 0;
-			}
-
-			list->scrollbar_y = event->motion.y - old_scrollbar_pos;
-
-			if (list->scrollbar_y > scrollbar_box.h - list->scrollbar_h)
-			{
-				list->scrollbar_y = scrollbar_box.h - list->scrollbar_h;
-			}
-
-			list->row_offset = MIN(list->rows - list->max_rows, MAX(0, list->scrollbar_y) * list->rows / scrollbar_box.h);
-			list->row_selected = list->max_rows + list->row_offset - 1;
 			return 1;
 		}
 	}

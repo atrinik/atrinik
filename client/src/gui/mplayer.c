@@ -366,8 +366,6 @@ void widget_show_mplayer(widgetdata *widget)
 		bltfx.alpha = 0;
 		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
 
-		widget->redraw = 0;
-
 		box.h = 0;
 		box.w = widget->wd;
 		string_blt(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
@@ -378,6 +376,8 @@ void widget_show_mplayer(widgetdata *widget)
 		box.h = 120;
 		box.w -= 6;
 		string_blt(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+
+		widget->redraw = list_need_redraw(list_mplayer);
 	}
 
 	box2.x = widget->x1;

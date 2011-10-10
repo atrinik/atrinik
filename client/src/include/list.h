@@ -118,17 +118,11 @@ typedef struct list_struct
 	/** If 1, this list has the active focus. */
 	uint8 focus;
 
-	/** Is the scrollbar being dragged? */
-	uint8 scrollbar_dragging;
-
 	/** Does the list use scrollbars? */
-	uint8 scrollbar;
+	uint8 scrollbar_enabled;
 
-	/** Scrollbar height. */
-	int scrollbar_h;
-
-	/** Scrollbar Y position modifier. */
-	int scrollbar_y;
+	/** The scrollbar. */
+	scrollbar_struct scrollbar;
 
 	/** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
 	int font;
