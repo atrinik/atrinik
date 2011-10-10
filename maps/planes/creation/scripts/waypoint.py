@@ -1,32 +1,27 @@
 ## @file
 ## Test of waypoint functionality.
 
-from Atrinik import *
-
-activator = WhoIsActivator()
-me = WhoAmI()
-# By checking event number we can handle multiple event types
-# in a single script.
-event_nr = GetEventNumber()
-
 def main():
+	# By checking event number we can handle multiple event types
+	# in a single script.
+	event_nr = GetEventNumber()
+
 	# Handle say event.
 	if event_nr == EVENT_SAY:
-		msg = WhatIsMessage().strip().lower()
+		from Interface import Interface
+
+		inf = Interface(activator, me)
 
 		# Greeting; inform them about the 'go' command.
-		if msg == "hi" or msg == "hey" or msg == "hello":
-			me.SayTo(activator, "\nTell me to <a>go</a> to activate my waypoint.")
-		elif msg == "go":
-			# Try to find our starting waypoint called 'waypoint1'.
-			wp = me.FindObject(name = "waypoint1")
+		if msg == "hello":
+			inf.add_msg("Do you want me to activate my waypoint?")
+			inf.add_link("Yes.", dest = "yes")
+		elif msg == "yes":
+			# Activate the starting waypoint.
+			me.FindObject(name = "waypoint1").f_cursed = True
+			inf.dialog_close()
 
-			# No such waypoint...
-			if not wp:
-				me.SayTo(activator, "\nI seem to be lost... No waypoint called 'waypoint1'.")
-			else:
-				# This activates the waypoint.
-				wp.f_cursed = True
+		inf.finish(disable_timeout = True)
 	# Trigger event is triggered when the waypoint has reached its destination.
 	elif event_nr == EVENT_TRIGGER:
 		# Reached waypoint that is used for getting to apples dropped around a tree.
@@ -34,7 +29,7 @@ def main():
 			# Try to find the apple by looking at objects below the guard's feet.
 			for obj in activator.map.GetFirstObject(activator.x, activator.y):
 				# Is the object an apple?
-				if obj.type == Type.FOOD and obj.name == "apple":
+				if obj.type == Type.FOOD and obj.arch.name == "apple":
 					# Remove the apple, inform the map and return.
 					obj.Remove()
 					activator.Say("Omnomnomnomnom!")
@@ -100,7 +95,7 @@ def main():
 		for (m, x, y) in activator.SquaresAround(5, AROUND_BLOCKSVIEW | AROUND_WALL, True):
 			for obj in m.GetFirstObject(x, y):
 				# Is there an apple?
-				if obj.type == Type.FOOD and obj.name == "apple":
+				if obj.type == Type.FOOD and obj.arch.name == "apple":
 					# Go get it!
 					go_apple(m, x, y)
 					return
