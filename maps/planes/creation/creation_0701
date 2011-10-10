@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-10-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -362,35 +362,15 @@ arch floor_stone_b3
 x 1
 y 14
 end
-arch spawn_point
-x 1
-y 14
-arch monk
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/quest_item.py
-end
-end
-end
 arch floor_stone_b2
 x 1
 y 15
 end
-arch floor_stone_b3
-x 1
-y 16
-end
-arch wall_stone_1
-x 1
-y 16
-end
 arch floor_stone_b2
 x 1
-y 17
+y 16
 end
-arch wall_stone_4
+arch floor_stone_b4
 x 1
 y 17
 end
@@ -402,27 +382,11 @@ arch floor_stone_b4
 x 1
 y 19
 end
-arch spawn_point
-x 1
-y 19
-arch monk
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/quest_item.py
-end
-end
-end
 arch floor_stone_b4
 x 1
 y 20
 end
 arch floor_stone_b2
-x 1
-y 21
-end
-arch wall_stone_1
 x 1
 y 21
 end
@@ -508,10 +472,6 @@ arch floor_stone_b4
 x 2
 y 12
 end
-arch wall_stone_1
-x 2
-y 12
-end
 arch floor_stone_b2
 x 2
 y 13
@@ -545,10 +505,6 @@ x 2
 y 20
 end
 arch floor_stone_b3
-x 2
-y 21
-end
-arch wall_stone_1
 x 2
 y 21
 end
@@ -632,18 +588,7 @@ arch floor_stone_b3
 x 3
 y 12
 end
-arch wall_stone_1
-x 3
-y 12
-end
 arch floor_stone_b2
-x 3
-y 13
-end
-arch sign
-msg
-Atrinik Quest System
-endmsg
 x 3
 y 13
 end
@@ -676,10 +621,6 @@ x 3
 y 20
 end
 arch floor_stone_b4
-x 3
-y 21
-end
-arch wall_stone_1
 x 3
 y 21
 end
@@ -756,10 +697,6 @@ arch floor_stone_b3
 x 4
 y 12
 end
-arch door1_locked
-x 4
-y 12
-end
 arch floor_stone_b3
 x 4
 y 13
@@ -796,15 +733,11 @@ arch floor_stone_b3
 x 4
 y 21
 end
-arch wall_stone_1
-x 4
-y 21
-end
 arch floor_stone_b1
 x 4
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 4
 y 22
 end
@@ -870,11 +803,6 @@ x 5
 y 11
 end
 arch floor_stone_b2
-x 5
-y 12
-end
-arch door1_locked
-direction 7
 x 5
 y 12
 end
@@ -959,7 +887,7 @@ x 6
 y 1
 arch event_obj
 sub_type 1
-race /dev/testmaps/scripts/food_haven.py
+race scripts/food_haven.py
 end
 end
 arch floor_stone_b4
@@ -998,15 +926,7 @@ arch floor_stone_b2
 x 6
 y 10
 end
-arch wall_stone_8
-x 6
-y 10
-end
 arch floor_stone_b4
-x 6
-y 11
-end
-arch wall_stone_3
 x 6
 y 11
 end
@@ -1014,39 +934,19 @@ arch floor_stone_b2
 x 6
 y 12
 end
-arch wall_stone_4
-x 6
-y 12
-end
 arch floor_stone_b4
 x 6
 y 13
 end
-arch wall_stone_3
-x 6
-y 13
-end
 arch floor_stone_b1
 x 6
 y 14
 end
-arch wall_stone_3
-x 6
-y 14
-end
 arch floor_stone_b1
-x 6
-y 15
-end
-arch wall_stone_3
 x 6
 y 15
 end
 arch floor_stone_b2
-x 6
-y 16
-end
-arch wall_stone_3
 x 6
 y 16
 end
@@ -1069,18 +969,6 @@ end
 arch floor_stone_b4
 x 6
 y 21
-end
-arch spawn_point
-x 6
-y 21
-arch monk
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/quest_item.py
-end
-end
 end
 arch floor_stone_b2
 x 6
@@ -1154,18 +1042,7 @@ arch floor_stone_b4
 x 7
 y 10
 end
-arch wall_stone_1
-x 7
-y 10
-end
 arch floor_stone_b4
-x 7
-y 11
-end
-arch sign
-msg
-When this slug is killed, player will be get a key. If the player loses the key, it will be given back to him when he kills this monster again.
-endmsg
 x 7
 y 11
 end
@@ -1177,45 +1054,15 @@ arch floor_stone_b2
 x 7
 y 13
 end
-arch sign
-msg
-Kill 5 demiliches to complete the quest "Dev Testmaps Quest 5"
-endmsg
-x 7
-y 13
-end
 arch floor_stone_b2
 x 7
 y 14
-end
-arch spawn_point
-x 7
-y 14
-arch demilich
-direction 3
-no_attack 1
-can_cast_spell 0
-stand_still 1
-type 83
-arch quest_container
-name Dev Testmaps Quest 5
-sub_type 1
-end
-end
 end
 arch floor_stone_b1
 x 7
 y 15
 end
-arch wall_stone_1
-x 7
-y 15
-end
 arch floor_stone_b4
-x 7
-y 16
-end
-arch wall_stone_1
 x 7
 y 16
 end
@@ -1304,40 +1151,9 @@ arch floor_stone_b3
 x 8
 y 10
 end
-arch wall_stone_1
-x 8
-y 10
-end
 arch floor_stone_b3
 x 8
 y 11
-end
-arch spawn_point
-x 8
-y 11
-arch slug_giant
-no_attack 1
-stand_still 1
-type 83
-arch quest_container
-name Dev Testmaps Quest 1
-arch key2
-identified 1
-slaying key_no_use
-end
-end
-arch quest_container
-name Dev Testmaps Multi Quest 1
-sub_type 4
-arch quest_container
-name part 3
-sub_type 2
-arch brain
-name Slug's Brain
-end
-end
-end
-end
 end
 arch floor_stone_b1
 x 8
@@ -1355,15 +1171,7 @@ arch floor_stone_b4
 x 8
 y 15
 end
-arch wall_stone_1
-x 8
-y 15
-end
 arch floor_stone_b1
-x 8
-y 16
-end
-arch wall_stone_1
 x 8
 y 16
 end
@@ -1387,15 +1195,11 @@ arch floor_stone_b4
 x 8
 y 21
 end
-arch wall_stone_8
-x 8
-y 21
-end
-arch floor_stone_b3
+arch floor_stone_b2
 x 8
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 8
 y 22
 end
@@ -1453,10 +1257,6 @@ arch floor_stone_b3
 x 9
 y 10
 end
-arch wall_stone_1
-x 9
-y 10
-end
 arch floor_stone_b1
 x 9
 y 11
@@ -1477,15 +1277,7 @@ arch floor_stone_b4
 x 9
 y 15
 end
-arch wall_stone_1
-x 9
-y 15
-end
 arch floor_stone_b4
-x 9
-y 16
-end
-arch wall_stone_4
 x 9
 y 16
 end
@@ -1509,15 +1301,11 @@ arch floor_stone_b1
 x 9
 y 21
 end
-arch wall_stone_1
-x 9
-y 21
-end
-arch floor_stone_b1
+arch floor_stone_b4
 x 9
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 9
 y 22
 end
@@ -1576,18 +1364,7 @@ arch floor_stone_b1
 x 10
 y 10
 end
-arch wall_stone_1
-x 10
-y 10
-end
 arch floor_stone_b1
-x 10
-y 11
-end
-arch sign
-msg
-Quest like the slug one, but when the snake is killed and player gets the quest item, it will never drop for him again.
-endmsg
 x 10
 y 11
 end
@@ -1604,10 +1381,6 @@ x 10
 y 14
 end
 arch floor_stone_b2
-x 10
-y 15
-end
-arch wall_stone_1
 x 10
 y 15
 end
@@ -1700,29 +1473,9 @@ arch floor_stone_b3
 x 11
 y 10
 end
-arch wall_stone_1
-x 11
-y 10
-end
 arch floor_stone_b1
 x 11
 y 11
-end
-arch spawn_point
-x 11
-y 11
-arch snake
-no_attack 1
-stand_still 1
-type 83
-arch quest_container
-name Dev Testmaps Quest 2
-arch teddy
-one_drop 1
-identified 1
-end
-end
-end
 end
 arch floor_stone_b3
 x 11
@@ -1740,26 +1493,9 @@ arch floor_stone_b4
 x 11
 y 15
 end
-arch wall_stone_1
-x 11
-y 15
-end
 arch floor_stone_b4
 x 11
 y 16
-end
-arch spawn_point
-x 11
-y 16
-arch monk
-friendly 1
-type 83
-direction 3
-arch event_obj
-sub_type 6
-race scripts/quest_multi_1.py
-end
-end
 end
 arch floor_stone_b2
 x 11
@@ -1780,18 +1516,6 @@ end
 arch floor_stone_b4
 x 11
 y 21
-end
-arch spawn_point
-x 11
-y 21
-arch monk
-direction 3
-type 83
-arch event_obj
-sub_type 6
-race scripts/quest_multi_1.py
-end
-end
 end
 arch floor_stone_b4
 x 11
@@ -1858,10 +1582,6 @@ arch floor_stone_b2
 x 12
 y 10
 end
-arch wall_stone_1
-x 12
-y 10
-end
 arch floor_stone_b3
 x 12
 y 11
@@ -1879,10 +1599,6 @@ x 12
 y 14
 end
 arch floor_stone_b1
-x 12
-y 15
-end
-arch wall_stone_1
 x 12
 y 15
 end
@@ -1975,18 +1691,7 @@ arch floor_stone_b1
 x 13
 y 10
 end
-arch wall_stone_1
-x 13
-y 10
-end
 arch floor_stone_b4
-x 13
-y 11
-end
-arch sign
-msg
-This monster holds quest item for the quest "Dev Testmaps Quest 3". Kill it and return the item to the quest giver for a reward.
-endmsg
 x 13
 y 11
 end
@@ -2006,15 +1711,7 @@ arch floor_stone_b2
 x 13
 y 15
 end
-arch wall_stone_1
-x 13
-y 15
-end
 arch floor_stone_b3
-x 13
-y 16
-end
-arch wall_stone_3
 x 13
 y 16
 end
@@ -2038,15 +1735,11 @@ arch floor_stone_b4
 x 13
 y 21
 end
-arch wall_stone_8
-x 13
-y 21
-end
-arch floor_stone_b1
+arch floor_stone_b2
 x 13
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 13
 y 22
 end
@@ -2107,30 +1800,9 @@ arch floor_stone_b3
 x 14
 y 10
 end
-arch wall_stone_1
-x 14
-y 10
-end
 arch floor_stone_b2
 x 14
 y 11
-end
-arch spawn_point
-x 14
-y 11
-arch ant_red
-no_attack 1
-random_move 0
-stand_still 1
-type 83
-arch quest_container
-name Dev Testmaps Quest 3
-sub_type 2
-arch gravedirt
-identified 1
-end
-end
-end
 end
 arch floor_stone_b4
 x 14
@@ -2148,15 +1820,7 @@ arch floor_stone_b3
 x 14
 y 15
 end
-arch wall_stone_1
-x 14
-y 15
-end
 arch floor_stone_b2
-x 14
-y 16
-end
-arch wall_stone_4
 x 14
 y 16
 end
@@ -2180,15 +1844,19 @@ arch floor_stone_b2
 x 14
 y 21
 end
+arch floor_stone_b4
+x 14
+y 22
+end
 arch wall_stone_1
 x 14
-y 21
+y 22
 end
 arch floor_stone_b2
 x 14
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 14
 y 22
 end
@@ -2249,10 +1917,6 @@ arch floor_stone_b1
 x 15
 y 10
 end
-arch wall_stone_1
-x 15
-y 10
-end
 arch floor_stone_b3
 x 15
 y 11
@@ -2270,10 +1934,6 @@ x 15
 y 14
 end
 arch floor_stone_b1
-x 15
-y 15
-end
-arch wall_stone_1
 x 15
 y 15
 end
@@ -2366,18 +2026,7 @@ arch floor_stone_b1
 x 16
 y 10
 end
-arch wall_stone_1
-x 16
-y 10
-end
 arch floor_stone_b2
-x 16
-y 11
-end
-arch sign
-msg
-Like the ant one, but this quest "Dev Testmaps Quest 4" has only 1/10 chance of getting the item from this bear.
-endmsg
 x 16
 y 11
 end
@@ -2394,10 +2043,6 @@ x 16
 y 14
 end
 arch floor_stone_b3
-x 16
-y 15
-end
-arch wall_stone_1
 x 16
 y 15
 end
@@ -2490,67 +2135,9 @@ arch floor_stone_b2
 x 17
 y 10
 end
-arch wall_stone_1
-x 17
-y 10
-end
 arch floor_stone_b2
 x 17
 y 11
-end
-arch spawn_point
-x 17
-y 11
-arch bear_grey
-no_attack 1
-stand_still 1
-type 83
-arch quest_container
-name Dev Testmaps Quest 4
-sub_type 2
-arch rand_drop
-container 10
-arch rod_heavy
-identified 1
-type 79
-end
-end
-end
-arch quest_container
-name Dev Testmaps Multi Quest 1
-sub_type 4
-arch quest_container
-name part 2
-sub_type 2
-arch heart
-name Bear's Heart
-nrof 1
-can_stack 1
-end
-end
-arch quest_container
-name part 1
-sub_type 1
-end
-end
-arch quest_container
-name Dev Testmaps Multi Quest 2
-sub_type 4
-arch quest_container
-name part 2
-sub_type 2
-arch heart
-name Bear's Heart
-nrof 1
-can_stack 1
-end
-end
-arch quest_container
-name part 1
-sub_type 1
-end
-end
-end
 end
 arch floor_stone_b2
 x 17
@@ -2565,10 +2152,6 @@ x 17
 y 14
 end
 arch floor_stone_b4
-x 17
-y 15
-end
-arch wall_stone_1
 x 17
 y 15
 end
@@ -2596,7 +2179,7 @@ arch floor_stone_b4
 x 17
 y 21
 end
-arch floor_stone_b2
+arch floor_stone_b4
 x 17
 y 22
 end
@@ -2661,10 +2244,6 @@ arch floor_stone_b1
 x 18
 y 10
 end
-arch wall_stone_1
-x 18
-y 10
-end
 arch floor_stone_b3
 x 18
 y 11
@@ -2685,15 +2264,7 @@ arch floor_stone_b2
 x 18
 y 15
 end
-arch wall_stone_1
-x 18
-y 15
-end
 arch floor_stone_b3
-x 18
-y 16
-end
-arch wall_stone_3
 x 18
 y 16
 end
@@ -2717,15 +2288,11 @@ arch floor_stone_b2
 x 18
 y 21
 end
-arch wall_stone_8
-x 18
-y 21
-end
-arch floor_stone_b1
+arch floor_stone_b2
 x 18
 y 22
 end
-arch wall_stone_4
+arch wall_stone_1
 x 18
 y 22
 end
@@ -2786,10 +2353,6 @@ arch floor_stone_b3
 x 19
 y 10
 end
-arch wall_stone_1
-x 19
-y 10
-end
 arch floor_stone_b1
 x 19
 y 11
@@ -2810,15 +2373,7 @@ arch floor_stone_b4
 x 19
 y 15
 end
-arch wall_stone_1
-x 19
-y 15
-end
 arch floor_stone_b2
-x 19
-y 16
-end
-arch wall_stone_4
 x 19
 y 16
 end
@@ -2842,11 +2397,7 @@ arch floor_stone_b3
 x 19
 y 21
 end
-arch wall_stone_1
-x 19
-y 21
-end
-arch floor_stone_b2
+arch floor_stone_b4
 x 19
 y 22
 end
@@ -2911,10 +2462,6 @@ arch floor_stone_b2
 x 20
 y 10
 end
-arch wall_stone_1
-x 20
-y 10
-end
 arch floor_stone_b3
 x 20
 y 11
@@ -2932,10 +2479,6 @@ x 20
 y 14
 end
 arch floor_stone_b2
-x 20
-y 15
-end
-arch door1_locked
 x 20
 y 15
 end
@@ -2963,11 +2506,7 @@ arch floor_stone_b4
 x 20
 y 21
 end
-arch wall_stone_1
-x 20
-y 21
-end
-arch floor_stone_b1
+arch floor_stone_b2
 x 20
 y 22
 end
@@ -3032,10 +2571,6 @@ arch floor_stone_b3
 x 21
 y 10
 end
-arch wall_stone_1
-x 21
-y 10
-end
 arch floor_stone_b4
 x 21
 y 11
@@ -3053,11 +2588,6 @@ x 21
 y 14
 end
 arch floor_stone_b1
-x 21
-y 15
-end
-arch door1_locked
-direction 7
 x 21
 y 15
 end
@@ -3085,11 +2615,7 @@ arch floor_stone_b3
 x 21
 y 21
 end
-arch wall_stone_1
-x 21
-y 21
-end
-arch floor_stone_b3
+arch floor_stone_b4
 x 21
 y 22
 end
@@ -3195,7 +2721,7 @@ arch floor_stone_b2
 x 22
 y 10
 end
-arch wall_stone_4
+arch wall_stone_3
 x 22
 y 10
 end
@@ -3235,7 +2761,7 @@ arch floor_stone_b4
 x 22
 y 15
 end
-arch wall_stone_4
+arch wall_stone_3
 x 22
 y 15
 end
@@ -3279,11 +2805,11 @@ arch wall_stone_3
 x 22
 y 20
 end
-arch floor_stone_b4
+arch floor_stone_b1
 x 22
 y 21
 end
-arch wall_stone_4
+arch wall_stone_3
 x 22
 y 21
 end

@@ -1,10 +1,7 @@
 ## @file
 ## Experimental script testing the power of CreateMap().
 
-from Atrinik import *
 import time
-
-activator = WhoIsActivator()
 
 # Create 17x17 map with unique name
 m = CreateMap(17, 17, activator.name + "-food-" + str(time.time()))
@@ -13,8 +10,7 @@ m.name = "Food Haven"
 # Full light.
 m.darkness = 7
 # Temporary object we need for object.CreateTreasure()
-cont = m.CreateObject("sack", 0, 0)
-cont.Remove()
+cont = CreateObject("sack")
 
 # Fill the map.
 for x in range(m.width):
