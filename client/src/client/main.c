@@ -159,9 +159,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"target_hp_b.png", PIC_TYPE_DEFAULT},
 
 	{"textwin_mask.png", PIC_TYPE_DEFAULT},
-	{"slider_up.png", PIC_TYPE_TRANS},
-	{"slider_down.png", PIC_TYPE_TRANS},
-	{"slider.png", PIC_TYPE_TRANS},
 
 	{"exp_skill_border.png", PIC_TYPE_DEFAULT},
 	{"exp_skill_line.png", PIC_TYPE_DEFAULT},
@@ -172,7 +169,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"book.png", PIC_TYPE_ALPHA},
 	{"book_border.png", PIC_TYPE_ALPHA},
 	{"region_map.png", PIC_TYPE_ALPHA},
-	{"slider_long.png", PIC_TYPE_DEFAULT},
 	{"invslot_marked.png", PIC_TYPE_TRANS},
 	{"mouse_cursor_move.png", PIC_TYPE_TRANS},
 	{"resist_bg.png", PIC_TYPE_DEFAULT},
