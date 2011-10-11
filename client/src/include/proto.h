@@ -269,6 +269,7 @@ extern void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *blt
 extern void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color);
 extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
 extern void remove_anim(struct _anim *anim);
 extern void play_anims(void);

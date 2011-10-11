@@ -50,7 +50,6 @@ static SDL_Surface *darkness_filter[DARK_LEVELS] =
 static void red_scale(_Sprite *sprite);
 static void grey_scale(_Sprite *sprite);
 static void fow_scale(_Sprite *sprite);
-static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey);
 
 /**
  * Initialize the sprite system. */
@@ -121,7 +120,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 		SDL_SetColorKey(bitmap, ckflags, 0);
 	}
 
-	GetBitmapBorders(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
+	surface_borders_get(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
 
 	/* We store our original bitmap */
 	sprite->bitmap = bitmap;
@@ -595,80 +594,137 @@ static void fow_scale(_Sprite *sprite)
 }
 
 /**
- * Get bitmap borders.
- * @param Surface Bitmap's surface.
- * @param[out] up Top border.
- * @param[out] down Bottom border.
- * @param[out] left Left border.
- * @param[out] right Right border.
- * @param ckey Color key.
- * @return 1 on success, 0 on failure. */
-static int GetBitmapBorders(SDL_Surface *Surface, int *up, int *down, int *left, int *right, uint32 ckey)
+ * Calculate the left border in the surface - this is the position of
+ * the first pixel from the left that that does not match 'color'.
+ * @param surface Surface.
+ * @param[out] pos Where to store the position.
+ * @param color Color to check for.
+ * @return 1 if the border was found, 0 otherwise. */
+static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32 ckey)
 {
 	int x, y;
 
-	*up = 0;
-	*down = 0;
-	*left = 0;
-	*right = 0;
-
-	/* Left side border */
-	for (x = 0; x < Surface->w; x++)
+	for (x = 0; x < surface->w; x++)
 	{
-		for (y = 0; y < Surface->h; y++)
+		for (y = 0; y < surface->h; y++)
 		{
-			if (getpixel(Surface, x, y) != ckey)
+			if (getpixel(surface, x, y) != ckey)
 			{
-				*left = x;
-				goto right_border;
-			}
-		}
-	}
-
-	/* We only need check this one time here - if we are here, the sprite is blank */
-	return 0;
-
-right_border:
-	/* Right side border */
-	for (x = Surface->w - 1; x >= 0; x--)
-	{
-		for (y = 0; y < Surface->h; y++)
-		{
-			if (getpixel(Surface, x, y) != ckey)
-			{
-				*right = (Surface->w - 1) - x;
-				goto up_border;
-			}
-		}
-	}
-
-up_border:
-	/* Up side border */
-	for (y = 0; y < Surface->h; y++)
-	{
-		for (x = 0; x < Surface->w; x++)
-		{
-			if (getpixel(Surface, x, y) != ckey)
-			{
-				*up = y;
-				goto down_border;
-			}
-		}
-	}
-
-down_border:
-	/* Down side border */
-	for (y = Surface->h - 1; y >= 0; y--)
-	{
-		for (x = 0; x < Surface->w; x++)
-		{
-			if (getpixel(Surface, x, y) != ckey)
-			{
-				*down = (Surface->h - 1) - y;
+				*pos = x;
 				return 1;
 			}
 		}
 	}
+
+	return 0;
+}
+
+/**
+ * Calculate the right border in the surface - this is the position of
+ * the first pixel from the right that that does not match 'color'.
+ * @param surface Surface.
+ * @param[out] pos Where to store the position.
+ * @param color Color to check for.
+ * @return 1 if the border was found, 0 otherwise. */
+static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32 ckey)
+{
+	int x, y;
+
+	for (x = surface->w - 1; x >= 0; x--)
+	{
+		for (y = 0; y < surface->h; y++)
+		{
+			if (getpixel(surface, x, y) != ckey)
+			{
+				*pos = (surface->w - 1) - x;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Calculate the top border in the surface - this is the position of
+ * the first pixel from the top that that does not match 'color'.
+ * @param surface Surface.
+ * @param[out] pos Where to store the position.
+ * @param color Color to check for.
+ * @return 1 if the border was found, 0 otherwise. */
+static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32 ckey)
+{
+	int x, y;
+
+	for (y = 0; y < surface->h; y++)
+	{
+		for (x = 0; x < surface->w; x++)
+		{
+			if (getpixel(surface, x, y) != ckey)
+			{
+				*pos = y;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Calculate the bottom border in the surface - this is the position of
+ * the first pixel from the bottom that that does not match 'color'.
+ * @param surface Surface.
+ * @param[out] pos Where to store the position.
+ * @param color Color to check for.
+ * @return 1 if the border was found, 0 otherwise. */
+static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32 color)
+{
+	int x, y;
+
+	for (y = surface->h - 1; y >= 0; y--)
+	{
+		for (x = 0; x < surface->w; x++)
+		{
+			if (getpixel(surface, x, y) != color)
+			{
+				*pos = (surface->h - 1) - y;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Get borders from SDL_surface. The borders indicate the first pixel
+ * from the border's side that does not match 'color'.
+ * @param surface Surface to get borders from.
+ * @param[out] top Where to store the top border.
+ * @param[out] bottom Where to store the bottom border.
+ * @param[out] left Where to store the left border.
+ * @param[out] right Where to store the right border.
+ * @param color Color to check for.
+ * @return 1 if the borders were found, 0 otherwise (image is all filled
+ * with 'color' color). */
+int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color)
+{
+	*top = 0;
+	*bottom = 0;
+	*left = 0;
+	*right = 0;
+
+	/* If the border was not found, it means the surface is completely
+	 * filled with 'color' color. */
+	if (!surface_border_get_top(surface, top, color))
+	{
+		return 0;
+	}
+
+	surface_border_get_bottom(surface, bottom, color);
+	surface_border_get_left(surface, left, color);
+	surface_border_get_right(surface, right, color);
 
 	return 1;
 }
