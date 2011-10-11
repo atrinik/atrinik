@@ -1651,8 +1651,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 	/* Normal condition - respond to mouse move event */
 	else
 	{
-		textwin_struct *textwin = NULL;
-
 		/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
 		if (!widget_event_respond(x, y))
 		{
@@ -1698,18 +1696,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		{
 			case CHATWIN_ID:
 			case MSGWIN_ID:
-				textwin = TEXTWIN(widget);
-
-				/* textwin special handling */
-				if (textwin)
-				{
-					if (textwin->highlight != TW_HL_NONE)
-					{
-						textwin->highlight = TW_HL_NONE;
-						WIDGET_REDRAW(widget);
-					}
-				}
-
 				textwin_event(widget, event);
 				break;
 

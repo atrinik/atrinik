@@ -361,7 +361,6 @@ void widget_textwin_show(widgetdata *widget)
 
 	if (mx < widget->x1 || mx > widget->x1 + widget->wd || my < widget->y1 || my > widget->y1 + widget->ht)
 	{
-		textwin->flags &= ~TW_SCROLL;
 		widget->resize_flags = 0;
 	}
 
@@ -395,7 +394,6 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 		if (event->type == SDL_MOUSEBUTTONUP)
 		{
 			textwin->selection_started = 0;
-			textwin->flags &= ~TW_SCROLL;
 		}
 		else if (event->type == SDL_MOUSEBUTTONDOWN)
 		{

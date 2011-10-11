@@ -30,40 +30,11 @@
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 
-/* Highlights */
-enum
-{
-	TW_HL_NONE,
-	TW_HL_UP,
-	TW_ABOVE,
-	TW_HL_SLIDER,
-	TW_UNDER,
-	TW_HL_DOWN
-};
-
-/* Flags */
-enum
-{
-	TW_SCROLL = 1
-};
-
 /** Custom attributes for text window widgets. */
 typedef struct textwin_struct
 {
-	/** startpos of the window */
-	int x, y;
-
-	/** which part to highlight */
-	int highlight;
-
 	/** The text in the text window. */
 	char *entries;
-
-	/** Scroll offset. */
-	uint32 scroll_offset;
-
-	/** Number of lines. */
-	uint32 num_lines;
 
 	/** Length of the entries. */
 	size_t entries_size;
@@ -71,8 +42,14 @@ typedef struct textwin_struct
 	/** Font used. */
 	int font;
 
-	/** Flags. */
-	int flags;
+	/** Scroll offset. */
+	uint32 scroll_offset;
+
+	/** Number of lines. */
+	uint32 num_lines;
+
+	/** The scrollbar. */
+	scrollbar_struct scrollbar;
 
 	/** Whether there is anything in selection_start yet. */
 	uint8 selection_started;
@@ -82,9 +59,6 @@ typedef struct textwin_struct
 
 	/** End of selection. */
 	sint64 selection_end;
-
-	/** The scrollbar. */
-	scrollbar_struct scrollbar;
 } textwin_struct;
 
 /** Get the maximum number of visible rows. */
