@@ -1,7 +1,6 @@
 Alex "Cleo" Tokar - GPLv2:
 	apply.png
 	below.png
-	below_scroll.png
 	button.png
 	button_down.png
 	button_hover.png
@@ -51,7 +50,6 @@ Alex "Cleo" Tokar - GPLv2:
 	icon_party.png
 	icon_quest.png (based on: book_red.101.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
 	icon_skill.png (based on: range_skill.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
-	inv_scroll.png
 	inventory.png
 	inventory_bg.png
 	invslot.png
@@ -85,7 +83,6 @@ Alex "Cleo" Tokar - GPLv2:
 	target_hp_b.png
 	textinput.png
 	textwin_mask.png
-	textwin_scroll.png
 	unpaid.png
 	range_buttons_left.png
 	range_buttons_off.png

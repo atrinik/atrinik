@@ -117,10 +117,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"cmark_end.png", PIC_TYPE_TRANS},
 	{"cmark_middle.png", PIC_TYPE_TRANS},
 
-	{"textwin_scroll.png", PIC_TYPE_DEFAULT},
-	{"inv_scroll.png", PIC_TYPE_DEFAULT},
-	{"below_scroll.png", PIC_TYPE_DEFAULT},
-
 	{"number.png", PIC_TYPE_DEFAULT},
 	{"invslot_u.png", PIC_TYPE_TRANS},
 
