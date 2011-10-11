@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-10-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1274,16 +1274,6 @@ arch wall_stone9_8
 x 9
 y 2
 end
-arch client_map_info
-msg
-The Brynknot Class Chooser.
-endmsg
-stand_still 1
-name brynknot_class_chooser
-sub_type 2
-x 9
-y 2
-end
 arch grassd_2
 x 9
 y 3
@@ -1383,12 +1373,6 @@ x 9
 y 13
 end
 arch wall_stone9_3
-x 9
-y 13
-end
-arch client_map_info
-name brynknot_class_chooser
-sub_type 2
 x 9
 y 13
 end
@@ -1760,14 +1744,6 @@ arch grassd_m4
 x 11
 y 14
 end
-arch announcement
-msg
-<green>Class Chooser</green>
-The Class Chooser will teach you the class of your choice.
-endmsg
-x 11
-y 14
-end
 arch floor_flagm1
 x 11
 y 15
@@ -1842,14 +1818,12 @@ arch spawn_point
 x 12
 y 3
 arch mage_old
-name Class Chooser
+name Feldain Goodwin
 level 30
-can_cast_spell 0
-friendly 1
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/class_chooser.py
+race scripts/strakewood_island/brynknot/feldain_goodwin.py
 end
 end
 end
@@ -2278,14 +2252,6 @@ arch grassd_m6
 x 14
 y 14
 end
-arch announcement
-msg
-<green>Class Chooser</green>
-The Class Chooser will teach you the class of your choice.
-endmsg
-x 14
-y 14
-end
 arch floor_flagm3
 x 14
 y 15
@@ -2536,12 +2502,6 @@ arch wall_stone9_1
 x 16
 y 2
 end
-arch client_map_info
-name brynknot_class_chooser
-sub_type 2
-x 16
-y 2
-end
 arch floor_rhomb
 x 16
 y 3
@@ -2639,12 +2599,6 @@ x 16
 y 13
 end
 arch wall_stone9_4
-x 16
-y 13
-end
-arch client_map_info
-name brynknot_class_chooser
-sub_type 2
 x 16
 y 13
 end
