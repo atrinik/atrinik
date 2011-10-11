@@ -223,7 +223,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		{
 			char buf[MAX_BUF];
 
-			sprite_blt(Bitmaps[BITMAP_INVSLOT], x, y, NULL, NULL);
+			sprite_blt(Bitmaps[cpl.inventory_focus == widget->WidgetTypeID ? BITMAP_INVSLOT : BITMAP_INVSLOT_U], x, y, NULL, NULL);
 
 			if (ob->nrof > 1)
 			{
