@@ -134,3 +134,6 @@ def time2seconds(s):
 				break
 
 	return total
+
+def l2s(l, sep = ", ", sep2 = " and "):
+	return sep.join(l[:-2] + [""]) + sep2.join(l[-2:])
