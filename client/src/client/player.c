@@ -179,12 +179,11 @@ void init_player_data(void)
 	new_player(0, 0, 0);
 
 	cpl.dm = 0;
-	cpl.fire_on = cpl.firekey_on = 0;
-	cpl.run_on = cpl.runkey_on = 0;
-	cpl.inventory_win = IWIN_BELOW;
+	cpl.fire_on = 0;
+	cpl.run_on = 0;
+	cpl.inventory_focus = BELOW_INV_ID;
 
 	cpl.container_tag = -996;
-	cpl.container = NULL;
 
 	memset(&cpl.stats, 0, sizeof(Stats));
 
@@ -197,8 +196,6 @@ void init_player_data(void)
 
 	cpl.stats.maxgrace = 1;
 	cpl.stats.speed = 1;
-
-	cpl.range[0] = '\0';
 
 	cpl.ob->nrof = 1;
 	cpl.partyname[0] = cpl.partyjoin[0] = '\0';
@@ -214,7 +211,6 @@ void init_player_data(void)
 	cpl.action_timer = 0.0f;
 
 	cpl.container_tag = -997;
-	cpl.container = NULL;
 
 	RangeFireMode = 0;
 }
@@ -525,43 +521,6 @@ void widget_skillgroups(widgetdata *widget)
 }
 
 /**
- * Handle mouse events over player doll widget (dragging items). */
-void widget_show_player_doll_event(void)
-{
-	int old_inv_win = cpl.inventory_win, old_inv_tag = cpl.win_inv_tag;
-	cpl.inventory_win = IWIN_INV;
-
-	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
-	{
-		cpl.win_inv_tag = cpl.dragging.tag;
-
-		/* Drop to player doll */
-		if (!(object_find(cpl.win_inv_tag)->flags & F_APPLIED))
-		{
-			keybind_process_command("?APPLY");
-		}
-	}
-
-	if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
-	{
-		if (object_find(cpl.win_inv_tag)->flags & F_APPLIED)
-		{
-			draw_info(COLOR_WHITE, "This is applied already!");
-		}
-		/* Drop to player doll */
-		else
-		{
-			keybind_process_command("?APPLY");
-		}
-	}
-
-	cpl.inventory_win = old_inv_win;
-	cpl.win_inv_tag = old_inv_tag;
-
-	draggingInvItem(DRAG_NONE);
-}
-
-/**
  * Show player doll widget with applied items from inventory.
  * @param widget The widget object. */
 void widget_show_player_doll(widgetdata *widget)
@@ -691,21 +650,15 @@ void widget_show_player_doll(widgetdata *widget)
 
 			if (idx != -1)
 			{
-				int mb;
-				blt_inv_item_centered(tmp, player_doll[idx].xpos + widget->x1, player_doll[idx].ypos + widget->y1);
-				mb = SDL_GetMouseState(&mx, &my);
+				object_blit_centered(tmp, player_doll[idx].xpos + widget->x1, player_doll[idx].ypos + widget->y1);
+
+				SDL_GetMouseState(&mx, &my);
 
 				/* Prepare item name tooltip */
 				if (mx >= widget->x1 + player_doll[idx].xpos && mx < widget->x1 + player_doll[idx].xpos + 33 && my >= widget->y1 + player_doll[idx].ypos && my < widget->y1 + player_doll[idx].ypos + 33)
 				{
 					tooltip_index = idx;
 					tooltip_text = tmp->s_name;
-
-					if ((mb & SDL_BUTTON(SDL_BUTTON_LEFT)) && !draggingInvItem(DRAG_GET_STATUS))
-					{
-						cpl.win_pdoll_tag = tmp->tag;
-						draggingInvItem(DRAG_PDOLL);
-					}
 				}
 			}
 		}
@@ -1112,7 +1065,7 @@ void widget_highlight_menu(widgetdata *widget)
 {
 	widgetdata *tmp, *tmp2, *tmp3;
 	_menu *menu = NULL, *tmp_menu = NULL;
-	_menuitem *menuitem = NULL;
+	_menuitem *menuitem = NULL, *submenuitem = NULL;
 	int visible, create_submenu = 0, x = 0, y = 0;
 
 	/* Sanity check. Make sure widget is a menu. */
@@ -1165,6 +1118,7 @@ void widget_highlight_menu(widgetdata *widget)
 			if (menuitem->menu_type == MENU_SUBMENU)
 			{
 				create_submenu = 1;
+				submenuitem = menuitem;
 				x = tmp->x1 + widget->wd - 4;
 				y = tmp->y1 - (CONTAINER(widget))->outer_padding_top;
 			}
@@ -1229,14 +1183,25 @@ void widget_highlight_menu(widgetdata *widget)
 
 		if (tmp_menu->owner->WidgetTypeID == MAIN_INV_ID)
 		{
-			add_menuitem(tmp_menu->submenu, "All", &menu_inv_filter_all, MENU_CHECKBOX, inventory_filter == INVENTORY_FILTER_ALL);
-			add_menuitem(tmp_menu->submenu, "Applied", &menu_inv_filter_applied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_APPLIED);
-			add_menuitem(tmp_menu->submenu, "Unapplied", &menu_inv_filter_unapplied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNAPPLIED);
-			add_menuitem(tmp_menu->submenu, "Containers", &menu_inv_filter_containers, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CONTAINER);
-			add_menuitem(tmp_menu->submenu, "Magical", &menu_inv_filter_magical, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_MAGICAL);
-			add_menuitem(tmp_menu->submenu, "Cursed", &menu_inv_filter_cursed, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CURSED);
-			add_menuitem(tmp_menu->submenu, "Unidentified", &menu_inv_filter_unidentified, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNIDENTIFIED);
-			add_menuitem(tmp_menu->submenu, "Locked", &menu_inv_filter_locked, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_LOCKED);
+			if (submenuitem->menu_func_ptr == menu_inv_filter_submenu)
+			{
+				add_menuitem(tmp_menu->submenu, "All", &menu_inv_filter_all, MENU_CHECKBOX, inventory_filter == INVENTORY_FILTER_ALL);
+				add_menuitem(tmp_menu->submenu, "Applied", &menu_inv_filter_applied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_APPLIED);
+				add_menuitem(tmp_menu->submenu, "Unapplied", &menu_inv_filter_unapplied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNAPPLIED);
+				add_menuitem(tmp_menu->submenu, "Containers", &menu_inv_filter_containers, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CONTAINER);
+				add_menuitem(tmp_menu->submenu, "Magical", &menu_inv_filter_magical, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_MAGICAL);
+				add_menuitem(tmp_menu->submenu, "Cursed", &menu_inv_filter_cursed, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CURSED);
+				add_menuitem(tmp_menu->submenu, "Unidentified", &menu_inv_filter_unidentified, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNIDENTIFIED);
+				add_menuitem(tmp_menu->submenu, "Locked", &menu_inv_filter_locked, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_LOCKED);
+			}
+			else if (submenuitem->menu_func_ptr == menu_inventory_submenu_more)
+			{
+				add_menuitem(tmp_menu->submenu, "Drop all", &menu_inventory_dropall, MENU_NORMAL, 0);
+				add_menuitem(tmp_menu->submenu, "Ready", &menu_inventory_ready, MENU_NORMAL, 0);
+				add_menuitem(tmp_menu->submenu, "Mark", &menu_inventory_mark, MENU_NORMAL, 0);
+				add_menuitem(tmp_menu->submenu, "Lock", &menu_inventory_lock, MENU_NORMAL, 0);
+				add_menuitem(tmp_menu->submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);
+			}
 		}
 		else
 		{

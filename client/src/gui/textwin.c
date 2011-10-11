@@ -286,6 +286,9 @@ void textwin_show(int x, int y, int w, int h)
 	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 }
 
+/**
+ * Initialize text window scrollbar.
+ * @param widget The text window. */
 void textwin_create_scrollbar(widgetdata *widget)
 {
 	textwin_struct *textwin = TEXTWIN(widget);
@@ -402,7 +405,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			textwin->selection_end = -1;
 			WIDGET_REDRAW(widget);
 		}
-		else if (event->type == SDL_MOUSEMOTION)
+		else if (event->type == SDL_MOUSEMOTION && !draggingInvItem(DRAG_GET_STATUS))
 		{
 			WIDGET_REDRAW(widget);
 			textwin->selection_started = 1;

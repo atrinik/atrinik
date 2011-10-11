@@ -54,30 +54,6 @@ void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int M
 				keybind_process_command("?RANGE");
 			}
 		}
-		else if (MEvent == MOUSE_UP)
-		{
-			if (draggingInvItem(DRAG_GET_STATUS) > DRAG_IWIN_BELOW)
-			{
-				/* KEYFUNC_APPLY and KEYFUNC_DROP works only if cpl.inventory_win = IWIN_INV. The tag must
-				 * be placed in cpl.win_inv_tag. So we do this and after DnD we restore the old values. */
-				int old_inv_win = cpl.inventory_win;
-				int old_inv_tag = cpl.win_inv_tag;
-
-				cpl.inventory_win = IWIN_INV;
-
-				/* Range field */
-				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV && x >= widget->x1 && x <= widget->x1 + 78 && y >= widget->y1 && y <= widget->y1 + 35)
-				{
-					RangeFireMode = 4;
-
-					/* Drop to player doll. */
-					keybind_process_command("?APPLY");
-				}
-
-				cpl.inventory_win = old_inv_win;
-				cpl.win_inv_tag = old_inv_tag;
-			}
-		}
 	}
 }
 
@@ -116,7 +92,7 @@ void widget_show_range(widgetdata *widget)
 			{
 				tmp = object_find_object(cpl.ob, fire_mode_tab[RangeFireMode].item);
 
-				blt_inv_item_centered(tmp, widget->x1 + 3, widget->y1 + 2);
+				object_blit_centered(tmp, widget->x1 + 3, widget->y1 + 2);
 				string_blt(ScreenSurface, FONT_SANS10, tmp->s_name, widget->x1 + 3, widget->y1 + 35, COLOR_WHITE, 0, NULL);
 
 				if (fire_mode_tab[FIRE_MODE_BOW].amun != FIRE_ITEM_NO && (tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_BOW].amun)))
@@ -130,7 +106,7 @@ void widget_show_range(widgetdata *widget)
 						snprintf(buf, sizeof(buf), "%s (%4.3f kg)", tmp->s_name, tmp->weight);
 					}
 
-					blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
+					object_blit_centered(tmp, widget->x1 + 43, widget->y1 + 2);
 					string_blt(ScreenSurface, FONT_SANS10, buf, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, 0, NULL);
 				}
 			}
@@ -148,7 +124,7 @@ void widget_show_range(widgetdata *widget)
 			{
 				string_blt(ScreenSurface, FONT_SANS10, tmp->s_name, widget->x1 + 3, widget->y1 + 46, COLOR_WHITE, 0, NULL);
 				sprite_blt(Bitmaps[BITMAP_RANGE_TOOL], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
+				object_blit_centered(tmp, widget->x1 + 43, widget->y1 + 2);
 			}
 			else
 			{
@@ -196,7 +172,7 @@ void widget_show_range(widgetdata *widget)
 			if (fire_mode_tab[FIRE_MODE_THROW].item != FIRE_ITEM_NO && (tmp = object_find_object(cpl.ob, fire_mode_tab[FIRE_MODE_THROW].item)))
 			{
 				sprite_blt(Bitmaps[BITMAP_RANGE_THROW], widget->x1 + 3, widget->y1 + 2, NULL, NULL);
-				blt_inv_item_centered(tmp, widget->x1 + 43, widget->y1 + 2);
+				object_blit_centered(tmp, widget->x1 + 43, widget->y1 + 2);
 
 				if (tmp->nrof > 1)
 				{

@@ -667,22 +667,6 @@ static void display_layer1(void)
 }
 
 /**
- * Inventory. */
-static void display_layer2(void)
-{
-	cpl.container = NULL;
-
-	if (GameStatus == GAME_STATUS_PLAY)
-	{
-		cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-
-		cpl.real_weight = cpl.window_weight;
-
-		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-	}
-}
-
-/**
  * Process the widgets if we're playing. */
 static void display_layer3(void)
 {
@@ -912,7 +896,6 @@ int main(int argc, char *argv[])
 			if (map_udate_flag > 0)
 			{
 				display_layer1();
-				display_layer2();
 				display_layer3();
 				display_layer4();
 
@@ -929,21 +912,9 @@ int main(int argc, char *argv[])
 			{
 				object *Item = NULL;
 
-				if (drag == DRAG_IWIN_INV)
-				{
-					Item = object_find(cpl.win_inv_tag);
-				}
-				else if (drag == DRAG_IWIN_BELOW)
-				{
-					Item = object_find(cpl.win_below_tag);
-				}
-				else if (drag == DRAG_QUICKSLOT)
+				if (drag == DRAG_QUICKSLOT)
 				{
 					Item = object_find(cpl.dragging.tag);
-				}
-				else if (drag == DRAG_PDOLL)
-				{
-					Item = object_find(cpl.win_pdoll_tag);
 				}
 
 				SDL_GetMouseState(&x, &y);
@@ -954,7 +925,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					blt_inv_item_centered(Item, x, y);
+					object_blit_centered(Item, x, y);
 				}
 			}
 

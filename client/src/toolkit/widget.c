@@ -369,6 +369,12 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			/* have the subwidget point to it */
 			widget->subwidget = (_widget_bitmap *) bitmap;
 			break;
+
+		case MAIN_INV_ID:
+		case BELOW_INV_ID:
+			widget->subwidget = calloc(1, sizeof(inventory_struct));
+			widget_inventory_init(widget);
+			break;
 	}
 
 	return widget;
@@ -1275,19 +1281,47 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 		/* Create a context menu for the widget clicked on. */
 		menu = create_menu(x, y, widget);
-		/* This bit probably shouldn't be hard coded in future. */
-		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
 
-		if (widget->WidgetSubtypeID == MAIN_INV_ID)
+		if ((widget->WidgetSubtypeID == MAIN_INV_ID || widget->WidgetSubtypeID == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, x, y))
 		{
-			add_menuitem(menu, "Inventory Filters  >", &menu_detach_widget, MENU_SUBMENU, 0);
+			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			{
+				add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
+			}
+
+			add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
+
+			if (widget->WidgetSubtypeID == BELOW_INV_ID)
+			{
+				add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
+			}
+
+			add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
+
+			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			{
+				add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
+			}
+
+			/* Process the right click event so the correct item is
+			 * selected. */
+			widget_inventory_event(widget, event);
 		}
-		else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+		else
 		{
-			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
-			add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
-			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
-			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+
+			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			{
+				add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
+			}
+			else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+			{
+				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+				add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
+				add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
+				add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+			}
 		}
 
 		menu_finalize(menu);
@@ -1328,16 +1362,13 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				widget_range_event(widget, x, y, *event, MOUSE_DOWN);
 				break;
 
-			case BELOW_INV_ID:
-				widget_below_window_event(widget, x, y, MOUSE_DOWN);
-				break;
-
 			case TARGET_ID:
 				widget_event_target(widget, x, y);
 				break;
 
 			case MAIN_INV_ID:
-				widget_inventory_event(widget, x, y, *event);
+			case BELOW_INV_ID:
+				widget_inventory_event(widget, event);
 				break;
 
 			case PLAYER_INFO_ID:
@@ -1441,16 +1472,13 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 				textwin_event(widget, event);
 				break;
 
-			case PDOLL_ID:
-				widget_show_player_doll_event();
-				break;
-
 			case RANGE_ID:
 				widget_range_event(widget, x, y, *event, MOUSE_UP);
 				break;
 
 			case MAIN_INV_ID:
-				widget_inventory_event(widget, x, y, *event);
+			case BELOW_INV_ID:
+				widget_inventory_event(widget, event);
 				break;
 
 			case MPLAYER_ID:
@@ -1700,7 +1728,8 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 				break;
 
 			case MAIN_INV_ID:
-				widget_inventory_event(widget, x, y, *event);
+			case BELOW_INV_ID:
+				widget_inventory_event(widget, event);
 				break;
 
 			case MPLAYER_ID:
@@ -1971,10 +2000,6 @@ static void process_widget(widgetdata *widget)
 			widget_show_player_doll(widget);
 			break;
 
-		case BELOW_INV_ID:
-			widget_show_below_window(widget);
-			break;
-
 		case PLAYER_INFO_ID:
 			widget_show_player_data(widget);
 			break;
@@ -1988,7 +2013,8 @@ static void process_widget(widgetdata *widget)
 			break;
 
 		case MAIN_INV_ID:
-			widget_show_inventory_window(widget);
+		case BELOW_INV_ID:
+			widget_inventory_render(widget);
 			break;
 
 		case MAPNAME_ID:
@@ -2968,4 +2994,25 @@ void menu_inv_filter_unapplied(widgetdata *widget, int x, int y)
 	(void) x;
 	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
+}
+
+void menu_inv_filter_submenu(widgetdata *widget, int x, int y)
+{
+	(void) widget;
+	(void) x;
+	(void) y;
+}
+
+void menu_inventory_submenu_more(widgetdata *widget, int x, int y)
+{
+	(void) widget;
+	(void) x;
+	(void) y;
+}
+
+void menu_inventory_submenu_quickslots(widgetdata *widget, int x, int y)
+{
+	(void) widget;
+	(void) x;
+	(void) y;
 }

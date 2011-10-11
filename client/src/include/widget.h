@@ -354,5 +354,6 @@ typedef struct widgetresize
 	(_menu *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menu->subwidget)) ->subcontainer)) ->subcontainer_strip))
 #define MENUITEM(__menuitem) \
 	(_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
+#define INVENTORY(_widget) ((inventory_struct *) ((_widget)->subwidget))
 
 #endif

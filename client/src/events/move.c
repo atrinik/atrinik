@@ -57,11 +57,11 @@ static const int directions_fire[DIRECTIONS_NUM] =
 void move_keys(int num)
 {
 	/* Runmode on, or ALT key trigger */
-	if ((cpl.runkey_on || cpl.run_on) && (!cpl.firekey_on && !cpl.fire_on))
+	if (cpl.run_on && !cpl.fire_on)
 	{
 		send_command(directions_run[num - 1]);
 	}
-	else if (cpl.firekey_on || cpl.fire_on)
+	else if (cpl.fire_on)
 	{
 		SockList sl;
 		char buf[MAX_BUF];

@@ -143,36 +143,38 @@ static void quickslots_remove(int tag)
 /* Handle quickslot key event. */
 void quickslots_handle_key(int slot)
 {
-	int tag, real_slot;
+	int real_slot;
 
 	real_slot = slot;
 	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
 
 	/* Put item into quickslot */
-	if (cpl.inventory_win == IWIN_INV)
+	if (cpl.inventory_focus == MAIN_INV_ID)
 	{
-		tag = cpl.win_inv_tag;
+		object *ob;
 
-		if (tag == -1 || !object_find(tag))
+		ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
+
+		if (!ob)
 		{
 			return;
 		}
 
 		quick_slots[slot].spell = NULL;
 
-		if (quick_slots[slot].tag == tag)
+		if (quick_slots[slot].tag == ob->tag)
 		{
 			quick_slots[slot].tag = -1;
 			quickslot_unset(slot + 1);
 		}
 		else
 		{
-			quickslots_remove(tag);
+			quickslots_remove(ob->tag);
 
-			quick_slots[slot].tag = tag;
-			quickslot_set_item(slot + 1, tag);
+			quick_slots[slot].tag = ob->tag;
+			quickslot_set_item(slot + 1, ob->tag);
 
-			draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", real_slot + 1, quickslot_group, object_find(tag)->s_name);
+			draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", real_slot + 1, quickslot_group, ob->s_name);
 		}
 	}
 	/* Apply item or ready spell */
@@ -283,7 +285,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			if (tmp)
 			{
 				/* Show it */
-				blt_inv_item(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+				object_blit_inventory(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 			}
 		}
 
@@ -328,11 +330,6 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 	{
 		int i;
 
-		if (draggingInvItem(DRAG_GET_STATUS) <= DRAG_IWIN_BELOW)
-		{
-			return;
-		}
-
 		i = get_quickslot(event->motion.x, event->motion.y);
 
 		/* Valid slot */
@@ -345,17 +342,8 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 				quickslot_set_spell(i + 1, quick_slots[i].spell->name);
 				cpl.dragging.spell = NULL;
 			}
-			else
+			else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
 			{
-				if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
-				{
-					cpl.dragging.tag = cpl.win_inv_tag;
-				}
-				else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_PDOLL)
-				{
-					cpl.dragging.tag = cpl.win_pdoll_tag;
-				}
-
 				quickslots_remove(cpl.dragging.tag);
 				quick_slots[i].tag = cpl.dragging.tag;
 				quick_slots[i].spell = NULL;

@@ -769,16 +769,6 @@ void StatsCmd(unsigned char *data, int len)
 					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
 					break;
 
-				case CS_STAT_RANGE:
-				{
-					int rlen = data[i++];
-
-					strncpy(cpl.range, (const char *) data + i, rlen);
-					cpl.range[rlen] = '\0';
-					i += rlen;
-					break;
-				}
-
 				case CS_STAT_EXT_TITLE:
 				{
 					int rlen = data[i++];
@@ -1427,7 +1417,6 @@ void Map2Cmd(unsigned char *data, int len)
 		if ((xpos - mx || ypos - my))
 		{
 			object_remove_inventory(object_find(0));
-			cpl.win_below_slot = 0;
 
 			display_mapscroll(xpos - mx, ypos - my);
 			map_play_footstep();

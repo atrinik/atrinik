@@ -963,15 +963,6 @@ int script_trigger_event(const char *cmd, const uint8 *data, const int data_len,
 									be += snprintf(buf + be, sizeof(buf) - be, " skill_level %d %d\n", (c - CS_STAT_SKILLEXP_START - 1) / 2, (sint16)*(data + j++));
 									break;
 
-								case CS_STAT_RANGE:
-								{
-									int rlen = data[j++];
-
-									be += snprintf(buf + be, sizeof(buf) - be, " range %s\n", cpl.range);
-									j += rlen;
-									break;
-								}
-
 								case CS_STAT_EXT_TITLE:
 								{
 									int rlen = data[j++];

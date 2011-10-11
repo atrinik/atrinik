@@ -204,7 +204,7 @@ void text_input_open(int maxchar)
 
 	if (cpl.input_mode != INPUT_MODE_NUMBER)
 	{
-		cpl.inventory_win = IWIN_BELOW;
+		cpl.inventory_focus = BELOW_INV_ID;
 	}
 
 	/* Raise the text/number input widget. */

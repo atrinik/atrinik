@@ -899,21 +899,9 @@ void widget_map_mevent(widgetdata *widget, SDL_Event *event)
 
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
-		/* Drop item. */
-		if (draggingInvItem(DRAG_GET_STATUS) == DRAG_IWIN_INV)
-		{
-			int old_inv_win = cpl.inventory_win;
-			int old_inv_tag = cpl.win_inv_tag;
-
-			cpl.inventory_win = IWIN_INV;
-			keybind_process_command("?DROP");
-
-			cpl.inventory_win = old_inv_win;
-			cpl.win_inv_tag = old_inv_tag;
-		}
 		/* Send target command if we released the right button in time;
 		 * otherwise the widget menu will be created. */
-		else if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
+		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
 		{
 			send_target(tx, ty);
 		}

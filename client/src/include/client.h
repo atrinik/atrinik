@@ -30,11 +30,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-/** Default width. */
-#define WINDOW_DEFAULT_WIDTH 1024
-/** Default height. */
-#define WINDOW_DEFAULT_HEIGHT 768
-
 /* How many skill types server supports/client will get sent to it.
  * If more skills are added to server, this needs to get increased. */
 #define MAX_SKILL   6
@@ -136,53 +131,58 @@ typedef struct Stat_struct
 {
 	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
 
-	/* Weapon Class and Armour Class */
-	sint16 wc, ac;
+	/** Weapon class. */
+	sint16 wc;
+
+	/** Armour class. */
+	sint16 ac;
+
+	/** Level. */
 	uint32 level;
 
-	/* Hit Points. */
+	/** Hit points. */
 	sint32 hp;
 
-	/* Max hit points*/
+	/** Max hit points */
 	sint32 maxhp;
 
-	/* Spell points.  Used to cast spells. */
+	/** Spell points. */
 	sint32 sp;
 
-	/* Max spell points. */
+	/** Max spell points. */
 	sint32 maxsp;
 
-	/* Grace.  Used to cast prayers. */
+	/** Grace. */
 	sint32 grace;
 
-	/* Max grace */
+	/** Max grace. */
 	sint32 maxgrace;
 
-	/* Experience.  Killers gain 1/10. */
+	/** Total experience. */
 	sint64 exp;
 
-	/* How much food in stomach.  0 = starved. */
+	/** How much food in stomach. */
 	sint16 food;
 
-	/* How much damage this object does when hitting */
+	/** How much damage the player does when hitting. */
 	sint16 dam;
 
-	/* Gets converted to a float for display */
+	/** Player's speed; gets converted to a float for display. */
 	sint32 speed;
 
-	/* Gets converted to a float for display */
+	/** Weapon speed; gets converted to a float for display. */
 	int weapon_sp;
 
-	/* Contains fire on/run on flags */
+	/** Contains fire on/run on flags. */
 	uint16 flags;
 
-	/* Resistant values */
+	/** Protections. */
 	sint16 protection[20];
 
-	/* Level and experience totals for */
+	/** Skill levels. */
 	sint16 skill_level[MAX_SKILL];
 
-	/* Skills */
+	/** Skill experience. */
 	sint64 skill_exp[MAX_SKILL];
 
 	/** Ranged weapon damage. */
@@ -195,70 +195,47 @@ typedef struct Stat_struct
 	sint32 ranged_ws;
 } Stats;
 
-typedef enum _inventory_win
-{
-	IWIN_BELOW,
-	IWIN_INV
-}_inventory_win;
-
 /** The player structure. */
 typedef struct Player_Struct
 {
-	/* Player object */
+	/** Player object. */
 	object *ob;
 
-	/* Items below the player (pl.below->inv) */
+	/** Items below the player (pl.below->inv). */
 	object *below;
 
-	/* inventory of a open container */
+	/** Inventory of an open container. */
 	object *sack;
 
-	/* Pointer to open container */
-	object *container;
-
-	/* Tag of the container */
+	/** Tag of the open container. */
 	sint32 container_tag;
 
+	/** Player's weight limit. */
 	uint32 weight_limit;
-
-	/* Repeat count on command */
-	uint32 count;
 
 	/** Are we a DM? */
 	int dm;
 
-	/* Target mode */
+	/** Target mode. */
 	int	target_mode;
 
-	/* Target */
+	/** Target. */
 	int	target_code;
 
-	/* Target's color */
+	/** Target's color. */
 	char target_color[COLOR_BUF];
 
-	/* Inventory windows */
-	int inventory_win;
+	/** Target name. */
+	char target_name[MAX_BUF];
 
 	int loc;
 	int tag;
 	int nrof;
 
+	/** Readied skill. */
 	skill_entry_struct *skill;
 
 	int warn_hp;
-
-	int win_inv_slot;
-	int win_inv_tag;
-	int win_pdoll_tag;
-	int win_inv_start;
-	int win_inv_count;
-	int win_inv_ctag;
-
-	int win_below_slot;
-	int win_below_tag;
-	int win_below_start;
-	int win_below_count;
-	int win_below_ctag;
 
 	/* Input mode: no, console (textstring), numinput */
 	int input_mode;
@@ -267,52 +244,47 @@ typedef struct Player_Struct
 	/** Currently marked item. */
 	int mark_count;
 
-	/* HP, mana and grace regeneration */
+	/** HP regeneration. */
 	float gen_hp;
+
+	/** Mana regeneration. */
 	float gen_sp;
+
+	/** Grace regeneration. */
 	float gen_grace;
 
-	/* Skill cooldown time */
+	/** Skill cooldown time. */
 	float action_timer;
 
-	/* True if fire key is pressed = action key (ALT;CTRL) */
-	uint32 fire_on:1;
+	/** 1 if fire key is pressed. */
+	uint8 fire_on;
 
-	/* True if run key is on = action key (ALT;CTRL) */
-	uint32 run_on:1;
+	/** 1 if run key is on. */
+	uint8 run_on;
 
-	/* True if fire key is pressed = permanent mode */
-	uint32 firekey_on:1;
-
-	/* True if run key is pressed = permanent mode */
-	uint32 runkey_on:1;
-
-	float window_weight;
+	/** Player's carrying weight. */
 	float real_weight;
 
 	int warn_statdown;
 	int warn_statup;
 
-	/* Player stats */
+	/** Player stats. */
 	Stats stats;
 
-	/* HP of our target in % */
+	/** HP of our target in percent. */
 	char target_hp;
 
-	/* Name and password.  Only used while logging in. */
+	/** Player's name. */
 	char name[40];
+
+	/** Player's password. Only used while logging in. */
 	char password[40];
 
-	/* Target name */
-	char target_name[MAX_BUF];
 	char num_text[300];
 	char skill_name[128];
 
-	/* Rank and name of char */
+	/** Rank and name of char. */
 	char ext_title[MAX_BUF];
-
-	/* Range attack chosen */
-	char range[MAX_BUF];
 
 	/** Party name this player is member of. */
 	char partyname[MAX_BUF];
@@ -325,12 +297,18 @@ typedef struct Player_Struct
 	/** Whom to reply to. */
 	char player_reply[64];
 
+	/** Information about the object/spell being dragged. */
 	union
 	{
+		/** ID of the object being dragged. */
 		int tag;
 
+		/** Spell being dragged. */
 		spell_entry_struct *spell;
 	} dragging;
+
+	/** Which inventory widget has the focus. */
+	int inventory_focus;
 } Client_Player;
 
 /* These are multiplication values that should be used when changing

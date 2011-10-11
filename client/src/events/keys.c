@@ -65,25 +65,3 @@ void key_handle_event(SDL_KeyboardEvent *event)
 
 	keybind_process_event(event);
 }
-
-void cursor_keys(int num)
-{
-	const int below_inv_adjust[4] = {-INVITEMBELOWXLEN, INVITEMBELOWXLEN, -1, 1};
-	const int inv_adjust[4] = {-INVITEMXLEN, INVITEMXLEN, -1, 1};
-
-	if (num < 0 || num >= 4)
-	{
-		return;
-	}
-
-	if (cpl.inventory_win == IWIN_BELOW)
-	{
-		cpl.win_below_slot += below_inv_adjust[num];
-		cpl.win_below_tag = get_inventory_data(cpl.below, &cpl.win_below_ctag, &cpl.win_below_slot, &cpl.win_below_start, &cpl.win_below_count, INVITEMBELOWXLEN, INVITEMBELOWYLEN);
-	}
-	else
-	{
-		cpl.win_inv_slot += inv_adjust[num];
-		cpl.win_inv_tag = get_inventory_data(cpl.ob, &cpl.win_inv_ctag, &cpl.win_inv_slot, &cpl.win_inv_start, &cpl.win_inv_count, INVITEMXLEN, INVITEMYLEN);
-	}
-}

@@ -509,7 +509,7 @@ int keybind_process_command_up(const char *cmd)
 
 		if (!strcmp(cmd, "INVENTORY"))
 		{
-			cpl.inventory_win = IWIN_BELOW;
+			cpl.inventory_focus = BELOW_INV_ID;
 		}
 		else if (!strcmp(cmd, "RUNON"))
 		{
@@ -543,7 +543,7 @@ int keybind_process_command_up(const char *cmd)
  * done so, even if the 'key up' event was handled by something else. */
 void keybind_state_ensure(void)
 {
-	if (cpl.inventory_win != IWIN_BELOW && !keybind_command_matches_state("?INVENTORY"))
+	if (cpl.inventory_focus != BELOW_INV_ID && !keybind_command_matches_state("?INVENTORY"))
 	{
 		keybind_process_command_up("?INVENTORY");
 	}
@@ -572,9 +572,6 @@ int keybind_process_command(const char *cmd)
 
 	if (*cmd == '?')
 	{
-		int tag = 0, loc = 0;
-		object *it;
-
 		cmd++;
 
 		if (!strncmp(cmd, "MOVE_", 5))
@@ -653,260 +650,27 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "APPLY"))
 		{
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				tag = cpl.win_below_tag;
-			}
-			else
-			{
-				tag = cpl.win_inv_tag;
-			}
-
-			if (tag == -1 || !object_find(tag))
-			{
-				return 0;
-			}
-
-			draw_info_format(COLOR_DGOLD, "apply %s", object_find(tag)->s_name);
-			client_send_apply(tag);
+			widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "EXAMINE"))
 		{
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				tag = cpl.win_below_tag;
-			}
-			else
-			{
-				tag = cpl.win_inv_tag;
-			}
-
-			if (tag == -1 || !object_find(tag))
-			{
-				return 0;
-			}
-
-			draw_info_format(COLOR_DGOLD, "examine %s", object_find(tag)->s_name);
-			client_send_examine(tag);
+			widget_inventory_handle_examine(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "MARK"))
 		{
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				tag = cpl.win_below_tag;
-			}
-			else
-			{
-				tag = cpl.win_inv_tag;
-			}
-
-			if (tag == -1 || !object_find(tag))
-			{
-				return 0;
-			}
-
-			it = object_find(tag);
-			draw_info_format(COLOR_DGOLD, "%smark %s", it->tag == cpl.mark_count ? "un" : "", it->s_name);
-			object_send_mark(it);
+			widget_inventory_handle_mark(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "LOCK"))
 		{
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				tag = cpl.win_below_tag;
-			}
-			else
-			{
-				tag = cpl.win_inv_tag;
-			}
-
-			if (tag == -1  || !object_find(tag))
-			{
-				return 0;
-			}
-
-			it = object_find(tag);
-			toggle_locked(it);
-
-			if (it->flags & F_LOCKED)
-			{
-				draw_info_format(COLOR_DGOLD, "unlock %s", it->s_name);
-			}
-			else
-			{
-				draw_info_format(COLOR_DGOLD, "lock %s", it->s_name);
-			}
+			widget_inventory_handle_lock(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "GET"))
 		{
-			int nrof = 1;
-
-			/* From below to inv. */
-			if (cpl.inventory_win == IWIN_BELOW)
-			{
-				tag = cpl.win_below_tag;
-
-				if (cpl.container)
-				{
-					if (cpl.container->tag != cpl.win_below_ctag)
-					{
-						loc = cpl.container->tag;
-					}
-					else
-					{
-						loc = cpl.ob->tag;
-					}
-				}
-				else
-				{
-					loc = cpl.ob->tag;
-				}
-			}
-			/* Inventory */
-			else
-			{
-				if (cpl.container)
-				{
-					if (cpl.container->tag == cpl.win_inv_ctag)
-					{
-						tag = cpl.win_inv_tag;
-						loc = cpl.ob->tag;
-					}
-					/* From inventory to container - if the container is in inv. */
-					else
-					{
-						object *tmp;
-
-						tag = -1;
-
-						if (cpl.ob)
-						{
-							for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
-							{
-								if (tmp->tag == cpl.container->tag)
-								{
-									tag = cpl.win_inv_tag;
-									loc = cpl.container->tag;
-									break;
-								}
-							}
-
-							if (tag == -1)
-							{
-								draw_info(COLOR_DGOLD, "You already have it.");
-							}
-						}
-					}
-				}
-				else
-				{
-					draw_info(COLOR_DGOLD, "You have no open container to put it in.");
-					tag = -1;
-				}
-			}
-
-			if (tag == -1 || !object_find(tag))
-			{
-				return 0;
-			}
-
-			it = object_find(tag);
-			nrof = it->nrof;
-
-			if (nrof == 1)
-			{
-				nrof = 0;
-			}
-			else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 1))
-			{
-				char buf[MAX_BUF];
-
-				cpl.input_mode = INPUT_MODE_NUMBER;
-				text_input_open(22);
-				cpl.loc = loc;
-				cpl.tag = tag;
-				cpl.nrof = nrof;
-				cpl.nummode = NUM_MODE_GET;
-				snprintf(buf, sizeof(buf), "%d", nrof);
-				text_input_set_string(buf);
-				strncpy(cpl.num_text, it->s_name, sizeof(cpl.num_text) - 1);
-				cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
-				return 0;
-			}
-
-			draw_info_format(COLOR_DGOLD, "get %s", it->s_name);
-			client_send_move(loc, tag, nrof);
-			sound_play_effect("get.ogg", 100);
+			widget_inventory_handle_get(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "DROP"))
 		{
-			int nrof = 1;
-
-			/* Drop from inventory */
-			if (cpl.inventory_win == IWIN_INV)
-			{
-				object *tmp;
-
-				tag = cpl.win_inv_tag;
-				loc = cpl.below->tag;
-
-				if (cpl.win_inv_ctag == -1 && cpl.container && cpl.below)
-				{
-					for (tmp = cpl.below->inv; tmp; tmp = tmp->next)
-					{
-						if (tmp->tag == cpl.container->tag)
-						{
-							tag = cpl.win_inv_tag;
-							loc = cpl.container->tag;
-							break;
-						}
-					}
-				}
-			}
-			else
-			{
-				draw_info(COLOR_DGOLD, "The item is already on the floor.");
-				return 0;
-			}
-
-			if (tag == -1 || !object_find(tag))
-			{
-				return 0;
-			}
-
-			it = object_find(tag);
-			nrof = it->nrof;
-
-			if (it->flags & F_LOCKED)
-			{
-				draw_info(COLOR_DGOLD, "Unlock item first!");
-				return 0;
-			}
-
-			if (nrof == 1)
-			{
-				nrof = 0;
-			}
-			else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 2))
-			{
-				char buf[MAX_BUF];
-
-				cpl.input_mode = INPUT_MODE_NUMBER;
-				text_input_open(22);
-				cpl.loc = loc;
-				cpl.tag = tag;
-				cpl.nrof = nrof;
-				cpl.nummode = NUM_MODE_DROP;
-				snprintf(buf, sizeof(buf), "%d", nrof);
-				text_input_set_string(buf);
-				strncpy(cpl.num_text, it->s_name, sizeof(cpl.num_text) - 1);
-				cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
-				return 0;
-			}
-
-			draw_info_format(COLOR_DGOLD, "drop %s", it->s_name);
-			client_send_move(loc, tag, nrof);
-			sound_play_effect("drop.ogg", 100);
+			widget_inventory_handle_drop(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "HELP"))
 		{
@@ -941,10 +705,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "FIRE_READY"))
 		{
-			if (cpl.inventory_win == IWIN_INV && cpl.win_inv_tag != -1)
-			{
-				ready_object(object_find(cpl.win_inv_tag));
-			}
+			widget_inventory_handle_ready(cur_widget[cpl.inventory_focus]);
 		}
 		else if (!strcmp(cmd, "SPELL_LIST"))
 		{
@@ -982,27 +743,27 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "UP"))
 		{
-			cursor_keys(0);
+			widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_UP);
 		}
 		else if (!strcmp(cmd, "DOWN"))
 		{
-			cursor_keys(1);
+			widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_DOWN);
 		}
 		else if (!strcmp(cmd, "LEFT"))
 		{
-			cursor_keys(2);
+			widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_LEFT);
 		}
 		else if (!strcmp(cmd, "RIGHT"))
 		{
-			cursor_keys(3);
+			widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_RIGHT);
 		}
 		else if (!strncmp(cmd, "INVENTORY", 9))
 		{
 			if (!strcmp(cmd + 9, "_TOGGLE"))
 			{
-				if (cpl.inventory_win == IWIN_INV)
+				if (cpl.inventory_focus == MAIN_INV_ID)
 				{
-					cpl.inventory_win = IWIN_BELOW;
+					cpl.inventory_focus = BELOW_INV_ID;
 					return 1;
 				}
 			}
@@ -1014,7 +775,7 @@ int keybind_process_command(const char *cmd)
 				SetPriorityWidget(cur_widget[PDOLL_ID]);
 			}
 
-			cpl.inventory_win = IWIN_INV;
+			cpl.inventory_focus = MAIN_INV_ID;
 		}
 		else if (!strncmp(cmd, "RUNON", 5))
 		{

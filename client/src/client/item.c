@@ -586,11 +586,134 @@ void animate_objects(void)
 		}
 	}
 
-	if (cpl.container)
+	if (cpl.sack)
 	{
 		for (ob = cpl.sack->inv; ob; ob = ob->next)
 		{
 			animate_object(ob);
 		}
 	}
+}
+
+/**
+ * Blit the object, centering it. Animation offsets are taken into
+ * account for perfect centering, even with different image sizes in
+ * animation.
+ * @param tmp Object to blit.
+ * @param x X position.
+ * @param y Y position. */
+void object_blit_centered(object *tmp, int x, int y)
+{
+	int temp, xstart, xlen, ystart, ylen;
+	sint16 face;
+	SDL_Rect box;
+
+	if (!FaceList[tmp->face].sprite)
+	{
+		return;
+	}
+
+	/* Will be used for coordinate calculations. */
+	face = tmp->face;
+
+	/* If the item is animated, try to use the first animation face for
+	 * coordinate calculations to prevent 'jumping' of the animation. */
+	if (tmp->animation_id > 0)
+	{
+		check_animation_status(tmp->animation_id);
+
+		if (animations[tmp->animation_id].num_animations && animations[tmp->animation_id].facings <= 1 && FaceList[animations[tmp->animation_id].faces[0]].sprite)
+		{
+			face = animations[tmp->animation_id].faces[0];
+		}
+	}
+
+	xstart = FaceList[face].sprite->border_left;
+	xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
+	ystart = FaceList[face].sprite->border_up;
+	ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
+
+	if (xlen > INVENTORY_ICON_SIZE)
+	{
+		box.w = INVENTORY_ICON_SIZE;
+		temp = (xlen - INVENTORY_ICON_SIZE) / 2;
+		box.x = xstart + temp;
+		xstart = 0;
+	}
+	else
+	{
+		box.w = xlen;
+		box.x = xstart;
+		xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
+	}
+
+	if (ylen > INVENTORY_ICON_SIZE)
+	{
+		box.h = INVENTORY_ICON_SIZE;
+		temp = (ylen - INVENTORY_ICON_SIZE) / 2;
+		box.y = ystart + temp;
+		ystart = 0;
+	}
+	else
+	{
+		box.h = ylen;
+		box.y = ystart;
+		ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
+	}
+
+	if (face != tmp->face)
+	{
+		temp = xstart - box.x;
+
+		box.x = 0;
+		box.w = FaceList[tmp->face].sprite->bitmap->w;
+		xstart = temp;
+
+		temp = ystart - box.y + (FaceList[face].sprite->bitmap->h - FaceList[tmp->face].sprite->bitmap->h);
+		box.y = 0;
+		box.h = FaceList[tmp->face].sprite->bitmap->h;
+		ystart = temp;
+
+		if (xstart < 0)
+		{
+			box.x = -xstart;
+			box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
+
+			if (box.w > INVENTORY_ICON_SIZE)
+			{
+				box.w = INVENTORY_ICON_SIZE;
+			}
+
+			xstart = 0;
+		}
+		else
+		{
+			if (box.w + xstart > INVENTORY_ICON_SIZE)
+			{
+				box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
+			}
+		}
+
+		if (ystart < 0)
+		{
+			box.y = -ystart;
+			box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
+
+			if (box.h > INVENTORY_ICON_SIZE)
+			{
+				box.h = INVENTORY_ICON_SIZE;
+			}
+
+			ystart = 0;
+		}
+		else
+		{
+			if (box.h + ystart > INVENTORY_ICON_SIZE)
+			{
+				box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
+			}
+		}
+	}
+
+	sprite_blt(FaceList[tmp->face].sprite, x + xstart, y + ystart, &box, NULL);
 }
