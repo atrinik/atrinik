@@ -174,6 +174,11 @@ void init_widgets_fromCurrent(void)
 		/* Create the interface file */
 		save_interface_file();
 	}
+
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
+	{
+		widgets_ensure_onscreen();
+	}
 }
 
 /** Wrapper function to handle the creation of a widget. */
@@ -237,9 +242,8 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			textwin->font = FONT_ARIAL11;
 			textwin->selection_start = -1;
 			textwin->selection_end = -1;
-			/* that's right, a void * cast to _textwin *.
-			 * usually it's not a nice thing to do, but in this case it's an excellent way of extending a struct */
 			widget->subwidget = (textwin_struct *) textwin;
+			textwin_create_scrollbar(widget);
 			break;
 
 		case MAPNAME_ID:
@@ -1640,14 +1644,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
 		{
 			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y1 - y + widget->ht : y - widget->y1));
-		}
-
-		switch (widget->WidgetTypeID)
-		{
-			case MSGWIN_ID:
-			case CHATWIN_ID:
-				textwin_readjust(widget);
-				break;
 		}
 
 		return 1;

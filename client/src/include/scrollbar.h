@@ -147,4 +147,9 @@ typedef struct scrollbar_info_struct
 #define SCROLL_DIRECTION_DOWN 2
 /*@}*/
 
+/** Get the scroll offset needed to reach the bottom of the scrollbar. */
+#define SCROLL_BOTTOM(_scrollbar) ((uint32) (MAX(0, (int) *(_scrollbar)->num_lines - (int) (_scrollbar)->max_lines)))
+/** Get the scroll offset needed to reach the top of the scrollbar. */
+#define SCROLL_TOP(_scrollbar) (0)
+
 #endif

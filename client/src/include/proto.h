@@ -463,13 +463,13 @@ extern void widget_event_target(widgetdata *widget, int x, int y);
 extern void widget_show_target(widgetdata *widget);
 /* src/gui/textwin.c */
 extern void textwin_init(void);
-extern void textwin_scroll_adjust(widgetdata *widget);
 extern void textwin_readjust(widgetdata *widget);
 extern void draw_info_flags(const char *color, int flags, const char *str);
 extern void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
 extern void textwin_handle_copy(widgetdata *widget);
 extern void textwin_show(int x, int y, int w, int h);
+extern void textwin_create_scrollbar(widgetdata *widget);
 extern void widget_textwin_show(widgetdata *widget);
 extern void textwin_event(widgetdata *widget, SDL_Event *event);
 extern void menu_textwin_clear(widgetdata *widget, int x, int y);
@@ -543,9 +543,11 @@ extern void scrollbar_init(void);
 extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
 extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
 extern void scrollbar_info_create(scrollbar_info_struct *info);
+extern void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll);
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
 extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
+extern int scrollbar_get_width(scrollbar_struct *scrollbar);
 /* src/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);

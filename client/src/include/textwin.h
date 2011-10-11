@@ -53,23 +53,17 @@ typedef struct textwin_struct
 	/** startpos of the window */
 	int x, y;
 
-	/** scroll offset */
-	int scroll;
-
-	/** height of the scrollbar-slider  */
-	int slider_h;
-
-	/** start pos of the scrollbar-slider */
-	int slider_y;
-
 	/** which part to highlight */
 	int highlight;
 
 	/** The text in the text window. */
 	char *entries;
 
+	/** Scroll offset. */
+	uint32 scroll_offset;
+
 	/** Number of lines. */
-	size_t num_entries;
+	uint32 num_lines;
 
 	/** Length of the entries. */
 	size_t entries_size;
@@ -89,8 +83,8 @@ typedef struct textwin_struct
 	/** End of selection. */
 	sint64 selection_end;
 
-	/** Slider position. */
-	int old_slider_pos;
+	/** The scrollbar. */
+	scrollbar_struct scrollbar;
 } textwin_struct;
 
 /** Get the maximum number of visible rows. */

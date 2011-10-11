@@ -380,27 +380,22 @@ void scrollbar_info_create(scrollbar_info_struct *info)
 }
 
 /**
- * Scroll the scrollbar by the specified amount.
+ * Scroll the specified scrollbar to the specified offset.
  *
  * If the scroll offset has changed at all, value of the
  * scrollbar_struct::redraw pointer will be set to 1.
- * @param scrollbar The scrollbar to scroll.
- * @param adjust How much to scroll by. */
-void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
+ * @param scrollbar The scrollbar.
+ * @param scroll Offset to scroll to. */
+void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
 {
-	int scroll;
-
-	/* Adjust the scroll offset. */
-	scroll = *scrollbar->scroll_offset + adjust;
-
 	/* Make sure the scroll offset is in a valid range. */
-	if (scroll < 0)
+	if (scroll < SCROLL_TOP(scrollbar))
 	{
-		scroll = 0;
+		scroll = SCROLL_TOP(scrollbar);
 	}
-	else if ((uint32) scroll > MAX(0, (int) *scrollbar->num_lines - (int) scrollbar->max_lines))
+	else if ((uint32) scroll > SCROLL_BOTTOM(scrollbar))
 	{
-		scroll = MAX(0, (int) *scrollbar->num_lines - (int) scrollbar->max_lines);
+		scroll = SCROLL_BOTTOM(scrollbar);
 	}
 
 	/* If the scroll offset changed, update it and set the redraw flag,
@@ -414,6 +409,18 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
 			*scrollbar->redraw = 1;
 		}
 	}
+}
+
+/**
+ * Scroll the scrollbar by the specified amount.
+ *
+ * If the scroll offset has changed at all, value of the
+ * scrollbar_struct::redraw pointer will be set to 1.
+ * @param scrollbar The scrollbar to scroll.
+ * @param adjust How much to scroll by. */
+void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
+{
+	scrollbar_scroll_to(scrollbar, *scrollbar->scroll_offset + adjust);
 }
 
 /**
@@ -654,4 +661,13 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 	}
 
 	return 0;
+}
+
+/**
+ * Get the scrollbar's width.
+ * @param scrollbar The scrollbar to get width of.
+ * @return The width. */
+int scrollbar_get_width(scrollbar_struct *scrollbar)
+{
+	return scrollbar->background.w;
 }

@@ -625,26 +625,18 @@ int keybind_process_command(const char *cmd)
 		else if (!strncmp(cmd, "PAGE", 4))
 		{
 			widgetdata *widget;
-			int scroll_adjust = 0;
 
 			cmd += 4;
 
 			if (!strncmp(cmd, "UP", 2))
 			{
 				widget = cur_widget[*(cmd + 2) == '\0' ? CHATWIN_ID : MSGWIN_ID];
-				scroll_adjust = -TEXTWIN_ROWS_VISIBLE(widget);
+				scrollbar_scroll_adjust(&TEXTWIN(widget)->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
 			}
 			else if (!strncmp(cmd, "DOWN", 4))
 			{
 				widget = cur_widget[*(cmd + 4) == '\0' ? CHATWIN_ID : MSGWIN_ID];
-				scroll_adjust = TEXTWIN_ROWS_VISIBLE(widget);
-			}
-
-			if (scroll_adjust)
-			{
-				TEXTWIN(widget)->scroll += scroll_adjust;
-				textwin_scroll_adjust(widget);
-				WIDGET_REDRAW(widget);
+				scrollbar_scroll_adjust(&TEXTWIN(widget)->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
 			}
 		}
 		else if (!strcmp(cmd, "CONSOLE"))

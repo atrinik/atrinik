@@ -255,8 +255,6 @@ static void init_game_data(void)
 
 	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
-	init_widgets_fromCurrent();
-
 	init_map_data(0, 0, 0, 0);
 
 	for (i = 0; i < BITMAP_INIT; i++)
@@ -288,11 +286,6 @@ static void init_game_data(void)
 
 	delete_player_lists();
 	metaserver_init();
-
-	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
-	{
-		widgets_ensure_onscreen();
-	}
 
 	SRANDOM(time(NULL));
 }
@@ -842,6 +835,7 @@ int main(int argc, char *argv[])
 	load_mapdef_dat();
 	read_bmaps_p0();
 	server_files_init();
+	init_widgets_fromCurrent();
 
 	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 

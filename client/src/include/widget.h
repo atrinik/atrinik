@@ -58,7 +58,7 @@ typedef struct widgetdata
 	int show;
 
 	/** Widget must be redrawn. */
-	int redraw;
+	uint8 redraw;
 
 	/** Should this widget be the only one of its type? */
 	int unique;
