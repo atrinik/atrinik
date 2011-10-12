@@ -157,7 +157,8 @@ static fields_struct fields[] =
 	 * or the tuple returned by a previous call to obj.animation. */
 	{"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0},
 	/* See notes for object's animation. */
-	{"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0}
+	{"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0},
+	{"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), FIELDFLAG_READONLY, 0}
 };
 /* @endcparser */
 
