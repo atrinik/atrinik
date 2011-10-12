@@ -12,6 +12,8 @@ __VERSION__ = "1.1"
 __THREADNAME__ = "PyConsoleThread-"
 ## Maximum number of history lines.
 __HISTORY__ = 40
+## Time to sleep in the thread loop.
+__SLEEPTIME__ = 0.05
 ## Lock used for stdout.
 stdout_lock = threading.Lock()
 
@@ -108,7 +110,7 @@ def py_console_thread():
 		# Release the lock.
 		thread.commands_lock.release()
 		# Save CPU.
-		time.sleep(0.30)
+		time.sleep(__SLEEPTIME__)
 
 ## Setups the console thread.
 class PyConsoleThread(threading.Thread):
