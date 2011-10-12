@@ -158,7 +158,7 @@ static fields_struct fields[] =
 	{"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0},
 	/* See notes for object's animation. */
 	{"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0},
-	{"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), FIELDFLAG_READONLY, 0}
+	{"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), 0, 0}
 };
 /* @endcparser */
 
