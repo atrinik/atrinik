@@ -730,7 +730,7 @@ int blocked_link(object *op, int xoff, int yoff)
 			{
 				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
 				{
-					if (open_door(op, m, xtemp, ytemp, 1))
+					if (door_try_open(op, m, xtemp, ytemp, 0))
 					{
 						continue;
 					}
@@ -790,7 +790,7 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
 			{
 				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
 				{
-					if (open_door(op, m, xtemp, ytemp, 0))
+					if (door_try_open(op, m, xtemp, ytemp, 1))
 					{
 						continue;
 					}

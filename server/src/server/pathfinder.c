@@ -615,9 +615,9 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 			else
 			{
 				block = blocked(op, map, x2, y2, op->terrain_flag);
+
 				/* Check for possible door opening */
-				/* TODO: increase path cost if we have to open doors? */
-				if (block == P_DOOR_CLOSED && open_door(op, map, x2, y2, 0))
+				if (block == P_DOOR_CLOSED && door_try_open(op, map, x2, y2, 1))
 				{
 					block = 0;
 				}

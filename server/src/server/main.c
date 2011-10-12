@@ -327,7 +327,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		/* Attempt to open a closed door. */
 		if (GET_MAP_FLAGS(op->map, op->x, op->y) & P_DOOR_CLOSED)
 		{
-			open_door(op, op->map, op->x, op->y, 1);
+			door_try_open(op, op->map, op->x, op->y, 0);
 		}
 	}
 }

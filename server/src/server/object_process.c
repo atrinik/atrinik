@@ -558,7 +558,7 @@ void process_object(object *op)
 
 		/* Handle autoclosing */
 		case DOOR:
-			close_locked_door(op);
+			door_close(op);
 			return;
 
 		case TELEPORTER:

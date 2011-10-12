@@ -127,7 +127,7 @@ int move_ob(object *op, int dir, object *originator)
 		if ((flags = blocked(op, m, xt, yt, op->terrain_flag)))
 		{
 			/* A closed door which we can open? */
-			if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS) && open_door(op, m, xt, yt, 1))
+			if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS) && door_try_open(op, m, xt, yt, 0))
 			{
 				if (op->type == PLAYER)
 				{
@@ -368,7 +368,7 @@ int push_ob(object *op, int dir, object *pusher)
 
 	if (flags)
 	{
-		if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !open_door(op, m, x, y, 1)))
+		if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !door_try_open(op, m, x, y, 0)))
 		{
 			return 0;
 		}

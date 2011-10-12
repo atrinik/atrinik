@@ -1004,10 +1004,9 @@ extern void check_physically_infect(object *victim, object *hitter);
 extern int cure_disease(object *sufferer, object *caster);
 extern int reduce_symptoms(object *sufferer, int reduction);
 /* src/types/door.c */
-extern int open_door(object *op, mapstruct *m, int x, int y, int mode);
+extern void door_close(object *ob);
+extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
 extern object *find_key(object *op, object *door);
-extern void open_locked_door(object *op, object *opener);
-extern void close_locked_door(object *op);
 /* src/types/duplicator.c */
 extern void move_duplicator(object *op);
 /* src/types/food.c */

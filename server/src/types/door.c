@@ -25,9 +25,162 @@
 
 /**
  * @file
- * @ref DOOR "Door" related code. */
+ * @ref DOOR "Door" related code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
+
+/**
+ * Open the specified door.
+ * @param ob The door to open.
+ * @param opener Who is opening the door.
+ * @param nearby Whether this door was opened by opening a nearby door. */
+static void door_open(object *ob, object *opener, uint8 nearby)
+{
+	object *tmp;
+
+	/* Already open, nothing to do. */
+	if (ob->last_eat)
+	{
+		return;
+	}
+
+	remove_ob(ob);
+	check_walk_off(ob, NULL, MOVE_APPLY_VANISHED);
+
+	/* Spring any traps in the door's inventory. */
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type == RUNE && tmp->level)
+		{
+			spring_trap(tmp, opener);
+		}
+	}
+
+	/* Mark this door as opened. */
+	ob->last_eat = 1;
+	/* Put it on the active list, so it will close automatically. */
+	ob->speed = 0.1f;
+	update_ob_speed(ob);
+	ob->speed_left = -0.2f;
+	ob->state = 1;
+	/* Initialize counter that controls how long to allow the door to
+	 * stay open. */
+	ob->last_sp = ob->stats.sp;
+
+	CLEAR_FLAG(ob, FLAG_BLOCKSVIEW);
+	CLEAR_FLAG(ob, FLAG_DOOR_CLOSED);
+
+	/* Update animation state. */
+	if (QUERY_FLAG(ob, FLAG_IS_TURNABLE) || QUERY_FLAG(ob, FLAG_ANIMATE))
+	{
+		SET_ANIMATION(ob, (NUM_ANIMATIONS(ob) / NUM_FACINGS(ob)) * ob->direction + ob->state);
+	}
+
+	if (ob->sub_type == ST1_DOOR_NORMAL && !nearby)
+	{
+		play_sound_map(ob->map, CMD_SOUND_EFFECT, "door.ogg", ob->x, ob->y, 0, 0);
+	}
+
+	insert_ob_in_map(ob, ob->map, ob, 0);
+}
+
+/**
+ * Close a locked door that has been opened.
+ * @param op Door object to close. */
+void door_close(object *ob)
+{
+	/* Check to see if the door should still remain open. */
+	if (ob->last_sp-- > 0)
+	{
+		return;
+	}
+
+	/* If there's something blocking the door from closing, reset the
+	 * counter. */
+	if (blocked(NULL, ob->map, ob->x, ob->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
+	{
+		ob->last_sp = ob->stats.sp;
+		return;
+	}
+
+	remove_ob(ob);
+	check_walk_off(ob, NULL, MOVE_APPLY_VANISHED);
+
+	/* The door is no longer open. */
+	ob->last_eat = 0;
+
+	/* Remove from active list. */
+	ob->speed = 0.0f;
+	ob->speed_left = 0.0f;
+	update_ob_speed(ob);
+
+	ob->state = 0;
+
+	if (QUERY_FLAG(&ob->arch->clone, FLAG_BLOCKSVIEW))
+	{
+		SET_FLAG(ob, FLAG_BLOCKSVIEW);
+	}
+
+	SET_FLAG(ob, FLAG_DOOR_CLOSED);
+
+	/* Update animation state. */
+	if (QUERY_FLAG(ob, FLAG_IS_TURNABLE) || QUERY_FLAG(ob, FLAG_ANIMATE))
+	{
+		SET_ANIMATION(ob, (NUM_ANIMATIONS(ob) / NUM_FACINGS(ob)) * ob->direction + ob->state);
+	}
+
+	if (ob->sub_type == ST1_DOOR_NORMAL)
+	{
+		play_sound_map(ob->map, CMD_SOUND_EFFECT, "door_close.ogg", ob->x, ob->y, 0, 0);
+	}
+
+	insert_ob_in_map(ob, ob->map, ob, 0);
+}
+
+/**
+ * Open a door, including all nearby doors.
+ * @param ob Door object to open.
+ * @param opener Object opening the door. */
+static void doors_open(object *ob, object *opener)
+{
+	int i, sub_layer, x, y;
+	mapstruct *m;
+	object *tmp;
+
+	door_open(ob, opener, 0);
+
+	/* Try to open nearby doors. */
+	for (i = 1; i < 9; i += 2)
+	{
+		x = ob->x + freearr_x[i];
+		y = ob->y + freearr_y[i];
+
+		if (!(m = get_map_from_coord(ob->map, &x, &y)))
+		{
+			continue;
+		}
+
+		/* If there's no closed door, no need to check the objects on
+		 * this square. */
+		if (!(GET_MAP_FLAGS(m, x, y) & P_DOOR_CLOSED))
+		{
+			continue;
+		}
+
+		for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
+		{
+			for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL, sub_layer); tmp && tmp->layer == LAYER_WALL && tmp->sub_layer == sub_layer; tmp = tmp->above)
+			{
+				if (tmp->type == DOOR && tmp->slaying == ob->slaying)
+				{
+					door_open(tmp, opener, 1);
+				}
+			}
+		}
+	}
+}
 
 /**
  * Open a door (or check whether it can be opened).
@@ -35,13 +188,13 @@
  * @param m Map where the door is.
  * @param x X position of the door.
  * @param y Y position of the door.
- * @param mode
- * - <b>0</b>: Check but don't open the door.
- * - <b>1</b>: Check and open the door if possible.
- * @return 1 if door was opened (or can be), 0 if not and is not possible to open. */
-int open_door(object *op, mapstruct *m, int x, int y, int mode)
+ * @param test If 1, only check whether the door can be opened, but do
+ * not actually open the door.
+ * @return 1 if door was opened (or can be), 0 if not and is not possible
+ * to open. */
+int door_try_open(object *op, mapstruct *m, int x, int y, int test)
 {
-	object *tmp, *key = NULL;
+	object *tmp, *key;
 	int sub_layer;
 
 	/* Make sure a monster/NPC can actually open doors */
@@ -63,40 +216,40 @@ int open_door(object *op, mapstruct *m, int x, int y, int mode)
 			/* Door needs a key? */
 			if (tmp->slaying)
 			{
-				if (!(key = find_key(op, tmp)))
+				key = find_key(op, tmp);
+
+				if (!key)
 				{
-					if (op->type == PLAYER && mode)
+					if (!test)
 					{
 						draw_info(COLOR_NAVY, op, tmp->msg);
 					}
 
 					return 0;
 				}
-			}
-
-			/* If we are here, the door can be opened */
-			if (mode)
-			{
-				open_locked_door(tmp, op);
-
-				if (op->type == PLAYER && key)
+				else if (!test)
 				{
 					if (key->type == KEY)
 					{
-						draw_info_format(COLOR_WHITE, op, "You open the door with the %s.", query_short_name(key, NULL));
+						draw_info_format(COLOR_WHITE, op, "You open the %s with the %s.", tmp->name, query_short_name(key, NULL));
 					}
 					else if (key->type == FORCE)
 					{
-						draw_info(COLOR_WHITE, op, "The door is opened for you.");
+						draw_info_format(COLOR_WHITE, op, "The %s is opened for you.", tmp->name);
 					}
 				}
+			}
+
+			/* If we are here, the door can be opened. */
+			if (!test)
+			{
+				doors_open(tmp, op);
 			}
 
 			return 1;
 		}
 	}
 
-	LOG(llevSystem, "open_door() - Door on wrong layer. Map: %s (%d, %d) (op: %s)\n", m->path, x, y, query_name(op, NULL));
 	return 0;
 }
 
@@ -130,193 +283,4 @@ object *find_key(object *op, object *door)
 	}
 
 	return NULL;
-}
-
-/**
- * Open a locked door. This function checks to see if there are similar
- * locked doors nearby, if the door to open has FLAG_CURSED (cursed 1)
- * set. The nearby doors must also have FLAG_CURSED set.
- * @param op Door object to open.
- * @param opener Object opening the door. */
-void open_locked_door(object *op, object *opener)
-{
-	object *tmp, *tmp2;
-
-	/* If set, just exchange and delete old door */
-	if (op->other_arch)
-	{
-		tmp = arch_to_object(op->other_arch);
-		/* 0 = closed, 1 = opened */
-		tmp->state = 0;
-		tmp->x = op->x;
-		tmp->y = op->y;
-		tmp->map = op->map;
-		tmp->level = op->level;
-		tmp->direction = op->direction;
-
-		if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE) || QUERY_FLAG(tmp, FLAG_ANIMATE))
-		{
-			SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction + tmp->state);
-		}
-
-		insert_ob_in_map(tmp, op->map, op, 0);
-
-		if (op->sub_type == ST1_DOOR_NORMAL)
-		{
-			play_sound_map(op->map, CMD_SOUND_EFFECT, "door.ogg", op->x, op->y, 0, 0);
-		}
-
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-	}
-	/* If set, we have opened a closed door - now handle autoclose */
-	else if (!op->last_eat)
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-
-		for (tmp2 = op->inv; tmp2; tmp2 = tmp2->below)
-		{
-			if (tmp2 && tmp2->type == RUNE && tmp2->level)
-			{
-				spring_trap(tmp2, opener);
-			}
-		}
-
-		/* Mark this door as "it's open" */
-		op->last_eat = 1;
-		/* Put it on active list, so it will close automatically */
-		op->speed = 0.1f;
-		update_ob_speed(op);
-		op->speed_left= -0.2f;
-		/* Change to "open door" faces */
-		op->state = 1;
-		/* Init "open" counter */
-		op->last_sp = op->stats.sp;
-
-		/* Save and clear blocksview and door_closed */
-		op->stats.grace = QUERY_FLAG(op, FLAG_BLOCKSVIEW) ? 1 : 0;
-		op->last_grace = QUERY_FLAG(op, FLAG_DOOR_CLOSED) ? 1 : 0;
-
-		CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
-		CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
-
-		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		}
-
-		if (op->sub_type == ST1_DOOR_NORMAL)
-		{
-			play_sound_map(op->map, CMD_SOUND_EFFECT, "door.ogg", op->x, op->y, 0, 0);
-		}
-
-		insert_ob_in_map(op, op->map, op, 0);
-	}
-
-	/* Door has FLAG_CURSED set? */
-	if (QUERY_FLAG(op, FLAG_CURSED))
-	{
-		int i;
-
-		/* Let's search for a locked door on nearby tiles */
-		for (i = 1; i < 9; i += 2)
-		{
-			tmp = present(DOOR, op->map, op->x + freearr_x[i], op->y + freearr_y[i]);
-
-			/* Found it, slaying matches, it has FLAG_CURSED and not opened? */
-			if (tmp && tmp->slaying == op->slaying && QUERY_FLAG(tmp, FLAG_CURSED) && tmp->state == 0)
-			{
-				/* Open this door then! */
-				open_locked_door(tmp, opener);
-			}
-		}
-	}
-}
-
-/**
- * Close a locked door that has been opened.
- * @param op Door object to close. */
-void close_locked_door(object *op)
-{
-	/* This is a bug - active speed but not marked as active */
-	if (!op->last_eat)
-	{
-		LOG(llevBug, "Door has speed but is not marked as active. (%s - map: %s (%d, %d))\n", query_name(op, NULL), op->map ? op->map->name : "(no map name!)", op->x, op->y);
-		op->last_eat = 0;
-		return;
-	}
-
-	if (!op->map)
-	{
-		LOG(llevBug, "Door with speed but no map (%s - (%d, %d))\n", query_name(op, NULL), op->x, op->y);
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return;
-	}
-
-	/* Now check the door counter - if not <= 0 we're still open */
-	if (op->last_sp-- > 0)
-	{
-		return;
-	}
-
-	/* Now we try to close the door. If the tile of the door is not blocked by
-	 * a no_pass object or a player or a monster, then we close the door.
-	 * If it is blocked - then restart a new "is open" phase. */
-	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
-	{
-		/* Let it open one more round. Re-init "open" counter. */
-		op->last_sp = op->stats.sp;
-	}
-	else
-	{
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-
-		/* Mark this door as "it's closed" */
-		op->last_eat = 0;
-
-		/* Remove from active list */
-		op->speed = 0.0f;
-		op->speed_left = 0.0f;
-		update_ob_speed(op);
-
-		/* Change to "close door" faces */
-		op->state = 0;
-
-		if (op->stats.grace)
-		{
-			SET_FLAG(op, FLAG_BLOCKSVIEW);
-		}
-		else
-		{
-			CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
-		}
-
-		op->stats.grace = 0;
-
-		if (op->last_grace)
-		{
-			SET_FLAG(op, FLAG_DOOR_CLOSED);
-		}
-		else
-		{
-			CLEAR_FLAG(op, FLAG_DOOR_CLOSED);
-		}
-
-		op->last_grace = 0;
-
-		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		}
-
-		if (op->sub_type == ST1_DOOR_NORMAL)
-		{
-			play_sound_map(op->map, CMD_SOUND_EFFECT, "door_close.ogg", op->x, op->y, 0, 0);
-		}
-
-		insert_ob_in_map(op, op->map, op, 0);
-	}
 }
