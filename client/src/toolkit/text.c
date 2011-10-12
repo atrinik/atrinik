@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Text drawing API. Used SDL_ttf for rendering. */
+ * Text drawing API. Uses SDL_ttf for rendering.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

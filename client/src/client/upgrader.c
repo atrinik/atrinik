@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Migrates the settings from an older installation. */
+ * Migrates the settings from an older installation.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

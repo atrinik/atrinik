@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Book GUI related code. */
+ * Book GUI related code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

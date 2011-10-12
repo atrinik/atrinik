@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Implements progress indicators. */
+ * Implements progress indicators.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

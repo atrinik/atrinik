@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Map drawing. */
+ * Map drawing.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Map effects handling. */
+ * Map effects handling.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

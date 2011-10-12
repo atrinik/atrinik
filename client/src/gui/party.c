@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles the party widget. */
+ * Handles the party widget.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

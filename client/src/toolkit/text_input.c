@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Text input API. */
+ * Text input API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

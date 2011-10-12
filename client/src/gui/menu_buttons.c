@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Implements menu buttons code. */
+ * Implements menu buttons code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

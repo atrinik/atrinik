@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles music player widget code. */
+ * Handles music player widget code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

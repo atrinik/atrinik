@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Range buttons API. */
+ * Range buttons API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

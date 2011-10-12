@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Tooltip API. */
+ * Tooltip API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

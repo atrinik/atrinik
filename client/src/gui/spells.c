@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles the spells widget code. */
+ * Handles the spells widget code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

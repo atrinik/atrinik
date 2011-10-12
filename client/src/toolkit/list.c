@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Generic lists implementation. */
+ * Generic lists implementation.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

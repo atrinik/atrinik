@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Implements the skills widget. */
+ * Implements the skills widget.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

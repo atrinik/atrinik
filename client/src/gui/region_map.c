@@ -25,7 +25,9 @@
 
 /**
  * @file
- * The region map dialog. */
+ * The region map dialog.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 #include <region_map.h>

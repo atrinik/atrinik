@@ -25,7 +25,9 @@
 
 /**
  * @file
- * This file handles all text window related functions */
+ * Implements text window widgets.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

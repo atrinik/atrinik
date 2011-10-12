@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Server settings. */
+ * Server settings.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

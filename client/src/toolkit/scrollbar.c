@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Scrollbar API. */
+ * Scrollbar API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Implements the protections table widget. */
+ * Implements the protections table widget.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

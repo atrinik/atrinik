@@ -34,7 +34,7 @@
  *
  * See http://autopackage.org/docs/binreloc/ for
  * more information and how to use this.
- */
+ * @author Hongli Lai */
 
 #include <global.h>
 

@@ -33,7 +33,11 @@
  * -# If applicable, add extended attributes in its own struct, and add handler code for its initialization in create_widget_object().
  * -# If applicable, add handler code for widget movement in widget_event_mousedn().
  * -# If applicable, add handler code to get_widget_owner().
- * -# Add handler function to process_widget(). */
+ * -# Add handler function to process_widget().
+ *
+ * @author Dantee
+ * @author Alex Tokar
+ * @author Daniel Liptrot */
 
 #include <global.h>
 

@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles client settings. */
+ * Handles client settings.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

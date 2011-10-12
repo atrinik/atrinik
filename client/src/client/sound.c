@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Sound related functions. */
+ * Sound related functions.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

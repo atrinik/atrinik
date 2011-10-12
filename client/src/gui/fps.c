@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles fps widget. */
+ * Handles fps widget.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

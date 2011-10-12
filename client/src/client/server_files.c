@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Manages server file updates. */
+ * Manages server file updates.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles connection to the metaserver and receiving data from it. */
+ * Handles connection to the metaserver and receiving data from it.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

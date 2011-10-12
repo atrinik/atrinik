@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Servers list, logging to a server, creating new character, etc. */
+ * Servers list, logging to a server, creating new character, etc.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

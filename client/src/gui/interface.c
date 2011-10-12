@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Implements the interface used by NPCs and the like. */
+ * Implements the interface used by NPCs and the like.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

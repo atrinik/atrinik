@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles help files. */
+ * Handles help files.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

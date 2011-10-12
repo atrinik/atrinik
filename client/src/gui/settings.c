@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Settings GUI. */
+ * Settings GUI.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

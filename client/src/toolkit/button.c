@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Button API. */
+ * Button API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 

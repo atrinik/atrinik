@@ -27,7 +27,9 @@
  * @file
  * Handles the Windows client wrapper. Basically this updater is executed
  * by shortcuts instead of atrinik.exe in order to handle extracting
- * update patches. */
+ * update patches.
+ *
+ * @author Alex Tokar */
 
 #include <stdio.h>
 #include <windows.h>

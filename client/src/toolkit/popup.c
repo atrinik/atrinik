@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Popup API. */
+ * Popup API.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
