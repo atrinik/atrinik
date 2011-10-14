@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <name>WorldMaker</name>
+  <code><![CDATA[import cfeditor.IGUIConstants;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.RandomAccessFile;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+
+File getSimpleFilename(File mapFile) {
+    String mapFilename = mapFile.getPath();
+    int i = mapFilename.lastIndexOf(File.separator);
+    if (i > 0) {
+        mapFilename = mapFilename.substring(i + 1);
+    }
+    return new File(mapFilename);
+}
+
+File getPngImageFilename(File mapFile) {
+    return new File(locationDir, PictureDirectory + getSimpleFilename(mapFile) + ".png");
+}
+
+boolean updateMap(File mapFile, File pictureFile) {
+    if (!mapFile.exists()) {
+        return false;
+    }
+    if (pictureFile.exists() && pictureFile.lastModified() >= mapFile.lastModified()) {
+        return false;
+    }
+    print("converting " + mapFile + " to " + pictureFile + ".");
+    try {
+        map = mapManager.openMapFile(mapFile, false);
+    } catch (IOException ex) {
+        return false;
+    }
+    try {
+        try {
+            ImageIO.write(rendererFactory.newSimpleMapRenderer(map.getMapModel()).getFullImage(), "png", pictureFile);
+        } catch (IOException ex) {
+            print("cannot write " + pictureFile + ": " + ex.getMessage());
+            return false;
+        }
+    } finally {
+        mapManager.release(map);
+    }
+    return true;
+}
+
+boolean runCommand(String cmd) {
+    f = File.createTempFile("WMaker", ".sh");
+    FileWriter out = new FileWriter(f);
+    out.write(cmd);
+    out.close();
+    print("running " + cmd);
+    Process p = Runtime.getRuntime().exec("sh " + f.getAbsolutePath());
+    p.waitFor();
+    f.delete();
+    return p.exitValue() == 0;
+}
+
+String formatCoordinate(int coordinate) {
+    if (coordinate >= 1) {
+        return String.format("%02d", new Object[] { Integer.valueOf(coordinate), });
+    }
+
+    coordinate = -coordinate;
+    return String.format("%c%c", new Object[] { Integer.valueOf('a' + coordinate / 26), Integer.valueOf('a' + coordinate % 26), });
+}
+
+void checkDaList() {
+    DestWidth = TileWidth.intValue() * (NumX.intValue() + NumY.intValue()) / 2;
+    DestHeight = TileHeight.intValue() * (NumX.intValue() + NumY.intValue()) / 2;
+
+    if (Location == null || Location.length() == 0) {
+        locationDir = globalSettings.getMapsDirectory();
+    } else {
+        locationDir = new File(Location);
+    }
+
+    print("World map will be " + DestWidth + "x" + DestHeight + " in size");
+
+    if (!PictureDirectory.endsWith(File.separator)) {
+        PictureDirectory = PictureDirectory + File.separator;
+    }
+    new File(locationDir, PictureDirectory).mkdirs();
+
+    final long bytesPerPixel = 3L;
+
+    HashSet mapList = new HashSet();
+    boolean firstRun = false;
+    byte[] header = ("P6\n" + DestWidth + " " + DestHeight + "\n255\n").getBytes("ISO-8859-1");
+    long headerSize = header.length;
+    File destinationFilePpm = new File(locationDir, PictureDirectory + WorldPicture + ".ppm");
+    File destinationFilePng = new File(locationDir, PictureDirectory + WorldPicture + ".png");
+    File tempFile = new File("/tmp/tmp.ppm");
+    if (destinationFilePpm.exists()) {
+        runCommand("cp '" + destinationFilePpm + "' '" + tempFile + "'");
+    } else {
+        print("generating empty picture");
+        FileOutputStream fos = new FileOutputStream(tempFile, false);
+        fos.write(header);
+        byte[] buf = new byte[(int) DestWidth.intValue() * bytesPerPixel];
+        for (int i = 0; i < DestHeight.intValue(); i++) {
+            fos.write(buf);
+        }
+        fos.close();
+        firstRun = true;
+    }
+    long toSkip = ("P6\n" + TileWidth + " " + TileHeight+"\n255\n").getBytes("ISO-8859-1").length;
+    RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
+    FileChannel fc  = raf.getChannel();
+    byte[] buf = new byte[bytesPerPixel * TileWidth.intValue() * TileHeight.intValue()];
+
+    File tempImageFile = new File("/tmp/ppm.tmp");
+    for (int x = 0; x < NumX.intValue(); x++) {
+        for (int y = 0; y < NumY.intValue(); y++) {
+            currentX = StartX.intValue() + x;
+            currentY = StartY.intValue() + y;
+            currentMap = new File(locationDir, MapFilename + formatCoordinate(currentX) + formatCoordinate(currentY));
+            currentPicture = getPngImageFilename(currentMap);
+            didUpdate = updateMap(currentMap, currentPicture);
+            if ((didUpdate || firstRun) && currentPicture.exists()) {
+                runCommand("pngtopnm '" + currentPicture + "' | pnmscale -xysize " + TileWidth + " " + TileHeight + " > '" + tempImageFile + "'");
+                FileInputStream fis = new FileInputStream(tempImageFile);
+                fis.skip(toSkip);
+                fis.read(buf);
+                sx = (x + y) * TileWidth.intValue() / 2;
+                sy = (x + (NumY.intValue() - 1 - y)) * TileHeight.intValue() / 2;
+                long index = ((long) sy * (long) DestWidth.intValue() + (long) sx) * bytesPerPixel + headerSize;
+                for (long row = 0; row < TileHeight.intValue(); row++) {
+                    MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, index + row * DestWidth.intValue() * bytesPerPixel, TileWidth.intValue() * bytesPerPixel);
+                    final int offset = (int) (row * TileWidth.intValue() * bytesPerPixel);
+                    final int length = (int) (TileWidth.intValue() * bytesPerPixel);
+                    for (int i = 0; i < length; i += (int) bytesPerPixel) {
+                        final byte b1 = buf[offset + i + 0];
+                        final byte b2 = buf[offset + i + 1];
+                        final byte b3 = buf[offset + i + 2];
+                        if (b1 != 0 || b2 != 0 || b3 != 0) {
+                            mbb.put(b1);
+                            mbb.put(b2);
+                            mbb.put(b3);
+                        } else {
+                            mbb.position(mbb.position() + (int) bytesPerPixel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    raf.close();
+    runCommand("mv '" + tempFile + "' '" + destinationFilePpm + "'");
+    print("converting to png if possible.\n");
+    runCommand("pnmtopng '" + destinationFilePpm + "' > /tmp/tmp.png");
+    runCommand("mv /tmp/tmp.png '" + destinationFilePng + "'");
+}
+
+File locationDir;
+checkDaList();
+print("Done!");]]></code>
+  <mode>
+    <autoboot>false</autoboot>
+    <bash>true</bash>
+    <filter>false</filter>
+  </mode>
+  <parameter>
+    <name>Location</name>
+    <description>Specify the map directory to use by this script. Leave empty for maps directory</description>
+    <type>java.lang.String</type>
+    <value />
+  </parameter>
+  <parameter>
+    <name>MapFilename</name>
+    <description>This map file name will be appended to the 'Location' parameter and '_mapx_mapy' will be added at the end</description>
+    <type>java.lang.String</type>
+    <value>shattered_islands/world_</value>
+  </parameter>
+  <parameter>
+    <name>TileWidth</name>
+    <description>The width in pixel of each generate map image</description>
+    <type>java.lang.Integer</type>
+    <value>144</value>
+    <minimum>0</minimum>
+    <maximum>2000</maximum>
+  </parameter>
+  <parameter>
+    <name>TileHeight</name>
+    <description>The height in pixel of each generated map image</description>
+    <type>java.lang.Integer</type>
+    <value>72</value>
+    <minimum>0</minimum>
+    <maximum>2000</maximum>
+  </parameter>
+  <parameter>
+    <name>NumX</name>
+    <description>The number of maps along X axis to analyze</description>
+    <type>java.lang.Integer</type>
+    <value>30</value>
+    <minimum>0</minimum>
+    <maximum>50000</maximum>
+  </parameter>
+  <parameter>
+    <name>NumY</name>
+    <description>The number of maps along Y axis to analyze</description>
+    <type>java.lang.Integer</type>
+    <value>80</value>
+    <minimum>0</minimum>
+    <maximum>50000</maximum>
+  </parameter>
+  <parameter>
+    <name>StartX</name>
+    <description>The first coordinate along X axis to analyze</description>
+    <type>java.lang.Integer</type>
+    <value>-9</value>
+    <minimum>0</minimum>
+    <maximum>50000</maximum>
+  </parameter>
+  <parameter>
+    <name>StartY</name>
+    <description>The first coordinate along Y axis to analyze</description>
+    <type>java.lang.Integer</type>
+    <value>1</value>
+    <minimum>0</minimum>
+    <maximum>50000</maximum>
+  </parameter>
+  <parameter>
+    <name>PictureDirectory</name>
+    <description>The subdirectory where to put pictures</description>
+    <type>java.lang.String</type>
+    <value>images</value>
+  </parameter>
+  <parameter>
+    <name>WorldPicture</name>
+    <description>The picture which will store the world map</description>
+    <type>java.lang.String</type>
+    <value>shattered_islands_world</value>
+  </parameter>
+</script>
