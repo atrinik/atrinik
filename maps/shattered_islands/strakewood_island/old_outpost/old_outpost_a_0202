@@ -2,13 +2,14 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-02-04 Alex Tokar
+Modified: 2011-10-14 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 22
 darkness 2
 tile_path_1 old_outpost_a_0203
+tile_path_3 old_outpost_a_0201
 bg_music desert_town.mid
 region old_outpost
 end
@@ -659,7 +660,8 @@ arch floor_stone3b
 x 3
 y 23
 end
-arch fwall_flagstone2a
+arch torch_wall_1
+direction 7
 x 3
 y 23
 end
@@ -784,10 +786,6 @@ x 4
 y 22
 end
 arch floor_stone3d
-x 4
-y 23
-end
-arch fwall_flagstone2a
 x 4
 y 23
 end
@@ -957,10 +955,6 @@ x 5
 y 22
 end
 arch floor_stone3d
-x 5
-y 23
-end
-arch fwall_flagstone2a
 x 5
 y 23
 end
@@ -1233,8 +1227,8 @@ y 20
 end
 arch corpse_human
 is_used_up 0
-name slain chin'hao knight captain
 speed 0
+name slain chin'hao knight captain
 x 7
 y 20
 arch letter
@@ -1245,10 +1239,10 @@ We had underestimated the enemy forces
 in this area. The troll guards have overrun
 our backup troops. We are the last.
 We failed to kill the giant king and his guards too.
-He is guarded by magic doors. We never
+He is guarded by magic doors. We will never
 find the keys.. Listen, I hear them coming...
-Oh, Melarin... I never will come home...
-I wi.. (the writing stops here)
+Oh, Melarin... I will never come back home...
+I wi.. &lt;<i>the writing stops here</i>&gt;
 endmsg
 name blood stained letter
 no_pick 1

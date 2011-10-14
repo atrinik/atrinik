@@ -65,3 +65,36 @@ msg
 Key given to you by the captured guard, Tortwald, in the Underground City level 2.
 endmsg
 end
+
+Allowed none
+chance 1
+artifact gandyld_crystal_1
+def_arch power_crystal
+Object
+name Gandyld's Mana Crystal
+value 10000
+maxsp 50
+identified 1
+end
+
+Allowed none
+chance 1
+artifact gandyld_crystal_2
+def_arch power_crystal
+Object
+name Gandyld's Mana Crystal
+value 10000
+maxsp 100
+identified 1
+end
+
+Allowed none
+chance 1
+artifact gandyld_crystal_3
+def_arch power_crystal
+Object
+name Gandyld's Mana Crystal
+value 10000
+maxsp 200
+identified 1
+end

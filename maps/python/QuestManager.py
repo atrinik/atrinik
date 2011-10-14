@@ -67,7 +67,7 @@ class QuestManagerBase:
 		if not obj.last_grace:
 			quest_item = self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"])
 
-			if quest_item and quest_item.f_quest_item:
+			if quest_item:
 				return 1
 		# Got to count the objects otherwise.
 		else:
@@ -75,8 +75,7 @@ class QuestManagerBase:
 
 			# Find all matching objects, and count them.
 			for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
-				if tmp.f_quest_item:
-					num += max(1, tmp.nrof)
+				num += max(1, tmp.nrof)
 
 			return num
 
@@ -117,13 +116,13 @@ class QuestManagerBase:
 
 			# Find all matching objects.
 			for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["arch_name"], quest["item_name"], multiple = True):
-				if tmp.f_quest_item:
-					# Keeping the quest item(s), so adjust some flags.
-					if keep:
-						tmp.f_quest_item = False
-						tmp.f_startequip = False
-					else:
-						tmp.Remove()
+				# Keeping the quest item(s), make sure quest-related flags
+				# are not set.
+				if keep:
+					tmp.f_quest_item = False
+					tmp.f_startequip = False
+				else:
+					tmp.Remove()
 
 ## The Quest Manager class.
 class QuestManager(QuestManagerBase):

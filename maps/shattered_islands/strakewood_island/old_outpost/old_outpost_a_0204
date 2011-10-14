@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2011-05-14 Alex Tokar
-Modified: 2011-05-14 Alex Tokar
+Modified: 2011-10-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -675,7 +675,25 @@ arch floor_stone3a
 x 7
 y 17
 end
-arch pool_ember
+arch pool_murky
+name pool filled with a strange concoction
+x 7
+y 17
+arch event_obj
+sub_type 1
+race scripts/pool_concoction.py
+slaying lab_rhun
+end
+end
+arch light3
+x 7
+y 17
+end
+arch magic_mouth
+msg
+This pool is filled to the brim with a very strange magical concoction. Strangely, it smells of brimstone and emits a soft glow. It seems this is what could be used in order to further enhance the mana crystal Gandyld has given you.
+endmsg
+race gandyld_crystal_2
 x 7
 y 17
 end
@@ -792,6 +810,10 @@ arch floor_stone3a
 x 9
 y 12
 end
+arch table_lab2.111
+x 9
+y 12
+end
 arch floor_stone3d
 x 9
 y 13
@@ -853,6 +875,10 @@ x 10
 y 11
 end
 arch floor_stone3c
+x 10
+y 12
+end
+arch table_lab1.111
 x 10
 y 12
 end
