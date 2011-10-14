@@ -2,7 +2,7 @@ arch map
 name Everlink
 msg
 Created:  2010-07-21 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -832,25 +832,6 @@ end
 arch grassd_5
 x 4
 y 22
-end
-arch spawn_point
-x 4
-y 22
-arch priest_green
-name Dewtarn
-glow_radius 3
-level 40
-is_female 0
-type 83
-arch event_obj
-msg
-everlink_0402, everlink_0401, everlink_0302, everlink_0301
-endmsg
-sub_type 6
-race /python/generic/bard.py
-slaying everlink
-end
-end
 end
 arch fstone1c
 x 4
