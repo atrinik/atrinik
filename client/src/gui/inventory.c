@@ -594,6 +594,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
 	inventory_struct *inventory;
 	int selected, max;
+	uint32 offset;
 
 	inventory = INVENTORY(widget);
 	selected = inventory->selected;
@@ -634,8 +635,16 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 	}
 
 	inventory->selected = selected;
-	/* Scroll the scrollbar as necessary. */
-	inventory->scrollbar_info.scroll_offset = MAX(0, selected / (int) INVENTORY_COLS(inventory) - (int) INVENTORY_ROWS(inventory) + 1);
+	offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
+
+	if (inventory->scrollbar_info.scroll_offset > offset)
+	{
+		inventory->scrollbar_info.scroll_offset = offset;
+	}
+	else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset)
+	{
+		inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
+	}
 }
 
 /**
