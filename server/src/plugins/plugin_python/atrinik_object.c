@@ -784,61 +784,6 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
 }
 
 /**
- * <h1>object.CreatePlayerForce(string force_name, int time)</h1>
- * Creates and inserts an invisible player force in object.
- *
- * The values of the force will affect the object it is in, which should
- * usually be player.
- * @param force_name Name of the player force
- * @param time If non-zero, the force will be removed again after
- * time / 0.02 ticks. Optional, defaults to 0.
- * @return The new player force object.
- * @deprecated Use object.CreateForce() */
-static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject *args)
-{
-	const char *txt;
-	object *myob;
-	int expire_time = 0;
-
-	if (!PyArg_ParseTuple(args, "s|i", &txt, &expire_time))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	myob = hooks->get_archetype("player_force");
-
-	if (!myob)
-	{
-		LOG(llevDebug, "Python WARNING:: CreatePlayerForce: Can't find archetype 'player_force'\n");
-		RAISE("Can't find archetype 'player_force'");
-	}
-
-	/* For temporary forces */
-	if (expire_time > 0)
-	{
-		SET_FLAG(myob, FLAG_IS_USED_UP);
-		myob->stats.food = expire_time;
-		myob->speed = 0.02f;
-		hooks->update_ob_speed(myob);
-	}
-
-	/* Setup the force and put it in activator */
-	if (myob->name)
-	{
-		FREE_AND_CLEAR_HASH(myob->name);
-	}
-
-	FREE_AND_COPY_HASH(myob->name, txt);
-	myob = hooks->insert_ob_in_ob(myob, obj->obj);
-
-	hooks->esrv_send_item(obj->obj, myob);
-
-	return wrap_object(myob);
-}
-
-/**
  * <h1>object.CreateForce(string name, int time)</h1>
  * Create a force object in object's inventory.
  * @param name String ID of the force object.
@@ -1911,7 +1856,6 @@ static PyMethodDef methods[] =
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
