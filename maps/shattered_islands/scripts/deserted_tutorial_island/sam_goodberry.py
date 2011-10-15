@@ -54,7 +54,7 @@ def main():
 
 	elif qm.started_part(4) and not qm.completed_part(4):
 		if msg == "hello":
-			barrel = activator.FindObject(INVENTORY_CONTAINERS, "deserted_island_empty_barrel")
+			barrel = activator.FindObject(INVENTORY_CONTAINERS, "deserted_island_filled_barrel")
 
 			if barrel:
 				inf.add_msg("Good job, {}!".format(activator.name))

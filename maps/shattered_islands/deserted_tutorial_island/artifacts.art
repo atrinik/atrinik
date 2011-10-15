@@ -20,6 +20,24 @@ end
 
 Allowed none
 chance 1
+artifact deserted_island_filled_barrel
+def_arch barrel.101
+Object
+name water barrel
+face barrel_water.101
+quest_item 1
+no_drop 1
+item_quality 80
+item_condition 80
+no_pick 0
+no_pass 0
+startequip 1
+identified 1
+weight 20000
+end
+
+Allowed none
+chance 1
 artifact deserted_island_white_mushroom
 def_arch mushroom1
 Object
