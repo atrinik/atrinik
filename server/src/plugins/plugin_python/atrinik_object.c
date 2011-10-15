@@ -839,49 +839,6 @@ static PyObject *Atrinik_Object_CreatePlayerForce(Atrinik_Object *obj, PyObject 
 }
 
 /**
- * <h1>object.CreatePlayerInfo(string name)</h1>
- * Creates a player info object of specified name in object's inventory.
- *
- * The values of a player info object will NOT affect the object it is
- * in.
- * @param name Name of the player info
- * @return The new player info object
- * @deprecated Use object.CreateObject("player_info") */
-static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *obj, PyObject *args)
-{
-	const char *txt;
-	object *myob;
-
-	if (!PyArg_ParseTuple(args, "s", &txt))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	myob = hooks->get_archetype("player_info");
-
-	if (!myob)
-	{
-		LOG(llevDebug, "Python WARNING:: CreatePlayerInfo: Can't find archetype 'player_info'\n");
-		RAISE("Can't find archtype 'player_info'");
-	}
-
-	/* Setup the info and put it in activator */
-	if (myob->name)
-	{
-		FREE_AND_CLEAR_HASH(myob->name);
-	}
-
-	FREE_AND_COPY_HASH(myob->name, txt);
-	myob = hooks->insert_ob_in_ob(myob, obj->obj);
-
-	hooks->esrv_send_item(obj->obj, myob);
-
-	return wrap_object(myob);
-}
-
-/**
  * <h1>object.CreateForce(string name, int time)</h1>
  * Create a force object in object's inventory.
  * @param name String ID of the force object.
@@ -1955,7 +1912,6 @@ static PyMethodDef methods[] =
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
-	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
