@@ -461,46 +461,6 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.SayTo(object target, string message, bool [mode = False])</h1>
- * NPC talks only to player but map gets "xxx talks to yyy" msg too.
- * @param target Target object the NPC is talking to.
- * @param message The message to say.
- * @param mode If True, there is no "xxx talks to yyy" map message. The
- * message is not prefixed with "xxx says: " either. */
-static PyObject *Atrinik_Object_SayTo(Atrinik_Object *obj, PyObject *args)
-{
-	Atrinik_Object *target;
-	const char *message;
-	int mode = 0;
-
-	if (!PyArg_ParseTuple(args, "O!s|i", &Atrinik_ObjectType, &target, &message, &mode))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-	OBJEXISTCHECK(target);
-
-	if (mode)
-	{
-		hooks->draw_info(COLOR_NAVY, target->obj, message);
-	}
-	else
-	{
-		char buf[HUGE_BUF];
-
-		snprintf(buf, sizeof(buf), "%s talks to %s.", hooks->query_name(obj->obj, NULL), hooks->query_name(target->obj, NULL));
-		hooks->draw_info_map(0, COLOR_WHITE, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, obj->obj, target->obj, buf);
-
-		snprintf(buf, sizeof(buf), "\n%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->draw_info(COLOR_NAVY, target->obj, buf);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Write(string message, string [color = @ref COLOR_ORANGE], int [flags = 0])</h1>
  * Writes a message to a specific player object.
  * @param message The message to write.
@@ -1754,7 +1714,6 @@ static PyMethodDef methods[] =
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
 	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
-	{"SayTo", (PyCFunction) Atrinik_Object_SayTo, METH_VARARGS, 0},
 	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
 	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
