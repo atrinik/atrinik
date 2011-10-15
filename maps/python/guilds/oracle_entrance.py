@@ -3,10 +3,9 @@
 ##
 ## Only allows entrance to guild administrators, DMs are an exception.
 
-from Atrinik import *
 from Guild import Guild
 
-activator = WhoIsActivator()
+guild = Guild(GetOptions())
 
 def main():
 	if not guild.member_is_admin(activator.name) and not activator.f_wiz:
@@ -18,5 +17,4 @@ def main():
 
 		SetReturnValue(1)
 
-guild = Guild(GetOptions())
 main()

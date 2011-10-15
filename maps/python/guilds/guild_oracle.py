@@ -2,294 +2,269 @@
 ## Guild Oracle provides guild administration features for the guild
 ## administrators.
 
-from Atrinik import *
+from Interface import Interface
 from Guild import Guild
+import re
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
-text = msg.split()
+inf = Interface(activator, me)
+guild = Guild(GetOptions())
 
 def main():
-	# Only allow administrators or Wizards to use this script.
-	if not guild.member_is_admin(activator.name) and not activator.f_wiz:
-		me.SayTo(activator, "\nYou are not the guild administrator.")
-		return
-
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nHello {}. Do you want to manage <a>members</a>, the <a>guild</a> itself or the <a>ranks</a>?".format(activator.name))
+	if msg == "hello":
+		inf.add_msg("Hello {}. Do you want to manage members, the guild itself or the ranks?".format(activator.name))
+		inf.add_link("I'd like to manage the members.", dest = "manage_members")
+		inf.add_link("I'd like to manage the guild.", dest = "manage_guild")
+		inf.add_link("I'd like to manage the ranks.", dest = "manage_ranks")
 
 		if activator.f_wiz:
-			me.SayTo(activator, "Since you're the Wizard, you can also <a>add</a> members directly or change the guild's <a>founder</a>.", 1)
+			inf.add_msg("Since you're the Wizard, you can also add members directly or change the guild's founder.")
+			inf.add_link("I'd like to add a member.", dest = "wiz_addmember1")
+			inf.add_link("I'd like to change the guild's founder.", dest = "wiz_founder1")
 
-	# Show member related commands.
-	elif msg == "members":
-		me.SayTo(activator, "\nI can show you the guild's list of <a>applications</a> or <a>remove</a> a member from the guild (removing will also close an application if any).\nOr would you rather <a>give admin</a> status to a member, or perhaps <a>remove admin</a> status from a fellow administrator?")
+	elif msg == "manage_members":
+		inf.add_msg("I can show you the guild's list of applications, or remove a member from the guild.\nOr would you rather give admin status to a member, or perhaps remove admin status from a fellow administrator?")
+		inf.add_link("Show me the list of applications.", dest = "member_applications")
+		inf.add_link("I'd like to remove a member from the guild.", dest = "member_remove1")
+		inf.add_link("I'd like to promote a member to administrator.", dest = "member_admin_give1")
+		inf.add_link("I'd like to demote an administrator.", dest = "member_admin_remove1")
 
-	# Show guild related commands.
-	elif msg == "guild":
-		closed = guild.guild_check(guild.guild_closed)
-		me.SayTo(activator, "\nThe guild is currently {}. Would you like to <a>{}</a> it?".format(closed and "closed" or "open", closed and "open" or "close"))
-
-	# Show rank related commands.
-	elif msg == "ranks":
-		me.SayTo(activator, "\nDo you want to see the <a>ranks list</a>, create a <a>new rank</a>, <a>remove rank</a>, <a>change rank</a> setting or <a>view rank</a> setting?\nYou can also <a>assign</a> a member to one of the existing ranks and <a>clear rank</a> of a member, or see members <a>without rank</a>.")
-
-	# Show the list of ranks.
-	elif msg == "ranks list":
-		me.SayTo(activator, "\nList of ranks:\n")
-
-		for rank in guild.ranks_get_sorted():
-			me.SayTo(activator, guild.rank_string(rank), 1)
-
-	# Show members without rank.
-	elif msg == "without rank":
-		l = list(filter(lambda name: not guild.member_get_rank(name), guild.get_members()))
-
-		if l:
-			me.SayTo(activator, "\nMembers without any rank:\n{}".format(", ".join(l)))
-		else:
-			me.SayTo(activator, "\nThere are no members without rank.")
-
-	# Create a new rank.
-	elif msg[:8] == "new rank":
-		if not msg[9:]:
-			me.SayTo(activator, "\nThe 'new rank' command can add a new rank to the list of ranks.\nExample: <green>new rank Junior Member</green>")
-		else:
-			rank = guild.rank_sanitize(WhatIsMessage()[9:])
-
-			if not rank:
-				me.SayTo(activator, "\nInvalid rank name: it cannot contain special symbols/characters and the maximum length is {} characters.".format(guild.get(guild.rank_max_chars)))
-				return
-
-			if guild.rank_exists(rank):
-				me.SayTo(activator, "\nThe rank '{}' already exists.".format(rank))
-			elif guild.rank_add(rank):
-				me.SayTo(activator, "\nSuccessfully created rank '{}'.".format(rank))
-			else:
-				me.SayTo(activator, "\nCould not add rank '{}'.".format(rank))
-
-	# Assign member to a rank.
-	elif msg[:6] == "assign":
-		if len(text) < 3:
-			me.SayTo(activator, "\nAssign what member to what rank?\nExample: <green>assign Atrinik Junior Member</green>")
-		else:
-			name = text[1].capitalize()
-			rank = WhatIsMessage()[7 + len(name) + 1:]
-
-			if not guild.rank_exists(rank):
-				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif guild.member_set_rank(name, rank):
-				me.SayTo(activator, "\nAdded {} to rank '{}'.".format(name, rank))
-			else:
-				me.SayTo(activator, "\nCould not add {} to rank '{}'".format(name, rank))
-
-	# Remove a rank.
-	elif msg[:11] == "remove rank":
-		if not msg[12:]:
-			me.SayTo(activator, "\nRemove what rank? Removing a rank will also clear rank of all members in that rank.\nExample: <green>remove rank Junior Member</green>")
-		else:
-			rank = WhatIsMessage()[12:]
-
-			if not guild.rank_exists(rank):
-				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif guild.rank_remove(rank):
-				me.SayTo(activator, "\nRemoved rank '{}'.".format(rank))
-			else:
-				me.SayTo(activator, "\nRank '{}' could not be removed.".format(rank))
-
-	# Clear member's rank.
-	elif msg[:10] == "clear rank":
-		if not msg[11:]:
-			me.SayTo(activator, "\nClear rank for which member?\nExample: <green>clear rank Atrinik</green>")
-		else:
-			name = msg[11:].capitalize()
-
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif guild.member_set_rank(name):
-				me.SayTo(activator, "\n{} is no longer a member of any rank.".format(name))
-			else:
-				me.SayTo(activator, "\nCould not clear rank of {}.".format(name))
-
-	# Change rank's setting.
-	elif msg[:11] == "change rank":
-		if len(text) < 5:
-			me.SayTo(activator, "\nChange what? Examples:\nTo change rank's value limit (how much can be taken from the guild in copper, 0 means unlimited) to 1 gold and 50 silver:\n<green>change rank limit 15000 Junior Member</green>\nTo change when ranks get limit reset to 12 hours (default is 24 hours and the timer starts on the first pickup):\n<green>change rank time 12 Junior Member</green>")
-		else:
-			what = text[2]
-			value = text[3]
-			rank = WhatIsMessage()[12 + len(what) + len(value) + 2:]
-
-			if not guild.rank_exists(rank):
-				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif what == "limit":
-				if not value.isdigit() or int(value) < 0 or int(value) > guild.rank_value_max:
-					me.SayTo(activator, "\nInvalid value to set, must be 0-{}.".format(guild.rank_value_max))
-				elif guild.rank_set(rank, "value_limit", int(value)):
-					me.SayTo(activator, "\nSuccessfully changed {} to {}.".format(what, CostString(int(value))))
-				else:
-					me.SayTo(activator, "\nCould not change {} to {}.".format(what, CostString(int(value))))
-			elif what == "time":
-				if not value.isdigit() or int(value) < guild.rank_reset_min or int(value) > guild.rank_reset_max:
-					me.SayTo(activator, "\nInvalid value to set, must be {}-{}.".format(guild.rank_reset_min, guild.rank_reset_max))
-				elif guild.rank_set(rank, "value_reset", int(value)):
-					me.SayTo(activator, "\nSuccessfully changed {} to {} hour(s).".format(what, value))
-				else:
-					me.SayTo(activator, "\nCould not change {} to {} hour(s).".format(what, value))
-			else:
-				me.SayTo(activator, "\nInvalid setting, see <a>change rank</a> for possible settings.")
-
-	# View rank's setting.
-	elif msg[:9] == "view rank":
-		if len(text) < 4:
-			me.SayTo(activator, "\nView what? Examples:\nTo view rank's value limit (how much can be taken from the guild in copper, 0 means unlimited):\n<green>view rank limit Junior Member</green>\nTo view when ranks get limit reset:\n<green>view rank time Junior Member</green>")
-		else:
-			what = text[2]
-			rank = WhatIsMessage()[10 + len(what) + 1:]
-
-			if not guild.rank_exists(rank):
-				me.SayTo(activator, "\nNo such rank '{}'.".format(rank))
-			elif what == "limit":
-				me.SayTo(activator, "\nThe setting '{}' is set to {} for rank '{}'.".format(what, CostString(guild.rank_get(rank, "value_limit")), rank))
-			elif what == "time":
-				me.SayTo(activator, "\nThe setting '{}' is set to {} hour(s) for rank '{}'.".format(what, guild.rank_get(rank, "value_reset"), rank))
-			else:
-				me.SayTo(activator, "\nInvalid setting, see <a>view rank</a> for possible settings.")
-
-	# Close the guild.
-	elif msg == "close":
-		guild.guild_set(guild.guild_closed)
-		me.SayTo(activator, "\nClosed the guild. No new membership applications will be accepted by the Guild Manager.")
-
-	# Open the guild.
-	elif msg == "open":
-		guild.guild_unset(guild.guild_closed)
-		me.SayTo(activator, "\nOpened the guild. New membership applications will be accepted by the Guild Manager.")
-
-	# List members awaiting membership application.
-	elif msg == "applications":
-		me.SayTo(activator, "\nList of membership applications:\nExample: <green>approve Atrinik</green> or <green>remove Atrinik</green>")
-		l = []
+	elif msg == "member_applications":
+		inf.add_msg("List of membership applications:")
 
 		for member in guild.get_members():
-			if guild.member_approved(member):
-				continue
+			if not guild.member_approved(member):
+				inf.add_msg("{0} (<a=:member_approve {0}>approve</a>, <a=:member_remove2 {0}>decline</a>)")
 
-			l.append(member)
+	elif msg == "member_remove1":
+		inf.add_msg("Enter the player's name that you want to remove from the guild.")
+		inf.set_text_input(prepend = "member_remove2 ")
 
-		if l:
-			l.sort()
-			me.SayTo(activator, ", ".join(l), 1)
+	elif msg.startswith("member_remove2 "):
+		name = msg[15:].capitalize()
+
+		if not guild.member_exists(name):
+			inf.add_msg("No such member {}.".format(name))
+		elif not activator.f_wiz and name == activator.name:
+			inf.add_msg("You cannot remove yourself.")
+		elif not activator.f_wiz and guild.is_founder(name):
+			inf.add_msg("You cannot remove the guild founder.")
+		elif guild.member_remove(name):
+			inf.add_msg("Successfully removed {} from the guild.".format(name))
 		else:
-			me.SayTo(activator, "No membership applications.", 1)
+			inf.add_msg("Could not remove {} from the guild.".format(name))
 
-	# Give administrator rights to a member.
-	elif msg[:10] == "give admin":
-		if not msg[11:]:
-			me.SayTo(activator, "\nThe 'give admin' command is used to give administrator rights to a guild member.\nExample: <green>give admin Atrinik</green>")
+	elif msg.startswith("member_approve "):
+		name = msg[15:].capitalize()
+
+		if not guild.member_exists(name):
+			inf.add_msg("No such member {}.".format(name))
+		elif guild.member_approved(name):
+			inf.add_msg("This member has already been approved.")
+		elif guild.member_approve(name):
+			inf.add_msg("Successfully approved {} for full guild membership.".format(name))
 		else:
-			name = msg[11:].capitalize()
+			inf.add_msg("Could not approve {}.".format(name))
 
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif guild.member_is_admin(name):
-				me.SayTo(activator, "\nThis member is already an administrator.")
+	elif msg == "member_admin_give1":
+		inf.add_msg("Enter the player's name that you want to promote to guild administrator.")
+		inf.set_text_input(prepend = "member_admin_give2 ")
+
+	elif msg.startswith("member_admin_give2 "):
+		name = msg[19:].capitalize()
+
+		if not guild.member_exists(name):
+			inf.add_msg("No such member {}.".format(name))
+		elif guild.member_is_admin(name):
+			inf.add_msg("This member is already an administrator.")
+		elif guild.member_admin_make(name):
+			inf.add_msg("Successfully made {} a guild administrator.".format(name))
+		else:
+			inf.add_msg("{} cannot be made an administrator.".format(name))
+
+	elif msg == "member_admin_remove1":
+		inf.add_msg("Enter the player's name that you want to demote from guild administrator to normal member.")
+		inf.set_text_input(prepend = "member_admin_remove2 ")
+
+	elif msg.startswith("member_admin_remove2 "):
+		name = msg[21:].capitalize()
+
+		if not guild.member_exists(name):
+			inf.add_msg("No such member {}.".format(name))
+		elif not guild.member_is_admin(name):
+			inf.add_msg("This member is not an administrator.")
+		elif not activator.f_wiz and name == activator.name:
+			inf.add_msg("You cannot take away administrator rights from yourself.")
+		elif not activator.f_wiz and guild.is_founder(name):
+			inf.add_msg("You cannot take administrator rights from the guild founder.")
+		elif guild.member_admin_remove(name):
+			inf.add_msg("Successfully removed administrator rights from {}.".format(name))
+		else:
+			inf.add_msg("{} cannot have administrator rights taken away.".format(name))
+
+	elif msg == "manage_guild":
+		closed = guild.guild_check(guild.guild_closed)
+		inf.add_msg("The guild is currently {}.".format("closed" if closed else "open"))
+
+		if closed:
+			inf.add_link("Open the guild.", dest = "guild_open")
+		else:
+			inf.add_link("Close the guild.", dest = "guild_close")
+
+	elif msg == "guild_open":
+		guild.guild_unset(guild.guild_closed)
+		inf.add_msg("Opened the guild. New membership applications will be accepted by the Guild Manager.")
+
+	elif msg == "guild_close":
+		guild.guild_unset(guild.guild_closed)
+		inf.add_msg("Opened the guild. New membership applications will be accepted by the Guild Manager.")
+
+	elif msg == "manage_ranks":
+		inf.add_msg("List of ranks:")
+
+		for rank in guild.ranks_get_sorted():
+			inf.add_msg(guild.rank_string(rank))
+			inf.add_msg("\n(<a=:rank_add_member1 \"{0}\">add member</a>, <a=:rank_change1 \"{0}\">change setting</a>)".format(rank), newline = False)
+
+		no_rank_members = list(filter(lambda name: not guild.member_get_rank(name), guild.get_members()))
+
+		if no_rank_members:
+			inf.add_msg("<green>No rank assigned</green>\n{}".format(", ".join(no_rank_members)))
+
+		inf.add_link("I'd like to add a rank.", dest = "rank_add1")
+		inf.add_link("I'd like to delete a rank.", dest = "rank_delete1")
+
+	elif msg.startswith("rank_add_member1 "):
+		inf.add_msg("Enter the player's name that you want to add to the specified rank.")
+		inf.set_text_input(prepend = "rank_add_member2 " + msg[17:] + " ")
+
+	elif msg.startswith("rank_add_member2 "):
+		match = re.match(r"\"([^\"]+)\" (.+)", msg[17:])
+
+		if not match:
+			return
+
+		(rank, name) = match.groups()
+		name = name.capitalize()
+
+		if not guild.rank_exists(rank):
+			inf.add_msg("No such rank '{}'.".format(rank))
+		elif not guild.member_exists(name):
+			inf.add_msg("No such member {}.".format(name))
+		elif guild.member_set_rank(name, rank):
+			inf.add_msg("Added {} to rank '{}'.".format(name, rank))
+		else:
+			inf.add_msg("Could not add {} to rank '{}'".format(name, rank))
+
+	elif msg.startswith("rank_change1 "):
+		rank = msg[13:]
+		inf.add_msg("Which setting of that rank would you like to change?")
+		inf.add_link("Change limit value.", dest = "rank_change2 " + rank + " limit_value")
+		inf.add_link("Change limit reset time.", dest = "rank_change2 " + rank + " limit_time")
+
+	elif msg.startswith("rank_change2 "):
+		match = re.match(r"\"([^\"]+)\" (\w+)", msg[13:])
+
+		if not match:
+			return
+
+		(rank, what) = match.groups()
+
+		if what == "limit_value":
+			inf.add_msg("Enter the value limit for that rank, such as <green>6 gold</green> or <green>1 m 500 g</green> or <green>unlimited</green>.")
+		elif what == "limit_time":
+			inf.add_msg("Enter the amount of time when to reset the value limit of that rank, in hours.")
+
+		inf.set_text_input(prepend = "rank_change3 \"" + rank + "\" " + what + " ")
+
+	elif msg.startswith("rank_change3 "):
+		match = re.match(r"\"([^\"]+)\" (\w+) (.+)", msg[13:])
+
+		if not match:
+			return
+
+		(rank, what, value) = match.groups()
+
+		if not guild.rank_exists(rank):
+			return
+
+		if what == "limit_value":
+			from Auction import string_to_cost
+
+			amount = string_to_cost(value)
+
+			if amount > guild.rank_value_max:
+				inf.add_msg("Invalid value to set, must be 0-{}.".format(guild.rank_value_max))
+			elif guild.rank_set(rank, "value_limit", amount):
+				inf.add_msg("Successfully changed value limit to {}.".format(CostString(amount)))
 			else:
-				if guild.member_admin_make(name):
-					me.SayTo(activator, "\nSuccessfully made {} a guild administrator.".format(name))
-				else:
-					me.SayTo(activator, "\n{} cannot be made an administrator.".format(name))
+				inf.add_msg("Could not change value limit.")
+		elif what == "limit_time":
+			if not value.isdigit() or int(value) < guild.rank_reset_min or int(value) > guild.rank_reset_max:
+				inf.add_msg("Invalid value to set, must be {}-{}.".format(guild.rank_reset_min, guild.rank_reset_max))
+			elif guild.rank_set(rank, "value_reset", int(value)):
+				inf.add_msg("Successfully changed limit reset time to {} hour(s).".format(value))
+			else:
+				inf.add_msg("Could not change limit reset time.".format(value))
 
-	# Remove administrator rights from a member.
-	elif msg[:12] == "remove admin":
-		if not msg[13:]:
-			me.SayTo(activator, "\nThe 'remove admin' command is used to take administrator rights from a guild member.\nExample: <green>remove admin Atrinik</green>")
+	elif msg == "rank_add1":
+		inf.add_msg("Enter the rank name that you want to add.")
+		inf.set_text_input(prepend = "rank_add2 ")
+
+	elif msg.startswith("rank_add2 "):
+		rank = guild.rank_sanitize(msg[10:]).title()
+
+		if not rank:
+			inf.add_msg("Invalid rank name: it cannot contain special symbols/characters and the maximum length is {} characters.".format(guild.get(guild.rank_max_chars)))
+		elif guild.rank_exists(rank):
+			inf.add_msg("The rank '{}' already exists.".format(rank))
+		elif guild.rank_add(rank):
+			inf.add_msg("Successfully created rank '{}'.".format(rank))
 		else:
+			inf.add_msg("Could not add rank '{}'.".format(rank))
+
+	elif msg == "rank_delete1":
+		inf.add_msg("Enter the rank name that you want to delete.")
+		inf.set_text_input(prepend = "rank_delete2 ")
+
+	elif msg.startswith("rank_delete2 "):
+		rank = msg[13:].title()
+
+		if not guild.rank_exists(rank):
+			inf.add_msg("No such rank '{}'.".format(rank))
+		elif guild.rank_remove(rank):
+			inf.add_msg("Removed rank '{}'.".format(rank))
+		else:
+			inf.add_msg("Rank '{}' could not be removed.".format(rank))
+
+	elif msg.startswith("wiz_") and activator.f_wiz:
+		if msg == "wiz_addmember1":
+			inf.add_msg("Enter the player's name that you want to add to the guild.")
+			inf.set_text_input(prepend = "wiz_addmember2 ")
+
+		elif msg.startswith("wiz_addmember2 "):
+			name = msg[15:].capitalize()
+
+			if not PlayerExists(name):
+				inf.add_msg("No such player.")
+			elif guild.member_exists(name):
+				inf.add_msg("{} is already a member of this guild.".format(name))
+			else:
+				guild.member_add(name)
+				inf.add_msg("Successfully added {} to the guild.".format(name))
+
+		elif msg == "wiz_founder1":
+			inf.add_msg("Enter the player's name that you want to make the founder of this guild.")
+			inf.set_text_input(prepend = "wiz_founder2 ")
+
+		elif msg.startswith("wiz_founder2 "):
 			name = msg[13:].capitalize()
 
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif not guild.member_is_admin(name):
-				me.SayTo(activator, "\nThis member is not an administrator.")
-			elif not activator.f_wiz and name == activator.name:
-				me.SayTo(activator, "\nYou cannot take away administrator rights from yourself.")
-			elif not activator.f_wiz and guild.is_founder(name):
-				me.SayTo(activator, "\nYou cannot take administrator rights from the guild founder.")
+			if not PlayerExists(name):
+				inf.add_msg("No such player.")
+			elif guild.set_founder(name):
+				inf.add_msg("Successfully made {} the guild founder.".format(name))
 			else:
-				if guild.member_admin_remove(name):
-					me.SayTo(activator, "\nSuccessfully removed administrator rights from {}.".format(name))
-				else:
-					me.SayTo(activator, "\n{} cannot have administrator rights taken away.".format(name))
+				inf.add_msg("Could not make {} the guild founder.".format(name))
 
-	# Remove a member from the guild, or decline their membership application.
-	elif msg[:6] == "remove":
-		if not msg[7:]:
-			me.SayTo(activator, "\nThe remove command can be used to remove a member from the guild, or decline their membership application.\nExample: <green>remove Atrinik</green>")
-		else:
-			name = msg[7:].capitalize()
-
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif not activator.f_wiz and name == activator.name:
-				me.SayTo(activator, "\nYou cannot remove yourself.")
-			elif not activator.f_wiz and guild.is_founder(name):
-				me.SayTo(activator, "\nYou cannot remove the guild founder.")
-			else:
-				if guild.member_remove(name):
-					me.SayTo(activator, "\nSuccessfully removed {} from the guild.".format(name))
-				else:
-					me.SayTo(activator, "\nCould not remove {} from the guild.".format(name))
-
-	# Approve a membership application.
-	elif msg[:7] == "approve":
-		if not msg[8:]:
-			me.SayTo(activator, "\nThe approve command is used to approve a member that applied for the guild membership.\nExample: <green>approve Atrinik</green>")
-		else:
-			name = msg[8:].capitalize()
-
-			if not guild.member_exists(name):
-				me.SayTo(activator, "\nNo such member {}.".format(name))
-			elif guild.member_approved(name):
-				me.SayTo(activator, "\nThis member has already been approved.")
-			else:
-				if guild.member_approve(name):
-					me.SayTo(activator, "\nSuccessfully approved {} for full guild membership.".format(name))
-				else:
-					me.SayTo(activator, "\nSomething went wrong and {} could not be approved.".format(name))
-
-	# Check DM commands.
-	elif activator.f_wiz:
-		# Directly add a member.
-		if msg[:3] == "add":
-			if not msg[4:]:
-				me.SayTo(activator, "\nThe add command can be used by DMs to directly add a member to the guild.\nExample: <green>add Atrinik</green>")
-			else:
-				name = msg[4:].capitalize()
-
-				if not PlayerExists(name):
-					me.SayTo(activator, "\nThe player {} does not exist.".format(name))
-				elif guild.member_exists(name):
-					me.SayTo(activator, "\nThe player {} is already a member of the guild.".format(name))
-				else:
-					guild.member_add(name)
-					me.SayTo(activator, "\nSuccessfully added {} to the guild.".format(name))
-
-		# Set founder of the guild.
-		elif msg[:7] == "founder":
-			if not msg[8:]:
-				me.SayTo(activator, "\nThe founder command sets a founder of the guild.\nExample: <green>founder Atrinik</green>")
-			else:
-				name = msg[8:].capitalize()
-
-				if not guild.member_exists(name):
-					me.SayTo(activator, "\nNo such member {}.".format(name))
-				elif guild.set_founder(name):
-					me.SayTo(activator, "\nSuccessfully made {} the guild founder.".format(name))
-				else:
-					me.SayTo(activator, "\nCould not make {} the guild founder.".format(name))
-
-guild = Guild(GetOptions())
 main()
+inf.finish()

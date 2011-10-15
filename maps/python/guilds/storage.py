@@ -1,12 +1,11 @@
 ## @file
 ## Handles map-wide events in guild storage maps.
 
-from Atrinik import *
 from Guild import Guild
 
-activator = WhoIsActivator()
 other = WhoIsOther()
 event_num = GetEventNumber()
+guild = Guild(GetOptions())
 
 ## Check whether the specified object is inside a player.
 ## @return True if the object is inside a player, False otherwise.
@@ -91,5 +90,4 @@ def main():
 
 		guild.log_add("{} used /{} {}.".format(activator.name, event_num == MEVENT_CMD_DROP and "drop" or "take", WhatIsMessage()))
 
-guild = Guild(GetOptions())
 main()

@@ -2,29 +2,30 @@
 ## Simple guild greeter, handles showing player's guild rank and telling
 ## about all the ranks available.
 
-from Atrinik import *
+from Interface import Interface
 from Guild import Guild
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
+inf = Interface(activator, me)
+guild = Guild(GetOptions())
 
 def main():
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to the guild, {}. Would you like to see the <a>ranks</a> list?".format(activator.name))
+	if msg == "hello":
 		rank = guild.member_get_rank(activator.name)
 
-		# Show the player's rank.
-		if rank:
-			me.SayTo(activator, "Your rank is: {}".format(rank), 1)
+		inf.add_msg("Welcome to the guild, {}.".format(activator.name))
 
-	# Show all ranks.
+		if rank:
+			inf.add_msg("Your rank is: {}".format(rank))
+
+		inf.add_msg("Would you like to see the ranks list?")
+		inf.add_link("Yes, please.", dest = "ranks")
+
 	elif msg == "ranks":
-		me.SayTo(activator, "\nList of ranks:\n")
+		inf.add_msg("List of ranks:")
 
 		for rank in guild.ranks_get_sorted():
-			me.SayTo(activator, guild.rank_string(rank), 1)
+			inf.add_msg(guild.rank_string(rank))
 
 
-guild = Guild(GetOptions())
 main()
+inf.finish()

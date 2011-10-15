@@ -2,10 +2,9 @@
 ## Activated on login map-wide event used in guild maps so players that
 ## are no longer members of the guild are kicked out.
 
-from Atrinik import *
 from Guild import Guild
 
-activator = WhoIsActivator()
+guild = Guild(GetOptions())
 
 def main():
 	if not guild.member_approved(activator.name):
@@ -15,5 +14,4 @@ def main():
 		activator.Write("You have had administrator rights taken away while you were offline.", COLOR_RED)
 		guild.member_kick(activator)
 
-guild = Guild(GetOptions())
 main()
