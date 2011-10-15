@@ -1529,7 +1529,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (!MAP_DIFFICULTY(m))
 	{
-		LOG(llevBug, "\nBUG: Map %s has difficulty 0. Changing to 1.\n", filename);
+		LOG(llevBug, "Map %s has difficulty 0. Changing to 1.\n", filename);
 		MAP_DIFFICULTY(m) = 1;
 	}
 
