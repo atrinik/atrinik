@@ -429,10 +429,9 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Say(string message, bool [mode = False])</h1>
+ * <h1>object.Say(string message)</h1>
  * Object says message to everybody on its map.
- * @param message The message to say.
- * @param mode If True, message is not prefixed with "object.name says: ". */
+ * @param message The message to say. */
 static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 {
 	const char *message;
@@ -446,15 +445,8 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 
 	OBJEXISTCHECK(obj);
 
-	if (mode)
-	{
-		hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, message);
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
-		hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
-	}
+	snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
+	hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 
 	Py_INCREF(Py_None);
 	return Py_None;
