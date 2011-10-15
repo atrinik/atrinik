@@ -578,99 +578,6 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.SetGuildForce(string rank_string)</h1>
- *
- * Set the current rank of object to rank_string.
- *
- * This only sets the title. The guild tag is in slaying field of the
- * force object.
- *
- * To test for guild force, use
- * @ref Atrinik_Object_GetGuildForce "GetGuildForce()".
- *
- * To set the guild tag you can use this function, because it returns the
- * guild force object after setting the title.
- *
- * @param rank_string The rank string in the guild to set.
- * @return The guild force object if found. */
-static PyObject *Atrinik_Object_SetGuildForce(Atrinik_Object *obj, PyObject *args)
-{
-	object *walk;
-	const char *guild;
-
-	if (!PyArg_ParseTuple(args, "s", &guild))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (obj->obj->type != PLAYER)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
-	{
-		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
-		{
-			/* We find the rank of the player, now change it to new one */
-			if (walk->title)
-			{
-				FREE_AND_CLEAR_HASH(walk->title);
-			}
-
-			if (guild && strcmp(guild, ""))
-			{
-				FREE_AND_COPY_HASH(walk->title, guild);
-			}
-
-			/* Demand update to client */
-			CONTR(obj->obj)->socket.ext_title_flag = 1;
-
-			return wrap_object(walk);
-		}
-	}
-
-	LOG(llevDebug, "Python Warning:: SetGuildForce: Object %s has no guild_force!\n", hooks->query_name(obj->obj, NULL));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
- * <h1>object.GetGuildForce()</h1>
- * Get the guild force from player's inventory.
- * @return The guild force object if found. */
-static PyObject *Atrinik_Object_GetGuildForce(Atrinik_Object *obj, PyObject *args)
-{
-	object *walk;
-
-	(void) args;
-	OBJEXISTCHECK(obj);
-
-	if (obj->obj->type != PLAYER)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
-	{
-		if (walk->name == hooks->shstr_cons->GUILD_FORCE && walk->arch->name == hooks->shstr_cons->guild_force)
-		{
-			return wrap_object(walk);
-		}
-	}
-
-	LOG(llevDebug, "Python Warning:: GetGuildForce: Object %s has no guild_force!\n", hooks->query_name(obj->obj, NULL));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Fix()</h1>
  * Recalculate player's or monster's stats depending on equipment, forces,
  * skills, etc. */
@@ -1851,8 +1758,6 @@ static PyMethodDef methods[] =
 	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
 	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
-	{"SetGuildForce", (PyCFunction) Atrinik_Object_SetGuildForce, METH_VARARGS, 0},
-	{"GetGuildForce", (PyCFunction) Atrinik_Object_GetGuildForce, METH_NOARGS, 0},
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
 	{"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
