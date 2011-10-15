@@ -882,38 +882,6 @@ static PyObject *Atrinik_Object_CreatePlayerInfo(Atrinik_Object *obj, PyObject *
 }
 
 /**
- * <h1>object.GetPlayerInfo(string name)</h1>
- * Get the first player info object with the specified name in object's
- * inventory.
- * @param name Name of the player info
- * @return The player info object if found, None otherwise.
- * @deprecated Use object.FindObject(archname = "player_info", name = "info_name") */
-static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *obj, PyObject *args)
-{
-	const char *name;
-	object *walk;
-
-	if (!PyArg_ParseTuple(args, "s", &name))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	/* Get the first linked player info arch in this inventory */
-	for (walk = obj->obj->inv; walk != NULL; walk = walk->below)
-	{
-		if (walk->name && walk->arch->name == hooks->shstr_cons->player_info && !strcmp(walk->name, name))
-		{
-			return wrap_object(walk);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.CreateForce(string name, int time)</h1>
  * Create a force object in object's inventory.
  * @param name String ID of the force object.
@@ -1988,7 +1956,6 @@ static PyMethodDef methods[] =
 	{"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
-	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
