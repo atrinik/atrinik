@@ -109,12 +109,13 @@ class House:
 	## doesn't exist.
 	def _load_player_info(self, create = True):
 		# Try to find the player info.
-		self._player_info = self._activator.GetPlayerInfo(self._pinfo_tag)
+		self._player_info = self._activator.FindObject(archname = "player_info", name = self._pinfo_tag)
 
 		# It was not found, so create a new one.
 		if not self._player_info:
 			if create:
-				self._player_info = self._activator.CreatePlayerInfo(self._pinfo_tag)
+				self._player_info = self._activator.CreateObject("player_info")
+				self._player_info.name = self._pinfo_tag
 				self._player_info.msg = json.dumps(self._player_houses)
 		else:
 			self._player_houses = json.loads(self._player_info.msg)
