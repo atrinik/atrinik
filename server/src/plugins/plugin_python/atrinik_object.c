@@ -914,45 +914,6 @@ static PyObject *Atrinik_Object_GetPlayerInfo(Atrinik_Object *obj, PyObject *arg
 }
 
 /**
- * <h1>object.GetNextPlayerInfo(object player_info)</h1>
- * Get next player info object in object's inventory with same name as
- * player_info.
- * @param player_info Previously found player info object.
- * @return The next player info object if found, None otherwise.
- * @deprecated Use object.FindObject(archname = "player_info", name = "info_name", multiple = True) */
-static PyObject *Atrinik_Object_GetNextPlayerInfo(Atrinik_Object *obj, PyObject *args)
-{
-	Atrinik_Object *myob;
-	char name[128];
-	object *walk;
-
-	(void) obj;
-
-	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &myob))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(myob);
-
-	/* Our check parameters: arch "force_info", name of this arch */
-	strncpy(name, STRING_OBJ_NAME(myob->obj), 127);
-	name[63] = '\0';
-
-	/* Get the next linked player_info arch in this inventory */
-	for (walk = myob->obj->below; walk != NULL; walk = walk->below)
-	{
-		if (walk->name && walk->arch->name == hooks->shstr_cons->player_info && !strcmp(walk->name, name))
-		{
-			return wrap_object(walk);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.CreateForce(string name, int time)</h1>
  * Create a force object in object's inventory.
  * @param name String ID of the force object.
@@ -2028,7 +1989,6 @@ static PyMethodDef methods[] =
 	{"CreatePlayerForce", (PyCFunction) Atrinik_Object_CreatePlayerForce, METH_VARARGS, 0},
 	{"CreatePlayerInfo", (PyCFunction) Atrinik_Object_CreatePlayerInfo, METH_VARARGS, 0},
 	{"GetPlayerInfo", (PyCFunction) Atrinik_Object_GetPlayerInfo, METH_VARARGS, 0},
-	{"GetNextPlayerInfo", (PyCFunction) Atrinik_Object_GetNextPlayerInfo, METH_VARARGS, 0},
 	{"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
