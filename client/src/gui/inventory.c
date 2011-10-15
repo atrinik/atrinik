@@ -328,7 +328,7 @@ void widget_inventory_render(widgetdata *widget)
 		/* Recalculate the weight, as it may have changed. */
 		cpl.real_weight = 0.0;
 
-		for (tmp = INVENTORY_WHERE(widget); tmp; tmp = tmp->next)
+		for (tmp = INVENTORY_WHERE(widget)->inv; tmp; tmp = tmp->next)
 		{
 			if (!inventory_matches_filter(tmp))
 			{
