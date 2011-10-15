@@ -3,42 +3,22 @@
 ##
 ## Used to teleport apartment owners to their apartment.
 
-from Atrinik import *
+def main():
+	apartment = apartments_info[GetOptions()]
+	pinfo = activator.FindObject(archname = "player_info", name = apartment["tag"])
 
-## Activator object.
-activator = WhoIsActivator()
-## Object who has the event object in their inventory.
-me = WhoAmI()
-
-exec(open(CreatePathname("/python/generic/apartments.py")).read())
-
-## Name of the apartment we're dealing with.
-apartment_id = GetOptions()
-
-if not apartment_id or not apartments_info[apartment_id]:
-	activator.SetPosition(me.hp, me.sp)
-else:
-	## The apartments we're dealing with.
-	apartments = apartments_info[apartment_id]["apartments"]
-
-	## The apartment's info
-	pinfo = activator.GetPlayerInfo(apartments_info[apartment_id]["tag"])
-
-	# No apartment, teleport them back
-	if pinfo == None:
+	# No apartment, teleport them back.
+	if not pinfo:
 		activator.Write("You don't own an apartment here!", COLOR_WHITE)
 		activator.SetPosition(me.hp, me.sp)
 	else:
-		if apartments[pinfo.slaying]:
-			# The apartment info
-			apartment_info = apartments[pinfo.slaying]
+		pinfo.race = me.map.path
+		pinfo.last_sp = me.hp
+		pinfo.last_grace = me.sp
 
-			activator.TeleportTo(apartment_info["path"], apartment_info["x"], apartment_info["y"], 1)
+		info = apartment["apartments"][pinfo.slaying]
+		activator.TeleportTo(info["path"], info["x"], info["y"], True)
 
-			pinfo.race = me.map.path
-			pinfo.last_sp = me.hp
-			pinfo.last_grace = me.sp
-		else:
-			activator.SetPosition(activator.me.hp, me.sp)
-
+exec(open(CreatePathname("/python/generic/apartments.py")).read())
+main()
 SetReturnValue(1)

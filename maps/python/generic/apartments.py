@@ -10,8 +10,7 @@ apartments_info = {
 		{
 			"cheap":
 			{
-				"info": "\nThe cheap apartment will cost you 30 silver.\nIt has only a bed and a chest.\nEvery apartment is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me cheap apartment</a> to buy it!\nChoose wisely!",
-				"id": 1,
+				"info": "The cheap apartment is rather small and only has a bed and a single chest.",
 				"price": 3000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_cheap",
 				"x": 1,
@@ -19,8 +18,7 @@ apartments_info = {
 			},
 			"normal":
 			{
-				"info": "\nThe normal apartment will cost you 250 silver.\nIt has some storing devices and some furniture.\nEvery apartment is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me normal apartment</a> to buy it!\nChoose wisely!",
-				"id": 2,
+				"info": "The normal apartment is slightly bigger than the cheap apartment, and has a few more storage places, such as shelves, a few chests, a weapon rack and a desk.",
 				"price": 25000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_normal",
 				"x": 1,
@@ -28,8 +26,7 @@ apartments_info = {
 			},
 			"expensive":
 			{
-				"info": "\nThe expensive apartment will cost you 15 gold.\nIt is large for a single apartment and has many places to store items including a nice bed room.\nEvery apartment is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me expensive apartment</a> to buy it!\nChoose wisely!",
-				"id": 3,
+				"info": "The expensive apartment is quite a bit larger than the normal apartment, with many places to store items, including a nice bedroom.",
 				"price": 150000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_expensive",
 				"x": 2,
@@ -37,20 +34,12 @@ apartments_info = {
 			},
 			"luxurious":
 			{
-				"info": "\nThe luxurious apartment will cost you 30 gold.\nIt is very large for a single apartment and has a lot of places to store items including a nice bed room.\nEvery apartment is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me luxurious apartment</a> to buy it!\nChoose wisely!",
-				"id": 4,
+				"info": "The luxurious apartment is the best you can get. It is very large, and has a lot of places to store items, including a very fancy bedroom and a throne room.",
 				"price": 300000,
 				"path": "/shattered_islands/strakewood_island/apartments/apartment_luxurious",
 				"x": 1,
 				"y": 2,
 			},
-		},
-		"apartment_ids":
-		{
-			1: "cheap",
-			2: "normal",
-			3: "expensive",
-			4: "luxurious",
 		},
 		"tag": "strakewood_island_apartment",
 	},
@@ -60,8 +49,7 @@ apartments_info = {
 		{
 			"cheap":
 			{
-				"info": "\nThe cheap treehouse will cost you 20 silver.\nIt has only a bed and a chest.\nEvery treehouse is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me cheap apartment</a> to buy it!\nChoose wisely!",
-				"id": 1,
+				"info": "The cheap apartment is rather small and only has a bed and a single chest.",
 				"price": 2000,
 				"path": "/shattered_islands/eld_woods_island/apartments/apartment_cheap",
 				"x": 1,
@@ -69,8 +57,7 @@ apartments_info = {
 			},
 			"normal":
 			{
-				"info": "\nThe normal treehouse will cost you 180 silver.\nIt has some storing devices and some furniture.\nEvery treehouse is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me normal apartment</a> to buy it!\nChoose wisely!",
-				"id": 2,
+				"info": "The normal apartment is slightly bigger than the cheap apartment, and has a few more storage places.",
 				"price": 18000,
 				"path": "/shattered_islands/eld_woods_island/apartments/apartment_normal",
 				"x": 1,
@@ -78,21 +65,13 @@ apartments_info = {
 			},
 			"expensive":
 			{
-				"info": "\nThe expensive treehouse will cost you 11 gold.\nIt is large for a single treehouse and has many places to store items including a nice bed room.\nEvery treehouse is a kind of <a>pocket dimension</a>.\nYou can enter it by using the teleporter there.\nSay <a>sell me expensive apartment</a> to buy it!\nChoose wisely!",
-				"id": 3,
+				"info": "The expensive apartment is quite a bit larger than the normal apartment, with many places to store items, including a nice bedroom.",
 				"price": 110000,
 				"path": "/shattered_islands/eld_woods_island/apartments/apartment_expensive",
 				"x": 1,
 				"y": 2,
 			},
 		},
-		"apartment_ids":
-		{
-			1: "cheap",
-			2: "normal",
-			3: "expensive",
-		},
 		"tag": "eld_woods_island_apartment",
 	},
 }
-
