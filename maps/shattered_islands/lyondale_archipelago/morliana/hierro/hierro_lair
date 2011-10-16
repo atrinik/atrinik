@@ -2,7 +2,7 @@ arch map
 name Hierro's Lair
 msg
 Created:  2010-12-06 Alex Tokar
-Modified: 2010-12-10 Alex Tokar
+Modified: 2011-10-16 Alex Tokar
 endmsg
 width 22
 height 27
@@ -228,12 +228,12 @@ y 23
 end
 arch map_event_obj
 sub_type 9
-race /events/2010/winter/scripts/misc.py
+race /shattered_islands/lyondale_archipelago/morliana/hierro/scripts/mevent.py
 y 25
 end
 arch map_event_obj
 sub_type 1
-race /events/2010/winter/scripts/misc.py
+race /shattered_islands/lyondale_archipelago/morliana/hierro/scripts/mevent.py
 y 26
 end
 arch floor_sand_d4
@@ -1340,16 +1340,11 @@ x 8
 y 4
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 8
 y 4
 end
@@ -1370,16 +1365,11 @@ x 8
 y 8
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 8
 y 8
 end
@@ -1400,16 +1390,11 @@ x 8
 y 12
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 8
 y 12
 end
@@ -1430,16 +1415,11 @@ x 8
 y 16
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 8
 y 16
 end
@@ -1460,16 +1440,11 @@ x 8
 y 20
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 8
 y 20
 end
@@ -1893,7 +1868,7 @@ last_grace 50
 end
 arch event_obj
 sub_type 3
-race /events/2010/winter/scripts/hierro_death.py
+race /shattered_islands/lyondale_archipelago/morliana/hierro/scripts/hierro_death.py
 end
 end
 end
@@ -2584,16 +2559,11 @@ x 15
 y 4
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 15
 y 4
 end
@@ -2614,16 +2584,11 @@ x 15
 y 8
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 15
 y 8
 end
@@ -2644,16 +2609,11 @@ x 15
 y 12
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 15
 y 12
 end
@@ -2674,16 +2634,11 @@ x 15
 y 16
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 15
 y 16
 end
@@ -2704,16 +2659,11 @@ x 15
 y 20
 end
 arch torch_wall_1
-msg
-The attached torch cannot be lit...
-endmsg
-last_sp 8
-face torch_wall.170
-is_animated 0
 glow_radius 0
-is_turnable 0
-direction 0
-type 79
+animation torch_wall_1_unlit
+direction 7
+last_sp 9
+align -4
 x 15
 y 20
 end
