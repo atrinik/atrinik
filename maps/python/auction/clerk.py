@@ -1,16 +1,12 @@
 ## @file
 ## Handles Auction House clerks.
 
-from Atrinik import *
+from Interface import Interface
 from base64 import b64encode, b64decode
 from math import ceil
-import shelve, random, Auction
+import shelve, random, Auction, re
 
-activator = WhoIsActivator()
-pl = activator.Controller()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
-## Database.
+inf = Interface(activator, me)
 db = shelve.open("auction_house_" + me.map.region.name)
 
 ## Handles constants for filtering search results in Auction House.
@@ -348,18 +344,6 @@ def parse_base64(s):
 	except:
 		return None
 
-## Send a book interface command to the player's client.
-## @param msg String containing markup to construct the interface.
-## @param back If not None, appends a 'Go Back' link to 'msg', using 'back'
-## as data for /t_tell command.
-def create_interface(msg, back = None):
-	# Add 'Go Back' link if possible.
-	if back:
-		msg += "\n\n<a=:/t_tell " + back + ">Go Back</a>"
-
-	# Send the command to the player.
-	pl.SendPacket(30, "s", "<book>" + me.map.region.longname + " Auction House</book>\n" + msg)
-
 ## Creates list of objects using client markup.
 ## @param l The list of objects.
 ## @param action What action is being done ("buy", "withdraw").
@@ -389,7 +373,9 @@ def create_list(l, action, back = None, sort = None, start = None):
 		l = l[start:start + Auction.PER_PAGE]
 
 	for obj in l:
-		s += "\n"
+		if s:
+			s += "\n"
+
 		# Create the code.
 		code_orig = code = b64encode(" ".join([obj.map.path, str(obj.x), str(obj.y), str(obj.count)]).encode()).decode()
 
@@ -425,120 +411,85 @@ def create_list(l, action, back = None, sort = None, start = None):
 	return s
 
 def main():
-	if msg == "hi" or msg == "hey" or msg == "hello":
-		me.SayTo(activator, "\nWelcome to the Auction House. I can explain how <a>selling</a> and <a>buying</a> works, or do you need me to <a>search</a> for items in the storage? I can also list your <a>items</a>.")
+	if msg == "hello":
+		inf.add_msg("Welcome to the Auction House. If you want to buy items from the storage, you'll first need to search for them. Or are you here to sell an item, or see your items in the storage?")
+		inf.add_link("I'd like to search for items.", dest = "search1")
+		inf.add_link("I'd like to sell an item.", dest = "sell1")
+		inf.add_link("I'd like to see my items.", dest = "items")
 
-	elif msg == "selling":
-		me.SayTo(activator, "\nYou can put up to {} different items (regardless of their number) at once into this Auction House. You are not charged any price for selling items. In order to sell an item, please mark the item and tell me the price to sell the item for, like this:\n\n<a>sell 10 gold 50 s</a>".format(Auction.MAX_ITEMS))
+	elif msg == "search1":
+		inf.add_msg("How do you want to search for items? Do you want to search by item name or by seller name?")
+		inf.add_msg("You can also browse the following item types: {}".format(", ".join(["<a=:search2_name 1 \"" + str(t[1]) + "\" xx>" + t[0] + "</a>" for t in Filter.types])))
+		inf.add_link("I'd like to search by item name.", dest = "search1_name")
+		inf.add_link("I'd like to search by seller name.", dest = "search1_seller")
 
-	elif msg == "buying":
-		me.SayTo(activator, "\nFirst, you need to <a>search</a> for the item you want to buy. If your search terms find any results, you will see a list of objects that you can buy, and more detailed instructions how buying works. You can also search manually, by looking through the shop boxes in this Auction House -- see explanation sign near the stairs going up.")
+	elif msg == "search1_name":
+		inf.add_msg("Please enter (a part of) the item name to search for.")
+		inf.set_text_input(prepend = "search2_name 1 \"\" ")
 
-	# List player's items.
-	elif msg == "my items" or msg == "items":
-		l = find_items(seller = activator.name)
-		pl.target_object = me
-
-		if not l:
-			create_interface("You do not have any items in this Auction House.")
-			return
-
-		create_interface("Your items in this Auction House:\n{}\n\n<a>withdraw all</a>".format(create_list(l, "withdraw", sort = Filter.SORT_ALPHA)))
-
-	elif msg.startswith("player "):
-		name = msg[7:].capitalize()
-
-		if not PlayerExists(name):
-			me.SayTo(activator, "\nThat player does not exist.")
-			return
-
-		l = find_items(seller = name)
-		pl.target_object = me
-
-		if not l:
-			create_interface("{} does not have any items in this Auction House.".format(name))
-			return
-
-		create_interface("{} has the following items in this Auction House:\n{}".format(name, create_list(l, "buy", msg)))
-
-	# Search for items.
-	elif msg.startswith("search") or msg.startswith("srchadv"):
-		name = msg[7:]
-		pl.target_object = me
+	elif msg.startswith("search2_name "):
 		filters = []
 		# Use lowest-to-highest value sort by default.
 		sort = Filter.SORT_VALUE
 		# Page #1.
 		page = 1
 
-		# Advanced search (paging, filtering, etc). This is basically
-		# used by links in the interface.
-		if msg.startswith("srchadv"):
-			# Try to parse the message.
-			try:
-				l = WhatIsMessage().strip()[7:].split()
+		match = re.match("(\d+) \"([^\"]*)\" (.+)", msg[13:])
 
-				# Page, filters, name.
-				if len(l) > 2:
-					name = " ".join(l[2:]).lower().strip()
-					page = int(l[0])
-					# Construct a list of available sorting filters.
-					sorts = [sort[1] for sort in Filter.sorts]
+		if not match:
+			return
 
-					# Parse filters.
-					for val in l[1].split(","):
-						i = int(val)
+		(page, filters_str, name) = match.groups()
+		page = int(page)
+		name = name.lower()
 
-						# Is the filter in a valid range?
-						if i >= 0 and i < Filter.MAX and not i in filters:
-							if i in sorts:
-								sort = i
+		# Parse the filters string, if any.
+		if filters_str:
+			# Construct a list of available sorting filters.
+			sorts = [sort[1] for sort in Filter.sorts]
 
-							filters.append(i)
-				# Page, name.
-				elif len(l) > 1:
-					page = int(l[0])
-					name = " ".join(l[1:]).lower().strip()
-				# Name.
-				else:
-					name = " ".join(l).lower().strip()
-			# Something failed.
-			except:
-				me.SayTo(activator, "\nSorry, I didn't quite catch that one.")
-				return
+			for val in filters_str.split(","):
+				i = int(val)
+
+				# Is the filter in a valid range?
+				if i >= 0 and i < Filter.MAX and not i in filters:
+					if i in sorts:
+						sort = i
+
+					filters.append(i)
 
 		# No name and no filters.
 		if not name and not filters:
-			me.SayTo(activator, "\nSearching works by telling me what to search for, like this:\n<a>search ring</a> -- name of the item to find prefixed with 'search '.\nIt is possible to see all items of a single player at once, by using, for example: <a>player Atrinik</a>\nYou can also browse by the following item types:\n{}".format(", ".join(["<a=:/t_tell srchadv 1 " + str(t[1]) + " xx>" + t[0] + "</a>" for t in Filter.types])))
 			return
 
-		# Name must be at least 3 characters long.
-		if len(name) < 3:
+		if filters or name == "xx":
 			# Construct a list of object type filters.
 			type_filters = [t[1] for t in Filter.types]
 
 			# Filters don't have any object type filter, don't allow searching.
 			if not [i for i in filters if i in type_filters]:
-				me.SayTo(activator, "\nYour search term must be at least 3 characters long.")
 				return
-			else:
-				name = "xx"
+		elif len(name) < 3:
+			inf.add_msg("Your search term must be at least 3 characters, please try again.")
+			inf.set_text_input(prepend = "search2_name 1 \"\" ")
+			return
 
 		l = find_items(namepart = None if name == "xx" else name, filters = filters)
 
-		# No items and no filters, don't bother with an interface.
-		if not l and not filters:
-			me.SayTo(activator, "\nCould not find a match for your search term.")
+		# No items and no filters..
+		if not l and name and not filters:
+			inf.add_msg("Could not find a match for your search term, please try again.")
+			inf.set_text_input(prepend = "search2_name 1 \"\" ")
 			return
 
-		s = "Types: "
+		s = "<yellow>Types:</yellow> "
 
 		for (filter_name, filter_id, filter_subs) in Filter.types:
 			if filter_name != Filter.types[0][0]:
 				s += ", "
 
 			if filter_id in filters:
-				s += "<u>" + filter_name + "</u> <size=8><a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if i != filter_id]) + " " + name + ">" + "X" + "</a></size>"
+				s += "<u>" + filter_name + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + ">" + "X" + "</a></size>"
 
 				for filter_sub in filter_subs:
 					s += " ["
@@ -548,26 +499,26 @@ def main():
 							s += ", "
 
 						if filter_id2 in filters:
-							s += "<u>" + filter_name2 + "</u> <size=8><a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if i != filter_id2]) + " " + name + ">" + "X" + "</a></size>"
+							s += "<u>" + filter_name2 + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id2]) + "\" " + name + ">" + "X" + "</a></size>"
 						else:
-							s += "<a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if not i in [t[1] for t in filter_sub]] + [str(filter_id2)]) + " " + name + ">" + filter_name2 + "</a>"
+							s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in filter_sub]] + [str(filter_id2)]) + "\" " + name + ">" + filter_name2 + "</a>"
 
 					s += "]"
 			else:
-				s += "<a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if not i in [t[1] for t in Filter.types]] + [str(filter_id)]) + " " + name + ">" + filter_name + "</a>"
+				s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in Filter.types]] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
 
-		s += "\nFilters: "
+		s += "\n<yellow>Filters:</yellow> "
 
 		for (filter_name, filter_id, filter_disables) in Filter.filters:
 			if filter_name != Filter.filters[0][0]:
 				s += ", "
 
 			if filter_id in filters:
-				s += "<u>" + filter_name + "</u> <size=8><a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if i != filter_id]) + " " + name + ">" + "X" + "</a></size>"
+				s += "<u>" + filter_name + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + ">" + "X" + "</a></size>"
 			else:
-				s += "<a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if not i in filter_disables] + [str(filter_id)]) + " " + name + ">" + filter_name + "</a>"
+				s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in filter_disables] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
 
-		s += "\nSorting: "
+		s += "\n<yellow>Sorting:</yellow> "
 
 		for (filter_name, filter_id) in Filter.sorts:
 			if filter_name != Filter.sorts[0][0]:
@@ -576,7 +527,7 @@ def main():
 			if filter_id == sort:
 				s += "<u>" + filter_name + "</u>"
 			else:
-				s += "<a=:/t_tell srchadv 1 " + ",".join([str(i) for i in filters if i not in sorts] + [str(filter_id)]) + " " + name + ">" + filter_name + "</a>"
+				s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i not in sorts] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
 
 		s += "\n\nItems matching your search term"
 
@@ -591,7 +542,7 @@ def main():
 
 			# Previous button
 			if page > 1:
-				paging += "<a=:/t_tell srchadv " + str(page - 1) + " " + ",".join([str(i) for i in filters]) + " " + name + ">&lt; Previous</a>"
+				paging += "<a=:search2_name " + str(page - 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + ">&lt; Previous</a>"
 			else:
 				paging += "&lt; Previous"
 
@@ -599,24 +550,44 @@ def main():
 
 			# Next button
 			if len(l) > page * Auction.PER_PAGE:
-				paging += "<a=:/t_tell srchadv " + str(page + 1) + " " + ",".join([str(i) for i in filters]) + " " + name + ">Next &gt;</a>"
+				paging += "<a=:search2_name " + str(page + 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + ">Next &gt;</a>"
 			else:
 				paging += "Next &gt;"
 
 			# Add the paging and the objects list.
 			s += paging
+			s += "\n"
 			s += create_list(l, "buy", msg, sort, (page - 1) * Auction.PER_PAGE)
 			s += paging
 
 		# Help link.
-		s += "\n\nClick <a=:/t_tell helpsearch " + msg + ">here</a> for help with searching."
-		create_interface(s)
+		s += "\n\nClick <a=:helpsearch " + msg + ">here</a> for help with searching."
+		inf.add_msg(s)
+
+	elif msg == "search1_seller":
+		inf.add_msg("Please enter the seller name to search for.")
+		inf.set_text_input(prepend = "search2_seller ")
+
+	elif msg.startswith("search2_seller "):
+		name = msg[15:].capitalize()
+
+		if not PlayerExists(name):
+			inf.add_msg("No such player.")
+			return
+
+		l = find_items(seller = name)
+
+		if not l:
+			inf.add_msg("{} does not have any items in this Auction House.".format(name))
+		else:
+			inf.add_msg("{} has the following items in this Auction House:".format(name))
+			inf.add_msg(create_list(l, "buy", msg))
 
 	# Show help about the search interface.
 	elif msg.startswith("helpsearch "):
 		back = msg[11:]
-		pl.target_object = me
-		create_interface("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\nTypes: <u>weapons</u> <size=8><a=:>X</a></size> [<a=:>slash</a>, <u>pierce</u> <size=8><a=:>X</a></size>, ...] [<a=:>1h</a>], <a=:>armour</a>, ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is <b>weapons</b>, so only weapons will appear in your search results, but the <b>pierce</b> sub-filter is also active, so only <b>pierce weapons</b> will appear. Clicking the <b>1h</b> sub-filter would only show <b>1h pierce weapons</b>, but clicking the <b>slash</b> sub-filter would switch from <b>pierce</b> weapons to <b>slash</b> weapons. Clicking the <b>armour</b> filter would deactivate the weapons filter. You can also click the <b>X</b> at top right of the filter name to deactivate that filter.\n\nFilters: <a=:>magical</a>, <a=:>identified</a>\n\nThe above are item filters, and any number of those can be active. Upon clicking <b>identified</b>, only <b>identified items</b> would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | <a=:>Next &gt;</a>\n[<a=:>buy</a>, <a=:>examine</a>] 10 beer: <u>1 silver coin</u> (each) [<a=:>1</a>; <a=:>5</a>]\n\nIf the <b>Next</b> button is active, it means there is another page of items and you can click it to see them. <b>Previous</b> button would take you to the previous page, if any. Clicking <b>buy</b> would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking <b>examine</b>. If there is a stock of items and you don't want to buy them all, the numbers like <b>1</b> and <b>5</b> after the item name and cost allow you to buy a smaller quantity. Click <a=:/t_tell " + back + ">here</a> to go back to your search.")
+		inf.add_msg("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\n<yellow>Types:</yellow> <u>weapons</u> <size=8><a=:>X</a></size> [<a=:>slash</a>, <u>pierce</u> <size=8><a=:>X</a></size>, ...] [<a=:>1h</a>], <a=:>armour</a>, ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is <b>weapons</b>, so only weapons will appear in your search results, but the <b>pierce</b> sub-filter is also active, so only <b>pierce weapons</b> will appear. Clicking the <b>1h</b> sub-filter would only show <b>1h pierce weapons</b>, but clicking the <b>slash</b> sub-filter would switch from <b>pierce</b> weapons to <b>slash</b> weapons. Clicking the <b>armour</b> filter would deactivate the weapons filter. You can also click the <b>X</b> at top right of the filter name to deactivate that filter.\n\n<yellow>Filters:</yellow> <a=:>magical</a>, <a=:>identified</a>\n\nThe above are item filters, and any number of those can be active. Upon clicking <b>identified</b>, only <b>identified items</b> would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | <a=:>Next &gt;</a>\n[<a=:>buy</a>, <a=:>examine</a>] 10 beer: <u>1 silver coin</u> (each) [<a=:>1</a>; <a=:>5</a>]\n\nIf the <b>Next</b> button is active, it means there is another page of items and you can click it to see them. <b>Previous</b> button would take you to the previous page, if any. Clicking <b>buy</b> would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking <b>examine</b>. If there is a stock of items and you don't want to buy them all, the numbers like <b>1</b> and <b>5</b> after the item name and cost allow you to buy a smaller quantity.")
+		inf.add_link("I'd like to go back to my search.", dest = back)
 
 	# Examine an object.
 	elif msg.startswith("examine "):
@@ -637,19 +608,23 @@ def main():
 		# The object could have been purchased before the player clicked
 		# the examine link in their interface.
 		if not obj:
-			create_interface("That object is not available anymore.", back)
-			return
+			inf.add_msg("That item is not available anymore.")
+		else:
+			inf.add_msg("<title>{}</title>".format(obj.GetName()))
+			inf.add_msg(activator.Controller().Examine(obj, True).strip())
 
-		create_interface("<b>{}</b>\n{}".format(obj.GetName(), pl.Examine(obj, True).strip()), back)
+		inf.add_link("I'd like to go back to my search.", dest = back)
 
 	# Withdraw an item.
 	elif msg.startswith("withdraw "):
+		what = msg[9:]
+
 		# Withdraw all items the player is selling.
-		if msg[9:] == "all":
+		if what == "all":
 			l = find_items(seller = activator.name)
 
 			if not l:
-				create_interface("You do not have any items in this Auction House.")
+				inf.add_msg("You do not have any items in this Auction House.")
 				return
 
 			# Withdraw all the items.
@@ -657,31 +632,29 @@ def main():
 				Auction.clear_custom_values(obj)
 				obj.InsertInto(activator)
 
-			create_interface("You have withdrawn {} item(s).".format(len(l)), "my items")
+			inf.add_msg("You have withdrawn {} item(s).".format(len(l)))
 		# Withdraw specific item.
 		else:
-			t = parse_base64(WhatIsMessage().strip()[9:])
+			t = parse_base64(what)
 
 			if not t:
-				me.SayTo(activator, "\nSorry, I didn't quite catch that one.")
 				return
 
 			obj = find_item(t)
 
 			if not obj:
-				create_interface("That object is not available anymore.", "my items")
-				return
+				inf.add_msg("That object is not available anymore.")
+			else:
+				Auction.clear_custom_values(obj)
+				obj.InsertInto(activator)
 
-			# Withdraw it.
-			Auction.clear_custom_values(obj)
-			obj.InsertInto(activator)
-			create_interface("You have withdrawn the {}.".format(obj.GetName()), "my items")
+			inf.add_link("I'd like to go back to my items list.", dest = "items")
 
 	# Buy an item.
 	elif msg.startswith("buy "):
 		# Parse the data.
 		try:
-			l = WhatIsMessage().strip()[4:].split()
+			l = msg[4:].split()
 			t = parse_base64(l[0])
 			back = b64decode(l[1].encode()).decode()
 		except:
@@ -695,7 +668,8 @@ def main():
 		obj = find_item(t)
 
 		if not obj:
-			create_interface("That object is not available anymore.", back)
+			inf.add_msg("That object is not available anymore.")
+			inf.add_link("I'd like to go back to my search.", dest = back)
 			return
 
 		obj_nrof = max(1, obj.nrof)
@@ -707,96 +681,114 @@ def main():
 			nrof = obj_nrof
 
 		nrof = max(1, min(obj_nrof, nrof))
-		create_interface(Auction.item_buy(activator, obj, nrof, obj.ReadKey("auction_house_seller")), back)
+		inf.add_msg(Auction.item_buy(activator, obj, nrof, obj.ReadKey("auction_house_seller")))
+		inf.add_link("I'd like to go back to my search.", dest = back)
 
 	# Sell an item.
-	elif msg.startswith("sell"):
-		# Find the marked object.
-		marked = pl.FindMarkedObject()
+	elif msg == "sell1":
+		marked = activator.Controller().FindMarkedObject()
 
 		if not marked:
-			me.SayTo(activator, "\nPlease mark the object you want to sell first.")
+			inf.add_msg("Please mark the item that you want to sell first.")
+			return
+
+		inf.add_msg("<title>{}</title>".format(marked.GetName()))
+		inf.add_msg(activator.Controller().Examine(marked, True).strip())
+		inf.add_msg("How much do you want to sell that for? Example: <green>10 gold, 50 silver</green>".format(marked.GetName()))
+		inf.set_text_input(prepend = "sell2 ")
+
+	elif msg.startswith("sell2 "):
+		marked = activator.Controller().FindMarkedObject()
+
+		if not marked:
 			return
 
 		# Parse the cost.
-		val = Auction.string_to_cost(msg[4:])
+		val = Auction.string_to_cost(msg[6:])
 
 		if not val:
-			me.SayTo(activator, "\nPlease tell me how much you want to sell the <green>{}</green> for, like this:\n\n<a>sell 10 gold 50 s</a>".format(marked.GetName()))
+			inf.add_msg("Invalid value to sell for, please try again. Example: <green>10 gold, 50 silver</green>")
+			inf.set_text_input(prepend = "sell2 ")
 			return
 
 		# Over the max?
 		if val * max(1, marked.nrof) > Auction.MAX_VALUE:
-			me.SayTo(activator, "\nI am sorry, but the combined value of the items you want to sell cannot exceed {}.".format(CostString(Auction.MAX_VALUE)))
+			inf.add_msg("I am sorry, but the combined value of the items you want to sell cannot exceed {}.".format(CostString(Auction.MAX_VALUE)))
 			return
 
 		# Cannot sell locked items.
 		if marked.f_inv_locked:
-			activator.Write("Unlock item first!", COLOR_DGOLD)
+			inf.add_msg("Please unlock that item from your inventory first.")
 			return
 		# Or containers with items.
 		elif marked.type == Type.CONTAINER and marked.inv:
-			me.SayTo(activator, "\nDue to heightened security levels all items must be removed from containers and sold separately.")
+			inf.add_msg("Due to heightened security levels all items must be removed from containers and sold separately.")
 			return
 		elif marked.f_startequip or marked.f_no_drop or marked.f_quest_item or marked.f_sys_object or marked.weight == 0:
-			me.SayTo(activator, "\nSorry, we can't accept that item.")
+			inf.add_msg("Sorry, we can't accept that item.")
 			return
 		elif marked.f_applied:
-			me.SayTo(activator, "\nYou must first unapply that item.")
+			inf.add_msg("You must first unapply that item.")
 			return
 		elif marked.quickslot:
-			me.SayTo(activator, "\nYou must first remove that item from your quickslots.")
+			inf.add_msg("You must first remove that item from your quickslots.")
 			return
 		elif marked.type == Type.MONEY:
-			me.SayTo(activator, "\nSorry, selling money is not allowed in this Auction House.")
+			inf.add_msg("Sorry, selling money is not allowed in this Auction House.")
 			return
 
 		# Check if the player reached the limit yet.
 		if len(find_items(seller = activator.name)) >= Auction.MAX_ITEMS:
-			me.SayTo(activator, "\nYou already have {} items in this Auction House. You must either withdraw them (see <a>my items</a>) or wait until someone buys them.".format(Auction.MAX_ITEMS))
+			inf.add_msg("You already have {} items in this Auction House. You must either withdraw them or wait until someone buys them.".format(Auction.MAX_ITEMS))
+			inf.add_link("I'd like to see my items.", dest = "items")
 			return
 
-		# Do the selling.
-		if msg.startswith("sell for "):
-			# Look for correct box to place the item.
-			for (path, types, tiles) in db["maps"]:
-				# Incorrect object type, go on.
-				if not marked.type in types and not "other" in types:
+		# Look for correct box to place the item.
+		for (path, types, tiles) in db["maps"]:
+			# Incorrect object type, go on.
+			if not marked.type in types and not "other" in types:
+				continue
+
+			# Ready the map.
+			m = ReadyMap(path)
+			m.timeout = 60 * 10 * 8
+			t = None
+
+			# Choose first tile that doesn't have any items yet.
+			for (x, y) in tiles:
+				if m.GetLayer(x, y, LAYER_ITEM) or m.GetLayer(x, y, LAYER_ITEM2):
 					continue
 
-				# Ready the map.
-				m = ReadyMap(path)
-				m.timeout = 60 * 10 * 8
-				t = None
+				t = (x, y)
+				break
 
-				# Choose first tile that doesn't have any items yet.
-				for (x, y) in tiles:
-					if m.GetLayer(x, y, LAYER_ITEM) or m.GetLayer(x, y, LAYER_ITEM2):
-						continue
+			# No tile with no items, choose one randomly.
+			if not t:
+				t = random.choice(tiles)
 
-					t = (x, y)
-					break
+			(x, y) = t
+			inf.add_msg("Your {} has been placed in this Auction House successfully.".format(marked.GetName()))
+			inf.add_msg("Selling price: {} (each)".format(CostString(val)))
+			inf.add_link("I'd like to see my items.", dest = "items")
 
-				# No tile with no items, choose one randomly.
-				if not t:
-					t = random.choice(tiles)
+			marked.WriteKey("auction_house_seller", activator.name)
+			marked.WriteKey("auction_house_value", str(val))
+			marked.WriteKey("auction_house_id", str(db["uid"]))
+			auction_uid_increase()
+			m.Insert(marked, x, y)
+			return
 
-				(x, y) = t
-				# Say the message before inserting it, because it may get merged, which
-				# would make the message say incorrect number of items.
-				me.SayTo(activator, "\nYour {} has been placed in this Auction House successfully.\nSelling price: {} (each)\nClick <a=:/t_tell my items>here</a> to see your items.".format(marked.GetName(), CostString(val)))
-				marked.WriteKey("auction_house_seller", activator.name)
-				marked.WriteKey("auction_house_value", str(val))
-				marked.WriteKey("auction_house_id", str(db["uid"]))
-				auction_uid_increase()
-				m.Insert(marked, x, y)
-				return
+		inf.add_msg("I am sorry, it seems we do not accept items like your {} in this Auction House.".format(marked.GetName()))
 
-			me.SayTo(activator, "\nI am sorry, it seems we do not accept items like your {} in this Auction House.".format(marked.GetName()))
-		# Show confirmation.
+	elif msg == "items":
+		l = find_items(seller = activator.name)
+
+		if not l:
+			inf.add_msg("You do not have any items in this Auction House.")
 		else:
-			cost = CostString(val)
-			me.SayTo(activator, "\nPlease click below if you're sure you want to sell the <green>{}</green> for {}:\n\n<a>sell for {}</a>".format(marked.GetName(), cost, cost.replace(" coins", "").replace(" coin", "")))
+			inf.add_msg("Your items in this Auction House:")
+			inf.add_msg(create_list(l, "withdraw", sort = Filter.SORT_ALPHA))
+			inf.add_link("I'd like to withdraw all my items.", dest = "withdraw all")
 
 	# Allow setting up the shop if the player is a DM.
 	elif activator.f_wiz and msg == "setup":
@@ -816,7 +808,7 @@ def main():
 			pass
 
 		if not sign:
-			me.SayTo(activator, "\nCould not find Auction House information sign on current map, bailing out.")
+			print("Could not find Auction House information sign on current map, bailing out.")
 			return
 
 		# Load the data from the sign's message using json.
@@ -865,6 +857,7 @@ def auction_uid_increase():
 
 try:
 	main()
+	inf.finish()
 # Make sure to close the database.
 finally:
 	db.close()
