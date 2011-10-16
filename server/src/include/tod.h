@@ -42,22 +42,24 @@
 /** Months per year. */
 #define MONTHS_PER_YEAR     12
 /** Seasons per year. */
-#define SEASONS_PER_YEAR    5
+#define SEASONS_PER_YEAR    4
 /** Periods per day. */
-#define PERIODS_PER_DAY     6
+#define PERIODS_PER_DAY     9
 
 /** Weeks per year. */
-#define WEEKS_PER_YEAR      (WEEKS_PER_MONTH * MONTHS_PER_YEAR)
+#define WEEKS_PER_YEAR (WEEKS_PER_MONTH * MONTHS_PER_YEAR)
 /** Days per month. */
-#define DAYS_PER_MONTH      (DAYS_PER_WEEK * WEEKS_PER_MONTH)
+#define DAYS_PER_MONTH (DAYS_PER_WEEK * WEEKS_PER_MONTH)
 /** Days per year. */
-#define DAYS_PER_YEAR       (DAYS_PER_MONTH * MONTHS_PER_YEAR)
+#define DAYS_PER_YEAR (DAYS_PER_MONTH * MONTHS_PER_YEAR)
 /** Hours per week. */
-#define HOURS_PER_WEEK      (HOURS_PER_DAY * DAYS_PER_WEEK)
+#define HOURS_PER_WEEK (HOURS_PER_DAY * DAYS_PER_WEEK)
 /** Hours per month. */
-#define HOURS_PER_MONTH     (HOURS_PER_WEEK * WEEKS_PER_MONTH)
+#define HOURS_PER_MONTH (HOURS_PER_WEEK * WEEKS_PER_MONTH)
 /** Hours per year. */
-#define HOURS_PER_YEAR      (HOURS_PER_MONTH * MONTHS_PER_YEAR)
+#define HOURS_PER_YEAR (HOURS_PER_MONTH * MONTHS_PER_YEAR)
+/** Months per season. */
+#define MONTHS_PER_SEASON (MONTHS_PER_YEAR / SEASONS_PER_YEAR)
 
 /** Represents the in-game time. */
 typedef struct _timeofday

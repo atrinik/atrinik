@@ -805,10 +805,11 @@ extern void flush_old_maps(void);
 extern long max_time;
 extern long pticks;
 extern struct timeval last_time;
-extern const char *season_name[5 + 1];
+extern const char *season_name[4];
 extern const char *weekdays[7];
 extern const char *month_name[12];
-extern const char *periodsofday[6];
+extern const char *periodsofday[9];
+extern const int periodsofday_hours[24];
 extern void reset_sleep(void);
 extern void sleep_delta(void);
 extern void set_max_time(long t);
@@ -856,7 +857,7 @@ extern void copy_file(const char *filename, FILE *fpout);
 extern void convert_newline(char *str);
 extern void string_remove_markup(char *str);
 /* src/server/weather.c */
-extern const int season_timechange[5][24];
+extern const int season_timechange[4][24];
 extern void init_world_darkness(void);
 extern void tick_the_clock(void);
 /* src/skills/construction.c */

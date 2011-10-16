@@ -49,35 +49,33 @@ static long process_utime_long_count;
 struct timeval last_time;
 
 /** In-game seasons. */
-const char *season_name[SEASONS_PER_YEAR + 1] =
+const char *season_name[SEASONS_PER_YEAR] =
 {
-	"The Season of New Year",
-	"The Season of Growth",
-	"The Season of Harvest",
-	"The Season of Decay",
-	"The Season of the Blizzard",
-	"\n"
+	"Season of the Blizzard",
+	"Season of Growth",
+	"Season of Harvest",
+	"Season of Decay",
 };
 
 /** Days of the week. */
 const char *weekdays[DAYS_PER_WEEK] =
 {
-	"the Day of the Moon",
-	"the Day of the Bull",
-	"the Day of the Deception",
-	"the Day of Thunder",
-	"the Day of Freedom",
-	"the Day of the Great Gods",
-	"the Day of the Sun"
+	"Day of the Moon",
+	"Day of the Bull",
+	"Day of the Deception",
+	"Day of Thunder",
+	"Day of Freedom",
+	"Day of the Great Gods",
+	"Day of the Sun"
 };
 
 /** Months. */
 const char *month_name[MONTHS_PER_YEAR] =
 {
+	"Month of the Winter",
 	"Month of the Ice Dragon",
 	"Month of the Frost Giant",
-	"Month of the Clouds",
-	"Month of Gaea",
+	"Month of Terria",
 	"Month of the Harvest",
 	"Month of Futility",
 	"Month of the Dragon",
@@ -91,12 +89,23 @@ const char *month_name[MONTHS_PER_YEAR] =
 /** Periods of day. */
 const char *periodsofday[PERIODS_PER_DAY] =
 {
-	"Night",
+	"Midnight",
+	"Late Night",
 	"Dawn",
 	"Morning",
 	"Noon",
+	"Afternoon",
 	"Evening",
-	"Dusk"
+	"Dusk",
+	"Night"
+};
+
+/**
+ * Period of the day at each hour in the day. */
+const int periodsofday_hours[HOURS_PER_DAY] =
+{
+	0, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 4,
+	5, 5, 5, 5, 6, 6, 6, 6, 7, 8, 8, 8
 };
 
 /**
@@ -249,68 +258,17 @@ void get_tod(timeofday_t *tod)
 {
 	tod->year = todtick / HOURS_PER_YEAR;
 	tod->month = (todtick / HOURS_PER_MONTH) % MONTHS_PER_YEAR;
+	tod->season = tod->month / MONTHS_PER_SEASON;
 	tod->day = (todtick % HOURS_PER_MONTH) / DAYS_PER_MONTH;
 	tod->dayofweek = tod->day % DAYS_PER_WEEK;
+	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
 	tod->hour = todtick % HOURS_PER_DAY;
+	tod->periodofday = periodsofday_hours[tod->hour];
 	tod->minute = (pticks % PTICKS_PER_CLOCK) / (PTICKS_PER_CLOCK / 58);
 
 	if (tod->minute > 59)
 	{
 		tod->minute = 59;
-	}
-
-	tod->weekofmonth = tod->day / WEEKS_PER_MONTH;
-
-	if (tod->month < 3)
-	{
-		tod->season = 0;
-	}
-	else if (tod->month < 6)
-	{
-		tod->season = 1;
-	}
-	else if (tod->month < 9)
-	{
-		tod->season = 2;
-	}
-	else if (tod->month < 12)
-	{
-		tod->season = 3;
-	}
-	else
-	{
-		tod->season = 4;
-	}
-
-	/* Until 4:59 */
-	if (tod->hour < 5)
-	{
-		tod->periodofday = 0;
-	}
-	else if (tod->hour < 8)
-	{
-		tod->periodofday = 1;
-	}
-	else if (tod->hour < 13)
-	{
-		tod->periodofday = 2;
-	}
-	else if (tod->hour < 15)
-	{
-		tod->periodofday = 3;
-	}
-	else if (tod->hour < 20)
-	{
-		tod->periodofday = 4;
-	}
-	else if (tod->hour < 23)
-	{
-		tod->periodofday = 5;
-	}
-	/* Back to night */
-	else
-	{
-		tod->periodofday = 0;
 	}
 }
 
@@ -324,7 +282,7 @@ void print_tod(object *op)
 	int day;
 
 	get_tod(&tod);
-	draw_info_format(COLOR_WHITE, op, "It is %d minute%s past %d o'clock %s, on %s", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
+	draw_info_format(COLOR_WHITE, op, "It is %d minute%s past %d o'clock %s, on the %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 
 	day = tod.day + 1;
 
@@ -345,8 +303,7 @@ void print_tod(object *op)
 		suf = "th";
 	}
 
-	draw_info_format(COLOR_WHITE, op, "The %d%s Day of the %s, Year %d", day, suf, month_name[tod.month], tod.year + 1);
-	draw_info_format(COLOR_WHITE, op, "Time of Year: %s", season_name[tod.season]);
+	draw_info_format(COLOR_WHITE, op, "The %d%s Day of the %s, Year %d, in the %s.", day, suf, month_name[tod.month], tod.year + 1, season_name[tod.season]);
 }
 
 /**
