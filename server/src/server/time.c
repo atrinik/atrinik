@@ -89,15 +89,15 @@ const char *month_name[MONTHS_PER_YEAR] =
 /** Periods of day. */
 const char *periodsofday[PERIODS_PER_DAY] =
 {
-	"Midnight",
-	"Late Night",
-	"Dawn",
-	"Morning",
-	"Noon",
-	"Afternoon",
-	"Evening",
-	"Dusk",
-	"Night"
+	"midnight",
+	"late night",
+	"dawn",
+	"morning",
+	"noon",
+	"afternoon",
+	"evening",
+	"dusk",
+	"night"
 };
 
 /**
@@ -282,7 +282,7 @@ void print_tod(object *op)
 	int day;
 
 	get_tod(&tod);
-	draw_info_format(COLOR_WHITE, op, "It is %d minute%s past %d o'clock %s, on the %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
+	draw_info_format(COLOR_WHITE, op, "It is %s, %d minute%s past %d o'clock %s, on the %s.", periodsofday[tod.periodofday], tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 
 	day = tod.day + 1;
 
