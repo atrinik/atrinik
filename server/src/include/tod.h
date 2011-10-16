@@ -44,7 +44,7 @@
 /** Seasons per year. */
 #define SEASONS_PER_YEAR    4
 /** Periods per day. */
-#define PERIODS_PER_DAY     9
+#define PERIODS_PER_DAY     10
 
 /** Weeks per year. */
 #define WEEKS_PER_YEAR (WEEKS_PER_MONTH * MONTHS_PER_YEAR)

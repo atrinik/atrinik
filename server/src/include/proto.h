@@ -808,7 +808,7 @@ extern struct timeval last_time;
 extern const char *season_name[4];
 extern const char *weekdays[7];
 extern const char *month_name[12];
-extern const char *periodsofday[9];
+extern const char *periodsofday[10];
 extern const int periodsofday_hours[24];
 extern void reset_sleep(void);
 extern void sleep_delta(void);

@@ -93,10 +93,11 @@ const char *periodsofday[PERIODS_PER_DAY] =
 	"late night",
 	"dawn",
 	"morning",
+	"late morning",
 	"noon",
 	"afternoon",
-	"evening",
 	"dusk",
+	"evening",
 	"night"
 };
 
@@ -104,8 +105,26 @@ const char *periodsofday[PERIODS_PER_DAY] =
  * Period of the day at each hour in the day. */
 const int periodsofday_hours[HOURS_PER_DAY] =
 {
-	0, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 4,
-	5, 5, 5, 5, 6, 6, 6, 6, 7, 8, 8, 8
+	/* 24: Midnight */
+	0,
+	/* 1 - 4: Late night */
+	1, 1, 1, 1,
+	/* 5: Dawn */
+	2,
+	/* 6 - 9: Morning */
+	3, 3, 3, 3,
+	/* 10 - 11: Late morning */
+	4, 4,
+	/* 12: Noon */
+	5,
+	/* 13 - 17: Afternoon */
+	6, 6, 6, 6, 6,
+	/* 18: Dusk */
+	7,
+	/* 19 - 21: Evening */
+	8, 8, 8,
+	/* 22 - 23: Night */
+	9, 9
 };
 
 /**
