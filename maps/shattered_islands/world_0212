@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-10-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1897,6 +1897,16 @@ x 13
 y 14
 end
 arch floor_flagm3
+x 13
+y 15
+end
+arch announcement
+msg
+In Memoriam R of K&R.
+endmsg
+direction 7
+z -14
+name plaque
 x 13
 y 15
 end
