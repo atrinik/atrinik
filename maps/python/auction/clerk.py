@@ -612,6 +612,7 @@ def main():
 		else:
 			inf.add_msg("<title>{}</title>".format(obj.GetName()))
 			inf.add_msg(activator.Controller().Examine(obj, True).strip())
+			inf.add_msg("<green>Price:</green> {} (each)\n<green>Seller:</green> {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
 
 		inf.add_link("I'd like to go back to my search.", dest = back)
 
