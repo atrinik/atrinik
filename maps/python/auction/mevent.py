@@ -1,10 +1,8 @@
 ## @file
 ## Handles map-wide events in Auction Houses.
 
-from Atrinik import *
 from Auction import item_buy
 
-activator = WhoIsActivator()
 other = WhoIsOther()
 event = GetEventNumber()
 
@@ -17,18 +15,6 @@ def is_in_player(obj):
 	return obj.type == Type.PLAYER
 
 def main():
-	# Handle examine events regardless of the floor the player is on, so
-	# the player can get this information from inside the search
-	# interface.
-	if event == MEVENT_EXAMINE:
-		seller = other.ReadKey("auction_house_seller")
-
-		# Show Auction House information.
-		if seller:
-			activator.Write("<green>Auction House Information</green>:\nPrice: {} (each)\nSeller: {}".format(CostString(int(other.ReadKey("auction_house_value"))), seller), COLOR_WHITE)
-
-		return
-
 	# Do not handle the below events if the player is not standing in one
 	# of the boxes.
 	try:
@@ -59,5 +45,12 @@ def main():
 
 		SetReturnValue(1)
 		activator.Write(item_buy(activator, other, GetEventParameters()[0], seller), COLOR_WHITE)
+	elif event == MEVENT_EXAMINE:
+		seller = other.ReadKey("auction_house_seller")
+
+		if not seller:
+			return
+
+		activator.Write("<green>Auction House Information</green>:\nPrice: {} (each)\nSeller: {}".format(CostString(int(other.ReadKey("auction_house_value"))), seller), COLOR_WHITE)
 
 main()
