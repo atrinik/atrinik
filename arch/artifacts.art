@@ -5541,3 +5541,25 @@ A perfect bone taken from a young skeletal dragon.
 It may have some interesting alchemical properties.
 endmsg
 end
+
+Allowed none
+chance 1
+artifact hat_cornuthaum
+def_arch hat_blue
+Object
+name cornuthaum
+face hat_cornuthaum.101
+animation hat_cornuthaum
+is_animated 1
+anim_speed 5
+speed 0.02
+item_level 20
+item_quality 85
+item_condition 85
+is_magical 1
+Int 1
+Pow 1
+reflect_spell 1
+sp 1
+value 100000
+end
