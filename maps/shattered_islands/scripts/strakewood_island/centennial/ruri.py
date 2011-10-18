@@ -59,7 +59,7 @@ def main():
 		inf.add_link("Ask about something else.", dest = "main_menu")
 	elif msg == "witch":
 		inf.add_msg("Yes.  This school is dedicated to teaching the fine art of witchcraft.  You know, hexes, potions, magic?")
-		inf.add_link("Magic?", dest = "magic")		
+		inf.add_link("Magic?", dest = "magic")
 	elif msg == "magic":
 		inf.add_msg("I guess that's what happens in a town of magical girls... Er.  I mean, witches.")
 		inf.add_link("Huh?  Magical girls?", dest = "magical girls")
