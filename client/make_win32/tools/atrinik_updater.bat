@@ -5,7 +5,7 @@ echo Updating Atrinik installation, please wait...
 rem Make sure we are running in the directory the Batch file is in.
 %0\
 cd %0\..
-cd /d %0\.. 
+cd /d %0\..
 
 rem Wait a few seconds to make sure upgrader.exe has finished.
 timeout /NOBREAK 2
