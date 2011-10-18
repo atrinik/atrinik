@@ -1,6 +1,6 @@
 Object mstar_2h
 layer 3
-name 2h-morningstar 
+name 2h-morningstar
 face mstar_2h.101
 weapon_speed 0.02
 attack_impact 100
