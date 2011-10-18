@@ -2,7 +2,7 @@ To build the Atrinik client with Visual C++, you will need to:
 
 1. Run Setup.bat or Setup_x64.bat, which will unpack the tar.gz
    files and place the required dlls in main directory.
-   
+
    Setup.bat will unpack the 32-bit dll files, while
    Setup_x64.bat will unpack the 64-bit dll files. Do not run
    both batch files, as the dll files from one will be
