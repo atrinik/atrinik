@@ -179,7 +179,7 @@ mpart_id 15
 mpart_nr 7
 x 3
 y 1
-no_pass 1   
+no_pass 1
 no_pick 1
 end
 More
