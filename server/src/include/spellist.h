@@ -1,4 +1,4 @@
-/************************************************************************
+	/************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
 *    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
@@ -366,7 +366,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 1, 5, 8, 3, 6,4, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_POTION | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
-	 PATH_RESTORE, "meffect_purple"
+	 PATH_RESTORE, "meffect_purple", 5000
 	},
 
 	{"transform wealth", SPELL_TYPE_WIZARD,
@@ -438,7 +438,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-	 PATH_DEATH, "negabolt"
+	 PATH_DEATH, "negabolt", 0
 	},
 
 	{"holy word", SPELL_TYPE_PRIEST,
