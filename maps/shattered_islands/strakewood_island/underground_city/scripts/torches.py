@@ -38,10 +38,6 @@ def main():
 	## The threading timer function for the effect.
 	## @param progress Progress in the effect.
 	def timer(progress):
-		if progress == 0 and activator:
-			activator.Controller().Sound("gate_open.ogg")
-			activator.Write("You hear the sound of old gears turning...", COLOR_YELLOW)
-
 		# Go through the torches.
 		for torch in torches:
 			# Light/extinguish the torch.
@@ -56,6 +52,9 @@ def main():
 
 		t = threading.Timer(0.5, timer, [progress + 1])
 		t.start()
+
+	activator.Controller().Sound("gate_open.ogg")
+	activator.Write("You hear the sound of old gears turning...", COLOR_YELLOW)
 
 	# Make sure the map with the gate is in memory.
 	ReadyMap(os.path.dirname(me.map.path) + "/underground_city_a_0602")
