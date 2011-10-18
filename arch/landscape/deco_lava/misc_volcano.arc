@@ -64,7 +64,7 @@ face obstacle_volcano_6.101
 type 79
 material 64
 layer 5
-glow_radius 3  
+glow_radius 3
 no_pick 1
 no_pass 1
 end
