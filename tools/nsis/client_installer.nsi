@@ -112,7 +112,7 @@ SectionEnd
 ; Optional desktop shortcut.
 Section /o "Desktop Shortcut"
   SetShellVarContext all
-  
+
   CreateShortCut "$DESKTOP\Atrinik Client.lnk" "$INSTDIR\up_dater.exe" "" "$INSTDIR\bitmaps\icon.ico"
 SectionEnd
 
