@@ -1,12 +1,12 @@
-# 
+#
 # Herein lie the formulae for alchemical products.
-# 
+#
 # The code is designed so that any fancy combination
 # of objects may be combined to comprise a formula. Because
-# the code only requests that the 'names' (see def below) 
+# the code only requests that the 'names' (see def below)
 # of cauldron ingredients match those listed in the formula
-# you can use *anything* found in the game as a possible 
-# ingredient. Legal names include both obj->name and a 
+# you can use *anything* found in the game as a possible
+# ingredient. Legal names include both obj->name and a
 # title field, if it exists. Therefore, it *is* legal to use
 # an artifact like "cloak of protection" as an ingredient.
 #
@@ -14,18 +14,18 @@
 #
 #  "Object" This is the title of the formula. In
 #	    conjunction with a value in "arch" these
-#	    are used to lookup artifacts from the 
+#	    are used to lookup artifacts from the
 #	    artifacts file (ie. <arch> of <title>).
 #	    If you want to just create the arch w/o
-#	    making it an artifact, designate the 
+#	    making it an artifact, designate the
 #	    object field as "NONE".
 #
-#  "chance" is how likely a formula is to appear in 
+#  "chance" is how likely a formula is to appear in
 #	    an alchemical grimore. Chance of 0 indicates
 #	    the formula never appears.
 #
 #  "arch"   indicates the possible archetype that may
-# 	    be used to generate the item. 
+# 	    be used to generate the item.
 #
 #  "ingred" is a comma delimited list of ingredients
 #	    that are needed to create the item. Each
@@ -33,37 +33,37 @@
 #	    note that this is not required. Values of
 # 	    ingredients must be the object names. Prepend
 #	    an integer value to denote the number of that
-#	    ingredient ("1" is not needed for single 
-#	    ingredients). Note that the ordering of the 
-#	    ingredients is *not* important. 
+#	    ingredient ("1" is not needed for single
+#	    ingredients). Note that the ordering of the
+#	    ingredients is *not* important.
 #
-#  "yield"  is the theoretical possible maximum # of 
+#  "yield"  is the theoretical possible maximum # of
 #	    items the recipe can generate.
-#           It is fundamentally useful for balancing 
+#           It is fundamentally useful for balancing
 #	    reward/effort for these recipes.  One intention
 #           is to enforce conservation of mass by means
 #           of this #.
 #
-#  "trans"  defaults to '0' and is not explicitly needed. 
+#  "trans"  defaults to '0' and is not explicitly needed.
 #	    If you define it to any value (ie '1') then
 #	    one of the ingredients will be used as the base
 #	    arch for the product. Obviously, the ingredient
 #	    so used *must* have the same archetype as the
-#	    product so don't be a fool and leave out a 
-#	    common archetype ingredient!! See bolt of Dragon 
-#	    slaying for an example of a transmution formula. 
+#	    product so don't be a fool and leave out a
+#	    common archetype ingredient!! See bolt of Dragon
+#	    slaying for an example of a transmution formula.
 #
 #  "keycode"  A string, such as "fire".  In order for the alchemist
 #           to execute this recipe, he must have a FORCE with a
 #	    slaying field matching the keycode
 #
 # IMPORTANT NOTE ---->
-#	    It is not enough to construct ad-hoc lists of 
+#	    It is not enough to construct ad-hoc lists of
 #	    ingredients to make a formula. Playbalance will
-#	    be adversely effected if you make a formula for 
+#	    be adversely effected if you make a formula for
 #	    a powerfull artifact (potion of stat raising, for
 #	    example) that is common, and/or easy to assemble
-#	    the ingredients, and/or has few ingredients. Thus, 
+#	    the ingredients, and/or has few ingredients. Thus,
 #	    here are some general guidelines for making formulae:
 #
 #		1) no fewer than 2 ingredients
@@ -75,10 +75,10 @@
 #		   more costly to buy, rarer to find.
 #		5) Run crossfire with the -m9 switch to check your formula -
 #		   It does some sanity checking and price checking
-# 
+#
 #
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#		F O R M U L A E  B E G I N 
+#		F O R M U L A E  B E G I N
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #
 # --------------
