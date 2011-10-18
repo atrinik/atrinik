@@ -1,18 +1,18 @@
-# Message file for books  
+# Message file for books
 #
 # Message entries contained in this file will appear randomly
 # in readable objects like books, scrolls and such (type == BOOK).
 #
-# To add an entry: 
+# To add an entry:
 # ---------------
-# Start all entries with MSG and end with ENDMSG. The body of 
+# Start all entries with MSG and end with ENDMSG. The body of
 # the text between those 2 words will be the message.
 #
-# When designing messages please keep in mind: 
+# When designing messages please keep in mind:
 # -------------------------------------------
 #    1) Message length shouldn't exceed the maximum
 # buffer size for books (you'll generate a warning message
-# if you do this). Check the file include/book.h for the 
+# if you do this). Check the file include/book.h for the
 # current message size limit (BOOK_BUF).
 
 MSG
@@ -22,10 +22,10 @@ ENDMSG
 
 MSG
 ... and then did the Alchemist agree to make me my potion.
-First he called to his grim servants who hauled forth a 
+First he called to his grim servants who hauled forth a
 great iron cauldron. Into this black device did he deposit
 his ingredients and, opening his spell book for reference,
-then did he cast his spell of alchemy thereupon the cauldron. 
+then did he cast his spell of alchemy thereupon the cauldron.
 
   Greatly did the tub shake and move!
 
@@ -68,13 +68,13 @@ The dragon was here, and here to stay.
 It took a while, but they sealed the beast
 into a chamber, then summoned the priest.
 
-To the King the priest must go, 
+To the King the priest must go,
 Banishing him to the depths below.
 
 The king then ordered to be put in place,
 A trap for any that try to escape.
 
-Only one way in, to this place 
+Only one way in, to this place
 That path is not in front of your face.
 
 
@@ -94,13 +94,13 @@ MSG
 The king had banished him, it was a severe blow.
 His ego crushed, trapped in the depths below.
 
-The King's right hand man he once had been, 
-Now he wants to be there once again. 
+The King's right hand man he once had been,
+Now he wants to be there once again.
 
 So from his prison, he started his work.
 Being stuck there was driving him berserk.
 
-Create an army, that's what he must do. 
+Create an army, that's what he must do.
 To regain the King's trust, and destroy the humans too.
 
 He must keep it a secret, no one must know,
