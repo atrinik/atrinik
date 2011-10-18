@@ -1,17 +1,17 @@
 
-Meaning/uses of Gods archetype values. No particular value is 
+Meaning/uses of Gods archetype values. No particular value is
 needed to be specified (but it helps!).
 
- name          - name of the god  
- title         - diametrically opposed god (not required) 
+ name          - name of the god
+ title         - diametrically opposed god (not required)
  other_arch    - name of the archetype which is summoned by the holy servant spell
  race 	       - the name of the race of creatures that are aligned w/ the god.
-                 "summon cult monsters" and "pacify" are 2 (of many) spells that 
-		 use this. Value can be omitted if no race exists. 
+                 "summon cult monsters" and "pacify" are 2 (of many) spells that
+		 use this. Value can be omitted if no race exists.
  slaying       - name of the race of creatures "holy word","holy possession"
-                 spells will effect. Used by other things too. Value can be 
-                 be omitted if no such race exists.  
- attacktype    - favored attack of this god, used in summoning spells and "holy 
+                 spells will effect. Used by other things too. Value can be
+                 be omitted if no such race exists.
+ attacktype    - favored attack of this god, used in summoning spells and "holy
 		 possession". Weapons blessed by the god get this too.
  protected     - Priest of this god gets this.
  vulnerable    - Priest of this god and recipient of "curse" spell gets this.
@@ -23,6 +23,6 @@ needed to be specified (but it helps!).
 
  wc, ac, hp, dam, etc. - get used when the 'god' is summoned as an avatar.
 
- last_eat, last_heal, last_sp, last_grace, & various flags - these are used to 
-	 	 pass on certain properties to the worshiping priest. 
+ last_eat, last_heal, last_sp, last_grace, & various flags - these are used to
+	 	 pass on certain properties to the worshiping priest.
 
