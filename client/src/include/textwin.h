@@ -61,8 +61,22 @@ typedef struct textwin_struct
 	sint64 selection_end;
 } textwin_struct;
 
+/**
+ * @defgroup TEXTWIN_TEXT_xxx Textwin text coordinates
+ * Coordinates used for the text in text window widgets.
+ *@{*/
+/** Text starting X position. */
+#define TEXTWIN_TEXT_STARTX(_widget) (3)
+/** Text starting Y position. */
+#define TEXTWIN_TEXT_STARTY(_widget) (1)
+/** Maximum width of the text in the widget. */
+#define TEXTWIN_TEXT_WIDTH(_widget) ((_widget)->wd - scrollbar_get_width(&TEXTWIN((_widget))->scrollbar) - (TEXTWIN_TEXT_STARTX((_widget)) * 2))
+/** Maximum height of the text in the widget. */
+#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2))
+/*@}*/
+
 /** Get the maximum number of visible rows. */
-#define TEXTWIN_ROWS_VISIBLE(widget) ((widget)->ht / FONT_HEIGHT(TEXTWIN((widget))->font))
+#define TEXTWIN_ROWS_VISIBLE(widget) (TEXTWIN_TEXT_HEIGHT((widget)) / FONT_HEIGHT(TEXTWIN((widget))->font))
 /** Get the base flags depending on the text window. */
 #define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE : TEXT_WORD_WRAP)
 

@@ -58,11 +58,11 @@ void textwin_readjust(widgetdata *widget)
 	{
 		SDL_Rect box;
 
-		box.w = widget->wd - scrollbar_get_width(&textwin->scrollbar) - 3 * 2;
+		box.w = TEXTWIN_TEXT_WIDTH(widget);
 		box.h = 0;
 		box.x = 0;
 		box.y = 0;
-		string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+		string_blt(NULL, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 
 		/* Adjust the counts. */
 		textwin->num_lines = box.h - 1;
@@ -93,7 +93,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 	textwin = TEXTWIN(widget);
 	WIDGET_REDRAW(widget);
 	bottom = SCROLL_BOTTOM(&textwin->scrollbar);
-	box.w = widget->wd - scrollbar_get_width(&textwin->scrollbar) - 3 * 2;
+	box.w = TEXTWIN_TEXT_WIDTH(widget);
 	box.h = 0;
 
 	len = strlen(str);
@@ -116,7 +116,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 	box.y = 0;
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	string_blt(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 	scroll = box.h;
 
 	/* Adjust the counts. */
@@ -139,7 +139,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 			/* Get the string's height. */
 			box.h = 0;
-			string_blt(NULL, textwin->font, buf, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+			string_blt(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 			scroll = box.h - 1;
 
 			free(buf);
@@ -295,7 +295,7 @@ void textwin_create_scrollbar(widgetdata *widget)
 {
 	textwin_struct *textwin = TEXTWIN(widget);
 
-	scrollbar_create(&textwin->scrollbar, 9, widget->ht - 2, &textwin->scroll_offset, &textwin->num_lines, TEXTWIN_ROWS_VISIBLE(widget));
+	scrollbar_create(&textwin->scrollbar, 9, TEXTWIN_TEXT_HEIGHT(widget), &textwin->scroll_offset, &textwin->num_lines, TEXTWIN_ROWS_VISIBLE(widget));
 	textwin->scrollbar.redraw = &widget->redraw;
 }
 
@@ -342,11 +342,11 @@ void widget_textwin_show(widgetdata *widget)
 		{
 			SDL_Rect box_text;
 
-			box_text.w = widget->wd - scrollbar_get_width(&textwin->scrollbar) - 3 * 2;
-			box_text.h = widget->ht - 2;
+			box_text.w = TEXTWIN_TEXT_WIDTH(widget);
+			box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 			box_text.y = textwin->scroll_offset;
 			text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-			string_blt(widget->widgetSF, textwin->font, textwin->entries, 3, 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+			string_blt(widget->widgetSF, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget), COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
 			text_set_selection(NULL, NULL, NULL);
 		}
 
