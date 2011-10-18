@@ -2140,6 +2140,7 @@ static PyNumberMethods AtrinikObjectNumber =
 	NULL,
 	NULL,
 	NULL,
+	NULL
 };
 
 /** Our actual Python ObjectType. */
