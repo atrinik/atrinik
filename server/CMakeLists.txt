@@ -414,7 +414,6 @@ if (PYTHONLIBS_FOUND)
 	include_directories(src/plugins/plugin_python/include)
 	set(HAVE_PYTHON true)
 
-	add_definitions(-Wno-missing-field-initializers)
 	set(SOURCES_PLUGIN_PYTHON
 		src/plugins/plugin_python/atrinik_archetype.c
 		src/plugins/plugin_python/atrinik_map.c
