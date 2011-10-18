@@ -2716,6 +2716,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 			{
 				*(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
 			}
+			else if (PyString_Check(value))
+			{
+				const char *archname;
+				archetype *arch;
+
+				archname = PyString_AsString(value);
+				arch = hooks->find_archetype(archname);
+
+				if (!arch)
+				{
+					PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
+					return -1;
+				}
+				else
+				{
+					*(archetype **) field_ptr = arch;
+				}
+			}
 			else
 			{
 				INTRAISE("Illegal value for archetype field.");
