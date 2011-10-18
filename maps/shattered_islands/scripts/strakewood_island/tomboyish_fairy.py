@@ -20,7 +20,7 @@ def main():
 		inf.add_link("You're the strongest fairy... maybe.", dest = "strongest fairy")
 		inf.add_link("What?  Are you dumb or something?", dest = "idiot")
 		inf.add_link("Goodbye.", action = "close")
-	elif msg == "idiot" or msg == "baka" or msg == "nineball" or msg == "marukyuu" or msg == "(9)":		
+	elif msg == "idiot" or msg == "baka" or msg == "nineball" or msg == "marukyuu" or msg == "(9)":
 		inf.add_msg(random.choice(_idiot_cirnoisms))
 		inf.add_link("OK.", dest = "hello")
 		inf.add_link("That was childish.", dest = "idiot")
