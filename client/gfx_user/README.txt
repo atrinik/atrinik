@@ -9,4 +9,4 @@ graphics the client shows.
 To reload the old pictures, delete the
 pictures from this dreictory you don't want
 to show anymore and restart the client.
- 
+
