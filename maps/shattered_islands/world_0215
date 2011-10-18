@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-16 Alex Tokar
+Modified: 2011-10-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2054,7 +2054,7 @@ arch stone1
 msg
 You're not quite sure what sort of a job this can do. Perhaps you're holding it wrong?
 endmsg
-name iStone
+name strange stone
 x 16
 y 5
 end
