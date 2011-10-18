@@ -2,7 +2,7 @@ Object detector
 name detector
 slaying player
 layer 3
-type 51 
+type 51
 face pedestal.111
 animation detector
 is_animated 0
