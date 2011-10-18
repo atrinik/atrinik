@@ -47,7 +47,7 @@ def main():
 			# Light/extinguish the torch.
 			torch.Apply(torch, APPLY_NO_EVENT)
 
-			# If the effect is ending, make the torches applyable again. 
+			# If the effect is ending, make the torches applyable again.
 			if progress == 6:
 				torch.f_splitting = False
 
