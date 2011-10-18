@@ -9,7 +9,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# This script will collect materials information from Atrinik server 
+# This script will collect materials information from Atrinik server
 # and the arch/materials file, and will output XML for use in lists.xml
 # and bitmasks.xml files.
 
