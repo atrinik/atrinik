@@ -91,5 +91,5 @@ type 77
 no_pick 1
 no_pass 1
 draw_double 1
-glow_radius 5   
+glow_radius 5
 end
