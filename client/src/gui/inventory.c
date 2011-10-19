@@ -160,6 +160,7 @@ void widget_inventory_init(widgetdata *widget)
 
 	scrollbar_info_create(&inventory->scrollbar_info);
 	scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
+	inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
 }
 
 /**
@@ -388,6 +389,12 @@ void widget_inventory_render(widgetdata *widget)
 		sprite_blt(Bitmaps[BITMAP_BELOW], widget->x1, widget->y1, NULL, NULL);
 	}
 
+	if (inventory->scrollbar_info.redraw)
+	{
+		inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
+		inventory->scrollbar_info.redraw = 0;
+	}
+
 	/* Make sure the scroll offset and the selected object ID are valid. */
 	widget_inventory_handle_arrow_key(widget, SDLK_UNKNOWN);
 
@@ -439,12 +446,12 @@ void widget_inventory_event(widgetdata *widget, SDL_Event *event)
 	{
 		if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
-			widget_inventory_handle_arrow_key(widget, SDLK_UP);
+			widget_inventory_handle_arrow_key(widget, SDLK_LEFT);
 			return;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
-			widget_inventory_handle_arrow_key(widget, SDLK_DOWN);
+			widget_inventory_handle_arrow_key(widget, SDLK_RIGHT);
 			return;
 		}
 		else if (event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT)
@@ -594,7 +601,6 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
 	inventory_struct *inventory;
 	int selected, max;
-	uint32 offset;
 
 	inventory = INVENTORY(widget);
 	selected = inventory->selected;
@@ -634,17 +640,25 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 		selected = max - 1;
 	}
 
-	inventory->selected = selected;
-	offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
+	if ((uint32) selected != inventory->selected)
+	{
+		uint32 offset;
 
-	if (inventory->scrollbar_info.scroll_offset > offset)
-	{
-		inventory->scrollbar_info.scroll_offset = offset;
+		inventory->selected = selected;
+		offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
+
+		if (inventory->scrollbar_info.scroll_offset > offset)
+		{
+			inventory->scrollbar_info.scroll_offset = offset;
+		}
+		else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset)
+		{
+			inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
+		}
 	}
-	else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset)
-	{
-		inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
-	}
+
+	/* Makes sure the scroll offset doesn't overflow. */
+	scrollbar_scroll_adjust(&inventory->scrollbar, 0);
 }
 
 /**
