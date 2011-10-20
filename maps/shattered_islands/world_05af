@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-10-04 Alex Tokar
+Modified: 2011-10-20 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -278,11 +278,11 @@ arch wall_wood_4
 x 2
 y 5
 end
-arch bridge_wood_corner.181
+arch bridge_wood_EW.101
 x 2
 y 6
 end
-arch bridge_wood_NS.101
+arch bridge_wood_EW.101
 x 2
 y 7
 end
@@ -290,11 +290,11 @@ arch bridge_wood_EW.101
 x 2
 y 8
 end
-arch bridge_wood_EW.101
+arch bridge_wood_corner.161
 x 2
 y 9
 end
-arch bridge_wood_EW.101
+arch bridge_wood_corner.181
 x 2
 y 10
 end
@@ -413,19 +413,19 @@ arch bridge_wood_EW.101
 x 3
 y 6
 end
-arch bridge_wood_corner.161
+arch bridge_wood_EW.101
 x 3
 y 7
 end
-arch bridge_wood_corner.121
+arch bridge_wood_corner.161
 x 3
 y 8
 end
-arch bridge_wood_EW.101
+arch bridge_wood_NS.101
 x 3
 y 9
 end
-arch bridge_wood_EW.101
+arch bridge_wood_corner.121
 x 3
 y 10
 end
@@ -543,19 +543,19 @@ cursed 1
 x 4
 y 5
 end
-arch bridge_wood_corner.161
+arch bridge_wood_EW.101
 x 4
 y 6
 end
-arch bridge_wood_NS.101
+arch bridge_wood_corner.161
 x 4
 y 7
 end
-arch bridge_wood_corner.181
+arch bridge_wood_NS.101
 x 4
 y 8
 end
-arch bridge_wood_corner.161
+arch bridge_wood_NS.101
 x 4
 y 9
 end
@@ -721,7 +721,7 @@ arch wall_wood_4
 x 5
 y 5
 end
-arch bridge_wood_NS.101
+arch bridge_wood_corner.161
 x 5
 y 6
 end
@@ -1173,11 +1173,11 @@ arch bridge_wood_corner.181
 x 8
 y 7
 end
-arch bridge_wood_corner.121
+arch bridge_wood_corner.141
 x 8
 y 8
 end
-arch bridge_wood_corner.141
+arch bridge_wood_NS.101
 x 8
 y 9
 end
@@ -1336,7 +1336,7 @@ arch box_big.101
 x 9
 y 8
 end
-arch bridge_wood_EW.101
+arch bridge_wood_NS.101
 x 9
 y 9
 end
@@ -1347,7 +1347,7 @@ z -2
 x 9
 y 9
 end
-arch bridge_wood_EW.101
+arch bridge_wood_corner.181
 x 9
 y 10
 end
@@ -1525,7 +1525,7 @@ align 8
 x 10
 y 9
 end
-arch bridge_wood_EW.101
+arch bridge_wood_corner.121
 x 10
 y 10
 end
