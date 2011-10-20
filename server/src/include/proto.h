@@ -182,7 +182,6 @@ extern mapstruct *make_map_floor(char *floorstyle, RMParms *RP);
 /* src/random_maps/maze_gen.c */
 extern char **maze_gen(int xsize, int ysize, int option);
 /* src/random_maps/monster.c */
-extern void insert_multisquare_ob_in_map(object *new_obj, mapstruct *map);
 extern void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP);
 /* src/random_maps/random_map.c */
 extern void dump_layout(char **layout, RMParms *RP);
@@ -537,7 +536,7 @@ extern void dump_object_rec(object *op, StringBuffer *sb);
 extern object *get_owner(object *op);
 extern void clear_owner(object *op);
 extern void set_owner(object *op, object *owner);
-extern void copy_owner(object *op, object *clone);
+extern void copy_owner(object *op, object *clone_ob);
 extern void initialize_object(object *op);
 extern void copy_object(object *op2, object *op, int no_speed);
 extern void copy_object_with_inv(object *src_ob, object *dest_ob);

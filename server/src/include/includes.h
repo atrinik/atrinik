@@ -83,6 +83,7 @@
 #include <sys/param.h>
 
 #include <uthash.h>
+#include <pthread.h>
 
 #include "config.h"
 #include "define.h"

@@ -327,14 +327,14 @@ END_TEST
 
 START_TEST(test_object_create_clone)
 {
-	object *ob, *clone;
+	object *ob, *clone_ob;
 
 	ob = get_archetype("raas");
 	insert_ob_in_ob(get_archetype("sack"), ob);
-	clone = object_create_clone(ob);
-	fail_if(strcmp(clone->name, ob->name) != 0, "object_create_clone() created an object with name '%s', but it should have been named '%s'.", clone->name, ob->name);
-	fail_if(clone->inv == NULL, "object_create_clone() created a clone object with no inventory.");
-	fail_if(strcmp(clone->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone->inv->name, ob->inv->name);
+	clone_ob = object_create_clone(ob);
+	fail_if(strcmp(clone_ob->name, ob->name) != 0, "object_create_clone() created an object with name '%s', but it should have been named '%s'.", clone_ob->name, ob->name);
+	fail_if(clone_ob->inv == NULL, "object_create_clone() created a clone object with no inventory.");
+	fail_if(strcmp(clone_ob->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone_ob->inv->name, ob->inv->name);
 }
 END_TEST
 

@@ -938,18 +938,18 @@ void set_owner(object *op, object *owner)
  * accounted for the player's original skill, even if player has changed
  * skills meanwhile.
  * @param op The object.
- * @param clone The clone. */
-void copy_owner(object *op, object *clone)
+ * @param clone_ob The clone. */
+void copy_owner(object *op, object *clone_ob)
 {
-	object *owner = get_owner(clone);
+	object *owner = get_owner(clone_ob);
 
 	if (owner == NULL)
 	{
 		/* players don't have owners - they own themselves. Update
 		 * as appropriate. */
-		if (clone->type == PLAYER)
+		if (clone_ob->type == PLAYER)
 		{
-			owner = clone;
+			owner = clone_ob;
 		}
 		else
 		{
@@ -959,9 +959,9 @@ void copy_owner(object *op, object *clone)
 
 	set_owner_simple(op, owner);
 
-	if (clone->chosen_skill)
+	if (clone_ob->chosen_skill)
 	{
-		set_skill_pointers(op, clone->chosen_skill, clone->exp_obj);
+		set_skill_pointers(op, clone_ob->chosen_skill, clone_ob->exp_obj);
 	}
 }
 

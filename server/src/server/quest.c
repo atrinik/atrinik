@@ -152,7 +152,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 	{
 		case QUEST_TYPE_ITEM:
 		{
-			object *clone;
+			object *clone_ob;
 			int one_drop;
 
 			if (!tmp)
@@ -175,12 +175,12 @@ static void check_quest_container(object *op, object *quest_container, object *q
 				return;
 			}
 
-			clone = get_object();
-			copy_object_with_inv(tmp, clone);
-			SET_FLAG(clone, FLAG_IDENTIFIED);
+			clone_ob = get_object();
+			copy_object_with_inv(tmp, clone_ob);
+			SET_FLAG(clone_ob, FLAG_IDENTIFIED);
 			/* Insert the quest item inside the player. */
-			insert_ob_in_ob(clone, op);
-			esrv_send_item(op, clone);
+			insert_ob_in_ob(clone_ob, op);
+			esrv_send_item(op, clone_ob);
 
 			if (one_drop)
 			{
@@ -190,7 +190,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 			}
 			else
 			{
-				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone, NULL));
+				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone_ob, NULL));
 			}
 
 			draw_info_flags(NDI_ANIM, COLOR_NAVY, op, buf);
@@ -241,7 +241,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
 		case QUEST_TYPE_KILL_ITEM:
 		{
-			object *clone;
+			object *clone_ob;
 			sint64 num = 0;
 
 			/* Have we found this item already? */
@@ -260,22 +260,22 @@ static void check_quest_container(object *op, object *quest_container, object *q
 				}
 			}
 
-			clone = get_object();
-			copy_object_with_inv(tmp, clone);
-			SET_FLAG(clone, FLAG_QUEST_ITEM);
-			SET_FLAG(clone, FLAG_STARTEQUIP);
-			CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
+			clone_ob = get_object();
+			copy_object_with_inv(tmp, clone_ob);
+			SET_FLAG(clone_ob, FLAG_QUEST_ITEM);
+			SET_FLAG(clone_ob, FLAG_STARTEQUIP);
+			CLEAR_FLAG(clone_ob, FLAG_SYS_OBJECT);
 			/* Insert the quest item inside the player. */
-			clone = insert_ob_in_ob(clone, op);
-			esrv_send_item(op, clone);
+			clone_ob = insert_ob_in_ob(clone_ob, op);
+			esrv_send_item(op, clone_ob);
 
 			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
 			{
-				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone, NULL), num + 1, MAX(1, quest_object->last_grace));
+				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone_ob, NULL), num + 1, MAX(1, quest_object->last_grace));
 			}
 			else
 			{
-				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone, NULL));
+				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone_ob, NULL));
 			}
 
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);

@@ -1056,7 +1056,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 {
 	int mode = 0;
-	object *clone;
+	object *clone_ob;
 
 	if (!PyArg_ParseTuple(args, "|i", &mode))
 	{
@@ -1067,21 +1067,21 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 
 	if (!mode)
 	{
-		clone = hooks->object_create_clone(obj->obj);
+		clone_ob = hooks->object_create_clone(obj->obj);
 	}
 	else
 	{
-		clone = hooks->get_object();
-		hooks->copy_object(obj->obj, clone, 0);
+		clone_ob = hooks->get_object();
+		hooks->copy_object(obj->obj, clone_ob, 0);
 	}
 
-	if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER))
+	if (clone_ob->type == PLAYER || QUERY_FLAG(clone_ob, FLAG_IS_PLAYER))
 	{
-		clone->type = MONSTER;
-		CLEAR_FLAG(clone, FLAG_IS_PLAYER);
+		clone_ob->type = MONSTER;
+		CLEAR_FLAG(clone_ob, FLAG_IS_PLAYER);
 	}
 
-	return wrap_object(clone);
+	return wrap_object(clone_ob);
 }
 
 /**
