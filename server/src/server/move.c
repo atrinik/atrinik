@@ -176,7 +176,6 @@ int move_ob(object *op, int dir, object *originator)
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap)
 {
 	int i, ret;
-	object *tmp;
 
 	/* this is not 100% tested for mobs - enter_exit will still fail to return for mobs */
 	/* but some testing should make it for mobs too */
@@ -217,11 +216,8 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 		return 1;
 	}
 
-	for (tmp = op; tmp != NULL; tmp = tmp->more)
-	{
-		tmp->x = x + freearr_x[i] + (tmp->arch == NULL ? 0 : tmp->arch->clone.x);
-		tmp->y = y + freearr_y[i] + (tmp->arch == NULL ? 0 : tmp->arch->clone.y);
-	}
+	op->x = x + freearr_x[i];
+	op->y = y + freearr_y[i];
 
 	ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
 
@@ -312,12 +308,8 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 		return 1;
 	}
 
-	/* Update location for the object */
-	for (tmp = user; tmp != NULL; tmp = tmp->more)
-	{
-		tmp->x = other_teleporter->x + freearr_x[k] + (tmp->arch == NULL ? 0 : tmp->arch->clone.x);
-		tmp->y = other_teleporter->y + freearr_y[k] + (tmp->arch == NULL ? 0 : tmp->arch->clone.y);
-	}
+	user->x = other_teleporter->x + freearr_x[k];
+	user->y = other_teleporter->y + freearr_y[k];
 
 	tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
 

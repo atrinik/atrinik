@@ -1903,72 +1903,88 @@ static void remove_ob_inv(object *op)
  * @return NULL if 'op' was destroyed, 'op' otherwise. */
 object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 {
-	object *tmp = NULL, *top;
+	object *tmp, *top;
 	MapSpace *mc;
 	int x, y, lt;
 
-	/* some tests to check all is ok... some CPU ticks
-	 * which tracks we have problems or not */
-	if (OBJECT_FREE(op))
+	if (!m)
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert freed object %s in map %s!\n", query_name(op, NULL), m->name);
 		return NULL;
 	}
 
-	if (m == NULL)
+	if (OBJECT_FREE(op))
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert object %s in null-map!\n", query_name(op, NULL));
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert freed object %s in map %s.\n", query_name(op, NULL), m->path);
 		return NULL;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->name);
+		LOG(llevBug, "insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->path);
 		return NULL;
 	}
 
-	/* tail, but no INS_TAIL_MARKER: we had messed something outside! */
-	if (op->head && !(flag & INS_TAIL_MARKER))
+	if (!op->head && op->arch->more && !op->more)
 	{
-		LOG(llevBug, "insert_ob_in_map(): inserting op->more WITHOUT INS_TAIL_MARKER! OB:%s (ARCH: %s) (MAP: %s (%d,%d))\n", query_name(op, NULL), op->arch->name, m->path, op->x, op->y);
-		return NULL;
+		archetype *at;
+		object *prev, *tail;
+
+		prev = op;
+
+		for (at = op->arch->more; at; at = at->more)
+		{
+			tail = arch_to_object(at);
+
+			tail->type = op->type;
+			tail->layer = op->layer;
+			tail->sub_layer = op->sub_layer;
+
+			tail->head = op;
+			prev->more = tail;
+
+			prev = tail;
+		}
+
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_SYS_OBJECT);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_NO_APPLY);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_IS_INVISIBLE);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_IS_ETHEREAL);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_CAN_PASS_THRU);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_FLYING);
+		SET_OR_CLEAR_MULTI_FLAG(op, FLAG_BLOCKSVIEW);
+
+		SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(op, FLAG_NO_PASS);
+		SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(op, FLAG_BLOCKSVIEW);
 	}
 
 	if (op->more)
 	{
-		if (insert_ob_in_map(op->more, op->more->map, originator, flag | INS_TAIL_MARKER) == NULL)
-		{
-			if (!op->head)
-			{
-				LOG(llevBug, "insert_ob_in_map(): inserting op->more killed op %s in map %s\n", query_name(op, NULL), m->name);
-			}
+		op->more->x = HEAD(op)->x + op->more->arch->clone.x;
+		op->more->y = HEAD(op)->y + op->more->arch->clone.y;
 
+		if (insert_ob_in_map(op->more, m, originator, flag) == NULL)
+		{
 			return NULL;
 		}
 	}
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
 
-	/* this is now a key part of this function, because
-	 * we adjust multi arches here when they cross map boarders! */
 	x = op->x;
 	y = op->y;
-	op->map = m;
+	m = get_map_from_coord(m, &x, &y);
 
-	if (!(m = get_map_from_coord(m, &x, &y)))
+	if (!m)
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert object %s outside the map %s (%d,%d).\n\n", query_name(op, NULL), op->map->path, op->x, op->y);
+		LOG(llevBug, "insert_ob_in_map(): Tried to insert object %s outside the map %s (%d, %d).\n", query_name(op, NULL), op->map->path, op->x, op->y);
 		return NULL;
 	}
 
-	/* x and y will only change when we change the map too - so check the map */
-	if (op->map != m)
-	{
-		op->map = m;
-		op->x = x;
-		op->y = y;
-	}
+	op->x = x;
+	op->y = y;
+	op->map = m;
 
+	/* Merge objects if possible. */
 	if (op->nrof && !(flag & INS_NO_MERGE))
 	{
 		for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
@@ -1977,21 +1993,17 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			{
 				op->nrof += tmp->nrof;
 				remove_ob(tmp);
+				break;
 			}
 		}
 	}
 
-	/* We need this for FLY/MOVE_ON/OFF */
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
-	/* Nothing on the floor can be applied */
 	CLEAR_FLAG(op, FLAG_APPLIED);
-	/* Or locked */
 	CLEAR_FLAG(op, FLAG_INV_LOCKED);
 
-	/* Map layer system */
 	mc = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
 
-	/* So we have a non system object */
 	if (op->layer && !QUERY_FLAG(op, FLAG_IS_INVISIBLE))
 	{
 		top = GET_MAP_SPACE_LAYER(mc, op->layer, op->sub_layer);
@@ -2002,7 +2014,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			int slt;
 
 			/* No, we are the first on this layer - let's search something above us we can chain with. */
-			for (lt = op->layer; lt < NUM_LAYERS && !top; lt++)
+			for (lt = op->layer; lt <= NUM_LAYERS && !top; lt++)
 			{
 				for (slt = op->sub_layer; slt < NUM_SUB_LAYERS && !top; slt++)
 				{
@@ -2013,14 +2025,12 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 		SET_MAP_SPACE_LAYER(mc, op->layer, op->sub_layer, op);
 
-		/* Easy - we chain our object before this one */
 		if (top)
 		{
 			if (top->below)
 			{
 				top->below->above = op;
 			}
-			/* If no object before, we are starting new object */
 			else
 			{
 				SET_MAP_SPACE_FIRST(mc, op);
@@ -2030,7 +2040,6 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			top->below = op;
 			op->above = top;
 		}
-		/* We are first object here or one is before us - chain to it */
 		else
 		{
 			if ((top = GET_MAP_SPACE_LAST(mc)) != NULL)
@@ -2038,7 +2047,6 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 				top->above = op;
 				op->below = top;
 			}
-			/* First object, set first and last object */
 			else
 			{
 				SET_MAP_SPACE_FIRST(mc, op);
@@ -2047,17 +2055,14 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			SET_MAP_SPACE_LAST(mc, op);
 		}
 	}
-	/* op->layer == 0 - let's just put this object in front of all others */
 	else
 	{
-		/* Is there something else? */
 		if ((top = GET_MAP_SPACE_FIRST(mc)) != NULL)
 		{
 			/* Easy chaining */
 			top->below = op;
 			op->above = top;
 		}
-		/* No, we are the last object */
 		else
 		{
 			SET_MAP_SPACE_LAST(mc, op);
@@ -2066,8 +2071,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		SET_MAP_SPACE_FIRST(mc, op);
 	}
 
-	/* Set some specials for players We adjust the ->player map variable
-	 * and the local map player chain. */
+	/* Some object-type-specific adjustments/initialization. */
 	if (op->type == PLAYER)
 	{
 		CONTR(op)->socket.update_tile = 0;
@@ -2086,76 +2090,28 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 		map_event_obj_init(op);
 	}
 
-	/* We updated something here - mark this tile as changed! */
+	/* Mark this tile as changed. */
 	mc->update_tile++;
-	/* Updates flags (blocked, alive, no magic, etc) for this map space */
+	/* Update flags for this tile. */
 	update_object(op, UP_OBJ_INSERT);
 
 	if (!(flag & INS_NO_WALK_ON) && (mc->flags & (P_WALK_ON | P_FLY_ON) || op->more) && !op->head)
 	{
-		int event;
-
-		/* We are flying but no fly event here */
-		if (QUERY_FLAG(op, FLAG_FLY_ON))
-		{
-			if (!(mc->flags & P_FLY_ON))
-			{
-				goto check_walk_loop;
-			}
-		}
-		/* We are not flying - check walking only */
-		else
-		{
-			if (!(mc->flags & P_WALK_ON))
-			{
-				goto check_walk_loop;
-			}
-		}
-
-		if ((event = check_walk_on(op, originator, MOVE_APPLY_MOVE)))
-		{
-			/* Don't return NULL - we are valid but we were moved */
-			if (event == CHECK_WALK_MOVED)
-			{
-				return op;
-			}
-			else
-			{
-				return NULL;
-			}
-		}
-
-		/* TODO: check event */
-check_walk_loop:
-		for (tmp = op->more; tmp; tmp = tmp->more)
+		for (tmp = op; tmp; tmp = tmp->more)
 		{
 			mc = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
 
-			/* We are flying but no fly event here */
-			if (QUERY_FLAG(op, FLAG_FLY_ON))
+			if ((QUERY_FLAG(tmp, FLAG_FLY_ON) && (mc->flags & P_FLY_ON)) || (!QUERY_FLAG(tmp, FLAG_FLY_ON) && (mc->flags & P_WALK_ON)))
 			{
-				if (!(mc->flags & P_FLY_ON))
-				{
-					continue;
-				}
-			}
-			/* We are not flying - check walking only */
-			else
-			{
-				if (!(mc->flags & P_WALK_ON))
-				{
-					continue;
-				}
-			}
+				int event;
 
-			if ((event = check_walk_on(tmp, originator, MOVE_APPLY_MOVE)))
-			{
-				/* Don't return NULL - we are valid but we were moved */
+				event = check_walk_on(tmp, originator, MOVE_APPLY_MOVE);
+
 				if (event == CHECK_WALK_MOVED)
 				{
 					return op;
 				}
-				else
+				else if (event != CHECK_WALK_OK)
 				{
 					return NULL;
 				}

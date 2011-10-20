@@ -918,9 +918,8 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
 	int i;
-	archetype *tail;
 	void *mybuffer;
-	object *op, *prev = NULL, *last_more = NULL, *tmp;
+	object *op;
 
 	op = get_object();
 
@@ -963,101 +962,6 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
 		{
 			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		}
-
-		/* We have a multi arch head? */
-		if (op->arch->more)
-		{
-			tail = op->arch->more;
-			prev = op, last_more = op;
-
-			/* Clone the tail using the default arch */
-			do
-			{
-				tmp = get_object();
-				copy_object(&tail->clone, tmp, 0);
-
-				tmp->x += op->x;
-				tmp->y += op->y;
-				tmp->map = op->map;
-
-				/* Adjust the single object specific data except flags. */
-				tmp->type = op->type;
-				tmp->layer = op->layer;
-				tmp->sub_layer = op->sub_layer;
-
-				/* Link the tail object... */
-				tmp->head = prev, last_more->more = tmp, last_more = tmp;
-
-			}
-			while ((tail = tail->more));
-
-			/* To speed up some core functions like moving or remove_ob()/insert_ob
-			 * and because there are some "arch depending and not object depending"
-			 * flags, we init the tails with some of the head settings. */
-
-			if (QUERY_FLAG(op, FLAG_SYS_OBJECT))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_SYS_OBJECT);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_SYS_OBJECT);
-			}
-
-			if (QUERY_FLAG(op, FLAG_NO_APPLY))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_NO_APPLY);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_NO_APPLY);
-			}
-
-			if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_IS_INVISIBLE);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_IS_INVISIBLE);
-			}
-
-			if (QUERY_FLAG(op, FLAG_IS_ETHEREAL))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_IS_ETHEREAL);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_IS_ETHEREAL);
-			}
-
-			if (QUERY_FLAG(op, FLAG_CAN_PASS_THRU))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_CAN_PASS_THRU);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_CAN_PASS_THRU);
-			}
-
-			if (QUERY_FLAG(op, FLAG_FLYING))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_FLYING);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_FLYING);
-			}
-
-			if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
-			{
-				SET_MULTI_FLAG(op->more, FLAG_BLOCKSVIEW);
-			}
-			else
-			{
-				CLEAR_MULTI_FLAG(tmp->more, FLAG_BLOCKSVIEW);
-			}
 		}
 
 		insert_ob_in_map(op, m, op, INS_NO_MERGE | INS_NO_WALK_ON);

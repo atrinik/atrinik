@@ -883,6 +883,26 @@
 		((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
 	}                                                   \
 }
+
+#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag) \
+	if (QUERY_FLAG((_head), (_flag))) \
+	{ \
+		SET_MULTI_FLAG((_head)->more, (_flag)); \
+	} \
+	else \
+	{ \
+		CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
+	}
+
+#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag) \
+	if (QUERY_FLAG((_head), (_flag)) && !QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
+	{ \
+		SET_MULTI_FLAG((_head)->more, (_flag)); \
+	} \
+	else if (!QUERY_FLAG((_head), (_flag)) && QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
+	{ \
+		CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
+	}
 /*@}*/
 
 /**

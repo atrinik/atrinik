@@ -223,7 +223,6 @@ void leave_map(object *op)
 static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 {
 	int i = 0;
-	object *tmp;
 	mapstruct *oldmap = op->map;
 
 	if (op->head)
@@ -288,12 +287,8 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, NULL, 0);
 	}
 
-	/* Set single or all part of a multi arch */
-	for (tmp = op; tmp != NULL; tmp = tmp->more)
-	{
-		tmp->x = tmp->arch->clone.x + x + freearr_x[i];
-		tmp->y = tmp->arch->clone.y + y + freearr_y[i];
-	}
+	op->x = x + freearr_x[i];
+	op->y = y + freearr_y[i];
 
 	if (!insert_ob_in_map(op, newmap, NULL, 0))
 	{

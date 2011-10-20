@@ -38,63 +38,28 @@
 static object *spawn_monster(object *monster, object *spawn_point_ob, int range)
 {
 	int i;
-	object *op, *head = NULL, *prev = NULL, *ret = NULL;
-	archetype *at = monster->arch;
+	object *op;
 
-	i = find_first_free_spot2(at, spawn_point_ob->map, spawn_point_ob->x, spawn_point_ob->y, 0, range);
+	i = find_first_free_spot2(monster->arch, spawn_point_ob->map, spawn_point_ob->x, spawn_point_ob->y, 0, range);
 
 	if (i == -1)
 	{
 		return NULL;
 	}
 
-	while (at)
+	op = get_object();
+	monster->type = MONSTER;
+	copy_object(monster, op, 0);
+	monster->type = SPAWN_POINT_MOB;
+
+	op->x = spawn_point_ob->x + freearr_x[i];
+	op->y = spawn_point_ob->y + freearr_y[i];
+
+	if (op->item_condition)
 	{
-		op = get_object();
+		int level = MAX(1, MIN(op->level, MAXLEVEL)), min, max, diff = spawn_point_ob->map->difficulty;
 
-		/* Copy single/head from spawn inventory */
-		if (head == NULL)
-		{
-			monster->type = MONSTER;
-			copy_object(monster, op, 0);
-			monster->type = SPAWN_POINT_MOB;
-			ret = op;
-		}
-		/* But the tails for multi arch from the clones */
-		else
-		{
-			copy_object(&at->clone, op, 0);
-		}
-
-		op->x = spawn_point_ob->x + freearr_x[i] + at->clone.x;
-		op->y = spawn_point_ob->y + freearr_y[i] + at->clone.y;
-		op->map = spawn_point_ob->map;
-
-		if (head)
-		{
-			op->head = head;
-			prev->more = op;
-		}
-
-		if (OBJECT_FREE(op))
-		{
-			return NULL;
-		}
-
-		if (head == NULL)
-		{
-			head = op;
-		}
-
-		prev = op;
-		at = at->more;
-	}
-
-	if (ret && ret->item_condition)
-	{
-		int level = MAX(1, MIN(ret->level, MAXLEVEL)), min, max, diff = spawn_point_ob->map->difficulty;
-
-		switch (ret->item_condition)
+		switch (op->item_condition)
 		{
 			case 1:
 				min = level_color[diff].green;
@@ -131,15 +96,15 @@ static object *spawn_monster(object *monster, object *spawn_point_ob, int range)
 				max = min;
 		}
 
-		ret->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
+		op->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
 	}
 
-	if (ret->randomitems)
+	if (op->randomitems)
 	{
-		create_treasure(ret->randomitems, ret, 0, ret->level ? ret->level : spawn_point_ob->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+		create_treasure(op->randomitems, op, 0, op->level ? op->level : spawn_point_ob->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
 	}
 
-	return ret;
+	return op;
 }
 
 /**
@@ -421,10 +386,10 @@ void spawn_point(object *op)
 	/* And put it inside the monster */
 	insert_ob_in_ob(tmp, monster);
 
+	insert_ob_in_map(monster, op->map, op, 0);
+
 	SET_MULTI_FLAG(monster, FLAG_SPAWN_MOB);
 	fix_monster(monster);
-
-	insert_ob_in_map(monster, monster->map, op, 0);
 
 	if (QUERY_FLAG(monster, FLAG_ANIMATE))
 	{

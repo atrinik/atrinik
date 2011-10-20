@@ -552,10 +552,6 @@ typedef struct oblnk
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
 #define INS_NO_WALK_ON      0x0002
-/**
- * used intern from insert_xx to track multi
- * arch problems - don't use! */
-#define INS_TAIL_MARKER     0x0004
 /*@}*/
 
 /**
