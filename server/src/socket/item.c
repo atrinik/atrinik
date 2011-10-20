@@ -31,7 +31,6 @@
 
 #include <global.h>
 
-static object *esrv_get_ob_from_count_DM(object *pl, tag_t count);
 static int check_container(object *pl, object *con);
 
 /** This is the maximum number of bytes we expect any item to take up. */
@@ -688,95 +687,26 @@ void esrv_del_item(player *pl, int tag, object *cont)
 }
 
 /**
- * Looks for an object player's client requested in player's inventory
- * and below player.
- * @param pl Player.
- * @param count ID of the object to look for.
- * @return The found object, NULL if it can't be found. */
-object *esrv_get_ob_from_count(object *pl, tag_t count)
+ * Recursive part of esrv_get_ob_from_count(). */
+static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 {
-	object *op, *tmp;
+	object *tmp, *head, *tmp2;
 
-	/* Easy case */
-	if (pl->count == count)
+	for (tmp = where; tmp; tmp = tmp->below)
 	{
-		return pl;
-	}
+		head = HEAD(tmp);
 
-	/* Special case, we can examine deep inside every inventory even from
-	 * non containers. */
-	if (QUERY_FLAG(pl, FLAG_WIZ))
-	{
-		for (op = pl->inv; op; op = op->below)
+		if (head->count == count)
 		{
-			if (op->count == count)
-			{
-				return op;
-			}
-			else if (op->inv)
-			{
-				if ((tmp = esrv_get_ob_from_count_DM(op->inv, count)))
-				{
-					return tmp;
-				}
-			}
+			return head;
 		}
-
-		for (op = GET_MAP_OB(pl->map, pl->x, pl->y); op; op = op->above)
+		else if (head->inv && (QUERY_FLAG(pl, FLAG_WIZ) || (head->type == CONTAINER && CONTR(pl)->container == head)))
 		{
-			if (op->count == count)
+			tmp2 = get_ob_from_count_rec(pl, head->inv, count);
+
+			if (tmp2)
 			{
-				return op;
-			}
-			else if (op->inv)
-			{
-				if ((tmp = esrv_get_ob_from_count_DM(op->inv, count)))
-				{
-					return tmp;
-				}
-			}
-		}
-
-		return NULL;
-	}
-
-	if (pl->count == count)
-	{
-		return pl;
-	}
-
-	for (op = pl->inv; op; op = op->below)
-	{
-		if (op->count == count)
-		{
-			return op;
-		}
-		else if (op->type == CONTAINER && CONTR(pl)->container == op)
-		{
-			for (tmp = op->inv; tmp; tmp = tmp->below)
-			{
-				if (tmp->count == count)
-				{
-					return tmp;
-				}
-			}
-		}
-	}
-
-	for (op = GET_MAP_OB(pl->map, pl->x, pl->y); op; op = op->above)
-	{
-		if (op->count == count)
-		{
-			return op;
-		}
-		else if (op->type == CONTAINER && CONTR(pl)->container == op)
-		{
-			for (tmp = op->inv; tmp; tmp = tmp->below)
-			{
-				if (tmp->count == count)
-				{
-					return tmp;
-				}
+				return tmp2;
 			}
 		}
 	}
@@ -785,27 +715,32 @@ object *esrv_get_ob_from_count(object *pl, tag_t count)
 }
 
 /**
- * Recursive function for DMs to access to non-container inventories.
+ * Looks for an object player's client requested in player's inventory
+ * and below player.
  * @param pl Player.
  * @param count ID of the object to look for.
  * @return The found object, NULL if it can't be found. */
-static object *esrv_get_ob_from_count_DM(object *pl, tag_t count)
+object *esrv_get_ob_from_count(object *pl, tag_t count)
 {
-	object *tmp, *op;
+	object *tmp;
 
-	for (op = pl; op; op = op->below)
+	if (pl->count == count)
 	{
-		if (op->count == count)
-		{
-			return op;
-		}
-		else if (op->inv)
-		{
-			if ((tmp = esrv_get_ob_from_count_DM(op->inv, count)))
-			{
-				return tmp;
-			}
-		}
+		return pl;
+	}
+
+	tmp = get_ob_from_count_rec(pl, pl->inv, count);
+
+	if (tmp)
+	{
+		return tmp;
+	}
+
+	tmp = get_ob_from_count_rec(pl, GET_MAP_OB_LAST(pl->map, pl->x, pl->y), count);
+
+	if (tmp)
+	{
+		return tmp;
 	}
 
 	return NULL;

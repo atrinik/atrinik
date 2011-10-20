@@ -2339,16 +2339,18 @@ object *insert_ob_in_ob(object *op, object *where)
 		return op;
 	}
 
-	if (where->head)
-	{
-		LOG(llevBug, "Tried to insert object wrong part of multipart object.\n");
-		where = where->head;
-	}
+	where = HEAD(where);
+	op = HEAD(op);
 
+	/* If the object has tail parts, it means the object is a multi-part
+	 * object that was on a map prior to this insert call. Thus, we will
+	 * want to unlink the tail parts from this object, so if the object
+	 * is at some later point inserted on the map again, the tails will
+	 * be re-created. Since the existing tail parts were removed but not
+	 * inserted anywhere afterwards, they will be GCed later on. */
 	if (op->more)
 	{
-		LOG(llevError, "Tried to insert multipart object %s (%d)\n", query_name(op, NULL), op->count);
-		return op;
+		op->more = NULL;
 	}
 
 	CLEAR_FLAG(op, FLAG_REMOVED);
@@ -3039,12 +3041,6 @@ int can_pick(object *who, object *item)
 
 	/* Weight limit for monsters */
 	if (who->type != PLAYER && item->weight > (who->weight / 3))
-	{
-		return 0;
-	}
-
-	/* Can not pick up multipart objects */
-	if (item->head || item->more)
 	{
 		return 0;
 	}
