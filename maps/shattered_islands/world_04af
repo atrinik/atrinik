@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-10-20 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -2432,7 +2432,7 @@ arch bridge_wood_corner.181
 x 19
 y 10
 end
-arch bollard_tied_n_1
+arch bollard
 no_pass 1
 x 19
 y 10
@@ -2442,10 +2442,6 @@ x 19
 y 11
 end
 arch bridge_wood_EW.151
-x 19
-y 11
-end
-arch bollard_tied_n_2
 x 19
 y 11
 end
@@ -3069,7 +3065,7 @@ arch bridge_wood_NS.131
 x 23
 y 10
 end
-arch bollard_tied_n_1
+arch bollard
 no_pass 1
 x 23
 y 10
@@ -3079,10 +3075,6 @@ x 23
 y 11
 end
 arch bridge_wood_EW.151
-x 23
-y 11
-end
-arch bollard_tied_n_2
 x 23
 y 11
 end
