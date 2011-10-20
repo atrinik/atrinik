@@ -43,14 +43,22 @@ def find_obj(activator, limit = 10, archname = None, name = None, count = None):
 		if not first:
 			continue
 
-		for tmp in first:
-			if archname != None and tmp.arch.name != archname:
-				continue
+		toscan = [first]
 
-			if name != None and tmp.name != name:
-				continue
+		while toscan:
+			scanning = toscan.pop()
 
-			if count != None and tmp.count != count:
-				continue
+			for tmp in scanning:
+				if tmp.inv:
+					toscan.append(tmp.inv)
 
-			return tmp
+				if archname != None and tmp.arch.name != archname:
+					continue
+
+				if name != None and tmp.name != name:
+					continue
+
+				if count != None and tmp.count != count:
+					continue
+
+				return tmp
