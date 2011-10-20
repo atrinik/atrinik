@@ -13,7 +13,7 @@ def main():
 
 		elif msg == "yes":
 			inf.add_msg("Hmm! Sam is a good friend of mine, and a great captain. Shame about what happened to you - from what I gather, you hit your head while on the sea in that storm?")
-			inf.add_link("Er... Yes...")
+			inf.add_link("Er... Yes...", dest = "er... yes...")
 			inf.add_link("&lt;no comment&gt;", dest = "nocomment")
 
 		elif msg == "er... yes...":
