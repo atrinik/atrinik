@@ -30,17 +30,6 @@
 #ifndef MEMPOOL_H
 #define MEMPOOL_H
 
-/** Enable tracking/freeing of mempools? */
-#define MEMPOOL_TRACKING
-
-/**
- * Enable a global list of *all* objects we have allocated. We can browse
- * them to control and debug them.
- * @warning Enabling this feature will slow down the server
- * by an <b>HUGE</b> amount and should only be done in real debug
- * runs. */
-/*#define MEMPOOL_OBJECT_TRACKING*/
-
 /**
  * Minimalistic memory management data for a single chunk of memory.
  *
@@ -56,23 +45,6 @@ struct mempool_chunk
 	 * Used for the free list and the limbo list. NULL if this
 	 * memory chunk has been allocated and is in use */
 	struct mempool_chunk *next;
-
-#ifdef MEMPOOL_OBJECT_TRACKING
-	/** Previous mempool object */
-	struct mempool_chunk *obj_prev;
-
-	/** Next mempool object */
-	struct mempool_chunk *obj_next;
-
-	/** Mempool flags */
-	uint32 flags;
-
-	/** To what mempool is this memory part related? */
-	uint32 pool_id;
-
-	/** The REAL unique ID number */
-	uint32 id;
-#endif
 };
 
 /* Optional initialisator to be called when expanding */
@@ -92,6 +64,9 @@ typedef void (*chunk_destructor) (void *ptr);
 /** Data for a single memory pool */
 struct mempool
 {
+	/** Mutex protecting the mempool's data. */
+	pthread_mutex_t mutex;
+
 	/** Description of chunks. Mostly for debugging */
 	const char *chunk_description;
 
@@ -124,34 +99,7 @@ struct mempool
 
 	/** Number of allocated. */
 	uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
-#ifdef MEMPOOL_TRACKING
-	/** List of puddles used for mempool tracking */
-	struct puddle_info *first_puddle_info;
-#endif
 };
-
-#ifdef MEMPOOL_TRACKING
-/** Mempool information structure */
-struct puddle_info
-{
-	/** Next puddle info. */
-	struct puddle_info *next;
-
-	/** First chunk. */
-	struct mempool_chunk *first_chunk;
-
-	/** First free chunk. */
-	struct mempool_chunk *first_free;
-
-	/** Last free chunk. */
-	struct mempool_chunk *last_free;
-
-	/** Number of free. */
-	uint32 nrof_free;
-};
-
-extern struct mempool *pool_puddle;
-#endif
 
 /** Maximum number of mempools we will use */
 #define MAX_NROF_MEMPOOLS 32

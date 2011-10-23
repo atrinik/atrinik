@@ -34,10 +34,6 @@
 #		include <crypt.h>
 #endif
 
-#ifdef MEMPOOL_OBJECT_TRACKING
-extern void check_use_object_list();
-#endif
-
 /** Object used in process_events(). */
 static object marker;
 /** Where to search for .bzr directory. */
@@ -1367,10 +1363,6 @@ static void iterate_main_loop(void)
 	shutdown_agent(-1, NULL);
 
 	doeric_server();
-
-#ifdef MEMPOOL_OBJECT_TRACKING
-	check_use_object_list();
-#endif
 
 	/* Global round ticker. */
 	global_round_tag++;

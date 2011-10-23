@@ -60,14 +60,6 @@
 
 #include <global.h>
 
-#ifdef MEMPOOL_OBJECT_TRACKING
-/* for debugging only! */
-static struct mempool_chunk *used_object_list = NULL;
-static uint32 chunk_tracking_id = 1;
-#define MEMPOOL_OBJECT_FLAG_FREE 1
-#define MEMPOOL_OBJECT_FLAG_USED 2
-#endif
-
 /**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
@@ -76,11 +68,6 @@ struct mempool_chunk end_marker;
 
 int nrof_mempools = 0;
 struct mempool *mempools[MAX_NROF_MEMPOOLS];
-
-#ifdef MEMPOOL_TRACKING
-struct mempool *pool_puddle;
-#endif
-
 struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties;
 
 /**
@@ -144,6 +131,7 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
 
 	mempools[nrof_mempools] = pool;
 
+	pthread_mutex_init(&pool->mutex, NULL);
 	pool->chunk_description = description;
 	pool->expand_size = expand;
 	pool->chunksize = size;
@@ -164,10 +152,6 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
 		pool->nrof_allocated[i] = 0;
 	}
 
-#ifdef MEMPOOL_TRACKING
-	pool->first_puddle_info = NULL;
-#endif
-
 	nrof_mempools++;
 
 	return pool;
@@ -177,9 +161,6 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
  * Initialize the mempools lists and related data structures. */
 void init_mempools(void)
 {
-#ifdef MEMPOOL_TRACKING
-	pool_puddle = create_mempool("puddles", 10, sizeof(struct puddle_info), MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
-#endif
 	pool_object = create_mempool("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, (chunk_destructor) destroy_object);
 	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
@@ -208,9 +189,6 @@ static void free_mempool(struct mempool *pool)
 void free_mempools(void)
 {
 	LOG(llevDebug, "Freeing memory pools.\n");
-#ifdef MEMPOOL_TRACKING
-	free_mempool(pool_puddle);
-#endif
 	free_mempool(pool_object);
 	free_mempool(pool_player);
 	free_mempool(pool_objectlink);
@@ -263,14 +241,6 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 
 	for (i = 0; (int) i < nrof_arrays - 1; i++)
 	{
-#ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
-		ptr->obj_next = ptr->obj_prev = 0;
-		ptr->pool = pool;
-		/* This is a real, unique object ID. Allows tracking beyond
-		 * get/free objects */
-		ptr->id = chunk_tracking_id++;
-		ptr->flags |= MEMPOOL_OBJECT_FLAG_FREE;
-#endif
 		if (pool->initialisator)
 		{
 			pool->initialisator(MEM_USERDATA(ptr));
@@ -286,25 +256,6 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 	{
 		pool->initialisator(MEM_USERDATA(ptr));
 	}
-
-#ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
-	ptr->obj_next = ptr->obj_prev = 0; /* secure */
-	ptr->pool = pool;
-	/* This is a real, unique object ID. Allows tracking beyond get/free
-	 * objects */
-	ptr->id = chunk_tracking_id++;
-	ptr->flags |= MEMPOOL_OBJECT_FLAG_FREE;
-#endif
-
-#ifdef MEMPOOL_TRACKING
-	/* Track the allocation of puddles */
-	{
-		struct puddle_info *p = get_poolchunk(pool_puddle);
-		p->first_chunk = first;
-		p->next = pool->first_puddle_info;
-		pool->first_puddle_info = p;
-	}
-#endif
 }
 
 /**
@@ -316,6 +267,8 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp)
 {
 	struct mempool_chunk *new_obj;
+
+	pthread_mutex_lock(&pool->mutex);
 
 	if (pool->flags & MEMPOOL_BYPASS_POOLS)
 	{
@@ -341,24 +294,7 @@ void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp)
 		pool->constructor(MEM_USERDATA(new_obj));
 	}
 
-#ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
-	if (new_obj->obj_prev || new_obj->obj_next)
-	{
-		LOG(llevDebug, "get_poolchunk_array_real() object >%d< is in used_object list!!\n", new_obj->id);
-	}
-
-	/* Put it in front of the used object list */
-	new_obj->obj_next = used_object_list;
-
-	if (new_obj->obj_next)
-	{
-		new_obj->obj_next->obj_prev = new_obj;
-	}
-
-	used_object_list = new_obj;
-	new_obj->flags &= ~MEMPOOL_OBJECT_FLAG_FREE;
-	new_obj->flags |= MEMPOOL_OBJECT_FLAG_USED;
-#endif
+	pthread_mutex_unlock(&pool->mutex);
 
 	return MEM_USERDATA(new_obj);
 }
@@ -381,25 +317,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempoo
 		return;
 	}
 
-#ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
-	if (old->obj_next)
-	{
-		old->obj_next->obj_prev = old->obj_prev;
-	}
-
-	if (old->obj_prev)
-	{
-		old->obj_prev->obj_next = old->obj_next;
-	}
-	else
-	{
-		used_object_list = old->obj_next;
-	}
-
-	old->obj_next = old->obj_prev = 0;
-	old->flags &= ~MEMPOOL_OBJECT_FLAG_USED;
-	old->flags |= MEMPOOL_OBJECT_FLAG_FREE;
-#endif
+	pthread_mutex_lock(&pool->mutex);
 
 	if (pool->destructor)
 	{
@@ -422,6 +340,8 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempoo
 		pool->freelist[arraysize_exp] = old;
 		pool->nrof_free[arraysize_exp]++;
 	}
+
+	pthread_mutex_unlock(&pool->mutex);
 }
 
 /**
@@ -469,86 +389,3 @@ void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc)
 		}
 	}
 }
-
-#ifdef DEBUG_MEMPOOL_OBJECT_TRACKING
-
-/**
- * This is time consuming DEBUG only function. Mainly, it checks the
- * different memory parts and controls they are was they are - if a
- * object claims it's in an inventory we check the inventory - same for
- * map. If we have detached but not deleted a object - we will find it
- * here. */
-void check_use_object_list(void)
-{
-	struct mempool_chunk *chunk;
-
-	for (chunk = used_object_list; chunk; chunk = chunk->obj_next)
-	{
-#ifdef MEMPOOL_TRACKING
-		/* ignore for now */
-		if (chunk->pool == pool_puddle)
-		{
-		}
-		else
-#endif
-		if (chunk->pool == pool_object)
-		{
-			object *tmp2, *tmp = MEM_USERDATA(chunk);
-
-			if (QUERY_FLAG(tmp, FLAG_REMOVED))
-			{
-				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has removed flag set!\n", query_name(tmp), chunk->id);
-			}
-
-			/* We are on a map */
-			if (tmp->map)
-			{
-				if (tmp->map->in_memory != MAP_IN_MEMORY)
-				{
-					LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
-				}
-				else
-				{
-					for (tmp2 = GET_MAP_OB(tmp->map, tmp->x, tmp->y); tmp2; tmp2 = tmp2->above)
-					{
-						if (tmp2 == tmp)
-						{
-							goto goto_object_found;
-						}
-					}
-
-					LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid map! >%d<!\n", query_name(tmp), tmp->map->name ? tmp->map->name : "NONE", chunk->id);
-				}
-			}
-			else if (tmp->env)
-			{
-				/* Object claims to be here... Let's check it IS here */
-				for (tmp2 = tmp->env->inv; tmp2; tmp2 = tmp2->below)
-				{
-					if (tmp2 == tmp)
-					{
-						goto goto_object_found;
-					}
-				}
-
-				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has invalid env >%d<!\n", query_name(tmp), query_name(tmp->env), chunk->id);
-			}
-			/* Where are we? */
-			else
-			{
-				LOG(llevDebug, "check_use_object_list(): object >%s< (%d) has no env/map\n", query_name(tmp), chunk->id);
-			}
-		}
-		else if (chunk->pool == pool_player)
-		{
-			player *tmp = MEM_USERDATA(chunk);
-		}
-		else
-		{
-			LOG(llevDebug, "check_use_object_list(): wrong pool ID! (%s - %d)", chunk->pool->chunk_description, chunk->id);
-		}
-
-		goto_object_found:;
-	}
-}
-#endif
