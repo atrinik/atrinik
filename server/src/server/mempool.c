@@ -88,7 +88,7 @@ struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_p
  * (1 << exp) >= n and (1 << (exp -1)) \< n */
 uint32 nearest_pow_two_exp(uint32 n)
 {
-	static const uint32 exp_lookup[65]  =
+	static const uint32 exp_lookup[65] =
 	{
 		0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
 		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
