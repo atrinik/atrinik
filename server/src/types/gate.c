@@ -198,7 +198,6 @@ void move_gate(object *op)
 					if (i != -1)
 					{
 						remove_ob(tmp);
-						check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED);
 						tmp->x += freearr_x[i];
 						tmp->y += freearr_y[i];
 						insert_ob_in_map(tmp, op->map, op, 0);

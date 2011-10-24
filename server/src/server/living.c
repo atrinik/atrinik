@@ -519,7 +519,6 @@ int change_abil(object *op, object *tmp)
 			else
 			{
 				draw_info(COLOR_GRAY, op, "You float down to the ground.");
-				check_walk_on(op, op, 0);
 			}
 		}
 	}

@@ -80,7 +80,6 @@ int recharge(object *op)
 	{
 		draw_info_format(COLOR_WHITE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
 		play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
-		esrv_del_item(CONTR(op), wand->count, wand->env);
 		remove_ob(wand);
 		return 1;
 	}
@@ -1331,11 +1330,7 @@ int remove_curse(object *op, object *target, int type, int src)
 				}
 
 				CLEAR_FLAG(tmp, FLAG_CURSED);
-
-				if (target->type == PLAYER)
-				{
-					esrv_send_item(target, tmp);
-				}
+				esrv_send_item(tmp);
 			}
 			/* Level of the items is too high for this remove curse */
 			else
@@ -1800,7 +1795,6 @@ int cast_transform_wealth(object *op)
 	val = (marked->value * (marked->nrof ? marked->nrof : 1)) * TRANSFORM_WEALTH_SACRIFICE;
 	/* We remove the money. */
 	remove_ob(marked);
-	esrv_del_item(CONTR(op), marked->count, marked->env);
 	/* Now give the player the new money. */
 	insert_coins(op, val);
 	draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));

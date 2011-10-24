@@ -608,11 +608,6 @@ static int god_removes_curse(object *op, int remove_damnation)
 			success = 1;
 			CLEAR_FLAG(tmp, FLAG_DAMNED);
 			CLEAR_FLAG(tmp, FLAG_CURSED);
-
-			if (op->type == PLAYER)
-			{
-				esrv_send_item(op, tmp);
-			}
 		}
 	}
 
@@ -686,12 +681,7 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 	{
 		snprintf(buf, sizeof(buf), "of %s", god->name);
 		FREE_AND_COPY_HASH(weapon->title, buf);
-
-		if (op->type == PLAYER)
-		{
-			esrv_update_item(UPD_NAME, op, weapon);
-		}
-
+		esrv_update_item(UPD_NAME, weapon);
 		draw_info(COLOR_WHITE, op, "Your weapon quivers as if struck!");
 	}
 
@@ -710,12 +700,7 @@ static int god_enchants_weapon(object *op, object *god, object *tr)
 	{
 		draw_info(COLOR_WHITE, op, "A phosphorescent glow envelops your weapon!");
 		weapon->magic++;
-
-		if (op->type == PLAYER)
-		{
-			esrv_update_item(UPD_NAME, op, weapon);
-		}
-
+		esrv_update_item(UPD_NAME, weapon);
 		return 1;
 	}
 
@@ -797,12 +782,7 @@ static int god_gives_present(object *op, object *god, treasure *tr)
 
 	tmp = arch_to_object(tr->item);
 	draw_info_format(COLOR_WHITE, op, "%s lets %s appear in your hands.", god->name, query_short_name(tmp, NULL));
-	tmp = insert_ob_in_ob(tmp, op);
-
-	if (op->type == PLAYER)
-	{
-		esrv_send_item(op, tmp);
-	}
+	insert_ob_in_ob(tmp, op);
 
 	return 1;
 }
@@ -993,6 +973,7 @@ static void god_intervention(object *op, object *god)
 			}
 
 			remove_ob(depl);
+			object_destroy(depl);
 			fix_player(op);
 			return;
 		}

@@ -293,6 +293,7 @@ void init_globals(void)
 	animations = NULL;
 	animations_allocated = 0;
 	init_defaults();
+	object_methods_init();
 }
 
 /**

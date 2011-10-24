@@ -94,8 +94,6 @@ static int dm_map_remove_players(mapstruct *m)
 			remove_ob(pl->ob);
 			pl->dm_removed_from_map = 1;
 			pl->ob->map = NULL;
-			/* So they will not be removed by object_gc(). */
-			CLEAR_FLAG(pl->ob, FLAG_REMOVED);
 		}
 	}
 
@@ -114,8 +112,6 @@ static void dm_map_reinsert_players(mapstruct *m, object *op)
 	{
 		if (pl->dm_removed_from_map)
 		{
-			/* Restore the removed flag. */
-			SET_FLAG(pl->ob, FLAG_REMOVED);
 			pl->dm_removed_from_map = 0;
 			insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
 			/* So that we don't access invalid values of old player's last_update map
@@ -176,7 +172,6 @@ int command_kick(object *ob, char *params)
 			object *op = pl->ob;
 
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 
 			if (params)
 			{
@@ -473,9 +468,6 @@ int command_resetmap(object *op, char *params)
 	path = add_refcount(m->path);
 	flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
 	swap_map(m, 1);
-	/* Otherwise special objects such as beacons will not be properly
-	 * deinitialized this very instant, but the next tick instead. */
-	object_gc();
 
 	m = ready_map_name(path, flags);
 	free_string_shared(path);

@@ -1716,29 +1716,15 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 }
 
 /**
- * Dumps all variables in an object to a file.
- *
- * If bit 0 of flag is set, unpaid objects will be saved.  As of now,
- * the only place this is not set is when saving the player.
- *
- * If bit 1 of flag is set, don't remove the object after save.  As of now,
- * all of the callers are setting this. */
-void save_object(FILE *fp, object *op, int flag)
+ * Dumps all variables in an object to a file. */
+void save_object(FILE *fp, object *op)
 {
 	archetype *at;
-	object *tmp, *old;
+	object *tmp;
 	StringBuffer *sb;
 	char *cp;
 
-	/* Even if the object does have an owner, it would seem that we should
-	 * still save it. */
-	if (fp == NULL)
-	{
-		return;
-	}
-
-	/* If it is unpaid and we don't want to save those, just return. */
-	if (!(flag & 1) && (QUERY_FLAG(op, FLAG_UNPAID)))
+	if (!fp)
 	{
 		return;
 	}
@@ -1757,38 +1743,9 @@ void save_object(FILE *fp, object *op, int flag)
 	fputs(cp, fp);
 	free(cp);
 
-	/* Eneq(@csd.uu.se): Added this to allow containers being saved with contents */
-	old = NULL;
-
-	if (flag & 2)
+	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			save_object(fp, tmp, flag);
-		}
-	}
-	/* Slightly different logic because tmp/op will be removed by
-	 * the save_object we call.  So we just keep looking at op->inv
-	 * until there is nothing left.  In theory, the variable old
-	 * should not be needed, as recursive loops shouldn't happen. */
-	else
-	{
-		while ((tmp = op->inv) != NULL)
-		{
-			if (old == tmp)
-			{
-				LOG(llevError, "Recursive loop in inventory\n");
-				break;
-			}
-
-			save_object(fp, tmp, flag);
-			old = tmp;
-		}
-	}
-
-	if (!(flag & 2))
-	{
-		remove_ob(op);
+		save_object(fp, tmp);
 	}
 
 	fprintf(fp, "end\n");

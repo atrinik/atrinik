@@ -218,7 +218,7 @@ set(SOURCES
 	src/server/mempool.c
 	src/server/move.c
 	src/server/object.c
-	src/server/object_process.c
+	src/server/object_methods.c
 	src/server/party.c
 	src/server/pathfinder.c
 	src/server/plugins.c
@@ -255,8 +255,10 @@ set(SOURCES
 	src/socket/request.c
 	src/socket/sounds.c
 	src/socket/updates.c
+	src/types/common/apply.c
+	src/types/common/describe.c
+	src/types/common/process.c
 	src/types/altar.c
-	src/types/armour_improver.c
 	src/types/arrow.c
 	src/types/beacon.c
 	src/types/book.c
@@ -294,8 +296,7 @@ set(SOURCES
 	src/types/spellbook.c
 	src/types/teleporter.c
 	src/types/treasure.c
-	src/types/waypoint.c
-	src/types/weapon_improver.c)
+	src/types/waypoint.c)
 
 # Find unit test source files if check is installed.
 if (CHECK_LIBRARY)

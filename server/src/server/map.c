@@ -994,259 +994,93 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * @param fp2 File to save unique objects. */
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
-	int i, j = 0, unique = 0;
-	object *head, *op, *otmp, *tmp, *last_valid;
+	int x, y;
+	object *ob, *next, *head, *tmp, *owner;
+	uint8 unique;
 
-	for (i = 0; i < MAP_WIDTH(m); i++)
+	for (x = 0; x < MAP_WIDTH(m); x++)
 	{
-		for (j = 0; j < MAP_HEIGHT(m); j++)
+		for (y = 0; y < MAP_HEIGHT(m); y++)
 		{
-			for (op = GET_MAP_OB (m, i, j); op; op = otmp)
+			unique = 0;
+
+			for (ob = GET_MAP_OB(m, x, y); ob; ob = next)
 			{
-				otmp = op->above;
+				next = ob->above;
 
-				last_valid = op->below;
-
-				if (op->type == PLAYER)
+				if (ob->type == PLAYER)
 				{
 					continue;
 				}
 
-				head = op->head ? op->head : op;
+				head = HEAD(ob);
 
 				if (QUERY_FLAG(head, FLAG_NO_SAVE))
 				{
 					remove_ob(head);
-					check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
-
-					/* Invalid next pointer */
-					if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-					{
-						if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-						{
-							otmp = op->above;
-						}
-						else if (last_valid)
-						{
-							otmp = last_valid->above;
-						}
-						/* Should be really rare */
-						else
-						{
-							otmp = GET_MAP_OB(m, i, j);
-						}
-					}
-
+					object_destroy(head);
 					continue;
 				}
-				/* Don't save spawn point monsters; instead, get the spawn point
-				 * they came from, and reset that spawn point so it will generate
-				 * a new monster when the map loads again. */
-				else if (QUERY_FLAG(op, FLAG_SPAWN_MOB))
+				else if (QUERY_FLAG(head, FLAG_SPAWN_MOB))
 				{
-					/* Browse the inventory for the spawn info */
+					/* Try to find the spawn point information. */
 					for (tmp = head->inv; tmp; tmp = tmp->below)
 					{
 						if (tmp->type == SPAWN_POINT_INFO)
 						{
-							if (tmp->owner && tmp->owner->type == SPAWN_POINT)
+							if (OBJECT_VALID(tmp->owner, tmp->ownercount) && tmp->owner->type == SPAWN_POINT)
 							{
-								/* Force a pre spawn setting */
 								tmp->owner->stats.sp = tmp->owner->last_sp;
-								/* We force active spawn point */
 								tmp->owner->speed_left += 1.0f;
 								tmp->owner->enemy = NULL;
 							}
-							else
-							{
-								LOG(llevBug, "Spawn mob (%s (%s)) has SPAWN INFO without or illegal owner set (%s)!\n", op->arch->name, query_name(head, NULL), query_name(tmp->owner, NULL));
-							}
 
-							remove_ob(head);
-							check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
-
-							goto save_objects_jump1;
+							break;
 						}
 					}
 
-					LOG(llevBug, "Spawn mob (%s %s) without SPAWN INFO.\n", head->arch->name, query_name(head, NULL));
 					remove_ob(head);
-					check_walk_off(head, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
-
-					if (!OBJECT_FREE(tmp) && tmp->owner && tmp->owner->type == SPAWN_POINT)
-					{
-						tmp->owner->enemy = NULL;
-					}
-
-save_objects_jump1:
-
-					/* Invalid next pointer */
-					if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-					{
-						if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-						{
-							otmp = op->above;
-						}
-						else if (last_valid)
-						{
-							otmp = last_valid->above;
-						}
-						/* Should be really rare */
-						else
-						{
-							otmp = GET_MAP_OB(m, i, j);
-						}
-					}
-
+					object_destroy(head);
 					continue;
 				}
-				else if (op->type == SPAWN_POINT)
+				else if (head->type == SPAWN_POINT)
 				{
-					if (op->enemy)
+					if (OBJECT_VALID(head->enemy, head->enemy_count))
 					{
-						if (op->enemy_count == op->enemy->count && !QUERY_FLAG(op->enemy, FLAG_REMOVED) && !OBJECT_FREE(op->enemy))
-						{
-							/* Force a pre spawn setting */
-							op->stats.sp = op->last_sp;
-							op->speed_left += 1.0f;
-							/* And delete the spawn */
-							remove_ob(op->enemy);
-							check_walk_off (op->enemy, NULL, MOVE_APPLY_VANISHED | MOVE_APPLY_SAVING);
-							op->enemy = NULL;
+						head->stats.sp = head->last_sp;
+						head->speed_left += 1.0f;
 
-							/* Invalid next pointer */
-							if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-							{
-								if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-								{
-									otmp = op->above;
-								}
-								else if (last_valid)
-								{
-									otmp = last_valid->above;
-								}
-								/* Should be really rare */
-								else
-								{
-									otmp = GET_MAP_OB(m, i, j);
-								}
-							}
-						}
+						remove_ob(head->enemy);
+						object_destroy(head->enemy);
+						head->enemy = NULL;
 					}
 				}
 
-				if (head->owner)
+				/* Do not save tail parts. */
+				if (ob->head)
 				{
-					LOG(llevDebug, "save_obj(): obj w. owner. map:%s obj:%s (%s) (%d,%d)\n", m->path, query_name(op, NULL), op->arch && op->arch->name ? op->arch->name : "<no arch name>", op->x, op->y);
-					head->owner = NULL;
 					continue;
 				}
-			}
-		}
-	}
 
-	/* The map is now cleared from non-static objects on this or other maps
-	 * (when the source was from this map). Now all can be saved as a legal
-	 * snapshot of the map. */
-	for (i = 0; i < MAP_WIDTH(m); i++)
-	{
-		for (j = 0; j < MAP_HEIGHT(m); j++)
-		{
-			unique = 0;
+				owner = get_owner(head);
 
-			for (op = GET_MAP_OB(m, i, j); op; op = otmp)
-			{
-				otmp = op->above;
+				if (owner)
+				{
+					clear_owner(head);
+				}
 
-				last_valid = op->below;
-
-				if (QUERY_FLAG(op, FLAG_IS_FLOOR) && QUERY_FLAG(op, FLAG_UNIQUE))
+				if (QUERY_FLAG(head, FLAG_IS_FLOOR) && QUERY_FLAG(head, FLAG_UNIQUE))
 				{
 					unique = 1;
 				}
 
-				/* Do some testing... */
-				if (op->type == PLAYER)
+				if (unique || QUERY_FLAG(head, FLAG_UNIQUE))
 				{
-					continue;
-				}
-
-				if (op->head)
-				{
-					int xt, yt;
-
-					tmp = op->head;
-					xt = tmp->x;
-					yt = tmp->y;
-					tmp->x = op->x - op->arch->clone.x;
-					tmp->y = op->y - op->arch->clone.y;
-
-					if (unique || QUERY_FLAG(tmp, FLAG_UNIQUE))
-					{
-						save_object(fp2 , tmp, 3);
-					}
-					else
-					{
-						save_object(fp, tmp, 3);
-					}
-
-					tmp->x = xt;
-					tmp->y = yt;
-					/* Technical remove, no walk off check */
-					remove_ob(tmp);
-
-					/* Invalid next pointer */
-					if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-					{
-						if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-						{
-							otmp = op->above;
-						}
-						else if (last_valid)
-						{
-							otmp = last_valid->above;
-						}
-						/* Should be really rare */
-						else
-						{
-							otmp = GET_MAP_OB(m, i, j);
-						}
-					}
-
-					continue;
-				}
-
-				if (unique || QUERY_FLAG(op, FLAG_UNIQUE))
-				{
-					save_object(fp2, op, 3);
+					save_object(fp2, head);
 				}
 				else
 				{
-					save_object(fp, op, 3);
-				}
-
-				/* It's a head */
-				if (op->more)
-				{
-					remove_ob(op);
-
-					/* Invalid next pointer */
-					if (otmp && (QUERY_FLAG(otmp, FLAG_REMOVED) || OBJECT_FREE(otmp)))
-					{
-						if (!QUERY_FLAG(op, FLAG_REMOVED) && !OBJECT_FREE(op))
-						{
-							otmp = op->above;
-						}
-						else if (last_valid)
-						{
-							otmp = last_valid->above;
-						}
-						/* Should be really rare */
-						else
-						{
-							otmp = GET_MAP_OB(m, i, j);
-						}
-					}
+					save_object(fp, head);
 				}
 			}
 		}
@@ -1550,7 +1384,7 @@ static void delete_unique_items(mapstruct *m)
 					}
 
 					remove_ob(op);
-					check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+					object_destroy(op);
 				}
 			}
 		}
@@ -1747,31 +1581,20 @@ int new_save_map(mapstruct *m, int flag)
  * @param m The map. */
 static void free_all_objects(mapstruct *m)
 {
-	int i, j;
-	object *op;
+	int x, y;
+	object *ob, *next, *head;
 
-	for (i = 0; i < MAP_WIDTH(m); i++)
+	for (x = 0; x < MAP_WIDTH(m); x++)
 	{
-		for (j = 0; j < MAP_HEIGHT(m); j++)
+		for (y = 0; y < MAP_HEIGHT(m); y++)
 		{
-			object *previous_obj = NULL;
-
-			while ((op = GET_MAP_OB(m, i, j)) != NULL)
+			for (ob = GET_MAP_OB(m, x, y); ob; ob = next)
 			{
-				if (op == previous_obj)
-				{
-					LOG(llevDebug, "free_all_objects: Link error, bailing out.\n");
-					break;
-				}
+				next = ob->above;
+				head = HEAD(ob);
 
-				previous_obj = op;
-
-				if (op->head)
-				{
-					op = op->head;
-				}
-
-				remove_ob(op);
+				remove_ob(head);
+				object_destroy(head);
 			}
 		}
 	}

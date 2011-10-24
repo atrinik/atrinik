@@ -83,7 +83,7 @@ int convert_item(object *item, object *converter)
 		else
 		{
 			remove_ob(item);
-			check_walk_off(item, NULL, MOVE_APPLY_VANISHED);
+			object_destroy(item);
 		}
 	}
 

@@ -835,7 +835,7 @@ void command_new_char(char *params, int len, player *pl)
 	/* Force sending of skill exp data to client */
 	CONTR(op)->last_stats.exp = 1;
 	fix_player(op);
-	esrv_update_item(UPD_FACE, op, op);
+	esrv_update_item(UPD_FACE, op);
 	esrv_send_inventory(op, op);
 
 	set_first_map(op);

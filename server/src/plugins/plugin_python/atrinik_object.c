@@ -286,7 +286,6 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
 static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *where;
-	object *tmp;
 
 	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &where))
 	{
@@ -298,20 +297,10 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 
 	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
 	{
-		hooks->object_remove_esrv_update(obj->obj);
+		hooks->remove_ob(obj->obj);
 	}
 
-	tmp = hooks->insert_ob_in_ob(obj->obj, where->obj);
-
-	if (tmp)
-	{
-		object *pl = hooks->object_need_esrv_update(tmp);
-
-		if (pl)
-		{
-			hooks->esrv_send_item(pl, tmp);
-		}
-	}
+	hooks->insert_ob_in_ob(obj->obj, where->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -698,7 +687,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 	sint64 value = -1;
 	int identified = 1;
 	archetype *at;
-	object *tmp, *env;
+	object *tmp;
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ILi", kwlist, &archname, &nrof, &value, &identified))
 	{
@@ -733,15 +722,6 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 	}
 
 	tmp = hooks->insert_ob_in_ob(tmp, obj->obj);
-
-	/* Make sure inventory image/text is updated */
-	for (env = obj->obj; env; env = env->env)
-	{
-		if (env->type == PLAYER)
-		{
-			hooks->esrv_send_item(env, tmp);
-		}
-	}
 
 	return wrap_object(tmp);
 }
@@ -890,7 +870,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
 	OBJEXISTCHECK(obj);
-	hooks->object_remove_esrv_update(obj->obj);
+	hooks->remove_ob(obj->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1762,7 +1742,6 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
  * @return 0 on success, -1 on failure. */
 static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
 {
-	object *tmp;
 	fields_struct *field = (fields_struct *) context;
 
 	OBJEXISTCHECK_INT(obj);
@@ -1777,14 +1756,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 		return -1;
 	}
 
-	/* Make sure the inventory image/text is updated. */
-	for (tmp = obj->obj->env; tmp; tmp = tmp->env)
-	{
-		if (tmp->type == PLAYER)
-		{
-			hooks->esrv_send_item(tmp, obj->obj);
-		}
-	}
+	hooks->esrv_send_item(obj->obj);
 
 	/* Special handling for some player stuff. */
 	if (obj->obj->type == PLAYER)
@@ -1902,7 +1874,6 @@ static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
  * @return 0 on success, -1 on failure. */
 static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 {
-	object *env;
 	size_t flagno = (size_t) context;
 
 	/* Should not happen. */
@@ -1928,14 +1899,7 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 		return -1;
 	}
 
-	/* Make sure the inventory image/text/etc is updated */
-	for (env = obj->obj->env; env; env = env->env)
-	{
-		if (env->type == PLAYER)
-		{
-			hooks->esrv_send_item(env, obj->obj);
-		}
-	}
+	hooks->esrv_send_item(obj->obj);
 
 	return 0;
 }

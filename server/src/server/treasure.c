@@ -1172,14 +1172,7 @@ static void put_treasure(object *op, object *creator, int flags)
 	}
 	else
 	{
-		object *tmp;
-
-		op = insert_ob_in_ob(op, creator);
-
-		if ((flags & GT_UPDATE_INV) && (tmp = is_player_inv(creator)) != NULL)
-		{
-			esrv_send_item(tmp, op);
-		}
+		insert_ob_in_ob(op, creator);
 	}
 }
 

@@ -28,304 +28,7 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
-
-/* need math lib for double-precision and pow() in dragon_eat_flesh() */
 #include <math.h>
-
-static int is_legal_2ways_exit(object* op, object *exit);
-
-/**
- * 'victim' moves onto 'trap' (trap has FLAG_WALK_ON or FLAG_FLY_ON set) or
- * 'victim' leaves 'trap' (trap has FLAG_WALK_OFF or FLAG_FLY_OFF) set.
- *
- * I added the flags parameter to give the single events more information
- * about whats going on:
- *
- * Most important is the "MOVE_APPLY_VANISHED" flag.
- * If set, a object has left a tile but "vanished" and not moved (perhaps
- * it exploded or something). This means that some events are not
- * triggered like trapdoors or teleporter traps for example which have a
- * "FLY/MOVE_OFF" set. This will avoid that they touch invalid objects.
- * @param trap Object victim moved on.
- * @param victim The object that moved on trap.
- * @param originator Player, monster or other object that caused 'victim'
- * to move onto 'trap'. Will receive messages caused by this action. May
- * be NULL, however, some types of traps require an originator to
- * function.
- * @param flags Flags. */
-void move_apply(object *trap, object *victim, object *originator, int flags)
-{
-	static int recursion_depth = 0;
-
-	/* move_apply() is the most likely candidate for causing unwanted and
-	 * possibly unlimited recursion. */
-	/* The following was changed because it was causing perfectly correct
-	 * maps to fail.  1)  it's not an error to recurse:
-	 * rune detonates, summoning monster.  monster lands on nearby rune.
-	 * nearby rune detonates.  This sort of recursion is expected and
-	 * proper.  This code was causing needless crashes. */
-	if (recursion_depth >= 500)
-	{
-		LOG(llevDebug, "move_apply(): aborting recursion [trap arch %s, name %s; victim arch %s, name %s]\n", trap->arch->name, trap->name, victim->arch->name, victim->name);
-		return;
-	}
-
-	if (trap->head)
-	{
-		trap = trap->head;
-	}
-
-	/* Trigger the TRIGGER event */
-	if (trigger_event(EVENT_TRIGGER, victim, trap, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
-	{
-		return;
-	}
-
-	recursion_depth++;
-
-	switch (trap->type)
-	{
-		/* these objects can trigger other objects connected to them.
-		 * We need to check them at map loading time and other special
-		 * events to be sure to have a 100% working map state. */
-		case BUTTON:
-		case PEDESTAL:
-			update_button(trap);
-			break;
-
-		case TRIGGER_BUTTON:
-		case TRIGGER_PEDESTAL:
-		case TRIGGER_ALTAR:
-			check_trigger(trap, victim);
-			break;
-
-		case CHECK_INV:
-			check_inv(victim, trap);
-			break;
-
-		/* these objects trigger to but they are "instant".
-		 * We don't need to check them when loading. */
-		case ALTAR:
-			/* sacrifice victim on trap */
-			apply_altar(trap, victim, originator);
-			break;
-
-		case CONVERTER:
-			if (!(flags & MOVE_APPLY_VANISHED))
-			{
-				convert_item(victim, trap);
-			}
-
-			break;
-
-		/* should be walk_on/fly_on only */
-		case SPINNER:
-			if (victim->direction)
-			{
-				victim->direction = absdir(victim->direction + trap->direction);
-				update_turn_face(victim);
-			}
-
-			break;
-
-		case DIRECTOR:
-			if (victim->direction)
-			{
-				victim->direction = trap->direction;
-				update_turn_face(victim);
-			}
-
-			break;
-
-		/* no need to hit anything */
-		case MMISSILE:
-			if (IS_LIVE(victim) && !(flags&MOVE_APPLY_VANISHED))
-			{
-				tag_t trap_tag = trap->count;
-				hit_player(victim, trap->stats.dam, trap, AT_MAGIC);
-
-				if (!was_destroyed(trap, trap_tag))
-				{
-					remove_ob(trap);
-				}
-
-				check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
-			}
-
-			break;
-
-		case THROWN_OBJ:
-			if (trap->inv == NULL || (flags & MOVE_APPLY_VANISHED))
-			{
-				break;
-			}
-
-		/* fallthrough */
-		case ARROW:
-			/* bad bug: monster throw a object, make a step forwards, step on object ,
-			 * trigger this here and get hit by own missile - and will be own enemy.
-			 * Victim then is his own enemy and will start to kill herself (this is
-			 * removed) but we have not synced victim and his missile. To avoid senseless
-			 * action, we avoid hits here */
-			if ((IS_LIVE(victim) && trap->speed) && trap->owner != victim)
-			{
-				hit_with_arrow(trap, victim);
-			}
-
-			break;
-
-		case BULLET:
-			if ((QUERY_FLAG(victim, FLAG_NO_PASS) || IS_LIVE(victim)) && !(flags & MOVE_APPLY_VANISHED))
-			{
-				check_fired_arch(trap);
-			}
-
-			break;
-
-		case TRAPDOOR:
-		{
-			int max, sound_was_played;
-			object *ab;
-
-			if ((flags & MOVE_APPLY_VANISHED))
-			{
-				break;
-			}
-
-			if (!trap->value)
-			{
-				sint32 tot;
-
-				for (ab = trap->above, tot = 0; ab != NULL; ab = ab->above)
-				{
-					if (!QUERY_FLAG(ab, FLAG_FLYING))
-					{
-						tot += (ab->nrof ? ab->nrof : 1) * ab->weight + ab->carrying;
-					}
-				}
-
-				if (!(trap->value = (tot > trap->weight) ? 1 : 0))
-				{
-					break;
-				}
-
-				SET_ANIMATION(trap, (NUM_ANIMATIONS(trap) / NUM_FACINGS(trap)) * trap->direction + trap->value);
-				update_object(trap, UP_OBJ_FACE);
-			}
-
-			for (ab = trap->above, max = 100, sound_was_played = 0; --max && ab && !QUERY_FLAG(ab, FLAG_FLYING); ab = ab->above)
-			{
-				if (!sound_was_played)
-				{
-					play_sound_map(trap->map, CMD_SOUND_EFFECT, "fallhole.ogg", trap->x, trap->y, 0, 0);
-					sound_was_played = 1;
-				}
-
-				if (ab->type == PLAYER)
-				{
-					draw_info(COLOR_WHITE, ab, "You fall into a trapdoor!");
-				}
-
-				transfer_ob(ab, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, ab, trap);
-			}
-
-			break;
-		}
-
-		case PIT:
-			/* Pit not open? */
-			if ((flags & MOVE_APPLY_VANISHED) || trap->stats.wc > 0)
-			{
-				break;
-			}
-
-			play_sound_map(victim->map, CMD_SOUND_EFFECT, "fallhole.ogg", victim->x, victim->y, 0, 0);
-
-			if (victim->type == PLAYER)
-			{
-				draw_info(COLOR_WHITE, victim, "You fall through the hole!\n");
-			}
-
-			transfer_ob(victim->head ? victim->head : victim, EXIT_X(trap), EXIT_Y(trap), trap->last_sp, victim, trap);
-
-			break;
-
-		case EXIT:
-			/* If no map path specified, we assume it is the map path of the exit. */
-			if (!EXIT_PATH(trap))
-			{
-				FREE_AND_ADD_REF_HASH(EXIT_PATH(trap), trap->map->path);
-			}
-
-			if (!(flags & MOVE_APPLY_VANISHED) && victim->type == PLAYER && EXIT_PATH(trap) && EXIT_Y(trap) != -1 && EXIT_X(trap) != -1)
-			{
-				/* Basically, don't show exits leading to random maps the players output. */
-				if (trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
-				{
-					draw_info(COLOR_NAVY, victim, trap->msg);
-				}
-
-				enter_exit(victim, trap);
-			}
-
-			break;
-
-		case SHOP_MAT:
-			if (!(flags & MOVE_APPLY_VANISHED))
-			{
-				apply_shop_mat(trap, victim);
-			}
-
-			break;
-
-		/* Drop a certain amount of gold, and have one item identified */
-		case IDENTIFY_ALTAR:
-			if (!(flags & MOVE_APPLY_VANISHED))
-			{
-				apply_identify_altar(victim, trap, originator);
-			}
-
-			break;
-
-		case SIGN:
-			/* Only player should be able read signs */
-			if (victim->type == PLAYER)
-			{
-				apply_sign(victim, trap);
-			}
-
-			break;
-
-		case CONTAINER:
-			if (victim->type == PLAYER)
-			{
-				(void) esrv_apply_container(victim, trap);
-			}
-
-			break;
-
-		case RUNE:
-			if (!(flags & MOVE_APPLY_VANISHED) && trap->level && IS_LIVE(victim))
-			{
-				spring_trap(trap, victim);
-			}
-
-			break;
-
-#if 0
-		/* we don't have this atm. */
-		case DEEP_SWAMP:
-			if (!(flags & MOVE_APPLY_VANISHED))
-			{
-				walk_on_deep_swamp(trap, victim);
-			}
-
-			break;
-#endif
-	}
-
-	recursion_depth--;
-}
 
 /**
  * Find a special prayer marker in object's inventory.
@@ -392,6 +95,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 		}
 
 		remove_ob(tmp);
+		object_destroy(tmp);
 		return;
 	}
 
@@ -400,6 +104,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	{
 		LOG(llevBug, "do_learn_spell(): spell unknown, but special prayer mark present\n");
 		remove_ob(tmp);
+		object_destroy(tmp);
 	}
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
@@ -451,6 +156,7 @@ void do_forget_spell(object *op, int spell)
 	if (tmp)
 	{
 		remove_ob(tmp);
+		object_destroy(tmp);
 	}
 
 	for (i = 0; i < CONTR(op)->nrofknownspells; i++)
@@ -463,132 +169,6 @@ void do_forget_spell(object *op, int spell)
 	}
 
 	LOG(llevBug, "do_forget_spell(): Couldn't find spell %d.\n", spell);
-}
-
-/**
- * This function return true if the exit is not a two ways one or it is
- * two ways, valid exit.
- *
- * A valid two way exit means:
- *  - You can come back (there is another exit on the other side)
- *  - You are
- *     - The owner of the exit
- *     - Or in the same party as the owner
- * @note An owner in a two way exit is saved as the owner's name in the
- * field exit->name cause the field exit->owner doesn't survive in the
- * swapping (in fact the whole exit doesn't survive).
- * @param op Player to check for.
- * @param exit_ob Exit object.
- * @return 1 if exit is not two way, 0 otherwise. */
-static int is_legal_2ways_exit(object *op, object *exit_ob)
-{
-	object *tmp, *exit_owner;
-	player *pp;
-	mapstruct *exitmap;
-
-	/* This is not a two way, so it is legal */
-	if (exit_ob->stats.exp != 1)
-	{
-		return 1;
-	}
-
-	/* To know if an exit has a correspondant, we look at
-	 * all the exits in destination and try to find one with same path as
-	 * the current exit's position */
-	if (!strncmp(EXIT_PATH(exit_ob), settings.localdir, strlen(settings.localdir)))
-	{
-		exitmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED | MAP_PLAYER_UNIQUE);
-	}
-	else
-	{
-		exitmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
-	}
-
-	if (exitmap)
-	{
-		tmp = GET_MAP_OB(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob));
-
-		if (!tmp)
-		{
-			return 0;
-		}
-
-		for ((tmp = GET_MAP_OB(exitmap, EXIT_X(exit_ob), EXIT_Y(exit_ob))); tmp; tmp = tmp->above)
-		{
-			/* Not an exit */
-			if (tmp->type != EXIT)
-			{
-				continue;
-			}
-
-			/* Not a valid exit */
-			if (!EXIT_PATH(tmp))
-			{
-				continue;
-			}
-
-			/* Not in the same place */
-			if ((EXIT_X(tmp) != exit_ob->x) || (EXIT_Y(tmp) != exit_ob->y))
-			{
-				continue;
-			}
-
-			/* Not in the same map */
-			if (!exit_ob->race && exit_ob->map->path == EXIT_PATH(tmp))
-			{
-				continue;
-			}
-
-			/* From here we have found the exit is valid. However we do
-			 * here the check of the exit owner. It is important for the
-			 * town portals to prevent strangers from visiting your apartments */
-			/* No owner, free for all! */
-			if (!exit_ob->race)
-			{
-				return 1;
-			}
-
-			exit_owner = NULL;
-
-			for (pp = first_player; pp; pp = pp->next)
-			{
-				if (!pp->ob)
-				{
-					continue;
-				}
-
-				if (pp->ob->name != exit_ob->race)
-				{
-					continue;
-				}
-
-				/* We found a player which correspond to the player name */
-				exit_owner = pp->ob;
-				break;
-			}
-
-			/* No more owner */
-			if (!exit_owner)
-			{
-				return 0;
-			}
-
-			/* It is your exit */
-			if (CONTR(exit_owner) == CONTR(op))
-			{
-				return 1;
-			}
-
-			if (exit_owner && CONTR(op) && (!CONTR(exit_owner)->party || CONTR(exit_owner)->party != CONTR(op)->party))
-			{
-				return 0;
-			}
-
-			return 1;
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -605,10 +185,7 @@ static int is_legal_2ways_exit(object *op, object *exit_ob)
  * inventory. */
 int manual_apply(object *op, object *tmp, int aflag)
 {
-	if (tmp->head)
-	{
-		tmp = tmp->head;
-	}
+	tmp = HEAD(tmp);
 
 	if (op->type == PLAYER)
 	{
@@ -629,7 +206,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		}
 	}
 
-	/* Monsters must not apply random chests, nor magic_mouths with a counter */
+	/* Monsters must not apply random chests. */
 	if (op->type != PLAYER && tmp->type == TREASURE)
 	{
 		return 0;
@@ -654,7 +231,6 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 	aflag &= ~AP_NO_EVENT;
 
-	/* Control apply by controlling a set exp object level or player exp level */
 	if (tmp->item_level)
 	{
 		int tmp_lev;
@@ -675,254 +251,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		}
 	}
 
-	switch (tmp->type)
-	{
-		case HOLY_ALTAR:
-			draw_info_format(COLOR_WHITE, op, "You touch the %s.", tmp->name);
-
-			if (change_skill(op, SK_PRAYING))
-			{
-				pray_at_altar(op, tmp);
-			}
-			else
-			{
-				draw_info(COLOR_WHITE, op, "Nothing happens. It seems you miss the right skill.");
-			}
-
-			return 1;
-			break;
-
-		case HANDLE:
-			draw_info_format(COLOR_WHITE, op, "You turn the %s.", tmp->name);
-			play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
-			tmp->value = tmp->value ? 0 : 1;
-			SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
-			update_object(tmp, UP_OBJ_FACE);
-			push_button(tmp);
-
-			return 1;
-
-		case TRIGGER:
-			if (check_trigger(tmp, op))
-			{
-				draw_info_format(COLOR_WHITE, op, "You turn the %s.", tmp->name);
-				play_sound_map(tmp->map, CMD_SOUND_EFFECT, "pull.ogg", tmp->x, tmp->y, 0, 0);
-			}
-			else
-			{
-				draw_info_format(COLOR_WHITE, op, "The %s doesn't move.", tmp->name);
-			}
-
-			return 1;
-
-		case EXIT:
-			if (op->type != PLAYER || !tmp->map)
-			{
-				return 0;
-			}
-
-			/* If no map path specified, we assume it is the map path of the exit. */
-			if (!EXIT_PATH(tmp))
-			{
-				FREE_AND_ADD_REF_HASH(EXIT_PATH(tmp), tmp->map->path);
-			}
-
-			if (!EXIT_PATH(tmp) || !is_legal_2ways_exit(op, tmp) || (EXIT_Y(tmp) == -1 && EXIT_X(tmp) == -1))
-			{
-				draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(tmp, NULL));
-			}
-			else
-			{
-				/* Don't display messages for random maps. */
-				if (tmp->msg && strncmp(EXIT_PATH(tmp), "/!", 2) && strncmp(EXIT_PATH(tmp), "/random/", 8))
-				{
-					draw_info(COLOR_NAVY, op, tmp->msg);
-				}
-
-				enter_exit(op, tmp);
-			}
-
-			return 1;
-
-		case SIGN:
-			apply_sign(op, tmp);
-			return 1;
-
-		case BOOK:
-			if (op->type == PLAYER)
-			{
-				apply_book(op, tmp);
-				return 1;
-			}
-
-			return 0;
-
-		case SKILLSCROLL:
-			if (op->type == PLAYER)
-			{
-				apply_skillscroll(op, tmp);
-				return 1;
-			}
-
-			return 0;
-
-		case SPELLBOOK:
-			if (op->type == PLAYER)
-			{
-				apply_spellbook(op, tmp);
-				return 1;
-			}
-
-			return 0;
-
-		case SCROLL:
-			apply_scroll(op, tmp);
-			return 1;
-
-		case POTION:
-			(void) apply_potion(op, tmp);
-			return 1;
-
-		case LIGHT_APPLY:
-			apply_player_light(op, tmp);
-			return 1;
-
-		case LIGHT_REFILL:
-			apply_player_light_refill(op, tmp);
-			return 1;
-
-		/* Eneq(@csd.uu.se): Handle apply on containers. */
-		case CLOSE_CON:
-			if (op->type == PLAYER)
-			{
-				(void) esrv_apply_container(op, tmp->env);
-			}
-
-			return 1;
-
-		case CONTAINER:
-			if (op->type == PLAYER)
-			{
-				(void) esrv_apply_container(op, tmp);
-			}
-
-			return 1;
-
-		case TREASURE:
-			apply_treasure(op, tmp);
-			return 1;
-
-		case WEAPON:
-		case ARMOUR:
-		case BOOTS:
-		case GLOVES:
-		case AMULET:
-		case GIRDLE:
-		case BRACERS:
-		case SHIELD:
-		case HELMET:
-		case RING:
-		case CLOAK:
-		case WAND:
-		case ROD:
-		case HORN:
-		case SKILL:
-		case BOW:
-		case SKILL_ITEM:
-			/* Not in inventory */
-			if (tmp->env != op)
-			{
-				return 2;
-			}
-
-			(void) apply_special(op, tmp, aflag);
-			return 1;
-
-		case DRINK:
-		case FOOD:
-		case FLESH:
-			apply_food(op, tmp);
-			return 1;
-
-		case POISON:
-			apply_poison(op, tmp);
-			return 1;
-
-		case SAVEBED:
-			if (op->type == PLAYER)
-			{
-				apply_savebed(op);
-				return 1;
-			}
-
-			return 0;
-
-		case ARMOUR_IMPROVER:
-			if (op->type == PLAYER)
-			{
-				apply_armour_improver(op, tmp);
-				return 1;
-			}
-
-			return 0;
-
-		case WEAPON_IMPROVER:
-			apply_weapon_improver(op, tmp);
-			return 1;
-
-		case CLOCK:
-			if (op->type == PLAYER)
-			{
-				timeofday_t tod;
-
-				get_tod(&tod);
-				draw_info_format(COLOR_WHITE, op, "It is %d minute%s past %d o'clock %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
-				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "clock.ogg", 0, 0, 0, 0);
-				return 1;
-			}
-
-			return 0;
-
-		case POWER_CRYSTAL:
-			apply_power_crystal(op, tmp);
-			return 1;
-
-		/* For lighting torches/lanterns/etc */
-		case LIGHTER:
-			if (op->type == PLAYER)
-			{
-				apply_lighter(op, tmp);
-				return 1;
-			}
-
-			return 0;
-
-		case COMPASS:
-			if (op->type == PLAYER)
-			{
-				const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
-
-				draw_info_format(COLOR_WHITE, op, "You are facing %s.", direction_names[absdir(op->facing) - 1]);
-				return 1;
-			}
-
-			return 0;
-
-		/* So the below default case doesn't execute for these objects,
-		 * even if they have message. */
-		case DOOR:
-			return 0;
-
-		/* Nothing from the above... but show a message if it has one. */
-		default:
-			if (tmp->msg)
-			{
-				draw_info(COLOR_WHITE, op, tmp->msg);
-				return 1;
-			}
-
-			return 0;
-	}
+	return object_apply(tmp, op, aflag);
 }
 
 /**
@@ -952,25 +281,15 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 		}
 	}
 
-	if (op->type != PLAYER && QUERY_FLAG(op, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
-	{
-		play_sound_map(pl->map, CMD_SOUND_EFFECT, "explosion.ogg", pl->x, pl->y, 0, 0);
-		draw_info(COLOR_WHITE, pl, "The object disappears in a puff of smoke!");
-		draw_info(COLOR_WHITE, pl, "It must have been an illusion.");
-		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
-		return 1;
-	}
-
 	tmp = manual_apply(pl, op, aflag);
 
 	if (!quiet)
 	{
-		if (tmp == 0)
+		if (tmp == OBJECT_METHOD_UNHANDLED)
 		{
 			draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
 		}
-		else if (tmp == 2)
+		else if (tmp == OBJECT_METHOD_ERROR)
 		{
 			draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");
 		}
@@ -1197,21 +516,7 @@ int apply_special(object *who, object *op, int aflags)
 
 		if (!(aflags & AP_NO_MERGE))
 		{
-			tag_t del_tag = op->count;
-			object *cont = op->env;
-			tmp = merge_ob(op, NULL);
-
-			if (who->type == PLAYER)
-			{
-				/* It was merged */
-				if (tmp)
-				{
-					esrv_del_item(CONTR(who), del_tag, cont);
-					op = tmp;
-				}
-
-				esrv_send_item (who, op);
-			}
+			merge_ob(op, NULL);
 		}
 
 		return 0;
@@ -1265,19 +570,7 @@ int apply_special(object *who, object *op, int aflags)
 
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp, who);
-				}
-
-				return 1;
-			}
-
-			if (!check_weapon_power(who, op->last_eat))
-			{
-				draw_info(COLOR_WHITE, who, "That weapon is too powerful for you to use.\nIt would consume your soul!");
-
-				if (tmp != NULL)
-				{
-					(void) insert_ob_in_ob(tmp, who);
+					insert_ob_in_ob(tmp, who);
 				}
 
 				return 1;
@@ -1292,7 +585,7 @@ int apply_special(object *who, object *op, int aflags)
 
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp, who);
+					insert_ob_in_ob(tmp, who);
 				}
 
 				return 1;
@@ -1305,7 +598,7 @@ int apply_special(object *who, object *op, int aflags)
 
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp, who);
+					insert_ob_in_ob(tmp, who);
 				}
 
 				return 1;
@@ -1315,7 +608,7 @@ int apply_special(object *who, object *op, int aflags)
 			{
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp,who);
+					insert_ob_in_ob(tmp,who);
 				}
 
 				return 1;
@@ -1324,7 +617,7 @@ int apply_special(object *who, object *op, int aflags)
 			snprintf(buf, sizeof(buf), "You wield %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
 			SET_FLAG(who, FLAG_READY_WEAPON);
-			(void) change_abil(who, op);
+			change_abil(who, op);
 			break;
 		}
 
@@ -1336,7 +629,7 @@ int apply_special(object *who, object *op, int aflags)
 
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp, who);
+					insert_ob_in_ob(tmp, who);
 				}
 
 				return 1;
@@ -1355,7 +648,7 @@ int apply_special(object *who, object *op, int aflags)
 
 				if (tmp != NULL)
 				{
-					(void) insert_ob_in_ob(tmp, who);
+					insert_ob_in_ob(tmp, who);
 				}
 
 				return 1;
@@ -1365,7 +658,7 @@ int apply_special(object *who, object *op, int aflags)
 		case AMULET:
 			snprintf(buf, sizeof(buf), "You wear %s.", query_name(op, NULL));
 			SET_FLAG(op, FLAG_APPLIED);
-			(void) change_abil(who, op);
+			change_abil(who, op);
 			break;
 
 		/* This part is needed for skill-tools */
@@ -1389,7 +682,7 @@ int apply_special(object *who, object *op, int aflags)
 					}
 					else
 					{
-						(void) link_player_skill(who, op);
+						link_player_skill(who, op);
 					}
 
 					draw_info_format(COLOR_WHITE, who, "You ready %s.", query_name(op, NULL));
@@ -1402,7 +695,7 @@ int apply_special(object *who, object *op, int aflags)
 			}
 
 			SET_FLAG(op, FLAG_APPLIED);
-			(void) change_abil(who, op);
+			change_abil(who, op);
 			who->chosen_skill = op;
 			buf[0] = '\0';
 			break;
@@ -1468,17 +761,6 @@ int apply_special(object *who, object *op, int aflags)
 		{
 			draw_info(COLOR_WHITE, who, "Oops, it feels deadly cold!");
 		}
-	}
-
-	if (who->type == PLAYER)
-	{
-		/* If multiple objects were applied, update both slots */
-		if (tmp)
-		{
-			esrv_send_item(who, tmp);
-		}
-
-		esrv_send_item(who, op);
 	}
 
 	return 0;

@@ -262,8 +262,7 @@ object *find_throw_tag(object *op)
  * @param dir Direction to throw. */
 void do_throw(object *op, object *toss_item, int dir)
 {
-	object *left_cont, *throw_ob = toss_item, *left = NULL, *tmp_op;
-	tag_t left_tag;
+	object *throw_ob = toss_item, *left = NULL, *tmp_op;
 	rv_vector range_vector;
 
 	if (!throw_ob)
@@ -294,8 +293,6 @@ void do_throw(object *op, object *toss_item, int dir)
 
 	/* These are throwing objects left to the player */
 	left = throw_ob;
-	left_cont = left->env;
-	left_tag = left->count;
 
 	/* Sometimes get_split_ob can't split an object (because op->nrof==0?)
 	 * and returns NULL. We must use 'left' then */
@@ -303,23 +300,6 @@ void do_throw(object *op, object *toss_item, int dir)
 	{
 		throw_ob = left;
 		remove_ob(left);
-		check_walk_off(left, NULL, MOVE_APPLY_VANISHED);
-
-		if (op->type == PLAYER)
-		{
-			esrv_del_item(CONTR(op), left->count, left->env);
-		}
-	}
-	else if (op->type == PLAYER)
-	{
-		if (was_destroyed(left, left_tag))
-		{
-			esrv_del_item(CONTR(op), left_tag, left_cont);
-		}
-		else
-		{
-			esrv_update_item(UPD_NROF, op, left);
-		}
 	}
 
 	/* Special case: throwing powdery substances like dust, dirt */
@@ -352,11 +332,6 @@ void do_throw(object *op, object *toss_item, int dir)
 		if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))
 		{
 			remove_ob(throw_ob);
-
-			if (check_walk_off(throw_ob, NULL, MOVE_APPLY_MOVE) != CHECK_WALK_OK)
-			{
-				return;
-			}
 		}
 
 		if (op->type == PLAYER)

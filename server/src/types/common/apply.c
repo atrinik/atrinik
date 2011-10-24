@@ -23,36 +23,16 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Handles code related to @ref POWER_CRYSTAL "power crystals". */
-
 #include <global.h>
 
-/**
- * This function handles the application of power crystals.
- *
- * Power crystals, when applied, either suck mana from the applier, if
- * he's at full spellpoints, or give him mana, if it's got spellpoints
- * stored.
- * @param op Who is applying the crystal.
- * @param crystal The crystal. */
-void apply_power_crystal(object *op, object *crystal)
+int common_object_apply(object *op, object *applier, int aflags)
 {
-	int available_power = op->stats.sp - op->stats.maxsp;
-	int power_space = crystal->stats.maxsp - crystal->stats.sp;
-	int power_grab = 0;
+	(void) aflags;
 
-	if (available_power >= 0 && power_space > 0)
+	if (op->msg)
 	{
-		power_grab = (int) MIN((float) power_space, ((float) 0.5 * (float) op->stats.sp));
+		draw_info(COLOR_WHITE, applier, op->msg);
 	}
 
-	if (available_power < 0 && crystal->stats.sp > 0)
-	{
-		power_grab = -MIN(-available_power, crystal->stats.sp);
-	}
-
-	op->stats.sp -= power_grab;
-	crystal->stats.sp += power_grab;
+	return OBJECT_METHOD_OK;
 }

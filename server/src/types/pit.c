@@ -29,57 +29,77 @@
 
 #include <global.h>
 
-/**
- * Close or open a pit. op->value is set when something connected to
- * the pit is triggered.
- * @param op The pit object */
-void move_pit(object *op)
+static int move_on(object *trap, object *victim, object *originator)
 {
-	object *next,*tmp;
+	(void) originator;
 
-	/* We're opening */
+	/* Hole not open? */
+	if (trap->stats.wc > 0)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	draw_info(COLOR_WHITE, victim, "You fall through the hole!\n");
+	play_sound_map(victim->map, CMD_SOUND_EFFECT, "fallhole.ogg", victim->x, victim->y, 0, 0);
+	transfer_ob(HEAD(victim), EXIT_X(trap), EXIT_Y(trap), trap->last_sp, victim, trap);
+
+	return OBJECT_METHOD_OK;
+}
+
+static void process(object *op)
+{
+	/* We're opening. */
 	if (op->value)
 	{
-		/* Opened, let's stop */
+		/* Opened, let's stop. */
 		if (--op->stats.wc <= 0)
 		{
+			object *tmp, *next;
+
 			op->stats.wc = 0;
 			op->speed = 0;
 			update_ob_speed(op);
 			SET_FLAG(op, FLAG_WALK_ON);
 
-			for (tmp = op->above; tmp != NULL; tmp = next)
+			for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
 			{
 				next = tmp->above;
-				move_apply(op, tmp, tmp, 0);
+				object_move_on(op, tmp, tmp);
 			}
 		}
 
-		op->state = (uint8) op->stats.wc;
+		op->state = op->stats.wc;
 		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
 		update_object(op, UP_OBJ_FACE);
-		return;
 	}
-
-	/* We're closing */
-	CLEAR_FLAG(op, FLAG_WALK_ON);
-	op->stats.wc++;
-
-	if ((int) op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
+	/* We're closing. */
+	else
 	{
-		op->stats.wc = NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1;
+		CLEAR_FLAG(op, FLAG_WALK_ON);
+		op->stats.wc++;
+
+		if ((int) op->stats.wc >= NUM_ANIMATIONS(op) / NUM_FACINGS(op))
+		{
+			op->stats.wc = NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1;
+		}
+
+		op->state = op->stats.wc;
+		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+		update_object(op, UP_OBJ_FACE);
+
+		/* If closed, stop. */
+		if ((uint8) op->stats.wc == (NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1))
+		{
+			op->speed = 0;
+			update_ob_speed(op);
+		}
 	}
+}
 
-	op->state = (uint8) op->stats.wc;
-	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-	update_object(op, UP_OBJ_FACE);
-
-	if ((unsigned char) op->stats.wc == (NUM_ANIMATIONS(op) / NUM_FACINGS(op) - 1))
-	{
-		op->speed = 0;
-
-		/* Closed, let's stop */
-		update_ob_speed(op);
-		return;
-	}
+/**
+ * Initialize the pit type object methods. */
+void object_type_init_pit(void)
+{
+	object_type_methods[PIT].move_on_func = move_on;
+	object_type_methods[PIT].process_func = process;
 }

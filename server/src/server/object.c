@@ -30,19 +30,8 @@
 #include <global.h>
 #include <loader.h>
 
-/**
- * List of objects that have been removed during the last server
- * timestep. */
-struct mempool_chunk *removed_objects;
-
 /** List of active objects that need to be processed */
 object *active_objects;
-
-/* see walk_off/walk_on functions  */
-static int static_walk_semaphore = 0;
-
-/** Container for objects without real maps or envs */
-object void_container;
 
 /**
  * Basically, this is a table of directions, and what directions one
@@ -320,68 +309,6 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	NULL
 };
 /* @endcparser */
-
-/**
- * Put an object in the list of removal candidates.
- *
- * If the object has still FLAG_REMOVED set at the end of the server
- * timestep it will be freed.
- * @param ob The object. */
-void mark_object_removed(object *ob)
-{
-	struct mempool_chunk *mem = MEM_POOLDATA(ob);
-
-	if (OBJECT_FREE(ob))
-	{
-		LOG(llevBug, "mark_object_removed() called for free object\n");
-	}
-
-	SET_FLAG(ob, FLAG_REMOVED);
-
-	/* Don't mark objects twice. */
-	if (mem->next != NULL)
-	{
-		return;
-	}
-
-	mem->next = removed_objects;
-	removed_objects = mem;
-}
-
-/**
- * Go through all objects in the removed list and free the forgotten ones. */
-void object_gc(void)
-{
-	struct mempool_chunk *current, *next;
-	object *ob;
-
-	while ((next = removed_objects) != &end_marker)
-	{
-		/* destroy_object() may free some more objects (inventory items) */
-		removed_objects = &end_marker;
-
-		while (next != &end_marker)
-		{
-			current = next;
-			next = current->next;
-			current->next = NULL;
-
-			ob = (object *) MEM_USERDATA(current);
-
-			if (QUERY_FLAG(ob, FLAG_REMOVED))
-			{
-				if (OBJECT_FREE(ob))
-				{
-					LOG(llevBug, "Freed object in remove list: %s\n", STRING_OBJ_NAME(ob));
-				}
-				else
-				{
-					return_poolchunk(ob, pool_object);
-				}
-			}
-		}
-	}
-}
 
 /**
  * Compares value lists.
@@ -678,7 +605,7 @@ signed long sum_weight(object *op)
  * @param weight The weight to add */
 void add_weight(object *op, sint32 weight)
 {
-	while (op != NULL)
+	while (op)
 	{
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
@@ -695,7 +622,7 @@ void add_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			esrv_update_item(UPD_WEIGHT, op);
 		}
 
 		op = op->env;
@@ -709,7 +636,7 @@ void add_weight(object *op, sint32 weight)
  * @param weight The weight to subtract */
 void sub_weight(object *op, sint32 weight)
 {
-	while (op != NULL)
+	while (op)
 	{
 		if (op->type == CONTAINER && op->weapon_speed != 1.0f)
 		{
@@ -726,7 +653,7 @@ void sub_weight(object *op, sint32 weight)
 
 		if (op->env && op->env->type == PLAYER)
 		{
-			esrv_update_item(UPD_WEIGHT, op->env, op);
+			esrv_update_item(UPD_WEIGHT, op);
 		}
 
 		op = op->env;
@@ -1115,7 +1042,7 @@ object *get_object(void)
 {
 	object *new_obj = (object *) get_poolchunk(pool_object);
 
-	mark_object_removed(new_obj);
+	SET_FLAG(new_obj, FLAG_REMOVED);
 
 	return new_obj;
 }
@@ -1515,16 +1442,6 @@ void drop_ob_inv(object *ob)
 					if (ob->env)
 					{
 						insert_ob_in_ob(tmp_op, ob->env);
-
-						/* This should handle in future insert_ob_in_ob() */
-						if (ob->env->type == PLAYER)
-						{
-							esrv_send_item(ob->env, tmp_op);
-						}
-						else if (ob->env->type == CONTAINER)
-						{
-							esrv_send_item(ob->env, tmp_op);
-						}
 					}
 					/* Insert in same map as the env */
 					else
@@ -1573,16 +1490,6 @@ void drop_ob_inv(object *ob)
 		if (ob->env)
 		{
 			insert_ob_in_ob(corpse, ob->env);
-
-			/* This should handle in future insert_ob_in_ob() */
-			if (ob->env->type == PLAYER)
-			{
-				esrv_send_item(ob->env, corpse);
-			}
-			else if (ob->env->type == CONTAINER)
-			{
-				esrv_send_item(ob->env, corpse);
-			}
 		}
 		else
 		{
@@ -1592,28 +1499,34 @@ void drop_ob_inv(object *ob)
 }
 
 /**
- * Frees everything allocated by an object, removes it from the list of
- * used objects, and puts it on the list of free objects. This function
- * is called automatically to free unused objects (it is called from
- * return_poolchunk() during garbage collection in object_gc() ).
- *
- * The object must have been removed by remove_ob() first for
- * this function to succeed.
- * @param ob The object to destroy. */
-void destroy_object(object *ob)
+ * Destroy (free) inventory of an object. Used internally by
+ * object_destroy() to recursively free the object's inventory.
+ * @param ob Object to free the inventory of. */
+static void object_destroy_inv(object *ob)
 {
-	if (OBJECT_FREE(ob))
+	object *tmp, *next;
+
+	for (tmp = ob->inv; tmp; tmp = next)
 	{
-		StringBuffer *sb = stringbuffer_new();
-		char *diff;
+		next = tmp->below;
 
-		dump_object(ob, sb);
-		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "Trying to destroy freed object.\n%s\n", diff);
-		free(diff);
-		return;
+		if (tmp->inv)
+		{
+			object_destroy_inv(tmp);
+		}
+
+		remove_ob(tmp);
 	}
+}
 
+/**
+ * Cleanups and frees everything allocated by an object and gives the
+ * memory back to the object mempool.
+ *
+ * @note The object must have been removed by remove_ob() first.
+ * @param ob The object to destroy (free). */
+void object_destroy(object *ob)
+{
 	if (!QUERY_FLAG(ob, FLAG_REMOVED))
 	{
 		StringBuffer *sb = stringbuffer_new();
@@ -1627,7 +1540,6 @@ void destroy_object(object *ob)
 
 	free_key_values(ob);
 
-	/* This should be very rare... */
 	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
 	{
 		remove_button_link(ob);
@@ -1638,11 +1550,11 @@ void destroy_object(object *ob)
 		container_unlink(NULL, ob);
 	}
 
-	/* Make sure to get rid of the inventory, too. It will be destroy()ed at the next gc */
-	/* TODO: maybe destroy() it here too? */
+	/* Remove and free the inventory. */
 	remove_ob_inv(ob);
+	object_destroy_inv(ob);
 
-	/* Remove object from the active list */
+	/* Remove object from the active list. */
 	ob->speed = 0;
 	update_ob_speed(ob);
 
@@ -1662,7 +1574,7 @@ void destroy_object(object *ob)
 				break;
 
 			default:
-				LOG(llevBug, "destroy_object() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
+				LOG(llevBug, "object_destroy() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
 		}
 
 		ob->custom_attrset = NULL;
@@ -1681,8 +1593,11 @@ void destroy_object(object *ob)
 	FREE_AND_CLEAR_HASH2(ob->artifact);
 	FREE_AND_CLEAR_HASH2(ob->custom_name);
 
-	/* Mark object as "do not use" and invalidate all references to it */
+	/* Mark object as freed and invalidate all references to it. */
 	ob->count = 0;
+
+	/* Return the memory to the mempool. */
+	return_poolchunk(ob, pool_object);
 }
 
 /**
@@ -1698,7 +1613,57 @@ void destruct_ob(object *op)
 	}
 
 	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_DEFAULT);
+}
+
+static void object_check_move_off(object *op)
+{
+	MapSpace *msp;
+	object *tmp;
+	tag_t tag;
+	mapstruct *m;
+	int x, y;
+
+	if (QUERY_FLAG(op, FLAG_NO_APPLY))
+	{
+		return;
+	}
+
+	msp = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
+
+	/* No event on this tile. */
+	if (!(msp->flags & (P_WALK_OFF | P_FLY_OFF)))
+	{
+		return;
+	}
+
+	tag = op->count;
+	m = op->map;
+	x = op->x;
+	y = op->y;
+
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	{
+		/* Can't apply yourself. */
+		if (tmp == op)
+		{
+			continue;
+		}
+
+		if (QUERY_FLAG(op, FLAG_FLYING) ? QUERY_FLAG(tmp, FLAG_FLY_OFF) : QUERY_FLAG(tmp, FLAG_WALK_OFF))
+		{
+			object_move_on(tmp, op, NULL);
+
+			if (was_destroyed(op, tag))
+			{
+				return;
+			}
+
+			if (op->map != m || op->x != x || op->y != y)
+			{
+				return;
+			}
+		}
+	}
 }
 
 /**
@@ -1730,7 +1695,7 @@ void remove_ob(object *op)
 		remove_ob(op->more);
 	}
 
-	mark_object_removed(op);
+	SET_FLAG(op, FLAG_REMOVED);
 	SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
 	op->quickslot = 0;
 	CLEAR_FLAG(op, FLAG_IS_READY);
@@ -1769,8 +1734,10 @@ void remove_ob(object *op)
 		 * the map, but we don't actually do that - it is up
 		 * to the caller to decide what we want to do. */
 		op->x = op->env->x, op->y = op->env->y;
-
 		op->map = op->env->map;
+
+		esrv_del_item(op);
+
 		op->above = NULL, op->below = NULL;
 		op->env = NULL;
 		return;
@@ -1869,6 +1836,8 @@ void remove_ob(object *op)
 
 	update_object(op, UP_OBJ_REMOVE);
 	op->env = NULL;
+
+	object_check_move_off(op);
 }
 
 /**
@@ -1989,10 +1958,11 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	{
 		for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
 		{
-			if (CAN_MERGE(op,tmp))
+			if (CAN_MERGE(op, tmp))
 			{
 				op->nrof += tmp->nrof;
 				remove_ob(tmp);
+				object_destroy(tmp);
 				break;
 			}
 		}
@@ -2099,27 +2069,71 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 	{
 		for (tmp = op; tmp; tmp = tmp->more)
 		{
-			mc = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
-
-			if ((QUERY_FLAG(tmp, FLAG_FLY_ON) && (mc->flags & P_FLY_ON)) || (!QUERY_FLAG(tmp, FLAG_FLY_ON) && (mc->flags & P_WALK_ON)))
+			if (object_check_move_on(tmp, originator))
 			{
-				int event;
-
-				event = check_walk_on(tmp, originator, MOVE_APPLY_MOVE);
-
-				if (event == CHECK_WALK_MOVED)
-				{
-					return op;
-				}
-				else if (event != CHECK_WALK_OK)
-				{
-					return NULL;
-				}
+				return NULL;
 			}
 		}
 	}
 
 	return op;
+}
+
+/**
+ * Checks if any objects has a movement type that matches objects
+ * that affect this object on this space. Calls object_move_on() to
+ * process these events.
+ * @param op Object that may trigger something.
+ * @param originator Player, monster or other object that caused 'op' to
+ * be inserted into the map. May be NULL.
+ * @return 1 if 'op' was destroyed, 0 otherwise. */
+int object_check_move_on(object *op, object *originator)
+{
+	object *tmp;
+	tag_t tag;
+    mapstruct *m;
+    int x, y;
+
+	if (QUERY_FLAG(op, FLAG_NO_APPLY))
+	{
+		return 0;
+	}
+
+	tag = op->count;
+	m = op->map;
+	x = op->x;
+	y = op->y;
+
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	{
+		/* Can't apply yourself. */
+		if (tmp == op)
+		{
+			continue;
+		}
+
+		if (IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS) && QUERY_FLAG(tmp, FLAG_SLOW_MOVE))
+		{
+			op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
+		}
+
+		if (QUERY_FLAG(op, FLAG_FLYING) ? QUERY_FLAG(tmp, FLAG_FLY_ON) : QUERY_FLAG(tmp, FLAG_WALK_ON))
+		{
+			object_move_on(tmp, op, originator);
+
+			if (was_destroyed(op, tag))
+			{
+				return 1;
+			}
+
+			if (op->map != m || op->x != x || op->y != y)
+			{
+				return 0;
+			}
+		}
+	}
+
+	return 0;
 }
 
 /**
@@ -2197,7 +2211,6 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
 			remove_ob(orig_ob);
 		}
 
-		check_walk_off(orig_ob, NULL, MOVE_APPLY_VANISHED);
 	}
 	else if (!is_removed)
 	{
@@ -2230,8 +2243,6 @@ object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
  * @return 'op' if something is left, NULL if the amount reached 0. */
 object *decrease_ob_nr(object *op, uint32 i)
 {
-	object *tmp;
-
 	/* Objects with op->nrof require this check */
 	if (i == 0)
 	{
@@ -2249,8 +2260,6 @@ object *decrease_ob_nr(object *op, uint32 i)
 	}
 	else if (op->env)
 	{
-		tmp = object_need_esrv_update(op);
-
 		if (i < op->nrof)
 		{
 			op->nrof -= i;
@@ -2259,21 +2268,10 @@ object *decrease_ob_nr(object *op, uint32 i)
 			{
 				sub_weight(op->env, op->weight * i);
 			}
-
-			if (tmp)
-			{
-				esrv_send_item(tmp, op);
-			}
 		}
 		else
 		{
-			if (tmp)
-			{
-				esrv_del_item(CONTR(tmp), op->count, op->env);
-			}
-
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 			op->nrof = 0;
 		}
 	}
@@ -2286,7 +2284,6 @@ object *decrease_ob_nr(object *op, uint32 i)
 		else
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 			op->nrof = 0;
 		}
 	}
@@ -2344,12 +2341,19 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	/* If the object has tail parts, it means the object is a multi-part
 	 * object that was on a map prior to this insert call. Thus, we will
-	 * want to unlink the tail parts from this object, so if the object
+	 * want to destroy the tail parts of this object, so if the object
 	 * is at some later point inserted on the map again, the tails will
-	 * be re-created. Since the existing tail parts were removed but not
-	 * inserted anywhere afterwards, they will be GCed later on. */
+	 * be re-created. */
 	if (op->more)
 	{
+		object *tmp, *next;
+
+		for (tmp = op->more; tmp; tmp = next)
+		{
+			next = tmp->more;
+			object_destroy(tmp);
+		}
+
 		op->more = NULL;
 	}
 
@@ -2442,211 +2446,12 @@ object *insert_ob_in_ob(object *op, object *where)
 		}
 	}
 
+	if (where->type == PLAYER || where->type == CONTAINER)
+	{
+		esrv_send_item(op);
+	}
+
 	return op;
-}
-
-/**
- * @todo Document. */
-int check_walk_on(object *op, object *originator, int flags)
-{
-	object *tmp;
-	/* when TRUE, this function is root call for static_walk_semaphore setting */
-	int local_walk_semaphore = 0;
-	tag_t tag;
-	int fly, slow_move;
-
-	if (QUERY_FLAG(op, FLAG_NO_APPLY))
-	{
-		return 0;
-	}
-
-	fly = QUERY_FLAG(op, FLAG_FLYING);
-	slow_move = IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS);
-
-	if (fly)
-	{
-		flags |= MOVE_APPLY_FLY_ON;
-	}
-	else
-	{
-		flags |= MOVE_APPLY_WALK_ON;
-	}
-
-	tag = op->count;
-
-	/* This flags ensures we notice when a moving event has appeared!
-	 * Because the functions who set/clear the flag can be called recursive
-	 * from this function and walk_off() we need a static, global semaphore
-	 * like flag to ensure we don't clear the flag except in the mother call. */
-	if (!static_walk_semaphore)
-	{
-		local_walk_semaphore = 1;
-		static_walk_semaphore = 1;
-		CLEAR_FLAG(op, FLAG_OBJECT_WAS_MOVED);
-	}
-
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
-	{
-		/* Can't apply yourself */
-		if (tmp == op)
-		{
-			continue;
-		}
-
-		if (slow_move && QUERY_FLAG(tmp, FLAG_SLOW_MOVE))
-		{
-			op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
-		}
-
-		if (fly ? QUERY_FLAG(tmp, FLAG_FLY_ON) : QUERY_FLAG(tmp, FLAG_WALK_ON))
-		{
-			move_apply(tmp, op, originator,flags);
-
-			/* This means we got killed, removed or whatever! */
-			if (was_destroyed(op, tag))
-			{
-				if (local_walk_semaphore)
-				{
-					static_walk_semaphore = 0;
-				}
-
-				return CHECK_WALK_DESTROYED;
-			}
-
-			/* And here a remove_ob() or insert_xx() was triggered - we MUST stop now */
-			if (QUERY_FLAG(op, FLAG_OBJECT_WAS_MOVED))
-			{
-				if (local_walk_semaphore)
-				{
-					static_walk_semaphore = 0;
-				}
-
-				return CHECK_WALK_MOVED;
-			}
-		}
-	}
-
-	if (local_walk_semaphore)
-	{
-		static_walk_semaphore = 0;
-	}
-
-	return CHECK_WALK_OK;
-}
-
-/**
- * @todo Document. */
-int check_walk_off(object *op, object *originator, int flags)
-{
-	MapSpace *mc;
-	object *tmp, *part;
-	/* when TRUE, this function is root call for static_walk_semaphore setting */
-	int local_walk_semaphore = 0;
-	int fly;
-	tag_t tag;
-
-	/* no map, no walk off - item can be in inventory and/or ... */
-	if (!op || !op->map)
-	{
-		return CHECK_WALK_OK;
-	}
-
-	if (!QUERY_FLAG(op, FLAG_REMOVED))
-	{
-		LOG(llevBug, "check_walk_off: object %s is not removed when called\n", query_name(op, NULL));
-		return CHECK_WALK_OK;
-	}
-
-	if (QUERY_FLAG(op, FLAG_NO_APPLY))
-	{
-		return CHECK_WALK_OK;
-	}
-
-	tag = op->count;
-	fly = QUERY_FLAG(op, FLAG_FLYING);
-
-	if (fly)
-	{
-		flags |= MOVE_APPLY_FLY_OFF;
-	}
-	else
-	{
-		flags |= MOVE_APPLY_WALK_OFF;
-	}
-
-	/* Check single and multi arches */
-	for (part = op; part; part = part->more)
-	{
-		mc = GET_MAP_SPACE_PTR(part->map, part->x, part->y);
-
-		/* No event on this tile */
-		if (!(mc->flags & (P_WALK_OFF | P_FLY_OFF)))
-		{
-			continue;
-		}
-
-		/* This flags ensures we notice when a moving event has appeared!
-		 * Because the functions who set/clear the flag can be called recursive
-		 * from this function and walk_off() we need a static, global semaphore
-		 * like flag to ensure we don't clear the flag except in the mother call. */
-		if (!static_walk_semaphore)
-		{
-			local_walk_semaphore = 1;
-			static_walk_semaphore = 1;
-			CLEAR_FLAG(part, FLAG_OBJECT_WAS_MOVED);
-		}
-
-		/* Ok, check objects here... */
-		for (tmp = mc->first; tmp != NULL; tmp = tmp->above)
-		{
-			/* It's the ob part in this space... better not > 1 part in same space of same arch */
-			if (tmp == part)
-			{
-				continue;
-			}
-
-			/* Event */
-			if (fly ? QUERY_FLAG(tmp, FLAG_FLY_OFF) : QUERY_FLAG(tmp, FLAG_WALK_OFF))
-			{
-				move_apply(tmp, part, originator, flags);
-
-				if (OBJECT_FREE(part) || tag != op->count)
-				{
-					if (local_walk_semaphore)
-					{
-						static_walk_semaphore = 0;
-					}
-
-					return CHECK_WALK_DESTROYED;
-				}
-
-				/* And here insert_xx() was triggered - we MUST stop now */
-				if (!QUERY_FLAG(part, FLAG_REMOVED) || QUERY_FLAG(part, FLAG_OBJECT_WAS_MOVED))
-				{
-					if (local_walk_semaphore)
-					{
-						static_walk_semaphore = 0;
-					}
-
-					return CHECK_WALK_MOVED;
-				}
-			}
-		}
-
-		if (local_walk_semaphore)
-		{
-			local_walk_semaphore = 0;
-			static_walk_semaphore = 0;
-		}
-
-	}
-
-	if (local_walk_semaphore)
-	{
-		static_walk_semaphore = 0;
-	}
-
-	return CHECK_WALK_OK;
 }
 
 /**
@@ -3768,52 +3573,4 @@ int object_get_gender(object *op)
 	}
 
 	return GENDER_NEUTER;
-}
-
-/**
- * Figure out whether an object needs to be updated for the player (because
- * it's getting removed, modified, etc).
- * @param op Object about to be removed/modified/etc.
- * @return If NULL, the object doesn't need an update. Otherwise this is
- * the player object to update for. */
-object *object_need_esrv_update(object *op)
-{
-	object *tmp;
-
-	if (!op->env)
-	{
-		return NULL;
-	}
-
-	/* Is this object in the player's inventory, or sub container
-	 * therein? */
-	tmp = is_player_inv(op->env);
-
-	if (!tmp)
-	{
-		if (op->env->type == CONTAINER && op->env->attacked_by && CONTR(op->env->attacked_by) && CONTR(op->env->attacked_by)->container == op->env)
-		{
-			tmp = op->env->attacked_by;
-		}
-	}
-
-	return tmp;
-}
-
-/**
- * Remove an object and figure out whether a socket update is necessary.
- * @param op What to remove. */
-void object_remove_esrv_update(object *op)
-{
-	object *tmp = object_need_esrv_update(op);
-
-	if (tmp)
-	{
-		/* Tell the client(s) that the object has been removed. */
-		esrv_del_item(CONTR(tmp), op->count, op->env);
-	}
-
-	/* Remove the object. */
-	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 }

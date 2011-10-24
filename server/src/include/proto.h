@@ -238,7 +238,6 @@ extern void init_anim(void);
 extern int find_animation(char *name);
 extern void animate_object(object *op, int count);
 /* src/server/apply.c */
-extern void move_apply(object *trap, object *victim, object *originator, int flags);
 extern object *find_special_prayer_mark(object *op, int spell);
 extern void do_learn_spell(object *op, int spell, int special_prayer);
 extern void do_forget_spell(object *op, int spell);
@@ -483,7 +482,6 @@ extern void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, obj
 extern struct mempool_chunk end_marker;
 extern int nrof_mempools;
 extern struct mempool *mempools[32];
-extern struct mempool *pool_puddle;
 extern struct mempool *pool_object;
 extern struct mempool *pool_objectlink;
 extern struct mempool *pool_player;
@@ -496,7 +494,6 @@ extern void init_mempools(void);
 extern void free_mempools(void);
 extern void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp);
 extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool);
-extern void dump_mempool_statistics(object *op, int *sum_used, int *sum_alloc);
 /* src/server/move.c */
 extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
@@ -504,9 +501,7 @@ extern int teleport(object *teleporter, uint8 tele_type, object *user);
 extern int push_ob(object *op, int dir, object *pusher);
 extern int missile_reflection_adjust(object *op, int flag);
 /* src/server/object.c */
-extern struct mempool_chunk *removed_objects;
 extern object *active_objects;
-extern object void_container;
 extern const char *gender_noun[4];
 extern const char *gender_subjective[4];
 extern const char *gender_subjective_upper[4];
@@ -522,8 +517,6 @@ extern int maxfree[49];
 extern int freedir[49];
 extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
-extern void mark_object_removed(object *ob);
-extern void object_gc(void);
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);
 extern signed long sum_weight(object *op);
@@ -545,16 +538,15 @@ extern void update_turn_face(object *op);
 extern void update_ob_speed(object *op);
 extern void update_object(object *op, int action);
 extern void drop_ob_inv(object *ob);
-extern void destroy_object(object *ob);
+extern void object_destroy(object *ob);
 extern void destruct_ob(object *op);
 extern void remove_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
+extern int object_check_move_on(object *op, object *originator);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);
 extern object *get_split_ob(object *orig_ob, int nr, char *err, size_t size);
 extern object *decrease_ob_nr(object *op, uint32 i);
 extern object *insert_ob_in_ob(object *op, object *where);
-extern int check_walk_on(object *op, object *originator, int flags);
-extern int check_walk_off(object *op, object *originator, int flags);
 extern object *present_arch(archetype *at, mapstruct *m, int x, int y);
 extern object *present(uint8 type, mapstruct *m, int x, int y);
 extern object *present_in_ob(uint8 type, object *op);
@@ -581,13 +573,19 @@ extern int object_set_value(object *op, const char *key, const char *value, int 
 extern void init_object_initializers(void);
 extern int item_matched_string(object *pl, object *op, const char *name);
 extern int object_get_gender(object *op);
-extern object *object_need_esrv_update(object *op);
-extern void object_remove_esrv_update(object *op);
-/* src/server/object_process.c */
+/* src/server/object_methods.c */
+extern object_methods object_type_methods[160];
+extern object_methods object_methods_base;
+extern void object_methods_init_one(object_methods *methods);
+extern void object_methods_init(void);
+extern int object_apply(object *op, object *applier, int aflags);
+extern void object_process(object *op);
+extern char *object_describe(object *op, object *observer, char *buf, size_t size);
+extern int object_move_on(object *op, object *victim, object *originator);
+extern int object_trigger(object *op, object *cause, int state);
 extern object *stop_item(object *op);
 extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
 extern void move_firewall(object *op);
-extern void process_object(object *op);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -895,9 +893,9 @@ extern unsigned int query_flags(object *op);
 extern void esrv_draw_look(object *pl);
 extern void esrv_close_container(object *op);
 extern void esrv_send_inventory(object *pl, object *op);
-extern void esrv_update_item(int flags, object *pl, object *op);
-extern void esrv_send_item(object *pl, object *op);
-extern void esrv_del_item(player *pl, int tag, object *cont);
+extern void esrv_update_item(int flags, object *op);
+extern void esrv_send_item(object *op);
+extern void esrv_del_item(object *op);
 extern object *esrv_get_ob_from_count(object *pl, tag_t count);
 extern void ExamineCmd(char *buf, int len, player *pl);
 extern void send_quickslots(player *pl);
@@ -959,12 +957,16 @@ extern void play_sound_map(mapstruct *map, int type, const char *filename, int x
 /* src/socket/updates.c */
 extern void updates_init(void);
 extern void cmd_request_update(char *buf, int len, socket_struct *ns);
+/* src/types/common/apply.c */
+extern int common_object_apply(object *op, object *applier, int aflags);
+/* src/types/common/describe.c */
+extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
+/* src/types/common/process.c */
+extern int common_object_process(object *op);
 /* src/types/altar.c */
 extern int apply_altar(object *altar, object *sacrifice, object *originator);
 extern int check_altar_sacrifice(object *altar, object *sacrifice);
 extern int operate_altar(object *altar, object **sacrifice);
-/* src/types/armour_improver.c */
-extern void apply_armour_improver(object *op, object *tmp);
 /* src/types/arrow.c */
 extern sint32 bow_get_ws(object *bow, object *arrow);
 extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
@@ -980,7 +982,7 @@ extern void beacon_add(object *ob);
 extern void beacon_remove(object *ob);
 extern object *beacon_locate(shstr *name);
 /* src/types/book.c */
-extern void apply_book(object *op, object *tmp);
+extern void object_type_init_book(void);
 /* src/types/container.c */
 extern int esrv_apply_container(object *op, object *sack);
 extern int container_link(player *pl, object *sack);
@@ -1023,7 +1025,6 @@ extern int apply_identify_altar(object *money, object *altar, object *pl);
 /* src/types/light.c */
 extern void apply_player_light_refill(object *who, object *op);
 extern void apply_player_light(object *who, object *op);
-extern void apply_lighter(object *who, object *lighter);
 /* src/types/magic_mirror.c */
 extern void magic_mirror_init(object *mirror);
 extern void magic_mirror_deinit(object *mirror);
@@ -1044,7 +1045,7 @@ extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
 /* src/types/pit.c */
-extern void move_pit(object *op);
+extern void object_type_init_pit(void);
 /* src/types/player.c */
 extern player *find_player(const char *plname);
 extern void display_motd(object *op);
@@ -1112,9 +1113,6 @@ extern object *get_aggro_waypoint(object *op);
 extern object *get_return_waypoint(object *op);
 extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
-/* src/types/weapon_improver.c */
-extern void apply_weapon_improver(object *op, object *tmp);
-extern int check_weapon_power(object *who, int improvs);
 /* src/loaders/map_header.c */
 extern int yy_map_headerleng;
 extern FILE *yy_map_headerin;
@@ -1168,7 +1166,7 @@ extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
-extern void save_object(FILE *fp, object *op, int flag);
+extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c*/
 extern int yy_random_mapleng;
 extern FILE *yy_random_mapin;

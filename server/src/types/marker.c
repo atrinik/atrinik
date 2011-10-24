@@ -56,6 +56,7 @@ void move_marker(object *op)
 			if (tmp2)
 			{
 				remove_ob(tmp2);
+				object_destroy(tmp2);
 			}
 
 			/* cycle through his inventory to look for the MARK we want to place */

@@ -265,8 +265,7 @@ int save_player(object *op, int flag)
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 	CLEAR_FLAG(op, FLAG_WIZ);
 
-	/* Don't check and don't remove */
-	save_object(fp, op, 3);
+	save_object(fp, op);
 
 	/* Make sure the write succeeded */
 	if (fclose(fp) == EOF)
@@ -681,6 +680,7 @@ void check_login(object *op)
 	op->custom_attrset = NULL;
 
 	LOG(llevDebug, "load obj for player: %s\n", op->name);
+	object_destroy(op);
 
 	/* Create a new object for the real player data */
 	op = get_object();

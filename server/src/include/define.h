@@ -546,9 +546,8 @@
 /**
  * Disease symptom. */
 #define SYMPTOM 159
-/**
- * Pure internal system object. */
-#define VOID_CONTAINER 255
+
+#define OBJECT_TYPE_MAX 160
 /*@}*/
 
 /**

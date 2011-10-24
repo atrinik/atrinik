@@ -535,8 +535,8 @@ typedef struct oblnk
 /** Test the object is not removed nor freed - but no count test */
 #define OBJECT_ACTIVE(_ob_) (!QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
 
-/** Test if an object is in the free-list */
-#define OBJECT_FREE(_ob_) ((_ob_)->count == 0 && CHUNK_FREE(_ob_))
+/** Test if an object  */
+#define OBJECT_FREE(_ob_) ((_ob_)->count == 0)
 
 /**
  * @defgroup INS_xxx Object insertion flags.

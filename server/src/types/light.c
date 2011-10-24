@@ -79,15 +79,6 @@ void apply_player_light_refill(object *who, object *op)
 			filler = get_split_ob(filler, 1, NULL, 0);
 			filler->stats.food -= tmp;
 			insert_ob_in_ob(filler, who);
-
-			if (QUERY_FLAG(op, FLAG_REMOVED))
-			{
-				esrv_del_item(CONTR(who), op->count, op->env);
-			}
-			else
-			{
-				esrv_send_item(who, op);
-			}
 		}
 		else
 		{
@@ -96,10 +87,8 @@ void apply_player_light_refill(object *who, object *op)
 
 		item->stats.food += tmp;
 		draw_info_format(COLOR_WHITE, who, "You refill the %s with %d units of %s.", query_name(item, NULL), tmp, query_name(filler, NULL));
-		esrv_send_item(who, filler);
 	}
 
-	esrv_send_item(who, item);
 	fix_player(who);
 }
 
@@ -208,11 +197,7 @@ void apply_player_light(object *who, object *op)
 				op->nrof -= 1;
 				one->nrof = 1;
 
-				if (op->env && (op->env->type == PLAYER || op->env->type == CONTAINER))
-				{
-					esrv_update_item(UPD_NROF, op->env, op);
-				}
-				else if (!op->env)
+				if (!op->env)
 				{
 					update_object(op, UP_OBJ_FACE);
 				}
@@ -350,7 +335,6 @@ void apply_player_light(object *who, object *op)
 						}
 
 						update_object(tmp, UP_OBJ_FACE);
-						esrv_send_item(who, tmp);
 					}
 				}
 
@@ -398,96 +382,5 @@ void apply_player_light(object *who, object *op)
 				update_object(op, UP_OBJ_FACE);
 			}
 		}
-	}
-
-	if (op->env && (op->env->type == PLAYER || op->env->type == CONTAINER))
-	{
-		esrv_send_item(op->env, op);
-	}
-}
-
-/**
- * Designed primarily to light torches/lanterns/etc.
- * Also burns up burnable material too.
- * @param who The object who applied this.
- * @param lighter The lighter object.
- * @todo This type is currently not used in Atrinik, perhaps make use of
- * it? */
-void apply_lighter(object *who, object *lighter)
-{
-	object *item;
-	tag_t count;
-	uint32 nrof;
-	int is_player_env = 0;
-	char item_name[MAX_BUF];
-
-	item = find_marked_object(who);
-
-	if (item)
-	{
-		/* lighter gets used up */
-		if (lighter->last_eat && lighter->stats.food)
-		{
-			/* Split multiple lighters if they're being used up.  Otherwise	*
-			 * one charge from each would be used up.  --DAMN		*/
-			if (lighter->nrof > 1)
-			{
-				object *oneLighter = get_object();
-				copy_object(lighter, oneLighter, 0);
-				lighter->nrof -= 1;
-				oneLighter->nrof = 1;
-				oneLighter->stats.food--;
-				esrv_send_item(who, lighter);
-				oneLighter=insert_ob_in_ob(oneLighter, who);
-				esrv_send_item(who, oneLighter);
-			}
-			else
-			{
-				lighter->stats.food--;
-			}
-		}
-		/* no charges left in lighter */
-		else if (lighter->last_eat)
-		{
-			draw_info_format(COLOR_WHITE, who, "You attempt to light the %s with a used up %s.", item->name, lighter->name);
-			return;
-		}
-
-		/* Perhaps we should split what we are trying to light on fire?
-		 * I can't see many times when you would want to light multiple
-		 * objects at once. */
-		nrof = item->nrof;
-		count = item->count;
-
-		/* If the item is destroyed, we don't have a valid pointer to the
-		 * name object, so make a copy so the message we print out makes
-		 * some sense. */
-		strcpy(item_name, item->name);
-
-		if (who == is_player_inv(item))
-		{
-			is_player_env = 1;
-		}
-
-		/* Change to check count and not freed, since the object pointer
-		 * may have gotten recycled */
-		if ((nrof != item->nrof ) || (count != item->count))
-		{
-			draw_info_format(COLOR_WHITE, who, "You light the %s with the %s.", item_name, lighter->name);
-
-			if (is_player_env)
-			{
-				fix_player(who);
-			}
-		}
-		else
-		{
-			draw_info_format(COLOR_WHITE, who, "You attempt to light the %s with the %s and fail.", item->name, lighter->name);
-		}
-	}
-	/* nothing to light */
-	else
-	{
-		draw_info(COLOR_WHITE, who, "You need to mark a lightable object.");
 	}
 }

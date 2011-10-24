@@ -532,7 +532,7 @@ int move_monster(object *op)
 		if (QUERY_FLAG(op, FLAG_ONLY_ATTACK))
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_DEFAULT);
+			object_destroy(op);
 			return 1;
 		}
 

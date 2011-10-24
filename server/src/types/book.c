@@ -66,125 +66,120 @@ static double book_exp_mod[MAX_STAT + 1] =
 	1.70f, 1.75f, 1.85f, 1.90f, 2.00f
 };
 
-/**
- * Apply a book.
- *
- * Sends the book contents to the player object using
- * Send_With_Handling(), but only if the book does not have an APPLY
- * plugin trigger.
- *
- * A book can only be read if you're high enough level compared to the
- * book's level. You will also get experience for reading books, but only
- * if the book has not been read before.
- * @param op The player object applying the book.
- * @param tmp The book. */
-void apply_book(object *op, object *tmp)
+/** @copydoc object_methods::apply_func */
+static int apply(object *op, object *applier, int aflags)
 {
 	int lev_diff;
 	SockList sl;
 	unsigned char sock_buf[MAXSOCKBUF];
 
-	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op,FLAG_WIZ))
+	(void) aflags;
+
+	if (applier->type != PLAYER)
 	{
-		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
-	if (tmp->msg == NULL)
+	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ))
 	{
-		draw_info_format(COLOR_WHITE, op, "You open the %s and find it empty.", tmp->name);
-		return;
+		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
+		return OBJECT_METHOD_OK;
+	}
+
+	if (op->msg == NULL)
+	{
+		draw_info_format(COLOR_WHITE, applier, "You open the %s and find it empty.", op->name);
+		return OBJECT_METHOD_OK;
 	}
 
 	/* Need a literacy skill to read stuff! */
-	if (!change_skill(op, SK_LITERACY))
+	if (!change_skill(applier, SK_LITERACY))
 	{
-		draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
-		return;
+		draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+		return OBJECT_METHOD_OK;
 	}
 
-	lev_diff = tmp->level - (SK_level(op) + BOOK_LEVEL_DIFF + book_level_mod[op->stats.Int]);
+	lev_diff = op->level - (SK_level(applier) + BOOK_LEVEL_DIFF + book_level_mod[applier->stats.Int]);
 
-	if (!QUERY_FLAG(op, FLAG_WIZ) && lev_diff > 0)
+	if (!QUERY_FLAG(applier, FLAG_WIZ) && lev_diff > 0)
 	{
 		if (lev_diff < 2)
 		{
-			draw_info(COLOR_WHITE, op, "This book is just barely beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is just barely beyond your comprehension.");
 		}
 		else if (lev_diff < 3)
 		{
-			draw_info(COLOR_WHITE, op, "This book is slightly beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is slightly beyond your comprehension.");
 		}
 		else if (lev_diff < 5)
 		{
-			draw_info(COLOR_WHITE, op, "This book is beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is beyond your comprehension.");
 		}
 		else if (lev_diff < 8)
 		{
-			draw_info(COLOR_WHITE, op, "This book is quite a bit beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is quite a bit beyond your comprehension.");
 		}
 		else if (lev_diff < 15)
 		{
-			draw_info(COLOR_WHITE, op, "This book is way beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is way beyond your comprehension.");
 		}
 		else
 		{
-			draw_info(COLOR_WHITE, op, "This book is totally beyond your comprehension.");
+			draw_info(COLOR_WHITE, applier, "This book is totally beyond your comprehension.");
 		}
 
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
-	draw_info_format(COLOR_WHITE, op, "You open the %s and start reading.", tmp->name);
-	CONTR(op)->stat_books_read++;
+	draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
+	CONTR(applier)->stat_books_read++;
 
 	sl.buf = sock_buf;
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
 
 	SockList_AddStringUnterm(&sl, "<book>");
-	SockList_AddStringUnterm(&sl, query_base_name(tmp, NULL));
+	SockList_AddStringUnterm(&sl, query_base_name(op, NULL));
 	SockList_AddStringUnterm(&sl, "</book>");
-	SockList_AddString(&sl, tmp->msg);
+	SockList_AddString(&sl, op->msg);
 
-	Send_With_Handling(&CONTR(op)->socket, &sl);
+	Send_With_Handling(&CONTR(applier)->socket, &sl);
 
 	/* Gain xp from reading but only if not read before. */
-	if (!QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT))
+	if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
 	{
 		sint64 exp_gain, old_exp;
 
-		CONTR(op)->stat_unique_books_read++;
+		CONTR(applier)->stat_unique_books_read++;
 
 		/* Store original exp value. We want to keep the experience cap
 		 * from calc_skill_exp() below, so we temporarily adjust the exp
 		 * of the book, instead of adjusting the return value. */
-		old_exp = tmp->stats.exp;
+		old_exp = op->stats.exp;
 		/* Adjust the experience based on player's wisdom. */
-		tmp->stats.exp = (sint64) ((double) tmp->stats.exp * book_exp_mod[op->stats.Wis]);
+		op->stats.exp = (sint64) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
 
-		if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+		if (!QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
 			/* Because they just identified it too. */
-			tmp->stats.exp *= 1.5f;
-			SET_FLAG(tmp, FLAG_IDENTIFIED);
-
-			/* If in a container, update how it looks. */
-			if (tmp->env)
-			{
-				esrv_update_item(UPD_FLAGS | UPD_NAME, op, tmp);
-			}
-			else
-			{
-				CONTR(op)->socket.update_tile = 0;
-			}
+			op->stats.exp *= 1.5f;
+			identify(op);
 		}
 
-		exp_gain = calc_skill_exp(op, tmp, -1);
-		add_exp(op, exp_gain, op->chosen_skill->stats.sp, 0);
+		exp_gain = calc_skill_exp(applier, op, -1);
+		add_exp(applier, exp_gain, applier->chosen_skill->stats.sp, 0);
 
 		/* So no more exp gained from this book. */
-		SET_FLAG(tmp, FLAG_NO_SKILL_IDENT);
+		SET_FLAG(op, FLAG_NO_SKILL_IDENT);
 		/* Restore old experience value. */
-		tmp->stats.exp = old_exp;
+		op->stats.exp = old_exp;
 	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the book type object methods. */
+void object_type_init_book(void)
+{
+	object_type_methods[BOOK].apply_func = apply;
 }

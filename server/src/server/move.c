@@ -105,11 +105,6 @@ int move_ob(object *op, int dir, object *originator)
 
 		remove_ob(op);
 
-		if (check_walk_off(op, originator, MOVE_APPLY_MOVE) & (CHECK_WALK_DESTROYED | CHECK_WALK_MOVED))
-		{
-			return 1;
-		}
-
 		for (tmp = op; tmp != NULL; tmp = tmp->more)
 		{
 			tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
@@ -142,11 +137,6 @@ int move_ob(object *op, int dir, object *originator)
 	}
 
 	remove_ob(op);
-
-	if (check_walk_off(op, originator, MOVE_APPLY_MOVE) & (CHECK_WALK_DESTROYED | CHECK_WALK_MOVED))
-	{
-		return 1;
-	}
 
 	op->x += freearr_x[dir];
 	op->y += freearr_y[dir];
@@ -210,11 +200,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 	}
 
 	remove_ob(op);
-
-	if (check_walk_off(op, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
-	{
-		return 1;
-	}
 
 	op->x = x + freearr_x[i];
 	op->y = y + freearr_y[i];
@@ -303,11 +288,6 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 
 	remove_ob(user);
 
-	if (check_walk_off(user, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
-	{
-		return 1;
-	}
-
 	user->x = other_teleporter->x + freearr_x[k];
 	user->y = other_teleporter->y + freearr_y[k];
 
@@ -380,11 +360,6 @@ int push_ob(object *op, int dir, object *pusher)
 	}
 
 	remove_ob(op);
-
-	if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) != CHECK_WALK_OK)
-	{
-		return 0;
-	}
 
 	op->x = op->x + freearr_x[dir];
 	op->y = op->y + freearr_y[dir];

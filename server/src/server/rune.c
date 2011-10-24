@@ -63,7 +63,6 @@ static void rune_attack(object *op, object *victim)
 
 			infect_object(victim, disease, 1);
 			remove_ob(disease);
-			check_walk_off(disease, NULL, MOVE_APPLY_VANISHED);
 		}
 	}
 	else
@@ -148,7 +147,6 @@ void spring_trap(object *trap, object *victim)
 		if (old_env)
 		{
 			remove_ob(trap);
-			check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 			insert_ob_in_ob(trap, old_env);
 		}
 	}
@@ -254,7 +252,6 @@ int trap_disarm(object *disarmer, object *trap)
 	{
 		draw_info_format(COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
 		remove_ob(trap);
-		check_walk_off(trap, NULL, MOVE_APPLY_VANISHED);
 		set_trapped_flag(env);
 		CONTR(disarmer)->stat_traps_disarmed++;
 		return 1;

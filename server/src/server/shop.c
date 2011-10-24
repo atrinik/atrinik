@@ -431,7 +431,6 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	int count, i;
 	object *tmp, *coin_objs[NUM_COINS], *next, *bank_object = NULL;
 	archetype *at;
-	object *who;
 
 	(void) op;
 
@@ -465,17 +464,10 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 						LOG(llevBug, "pay_from_container(): %s has two money entries of (%s)\n", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
 						remove_ob(tmp);
 						coin_objs[i]->nrof += tmp->nrof;
-						esrv_del_item(CONTR(pouch), tmp->count, tmp->env);
 					}
 					else
 					{
 						remove_ob(tmp);
-
-						if (pouch->type == PLAYER)
-						{
-							esrv_del_item(CONTR(pouch), tmp->count,tmp->env);
-						}
-
 						coin_objs[i] = tmp;
 					}
 
@@ -565,21 +557,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 	{
 		if (coin_objs[i]->nrof)
 		{
-			tmp = insert_ob_in_ob(coin_objs[i], pouch);
-
-			for (who = pouch; who && who->type != PLAYER && who->env != NULL; who = who->env)
-			{
-			}
-
-			esrv_send_item(who, tmp);
-			esrv_send_item (who, pouch);
-			esrv_update_item(UPD_WEIGHT, who, pouch);
-
-			if (pouch->type != PLAYER)
-			{
-				esrv_send_item(who, who);
-				esrv_update_item(UPD_WEIGHT, who, who);
-			}
+			insert_ob_in_ob(coin_objs[i], pouch);
 		}
 	}
 
@@ -633,9 +611,6 @@ int get_payment(object *pl, object *op)
 		}
 		else
 		{
-			object *tmp, *c_cont = op->env;
-			tag_t c = op->count;
-
 			CLEAR_FLAG(op, FLAG_UNPAID);
 			CLEAR_FLAG(op, FLAG_STARTEQUIP);
 
@@ -644,19 +619,7 @@ int get_payment(object *pl, object *op)
 				draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
 			}
 
-			tmp = merge_ob(op, NULL);
-
-			if (pl->type == PLAYER)
-			{
-				/* It was merged */
-				if (tmp)
-				{
-					esrv_del_item(CONTR(pl), c, c_cont);
-					op = tmp;
-				}
-
-				esrv_send_item(pl, op);
-			}
+			merge_ob(op, NULL);
 		}
 	}
 
@@ -855,8 +818,6 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 		{
 			if ((sint64) tmp->nrof <= amount || value == -1)
 			{
-				object *env = tmp->env;
-
 				if (value == -1)
 				{
 					amount += (tmp->nrof * tmp->value);
@@ -867,30 +828,11 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 				}
 
 				remove_ob(tmp);
-
-				if (op->type == PLAYER)
-				{
-					esrv_del_item(CONTR(op), tmp->count, NULL);
-				}
-				else
-				{
-					esrv_del_item(NULL, tmp->count, env);
-				}
 			}
 			else
 			{
 				tmp->nrof -= (uint32) amount;
 				amount = 0;
-
-				esrv_send_item(who, tmp);
-				esrv_send_item(who, op);
-				esrv_update_item(UPD_WEIGHT, who, op);
-
-				if (op->type != PLAYER)
-				{
-					esrv_send_item(who, who);
-					esrv_update_item(UPD_WEIGHT, who, who);
-				}
 			}
 		}
 		else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold"))))
@@ -912,10 +854,7 @@ void insert_money_in_player(object *pl, object *money, uint32 nrof)
 	object *tmp = get_object();
 	copy_object(money, tmp, 0);
 	tmp->nrof = nrof;
-	tmp = insert_ob_in_ob(tmp, pl);
-	esrv_send_item(pl, tmp);
-	esrv_send_item(pl, pl);
-	esrv_update_item(UPD_WEIGHT, pl, pl);
+	insert_ob_in_ob(tmp, pl);
 }
 
 /**
@@ -1199,12 +1138,7 @@ sint64 insert_coins(object *pl, sint64 value)
 						copy_object(&at->clone, tmp, 0);
 						tmp->nrof = n;
 						value -= tmp->nrof * tmp->value;
-						tmp = insert_ob_in_ob(tmp, pouch);
-						esrv_send_item(pl, tmp);
-						esrv_send_item(pl, pouch);
-						esrv_update_item(UPD_WEIGHT, pl, pouch);
-						esrv_send_item(pl, pl);
-						esrv_update_item(UPD_WEIGHT, pl, pl);
+						insert_ob_in_ob(tmp, pouch);
 					}
 				}
 			}
@@ -1215,10 +1149,7 @@ sint64 insert_coins(object *pl, sint64 value)
 				copy_object(&at->clone, tmp, 0);
 				tmp->nrof = (uint32) (value / tmp->value);
 				value -= tmp->nrof * tmp->value;
-				tmp = insert_ob_in_ob(tmp, pl);
-				esrv_send_item(pl, tmp);
-				esrv_send_item(pl, pl);
-				esrv_update_item(UPD_WEIGHT, pl, pl);
+				insert_ob_in_ob(tmp, pl);
 			}
 		}
 	}

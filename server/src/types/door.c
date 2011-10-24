@@ -47,7 +47,6 @@ static void door_open(object *ob, object *opener, uint8 nearby)
 	}
 
 	remove_ob(ob);
-	check_walk_off(ob, NULL, MOVE_APPLY_VANISHED);
 
 	/* Spring any traps in the door's inventory. */
 	for (tmp = ob->inv; tmp; tmp = tmp->below)
@@ -106,7 +105,6 @@ void door_close(object *ob)
 	}
 
 	remove_ob(ob);
-	check_walk_off(ob, NULL, MOVE_APPLY_VANISHED);
 
 	/* The door is no longer open. */
 	ob->last_eat = 0;

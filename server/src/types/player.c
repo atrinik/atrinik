@@ -225,7 +225,6 @@ void free_player(player *pl)
 		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
 			remove_ob(pl->ob);
-			check_walk_off(pl->ob, NULL, MOVE_APPLY_VANISHED);
 		}
 	}
 
@@ -302,10 +301,10 @@ void free_player(player *pl)
 
 	if (pl->ob)
 	{
-		destroy_object(pl->ob);
+		object_destroy(pl->ob);
 	}
 }
-
+static object void_container;
 /**
  * Tries to add a player on the connection in ns.
  *
@@ -397,15 +396,14 @@ void give_initial_items(object *pl, treasurelist *items)
 		{
 			if ((!QUERY_FLAG(pl, FLAG_USE_ARMOUR) && (op->type == ARMOUR || op->type == BOOTS || op->type == CLOAK || op->type == HELMET || op->type == SHIELD || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE)) || (!QUERY_FLAG(pl, FLAG_USE_WEAPON) && op->type == WEAPON))
 			{
-				/* Inventory action */
 				remove_ob(op);
+				object_destroy(op);
 				continue;
 			}
 		}
 
 		/* Give starting characters identified, uncursed, and undamned
-		 * items. Just don't identify gold or silver, or it won't be
-		 * merged properly. */
+		 * items. */
 		if (need_identify(op))
 		{
 			SET_FLAG(op, FLAG_IDENTIFIED);
@@ -423,6 +421,7 @@ void give_initial_items(object *pl, treasurelist *items)
 		{
 			CONTR(pl)->known_spells[CONTR(pl)->nrofknownspells++] = op->stats.sp;
 			remove_ob(op);
+			object_destroy(op);
 			continue;
 		}
 	}
@@ -657,24 +656,6 @@ void fire(object *op, int dir)
 			{
 				/* You now know something about it */
 				SET_FLAG(op, FLAG_BEEN_APPLIED);
-
-				if (!(--weap->stats.food))
-				{
-					object *tmp;
-
-					if (weap->arch)
-					{
-						CLEAR_FLAG(weap, FLAG_ANIMATE);
-						weap->face = weap->arch->clone.face;
-						weap->speed = 0;
-						update_ob_speed(weap);
-					}
-
-					if ((tmp = is_player_inv(weap)))
-					{
-						esrv_update_item(UPD_ANIM, tmp, weap);
-					}
-				}
 			}
 
 			get_skill_time(op, op->chosen_skill->stats.sp);
@@ -936,12 +917,8 @@ static int save_life(object *op)
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 			draw_info_format(COLOR_WHITE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
-			if (CONTR(op))
-			{
-				esrv_del_item(CONTR(op), tmp->count, tmp->env);
-			}
-
 			remove_ob(tmp);
+			object_destroy(tmp);
 			CLEAR_FLAG(op, FLAG_LIFESAVE);
 
 			if (op->stats.hp < 0)

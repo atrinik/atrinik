@@ -556,7 +556,7 @@ void move_symptom(object *symptom)
 	if (victim == NULL || victim->map == NULL)
 	{
 		remove_ob(symptom);
-		check_walk_off(symptom, NULL, MOVE_APPLY_VANISHED);
+		object_destroy(symptom);
 		return;
 	}
 
@@ -696,6 +696,8 @@ int cure_disease(object *sufferer, object *caster)
 				{
 					add_exp(caster, disease->stats.exp, caster->chosen_skill->stats.sp, 0);
 				}
+
+				object_destroy(disease);
 			}
 			else
 			{

@@ -283,10 +283,8 @@ static void party_loot_random(object *pl, object *corpse)
 					if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof)))
 					{
 						draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
-						esrv_del_item(CONTR(pl), tmp->count, tmp->env);
 						remove_ob(tmp);
-						tmp = insert_ob_in_ob(tmp, ol->objlink.ob);
-						esrv_send_item(ol->objlink.ob, tmp);
+						insert_ob_in_ob(tmp, ol->objlink.ob);
 					}
 
 					break;

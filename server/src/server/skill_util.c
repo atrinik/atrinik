@@ -383,8 +383,6 @@ static void init_exp_obj(void)
 			exp_cat[nrofexpcat]->level = 1;
 			exp_cat[nrofexpcat]->stats.exp = 0;
 			copy_object(&at->clone, exp_cat[nrofexpcat], 0);
-			/* avoid gc on these objects */
-			insert_ob_in_ob(exp_cat[nrofexpcat], &void_container);
 			nrofexpcat++;
 
 			if (nrofexpcat == MAX_EXP_CAT)
@@ -474,8 +472,7 @@ void free_exp_objects(void)
 			continue;
 		}
 
-		SET_FLAG(exp_cat[i], FLAG_REMOVED);
-		return_poolchunk(exp_cat[i], pool_object);
+		object_destroy(exp_cat[i]);
 	}
 }
 
@@ -801,7 +798,6 @@ int init_player_exp(object *pl)
 			exp_ob[j] = tmp;
 			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
 
-			esrv_send_item(pl, tmp);
 			exp_index++;
 		}
 	}
@@ -993,13 +989,12 @@ int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_
 	}
 
 	/* Everything is cool. Give 'em the skill */
-	insert_ob_in_ob(tmp,pl);
+	insert_ob_in_ob(tmp, pl);
 	link_player_skill(pl, tmp);
 	play_sound_player_only (CONTR(pl), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
 	draw_info_format(COLOR_WHITE, pl, "You have learned the skill %s!", tmp->name);
 
 	send_skilllist_cmd(pl, tmp, SPLIST_MODE_ADD);
-	esrv_send_item(pl, tmp);
 
 	return 1;
 }
@@ -1211,7 +1206,7 @@ static int attack_hth(object *pl, int dir, char *string)
 			if (pl->type == PLAYER)
 			{
 				draw_info(COLOR_WHITE, pl, "You unwield your weapon in order to attack.");
-				esrv_update_item(UPD_FLAGS, pl, weapon);
+				esrv_update_item(UPD_FLAGS, weapon);
 			}
 
 			break;

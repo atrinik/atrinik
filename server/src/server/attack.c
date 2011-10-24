@@ -430,56 +430,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		return (maxdam + rtn_kill + 1);
 	}
 
-	/* Used to be ghosthit removal - we now use the ONE_HIT flag.  Note
-	 * that before if the player was immune to ghosthit, the monster
-	 * remained - that is no longer the case. */
-	if (QUERY_FLAG(hitter, FLAG_ONE_HIT))
-	{
-		/* Remove, but don't drop inventory */
-		remove_ob(hitter);
-		check_walk_off(hitter, NULL, MOVE_APPLY_VANISHED);
-	}
-	/* Let's handle creatures that are splitting now */
-	else if ((type & AT_PHYSICAL) && !OBJECT_FREE(op) && QUERY_FLAG(op, FLAG_SPLITTING))
-	{
-		int i;
-		int unaggressive = QUERY_FLAG(op, FLAG_UNAGGRESSIVE);
-
-		if (!op->other_arch)
-		{
-			LOG(llevBug, "SPLITTING without other_arch error.\n");
-			return maxdam;
-		}
-
-		remove_ob(op);
-
-		if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
-		{
-			/* This doesn't handle op->more yet */
-			for (i = 0; i < op->stats.food; i++)
-			{
-				object *tmp = arch_to_object(op->other_arch);
-				int j;
-
-				tmp->stats.hp = op->stats.hp;
-
-				if (unaggressive)
-				{
-					SET_FLAG(tmp, FLAG_UNAGGRESSIVE);
-				}
-
-				j = find_first_free_spot(tmp->arch, NULL, op->map,op->x, op->y);
-
-				/* Found spot to put this monster */
-				if (j >= 0)
-				{
-					tmp->x = op->x + freearr_x[j], tmp->y = op->y + freearr_y[j];
-					insert_ob_in_map(tmp,op->map, NULL, 0);
-				}
-			}
-		}
-	}
-
 	return maxdam;
 }
 
@@ -1259,7 +1209,6 @@ object *hit_with_arrow(object *op, object *victim)
 		if (container)
 		{
 			remove_ob(container);
-			check_walk_off(container, NULL, MOVE_APPLY_VANISHED);
 		}
 
 		return NULL;
@@ -1271,7 +1220,6 @@ object *hit_with_arrow(object *op, object *victim)
 		if (container)
 		{
 			remove_ob(container);
-			check_walk_off(container, NULL, MOVE_APPLY_VANISHED);
 		}
 
 		hitter = fix_stopped_arrow(hitter);
@@ -1289,13 +1237,9 @@ object *hit_with_arrow(object *op, object *victim)
 		if ((victim_x != hitter->x || victim_y != hitter->y))
 		{
 			remove_ob(hitter);
-
-			if (check_walk_off(hitter, NULL, MOVE_APPLY_DEFAULT) == CHECK_WALK_OK)
-			{
-				hitter->x = victim_x;
-				hitter->y = victim_y;
-				insert_ob_in_map(hitter, victim_map, hitter, 0);
-			}
+			hitter->x = victim_x;
+			hitter->y = victim_y;
+			insert_ob_in_map(hitter, victim_map, hitter, 0);
 		}
 		/* Else leave arrow where it is */
 		else

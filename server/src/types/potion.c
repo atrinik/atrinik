@@ -326,6 +326,7 @@ static int potion_restoration_apply(object *op, object *tmp)
 		}
 
 		remove_ob(depletion);
+		object_destroy(depletion);
 		fix_player(op);
 	}
 	else

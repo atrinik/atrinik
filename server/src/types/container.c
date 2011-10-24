@@ -171,7 +171,6 @@ int esrv_apply_container(object *op, object *sack)
 			SET_FLAG(sack, FLAG_APPLIED);
 
 			update_object(sack, UP_OBJ_FACE);
-			esrv_update_item(UPD_FLAGS, op, sack);
 			/* search & explode a rune in the container */
 			container_trap(op, sack);
 		}
@@ -262,7 +261,6 @@ int container_link(player *pl, object *sack)
 		}
 
 		update_object(sack, UP_OBJ_FACE);
-		esrv_update_item (UPD_FLAGS|UPD_FACE, pl->ob, sack);
 		container_trap(pl->ob, sack);
 		ret = 1;
 	}
@@ -344,7 +342,6 @@ int container_unlink(player *pl, object *sack)
 
 			sack->attacked_by = NULL;
 			sack->attacked_by_count = 0;
-			esrv_update_item (UPD_FLAGS|UPD_FACE, pl->ob, sack);
 			return 1;
 		}
 
@@ -413,7 +410,6 @@ int container_unlink(player *pl, object *sack)
 		CONTR(tmp)->container_count = 0;
 		CONTR(tmp)->container_below = NULL;
 		CONTR(tmp)->container_above = NULL;
-		esrv_update_item(UPD_FLAGS|UPD_FACE, tmp, sack);
 		esrv_close_container(tmp);
 		tmp = tmp2;
 	}
@@ -435,7 +431,6 @@ void free_container_monster(object *monster, object *op)
 		return;
 	}
 
-	/* in container, no walk off check */
 	remove_ob(monster);
 	monster->x = container->x;
 	monster->y = container->y;

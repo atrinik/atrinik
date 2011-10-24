@@ -221,7 +221,7 @@ START_TEST(test_insert_ob_in_map)
 	third->y = 3;
 	got = insert_ob_in_map(third, map, NULL, 0);
 	fail_if(got != third, "Bolt shouldn't disappear.");
-	fail_if(OBJECT_FREE(second), "First bolt should have been removed.");
+	fail_if(!OBJECT_FREE(second), "First bolt should have been removed.");
 	fail_if(third->nrof != 2, "Second bolt should have nrof 2.");
 
 	second = get_archetype("bolt");
@@ -359,7 +359,8 @@ START_TEST(test_was_destroyed)
 	CLEAR_FLAG(ob2, FLAG_REMOVED);
 	remove_ob(ob);
 	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was removed from map.");
-	object_gc();
+	object_destroy(ob);
+	object_destroy(ob2);
 	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
 	fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
 }

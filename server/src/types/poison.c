@@ -60,7 +60,7 @@ void poison_more(object *op)
 	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
 	{
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+		object_destroy(op);
 		return;
 	}
 
@@ -76,7 +76,7 @@ void poison_more(object *op)
 		}
 
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+		object_destroy(op);
 		return;
 	}
 

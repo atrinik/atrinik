@@ -89,7 +89,6 @@ int apply_shop_mat(object *shop_mat, object *op)
 		else
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_DEFAULT);
 			op->x += freearr_x[i];
 			op->y += freearr_y[i];
 			rv = (insert_ob_in_map(op, op->map, shop_mat, 0) == NULL);

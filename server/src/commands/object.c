@@ -226,7 +226,6 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
 	char buf[HUGE_BUF];
-	object *env = tmp->env;
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (pl->type == PLAYER)
@@ -241,24 +240,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 	if (QUERY_FLAG(pl, FLAG_FLYING) && !QUERY_FLAG(pl, FLAG_WIZ) && is_player_inv(tmp) != pl)
 	{
 		draw_info(COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
-		return;
-	}
-
-	if (QUERY_FLAG(tmp, FLAG_WAS_WIZ) && !QUERY_FLAG(pl, FLAG_WAS_WIZ))
-	{
-		draw_info(COLOR_WHITE, pl, "The object disappears in a puff of smoke!\nIt must have been an illusion.");
-
-		if (pl->type == PLAYER)
-		{
-			esrv_del_item(CONTR(pl), tmp->count, tmp->env);
-		}
-
-		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
-		{
-			remove_ob(tmp);
-			check_walk_off(tmp, NULL, MOVE_APPLY_VANISHED);
-		}
-
 		return;
 	}
 
@@ -331,28 +312,14 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 	if (nrof != tmp_nrof)
 	{
-		object *tmp2 = tmp, *tmp2_cont = tmp->env;
-		tag_t tmp2_tag = tmp2->count;
 		char err[MAX_BUF];
+
 		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
 		{
 			draw_info(COLOR_WHITE, pl, err);
 			return;
-		}
-
-		/* Tell the client what happened to rest of the objects */
-		if (pl->type == PLAYER)
-		{
-			if (was_destroyed(tmp2, tmp2_tag))
-			{
-				esrv_del_item(CONTR(pl), tmp2_tag, tmp2_cont);
-			}
-			else
-			{
-				esrv_send_item(pl, tmp2);
-			}
 		}
 	}
 	else
@@ -362,41 +329,13 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 		 * so it needs to be deleted. */
 		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
 		{
-			if (tmp->env && pl->type == PLAYER)
-			{
-				esrv_del_item (CONTR(pl), tmp->count, tmp->env);
-			}
-
 			/* Unlink it - no move off check */
 			remove_ob(tmp);
 		}
 	}
 
 	draw_info(COLOR_WHITE, pl, buf);
-	tmp = insert_ob_in_ob(tmp, op);
-
-	/* All the stuff below deals with client/server code, and is only
-	 * usable by players */
-	if (pl->type != PLAYER)
-	{
-		return;
-	}
-
-	esrv_send_item(pl, tmp);
-	/* These are needed to update the weight for the container we
-	 * are putting the object in, and the players weight, if different. */
-	esrv_update_item(UPD_WEIGHT, pl, op);
-
-	if (op != pl)
-	{
-		esrv_send_item(pl, pl);
-	}
-
-	/* Update the container the object was in */
-	if (env && env != pl && env != op)
-	{
-		esrv_update_item(UPD_WEIGHT, pl, env);
-	}
+	insert_ob_in_ob(tmp, op);
 }
 
 /**
@@ -553,8 +492,6 @@ leave:
  * @param nrof Number of items to put into sack (0 for all). */
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 {
-	tag_t tmp_tag, tmp2_tag;
-	object *tmp2, *tmp_cont;
 	char buf[MAX_BUF];
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
@@ -643,28 +580,14 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 	/* We want to put some portion of the item into the container */
 	if (nrof != tmp_nrof)
 	{
-		object *tmp2_cont = tmp->env;
 		char err[MAX_BUF];
 
-		tmp2 = tmp;
-		tmp2_tag = tmp2->count;
 		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
 		{
 			draw_info(COLOR_WHITE, op, err);
 			return;
-		}
-
-		/* Tell the client what happened to the other objects */
-		if (was_destroyed(tmp2, tmp2_tag))
-		{
-			esrv_del_item(CONTR(op), tmp2_tag, tmp2_cont);
-		}
-		/* This can probably be replaced with an update */
-		else
-		{
-			esrv_send_item(op, tmp2);
 		}
 	}
 	else
@@ -674,31 +597,16 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		 * so it needs to be deleted. */
 		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
 		{
-			esrv_del_item(CONTR(op), tmp->count, tmp->env);
 			/* Unlink it - no move off check */
 			remove_ob(tmp);
 		}
 	}
 
 	snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
-	tmp_tag = tmp->count;
-	tmp_cont = tmp->env;
-	tmp2 = insert_ob_in_ob(tmp, sack);
+	insert_ob_in_ob(tmp, sack);
 	draw_info(COLOR_WHITE, op, buf);
 	/* This is overkill, fix_player() is called somewhere in object.c */
 	fix_player(op);
-
-	/* If an object merged (and thus, different object), we need to
-	 * delete the original. */
-	if (tmp2 != tmp)
-	{
-		esrv_del_item(CONTR(op), tmp_tag, tmp_cont);
-	}
-
-	esrv_send_item(op, tmp2);
-	/* update the sack's and player's weight */
-	esrv_update_item(UPD_WEIGHT, op, sack);
-	esrv_update_item(UPD_WEIGHT, op, op);
 }
 
 /**
@@ -753,9 +661,8 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	 * object off. */
 	if (nrof && tmp->nrof != (uint32) nrof)
 	{
-		object *tmp2 = tmp, *tmp2_cont = tmp->env;
-		tag_t tmp2_tag = tmp2->count;
 		char err[MAX_BUF];
+
 		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
 
 		if (!tmp)
@@ -763,29 +670,10 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			draw_info(COLOR_WHITE, op, err);
 			return;
 		}
-
-		/* Tell the client what happened to the rest of the objects. tmp2
-		 * is now the original object */
-		if (op->type == PLAYER)
-		{
-			if (was_destroyed(tmp2, tmp2_tag))
-			{
-				esrv_del_item(CONTR(op), tmp2_tag, tmp2_cont);
-			}
-			else
-			{
-				esrv_send_item(op, tmp2);
-			}
-		}
 	}
 	else
 	{
 		remove_ob(tmp);
-
-		if (check_walk_off(tmp, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
-		{
-			return;
-		}
 	}
 
 	if (op->type == PLAYER)
@@ -798,7 +686,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		if (op->type == PLAYER)
 		{
 			draw_info_format(COLOR_WHITE, op, "You drop the %s.", query_name(tmp, NULL));
-			esrv_del_item(CONTR(op), tmp->count, tmp->env);
 
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
@@ -847,27 +734,15 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			if (op->type == PLAYER)
 			{
 				draw_info(COLOR_WHITE, op, "The shop magic put it to the storage.");
-				esrv_del_item(CONTR(op), tmp->count, tmp->env);
 			}
 
 			fix_player(op);
-
-			if (op->type == PLAYER)
-			{
-				esrv_send_item(op, op);
-			}
-
 			return;
 		}
 	}
 
 	tmp->x = op->x;
 	tmp->y = op->y;
-
-	if (op->type == PLAYER)
-	{
-		esrv_del_item(CONTR(op), tmp->count, tmp->env);
-	}
 
 	insert_ob_in_map(tmp, op->map, op, 0);
 
@@ -880,7 +755,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	if (op->type == PLAYER)
 	{
 		fix_player(op);
-		esrv_send_item(op, op);
 	}
 }
 
@@ -1810,8 +1684,7 @@ dirty_little_jump1:
  * @return 1. */
 int command_rename_item(object *op, char *params)
 {
-	object *tmp = find_marked_object(op), *merged, *cont;
-	tag_t del_tag;
+	object *tmp = find_marked_object(op);
 
 	if (!tmp)
 	{
@@ -1861,17 +1734,8 @@ int command_rename_item(object *op, char *params)
 		CONTR(op)->stat_renamed_items++;
 	}
 
-	del_tag = tmp->count;
-	cont = tmp->env;
-	merged = merge_ob(tmp, NULL);
+	esrv_update_item(UPD_NAME, tmp);
+	merge_ob(tmp, NULL);
 
-	/* It was merged. */
-	if (merged)
-	{
-		esrv_del_item(CONTR(op), del_tag, cont);
-		tmp = merged;
-	}
-
-	esrv_send_item(op, tmp);
 	return 1;
 }

@@ -194,7 +194,7 @@ struct plugin_hooklist
 	void (*become_follower)(object *, object *);
 	void (*pick_up)(object *, object *, int);
 	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
-	void (*esrv_send_item)(object *, object *);
+	void (*esrv_send_item)(object *);
 	player *(*find_player)(const char *);
 	int (*manual_apply)(object *, object *, int);
 	int (*command_drop)(object *, char *);
@@ -263,7 +263,6 @@ struct plugin_hooklist
 	int (*object_get_gender)(object *);
 	int (*change_abil)(object *, object *);
 	object *(*decrease_ob_nr)(object *, uint32);
-	int (*check_walk_off)(object *, object *, int);
 	int (*wall)(mapstruct *, int, int);
 	int (*blocked)(object *, mapstruct *, int, int, int);
 	int (*get_rangevector)(object *, object *, rv_vector *, int);
@@ -275,9 +274,7 @@ struct plugin_hooklist
 	void (*cache_remove_by_flags)(uint32);
 	shstr *(*find_string)(const char *);
 	int (*command_take)(object *, char *);
-	object *(*object_need_esrv_update)(object *);
-	void (*object_remove_esrv_update)(object *);
-	void (*esrv_update_item)(int, object *, object *);
+	void (*esrv_update_item)(int, object *);
 	int (*execute_newserver_command)(object *, char *);
 	treasurelist *(*find_treasurelist)(const char *);
 	void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);

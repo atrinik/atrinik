@@ -36,27 +36,7 @@
  * internally.
  *
  * Be careful if you want to use the internal chunk or pool data, its
- * semantics and format might change in the future.
- *
- *
- * The Life Cycle of an Object:
- *
- * - <b>expand_mempool()</b>: Allocated from system memory and put into
- *   the freelist of the object pool.
- * - <b>get_object()</b>: Removed from freelist & put into removedlist (
- *   since it is not inserted anywhere yet).
- * - <b>insert_ob_in_(map/ob)()</b>: Filled with data and inserted into
- *   (any) environment
- * - <b>...</b> end of timestep
- * - <b>object_gc()</b>: Removed from removedlist, but not freed (since it sits in
- *   an env).
- * - <b>...</b>
- * - <b>remove_ob()</b>: Removed from environment
- * - Sits in removedlist until the end of this server timestep
- * - <b>...</b> end of timestep
- * - <b>object_gc()</b>: Freed and moved to freelist
- *
- * attrsets are freed and given back to their respective pools too. */
+ * semantics and format might change in the future. */
 
 #include <global.h>
 
@@ -161,19 +141,11 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
  * Initialize the mempools lists and related data structures. */
 void init_mempools(void)
 {
-	pool_object = create_mempool("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, (chunk_destructor) destroy_object);
+	pool_object = create_mempool("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, NULL);
 	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
 	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
 	pool_parties = create_mempool("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
-
-	/* Initialize end-of-list pointers and a few other values*/
-	removed_objects = &end_marker;
-
-	/* Set up container for "loose" objects */
-	initialize_object(&void_container);
-	void_container.type = VOID_CONTAINER;
-	FREE_AND_COPY_HASH(void_container.name, "<void container>");
 }
 
 /**
@@ -194,8 +166,6 @@ void free_mempools(void)
 	free_mempool(pool_objectlink);
 	free_mempool(pool_bans);
 	free_mempool(pool_parties);
-
-	FREE_AND_CLEAR_HASH2(void_container.name);
 }
 
 /**

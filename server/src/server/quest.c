@@ -180,7 +180,6 @@ static void check_quest_container(object *op, object *quest_container, object *q
 			SET_FLAG(clone_ob, FLAG_IDENTIFIED);
 			/* Insert the quest item inside the player. */
 			insert_ob_in_ob(clone_ob, op);
-			esrv_send_item(op, clone_ob);
 
 			if (one_drop)
 			{
@@ -267,7 +266,6 @@ static void check_quest_container(object *op, object *quest_container, object *q
 			CLEAR_FLAG(clone_ob, FLAG_SYS_OBJECT);
 			/* Insert the quest item inside the player. */
 			clone_ob = insert_ob_in_ob(clone_ob, op);
-			esrv_send_item(op, clone_ob);
 
 			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
 			{

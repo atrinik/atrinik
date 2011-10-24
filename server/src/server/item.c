@@ -1587,35 +1587,12 @@ int need_identify(object *op)
  * @param op Object to identify. */
 void identify(object *op)
 {
-	object *pl;
-
 	if (!op)
 	{
 		return;
 	}
 
 	SET_FLAG(op, FLAG_IDENTIFIED);
-
-	if (op->type == POTION && op->arch != (archetype *) NULL)
-	{
-		FREE_AND_ADD_REF_HASH(op->name, op->arch->clone.name);
-	}
-	else if (op->type == SPELLBOOK && op->slaying != NULL)
-	{
-		if ((op->stats.sp = look_up_spell_name(op->slaying)) < 0)
-		{
-			char buf[256];
-
-			op->stats.sp = -1;
-			snprintf(buf, sizeof(buf), "Spell formula for %s", op->slaying);
-			FREE_AND_COPY_HASH(op->name, buf);
-		}
-		else
-		{
-			/* Clear op->slaying since we no longer need it */
-			FREE_AND_CLEAR_HASH(op->slaying);
-		}
-	}
 
 	/* The shop identifies items before they hit the ground */
 	if (op->map)
@@ -1624,14 +1601,7 @@ void identify(object *op)
 	}
 	else
 	{
-		pl = is_player_inv(op->env);
-
-		/* A lot of the values can change from an update - might as well send
-		 * it all. */
-		if (pl)
-		{
-			esrv_send_item(pl, op);
-		}
+		esrv_send_item(op);
 	}
 }
 
@@ -1642,20 +1612,21 @@ void identify(object *op)
 void set_trapped_flag(object *op)
 {
 	object *tmp;
-	int flag;
+	uint32 flag;
 
 	if (!op)
 	{
 		return;
 	}
 
-	/* Player and monsters are not marked */
+	/* Player and monsters are not marked. */
 	if (op->type == PLAYER || op->type == MONSTER)
 	{
 		return;
 	}
 
 	flag = QUERY_FLAG(op, FLAG_IS_TRAPPED);
+	CLEAR_FLAG(op, FLAG_IS_TRAPPED);
 
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
@@ -1663,36 +1634,19 @@ void set_trapped_flag(object *op)
 		if (tmp->type == RUNE && tmp->stats.Cha <= 1)
 		{
 			SET_FLAG(op, FLAG_IS_TRAPPED);
-
-			if (!flag)
-			{
-				goto set_trapped_view;
-			}
-
 			return;
 		}
 	}
 
-	/* Clean */
-	CLEAR_FLAG(op, FLAG_IS_TRAPPED);
-
-	if (!flag)
+	if (QUERY_FLAG(op, FLAG_IS_TRAPPED) != flag)
 	{
-		return;
-	}
-
-set_trapped_view:
-	/* Env object is on map */
-	if (!op->env)
-	{
-		update_object(op, UP_OBJ_FACE);
-	}
-	/* Somewhere else - if visible, update */
-	else
-	{
-		if (op->env->type == PLAYER || op->env->type == CONTAINER)
+		if (op->env)
 		{
-			esrv_update_item(UPD_FLAGS, op->env, op);
+			esrv_update_item(UPD_FLAGS, op);
+		}
+		else
+		{
+			update_object(op, UP_OBJ_FACE);
 		}
 	}
 }

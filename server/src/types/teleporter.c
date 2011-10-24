@@ -75,7 +75,7 @@ void move_teleporter(object *op)
 			{
 				LOG(llevBug, "Removed illegal teleporter (map: %s (%d,%d)) -> (%d,%d)\n", op->map->name, op->x, op->y, EXIT_X(op), EXIT_Y(op));
 				remove_ob(op);
-				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+				object_destroy(op);
 				return;
 			}
 

@@ -805,6 +805,7 @@ static void remove_contents(object *first_ob, object *save_item)
 		}
 
 		remove_ob(tmp);
+		object_destroy(tmp);
 		tmp = next;
 	}
 }

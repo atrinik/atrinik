@@ -65,7 +65,6 @@ void apply_treasure(object *op, object *tmp)
 	do
 	{
 		remove_ob(treas);
-		check_walk_off(treas, NULL, MOVE_APPLY_VANISHED);
 		draw_info_format(COLOR_WHITE, op, "You find %s in the chest.", query_name(treas, NULL));
 		treas->x = op->x,treas->y = op->y;
 

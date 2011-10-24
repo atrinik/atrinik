@@ -23,36 +23,52 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * Handles code related to @ref POWER_CRYSTAL "power crystals". */
+#ifndef OBJECT_METHODS_H
+#define OBJECT_METHODS_H
 
-#include <global.h>
+#define OBJECT_METHOD_OK 0
+#define OBJECT_METHOD_UNHANDLED 1
+#define OBJECT_METHOD_ERROR 2
 
-/**
- * This function handles the application of power crystals.
- *
- * Power crystals, when applied, either suck mana from the applier, if
- * he's at full spellpoints, or give him mana, if it's got spellpoints
- * stored.
- * @param op Who is applying the crystal.
- * @param crystal The crystal. */
-void apply_power_crystal(object *op, object *crystal)
+typedef struct object_methods
 {
-	int available_power = op->stats.sp - op->stats.maxsp;
-	int power_space = crystal->stats.maxsp - crystal->stats.sp;
-	int power_grab = 0;
+	/**
+	 * Applies an object.
+	 * @param op The object to apply.
+	 * @param applier The object that executes the apply action.
+	 * @param aflags Special (always apply/unapply) flags. */
+	int (*apply_func)(object *op, object *applier, int aflags);
 
-	if (available_power >= 0 && power_space > 0)
-	{
-		power_grab = (int) MIN((float) power_space, ((float) 0.5 * (float) op->stats.sp));
-	}
+	/**
+	 * Processes an object, giving it the opportunity to move or react.
+	 * @param op The object to process. */
+	void (*process_func)(object *op);
 
-	if (available_power < 0 && crystal->stats.sp > 0)
-	{
-		power_grab = -MIN(-available_power, crystal->stats.sp);
-	}
+	/**
+	 * Returns the description of an object, as seen by the given observer.
+	 * @param op The object to describe.
+	 * @param observer The object to which the description is made.
+	 * @param buf Buffer that will contain the description.
+	 * @param size Size of 'buf'. */
+	void (*describe_func)(object *, object *, char *buf, size_t size);
 
-	op->stats.sp -= power_grab;
-	crystal->stats.sp += power_grab;
-}
+	/**
+	 * Makes an object move on top of another one.
+	 * @param op The object over which to move.
+	 * @param victim The object moving over op.
+	 * @param originator The object that is the cause of the move. */
+	int (*move_on_func)(object *op, object *victim, object *originator);
+
+	/**
+	 * An object is triggered by another one.
+	 * @param op The object being triggered.
+	 * @param cause The object that is the cause of the trigger.
+	 * @param state Trigger state. */
+	int (*trigger_func)(object *op, object *cause, int state);
+
+	/**
+	 * Fallback method. */
+	struct object_methods *fallback;
+} object_methods;
+
+#endif

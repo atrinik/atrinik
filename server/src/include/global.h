@@ -358,6 +358,7 @@ typedef struct linked_char
 #include "material.h"
 #include "living.h"
 #include "object.h"
+#include <object_methods.h>
 #include "arch.h"
 #include "map.h"
 #include "mempool.h"

@@ -281,7 +281,7 @@ void spawn_point(object *op)
 			if (!spawn_point_can_spawn(op->map, op->enemy, op->last_eat))
 			{
 				remove_ob(op->enemy);
-				check_walk_off(op->enemy, NULL, MOVE_APPLY_VANISHED);
+				object_destroy(op->enemy);
 			}
 			else
 			{
@@ -315,7 +315,7 @@ void spawn_point(object *op)
 	{
 		LOG(llevBug, "Spawn point without inventory! --> map %s (x: %d, y: %d)\n", op->map ? (op->map->path ? op->map->path : ">no path<") : ">no map<", op->x, op->y);
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
+		object_destroy(op);
 		return;
 	}
 

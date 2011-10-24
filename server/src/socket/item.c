@@ -531,21 +531,23 @@ void esrv_send_inventory(object *pl, object *op)
 }
 
 /**
- * Updates object for player. Used in esrv_update_item().
- * @param flags List of values to update to the client.
+ * Informs client about new object data.
+ * @param flags List of values to update.
  * @param pl The player.
  * @param op The object to update. */
 static void esrv_update_item_send(int flags, object *pl, object *op)
 {
 	SockList sl;
 
-	/* If we have a request to send the player item, skip a few checks. */
-	if (op != pl)
+	if (!CONTR(pl))
 	{
-		if (!LOOK_OBJ(op) && !QUERY_FLAG(pl, FLAG_WIZ))
-		{
-			return;
-		}
+		return;
+	}
+
+	/* Can't see that item... */
+	if (IS_INVISIBLE(op, pl))
+	{
+		return;
 	}
 
 	sl.buf = malloc(MAXSOCKBUF);
@@ -558,132 +560,144 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 }
 
 /**
- * Updates object for player.
- * @param flags List of values to update to the client.
- * @param pl The player.
+ * Updates specified data about the specified object for all involved
+ * clients.
+ * @param flags List of values to update.
  * @param op The object to update. */
-void esrv_update_item(int flags, object *pl, object *op)
+void esrv_update_item(int flags, object *op)
 {
-	object *tmp;
-
-	/* Update something in a container. */
-	if (op->env && op->env->type == CONTAINER)
+	if (op->type == PLAYER)
 	{
-		for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
-		{
-			esrv_update_item_send(flags, tmp, op);
-		}
-
-		return;
+		esrv_update_item_send(flags, op, op);
 	}
+	else if (op->env)
+	{
+		if (op->env->type == CONTAINER)
+		{
+			object *tmp;
 
-	esrv_update_item_send(flags, pl, op);
+			for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
+			{
+				esrv_update_item_send(flags, tmp, op);
+			}
+		}
+		else if (op->env->type == PLAYER)
+		{
+			esrv_update_item_send(flags, op->env, op);
+		}
+	}
 }
 
 /**
- * Sends item's info to player. Used by esrv_send_item().
+ * Informs a client about the specified object.
  * @param pl The player.
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
 	SockList sl;
 
-	/* If this is not the player object, do some more checks. */
-	if (op != pl)
+	if (!CONTR(pl))
 	{
-		/* We only send 'visible' objects to the client. */
-		if (!LOOK_OBJ(op))
-		{
-			return;
-		}
+		return;
+	}
+
+	/* Can't see that item... */
+	if (IS_INVISIBLE(op, pl))
+	{
+		return;
 	}
 
 	sl.buf = malloc(MAXSOCKBUF);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMX);
-	/* no delinv */
 	SockList_AddInt(&sl, -4);
-	SockList_AddInt(&sl, op->env ? op->env->count : 0);
-
-	/* If not below */
-	if (op->env)
-	{
-		add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
-	}
-	else
-	{
-		add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
-	}
+	SockList_AddInt(&sl, op->env->count);
+	add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 
 	Send_With_Handling(&CONTR(pl)->socket, &sl);
 	free(sl.buf);
 }
 
 /**
- * Sends item's info to player.
- * @param pl The player.
+ * Informs all involved clients about the specified object.
  * @param op Object to send information of. */
-void esrv_send_item(object *pl, object *op)
+void esrv_send_item(object *op)
 {
 	object *tmp;
 
-	/* Update something in a container. */
-	if (op->env && op->env->type == CONTAINER)
+	/* No object or object is not in inventory, nothing to do here. */
+	if (!op || !op->env)
 	{
+		return;
+	}
+
+	if (op->env->type == CONTAINER)
+	{
+		/* Send the item information to all players that are looking
+		 * inside this container. */
 		for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
 		{
 			esrv_send_item_send(tmp, op);
 		}
-
-		return;
 	}
-
-	if (pl->type != PLAYER)
+	else if (op->env->type == PLAYER)
 	{
-		LOG(llevBug, "esrv_send_item(): called for non PLAYER/CONTAINER object! (%s) (%s)\n", query_name(pl, NULL), query_name(op, NULL));
-		return;
+		esrv_send_item_send(op->env, op);
 	}
-
-	esrv_send_item_send(pl, op);
 }
 
 /**
- * Tells the client to delete an item.
+ * Informs a client about item deletion.
  * @param pl Player.
- * @param tag ID of the object to delete. */
-static void esrv_del_item_send(player *pl, int tag)
+ * @param op The item that was deleted. */
+static void esrv_del_item_send(object *pl, object *op)
 {
 	SockList sl;
+
+	if (!CONTR(pl))
+	{
+		return;
+	}
+
+	/* Can't see that item... */
+	if (IS_INVISIBLE(op, pl))
+	{
+		return;
+	}
 
 	sl.buf = malloc(MAXSOCKBUF);
 
 	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DELITEM);
-	SockList_AddInt(&sl, tag);
+	SockList_AddInt(&sl, op->count);
 
-	Send_With_Handling(&pl->socket, &sl);
+	Send_With_Handling(&CONTR(pl)->socket, &sl);
 	free(sl.buf);
 }
 
 /**
- * Tells the client to delete an item.
- * @param pl Player.
- * @param tag ID of the object to delete.
- * @param cont Container. */
-void esrv_del_item(player *pl, int tag, object *cont)
+ * Informs involved clients about item deletion.
+ * @param op The item that was deleted. */
+void esrv_del_item(object *op)
 {
-	object *tmp;
-
-	if (cont && cont->type == CONTAINER)
+	/* No object or object is not inside an inventory, nothing to do. */
+	if (!op || !op->env)
 	{
-		for (tmp = cont->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
-		{
-			esrv_del_item_send(CONTR(tmp), tag);
-		}
-
 		return;
 	}
 
-	esrv_del_item_send(pl, tag);
+	if (op->env->type == CONTAINER)
+	{
+		object *tmp;
+
+		for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
+		{
+			esrv_del_item_send(tmp, op);
+		}
+	}
+	else if (op->env->type == PLAYER)
+	{
+		esrv_del_item_send(op->env, op);
+	}
 }
 
 /**
@@ -985,7 +999,7 @@ void LockItem(uint8 *data, int len, player *pl)
 		SET_FLAG(op, FLAG_INV_LOCKED);
 	}
 
-	esrv_update_item(UPD_FLAGS, pl->ob, op);
+	esrv_update_item(UPD_FLAGS, op);
 }
 
 /**

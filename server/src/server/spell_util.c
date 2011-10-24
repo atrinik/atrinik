@@ -258,7 +258,6 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 		if (!QUERY_FLAG(effect_ob, FLAG_REMOVED))
 		{
 			remove_ob(effect_ob);
-			check_walk_off(effect_ob, NULL, MOVE_APPLY_VANISHED);
 		}
 
 		return 1;
@@ -1127,7 +1126,6 @@ void move_cone(object *op)
 	{
 		LOG(llevBug, "Tried to move_cone object %s without a map.\n", query_name(op, NULL));
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -1142,7 +1140,6 @@ void move_cone(object *op)
 	if (get_owner(op) == NULL)
 	{
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -1169,7 +1166,6 @@ void move_cone(object *op)
 		else
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		}
 
 		return;
@@ -1439,7 +1435,6 @@ void explode_object(object *op)
 	{
 		LOG(llevBug, "explode_object(): op %s without other_arch\n", query_name(op, NULL));
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -1459,7 +1454,6 @@ void explode_object(object *op)
 	if (!was_destroyed(op, op_tag))
 	{
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 	}
 }
 
@@ -1491,7 +1485,6 @@ void check_fired_arch(object *op)
 	{
 		probe(op);
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -1535,7 +1528,6 @@ void check_fired_arch(object *op)
 			if (!QUERY_FLAG(op, FLAG_REMOVED))
 			{
 				remove_ob(op);
-				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 
 				return;
 			}
@@ -1569,7 +1561,6 @@ void move_fired_arch(object *op)
 		if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0))
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 			return;
 		}
 
@@ -1583,7 +1574,6 @@ void move_fired_arch(object *op)
 	if (!(m = get_map_from_coord(op->map, &new_x, &new_y)))
 	{
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -1597,14 +1587,12 @@ void move_fired_arch(object *op)
 		else
 		{
 			remove_ob(op);
-			check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		}
 
 		return;
 	}
 
 	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 	op->x = new_x;
 	op->y = new_y;
 
@@ -1621,7 +1609,6 @@ void move_fired_arch(object *op)
 			{
 				probe(op);
 				remove_ob(op);
-				check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 				return;
 			}
 		}
@@ -1858,7 +1845,6 @@ void move_swarm_spell(object *op)
 	if (op->stats.hp == 0 || get_owner(op) == NULL)
 	{
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 

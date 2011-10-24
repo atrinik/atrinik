@@ -308,8 +308,8 @@ static void first_arch_pass(FILE *fp)
 	}
 
 	delete_loader_buffer(mybuffer);
-	/* Make sure our temp object is gc:ed */
-	mark_object_removed(op);
+	SET_FLAG(op, FLAG_REMOVED);
+	object_destroy(op);
 	free(at);
 }
 

@@ -161,8 +161,7 @@ object *arrow_find(object *op, shstr *type)
  * @param dir Direction to fire. */
 void bow_fire(object *op, int dir)
 {
-	object *left_cont, *bow, *arrow = NULL, *left, *tmp_op;
-	tag_t left_tag;
+	object *bow, *arrow = NULL, *tmp_op;
 
 	/* If no dir is specified, attempt to find get the direction from
 	 * player's target. */
@@ -214,9 +213,6 @@ void bow_fire(object *op, int dir)
 	CONTR(op)->stat_arrows_fired++;
 
 	/* These are arrows left to the player */
-	left = arrow;
-	left_tag = left->count;
-	left_cont = left->env;
 	arrow = get_split_ob(arrow, 1, NULL, 0);
 	set_owner(arrow, op);
 	arrow->direction = dir;
@@ -272,15 +268,6 @@ void bow_fire(object *op, int dir)
 	if (insert_ob_in_map(arrow, op->map, op, 0))
 	{
 		move_arrow(arrow);
-	}
-
-	if (was_destroyed(left, left_tag))
-	{
-		esrv_del_item(CONTR(op), left_tag, left_cont);
-	}
-	else
-	{
-		esrv_send_item(op, left);
 	}
 }
 
@@ -366,7 +353,6 @@ void move_arrow(object *op)
 	{
 		LOG(llevBug, "move_arrow(): Arrow %s had no map.\n", query_name(op, NULL));
 		remove_ob(op);
-		check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 		return;
 	}
 
@@ -497,12 +483,9 @@ void move_arrow(object *op)
 	/* Move the arrow. */
 	remove_ob(op);
 
-	if (check_walk_off(op, NULL, MOVE_APPLY_VANISHED) == CHECK_WALK_OK)
-	{
-		op->x = x;
-		op->y = y;
-		insert_ob_in_map(op, m, op, 0);
-	}
+	op->x = x;
+	op->y = y;
+	insert_ob_in_map(op, m, op, 0);
 }
 
 /**

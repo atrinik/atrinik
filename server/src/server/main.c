@@ -195,7 +195,6 @@ void leave_map(object *op)
 	mapstruct *oldmap = op->map;
 
 	remove_ob(op);
-	check_walk_off(op, NULL, MOVE_APPLY_VANISHED);
 
 	if (oldmap && !oldmap->player_first)
 	{
@@ -271,11 +270,6 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
 		remove_ob(op);
-
-		if (check_walk_off(op, NULL, MOVE_APPLY_DEFAULT) != CHECK_WALK_OK)
-		{
-			return;
-		}
 	}
 
 	if (op->map && op->type == PLAYER && !op->head && op->map->events)
@@ -693,6 +687,7 @@ void enter_exit(object *op, object *exit_ob)
 				if (tmp)
 				{
 					remove_ob(tmp);
+					object_destroy(tmp);
 				}
 
 				if (exit_ob->map)
@@ -1027,7 +1022,7 @@ void process_events(mapstruct *map)
 		if (op->speed_left > 0)
 		{
 			--op->speed_left;
-			process_object(op);
+			object_process(op);
 
 			if (was_destroyed(op, tag))
 			{
@@ -1377,9 +1372,6 @@ static void iterate_main_loop(void)
 	do_specials();
 
 	doeric_server_write();
-
-	/* Clean up the object pool */
-	object_gc();
 
 	/* Sleep proper amount of time before next tick */
 	sleep_delta();

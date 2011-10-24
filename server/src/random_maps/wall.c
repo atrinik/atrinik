@@ -348,7 +348,6 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 		}
 	}
 
-
 	/* if what we found is a door, don't remove it, set the_wall to NULL to
 	    signal that later. */
 	if (the_wall && the_wall->type == DOOR)
@@ -424,6 +423,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 		if (the_wall && the_wall->map)
 		{
 			remove_ob(the_wall);
+			object_destroy(the_wall);
 		}
 
 		/* Make SURE it's a wall */
