@@ -30,29 +30,6 @@
 #include <global.h>
 
 /**
- * Regenerate rod speed needed to fire the rod again.
- * @param rod The rod object to regenerate. */
-void regenerate_rod(object *rod)
-{
-	if (++rod->stats.food > rod->stats.hp / 10 || rod->type == HORN)
-	{
-		rod->stats.food = 0;
-
-		if (rod->stats.hp < rod->stats.maxhp)
-		{
-			rod->stats.hp += 1 + rod->stats.maxhp / 10;
-
-			if (rod->stats.hp > rod->stats.maxhp)
-			{
-				rod->stats.hp = rod->stats.maxhp;
-			}
-
-			fix_rod_speed(rod);
-		}
-	}
-}
-
-/**
  * Drain charges from a rod.
  * @param rod Rod to drain. */
 void drain_rod_charge(object *rod)
@@ -78,4 +55,33 @@ void fix_rod_speed(object *rod)
 	}
 
 	update_ob_speed(rod);
+}
+
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
+{
+	if (++op->stats.food > op->stats.hp / 10 || op->type == HORN)
+	{
+		op->stats.food = 0;
+
+		if (op->stats.hp < op->stats.maxhp)
+		{
+			op->stats.hp += 1 + op->stats.maxhp / 10;
+
+			if (op->stats.hp > op->stats.maxhp)
+			{
+				op->stats.hp = op->stats.maxhp;
+			}
+
+			fix_rod_speed(op);
+		}
+	}
+}
+
+/**
+ * Initialize the rod type object methods. */
+void object_type_init_rod(void)
+{
+	object_type_methods[ROD].process_func = process_func;
+	object_type_methods[HORN].process_func = process_func;
 }

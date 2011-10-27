@@ -1084,9 +1084,9 @@ extern int apply_potion(object *op, object *tmp);
 /* src/types/power_crystal.c */
 extern void apply_power_crystal(object *op, object *crystal);
 /* src/types/rod.c */
-extern void regenerate_rod(object *rod);
 extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
+extern void object_type_init_rod(void);
 /* src/types/savebed.c */
 extern void apply_savebed(object *op);
 /* src/types/scroll.c */
@@ -1100,7 +1100,7 @@ extern void apply_skillscroll(object *op, object *tmp);
 /* src/types/sound_ambient.c */
 extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */
-extern void spawn_point(object *op);
+extern void object_type_init_spawn_point(void);
 /* src/types/spellbook.c */
 extern void apply_spellbook(object *op, object *tmp);
 /* src/types/teleporter.c */

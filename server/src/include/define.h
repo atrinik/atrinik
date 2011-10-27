@@ -1795,4 +1795,22 @@ enum apply_flag
 /** Check if the keyword represents a false value. */
 #define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
 
+/**
+ * @defgroup SPAWN_RELATIVE_LEVEL_xxx Spawn point relative levels
+ * Constants used to define spawn point relative level colors.
+ *@{*/
+/** Green. */
+#define SPAWN_RELATIVE_LEVEL_GREEN 1
+/** Blue. */
+#define SPAWN_RELATIVE_LEVEL_BLUE 2
+/** Yellow. */
+#define SPAWN_RELATIVE_LEVEL_YELLOW 3
+/** Orange. */
+#define SPAWN_RELATIVE_LEVEL_ORANGE 4
+/** Red. */
+#define SPAWN_RELATIVE_LEVEL_RED 5
+/** Purple. */
+#define SPAWN_RELATIVE_LEVEL_PURPLE 6
+/*@}*/
+
 #endif

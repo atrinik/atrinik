@@ -2058,6 +2058,11 @@ void fix_monster(object *op)
 	}
 
 	set_mobile_speed(op, 0);
+
+	if (QUERY_FLAG(op, FLAG_ANIMATE))
+	{
+		animate_object(op, 0);
+	}
 }
 
 /**

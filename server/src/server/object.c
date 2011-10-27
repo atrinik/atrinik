@@ -1027,7 +1027,7 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
 	for (walk = src_ob->inv; walk; walk = walk->below)
 	{
 		tmp = get_object();
-		copy_object(walk, tmp, 0);
+		copy_object_with_inv(walk, tmp);
 		insert_ob_in_ob(tmp, dest_ob);
 	}
 }
