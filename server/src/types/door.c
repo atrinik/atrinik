@@ -86,58 +86,6 @@ static void door_open(object *ob, object *opener, uint8 nearby)
 }
 
 /**
- * Close a locked door that has been opened.
- * @param op Door object to close. */
-void door_close(object *ob)
-{
-	/* Check to see if the door should still remain open. */
-	if (ob->last_sp-- > 0)
-	{
-		return;
-	}
-
-	/* If there's something blocking the door from closing, reset the
-	 * counter. */
-	if (blocked(NULL, ob->map, ob->x, ob->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
-	{
-		ob->last_sp = ob->stats.sp;
-		return;
-	}
-
-	remove_ob(ob);
-
-	/* The door is no longer open. */
-	ob->last_eat = 0;
-
-	/* Remove from active list. */
-	ob->speed = 0.0f;
-	ob->speed_left = 0.0f;
-	update_ob_speed(ob);
-
-	ob->state = 0;
-
-	if (QUERY_FLAG(&ob->arch->clone, FLAG_BLOCKSVIEW))
-	{
-		SET_FLAG(ob, FLAG_BLOCKSVIEW);
-	}
-
-	SET_FLAG(ob, FLAG_DOOR_CLOSED);
-
-	/* Update animation state. */
-	if (QUERY_FLAG(ob, FLAG_IS_TURNABLE) || QUERY_FLAG(ob, FLAG_ANIMATE))
-	{
-		SET_ANIMATION(ob, (NUM_ANIMATIONS(ob) / NUM_FACINGS(ob)) * ob->direction + ob->state);
-	}
-
-	if (ob->sub_type == ST1_DOOR_NORMAL)
-	{
-		play_sound_map(ob->map, CMD_SOUND_EFFECT, "door_close.ogg", ob->x, ob->y, 0, 0);
-	}
-
-	insert_ob_in_map(ob, ob->map, ob, 0);
-}
-
-/**
  * Open a door, including all nearby doors.
  * @param ob Door object to open.
  * @param opener Object opening the door. */
@@ -281,4 +229,61 @@ object *find_key(object *op, object *door)
 	}
 
 	return NULL;
+}
+
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
+{
+	/* Check to see if the door should still remain open. */
+	if (op->last_sp-- > 0)
+	{
+		return;
+	}
+
+	/* If there's something blocking the door from closing, reset the
+	 * counter. */
+	if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER))
+	{
+		op->last_sp = op->stats.sp;
+		return;
+	}
+
+	remove_ob(op);
+
+	/* The door is no longer open. */
+	op->last_eat = 0;
+
+	/* Remove from active list. */
+	op->speed = 0.0f;
+	op->speed_left = 0.0f;
+	update_ob_speed(op);
+
+	op->state = 0;
+
+	if (QUERY_FLAG(&op->arch->clone, FLAG_BLOCKSVIEW))
+	{
+		SET_FLAG(op, FLAG_BLOCKSVIEW);
+	}
+
+	SET_FLAG(op, FLAG_DOOR_CLOSED);
+
+	/* Update animation state. */
+	if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
+	{
+		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+	}
+
+	if (op->sub_type == ST1_DOOR_NORMAL)
+	{
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "door_close.ogg", op->x, op->y, 0, 0);
+	}
+
+	insert_ob_in_map(op, op->map, op, 0);
+}
+
+/**
+ * Initialize the door type object methods. */
+void object_type_init_door(void)
+{
+	object_type_methods[DOOR].process_func = process_func;
 }

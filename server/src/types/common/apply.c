@@ -32,7 +32,8 @@ int common_object_apply(object *op, object *applier, int aflags)
 	if (op->msg)
 	{
 		draw_info(COLOR_WHITE, applier, op->msg);
+		return OBJECT_METHOD_OK;
 	}
 
-	return OBJECT_METHOD_OK;
+	return OBJECT_METHOD_UNHANDLED;
 }
