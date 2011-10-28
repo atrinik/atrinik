@@ -1092,7 +1092,7 @@ extern void apply_savebed(object *op);
 /* src/types/scroll.c */
 extern void apply_scroll(object *op, object *tmp);
 /* src/types/shop_mat.c */
-extern int apply_shop_mat(object *shop_mat, object *op);
+extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
 extern void apply_sign(object *op, object *sign);
 /* src/types/skillscroll.c */

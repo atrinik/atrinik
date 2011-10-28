@@ -29,73 +29,57 @@
 
 #include <global.h>
 
-/**
- * Apply/trigger a shop map.
- * @param shop_mat The shop map object.
- * @param op Object that triggered this.
- * @return Returns 1 if 'op' was destroyed, 0 otherwise. */
-int apply_shop_mat(object *shop_mat, object *op)
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator)
 {
-	int rv = 0;
+	(void) originator;
 
-	/* prevent loops */
-	SET_FLAG(op, FLAG_NO_APPLY);
-
-	if (op->type != PLAYER)
+	if (victim->type == PLAYER && !get_payment(victim, victim->inv))
 	{
-		if (QUERY_FLAG(op, FLAG_UNPAID))
-		{
-			/* Somebody dropped an unpaid item, just move to an adjacent place. */
-			int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
+		int i;
 
-			if (i != -1)
-			{
-				rv = transfer_ob(op, op->x + freearr_x[i], op->y + freearr_y[i], 0, shop_mat, NULL);
-			}
+		i = find_free_spot(victim->arch, NULL, victim->map, victim->x, victim->y, 1, SIZEOFFREE1 + 1);
+
+		if (i != -1)
+		{
+			remove_ob(victim);
+			victim->x += freearr_x[i];
+			victim->y += freearr_y[i];
+			insert_ob_in_map(victim, victim->map, op, 0);
 		}
 
-		rv = teleport(shop_mat, SHOP_MAT, op);
+		return OBJECT_METHOD_OK;
 	}
-	/* Only used for players. */
-	else if (get_payment(op, op->inv))
+
+	if (op->msg)
 	{
-		object *tmp;
-
-		rv = teleport(shop_mat, SHOP_MAT, op);
-
-		if (shop_mat->msg)
-		{
-			draw_info(COLOR_WHITE, op, shop_mat->msg);
-		}
-		/* This check below is a bit simplistic - generally it should be correct,
-		 * but there is never a guarantee that the bottom space on the map is
-		 * actually the shop floor. */
-		else if (!rv && (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0)) != NULL && tmp->type != SHOP_FLOOR)
-		{
-			draw_info(COLOR_WHITE, op, "Thank you for visiting our shop.");
-		}
+		draw_info(COLOR_WHITE, victim, op->msg);
 	}
-	/* If we get here, a player tried to leave a shop but was not able
-	 * to afford the items he has. We try to move the player so that
-	 * they are not on the mat anymore */
 	else
 	{
-		int i = find_free_spot(op->arch, NULL, op->map, op->x, op->y, 1, 9);
+		int sub_layer;
+		object *tmp;
 
-		if (i == -1)
+		for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
 		{
-			LOG(llevBug, "Internal shop-mat problem (map:%s object:%s pos: %d,%d).\n", op->map->name, op->name, op->x, op->y);
-		}
-		else
-		{
-			remove_ob(op);
-			op->x += freearr_x[i];
-			op->y += freearr_y[i];
-			rv = (insert_ob_in_map(op, op->map, shop_mat, 0) == NULL);
+			tmp = GET_MAP_OB_LAYER(victim->map, victim->x, victim->y, LAYER_FLOOR, sub_layer);
+
+			if (tmp && tmp->type == SHOP_FLOOR)
+			{
+				draw_info(COLOR_WHITE, victim, "Thank you for visiting our shop.");
+				break;
+			}
 		}
 	}
 
-	CLEAR_FLAG(op, FLAG_NO_APPLY);
+	teleport(op, SHOP_MAT, victim);
 
-	return rv;
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the shop mat type object methods. */
+void object_type_init_shop_mat(void)
+{
+	object_type_methods[SHOP_MAT].move_on_func = move_on_func;
 }
