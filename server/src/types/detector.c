@@ -31,32 +31,50 @@
 
 #include <global.h>
 
+/**
+ * Check whether detector matches the specified object.
+ * @param op Detector.
+ * @param tmp Object to check.
+ * @return 1 if the object matches, 0 otherwise. */
+static int detector_matches_obj(object *op, object *tmp)
+{
+	/* Check type. */
+	if (op->stats.hp && tmp->type != op->stats.hp)
+	{
+		return 0;
+	}
+
+	/* Check name. */
+	if (op->slaying && tmp->name != op->slaying)
+	{
+		return 0;
+	}
+
+	/* Check archname. */
+	if (op->race && tmp->arch->name != op->race)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator)
 {
-	object *tmp;
+	int matches;
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	(void) originator;
+
+	matches = detector_matches_obj(op, victim);
+	connection_trigger(op, matches);
+
+	if (op->last_heal)
 	{
-		if ((op->stats.hp && tmp->type == op->stats.hp) || (op->slaying && tmp->name == op->slaying) || (op->race && op->race == tmp->arch->name))
-		{
-			break;
-		}
+		decrease_ob(victim);
 	}
 
-	if (tmp && op->last_sp)
-	{
-		if (op->last_heal)
-		{
-			decrease_ob(tmp);
-		}
-
-		use_trigger(op);
-	}
-	else if (!tmp && !op->last_sp)
-	{
-		use_trigger(op);
-	}
+	return OBJECT_METHOD_OK;
 }
 
 /**

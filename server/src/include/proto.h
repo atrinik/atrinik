@@ -282,6 +282,7 @@ extern int add_ban(char *input);
 extern int remove_ban(char *input);
 extern void list_bans(object *op);
 /* src/server/button.c */
+extern void connection_trigger(object *op, int state);
 extern void push_button(object *op);
 extern void update_button(object *op);
 extern void update_buttons(mapstruct *m);

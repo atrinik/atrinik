@@ -33,25 +33,14 @@ static void animate_turning(object *op);
 static void trigger_move(object *op, int state);
 static objectlink *get_button_links(object *button);
 
-/**
- * Push the specified object. This can affect other buttons/gates/handles
- * altars/pedestals/holes on the whole map.
- * @param op The object to push */
-void push_button(object *op)
+void connection_trigger(object *op, int state)
 {
 	object *tmp;
 	objectlink *ol;
 
-	/*LOG(llevDebug, "push_button: %s (%d)\n", op->name, op->count);*/
 	for (ol = get_button_links(op); ol; ol = ol->next)
 	{
 		tmp = ol->objlink.ob;
-
-		if (!tmp || tmp->count != ol->id)
-		{
-			LOG(llevBug, "Internal error in push_button (%s).\n", op->name);
-			continue;
-		}
 
 		/* a button link object can become freed when the map is saving.  As
 		 * a map is saved, objects are removed and freed, and if an object is
@@ -66,12 +55,12 @@ void push_button(object *op)
 		}
 
 		/* If the criteria isn't appropriate, don't do anything. */
-		if (op->value && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH))
+		if (state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH))
 		{
 			continue;
 		}
 
-		if (!op->value && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE))
+		if (!state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE))
 		{
 			continue;
 		}
@@ -85,13 +74,13 @@ void push_button(object *op)
 		{
 			case GATE:
 			case PIT:
-				tmp->value = tmp->stats.maxsp ? !op->value : op->value;
+				tmp->value = tmp->stats.maxsp ? !state : state;
 				tmp->speed = 0.5;
 				update_ob_speed(tmp);
 				break;
 
 			case HANDLE:
-				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + (tmp->value = tmp->stats.maxsp ? !op->value : op->value));
+				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + (tmp->value = tmp->stats.maxsp ? !state : state));
 				update_object(tmp, UP_OBJ_FACE);
 				break;
 
@@ -124,7 +113,7 @@ void push_button(object *op)
 
 			case BUTTON:
 			case PEDESTAL:
-				tmp->value = op->value;
+				tmp->value = state;
 				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
 				update_object(tmp, UP_OBJ_FACE);
 				break;
@@ -180,9 +169,18 @@ void push_button(object *op)
 				break;
 
 			default:
-				object_trigger(tmp, op, op->value);
+				object_trigger(tmp, op, state);
 		}
 	}
+}
+
+/**
+ * Push the specified object. This can affect other buttons/gates/handles
+ * altars/pedestals/holes on the whole map.
+ * @param op The object to push. */
+void push_button(object *op)
+{
+	connection_trigger(op, op->value);
 }
 
 /**
