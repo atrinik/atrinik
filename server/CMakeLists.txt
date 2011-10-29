@@ -265,7 +265,6 @@ set(SOURCES
 	src/types/container.c
 	src/types/converter.c
 	src/types/creator.c
-	src/types/deep_swamp.c
 	src/types/detector.c
 	src/types/disease.c
 	src/types/door.c
