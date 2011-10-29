@@ -72,7 +72,7 @@ static void process_func(object *op)
 		}
 		else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1)
 		{
-			if (OUT_OF_REAL_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
+			if (OUT_OF_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
 			{
 				return;
 			}

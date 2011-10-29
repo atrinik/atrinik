@@ -251,7 +251,7 @@
  * You should really know what you are doing before using this - you
  * should almost always be using get_map_from_coord() instead, which
  * takes into account map tiling. */
-#define OUT_OF_REAL_MAP(M, X, Y) \
+#define OUT_OF_MAP(M, X, Y) \
 	((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
 /**

@@ -434,7 +434,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 		{
 			for (yt = y - 1; yt < y + 1 + 1; yt++)
 			{
-				if (OUT_OF_REAL_MAP(op->map, xt, yt))
+				if (OUT_OF_MAP(op->map, xt, yt))
 				{
 					continue;
 				}
@@ -644,7 +644,7 @@ static void construction_destroyer(object *op, int x, int y)
 		{
 			for (yt = y - 1; yt < y + 1 + 1; yt++)
 			{
-				if (!OUT_OF_REAL_MAP(op->map, xt, yt))
+				if (!OUT_OF_MAP(op->map, xt, yt))
 				{
 					fix_walls(op->map, xt, yt);
 				}

@@ -346,7 +346,7 @@ void esrv_draw_look(object *pl)
 	int got_one = 0, start_look = 0, end_look = 0, wiz;
 	SockList sl;
 
-	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_REAL_MAP(pl->map, pl->x, pl->y))
+	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y))
 	{
 		return;
 	}

@@ -229,7 +229,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	/* this is a last secure check. In fact, newmap MUST legal and we only
 	 * check x and y. No get_map_from_coord() - we want check that x,y is part of this newmap.
 	 * if not, we have somewhere missed some checks - give a note to the log. */
-	if (OUT_OF_REAL_MAP(newmap, x, y))
+	if (OUT_OF_MAP(newmap, x, y))
 	{
 		LOG(llevBug, "enter_map(): supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
 		x = MAP_ENTER_X(newmap);

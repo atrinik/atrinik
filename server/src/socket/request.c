@@ -1393,7 +1393,7 @@ void draw_client_map2(object *pl)
 
 				m_data = MMIRROR(mirror);
 
-				if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
+				if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y))
 				{
 					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
 
@@ -1512,7 +1512,7 @@ void draw_client_map2(object *pl)
 						magic_mirror_struct *m_data = MMIRROR(mirror);
 						mapstruct *mirror_map;
 
-						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_REAL_MAP(mirror_map, m_data->x, m_data->y))
+						if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y))
 						{
 							tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
 						}
