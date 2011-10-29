@@ -1136,38 +1136,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 }
 
 /**
- * Create a bomb.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dir Cast direction.
- * @param spell_type ID of the spell to cast.
- * @retval 0 No bomb was placed.
- * @retval 1 Bomb was placed on map. */
-int create_bomb(object *op, object *caster, int dir, int spell_type)
-{
-	object *tmp;
-	int dx = op->x + freearr_x[dir], dy = op->y + freearr_y[dir];
-
-	if (wall(op->map, dx, dy))
-	{
-		draw_info(COLOR_WHITE, op, "There is something in the way.");
-		return 0;
-	}
-
-	tmp = arch_to_object(spellarch[spell_type]);
-
-	/* level dependencies for bomb  */
-	tmp->stats.dam = SP_level_dam_adjust(caster, spell_type, -1, 0);
-	tmp->stats.hp = spells[spell_type].bdur + SP_level_strength_adjust(caster, spell_type);
-	tmp->level = SK_level(caster);
-	set_owner(tmp,op);
-	tmp->x = dx, tmp->y = dy;
-	insert_ob_in_map(tmp, op->map, op, 0);
-
-	return 1;
-}
-
-/**
  * Cast remove depletion spell.
  * @param op Object casting this.
  * @param target Target.
