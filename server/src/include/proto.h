@@ -227,8 +227,6 @@ extern int surround_flag4(mapstruct *map, int i, int j, RMParms *RP);
 extern void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP);
 extern object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms *RP);
 extern object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP);
-/* src/server/alchemy.c */
-extern int use_alchemy(object *op);
 /* src/server/anim.c */
 extern Animations *animations;
 extern int num_animations;
@@ -648,15 +646,6 @@ extern void init_readable(void);
 extern object *get_random_mon(void);
 extern void tailor_readable_ob(object *book, int msg_type);
 extern void free_all_readable(void);
-/* src/server/recipe.c */
-extern recipelist *get_formulalist(int i);
-extern void init_formulae(void);
-extern void dump_alchemy(void);
-extern void dump_alchemy_costs(void);
-extern int strtoint(const char *buf);
-extern artifact *locate_recipe_artifact(recipe *rp);
-extern recipe *get_random_recipe(recipelist *rpl);
-extern void free_all_recipes(void);
 /* src/server/re-cmp.c */
 extern const char *re_cmp(const char *str, const char *regexp);
 /* src/server/region.c */

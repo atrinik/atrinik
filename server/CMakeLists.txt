@@ -190,7 +190,6 @@ set(SOURCES
 	src/random_maps/square_spiral.c
 	src/random_maps/style.c
 	src/random_maps/wall.c
-	src/server/alchemy.c
 	src/server/anim.c
 	src/server/apply.c
 	src/server/arch.c
@@ -226,7 +225,6 @@ set(SOURCES
 	src/server/quest.c
 	src/server/race.c
 	src/server/readable.c
-	src/server/recipe.c
 	src/server/re-cmp.c
 	src/server/region.c
 	src/server/rune.c

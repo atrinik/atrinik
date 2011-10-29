@@ -1034,7 +1034,6 @@ static void init_beforeplay(void)
 	init_gods();
 	init_readable();
 	init_archetype_pointers();
-	init_formulae();
 	init_new_exp_system();
 
 	if (settings.dumpvalues)
@@ -1065,16 +1064,8 @@ static void init_beforeplay(void)
 				race_dump();
 				break;
 
-			case DUMP_VALUE_ALCHEMY:
-				dump_alchemy();
-				break;
-
 			case DUMP_VALUE_GODS:
 				dump_gods();
-				break;
-
-			case DUMP_VALUE_ALCHEMY_COSTS:
-				dump_alchemy_costs();
 				break;
 
 			case DUMP_VALUE_ARCHETYPES:
