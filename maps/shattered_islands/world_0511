@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -111,7 +111,7 @@ arch spawn_point
 y 23
 arch wasp_giant
 level 7
-last_eat 5
+spawn_time 7:00 - 19:00
 unaggressive 1
 item_race 4
 item_level 4
@@ -332,7 +332,7 @@ x 2
 y 16
 arch wasp_giant
 level 7
-last_eat 5
+spawn_time 7:00 - 19:00
 unaggressive 1
 item_race 4
 item_level 4
@@ -376,7 +376,7 @@ x 2
 y 21
 arch wasp_giant
 level 7
-last_eat 5
+spawn_time 7:00 - 19:00
 unaggressive 1
 item_race 4
 item_level 4
@@ -495,7 +495,7 @@ x 3
 y 19
 arch wasp_giant
 level 7
-last_eat 5
+spawn_time 7:00 - 19:00
 unaggressive 1
 item_race 4
 item_level 4
@@ -756,7 +756,7 @@ x 5
 y 21
 arch wasp_giant
 level 7
-last_eat 5
+spawn_time 7:00 - 19:00
 unaggressive 1
 item_race 4
 item_level 4

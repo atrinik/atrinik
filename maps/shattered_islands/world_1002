@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -908,8 +908,7 @@ y 18
 arch lost_soul
 type 83
 level 5
-last_eat -5
-Wis 3
+spawn_time 19:00 - 7:00
 end
 end
 arch grassd_1
@@ -938,8 +937,7 @@ y 22
 arch lost_soul
 type 83
 level 4
-last_eat -5
-Wis 3
+spawn_time 19:00 - 7:00
 end
 end
 arch grassd_3
@@ -1472,8 +1470,7 @@ y 18
 arch lost_soul
 type 83
 level 5
-last_eat -5
-Wis 3
+spawn_time 19:00 - 7:00
 end
 end
 arch grassd_6
@@ -1502,8 +1499,7 @@ y 22
 arch lost_soul
 type 83
 level 4
-last_eat -5
-Wis 3
+spawn_time 19:00 - 7:00
 end
 end
 arch grassd_4

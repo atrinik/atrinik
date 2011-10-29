@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-10-14 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2244,18 +2244,18 @@ x 14
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
-Wis 3
 level 26
-wc 10
+object_int1 50
 dam 90
+wc 10
 maxhp 110
 ac 12
+type 83
 end
 arch giant_stone
 name Xuhrexal
 level 26
-object_int1 5000
+object_int1 50
 dam 100
 wc 10
 maxhp 110

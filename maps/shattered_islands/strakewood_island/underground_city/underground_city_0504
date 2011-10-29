@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-12 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -653,6 +653,7 @@ arch dragon_skeletal
 name summoned skeletal dragon
 reflect_missile 1
 level 40
+object_int1 85
 protect_impact 10
 protect_slash 10
 protect_cleave 10
@@ -664,7 +665,7 @@ name demonic skeletal dragon
 animation dragon_demonic
 reflect_missile 1
 level 43
-object_int1 8500
+object_int1 15
 dam 83
 wc 12
 maxhp 110

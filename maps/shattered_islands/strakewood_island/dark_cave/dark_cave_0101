@@ -2,7 +2,7 @@ arch map
 name Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1072,16 +1072,17 @@ x 8
 y 4
 arch worm_purple
 name small purple worm
-type 83
 level 12
+object_int1 80
 Wis 3
+type 83
 end
 arch worm_purple
 name Yrchhhh
-type 83
 level 13
-object_int1 8000
+object_int1 20
 Wis 3
+type 83
 arch rand_drop
 container 50
 arch amulet_shielding

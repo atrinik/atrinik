@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-10-14 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -365,25 +365,26 @@ x 2
 y 2
 arch troll
 name troll elite soldier
-type 83
+direction 3
 level 24
+object_int1 50
 dam 80
 wc 11
 maxhp 100
 ac 12
 Wis 3
-direction 3
+type 83
 end
 arch troll
 name Ksha'sha
-type 83
 level 24
-object_int1 5000
+object_int1 50
 dam 90
 wc 12
 maxhp 100
 ac 12
 Wis 3
+type 83
 arch quest_container
 name Old Outpost Key 1
 arch key_blue

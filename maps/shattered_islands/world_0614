@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1249,15 +1249,16 @@ arch spawn_point
 x 8
 y 2
 arch orc_warlord
-type 83
-Wis 6
 level 30
+object_int1 80
+Wis 6
+type 83
 end
 arch orc_warlord
 name Warlord Ghorl
 reflect_missile 1
 level 31
-object_int1 8500
+object_int1 20
 dam 100
 wc 14
 maxhp 110

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -315,7 +315,7 @@ last_grace 0
 x 2
 y 7
 arch dragon_water_small
-last_eat 3
+spawn_time 7:00 - 19:00
 unaggressive 1
 friendly 1
 random_move 1
