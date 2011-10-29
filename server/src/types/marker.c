@@ -34,6 +34,8 @@ static int move_on_func(object *op, object *victim, object *originator)
 {
 	object *tmp;
 
+	(void) originator;
+
 	if (victim->type != PLAYER)
 	{
 		return OBJECT_METHOD_OK;
