@@ -294,7 +294,6 @@ set(SOURCES
 	src/types/spawn_point.c
 	src/types/spellbook.c
 	src/types/teleporter.c
-	src/types/treasure.c
 	src/types/waypoint.c)
 
 # Find unit test source files if check is installed.
