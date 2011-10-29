@@ -67,7 +67,7 @@ static double book_exp_mod[MAX_STAT + 1] =
 };
 
 /** @copydoc object_methods::apply_func */
-static int apply(object *op, object *applier, int aflags)
+static int apply_func(object *op, object *applier, int aflags)
 {
 	int lev_diff;
 	SockList sl;
@@ -181,5 +181,5 @@ static int apply(object *op, object *applier, int aflags)
  * Initialize the book type object methods. */
 void object_type_init_book(void)
 {
-	object_type_methods[BOOK].apply_func = apply;
+	object_type_methods[BOOK].apply_func = apply_func;
 }
