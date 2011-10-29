@@ -290,7 +290,6 @@ set(SOURCES
 	src/types/scroll.c
 	src/types/shop_mat.c
 	src/types/sign.c
-	src/types/skillscroll.c
 	src/types/sound_ambient.c
 	src/types/spawn_point.c
 	src/types/spellbook.c
