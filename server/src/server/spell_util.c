@@ -811,16 +811,8 @@ int cast_create_obj(object *op, object *new_op, int dir)
 int fire_bolt(object *op, object *caster, int dir, int type)
 {
 	object *tmp;
-	int w;
 
 	if (!spellarch[type])
-	{
-		return 0;
-	}
-
-	tmp = arch_to_object(spellarch[type]);
-
-	if (!tmp)
 	{
 		return 0;
 	}
@@ -831,46 +823,42 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 		return 0;
 	}
 
+	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	{
+		draw_info(COLOR_WHITE, op, "There is something in the way.");
+		return 0;
+	}
+
+	tmp = arch_to_object(spellarch[type]);
+
+	if (!tmp)
+	{
+		return 0;
+	}
+
 	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
 	tmp->direction = dir;
-	tmp->x = op->x + DIRX(tmp);
-	tmp->y = op->y + DIRY(tmp);
+	tmp->x = op->x;
+	tmp->y = op->y;
+
+	set_owner(tmp, op);
+	tmp->level = SK_level(caster);
 
 	if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE))
 	{
 		SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction);
 	}
 
-	set_owner(tmp, op);
-	tmp->level = SK_level(caster);
-	w = wall(op->map, tmp->x, tmp->y);
-
-	if (w && !QUERY_FLAG(tmp, FLAG_REFLECTING))
-	{
-		return 0;
-	}
-
-	if (w || reflwall(op->map, tmp->x, tmp->y, tmp))
-	{
-		tmp->direction = absdir(tmp->direction + 4);
-		tmp->x = op->x + DIRX(tmp);
-		tmp->y = op->y + DIRY(tmp);
-	}
-
-	if (wall(op->map, tmp->x, tmp->y))
-	{
-		draw_info(COLOR_WHITE, op, "There is something in the way.");
-		return 0;
-	}
-
 	tmp = insert_ob_in_map(tmp, op->map, op, 0);
 
-	if (tmp)
+	if (!tmp)
 	{
-		move_bolt(tmp);
+		return 0;
 	}
+
+	object_process(tmp);
 
 	return 1;
 }
@@ -945,7 +933,8 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 		return 1;
 	}
 
-	move_fired_arch(tmp);
+	object_process(tmp);
+
 	return 1;
 }
 
@@ -1077,212 +1066,6 @@ void cone_drop(object *op)
 }
 
 /**
- * Causes op to fork.
- * @param op Original bolt.
- * @param tmp First piece of the fork. */
-void forklightning(object *op, object *tmp)
-{
-	mapstruct *m;
-	/* Direction or -1 for left, +1 for right 0 if no new bolt */
-	int xt, yt, new_dir = 1;
-	/* Stores temporary dir calculation */
-	int t_dir;
-
-	/* pick a fork direction.  tmp->stats.Con is the left bias
-	 * i.e., the chance in 100 of forking LEFT
-	 * Should start out at 50, down to 25 for one already going left
-	 * down to 0 for one going 90 degrees left off original path*/
-
-	/* Fork left */
-	if (rndm(0, 99) < tmp->stats.Con)
-	{
-		new_dir = -1;
-	}
-
-	/* Check the new dir for a wall and in the map*/
-	t_dir = absdir(tmp->direction + new_dir);
-
-	xt = tmp->x + freearr_x[t_dir];
-	yt = tmp->y + freearr_y[t_dir];
-
-	if (!(m = get_map_from_coord(tmp->map, &xt, &yt)) || wall(m, xt, yt))
-	{
-		new_dir = 0;
-	}
-
-	/* OK, we made a fork */
-	if (new_dir)
-	{
-		object *new_bolt = get_object();
-
-		copy_object(tmp, new_bolt, 0);
-		new_bolt->stats.food = 0;
-		/* Reduce chances of subsequent forking */
-		new_bolt->stats.Dex -= 10;
-		/* Less forks from main bolt too */
-		tmp->stats.Dex -= 10;
-		/* Adjust the left bias */
-		new_bolt->stats.Con += 25 * new_dir;
-		new_bolt->speed_left = -0.1f;
-		new_bolt->direction = t_dir;
-		new_bolt->stats.hp++;
-		new_bolt->x = xt;
-		new_bolt->y = yt;
-		/* Reduce daughter bolt damage */
-		new_bolt->stats.dam /= 2;
-		new_bolt->stats.dam++;
-		/* Reduce father bolt damage */
-		tmp->stats.dam /= 2;
-		tmp->stats.dam++;
-
-		if (!insert_ob_in_map(new_bolt, m, op, 0))
-		{
-			return;
-		}
-
-		update_turn_face(new_bolt);
-	}
-}
-
-/**
- * Decides whether the (spell-)object sp_op will be reflected from the
- * given mapsquare. Returns 1 if true.
- *
- * (Note that for living creatures there is a small chance that
- * reflect_spell fails.)
- * @param m Map.
- * @param x X position.
- * @param y Y position.
- * @param sp_op Spell object to test.
- * @return 1 if reflected, 0 otherwise. */
-int reflwall(mapstruct *m, int x, int y, object *sp_op)
-{
-	object *tmp;
-
-	if (!(m = get_map_from_coord(m, &x, &y)))
-	{
-		return 0;
-	}
-
-	for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)
-	{
-		if (QUERY_FLAG(tmp->head ? tmp->head : tmp, FLAG_REFL_SPELL) && (rndm(0, 99)) < 90 - (sp_op->level / 10))
-		{
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-/**
- * Moves bolt 'op'. Basically, it just advances a space, and checks for
- * various things that may stop it.
- * @param op The bolt object moving. */
-void move_bolt(object *op)
-{
-	int w, r;
-	object *tmp;
-
-	if (--(op->stats.hp) < 0)
-	{
-		destruct_ob(op);
-		return;
-	}
-
-	if (!op->direction)
-	{
-		return;
-	}
-
-	if (blocks_magic(op->map, op->x + DIRX(op), op->y + DIRY(op)))
-	{
-		return;
-	}
-
-	check_fired_arch(op);
-
-	if (!OBJECT_ACTIVE(op))
-	{
-		return;
-	}
-
-	w = wall(op->map, op->x + DIRX(op), op->y + DIRY(op));
-	r = reflwall(op->map, op->x + DIRX(op), op->y + DIRY(op), op);
-
-	if (w && !QUERY_FLAG(op, FLAG_REFLECTING))
-	{
-		return;
-	}
-
-	/* We're about to bounce */
-	if (w || r)
-	{
-		if (op->direction & 1)
-		{
-			op->direction = absdir(op->direction + 4);
-		}
-		else
-		{
-			int left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]), right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
-
-			if (left == right)
-			{
-				op->direction = absdir(op->direction + 4);
-			}
-			else if (left)
-			{
-				op->direction = absdir(op->direction + 2);
-			}
-			else if (right)
-			{
-				op->direction = absdir(op->direction - 2);
-			}
-		}
-
-		update_turn_face(op);
-		return;
-	}
-
-	if (op->stats.food || !op->stats.hp)
-	{
-		return;
-	}
-
-	op->stats.food = 1;
-
-	/* Create a copy of this object and put it ahead */
-	tmp = get_object();
-	copy_object(op, tmp, 0);
-	tmp->speed_left = -0.1f;
-	tmp->x += DIRX(tmp);
-	tmp->y += DIRY(tmp);
-
-	if (!insert_ob_in_map(tmp, op->map, op, 0))
-	{
-		return;
-	}
-
-	if (rndm(0, 99) < tmp->stats.Dex)
-	{
-		forklightning(op, tmp);
-	}
-
-	if (tmp)
-	{
-		if (!tmp->stats.food)
-		{
-			tmp->stats.food = 1;
-			move_bolt(tmp);
-		}
-		else
-		{
-			tmp->stats.food = 0;
-		}
-	}
-}
-
-/**
  * Causes an object to explode, eg, a firebullet, poison cloud ball, etc.
  * @param op The object to explode. */
 void explode_object(object *op)
@@ -1394,93 +1177,6 @@ void check_fired_arch(object *op)
 				return;
 			}
 		}
-	}
-}
-
-/**
- * Move a fired arch.
- * @param op Object. */
-void move_fired_arch(object *op)
-{
-	mapstruct *m;
-	tag_t op_tag = op->count;
-	int new_x, new_y;
-
-	if (op->stats.sp == SP_METEOR)
-	{
-		replace_insert_ob_in_map("fire_trail", op);
-
-		if (was_destroyed(op, op_tag))
-		{
-			return;
-		}
-	}
-
-	if (op->stats.sp == SP_MAGIC_MISSILE)
-	{
-		rv_vector rv;
-
-		if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0))
-		{
-			remove_ob(op);
-			return;
-		}
-
-		op->direction = rv.direction;
-		update_turn_face(op);
-	}
-
-	new_x = op->x + DIRX(op);
-	new_y = op->y + DIRY(op);
-
-	if (!(m = get_map_from_coord(op->map, &new_x, &new_y)))
-	{
-		remove_ob(op);
-		return;
-	}
-
-	/* the spell has reached a wall and/or the end of its moving points */
-	if (!op->last_sp-- || (!op->direction || wall(m, new_x, new_y)))
-	{
-		if (op->other_arch)
-		{
-			explode_object(op);
-		}
-		else
-		{
-			remove_ob(op);
-		}
-
-		return;
-	}
-
-	remove_ob(op);
-	op->x = new_x;
-	op->y = new_y;
-
-	if (insert_ob_in_map(op, m, op, 0) == NULL)
-	{
-		return;
-	}
-
-	if (reflwall(op->map, op->x, op->y, op))
-	{
-		if (op->type == BULLET && op->stats.sp == SP_PROBE)
-		{
-			if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_ALIVE | P_IS_PLAYER))
-			{
-				probe(op);
-				remove_ob(op);
-				return;
-			}
-		}
-
-		op->direction = absdir(op->direction + 4);
-		update_turn_face(op);
-	}
-	else
-	{
-		check_fired_arch(op);
 	}
 }
 

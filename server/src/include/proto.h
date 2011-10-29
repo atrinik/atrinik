@@ -769,12 +769,8 @@ extern int fire_bolt(object *op, object *caster, int dir, int type);
 extern int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target);
 extern int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
 extern void cone_drop(object *op);
-extern void forklightning(object *op, object *tmp);
-extern int reflwall(mapstruct *m, int x, int y, object *sp_op);
-extern void move_bolt(object *op);
 extern void explode_object(object *op);
 extern void check_fired_arch(object *op);
-extern void move_fired_arch(object *op);
 extern int find_target_for_spell(object *op, object **target, uint32 flags);
 extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact);
 extern int SP_level_strength_adjust(object *caster, int spell_type);
@@ -983,6 +979,9 @@ extern void beacon_remove(object *ob);
 extern object *beacon_locate(shstr *name);
 /* src/types/book.c */
 extern void object_type_init_book(void);
+/* src/types/bullet.c */
+extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
+extern void object_type_init_bullet(void);
 /* src/types/cone.c */
 extern void object_type_init_cone(void);
 /* src/types/container.c */
@@ -1020,6 +1019,8 @@ extern const char *gravestone_text(object *op);
 /* src/types/light.c */
 extern void apply_player_light_refill(object *who, object *op);
 extern void apply_player_light(object *who, object *op);
+/* src/types/lightning.c */
+extern void object_type_init_lightning(void);
 /* src/types/magic_mirror.c */
 extern void magic_mirror_init(object *mirror);
 extern void magic_mirror_deinit(object *mirror);

@@ -66,6 +66,8 @@ void object_methods_init(void)
 	object_type_init_shop_mat();
 	object_type_init_detector();
 	object_type_init_cone();
+	object_type_init_lightning();
+	object_type_init_bullet();
 }
 
 /** @copydoc object_methods::apply_func */

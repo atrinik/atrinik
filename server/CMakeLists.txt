@@ -262,6 +262,7 @@ set(SOURCES
 	src/types/arrow.c
 	src/types/beacon.c
 	src/types/book.c
+	src/types/bullet.c
 	src/types/cone.c
 	src/types/container.c
 	src/types/creator.c
@@ -273,6 +274,7 @@ set(SOURCES
 	src/types/gate.c
 	src/types/gravestone.c
 	src/types/light.c
+	src/types/lightning.c
 	src/types/magic_mirror.c
 	src/types/map_info.c
 	src/types/marker.c

@@ -1613,6 +1613,7 @@ void destruct_ob(object *op)
 	}
 
 	remove_ob(op);
+	object_destroy(op);
 }
 
 static void object_check_move_off(object *op)
