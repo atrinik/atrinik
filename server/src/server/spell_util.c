@@ -661,10 +661,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, target);
 			break;
 
-		case SP_TOWN_PORTAL:
-			success = cast_create_town_portal(op);
-			break;
-
 		case SP_WOR:
 			success = cast_wor(op, caster);
 			break;
