@@ -65,6 +65,7 @@ void object_methods_init(void)
 	object_type_init_door();
 	object_type_init_shop_mat();
 	object_type_init_detector();
+	object_type_init_cone();
 }
 
 /** @copydoc object_methods::apply_func */

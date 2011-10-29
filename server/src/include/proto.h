@@ -768,7 +768,6 @@ extern int fire_bolt(object *op, object *caster, int dir, int type);
 extern int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target);
 extern int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch);
 extern void cone_drop(object *op);
-extern void move_cone(object *op);
 extern void forklightning(object *op, object *tmp);
 extern int reflwall(mapstruct *m, int x, int y, object *sp_op);
 extern void move_bolt(object *op);
@@ -983,6 +982,8 @@ extern void beacon_remove(object *ob);
 extern object *beacon_locate(shstr *name);
 /* src/types/book.c */
 extern void object_type_init_book(void);
+/* src/types/cone.c */
+extern void object_type_init_cone(void);
 /* src/types/container.c */
 extern int esrv_apply_container(object *op, object *sack);
 extern int container_link(player *pl, object *sack);

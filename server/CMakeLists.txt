@@ -262,6 +262,7 @@ set(SOURCES
 	src/types/arrow.c
 	src/types/beacon.c
 	src/types/book.c
+	src/types/cone.c
 	src/types/container.c
 	src/types/creator.c
 	src/types/detector.c
