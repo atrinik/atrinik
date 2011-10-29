@@ -29,79 +29,80 @@
 
 #include <global.h>
 
-/**
- * When moved, a marker will search for a player sitting above it, and
- * insert an invisible, weightless force into him with a specific code
- * as the slaying field. At that time, it writes the contents of its own
- * message field to the player.
- * @param op The marker object. */
-void move_marker(object *op)
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator)
 {
-	object *tmp, *tmp2;
+	object *tmp;
 
-	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL; tmp = tmp->above)
+	if (victim->type != PLAYER)
 	{
-		/* we've got someone to MARK */
-		if (tmp->type == PLAYER)
+		return OBJECT_METHOD_OK;
+	}
+
+	if (op->slaying)
+	{
+		for (tmp = victim->inv; tmp; tmp = tmp->below)
 		{
-			/* remove an old force with a slaying field == op->name */
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			if (tmp->type == FORCE && tmp->slaying == op->slaying)
 			{
-				if (tmp2->type == FORCE && tmp2->slaying && tmp2->slaying == op->name)
-				{
-					break;
-				}
+				remove_ob(tmp);
+				object_destroy(tmp);
+				break;
+			}
+		}
+	}
+
+	if (op->race)
+	{
+		for (tmp = victim->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == FORCE && tmp->slaying == op->race)
+			{
+				break;
+			}
+		}
+
+		if (!tmp)
+		{
+			object *force;
+
+			force = get_archetype("force");
+			force->speed = 0;
+
+			if (op->stats.food)
+			{
+				force->speed = 0.01;
+				force->speed_left = -op->stats.food;
 			}
 
-			if (tmp2)
+			update_ob_speed(force);
+			FREE_AND_COPY_HASH(force->slaying, op->race);
+			insert_ob_in_ob(force, victim);
+
+			if (op->msg)
 			{
-				remove_ob(tmp2);
-				object_destroy(tmp2);
+				draw_info(COLOR_NAVY, victim, op->msg);
 			}
 
-			/* cycle through his inventory to look for the MARK we want to place */
-			for (tmp2 = tmp->inv; tmp2 != NULL; tmp2 = tmp2->below)
+			if (op->stats.hp > 0)
 			{
-				if (tmp2->type == FORCE && tmp2->slaying && tmp2->slaying == op->slaying)
+				op->stats.hp--;
+
+				if (op->stats.hp == 0)
 				{
-					break;
-				}
-			}
-
-			/* if we didn't find our own MARK */
-			if (tmp2 == NULL)
-			{
-				object *force = get_archetype("force");
-				force->speed = 0;
-
-				if (op->stats.food)
-				{
-					force->speed = 0.01f;
-					force->speed_left = (float) -op->stats.food;
-				}
-
-				update_ob_speed(force);
-				/* put in the lock code */
-				FREE_AND_COPY_HASH(force->slaying, op->slaying);
-				insert_ob_in_ob(force, tmp);
-
-				if (op->msg)
-				{
-					draw_info(COLOR_NAVY, tmp, op->msg);
-				}
-
-				if (op->stats.hp > 0)
-				{
-					op->stats.hp--;
-
-					if (op->stats.hp == 0)
-					{
-						/* marker expires -- granted mark number limit */
-						destruct_ob(op);
-						return;
-					}
+					destruct_ob(op);
+					return OBJECT_METHOD_OK;
 				}
 			}
 		}
 	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the marker type object methods. */
+void object_type_init_marker(void)
+{
+	object_type_methods[MARKER].move_on_func = move_on_func;
 }

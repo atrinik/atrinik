@@ -70,6 +70,7 @@ void object_methods_init(void)
 	object_type_init_bullet();
 	object_type_init_teleporter();
 	object_type_init_duplicator();
+	object_type_init_marker();
 }
 
 /** @copydoc object_methods::apply_func */

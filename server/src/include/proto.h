@@ -1028,7 +1028,7 @@ extern mapstruct *magic_mirror_get_map(object *mirror);
 /* src/types/map_info.c */
 extern void map_info_init(object *info);
 /* src/types/marker.c */
-extern void move_marker(object *op);
+extern void object_type_init_marker(void);
 /* src/types/monster.c */
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern object *check_enemy(object *npc, rv_vector *rv);
