@@ -1006,7 +1006,7 @@ extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
 extern object *find_key(object *op, object *door);
 extern void object_type_init_door(void);
 /* src/types/duplicator.c */
-extern void move_duplicator(object *op);
+extern void object_type_init_duplicator(void);
 /* src/types/food.c */
 extern void apply_food(object *op, object *tmp);
 extern void create_food_force(object *who, object *food, object *force);
@@ -1096,7 +1096,7 @@ extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */
 extern void object_type_init_spawn_point(void);
 /* src/types/teleporter.c */
-extern void move_teleporter(object *op);
+extern void object_type_init_teleporter(void);
 /* src/types/waypoint.c */
 extern object *get_active_waypoint(object *op);
 extern object *get_aggro_waypoint(object *op);

@@ -68,6 +68,8 @@ void object_methods_init(void)
 	object_type_init_cone();
 	object_type_init_lightning();
 	object_type_init_bullet();
+	object_type_init_teleporter();
+	object_type_init_duplicator();
 }
 
 /** @copydoc object_methods::apply_func */

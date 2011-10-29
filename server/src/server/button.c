@@ -156,16 +156,8 @@ void connection_trigger(object *op, int state)
 
 				break;
 
-			case TELEPORTER:
-				move_teleporter(tmp);
-				break;
-
 			case CREATOR:
 				move_creator(tmp);
-				break;
-
-			case DUPLICATOR:
-				move_duplicator(tmp);
 				break;
 
 			default:

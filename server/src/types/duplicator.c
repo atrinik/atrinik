@@ -25,50 +25,65 @@
 
 /**
  * @file
- * Handles code related to @ref DUPLICATOR "duplicators". */
+ * Handles code related to @ref DUPLICATOR "duplicators".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
 /**
- * Trigger a duplicator.
- *
- * Will duplicate a specified object on the tile.
- *
- * - connected: What will trigger it.
- * - level: Multiplier. 0 to destroy.
- * - slaying: The object to look for and duplicate.
- * @param op Duplicator. */
-void move_duplicator(object *op)
+ * Try matching an object for duplicator.
+ * @param op Duplicator.
+ * @param tmp The object to try to match. */
+static void duplicator_match_obj(object *op, object *tmp)
 {
-	object *tmp;
-
-	if (!op->slaying)
+	if (op->slaying != tmp->arch->name)
 	{
-		LOG(llevInfo, "Duplicator with no slaying! %d %d %s\n", op->x, op->y, op->map ? op->map->path : "<no map>");
 		return;
 	}
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	if (op->level <= 0)
 	{
-		if (tmp->arch->name == op->slaying)
-		{
-			if (op->level <= 0)
-			{
-				destruct_ob(tmp);
-			}
-			else
-			{
-				uint64 new_nrof = (uint64) tmp->nrof * op->level;
-
-				if (new_nrof > SINT32_MAX)
-				{
-					new_nrof = SINT32_MAX;
-				}
-
-				tmp->nrof = new_nrof;
-			}
-
-			break;
-		}
+		destruct_ob(tmp);
 	}
+	else
+	{
+		tmp->nrof = MIN(SINT32_MAX, (uint64) tmp->nrof * op->level);
+	}
+}
+
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator)
+{
+	(void) originator;
+
+	duplicator_match_obj(op, victim);
+
+	return OBJECT_METHOD_OK;
+}
+
+/** @copydoc object_methods::trigger_func */
+static int trigger_func(object *op, object *cause, int state)
+{
+	object *tmp, *next;
+
+	(void) cause;
+	(void) state;
+
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
+	{
+		next = tmp->above;
+
+		duplicator_match_obj(op, tmp);
+	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the duplicator type object methods. */
+void object_type_init_duplicator(void)
+{
+	object_type_methods[DUPLICATOR].move_on_func = move_on_func;
+	object_type_methods[DUPLICATOR].trigger_func = trigger_func;
 }
