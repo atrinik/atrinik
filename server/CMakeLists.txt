@@ -273,7 +273,6 @@ set(SOURCES
 	src/types/food.c
 	src/types/gate.c
 	src/types/gravestone.c
-	src/types/identify_altar.c
 	src/types/light.c
 	src/types/magic_mirror.c
 	src/types/map_info.c
