@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-10-10 Alex Tokar
+Modified: 2011-10-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1770,14 +1770,6 @@ x 14
 y 21
 end
 arch floor_stone_b4
-x 14
-y 22
-end
-arch wall_stone_1
-x 14
-y 22
-end
-arch floor_stone_b2
 x 14
 y 22
 end
