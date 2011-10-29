@@ -25,76 +25,43 @@
 
 /**
  * @file
- * Handles code for @ref DETECTOR "detectors". */
+ * Handles code for @ref DETECTOR "detectors".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * Have the detector do its tick.
- * @param op The detector. */
-void move_detector(object *op)
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator)
 {
 	object *tmp;
-	int last = op->value, detected = 0;
 
-	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL && !detected; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
 	{
-		object *tmp2;
-
-		if (op->stats.hp)
+		if ((op->stats.hp && tmp->type == op->stats.hp) || (op->slaying && tmp->name == op->slaying) || (op->race && op->race == tmp->arch->name))
 		{
-			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
-			{
-				if (op->slaying && !strcmp(op->slaying, tmp->name))
-				{
-					detected = 1;
-				}
-
-				if (tmp2->type == FORCE && tmp->slaying && tmp2->slaying == op->slaying)
-				{
-					detected = 1;
-				}
-			}
-		}
-
-		if (op->slaying && op->slaying == tmp->name)
-		{
-			detected = 1;
-		}
-		else if (tmp->type == KEY && tmp->slaying == op->slaying)
-		{
-			detected = 1;
+			break;
 		}
 	}
 
-	/* the detector sets the button if detection is found */
-	if (op->stats.sp == 1)
+	if (tmp && op->last_sp)
 	{
-		if (detected && last == 0)
+		if (op->last_heal)
 		{
-			op->value = 1;
-			push_button(op);
+			decrease_ob(tmp);
 		}
 
-		if (!detected && last == 1)
-		{
-			op->value = 0;
-			push_button(op);
-		}
+		use_trigger(op);
 	}
-	/* in this case, we unset buttons */
-	else
+	else if (!tmp && !op->last_sp)
 	{
-		if (detected && last == 1)
-		{
-			op->value = 0;
-			push_button(op);
-		}
-
-		if (!detected && last == 0)
-		{
-			op->value = 1;
-			push_button(op);
-		}
+		use_trigger(op);
 	}
+}
+
+/**
+ * Initialize the detector type object methods. */
+void object_type_init_detector(void)
+{
+	object_type_methods[DETECTOR].move_on_func = move_on_func;
 }

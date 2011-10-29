@@ -989,15 +989,10 @@ extern int container_link(player *pl, object *sack);
 extern int container_unlink(player *pl, object *sack);
 extern void free_container_monster(object *monster, object *op);
 extern int check_magical_container(object *op, object *container);
-/* src/types/converter.c */
-extern int convert_item(object *item, object *converter);
 /* src/types/creator.c */
 extern void move_creator(object *op);
-/* src/types/deep_swamp.c */
-extern void walk_on_deep_swamp(object *op, object *victim);
-extern void move_deep_swamp(object *op);
 /* src/types/detector.c */
-extern void move_detector(object *op);
+extern void object_type_init_detector(void);
 /* src/types/disease.c */
 extern int move_disease(object *disease);
 extern int infect_object(object *victim, object *disease, int force);
@@ -1020,8 +1015,6 @@ extern void move_gate(object *op);
 extern void move_timed_gate(object *op);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
-/* src/types/identify_altar.c */
-extern int apply_identify_altar(object *money, object *altar, object *pl);
 /* src/types/light.c */
 extern void apply_player_light_refill(object *who, object *op);
 extern void apply_player_light(object *who, object *op);
@@ -1095,18 +1088,12 @@ extern void apply_scroll(object *op, object *tmp);
 extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
 extern void apply_sign(object *op, object *sign);
-/* src/types/skillscroll.c */
-extern void apply_skillscroll(object *op, object *tmp);
 /* src/types/sound_ambient.c */
 extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */
 extern void object_type_init_spawn_point(void);
-/* src/types/spellbook.c */
-extern void apply_spellbook(object *op, object *tmp);
 /* src/types/teleporter.c */
 extern void move_teleporter(object *op);
-/* src/types/treasure.c */
-extern void apply_treasure(object *op, object *tmp);
 /* src/types/waypoint.c */
 extern object *get_active_waypoint(object *op);
 extern object *get_aggro_waypoint(object *op);
