@@ -25,29 +25,23 @@
 
 /**
  * @file
- * Handles code used by @ref TELEPORTER "teleporters". */
+ * Handles code used by @ref TELEPORTER "teleporters".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * Teleporter does its tick.
- *
- * A teleporter will teleport any object on the tile node it is on,
- * including multi arch objects which are with one part on the
- * teleporter, unless the object has @ref FLAG_NO_TELEPORT set.
- * @param op The teleporter. */
-void move_teleporter(object *op)
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
 {
 	object *tmp, *next;
 
-	/* Sanity check */
 	if (!op->map)
 	{
 		return;
 	}
 
-	/* get first object of this map node */
-	for (tmp = GET_BOTTOM_MAP_OB(op); tmp != NULL; tmp = next)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
 	{
 		next = tmp->above;
 
@@ -56,47 +50,57 @@ void move_teleporter(object *op)
 			continue;
 		}
 
-		/* teleport to different map */
+		if (HAS_EVENT(op, EVENT_TRIGGER))
+		{
+			int ret;
+
+			ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
+
+			if (ret == 1)
+			{
+				return;
+			}
+			else if (ret == 2)
+			{
+				continue;
+			}
+		}
+
 		if (EXIT_PATH(op))
 		{
-			/* Trigger the TRIGGER event */
-			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
-			{
-				return;
-			}
-
 			enter_exit(tmp, op);
 		}
-		/* teleport inside this map */
 		else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1)
 		{
-			/* use OUT_OF_REAL_MAP() - we want be truly on THIS map */
 			if (OUT_OF_REAL_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
-			{
-				LOG(llevBug, "Removed illegal teleporter (map: %s (%d,%d)) -> (%d,%d)\n", op->map->name, op->x, op->y, EXIT_X(op), EXIT_Y(op));
-				remove_ob(op);
-				object_destroy(op);
-				return;
-			}
-
-			/* Trigger the TRIGGER event */
-			if (trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
 			{
 				return;
 			}
 
 			transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
 		}
-		/* Random teleporter */
 		else
 		{
-			/* Trigger the TRIGGER event */
-			if (trigger_event(EVENT_TRIGGER, op, tmp, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
-			{
-				return;
-			}
-
 			teleport(op, TELEPORTER, tmp);
 		}
 	}
+}
+
+/** @copydoc object_methods::trigger_func */
+static int trigger_func(object *op, object *cause, int state)
+{
+	(void) cause;
+	(void) state;
+
+	process_func(op);
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the teleporter type object methods. */
+void object_type_init_teleporter(void)
+{
+	object_type_methods[TELEPORTER].process_func = process_func;
+	object_type_methods[TELEPORTER].trigger_func = trigger_func;
 }
