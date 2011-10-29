@@ -290,7 +290,6 @@ set(SOURCES
 	src/types/sign.c
 	src/types/sound_ambient.c
 	src/types/spawn_point.c
-	src/types/spellbook.c
 	src/types/teleporter.c
 	src/types/waypoint.c)
 
