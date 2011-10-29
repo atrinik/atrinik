@@ -29,7 +29,7 @@
 
 #include <global.h>
 
-static int move_on(object *trap, object *victim, object *originator)
+static int move_on_func(object *trap, object *victim, object *originator)
 {
 	(void) originator;
 
@@ -100,6 +100,6 @@ static void process(object *op)
  * Initialize the pit type object methods. */
 void object_type_init_pit(void)
 {
-	object_type_methods[PIT].move_on_func = move_on;
+	object_type_methods[PIT].move_on_func = move_on_func;
 	object_type_methods[PIT].process_func = process;
 }
