@@ -723,10 +723,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
 			break;
 
-		case SP_BOMB:
-			success = create_bomb(op, caster, dir, type);
-			break;
-
 		case SP_TRANSFORM_WEALTH:
 			success = cast_transform_wealth(op);
 			break;

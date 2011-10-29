@@ -1168,39 +1168,6 @@ int create_bomb(object *op, object *caster, int dir, int spell_type)
 }
 
 /**
- * This handles an exploding bomb.
- * @param op The original bomb object. */
-void animate_bomb(object *op)
-{
-	int i;
-	archetype *at;
-
-	if (!op->map)
-	{
-		return;
-	}
-
-	if (op->state != NUM_ANIMATIONS(op) - 1)
-	{
-		op->state++;
-		SET_ANIMATION(op, op->state);
-		return;
-	}
-
-	at = find_archetype("splint");
-
-	if (at)
-	{
-		for (i = 1; i < 9; i++)
-		{
-			fire_arch_from_position(op, op, op->x, op->y, i, at, 0, NULL);
-		}
-	}
-
-	explode_object(op);
-}
-
-/**
  * Cast remove depletion spell.
  * @param op Object casting this.
  * @param target Target.

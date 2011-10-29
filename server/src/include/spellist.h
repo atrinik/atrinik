@@ -354,7 +354,7 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"create bomb", SPELL_TYPE_WIZARD,
-	 "icon_create_bomb.101", "Creates a bomb in front of you, which then explodes after a short while.",
+	 NULL, NULL,
 	 10, 10, 30, 2, 0, 3, 1.0,
 	 10, 9, 0, 30, 9, "magic_bomb.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
