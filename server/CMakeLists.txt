@@ -263,7 +263,6 @@ set(SOURCES
 	src/types/beacon.c
 	src/types/book.c
 	src/types/container.c
-	src/types/converter.c
 	src/types/creator.c
 	src/types/detector.c
 	src/types/disease.c
