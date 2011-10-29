@@ -25,7 +25,9 @@
 
 /**
  * @file
- * @ref BEACON "Beacon" related code. */
+ * @ref BEACON "Beacon" related code.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
