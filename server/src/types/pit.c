@@ -29,6 +29,7 @@
 
 #include <global.h>
 
+/** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator)
 {
 	(void) originator;
@@ -46,6 +47,7 @@ static int move_on_func(object *op, object *victim, object *originator)
 	return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
 	/* We're opening. */
