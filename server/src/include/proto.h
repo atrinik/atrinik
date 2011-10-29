@@ -728,13 +728,10 @@ extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 extern int probe(object *op);
 extern int cast_wor(object *op, object *caster);
-extern int cast_create_town_portal(object *op);
 extern int cast_destruction(object *op, object *caster, int dam, int attacktype);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
-extern int create_bomb(object *op, object *caster, int dir, int spell_type);
-extern void animate_bomb(object *op);
 extern int remove_depletion(object *op, object *target);
 extern int remove_curse(object *op, object *target, int type, int src);
 extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
@@ -764,7 +761,6 @@ extern int find_target_for_spell(object *op, object **target, uint32 flags);
 extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact);
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
-extern void move_swarm_spell(object *op);
 extern void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
 /* src/server/statistics.c */
 extern void statistics_init(void);
@@ -1084,6 +1080,8 @@ extern void apply_sign(object *op, object *sign);
 extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */
 extern void object_type_init_spawn_point(void);
+/* src/types/swarm_spell.c */
+extern void object_type_init_swarm_spell(void);
 /* src/types/teleporter.c */
 extern void object_type_init_teleporter(void);
 /* src/types/waypoint.c */

@@ -71,6 +71,7 @@ void object_methods_init(void)
 	object_type_init_teleporter();
 	object_type_init_duplicator();
 	object_type_init_marker();
+	object_type_init_swarm_spell();
 }
 
 /** @copydoc object_methods::apply_func */
