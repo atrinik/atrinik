@@ -610,7 +610,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 			return 1;
 		}
 	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		/* Start dragging the slider. */
 		if (scrollbar->slider.highlight)
