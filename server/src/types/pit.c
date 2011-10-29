@@ -29,19 +29,19 @@
 
 #include <global.h>
 
-static int move_on_func(object *trap, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator)
 {
 	(void) originator;
 
 	/* Hole not open? */
-	if (trap->stats.wc > 0)
+	if (op->stats.wc > 0)
 	{
 		return OBJECT_METHOD_OK;
 	}
 
 	draw_info(COLOR_WHITE, victim, "You fall through the hole!\n");
 	play_sound_map(victim->map, CMD_SOUND_EFFECT, "fallhole.ogg", victim->x, victim->y, 0, 0);
-	transfer_ob(HEAD(victim), EXIT_X(trap), EXIT_Y(trap), trap->last_sp, victim, trap);
+	transfer_ob(HEAD(victim), EXIT_X(op), EXIT_Y(op), op->last_sp, victim, op);
 
 	return OBJECT_METHOD_OK;
 }
