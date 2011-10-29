@@ -46,7 +46,7 @@ static int move_on_func(object *trap, object *victim, object *originator)
 	return OBJECT_METHOD_OK;
 }
 
-static void process(object *op)
+static void process_func(object *op)
 {
 	/* We're opening. */
 	if (op->value)
@@ -101,5 +101,5 @@ static void process(object *op)
 void object_type_init_pit(void)
 {
 	object_type_methods[PIT].move_on_func = move_on_func;
-	object_type_methods[PIT].process_func = process;
+	object_type_methods[PIT].process_func = process_func;
 }
