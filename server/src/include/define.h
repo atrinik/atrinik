@@ -1813,4 +1813,25 @@ enum apply_flag
 #define SPAWN_RELATIVE_LEVEL_PURPLE 6
 /*@}*/
 
+#define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _obj) \
+{ \
+	int __sub_layer; \
+	object *__next; \
+	for (__sub_layer = 0; __sub_layer < ((_layer) == 0 ? 1 : NUM_SUB_LAYERS); __sub_layer++) \
+	{ \
+		(_obj) = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); \
+		while ((_obj) && (_obj)->layer == (_layer) && (_obj)->sub_layer == __sub_layer) \
+		{ \
+			__next = (_obj)->above;
+
+#define FOR_MAP_LAYER_BREAK \
+			__sub_layer = NUM_SUB_LAYERS; \
+			break; \
+
+#define FOR_MAP_LAYER_END \
+			(_obj) = __next; \
+		} \
+	} \
+}
+
 #endif
