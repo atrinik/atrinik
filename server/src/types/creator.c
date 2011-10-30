@@ -53,6 +53,7 @@ static int creator_obj_exists(object *op, object *check)
 	return 0;
 }
 
+/** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
 	int idx, roll;
