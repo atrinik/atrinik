@@ -156,10 +156,6 @@ void connection_trigger(object *op, int state)
 
 				break;
 
-			case CREATOR:
-				move_creator(tmp);
-				break;
-
 			default:
 				object_trigger(tmp, op, state);
 		}

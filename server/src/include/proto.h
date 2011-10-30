@@ -976,7 +976,7 @@ extern int container_unlink(player *pl, object *sack);
 extern void free_container_monster(object *monster, object *op);
 extern int check_magical_container(object *op, object *container);
 /* src/types/creator.c */
-extern void move_creator(object *op);
+extern void object_type_init_creator(void);
 /* src/types/detector.c */
 extern void object_type_init_detector(void);
 /* src/types/disease.c */

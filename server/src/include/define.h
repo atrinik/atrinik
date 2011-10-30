@@ -1819,8 +1819,7 @@ enum apply_flag
 	object *__next; \
 	for (__sub_layer = 0; __sub_layer < ((_layer) == 0 ? 1 : NUM_SUB_LAYERS); __sub_layer++) \
 	{ \
-		(_obj) = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); \
-		while ((_obj) && (_obj)->layer == (_layer) && (_obj)->sub_layer == __sub_layer) \
+		for ((_obj) = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); (_obj) && (_obj)->layer == (_layer) && (_obj)->sub_layer == __sub_layer; (_obj) = __next) \
 		{ \
 			__next = (_obj)->above;
 
@@ -1829,7 +1828,6 @@ enum apply_flag
 			break; \
 
 #define FOR_MAP_LAYER_END \
-			(_obj) = __next; \
 		} \
 	} \
 }
