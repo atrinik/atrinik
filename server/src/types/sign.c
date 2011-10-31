@@ -25,105 +25,91 @@
 
 /**
  * @file
- * Handles code related to @ref SIGN "signs". */
+ * Handles code related to @ref SIGN "signs".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * Apply a sign or trigger a magic mouth.
- *
- * Signs and magic mouths can have a "counter" value, which will make it
- * possible to read/trigger it only so many times.
- * @param op Object applying the sign
- * @param sign The sign or magic mouth object. */
-void apply_sign(object *op, object *sign)
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
 {
-	shstr *notification_msg;
+	shstr *notification_msg, *midi_data;
 
-	notification_msg = object_get_value(sign, "notification_message");
+	(void) aflags;
 
-	if (!sign->msg && !sign->title && !notification_msg)
+	/* No point in non-players applying signs. */
+	if (applier->type != PLAYER)
 	{
-		draw_info(COLOR_WHITE, op, "Nothing is written on it.");
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
-	if (sign->stats.food)
+	notification_msg = object_get_value(op, "notification_message");
+	midi_data = object_get_value(op, "midi_data");
+
+	if (!op->msg && !op->title && !notification_msg && !midi_data)
 	{
-		if (sign->last_eat >= sign->stats.food)
+		draw_info(COLOR_WHITE, applier, "Nothing is written on it.");
+		return OBJECT_METHOD_OK;
+	}
+
+	if (op->stats.food)
+	{
+		if (op->last_eat >= op->stats.food)
 		{
-			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+			if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 			{
-				draw_info(COLOR_WHITE, op, "You cannot read it anymore.");
+				draw_info(COLOR_WHITE, applier, "You cannot read it anymore.");
 			}
 
-			return;
+			return OBJECT_METHOD_OK;
 		}
 
-		sign->last_eat++;
+		op->last_eat++;
 	}
 
-	/* Sign or magic mouth?  Do we need to see it, or does it talk to us?
-	 * No way to know for sure.
-	 *
-	 * This check fails for signs with FLAG_WALK_ON/FLAG_FLY_ON.  Checking
-	 * for FLAG_INVISIBLE instead of FLAG_WALK_ON/FLAG_FLY_ON would fail
-	 * for magic mouths that have been made visible. */
-	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ) && !QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ) && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
-		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
-		return;
+		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
+		return OBJECT_METHOD_OK;
 	}
 
-	if (sign->slaying || sign->stats.hp || sign->race)
+	if (op->slaying || op->stats.hp || op->race)
 	{
-		object *match = check_inv_recursive(op, sign);
+		object *match = check_inv_recursive(applier, op);
 
-		if ((match && sign->last_sp) || (!match && !sign->last_sp))
+		if ((match && op->last_sp) || (!match && !op->last_sp))
 		{
-			if (!QUERY_FLAG(sign, FLAG_WALK_ON) && !QUERY_FLAG(sign, FLAG_FLY_ON))
+			if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 			{
-				draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
+				draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
 			}
 
-			return;
+			return OBJECT_METHOD_OK;
 		}
 	}
 
-	if (sign->direction && QUERY_FLAG(sign, FLAG_SYS_OBJECT))
+	if (op->direction && QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
-		if (op->direction != absdir(sign->direction + 4) && !(QUERY_FLAG(sign, FLAG_SPLITTING) && (op->direction == absdir(sign->direction - 5) || op->direction == absdir(sign->direction + 5))))
+		if (applier->direction != absdir(op->direction + 4) && !(QUERY_FLAG(op, FLAG_SPLITTING) && (applier->direction == absdir(op->direction - 5) || applier->direction == absdir(op->direction + 5))))
 		{
-			return;
+			return OBJECT_METHOD_OK;
 		}
 	}
 
-	if (sign->title)
+	if (op->title)
 	{
-		play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, sign->title, 0, 0, 0, 0);
+		play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, op->title, 0, 0, 0, 0);
 	}
 
-	if (sign->msg)
+	if (midi_data)
 	{
-		/* Use book GUI? */
-		if (QUERY_FLAG(sign, FLAG_XRAYS))
-		{
-			SockList sl;
-			unsigned char sock_buf[MAXSOCKBUF];
+		play_sound_player_only(CONTR(applier), CMD_SOUND_MIDI_NOTE, midi_data, 0, 0, 0, 0);
+	}
 
-			sl.buf = sock_buf;
-			SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
-			strcpy((char *) sl.buf + sl.len, sign->msg);
-			sl.len += strlen(sign->msg) + 1;
-			Send_With_Handling(&CONTR(op)->socket, &sl);
-
-			/* Ensure player is not running, mostly for walk/fly on signs. */
-			CONTR(op)->run_on = CONTR(op)->fire_on = 0;
-		}
-		else
-		{
-			draw_info(COLOR_NAVY, op, sign->msg);
-		}
+	if (op->msg)
+	{
+		draw_info(COLOR_NAVY, applier, op->msg);
 	}
 
 	/* Add notification message, if any. */
@@ -133,9 +119,9 @@ void apply_sign(object *op, object *sign)
 		SockList sl;
 		unsigned char sock_buf[MAXSOCKBUF];
 
-		notification_action = object_get_value(sign, "notification_action");
-		notification_shortcut = object_get_value(sign, "notification_shortcut");
-		notification_delay = object_get_value(sign, "notification_delay");
+		notification_action = object_get_value(op, "notification_action");
+		notification_shortcut = object_get_value(op, "notification_shortcut");
+		notification_delay = object_get_value(op, "notification_delay");
 
 		sl.buf = sock_buf;
 		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_NOTIFICATION);
@@ -161,6 +147,54 @@ void apply_sign(object *op, object *sign)
 			SockList_AddInt(&sl, atoi(notification_delay));
 		}
 
-		Send_With_Handling(&CONTR(op)->socket, &sl);
+		Send_With_Handling(&CONTR(applier)->socket, &sl);
 	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/** @copydoc object_methods::trigger_func */
+static int trigger_func(object *op, object *cause, int state)
+{
+	shstr *midi_data;
+
+	(void) cause;
+	(void) state;
+
+	if (op->stats.food)
+	{
+		if (op->last_eat >= op->stats.food)
+		{
+			return OBJECT_METHOD_OK;
+		}
+
+		op->last_eat++;
+	}
+
+	midi_data = object_get_value(op, "midi_data");
+
+	if (op->title)
+	{
+		play_sound_map(op->map, CMD_SOUND_EFFECT, op->title, op->x, op->y, 0, 0);
+	}
+
+	if (midi_data)
+	{
+		play_sound_map(op->map, CMD_SOUND_MIDI_NOTE, midi_data, op->x, op->y, 0, 0);
+	}
+
+	if (op->msg)
+	{
+		draw_info_map(0, COLOR_NAVY, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, op->msg);
+	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the sign type object methods. */
+void object_type_init_sign(void)
+{
+	object_type_methods[SIGN].apply_func = apply_func;
+	object_type_methods[SIGN].trigger_func = trigger_func;
 }

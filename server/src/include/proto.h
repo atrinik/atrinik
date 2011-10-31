@@ -1075,7 +1075,7 @@ extern void apply_scroll(object *op, object *tmp);
 /* src/types/shop_mat.c */
 extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
-extern void apply_sign(object *op, object *sign);
+extern void object_type_init_sign(void);
 /* src/types/sound_ambient.c */
 extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */

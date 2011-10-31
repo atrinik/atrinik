@@ -84,27 +84,6 @@ void connection_trigger(object *op, int state)
 				update_object(tmp, UP_OBJ_FACE);
 				break;
 
-			case SIGN:
-				if (!tmp->stats.food || tmp->last_eat < tmp->stats.food)
-				{
-					if (tmp->title)
-					{
-						play_sound_map(tmp->map, CMD_SOUND_EFFECT, tmp->title, tmp->x, tmp->y, 0, 0);
-					}
-
-					if (tmp->msg)
-					{
-						draw_info_map(0, COLOR_NAVY, tmp->map, tmp->x, tmp->y, MAP_INFO_NORMAL, NULL, NULL, tmp->msg);
-					}
-
-					if (tmp->stats.food)
-					{
-						tmp->last_eat++;
-					}
-				}
-
-				break;
-
 			case ALTAR:
 				tmp->value = 1;
 				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + tmp->value);
