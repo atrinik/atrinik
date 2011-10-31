@@ -472,7 +472,7 @@ void SoundCmd(uint8 *data, int len)
 		FILE *fp;
 		int midi_program, midi_channel, midi_pitch, midi_duration, midi_volume;
 
-		snprintf(path, sizeof(path), "%s/.atrinik/midi-note-%d.mid", get_config_dir(), midi_tmp_counter++);
+		snprintf(path, sizeof(path), "%s/.atrinik/midi-note-%d.mid.tmp", get_config_dir(), midi_tmp_counter++);
 
 		fp = fopen(path, "wb");
 
