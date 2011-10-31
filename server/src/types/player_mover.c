@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles code used for @ref PLAYERMOVER "player movers". */
+ * Handles code used for @ref PLAYERMOVER "player movers".
+ *
+ * @author Alex TOkar */
 
 #include <global.h>
 
