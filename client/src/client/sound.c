@@ -413,6 +413,7 @@ void SoundCmd(uint8 *data, int len)
 	char filename[MAX_BUF], c;
 
 	(void) len;
+
 	filename[0] = '\0';
 	type = data[pos++];
 
@@ -463,6 +464,85 @@ void SoundCmd(uint8 *data, int len)
 	else if (type == CMD_SOUND_ABSOLUTE)
 	{
 		sound_add_effect(filename, volume, loop);
+	}
+	else if (type == CMD_SOUND_MIDI_NOTE)
+	{
+		static uint16 midi_tmp_counter = 0;
+		char path[HUGE_BUF], *cp;
+		FILE *fp;
+		int midi_program, midi_channel, midi_pitch, midi_duration, midi_volume;
+
+		snprintf(path, sizeof(path), "%s/.atrinik/midi-note-%d.mid", get_config_dir(), midi_tmp_counter++);
+
+		fp = fopen(path, "wb");
+
+		if (!fp)
+		{
+			return;
+		}
+
+		/* Initialize defaults. */
+		midi_program = 0;
+		midi_channel = 0;
+		midi_pitch = 60;
+		midi_duration = 1;
+		midi_volume = (int) ((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) * 127);
+
+		cp = strtok(filename, ",");
+
+		while (cp)
+		{
+			while (isspace(*cp))
+			{
+				cp++;
+			}
+
+			if (!strncmp(cp, "program:", 8))
+			{
+				midi_program = atoi(cp + 8);
+			}
+			else if (!strncmp(cp, "channel:", 8))
+			{
+				midi_channel = atoi(cp + 8);
+			}
+			else if (!strncmp(cp, "pitch:", 6))
+			{
+				midi_pitch = atoi(cp + 6);
+			}
+			else if (!strncmp(cp, "duration:", 9))
+			{
+				midi_duration = atoi(cp + 9);
+			}
+			else if (!strncmp(cp, "volume:", 7))
+			{
+				midi_volume += atoi(cp + 7);
+			}
+
+			cp = strtok(NULL, ",");
+		}
+
+		if (!midi_volume)
+		{
+			return;
+		}
+
+		fwrite("\x4d\x54\x68\x64\x00\x00\x00\x06\x00\x01\x00\x01\x00\x80\x4d\x54\x72\x6b\x00\x00\x00\x17\x00", 1, 23, fp);
+		fputc(192 + midi_channel, fp);
+		fputc(midi_program, fp);
+		fputc(0, fp);
+		fputc(144 + midi_channel, fp);
+		fputc(midi_pitch, fp);
+		fputc(midi_volume, fp);
+		fwrite("\x00\xff\x51\x03\x07\xa1\x20", 1, 7, fp);
+		fputc(128 + midi_duration, fp);
+		fputc(0, fp);
+		fputc(128 + midi_channel, fp);
+		fputc(midi_pitch, fp);
+		fputc(midi_volume, fp);
+		fwrite("\x00\xff\x2f\x00", 1, 4, fp);
+		fclose(fp);
+
+		sound_midi_play(path);
 	}
 	else
 	{
@@ -654,4 +734,44 @@ int sound_playing_music(void)
 #else
 	return 0;
 #endif
+}
+
+/**
+ * The MIDI playing thread.
+ * @param data What to play.
+ * @return 0. */
+static int sound_midi_thread(void *data)
+{
+	char *path, buf[HUGE_BUF];
+
+	path = (char *) data;
+	snprintf(buf, sizeof(buf), "timidity \"%s\"", path);
+	system(buf);
+
+	if (strlen(path) >= 4 && strcmp(path + (strlen(path) - 4), ".tmp") == 0)
+	{
+		unlink(path);
+	}
+
+	free(path);
+
+	return 0;
+}
+
+/**
+ * Play a MIDI file.
+ * @param path What to play. */
+void sound_midi_play(const char *path)
+{
+	SDL_Thread *thread;
+	char *cp;
+
+	cp = strdup(path);
+	thread = SDL_CreateThread(sound_midi_thread, cp);
+
+	if (!thread)
+	{
+		LOG(llevError, "sound_midi_play(): Thread creation failed.\n");
+		free(cp);
+	}
 }

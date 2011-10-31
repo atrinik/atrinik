@@ -562,6 +562,8 @@ typedef struct Player_Struct
 #define CMD_SOUND_BACKGROUND 2
 /** Path to sound effect with an absolute filename. MIDI is not supported. */
 #define CMD_SOUND_ABSOLUTE 3
+/** A single MIDI note. */
+#define CMD_SOUND_MIDI_NOTE 4
 /*@}*/
 
 /**

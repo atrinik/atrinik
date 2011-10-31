@@ -258,6 +258,7 @@ extern void cmd_sound_ambient(uint8 *data, int len);
 extern void sound_pause_music(void);
 extern void sound_resume_music(void);
 extern int sound_playing_music(void);
+extern void sound_midi_play(const char *path);
 /* src/client/sprite.c */
 extern struct _anim *start_anim;
 extern SDL_Surface *FormatHolder;
