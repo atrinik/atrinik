@@ -27,15 +27,12 @@
  * @file
  * Handles code used for @ref PLAYERMOVER "player movers".
  *
- * @author Alex TOkar */
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * A player mover finds any players that are sitting on it. It moves them
- * based on the mover's direction.
- * @param op The player mover. */
-void move_player_mover(object *op)
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
 {
 	object *victim, *victim_next;
 	mapstruct *mt;
@@ -149,4 +146,11 @@ void move_player_mover(object *op)
 			}
 		}
 	}
+}
+
+/**
+ * Initialize the playermover type object methods. */
+void object_type_init_playermover(void)
+{
+	object_type_methods[PLAYERMOVER].process_func = process_func;
 }

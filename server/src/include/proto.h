@@ -1056,7 +1056,7 @@ extern sint64 player_faction_reputation(player *pl, shstr *faction);
 extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
 extern int player_has_region_map(player *pl, region *r);
 /* src/types/player_mover.c */
-extern void move_player_mover(object *op);
+extern void object_type_init_playermover(void);
 /* src/types/poison.c */
 extern void apply_poison(object *op, object *tmp);
 extern void poison_more(object *op);

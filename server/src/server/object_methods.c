@@ -74,6 +74,7 @@ void object_methods_init(void)
 	object_type_init_swarm_spell();
 	object_type_init_creator();
 	object_type_init_sign();
+	object_type_init_playermover();
 }
 
 /** @copydoc object_methods::apply_func */
