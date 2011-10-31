@@ -2835,6 +2835,16 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
 			break;
 
+		case FIELDTYPE_CONNECTION:
+			if (PyInt_Check(value))
+			{
+				hooks->add_button_link((object *) ptr, ((object *) ptr)->map, PyLong_AsLong(value));
+			}
+			else
+			{
+				INTRAISE("Illegal value for connection field.");
+			}
+
 		default:
 			break;
 	}
@@ -2933,6 +2943,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_LIST:
 			return wrap_attr_list(ptr, field->offset, field->extra_data);
+
+		case FIELDTYPE_CONNECTION:
+			return Py_BuildValue("i", hooks->get_button_value(ptr));
 
 		default:
 			break;

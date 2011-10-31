@@ -267,7 +267,9 @@ typedef enum
 	/** Player's faction reputations. */
 	FIELDTYPE_FACTIONS,
 	/** Player's region maps. */
-	FIELDTYPE_REGION_MAPS
+	FIELDTYPE_REGION_MAPS,
+	/** Object's connection value. */
+	FIELDTYPE_CONNECTION
 } field_type;
 
 /**

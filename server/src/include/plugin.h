@@ -296,6 +296,8 @@ struct plugin_hooklist
 	void (*SockList_AddString)(SockList *, const char *);
 	artifactlist *(*find_artifactlist)(int);
 	void (*give_artifact_abilities)(object *, artifact *);
+	int (*get_button_value)(object *);
+	void (*add_button_link)(object *, mapstruct *, int);
 
 	const char **season_name;
 	const char **weekdays;

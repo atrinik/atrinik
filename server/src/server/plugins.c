@@ -158,6 +158,8 @@ struct plugin_hooklist hooklist =
 	SockList_AddString,
 	find_artifactlist,
 	give_artifact_abilities,
+	get_button_value,
+	add_button_link,
 
 	season_name,
 	weekdays,
