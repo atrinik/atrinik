@@ -25,56 +25,15 @@
 
 /**
  * @file
- * Handles code for @ref POISON "poison" objects. */
+ * Handles code for @ref POISONING "poisoning" objects. */
 
 #include <global.h>
 
-/**
- * Apply poisoned object.
- * @param op The object applying this.
- * @param tmp The poison object. */
-void apply_poison(object *op, object *tmp)
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
 {
-	if (op->type == PLAYER)
+	if (!op->env || !IS_LIVE(op->env) || op->env->stats.hp < 0)
 	{
-		play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "poison.ogg", 0, 0, 0, 0);
-		draw_info(COLOR_WHITE, op, "Yech! That tasted poisonous!");
-		strcpy(CONTR(op)->killer, "poisonous food");
-	}
-
-	if (tmp->stats.dam)
-	{
-		/* internal damage part will take care about our poison */
-		hit_player(op, tmp->stats.dam, tmp, AT_POISON);
-	}
-
-	op->stats.food -= op->stats.food / 4;
-	decrease_ob(tmp);
-}
-
-/**
- * A @ref POISONING "poisoning" object does its tick.
- * @param op The poisoning object. */
-void poison_more(object *op)
-{
-	if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0)
-	{
-		remove_ob(op);
-		object_destroy(op);
-		return;
-	}
-
-	if (!op->stats.food)
-	{
-		/* need to remove the object before fix_player is called, else fix_player
-		 * will not do anything. */
-		if (op->env->type == PLAYER)
-		{
-			CLEAR_FLAG(op, FLAG_APPLIED);
-			fix_player(op->env);
-			draw_info(COLOR_WHITE, op->env, "You feel much better now.");
-		}
-
 		remove_ob(op);
 		object_destroy(op);
 		return;
@@ -88,7 +47,7 @@ void poison_more(object *op)
 
 	/* If we successfully do damage to the player, the poison effects
 	 * worsen... */
-	if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL))
+	if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL) && op->env->type == PLAYER)
 	{
 		int i;
 
@@ -106,4 +65,11 @@ void poison_more(object *op)
 
 		fix_player(op->env);
 	}
+}
+
+/**
+ * Initialize the poisoning type object methods. */
+void object_type_init_poisoning(void)
+{
+	object_type_methods[POISONING].process_func = process_func;
 }

@@ -1536,6 +1536,8 @@ void paralyze_living(object *op, int dam)
  * @param victim Object that is hit by hitter. */
 static void thrown_item_effect(object *hitter, object *victim)
 {
+	(void) victim;
+
 	if (!IS_LIVE(hitter))
 	{
 		/* May not need a switch for just 2 types, but this makes it
@@ -1550,15 +1552,6 @@ static void thrown_item_effect(object *hitter, object *victim)
 				}
 
 				decrease_ob(hitter);
-				break;
-
-			/* Poison drinks */
-			case POISON:
-				if (IS_LIVE(victim) && !QUERY_FLAG(victim, FLAG_UNDEAD))
-				{
-					apply_poison(victim, hitter);
-				}
-
 				break;
 		}
 	}

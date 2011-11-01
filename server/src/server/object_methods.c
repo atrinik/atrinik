@@ -76,6 +76,7 @@ void object_methods_init(void)
 	object_type_init_sign();
 	object_type_init_playermover();
 	object_type_init_firewall();
+	object_type_init_poisoning();
 }
 
 /** @copydoc object_methods::apply_func */

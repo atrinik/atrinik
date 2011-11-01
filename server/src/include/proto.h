@@ -1060,8 +1060,7 @@ extern int player_has_region_map(player *pl, region *r);
 /* src/types/player_mover.c */
 extern void object_type_init_playermover(void);
 /* src/types/poison.c */
-extern void apply_poison(object *op, object *tmp);
-extern void poison_more(object *op);
+extern void object_type_init_poisoning(void);
 /* src/types/potion.c */
 extern int apply_potion(object *op, object *tmp);
 /* src/types/power_crystal.c */

@@ -281,7 +281,7 @@ set(SOURCES
 	src/types/pit.c
 	src/types/player.c
 	src/types/player_mover.c
-	src/types/poison.c
+	src/types/poisoning.c
 	src/types/potion.c
 	src/types/power_crystal.c
 	src/types/rod.c
