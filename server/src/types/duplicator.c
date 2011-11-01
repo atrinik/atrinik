@@ -53,11 +53,14 @@ static void duplicator_match_obj(object *op, object *tmp)
 }
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	(void) originator;
 
-	duplicator_match_obj(op, victim);
+	if (state)
+	{
+		duplicator_match_obj(op, victim);
+	}
 
 	return OBJECT_METHOD_OK;
 }

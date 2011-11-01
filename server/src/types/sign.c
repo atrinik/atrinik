@@ -76,7 +76,9 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	if (op->slaying || op->stats.hp || op->race)
 	{
-		object *match = check_inv_recursive(applier, op);
+		object *match;
+
+		match = check_inv(op, applier);
 
 		if ((match && op->last_sp) || (!match && !op->last_sp))
 		{

@@ -30,13 +30,13 @@
 #include <global.h>
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	object *tmp;
 
 	(void) originator;
 
-	if (victim->type != PLAYER)
+	if (victim->type != PLAYER || !state)
 	{
 		return OBJECT_METHOD_OK;
 	}

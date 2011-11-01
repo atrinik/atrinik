@@ -150,7 +150,7 @@ char *object_describe(object *op, object *observer, char *buf, size_t size)
 }
 
 /** @copydoc object_methods::move_on_func */
-int object_move_on(object *op, object *victim, object *originator)
+int object_move_on(object *op, object *victim, object *originator, int state)
 {
 	object_methods *methods;
 	int ret;
@@ -173,7 +173,7 @@ int object_move_on(object *op, object *victim, object *originator)
 			}
 
 			object_move_on_recursion_depth++;
-			ret = methods->move_on_func(op, victim, originator);
+			ret = methods->move_on_func(op, victim, originator, state);
 			object_move_on_recursion_depth--;
 
 			return ret;

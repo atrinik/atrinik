@@ -291,8 +291,6 @@ extern void add_button_link(object *button, mapstruct *map, int connected);
 extern void remove_button_link(object *op);
 extern int get_button_value(object *button);
 extern void do_mood_floor(object *op);
-extern object *check_inv_recursive(object *op, const object *trig);
-extern void check_inv(object *op, object *trig);
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
 extern int cache_add(const char *key, void *ptr, uint32 flags);
@@ -581,7 +579,7 @@ extern void object_methods_init(void);
 extern int object_apply(object *op, object *applier, int aflags);
 extern void object_process(object *op);
 extern char *object_describe(object *op, object *observer, char *buf, size_t size);
-extern int object_move_on(object *op, object *victim, object *originator);
+extern int object_move_on(object *op, object *victim, object *originator, int state);
 extern int object_trigger(object *op, object *cause, int state);
 extern object *stop_item(object *op);
 extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
@@ -969,6 +967,9 @@ extern void object_type_init_book(void);
 /* src/types/bullet.c */
 extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
 extern void object_type_init_bullet(void);
+/* src/types/check_inv.c */
+extern object *check_inv(object *op, object *ob);
+extern void object_type_init_check_inv(void);
 /* src/types/cone.c */
 extern void object_type_init_cone(void);
 /* src/types/confusion.c */

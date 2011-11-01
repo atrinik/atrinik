@@ -234,8 +234,6 @@ void update_button(object *op)
 void update_buttons(mapstruct *m)
 {
 	objectlink *ol, *obp;
-	object *ab, *tmp;
-	int fly, move;
 
 	for (obp = m->buttons; obp; obp = obp->next)
 	{
@@ -250,20 +248,6 @@ void update_buttons(mapstruct *m)
 			if (ol->objlink.ob->type == BUTTON || ol->objlink.ob->type == PEDESTAL)
 			{
 				update_button(ol->objlink.ob);
-			}
-			else if (ol->objlink.ob->type == CHECK_INV)
-			{
-				tmp = ol->objlink.ob;
-				fly = QUERY_FLAG(tmp, FLAG_FLY_ON);
-				move = QUERY_FLAG(tmp, FLAG_WALK_ON);
-
-				for (ab = GET_BOTTOM_MAP_OB(tmp); ab != NULL; ab = ab->above)
-				{
-					if (ab != tmp && (fly ? (int) QUERY_FLAG(ab, FLAG_FLYING) : move))
-					{
-						check_inv(ab, tmp);
-					}
-				}
 			}
 			else if (ol->objlink.ob->type == TRIGGER_BUTTON || ol->objlink.ob->type == TRIGGER_PEDESTAL || ol->objlink.ob->type == TRIGGER_ALTAR)
 			{
@@ -690,75 +674,5 @@ void do_mood_floor(object *op)
 
 		default:
 			break;
-	}
-}
-
-/**
- * Checks object and its inventory for specific item.
- *
- * It will descend through containers to find the object.
- *
- * - slaying = match object slaying
- * - race = match object archetype name
- * - hp = match object type
- * @param op Object of which to search inventory
- * @param trig What to search
- * @return Object that matches, or NULL if none matched. */
-object *check_inv_recursive(object *op, const object *trig)
-{
-	object *tmp, *ret = NULL;
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->inv && !IS_SYS_INVISIBLE(tmp))
-		{
-			ret = check_inv_recursive(tmp, trig);
-
-			if (ret)
-			{
-				return ret;
-			}
-		}
-		else if ((trig->stats.hp && tmp->type == trig->stats.hp) || (trig->slaying && trig->stats.sp ? (tmp->slaying && trig->slaying == tmp->slaying) : (tmp->name && trig->slaying == tmp->name)) || (trig->race && trig->race == tmp->arch->name))
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Function to search the inventory of a player and then based on a set
- * of conditions, the square will activate connected items.
- *
- * Monsters can't trigger this square (for now)
- * Values are:   last_sp = 1/0 obj/no obj triggers
- *               last_heal = 1/0  remove/don't remove obj if triggered
- * @param op Object to check. Must be a player.
- * @param trig Trigger object that may be activated. */
-void check_inv(object *op, object *trig)
-{
-	object *match;
-
-	if (op->type != PLAYER)
-	{
-		return;
-	}
-
-	match = check_inv_recursive(op, trig);
-
-	if (match && trig->last_sp)
-	{
-		if (trig->last_heal)
-		{
-			decrease_ob(match);
-		}
-
-		use_trigger(trig);
-	}
-	else if (!match && !trig->last_sp)
-	{
-		use_trigger(trig);
 	}
 }

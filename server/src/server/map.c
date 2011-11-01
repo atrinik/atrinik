@@ -831,7 +831,7 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 			 * pass through this space. */
 			if (tmp->last_sp)
 			{
-				if (check_inv_recursive(op, tmp) == NULL)
+				if (check_inv(tmp, op) == NULL)
 				{
 					return 1;
 				}
@@ -842,7 +842,7 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 			 * if they do, they can't pass through. */
 			else
 			{
-				if (check_inv_recursive(op, tmp) != NULL)
+				if (check_inv(tmp, op) != NULL)
 				{
 					return 1;
 				}

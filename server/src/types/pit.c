@@ -30,12 +30,12 @@
 #include <global.h>
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	(void) originator;
 
 	/* Hole not open? */
-	if (op->stats.wc > 0)
+	if (op->stats.wc > 0 || !state)
 	{
 		return OBJECT_METHOD_OK;
 	}
@@ -66,7 +66,7 @@ static void process_func(object *op)
 			for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
 			{
 				next = tmp->above;
-				object_move_on(op, tmp, tmp);
+				object_move_on(op, tmp, tmp, 1);
 			}
 		}
 

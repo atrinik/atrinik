@@ -23,55 +23,93 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-#ifndef OBJECT_METHODS_H
-#define OBJECT_METHODS_H
+/**
+ * @file
+ * Handles code for @ref CHECK_INV "inventory checker" objects.
+ *
+ * @author Alex Tokar */
 
-#define OBJECT_METHOD_OK 0
-#define OBJECT_METHOD_UNHANDLED 1
-#define OBJECT_METHOD_ERROR 2
+#include <global.h>
 
-typedef struct object_methods
+/**
+ * Inventory checker object tries to find a matching object in creature's
+ * inventory.
+ * @param op What is doing the searching.
+ * @param ob Object of which to search the inventory.
+ * @return Object that matches, NULL if none matched. */
+object *check_inv(object *op, object *ob)
 {
-	/**
-	 * Applies an object.
-	 * @param op The object to apply.
-	 * @param applier The object that executes the apply action.
-	 * @param aflags Special (always apply/unapply) flags. */
-	int (*apply_func)(object *op, object *applier, int aflags);
+	object *tmp, *ret;
 
-	/**
-	 * Processes an object, giving it the opportunity to move or react.
-	 * @param op The object to process. */
-	void (*process_func)(object *op);
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->inv && !IS_SYS_INVISIBLE(tmp))
+		{
+			ret = check_inv(op, tmp);
 
-	/**
-	 * Returns the description of an object, as seen by the given observer.
-	 * @param op The object to describe.
-	 * @param observer The object to which the description is made.
-	 * @param buf Buffer that will contain the description.
-	 * @param size Size of 'buf'. */
-	void (*describe_func)(object *, object *, char *buf, size_t size);
+			if (ret)
+			{
+				return ret;
+			}
+		}
+		else
+		{
+			if (op->stats.hp && tmp->type != op->stats.hp)
+			{
+				continue;
+			}
 
-	/**
-	 * Triggered when an object moves moves off a square and when object
-	 * moves onto a square.
-	 * @param op The object that wants to catch this event.
-	 * @param victim The object moving.
-	 * @param originator The object that is the cause of the move.
-	 * @param state 1 if the object is moving onto a square, 0 if moving
-	 * off a square. */
-	int (*move_on_func)(object *op, object *victim, object *originator, int state);
+			if (op->slaying && (op->stats.sp ? tmp->slaying : tmp->name) != op->slaying)
+			{
+				continue;
+			}
 
-	/**
-	 * An object is triggered by another one.
-	 * @param op The object being triggered.
-	 * @param cause The object that is the cause of the trigger.
-	 * @param state Trigger state. */
-	int (*trigger_func)(object *op, object *cause, int state);
+			if (op->race && tmp->arch->name != op->race)
+			{
+				continue;
+			}
 
-	/**
-	 * Fallback method. */
-	struct object_methods *fallback;
-} object_methods;
+			return tmp;
+		}
+	}
 
-#endif
+	return NULL;
+}
+
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator, int state)
+{
+	object *match;
+
+	(void) originator;
+
+	if (victim->type != PLAYER)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	match = check_inv(op, victim);
+
+	if (match && op->last_sp)
+	{
+		if (op->last_heal)
+		{
+			decrease_ob(match);
+		}
+
+		connection_trigger(op, state);
+	}
+	else if (!match && !op->last_sp)
+	{
+		connection_trigger(op, state);
+	}
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the inventory checker type object methods. */
+void object_type_init_check_inv(void)
+{
+	object_type_methods[CHECK_INV].move_on_func = move_on_func;
+}

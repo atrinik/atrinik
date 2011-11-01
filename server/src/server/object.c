@@ -1652,7 +1652,7 @@ static void object_check_move_off(object *op)
 
 		if (QUERY_FLAG(op, FLAG_FLYING) ? QUERY_FLAG(tmp, FLAG_FLY_OFF) : QUERY_FLAG(tmp, FLAG_WALK_OFF))
 		{
-			object_move_on(tmp, op, NULL);
+			object_move_on(tmp, op, NULL, 0);
 
 			if (was_destroyed(op, tag))
 			{
@@ -2120,7 +2120,7 @@ int object_check_move_on(object *op, object *originator)
 
 		if (QUERY_FLAG(op, FLAG_FLYING) ? QUERY_FLAG(tmp, FLAG_FLY_ON) : QUERY_FLAG(tmp, FLAG_WALK_ON))
 		{
-			object_move_on(tmp, op, originator);
+			object_move_on(tmp, op, originator, 1);
 
 			if (was_destroyed(op, tag))
 			{

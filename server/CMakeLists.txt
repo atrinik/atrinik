@@ -262,6 +262,7 @@ set(SOURCES
 	src/types/blindness.c
 	src/types/book.c
 	src/types/bullet.c
+	src/types/check_inv.c
 	src/types/cone.c
 	src/types/confusion.c
 	src/types/container.c

@@ -60,18 +60,18 @@ static int detector_matches_obj(object *op, object *tmp)
 }
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	int matches;
-
 	(void) originator;
 
-	matches = detector_matches_obj(op, victim);
-	connection_trigger(op, matches);
-
-	if (op->last_heal)
+	if (detector_matches_obj(op, victim))
 	{
-		decrease_ob(victim);
+		connection_trigger(op, state);
+
+		if (op->last_heal)
+		{
+			decrease_ob(victim);
+		}
 	}
 
 	return OBJECT_METHOD_OK;

@@ -30,9 +30,14 @@
 #include <global.h>
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator)
+static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	(void) originator;
+
+	if (!state)
+	{
+		return OBJECT_METHOD_OK;
+	}
 
 	if (victim->type == PLAYER && !get_payment(victim, victim->inv))
 	{
