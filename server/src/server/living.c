@@ -728,7 +728,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (tmp->stats.food && op->type == PLAYER && tmp->type != POISONING && tmp->type != POTION_EFFECT)
+	if (tmp->stats.food && !QUERY_FLAG(tmp, IS_USED_UP))
 	{
 		success = 1;
 
