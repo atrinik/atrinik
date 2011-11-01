@@ -728,7 +728,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (tmp->stats.food && !QUERY_FLAG(tmp, IS_USED_UP))
+	if (tmp->stats.food && !QUERY_FLAG(tmp, FLAG_IS_USED_UP))
 	{
 		success = 1;
 
