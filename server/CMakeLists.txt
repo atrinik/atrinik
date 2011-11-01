@@ -268,6 +268,7 @@ set(SOURCES
 	src/types/disease.c
 	src/types/door.c
 	src/types/duplicator.c
+	src/types/firewall.c
 	src/types/food.c
 	src/types/gate.c
 	src/types/gravestone.c

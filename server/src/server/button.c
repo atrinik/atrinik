@@ -29,7 +29,6 @@
 
 #include <global.h>
 
-static void animate_turning(object *op);
 static void trigger_move(object *op, int state);
 static objectlink *get_button_links(object *button);
 
@@ -104,25 +103,6 @@ void connection_trigger(object *op, int state)
 				tmp->value = 1;
 				tmp->stats.sp = 1;
 				tmp->stats.hp = tmp->stats.maxhp;
-				break;
-
-			case FIREWALL:
-				/* connection flag1 = on/off */
-				if (op->last_eat)
-				{
-					tmp->last_eat != 0 ? (tmp->last_eat = 0) : (tmp->last_eat = 1);
-				}
-				/* "normal" connection - turn wall */
-				else
-				{
-					/* next direction */
-					if (tmp->stats.maxsp)
-					{
-						tmp->direction = absdir(tmp->direction + tmp->stats.maxsp);
-						animate_turning(tmp);
-					}
-				}
-
 				break;
 
 			case DIRECTOR:
@@ -303,15 +283,6 @@ void use_trigger(object *op)
 	/* Toggle value */
 	op->value = !op->value;
 	push_button(op);
-}
-
-/**
- * Animates one step of object.
- * @param op Object to animate. */
-static void animate_turning(object *op)
-{
-	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
-	update_object(op, UP_OBJ_FACE);
 }
 
 /* 1 down and 0 up */

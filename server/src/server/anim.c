@@ -476,3 +476,12 @@ void animate_object(object *op, int count)
 		update_object(op, UP_OBJ_FACE);
 	}
 }
+
+/**
+ * Animates one step of object.
+ * @param op Object to animate. */
+void animate_turning(object *op)
+{
+	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
+	update_object(op, UP_OBJ_FACE);
+}

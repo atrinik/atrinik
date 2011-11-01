@@ -75,6 +75,7 @@ void object_methods_init(void)
 	object_type_init_creator();
 	object_type_init_sign();
 	object_type_init_playermover();
+	object_type_init_firewall();
 }
 
 /** @copydoc object_methods::apply_func */
@@ -273,22 +274,4 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
 		/* Only some arrows actually need this. */
 		merge_ob(op, NULL);
 	}
-}
-
-/**
- * Move for ::FIREWALL.
- *
- * Firewalls fire other spells. The direction of the wall is stored in
- * op->stats.dam.
- * @param op Firewall. */
-void move_firewall(object *op)
-{
-	/* DM has created a firewall in his inventory or no legal spell
-	 * selected. */
-	if (!op->map || !op->last_eat || op->stats.dam == -1)
-	{
-		return;
-	}
-
-	cast_spell(op, op, op->direction, op->stats.dam, 1, CAST_NPC, NULL);
 }

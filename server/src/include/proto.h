@@ -235,6 +235,7 @@ extern void free_all_anim(void);
 extern void init_anim(void);
 extern int find_animation(char *name);
 extern void animate_object(object *op, int count);
+extern void animate_turning(object *op);
 /* src/server/apply.c */
 extern object *find_special_prayer_mark(object *op, int spell);
 extern void do_learn_spell(object *op, int spell, int special_prayer);
@@ -584,7 +585,6 @@ extern int object_move_on(object *op, object *victim, object *originator);
 extern int object_trigger(object *op, object *cause, int state);
 extern object *stop_item(object *op);
 extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
-extern void move_firewall(object *op);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -992,6 +992,8 @@ extern object *find_key(object *op, object *door);
 extern void object_type_init_door(void);
 /* src/types/duplicator.c */
 extern void object_type_init_duplicator(void);
+/* src/types/firewall.c */
+extern void object_type_init_firewall(void);
 /* src/types/food.c */
 extern void apply_food(object *op, object *tmp);
 extern void create_food_force(object *who, object *food, object *force);
