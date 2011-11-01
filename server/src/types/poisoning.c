@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles code for @ref POISONING "poisoning" objects. */
+ * Handles code for @ref POISONING "poisoning" objects.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
