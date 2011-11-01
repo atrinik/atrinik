@@ -767,9 +767,18 @@ int change_abil(object *op, object *tmp)
 		send_spelllist_cmd(op, NULL, SPLIST_MODE_UPDATE);
 	}
 
-	if (tmp->type == POISONING && flag == -1)
+	if (tmp->type == POISONING)
 	{
-		draw_info(COLOR_WHITE, op, "You feel much better now.");
+		success = 1;
+
+		if (flag > 0)
+		{
+			draw_info(COLOR_WHITE, op, "You feel very sick...");
+		}
+		else
+		{
+			draw_info(COLOR_WHITE, op, "You feel much better now.");
+		}
 	}
 
 	if (tmp->type != EXPERIENCE && !potion_max)

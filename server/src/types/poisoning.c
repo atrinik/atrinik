@@ -41,12 +41,6 @@ static void process_func(object *op)
 		return;
 	}
 
-	if (op->env->type == PLAYER)
-	{
-		op->env->stats.food--;
-		draw_info(COLOR_WHITE, op->env, "You feel very sick...");
-	}
-
 	/* If we successfully do damage to the player, the poison effects
 	 * worsen... */
 	if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL) && op->env->type == PLAYER)
