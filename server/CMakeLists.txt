@@ -259,9 +259,11 @@ set(SOURCES
 	src/types/altar.c
 	src/types/arrow.c
 	src/types/beacon.c
+	src/types/blindness.c
 	src/types/book.c
 	src/types/bullet.c
 	src/types/cone.c
+	src/types/confusion.c
 	src/types/container.c
 	src/types/creator.c
 	src/types/detector.c
@@ -293,7 +295,8 @@ set(SOURCES
 	src/types/spawn_point.c
 	src/types/swarm_spell.c
 	src/types/teleporter.c
-	src/types/waypoint.c)
+	src/types/waypoint.c
+	src/types/word_of_recall.c)
 
 # Find unit test source files if check is installed.
 if (CHECK_LIBRARY)

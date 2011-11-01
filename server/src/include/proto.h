@@ -962,6 +962,8 @@ extern void stop_arrow(object *op);
 extern void beacon_add(object *ob);
 extern void beacon_remove(object *ob);
 extern object *beacon_locate(shstr *name);
+/* src/types/blindness.c */
+extern void object_type_init_blindness(void);
 /* src/types/book.c */
 extern void object_type_init_book(void);
 /* src/types/bullet.c */
@@ -969,6 +971,8 @@ extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
 extern void object_type_init_bullet(void);
 /* src/types/cone.c */
 extern void object_type_init_cone(void);
+/* src/types/confusion.c */
+extern void object_type_init_confusion(void);
 /* src/types/container.c */
 extern int esrv_apply_container(object *op, object *sack);
 extern int container_link(player *pl, object *sack);
@@ -1059,7 +1063,7 @@ extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 
 extern int player_has_region_map(player *pl, region *r);
 /* src/types/player_mover.c */
 extern void object_type_init_playermover(void);
-/* src/types/poison.c */
+/* src/types/poisoning.c */
 extern void object_type_init_poisoning(void);
 /* src/types/potion.c */
 extern int apply_potion(object *op, object *tmp);
@@ -1091,6 +1095,8 @@ extern object *get_aggro_waypoint(object *op);
 extern object *get_return_waypoint(object *op);
 extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
+/* src/types/word_of_recall.c */
+extern void object_type_init_word_of_recall(void);
 /* src/loaders/map_header.c */
 extern int yy_map_headerleng;
 extern FILE *yy_map_headerin;

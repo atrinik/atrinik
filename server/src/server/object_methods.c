@@ -77,6 +77,9 @@ void object_methods_init(void)
 	object_type_init_playermover();
 	object_type_init_firewall();
 	object_type_init_poisoning();
+	object_type_init_confusion();
+	object_type_init_blindness();
+	object_type_init_word_of_recall();
 }
 
 /** @copydoc object_methods::apply_func */
