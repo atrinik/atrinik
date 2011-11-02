@@ -65,6 +65,11 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 	(void) victim;
 	(void) originator;
 
+	if (op->speed)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
 	connection_trigger_button(op, state);
 
 	return OBJECT_METHOD_OK;
@@ -73,8 +78,15 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) cause;
 	op->value = state;
+
+	if (state && cause->stats.exp)
+	{
+		op->speed = 1.0 / cause->stats.exp;
+		update_ob_speed(op);
+		op->speed_left = -1;
+	}
+
 	return OBJECT_METHOD_OK;
 }
 
@@ -101,6 +113,15 @@ static int trigger_button_func(object *op, object *cause, int state)
 	return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
+{
+	op->speed = 0;
+	update_ob_speed(op);
+	op->value = 0;
+	connection_trigger(op, op->value);
+}
+
 /**
  * Initialize the pedestal type object methods. */
 void object_type_init_pedestal(void)
@@ -108,4 +129,5 @@ void object_type_init_pedestal(void)
 	object_type_methods[PEDESTAL].move_on_func = move_on_func;
 	object_type_methods[PEDESTAL].trigger_func = trigger_func;
 	object_type_methods[PEDESTAL].trigger_button_func = trigger_button_func;
+	object_type_methods[PEDESTAL].process_func = process_func;
 }
