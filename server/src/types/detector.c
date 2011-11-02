@@ -31,40 +31,12 @@
 
 #include <global.h>
 
-/**
- * Check whether detector matches the specified object.
- * @param op Detector.
- * @param tmp Object to check.
- * @return 1 if the object matches, 0 otherwise. */
-static int detector_matches_obj(object *op, object *tmp)
-{
-	/* Check type. */
-	if (op->stats.hp && tmp->type != op->stats.hp)
-	{
-		return 0;
-	}
-
-	/* Check name. */
-	if (op->slaying && tmp->name != op->slaying)
-	{
-		return 0;
-	}
-
-	/* Check archname. */
-	if (op->race && tmp->arch->name != op->race)
-	{
-		return 0;
-	}
-
-	return 1;
-}
-
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	(void) originator;
 
-	if (detector_matches_obj(op, victim))
+	if (pedestal_matches_obj(op, victim))
 	{
 		connection_trigger(op, state);
 
