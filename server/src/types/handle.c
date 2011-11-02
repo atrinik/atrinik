@@ -53,6 +53,8 @@ static int apply_func(object *op, object *applier, int aflags)
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
+	(void) cause;
+
 	op->value = op->stats.maxsp ? !state : state;
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 	update_object(op, UP_OBJ_FACE);
