@@ -84,6 +84,7 @@ void object_methods_init(void)
 	object_type_init_handle();
 	object_type_init_director();
 	object_type_init_gate();
+	object_type_init_check_inv();
 }
 
 /** @copydoc object_methods::apply_func */
