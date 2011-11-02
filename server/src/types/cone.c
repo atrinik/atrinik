@@ -100,7 +100,7 @@ static void process_func(object *op)
 		x = op->x + freearr_x[absdir(op->stats.sp + i)];
 		y = op->y + freearr_y[absdir(op->stats.sp + i)];
 
-		m = get_map_from_coord(m, &x, &y);
+		m = get_map_from_coord(op->map, &x, &y);
 
 		if (!m)
 		{
