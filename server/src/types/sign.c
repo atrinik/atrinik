@@ -155,6 +155,15 @@ static int apply_func(object *op, object *applier, int aflags)
 	return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator, int state)
+{
+	(void) originator;
+	(void) state;
+
+	return apply_func(op, victim, 0);
+}
+
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
@@ -209,5 +218,6 @@ static int trigger_func(object *op, object *cause, int state)
 void object_type_init_sign(void)
 {
 	object_type_methods[SIGN].apply_func = apply_func;
+	object_type_methods[SIGN].move_on_func = move_on_func;
 	object_type_methods[SIGN].trigger_func = trigger_func;
 }
