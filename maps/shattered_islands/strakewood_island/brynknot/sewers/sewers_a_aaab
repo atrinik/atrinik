@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -309,10 +309,9 @@ arch floor_cave5
 x 1
 y 19
 end
-arch grateTrg1
+arch grate_closed
 maxhp 10
 connected 300
-value 0
 x 1
 y 19
 end
@@ -470,10 +469,9 @@ arch floor_cave1
 x 2
 y 19
 end
-arch grateTrg1
+arch grate_closed
 maxhp 10
 connected 300
-value 0
 x 2
 y 19
 end
@@ -668,11 +666,10 @@ arch floor_cave5
 x 3
 y 20
 end
-arch grateTrg1
-direction 7
+arch grate_closed
+direction 3
 maxhp 10
 connected 301
-value 0
 x 3
 y 20
 end
@@ -680,11 +677,10 @@ arch floor_cave5
 x 3
 y 21
 end
-arch grateTrg1
-direction 7
+arch grate_closed
+direction 3
 maxhp 10
 connected 301
-value 0
 x 3
 y 21
 end
