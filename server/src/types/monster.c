@@ -1870,7 +1870,7 @@ static int talk_to_wall(object *op, object *npc, char *txt)
 		draw_info(COLOR_NAVY, op, cp);
 	}
 
-	use_trigger(npc);
+	connection_trigger(npc, 1);
 	free(cp);
 
 	return 1;

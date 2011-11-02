@@ -160,8 +160,19 @@ static int trigger_func(object *op, object *cause, int state)
 {
 	shstr *midi_data;
 
-	(void) cause;
-	(void) state;
+	/* If the event is caused by a move-off and the object that caused
+	 * the event is a player, return immediately. This is done because
+	 * events are asynchronous, so when this code runs because of the
+	 * move-off, it means the player that caused the event was removed
+	 * from the map (temporarily, to be inserted immediately afterwards,
+	 * but the event is caused by the removal), and also from the linked
+	 * list of map's players, thus even if we proceeded as normal, the
+	 * activator would not get the message/music/etc data from the sign
+	 * object, only other nearby players. */
+	if (!state && cause->type == PLAYER)
+	{
+		return OBJECT_METHOD_OK;
+	}
 
 	if (op->stats.food)
 	{

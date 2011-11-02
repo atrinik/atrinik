@@ -1380,7 +1380,7 @@ static void delete_unique_items(mapstruct *m)
 				{
 					if (QUERY_FLAG(op, FLAG_IS_LINKED))
 					{
-						remove_button_link(op);
+						connection_object_remove(op);
 					}
 
 					remove_ob(op);
@@ -1805,13 +1805,6 @@ mapstruct *ready_map_name(const char *name, int flags)
 	/* Below here is stuff common to both first time loaded maps and
 	 * temp maps. */
 
-	/* In case other objects press some buttons down.
-	 * We handle here all kind of "triggers" which are triggered
-	 * permanent by objects like buttons or inventory checkers.
-	 * We don't check here instant stuff like sacrificing altars.
-	 * Because this should be handled on map making side. */
-	LOG(llevDebug, "buttons. ");
-	update_buttons(m);
 	LOG(llevDebug, "end ready_map_name(%s)\n", m->path ? m->path : "<nopath>");
 
 	return m;

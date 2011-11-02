@@ -287,7 +287,6 @@ struct plugin_hooklist
 	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
 	void (*send_target_command)(player *);
 	void (*examine)(object *, object *, StringBuffer *sb_capture);
-	void (*push_button)(object *);
 	void (*draw_info)(const char *, object *, const char *);
 	void (*draw_info_format)(const char *, object *, const char *, ...);
 	void (*draw_info_flags)(int, const char *, object *, const char *);
@@ -296,8 +295,8 @@ struct plugin_hooklist
 	void (*SockList_AddString)(SockList *, const char *);
 	artifactlist *(*find_artifactlist)(int);
 	void (*give_artifact_abilities)(object *, artifact *);
-	int (*get_button_value)(object *);
-	void (*add_button_link)(object *, mapstruct *, int);
+	int (*connection_object_get_value)(object *);
+	void (*connection_object_add)(object *, mapstruct *, int);
 
 	const char **season_name;
 	const char **weekdays;

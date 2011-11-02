@@ -789,7 +789,7 @@ lex_error = 0;
 ^move_state{S}      op->move_status = IVAL;
 ^confused{S}        SET_OR_CLEAR_FLAG(op, FLAG_CONFUSED, IVAL);
 ^stealth{S}         SET_OR_CLEAR_FLAG(op, FLAG_STEALTH, IVAL);
-^connected{S}       add_button_link(op, op->map, IVAL);
+^connected{S}       connection_object_add(op, op->map, IVAL);
 ^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
 ^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
 ^is_buildable{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
@@ -1666,7 +1666,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 		FAST_SAVE_LONG(sb, "last_eat ", op->last_eat);
 	}
 
-	if (QUERY_FLAG(op, FLAG_IS_LINKED) && (tmp = get_button_value(op)))
+	if (QUERY_FLAG(op, FLAG_IS_LINKED) && (tmp = connection_object_get_value(op)))
 	{
 		FAST_SAVE_LONG(sb, "connected ", tmp);
 	}

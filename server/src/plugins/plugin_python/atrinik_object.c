@@ -1613,7 +1613,7 @@ static PyObject *Atrinik_Object_Activate(Atrinik_Object *obj, PyObject *args)
 	(void) args;
 
 	OBJEXISTCHECK(obj);
-	hooks->push_button(obj->obj);
+	//hooks->push_button(obj->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;

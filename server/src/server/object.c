@@ -1542,7 +1542,7 @@ void object_destroy(object *ob)
 
 	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
 	{
-		remove_button_link(ob);
+		connection_object_remove(ob);
 	}
 
 	if (ob->type == CONTAINER && ob->attacked_by)

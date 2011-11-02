@@ -282,15 +282,10 @@ extern int remove_ban(char *input);
 extern void list_bans(object *op);
 /* src/server/button.c */
 extern void connection_trigger(object *op, int state);
-extern void push_button(object *op);
-extern void update_button(object *op);
-extern void update_buttons(mapstruct *m);
-extern void use_trigger(object *op);
-extern int check_trigger(object *op, object *cause);
-extern void add_button_link(object *button, mapstruct *map, int connected);
-extern void remove_button_link(object *op);
-extern int get_button_value(object *button);
-extern void do_mood_floor(object *op);
+extern void connection_trigger_button(object *op, int state);
+extern void connection_object_add(object *button, mapstruct *map, int connected);
+extern void connection_object_remove(object *op);
+extern int connection_object_get_value(object *button);
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
 extern int cache_add(const char *key, void *ptr, uint32 flags);
@@ -581,6 +576,7 @@ extern void object_process(object *op);
 extern char *object_describe(object *op, object *observer, char *buf, size_t size);
 extern int object_move_on(object *op, object *victim, object *originator, int state);
 extern int object_trigger(object *op, object *cause, int state);
+extern int object_trigger_button(object *op, object *cause, int state);
 extern object *stop_item(object *op);
 extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
 /* src/server/party.c */
@@ -942,10 +938,6 @@ extern int common_object_apply(object *op, object *applier, int aflags);
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
 /* src/types/common/process.c */
 extern int common_object_process(object *op);
-/* src/types/altar.c */
-extern int apply_altar(object *altar, object *sacrifice, object *originator);
-extern int check_altar_sacrifice(object *altar, object *sacrifice);
-extern int operate_altar(object *altar, object **sacrifice);
 /* src/types/arrow.c */
 extern sint32 bow_get_ws(object *bow, object *arrow);
 extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
@@ -967,6 +959,8 @@ extern void object_type_init_book(void);
 /* src/types/bullet.c */
 extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
 extern void object_type_init_bullet(void);
+/* src/types/button.c */
+extern void object_type_init_button(void);
 /* src/types/check_inv.c */
 extern object *check_inv(object *op, object *ob);
 extern void object_type_init_check_inv(void);
@@ -1032,6 +1026,9 @@ extern int faction_is_friend_of(object *mon, object *pl);
 extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
+/* src/types/pedestal.c */
+extern int pedestal_matches_obj(object *op, object *tmp);
+extern void object_type_init_pedestal(void);
 /* src/types/pit.c */
 extern void object_type_init_pit(void);
 /* src/types/player.c */

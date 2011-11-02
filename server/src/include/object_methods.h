@@ -70,6 +70,14 @@ typedef struct object_methods
 	int (*trigger_func)(object *op, object *cause, int state);
 
 	/**
+	 * An object is triggered by a button.
+	 * @param op The object being triggered.
+	 * @param cause The object that is the cause of the trigger; the
+	 * button.
+	 * @param state Trigger state. */
+	int (*trigger_button_func)(object *op, object *cause, int state);
+
+	/**
 	 * Fallback method. */
 	struct object_methods *fallback;
 } object_methods;

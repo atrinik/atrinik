@@ -80,6 +80,8 @@ void object_methods_init(void)
 	object_type_init_confusion();
 	object_type_init_blindness();
 	object_type_init_word_of_recall();
+	object_type_init_button();
+	object_type_init_pedestal();
 }
 
 /** @copydoc object_methods::apply_func */
@@ -193,6 +195,22 @@ int object_trigger(object *op, object *cause, int state)
 		if (methods->trigger_func)
 		{
 			return methods->trigger_func(op, cause, state);
+		}
+	}
+
+	return OBJECT_METHOD_UNHANDLED;
+}
+
+/** @copydoc object_methods::trigger_button_func */
+int object_trigger_button(object *op, object *cause, int state)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->trigger_button_func)
+		{
+			return methods->trigger_button_func(op, cause, state);
 		}
 	}
 

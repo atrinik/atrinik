@@ -149,7 +149,6 @@ struct plugin_hooklist hooklist =
 	find_free_spot,
 	send_target_command,
 	examine,
-	push_button,
 	draw_info,
 	draw_info_format,
 	draw_info_flags,
@@ -158,8 +157,8 @@ struct plugin_hooklist hooklist =
 	SockList_AddString,
 	find_artifactlist,
 	give_artifact_abilities,
-	get_button_value,
-	add_button_link,
+	connection_object_get_value,
+	connection_object_add,
 
 	season_name,
 	weekdays,

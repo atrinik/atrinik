@@ -195,8 +195,8 @@ set(SOURCES
 	src/server/arch.c
 	src/server/attack.c
 	src/server/ban.c
-	src/server/button.c
 	src/server/cache.c
+	src/server/connection.c
 	src/server/daemon.c
 	src/server/exp.c
 	src/server/gods.c
@@ -256,12 +256,12 @@ set(SOURCES
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/process.c
-	src/types/altar.c
 	src/types/arrow.c
 	src/types/beacon.c
 	src/types/blindness.c
 	src/types/book.c
 	src/types/bullet.c
+	src/types/button.c
 	src/types/check_inv.c
 	src/types/cone.c
 	src/types/confusion.c
@@ -281,6 +281,7 @@ set(SOURCES
 	src/types/map_info.c
 	src/types/marker.c
 	src/types/monster.c
+	src/types/pedestal.c
 	src/types/pit.c
 	src/types/player.c
 	src/types/player_mover.c
