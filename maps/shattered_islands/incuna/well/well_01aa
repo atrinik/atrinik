@@ -1898,7 +1898,7 @@ z 24
 x 11
 y 3
 end
-arch button_small
+arch button
 connected 133
 layer 2
 x 11
@@ -2055,7 +2055,7 @@ arch floor_black2a
 z 24
 x 12
 end
-arch button_small
+arch button
 connected 112
 x 12
 end
@@ -2079,7 +2079,7 @@ z 24
 x 12
 y 2
 end
-arch button_small
+arch button
 connected 132
 layer 2
 x 12
@@ -2112,7 +2112,7 @@ z 24
 x 12
 y 4
 end
-arch button_small
+arch button
 connected 134
 layer 2
 x 12
@@ -2290,7 +2290,7 @@ arch floor_black2a
 z 24
 x 13
 end
-arch button_small
+arch button
 connected 113
 layer 2
 x 13
@@ -2327,7 +2327,7 @@ z 24
 x 13
 y 2
 end
-arch button_small
+arch button
 connected 131
 layer 2
 x 13
@@ -2360,7 +2360,7 @@ z 24
 x 13
 y 4
 end
-arch button_small
+arch button
 connected 135
 layer 2
 x 13
@@ -2571,7 +2571,7 @@ arch floor_black2a
 z 24
 x 14
 end
-arch button_small
+arch button
 connected 114
 layer 2
 x 14
@@ -2601,7 +2601,7 @@ z 24
 x 14
 y 2
 end
-arch button_small
+arch button
 connected 130
 layer 2
 x 14
@@ -2634,7 +2634,7 @@ z 24
 x 14
 y 4
 end
-arch button_small
+arch button
 connected 136
 layer 2
 x 14
@@ -2822,7 +2822,7 @@ arch floor_black2a
 z 24
 x 15
 end
-arch button_small
+arch button
 connected 115
 layer 2
 x 15
@@ -2852,7 +2852,7 @@ z 24
 x 15
 y 2
 end
-arch button_small
+arch button
 connected 129
 layer 2
 x 15
@@ -2885,7 +2885,7 @@ z 24
 x 15
 y 4
 end
-arch button_small
+arch button
 connected 137
 layer 2
 x 15
@@ -3150,7 +3150,7 @@ arch floor_black2a
 z 24
 x 16
 end
-arch button_small
+arch button
 connected 116
 layer 2
 x 16
@@ -3180,7 +3180,7 @@ z 24
 x 16
 y 2
 end
-arch button_small
+arch button
 connected 128
 layer 2
 x 16
@@ -3213,7 +3213,7 @@ z 24
 x 16
 y 4
 end
-arch button_small
+arch button
 connected 138
 layer 2
 x 16
@@ -3552,7 +3552,7 @@ arch floor_black2a
 z 24
 x 17
 end
-arch button_small
+arch button
 connected 117
 layer 2
 x 17
@@ -3582,7 +3582,7 @@ z 24
 x 17
 y 2
 end
-arch button_small
+arch button
 connected 127
 layer 2
 x 17
@@ -3615,7 +3615,7 @@ z 24
 x 17
 y 4
 end
-arch button_small
+arch button
 connected 139
 layer 2
 x 17
@@ -3883,7 +3883,7 @@ arch floor_black2a
 z 24
 x 18
 end
-arch button_small
+arch button
 connected 118
 layer 2
 x 18
@@ -3913,7 +3913,7 @@ z 24
 x 18
 y 2
 end
-arch button_small
+arch button
 connected 126
 layer 2
 x 18
@@ -3955,7 +3955,7 @@ z 24
 x 18
 y 4
 end
-arch button_small
+arch button
 connected 140
 layer 2
 x 18
@@ -4148,7 +4148,7 @@ arch floor_black2a
 z 24
 x 19
 end
-arch button_small
+arch button
 connected 119
 layer 2
 x 19
@@ -4178,7 +4178,7 @@ z 24
 x 19
 y 2
 end
-arch button_small
+arch button
 connected 125
 layer 2
 x 19
@@ -4211,7 +4211,7 @@ z 24
 x 19
 y 4
 end
-arch button_small
+arch button
 connected 141
 layer 2
 x 19
@@ -4384,7 +4384,7 @@ arch floor_black2a
 z 24
 x 20
 end
-arch button_small
+arch button
 connected 120
 layer 2
 x 20
@@ -4414,7 +4414,7 @@ z 24
 x 20
 y 2
 end
-arch button_small
+arch button
 connected 124
 layer 2
 x 20
@@ -4447,7 +4447,7 @@ z 24
 x 20
 y 4
 end
-arch button_small
+arch button
 connected 142
 layer 2
 x 20
@@ -4667,7 +4667,7 @@ arch floor_black2a
 z 24
 x 21
 end
-arch button_small
+arch button
 connected 121
 layer 2
 x 21
@@ -4697,7 +4697,7 @@ z 24
 x 21
 y 2
 end
-arch button_small
+arch button
 connected 123
 layer 2
 x 21
@@ -4730,7 +4730,7 @@ z 24
 x 21
 y 4
 end
-arch button_small
+arch button
 connected 143
 layer 2
 x 21
@@ -4978,7 +4978,7 @@ z 24
 x 22
 y 1
 end
-arch button_small
+arch button
 connected 122
 layer 2
 x 22

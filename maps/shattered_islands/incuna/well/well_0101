@@ -314,7 +314,7 @@ z 24
 x 3
 y 19
 end
-arch button_plate
+arch button
 connected 102
 x 3
 y 19
@@ -375,7 +375,7 @@ z 24
 x 4
 y 19
 end
-arch button_plate
+arch button
 connected 101
 x 4
 y 19

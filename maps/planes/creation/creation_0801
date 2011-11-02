@@ -798,7 +798,7 @@ arch floor_stone_b2
 x 4
 y 13
 end
-arch button_small
+arch button
 connected 109
 x 4
 y 13
@@ -822,7 +822,7 @@ arch floor_stone_b1
 x 4
 y 16
 end
-arch button_plate
+arch button
 connected 108
 x 4
 y 16

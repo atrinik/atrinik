@@ -2,7 +2,7 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2011-11-02 Alex Tokar
 endmsg
 width 15
 height 23
@@ -753,9 +753,6 @@ x 4
 y 2
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -768,9 +765,6 @@ x 4
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -783,9 +777,6 @@ x 4
 y 4
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -814,9 +805,6 @@ x 4
 y 8
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -829,9 +817,6 @@ x 4
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -844,9 +829,6 @@ x 4
 y 10
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -875,9 +857,6 @@ x 4
 y 14
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -890,9 +869,6 @@ x 4
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -905,9 +881,6 @@ x 4
 y 16
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -983,17 +956,14 @@ arch floor_marble_b1a
 x 5
 y 3
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 101
-value 0
+maxhp 20
 x 5
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1045,17 +1015,14 @@ arch floor_marble_b1b
 x 5
 y 9
 end
-arch grateTrg1
-value 0
+arch grate_closed
+maxhp 20
 direction 3
 connected 102
 x 5
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1107,17 +1074,14 @@ arch floor_marble_b1b
 x 5
 y 15
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 103
-value 0
+maxhp 20
 x 5
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1207,9 +1171,6 @@ x 6
 y 2
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 101
@@ -1221,9 +1182,6 @@ x 6
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 101
@@ -1235,9 +1193,6 @@ x 6
 y 4
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 101
@@ -1275,9 +1230,6 @@ x 6
 y 8
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 102
@@ -1289,9 +1241,6 @@ x 6
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 102
@@ -1303,9 +1252,6 @@ x 6
 y 10
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 102
@@ -1352,9 +1298,6 @@ x 6
 y 14
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 103
@@ -1366,9 +1309,6 @@ x 6
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 103
@@ -1384,9 +1324,6 @@ x 6
 y 16
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 103
@@ -1581,9 +1518,6 @@ x 8
 y 2
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 104
@@ -1599,9 +1533,6 @@ x 8
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 104
@@ -1613,9 +1544,6 @@ x 8
 y 4
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 104
@@ -1648,9 +1576,6 @@ x 8
 y 8
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 105
@@ -1662,9 +1587,6 @@ x 8
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 105
@@ -1676,9 +1598,6 @@ x 8
 y 10
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 105
@@ -1715,9 +1634,6 @@ x 8
 y 14
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 106
@@ -1729,9 +1645,6 @@ x 8
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 106
@@ -1743,9 +1656,6 @@ x 8
 y 16
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 connected 106
@@ -1814,17 +1724,14 @@ arch floor_marble_b1d
 x 9
 y 3
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 104
-value 0
+maxhp 20
 x 9
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1876,17 +1783,14 @@ arch floor_marble_b1c
 x 9
 y 9
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 105
-value 0
+maxhp 20
 x 9
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1938,17 +1842,14 @@ arch floor_marble_b1a
 x 9
 y 15
 end
-arch grateTrg1
+arch grate_closed
 direction 3
 connected 106
-value 0
+maxhp 20
 x 9
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -1999,9 +1900,6 @@ x 9
 y 20
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 last_grace 1
@@ -2019,9 +1917,6 @@ x 9
 y 21
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_key
 sp 1
 last_grace 1
@@ -2051,9 +1946,6 @@ x 10
 y 2
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2066,9 +1958,6 @@ x 10
 y 3
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2081,9 +1970,6 @@ x 10
 y 4
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2116,9 +2002,6 @@ x 10
 y 8
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2131,9 +2014,6 @@ x 10
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2146,9 +2026,6 @@ x 10
 y 10
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2181,9 +2058,6 @@ x 10
 y 14
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2196,9 +2070,6 @@ x 10
 y 15
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0
@@ -2211,9 +2082,6 @@ x 10
 y 16
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying jail_force
 sp 1
 last_sp 0

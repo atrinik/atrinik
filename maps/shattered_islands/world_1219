@@ -1303,7 +1303,7 @@ arch knot-1d
 x 8
 y 8
 end
-arch button_plate
+arch button
 layer 0
 sys_object 1
 weight 300000
@@ -1350,7 +1350,7 @@ arch knot-1b
 x 8
 y 12
 end
-arch button_plate
+arch button
 layer 0
 sys_object 1
 weight 300000
@@ -2301,7 +2301,7 @@ arch knot-1b
 x 15
 y 8
 end
-arch button_plate
+arch button
 layer 0
 sys_object 1
 weight 300000
@@ -2333,7 +2333,7 @@ arch knot-1d
 x 15
 y 12
 end
-arch button_plate
+arch button
 layer 0
 sys_object 1
 weight 300000

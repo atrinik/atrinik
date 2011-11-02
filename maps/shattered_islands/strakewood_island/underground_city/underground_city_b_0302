@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -85,7 +85,6 @@ x 1
 arch boulder
 can_roll 1
 terrain_flag 1
-race boulder
 end
 end
 arch floor_black1a
@@ -307,7 +306,7 @@ end
 arch floor_black2a
 x 2
 end
-arch button_small
+arch button
 connected 112
 x 2
 end
@@ -483,7 +482,7 @@ end
 arch floor_black2a
 x 3
 end
-arch button_small
+arch button
 connected 113
 layer 2
 x 3
@@ -677,7 +676,7 @@ end
 arch floor_black2a
 x 4
 end
-arch button_small
+arch button
 connected 114
 layer 2
 x 4
@@ -947,7 +946,7 @@ end
 arch floor_black2a
 x 5
 end
-arch button_small
+arch button
 connected 115
 layer 2
 x 5
@@ -1064,11 +1063,10 @@ name slain half-elf warrior
 x 5
 y 12
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 5
 y 12
 end
@@ -1082,11 +1080,10 @@ arch bridge_wood_EW.101
 x 5
 y 13
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 5
 y 13
 end
@@ -1107,11 +1104,10 @@ name slain half-elf warrior
 x 5
 y 14
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 5
 y 14
 end
@@ -1232,7 +1228,7 @@ end
 arch floor_black2a
 x 6
 end
-arch button_small
+arch button
 connected 116
 layer 2
 x 6
@@ -1358,11 +1354,10 @@ arch dirt_floor3
 x 6
 y 11
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 6
 y 11
 end
@@ -1370,11 +1365,10 @@ arch bridge_wood_EW.101
 x 6
 y 12
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 6
 y 12
 end
@@ -1389,11 +1383,10 @@ name slain half-elf warrior
 x 6
 y 13
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 6
 y 13
 end
@@ -1401,11 +1394,10 @@ arch bridge_wood_EW.101
 x 6
 y 14
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 6
 y 14
 end
@@ -1517,7 +1509,7 @@ end
 arch floor_black2a
 x 7
 end
-arch button_small
+arch button
 connected 117
 layer 2
 x 7
@@ -1691,11 +1683,10 @@ arch bridge_wood_EW.111
 x 7
 y 11
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 7
 y 11
 end
@@ -1703,11 +1694,10 @@ arch bridge_wood_EW.101
 x 7
 y 12
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 7
 y 12
 end
@@ -1715,11 +1705,10 @@ arch bridge_wood_EW.101
 x 7
 y 13
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 7
 y 13
 end
@@ -1734,11 +1723,10 @@ name slain half-elf warrior
 x 7
 y 14
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 7
 y 14
 end
@@ -1885,7 +1873,7 @@ end
 arch floor_black2a
 x 8
 end
-arch button_small
+arch button
 connected 118
 layer 2
 x 8
@@ -1989,11 +1977,10 @@ arch bridge_wood_EW.111
 x 8
 y 11
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 8
 y 11
 end
@@ -2008,11 +1995,10 @@ name slain half-elf warrior
 x 8
 y 12
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 8
 y 12
 end
@@ -2020,11 +2006,10 @@ arch bridge_wood_EW.101
 x 8
 y 13
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 8
 y 13
 end
@@ -2032,11 +2017,10 @@ arch bridge_wood_EW.101
 x 8
 y 14
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 8
 y 14
 end
@@ -2164,11 +2148,7 @@ x 9
 end
 arch detector
 slaying boulder
-connected 119
-x 9
-end
-arch duplicator
-slaying boulder
+last_heal 1
 connected 119
 x 9
 end
@@ -2241,11 +2221,10 @@ name slain half-elf warrior
 x 9
 y 11
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 9
 y 11
 end
@@ -2259,11 +2238,10 @@ arch bridge_wood_EW.101
 x 9
 y 12
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 9
 y 12
 end
@@ -2277,11 +2255,10 @@ arch bridge_wood_EW.101
 x 9
 y 13
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 9
 y 13
 end
@@ -2302,11 +2279,10 @@ name slain half-elf warrior
 x 9
 y 14
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 9
 y 14
 end
@@ -2881,7 +2857,7 @@ end
 arch floor_black2a
 x 12
 end
-arch button_plate
+arch button
 connected 102
 last_eat 1
 x 12

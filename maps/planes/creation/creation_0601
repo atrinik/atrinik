@@ -2326,7 +2326,7 @@ arch floor_stone_b2
 x 17
 y 1
 end
-arch button_small
+arch button
 connected 104
 x 17
 y 1
@@ -2468,7 +2468,7 @@ arch floor_stone_b2
 x 18
 y 1
 end
-arch button_small
+arch button
 connected 106
 x 18
 y 1
@@ -2616,7 +2616,7 @@ arch floor_stone_b1
 x 19
 y 1
 end
-arch button_small
+arch button
 connected 105
 x 19
 y 1
@@ -2742,7 +2742,7 @@ arch floor_stone_b4
 x 20
 y 1
 end
-arch button_small
+arch button
 connected 103
 x 20
 y 1
