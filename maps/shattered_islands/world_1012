@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -196,12 +196,9 @@ arch grassd_1
 x 1
 y 9
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 1
 y 9
 end
@@ -209,12 +206,9 @@ arch grassd_6
 x 1
 y 10
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 1
 y 10
 end
@@ -222,12 +216,9 @@ arch grassd_5
 x 1
 y 11
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 1
 y 11
 end
@@ -235,12 +226,9 @@ arch grassd_5
 x 1
 y 12
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 1
 y 12
 end
@@ -248,12 +236,9 @@ arch grassd_2
 x 1
 y 13
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 1
 y 13
 end
@@ -350,12 +335,24 @@ connected 101
 x 2
 y 9
 end
+arch pedestal
+hp 1
+connected 101
+x 2
+y 9
+end
 arch grassd_1
 x 2
 y 10
 end
 arch portcullis_closed
 direction 3
+connected 101
+x 2
+y 10
+end
+arch pedestal
+hp 1
 connected 101
 x 2
 y 10
@@ -370,6 +367,12 @@ connected 101
 x 2
 y 11
 end
+arch pedestal
+hp 1
+connected 101
+x 2
+y 11
+end
 arch grassd_3
 x 2
 y 12
@@ -380,12 +383,24 @@ connected 101
 x 2
 y 12
 end
+arch pedestal
+hp 1
+connected 101
+x 2
+y 12
+end
 arch grassd_5
 x 2
 y 13
 end
 arch portcullis_closed
 direction 3
+connected 101
+x 2
+y 13
+end
+arch pedestal
+hp 1
 connected 101
 x 2
 y 13
@@ -477,12 +492,9 @@ arch grassd_5
 x 3
 y 9
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 3
 y 9
 end
@@ -490,12 +502,9 @@ arch grassd_5
 x 3
 y 10
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 3
 y 10
 end
@@ -503,12 +512,9 @@ arch grassd_2
 x 3
 y 11
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 3
 y 11
 end
@@ -520,12 +526,9 @@ arch grassd_8
 x 3
 y 12
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 3
 y 12
 end
@@ -533,12 +536,9 @@ arch grassd_4
 x 3
 y 13
 end
-arch pedestal_trigger
-layer 0
-sys_object 1
-direction 3
+arch pedestal
+hp 1
 connected 101
-exp 60
 x 3
 y 13
 end
