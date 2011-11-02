@@ -101,7 +101,7 @@ arch floor_sand_d2
 x 1
 y 19
 end
-arch trigger_lever
+arch handle_lever
 msg
 You hear a
 endmsg

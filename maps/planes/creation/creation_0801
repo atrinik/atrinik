@@ -1595,7 +1595,7 @@ arch floor_stone_b2
 x 10
 y 7
 end
-arch trigger_lever
+arch handle_lever
 exp 100
 connected 111
 x 10

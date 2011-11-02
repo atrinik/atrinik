@@ -1265,7 +1265,7 @@ arch fwall_fstone1a
 x 9
 y 10
 end
-arch trigger_lever
+arch handle_lever
 layer 0
 sys_object 1
 connected 101

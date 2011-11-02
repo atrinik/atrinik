@@ -1650,7 +1650,7 @@ arch floor_marble2b
 x 11
 y 8
 end
-arch trigger_lever
+arch handle_lever
 msg
 Um...you appear to have company.
 endmsg
@@ -1670,7 +1670,7 @@ arch floor_marble2c
 x 11
 y 10
 end
-arch trigger_lever
+arch handle_lever
 msg
 Sometimes in life, the choices we make don't provide the results we hope for. This is one of those times.
 endmsg

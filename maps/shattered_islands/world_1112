@@ -40,7 +40,7 @@ end
 arch grassd_4
 y 2
 end
-arch trigger_lever
+arch handle_lever
 connected 101
 y 2
 end
