@@ -150,6 +150,7 @@ static void process_func(object *op)
 		}
 	}
 
+	op->state = op->stats.wc;
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->stats.wc);
 	update_object(op, UP_OBJ_FACE);
 }
