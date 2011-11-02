@@ -36,7 +36,7 @@ static int apply_func(object *op, object *applier, int aflags)
 {
 	(void) aflags;
 
-	if (op->speed)
+	if (op->speed || (op->stats.exp == -1 && op->value))
 	{
 		draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
 		return OBJECT_METHOD_OK;
@@ -44,6 +44,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	/* Toggle the state. */
 	op->value = !op->value;
+	op->state = op->value;
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 	update_object(op, UP_OBJ_FACE);
 
@@ -55,7 +56,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	if (op->stats.exp)
 	{
-		op->speed = 1.0;
+		op->speed = 1.0 / op->stats.exp;
 		update_ob_speed(op);
 		op->speed_left = -1;
 	}
@@ -68,12 +69,13 @@ static int trigger_func(object *op, object *cause, int state)
 {
 	(void) cause;
 
-	if (op->speed)
+	if (op->speed || (op->stats.exp == -1 && op->value))
 	{
 		return OBJECT_METHOD_OK;
 	}
 
 	op->value = state;
+	op->state = op->value;
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 	update_object(op, UP_OBJ_FACE);
 
@@ -86,7 +88,13 @@ static void process_func(object *op)
 	op->speed = 0;
 	update_ob_speed(op);
 
+	if (op->stats.exp == -1)
+	{
+		return;
+	}
+
 	op->value = 0;
+	op->state = op->value;
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 	update_object(op, UP_OBJ_FACE);
 
