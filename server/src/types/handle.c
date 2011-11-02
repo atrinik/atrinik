@@ -91,12 +91,14 @@ static int trigger_func(object *op, object *cause, int state)
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
+	op->speed = 0;
+	update_ob_speed(op);
+
 	op->value = 0;
 	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
 	update_object(op, UP_OBJ_FACE);
 
-	op->speed = 0;
-	update_ob_speed(op);
+	connection_trigger(op, op->value);
 }
 
 /**
