@@ -197,11 +197,6 @@ void connection_trigger(object *op, int state)
 				update_ob_speed(tmp);
 				break;
 
-			case HANDLE:
-				SET_ANIMATION(tmp, ((NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction) + (tmp->value = tmp->stats.maxsp ? !state : state));
-				update_object(tmp, UP_OBJ_FACE);
-				break;
-
 			case TIMED_GATE:
 				tmp->speed = tmp->arch->clone.speed;
 				update_ob_speed(tmp);

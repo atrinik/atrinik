@@ -82,6 +82,7 @@ void object_methods_init(void)
 	object_type_init_word_of_recall();
 	object_type_init_button();
 	object_type_init_pedestal();
+	object_type_init_handle();
 }
 
 /** @copydoc object_methods::apply_func */

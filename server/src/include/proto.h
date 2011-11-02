@@ -280,18 +280,18 @@ extern int checkbanned(const char *name, char *ip);
 extern int add_ban(char *input);
 extern int remove_ban(char *input);
 extern void list_bans(object *op);
-/* src/server/button.c */
-extern void connection_trigger(object *op, int state);
-extern void connection_trigger_button(object *op, int state);
-extern void connection_object_add(object *button, mapstruct *map, int connected);
-extern void connection_object_remove(object *op);
-extern int connection_object_get_value(object *button);
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
 extern int cache_add(const char *key, void *ptr, uint32 flags);
 extern int cache_remove(shstr *key);
 extern void cache_remove_all(void);
 extern void cache_remove_by_flags(uint32 flags);
+/* src/server/connection.c */
+extern void connection_object_add(object *op, mapstruct *map, int connected);
+extern void connection_object_remove(object *op);
+extern int connection_object_get_value(object *op);
+extern void connection_trigger(object *op, int state);
+extern void connection_trigger_button(object *op, int state);
 /* src/server/daemon.c */
 extern void become_daemon(char *filename);
 /* src/server/exp.c */
