@@ -188,20 +188,7 @@ void connection_trigger(object *op, int state)
 			continue;
 		}
 
-		switch (tmp->type)
-		{
-			case DIRECTOR:
-				if (tmp->stats.maxsp)
-				{
-					tmp->direction = absdir(tmp->direction + tmp->stats.maxsp);
-					animate_turning(tmp);
-				}
-
-				break;
-
-			default:
-				object_trigger(tmp, op, state);
-		}
+		object_trigger(tmp, op, state);
 	}
 }
 

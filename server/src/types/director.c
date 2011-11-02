@@ -56,9 +56,27 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 	return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods::trigger_func */
+static int trigger_func(object *op, object *cause, int state)
+{
+	(void) cause;
+	(void) state;
+
+	if (!op->stats.maxsp)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	op->direction = absdir(op->direction + op->stats.maxsp);
+	animate_turning(op);
+
+	return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the director type object methods. */
 void object_type_init_director(void)
 {
 	object_type_methods[DIRECTOR].move_on_func = move_on_func;
+	object_type_methods[DIRECTOR].trigger_func = trigger_func;
 }
