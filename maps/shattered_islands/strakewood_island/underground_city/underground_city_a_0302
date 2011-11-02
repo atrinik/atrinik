@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3111,7 +3111,6 @@ end
 arch switch_wall
 exp 180
 connected 101
-type 27
 x 19
 y 18
 end
