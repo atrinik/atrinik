@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-11-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -306,13 +306,13 @@ end
 arch floor_black2a
 x 2
 end
-arch button
-connected 112
-x 2
-end
 arch grate_open
 connected 112
 layer 4
+x 2
+end
+arch button
+connected 112
 x 2
 end
 arch floor_black1b
@@ -482,6 +482,11 @@ end
 arch floor_black2a
 x 3
 end
+arch grate_open
+connected 113
+layer 4
+x 3
+end
 arch button
 connected 113
 layer 2
@@ -490,11 +495,6 @@ end
 arch pedestal
 slaying boulder
 connected 112
-x 3
-end
-arch grate_open
-connected 113
-layer 4
 x 3
 end
 arch floor_black1b
@@ -676,6 +676,11 @@ end
 arch floor_black2a
 x 4
 end
+arch grate_open
+connected 114
+layer 4
+x 4
+end
 arch button
 connected 114
 layer 2
@@ -684,11 +689,6 @@ end
 arch pedestal
 slaying boulder
 connected 113
-x 4
-end
-arch grate_open
-connected 114
-layer 4
 x 4
 end
 arch floor_black1b
@@ -888,7 +888,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 3
 sp 18
@@ -946,6 +945,11 @@ end
 arch floor_black2a
 x 5
 end
+arch grate_open
+connected 115
+layer 4
+x 5
+end
 arch button
 connected 115
 layer 2
@@ -954,11 +958,6 @@ end
 arch pedestal
 slaying boulder
 connected 114
-x 5
-end
-arch grate_open
-connected 115
-layer 4
 x 5
 end
 arch floor_black1b
@@ -1038,11 +1037,10 @@ arch bridge_wood_EW.111
 x 5
 y 11
 end
-arch pedestal_trigger
-exp 70
-layer 0
-sys_object 1
+arch pedestal
+hp 1
 connected 101
+exp 70
 x 5
 y 11
 end
@@ -1228,6 +1226,11 @@ end
 arch floor_black2a
 x 6
 end
+arch grate_open
+connected 116
+layer 4
+x 6
+end
 arch button
 connected 116
 layer 2
@@ -1236,11 +1239,6 @@ end
 arch pedestal
 slaying boulder
 connected 115
-x 6
-end
-arch grate_open
-connected 116
-layer 4
 x 6
 end
 arch floor_black1b
@@ -1324,21 +1322,6 @@ arch sand_dm2
 x 6
 y 10
 end
-arch magic_wall
-name drow security system
-layer 0
-sys_object 1
-blocksview 0
-direction 5
-last_eat 0
-dam 37
-level 65
-speed -0.35
-connected 102
-alive 0
-x 6
-y 10
-end
 arch bridge_wood_EW.111
 x 6
 y 11
@@ -1411,6 +1394,20 @@ y 15
 end
 arch bridge_wood_EW.151
 sub_layer 1
+x 6
+y 15
+end
+arch magic_wall
+name drow security system
+layer 0
+sys_object 1
+blocksview 0
+last_eat 0
+dam 37
+level 65
+speed -0.35
+connected 102
+alive 0
 x 6
 y 15
 end
@@ -1509,6 +1506,11 @@ end
 arch floor_black2a
 x 7
 end
+arch grate_open
+connected 117
+layer 4
+x 7
+end
 arch button
 connected 117
 layer 2
@@ -1519,11 +1521,6 @@ slaying boulder
 connected 116
 x 7
 end
-arch grate_open
-connected 117
-layer 4
-x 7
-end
 arch floor_black1b
 x 7
 y 1
@@ -1532,24 +1529,15 @@ arch fwall_rock1
 x 7
 y 1
 end
-arch blocked
-x 7
-y 2
-end
-arch floor_sand_d4
-x 7
-y 3
-end
-arch altar_trigger
-fly_on 1
-layer 0
-sys_object 1
-slaying magic bullet
-food 0
+arch pedestal
+race bullet
 connected 201
 last_eat 1
+exp 30
+fly_on 1
+fly_off 1
 x 7
-y 3
+y 2
 end
 arch floor_sand_d1
 x 7
@@ -1561,14 +1549,12 @@ no_pass 0
 x 7
 y 4
 end
-arch altar_trigger
-layer 0
-sys_object 1
-slaying magic bullet
-food 0
-exp 80
-connected 111
+arch pedestal
 fly_on 1
+fly_off 1
+race bullet
+connected 111
+exp 80
 x 7
 y 4
 end
@@ -1873,6 +1859,11 @@ end
 arch floor_black2a
 x 8
 end
+arch grate_open
+connected 118
+layer 4
+x 8
+end
 arch button
 connected 118
 layer 2
@@ -1881,11 +1872,6 @@ end
 arch pedestal
 slaying boulder
 connected 117
-x 8
-end
-arch grate_open
-connected 118
-layer 4
 x 8
 end
 arch floor_black1b
@@ -2857,14 +2843,14 @@ end
 arch floor_black2a
 x 12
 end
-arch button
-connected 102
-last_eat 1
-x 12
-end
 arch grate_closed
 connected 101
 layer 4
+x 12
+end
+arch button
+connected 102
+last_eat 1
 x 12
 end
 arch floor_black1b
