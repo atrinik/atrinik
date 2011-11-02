@@ -82,6 +82,7 @@ void object_methods_init(void)
 	object_type_init_button();
 	object_type_init_pedestal();
 	object_type_init_handle();
+	object_type_init_director();
 }
 
 /** @copydoc object_methods::apply_func */

@@ -978,6 +978,8 @@ extern int check_magical_container(object *op, object *container);
 extern void object_type_init_creator(void);
 /* src/types/detector.c */
 extern void object_type_init_detector(void);
+/* src/types/director.c */
+extern void object_type_init_director(void);
 /* src/types/disease.c */
 extern int move_disease(object *disease);
 extern int infect_object(object *victim, object *disease, int force);

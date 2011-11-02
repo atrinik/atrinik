@@ -268,6 +268,7 @@ set(SOURCES
 	src/types/container.c
 	src/types/creator.c
 	src/types/detector.c
+	src/types/director.c
 	src/types/disease.c
 	src/types/door.c
 	src/types/duplicator.c
