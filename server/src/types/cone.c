@@ -143,7 +143,11 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 		return OBJECT_METHOD_OK;
 	}
 
-	hit_player(victim, op->stats.dam, op, AT_INTERNAL);
+	if (IS_LIVE(victim))
+	{
+		hit_player(victim, op->stats.dam, op, AT_INTERNAL);
+	}
+
 	return OBJECT_METHOD_OK;
 }
 
