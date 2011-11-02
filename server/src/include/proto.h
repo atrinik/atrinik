@@ -1002,6 +1002,8 @@ extern void move_gate(object *op);
 extern void move_timed_gate(object *op);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
+/* src/types/handle.c */
+extern void object_type_init_handle(void);
 /* src/types/light.c */
 extern void apply_player_light_refill(object *who, object *op);
 extern void apply_player_light(object *who, object *op);
