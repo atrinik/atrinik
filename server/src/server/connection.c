@@ -190,12 +190,6 @@ void connection_trigger(object *op, int state)
 
 		switch (tmp->type)
 		{
-			case GATE:
-				tmp->value = tmp->stats.maxsp ? !state : state;
-				tmp->speed = 0.5;
-				update_ob_speed(tmp);
-				break;
-
 			case DIRECTOR:
 				if (tmp->stats.maxsp)
 				{

@@ -25,157 +25,66 @@
 
 /**
  * @file
- * Code related to @ref GATE "gates". */
+ * Handles code related to @ref GATE "gates".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * Move a gate up/down.
- * @param op Gate object. */
-void move_gate(object *op)
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
 {
-	object *tmp;
-	/* default update is only face */
-	int update = UP_OBJ_FACE;
-
-	if (op->stats.wc < 0 || (int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)))
+	if (op->stats.maxhp && op->stats.hp)
 	{
-		LOG(llevBug, "move_gate(): Gate animation was %d, max=%d\n", op->stats.wc, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
-		op->stats.wc = 0;
-	}
-
-	/* We're going down (or reverse up) */
-	if (op->value)
-	{
-		/* Reached bottom, let's stop */
-		if (--op->stats.wc <= 0)
+		if (--op->stats.hp == 0)
 		{
-			op->stats.wc = 0;
-
-			if (op->arch->clone.speed)
-			{
-				op->value = 0;
-			}
-			else
-			{
-				op->speed = 0;
-				update_ob_speed(op);
-			}
+			op->value = !op->value;
+			op->stats.food = 0;
 		}
-
-		if ((int) op->stats.wc < ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2 + 1))
+		else
 		{
-			/* We do the QUERY_FLAG() here to check we must rebuild the tile flags or not,
-			 * if we don't change the object settings here, just change the face but
-			 * don't rebuild the flag tiles.
-			 * If != 0, we have a reversed timed gate, which starts open */
-			if (op->last_heal)
-			{
-				if (!QUERY_FLAG(op, FLAG_NO_PASS))
-				{
-					update = UP_OBJ_FLAGFACE;
-				}
-
-				/* The coast is clear, block the way */
-				SET_FLAG(op, FLAG_NO_PASS);
-
-				if (!op->arch->clone.stats.ac)
-				{
-					if (!QUERY_FLAG(op, FLAG_BLOCKSVIEW))
-					{
-						update = UP_OBJ_FLAGFACE;
-					}
-
-					SET_FLAG(op, FLAG_BLOCKSVIEW);
-				}
-			}
-			else
-			{
-				if (QUERY_FLAG(op, FLAG_NO_PASS))
-				{
-					update = UP_OBJ_FLAGFACE;
-				}
-
-				CLEAR_FLAG(op, FLAG_NO_PASS);
-
-				if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
-				{
-					update = UP_OBJ_FLAGFACE;
-				}
-
-				CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
-			}
-		}
-
-		op->state = (uint8) op->stats.wc;
-		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		update_object(op, update);
-
-		return;
-	}
-
-	/* First, lets see if we are already at the top */
-	if ((unsigned char) op->stats.wc == ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1))
-	{
-		/* Check to make sure that only non pickable and non rollable
-		 * objects are above the gate. If so, we finish closing the gate,
-		 * otherwise, we fall through to the code below which should lower
-		 * the gate slightly. */
-		for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = tmp->above)
-		{
-			if (QUERY_FLAG(tmp, FLAG_CAN_ROLL) || IS_LIVE(tmp))
-			{
-				break;
-			}
-		}
-
-		if (tmp == NULL)
-		{
-			if (op->arch->clone.speed)
-			{
-				op->value = 1;
-			}
-			else
-			{
-				op->speed = 0;
-
-				/* Reached top, let's stop */
-				update_ob_speed(op);
-			}
-
 			return;
 		}
 	}
 
-	/* The gate is going temporarily down */
-	if (op->stats.food)
+	/* Going down. */
+	if (op->value)
 	{
-		/* Gone all the way down? */
 		if (--op->stats.wc <= 0)
 		{
-			/* Then let's try again */
-			op->stats.food = 0;
 			op->stats.wc = 0;
+
+			if (op->stats.food)
+			{
+				op->stats.hp = op->stats.maxhp;
+			}
+			else
+			{
+				op->speed = 0;
+				update_ob_speed(op);
+			}
+		}
+
+		if (op->stats.wc < (NUM_ANIMATIONS(op) / NUM_FACINGS(op) / 2 + 1))
+		{
+			if (op->stats.ac)
+			{
+				CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
+			}
+
+			CLEAR_FLAG(op, FLAG_NO_PASS);
+			update_object(op, UP_OBJ_FLAGS);
 		}
 	}
-	/* The gate is still going up */
+	/* Going up. */
 	else
 	{
-		op->stats.wc++;
-
-		if ((int) op->stats.wc >= ((NUM_ANIMATIONS(op) / NUM_FACINGS(op))))
+		if (++op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2)
 		{
-			op->stats.wc = (signed char) (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1;
-		}
+			object *tmp, *next;
+			uint8 is_blocked = 0;
 
-		/* If there is something on top of the gate, we try to roll it off.
-		 * If a player/monster, we don't roll, we just hit them with damage */
-		if ((int) op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2)
-		{
-			object *next;
-
-			/* Halfway or further, check blocks */
-			for (tmp = GET_BOTTOM_MAP_OB(op); tmp; tmp = next)
+			for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
 			{
 				next = tmp->above;
 
@@ -187,11 +96,11 @@ void move_gate(object *op)
 
 					if (IS_LIVE(tmp))
 					{
-						hit_player(tmp, 4, op, AT_PHYSICAL);
+						hit_player(tmp, op->stats.dam, op, AT_PHYSICAL);
 						draw_info_format(COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
 					}
 
-					i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, 9);
+					i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, SIZEOFFREE1 + 1);
 
 					/* If there is a free spot, move the object someplace. */
 					if (i != -1)
@@ -201,94 +110,80 @@ void move_gate(object *op)
 						tmp->y += freearr_y[i];
 						insert_ob_in_map(tmp, op->map, op, 0);
 					}
+					/* No free spot, so the gate is blocked. */
+					else
+					{
+						is_blocked = 1;
+					}
 				}
 			}
 
-			/* If there is still something, start putting the gate down */
-			if (tmp)
+			if (is_blocked)
 			{
-				op->stats.food = 1;
+				op->stats.wc--;
 			}
-			else
+			else if (!QUERY_FLAG(op, FLAG_NO_PASS))
 			{
-				/* If != 0, we have a reversed timed gate, which starts open */
-				if (op->last_heal)
+				if (op->stats.ac)
 				{
-					if (QUERY_FLAG(op, FLAG_NO_PASS))
-					{
-						update = UP_OBJ_FLAGFACE;
-					}
+					SET_FLAG(op, FLAG_BLOCKSVIEW);
+				}
 
-					CLEAR_FLAG(op, FLAG_NO_PASS);
+				SET_FLAG(op, FLAG_NO_PASS);
+				update_object(op, UP_OBJ_FLAGS);
+			}
 
-					if (QUERY_FLAG(op, FLAG_BLOCKSVIEW))
-					{
-						update = UP_OBJ_FLAGFACE;
-					}
+			if (op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1)
+			{
+				op->stats.wc = (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1;
 
-					CLEAR_FLAG(op, FLAG_BLOCKSVIEW);
+				if (op->stats.food)
+				{
+					op->stats.hp = op->stats.maxhp;
 				}
 				else
 				{
-					if (!QUERY_FLAG(op, FLAG_NO_PASS))
-					{
-						update = UP_OBJ_FLAGFACE;
-					}
-
-					/* The coast is clear, block the way */
-					SET_FLAG(op, FLAG_NO_PASS);
-
-					if (!op->arch->clone.stats.ac)
-					{
-						if (!QUERY_FLAG(op, FLAG_BLOCKSVIEW))
-						{
-							update = UP_OBJ_FLAGFACE;
-						}
-
-						SET_FLAG(op, FLAG_BLOCKSVIEW);
-					}
+					op->speed = 0;
+					update_ob_speed(op);
 				}
 			}
 		}
-
-		op->state = (uint8) op->stats.wc;
-		SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-
-		/* Takes care about map tile and player los update! */
-		update_object(op, update);
 	}
+
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->stats.wc);
+	update_object(op, UP_OBJ_FACE);
+}
+
+/** @copydoc object_methods::trigger_func */
+static int trigger_func(object *op, object *cause, int state)
+{
+	(void) cause;
+
+	if (op->speed && op->stats.maxhp)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	op->speed = 0.5;
+	update_ob_speed(op);
+
+	if (op->stats.maxhp)
+	{
+		op->stats.food = 1;
+		op->value = !op->value;
+	}
+	else
+	{
+		op->value = op->stats.maxsp ? !state : state;
+	}
+
+	return OBJECT_METHOD_OK;
 }
 
 /**
- * Move a timed gate.
- * @param op Timed gate object */
-void move_timed_gate(object *op)
+ * Initialize the gate type object methods. */
+void object_type_init_gate(void)
 {
-	int v = op->value;
-
-	if (op->stats.sp)
-	{
-		move_gate(op);
-
-		/* Change direction? */
-		if (op->value != v)
-		{
-			op->stats.sp = 0;
-		}
-
-		return;
-	}
-
-	/* Keep gate down */
-	if (--op->stats.hp <= 0)
-	{
-		move_gate(op);
-
-		/* Ready? */
-		if (op->value != v)
-		{
-			op->speed = 0;
-			update_ob_speed(op);
-		}
-	}
+	object_type_methods[GATE].trigger_func = trigger_func;
+	object_type_methods[GATE].process_func = process_func;
 }

@@ -1000,8 +1000,7 @@ extern void apply_food(object *op, object *tmp);
 extern void create_food_force(object *who, object *food, object *force);
 extern void eat_special_food(object *who, object *food);
 /* src/types/gate.c */
-extern void move_gate(object *op);
-extern void move_timed_gate(object *op);
+extern void object_type_init_gate(void);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
 /* src/types/handle.c */
