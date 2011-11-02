@@ -33,5 +33,6 @@ pass_thru 1
 wc 7
 state 7
 blocksview 1
+no_pass 1
 ac 1
 end

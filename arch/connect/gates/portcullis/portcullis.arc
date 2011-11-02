@@ -31,4 +31,5 @@ no_pick 1
 pass_thru 1
 wc 7
 state 7
+no_pass 1
 end
