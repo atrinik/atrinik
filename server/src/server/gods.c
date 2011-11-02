@@ -235,64 +235,6 @@ static int get_spell_number(object *op)
 }
 
 /**
- * Ensure that 'op' doesn't know any special prayers that are not granted
- * by 'god'.
- * @param op The object.
- * @param god The god. */
-static void check_special_prayers(object *op, object *god)
-{
-	treasure *tr;
-	object *tmp, *next_tmp;
-	int spell;
-
-	/* Outer loop iterates over all special prayer marks */
-	for (tmp = op->inv; tmp; tmp = next_tmp)
-	{
-		next_tmp = tmp->below;
-
-		if (tmp->type != FORCE || tmp->slaying == NULL || strcmp(tmp->slaying, "special prayer"))
-		{
-			continue;
-		}
-
-		spell = tmp->stats.sp;
-
-		if (god->randomitems == NULL)
-		{
-			LOG(llevBug, "check_special_prayers(): %s without randomitems\n", query_name(god, NULL));
-			do_forget_spell(op, spell);
-			continue;
-		}
-
-		/* Inner loop tries to find the special prayer in the god's treasure
-		 * list. */
-		for (tr = god->randomitems->items; tr; tr = tr->next)
-		{
-			object *item;
-
-			if (tr->item == NULL)
-			{
-				continue;
-			}
-
-			item = &tr->item->clone;
-
-			if (item->type == SPELLBOOK && get_spell_number(item) == spell)
-			{
-				/* Current god allows this special prayer. */
-				spell = -1;
-				break;
-			}
-		}
-
-		if (spell >= 0)
-		{
-			do_forget_spell(op, spell);
-		}
-	}
-}
-
-/**
  * This function is called whenever a player has switched to a new god.
  * It basically handles all the stat changes that happen to the player,
  * including the removal of god-given items (from the former cult).
@@ -310,7 +252,7 @@ void become_follower(object *op, object *new_god)
 	/* give the player any special god-characteristic-items. */
 	for (tr = new_god->randomitems->items; tr != NULL; tr = tr->next)
 	{
-		if (tr->item && IS_SYS_INVISIBLE(&tr->item->clone) && tr->item->clone.type != SPELLBOOK && tr->item->clone.type != BOOK)
+		if (tr->item && IS_SYS_INVISIBLE(&tr->item->clone) && tr->item->clone.type != BOOK)
 		{
 			god_gives_present(op, new_god, tr);
 		}
@@ -405,8 +347,6 @@ void become_follower(object *op, object *new_god)
 
 	SET_FLAG(exp_obj, FLAG_APPLIED);
 	(void) change_abil(op, exp_obj);
-
-	check_special_prayers(op, new_god);
 }
 
 /**
@@ -803,8 +743,6 @@ static void god_intervention(object *op, object *god)
 		return;
 	}
 
-	check_special_prayers(op, god);
-
 	/* Let's do some checks of whether we are kosher with our god */
 	if (god_examines_priest(op, god) < 0)
 	{
@@ -989,50 +927,6 @@ static void god_intervention(object *op, object *god)
 		if (item->type == BOOK && IS_SYS_INVISIBLE(item) && item->name == shstr_cons.enchant_weapon)
 		{
 			if (god_enchants_weapon(op, god, item))
-			{
-				return;
-			}
-			else
-			{
-				continue;
-			}
-		}
-
-		/* Spellbooks - works correctly only for prayers */
-		if (item->type == SPELLBOOK)
-		{
-			int spell = get_spell_number(item);
-
-			if (check_spell_known(op, spell))
-			{
-				continue;
-			}
-
-			if (spells[spell].level > level)
-			{
-				continue;
-			}
-
-			if (IS_SYS_INVISIBLE(item))
-			{
-				draw_info_format(COLOR_WHITE, op, "%s grants you use of a special prayer!", god->name);
-				do_learn_spell(op, spell, 1);
-				return;
-			}
-
-			if (!QUERY_FLAG(item, FLAG_STARTEQUIP))
-			{
-				LOG(llevBug, "visible spellbook in %s's treasure list lacks FLAG_STARTEQUIP\n", query_name(god, NULL));
-				continue;
-			}
-
-			if (!item->stats.Wis)
-			{
-				LOG(llevBug, "visible spellbook in %s's treasure list doesn't contain a special prayer\n", query_name(god, NULL));
-				continue;
-			}
-
-			if (god_gives_present(op, god, tr))
 			{
 				return;
 			}

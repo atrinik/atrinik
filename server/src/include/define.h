@@ -172,9 +172,6 @@
  * Food. */
 #define FOOD 6
 /**
- * Poison. */
-#define POISON 7
-/**
  * Book. */
 #define BOOK 8
 /**
@@ -221,26 +218,11 @@
  * Magic missile. */
 #define MMISSILE 25
 /**
- * Timed gate. */
-#define TIMED_GATE 26
-/**
- * Trigger. */
-#define TRIGGER 27
-/**
  * A magic mirror which allows you to see objects on a different coordinate. */
 #define MAGIC_MIRROR 28
 /**
  * Magic ear. */
 #define MAGIC_EAR 29
-/**
- * Trigger button. */
-#define TRIGGER_BUTTON 30
-/**
- * Trigger altar. */
-#define TRIGGER_ALTAR 31
-/**
- * Trigger pedestal. */
-#define TRIGGER_PEDESTAL 32
 /**
  * Shield. */
 #define SHIELD 33
@@ -277,9 +259,6 @@
 /**
  * An experience object. */
 #define EXPERIENCE 44
-/**
- * Bomb. */
-#define BOMB 47
 /**
  * Thrown object. */
 #define THROWN_OBJ 48
@@ -325,17 +304,6 @@
  * Inventory checker. */
 #define CHECK_INV 64
 /**
- * Mood floor can affect how monsters behave once they step on it.
- *
- * Values of last_sp set how to change:
- * <ul>
- * <li>0 = furious, all monsters become aggressive</li>
- * <li>1 = angry, all but friendly become aggressive</li>
- * <li>2 = calm, all aggressive monsters calm down</li>
- * <li>3 = sleep, all monsters fall asleep</li>
- * </ul> */
-#define MOOD_FLOOR 65
-/**
  * Stairs, holes, portals, etc. */
 #define EXIT 66
 /**
@@ -359,9 +327,6 @@
 /**
  * Light source for players - torch, lantern, etc. */
 #define LIGHT_APPLY 74
-/**
- * Lighter. */
-#define LIGHTER 75
 /**
  * This is a wall. */
 #define WALL 77
@@ -388,9 +353,6 @@
  * Used to find spawn point where monster came from. */
 #define SPAWN_POINT_INFO 84
 /**
- * Spell book. */
-#define SPELLBOOK 85
-/**
  * Body parts which can't be eaten - dragon scales for example */
 #define ORGANIC 86
 /**
@@ -411,13 +373,6 @@
 /**
  * Handle. */
 #define HANDLE 93
-/**
- * Pit is like an @ref EXIT "exit", but it does damage to alive object
- * falling into it. */
-#define PIT 94
-/**
- * A trapdoor. */
-#define TRAPDOOR 95
 /**
  * Special force for word of recall. */
 #define WORD_OF_RECALL 96
@@ -440,9 +395,6 @@
  * object's weight limit to drop the object's inventory into the
  * monster. */
 #define RANDOM_DROP 102
-/**
- * Convert one object into another. */
-#define CONVERTER 103
 /**
  * Bracers. */
 #define BRACERS 104
@@ -495,12 +447,6 @@
  * A container. */
 #define CONTAINER 122
 /**
- * Armour improver scroll. */
-#define ARMOUR_IMPROVER 123
-/**
- * Weapon improver scroll. */
-#define WEAPON_IMPROVER 124
-/**
  * This is a raw wealth object. When generated it's transformed into real
  * money depending on the environment where it's generated. */
 #define WEALTH 125
@@ -510,15 +456,6 @@
 /**
  * Map event object. */
 #define MAP_EVENT_OBJ 127
-/**
- * Can teach player a skill it holds. */
-#define SKILLSCROLL 130
-/**
- * Deep swamp. */
-#define DEEP_SWAMP 138
-/**
- * Identification altar. */
-#define IDENTIFY_ALTAR 139
 /**
  * Compass. */
 #define COMPASS 151
@@ -655,16 +592,6 @@
 #define ST1_SKILL_USE       1
 /** Skill is used indirect by server */
 #define ST1_SKILL_INDIRECT  2
-/*@}*/
-
-/**
- * @defgroup spell_book_sub_types Spell book sub types
- * Spell books can be different types: mage, cleric, and so on.
- *@{*/
-/** Cleric spell book */
-#define ST1_SPELLBOOK_CLERIC 1
-/** Mage spell book */
-#define ST1_SPELLBOOK_MAGE   2
 /*@}*/
 
 /**

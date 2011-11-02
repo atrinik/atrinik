@@ -191,18 +191,9 @@ void connection_trigger(object *op, int state)
 		switch (tmp->type)
 		{
 			case GATE:
-			case PIT:
 				tmp->value = tmp->stats.maxsp ? !state : state;
 				tmp->speed = 0.5;
 				update_ob_speed(tmp);
-				break;
-
-			case TIMED_GATE:
-				tmp->speed = tmp->arch->clone.speed;
-				update_ob_speed(tmp);
-				tmp->value = 1;
-				tmp->stats.sp = 1;
-				tmp->stats.hp = tmp->stats.maxhp;
 				break;
 
 			case DIRECTOR:

@@ -1008,7 +1008,7 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
 
 	for (tmp = monster->inv; tmp != NULL; tmp = tmp->below)
 	{
-		if (tmp->type == ABILITY || tmp->type == SPELLBOOK)
+		if (tmp->type == ABILITY)
 		{
 			/* Check and see if it's actually a useful spell */
 			if ((spell = find_spell(tmp->stats.sp)) != NULL && !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)) && spell->flags & flags)

@@ -1219,7 +1219,7 @@ void do_some_living(object *op)
 		{
 			if (!QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				if (tmp->type == FOOD || tmp->type == DRINK || tmp->type == POISON)
+				if (tmp->type == FOOD || tmp->type == DRINK)
 				{
 					draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
 					manual_apply(op, tmp, 0);

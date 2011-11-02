@@ -2239,10 +2239,6 @@ jump_break1:
 
 				break;
 
-			case SPELLBOOK:
-				LOG(llevDebug, "fix_generated_item(): called for disabled object SPELLBOOK (%s)\n", query_name(op, NULL));
-				break;
-
 			case WAND:
 				if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL)
 				{

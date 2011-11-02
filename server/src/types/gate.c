@@ -25,8 +25,7 @@
 
 /**
  * @file
- * Code related to @ref GATE "gate" and @ref TIMED_GATE "timed gate"
- * object types. */
+ * Code related to @ref GATE "gates". */
 
 #include <global.h>
 

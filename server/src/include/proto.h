@@ -1031,8 +1031,6 @@ extern int check_good_armour(object *who, object *item);
 /* src/types/pedestal.c */
 extern int pedestal_matches_obj(object *op, object *tmp);
 extern void object_type_init_pedestal(void);
-/* src/types/pit.c */
-extern void object_type_init_pit(void);
 /* src/types/player.c */
 extern player *find_player(const char *plname);
 extern void display_motd(object *op);

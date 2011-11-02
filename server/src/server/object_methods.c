@@ -59,7 +59,6 @@ void object_methods_init(void)
 	}
 
 	object_type_init_book();
-	object_type_init_pit();
 	object_type_init_rod();
 	object_type_init_spawn_point();
 	object_type_init_door();

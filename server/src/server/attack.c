@@ -1277,7 +1277,7 @@ static void poison_player(object *op, object *hitter, float dam)
 		return;
 	}
 
-	if (tmp == NULL || hitter->type == POISON)
+	if (tmp == NULL)
 	{
 		if ((tmp = arch_to_object(at)) == NULL)
 		{
@@ -1286,92 +1286,44 @@ static void poison_player(object *op, object *hitter, float dam)
 		}
 		else
 		{
-			if (hitter->type == POISON)
+			dam /= 2.0f;
+			tmp->stats.dam = (int) ((int) dam + rndm(0, dam + 1));
+
+			if (tmp->stats.dam > op->stats.maxhp / 3)
 			{
-				dam /= 2.0f;
-				tmp->stats.dam = (int) (((dam + rndm(0, dam + 1)) * LEVEL_DAMAGE(hitter->level)) * 0.9f);
-
-				if (tmp->stats.dam > op->stats.maxhp / 3)
-				{
-					tmp->stats.dam = op->stats.maxhp / 3;
-				}
-
-				if (tmp->stats.dam < 1)
-				{
-					tmp->stats.dam = 1;
-				}
+				tmp->stats.dam = op->stats.maxhp / 3;
 			}
-			/* Spell or weapon will be handled different! */
-			else
+
+			if (tmp->stats.dam < 1)
 			{
-				dam /= 2.0f;
-				tmp->stats.dam = (int) ((int) dam + rndm(0, dam + 1));
-
-				if (tmp->stats.dam > op->stats.maxhp / 3)
-				{
-					tmp->stats.dam = op->stats.maxhp / 3;
-				}
-
-				if (tmp->stats.dam < 1)
-				{
-					tmp->stats.dam = 1;
-				}
+				tmp->stats.dam = 1;
 			}
 
 			tmp->level = hitter->level;
 			/* So we get credit for poisoning kills */
 			copy_owner(tmp, hitter);
 
-			/* Now we adjust numbers of ticks of the DOT force and speed of DOT ticks */
-			if (hitter->type == POISON)
-			{
-				/* # of ticks */
-				tmp->stats.food = hitter->last_heal;
-				/* Speed of ticks */
-				tmp->speed = tmp->speed_left;
-			}
-
 			if (op->type == PLAYER)
 			{
-				/* Spells should add here too later */
-				if (hitter->type == POISON)
-				{
-					/* Insert the food force in player too */
-					create_food_force(op, hitter, tmp);
-					draw_info(COLOR_WHITE, op, "You suddenly feel very ill.");
-				}
-				/* We have hit with weapon or something */
-				else
-				{
-					draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
-					insert_ob_in_ob(tmp, op);
-					SET_FLAG(tmp, FLAG_APPLIED);
-					fix_player(op);
-				}
+				draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
+				insert_ob_in_ob(tmp, op);
+				SET_FLAG(tmp, FLAG_APPLIED);
+				fix_player(op);
 			}
 			/* It's a monster */
 			else
 			{
-				/* Monster eats poison */
-				if (hitter->type == POISON)
+				insert_ob_in_ob(tmp, op);
+				SET_FLAG(tmp, FLAG_APPLIED);
+				fix_monster(op);
+
+				if (hitter->type == PLAYER)
 				{
+					draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
 				}
-				/* Hit from poison force! */
-				else
+				else if (get_owner(hitter) && hitter->owner->type == PLAYER)
 				{
-					insert_ob_in_ob(tmp, op);
-					SET_FLAG(tmp, FLAG_APPLIED);
-					fix_monster(op);
-
-					if (hitter->type == PLAYER)
-					{
-						draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
-					}
-					else if (get_owner(hitter) && hitter->owner->type == PLAYER)
-					{
-						draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
-					}
-
+					draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
 				}
 			}
 		}

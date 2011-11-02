@@ -1315,21 +1315,6 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
 	switch (tmp->type)
 	{
-		case SPELLBOOK:
-			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) && tmp->stats.sp >= 0 && tmp->stats.sp <= NROFREALSPELLS)
-			{
-				if (tmp->sub_type == ST1_SPELLBOOK_CLERIC)
-				{
-					snprintf(buf, sizeof(buf), "%s is a %d level prayer.", spells[tmp->stats.sp].name, spells[tmp->stats.sp].level);
-				}
-				else
-				{
-					snprintf(buf, sizeof(buf), "%s is a %d level spell.", spells[tmp->stats.sp].name, spells[tmp->stats.sp].level);
-				}
-			}
-
-			break;
-
 		case BOOK:
 			if (tmp->msg)
 			{

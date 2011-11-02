@@ -462,38 +462,6 @@ char *query_short_name(object *op, object *caller)
 
 			break;
 
-		case SPELLBOOK:
-			if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED))
-			{
-				if (!op->title)
-				{
-					safe_strcat(buf, " of ", &len, sizeof(buf));
-
-					if (op->slaying)
-					{
-						safe_strcat(buf, op->slaying, &len, sizeof(buf));
-					}
-					else
-					{
-						if (op->stats.sp == SP_NO_SPELL)
-						{
-							safe_strcat(buf, "nothing", &len, sizeof(buf));
-						}
-						else
-						{
-							safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
-						}
-					}
-				}
-				else
-				{
-					safe_strcat(buf, " ", &len, sizeof(buf));
-					safe_strcat(buf, op->title, &len, sizeof(buf));
-				}
-			}
-
-			break;
-
 		case SCROLL:
 		case WAND:
 		case ROD:
@@ -863,38 +831,6 @@ char *query_base_name(object *op, object *caller)
 					{
 						safe_strcat(buf, " (searched)", &len, sizeof(buf));
 					}
-				}
-			}
-
-			break;
-
-		case SPELLBOOK:
-			if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-			{
-				if (!op->title)
-				{
-					safe_strcat(buf, " of ", &len, sizeof(buf));
-
-					if (op->slaying)
-					{
-						safe_strcat(buf, op->slaying, &len, sizeof(buf));
-					}
-					else
-					{
-						if (op->stats.sp == SP_NO_SPELL)
-						{
-							safe_strcat(buf, "nothing", &len, sizeof(buf));
-						}
-						else
-						{
-							safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
-						}
-					}
-				}
-				else
-				{
-					safe_strcat(buf, " ", &len, sizeof(buf));
-					safe_strcat(buf, op->title, &len, sizeof(buf));
 				}
 			}
 
@@ -1545,8 +1481,6 @@ int need_identify(object *op)
 		case HORN:
 		case SCROLL:
 		case SKILL:
-		case SKILLSCROLL:
-		case SPELLBOOK:
 		case FOOD:
 		case POTION:
 		case BOW:
@@ -1571,7 +1505,6 @@ int need_identify(object *op)
 		case NUGGET:
 		case PEARL:
 		case POWER_CRYSTAL:
-		case POISON:
 		case BOOK:
 		case LIGHT_APPLY:
 		case LIGHT_REFILL:

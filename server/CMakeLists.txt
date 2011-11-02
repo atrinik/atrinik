@@ -283,7 +283,6 @@ set(SOURCES
 	src/types/marker.c
 	src/types/monster.c
 	src/types/pedestal.c
-	src/types/pit.c
 	src/types/player.c
 	src/types/player_mover.c
 	src/types/poisoning.c
