@@ -53,17 +53,9 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	connection_trigger(op, op->value);
 
-	if (QUERY_FLAG(op, FLAG_STAND_STILL))
+	if (op->stats.exp)
 	{
-		if (op->stats.exp)
-		{
-			op->speed = 1.0 / op->stats.exp;
-		}
-		else
-		{
-			op->speed = 1.0;
-		}
-
+		op->speed = 1.0;
 		update_ob_speed(op);
 		op->speed_left = -1;
 	}
