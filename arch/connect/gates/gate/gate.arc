@@ -31,6 +31,7 @@ no_teleport 1
 no_pick 1
 pass_thru 1
 wc 7
+state 7
 blocksview 1
 ac 1
 end
