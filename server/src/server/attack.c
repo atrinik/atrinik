@@ -439,9 +439,8 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * @param dir Direction op is hitting/going.
  * @param reduce Whether to reduce the damage for multi-arch monsters.
  * This will make it so that part of 4-tiles monster only gets hit for
- * 1/4 of the damage, making storms more fair against multi-arch monsters.
- * @return 0. */
-int hit_map(object *op, int dir, int reduce)
+ * 1/4 of the damage, making storms fairer against multi-arch monsters. */
+void hit_map(object *op, int dir, int reduce)
 {
 	object *tmp, *next, *owner;
 	mapstruct *m;
@@ -450,14 +449,14 @@ int hit_map(object *op, int dir, int reduce)
 
 	if (OBJECT_FREE(op))
 	{
-		return 0;
+		return;
 	}
 
 	op = HEAD(op);
 
 	if (!op->map || !op->stats.dam)
 	{
-		return 0;
+		return;
 	}
 
 	x = op->x + freearr_x[dir];
@@ -466,7 +465,7 @@ int hit_map(object *op, int dir, int reduce)
 
 	if (!m)
 	{
-		return 0;
+		return;
 	}
 
 	owner = get_owner(op);
@@ -511,8 +510,6 @@ int hit_map(object *op, int dir, int reduce)
 
 		hit_player(tmp, dam, op, AT_INTERNAL);
 	}
-
-	return 0;
 }
 
 /**
