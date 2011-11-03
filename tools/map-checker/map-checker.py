@@ -497,6 +497,9 @@ def check_obj(obj, map):
 	if "modified_artifact" in obj and obj["archname"] in artifacts:
 		add_error(map["file"], "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
+	if get_entry(obj, "same_attributes") == True:
+		add_error(map["file"], "Object '{0}' has attribute(s) with values same as the default.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
 	if get_entry(obj, "sys_object") == True and get_entry(obj, "layer") not in (0, None):
 		add_error(map["file"], "Object '{0}' is a system object but has a layer set.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
@@ -743,9 +746,9 @@ def do_scan():
 # @return The arch (or artifact) if found, None otherwise.
 def get_archetype(archname):
 	if archname in archetypes:
-		return dict(archetypes[archname])
+		return archetypes[archname]
 	elif archname in artifacts:
-		return dict(artifacts[archname])
+		return artifacts[archname]
 
 	return None
 
@@ -898,7 +901,8 @@ class ObjectParser:
 	# @return Archetype, complete with its inventory.
 	def map_parse_rec(self, archname, env = None):
 		# Find the archetype first.
-		archetype = get_archetype(archname)
+		def_archetype = get_archetype(archname)
+		archetype = dict(def_archetype)
 		invalid_arch = False
 
 		# Could not find it? Drop an error about it, but continue loading.
@@ -933,6 +937,11 @@ class ObjectParser:
 
 					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
 						archetype["modified_artifact"] = True
+
+					def_value = get_entry(def_archetype, attr)
+
+					if def_value == value or (value in (0, 0.0) and def_value == None):
+						archetype["same_attributes"] = True
 
 		if invalid_arch:
 			env = get_env(archetype)
