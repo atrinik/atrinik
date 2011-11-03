@@ -459,8 +459,6 @@ x 2
 y 21
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying creation_key_connect
 sp 1
 connected 104
@@ -658,8 +656,6 @@ x 3
 y 20
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying creation_key_connect
 sp 1
 last_grace 1
@@ -677,8 +673,6 @@ x 3
 y 21
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying creation_key_connect
 sp 1
 connected 104
@@ -823,6 +817,7 @@ x 4
 y 16
 end
 arch button
+weight 1000000
 connected 108
 x 4
 y 16
@@ -860,8 +855,6 @@ x 4
 y 21
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying creation_key_connect
 sp 1
 connected 104
@@ -1657,30 +1650,7 @@ arch floor_stone_b1
 x 10
 y 13
 end
-arch detector
-walk_on 1
-fly_on 1
-name convert mithril to gold
-slaying mitcoin
-food 1
-other_arch goldcoin
-sp 1000
-type 103
-x 10
-y 13
-end
 arch floor_stone_b4
-x 10
-y 14
-end
-arch detector
-walk_on 1
-fly_on 1
-name convert gold to mithril
-slaying goldcoin
-food 1000
-other_arch mitcoin
-type 103
 x 10
 y 14
 end
@@ -1688,40 +1658,11 @@ arch floor_stone_b4
 x 10
 y 15
 end
-arch detector
-walk_on 1
-fly_on 1
-name convert silver to gold
-slaying silvercoin
-food 100
-other_arch goldcoin
-type 103
-x 10
-y 15
-end
 arch floor_stone_b4
-x 10
-y 16
-end
-arch detector
-walk_on 1
-fly_on 1
-name convert copper to silver
-slaying coppercoin
-food 100
-other_arch silvercoin
-type 103
 x 10
 y 16
 end
 arch floor_stone_b2
-x 10
-y 17
-end
-arch sign
-msg
-Converters are able to transform x number of somethings into y number of somethings.
-endmsg
 x 10
 y 17
 end
@@ -1745,9 +1686,8 @@ x 10
 y 19
 end
 arch marker
-slaying creation_house_connection_marker
-speed 1.0
 food 100
+slaying creation_house_connection_marker
 x 10
 y 19
 end
@@ -1861,8 +1801,6 @@ x 11
 y 18
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying creation_house_connection_marker
 sp 1
 last_grace 1
@@ -1875,9 +1813,8 @@ x 11
 y 19
 end
 arch marker
-slaying creation_house_connection_marker
-speed 1.0
 food 100
+slaying creation_house_connection_marker
 x 11
 y 19
 end
@@ -1995,9 +1932,8 @@ x 12
 y 19
 end
 arch marker
-slaying creation_house_connection_marker
-speed 1.0
 food 100
+slaying creation_house_connection_marker
 x 12
 y 19
 end
@@ -2173,6 +2109,8 @@ y 7
 end
 arch director
 direction 5
+layer 2
+sys_object 0
 x 14
 y 7
 end
@@ -2182,6 +2120,8 @@ y 8
 end
 arch director
 direction 3
+layer 2
+sys_object 0
 x 14
 y 8
 end
@@ -2292,6 +2232,8 @@ y 7
 end
 arch director
 direction 7
+layer 2
+sys_object 0
 x 15
 y 7
 end
@@ -2300,6 +2242,8 @@ x 15
 y 8
 end
 arch director
+layer 2
+sys_object 0
 x 15
 y 8
 end
@@ -2646,11 +2590,10 @@ x 17
 y 17
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 17
 y 17
 end
@@ -2659,11 +2602,10 @@ x 17
 y 18
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 17
 y 18
 end
@@ -2672,11 +2614,10 @@ x 17
 y 19
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 17
 y 19
 end
@@ -2750,7 +2691,7 @@ x 18
 y 8
 end
 arch spinner
-layer 4
+layer 2
 sys_object 0
 direction 3
 x 18
@@ -2798,10 +2739,10 @@ y 14
 end
 arch magic_wall
 z -10
-blocksview 0
 dam 13
 speed 1.0
-alive 0
+sys_object 0
+layer 5
 x 18
 y 14
 end
@@ -2827,11 +2768,10 @@ x 18
 y 17
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 18
 y 17
 end
@@ -2841,12 +2781,12 @@ y 18
 end
 arch magic_wall
 z -10
-blocksview 0
 dam 13
 speed 1.0
 connected 106
 connect_no_release 1
-alive 0
+sys_object 0
+layer 5
 x 18
 y 18
 end
@@ -2855,11 +2795,10 @@ x 18
 y 19
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 18
 y 19
 end
@@ -2933,7 +2872,7 @@ x 19
 y 8
 end
 arch spinner
-layer 4
+layer 2
 sys_object 0
 direction 6
 x 19
@@ -2944,7 +2883,7 @@ x 19
 y 9
 end
 arch spinner
-layer 4
+layer 2
 sys_object 0
 direction 5
 x 19
@@ -2955,7 +2894,7 @@ x 19
 y 10
 end
 arch spinner
-layer 4
+layer 2
 sys_object 0
 direction 2
 x 19
@@ -3013,11 +2952,10 @@ x 19
 y 17
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 19
 y 17
 end
@@ -3026,11 +2964,10 @@ x 19
 y 18
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 19
 y 18
 end
@@ -3039,11 +2976,10 @@ x 19
 y 19
 end
 arch detector
-layer 0
-sys_object 1
 slaying magic bullet
 connected 106
-speed 1.0
+walk_on 0
+fly_on 1
 x 19
 y 19
 end
