@@ -2,7 +2,7 @@ arch map
 name Berri Lur
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-08-27 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1303,10 +1303,9 @@ arch knot-1d
 x 8
 y 8
 end
-arch button
-layer 0
-sys_object 1
-weight 300000
+arch pedestal
+slaying Laufey
+race ped_black_hs1
 connected 104
 x 8
 y 8
@@ -1350,10 +1349,9 @@ arch knot-1b
 x 8
 y 12
 end
-arch button
-layer 0
-sys_object 1
-weight 300000
+arch pedestal
+slaying Farbauti
+race ped_black_h1
 connected 103
 x 8
 y 12
@@ -2301,10 +2299,9 @@ arch knot-1b
 x 15
 y 8
 end
-arch button
-layer 0
-sys_object 1
-weight 300000
+arch pedestal
+slaying Byleistr
+race ped_black_h1
 connected 102
 x 15
 y 8
@@ -2333,10 +2330,9 @@ arch knot-1d
 x 15
 y 12
 end
-arch button
-layer 0
-sys_object 1
-weight 300000
+arch pedestal
+slaying Helblindi
+race ped_black_h1
 connected 101
 x 15
 y 12
