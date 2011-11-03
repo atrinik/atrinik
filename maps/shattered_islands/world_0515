@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1799,7 +1799,6 @@ x 10
 y 8
 end
 arch bank2c
-no_pass 1
 x 10
 y 8
 end
@@ -1995,7 +1994,6 @@ x 11
 y 8
 end
 arch bank2b
-no_pass 1
 x 11
 y 8
 end
@@ -2192,7 +2190,6 @@ x 12
 y 8
 end
 arch bank2b
-no_pass 1
 x 12
 y 8
 end
@@ -2397,7 +2394,6 @@ x 13
 y 8
 end
 arch bank2b
-no_pass 1
 x 13
 y 8
 end
@@ -2590,7 +2586,6 @@ x 14
 y 8
 end
 arch bank2a
-no_pass 1
 x 14
 y 8
 end
@@ -2946,7 +2941,6 @@ x 16
 y 1
 end
 arch bench1b.111
-no_pass 0
 direction 7
 x 16
 y 1
@@ -2956,7 +2950,6 @@ x 16
 y 2
 end
 arch bench1a.111
-no_pass 0
 direction 7
 x 16
 y 2
@@ -3002,7 +2995,6 @@ x 16
 y 8
 end
 arch bench1b.111
-no_pass 0
 direction 7
 x 16
 y 8
@@ -3012,7 +3004,6 @@ x 16
 y 9
 end
 arch bench1a.111
-no_pass 0
 direction 7
 x 16
 y 9
