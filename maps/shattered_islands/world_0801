@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -953,10 +953,9 @@ x 6
 y 14
 arch priest_green
 name Derur
-type 83
-level 6
-friendly 1
 direction 3
+level 6
+type 83
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
