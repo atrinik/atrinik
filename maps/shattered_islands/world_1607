@@ -2,7 +2,7 @@ arch map
 name Burnt Forest
 msg
 Created:  2010-08-16 Edwin Miltenburg
-Modified: 2010-09-29 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2544,11 +2544,11 @@ Dex 3
 can_use_weapon 1
 unaggressive 0
 type 83
-arch ability_stone_throw
-race arrows
 arch arrow
 sys_object 1
 end
+arch ability_stone_throw
+race arrows
 end
 end
 end
@@ -2822,11 +2822,11 @@ Dex 3
 can_use_bow 1
 unaggressive 0
 type 83
-arch ability_stone_throw
-race arrows
 arch arrow
 sys_object 1
 end
+arch ability_stone_throw
+race arrows
 end
 end
 end
