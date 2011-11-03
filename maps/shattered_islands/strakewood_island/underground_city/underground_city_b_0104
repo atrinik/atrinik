@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -690,14 +690,10 @@ x 7
 y 10
 end
 arch magic_wall
-layer 0
-sys_object 1
-blocksview 0
+name drow security system
 dam 50
 level 80
-alive 0
 speed -0.01
-name drow security system
 x 7
 y 10
 end
@@ -891,15 +887,11 @@ x 8
 y 5
 end
 arch magic_wall
-layer 0
-sys_object 1
-blocksview 0
+name drow security system
 direction 7
 dam 50
 level 80
-alive 0
 speed -0.01
-name drow security system
 x 8
 y 5
 end
@@ -3228,8 +3220,6 @@ x 19
 y 23
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying drow_daorosio_portal
 sp 1
 last_grace 1
