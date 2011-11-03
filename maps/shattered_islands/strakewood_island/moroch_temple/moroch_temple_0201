@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-02-11 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -660,12 +660,9 @@ x 5
 y 16
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying moroch_temple_key1
 sp 1
 last_grace 1
-direction 3
 x 5
 y 16
 end
@@ -680,12 +677,9 @@ x 5
 y 17
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying moroch_temple_key1
 sp 1
 last_grace 1
-direction 3
 x 5
 y 17
 end
