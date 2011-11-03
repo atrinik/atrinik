@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -254,9 +254,8 @@ x 1
 y 20
 arch ghoul
 name shadow ghoul
-type 83
 level 49
-Wis 3
+type 83
 end
 end
 arch floor_sand_d1
@@ -491,8 +490,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 7
 end
@@ -560,8 +557,6 @@ y 18
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 18
 end
@@ -602,9 +597,8 @@ x 3
 y 23
 arch ghoul
 name shadow ghoul
-type 83
 level 49
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -764,9 +758,8 @@ arch spawn_point
 x 5
 y 7
 arch lost_soul
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -925,8 +918,6 @@ x 6
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 15
 end
@@ -1500,14 +1491,10 @@ x 11
 y 20
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
 direction 3
 dam 11
 level 35
-no_pass 1
-alive 0
-name orc priest
 x 11
 y 20
 end
@@ -1590,8 +1577,6 @@ y 9
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 12
 y 9
 end
@@ -1661,8 +1646,6 @@ x 12
 y 22
 end
 arch director
-layer 0
-sys_object 1
 direction 4
 x 12
 y 22
@@ -1775,8 +1758,6 @@ x 13
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 13
 y 17
@@ -1786,8 +1767,6 @@ x 13
 y 18
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 13
 y 18
@@ -1813,8 +1792,6 @@ x 13
 y 22
 end
 arch director
-layer 0
-sys_object 1
 direction 6
 x 13
 y 22
@@ -1918,14 +1895,10 @@ x 14
 y 15
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
 direction 5
 dam 11
 level 35
-no_pass 1
-alive 0
-name orc priest
 x 14
 y 15
 end
@@ -1938,8 +1911,6 @@ x 14
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 6
 x 14
 y 17
@@ -1953,8 +1924,6 @@ x 14
 y 19
 end
 arch director
-layer 0
-sys_object 1
 direction 7
 x 14
 y 19
@@ -1964,8 +1933,6 @@ x 14
 y 20
 end
 arch director
-layer 0
-sys_object 1
 direction 6
 x 14
 y 20
@@ -1975,8 +1942,6 @@ x 14
 y 21
 end
 arch director
-layer 0
-sys_object 1
 direction 7
 x 14
 y 21
@@ -1990,8 +1955,6 @@ x 14
 y 23
 end
 arch director
-layer 0
-sys_object 1
 x 14
 y 23
 end
@@ -2244,8 +2207,6 @@ x 16
 y 18
 end
 arch director
-layer 0
-sys_object 1
 x 16
 y 18
 end
@@ -2263,8 +2224,6 @@ x 16
 y 20
 end
 arch director
-layer 0
-sys_object 1
 direction 2
 x 16
 y 20
@@ -2274,8 +2233,6 @@ x 16
 y 21
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 16
 y 21
@@ -2395,8 +2352,6 @@ x 17
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 7
 x 17
 y 17
@@ -2414,8 +2369,6 @@ x 17
 y 19
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 17
 y 19
@@ -2457,8 +2410,6 @@ x 17
 y 22
 end
 arch director
-layer 0
-sys_object 1
 direction 4
 x 17
 y 22
@@ -2567,8 +2518,6 @@ x 18
 y 20
 end
 arch director
-layer 0
-sys_object 1
 direction 7
 x 18
 y 20
@@ -2672,14 +2621,10 @@ x 19
 y 15
 end
 arch magic_wall
+name orc priest
+direction 5
 dam 11
 level 35
-layer 0
-sys_object 1
-no_pass 1
-alive 0
-direction 5
-name orc priest
 x 19
 y 15
 end
@@ -2700,8 +2645,6 @@ x 19
 y 19
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 19
 y 19
@@ -2848,14 +2791,10 @@ x 21
 y 15
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
+direction 5
 dam 11
 level 35
-no_pass 1
-alive 0
-direction 5
-name orc priest
 x 21
 y 15
 end
@@ -2888,8 +2827,6 @@ x 21
 y 22
 end
 arch director
-layer 0
-sys_object 1
 x 21
 y 22
 end
@@ -2902,14 +2839,10 @@ x 21
 y 23
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
 direction 8
 dam 11
 level 35
-no_pass 1
-alive 0
-name orc priest
 x 21
 y 23
 end
@@ -3038,8 +2971,6 @@ x 22
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 4
 x 22
 y 17
@@ -3062,8 +2993,6 @@ x 22
 y 20
 end
 arch director
-layer 0
-sys_object 1
 direction 2
 x 22
 y 20
@@ -3073,8 +3002,6 @@ x 22
 y 21
 end
 arch director
-layer 0
-sys_object 1
 direction 4
 x 22
 y 21
@@ -3108,8 +3035,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 23
 y 2
 end
@@ -3135,8 +3060,6 @@ y 6
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 23
 y 6
 end
