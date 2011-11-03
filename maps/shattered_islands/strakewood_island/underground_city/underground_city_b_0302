@@ -170,16 +170,12 @@ y 13
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 3
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 1
 y 13
 end
@@ -240,16 +236,12 @@ y 18
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 3
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 3
+last_eat 0
 x 1
 y 18
 end
@@ -489,7 +481,6 @@ x 3
 end
 arch button
 connected 113
-layer 2
 x 3
 end
 arch pedestal
@@ -519,16 +510,12 @@ y 4
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 5
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 5
+last_eat 0
 x 3
 y 4
 end
@@ -661,15 +648,11 @@ y 23
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 3
 y 23
 end
@@ -683,7 +666,6 @@ x 4
 end
 arch button
 connected 114
-layer 2
 x 4
 end
 arch pedestal
@@ -720,8 +702,6 @@ x 4
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 4
 y 5
@@ -751,8 +731,6 @@ x 4
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 4
 x 4
 y 8
@@ -847,8 +825,6 @@ x 4
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 2
 x 4
 y 17
@@ -952,7 +928,6 @@ x 5
 end
 arch button
 connected 115
-layer 2
 x 5
 end
 arch pedestal
@@ -985,8 +960,6 @@ x 5
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 5
 y 5
@@ -1004,8 +977,6 @@ x 5
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 5
 y 8
@@ -1020,16 +991,12 @@ y 10
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 4
-last_eat 0
 dam 1
 level 65
 speed -0.35
 connected 102
-alive 0
+last_eat 0
 x 5
 y 10
 end
@@ -1125,16 +1092,12 @@ y 15
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 2
-last_eat 0
 dam 0
 level 65
 speed -0.35
 connected 102
-alive 0
+last_eat 0
 x 5
 y 15
 end
@@ -1147,8 +1110,6 @@ x 5
 y 17
 end
 arch director
-layer 0
-sys_object 1
 x 5
 y 17
 end
@@ -1183,7 +1144,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 3
 sp 18
@@ -1233,7 +1193,6 @@ x 6
 end
 arch button
 connected 116
-layer 2
 x 6
 end
 arch pedestal
@@ -1270,8 +1229,6 @@ x 6
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 6
 y 5
@@ -1293,8 +1250,6 @@ x 6
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 6
 y 8
@@ -1308,8 +1263,6 @@ x 6
 y 9
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 6
 y 9
@@ -1399,15 +1352,11 @@ y 15
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 37
 level 65
 speed -0.35
 connected 102
-alive 0
+last_eat 0
 x 6
 y 15
 end
@@ -1428,8 +1377,6 @@ x 6
 y 17
 end
 arch director
-layer 0
-sys_object 1
 x 6
 y 17
 end
@@ -1464,7 +1411,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 3
 sp 18
@@ -1513,7 +1459,6 @@ x 7
 end
 arch button
 connected 117
-layer 2
 x 7
 end
 arch pedestal
@@ -1576,16 +1521,12 @@ y 7
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 0
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 7
 y 7
 end
@@ -1598,8 +1539,6 @@ x 7
 y 8
 end
 arch director
-layer 0
-sys_object 1
 x 7
 y 8
 end
@@ -1617,17 +1556,12 @@ y 9
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 5
-last_eat 0
 dam 50
 level 65
 speed -0.25
 connected 102
-no_pass 1
-alive 0
+last_eat 0
 x 7
 y 9
 end
@@ -1743,16 +1677,11 @@ y 16
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 50
 level 65
 speed -0.4
 connected 102
-no_pass 1
-alive 0
+last_eat 0
 x 7
 y 16
 end
@@ -1765,8 +1694,6 @@ x 7
 y 17
 end
 arch director
-layer 0
-sys_object 1
 x 7
 y 17
 end
@@ -1801,7 +1728,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 11
 sp 18
@@ -1827,16 +1753,12 @@ y 20
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 0
-last_eat 0
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 7
 y 20
 end
@@ -1866,7 +1788,6 @@ x 8
 end
 arch button
 connected 118
-layer 2
 x 8
 end
 arch pedestal
@@ -1903,8 +1824,6 @@ x 8
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 8
 y 5
@@ -1926,8 +1845,6 @@ x 8
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 8
 y 8
@@ -2025,15 +1942,11 @@ y 15
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 37
 level 65
 speed -0.35
 connected 102
-alive 0
+last_eat 0
 x 8
 y 15
 end
@@ -2054,8 +1967,6 @@ x 8
 y 17
 end
 arch director
-layer 0
-sys_object 1
 x 8
 y 17
 end
@@ -2090,7 +2001,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 11
 sp 18
@@ -2163,8 +2073,6 @@ x 9
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 9
 y 5
@@ -2182,8 +2090,6 @@ x 9
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 9
 y 8
@@ -2295,8 +2201,6 @@ x 9
 y 17
 end
 arch director
-layer 0
-sys_object 1
 x 9
 y 17
 end
@@ -2331,7 +2235,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 11
 sp 18
@@ -2402,8 +2305,6 @@ x 10
 y 5
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 10
 y 5
@@ -2433,8 +2334,6 @@ x 10
 y 8
 end
 arch director
-layer 0
-sys_object 1
 direction 6
 x 10
 y 8
@@ -2569,8 +2468,6 @@ x 10
 y 17
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 10
 y 17
@@ -2610,7 +2507,6 @@ y 18
 arch water_lt4
 end
 arch portal_big
-player_only 1
 is_invisible 1
 hp 11
 sp 18
@@ -2879,16 +2775,12 @@ y 4
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 5
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 12
 y 4
 end
@@ -3071,15 +2963,11 @@ y 23
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 12
 y 23
 end
@@ -3253,16 +3141,12 @@ y 9
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 3
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 3
+last_eat 0
 x 14
 y 9
 end
@@ -3276,16 +3160,12 @@ y 10
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 5
-last_eat 0
 dam 50
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 14
 y 10
 end
@@ -3319,15 +3199,11 @@ y 14
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 49
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 14
 y 14
 end
@@ -3517,16 +3393,12 @@ y 14
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 5
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 5
+last_eat 0
 x 15
 y 14
 end
@@ -3707,16 +3579,12 @@ x 17
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 5
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 17
 end
 arch floor_black2a
@@ -3887,16 +3755,12 @@ y 5
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 5
-last_eat 0
 dam 8
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 18
 y 5
 end
@@ -4215,16 +4079,12 @@ y 12
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 7
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 7
+last_eat 0
 x 20
 y 12
 end
@@ -4278,16 +4138,12 @@ y 18
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 8
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 8
+last_eat 0
 x 20
 y 18
 end
@@ -4485,16 +4341,12 @@ y 11
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
 direction 3
-last_eat 0
 dam 50
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 22
 y 11
 end
@@ -4508,16 +4360,12 @@ y 12
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
+direction 3
 dam 35
 level 75
 speed -0.5
 connected 201
-alive 0
-direction 3
+last_eat 0
 x 22
 y 12
 end
@@ -4700,15 +4548,11 @@ y 18
 end
 arch magic_wall
 name drow security system
-layer 0
-sys_object 1
-blocksview 0
-last_eat 0
 dam 49
 level 75
 speed -0.5
 connected 201
-alive 0
+last_eat 0
 x 23
 y 18
 end
