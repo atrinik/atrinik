@@ -50,7 +50,6 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) cause;
 	op->value = state;
 
 	if (state && cause->stats.exp)
