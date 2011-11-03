@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -394,19 +394,10 @@ arch water_lt2
 x 4
 y 4
 end
-arch duplicator
-slaying ant_red
-connected 121
-connect_no_release 1
-x 4
-y 4
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
+last_heal 1
 connected 121
-speed 1.0
 x 4
 y 4
 end
@@ -414,19 +405,10 @@ arch water_lt4
 x 4
 y 5
 end
-arch duplicator
-slaying ant_red
-connected 120
-connect_no_release 1
-x 4
-y 5
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 120
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 5
 end
@@ -434,19 +416,10 @@ arch water_lt4
 x 4
 y 6
 end
-arch duplicator
-slaying ant_red
-connected 119
-connect_no_release 1
-x 4
-y 6
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 119
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 6
 end
@@ -454,19 +427,10 @@ arch water_lt
 x 4
 y 7
 end
-arch duplicator
-slaying ant_red
-connected 118
-connect_no_release 1
-x 4
-y 7
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 118
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 7
 end
@@ -474,19 +438,10 @@ arch water_lt3
 x 4
 y 8
 end
-arch duplicator
-slaying ant_red
-connected 117
-connect_no_release 1
-x 4
-y 8
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 117
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 8
 end
@@ -494,19 +449,10 @@ arch water_lt2
 x 4
 y 9
 end
-arch duplicator
-slaying ant_red
-connected 116
-connect_no_release 1
-x 4
-y 9
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 116
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 9
 end
@@ -514,19 +460,10 @@ arch water_lt2
 x 4
 y 10
 end
-arch duplicator
-slaying ant_red
-connected 115
-connect_no_release 1
-x 4
-y 10
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 115
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 10
 end
@@ -534,18 +471,10 @@ arch water_lt2
 x 4
 y 11
 end
-arch duplicator
-slaying ant_red
-connected 114
-x 4
-y 11
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 114
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 11
 end
@@ -553,18 +482,10 @@ arch water_lt3
 x 4
 y 12
 end
-arch duplicator
-slaying ant_red
-connected 113
-x 4
-y 12
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 113
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 12
 end
@@ -572,18 +493,10 @@ arch water_lt3
 x 4
 y 13
 end
-arch duplicator
-slaying ant_red
-connected 112
-x 4
-y 13
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 112
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 13
 end
@@ -591,18 +504,10 @@ arch water_lt
 x 4
 y 14
 end
-arch duplicator
-slaying ant_red
-connected 111
-x 4
-y 14
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 111
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 14
 end
@@ -610,18 +515,10 @@ arch water_lt3
 x 4
 y 15
 end
-arch duplicator
-slaying ant_red
-connected 110
-x 4
-y 15
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 110
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 15
 end
@@ -629,18 +526,10 @@ arch water_lt2
 x 4
 y 16
 end
-arch duplicator
-slaying ant_red
-connected 109
-x 4
-y 16
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 109
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 16
 end
@@ -648,18 +537,10 @@ arch water_lt3
 x 4
 y 17
 end
-arch duplicator
-slaying ant_red
-connected 108
-x 4
-y 17
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 108
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 17
 end
@@ -667,18 +548,10 @@ arch water_lt3
 x 4
 y 18
 end
-arch duplicator
-slaying ant_red
-connected 107
-x 4
-y 18
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 107
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 18
 end
@@ -686,18 +559,10 @@ arch water_lt2
 x 4
 y 19
 end
-arch duplicator
-slaying ant_red
-connected 106
-x 4
-y 19
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 106
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 19
 end
@@ -705,18 +570,10 @@ arch water_lt3
 x 4
 y 20
 end
-arch duplicator
-slaying ant_red
-connected 105
-x 4
-y 20
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 105
-speed 1.0
+last_heal 1
+connected 121
 x 4
 y 20
 end
@@ -747,19 +604,10 @@ arch water_lt4
 x 5
 y 3
 end
-arch duplicator
-slaying ant_red
-connected 123
-connect_no_release 1
-x 5
-y 3
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 123
-speed 1.0
+last_heal 1
+connected 121
 x 5
 y 3
 end
@@ -767,19 +615,10 @@ arch water_lt4
 x 5
 y 4
 end
-arch duplicator
-slaying ant_red
-connected 122
-connect_no_release 1
-x 5
-y 4
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 122
-speed 1.0
+last_heal 1
+connected 121
 x 5
 y 4
 end
@@ -847,18 +686,10 @@ arch water_lt4
 x 5
 y 20
 end
-arch duplicator
-slaying ant_red
-connected 104
-x 5
-y 20
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 104
-speed 1.0
+last_heal 1
+connected 121
 x 5
 y 20
 end
@@ -866,18 +697,10 @@ arch water_lt3
 x 5
 y 21
 end
-arch duplicator
-slaying ant_red
-connected 103
-x 5
-y 21
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 103
-speed 1.0
+last_heal 1
+connected 121
 x 5
 y 21
 end
@@ -900,19 +723,10 @@ arch water_lt
 x 6
 y 2
 end
-arch duplicator
-slaying ant_red
-connected 125
-connect_no_release 1
-x 6
-y 2
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 125
-speed 1.0
+last_heal 1
+connected 121
 x 6
 y 2
 end
@@ -920,19 +734,10 @@ arch water_lt
 x 6
 y 3
 end
-arch duplicator
-slaying ant_red
-connected 124
-connect_no_release 1
-x 6
-y 3
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 124
-speed 1.0
+last_heal 1
+connected 121
 x 6
 y 3
 end
@@ -1014,18 +819,10 @@ arch water_lt4
 x 6
 y 21
 end
-arch duplicator
-slaying ant_red
-connected 202
-x 6
-y 21
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 202
-speed 1.0
+last_heal 1
+connected 121
 x 6
 y 21
 end
@@ -1033,18 +830,10 @@ arch water_lt3
 x 6
 y 22
 end
-arch duplicator
-slaying ant_red
-connected 102
-x 6
-y 22
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 102
-speed 1.0
+last_heal 1
+connected 121
 x 6
 y 22
 end
@@ -1059,19 +848,10 @@ arch water_lt2
 x 7
 y 1
 end
-arch duplicator
-slaying ant_red
-connected 127
-connect_no_release 1
-x 7
-y 1
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 127
-speed 1.0
+last_heal 1
+connected 121
 x 7
 y 1
 end
@@ -1079,19 +859,10 @@ arch water_lt
 x 7
 y 2
 end
-arch duplicator
-slaying ant_red
-connected 126
-connect_no_release 1
-x 7
-y 2
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 126
-speed 1.0
+last_heal 1
+connected 121
 x 7
 y 2
 end
@@ -1189,18 +960,10 @@ arch grassd_m8
 x 7
 y 22
 end
-arch duplicator
-slaying ant_red
-connected 101
-x 7
-y 22
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 101
-speed 1.0
+last_heal 1
+connected 121
 x 7
 y 22
 end
@@ -1226,19 +989,10 @@ arch grassd_m8
 x 8
 y 1
 end
-arch duplicator
-slaying ant_red
-connected 128
-connect_no_release 1
-x 8
-y 1
-end
 arch detector
-layer 0
-sys_object 1
 slaying removable
-connected 128
-speed 1.0
+last_heal 1
+connected 121
 x 8
 y 1
 end
@@ -2791,9 +2545,12 @@ x 19
 y 8
 arch ant_red
 no_pass 1
-name removable
-face tree_branch2.101
 sys_object 1
+name removable
+layer 4
+face tree_branch2.101
+is_animated 0
+direction 0
 randomitems none
 race log
 speed -0.2053
@@ -2807,9 +2564,6 @@ movement_type 176
 protect_confusion 100
 protect_internal 100
 type 83
-layer 4
-direction 0
-is_animated 0
 arch waypoint
 name wp8
 slaying world_0119
@@ -3014,10 +2768,12 @@ last_grace 7
 x 20
 y 18
 arch ant_red
-no_pass 1
 name removable
+layer 4
 face tree_branch3.101
+is_animated 0
 sys_object 1
+direction 0
 randomitems none
 race log
 speed -0.2053
@@ -3031,9 +2787,7 @@ movement_type 176
 protect_confusion 100
 protect_internal 100
 type 83
-layer 4
-direction 0
-is_animated 0
+no_pass 1
 arch waypoint
 name wp8
 slaying world_0119
