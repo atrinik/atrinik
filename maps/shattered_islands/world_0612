@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1911,12 +1911,10 @@ Dex 3
 can_see_in_dark 1
 can_use_bow 1
 unaggressive 0
-friendly 1
-stand_still 0
 protect_impact 15
 protect_slash 15
-protect_pierce 15
 protect_cleave 15
+protect_pierce 15
 protect_magic 10
 type 83
 arch ability_stone_throw
@@ -2508,11 +2506,10 @@ dam 50
 maxhp 90
 can_see_in_dark 1
 unaggressive 0
-stand_still 0
 protect_impact 15
 protect_slash 15
-protect_pierce 15
 protect_cleave 15
+protect_pierce 15
 protect_magic 50
 type 83
 end
