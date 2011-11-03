@@ -2,7 +2,7 @@ arch map
 name Bog of Eternal Stench
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1410,9 +1410,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 6
 y 10
 end
@@ -1428,9 +1427,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 6
 y 11
 end
@@ -1446,9 +1444,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 6
 y 12
 end
@@ -1637,9 +1634,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 7
 y 9
 end
@@ -1655,9 +1651,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 7
 y 10
 end
@@ -1681,9 +1676,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 7
 y 12
 end
@@ -1699,9 +1693,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 7
 y 13
 end
@@ -1892,9 +1885,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 8
 y 8
 end
@@ -1910,9 +1902,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 8
 y 9
 end
@@ -1956,9 +1947,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 8
 y 13
 end
@@ -1974,9 +1964,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 8
 y 14
 end
@@ -2129,9 +2118,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 9
 y 7
 end
@@ -2147,9 +2135,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 9
 y 8
 end
@@ -2205,9 +2192,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 9
 y 14
 end
@@ -2223,9 +2209,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 9
 y 15
 end
@@ -2351,7 +2336,6 @@ x 10
 y 5
 end
 arch mushroom_medium
-direction 0
 x 10
 y 5
 end
@@ -2375,9 +2359,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 10
 y 7
 end
@@ -2449,9 +2432,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 10
 y 15
 end
@@ -2467,9 +2449,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 10
 y 16
 end
@@ -2529,9 +2510,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 10
 y 22
 end
@@ -2547,9 +2527,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 10
 y 23
 end
@@ -2630,9 +2609,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 7
 end
@@ -2668,9 +2646,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 10
 end
@@ -2686,9 +2663,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 11
 end
@@ -2704,9 +2680,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 12
 end
@@ -2754,9 +2729,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 16
 end
@@ -2808,9 +2782,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 21
 end
@@ -2826,9 +2799,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 11
 y 22
 end
@@ -2913,9 +2885,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 7
 end
@@ -2947,9 +2918,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 10
 end
@@ -2977,9 +2947,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 12
 end
@@ -2995,9 +2964,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 13
 end
@@ -3036,9 +3004,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 16
 end
@@ -3070,9 +3037,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 19
 end
@@ -3088,9 +3054,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 20
 end
@@ -3106,9 +3071,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 12
 y 21
 end
@@ -3209,9 +3173,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 7
 end
@@ -3243,9 +3206,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 10
 end
@@ -3277,9 +3239,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 13
 end
@@ -3295,9 +3256,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 14
 end
@@ -3313,9 +3273,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 15
 end
@@ -3331,9 +3290,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 13
 y 16
 end
@@ -3474,9 +3432,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 14
 y 7
 end
@@ -3508,9 +3465,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 14
 y 10
 end
@@ -3582,9 +3538,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 14
 y 18
 end
@@ -3600,9 +3555,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 14
 y 19
 end
@@ -3642,9 +3596,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 14
 y 23
 end
@@ -3725,9 +3678,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 7
 end
@@ -3759,9 +3711,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 10
 end
@@ -3777,9 +3728,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 11
 end
@@ -3855,9 +3805,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 18
 end
@@ -3901,9 +3850,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 22
 end
@@ -3919,9 +3867,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 15
 y 23
 end
@@ -3994,9 +3941,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 7
 end
@@ -4052,9 +3998,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 12
 end
@@ -4070,9 +4015,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 13
 end
@@ -4088,9 +4032,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 14
 end
@@ -4106,9 +4049,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 15
 end
@@ -4124,9 +4066,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 16
 end
@@ -4142,9 +4083,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 17
 end
@@ -4192,9 +4132,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 16
 y 22
 end
@@ -4287,9 +4226,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 17
 y 7
 end
@@ -4305,9 +4243,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 17
 y 8
 end
@@ -4423,9 +4360,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 17
 y 21
 end
@@ -4441,9 +4377,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 17
 y 22
 end
@@ -4536,9 +4471,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 18
 y 8
 end
@@ -4554,9 +4488,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 18
 y 9
 end
@@ -4616,9 +4549,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 18
 y 15
 end
@@ -4666,9 +4598,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 18
 y 20
 end
@@ -4684,9 +4615,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 18
 y 21
 end
@@ -4803,9 +4733,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 9
 end
@@ -4821,9 +4750,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 10
 end
@@ -4839,9 +4767,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 11
 end
@@ -4857,9 +4784,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 12
 end
@@ -4915,9 +4841,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 18
 end
@@ -4933,9 +4858,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 19
 end
@@ -4951,9 +4875,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 19
 y 20
 end
@@ -5094,9 +5017,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 12
 end
@@ -5112,9 +5034,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 13
 end
@@ -5130,9 +5051,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 14
 end
@@ -5148,9 +5068,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 15
 end
@@ -5166,9 +5085,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 16
 end
@@ -5184,9 +5102,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 17
 end
@@ -5202,9 +5119,8 @@ arch marker
 msg
 Ach! You're in the swamp!
 endmsg
-slaying berri_lur_stench
-speed 1.0
 food 0
+slaying berri_lur_stench
 x 20
 y 18
 end
