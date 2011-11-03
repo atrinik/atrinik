@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1413,10 +1413,9 @@ arch spawn_point
 x 9
 y 20
 arch treant_evil
-type 83
 level 6
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf1
@@ -1533,10 +1532,9 @@ arch spawn_point
 x 10
 y 17
 arch quickwood
-type 83
 level 7
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf1
@@ -1815,10 +1813,9 @@ arch spawn_point
 x 12
 y 22
 arch quickwood
-type 83
 level 6
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf1
@@ -2191,10 +2188,9 @@ arch spawn_point
 x 15
 y 19
 arch treant_evil
-type 83
 level 7
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf1
@@ -2437,10 +2433,9 @@ arch spawn_point
 x 17
 y 17
 arch quickwood
-type 83
 level 7
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf2
@@ -2711,10 +2706,9 @@ arch spawn_point
 x 19
 y 20
 arch treant_evil
-type 83
 level 6
 unaggressive 1
-Wis 3
+type 83
 end
 end
 arch grass_leaf2
