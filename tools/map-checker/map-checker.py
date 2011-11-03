@@ -68,6 +68,7 @@ class types:
 	book = 8
 	magic_ear = 29
 	light_source = 74
+	bow = 14
 
 # Configuration related to the application and some other defines.
 class checker:
@@ -501,7 +502,8 @@ def check_obj(obj, map):
 		add_error(map["file"], "Object '{0}' has attribute(s) with values same as the default.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 	if get_entry(obj, "sys_object") == True and get_entry(obj, "layer") not in (0, None):
-		add_error(map["file"], "Object '{0}' is a system object but has a layer set.".format(obj["archname"]), errors.low, env["x"], env["y"])
+		if not "env" in obj or obj["env"]["type"] != types.bow:
+			add_error(map["file"], "Object '{0}' is a system object but has a layer set.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 	if obj["type"] == types.monster or obj["type"] == types.spawn_point_mob:
 		if not "level" in obj:
