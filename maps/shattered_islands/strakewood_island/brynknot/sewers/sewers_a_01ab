@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -37,7 +37,6 @@ arch floor_grey6
 y 4
 end
 arch stone_2
-race polished_rock
 weight 300000
 can_roll 1
 terrain_flag 1
@@ -446,9 +445,7 @@ x 3
 y 7
 end
 arch pedestal
-layer 0
-sys_object 1
-slaying polished_rock
+slaying polished rock
 connected 201
 x 3
 y 7
@@ -499,9 +496,7 @@ x 3
 y 15
 end
 arch pedestal
-layer 0
-sys_object 1
-slaying polished_rock
+slaying polished rock
 connected 204
 x 3
 y 15
@@ -1641,9 +1636,7 @@ x 11
 y 7
 end
 arch pedestal
-layer 0
-sys_object 1
-slaying polished_rock
+slaying polished rock
 connected 202
 x 11
 y 7
@@ -1723,9 +1716,7 @@ x 11
 y 15
 end
 arch pedestal
-layer 0
-sys_object 1
-slaying polished_rock
+slaying polished rock
 connected 203
 x 11
 y 15
@@ -3271,9 +3262,6 @@ x 21
 y 22
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 7
 slaying brynknot_sewers1
 sp 1
 last_grace 1
