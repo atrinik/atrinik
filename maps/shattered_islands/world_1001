@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-01-08 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -412,10 +412,9 @@ arch spawn_point
 x 2
 y 15
 arch guard
-type 83
-level 30
-friendly 1
 direction 3
+level 30
+type 83
 end
 end
 arch light5
@@ -454,10 +453,9 @@ arch spawn_point
 x 2
 y 19
 arch guard
-type 83
-level 30
-friendly 1
 direction 3
+level 30
+type 83
 end
 end
 arch light5
