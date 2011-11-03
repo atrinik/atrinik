@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-11-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2999,9 +2999,6 @@ x 21
 y 22
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 7
 slaying brynknot_sewers2
 sp 1
 last_grace 1
