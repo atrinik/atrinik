@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -102,7 +102,6 @@ x 2
 y 1
 arch skel_fighter1
 level 46
-Wis 3
 type 83
 end
 end
@@ -404,24 +403,6 @@ x 3
 y 22
 end
 arch floor_sblack2b
-x 3
-y 23
-end
-arch check_inv
-layer 0
-sys_object 1
-slaying underground_city_a_05aa_hole
-sp 1
-last_heal 1
-x 3
-y 23
-end
-arch magic_mouth
-msg
-The sewer hole looks too narrow for you to fit through!
-You'll have to find another way...
-endmsg
-direction 1
 x 3
 y 23
 end
@@ -1073,7 +1054,6 @@ x 9
 y 12
 arch slug_giant
 level 45
-Wis 3
 type 83
 end
 end
@@ -1318,8 +1298,6 @@ x 11
 y 5
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying underground_city_key1
 sp 1
 last_grace 1
@@ -1441,8 +1419,6 @@ x 12
 y 5
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying underground_city_key1
 sp 1
 last_grace 1
@@ -1971,7 +1947,6 @@ name skeleton archer
 level 46
 Dex 3
 can_use_bow 1
-Wis 3
 type 83
 arch ability_stone_throw
 race arrows
