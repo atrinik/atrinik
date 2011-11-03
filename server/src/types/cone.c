@@ -46,11 +46,11 @@ static int cone_exists(object *op, mapstruct *m, int x, int y)
 	{
 		if (op->type == tmp->type && op->weight_limit == tmp->weight_limit)
 		{
-			return 0;
+			return 1;
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 /** @copydoc object_methods::process_func */
@@ -99,7 +99,6 @@ static void process_func(object *op)
 	{
 		x = op->x + freearr_x[absdir(op->stats.sp + i)];
 		y = op->y + freearr_y[absdir(op->stats.sp + i)];
-
 		m = get_map_from_coord(op->map, &x, &y);
 
 		if (!m)
