@@ -2,7 +2,7 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 12
 height 12
@@ -480,11 +480,9 @@ x 5
 y 8
 arch priest_sad
 name Guild Oracle
-type 83
-level 80
-can_cast_spell 0
-friendly 1
 direction 1
+level 80
+type 83
 arch event_obj
 sub_type 6
 race /python/guilds/guild_oracle.py
