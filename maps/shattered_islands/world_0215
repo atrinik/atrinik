@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-18 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1672,7 +1672,6 @@ x 13
 y 9
 end
 arch pillar_ruin1a_a
-blocksview 0
 x 13
 y 9
 end
