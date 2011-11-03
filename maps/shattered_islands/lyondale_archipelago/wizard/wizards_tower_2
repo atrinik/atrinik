@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower
 msg
 Created:  2010-05-19 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 17
 height 15
@@ -626,7 +626,6 @@ name Dergrim
 animation thelra_male
 level 30
 race thelra
-can_cast_spell 0
 type 83
 end
 end
@@ -822,12 +821,10 @@ x 5
 y 5
 arch mage_old
 name Celand
+direction 7
 level 30
 race thelra
-can_cast_spell 0
-friendly 1
 type 83
-direction 7
 end
 end
 arch floor_bw1
@@ -1880,13 +1877,12 @@ y 13
 arch mage_old
 name Elyell
 animation thelra_female
+direction 1
 level 30
 race thelra
 is_male 0
 is_female 1
-can_cast_spell 0
 type 83
-direction 1
 end
 end
 arch floor_bw1
@@ -1970,7 +1966,6 @@ level 30
 race thelra
 is_male 0
 is_female 1
-can_cast_spell 0
 type 83
 end
 end
