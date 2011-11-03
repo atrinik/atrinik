@@ -2,7 +2,7 @@ arch map
 name Ogre Guard
 msg
 Created:  2010-03-16 Alex Tokar
-Modified: 2010-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -409,7 +409,6 @@ x 2
 y 20
 arch giant_stone
 level 8
-Wis 3
 type 83
 end
 end
@@ -647,7 +646,6 @@ x 4
 y 12
 arch ettin
 level 9
-Wis 3
 type 83
 end
 end
@@ -1315,7 +1313,6 @@ x 9
 y 11
 arch ettin
 level 8
-Wis 3
 type 83
 end
 end
@@ -1376,7 +1373,6 @@ x 9
 y 21
 arch ogre
 level 8
-Wis 3
 type 83
 end
 end
@@ -2033,7 +2029,6 @@ x 14
 y 10
 arch ogre
 level 7
-Wis 3
 type 83
 end
 end
@@ -2298,7 +2293,6 @@ x 16
 y 2
 arch ogre
 level 7
-Wis 3
 type 83
 end
 end
@@ -2520,7 +2514,6 @@ x 17
 y 20
 arch ogre
 level 7
-Wis 3
 type 83
 end
 end
@@ -2849,7 +2842,6 @@ x 20
 y 4
 arch giant_hill
 level 8
-Wis 3
 type 83
 end
 end
@@ -2894,7 +2886,6 @@ x 20
 y 12
 arch giant_stone
 level 9
-Wis 3
 type 83
 end
 end
@@ -2939,7 +2930,6 @@ x 20
 y 21
 arch giant_hill
 level 8
-Wis 3
 type 83
 end
 end
@@ -3006,7 +2996,6 @@ x 21
 y 9
 arch ettin
 level 8
-Wis 3
 type 83
 end
 end
