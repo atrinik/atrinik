@@ -2,7 +2,7 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2011-11-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 15
 height 23
@@ -910,7 +910,6 @@ y 19
 arch guard
 name jail guard
 level 80
-friendly 1
 type 83
 end
 end
@@ -1352,7 +1351,6 @@ y 19
 arch guard
 name jail guard
 level 80
-friendly 1
 type 83
 end
 end
@@ -2115,7 +2113,6 @@ y 19
 arch guard
 name jail guard
 level 80
-friendly 1
 type 83
 end
 end
