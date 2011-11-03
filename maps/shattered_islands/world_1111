@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2984,7 +2984,6 @@ y 16
 end
 arch bank2c
 direction 5
-no_pass 1
 x 18
 y 16
 end
@@ -2994,7 +2993,6 @@ y 17
 end
 arch bank2a
 direction 7
-no_pass 1
 x 18
 y 17
 end
@@ -3139,7 +3137,6 @@ x 19
 y 15
 end
 arch bank2c
-no_pass 1
 x 19
 y 15
 end
@@ -3315,7 +3312,6 @@ x 20
 y 15
 end
 arch bank2b
-no_pass 1
 x 20
 y 15
 end
@@ -3486,7 +3482,6 @@ x 21
 y 15
 end
 arch bank2a
-no_pass 1
 x 21
 y 15
 end
