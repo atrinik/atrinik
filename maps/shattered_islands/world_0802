@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1816,10 +1816,9 @@ x 12
 y 11
 arch woman_old
 name Fayarra
-type 83
-level 8
-friendly 1
 direction 1
+level 8
+type 83
 end
 end
 arch floor_wood2_l2
