@@ -497,6 +497,9 @@ def check_obj(obj, map):
 	if "modified_artifact" in obj and obj["archname"] in artifacts:
 		add_error(map["file"], "Artifact '{0}' with modified attributes. Move to artifacts file to fix this.".format(obj["archname"]), errors.high, env["x"], env["y"])
 
+	if get_entry(obj, "sys_object") == True and get_entry(obj, "layer") not in (0, None):
+		add_error(map["file"], "Object '{0}' is a system object but has a layer set.".format(obj["archname"]), errors.low, env["x"], env["y"])
+
 	if obj["type"] == types.monster or obj["type"] == types.spawn_point_mob:
 		if not "level" in obj:
 			add_error(map["file"], "Monster '{0}' has unset level.".format(obj["archname"]), errors.medium, env["x"], env["y"])
