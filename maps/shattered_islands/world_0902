@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -640,10 +640,8 @@ x 4
 y 9
 arch priest_sad
 name Telath
-type 83
 level 20
-can_cast_spell 0
-friendly 1
+type 83
 arch event_obj
 sub_type 6
 race /python/temples/tabernacle.py
@@ -2104,9 +2102,8 @@ x 14
 y 21
 arch ranger
 name Rirain
-type 83
 level 10
-friendly 1
+type 83
 end
 end
 arch floor_wood2_l2
@@ -3017,10 +3014,9 @@ arch spawn_point
 x 21
 y 4
 arch guard
-type 83
-level 30
-friendly 1
 direction 3
+level 30
+type 83
 end
 end
 arch light5
@@ -3055,10 +3051,9 @@ arch spawn_point
 x 21
 y 8
 arch guard
-type 83
-level 30
-friendly 1
 direction 3
+level 30
+type 83
 end
 end
 arch light5
