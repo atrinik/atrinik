@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -354,8 +354,6 @@ y 3
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 2
 y 3
 end
@@ -605,8 +603,6 @@ y 11
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 11
 end
@@ -730,8 +726,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 4
 y 7
 end
@@ -976,8 +970,6 @@ x 6
 y 3
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 3
 end
@@ -1662,8 +1654,6 @@ x 10
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 10
 y 15
 end
@@ -1742,8 +1732,6 @@ x 11
 y 3
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 11
 y 3
 end
@@ -2480,8 +2468,6 @@ y 8
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 16
 y 8
 end
