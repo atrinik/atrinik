@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -332,8 +332,6 @@ x 2
 y 8
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying morgeean_ship_key
 sp 1
 last_grace 1
