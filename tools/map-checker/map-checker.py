@@ -502,7 +502,7 @@ def check_obj(obj, map):
 		add_error(map["file"], "Object '{0}' has attribute(s) with values same as the default.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 	if get_entry(obj, "sys_object") == True and get_entry(obj, "layer") not in (0, None):
-		if not "env" in obj or obj["env"]["type"] != types.bow:
+		if not "env" in obj or obj["env"]["type"] != types.spawn_point_mob:
 			add_error(map["file"], "Object '{0}' is a system object but has a layer set.".format(obj["archname"]), errors.low, env["x"], env["y"])
 
 	if obj["type"] == types.monster or obj["type"] == types.spawn_point_mob:
