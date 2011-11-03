@@ -2476,7 +2476,6 @@ x 17
 y 14
 end
 arch barrel2.101
-can_roll 0
 x 17
 y 14
 end
