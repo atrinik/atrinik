@@ -2,7 +2,7 @@ arch map
 name Vielumin Ruins
 msg
 Created:  2010-08-18 Idicus
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1044,7 +1044,6 @@ x 5
 y 17
 end
 arch fireplace_left
-direction 0
 x 5
 y 17
 end
@@ -1874,7 +1873,6 @@ x 9
 y 15
 end
 arch fireplace_right
-direction 0
 x 9
 y 15
 end
@@ -3916,7 +3914,6 @@ x 19
 y 15
 end
 arch fireplace_right
-direction 0
 x 19
 y 15
 end
