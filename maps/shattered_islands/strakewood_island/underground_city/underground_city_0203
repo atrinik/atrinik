@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -59,12 +59,11 @@ end
 arch spawn_point
 y 8
 arch orc_sorcerer
-type 83
 level 37
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_mbullet
 end
 end
@@ -111,12 +110,11 @@ end
 arch spawn_point
 y 19
 arch orc_sorcerer
-type 83
 level 38
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_mbullet
 end
 end
@@ -298,8 +296,6 @@ x 2
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 7
 end
@@ -327,9 +323,8 @@ arch spawn_point
 x 2
 y 11
 arch orc_warrior
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -361,8 +356,6 @@ x 2
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 17
 end
@@ -563,9 +556,8 @@ arch spawn_point
 x 4
 y 9
 arch orc_warlord
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -608,12 +600,11 @@ arch spawn_point
 x 4
 y 18
 arch orc_sorcerer
-type 83
 level 38
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_mbullet
 end
 end
@@ -734,8 +725,6 @@ x 5
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 5
 y 17
 end
@@ -1055,8 +1044,6 @@ x 8
 y 9
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 8
 y 9
 end
@@ -1371,8 +1358,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 17
 end
@@ -1406,8 +1391,6 @@ y 22
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 22
 end
@@ -1438,14 +1421,10 @@ x 12
 y 3
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
+direction 2
 dam 11
 level 35
-no_pass 1
-alive 0
-direction 2
-name orc priest
 x 12
 y 3
 end
@@ -1482,8 +1461,6 @@ x 12
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 12
 y 7
 end
@@ -1694,8 +1671,6 @@ arch floor_sand_d3
 x 14
 end
 arch director
-layer 0
-sys_object 1
 direction 5
 x 14
 end
@@ -1769,9 +1744,8 @@ arch spawn_point
 x 14
 y 10
 arch orc_captain
-type 83
 level 35
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -1993,8 +1967,6 @@ arch floor_sand_d1
 x 16
 end
 arch director
-layer 0
-sys_object 1
 x 16
 end
 arch floor_sand_d2
@@ -2002,8 +1974,6 @@ x 16
 y 1
 end
 arch director
-layer 0
-sys_object 1
 direction 8
 x 16
 y 1
@@ -2021,13 +1991,9 @@ x 16
 y 3
 end
 arch magic_wall
-layer 0
-sys_object 1
+name orc priest
 dam 11
 level 35
-no_pass 1
-alive 0
-name orc priest
 x 16
 y 3
 end
@@ -2092,8 +2058,6 @@ x 16
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 16
 end
@@ -2352,14 +2316,10 @@ y 3
 end
 arch magic_wall
 name orc priest
-layer 0
-sys_object 1
 direction 8
 dam 11
 level 35
 speed -0.01
-no_pass 1
-alive 0
 x 19
 y 3
 end
@@ -2642,8 +2602,6 @@ y 5
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 21
 y 5
 end
@@ -2673,8 +2631,6 @@ y 11
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 21
 y 11
 end
@@ -2831,8 +2787,6 @@ x 22
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 22
 y 16
 end
