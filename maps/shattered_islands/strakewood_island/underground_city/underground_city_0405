@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -246,8 +246,6 @@ x 3
 y 4
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 3
 y 4
 end
@@ -333,8 +331,6 @@ y 18
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 18
 end
@@ -458,9 +454,8 @@ arch spawn_point
 x 4
 y 19
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -525,8 +520,6 @@ x 5
 y 14
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 5
 y 14
 end
@@ -546,9 +539,8 @@ arch spawn_point
 x 5
 y 16
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -873,8 +865,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 8
 y 2
 end
@@ -932,8 +922,6 @@ y 11
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 8
 y 11
 end
@@ -1094,9 +1082,8 @@ arch spawn_point
 x 9
 y 15
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -1201,12 +1188,11 @@ arch spawn_point
 x 10
 y 9
 arch orc_warrior
-type 83
 level 34
 random_move 1
 item_race 2
 item_level 5
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1277,9 +1263,8 @@ arch spawn_point
 x 10
 y 19
 arch orc_outlaw
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -1309,8 +1294,6 @@ x 11
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 11
 y 1
 end
@@ -1941,8 +1924,6 @@ x 16
 y 12
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 12
 end
@@ -2008,8 +1989,6 @@ y 22
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 16
 y 22
 end
@@ -2040,8 +2019,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 17
 y 2
 end
@@ -2608,8 +2585,6 @@ x 22
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 22
 y 1
 end
@@ -2622,9 +2597,8 @@ x 22
 y 2
 arch gnoll
 name gnoll warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -2652,9 +2626,8 @@ x 22
 y 6
 arch gnoll
 name gnoll warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
