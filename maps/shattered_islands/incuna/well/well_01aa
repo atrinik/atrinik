@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1858,7 +1858,6 @@ z 24
 x 11
 end
 arch grate_open
-anim_speed 4
 connected 111
 layer 4
 x 11
@@ -1870,7 +1869,6 @@ lifesave 1
 one_drop 1
 x 11
 arch boulder
-race boulder
 can_roll 1
 terrain_flag 1
 end
@@ -1898,22 +1896,20 @@ z 24
 x 11
 y 3
 end
+arch grate_open
+connected 133
+layer 4
+x 11
+y 3
+end
 arch button
 connected 133
-layer 2
 x 11
 y 3
 end
 arch pedestal
 slaying boulder
 connected 132
-x 11
-y 3
-end
-arch grate_open
-anim_speed 4
-connected 133
-layer 4
 x 11
 y 3
 end
@@ -2055,13 +2051,12 @@ arch floor_black2a
 z 24
 x 12
 end
-arch button
+arch grate_open
+layer 4
 connected 112
 x 12
 end
-arch grate_open
-layer 4
-anim_speed 4
+arch button
 connected 112
 x 12
 end
@@ -2079,22 +2074,20 @@ z 24
 x 12
 y 2
 end
+arch grate_open
+connected 132
+layer 4
+x 12
+y 2
+end
 arch button
 connected 132
-layer 2
 x 12
 y 2
 end
 arch pedestal
 slaying boulder
 connected 131
-x 12
-y 2
-end
-arch grate_open
-anim_speed 4
-connected 132
-layer 4
 x 12
 y 2
 end
@@ -2112,22 +2105,20 @@ z 24
 x 12
 y 4
 end
+arch grate_open
+connected 134
+layer 4
+x 12
+y 4
+end
 arch button
 connected 134
-layer 2
 x 12
 y 4
 end
 arch pedestal
 slaying boulder
 connected 133
-x 12
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 134
-layer 4
 x 12
 y 4
 end
@@ -2145,10 +2136,7 @@ z 2
 x 12
 y 6
 end
-arch damager
-speed 0.0
-slow_move 1
-exp 3
+arch slower
 x 12
 y 6
 end
@@ -2157,9 +2145,7 @@ z 10
 x 12
 y 7
 end
-arch damager
-speed 0.0
-slow_move 1
+arch slower
 exp 4
 x 12
 y 7
@@ -2169,9 +2155,7 @@ z 18
 x 12
 y 8
 end
-arch damager
-speed 0.0
-slow_move 1
+arch slower
 exp 5
 x 12
 y 8
@@ -2290,9 +2274,13 @@ arch floor_black2a
 z 24
 x 13
 end
+arch grate_open
+connected 113
+layer 4
+x 13
+end
 arch button
 connected 113
-layer 2
 x 13
 end
 arch pedestal
@@ -2300,17 +2288,10 @@ slaying boulder
 connected 112
 x 13
 end
-arch grate_open
-anim_speed 4
-connected 113
-layer 4
-x 13
-end
-arch pedestal_trigger
+arch pedestal
+exp 30
 slaying boulder
 connected 110
-layer 0
-sys_object 1
 x 13
 end
 arch floor_black2a
@@ -2327,9 +2308,14 @@ z 24
 x 13
 y 2
 end
+arch grate_open
+connected 131
+layer 4
+x 13
+y 2
+end
 arch button
 connected 131
-layer 2
 x 13
 y 2
 end
@@ -2339,13 +2325,6 @@ connected 130
 x 13
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 131
-layer 4
-x 13
-y 2
-end
 arch floor_black2a
 z 24
 x 13
@@ -2360,22 +2339,20 @@ z 24
 x 13
 y 4
 end
+arch grate_open
+connected 135
+layer 4
+x 13
+y 4
+end
 arch button
 connected 135
-layer 2
 x 13
 y 4
 end
 arch pedestal
 slaying boulder
 connected 134
-x 13
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 135
-layer 4
 x 13
 y 4
 end
@@ -2393,10 +2370,7 @@ z 2
 x 13
 y 6
 end
-arch damager
-speed 0.0
-slow_move 1
-exp 3
+arch slower
 x 13
 y 6
 end
@@ -2571,20 +2545,18 @@ arch floor_black2a
 z 24
 x 14
 end
+arch grate_open
+connected 114
+layer 4
+x 14
+end
 arch button
 connected 114
-layer 2
 x 14
 end
 arch pedestal
 slaying boulder
 connected 113
-x 14
-end
-arch grate_open
-anim_speed 4
-connected 114
-layer 4
 x 14
 end
 arch floor_black2a
@@ -2601,9 +2573,14 @@ z 24
 x 14
 y 2
 end
+arch grate_open
+connected 130
+layer 4
+x 14
+y 2
+end
 arch button
 connected 130
-layer 2
 x 14
 y 2
 end
@@ -2613,13 +2590,6 @@ connected 129
 x 14
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 130
-layer 4
-x 14
-y 2
-end
 arch floor_black2a
 z 24
 x 14
@@ -2634,22 +2604,20 @@ z 24
 x 14
 y 4
 end
+arch grate_open
+connected 136
+layer 4
+x 14
+y 4
+end
 arch button
 connected 136
-layer 2
 x 14
 y 4
 end
 arch pedestal
 slaying boulder
 connected 135
-x 14
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 136
-layer 4
 x 14
 y 4
 end
@@ -2822,20 +2790,18 @@ arch floor_black2a
 z 24
 x 15
 end
+arch grate_open
+connected 115
+layer 4
+x 15
+end
 arch button
 connected 115
-layer 2
 x 15
 end
 arch pedestal
 slaying boulder
 connected 114
-x 15
-end
-arch grate_open
-anim_speed 4
-connected 115
-layer 4
 x 15
 end
 arch floor_black2a
@@ -2852,9 +2818,14 @@ z 24
 x 15
 y 2
 end
+arch grate_open
+connected 129
+layer 4
+x 15
+y 2
+end
 arch button
 connected 129
-layer 2
 x 15
 y 2
 end
@@ -2864,13 +2835,6 @@ connected 128
 x 15
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 129
-layer 4
-x 15
-y 2
-end
 arch floor_black2a
 z 24
 x 15
@@ -2885,22 +2849,20 @@ z 24
 x 15
 y 4
 end
+arch grate_open
+connected 137
+layer 4
+x 15
+y 4
+end
 arch button
 connected 137
-layer 2
 x 15
 y 4
 end
 arch pedestal
 slaying boulder
 connected 136
-x 15
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 137
-layer 4
 x 15
 y 4
 end
@@ -3150,20 +3112,18 @@ arch floor_black2a
 z 24
 x 16
 end
+arch grate_open
+connected 116
+layer 4
+x 16
+end
 arch button
 connected 116
-layer 2
 x 16
 end
 arch pedestal
 slaying boulder
 connected 115
-x 16
-end
-arch grate_open
-anim_speed 4
-connected 116
-layer 4
 x 16
 end
 arch floor_black2a
@@ -3180,9 +3140,14 @@ z 24
 x 16
 y 2
 end
+arch grate_open
+connected 128
+layer 4
+x 16
+y 2
+end
 arch button
 connected 128
-layer 2
 x 16
 y 2
 end
@@ -3192,13 +3157,6 @@ connected 127
 x 16
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 128
-layer 4
-x 16
-y 2
-end
 arch floor_black2a
 z 24
 x 16
@@ -3213,22 +3171,20 @@ z 24
 x 16
 y 4
 end
+arch grate_open
+connected 138
+layer 4
+x 16
+y 4
+end
 arch button
 connected 138
-layer 2
 x 16
 y 4
 end
 arch pedestal
 slaying boulder
 connected 137
-x 16
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 138
-layer 4
 x 16
 y 4
 end
@@ -3552,20 +3508,18 @@ arch floor_black2a
 z 24
 x 17
 end
+arch grate_open
+connected 117
+layer 4
+x 17
+end
 arch button
 connected 117
-layer 2
 x 17
 end
 arch pedestal
 slaying boulder
 connected 116
-x 17
-end
-arch grate_open
-anim_speed 4
-connected 117
-layer 4
 x 17
 end
 arch floor_black2a
@@ -3582,9 +3536,14 @@ z 24
 x 17
 y 2
 end
+arch grate_open
+connected 127
+layer 4
+x 17
+y 2
+end
 arch button
 connected 127
-layer 2
 x 17
 y 2
 end
@@ -3594,13 +3553,6 @@ connected 126
 x 17
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 127
-layer 4
-x 17
-y 2
-end
 arch floor_black2a
 z 24
 x 17
@@ -3615,22 +3567,20 @@ z 24
 x 17
 y 4
 end
+arch grate_open
+connected 139
+layer 4
+x 17
+y 4
+end
 arch button
 connected 139
-layer 2
 x 17
 y 4
 end
 arch pedestal
 slaying boulder
 connected 138
-x 17
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 139
-layer 4
 x 17
 y 4
 end
@@ -3883,20 +3833,18 @@ arch floor_black2a
 z 24
 x 18
 end
+arch grate_open
+connected 118
+layer 4
+x 18
+end
 arch button
 connected 118
-layer 2
 x 18
 end
 arch pedestal
 slaying boulder
 connected 117
-x 18
-end
-arch grate_open
-anim_speed 4
-connected 118
-layer 4
 x 18
 end
 arch floor_black2a
@@ -3913,9 +3861,14 @@ z 24
 x 18
 y 2
 end
+arch grate_open
+connected 126
+layer 4
+x 18
+y 2
+end
 arch button
 connected 126
-layer 2
 x 18
 y 2
 end
@@ -3925,19 +3878,10 @@ connected 125
 x 18
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 126
-layer 4
-x 18
-y 2
-end
-arch pedestal_trigger
+arch pedestal
 exp 70
 slaying boulder
 connected 199
-layer 0
-sys_object 1
 x 18
 y 2
 end
@@ -3955,22 +3899,20 @@ z 24
 x 18
 y 4
 end
+arch grate_open
+connected 140
+layer 4
+x 18
+y 4
+end
 arch button
 connected 140
-layer 2
 x 18
 y 4
 end
 arch pedestal
 slaying boulder
 connected 139
-x 18
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 140
-layer 4
 x 18
 y 4
 end
@@ -4148,20 +4090,18 @@ arch floor_black2a
 z 24
 x 19
 end
+arch grate_open
+connected 119
+layer 4
+x 19
+end
 arch button
 connected 119
-layer 2
 x 19
 end
 arch pedestal
 slaying boulder
 connected 118
-x 19
-end
-arch grate_open
-anim_speed 4
-connected 119
-layer 4
 x 19
 end
 arch floor_black2a
@@ -4178,9 +4118,14 @@ z 24
 x 19
 y 2
 end
+arch grate_open
+connected 125
+layer 4
+x 19
+y 2
+end
 arch button
 connected 125
-layer 2
 x 19
 y 2
 end
@@ -4190,13 +4135,6 @@ connected 124
 x 19
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 125
-layer 4
-x 19
-y 2
-end
 arch floor_black2a
 z 24
 x 19
@@ -4211,22 +4149,20 @@ z 24
 x 19
 y 4
 end
+arch grate_open
+connected 141
+layer 4
+x 19
+y 4
+end
 arch button
 connected 141
-layer 2
 x 19
 y 4
 end
 arch pedestal
 slaying boulder
 connected 140
-x 19
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 141
-layer 4
 x 19
 y 4
 end
@@ -4384,20 +4320,18 @@ arch floor_black2a
 z 24
 x 20
 end
+arch grate_open
+connected 120
+layer 4
+x 20
+end
 arch button
 connected 120
-layer 2
 x 20
 end
 arch pedestal
 slaying boulder
 connected 119
-x 20
-end
-arch grate_open
-anim_speed 4
-connected 120
-layer 4
 x 20
 end
 arch floor_black2a
@@ -4414,9 +4348,14 @@ z 24
 x 20
 y 2
 end
+arch grate_open
+connected 124
+layer 4
+x 20
+y 2
+end
 arch button
 connected 124
-layer 2
 x 20
 y 2
 end
@@ -4426,13 +4365,6 @@ connected 123
 x 20
 y 2
 end
-arch grate_open
-anim_speed 4
-connected 124
-layer 4
-x 20
-y 2
-end
 arch floor_black2a
 z 24
 x 20
@@ -4447,22 +4379,20 @@ z 24
 x 20
 y 4
 end
+arch grate_open
+connected 142
+layer 4
+x 20
+y 4
+end
 arch button
 connected 142
-layer 2
 x 20
 y 4
 end
 arch pedestal
 slaying boulder
 connected 141
-x 20
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 142
-layer 4
 x 20
 y 4
 end
@@ -4667,20 +4597,18 @@ arch floor_black2a
 z 24
 x 21
 end
+arch grate_open
+connected 121
+layer 4
+x 21
+end
 arch button
 connected 121
-layer 2
 x 21
 end
 arch pedestal
 slaying boulder
 connected 120
-x 21
-end
-arch grate_open
-anim_speed 4
-connected 121
-layer 4
 x 21
 end
 arch floor_black2a
@@ -4697,22 +4625,20 @@ z 24
 x 21
 y 2
 end
+arch grate_open
+connected 123
+layer 4
+x 21
+y 2
+end
 arch button
 connected 123
-layer 2
 x 21
 y 2
 end
 arch pedestal
 slaying boulder
 connected 122
-x 21
-y 2
-end
-arch grate_open
-anim_speed 4
-connected 123
-layer 4
 x 21
 y 2
 end
@@ -4730,22 +4656,20 @@ z 24
 x 21
 y 4
 end
+arch grate_open
+connected 143
+layer 4
+x 21
+y 4
+end
 arch button
 connected 143
-layer 2
 x 21
 y 4
 end
 arch pedestal
 slaying boulder
 connected 142
-x 21
-y 4
-end
-arch grate_open
-anim_speed 4
-connected 143
-layer 4
 x 21
 y 4
 end
@@ -4978,22 +4902,20 @@ z 24
 x 22
 y 1
 end
+arch grate_open
+connected 122
+layer 4
+x 22
+y 1
+end
 arch button
 connected 122
-layer 2
 x 22
 y 1
 end
 arch pedestal
 slaying boulder
 connected 121
-x 22
-y 1
-end
-arch grate_open
-anim_speed 4
-connected 122
-layer 4
 x 22
 y 1
 end
@@ -5022,12 +4944,7 @@ y 4
 end
 arch detector
 slaying boulder
-connected 144
-x 22
-y 4
-end
-arch duplicator
-slaying boulder
+last_heal 1
 connected 144
 x 22
 y 4
@@ -5207,11 +5124,10 @@ speed 0.4
 attack_internal 80
 end
 end
-arch pedestal_trigger
+arch pedestal
 connected 111
 exp 275
-layer 0
-sys_object 1
+hp 1
 x 22
 y 18
 end
