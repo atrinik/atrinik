@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-11-02 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2038,22 +2038,7 @@ arch floor_stone_b1
 x 13
 y 1
 end
-arch altar
-slaying coppercoin
-food 1
-sp 21
-level 115
-x 13
-y 1
-end
 arch floor_stone_b2
-x 13
-y 2
-end
-arch sign
-msg
-Drop one copper coin on this altar to receive a level 115 greater healing.
-endmsg
 x 13
 y 2
 end
@@ -2281,21 +2266,7 @@ arch floor_stone_b1
 x 15
 y 1
 end
-arch altar_trigger
-slaying coppercoin
-food 2
-connected 103
-x 15
-y 1
-end
 arch floor_stone_b4
-x 15
-y 2
-end
-arch sign
-msg
-Drop 2 copper coins on top of the altar to open one hole and close the other. The altar, and the holes, will reset after some time.
-endmsg
 x 15
 y 2
 end
@@ -2426,14 +2397,6 @@ arch wall_stone_1
 x 16
 end
 arch floor_stone_b2
-x 16
-y 1
-end
-arch pit_closed
-connected 103
-hp 19
-sp 1
-walk_on 1
 x 16
 y 1
 end
@@ -2597,13 +2560,6 @@ arch floor_stone_b3
 x 17
 y 1
 end
-arch pit_open
-connected 103
-hp 19
-sp 1
-x 17
-y 1
-end
 arch floor_stone_b2
 x 17
 y 2
@@ -2762,13 +2718,6 @@ arch wall_stone_1
 x 18
 end
 arch floor_stone_b1
-x 18
-y 1
-end
-arch sign
-msg
-Pits may be used to swallow players that enter them, but using connections pits can be opened/closed.
-endmsg
 x 18
 y 1
 end
@@ -2951,7 +2900,7 @@ end
 arch wall_stone_1
 x 19
 end
-arch floor_fur2
+arch floor_stone_b1
 x 19
 y 1
 end
