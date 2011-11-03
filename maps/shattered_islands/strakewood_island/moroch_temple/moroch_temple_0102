@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-10-06 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1269,6 +1269,7 @@ arch handle_lever
 layer 0
 sys_object 1
 connected 101
+exp 30
 last_eat 1
 x 9
 y 11
@@ -1297,17 +1298,12 @@ x 9
 y 15
 end
 arch magic_wall
-friendly 1
-dam 51
-layer 0
-sys_object 1
-blocksview 0
 direction 4
-last_eat 0
+dam 51
 level 115
-connected 101
-alive 0
 speed -0.5
+connected 101
+last_eat 0
 x 9
 y 15
 end
@@ -1362,17 +1358,12 @@ x 9
 y 21
 end
 arch magic_wall
-friendly 1
-dam 51
-layer 0
-sys_object 1
-blocksview 0
 direction 4
-last_eat 0
+dam 51
 level 115
-connected 101
-alive 0
 speed -0.5
+connected 101
+last_eat 0
 x 9
 y 21
 end
@@ -1767,17 +1758,12 @@ x 12
 y 15
 end
 arch magic_wall
-friendly 1
-dam 51
-layer 0
-sys_object 1
-blocksview 0
 direction 4
-last_eat 0
+dam 51
 level 115
-connected 101
-alive 0
 speed -0.5
+connected 101
+last_eat 0
 x 12
 y 15
 end
@@ -1820,17 +1806,12 @@ x 12
 y 20
 end
 arch magic_wall
-friendly 1
-dam 51
-layer 0
-sys_object 1
-blocksview 0
 direction 4
-last_eat 0
+dam 51
 level 115
-connected 101
-alive 0
 speed -0.5
+connected 101
+last_eat 0
 x 12
 y 20
 end
