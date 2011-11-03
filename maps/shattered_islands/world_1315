@@ -2,7 +2,7 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2010-11-10 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -731,8 +731,6 @@ x 5
 y 19
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying berri_lur_stench
 sp 1
 last_grace 1
