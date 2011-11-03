@@ -2,7 +2,7 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -51,12 +51,11 @@ end
 arch spawn_point
 y 6
 arch wasp_giant
-type 83
 level 5
 unaggressive 1
 item_race 4
 item_level 4
-Wis 3
+type 83
 end
 end
 arch grassd_8
@@ -92,12 +91,11 @@ end
 arch spawn_point
 y 11
 arch wasp_giant
-type 83
 level 5
 unaggressive 1
 item_race 4
 item_level 4
-Wis 3
+type 83
 end
 end
 arch grassd_4
@@ -370,12 +368,11 @@ arch spawn_point
 x 2
 y 8
 arch wasp_giant
-type 83
 level 5
 unaggressive 1
 item_race 4
 item_level 4
-Wis 3
+type 83
 end
 end
 arch grassd_4
@@ -556,12 +553,11 @@ arch spawn_point
 x 3
 y 12
 arch wasp_giant
-type 83
 level 5
 unaggressive 1
 item_race 5
 item_level 5
-Wis 3
+type 83
 end
 end
 arch grassd_3
@@ -678,12 +674,11 @@ arch spawn_point
 x 4
 y 5
 arch wasp_giant
-type 83
 level 5
 unaggressive 1
 item_race 5
 item_level 5
-Wis 3
+type 83
 end
 end
 arch grassd_3
@@ -2302,12 +2297,11 @@ arch spawn_point
 x 16
 y 19
 arch bee_killer
-type 83
 level 4
 unaggressive 1
 item_race 3
 item_level 3
-Wis 3
+type 83
 end
 end
 arch grassd_1
@@ -2448,12 +2442,11 @@ arch spawn_point
 x 17
 y 20
 arch bee_killer
-type 83
 level 4
 unaggressive 1
 item_race 3
 item_level 3
-Wis 3
+type 83
 end
 end
 arch grassd_7
@@ -2591,12 +2584,11 @@ arch spawn_point
 x 18
 y 18
 arch bee_killer
-type 83
 level 4
 unaggressive 1
 item_race 3
 item_level 3
-Wis 3
+type 83
 end
 end
 arch grassd_1
@@ -2864,12 +2856,11 @@ arch spawn_point
 x 20
 y 18
 arch bee_killer
-type 83
 level 4
 unaggressive 1
 item_race 3
 item_level 3
-Wis 3
+type 83
 end
 end
 arch grassd_8
@@ -2884,12 +2875,11 @@ arch spawn_point
 x 20
 y 20
 arch bee_killer
-type 83
 level 4
 unaggressive 1
 item_race 3
 item_level 3
-Wis 3
+type 83
 end
 end
 arch grassd_5
