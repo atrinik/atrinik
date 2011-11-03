@@ -38,7 +38,15 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	if (op->speed || (op->stats.exp == -1 && op->value))
 	{
-		draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
+		if (op->msg)
+		{
+			draw_info(COLOR_WHITE, applier, op->msg);
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
+		}
+
 		return OBJECT_METHOD_OK;
 	}
 
@@ -49,8 +57,15 @@ static int apply_func(object *op, object *applier, int aflags)
 	update_object(op, UP_OBJ_FACE);
 
 	/* Inform the applier. */
-	draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
-	play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
+	if (op->msg)
+	{
+		draw_info(COLOR_WHITE, applier, op->msg);
+	}
+	else
+	{
+		draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
+	}
 
 	connection_trigger(op, op->value);
 
