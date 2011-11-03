@@ -3580,8 +3580,6 @@ x 15
 y 21
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying incuna_tavern
 sp 1
 last_grace 1
