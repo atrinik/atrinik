@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-16 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1133,10 +1133,9 @@ x 8
 y 17
 arch priest_green
 name Grimsor
-type 83
-level 25
-friendly 1
 direction 3
+level 25
+type 83
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -1176,10 +1175,9 @@ x 8
 y 22
 arch priest_green
 name Aruld
-type 83
-level 25
-friendly 1
 direction 3
+level 25
+type 83
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -1776,9 +1774,8 @@ x 12
 y 16
 arch guard_royal
 name Olren
-type 83
 level 40
-friendly 1
+type 83
 end
 end
 arch floor_flagm1
@@ -1838,10 +1835,9 @@ x 12
 y 23
 arch guard_royal
 name Galbar
-type 83
-level 40
-friendly 1
 direction 1
+level 40
+type 83
 end
 end
 arch floor_flagm1
@@ -2126,7 +2122,6 @@ x 14
 y 12
 end
 arch forge_111
-no_pass 1
 direction 7
 x 14
 y 12
@@ -2290,7 +2285,6 @@ y 11
 arch smith
 name Falwynn
 level 115
-friendly 1
 type 83
 arch event_obj
 sub_type 6
