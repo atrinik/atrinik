@@ -1619,7 +1619,7 @@ void destruct_ob(object *op)
 static void object_check_move_off(object *op)
 {
 	MapSpace *msp;
-	object *tmp;
+	object *tmp, *next;
 	tag_t tag;
 	mapstruct *m;
 	int x, y;
@@ -1642,8 +1642,10 @@ static void object_check_move_off(object *op)
 	x = op->x;
 	y = op->y;
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
+	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
 	{
+		next = tmp->above;
+
 		/* Can't apply yourself. */
 		if (tmp == op)
 		{
@@ -2920,7 +2922,7 @@ object *object_create_clone(object *asrc)
  * object's count or it is freed), 0 otherwise. */
 int was_destroyed(object *op, tag_t old_tag)
 {
-	return (QUERY_FLAG(op, FLAG_REMOVED) || (op->count != old_tag) || OBJECT_FREE(op));
+	return op->count != old_tag || OBJECT_FREE(op);
 }
 
 /**
