@@ -443,96 +443,46 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * @return 0. */
 int hit_map(object *op, int dir, int reduce)
 {
-	object *tmp, *next, *tmp_obj, *tmp_head;
-	mapstruct *map;
+	object *tmp, *next, *owner;
+	mapstruct *m;
 	int x, y;
-	tag_t op_tag, next_tag = 0;
+	sint16 dam;
 
 	if (OBJECT_FREE(op))
 	{
-		LOG(llevBug, "hit_map(): free object\n");
 		return 0;
 	}
 
-	if (QUERY_FLAG(op, FLAG_REMOVED) || op->env != NULL)
-	{
-		LOG(llevBug, "hit_map(): hitter (arch %s, name %s) not on a map\n", op->arch->name, query_name(op, NULL));
-		return 0;
-	}
+	op = HEAD(op);
 
-	if (op->head)
+	if (!op->map || !op->stats.dam)
 	{
-		op = op->head;
-	}
-
-	op_tag = op->count;
-
-	if (!op->map)
-	{
-		LOG(llevBug, "hit_map(): %s has no map.\n", query_name(op, NULL));
 		return 0;
 	}
 
 	x = op->x + freearr_x[dir];
 	y = op->y + freearr_y[dir];
+	m = get_map_from_coord(op->map, &x, &y);
 
-	if (!(map = get_map_from_coord(op->map, &x, &y)))
+	if (!m)
 	{
 		return 0;
 	}
 
-	next = GET_MAP_OB(map, x, y);
+	owner = get_owner(op);
 
-	if (next)
+	if (!owner)
 	{
-		next_tag = next->count;
+		owner = op;
 	}
 
-	if (!(tmp_obj = get_owner(op)))
-	{
-		tmp_obj = op;
-	}
+	owner = HEAD(owner);
 
-	if (tmp_obj->head)
+	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = next)
 	{
-		tmp_obj = tmp_obj->head;
-	}
-
-	while (next)
-	{
-		if (was_destroyed(next, next_tag))
-		{
-			/* There may still be objects that were above 'next', but there is no
-			 * simple way to find out short of copying all object references and
-			 * tags into a temporary array before we start processing the first
-			 * object.  That's why we just abort.
-			 *
-			 * This happens whenever attack spells (like fire) hit a pile
-			 * of objects. This is not a bug - nor an error. */
-			break;
-		}
-
-		tmp = next;
 		next = tmp->above;
 
-		if (next)
-		{
-			next_tag = next->count;
-		}
-
-		if (OBJECT_FREE(tmp))
-		{
-			LOG(llevBug, "hit_map(): found freed object (%s)\n", tmp->arch->name ? tmp->arch->name : "<NULL>");
-			break;
-		}
-
-		/* Something could have happened to 'tmp' while 'tmp->below' was processed.
-		 * For example, 'tmp' was put in an icecube.
-		 * This is one of the few cases where on_same_map should not be used. */
-		if (tmp->map != map || tmp->x != x || tmp->y != y)
-		{
-			continue;
-		}
+		tmp = HEAD(tmp);
 
 		/* Cones with race set can only damage members of that race. */
 		if (op->type == CONE && op->race && tmp->race != op->race)
@@ -540,49 +490,26 @@ int hit_map(object *op, int dir, int reduce)
 			continue;
 		}
 
-		/* First, we check player... */
-		if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
+		/* Check friendship status. */
+		if (is_friend_of(owner, tmp))
 		{
-			if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp))
-			{
-				continue;
-			}
-
-			hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
-
-			if (was_destroyed(op, op_tag))
-			{
-				break;
-			}
+			continue;
 		}
-		else if (IS_LIVE(tmp))
+
+		/* Check if the spell missed or not. */
+		if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp))
 		{
-			sint16 dam = op->stats.dam;
-
-			tmp_head = HEAD(tmp);
-
-			if (is_friend_of(tmp_obj, tmp_head))
-			{
-				continue;
-			}
-
-			if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp_head))
-			{
-				continue;
-			}
-
-			if (tmp->quick_pos && reduce)
-			{
-				dam /= (tmp->quick_pos >> 4) + 1;
-			}
-
-			hit_player(tmp, dam, op, AT_INTERNAL);
-
-			if (was_destroyed(op, op_tag))
-			{
-				break;
-			}
+			continue;
 		}
+
+		dam = op->stats.dam;
+
+		if (tmp->quick_pos && reduce)
+		{
+			dam /= (tmp->quick_pos >> 4) + 1;
+		}
+
+		hit_player(tmp, dam, op, AT_INTERNAL);
 	}
 
 	return 0;
