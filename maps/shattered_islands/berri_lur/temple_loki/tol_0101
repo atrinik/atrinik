@@ -1772,16 +1772,13 @@ x 12
 y 2
 end
 arch magic_wall
-layer 0
-sys_object 1
 direction 5
-last_eat 0
 dam 35
 level 110
 speed -1.0
 connected 22
+last_eat 0
 maxsp 0
-alive 0
 x 12
 y 2
 end
@@ -1854,15 +1851,12 @@ x 12
 y 18
 end
 arch magic_wall
-layer 0
-sys_object 1
-last_eat 0
 dam 35
 level 110
 speed -1.0
 connected 22
+last_eat 0
 maxsp 0
-alive 0
 x 12
 y 18
 end
@@ -2465,8 +2459,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 94
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -2515,8 +2507,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 94
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -2593,8 +2583,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 95
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -2643,8 +2631,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 95
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -3147,8 +3133,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 93
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -3197,8 +3181,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 93
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -3275,8 +3257,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 94
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
@@ -3325,8 +3305,6 @@ name living dead girl
 randomitems mob_fighter_l9
 level 95
 undead 1
-is_male 0
-is_female 1
 dam 54
 wc 5
 maxhp 70
