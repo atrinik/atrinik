@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3291,9 +3291,6 @@ x 23
 y 18
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying incuna_stable
 sp 1
 last_grace 1
@@ -3312,9 +3309,6 @@ x 23
 y 19
 end
 arch check_inv
-layer 0
-sys_object 1
-direction 3
 slaying incuna_stable
 sp 1
 last_grace 1
