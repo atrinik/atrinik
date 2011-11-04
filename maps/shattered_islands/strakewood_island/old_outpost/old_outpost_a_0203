@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-10-29 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -179,8 +179,6 @@ slaying king_rhun_vault
 x 1
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying king_rhun_vault
 sp 1
 last_grace 1
@@ -286,8 +284,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 12
 end
@@ -317,8 +313,6 @@ y 16
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 16
 end
@@ -344,8 +338,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 20
 end
@@ -370,8 +362,6 @@ direction 7
 x 2
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying king_rhun_vault
 sp 1
 last_grace 1
@@ -507,13 +497,12 @@ x 2
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
 level 25
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -558,13 +547,11 @@ arch floor_stone3b
 x 3
 y 1
 end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
+arch dirt_floor2
 x 3
 y 1
 end
-arch dirt_floor2
+arch torch_wall_1
 x 3
 y 1
 end
@@ -802,8 +789,6 @@ x 4
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 4
 y 15
 end
@@ -812,13 +797,12 @@ x 4
 y 15
 arch giant_stone
 name stone giant elite guard
-type 83
 level 25
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -1107,13 +1091,12 @@ x 6
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
 level 25
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -1569,8 +1552,6 @@ y 21
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 9
 y 21
 end
@@ -1593,8 +1574,6 @@ x 10
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 10
 y 1
 end
@@ -1671,8 +1650,6 @@ x 10
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 10
 y 15
 end
@@ -1685,7 +1662,6 @@ x 10
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
 level 25
 dam 90
 wc 10
@@ -1694,7 +1670,7 @@ ac 12
 random_move 1
 item_race 2
 item_level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -2018,8 +1994,6 @@ x 13
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 13
 y 1
 end
@@ -2113,8 +2087,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 17
 end
@@ -2144,8 +2116,6 @@ y 22
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 22
 end
@@ -2295,13 +2265,12 @@ x 14
 y 20
 arch giant_stone
 name stone giant elite guard
-type 83
 level 26
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -2335,13 +2304,12 @@ x 15
 y 1
 arch giant_stone
 name royal stone giant guard
-type 83
 level 27
 dam 90
 wc 12
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -2475,13 +2443,12 @@ x 16
 y 3
 arch giant_stone
 name royal stone giant guard
-type 83
 level 27
 dam 90
 wc 12
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -2505,13 +2472,12 @@ x 16
 y 7
 arch giant_stone
 name royal stone giant guard
-type 83
 level 27
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -2559,8 +2525,6 @@ x 16
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 15
 end
@@ -2615,8 +2579,6 @@ x 17
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 17
 y 1
 end
@@ -2723,13 +2685,12 @@ x 17
 y 18
 arch giant_stone
 name stone giant elite guard
-type 83
 level 26
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -2997,13 +2958,12 @@ x 19
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
 level 26
 dam 90
 wc 10
 maxhp 110
 ac 12
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -3143,13 +3103,11 @@ arch floor_stone3b
 x 20
 y 15
 end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
+arch blood_floor1
 x 20
 y 15
 end
-arch blood_floor1
+arch torch_wall_1
 x 20
 y 15
 end
@@ -3427,8 +3385,6 @@ x 22
 y 9
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying orange stone giant key
 last_grace 1
 x 22
@@ -3479,8 +3435,6 @@ x 22
 y 14
 end
 arch check_inv
-layer 0
-sys_object 1
 slaying blue stone giant key
 last_grace 1
 x 22
