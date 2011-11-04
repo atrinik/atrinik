@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -387,8 +387,6 @@ x 2
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 16
 end
@@ -476,9 +474,8 @@ arch spawn_point
 x 3
 y 17
 arch slug_giant
-type 83
 level 38
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -590,9 +587,8 @@ arch spawn_point
 x 4
 y 21
 arch slug_giant
-type 83
 level 38
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
@@ -796,8 +792,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 6
 y 7
 end
@@ -932,9 +926,8 @@ arch spawn_point
 x 7
 y 9
 arch orc_warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -991,8 +984,6 @@ x 7
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 7
 y 17
 end
@@ -1008,9 +999,8 @@ arch spawn_point
 x 7
 y 19
 arch slug_giant
-type 83
 level 38
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
@@ -1218,9 +1208,8 @@ arch spawn_point
 x 9
 y 8
 arch orc_warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -1247,9 +1236,8 @@ arch spawn_point
 x 9
 y 11
 arch orc_warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1447,9 +1435,8 @@ arch spawn_point
 x 10
 y 22
 arch slug_giant
-type 83
 level 38
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -1479,8 +1466,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 2
 end
@@ -1565,8 +1550,6 @@ x 11
 y 20
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 11
 y 20
 end
@@ -2151,8 +2134,6 @@ y 4
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 18
 y 4
 end
@@ -2317,8 +2298,6 @@ x 19
 y 10
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 19
 y 10
 end
@@ -2397,8 +2376,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 19
 y 20
 end
@@ -2495,8 +2472,6 @@ y 14
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 14
 end
@@ -2678,9 +2653,8 @@ arch spawn_point
 x 22
 y 3
 arch pudding_black
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -2814,9 +2788,8 @@ arch spawn_point
 x 23
 y 1
 arch pudding_black
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
