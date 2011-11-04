@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -26,11 +26,8 @@ msg
 You are down to your NECK in the dangerous quicksand.
 endmsg
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 end
 arch floor_sand_d4
 y 1
@@ -41,11 +38,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 1
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 1
 end
 arch floor_sand_d1
@@ -60,11 +54,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 2
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 2
 end
 arch floor_sand_d2
@@ -76,11 +67,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 3
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 3
 end
 arch floor_sand_d2
@@ -95,11 +83,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 4
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 4
 end
 arch floor_sand_d1
@@ -111,11 +96,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 5
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 5
 end
 arch floor_sand_d4
@@ -127,11 +109,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 6
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 6
 end
 arch floor_sand_d2
@@ -206,11 +185,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 x 1
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 end
 arch floor_sand_d4
@@ -232,11 +208,8 @@ endmsg
 x 1
 y 2
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 2
 end
@@ -255,11 +228,8 @@ endmsg
 x 1
 y 3
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 3
 end
@@ -794,11 +764,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 x 5
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 end
 arch floor_sand_d3
@@ -812,11 +779,8 @@ endmsg
 x 5
 y 1
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 1
 end
@@ -956,11 +920,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 x 6
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 end
 arch floor_sand_d4
@@ -974,11 +935,8 @@ endmsg
 x 6
 y 1
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 1
 end
@@ -993,11 +951,8 @@ endmsg
 x 6
 y 2
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 2
 end
@@ -1126,11 +1081,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 x 7
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 end
 arch floor_sand_d4
@@ -1156,11 +1108,8 @@ endmsg
 x 7
 y 2
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 2
 end
@@ -1175,11 +1124,8 @@ endmsg
 x 7
 y 3
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 3
 end

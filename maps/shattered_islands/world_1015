@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -58,11 +58,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 8
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 8
 end
 arch floor_sand_d2
@@ -74,11 +71,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 9
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 9
 end
 arch floor_sand_d2
@@ -96,11 +90,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 11
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 11
 end
 arch floor_sand_d1
@@ -115,11 +106,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 12
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 12
 end
 arch floor_sand_d3
@@ -131,11 +119,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 13
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 13
 end
 arch floor_sand_d3
@@ -147,11 +132,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 14
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 14
 end
 arch floor_sand_d2
@@ -166,11 +148,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 15
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 15
 end
 arch floor_sand_d4
@@ -182,11 +161,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 16
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 16
 end
 arch floor_sand_d1
@@ -198,11 +174,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 17
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 17
 end
 arch floor_sand_d4
@@ -217,11 +190,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 18
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 18
 end
 arch floor_sand_d3
@@ -233,11 +203,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 19
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 19
 end
 arch floor_sand_d4
@@ -249,11 +216,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 20
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 20
 end
 arch floor_sand_d1
@@ -265,11 +229,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 21
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 21
 end
 arch floor_sand_d2
@@ -284,11 +245,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 22
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 22
 end
 arch floor_sand_d4
@@ -300,11 +258,8 @@ You are down to your NECK in the dangerous quicksand.
 endmsg
 y 23
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 y 23
 end
 arch grassd_1
@@ -358,11 +313,8 @@ endmsg
 x 1
 y 8
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 8
 end
@@ -377,11 +329,8 @@ endmsg
 x 1
 y 9
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 9
 end
@@ -396,11 +345,8 @@ endmsg
 x 1
 y 10
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 10
 end
@@ -415,11 +361,8 @@ endmsg
 x 1
 y 11
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 11
 end
@@ -434,11 +377,8 @@ endmsg
 x 1
 y 12
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 12
 end
@@ -453,11 +393,8 @@ endmsg
 x 1
 y 13
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 13
 end
@@ -472,11 +409,8 @@ endmsg
 x 1
 y 14
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 14
 end
@@ -491,11 +425,8 @@ endmsg
 x 1
 y 15
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 15
 end
@@ -510,11 +441,8 @@ endmsg
 x 1
 y 16
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 16
 end
@@ -529,11 +457,8 @@ endmsg
 x 1
 y 17
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 17
 end
@@ -556,11 +481,8 @@ endmsg
 x 1
 y 19
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 19
 end
@@ -575,11 +497,8 @@ endmsg
 x 1
 y 20
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 20
 end
@@ -594,11 +513,8 @@ endmsg
 x 1
 y 21
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 21
 end
@@ -621,11 +537,8 @@ endmsg
 x 1
 y 23
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 1
 y 23
 end
@@ -703,6 +616,15 @@ sp 9
 x 2
 y 9
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 9
+end
 arch floor_sand_d4
 x 2
 y 10
@@ -729,6 +651,15 @@ sp 11
 x 2
 y 11
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 11
+end
 arch floor_sand_d2
 x 2
 y 12
@@ -744,6 +675,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 12
+x 2
+y 12
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 12
 end
@@ -773,6 +713,15 @@ sp 14
 x 2
 y 14
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 14
+end
 arch floor_sand_d3
 x 2
 y 15
@@ -788,6 +737,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 15
+x 2
+y 15
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 15
 end
@@ -813,6 +771,15 @@ sp 16
 x 2
 y 16
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 16
+end
 arch floor_sand_d3
 x 2
 y 17
@@ -828,6 +795,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 17
+x 2
+y 17
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 17
 end
@@ -849,6 +825,15 @@ sp 18
 x 2
 y 18
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 18
+end
 arch floor_sand_d2
 x 2
 y 19
@@ -864,6 +849,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 19
+x 2
+y 19
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 19
 end
@@ -885,6 +879,15 @@ sp 20
 x 2
 y 20
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 20
+end
 arch floor_sand_d4
 x 2
 y 21
@@ -900,6 +903,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 21
+x 2
+y 21
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 21
 end
@@ -921,6 +933,15 @@ sp 22
 x 2
 y 22
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 2
+y 22
+end
 arch floor_sand_d1
 x 2
 y 23
@@ -936,6 +957,15 @@ arch invis_exit
 slaying world_a_1015
 hp 2
 sp 23
+x 2
+y 23
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 2
 y 23
 end
@@ -1033,6 +1063,15 @@ sp 10
 x 3
 y 10
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 10
+end
 arch floor_sand_d4
 x 3
 y 11
@@ -1048,6 +1087,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 11
+x 3
+y 11
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 11
 end
@@ -1069,6 +1117,15 @@ sp 12
 x 3
 y 12
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 12
+end
 arch floor_sand_d4
 x 3
 y 13
@@ -1084,6 +1141,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 13
+x 3
+y 13
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 13
 end
@@ -1113,6 +1179,15 @@ sp 15
 x 3
 y 15
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 15
+end
 arch floor_sand_d4
 x 3
 y 16
@@ -1128,6 +1203,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 16
+x 3
+y 16
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 16
 end
@@ -1149,6 +1233,15 @@ sp 17
 x 3
 y 17
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 17
+end
 arch floor_sand_d1
 x 3
 y 18
@@ -1164,6 +1257,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 18
+x 3
+y 18
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 18
 end
@@ -1185,6 +1287,15 @@ sp 19
 x 3
 y 19
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 19
+end
 arch floor_sand_d2
 x 3
 y 20
@@ -1203,6 +1314,15 @@ sp 20
 x 3
 y 20
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 3
+y 20
+end
 arch floor_sand_d4
 x 3
 y 21
@@ -1218,6 +1338,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 21
+x 3
+y 21
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 21
 end
@@ -1248,6 +1377,15 @@ arch invis_exit
 slaying world_a_1015
 hp 3
 sp 23
+x 3
+y 23
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 3
 y 23
 end
@@ -1355,6 +1493,15 @@ sp 11
 x 4
 y 11
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 11
+end
 arch floor_sand_d2
 x 4
 y 12
@@ -1370,6 +1517,15 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 12
+x 4
+y 12
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 4
 y 12
 end
@@ -1395,6 +1551,15 @@ sp 13
 x 4
 y 13
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 13
+end
 arch floor_sand_d3
 x 4
 y 14
@@ -1410,6 +1575,15 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 14
+x 4
+y 14
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 4
 y 14
 end
@@ -1431,6 +1605,15 @@ sp 15
 x 4
 y 15
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 15
+end
 arch floor_sand_d1
 x 4
 y 16
@@ -1446,6 +1629,15 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 16
+x 4
+y 16
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 4
 y 16
 end
@@ -1475,6 +1667,15 @@ sp 18
 x 4
 y 18
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 18
+end
 arch floor_sand_d4
 x 4
 y 19
@@ -1493,6 +1694,15 @@ sp 19
 x 4
 y 19
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 19
+end
 arch floor_sand_d4
 x 4
 y 20
@@ -1508,6 +1718,15 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 20
+x 4
+y 20
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 4
 y 20
 end
@@ -1533,6 +1752,15 @@ sp 21
 x 4
 y 21
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 21
+end
 arch floor_sand_d4
 x 4
 y 22
@@ -1551,6 +1779,15 @@ sp 22
 x 4
 y 22
 end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
+x 4
+y 22
+end
 arch floor_sand_d4
 x 4
 y 23
@@ -1566,6 +1803,15 @@ arch invis_exit
 slaying world_a_1015
 hp 4
 sp 23
+x 4
+y 23
+end
+arch damager
+name sand
+dam 100
+speed 0.0
+walk_on 1
+attack_blind 100
 x 4
 y 23
 end
@@ -1648,11 +1894,8 @@ endmsg
 x 5
 y 7
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 7
 end
@@ -1675,11 +1918,8 @@ endmsg
 x 5
 y 9
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 9
 end
@@ -1694,11 +1934,8 @@ endmsg
 x 5
 y 10
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 10
 end
@@ -1713,11 +1950,8 @@ endmsg
 x 5
 y 11
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 11
 end
@@ -1732,11 +1966,8 @@ endmsg
 x 5
 y 12
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 12
 end
@@ -1751,11 +1982,8 @@ endmsg
 x 5
 y 13
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 13
 end
@@ -1770,11 +1998,8 @@ endmsg
 x 5
 y 14
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 14
 end
@@ -1789,11 +2014,8 @@ endmsg
 x 5
 y 15
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 15
 end
@@ -1808,11 +2030,8 @@ endmsg
 x 5
 y 16
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 16
 end
@@ -1827,11 +2046,8 @@ endmsg
 x 5
 y 17
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 17
 end
@@ -1846,11 +2062,8 @@ endmsg
 x 5
 y 18
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 18
 end
@@ -1865,11 +2078,8 @@ endmsg
 x 5
 y 19
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 19
 end
@@ -1884,11 +2094,8 @@ endmsg
 x 5
 y 20
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 20
 end
@@ -1903,11 +2110,8 @@ endmsg
 x 5
 y 21
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 21
 end
@@ -1922,11 +2126,8 @@ endmsg
 x 5
 y 22
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 22
 end
@@ -1941,11 +2142,8 @@ endmsg
 x 5
 y 23
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 5
 y 23
 end
@@ -2036,11 +2234,8 @@ endmsg
 x 6
 y 7
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 7
 end
@@ -2055,11 +2250,8 @@ endmsg
 x 6
 y 8
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 8
 end
@@ -2074,11 +2266,8 @@ endmsg
 x 6
 y 9
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 9
 end
@@ -2093,11 +2282,8 @@ endmsg
 x 6
 y 10
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 10
 end
@@ -2112,11 +2298,8 @@ endmsg
 x 6
 y 11
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 11
 end
@@ -2131,11 +2314,8 @@ endmsg
 x 6
 y 12
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 12
 end
@@ -2154,11 +2334,8 @@ endmsg
 x 6
 y 13
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 13
 end
@@ -2177,11 +2354,8 @@ endmsg
 x 6
 y 14
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 14
 end
@@ -2196,11 +2370,8 @@ endmsg
 x 6
 y 15
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 15
 end
@@ -2215,11 +2386,8 @@ endmsg
 x 6
 y 16
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 16
 end
@@ -2234,11 +2402,8 @@ endmsg
 x 6
 y 17
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 17
 end
@@ -2253,11 +2418,8 @@ endmsg
 x 6
 y 18
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 18
 end
@@ -2272,11 +2434,8 @@ endmsg
 x 6
 y 19
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 19
 end
@@ -2295,11 +2454,8 @@ endmsg
 x 6
 y 20
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 20
 end
@@ -2314,11 +2470,8 @@ endmsg
 x 6
 y 21
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 21
 end
@@ -2341,11 +2494,8 @@ endmsg
 x 6
 y 23
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 6
 y 23
 end
@@ -2446,11 +2596,8 @@ endmsg
 x 7
 y 8
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 8
 end
@@ -2465,11 +2612,8 @@ endmsg
 x 7
 y 9
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 9
 end
@@ -2484,11 +2628,8 @@ endmsg
 x 7
 y 10
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 10
 end
@@ -2503,11 +2644,8 @@ endmsg
 x 7
 y 11
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 11
 end
@@ -2530,11 +2668,8 @@ endmsg
 x 7
 y 13
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 13
 end
@@ -2549,11 +2684,8 @@ endmsg
 x 7
 y 14
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 14
 end
@@ -2568,11 +2700,8 @@ endmsg
 x 7
 y 15
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 15
 end
@@ -2599,11 +2728,8 @@ endmsg
 x 7
 y 17
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 17
 end
@@ -2618,11 +2744,8 @@ endmsg
 x 7
 y 18
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 18
 end
@@ -2637,11 +2760,8 @@ endmsg
 x 7
 y 19
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 19
 end
@@ -2656,11 +2776,8 @@ endmsg
 x 7
 y 20
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 20
 end
@@ -2675,11 +2792,8 @@ endmsg
 x 7
 y 21
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 21
 end
@@ -2694,11 +2808,8 @@ endmsg
 x 7
 y 22
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 22
 end
@@ -2713,11 +2824,8 @@ endmsg
 x 7
 y 23
 end
-arch damager
+arch slower
 name quicksand
-speed 0
-slow_move 1
-exp 3
 x 7
 y 23
 end

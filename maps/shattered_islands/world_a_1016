@@ -2,7 +2,7 @@ arch map
 name Under Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-07 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -28,12 +28,13 @@ y 1
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 y 1
 end
 arch water_lt
@@ -84,12 +85,13 @@ y 1
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 1
 y 1
 end
@@ -120,6 +122,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 1
 y 2
 end
@@ -169,12 +172,13 @@ y 1
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 2
 y 1
 end
@@ -200,12 +204,13 @@ y 3
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 2
 y 3
 end
@@ -226,12 +231,13 @@ y 4
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 2
 y 4
 end
@@ -279,6 +285,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 3
 y 1
 end
@@ -330,6 +337,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 3
 y 5
 end
@@ -395,6 +403,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 4
 y 3
 end
@@ -426,6 +435,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 4
 y 5
 end
@@ -441,12 +451,13 @@ y 6
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 4
 y 6
 end
@@ -554,12 +565,13 @@ y 3
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 5
 y 3
 end
@@ -575,12 +587,13 @@ y 4
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 5
 y 4
 end
@@ -631,6 +644,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 5
 y 8
 end
@@ -676,12 +690,13 @@ y 12
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 5
 y 12
 end
@@ -770,6 +785,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 4
 end
@@ -791,6 +807,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 5
 end
@@ -812,6 +829,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 6
 end
@@ -851,6 +869,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 9
 end
@@ -865,12 +884,13 @@ y 10
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 10
 end
@@ -912,12 +932,13 @@ y 14
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 6
 y 14
 end
@@ -995,6 +1016,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 7
 y 6
 end
@@ -1034,6 +1056,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 7
 y 9
 end
@@ -1048,12 +1071,13 @@ y 10
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 7
 y 10
 end
@@ -1100,12 +1124,13 @@ y 14
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 7
 y 14
 end
@@ -1187,6 +1212,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 8
 y 6
 end
@@ -1279,12 +1305,13 @@ y 15
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 8
 y 15
 end
@@ -1393,6 +1420,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 9
 y 9
 end
@@ -1435,6 +1463,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 9
 y 12
 end
@@ -1458,12 +1487,13 @@ y 14
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 9
 y 14
 end
@@ -1515,6 +1545,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 9
 y 18
 end
@@ -1638,6 +1669,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 10
 y 16
 end
@@ -1653,12 +1685,13 @@ y 17
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 10
 y 17
 end
@@ -1694,6 +1727,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 10
 y 19
 end
@@ -1761,12 +1795,13 @@ y 18
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 11
 y 18
 end
@@ -1844,6 +1879,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 12
 y 17
 end
@@ -1885,6 +1921,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 12
 y 20
 end
@@ -1952,6 +1989,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 13
 y 18
 end
@@ -1967,12 +2005,13 @@ y 19
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 13
 y 19
 end
@@ -1988,12 +2027,13 @@ y 20
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 13
 y 20
 end
@@ -2020,6 +2060,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 13
 y 21
 end
@@ -2107,6 +2148,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 14
 y 21
 end
@@ -2164,6 +2206,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 15
 y 20
 end
@@ -2185,6 +2228,7 @@ attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 15
 y 21
 end
@@ -2200,12 +2244,13 @@ y 22
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 15
 y 22
 end
@@ -2221,12 +2266,13 @@ y 23
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 15
 y 23
 end
@@ -2304,12 +2350,13 @@ y 22
 end
 arch damager
 name drowning
-dam 2
+dam 1
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 17
 y 22
 end
@@ -2325,12 +2372,13 @@ y 23
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 17
 y 23
 end
@@ -2370,12 +2418,13 @@ y 23
 end
 arch damager
 name drowning
-dam 1
+dam 2
 attack_paralyze 10
 attack_confusion 10
 attack_internal 100
 slow_move 1
 exp 3
+walk_on 1
 x 18
 y 23
 end
