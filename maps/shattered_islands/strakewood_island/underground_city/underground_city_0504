@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-29 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -251,8 +251,6 @@ x 2
 y 4
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 4
 end
@@ -297,8 +295,6 @@ y 9
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 2
 y 9
 end
@@ -1075,8 +1071,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 7
 y 7
 end
@@ -1501,8 +1495,6 @@ x 10
 y 12
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 10
 y 12
 end
@@ -2055,12 +2047,11 @@ x 15
 y 5
 arch orc_warrior
 name orc guard
-type 83
 level 37
 random_move 1
 item_race 5
 item_level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -2149,8 +2140,6 @@ y 22
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 15
 y 22
 end
@@ -2242,12 +2231,11 @@ arch spawn_point
 x 16
 y 22
 arch orc_sorcerer
-type 83
 level 37
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_mbullet
 end
 end
@@ -2573,8 +2561,6 @@ y 14
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 19
 y 14
 end
@@ -2597,8 +2583,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 19
 y 17
 end
@@ -2693,8 +2677,6 @@ y 9
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 9
 end
@@ -2879,12 +2861,11 @@ arch spawn_point
 x 21
 y 19
 arch orc_sorcerer
-type 83
 level 37
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_mbullet
 end
 end
