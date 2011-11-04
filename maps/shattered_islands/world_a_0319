@@ -2,7 +2,7 @@ arch map
 name Under Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -107,12 +107,6 @@ arch spider_web
 x 7
 y 12
 end
-arch damager
-slow_move 1
-exp 5
-x 7
-y 12
-end
 arch floor_sand_d2
 x 7
 y 13
@@ -126,12 +120,6 @@ x 7
 y 15
 end
 arch spider_web
-x 7
-y 15
-end
-arch damager
-slow_move 1
-exp 5
 x 7
 y 15
 end
@@ -340,23 +328,11 @@ arch spider_web
 x 11
 y 3
 end
-arch damager
-slow_move 1
-exp 3
-x 11
-y 3
-end
 arch floor_sand_d3
 x 11
 y 4
 end
 arch spider_web
-x 11
-y 4
-end
-arch damager
-slow_move 1
-exp 2
 x 11
 y 4
 end
@@ -372,23 +348,11 @@ arch spider_web
 x 11
 y 6
 end
-arch damager
-slow_move 1
-exp 2
-x 11
-y 6
-end
 arch floor_sand_d1
 x 11
 y 7
 end
 arch spider_web
-x 11
-y 7
-end
-arch damager
-slow_move 1
-exp 3
 x 11
 y 7
 end
@@ -405,12 +369,6 @@ x 11
 y 10
 end
 arch spider_web
-x 11
-y 10
-end
-arch damager
-slow_move 1
-exp 1
 x 11
 y 10
 end
@@ -575,12 +533,6 @@ arch spider_web
 x 13
 y 12
 end
-arch damager
-slow_move 1
-exp 3
-x 13
-y 12
-end
 arch floor_sand_d3
 x 13
 y 13
@@ -658,12 +610,6 @@ x 16
 y 12
 end
 arch spider_web
-x 16
-y 12
-end
-arch damager
-slow_move 1
-exp 5
 x 16
 y 12
 end
