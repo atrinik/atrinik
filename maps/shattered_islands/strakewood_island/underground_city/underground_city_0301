@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -192,9 +192,8 @@ arch spawn_point
 x 2
 y 6
 arch wraith
-type 83
 level 42
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -361,9 +360,8 @@ arch spawn_point
 x 3
 y 4
 arch wraith
-type 83
 level 42
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
@@ -425,8 +423,6 @@ y 15
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 15
 end
@@ -470,8 +466,6 @@ y 21
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 21
 end
@@ -564,8 +558,6 @@ x 4
 y 12
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 4
 y 12
 end
@@ -601,9 +593,8 @@ arch spawn_point
 x 4
 y 17
 arch orc_captain
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -626,9 +617,8 @@ arch spawn_point
 x 4
 y 21
 arch orc_captain
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -747,9 +737,8 @@ arch spawn_point
 x 5
 y 19
 arch orc_warlord
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1545,8 +1534,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 12
 y 7
 end
@@ -1586,8 +1573,6 @@ y 13
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 12
 y 13
 end
@@ -1616,8 +1601,6 @@ x 12
 y 18
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 12
 y 18
 end
@@ -1637,9 +1620,8 @@ arch spawn_point
 x 12
 y 20
 arch drow_captain
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -1679,8 +1661,6 @@ x 13
 y 2
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 13
 y 2
 end
@@ -1740,9 +1720,8 @@ arch spawn_point
 x 13
 y 9
 arch drow_guard
-type 83
 level 43
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1960,9 +1939,8 @@ arch spawn_point
 x 14
 y 21
 arch drow_guard
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2047,9 +2025,8 @@ arch spawn_point
 x 15
 y 10
 arch drow_fighter
-type 83
 level 43
-Wis 3
+type 83
 end
 end
 arch floor_green1
@@ -2174,9 +2151,8 @@ arch spawn_point
 x 16
 y 6
 arch drow_guard
-type 83
 level 43
-Wis 3
+type 83
 end
 end
 arch floor_green1
@@ -2401,9 +2377,8 @@ arch spawn_point
 x 17
 y 20
 arch drow_guard
-type 83
 level 41
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -2443,8 +2418,6 @@ x 18
 y 2
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 2
 end
@@ -2545,8 +2518,6 @@ x 18
 y 18
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 18
 end
@@ -2952,8 +2923,6 @@ x 23
 y 9
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 23
 y 9
 end
