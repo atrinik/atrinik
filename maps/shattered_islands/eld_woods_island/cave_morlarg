@@ -2,7 +2,7 @@ arch map
 name Cave of Morlarg
 msg
 Created:  2009-11-16 Alex Tokar
-Modified: 2011-10-03 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -107,10 +107,9 @@ arch spawn_point
 x 1
 y 7
 arch wolf
-type 83
-level 7
-Wis 3
 direction 3
+level 7
+type 83
 end
 end
 arch floor_marble_b1d
@@ -371,10 +370,9 @@ arch spawn_point
 x 3
 y 12
 arch wolf
-type 83
-level 8
-Wis 3
 direction 1
+level 8
+type 83
 end
 end
 arch light1
@@ -417,10 +415,9 @@ arch spawn_point
 x 3
 y 18
 arch wolf
-type 83
-level 8
-Wis 3
 direction 3
+level 8
+type 83
 end
 end
 arch floor_marble_b1d
@@ -629,10 +626,9 @@ arch spawn_point
 x 5
 y 9
 arch wolf
-type 83
-level 7
-Wis 3
 direction 1
+level 7
+type 83
 end
 end
 arch floor_marble_b1d
@@ -671,9 +667,8 @@ arch spawn_point
 x 5
 y 15
 arch wolf
-type 83
 level 8
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1a
@@ -844,9 +839,8 @@ arch spawn_point
 x 7
 y 2
 arch wolf
-type 83
 level 7
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1d
@@ -1296,9 +1290,8 @@ arch spawn_point
 x 10
 y 1
 arch wolf
-type 83
 level 7
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1d
@@ -1467,9 +1460,8 @@ arch spawn_point
 x 11
 y 15
 arch wolf
-type 83
 level 9
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1c
@@ -1790,9 +1782,8 @@ arch spawn_point
 x 14
 y 17
 arch wolf
-type 83
 level 9
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1c
@@ -2228,10 +2219,9 @@ arch spawn_point
 x 18
 y 12
 arch wolf
-type 83
-level 10
-Wis 3
 direction 3
+level 10
+type 83
 end
 end
 arch light1
@@ -2562,9 +2552,8 @@ arch spawn_point
 x 21
 y 11
 arch wolf
-type 83
 level 10
-Wis 3
+type 83
 end
 end
 arch floor_marble_b1b
