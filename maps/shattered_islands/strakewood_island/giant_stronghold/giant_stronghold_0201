@@ -2,7 +2,7 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2010-12-27 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -174,10 +174,9 @@ x 1
 y 1
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -193,10 +192,9 @@ x 1
 y 3
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -228,10 +226,9 @@ x 1
 y 7
 arch ogre
 name ogre fighter
-type 83
 randomitems mob_fighter_l9
 level 5
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -259,9 +256,8 @@ x 1
 y 12
 arch giant_hill
 name hill giant brawler
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -270,8 +266,6 @@ y 13
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 13
 end
@@ -312,9 +306,8 @@ x 1
 y 19
 arch giant_hill
 name hill giant captain
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -348,8 +341,6 @@ x 2
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 1
 end
@@ -394,9 +385,8 @@ x 2
 y 9
 arch ogre
 name ogre fighter
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -448,9 +438,8 @@ x 2
 y 18
 arch ogre
 name ogre guard leader
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -470,9 +459,8 @@ x 2
 y 21
 arch ogre
 name ogre warrior leader
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -521,13 +509,11 @@ arch floor_stone1c
 x 3
 y 6
 end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
+arch pile_floor2
 x 3
 y 6
 end
-arch pile_floor2
+arch torch_wall_1
 x 3
 y 6
 end
@@ -556,10 +542,9 @@ x 3
 y 11
 arch ogre
 name ogre cave leader
-type 83
 randomitems mob_fighter_l9
 level 5
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -591,8 +576,6 @@ x 3
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 3
 y 17
 end
@@ -695,10 +678,9 @@ x 4
 y 14
 arch ogre
 name ogre fighter
-type 83
 randomitems mob_fighter_l9
 level 5
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -1091,8 +1073,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 7
 y 17
 end
@@ -1135,8 +1115,6 @@ x 8
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 8
 y 1
 end
@@ -1377,13 +1355,12 @@ x 10
 y 1
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
 random_move 1
 item_race 4
 item_level 1
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -1399,10 +1376,9 @@ x 10
 y 3
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -1661,8 +1637,6 @@ y 14
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 14
 end
@@ -1692,8 +1666,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 20
 end
@@ -1748,8 +1720,6 @@ x 12
 y 6
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 12
 y 6
 end
@@ -1778,10 +1748,9 @@ x 12
 y 10
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 3
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -1813,13 +1782,12 @@ x 12
 y 16
 arch giant_hill
 name hill giant scout
-type 83
 randomitems mob_fighter_l9
 level 4
 random_move 1
 item_race 2
 item_level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -2171,10 +2139,9 @@ x 15
 y 10
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 3
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -2218,10 +2185,9 @@ x 15
 y 16
 arch ogre
 name ogre scout
-type 83
 randomitems mob_fighter_l9
 level 3
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -2234,8 +2200,6 @@ y 18
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 15
 y 18
 end
@@ -2274,8 +2238,6 @@ x 16
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 1
 end
@@ -2454,8 +2416,6 @@ x 17
 y 10
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 17
 y 10
 end
@@ -2492,10 +2452,9 @@ x 17
 y 15
 arch ogre
 name ogre scout
-type 83
 randomitems mob_fighter_l9
 level 3
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -2569,8 +2528,6 @@ x 18
 y 5
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 5
 end
@@ -2627,8 +2584,6 @@ x 18
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 15
 end
@@ -2707,10 +2662,9 @@ x 19
 y 5
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -2824,10 +2778,9 @@ x 20
 y 4
 arch ogre
 name ogre guard
-type 83
 randomitems mob_fighter_l9
 level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
