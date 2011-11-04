@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -370,10 +370,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 13
 end
@@ -390,10 +392,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 14
 end
@@ -410,10 +414,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 15
 end
@@ -430,10 +436,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 16
 end
@@ -450,10 +458,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 17
 end
@@ -471,10 +481,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 18
 end
@@ -492,10 +504,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 19
 end
@@ -513,10 +527,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 20
 end
@@ -538,10 +554,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 2
 y 21
 end
@@ -662,10 +680,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 13
 end
@@ -682,10 +702,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 14
 end
@@ -703,10 +725,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 15
 end
@@ -724,10 +748,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 16
 end
@@ -751,10 +777,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 17
 end
@@ -772,10 +800,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 18
 end
@@ -793,10 +823,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 19
 end
@@ -814,10 +846,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 20
 end
@@ -839,10 +873,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 3
 y 21
 end
@@ -926,6 +962,11 @@ arch grassd_m14
 x 4
 y 9
 end
+arch slower
+terrain_flag 1
+x 4
+y 9
+end
 arch floor_sand_d3
 x 4
 y 10
@@ -983,10 +1024,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 13
 end
@@ -1004,10 +1047,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 14
 end
@@ -1025,10 +1070,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 15
 end
@@ -1046,10 +1093,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 16
 end
@@ -1067,10 +1116,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 17
 end
@@ -1088,10 +1139,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 18
 end
@@ -1109,10 +1162,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 19
 end
@@ -1134,10 +1189,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 20
 end
@@ -1159,10 +1216,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 4
 y 21
 end
@@ -1266,10 +1325,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 5
 y 12
 end
@@ -1333,10 +1394,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 5
 y 15
 end
@@ -1377,10 +1440,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 5
 y 17
 end
@@ -1421,10 +1486,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 5
 y 19
 end
@@ -1446,10 +1513,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 5
 y 20
 end
@@ -1617,10 +1686,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 6
 y 14
 end
@@ -1661,10 +1732,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 6
 y 16
 end
@@ -1728,10 +1801,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 6
 y 19
 end
@@ -1868,10 +1943,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 7
 y 12
 end
@@ -1889,10 +1966,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 7
 y 13
 end
@@ -1933,10 +2012,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 7
 y 15
 end
@@ -1994,10 +2075,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 7
 y 18
 end
@@ -2042,10 +2125,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 7
 y 20
 end
@@ -2146,10 +2231,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 11
 end
@@ -2171,10 +2258,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 12
 end
@@ -2192,10 +2281,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 13
 end
@@ -2213,10 +2304,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 14
 end
@@ -2234,10 +2327,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 15
 end
@@ -2255,10 +2350,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 16
 end
@@ -2276,10 +2373,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 17
 end
@@ -2320,10 +2419,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 8
 y 19
 end
@@ -2452,10 +2553,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 11
 end
@@ -2473,10 +2576,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 12
 end
@@ -2494,10 +2599,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 13
 end
@@ -2515,10 +2622,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 14
 end
@@ -2536,10 +2645,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 15
 end
@@ -2557,10 +2668,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 16
 end
@@ -2584,10 +2697,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 17
 end
@@ -2605,10 +2720,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 18
 end
@@ -2630,10 +2747,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 19
 end
@@ -2655,10 +2774,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 9
 y 20
 end
@@ -2751,10 +2872,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 11
 end
@@ -2772,10 +2895,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 12
 end
@@ -2793,10 +2918,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 13
 end
@@ -2814,10 +2941,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 14
 end
@@ -2835,10 +2964,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 15
 end
@@ -2856,10 +2987,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 16
 end
@@ -2877,10 +3010,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 17
 end
@@ -2898,10 +3033,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 18
 end
@@ -2923,10 +3060,12 @@ arch damager
 name drowning
 dam 11
 speed 0.1
+walk_on 1
 attack_confusion 30
 attack_internal 100
 slow_move 1
 exp 7
+terrain_flag 1
 x 10
 y 19
 end
@@ -3167,25 +3306,20 @@ x 12
 y 10
 arch ant_red
 no_pass 1
+monster 0
 name removable
-face tree_branch3.101
-sys_object 1
+layer 4
+face tree_branch2.101
+is_animated 0
+direction 0
 randomitems none
-race log
 speed -0.2053
 invulnerable 1
 no_attack 1
-flying 1
-is_female 0
 terrain_flag 2
 random_move 0
 movement_type 176
-protect_confusion 100
-protect_internal 100
 type 83
-layer 4
-direction 0
-is_animated 0
 arch waypoint
 name wp2
 title wp3
@@ -3433,25 +3567,20 @@ x 13
 y 19
 arch ant_red
 no_pass 1
+monster 0
 name removable
-face tree_branch2.101
-sys_object 1
+layer 4
+face tree_branch3.101
+is_animated 0
+direction 0
 randomitems none
-race log
 speed -0.2053
 invulnerable 1
 no_attack 1
-flying 1
-is_female 0
 terrain_flag 2
 random_move 0
 movement_type 176
-protect_confusion 100
-protect_internal 100
 type 83
-layer 4
-direction 0
-is_animated 0
 arch waypoint
 name wp2
 title wp3
@@ -4137,25 +4266,20 @@ x 18
 y 9
 arch ant_red
 no_pass 1
+monster 0
 name removable
-face tree_branch2.101
-sys_object 1
+layer 4
+face tree_branch3.101
+is_animated 0
+direction 0
 randomitems none
-race log
 speed -0.2053
 invulnerable 1
 no_attack 1
-flying 1
-is_female 0
 terrain_flag 2
 random_move 0
 movement_type 176
-protect_confusion 100
-protect_internal 100
 type 83
-layer 4
-direction 0
-is_animated 0
 arch waypoint
 name wp2
 title wp3
