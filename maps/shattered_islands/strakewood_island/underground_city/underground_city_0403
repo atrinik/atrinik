@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2176,8 +2176,6 @@ x 16
 y 10
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 10
 end
