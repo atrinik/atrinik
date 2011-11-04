@@ -318,9 +318,6 @@ START_TEST(test_can_pick)
 	fail_if(can_pick(pl, ob) == 1, "Player cannot see invisible but can pick up invisible sack.");
 	ob = get_archetype("raas");
 	fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
-	ob = get_archetype("beholder_dread");
-	ob->type = MISC_OBJECT;
-	fail_if(can_pick(pl, ob) == 1, "Player can pick up a multi-arch object.");
 }
 END_TEST
 
@@ -353,11 +350,8 @@ START_TEST(test_was_destroyed)
 	ob2_tag = ob2->count;
 	insert_ob_in_ob(ob2, ob);
 	fail_if(was_destroyed(ob2, ob2_tag) == 1, "was_destroyed() returned 1 but object is in inventory of another object.");
-	SET_FLAG(ob2, FLAG_REMOVED);
-	fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object had FLAG_REMOVED set.");
-	CLEAR_FLAG(ob2, FLAG_REMOVED);
 	remove_ob(ob);
-	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was removed from map.");
+	fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object was only removed from map.");
 	object_destroy(ob);
 	object_destroy(ob2);
 	fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
