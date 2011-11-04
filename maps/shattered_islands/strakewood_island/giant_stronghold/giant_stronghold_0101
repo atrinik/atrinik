@@ -2,7 +2,7 @@ arch map
 name Giant Stronghold
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -192,9 +192,8 @@ x 1
 y 2
 arch giant_stone
 name stone giant scout
-type 83
 level 8
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -286,9 +285,8 @@ x 1
 y 21
 arch giant_hill
 name hill giant clan leader
-type 83
 level 10
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -314,8 +312,6 @@ x 2
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 1
 end
@@ -356,9 +352,8 @@ x 2
 y 7
 arch giant_hill
 name hill giant warrior
-type 83
 level 8
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -386,9 +381,8 @@ x 2
 y 12
 arch giant_hill
 name hill giant warrior
-type 83
 level 8
-Wis 3
+type 83
 end
 end
 arch floor_stone1a
@@ -420,9 +414,8 @@ x 2
 y 16
 arch giant_hill
 name hill giant warrior captain
-type 83
 level 9
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -528,8 +521,6 @@ x 3
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 3
 y 15
 end
@@ -645,9 +636,8 @@ x 4
 y 10
 arch giant_hill
 name hill giant warrior
-type 83
 level 8
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -920,8 +910,6 @@ y 6
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 6
 y 6
 end
@@ -975,8 +963,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 6
 y 17
 end
@@ -1031,12 +1017,11 @@ x 7
 y 3
 arch giant_hill
 name hill giant guard
-type 83
 level 7
 random_move 1
 item_race 2
 item_level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -1336,12 +1321,11 @@ x 9
 y 20
 arch giant_hill
 name hill giant guard
-type 83
 level 8
 random_move 1
 item_race 2
 item_level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -1643,8 +1627,6 @@ y 3
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 12
 y 3
 end
@@ -1833,12 +1815,11 @@ x 13
 y 7
 arch giant_hill
 name hill giant guard
-type 83
 level 7
 random_move 1
 item_race 2
 item_level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -1863,8 +1844,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 12
 end
@@ -1902,8 +1881,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 20
 end
@@ -2120,12 +2097,11 @@ x 15
 y 17
 arch giant_hill
 name hill giant guard
-type 83
 level 7
 random_move 1
 item_race 2
 item_level 4
-Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -2289,8 +2265,6 @@ x 17
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 17
 y 1
 end
@@ -2616,9 +2590,8 @@ x 19
 y 9
 arch ettin
 name ettin brawler
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
@@ -2639,8 +2612,6 @@ y 13
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 19
 y 13
 end
@@ -2711,9 +2682,9 @@ x 20
 y 2
 arch troll
 name wounded troll
-type 83
 level 7
 Wis 3
+type 83
 end
 end
 arch floor_stone1c
@@ -2790,8 +2761,6 @@ y 18
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 18
 end
@@ -2866,8 +2835,6 @@ x 21
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 21
 y 7
 end
@@ -3010,9 +2977,8 @@ x 22
 y 8
 arch ettin
 name ettin brawler
-type 83
 level 6
-Wis 3
+type 83
 end
 end
 arch floor_stone1b
