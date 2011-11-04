@@ -268,8 +268,8 @@
 #define P_NO_PASS             0x04
 /** There is one or more player on this tile */
 #define P_IS_PLAYER           0x08
-/** Something alive is on this space */
-#define P_IS_ALIVE            0x10
+/** There is a monster on this square. */
+#define P_IS_MONSTER            0x10
 /** No clerical spells cast here */
 #define P_NO_CLERIC           0x20
 /**

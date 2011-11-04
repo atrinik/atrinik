@@ -40,7 +40,7 @@ static void process_func(object *op)
 
 	op->value = pticks;
 
-	if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_ALIVE | P_IS_PLAYER)))
+	if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER)))
 	{
 		return;
 	}
@@ -88,7 +88,7 @@ static void process_func(object *op)
 			 * this object is being moved onto, disable the mover on that
 			 * square, if any. This is done so the object doesn't rocket
 			 * across a bunch of movers. */
-			if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_ALIVE | P_IS_PLAYER)))
+			if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER)))
 			{
 				object *nextmover;
 

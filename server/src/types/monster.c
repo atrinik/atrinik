@@ -408,11 +408,8 @@ static void monster_update_move_timeout(object *op, int len)
 	}
 }
 
-/**
- * Monster moves its tick.
- * @param op The monster.
- * @return 1 if the object has been freed, 0 otherwise. */
-int move_monster(object *op)
+/** @copydoc object_methods::process_func */
+static void process_func(object *op)
 {
 	int dir, special_dir = 0, diff;
 	object *enemy, *part;
@@ -421,13 +418,13 @@ int move_monster(object *op)
 	if (op->head)
 	{
 		LOG(llevBug, "move_monster(): called from tail part. (%s -- %s)\n", query_name(op, NULL), op->arch->name);
-		return 0;
+		return;
 	}
 
 	/* Monsters not on maps don't do anything. */
 	if (!op->map)
 	{
-		return 0;
+		return;
 	}
 
 	/* If we are here, we're never paralyzed anymore */
@@ -533,7 +530,7 @@ int move_monster(object *op)
 		{
 			remove_ob(op);
 			object_destroy(op);
-			return 1;
+			return;
 		}
 
 		if (!QUERY_FLAG(op, FLAG_STAND_STILL))
@@ -542,7 +539,7 @@ int move_monster(object *op)
 			{
 				if (!monster_can_move(op))
 				{
-					return 0;
+					return;
 				}
 
 				switch (op->move_type & HI4)
@@ -584,7 +581,7 @@ int move_monster(object *op)
 						break;
 				}
 
-				return 0;
+				return;
 			}
 			else if (QUERY_FLAG(op, FLAG_RANDOM_MOVE))
 			{
@@ -595,7 +592,7 @@ int move_monster(object *op)
 			}
 		}
 
-		return 0;
+		return;
 	}
 
 	part = rv.part;
@@ -619,7 +616,7 @@ int move_monster(object *op)
 				{
 					/* Add monster casting delay */
 					op->last_grace += op->magic;
-					return 0;
+					return;
 				}
 			}
 
@@ -627,7 +624,7 @@ int move_monster(object *op)
 			{
 				if (monster_use_bow(op, part, dir) && rndm_chance(2))
 				{
-					return 0;
+					return;
 				}
 			}
 		}
@@ -684,7 +681,7 @@ int move_monster(object *op)
 
 			if (!special_dir)
 			{
-				return 0;
+				return;
 			}
 		}
 	}
@@ -707,7 +704,7 @@ int move_monster(object *op)
 		if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && rv.distance > 1 && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY))
 		{
 			waypoint_move(op, aggro_wp);
-			return 0;
+			return;
 		}
 		else
 		{
@@ -716,7 +713,7 @@ int move_monster(object *op)
 			/* Can the monster move directly toward player? */
 			if (move_object(op, dir))
 			{
-				return 0;
+				return;
 			}
 
 			/* Try move around corners if !close */
@@ -728,7 +725,7 @@ int move_monster(object *op)
 
 				if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m)))
 				{
-					return 0;
+					return;
 				}
 			}
 		}
@@ -740,7 +737,7 @@ int move_monster(object *op)
 	{
 		if (move_randomly(op))
 		{
-			return 0;
+			return;
 		}
 	}
 
@@ -774,16 +771,21 @@ int move_monster(object *op)
 	/* Might be freed by ghost-attack or hit-back */
 	if (OBJECT_FREE(part))
 	{
-		return 1;
+		return;
 	}
 
 	if (QUERY_FLAG(op, FLAG_ONLY_ATTACK))
 	{
 		destruct_ob(op);
-		return 1;
+		return;
 	}
+}
 
-	return 0;
+/**
+ * Initialize the monster type object methods. */
+void object_type_init_monster(void)
+{
+	object_type_methods[MONSTER].process_func = process_func;
 }
 
 /**
@@ -872,7 +874,7 @@ static object *find_nearest_enemy(object *ob)
 			}
 
 			/* Nothing alive here? Move on... */
-			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
 			{
 				continue;
 			}
@@ -1149,7 +1151,7 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 				}
 
 				/* Nothing alive here? Move on... */
-				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+				if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
 				{
 					continue;
 				}
@@ -1648,7 +1650,7 @@ void communicate(object *op, char *txt)
 		}
 
 		/* Check to see if we have magic ear or monster here. */
-		if (!(GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_ALIVE)))
+		if (!(GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_MONSTER)))
 		{
 			continue;
 		}
@@ -1663,7 +1665,7 @@ void communicate(object *op, char *txt)
 				{
 					talk_to_wall(op, npc, txt);
 				}
-				else if (QUERY_FLAG(npc, FLAG_ALIVE) && npc->type == MONSTER && op->type != PLAYER)
+				else if (npc->type == MONSTER && op->type != PLAYER)
 				{
 					talk_to_npc(op, npc, txt);
 				}

@@ -313,7 +313,7 @@ int command_target(object *op, char *params)
 			}
 
 			/* Nothing alive on this spot. */
-			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
 			{
 				continue;
 			}

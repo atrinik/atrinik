@@ -206,7 +206,7 @@ static void check_infection(object *disease)
 				continue;
 			}
 
-			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
 			{
 				continue;
 			}

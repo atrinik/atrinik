@@ -631,12 +631,12 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 	 * this is forbidden to enter. */
 	if (msp->move_flags & ~terrain)
 	{
-		return ((flags & (P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU)) | P_NO_TERRAIN);
+		return ((flags & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU)) | P_NO_TERRAIN);
 	}
 
-	if (flags & P_IS_ALIVE)
+	if (flags & P_IS_MONSTER)
 	{
-		return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_ALIVE | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
+		return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
 	}
 
 	if (flags & P_NO_PASS)
@@ -1905,9 +1905,9 @@ void update_position(mapstruct *m, int x, int y)
 				flags |= P_DOOR_CLOSED;
 			}
 
-			if (QUERY_FLAG(tmp, FLAG_ALIVE))
+			if (QUERY_FLAG(tmp, FLAG_MONSTER))
 			{
-				flags |= P_IS_ALIVE;
+				flags |= P_IS_MONSTER;
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_NO_MAGIC))

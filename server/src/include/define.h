@@ -840,7 +840,7 @@
 /** Is this some kind of armor (shield, helmet, cloak, etc)? */
 #define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE)
 /** Is this object alive? */
-#define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER) || QUERY_FLAG((op), FLAG_ALIVE))
+#define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER))
 /** Is it an arrow? */
 #define IS_ARROW(op) (op->type == ARROW || op->type == MMISSILE || op->type == BULLET)
 /** Determine whether the object is an attack spell. */
@@ -1062,9 +1062,6 @@
 /**
  * Item is magical. */
 #define FLAG_IS_MAGICAL 65
-/**
- * Object can fight (or be fought). */
-#define FLAG_ALIVE 66
 /**
  * Monster will never, ever move. */
 #define FLAG_STAND_STILL 67

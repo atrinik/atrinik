@@ -2115,7 +2115,6 @@ object *insert_base_info_object(object *op)
 	SET_FLAG(tmp, FLAG_NO_DROP);
 	CLEAR_FLAG(tmp, FLAG_ANIMATE);
 	CLEAR_FLAG(tmp, FLAG_FRIENDLY);
-	CLEAR_FLAG(tmp, FLAG_ALIVE);
 	CLEAR_FLAG(tmp, FLAG_MONSTER);
 	/* And put it in the mob */
 	insert_ob_in_ob(tmp, head);

@@ -292,7 +292,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"no_drop", "is_indestructible", "can_cast_spell", NULL, NULL,
 	"can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
-	"is_magical", "alive", "stand_still", "random_move", "only_attack",
+	"is_magical", NULL, "stand_still", "random_move", "only_attack",
 	"wiz", "stealth", NULL, NULL, "cursed",
 	"damned", "is_buildable", "no_pvp", NULL, NULL,
 	"is_thrown", NULL, NULL, "is_male", "is_female",
@@ -1218,9 +1218,9 @@ void update_object(object *op, int action)
 				newflags|= P_MAGIC_EAR;
 			}
 
-			if (QUERY_FLAG(op, FLAG_ALIVE))
+			if (QUERY_FLAG(op, FLAG_MONSTER))
 			{
-				newflags |= P_IS_ALIVE;
+				newflags |= P_IS_MONSTER;
 			}
 
 			if (QUERY_FLAG(op, FLAG_IS_PLAYER))
@@ -1302,7 +1302,7 @@ void update_object(object *op, int action)
 		}
 
 		/* We must rebuild the flags when one of these flags is touched from our object */
-		if (QUERY_FLAG(op, FLAG_ALIVE) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
+		if (QUERY_FLAG(op, FLAG_MONSTER) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV || op->type == MAGIC_EAR)
 		{
 			newflags |= P_FLAGS_UPDATE;
 		}
@@ -2115,7 +2115,7 @@ int object_check_move_on(object *op, object *originator)
 			continue;
 		}
 
-		if (IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS) && QUERY_FLAG(tmp, FLAG_SLOW_MOVE))
+		if (IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS) && QUERY_FLAG(tmp, FLAG_SLOW_MOVE) && (!tmp->terrain_flag || tmp->terrain_flag & op->terrain_flag))
 		{
 			op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
 		}
@@ -2833,11 +2833,6 @@ int can_pick(object *who, object *item)
 	}
 
 	if (QUERY_FLAG(item, FLAG_NO_PICK) && !QUERY_FLAG(item, FLAG_UNPAID))
-	{
-		return 0;
-	}
-
-	if (QUERY_FLAG(item, FLAG_ALIVE))
 	{
 		return 0;
 	}

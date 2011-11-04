@@ -1022,7 +1022,7 @@ extern void object_type_init_marker(void);
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
-extern int move_monster(object *op);
+extern void object_type_init_monster(void);
 extern void communicate(object *op, char *txt);
 extern int talk_to_npc(object *op, object *npc, char *txt);
 extern int faction_is_friend_of(object *mon, object *pl);

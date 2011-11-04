@@ -1412,7 +1412,7 @@ void draw_client_map2(object *pl)
 			if (d <= 0)
 			{
 				/* Xray or infravision? */
-				if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_ALIVE)))
+				if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_MONSTER)))
 				{
 					d = 100;
 				}

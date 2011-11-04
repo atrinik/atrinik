@@ -221,7 +221,7 @@ static const Atrinik_Constant constants[] =
 	{"P_NO_MAGIC", P_NO_MAGIC},
 	{"P_NO_PASS", P_NO_PASS},
 	{"P_IS_PLAYER", P_IS_PLAYER},
-	{"P_IS_ALIVE", P_IS_ALIVE},
+	{"P_IS_MONSTER", P_IS_MONSTER},
 	{"P_NO_CLERIC", P_NO_CLERIC},
 	{"P_PLAYER_ONLY", P_PLAYER_ONLY},
 	{"P_DOOR_CLOSED", P_DOOR_CLOSED},

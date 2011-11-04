@@ -560,7 +560,7 @@ lex_error = 0;
 ^is_turnable{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_TURNABLE, IVAL);
 ^is_used_up{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_USED_UP, IVAL);
 ^is_invisible{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_INVISIBLE, IVAL);
-^alive{S}           SET_OR_CLEAR_FLAG(op, FLAG_ALIVE, IVAL);
+^alive{S}           {}
 ^applied{S}         SET_OR_CLEAR_FLAG(op, FLAG_APPLIED, IVAL);
 ^unpaid{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNPAID, IVAL);
 ^hidden{S}          SET_OR_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL);

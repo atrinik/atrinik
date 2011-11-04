@@ -319,7 +319,6 @@ START_TEST(test_can_pick)
 	ob = get_archetype("raas");
 	fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
 	ob = get_archetype("beholder_dread");
-	CLEAR_FLAG(ob, FLAG_ALIVE);
 	ob->type = MISC_OBJECT;
 	fail_if(can_pick(pl, ob) == 1, "Player can pick up a multi-arch object.");
 }

@@ -377,7 +377,7 @@ void move_arrow(object *op)
 		hitter = op;
 	}
 
-	if ((flags = GET_MAP_FLAGS(m, x, y)) & (P_IS_ALIVE | P_IS_PLAYER))
+	if ((flags = GET_MAP_FLAGS(m, x, y)) & (P_IS_MONSTER | P_IS_PLAYER))
 	{
 		/* Search for a vulnerable object. */
 		for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above)

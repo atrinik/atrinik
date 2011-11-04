@@ -124,7 +124,7 @@ static void process_func(object *op)
 
 	if (op->type == BULLET && op->stats.sp == SP_PROBE)
 	{
-		if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_ALIVE | P_IS_PLAYER))
+		if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER | P_IS_PLAYER))
 		{
 			probe(op);
 			remove_ob(op);

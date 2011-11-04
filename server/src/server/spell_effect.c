@@ -305,7 +305,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 			}
 
 			/* Nothing alive here? Move on... */
-			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_ALIVE | P_IS_PLAYER)))
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
 			{
 				continue;
 			}
@@ -372,7 +372,7 @@ int cast_heal_around(object *op, int level, int type)
 					continue;
 				}
 
-				if (!(GET_MAP_FLAGS(m, x, y) & (P_IS_ALIVE | P_IS_PLAYER)))
+				if (!(GET_MAP_FLAGS(m, x, y) & (P_IS_MONSTER | P_IS_PLAYER)))
 				{
 					continue;
 				}
@@ -1261,7 +1261,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 		}
 
 		/* Check map flags for alive object */
-		if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_ALIVE))
+		if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_MONSTER))
 		{
 			continue;
 		}

@@ -427,8 +427,6 @@ static void update_priest_flag(object *god, object *exp_ob, uint32 flag)
  * @return God name, "none" if nothing suitable. */
 const char *determine_god(object *op)
 {
-	int godnr = -1;
-
 	/* spells */
 	if ((op->type == CONE || op->type == SWARM_SPELL) && op->title)
 	{
@@ -438,38 +436,11 @@ const char *determine_god(object *op)
 		}
 	}
 
-	if (op->type != PLAYER && QUERY_FLAG(op, FLAG_ALIVE))
-	{
-		if (!op->title)
-		{
-			godlink *gl = first_god;
-
-			godnr = rndm(1, gl->id);
-
-			while (gl)
-			{
-				if (gl->id == godnr)
-				{
-					break;
-				}
-
-				gl = gl->next;
-			}
-
-			FREE_AND_COPY_HASH(op->title, gl->name);
-		}
-
-		return op->title;
-	}
-
-	/* If we are player, let's search a bit harder for the god. This
-	 * is a fix for perceive self (before, we just looked at the active
-	 * skill.) */
 	if (op->type == PLAYER)
 	{
 		object *tmp;
 
-		for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
 			if (tmp->type == EXPERIENCE && tmp->stats.Wis)
 			{
