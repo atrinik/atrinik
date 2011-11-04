@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -200,8 +200,6 @@ y 4
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 4
 end
@@ -245,8 +243,6 @@ y 10
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 10
 end
@@ -308,8 +304,6 @@ y 17
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 17
 end
@@ -449,8 +443,6 @@ x 2
 y 14
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 2
 y 14
 end
@@ -627,8 +619,6 @@ x 4
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 4
 y 1
 end
@@ -1010,8 +1000,6 @@ x 7
 y 8
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 7
 y 8
 end
@@ -1381,8 +1369,6 @@ x 9
 y 18
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 9
 y 18
 end
@@ -2168,8 +2154,6 @@ x 16
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 1
 end
@@ -2191,8 +2175,6 @@ y 5
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 16
 y 5
 end
@@ -2386,8 +2368,6 @@ y 9
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 17
 y 9
 end
@@ -2575,8 +2555,6 @@ y 13
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 18
 y 13
 end
@@ -2610,8 +2588,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 18
 y 20
 end
@@ -3304,8 +3280,6 @@ x 23
 y 21
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 23
 y 21
 end
