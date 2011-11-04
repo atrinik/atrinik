@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -84,7 +84,6 @@ name skeleton archer
 level 54
 Dex 3
 can_use_bow 1
-Wis 3
 type 83
 arch ability_stone_throw
 race arrows
@@ -910,7 +909,6 @@ x 5
 y 21
 arch skel_fighter1
 level 51
-Wis 3
 type 83
 end
 end
@@ -1851,7 +1849,6 @@ x 11
 y 16
 arch wraith
 level 52
-Wis 3
 type 83
 end
 end
@@ -1885,7 +1882,6 @@ x 11
 y 21
 arch ghoul
 level 52
-Wis 3
 type 83
 end
 end
@@ -2042,7 +2038,6 @@ msg
 Key from Bordok, a lost soul guarding a library deep within Underground City.
 endmsg
 name Underground City Key 2
-identified 1
 slaying underground_city_key2
 startequip 1
 end
