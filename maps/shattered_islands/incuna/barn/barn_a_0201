@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -21,11 +21,10 @@ end
 arch spawn_point
 y 1
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1d
@@ -978,11 +977,10 @@ arch spawn_point
 x 5
 y 21
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1d
@@ -1031,11 +1029,10 @@ arch spawn_point
 x 6
 y 4
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1d
@@ -1054,10 +1051,9 @@ arch spawn_point
 x 6
 y 6
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1b
@@ -1220,11 +1216,10 @@ arch spawn_point
 x 7
 y 5
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1c
@@ -1377,10 +1372,9 @@ arch spawn_point
 x 8
 y 4
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1c
@@ -1765,13 +1759,12 @@ arch spawn_point
 x 10
 y 13
 arch ant_red
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
 item_race 6
 item_level 7
-Wis 3
+type 83
 end
 end
 arch floor_earth1b
@@ -2083,21 +2076,19 @@ arch spawn_point
 x 12
 y 8
 arch pudding_red
-type 83
 randomitems mob_fighter_l9
 level 2
-Wis 3
+type 83
 end
 arch ant_red
 name royal ant guard
-type 83
 randomitems mob_ant_special
 level 4
 object_int1 7500
 wc_range 15
 unaggressive 0
 random_move 0
-Wis 3
+type 83
 end
 end
 arch floor_earth1c
@@ -2176,21 +2167,19 @@ arch spawn_point
 x 12
 y 19
 arch pudding_red
-type 83
 randomitems mob_fighter_l9
 level 2
-Wis 3
+type 83
 end
 arch ant_red
 name royal ant guard
-type 83
 randomitems mob_ant_special
 level 4
 object_int1 7500
 wc_range 15
 unaggressive 0
 random_move 0
-Wis 3
+type 83
 end
 end
 arch floor_earth1b
@@ -2501,11 +2490,10 @@ arch spawn_point
 x 14
 y 14
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1b
@@ -2769,21 +2757,19 @@ arch spawn_point
 x 16
 y 5
 arch pudding_red
-type 83
 randomitems mob_fighter_l9
 level 2
-Wis 3
+type 83
 end
 arch ant_red
 name royal ant guard
-type 83
 randomitems mob_ant_special
 level 4
 object_int1 7500
 wc_range 15
 unaggressive 0
 random_move 0
-Wis 3
+type 83
 end
 end
 arch floor_earth1d
@@ -2822,11 +2808,10 @@ arch spawn_point
 x 16
 y 12
 arch ant_soldier
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
-Wis 3
+type 83
 end
 end
 arch floor_earth1c
@@ -2957,13 +2942,12 @@ arch spawn_point
 x 17
 y 8
 arch ant_red
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 12
 item_race 6
 item_level 7
-Wis 3
+type 83
 end
 end
 arch floor_earth1c
@@ -3047,11 +3031,10 @@ arch spawn_point
 x 17
 y 20
 arch jelly_red
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 16
-Wis 3
+type 83
 end
 end
 arch floor_earth1b
@@ -3466,11 +3449,10 @@ arch spawn_point
 x 20
 y 4
 arch jelly_red
-type 83
 randomitems mob_fighter_l9
 level 2
 wc_range 16
-Wis 3
+type 83
 end
 end
 arch floor_earth1d
