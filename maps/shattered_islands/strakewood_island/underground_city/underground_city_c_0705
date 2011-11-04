@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-06 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -840,9 +840,7 @@ maxhp 70
 ac 11
 Con 3
 can_cast_spell 1
-sp -1
 maxsp 30
-Pow 10
 Dex 2
 type 83
 arch ability_firestorm
@@ -1709,9 +1707,7 @@ maxhp 70
 ac 11
 Con 3
 can_cast_spell 1
-sp -1
 maxsp 30
-Pow 10
 Dex 2
 type 83
 arch ability_firestorm
