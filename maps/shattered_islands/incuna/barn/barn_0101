@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -187,14 +187,13 @@ x 3
 y 12
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -474,14 +473,13 @@ x 6
 y 2
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d1
@@ -525,14 +523,13 @@ x 6
 y 10
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d1
@@ -572,14 +569,13 @@ x 6
 y 15
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d1
@@ -1024,14 +1020,13 @@ x 10
 y 9
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -1194,14 +1189,13 @@ x 11
 y 13
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d1
@@ -1454,14 +1448,13 @@ x 14
 y 10
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -1603,13 +1596,12 @@ x 15
 y 17
 arch ant_red
 name minor ant scout
-type 83
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d1
@@ -1653,14 +1645,13 @@ x 16
 y 5
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -1968,14 +1959,13 @@ x 18
 y 11
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -2272,14 +2262,13 @@ x 20
 y 18
 arch ant_red
 name ant scout leader
-type 83
 randomitems mob_fighter_l9
 dam 40
 wc_range 12
 ac 8
 unaggressive 0
 random_move 0
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
@@ -2395,14 +2384,13 @@ x 21
 y 15
 arch ant_red
 name minor ant scout
-type 83
 randomitems mob_fighter_l9
 exp 75
 dam 30
 wc_range 12
 maxhp 40
 ac 6
-Wis 3
+type 83
 end
 end
 arch floor_wood2_d2
