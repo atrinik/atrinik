@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-10-29 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -190,8 +190,6 @@ y 3
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 3
 end
@@ -209,8 +207,6 @@ y 6
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 6
 end
@@ -228,8 +224,6 @@ y 9
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 9
 end
@@ -280,8 +274,6 @@ y 15
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 15
 end
@@ -325,8 +317,6 @@ y 21
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 21
 end
@@ -801,8 +791,6 @@ x 5
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 5
 y 1
 end
@@ -890,8 +878,6 @@ x 5
 y 13
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 5
 y 13
 end
@@ -1400,8 +1386,6 @@ x 9
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 9
 y 1
 end
@@ -1617,13 +1601,11 @@ arch floor_stone3d
 x 10
 y 14
 end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
+arch blood_floor2
 x 10
 y 14
 end
-arch blood_floor2
+arch torch_wall_1
 x 10
 y 14
 end
@@ -1961,8 +1943,6 @@ x 13
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 13
 y 1
 end
@@ -2091,8 +2071,6 @@ y 16
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 16
 end
@@ -2133,13 +2111,11 @@ arch floor_stone3d
 x 13
 y 21
 end
-arch torch_wall_1
-glow_radius 5
-is_animated 1
+arch blood_floor2
 x 13
 y 21
 end
-arch blood_floor2
+arch torch_wall_1
 x 13
 y 21
 end
@@ -2206,8 +2182,6 @@ y 7
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 14
 y 7
 end
@@ -2233,8 +2207,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 14
 y 12
 end
@@ -2450,13 +2422,12 @@ x 16
 y 6
 arch giant_stone
 name stone giant elite guard
-type 83
 level 23
 dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -2541,13 +2512,12 @@ x 16
 y 20
 arch giant_stone
 name stone giant elite guard
-type 83
 level 22
 dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
@@ -2699,8 +2669,6 @@ x 18
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 1
 end
@@ -2729,8 +2697,6 @@ x 18
 y 6
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 6
 end
@@ -2768,8 +2734,6 @@ x 18
 y 11
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 11
 end
@@ -2807,8 +2771,6 @@ x 18
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 16
 end
@@ -2833,8 +2795,6 @@ x 18
 y 20
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 18
 y 20
 end
@@ -3164,13 +3124,12 @@ x 21
 y 6
 arch giant_stone
 name stone giant elite guard
-type 83
 level 22
 dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -3238,13 +3197,12 @@ x 21
 y 16
 arch giant_stone
 name stone giant elite guard
-type 83
 level 22
 dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
+type 83
 end
 end
 arch floor_stone3b
@@ -3268,13 +3226,12 @@ x 21
 y 20
 arch giant_stone
 name stone giant elite guard
-type 83
 level 22
 dam 90
 wc 8
 maxhp 80
 ac 11
-Wis 3
+type 83
 end
 end
 arch floor_stone3d
