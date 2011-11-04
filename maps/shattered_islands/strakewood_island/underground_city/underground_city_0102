@@ -2874,8 +2874,6 @@ y 1
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 22
 y 1
 end
