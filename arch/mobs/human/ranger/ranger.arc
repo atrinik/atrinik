@@ -17,7 +17,6 @@ animation ranger
 is_animated 1
 anim_speed 4
 speed -0.0495
-alive 1
 monster 1
 Wis 4
 see_invisible 1

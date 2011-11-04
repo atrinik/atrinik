@@ -40,7 +40,6 @@ protect_slash 20
 protect_impact 20
 protect_cleave 20
 attack_pierce 85
-alive 1
 no_pick 1
 weight 1158000
 run_away 6
@@ -54,7 +53,6 @@ mpart_id 3
 mpart_nr 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -66,7 +64,6 @@ mpart_id 3
 mpart_nr 2
 y 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -79,6 +76,5 @@ mpart_nr 3
 y 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end

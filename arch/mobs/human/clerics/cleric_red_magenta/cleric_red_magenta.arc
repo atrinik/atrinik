@@ -17,7 +17,6 @@ animation cleric_red_magenta
 is_animated 1
 anim_speed 4
 speed -0.048
-alive 1
 monster 1
 Wis 4
 no_pick 1

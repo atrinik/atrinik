@@ -7,7 +7,6 @@ type 80
 layer 6
 direction 5
 corpse 1
-alive 1
 monster 1
 is_evil 1
 terrain_flag 1

@@ -17,7 +17,6 @@ Int 30
 Wis 30
 Pow 30
 monster 1
-alive 1
 is_female 1
 is_neutral 1
 terrain_flag 39

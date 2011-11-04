@@ -15,7 +15,6 @@ animation golem
 is_animated 1
 anim_speed 4
 monster 1
-alive 1
 attack_impact 100
 can_see_in_dark 1
 exp 95

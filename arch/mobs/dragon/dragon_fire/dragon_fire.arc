@@ -26,7 +26,6 @@ is_animated 1
 anim_speed 4
 monster 1
 no_pick 1
-alive 1
 exp 102
 ac 12
 wc 4
@@ -47,7 +46,6 @@ mpart_id 3
 mpart_nr 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -59,7 +57,6 @@ mpart_id 3
 mpart_nr 2
 y 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -72,6 +69,5 @@ mpart_nr 3
 y 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end

@@ -20,7 +20,6 @@ is_animated 1
 anim_speed 4
 monster 1
 no_pick 1
-alive 1
 can_see_in_dark 1
 exp 97
 ac 9

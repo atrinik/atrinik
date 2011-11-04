@@ -7,7 +7,6 @@ type 80
 layer 6
 direction 5
 corpse 1
-alive 1
 monster 1
 is_evil 1
 terrain_flag 1
@@ -51,7 +50,6 @@ mpart_id 3
 mpart_nr 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -63,7 +61,6 @@ mpart_id 3
 mpart_nr 2
 y 1
 monster 1
-alive 1
 no_pick 1
 end
 More
@@ -76,6 +73,5 @@ mpart_nr 3
 y 1
 x 1
 monster 1
-alive 1
 no_pick 1
 end

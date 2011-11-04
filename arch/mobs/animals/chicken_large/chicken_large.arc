@@ -17,7 +17,6 @@ is_animated 1
 anim_speed 4
 monster 1
 no_pick 1
-alive 1
 exp 102
 ac 12
 wc 4

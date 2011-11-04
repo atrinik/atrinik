@@ -28,6 +28,5 @@ direction 5
 corpse 1
 monster 1
 no_pick 1
-alive 1
 level 1
 end
