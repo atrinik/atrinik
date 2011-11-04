@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -137,9 +137,8 @@ x 1
 y 5
 arch gnoll
 name gnoll warrior captain
-type 83
 level 38
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -175,8 +174,6 @@ x 1
 y 12
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 1
 y 12
 end
@@ -238,9 +235,8 @@ x 2
 y 2
 arch gnoll
 name gnoll warrior
-type 83
 level 37
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -341,8 +337,6 @@ x 3
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 3
 y 1
 end
@@ -724,8 +718,6 @@ y 22
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 5
 y 22
 end
@@ -774,8 +766,6 @@ x 6
 y 12
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 12
 end
@@ -1115,8 +1105,6 @@ y 6
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 9
 y 6
 end
@@ -1454,8 +1442,6 @@ x 12
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 12
 y 1
 end
@@ -2137,8 +2123,6 @@ x 17
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 17
 y 1
 end
@@ -2243,12 +2227,11 @@ x 17
 y 16
 arch orc_priest
 name orc skeleton master
-type 83
 level 36
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_cause_lig_wound
 end
 end
@@ -2315,10 +2298,9 @@ x 18
 y 3
 arch skel_mage
 name Vlassa
-type 83
 level 40
 can_cast_spell 0
-Wis 3
+type 83
 arch quest_container
 name Underground City Key 1
 arch key2
@@ -2326,7 +2308,6 @@ msg
 Key from Vlassa, an undead mage smith in Underground City.
 endmsg
 name Underground City Key 1
-identified 1
 slaying underground_city_key1
 startequip 1
 end
@@ -2613,8 +2594,6 @@ x 20
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 20
 y 1
 end
@@ -2622,9 +2601,8 @@ arch spawn_point
 x 20
 y 1
 arch skel_fighter2
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2736,12 +2714,11 @@ x 20
 y 18
 arch orc_priest
 name orc skeleton master
-type 83
 level 36
 maxsp 16
 Pow 20
 Dex 2
-Wis 3
+type 83
 arch ability_cause_lig_wound
 end
 end
@@ -2803,9 +2780,8 @@ arch spawn_point
 x 21
 y 5
 arch skel_fighter1
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
