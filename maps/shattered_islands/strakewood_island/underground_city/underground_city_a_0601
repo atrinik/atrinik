@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-12 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -322,7 +322,6 @@ x 3
 y 8
 arch skel_fighter3
 level 47
-Wis 3
 type 83
 end
 end
@@ -450,7 +449,6 @@ x 4
 y 1
 arch lost_soul
 level 46
-Wis 3
 type 83
 end
 end
@@ -546,7 +544,6 @@ name skeleton archer
 level 48
 Dex 3
 can_use_bow 1
-Wis 3
 type 83
 arch ability_stone_throw
 race arrows
@@ -639,7 +636,6 @@ x 5
 y 14
 arch ghoul
 level 47
-Wis 3
 type 83
 end
 end
