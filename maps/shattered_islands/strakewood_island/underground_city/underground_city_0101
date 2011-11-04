@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -223,9 +223,8 @@ arch spawn_point
 x 1
 y 8
 arch orc_warrior
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -300,8 +299,6 @@ y 21
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 21
 end
@@ -415,9 +412,8 @@ arch spawn_point
 x 2
 y 11
 arch orc_warrior
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -444,9 +440,8 @@ arch spawn_point
 x 2
 y 14
 arch orc_warrior
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
@@ -489,9 +484,8 @@ arch spawn_point
 x 2
 y 21
 arch orc_berserker
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -519,8 +513,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 3
 y 2
 end
@@ -735,9 +727,8 @@ arch spawn_point
 x 4
 y 14
 arch orc_captain
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -962,8 +953,6 @@ x 6
 y 5
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 5
 end
@@ -1530,9 +1519,8 @@ arch spawn_point
 x 11
 y 4
 arch orc_berserker
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -1601,8 +1589,6 @@ y 15
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 11
 y 15
 end
@@ -1810,9 +1796,8 @@ arch spawn_point
 x 13
 y 5
 arch orc_captain
-type 83
 level 36
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2605,8 +2590,6 @@ y 5
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 5
 end
@@ -2664,8 +2647,6 @@ y 15
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 15
 end
@@ -2848,8 +2829,6 @@ x 22
 y 4
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 22
 y 4
 end
@@ -3036,8 +3015,6 @@ x 23
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 23
 y 15
 end
