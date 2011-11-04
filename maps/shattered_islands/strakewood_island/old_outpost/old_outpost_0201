@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2009-09-26 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -173,8 +173,6 @@ x 1
 y 14
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 1
 y 14
 end
@@ -275,10 +273,9 @@ x 2
 y 9
 arch ettin
 name ettin guard
-type 83
-level 15
-Wis 3
 direction 3
+level 15
+type 83
 end
 end
 arch floor_stone3b
@@ -310,10 +307,9 @@ x 2
 y 14
 arch giant_hill
 name hill giant berserker
-type 83
-level 14
-Wis 3
 direction 7
+level 14
+type 83
 end
 end
 arch floor_stone3d
@@ -363,13 +359,11 @@ end
 arch floor_stone3b
 x 3
 end
-arch torch_wall_1
-direction 5
-glow_radius 5
-is_animated 1
+arch pile_floor1
 x 3
 end
-arch pile_floor1
+arch torch_wall_1
+direction 5
 x 3
 end
 arch floor_stone3d
@@ -393,10 +387,9 @@ x 3
 y 3
 arch giant_stone
 name stone giant guard
-type 83
-level 15
-Wis 3
 direction 3
+level 15
+type 83
 end
 end
 arch floor_stone3d
@@ -705,10 +698,9 @@ x 5
 y 14
 arch giant_hill
 name hill giant berserker
-type 83
-level 14
-Wis 3
 direction 7
+level 14
+type 83
 end
 end
 arch floor_stone3d
@@ -741,8 +733,6 @@ y 21
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 5
 y 21
 end
@@ -769,8 +759,6 @@ x 6
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 1
 end
@@ -831,8 +819,6 @@ x 6
 y 14
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 6
 y 14
 end
@@ -1170,10 +1156,9 @@ x 9
 y 4
 arch giant_stone
 name stone giant guard
-type 83
-level 15
-Wis 3
 direction 3
+level 15
+type 83
 end
 end
 arch floor_stone3d
@@ -1302,10 +1287,9 @@ x 10
 y 2
 arch giant_stone
 name stone giant guard
-type 83
-level 15
-Wis 3
 direction 3
+level 15
+type 83
 end
 end
 arch floor_stone3b
@@ -1423,8 +1407,6 @@ x 11
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 11
 y 1
 end
@@ -1461,8 +1443,6 @@ x 11
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 11
 y 7
 end
@@ -1557,10 +1537,9 @@ x 12
 y 1
 arch giant_hill
 name hill giant berserker captain
-type 83
-level 15
-Wis 3
 direction 3
+level 15
+type 83
 end
 end
 arch floor_stone3b
@@ -1682,8 +1661,6 @@ x 12
 y 19
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 12
 y 19
 end
@@ -2121,8 +2098,6 @@ x 16
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 7
 end
@@ -2155,8 +2130,6 @@ x 16
 y 13
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 16
 y 13
 end
@@ -2451,8 +2424,6 @@ x 19
 y 1
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 19
 y 1
 end
@@ -2592,8 +2563,6 @@ y 6
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 20
 y 6
 end
