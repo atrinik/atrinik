@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -886,7 +886,7 @@ y 3
 end
 arch marker
 race underground_city_force_drow
-food 3
+food 50
 x 7
 y 3
 end
