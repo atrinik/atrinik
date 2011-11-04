@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-04 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -507,16 +507,14 @@ y 20
 arch ant_red
 no_pass 1
 state 3
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -697,16 +695,14 @@ y 18
 arch ant_red
 no_pass 1
 state 1
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -739,16 +735,14 @@ y 20
 arch ant_red
 no_pass 1
 state 1
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -780,16 +774,14 @@ x 3
 y 22
 arch ant_red
 no_pass 1
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -945,16 +937,14 @@ y 17
 arch ant_red
 no_pass 1
 state 3
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -981,16 +971,14 @@ x 4
 y 19
 arch ant_red
 no_pass 1
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1012,16 +1000,14 @@ x 4
 y 21
 arch ant_red
 no_pass 1
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1186,16 +1172,14 @@ y 18
 arch ant_red
 no_pass 1
 state 2
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1219,16 +1203,14 @@ y 19
 arch ant_red
 no_pass 1
 state 2
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1247,16 +1229,14 @@ y 20
 arch ant_red
 no_pass 1
 state 3
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1284,16 +1264,14 @@ y 22
 arch ant_red
 no_pass 1
 state 3
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
@@ -1475,16 +1453,14 @@ y 21
 arch ant_red
 no_pass 1
 state 2
+monster 0
 name fireflies
 layer 4
 animation fireflies
 glow_radius 4
-sys_object 1
 randomitems none
-race insect
 invulnerable 1
 no_attack 1
-is_female 0
 spawn_time 19:00 - 07:00
 terrain_flag 2
 random_move 0
