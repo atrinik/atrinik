@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -89,8 +89,6 @@ arch blood_floor2
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 y 17
 end
 arch floor_stone_b1
@@ -108,9 +106,8 @@ end
 arch spawn_point
 y 21
 arch drow_fighter
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -351,9 +348,8 @@ arch spawn_point
 x 2
 y 21
 arch drow_guard
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b4
@@ -412,8 +408,6 @@ x 3
 y 8
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 3
 y 8
 end
@@ -726,9 +720,8 @@ arch spawn_point
 x 5
 y 20
 arch drow_fighter
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -907,8 +900,6 @@ x 7
 y 17
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 7
 y 17
 end
@@ -1134,8 +1125,6 @@ y 5
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 9
 y 5
 end
@@ -1177,8 +1166,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 9
 y 12
 end
@@ -1368,9 +1355,8 @@ arch spawn_point
 x 11
 y 3
 arch drow_captain
-type 83
 level 48
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -1832,8 +1818,6 @@ x 14
 y 19
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 14
 y 19
 end
@@ -1862,8 +1846,6 @@ x 15
 y 4
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 15
 y 4
 end
@@ -1875,9 +1857,8 @@ arch spawn_point
 x 15
 y 5
 arch drow_guard
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2151,9 +2132,8 @@ arch spawn_point
 x 17
 y 9
 arch drow_guard
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2218,8 +2198,6 @@ y 18
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 17
 y 18
 end
@@ -2279,9 +2257,8 @@ arch spawn_point
 x 18
 y 6
 arch drow_guard
-type 83
 level 47
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2385,8 +2362,6 @@ x 19
 y 4
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 19
 y 4
 end
@@ -2716,8 +2691,6 @@ x 21
 y 15
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 21
 y 15
 end
