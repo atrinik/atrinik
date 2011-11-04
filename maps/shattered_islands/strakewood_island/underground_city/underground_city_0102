@@ -2,7 +2,7 @@ arch map
 name The Underground City
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -228,9 +228,8 @@ arch spawn_point
 x 1
 y 7
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -341,9 +340,8 @@ arch spawn_point
 x 1
 y 19
 arch orc_berserker
-type 83
 level 35
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -352,8 +350,6 @@ y 20
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 1
 y 20
 end
@@ -431,9 +427,8 @@ arch spawn_point
 x 2
 y 9
 arch orc_warrior
-type 83
 level 33
-Wis 3
+type 83
 end
 end
 arch floor_blue1
@@ -508,9 +503,8 @@ arch spawn_point
 x 2
 y 21
 arch orc_outlaw
-type 83
 level 35
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -568,9 +562,8 @@ arch spawn_point
 x 3
 y 6
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_blue1
@@ -716,9 +709,8 @@ arch spawn_point
 x 4
 y 9
 arch orc_captain
-type 83
 level 35
-Wis 3
+type 83
 end
 end
 arch floor_blue1
@@ -797,9 +789,8 @@ arch spawn_point
 x 4
 y 20
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -925,8 +916,6 @@ x 5
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 5
 y 16
 end
@@ -1022,9 +1011,8 @@ arch spawn_point
 x 6
 y 8
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1108,8 +1096,6 @@ x 7
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 7
 y 7
 end
@@ -1373,9 +1359,8 @@ arch spawn_point
 x 9
 y 10
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b3
@@ -1439,8 +1424,6 @@ y 2
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 10
 y 2
 end
@@ -1529,8 +1512,6 @@ x 10
 y 18
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 10
 y 18
 end
@@ -1922,9 +1903,8 @@ arch spawn_point
 x 13
 y 17
 arch orc_berserker
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -1957,8 +1937,6 @@ y 23
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 13
 y 23
 end
@@ -2279,9 +2257,8 @@ arch spawn_point
 x 16
 y 19
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
@@ -2396,8 +2373,6 @@ x 17
 y 16
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 17
 y 16
 end
@@ -2513,8 +2488,6 @@ y 12
 end
 arch torch_wall_1
 direction 5
-glow_radius 5
-is_animated 1
 x 18
 y 12
 end
@@ -2579,8 +2552,6 @@ x 19
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 19
 y 7
 end
@@ -2815,9 +2786,8 @@ arch spawn_point
 x 21
 y 8
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b1
@@ -3025,8 +2995,6 @@ x 23
 y 7
 end
 arch torch_wall_1
-glow_radius 5
-is_animated 1
 x 23
 y 7
 end
@@ -3050,9 +3018,8 @@ arch spawn_point
 x 23
 y 9
 arch orc_warrior
-type 83
 level 34
-Wis 3
+type 83
 end
 end
 arch floor_stone_b2
