@@ -993,6 +993,8 @@ extern object *find_key(object *op, object *door);
 extern void object_type_init_door(void);
 /* src/types/duplicator.c */
 extern void object_type_init_duplicator(void);
+/* src/types/exit.c */
+extern void object_type_init_exit(void);
 /* src/types/firewall.c */
 extern void object_type_init_firewall(void);
 /* src/types/food.c */

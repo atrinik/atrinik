@@ -86,6 +86,7 @@ void object_methods_init(void)
 	object_type_init_gate();
 	object_type_init_check_inv();
 	object_type_init_monster();
+	object_type_init_exit();
 }
 
 /** @copydoc object_methods::apply_func */
