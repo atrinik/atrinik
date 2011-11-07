@@ -964,6 +964,8 @@ extern void object_type_init_button(void);
 /* src/types/check_inv.c */
 extern object *check_inv(object *op, object *ob);
 extern void object_type_init_check_inv(void);
+/* src/types/compass.c */
+extern void object_type_init_compass(void);
 /* src/types/cone.c */
 extern void object_type_init_cone(void);
 /* src/types/confusion.c */

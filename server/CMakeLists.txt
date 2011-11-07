@@ -263,6 +263,7 @@ set(SOURCES
 	src/types/bullet.c
 	src/types/button.c
 	src/types/check_inv.c
+	src/types/compass.c
 	src/types/cone.c
 	src/types/confusion.c
 	src/types/container.c

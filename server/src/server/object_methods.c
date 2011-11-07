@@ -88,6 +88,7 @@ void object_methods_init(void)
 	object_type_init_monster();
 	object_type_init_exit();
 	object_type_init_holy_altar();
+	object_type_init_compass();
 }
 
 /** @copydoc object_methods::apply_func */
