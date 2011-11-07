@@ -25,34 +25,46 @@
 
 /**
  * @file
- * Handles code related to @ref POWER_CRYSTAL "power crystals". */
-
-#include <global.h>
-
-/**
- * This function handles the application of power crystals.
+ * Handles code related to @ref POWER_CRYSTAL "power crystals".
  *
  * Power crystals, when applied, either suck mana from the applier, if
  * he's at full spellpoints, or give him mana, if it's got spellpoints
  * stored.
- * @param op Who is applying the crystal.
- * @param crystal The crystal. */
-void apply_power_crystal(object *op, object *crystal)
+ *
+ * @author Alex Tokar */
+
+#include <global.h>
+
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
 {
-	int available_power = op->stats.sp - op->stats.maxsp;
-	int power_space = crystal->stats.maxsp - crystal->stats.sp;
-	int power_grab = 0;
+	int power_available, power_space, power_grab;
 
-	if (available_power >= 0 && power_space > 0)
+	(void) aflags;
+
+	power_available = applier->stats.sp - applier->stats.maxsp;
+	power_space = op->stats.maxsp - op->stats.sp;
+	power_grab = 0;
+
+	if (power_available >= 0 && power_space > 0)
 	{
-		power_grab = (int) MIN((float) power_space, ((float) 0.5 * (float) op->stats.sp));
+		power_grab = MIN(power_space, applier->stats.sp / 2);
 	}
 
-	if (available_power < 0 && crystal->stats.sp > 0)
+	if (power_available < 0 && op->stats.sp > 0)
 	{
-		power_grab = -MIN(-available_power, crystal->stats.sp);
+		power_grab = -MIN(-power_available, op->stats.sp);
 	}
 
-	op->stats.sp -= power_grab;
-	crystal->stats.sp += power_grab;
+	applier->stats.sp -= power_grab;
+	op->stats.sp += power_grab;
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the power crystal type object methods. */
+void object_type_init_power_crystal(void)
+{
+	object_type_methods[POWER_CRYSTAL].apply_func = apply_func;
 }

@@ -89,6 +89,7 @@ void object_methods_init(void)
 	object_type_init_exit();
 	object_type_init_holy_altar();
 	object_type_init_compass();
+	object_type_init_power_crystal();
 }
 
 /** @copydoc object_methods::apply_func */

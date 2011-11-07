@@ -1073,7 +1073,7 @@ extern void object_type_init_poisoning(void);
 /* src/types/potion.c */
 extern int apply_potion(object *op, object *tmp);
 /* src/types/power_crystal.c */
-extern void apply_power_crystal(object *op, object *crystal);
+extern void object_type_init_power_crystal(void);
 /* src/types/rod.c */
 extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
