@@ -281,9 +281,20 @@ static void process_func(object *op)
 	insert_ob_in_map(op, op->map, op, 0);
 }
 
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
+{
+	(void) op;
+	(void) applier;
+	(void) aflags;
+
+	return OBJECT_METHOD_UNHANDLED;
+}
+
 /**
  * Initialize the door type object methods. */
 void object_type_init_door(void)
 {
 	object_type_methods[DOOR].process_func = process_func;
+	object_type_methods[DOOR].apply_func = apply_func;
 }

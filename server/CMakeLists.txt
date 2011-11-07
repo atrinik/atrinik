@@ -278,6 +278,7 @@ set(SOURCES
 	src/types/gate.c
 	src/types/gravestone.c
 	src/types/handle.c
+	src/types/holy_altar.c
 	src/types/light.c
 	src/types/lightning.c
 	src/types/magic_mirror.c

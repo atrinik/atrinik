@@ -41,7 +41,6 @@ static int god_gives_present(object *op, object *god, treasure *tr);
 static int god_examines_priest(object *op, object *god);
 static int god_examines_item(object *god, object *item);
 static void lose_priest_exp(object *pl, int loss);
-static void god_intervention(object *op, object *god);
 
 /**
  * Returns the ID of specified god.
@@ -100,120 +99,6 @@ object *find_god(const char *name)
 	}
 
 	return god;
-}
-
-/**
- * Player prays at altar.
- *
- * Checks for god changing, divine intervention, and so on.
- * @param pl Player praying.
- * @param altar Altar player's praying on. Doesn't need to be
- * consecrated. */
-void pray_at_altar(object *pl, object *altar)
-{
-	object *pl_god = find_god(determine_god(pl));
-
-	/* If non consecrate altar, don't do anything */
-	if (!altar->other_arch)
-	{
-		return;
-	}
-
-	/* new convert */
-	if (!pl_god)
-	{
-		become_follower(pl, &altar->other_arch->clone);
-		return;
-	}
-	/* Pray at your gods altar */
-	else if (!strcmp(pl_god->name, altar->other_arch->clone.name))
-	{
-		int bonus = ((pl->stats.Wis / 10) + (SK_level(pl) / 10));
-
-		draw_info_format(COLOR_WHITE, pl, "You feel the powers of your deity %s.", pl_god->name);
-
-		/* We can get negative grace up faster */
-		if (pl->stats.grace < 0)
-		{
-			pl->stats.grace += (bonus > -1 * (pl->stats.grace / 10) ? bonus : -1 * (pl->stats.grace / 10));
-		}
-
-		/* We can super-charge grace to 2x max */
-		if (pl->stats.grace < (2 * pl->stats.maxgrace))
-		{
-			pl->stats.grace += bonus / 2;
-		}
-
-		/* I think there was a bug here in that this was nested
-		 * in the if immediately above */
-		if (pl->stats.grace > pl->stats.maxgrace)
-		{
-			pl->stats.grace = pl->stats.maxgrace;
-		}
-
-		/* Every once in a while, the god decides to checkup on their
-		 * follower, and may intervene to help them out. */
-		bonus = MAX(1, bonus);
-
-		if (((rndm(0, 399)) - bonus) < 0)
-		{
-			god_intervention(pl, pl_god);
-		}
-	}
-	/* Praying to another god! */
-	else
-	{
-		int loss = 0, angry = 1;
-
-		/* I believe the logic for detecting opposing gods was completely
-		 * broken - I think it should work now.  altar->other_arch
-		 * points to the god of this altar (which we have
-		 * already verified is non null).  pl_god->other_arch
-		 * is the opposing god - we need to verify that exists before
-		 * using its values. */
-		if (pl_god->other_arch && (altar->other_arch->name == pl_god->other_arch->name))
-		{
-			angry = 2;
-
-			if (rndm(0, SK_level(pl) + 2) - 5 > 0)
-			{
-				/* you really screwed up */
-				angry = 3;
-				draw_info_format(COLOR_NAVY, pl, "Foul priest! %s punishes you!", pl_god->name);
-				cast_magic_storm(pl, get_archetype("loose_magic"), pl_god->level + 20);
-			}
-
-			draw_info_format(COLOR_NAVY, pl, "Foolish heretic! %s is livid!", pl_god->name);
-		}
-		else
-		{
-			draw_info_format(COLOR_NAVY, pl, "Heretic! %s is angered!", pl_god->name);
-		}
-
-		/* whether we will be successfull in defecting or not -
-		 * we lose experience from the clerical experience obj */
-		loss = (int) ((float) 0.1 * (float) pl->chosen_skill->exp_obj->stats.exp);
-
-		if (loss)
-		{
-			lose_priest_exp(pl, rndm(0, loss * angry - 1));
-		}
-
-		/* May switch Gods, but it's random chance based on our current
-		 * level. Note it gets harder to swap gods the higher we get */
-		if (QUERY_FLAG(altar, FLAG_XRAYS) || (angry == 1 && rndm_chance(pl->chosen_skill->exp_obj->level)))
-		{
-			become_follower(pl, &altar->other_arch->clone);
-		}
-		/* If angry... switching gods */
-		else
-		{
-			/* toss this player off the altar.  He can try again. */
-			draw_info_format(COLOR_NAVY, pl, "A divine force pushes you off the altar.");
-			/* back him off the way he came. */
-			move_player(pl, absdir(pl->facing + 4));
-		}
-	}
 }
 
 /**
@@ -703,7 +588,7 @@ static int god_gives_present(object *op, object *god, treasure *tr)
  * Later, this function can be used to supply quests, etc for the priest.
  * @param op Player praying.
  * @param god God player is praying to. */
-static void god_intervention(object *op, object *god)
+void god_intervention(object *op, object *god)
 {
 	int level = SK_level(op);
 	treasure *tr;

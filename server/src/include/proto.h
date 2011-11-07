@@ -306,10 +306,10 @@ extern float calc_level_difference(int who_lvl, int op_lvl);
 extern uint64 calculate_total_exp(object *op);
 /* src/server/gods.c */
 extern object *find_god(const char *name);
-extern void pray_at_altar(object *pl, object *altar);
 extern void become_follower(object *op, object *new_god);
 extern const char *determine_god(object *op);
 extern archetype *determine_holy_arch(object *god, const char *type);
+extern void god_intervention(object *op, object *god);
 /* src/server/hiscore.c */
 extern void hiscore_init(void);
 extern void hiscore_check(object *op, int quiet);
@@ -1007,6 +1007,8 @@ extern void object_type_init_gate(void);
 extern const char *gravestone_text(object *op);
 /* src/types/handle.c */
 extern void object_type_init_handle(void);
+/* src/types/holy_altar.c */
+extern void object_type_init_holy_altar(void);
 /* src/types/light.c */
 extern void apply_player_light_refill(object *who, object *op);
 extern void apply_player_light(object *who, object *op);
