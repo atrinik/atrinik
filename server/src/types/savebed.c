@@ -29,17 +29,32 @@
 
 #include <global.h>
 
-/**
- * Apply a savebed.
- * @param op The player applying the savebed. */
-void apply_savebed(object *op)
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
 {
-	/* Update respawn position. */
-	strcpy(CONTR(op)->savebed_map, op->map->path);
-	CONTR(op)->bed_x = op->x;
-	CONTR(op)->bed_y = op->y;
+	(void) op;
+	(void) aflags;
 
-	draw_info(COLOR_WHITE, op, "You save and your save bed location is updated.");
-	hiscore_check(op, 0);
-	save_player(op, 1);
+	if (applier->type != PLAYER)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	/* Update respawn position. */
+	strcpy(CONTR(applier)->savebed_map, applier->map->path);
+	CONTR(applier)->bed_x = applier->x;
+	CONTR(applier)->bed_y = applier->y;
+
+	draw_info(COLOR_WHITE, applier, "You save and your save bed location is updated.");
+	hiscore_check(applier, 0);
+	save_player(applier, 1);
+
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the savebed type object methods. */
+void object_type_init_savebed(void)
+{
+	object_type_methods[SAVEBED].apply_func = apply_func;
 }

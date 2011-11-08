@@ -1079,7 +1079,7 @@ extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
 extern void object_type_init_rod(void);
 /* src/types/savebed.c */
-extern void apply_savebed(object *op);
+extern void object_type_init_savebed(void);
 /* src/types/scroll.c */
 extern void apply_scroll(object *op, object *tmp);
 /* src/types/shop_mat.c */
