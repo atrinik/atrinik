@@ -52,10 +52,15 @@
 
 #	ifdef MINGW
 #		define HAVE_DIRENT_H
+#		define _set_fmode(_mode) \
+		{ \
+			_fmode = (_mode); \
+		}
 #	endif
 
 #	define mkdir(__a, __b) _mkdir(__a)
 #	define socklen_t int
+#	define sleep(_x) Sleep((_x) * 1000)
 
 #	define HAVE_STRICMP
 #	define HAVE_STRNICMP
