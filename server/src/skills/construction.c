@@ -145,7 +145,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
  * @return 1 if the item was built, 0 otherwise. */
 static int builder_item(object *op, object *new_item, int x, int y)
 {
-	object *floor;
+	object *floor_ob;
 	int w = wall_blocked(op->map, x, y);
 
 	/* If it's not a wallmask, don't allow building on top of blocked squares. */
@@ -173,15 +173,15 @@ static int builder_item(object *op, object *new_item, int x, int y)
 	}
 
 	/* Only allow building if there is a floor. */
-	for (floor = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0); floor && floor->layer == LAYER_FLOOR; floor = floor->above)
+	for (floor_ob = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0); floor_ob && floor_ob->layer == LAYER_FLOOR; floor_ob = floor_ob->above)
 	{
-		if (floor->type == FLOOR || QUERY_FLAG(floor, FLAG_IS_FLOOR))
+		if (floor_ob->type == FLOOR || QUERY_FLAG(floor_ob, FLAG_IS_FLOOR))
 		{
 			break;
 		}
 	}
 
-	if (!floor)
+	if (!floor_ob)
 	{
 		draw_info(COLOR_WHITE, op, "This square has no floor, you can't build here.");
 		return 0;
@@ -661,7 +661,7 @@ static void construction_destroyer(object *op, int x, int y)
  * @param op Player. */
 void construction_do(object *op, int dir)
 {
-	object *skill_item, *floor, *tmp;
+	object *skill_item, *floor_ob, *tmp;
 	int x, y;
 
 	if (op->type != PLAYER)
@@ -701,9 +701,9 @@ void construction_do(object *op, int dir)
 
 	/* Check specified square
 	 * The square must have only buildable items. */
-	floor = GET_MAP_OB(op->map, x, y);
+	floor_ob = GET_MAP_OB(op->map, x, y);
 
-	if (!floor)
+	if (!floor_ob)
 	{
 		LOG(llevBug, "construction_do(): Undefined square on map %s (%d, %d)\n", op->map->path, x, y);
 		draw_info(COLOR_WHITE, op, "You'd better not build here, it looks weird.");
@@ -712,7 +712,7 @@ void construction_do(object *op, int dir)
 
 	if (skill_item->sub_type != ST_BD_BUILD)
 	{
-		for (tmp = floor; tmp; tmp = tmp->above)
+		for (tmp = floor_ob; tmp; tmp = tmp->above)
 		{
 			if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
 			{

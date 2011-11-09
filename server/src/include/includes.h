@@ -30,13 +30,9 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-/* Include this first, because it lets us know what we are missing */
-#ifdef WIN32
-#	include "win32.h"
-#else
-#	include <cmake.h>
-#endif
+#include <config.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -45,6 +41,12 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <pthread.h>
+
+#include <porting.h>
 
 #ifdef HAVE_FCNTL_H
 #	include <fcntl.h>
@@ -58,38 +60,58 @@
 #	include <sys/time.h>
 #endif
 
-#if defined(HAVE_TIME_H)
+#ifdef HAVE_TIME_H
 #	include <time.h>
 #endif
 
-/* stddef is for offsetof */
 #ifdef HAVE_STDDEF_H
 #	include <stddef.h>
-#endif
-
-#ifndef WIN32
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#	include <netdb.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
 #	include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
+#ifdef LINUX
+#	include <netdb.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netinet/tcp.h>
+#endif
 
-#include <uthash.h>
-#include <pthread.h>
+#ifdef HAVE_DIRENT_H
+#	include <dirent.h>
+#	define NAMLEN(dirent) (strlen((dirent)->d_name))
+#elif defined(HAVE_SYS_NDIR_H) || defined(HAVE_SYS_DIR_H) || defined(HAVE_NDIR_H)
+#	define dirent direct
+#	define NAMLEN(dirent) ((dirent)->d_namlen)
+#	ifdef HAVE_SYS_NDIR_H
+#		include <sys/ndir.h>
+#	endif
+#	ifdef HAVE_SYS_DIR_H
+#		include <sys/dir.h>
+#	endif
+#	ifdef HAVE_NDIR_H
+#		include <ndir.h>
+#	endif
+#endif
 
-#include "config.h"
-#include "define.h"
-#include "version.h"
-#include "logger.h"
-#include "newclient.h"
+#ifdef HAVE_SRANDOM
+#	define RANDOM() random()
+#	define SRANDOM(xyz) srandom(xyz)
+#else
+#	ifdef HAVE_SRAND48
+#		define RANDOM() lrand48()
+#		define SRANDOM(xyz) srand48(xyz)
+#	else
+#		ifdef HAVE_SRAND
+#			define RANDOM() rand()
+#			define SRANDOM(xyz) srand(xyz)
+#		else
+#			error "Could not find a usable random routine"
+#		endif
+#	endif
+#endif
 
 #ifdef HAVE_STRICMP
 #	define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
@@ -99,28 +121,34 @@
 #	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
-#if defined(vax) || defined(ibm032)
-size_t strftime(char *, size_t, const char *, const struct tm *);
-time_t mktime(struct tm *);
+#ifndef MIN
+#	define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
-#ifndef WIN32
-#	ifdef HAVE_DIRENT_H
-#		include <dirent.h>
-#		define NAMLEN(dirent) strlen((dirent)->d_name)
-#	else
-#		define dirent direct
-#		define NAMLEN(dirent) (dirent)->d_namlen
-#		ifdef HAVE_SYS_NDIR_H
-#			include <sys/ndir.h>
-#		endif
-#		ifdef HAVE_SYS_DIR_H
-#			include <sys/dir.h>
-#		endif
-#		ifdef HAVE_NDIR_H
-#			include <ndir.h>
-#		endif
-#	endif
+#ifndef MAX
+#	define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
+
+#ifndef FABS
+#	define FABS(x) ((x) < 0 ? -(x) : (x))
+#endif
+
+#ifndef HAVE_GETTIMEOFDAY
+struct timezone
+{
+	/* Minutes west of Greenwich. */
+	int tz_minuteswest;
+	/* Type of DST correction. */
+	int tz_dsttime;
+};
+
+extern int gettimeofday(struct timeval *tv, struct timezone *tz);
+#endif
+
+#include <uthash.h>
+#include <define.h>
+#include <version.h>
+#include <logger.h>
+#include <newclient.h>
 
 #endif

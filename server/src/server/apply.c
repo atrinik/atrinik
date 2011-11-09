@@ -28,7 +28,6 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
-#include <math.h>
 
 /**
  * Find a special prayer marker in object's inventory.

@@ -664,7 +664,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
  * @param x2 To X position.
  * @param y2 To Y position.
  * @return Found path. */
-path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2)
+path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2)
 {
 	/* Closed nodes have been examined. Open are to be examined */
 	path_node *open_list, *closed_list;
@@ -690,8 +690,8 @@ path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map
 
 	pathfinder_nodebuf_next = 0;
 
-	start.x = x1;
-	start.y = y1;
+	start.x = x;
+	start.y = y;
 	start.map = map1;
 
 	goal.x = x2;
@@ -699,10 +699,10 @@ path_node *find_path(object *op, mapstruct *map1, int x1, int y1, mapstruct *map
 	goal.map = map2;
 
 	/* The initial tile */
-	open_list = make_node(map1, (sint16)x1, (sint16)y1, 0, NULL);
+	open_list = make_node(map1, (sint16)x, (sint16)y, 0, NULL);
 	open_list->heuristic = distance_heuristic(&start, open_list, &goal);
 	closed_list = NULL;
-	SET_MAP_TILE_VISITED(map1, x1, y1, traversal_id);
+	SET_MAP_TILE_VISITED(map1, x, y, traversal_id);
 
 	while (open_list)
 	{

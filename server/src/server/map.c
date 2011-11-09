@@ -2500,54 +2500,54 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
  *   0x8 - calculate diagonal  (max(dx + dy)) distance   (fast)
  *   0x8|0x04 - don't calculate distance (or direction) (fastest)
  * @todo Document. */
-int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
+int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
 {
 	retval->part = NULL;
 
 	if (map1 == map2)
 	{
-		retval->distance_x = x2 - x1;
-		retval->distance_y = y2 - y1;
+		retval->distance_x = x2 - x;
+		retval->distance_y = y2 - y;
 	}
 	else if (map1->tile_map[0] == map2)
 	{
-		retval->distance_x = x2 - x1;
-		retval->distance_y = -(y1 + (MAP_HEIGHT(map2) - y2));
+		retval->distance_x = x2 - x;
+		retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
 	}
 	else if (map1->tile_map[1] == map2)
 	{
-		retval->distance_y = y2 - y1;
-		retval->distance_x = (MAP_WIDTH(map1) - x1) + x2;
+		retval->distance_y = y2 - y;
+		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
 	}
 	else if (map1->tile_map[2] == map2)
 	{
-		retval->distance_x = x2 - x1;
-		retval->distance_y = (MAP_HEIGHT(map1) - y1) + y2;
+		retval->distance_x = x2 - x;
+		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
 	}
 	else if (map1->tile_map[3] == map2)
 	{
-		retval->distance_y = y2 - y1;
-		retval->distance_x = -(x1 + (MAP_WIDTH(map2) - x2));
+		retval->distance_y = y2 - y;
+		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
 	}
 	else if (map1->tile_map[4] == map2)
 	{
-		retval->distance_y = -(y1 + (MAP_HEIGHT(map2)- y2));
-		retval->distance_x = (MAP_WIDTH(map1) - x1) + x2;
+		retval->distance_y = -(y + (MAP_HEIGHT(map2)- y2));
+		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
 	}
 	else if (map1->tile_map[5] == map2)
 	{
-		retval->distance_x = (MAP_WIDTH(map1) - x1) + x2;
-		retval->distance_y = (MAP_HEIGHT(map1) - y1) + y2;
+		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
+		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
 	}
 	else if (map1->tile_map[6] == map2)
 	{
-		retval->distance_y = (MAP_HEIGHT(map1) - y1) + y2;
-		retval->distance_x = -(x1 + (MAP_WIDTH(map2) - x2));
+		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
+		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
 	}
 	else if (map1->tile_map[7] == map2)
 	{
-		retval->distance_x = -(x1 + (MAP_WIDTH(map2) - x2));
-		retval->distance_y = -(y1 + (MAP_HEIGHT(map2) - y2));
+		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
+		retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
 	}
 	else if (flags & RV_RECURSIVE_SEARCH)
 	{
@@ -2559,8 +2559,8 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x1, int y1, mapstruct *m
 			return 0;
 		}
 
-		retval->distance_x -= x1;
-		retval->distance_y -= y1;
+		retval->distance_x -= x;
+		retval->distance_y -= y;
 	}
 	else
 	{

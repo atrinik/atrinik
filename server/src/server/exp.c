@@ -290,12 +290,12 @@ uint64 level_exp(int level, double expmul)
 /**
  * Add experience to player.
  * @param op The player.
- * @param exp How much experience to add (or, in case the value being
+ * @param exp_gain How much experience to add (or, in case the value being
  * negative, subtract).
  * @param skill_nr Skill ID.
  * @param exact If 1, experience gained will not be capped.
  * @return 0 on failure, experience gained on success. */
-sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
+sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 {
 	object *exp_ob = NULL, *exp_skill = NULL;
 
@@ -314,7 +314,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 
 	if (skill_nr == CHOSEN_SKILL_NO)
 	{
-		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %"FMT64". CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp);
+		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %"FMT64". CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp_gain);
 		return 0;
 	}
 
@@ -325,7 +325,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	/* Sanity */
 	if (!exp_skill)
 	{
-		LOG(llevDebug, "add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp);
+		LOG(llevDebug, "add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp_gain);
 		return 0;
 	}
 
@@ -350,18 +350,18 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	{
 		sint64 limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
 
-		if (exp > limit)
+		if (exp_gain > limit)
 		{
-			exp = limit;
+			exp_gain = limit;
 		}
 	}
 
 	/* First we see what we can add to our skill */
-	exp = adjust_exp(op, exp_skill, exp);
+	exp_gain = adjust_exp(op, exp_skill, exp_gain);
 
 	/* Notify the player of the exp gain */
-	draw_info_format(COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp, skills[skill_nr].name);
-	CONTR(op)->stat_exp_gained += exp;
+	draw_info_format(COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp_gain, skills[skill_nr].name);
+	CONTR(op)->stat_exp_gained += exp_gain;
 
 	/* adjust_exp() has adjusted the skill and all exp_obj and player
 	 * experience. Now let's check for level up in all categories. */
@@ -375,7 +375,7 @@ sint64 add_exp(object *op, sint64 exp, int skill_nr, int exact)
 	}
 
 	/* The real experience we have added to our skill */
-	return exp;
+	return exp_gain;
 }
 
 /**
@@ -555,9 +555,9 @@ void player_lvl_adj(object *who, object *op)
  * experience.
  * @param pl Player.
  * @param op Skill object.
- * @param exp Experience.
+ * @param exp_gain Experience.
  * @return 0 on failure, experience we added otherwise. */
-sint64 adjust_exp(object *pl, object *op, sint64 exp)
+sint64 adjust_exp(object *pl, object *op, sint64 exp_gain)
 {
 	object *tmp;
 	int i, sk_nr;
@@ -571,17 +571,17 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp)
 	}
 
 	/* Add or sub the exp and cap it. Must be >= 0 and <= MAX_EXPERIENCE */
-	op->stats.exp += exp;
+	op->stats.exp += exp_gain;
 
 	if (op->stats.exp < 0)
 	{
-		exp -= op->stats.exp;
+		exp_gain -= op->stats.exp;
 		op->stats.exp = 0;
 	}
 
 	if (op->stats.exp > (sint64) MAX_EXPERIENCE)
 	{
-		exp = exp - (op->stats.exp - MAX_EXPERIENCE);
+		exp_gain = exp_gain - (op->stats.exp - MAX_EXPERIENCE);
 		op->stats.exp = MAX_EXPERIENCE;
 	}
 
@@ -618,7 +618,7 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp)
 	/* Set our player exp to highest category experience. */
 	pl->stats.exp = pl_exp;
 
-	return exp;
+	return exp_gain;
 }
 
 /**
@@ -830,16 +830,16 @@ float calc_level_difference(int who_lvl, int op_lvl)
  * @return The total experience. */
 uint64 calculate_total_exp(object *op)
 {
-	uint64 exp = 0;
+	uint64 total = 0;
 	int i;
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
 		if (CONTR(op)->skill_ptr[i])
 		{
-			exp += CONTR(op)->skill_ptr[i]->stats.exp;
+			total += CONTR(op)->skill_ptr[i]->stats.exp;
 		}
 	}
 
-	return exp;
+	return total;
 }

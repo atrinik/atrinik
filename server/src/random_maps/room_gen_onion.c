@@ -351,25 +351,25 @@ void draw_onion(char **maze, float *xlocations, float *ylocations, int layers)
 
 	for (l = 0; l < layers; l++)
 	{
-		int x1, x2, y1, y2;
+		int x, x2, y, y2;
 
 		/* horizontal segments */
-		y1 = (int) ylocations[l];
+		y = (int) ylocations[l];
 		y2 = (int) ylocations[2 * layers - l - 1];
 
 		for (i = (int) xlocations[l]; i <= (int) xlocations[2 * layers - l - 1]; i++)
 		{
-			maze[i][y1] = '#';
+			maze[i][y] = '#';
 			maze[i][y2] = '#';
 		}
 
 		/* vertical segments */
-		x1 = (int) xlocations[l];
+		x = (int) xlocations[l];
 		x2 = (int) xlocations[2 * layers - l - 1];
 
 		for (j = (int) ylocations[l]; j <= (int) ylocations[2 * layers - l - 1]; j++)
 		{
-			maze[x1][j] = '#';
+			maze[x][j] = '#';
 			maze[x2][j] = '#';
 		}
 	}
@@ -388,7 +388,7 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 	int freedoms;
 	/* left, 1, top, 2, right, 3, bottom 4 */
 	int which_wall;
-	int l, x1 = 0, x2, y1 = 0, y2;
+	int l, x = 0, x2, y = 0, y2;
 
 	/* centered */
 	freedoms = 4;
@@ -420,29 +420,29 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 			{
 				/* Left hand wall */
 				case 1:
-					x1 = (int) xlocations[l];
-					y1 = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
+					x = (int) xlocations[l];
+					y = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
 
 					break;
 
 				/* Top wall placement */
 				case 2:
-					x1 = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
-					y1 = (int) ylocations[l];
+					x = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
+					y = (int) ylocations[l];
 
 					break;
 
 				/* Right wall placement */
 				case 3:
-					x1 = (int) xlocations[2 * layers - l - 1];
-					y1 = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
+					x = (int) xlocations[2 * layers - l - 1];
+					y = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
 
 					break;
 
 				/* Bottom wall placement */
 				case 4:
-					x1 = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
-					y1 = (int) ylocations[2 * layers - l - 1];
+					x = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
+					y = (int) ylocations[2 * layers - l - 1];
 
 					break;
 			}
@@ -456,16 +456,16 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 			{
 				/* Left hand wall */
 				case 1:
-					x1 = (int) xlocations[l];
+					x = (int) xlocations[l];
 					y2 = (int) (ylocations[2 * layers - l - 1] - ylocations[l] - 1.0f);
 
 					if (y2 > 0)
 					{
-						y1 = (int) ylocations[l] + RANDOM() % y2 + 1;
+						y = (int) ylocations[l] + RANDOM() % y2 + 1;
 					}
 					else
 					{
-						y1 = (int) ylocations[l] + 1;
+						y = (int) ylocations[l] + 1;
 					}
 
 					break;
@@ -476,29 +476,29 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 
 					if (x2 > 0)
 					{
-						x1 = (int) xlocations[l] + RANDOM() % x2 + 1;
+						x = (int) xlocations[l] + RANDOM() % x2 + 1;
 					}
 					else
 					{
-						x1 = (int) xlocations[l] + 1;
+						x = (int) xlocations[l] + 1;
 					}
 
-					y1 = (int) ylocations[l];
+					y = (int) ylocations[l];
 
 					break;
 
 				/* Right wall placement */
 				case 3:
-					x1 = (int) xlocations[2 * layers - l - 1];
+					x = (int) xlocations[2 * layers - l - 1];
 					y2 = (int) ((-ylocations[l] + ylocations[2 * layers - l - 1])) - 1;
 
 					if (y2 > 0)
 					{
-						y1 = (int) ylocations[l] + RANDOM() % y2 + 1;
+						y = (int) ylocations[l] + RANDOM() % y2 + 1;
 					}
 					else
 					{
-						y1 = (int) ylocations[l] + 1;
+						y = (int) ylocations[l] + 1;
 					}
 
 					break;
@@ -509,14 +509,14 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 
 					if (x2 > 0)
 					{
-						x1 = (int) xlocations[l] + RANDOM() % x2 + 1;
+						x = (int) xlocations[l] + RANDOM() % x2 + 1;
 					}
 					else
 					{
-						x1 = (int) xlocations[l] + 1;
+						x = (int) xlocations[l] + 1;
 					}
 
-					y1 = (int) ylocations[2 * layers - l - 1];
+					y = (int) ylocations[2 * layers - l - 1];
 
 					break;
 			}
@@ -525,21 +525,21 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 		if (options & OPT_NO_DOORS)
 		{
 			/* no door. */
-			maze[x1][y1] = '#';
+			maze[x][y] = '#';
 		}
 		else
 		{
 			/* write the door */
-			maze[x1][y1] = 'D';
+			maze[x][y] = 'D';
 		}
 	}
 
 	/* mark the center of the maze with a C */
 	l = layers - 1;
-	x1 = (int) (xlocations[l] + xlocations[2 * layers - l - 1]) / 2;
-	y1 = (int) (ylocations[l] + ylocations[2 * layers - l - 1]) / 2;
+	x = (int) (xlocations[l] + xlocations[2 * layers - l - 1]) / 2;
+	y = (int) (ylocations[l] + ylocations[2 * layers - l - 1]) / 2;
 
-	maze[x1][y1] = 'C';
+	maze[x][y] = 'C';
 
 	/* Not needed anymore */
 	free(xlocations);

@@ -183,26 +183,26 @@ END_TEST
 START_TEST(test_insert_ob_in_map)
 {
 	mapstruct *map;
-	object *first, *second, *third, *floor , *got;
+	object *first, *second, *third, *floor_ob, *got;
 
 	map = get_empty_map(5, 5);
 	fail_if(map == NULL, "get_empty_map() returned NULL.");
 
 	/* First, simple tests for insertion. */
-	floor = get_archetype("water_still");
-	floor->x = 3;
-	floor->y = 3;
-	got = insert_ob_in_map(floor, map, NULL, 0);
-	fail_if(got != floor, "Water flood shouldn't disappear.");
-	fail_if(floor != GET_MAP_OB(map, 3, 3), "Water floor should be first object.");
+	floor_ob = get_archetype("water_still");
+	floor_ob->x = 3;
+	floor_ob->y = 3;
+	got = insert_ob_in_map(floor_ob, map, NULL, 0);
+	fail_if(got != floor_ob, "Water flood shouldn't disappear.");
+	fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should be first object.");
 
 	first = get_archetype("letter");
 	first->x = 3;
 	first->y = 3;
 	got = insert_ob_in_map(first, map, NULL, 0);
 	fail_if(got != first, "Letter shouldn't disappear.");
-	fail_if(floor != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
-	fail_if(floor->above != first, "Letter should be above floor.");
+	fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
+	fail_if(floor_ob->above != first, "Letter should be above floor.");
 
 	second = get_archetype("bolt");
 	second->nrof = 1;
@@ -210,8 +210,8 @@ START_TEST(test_insert_ob_in_map)
 	second->y = 3;
 	got = insert_ob_in_map(second, map, NULL, 0);
 	fail_if(got != second, "Bolt shouldn't disappear.");
-	fail_if(floor != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
-	fail_if(floor->above != second, "Bolt should be above floor.");
+	fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
+	fail_if(floor_ob->above != second, "Bolt should be above floor.");
 	fail_if(second->above != first, "Letter should be above bolt.");
 
 	/* Merging tests. */

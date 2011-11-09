@@ -38,30 +38,6 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-/* Crossfire requires ANSI-C, but some compilers "forget" to define it.
- * Thus the prototypes made by cextract don't get included correctly. */
-#if !defined(__STDC__)
-#	error "Your ANSI C compiler should be defining __STDC__";
-#endif
-
-/* Decstations have trouble with fabs()... */
-#define FABS(x) ((x) < 0 ? -(x) : (x))
-#define abs(x) ((x) < 0 ? -(x) : (x))
-
-#ifdef __NetBSD__
-#	include <sys/param.h>
-#endif
-
-#ifndef MIN
-#	define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef MAX
-#	define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-#ifndef SGN
-#	define SGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
-#endif
-
 #ifndef NAME_MAX
 #	define NAME_MAX 255
 #endif
@@ -1607,23 +1583,6 @@ enum apply_flag
 		(fraction) += (dx2);                                          \
 	}
 /*@}*/
-
-#ifdef HAVE_SRANDOM
-#	define RANDOM() random()
-#	define SRANDOM(xyz) srandom(xyz)
-#else
-#	ifdef HAVE_SRAND48
-#		define RANDOM() lrand48()
-#		define SRANDOM(xyz) srand48(xyz)
-#	else
-#		ifdef HAVE_SRAND
-#			define RANDOM() rand()
-#			define SRANDOM(xyz) srand(xyz)
-#		else
-#			error "Could not find a usable random routine"
-#		endif
-#	endif
-#endif
 
 /**
  * @defgroup dump_values Dump values

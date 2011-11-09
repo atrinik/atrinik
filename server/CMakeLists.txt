@@ -104,6 +104,7 @@ check_function_exists(srand48 HAVE_SRAND48)
 check_function_exists(srand HAVE_SRAND)
 check_function_exists(getdtablesize HAVE_GETDTABLESIZE)
 check_function_exists(sysconf HAVE_SYSCONF)
+check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra)
@@ -263,6 +264,7 @@ set(SOURCES
 	src/types/bullet.c
 	src/types/button.c
 	src/types/check_inv.c
+	src/types/clock.c
 	src/types/compass.c
 	src/types/cone.c
 	src/types/confusion.c

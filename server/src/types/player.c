@@ -979,9 +979,9 @@ static void remove_unpaid_objects(object *op, object *env)
 /**
  * Figures out how much hp/mana/grace points to regenerate.
  * @param regen Regeneration value used for client (for example, player::gen_client_hp).
- * @param remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
+ * @param regen_remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
  * @return How much to regenerate. */
-static int get_regen_amount(uint16 regen, uint16 *remainder)
+static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
 {
 	int ret = 0;
 	float division;
@@ -990,19 +990,19 @@ static int get_regen_amount(uint16 regen, uint16 *remainder)
 	 * will distribute the remainder evenly over time). */
 	if (pticks % 8 == 0)
 	{
-		*remainder += regen;
+		*regen_remainder += regen;
 	}
 
 	/* First check if we can distribute it evenly, if not, try to remove
 	 * leftovers, if any. */
 	for (division = (float) 1000000 / MAX_TIME; ; division = 1.0f)
 	{
-		if (*remainder / 10.0f / division >= 1.0f)
+		if (*regen_remainder / 10.0f / division >= 1.0f)
 		{
-			int add = (int) *remainder / 10.0f / division;
+			int add = (int) *regen_remainder / 10.0f / division;
 
 			ret += add;
-			*remainder -= add * 10;
+			*regen_remainder -= add * 10;
 			break;
 		}
 

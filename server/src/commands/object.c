@@ -617,7 +617,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
  * @param no_mevent If 1, no map-wide event will be triggered. */
 void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 {
-	object *floor;
+	object *floor_ob;
 
 	if (QUERY_FLAG(tmp, FLAG_NO_DROP) && !QUERY_FLAG(op, FLAG_WIZ))
 	{
@@ -691,10 +691,10 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 			{
 				draw_info(COLOR_WHITE, op, "The shop magic put it back to the storage.");
 
-				floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
+				floor_ob = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
 				/* If the player is standing on a unique shop floor or unique randomitems shop floor, drop the object back to the floor */
-				if (floor && floor->type == SHOP_FLOOR && (QUERY_FLAG(floor, FLAG_IS_MAGICAL) || (floor->randomitems && QUERY_FLAG(floor, FLAG_CURSED))))
+				if (floor_ob && floor_ob->type == SHOP_FLOOR && (QUERY_FLAG(floor_ob, FLAG_IS_MAGICAL) || (floor_ob->randomitems && QUERY_FLAG(floor_ob, FLAG_CURSED))))
 				{
 					tmp->x = op->x;
 					tmp->y = op->y;
@@ -721,15 +721,15 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	}
 #endif
 
-	floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
+	floor_ob = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
-	if (floor && floor->type == SHOP_FLOOR && !QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY)
+	if (floor_ob && floor_ob->type == SHOP_FLOOR && !QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY)
 	{
 		sell_item(tmp, op, -1);
 
 		/* Ok, we have really sold it - not only dropped. Run this only
 		 * if the floor is not magical (i.e., unique shop) */
-		if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(floor, FLAG_IS_MAGICAL))
+		if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(floor_ob, FLAG_IS_MAGICAL))
 		{
 			if (op->type == PLAYER)
 			{
@@ -1591,12 +1591,12 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		}
 		else
 		{
-			object *floor;
+			object *floor_ob;
 dirty_little_jump1:
 
-			floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
+			floor_ob = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
-			if (floor && floor->type == SHOP_FLOOR && tmp->type != MONEY)
+			if (floor_ob && floor_ob->type == SHOP_FLOOR && tmp->type != MONEY)
 			{
 				/* Used for SK_BARGAINING modification */
 				int charisma = op->stats.Cha;

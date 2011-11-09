@@ -28,7 +28,6 @@
  * Line of sight related functions. */
 
 #include <global.h>
-#include <math.h>
 
 /**
  * Distance must be less than this for the object to be blocked.

@@ -137,6 +137,10 @@
 #cmakedefine HAVE_SYSCONF
 #endif
 
+#ifndef HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_GETTIMEOFDAY
+#endif
+
 #define COMPRESS "@COMPRESS@"
 #define UNCOMPRESS "@UNCOMPRESS@"
 #define GZIP "@GZIP@"

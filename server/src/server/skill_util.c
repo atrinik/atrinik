@@ -119,17 +119,17 @@ static int do_skill_attack(object *tmp, object *op, char *string);
 /**
  * Find and assign the skill experience stuff.
  * @param pl Player.
- * @param exp Experience object.
+ * @param exp_ob Experience object.
  * @param idx Index. */
-static void find_skill_exp_name(object *pl, object *exp, int idx)
+static void find_skill_exp_name(object *pl, object *exp_ob, int idx)
 {
 	int s;
 
 	for (s = 0; skill_name_table[s].id != -1; s++)
 	{
-		if (!strcmp(skill_name_table[s].name, exp->name))
+		if (!strcmp(skill_name_table[s].name, exp_ob->name))
 		{
-			CONTR(pl)->last_skill_ob[idx] = exp;
+			CONTR(pl)->last_skill_ob[idx] = exp_ob;
 			CONTR(pl)->last_skill_id[idx] = skill_name_table[s].id;
 			CONTR(pl)->last_skill_index++;
 			return;

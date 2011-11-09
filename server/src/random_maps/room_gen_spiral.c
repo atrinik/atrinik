@@ -44,16 +44,6 @@
 #define MAX_SPIRAL_OPT  8
 /*@}*/
 
-#include <math.h>
-
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
-#ifndef MAX
-#define MAX(x, y) (((x) < (y)) ? (y) : (x))
-#endif
-
 #define MINDIST 3
 
 #define MAX_FINE .454545

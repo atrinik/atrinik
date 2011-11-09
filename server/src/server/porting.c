@@ -379,3 +379,43 @@ const char *strcasestr_local(const char *s, const char *find)
 	return s;
 }
 
+#ifndef __CPROTO__
+
+#	ifndef HAVE_GETTIMEOFDAY
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+#ifdef WIN32
+	FILETIME time;
+	double timed;
+
+	GetSystemTimeAsFileTime(&time);
+
+	/* Apparently Win32 has units of 1e-7 sec (tenths of microsecs)
+	 * 4294967296 is 2^32, to shift high word over
+	 * 11644473600 is the number of seconds between
+	 * the Win32 epoch 1601-Jan-01 and the Unix epoch 1970-Jan-01
+	 * Tests found floating point to be 10x faster than 64bit int math. */
+	timed = ((time.dwHighDateTime * 4294967296e-7) - 11644473600.0) + (time.dwLowDateTime * 1e-7);
+
+	tv->tv_sec = (long) timed;
+	tv->tv_usec = (long) ((timed - tv->tv_sec) * 1e6);
+
+	/* Get the timezone, if they want it. */
+	if (tz)
+	{
+		_tzset();
+
+		tz->tz_minuteswest = _timezone;
+		tz->tz_dsttime = _daylight;
+	}
+
+	return 0;
+#else
+	(void) tv;
+	(void) tz;
+	return 0;
+#endif
+}
+#	endif
+
+#endif

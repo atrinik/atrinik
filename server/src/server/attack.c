@@ -744,13 +744,13 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 /**
  * One player gets exp by killing a monster.
  * @param op Player. This should be the killer.
- * @param exp Experience to gain.
+ * @param exp_gain Experience to gain.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp_one(object *op, sint64 exp, object *skill)
+static void share_kill_exp_one(object *op, sint64 exp_gain, object *skill)
 {
-	if (exp)
+	if (exp_gain)
 	{
-		add_exp(op, exp, skill->stats.sp, 0);
+		add_exp(op, exp_gain, skill->stats.sp, 0);
 	}
 	else
 	{
@@ -763,9 +763,9 @@ static void share_kill_exp_one(object *op, sint64 exp, object *skill)
  * experience between party members, or if none are present, it will use
  * share_kill_exp_one() instead.
  * @param op Player that killed the monster.
- * @param exp Experience to share.
+ * @param exp_gain Experience to share.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp(object *op, sint64 exp, object *skill)
+static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
 {
 	int shares = 0, count = 0;
 	party_struct *party;
@@ -773,7 +773,7 @@ static void share_kill_exp(object *op, sint64 exp, object *skill)
 
 	if (!CONTR(op)->party)
 	{
-		share_kill_exp_one(op, exp, skill);
+		share_kill_exp_one(op, exp_gain, skill);
 		return;
 	}
 
@@ -795,13 +795,13 @@ static void share_kill_exp(object *op, sint64 exp, object *skill)
 		}
 	}
 
-	if (count == 1 || shares > exp)
+	if (count == 1 || shares > exp_gain)
 	{
-		share_kill_exp_one(op, exp, skill);
+		share_kill_exp_one(op, exp_gain, skill);
 	}
 	else
 	{
-		sint64 share = exp / shares, given = 0, nexp;
+		sint64 share = exp_gain / shares, given = 0, nexp;
 
 		for (ol = party->members; ol; ol = ol->next)
 		{
@@ -820,8 +820,8 @@ static void share_kill_exp(object *op, sint64 exp, object *skill)
 			}
 		}
 
-		exp -= given;
-		share_kill_exp_one(op, exp, skill);
+		exp_gain -= given;
+		share_kill_exp_one(op, exp_gain, skill);
 	}
 }
 
@@ -835,7 +835,7 @@ static void share_kill_exp(object *op, sint64 exp, object *skill)
 int kill_object(object *op, int dam, object *hitter, int type)
 {
 	int maxdam, battleg;
-	sint64 exp = 0;
+	sint64 exp_gain = 0;
 	object *owner;
 
 	(void) dam;
@@ -939,9 +939,9 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		if (skill)
 		{
 			/* Calculate how much experience to gain. */
-			exp = calc_skill_exp(owner, op, skill->level);
+			exp_gain = calc_skill_exp(owner, op, skill->level);
 			/* Give the experience, sharing it with party members if applicable. */
-			share_kill_exp(owner, exp, skill);
+			share_kill_exp(owner, exp_gain, skill);
 		}
 	}
 
@@ -999,7 +999,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 			SET_FLAG(op, FLAG_CORPSE_FORCED);
 		}
 		/* No exp, no loot and no corpse. */
-		else if (!exp)
+		else if (!exp_gain)
 		{
 			SET_FLAG(op, FLAG_STARTEQUIP);
 		}
