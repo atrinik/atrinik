@@ -65,6 +65,8 @@
 #	define HAVE_FCNTL_H
 #	define HAVE_TIME_H
 #	define HAVE_STDDEF_H
+
+#	define PLUGIN_SUFFIX ".dll"
 #else
 #	include <cmake.h>
 #endif
