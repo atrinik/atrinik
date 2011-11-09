@@ -91,6 +91,7 @@ void object_methods_init(void)
 	object_type_init_compass();
 	object_type_init_power_crystal();
 	object_type_init_savebed();
+	object_type_init_clock();
 }
 
 /** @copydoc object_methods::apply_func */
