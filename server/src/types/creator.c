@@ -89,14 +89,14 @@ static int trigger_func(object *op, object *cause, int state)
 		roll = rndm(1, num_obs) - 1;
 	}
 
-	for (tmp = op->inv, idx = 0; tmp; tmp = tmp->below, idx++)
+	for (tmp = op->inv, idx = 0; tmp; tmp = tmp->below)
 	{
 		if (tmp->type == EVENT_OBJECT)
 		{
 			continue;
 		}
 
-		if (QUERY_FLAG(op, FLAG_SPLITTING) && roll != idx)
+		if (QUERY_FLAG(op, FLAG_SPLITTING) && roll != idx++)
 		{
 			continue;
 		}
