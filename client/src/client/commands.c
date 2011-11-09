@@ -1459,7 +1459,14 @@ void Map2Cmd(unsigned char *data, int len)
 			/* Clear this layer. */
 			if (type == MAP2_LAYER_CLEAR)
 			{
-				map_set_data(x, y, data[pos++], 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+				type = data[pos++];
+
+				if (cpl.server_socket_version < 1058)
+				{
+					type--;
+				}
+
+				map_set_data(x, y, type, 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			}
 			/* We have some data. */
 			else
@@ -1467,6 +1474,11 @@ void Map2Cmd(unsigned char *data, int len)
 				sint16 face = GetShort_String(data + pos), height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
 				uint8 flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0;
 				char player_name[64], player_color[COLOR_BUF];
+
+				if (cpl.server_socket_version < 1058)
+				{
+					type--;
+				}
 
 				player_name[0] = '\0';
 				player_color[0] = '\0';
@@ -1510,8 +1522,16 @@ void Map2Cmd(unsigned char *data, int len)
 				{
 					zoom_x = GetShort_String(data + pos);
 					pos += 2;
-					zoom_y = GetShort_String(data + pos);
-					pos += 2;
+
+					if (cpl.server_socket_version < 1058)
+					{
+						zoom_y = zoom_x;
+					}
+					else
+					{
+						zoom_y = GetShort_String(data + pos);
+						pos += 2;
+					}
 				}
 
 				/* Align? */
@@ -1586,11 +1606,19 @@ void MagicMapCmd(unsigned char *data, int len)
 }
 
 /**
- * Version command. Currently unused.
- * @param data The incoming data. */
-void VersionCmd(char *data)
+ * Server informs the client about its version.
+ * @param data Data.
+ * @param len Length of data. */
+void cmd_version(uint8 *data, int len)
 {
-	(void) data;
+	if (len > 4)
+	{
+		cpl.server_socket_version = 1057;
+	}
+	else
+	{
+		cpl.server_socket_version = GetInt_String(data);
+	}
 }
 
 /**

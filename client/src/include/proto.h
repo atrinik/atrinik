@@ -42,7 +42,7 @@ extern void DeleteInventory(unsigned char *data);
 extern void MapStatsCmd(unsigned char *data, int len);
 extern void Map2Cmd(unsigned char *data, int len);
 extern void MagicMapCmd(unsigned char *data, int len);
-extern void VersionCmd(char *data);
+extern void cmd_version(uint8 *data, int len);
 extern void SendVersion(void);
 extern void RequestFile(int idx);
 extern void SendAddMe(void);

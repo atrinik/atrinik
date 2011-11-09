@@ -52,6 +52,8 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	int bufsize = 65535;
 	int oldbufsize;
 	socklen_t buflen = sizeof(int);
+	unsigned char buf[256];
+	SockList sl;
 
 #ifdef WIN32
 	u_long temp = 1;
@@ -119,18 +121,10 @@ void init_connection(socket_struct *ns, const char *from_ip)
 
 	ns->host = strdup_local(from_ip);
 
-	/* Legacy support for older clients. */
-	{
-		unsigned char buf[256];
-		SockList sl;
-
-		strncpy((char *) buf, "X991017 991017 Atrinik Server", sizeof(buf) - 1);
-		buf[0] = BINARY_CMD_VERSION;
-
-		sl.buf = buf;
-		sl.len = strlen((char *) buf);
-		Send_With_Handling(ns, &sl);
-	}
+	sl.buf = buf;
+	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_VERSION);
+	SockList_AddInt(&sl, SOCKET_VERSION);
+	Send_With_Handling(ns, &sl);
 
 #if CS_LOGSTATS
 	if (socket_info.nconns > cst_tot.max_conn)

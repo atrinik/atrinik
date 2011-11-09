@@ -832,7 +832,15 @@ void RegionMapCmd(uint8 *data, int len)
 	/* Get the region and the URL base for the maps. */
 	GetString_String(data, &pos, region, sizeof(region));
 	GetString_String(data, &pos, url_base, sizeof(url_base));
-	GetString_String(data, &pos, region_name, sizeof(region_name));
+
+	if (cpl.server_socket_version >= 1058)
+	{
+		GetString_String(data, &pos, region_name, sizeof(region_name));
+	}
+	else
+	{
+		region_name[0] = '\0';
+	}
 
 	/* Rest of the data packet may be labels/tooltips/etc. */
 	while (pos < len)

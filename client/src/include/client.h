@@ -309,6 +309,9 @@ typedef struct Player_Struct
 
 	/** Which inventory widget has the focus. */
 	int inventory_focus;
+
+	/** Version of the server's socket. */
+	int server_socket_version;
 } Client_Player;
 
 /* These are multiplication values that should be used when changing

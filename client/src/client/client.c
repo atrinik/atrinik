@@ -132,7 +132,7 @@ static struct CmdMapping commands[] =
 	{"clr", NULL, ASCII},
 	{"addme_success", AddMeSuccess, NODATA},
 	{"addme_failed", AddMeFail, NODATA},
-	{"version", (CmdProc) VersionCmd, NODATA},
+	{"version", cmd_version, MIXED},
 	{"goodbye", NULL, NODATA},
 	{"setup", (CmdProc) SetupCmd, ASCII},
 	{"query", (CmdProc) handle_query, ASCII},
