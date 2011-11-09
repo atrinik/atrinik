@@ -159,25 +159,4 @@ typedef const char shstr;
 #	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
 #endif
 
-/* Make sure M_PI is defined. */
-#ifndef M_PI
-#	define M_PI 3.141592654
-#endif
-
-#ifndef F_OK
-#	define F_OK 6
-#endif
-
-#ifndef R_OK
-#	define R_OK 6
-#endif
-
-#ifndef W_OK
-#	define W_OK 2
-#endif
-
-#ifndef MSG_DONWAIT
-#	define MSG_DONTWAIT 0
-#endif
-
 #endif

@@ -133,6 +133,27 @@
 #	define FABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
+/* Make sure M_PI is defined. */
+#ifndef M_PI
+#	define M_PI 3.141592654
+#endif
+
+#ifndef F_OK
+#	define F_OK 6
+#endif
+
+#ifndef R_OK
+#	define R_OK 6
+#endif
+
+#ifndef W_OK
+#	define W_OK 2
+#endif
+
+#ifndef MSG_DONTWAIT
+#	define MSG_DONTWAIT 0
+#endif
+
 #ifndef HAVE_GETTIMEOFDAY
 struct timezone
 {
