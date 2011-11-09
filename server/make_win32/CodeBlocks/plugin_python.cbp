@@ -40,6 +40,7 @@
 			<Add directory="..\..\src\random_maps" />
 			<Add directory="..\..\src\libs\zlib\include" />
 			<Add directory="include" />
+			<Add directory="..\..\src\plugins\plugin_python\include" />
 			<Add directory="c:\Python32\include" />
 		</Compiler>
 
