@@ -27,7 +27,6 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-DMINGW" />
 					<Add option="-DPYTHON_PLUGIN_EXPORTS" />
-					<Add directory="..\..\src\include" />
 				</Compiler>
 				<Linker>
 					<Add library="winmm" />
@@ -40,10 +39,8 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\src\include" />
-			<Add directory="..\..\src\porting" />
 			<Add directory="..\..\src\random_maps" />
-			<Add directory="..\..\src\libs\zlib\include" />
-			<Add directory="..\CodeBlocks" />
+			<Add directory="include" />
 		</Compiler>
 		<Unit filename="..\..\src\plugins\plugin_arena\plugin_arena.c">
 			<Option compilerVar="CC" />

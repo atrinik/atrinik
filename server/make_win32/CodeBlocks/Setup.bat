@@ -1,19 +1,10 @@
-rem ====================================
 rem Unpack all files.
-rem ====================================
 
-rem cURL
-..\tools\gunzip -c curl.tar.gz > curl.tar
-..\tools\tar xvf curl.tar
+..\tools\gunzip -c share.tar.gz > share.tar
+..\tools\tar xvf share.tar
 
-..\tools\gunzip -c pthread.tar.gz > pthread.tar
-..\tools\tar xvf pthread.tar
+rem Copy the dlls to main directory.
+copy bin\*.dll ..\..\
 
-move pthread\* ..\*
-
-move *.dll ..\..\
-
-rem ====================================
 rem Clean up.
-rem ====================================
 del *.tar
