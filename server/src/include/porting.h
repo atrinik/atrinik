@@ -171,4 +171,8 @@ typedef const char shstr;
 #	define W_OK 2
 #endif
 
+#ifndef MSG_DONWAIT
+#	define MSG_DONTWAIT 0
+#endif
+
 #endif
