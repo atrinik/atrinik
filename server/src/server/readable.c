@@ -326,12 +326,11 @@ static void init_msgfile(void)
 {
 	FILE *fp;
 	char buf[MAX_BUF], fname[MAX_BUF], *cp;
-	int comp;
 
 	snprintf(fname, sizeof(fname), "%s/messages", settings.datadir);
 	LOG(llevDebug, "Reading messages from %s...\n", fname);
 
-	fp = open_and_uncompress(fname, 0, &comp);
+	fp = fopen(fname, "r");
 
 	if (fp)
 	{
@@ -395,7 +394,7 @@ static void init_msgfile(void)
 			}
 		}
 
-		close_and_delete(fp, comp);
+		fclose(fp);
 	}
 
 	LOG(llevDebug, "  Done, got %"FMT64U" messages.\n", (uint64) num_msgs);

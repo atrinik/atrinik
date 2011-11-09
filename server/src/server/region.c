@@ -157,7 +157,6 @@ void init_regions(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF];
-	int comp;
 	region *new = NULL, *reg;
 	char buf[HUGE_BUF * 4], msgbuf[HUGE_BUF], *key = NULL, *value, *end;
 	int msgpos = 0;
@@ -170,8 +169,9 @@ void init_regions(void)
 
 	snprintf(filename, sizeof(filename), "%s/regions.reg", settings.mapdir);
 	LOG(llevDebug, "Reading regions from %s...\n", filename);
+	fp = fopen(filename, "r");
 
-	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		LOG(llevError, "init_regions(): Can't open regions file: %s.\n", filename);
 		return;
@@ -309,7 +309,7 @@ void init_regions(void)
 	assign_region_parents();
 	LOG(llevDebug, " done\n");
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 }
 
 /**

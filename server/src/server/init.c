@@ -763,21 +763,19 @@ static void parse_args(int argc, char *argv[], int pass)
 static void load_settings(void)
 {
 	char buf[MAX_BUF], *cp;
-	int	has_val, comp;
+	int	has_val;
 	FILE *fp;
 
 	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SETTINGS);
+	fp = fopen(buf, "rb");
 
-	/* We don't require a settings file at current time, but down the road,
-	 * there will probably be so many values that not having a settings file
-	 * will not be a good thing. */
-	if ((fp = open_and_uncompress(buf, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		LOG(llevBug, "No %s file found\n", SETTINGS);
 		return;
 	}
 
-	while (fgets(buf, MAX_BUF-1, fp) != NULL)
+	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
 	{
 		if (buf[0] == '#')
 		{
@@ -899,7 +897,7 @@ static void load_settings(void)
 		}
 	}
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 }
 
 /**

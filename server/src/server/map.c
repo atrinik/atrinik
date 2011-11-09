@@ -385,9 +385,8 @@ int check_path(const char *name, int prepend_dir)
 {
 	char buf[MAX_BUF];
 #ifndef WIN32
-	char *endbuf;
 	struct stat statbuf;
-	int mode = 0, i;
+	int mode = 0;
 #endif
 
 	if (prepend_dir)
@@ -402,26 +401,7 @@ int check_path(const char *name, int prepend_dir)
 #ifdef WIN32
 	return _access(buf, 0);
 #else
-	endbuf = buf + strlen(buf);
-
-	for (i = 0; i < NROF_COMPRESS_METHODS; i++)
-	{
-		if (uncomp[i][0])
-		{
-			strcpy(endbuf, uncomp[i][0]);
-		}
-		else
-		{
-			*endbuf = '\0';
-		}
-
-		if (!stat(buf, &statbuf))
-		{
-			break;
-		}
-	}
-
-	if (i == NROF_COMPRESS_METHODS)
+	if (stat(buf, &statbuf) != 0)
 	{
 		return -1;
 	}
@@ -1203,7 +1183,6 @@ mapstruct *load_original_map(const char *filename, int flags)
 {
 	FILE *fp;
 	mapstruct *m;
-	int comp;
 	char pathname[MAX_BUF], tmp_fname[MAX_BUF];
 
 	/* No sense in doing this all for random maps, it will all fail anyways. */
@@ -1231,7 +1210,9 @@ mapstruct *load_original_map(const char *filename, int flags)
 		strcpy(pathname, create_pathname(filename));
 	}
 
-	if ((fp = open_and_uncompress(pathname, 0, &comp)) == NULL)
+	fp = fopen(pathname, "rb");
+
+	if (!fp)
 	{
 		if (!(flags & MAP_PLAYER_UNIQUE))
 		{
@@ -1256,13 +1237,12 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	LOG(llevDebug, "alloc. ");
 	allocate_map(m);
-	m->compressed = comp;
 
 	m->in_memory = MAP_LOADING;
 	LOG(llevDebug, "load objs:");
 	load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
 	LOG(llevDebug, "close. ");
-	close_and_delete(fp, comp);
+	fclose(fp);
 	LOG(llevDebug, "post set. ");
 
 	if (!MAP_DIFFICULTY(m))
@@ -1284,7 +1264,6 @@ mapstruct *load_original_map(const char *filename, int flags)
 static mapstruct *load_temporary_map(mapstruct *m)
 {
 	FILE *fp;
-	int comp;
 	char buf[MAX_BUF];
 
 	if (!m->tmpname)
@@ -1303,8 +1282,9 @@ static mapstruct *load_temporary_map(mapstruct *m)
 	}
 
 	LOG(llevDebug, "load_temporary_map: %s (%s) ", m->tmpname, m->path);
+	fp = fopen(m->tmpname, "rb");
 
-	if ((fp = open_and_uncompress(m->tmpname, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		if (!strncmp(m->path, "/random/", 8))
 		{
@@ -1341,14 +1321,13 @@ static mapstruct *load_temporary_map(mapstruct *m)
 	}
 
 	LOG(llevDebug, "alloc. ");
-	m->compressed = comp;
 	allocate_map(m);
 
 	m->in_memory = MAP_LOADING;
 	LOG(llevDebug, "load objs:");
 	load_objects (m, fp, 0);
 	LOG(llevDebug, "close. ");
-	close_and_delete(fp, comp);
+	fclose(fp);
 	LOG(llevDebug, "done!\n");
 	return m;
 }
@@ -1397,7 +1376,7 @@ static void delete_unique_items(mapstruct *m)
 static void load_unique_objects(mapstruct *m)
 {
 	FILE *fp;
-	int comp, count;
+	int count;
 	char firstname[MAX_BUF];
 
 	for (count = 0; count < 10; count++)
@@ -1417,8 +1396,9 @@ static void load_unique_objects(mapstruct *m)
 	}
 
 	LOG(llevDebug, "open unique items file for %s\n", create_items_path(m->path));
+	fp = fopen(firstname, "rb");
 
-	if ((fp = open_and_uncompress(firstname, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		/* There is no expectation that every map will have unique items, but this
 		 * is debug output, so leave it in. */
@@ -1435,7 +1415,7 @@ static void load_unique_objects(mapstruct *m)
 	}
 
 	load_objects(m, fp, 0);
-	close_and_delete(fp, comp);
+	fclose(fp);
 }
 
 /**
@@ -1477,17 +1457,6 @@ int new_save_map(mapstruct *m, int flag)
 			strcpy(filename, m->path);
 		}
 
-		/* If the compression suffix already exists on the filename, don't
-		 * put it on again.  This nasty looking strcmp checks to see if the
-		 * compression suffix is at the end of the filename already.
-		 * i don't checked them - perhaps we need compression in the future
-		 * even i can't see it - the if is harmless because self terminating
-		 * after the m->compressed fails. */
-		if (m->compressed && strcmp((filename + strlen(filename) - strlen(uncomp[m->compressed][0])), uncomp[m->compressed][0]))
-		{
-			strcat(filename, uncomp[m->compressed][0]);
-		}
-
 		make_path_to_file(filename);
 	}
 	else
@@ -1503,19 +1472,7 @@ int new_save_map(mapstruct *m, int flag)
 	LOG(llevDebug, "Saving map %s to %s\n", m->path, filename);
 
 	m->in_memory = MAP_SAVING;
-
-	/* Compress if it isn't a temporary save.  Do compress if unique */
-	if (m->compressed && (MAP_UNIQUE(m) || flag))
-	{
-		strcpy(buf, uncomp[m->compressed][2]);
-		strcat(buf, " > ");
-		strcat(buf, filename);
-		fp = popen(buf, "w");
-	}
-	else
-	{
-		fp = fopen(filename, "w");
-	}
+	fp = fopen(filename, "w");
 
 	if (!fp)
 	{
@@ -1562,14 +1519,7 @@ int new_save_map(mapstruct *m, int flag)
 
 	if (fp)
 	{
-		if (m->compressed && !flag)
-		{
-			pclose(fp);
-		}
-		else
-		{
-			fclose(fp);
-		}
+		fclose(fp);
 	}
 
 	chmod(filename, SAVE_MODE);

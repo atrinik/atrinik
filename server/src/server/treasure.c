@@ -97,11 +97,12 @@ void load_treasures(void)
 	char filename[MAX_BUF], buf[MAX_BUF], name[MAX_BUF];
 	treasurelist *previous = NULL;
 	treasure *t;
-	int comp, t_style, a_chance;
+	int t_style, a_chance;
 
 	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.treasures);
+	fp = fopen(filename, "rb");
 
-	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		LOG(llevError, "Can't open treasures file: %s\n", filename);
 		return;
@@ -168,7 +169,7 @@ void load_treasures(void)
 		}
 	}
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 
 #ifdef TREASURE_DEBUG
 	/* Perform some checks on how valid the treasure data actually is.
@@ -422,7 +423,7 @@ void init_artifacts(void)
 	char filename[MAX_BUF], buf[HUGE_BUF], *cp, *next;
 	artifact *art = NULL;
 	linked_char *tmp;
-	int value, comp, none_flag = 0;
+	int value, none_flag = 0;
 	size_t lcount;
 	artifactlist *al;
 	char buf_text[10 * 1024];
@@ -436,8 +437,9 @@ void init_artifacts(void)
 
 	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
 	LOG(llevDebug, " reading artifacts from %s...", filename);
+	fp = fopen(filename, "rb");
 
-	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	if (!fp)
 	{
 		LOG(llevError, "Can't open %s.\n", filename);
 		return;
@@ -642,7 +644,7 @@ void init_artifacts(void)
 		}
 	}
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 
 	for (al = first_artifactlist; al != NULL; al = al->next)
 	{

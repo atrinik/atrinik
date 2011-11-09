@@ -141,13 +141,6 @@
 #cmakedefine HAVE_GETTIMEOFDAY
 #endif
 
-#define COMPRESS "@COMPRESS@"
-#define UNCOMPRESS "@UNCOMPRESS@"
-#define GZIP "@GZIP@"
-#define GUNZIP "@GUNZIP@"
-#define BZIP "@BZIP@"
-#define BUNZIP "@BUNZUP@"
-
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif

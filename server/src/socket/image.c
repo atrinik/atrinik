@@ -130,13 +130,14 @@ void read_client_images(void)
 {
 	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
 	FILE *infile, *fbmap;
-	int num, len, compressed, file_num, i;
+	int num, len, file_num, i;
 
 	memset(facesets, 0, sizeof(facesets));
 
 	snprintf(filename, sizeof(filename), "%s/image_info", settings.datadir);
+	infile = fopen(filename, "rb");
 
-	if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
+	if (!infile)
 	{
 		LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 	}
@@ -169,7 +170,7 @@ void read_client_images(void)
 		}
 	}
 
-	close_and_delete(infile, compressed);
+	fclose(infile);
 
 	/* Loaded the faceset information - now need to load up the
 	 * actual faces. */
@@ -195,7 +196,9 @@ void read_client_images(void)
 			LOG(llevError, "read_client_images(): Unable to open %s\n", buf);
 		}
 
-		if ((infile = open_and_uncompress(filename, 0, &compressed)) == NULL)
+		infile = fopen(filename, "rb");
+
+		if (!infile)
 		{
 			LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
 		}
@@ -241,7 +244,7 @@ void read_client_images(void)
 			fputs(buf, fbmap);
 		}
 
-		close_and_delete(infile, compressed);
+		fclose(infile);
 		fclose(fbmap);
 	}
 }

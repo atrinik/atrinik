@@ -362,7 +362,7 @@ void check_login(object *op)
 	FILE *fp;
 	void *mybuffer;
 	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF];
-	int i, value, comp, correct = 0, type;
+	int i, value, correct = 0, type;
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
@@ -410,11 +410,12 @@ void check_login(object *op)
 	LOG(llevInfo, "Login %s from IP %s\n", op->name, pl->socket.host);
 
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
+	fp = fopen(filename, "rb");
 
 	/* If no file, must be a new player, so lets get confirmation of
 	 * the password.  Return control to the higher level dispatch,
 	 * since the rest of this just deals with loading of the file. */
-	if ((fp = open_and_uncompress(filename, 1, &comp)) == NULL)
+	if (!fp)
 	{
 		confirm_password(op);
 		return;
@@ -689,7 +690,7 @@ void check_login(object *op)
 	mybuffer = create_loader_buffer(fp);
 	load_object(fp, op, mybuffer, LO_REPEAT, 0);
 	delete_loader_buffer(mybuffer);
-	close_and_delete(fp, comp);
+	fclose(fp);
 
 	/* The inventory of players is reverse loaded, so let's exchange the
 	 * order here. */

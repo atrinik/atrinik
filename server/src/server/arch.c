@@ -320,7 +320,6 @@ static void first_arch_pass(FILE *fp)
 static void second_arch_pass(FILE *fp_start)
 {
 	FILE *fp = fp_start;
-	int comp;
 	char filename[MAX_BUF], buf[MAX_BUF], *variable = buf, *argument, *cp;
 	archetype *at = NULL, *other;
 	object *inv;
@@ -400,7 +399,9 @@ static void second_arch_pass(FILE *fp_start)
 	/* Now re-parse the artifacts file too! */
 	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
 
-	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	fp = fopen(filename, "rb");
+
+	if (!fp)
 	{
 		LOG(llevError, "Can't open %s.\n", filename);
 		return;
@@ -473,7 +474,7 @@ static void second_arch_pass(FILE *fp_start)
 		}
 	}
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 }
 
 /**
@@ -487,7 +488,6 @@ static void load_archetypes(void)
 {
 	FILE *fp;
 	char filename[MAX_BUF];
-	int comp;
 #if TIME_ARCH_LOAD
 	struct timeval tv1, tv2;
 #endif
@@ -495,7 +495,9 @@ static void load_archetypes(void)
 	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.archetypes);
 	LOG(llevDebug, "Reading archetypes from %s...\n", filename);
 
-	if ((fp = open_and_uncompress(filename, 0, &comp)) == NULL)
+	fp = fopen(filename, "rb");
+
+	if (!fp)
 	{
 		LOG(llevError, "Can't open archetype file.\n");
 		return;
@@ -527,10 +529,7 @@ static void load_archetypes(void)
 	LOG(llevDebug, " done.\n");
 	init_archetable();
 
-	/* Do a close and reopen instead of a rewind - necessary in case the
-	 * file has been compressed. */
-	close_and_delete(fp, comp);
-	fp = open_and_uncompress(filename, 0, &comp);
+	rewind(fp);
 
 	/* If not called before, reads all artifacts from file */
 	init_artifacts();
@@ -540,7 +539,7 @@ static void load_archetypes(void)
 	second_arch_pass(fp);
 	LOG(llevDebug, " done.\n");
 
-	close_and_delete(fp, comp);
+	fclose(fp);
 	LOG(llevDebug, "Reading archetypes done.\n");
 }
 

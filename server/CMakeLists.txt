@@ -69,14 +69,6 @@ elseif (GD_LIBRARY)
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif (GD_LIBRARY)
 
-# Find some useful executables.
-find_program(COMPRESS compress)
-find_program(UNCOMPRESS uncompress)
-find_program(GZIP gzip)
-find_program(GUNZIP gunzip)
-find_program(BZIP bzip2)
-find_program(BUNZIP bunzip2)
-
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 

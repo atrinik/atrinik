@@ -670,9 +670,6 @@ typedef struct mapdef
 	 * have one set.
 	 * @see MAP_FLAG_FIXED_LOGIN */
 	int enter_y;
-
-	/** Compression method used */
-	int compressed;
 } mapstruct;
 
 /**
