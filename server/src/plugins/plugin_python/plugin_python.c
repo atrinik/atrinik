@@ -1757,6 +1757,10 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		{
 			PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
 		}
+		else if (context->event->sub_type == EVENT_SAY)
+		{
+			PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
+		}
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
 		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
