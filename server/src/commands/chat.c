@@ -275,6 +275,40 @@ int command_t_tell(object *op, char *params)
 }
 
 /**
+ * /sys_tell comamnd.
+ * @param op Player.
+ * @param params Message.
+ * @return 1 on success, 0 on failure. */
+int command_sys_tell(object *op, char *params)
+{
+	object *tmp;
+
+	if (op->type != PLAYER)
+	{
+		return 1;
+	}
+
+	if (!params || *params == '\0')
+	{
+		return 0;
+	}
+
+	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_SYS, tmp)
+	{
+		if (HAS_EVENT(tmp, EVENT_SAY))
+		{
+			if (trigger_event(EVENT_SAY, op, tmp, NULL, params, 0, 0, 0, 0))
+			{
+				return 1;
+			}
+		}
+	}
+	FOR_MAP_LAYER_END
+
+	return 1;
+}
+
+/**
  * Look for an emote that is triggered with the command user either
  * targetting someone else other than him, or passing the player name
  * of the target as a parameter.

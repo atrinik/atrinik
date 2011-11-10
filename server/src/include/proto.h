@@ -5,6 +5,7 @@ extern int command_dmsay(object *op, char *params);
 extern int command_shout(object *op, char *params);
 extern int command_tell(object *op, char *params);
 extern int command_t_tell(object *op, char *params);
+extern int command_sys_tell(object *op, char *params);
 extern int command_nod(object *op, char *params);
 extern int command_dance(object *op, char *params);
 extern int command_kiss(object *op, char *params);
