@@ -68,7 +68,10 @@ class Interface:
 			objs = [objs]
 
 		for obj in objs:
-			obj = obj.Clone()
+			# If the object is somewhere already, clone it.
+			if obj.env or obj.map:
+				obj = obj.Clone()
+
 			self.add_msg_icon_object(obj)
 			obj.InsertInto(self._activator)
 
