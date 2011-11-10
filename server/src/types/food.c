@@ -358,7 +358,7 @@ static int apply_func(object *op, object *applier, int aflags)
 	}
 
 	decrease_ob(op);
-	return OBJECT_METHOD_UNHANDLED;
+	return OBJECT_METHOD_OK;
 }
 
 /**
