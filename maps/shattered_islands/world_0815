@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-02 Alex Tokar
+Modified: 2011-11-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -665,6 +665,17 @@ arch wall_cave1b.141
 x 6
 y 2
 end
+arch handle_lever
+layer 0
+sys_object 1
+connected 101
+exp 40
+x 6
+y 10
+arch beacon
+name abandoned_mine_gate_lever
+end
+end
 arch grassd_2
 x 6
 y 14
@@ -909,15 +920,6 @@ path_attuned 124
 x 8
 y 12
 end
-arch magic_ear
-msg
-@match ^mellon$
-The gate reveals an opening into an ancient abandoned mine...
-endmsg
-connected 101
-x 8
-y 12
-end
 arch invis_exit
 msg
 As you enter, you hear the entrance gates slam shut behind you...
@@ -934,7 +936,6 @@ y 13
 end
 arch gate_closed
 connected 101
-maxhp 20
 x 8
 y 13
 end
@@ -949,15 +950,14 @@ x 8
 y 14
 end
 arch magic_mouth
-msg
-*** You notice a strange writing on the gate ***
-
-Pedo mellon a minno!
-endmsg
 splitting 1
-direction 5
+direction 4
 x 8
 y 14
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/abandoned_mine_gate.py
+end
 end
 arch magic_mirror
 last_heal 80
@@ -1098,7 +1098,6 @@ y 13
 end
 arch gate_closed
 connected 101
-maxhp 20
 x 9
 y 13
 end
@@ -1113,15 +1112,14 @@ x 9
 y 14
 end
 arch magic_mouth
-msg
-*** You notice a strange writing on the gate ***
-
-Pedo mellon a minno!
-endmsg
 splitting 1
-direction 5
+direction 6
 x 9
 y 14
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/abandoned_mine_gate.py
+end
 end
 arch magic_mirror
 last_heal 80
