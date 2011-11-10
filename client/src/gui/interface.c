@@ -182,7 +182,7 @@ static int popup_draw_func_post(popup_struct *popup)
 	dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
 	dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
 
-	string_blt(ScreenSurface, FONT_ARIAL11, "Chat Input (enter)", dst.x, dst.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &dst);
+	string_blt(ScreenSurface, FONT_ARIAL11, "Chat Input (enter)", dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &dst);
 
 	if (text_input_string_flag)
 	{
