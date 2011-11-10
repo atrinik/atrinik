@@ -47,7 +47,7 @@ static int apply_func(object *op, object *applier, int aflags)
 	notification_msg = object_get_value(op, "notification_message");
 	midi_data = object_get_value(op, "midi_data");
 
-	if (!op->msg && !op->title && !notification_msg && !midi_data)
+	if (!op->msg && !op->title && !notification_msg && !midi_data && !HAS_EVENT(op, EVENT_SAY))
 	{
 		draw_info(COLOR_WHITE, applier, "Nothing is written on it.");
 		return OBJECT_METHOD_OK;
