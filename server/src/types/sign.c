@@ -99,6 +99,12 @@ static int apply_func(object *op, object *applier, int aflags)
 		}
 	}
 
+	/* Handle the 'say' event. */
+	if (trigger_event(EVENT_SAY, applier, op, NULL, NULL, 0, 0, 0, 0))
+	{
+		return OBJECT_METHOD_OK;
+	}
+
 	if (op->title)
 	{
 		play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, op->title, 0, 0, 0, 0);
