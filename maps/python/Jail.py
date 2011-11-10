@@ -4,6 +4,23 @@
 from Atrinik import *
 import json, os, random, datetime
 
+## Try to find a jail force inside player's inventory.
+## @param player Player to look inside.
+## @return The jail force.
+def get_jail_force(player):
+	return player.FindObject(name = "jail_force")
+
+## Figure out how much time the player has left in the jail.
+## @param player Player.
+## @return String representing the amount of time, None if not jailed.
+def get_jail_time(player):
+	force = get_jail_force(player)
+
+	if not force:
+		return None
+
+	return datetime.timedelta(seconds = int(force.food * 6.25))
+
 ## The jail class.
 class Jail:
 	## Initializer.
@@ -21,12 +38,6 @@ class Jail:
 	def select_jail(self):
 		return random.choice(self.jails)
 
-	## Try to find a jail force inside player's inventory.
-	## @param player Player to look inside.
-	## @return The jail force.
-	def get_jail_force(self, player):
-		return player.FindObject(name = "jail_force")
-
 	## Jail a specified player for the specified amount of seconds.
 	## @param player Player to jail.
 	## @param time How many seconds to jail the player for.
@@ -34,7 +45,7 @@ class Jail:
 	## @return True on success, False on failure.
 	def jail(self, player, time, check = True):
 		# Check if this player is already jailed...
-		if check and self.get_jail_force(player):
+		if check and get_jail_force(player):
 			return False
 
 		# Select a random jail.

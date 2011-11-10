@@ -77,8 +77,7 @@ def main():
 			inf.set_text_input(prepend = "release2 ")
 			return
 
-		jail = Jail(activator)
-		force = jail.get_jail_force(pl)
+		force = Jail.get_jail_force(pl)
 
 		if not force:
 			inf.add_msg("{} is not in jail... yet.".format(pl.name))
