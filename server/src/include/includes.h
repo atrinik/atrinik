@@ -133,6 +133,10 @@
 #	define FABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
+#ifndef ABS
+#	define ABS(x) ((x) < 0 ? -(x) : (x))
+#endif
+
 /* Make sure M_PI is defined. */
 #ifndef M_PI
 #	define M_PI 3.141592654
