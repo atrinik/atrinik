@@ -308,7 +308,7 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Apply(object what, int flags)</h1>
+ * <h1>object.Apply(object what, int [flags = APPLY_TOGGLE])</h1>
  * Forces 'object' to apply 'what'.
  * @param what What object to apply.
  * @param flags Reasonable combination of the following:
@@ -323,9 +323,9 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 static PyObject *Atrinik_Object_Apply(Atrinik_Object *obj, PyObject *args)
 {
 	Atrinik_Object *what;
-	int flags;
+	int flags = 0;
 
-	if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &what, &flags))
+	if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &what, &flags))
 	{
 		return NULL;
 	}
