@@ -1757,7 +1757,7 @@ static int do_script(PythonContext *context, const char *filename, object *event
 		{
 			PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
 		}
-		else if (context->event->sub_type == EVENT_SAY)
+		else if (context->event && context->event->sub_type == EVENT_SAY)
 		{
 			PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
 		}
