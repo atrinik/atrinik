@@ -1606,14 +1606,29 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Activate()</h1>
- * Activates the object's connection, if it has one. */
-static PyObject *Atrinik_Object_Activate(Atrinik_Object *obj, PyObject *args)
+ * <h1>object.ConnectionTrigger(boolean [push = True], boolean [button = False])</h1>
+ * Triggers the object's connection, if any.
+ * @param push If true, send a "push" signal; "release" signal otherwise.
+ * @param button If true, handle the connection like a button. */
+static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject *args)
 {
-	(void) args;
+	int push = 1, button = 0;
+
+	if (!PyArg_ParseTuple(args, "|ii", &push, &button))
+	{
+		return NULL;
+	}
 
 	OBJEXISTCHECK(obj);
-	//hooks->push_button(obj->obj);
+
+	if (button)
+	{
+		hooks->connection_trigger_button(obj->obj, push);
+	}
+	else
+	{
+		hooks->connection_trigger(obj->obj, push);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1718,7 +1733,7 @@ static PyMethodDef methods[] =
 	{"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
 	{"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
-	{"Activate", (PyCFunction) Atrinik_Object_Activate, METH_NOARGS, 0},
+	{"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger, METH_VARARGS, 0},
 	{"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };

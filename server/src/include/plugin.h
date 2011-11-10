@@ -297,6 +297,8 @@ struct plugin_hooklist
 	void (*give_artifact_abilities)(object *, artifact *);
 	int (*connection_object_get_value)(object *);
 	void (*connection_object_add)(object *, mapstruct *, int);
+	void (*connection_trigger)(object *, int);
+	void (*connection_trigger_button)(object *, int);
 
 	const char **season_name;
 	const char **weekdays;

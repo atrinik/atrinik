@@ -159,6 +159,8 @@ struct plugin_hooklist hooklist =
 	give_artifact_abilities,
 	connection_object_get_value,
 	connection_object_add,
+	connection_trigger,
+	connection_trigger_button,
 
 	season_name,
 	weekdays,
