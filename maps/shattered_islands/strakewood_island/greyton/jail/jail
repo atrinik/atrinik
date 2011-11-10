@@ -156,29 +156,43 @@ end
 arch wall_dungeon_1
 x 1
 end
-arch floor_marble_b1c
+arch floor_marble_b1b
 x 1
 y 1
 end
 arch bed_1a.111
-direction 5
+direction 3
 x 1
 y 1
 end
-arch torch_wall_1
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
 x 1
 y 1
 end
-arch floor_marble_b1c
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 1
-y 2
+y 1
 end
-arch bed_1b.111
-direction 5
+arch floor_marble_b1a
 x 1
 y 2
 end
 arch floor_marble_b1a
+x 1
+y 3
+end
+arch glower.101
+x 1
+y 3
+end
+arch light5
 x 1
 y 3
 end
@@ -206,25 +220,31 @@ arch wall_dungeon_1
 x 1
 y 6
 end
-arch floor_marble_b1a
+arch floor_marble_b1b
 x 1
 y 7
 end
 arch bed_1a.111
-direction 5
+direction 3
 x 1
 y 7
 end
-arch torch_wall_1
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
 x 1
 y 7
 end
-arch floor_marble_b1b
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 1
-y 8
+y 7
 end
-arch bed_1b.111
-direction 5
+arch floor_marble_b1a
 x 1
 y 8
 end
@@ -232,7 +252,11 @@ arch floor_marble_b1b
 x 1
 y 9
 end
-arch trash_wood2.101
+arch glower.101
+x 1
+y 9
+end
+arch light5
 x 1
 y 9
 end
@@ -260,25 +284,31 @@ arch wall_dungeon_1
 x 1
 y 12
 end
-arch floor_marble_b1a
+arch floor_marble_b1b
 x 1
 y 13
 end
 arch bed_1a.111
-direction 5
+direction 3
 x 1
 y 13
 end
-arch torch_wall_1
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 1
+y 13
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 1
 y 13
 end
 arch floor_marble_b1a
-x 1
-y 14
-end
-arch bed_1b.111
-direction 5
 x 1
 y 14
 end
@@ -287,6 +317,14 @@ x 1
 y 15
 end
 arch pile_floor1
+x 1
+y 15
+end
+arch glower.101
+x 1
+y 15
+end
+arch light5
 x 1
 y 15
 end
@@ -362,7 +400,31 @@ arch floor_marble_b1a
 x 2
 y 1
 end
-arch wall_well.131
+arch bed_1b.111
+direction 3
+x 2
+y 1
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 2
+y 1
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 2
+y 1
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 2
 y 1
 end
@@ -399,7 +461,31 @@ arch floor_marble_b1a
 x 2
 y 7
 end
-arch wall_well.131
+arch bed_1b.111
+direction 3
+x 2
+y 7
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 2
+y 7
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 2
+y 7
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 2
 y 7
 end
@@ -408,6 +494,10 @@ x 2
 y 8
 end
 arch floor_marble_b1d
+x 2
+y 9
+end
+arch trash_wood2.101
 x 2
 y 9
 end
@@ -432,11 +522,35 @@ arch wall_dungeon_1
 x 2
 y 12
 end
-arch floor_marble_b1c
+arch floor_marble_b1a
 x 2
 y 13
 end
-arch wall_well.131
+arch bed_1b.111
+direction 3
+x 2
+y 13
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 2
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 2
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 2
 y 13
 end
@@ -502,10 +616,6 @@ arch floor_marble_b1c
 x 3
 y 1
 end
-arch table_small1
-x 3
-y 1
-end
 arch floor_marble_b1b
 x 3
 y 2
@@ -550,10 +660,6 @@ arch floor_marble_b1c
 x 3
 y 7
 end
-arch table_small1
-x 3
-y 7
-end
 arch floor_marble_b1d
 x 3
 y 8
@@ -587,10 +693,6 @@ x 3
 y 12
 end
 arch floor_marble_b1d
-x 3
-y 13
-end
-arch table_small1
 x 3
 y 13
 end
@@ -664,6 +766,10 @@ arch floor_marble_b1d
 x 4
 y 1
 end
+arch wall_well.131
+x 4
+y 1
+end
 arch floor_marble_b1c
 x 4
 y 2
@@ -716,6 +822,10 @@ arch floor_marble_b1c
 x 4
 y 7
 end
+arch wall_well.131
+x 4
+y 7
+end
 arch floor_marble_b1d
 x 4
 y 8
@@ -765,6 +875,10 @@ x 4
 y 12
 end
 arch floor_marble_b1b
+x 4
+y 13
+end
+arch wall_well.131
 x 4
 y 13
 end
@@ -1887,6 +2001,10 @@ arch floor_marble_b1a
 x 10
 y 1
 end
+arch wall_well.131
+x 10
+y 1
+end
 arch floor_marble_b1c
 x 10
 y 2
@@ -1939,7 +2057,7 @@ arch floor_marble_b1c
 x 10
 y 7
 end
-arch water_floor
+arch wall_well.131
 x 10
 y 7
 end
@@ -1995,7 +2113,7 @@ arch floor_marble_b1c
 x 10
 y 13
 end
-arch trash_wood1.101
+arch wall_well.131
 x 10
 y 13
 end
@@ -2097,10 +2215,6 @@ arch floor_marble_b1a
 x 11
 y 1
 end
-arch table_small1
-x 11
-y 1
-end
 arch floor_marble_b1d
 x 11
 y 2
@@ -2134,10 +2248,6 @@ x 11
 y 6
 end
 arch floor_marble_b1a
-x 11
-y 7
-end
-arch table_small1
 x 11
 y 7
 end
@@ -2181,11 +2291,11 @@ arch floor_marble_b1a
 x 11
 y 13
 end
-arch table_small1
-x 11
-y 13
-end
 arch floor_marble_b1d
+x 11
+y 14
+end
+arch trash_wood1.101
 x 11
 y 14
 end
@@ -2251,7 +2361,23 @@ arch floor_marble_b1a
 x 12
 y 1
 end
-arch wall_well.131
+arch bed_1a.111
+direction 3
+x 12
+y 1
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 12
+y 1
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 12
 y 1
 end
@@ -2296,7 +2422,23 @@ arch floor_marble_b1b
 x 12
 y 7
 end
-arch wall_well.131
+arch bed_1a.111
+direction 3
+x 12
+y 7
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 12
+y 7
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 12
 y 7
 end
@@ -2333,7 +2475,23 @@ arch floor_marble_b1a
 x 12
 y 13
 end
-arch wall_well.131
+arch bed_1a.111
+direction 3
+x 12
+y 13
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 3
+x 12
+y 13
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
 x 12
 y 13
 end
@@ -2416,12 +2574,31 @@ arch floor_marble_b1b
 x 13
 y 1
 end
-arch bed_1a.111
-direction 5
+arch bed_1b.111
+direction 3
 x 13
 y 1
 end
-arch torch_wall_1
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 13
+y 1
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 13
+y 1
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 13
 y 1
 end
@@ -2429,16 +2606,15 @@ arch floor_marble_b1a
 x 13
 y 2
 end
-arch bed_1b.111
-direction 5
-x 13
-y 2
-end
 arch floor_marble_b1d
 x 13
 y 3
 end
-arch trash_wood2.101
+arch glower.101
+x 13
+y 3
+end
+arch light5
 x 13
 y 3
 end
@@ -2470,12 +2646,31 @@ arch floor_marble_b1a
 x 13
 y 7
 end
-arch bed_1a.111
-direction 5
+arch bed_1b.111
+direction 3
 x 13
 y 7
 end
-arch torch_wall_1
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 13
+y 7
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 13
+y 7
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 13
 y 7
 end
@@ -2483,12 +2678,15 @@ arch floor_marble_b1b
 x 13
 y 8
 end
-arch bed_1b.111
-direction 5
-x 13
-y 8
-end
 arch floor_marble_b1d
+x 13
+y 9
+end
+arch glower.101
+x 13
+y 9
+end
+arch light5
 x 13
 y 9
 end
@@ -2520,12 +2718,31 @@ arch floor_marble_b1b
 x 13
 y 13
 end
-arch bed_1a.111
-direction 5
+arch bed_1b.111
+direction 3
 x 13
 y 13
 end
-arch torch_wall_1
+arch bedpost_b
+sub_layer 1
+z 12
+direction 3
+x 13
+y 13
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 3
+no_pass 1
+x 13
+y 13
+end
+arch ladder_up
+sub_layer 3
+z -4
+align -8
+direction 3
 x 13
 y 13
 end
@@ -2533,12 +2750,15 @@ arch floor_marble_b1b
 x 13
 y 14
 end
-arch bed_1b.111
-direction 5
-x 13
-y 14
-end
 arch floor_marble_b1d
+x 13
+y 15
+end
+arch glower.101
+x 13
+y 15
+end
+arch light5
 x 13
 y 15
 end
