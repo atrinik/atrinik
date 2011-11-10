@@ -2,7 +2,7 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2011-11-10 Alex Tokar
 endmsg
 width 15
 height 23
@@ -374,15 +374,6 @@ arch floor_marble_b1d
 x 2
 y 3
 end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 111
-x 2
-y 3
-end
 arch floor_marble_b1c
 x 2
 y 4
@@ -420,15 +411,6 @@ arch floor_marble_b1d
 x 2
 y 9
 end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 112
-x 2
-y 9
-end
 arch floor_marble_b1b
 x 2
 y 10
@@ -463,15 +445,6 @@ x 2
 y 14
 end
 arch floor_marble_b1b
-x 2
-y 15
-end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 113
 x 2
 y 15
 end
@@ -533,25 +506,6 @@ arch table_small1
 x 3
 y 1
 end
-arch creator
-connected 111
-lifesave 1
-one_drop 1
-x 3
-y 1
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
-end
 arch floor_marble_b1b
 x 3
 y 2
@@ -600,25 +554,6 @@ arch table_small1
 x 3
 y 7
 end
-arch creator
-connected 112
-lifesave 1
-one_drop 1
-x 3
-y 7
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
-end
 arch floor_marble_b1d
 x 3
 y 8
@@ -658,25 +593,6 @@ end
 arch table_small1
 x 3
 y 13
-end
-arch creator
-connected 113
-lifesave 1
-one_drop 1
-x 3
-y 13
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
 end
 arch floor_marble_b1a
 x 3
@@ -911,6 +827,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble_b1d
@@ -1163,6 +1083,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1c
@@ -1222,6 +1146,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1b
@@ -1286,6 +1214,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1d
@@ -1352,6 +1284,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble_b1b
@@ -1509,6 +1445,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1c
@@ -1567,6 +1507,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1b
@@ -1625,6 +1569,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/jail_guard.py
+end
 end
 end
 arch floor_marble_b1a
@@ -2114,6 +2062,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble_b1c
@@ -2148,25 +2100,6 @@ end
 arch table_small1
 x 11
 y 1
-end
-arch creator
-connected 114
-lifesave 1
-one_drop 1
-x 11
-y 1
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
 end
 arch floor_marble_b1d
 x 11
@@ -2207,25 +2140,6 @@ end
 arch table_small1
 x 11
 y 7
-end
-arch creator
-connected 115
-lifesave 1
-one_drop 1
-x 11
-y 7
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
 end
 arch floor_marble_b1b
 x 11
@@ -2270,25 +2184,6 @@ end
 arch table_small1
 x 11
 y 13
-end
-arch creator
-connected 116
-lifesave 1
-one_drop 1
-x 11
-y 13
-arch cheese
-no_pick 1
-end
-arch drink_generic
-no_pick 1
-end
-arch bread2
-no_pick 1
-end
-arch drumstick
-no_pick 1
-end
 end
 arch floor_marble_b1d
 x 11
@@ -2372,15 +2267,6 @@ arch floor_marble_b1b
 x 12
 y 3
 end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 114
-x 12
-y 3
-end
 arch floor_marble_b1c
 x 12
 y 4
@@ -2422,15 +2308,6 @@ arch floor_marble_b1b
 x 12
 y 9
 end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 115
-x 12
-y 9
-end
 arch floor_marble_b1d
 x 12
 y 10
@@ -2469,15 +2346,6 @@ x 12
 y 14
 end
 arch floor_marble_b1b
-x 12
-y 15
-end
-arch magic_ear
-msg
-@match ^sorry$|^im sorry$|^i am sorry$|^i repent$|^i'm sorry$|^sorry\.$|^im sorry\.$|^i am sorry\.$|^i repent\.$|^i'm sorry\.$
-Since you have repented, you may eat today.
-endmsg
-connected 116
 x 12
 y 15
 end
