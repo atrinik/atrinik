@@ -165,6 +165,8 @@ static int popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::draw_func_post */
 static int popup_draw_func_post(popup_struct *popup)
 {
+	SDL_Rect dst;
+
 	scrollbar_render(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
 	button_hello.x = popup->x + INTERFACE_BUTTON_HELLO_STARTX;
@@ -175,14 +177,15 @@ static int popup_draw_func_post(popup_struct *popup)
 	button_close.y = popup->y + INTERFACE_BUTTON_CLOSE_STARTY;
 	button_render(&button_close, "Close");
 
+	dst.x = popup->x + popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
+	dst.y = popup->y + popup->surface->h - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h - 15;
+	dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
+	dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
+
+	string_blt(ScreenSurface, FONT_ARIAL11, "Chat Input (enter)", dst.x, dst.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &dst);
+
 	if (text_input_string_flag)
 	{
-		SDL_Rect dst;
-
-		dst.x = popup->x + popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
-		dst.y = popup->y + popup->surface->h - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h - 15;
-		dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
-		dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
 		text_input_show(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
 	}
 
