@@ -1000,9 +1000,7 @@ extern void object_type_init_exit(void);
 /* src/types/firewall.c */
 extern void object_type_init_firewall(void);
 /* src/types/food.c */
-extern void apply_food(object *op, object *tmp);
-extern void create_food_force(object *who, object *food, object *force);
-extern void eat_special_food(object *who, object *food);
+extern void object_type_init_food(void);
 /* src/types/gate.c */
 extern void object_type_init_gate(void);
 /* src/types/gravestone.c */

@@ -34,113 +34,12 @@
 #define FOOD_MAX 999
 
 /**
- * Apply a food/drink/flesh object.
- * @param op The object applying this.
- * @param tmp The object to apply. */
-void apply_food(object *op, object *tmp)
-{
-	if (op->type != PLAYER)
-	{
-		op->stats.hp = op->stats.maxhp;
-	}
-	else
-	{
-		char buf[MAX_BUF];
-
-		if (op->stats.food + tmp->stats.food > FOOD_MAX)
-		{
-			if ((op->stats.food + tmp->stats.food) - FOOD_MAX > tmp->stats.food / 5)
-			{
-				draw_info_format(COLOR_WHITE, op, "You are too full to %s this right now!", tmp->type == DRINK ? "drink" : "eat");
-				return;
-			}
-
-			if (tmp->type == FOOD || tmp->type == FLESH)
-			{
-				draw_info(COLOR_WHITE, op, "You feel full, but what a waste of food!");
-			}
-			else
-			{
-				draw_info(COLOR_WHITE, op, "Most of the drink goes down your face not your throat!");
-			}
-		}
-
-		if (!QUERY_FLAG(tmp, FLAG_CURSED) && !QUERY_FLAG(tmp, FLAG_DAMNED))
-		{
-			int capacity_remaining = FOOD_MAX - op->stats.food;
-
-			if (tmp->type == DRINK)
-			{
-				snprintf(buf, sizeof(buf), "Ahhh... that %s tasted good.", tmp->name);
-			}
-			else
-			{
-				snprintf(buf, sizeof(buf), "The %s tasted %s", tmp->name, tmp->type == FLESH ? "terrible!" : "good.");
-			}
-
-			op->stats.food += tmp->stats.food;
-			CONTR(op)->stat_food_consumed += tmp->stats.food;
-
-			if (capacity_remaining < tmp->stats.food)
-			{
-				op->stats.hp += capacity_remaining / 50;
-			}
-			else
-			{
-				op->stats.hp += tmp->stats.food / 50;
-			}
-
-			if (op->stats.hp > op->stats.maxhp)
-			{
-				op->stats.hp = op->stats.maxhp;
-			}
-		}
-		/* cursed/damned = food is decreased instead of increased */
-		else
-		{
-			int ft = tmp->stats.food;
-
-			snprintf(buf, sizeof(buf), "The %s tasted terrible!", tmp->name);
-
-			if (ft > 0)
-			{
-				ft = -ft;
-			}
-
-			op->stats.food += ft;
-		}
-
-		CONTR(op)->stat_food_num_consumed++;
-
-		draw_info(COLOR_WHITE, op, buf);
-
-		/* adjust food to borders when needed */
-		if (op->stats.food > FOOD_MAX)
-		{
-			op->stats.food = FOOD_MAX;
-		}
-		else if (op->stats.food < 0)
-		{
-			op->stats.food = 0;
-		}
-
-		/* special food hack -b.t. */
-		if (tmp->title || QUERY_FLAG(tmp, FLAG_CURSED)|| QUERY_FLAG(tmp, FLAG_DAMNED))
-		{
-			eat_special_food(op, tmp);
-		}
-	}
-
-	decrease_ob(tmp);
-}
-
-/**
  * Create a food force to include buff/debuff effects of stats and
  * protections to the player.
  * @param who The player object.
  * @param food The food.
  * @param force The force object. */
-void create_food_force(object* who, object *food, object *force)
+static void create_food_force(object* who, object *food, object *force)
 {
 	int i;
 
@@ -255,7 +154,7 @@ void create_food_force(object* who, object *food, object *force)
  * stomach will be full.
  * @param who Object eating the food.
  * @param food The food object. */
-void eat_special_food(object *who, object *food)
+static void eat_special_food(object *who, object *food)
 {
 	/* if there is any stat or protection value - create force for the object! */
 	if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha)
@@ -390,4 +289,84 @@ void eat_special_food(object *who, object *food)
 			}
 		}
 	}
+}
+
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
+{
+	(void) aflags;
+
+	if (applier->type != PLAYER)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (applier->stats.food + op->stats.food > FOOD_MAX)
+	{
+		if ((applier->stats.food + op->stats.food) - FOOD_MAX > op->stats.food / 5)
+		{
+			draw_info_format(COLOR_WHITE, applier, "You are too full to %s this right now!", op->type == DRINK ? "drink" : "eat");
+			return OBJECT_METHOD_OK;
+		}
+
+		if (op->type == FOOD || op->type == FLESH)
+		{
+			draw_info(COLOR_WHITE, applier, "You feel full, but what a waste of food!");
+		}
+		else
+		{
+			draw_info(COLOR_WHITE, applier, "Most of the drink goes down your face not your throat!");
+		}
+	}
+
+	if (!QUERY_FLAG(op, FLAG_CURSED) && !QUERY_FLAG(op, FLAG_DAMNED))
+	{
+		int capacity_remaining;
+
+		capacity_remaining = FOOD_MAX - applier->stats.food;
+
+		if (op->type == DRINK)
+		{
+			draw_info_format(COLOR_WHITE, applier, "Ahhh... that %s tasted good.", op->name);
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, applier, "The %s tasted %s", op->name, op->type == FLESH ? "terrible!" : "good.");
+		}
+
+		applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food + ABS(op->stats.food)));
+		CONTR(applier)->stat_food_consumed += op->stats.food;
+
+		applier->stats.hp += MIN(capacity_remaining, op->stats.food) / 50;
+
+		if (applier->stats.hp > applier->stats.maxhp)
+		{
+			applier->stats.hp = applier->stats.maxhp;
+		}
+	}
+	else
+	{
+		draw_info_format(COLOR_WHITE, applier, "The %s tasted terrible!", op->name);
+		applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
+	}
+
+	CONTR(applier)->stat_food_num_consumed++;
+
+	if (op->title || QUERY_FLAG(op, FLAG_CURSED)|| QUERY_FLAG(op, FLAG_DAMNED))
+	{
+		eat_special_food(applier, op);
+	}
+
+	decrease_ob(op);
+	return OBJECT_METHOD_UNHANDLED;
+}
+
+/**
+ * Initialize the food type object methods. */
+void object_type_init_food(void)
+{
+	object_type_methods[FOOD].apply_func = apply_func;
+
+	object_type_methods[DRINK].fallback = &object_type_methods[FOOD];
+	object_type_methods[FLESH].fallback = &object_type_methods[FOOD];
 }

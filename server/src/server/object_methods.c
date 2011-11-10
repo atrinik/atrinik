@@ -92,6 +92,7 @@ void object_methods_init(void)
 	object_type_init_power_crystal();
 	object_type_init_savebed();
 	object_type_init_clock();
+	object_type_init_food();
 }
 
 /** @copydoc object_methods::apply_func */
