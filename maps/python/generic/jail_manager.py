@@ -2,7 +2,7 @@
 ## Jail manager NPC.
 
 from Interface import Interface
-from Jail import Jail
+import Jail
 
 inf = Interface(activator, me)
 
@@ -57,7 +57,7 @@ def main():
 			inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
 			return
 
-		jail = Jail(me)
+		jail = Jail.Jail(me)
 
 		if jail.jail(pl, seconds):
 			inf.add_msg("{} has been jailed successfully.".format(pl.name))
