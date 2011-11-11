@@ -216,6 +216,34 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 	return 1;
 }
 
+static object *get_pickup_object(object *pl, object *op, int nrof)
+{
+	if (QUERY_FLAG(op, FLAG_UNPAID) && QUERY_FLAG(op, FLAG_NO_PICK))
+	{
+		op = object_create_clone(op);
+		CLEAR_FLAG(op, FLAG_NO_PICK);
+		SET_FLAG(op, FLAG_STARTEQUIP);
+		op->nrof = nrof;
+
+		draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the storage.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
+	}
+	else
+	{
+		op = object_stack_get_removed(op, nrof);
+
+		if (QUERY_FLAG(op, FLAG_UNPAID))
+		{
+			draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, pl, "You pick up the %s.", query_name(op, NULL));
+		}
+	}
+
+	return op;
+}
+
 /**
  * Pick up object.
  * @param pl Object that is picking up the object.
@@ -225,7 +253,6 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
  * @param no_mevent If 1, no map-wide pickup event will be triggered. */
 static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
-	char buf[HUGE_BUF];
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
 	if (pl->type == PLAYER)
@@ -283,58 +310,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 		CONTR(pl)->stat_items_picked++;
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_UNPAID))
-	{
-		/* This is a clone shop - clone an item for inventory */
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			tmp = object_create_clone(tmp);
-			CLEAR_FLAG(tmp, FLAG_NO_PICK);
-			SET_FLAG(tmp, FLAG_STARTEQUIP);
-			tmp->nrof = nrof;
-			tmp_nrof = nrof;
-			snprintf(buf, sizeof(buf), "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, pl, COST_BUY));
-		}
-		/* This is an unique shop item */
-		else
-		{
-			tmp->nrof = nrof;
-			snprintf(buf, sizeof(buf), "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, pl, COST_BUY));
-			tmp->nrof = tmp_nrof;
-		}
-	}
-	else
-	{
-		tmp->nrof = nrof;
-		snprintf(buf, sizeof(buf), "You pick up the %s.", query_name(tmp, NULL));
-		tmp->nrof = tmp_nrof;
-	}
-
-	if (nrof != tmp_nrof)
-	{
-		char err[MAX_BUF];
-
-		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
-
-		if (!tmp)
-		{
-			draw_info(COLOR_WHITE, pl, err);
-			return;
-		}
-	}
-	else
-	{
-		/* If the object is in a container, send a delete to the client.
-		 * - we are moving all the items from the container to elsewhere,
-		 * so it needs to be deleted. */
-		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
-		{
-			/* Unlink it - no move off check */
-			remove_ob(tmp);
-		}
-	}
-
-	draw_info(COLOR_WHITE, pl, buf);
+	tmp = get_pickup_object(pl, tmp, nrof);
 	insert_ob_in_ob(tmp, op);
 }
 
@@ -556,51 +532,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 		}
 	}
 
-	if (QUERY_FLAG(tmp, FLAG_UNPAID))
-	{
-		/* This is a clone shop - clone an item for inventory */
-		if (QUERY_FLAG(tmp, FLAG_NO_PICK))
-		{
-			tmp = object_create_clone(tmp);
-			CLEAR_FLAG(tmp, FLAG_NO_PICK);
-			SET_FLAG(tmp, FLAG_STARTEQUIP);
-			tmp->nrof = nrof;
-			tmp_nrof = nrof;
-			draw_info_format(COLOR_WHITE, op, "You pick up %s for %s from the storage.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
-		}
-		/* This is an unique shop item */
-		else
-		{
-			tmp->nrof = nrof;
-			draw_info_format(COLOR_WHITE, op, "%s will cost you %s.", query_name(tmp, NULL), query_cost_string(tmp, op, COST_BUY));
-			tmp->nrof = tmp_nrof;
-		}
-	}
-
-	/* We want to put some portion of the item into the container */
-	if (nrof != tmp_nrof)
-	{
-		char err[MAX_BUF];
-
-		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
-
-		if (!tmp)
-		{
-			draw_info(COLOR_WHITE, op, err);
-			return;
-		}
-	}
-	else
-	{
-		/* If the object is in a container, send a delete to the client.
-		 * - we are moving all the items from the container to elsewhere,
-		 * so it needs to be deleted. */
-		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
-		{
-			/* Unlink it - no move off check */
-			remove_ob(tmp);
-		}
-	}
+	tmp = get_pickup_object(op, tmp, nrof);
 
 	snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
 	insert_ob_in_ob(tmp, sack);
@@ -657,24 +589,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 		return;
 	}
 
-	/* We are only dropping some of the items. We split the current
-	 * object off. */
-	if (nrof && tmp->nrof != (uint32) nrof)
-	{
-		char err[MAX_BUF];
-
-		tmp = get_split_ob(tmp, nrof, err, sizeof(err));
-
-		if (!tmp)
-		{
-			draw_info(COLOR_WHITE, op, err);
-			return;
-		}
-	}
-	else
-	{
-		remove_ob(tmp);
-	}
+	tmp = object_stack_get_removed(tmp, nrof);
 
 	if (op->type == PLAYER)
 	{

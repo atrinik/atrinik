@@ -93,6 +93,8 @@ void object_methods_init(void)
 	object_type_init_savebed();
 	object_type_init_clock();
 	object_type_init_food();
+	object_type_init_light_apply();
+	object_type_init_light_refill();
 }
 
 /** @copydoc object_methods::apply_func */

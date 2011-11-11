@@ -274,7 +274,8 @@ set(SOURCES
 	src/types/gravestone.c
 	src/types/handle.c
 	src/types/holy_altar.c
-	src/types/light.c
+	src/types/light_apply.c
+	src/types/light_refill.c
 	src/types/lightning.c
 	src/types/magic_mirror.c
 	src/types/map_info.c

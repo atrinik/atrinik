@@ -166,7 +166,8 @@
 		<Unit filename="..\..\src\types\gravestone.c" />
 		<Unit filename="..\..\src\types\handle.c" />
 		<Unit filename="..\..\src\types\holy_altar.c" />
-		<Unit filename="..\..\src\types\light.c" />
+		<Unit filename="..\..\src\types\light_apply.c" />
+		<Unit filename="..\..\src\types\light_refill.c" />
 		<Unit filename="..\..\src\types\lightning.c" />
 		<Unit filename="..\..\src\types\magic_mirror.c" />
 		<Unit filename="..\..\src\types\map_info.c" />

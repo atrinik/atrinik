@@ -2166,6 +2166,68 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
 	insert_ob_in_map(tmp1, op->map, op, 0);
 }
 
+object *object_stack_get(object *op, uint32 nrof)
+{
+	object *split;
+
+	nrof = MAX(1, nrof);
+
+	if (MAX(1, op->nrof) <= nrof)
+	{
+		return op;
+	}
+
+	op->nrof -= nrof;
+
+	if (op->env && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
+	{
+		sub_weight(op->env, WEIGHT_NROF(op, nrof));
+	}
+
+	split = get_object();
+	copy_object_with_inv(op, split);
+
+	split->nrof = nrof;
+	CLEAR_FLAG(split, FLAG_IS_READY);
+
+	return split;
+}
+
+object *object_stack_get_reinsert(object *op, uint32 nrof)
+{
+	object *split;
+
+	split = object_stack_get(op, nrof);
+
+	if (split != op)
+	{
+		if (op->map)
+		{
+			split = insert_ob_in_map(split, op->map, NULL, INS_NO_MERGE);
+		}
+		else if (op->env)
+		{
+			split = object_insert_into(split, op->env, INS_NO_MERGE);
+		}
+	}
+
+	return split;
+}
+
+object *object_stack_get_removed(object *op, uint32 nrof)
+{
+	object *split;
+
+	split = object_stack_get(op, nrof);
+
+	if (split == op)
+	{
+		remove_ob(split);
+	}
+
+	return split;
+}
+
 /**
  * Splits up ob into two parts. The part which is returned contains nr
  * objects, and the remaining parts contains the rest (or is removed
@@ -2299,17 +2361,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 	return NULL;
 }
 
-/**
- * This function inserts the object op in the linked list inside the
- * object environment.
- * @param op Object to insert. Must be removed and not NULL. Must not be
- * multipart. May become invalid after return, so use return value of the
- * function.
- * @param where Object to insert into. Must not be NULL. Should be the
- * head part.
- * @return Pointer to inserted item, which will be different than op if
- * object was merged. */
-object *insert_ob_in_ob(object *op, object *where)
+object *object_insert_into(object *op, object *where, int flag)
 {
 	object *otmp;
 
@@ -2364,46 +2416,26 @@ object *insert_ob_in_ob(object *op, object *where)
 
 	if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
-		object *tmp;
-		int ready;
-
-		for (tmp = where->inv; tmp; tmp = tmp->below)
+		if (!(flag & INS_NO_MERGE))
 		{
-			if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && CAN_MERGE(tmp, op))
+			object *tmp;
+
+			for (tmp = where->inv; tmp; tmp = tmp->below)
 			{
-				/* Return the original object and remove inserted object
-				 * (client needs the original object) */
-				tmp->nrof += op->nrof;
-
-				/* Weight handling gets pretty funky. Since we are adding to
-				 * tmp->nrof, we need to increase the weight. */
-				add_weight(where, WEIGHT_NROF(op, op->nrof));
-
-				/* Make sure we get rid of the old object */
-				SET_FLAG(op, FLAG_REMOVED);
-
-				op = tmp;
-				ready = QUERY_FLAG(op, FLAG_IS_READY);
-				CLEAR_FLAG(op, FLAG_IS_READY);
-				/* And fix old object's links (we will insert it further down)*/
-				remove_ob(op);
-				/* Just kidding about previous remove */
-				CLEAR_FLAG(op, FLAG_REMOVED);
-
-				if (ready)
+				if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && CAN_MERGE(tmp, op))
 				{
-					SET_FLAG(op, FLAG_IS_READY);
-				}
+					tmp->nrof += op->nrof;
+					esrv_update_item(UPD_NROF, tmp);
+					add_weight(where, op->weight * MAX(1, op->nrof));
 
-				break;
+					SET_FLAG(op, FLAG_REMOVED);
+					object_destroy(op);
+
+					return tmp;
+				}
 			}
 		}
 
-		/* I assume stackable objects have no inventory
-		 * We add the weight - this object could have just been removed
-		 * (if it was possible to merge).  calling remove_ob will subtract
-		 * the weight, so we need to add it in again, since we actually do
-		 * the linking below */
 		add_weight(where, WEIGHT_NROF(op, op->nrof));
 	}
 
@@ -2455,6 +2487,21 @@ object *insert_ob_in_ob(object *op, object *where)
 	}
 
 	return op;
+}
+
+/**
+ * This function inserts the object op in the linked list inside the
+ * object environment.
+ * @param op Object to insert. Must be removed and not NULL. Must not be
+ * multipart. May become invalid after return, so use return value of the
+ * function.
+ * @param where Object to insert into. Must not be NULL. Should be the
+ * head part.
+ * @return Pointer to inserted item, which will be different than op if
+ * object was merged. */
+object *insert_ob_in_ob(object *op, object *where)
+{
+	return object_insert_into(op, where, 0);
 }
 
 /**

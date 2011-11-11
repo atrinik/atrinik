@@ -538,8 +538,12 @@ extern void remove_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern int object_check_move_on(object *op, object *originator);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);
+extern object *object_stack_get(object *op, uint32 nrof);
+extern object *object_stack_get_reinsert(object *op, uint32 nrof);
+extern object *object_stack_get_removed(object *op, uint32 nrof);
 extern object *get_split_ob(object *orig_ob, int nr, char *err, size_t size);
 extern object *decrease_ob_nr(object *op, uint32 i);
+extern object *object_insert_into(object *op, object *where, int flag);
 extern object *insert_ob_in_ob(object *op, object *where);
 extern object *present_arch(archetype *at, mapstruct *m, int x, int y);
 extern object *present(uint8 type, mapstruct *m, int x, int y);
@@ -1009,9 +1013,10 @@ extern const char *gravestone_text(object *op);
 extern void object_type_init_handle(void);
 /* src/types/holy_altar.c */
 extern void object_type_init_holy_altar(void);
-/* src/types/light.c */
-extern void apply_player_light_refill(object *who, object *op);
-extern void apply_player_light(object *who, object *op);
+/* src/types/light_apply.c */
+extern void object_type_init_light_apply(void);
+/* src/types/light_refill.c */
+extern void object_type_init_light_refill(void);
 /* src/types/lightning.c */
 extern void object_type_init_lightning(void);
 /* src/types/magic_mirror.c */
