@@ -2178,6 +2178,8 @@ object *object_stack_get(object *op, uint32 nrof)
 	}
 
 	op->nrof -= nrof;
+	update_object(op, UP_OBJ_FACE);
+	esrv_update_item(UPD_NROF, op);
 
 	if (op->env && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
