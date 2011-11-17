@@ -3,25 +3,24 @@
 
 from Interface import Interface
 from Packet import MapStats
-import re
 
 inf = Interface(activator, me)
 
 def main():
 	inf.set_icon("tome_glitter.101")
 	inf.set_title("Eastern Project Music Book")
-	
+
 	options = GetOptions()
-	if options == "say":  
+	if options == "say":
 		inf.dialog_close()
 		info = LocateBeacon("touhou_music_changer").env
 		if msg == "none":
 			info.slaying = "yewtree.mid"
-			info.race = "Centennial"		  
-		else: 
+			info.race = "Centennial"
+		else:
 			info.slaying = msg.strip()
 			info.race = "Centennial (music playing)"
-		map_name = "<b><o=0,0,0>{}</o></b>".format(info.race)		
+		map_name = "<b><o=0,0,0>{}</o></b>".format(info.race)
 
 		for player in me.map.GetPlayers():
 			if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:
@@ -30,7 +29,7 @@ def main():
 		inf.add_msg("This book seems strange.  You think the text is glowing for certain words...", COLOR_YELLOW)
 		inf.add_msg("Eastern Project Music Book - Select a theme:")
 		inf.add_link("BAD Apple!! (Elly, book 4)", dest = "/sys_tell th_18.mid")
-		inf.add_link("Apparitions Stalk the Night (Rumia, book 6 stg 1)", dest = "/sys_tell th_06.mid")		
+		inf.add_link("Apparitions Stalk the Night (Rumia, book 6 stg 1)", dest = "/sys_tell th_06.mid")
 		inf.add_link("Lunate Elf (Daiyousei, book 6 stg 2)", dest = "/sys_tell th_14.mid")
 		inf.add_link("Beloved Tomboyish Girl (Cirno, book 6 stg 2)", dest = "/sys_tell th_02.mid")
 		inf.add_link("Shanghai Alice of Meiji 17 (Meirin, book 6 stg 3)", dest = "/sys_tell th_03.mid")
