@@ -35,7 +35,7 @@ def main():
 	elif event == MEVENT_APPLY:
 		if not is_in_player(other):
 			activator.Write("You cannot do that here.", COLOR_RED)
-			SetReturnValue(2)
+			SetReturnValue(OBJECT_METHOD_OK)
 	# Picked up an item, try to pay for it.
 	elif event == MEVENT_PICK:
 		seller = other.ReadKey("auction_house_seller")
