@@ -43,6 +43,9 @@ static UT_array *history = NULL;
 /**
  * Button buffers. */
 static button_struct button_hello, button_close;
+/**
+ * Character shortcuts for links. */
+static const char character_shortcuts[] = "123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM[]{}<>/?~!@#$%^&*()";
 
 /**
  * Destroy the interface data, if any. */
@@ -316,38 +319,6 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 				scrollbar_scroll_adjust(&interface_data->scrollbar, -interface_data->scrollbar.max_lines);
 				return 1;
 
-			case SDLK_1:
-			case SDLK_2:
-			case SDLK_3:
-			case SDLK_4:
-			case SDLK_5:
-			case SDLK_6:
-			case SDLK_7:
-			case SDLK_8:
-			case SDLK_9:
-				if (!keys[event->key.keysym.sym].repeated)
-				{
-					interface_execute_link(event->key.keysym.sym - SDLK_1);
-				}
-
-				return 1;
-
-			case SDLK_KP1:
-			case SDLK_KP2:
-			case SDLK_KP3:
-			case SDLK_KP4:
-			case SDLK_KP5:
-			case SDLK_KP6:
-			case SDLK_KP7:
-			case SDLK_KP8:
-			case SDLK_KP9:
-				if (!keys[event->key.keysym.sym].repeated)
-				{
-					interface_execute_link(event->key.keysym.sym - SDLK_KP1);
-				}
-
-				return 1;
-
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
 				text_input_open(255);
@@ -355,6 +326,33 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 				return 1;
 
 			default:
+				if (!keys[event->key.keysym.sym].repeated)
+				{
+					char c;
+					size_t i, len, links_len;
+
+					if (event->key.keysym.sym >= SDLK_KP0 && event->key.keysym.sym <= SDLK_KP9)
+					{
+						c = '0' + event->key.keysym.sym - SDLK_KP0;
+					}
+					else
+					{
+						c = event->key.keysym.unicode & 0xff;
+					}
+
+					len = strlen(character_shortcuts);
+					links_len = utarray_len(interface_data->links);
+
+					for (i = 0; i < len && i < links_len; i++)
+					{
+						if (c == character_shortcuts[i])
+						{
+							interface_execute_link(i);
+							return 1;
+						}
+					}
+				}
+
 				break;
 		}
 
@@ -398,7 +396,7 @@ void cmd_interface(uint8 *data, int len)
 	uint8 text_input = 0, scroll_bottom = 0;
 	char type, text_input_content[HUGE_BUF];
 	StringBuffer *sb_message;
-	size_t links_len, i;
+	size_t links_len, char_shortcuts_len, i;
 	SDL_Rect box;
 
 	if (!data || !len)
@@ -543,13 +541,15 @@ void cmd_interface(uint8 *data, int len)
 		stringbuffer_append_string(sb_message, "\n");
 	}
 
+	char_shortcuts_len = strlen(character_shortcuts);
+
 	for (i = 0; i < links_len; i++)
 	{
 		stringbuffer_append_string(sb_message, "\n");
 
-		if (i < 9)
+		if (i < char_shortcuts_len)
 		{
-			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%"FMT64U"]</c> ", (uint64) i + 1);
+			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%c]</c> ", character_shortcuts[i]);
 		}
 
 		stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
