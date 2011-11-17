@@ -485,30 +485,13 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			}
 			else
 			{
-				switch (CONTR(op)->shoottype)
+				if (caster == op)
 				{
-					case range_magic:
-						draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
-						break;
-
-					case range_wand:
-						draw_info(COLOR_WHITE, op, "Something blocks the magic of your wand.");
-						break;
-
-					case range_rod:
-						draw_info(COLOR_WHITE, op, "Something blocks the magic of your rod.");
-						break;
-
-					case range_horn:
-						draw_info(COLOR_WHITE, op, "Something blocks the magic of your horn.");
-						break;
-
-					case range_scroll:
-						draw_info(COLOR_WHITE, op, "Something blocks the magic of your scroll.");
-						break;
-
-					default:
-						break;
+					draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
+				}
+				else
+				{
+					draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
 				}
 			}
 
