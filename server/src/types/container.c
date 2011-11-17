@@ -25,468 +25,14 @@
 
 /**
  * @file
- * Handles code for handling @ref CONTAINER "containers". */
+ * Handles code for handling @ref CONTAINER "containers".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-static int container_trap(object *op, object *container);
-
 /**
- * Handle apply on containers.
- * @note There are three states for any container - closed (not applied),
- * applied (not open, but objects that match get tossed into it) and open
- * (appled flag set, and op->container points to the open container).
- * @param op The player.
- * @param sack The container the player is opening or closing.
- * @return 1 if an object is applied somehow or another, 0 if error/no
- * apply. */
-int esrv_apply_container(object *op, object *sack)
-{
-	object *cont, *tmp;
-
-	if (op->type != PLAYER)
-	{
-		LOG(llevBug, "esrv_apply_container: called from non player: <%s>!\n", query_name(op, NULL));
-		return 0;
-	}
-
-	/* cont is NULL or the container player already has opened */
-	cont = CONTR(op)->container;
-
-	if (sack == NULL || sack->type != CONTAINER || (cont && cont->type != CONTAINER))
-	{
-		LOG(llevBug, "esrv_apply_container: object *sack = %s is not container (cont:<%s>)!\n", query_name(sack, NULL), query_name(cont, NULL));
-		return 0;
-	}
-
-	/* close container?
-	 * if cont != sack || cont == sack - in both cases we close cont */
-	if (cont)
-	{
-		/* Trigger the CLOSE event */
-		if (trigger_event(EVENT_CLOSE, op, cont, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
-		{
-			return 1;
-		}
-
-		if (container_unlink(CONTR(op), cont))
-		{
-			draw_info_format(COLOR_WHITE, op, "You close %s.", query_name(cont, op));
-		}
-		else
-		{
-			draw_info_format(COLOR_WHITE, op, "You leave %s.", query_name(cont, op));
-		}
-
-		/* we closing the one we applied */
-		if (cont == sack)
-		{
-			return 1;
-		}
-	}
-
-	/* at this point we ready a container OR we open it! */
-
-	/* If the player is trying to open it (which he must be doing if we got here),
-	 * and it is locked, check to see if player has the equipment to open it. */
-	if (sack->slaying || sack->stats.maxhp)
-	{
-		/* Locked container */
-		if (sack->sub_type == ST1_CONTAINER_NORMAL)
-		{
-			tmp = find_key(op, sack);
-
-			if (tmp)
-			{
-				if (tmp->type == KEY)
-				{
-					draw_info_format(COLOR_WHITE, op, "You unlock %s with %s.", query_name(sack, op), query_name(tmp, op));
-				}
-				else if (tmp->type == FORCE)
-				{
-					draw_info_format(COLOR_WHITE, op, "The %s is unlocked for you.", query_name(sack, op));
-				}
-			}
-			else
-			{
-				draw_info_format(COLOR_WHITE, op, "You don't have the key to unlock %s.", query_name(sack, op));
-				return 0;
-			}
-		}
-		/* Personalized container */
-		else
-		{
-			/* Party corpse */
-			if (sack->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(op, sack))
-			{
-				return 0;
-			}
-			/* Only give player with right name access */
-			else if (sack->sub_type == ST1_CONTAINER_CORPSE_player && sack->slaying != op->name)
-			{
-				draw_info(COLOR_WHITE, op, "It's not your bounty.");
-				return 0;
-			}
-		}
-	}
-
-	/* By the time we get here, we have made sure any other container has been closed and
-	 * if this is a locked container, the player they key to open it. */
-
-	/* There are really two cases - the sack is either on the ground, or the sack is
-	 * part of the players inventory.  If on the ground, we assume that the player is
-	 * opening it, since if it was being closed, that would have been taken care of above.
-	 * If it in the players inventory, we can READY the container. */
-	/* container is NOT in players inventory */
-	if (sack->env != op)
-	{
-		/* this is not possible - opening a container inside another container or an another player */
-		if (sack->env)
-		{
-			draw_info_format(COLOR_WHITE, op, "You can't open %s.", query_name(sack, op));
-			return 0;
-		}
-
-		draw_info_format(COLOR_WHITE, op, "You open %s.", query_name(sack, op));
-		container_link(CONTR(op), sack);
-
-		if (sack->slaying && sack->sub_type == ST1_CONTAINER_CORPSE_party)
-		{
-			party_handle_corpse(op, sack);
-		}
-	}
-	/* Sack is in player's inventory */
-	else
-	{
-		/* readied sack becoming open */
-		if (QUERY_FLAG(sack, FLAG_APPLIED))
-		{
-			draw_info_format(COLOR_WHITE, op, "You open %s.", query_name(sack, op));
-			container_link(CONTR(op), sack);
-		}
-		else
-		{
-			CLEAR_FLAG(sack, FLAG_APPLIED);
-			draw_info_format(COLOR_WHITE, op, "You readied %s.", query_name(sack, op));
-			SET_FLAG(sack, FLAG_APPLIED);
-
-			update_object(sack, UP_OBJ_FACE);
-			/* search & explode a rune in the container */
-			container_trap(op, sack);
-		}
-	}
-
-	if ((sack->sub_type == ST1_CONTAINER_CORPSE_party || sack->sub_type == ST1_CONTAINER_CORPSE_player) && !QUERY_FLAG(sack, FLAG_BEEN_APPLIED))
-	{
-		CONTR(op)->stat_corpses_searched++;
-	}
-
-	/* Only after actually readying/opening the container we know more
-	 * about it. */
-	SET_FLAG(sack, FLAG_BEEN_APPLIED);
-
-	return 1;
-}
-
-/**
- * A player has opened a container - link him to the list of players
- * which have (perhaps) it opened too.
- * @param pl The player object.
- * @param sack The container.
- * @return 1 if we are the first opening this container, 0 otherwise. */
-int container_link(player *pl, object *sack)
-{
-	int ret = 0;
-
-	/* For safety reasons, let's check this is valid */
-	if (sack->attacked_by)
-	{
-		if (sack->attacked_by->type != PLAYER || !CONTR(sack->attacked_by) || CONTR(sack->attacked_by)->container != sack)
-		{
-			LOG(llevBug, "container_link() - invalid player linked: <%s>\n", query_name(sack->attacked_by, NULL));
-			sack->attacked_by = NULL;
-		}
-	}
-
-	/* the open/close logic should be handled elsewhere.
-	 * for that reason, this function should only be called
-	 * when valid - broken open/close logic elsewhere is bad.
-	 * so, give a bug warning out! */
-	if (pl->container)
-	{
-		LOG(llevBug, "container_link() - called from player with open container!: <%s> sack:<%s>\n", query_name(sack->attacked_by, NULL), query_name(sack, NULL));
-		container_unlink(pl, sack);
-	}
-
-	/* Check for quest containers. */
-	if (HAS_EVENT(sack, EVENT_QUEST))
-	{
-		object *tmp;
-
-		for (tmp = sack->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == QUEST_CONTAINER)
-			{
-				check_quest(pl->ob, tmp);
-			}
-		}
-	}
-
-	pl->container = sack;
-	pl->container_count = sack->count;
-
-	pl->container_above = sack->attacked_by;
-
-	if (sack->attacked_by)
-	{
-		CONTR(sack->attacked_by)->container_below = pl->ob;
-	}
-	/* we are the first one opening this container */
-	else
-	{
-		SET_FLAG(sack, FLAG_APPLIED);
-
-		/* faking open container face */
-		if (sack->other_arch)
-		{
-			sack->face = sack->other_arch->clone.face;
-			sack->animation_id = sack->other_arch->clone.animation_id;
-
-			if (sack->animation_id)
-			{
-				SET_ANIMATION(sack, (NUM_ANIMATIONS(sack) / NUM_FACINGS(sack)) * sack->direction);
-			}
-
-			update_object(sack, UP_OBJ_FACE);
-		}
-
-		update_object(sack, UP_OBJ_FACE);
-		container_trap(pl->ob, sack);
-		ret = 1;
-	}
-
-	esrv_send_inventory(pl->ob, sack);
-	/* we are first element */
-	pl->container_below = NULL;
-	sack->attacked_by = pl->ob;
-	sack->attacked_by_count = pl->ob->count;
-
-	return ret;
-}
-
-/**
- * Remove a player from the container list.
- *
- * Unlinking is a bit more tricky - pl OR sack can be NULL.
- * @param pl The player object. If NULL, we unlink all players from the
- * container identified by 'sack'.
- * @param sack The container object. If NULL, unlink this container from
- * player object identified by 'pl'. */
-int container_unlink(player *pl, object *sack)
-{
-	object *tmp, *tmp2;
-
-	if (pl == NULL && sack == NULL)
-	{
-		LOG(llevBug, "container_unlink() - *pl AND *sack == NULL!\n");
-		return 0;
-	}
-
-	if (pl)
-	{
-		if (!pl->container)
-		{
-			return 0;
-		}
-
-		if (pl->container->count != pl->container_count)
-		{
-			pl->container = NULL;
-			pl->container_count = 0;
-			return 0;
-		}
-
-		sack = pl->container;
-		update_object(sack, UP_OBJ_FACE);
-		esrv_close_container(pl->ob);
-
-		/* ok, there is a valid container - unlink the player now */
-
-		/* we are only applier */
-		if (!pl->container_below && !pl->container_above)
-		{
-			/* we should be that object... */
-			if (pl->container->attacked_by != pl->ob)
-			{
-				LOG(llevBug, "container_unlink() - container link don't match player!: <%s> sack:<%s> (%s)\n", query_name(pl->ob, NULL), query_name(sack->attacked_by, NULL), query_name(sack, NULL));
-				return 0;
-			}
-
-			pl->container = NULL;
-			pl->container_count = 0;
-
-			CLEAR_FLAG(sack, FLAG_APPLIED);
-
-			if (sack->other_arch)
-			{
-				sack->face = sack->arch->clone.face;
-				sack->animation_id = sack->arch->clone.animation_id;
-
-				if (sack->animation_id)
-				{
-					SET_ANIMATION(sack, (NUM_ANIMATIONS(sack) / NUM_FACINGS(sack)) * sack->direction);
-				}
-
-				update_object(sack, UP_OBJ_FACE);
-			}
-
-			sack->attacked_by = NULL;
-			sack->attacked_by_count = 0;
-			return 1;
-		}
-
-		/* because there is another player applying that container, we don't close it */
-
-		/* we are first player in list */
-		if (!pl->container_below)
-		{
-			/* mark above as first player applying this container */
-			sack->attacked_by = pl->container_above;
-			sack->attacked_by_count = pl->container_above->count;
-			CONTR(pl->container_above)->container_below = NULL;
-
-			pl->container_above = NULL;
-			pl->container = NULL;
-			pl->container_count = 0;
-			return 0;
-		}
-
-		/* we are somewhere in the middle or last one - it don't matter */
-		CONTR(pl->container_below)->container_above = pl->container_above;
-
-		if (pl->container_above)
-		{
-			CONTR(pl->container_above)->container_below = pl->container_below;
-		}
-
-		pl->container_below=NULL;
-		pl->container_above=NULL;
-		pl->container = NULL;
-		pl->container_count = 0;
-		return 0;
-	}
-
-	CLEAR_FLAG(sack, FLAG_APPLIED);
-
-	if (sack->other_arch)
-	{
-		sack->face = sack->arch->clone.face;
-		sack->animation_id = sack->arch->clone.animation_id;
-
-		if (sack->animation_id)
-		{
-			SET_ANIMATION(sack, (NUM_ANIMATIONS(sack) / NUM_FACINGS(sack)) * sack->direction);
-		}
-
-		update_object(sack, UP_OBJ_FACE);
-	}
-
-	tmp = sack->attacked_by;
-	sack->attacked_by = NULL;
-	sack->attacked_by_count = 0;
-
-	/* if we are here, we are called with (NULL,sack) */
-	while (tmp)
-	{
-		/* valid player in list? */
-		if (!CONTR(tmp) || CONTR(tmp)->container != sack)
-		{
-			LOG(llevBug,"container_unlink() - container link list mismatch!: player?:<%s> sack:<%s> (%s)\n", query_name(tmp, NULL), query_name(sack, NULL), query_name(sack->attacked_by, NULL));
-			return 1;
-		}
-
-		tmp2 = CONTR(tmp)->container_above;
-		CONTR(tmp)->container = NULL;
-		CONTR(tmp)->container_count = 0;
-		CONTR(tmp)->container_below = NULL;
-		CONTR(tmp)->container_above = NULL;
-		esrv_close_container(tmp);
-		tmp = tmp2;
-	}
-
-	return 1;
-}
-
-/**
- * Frees a monster trapped in container when opened by a player.
- * @param monster The monster trapped.
- * @param op The player that opened the container. */
-void free_container_monster(object *monster, object *op)
-{
-	int i;
-	object *container = monster->env;
-
-	if (container == NULL)
-	{
-		return;
-	}
-
-	remove_ob(monster);
-	monster->x = container->x;
-	monster->y = container->y;
-	i = find_free_spot(monster->arch, NULL, op->map, monster->x, monster->y, 0, 9);
-
-	if (i != -1)
-	{
-		monster->x += freearr_x[i];
-		monster->y += freearr_y[i];
-	}
-
-	fix_monster(monster);
-
-	if (insert_ob_in_map(monster, op->map, monster, 0))
-	{
-		draw_info_format(COLOR_WHITE, op, "A %s jumps out of the %s.", query_name(monster, NULL), query_name(container, NULL));
-	}
-}
-
-/**
- * Examine the items in a container which gets readied or opened by a
- * player.
- *
- * Explode or trigger every trap and rune in there and free trapped
- * monsters.
- * @param op The player opening the container.
- * @param container The container object.
- * @return 0 if no trap or monster found/exploded/freed, count of all
- * found/exploded/freed traps and monsters otherwise. */
-static int container_trap(object *op, object *container)
-{
-	int ret = 0;
-	object *tmp;
-
-	for (tmp = container->inv; tmp; tmp = tmp->below)
-	{
-		/* Search for traps and runes */
-		if (tmp->type == RUNE)
-		{
-			ret++;
-			spring_trap(tmp, op);
-		}
-		/* Search for monsters living in containers */
-		else if (tmp->type == MONSTER)
-		{
-			ret++;
-			free_container_monster(tmp, op);
-		}
-	}
-
-	return ret;
-}
-
-/**
- * We don't to allow putting magical container inside another magical
- * container, so we check for it here.
+ * Check if both objects are magical containers.
  * @param op Object being put into the container.
  * @param container The container.
  * @return 1 if both op and container are magical containers, 0 otherwise. */
@@ -498,4 +44,370 @@ int check_magical_container(object *op, object *container)
 	}
 
 	return 0;
+}
+
+/**
+ * Actually open a container, springing traps/monsters, and doing the
+ * linked list linking.
+ * @param applier Player that is opening the container.
+ * @param op The container. */
+static void container_open(object *applier, object *op)
+{
+	player *pl;
+	object *tmp;
+
+	/* Safety. */
+	if (applier->type != PLAYER)
+	{
+		return;
+	}
+
+	pl = CONTR(applier);
+
+	/* Safety. */
+	if (op->attacked_by && op->attacked_by->type != PLAYER)
+	{
+		op->attacked_by = NULL;
+	}
+
+	/* Check for quest containers. */
+	if (HAS_EVENT(op, EVENT_QUEST))
+	{
+		for (tmp = op->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == QUEST_CONTAINER)
+			{
+				check_quest(applier, tmp);
+			}
+		}
+	}
+
+	pl->container = op;
+	pl->container_count = op->count;
+	pl->container_above = op->attacked_by;
+
+	/* Already opened. */
+	if (op->attacked_by)
+	{
+		CONTR(op->attacked_by)->container_below = applier;
+	}
+	/* Not open yet. */
+	else
+	{
+		SET_FLAG(op, FLAG_APPLIED);
+
+		if (op->other_arch)
+		{
+			op->face = op->other_arch->clone.face;
+			op->animation_id = op->other_arch->clone.animation_id;
+			SET_ANIMATION_STATE(op);
+			esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
+		}
+		else
+		{
+			esrv_update_item(UPD_FLAGS, op);
+		}
+
+		update_object(op, UP_OBJ_FACE);
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == RUNE)
+			{
+				spring_trap(tmp, applier);
+			}
+			else if (tmp->type == MONSTER)
+			{
+				int i;
+
+				remove_ob(tmp);
+				tmp->x = op->x;
+				tmp->y = op->y;
+				i = find_free_spot(tmp->arch, tmp, applier->map, tmp->x, tmp->y, 0, SIZEOFFREE1 + 1);
+
+				if (i != -1)
+				{
+					tmp->x += freearr_x[i];
+					tmp->y += freearr_y[i];
+				}
+
+				tmp = insert_ob_in_map(tmp, applier->map, tmp, 0);
+
+				if (tmp)
+				{
+					fix_monster(tmp);
+					draw_info_format(COLOR_WHITE, applier, "A %s jumps out of the %s.", query_name(tmp, applier), query_base_name(op, applier));
+				}
+			}
+		}
+	}
+
+	esrv_send_inventory(applier, op);
+	pl->container_below = NULL;
+	op->attacked_by = applier;
+	op->attacked_by_count = applier->count;
+}
+
+/**
+ * Remove a player from the container list.
+ *
+ * Unlinking is a bit more tricky - pl OR sack can be NULL.
+ * @param pl The player object. If NULL, we unlink all players from the
+ * container identified by 'sack'.
+ * @param sack The container object. If NULL, unlink this container from
+ * player object identified by 'pl'. */
+/**
+ * Close a container and remove player from the container's linked list.
+ *
+ * @param applier The player. If NULL, we will unlink all players from
+ * the container 'op'.
+ * @param op The container object. If NULL, unlink the applier's current
+ * container.
+ * @return 1 if the container was closed and has no players left looking
+ * into the container, 0 otherwise. */
+int container_close(object *applier, object *op)
+{
+	if (!applier && !op)
+	{
+		return 0;
+	}
+
+	if (applier && applier->type == PLAYER)
+	{
+		player *pl;
+
+		pl = CONTR(applier);
+
+		/* No container, nothing to do. */
+		if (!pl->container)
+		{
+			return 0;
+		}
+
+		/* Make sure the object is valid. */
+		if (!OBJECT_VALID(pl->container, pl->container_count))
+		{
+			pl->container = NULL;
+			pl->container_count = 0;
+			return 0;
+		}
+
+		/* Only applier left, go ahead and close the container. */
+		if (!pl->container_below && !pl->container_above)
+		{
+			return container_close(NULL, pl->container);
+		}
+
+		/* The applier is at the beginning of the linked list. */
+		if (!pl->container_below)
+		{
+			pl->container->attacked_by = pl->container_above;
+			pl->container->attacked_by_count = pl->container_above->count;
+			CONTR(pl->container_above)->container_below = NULL;
+		}
+		/* Elsewhere in the list. */
+		else
+		{
+			CONTR(pl->container_below)->container_above = pl->container_above;
+
+			if (pl->container_above)
+			{
+				CONTR(pl->container_above)->container_below = pl->container_below;
+			}
+		}
+
+		pl->container_above = NULL;
+		pl->container_below = NULL;
+		pl->container = NULL;
+		pl->container_count = 0;
+		esrv_close_container(applier);
+	}
+	else if (op)
+	{
+		object *tmp, *next;
+
+		CLEAR_FLAG(op, FLAG_APPLIED);
+
+		if (op->other_arch)
+		{
+			op->face = op->arch->clone.face;
+			op->animation_id = op->arch->clone.animation_id;
+			SET_ANIMATION_STATE(op);
+			esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
+		}
+		else
+		{
+			esrv_update_item(UPD_FLAGS, op);
+		}
+
+		update_object(op, UP_OBJ_FACE);
+
+		for (tmp = op->attacked_by; tmp; tmp = next)
+		{
+			next = CONTR(tmp)->container_above;
+
+			CONTR(tmp)->container = NULL;
+			CONTR(tmp)->container_count = 0;
+			CONTR(tmp)->container_below = NULL;
+			CONTR(tmp)->container_above = NULL;
+			esrv_close_container(tmp);
+		}
+
+		op->attacked_by = NULL;
+		op->attacked_by_count = 0;
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *op, object *applier, int aflags)
+{
+	object *container, *tmp;
+
+	(void) aflags;
+
+	if (applier->type != PLAYER)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	container = CONTR(applier)->container;
+
+	if (op == NULL || op->type != CONTAINER || (container && container->type != CONTAINER))
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	/* Already opened container, so close it, even if the player wants to
+	 * open another container. */
+	if (container)
+	{
+		/* Trigger the CLOSE event. */
+		if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
+		{
+			return OBJECT_METHOD_OK;
+		}
+
+		if (container_close(applier, container))
+		{
+			draw_info_format(COLOR_WHITE, applier, "You close %s.", query_base_name(container, applier));
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, applier, "You leave %s.", query_base_name(container, applier));
+		}
+
+		/* Applied the one we just closed, no need to go on. */
+		if (container == op)
+		{
+			return OBJECT_METHOD_OK;
+		}
+	}
+
+	/* If the player is trying to open it (which he must be doing if we
+	 * got here), and it is locked, check to see if player has the means
+	 * to open it. */
+	if (op->slaying || op->stats.maxhp)
+	{
+		/* Locked container. */
+		if (op->sub_type == ST1_CONTAINER_NORMAL)
+		{
+			tmp = find_key(applier, op);
+
+			if (tmp)
+			{
+				if (tmp->type == KEY)
+				{
+					draw_info_format(COLOR_WHITE, applier, "You unlock %s with %s.", query_base_name(op, applier), query_name(tmp, applier));
+				}
+				else if (tmp->type == FORCE)
+				{
+					draw_info_format(COLOR_WHITE, applier, "The %s is unlocked for you.", query_base_name(op, applier));
+				}
+			}
+			else
+			{
+				draw_info_format(COLOR_WHITE, applier, "You don't have the key to unlock %s.", query_base_name(op, applier));
+				return OBJECT_METHOD_UNHANDLED;
+			}
+		}
+		/* Personalized container. */
+		else
+		{
+			/* Party corpse. */
+			if (op->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(applier, op))
+			{
+				return OBJECT_METHOD_UNHANDLED;
+			}
+			/* Normal player-only corpse. */
+			else if (op->sub_type == ST1_CONTAINER_CORPSE_player && op->slaying != applier->name)
+			{
+				draw_info(COLOR_WHITE, applier, "It's not your bounty.");
+				return OBJECT_METHOD_UNHANDLED;
+			}
+		}
+	}
+
+	/* The container is not in the applier's inventory. */
+	if (op->env != applier)
+	{
+		/* If in inventory of some other object other than the applier,
+		 * can't open it. */
+		if (op->env)
+		{
+			draw_info_format(COLOR_WHITE, applier, "You can't open %s.", query_base_name(op, applier));
+			return OBJECT_METHOD_UNHANDLED;
+		}
+
+		draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
+		container_open(applier, op);
+
+		/* Handle party corpses. */
+		if (op->slaying && op->sub_type == ST1_CONTAINER_CORPSE_party)
+		{
+			party_handle_corpse(applier, op);
+		}
+	}
+	/* Container is in player's inventory. */
+	else
+	{
+		/* If it's readied, open it. */
+		if (QUERY_FLAG(op, FLAG_APPLIED))
+		{
+			draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
+			container_open(applier, op);
+		}
+		/* Otherwise ready it. */
+		else
+		{
+			draw_info_format(COLOR_WHITE, applier, "You readied %s.", query_base_name(op, applier));
+			SET_FLAG(op, FLAG_APPLIED);
+
+			update_object(op, UP_OBJ_FACE);
+			esrv_update_item(UPD_FLAGS, op);
+		}
+	}
+
+	/* If it's a corpse and it has not been searched before, add to
+	 * player's statistics. */
+	if ((op->sub_type == ST1_CONTAINER_CORPSE_party || op->sub_type == ST1_CONTAINER_CORPSE_player) && !QUERY_FLAG(op, FLAG_BEEN_APPLIED))
+	{
+		CONTR(applier)->stat_corpses_searched++;
+	}
+
+	/* Only after actually readying/opening the container we know more
+	 * about it. */
+	SET_FLAG(op, FLAG_BEEN_APPLIED);
+
+	return 1;
+}
+
+/**
+ * Initialize the container type object methods. */
+void object_type_init_container(void)
+{
+	object_type_methods[CONTAINER].apply_func = apply_func;
 }

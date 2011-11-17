@@ -975,11 +975,9 @@ extern void object_type_init_cone(void);
 /* src/types/confusion.c */
 extern void object_type_init_confusion(void);
 /* src/types/container.c */
-extern int esrv_apply_container(object *op, object *sack);
-extern int container_link(player *pl, object *sack);
-extern int container_unlink(player *pl, object *sack);
-extern void free_container_monster(object *monster, object *op);
 extern int check_magical_container(object *op, object *container);
+extern int container_close(object *applier, object *op);
+extern void object_type_init_container(void);
 /* src/types/creator.c */
 extern void object_type_init_creator(void);
 /* src/types/detector.c */

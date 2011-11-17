@@ -1498,7 +1498,6 @@ int need_identify(object *op)
 		case DRINK:
 		case FLESH:
 		case INORGANIC:
-		case CLOSE_CON:
 		case CLOAK:
 		case GEM:
 		case JEWEL:

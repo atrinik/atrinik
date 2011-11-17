@@ -1547,7 +1547,7 @@ void object_destroy(object *ob)
 
 	if (ob->type == CONTAINER && ob->attacked_by)
 	{
-		container_unlink(NULL, ob);
+		container_close(NULL, ob);
 	}
 
 	/* Remove and free the inventory. */
@@ -1806,7 +1806,7 @@ void remove_ob(object *op)
 	 * we adjust the ->player map variable and the local map player chain. */
 	if (op->type == PLAYER)
 	{
-		struct pl_player *pltemp = CONTR(op);
+		player *pltemp = CONTR(op);
 
 		/* now we remove us from the local map player chain */
 		if (pltemp->map_below)
@@ -1829,7 +1829,7 @@ void remove_ob(object *op)
 		/* An open container NOT in our player inventory = unlink (close) when we move */
 		if (pltemp->container && pltemp->container->env != op)
 		{
-			container_unlink(pltemp, NULL);
+			container_close(op, NULL);
 		}
 	}
 	else if (op->type == MAP_EVENT_OBJ)

@@ -97,6 +97,7 @@ void object_methods_init(void)
 	object_type_init_light_refill();
 	object_type_init_potion();
 	object_type_init_scroll();
+	object_type_init_container();
 }
 
 /** @copydoc object_methods::apply_func */

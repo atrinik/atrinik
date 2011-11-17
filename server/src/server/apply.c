@@ -196,25 +196,25 @@ int manual_apply(object *op, object *tmp, int aflag)
 		if (op->type == PLAYER)
 		{
 			draw_info(COLOR_WHITE, op, "You should pay for it first.");
-			return 1;
+			return OBJECT_METHOD_OK;
 		}
 		/* Monsters just skip unpaid items */
 		else
 		{
-			return 0;
+			return OBJECT_METHOD_UNHANDLED;
 		}
 	}
 
 	/* Monsters must not apply random chests. */
 	if (op->type != PLAYER && tmp->type == TREASURE)
 	{
-		return 0;
+		return OBJECT_METHOD_UNHANDLED;
 	}
 
 	/* Trigger the APPLY event */
 	if (!(aflag & AP_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR))
 	{
-		return 1;
+		return OBJECT_METHOD_OK;
 	}
 
 	/* Trigger the map-wide apply event. */
@@ -222,9 +222,9 @@ int manual_apply(object *op, object *tmp, int aflag)
 	{
 		int retval = trigger_map_event(MEVENT_APPLY, op->map, op, tmp, NULL, NULL, aflag);
 
-		if (retval)
+		if (retval != -1)
 		{
-			return retval - 1;
+			return retval;
 		}
 	}
 
@@ -246,7 +246,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 		if (tmp->item_level > tmp_lev)
 		{
 			draw_info(COLOR_WHITE, op, "The item level is too high to apply.");
-			return 1;
+			return OBJECT_METHOD_OK;
 		}
 	}
 

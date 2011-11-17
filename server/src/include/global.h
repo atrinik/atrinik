@@ -312,7 +312,15 @@ typedef struct linked_char
  * Set object's face by its animation ID.
  * @param ob Object.
  * @param newanim Animation ID to set. */
-#define SET_ANIMATION(ob, newanim) ob->face = &new_faces[animations[ob->animation_id].faces[newanim]]
+#define SET_ANIMATION(ob, newanim) (ob)->face = &new_faces[animations[(ob)->animation_id].faces[(newanim)]]
+/**
+ * Set object's animation depending on its number of animations/facings,
+ * direction and animation state. */
+#define SET_ANIMATION_STATE(ob) \
+if ((ob)->animation_id && NUM_FACINGS((ob))) \
+{ \
+	SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (ob)->direction + (ob)->state); \
+}
 /** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)
 /** Get object's inventory animation ID. */

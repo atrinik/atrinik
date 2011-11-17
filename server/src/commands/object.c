@@ -283,7 +283,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 	if (tmp->type == CONTAINER)
 	{
-		container_unlink(NULL, tmp);
+		container_close(NULL, tmp);
 	}
 
 	/* Trigger the PICKUP event */
@@ -351,7 +351,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 
 	if (tmp->type == CONTAINER)
 	{
-		container_unlink(NULL, tmp);
+		container_close(NULL, tmp);
 	}
 
 	/* Try to catch it. */
@@ -511,7 +511,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (tmp->type == CONTAINER)
 	{
-		container_unlink(NULL, tmp);
+		container_close(NULL, tmp);
 	}
 
 	if (nrof > tmp_nrof || nrof == 0)
@@ -580,7 +580,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 	if (tmp->type == CONTAINER)
 	{
-		container_unlink(NULL, tmp);
+		container_close(NULL, tmp);
 	}
 
 	/* Trigger the DROP event */
@@ -1155,7 +1155,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 	char buf[VERY_BIG_BUF], tmp_buf[64];
 	int i;
 
-	if (tmp == NULL || tmp->type == CLOSE_CON)
+	if (tmp == NULL)
 	{
 		return;
 	}

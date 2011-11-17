@@ -417,9 +417,6 @@
  * Used to store quest information in players. */
 #define QUEST_CONTAINER 120
 /**
- * Id for close_container archetype. */
-#define CLOSE_CON 121
-/**
  * A container. */
 #define CONTAINER 122
 /**

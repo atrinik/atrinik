@@ -339,7 +339,7 @@ void remove_ns_dead_player(player *pl)
 		hiscore_check(pl->ob, 1);
 
 		/* Be sure we have closed container when we leave */
-		container_unlink(pl, NULL);
+		container_close(pl->ob, NULL);
 
 		save_player(pl->ob, 0);
 

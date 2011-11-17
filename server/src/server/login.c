@@ -68,7 +68,7 @@ void emergency_save(int flag)
 			pl->ob->y = -1;
 		}
 
-		container_unlink(pl, NULL);
+		container_close(pl->ob, NULL);
 
 		if (!save_player(pl->ob, flag))
 		{

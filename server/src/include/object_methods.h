@@ -26,9 +26,17 @@
 #ifndef OBJECT_METHODS_H
 #define OBJECT_METHODS_H
 
-#define OBJECT_METHOD_OK 0
-#define OBJECT_METHOD_UNHANDLED 1
+/**
+ * @defgroup OBJECT_METHOD_xxx Object method return values
+ * Object method return values.
+ *@{*/
+/** The object was not handled. */
+#define OBJECT_METHOD_UNHANDLED 0
+/** Successfully handled. */
+#define OBJECT_METHOD_OK 1
+/** Error handling the object. */
 #define OBJECT_METHOD_ERROR 2
+/*@}*/
 
 typedef struct object_methods
 {
