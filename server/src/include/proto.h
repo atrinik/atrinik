@@ -1074,7 +1074,7 @@ extern void object_type_init_playermover(void);
 /* src/types/poisoning.c */
 extern void object_type_init_poisoning(void);
 /* src/types/potion.c */
-extern int apply_potion(object *op, object *tmp);
+extern void object_type_init_potion(void);
 /* src/types/power_crystal.c */
 extern void object_type_init_power_crystal(void);
 /* src/types/rod.c */
