@@ -10,21 +10,9 @@ def main():
 	inf.set_icon("tome_glitter.101")
 	inf.set_title("Eastern Project Music Book")
 
-	options = GetOptions()
-	if options == "say":
+	if GetEventNumber() == EVENT_SAY:
 		inf.dialog_close()
-		info = LocateBeacon("touhou_music_changer").env
-		if msg == "none":
-			info.slaying = "yewtree.mid"
-			info.race = "Centennial"
-		else:
-			info.slaying = msg.strip()
-			info.race = "Centennial (music playing)"
-		map_name = "<b><o=0,0,0>{}</o></b>".format(info.race)
-
-		for player in me.map.GetPlayers():
-			if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:
-				MapStats(player.Controller(), name = map_name, music = info.slaying)
+		MapStats(activator.Controller(), music = me.map.bg_music if msg == "none" else msg)
 	else:
 		inf.add_msg("This book seems strange.  You think the text is glowing for certain words...", COLOR_YELLOW)
 		inf.add_msg("Eastern Project Music Book - Select a theme:")
