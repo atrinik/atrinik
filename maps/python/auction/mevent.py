@@ -33,6 +33,8 @@ def main():
 		SetReturnValue(1)
 	# Apply event, do not allow applying the items in the boxes.
 	elif event == MEVENT_APPLY:
+		SetReturnValue(-1)
+
 		if not is_in_player(other):
 			activator.Write("You cannot do that here.", COLOR_RED)
 			SetReturnValue(OBJECT_METHOD_OK)

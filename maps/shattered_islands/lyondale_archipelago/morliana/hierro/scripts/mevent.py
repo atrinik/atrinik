@@ -7,6 +7,7 @@ def main():
 	# Apply an object.
 	if event_num == MEVENT_APPLY:
 		other = WhoIsOther()
+		SetReturnValue(-1)
 
 		# Do not allow players to apply lights.
 		if activator.type == Type.PLAYER and other.type == Type.LIGHT_APPLY:

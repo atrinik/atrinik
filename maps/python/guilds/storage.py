@@ -76,6 +76,8 @@ def main():
 		if is_in_player(other):
 			return
 
+		SetReturnValue(-1)
+
 		if other.type != Type.CONTAINER and not other.f_no_pick:
 			activator.Write("You must get it first!\n", COLOR_WHITE)
 			SetReturnValue(OBJECT_METHOD_OK)
