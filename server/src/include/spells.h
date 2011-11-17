@@ -323,4 +323,8 @@ enum spellnrs
 /** Maximum number for rolls in spell_attack_missed(). */
 #define SPELL_MISS_ROLL_MAX 35
 
+/**
+ * Get skill ID from spell's ID. */
+#define SPELL_TO_SKILL(spell) (spells[(spell)].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)
+
 #endif
