@@ -25,72 +25,64 @@
 
 /**
  * @file
- * Handles code for @ref SCROLL "scrolls". */
+ * Handles code for @ref SCROLL "scrolls".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
-/**
- * Apply a scroll.
- * @param op Object applying the scroll.
- * @param tmp The scroll. */
-void apply_scroll(object *op, object *tmp)
+/** @copydoc object_methods::apply_func */
+static int apply_func(object *applier, object *op, int aflags)
 {
-	int scroll_spell = tmp->stats.sp, old_spell = 0;
-	rangetype old_shoot = range_none;
+	(void) aflags;
 
-	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ))
+	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ))
 	{
-		draw_info(COLOR_WHITE, op, "You are unable to read while blind.");
-		return;
+		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
+		return OBJECT_METHOD_OK;
 	}
 
-	if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED))
+	if (!QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
-		identify(tmp);
+		identify(op);
 	}
 
-	if (scroll_spell < 0 || scroll_spell >= NROFREALSPELLS)
+	if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS)
 	{
-		draw_info(COLOR_WHITE, op, "The scroll just doesn't make sense!");
-		return;
+		draw_info(COLOR_WHITE, applier, "The scroll just doesn't make sense!");
+		return OBJECT_METHOD_OK;
 	}
 
-	if (op->type == PLAYER)
+	if (applier->type == PLAYER)
 	{
-		/* players need a literacy skill to read stuff! */
-		if (!change_skill(op, SK_LITERACY))
+		/* Players need a literacy skill to read scrolls. */
+		if (!change_skill(applier, SK_LITERACY))
 		{
-			draw_info(COLOR_WHITE, op, "You are unable to decipher the strange symbols.");
-			return;
+			draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+			return OBJECT_METHOD_OK;
 		}
 
-		/* that's new: literacy for reading but a player need also the
-		 * right spellcasting spell. Reason: the exp goes then in that
-		 * skill. This makes scroll different from wands or potions. */
-		if (!change_skill(op, (spells[scroll_spell].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)))
+		/* Also need the appropriate skill for the scroll's spell. */
+		if (!change_skill(applier, SPELL_TO_SKILL(op->stats.sp)))
 		{
-			draw_info(COLOR_WHITE, op, "You can read the scroll but you don't understand it.");
-			return;
+			draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
+			return OBJECT_METHOD_OK;
 		}
 
-		/* Now, call here so the right skill is readied -- literacy
-		 * isn't necessarily connected to the exp obj to which the xp
-		 * will go (for kills made by the magic of the scroll)  */
-		old_shoot = CONTR(op)->shoottype;
-		old_spell = CONTR(op)->chosen_spell;
-		CONTR(op)->shoottype = range_scroll;
-		CONTR(op)->chosen_spell = scroll_spell;
-		CONTR(op)->stat_scrolls_used++;
+		CONTR(applier)->stat_scrolls_used++;
 	}
 
-	draw_info_format(COLOR_WHITE, op, "The scroll of %s turns to dust.", spells[tmp->stats.sp].name);
+	draw_info_format(COLOR_WHITE, applier, "The scroll of %s turns to dust.", spells[op->stats.sp].name);
 
-	cast_spell(op, tmp, op->facing ? op->facing : 4, scroll_spell, 0, CAST_SCROLL, NULL);
-	decrease_ob(tmp);
+	cast_spell(applier, op, applier->facing ? applier->facing : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
+	decrease_ob(op);
 
-	if (op->type == PLAYER)
-	{
-		CONTR(op)->shoottype = old_shoot;
-		CONTR(op)->chosen_spell = old_spell;
-	}
+	return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the scroll type object methods. */
+void object_type_init_scroll(void)
+{
+	object_type_methods[SCROLL].apply_func = apply_func;
 }

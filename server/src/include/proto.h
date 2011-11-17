@@ -1084,7 +1084,7 @@ extern void object_type_init_rod(void);
 /* src/types/savebed.c */
 extern void object_type_init_savebed(void);
 /* src/types/scroll.c */
-extern void apply_scroll(object *op, object *tmp);
+extern void object_type_init_scroll(void);
 /* src/types/shop_mat.c */
 extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
