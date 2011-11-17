@@ -78,10 +78,10 @@ def main():
 
 		if other.type != Type.CONTAINER and not other.f_no_pick:
 			activator.Write("You must get it first!\n", COLOR_WHITE)
-			SetReturnValue(2)
+			SetReturnValue(OBJECT_METHOD_OK)
 		elif other.type == Type.CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
 			activator.Write("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
-			SetReturnValue(2)
+			SetReturnValue(OBJECT_METHOD_OK)
 	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
 		if not activator.f_wiz and not guild.member_is_admin(activator.name):
 			activator.Write("You cannot use that command here.", COLOR_RED)
