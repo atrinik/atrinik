@@ -491,3 +491,10 @@ void waypoint_move(object *op, object *waypoint)
 		}
 	}
 }
+
+/**
+ * Initialize the waypoint type object methods. */
+void object_type_init_waypoint(void)
+{
+}
+

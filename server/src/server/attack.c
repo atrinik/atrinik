@@ -1504,7 +1504,7 @@ static int adj_attackroll(object *hitter, object *target)
  * @return 1 if aimed missile, 0 otherwise. */
 static int is_aimed_missile(object *op)
 {
-	if (op && QUERY_FLAG(op, FLAG_FLYING) && (op->type == ARROW || op->type == THROWN_OBJ))
+	if (op && QUERY_FLAG(op, FLAG_FLYING) && op->type == ARROW)
 	{
 		return 1;
 	}

@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Handles code used for @ref PLAYERMOVER "player movers".
+ * Handles code used for @ref PLAYER_MOVER "player movers".
  *
  * @author Alex Tokar */
 
@@ -97,7 +97,7 @@ static void process_func(object *op)
 					/* Only disable movers that didn't go this tick yet;
 					 * otherwise they wouldn't trigger on the next tick to
 					 * move objects they may have on top of them. */
-					if (nextmover->type == PLAYERMOVER && nextmover->value != op->value)
+					if (nextmover->type == PLAYER_MOVER && nextmover->value != op->value)
 					{
 						nextmover->speed_left--;
 					}
@@ -149,8 +149,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the playermover type object methods. */
-void object_type_init_playermover(void)
+ * Initialize the player mover type object methods. */
+void object_type_init_player_mover(void)
 {
-	object_type_methods[PLAYERMOVER].process_func = process_func;
+	object_type_methods[PLAYER_MOVER].process_func = process_func;
 }

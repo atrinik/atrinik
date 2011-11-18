@@ -79,3 +79,9 @@ void map_info_init(object *info)
 		}
 	}
 }
+
+/**
+ * Initialize the map info type object methods. */
+void object_type_init_map_info(void)
+{
+}

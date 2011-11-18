@@ -68,3 +68,9 @@ const char *gravestone_text(object *op)
 
 	return buf2;
 }
+
+/**
+ * Initialize the gravestone type object methods. */
+void object_type_init_gravestone(void)
+{
+}

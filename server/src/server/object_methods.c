@@ -58,62 +58,109 @@ void object_methods_init(void)
 		object_type_methods[i].fallback = &object_methods_base;
 	}
 
-	object_type_init_book();
-	object_type_init_rod();
-	object_type_init_spawn_point();
-	object_type_init_door();
-	object_type_init_shop_mat();
-	object_type_init_detector();
-	object_type_init_cone();
-	object_type_init_lightning();
-	object_type_init_bullet();
-	object_type_init_teleporter();
-	object_type_init_duplicator();
-	object_type_init_marker();
-	object_type_init_swarm_spell();
-	object_type_init_creator();
-	object_type_init_sign();
-	object_type_init_playermover();
-	object_type_init_firewall();
-	object_type_init_poisoning();
-	object_type_init_confusion();
-	object_type_init_blindness();
-	object_type_init_word_of_recall();
-	object_type_init_button();
-	object_type_init_pedestal();
-	object_type_init_handle();
-	object_type_init_director();
-	object_type_init_gate();
-	object_type_init_check_inv();
-	object_type_init_monster();
-	object_type_init_exit();
-	object_type_init_holy_altar();
-	object_type_init_compass();
-	object_type_init_power_crystal();
-	object_type_init_savebed();
-	object_type_init_clock();
-	object_type_init_food();
-	object_type_init_light_apply();
-	object_type_init_light_refill();
-	object_type_init_potion();
-	object_type_init_scroll();
-	object_type_init_container();
+	object_type_init_ability();
 	object_type_init_amulet();
 	object_type_init_armour();
+	object_type_init_arrow();
+	object_type_init_base_info();
+	object_type_init_beacon();
+	object_type_init_blindness();
+	object_type_init_book();
 	object_type_init_boots();
 	object_type_init_bow();
 	object_type_init_bracers();
+	object_type_init_bullet();
+	object_type_init_button();
+	object_type_init_check_inv();
+	object_type_init_class();
+	object_type_init_client_map_info();
 	object_type_init_cloak();
+	object_type_init_clock();
+	object_type_init_compass();
+	object_type_init_cone();
+	object_type_init_confusion();
+	object_type_init_container();
+	object_type_init_corpse();
+	object_type_init_creator();
+	object_type_init_dead_object();
+	object_type_init_detector();
+	object_type_init_director();
+	object_type_init_disease();
+	object_type_init_door();
+	object_type_init_drink();
+	object_type_init_duplicator();
+	object_type_init_event_obj();
+	object_type_init_exit();
+	object_type_init_experience();
+	object_type_init_firewall();
+	object_type_init_flesh();
+	object_type_init_floor();
+	object_type_init_food();
+	object_type_init_force();
+	object_type_init_gate();
+	object_type_init_gem();
 	object_type_init_girdle();
 	object_type_init_gloves();
+	object_type_init_god();
+	object_type_init_gravestone();
+	object_type_init_handle();
 	object_type_init_helmet();
+	object_type_init_holy_altar();
 	object_type_init_horn();
+	object_type_init_inorganic();
+	object_type_init_jewel();
+	object_type_init_key();
+	object_type_init_light_apply();
+	object_type_init_lightning();
+	object_type_init_light_refill();
+	object_type_init_light_source();
+	object_type_init_magic_mirror();
+	object_type_init_map();
+	object_type_init_map_event_obj();
+	object_type_init_map_info();
+	object_type_init_marker();
+	object_type_init_material();
+	object_type_init_misc_object();
+	object_type_init_money();
+	object_type_init_monster();
+	object_type_init_nugget();
+	object_type_init_organic();
+	object_type_init_pearl();
+	object_type_init_pedestal();
+	object_type_init_player();
+	object_type_init_player_mover();
+	object_type_init_poisoning();
+	object_type_init_potion();
+	object_type_init_potion_effect();
+	object_type_init_power_crystal();
+	object_type_init_quest_container();
+	object_type_init_random_drop();
 	object_type_init_ring();
+	object_type_init_rod();
+	object_type_init_rune();
+	object_type_init_savebed();
+	object_type_init_scroll();
 	object_type_init_shield();
+	object_type_init_shop_floor();
+	object_type_init_shop_mat();
+	object_type_init_sign();
 	object_type_init_skill();
 	object_type_init_skill_item();
+	object_type_init_sound_ambient();
+	object_type_init_spawn_point();
+	object_type_init_spawn_point_info();
+	object_type_init_spawn_point_mob();
+	object_type_init_spinner();
+	object_type_init_swarm_spell();
+	object_type_init_symptom();
+	object_type_init_teleporter();
+	object_type_init_treasure();
+	object_type_init_wall();
 	object_type_init_wand();
+	object_type_init_waypoint();
+	object_type_init_wealth();
 	object_type_init_weapon();
+	object_type_init_word_of_recall();
 }
 
 /** @copydoc object_methods::apply_func */
@@ -268,20 +315,6 @@ object *stop_item(object *op)
 
 	switch (op->type)
 	{
-		case THROWN_OBJ:
-		{
-			object *payload = op->inv;
-
-			if (payload == NULL)
-			{
-				return NULL;
-			}
-
-			remove_ob(payload);
-			remove_ob(op);
-			return payload;
-		}
-
 		case ARROW:
 			if (op->speed >= MIN_ACTIVE_SPEED)
 			{

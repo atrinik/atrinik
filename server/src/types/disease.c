@@ -762,3 +762,9 @@ int reduce_symptoms(object *sufferer, int reduction)
 
 	return success;
 }
+
+/**
+ * Initialize the disease type object methods. */
+void object_type_init_disease(void)
+{
+}

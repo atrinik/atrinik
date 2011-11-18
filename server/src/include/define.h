@@ -178,9 +178,6 @@
  * Pedestal. */
 #define PEDESTAL 17
 /**
- * Altar. */
-#define ALTAR 18
-/**
  * Confusion force. */
 #define CONFUSION 19
 /**
@@ -190,9 +187,6 @@
  * Key to unlock @ref DOOR "a locked door". */
 #define KEY 21
 #define MAP 22
-/**
- * Magic missile. */
-#define MMISSILE 25
 /**
  * A magic mirror which allows you to see objects on a different coordinate. */
 #define MAGIC_MIRROR 28
@@ -219,7 +213,7 @@
 #define AMULET 39
 /**
  * Player mover. */
-#define PLAYERMOVER 40
+#define PLAYER_MOVER 40
 /**
  * Teleporter. */
 #define TELEPORTER 41
@@ -232,9 +226,6 @@
 /**
  * An experience object. */
 #define EXPERIENCE 44
-/**
- * Thrown object. */
-#define THROWN_OBJ 48
 /**
  * Blindness force object. */
 #define BLINDNESS 49
@@ -812,9 +803,9 @@
 /** Is this object alive? */
 #define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER))
 /** Is it an arrow? */
-#define IS_ARROW(op) (op->type == ARROW || op->type == MMISSILE || op->type == BULLET)
+#define IS_ARROW(op) (op->type == ARROW || op->type == BULLET)
 /** Determine whether the object is an attack spell. */
-#define IS_ATTACK_SPELL(op) ((op)->type == MMISSILE || (op)->type == BULLET || (op)->type == CONE || (op)->type == LIGHTNING)
+#define IS_ATTACK_SPELL(op) ((op)->type == BULLET || (op)->type == CONE || (op)->type == LIGHTNING)
 /*@}*/
 
 /**

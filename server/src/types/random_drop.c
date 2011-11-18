@@ -25,37 +25,14 @@
 
 /**
  * @file
- * Handles @ref SOUND_AMBIENT "ambient sound effect" objects. */
+ * Handles code for @ref RANDOM_DROP "random drops".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
 /**
- * Initialize ambient sound effect object.
- * @param ob The object to initialize. */
-void sound_ambient_init(object *ob)
-{
-	MapSpace *msp;
-
-	/* Must be on map... */
-	if (!ob->map)
-	{
-		LOG(llevBug, "Ambient sound effect object not on map.\n");
-		return;
-	}
-
-	if (!ob->race || *ob->race == '\0')
-	{
-		LOG(llevBug, "Ambient sound effect object is missing sound effect filename.\n");
-		return;
-	}
-
-	msp = GET_MAP_SPACE_PTR(ob->map, ob->x, ob->y);
-	msp->sound_ambient = ob;
-	msp->sound_ambient_count = ob->count;
-}
-
-/**
- * Initialize the ambient sound type object methods. */
-void object_type_init_sound_ambient(void)
+ * Initialize the random drop type object methods. */
+void object_type_init_random_drop(void)
 {
 }

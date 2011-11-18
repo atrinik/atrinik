@@ -128,3 +128,9 @@ mapstruct *magic_mirror_get_map(object *mirror)
 
 	return data->map;
 }
+
+/**
+ * Initialize the magic mirror type object methods. */
+void object_type_init_magic_mirror(void)
+{
+}

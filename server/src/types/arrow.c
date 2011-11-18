@@ -502,3 +502,9 @@ void stop_arrow(object *op)
 		merge_ob(op, NULL);
 	}
 }
+
+/**
+ * Initialize the arrow type object methods. */
+void object_type_init_arrow(void)
+{
+}

@@ -941,6 +941,8 @@ extern int common_object_apply_item(object *op, object *applier, int aflags);
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
 /* src/types/common/process.c */
 extern int common_object_process(object *op);
+/* src/types/ability.c */
+extern void object_type_init_ability(void);
 /* src/types/amulet.c */
 extern void object_type_init_amulet(void);
 /* src/types/armour.c */
@@ -955,10 +957,14 @@ extern void bow_fire(object *op, int dir);
 extern object *fix_stopped_arrow(object *op);
 extern void move_arrow(object *op);
 extern void stop_arrow(object *op);
+extern void object_type_init_arrow(void);
+/* src/types/base_info.c */
+extern void object_type_init_base_info(void);
 /* src/types/beacon.c */
 extern void beacon_add(object *ob);
 extern void beacon_remove(object *ob);
 extern object *beacon_locate(shstr *name);
+extern void object_type_init_beacon(void);
 /* src/types/blindness.c */
 extern void object_type_init_blindness(void);
 /* src/types/book.c */
@@ -977,6 +983,10 @@ extern void object_type_init_button(void);
 /* src/types/check_inv.c */
 extern object *check_inv(object *op, object *ob);
 extern void object_type_init_check_inv(void);
+/* src/types/class.c */
+extern void object_type_init_class(void);
+/* src/types/client_map_info.c */
+extern void object_type_init_client_map_info(void);
 /* src/types/cloak.c */
 extern void object_type_init_cloak(void);
 /* src/types/clock.c */
@@ -991,8 +1001,12 @@ extern void object_type_init_confusion(void);
 extern int check_magical_container(object *op, object *container);
 extern int container_close(object *applier, object *op);
 extern void object_type_init_container(void);
+/* src/types/corpse.c */
+extern void object_type_init_corpse(void);
 /* src/types/creator.c */
 extern void object_type_init_creator(void);
+/* src/types/dead_object.c */
+extern void object_type_init_dead_object(void);
 /* src/types/detector.c */
 extern void object_type_init_detector(void);
 /* src/types/director.c */
@@ -1004,26 +1018,44 @@ extern void move_symptom(object *symptom);
 extern void check_physically_infect(object *victim, object *hitter);
 extern int cure_disease(object *sufferer, object *caster);
 extern int reduce_symptoms(object *sufferer, int reduction);
+extern void object_type_init_disease(void);
 /* src/types/door.c */
 extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
 extern object *find_key(object *op, object *door);
 extern void object_type_init_door(void);
+/* src/types/drink.c */
+extern void object_type_init_drink(void);
 /* src/types/duplicator.c */
 extern void object_type_init_duplicator(void);
+/* src/types/event_obj.c */
+extern void object_type_init_event_obj(void);
 /* src/types/exit.c */
 extern void object_type_init_exit(void);
+/* src/types/experience.c */
+extern void object_type_init_experience(void);
 /* src/types/firewall.c */
 extern void object_type_init_firewall(void);
+/* src/types/flesh.c */
+extern void object_type_init_flesh(void);
+/* src/types/floor.c */
+extern void object_type_init_floor(void);
 /* src/types/food.c */
 extern void object_type_init_food(void);
+/* src/types/force.c */
+extern void object_type_init_force(void);
 /* src/types/gate.c */
 extern void object_type_init_gate(void);
+/* src/types/gem.c */
+extern void object_type_init_gem(void);
 /* src/types/girdle.c */
 extern void object_type_init_girdle(void);
 /* src/types/gloves.c */
 extern void object_type_init_gloves(void);
+/* src/types/god.c */
+extern void object_type_init_god(void);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
+extern void object_type_init_gravestone(void);
 /* src/types/handle.c */
 extern void object_type_init_handle(void);
 /* src/types/helmet.c */
@@ -1032,20 +1064,40 @@ extern void object_type_init_helmet(void);
 extern void object_type_init_holy_altar(void);
 /* src/types/horn.c */
 extern void object_type_init_horn(void);
+/* src/types/inorganic.c */
+extern void object_type_init_inorganic(void);
+/* src/types/jewel.c */
+extern void object_type_init_jewel(void);
+/* src/types/key.c */
+extern void object_type_init_key(void);
 /* src/types/light_apply.c */
 extern void object_type_init_light_apply(void);
-/* src/types/light_refill.c */
-extern void object_type_init_light_refill(void);
 /* src/types/lightning.c */
 extern void object_type_init_lightning(void);
+/* src/types/light_refill.c */
+extern void object_type_init_light_refill(void);
+/* src/types/light_source.c */
+extern void object_type_init_light_source(void);
 /* src/types/magic_mirror.c */
 extern void magic_mirror_init(object *mirror);
 extern void magic_mirror_deinit(object *mirror);
 extern mapstruct *magic_mirror_get_map(object *mirror);
+extern void object_type_init_magic_mirror(void);
+/* src/types/map.c */
+extern void object_type_init_map(void);
+/* src/types/map_event_obj.c */
+extern void object_type_init_map_event_obj(void);
 /* src/types/map_info.c */
 extern void map_info_init(object *info);
+extern void object_type_init_map_info(void);
 /* src/types/marker.c */
 extern void object_type_init_marker(void);
+/* src/types/material.c */
+extern void object_type_init_material(void);
+/* src/types/misc_object.c */
+extern void object_type_init_misc_object(void);
+/* src/types/money.c */
+extern void object_type_init_money(void);
 /* src/types/monster.c */
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern object *check_enemy(object *npc, rv_vector *rv);
@@ -1057,6 +1109,12 @@ extern int faction_is_friend_of(object *mon, object *pl);
 extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
+/* src/types/nugget.c */
+extern void object_type_init_nugget(void);
+/* src/types/organic.c */
+extern void object_type_init_organic(void);
+/* src/types/pearl.c */
+extern void object_type_init_pearl(void);
 /* src/types/pedestal.c */
 extern int pedestal_matches_obj(object *op, object *tmp);
 extern void object_type_init_pedestal(void);
@@ -1088,26 +1146,37 @@ extern void player_path_handle(player *pl);
 extern sint64 player_faction_reputation(player *pl, shstr *faction);
 extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
 extern int player_has_region_map(player *pl, region *r);
+extern void object_type_init_player(void);
 /* src/types/player_mover.c */
-extern void object_type_init_playermover(void);
+extern void object_type_init_player_mover(void);
 /* src/types/poisoning.c */
 extern void object_type_init_poisoning(void);
 /* src/types/potion.c */
 extern void object_type_init_potion(void);
+/* src/types/potion_effect.c */
+extern void object_type_init_potion_effect(void);
 /* src/types/power_crystal.c */
 extern void object_type_init_power_crystal(void);
+/* src/types/quest_container.c */
+extern void object_type_init_quest_container(void);
+/* src/types/random_drop.c */
+extern void object_type_init_random_drop(void);
 /* src/types/ring.c */
 extern void object_type_init_ring(void);
 /* src/types/rod.c */
 extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
 extern void object_type_init_rod(void);
+/* src/types/rune.c */
+extern void object_type_init_rune(void);
 /* src/types/savebed.c */
 extern void object_type_init_savebed(void);
 /* src/types/scroll.c */
 extern void object_type_init_scroll(void);
 /* src/types/shield.c */
 extern void object_type_init_shield(void);
+/* src/types/shop_floor.c */
+extern void object_type_init_shop_floor(void);
 /* src/types/shop_mat.c */
 extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
@@ -1118,12 +1187,25 @@ extern void object_type_init_skill(void);
 extern void object_type_init_skill_item(void);
 /* src/types/sound_ambient.c */
 extern void sound_ambient_init(object *ob);
+extern void object_type_init_sound_ambient(void);
 /* src/types/spawn_point.c */
 extern void object_type_init_spawn_point(void);
+/* src/types/spawn_point_info.c */
+extern void object_type_init_spawn_point_info(void);
+/* src/types/spawn_point_mob.c */
+extern void object_type_init_spawn_point_mob(void);
+/* src/types/spinner.c */
+extern void object_type_init_spinner(void);
 /* src/types/swarm_spell.c */
 extern void object_type_init_swarm_spell(void);
+/* src/types/symptom.c */
+extern void object_type_init_symptom(void);
 /* src/types/teleporter.c */
 extern void object_type_init_teleporter(void);
+/* src/types/treasure.c */
+extern void object_type_init_treasure(void);
+/* src/types/wall.c */
+extern void object_type_init_wall(void);
 /* src/types/wand.c */
 extern void object_type_init_wand(void);
 /* src/types/waypoint.c */
@@ -1132,6 +1214,9 @@ extern object *get_aggro_waypoint(object *op);
 extern object *get_return_waypoint(object *op);
 extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
+extern void object_type_init_waypoint(void);
+/* src/types/wealth.c */
+extern void object_type_init_wealth(void);
 /* src/types/weapon.c */
 extern void object_type_init_weapon(void);
 /* src/types/word_of_recall.c */

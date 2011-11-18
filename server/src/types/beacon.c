@@ -94,3 +94,9 @@ object *beacon_locate(shstr *name)
 
 	return NULL;
 }
+
+/**
+ * Initialize the beacon type object methods. */
+void object_type_init_beacon(void)
+{
+}

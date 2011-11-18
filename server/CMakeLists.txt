@@ -249,9 +249,11 @@ set(SOURCES
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/process.c
+	src/types/ability.c
 	src/types/amulet.c
 	src/types/armour.c
 	src/types/arrow.c
+	src/types/base_info.c
 	src/types/beacon.c
 	src/types/blindness.c
 	src/types/book.c
@@ -261,57 +263,93 @@ set(SOURCES
 	src/types/bullet.c
 	src/types/button.c
 	src/types/check_inv.c
+	src/types/class.c
+	src/types/client_map_info.c
 	src/types/cloak.c
 	src/types/clock.c
 	src/types/compass.c
 	src/types/cone.c
 	src/types/confusion.c
 	src/types/container.c
+	src/types/corpse.c
 	src/types/creator.c
+	src/types/dead_object.c
 	src/types/detector.c
 	src/types/director.c
 	src/types/disease.c
 	src/types/door.c
+	src/types/drink.c
 	src/types/duplicator.c
+	src/types/event_obj.c
 	src/types/exit.c
+	src/types/experience.c
 	src/types/firewall.c
+	src/types/flesh.c
+	src/types/floor.c
 	src/types/food.c
+	src/types/force.c
 	src/types/gate.c
+	src/types/gem.c
 	src/types/girdle.c
 	src/types/gloves.c
+	src/types/god.c
 	src/types/gravestone.c
 	src/types/handle.c
 	src/types/helmet.c
 	src/types/holy_altar.c
 	src/types/horn.c
+	src/types/inorganic.c
+	src/types/jewel.c
+	src/types/key.c
 	src/types/light_apply.c
-	src/types/light_refill.c
 	src/types/lightning.c
+	src/types/light_refill.c
+	src/types/light_source.c
 	src/types/magic_mirror.c
+	src/types/map.c
+	src/types/map_event_obj.c
 	src/types/map_info.c
 	src/types/marker.c
+	src/types/material.c
+	src/types/misc_object.c
+	src/types/money.c
 	src/types/monster.c
+	src/types/nugget.c
+	src/types/organic.c
+	src/types/pearl.c
 	src/types/pedestal.c
 	src/types/player.c
 	src/types/player_mover.c
 	src/types/poisoning.c
 	src/types/potion.c
+	src/types/potion_effect.c
 	src/types/power_crystal.c
+	src/types/quest_container.c
+	src/types/random_drop.c
 	src/types/ring.c
 	src/types/rod.c
+	src/types/rune.c
 	src/types/savebed.c
 	src/types/scroll.c
 	src/types/shield.c
+	src/types/shop_floor.c
 	src/types/shop_mat.c
 	src/types/sign.c
 	src/types/skill.c
 	src/types/skill_item.c
 	src/types/sound_ambient.c
 	src/types/spawn_point.c
+	src/types/spawn_point_info.c
+	src/types/spawn_point_mob.c
+	src/types/spinner.c
 	src/types/swarm_spell.c
+	src/types/symptom.c
 	src/types/teleporter.c
+	src/types/treasure.c
+	src/types/wall.c
 	src/types/wand.c
 	src/types/waypoint.c
+	src/types/wealth.c
 	src/types/weapon.c
 	src/types/word_of_recall.c)
 

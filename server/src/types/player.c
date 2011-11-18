@@ -1887,3 +1887,9 @@ int player_has_region_map(player *pl, region *r)
 
 	return 0;
 }
+
+/**
+ * Initialize the player type object methods. */
+void object_type_init_player(void)
+{
+}
