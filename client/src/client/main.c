@@ -189,7 +189,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"button_rect.png", PIC_TYPE_DEFAULT},
 	{"button_rect_hover.png", PIC_TYPE_DEFAULT},
 	{"button_rect_down.png", PIC_TYPE_DEFAULT},
-	{"map_marker.png", PIC_TYPE_DEFAULT},
+	{"map_marker.png", PIC_TYPE_ALPHA},
 	{"loading_off.png", PIC_TYPE_DEFAULT},
 	{"loading_on.png", PIC_TYPE_DEFAULT},
 	{"button.png", PIC_TYPE_ALPHA},

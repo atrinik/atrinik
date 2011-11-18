@@ -77,6 +77,9 @@ static scrollbar_info_struct scrollbar_horizontal_info;
  * Long name of the currently displayed region. */
 static char region_name[HUGE_BUF];
 /**
+ * Player's facing direction. */
+static int player_direction;
+/**
  * Whether the region map is being dragged with the mouse. */
 static uint8 region_map_dragging = 0;
 
@@ -562,10 +565,14 @@ static int popup_draw_func_post(popup_struct *popup)
 		/* Valid map? */
 		if (map)
 		{
+			SDL_Surface *marker_rotated;
+
+			marker_rotated = rotozoomSurface(Bitmaps[BITMAP_MAP_MARKER]->bitmap, -((player_direction - 1) * 45), 1.0, 1);
 			/* Calculate the player's marker position. */
-			marker.x = map->xpos + current_x * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->w / 2 + rm_def->pixel_size / 2;
-			marker.y = map->ypos + current_y * rm_def->pixel_size - Bitmaps[BITMAP_MAP_MARKER]->bitmap->h + rm_def->pixel_size;
-			SDL_BlitSurface(Bitmaps[BITMAP_MAP_MARKER]->bitmap, NULL, region_map_png, &marker);
+			marker.x = map->xpos + current_x * rm_def->pixel_size - marker_rotated->w / 2 + rm_def->pixel_size / 2;
+			marker.y = map->ypos + current_y * rm_def->pixel_size - marker_rotated->h / 2 + rm_def->pixel_size / 2;
+			SDL_BlitSurface(marker_rotated, NULL, region_map_png, &marker);
+			SDL_FreeSurface(marker_rotated);
 
 			/* Center the map on the player. */
 			region_map_pos.x = (map->xpos + current_x * rm_def->pixel_size) - region_map_pos.w / 2;
@@ -836,10 +843,12 @@ void RegionMapCmd(uint8 *data, int len)
 	if (cpl.server_socket_version >= 1058)
 	{
 		GetString_String(data, &pos, region_name, sizeof(region_name));
+		player_direction = data[pos++];
 	}
 	else
 	{
 		region_name[0] = '\0';
+		player_direction = 1;
 	}
 
 	/* Rest of the data packet may be labels/tooltips/etc. */
