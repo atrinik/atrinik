@@ -544,11 +544,6 @@ void enter_exit(object *op, object *exit_ob)
 	/* First, lets figure out what map we go */
 	if (exit_ob)
 	{
-		if (exit_ob->stats.dam && op->type == PLAYER)
-		{
-			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
-		}
-
 		/* check to see if we make a randomly generated map */
 		if (EXIT_PATH(exit_ob) && EXIT_PATH(exit_ob)[1] == '!')
 		{
@@ -707,6 +702,11 @@ void enter_exit(object *op, object *exit_ob)
 			}
 
 			enter_map(op, newmap, x, y, QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
+		}
+
+		if (exit_ob->stats.dam && op->type == PLAYER)
+		{
+			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 		}
 	}
 	else if (op->type == PLAYER)
