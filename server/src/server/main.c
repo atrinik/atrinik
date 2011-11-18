@@ -544,6 +544,11 @@ void enter_exit(object *op, object *exit_ob)
 	/* First, lets figure out what map we go */
 	if (exit_ob)
 	{
+		if (exit_ob->stats.dam && op->type == PLAYER)
+		{
+			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
+		}
+
 		/* check to see if we make a randomly generated map */
 		if (EXIT_PATH(exit_ob) && EXIT_PATH(exit_ob)[1] == '!')
 		{
@@ -621,13 +626,6 @@ void enter_exit(object *op, object *exit_ob)
 					else
 					{
 						enter_player_savebed(op);
-					}
-
-					/* For exits that cause damages (like pits).  Don't know if any
-					 * random maps use this or not. */
-					if (exit_ob->stats.dam && op->type == PLAYER)
-					{
-						hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 					}
 
 					return;
@@ -709,12 +707,6 @@ void enter_exit(object *op, object *exit_ob)
 			}
 
 			enter_map(op, newmap, x, y, QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
-		}
-
-		/* For exits that cause damage (like pits) */
-		if (exit_ob->stats.dam && op->type == PLAYER)
-		{
-			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 		}
 	}
 	else if (op->type == PLAYER)
