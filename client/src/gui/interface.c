@@ -45,7 +45,7 @@ static UT_array *history = NULL;
 static button_struct button_hello, button_close;
 /**
  * Character shortcuts for links. */
-static const char character_shortcuts[] = "123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM[]{}<>/?~!@#$%^&*()";
+static const char character_shortcuts[] = "123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM{}<>/?~!@#$%^&*()";
 
 /**
  * Destroy the interface data, if any. */
