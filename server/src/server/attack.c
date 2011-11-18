@@ -1098,7 +1098,7 @@ object *hit_with_arrow(object *op, object *victim)
 	{
 		container = op;
 		hitter = op->inv;
-		remove_ob(hitter);
+		object_remove(hitter, 0);
 		insert_ob_in_map(hitter, container->map, hitter, INS_NO_MERGE | INS_NO_WALK_ON);
 	}
 	else
@@ -1132,7 +1132,7 @@ object *hit_with_arrow(object *op, object *victim)
 	{
 		if (container)
 		{
-			remove_ob(container);
+			object_remove(container, 0);
 		}
 
 		return NULL;
@@ -1143,7 +1143,7 @@ object *hit_with_arrow(object *op, object *victim)
 	{
 		if (container)
 		{
-			remove_ob(container);
+			object_remove(container, 0);
 		}
 
 		hitter = fix_stopped_arrow(hitter);
@@ -1160,7 +1160,7 @@ object *hit_with_arrow(object *op, object *victim)
 		/* Else try to put arrow on victim's map square */
 		if ((victim_x != hitter->x || victim_y != hitter->y))
 		{
-			remove_ob(hitter);
+			object_remove(hitter, 0);
 			hitter->x = victim_x;
 			hitter->y = victim_y;
 			insert_ob_in_map(hitter, victim_map, hitter, 0);
@@ -1178,7 +1178,7 @@ object *hit_with_arrow(object *op, object *victim)
 	if (container)
 	{
 		/* Technical remove, no walk check */
-		remove_ob(hitter);
+		object_remove(hitter, 0);
 		insert_ob_in_ob(hitter, container);
 	}
 

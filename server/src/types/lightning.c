@@ -173,7 +173,7 @@ static void process_func(object *op)
 
 	if (op->stats.food == 0)
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		op->x = op->x + DIRX(op);
 		op->y = op->y + DIRY(op);
 		op = insert_ob_in_map(op, op->map, op, 0);

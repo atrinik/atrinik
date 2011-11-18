@@ -153,7 +153,7 @@ materialtype materials[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
-static void remove_ob_inv(object *op);
+static void object_remove_inv(object *op);
 
 /**
  * Initialize materials from file. */
@@ -1402,7 +1402,7 @@ void drop_ob_inv(object *ob)
 	{
 		tmp = tmp_op->below;
 		/* Inv-no check off / This will be destroyed in next loop of object_gc() */
-		remove_ob(tmp_op);
+		object_remove(tmp_op, 0);
 
 		if (tmp_op->type == QUEST_CONTAINER)
 		{
@@ -1509,7 +1509,7 @@ static void object_destroy_inv(object *ob)
 			object_destroy_inv(tmp);
 		}
 
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 	}
 }
 
@@ -1517,7 +1517,7 @@ static void object_destroy_inv(object *ob)
  * Cleanups and frees everything allocated by an object and gives the
  * memory back to the object mempool.
  *
- * @note The object must have been removed by remove_ob() first.
+ * @note The object must have been removed by object_remove() first.
  * @param ob The object to destroy (free). */
 void object_destroy(object *ob)
 {
@@ -1545,7 +1545,7 @@ void object_destroy(object *ob)
 	}
 
 	/* Remove and free the inventory. */
-	remove_ob_inv(ob);
+	object_remove_inv(ob);
 	object_destroy_inv(ob);
 
 	/* Remove object from the active list. */
@@ -1606,7 +1606,7 @@ void destruct_ob(object *op)
 		drop_ob_inv(op);
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 	object_destroy(op);
 }
 
@@ -1840,30 +1840,25 @@ void object_remove(object *op, int flags)
 	}
 }
 
-void remove_ob(object *op)
-{
-	object_remove(op, 0);
-}
-
 /**
  * Recursively remove the inventory of an object.
  * @param op Object. */
-static void remove_ob_inv(object *op)
+static void object_remove_inv(object *op)
 {
 	object *tmp, *tmp2;
 
 	for (tmp = op->inv; tmp; tmp = tmp2)
 	{
-		/* Save pointer, gets NULL in remove_ob */
+		/* Save pointer, gets NULL in object_remove */
 		tmp2 = tmp->below;
 
 		if (tmp->inv)
 		{
-			remove_ob_inv(tmp);
+			object_remove_inv(tmp);
 		}
 
 		/* No map, no check off */
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 	}
 }
 
@@ -1966,7 +1961,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 			if (CAN_MERGE(op, tmp))
 			{
 				op->nrof += tmp->nrof;
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 				object_destroy(tmp);
 				break;
 			}
@@ -2155,7 +2150,7 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
 	{
 		if (!strcmp(tmp->arch->name, arch_string))
 		{
-			remove_ob(tmp);
+			object_remove(tmp, 0);
 			tmp->speed = 0;
 			/* Remove it from active list */
 			update_ob_speed(tmp);
@@ -2226,79 +2221,10 @@ object *object_stack_get_removed(object *op, uint32 nrof)
 
 	if (split == op)
 	{
-		remove_ob(split);
+		object_remove(split, 0);
 	}
 
 	return split;
-}
-
-/**
- * Splits up ob into two parts. The part which is returned contains nr
- * objects, and the remaining parts contains the rest (or is removed
- * and freed if that number is 0).
- * @param orig_ob Object from which to split.
- * @param nr Number of elements to split.
- * @param err Buffer that will contain failure reason if NULL is
- * returned. Can be NULL.
- * @param size err's size.
- * @return Split object, or NULL on failure. */
-object *get_split_ob(object *orig_ob, int nr, char *err, size_t size)
-{
-	object *newob, *tmp, *event;
-	int is_removed = (QUERY_FLAG(orig_ob, FLAG_REMOVED) != 0);
-
-	if ((int) orig_ob->nrof < nr)
-	{
-		if (err)
-		{
-			snprintf(err, size, "There are only %d %ss.", orig_ob->nrof ? orig_ob->nrof : 1, query_name(orig_ob, NULL));
-		}
-
-		return NULL;
-	}
-
-	newob = get_object();
-	copy_object(orig_ob, newob, 0);
-
-	/* Copy inventory (event objects) */
-	for (tmp = orig_ob->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == EVENT_OBJECT)
-		{
-			event = get_object();
-			copy_object(tmp, event, 0);
-			insert_ob_in_ob(event, newob);
-		}
-	}
-
-	orig_ob->nrof -= nr;
-
-	if (orig_ob->nrof < 1)
-	{
-		if (!is_removed)
-		{
-			remove_ob(orig_ob);
-		}
-
-	}
-	else if (!is_removed)
-	{
-		if (orig_ob->env && !QUERY_FLAG(orig_ob, FLAG_SYS_OBJECT))
-		{
-			sub_weight(orig_ob->env, orig_ob->weight * nr);
-		}
-
-		if (orig_ob->env == NULL && orig_ob->map->in_memory != MAP_IN_MEMORY)
-		{
-			strncpy(err, "Tried to split object whose map is not in memory.", size);
-			LOG(llevDebug, "Error, Tried to split object whose map is not in memory.\n");
-			return NULL;
-		}
-	}
-
-	CLEAR_FLAG(newob, FLAG_IS_READY);
-	newob->nrof = nr;
-	return newob;
 }
 
 /**
@@ -2340,7 +2266,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 		}
 		else
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			op->nrof = 0;
 		}
 	}
@@ -2352,7 +2278,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 		}
 		else
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			op->nrof = 0;
 		}
 	}
@@ -3076,7 +3002,7 @@ int auto_apply(object *op)
 			for (tmp = op->inv; tmp; tmp = tmp2)
 			{
 				tmp2 = tmp->below;
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 
 				if (op->env)
 				{
@@ -3085,7 +3011,7 @@ int auto_apply(object *op)
 			}
 
 			/* No move off needed */
-			remove_ob(op);
+			object_remove(op, 0);
 			break;
 	}
 

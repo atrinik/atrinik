@@ -997,7 +997,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 
 				if (QUERY_FLAG(head, FLAG_NO_SAVE))
 				{
-					remove_ob(head);
+					object_remove(head, 0);
 					object_destroy(head);
 					continue;
 				}
@@ -1019,7 +1019,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						}
 					}
 
-					remove_ob(head);
+					object_remove(head, 0);
 					object_destroy(head);
 					continue;
 				}
@@ -1030,7 +1030,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						head->stats.sp = head->last_sp;
 						head->speed_left += 1.0f;
 
-						remove_ob(head->enemy);
+						object_remove(head->enemy, 0);
 						object_destroy(head->enemy);
 						head->enemy = NULL;
 					}
@@ -1362,7 +1362,7 @@ static void delete_unique_items(mapstruct *m)
 						connection_object_remove(op);
 					}
 
-					remove_ob(op);
+					object_remove(op, 0);
 					object_destroy(op);
 				}
 			}
@@ -1543,7 +1543,7 @@ static void free_all_objects(mapstruct *m)
 				next = ob->above;
 				head = HEAD(ob);
 
-				remove_ob(head);
+				object_remove(head, 0);
 				object_destroy(head);
 			}
 		}
@@ -1634,7 +1634,7 @@ void delete_map(mapstruct *m)
 	if (m->in_memory == MAP_IN_MEMORY)
 	{
 		/* Change to MAP_SAVING, even though we are not,
-		 * so that remove_ob doesn't do as much work. */
+		 * so that object_remove doesn't do as much work. */
 		m->in_memory = MAP_SAVING;
 		free_map(m, 1);
 	}

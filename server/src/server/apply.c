@@ -93,7 +93,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 			return;
 		}
 
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 		object_destroy(tmp);
 		return;
 	}
@@ -102,7 +102,7 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	if (tmp)
 	{
 		LOG(llevBug, "do_learn_spell(): spell unknown, but special prayer mark present\n");
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 		object_destroy(tmp);
 	}
 
@@ -154,7 +154,7 @@ void do_forget_spell(object *op, int spell)
 
 	if (tmp)
 	{
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 		object_destroy(tmp);
 	}
 

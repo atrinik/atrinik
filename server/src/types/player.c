@@ -224,7 +224,7 @@ void free_player(player *pl)
 
 		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
-			remove_ob(pl->ob);
+			object_remove(pl->ob, 0);
 		}
 	}
 
@@ -396,7 +396,7 @@ void give_initial_items(object *pl, treasurelist *items)
 		{
 			if ((!QUERY_FLAG(pl, FLAG_USE_ARMOUR) && (op->type == ARMOUR || op->type == BOOTS || op->type == CLOAK || op->type == HELMET || op->type == SHIELD || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE)) || (!QUERY_FLAG(pl, FLAG_USE_WEAPON) && op->type == WEAPON))
 			{
-				remove_ob(op);
+				object_remove(op, 0);
 				object_destroy(op);
 				continue;
 			}
@@ -420,7 +420,7 @@ void give_initial_items(object *pl, treasurelist *items)
 		if (op->type == ABILITY)
 		{
 			CONTR(pl)->known_spells[CONTR(pl)->nrofknownspells++] = op->stats.sp;
-			remove_ob(op);
+			object_remove(op, 0);
 			object_destroy(op);
 			continue;
 		}
@@ -917,7 +917,7 @@ static int save_life(object *op)
 			play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 			draw_info_format(COLOR_WHITE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
 
-			remove_ob(tmp);
+			object_remove(tmp, 0);
 			object_destroy(tmp);
 			CLEAR_FLAG(op, FLAG_LIFESAVE);
 
@@ -962,7 +962,7 @@ static void remove_unpaid_objects(object *op, object *env)
 
 		if (QUERY_FLAG(op, FLAG_UNPAID))
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			op->x = env->x;
 			op->y = env->y;
 			insert_ob_in_map(op, env->map, NULL, 0);

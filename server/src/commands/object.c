@@ -662,7 +662,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	insert_ob_in_map(tmp, op->map, op, 0);
 
 	SET_FLAG(op, FLAG_NO_APPLY);
-	remove_ob(op);
+	object_remove(op, 0);
 	insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
 	CLEAR_FLAG(op, FLAG_NO_APPLY);
 

@@ -45,7 +45,7 @@ struct plugin_hooklist hooklist =
 	LOG,
 	free_string_shared,
 	add_string,
-	remove_ob,
+	object_remove,
 	fix_player,
 	insert_ob_in_ob,
 	draw_info_map,

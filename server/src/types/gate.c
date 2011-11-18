@@ -105,7 +105,7 @@ static void process_func(object *op)
 					/* If there is a free spot, move the object someplace. */
 					if (i != -1)
 					{
-						remove_ob(tmp);
+						object_remove(tmp, 0);
 						tmp->x += freearr_x[i];
 						tmp->y += freearr_y[i];
 						insert_ob_in_map(tmp, op->map, op, 0);

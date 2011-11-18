@@ -47,7 +47,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 		{
 			if (tmp->type == FORCE && tmp->slaying == op->slaying)
 			{
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 				object_destroy(tmp);
 				break;
 			}

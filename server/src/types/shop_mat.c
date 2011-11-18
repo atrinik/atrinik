@@ -47,7 +47,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 
 		if (i != -1)
 		{
-			remove_ob(victim);
+			object_remove(victim, 0);
 			victim->x += freearr_x[i];
 			victim->y += freearr_y[i];
 			insert_ob_in_map(victim, victim->map, op, 0);

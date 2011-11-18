@@ -50,7 +50,7 @@ START_TEST(test_put_object_in_sack)
 	put_object_in_sack(dummy, sack, obj, 1);
 	fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
 	fail_if(sack->inv != NULL, "Sack's inventory isn't null?");
-	remove_ob(sack);
+	object_remove(sack, 0);
 
 	/* Basic insertion. */
 	sack = get_archetype("sack");
@@ -64,7 +64,7 @@ START_TEST(test_put_object_in_sack)
 	fail_if(sack->inv != obj, "Object not inserted into sack?");
 	fail_if(GET_MAP_OB(test_map, 1, 0) != NULL, "Object wasn't removed from map?");
 
-	remove_ob(obj);
+	object_remove(obj, 0);
 	obj->x = 1;
 	insert_ob_in_map(obj, test_map, NULL, 0);
 	sack->weight_limit = 1;

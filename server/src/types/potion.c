@@ -220,7 +220,7 @@ static int apply_func(object *op, object *applier, int aflags)
 					}
 				}
 
-				remove_ob(depletion);
+				object_remove(depletion, 0);
 				object_destroy(depletion);
 				fix_player(applier);
 			}

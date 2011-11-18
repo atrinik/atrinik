@@ -62,7 +62,7 @@ static void rune_attack(object *op, object *victim)
 			object *disease = op->inv;
 
 			infect_object(victim, disease, 1);
-			remove_ob(disease);
+			object_remove(disease, 0);
 		}
 	}
 	else
@@ -130,7 +130,7 @@ void spring_trap(object *trap, object *victim)
 		 * the rune couldn't cast its spell. */
 		if (!trap->map)
 		{
-			remove_ob(trap);
+			object_remove(trap, 0);
 			trap->x = env->x;
 			trap->y = env->y;
 
@@ -146,7 +146,7 @@ void spring_trap(object *trap, object *victim)
 		 * map to begin with. */
 		if (old_env)
 		{
-			remove_ob(trap);
+			object_remove(trap, 0);
 			insert_ob_in_ob(trap, old_env);
 		}
 	}
@@ -214,7 +214,7 @@ int trap_show(object *trap, object *where)
 
 	env = trap->env;
 	/* We must remove and reinsert it so the layer is updated correctly. */
-	remove_ob(trap);
+	object_remove(trap, 0);
 	CLEAR_FLAG(trap, FLAG_SYS_OBJECT);
 	CLEAR_MULTI_FLAG(trap, FLAG_IS_INVISIBLE);
 	trap->layer = LAYER_EFFECT;
@@ -251,7 +251,7 @@ int trap_disarm(object *disarmer, object *trap)
 	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{
 		draw_info_format(COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
-		remove_ob(trap);
+		object_remove(trap, 0);
 		set_trapped_flag(env);
 		CONTR(disarmer)->stat_traps_disarmed++;
 		return 1;

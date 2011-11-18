@@ -747,8 +747,8 @@
  * @defgroup object_multiflag_macros Object multiflag macros
  * This is rarely used but needed for some flags, which are
  * used for intern handling like INVISIBLE or WALK_OFF. Because
- * some core functions like remove_ob() use this, it will be better
- * we set this ONE time outside instead of every time in remove_ob():
+ * some core functions like object_remove() use this, it will be better
+ * we set this ONE time outside instead of every time in object_remove():
  * we skip the call for the head in this way.
  *@{*/
 #define SET_MULTI_FLAG(xyz, p)                          \
@@ -1190,7 +1190,7 @@
  * to race that of the 'slaying' field. */
 #define FLAG_IS_ASSASSINATION 132
 /**
- * Internally used from remove_ob() and insert_xx(). */
+ * Internally used from object_remove() and insert_xx(). */
 #define FLAG_OBJECT_WAS_MOVED 133
 /**
  * Don't save this object - remove it before we save. */

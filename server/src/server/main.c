@@ -187,14 +187,14 @@ void enter_player_savebed(object *op)
 }
 
 /**
- * All this really is is a glorified remove_object that also updates the
+ * All this really is is a glorified object_removeject that also updates the
  * counts on the map if needed and sets map timeout if needed.
  * @param op The object leaving the map. */
 void leave_map(object *op)
 {
 	mapstruct *oldmap = op->map;
 
-	remove_ob(op);
+	object_remove(op, 0);
 
 	if (oldmap && !oldmap->player_first)
 	{
@@ -269,7 +269,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	 * Otherwise, we need to deal with removing the player here. */
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 	}
 
 	if (op->map && op->type == PLAYER && !op->head && op->map->events)
@@ -679,7 +679,7 @@ void enter_exit(object *op, object *exit_ob)
 
 				if (tmp)
 				{
-					remove_ob(tmp);
+					object_remove(tmp, 0);
 					object_destroy(tmp);
 				}
 
@@ -801,7 +801,7 @@ static void process_players1(void)
 
 					if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
 					{
-						remove_ob(pl->ob);
+						object_remove(pl->ob, 0);
 						pl->ob->x = followed->ob->x + freearr_x[space];
 						pl->ob->y = followed->ob->y + freearr_y[space];
 						insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
@@ -1255,7 +1255,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 				/* A pickable item... Tranfer it */
 				if (!QUERY_FLAG(ob, FLAG_NO_PICK))
 				{
-					remove_ob(ob);
+					object_remove(ob, 0);
 					ob->x = x;
 					ob->y = y;
 					insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
@@ -1275,7 +1275,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 							continue;
 						}
 
-						remove_ob(tmp);
+						object_remove(tmp, 0);
 						tmp->x = x;
 						tmp->y = y;
 						insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);

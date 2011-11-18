@@ -160,7 +160,7 @@
 #define MAP_SWAPPED     2
 /** This map is being loaded. */
 #define MAP_LOADING     3
-/** Map being saved. Will stop remove_ob() from some processing. */
+/** Map being saved. Will stop object_remove() from some processing. */
 #define MAP_SAVING      4
 /*@}*/
 

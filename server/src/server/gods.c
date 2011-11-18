@@ -766,7 +766,7 @@ void god_intervention(object *op, object *god)
 				}
 			}
 
-			remove_ob(depl);
+			object_remove(depl, 0);
 			object_destroy(depl);
 			fix_player(op);
 			return;

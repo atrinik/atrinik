@@ -534,7 +534,6 @@ extern void drop_ob_inv(object *ob);
 extern void object_destroy(object *ob);
 extern void destruct_ob(object *op);
 extern void object_remove(object *op, int flags);
-extern void remove_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern int object_check_move_on(object *op, object *originator);
 extern void replace_insert_ob_in_map(char *arch_string, object *op);

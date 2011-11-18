@@ -120,7 +120,7 @@ static void container_open(object *applier, object *op)
 			{
 				int i;
 
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 				tmp->x = op->x;
 				tmp->y = op->y;
 				i = find_free_spot(tmp->arch, tmp, applier->map, tmp->x, tmp->y, 0, SIZEOFFREE1 + 1);

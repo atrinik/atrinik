@@ -103,7 +103,7 @@ int move_ob(object *op, int dir, object *originator)
 			return 0;
 		}
 
-		remove_ob(op);
+		object_remove(op, 0);
 
 		for (tmp = op; tmp != NULL; tmp = tmp->more)
 		{
@@ -136,7 +136,7 @@ int move_ob(object *op, int dir, object *originator)
 		}
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 
 	op->x += freearr_x[dir];
 	op->y += freearr_y[dir];
@@ -199,7 +199,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 		op = op->head;
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 
 	op->x = x + freearr_x[i];
 	op->y = y + freearr_y[i];
@@ -286,7 +286,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 		return 0;
 	}
 
-	remove_ob(user);
+	object_remove(user, 0);
 
 	user->x = other_teleporter->x + freearr_x[k];
 	user->y = other_teleporter->y + freearr_y[k];
@@ -359,7 +359,7 @@ int push_ob(object *op, int dir, object *pusher)
 		}
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 
 	op->x = op->x + freearr_x[dir];
 	op->y = op->y + freearr_y[dir];

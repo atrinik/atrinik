@@ -77,7 +77,7 @@ static void process_func(object *op)
 
 		if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0))
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			object_destroy(op);
 			return;
 		}
@@ -92,7 +92,7 @@ static void process_func(object *op)
 
 	if (!m)
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		object_destroy(op);
 		return;
 	}
@@ -105,14 +105,14 @@ static void process_func(object *op)
 		}
 		else
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			object_destroy(op);
 		}
 
 		return;
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 	op->x = x;
 	op->y = y;
 	op = insert_ob_in_map(op, m, op, 0);
@@ -127,7 +127,7 @@ static void process_func(object *op)
 		if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER | P_IS_PLAYER))
 		{
 			probe(op);
-			remove_ob(op);
+			object_remove(op, 0);
 			object_destroy(op);
 			return;
 		}

@@ -116,7 +116,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 				return 0;
 			}
 
-			remove_ob(tmp);
+			object_remove(tmp, 0);
 			break;
 		}
 	}
@@ -218,7 +218,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
 			FREE_AND_COPY_HASH(new_item->msg, book->msg);
 		}
 
-		remove_ob(book);
+		object_remove(book, 0);
 	}
 
 	/* If the item is turnable, adjust direction. */
@@ -367,7 +367,7 @@ static void fix_walls(mapstruct *map, int x, int y)
 		old_flags[flag] = wall_ob->flags[flag];
 	}
 
-	remove_ob(wall_ob);
+	object_remove(wall_ob, 0);
 
 	wall_ob = arch_to_object(new_arch);
 	wall_ob->type = WALL;
@@ -414,7 +414,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 	/* If existing wall, replace it, no need to fix other walls */
 	if (wall_ob)
 	{
-		remove_ob(wall_ob);
+		object_remove(wall_ob, 0);
 		new_wall->x = x;
 		new_wall->y = y;
 		insert_ob_in_map(new_wall, op->map, NULL, 0);
@@ -502,7 +502,7 @@ static int builder_window(object *op, int x, int y)
 		old_flags[flag] = wall_ob->flags[flag];
 	}
 
-	remove_ob(wall_ob);
+	object_remove(wall_ob, 0);
 
 	window = arch_to_object(new_arch);
 	window->type = WALL;
@@ -633,7 +633,7 @@ static void construction_destroyer(object *op, int x, int y)
 		return;
 	}
 
-	remove_ob(item);
+	object_remove(item, 0);
 
 	/* Fix walls around the one that was removed. */
 	if (item->type == WALL)

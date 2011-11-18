@@ -183,7 +183,7 @@ struct plugin_hooklist
 	void (*LOG)(LogLevel, const char *, ...);
 	void (*free_string_shared)(const char *);
 	const char *(*add_string)(const char *);
-	void (*remove_ob)(object *);
+	void (*object_remove)(object *, int);
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
 	void (*draw_info_map)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);

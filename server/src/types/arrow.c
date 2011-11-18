@@ -206,14 +206,13 @@ void bow_fire(object *op, int dir)
 	if (arrow->nrof == 0)
 	{
 		LOG(llevDebug, "arrow->nrof == 0 in bow_fire() (%s)\n", query_name(arrow, NULL));
-		remove_ob(arrow);
+		object_remove(arrow, 0);
 		return;
 	}
 
 	CONTR(op)->stat_arrows_fired++;
 
-	/* These are arrows left to the player */
-	arrow = get_split_ob(arrow, 1, NULL, 0);
+	arrow = object_stack_get_removed(arrow, 1);
 	set_owner(arrow, op);
 	arrow->direction = dir;
 	arrow->x = op->x;
@@ -282,7 +281,7 @@ object *fix_stopped_arrow(object *op)
 	/* Small chance of breaking */
 	if (op->last_eat && rndm_chance(op->last_eat))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		return NULL;
 	}
 
@@ -352,7 +351,7 @@ void move_arrow(object *op)
 	if (op->map == NULL)
 	{
 		LOG(llevBug, "move_arrow(): Arrow %s had no map.\n", query_name(op, NULL));
-		remove_ob(op);
+		object_remove(op, 0);
 		return;
 	}
 
@@ -481,7 +480,7 @@ void move_arrow(object *op)
 	}
 
 	/* Move the arrow. */
-	remove_ob(op);
+	object_remove(op, 0);
 
 	op->x = x;
 	op->y = y;

@@ -674,7 +674,7 @@ void check_login(object *op)
 	/* Take the player object out from the void */
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 	}
 
 	/* We transfer it to a new object */

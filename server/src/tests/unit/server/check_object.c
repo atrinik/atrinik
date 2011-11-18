@@ -235,28 +235,6 @@ START_TEST(test_insert_ob_in_map)
 }
 END_TEST
 
-START_TEST(test_get_split_ob)
-{
-	object *first, *second;
-	char err[50];
-
-	first = get_archetype("sack");
-	first->nrof = 5;
-
-	second = get_split_ob(first, 2, err, sizeof(err));
-	fail_if(second == NULL, "Should return an item.");
-	fail_if(second->nrof != 2, "2 expected to split.");
-	fail_if(first->nrof != 3, "3 should be left.");
-
-	second = get_split_ob(first, 3, err, sizeof(err));
-	fail_if(second == NULL, "Should return an item.");
-
-	first = get_split_ob(second, 10, err, sizeof(err));
-	fail_if(first != NULL, "Should return NULL.");
-	fail_if(second->nrof != 3, "3 should be left.");
-}
-END_TEST
-
 START_TEST(test_decrease_ob_nr)
 {
 	object *first, *second;
@@ -284,7 +262,7 @@ START_TEST(test_insert_ob_in_ob)
 	fail_if(container->inv != item, "Item not inserted.");
 	fail_if(container->carrying != 50, "Container should carry 50 and not %d.", container->carrying);
 
-	remove_ob(item);
+	object_remove(item, 0);
 	fail_if(container->carrying != 0, "Container should carry 0 and not %d.", container->carrying);
 
 	/* 50% weight reduction. */
@@ -350,7 +328,7 @@ START_TEST(test_was_destroyed)
 	ob2_tag = ob2->count;
 	insert_ob_in_ob(ob2, ob);
 	fail_if(was_destroyed(ob2, ob2_tag) == 1, "was_destroyed() returned 1 but object is in inventory of another object.");
-	remove_ob(ob);
+	object_remove(ob, 0);
 	fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object was only removed from map.");
 	object_destroy(ob);
 	object_destroy(ob2);
@@ -390,7 +368,6 @@ static Suite *object_suite(void)
 	tcase_add_test(tc_core, test_is_player_inv);
 	tcase_add_test(tc_core, test_dump_object);
 	tcase_add_test(tc_core, test_insert_ob_in_map);
-	tcase_add_test(tc_core, test_get_split_ob);
 	tcase_add_test(tc_core, test_decrease_ob_nr);
 	tcase_add_test(tc_core, test_insert_ob_in_ob);
 	tcase_add_test(tc_core, test_can_pick);

@@ -422,7 +422,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 
 		if (the_wall && the_wall->map)
 		{
-			remove_ob(the_wall);
+			object_remove(the_wall, 0);
 			object_destroy(the_wall);
 		}
 

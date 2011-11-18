@@ -74,7 +74,7 @@ static void process_func(object *op)
 	/* No owner, the cone dies. */
 	if (!get_owner(op))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		object_destroy(op);
 		return;
 	}
@@ -83,7 +83,7 @@ static void process_func(object *op)
 
 	if ((op->stats.hp -= 2) < 0)
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		object_destroy(op);
 		return;
 	}

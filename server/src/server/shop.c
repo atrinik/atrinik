@@ -462,12 +462,12 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 					if (coin_objs[i] != NULL)
 					{
 						LOG(llevBug, "pay_from_container(): %s has two money entries of (%s)\n", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
-						remove_ob(tmp);
+						object_remove(tmp, 0);
 						coin_objs[i]->nrof += tmp->nrof;
 					}
 					else
 					{
-						remove_ob(tmp);
+						object_remove(tmp, 0);
 						coin_objs[i] = tmp;
 					}
 
@@ -827,7 +827,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 					amount -= tmp->nrof;
 				}
 
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 			}
 			else
 			{

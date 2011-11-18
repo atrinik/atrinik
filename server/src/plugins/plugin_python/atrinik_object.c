@@ -298,7 +298,7 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 
 	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
 	{
-		hooks->remove_ob(obj->obj);
+		hooks->object_remove(obj->obj, 0);
 	}
 
 	hooks->insert_ob_in_ob(obj->obj, where->obj);
@@ -869,7 +869,7 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
 	OBJEXISTCHECK(obj);
-	hooks->remove_ob(obj->obj);
+	hooks->object_remove(obj->obj, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;

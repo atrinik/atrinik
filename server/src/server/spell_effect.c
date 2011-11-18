@@ -80,7 +80,7 @@ int recharge(object *op)
 	{
 		draw_info_format(COLOR_WHITE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
 		play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
-		remove_ob(wand);
+		object_remove(wand, 0);
 		return 1;
 	}
 
@@ -889,7 +889,7 @@ int remove_depletion(object *op, object *target)
 			}
 		}
 
-		remove_ob(depl);
+		object_remove(depl, 0);
 		fix_player(target);
 	}
 
@@ -1172,7 +1172,7 @@ int cast_consecrate(object *op)
 				}
 
 				insert_ob_in_map(new_altar, tmp->map, NULL, 0);
-				remove_ob(tmp);
+				object_remove(tmp, 0);
 
 				draw_info_format(COLOR_WHITE, op, "You consecrated the altar to %s!", god->name);
 				return 1;
@@ -1221,13 +1221,13 @@ int finger_of_death(object *op, object *target)
 	if (spell_attack_missed(hitter, target))
 	{
 		draw_info_format(COLOR_ORANGE, op, "Your finger of death misses %s!", target->name);
-		remove_ob(hitter);
+		object_remove(hitter, 0);
 		return 1;
 	}
 
 	dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
 	hit_player(target, dam, hitter, AT_INTERNAL);
-	remove_ob(hitter);
+	object_remove(hitter, 0);
 
 	return 1;
 }
@@ -1425,7 +1425,7 @@ int cast_transform_wealth(object *op)
 	/* Figure out our value of money to give to player. */
 	val = (marked->value * (marked->nrof ? marked->nrof : 1)) * TRANSFORM_WEALTH_SACRIFICE;
 	/* We remove the money. */
-	remove_ob(marked);
+	object_remove(marked, 0);
 	/* Now give the player the new money. */
 	insert_coins(op, val);
 	draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));

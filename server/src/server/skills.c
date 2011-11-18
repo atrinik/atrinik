@@ -262,7 +262,7 @@ object *find_throw_tag(object *op)
  * @param dir Direction to throw. */
 void do_throw(object *op, object *toss_item, int dir)
 {
-	object *throw_ob = toss_item, *left = NULL, *tmp_op;
+	object *throw_ob = toss_item, *tmp_op;
 	rv_vector range_vector;
 
 	if (!throw_ob)
@@ -291,16 +291,7 @@ void do_throw(object *op, object *toss_item, int dir)
 		return;
 	}
 
-	/* These are throwing objects left to the player */
-	left = throw_ob;
-
-	/* Sometimes get_split_ob can't split an object (because op->nrof==0?)
-	 * and returns NULL. We must use 'left' then */
-	if ((throw_ob = get_split_ob(throw_ob, 1, NULL, 0)) == NULL)
-	{
-		throw_ob = left;
-		remove_ob(left);
-	}
+	throw_ob = object_stack_get_removed(throw_ob, 1);
 
 	/* Special case: throwing powdery substances like dust, dirt */
 	if (QUERY_FLAG(throw_ob, FLAG_DUST))
@@ -331,7 +322,7 @@ void do_throw(object *op, object *toss_item, int dir)
 		/* Bounces off 'wall', and drops to feet */
 		if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))
 		{
-			remove_ob(throw_ob);
+			object_remove(throw_ob, 0);
 		}
 
 		if (op->type == PLAYER)

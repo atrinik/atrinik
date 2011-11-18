@@ -257,7 +257,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 		/* Something is wrong - kill object */
 		if (!QUERY_FLAG(effect_ob, FLAG_REMOVED))
 		{
-			remove_ob(effect_ob);
+			object_remove(effect_ob, 0);
 		}
 
 		return 1;
@@ -1011,7 +1011,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 		/* Was not inserted */
 		if (!QUERY_FLAG(tmp, FLAG_REMOVED))
 		{
-			remove_ob(tmp);
+			object_remove(tmp, 0);
 		}
 	}
 
@@ -1054,7 +1054,7 @@ void explode_object(object *op)
 	if (op->other_arch == NULL)
 	{
 		LOG(llevBug, "explode_object(): op %s without other_arch\n", query_name(op, NULL));
-		remove_ob(op);
+		object_remove(op, 0);
 		return;
 	}
 
@@ -1073,7 +1073,7 @@ void explode_object(object *op)
 	/* remove the firebullet */
 	if (!was_destroyed(op, op_tag))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 	}
 }
 
@@ -1104,7 +1104,7 @@ void check_fired_arch(object *op)
 	if (op->stats.sp == SP_PROBE && op->type == BULLET)
 	{
 		probe(op);
-		remove_ob(op);
+		object_remove(op, 0);
 		return;
 	}
 
@@ -1147,7 +1147,7 @@ void check_fired_arch(object *op)
 		{
 			if (!QUERY_FLAG(op, FLAG_REMOVED))
 			{
-				remove_ob(op);
+				object_remove(op, 0);
 
 				return;
 			}

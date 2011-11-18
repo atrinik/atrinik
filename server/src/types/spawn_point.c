@@ -194,7 +194,7 @@ static void process_func(object *op)
 			return;
 		}
 
-		remove_ob(op->enemy);
+		object_remove(op->enemy, 0);
 		object_destroy(op->enemy);
 		op->enemy = NULL;
 	}

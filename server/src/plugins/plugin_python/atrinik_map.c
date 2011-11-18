@@ -364,7 +364,7 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 
 	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
 	{
-		hooks->remove_ob(obj->obj);
+		hooks->object_remove(obj->obj, 0);
 	}
 
 	obj->obj->x = x;

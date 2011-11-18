@@ -36,7 +36,7 @@ static void process_func(object *op)
 {
 	if (!op->env || !IS_LIVE(op->env) || op->env->stats.hp < 0)
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		object_destroy(op);
 		return;
 	}

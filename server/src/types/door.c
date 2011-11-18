@@ -46,7 +46,7 @@ static void door_open(object *ob, object *opener, uint8 nearby)
 		return;
 	}
 
-	remove_ob(ob);
+	object_remove(ob, 0);
 
 	/* Spring any traps in the door's inventory. */
 	for (tmp = ob->inv; tmp; tmp = tmp->below)
@@ -248,7 +248,7 @@ static void process_func(object *op)
 		return;
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 
 	/* The door is no longer open. */
 	op->last_eat = 0;

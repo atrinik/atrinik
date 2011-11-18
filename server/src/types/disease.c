@@ -555,7 +555,7 @@ void move_symptom(object *symptom)
 	/* outside a monster/player, die immediately */
 	if (victim == NULL || victim->map == NULL)
 	{
-		remove_ob(symptom);
+		object_remove(symptom, 0);
 		object_destroy(symptom);
 		return;
 	}
@@ -689,7 +689,7 @@ int cure_disease(object *sufferer, object *caster)
 				}
 
 				remove_symptoms(disease);
-				remove_ob(disease);
+				object_remove(disease, 0);
 
 				/* we assume the caster has the right casting skill applied */
 				if (caster && !caster->type == PLAYER)

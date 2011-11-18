@@ -94,7 +94,7 @@ static void common_object_process_changing(object *op)
 	}
 
 	env = op->env;
-	remove_ob(op);
+	object_remove(op, 0);
 
 	tmp = arch_to_object(op->other_arch);
 
@@ -155,7 +155,7 @@ int common_object_process(object *op)
 			fix_player(op->env);
 		}
 
-		remove_ob(op);
+		object_remove(op, 0);
 		object_destroy(op);
 
 		return 1;

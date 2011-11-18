@@ -45,7 +45,7 @@ static void process_func(object *op)
 		draw_info(COLOR_WHITE, op->env, "You regain your senses.");
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 	object_destroy(op);
 }
 

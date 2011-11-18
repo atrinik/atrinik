@@ -91,7 +91,7 @@ static int dm_map_remove_players(mapstruct *m)
 		if (pl->ob->map == m)
 		{
 			count++;
-			remove_ob(pl->ob);
+			object_remove(pl->ob, 0);
 			pl->dm_removed_from_map = 1;
 			pl->ob->map = NULL;
 		}
@@ -171,7 +171,7 @@ int command_kick(object *ob, char *params)
 		{
 			object *op = pl->ob;
 
-			remove_ob(op);
+			object_remove(op, 0);
 
 			if (params)
 			{
@@ -331,7 +331,7 @@ int command_summon(object *op, char *params)
 		return 1;
 	}
 
-	remove_ob(pl->ob);
+	object_remove(pl->ob, 0);
 	pl->ob->x = op->x + freearr_x[i];
 	pl->ob->y = op->y + freearr_y[i];
 	insert_ob_in_map(pl->ob, op->map, NULL, INS_NO_MERGE);
@@ -376,7 +376,7 @@ int command_teleport(object *op, char *params)
 		return 1;
 	}
 
-	remove_ob(op);
+	object_remove(op, 0);
 	op->x = pl->ob->x + freearr_x[i];
 	op->y = pl->ob->y + freearr_y[i];
 	insert_ob_in_map(op, pl->ob->map, NULL, INS_NO_MERGE);

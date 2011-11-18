@@ -527,7 +527,7 @@ static void process_func(object *op)
 	{
 		if (QUERY_FLAG(op, FLAG_ONLY_ATTACK))
 		{
-			remove_ob(op);
+			object_remove(op, 0);
 			object_destroy(op);
 			return;
 		}
@@ -1229,13 +1229,13 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 	if ((arrow = find_arrow(head, bow->race)) == NULL)
 	{
-		/* Out of arrows */
-		manual_apply(head, bow, 0);
+		/* Out of arrows. */
+		CLEAR_FLAG(bow, FLAG_APPLIED);
 		CLEAR_FLAG(head, FLAG_READY_BOW);
 		return 0;
 	}
 
-	/* An infinite arrow, dupe it. */
+	/* An infinite arrow, duplicate it. */
 	if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT))
 	{
 		object *new_arrow = get_object();
@@ -1249,7 +1249,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 	}
 	else
 	{
-		arrow = get_split_ob(arrow, 1, NULL, 0);
+		arrow = object_stack_get_removed(arrow, 1);
 	}
 
 	set_owner(arrow, head);

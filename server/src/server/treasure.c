@@ -835,7 +835,7 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 	/* Remove from inv - no move off */
 	if (tmp != NULL)
 	{
-		remove_ob(tmp);
+		object_remove(tmp, 0);
 	}
 
 	if (ob->inv)
@@ -2102,7 +2102,7 @@ jump_break1:
 			case RING:
 				if (op->arch == NULL)
 				{
-					remove_ob(op);
+					object_remove(op, 0);
 					*op_ptr = op = NULL;
 					break;
 				}
@@ -2121,7 +2121,7 @@ jump_break1:
 				/* This is called before we inserted it in the map or elsewhere */
 				if (!QUERY_FLAG(op, FLAG_REMOVED))
 				{
-					remove_ob(op);
+					object_remove(op, 0);
 				}
 
 				/* Here we give the ring or amulet a random material.

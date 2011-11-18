@@ -401,7 +401,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 				 * breaks the for loop. */
 				if (tmp->type == EXIT)
 				{
-					remove_ob(tmp);
+					object_remove(tmp, 0);
 					object_destroy(tmp);
 					break;
 				}

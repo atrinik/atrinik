@@ -39,7 +39,7 @@ static void process_func(object *op)
 
 	if (op->stats.hp == 0 || !get_owner(op))
 	{
-		remove_ob(op);
+		object_remove(op, 0);
 		return;
 	}
 
