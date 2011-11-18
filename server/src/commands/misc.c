@@ -975,6 +975,7 @@ int command_region_map(object *op, char *params)
 	if (CONTR(op)->socket.socket_version >= 1058)
 	{
 		SockList_AddString(&sl, r->longname);
+		SockList_AddChar(&sl, op->direction);
 	}
 
 	Send_With_Handling(&CONTR(op)->socket, &sl);
