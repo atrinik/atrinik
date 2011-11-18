@@ -2085,7 +2085,7 @@ void fix_monster(object *op)
  * @return Pointer to the inserted base info object. */
 object *insert_base_info_object(object *op)
 {
-	object *tmp, *head = op;
+	object *tmp, *head = op, *env;
 
 	if (op->head)
 	{
@@ -2119,10 +2119,15 @@ object *insert_base_info_object(object *op)
 	/* And put it in the mob */
 	insert_ob_in_ob(tmp, head);
 
+	env = get_env_recursive(op);
+
 	/* Store position (for returning home after aggro is lost...) */
-	tmp->x = op->x;
-	tmp->y = op->y;
-	FREE_AND_ADD_REF_HASH(tmp->slaying, op->map->path);
+	if (env->map)
+	{
+		tmp->x = env->x;
+		tmp->y = env->y;
+		FREE_AND_ADD_REF_HASH(tmp->slaying, env->map->path);
+	}
 
 	return tmp;
 }
