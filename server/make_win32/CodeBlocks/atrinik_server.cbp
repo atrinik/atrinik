@@ -141,13 +141,19 @@
 		<Unit filename="..\..\src\types\common\apply.c" />
 		<Unit filename="..\..\src\types\common\describe.c" />
 		<Unit filename="..\..\src\types\common\process.c" />
+		<Unit filename="..\..\src\types\amulet.c" />
+		<Unit filename="..\..\src\types\armour.c" />
 		<Unit filename="..\..\src\types\arrow.c" />
 		<Unit filename="..\..\src\types\beacon.c" />
 		<Unit filename="..\..\src\types\blindness.c" />
 		<Unit filename="..\..\src\types\book.c" />
+		<Unit filename="..\..\src\types\boots.c" />
+		<Unit filename="..\..\src\types\bow.c" />
+		<Unit filename="..\..\src\types\bracers.c" />
 		<Unit filename="..\..\src\types\bullet.c" />
 		<Unit filename="..\..\src\types\button.c" />
 		<Unit filename="..\..\src\types\check_inv.c" />
+		<Unit filename="..\..\src\types\cloak.c" />
 		<Unit filename="..\..\src\types\clock.c" />
 		<Unit filename="..\..\src\types\compass.c" />
 		<Unit filename="..\..\src\types\cone.c" />
@@ -163,9 +169,13 @@
 		<Unit filename="..\..\src\types\firewall.c" />
 		<Unit filename="..\..\src\types\food.c" />
 		<Unit filename="..\..\src\types\gate.c" />
+		<Unit filename="..\..\src\types\girdle.c" />
+		<Unit filename="..\..\src\types\gloves.c" />
 		<Unit filename="..\..\src\types\gravestone.c" />
 		<Unit filename="..\..\src\types\handle.c" />
+		<Unit filename="..\..\src\types\helmet.c" />
 		<Unit filename="..\..\src\types\holy_altar.c" />
+		<Unit filename="..\..\src\types\horn.c" />
 		<Unit filename="..\..\src\types\light_apply.c" />
 		<Unit filename="..\..\src\types\light_refill.c" />
 		<Unit filename="..\..\src\types\lightning.c" />
@@ -179,16 +189,22 @@
 		<Unit filename="..\..\src\types\poisoning.c" />
 		<Unit filename="..\..\src\types\potion.c" />
 		<Unit filename="..\..\src\types\power_crystal.c" />
+		<Unit filename="..\..\src\types\ring.c" />
 		<Unit filename="..\..\src\types\rod.c" />
 		<Unit filename="..\..\src\types\savebed.c" />
 		<Unit filename="..\..\src\types\scroll.c" />
+		<Unit filename="..\..\src\types\shield.c" />
 		<Unit filename="..\..\src\types\shop_mat.c" />
 		<Unit filename="..\..\src\types\sign.c" />
+		<Unit filename="..\..\src\types\skill.c" />
+		<Unit filename="..\..\src\types\skill_item.c" />
 		<Unit filename="..\..\src\types\sound_ambient.c" />
 		<Unit filename="..\..\src\types\spawn_point.c" />
 		<Unit filename="..\..\src\types\swarm_spell.c" />
 		<Unit filename="..\..\src\types\teleporter.c" />
+		<Unit filename="..\..\src\types\wand.c" />
 		<Unit filename="..\..\src\types\waypoint.c" />
+		<Unit filename="..\..\src\types\weapon.c" />
 		<Unit filename="..\..\src\types\word_of_recall.c" />
 		<Extensions>
 			<envvars />

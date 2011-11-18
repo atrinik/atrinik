@@ -23,29 +23,17 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Handles code for @ref SKILL "skills".
+ *
+ * @author Alex Tokar */
+
 #include <global.h>
 
-int common_object_apply(object *op, object *applier, int aflags)
+/**
+ * Initialize the skill type object methods. */
+void object_type_init_skill(void)
 {
-	(void) aflags;
-
-	if (op->msg)
-	{
-		draw_info(COLOR_WHITE, applier, op->msg);
-		return OBJECT_METHOD_OK;
-	}
-
-	return OBJECT_METHOD_UNHANDLED;
-}
-
-int common_object_apply_item(object *op, object *applier, int aflags)
-{
-	(void) aflags;
-
-	if (op->env != applier)
-	{
-		return OBJECT_METHOD_ERROR;
-	}
-
-	return OBJECT_METHOD_OK;
+	object_type_methods[SKILL].apply_func = common_object_apply_item;
 }

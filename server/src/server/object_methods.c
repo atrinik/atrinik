@@ -98,6 +98,22 @@ void object_methods_init(void)
 	object_type_init_potion();
 	object_type_init_scroll();
 	object_type_init_container();
+	object_type_init_amulet();
+	object_type_init_armour();
+	object_type_init_boots();
+	object_type_init_bow();
+	object_type_init_bracers();
+	object_type_init_cloak();
+	object_type_init_girdle();
+	object_type_init_gloves();
+	object_type_init_helmet();
+	object_type_init_horn();
+	object_type_init_ring();
+	object_type_init_shield();
+	object_type_init_skill();
+	object_type_init_skill_item();
+	object_type_init_wand();
+	object_type_init_weapon();
 }
 
 /** @copydoc object_methods::apply_func */

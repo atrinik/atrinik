@@ -249,13 +249,19 @@ set(SOURCES
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/process.c
+	src/types/amulet.c
+	src/types/armour.c
 	src/types/arrow.c
 	src/types/beacon.c
 	src/types/blindness.c
 	src/types/book.c
+	src/types/boots.c
+	src/types/bow.c
+	src/types/bracers.c
 	src/types/bullet.c
 	src/types/button.c
 	src/types/check_inv.c
+	src/types/cloak.c
 	src/types/clock.c
 	src/types/compass.c
 	src/types/cone.c
@@ -271,9 +277,13 @@ set(SOURCES
 	src/types/firewall.c
 	src/types/food.c
 	src/types/gate.c
+	src/types/girdle.c
+	src/types/gloves.c
 	src/types/gravestone.c
 	src/types/handle.c
+	src/types/helmet.c
 	src/types/holy_altar.c
+	src/types/horn.c
 	src/types/light_apply.c
 	src/types/light_refill.c
 	src/types/lightning.c
@@ -287,16 +297,22 @@ set(SOURCES
 	src/types/poisoning.c
 	src/types/potion.c
 	src/types/power_crystal.c
+	src/types/ring.c
 	src/types/rod.c
 	src/types/savebed.c
 	src/types/scroll.c
+	src/types/shield.c
 	src/types/shop_mat.c
 	src/types/sign.c
+	src/types/skill.c
+	src/types/skill_item.c
 	src/types/sound_ambient.c
 	src/types/spawn_point.c
 	src/types/swarm_spell.c
 	src/types/teleporter.c
+	src/types/wand.c
 	src/types/waypoint.c
+	src/types/weapon.c
 	src/types/word_of_recall.c)
 
 # Find unit test source files if check is installed.

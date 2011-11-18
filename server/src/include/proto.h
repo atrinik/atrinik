@@ -936,10 +936,15 @@ extern void updates_init(void);
 extern void cmd_request_update(char *buf, int len, socket_struct *ns);
 /* src/types/common/apply.c */
 extern int common_object_apply(object *op, object *applier, int aflags);
+extern int common_object_apply_item(object *op, object *applier, int aflags);
 /* src/types/common/describe.c */
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
 /* src/types/common/process.c */
 extern int common_object_process(object *op);
+/* src/types/amulet.c */
+extern void object_type_init_amulet(void);
+/* src/types/armour.c */
+extern void object_type_init_armour(void);
 /* src/types/arrow.c */
 extern sint32 bow_get_ws(object *bow, object *arrow);
 extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
@@ -958,6 +963,12 @@ extern object *beacon_locate(shstr *name);
 extern void object_type_init_blindness(void);
 /* src/types/book.c */
 extern void object_type_init_book(void);
+/* src/types/boots.c */
+extern void object_type_init_boots(void);
+/* src/types/bow.c */
+extern void object_type_init_bow(void);
+/* src/types/bracers.c */
+extern void object_type_init_bracers(void);
 /* src/types/bullet.c */
 extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
 extern void object_type_init_bullet(void);
@@ -966,6 +977,8 @@ extern void object_type_init_button(void);
 /* src/types/check_inv.c */
 extern object *check_inv(object *op, object *ob);
 extern void object_type_init_check_inv(void);
+/* src/types/cloak.c */
+extern void object_type_init_cloak(void);
 /* src/types/clock.c */
 extern void object_type_init_clock(void);
 /* src/types/compass.c */
@@ -1005,12 +1018,20 @@ extern void object_type_init_firewall(void);
 extern void object_type_init_food(void);
 /* src/types/gate.c */
 extern void object_type_init_gate(void);
+/* src/types/girdle.c */
+extern void object_type_init_girdle(void);
+/* src/types/gloves.c */
+extern void object_type_init_gloves(void);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
 /* src/types/handle.c */
 extern void object_type_init_handle(void);
+/* src/types/helmet.c */
+extern void object_type_init_helmet(void);
 /* src/types/holy_altar.c */
 extern void object_type_init_holy_altar(void);
+/* src/types/horn.c */
+extern void object_type_init_horn(void);
 /* src/types/light_apply.c */
 extern void object_type_init_light_apply(void);
 /* src/types/light_refill.c */
@@ -1075,6 +1096,8 @@ extern void object_type_init_poisoning(void);
 extern void object_type_init_potion(void);
 /* src/types/power_crystal.c */
 extern void object_type_init_power_crystal(void);
+/* src/types/ring.c */
+extern void object_type_init_ring(void);
 /* src/types/rod.c */
 extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
@@ -1083,10 +1106,16 @@ extern void object_type_init_rod(void);
 extern void object_type_init_savebed(void);
 /* src/types/scroll.c */
 extern void object_type_init_scroll(void);
+/* src/types/shield.c */
+extern void object_type_init_shield(void);
 /* src/types/shop_mat.c */
 extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
 extern void object_type_init_sign(void);
+/* src/types/skill.c */
+extern void object_type_init_skill(void);
+/* src/types/skill_item.c */
+extern void object_type_init_skill_item(void);
 /* src/types/sound_ambient.c */
 extern void sound_ambient_init(object *ob);
 /* src/types/spawn_point.c */
@@ -1095,12 +1124,16 @@ extern void object_type_init_spawn_point(void);
 extern void object_type_init_swarm_spell(void);
 /* src/types/teleporter.c */
 extern void object_type_init_teleporter(void);
+/* src/types/wand.c */
+extern void object_type_init_wand(void);
 /* src/types/waypoint.c */
 extern object *get_active_waypoint(object *op);
 extern object *get_aggro_waypoint(object *op);
 extern object *get_return_waypoint(object *op);
 extern void waypoint_compute_path(object *waypoint);
 extern void waypoint_move(object *op, object *waypoint);
+/* src/types/weapon.c */
+extern void object_type_init_weapon(void);
 /* src/types/word_of_recall.c */
 extern void object_type_init_word_of_recall(void);
 /* src/loaders/map_header.c */

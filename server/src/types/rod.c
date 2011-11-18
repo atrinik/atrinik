@@ -82,6 +82,6 @@ static void process_func(object *op)
  * Initialize the rod type object methods. */
 void object_type_init_rod(void)
 {
+	object_type_methods[ROD].apply_func = common_object_apply_item;
 	object_type_methods[ROD].process_func = process_func;
-	object_type_methods[HORN].process_func = process_func;
 }
