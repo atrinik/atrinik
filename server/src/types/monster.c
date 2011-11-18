@@ -51,7 +51,6 @@ static void pace_moveh(object *ob);
 static void pace2_movev(object *ob);
 static void pace2_moveh(object *ob);
 static void rand_move(object *ob);
-static int talk_to_wall(object *op, object *npc, char *txt);
 
 /**
  * Update (or clear) an NPC's enemy. Perform most of the housekeeping
