@@ -6,8 +6,7 @@ Zerosumtiles - Freeware:
 	gates
 
 Alex "Cleo" Tokar - GPLv2:
-	button.101
-	check_inv.101
-	detector.101
-	pedestal.101
-	magic_ear.101
+	button
+	check_inv
+	detector
+	pedestal
