@@ -804,6 +804,19 @@ void menu_inventory_examine(widgetdata *widget, int x, int y)
 }
 
 /**
+ * The 'Load to console' menu action for inventory windows.
+ * @param widget The widget.
+ * @param x X.
+ * @param y Y. */
+void menu_inventory_loadtoconsole(widgetdata *widget, int x, int y)
+{
+	(void) widget;
+	(void) x;
+	(void) y;
+	send_command_check("/console-obj");
+}
+
+/**
  * The 'Mark' menu action for inventory windows.
  * @param widget The widget.
  * @param x X.

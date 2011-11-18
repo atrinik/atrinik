@@ -383,6 +383,7 @@ extern void menu_inventory_dropall(widgetdata *widget, int x, int y);
 extern void menu_inventory_get(widgetdata *widget, int x, int y);
 extern void menu_inventory_getall(widgetdata *widget, int x, int y);
 extern void menu_inventory_examine(widgetdata *widget, int x, int y);
+extern void menu_inventory_loadtoconsole(widgetdata *widget, int x, int y);
 extern void menu_inventory_mark(widgetdata *widget, int x, int y);
 extern void menu_inventory_lock(widgetdata *widget, int x, int y);
 extern void menu_inventory_ready(widgetdata *widget, int x, int y);
