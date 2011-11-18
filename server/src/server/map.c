@@ -1840,11 +1840,6 @@ void update_position(mapstruct *m, int x, int y)
 				flags |= P_CHECK_INV;
 			}
 
-			if (tmp->type == MAGIC_EAR)
-			{
-				flags |= P_MAGIC_EAR;
-			}
-
 			if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
 			{
 				flags |= P_IS_PLAYER;

@@ -1650,7 +1650,7 @@ void communicate(object *op, char *txt)
 		}
 
 		/* Check to see if we have magic ear or monster here. */
-		if (!(GET_MAP_FLAGS(m, xt, yt) & (P_MAGIC_EAR | P_IS_MONSTER)))
+		if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_MONSTER))
 		{
 			continue;
 		}
@@ -1660,12 +1660,7 @@ void communicate(object *op, char *txt)
 			/* Avoid talking to self. */
 			if (op != npc)
 			{
-				/* The ear. */
-				if (npc->type == MAGIC_EAR)
-				{
-					talk_to_wall(op, npc, txt);
-				}
-				else if (npc->type == MONSTER && op->type != PLAYER)
+				if (npc->type == MONSTER && op->type != PLAYER)
 				{
 					talk_to_npc(op, npc, txt);
 				}
@@ -1776,7 +1771,7 @@ static char *find_matching_message(const char *msg, const char *match)
  *
  * Plugin hooks will be called.
  * @param op Who is talking.
- * @param npc Object to try to talk to. Can be an NPC or a MAGIC_EAR.
+ * @param npc Object to try to talk to.
  * @param txt What op is saying.
  * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
@@ -1839,43 +1834,6 @@ int talk_to_npc(object *op, object *npc, char *txt)
 	}
 
 	return 0;
-}
-
-/**
- * Talk to a magic ear.
- * @param op Who is talking.
- * @param npc The magic ear.
- * @param txt Text said.
- * @return 1 if text matches something, 0 otherwise. */
-static int talk_to_wall(object *op, object *npc, char *txt)
-{
-	char *cp;
-
-	if (!npc->msg || *npc->msg != '@')
-	{
-		return 0;
-	}
-
-	cp = find_matching_message(npc->msg, txt);
-
-	if (!cp)
-	{
-		return 0;
-	}
-
-	if (QUERY_FLAG(npc, FLAG_XRAYS))
-	{
-		draw_info_map(0, COLOR_NAVY, npc->map, npc->x, npc->y, MAP_INFO_NORMAL, NULL, NULL, cp);
-	}
-	else
-	{
-		draw_info(COLOR_NAVY, op, cp);
-	}
-
-	connection_trigger(npc, 1);
-	free(cp);
-
-	return 1;
 }
 
 /**

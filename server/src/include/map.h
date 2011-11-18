@@ -295,11 +295,6 @@
  * in the node, one with pass_thru and one with real no_pass - then
  * no_pass will overrule pass_thru */
 #define P_PASS_THRU           0x400
-/**
- * We have a magic ear on this map tile... Later we should add a map
- * pointer where we attach as chained list this stuff - no search
- * or flags are then needed. */
-#define P_MAGIC_EAR           0x800
 /** For moving objects and what happens when they enter */
 #define P_WALK_ON             0x1000
 /** For moving objects and what happens when they leave */
