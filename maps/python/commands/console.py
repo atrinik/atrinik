@@ -24,6 +24,7 @@ class PyConsole(code.InteractiveConsole):
 			"__name__": "__console-" + activator.name.lower() + "__",
 			"__doc__": None,
 			"activator": activator,
+			"me": activator,
 		}
 		# The thread name will have the activator's name for uniqueness.
 		super(PyConsole, self).__init__(locals = _locals)
