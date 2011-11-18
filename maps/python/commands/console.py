@@ -4,6 +4,7 @@
 ## Only usable by DMs or those with the "console" command permission.
 
 from Interface import Interface
+import Common
 import threading, code
 
 ## Version of the command.
@@ -25,6 +26,7 @@ class PyConsole(code.InteractiveConsole):
 			"__doc__": None,
 			"activator": activator,
 			"me": activator,
+			"find_obj": Common.find_obj,
 		}
 		# The thread name will have the activator's name for uniqueness.
 		super(PyConsole, self).__init__(locals = _locals)
