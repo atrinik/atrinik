@@ -35,5 +35,5 @@
  * Initialize the boots type object methods. */
 void object_type_init_boots(void)
 {
-	object_type_methods[BOOTS].apply_func = common_object_apply_item;
+	object_type_methods[BOOTS].apply_func = object_apply_item;
 }

@@ -35,5 +35,5 @@
  * Initialize the wand type object methods. */
 void object_type_init_wand(void)
 {
-	object_type_methods[WAND].apply_func = common_object_apply_item;
+	object_type_methods[WAND].apply_func = object_apply_item;
 }

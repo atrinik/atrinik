@@ -86,6 +86,16 @@ typedef struct object_methods
 	int (*trigger_button_func)(object *op, object *cause, int state);
 
 	/**
+	 * Called when an object is removed from map.
+	 * @param op The object being removed. */
+	void (*remove_map_func)(object *op);
+
+	/**
+	 * Called when an object is removed from inventory.
+	 * @param op The object being removed. */
+	void (*remove_inv_func)(object *op);
+
+	/**
 	 * Fallback method. */
 	struct object_methods *fallback;
 } object_methods;

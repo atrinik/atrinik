@@ -35,5 +35,5 @@
  * Initialize the bow type object methods. */
 void object_type_init_bow(void)
 {
-	object_type_methods[BOW].apply_func = common_object_apply_item;
+	object_type_methods[BOW].apply_func = object_apply_item;
 }

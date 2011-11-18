@@ -280,7 +280,7 @@ static void stop_using_item(object *op, int type, int number)
 	{
 		if (tmp->type == type && QUERY_FLAG(tmp, FLAG_APPLIED))
 		{
-			apply_special(op, tmp, AP_UNAPPLY | AP_IGNORE_CURSE);
+			object_apply_item(op, tmp, AP_UNAPPLY | AP_IGNORE_CURSE);
 			number--;
 		}
 	}

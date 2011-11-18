@@ -35,6 +35,6 @@
  * Initialize the horn type object methods. */
 void object_type_init_horn(void)
 {
-	object_type_methods[HORN].apply_func = common_object_apply_item;
+	object_type_methods[HORN].apply_func = object_apply_item;
 	object_type_methods[HORN].fallback = &object_type_methods[ROD];
 }

@@ -619,7 +619,7 @@ int get_payment(object *pl, object *op)
 				draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
 			}
 
-			merge_ob(op, NULL);
+			object_merge(op);
 		}
 	}
 

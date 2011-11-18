@@ -35,5 +35,5 @@
  * Initialize the helmet type object methods. */
 void object_type_init_helmet(void)
 {
-	object_type_methods[HELMET].apply_func = common_object_apply_item;
+	object_type_methods[HELMET].apply_func = object_apply_item;
 }

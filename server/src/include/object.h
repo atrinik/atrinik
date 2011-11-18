@@ -546,12 +546,24 @@ typedef struct oblnk
  * for both functions. */
 /*@{*/
 /** Don't try to merge inserted object with ones already on space. */
-#define INS_NO_MERGE        0x0001
+#define INS_NO_MERGE 1
 /**
  * Don't call check_walk_on against the originator - saves CPU
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
-#define INS_NO_WALK_ON      0x0002
+#define INS_NO_WALK_ON 2
+/*@}*/
+
+/**
+ * @defgroup REMOVAL_xxx Object removal flags.
+ * Flags used for object_remove()>@
+ *@{*/
+/**
+ * Do not adjust weight. */
+#define REMOVE_NO_WEIGHT 1
+/**
+ * Do not perform walk off check. */
+#define REMOVE_NO_WALK_OFF 2
 /*@}*/
 
 /**

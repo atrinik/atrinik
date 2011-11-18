@@ -229,7 +229,7 @@ object *find_throw_tag(object *op)
 		 * after this function returns. */
 		else
 		{
-			if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
+			if (object_apply_item(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 			{
 				LOG(llevBug, "find_throw_ob(): couldn't unapply throwing item %s from %s\n", query_name(tmp, NULL), query_name(op, NULL));
 				return NULL;

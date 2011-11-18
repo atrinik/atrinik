@@ -1168,7 +1168,7 @@ object *hit_with_arrow(object *op, object *victim)
 		/* Else leave arrow where it is */
 		else
 		{
-			hitter = merge_ob(hitter, NULL);
+			hitter = object_merge(hitter);
 		}
 
 		return NULL;

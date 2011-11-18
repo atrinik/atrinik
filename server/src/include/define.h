@@ -1477,7 +1477,7 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
 	}
 
 /**
- * Flags for apply_special().
+ * Flags for object_apply_item().
  *
  * @anchor AP_xxx */
 enum apply_flag

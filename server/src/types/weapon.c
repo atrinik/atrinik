@@ -35,5 +35,5 @@
  * Initialize the weapon type object methods. */
 void object_type_init_weapon(void)
 {
-	object_type_methods[WEAPON].apply_func = common_object_apply_item;
+	object_type_methods[WEAPON].apply_func = object_apply_item;
 }

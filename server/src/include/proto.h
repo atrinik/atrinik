@@ -244,8 +244,6 @@ extern void do_forget_spell(object *op, int spell);
 extern int manual_apply(object *op, object *tmp, int aflag);
 extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
-extern int apply_special(object *who, object *op, int aflags);
-extern int monster_apply_special(object *who, object *op, int aflags);
 /* src/server/arch.c */
 extern int arch_init;
 extern archetype *first_archetype;
@@ -513,6 +511,7 @@ extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *merge_ob(object *op, object *top);
+extern object *object_merge(object *op);
 extern signed long sum_weight(object *op);
 extern void add_weight(object *op, sint32 weight);
 extern void sub_weight(object *op, sint32 weight);
@@ -534,6 +533,7 @@ extern void update_object(object *op, int action);
 extern void drop_ob_inv(object *ob);
 extern void object_destroy(object *ob);
 extern void destruct_ob(object *op);
+extern void object_remove(object *op, int flags);
 extern void remove_ob(object *op);
 extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
 extern int object_check_move_on(object *op, object *originator);
@@ -582,6 +582,8 @@ extern char *object_describe(object *op, object *observer, char *buf, size_t siz
 extern int object_move_on(object *op, object *victim, object *originator, int state);
 extern int object_trigger(object *op, object *cause, int state);
 extern int object_trigger_button(object *op, object *cause, int state);
+extern void object_callback_remove_map(object *op);
+extern void object_callback_remove_inv(object *op);
 extern object *stop_item(object *op);
 extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
 /* src/server/party.c */
@@ -936,7 +938,7 @@ extern void updates_init(void);
 extern void cmd_request_update(char *buf, int len, socket_struct *ns);
 /* src/types/common/apply.c */
 extern int common_object_apply(object *op, object *applier, int aflags);
-extern int common_object_apply_item(object *op, object *applier, int aflags);
+extern int object_apply_item(object *op, object *applier, int aflags);
 /* src/types/common/describe.c */
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
 /* src/types/common/process.c */

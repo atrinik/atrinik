@@ -296,6 +296,34 @@ int object_trigger_button(object *op, object *cause, int state)
 	return OBJECT_METHOD_UNHANDLED;
 }
 
+/** @copydoc object_methods::remove_map_func */
+void object_callback_remove_map(object *op)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->remove_map_func)
+		{
+			methods->remove_map_func(op);
+		}
+	}
+}
+
+/** @copydoc object_methods::remove_inv_func */
+void object_callback_remove_inv(object *op)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->remove_inv_func)
+		{
+			methods->remove_inv_func(op);
+		}
+	}
+}
+
 /**
  * An item (::ARROW or such) stops moving.
  *
@@ -359,6 +387,6 @@ void fix_stopped_item(object *op, mapstruct *map, object *originator)
 	else if (op->type == ARROW)
 	{
 		/* Only some arrows actually need this. */
-		merge_ob(op, NULL);
+		object_merge(op);
 	}
 }

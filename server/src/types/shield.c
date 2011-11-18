@@ -35,5 +35,5 @@
  * Initialize the shield type object methods. */
 void object_type_init_shield(void)
 {
-	object_type_methods[SHIELD].apply_func = common_object_apply_item;
+	object_type_methods[SHIELD].apply_func = object_apply_item;
 }

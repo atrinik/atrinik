@@ -37,7 +37,7 @@ static int apply_func(object *op, object *applier, int aflags)
 	/* If lit and in player's inventory, handle as normal item apply. */
 	if (op->glow_radius && op->env && op->env->type == PLAYER)
 	{
-		apply_special(applier, op, aflags);
+		object_apply_item(applier, op, aflags);
 
 		/* If the light is applied now, we don't want to go on and
 		 * extinguish it. */

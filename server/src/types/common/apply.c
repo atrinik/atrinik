@@ -38,13 +38,267 @@ int common_object_apply(object *op, object *applier, int aflags)
 	return OBJECT_METHOD_UNHANDLED;
 }
 
-int common_object_apply_item(object *op, object *applier, int aflags)
+int object_apply_item(object *op, object *applier, int aflags)
 {
-	(void) aflags;
+	int basic_aflag;
+	object *tmp;
+	uint8 ring_left;
+
+	if (!op || !applier)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (applier->type != PLAYER)
+	{
+		return OBJECT_METHOD_OK;
+	}
 
 	if (op->env != applier)
 	{
 		return OBJECT_METHOD_ERROR;
+	}
+
+	basic_aflag = aflags & AP_BASIC_FLAGS;
+
+	if (!QUERY_FLAG(op, FLAG_APPLIED))
+	{
+		if (op->item_power != 0 && op->item_power + CONTR(applier)->item_power > settings.item_power_factor * applier->level)
+		{
+			draw_info(COLOR_WHITE, applier, "Equipping that combined with other items would consume your soul!");
+			return OBJECT_METHOD_OK;
+		}
+	}
+	else
+	{
+		/* Always apply, so no reason to unapply. */
+		if (basic_aflag == AP_APPLY)
+		{
+			return OBJECT_METHOD_OK;
+		}
+
+		if (!(aflags & AP_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
+		{
+			draw_info_format(COLOR_WHITE, applier, "No matter how hard you try, you just can't remove it!");
+			return OBJECT_METHOD_OK;
+		}
+
+		if (QUERY_FLAG(op, FLAG_PERM_CURSED))
+		{
+			SET_FLAG(op, FLAG_CURSED);
+		}
+
+		if (QUERY_FLAG(op, FLAG_PERM_DAMNED))
+		{
+			SET_FLAG(op, FLAG_DAMNED);
+		}
+
+		CLEAR_FLAG(op, FLAG_APPLIED);
+
+		switch (op->type)
+		{
+			case WEAPON:
+				change_abil(applier, op);
+				CLEAR_FLAG(applier, FLAG_READY_WEAPON);
+				draw_info_format(COLOR_WHITE, applier, "You unwield %s.", query_name(op, applier));
+				break;
+
+			case SKILL:
+				CONTR(applier)->shoottype = range_none;
+
+				if (!IS_INVISIBLE(op, applier))
+				{
+					/* It's a tool, need to unlink it */
+					unlink_skill(op);
+					draw_info_format(COLOR_WHITE, applier, "You stop using the %s.", query_name(op, applier));
+					draw_info_format(COLOR_WHITE, applier, "You can no longer use the skill: %s.", skills[op->stats.sp].name);
+				}
+
+				change_abil(applier, op);
+				applier->chosen_skill = NULL;
+				break;
+
+			case ARMOUR:
+			case HELMET:
+			case SHIELD:
+			case RING:
+			case BOOTS:
+			case GLOVES:
+			case AMULET:
+			case GIRDLE:
+			case BRACERS:
+			case CLOAK:
+				change_abil(applier, op);
+				draw_info_format(COLOR_WHITE, applier, "You unwear %s.", query_name(op, applier));
+				break;
+
+			case BOW:
+			case WAND:
+			case ROD:
+			case HORN:
+				CONTR(applier)->shoottype = range_none;
+				draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
+				break;
+
+			default:
+				draw_info_format(COLOR_WHITE, applier, "You unapply %s.", query_name(op, applier));
+				break;
+		}
+
+		fix_player(applier);
+
+		if (!(aflags & AP_NO_MERGE))
+		{
+			object_merge(op);
+		}
+
+		return OBJECT_METHOD_OK;
+	}
+
+	if (basic_aflag == AP_UNAPPLY)
+	{
+		return OBJECT_METHOD_OK;
+	}
+
+	ring_left = 0;
+
+	/* This goes through and checks to see if the player already has
+	 * something of that type applied - if so, unapply it. */
+	for (tmp = applier->inv; tmp; tmp = tmp->below)
+	{
+		if ((tmp->type == op->type || ((op->type == WAND || op->type == ROD || op->type == HORN) && (tmp->type == WAND || tmp->type == ROD || tmp->type == HORN))) && QUERY_FLAG(tmp, FLAG_APPLIED) && tmp != op)
+		{
+			if (tmp->type == RING && !ring_left)
+			{
+				ring_left = 1;
+			}
+			else if (object_apply_item(applier, tmp, AP_UNAPPLY))
+			{
+				return OBJECT_METHOD_OK;
+			}
+		}
+	}
+
+	op = object_stack_get_reinsert(op, 1);
+
+	switch (op->type)
+	{
+		case WEAPON:
+			if (!QUERY_FLAG(applier, FLAG_USE_WEAPON))
+			{
+				draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
+				return OBJECT_METHOD_OK;
+			}
+
+			/* If we have applied a shield, don't allow applying of polearm or two-handed weapons. */
+			if ((op->sub_type >= WEAP_POLE_IMPACT || op->sub_type >= WEAP_2H_IMPACT) && CONTR(applier)->equipment[PLAYER_EQUIP_SHIELD])
+			{
+				draw_info(COLOR_WHITE, applier, "You can't wield this weapon and a shield.");
+				return OBJECT_METHOD_OK;
+			}
+
+			if (!check_skill_to_apply(applier, op))
+			{
+				return OBJECT_METHOD_OK;
+			}
+
+			draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
+			SET_FLAG(op, FLAG_APPLIED);
+			SET_FLAG(applier, FLAG_READY_WEAPON);
+			change_abil(applier, op);
+			break;
+
+		case SHIELD:
+			/* Don't allow polearm or two-handed weapons with a shield. */
+			if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_POLE_IMPACT || CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_2H_IMPACT))
+			{
+				draw_info(COLOR_WHITE, applier, "You can't use a shield with your current weapon.");
+				return OBJECT_METHOD_OK;
+			}
+
+		case ARMOUR:
+		case HELMET:
+		case BOOTS:
+		case GLOVES:
+		case GIRDLE:
+		case BRACERS:
+		case CLOAK:
+			if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR))
+			{
+				draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
+				return OBJECT_METHOD_OK;
+			}
+
+		case RING:
+		case AMULET:
+			draw_info_format(COLOR_WHITE, applier, "You wear %s.", query_name(op, applier));
+			SET_FLAG(op, FLAG_APPLIED);
+			change_abil(applier, op);
+			break;
+
+		case SKILL:
+			CONTR(applier)->shoottype = range_skill;
+
+			if (!IS_INVISIBLE(op, applier))
+			{
+				link_player_skill(applier, op);
+				draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
+				draw_info_format(COLOR_WHITE, applier, "You can now use the skill: %s.", skills[op->stats.sp].name);
+			}
+			else
+			{
+				send_ready_skill(applier, skills[op->stats.sp].name);
+			}
+
+			SET_FLAG(op, FLAG_APPLIED);
+			change_abil(applier, op);
+			applier->chosen_skill = op;
+			break;
+
+		case WAND:
+		case ROD:
+		case HORN:
+		case BOW:
+			if (!check_skill_to_apply(applier, op))
+			{
+				return OBJECT_METHOD_OK;
+			}
+
+			draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
+			SET_FLAG(op, FLAG_APPLIED);
+
+			if (op->type == BOW)
+			{
+				draw_info_format(COLOR_WHITE, applier, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, applier));
+			}
+
+			break;
+
+		default:
+			draw_info_format(COLOR_WHITE, applier, "You apply %s.", query_name(op, applier));
+	}
+
+	if (!QUERY_FLAG(op, FLAG_APPLIED))
+	{
+		SET_FLAG(op, FLAG_APPLIED);
+	}
+
+	fix_player(applier);
+	SET_FLAG(op, FLAG_BEEN_APPLIED);
+
+	if (QUERY_FLAG(op, FLAG_PERM_CURSED))
+	{
+		SET_FLAG(op, FLAG_CURSED);
+	}
+
+	if (QUERY_FLAG(op, FLAG_PERM_DAMNED))
+	{
+		SET_FLAG(op, FLAG_DAMNED);
+	}
+
+	if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))
+	{
+		draw_info(COLOR_WHITE, applier, "Oops, it feels deadly cold!");
 	}
 
 	return OBJECT_METHOD_OK;

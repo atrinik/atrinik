@@ -35,5 +35,5 @@
  * Initialize the cloak type object methods. */
 void object_type_init_cloak(void)
 {
-	object_type_methods[CLOAK].apply_func = common_object_apply_item;
+	object_type_methods[CLOAK].apply_func = object_apply_item;
 }

@@ -526,7 +526,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
-		if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
+		if (object_apply_item(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 		{
 			return;
 		}
@@ -572,7 +572,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
 		/* Can't unapply it */
-		if (apply_special(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
+		if (object_apply_item(op, tmp, AP_UNAPPLY | AP_NO_MERGE))
 		{
 			return;
 		}
@@ -1635,7 +1635,7 @@ int command_rename_item(object *op, char *params)
 	}
 
 	esrv_update_item(UPD_NAME, tmp);
-	merge_ob(tmp, NULL);
+	object_merge(tmp);
 
 	return 1;
 }

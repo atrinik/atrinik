@@ -35,5 +35,5 @@
  * Initialize the amulet type object methods. */
 void object_type_init_amulet(void)
 {
-	object_type_methods[AMULET].apply_func = common_object_apply_item;
+	object_type_methods[AMULET].apply_func = object_apply_item;
 }

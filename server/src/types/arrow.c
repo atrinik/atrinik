@@ -499,7 +499,7 @@ void stop_arrow(object *op)
 
 	if (op)
 	{
-		merge_ob(op, NULL);
+		object_merge(op);
 	}
 }
 

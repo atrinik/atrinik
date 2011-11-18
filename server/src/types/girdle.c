@@ -35,5 +35,5 @@
  * Initialize the girdle type object methods. */
 void object_type_init_girdle(void)
 {
-	object_type_methods[GIRDLE].apply_func = common_object_apply_item;
+	object_type_methods[GIRDLE].apply_func = object_apply_item;
 }
