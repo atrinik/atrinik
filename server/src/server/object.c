@@ -1790,40 +1790,6 @@ void object_remove(object *op, int flags)
 		if (op->map->in_memory != MAP_SAVING)
 		{
 			msp->update_tile++;
-
-			if (op->type == PLAYER)
-			{
-				player *pltemp = CONTR(op);
-
-				/* now we remove us from the local map player chain */
-				if (pltemp->map_below)
-				{
-					CONTR(pltemp->map_below)->map_above = pltemp->map_above;
-				}
-				else
-				{
-					op->map->player_first = pltemp->map_above;
-				}
-
-				if (pltemp->map_above)
-				{
-					CONTR(pltemp->map_above)->map_below = pltemp->map_below;
-				}
-
-				pltemp->map_below = pltemp->map_above = NULL;
-				pltemp->update_los = 1;
-
-				/* An open container NOT in our player inventory = unlink (close) when we move */
-				if (pltemp->container && pltemp->container->env != op)
-				{
-					container_close(op, NULL);
-				}
-			}
-			else if (op->type == MAP_EVENT_OBJ)
-			{
-				map_event_obj_deinit(op);
-			}
-
 			update_object(op, UP_OBJ_REMOVE);
 		}
 

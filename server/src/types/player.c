@@ -1888,8 +1888,47 @@ int player_has_region_map(player *pl, region *r)
 	return 0;
 }
 
+/** @copydoc object_methods::remove_map_func */
+static void remove_map_func(object *op)
+{
+	player *pl;
+
+	if (op->map->in_memory == MAP_SAVING)
+	{
+		return;
+	}
+
+	pl = CONTR(op);
+
+	/* Remove player from the map's linked list of players. */
+	if (pl->map_below)
+	{
+		CONTR(pl->map_below)->map_above = pl->map_above;
+	}
+	else
+	{
+		op->map->player_first = pl->map_above;
+	}
+
+	if (pl->map_above)
+	{
+		CONTR(pl->map_above)->map_below = pl->map_below;
+	}
+
+	pl->map_below = pl->map_above = NULL;
+	pl->update_los = 1;
+
+	/* If the player has a container open that is not in their inventory,
+	 * close it. */
+	if (pl->container && pl->container->env != op)
+	{
+		container_close(op, NULL);
+	}
+}
+
 /**
  * Initialize the player type object methods. */
 void object_type_init_player(void)
 {
+	object_type_methods[PLAYER].remove_map_func = remove_map_func;
 }

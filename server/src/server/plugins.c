@@ -583,37 +583,6 @@ void map_event_free(map_event *tmp)
 }
 
 /**
- * Deinitialize map event object.
- * @param ob What to deinitialize. */
-void map_event_obj_deinit(object *ob)
-{
-	map_event *tmp, *prev = NULL;
-
-	if (!ob->map)
-	{
-		return;
-	}
-
-	for (tmp = ob->map->events; tmp; prev = tmp, tmp = tmp->next)
-	{
-		if (tmp->event == ob)
-		{
-			if (!prev)
-			{
-				ob->map->events = tmp->next;
-			}
-			else
-			{
-				prev->next = tmp->next;
-			}
-
-			map_event_free(tmp);
-			break;
-		}
-	}
-}
-
-/**
  * Triggers a map-wide event.
  * @param event_id Event ID to trigger.
  * @param m Map we're working on.
