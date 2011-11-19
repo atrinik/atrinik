@@ -8,6 +8,5 @@ no_teleport 1
 last_sp -1
 last_heal 9
 sys_object 1
-layer 0
 no_pick 1
 end
