@@ -35,7 +35,11 @@
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
 	(void) originator;
-	(void) state;
+
+	if (!victim->direction || !state)
+	{
+		return OBJECT_METHOD_OK;
+	}
 
 	victim->direction = absdir(victim->direction + op->direction);
 	update_turn_face(victim);
