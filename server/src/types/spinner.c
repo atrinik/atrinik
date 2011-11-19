@@ -31,8 +31,21 @@
 
 #include <global.h>
 
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator, int state)
+{
+	(void) originator;
+	(void) state;
+
+	victim->direction = absdir(victim->direction + op->direction);
+	update_turn_face(victim);
+
+	return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the spinner type object methods. */
 void object_type_init_spinner(void)
 {
+	object_type_methods[SPINNER].move_on_func = move_on_func;
 }
