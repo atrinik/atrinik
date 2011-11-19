@@ -114,7 +114,7 @@ static void container_open(object *applier, object *op)
 		{
 			if (tmp->type == RUNE)
 			{
-				spring_trap(tmp, applier);
+				rune_spring(tmp, applier);
 			}
 			else if (tmp->type == MONSTER)
 			{

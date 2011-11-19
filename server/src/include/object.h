@@ -635,4 +635,11 @@ typedef struct magic_mirror_struct
  * Check whether an object is cursed/damned. */
 #define OBJECT_CURSED(ob) (QUERY_FLAG((ob), FLAG_CURSED) || QUERY_FLAG((ob), FLAG_DAMNED))
 
+#define OBJ_DESTROYED_BEGIN(_op) \
+{ \
+	tag_t __tag_ ##_op = (_op)->count;
+#define OBJ_DESTROYED(_op) (!OBJECT_VALID((_op), __tag_ ##_op))
+#define OBJ_DESTROYED_END(_op) \
+}
+
 #endif

@@ -53,7 +53,7 @@ static void door_open(object *ob, object *opener, uint8 nearby)
 	{
 		if (tmp->type == RUNE && tmp->level)
 		{
-			spring_trap(tmp, opener);
+			rune_spring(tmp, opener);
 		}
 	}
 

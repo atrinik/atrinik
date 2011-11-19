@@ -143,9 +143,24 @@ static void process_func(object *op)
 	}
 }
 
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator, int state)
+{
+	(void) originator;
+	(void) state;
+
+	if (IS_LIVE(victim))
+	{
+		check_fired_arch(op);
+	}
+
+	return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the bullet type object methods. */
 void object_type_init_bullet(void)
 {
 	object_type_methods[BULLET].process_func = process_func;
+	object_type_methods[BULLET].move_on_func = move_on_func;
 }

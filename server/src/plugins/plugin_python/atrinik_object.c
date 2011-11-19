@@ -191,7 +191,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
 		return NULL;
 	}
 
-	hooks->spring_trap(obj->obj, who->obj);
+	hooks->rune_spring(obj->obj, who->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
