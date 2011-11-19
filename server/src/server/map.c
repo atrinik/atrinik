@@ -1010,7 +1010,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 						{
 							if (OBJECT_VALID(tmp->owner, tmp->ownercount) && tmp->owner->type == SPAWN_POINT)
 							{
-								tmp->owner->stats.sp = tmp->owner->last_sp;
+								tmp->owner->last_sp = -1;
 								tmp->owner->speed_left += 1.0f;
 								tmp->owner->enemy = NULL;
 							}
@@ -1027,7 +1027,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 				{
 					if (OBJECT_VALID(head->enemy, head->enemy_count))
 					{
-						head->stats.sp = head->last_sp;
+						head->last_sp = -1;
 						head->speed_left += 1.0f;
 
 						object_remove(head->enemy, 0);
