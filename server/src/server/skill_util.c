@@ -1095,7 +1095,7 @@ int change_skill(object *who, int sk_index)
 
 	if (sk_index >= 0 && sk_index < NROFSKILLS && (tmp = find_skill(who, sk_index)) != NULL)
 	{
-		if (object_apply_item(who, tmp, AP_APPLY))
+		if (object_apply_item(who, tmp, 0))
 		{
 			LOG(llevBug, "change_skill(): can't apply new skill (%s - %d)\n", who->name, sk_index);
 			return 0;
