@@ -95,9 +95,41 @@ typedef struct object_methods
 	 * @param op The object being removed. */
 	void (*remove_inv_func)(object *op);
 
+	/**
+	 * Function to handle firing a projectile, eg, an arrow being fired
+	 * from a bow, or a potion being thrown.
+	 * @param op What is being fired.
+	 * @param shooter Who is doing the firing.
+	 * @param dir Direction to fire into.
+	 * @return The fired object on success, NULL on failure. */
 	object *(*projectile_fire_func)(object *op, object *shooter, int dir);
+
+	/**
+	 * Function to handle a fired object moving, eg, arrow moving to the
+	 * next square along its path.
+	 * @param op The fired object.
+	 * @return The fired object, NULL if it was destroyed for some
+	 * reason. */
 	object *(*projectile_move_func)(object *op);
+
+	/**
+	 * Called when a fired object finds an alive object on the square it
+	 * just moved to.
+	 * @param op The fired object.
+	 * @param victim The found alive object. Note that this just means
+	 * that the object is on the @ref LAYER_LIVING layer, which may or
+	 * may not imply that the object is actually alive.
+	 * @retval OBJECT_METHOD_OK Successfully processed and should stop
+	 * the fired arch.
+	 * @retval OBJECT_METHOD_UNHANDLED Did not handle the event, should
+	 * continue trying to look for another alive object.
+	 * @retval OBJECT_METHOD_ERROR 'op' was destroyed. */
 	int (*projectile_hit_func)(object *op, object *victim);
+
+	/**
+	 * Called to stop a fired object.
+	 * @param op The fired object.
+	 * @return The fired object if it still exists, NULL otherwise. */
 	object *(*projectile_stop_func)(object *op);
 
 	/**
