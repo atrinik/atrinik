@@ -1095,7 +1095,7 @@ int change_skill(object *who, int sk_index)
 
 	if (sk_index >= 0 && sk_index < NROFSKILLS && (tmp = find_skill(who, sk_index)) != NULL)
 	{
-		if (object_apply_item(tmp, who, 0))
+		if (object_apply_item(tmp, who, 0) != OBJECT_METHOD_OK)
 		{
 			LOG(llevBug, "change_skill(): can't apply new skill (%s - %d)\n", who->name, sk_index);
 			return 0;
@@ -1106,7 +1106,7 @@ int change_skill(object *who, int sk_index)
 
 	if (who->chosen_skill)
 	{
-		if (object_apply_item(who->chosen_skill, who, AP_UNAPPLY))
+		if (object_apply_item(who->chosen_skill, who, AP_UNAPPLY) != OBJECT_METHOD_OK)
 		{
 			LOG(llevBug, "change_skill(): can't unapply old skill (%s - %d)\n", who->name, sk_index);
 		}
@@ -1151,7 +1151,7 @@ static int change_skill_to_skill(object *who, object *skl)
 		return 1;
 	}
 
-	if (object_apply_item(skl, who, AP_APPLY))
+	if (object_apply_item(skl, who, AP_APPLY) != OBJECT_METHOD_OK)
 	{
 		LOG(llevBug, "change_skill(): can't apply new skill (%s - %s)\n", query_name(who, NULL), query_name(skl, NULL));
 		return 1;

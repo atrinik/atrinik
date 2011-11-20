@@ -526,7 +526,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
-		if (object_apply_item(tmp, op, AP_UNAPPLY | AP_NO_MERGE))
+		if (object_apply_item(tmp, op, AP_UNAPPLY | AP_NO_MERGE) != OBJECT_METHOD_OK)
 		{
 			return;
 		}
@@ -572,7 +572,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	if (QUERY_FLAG(tmp, FLAG_APPLIED))
 	{
 		/* Can't unapply it */
-		if (object_apply_item(tmp, op, AP_UNAPPLY | AP_NO_MERGE))
+		if (object_apply_item(tmp, op, AP_UNAPPLY | AP_NO_MERGE) != OBJECT_METHOD_OK)
 		{
 			return;
 		}

@@ -51,7 +51,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
 	if (applier->type != PLAYER)
 	{
-		return OBJECT_METHOD_OK;
+		return OBJECT_METHOD_UNHANDLED;
 	}
 
 	if (op->env != applier)
@@ -66,7 +66,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		if (op->item_power != 0 && op->item_power + CONTR(applier)->item_power > settings.item_power_factor * applier->level)
 		{
 			draw_info(COLOR_WHITE, applier, "Equipping that combined with other items would consume your soul!");
-			return OBJECT_METHOD_OK;
+			return OBJECT_METHOD_ERROR;
 		}
 	}
 	else
@@ -80,7 +80,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		if (!(aflags & AP_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)))
 		{
 			draw_info_format(COLOR_WHITE, applier, "No matter how hard you try, you just can't remove it!");
-			return OBJECT_METHOD_OK;
+			return OBJECT_METHOD_ERROR;
 		}
 
 		if (QUERY_FLAG(op, FLAG_PERM_CURSED))
@@ -172,9 +172,9 @@ int object_apply_item(object *op, object *applier, int aflags)
 			{
 				ring_left = 1;
 			}
-			else if (object_apply_item(applier, tmp, AP_UNAPPLY))
+			else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK)
 			{
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 		}
 	}
@@ -187,19 +187,19 @@ int object_apply_item(object *op, object *applier, int aflags)
 			if (!QUERY_FLAG(applier, FLAG_USE_WEAPON))
 			{
 				draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 			/* If we have applied a shield, don't allow applying of polearm or two-handed weapons. */
 			if ((op->sub_type >= WEAP_POLE_IMPACT || op->sub_type >= WEAP_2H_IMPACT) && CONTR(applier)->equipment[PLAYER_EQUIP_SHIELD])
 			{
 				draw_info(COLOR_WHITE, applier, "You can't wield this weapon and a shield.");
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 			if (!check_skill_to_apply(applier, op))
 			{
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 			draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
@@ -213,7 +213,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 			if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_POLE_IMPACT || CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_2H_IMPACT))
 			{
 				draw_info(COLOR_WHITE, applier, "You can't use a shield with your current weapon.");
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 		case ARMOUR:
@@ -226,7 +226,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 			if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR))
 			{
 				draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 		case RING:
@@ -261,7 +261,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		case BOW:
 			if (!check_skill_to_apply(applier, op))
 			{
-				return OBJECT_METHOD_OK;
+				return OBJECT_METHOD_ERROR;
 			}
 
 			draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));

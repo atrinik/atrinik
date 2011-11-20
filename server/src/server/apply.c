@@ -290,7 +290,10 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 		}
 		else if (tmp == OBJECT_METHOD_ERROR)
 		{
-			draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");
+			if (op->env != pl)
+			{
+				draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");
+			}
 		}
 	}
 
