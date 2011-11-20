@@ -267,7 +267,6 @@ extern int attack_ob(object *op, object *hitter);
 extern int hit_player(object *op, int dam, object *hitter, int type);
 extern void hit_map(object *op, int dir, int reduce);
 extern int kill_object(object *op, int dam, object *hitter, int type);
-extern object *hit_with_arrow(object *op, object *victim);
 extern void confuse_living(object *op);
 extern void paralyze_living(object *op, int dam);
 extern int is_melee_range(object *hitter, object *enemy);
@@ -510,7 +509,6 @@ extern int freedir[49];
 extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);
-extern object *merge_ob(object *op, object *top);
 extern object *object_merge(object *op);
 extern signed long sum_weight(object *op);
 extern void add_weight(object *op, sint32 weight);
@@ -540,7 +538,6 @@ extern void replace_insert_ob_in_map(char *arch_string, object *op);
 extern object *object_stack_get(object *op, uint32 nrof);
 extern object *object_stack_get_reinsert(object *op, uint32 nrof);
 extern object *object_stack_get_removed(object *op, uint32 nrof);
-extern object *get_split_ob(object *orig_ob, int nr, char *err, size_t size);
 extern object *decrease_ob_nr(object *op, uint32 i);
 extern object *object_insert_into(object *op, object *where, int flag);
 extern object *insert_ob_in_ob(object *op, object *where);
@@ -583,8 +580,10 @@ extern int object_trigger(object *op, object *cause, int state);
 extern int object_trigger_button(object *op, object *cause, int state);
 extern void object_callback_remove_map(object *op);
 extern void object_callback_remove_inv(object *op);
-extern object *stop_item(object *op);
-extern void fix_stopped_item(object *op, mapstruct *map, object *originator);
+extern object *object_projectile_fire(object *op, object *shooter, int dir);
+extern object *object_projectile_move(object *op);
+extern int object_projectile_hit(object *op, object *victim);
+extern object *object_projectile_stop(object *op);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -617,7 +616,6 @@ extern void remove_plugin(const char *id);
 extern void remove_plugins(void);
 extern void map_event_obj_init(object *ob);
 extern void map_event_free(map_event *tmp);
-extern void map_event_obj_deinit(object *ob);
 extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
@@ -654,7 +652,6 @@ extern object *get_jail_exit(object *op);
 extern void init_regions(void);
 extern void free_regions(void);
 /* src/server/rune.c */
-extern void rune_spring(object* op, object* victim);
 extern int trap_see(object *op, object *trap, int level);
 extern int trap_show(object *trap, object *where);
 extern int trap_disarm(object *disarmer, object *trap);
@@ -942,6 +939,13 @@ extern int object_apply_item(object *op, object *applier, int aflags);
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
 /* src/types/common/process.c */
 extern int common_object_process(object *op);
+/* src/types/common/projectile.c */
+extern void common_projectile_process(object *op);
+extern object *common_object_projectile_move(object *op);
+extern object *common_object_projectile_stop_missile(object *op);
+extern object *common_object_projectile_stop_spell(object *op);
+extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
+extern int common_object_projectile_hit(object *op, object *victim);
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */
@@ -949,15 +953,9 @@ extern void object_type_init_amulet(void);
 /* src/types/armour.c */
 extern void object_type_init_armour(void);
 /* src/types/arrow.c */
-extern sint32 bow_get_ws(object *bow, object *arrow);
 extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
 extern sint16 arrow_get_damage(object *op, object *bow, object *arrow);
-extern int bow_get_skill(object *bow);
 extern object *arrow_find(object *op, shstr *type);
-extern void bow_fire(object *op, int dir);
-extern object *fix_stopped_arrow(object *op);
-extern void move_arrow(object *op);
-extern void stop_arrow(object *op);
 extern void object_type_init_arrow(void);
 /* src/types/base_info.c */
 extern void object_type_init_base_info(void);
@@ -973,6 +971,9 @@ extern void object_type_init_book(void);
 /* src/types/boots.c */
 extern void object_type_init_boots(void);
 /* src/types/bow.c */
+extern sint32 bow_get_ws(object *bow, object *arrow);
+extern int bow_get_skill(object *bow);
+extern void bow_fire(object *op, int dir);
 extern void object_type_init_bow(void);
 /* src/types/bracers.c */
 extern void object_type_init_bracers(void);
@@ -1169,6 +1170,7 @@ extern void drain_rod_charge(object *rod);
 extern void fix_rod_speed(object *rod);
 extern void object_type_init_rod(void);
 /* src/types/rune.c */
+extern void rune_spring(object *op, object *victim);
 extern void object_type_init_rune(void);
 /* src/types/savebed.c */
 extern void object_type_init_savebed(void);

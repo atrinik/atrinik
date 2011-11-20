@@ -95,6 +95,11 @@ typedef struct object_methods
 	 * @param op The object being removed. */
 	void (*remove_inv_func)(object *op);
 
+	object *(*projectile_fire_func)(object *op, object *shooter, int dir);
+	object *(*projectile_move_func)(object *op);
+	int (*projectile_hit_func)(object *op, object *victim);
+	object *(*projectile_stop_func)(object *op);
+
 	/**
 	 * Fallback method. */
 	struct object_methods *fallback;

@@ -1286,7 +1286,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 	if (!was_destroyed(arrow, tag))
 	{
-		move_arrow(arrow);
+//		move_arrow(arrow);
 	}
 
 	return 1;

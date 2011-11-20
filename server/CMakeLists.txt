@@ -249,6 +249,7 @@ set(SOURCES
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/process.c
+	src/types/common/projectile.c
 	src/types/ability.c
 	src/types/amulet.c
 	src/types/armour.c

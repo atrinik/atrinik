@@ -426,6 +426,6 @@ void do_throw(object *op, object *toss_item, int dir)
 
 	if (insert_ob_in_map(throw_ob, op->map, op, 0))
 	{
-		move_arrow(throw_ob);
+//		move_arrow(throw_ob);
 	}
 }

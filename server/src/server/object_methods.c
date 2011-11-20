@@ -324,69 +324,67 @@ void object_callback_remove_inv(object *op)
 	}
 }
 
-/**
- * An item (::ARROW or such) stops moving.
- *
- * This function assumes that only items on maps need special treatment.
- *
- * If the object can't be stopped, or it was destroyed while trying to
- * stop it, NULL is returned.
- * @param op Object to check.
- * @return Pointer to stopped object, NULL if destroyed or can't be
- * stopped. */
-object *stop_item(object *op)
+object *object_projectile_fire(object *op, object *shooter, int dir)
 {
-	if (op->map == NULL)
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->projectile_fire_func)
+		{
+			return methods->projectile_fire_func(op, shooter, dir);
+		}
+	}
+
+	return NULL;
+}
+
+object *object_projectile_move(object *op)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->projectile_move_func)
+		{
+			return methods->projectile_move_func(op);
+		}
+	}
+
+	return NULL;
+}
+
+int object_projectile_hit(object *op, object *victim)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->projectile_hit_func)
+		{
+			return methods->projectile_hit_func(op, victim);
+		}
+	}
+
+	return OBJECT_METHOD_UNHANDLED;
+}
+
+object *object_projectile_stop(object *op)
+{
+	object_methods *methods;
+
+	if (trigger_event(EVENT_STOP, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
 	{
 		return op;
 	}
 
-	switch (op->type)
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
 	{
-		case ARROW:
-			if (op->speed >= MIN_ACTIVE_SPEED)
-			{
-				op = fix_stopped_arrow(op);
-			}
-
-			return op;
-
-		case CONE:
-			if (op->speed < MIN_ACTIVE_SPEED)
-			{
-				return op;
-			}
-			else
-			{
-				return NULL;
-			}
-
-		default:
-			return op;
-	}
-}
-
-/**
- * Put stopped item where stop_item() had found it.
- * Inserts item into the old map, or merges it if it already is on the
- * map.
- * @param op Object to stop.
- * @param map Must be the value of op->map before stop_item() was called.
- * @param originator What caused op to be stopped. */
-void fix_stopped_item(object *op, mapstruct *map, object *originator)
-{
-	if (map == NULL)
-	{
-		return;
+		if (methods->projectile_stop_func)
+		{
+			return methods->projectile_stop_func(op);
+		}
 	}
 
-	if (QUERY_FLAG(op, FLAG_REMOVED))
-	{
-		insert_ob_in_map(op, map, originator, 0);
-	}
-	else if (op->type == ARROW)
-	{
-		/* Only some arrows actually need this. */
-		object_merge(op);
-	}
+	return NULL;
 }

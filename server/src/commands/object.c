@@ -322,10 +322,8 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
  * @param no_mevent If 1, no map-wide pickup event will be triggered. */
 void pick_up(object *op, object *alt, int no_mevent)
 {
-	int need_fix_tmp = 0, count;
+	int count;
 	object *tmp = NULL;
-	mapstruct *tmp_map = NULL;
-	tag_t tag;
 
 	/* Decide which object to pick. */
 	if (alt)
@@ -333,7 +331,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 		if (!can_pick(op, alt))
 		{
 			draw_info_format(COLOR_WHITE, op, "You can't pick up %s.", alt->name);
-			goto leave;
+			return;
 		}
 
 		tmp = alt;
@@ -343,7 +341,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 		if (op->below == NULL || !can_pick(op, op->below))
 		{
 			draw_info(COLOR_WHITE, op, "There is nothing to pick up here.");
-			goto leave;
+			return;
 		}
 
 		tmp = op->below;
@@ -354,20 +352,9 @@ void pick_up(object *op, object *alt, int no_mevent)
 		container_close(NULL, tmp);
 	}
 
-	/* Try to catch it. */
-	tmp_map = tmp->map;
-	tmp = stop_item(tmp);
-
-	if (tmp == NULL)
-	{
-		goto leave;
-	}
-
-	need_fix_tmp = 1;
-
 	if (!can_pick(op, tmp))
 	{
-		goto leave;
+		return;
 	}
 
 	if (op->type == PLAYER)
@@ -391,7 +378,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 
 		if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt))
 		{
-			goto leave;
+			return;
 		}
 	}
 	/* Con container pickup */
@@ -434,28 +421,14 @@ void pick_up(object *op, object *alt, int no_mevent)
 	if (op->type == PLAYER && alt->type == CONTAINER && QUERY_FLAG(tmp, FLAG_STARTEQUIP))
 	{
 		draw_info(COLOR_WHITE, op, "This object cannot be put into containers!");
-		goto leave;
+		return;
 	}
 
-	tag = tmp->count;
 	pick_up_object(op, alt, tmp, count, no_mevent);
-
-	if (was_destroyed(tmp, tag) || tmp->env)
-	{
-		need_fix_tmp = 0;
-	}
 
 	if (op->type == PLAYER)
 	{
 		CONTR(op)->count = 0;
-	}
-
-	goto leave;
-
-leave:
-	if (need_fix_tmp)
-	{
-		fix_stopped_item(tmp, tmp_map, op);
 	}
 }
 

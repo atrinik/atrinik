@@ -1066,7 +1066,7 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
 	{
 		new_mode = 1;
 	}
-	else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL || !on_same_map(hitter, target))
+	else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL)
 	{
 		return 1;
 	}
@@ -1076,113 +1076,6 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
 	}
 
 	return new_mode != simple_attack;
-}
-
-/**
- * Disassembles the missile, attacks the victim and reassembles the
- * missile.
- * @param op Missile hitting.
- * @param victim Who is hit by op.
- * @return Pointer to the reassembled missile, or NULL if the missile
- * isn't available anymore. */
-object *hit_with_arrow(object *op, object *victim)
-{
-	object *container, *hitter;
-	int hit_something = 0;
-	tag_t hitter_tag;
-	sint16 victim_x, victim_y;
-	mapstruct *victim_map;
-
-	/* Disassemble missile */
-	if (op->inv)
-	{
-		container = op;
-		hitter = op->inv;
-		object_remove(hitter, 0);
-		insert_ob_in_map(hitter, container->map, hitter, INS_NO_MERGE | INS_NO_WALK_ON);
-	}
-	else
-	{
-		container = NULL;
-		hitter = op;
-	}
-
-	/* Try to hit victim */
-	victim_x = victim->x;
-	victim_y = victim->y;
-	victim_map = victim->map;
-	hitter_tag = hitter->count;
-
-	if (HAS_EVENT(hitter, EVENT_ATTACK))
-	{
-		/* Trigger the ATTACK event */
-		trigger_event(EVENT_ATTACK, hitter, hitter, victim, NULL, 0, op->stats.dam, op->stats.wc, SCRIPT_FIX_ALL);
-	}
-	else
-	{
-		hit_something = attack_ob_simple(victim, hitter, op->stats.dam, op->stats.wc);
-	}
-
-	/* Arrow attacks door, rune of summoning is triggered, demon is put on
-	 * arrow, move_apply() calls this function, arrow sticks in demon,
-	 * attack_ob_simple() returns, and we've got an arrow that still exists
-	 * but is no longer on the map. Ugh. (Beware: Such things can happen at
-	 * other places as well!) */
-	if (was_destroyed(hitter, hitter_tag) || hitter->env != NULL)
-	{
-		if (container)
-		{
-			object_remove(container, 0);
-		}
-
-		return NULL;
-	}
-
-	/* Missile hit victim */
-	if (hit_something)
-	{
-		if (container)
-		{
-			object_remove(container, 0);
-		}
-
-		hitter = fix_stopped_arrow(hitter);
-
-		if (hitter == NULL)
-		{
-			return NULL;
-		}
-
-		/* Trigger the STOP event */
-		trigger_event(EVENT_STOP, victim, hitter, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
-		CLEAR_FLAG(hitter, FLAG_IS_MISSILE);
-
-		/* Else try to put arrow on victim's map square */
-		if ((victim_x != hitter->x || victim_y != hitter->y))
-		{
-			object_remove(hitter, 0);
-			hitter->x = victim_x;
-			hitter->y = victim_y;
-			insert_ob_in_map(hitter, victim_map, hitter, 0);
-		}
-		/* Else leave arrow where it is */
-		else
-		{
-			hitter = object_merge(hitter);
-		}
-
-		return NULL;
-	}
-
-	/* Missile missed victim - reassemble missile */
-	if (container)
-	{
-		/* Technical remove, no walk check */
-		object_remove(hitter, 0);
-		insert_ob_in_ob(hitter, container);
-	}
-
-	return op;
 }
 
 /**

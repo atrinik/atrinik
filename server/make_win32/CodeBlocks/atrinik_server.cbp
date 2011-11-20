@@ -141,6 +141,7 @@
 		<Unit filename="..\..\src\types\common\apply.c" />
 		<Unit filename="..\..\src\types\common\describe.c" />
 		<Unit filename="..\..\src\types\common\process.c" />
+		<Unit filename="..\..\src\types\common\projectile.c" />
 		<Unit filename="..\..\src\types\ability.c" />
 		<Unit filename="..\..\src\types\amulet.c" />
 		<Unit filename="..\..\src\types\armour.c" />
