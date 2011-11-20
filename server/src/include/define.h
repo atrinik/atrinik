@@ -1684,12 +1684,13 @@ enum apply_flag
 #define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _obj) \
 { \
 	int __sub_layer; \
-	object *__next; \
+	object *__tmp, *__next; \
 	for (__sub_layer = 0; __sub_layer < ((_layer) == 0 ? 1 : NUM_SUB_LAYERS); __sub_layer++) \
 	{ \
-		for ((_obj) = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); (_obj) && (_obj)->layer == (_layer) && (_obj)->sub_layer == __sub_layer; (_obj) = __next) \
+		for (__tmp = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
 		{ \
-			__next = (_obj)->above;
+			__next = __tmp->above; \
+			(_obj) = __tmp;
 
 #define FOR_MAP_LAYER_BREAK \
 			__sub_layer = NUM_SUB_LAYERS; \
