@@ -94,6 +94,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		}
 
 		CLEAR_FLAG(op, FLAG_APPLIED);
+		esrv_update_item(UPD_FLAGS, op);
 
 		switch (op->type)
 		{
@@ -295,6 +296,8 @@ int object_apply_item(object *op, object *applier, int aflags)
 	{
 		SET_FLAG(op, FLAG_DAMNED);
 	}
+
+	esrv_update_item(UPD_FLAGS, op);
 
 	if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))
 	{
