@@ -58,7 +58,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		if (op->other_arch && op->other_arch->clone.sub_type & 1)
 		{
 			op->animation_id = op->other_arch->clone.animation_id;
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
+			SET_ANIMATION_STATE(op);
 		}
 		else
 		{
@@ -69,10 +69,12 @@ static int apply_func(object *op, object *applier, int aflags)
 		if (op->map)
 		{
 			adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-			update_object(op, UP_OBJ_FACE);
 		}
 
 		op->glow_radius = 0;
+
+		update_object(op, UP_OBJ_FACE);
+		esrv_update_item(UPD_FACE, op);
 	}
 	else if (op->last_sp)
 	{
@@ -90,7 +92,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		{
 			SET_FLAG(op, FLAG_ANIMATE);
 			op->animation_id = op->arch->clone.animation_id;
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
+			SET_ANIMATION_STATE(op);
 		}
 
 		op->glow_radius = op->last_sp;
@@ -98,8 +100,10 @@ static int apply_func(object *op, object *applier, int aflags)
 		if (op->map)
 		{
 			adjust_light_source(op->map, op->x, op->y, op->glow_radius);
-			update_object(op, UP_OBJ_FACE);
 		}
+
+		update_object(op, UP_OBJ_FACE);
+		esrv_update_item(UPD_FACE, op);
 	}
 	else
 	{
