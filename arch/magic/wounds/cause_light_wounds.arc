@@ -7,7 +7,7 @@ face wounds.101
 animation cause_wounds
 is_animated 1
 last_sp 12
-is_missile 1
+is_spell 1
 anim_speed 4
 is_turnable 0
 no_pick 1

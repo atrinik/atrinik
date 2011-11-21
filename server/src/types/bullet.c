@@ -68,9 +68,6 @@ int bullet_reflect(object *op, mapstruct *m, int x, int y)
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	mapstruct *m;
-	int x, y;
-
 	if (op->stats.sp == SP_MAGIC_MISSILE)
 	{
 		rv_vector rv;
@@ -83,64 +80,32 @@ static void process_func(object *op)
 		}
 
 		op->direction = rv.direction;
-		update_turn_face(op);
+		SET_ANIMATION_STATE(op);
 	}
 
-	x = op->x + DIRX(op);
-	y = op->y + DIRY(op);
-	m = get_map_from_coord(op->map, &x, &y);
+	common_object_projectile_process(op);
+}
 
-	if (!m)
+/** @copydoc object_methods::projectile_hit_func */
+static int projectile_hit_func(object *op, object *victim)
+{
+	/* Handle probe. */
+	if (op->stats.sp == SP_PROBE && IS_LIVE(victim))
 	{
-		object_remove(op, 0);
-		object_destroy(op);
-		return;
-	}
+		object *owner;
 
-	if (!op->last_sp-- || (!op->direction || wall(m, x, y)))
-	{
-		if (op->other_arch)
+		owner = get_owner(op);
+
+		if (owner)
 		{
-			explode_object(op);
-		}
-		else
-		{
-			object_remove(op, 0);
-			object_destroy(op);
+			draw_info_format(COLOR_WHITE, owner, "Your probe analyzes %s.", victim->name);
+			examine(owner, victim, NULL);
 		}
 
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
-	object_remove(op, 0);
-	op->x = x;
-	op->y = y;
-	op = insert_ob_in_map(op, m, op, 0);
-
-	if (!op)
-	{
-		return;
-	}
-
-	if (op->type == BULLET && op->stats.sp == SP_PROBE)
-	{
-		if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER | P_IS_PLAYER))
-		{
-			probe(op);
-			object_remove(op, 0);
-			object_destroy(op);
-			return;
-		}
-	}
-
-	if (bullet_reflect(op, op->map, op->x, op->y))
-	{
-		update_turn_face(op);
-	}
-	else
-	{
-		check_fired_arch(op);
-	}
+	return common_object_projectile_hit(op, victim);
 }
 
 /**
@@ -148,4 +113,9 @@ static void process_func(object *op)
 void object_type_init_bullet(void)
 {
 	object_type_methods[BULLET].process_func = process_func;
+
+	object_type_methods[BULLET].projectile_move_func = common_object_projectile_move;
+	object_type_methods[BULLET].projectile_stop_func = common_object_projectile_stop_spell;
+	object_type_methods[BULLET].projectile_hit_func = projectile_hit_func;
+	object_type_methods[BULLET].move_on_func = common_object_projectile_move_on;
 }

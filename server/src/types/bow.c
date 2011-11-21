@@ -121,12 +121,13 @@ void bow_fire(object *op, int dir)
 
 	arrow = object_stack_get_removed(arrow, 1);
 
-	/* Save original WC and damage. */
+	/* Save original WC, damage and range. */
 	arrow->last_heal = arrow->stats.wc;
 	arrow->stats.hp = arrow->stats.dam;
+	arrow->stats.sp = arrow->last_sp;
 
 	/* Determine how many tiles the arrow will fly. */
-	arrow->stats.sp = bow->last_sp + arrow->last_sp;
+	arrow->last_sp = bow->last_sp + arrow->last_sp;
 
 	/* Get the used skill. */
 	skill = SK_skill(op);
@@ -137,7 +138,7 @@ void bow_fire(object *op, int dir)
 		/* Add WC. */
 		arrow->stats.wc += skill->last_heal;
 		/* Add tiles range. */
-		arrow->stats.sp += skill->last_sp;
+		arrow->last_sp += skill->last_sp;
 	}
 
 	/* Add WC and damage bonuses. */

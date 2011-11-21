@@ -13,7 +13,7 @@ last_sp 12
 glow_radius 1
 is_animated 0
 is_turnable 1
-is_missile 1
+is_spell 1
 no_pick 1
 walk_on 1
 fly_on 1

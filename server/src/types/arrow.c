@@ -125,24 +125,26 @@ object *arrow_find(object *op, shstr *type)
 	return NULL;
 }
 
-static object *projectile_stop_func(object *op)
+/** @copydoc object_methods::projectile_stop_func */
+static object *projectile_stop_func(object *op, int reason)
 {
 	object *owner;
 
 	owner = get_owner(op);
 
-	op = common_object_projectile_stop_missile(op);
+	op = common_object_projectile_stop_missile(op, reason);
 
 	if (!op)
 	{
 		return NULL;
 	}
 
-	/* Restore WC and damage. */
+	/* Restore WC, damage and range. */
 	op->stats.wc = op->last_heal;
 	op->stats.dam = op->stats.hp;
+	op->last_sp = op->stats.sp;
 
-	op->last_heal = op->stats.hp = 0;
+	op->last_heal = op->stats.hp = op->stats.sp = 0;
 
 	op->stats.wc_range = op->arch->clone.stats.wc_range;
 
@@ -161,9 +163,11 @@ static object *projectile_stop_func(object *op)
  * Initialize the arrow type object methods. */
 void object_type_init_arrow(void)
 {
-	object_type_methods[ARROW].process_func = common_projectile_process;
+	object_type_methods[ARROW].projectile_stop_func = projectile_stop_func;
+
+	object_type_methods[ARROW].process_func = common_object_projectile_process;
 	object_type_methods[ARROW].projectile_move_func = common_object_projectile_move;
 	object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;
-	object_type_methods[ARROW].projectile_stop_func = projectile_stop_func;
 	object_type_methods[ARROW].projectile_hit_func = common_object_projectile_hit;
+	object_type_methods[ARROW].move_on_func = common_object_projectile_move_on;
 }

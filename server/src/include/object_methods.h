@@ -129,12 +129,17 @@ typedef struct object_methods
 	/**
 	 * Called to stop a fired object.
 	 * @param op The fired object.
+	 * @param reason Reason for stopping, one of @ref OBJECT_PROJECTILE_xxx.
 	 * @return The fired object if it still exists, NULL otherwise. */
-	object *(*projectile_stop_func)(object *op);
+	object *(*projectile_stop_func)(object *op, int reason);
 
 	/**
 	 * Fallback method. */
 	struct object_methods *fallback;
 } object_methods;
+
+#define OBJECT_PROJECTILE_STOP_EOL 1
+#define OBJECT_PROJECTILE_STOP_HIT 2
+#define OBJECT_PROJECTILE_STOP_WALL 3
 
 #endif

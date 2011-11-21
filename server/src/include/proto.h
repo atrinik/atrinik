@@ -583,7 +583,7 @@ extern void object_callback_remove_inv(object *op);
 extern object *object_projectile_fire(object *op, object *shooter, int dir);
 extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
-extern object *object_projectile_stop(object *op);
+extern object *object_projectile_stop(object *op, int reason);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -720,7 +720,6 @@ extern int check_skill_action_time(object *op, object *skill);
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
-extern int probe(object *op);
 extern int cast_wor(object *op, object *caster);
 extern int cast_destruction(object *op, object *caster, int dam, int attacktype);
 extern int cast_heal_around(object *op, int level, int type);
@@ -940,12 +939,13 @@ extern void common_object_describe(object *op, object *observer, char *buf, size
 /* src/types/common/process.c */
 extern int common_object_process(object *op);
 /* src/types/common/projectile.c */
-extern void common_projectile_process(object *op);
+extern void common_object_projectile_process(object *op);
 extern object *common_object_projectile_move(object *op);
-extern object *common_object_projectile_stop_missile(object *op);
-extern object *common_object_projectile_stop_spell(object *op);
+extern object *common_object_projectile_stop_missile(object *op, int reason);
+extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
+extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */

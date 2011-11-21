@@ -304,7 +304,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
 	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
-	"cursed_perm", "damned_perm", "door_closed", NULL, "is_missile",
+	"cursed_perm", "damned_perm", "door_closed", "is_spell", "is_missile",
 	"draw_direction", "draw_double", "is_assassin", NULL, "no_save",
 	NULL
 };

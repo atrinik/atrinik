@@ -1177,7 +1177,10 @@
  * The object is a closer door. */
 #define FLAG_DOOR_CLOSED 127
 /**
- * Object is a missile (arrow, potion, magic bullet, etc). */
+ * Object is a spell. */
+#define FLAG_IS_SPELL 128
+/**
+ * Object is a missile. */
 #define FLAG_IS_MISSILE 129
 /**
  * The object is shown based on its direction and the player's position. */

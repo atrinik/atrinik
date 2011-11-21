@@ -812,7 +812,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 	}
 
 	tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
-	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
+	tmp->last_sp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
 	tmp->direction = dir;
 	tmp->x = op->x;
@@ -1074,6 +1074,7 @@ void explode_object(object *op)
 	if (!was_destroyed(op, op_tag))
 	{
 		object_remove(op, 0);
+		object_destroy(op);
 	}
 }
 
@@ -1098,13 +1099,6 @@ void check_fired_arch(object *op)
 	if (op->other_arch)
 	{
 		explode_object(op);
-		return;
-	}
-
-	if (op->stats.sp == SP_PROBE && op->type == BULLET)
-	{
-		probe(op);
-		object_remove(op, 0);
 		return;
 	}
 

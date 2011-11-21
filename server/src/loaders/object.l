@@ -548,6 +548,7 @@ lex_error = 0;
 ^is_ready{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_READY, IVAL);
 ^treasure{S}        {}
 ^is_assassin{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
+^is_spell{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_SPELL, IVAL);
 ^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
 ^draw_direction{S}  SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
 ^draw_double{S}     SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);

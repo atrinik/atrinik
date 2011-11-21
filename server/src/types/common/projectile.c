@@ -25,11 +25,13 @@
 
 /**
  * @file
- * Common projectile (arrow, bolt, bullet, etc) related functions. */
+ * Common projectile object (arrow, bolt, bullet, etc) related
+ * functions. */
 
 #include <global.h>
 
-void common_projectile_process(object *op)
+/** @copydoc object_methods::process_func */
+void common_object_projectile_process(object *op)
 {
 	mapstruct *m;
 	int x, y;
@@ -39,9 +41,9 @@ void common_projectile_process(object *op)
 		return;
 	}
 
-	if (op->stats.sp-- <= 0 || !op->direction)
+	if (op->last_sp-- <= 0 || !op->direction)
 	{
-		object_projectile_stop(op);
+		object_projectile_stop(op, OBJECT_PROJECTILE_STOP_EOL);
 		return;
 	}
 
@@ -89,7 +91,7 @@ void common_projectile_process(object *op)
 		}
 		else
 		{
-			object_projectile_stop(op);
+			object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
 			return;
 		}
 	}
@@ -110,7 +112,7 @@ void common_projectile_process(object *op)
 		{
 			tmp = HEAD(tmp);
 
-			if (((QUERY_FLAG(op, FLAG_IS_MISSILE) && QUERY_FLAG(tmp, FLAG_REFL_MISSILE)) || (!QUERY_FLAG(op, FLAG_IS_MISSILE) && QUERY_FLAG(tmp, FLAG_REFL_SPELL))) && rndm(0, 99) < 90 - (op->level / 10))
+			if (((QUERY_FLAG(op, FLAG_IS_MISSILE) && QUERY_FLAG(tmp, FLAG_REFL_MISSILE)) || (QUERY_FLAG(op, FLAG_IS_SPELL) && QUERY_FLAG(tmp, FLAG_REFL_SPELL))) && rndm(0, 99) < 90 - (op->level / 10))
 			{
 				op->direction = absdir(op->direction + 4);
 				SET_ANIMATION_STATE(op);
@@ -122,7 +124,7 @@ void common_projectile_process(object *op)
 
 				if (ret == OBJECT_METHOD_OK)
 				{
-					object_projectile_stop(op);
+					object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
 					return;
 				}
 				else if (ret == OBJECT_METHOD_ERROR)
@@ -135,6 +137,7 @@ void common_projectile_process(object *op)
 	}
 }
 
+/** @copydoc object_methods::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
 	object_remove(op, 0);
@@ -145,9 +148,12 @@ object *common_object_projectile_move(object *op)
 	return op;
 }
 
-object *common_object_projectile_stop_missile(object *op)
+/** @copydoc object_methods::projectile_stop_func */
+object *common_object_projectile_stop_missile(object *op, int reason)
 {
 	object *owner;
+
+	(void) reason;
 
 	/* Small chance of breaking */
 	if (op->last_eat && rndm_chance(op->last_eat))
@@ -160,7 +166,7 @@ object *common_object_projectile_stop_missile(object *op)
 	op->direction = 0;
 	SET_ANIMATION_STATE(op);
 
-	op->stats.sp = 0;
+	/* Reset level. */
 	op->level = op->arch->clone.level;
 
 	CLEAR_FLAG(op, FLAG_FLYING);
@@ -191,14 +197,28 @@ object *common_object_projectile_stop_missile(object *op)
 	return op;
 }
 
-object *common_object_projectile_stop_spell(object *op)
+/** @copydoc object_methods::projectile_stop_func */
+object *common_object_projectile_stop_spell(object *op, int reason)
 {
-	object_remove(op, 0);
-	object_destroy(op);
+	if (reason == OBJECT_PROJECTILE_STOP_HIT && op->stats.dam > 0)
+	{
+		return op;
+	}
 
-	return op;
+	if (op->other_arch)
+	{
+		explode_object(op);
+	}
+	else
+	{
+		object_remove(op, 0);
+		object_destroy(op);
+	}
+
+	return NULL;
 }
 
+/** @copydoc object_methods::projectile_fire_func */
 object *common_object_projectile_fire_missile(object *op, object *shooter, int dir)
 {
 	set_owner(op, shooter);
@@ -230,6 +250,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 	return op;
 }
 
+/** @copydoc object_methods::projectile_hit_func */
 int common_object_projectile_hit(object *op, object *victim)
 {
 	object *owner;
@@ -238,19 +259,50 @@ int common_object_projectile_hit(object *op, object *victim)
 
 	/* Victim is not an alive object or we're friends with the victim,
 	 * pass... */
-	if (!IS_LIVE(victim) || is_friend_of(owner, victim))
+	if (!IS_LIVE(victim) || is_friend_of(owner, victim) || (QUERY_FLAG(op, FLAG_IS_SPELL) && spell_attack_missed(owner, victim)))
 	{
 		return OBJECT_METHOD_UNHANDLED;
 	}
 
-	OBJ_DESTROYED_BEGIN(op);
-	hit_player(victim, op->stats.dam, op, 0);
-
-	if (OBJ_DESTROYED(op))
+	if (op->stats.dam > 0)
 	{
-		return OBJECT_METHOD_ERROR;
+		int dam;
+
+		OBJ_DESTROYED_BEGIN(op);
+		dam = hit_player(victim, op->stats.dam, op, 0);
+
+		if (OBJ_DESTROYED(op))
+		{
+			return OBJECT_METHOD_ERROR;
+		}
+
+		op->stats.dam -= dam;
+
+		OBJ_DESTROYED_END(op);
 	}
 
-	OBJ_DESTROYED_END(op);
+	return OBJECT_METHOD_OK;
+}
+
+/** @copydoc object_methods::move_on_func */
+int common_object_projectile_move_on(object *op, object *victim, object *originator, int state)
+{
+	int ret;
+
+	(void) originator;
+
+	if (!state)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	ret = object_projectile_hit(op, victim);
+
+	if (ret == OBJECT_METHOD_OK)
+	{
+		object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
+		return OBJECT_METHOD_OK;
+	}
+
 	return OBJECT_METHOD_OK;
 }

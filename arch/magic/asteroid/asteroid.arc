@@ -9,7 +9,7 @@ is_animated 0
 animation asteroid
 anim_speed 1
 last_sp 12
-is_missile 1
+is_spell 1
 is_turnable 1
 no_pick 1
 walk_on 1

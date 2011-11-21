@@ -7,7 +7,7 @@ face splint.101
 speed 0.5
 attack_impact 100
 last_sp 7
-is_missile 1
+is_spell 1
 anim_speed 4
 is_turnable 0
 no_pick 1

@@ -324,6 +324,7 @@ void object_callback_remove_inv(object *op)
 	}
 }
 
+/** @copydoc object_methods::projectile_fire_func */
 object *object_projectile_fire(object *op, object *shooter, int dir)
 {
 	object_methods *methods;
@@ -339,6 +340,7 @@ object *object_projectile_fire(object *op, object *shooter, int dir)
 	return NULL;
 }
 
+/** @copydoc object_methods::projectile_move_func */
 object *object_projectile_move(object *op)
 {
 	object_methods *methods;
@@ -354,6 +356,7 @@ object *object_projectile_move(object *op)
 	return NULL;
 }
 
+/** @copydoc object_methods::projectile_hit_func */
 int object_projectile_hit(object *op, object *victim)
 {
 	object_methods *methods;
@@ -369,7 +372,8 @@ int object_projectile_hit(object *op, object *victim)
 	return OBJECT_METHOD_UNHANDLED;
 }
 
-object *object_projectile_stop(object *op)
+/** @copydoc object_methods::projectile_stop_func */
+object *object_projectile_stop(object *op, int reason)
 {
 	object_methods *methods;
 
@@ -382,7 +386,7 @@ object *object_projectile_stop(object *op)
 	{
 		if (methods->projectile_stop_func)
 		{
-			return methods->projectile_stop_func(op);
+			return methods->projectile_stop_func(op, reason);
 		}
 	}
 

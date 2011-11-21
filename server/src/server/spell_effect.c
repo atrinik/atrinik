@@ -188,37 +188,6 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 }
 
 /**
- * Try to get information about a living thing.
- * @param op Who is casting.
- * @retval 0 Nothing probed.
- * @retval 1 Something was probed. */
-int probe(object *op)
-{
-	object *tmp;
-
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above)
-	{
-		if (IS_LIVE(tmp))
-		{
-			if (op->owner && op->owner->type == PLAYER)
-			{
-				draw_info_format(COLOR_WHITE, op->owner, "Your probe analyzes %s.", tmp->name);
-
-				if (tmp->head != NULL)
-				{
-					tmp = tmp->head;
-				}
-
-				examine(op->owner, tmp, NULL);
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
  * Word of recall causes the player to return 'home'.
  *
  * We put a force into the player object, so that there is a time delay
