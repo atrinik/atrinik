@@ -317,7 +317,7 @@ typedef struct linked_char
  * Set object's animation depending on its number of animations/facings,
  * direction and animation state. */
 #define SET_ANIMATION_STATE(ob) \
-if ((ob)->animation_id && NUM_FACINGS((ob)) && QUERY_FLAG((ob), FLAG_IS_TURNABLE)) \
+if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
 { \
 	SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (ob)->direction + (ob)->state); \
 	update_object((ob), UP_OBJ_FACE); \
