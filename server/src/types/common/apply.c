@@ -105,8 +105,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 				break;
 
 			case SKILL:
-				CONTR(applier)->shoottype = range_none;
-
 				if (!IS_INVISIBLE(op, applier))
 				{
 					/* It's a tool, need to unlink it */
@@ -137,7 +135,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 			case WAND:
 			case ROD:
 			case HORN:
-				CONTR(applier)->shoottype = range_none;
 				draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
 				break;
 
@@ -238,8 +235,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 			break;
 
 		case SKILL:
-			CONTR(applier)->shoottype = range_skill;
-
 			if (!IS_INVISIBLE(op, applier))
 			{
 				link_player_skill(applier, op);

@@ -554,22 +554,40 @@ int lookup_skill_by_name(const char *string)
 /**
  * Check skill for firing.
  * @param who Object.
+ * @param type Fire mode.
+ * @param params Optional arguments.
  * @return 1 on success, 0 on failure. */
-int check_skill_to_fire(object *who)
+int check_skill_to_fire(object *who, int type, const char *params)
 {
-	int skillnr = 0;
+	int skillnr = -1;
 	object *tmp;
-	rangetype shoottype = range_none;
 
 	if (who->type != PLAYER)
 	{
 		return 1;
 	}
 
-	switch ((shoottype = CONTR(who)->shoottype))
+	switch (type)
 	{
-		case range_bow:
-			if (!(tmp = CONTR(who)->equipment[PLAYER_EQUIP_BOW]))
+		case FIRE_MODE_SKILL:
+			if (!params)
+			{
+				return 0;
+			}
+
+			skillnr = lookup_skill_by_name(params);
+
+			if (skillnr == -1)
+			{
+				return 0;
+			}
+
+			break;
+
+		case FIRE_MODE_BOW:
+			tmp = CONTR(who)->equipment[PLAYER_EQUIP_BOW];
+
+			if (!tmp)
 			{
 				return 0;
 			}
@@ -589,12 +607,7 @@ int check_skill_to_fire(object *who)
 
 			break;
 
-		case range_none:
-		case range_skill:
-			return 1;
-			break;
-
-		case range_magic:
+		case FIRE_MODE_SPELL:
 			if (spells[CONTR(who)->chosen_spell].type == SPELL_TYPE_PRIEST)
 			{
 				skillnr = SK_PRAYING;
@@ -606,28 +619,21 @@ int check_skill_to_fire(object *who)
 
 			break;
 
-		case range_scroll:
-		case range_rod:
-		case range_horn:
-		case range_wand:
+		case FIRE_MODE_WAND:
 			skillnr = SK_USE_MAGIC_ITEM;
 			break;
 
-		default:
-			LOG(llevBug, "bad call of check_skill_to_fire() from %s\n", query_name(who, NULL));
-			return 0;
+		case FIRE_MODE_THROW:
+			skillnr = SK_THROWING;
+			break;
 	}
 
-	if (change_skill(who, skillnr))
+	if (skillnr == -1)
 	{
-#ifdef SKILL_UTIL_DEBUG
-		LOG(llevDebug, "check_skill_to_fire(): got skill:%s for %s\n", skills[skillnr].name, who->name);
-#endif
-		CONTR(who)->shoottype = shoottype;
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	return change_skill(who, skillnr);
 }
 
 /**
@@ -1084,12 +1090,6 @@ int change_skill(object *who, int sk_index)
 
 	if (who->chosen_skill && who->chosen_skill->stats.sp == sk_index)
 	{
-		/* optimization for changing skill to current skill */
-		if (who->type == PLAYER)
-		{
-			CONTR(who)->shoottype = range_skill;
-		}
-
 		return 1;
 	}
 
@@ -1136,12 +1136,6 @@ static int change_skill_to_skill(object *who, object *skl)
 
 	if (who->chosen_skill == skl)
 	{
-		/* Optimization for changing skill to current skill */
-		if (who->type == PLAYER)
-		{
-			CONTR(who)->shoottype = range_skill;
-		}
-
 		return 0;
 	}
 
@@ -1221,7 +1215,7 @@ static int attack_hth(object *pl, int dir, char *string)
  * aren't too many changes from before, basically this is a 'wrapper' for
  * the old attack system. In essence, this code handles all skill-based
  * attacks, ie hth, missile and melee weapons should be treated here. If
- * an opponent is already supplied by move_player(), we move right onto
+ * an opponent is already supplied by move_object(), we move right onto
  * do_skill_attack(), otherwise we find if an appropriate opponent
  * exists.
  * @param tmp Targetted monster.
@@ -1240,7 +1234,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 	}
 
 	/* If we don't yet have an opponent, find if one exists, and attack.
-	 * Legal opponents are the same as outlined in move_player() */
+	 * Legal opponents are the same as outlined in move_object() */
 	if (tmp == NULL)
 	{
 		xt = pl->x + freearr_x[dir];
@@ -1279,7 +1273,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 }
 
 /**
- * We have got an appropriate opponent from either move_player() or
+ * We have got an appropriate opponent from either move_object() or
  * skill_attack(). In this part we get on with attacking, take care of
  * messages from the attack and changes in invisible.
  * Returns true if the attack damaged the opponent.
@@ -1400,15 +1394,15 @@ float get_skill_time(object *op, int skillnr)
 
 	if (skillnr == SK_USE_MAGIC_ITEM || skillnr == SK_MISSILE_WEAPON || skillnr == SK_THROWING || skillnr == SK_XBOW_WEAP || skillnr == SK_SLING_WEAP)
 	{
-		CONTR(op)->action_range = global_round_tag + op->chosen_skill->stats.maxsp;
-		return 0;
+		skill_time = op->chosen_skill->stats.maxsp;
+		CONTR(op)->action_range = global_round_tag + skill_time;
 	}
-
-	if (!skill_time)
+	else if (skillnr == SK_SPELL_CASTING || skillnr == SK_PRAYING)
 	{
-		return 0.0f;
+		skill_time = spells[CONTR(op)->chosen_spell].time;
+		CONTR(op)->action_casting = global_round_tag + skill_time;
 	}
-	else
+	else if (skill_time)
 	{
 		int level = SK_level(op) / 10;
 
@@ -1443,7 +1437,6 @@ int check_skill_action_time(object *op, object *skill)
 	{
 		if (CONTR(op)->action_casting > global_round_tag)
 		{
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 			return 0;
 		}
 	}
@@ -1451,7 +1444,6 @@ int check_skill_action_time(object *op, object *skill)
 	{
 		if (CONTR(op)->action_range > global_round_tag)
 		{
-			CONTR(op)->action_timer = (float)(CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
 			return 0;
 		}
 	}

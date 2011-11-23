@@ -134,6 +134,15 @@ typedef struct object_methods
 	object *(*projectile_stop_func)(object *op, int reason);
 
 	/**
+	 * Used to fire a ranged weapon, eg, a bow firing arrows, throwing
+	 * weapons/potions, firing wands/rods, etc.
+	 * @param op The weapon being fired (bow, wand, throwing object).
+	 * @param shooter Who is doing the firing.
+	 * @dir dir Direction to fire into.
+	 * @return One of @ref OBJECT_METHOD_xxx. */
+	int (*ranged_fire_func)(object *op, object *shooter, int dir);
+
+	/**
 	 * Fallback method. */
 	struct object_methods *fallback;
 } object_methods;

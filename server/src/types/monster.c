@@ -1209,10 +1209,9 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
  * @return 1 if monster fired something, 0 otherwise. */
 static int monster_use_bow(object *head, object *part, int dir)
 {
-	object *bow, *arrow;
-	int tag;
+	object *bow;
 
-	for (bow = head->inv; bow != NULL; bow = bow->below)
+	for (bow = head->inv; bow; bow = bow->below)
 	{
 		if (bow->type == BOW && QUERY_FLAG(bow, FLAG_APPLIED))
 		{
@@ -1227,67 +1226,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 		return 0;
 	}
 
-	if ((arrow = find_arrow(head, bow->race)) == NULL)
-	{
-		/* Out of arrows. */
-		CLEAR_FLAG(bow, FLAG_APPLIED);
-		CLEAR_FLAG(head, FLAG_READY_BOW);
-		return 0;
-	}
-
-	/* An infinite arrow, duplicate it. */
-	if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT))
-	{
-		object *new_arrow = get_object();
-		copy_object(arrow, new_arrow, 0);
-		CLEAR_FLAG(new_arrow, FLAG_SYS_OBJECT);
-		new_arrow->nrof = 0;
-
-		/* Setup the self destruction */
-		new_arrow->stats.food = 20;
-		arrow = new_arrow;
-	}
-	else
-	{
-		arrow = object_stack_get_removed(arrow, 1);
-	}
-
-	set_owner(arrow, head);
-	arrow->direction = dir;
-	arrow->x = part->x, arrow->y = part->y;
-	arrow->speed = 1;
-	update_ob_speed(arrow);
-	arrow->speed_left = 0;
-	SET_ANIMATION(arrow, (NUM_ANIMATIONS(arrow) / NUM_FACINGS(arrow)) * dir);
-	arrow->level = head->level;
-	/* Save original wc and dam */
-	arrow->last_heal = arrow->stats.wc;
-	arrow->stats.hp = arrow->stats.dam;
-	arrow->stats.dam += bow->stats.dam + bow->magic + arrow->magic;
-	arrow->stats.dam = FABS((int) ((float) (arrow->stats.dam * LEVEL_DAMAGE(head->level))));
-	arrow->stats.wc = 10 + (bow->magic + bow->stats.wc + arrow->magic + arrow->stats.wc + head->level);
-	arrow->stats.wc_range = bow->stats.wc_range;
-	arrow->map = head->map;
-	/* We use fixed value for mobs */
-	arrow->last_sp = 12;
-	SET_FLAG(arrow, FLAG_FLYING);
-	SET_FLAG(arrow, FLAG_IS_MISSILE);
-	SET_FLAG(arrow, FLAG_FLY_ON);
-	SET_FLAG(arrow, FLAG_WALK_ON);
-	tag = arrow->count;
-	arrow->stats.grace = arrow->last_sp;
-	arrow->stats.maxgrace = 60 + (RANDOM() % 12);
-	play_sound_map(arrow->map, CMD_SOUND_EFFECT, "throw.ogg", arrow->x, arrow->y, 0, 0);
-
-	if (!insert_ob_in_map(arrow, head->map, head, 0))
-	{
-		return 1;
-	}
-
-	if (!was_destroyed(arrow, tag))
-	{
-//		move_arrow(arrow);
-	}
+	object_ranged_fire(bow, part, dir);
 
 	return 1;
 }

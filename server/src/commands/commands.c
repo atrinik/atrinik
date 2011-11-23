@@ -32,7 +32,6 @@
 /** Normal game commands */
 CommArray_s Commands[] =
 {
-	{"stay", command_stay, 1.0f, 0},
 	{"n", command_north, 1.0f, 0},
 	{"e", command_east, 1.0f, 0},
 	{"s", command_south, 1.0f, 0},

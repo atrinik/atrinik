@@ -526,22 +526,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 				}
 			}
 		}
-
-		/* Now let's talk about action/shooting speed */
-		if (op->type == PLAYER)
-		{
-			switch (CONTR(op)->shoottype)
-			{
-				case range_wand:
-				case range_rod:
-				case range_horn:
-					op->chosen_skill->stats.maxsp = caster->last_grace;
-					break;
-
-				default:
-					break;
-			}
-		}
 	}
 
 	/* A last sanity check: are caster and target *really* valid? */

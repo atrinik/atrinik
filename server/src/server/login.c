@@ -176,7 +176,6 @@ int save_player(object *op, int flag)
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
 	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
 	fprintf(fp, "spell %d\n", pl->chosen_spell);
-	fprintf(fp, "shoottype %d\n", pl->shoottype);
 	fprintf(fp, "digestion %d\n", pl->digestion);
 
 	if (op->map)
@@ -493,10 +492,6 @@ void check_login(object *op)
 		{
 			pl->gen_hp = value;
 		}
-		else if (!strcmp(buf, "shoottype"))
-		{
-			pl->shoottype = (rangetype) value;
-		}
 		else if (!strcmp(buf, "gen_sp"))
 		{
 			pl->gen_sp = value;
@@ -722,11 +717,6 @@ void check_login(object *op)
 
 	init_player_exp(op);
 	link_player_skills(op);
-
-	if (!legal_range(op, pl->shoottype))
-	{
-		pl->shoottype = range_none;
-	}
 
 	fix_player(op);
 

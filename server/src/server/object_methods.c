@@ -392,3 +392,19 @@ object *object_projectile_stop(object *op, int reason)
 
 	return NULL;
 }
+
+/** @copydoc object_methods::ranged_fire_func */
+int object_ranged_fire(object *op, object *shooter, int dir)
+{
+	object_methods *methods;
+
+	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
+	{
+		if (methods->ranged_fire_func)
+		{
+			return methods->ranged_fire_func(op, shooter, dir);
+		}
+	}
+
+	return OBJECT_METHOD_UNHANDLED;
+}

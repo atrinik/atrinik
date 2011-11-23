@@ -161,7 +161,6 @@ static player *get_player(player *p)
 	/* Init. respawn position */
 	strcpy(p->savebed_map, first_map_path);
 
-	p->firemode_type = -1;
 	/* This is where we set up initial CONTR(op) */
 	op->custom_attrset = p;
 	p->ob = op;
@@ -175,7 +174,6 @@ static player *get_player(player *p)
 	p->target_hp_p = -1;
 	p->gen_sp_armour = 0;
 	p->last_speed = -1;
-	p->shoottype = range_none;
 	p->last_weapon_sp = -1;
 	p->update_los = 1;
 
@@ -458,389 +456,112 @@ void confirm_password(object *op)
 }
 
 /**
- * Find an arrow in the inventory and after that in the right type
- * container (quiver).
- * @param op Object to check.
- * @param type Ammunition type (bolts, arrows, etc).
- * @return Pointer to the found object, NULL if not found. */
-object *find_arrow(object *op, const char *type)
-{
-	object *tmp = NULL;
-
-	for (op = op->inv; op; op = op->below)
-	{
-		if (!tmp && op->type == CONTAINER && op->race == type && QUERY_FLAG(op, FLAG_APPLIED))
-		{
-			tmp = find_arrow(op, type);
-		}
-		else if (op->type == ARROW && op->race == type)
-		{
-			return op;
-		}
-	}
-
-	return tmp;
-}
-
-/**
  * Fire command for spells, range, throwing, etc.
  * @param op Object firing this.
  * @param dir Direction to fire to. */
-void fire(object *op, int dir)
+void fire(object *op, int dir, int type, char *params)
 {
-	object *weap = NULL;
-	int spellcost = 0;
+	int ret;
+	float skill_time;
 
-	/* A check for players, make sure things are groovy. This routine
-	 * will change the skill of the player as appropriate in order to
-	 * fire whatever is requested. In the case of spells (range_magic)
-	 * it handles whether cleric or mage spell is requested to be
-	 * cast. */
-	if (op->type == PLAYER)
+	if (op->type != PLAYER)
 	{
-		if (CONTR(op)->firemode_type == FIRE_MODE_NONE)
+		return;
+	}
+
+	if (type == FIRE_MODE_SPELL)
+	{
+		if (params)
 		{
-			return;
+			CONTR(op)->chosen_spell = look_up_spell_name(params);
 		}
 
-		if (CONTR(op)->firemode_type == FIRE_MODE_BOW)
-		{
-			CONTR(op)->shoottype = range_bow;
-		}
-		else if (CONTR(op)->firemode_type == FIRE_MODE_THROW)
-		{
-			object *tmp;
-
-			/* Insert here test for more throwing skills */
-			if (!change_skill(op, SK_THROWING))
-			{
-				return;
-			}
-
-			/* Special case - we must redirect the fire cmd to throwing something */
-			tmp = find_throw_tag(op);
-
-			if (tmp)
-			{
-				if (!check_skill_action_time(op, op->chosen_skill))
-				{
-					return;
-				}
-
-				do_throw(op, tmp, dir);
-				get_skill_time(op, op->chosen_skill->stats.sp);
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-
-				if (CONTR(op)->last_action_timer > 0)
-				{
-					CONTR(op)->action_timer *= -1;
-				}
-			}
-
-			return;
-		}
-		else if (CONTR(op)->firemode_type == FIRE_MODE_SPELL)
-		{
-			CONTR(op)->shoottype = range_magic;
-		}
-		else if (CONTR(op)->firemode_type == FIRE_MODE_WAND)
-		{
-			/* We do a jump in fire wand if we haven one */
-			CONTR(op)->shoottype = range_wand;
-		}
-		else if (CONTR(op)->firemode_type == FIRE_MODE_SKILL)
-		{
-			command_rskill(op, CONTR(op)->firemode_name);
-			CONTR(op)->shoottype = range_skill;
-		}
-		else if (CONTR(op)->firemode_type == FIRE_MODE_SUMMON)
-		{
-			CONTR(op)->shoottype = range_scroll;
-		}
-		else
-		{
-			CONTR(op)->shoottype = range_none;
-		}
-
-		if (!check_skill_to_fire(op))
+		if (CONTR(op)->chosen_spell == -1)
 		{
 			return;
 		}
 	}
 
-	switch (CONTR(op)->shoottype)
+	if (!check_skill_to_fire(op, type, params))
 	{
-		case range_none:
-			return;
-
-		case range_bow:
-			/* Still need to recover from range action? */
-			if (!check_skill_action_time(op, op->chosen_skill))
-			{
-				return;
-			}
-
-			bow_fire(op, dir);
-			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-
-			if (CONTR(op)->last_action_timer > 0)
-			{
-				CONTR(op)->action_timer *= -1;
-			}
-
-			return;
-
-		/* Casting spells */
-		case range_magic:
-			if (!check_skill_action_time(op, op->chosen_skill))
-			{
-				return;
-			}
-
-			spellcost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, CAST_NORMAL, NULL);
-
-			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
-			{
-				op->stats.grace -= spellcost;
-			}
-			else
-			{
-				op->stats.sp -= spellcost;
-			}
-
-			/* Only change the action timer if the spell required mana/grace cost (ie, was successful). */
-			if (spellcost)
-			{
-				CONTR(op)->action_casting = global_round_tag + spells[CONTR(op)->chosen_spell].time;
-				CONTR(op)->action_timer = (float) (CONTR(op)->action_casting - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-
-				if (CONTR(op)->last_action_timer > 0)
-				{
-					CONTR(op)->action_timer *= -1;
-				}
-			}
-
-			return;
-
-		case range_wand:
-			for (weap = op->inv; weap != NULL; weap = weap->below)
-			{
-				if (weap->type == WAND && QUERY_FLAG(weap, FLAG_APPLIED))
-				{
-					break;
-				}
-			}
-
-			if (weap == NULL)
-			{
-				CONTR(op)->shoottype = range_rod;
-				goto trick_jump;
-			}
-
-			if (!check_skill_action_time(op, op->chosen_skill))
-			{
-				return;
-			}
-
-			if (weap->stats.food <= 0)
-			{
-				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
-				draw_info(COLOR_WHITE, op, "The wand says poof.");
-				return;
-			}
-
-			draw_info(COLOR_WHITE, op, "fire wand");
-
-			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CAST_WAND, NULL))
-			{
-				/* You now know something about it */
-				SET_FLAG(op, FLAG_BEEN_APPLIED);
-			}
-
-			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-
-			if (CONTR(op)->last_action_timer > 0)
-			{
-				CONTR(op)->action_timer *= -1;
-			}
-
-			return;
-
-		case range_rod:
-		case range_horn:
-trick_jump:
-			for (weap = op->inv; weap != NULL; weap = weap->below)
-			{
-				if (QUERY_FLAG(weap, FLAG_APPLIED) && weap->type == (CONTR(op)->shoottype == range_rod ? ROD : HORN))
-				{
-					break;
-				}
-			}
-
-			if (weap == NULL)
-			{
-				if (CONTR(op)->shoottype == range_rod)
-				{
-					CONTR(op)->shoottype = range_horn;
-					goto trick_jump;
-				}
-				else
-				{
-					draw_info_format(COLOR_WHITE, op, "You have no tool readied.");
-					return;
-				}
-			}
-
-			if (!check_skill_action_time(op, op->chosen_skill))
-			{
-				return;
-			}
-
-			/* If the device level is higher than player's magic skill,
-			 * don't allow using the device. */
-			if (!CONTR(op)->exp_ptr[EXP_MAGICAL] || weap->level > CONTR(op)->exp_ptr[EXP_MAGICAL]->level + settings.magic_devices_level)
-			{
-				draw_info_format(COLOR_WHITE, op, "The %s is impossible to handle for you.", weap->name);
-				return;
-			}
-
-			if (weap->stats.hp < spells[weap->stats.sp].sp)
-			{
-				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
-
-				if (CONTR(op)->shoottype == range_rod)
-				{
-					draw_info(COLOR_WHITE, op, "The rod whines for a while, but nothing happens.");
-				}
-				else
-				{
-					draw_info(COLOR_WHITE, op, "No matter how hard you try you can't get another note out.");
-				}
-
-				return;
-			}
-
-			if (cast_spell(op, weap, dir, weap->stats.sp, 0, CONTR(op)->shoottype == range_rod ? CAST_ROD : CAST_HORN, NULL))
-			{
-				/* You now know something about it */
-				SET_FLAG(op, FLAG_BEEN_APPLIED);
-				drain_rod_charge(weap);
-			}
-
-			get_skill_time(op, op->chosen_skill->stats.sp);
-			CONTR(op)->action_timer = (float) (CONTR(op)->action_range - global_round_tag) / (1000000 / MAX_TIME) * 1000.0f;
-
-			if (CONTR(op)->last_action_timer > 0)
-			{
-				CONTR(op)->action_timer *= -1;
-			}
-
-			return;
-
-		/* Control summoned monsters from scrolls */
-		case range_scroll:
-			CONTR(op)->shoottype = range_none;
-			CONTR(op)->chosen_spell = -1;
-			return;
-
-		case range_skill:
-			if (!op->chosen_skill)
-			{
-				if (op->type == PLAYER)
-					draw_info(COLOR_WHITE, op, "You have no applicable skill to use.");
-				return;
-			}
-
-			if (op->chosen_skill->sub_type != ST1_SKILL_USE)
-			{
-				draw_info(COLOR_WHITE, op, "You can't use this skill in this way.");
-			}
-			else
-			{
-				do_skill(op, dir, NULL);
-			}
-
-			return;
-
-		default:
-			draw_info(COLOR_WHITE, op, "Illegal shoot type.");
-			return;
-	}
-}
-
-/**
- * Move a player.
- * @param op Player object.
- * @param dir Direction to move to.
- * @return 1 on success, 0 on failure. */
-int move_player(object *op, int dir)
-{
-	int ret = 0;
-
-	CONTR(op)->praying = 0;
-
-	if (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)
-	{
-		return 0;
+		return;
 	}
 
-	if (dir)
+	/* Still need to recover from range action? */
+	if (!check_skill_action_time(op, op->chosen_skill))
 	{
-		op->facing = dir;
+		return;
 	}
 
-	if (QUERY_FLAG(op, FLAG_CONFUSED) && dir)
+	if (QUERY_FLAG(op, FLAG_CONFUSED))
 	{
 		dir = get_randomized_dir(dir);
 	}
 
+	op->facing = dir;
 	op->anim_moving_dir = -1;
-	op->anim_enemy_dir = -1;
 	op->anim_last_facing = -1;
+	op->anim_enemy_dir = dir;
 
-	/* firemode is set from client command fire xx xx xx */
-	if (CONTR(op)->firemode_type != -1)
+	if (type == FIRE_MODE_SPELL)
 	{
-		fire(op, dir);
+		int cost;
 
-		if (dir)
+		cost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, CAST_NORMAL, NULL);
+
+		if (cost)
 		{
-			op->anim_enemy_dir = dir;
+			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
+			{
+				op->stats.grace -= cost;
+			}
+			else
+			{
+				op->stats.sp -= cost;
+			}
+
+			ret = OBJECT_METHOD_OK;
 		}
 		else
 		{
-			op->anim_enemy_dir = op->facing;
+			ret = OBJECT_METHOD_UNHANDLED;
 		}
-
-		CONTR(op)->fire_on = 0;
 	}
 	else
 	{
-		ret = move_ob(op, dir, op);
+		object *tmp;
 
-		if (!ret)
+		if (type == FIRE_MODE_BOW)
 		{
-			op->anim_enemy_dir = dir;
+			tmp = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
 		}
-		else
+		else if (type == FIRE_MODE_THROW)
 		{
-			op->anim_moving_dir = dir;
+			tmp = find_throw_tag(op);
 		}
+		else if (type == FIRE_MODE_WAND)
+		{
+			tmp = CONTR(op)->equipment[PLAYER_EQUIP_MAGIC_DEVICE];
+		}
+		else if (type == FIRE_MODE_SKILL)
+		{
+			tmp = op->chosen_skill;
+		}
+
+		ret = object_ranged_fire(tmp, op, dir);
 	}
 
-	if (QUERY_FLAG(op, FLAG_ANIMATE))
+	if (ret == OBJECT_METHOD_OK)
 	{
-		if (op->anim_enemy_dir == -1 && op->anim_moving_dir == -1)
-		{
-			op->anim_last_facing = dir;
-		}
-
-		animate_object(op, 0);
+		skill_time = get_skill_time(op, op->chosen_skill->stats.sp);
+	}
+	else
+	{
+		skill_time = 0;
 	}
 
-	return ret;
+	CONTR(op)->action_timer = skill_time / (1000000 / MAX_TIME) * 1000;
+	CONTR(op)->last_action_timer = 0;
 }
 
 /**
@@ -876,11 +597,11 @@ int handle_newcs_player(player *pl)
 	/* If we are here, we're never paralyzed anymore. */
 	CLEAR_FLAG(pl->ob, FLAG_PARALYZED);
 
-	if (pl->ob->direction && (CONTR(pl->ob)->run_on || CONTR(pl->ob)->fire_on))
+	if (pl->ob->direction && CONTR(pl->ob)->run_on)
 	{
 		/* All move commands take 1 tick, at least for now. */
 		pl->ob->speed_left--;
-		move_player(pl->ob, pl->ob->direction);
+		move_object(pl->ob, pl->ob->direction);
 
 		if (pl->ob->speed_left > 0)
 		{
@@ -1772,7 +1493,7 @@ void player_path_handle(player *pl)
 			int success = 0, dir = rv.direction;
 
 			/* Can the player move there directly? */
-			if (move_player(pl->ob, dir))
+			if (move_object(pl->ob, dir))
 			{
 				success = 1;
 			}
@@ -1786,7 +1507,7 @@ void player_path_handle(player *pl)
 					/* Try left or right first? */
 					int m = 1 - (RANDOM() & 2);
 
-					if (move_player(pl->ob, absdir(dir + diff * m)) || move_player(pl->ob, absdir(dir - diff * m)))
+					if (move_object(pl->ob, absdir(dir + diff * m)) || move_object(pl->ob, absdir(dir - diff * m)))
 					{
 						success = 1;
 						break;

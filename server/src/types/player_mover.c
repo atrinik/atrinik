@@ -109,13 +109,8 @@ static void process_func(object *op)
 				/* only level >=1 movers move people */
 				if (op->level)
 				{
-					/* Following is a bit of hack.  We need to make sure it
-					 * is cleared, otherwise the player will get stuck in
-					 * place. This can happen if the player used a spell to
-					 * get to this space. */
-					CONTR(victim)->fire_on = 0;
 					victim->speed_left = -FABS(victim->speed);
-					move_player(victim, dir);
+					move_object(victim, dir);
 					/* Clear player's path; they probably can't move there
 					 * any more after being pushed, or might not want to. */
 					player_path_clear(CONTR(victim));

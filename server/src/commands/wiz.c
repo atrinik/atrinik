@@ -81,7 +81,7 @@ static player *get_other_player_from_name(object *op, char *name)
  * player::dm_removed_from_map so we can re-insert them later.
  * @param m Map to remove players from.
  * @return How many players were removed. */
-static int dm_map_remove_players(mapstruct *m)
+static int dm_map_remove_objects(mapstruct *m)
 {
 	int count = 0;
 	player *pl;
@@ -461,7 +461,7 @@ int command_resetmap(object *op, char *params)
 	}
 
 	draw_info_format(COLOR_WHITE, op, "Start resetting map %s.", m->path);
-	draw_info_format(COLOR_WHITE, op, "Removed %d players from map. Reset map.", dm_map_remove_players(m));
+	draw_info_format(COLOR_WHITE, op, "Removed %d players from map. Reset map.", dm_map_remove_objects(m));
 	m->reset_time = seconds();
 	m->map_flags |= MAP_FLAG_FIXED_RTIME;
 	/* Store the path, so we can load it after swapping is done. */

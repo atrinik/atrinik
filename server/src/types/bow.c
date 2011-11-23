@@ -61,65 +61,60 @@ int bow_get_skill(object *bow)
 	}
 }
 
-/**
- * Player fires a bow.
- * @param op Object firing.
- * @param dir Direction to fire. */
-void bow_fire(object *op, int dir)
+/** @copydoc object_methods::ranged_fire_func */
+static int ranged_fire_func(object *op, object *shooter, int dir)
 {
-	object *bow, *arrow, *skill;
+	object *arrow, *skill;
 
-	if (op->type != PLAYER)
+	if (!op)
 	{
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
 	/* If no dir is specified, attempt to find get the direction from
 	 * player's target. */
-	if (!dir && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
+	if (!dir && shooter->type == PLAYER && OBJECT_VALID(CONTR(shooter)->target_object, CONTR(shooter)->target_object_count))
 	{
 		rv_vector rv;
 
-		dir = get_dir_to_target(op, CONTR(op)->target_object, &rv);
+		dir = get_dir_to_target(shooter, CONTR(shooter)->target_object, &rv);
 	}
 
 	if (!dir)
 	{
-		draw_info(COLOR_WHITE, op, "You can't shoot yourself!");
-		return;
+		draw_info(COLOR_WHITE, shooter, "You can't shoot yourself!");
+		return OBJECT_METHOD_OK;
 	}
 
-	bow = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
-
-	if (!bow)
-	{
-		return;
-	}
-
-	if (!bow->race)
-	{
-		draw_info_format(COLOR_WHITE, op, "Your %s is broken.", bow->name);
-		return;
-	}
-
-	arrow = arrow_find(op, bow->race);
+	arrow = arrow_find(shooter, op->race);
 
 	if (!arrow)
 	{
-		draw_info_format(COLOR_WHITE, op, "You have no %s left.", bow->race);
-		return;
+		draw_info_format(COLOR_WHITE, shooter, "You have no %s left.", op->race);
+		return OBJECT_METHOD_OK;
 	}
 
-	if (wall(op->map, op->x + freearr_x[dir], op->y + freearr_y[dir]))
+	if (wall(shooter->map, shooter->x + freearr_x[dir], shooter->y + freearr_y[dir]))
 	{
-		draw_info(COLOR_WHITE, op, "Something is in the way.");
-		return;
+		draw_info(COLOR_WHITE, shooter, "Something is in the way.");
+		return OBJECT_METHOD_OK;
 	}
 
-	/* Skill action time. */
-	op->chosen_skill->stats.maxsp = bow->stats.sp + arrow->last_grace;
+	if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT))
+	{
+		object *copy;
 
-	arrow = object_stack_get_removed(arrow, 1);
+		copy = get_object();
+		copy_object(arrow, copy, 0);
+		CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
+		copy->nrof = 0;
+		copy->stats.food = 20;
+		arrow = copy;
+	}
+	else
+	{
+		arrow = object_stack_get_removed(arrow, 1);
+	}
 
 	/* Save original WC, damage and range. */
 	arrow->last_heal = arrow->stats.wc;
@@ -127,10 +122,10 @@ void bow_fire(object *op, int dir)
 	arrow->stats.sp = arrow->last_sp;
 
 	/* Determine how many tiles the arrow will fly. */
-	arrow->last_sp = bow->last_sp + arrow->last_sp;
+	arrow->last_sp = op->last_sp + arrow->last_sp;
 
 	/* Get the used skill. */
-	skill = SK_skill(op);
+	skill = SK_skill(shooter);
 
 	/* If we got the skill, add in the skill's modifiers. */
 	if (skill)
@@ -139,25 +134,31 @@ void bow_fire(object *op, int dir)
 		arrow->stats.wc += skill->last_heal;
 		/* Add tiles range. */
 		arrow->last_sp += skill->last_sp;
+		/* Skill action time. */
+		skill->stats.maxsp = op->stats.sp + arrow->last_grace;
 	}
 
 	/* Add WC and damage bonuses. */
-	arrow->stats.wc = arrow_get_wc(op, bow, arrow);
-	arrow->stats.dam = arrow_get_damage(op, bow, arrow);
+	arrow->stats.wc = arrow_get_wc(shooter, op, arrow);
+	arrow->stats.dam = arrow_get_damage(shooter, op, arrow);
 
 	/* Use the bow's WC range. */
-	arrow->stats.wc_range = bow->stats.wc_range;
+	arrow->stats.wc_range = op->stats.wc_range;
 
-	arrow = object_projectile_fire(arrow, op, dir);
+	arrow = object_projectile_fire(arrow, shooter, dir);
 
 	if (!arrow)
 	{
-		return;
+		return OBJECT_METHOD_OK;
 	}
 
-	CONTR(op)->stat_arrows_fired++;
+	if (shooter->type == PLAYER)
+	{
+		CONTR(shooter)->stat_arrows_fired++;
+	}
 
-	play_sound_map(op->map, CMD_SOUND_EFFECT, "bow1.ogg", op->x, op->y, 0, 0);
+	play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
+	return OBJECT_METHOD_OK;
 }
 
 /**
@@ -165,4 +166,5 @@ void bow_fire(object *op, int dir)
 void object_type_init_bow(void)
 {
 	object_type_methods[BOW].apply_func = object_apply_item;
+	object_type_methods[BOW].ranged_fire_func = ranged_fire_func;
 }

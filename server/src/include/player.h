@@ -66,31 +66,8 @@ enum
 	/** Skill. */
 	FIRE_MODE_SKILL,
 	/** Throwing. */
-	FIRE_MODE_THROW,
-	/** Golem. */
-	FIRE_MODE_SUMMON
+	FIRE_MODE_THROW
 };
-
-/** The range types. */
-typedef enum rangetype
-{
-	/** No range. */
-	range_none = 0,
-	/** Bow. */
-	range_bow = 1,
-	/** Magic. */
-	range_magic = 2,
-	/** A wand. */
-	range_wand = 3,
-	/** Rod. */
-	range_rod = 4,
-	/** Scroll. */
-	range_scroll = 5,
-	/** Horn. */
-	range_horn = 6,
-	/** Skill. */
-	range_skill = 7
-} rangetype;
 
 /**
  * Player equipment.
@@ -125,6 +102,8 @@ enum
 	PLAYER_EQUIP_BOW,
 	/** Skill item. */
 	PLAYER_EQUIP_SKILL_ITEM,
+	/** Wand/rod/horn/etc. */
+	PLAYER_EQUIP_MAGIC_DEVICE,
 
 	/** Maximum number of equipment. */
 	PLAYER_EQUIP_MAX
@@ -339,9 +318,6 @@ typedef struct pl_player
 	/** Y coordinate of respawn (savebed). */
 	int bed_y;
 
-	/** firemode_xxx are set from command_fire() */
-	int firemode_type;
-
 	/**
 	 * Array showing what spaces the player can see. For maps smaller
 	 * than MAP_CLIENT_.., the upper left is used. */
@@ -384,10 +360,10 @@ typedef struct pl_player
 	sint64 fame;
 
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
-	float action_timer;
+	int action_timer;
 
 	/** Previous value of action timer sent to the client. */
-	float last_action_timer;
+	int last_action_timer;
 
 	/** Last speed value sent to client. */
 	float last_speed;
@@ -427,9 +403,6 @@ typedef struct pl_player
 
 	/** Input state of the player (name, password, etc). */
 	unsigned char state;
-
-	/** Player should fire object, not move. */
-	unsigned char fire_on;
 
 	/** Player should keep moving in dir until run is off. */
 	unsigned char run_on;
@@ -702,9 +675,6 @@ typedef struct pl_player
 
 	/** Last grace sent to party members. */
 	uint8 last_party_grace;
-
-	/** Which range attack is being used by player. */
-	rangetype shoottype;
 
 	/** Can be less in case of poisoning. */
 	living orig_stats;

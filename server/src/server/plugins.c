@@ -143,7 +143,6 @@ struct plugin_hooklist hooklist =
 	dump_object_rec,
 	hit_player,
 	move_ob,
-	move_player,
 	get_empty_map,
 	set_map_darkness,
 	find_free_spot,

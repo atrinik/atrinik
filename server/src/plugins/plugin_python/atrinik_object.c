@@ -1593,14 +1593,7 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 		return NULL;
 	}
 
-	if (obj->obj->type == PLAYER)
-	{
-		Py_ReturnBoolean(hooks->move_player(obj->obj, direction));
-	}
-	else
-	{
-		Py_ReturnBoolean(hooks->move_ob(obj->obj, direction, obj->obj));
-	}
+	Py_ReturnBoolean(hooks->move_ob(obj->obj, direction, obj->obj));
 }
 
 /**

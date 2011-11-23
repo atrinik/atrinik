@@ -32,30 +32,14 @@
 /**
  * Static command for commands like east, west, etc to use.
  * @param op Object to move.
- * @param params Parameters, controls things like running and firing.
+ * @param params Parameters.
  * @param dir Direction to move.
  * @return Always returns 0. */
 static int move_internal(object *op, char *params, int dir)
 {
-	if (params)
-	{
-		if (params[0] == 'f')
-		{
-			if (!CONTR(op)->fire_on)
-			{
-				CONTR(op)->fire_on = 1;
-				move_player(op, dir);
-				CONTR(op)->fire_on = 0;
-				return 0;
-			}
-		}
-		else if (params[0] == 'r' && !CONTR(op)->run_on)
-		{
-			CONTR(op)->run_on = 1;
-		}
-	}
+	(void) params;
 
-	move_player(op, dir);
+	move_object(op, dir);
 	return 0;
 }
 
@@ -137,22 +121,6 @@ int command_southwest(object *op, char *params)
 int command_west(object *op, char *params)
 {
 	return move_internal(op, params, 7);
-}
-
-/**
- * Stay command.
- * @param op The object.
- * @param params Command parameters.
- * @return Always returns 0. */
-int command_stay(object *op, char *params)
-{
-	if (!CONTR(op)->fire_on && (!params || params[0] != 'f'))
-	{
-		return 0;
-	}
-
-	fire(op, 0);
-	return 0;
 }
 
 /**

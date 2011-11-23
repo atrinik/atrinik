@@ -53,28 +53,26 @@ int move_ob(object *op, int dir, object *originator)
 
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "move_ob: monster has been removed - will not process further\n");
+		LOG(llevBug, "move_ob: monster %s has been removed - will not process further\n", query_name(op, NULL));
 		return 0;
 	}
 
-	/* this function should now only be used on the head - it won't call itself
-	 * recursively, and functions calling us should pass the right part. */
-	if (op->head)
+	op = HEAD(op);
+
+	if (QUERY_FLAG(op, FLAG_CONFUSED))
 	{
-		LOG(llevDebug, "move_ob() called with non head object: %s %s (%d,%d)\n", query_name(op->head, NULL), op->map->path ? op->map->path : "<no map>", op->x, op->y);
-		op = op->head;
+		dir = get_randomized_dir(dir);
 	}
 
-	/* animation stuff */
-	if (op->head)
+	if (op->type == PLAYER)
 	{
-		op->head->anim_moving_dir = dir;
-	}
-	else
-	{
-		op->anim_moving_dir = dir;
+		CONTR(op)->praying = 0;
 	}
 
+	op->anim_moving_dir = dir;
+	op->anim_enemy_dir = dir;
+	op->anim_last_facing = -1;
+	op->facing = dir;
 	op->direction = dir;
 
 	xt = op->x + freearr_x[dir];

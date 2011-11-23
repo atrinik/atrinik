@@ -37,14 +37,29 @@
  * @return The arrow's wc. */
 sint16 arrow_get_wc(object *op, object *bow, object *arrow)
 {
-	object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+	int level;
 
-	if (!skill)
+	op = HEAD(op);
+
+	if (op->type == PLAYER)
 	{
-		return 0;
+		object *skill;
+
+		skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+
+		if (!skill)
+		{
+			return 0;
+		}
+
+		level = skill->level;
+	}
+	else
+	{
+		level = op->level;
 	}
 
-	return arrow->stats.wc + bow->magic + arrow->magic + skill->level + thaco_bonus[op->stats.Dex] + bow->stats.wc;
+	return arrow->stats.wc + bow->magic + arrow->magic + level + thaco_bonus[op->stats.Dex] + bow->stats.wc;
 }
 
 /**
@@ -56,15 +71,30 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
 sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 {
 	sint16 dam;
-	object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+	int level;
 
-	if (!skill)
+	op = HEAD(op);
+
+	if (op->type == PLAYER)
 	{
-		return 0;
+		object *skill;
+
+		skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+
+		if (!skill)
+		{
+			return 0;
+		}
+
+		level = skill->level;
+	}
+	else
+	{
+		level = op->level;
 	}
 
 	dam = arrow->stats.dam + arrow->magic;
-	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(skill->level))));
+	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(level))));
 	dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
 
 	if (bow->item_condition > arrow->item_condition)
@@ -91,6 +121,30 @@ object *arrow_find(object *op, shstr *type)
 {
 	object *tmp;
 
+	if (op->type != PLAYER)
+	{
+		object *tmp2;
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == ARROW && tmp->race == type)
+			{
+				return tmp;
+			}
+			else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED))
+			{
+				tmp2 = arrow_find(tmp, type);
+
+				if (tmp2)
+				{
+					return tmp2;
+				}
+			}
+		}
+
+		return NULL;
+	}
+
 	tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
 
 	/* Nothing readied. */
@@ -113,13 +167,7 @@ object *arrow_find(object *op, shstr *type)
 	/* A quiver, search through it for arrows. */
 	else if (tmp->type == CONTAINER)
 	{
-		for (tmp = tmp->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->race == type && tmp->type == ARROW)
-			{
-				return tmp;
-			}
-		}
+		return arrow_find(tmp, type);
 	}
 
 	return NULL;

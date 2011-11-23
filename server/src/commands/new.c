@@ -109,7 +109,7 @@ int command_run(object *op, char *params)
 		dir = absdir(op->facing - 4);
 	}
 
-	return move_player(op, dir);
+	return move_object(op, dir);
 }
 
 /**

@@ -1035,7 +1035,7 @@ void fix_player(object *op)
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
 		/* Add here more types we can and must skip. */
-		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL || tmp->type == WAND || tmp->type == ROD || tmp->type == HORN)
+		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL)
 		{
 			continue;
 		}
@@ -1094,6 +1094,12 @@ void fix_player(object *op)
 
 				case SKILL_ITEM:
 					pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
+					break;
+
+				case WAND:
+				case ROD:
+				case HORN:
+					pl->equipment[PLAYER_EQUIP_MAGIC_DEVICE] = tmp;
 					break;
 
 				case WEAPON:

@@ -102,7 +102,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		else
 		{
 			draw_info_format(COLOR_NAVY, applier, "A divine force pushes you off the altar.");
-			move_player(applier, absdir(applier->facing + 4));
+			move_object(applier, absdir(applier->facing + 4));
 		}
 	}
 

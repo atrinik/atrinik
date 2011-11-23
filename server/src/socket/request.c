@@ -780,12 +780,6 @@ void esrv_update_stats(player *pl)
 
 	flags = 0;
 
-	/* TODO: remove fire and run server sided mode */
-	if (pl->fire_on)
-	{
-		flags |= SF_FIREON;
-	}
-
 	if (pl->run_on)
 	{
 		flags |= SF_RUNON;
@@ -2143,30 +2137,7 @@ void command_fire(uint8 *buf, int len, player *pl)
 	dir = MAX(0, MIN(dir, 8));
 	type = buf[pos++];
 
-	/* For spell and skill firing, get the name of what to use. */
-	if (type == FIRE_MODE_SPELL || type == FIRE_MODE_SKILL)
-	{
-		if (len < 4)
-		{
-			return;
-		}
-
-		/* Store the name. */
-		strncpy(pl->firemode_name, (char *) buf + pos, sizeof(pl->firemode_name) - 1);
-		pl->firemode_name[sizeof(pl->firemode_name) - 1] = '\0';
-	}
-
-	/* Check that we can actually cast this spell... */
-	if (type == FIRE_MODE_SPELL && !fire_cast_spell(pl->ob, pl->firemode_name))
-	{
-		return;
-	}
-
-	pl->fire_on = 1;
-	pl->firemode_type = type;
-	move_player(pl->ob, dir);
-	pl->fire_on = 0;
-	pl->firemode_type = -1;
+	fire(pl->ob, dir, type, (char *) buf + pos);
 }
 
 /**
