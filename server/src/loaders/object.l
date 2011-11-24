@@ -220,17 +220,6 @@ lex_error = 0;
 
 								if (tmp->arch)
 								{
-									/* We set here AND in load_object the material real values.
-									 * We do: if item_quality == 0 AND material defines a base
-									 * material, then use material_real to set quality and condition.
-									 * So, we don't set it for floors or or some other objects which
-									 * don't need it. */
-									if (tmp->material && !tmp->item_quality)
-									{
-										tmp->item_quality = material_real[tmp->material_real].quality;
-										tmp->item_condition = tmp->item_quality;
-									}
-
 									insert_ob_in_ob(tmp, op);
 								}
 								else if (!arch_init)
@@ -871,7 +860,15 @@ lex_error = 0;
 							op->item_level = ival_tmp;
 						}
                     }
-^material_real{S}   op->material_real = IVAL;
+^material_real{S}   {
+						op->material_real = IVAL;
+
+						if (op->material && !op->item_quality)
+						{
+							op->item_quality = material_real[op->material_real].quality;
+							op->item_condition = op->item_quality;
+						}
+                    }
 ^mpart_id{S}        op->quick_pos |= (((char) IVAL) << 4);
 ^mpart_nr{S}        op->quick_pos |= (char) IVAL;
 ^weapon_speed{S}    {
@@ -1107,17 +1104,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		}
 
 		return LL_EOF;
-	}
-
-	/* We set here the material real values.
-	 * We do: if item_quality == 0 AND material defines a base
-	 * material, then use material_real to set quality and condition.
-	 * So, we don't set it for floors or or some other objects which
-	 * don't need it. */
-	if (op->material && !op->item_quality)
-	{
-		op->item_quality = material_real[op->material_real].quality;
-		op->item_condition = op->item_quality;
 	}
 
 	/* OK, now we have our old speed values and our new ones. */
