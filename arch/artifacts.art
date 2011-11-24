@@ -3344,6 +3344,7 @@ Allowed ring_normal
 chance 100
 difficulty 1
 artifact ring_brass
+copy_artifact yes
 def_arch ring_generic
 Object
 value 4500
@@ -3357,6 +3358,7 @@ Allowed ring_normal
 chance 90
 difficulty 1
 artifact ring_copper
+copy_artifact yes
 def_arch ring_generic
 Object
 value 4650
@@ -3370,6 +3372,7 @@ Allowed ring_normal
 chance 80
 difficulty 1
 artifact ring_bronze
+copy_artifact yes
 def_arch ring_generic
 Object
 value 4750
@@ -3383,6 +3386,7 @@ Allowed ring_normal
 chance 70
 difficulty 3
 artifact ring_silver
+copy_artifact yes
 def_arch ring_generic
 Object
 value 4950
@@ -3396,6 +3400,7 @@ Allowed ring_normal
 chance 50
 difficulty 8
 artifact ring_gold
+copy_artifact yes
 def_arch ring_generic
 Object
 value 5150
@@ -3409,6 +3414,7 @@ Allowed ring_normal
 chance 40
 difficulty 20
 artifact ring_platinum
+copy_artifact yes
 def_arch ring_generic
 Object
 value 5250
@@ -3422,6 +3428,7 @@ Allowed ring_normal
 chance 30
 difficulty 25
 artifact ring_adamant
+copy_artifact yes
 def_arch ring_generic
 Object
 value 5550
@@ -3436,6 +3443,7 @@ Allowed ring_normal
 chance 20
 difficulty 50
 artifact ring_mithril
+copy_artifact yes
 def_arch ring_generic
 Object
 value 5750
@@ -3455,6 +3463,7 @@ Allowed ring_generic
 chance 25
 difficulty 22
 artifact ring_thieves
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Thieves
@@ -3479,6 +3488,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_ice
+copy_artifact yes
 def_arch ring_generic
 Object
 is_magical 1
@@ -3509,6 +3519,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_fire
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Fire
@@ -3541,6 +3552,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_storm
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Storm
@@ -3572,6 +3584,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_storm_great
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Greater Storm
@@ -3605,6 +3618,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_fire_great
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Greater Fire
@@ -3638,6 +3652,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_ice_great
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Greater Ice
@@ -3671,6 +3686,7 @@ Allowed ring_generic
 chance 40
 difficulty 26
 artifact ring_life
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Life
@@ -3697,6 +3713,7 @@ Allowed ring_generic
 chance 20
 difficulty 18
 artifact ring_yordan
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Yordan
@@ -3719,6 +3736,7 @@ Allowed ring_generic
 chance 30
 difficulty 7
 artifact ring_ghost
+copy_artifact yes
 def_arch ring_generic
 Object
 title of the Ghost
@@ -3741,6 +3759,7 @@ Allowed ring_generic
 chance 30
 difficulty 18
 artifact ring_combat
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Combat
@@ -3766,6 +3785,7 @@ Allowed ring_generic
 chance 15
 difficulty 25
 artifact ring_strife
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Strife
@@ -3791,6 +3811,7 @@ Allowed ring_generic
 chance 40
 difficulty 10
 artifact ring_magic
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Magic
@@ -3818,6 +3839,7 @@ Allowed ring_generic
 chance 30
 difficulty 20
 artifact ring_ancient_magic
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Ancient Magic
@@ -3842,6 +3864,7 @@ Allowed ring_generic
 chance 20
 difficulty 30
 artifact ring_high_magic
+copy_artifact yes
 def_arch ring_generic
 Object
 title of High Magic
@@ -3866,6 +3889,7 @@ Allowed ring_generic
 chance 20
 difficulty 18
 artifact ring_healer
+copy_artifact yes
 def_arch ring_generic
 Object
 title of the Healer
@@ -3895,6 +3919,7 @@ Allowed ring_generic
 chance 40
 difficulty 10
 artifact ring_paladin
+copy_artifact yes
 def_arch ring_generic
 Object
 title of the Paladin
@@ -3919,6 +3944,7 @@ Allowed ring_generic
 chance 30
 difficulty 20
 artifact ring_prelate
+copy_artifact yes
 def_arch ring_generic
 Object
 title of the Prelate
@@ -3943,6 +3969,7 @@ Allowed ring_generic
 chance 20
 difficulty 30
 artifact ring_benevolence
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Benevolence
@@ -3974,6 +4001,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Woe
@@ -3995,6 +4023,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_doom
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Doom
@@ -4018,6 +4047,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe1
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Woe
@@ -4042,6 +4072,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe2
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Woe
@@ -4066,6 +4097,7 @@ end
 Allowed ring_generic
 chance 20
 artifact ring_woe3
+copy_artifact yes
 def_arch ring_generic
 Object
 title of Woe
@@ -4125,6 +4157,7 @@ Allowed amulet_normal
 chance 100
 difficulty 1
 artifact amulet_brass
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4050
@@ -4138,6 +4171,7 @@ Allowed amulet_normal
 chance 90
 difficulty 1
 artifact amulet_copper
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4185
@@ -4151,6 +4185,7 @@ Allowed amulet_normal
 chance 80
 difficulty 1
 artifact amulet_bronze
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4275
@@ -4164,6 +4199,7 @@ Allowed amulet_normal
 chance 70
 difficulty 3
 artifact amulet_silver
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4455
@@ -4177,6 +4213,7 @@ Allowed amulet_normal
 chance 50
 difficulty 8
 artifact amulet_gold
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4635
@@ -4190,6 +4227,7 @@ Allowed amulet_normal
 chance 40
 difficulty 20
 artifact amulet_platinum
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4725
@@ -4203,6 +4241,7 @@ Allowed amulet_normal
 chance 30
 difficulty 25
 artifact amulet_adamant
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 4995
@@ -4217,6 +4256,7 @@ Allowed amulet_normal
 chance 20
 difficulty 50
 artifact amulet_mithril
+copy_artifact yes
 def_arch amulet_generic
 Object
 value 5175
@@ -4234,6 +4274,7 @@ Allowed amulet_generic
 chance 15
 difficulty 10
 artifact amulet_shielding
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of minor shielding
@@ -4254,6 +4295,7 @@ Allowed amulet_generic
 chance 15
 difficulty 25
 artifact amulet_melee_balance
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Melee Balance
@@ -4274,6 +4316,7 @@ Allowed amulet_generic
 chance 15
 difficulty 6
 artifact amulet_sorrow
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Sorrow
@@ -4294,6 +4337,7 @@ Allowed amulet_generic
 chance 15
 difficulty 4
 artifact amulet_calling_death
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Calling Death
@@ -4322,6 +4366,7 @@ Allowed amulet_generic
 chance 15
 difficulty 15
 artifact amulet_sustenance
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Sustenance
@@ -4340,6 +4385,7 @@ Allowed amulet_generic
 chance 15
 difficulty 38
 artifact amulet_deflection
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Deflection
@@ -4365,6 +4411,7 @@ Allowed amulet_generic
 chance 15
 difficulty 42
 artifact amulet_empowerment
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Empowerment
@@ -4386,6 +4433,7 @@ Allowed amulet_generic
 chance 15
 difficulty 72
 artifact amulet_power
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Power
@@ -4408,6 +4456,7 @@ Allowed amulet_generic
 chance 15
 difficulty 56
 artifact amulet_shielded_mind
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Shielded Mind
@@ -4430,6 +4479,7 @@ Allowed amulet_generic
 chance 15
 difficulty 38
 artifact amulet_free_action
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Free Action
@@ -4452,6 +4502,7 @@ Allowed amulet_generic
 chance 15
 difficulty 24
 artifact amulet_holiness
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Holiness
@@ -4474,6 +4525,7 @@ Allowed amulet_generic
 chance 15
 difficulty 24
 artifact amulet_magi
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of the Magi
@@ -4496,6 +4548,7 @@ Allowed amulet_generic
 chance 13
 difficulty 24
 artifact amulet_unholiness
+copy_artifact yes
 def_arch amulet_generic
 Object
 title of Unholiness
