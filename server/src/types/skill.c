@@ -31,9 +31,29 @@
 
 #include <global.h>
 
+/** @copydoc object_methods::ranged_fire_func */
+static int ranged_fire_func(object *op, object *shooter, int dir)
+{
+	if (!op)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (op->sub_type != ST1_SKILL_USE)
+	{
+		draw_info(COLOR_WHITE, shooter, "You can't use this skill in this way.");
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	do_skill(shooter, dir, NULL);
+
+	return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the skill type object methods. */
 void object_type_init_skill(void)
 {
 	object_type_methods[SKILL].apply_func = object_apply_item;
+	object_type_methods[SKILL].ranged_fire_func = ranged_fire_func;
 }
