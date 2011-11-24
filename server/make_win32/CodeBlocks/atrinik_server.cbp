@@ -190,7 +190,6 @@
 		<Unit filename="..\..\src\types\handle.c" />
 		<Unit filename="..\..\src\types\helmet.c" />
 		<Unit filename="..\..\src\types\holy_altar.c" />
-		<Unit filename="..\..\src\types\horn.c" />
 		<Unit filename="..\..\src\types\inorganic.c" />
 		<Unit filename="..\..\src\types\jewel.c" />
 		<Unit filename="..\..\src\types\key.c" />

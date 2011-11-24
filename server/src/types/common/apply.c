@@ -134,7 +134,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 			case BOW:
 			case WAND:
 			case ROD:
-			case HORN:
 				draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
 				break;
 
@@ -164,7 +163,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 	 * something of that type applied - if so, unapply it. */
 	for (tmp = applier->inv; tmp; tmp = tmp->below)
 	{
-		if ((tmp->type == op->type || ((op->type == WAND || op->type == ROD || op->type == HORN) && (tmp->type == WAND || tmp->type == ROD || tmp->type == HORN))) && QUERY_FLAG(tmp, FLAG_APPLIED) && tmp != op)
+		if ((tmp->type == op->type || ((op->type == WAND || op->type == ROD) && (tmp->type == WAND || tmp->type == ROD))) && QUERY_FLAG(tmp, FLAG_APPLIED) && tmp != op)
 		{
 			if (tmp->type == RING && !ring_left)
 			{
@@ -253,7 +252,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 
 		case WAND:
 		case ROD:
-		case HORN:
 		case BOW:
 			if (!check_skill_to_apply(applier, op))
 			{

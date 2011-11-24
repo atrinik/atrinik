@@ -971,7 +971,6 @@ extern void object_type_init_boots(void);
 /* src/types/bow.c */
 extern sint32 bow_get_ws(object *bow, object *arrow);
 extern int bow_get_skill(object *bow);
-extern void bow_fire(object *op, int dir);
 extern void object_type_init_bow(void);
 /* src/types/bracers.c */
 extern void object_type_init_bracers(void);
@@ -1062,8 +1061,6 @@ extern void object_type_init_handle(void);
 extern void object_type_init_helmet(void);
 /* src/types/holy_altar.c */
 extern void object_type_init_holy_altar(void);
-/* src/types/horn.c */
-extern void object_type_init_horn(void);
 /* src/types/inorganic.c */
 extern void object_type_init_inorganic(void);
 /* src/types/jewel.c */
@@ -1128,9 +1125,7 @@ extern void give_initial_items(object *pl, treasurelist *items);
 extern void get_name(object *op);
 extern void get_password(object *op);
 extern void confirm_password(object *op);
-extern object *find_arrow(object *op, const char *type);
 extern void fire(object *op, int dir, int type, char *params);
-extern int move_player(object *op, int dir);
 extern int handle_newcs_player(player *pl);
 extern void do_some_living(object *op);
 extern void kill_player(object *op);
@@ -1164,8 +1159,6 @@ extern void object_type_init_random_drop(void);
 /* src/types/ring.c */
 extern void object_type_init_ring(void);
 /* src/types/rod.c */
-extern void drain_rod_charge(object *rod);
-extern void fix_rod_speed(object *rod);
 extern void object_type_init_rod(void);
 /* src/types/rune.c */
 extern void rune_spring(object *op, object *victim);

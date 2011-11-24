@@ -88,8 +88,6 @@
 #define SPELL_USE_DUST   0x04
 /** Spell can be found in scrolls. */
 #define SPELL_USE_SCROLL 0x08
-/** Spell can be found in horns. */
-#define SPELL_USE_HORN   0x10
 /** Spell can be found in wands. */
 #define SPELL_USE_WAND   0x20
 /** Spell can be found in rods. */
@@ -302,8 +300,6 @@ enum spellnrs
 #define CAST_WAND 1
 /** Casting from a rod. */
 #define CAST_ROD 2
-/** Casting from a horn. */
-#define CAST_HORN 3
 /** Casting from a scroll. */
 #define CAST_SCROLL 4
 /** Casting from a potion. */

@@ -1967,7 +1967,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
 		if (a_chance != 0)
 		{
-			if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || op->type == HORN || difficulty >= 999 || rndm(1, 100) <= a_chance)
+			if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || difficulty >= 999 || rndm(1, 100) <= a_chance)
 			{
 				retval = generate_artifact(op, difficulty, t_style, a_chance);
 			}
@@ -2273,9 +2273,8 @@ jump_break1:
 
 				break;
 
-			case HORN:
 			case ROD:
-				if ((op->stats.sp = get_random_spell(difficulty, op->type == HORN ? SPELL_USE_HORN : SPELL_USE_ROD)) == SP_NO_SPELL)
+				if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_ROD)) == SP_NO_SPELL)
 				{
 					break;
 				}
@@ -2285,7 +2284,7 @@ jump_break1:
 
 				if (op->stats.maxhp)
 				{
-					op->stats.maxhp += rndm(1, op->stats.maxhp);
+					op->stats.maxhp += rndm(0, op->stats.maxhp);
 				}
 
 				op->stats.hp = op->stats.maxhp;

@@ -298,7 +298,6 @@ set(SOURCES
 	src/types/handle.c
 	src/types/helmet.c
 	src/types/holy_altar.c
-	src/types/horn.c
 	src/types/inorganic.c
 	src/types/jewel.c
 	src/types/key.c

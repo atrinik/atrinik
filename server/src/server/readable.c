@@ -153,7 +153,6 @@ static arttypename art_name_array[] =
 	{"Gloves", GLOVES},
 	{"Girdle", GIRDLE},
 	{"Ring", RING},
-	{"Horn", HORN},
 	{"Missile Weapon", BOW},
 	{"Missile", ARROW},
 	{"Hand Weapon", WEAPON},

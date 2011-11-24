@@ -106,7 +106,6 @@ void object_methods_init(void)
 	object_type_init_handle();
 	object_type_init_helmet();
 	object_type_init_holy_altar();
-	object_type_init_horn();
 	object_type_init_inorganic();
 	object_type_init_jewel();
 	object_type_init_key();

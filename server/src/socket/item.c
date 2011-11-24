@@ -52,7 +52,6 @@ unsigned int query_flags(object *op)
 			case BOW:
 			case WAND:
 			case ROD:
-			case HORN:
 				flags = a_readied;
 				break;
 

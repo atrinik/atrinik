@@ -698,23 +698,13 @@ int check_skill_to_apply(object *who, object *item)
 			skill = bow_get_skill(item);
 			break;
 
-		case POTION:
-			skill = SK_USE_MAGIC_ITEM;
-			break;
-
 		case SCROLL:
 			skill = SK_LITERACY;
 			break;
 
+		case POTION:
 		case ROD:
-			skill = SK_USE_MAGIC_ITEM;
-			break;
-
 		case WAND:
-			skill = SK_USE_MAGIC_ITEM;
-			break;
-
-		case HORN:
 			skill = SK_USE_MAGIC_ITEM;
 			break;
 

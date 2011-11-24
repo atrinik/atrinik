@@ -197,9 +197,6 @@
  * Helmet. */
 #define HELMET 34
 /**
- * Horn. */
-#define HORN 35
-/**
  * Money (copper, silver, etc). */
 #define MONEY 36
 /**

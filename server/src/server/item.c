@@ -465,7 +465,6 @@ char *query_short_name(object *op, object *caller)
 		case SCROLL:
 		case WAND:
 		case ROD:
-		case HORN:
 		case POTION:
 			if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED))
 			{
@@ -632,7 +631,6 @@ char *query_name(object *op, object *caller)
 			case BOW:
 			case WAND:
 			case ROD:
-			case HORN:
 				safe_strcat(buf[use_buf], " (readied)", &len, HUGE_BUF);
 				break;
 
@@ -839,7 +837,6 @@ char *query_base_name(object *op, object *caller)
 		case SCROLL:
 		case WAND:
 		case ROD:
-		case HORN:
 		case POTION:
 			if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 			{
@@ -1134,10 +1131,8 @@ char *describe_item(object *op)
 			{
 				case WAND:
 				case ROD:
-				case HORN:
 					sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
 					strcat(retbuf, buf);
-
 					break;
 
 				/* Armour type objects */
@@ -1439,7 +1434,7 @@ char *describe_item(object *op)
 		DESCRIBE_PATH(retbuf, op->path_repelled, "Repelled");
 		DESCRIBE_PATH(retbuf, op->path_denied, "Denied");
 
-		if (op->stats.maxhp && (op->type != HORN && op->type != ROD && op->type != WAND))
+		if (op->stats.maxhp && (op->type != ROD && op->type != WAND))
 		{
 			sprintf(buf, "(hp%+d)", op->stats.maxhp);
 			strcat(retbuf, buf);
@@ -1478,7 +1473,6 @@ int need_identify(object *op)
 		case RING:
 		case WAND:
 		case ROD:
-		case HORN:
 		case SCROLL:
 		case SKILL:
 		case FOOD:

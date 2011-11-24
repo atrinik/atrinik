@@ -1081,7 +1081,6 @@ char *long_desc(object *tmp, object *caller)
 		case CLOAK:
 		case FOOD:
 		case DRINK:
-		case HORN:
 		case WAND:
 		case ROD:
 		case FLESH:

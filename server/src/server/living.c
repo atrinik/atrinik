@@ -1098,7 +1098,6 @@ void fix_player(object *op)
 
 				case WAND:
 				case ROD:
-				case HORN:
 					pl->equipment[PLAYER_EQUIP_MAGIC_DEVICE] = tmp;
 					break;
 

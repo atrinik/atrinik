@@ -118,7 +118,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	{
 		val += (val * tmp->level) * tmp->stats.food;
 	}
-	else if (tmp->type == ROD || tmp->type == HORN || tmp->type == POTION || tmp->type == SCROLL)
+	else if (tmp->type == ROD || tmp->type == POTION || tmp->type == SCROLL)
 	{
 		val += val * tmp->level;
 	}

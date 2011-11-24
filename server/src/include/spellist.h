@@ -37,7 +37,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_firestorm.101", "A cone of fire you project in front of you. The spell gains strength as you grow in level, so it remains one of your best spells even at high level.",
 	 15, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_fire.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_DUST | SPELL_USE_BOOK | SPELL_USE_POTION, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_DUST | SPELL_USE_BOOK | SPELL_USE_POTION, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "firebreath", 50000
 	},
 
@@ -45,7 +45,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_icestorm.101", "A cone of ice which freezes monsters facing the caster. This spell gains power with level, so it remains useful even at high level.",
 	 15, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_ice.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK | SPELL_USE_POTION | SPELL_USE_DUST, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK | SPELL_USE_POTION | SPELL_USE_DUST, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "icestorm", 50000
 	},
 
@@ -77,7 +77,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_strength_self.101", "This spell will increase your strength by some amount. Recasting while in effect will refresh the wear out counter.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 0, 0, 0, 4, 0, "magic_stat.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_POTION | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_POTION | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
 	 PATH_SELF, "meffect_yellow", 0
 	},
 
@@ -85,7 +85,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_identify.101", "This spell identifies some items in your inventory. Number of items identified is your literacy level and your Intelligence stat combined.",
 	 1, 5, 8, 3, 6, 2, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
 	 PATH_INFO, "meffect_pink", 0
 	},
 
@@ -141,7 +141,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_magic_bullet.101", "This spell fires a magical bullet which does not track but instead flies in one direction until it hits something.",
 	 1, 4, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_bullet1.ogg",
-	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_DIRECTION,
 	 PATH_MISSILE, "bullet", 0
 	},
 
@@ -165,7 +165,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_probe.101", "Probe will invoke a magic ball which will give you information about the monster it hits. Probe tells you about the monster's level, the damage it does, and so on. A probe will be invisible to the monster and will invoke no aggression.",
 	 1, 2, 8, 3, 6, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
-	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_TOWN | SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_TOWN | SPELL_DESC_DIRECTION,
 	 PATH_INFO, "probebullet", 0
 	},
 
@@ -189,7 +189,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_default.101", "Teleports you to your house, apartment, or wherever you applied a bed to reality. This spell takes a while to complete, but is faster the higher level you are.",
 	 12, 5, 24, 1, 19, 3, 1.0,
 	 25, 3, 3, 4, 0, "magic_teleport.ogg",
-	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_HORN, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
 	 PATH_TELE, NULL, 0
 	},
 
@@ -381,7 +381,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_magic_missile.101", "Fires a missile at currently selected target, following the target wherever they go.",
 	 40, 3, 8, 3, 6, 9, 1.0,
 	 4, 5, 4, 4, 9, "magic_missile.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_ENEMY,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_ENEMY,
 	 PATH_MISSILE, "magic_missile", 75000
 	},
 
@@ -405,7 +405,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_frostbolt.101", "A blast of cold is fired in straight line. Each part of it can hit enemies only once.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_ice.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
 	 PATH_FROST, "frostbolt", 65000
 	},
 
@@ -413,7 +413,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_firebolt.101", "A blast of fire is fired in straight line. Each part of it can hit enemies only once.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_fire.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
 	 PATH_FIRE, "firebolt", 65000
 	},
 
@@ -421,7 +421,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_elec.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
 	 PATH_ELEC, "lightning", 65000
 	},
 
@@ -429,7 +429,7 @@ spell_struct spells[NROFREALSPELLS] =
 	 "icon_forked_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls. The main line of lightning may create forks of lightning, which will do less damage.",
 	 25, 5, 8, 3, 6, 0, 1.0,
 	 4, 4, 4, 8, 9, "magic_elec.ogg",
-	 SPELL_USE_CAST | SPELL_USE_HORN | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
+	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
 	 PATH_ELEC, "forked_lightning", 80000
 	},
 
