@@ -33,10 +33,17 @@
  * Registered method handlers. */
 object_methods object_type_methods[OBJECT_TYPE_MAX];
 
+/**
+ * The base object type methods; all object types inherit from this. */
 object_methods object_methods_base;
 
+/**
+ * Recursion counter for object_move_on(). */
 static int object_move_on_recursion_depth = 0;
 
+/**
+ * Initialize one object methods structure.
+ * @param methods What to initialize. */
 static void object_methods_init_one(object_methods *methods)
 {
 	memset(methods, 0, sizeof(*methods));
