@@ -4090,24 +4090,14 @@ end
 #########
 # Horns #
 #########
-Allowed all
-chance 80
-artifact horn_normal
-def_arch horn
-Object
-type 35
-end
-
-Allowed all
+Allowed horn
 chance 20
 artifact horn_fools
 def_arch horn
 Object
 title of fools
-type 35
+type 3
 sp -1
-hp -10
-maxhp -10
 is_magical 1
 level 1
 value 50
