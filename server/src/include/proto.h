@@ -567,7 +567,6 @@ extern int object_get_gender(object *op);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;
-extern void object_methods_init_one(object_methods *methods);
 extern void object_methods_init(void);
 extern int object_apply(object *op, object *applier, int aflags);
 extern void object_process(object *op);

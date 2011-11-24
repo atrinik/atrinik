@@ -37,7 +37,7 @@ object_methods object_methods_base;
 
 static int object_move_on_recursion_depth = 0;
 
-void object_methods_init_one(object_methods *methods)
+static void object_methods_init_one(object_methods *methods)
 {
 	memset(methods, 0, sizeof(*methods));
 }
