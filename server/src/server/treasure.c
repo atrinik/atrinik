@@ -530,6 +530,10 @@ void init_artifacts(void)
 		{
 			FREE_AND_COPY_HASH(art->name, cp + 9);
 		}
+		else if (strncmp(cp, "copy_artifact ", 14) == 0)
+		{
+			art->copy_artifact = KEYWORD_IS_TRUE(cp + 14);
+		}
 		/* Chain a default arch to this treasure */
 		else if (!strncmp(cp, "def_arch", 8))
 		{
@@ -2479,6 +2483,7 @@ static artifact *get_empty_artifact(void)
 	t->chance = 0;
 	t->difficulty = 0;
 	t->allowed = NULL;
+	t->copy_artifact = 0;
 
 	return t;
 }
@@ -2720,28 +2725,33 @@ static int legal_artifact_combination(object *op, artifact *art)
  * have due to the second artifact template. */
 void give_artifact_abilities(object *op, artifact *art)
 {
-	int tmp_value = op->value;
-
-	op->value = 0;
-
-	if (!load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT))
+	if (art->copy_artifact)
 	{
-		LOG(llevError, "give_artifact_abilities(): load_object() error (ob: %s art: %s).\n", op->name, art->name);
+		copy_object_with_inv(&art->def_at.clone, op);
 	}
-
-	FREE_AND_ADD_REF_HASH(op->artifact, art->name);
-
-	/* This will solve the problem to adjust the value for different
-	 * items of same artification. Also we can safely use negative
-	 * values. */
-	op->value += tmp_value;
-
-	if (op->value < 0)
+	else
 	{
+		int tmp_value = op->value;
+
 		op->value = 0;
-	}
 
-	return;
+		if (!load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT))
+		{
+			LOG(llevError, "give_artifact_abilities(): load_object() error (ob: %s art: %s).\n", op->name, art->name);
+		}
+
+		FREE_AND_ADD_REF_HASH(op->artifact, art->name);
+
+		/* This will solve the problem to adjust the value for different
+		 * items of same artification. Also we can safely use negative
+		 * values. */
+		op->value += tmp_value;
+
+		if (op->value < 0)
+		{
+			op->value = 0;
+		}
+	}
 }
 
 /**

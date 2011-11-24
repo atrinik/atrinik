@@ -61,6 +61,11 @@ typedef struct artifactstruct
 
 	/** Difficulty. */
 	uint8 difficulty;
+
+	/**
+	 * If set, the artifact will be directly copied to the object,
+	 * instead of just having the extra attributes added. */
+	uint8 copy_artifact;
 } artifact;
 
 /** Artifact list structure. */
