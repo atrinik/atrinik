@@ -25,57 +25,66 @@
 
 /**
  * @file
- * @ref ROD "Rod" related code. */
+ * Handles code for @ref ROD "rods".
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
-
-/**
- * Drain charges from a rod.
- * @param rod Rod to drain. */
-void drain_rod_charge(object *rod)
-{
-	rod->stats.hp -= spells[rod->stats.sp].sp;
-
-	if (QUERY_FLAG(rod, FLAG_ANIMATE))
-	{
-		fix_rod_speed(rod);
-	}
-}
-
-/**
- * Fix the speed of the rod, based on its hp.
- * @param rod Rod to fix. */
-void fix_rod_speed(object *rod)
-{
-	rod->speed = (FABS(rod->arch->clone.speed) * rod->stats.hp) / (float) rod->stats.maxhp;
-
-	if (rod->speed < 0.02f)
-	{
-		rod->speed = 0.02f;
-	}
-
-	update_ob_speed(rod);
-}
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	if (++op->stats.food > op->stats.hp / 10 || op->type == HORN)
+	if (op->stats.hp < op->stats.maxhp)
 	{
-		op->stats.food = 0;
+		op->stats.hp++;
+	}
+}
 
-		if (op->stats.hp < op->stats.maxhp)
+/** @copydoc object_methods::ranged_fire_func */
+static int ranged_fire_func(object *op, object *shooter, int dir)
+{
+	if (!op)
+	{
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS)
+	{
+		draw_info_format(COLOR_WHITE, shooter, "The %s is broken.", op->name);
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	/* If the device level is higher than player's magic skill,
+	 * don't allow using the device. */
+	if (shooter->type == PLAYER && (!CONTR(shooter)->exp_ptr[EXP_MAGICAL] || op->level > CONTR(shooter)->exp_ptr[EXP_MAGICAL]->level + settings.magic_devices_level))
+	{
+		draw_info_format(COLOR_WHITE, shooter, "The %s is impossible to handle for you.", op->name);
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (op->stats.maxhp && op->stats.hp <= 0)
+	{
+		play_sound_player_only(CONTR(shooter), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
+		draw_info_format(COLOR_WHITE, shooter, "The %s whines for a while, but nothing happens.", op->name);
+		return OBJECT_METHOD_UNHANDLED;
+	}
+
+	if (cast_spell(shooter, op, dir, op->stats.sp, 0, CAST_ROD, NULL))
+	{
+		SET_FLAG(op, FLAG_BEEN_APPLIED);
+
+		if (op->stats.maxhp)
 		{
-			op->stats.hp += 1 + op->stats.maxhp / 10;
-
-			if (op->stats.hp > op->stats.maxhp)
-			{
-				op->stats.hp = op->stats.maxhp;
-			}
-
-			fix_rod_speed(op);
+			op->stats.hp--;
 		}
 	}
+
+	if (shooter->chosen_skill)
+	{
+		shooter->chosen_skill->stats.maxsp = op->last_grace;
+	}
+
+	return OBJECT_METHOD_OK;
 }
 
 /**
@@ -84,4 +93,5 @@ void object_type_init_rod(void)
 {
 	object_type_methods[ROD].apply_func = object_apply_item;
 	object_type_methods[ROD].process_func = process_func;
+	object_type_methods[ROD].ranged_fire_func = ranged_fire_func;
 }
