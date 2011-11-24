@@ -23,20 +23,12 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Object methods header file. */
+
 #ifndef OBJECT_METHODS_H
 #define OBJECT_METHODS_H
-
-/**
- * @defgroup OBJECT_METHOD_xxx Object method return values
- * Object method return values.
- *@{*/
-/** The object was not handled. */
-#define OBJECT_METHOD_UNHANDLED 0
-/** Successfully handled. */
-#define OBJECT_METHOD_OK 1
-/** Error handling the object. */
-#define OBJECT_METHOD_ERROR 2
-/*@}*/
 
 typedef struct object_methods
 {
@@ -129,7 +121,7 @@ typedef struct object_methods
 	/**
 	 * Called to stop a fired object.
 	 * @param op The fired object.
-	 * @param reason Reason for stopping, one of @ref OBJECT_PROJECTILE_xxx.
+	 * @param reason Reason for stopping, one of @ref OBJECT_PROJECTILE_STOP_xxx.
 	 * @return The fired object if it still exists, NULL otherwise. */
 	object *(*projectile_stop_func)(object *op, int reason);
 
@@ -147,8 +139,28 @@ typedef struct object_methods
 	struct object_methods *fallback;
 } object_methods;
 
+/**
+ * @defgroup OBJECT_METHOD_xxx Object method return values
+ * Object method return values.
+ *@{*/
+/** The object was not handled. */
+#define OBJECT_METHOD_UNHANDLED 0
+/** Successfully handled. */
+#define OBJECT_METHOD_OK 1
+/** Error handling the object. */
+#define OBJECT_METHOD_ERROR 2
+/*@}*/
+
+/**
+ * @defgroup OBJECT_PROJECTILE_STOP_xxx Projectile stop reasons
+ * Reasons for projectile to stop.
+ *@{*/
+/** Projectile has reached its end of the line. */
 #define OBJECT_PROJECTILE_STOP_EOL 1
+/** Project has hit an alive object. */
 #define OBJECT_PROJECTILE_STOP_HIT 2
+/** Projectile has hit a wall. */
 #define OBJECT_PROJECTILE_STOP_WALL 3
+/*@}*/
 
 #endif
