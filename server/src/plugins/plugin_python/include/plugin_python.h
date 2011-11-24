@@ -269,7 +269,9 @@ typedef enum
 	/** Player's region maps. */
 	FIELDTYPE_REGION_MAPS,
 	/** Object's connection value. */
-	FIELDTYPE_CONNECTION
+	FIELDTYPE_CONNECTION,
+	/** Treasure list. */
+	FIELDTYPE_TREASURELIST
 } field_type;
 
 /**

@@ -2832,6 +2832,16 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 				INTRAISE("Illegal value for connection field.");
 			}
 
+		case FIELDTYPE_TREASURELIST:
+			if (PyString_Check(value))
+			{
+				*(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
+			}
+			else
+			{
+				INTRAISE("Illegal value for treasure list field.");
+			}
+
 		default:
 			break;
 	}
@@ -2933,6 +2943,21 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
 		case FIELDTYPE_CONNECTION:
 			return Py_BuildValue("i", hooks->connection_object_get_value(ptr));
+
+		case FIELDTYPE_TREASURELIST:
+		{
+			treasurelist *tl;
+
+			tl = *(treasurelist **) field_ptr;
+
+			if (!tl)
+			{
+				Py_INCREF(Py_None);
+				return Py_None;
+			}
+
+			return Py_BuildValue("s", tl->name);
+		}
 
 		default:
 			break;

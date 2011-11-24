@@ -159,7 +159,8 @@ static fields_struct fields[] =
 	/* See notes for object's animation. */
 	{"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0},
 	{"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), 0, 0},
-	{"connected", FIELDTYPE_CONNECTION, 0, 0, 0}
+	{"connected", FIELDTYPE_CONNECTION, 0, 0, 0},
+	{"randomitems", FIELDTYPE_TREASURELIST, offsetof(object, randomitems), 0, 0},
 };
 /* @endcparser */
 
