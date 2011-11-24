@@ -251,7 +251,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 				else
 				{
 					string_blt(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-					string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_qua, ob->item_con);
+					string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
 
 					if (ob->item_level)
 					{
