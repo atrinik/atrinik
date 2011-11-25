@@ -192,6 +192,15 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 		op->speed = 0;
 	}
 
+	/* Restore WC, damage and range. */
+	op->stats.wc = op->last_heal;
+	op->stats.dam = op->stats.hp;
+	op->last_sp = op->last_grace;
+
+	op->last_heal = op->stats.hp = op->last_grace = 0;
+
+	op->stats.wc_range = op->arch->clone.stats.wc_range;
+
 	update_ob_speed(op);
 
 	return op;
@@ -224,7 +233,12 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 	set_owner(op, shooter);
 	op->direction = dir;
 	SET_ANIMATION_STATE(op);
-	op->speed = 1;
+
+	if (!op->speed)
+	{
+		op->speed = 1;
+	}
+
 	op->speed_left = 0;
 	update_ob_speed(op);
 

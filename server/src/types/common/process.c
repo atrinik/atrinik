@@ -23,8 +23,17 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
+/**
+ * @file
+ * Common object processing functions.
+ *
+ * @author Alex Tokar */
+
 #include <global.h>
 
+/**
+ * Process a changing object.
+ * @param op The object to process. */
 static void common_object_process_changing(object *op)
 {
 	object *tmp, *env;
@@ -110,7 +119,12 @@ static void common_object_process_changing(object *op)
 	}
 }
 
-int common_object_process(object *op)
+/**
+ * Pre-processing for object_process() function.
+ * @param op Object to pre-process.
+ * @return 1 if the object was processed and should not continue
+ * processing it normally, 0 otherwise. */
+int common_object_process_pre(object *op)
 {
 	if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state)
 	{
@@ -162,4 +176,13 @@ int common_object_process(object *op)
 	}
 
 	return 0;
+}
+
+/** @copydoc object_methods::process_func */
+void common_object_process(object *op)
+{
+	if (OBJECT_IS_PROJECTILE(op))
+	{
+		common_object_projectile_process(op);
+	}
 }

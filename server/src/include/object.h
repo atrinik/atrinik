@@ -642,4 +642,8 @@ typedef struct magic_mirror_struct
 #define OBJ_DESTROYED_END(_op) \
 }
 
+/**
+ * Check whether the object is a flying projectile. */
+#define OBJECT_IS_PROJECTILE(ob) (QUERY_FLAG((ob), FLAG_FLYING) && !IS_LIVE((ob)))
+
 #endif

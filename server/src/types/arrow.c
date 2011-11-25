@@ -187,15 +187,6 @@ static object *projectile_stop_func(object *op, int reason)
 		return NULL;
 	}
 
-	/* Restore WC, damage and range. */
-	op->stats.wc = op->last_heal;
-	op->stats.dam = op->stats.hp;
-	op->last_sp = op->stats.sp;
-
-	op->last_heal = op->stats.hp = op->stats.sp = 0;
-
-	op->stats.wc_range = op->arch->clone.stats.wc_range;
-
 	if (owner && owner->type == PLAYER && QUERY_FLAG(op, FLAG_STAND_STILL))
 	{
 		pick_up(owner, op, 0);

@@ -58,6 +58,13 @@ void object_methods_init(void)
 	object_methods_init_one(&object_methods_base);
 	object_methods_base.apply_func = common_object_apply;
 	object_methods_base.describe_func = common_object_describe;
+	object_methods_base.process_func = common_object_process;
+	object_methods_base.move_on_func = common_object_move_on;
+	object_methods_base.ranged_fire_func = common_object_ranged_fire;
+	object_methods_base.projectile_fire_func = common_object_projectile_fire_missile;
+	object_methods_base.projectile_move_func = common_object_projectile_move;
+	object_methods_base.projectile_hit_func = common_object_projectile_hit;
+	object_methods_base.projectile_stop_func = common_object_projectile_stop_missile;
 
 	for (i = 0; i < arraysize(object_type_methods); i++)
 	{
@@ -196,7 +203,7 @@ void object_process(object *op)
 		return;
 	}
 
-	if (common_object_process(op))
+	if (common_object_process_pre(op))
 	{
 		return;
 	}
@@ -214,6 +221,7 @@ void object_process(object *op)
 		if (methods->process_func)
 		{
 			methods->process_func(op);
+			return;
 		}
 	}
 }
@@ -312,6 +320,7 @@ void object_callback_remove_map(object *op)
 		if (methods->remove_map_func)
 		{
 			methods->remove_map_func(op);
+			return;
 		}
 	}
 }
@@ -326,6 +335,7 @@ void object_callback_remove_inv(object *op)
 		if (methods->remove_inv_func)
 		{
 			methods->remove_inv_func(op);
+			return;
 		}
 	}
 }

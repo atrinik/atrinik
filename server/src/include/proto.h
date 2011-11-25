@@ -933,8 +933,11 @@ extern int common_object_apply(object *op, object *applier, int aflags);
 extern int object_apply_item(object *op, object *applier, int aflags);
 /* src/types/common/describe.c */
 extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
+/* src/types/common/move_on.c */
+extern int common_object_move_on(object *op, object *victim, object *originator, int state);
 /* src/types/common/process.c */
-extern int common_object_process(object *op);
+extern int common_object_process_pre(object *op);
+extern void common_object_process(object *op);
 /* src/types/common/projectile.c */
 extern void common_object_projectile_process(object *op);
 extern object *common_object_projectile_move(object *op);
@@ -943,6 +946,8 @@ extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
 extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
+/* src/types/common/ranged_fire.c */
+extern int common_object_ranged_fire(object *op, object *shooter, int dir);
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */

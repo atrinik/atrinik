@@ -493,15 +493,25 @@ void fire(object *op, int dir, int type, char *params)
 		return;
 	}
 
-	if (QUERY_FLAG(op, FLAG_CONFUSED))
+	if (!dir && (type == FIRE_MODE_THROW || type == FIRE_MODE_BOW) && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
 	{
-		dir = get_randomized_dir(dir);
+		rv_vector rv;
+
+		dir = get_dir_to_target(op, CONTR(op)->target_object, &rv);
 	}
 
-	op->facing = dir;
-	op->anim_moving_dir = -1;
-	op->anim_last_facing = -1;
-	op->anim_enemy_dir = dir;
+	if (dir)
+	{
+		if (QUERY_FLAG(op, FLAG_CONFUSED))
+		{
+			dir = get_randomized_dir(dir);
+		}
+
+		op->facing = dir;
+		op->anim_moving_dir = -1;
+		op->anim_last_facing = -1;
+		op->anim_enemy_dir = dir;
+	}
 
 	if (type == FIRE_MODE_SPELL)
 	{
@@ -1279,6 +1289,11 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	if (op->type == PLAYER && arch)
 	{
 		draw_info_format(COLOR_WHITE, op, "You cast %s.", query_name(throw_ob, NULL));
+	}
+
+	if (op->chosen_skill)
+	{
+		op->chosen_skill->stats.maxsp = throw_ob->last_grace;
 	}
 
 	if (!QUERY_FLAG(throw_ob, FLAG_REMOVED))

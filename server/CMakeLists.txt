@@ -248,8 +248,10 @@ set(SOURCES
 	src/socket/updates.c
 	src/types/common/apply.c
 	src/types/common/describe.c
+	src/types/common/move_on.c
 	src/types/common/process.c
 	src/types/common/projectile.c
+	src/types/common/ranged_fire.c
 	src/types/ability.c
 	src/types/amulet.c
 	src/types/armour.c

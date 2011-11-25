@@ -71,15 +71,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 		return OBJECT_METHOD_OK;
 	}
 
-	/* If no dir is specified, attempt to find get the direction from
-	 * player's target. */
-	if (!dir && shooter->type == PLAYER && OBJECT_VALID(CONTR(shooter)->target_object, CONTR(shooter)->target_object_count))
-	{
-		rv_vector rv;
-
-		dir = get_dir_to_target(shooter, CONTR(shooter)->target_object, &rv);
-	}
-
 	if (!dir)
 	{
 		draw_info(COLOR_WHITE, shooter, "You can't shoot yourself!");
@@ -119,7 +110,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 	/* Save original WC, damage and range. */
 	arrow->last_heal = arrow->stats.wc;
 	arrow->stats.hp = arrow->stats.dam;
-	arrow->stats.sp = arrow->last_sp;
+	arrow->last_grace = arrow->last_sp;
 
 	/* Determine how many tiles the arrow will fly. */
 	arrow->last_sp = op->last_sp + arrow->last_sp;
