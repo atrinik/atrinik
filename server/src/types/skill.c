@@ -34,11 +34,6 @@
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir)
 {
-	if (!op)
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
-
 	if (op->sub_type != ST1_SKILL_USE)
 	{
 		draw_info(COLOR_WHITE, shooter, "You can't use this skill in this way.");

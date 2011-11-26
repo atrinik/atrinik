@@ -66,11 +66,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 {
 	object *arrow, *skill;
 
-	if (!op)
-	{
-		return OBJECT_METHOD_OK;
-	}
-
 	if (!dir)
 	{
 		draw_info(COLOR_WHITE, shooter, "You can't shoot yourself!");

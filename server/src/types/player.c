@@ -513,6 +513,8 @@ void fire(object *op, int dir, int type, char *params)
 		op->anim_enemy_dir = dir;
 	}
 
+	ret = OBJECT_METHOD_UNHANDLED;
+
 	if (type == FIRE_MODE_SPELL)
 	{
 		int cost;
@@ -532,10 +534,6 @@ void fire(object *op, int dir, int type, char *params)
 
 			ret = OBJECT_METHOD_OK;
 		}
-		else
-		{
-			ret = OBJECT_METHOD_UNHANDLED;
-		}
 	}
 	else
 	{
@@ -547,7 +545,12 @@ void fire(object *op, int dir, int type, char *params)
 		}
 		else if (type == FIRE_MODE_THROW)
 		{
-			tmp = find_throw_tag(op);
+			tmp = CONTR(op)->ready_object[READY_OBJ_THROW];
+
+			if (!OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
+			{
+				tmp = NULL;
+			}
 		}
 		else if (type == FIRE_MODE_WAND)
 		{
@@ -558,7 +561,10 @@ void fire(object *op, int dir, int type, char *params)
 			tmp = op->chosen_skill;
 		}
 
-		ret = object_ranged_fire(tmp, op, dir);
+		if (tmp)
+		{
+			ret = object_ranged_fire(tmp, op, dir);
+		}
 	}
 
 	if (ret == OBJECT_METHOD_OK)

@@ -34,11 +34,6 @@
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir)
 {
-	if (!op)
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
-
 	if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS)
 	{
 		draw_info_format(COLOR_WHITE, shooter, "The %s is broken.", op->name);

@@ -36,12 +36,6 @@ int common_object_ranged_fire(object *op, object *shooter, int dir)
 {
 	object *skill;
 
-	if (!op)
-	{
-		draw_info(COLOR_WHITE, shooter, "You have nothing to throw.");
-		return OBJECT_METHOD_UNHANDLED;
-	}
-
 	if (!dir)
 	{
 		draw_info(COLOR_WHITE, shooter, "You can't throw that at yourself.");
@@ -56,16 +50,47 @@ int common_object_ranged_fire(object *op, object *shooter, int dir)
 
 	if (op->weight <= 0)
 	{
-		draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", query_base_name(op, NULL));
+		draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", query_base_name(op, shooter));
 		return OBJECT_METHOD_UNHANDLED;
 	}
 
-	op = object_stack_get_removed(op, 1);
+	if (QUERY_FLAG(op, FLAG_APPLIED))
+	{
+		if (OBJECT_CURSED(op))
+		{
+			draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!", query_base_name(op, shooter));
+			return OBJECT_METHOD_UNHANDLED;
+		}
+
+		if (object_apply_item(op, shooter, AP_UNAPPLY | AP_NO_MERGE) != OBJECT_METHOD_OK)
+		{
+			return OBJECT_METHOD_UNHANDLED;
+		}
+	}
 
 	if (shooter->chosen_skill)
 	{
 		shooter->chosen_skill->stats.maxsp = op->last_grace;
 	}
+
+	if (QUERY_FLAG(op, FLAG_DUST))
+	{
+		if ((shooter->type == PLAYER && !change_skill(shooter, SK_USE_MAGIC_ITEM)) || op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS || !spells[op->stats.sp].archname || !(spells[op->stats.sp].flags & SPELL_DESC_DIRECTION))
+		{
+			draw_info_format(COLOR_WHITE, shooter, "You scatter the %s, but nothing happens.", query_short_name(op, shooter));
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, shooter, "You scatter the %s.", query_short_name(op, shooter));
+			cast_cone(shooter, op, dir, 10, op->stats.sp, spellarch[op->stats.sp]);
+		}
+
+		decrease_ob(op);
+
+		return OBJECT_METHOD_OK;
+	}
+
+	op = object_stack_get_removed(op, 1);
 
 	/* Save original WC, damage and range. */
 	op->last_heal = op->stats.wc;
@@ -83,26 +108,22 @@ int common_object_ranged_fire(object *op, object *shooter, int dir)
 		op->stats.wc += skill->last_heal;
 	}
 
-	if (QUERY_FLAG(op, FLAG_IS_THROWN))
+	op->stats.dam += op->magic;
+	op->stats.wc += op->magic;
+
+	if (shooter->type == PLAYER)
 	{
-		op->stats.dam += op->magic;
-		op->stats.wc += op->magic;
-
-		if (shooter->type == PLAYER)
-		{
-			op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
-			op->stats.wc += thaco_bonus[shooter->stats.Dex];
-		}
-		else
-		{
-			op->stats.wc += 5;
-		}
-
-		op->stats.dam = (sint16) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
-		op->stats.wc += SK_level(shooter);
-
-		op->stats.dam = MAX(0, (sint16) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
+		op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
+		op->stats.wc += thaco_bonus[shooter->stats.Dex];
 	}
+	else
+	{
+		op->stats.wc += 5;
+	}
+
+	op->stats.dam = (sint16) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
+	op->stats.wc += SK_level(shooter);
+	op->stats.dam = MAX(0, (sint16) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
 
 	op = object_projectile_fire(op, shooter, dir);
 
