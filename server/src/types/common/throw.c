@@ -31,8 +31,8 @@
 
 #include <global.h>
 
-/** @copydoc object_methods::ranged_fire_func */
-int common_object_ranged_fire(object *op, object *shooter, int dir)
+/** @copydoc object_methods::throw_func */
+int common_object_throw(object *op, object *shooter, int dir)
 {
 	object *skill;
 

@@ -581,6 +581,7 @@ extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
 extern object *object_projectile_stop(object *op, int reason);
 extern int object_ranged_fire(object *op, object *shooter, int dir);
+extern int object_throw(object *op, object *shooter, int dir);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -686,8 +687,6 @@ extern void ss_dump_table(int what, char *buf, size_t size);
 extern skill_struct skills[NROFSKILLS];
 extern sint64 find_traps(object *pl, int level);
 extern sint64 remove_trap(object *op);
-extern object *find_throw_tag(object *op);
-extern void do_throw(object *op, object *toss_item, int dir);
 /* src/server/skill_util.c */
 extern float stat_exp_mult[30 + 1];
 extern int find_skill_exp_level(object *pl, int item_skill);
@@ -946,8 +945,8 @@ extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
 extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/common/ranged_fire.c */
-extern int common_object_ranged_fire(object *op, object *shooter, int dir);
+/* src/types/common/throw.c */
+extern int common_object_throw(object *op, object *shooter, int dir);
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */

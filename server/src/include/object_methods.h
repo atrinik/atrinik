@@ -135,6 +135,14 @@ typedef struct object_methods
 	int (*ranged_fire_func)(object *op, object *shooter, int dir);
 
 	/**
+	 * Used to throw an object.
+	 * @param op Object being thrown.
+	 * @param shooter Who is throwing the object.
+	 * @param dir Direction to throw.
+	 * @return One of @ref OBJECT_METHOD_xxx. */
+	int (*throw_func)(object *op, object *shooter, int dir);
+
+	/**
 	 * Fallback method. */
 	struct object_methods *fallback;
 } object_methods;

@@ -539,17 +539,17 @@ void fire(object *op, int dir, int type, char *params)
 	{
 		object *tmp;
 
+		tmp = NULL;
+
 		if (type == FIRE_MODE_BOW)
 		{
 			tmp = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
 		}
 		else if (type == FIRE_MODE_THROW)
 		{
-			tmp = CONTR(op)->ready_object[READY_OBJ_THROW];
-
-			if (!OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
+			if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
 			{
-				tmp = NULL;
+				ret = object_throw(CONTR(op)->ready_object[READY_OBJ_THROW], op, dir);
 			}
 		}
 		else if (type == FIRE_MODE_WAND)
