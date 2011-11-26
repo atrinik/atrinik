@@ -55,7 +55,6 @@ char *attack_name[NROFATTACKS] =
 #define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
 #define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
 
-static void thrown_item_effect(object *hitter, object *victim);
 static int get_attack_mode(object **target, object **hitter,int *simple_attack);
 static int abort_attack(object *target, object *hitter, int simple_attack);
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc);
@@ -189,20 +188,6 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 			else
 			{
 				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_pierce.ogg", hitter->x, hitter->y, 0, 0);
-			}
-		}
-
-		if (!simple_attack)
-		{
-			/* Thrown items (hitter) will have various effects
-			 * when they hit the victim. For things like thrown daggers,
-			 * this sets 'hitter' to the actual dagger, and not the
-			 * wrapper object. */
-			thrown_item_effect(hitter, op);
-
-			if (was_destroyed(hitter, hitter_tag) || was_destroyed(op, op_tag) || abort_attack(op, hitter, simple_attack))
-			{
-				return dam;
 			}
 		}
 
@@ -1295,34 +1280,6 @@ void paralyze_living(object *op, int dam)
 	if (op->speed_left < -(FABS(op->speed) * max))
 	{
 		op->speed_left = (float) -(FABS(op->speed) * max);
-	}
-}
-
-/**
- * Handles any special effects of thrown items (like attacking living
- * creatures -- a potion thrown at a monster).
- * @param hitter Thrown item.
- * @param victim Object that is hit by hitter. */
-static void thrown_item_effect(object *hitter, object *victim)
-{
-	(void) victim;
-
-	if (!IS_LIVE(hitter))
-	{
-		/* May not need a switch for just 2 types, but this makes it
-		 * easier for expansion. */
-		switch (hitter->type)
-		{
-			case POTION:
-				if (hitter->stats.sp != SP_NO_SPELL && spells[hitter->stats.sp].flags&SPELL_DESC_DIRECTION)
-				{
-					/* apply potion ALWAYS fire on the spot the applier stands - good for healing - bad for firestorm */
-					cast_spell(hitter, hitter, hitter->direction, hitter->stats.sp, 1, CAST_POTION, NULL);
-				}
-
-				decrease_ob(hitter);
-				break;
-		}
 	}
 }
 

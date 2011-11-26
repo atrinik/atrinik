@@ -239,11 +239,14 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 		op->speed = 1;
 	}
 
+	/* Save the shooter's level. */
+	if (!op->level)
+	{
+		op->level = SK_level(shooter);
+	}
+
 	op->speed_left = 0;
 	update_ob_speed(op);
-
-	/* Save the shooter's level. */
-	op->level = SK_level(shooter);
 
 	SET_FLAG(op, FLAG_FLYING);
 	SET_FLAG(op, FLAG_IS_MISSILE);
