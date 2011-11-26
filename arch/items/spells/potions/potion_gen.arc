@@ -11,6 +11,7 @@ sub_type 128
 is_thrown 1
 wc_range 20
 material 512
+material_real 577
 weight 200
 value 28
 can_stack 1
