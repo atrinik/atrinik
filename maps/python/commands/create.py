@@ -9,7 +9,7 @@ def main():
 	if not msg:
 		return
 
-	match = re.match(r"(?:(\d+) )?(\w+)(?: of (\w+))?(?: (.+))?", msg)
+	match = re.match(r"(?:(\d+) )?([^ ]+)(?: of (\w+))?(?: (.+))?", msg)
 
 	if not match:
 		return
