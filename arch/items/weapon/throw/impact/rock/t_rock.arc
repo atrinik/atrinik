@@ -19,5 +19,7 @@ is_thrown 1
 weight 500
 value 1
 material 64
+item_condition 100
+item_quality 100
 can_stack 1
 end

@@ -4054,6 +4054,8 @@ title of Woe
 type 70
 material 256
 material_real 0
+item_condition 100
+item_quality 100
 face ring_silver_red.101
 cursed_perm 1
 cursed 1
@@ -4082,6 +4084,8 @@ cursed_perm 1
 cursed 1
 material 256
 material_real 0
+item_condition 100
+item_quality 100
 is_magical 1
 Str -1
 Con -1
@@ -4107,6 +4111,8 @@ cursed_perm 1
 cursed 1
 material 256
 material_real 0
+item_condition 100
+item_quality 100
 is_magical 1
 Str -1
 Con -1

@@ -4,6 +4,8 @@ title of philosophical oil
 face oil_mineral.101
 layer 3
 material 4
+item_condition 100
+item_quality 100
 type 73
 value 2800
 weight 500
@@ -18,6 +20,8 @@ animation sulfur_phil
 is_animated 1
 anim_speed 4
 material 64
+item_condition 100
+item_quality 100
 type 73
 speed -0.35
 value 1100
@@ -33,6 +37,8 @@ animation phosphorus_phil
 is_animated 1
 anim_speed 4
 material 64
+item_condition 100
+item_quality 100
 speed -0.45
 type 73
 value 3500
@@ -48,6 +54,8 @@ animation salt_phil
 is_animated 1
 anim_speed 4
 material 64
+item_condition 100
+item_quality 100
 type 6
 food 7
 speed -0.30

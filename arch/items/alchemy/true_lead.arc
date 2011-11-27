@@ -3,6 +3,8 @@ name block
 title of true lead
 face true_lead.101
 material 2
+item_condition 100
+item_quality 100
 value 530
 type 73
 layer 3

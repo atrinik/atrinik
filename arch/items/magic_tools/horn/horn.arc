@@ -12,4 +12,6 @@ type 3
 value 40
 weight 800
 material 2
+item_condition 100
+item_quality 100
 end

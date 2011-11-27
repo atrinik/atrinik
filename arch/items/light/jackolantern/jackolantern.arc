@@ -8,7 +8,6 @@ animation jackolantern
 is_animated 0
 anim_speed 4
 material 32
-material_real -1
 value 450
 weight 500
 maxhp 2000

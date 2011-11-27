@@ -12,6 +12,8 @@ type 3
 value 30
 weight 925
 material 70
+item_condition 100
+item_quality 100
 hp 3
 maxhp 3
 end

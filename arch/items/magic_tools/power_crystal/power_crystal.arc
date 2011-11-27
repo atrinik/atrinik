@@ -10,5 +10,7 @@ type 156
 weight 300
 value 30000
 material 64
+item_condition 100
+item_quality 100
 is_magical 1
 end

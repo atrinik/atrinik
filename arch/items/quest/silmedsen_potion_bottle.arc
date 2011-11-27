@@ -7,6 +7,8 @@ startequip 1
 layer 3
 weight 500
 material 4
+item_condition 100
+item_quality 100
 identified 1
 msg
 It seems this bottle needs to be applied while facing the pool of water around the Great Blue Crystal in order to be filled up...

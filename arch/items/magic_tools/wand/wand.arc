@@ -11,4 +11,6 @@ type 109
 value 7
 weight 450
 material 16
+item_condition 100
+item_quality 100
 end

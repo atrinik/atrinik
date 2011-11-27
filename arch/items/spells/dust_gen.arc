@@ -10,6 +10,8 @@ last_sp 7
 sub_type 129
 wc_range 20
 material 4
+item_condition 100
+item_quality 100
 is_dust 1
 weight 15
 value 3

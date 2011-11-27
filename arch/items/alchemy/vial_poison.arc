@@ -3,6 +3,8 @@ layer 3
 type 73
 face vial_yellow.101
 material 4
+item_condition 100
+item_quality 100
 weight 100
 value 1000
 name vial
