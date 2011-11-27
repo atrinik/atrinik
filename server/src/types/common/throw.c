@@ -34,7 +34,7 @@
 /** @copydoc object_methods::throw_func */
 int common_object_throw(object *op, object *shooter, int dir)
 {
-	object *skill;
+	object *skill, *copy;
 
 	if (!dir)
 	{
@@ -68,11 +68,6 @@ int common_object_throw(object *op, object *shooter, int dir)
 		}
 	}
 
-	if (shooter->chosen_skill)
-	{
-		shooter->chosen_skill->stats.maxsp = op->last_grace;
-	}
-
 	if (QUERY_FLAG(op, FLAG_DUST))
 	{
 		if ((shooter->type == PLAYER && !change_skill(shooter, SK_USE_MAGIC_ITEM)) || op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS || !spells[op->stats.sp].archname || !(spells[op->stats.sp].flags & SPELL_DESC_DIRECTION))
@@ -81,6 +76,11 @@ int common_object_throw(object *op, object *shooter, int dir)
 		}
 		else
 		{
+			if (shooter->chosen_skill)
+			{
+				shooter->chosen_skill->stats.maxsp = op->last_grace;
+			}
+
 			draw_info_format(COLOR_WHITE, shooter, "You scatter the %s.", query_short_name(op, shooter));
 			cast_cone(shooter, op, dir, 10, op->stats.sp, spellarch[op->stats.sp]);
 		}
@@ -92,42 +92,90 @@ int common_object_throw(object *op, object *shooter, int dir)
 
 	op = object_stack_get_removed(op, 1);
 
-	/* Save original WC, damage and range. */
-	op->last_heal = op->stats.wc;
-	op->stats.hp = op->stats.dam;
-	op->last_grace = op->last_sp;
+	copy = get_object();
+	copy_object(op, copy, 0);
+	copy->type = MISC_OBJECT;
+	CLEAR_FLAG(copy, FLAG_CAN_STACK);
+	copy->layer = LAYER_EFFECT;
+	insert_ob_in_ob(op, copy);
 
 	/* Calculate moving speed. */
-	op->speed = MIN(1.0f, (speed_bonus[shooter->stats.Str] + 1.0f) / 1.5f);
+	copy->speed = MIN(1.0f, (speed_bonus[shooter->stats.Str] + 1.0f) / 1.5f);
+
+	if (op->type != ARROW)
+	{
+		int i;
+		uint8 has_attack;
+
+		copy->stats.dam = 0;
+		copy->stats.wc = 0;
+		copy->last_sp = 5;
+		copy->last_eat = 0;
+		copy->last_grace = 20;
+
+		has_attack = 0;
+
+		/* Figure out whether the item has an attack. */
+		for (i = 0; i < NROFATTACKS; i++)
+		{
+			if (copy->attack[i])
+			{
+				has_attack = 1;
+				break;
+			}
+		}
+
+		/* No attack, add default attack. */
+		if (!has_attack)
+		{
+			copy->attack[ATNR_IMPACT] = 100;
+		}
+	}
 
 	skill = SK_skill(shooter);
 
 	/* Add skill bonuses. */
 	if (skill)
 	{
-		op->stats.wc += skill->last_heal;
+		copy->stats.wc += skill->last_heal;
 	}
 
-	op->stats.dam += op->magic;
-	op->stats.wc += op->magic;
+	copy->stats.dam += copy->magic;
+	copy->stats.wc += SK_level(shooter);
+	copy->stats.wc += copy->magic;
 
 	if (shooter->type == PLAYER)
 	{
-		op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
-		op->stats.wc += thaco_bonus[shooter->stats.Dex];
+		copy->stats.dam += dam_bonus[shooter->stats.Str] / 2;
+		copy->stats.wc += thaco_bonus[shooter->stats.Dex];
 	}
 	else
 	{
-		op->stats.wc += 5;
+		copy->stats.wc += 5;
 	}
 
-	op->stats.dam = (sint16) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
-	op->stats.wc += SK_level(shooter);
-	op->stats.dam = MAX(0, (sint16) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
+	copy->stats.dam = (sint16) ((double) copy->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
 
-	op = object_projectile_fire(op, shooter, dir);
+	if (copy->item_quality)
+	{
+		copy->stats.dam = MAX(0, (sint16) (((double) copy->stats.dam / 100.0f) * (double) copy->item_condition));
+	}
 
-	if (!op)
+	/* Not meant for throwing, so it's not as efficient. */
+	if (op->type != ARROW)
+	{
+		copy->stats.dam /= 2;
+		copy->stats.wc /= 2;
+	}
+
+	if (shooter->chosen_skill)
+	{
+		shooter->chosen_skill->stats.maxsp = copy->last_grace;
+	}
+
+	copy = object_projectile_fire(copy, shooter, dir);
+
+	if (!copy)
 	{
 		return OBJECT_METHOD_OK;
 	}

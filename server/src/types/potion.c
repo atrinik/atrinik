@@ -340,29 +340,9 @@ static int apply_func(object *op, object *applier, int aflags)
 	return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
-static object *projectile_stop_func(object *op, int reason)
-{
-	if (reason == OBJECT_PROJECTILE_STOP_WALL || reason == OBJECT_PROJECTILE_STOP_HIT)
-	{
-		if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS && spells[op->stats.sp].flags & SPELL_DESC_DIRECTION)
-		{
-			cast_spell(op, op, 0, op->stats.sp, 1, CAST_POTION, NULL);
-		}
-
-		object_remove(op, 0);
-		object_destroy(op);
-
-		return NULL;
-	}
-
-	return common_object_projectile_stop_missile(op, reason);
-}
-
 /**
  * Initialize the potion type object methods. */
 void object_type_init_potion(void)
 {
 	object_type_methods[POTION].apply_func = apply_func;
-	object_type_methods[POTION].projectile_stop_func = projectile_stop_func;
 }

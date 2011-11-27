@@ -427,7 +427,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
  * 1/4 of the damage, making storms fairer against multi-arch monsters. */
 void hit_map(object *op, int dir, int reduce)
 {
-	object *tmp, *next, *owner;
+	object *tmp, *owner;
 	mapstruct *m;
 	int x, y;
 	sint16 dam;
@@ -462,10 +462,8 @@ void hit_map(object *op, int dir, int reduce)
 
 	owner = HEAD(owner);
 
-	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = next)
+	FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, tmp)
 	{
-		next = tmp->above;
-
 		tmp = HEAD(tmp);
 
 		/* Cones with race set can only damage members of that race. */
@@ -495,6 +493,7 @@ void hit_map(object *op, int dir, int reduce)
 
 		hit_player(tmp, dam, op, AT_INTERNAL);
 	}
+	FOR_MAP_LAYER_END
 }
 
 /**

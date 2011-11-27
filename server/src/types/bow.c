@@ -94,7 +94,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 		copy_object(arrow, copy, 0);
 		CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
 		copy->nrof = 0;
-		copy->stats.food = 20;
 		arrow = copy;
 	}
 	else

@@ -535,6 +535,13 @@ void fire(object *op, int dir, int type, char *params)
 			ret = OBJECT_METHOD_OK;
 		}
 	}
+	else if (type == FIRE_MODE_THROW)
+	{
+		if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
+		{
+			ret = object_throw(CONTR(op)->ready_object[READY_OBJ_THROW], op, dir);
+		}
+	}
 	else
 	{
 		object *tmp;
@@ -544,13 +551,6 @@ void fire(object *op, int dir, int type, char *params)
 		if (type == FIRE_MODE_BOW)
 		{
 			tmp = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
-		}
-		else if (type == FIRE_MODE_THROW)
-		{
-			if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
-			{
-				ret = object_throw(CONTR(op)->ready_object[READY_OBJ_THROW], op, dir);
-			}
 		}
 		else if (type == FIRE_MODE_WAND)
 		{

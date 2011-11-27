@@ -1854,16 +1854,16 @@ int is_friend_of(object *op, object *obj)
 		return 0;
 	}
 
-	if (QUERY_FLAG(op, FLAG_FRIENDLY) || op->type == PLAYER)
+	if (QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
-		if (!QUERY_FLAG(obj, FLAG_MONSTER) || QUERY_FLAG(obj, FLAG_FRIENDLY) || obj->type == PLAYER)
+		if (QUERY_FLAG(obj, FLAG_FRIENDLY))
 		{
 			friend = 1;
 		}
 	}
-	else
+	else if (QUERY_FLAG(op, FLAG_MONSTER))
 	{
-		if (!QUERY_FLAG(obj, FLAG_FRIENDLY) && obj->type != PLAYER)
+		if (QUERY_FLAG(obj, FLAG_MONSTER) && !QUERY_FLAG(obj, FLAG_FRIENDLY))
 		{
 			friend = 1;
 		}

@@ -1207,20 +1207,13 @@ int cmd_ready_determine(object *tmp)
 		return -1;
 	}
 
-	/* Objects that can be thrown. */
-	if (QUERY_FLAG(tmp, FLAG_IS_THROWN))
-	{
-		return READY_OBJ_THROW;
-	}
 	/* Arrows, or containers like quivers. */
-	else if (tmp->type == ARROW || tmp->type == CONTAINER)
+	if ((tmp->type == ARROW && !QUERY_FLAG(tmp, FLAG_IS_THROWN)) || tmp->type == CONTAINER)
 	{
 		return READY_OBJ_ARROW;
 	}
-	else
-	{
-		return -1;
-	}
+
+	return READY_OBJ_THROW;
 }
 
 /**

@@ -71,14 +71,6 @@ static void process_func(object *op)
 		return;
 	}
 
-	/* No owner, the cone dies. */
-	if (!get_owner(op))
-	{
-		object_remove(op, 0);
-		object_destroy(op);
-		return;
-	}
-
 	hit_map(op, 0, 1);
 
 	if ((op->stats.hp -= 2) < 0)

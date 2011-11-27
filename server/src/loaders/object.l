@@ -863,7 +863,7 @@ lex_error = 0;
 ^material_real{S}   {
 						op->material_real = IVAL;
 
-						if (op->material && !op->item_quality)
+						if (!op->item_quality)
 						{
 							op->item_quality = material_real[op->material_real].quality;
 							op->item_condition = op->item_quality;

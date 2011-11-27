@@ -151,9 +151,13 @@ object *common_object_projectile_move(object *op)
 /** @copydoc object_methods::projectile_stop_func */
 object *common_object_projectile_stop_missile(object *op, int reason)
 {
-	object *owner;
-
 	(void) reason;
+
+	/* Already stopped, nothing to do. */
+	if (!op->speed)
+	{
+		return op;
+	}
 
 	/* Small chance of breaking */
 	if (op->last_eat && rndm_chance(op->last_eat))
@@ -163,45 +167,71 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 		return NULL;
 	}
 
-	op->direction = 0;
-	SET_ANIMATION_STATE(op);
-
-	/* Reset level. */
-	op->level = op->arch->clone.level;
-
-	CLEAR_FLAG(op, FLAG_FLYING);
-	CLEAR_FLAG(op, FLAG_IS_MISSILE);
-	CLEAR_FLAG(op, FLAG_WALK_ON);
-	CLEAR_FLAG(op, FLAG_FLY_ON);
-
-	owner = get_owner(op);
-	clear_owner(op);
-
-	if ((!owner || owner->type != PLAYER) && op->stats.food)
+	/* Restore arrow's properties. */
+	if (op->type == ARROW)
 	{
-		SET_FLAG(op, FLAG_IS_USED_UP);
-		SET_FLAG(op, FLAG_NO_PICK);
+		object *owner;
 
-		op->type = MISC_OBJECT;
-		op->speed = 0.1f;
-		op->speed_left = 0.0f;
+		owner = get_owner(op);
+		clear_owner(op);
+
+		op->direction = 0;
+		SET_ANIMATION_STATE(op);
+
+		CLEAR_FLAG(op, FLAG_FLYING);
+		CLEAR_FLAG(op, FLAG_IS_MISSILE);
+		CLEAR_FLAG(op, FLAG_WALK_ON);
+		CLEAR_FLAG(op, FLAG_FLY_ON);
+
+		/* Restore WC, damage and range. */
+		op->stats.wc = op->last_heal;
+		op->stats.dam = op->stats.hp;
+		op->last_sp = op->last_grace;
+
+		op->last_heal = op->stats.hp = op->last_grace = 0;
+
+		/* Reset level and speed. */
+		op->level = op->arch->clone.level;
+		op->speed = op->arch->clone.speed;
+
+		if (!owner || owner->type != PLAYER)
+		{
+			SET_FLAG(op, FLAG_IS_USED_UP);
+			SET_FLAG(op, FLAG_NO_PICK);
+
+			op->type = MISC_OBJECT;
+			op->speed = 0.1f;
+			op->speed_left = 0.0f;
+			op->stats.food = 20;
+		}
+
+		update_ob_speed(op);
+
+		op = object_merge(op);
 	}
+	/* Not an arrow, the object has payload instead. */
+	else if (op->inv)
+	{
+		object *payload;
+
+		payload = op->inv;
+
+		object_remove(payload, 0);
+		object_remove(op, 0);
+		object_destroy(op);
+		payload->x = op->x;
+		payload->y = op->y;
+		payload = insert_ob_in_map(payload, op->map, op, 0);
+
+		return payload;
+	}
+	/* Should not happen... */
 	else
 	{
-		op->stats.food = op->arch->clone.stats.food;
-		op->speed = 0;
+		object_remove(op, 0);
+		object_destroy(op);
+		return NULL;
 	}
-
-	/* Restore WC, damage and range. */
-	op->stats.wc = op->last_heal;
-	op->stats.dam = op->stats.hp;
-	op->last_sp = op->last_grace;
-
-	op->last_heal = op->stats.hp = op->last_grace = 0;
-
-	op->stats.wc_range = op->arch->clone.stats.wc_range;
-
-	update_ob_speed(op);
 
 	return op;
 }
@@ -252,6 +282,10 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 	SET_FLAG(op, FLAG_IS_MISSILE);
 	SET_FLAG(op, FLAG_WALK_ON);
 	SET_FLAG(op, FLAG_FLY_ON);
+
+	/* Do not allow stacking, otherwise it is possible for rapidly-fired
+	 * missiles to merge, which does not make sense. */
+	CLEAR_FLAG(op, FLAG_CAN_STACK);
 
 	op->x = shooter->x;
 	op->y = shooter->y;
