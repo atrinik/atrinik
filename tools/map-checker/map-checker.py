@@ -704,6 +704,20 @@ def check_obj(obj, map):
 		if obj["type"] == types.light_source:
 			add_error(map["file"], "Object {0} is a light source but has had face changed.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
+def check_archetype(arch, errors_l):
+	if not "type" in arch:
+		return
+
+	if get_entry(arch, "material") and not (get_entry(arch, "material_real") or get_entry(arch, "item_quality")) and not get_entry(arch, "no_pick"):
+		errors_l.append(["Archetype '{0}' has material set but no material_real or item_quality.".format(arch["archname"]), errors.low])
+
+	# Is the archetype (shop) floor with 'is_floor 1' not set?
+	if arch["type"] in (types.floor, types.shop_floor) and get_entry(arch, "is_floor") != 1:
+		errors_l.append(["Archetype '{0}' is of type floor but doesn't have 'is_floor 1' set.".format(arch["archname"]), errors.low])
+
+	if arch["type"] == types.magic_mirror and get_entry(arch, "sys_object") != 1:
+		errors_l.append(["Archetype '{0}' is a magic mirror but is not 'sys_object 1'.".format(arch["archname"]), errors.medium])
+
 # Load map. If successfully loaded, we will check the map header
 # and its objects with check_map().
 # @param file Map to load.
@@ -814,19 +828,13 @@ class ObjectParser:
 
 			if line[:7] == "Object ":
 				self.last_obj = line[7:-1]
-				self.dict[self.last_obj] = {}
+				self.dict[self.last_obj] = {
+					"archname": self.last_obj,
+				}
 				continue
 			elif not self.last_obj:
 				continue
 			elif line == "end\n":
-				# Do some checks.
-				if "type" in self.dict[self.last_obj]:
-					# Is the archetype (shop) floor with 'is_floor 1' not set?
-					if self.dict[self.last_obj]["type"] in (types.floor, types.shop_floor) and get_entry(self.dict[self.last_obj], "is_floor") != 1:
-						errors_archetypes.append(["Archetype '{0}' is of type floor but doesn't have 'is_floor 1' set.".format(self.last_obj), errors.low])
-					elif self.dict[self.last_obj]["type"] == types.magic_mirror and get_entry(self.dict[self.last_obj], "sys_object") != 1:
-						errors_archetypes.append(["Archetype '{0}' is a magic mirror but is not 'sys_object 1'.".format(self.last_obj), errors.medium])
-
 				self.last_obj = None
 				continue
 
@@ -858,6 +866,7 @@ class ObjectParser:
 					errors_artifacts.append(["Artifact '{0}': Could not find archetype '{1}' for def_arch command (line: {2}).".format(self.last_obj, archetype, self.line_num), errors.critical])
 				else:
 					self.dict[self.last_obj] = dict(found)
+					self.dict[self.last_obj]["archname"] = self.last_obj
 
 				continue
 			elif line == "end\n":
@@ -1002,6 +1011,9 @@ def parse_archetypes():
 		if not "name" in d[arch]:
 			d[arch]["name"] = arch
 
+	for arch in d:
+		check_archetype(d[arch], errors_archetypes)
+
 	return d
 
 # Parse the artifacts.
@@ -1011,6 +1023,10 @@ def parse_artifacts():
 	parser = ObjectParser(fp)
 	d = parser.artifacts()
 	fp.close()
+
+	for arch in d:
+		check_archetype(d[arch], errors_artifacts)
+
 	return d
 
 # Parse the regions.
