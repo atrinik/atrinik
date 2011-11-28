@@ -395,7 +395,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 		socket_buffer_enqueue(ns, sbuf, 2, 0);
 	}
 
-	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2 || msg->buf[0] == BINARY_CMD_ITEMY);
+	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2);
 
 #if COMPRESS_DATA_PACKETS
 	/* Free the buffer that was used for compression, if it was allocated. */
