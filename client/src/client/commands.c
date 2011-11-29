@@ -894,28 +894,19 @@ void send_reply(char *text)
  * @param len Length of the data */
 void PlayerCmd(unsigned char *data, int len)
 {
-	char name[MAX_BUF];
-	int tag, weight, face, i = 0, nlen;
+	int tag, weight, face, pos = 0;
+
+	(void) len;
 
 	GameStatus = GAME_STATUS_PLAY;
 	text_input_string_end_flag = 0;
 	tag = GetInt_String(data);
-	i += 4;
-	weight = GetInt_String(data + i);
-	i += 4;
-	face = GetInt_String(data + i);
+	pos += 4;
+	weight = GetInt_String(data + pos);
+	pos += 4;
+	face = GetInt_String(data + pos);
 	request_face(face);
-	i += 4;
-	nlen = data[i++];
-	memcpy(name, (const char *) data + i, nlen);
-
-	name[nlen] = '\0';
-	i += nlen;
-
-	if (i != len)
-	{
-		fprintf(stderr, "PlayerCmd: lengths do not match (%d!=%d)\n", len, i);
-	}
+	pos += 4;
 
 	new_player(tag, weight, (short) face);
 	map_udate_flag = 2;
