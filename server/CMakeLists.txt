@@ -243,6 +243,7 @@ set(SOURCES
 	src/socket/loop.c
 	src/socket/lowlevel.c
 	src/socket/metaserver.c
+	src/socket/packet.c
 	src/socket/request.c
 	src/socket/sounds.c
 	src/socket/updates.c

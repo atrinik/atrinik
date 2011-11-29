@@ -135,6 +135,7 @@
 		<Unit filename="..\..\src\socket\loop.c" />
 		<Unit filename="..\..\src\socket\lowlevel.c" />
 		<Unit filename="..\..\src\socket\metaserver.c" />
+		<Unit filename="..\..\src\socket\packet.c" />
 		<Unit filename="..\..\src\socket\request.c" />
 		<Unit filename="..\..\src\socket\sounds.c" />
 		<Unit filename="..\..\src\socket\updates.c" />

@@ -167,30 +167,6 @@ enum Sock_Status
 	Ns_Zombie
 };
 
-/**
- * Structure that holds one or more socket buffers that are to be sent to
- * the client. */
-typedef struct socket_buffer
-{
-	/** Next socket buffer. */
-	struct socket_buffer *next;
-
-	/** Last socket buffer. */
-	struct socket_buffer *last;
-
-	/** The data. */
-	char *buf;
-
-	/** Length of ::buf. */
-	size_t len;
-
-	/** Position in ::buf. */
-	size_t pos;
-
-	/** If 1, will send this packet without delay. */
-	uint8 ndelay;
-} socket_buffer;
-
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct
 {
@@ -285,11 +261,9 @@ typedef struct socket_struct
 	/** Buffer for player commands. */
 	SockList cmdbuf;
 
-	/** Front socket buffer. */
-	socket_buffer *buffer_front;
-
-	/** Last socket buffer. */
-	socket_buffer *buffer_back;
+	struct packet_struct *packet_head;
+	struct packet_struct *packet_tail;
+	pthread_mutex_t packet_mutex;
 
 	/**
 	 * Buffer for how many ticks have passed since the last keep alive
@@ -343,6 +317,43 @@ typedef struct update_file_struct
 	SockList sl;
 } update_file_struct;
 
+/**
+ * A single data packet. */
+typedef struct packet_struct
+{
+	/**
+	 * Next packet to send. */
+	struct packet_struct *next;
+
+	/**
+	 * Previous packet. */
+	struct packet_struct *prev;
+
+	/**
+	 * The data. */
+	uint8 *data;
+
+	/**
+	 * Length of 'data'. */
+	size_t len;
+
+	/**
+	 * Current size of 'data'. */
+	size_t size;
+
+	/**
+	 * Expand size. */
+	size_t expand;
+
+	/**
+	 * Position in 'data'. */
+	size_t pos;
+
+	/**
+	 * Whether to enable NDELAY on this packet. */
+	uint8 ndelay;
+} packet_struct;
+
 /** Filename used to store information about the updated files. */
 #define UPDATES_FILE_NAME "updates"
 /**
@@ -354,5 +365,10 @@ typedef struct update_file_struct
  * Maximum password failures allowed before the server kills the
  * socket. */
 #define MAX_PASSWORD_FAILURES 3
+
+/**
+ * How many packet structures to allocate when expanding the available
+ * packet structures. */
+#define SOCKET_PACKET_EXPAND 10
 
 #endif

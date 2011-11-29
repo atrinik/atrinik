@@ -48,7 +48,7 @@ struct mempool_chunk end_marker;
 
 int nrof_mempools = 0;
 struct mempool *mempools[MAX_NROF_MEMPOOLS];
-struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties;
+struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties, *pool_packets;
 
 /**
  * Return the exponent exp needed to round n up to the nearest power of two, so that
@@ -146,6 +146,7 @@ void init_mempools(void)
 	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
 	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
 	pool_parties = create_mempool("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
+	pool_packets = create_mempool("packets", SOCKET_PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
 }
 
 /**

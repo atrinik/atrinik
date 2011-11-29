@@ -28,7 +28,6 @@
  * Low level socket related functions. */
 
 #include <global.h>
-#include <zlib.h>
 
 /**
  * Add a NULL terminated string.
@@ -198,57 +197,44 @@ void socket_disable_no_delay(int fd)
 	}
 }
 
-/**
- * Enqueue data to the socket buffer queue.
- * @param ns The socket we are adding the data to.
- * @param buf The data.
- * @param len Number of bytes to add.
- * @param ndelay If 1, will send this packet instantly without delay. */
-static void socket_buffer_enqueue(socket_struct *ns, unsigned char *buf, size_t len, uint8 ndelay)
+static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
-	socket_buffer *buffer = (socket_buffer *) malloc(sizeof(socket_buffer));
-
-	buffer->buf = (char *) malloc(len + 1);
-	memcpy(buffer->buf, buf, len);
-	buffer->len = len;
-	buffer->next = NULL;
-	buffer->pos = 0;
-	buffer->ndelay = ndelay;
-
-	if (ns->buffer_front)
+	if (!ns->packet_head)
 	{
-		ns->buffer_front->last = buffer;
-		buffer->next = ns->buffer_front;
-		buffer->last = NULL;
-		ns->buffer_front = buffer;
+		ns->packet_head = packet;
+		packet->prev = NULL;
 	}
 	else
 	{
-		ns->buffer_back = ns->buffer_front = buffer;
-		buffer->next = buffer->last = NULL;
+		ns->packet_tail->next = packet;
+		packet->prev = ns->packet_tail;
 	}
+
+	ns->packet_tail = packet;
+	packet->next = NULL;
 }
 
-/**
- * Dequeue data from the socket buffer queue.
- * @param ns Socket we're going to dequeue the socket buffer from. */
-static void socket_buffer_dequeue(socket_struct *ns)
+static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
 {
-	socket_buffer *tmp = ns->buffer_back;
-
-	ns->buffer_back = ns->buffer_back->last;
-
-	if (ns->buffer_back)
+	if (!packet->prev)
 	{
-		ns->buffer_back->next = NULL;
+		ns->packet_head = packet->next;
 	}
 	else
 	{
-		ns->buffer_front = NULL;
+		packet->prev->next = packet->next;
 	}
 
-	free(tmp->buf);
-	free(tmp);
+	if (!packet->next)
+	{
+		ns->packet_tail = packet->prev;
+	}
+	else
+	{
+		packet->next->prev = packet->prev;
+	}
+
+	packet_free(packet);
 }
 
 /**
@@ -256,9 +242,9 @@ static void socket_buffer_dequeue(socket_struct *ns)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
-	while (ns->buffer_back)
+	while (ns->packet_head)
 	{
-		socket_buffer_dequeue(ns);
+		socket_packet_dequeue(ns, ns->packet_head);
 	}
 }
 
@@ -270,22 +256,22 @@ void socket_buffer_write(socket_struct *ns)
 	int amt, max;
 
 	/* Nothing to send? */
-	if (!ns->buffer_back)
+	if (!ns->packet_head)
 	{
 		return;
 	}
 
-	while (ns->buffer_back)
+	while (ns->packet_head)
 	{
-		if (ns->buffer_back->ndelay)
+		if (ns->packet_head->ndelay)
 		{
 			socket_enable_no_delay(ns->fd);
 		}
 
-		max = ns->buffer_back->len - ns->buffer_back->pos;
-		amt = send(ns->fd, ns->buffer_back->buf + ns->buffer_back->pos, max, MSG_DONTWAIT);
+		max = ns->packet_head->len - ns->packet_head->pos;
+		amt = send(ns->fd, ns->packet_head->data + ns->packet_head->pos, max, MSG_DONTWAIT);
 
-		if (ns->buffer_back->ndelay)
+		if (ns->packet_head->ndelay)
 		{
 			socket_disable_no_delay(ns->fd);
 		}
@@ -318,17 +304,57 @@ void socket_buffer_write(socket_struct *ns)
 			}
 		}
 
-		ns->buffer_back->pos += amt;
+		ns->packet_head->pos += amt;
 #if CS_LOGSTATS
 		cst_tot.obytes += amt;
 		cst_lst.obytes += amt;
 #endif
 
-		if (ns->buffer_back->len - ns->buffer_back->pos == 0)
+		if (ns->packet_head->len - ns->packet_head->pos == 0)
 		{
-			socket_buffer_dequeue(ns);
+			socket_packet_dequeue(ns, ns->packet_head);
 		}
 	}
+}
+
+void socket_send_packet(socket_struct *ns, packet_struct *packet)
+{
+	packet_struct *tmp;
+
+	if (ns->status == Ns_Dead)
+	{
+		return;
+	}
+
+	packet_compress(packet);
+
+	tmp = packet_new(0, 3);
+
+	if (packet->len > 32 * 1024 - 1)
+	{
+		tmp->data[0] = ((packet->len >> 16) & 0xff) | 0x80;
+		tmp->data[1] = (packet->len >> 8) & 0xff;
+		tmp->data[2] = (packet->len) & 0xff;
+		tmp->len = 3;
+	}
+	else
+	{
+		tmp->data[0] = (packet->len >> 8) & 0xff;
+		tmp->data[1] = (packet->len) & 0xff;
+		tmp->len = 2;
+	}
+
+	socket_packet_enqueue(ns, tmp);
+	socket_packet_enqueue(ns, packet);
+}
+
+void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t len)
+{
+	packet_struct *packet;
+
+	packet = packet_new(type, len);
+	packet_append_data_len(packet, (const uint8 *) str + 1, len - 1);
+	socket_send_packet(ns, packet);
 }
 
 /**
@@ -340,84 +366,17 @@ void socket_buffer_write(socket_struct *ns)
  * @param msg The SockList instance */
 void Send_With_Handling(socket_struct *ns, SockList *msg)
 {
-	unsigned char sbuf[4];
-	uint8 *buf;
-	size_t len;
-#if COMPRESS_DATA_PACKETS
-	uint8 *dest = NULL;
-#endif
+	packet_struct *packet;
 
-	if (ns->status == Ns_Dead || !msg)
+	packet = packet_new(msg->buf[0], 512);
+
+	if (msg->buf[0] == BINARY_CMD_MAP2)
 	{
-		return;
+		packet_enable_ndelay(packet);
 	}
 
-	buf = msg->buf;
-	len = msg->len;
-
-#if COMPRESS_DATA_PACKETS
-	if (len > COMPRESS_DATA_PACKETS_SIZE && buf[0] != BINARY_CMD_DATA)
-	{
-		size_t new_size = compressBound(len);
-
-		dest = malloc(new_size + 5);
-		/* Marker for the reserved #0 binary command. */
-		dest[0] = 0;
-		/* Add original length of the packet. */
-		dest[1] = (len >> 24) & 0xff;
-		dest[2] = (len >> 16) & 0xff;
-		dest[3] = (len >> 8) & 0xff;
-		dest[4] = (len) & 0xff;
-		/* Compress it. */
-		compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) buf, len, Z_BEST_COMPRESSION);
-		buf = dest;
-		len = new_size + 5;
-	}
-#endif
-
-	/* If more than 32kb use 3 bytes header and set the high bit to show
-	 * it to the client. */
-	if (len > 32 * 1024 - 1)
-	{
-		sbuf[0] = ((uint32) (len) >> 16) & 0xFF;
-		/* High bit marker for the client */
-		sbuf[0] |= 0x80;
-		sbuf[1] = ((uint32) (len) >> 8) & 0xFF;
-		sbuf[2] = ((uint32) (len)) & 0xFF;
-
-		socket_buffer_enqueue(ns, sbuf, 3, 0);
-	}
-	else
-	{
-		sbuf[0] = ((uint32) (len) >> 8) & 0xFF;
-		sbuf[1] = ((uint32) (len)) & 0xFF;
-
-		socket_buffer_enqueue(ns, sbuf, 2, 0);
-	}
-
-	socket_buffer_enqueue(ns, buf, len, msg->buf[0] == BINARY_CMD_MAP2);
-
-#if COMPRESS_DATA_PACKETS
-	/* Free the buffer that was used for compression, if it was allocated. */
-	if (dest)
-	{
-		free(dest);
-	}
-#endif
-}
-
-/**
- * Takes a string of data, and writes it out to the socket. A very handy
- * shortcut function. */
-void Write_String_To_Socket(socket_struct *ns, char cmd, const char *buf, int len)
-{
-	SockList sl;
-
-	sl.len = len;
-	sl.buf = (uint8 *) buf;
-	*((char *) buf) = cmd;
-
-	Send_With_Handling(ns, &sl);
+	packet_append_data_len(packet, msg->buf + 1, msg->len - 1);
+	socket_send_packet(ns, packet);
 }
 
 #if CS_LOGSTATS

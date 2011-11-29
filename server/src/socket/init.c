@@ -116,8 +116,9 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->cmdbuf.buf[0] = '\0';
 
 	memset(&ns->lastmap, 0, sizeof(struct Map));
-	ns->buffer_front = NULL;
-	ns->buffer_back = NULL;
+	ns->packet_head = NULL;
+	ns->packet_tail = NULL;
+	pthread_mutex_init(&ns->packet_mutex, NULL);
 
 	ns->host = strdup_local(from_ip);
 

@@ -249,7 +249,6 @@ struct plugin_hooklist
 	void (*add_party_member)(party_struct *, object *);
 	void (*remove_party_member)(party_struct *, object *);
 	void (*send_party_message)(party_struct *, const char *, int, object *);
-	void (*Write_String_To_Socket)(socket_struct *, char, const char *, int);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)(void);
 	void (*stringbuffer_append_string)(StringBuffer *, const char *);

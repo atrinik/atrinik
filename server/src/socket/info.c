@@ -203,7 +203,7 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 
 /**
  * Send a socket message, similar to draw_info() but the message will
- * be sent using Write_String_To_Socket() instead.
+ * be sent using socket_send_string() instead.
  *
  * Used for messages that are sent to player before they have finished
  * logging in.

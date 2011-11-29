@@ -350,7 +350,7 @@ void receive_player_password(object *op)
 
 	if (CONTR(op)->state == ST_CONFIRM_PASSWORD)
 	{
-		char cmd_buf[] = "X";
+		packet_struct *packet;
 
 		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
 		{
@@ -359,7 +359,9 @@ void receive_player_password(object *op)
 			return;
 		}
 
-		Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_NEW_CHAR, cmd_buf, 1);
+		packet = packet_new(BINARY_CMD_NEW_CHAR, 1);
+		socket_send_packet(&CONTR(op)->socket, packet);
+
 		LOG(llevInfo, "NewChar send for %s\n", op->name);
 		CONTR(op)->state = ST_ROLL_STAT;
 

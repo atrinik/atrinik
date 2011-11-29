@@ -111,7 +111,6 @@ struct plugin_hooklist hooklist =
 	add_party_member,
 	remove_party_member,
 	send_party_message,
-	Write_String_To_Socket,
 	dump_object,
 	stringbuffer_new,
 	stringbuffer_append_string,

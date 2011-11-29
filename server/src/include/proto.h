@@ -475,6 +475,7 @@ extern struct mempool *pool_objectlink;
 extern struct mempool *pool_player;
 extern struct mempool *pool_bans;
 extern struct mempool *pool_parties;
+extern struct mempool *pool_packets;
 extern uint32 nearest_pow_two_exp(uint32 n);
 extern void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, chunk_destructor destructor);
 extern struct mempool *create_mempool(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
@@ -892,11 +893,24 @@ extern void socket_enable_no_delay(int fd);
 extern void socket_disable_no_delay(int fd);
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
+extern void socket_send_packet(socket_struct *ns, packet_struct *packet);
+extern void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t len);
 extern void Send_With_Handling(socket_struct *ns, SockList *msg);
-extern void Write_String_To_Socket(socket_struct *ns, char cmd, const char *buf, int len);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
+/* src/socket/packet.c */
+extern packet_struct *packet_new(uint8 type, size_t expand);
+extern void packet_free(packet_struct *packet);
+extern void packet_compress(packet_struct *packet);
+extern void packet_enable_ndelay(packet_struct *packet);
+extern void packet_append_uint8(packet_struct *packet, uint8 data);
+extern void packet_append_uint16(packet_struct *packet, uint16 data);
+extern void packet_append_uint32(packet_struct *packet, uint32 data);
+extern void packet_append_uint64(packet_struct *packet, uint64 data);
+extern void packet_append_data_len(packet_struct *packet, const uint8 *data, size_t len);
+extern void packet_append_string(packet_struct *packet, const char *data);
+extern void packet_append_string_terminated(packet_struct *packet, const char *data);
 /* src/socket/request.c */
 extern void SetUp(char *buf, int len, socket_struct *ns);
 extern void AddMeCmd(char *buf, int len, socket_struct *ns);

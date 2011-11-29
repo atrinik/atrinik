@@ -943,7 +943,7 @@ void send_spelllist_cmd(object *op, const char *spellname, int mode)
 
 	cp_len = sb->pos;
 	cp = stringbuffer_finish(sb);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, cp, cp_len);
+	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, cp, cp_len);
 	free(cp);
 }
 
@@ -979,7 +979,7 @@ void send_skilllist_cmd(object *op, object *skillp, int mode)
 
 	cp_len = sb->pos;
 	cp = stringbuffer_finish(sb);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
+	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
 	free(cp);
 }
 
@@ -992,7 +992,7 @@ void send_ready_skill(object *op, const char *skillname)
 	char tmp[MAX_BUF];
 
 	snprintf(tmp, sizeof(tmp), "X%s", skillname);
-	Write_String_To_Socket(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
+	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
 }
 
 /**

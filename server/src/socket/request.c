@@ -101,11 +101,11 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		cmd = &buf[s];
 
 		/* Find the next space, and put a null there */
-		for (; s < len && buf[s] && buf[s] != ' '; s++)
+		for ( ; s < len && buf[s] && buf[s] != ' '; s++)
 		{
 		}
 
-		buf[s++] = 0;
+		buf[s++] = '\0';
 
 		while (s < len && buf[s] == ' ')
 		{
@@ -119,11 +119,11 @@ void SetUp(char *buf, int len, socket_struct *ns)
 
 		param = &buf[s];
 
-		for (;s < len && buf[s] && buf[s] != ' '; s++)
+		for ( ; s < len && buf[s] && buf[s] != ' '; s++)
 		{
 		}
 
-		buf[s++] = 0;
+		buf[s++] = '\0';
 
 		while (s < len && buf[s] == ' ')
 		{
@@ -262,7 +262,7 @@ void SetUp(char *buf, int len, socket_struct *ns)
 		}
 	}
 
-	Write_String_To_Socket(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
+	socket_send_string(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
 }
 
 /**
@@ -281,7 +281,7 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
 
 	if (ns->status != Ns_Add || add_player(ns))
 	{
-		Write_String_To_Socket(ns, BINARY_CMD_ADDME_FAIL, cmd_buf, 1);
+		socket_send_string(ns, BINARY_CMD_ADDME_FAIL, cmd_buf, 1);
 		ns->status = Ns_Dead;
 	}
 	else
@@ -570,7 +570,7 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
 
 	snprintf(buf, sizeof(buf), "X%d %s", flags, text ? text : "");
 
-	Write_String_To_Socket(ns, BINARY_CMD_QUERY, buf, strlen(buf));
+	socket_send_string(ns, BINARY_CMD_QUERY, buf, strlen(buf));
 }
 
 #define AddIfInt(Old, New, Type)                            \
@@ -683,7 +683,7 @@ void esrv_update_skills(player *pl)
 
 	cp_len = sb->pos;
 	cp = stringbuffer_finish(sb);
-	Write_String_To_Socket(&pl->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
+	socket_send_string(&pl->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
 	free(cp);
 }
 
@@ -844,21 +844,13 @@ void esrv_update_stats(player *pl)
  * Tells the client that here is a player it should start using. */
 void esrv_new_player(player *pl, uint32 weight)
 {
-	SockList sl;
+	packet_struct *packet;
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PLAYER);
-	SockList_AddInt(&sl, pl->ob->count);
-	SockList_AddInt(&sl, weight);
-	SockList_AddInt(&sl, pl->ob->face->number);
-
-	SockList_AddChar(&sl, (char) strlen(pl->ob->name));
-	strcpy((char *) sl.buf + sl.len, pl->ob->name);
-	sl.len += strlen(pl->ob->name);
-
-	Send_With_Handling(&pl->socket, &sl);
-	free(sl.buf);
+	packet = packet_new(BINARY_CMD_PLAYER, 64);
+	packet_append_uint32(packet, pl->ob->count);
+	packet_append_uint32(packet, weight);
+	packet_append_uint32(packet, pl->ob->face->number);
+	socket_send_packet(&pl->socket, packet);
 }
 
 /**
@@ -1868,7 +1860,7 @@ void QuestListCmd(char *data, int len, player *pl)
 
 		cp_len = sb->pos;
 		cp = stringbuffer_finish(sb);
-		Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
+		socket_send_string(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
 		free(cp);
 		return;
 	}
@@ -1943,7 +1935,7 @@ void QuestListCmd(char *data, int len, player *pl)
 
 	cp_len = sb->pos;
 	cp = stringbuffer_finish(sb);
-	Write_String_To_Socket(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
+	socket_send_string(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
 	free(cp);
 }
 
