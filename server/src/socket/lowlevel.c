@@ -242,10 +242,14 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
+	pthread_mutex_lock(&ns->packet_mutex);
+
 	while (ns->packet_head)
 	{
 		socket_packet_dequeue(ns, ns->packet_head);
 	}
+
+	pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 /**
@@ -255,11 +259,7 @@ void socket_buffer_write(socket_struct *ns)
 {
 	int amt, max;
 
-	/* Nothing to send? */
-	if (!ns->packet_head)
-	{
-		return;
-	}
+	pthread_mutex_lock(&ns->packet_mutex);
 
 	while (ns->packet_head)
 	{
@@ -295,12 +295,12 @@ void socket_buffer_write(socket_struct *ns)
 				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
 #endif
 				ns->status = Ns_Dead;
-				return;
+				break;
 			}
 			/* EWOULDBLOCK: We can't write because socket is busy. */
 			else
 			{
-				return;
+				break;
 			}
 		}
 
@@ -315,6 +315,8 @@ void socket_buffer_write(socket_struct *ns)
 			socket_packet_dequeue(ns, ns->packet_head);
 		}
 	}
+
+	pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 void socket_send_packet(socket_struct *ns, packet_struct *packet)
@@ -344,8 +346,10 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 		tmp->len = 2;
 	}
 
+	pthread_mutex_lock(&ns->packet_mutex);
 	socket_packet_enqueue(ns, tmp);
 	socket_packet_enqueue(ns, packet);
+	pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t len)
