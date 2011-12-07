@@ -359,7 +359,7 @@ void receive_player_password(object *op)
 			return;
 		}
 
-		packet = packet_new(BINARY_CMD_NEW_CHAR, 1);
+		packet = packet_new(BINARY_CMD_NEW_CHAR, 0, 0);
 		socket_send_packet(&CONTR(op)->socket, packet);
 
 		LOG(llevInfo, "NewChar send for %s\n", op->name);
@@ -966,7 +966,7 @@ int command_region_map(object *op, char *params)
 		return 1;
 	}
 
-	packet = packet_new(BINARY_CMD_REGION_MAP, 256);
+	packet = packet_new(BINARY_CMD_REGION_MAP, 256, 256);
 	packet_append_string_terminated(packet, op->map->path);
 	packet_append_uint16(packet, op->x);
 	packet_append_uint16(packet, op->y);

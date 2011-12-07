@@ -304,7 +304,7 @@ typedef struct pl_player
 	tag_t ready_object_tag[READY_OBJ_MAX];
 
 	/** For the client target HP marker. */
-	int target_hp;
+	char target_hp;
 
 	/** Skill number of used weapon skill for fast access. */
 	int set_skill_weapon;
@@ -367,9 +367,6 @@ typedef struct pl_player
 
 	/** Last speed value sent to client. */
 	float last_speed;
-
-	/** For the client target HP real % value. */
-	char target_hp_p;
 
 	/** Weapon speed index (mainly used for client). */
 	char weapon_sp;

@@ -566,59 +566,20 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
 	socket_send_string(ns, BINARY_CMD_QUERY, buf, strlen(buf));
 }
 
-#define AddIfInt(Old, New, Type)                            \
-	if (Old != New)                                         \
-	{                                                       \
-		Old = New;                                          \
-		SockList_AddChar(&sl, (char) (Type));               \
-		SockList_AddInt(&sl, (uint32) (New));               \
+#define AddIfInt(_old, _new, _type, _bitsize) \
+	if ((_old) != (_new)) \
+	{ \
+		(_old) = (_new); \
+		packet_append_uint8(packet, (_type)); \
+		packet_append_##_bitsize(packet, (_new)); \
 	}
 
-#define AddIfInt64(Old, New, Type)                          \
-	if (Old != New)                                         \
-	{                                                       \
-		Old = New;                                          \
-		SockList_AddChar(&sl, Type);                        \
-		SockList_AddInt64(&sl, New);                        \
-	}
-
-#define AddIfShort(Old, New, Type)                          \
-	if (Old != New)                                         \
-	{                                                       \
-		Old = New;                                          \
-		SockList_AddChar(&sl, (char) (Type));               \
-		SockList_AddShort(&sl, (uint16) (New));             \
-	}
-
-#define AddIfChar(Old, New, Type)                           \
-	if (Old != New)                                         \
-	{                                                       \
-		Old = New;                                          \
-		SockList_AddChar(&sl, (char) (Type));               \
-		SockList_AddChar(&sl, (char) (New));                \
-	}
-
-#define AddIfFloat(Old, New, Type)                          \
-	if (Old != New)                                         \
-	{                                                       \
-		Old = New;                                          \
-		SockList_AddChar(&sl, (char) Type);                 \
-		SockList_AddInt(&sl, (long) (New * FLOAT_MULTI));   \
-	}
-
-#define AddIfString(Old, New, Type)                         \
-	if (Old == NULL || strcmp(Old, New))                    \
-	{                                                       \
-		if (Old)                                            \
-		{                                                   \
-			free(Old);                                      \
-		}                                                   \
-                                                            \
-		Old = strdup_local(New);                            \
-		SockList_AddChar(&sl, (char) Type);                 \
-		SockList_AddChar(&sl, (char) strlen(New));          \
-		strcpy((char *) sl.buf + sl.len, New);              \
-		sl.len += strlen(New);                              \
+#define AddIfFloat(_old, _new, _type) \
+	if ((_old) != (_new)) \
+	{ \
+		(_old) = (_new); \
+		packet_append_uint8(packet, (_type)); \
+		packet_append_uint32(packet, (_new) * FLOAT_MULTI); \
 	}
 
 /**
@@ -685,90 +646,74 @@ void esrv_update_skills(player *pl)
  *
  * We look at the old values, and only send what has changed.
  *
- * Stat mapping values are in newclient.h
- *
- * Since this gets sent a lot, this is actually one of the few binary
- * commands for now. */
+ * Stat mapping values are in newclient.h */
 void esrv_update_stats(player *pl)
 {
-	static char sock_buf[HUGE_BUF];
-	SockList sl;
+	packet_struct *packet;
 	int i;
 	uint16 flags;
 
-	sl.buf = (unsigned char *) sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_STATS);
+	packet = packet_new(BINARY_CMD_STATS, 32, 256);
 
-	/* small trick: we want send the hp bar of our target to the player.
-	 * We want send a char with x% the target has of full hp.
-	 * To avoid EVERY time the % calculation, we store the real HP
-	 * - if it has changed, we calc the % and use them normal.
-	 * this simple compare will not deal in speed but we safe
-	 * some unneeded calculations. */
-
-	/* never send our own status - client will sort this out */
-	if (pl->target_object != pl->ob)
+	if (pl->target_object && pl->target_object != pl->ob)
 	{
-		/* we don't care about count - target function will readjust itself */
-		if (pl->target_object && pl->target_object->stats.hp != pl->target_hp)
-		{
-			char hp = (char) MAX(1, (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f));
+		char hp;
 
-			pl->target_hp = pl->target_object->stats.hp;
-			AddIfChar(pl->target_hp_p, hp, CS_STAT_TARGET_HP);
-		}
+		hp = MAX(1, (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f));
+
+		AddIfInt(pl->target_hp, hp, CS_STAT_TARGET_HP, uint8);
 	}
 
-	AddIfShort(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP);
-	AddIfShort(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA);
-	AddIfShort(pl->last_gen_grace,pl->gen_client_grace, CS_STAT_REG_GRACE);
-	AddIfChar(pl->last_level, pl->ob->level, CS_STAT_LEVEL);
+	AddIfInt(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP, uint16);
+	AddIfInt(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA, uint16);
+	AddIfInt(pl->last_gen_grace,pl->gen_client_grace, CS_STAT_REG_GRACE, uint16);
+	AddIfInt(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
 	AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
-	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM);
-	AddIfChar(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP);
+	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
+	AddIfInt(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP, uint8);
 
 	if (pl->ob)
 	{
 		object *arrow;
 
-		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP);
-		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP);
-		AddIfShort(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP);
-		AddIfShort(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP);
-		AddIfShort(pl->last_stats.grace, pl->ob->stats.grace, CS_STAT_GRACE);
-		AddIfShort(pl->last_stats.maxgrace, pl->ob->stats.maxgrace, CS_STAT_MAXGRACE);
-		AddIfChar(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR);
-		AddIfChar(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT);
-		AddIfChar(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW);
-		AddIfChar(pl->last_stats.Wis, pl->ob->stats.Wis, CS_STAT_WIS);
-		AddIfChar(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX);
-		AddIfChar(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON);
-		AddIfChar(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA);
-		AddIfInt64(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP);
-		AddIfShort(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC);
-		AddIfShort(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC);
-		AddIfShort(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM);
-		AddIfShort(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD);
-		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
+		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, uint32);
+		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, uint32);
+		AddIfInt(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, uint16);
+		AddIfInt(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, uint16);
+		AddIfInt(pl->last_stats.grace, pl->ob->stats.grace, CS_STAT_GRACE, uint16);
+		AddIfInt(pl->last_stats.maxgrace, pl->ob->stats.maxgrace, CS_STAT_MAXGRACE, uint16);
+		AddIfInt(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
+		AddIfInt(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT, uint8);
+		AddIfInt(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW, uint8);
+		AddIfInt(pl->last_stats.Wis, pl->ob->stats.Wis, CS_STAT_WIS, uint8);
+		AddIfInt(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX, uint8);
+		AddIfInt(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON, uint8);
+		AddIfInt(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA, uint8);
+		AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP, uint64);
+		AddIfInt(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC, uint16);
+		AddIfInt(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
+		AddIfInt(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
+		AddIfInt(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
+		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, uint32);
 
 		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race)))
 		{
-			AddIfShort(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM);
-			AddIfShort(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC);
-			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WS);
+			AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM, uint16);
+			AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC, uint16);
+			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WS, uint32);
 		}
 		else
 		{
-			AddIfShort(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM);
-			AddIfShort(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC);
-			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS);
+			AddIfInt(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM, uint16);
+			AddIfInt(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC, uint16);
+			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS, uint32);
 		}
 	}
 
 	for (i = 0; i < pl->last_skill_index; i++)
 	{
-		AddIfInt64(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i]);
-		AddIfChar(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1);
+		AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i], uint64);
+		AddIfInt(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1, uint8);
 	}
 
 	flags = 0;
@@ -801,7 +746,7 @@ void esrv_update_stats(player *pl)
 		flags |= SF_INFRAVISION;
 	}
 
-	AddIfShort(pl->last_flags, flags, CS_STAT_FLAGS);
+	AddIfInt(pl->last_flags, flags, CS_STAT_FLAGS, uint16);
 
 	for (i = 0; i < NROFATTACKS; i++)
 	{
@@ -812,24 +757,24 @@ void esrv_update_stats(player *pl)
 			break;
 		}
 
-		AddIfChar(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i);
+		AddIfInt(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i, uint8);
 	}
 
 	if (pl->socket.ext_title_flag)
 	{
 		generate_ext_title(pl);
-		SockList_AddChar(&sl, (char) CS_STAT_EXT_TITLE);
-		i = (int) strlen(pl->ext_title);
-		SockList_AddChar(&sl, (char) i);
-		strcpy((char *) sl.buf + sl.len, pl->ext_title);
-		sl.len += i;
+		packet_append_uint8(packet, CS_STAT_EXT_TITLE);
+		packet_append_string_terminated(packet, pl->ext_title);
 		pl->socket.ext_title_flag = 0;
 	}
 
-	/* Only send it away if we have some actual data */
-	if (sl.len > 1)
+	if (packet->len > 1)
 	{
-		Send_With_Handling(&pl->socket, &sl);
+		socket_send_packet(&pl->socket, packet);
+	}
+	else
+	{
+		packet_free(packet);
 	}
 }
 
@@ -839,7 +784,7 @@ void esrv_new_player(player *pl, uint32 weight)
 {
 	packet_struct *packet;
 
-	packet = packet_new(BINARY_CMD_PLAYER, 64);
+	packet = packet_new(BINARY_CMD_PLAYER, 12, 0);
 	packet_append_uint32(packet, pl->ob->count);
 	packet_append_uint32(packet, weight);
 	packet_append_uint32(packet, pl->ob->face->number);

@@ -330,7 +330,7 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
 	packet_compress(packet);
 
-	tmp = packet_new(0, 3);
+	tmp = packet_new(0, 3, 0);
 
 	if (packet->len > 32 * 1024 - 1)
 	{
@@ -356,7 +356,7 @@ void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t l
 {
 	packet_struct *packet;
 
-	packet = packet_new(type, len);
+	packet = packet_new(type, len, len);
 	packet_append_data_len(packet, (const uint8 *) str + 1, len - 1);
 	socket_send_packet(ns, packet);
 }
@@ -372,7 +372,7 @@ void Send_With_Handling(socket_struct *ns, SockList *msg)
 {
 	packet_struct *packet;
 
-	packet = packet_new(msg->buf[0], 512);
+	packet = packet_new(msg->buf[0], 512, 512);
 
 	if (msg->buf[0] == BINARY_CMD_MAP2)
 	{

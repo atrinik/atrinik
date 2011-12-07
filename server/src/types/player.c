@@ -171,7 +171,6 @@ static player *get_player(player *p)
 	p->state = ST_ROLL_STAT;
 
 	p->target_hp = -1;
-	p->target_hp_p = -1;
 	p->gen_sp_armour = 0;
 	p->last_speed = -1;
 	p->last_weapon_sp = -1;

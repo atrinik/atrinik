@@ -35,20 +35,20 @@
 /**
  * Allocates a new packet.
  * @param type The packet's command type.
- * @param expand Initial number of bytes to allocate for the packet's
- * data, and the size to expand by when there is not enough bytes
- * allocated.
+ * @param size Initial number of bytes to allocate for the packet's
+ * data.
+ * @param expand The minimum size to expand by when there is not enough
+ * bytes allocated.
  * @return The allocated packet. */
-packet_struct *packet_new(uint8 type, size_t expand)
+packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 {
 	packet_struct *packet;
 
 	packet = get_poolchunk(pool_packets);
 	packet->next = packet->prev = NULL;
 	packet->pos = 0;
-	/* Must be at least 1. */
-	packet->expand = MAX(1, expand);
-	packet->size = packet->expand;
+	packet->size = 1 + size;
+	packet->expand = expand;
 	packet->len = 0;
 	/* Allocate the initial data block. */
 	packet->data = malloc(packet->size);

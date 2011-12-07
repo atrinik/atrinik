@@ -900,7 +900,7 @@ extern void Send_With_Handling(socket_struct *ns, SockList *msg);
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 /* src/socket/packet.c */
-extern packet_struct *packet_new(uint8 type, size_t expand);
+extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);
 extern void packet_free(packet_struct *packet);
 extern void packet_compress(packet_struct *packet);
 extern void packet_enable_ndelay(packet_struct *packet);

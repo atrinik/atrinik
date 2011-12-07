@@ -771,11 +771,18 @@ void StatsCmd(unsigned char *data, int len)
 
 				case CS_STAT_EXT_TITLE:
 				{
-					int rlen = data[i++];
+					if (cpl.server_socket_version >= 1058)
+					{
+						GetString_String(data, &i, cpl.ext_title, sizeof(cpl.ext_title));
+					}
+					else
+					{
+						int rlen = data[i++];
 
-					strncpy(cpl.ext_title, (const char *) data + i, rlen);
-					cpl.ext_title[rlen] = '\0';
-					i += rlen;
+						strncpy(cpl.ext_title, (const char *) data + i, rlen);
+						cpl.ext_title[rlen] = '\0';
+						i += rlen;
+					}
 
 					if (strstr(cpl.ext_title, "[WIZ]"))
 					{

@@ -48,7 +48,7 @@ void draw_info_send(int flags, const char *color, socket_struct *socket, const c
 {
 	packet_struct *packet;
 
-	packet = packet_new(BINARY_CMD_DRAWINFO, 256);
+	packet = packet_new(BINARY_CMD_DRAWINFO, 256, 512);
 	packet_append_uint16(packet, flags);
 	packet_append_string_terminated(packet, color);
 	packet_append_string_terminated(packet, buf);
