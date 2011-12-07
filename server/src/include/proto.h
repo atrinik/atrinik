@@ -840,6 +840,7 @@ extern void SendFaceCmd(char *buf, int len, socket_struct *ns);
 extern int esrv_send_face(socket_struct *ns, short face_num);
 extern void face_get_data(int face, uint8 **ptr, uint16 *len);
 /* src/socket/info.c */
+extern void draw_info_send(int flags, const char *color, socket_struct *socket, const char *buf);
 extern void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
 extern void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
 extern void draw_info_flags(int flags, const char *color, object *pl, const char *buf);
@@ -847,7 +848,6 @@ extern void draw_info_flags_format(int flags, const char *color, object *pl, con
 extern void draw_info(const char *color, object *pl, const char *buf);
 extern void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
 extern void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
-extern void send_socket_message(const char *color, socket_struct *ns, const char *buf);
 /* src/socket/init.c */
 extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
 extern Socket_Info socket_info;

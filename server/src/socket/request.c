@@ -380,7 +380,7 @@ void ReplyCmd(char *buf, int len, player *pl)
  * @param ns The socket to send the message to */
 static void version_mismatch_msg(socket_struct *ns)
 {
-	send_socket_message(COLOR_RED, ns, "This is Atrinik Server.\nYour client version is outdated!\nGo to http://www.atrinik.org and download the latest Atrinik client!\nGoodbye.");
+	draw_info_send(0, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
 }
 
 /**
@@ -522,13 +522,6 @@ void VersionCmd(char *buf, int len, socket_struct *ns)
 	if (ns->socket_version == 991017 || ns->socket_version < 1055)
 	{
 		version_mismatch_msg(ns);
-		ns->status = Ns_Zombie;
-		return;
-	}
-
-	if (ns->socket_version > SOCKET_VERSION)
-	{
-		send_socket_message(COLOR_RED, ns, "This Atrinik server is outdated and incompatible with your client's version. Try another server.");
 		ns->status = Ns_Zombie;
 		return;
 	}

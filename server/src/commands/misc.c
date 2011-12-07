@@ -343,7 +343,7 @@ void receive_player_password(object *op)
 
 	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
 	{
-		send_socket_message(COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
+		draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
 		get_name(op);
 		return;
 	}
@@ -354,7 +354,7 @@ void receive_player_password(object *op)
 
 		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
 		{
-			send_socket_message(COLOR_RED, &CONTR(op)->socket, "The passwords did not match.");
+			draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
 			get_name(op);
 			return;
 		}

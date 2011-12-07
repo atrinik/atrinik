@@ -44,6 +44,17 @@
 	vsnprintf(buf, sizeof(buf), format, ap); \
 	va_end(ap);
 
+void draw_info_send(int flags, const char *color, socket_struct *socket, const char *buf)
+{
+	packet_struct *packet;
+
+	packet = packet_new(BINARY_CMD_DRAWINFO, 256);
+	packet_append_uint16(packet, flags);
+	packet_append_string_terminated(packet, color);
+	packet_append_string_terminated(packet, buf);
+	socket_send_packet(socket, packet);
+}
+
 /**
  * Draw a message in the text windows for player's client.
  * @param flags Various @ref NDI_xxx "flags". Mostly color, but also some others.
@@ -82,22 +93,7 @@ void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, obje
 	}
 	else
 	{
-		unsigned char info_string[HUGE_BUF];
-		size_t len;
-		SockList sl;
-
-		sl.buf = info_string;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO2);
-		SockList_AddShort(&sl, flags);
-		SockList_AddString(&sl, color);
-		/* Make sure we don't copy more bytes than available space in the buffer. */
-		len = MIN(strlen(buf), sizeof(info_string) - sl.len - 1);
-		memcpy((char *) sl.buf + sl.len, buf, len);
-		sl.len += len;
-
-		/* Terminate the string. */
-		SockList_AddChar(&sl, '\0');
-		Send_With_Handling(&CONTR(pl)->socket, &sl);
+		draw_info_send(flags, color, &CONTR(pl)->socket, buf);
 	}
 }
 
@@ -199,34 +195,4 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 			}
 		}
 	}
-}
-
-/**
- * Send a socket message, similar to draw_info() but the message will
- * be sent using socket_send_string() instead.
- *
- * Used for messages that are sent to player before they have finished
- * logging in.
- * @param flags Flags to send.
- * @param ns Socket to send to.
- * @param buf Message to send. */
-void send_socket_message(const char *color, socket_struct *ns, const char *buf)
-{
-	SockList sl;
-	unsigned char sockbuf[HUGE_BUF];
-	size_t len;
-
-	sl.buf = sockbuf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DRAWINFO);
-
-	SockList_AddString(&sl, color);
-
-	/* Make sure we don't copy more bytes than available space in the buffer. */
-	len = MIN(strlen(buf), sizeof(sockbuf) - sl.len - 1);
-	memcpy(sl.buf + sl.len, buf, len);
-	sl.len += len;
-
-	/* Terminate the string. */
-	SockList_AddChar(&sl, '\0');
-	Send_With_Handling(ns, &sl);
 }

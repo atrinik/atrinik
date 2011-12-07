@@ -99,7 +99,7 @@ int check_name(player *pl, char *name)
 
 	if (name[0] == '\0')
 	{
-		send_socket_message(COLOR_RED, &pl->socket, "You must provide a name to log in.");
+		draw_info_send(0, COLOR_RED, &pl->socket, "You must provide a name to log in.");
 		return 0;
 	}
 
@@ -107,13 +107,13 @@ int check_name(player *pl, char *name)
 
 	if (name_len < PLAYER_NAME_MIN || name_len > PLAYER_NAME_MAX)
 	{
-		send_socket_message(COLOR_RED, &pl->socket, "That name has an invalid length.");
+		draw_info_send(0, COLOR_RED, &pl->socket, "That name has an invalid length.");
 		return 0;
 	}
 
 	if (!playername_ok(name))
 	{
-		send_socket_message(COLOR_RED, &pl->socket, "That name contains illegal characters.");
+		draw_info_send(0, COLOR_RED, &pl->socket, "That name contains illegal characters.");
 		return 0;
 	}
 
@@ -343,7 +343,7 @@ static void wrong_password(player *pl)
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
 	{
 		LOG(llevSystem, "%s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
-		send_socket_message(COLOR_RED, &pl->socket, "You have failed to provide a correct password too many times.");
+		draw_info_send(0, COLOR_RED, &pl->socket, "You have failed to provide a correct password too many times.");
 		pl->socket.status = Ns_Zombie;
 	}
 	else
@@ -393,7 +393,6 @@ void check_login(object *op)
 	if (pl->state == ST_PLAYING)
 	{
 		LOG(llevSystem, ">%s< from IP %s - double login!\n", op->name, pl->socket.host);
-		send_socket_message(COLOR_RED, &pl->socket, "Connection refused.\nYou manipulated the login procedure.");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
@@ -401,7 +400,7 @@ void check_login(object *op)
 	if (checkbanned(op->name, pl->socket.host))
 	{
 		LOG(llevSystem, "Ban: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
-		send_socket_message(COLOR_RED, &pl->socket, "Connection refused.\nYou are banned!");
+		draw_info_send(0, COLOR_RED, &pl->socket, "Connection refused due to a ban.");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
