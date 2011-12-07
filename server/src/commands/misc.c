@@ -888,9 +888,9 @@ int command_statistics(object *op, char *params)
  * @return 1. */
 int command_region_map(object *op, char *params)
 {
+	uint8 params_check;
 	region *r;
-	SockList sl;
-	uint8 sock_buf[HUGE_BUF], params_check;
+	packet_struct *packet;
 
 	if (!op->map)
 	{
@@ -966,21 +966,20 @@ int command_region_map(object *op, char *params)
 		return 1;
 	}
 
-	sl.buf = sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_REGION_MAP);
-	SockList_AddString(&sl, op->map->path);
-	SockList_AddShort(&sl, op->x);
-	SockList_AddShort(&sl, op->y);
-	SockList_AddString(&sl, r->name);
-	SockList_AddString(&sl, settings.client_maps_url);
+	packet = packet_new(BINARY_CMD_REGION_MAP, 256);
+	packet_append_string_terminated(packet, op->map->path);
+	packet_append_uint16(packet, op->x);
+	packet_append_uint16(packet, op->y);
+	packet_append_string_terminated(packet, r->name);
+	packet_append_string_terminated(packet, settings.client_maps_url);
 
 	if (CONTR(op)->socket.socket_version >= 1058)
 	{
-		SockList_AddString(&sl, r->longname);
-		SockList_AddChar(&sl, op->direction);
+		packet_append_string_terminated(packet, r->longname);
+		packet_append_uint8(packet, op->direction);
 	}
 
-	Send_With_Handling(&CONTR(op)->socket, &sl);
+	socket_send_packet(&CONTR(op)->socket, packet);
 
 	return 1;
 }
