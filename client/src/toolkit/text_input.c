@@ -394,7 +394,12 @@ int text_input_handle(SDL_KeyboardEvent *key)
 				text_input_string_flag = 0;
 				/* Mark that we've got something here. */
 				text_input_string_end_flag = 1;
-				text_input_history_add(text_input_string);
+
+				if (text_input_string[0] != '\0')
+				{
+					text_input_history_add(text_input_string);
+				}
+
 				return 1;
 			}
 			else if (key->keysym.sym == SDLK_TAB)
