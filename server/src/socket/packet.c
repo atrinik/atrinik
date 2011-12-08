@@ -47,15 +47,18 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 	packet = get_poolchunk(pool_packets);
 	packet->next = packet->prev = NULL;
 	packet->pos = 0;
-	packet->size = 1 + size;
+	packet->size = size;
 	packet->expand = expand;
 	packet->len = 0;
 	/* Allocate the initial data block. */
 	packet->data = malloc(packet->size);
 	packet->ndelay = 0;
 
-	/* Append the command type to the packet. */
-	packet_append_uint8(packet, type);
+	if (type)
+	{
+		/* Append the command type to the packet. */
+		packet_append_uint8(packet, type);
+	}
 
 	return packet;
 }
@@ -65,7 +68,11 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
  * @param packet Packet to free. */
 void packet_free(packet_struct *packet)
 {
-	free(packet->data);
+	if (packet->data)
+	{
+		free(packet->data);
+	}
+
 	return_poolchunk(packet, pool_packets);
 }
 
@@ -107,6 +114,16 @@ void packet_enable_ndelay(packet_struct *packet)
 	packet->ndelay = 1;
 }
 
+void packet_set_pos(packet_struct *packet, size_t pos)
+{
+	packet->len = pos;
+}
+
+size_t packet_get_pos(packet_struct *packet)
+{
+	return packet->len;
+}
+
 /**
  * Ensure 'size' bytes are available for writing in the packet. If not,
  * will allocate more.
@@ -126,6 +143,11 @@ static void packet_ensure(packet_struct *packet, size_t size)
 	{
 		LOG(llevError, "packet_ensure(): Out of memory.\n");
 	}
+}
+
+void packet_merge(packet_struct *src, packet_struct *dst)
+{
+	packet_append_data_len(dst, src->data, src->len);
 }
 
 void packet_append_uint8(packet_struct *packet, uint8 data)
@@ -169,6 +191,11 @@ void packet_append_uint64(packet_struct *packet, uint64 data)
 
 void packet_append_data_len(packet_struct *packet, const uint8 *data, size_t len)
 {
+	if (!data)
+	{
+		return;
+	}
+
 	packet_ensure(packet, len);
 	memcpy(packet->data + packet->len, data, len);
 	packet->len += len;

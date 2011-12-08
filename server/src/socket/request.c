@@ -1072,7 +1072,7 @@ static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 { \
 	if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1) \
 	{ \
-		SockList_AddShort(&sl, mask | MAP2_MASK_CLEAR); \
+		packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
 		map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
 	} \
 }
@@ -1088,15 +1088,15 @@ void draw_client_map2(object *pl)
 	int x_start, dm_light = 0;
 	int special_vision;
 	uint16 mask;
-	SockList sl, sl_layer, sl_sound;
-	unsigned char sock_buf[MAXSOCKBUF], sock_buf_layer[MAXSOCKBUF], sock_buf_sound[MAXSOCKBUF];
 	int wdark;
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
-	int oldlen, outdoor;
+	int outdoor;
 	object *mirror = NULL;
 	uint8 have_sound_ambient;
+	packet_struct *packet, *packet_layer, *packet_sound;
+	size_t oldpos;
 
 	/* Do we have dm_light? */
 	if (CONTR(pl)->dm_light)
@@ -1109,59 +1109,59 @@ void draw_client_map2(object *pl)
 	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
 	map2_count++;
 
-	sl.buf = sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAP2);
+	packet = packet_new(BINARY_CMD_MAP2, 0, 512);
+	packet_sound = packet_new(BINARY_CMD_SOUND_AMBIENT, 0, 256);
 
-	sl_sound.buf = sock_buf_sound;
-	SOCKET_SET_BINARY_CMD(&sl_sound, BINARY_CMD_SOUND_AMBIENT);
-
-	/* Marker */
-	SockList_AddChar(&sl, (char) CONTR(pl)->map_update_cmd);
+	packet_enable_ndelay(packet);
+	packet_append_uint8(packet, CONTR(pl)->map_update_cmd);
 
 	if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME)
 	{
+		object *map_info;
+
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+		map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
 
-		SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
-		SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
-		SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
+		packet_append_map_name(packet, pl, map_info);
+		packet_append_map_music(packet, pl, map_info);
+		packet_append_map_weather(packet, pl, map_info);
 
-		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
+		if (map_info)
 		{
-			if (msp->map_info->race)
+			if (map_info->race)
 			{
-				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+				strncpy(CONTR(pl)->map_info_name, map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
 				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
 			}
 
-			if (msp->map_info->slaying)
+			if (map_info->slaying)
 			{
-				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				strncpy(CONTR(pl)->map_info_music, map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
 				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
 			}
 
-			if (msp->map_info->title)
+			if (map_info->title)
 			{
-				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
 				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
 			}
 		}
 
 		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
 		{
-			SockList_AddChar(&sl, (char) CONTR(pl)->map_update_tile);
-			SockList_AddChar(&sl, (char) CONTR(pl)->map_off_x);
-			SockList_AddChar(&sl, (char) CONTR(pl)->map_off_y);
+			packet_append_uint8(packet, CONTR(pl)->map_update_tile);
+			packet_append_uint8(packet, CONTR(pl)->map_off_x);
+			packet_append_uint8(packet, CONTR(pl)->map_off_y);
 		}
 		else
 		{
-			SockList_AddChar(&sl, (char) pl->map->width);
-			SockList_AddChar(&sl, (char) pl->map->height);
+			packet_append_uint8(packet, pl->map->width);
+			packet_append_uint8(packet, pl->map->height);
 		}
 	}
 
-	SockList_AddChar(&sl, (char) pl->x);
-	SockList_AddChar(&sl, (char) pl->y);
+	packet_append_uint8(packet, pl->x);
+	packet_append_uint8(packet, pl->y);
 
 	x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
 
@@ -1209,26 +1209,22 @@ void draw_client_map2(object *pl)
 			 * update. */
 			if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) || (!have_sound_ambient && mp->sound_ambient_count))
 			{
-				SockList_AddChar(&sl_sound, ax);
-				SockList_AddChar(&sl_sound, ay);
-				SockList_AddInt(&sl_sound, mp->sound_ambient_count);
+				packet_append_uint8(packet_sound, ax);
+				packet_append_uint8(packet_sound, ay);
+				packet_append_uint32(packet_sound, mp->sound_ambient_count);
 
 				if (have_sound_ambient)
 				{
-					SockList_AddInt(&sl_sound, msp->sound_ambient->count);
-					SockList_AddString(&sl_sound, msp->sound_ambient->race);
-					SockList_AddChar(&sl_sound, msp->sound_ambient->item_condition);
-
-					if (CONTR(pl)->socket.socket_version >= 1057)
-					{
-						SockList_AddChar(&sl_sound, msp->sound_ambient->item_level);
-					}
+					packet_append_uint32(packet_sound, msp->sound_ambient->count);
+					packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
+					packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
+					packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
 
 					mp->sound_ambient_count = msp->sound_ambient->count;
 				}
 				else
 				{
-					SockList_AddInt(&sl_sound, 0);
+					packet_append_uint32(packet_sound, 0);
 
 					mp->sound_ambient_count = 0;
 				}
@@ -1367,7 +1363,7 @@ void draw_client_map2(object *pl)
 			/* Initialize default values for some variables. */
 			dark = NO_FACE_SEND;
 			ext_flags = 0;
-			oldlen = sl.len;
+			oldpos = packet_get_pos(packet);
 			anim_type = 0;
 			anim_value = 0;
 
@@ -1380,19 +1376,15 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Add the mask. Any mask changes should go above this line. */
-			SockList_AddShort(&sl, mask);
+			packet_append_uint16(packet, mask);
 
 			/* If we have darkness to send, send it. */
 			if (dark != NO_FACE_SEND)
 			{
-				SockList_AddChar(&sl, (char) dark);
+				packet_append_uint8(packet, dark);
 			}
 
-			/* We will use a temporary SockList instance to add any layers we find.
-			 * If we don't find any, there is no reason to send the data about them
-			 * to the client. */
-			sl_layer.buf = sock_buf_layer;
-			sl_layer.len = 0;
+			packet_layer = packet_new(0, 0, 128);
 			num_layers = 0;
 
 			/* Go through the visible layers. */
@@ -1596,8 +1588,8 @@ void draw_client_map2(object *pl)
 
 							if (mp->faces[socket_layer])
 							{
-								SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
-								SockList_AddChar(&sl_layer, (char) socket_layer);
+								packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+								packet_append_uint8(packet_layer, socket_layer);
 								num_layers++;
 							}
 
@@ -1606,33 +1598,28 @@ void draw_client_map2(object *pl)
 
 						num_layers++;
 
-						/* Add its layer. */
-						SockList_AddChar(&sl_layer, (char) socket_layer);
-						/* The face. */
-						SockList_AddShort(&sl_layer, face);
-						/* Get the first several flags of this object (like paralyzed,
-						* sleeping, etc). */
-						SockList_AddChar(&sl_layer, (char) GET_CLIENT_FLAGS(head));
-						/* Flags we figured out above. */
-						SockList_AddChar(&sl_layer, flags);
+						packet_append_uint8(packet_layer, socket_layer);
+						packet_append_uint16(packet_layer, face);
+						packet_append_uint8(packet_layer, GET_CLIENT_FLAGS(head));
+						packet_append_uint8(packet_layer, flags);
 
 						/* Multi-arch? Add it's quick pos. */
 						if (flags & MAP2_FLAG_MULTI)
 						{
-							SockList_AddChar(&sl_layer, (char) quick_pos);
+							packet_append_uint8(packet_layer, quick_pos);
 						}
 
 						/* Player name? Add the player's name, and their player name color. */
 						if (flags & MAP2_FLAG_NAME)
 						{
-							SockList_AddString(&sl_layer, CONTR(tmp)->quick_name);
-							SockList_AddString(&sl_layer, get_playername_color(pl, tmp));
+							packet_append_string_terminated(packet_layer, CONTR(tmp)->quick_name);
+							packet_append_string_terminated(packet_layer, get_playername_color(pl, tmp));
 						}
 
 						/* Target's HP bar. */
 						if (flags & MAP2_FLAG_PROBE)
 						{
-							SockList_AddChar(&sl_layer, (char) probe_val);
+							packet_append_uint8(packet_layer, probe_val);
 						}
 
 						/* Z position. */
@@ -1640,11 +1627,11 @@ void draw_client_map2(object *pl)
 						{
 							if (mirror && mirror->last_eat)
 							{
-								SockList_AddShort(&sl_layer, head->z + mirror->last_eat);
+								packet_append_uint16(packet_layer, head->z + mirror->last_eat);
 							}
 							else
 							{
-								SockList_AddShort(&sl_layer, head->z);
+								packet_append_uint16(packet_layer, head->z);
 							}
 						}
 
@@ -1653,13 +1640,13 @@ void draw_client_map2(object *pl)
 							/* First check mirror, even if the object *does* have custom zoom. */
 							if (mirror && mirror->last_heal)
 							{
-								SockList_AddShort(&sl_layer, mirror->last_heal);
-								SockList_AddShort(&sl_layer, mirror->last_heal);
+								packet_append_uint16(packet_layer, mirror->last_heal);
+								packet_append_uint16(packet_layer, mirror->last_heal);
 							}
 							else
 							{
-								SockList_AddShort(&sl_layer, head->zoom_x);
-								SockList_AddShort(&sl_layer, head->zoom_y);
+								packet_append_uint16(packet_layer, head->zoom_x);
+								packet_append_uint16(packet_layer, head->zoom_y);
 							}
 						}
 
@@ -1667,26 +1654,26 @@ void draw_client_map2(object *pl)
 						{
 							if (mirror && mirror->align)
 							{
-								SockList_AddShort(&sl_layer, head->align + mirror->align);
+								packet_append_uint16(packet_layer, head->align + mirror->align);
 							}
 							else
 							{
-								SockList_AddShort(&sl_layer, head->align);
+								packet_append_uint16(packet_layer, head->align);
 							}
 						}
 
 						if (flags & MAP2_FLAG_MORE)
 						{
-							SockList_AddInt(&sl_layer, flags2);
+							packet_append_uint32(packet_layer, flags2);
 
 							if (flags2 & MAP2_FLAG2_ALPHA)
 							{
-								SockList_AddChar(&sl_layer, head->alpha);
+								packet_append_uint8(packet_layer, head->alpha);
 							}
 
 							if (flags2 & MAP2_FLAG2_ROTATE)
 							{
-								SockList_AddShort(&sl_layer, head->rotate);
+								packet_append_uint16(packet_layer, head->rotate);
 							}
 						}
 					}
@@ -1696,21 +1683,17 @@ void draw_client_map2(object *pl)
 					{
 						mp->faces[socket_layer] = 0;
 						mp->quick_pos[socket_layer] = 0;
-						SockList_AddChar(&sl_layer, MAP2_LAYER_CLEAR);
-						SockList_AddChar(&sl_layer, (char) socket_layer);
+						packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+						packet_append_uint8(packet_layer, socket_layer);
 						num_layers++;
 					}
 				}
 			}
 
-			SockList_AddChar(&sl, (char) num_layers);
+			packet_append_uint8(packet, num_layers);
 
-			/* Do we have any data about layers? If so, copy it to the main SockList instance. */
-			if (sl_layer.len)
-			{
-				memcpy(sl.buf + sl.len, sl_layer.buf, sl_layer.len);
-				sl.len += sl_layer.len;
-			}
+			packet_merge(packet_layer, packet);
+			packet_free(packet_layer);
 
 			/* Kill animation? */
 			if (GET_MAP_RTAG(m, nx, ny) == global_round_tag)
@@ -1721,19 +1704,20 @@ void draw_client_map2(object *pl)
 			}
 
 			/* Add flags for this tile. */
-			SockList_AddChar(&sl, (char) ext_flags);
+			packet_append_uint8(packet, ext_flags);
 
 			/* Animation? Add its type and value. */
 			if (ext_flags & MAP2_FLAG_EXT_ANIM)
 			{
-				SockList_AddChar(&sl, (char) anim_type);
-				SockList_AddShort(&sl, (sint16) anim_value);
+				packet_append_uint8(packet, anim_type);
+				packet_append_uint16(packet, anim_value);
 			}
 
-			/* If nothing has really changed, go back to old SockList length. */
+			/* If nothing has really changed, go back to the old position
+			 * in the packet. */
 			if (!(mask & 0x3f) && !num_layers && !ext_flags)
 			{
-				sl.len = oldlen;
+				packet_set_pos(packet, oldpos);
 			}
 
 			/* Set 'mirror' back to NULL, so we'll try to re-find it on another tile. */
@@ -1742,14 +1726,22 @@ void draw_client_map2(object *pl)
 	}
 
 	/* Verify that we in fact do need to send this. */
-	if (sl.len > 4)
+	if (packet->len > 4)
 	{
-		Send_With_Handling(&CONTR(pl)->socket, &sl);
+		socket_send_packet(&CONTR(pl)->socket, packet);
+	}
+	else
+	{
+		packet_free(packet);
 	}
 
-	if (sl_sound.len > 1 && CONTR(pl)->socket.socket_version >= 1056)
+	if (packet_sound->len > 1)
 	{
-		Send_With_Handling(&CONTR(pl)->socket, &sl_sound);
+		socket_send_packet(&CONTR(pl)->socket, packet_sound);
+	}
+	else
+	{
+		packet_free(packet_sound);
 	}
 }
 

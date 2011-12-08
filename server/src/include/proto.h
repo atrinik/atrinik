@@ -463,9 +463,6 @@ extern int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstru
 extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 extern int wall_blocked(mapstruct *m, int x, int y);
-extern void SockList_AddMapName(SockList *sl, object *pl, mapstruct *map, object *map_info);
-extern void SockList_AddMapMusic(SockList *sl, object *pl, mapstruct *map, object *map_info);
-extern void SockList_AddMapWeather(SockList *sl, object *pl, mapstruct *map, object *map_info);
 /* src/server/mempool.c */
 extern struct mempool_chunk end_marker;
 extern int nrof_mempools;
@@ -904,6 +901,9 @@ extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);
 extern void packet_free(packet_struct *packet);
 extern void packet_compress(packet_struct *packet);
 extern void packet_enable_ndelay(packet_struct *packet);
+extern void packet_set_pos(packet_struct *packet, size_t pos);
+extern size_t packet_get_pos(packet_struct *packet);
+extern void packet_merge(packet_struct *src, packet_struct *dst);
 extern void packet_append_uint8(packet_struct *packet, uint8 data);
 extern void packet_append_uint16(packet_struct *packet, uint16 data);
 extern void packet_append_uint32(packet_struct *packet, uint32 data);
