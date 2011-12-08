@@ -966,83 +966,71 @@ void draw_client_map(object *pl)
 	/* If we moved on the same map, check for map name/music to update. */
 	if (redraw_below && CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_SAME)
 	{
-		SockList sl;
-		unsigned char sock_buf[MAXSOCKBUF];
 		MapSpace *msp;
+		packet_struct *packet;
+		object *map_info;
 
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_MAPSTATS);
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+		map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
 
-		/* Is there a map info object on this square? */
-		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count))
+		packet = packet_new(BINARY_CMD_MAPSTATS, 256, 256);
+
+		if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) || (!map_info && CONTR(pl)->map_info_name[0] != '\0'))
 		{
-			/* Check if there is map info name, but only update if it hasn't changed. */
-			if (msp->map_info->race && strcmp(msp->map_info->race, CONTR(pl)->map_info_name))
-			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
-				SockList_AddMapName(&sl, pl, pl->map, msp->map_info);
+			packet_append_uint8(packet, CMD_MAPSTATS_NAME);
+			packet_append_map_name(packet, pl, map_info);
 
-				strncpy(CONTR(pl)->map_info_name, msp->map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+			if (map_info)
+			{
+				strncpy(CONTR(pl)->map_info_name, map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
 				CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
 			}
-
-			/* Likewise for map info music. */
-			if (msp->map_info->slaying && strcmp(msp->map_info->slaying, CONTR(pl)->map_info_music))
+			else
 			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
-				SockList_AddMapMusic(&sl, pl, pl->map, msp->map_info);
-
-				strncpy(CONTR(pl)->map_info_music, msp->map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
-				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
-			}
-
-			/* And weather... */
-			if (msp->map_info->title && strcmp(msp->map_info->title, CONTR(pl)->map_info_weather))
-			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
-				SockList_AddMapWeather(&sl, pl, pl->map, msp->map_info);
-
-				strncpy(CONTR(pl)->map_info_weather, msp->map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
-				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
-			}
-		}
-		/* There isn't map info object, check if we need to update previously
-		 * overriden values. */
-		else
-		{
-			/* Update map name... */
-			if (CONTR(pl)->map_info_name[0] != '\0')
-			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_NAME);
-				SockList_AddMapName(&sl, pl, pl->map, NULL);
-
 				CONTR(pl)->map_info_name[0] = '\0';
 			}
+		}
 
-			/* Update map music... */
-			if (CONTR(pl)->map_info_music[0] != '\0')
+		if ((map_info && map_info->slaying && strcmp(map_info->slaying, CONTR(pl)->map_info_music) != 0) || (!map_info && CONTR(pl)->map_info_music[0] != '\0'))
+		{
+			packet_append_uint8(packet, CMD_MAPSTATS_MUSIC);
+			packet_append_map_music(packet, pl, map_info);
+
+			if (map_info)
 			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_MUSIC);
-				SockList_AddMapMusic(&sl, pl, pl->map, NULL);
-
+				strncpy(CONTR(pl)->map_info_music, map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+				CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
+			}
+			else
+			{
 				CONTR(pl)->map_info_music[0] = '\0';
 			}
+		}
 
-			/* Update map weather... */
-			if (CONTR(pl)->map_info_weather[0] != '\0')
+		if ((map_info && map_info->title && strcmp(map_info->title, CONTR(pl)->map_info_weather) != 0) || (!map_info && CONTR(pl)->map_info_weather[0] != '\0'))
+		{
+			packet_append_uint8(packet, CMD_MAPSTATS_WEATHER);
+			packet_append_map_weather(packet, pl, map_info);
+
+			if (map_info)
 			{
-				SockList_AddChar(&sl, CMD_MAPSTATS_WEATHER);
-				SockList_AddMapWeather(&sl, pl, pl->map, NULL);
-
+				strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+				CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
+			}
+			else
+			{
 				CONTR(pl)->map_info_weather[0] = '\0';
 			}
 		}
 
 		/* Anything to send? */
-		if (sl.len > 1)
+		if (packet->len > 1)
 		{
-			Send_With_Handling(&CONTR(pl)->socket, &sl);
+			socket_send_packet(&CONTR(pl)->socket, packet);
+		}
+		else
+		{
+			packet_free(packet);
 		}
 	}
 }

@@ -184,3 +184,20 @@ void packet_append_string_terminated(packet_struct *packet, const char *data)
 	packet_append_string(packet, data);
 	packet_append_uint8(packet, '\0');
 }
+
+void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string(packet, "<b><o=0,0,0>");
+	packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
+	packet_append_string_terminated(packet, "</o></b>");
+}
+
+void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
+}
+
+void packet_append_map_weather(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
+}
