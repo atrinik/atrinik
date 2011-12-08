@@ -31,9 +31,6 @@
 
 #include <global.h>
 
-/** Font used for the map name. */
-#define MAP_NAME_FONT FONT_SERIF14
-
 static struct Map the_map;
 static SDL_Surface *zoomed = NULL;
 
@@ -90,10 +87,59 @@ void load_mapdef_dat(void)
 void widget_show_mapname(widgetdata *widget)
 {
 	SDL_Rect box;
+	int alpha;
+
+	alpha = 255;
+
+	if (MapData.name_fadeout_start || MapData.name[0] == '\0')
+	{
+		uint32 time_passed;
+
+		time_passed = SDL_GetTicks() - MapData.name_fadeout_start;
+
+		if (time_passed > MAP_NAME_FADEOUT || MapData.name[0] == '\0')
+		{
+			if (MapData.name[0] != '\0')
+			{
+				alpha = MIN(255, 255 * ((double) (time_passed - MAP_NAME_FADEOUT) / MAP_NAME_FADEOUT));
+
+				if (alpha == 255)
+				{
+					MapData.name_fadeout_start = 0;
+				}
+			}
+
+			if (MapData.name_new[0] != '\0')
+			{
+				strncpy(MapData.name, MapData.name_new, sizeof(MapData.name) - 1);
+				MapData.name[sizeof(MapData.name) - 1] = '\0';
+
+				resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
+				resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
+
+				MapData.name_new[0] = '\0';
+			}
+		}
+		else
+		{
+			alpha = 255 * (1.0 - (double) time_passed / MAP_NAME_FADEOUT);
+		}
+	}
+	else if (MapData.name_new[0] != '\0')
+	{
+		if (strcmp(MapData.name_new, MapData.name) != 0)
+		{
+			MapData.name_fadeout_start = SDL_GetTicks();
+		}
+		else
+		{
+			MapData.name_new[0] = '\0';
+		}
+	}
 
 	box.w = widget->wd;
 	box.h = 0;
-	string_blt(ScreenSurface, MAP_NAME_FONT, MapData.name, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box);
+	string_blt_format(ScreenSurface, MAP_NAME_FONT, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
 }
 
 /**
@@ -137,18 +183,8 @@ void display_mapscroll(int dx, int dy)
  * @param name New map name. */
 void update_map_name(const char *name)
 {
-	widgetdata *widget;
-
-	strncpy(MapData.name, name, sizeof(MapData.name) - 1);
-	MapData.name[sizeof(MapData.name) - 1] = '\0';
-
-	/* We need to update all mapname widgets on the screen now.
-	 * Not that there should be more than one at a time, but just in case. */
-	for (widget = cur_widget[MAPNAME_ID]; widget; widget = widget->type_next)
-	{
-		resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, name, TEXT_MARKUP));
-		resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, name, TEXT_MARKUP));
-	}
+	strncpy(MapData.name_new, name, sizeof(MapData.name_new) - 1);
+	MapData.name_new[sizeof(MapData.name_new) - 1] = '\0';
 }
 
 /**

@@ -124,6 +124,11 @@ typedef struct _mapdata
 	/** Map name. */
 	char name[HUGE_BUF];
 
+	/** New map name. */
+	char name_new[HUGE_BUF];
+
+	uint32 name_fadeout_start;
+
 	/** X length. */
 	int xlen;
 
@@ -195,5 +200,11 @@ typedef struct Map
 	/** Map cells. */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
+
+/** Font used for the map name. */
+#define MAP_NAME_FONT FONT_SERIF14
+
+/** Time in milliseconds for fade out/in effect of the map name. */
+#define MAP_NAME_FADEOUT 500
 
 #endif
