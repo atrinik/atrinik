@@ -56,7 +56,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @param len Requested buffer size in bytes.
  * @param data Buffer data to copy (len bytes), or NULL.
  * @return A new command buffer or NULL in case of an error. */
-static command_buffer *command_buffer_new(size_t len, uint8 *data)
+command_buffer *command_buffer_new(size_t len, uint8 *data)
 {
 	command_buffer *buf = (command_buffer *) malloc(sizeof(command_buffer) + len + 1);
 
@@ -198,6 +198,14 @@ command_buffer *get_next_input_command(void)
 	buf = command_buffer_dequeue(&input_queue_start, &input_queue_end);
 	SDL_UnlockMutex(input_buffer_mutex);
 	return buf;
+}
+
+void add_input_command(command_buffer *buf)
+{
+	SDL_LockMutex(input_buffer_mutex);
+	command_buffer_enqueue(buf, &input_queue_start, &input_queue_end);
+	SDL_CondSignal(input_buffer_cond);
+	SDL_UnlockMutex(input_buffer_mutex);
 }
 
 static int reader_thread_loop(void *dummy)

@@ -322,6 +322,7 @@ void socket_buffer_write(socket_struct *ns)
 void socket_send_packet(socket_struct *ns, packet_struct *packet)
 {
 	packet_struct *tmp;
+	size_t toread;
 
 	if (ns->status == Ns_Dead)
 	{
@@ -330,21 +331,24 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
 	packet_compress(packet);
 
-	tmp = packet_new(0, 3, 0);
+	tmp = packet_new(0, 4, 0);
+	toread = packet->len + 1;
 
-	if (packet->len > 32 * 1024 - 1)
+	if (toread > 32 * 1024 - 1)
 	{
-		tmp->data[0] = ((packet->len >> 16) & 0xff) | 0x80;
-		tmp->data[1] = (packet->len >> 8) & 0xff;
-		tmp->data[2] = (packet->len) & 0xff;
+		tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
+		tmp->data[1] = (toread >> 8) & 0xff;
+		tmp->data[2] = (toread) & 0xff;
 		tmp->len = 3;
 	}
 	else
 	{
-		tmp->data[0] = (packet->len >> 8) & 0xff;
-		tmp->data[1] = (packet->len) & 0xff;
+		tmp->data[0] = (toread >> 8) & 0xff;
+		tmp->data[1] = (toread) & 0xff;
 		tmp->len = 2;
 	}
+
+	packet_append_uint8(tmp, packet->type);
 
 	pthread_mutex_lock(&ns->packet_mutex);
 	socket_packet_enqueue(ns, tmp);

@@ -142,7 +142,7 @@ static struct CmdMapping commands[] =
 	{"book", BookCmd, ASCII},
 	{"pt", PartyCmd, ASCII},
 	{"qs", QuickSlotCmd, ASCII},
-	{"shop", ShopCmd, ASCII},
+	{"compressed", cmd_compressed, MIXED},
 	{"qlist", QuestListCmd, ASCII},
 	{"region_map", RegionMapCmd, ASCII},
 	{"rd", ReadyCmd, INT_ARRAY},

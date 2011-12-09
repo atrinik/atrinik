@@ -53,12 +53,7 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 	/* Allocate the initial data block. */
 	packet->data = malloc(packet->size);
 	packet->ndelay = 0;
-
-	if (type)
-	{
-		/* Append the command type to the packet. */
-		packet_append_uint8(packet, type);
-	}
+	packet->type = type;
 
 	return packet;
 }
@@ -82,25 +77,26 @@ void packet_free(packet_struct *packet)
 void packet_compress(packet_struct *packet)
 {
 #if COMPRESS_DATA_PACKETS
-	if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->data[0] != BINARY_CMD_DATA)
+	if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->type != BINARY_CMD_DATA)
 	{
 		size_t new_size = compressBound(packet->len);
 		uint8 *dest;
 
 		dest = malloc(new_size + 5);
-		/* Marker for the reserved #0 binary command. */
-		dest[0] = 0;
+		dest[0] = packet->type;
 		/* Add original length of the packet. */
 		dest[1] = (packet->len >> 24) & 0xff;
 		dest[2] = (packet->len >> 16) & 0xff;
 		dest[3] = (packet->len >> 8) & 0xff;
 		dest[4] = (packet->len) & 0xff;
+		packet->size = new_size + 5;
 		/* Compress it. */
 		compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
 
 		free(packet->data);
 		packet->data = dest;
-		packet->size = packet->len = new_size + 5;
+		packet->len = new_size + 5;
+		packet->type = BINARY_CMD_COMPRESSED;
 	}
 #else
 	(void) packet;

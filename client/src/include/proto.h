@@ -51,6 +51,7 @@ extern void DataCmd(unsigned char *data, int len);
 extern void ShopCmd(unsigned char *data, int len);
 extern void QuestListCmd(unsigned char *data, int len);
 extern void ReadyCmd(unsigned char *data, int len);
+extern void cmd_compressed(unsigned char *data, int len);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url);
@@ -227,10 +228,12 @@ extern int setting_is_text(setting_struct *setting);
 extern sint64 category_from_name(const char *name);
 extern sint64 setting_from_name(const char *name);
 /* src/client/socket.c */
+extern command_buffer *command_buffer_new(size_t len, uint8 *data);
 extern void command_buffer_free(command_buffer *buf);
 extern int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
 extern int send_socklist(SockList msg);
 extern command_buffer *get_next_input_command(void);
+extern void add_input_command(command_buffer *buf);
 extern void socket_thread_start(void);
 extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);

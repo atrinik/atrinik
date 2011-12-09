@@ -352,6 +352,10 @@ typedef struct packet_struct
 	/**
 	 * Whether to enable NDELAY on this packet. */
 	uint8 ndelay;
+
+	/**
+	 * The packet's command type. */
+    uint8 type;
 } packet_struct;
 
 /** Filename used to store information about the updated files. */

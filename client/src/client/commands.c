@@ -1685,16 +1685,6 @@ void DataCmd(unsigned char *data, int len)
 }
 
 /**
- * Shop command.
- * @param data Data buffer
- * @param len Length of the buffer */
-void ShopCmd(unsigned char *data, int len)
-{
-	(void) data;
-	(void) len;
-}
-
-/**
  * Quest list command.
  *
  * Uses the book GUI to show the quests.
@@ -1731,4 +1721,38 @@ void ReadyCmd(unsigned char *data, int len)
 	{
 		fire_mode_tab[FIRE_MODE_THROW].item = tag;
 	}
+}
+
+/**
+ * Implements the compressed command type. This type of packet contains
+ * a compressed packet that should be executed.
+ * @param data The compressed data.
+ * @param len Length of the data. */
+void cmd_compressed(unsigned char *data, int len)
+{
+	int ucomp_len, pos;
+	uint8 type, *dest;
+	size_t dest_size;
+	command_buffer *buf;
+
+	pos = 0;
+	type = data[pos++];
+	ucomp_len = GetInt_String(data + pos);
+	pos += 4;
+
+	dest_size = ucomp_len + 1;
+	dest = malloc(dest_size);
+
+	if (!dest)
+	{
+		LOG(llevError, "cmd_compressed(): Out of memory.\n");
+	}
+
+	dest[0] = type;
+	uncompress((Bytef *) dest + 1, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len - pos);
+
+	buf = command_buffer_new(ucomp_len + 1, dest);
+	add_input_command(buf);
+
+	free(dest);
 }
