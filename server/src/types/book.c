@@ -70,8 +70,7 @@ static double book_exp_mod[MAX_STAT + 1] =
 static int apply_func(object *op, object *applier, int aflags)
 {
 	int lev_diff;
-	SockList sl;
-	unsigned char sock_buf[MAXSOCKBUF];
+	packet_struct *packet;
 
 	(void) aflags;
 
@@ -134,15 +133,12 @@ static int apply_func(object *op, object *applier, int aflags)
 	draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
 	CONTR(applier)->stat_books_read++;
 
-	sl.buf = sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_BOOK);
-
-	SockList_AddStringUnterm(&sl, "<book>");
-	SockList_AddStringUnterm(&sl, query_base_name(op, NULL));
-	SockList_AddStringUnterm(&sl, "</book>");
-	SockList_AddString(&sl, op->msg);
-
-	Send_With_Handling(&CONTR(applier)->socket, &sl);
+	packet = packet_new(BINARY_CMD_BOOK, 512, 512);
+	packet_append_string(packet, "<book>");
+	packet_append_string(packet, query_base_name(op, applier));
+	packet_append_string(packet, "</book>");
+	packet_append_string_terminated(packet, op->msg);
+	socket_send_packet(&CONTR(applier)->socket, packet);
 
 	/* Gain xp from reading but only if not read before. */
 	if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT))
