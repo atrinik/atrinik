@@ -75,27 +75,25 @@ void statistics_init(void)
  * @param buf Optional string buffer to send. */
 void statistic_update(const char *type, object *op, sint64 i, const char *buf)
 {
-	SockList sl;
-	unsigned char sl_buf[MAXSOCKBUF];
+	packet_struct *packet;
 
 	if (!i || fd == -1)
 	{
 		return;
 	}
 
-	sl.buf = sl_buf;
-	sl.len = 0;
-
-	SockList_AddString(&sl, type);
-	SockList_AddString(&sl, op->name);
-	SockList_AddInt64(&sl, i);
+	packet = packet_new(0, 256, 256);
+	packet_append_string_terminated(packet, type);
+	packet_append_string_terminated(packet, op->name);
+	packet_append_uint64(packet, i);
 
 	if (buf)
 	{
-		SockList_AddString(&sl, buf);
+		packet_append_string_terminated(packet, buf);
 	}
 
-	sendto(fd, (void *) sl.buf, sl.len, 0, (struct sockaddr *) &insock, sizeof(insock));
+	sendto(fd, (void *) packet->data, packet->len, 0, (struct sockaddr *) &insock, sizeof(insock));
+	packet_free(packet);
 }
 
 /**
