@@ -344,7 +344,7 @@ typedef struct CS_Stats
 typedef struct _srv_client_files
 {
 	/** Compressed file data. */
-	char *file;
+	uint8 *file;
 
 	/** Compressed file length. */
 	size_t len;

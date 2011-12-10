@@ -596,19 +596,11 @@ void free_srv_files(void)
  * @param id ID of the server file. */
 void send_srv_file(socket_struct *ns, int id)
 {
-	SockList sl;
+	packet_struct *packet;
 
-	/* 1 byte for the command type, 1 byte for the srv file type,
-	 * 4 bytes for original uncompressed length. */
-	sl.buf = malloc(SrvClientFiles[id].len + 6);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DATA);
-	SockList_AddChar(&sl, (char) id);
-	SockList_AddInt(&sl, SrvClientFiles[id].len_ucomp);
-
-	memcpy(sl.buf + sl.len, SrvClientFiles[id].file, SrvClientFiles[id].len);
-	sl.len += SrvClientFiles[id].len;
-
-	Send_With_Handling(ns, &sl);
-	free(sl.buf);
+	packet = packet_new(BINARY_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
+	packet_append_uint8(packet, id);
+	packet_append_uint32(packet, SrvClientFiles[id].len_ucomp);
+	packet_append_data_len(packet, SrvClientFiles[id].file, SrvClientFiles[id].len);
+	socket_send_packet(ns, packet);
 }
