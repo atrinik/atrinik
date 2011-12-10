@@ -361,7 +361,7 @@ void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t l
 	packet_struct *packet;
 
 	packet = packet_new(type, len, len);
-	packet_append_data_len(packet, (const uint8 *) str + 1, len - 1);
+	packet_append_data_len(packet, (uint8 *) str + 1, len - 1);
 	socket_send_packet(ns, packet);
 }
 

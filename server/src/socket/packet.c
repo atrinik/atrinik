@@ -185,7 +185,7 @@ void packet_append_uint64(packet_struct *packet, uint64 data)
 	packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_data_len(packet_struct *packet, const uint8 *data, size_t len)
+void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len)
 {
 	if (!data)
 	{
@@ -199,7 +199,7 @@ void packet_append_data_len(packet_struct *packet, const uint8 *data, size_t len
 
 void packet_append_string(packet_struct *packet, const char *data)
 {
-	packet_append_data_len(packet, (const uint8 *) data, strlen(data));
+	packet_append_data_len(packet, (uint8 *) data, strlen(data));
 }
 
 void packet_append_string_terminated(packet_struct *packet, const char *data)

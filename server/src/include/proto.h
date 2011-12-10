@@ -908,7 +908,7 @@ extern void packet_append_uint8(packet_struct *packet, uint8 data);
 extern void packet_append_uint16(packet_struct *packet, uint16 data);
 extern void packet_append_uint32(packet_struct *packet, uint32 data);
 extern void packet_append_uint64(packet_struct *packet, uint64 data);
-extern void packet_append_data_len(packet_struct *packet, const uint8 *data, size_t len);
+extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
 extern void packet_append_string(packet_struct *packet, const char *data);
 extern void packet_append_string_terminated(packet_struct *packet, const char *data);
 extern void packet_append_map_name(packet_struct *packet, object *op, object *map_info);

@@ -1735,30 +1735,28 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 		if (op->type == PLAYER)
 		{
-			unsigned char sock_buf[MAXSOCKBUF];
-			SockList sl;
-			int cp_len;
+			size_t cp_len;
+			packet_struct *packet;
 
-			sl.buf = sock_buf;
-			SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_INTERFACE);
-
-			SockList_AddChar(&sl, CMD_INTERFACE_TEXT);
-			cp_len = sl.len;
-			SockList_AddString(&sl, cp);
-			cp_len = sl.len - cp_len - 1;
-
-			SockList_AddChar(&sl, CMD_INTERFACE_ICON);
-			SockList_AddStringUnterm(&sl, npc->face->name);
-			sl.len--;
-			SockList_AddString(&sl, "1");
-
-			SockList_AddChar(&sl, CMD_INTERFACE_TITLE);
-			SockList_AddString(&sl, npc->name);
-
-			Send_With_Handling(&CONTR(op)->socket, &sl);
+			cp_len = strlen(cp);
 
 			/* Update the movement timeout if necessary. */
 			monster_update_move_timeout(npc, cp_len);
+
+			packet = packet_new(BINARY_CMD_INTERFACE, 256, 256);
+
+			packet_append_uint8(packet, CMD_INTERFACE_TEXT);
+			packet_append_data_len(packet, (uint8 *) cp, cp_len);
+			packet_append_uint8(packet, '\0');
+
+			packet_append_uint8(packet, CMD_INTERFACE_ICON);
+			packet_append_data_len(packet, (uint8 *) npc->face->name, strlen(npc->face->name) - 1);
+			packet_append_string_terminated(packet, "1");
+
+			packet_append_uint8(packet, CMD_INTERFACE_TITLE);
+			packet_append_string_terminated(packet, npc->name);
+
+			socket_send_packet(&CONTR(op)->socket, packet);
 		}
 		else
 		{
