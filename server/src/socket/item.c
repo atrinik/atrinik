@@ -434,7 +434,7 @@ void esrv_draw_look(object *pl)
 		}
 	}
 
-	if (got_one || (!got_one && !ns->below_clear))
+	if (got_one || (!got_one && ns->below_clear))
 	{
 		Send_With_Handling(ns, &sl);
 		ns->below_clear = 0;

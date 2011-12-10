@@ -1382,7 +1382,6 @@ void Map2Cmd(unsigned char *data, int len)
 			ypos = (uint8) (data[pos++]);
 			mx = xpos;
 			my = ypos;
-			object_remove_inventory(object_find(0));
 			init_map_data(map_w, map_h, xpos, ypos);
 		}
 		else
@@ -1396,7 +1395,6 @@ void Map2Cmd(unsigned char *data, int len)
 			ypos = (uint8) (data[pos++]);
 			mx = xpos;
 			my = ypos;
-			object_remove_inventory(object_find(0));
 			display_mapscroll(xoff, yoff);
 
 			map_play_footstep();
@@ -1414,8 +1412,6 @@ void Map2Cmd(unsigned char *data, int len)
 		/* we have moved */
 		if ((xpos - mx || ypos - my))
 		{
-			object_remove_inventory(object_find(0));
-
 			display_mapscroll(xpos - mx, ypos - my);
 			map_play_footstep();
 		}
