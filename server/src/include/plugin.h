@@ -297,6 +297,24 @@ struct plugin_hooklist
 	void (*connection_object_add)(object *, mapstruct *, int);
 	void (*connection_trigger)(object *, int);
 	void (*connection_trigger_button)(object *, int);
+	packet_struct *(*packet_new)(uint8, size_t, size_t);
+	void (*packet_free)(packet_struct *);
+	void (*packet_compress)(packet_struct *);
+	void (*packet_enable_ndelay)(packet_struct *);
+	void (*packet_set_pos)(packet_struct *, size_t);
+	size_t (*packet_get_pos)(packet_struct *);
+	void (*packet_merge)(packet_struct *, packet_struct *);
+	void (*packet_append_uint8)(packet_struct *, uint8);
+	void (*packet_append_uint16)(packet_struct *, uint16);
+	void (*packet_append_uint32)(packet_struct *, uint32);
+	void (*packet_append_uint64)(packet_struct *, uint64);
+	void (*packet_append_data_len)(packet_struct *, const uint8 *, size_t);
+	void (*packet_append_string)(packet_struct *, const char *);
+	void (*packet_append_string_terminated)(packet_struct *, const char *);
+	void (*packet_append_map_name)(packet_struct *, object *, object *);
+	void (*packet_append_map_music)(packet_struct *, object *, object *);
+	void (*packet_append_map_weather)(packet_struct *, object *, object *);
+	void (*socket_send_packet)(socket_struct *, packet_struct *);
 
 	const char **season_name;
 	const char **weekdays;
