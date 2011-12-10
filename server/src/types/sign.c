@@ -124,38 +124,36 @@ static int apply_func(object *op, object *applier, int aflags)
 	if (notification_msg)
 	{
 		shstr *notification_action, *notification_shortcut, *notification_delay;
-		SockList sl;
-		unsigned char sock_buf[MAXSOCKBUF];
+		packet_struct *packet;
 
 		notification_action = object_get_value(op, "notification_action");
 		notification_shortcut = object_get_value(op, "notification_shortcut");
 		notification_delay = object_get_value(op, "notification_delay");
 
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_NOTIFICATION);
+		packet = packet_new(BINARY_CMD_NOTIFICATION, 256, 512);
 
-		SockList_AddChar(&sl, CMD_NOTIFICATION_TEXT);
-		SockList_AddString(&sl, notification_msg);
+		packet_append_uint8(packet, CMD_NOTIFICATION_TEXT);
+		packet_append_string_terminated(packet, notification_msg);
 
 		if (notification_action)
 		{
-			SockList_AddChar(&sl, CMD_NOTIFICATION_ACTION);
-			SockList_AddString(&sl, notification_action);
+			packet_append_uint8(packet, CMD_NOTIFICATION_ACTION);
+			packet_append_string_terminated(packet, notification_action);
 		}
 
 		if (notification_shortcut)
 		{
-			SockList_AddChar(&sl, CMD_NOTIFICATION_SHORTCUT);
-			SockList_AddString(&sl, notification_shortcut);
+			packet_append_uint8(packet, CMD_NOTIFICATION_SHORTCUT);
+			packet_append_string_terminated(packet, notification_shortcut);
 		}
 
 		if (notification_delay)
 		{
-			SockList_AddChar(&sl, CMD_NOTIFICATION_DELAY);
-			SockList_AddInt(&sl, atoi(notification_delay));
+			packet_append_uint8(packet, CMD_NOTIFICATION_DELAY);
+			packet_append_uint32(packet, atoi(notification_delay));
 		}
 
-		Send_With_Handling(&CONTR(applier)->socket, &sl);
+		socket_send_packet(&CONTR(applier)->socket, packet);
 	}
 
 	return OBJECT_METHOD_OK;
