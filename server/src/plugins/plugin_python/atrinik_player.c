@@ -487,8 +487,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 {
 	long cmd;
 	char *format;
-	unsigned char sock_buf[MAXSOCKBUF];
-	SockList sl;
+	packet_struct *packet;
 	size_t i;
 	PyObject *value;
 
@@ -515,8 +514,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 		return NULL;
 	}
 
-	sl.buf = sock_buf;
-	SOCKET_SET_BINARY_CMD(&sl, (char) cmd);
+	packet = hooks->packet_new(cmd, 256, 512);
 
 	/* Get the format specifier. */
 	format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
@@ -543,7 +541,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				SockList_AddChar(&sl, (char) val);
+				hooks->packet_append_uint8(packet, val);
 			}
 			else
 			{
@@ -563,7 +561,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				SockList_AddShort(&sl, (short) val);
+				hooks->packet_append_uint16(packet, val);
 			}
 			else
 			{
@@ -583,7 +581,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				SockList_AddInt(&sl, (int) val);
+				hooks->packet_append_uint32(packet, val);
 			}
 			else
 			{
@@ -603,7 +601,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				SockList_AddInt64(&sl, val);
+				hooks->packet_append_uint64(packet, val);
 			}
 			else
 			{
@@ -615,7 +613,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 		{
 			if (PyString_Check(value))
 			{
-				hooks->SockList_AddString(&sl, PyString_AsString(value));
+				hooks->packet_append_string_terminated(packet, PyString_AsString(value));
 			}
 			else
 			{
@@ -625,7 +623,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 		}
 	}
 
-	hooks->Send_With_Handling(&pl->pl->socket, &sl);
+	hooks->socket_send_packet(&pl->pl->socket, packet);
 
 	Py_INCREF(Py_None);
 	return Py_None;
