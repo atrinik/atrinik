@@ -280,7 +280,7 @@ void SendFaceCmd(char *buf, int len, socket_struct *ns)
  * @return One of @ref SEND_FACE_xxx. */
 int esrv_send_face(socket_struct *ns, short face_num)
 {
-	SockList sl;
+	packet_struct *packet;
 
 	if (face_num < 0 || face_num >= nrofpixmaps)
 	{
@@ -294,17 +294,11 @@ int esrv_send_face(socket_struct *ns, short face_num)
 		return SEND_FACE_NO_DATA;
 	}
 
-	/* 1 byte for the command ID, 4 bytes for the face ID, 4 bytes for
-	 * length of the face data. */
-	sl.buf = malloc(1 + 4 + 4 + facesets[0].faces[face_num].datalen);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_IMAGE);
-	SockList_AddInt(&sl, face_num);
-	SockList_AddInt(&sl, facesets[0].faces[face_num].datalen);
-	memcpy(sl.buf + sl.len, facesets[0].faces[face_num].data, facesets[0].faces[face_num].datalen);
-	sl.len += facesets[0].faces[face_num].datalen;
-	Send_With_Handling(ns, &sl);
-	free(sl.buf);
+	packet = packet_new(BINARY_CMD_IMAGE, 16, 0);
+	packet_append_uint32(packet, face_num);
+	packet_append_uint32(packet, facesets[0].faces[face_num].datalen);
+	packet_append_data_len(packet, facesets[0].faces[face_num].data, facesets[0].faces[face_num].datalen);
+	socket_send_packet(ns, packet);
 
 	return SEND_FACE_OK;
 }
