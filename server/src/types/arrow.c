@@ -153,6 +153,11 @@ object *arrow_find(object *op, shstr *type)
 		return NULL;
 	}
 
+	if (tmp->env != op)
+	{
+		return NULL;
+	}
+
 	/* The type does not match the arrow/quiver. */
 	if (tmp->race != type)
 	{

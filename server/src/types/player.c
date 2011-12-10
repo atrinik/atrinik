@@ -536,7 +536,7 @@ void fire(object *op, int dir, int type, char *params)
 	}
 	else if (type == FIRE_MODE_THROW)
 	{
-		if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]))
+		if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]) && CONTR(op)->ready_object[READY_OBJ_THROW]->env == op)
 		{
 			ret = object_throw(CONTR(op)->ready_object[READY_OBJ_THROW], op, dir);
 		}
