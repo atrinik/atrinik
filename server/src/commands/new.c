@@ -130,26 +130,24 @@ int command_run_stop(object *op, char *params)
  * @param pl Player requesting this. */
 void send_target_command(player *pl)
 {
-	SockList sl;
-	unsigned char sockbuf[HUGE_BUF];
+	packet_struct *packet;
 
 	if (!pl->ob->map)
 	{
 		return;
 	}
 
-	sl.buf = sockbuf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_TARGET);
-	SockList_AddChar(&sl, pl->combat_mode);
+	packet = packet_new(BINARY_CMD_TARGET, 64, 64);
+	packet_append_uint8(packet, pl->combat_mode);
 
 	pl->ob->enemy = NULL;
 	pl->ob->enemy_count = 0;
 
 	if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob))
 	{
-		SockList_AddChar(&sl, CMD_TARGET_SELF);
-		SockList_AddString(&sl, COLOR_YELLOW);
-		SockList_AddString(&sl, pl->ob->name);
+		packet_append_uint8(packet, CMD_TARGET_SELF);
+		packet_append_string_terminated(packet, COLOR_YELLOW);
+		packet_append_string_terminated(packet, pl->ob->name);
 
 		pl->target_object = pl->ob;
 		pl->target_object_count = 0;
@@ -157,15 +155,13 @@ void send_target_command(player *pl)
 	}
 	else
 	{
-		const char *color;
-
 		if (is_friend_of(pl->ob, pl->target_object))
 		{
-			SockList_AddChar(&sl, CMD_TARGET_FRIEND);
+			packet_append_uint8(packet, CMD_TARGET_FRIEND);
 		}
 		else
 		{
-			SockList_AddChar(&sl, CMD_TARGET_ENEMY);
+			packet_append_uint8(packet, CMD_TARGET_ENEMY);
 
 			pl->ob->enemy = pl->target_object;
 			pl->ob->enemy_count = pl->target_object_count;
@@ -175,17 +171,17 @@ void send_target_command(player *pl)
 		{
 			if (pl->target_object->level < level_color[pl->ob->level].green)
 			{
-				color = COLOR_GRAY;
+				packet_append_string_terminated(packet, COLOR_GRAY);
 			}
 			else
 			{
 				if (pl->target_object->level < level_color[pl->ob->level].blue)
 				{
-					color = COLOR_GREEN;
+					packet_append_string_terminated(packet, COLOR_GREEN);
 				}
 				else
 				{
-					color = COLOR_BLUE;
+					packet_append_string_terminated(packet, COLOR_BLUE);
 				}
 			}
 		}
@@ -193,38 +189,36 @@ void send_target_command(player *pl)
 		{
 			if (pl->target_object->level >= level_color[pl->ob->level].purple)
 			{
-				color = COLOR_PURPLE;
+				packet_append_string_terminated(packet, COLOR_PURPLE);
 			}
 			else if (pl->target_object->level >= level_color[pl->ob->level].red)
 			{
-				color = COLOR_RED;
+				packet_append_string_terminated(packet, COLOR_RED);
 			}
 			else if (pl->target_object->level >= level_color[pl->ob->level].orange)
 			{
-				color = COLOR_ORANGE;
+				packet_append_string_terminated(packet, COLOR_ORANGE);
 			}
 			else
 			{
-				color = COLOR_YELLOW;
+				packet_append_string_terminated(packet, COLOR_YELLOW);
 			}
 		}
-
-		SockList_AddString(&sl, color);
 
 		if (QUERY_FLAG(pl->ob, FLAG_WIZ))
 		{
 			char buf[MAX_BUF];
 
 			snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
-			SockList_AddString(&sl, buf);
+			packet_append_string_terminated(packet, buf);
 		}
 		else
 		{
-			SockList_AddString(&sl, pl->target_object->name);
+			packet_append_string_terminated(packet, pl->target_object->name);
 		}
 	}
 
-	Send_With_Handling(&pl->socket, &sl);
+	socket_send_packet(&pl->socket, packet);
 }
 
 /**
