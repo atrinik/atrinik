@@ -702,21 +702,19 @@ int command_party(object *op, char *params)
 	}
 	else
 	{
+		packet_struct *packet;
 		party_struct *party;
-		SockList sl;
-		unsigned char sock_buf[MAXSOCKBUF];
 
-		sl.buf = sock_buf;
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
+		packet = packet_new(BINARY_CMD_PARTY, 256, 256);
 
 		if (!strcmp(params, "list"))
 		{
-			SockList_AddChar(&sl, CMD_PARTY_LIST);
+			packet_append_uint8(packet, CMD_PARTY_LIST);
 
 			for (party = first_party; party; party = party->next)
 			{
-				SockList_AddString(&sl, party->name);
-				SockList_AddString(&sl, party->leader);
+				packet_append_string_terminated(packet, party->name);
+				packet_append_string_terminated(packet, party->leader);
 			}
 		}
 		else if (!strcmp(params, "who"))
@@ -729,14 +727,14 @@ int command_party(object *op, char *params)
 				return 1;
 			}
 
-			SockList_AddChar(&sl, CMD_PARTY_WHO);
+			packet_append_uint8(packet, CMD_PARTY_WHO);
 
 			for (ol = CONTR(op)->party->members; ol; ol = ol->next)
 			{
-				SockList_AddString(&sl, ol->objlink.ob->name);
-				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
-				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
-				SockList_AddChar(&sl, MAX(1, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
+				packet_append_string_terminated(packet, ol->objlink.ob->name);
+				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
+				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
+				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
 			}
 		}
 		else if (!strncmp(params, "join ", 5))
@@ -789,15 +787,19 @@ int command_party(object *op, char *params)
 				else
 				{
 					draw_info(COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
-					SockList_AddChar(&sl, CMD_PARTY_PASSWORD);
-					SockList_AddString(&sl, party->name);
+					packet_append_uint8(packet, CMD_PARTY_PASSWORD);
+					packet_append_string_terminated(packet, party->name);
 				}
 			}
 		}
 
-		if (sl.len > 1)
+		if (packet->len > 1)
 		{
-			Send_With_Handling(&CONTR(op)->socket, &sl);
+			socket_send_packet(&CONTR(op)->socket, packet);
+		}
+		else
+		{
+			packet_free(packet);
 		}
 	}
 
