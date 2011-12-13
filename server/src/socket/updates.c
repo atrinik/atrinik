@@ -106,18 +106,10 @@ static void updates_file_new(const char *filename, struct stat *sb)
 	free(contents);
 	free(compressed);
 
-	/* 1 for the command type, xxx for the filename, 1 for trailing newline
-	 * of the filename, 4 for original uncompressed length. */
-	update_files[update_files_num].sl.buf = malloc(1 + strlen(filename) + 1 + 4 + update_files[update_files_num].len);
-	/* Set the type. */
-	SOCKET_SET_BINARY_CMD(&update_files[update_files_num].sl, BINARY_CMD_FILE_UPD);
-	/* Add the filename. */
-	SockList_AddString(&update_files[update_files_num].sl, update_files[update_files_num].filename);
-	/* The uncompressed length. */
-	SockList_AddInt(&update_files[update_files_num].sl, update_files[update_files_num].ucomp_len);
-	/* Add the file contents. */
-	memcpy(update_files[update_files_num].sl.buf + update_files[update_files_num].sl.len, update_files[update_files_num].contents, update_files[update_files_num].len);
-	update_files[update_files_num].sl.len += update_files[update_files_num].len;
+	update_files[update_files_num].packet = packet_new(BINARY_CMD_FILE_UPD, 0, 0);
+	packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);
+	packet_append_uint32(update_files[update_files_num].packet, update_files[update_files_num].ucomp_len);
+	packet_append_data_len(update_files[update_files_num].packet, update_files[update_files_num].contents, update_files[update_files_num].len);
 
 	LOG(llevDebug, "  Loaded '%s': ucomp: %"FMT64U", comp: %"FMT64U" (%3.1f%%), CRC32: %lx.\n", filename, (uint64) update_files[update_files_num].ucomp_len, (uint64) numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
 	update_files_num++;
@@ -247,5 +239,5 @@ void cmd_request_update(char *buf, int len, socket_struct *ns)
 		return;
 	}
 
-	Send_With_Handling(ns, &tmp->sl);
+	socket_send_packet(ns, packet_dup(tmp->packet));
 }

@@ -311,10 +311,10 @@ typedef struct update_file_struct
 	char *filename;
 
 	/** Compressed contents of the file. */
-	char *contents;
+	uint8 *contents;
 
-	/** Socklist instance for sending the data about the file. */
-	SockList sl;
+	/** Packet to use for sending the file. */
+	struct packet_struct *packet;
 } update_file_struct;
 
 /**
