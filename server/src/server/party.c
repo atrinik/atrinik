@@ -54,22 +54,20 @@ party_struct *first_party = NULL;
  * @param op The player to add. */
 void add_party_member(party_struct *party, object *op)
 {
-	objectlink *ol = get_objectlink();
-	unsigned char buf[MAX_BUF];
-	SockList sl;
+	objectlink *ol;
+	packet_struct *packet;
 
+	ol = get_objectlink();
 	/* Add the player to the party's linked list of members. */
 	ol->objlink.ob = op;
 	objectlink_link(&party->members, NULL, NULL, party->members, ol);
 	/* And set up player's pointer to the party. */
 	CONTR(op)->party = party;
 
-	/* Tell the client what party we have joined. */
-	sl.buf = buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
-	SockList_AddChar(&sl, CMD_PARTY_JOIN);
-	SockList_AddString(&sl, party->name);
-	Send_With_Handling(&CONTR(op)->socket, &sl);
+	packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+	packet_append_uint8(packet, CMD_PARTY_JOIN);
+	packet_append_string_terminated(packet, party->name);
+	socket_send_packet(&CONTR(op)->socket, packet);
 
 	CONTR(op)->last_party_hp = 0;
 	CONTR(op)->last_party_sp = 0;
@@ -83,8 +81,7 @@ void add_party_member(party_struct *party, object *op)
 void remove_party_member(party_struct *party, object *op)
 {
 	objectlink *ol;
-	unsigned char buf[MAX_BUF];
-	SockList sl;
+	packet_struct *packet;
 
 	/* Go through the party members, and remove the player that is
 	 * leaving. */
@@ -97,18 +94,18 @@ void remove_party_member(party_struct *party, object *op)
 		}
 	}
 
-	sl.buf = buf;
-
 	if (party->members)
 	{
-		SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
-		SockList_AddChar(&sl, CMD_PARTY_REMOVE_MEMBER);
-		SockList_AddString(&sl, op->name);
+		packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+		packet_append_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
+		packet_append_string_terminated(packet, op->name);
 
 		for (ol = party->members; ol; ol = ol->next)
 		{
-			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
+			socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
 		}
+
+		packet_free(packet);
 	}
 
 	/* If no members left, remove the party. */
@@ -123,9 +120,9 @@ void remove_party_member(party_struct *party, object *op)
 		draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
-	SockList_AddChar(&sl, CMD_PARTY_LEAVE);
-	Send_With_Handling(&CONTR(op)->socket, &sl);
+	packet = packet_new(BINARY_CMD_PARTY, 4, 0);
+	packet_append_uint8(packet, CMD_PARTY_LEAVE);
+	socket_send_packet(&CONTR(op)->socket, packet);
 
 	CONTR(op)->party = NULL;
 }
@@ -420,18 +417,12 @@ void remove_party(party_struct *party)
  * @param pl Player. */
 void party_update_who(player *pl)
 {
-	unsigned char sockbuf[HUGE_BUF];
 	uint8 hp, sp, grace;
-	SockList sl;
 
 	if (!pl->party)
 	{
 		return;
 	}
-
-	sl.buf = sockbuf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_PARTY);
-	SockList_AddChar(&sl, CMD_PARTY_UPDATE);
 
 	hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
 	sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
@@ -439,16 +430,21 @@ void party_update_who(player *pl)
 
 	if (hp != pl->last_party_hp || sp != pl->last_party_sp || grace != pl->last_party_grace)
 	{
+		packet_struct *packet;
 		objectlink *ol;
 
-		SockList_AddString(&sl, pl->ob->name);
-		SockList_AddChar(&sl, hp);
-		SockList_AddChar(&sl, sp);
-		SockList_AddChar(&sl, grace);
+		packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+		packet_append_uint8(packet, CMD_PARTY_UPDATE);
+		packet_append_string_terminated(packet, pl->ob->name);
+		packet_append_uint8(packet, hp);
+		packet_append_uint8(packet, sp);
+		packet_append_uint8(packet, grace);
 
 		for (ol = pl->party->members; ol; ol = ol->next)
 		{
-			Send_With_Handling(&CONTR(ol->objlink.ob)->socket, &sl);
+			socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
 		}
+
+		packet_free(packet);
 	}
 }
