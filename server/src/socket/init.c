@@ -52,8 +52,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	int bufsize = 65535;
 	int oldbufsize;
 	socklen_t buflen = sizeof(int);
-	unsigned char buf[256];
-	SockList sl;
+	packet_struct *packet;
 
 #ifdef WIN32
 	u_long temp = 1;
@@ -122,10 +121,9 @@ void init_connection(socket_struct *ns, const char *from_ip)
 
 	ns->host = strdup_local(from_ip);
 
-	sl.buf = buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_VERSION);
-	SockList_AddInt(&sl, SOCKET_VERSION);
-	Send_With_Handling(ns, &sl);
+	packet = packet_new(BINARY_CMD_VERSION, 4, 4);
+	packet_append_uint32(packet, SOCKET_VERSION);
+	socket_send_packet(ns, packet);
 
 #if CS_LOGSTATS
 	if (socket_info.nconns > cst_tot.max_conn)
