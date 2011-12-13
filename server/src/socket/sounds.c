@@ -49,8 +49,7 @@
  * @param volume Volume adjustment. */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume)
 {
-	SockList sl;
-	unsigned char buf[MAX_BUF];
+	packet_struct *packet;
 
 	/* Player has disabled sound */
 	if (!pl->socket.sound)
@@ -58,22 +57,20 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
 		return;
 	}
 
-	sl.buf = buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_SOUND);
-
-	SockList_AddChar(&sl, (char) type);
-	SockList_AddString(&sl, filename);
-	SockList_AddChar(&sl, loop);
-	SockList_AddChar(&sl, volume);
+	packet = packet_new(BINARY_CMD_SOUND, 64, 64);
+	packet_append_uint8(packet, type);
+	packet_append_string_terminated(packet, filename);
+	packet_append_uint8(packet, loop);
+	packet_append_uint8(packet, volume);
 
 	/* Add X/Y offset for sound effects. */
 	if (type == CMD_SOUND_EFFECT)
 	{
-		SockList_AddChar(&sl, (char) x);
-		SockList_AddChar(&sl, (char) y);
+		packet_append_uint8(packet, x);
+		packet_append_uint8(packet, y);
 	}
 
-	Send_With_Handling(&pl->socket, &sl);
+	socket_send_packet(&pl->socket, packet);
 }
 
 /**
