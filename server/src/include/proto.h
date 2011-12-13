@@ -903,6 +903,7 @@ extern void packet_compress(packet_struct *packet);
 extern void packet_enable_ndelay(packet_struct *packet);
 extern void packet_set_pos(packet_struct *packet, size_t pos);
 extern size_t packet_get_pos(packet_struct *packet);
+extern packet_struct *packet_dup(packet_struct *packet);
 extern void packet_merge(packet_struct *src, packet_struct *dst);
 extern void packet_append_uint8(packet_struct *packet, uint8 data);
 extern void packet_append_uint16(packet_struct *packet, uint16 data);

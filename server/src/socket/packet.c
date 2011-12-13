@@ -120,6 +120,17 @@ size_t packet_get_pos(packet_struct *packet)
 	return packet->len;
 }
 
+packet_struct *packet_dup(packet_struct *packet)
+{
+	packet_struct *cp;
+
+	cp = packet_new(packet->type, packet->size, packet->expand);
+	cp->ndelay = packet->ndelay;
+	packet_append_data_len(cp, packet->data, packet->len);
+
+	return cp;
+}
+
 /**
  * Ensure 'size' bytes are available for writing in the packet. If not,
  * will allocate more.
