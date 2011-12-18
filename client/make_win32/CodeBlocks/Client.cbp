@@ -23,7 +23,7 @@
 			<Add alias="All" targets="Release;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add option='-I&quot;&lt;INCLUDE&gt;\SDL&quot; -Dmain=SDL_main -mms-bitfields -Wall -W -Werror' />
+			<Add option='-I&quot;&lt;INCLUDE&gt;\SDL&quot; -Dmain=SDL_main -mms-bitfields -Wall -W -Werror -Wno-unused-parameter' />
 			<Add option="-DWIN32" />
 			<Add option="-DMINGW" />
 			<Add option="-DCURL_STATICLIB" />
