@@ -32,7 +32,7 @@ def Notification(pl, msg, action = None, shortcut = None, delay = 0):
 		data += [3, delay]
 
 	# Send it off...
-	pl.SendPacket(40, fmt, *data)
+	pl.SendPacket(30, fmt, *data)
 
 ## Send a map stats command.
 ## @pl Player to send the command to.
@@ -59,4 +59,4 @@ def MapStats(pl, name = None, music = None, weather = None):
 		data += [3, weather]
 
 	# Send it off...
-	pl.SendPacket(17, fmt, *data)
+	pl.SendPacket(13, fmt, *data)
