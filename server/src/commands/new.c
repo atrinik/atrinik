@@ -137,7 +137,7 @@ void send_target_command(player *pl)
 		return;
 	}
 
-	packet = packet_new(BINARY_CMD_TARGET, 64, 64);
+	packet = packet_new(CLIENT_CMD_TARGET, 64, 64);
 	packet_append_uint8(packet, pl->combat_mode);
 
 	pl->ob->enemy = NULL;
@@ -692,7 +692,7 @@ void new_chars_init(void)
  * @param params Parameters.
  * @param len Length.
  * @param pl Player structure. */
-void command_new_char(char *params, int len, player *pl)
+void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	archetype *player_arch;
 	const char *name_tmp = NULL;
@@ -700,7 +700,7 @@ void command_new_char(char *params, int len, player *pl)
 	int x = pl->ob->x, y = pl->ob->y;
 	int stats[NUM_STATS];
 	size_t i, j;
-	char arch[HUGE_BUF] = "";
+	char archname[MAX_BUF];
 
 	/* Ignore the command if the player is already playing. */
 	if (pl->state == ST_PLAYING)
@@ -711,34 +711,33 @@ void command_new_char(char *params, int len, player *pl)
 	/* Incorrect state... */
 	if (pl->state != ST_ROLL_STAT)
 	{
-		LOG(llevSystem, "command_new_char(): %s does not have state ST_ROLL_STAT.\n", pl->ob->name);
+		LOG(llevSystem, "socket_command_new_char(): %s does not have state ST_ROLL_STAT.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	/* Make sure there is some data to process for this command, and
-	 * actually process the data. */
-	if (!params || !len || len > MAX_BUF || sscanf(params, "%s %d %d %d %d %d %d %d\n", arch, &stats[STR], &stats[DEX], &stats[CON], &stats[INT], &stats[WIS], &stats[POW], &stats[CHA]) != 8)
+	packet_to_string(data, len, &pos, archname, sizeof(archname));
+
+	for (i = 0; i < NUM_STATS; i++)
 	{
-		pl->socket.status = Ns_Dead;
-		return;
+		stats[i] = packet_to_uint8(data, len, &pos);
 	}
 
-	player_arch = find_archetype(arch);
+	player_arch = find_archetype(archname);
 
 	/* Invalid player arch? */
 	if (!player_arch || player_arch->clone.type != PLAYER)
 	{
-		LOG(llevSystem, "command_new_char(): %s tried to make a character with invalid player arch.\n", pl->ob->name);
+		LOG(llevSystem, "socket_command_new_char(): %s tried to make a character with invalid player arch.\n", pl->ob->name);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
 
-	LOG(llevInfo, "NewChar: %s: ARCH: %s (%d %d %d %d %d %d %d)\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
+	LOG(llevInfo, "NewChar: %s: ARCH: %s (%d %d %d %d %d %d %d)\n", pl->ob->name, archname, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 
 	for (i = 0; i < num_new_chars; i++)
 	{
-		if (!strcmp(arch, new_chars[i].arch))
+		if (!strcmp(archname, new_chars[i].arch))
 		{
 			break;
 		}
@@ -746,7 +745,7 @@ void command_new_char(char *params, int len, player *pl)
 
 	if (i == num_new_chars)
 	{
-		LOG(llevSystem, "command_new_char(): %s tried to make a character with valid player arch (%s), but the arch is not defined in server_settings file.\n", pl->ob->name, arch);
+		LOG(llevSystem, "socket_command_new_char(): %s tried to make a character with valid player arch (%s), but the arch is not defined in server_settings file.\n", pl->ob->name, archname);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -754,7 +753,7 @@ void command_new_char(char *params, int len, player *pl)
 	/* Ensure all stat points have been allocated. */
 	if (stats[STR] + stats[DEX] + stats[CON] + stats[INT] + stats[WIS] + stats[POW] + stats[CHA] != new_chars[i].stats_min[STR] + new_chars[i].stats_min[DEX] + new_chars[i].stats_min[CON] + new_chars[i].stats_min[INT] + new_chars[i].stats_min[WIS] + new_chars[i].stats_min[POW] + new_chars[i].stats_min[CHA] + new_chars[i].points_max)
 	{
-		LOG(llevSystem, "command_new_char(): %s didn't allocate all stat points (player arch: %s) (stats: %d, %d, %d, %d, %d, %d, %d).\n", pl->ob->name, arch, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
+		LOG(llevSystem, "socket_command_new_char(): %s didn't allocate all stat points (player arch: %s) (stats: %d, %d, %d, %d, %d, %d, %d).\n", pl->ob->name, archname, stats[STR], stats[DEX], stats[CON], stats[INT], stats[WIS], stats[POW], stats[CHA]);
 		pl->socket.status = Ns_Dead;
 		return;
 	}
@@ -764,13 +763,13 @@ void command_new_char(char *params, int len, player *pl)
 	{
 		if (stats[j] < new_chars[i].stats_min[j])
 		{
-			LOG(llevSystem, "command_new_char(): %s tried to allocate too few points to %s (min: %d).", pl->ob->name, statname[j], new_chars[i].stats_min[j]);
+			LOG(llevSystem, "socket_command_new_char(): %s tried to allocate too few points to %s (min: %d).", pl->ob->name, statname[j], new_chars[i].stats_min[j]);
 			pl->socket.status = Ns_Dead;
 			return;
 		}
 		else if (stats[j] > new_chars[i].stats_max[j])
 		{
-			LOG(llevSystem, "command_new_char(): %s tried to allocate too many points to %s (max: %d).", pl->ob->name, statname[j], new_chars[i].stats_max[j]);
+			LOG(llevSystem, "socket_command_new_char(): %s tried to allocate too many points to %s (max: %d).", pl->ob->name, statname[j], new_chars[i].stats_max[j]);
 			pl->socket.status = Ns_Dead;
 			return;
 		}
@@ -878,8 +877,8 @@ static char spelllist_determine_path(object *op, int spell_number)
  * which is then sent to the client as the spell list command.
  * @param op Object.
  * @param spell_number ID of the spell to add.
- * @param sb StringBuffer instance to add to. */
-static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *sb)
+ * @param packet Packet to append to. */
+static void add_spell_to_spelllist(object *op, int spell_number, packet_struct *packet)
 {
 	int cost = 0;
 
@@ -893,7 +892,9 @@ static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *s
 		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
 	}
 
-	stringbuffer_append_printf(sb, "/%s:%d:%c", spells[spell_number].name, cost, spelllist_determine_path(op, spell_number));
+	packet_append_string_terminated(packet, spells[spell_number].name);
+	packet_append_uint16(packet, cost);
+	packet_append_uint8(packet, spelllist_determine_path(op, spell_number));
 }
 
 /**
@@ -904,16 +905,15 @@ static void add_spell_to_spelllist(object *op, int spell_number, StringBuffer *s
  * @param mode One of @ref spelllist_modes. */
 void send_spelllist_cmd(object *op, const char *spellname, int mode)
 {
-	StringBuffer *sb = stringbuffer_new();
-	char *cp;
-	size_t cp_len;
+	packet_struct *packet;
 
-	stringbuffer_append_printf(sb, "X%d ", mode);
+	packet = packet_new(CLIENT_CMD_SPELL_LIST, 128, 128);
+	packet_append_uint8(packet, mode);
 
 	/* Send single name */
 	if (spellname)
 	{
-		add_spell_to_spelllist(op, look_up_spell_name(spellname), sb);
+		add_spell_to_spelllist(op, look_up_spell_name(spellname), packet);
 	}
 	/* Send all. If the player is a wizard, send all spells in the game. */
 	else
@@ -931,14 +931,11 @@ void send_spelllist_cmd(object *op, const char *spellname, int mode)
 				spnum = CONTR(op)->known_spells[i];
 			}
 
-			add_spell_to_spelllist(op, spnum, sb);
+			add_spell_to_spelllist(op, spnum, packet);
 		}
 	}
 
-	cp_len = sb->pos;
-	cp = stringbuffer_finish(sb);
-	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SPELL_LIST, cp, cp_len);
-	free(cp);
+	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**
@@ -948,15 +945,14 @@ void send_spelllist_cmd(object *op, const char *spellname, int mode)
  * @param mode One of @ref spelllist_modes. */
 void send_skilllist_cmd(object *op, object *skillp, int mode)
 {
-	StringBuffer *sb = stringbuffer_new();
-	char *cp;
-	size_t cp_len;
+	packet_struct *packet;
 
-	stringbuffer_append_printf(sb, "X%d ", mode);
+	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
+	packet_append_uint8(packet, mode);
 
 	if (skillp)
 	{
-		add_skill_to_skilllist(skillp, sb);
+		add_skill_to_skilllist(skillp, packet);
 	}
 	else
 	{
@@ -966,15 +962,12 @@ void send_skilllist_cmd(object *op, object *skillp, int mode)
 		{
 			if (CONTR(op)->skill_ptr[i])
 			{
-				add_skill_to_skilllist(CONTR(op)->skill_ptr[i], sb);
+				add_skill_to_skilllist(CONTR(op)->skill_ptr[i], packet);
 			}
 		}
 	}
 
-	cp_len = sb->pos;
-	cp = stringbuffer_finish(sb);
-	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
-	free(cp);
+	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**
@@ -983,10 +976,11 @@ void send_skilllist_cmd(object *op, object *skillp, int mode)
  * @param skillname Name of skill to ready. */
 void send_ready_skill(object *op, const char *skillname)
 {
-	char tmp[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(tmp, sizeof(tmp), "X%s", skillname);
-	socket_send_string(&CONTR(op)->socket, BINARY_CMD_SKILLRDY, tmp, strlen(tmp));
+	packet = packet_new(CLIENT_CMD_SKILL_READY, 32, 0);
+	packet_append_string_terminated(packet, skillname);
+	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**

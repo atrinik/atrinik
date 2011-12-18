@@ -125,19 +125,6 @@
 #define BALSL_MAX_LOSS_RATIO 2
 
 /**
- * CS_LOGSTATS will cause the server to log various usage stats
- * (number of connections, amount of data sent, amount of data received,
- * and so on). This can be very useful if you are trying to measure
- * server/bandwidth usage. It will periodically dump out information
- * which contains usage stats for the last X amount of time.
- * CS_LOGTIME is how often it will print out stats. */
-#define CS_LOGSTATS 0
-
-#if CS_LOGSTATS
-#define CS_LOGTIME 600
-#endif
-
-/**
  * This determines the maximum map size the client can request (and
  * thus what the server will send to the client.
  *

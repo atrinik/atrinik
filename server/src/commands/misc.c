@@ -359,7 +359,7 @@ void receive_player_password(object *op)
 			return;
 		}
 
-		packet = packet_new(BINARY_CMD_NEW_CHAR, 0, 0);
+		packet = packet_new(CLIENT_CMD_NEW_CHAR, 0, 0);
 		socket_send_packet(&CONTR(op)->socket, packet);
 
 		LOG(llevInfo, "NewChar send for %s\n", op->name);
@@ -705,7 +705,7 @@ int command_party(object *op, char *params)
 		packet_struct *packet;
 		party_struct *party;
 
-		packet = packet_new(BINARY_CMD_PARTY, 256, 256);
+		packet = packet_new(CLIENT_CMD_PARTY, 256, 256);
 
 		if (!strcmp(params, "list"))
 		{
@@ -793,7 +793,7 @@ int command_party(object *op, char *params)
 			}
 		}
 
-		if (packet->len > 1)
+		if (packet->len >= 1)
 		{
 			socket_send_packet(&CONTR(op)->socket, packet);
 		}
@@ -968,7 +968,7 @@ int command_region_map(object *op, char *params)
 		return 1;
 	}
 
-	packet = packet_new(BINARY_CMD_REGION_MAP, 256, 256);
+	packet = packet_new(CLIENT_CMD_REGION_MAP, 256, 256);
 	packet_append_string_terminated(packet, op->map->path);
 	packet_append_uint16(packet, op->x);
 	packet_append_uint16(packet, op->y);

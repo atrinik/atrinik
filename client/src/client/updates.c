@@ -42,44 +42,29 @@ static size_t file_updates_requested = 0;
  * @param filename What to request. */
 static void file_updates_request(char *filename)
 {
-	SockList sl;
-	unsigned char buf[HUGE_BUF];
-
-	sl.buf = buf;
-	sl.len = 0;
-	SockList_AddString(&sl, "upf ");
-	SockList_AddString(&sl, filename);
-	send_socklist(sl);
+	packet_struct *packet;
 
 	file_updates_requested++;
+
+	packet = packet_new(SERVER_CMD_REQUEST_UPDATE, 64, 64);
+	packet_append_string_terminated(packet, filename);
+	socket_send_packet(packet);
+
 }
 
-/**
- * We have received the file update command, in which the updated file
- * is, so parse it.
- * @param data Data to parse.
- * @param len Length of 'data'. */
-void cmd_request_update(unsigned char *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 {
-	char filename[MAX_BUF], c;
-	size_t pos = 0, i = 0;
+	char filename[MAX_BUF];
 	unsigned long ucomp_len;
 	unsigned char *dest;
 	FILE *fp;
 
-	filename[0] = '\0';
 	file_updates_requested--;
 
-	while ((c = (char) (data[pos++])))
-	{
-		filename[i++] = c;
-	}
-
-	filename[i] = '\0';
-	len -= i;
-	ucomp_len = GetInt_String(data + pos);
-	pos += 4;
-	len -= 4;
+	packet_to_string(data, len, &pos, filename, sizeof(filename));
+	ucomp_len = packet_to_uint32(data, len, &pos);
+	len -= pos;
 
 	/* Uncompress it. */
 	dest = malloc(ucomp_len);

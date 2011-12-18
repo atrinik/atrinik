@@ -257,17 +257,12 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 }
 
-/**
- * Party command.
- * @param data Data.
- * @param len Length of the data. */
-void PartyCmd(unsigned char *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_party(uint8 *data, size_t len, size_t pos)
 {
 	uint8 type;
-	int pos;
 
-	pos = 0;
-	type = data[pos++];
+	type = packet_to_uint8(data, len, &pos);
 
 	/* List of parties, or list of party members. */
 	if (type == CMD_PARTY_LIST || type == CMD_PARTY_WHO)
@@ -280,8 +275,8 @@ void PartyCmd(unsigned char *data, int len)
 			{
 				char party_name[MAX_BUF], party_leader[MAX_BUF];
 
-				GetString_String(data, &pos, party_name, sizeof(party_name));
-				GetString_String(data, &pos, party_leader, sizeof(party_leader));
+				packet_to_string(data, len, &pos, party_name, sizeof(party_name));
+				packet_to_string(data, len, &pos, party_leader, sizeof(party_leader));
 				list_add(list_party, list_party->rows, 0, party_name);
 				list_add(list_party, list_party->rows - 1, 1, party_leader);
 			}
@@ -290,10 +285,10 @@ void PartyCmd(unsigned char *data, int len)
 				char name[MAX_BUF], bars[MAX_BUF];
 				uint8 hp, sp, grace;
 
-				GetString_String(data, &pos, name, sizeof(name));
-				hp = data[pos++];
-				sp = data[pos++];
-				grace = data[pos++];
+				packet_to_string(data, len, &pos, name, sizeof(name));
+				hp = packet_to_uint8(data, len, &pos);
+				sp = packet_to_uint8(data, len, &pos);
+				grace = packet_to_uint8(data, len, &pos);
 				list_add(list_party, list_party->rows, 0, name);
 				PARTY_STAT_BAR();
 				list_add(list_party, list_party->rows - 1, 1, bars);
@@ -319,7 +314,7 @@ void PartyCmd(unsigned char *data, int len)
 	 * list of party members, if the party widget is not hidden. */
 	else if (type == CMD_PARTY_JOIN)
 	{
-		GetString_String(data, &pos, cpl.partyname, sizeof(cpl.partyname));
+		packet_to_string(data, len, &pos, cpl.partyname, sizeof(cpl.partyname));
 
 		if (cur_widget[PARTY_ID]->show)
 		{
@@ -341,7 +336,7 @@ void PartyCmd(unsigned char *data, int len)
 	 * enter the password. */
 	else if (type == CMD_PARTY_PASSWORD)
 	{
-		GetString_String(data, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
+		packet_to_string(data, len, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
 		cpl.input_mode = INPUT_MODE_CONSOLE;
 		text_input_open(253);
 		text_input_set_string("/party joinpassword ");
@@ -358,10 +353,10 @@ void PartyCmd(unsigned char *data, int len)
 			return;
 		}
 
-		GetString_String(data, &pos, name, sizeof(name));
-		hp = data[pos++];
-		sp = data[pos++];
-		grace = data[pos++];
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		hp = packet_to_uint8(data, len, &pos);
+		sp = packet_to_uint8(data, len, &pos);
+		grace = packet_to_uint8(data, len, &pos);
 
 		PARTY_STAT_BAR();
 		cur_widget[PARTY_ID]->redraw = 1;
@@ -391,7 +386,7 @@ void PartyCmd(unsigned char *data, int len)
 			return;
 		}
 
-		GetString_String(data, &pos, name, sizeof(name));
+		packet_to_string(data, len, &pos, name, sizeof(name));
 		cur_widget[PARTY_ID]->redraw = 1;
 
 		for (row = 0; row < list_party->rows; row++)

@@ -258,6 +258,10 @@ int freedir[SIZEOFFREE] =
 };
 
 /**
+ * The object memory pool. */
+static mempool_struct *pool_object;
+
+/**
  * Progressive object counter (every new object will increase this, even
  * if that object is later removed). */
 static long ob_count = 0;
@@ -1028,6 +1032,20 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
 		copy_object_with_inv(walk, tmp);
 		insert_ob_in_ob(tmp, dest_ob);
 	}
+}
+
+/**
+ * Initialize the object API. */
+void object_init(void)
+{
+	pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, NULL);
+}
+
+/**
+ * Deinitialize the object API. */
+void object_deinit(void)
+{
+	mempool_free(pool_object);
 }
 
 /**

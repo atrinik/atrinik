@@ -820,43 +820,28 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	return -1;
 }
 
-/**
- * Parse a region map command from the server.
- * @param data Data to parse.
- * @param len Length of 'data'. */
-void RegionMapCmd(uint8 *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 {
 	char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF];
-	int pos = 0;
 	popup_struct *popup;
+	uint8 type;
 
 	/* Get the player's map, X and Y. */
-	GetString_String(data, &pos, current_map, sizeof(current_map));
-	current_x = GetShort_String(data + pos);
-	pos += 2;
-	current_y = GetShort_String(data + pos);
-	pos += 2;
+	packet_to_string(data, len, &pos, current_map, sizeof(current_map));
+	current_x = packet_to_uint16(data, len, &pos);
+	current_y = packet_to_uint16(data, len, &pos);
 	/* Get the region and the URL base for the maps. */
-	GetString_String(data, &pos, region, sizeof(region));
-	GetString_String(data, &pos, url_base, sizeof(url_base));
-
-	if (cpl.server_socket_version >= 1058)
-	{
-		GetString_String(data, &pos, region_name, sizeof(region_name));
-		player_direction = data[pos++];
-	}
-	else
-	{
-		region_name[0] = '\0';
-		player_direction = 1;
-	}
+	packet_to_string(data, len, &pos, region, sizeof(region));
+	packet_to_string(data, len, &pos, url_base, sizeof(url_base));
+	packet_to_string(data, len, &pos, region_name, sizeof(region_name));
+	player_direction = packet_to_uint8(data, len, &pos);
 
 	/* Rest of the data packet may be labels/tooltips/etc. */
 	while (pos < len)
 	{
-		uint8 type = data[pos++];
-
-		GetString_String(data, &pos, text, sizeof(text));
+		type = packet_to_uint8(data, len, &pos);
+		packet_to_string(data, len, &pos, text, sizeof(text));
 
 		if (type == RM_TYPE_LABEL)
 		{

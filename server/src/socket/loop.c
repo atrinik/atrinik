@@ -32,111 +32,62 @@
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
-/** Prototype for functions the client sends without player interaction. */
-typedef void (*func_uint8_int_ns)(char *, int, socket_struct *);
-
-/** Definition of a function the client sends without player interaction. */
-struct client_cmd_mapping
+typedef struct socket_command_struct
 {
-	/** The command name. */
-	char *cmdname;
+	void (*handle_func)(socket_struct *, player *, uint8 *, size_t, size_t);
 
-	/** Function to call. */
-	func_uint8_int_ns cmdproc;
-};
-
-/** Prototype for functions used to handle player actions. */
-typedef void (*func_uint8_int_pl)(char *, int, player *);
-
-/** Definition of a function called in reaction to player's action. */
-struct player_cmd_mapping
-{
-	/** The command name. */
-	char *cmdname;
-
-	/** Function to call. */
-	func_uint8_int_pl cmdproc;
-
-	/** Command flags. */
 	int flags;
+} socket_command_struct;
+
+#define SOCKET_CMD_PLAYER_ONLY 1
+
+static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
+{
+	{socket_command_addme, 0},
+	{socket_command_ask_face, 0},
+	{socket_command_setup, 0},
+	{socket_command_version, 0},
+	{socket_command_request_file, 0},
+	{socket_command_clear, 0},
+	{socket_command_request_update, 0},
+	{socket_command_keepalive, 0},
+	{socket_command_item_examine, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_item_apply, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_item_move, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_reply, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_player_cmd, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_item_lock, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_item_mark, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_fire, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_new_char, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_quickslot, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_quest_list, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_move_path, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_item_ready, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_password_change, SOCKET_CMD_PLAYER_ONLY}
 };
 
-/** Commands sent by the client, based on player's actions. */
-static const struct player_cmd_mapping player_commands[] =
+static int socket_command_check(socket_struct *ns, player *pl, uint8 *data, size_t len)
 {
-	{"ex",          ExamineCmd, 0},
-	{"ap",          ApplyCmd, 0},
-	{"mv",          MoveCmd, 0},
-	{"reply",       ReplyCmd, 0},
-	{"cm",          PlayerCmd, 0},
-	{"lock",        (func_uint8_int_pl) LockItem, 0},
-	{"mark",        (func_uint8_int_pl) MarkItem, 0},
-	{"fire", (func_uint8_int_pl) command_fire, 0},
-	{"nc",          command_new_char, 0},
-	{"qs",          (func_uint8_int_pl) QuickSlotCmd, 0},
-	{"shop",        ShopCmd, 0},
-	{"qlist",       QuestListCmd, 0},
-	{"mp", (func_uint8_int_pl) command_move_path, 0},
-	{"rd", (func_uint8_int_pl) cmd_ready, 0},
-	{"pc", (func_uint8_int_pl) cmd_password_change, 0},
-	{NULL, NULL, 0}
-};
+	size_t pos;
+	uint8 type;
 
-/** Commands sent directly by the client, when connecting or needed. */
-static const struct client_cmd_mapping client_commands[] =
-{
-	{"addme",       AddMeCmd},
-	{"askface",     SendFaceCmd},
-	{"setup",       SetUp},
-	{"version",     VersionCmd},
-	{"rf",          RequestFileCmd},
-	{"clr", command_clear_cmds},
-	{"setsound", SetSound},
-	{"upf", cmd_request_update},
-	{"ka", cmd_keepalive},
-	{NULL, NULL}
-};
+	pos = 2;
+	type = packet_to_uint8(data, len, &pos);
 
-/**
- * Used to check whether read data is a client command in fill_command_buffer().
- * @param ns Socket.
- * @return 1 if the read data is a client command, 0 otherwise. */
-static int check_client_command(socket_struct *ns)
-{
-	unsigned char *data;
-	int i, data_len;
-
-	for (i = 0; client_commands[i].cmdname; i++)
+	if (type >= SERVER_CMD_NROF)
 	{
-		if ((int) strlen(client_commands[i].cmdname) <= ns->inbuf.len - 2 && !strncmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname, strlen(client_commands[i].cmdname)))
-		{
-			/* Pre-process the command. */
-			data = (unsigned char *) strchr((char *) ns->inbuf.buf + 2, ' ');
-
-			if (data)
-			{
-				*data = '\0';
-				data++;
-				data_len = ns->inbuf.len - (data - ns->inbuf.buf);
-			}
-			else
-			{
-				data_len = 0;
-			}
-
-			client_commands[i].cmdproc((char *) data, data_len, ns);
-
-			/* We have successfully added this client. */
-			if (ns->addme)
-			{
-				ns->addme = 0;
-			}
-
-			return 1;
-		}
+		return -1;
 	}
 
-	return 0;
+	if (socket_commands[type].flags & SOCKET_CMD_PLAYER_ONLY && !pl)
+	{
+		return 0;
+	}
+
+	socket_commands[type].handle_func(ns, pl, data + pos, len - pos, 0);
+
+	return 1;
 }
 
 /**
@@ -144,95 +95,33 @@ static int check_client_command(socket_struct *ns)
  * @param ns Socket. */
 static void fill_command_buffer(socket_struct *ns)
 {
-	int rr;
+	size_t toread;
 
 	do
 	{
-		if ((rr = SockList_ReadCommand(&ns->readbuf, &ns->inbuf)))
-		{
-			/* Terminate buffer - useful for string data. */
-			ns->inbuf.buf[ns->inbuf.len] = '\0';
+		toread = 0;
 
-			if (check_client_command(ns))
+		if (ns->status == Ns_Dead)
+		{
+			break;
+		}
+
+		if (ns->packet_recv->len >= 2)
+		{
+			toread = 2 + (ns->packet_recv->data[0] << 8) + ns->packet_recv->data[1];
+
+			if (toread <= ns->packet_recv->len)
 			{
-				if (ns->status == Ns_Dead)
+				if (socket_command_check(ns, NULL, ns->packet_recv->data, toread) == 0)
 				{
-					return;
+					packet_append_data_len(ns->packet_recv_cmd, ns->packet_recv->data, toread);
 				}
-			}
-			else
-			{
-				memcpy(ns->cmdbuf.buf + ns->cmdbuf.len, ns->inbuf.buf, rr);
-				ns->cmdbuf.len += rr;
+
+				packet_delete(ns->packet_recv, 0, toread);
 			}
 		}
 	}
-	while (rr);
-}
-
-/**
- * Used to check whether parsed data is valid client or player command in handle_client().
- * @param ns Socket.
- * @param pl Player. Can be NULL, in which case player commands are not considered.
- * @return 1 if the parsed data is a valid command, 0 otherwise. */
-static int check_command(socket_struct *ns, player *pl)
-{
-	int i, len = 0;
-	unsigned char *data;
-
-	/* Terminate buffer - useful for string data */
-	ns->inbuf.buf[ns->inbuf.len] = '\0';
-
-	/* First, break out beginning word. There are at least
-	 * a few commands that do not have any parameters. If
-	 * we get such a command, don't worry about trying
-	 * to break it up. */
-	data = (unsigned char *) strchr((char *) ns->inbuf.buf + 2, ' ');
-
-	if (data)
-	{
-		*data = '\0';
-		data++;
-		len = ns->inbuf.len - (data - ns->inbuf.buf);
-	}
-	else
-	{
-		len = 0;
-	}
-
-	for (i = 0; client_commands[i].cmdname; i++)
-	{
-		if (strcmp((char *) ns->inbuf.buf + 2, client_commands[i].cmdname) == 0)
-		{
-			client_commands[i].cmdproc((char *) data, len, ns);
-			ns->inbuf.len = 0;
-
-			/* We have successfully added this connect! */
-			if (ns->addme)
-			{
-				ns->addme = 0;
-			}
-
-			return 1;
-		}
-	}
-
-	/* Only valid players can use these commands */
-	if (pl)
-	{
-		for (i = 0; player_commands[i].cmdname; i++)
-		{
-			if (strcmp((char *) ns->inbuf.buf + 2, player_commands[i].cmdname) == 0)
-			{
-				player_commands[i].cmdproc((char *) data, len, pl);
-				ns->inbuf.len = 0;
-				return 1;
-			}
-		}
-	}
-
-	LOG(llevSystem, "Bad command from client ('%s') (%s)\n", ns->inbuf.buf + 2, STRING_SAFE((char *) data));
-	return 0;
+	while (toread);
 }
 
 /**
@@ -245,22 +134,24 @@ static int check_command(socket_struct *ns, player *pl)
  * client_commands will be checked. */
 void handle_client(socket_struct *ns, player *pl)
 {
+	size_t len;
 	int cmd_count = 0;
 
-	/* Loop through this - maybe we have several complete packets here. */
 	while (1)
 	{
-		/* If it is a player, and they don't have any speed left, we
-		 * return, and will parse the data when they do have time. */
-		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0))
+		if (ns->packet_recv_cmd->len == 0)
 		{
-			return;
+			break;
 		}
 
-		if (!SockList_ReadCommand(&ns->cmdbuf, &ns->inbuf))
+		/* If it is a player, and they don't have any speed left, we
+		 * return, and will parse the data when they do have time. */
+		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob && pl->ob->speed_left < 0))
 		{
-			return;
+			break;
 		}
+
+		len = 2 + (ns->packet_recv_cmd->data[0] << 8) + ns->packet_recv_cmd->data[1];
 
 		/* Reset idle counter. */
 		if (pl && pl->state == ST_PLAYING)
@@ -269,15 +160,15 @@ void handle_client(socket_struct *ns, player *pl)
 			ns->keepalive = 0;
 		}
 
-		if (check_command(ns, pl))
+		socket_command_check(ns, pl, ns->packet_recv_cmd->data, len);
+		packet_delete(ns->packet_recv_cmd, 0, len);
+
+		if (cmd_count++ <= 8)
 		{
-			if (cmd_count++ <= 8 && ns->status != Ns_Dead)
-			{
-				continue;
-			}
+			continue;
 		}
 
-		return;
+		break;
 	}
 }
 
@@ -398,13 +289,6 @@ void doeric_server(void)
 	struct sockaddr_in addr;
 	socklen_t addrlen = sizeof(addr);
 	player *pl, *next;
-
-#if CS_LOGSTATS
-	if ((time(NULL) - cst_lst.time_start) >= CS_LOGTIME)
-	{
-		write_cs_stats();
-	}
-#endif
 
 	FD_ZERO(&tmp_read);
 	FD_ZERO(&tmp_write);
@@ -580,7 +464,7 @@ void doeric_server(void)
 
 			if (FD_ISSET(init_sockets[i].fd, &tmp_read))
 			{
-				rr = SockList_ReadPacket(&init_sockets[i], MAXSOCKBUF_IN - 1);
+				rr = socket_recv(&init_sockets[i]);
 
 				if (rr < 0)
 				{
@@ -630,7 +514,7 @@ void doeric_server(void)
 
 		if (FD_ISSET(pl->socket.fd, &tmp_read))
 		{
-			rr = SockList_ReadPacket(&pl->socket, MAXSOCKBUF_IN - 1);
+			rr = socket_recv(&pl->socket);
 
 			if (rr < 0)
 			{

@@ -139,96 +139,82 @@ unsigned int query_flags(object *op)
 }
 
 /**
- * Add data about object to a SockList instance.
- * @param sl SockList instance to add to.
+ * Add data about object to a packet.
+ * @param packet Packet to append to.
  * @param op Object to add information about.
  * @param pl Player that will receive the data.
  * @param flags Combination of @ref UPD_XXX. */
-static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 flags)
+static void add_object_to_packet(packet_struct *packet, object *op, object *pl, uint32 flags)
 {
-	SockList_AddInt(sl, op->count);
+	packet_append_uint32(packet, op->count);
 
 	if (flags & UPD_LOCATION)
 	{
-		SockList_AddInt(sl, op->env ? op->env->count : 0);
+		packet_append_uint32(packet, op->env ? op->env->count : 0);
 	}
 
 	if (flags & UPD_FLAGS)
 	{
-		SockList_AddInt(sl, query_flags(op));
+		packet_append_uint32(packet, query_flags(op));;
 	}
 
 	if (flags & UPD_WEIGHT)
 	{
-		SockList_AddInt(sl, WEIGHT(op));
+		packet_append_uint32(packet, WEIGHT(op));
 	}
 
 	if (flags & UPD_FACE)
 	{
 		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
-			SockList_AddInt(sl, op->inv_face->number);
+			packet_append_uint32(packet, op->inv_face->number);
 		}
 		else
 		{
-			SockList_AddInt(sl, op->face->number);
+			packet_append_uint32(packet, op->face->number);
 		}
 	}
 
 	if (flags & UPD_DIRECTION)
 	{
-		SockList_AddChar(sl, op->facing);
+		packet_append_uint8(packet, op->facing);
 	}
 
 	if (flags & UPD_TYPE)
 	{
-		SockList_AddChar(sl, op->type);
-		SockList_AddChar(sl, op->sub_type);
+		packet_append_uint8(packet, op->type);
+		packet_append_uint8(packet, op->sub_type);
 
 		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
-			SockList_AddChar(sl, op->item_quality);
-			SockList_AddChar(sl, op->item_condition);
-			SockList_AddChar(sl, op->item_level);
-			SockList_AddChar(sl, op->item_skill);
+			packet_append_uint8(packet, op->item_quality);
+			packet_append_uint8(packet, op->item_condition);
+			packet_append_uint8(packet, op->item_level);
+			packet_append_uint8(packet, op->item_skill);
 		}
 		else
 		{
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
-			SockList_AddChar(sl, (char) 255);
+			packet_append_uint8(packet, 255);
+			packet_append_uint8(packet, 255);
+			packet_append_uint8(packet, 255);
+			packet_append_uint8(packet, 255);
 		}
 	}
 
 	if (flags & UPD_NAME)
 	{
-		size_t len;
-		char item_name[MAX_BUF];
-
-		if (op->custom_name)
-		{
-			memcpy(item_name, op->custom_name, 127);
-		}
-		else
-		{
-			memcpy(item_name, query_base_name(op, pl), 127);
-		}
-
-		item_name[127] = '\0';
-		len = strlen(item_name);
-		SockList_AddLen8Data(sl, item_name, len);
+		packet_append_string_terminated(packet, op->custom_name ? op->custom_name : query_base_name(op, pl));
 	}
 
 	if (flags & UPD_ANIM)
 	{
 		if (!(flags & UPD_ANIM_NO_INV) && op->inv_animation_id)
 		{
-			SockList_AddShort(sl, op->inv_animation_id);
+			packet_append_uint16(packet, op->inv_animation_id);
 		}
 		else
 		{
-			SockList_AddShort(sl, op->animation_id);
+			packet_append_uint16(packet, op->animation_id);
 		}
 	}
 
@@ -264,71 +250,53 @@ static void add_object_to_socklist(SockList *sl, object *op, object *pl, uint32 
 			}
 		}
 
-		SockList_AddChar(sl, (char) anim_speed);
+		packet_append_uint8(packet, anim_speed);
 	}
 
 	if (flags & UPD_NROF)
 	{
-		SockList_AddInt(sl, op->nrof);
+		packet_append_uint32(packet, op->nrof);
 	}
 }
 
 /**
  * Recursively draw inventory of an object for DMs.
  * @param pl DM.
- * @param sl SockList instance to append to.
- * @param op Object of which inventory is going to be sent.
- * @return Number of items sent. */
-static int esrv_draw_look_rec(object *pl, SockList *sl, object *op)
+ * @param packet Packet to append to.
+ * @param op Object of which inventory is going to be sent. */
+static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
 {
-	char buf[MAX_BUF];
 	object *tmp;
-	int got_one = 0;
 
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, -1);
-	SockList_AddInt(sl, (uint32) blank_face->number);
-	SockList_AddChar(sl, 0);
-	strncpy(buf, "in inventory", sizeof(buf));
-	buf[sizeof(buf) - 1] = '\0';
-	SockList_AddLen8Data(sl, buf, MIN(strlen(buf), 255));
-	SockList_AddShort(sl, 0);
-	SockList_AddChar(sl, 0);
-	SockList_AddInt(sl, 0);
+	packet_append_uint32(packet, 0);
+	packet_append_uint32(packet, 0);
+	packet_append_uint32(packet, -1);
+	packet_append_uint32(packet, blank_face->number);
+	packet_append_uint8(packet, 0);
+	packet_append_string_terminated(packet, "in inventory");
+	packet_append_uint16(packet, 0);
+	packet_append_uint8(packet, 0);
+	packet_append_uint32(packet, 0);
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		add_object_to_socklist(sl, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
-		got_one++;
-
-		if (sl->len > (MAXSOCKBUF - MAXITEMLEN))
-		{
-			Send_With_Handling(&CONTR(pl)->socket, sl);
-			SOCKET_SET_BINARY_CMD(sl, BINARY_CMD_ITEMY);
-			SockList_AddInt(sl, -2);
-			SockList_AddInt(sl, 0);
-			got_one = 0;
-		}
+		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
 
 		if (tmp->inv && tmp->type != PLAYER)
 		{
-			got_one = esrv_draw_look_rec(pl, sl, tmp);
+			esrv_draw_look_rec(pl, packet, tmp);
 		}
 	}
 
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, 0);
-	SockList_AddInt(sl, -1);
-	SockList_AddInt(sl, (uint32) blank_face->number);
-	SockList_AddChar(sl, 0);
-	strncpy(buf, "end inventory", sizeof(buf));
-	buf[sizeof(buf) - 1] = '\0';
-	SockList_AddLen8Data(sl, buf, MIN(strlen(buf), 255));
-	SockList_AddShort(sl, 0);
-	SockList_AddChar(sl, 0);
-	SockList_AddInt(sl, 0);
-	return got_one;
+	packet_append_uint32(packet, 0);
+	packet_append_uint32(packet, 0);
+	packet_append_uint32(packet, -1);
+	packet_append_uint32(packet, blank_face->number);
+	packet_append_uint8(packet, 0);
+	packet_append_string_terminated(packet, "end inventory");
+	packet_append_uint16(packet, 0);
+	packet_append_uint8(packet, 0);
+	packet_append_uint32(packet, 0);
 }
 
 /**
@@ -339,11 +307,9 @@ static int esrv_draw_look_rec(object *pl, SockList *sl, object *op)
  * @param pl Player to draw the look window for. */
 void esrv_draw_look(object *pl)
 {
-	socket_struct *ns = &CONTR(pl)->socket;
-	char buf[MAX_BUF];
+	packet_struct *packet;
 	object *tmp, *last;
-	int got_one = 0, start_look = 0, end_look = 0, wiz;
-	SockList sl;
+	int start_look = 0, end_look = 0, wiz;
 
 	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y))
 	{
@@ -354,25 +320,21 @@ void esrv_draw_look(object *pl)
 	/* Grab last (top) object without browsing the objects. */
 	tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMY);
-
-	SockList_AddInt(&sl, 0);
-	SockList_AddInt(&sl, 0);
+	packet = packet_new(CLIENT_CMD_ITEMY, 512, 256);
+	packet_append_uint32(packet, 0);
+	packet_append_uint32(packet, 0);
 
 	if (CONTR(pl)->socket.look_position)
 	{
-		SockList_AddInt(&sl, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
-		SockList_AddInt(&sl, 0);
-		SockList_AddInt(&sl, -1);
-		SockList_AddInt(&sl, prev_item_face->number);
-		SockList_AddChar(&sl, 0);
-		snprintf(buf, sizeof(buf), "Apply to see %d previous items", NUM_LOOK_OBJECTS);
-		SockList_AddLen8Data(&sl, buf, MIN(strlen(buf), 255));
-		SockList_AddShort(&sl, 0);
-		SockList_AddChar(&sl, 0);
-		SockList_AddInt(&sl, 0);
+		packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
+		packet_append_uint32(packet, 0);
+		packet_append_uint32(packet, -1);
+		packet_append_uint32(packet, prev_item_face->number);
+		packet_append_uint8(packet, 0);
+		packet_append_string_terminated(packet, "Previous group of items");
+		packet_append_uint16(packet, 0);
+		packet_append_uint8(packet, 0);
+		packet_append_uint32(packet, 0);
 	}
 
 	for (last = NULL; tmp != last; tmp = tmp->below)
@@ -402,41 +364,27 @@ void esrv_draw_look(object *pl)
 		 * and leave here. */
 		if (++end_look > NUM_LOOK_OBJECTS)
 		{
-			SockList_AddInt(&sl, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
-			SockList_AddInt(&sl, 0);
-			SockList_AddInt(&sl, -1);
-			SockList_AddInt(&sl, next_item_face->number);
-			SockList_AddChar(&sl, 0);
-			snprintf(buf, sizeof(buf), "Apply to see next group of items");
-			SockList_AddLen8Data(&sl, buf, MIN(strlen(buf), 255));
-			SockList_AddShort(&sl, 0);
-			SockList_AddChar(&sl, 0);
-			SockList_AddInt(&sl, 0);
+			packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
+			packet_append_uint32(packet, 0);
+			packet_append_uint32(packet, -1);
+			packet_append_uint32(packet, prev_item_face->number);
+			packet_append_uint8(packet, 0);
+			packet_append_string_terminated(packet, "Next group of items");
+			packet_append_uint16(packet, 0);
+			packet_append_uint8(packet, 0);
+			packet_append_uint32(packet, 0);
 			break;
 		}
 
-		add_object_to_socklist(&sl, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
-		got_one++;
-
-		if (sl.len > (MAXSOCKBUF - MAXITEMLEN))
-		{
-			Send_With_Handling(ns, &sl);
-			SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMY);
-			/* do no delinv */
-			SockList_AddInt(&sl, -2);
-			SockList_AddInt(&sl, 0);
-			got_one = 0;
-		}
+		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
 
 		if (wiz && tmp->inv && tmp->type != PLAYER)
 		{
-			got_one = esrv_draw_look_rec(pl, &sl, tmp);
+			esrv_draw_look_rec(pl, packet, tmp);
 		}
 	}
 
-	Send_With_Handling(ns, &sl);
-
-	free(sl.buf);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -444,16 +392,12 @@ void esrv_draw_look(object *pl)
  * @param op Player to close container of. */
 void esrv_close_container(object *op)
 {
-	SockList sl;
+	packet_struct *packet;
 
-	sl.buf = malloc(256);
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMX);
-	/* Container mode flag */
-	SockList_AddInt(&sl, -1);
-	SockList_AddInt(&sl, -1);
-
-	Send_With_Handling(&CONTR(op)->socket, &sl);
-	free(sl.buf);
+	packet = packet_new(CLIENT_CMD_ITEMX, 32, 0);
+	packet_append_uint32(packet, -1);
+	packet_append_uint32(packet, -1);
+	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**
@@ -463,26 +407,23 @@ void esrv_close_container(object *op)
  * inventory of the player. */
 void esrv_send_inventory(object *pl, object *op)
 {
+	packet_struct *packet;
 	object *tmp;
-	int got_one = 0;
-	SockList sl;
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMY);
+	packet = packet_new(CLIENT_CMD_ITEMY, 128, 256);
 
 	/* In this case we're sending a container inventory */
 	if (pl != op)
 	{
 		/* Container mode flag */
-		SockList_AddInt(&sl, -1);
+		packet_append_uint32(packet, -1);
 	}
 	else
 	{
-		SockList_AddInt(&sl, op->count);
+		packet_append_uint32(packet, op->count);
 	}
 
-	SockList_AddInt(&sl, op->count);
+	packet_append_uint32(packet, op->count);
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
@@ -497,32 +438,11 @@ void esrv_send_inventory(object *pl, object *op)
 
 		if (LOOK_OBJ(tmp) || QUERY_FLAG(pl, FLAG_WIZ))
 		{
-			add_object_to_socklist(&sl, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
-			got_one++;
-
-			/* It is possible for players to accumulate a huge amount of
-			 * items (especially with some of the bags out there) to
-			 * overflow the buffer. If so, send multiple item1
-			 * commands. */
-			if (sl.len > (MAXSOCKBUF - MAXITEMLEN))
-			{
-				Send_With_Handling(&CONTR(pl)->socket, &sl);
-				SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMY);
-				/* no del inv */
-				SockList_AddInt(&sl, -3);
-				SockList_AddInt(&sl, op->count);
-				got_one = 0;
-			}
+			add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 		}
 	}
 
-	/* Container can be empty */
-	if (got_one || pl != op)
-	{
-		Send_With_Handling(&CONTR(pl)->socket, &sl);
-	}
-
-	free(sl.buf);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -532,7 +452,7 @@ void esrv_send_inventory(object *pl, object *op)
  * @param op The object to update. */
 static void esrv_update_item_send(int flags, object *pl, object *op)
 {
-	SockList sl;
+	packet_struct *packet;
 
 	if (!CONTR(pl))
 	{
@@ -545,13 +465,10 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 		return;
 	}
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_UPITEM);
-	SockList_AddShort(&sl, (uint16) flags);
-	add_object_to_socklist(&sl, op, pl, flags);
-	Send_With_Handling(&CONTR(pl)->socket, &sl);
-	free(sl.buf);
+	packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
+	packet_append_uint16(packet, flags);
+	add_object_to_packet(packet, op, pl, flags);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -589,7 +506,7 @@ void esrv_update_item(int flags, object *op)
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
-	SockList sl;
+	packet_struct *packet;
 
 	if (!CONTR(pl))
 	{
@@ -602,15 +519,11 @@ static void esrv_send_item_send(object *pl, object *op)
 		return;
 	}
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_ITEMX);
-	SockList_AddInt(&sl, -4);
-	SockList_AddInt(&sl, op->env->count);
-	add_object_to_socklist(&sl, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
-
-	Send_With_Handling(&CONTR(pl)->socket, &sl);
-	free(sl.buf);
+	packet = packet_new(CLIENT_CMD_ITEMX, 64, 128);
+	packet_append_uint32(packet, -4);
+	packet_append_uint32(packet, op->env->count);
+	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -647,7 +560,7 @@ void esrv_send_item(object *op)
  * @param op The item that was deleted. */
 static void esrv_del_item_send(object *pl, object *op)
 {
-	SockList sl;
+	packet_struct *packet;
 
 	if (!CONTR(pl))
 	{
@@ -660,13 +573,9 @@ static void esrv_del_item_send(object *pl, object *op)
 		return;
 	}
 
-	sl.buf = malloc(MAXSOCKBUF);
-
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_DELITEM);
-	SockList_AddInt(&sl, op->count);
-
-	Send_With_Handling(&CONTR(pl)->socket, &sl);
-	free(sl.buf);
+	packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
+	packet_append_uint32(packet, op->count);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -755,22 +664,18 @@ object *esrv_get_ob_from_count(object *pl, tag_t count)
 	return NULL;
 }
 
-/**
- * Client wants to examine some object.
- * @param buf Buffer, contains ID of the object to examine.
- * @param len Unused.
- * @param pl Player. */
-void ExamineCmd(char *buf, int len, player *pl)
+void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	long tag;
+	tag_t tag;
 	object *op;
 
-	if (!buf || !len)
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
 
-	tag = atoi(buf);
 	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (!op)
@@ -809,21 +714,19 @@ static void remove_quickslot(uint8 slot, player *pl)
  * @param pl Player to send the quickslots to. */
 void send_quickslots(player *pl)
 {
-	SockList sl;
-	unsigned char buf[MAXSOCKBUF];
+	packet_struct *packet;
 	object *tmp;
-	uint8 i;
+	int i;
 
-	sl.buf = buf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_QUICKSLOT);
+	packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
 
 	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->quickslot)
 		{
-			SockList_AddChar(&sl, QUICKSLOT_TYPE_ITEM);
-			SockList_AddChar(&sl, tmp->quickslot - 1);
-			SockList_AddInt(&sl, tmp->count);
+			packet_append_uint8(packet, QUICKSLOT_TYPE_ITEM);
+			packet_append_uint8(packet, tmp->quickslot - 1);
+			packet_append_uint32(packet, tmp->count);
 		}
 	}
 
@@ -831,48 +734,39 @@ void send_quickslots(player *pl)
 	{
 		if (pl->spell_quickslots[i] != SP_NO_SPELL)
 		{
-			SockList_AddChar(&sl, QUICKSLOT_TYPE_SPELL);
-			SockList_AddChar(&sl, i);
-			SockList_AddString(&sl, spells[pl->spell_quickslots[i]].name);
+			packet_append_uint8(packet, QUICKSLOT_TYPE_SPELL);
+			packet_append_uint8(packet, i);
+			packet_append_string_terminated(packet, spells[pl->spell_quickslots[i]].name);
 		}
 	}
 
-	Send_With_Handling(&pl->socket, &sl);
+	socket_send_packet(&pl->socket, packet);
 }
 
-/**
- * Quick slot command.
- * @param buf Data.
- * @param len Length of 'buf'.
- * @param pl Player. */
-void QuickSlotCmd(uint8 *buf, int len, player *pl)
+void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	uint8 command, quickslot;
+	uint8 type, quickslot;
 
-	if (!buf || len < 2)
-	{
-		return;
-	}
-
-	command = buf[0];
-	quickslot = buf[1];
+	type = packet_to_uint8(data, len, &pos);
+	quickslot = packet_to_uint8(data, len, &pos);
 
 	if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
 	{
 		return;
 	}
 
-	if (command == CMD_QUICKSLOT_SET)
+	if (type == CMD_QUICKSLOT_SET)
 	{
 		tag_t tag;
 		object *op;
 
-		if (len < 6)
+		tag = packet_to_uint32(data, len, &pos);
+
+		if (!tag)
 		{
 			return;
 		}
 
-		tag = GetInt_String(buf + 2);
 		op = esrv_get_ob_from_count(pl->ob, tag);
 
 		if (!op)
@@ -883,17 +777,13 @@ void QuickSlotCmd(uint8 *buf, int len, player *pl)
 		remove_quickslot(quickslot, pl);
 		op->quickslot = quickslot;
 	}
-	else if (command == CMD_QUICKSLOT_SETSPELL)
+	else if (type == CMD_QUICKSLOT_SETSPELL)
 	{
 		sint16 spell_id;
+		char spellname[MAX_BUF];
 
-		/* Assumes that all spells have at least 2 letters. */
-		if (len < 4)
-		{
-			return;
-		}
-
-		spell_id = look_up_spell_name((char *) buf + 2);
+		packet_to_string(data, len, &pos, spellname, sizeof(spellname));
+		spell_id = look_up_spell_name(spellname);
 
 		if (spell_id == SP_NO_SPELL)
 		{
@@ -903,33 +793,24 @@ void QuickSlotCmd(uint8 *buf, int len, player *pl)
 		remove_quickslot(quickslot, pl);
 		pl->spell_quickslots[quickslot - 1] = spell_id;
 	}
-	else if (command == CMD_QUICKSLOT_UNSET)
+	else if (type == CMD_QUICKSLOT_UNSET)
 	{
 		remove_quickslot(quickslot, pl);
 	}
-	else
-	{
-		LOG(llevSystem, "Client %s@%s sent invalid quickslot command.\n", pl->ob->name, pl->socket.host);
-		pl->socket.status = Ns_Dead;
-	}
 }
 
-/**
- * Client wants to apply an object.
- * @param buf Buffer, contains ID of the object to apply.
- * @param len Unused.
- * @param pl Player. */
-void ApplyCmd(char *buf, int len, player *pl)
+void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	uint32 tag;
 	object *op;
 
-	if (!buf || !len)
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
 
-	tag = atoi(buf);
 	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (QUERY_FLAG(pl->ob, FLAG_REMOVED))
@@ -953,26 +834,20 @@ void ApplyCmd(char *buf, int len, player *pl)
 	player_apply(pl->ob, op, 0, 0);
 }
 
-/**
- * Client wants to lock an object.
- * @param data Buffer, contains ID of the object to lock.
- * @param len Unused.
- * @param pl Player. */
-void LockItem(uint8 *data, int len, player *pl)
+void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	int flag, tag;
+	tag_t tag;
 	object *op;
 
-	if (!data || !len)
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
 
-	flag = data[0];
-	tag = GetInt_String(data + 1);
 	op = esrv_get_ob_from_count(pl->ob, tag);
 
-	/* Can happen as result of latency or client/server async. */
 	if (!op)
 	{
 		return;
@@ -985,34 +860,22 @@ void LockItem(uint8 *data, int len, player *pl)
 		return;
 	}
 
-	if (!flag)
-	{
-		CLEAR_FLAG(op, FLAG_INV_LOCKED);
-	}
-	else
-	{
-		SET_FLAG(op, FLAG_INV_LOCKED);
-	}
-
+	TOGGLE_FLAG(op, FLAG_INV_LOCKED);
 	esrv_update_item(UPD_FLAGS, op);
 }
 
-/**
- * Client wants to mark an object.
- * @param data Buffer, contains ID of the object to mark.
- * @param len Unused.
- * @param pl Player. */
-void MarkItem(uint8 *data, int len, player *pl)
+void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	int tag;
+	tag_t tag;
 	object *op;
 
-	if (!data || !len)
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
 
-	tag = GetInt_String(data);
 	op = esrv_get_ob_from_count(pl->ob, tag);
 
 	if (!op)
@@ -1024,7 +887,7 @@ void MarkItem(uint8 *data, int len, player *pl)
 	{
 		draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
 		pl->mark = NULL;
-		pl->mark_count = -1;
+		pl->mark_count = 0;
 	}
 	else
 	{
@@ -1173,21 +1036,19 @@ static int check_container(object *pl, object *con)
 }
 
 /**
- * Sends a @ref BINARY_CMD_READY to the player's client.
+ * Sends a @ref CLIENT_CMD_READY to the player's client.
  * @param pl The player.
  * @param tag Object UID that the client should be notified about being
  * readied.
  * @param type Type of the object as returned by cmd_ready_determine(). */
 void cmd_ready_send(player *pl, tag_t tag, int type)
 {
-	SockList sl;
-	unsigned char sockbuf[6];
+	packet_struct *packet;
 
-	sl.buf = sockbuf;
-	SOCKET_SET_BINARY_CMD(&sl, BINARY_CMD_READY);
-	SockList_AddChar(&sl, type);
-	SockList_AddInt(&sl, tag);
-	Send_With_Handling(&pl->socket, &sl);
+	packet = packet_new(CLIENT_CMD_ITEM_READY, 8, 0);
+	packet_append_uint8(packet, type);
+	packet_append_uint32(packet, tag);
+	socket_send_packet(&pl->socket, packet);
 }
 
 /**

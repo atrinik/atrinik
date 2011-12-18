@@ -188,8 +188,8 @@ void popup_render(popup_struct *popup)
 }
 
 /**
- * Render the first popup. */
-void popup_render_head(void)
+ * Render the visible popups. */
+void popup_render_all(void)
 {
 	popup_struct *popup, *tmp;
 

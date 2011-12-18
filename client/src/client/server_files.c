@@ -39,14 +39,6 @@ static const char *const server_file_names[SERVER_FILES_MAX] =
 	"anims", "effects", "skills", "hfiles"
 };
 
-/** Identifiers of the server files used in the setup command. */
-static const char *const server_file_setup_names[SERVER_FILES_MAX] =
-{
-	NULL, NULL, NULL, NULL, "bpf",
-	NULL, "upf", "spfv2", "ssf",
-	"amfv2", "eff", "skfv2", "hpfv2"
-};
-
 /** Post-loading functions to call. */
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
@@ -239,10 +231,12 @@ int server_files_updating(void)
 		 * updating. */
 		if (server_files[i].update == 1)
 		{
-			char buf[MAX_BUF];
+			packet_struct *packet;
 
-			snprintf(buf, sizeof(buf), "rf %"FMT64U, (uint64) i);
-			cs_write_string(buf, strlen(buf));
+			packet = packet_new(SERVER_CMD_REQUEST_FILE, 1, 0);
+			packet_append_uint8(packet, i);
+			socket_send_packet(packet);
+
 			/* Mark the file as 'being updated'. */
 			server_files[i].update = -1;
 			return 1;
@@ -258,14 +252,12 @@ int server_files_updating(void)
 }
 
 /**
- * Add data about server files we have to the setup string sent to the
- * server.
- * @param[out] buf Where to write.
- * @param buf_size Size of 'buf'. */
-void server_files_setup_add(char *buf, size_t buf_size)
+ * Add data about server files we have to the setup packet that is sent
+ * to the server.
+ * @param packet The packet for appending. */
+void server_files_setup_add(packet_struct *packet)
 {
 	size_t i;
-	char tmp[MAX_BUF];
 
 	/* Load up the files. */
 	server_files_load(0);
@@ -273,49 +265,30 @@ void server_files_setup_add(char *buf, size_t buf_size)
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
 		/* Invalid file. */
-		if (!server_file_setup_names[i])
+		if (!server_file_names[i])
 		{
 			continue;
 		}
 
 		/* Add the server file identifier, its size and the checksum. */
-		snprintf(tmp, sizeof(tmp), " %s %"FMT64U"|%lx", server_file_setup_names[i], (uint64) server_files[i].size, server_files[i].crc32);
-		strncat(buf, tmp, buf_size - strlen(buf) - 1);
+		packet_append_uint8(packet, CMD_SETUP_SERVER_FILE);
+		packet_append_uint8(packet, i);
+		packet_append_uint64(packet, server_files[i].size);
+		packet_append_uint64(packet, server_files[i].crc32);
 	}
 }
 
 /**
- * Try to parse setup command as server file status response.
- * @param cmd Command.
- * @param param Command parameter.
- * @return 1 if we parsed it, 0 otherwise. */
-int server_files_parse_setup(const char *cmd, const char *param)
+ * Mark the specified server file for update.
+ * @param id The file to update. */
+void server_files_mark_update(size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SERVER_FILES_MAX; i++)
+	if (!server_file_names[i])
 	{
-		/* Invalid file. */
-		if (!server_file_setup_names[i])
-		{
-			continue;
-		}
-
-		/* Check if the command matches one of the names. */
-		if (!strcmp(server_file_setup_names[i], cmd))
-		{
-			/* If the response is not 'OK', it's different, so mark for
-			 * update. */
-			if (strcmp(param, "OK"))
-			{
-				server_files[i].update = 1;
-			}
-
-			return 1;
-		}
+		return;
 	}
 
-	return 0;
+	server_files[i].update = 1;
 }
 
 /**
@@ -327,7 +300,7 @@ void server_files_clear_update(void)
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
 		/* Invalid file. */
-		if (!server_file_setup_names[i])
+		if (!server_file_names[i])
 		{
 			continue;
 		}

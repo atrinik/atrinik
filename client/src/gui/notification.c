@@ -164,13 +164,10 @@ void widget_notification_event(widgetdata *widget, SDL_Event *event)
 	}
 }
 
-/**
- * Process notification binary command.
- * @param data The data.
- * @param len Length of 'data'. */
-void cmd_notification(uint8 *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_notification(uint8 *data, size_t len, size_t pos)
 {
-	int pos = 0, wd, ht;
+	int wd, ht;
 	char type, *cp;
 	SDL_Rect box;
 	StringBuffer *sb;
@@ -190,7 +187,7 @@ void cmd_notification(uint8 *data, int len)
 	/* Parse the data. */
 	while (pos < len)
 	{
-		type = data[pos++];
+		type = packet_to_uint8(data, len, &pos);
 
 		switch (type)
 		{
@@ -198,7 +195,7 @@ void cmd_notification(uint8 *data, int len)
 			{
 				char message[HUGE_BUF];
 
-				GetString_String(data, &pos, message, sizeof(message));
+				packet_to_string(data, len, &pos, message, sizeof(message));
 				stringbuffer_append_string(sb, message);
 				break;
 			}
@@ -207,7 +204,7 @@ void cmd_notification(uint8 *data, int len)
 			{
 				char action[HUGE_BUF];
 
-				GetString_String(data, &pos, action, sizeof(action));
+				packet_to_string(data, len, &pos, action, sizeof(action));
 				notification->action = strdup(action);
 				break;
 			}
@@ -216,14 +213,13 @@ void cmd_notification(uint8 *data, int len)
 			{
 				char shortcut[HUGE_BUF];
 
-				GetString_String(data, &pos, shortcut, sizeof(shortcut));
+				packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
 				notification->shortcut = strdup(shortcut);
 				break;
 			}
 
 			case CMD_NOTIFICATION_DELAY:
-				notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, GetInt_String(data + pos));
-				pos += 4;
+				notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
 				break;
 
 			default:

@@ -31,6 +31,10 @@
 #define SHSTR_H
 
 /**
+ * Used to differentiate shared strings from normal strings. */
+typedef const char shstr;
+
+/**
  * The size of the shared strings hashtable. */
 #define TABLESIZE 8266
 

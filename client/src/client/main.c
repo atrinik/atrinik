@@ -347,8 +347,6 @@ static void init_signals(void)
  * @return 1. */
 static int game_status_chain(void)
 {
-	char buf[1024];
-
 	if (GameStatus == GAME_STATUS_INIT)
 	{
 		cpl.mark_count = -1;
@@ -418,14 +416,26 @@ static int game_status_chain(void)
 	}
 	else if (GameStatus == GAME_STATUS_VERSION)
 	{
-		SendVersion();
+		packet_struct *packet;
+
+		packet = packet_new(SERVER_CMD_VERSION, 16, 0);
+		packet_append_uint32(packet, SOCKET_VERSION);
+		socket_send_packet(packet);
+
 		GameStatus = GAME_STATUS_SETUP;
 	}
 	else if (GameStatus == GAME_STATUS_SETUP)
 	{
-		snprintf(buf, sizeof(buf), "setup sound 1 mapsize %"FMT64"x%"FMT64, setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH), setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
-		server_files_setup_add(buf, sizeof(buf));
-		cs_write_string(buf, strlen(buf));
+		packet_struct *packet;
+
+		packet = packet_new(SERVER_CMD_SETUP, 256, 256);
+		packet_append_uint8(packet, CMD_SETUP_SOUND);
+		packet_append_uint8(packet, 1);
+		packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
+		packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH));
+		packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
+		server_files_setup_add(packet);
+		socket_send_packet(packet);
 
 		GameStatus = GAME_STATUS_WAITSETUP;
 	}
@@ -439,8 +449,12 @@ static int game_status_chain(void)
 	}
 	else if (GameStatus == GAME_STATUS_ADDME)
 	{
+		packet_struct *packet;
+
+		packet = packet_new(SERVER_CMD_ADDME, 1, 0);
+		socket_send_packet(packet);
+
 		cpl.mark_count = -1;
-		SendAddMe();
 		GameStatus = GAME_STATUS_LOGIN;
 		/* Now wait for login request of the server */
 	}
@@ -740,6 +754,7 @@ int main(int argc, char *argv[])
 	settings_init();
 	init_game_data();
 	curl_init();
+	packet_init();
 
 	while (argc > 1)
 	{
@@ -815,8 +830,6 @@ int main(int argc, char *argv[])
 
 	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 
-	script_autoload();
-
 	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
 	draw_info(COLOR_GREEN, "Init network...");
 
@@ -857,7 +870,10 @@ int main(int argc, char *argv[])
 			/* Send keepalive command every 2 minutes. */
 			if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000)
 			{
-				cs_write_string("ka", 2);
+				packet_struct *packet;
+
+				packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
+				socket_send_packet(packet);
 				last_keepalive = SDL_GetTicks();
 			}
 
@@ -935,8 +951,7 @@ int main(int argc, char *argv[])
 				DisplayCustomCursor();
 			}
 
-			script_process();
-			popup_render_head();
+			popup_render_all();
 
 			tooltip_show();
 		}

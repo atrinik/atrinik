@@ -896,15 +896,12 @@ void map_draw_one(int x, int y, _Sprite *sprite)
  * @param ty Square Y position. */
 static void send_move_path(int tx, int ty)
 {
-	SockList sl;
-	uint8 buf[HUGE_BUF];
+	packet_struct *packet;
 
-	sl.buf = buf;
-	sl.len = 0;
-	SockList_AddString(&sl, "mp ");
-	SockList_AddChar(&sl, tx);
-	SockList_AddChar(&sl, ty);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_MOVE_PATH, 8, 0);
+	packet_append_uint8(packet, tx);
+	packet_append_uint8(packet, ty);
+	socket_send_packet(packet);
 }
 
 /**

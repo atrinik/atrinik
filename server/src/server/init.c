@@ -174,8 +174,12 @@ void init_library(void)
 	init_environ();
 	init_hash_table();
 	init_globals();
-	/* Inits the pooling memory manager and the new object system */
-	init_mempools();
+	objectlink_init();
+	object_init();
+	player_init();
+	ban_init();
+	party_init();
+	packet_init();
 	init_block();
 	LOG(llevInfo, "Atrinik Server, v%s\n", PACKAGE_VERSION);
 	LOG(llevInfo, "Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team.\n");
@@ -1132,8 +1136,6 @@ void compile_info(void)
 
 	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
 	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
-
-	LOG(llevInfo, "Objects:\tAllocated: %d, free: %d\n", pool_object->nrof_allocated[0], pool_object->nrof_free[0]);
 	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
 
 	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);

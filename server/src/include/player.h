@@ -153,7 +153,7 @@ typedef struct player_path
 
 /**
  * Enumerations of the READY_OBJ_xxx constants used by
- * @ref BINARY_CMD_READY.
+ * @ref CLIENT_CMD_READY.
  * @anchor READY_OBJ_xxx */
 enum
 {

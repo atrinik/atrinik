@@ -35,10 +35,11 @@ static FILE *logstream = NULL;
  * Human-readable names of log levels. */
 static const char *const loglevel_names[] =
 {
-	"[Error] ",
-	"[Bug]   ",
-	"[Debug] ",
-	"[Info]  "
+	"[System] ",
+	"[Error]  ",
+	"[Bug]    ",
+	"[Debug]  ",
+	"[Info]   "
 };
 
 /**
@@ -104,7 +105,6 @@ void system_end(void)
 {
 	notification_destroy();
 	popup_destroy_all();
-	script_killall();
 	save_interface_file();
 	kill_widgets();
 	curl_deinit();
@@ -116,6 +116,7 @@ void system_end(void)
 	hfiles_deinit();
 	settings_deinit();
 	keybind_deinit();
+	packet_deinit();
 	SDL_Quit();
 }
 

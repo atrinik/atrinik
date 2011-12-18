@@ -386,20 +386,16 @@ static const char *popup_clipboard_copy_func(popup_struct *popup)
 	return interface_data->message;
 }
 
-/**
- * Handle interface binary command.
- * @param data Data to parse.
- * @param len Length of 'data'. */
-void cmd_interface(uint8 *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_interface(uint8 *data, size_t len, size_t pos)
 {
-	int pos = 0;
 	uint8 text_input = 0, scroll_bottom = 0;
 	char type, text_input_content[HUGE_BUF];
 	StringBuffer *sb_message;
 	size_t links_len, char_shortcuts_len, i;
 	SDL_Rect box;
 
-	if (!data || !len)
+	if (len == 0)
 	{
 		if (interface_data)
 		{
@@ -451,7 +447,7 @@ void cmd_interface(uint8 *data, int len)
 	/* Parse the data. */
 	while (pos < len)
 	{
-		type = data[pos++];
+		type = packet_to_uint8(data, len, &pos);
 
 		switch (type)
 		{
@@ -459,7 +455,7 @@ void cmd_interface(uint8 *data, int len)
 			{
 				char message[HUGE_BUF * 8];
 
-				GetString_String(data, &pos, message, sizeof(message));
+				packet_to_string(data, len, &pos, message, sizeof(message));
 				stringbuffer_append_string(sb_message, message);
 				break;
 			}
@@ -468,7 +464,7 @@ void cmd_interface(uint8 *data, int len)
 			{
 				char interface_link[HUGE_BUF], *cp;
 
-				GetString_String(data, &pos, interface_link, sizeof(interface_link));
+				packet_to_string(data, len, &pos, interface_link, sizeof(interface_link));
 				cp = interface_link;
 				utarray_push_back(interface_data->links, &cp);
 				break;
@@ -478,7 +474,7 @@ void cmd_interface(uint8 *data, int len)
 			{
 				char icon[MAX_BUF];
 
-				GetString_String(data, &pos, icon, sizeof(icon));
+				packet_to_string(data, len, &pos, icon, sizeof(icon));
 				interface_data->icon = strdup(icon);
 				break;
 			}
@@ -487,21 +483,21 @@ void cmd_interface(uint8 *data, int len)
 			{
 				char title[HUGE_BUF];
 
-				GetString_String(data, &pos, title, sizeof(title));
+				packet_to_string(data, len, &pos, title, sizeof(title));
 				interface_data->title = strdup(title);
 				break;
 			}
 
 			case CMD_INTERFACE_INPUT:
 				text_input = 1;
-				GetString_String(data, &pos, text_input_content, sizeof(text_input_content));
+				packet_to_string(data, len, &pos, text_input_content, sizeof(text_input_content));
 				break;
 
 			case CMD_INTERFACE_INPUT_PREPEND:
 			{
 				char text_input_prepend[HUGE_BUF];
 
-				GetString_String(data, &pos, text_input_prepend, sizeof(text_input_prepend));
+				packet_to_string(data, len, &pos, text_input_prepend, sizeof(text_input_prepend));
 				interface_data->text_input_prepend = strdup(text_input_prepend);
 				break;
 			}

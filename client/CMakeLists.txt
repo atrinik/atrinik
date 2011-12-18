@@ -71,7 +71,7 @@ else (X11_FOUND)
 endif (X11_FOUND)
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra)
+add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
@@ -131,6 +131,7 @@ check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 
 # Add our includes.
 include_directories(src/include)
+include_directories(src/toolkit/include)
 
 # Add sources.
 set(SOURCES
@@ -148,7 +149,6 @@ set(SOURCES
 	src/client/misc.c
 	src/client/player.c
 	src/client/porting.c
-	src/client/scripts.c
 	src/client/server_files.c
 	src/client/server_settings.c
 	src/client/settings.c
@@ -188,21 +188,24 @@ set(SOURCES
 	src/gui/textwin.c
 	src/gui/updater.c
 	src/toolkit/binreloc.c
-	src/toolkit/button.c
-	src/toolkit/clipboard.c
-	src/toolkit/list.c
-	src/toolkit/popup.c
-	src/toolkit/progress.c
-	src/toolkit/range_buttons.c
-	src/toolkit/scrollbar.c
-	src/toolkit/SDL_gfx.c
-	src/toolkit/SDL_rotozoom.c
-	src/toolkit/sha1.c
-	src/toolkit/text.c
-	src/toolkit/text_input.c
-	src/toolkit/tooltip.c
-	src/toolkit/widget.c
-	src/toolkit/stringbuffer.c)
+	src/toolkit/mempool.c
+	src/toolkit/packet.c
+	src/toolkit/shstr.c
+	src/toolkit/stringbuffer.c
+	src/toolkit_gui/button.c
+	src/toolkit_gui/clipboard.c
+	src/toolkit_gui/list.c
+	src/toolkit_gui/popup.c
+	src/toolkit_gui/progress.c
+	src/toolkit_gui/range_buttons.c
+	src/toolkit_gui/scrollbar.c
+	src/toolkit_gui/SDL_gfx.c
+	src/toolkit_gui/SDL_rotozoom.c
+	src/toolkit_gui/sha1.c
+	src/toolkit_gui/text.c
+	src/toolkit_gui/text_input.c
+	src/toolkit_gui/tooltip.c
+	src/toolkit_gui/widget.c)
 
 # Compile the sources into an executable.
 add_executable(atrinik ${SOURCES})

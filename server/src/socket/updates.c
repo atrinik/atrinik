@@ -106,7 +106,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
 	free(contents);
 	free(compressed);
 
-	update_files[update_files_num].packet = packet_new(BINARY_CMD_FILE_UPD, 0, 0);
+	update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
 	packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);
 	packet_append_uint32(update_files[update_files_num].packet, update_files[update_files_num].ucomp_len);
 	packet_append_data_len(update_files[update_files_num].packet, update_files[update_files_num].contents, update_files[update_files_num].len);
@@ -214,24 +214,18 @@ void updates_init(void)
 	fclose(fp);
 }
 
-/**
- * Client has requested us to send it the specified file.
- * @param buf Data.
- * @param len Length of 'buf'.
- * @param ns Client's socket. */
-void cmd_request_update(char *buf, int len, socket_struct *ns)
+void socket_command_request_update(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
+	char buf[MAX_BUF];
 	update_file_struct *tmp;
 
-	/* We assume all the update files will have at least 2 letters
-	 * (including directories they are in). */
-	if (ns->status != Ns_Add || !buf || len < 2)
+	if (ns->status != Ns_Add)
 	{
 		return;
 	}
 
 	/* Try to find the file. */
-	tmp = updates_file_find(buf);
+	tmp = updates_file_find(packet_to_string(data, len, &pos, buf, sizeof(buf)));
 
 	/* Invalid file. */
 	if (!tmp)

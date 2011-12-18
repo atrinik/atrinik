@@ -99,7 +99,7 @@ check_function_exists(sysconf HAVE_SYSCONF)
 check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra)
+add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
@@ -137,6 +137,7 @@ configure_file(src/include/version.h.def src/include/version.h)
 
 # Add our includes.
 include_directories(src/include)
+include_directories(src/toolkit/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
 
@@ -207,7 +208,6 @@ set(SOURCES
 	src/server/los.c
 	src/server/main.c
 	src/server/map.c
-	src/server/mempool.c
 	src/server/move.c
 	src/server/object.c
 	src/server/object_methods.c
@@ -222,13 +222,11 @@ set(SOURCES
 	src/server/region.c
 	src/server/rune.c
 	src/server/shop.c
-	src/server/shstr.c
 	src/server/skills.c
 	src/server/skill_util.c
 	src/server/spell_effect.c
 	src/server/spell_util.c
 	src/server/statistics.c
-	src/server/stringbuffer.c
 	src/server/swap.c
 	src/server/time.c
 	src/server/treasure.c
@@ -243,10 +241,14 @@ set(SOURCES
 	src/socket/loop.c
 	src/socket/lowlevel.c
 	src/socket/metaserver.c
-	src/socket/packet.c
 	src/socket/request.c
 	src/socket/sounds.c
 	src/socket/updates.c
+	src/toolkit/binreloc.c
+	src/toolkit/mempool.c
+	src/toolkit/packet.c
+	src/toolkit/shstr.c
+	src/toolkit/stringbuffer.c
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/move_on.c

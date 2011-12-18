@@ -49,6 +49,24 @@ const char *const party_loot_modes_help[PARTY_LOOT_MAX] =
 party_struct *first_party = NULL;
 
 /**
+ * Party memory pool. */
+static mempool_struct *pool_party;
+
+/**
+ * Initialize the party API. */
+void party_init(void)
+{
+	pool_party = mempool_create("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
+}
+
+/**
+ * Deinitialize the party API. */
+void party_deinit(void)
+{
+	mempool_free(pool_party);
+}
+
+/**
  * Add a player to party's member list.
  * @param party Party to add the player to.
  * @param op The player to add. */
@@ -64,7 +82,7 @@ void add_party_member(party_struct *party, object *op)
 	/* And set up player's pointer to the party. */
 	CONTR(op)->party = party;
 
-	packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+	packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
 	packet_append_uint8(packet, CMD_PARTY_JOIN);
 	packet_append_string_terminated(packet, party->name);
 	socket_send_packet(&CONTR(op)->socket, packet);
@@ -96,7 +114,7 @@ void remove_party_member(party_struct *party, object *op)
 
 	if (party->members)
 	{
-		packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+		packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
 		packet_append_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
 		packet_append_string_terminated(packet, op->name);
 
@@ -120,7 +138,7 @@ void remove_party_member(party_struct *party, object *op)
 		draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
 	}
 
-	packet = packet_new(BINARY_CMD_PARTY, 4, 0);
+	packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
 	packet_append_uint8(packet, CMD_PARTY_LEAVE);
 	socket_send_packet(&CONTR(op)->socket, packet);
 
@@ -133,7 +151,7 @@ void remove_party_member(party_struct *party, object *op)
  * @return The initialized party structure. */
 static party_struct *make_party(const char *name)
 {
-	party_struct *party = (party_struct *) get_poolchunk(pool_parties);
+	party_struct *party = (party_struct *) get_poolchunk(pool_party);
 
 	memset(party, 0, sizeof(party_struct));
 	FREE_AND_COPY_HASH(party->name, name);
@@ -409,7 +427,7 @@ void remove_party(party_struct *party)
 
 	FREE_AND_CLEAR_HASH(party->name);
 	FREE_AND_CLEAR_HASH(party->leader);
-	return_poolchunk(party, pool_parties);
+	return_poolchunk(party, pool_party);
 }
 
 /**
@@ -433,7 +451,7 @@ void party_update_who(player *pl)
 		packet_struct *packet;
 		objectlink *ol;
 
-		packet = packet_new(BINARY_CMD_PARTY, 64, 64);
+		packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
 		packet_append_uint8(packet, CMD_PARTY_UPDATE);
 		packet_append_string_terminated(packet, pl->ob->name);
 		packet_append_uint8(packet, hp);

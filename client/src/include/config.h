@@ -27,6 +27,9 @@
  * @file
  * This is the config file for the client. */
 
+#ifndef CONFIG_H
+#define CONFIG_H
+
 /** Socket version. */
 #define SOCKET_VERSION 1058
 
@@ -67,3 +70,10 @@
 #define DIRECTORY_CACHE "cache"
 #define DIRECTORY_GFX_USER "gfx_user"
 #define DIRECTORY_MEDIA "media"
+
+/**
+ * If 1, used memory is freed on shutdown, allowing easier memory leak
+ * checking with tools like Valgrind. */
+#define MEMORY_DEBUG 0
+
+#endif

@@ -33,6 +33,7 @@
 			<Add option="-DCURL_STATICLIB" />
 			<Add option="-O3" />
 			<Add directory="..\..\src\include" />
+			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\random_maps" />
 			<Add directory="..\..\src\tests" />
 			<Add directory="include" />
@@ -99,7 +100,6 @@
 		<Unit filename="..\..\src\server\los.c" />
 		<Unit filename="..\..\src\server\main.c" />
 		<Unit filename="..\..\src\server\map.c" />
-		<Unit filename="..\..\src\server\mempool.c" />
 		<Unit filename="..\..\src\server\move.c" />
 		<Unit filename="..\..\src\server\object.c" />
 		<Unit filename="..\..\src\server\object_methods.c" />
@@ -114,13 +114,11 @@
 		<Unit filename="..\..\src\server\region.c" />
 		<Unit filename="..\..\src\server\rune.c" />
 		<Unit filename="..\..\src\server\shop.c" />
-		<Unit filename="..\..\src\server\shstr.c" />
 		<Unit filename="..\..\src\server\skills.c" />
 		<Unit filename="..\..\src\server\skill_util.c" />
 		<Unit filename="..\..\src\server\spell_effect.c" />
 		<Unit filename="..\..\src\server\spell_util.c" />
 		<Unit filename="..\..\src\server\statistics.c" />
-		<Unit filename="..\..\src\server\stringbuffer.c" />
 		<Unit filename="..\..\src\server\swap.c" />
 		<Unit filename="..\..\src\server\time.c" />
 		<Unit filename="..\..\src\server\treasure.c" />
@@ -135,10 +133,14 @@
 		<Unit filename="..\..\src\socket\loop.c" />
 		<Unit filename="..\..\src\socket\lowlevel.c" />
 		<Unit filename="..\..\src\socket\metaserver.c" />
-		<Unit filename="..\..\src\socket\packet.c" />
 		<Unit filename="..\..\src\socket\request.c" />
 		<Unit filename="..\..\src\socket\sounds.c" />
 		<Unit filename="..\..\src\socket\updates.c" />
+		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\mempool.c" />
+		<Unit filename="..\..\src\toolkit\packet.c" />
+		<Unit filename="..\..\src\toolkit\shstr.c" />
+		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
 		<Unit filename="..\..\src\types\common\apply.c" />
 		<Unit filename="..\..\src\types\common\describe.c" />
 		<Unit filename="..\..\src\types\common\move_on.c" />

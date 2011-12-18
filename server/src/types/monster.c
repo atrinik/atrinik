@@ -1743,7 +1743,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 			/* Update the movement timeout if necessary. */
 			monster_update_move_timeout(npc, cp_len);
 
-			packet = packet_new(BINARY_CMD_INTERFACE, 256, 256);
+			packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
 
 			packet_append_uint8(packet, CMD_INTERFACE_TEXT);
 			packet_append_data_len(packet, (uint8 *) cp, cp_len);

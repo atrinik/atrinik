@@ -115,9 +115,6 @@ typedef unsigned short Fontindex;
 /** Object unique IDs. */
 typedef unsigned int tag_t;
 
-/** This should be used to differentiate shared strings from normal strings. */
-typedef const char shstr;
-
 #ifdef WIN32
 	typedef unsigned __int64            uint64;
 	typedef signed __int64              sint64;

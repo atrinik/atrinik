@@ -34,6 +34,24 @@ static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
 
 /**
+ * Player memory pool. */
+mempool_struct *pool_player;
+
+/**
+ * Initialize the player API. */
+void player_init(void)
+{
+	pool_player = mempool_create("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
+}
+
+/**
+ * Deinitialize the player API. */
+void player_deinit(void)
+{
+	mempool_free(pool_player);
+}
+
+/**
  * Loop through the player list and find player specified by plname.
  * @param plname The player name to find.
  * @return Player structure if found, NULL otherwise. */
@@ -319,7 +337,6 @@ int add_player(socket_struct *ns)
 	p->socket.below_clear = 0;
 	p->socket.update_tile = 0;
 	p->socket.look_position = 0;
-	p->socket.inbuf.len = 0;
 
 	get_name(p->ob);
 
@@ -431,7 +448,7 @@ void get_name(object *op)
 {
 	CONTR(op)->write_buf[0] = '\0';
 	CONTR(op)->state = ST_GET_NAME;
-	send_query(&CONTR(op)->socket, 0, "What is your name?\n:");
+	send_query(&CONTR(op)->socket, CMD_QUERY_GET_NAME);
 }
 
 /**
@@ -441,7 +458,7 @@ void get_password(object *op)
 {
 	CONTR(op)->write_buf[0] = '\0';
 	CONTR(op)->state = ST_GET_PASSWORD;
-	send_query(&CONTR(op)->socket, CS_QUERY_HIDEINPUT, "What is your password?\n:");
+	send_query(&CONTR(op)->socket, CMD_QUERY_GET_PASSWORD);
 }
 
 /**
@@ -451,7 +468,7 @@ void confirm_password(object *op)
 {
 	CONTR(op)->write_buf[0] = '\0';
 	CONTR(op)->state = ST_CONFIRM_PASSWORD;
-	send_query(&CONTR(op)->socket, CS_QUERY_HIDEINPUT, "Please type your password again.\n:");
+	send_query(&CONTR(op)->socket, CMD_QUERY_CONFIRM_PASSWORD);
 }
 
 /**

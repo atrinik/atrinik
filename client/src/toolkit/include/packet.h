@@ -25,73 +25,57 @@
 
 /**
  * @file
- * Handles scripts structures and function prototype declarations. */
+ * Packet API header file.
+ *
+ * @author Alex Tokar */
 
-#include <global.h>
+#ifndef PACKET_H
+#define PACKET_H
 
-#ifndef SCRIPTS_H
-#define SCRIPTS_H
-
-/** Command format. */
-enum CmdFormat
+/**
+ * A single data packet. */
+typedef struct packet_struct
 {
-	/** Regular ASCII string. */
-	ASCII,
-	/** Array of shorts. */
-	SHORT_ARRAY,
-	/** Integer array. */
-	INT_ARRAY,
-	/** Short and integer. */
-	SHORT_INT,
-	/** Mixed data. */
-	MIXED,
-	/** The stats command. */
-	STATS,
-	/** No data. */
-	NODATA
-};
+	/**
+	 * Next packet to send. */
+	struct packet_struct *next;
 
-/** Script structure. */
-struct script
-{
-	/** The script name. */
-	char *name;
+	/**
+	 * Previous packet. */
+	struct packet_struct *prev;
 
-	/** The script parameters, if any. */
-	char *params;
+	/**
+	 * The data. */
+	uint8 *data;
 
-	/** Command from the script. */
-	char cmd[HUGE_BUF];
+	/**
+	 * Length of 'data'. */
+	size_t len;
 
-#ifndef WIN32
-	/** The file descriptor to which the client writes to the script. */
-	int out_fd;
+	/**
+	 * Current size of 'data'. */
+	size_t size;
 
-	/** The file descriptor from which we read commands from the script. */
-	int in_fd;
-#else
-	HANDLE out_fd;
-	HANDLE in_fd;
-#endif
+	/**
+	 * Expand size. */
+	size_t expand;
 
-	/** Bytes already read in. */
-	int cmd_count;
+	/**
+	 * Position in 'data'. */
+	size_t pos;
 
-#ifndef WIN32
-	/** Process ID. */
-	pid_t pid;
-#else
-	DWORD pid;
+	/**
+	 * Whether to enable NDELAY on this packet. */
+	uint8 ndelay;
 
-	/** Process handle for win32 */
-	HANDLE process;
-#endif
+	/**
+	 * The packet's command type. */
+    uint8 type;
+} packet_struct;
 
-	/** All the events this script has registered. */
-	char **events;
-
-	/** Number of events this event has registered so far. */
-	int events_count;
-};
+/**
+ * How many packet structures to allocate when expanding the packets
+ * memory pool. */
+#define PACKET_EXPAND 10
 
 #endif

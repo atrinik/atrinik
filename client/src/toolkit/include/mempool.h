@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Memory pooling definitions. */
+ * Memory pools API header file. */
 
 #ifndef MEMPOOL_H
 #define MEMPOOL_H
@@ -33,9 +33,9 @@
 /**
  * Minimalistic memory management data for a single chunk of memory.
  *
- * It is (currently) up to the application to keep track of which pool
- * it belongs to. */
-struct mempool_chunk
+ * It is up to the application to keep track of which pool it belongs
+ * to. */
+typedef struct mempool_chunk_struct
 {
 	/* This struct must always be padded for longword alignment of the data coming behind it.
 	 * Not a problem as long as we only keep a single pointer here, but be careful
@@ -44,16 +44,16 @@ struct mempool_chunk
 	/**
 	 * Used for the free list and the limbo list. NULL if this
 	 * memory chunk has been allocated and is in use */
-	struct mempool_chunk *next;
-};
+	struct mempool_chunk_struct *next;
+} mempool_chunk_struct;
 
-/* Optional initialisator to be called when expanding */
+/** Optional initialisator to be called when expanding. */
 typedef void (*chunk_initialisator) (void *ptr);
-/* Optional deinitialisator to be called when freeing */
+/** Optional deinitialisator to be called when freeing. */
 typedef void (*chunk_deinitialisator) (void *ptr);
-/* Optional constructor to be called when getting chunks */
+/** Optional constructor to be called when getting chunks. */
 typedef void (*chunk_constructor) (void *ptr);
-/* Optional destructor to be called when returning chunks */
+/** Optional destructor to be called when returning chunks. */
 typedef void (*chunk_destructor) (void *ptr);
 
 /* Definitions used for array handling */
@@ -62,7 +62,7 @@ typedef void (*chunk_destructor) (void *ptr);
 #define MEMPOOL_MAX_ARRAYSIZE (1 << MEMPOOL_NROF_FREELISTS)
 
 /** Data for a single memory pool */
-struct mempool
+typedef struct mempool_struct
 {
 	/** Mutex protecting the mempool's data. */
 	pthread_mutex_t mutex;
@@ -92,22 +92,19 @@ struct mempool
 	chunk_destructor destructor;
 
 	/** First free chunk */
-	struct mempool_chunk *freelist[MEMPOOL_NROF_FREELISTS];
+	mempool_chunk_struct *freelist[MEMPOOL_NROF_FREELISTS];
 
 	/** Number of free. */
 	uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
 
 	/** Number of allocated. */
 	uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
-};
-
-/** Maximum number of mempools we will use */
-#define MAX_NROF_MEMPOOLS 32
+} mempool_struct;
 
 /** Get the memory management struct for a chunk of memory */
-#define MEM_POOLDATA(ptr) (((struct mempool_chunk *)(ptr)) - 1)
+#define MEM_POOLDATA(ptr) (((mempool_chunk_struct *)(ptr)) - 1)
 /** Get the actual user data area from a mempool reference */
-#define MEM_USERDATA(ptr) ((void *)(((struct mempool_chunk *)(ptr)) + 1))
+#define MEM_USERDATA(ptr) ((void *)(((mempool_chunk_struct *)(ptr)) + 1))
 /** Check that a chunk of memory is in the free (or removed for objects) list */
 #define CHUNK_FREE(ptr) (MEM_POOLDATA(ptr)->next != NULL)
 

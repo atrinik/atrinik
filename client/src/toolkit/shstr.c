@@ -30,9 +30,6 @@
 
 #include <global.h>
 
-#define SS_STATISTICS
-#include "shstr.h"
-
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 

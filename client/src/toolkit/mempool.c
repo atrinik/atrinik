@@ -25,7 +25,7 @@
 
 /**
  * @file
- * Basic pooling memory management system.
+ * Memory pools API.
  *
  * The mempool system never frees memory back to the system, but is
  * extremely efficient when it comes to allocating and returning pool
@@ -44,11 +44,9 @@
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
  * Only used as an end marker for the lists */
-struct mempool_chunk end_marker;
+mempool_chunk_struct end_marker;
 
-int nrof_mempools = 0;
-struct mempool *mempools[MAX_NROF_MEMPOOLS];
-struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties, *pool_packets;
+struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties;
 
 /**
  * Return the exponent exp needed to round n up to the nearest power of two, so that
@@ -80,7 +78,7 @@ uint32 nearest_pow_two_exp(uint32 n)
  * @param pool Pool.
  * @param constructor Constructor function.
  * @param destructor Destructor function. */
-void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, chunk_destructor destructor)
+void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor)
 {
 	pool->constructor = constructor;
 	pool->destructor = destructor;
@@ -97,19 +95,12 @@ void setup_poolfunctions(struct mempool *pool, chunk_constructor constructor, ch
  * @param constructor
  * @param destructor
  * @return The created memory pool. */
-struct mempool *create_mempool(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor)
+mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor)
 {
 	int i;
-	struct mempool *pool;
+	mempool_struct *pool;
 
-	if (nrof_mempools >= MAX_NROF_MEMPOOLS)
-	{
-		LOG(llevError, "Too many memory pools registered. Please increase the MAX_NROF_MEMPOOLS constant in mempools.h\n");
-	}
-
-	pool = calloc(1, sizeof(struct mempool));
-
-	mempools[nrof_mempools] = pool;
+	pool = calloc(1, sizeof(mempool_struct));
 
 	pthread_mutex_init(&pool->mutex, NULL);
 	pool->chunk_description = description;
@@ -132,41 +123,15 @@ struct mempool *create_mempool(const char *description, uint32 expand, uint32 si
 		pool->nrof_allocated[i] = 0;
 	}
 
-	nrof_mempools++;
-
 	return pool;
-}
-
-/**
- * Initialize the mempools lists and related data structures. */
-void init_mempools(void)
-{
-	pool_object = create_mempool("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, NULL);
-	pool_player = create_mempool("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
-	pool_objectlink = create_mempool("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
-	pool_bans = create_mempool("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
-	pool_parties = create_mempool("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
-	pool_packets = create_mempool("packets", SOCKET_PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Free a mempool.
  * @param pool The mempool to free. */
-static void free_mempool(struct mempool *pool)
+void mempool_free(mempool_struct *pool)
 {
 	free(pool);
-}
-
-/**
- * Free all the mempools previously initialized by init_mempools(). */
-void free_mempools(void)
-{
-	LOG(llevDebug, "Freeing memory pools.\n");
-	free_mempool(pool_object);
-	free_mempool(pool_player);
-	free_mempool(pool_objectlink);
-	free_mempool(pool_bans);
-	free_mempool(pool_parties);
 }
 
 /**
@@ -176,10 +141,10 @@ void free_mempools(void)
  * @param pool Pool to expand.
  * @param arraysize_exp The exponent for the array size, for example 3
  * for arrays of length 8 (2^3 = 8) */
-static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
+static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 {
 	uint32 i;
-	struct mempool_chunk *first, *ptr;
+	mempool_chunk_struct *first, *ptr;
 	int chunksize_real, nrof_arrays;
 
 	if (pool->nrof_free[arraysize_exp] > 0)
@@ -195,8 +160,8 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 		nrof_arrays = 1;
 	}
 
-	chunksize_real = sizeof(struct mempool_chunk) + (pool->chunksize << arraysize_exp);
-	first = (struct mempool_chunk *) calloc(1, nrof_arrays * chunksize_real);
+	chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
+	first = (mempool_chunk_struct *) calloc(1, nrof_arrays * chunksize_real);
 
 	if (first == NULL)
 	{
@@ -217,7 +182,7 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
 			pool->initialisator(MEM_USERDATA(ptr));
 		}
 
-		ptr = ptr->next = (struct mempool_chunk *) (((char *) ptr) + chunksize_real);
+		ptr = ptr->next = (mempool_chunk_struct *) (((char *) ptr) + chunksize_real);
 	}
 
 	/* And the last element */
@@ -235,15 +200,15 @@ static void expand_mempool(struct mempool *pool, uint32 arraysize_exp)
  * @param pool
  * @param arraysize_exp
  * @return  */
-void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp)
+void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 {
-	struct mempool_chunk *new_obj;
+	mempool_chunk_struct *new_obj;
 
 	pthread_mutex_lock(&pool->mutex);
 
 	if (pool->flags & MEMPOOL_BYPASS_POOLS)
 	{
-		new_obj = calloc(1, sizeof(struct mempool_chunk) + (pool->chunksize << arraysize_exp));
+		new_obj = calloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
 		pool->nrof_allocated[arraysize_exp]++;
 	}
 	else
@@ -278,9 +243,9 @@ void *get_poolchunk_array_real(struct mempool *pool, uint32 arraysize_exp)
  * @param data
  * @param arraysize_exp
  * @param pool  */
-void return_poolchunk_array_real(void *data, uint32 arraysize_exp, struct mempool *pool)
+void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool)
 {
-	struct mempool_chunk *old = MEM_POOLDATA(data);
+	mempool_chunk_struct *old = MEM_POOLDATA(data);
 
 	if (CHUNK_FREE(data))
 	{

@@ -57,16 +57,13 @@ int quickslots_pos[MAX_QUICK_SLOTS][2] =
  * @param tag ID of the item to set. */
 static void quickslot_set_item(uint8 slot, sint32 tag)
 {
-	SockList sl;
-	unsigned char buf[MAX_BUF];
+	packet_struct *packet;
 
-	sl.buf = buf;
-	sl.len = 0;
-	SockList_AddString(&sl, "qs ");
-	SockList_AddChar(&sl, CMD_QUICKSLOT_SET);
-	SockList_AddChar(&sl, slot);
-	SockList_AddInt(&sl, tag);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
+	packet_append_uint8(packet, CMD_QUICKSLOT_SET);
+	packet_append_uint8(packet, slot);
+	packet_append_uint32(packet, tag);
+	socket_send_packet(packet);
 }
 
 /**
@@ -76,16 +73,13 @@ static void quickslot_set_item(uint8 slot, sint32 tag)
  * @param spell_name Name of the spell to set. */
 static void quickslot_set_spell(uint8 slot, char *spell_name)
 {
-	SockList sl;
-	unsigned char buf[MAX_BUF];
+	packet_struct *packet;
 
-	sl.buf = buf;
-	sl.len = 0;
-	SockList_AddString(&sl, "qs ");
-	SockList_AddChar(&sl, CMD_QUICKSLOT_SETSPELL);
-	SockList_AddChar(&sl, slot);
-	SockList_AddString(&sl, spell_name);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
+	packet_append_uint8(packet, CMD_QUICKSLOT_SETSPELL);
+	packet_append_uint8(packet, slot);
+	packet_append_string_terminated(packet, spell_name);
+	socket_send_packet(packet);
 }
 
 /**
@@ -93,15 +87,12 @@ static void quickslot_set_spell(uint8 slot, char *spell_name)
  * @param slot Quickslot ID to unset. */
 static void quickslot_unset(uint8 slot)
 {
-	SockList sl;
-	unsigned char buf[MAX_BUF];
+	packet_struct *packet;
 
-	sl.buf = buf;
-	sl.len = 0;
-	SockList_AddString(&sl, "qs ");
-	SockList_AddChar(&sl, CMD_QUICKSLOT_UNSET);
-	SockList_AddChar(&sl, slot);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
+	packet_append_uint8(packet, CMD_QUICKSLOT_UNSET);
+	packet_append_uint8(packet, slot);
+	socket_send_packet(packet);
 }
 
 void quickslots_init(void)
@@ -447,13 +438,9 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 	}
 }
 
-/**
- * Parses data returned by the server for quickslots.
- * @param data The data to parse.
- * @param len Length of 'data'. */
-void QuickSlotCmd(unsigned char *data, int len)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
 {
-	int pos = 0;
 	uint8 type, slot;
 
 	/* Clear all quickslots. */
@@ -465,28 +452,19 @@ void QuickSlotCmd(unsigned char *data, int len)
 
 	while (pos < len)
 	{
-		type = data[pos++];
-		slot = data[pos++];
+		type = packet_to_uint8(data, len, &pos);
+		slot = packet_to_uint8(data, len, &pos);
 
 		if (type == QUICKSLOT_TYPE_ITEM)
 		{
-			quick_slots[slot].tag = GetInt_String(data + pos);
-			pos += 4;
+			quick_slots[slot].tag = packet_to_uint32(data, len, &pos);
 		}
 		else if (type == QUICKSLOT_TYPE_SPELL)
 		{
-			char spell_name[MAX_BUF], c;
-			size_t i = 0;
+			char spell_name[MAX_BUF];
 			size_t spell_path, spell_id;
 
-			spell_name[0] = '\0';
-
-			while ((c = (char) (data[pos++])))
-			{
-				spell_name[i++] = c;
-			}
-
-			spell_name[i] = '\0';
+			packet_to_string(data, len, &pos, spell_name, sizeof(spell_name));
 
 			if (spell_find(spell_name, &spell_path, &spell_id))
 			{

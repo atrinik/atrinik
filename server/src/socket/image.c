@@ -249,58 +249,23 @@ void read_client_images(void)
 	}
 }
 
-/**
- * Client has requested a face.
- * @param buf The data sent to us.
- * @param len Length of 'buf'.
- * @param ns Client's socket. */
-void SendFaceCmd(char *buf, int len, socket_struct *ns)
+void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	long tmpnum;
-	short facenum;
+	uint16 facenum;
+	packet_struct *packet;
 
-	if (!buf || !len)
+	facenum = packet_to_uint16(data, len, &pos);
+
+	if (facenum == 0 || facenum >= nrofpixmaps || !facesets[0].faces[facenum].data)
 	{
 		return;
 	}
 
-	tmpnum = atoi(buf);
-	facenum = tmpnum & 0xffff;
-
-	if (facenum != 0)
-	{
-		esrv_send_face(ns, facenum);
-	}
-}
-
-/**
- * Sends a face to client.
- * @param ns Client's socket.
- * @param face_num Face number to send.
- * @return One of @ref SEND_FACE_xxx. */
-int esrv_send_face(socket_struct *ns, short face_num)
-{
-	packet_struct *packet;
-
-	if (face_num < 0 || face_num >= nrofpixmaps)
-	{
-		LOG(llevBug, "esrv_send_face(): Face %d out of bounds!\n", face_num);
-		return SEND_FACE_OUT_OF_BOUNDS;
-	}
-
-	if (facesets[0].faces[face_num].data == NULL)
-	{
-		LOG(llevBug, "esrv_send_face(): faces[%d].data == NULL\n", face_num);
-		return SEND_FACE_NO_DATA;
-	}
-
-	packet = packet_new(BINARY_CMD_IMAGE, 16, 0);
-	packet_append_uint32(packet, face_num);
-	packet_append_uint32(packet, facesets[0].faces[face_num].datalen);
-	packet_append_data_len(packet, facesets[0].faces[face_num].data, facesets[0].faces[face_num].datalen);
+	packet = packet_new(CLIENT_CMD_IMAGE, 16, 0);
+	packet_append_uint32(packet, facenum);
+	packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
+	packet_append_data_len(packet, facesets[0].faces[facenum].data, facesets[0].faces[facenum].datalen);
 	socket_send_packet(ns, packet);
-
-	return SEND_FACE_OK;
 }
 
 /**

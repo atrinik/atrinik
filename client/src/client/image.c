@@ -295,47 +295,48 @@ void read_bmaps(void)
  * @param pnum ID of the face.
  * @param checksum Face checksum.
  * @param face Face name. */
-void finish_face_cmd(int pnum, uint32 checksum, char *face)
+void finish_face_cmd(int facenum, uint32 checksum, char *face)
 {
-	char buf[2048];
-	FILE *stream;
+	FILE *fp;
 	struct stat statbuf;
 	size_t len;
 	static uint32 newsum = 0;
+	char buf[HUGE_BUF];
 	unsigned char *data;
+	packet_struct *packet;
 
 	/* Loaded or requested. */
-	if (FaceList[pnum].name)
+	if (FaceList[facenum].name)
 	{
 		/* Let's check the name, checksum and sprite. Only if all is ok,
 		 * we stay with it */
-		if (!strcmp(face, FaceList[pnum].name) && checksum == FaceList[pnum].checksum && FaceList[pnum].sprite)
+		if (!strcmp(face, FaceList[facenum].name) && checksum == FaceList[facenum].checksum && FaceList[facenum].sprite)
 		{
 			return;
 		}
 
 		/* Something is different. */
-		free(FaceList[pnum].name);
-		FaceList[pnum].name = NULL;
-		sprite_free_sprite(FaceList[pnum].sprite);
+		free(FaceList[facenum].name);
+		FaceList[facenum].name = NULL;
+		sprite_free_sprite(FaceList[facenum].sprite);
 	}
 
 	snprintf(buf, sizeof(buf), "%s.png", face);
-	FaceList[pnum].name = (char *) malloc(strlen(buf) + 1);
-	strcpy(FaceList[pnum].name, buf);
+	FaceList[facenum].name = (char *) malloc(strlen(buf) + 1);
+	strcpy(FaceList[facenum].name, buf);
 
-	FaceList[pnum].checksum = checksum;
+	FaceList[facenum].checksum = checksum;
 
 	/* Check private cache first */
-	snprintf(buf, sizeof(buf), DIRECTORY_CACHE"/%s", FaceList[pnum].name);
+	snprintf(buf, sizeof(buf), DIRECTORY_CACHE"/%s", FaceList[facenum].name);
 
-	if ((stream = fopen_wrapper(buf, "rb")) != NULL)
+	if ((fp = fopen_wrapper(buf, "rb")) != NULL)
 	{
-		fstat(fileno (stream), &statbuf);
+		fstat(fileno (fp), &statbuf);
 		len = statbuf.st_size;
 		data = malloc(len);
-		len = fread(data, 1, len, stream);
-		fclose(stream);
+		len = fread(data, 1, len, fp);
+		fclose(fp);
 		newsum = 0;
 
 		/* Something is wrong... Unlink the file and let it reload. */
@@ -354,17 +355,18 @@ void finish_face_cmd(int pnum, uint32 checksum, char *face)
 
 		if (newsum == checksum)
 		{
-			FaceList[pnum].sprite = sprite_tryload_file(buf, 0, NULL);
+			FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
 
-			if (FaceList[pnum].sprite)
+			if (FaceList[facenum].sprite)
 			{
 				return;
 			}
 		}
 	}
 
-	snprintf(buf, sizeof(buf), "askface %d", pnum);
-	cs_write_string(buf, strlen(buf));
+	packet = packet_new(SERVER_CMD_ASK_FACE, 16, 0);
+	packet_append_uint16(packet, facenum);
+	socket_send_packet(packet);
 }
 
 /**

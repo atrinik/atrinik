@@ -123,67 +123,30 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
 	return buf;
 }
 
-/**
- * Add a binary command to the output buffer.
- * If body is NULL, a single-byte command is created from cmd.
- * Otherwise body should include the length and cmd header. */
-int send_command_binary(uint8 cmd, uint8 *body, unsigned int len)
+void socket_send_packet(packet_struct *packet)
 {
 	command_buffer *buf;
+	size_t len;
 
-	if (body)
-	{
-		buf = command_buffer_new(len, body);
-	}
-	else
-	{
-		uint8 tmp[3];
-
-		len = 0x8001;
-		/* Packet order is obviously big-endian for length data. */
-		tmp[0] = (len >> 8) & 0xFF;
-		tmp[1] = len & 0xFF;
-		tmp[2] = cmd;
-		buf = command_buffer_new(3, tmp);
-	}
+	buf = command_buffer_new(packet->len + 3, NULL);
 
 	if (!buf)
 	{
 		socket_close(&csocket);
-		return -1;
+		return;
 	}
+
+	len = packet->len + 1;
+	buf->data[0] = (len >> 8) & 0xff;
+	buf->data[1] = len & 0xff;
+	buf->data[2] = packet->type;
+	memcpy(buf->data + 3, packet->data, packet->len);
+	packet_free(packet);
 
 	SDL_LockMutex(output_buffer_mutex);
 	command_buffer_enqueue(buf, &output_queue_start, &output_queue_end);
 	SDL_CondSignal(output_buffer_cond);
 	SDL_UnlockMutex(output_buffer_mutex);
-
-	return 0;
-}
-
-/**
- * Move a command buffer to the out buffer so it can be written to the socket. */
-int send_socklist(SockList msg)
-{
-	command_buffer *buf = command_buffer_new(msg.len + 2, NULL);
-
-	if (!buf)
-	{
-		socket_close(&csocket);
-		return -1;
-	}
-
-	memcpy(buf->data + 2, msg.buf, msg.len);
-
-	buf->data[0] = (uint8) ((msg.len >> 8) & 0xFF);
-	buf->data[1] = ((uint32) (msg.len)) & 0xFF;
-
-	SDL_LockMutex(output_buffer_mutex);
-	command_buffer_enqueue(buf, &output_queue_start, &output_queue_end);
-	SDL_CondSignal(output_buffer_cond);
-	SDL_UnlockMutex(output_buffer_mutex);
-
-	return 0;
 }
 
 /**

@@ -678,7 +678,10 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "QLIST"))
 		{
-			cs_write_string("qlist", 5);
+			packet_struct *packet;
+
+			packet = packet_new(SERVER_CMD_QUESTLIST, 0, 0);
+			socket_send_packet(packet);
 		}
 		else if (!strcmp(cmd, "RANGE"))
 		{

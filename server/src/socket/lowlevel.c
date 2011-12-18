@@ -30,64 +30,19 @@
 #include <global.h>
 
 /**
- * Add a NULL terminated string.
- * @param sl SockList instance to add to.
- * @param data The string to add. */
-void SockList_AddString(SockList *sl, const char *data)
-{
-	char c;
-
-	while ((c = *data++))
-	{
-		sl->buf[sl->len] = c;
-		sl->len++;
-	}
-
-	sl->buf[sl->len] = c;
-	sl->len++;
-}
-
-/**
- * Construct a string from data packet.
- * @param data Data packet.
- * @param len Length of 'data'.
- * @param[out] pos Position in the data packet.
- * @param dest Will contain the string from data packet.
- * @param dest_size Size of 'dest'.
- * @return 'dest'. */
-char *GetString_String(uint8 *data, int len, int *pos, char *dest, size_t dest_size)
-{
-	size_t i = 0;
-	char c;
-
-	while (*pos < len && (c = (char) (data[(*pos)++])))
-	{
-		if (i < dest_size - 1)
-		{
-			dest[i++] = c;
-		}
-	}
-
-	dest[i] = '\0';
-	return dest;
-}
-
-/**
- * Reads from socket.
+ * Receives data from socket.
  * @param ns Socket to read from.
- * @param len Max length of data to read.
  * @return 1 on success, -1 on failure. */
-int SockList_ReadPacket(socket_struct *ns, int len)
+int socket_recv(socket_struct *ns)
 {
-	SockList *sl = &ns->readbuf;
 	int stat_ret;
 
 #ifdef WIN32
-	stat_ret = recv(ns->fd, sl->buf + sl->len, len - sl->len, 0);
+	stat_ret = recv(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len, 0);
 #else
 	do
 	{
-		stat_ret = read(ns->fd, sl->buf + sl->len, len - sl->len);
+		stat_ret = read(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len);
 	}
 	while (stat_ret == -1 && errno == EINTR);
 #endif
@@ -99,11 +54,7 @@ int SockList_ReadPacket(socket_struct *ns, int len)
 
 	if (stat_ret > 0)
 	{
-		sl->len += stat_ret;
-#if CS_LOGSTATS
-		cst_tot.ibytes += stat_ret;
-		cst_lst.ibytes += stat_ret;
-#endif
+		ns->packet_recv->len += stat_ret;
 	}
 	else if (stat_ret < 0)
 	{
@@ -116,7 +67,7 @@ int SockList_ReadPacket(socket_struct *ns, int len)
 			}
 			else
 			{
-				LOG(llevDebug, "SockList_ReadPacket() got error %d, returning %d.\n", WSAGetLastError(), stat_ret);
+				LOG(llevDebug, "socket_recv() got error %d, returning %d.\n", WSAGetLastError(), stat_ret);
 			}
 
 			return stat_ret;
@@ -124,51 +75,13 @@ int SockList_ReadPacket(socket_struct *ns, int len)
 #else
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 		{
-			LOG(llevDebug, "SockList_ReadPacket() got error %d: %s, returning %d.\n", errno, strerror_local(errno), stat_ret);
+			LOG(llevDebug, "socket_recv() got error %d: %s, returning %d.\n", errno, strerror_local(errno), stat_ret);
 			return stat_ret;
 		}
 #endif
 	}
 
 	return 1;
-}
-
-/**
- * Read command from 'sl' and copy it to 'sl'.
- * @param sl Where to read command from.
- * @param sl2 Where to copy the command.
- * @return Length of the read command. */
-int SockList_ReadCommand(SockList *sl, SockList *sl2)
-{
-	int toread, ret = 0;
-
-	sl2->buf[0] = '\0';
-	sl2->len = 0;
-
-	/* Is there anything in our buffer that was read
-	 * before? */
-	if (sl->len >= 2)
-	{
-		/* Length of the command. */
-		toread = 2 + (sl->buf[0] << 8) + sl->buf[1];
-
-		/* If we have a command, copy it over. */
-		if (toread <= sl->len)
-		{
-			memcpy(sl2->buf, sl->buf, toread);
-			sl2->len = toread;
-
-			if (sl->len - toread)
-			{
-				memmove(sl->buf, sl->buf + toread, sl->len - toread);
-			}
-
-			sl->len -= toread;
-			ret = toread;
-		}
-	}
-
-	return ret;
 }
 
 /**
@@ -305,10 +218,6 @@ void socket_buffer_write(socket_struct *ns)
 		}
 
 		ns->packet_head->pos += amt;
-#if CS_LOGSTATS
-		cst_tot.obytes += amt;
-		cst_lst.obytes += amt;
-#endif
 
 		if (ns->packet_head->len - ns->packet_head->pos == 0)
 		{
@@ -332,6 +241,7 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 	packet_compress(packet);
 
 	tmp = packet_new(0, 4, 0);
+	tmp->ndelay = packet->ndelay;
 	toread = packet->len + 1;
 
 	if (toread > 32 * 1024 - 1)
@@ -355,66 +265,3 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 	socket_packet_enqueue(ns, packet);
 	pthread_mutex_unlock(&ns->packet_mutex);
 }
-
-void socket_send_string(socket_struct *ns, uint8 type, const char *str, size_t len)
-{
-	packet_struct *packet;
-
-	packet = packet_new(type, len, len);
-	packet_append_data_len(packet, (uint8 *) str + 1, len - 1);
-	socket_send_packet(ns, packet);
-}
-
-/**
- * Calls Write_To_Socket to send data to the client.
- *
- * The only difference in this function is that we take a SockList, and
- * we prepend the length information.
- * @param ns Socket to send the data to
- * @param msg The SockList instance */
-void Send_With_Handling(socket_struct *ns, SockList *msg)
-{
-	packet_struct *packet;
-
-	packet = packet_new(msg->buf[0], 512, 512);
-
-	if (msg->buf[0] == BINARY_CMD_MAP2)
-	{
-		packet_enable_ndelay(packet);
-	}
-
-	packet_append_data_len(packet, msg->buf + 1, msg->len - 1);
-	socket_send_packet(ns, packet);
-}
-
-#if CS_LOGSTATS
-
-/** Life of the server. */
-CS_Stats cst_tot;
-
-/** Last series of stats. */
-CS_Stats cst_lst;
-
-/**
- * Writes out the gathered stats.
- *
- * We clear ::cst_lst. */
-void write_cs_stats(void)
-{
-	time_t now = time(NULL);
-
-	/* If no connections recently, don't bother to log anything */
-	if (cst_lst.ibytes == 0 && cst_lst.obytes == 0)
-	{
-		return;
-	}
-
-	/* CSSTAT is put in so scripts can easily find the line */
-	LOG(llevInfo, "CSSTAT: %.16s tot in:%d out:%d maxc:%d time:%lu last block-> in:%d out:%d maxc:%d time:%lu\n", ctime(&now), cst_tot.ibytes, cst_tot.obytes, cst_tot.max_conn, now - cst_tot.time_start, cst_lst.ibytes, cst_lst.obytes, cst_lst.max_conn, now - cst_lst.time_start);
-
-	cst_lst.ibytes = 0;
-	cst_lst.obytes = 0;
-	cst_lst.max_conn = socket_info.nconns;
-	cst_lst.time_start = now;
-}
-#endif

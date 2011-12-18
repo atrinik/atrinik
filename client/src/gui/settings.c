@@ -917,15 +917,12 @@ static int settings_popup_event_func(popup_struct *popup, SDL_Event *event)
 					}
 					else
 					{
-						SockList sl;
-						unsigned char sockbuf[MAX_BUF];
+						packet_struct *packet;
 
-						sl.buf = sockbuf;
-						sl.len = 0;
-						SockList_AddString(&sl, "pc ");
-						SockList_AddStringTerminated(&sl, cpl.password);
-						SockList_AddStringTerminated(&sl, text_input_string);
-						send_socklist(sl);
+						packet = packet_new(SERVER_CMD_PASSWORD_CHANGE, 64, 64);
+						packet_append_string_terminated(packet, cpl.password);
+						packet_append_string_terminated(packet, text_input_string);
+						socket_send_packet(packet);
 
 						strncpy(cpl.password, text_input_string, sizeof(cpl.password) - 1);
 						cpl.password[sizeof(cpl.password) - 1] = '\0';

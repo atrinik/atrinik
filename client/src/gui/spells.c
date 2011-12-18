@@ -607,51 +607,42 @@ void spells_reload(void)
 	}
 }
 
-/**
- * Spell list command. Used to update the player's spell list.
- * @param data The incoming data. */
-void SpelllistCmd(char *data)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_spell_list(uint8 *data, size_t len, size_t pos)
 {
-	char *tmp_data, *cp;
+	char name[MAX_BUF];
+	uint8 type, path;
+	uint32 cost;
 	size_t spell_path, spell_id;
-	int mode;
 
-	tmp_data = strdup(data);
-	cp = strtok(tmp_data, "/");
+	type = packet_to_uint8(data, len, &pos);
 
-	mode = atoi(data);
-
-	while (cp)
+	while (pos < len)
 	{
-		char *tmp[3];
-
-		if (split_string(cp, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
-		{
-			cp = strtok(NULL, "/");
-			continue;
-		}
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		cost = packet_to_uint16(data, len, &pos);
+		path = packet_to_uint8(data, len, &pos);
 
 		/* If the spell exists, mark it as known, and store the path
 		 * status and casting cost. */
-		if (spell_find(tmp[0], &spell_path, &spell_id))
+		if (spell_find(name, &spell_path, &spell_id))
 		{
-			spell_entry_struct *spell = spell_get(spell_path, spell_id);
+			spell_entry_struct *spell;
 
-			if (mode == SPLIST_MODE_REMOVE)
+			spell = spell_get(spell_path, spell_id);
+
+			if (type == SPLIST_MODE_REMOVE)
 			{
 				spell->known = 0;
 			}
 			else
 			{
 				spell->known = 1;
-				spell->path = tmp[2][0];
-				spell->cost = atoi(tmp[1]);
+				spell->path = path;
+				spell->cost = cost;
 			}
 		}
-
-		cp = strtok(NULL, "/");
 	}
 
-	free(tmp_data);
 	spell_list_reload();
 }

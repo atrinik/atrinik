@@ -25,23 +25,35 @@
 
 /**
  * @file
- * Sounds header file */
+ * BinReloc - a library for creating relocatable executables
+ * Written by: Hongli Lai <h.lai@chello.nl>
+ * http://autopackage.org/
+ *
+ * This source code is public domain. You can relicense this code
+ * under whatever license you want.
+ *
+ * See http://autopackage.org/docs/binreloc/ for
+ * more information and how to use this.
+ */
 
-#ifndef SOUNDS_H
-#define SOUNDS_H
+#ifndef BINRELOC_H
+#define BINRELOC_H
 
-/**
- * @defgroup CMD_SOUND_xxx Sound command types
- * The sound command types.
- *@{*/
-/** A sound effect, like poison, melee/range hit, spell sound, etc. */
-#define CMD_SOUND_EFFECT 1
-/** Background music. */
-#define CMD_SOUND_BACKGROUND 2
-/** Path to sound effect with an absolute filename. MIDI is not supported. */
-#define CMD_SOUND_ABSOLUTE 3
-/** A single MIDI note. */
-#define CMD_SOUND_MIDI_NOTE 4
-/*@}*/
+#define ENABLE_BINRELOC
+
+/** These error codes can be returned by br_init(), br_init_lib(), gbr_init() or gbr_init_lib(). */
+typedef enum
+{
+	/** Cannot allocate memory. */
+	BR_INIT_ERROR_NOMEM,
+	/** Unable to open /proc/self/maps; see errno for details. */
+	BR_INIT_ERROR_OPEN_MAPS,
+	/** Unable to read from /proc/self/maps; see errno for details. */
+	BR_INIT_ERROR_READ_MAPS,
+	/** The file format of /proc/self/maps is invalid; kernel bug? */
+	BR_INIT_ERROR_INVALID_MAPS,
+	/** BinReloc is disabled (the ENABLE_BINRELOC macro is not defined). */
+	BR_INIT_ERROR_DISABLED
+} BrInitError;
 
 #endif

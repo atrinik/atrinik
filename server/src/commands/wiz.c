@@ -28,8 +28,6 @@
  * Functions used by DMs. */
 
 #include <global.h>
-#undef SS_STATISTICS
-#include <shstr.h>
 
 /**
  * Search for player other than the searcher in game.

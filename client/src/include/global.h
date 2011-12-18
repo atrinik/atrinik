@@ -43,6 +43,9 @@ typedef unsigned char uint8;
 /** Signed 8-bit integer. */
 typedef signed char sint8;
 
+/** Object unique IDs. */
+typedef unsigned int tag_t;
+
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__
 #	define  __attribute__(x)
@@ -65,6 +68,7 @@ typedef signed char sint8;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include <porting.h>
 #define HASH_FUNCTION HASH_BER
@@ -180,6 +184,8 @@ extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 /** The log levels. */
 typedef enum LogLevel
 {
+	/** System-related message. */
+	llevSystem,
 	/** An irrecoverable error. */
 	llevError,
 	/** Bug report. */
@@ -193,8 +199,14 @@ typedef enum LogLevel
 #define HUGE_BUF 4096
 #define MAX_BUF 256
 
-#include <version.h>
+#include <binreloc.h>
+#include <mempool.h>
+#include <packet.h>
+#include <shstr.h>
+#include <socket.h>
 #include <stringbuffer.h>
+
+#include <version.h>
 #include <scrollbar.h>
 #include <item.h>
 #include <text.h>
@@ -215,7 +227,6 @@ typedef enum LogLevel
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
-#include <scripts.h>
 #include <inventory.h>
 #include <menu.h>
 #include <list.h>
@@ -226,7 +237,6 @@ typedef enum LogLevel
 #include <image.h>
 #include <settings.h>
 #include <keybind.h>
-#include <binreloc.h>
 #include <sha1.h>
 #include <progress.h>
 #include <updater.h>

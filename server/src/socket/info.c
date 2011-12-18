@@ -44,15 +44,15 @@
 	vsnprintf(buf, sizeof(buf), format, ap); \
 	va_end(ap);
 
-void draw_info_send(int flags, const char *color, socket_struct *socket, const char *buf)
+void draw_info_send(int flags, const char *color, socket_struct *ns, const char *buf)
 {
 	packet_struct *packet;
 
-	packet = packet_new(BINARY_CMD_DRAWINFO, 256, 512);
+	packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
 	packet_append_uint16(packet, flags);
 	packet_append_string_terminated(packet, color);
 	packet_append_string_terminated(packet, buf);
-	socket_send_packet(socket, packet);
+	socket_send_packet(ns, packet);
 }
 
 /**

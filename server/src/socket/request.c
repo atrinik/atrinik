@@ -38,231 +38,80 @@
 #define GET_CLIENT_FLAGS(_O_)	((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
-/**
- * Parse server file command from client (amf, hpf, etc).
- * @param param Parameter for the command.
- * @param cmdback Buffer that will be sent back to the client.
- * @param type ID of the server file. */
-static void parse_srv_setup(char *param, char *cmdback, int type)
+void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	char *cp;
-	size_t x = 0;
-	unsigned long y = 0;
+	packet_struct *packet;
+	uint8 type;
 
-	/* is x our files len and y the crc */
-	for (cp = param; *cp != '\0'; cp++)
+	packet = packet_new(CLIENT_CMD_SETUP, 256, 256);
+
+	while (pos < len)
 	{
-		if (*cp == '|')
+		type = packet_to_uint8(data, len, &pos);
+		packet_append_uint8(packet, type);
+
+		if (type == CMD_SETUP_SOUND)
 		{
-			*cp = '\0';
-			x = atoi(param);
-			y = strtoul(cp + 1, NULL, 16);
-			break;
+			ns->sound = packet_to_uint8(data, len, &pos);
+			packet_append_uint8(packet, ns->sound);
 		}
-	}
-
-	if (SrvClientFiles[type].len_ucomp != x || SrvClientFiles[type].crc != y)
-	{
-		char tmpbuf[MAX_BUF];
-
-		snprintf(tmpbuf, sizeof(tmpbuf), "%"FMT64U"|%lx", (uint64) SrvClientFiles[type].len_ucomp, SrvClientFiles[type].crc);
-		strcat(cmdback, tmpbuf);
-	}
-	else
-	{
-		strcat(cmdback, "OK");
-	}
-}
-
-/**
- * The Setup command.
- *
- * The setup syntax is:
- * <pre>setup \<cmdname1\> \<parameter\> \<cmdname2\> \<parameter\>...</pre>
- *
- * We send the status of the command back, or zero if the command is
- * unknown. The client must then sort it out. */
-void SetUp(char *buf, int len, socket_struct *ns)
-{
-	int s;
-	char *cmd, *param, tmpbuf[MAX_BUF], cmdback[HUGE_BUF];
-
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	LOG(llevInfo, "Get SetupCmd:: %s\n", buf);
-	cmdback[0] = BINARY_CMD_SETUP;
-	cmdback[1] = 0;
-
-	for (s = 0; s < len; )
-	{
-		cmd = &buf[s];
-
-		/* Find the next space, and put a null there */
-		for ( ; s < len && buf[s] && buf[s] != ' '; s++)
+		else if (type == CMD_SETUP_MAPSIZE)
 		{
-		}
+			int x, y;
 
-		buf[s++] = '\0';
-
-		while (s < len && buf[s] == ' ')
-		{
-			s++;
-		}
-
-		if (s >= len)
-		{
-			break;
-		}
-
-		param = &buf[s];
-
-		for ( ; s < len && buf[s] && buf[s] != ' '; s++)
-		{
-		}
-
-		buf[s++] = '\0';
-
-		while (s < len && buf[s] == ' ')
-		{
-			s++;
-		}
-
-		strcat(cmdback, " ");
-		strcat(cmdback, cmd);
-		strcat(cmdback, " ");
-
-		if (!strcmp(cmd, "sound"))
-		{
-			ns->sound = atoi(param);
-			strcat(cmdback, param);
-		}
-		else if (!strcmp(cmd, "faceset"))
-		{
-			int q = atoi(param);
-
-			if (is_valid_faceset(q))
-			{
-				ns->faceset = q;
-			}
-
-			snprintf(tmpbuf, sizeof(tmpbuf), "%d", ns->faceset);
-			strcat(cmdback, tmpbuf);
-		}
-		else if (!strcmp(cmd, "mapsize"))
-		{
-			int x, y = 0;
-			char *cp;
-
-			x = atoi(param);
-
-			for (cp = param; *cp != 0; cp++)
-			{
-				if (*cp == 'x' || *cp == 'X')
-				{
-					y = atoi(cp + 1);
-
-					break;
-				}
-			}
+			x = packet_to_uint8(data, len, &pos);
+			y = packet_to_uint8(data, len, &pos);
 
 			if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y)
 			{
-				snprintf(tmpbuf, sizeof(tmpbuf), " %dx%d", MAP_CLIENT_X, MAP_CLIENT_Y);
-				strcat(cmdback, tmpbuf);
+				x = MAP_CLIENT_X;
+				y = MAP_CLIENT_Y;
+			}
+
+			ns->mapx = x;
+			ns->mapy = y;
+			ns->mapx_2 = x / 2;
+			ns->mapy_2 = y / 2;
+
+			packet_append_uint8(packet, x);
+			packet_append_uint8(packet, y);
+		}
+		else if (type == CMD_SETUP_BOT)
+		{
+			ns->is_bot = packet_to_uint8(data, len, &pos);
+
+			if (ns->is_bot != 0 && ns->is_bot != 1)
+			{
+				ns->is_bot = 0;
+			}
+
+			packet_append_uint8(packet, ns->is_bot);
+		}
+		else if (type == CMD_SETUP_SERVER_FILE)
+		{
+			uint8 file_type;
+			uint64 len_ucomp, crc;
+
+			file_type = packet_to_uint8(data, len, &pos);
+			file_type = MAX(0, MIN(SRV_CLIENT_FILES - 1, file_type));
+
+			len_ucomp = packet_to_uint64(data, len, &pos);
+			crc = packet_to_uint64(data, len, &pos);
+
+			packet_append_uint8(packet, file_type);
+
+			if (SrvClientFiles[file_type].len_ucomp != len_ucomp || SrvClientFiles[file_type].crc != crc)
+			{
+				packet_append_uint8(packet, 1);
 			}
 			else
 			{
-				ns->mapx = x;
-				ns->mapy = y;
-				ns->mapx_2 = x / 2;
-				ns->mapy_2 = y / 2;
-
-				/* better to send back what we are really using and not
-				 * the param as given to us in case it gets parsed
-				 * differently. */
-				snprintf(tmpbuf, sizeof(tmpbuf), "%dx%d", x, y);
-				strcat(cmdback, tmpbuf);
+				packet_append_uint8(packet, 0);
 			}
-		}
-		else if (!strcmp(cmd, "skf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS);
-		}
-		else if (!strcmp(cmd, "spf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_SPELLS);
-		}
-		else if (!strcmp(cmd, "spfv2"))
-		{
-			parse_srv_setup(param, cmdback, SRV_FILE_SPELLS_V2);
-		}
-		else if (!strcmp(cmd, "skfv2"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_SKILLS_V2);
-		}
-		else if (!strcmp(cmd, "stf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_SETTINGS);
-		}
-		else if (!strcmp(cmd, "bpf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_BMAPS);
-		}
-		else if (!strcmp(cmd, "amf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS);
-		}
-		else if (!strcmp(cmd, "amfv2"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_ANIMS_V2);
-		}
-		else if (!strcmp(cmd, "hpf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES);
-		}
-		else if (!strcmp(cmd, "hpfv2"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_HFILES_V2);
-		}
-		else if (!strcmp(cmd, "upf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_FILE_UPDATES);
-		}
-		else if (!strcmp(cmd, "ssf"))
-		{
-			parse_srv_setup(param, cmdback, SRV_SERVER_SETTINGS);
-		}
-		else if (!strcmp(cmd, "eff"))
-		{
-			parse_srv_setup(param, cmdback, SRV_CLIENT_EFFECTS);
-		}
-		else if (!strcmp(cmd, "bot"))
-		{
-			int is_bot = atoi(param);
-
-			if (is_bot != 0 && is_bot != 1)
-			{
-				strcat(cmdback, "FALSE");
-			}
-			else
-			{
-				ns->is_bot = is_bot;
-				snprintf(tmpbuf, sizeof(tmpbuf), "%d", is_bot);
-				strcat(cmdback, tmpbuf);
-			}
-		}
-		else
-		{
-			/* Didn't get a setup command we understood - report a
-			 * failure to the client. */
-			strcat(cmdback, "FALSE");
 		}
 	}
 
-	socket_send_string(ns, BINARY_CMD_SETUP, cmdback, strlen(cmdback));
+	socket_send_packet(ns, packet);
 }
 
 /**
@@ -270,18 +119,10 @@ void SetUp(char *buf, int len, socket_struct *ns)
  * care of it.
  *
  * We tell the client how things worked out. */
-void AddMeCmd(char *buf, int len, socket_struct *ns)
+void socket_command_addme(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	Settings oldsettings;
-	char cmd_buf[2] = "X";
-	oldsettings = settings;
-
-	(void) buf;
-	(void) len;
-
 	if (ns->status != Ns_Add || add_player(ns))
 	{
-		socket_send_string(ns, BINARY_CMD_ADDME_FAIL, cmd_buf, 1);
 		ns->status = Ns_Dead;
 	}
 	else
@@ -296,60 +137,31 @@ void AddMeCmd(char *buf, int len, socket_struct *ns)
 		socket_info.nconns--;
 		ns->status = Ns_Avail;
 	}
-
-	settings = oldsettings;
 }
 
-/**
- * This handles the general commands from client (ie, north, fire, cast,
- * etc).
- * @param buf
- * @param len
- * @param pl */
-void PlayerCmd(char *buf, int len, player *pl)
+void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	char command[MAX_BUF];
 
-	if (!buf || len < 1)
-	{
-		return;
-	}
-
-	if (len >= MAX_BUF)
-	{
-		len = MAX_BUF - 1;
-	}
-
-	strncpy(command, buf, len);
-	command[len] = '\0';
-
-	/* The following should never happen with a proper or honest client.
-	 * Therefore, the error message doesn't have to be too clear - if
-	 * someone is playing with a hacked/non working client, this gives
-	 * them an idea of the problem, but they deserve what they get. */
 	if (pl->state != ST_PLAYING)
 	{
-		draw_info_format(COLOR_WHITE, pl->ob, "You can not issue commands - state is not ST_PLAYING (%s)", buf);
 		return;
 	}
 
+	packet_to_string(data, len, &pos, command, sizeof(command));
 	execute_newserver_command(pl->ob, command);
 }
 
-/**
- * This is a reply to a previous query. */
-void ReplyCmd(char *buf, int len, player *pl)
+void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	(void) len;
+	char buf[MAX_BUF];
 
-	if (!buf || pl->socket.status == Ns_Dead)
-	{
-		return;
-	}
+	packet_to_string(data, len, &pos, buf, sizeof(buf));
 
 	strcpy(pl->write_buf, ":");
 	strncat(pl->write_buf, buf, 250);
-	pl->write_buf[250] = 0;
+	pl->write_buf[250] = '\0';
+
 	pl->socket.ext_title_flag = 1;
 
 	switch (pl->state)
@@ -375,181 +187,66 @@ void ReplyCmd(char *buf, int len, player *pl)
 	}
 }
 
-/**
- * Send a version mismatch message.
- * @param ns The socket to send the message to */
-static void version_mismatch_msg(socket_struct *ns)
+void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	draw_info_send(0, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
+	uint8 file_type;
+	packet_struct *packet;
+
+	if (ns->status != Ns_Add)
+	{
+		return;
+	}
+
+	file_type = packet_to_uint8(data, len, &pos);
+	file_type = MIN(SRV_CLIENT_FILES - 1, file_type);
+
+	if (ns->requested_file[file_type])
+	{
+		return;
+	}
+
+	ns->requested_file[file_type] = 1;
+
+	LOG(llevDebug, "Client %s rf #%d\n", ns->host, file_type);
+
+	packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[file_type].len, 0);
+	packet_append_uint8(packet, file_type);
+	packet_append_uint32(packet, SrvClientFiles[file_type].len_ucomp);
+	packet_append_data_len(packet, SrvClientFiles[file_type].file, SrvClientFiles[file_type].len);
+	socket_send_packet(ns, packet);
 }
 
-/**
- * Request a srv file. */
-void RequestFileCmd(char *buf, int len, socket_struct *ns)
+void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	int id;
+	uint32 ver;
 
-	/* *only* allow this command between the first login and the "addme" command! */
-	if (ns->status != Ns_Add || !buf || !len)
+	ver = packet_to_uint32(data, len, &pos);
+
+	if (ver == 0 || ver == 991017 || ver == 1055)
 	{
-		ns->status = Ns_Dead;
-		return;
-	}
-
-	id = atoi(buf);
-
-	if (id < 0 || id >= SRV_CLIENT_FILES)
-	{
-		ns->status = Ns_Dead;
-		return;
-	}
-
-	switch (id)
-	{
-		case SRV_CLIENT_SKILLS:
-		case SRV_CLIENT_SKILLS_V2:
-			if (ns->rf_skills)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_skills = 1;
-			}
-
-			break;
-
-		case SRV_CLIENT_SPELLS:
-		case SRV_FILE_SPELLS_V2:
-			if (ns->rf_spells)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_spells = 1;
-			}
-
-			break;
-
-		case SRV_CLIENT_SETTINGS:
-		case SRV_SERVER_SETTINGS:
-			if (ns->rf_settings)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_settings = 1;
-			}
-
-			break;
-
-		case SRV_CLIENT_BMAPS:
-			if (ns->rf_bmaps)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_bmaps = 1;
-			}
-
-			break;
-
-		case SRV_CLIENT_ANIMS:
-		case SRV_CLIENT_ANIMS_V2:
-			if (ns->rf_anims)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_anims = 1;
-			}
-
-			break;
-
-		case SRV_CLIENT_HFILES:
-		case SRV_CLIENT_HFILES_V2:
-			if (ns->rf_hfiles)
-			{
-				ns->status = Ns_Dead;
-				return;
-			}
-			else
-			{
-				ns->rf_hfiles = 1;
-			}
-
-			break;
-	}
-
-	LOG(llevDebug, "Client %s rf #%d\n", ns->host, id);
-	send_srv_file(ns, id);
-}
-
-/**
- * Client tells its its version. */
-void VersionCmd(char *buf, int len, socket_struct *ns)
-{
-	char *cp;
-
-	if (!buf || !len || ns->version)
-	{
-		version_mismatch_msg(ns);
-		ns->status = Ns_Dead;
-		return;
-	}
-
-	ns->version = 1;
-	ns->socket_version = atoi(buf);
-	cp = strchr(buf + 1, ' ');
-
-	if (!cp)
-	{
-		version_mismatch_msg(ns);
-		LOG(llevDebug, "VersionCmd(): Connection from false client (invalid name)\n");
+		draw_info_send(0, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
 		ns->status = Ns_Zombie;
 		return;
 	}
 
-	if (ns->socket_version == 991017 || ns->socket_version < 1055)
-	{
-		version_mismatch_msg(ns);
-		ns->status = Ns_Zombie;
-		return;
-	}
+	ns->socket_version = ver;
 }
 
-/**
- * Moves an object (typically, container to inventory).
- *
- * Syntax:
- * <pre>move \<to\> \<tag\> \<nrof\></pre>
- * @param buf Data.
- * @param len Length of data.
- * @param pl Player. */
-void MoveCmd(char *buf, int len, player *pl)
+void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	int vals[3];
+	tag_t to, tag;
+	uint32 nrof;
 
-	if (!buf || !len)
+	to = packet_to_uint32(data, len, &pos);
+	tag = packet_to_uint32(data, len, &pos);
+	nrof = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
 
-	if (sscanf(buf, "%d %d %d", &vals[0], &vals[1], &vals[2]) != 3)
-	{
-		return;
-	}
-
-	esrv_move_object(pl->ob, vals[0], vals[1], vals[2]);
+	esrv_move_object(pl->ob, to, tag, nrof);
 }
 
 /**
@@ -557,13 +254,13 @@ void MoveCmd(char *buf, int len, player *pl)
  *
  * This way, the client knows it needs to send something back (vs just
  * printing out a message). */
-void send_query(socket_struct *ns, uint8 flags, char *text)
+void send_query(socket_struct *ns, uint8 type)
 {
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(buf, sizeof(buf), "X%d %s", flags, text ? text : "");
-
-	socket_send_string(ns, BINARY_CMD_QUERY, buf, strlen(buf));
+	packet = packet_new(CLIENT_CMD_QUERY, 4, 0);
+	packet_append_uint8(packet, type);
+	socket_send_packet(ns, packet);
 }
 
 #define AddIfInt(_old, _new, _type, _bitsize) \
@@ -587,23 +284,26 @@ void send_query(socket_struct *ns, uint8 flags, char *text)
  * one skill to buffer which is then sent to the client as the skill list
  * command.
  * @param skill Skill object to add.
- * @param sb StringBuffer instance to add to. */
-void add_skill_to_skilllist(object *skill, StringBuffer *sb)
+ * @param packet Packet to append to. */
+void add_skill_to_skilllist(object *skill, packet_struct *packet)
 {
+	packet_append_string_terminated(packet, skill->name);
+	packet_append_uint8(packet, skill->level);
+
 	/* Normal skills */
 	if (skill->last_eat == 1)
 	{
-		stringbuffer_append_printf(sb, "/%s|%d|%"FMT64, skill->name, skill->level, skill->stats.exp);
+		packet_append_sint64(packet, skill->stats.exp);
 	}
 	/* 'Buy level' skills */
 	else if (skill->last_eat == 2)
 	{
-		stringbuffer_append_printf(sb, "/%s|%d|-2", skill->name, skill->level);
+		packet_append_sint64(packet, -2);
 	}
 	/* No level skills */
 	else
 	{
-		stringbuffer_append_printf(sb, "/%s|%d|-1", skill->name, skill->level);
+		packet_append_sint64(packet, -1);
 	}
 }
 
@@ -613,32 +313,30 @@ void add_skill_to_skilllist(object *skill, StringBuffer *sb)
 void esrv_update_skills(player *pl)
 {
 	int i;
-	StringBuffer *sb = stringbuffer_new();
-	char *cp;
-	size_t cp_len;
+	packet_struct *packet;
 
-	stringbuffer_append_printf(sb, "X%d ", SPLIST_MODE_UPDATE);
+	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
+	packet_append_uint8(packet, SPLIST_MODE_UPDATE);
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
 		if (pl->skill_ptr[i] && pl->skill_ptr[i]->last_eat)
 		{
-			object *tmp = pl->skill_ptr[i];
+			object *tmp;
+
+			tmp = pl->skill_ptr[i];
 
 			/* Send only when something has changed */
 			if (tmp->stats.exp != pl->skill_exp[i] || tmp->level != pl->skill_level[i])
 			{
-				add_skill_to_skilllist(tmp, sb);
+				add_skill_to_skilllist(tmp, packet);
 				pl->skill_exp[i] = tmp->stats.exp;
 				pl->skill_level[i] = tmp->level;
 			}
 		}
 	}
 
-	cp_len = sb->pos;
-	cp = stringbuffer_finish(sb);
-	socket_send_string(&pl->socket, BINARY_CMD_SKILL_LIST, cp, cp_len);
-	free(cp);
+	socket_send_packet(&pl->socket, packet);
 }
 
 /**
@@ -653,7 +351,7 @@ void esrv_update_stats(player *pl)
 	int i;
 	uint16 flags;
 
-	packet = packet_new(BINARY_CMD_STATS, 32, 256);
+	packet = packet_new(CLIENT_CMD_STATS, 32, 256);
 
 	if (pl->target_object && pl->target_object != pl->ob)
 	{
@@ -784,7 +482,7 @@ void esrv_new_player(player *pl, uint32 weight)
 {
 	packet_struct *packet;
 
-	packet = packet_new(BINARY_CMD_PLAYER, 12, 0);
+	packet = packet_new(CLIENT_CMD_PLAYER, 12, 0);
 	packet_append_uint32(packet, pl->ob->count);
 	packet_append_uint32(packet, weight);
 	packet_append_uint32(packet, pl->ob->face->number);
@@ -973,7 +671,7 @@ void draw_client_map(object *pl)
 		msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 		map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
 
-		packet = packet_new(BINARY_CMD_MAPSTATS, 256, 256);
+		packet = packet_new(CLIENT_CMD_MAPSTATS, 256, 256);
 
 		if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) || (!map_info && CONTR(pl)->map_info_name[0] != '\0'))
 		{
@@ -1057,6 +755,23 @@ static const char *get_playername_color(object *pl, object *op)
 	return COLOR_WHITE;
 }
 
+void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string(packet, "<b><o=0,0,0>");
+	packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
+	packet_append_string_terminated(packet, "</o></b>");
+}
+
+void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
+}
+
+void packet_append_map_weather(packet_struct *packet, object *op, object *map_info)
+{
+	packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
+}
+
 /** Darkness table */
 static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
 
@@ -1109,8 +824,8 @@ void draw_client_map2(object *pl)
 	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
 	map2_count++;
 
-	packet = packet_new(BINARY_CMD_MAP2, 0, 512);
-	packet_sound = packet_new(BINARY_CMD_SOUND_AMBIENT, 0, 256);
+	packet = packet_new(CLIENT_CMD_MAP, 0, 512);
+	packet_sound = packet_new(CLIENT_CMD_SOUND_AMBIENT, 0, 256);
 
 	packet_enable_ndelay(packet);
 	packet_append_uint8(packet, CONTR(pl)->map_update_cmd);
@@ -1150,8 +865,8 @@ void draw_client_map2(object *pl)
 		if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED)
 		{
 			packet_append_uint8(packet, CONTR(pl)->map_update_tile);
-			packet_append_uint8(packet, CONTR(pl)->map_off_x);
-			packet_append_uint8(packet, CONTR(pl)->map_off_y);
+			packet_append_sint8(packet, CONTR(pl)->map_off_x);
+			packet_append_sint8(packet, CONTR(pl)->map_off_y);
 		}
 		else
 		{
@@ -1745,45 +1460,26 @@ void draw_client_map2(object *pl)
 	}
 }
 
-/**
- * Handles shop commands received from the player's client.
- * @param buf The buffer
- * @param len Length of the buffer
- * @param pl The player */
-void ShopCmd(char *buf, int len, player *pl)
+void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	(void) buf;
-	(void) len;
-	(void) pl;
-}
-
-/**
- * Client has requested quest list of a player.
- * @param data Data.
- * @param len Length of the data.
- * @param pl The player. */
-void QuestListCmd(char *data, int len, player *pl)
-{
-	object *quest_container = pl->quest_container, *tmp;
-	StringBuffer *sb = stringbuffer_new();
+	object *quest_container, *tmp;
+	StringBuffer *sb;
+	packet_struct *packet;
 	char *cp;
 	size_t cp_len;
 
-	(void) data;
-	(void) len;
+	quest_container = pl->quest_container;
 
 	if (!quest_container || !quest_container->inv)
 	{
-		stringbuffer_append_string(sb, "qlist <title>No quests to speak of.</title>");
-
-		cp_len = sb->pos;
-		cp = stringbuffer_finish(sb);
-		socket_send_string(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
-		free(cp);
+		packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
+		packet_append_string_terminated(packet, "<title>No quests to speak of.</title>");
+		socket_send_packet(&pl->socket, packet);
 		return;
 	}
 
-	stringbuffer_append_string(sb, "qlist <book=Quest List><title>Incomplete quests:</title>\n");
+	sb = stringbuffer_new();
+	stringbuffer_append_string(sb, "<book=Quest List><title>Incomplete quests:</title>\n");
 
 	/* First show incomplete quests */
 	for (tmp = quest_container->inv; tmp; tmp = tmp->below)
@@ -1851,60 +1547,32 @@ void QuestListCmd(char *data, int len, player *pl)
 		stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
 	}
 
-	cp_len = sb->pos;
+	cp_len = stringbuffer_length(sb);
 	cp = stringbuffer_finish(sb);
-	socket_send_string(&pl->socket, BINARY_CMD_QLIST, cp, cp_len);
+
+	packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
+	packet_append_data_len(packet, (uint8 *) cp, cp_len);
+	socket_send_packet(&pl->socket, packet);
 	free(cp);
 }
 
-/**
- * Clears the commands cache.
- * @param buf Data.
- * @param len Length.
- * @param ns Socket. */
-void command_clear_cmds(char *buf, int len, socket_struct *ns)
+void socket_command_clear(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	(void) buf;
-	(void) len;
-
-	ns->cmdbuf.len = 0;
-	ns->cmdbuf.buf[0] = '\0';
+	ns->packet_recv_cmd->len = 0;
 }
 
-/**
- * Sound related functions. */
-void SetSound(char *buf, int len, socket_struct *ns)
+void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	if (!buf || !len)
-	{
-		return;
-	}
-
-	ns->sound = atoi(buf);
-}
-
-/**
- * Player wants to move to a specified x,y (of the map view).
- * @param buf Data.
- * @param len Length of 'buf'.
- * @param pl Player. */
-void command_move_path(uint8 *buf, int len, player *pl)
-{
-	sint8 x, y;
+	uint8 x, y;
 	mapstruct *m;
 	int xt, yt;
 	path_node *node, *tmp;
 
-	if (!buf || len < 2)
-	{
-		return;
-	}
-
-	x = buf[0];
-	y = buf[1];
+	x = packet_to_uint8(data, len, &pos);
+	y = packet_to_uint8(data, len, &pos);
 
 	/* Validate the passed x/y. */
-	if (x < 0 || x >= pl->socket.mapx || y < 0 || y >= pl->socket.mapy)
+	if (x >= pl->socket.mapx || y >= pl->socket.mapy)
 	{
 		return;
 	}
@@ -1957,25 +1625,19 @@ void command_move_path(uint8 *buf, int len, player *pl)
 	player_path_add(pl, m, xt, yt);
 }
 
-/**
- * The ready command; client informs the server about new object to
- * mark as ready.
- * @param buf Data.
- * @param len Length of the data.
- * @param pl Player. */
-void cmd_ready(uint8 *buf, int len, player *pl)
+void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	tag_t tag;
 	object *tmp;
 	int type;
 
-	if (!buf || len < 4)
+	/* Get the ID of the object this is being done for. */
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
 		return;
 	}
-
-	/* Get the ID of the object this is being done for. */
-	tag = GetInt_String(buf);
 
 	/* Search for the object in the player's inventory. */
 	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
@@ -2026,63 +1688,33 @@ void cmd_ready(uint8 *buf, int len, player *pl)
 	}
 }
 
-/**
- * The fire command used by client's range widget, and triggered by the
- * player using ctrl + numpad.
- * @param buf Data.
- * @param len Length of the data.
- * @param pl Player. */
-void command_fire(uint8 *buf, int len, player *pl)
+void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	int dir, pos = 0;
+	int dir;
 	uint8 type;
+	char params[MAX_BUF];
 
-	if (!buf || len < 2)
-	{
-		return;
-	}
-
-	/* Get the direction for firing and the fire mode (type). */
-	dir = buf[pos++];
+	dir = packet_to_uint8(data, len, &pos);
 	dir = MAX(0, MIN(dir, 8));
-	type = buf[pos++];
+	type = packet_to_uint8(data, len, &pos);
+	packet_to_string(data, len, &pos, params, sizeof(params));
 
-	fire(pl->ob, dir, type, (char *) buf + pos);
+	fire(pl->ob, dir, type, params);
 }
 
-/**
- * Client notifies the server that it is still alive.
- * @param buf Data.
- * @param len Length of data.
- * @param ns The client's socket. */
-void cmd_keepalive(char *buf, int len, socket_struct *ns)
+void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	(void) buf;
-	(void) len;
 	ns->keepalive = 0;
 }
 
-/**
- * Client requests a password change for a player.
- * @param buf Data.
- * @param len Length of data.
- * @param pl The player. */
-void cmd_password_change(uint8 *buf, int len, player *pl)
+void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	char pswd_current[MAX_BUF], pswd_new[MAX_BUF];
-	int pos = 0;
 	size_t pswd_len;
 
-	/* This makes the assumption that there is at least 1 character
-	 * in both current and new password. */
-	if (len < 4)
-	{
-		return;
-	}
-
 	/* Get the current and new password. */
-	GetString_String(buf, len, &pos, pswd_current, sizeof(pswd_current));
-	GetString_String(buf, len, &pos, pswd_new, sizeof(pswd_new));
+	packet_to_string(data, len, &pos, pswd_current, sizeof(pswd_current));
+	packet_to_string(data, len, &pos, pswd_new, sizeof(pswd_new));
 
 	/* Make sure there are no untypeable characters... */
 	cleanup_chat_string(pswd_current);

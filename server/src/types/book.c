@@ -133,7 +133,7 @@ static int apply_func(object *op, object *applier, int aflags)
 	draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
 	CONTR(applier)->stat_books_read++;
 
-	packet = packet_new(BINARY_CMD_BOOK, 512, 512);
+	packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
 	packet_append_string(packet, "<book>");
 	packet_append_string(packet, query_base_name(op, applier));
 	packet_append_string(packet, "</book>");

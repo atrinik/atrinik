@@ -42,13 +42,31 @@
 static objectlink *ban_list = NULL;
 
 /**
+ * Ban memory pool. */
+static mempool_struct *pool_ban;
+
+/**
+ * Initialize the ban API. */
+void ban_init(void)
+{
+	pool_ban = mempool_create("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
+}
+
+/**
+ * Deinitialize the ban API. */
+void ban_deinit(void)
+{
+	mempool_free(pool_ban);
+}
+
+/**
  * Add a ban entry to ::ban_list.
  * @param name Name to ban.
  * @param ip IP to ban. */
 static void add_ban_entry(char *name, char *ip)
 {
 	objectlink *ol = get_objectlink();
-	_ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_bans);
+	_ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_ban);
 
 	memset(gptr, 0, sizeof(_ban_struct));
 	ol->objlink.ban = gptr;
@@ -66,7 +84,7 @@ static void remove_ban_entry(objectlink *ol)
 	free(ol->objlink.ban->ip);
 	FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
 	objectlink_unlink(&ban_list, NULL, ol);
-	return_poolchunk(ol->objlink.ban, pool_bans);
+	return_poolchunk(ol->objlink.ban, pool_ban);
 	return_poolchunk(ol, pool_objectlink);
 }
 

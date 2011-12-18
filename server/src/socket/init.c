@@ -53,6 +53,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	int oldbufsize;
 	socklen_t buflen = sizeof(int);
 	packet_struct *packet;
+	int i;
 
 #ifdef WIN32
 	u_long temp = 1;
@@ -92,27 +93,16 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->mapy = 17;
 	ns->mapx_2 = 8;
 	ns->mapy_2 = 8;
-	ns->version = 0;
-	ns->rf_settings = 0;
-	ns->rf_skills = 0;
-	ns->rf_spells = 0;
-	ns->rf_anims = 0;
-	ns->rf_hfiles = 0;
-	ns->rf_bmaps = 0;
 	ns->password_fails = 0;
 	ns->is_bot = 0;
 
-	ns->inbuf.len = 0;
-	ns->inbuf.buf = malloc(MAXSOCKBUF_IN);
-	ns->inbuf.buf[0] = '\0';
+	for (i = 0; i < SRV_CLIENT_FILES; i++)
+	{
+		ns->requested_file[i] = 0;
+	}
 
-	ns->readbuf.len = 0;
-	ns->readbuf.buf = malloc(MAXSOCKBUF_IN);
-	ns->readbuf.buf[0] = '\0';
-
-	ns->cmdbuf.len = 0;
-	ns->cmdbuf.buf = malloc(MAXSOCKBUF);
-	ns->cmdbuf.buf[0] = '\0';
+	ns->packet_recv = packet_new(0, 1024 * 3, 0);
+	ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
 
 	memset(&ns->lastmap, 0, sizeof(struct Map));
 	ns->packet_head = NULL;
@@ -121,21 +111,9 @@ void init_connection(socket_struct *ns, const char *from_ip)
 
 	ns->host = strdup_local(from_ip);
 
-	packet = packet_new(BINARY_CMD_VERSION, 4, 4);
+	packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
 	packet_append_uint32(packet, SOCKET_VERSION);
 	socket_send_packet(ns, packet);
-
-#if CS_LOGSTATS
-	if (socket_info.nconns > cst_tot.max_conn)
-	{
-		cst_tot.max_conn = socket_info.nconns;
-	}
-
-	if (socket_info.nconns > cst_lst.max_conn)
-	{
-		cst_lst.max_conn = socket_info.nconns;
-	}
-#endif
 }
 
 /**
@@ -169,13 +147,6 @@ void init_ericserver(void)
 	socket_info.timeout.tv_sec = 0;
 	socket_info.timeout.tv_usec = 0;
 	socket_info.nconns = 0;
-
-#if CS_LOGSTATS
-	memset(&cst_tot, 0, sizeof(CS_Stats));
-	memset(&cst_lst, 0, sizeof(CS_Stats));
-	cst_tot.time_start = time(NULL);
-	cst_lst.time_start = time(NULL);
-#endif
 
 	LOG(llevDebug, "Initialize new client/server data\n");
 	socket_info.nconns = 1;
@@ -296,20 +267,8 @@ void free_newsocket(socket_struct *ns)
 		free(ns->host);
 	}
 
-	if (ns->inbuf.buf)
-	{
-		free(ns->inbuf.buf);
-	}
-
-	if (ns->readbuf.buf)
-	{
-		free(ns->readbuf.buf);
-	}
-
-	if (ns->cmdbuf.buf)
-	{
-		free(ns->cmdbuf.buf);
-	}
+	packet_free(ns->packet_recv);
+	packet_free(ns->packet_recv_cmd);
 
 	socket_buffer_clear(ns);
 
@@ -378,7 +337,7 @@ static void load_srv_file(char *fname, int id)
 	free(contents);
 	free(compressed);
 
-	LOG(llevDebug, " size: %"FMT64U" (%"FMT64U") (crc uncomp.: %lx)\n", (uint64) SrvClientFiles[id].len_ucomp, (uint64) numread, SrvClientFiles[id].crc);
+	LOG(llevDebug, " size: %"FMT64U" (%"FMT64U") (crc uncomp.: %lu)\n", (uint64) SrvClientFiles[id].len_ucomp, (uint64) numread, SrvClientFiles[id].crc);
 }
 
 /**
@@ -596,7 +555,7 @@ void send_srv_file(socket_struct *ns, int id)
 {
 	packet_struct *packet;
 
-	packet = packet_new(BINARY_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
+	packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
 	packet_append_uint8(packet, id);
 	packet_append_uint32(packet, SrvClientFiles[id].len_ucomp);
 	packet_append_data_len(packet, SrvClientFiles[id].file, SrvClientFiles[id].len);

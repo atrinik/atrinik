@@ -83,6 +83,23 @@ char *stringbuffer_finish(StringBuffer *sb)
 }
 
 /**
+ * Deallocate the string buffer instance and return the string as a shared
+ * string.
+ *
+ * The passed string buffer must not be accessed afterwards.
+ * @param sb The string buffer to deallocate.
+ * @return The result shared string; to free it, use
+ * FREE_AND_CLEAR_HASH(). */
+const char *stringbuffer_finish_shared(StringBuffer *sb)
+{
+	char *str = stringbuffer_finish(sb);
+	const char *result = add_string(str);
+
+	free(str);
+	return result;
+}
+
+/**
  * Append a string to a string buffer instance.
  * @param sb The string buffer to modify.
  * @param str The string to append. */

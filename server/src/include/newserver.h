@@ -37,90 +37,6 @@
 #define NUM_LOOK_OBJECTS 15
 
 /**
- * @defgroup MAP2_FLAG_xxx Map2 layer flags
- * Flags used to mark what kind of data there is on layers
- * in map2 protocol.
- *@{*/
-/** Multi-arch object. */
-#define MAP2_FLAG_MULTI      1
-/** Player name. */
-#define MAP2_FLAG_NAME       2
-/** Target's HP bar. */
-#define MAP2_FLAG_PROBE      4
-/** Tile's Z position. */
-#define MAP2_FLAG_HEIGHT     8
-/** Zoom. */
-#define MAP2_FLAG_ZOOM 16
-/** X align. */
-#define MAP2_FLAG_ALIGN 32
-/** Draw the object twice. */
-#define MAP2_FLAG_DOUBLE 64
-/** More flags from @ref MAP2_FLAG2_xxx. */
-#define MAP2_FLAG_MORE 128
-/*@}*/
-
-/**
- * @defgroup MAP2_FLAG2_xxx Extended map2 layer flags
- * Extended flags used to mark what kind of data there is on layers
- * in map2 protocol.
- *@{*/
-/** Custom alpha value. */
-#define MAP2_FLAG2_ALPHA 1
-/** Custom rotate value in degrees. */
-#define MAP2_FLAG2_ROTATE 2
-/** The object should be highlighted in red. */
-#define MAP2_FLAG2_INFRAVISION 4
-/*@}*/
-
-/**
- * @defgroup MAP2_FLAG_EXT_xxx Map2 tile flags
- * Flags used to mark what kind of data there is on different
- * tiles in map2 protocol.
- *@{*/
-/** An animation. */
-#define MAP2_FLAG_EXT_ANIM   1
-/*@}*/
-
-/**
- * @defgroup ANIM_xxx Animation types
- * Animation types.
- *@{*/
-/** Damage animation. */
-#define ANIM_DAMAGE     1
-/** Kill animation. */
-#define ANIM_KILL       2
-/*@}*/
-
-/**
- * @defgroup MAP2_MASK_xxx Map2 mask flags
- * Flags used for masks in map2 protocol.
- *@{*/
-/** Clear cell, with all layers. */
-#define MAP2_MASK_CLEAR      0x2
-/** Add darkness. */
-#define MAP2_MASK_DARKNESS   0x4
-/*@}*/
-
-/**
- * @defgroup MAP2_LAYER_xxx Map2 layer types
- *@{*/
-/** Clear this layer. */
-#define MAP2_LAYER_CLEAR    255
-/*@}*/
-
-/**
- * @defgroup CMD_MAPSTATS_xxx Mapstats command types
- * Mapstats command types.
- *@{*/
-/** Change map name. */
-#define CMD_MAPSTATS_NAME 1
-/** Change map music. */
-#define CMD_MAPSTATS_MUSIC 2
-/** Change map weather. */
-#define CMD_MAPSTATS_WEATHER 3
-/*@}*/
-
-/**
  * One map cell. Used to hold 'cache' of faces we already sent
  * to the client. */
 typedef struct MapCell_struct
@@ -208,29 +124,10 @@ typedef struct socket_struct
 	/** Does the client want sound? */
 	uint32 sound:1;
 
-	/** Has the client sent version command? */
-	uint32 version:1;
-
-	/** Has the client requested settings file? */
-	uint32 rf_settings:1;
-
-	/** Has the client requested skills file? */
-	uint32 rf_skills:1;
-
-	/** Has the client requested spells file? */
-	uint32 rf_spells:1;
-
-	/** Has the client requested animations file? */
-	uint32 rf_anims:1;
-
-	/** Has the client requested bitmaps file? */
-	uint32 rf_bmaps:1;
-
-	/** Has the client requested hfiles file? */
-	uint32 rf_hfiles:1;
+	uint8 requested_file[SRV_CLIENT_FILES];
 
 	/** Is the client a bot? */
-	uint32 is_bot:1;
+	uint8 is_bot;
 
 	/** Start of drawing of look window. */
 	sint16 look_position;
@@ -252,15 +149,6 @@ typedef struct socket_struct
 	/** Last map. */
 	struct Map lastmap;
 
-	/** Holds one command to handle. */
-	SockList inbuf;
-
-	/** Raw data read in from the socket. */
-	SockList readbuf;
-
-	/** Buffer for player commands. */
-	SockList cmdbuf;
-
 	struct packet_struct *packet_head;
 	struct packet_struct *packet_tail;
 	pthread_mutex_t packet_mutex;
@@ -270,6 +158,9 @@ typedef struct socket_struct
 	 * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
 	 * socket is disconnected. */
 	uint32 keepalive;
+
+    struct packet_struct *packet_recv;
+    struct packet_struct *packet_recv_cmd;
 } socket_struct;
 
 /**
@@ -317,47 +208,6 @@ typedef struct update_file_struct
 	struct packet_struct *packet;
 } update_file_struct;
 
-/**
- * A single data packet. */
-typedef struct packet_struct
-{
-	/**
-	 * Next packet to send. */
-	struct packet_struct *next;
-
-	/**
-	 * Previous packet. */
-	struct packet_struct *prev;
-
-	/**
-	 * The data. */
-	uint8 *data;
-
-	/**
-	 * Length of 'data'. */
-	size_t len;
-
-	/**
-	 * Current size of 'data'. */
-	size_t size;
-
-	/**
-	 * Expand size. */
-	size_t expand;
-
-	/**
-	 * Position in 'data'. */
-	size_t pos;
-
-	/**
-	 * Whether to enable NDELAY on this packet. */
-	uint8 ndelay;
-
-	/**
-	 * The packet's command type. */
-    uint8 type;
-} packet_struct;
-
 /** Filename used to store information about the updated files. */
 #define UPDATES_FILE_NAME "updates"
 /**
@@ -369,10 +219,5 @@ typedef struct packet_struct
  * Maximum password failures allowed before the server kills the
  * socket. */
 #define MAX_PASSWORD_FAILURES 3
-
-/**
- * How many packet structures to allocate when expanding the available
- * packet structures. */
-#define SOCKET_PACKET_EXPAND 10
 
 #endif

@@ -488,51 +488,42 @@ void skills_reload(void)
 	}
 }
 
-/**
- * Skill list command. Used to update player's skill list.
- * @param data The incoming data */
-void SkilllistCmd(char *data)
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_skill_list(uint8 *data, size_t len, size_t pos)
 {
-	char *tmp_data, *cp;
+	char name[MAX_BUF];
+	uint8 type, level;
+	uint64 exp;
 	size_t skill_type, skill_id;
-	int mode;
 
-	tmp_data = strdup(data);
-	cp = strtok(tmp_data, "/");
+	type = packet_to_uint8(data, len, &pos);
 
-	mode = atoi(data);
-
-	while (cp)
+	while (pos < len)
 	{
-		char *tmp[3];
-
-		if (split_string(cp, tmp, sizeof(tmp) / sizeof(*tmp), '|') != 3)
-		{
-			cp = strtok(NULL, "/");
-			continue;
-		}
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		level = packet_to_uint8(data, len, &pos);
+		exp = packet_to_uint64(data, len, &pos);
 
 		/* If the skill exists, mark it as known, and store the level/exp. */
-		if (skill_find(tmp[0], &skill_type, &skill_id))
+		if (skill_find(name, &skill_type, &skill_id))
 		{
-			skill_entry_struct *skill = skill_get(skill_type, skill_id);
+			skill_entry_struct *skill;
 
-			if (mode == SPLIST_MODE_REMOVE)
+			skill = skill_get(skill_type, skill_id);
+
+			if (type == SPLIST_MODE_REMOVE)
 			{
 				skill->known = 0;
 			}
 			else
 			{
 				skill->known = 1;
-				skill->level = atoi(tmp[1]);
-				skill->exp = atoll(tmp[2]);
+				skill->level = level;
+				skill->exp = exp;
 				WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 			}
 		}
-
-		cp = strtok(NULL, "/");
 	}
 
-	free(tmp_data);
 	skill_list_reload();
 }

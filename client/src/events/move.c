@@ -63,14 +63,11 @@ void move_keys(int num)
 	}
 	else if (cpl.fire_on)
 	{
-		SockList sl;
-		char buf[MAX_BUF];
+		packet_struct *packet;
 
-		sl.buf = (unsigned char *) buf;
-		strcpy((char *) sl.buf, "fire ");
-		sl.len = 5;
-		SockList_AddChar(&sl, directions_fire[num - 1]);
-		SockList_AddChar(&sl, RangeFireMode);
+		packet = packet_new(SERVER_CMD_FIRE, 64, 64);
+		packet_append_uint8(packet, directions_fire[num - 1]);
+		packet_append_uint8(packet, RangeFireMode);
 
 		if (RangeFireMode == FIRE_MODE_SKILL)
 		{
@@ -80,7 +77,7 @@ void move_keys(int num)
 				return;
 			}
 
-			SockList_AddString(&sl, fire_mode_tab[RangeFireMode].skill->name);
+			packet_append_string_terminated(packet, fire_mode_tab[RangeFireMode].skill->name);
 		}
 		else if (RangeFireMode == FIRE_MODE_SPELL)
 		{
@@ -90,7 +87,7 @@ void move_keys(int num)
 				return;
 			}
 
-			SockList_AddString(&sl, fire_mode_tab[RangeFireMode].spell->name);
+			packet_append_string_terminated(packet, fire_mode_tab[RangeFireMode].spell->name);
 		}
 		else if (RangeFireMode == FIRE_MODE_BOW)
 		{
@@ -122,13 +119,16 @@ void move_keys(int num)
 			}
 		}
 
-		send_socklist(sl);
+		socket_send_packet(packet);
 	}
 	else
 	{
 		if (num == 5)
 		{
-			cs_write_string("clr", 3);
+			packet_struct *packet;
+
+			packet = packet_new(SERVER_CMD_CLEAR, 0, 0);
+			socket_send_packet(packet);
 		}
 		else
 		{

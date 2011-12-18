@@ -738,6 +738,22 @@
  * @param p The flag to query */
 #define QUERY_FLAG(xyz, p) \
 	((xyz)->flags[p / 32] & (1U << (p % 32)))
+
+/**
+ * Toggle flag of an object.
+ * @param xyz The object.
+ * @param p The flag to toggle. */
+#define TOGGLE_FLAG(xyz, p) \
+{ \
+	if (QUERY_FLAG((xyz), (p))) \
+	{ \
+		CLEAR_FLAG((xyz), (p)); \
+	} \
+	else \
+	{ \
+		SET_FLAG((xyz), (p)); \
+	} \
+}
 /*@}*/
 
 /**
@@ -1346,68 +1362,6 @@
 #define NEXT_ITEM_FACE_NAME "next_item.101"
 #define PREVIOUS_ITEM_FACE_NAME "prev_item.101"
 
-/* Socket defines */
-#define SockList_AddChar(_sl_, _c_) (_sl_)->buf[(_sl_)->len++] = (_c_)
-#define SockList_AddShort(_sl_, _data_)                  \
-	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff; \
-	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
-
-/**
- * Adds a 32-bit value.
- * @param _sl_ SockList instance to add to.
- * @param _data_ The value to add. */
-#define SockList_AddInt(_sl_, _data_)                     \
-	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 24) & 0xff; \
-	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 16) & 0xff; \
-	(_sl_)->buf[(_sl_)->len++] = ((_data_) >> 8) & 0xff;  \
-	(_sl_)->buf[(_sl_)->len++] = (_data_) & 0xff
-
-/**
- * Adds a 64-bit value.
- * @param _sl_ SockList instance to add to.
- * @param _data_ The value to add. */
-#define SockList_AddInt64(_sl_, _data_)                            \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 56) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 48) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 40) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 32) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 24) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 16) & 0xff); \
-	(_sl_)->buf[(_sl_)->len++] = (char) (((_data_) >> 8) & 0xff);  \
-	(_sl_)->buf[(_sl_)->len++] = (char) ((_data_) & 0xff)
-
-/**
- * Adds a data block.
- * @param _sl_ SockList instance to add to.
- * @param _data_ The value to add.
- * @param _len_ The length in byte. */
-#define SockList_AddData(_sl_, _data_, _len_) \
-	memcpy((_sl_)->buf + (_sl_)->len, (_data_), (_len_)); \
-	(_sl_)->len += (_len_)
-
-/**
- * Adds a data block prepended with an 8 bit length field.
- * @param _sl_ The SockList instance to add to.
- * @param _data_ The value to add.
- * @param _len_ The length in byte; must not exceed 255. */
-#define SockList_AddLen8Data(_sl_, _data_, _len_) \
-	SockList_AddChar((_sl_), (_len_)); \
-	SockList_AddData((_sl_), (_data_), (_len_))
-
-/**
- * Same as SockList_AddString(), but removes the trailing \0 added by
- * SockList_AddString(). */
-#define SockList_AddStringUnterm(_sl_, _data_) \
-	SockList_AddString((_sl_), (_data_)); \
-	(_sl_)->len--;
-
-/* Basically does the reverse of SockList_AddInt, but on
- * strings instead.  Same for the GetShort, but for 16 bits. */
-#define GetInt_String(_data_)                                                      \
-	(((_data_)[0] << 24) + ((_data_)[1] << 16) + ((_data_)[2] << 8) + (_data_)[3])
-#define GetShort_String(_data_)        \
-	(((_data_)[0] << 8) + (_data_)[1])
-
 /**
  * Simple function we use below to keep adding to the same string
  * but also make sure we don't overwrite that string.
@@ -1681,24 +1635,54 @@ enum apply_flag
 #define SPAWN_RELATIVE_LEVEL_PURPLE 6
 /*@}*/
 
+/**
+ * @defgroup FOR_MAP_LAYER_xxx Map layer looping macros
+ * Macros used for looping through objects on a specific map square and layer.
+ *@{*/
+/**
+ * The loop constructor.
+ * @param _m Map.
+ * @param _x X position.
+ * @param _y Y position.
+ * @param _layer Layer, one of @ref LAYER_xxx. Will include sub-layers for
+ * non-system objects.
+ * @param _obj Variable of an object pointer (does not need to be
+ * initialized); will contain the found object, if any.
+ * @warning Does not support stacking.
+ * @note Use @ref FOR_MAP_LAYER_BREAK to break out, instead of the
+ * traditional 'break'.  */
 #define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _obj) \
 { \
 	int __sub_layer; \
 	object *__tmp, *__next; \
+	tag_t __next_tag; \
 	for (__sub_layer = 0; __sub_layer < ((_layer) == 0 ? 1 : NUM_SUB_LAYERS); __sub_layer++) \
 	{ \
 		for (__tmp = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
 		{ \
 			__next = __tmp->above; \
+			if (__next) \
+			{ \
+				__next_tag = __next->count; \
+			} \
 			(_obj) = __tmp;
 
+/**
+ * Break out of the loop. */
 #define FOR_MAP_LAYER_BREAK \
 			__sub_layer = NUM_SUB_LAYERS; \
 			break; \
 
+/**
+ * End the loop. */
 #define FOR_MAP_LAYER_END \
+			if (__next && !OBJECT_VALID(__next, __next_tag)) \
+			{ \
+				FOR_MAP_LAYER_BREAK; \
+			} \
 		} \
 	} \
 }
+/*@}*/
 
 #endif

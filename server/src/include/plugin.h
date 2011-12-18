@@ -289,8 +289,6 @@ struct plugin_hooklist
 	void (*draw_info_format)(const char *, object *, const char *, ...);
 	void (*draw_info_flags)(int, const char *, object *, const char *);
 	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
-	void (*Send_With_Handling)(socket_struct *, SockList *);
-	void (*SockList_AddString)(SockList *, const char *);
 	artifactlist *(*find_artifactlist)(int);
 	void (*give_artifact_abilities)(object *, artifact *);
 	int (*connection_object_get_value)(object *);

@@ -221,33 +221,6 @@
 #define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
 
 /**
- * @defgroup map_face_flags Map face flags
- * These are the 'face flags' we grab out of the flags object structure
- * 1:1.
- *
- * We use a macro to get them from the object, doing it fast AND to mask the bigger
- * object flags to uint8.
- *@{*/
-
-/** Object is sleeping */
-#define FFLAG_SLEEP     0x01
-/** Object is confused */
-#define FFLAG_CONFUSED  0x02
-/** Object is paralyzed */
-#define FFLAG_PARALYZED 0x04
-/** Object is scared - it will run away */
-#define FFLAG_SCARED    0x08
-/** Object is blinded */
-#define FFLAG_BLINDED   0x10
-/** Object is invisible (can be seen with "see invisible" on) */
-#define FFLAG_INVISIBLE 0x20
-/** Object is ethereal */
-#define FFLAG_ETHEREAL  0x40
-/** Object is probed */
-#define FFLAG_PROBE     0x80
-/*@}*/
-
-/**
  * You should really know what you are doing before using this - you
  * should almost always be using get_map_from_coord() instead, which
  * takes into account map tiling. */

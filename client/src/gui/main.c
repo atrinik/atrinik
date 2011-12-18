@@ -291,13 +291,23 @@ static void char_creation_enter(list_struct *list)
 	/* Selected stats, create the character. */
 	else if (char_step == 2)
 	{
+		packet_struct *packet;
+		size_t i;
+
 		if (char_points_left)
 		{
 			return;
 		}
 
-		snprintf(buf, sizeof(buf), "nc %s %d %d %d %d %d %d %d", s_settings->characters[char_race_selected].gender_archetypes[char_gender_selected], s_settings->characters[char_race_selected].stats_base[0] + char_points_assigned[0], s_settings->characters[char_race_selected].stats_base[1] + char_points_assigned[1], s_settings->characters[char_race_selected].stats_base[2] + char_points_assigned[2], s_settings->characters[char_race_selected].stats_base[3] + char_points_assigned[3], s_settings->characters[char_race_selected].stats_base[4] + char_points_assigned[4], s_settings->characters[char_race_selected].stats_base[5] + char_points_assigned[5], s_settings->characters[char_race_selected].stats_base[6] + char_points_assigned[6]);
-		cs_write_string(buf, strlen(buf));
+		packet = packet_new(SERVER_CMD_NEW_CHAR, 64, 64);
+		packet_append_string_terminated(packet, s_settings->characters[char_race_selected].gender_archetypes[char_gender_selected]);
+
+		for (i = 0; i < NUM_STATS; i++)
+		{
+			packet_append_uint8(packet, s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
+		}
+
+		socket_send_packet(packet);
 		return;
 	}
 

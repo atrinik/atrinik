@@ -197,19 +197,6 @@ if (_nv_)                          \
 #define MAX_AGGRO_TIME 12
 
 /**
- * @defgroup SEND_FACE_xxx Send face return values
- * Return values used in esrv_send_face().
- *@{*/
-
-/** The face was sent OK. */
-#define SEND_FACE_OK             0
-/** Face number was out of bounds. */
-#define SEND_FACE_OUT_OF_BOUNDS  1
-/** Face data not available. */
-#define SEND_FACE_NO_DATA        2
-/*@}*/
-
-/**
  * @defgroup TILED_xxx Tiled map constants
  * Constants of tiled map IDs.
  *@{*/
@@ -248,6 +235,13 @@ if (_nv_)                          \
 /** The maximum level. */
 #define MAXLEVEL 115
 
+#include <binreloc.h>
+#include <mempool.h>
+#include <packet.h>
+#include <shstr.h>
+#include <socket.h>
+#include <stringbuffer.h>
+
 /**
  * Used to link together shared strings. */
 typedef struct linked_char
@@ -259,30 +253,27 @@ typedef struct linked_char
 	struct linked_char *next;
 } linked_char;
 
-#include "face.h"
-#include "attack.h"
-#include "material.h"
-#include "living.h"
-#include "object.h"
+#include <face.h>
+#include <attack.h>
+#include <material.h>
+#include <living.h>
+#include <object.h>
 #include <object_methods.h>
-#include "arch.h"
-#include "map.h"
-#include "mempool.h"
-#include "tod.h"
-#include "pathfinder.h"
-#include "newserver.h"
-#include "skills.h"
-#include "party.h"
-#include "player.h"
-#include "treasure.h"
-#include "commands.h"
-#include "artifact.h"
-#include "god.h"
-#include "race.h"
-#include "sounds.h"
-#include "recipe.h"
-#include "spells.h"
-#include "stringbuffer.h"
+#include <arch.h>
+#include <map.h>
+#include <tod.h>
+#include <pathfinder.h>
+#include <newserver.h>
+#include <skills.h>
+#include <party.h>
+#include <player.h>
+#include <treasure.h>
+#include <commands.h>
+#include <artifact.h>
+#include <god.h>
+#include <race.h>
+#include <recipe.h>
+#include <spells.h>
 
 /**
  * Special potions are identified by the last_eat value.

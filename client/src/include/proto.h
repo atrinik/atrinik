@@ -6,52 +6,31 @@ extern void anims_reset(void);
 extern Client_Player cpl;
 extern ClientSocket csocket;
 extern void DoClient(void);
-extern void SockList_Init(SockList *sl);
-extern void SockList_AddChar(SockList *sl, char c);
-extern void SockList_AddShort(SockList *sl, uint16 data);
-extern void SockList_AddInt(SockList *sl, uint32 data);
-extern void SockList_AddString(SockList *sl, char *data);
-extern void SockList_AddStringTerminated(SockList *sl, char *data);
-extern int GetInt_String(const unsigned char *data);
-extern sint64 GetInt64_String(const unsigned char *data);
-extern short GetShort_String(const unsigned char *data);
-extern char *GetString_String(uint8 *data, int *pos, char *dest, size_t dest_size);
-extern int cs_write_string(char *buf, size_t len);
 extern void check_animation_status(int anum);
 /* src/client/commands.c */
-extern void BookCmd(unsigned char *data, int len);
-extern void SetupCmd(char *buf, int len);
-extern void AddMeFail(unsigned char *data, int len);
-extern void AddMeSuccess(unsigned char *data, int len);
-extern void AnimCmd(unsigned char *data, int len);
-extern void ImageCmd(unsigned char *data, int len);
-extern void SkillRdyCmd(char *data, int len);
-extern void DrawInfoCmd(unsigned char *data);
-extern void DrawInfoCmd2(unsigned char *data, int len);
-extern void TargetObject(unsigned char *data, int len);
-extern void StatsCmd(unsigned char *data, int len);
+extern void socket_command_book(uint8 *data, size_t len, size_t pos);
+extern void socket_command_setup(uint8 *data, size_t len, size_t pos);
+extern void socket_command_anim(uint8 *data, size_t len, size_t pos);
+extern void socket_command_image(uint8 *data, size_t len, size_t pos);
+extern void socket_command_skill_ready(uint8 *data, size_t len, size_t pos);
+extern void socket_command_drawinfo(uint8 *data, size_t len, size_t pos);
+extern void socket_command_target(uint8 *data, size_t len, size_t pos);
+extern void socket_command_stats(uint8 *data, size_t len, size_t pos);
 extern void PreParseInfoStat(char *cmd);
-extern void handle_query(char *data);
+extern void socket_command_query(uint8 *data, size_t len, size_t pos);
 extern void send_reply(char *text);
-extern void PlayerCmd(unsigned char *data, int len);
-extern void ItemXCmd(unsigned char *data, int len);
-extern void ItemYCmd(unsigned char *data, int len);
-extern void UpdateItemCmd(unsigned char *data, int len);
-extern void DeleteItem(unsigned char *data, int len);
-extern void DeleteInventory(unsigned char *data);
-extern void MapStatsCmd(unsigned char *data, int len);
-extern void Map2Cmd(unsigned char *data, int len);
-extern void MagicMapCmd(unsigned char *data, int len);
-extern void cmd_version(uint8 *data, int len);
-extern void SendVersion(void);
-extern void RequestFile(int idx);
-extern void SendAddMe(void);
-extern void NewCharCmd(void);
-extern void DataCmd(unsigned char *data, int len);
-extern void ShopCmd(unsigned char *data, int len);
-extern void QuestListCmd(unsigned char *data, int len);
-extern void ReadyCmd(unsigned char *data, int len);
-extern void cmd_compressed(unsigned char *data, int len);
+extern void socket_command_player(uint8 *data, size_t len, size_t pos);
+extern void socket_command_itemx(uint8 *data, size_t len, size_t pos);
+extern void socket_command_itemy(uint8 *data, size_t len, size_t pos);
+extern void socket_command_item_update(uint8 *data, size_t len, size_t pos);
+extern void socket_command_item_delete(uint8 *data, size_t len, size_t pos);
+extern void socket_command_mapstats(uint8 *data, size_t len, size_t pos);
+extern void socket_command_map(uint8 *data, size_t len, size_t pos);
+extern void socket_command_version(uint8 *data, size_t len, size_t pos);
+extern void socket_command_new_char(uint8 *data, size_t len, size_t pos);
+extern void socket_command_data(uint8 *data, size_t len, size_t pos);
+extern void socket_command_item_ready(uint8 *data, size_t len, size_t pos);
+extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url);
@@ -70,7 +49,7 @@ extern bmap_struct *bmap_find(const char *name);
 extern void bmap_add(bmap_struct *bmap);
 extern void read_bmaps_p0(void);
 extern void read_bmaps(void);
-extern void finish_face_cmd(int pnum, uint32 checksum, char *face);
+extern void finish_face_cmd(int facenum, uint32 checksum, char *face);
 extern int request_face(int pnum);
 extern int get_bmap_id(char *name);
 extern void blit_face(int id, int x, int y);
@@ -165,12 +144,11 @@ extern char *whitespace_squeeze(char *str);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
-extern void new_player(long tag, long weight, short face);
-extern void client_send_apply(int tag);
-extern void client_send_examine(int tag);
+extern void new_player(tag_t tag, long weight, short face);
+extern void client_send_apply(tag_t tag);
+extern void client_send_examine(tag_t tag);
 extern void client_send_move(int loc, int tag, int nrof);
 extern void send_command(const char *command);
-extern void CompleteCmd(unsigned char *data, int len);
 extern void set_weight_limit(uint32 wlim);
 extern void init_player_data(void);
 extern void widget_player_data_event(widgetdata *widget, int x, int y);
@@ -189,23 +167,14 @@ extern void widget_show_label(widgetdata *widget);
 extern void widget_show_bitmap(widgetdata *widget);
 extern int gender_to_id(const char *gender);
 /* src/client/porting.c */
-/* src/client/scripts.c */
-extern void script_load(const char *cparams);
-extern void script_list(void);
-extern void script_process(void);
-extern int script_trigger_event(const char *cmd, const uint8 *data, const int data_len, const enum CmdFormat format);
-extern void script_send(const char *params);
-extern void script_killall(void);
-extern void script_autoload(void);
-extern void script_unload(const char *params);
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_load(int post_load);
 extern FILE *server_file_open(size_t id);
 extern void server_file_save(size_t id, unsigned char *data, size_t len);
 extern int server_files_updating(void);
-extern void server_files_setup_add(char *buf, size_t buf_size);
-extern int server_files_parse_setup(const char *cmd, const char *param);
+extern void server_files_setup_add(packet_struct *packet);
+extern void server_files_mark_update(size_t i);
 extern void server_files_clear_update(void);
 /* src/client/server_settings.c */
 extern server_settings *s_settings;
@@ -230,8 +199,7 @@ extern sint64 setting_from_name(const char *name);
 /* src/client/socket.c */
 extern command_buffer *command_buffer_new(size_t len, uint8 *data);
 extern void command_buffer_free(command_buffer *buf);
-extern int send_command_binary(uint8 cmd, uint8 *body, unsigned int len);
-extern int send_socklist(SockList msg);
+extern void socket_send_packet(packet_struct *packet);
 extern command_buffer *get_next_input_command(void);
 extern void add_input_command(command_buffer *buf);
 extern void socket_thread_start(void);
@@ -254,10 +222,10 @@ extern void sound_update_volume(void);
 extern const char *sound_get_bg_music(void);
 extern const char *sound_get_bg_music_basename(void);
 extern uint8 sound_map_background(int new);
-extern void SoundCmd(uint8 *data, int len);
+extern void socket_command_sound(uint8 *data, size_t len, size_t pos);
 extern void sound_ambient_mapcroll(int xoff, int yoff);
 extern void sound_ambient_clear(void);
-extern void cmd_sound_ambient(uint8 *data, int len);
+extern void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos);
 extern void sound_pause_music(void);
 extern void sound_resume_music(void);
 extern int sound_playing_music(void);
@@ -290,7 +258,7 @@ extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y
 extern int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
 extern SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 /* src/client/updates.c */
-extern void cmd_request_update(unsigned char *data, int len);
+extern void socket_command_file_update(uint8 *data, size_t len, size_t pos);
 extern int file_updates_finished(void);
 extern void file_updates_parse(void);
 /* src/client/upgrader.c */
@@ -367,7 +335,7 @@ extern void widget_show_console(widgetdata *widget);
 extern void widget_show_number(widgetdata *widget);
 extern void widget_input_do(widgetdata *widget);
 /* src/gui/interface.c */
-extern void cmd_interface(uint8 *data, int len);
+extern void socket_command_interface(uint8 *data, size_t len, size_t pos);
 extern void interface_redraw(void);
 /* src/gui/inventory.c */
 extern char *skill_level_name[];
@@ -435,12 +403,12 @@ extern void notification_destroy(void);
 extern int notification_keybind_check(const char *cmd);
 extern void widget_notification_render(widgetdata *widget);
 extern void widget_notification_event(widgetdata *widget, SDL_Event *event);
-extern void cmd_notification(uint8 *data, int len);
+extern void socket_command_notification(uint8 *data, size_t len, size_t pos);
 /* src/gui/party.c */
 extern void widget_party_background(widgetdata *widget);
 extern void widget_party_render(widgetdata *widget);
 extern void widget_party_mevent(widgetdata *widget, SDL_Event *event);
-extern void PartyCmd(unsigned char *data, int len);
+extern void socket_command_party(uint8 *data, size_t len, size_t pos);
 /* src/gui/protections.c */
 extern void widget_show_resist(widgetdata *widget);
 /* src/gui/quickslots.c */
@@ -452,13 +420,13 @@ extern int get_quickslot(int x, int y);
 extern void show_quickslots(int x, int y, int vertical_quickslot);
 extern void widget_quickslots(widgetdata *widget);
 extern void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event);
-extern void QuickSlotCmd(unsigned char *data, int len);
+extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
 /* src/gui/range.c */
 extern void widget_range_event(widgetdata *widget, int x, int y, SDL_Event event, int MEvent);
 extern void widget_show_range(widgetdata *widget);
 /* src/gui/region_map.c */
 extern void region_map_clear(void);
-extern void RegionMapCmd(uint8 *data, int len);
+extern void socket_command_region_map(uint8 *data, size_t len, size_t pos);
 /* src/gui/settings.c */
 extern void settings_open(void);
 /* src/gui/skills.c */
@@ -469,7 +437,7 @@ extern int skill_find_type_selected(const char *name, size_t *id);
 extern skill_entry_struct *skill_get(size_t type, size_t id);
 extern void skills_init(void);
 extern void skills_reload(void);
-extern void SkilllistCmd(char *data);
+extern void socket_command_skill_list(uint8 *data, size_t len, size_t pos);
 /* src/gui/spells.c */
 extern void widget_spells_render(widgetdata *widget);
 extern void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
@@ -478,7 +446,7 @@ extern int spell_find_path_selected(const char *name, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
 extern void spells_init(void);
 extern void spells_reload(void);
-extern void SpelllistCmd(char *data);
+extern void socket_command_spell_list(uint8 *data, size_t len, size_t pos);
 /* src/gui/target.c */
 extern void widget_event_target(widgetdata *widget, int x, int y);
 extern void widget_show_target(widgetdata *widget);
@@ -515,18 +483,80 @@ extern char *br_find_etc_dir(const char *default_etc_dir);
 extern char *br_strcat(const char *str1, const char *str2);
 extern char *br_build_path(const char *dir, const char *file);
 extern char *br_dirname(const char *path);
-/* src/toolkit/button.c */
+/* src/toolkit/mempool.c */
+extern mempool_chunk_struct end_marker;
+extern struct mempool *pool_object;
+extern struct mempool *pool_objectlink;
+extern struct mempool *pool_player;
+extern struct mempool *pool_bans;
+extern struct mempool *pool_parties;
+extern uint32 nearest_pow_two_exp(uint32 n);
+extern void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor);
+extern mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
+extern void mempool_free(mempool_struct *pool);
+extern void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp);
+extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool);
+/* src/toolkit/packet.c */
+extern void packet_init(void);
+extern void packet_deinit(void);
+extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);
+extern void packet_free(packet_struct *packet);
+extern void packet_compress(packet_struct *packet);
+extern void packet_enable_ndelay(packet_struct *packet);
+extern void packet_set_pos(packet_struct *packet, size_t pos);
+extern size_t packet_get_pos(packet_struct *packet);
+extern packet_struct *packet_dup(packet_struct *packet);
+extern void packet_delete(packet_struct *packet, size_t pos, size_t len);
+extern void packet_merge(packet_struct *src, packet_struct *dst);
+extern void packet_append_uint8(packet_struct *packet, uint8 data);
+extern void packet_append_sint8(packet_struct *packet, sint8 data);
+extern void packet_append_uint16(packet_struct *packet, uint16 data);
+extern void packet_append_sint16(packet_struct *packet, sint16 data);
+extern void packet_append_uint32(packet_struct *packet, uint32 data);
+extern void packet_append_sint32(packet_struct *packet, sint32 data);
+extern void packet_append_uint64(packet_struct *packet, uint64 data);
+extern void packet_append_sint64(packet_struct *packet, sint64 data);
+extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
+extern void packet_append_string(packet_struct *packet, const char *data);
+extern void packet_append_string_terminated(packet_struct *packet, const char *data);
+extern uint8 packet_to_uint8(uint8 *data, size_t len, size_t *pos);
+extern sint8 packet_to_sint8(uint8 *data, size_t len, size_t *pos);
+extern uint16 packet_to_uint16(uint8 *data, size_t len, size_t *pos);
+extern sint16 packet_to_sint16(uint8 *data, size_t len, size_t *pos);
+extern uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
+extern sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
+extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
+extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
+extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
+extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
+/* src/toolkit/shstr.c */
+extern void init_hash_table(void);
+extern shstr *add_string(const char *str);
+extern shstr *add_refcount(shstr *str);
+extern int query_refcount(shstr *str);
+extern shstr *find_string(const char *str);
+extern void free_string_shared(shstr *str);
+extern void ss_dump_table(int what, char *buf, size_t size);
+/* src/toolkit/stringbuffer.c */
+extern StringBuffer *stringbuffer_new(void);
+extern char *stringbuffer_finish(StringBuffer *sb);
+extern const char *stringbuffer_finish_shared(StringBuffer *sb);
+extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
+extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+extern size_t stringbuffer_length(StringBuffer *sb);
+/* src/toolkit_gui/button.c */
 extern void button_init(void);
 extern int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus);
 extern void button_create(button_struct *button);
 extern void button_render(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
 extern void button_tooltip(button_struct *button, int font, const char *text);
-/* src/toolkit/clipboard.c */
+/* src/toolkit_gui/clipboard.c */
 extern int clipboard_init(void);
 extern int clipboard_set(const char *str);
 extern char *clipboard_get(void);
-/* src/toolkit/list.c */
+/* src/toolkit_gui/list.c */
 extern void list_set_parent(list_struct *list, int px, int py);
 extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
 extern void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
@@ -544,22 +574,22 @@ extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
 extern int list_handle_mouse(list_struct *list, SDL_Event *event);
 extern void list_sort(list_struct *list, int type);
 extern int list_set_selected(list_struct *list, const char *str, uint32 col);
-/* src/toolkit/popup.c */
+/* src/toolkit_gui/popup.c */
 extern popup_struct *popup_create(int bitmap_id);
 extern void popup_destroy(popup_struct *popup);
 extern void popup_destroy_all(void);
 extern void popup_render(popup_struct *popup);
-extern void popup_render_head(void);
+extern void popup_render_all(void);
 extern int popup_handle_event(SDL_Event *event);
 extern popup_struct *popup_get_head(void);
 extern void popup_button_set_text(popup_button *button, const char *text);
-/* src/toolkit/progress.c */
+/* src/toolkit_gui/progress.c */
 extern void progress_dots_create(progress_dots *progress);
 extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
 extern int progress_dots_width(progress_dots *progress);
-/* src/toolkit/range_buttons.c */
+/* src/toolkit_gui/range_buttons.c */
 extern int range_buttons_show(int x, int y, int *val, int advance);
-/* src/toolkit/scrollbar.c */
+/* src/toolkit_gui/scrollbar.c */
 extern void scrollbar_init(void);
 extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
 extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
@@ -569,7 +599,7 @@ extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
 extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
 extern int scrollbar_get_width(scrollbar_struct *scrollbar);
-/* src/toolkit/SDL_gfx.c */
+/* src/toolkit_gui/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColor(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
@@ -646,7 +676,7 @@ extern int bezierColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int
 extern int bezierRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int thickLineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color);
 extern int thickLineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-/* src/toolkit/SDL_rotozoom.c */
+/* src/toolkit_gui/SDL_rotozoom.c */
 extern Uint32 _colorkey(SDL_Surface *src);
 extern int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
 extern int _shrinkSurfaceY(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
@@ -663,7 +693,7 @@ extern SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoo
 extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 extern SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 extern SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
-/* src/toolkit/sha1.c */
+/* src/toolkit_gui/sha1.c */
 extern void sha1_starts(sha1_context *ctx);
 extern void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
 extern void sha1_finish(sha1_context *ctx, unsigned char output[20]);
@@ -674,7 +704,7 @@ extern void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size
 extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
 extern void sha1_hmac_reset(sha1_context *ctx);
 extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
-/* src/toolkit/text.c */
+/* src/toolkit_gui/text.c */
 extern font_struct fonts[FONTS_MAX];
 extern void text_init(void);
 extern void text_deinit(void);
@@ -701,7 +731,7 @@ extern int string_get_height(int font, const char *text, uint64 flags);
 extern void string_truncate_overflow(int font, char *text, int max_width);
 extern void text_anchor_parse(text_blit_info *info, const char *text);
 extern void text_enable_debug(void);
-/* src/toolkit/text_input.c */
+/* src/toolkit_gui/text_input.c */
 extern char text_input_string[256];
 extern int text_input_count;
 extern int text_input_string_flag;
@@ -720,12 +750,12 @@ extern void text_input_set_history(UT_array *history);
 extern void text_input_set_string(const char *text);
 extern void text_input_add_char(char c);
 extern int text_input_handle(SDL_KeyboardEvent *key);
-/* src/toolkit/tooltip.c */
+/* src/toolkit_gui/tooltip.c */
 extern void tooltip_create(int mx, int my, int font, const char *text);
 extern void tooltip_multiline(int max_width);
 extern void tooltip_show(void);
 extern void tooltip_dismiss(void);
-/* src/toolkit/widget.c */
+/* src/toolkit_gui/widget.c*/
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
 extern void init_widgets_fromCurrent(void);
@@ -792,11 +822,4 @@ extern void menu_inv_filter_unapplied(widgetdata *widget, int x, int y);
 extern void menu_inv_filter_submenu(widgetdata *widget, int x, int y);
 extern void menu_inventory_submenu_more(widgetdata *widget, int x, int y);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, int x, int y);
-/* src/toolkit/stringbuffer.c*/
-extern StringBuffer *stringbuffer_new(void);
-extern char *stringbuffer_finish(StringBuffer *sb);
-extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
-extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
-extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
-extern size_t stringbuffer_length(StringBuffer *sb);
 #endif

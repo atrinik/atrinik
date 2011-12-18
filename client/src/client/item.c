@@ -406,8 +406,7 @@ void object_set_values(object *op, const char *name, sint32 weight, uint16 face,
  * @param op Object. */
 void toggle_locked(object *op)
 {
-	SockList sl;
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
 	/* If object is on the ground, don't lock it. */
 	if (!op || !op->env || op->env->tag == 0)
@@ -415,12 +414,9 @@ void toggle_locked(object *op)
 		return;
 	}
 
-	sl.buf = (unsigned char *) buf;
-	strcpy((char *) sl.buf, "lock ");
-	sl.len = 5;
-	sl.buf[sl.len++] = !(op->flags & F_LOCKED);
-	SockList_AddInt(&sl, op->tag);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_ITEM_LOCK, 8, 0);
+	packet_append_uint32(packet, op->tag);
+	socket_send_packet(packet);
 }
 
 /**
@@ -428,8 +424,7 @@ void toggle_locked(object *op)
  * @param op The object. */
 void object_send_mark(object *op)
 {
-	SockList sl;
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
 	/* If object is on the ground, don't mark it. */
 	if (!op || !op->env || op->env->tag == 0)
@@ -446,11 +441,9 @@ void object_send_mark(object *op)
 		cpl.mark_count = op->tag;
 	}
 
-	sl.buf = (unsigned char *) buf;
-	strcpy((char *) sl.buf, "mark ");
-	sl.len = 5;
-	SockList_AddInt(&sl, op->tag);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
+	packet_append_uint32(packet, op->tag);
+	socket_send_packet(packet);
 }
 
 /**
@@ -458,8 +451,7 @@ void object_send_mark(object *op)
  * @param op Object to ready. */
 void ready_object(object *op)
 {
-	SockList sl;
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
 	/* If object is on the ground, don't ready it. */
 	if (!op || !op->env || op->env->tag == 0)
@@ -467,11 +459,9 @@ void ready_object(object *op)
 		return;
 	}
 
-	sl.buf = (unsigned char *) buf;
-	strcpy((char *) sl.buf, "rd ");
-	sl.len = 3;
-	SockList_AddInt(&sl, op->tag);
-	send_socklist(sl);
+	packet = packet_new(SERVER_CMD_ITEM_READY, 8, 0);
+	packet_append_uint32(packet, op->tag);
+	socket_send_packet(packet);
 }
 
 /**

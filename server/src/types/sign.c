@@ -34,7 +34,7 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	shstr *notification_msg, *midi_data;
+	shstr *notification_msg;
 
 	(void) aflags;
 
@@ -45,9 +45,8 @@ static int apply_func(object *op, object *applier, int aflags)
 	}
 
 	notification_msg = object_get_value(op, "notification_message");
-	midi_data = object_get_value(op, "midi_data");
 
-	if (!op->msg && !op->title && !notification_msg && !midi_data && !HAS_EVENT(op, EVENT_SAY))
+	if (!op->msg && !op->title && !notification_msg && !HAS_EVENT(op, EVENT_SAY))
 	{
 		draw_info(COLOR_WHITE, applier, "Nothing is written on it.");
 		return OBJECT_METHOD_OK;
@@ -110,11 +109,6 @@ static int apply_func(object *op, object *applier, int aflags)
 		play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, op->title, 0, 0, 0, 0);
 	}
 
-	if (midi_data)
-	{
-		play_sound_player_only(CONTR(applier), CMD_SOUND_MIDI_NOTE, midi_data, 0, 0, 0, 0);
-	}
-
 	if (op->msg)
 	{
 		draw_info(COLOR_NAVY, applier, op->msg);
@@ -130,7 +124,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		notification_shortcut = object_get_value(op, "notification_shortcut");
 		notification_delay = object_get_value(op, "notification_delay");
 
-		packet = packet_new(BINARY_CMD_NOTIFICATION, 256, 512);
+		packet = packet_new(CLIENT_CMD_NOTIFICATION, 256, 512);
 
 		packet_append_uint8(packet, CMD_NOTIFICATION_TEXT);
 		packet_append_string_terminated(packet, notification_msg);
@@ -171,8 +165,6 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	shstr *midi_data;
-
 	/* If the event is caused by a move-off and the object that caused
 	 * the event is a player, return immediately. This is done because
 	 * events are asynchronous, so when this code runs because of the
@@ -197,16 +189,9 @@ static int trigger_func(object *op, object *cause, int state)
 		op->last_eat++;
 	}
 
-	midi_data = object_get_value(op, "midi_data");
-
 	if (op->title)
 	{
 		play_sound_map(op->map, CMD_SOUND_EFFECT, op->title, op->x, op->y, 0, 0);
-	}
-
-	if (midi_data)
-	{
-		play_sound_map(op->map, CMD_SOUND_MIDI_NOTE, midi_data, op->x, op->y, 0, 0);
 	}
 
 	if (op->msg)

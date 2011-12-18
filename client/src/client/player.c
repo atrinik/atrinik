@@ -93,7 +93,7 @@ void clear_player(void)
  * @param name Name of the player.
  * @param weight Weight of the player.
  * @param face Face ID. */
-void new_player(long tag, long weight, short face)
+void new_player(tag_t tag, long weight, short face)
 {
 	cpl.ob->tag = tag;
 	cpl.ob->weight = (float) weight / 1000;
@@ -103,23 +103,25 @@ void new_player(long tag, long weight, short face)
 /**
  * Send apply command to server.
  * @param tag Item tag. */
-void client_send_apply(int tag)
+void client_send_apply(tag_t tag)
 {
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(buf, sizeof(buf), "ap %d", tag);
-	cs_write_string(buf, strlen(buf));
+	packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
+	packet_append_uint32(packet, tag);
+	socket_send_packet(packet);
 }
 
 /**
  * Send examine command to server.
  * @param tag Item tag. */
-void client_send_examine(int tag)
+void client_send_examine(tag_t tag)
 {
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(buf, sizeof(buf), "ex %d", tag);
-	cs_write_string(buf, strlen(buf));
+	packet = packet_new(SERVER_CMD_ITEM_EXAMINE, 8, 0);
+	packet_append_uint32(packet, tag);
+	socket_send_packet(packet);
 }
 
 /**
@@ -129,10 +131,13 @@ void client_send_examine(int tag)
  * @param nrof Number of objects from tag. */
 void client_send_move(int loc, int tag, int nrof)
 {
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(buf, sizeof(buf), "mv %d %d %d", loc, tag, nrof);
-	cs_write_string(buf, strlen(buf));
+	packet = packet_new(SERVER_CMD_ITEM_MOVE, 32, 0);
+	packet_append_uint32(packet, loc);
+	packet_append_uint32(packet, tag);
+	packet_append_uint32(packet, nrof);
+	socket_send_packet(packet);
 }
 
 /**
@@ -142,26 +147,11 @@ void client_send_move(int loc, int tag, int nrof)
  * @return 1 if command was sent, 0 otherwise. */
 void send_command(const char *command)
 {
-	char buf[MAX_BUF];
-	SockList sl;
+	packet_struct *packet;
 
-	sl.buf = (unsigned char *) buf;
-	strcpy((char *) sl.buf, "cm ");
-	sl.len = 3;
-	strncpy((char *) sl.buf + sl.len, command, MAX_BUF - sl.len);
-	sl.buf[MAX_BUF - 1] = '\0';
-	sl.len += (int) strlen(command);
-	send_socklist(sl);
-}
-
-/**
- * Receive complete command.
- * @param data The incoming data.
- * @param len Length of the data. */
-void CompleteCmd(unsigned char *data, int len)
-{
-	(void) data;
-	(void) len;
+	packet = packet_new(SERVER_CMD_PLAYER_CMD, 256, 128);
+	packet_append_string_terminated(packet, command);
+	socket_send_packet(packet);
 }
 
 /**
