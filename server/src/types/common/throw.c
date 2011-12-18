@@ -48,7 +48,7 @@ int common_object_throw(object *op, object *shooter, int dir)
 		return OBJECT_METHOD_UNHANDLED;
 	}
 
-	if (op->weight <= 0)
+	if (op->weight <= 0 || QUERY_FLAG(op, FLAG_NO_DROP))
 	{
 		draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", query_base_name(op, shooter));
 		return OBJECT_METHOD_UNHANDLED;
