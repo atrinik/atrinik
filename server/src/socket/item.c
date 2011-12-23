@@ -270,7 +270,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
 
 	packet_append_uint32(packet, 0);
 	packet_append_uint32(packet, 0);
-	packet_append_uint32(packet, -1);
+	packet_append_sint32(packet, -1);
 	packet_append_uint32(packet, blank_face->number);
 	packet_append_uint8(packet, 0);
 	packet_append_string_terminated(packet, "in inventory");
@@ -290,7 +290,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
 
 	packet_append_uint32(packet, 0);
 	packet_append_uint32(packet, 0);
-	packet_append_uint32(packet, -1);
+	packet_append_sint32(packet, -1);
 	packet_append_uint32(packet, blank_face->number);
 	packet_append_uint8(packet, 0);
 	packet_append_string_terminated(packet, "end inventory");
@@ -328,7 +328,7 @@ void esrv_draw_look(object *pl)
 	{
 		packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
 		packet_append_uint32(packet, 0);
-		packet_append_uint32(packet, -1);
+		packet_append_sint32(packet, -1);
 		packet_append_uint32(packet, prev_item_face->number);
 		packet_append_uint8(packet, 0);
 		packet_append_string_terminated(packet, "Previous group of items");
@@ -366,7 +366,7 @@ void esrv_draw_look(object *pl)
 		{
 			packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
 			packet_append_uint32(packet, 0);
-			packet_append_uint32(packet, -1);
+			packet_append_sint32(packet, -1);
 			packet_append_uint32(packet, prev_item_face->number);
 			packet_append_uint8(packet, 0);
 			packet_append_string_terminated(packet, "Next group of items");
@@ -395,8 +395,8 @@ void esrv_close_container(object *op)
 	packet_struct *packet;
 
 	packet = packet_new(CLIENT_CMD_ITEMX, 32, 0);
-	packet_append_uint32(packet, -1);
-	packet_append_uint32(packet, -1);
+	packet_append_sint32(packet, -1);
+	packet_append_sint32(packet, -1);
 	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
@@ -416,11 +416,11 @@ void esrv_send_inventory(object *pl, object *op)
 	if (pl != op)
 	{
 		/* Container mode flag */
-		packet_append_uint32(packet, -1);
+		packet_append_sint32(packet, -1);
 	}
 	else
 	{
-		packet_append_uint32(packet, op->count);
+		packet_append_sint32(packet, op->count);
 	}
 
 	packet_append_uint32(packet, op->count);
@@ -520,7 +520,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	}
 
 	packet = packet_new(CLIENT_CMD_ITEMX, 64, 128);
-	packet_append_uint32(packet, -4);
+	packet_append_sint32(packet, -4);
 	packet_append_uint32(packet, op->env->count);
 	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 	socket_send_packet(&CONTR(pl)->socket, packet);

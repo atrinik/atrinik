@@ -410,7 +410,7 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
 
 	type = packet_to_uint8(data, len, &pos);
 	packet_to_string(data, len, &pos, filename, sizeof(filename));
-	loop = packet_to_uint8(data, len, &pos);
+	loop = packet_to_sint8(data, len, &pos);
 	volume = packet_to_uint8(data, len, &pos);
 
 	if (type == CMD_SOUND_EFFECT)

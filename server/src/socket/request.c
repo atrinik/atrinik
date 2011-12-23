@@ -455,7 +455,7 @@ void esrv_update_stats(player *pl)
 			break;
 		}
 
-		AddIfInt(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i, uint8);
+		AddIfInt(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i, sint8);
 	}
 
 	if (pl->socket.ext_title_flag)
@@ -466,7 +466,7 @@ void esrv_update_stats(player *pl)
 		pl->socket.ext_title_flag = 0;
 	}
 
-	if (packet->len > 1)
+	if (packet->len >= 1)
 	{
 		socket_send_packet(&pl->socket, packet);
 	}
@@ -722,7 +722,7 @@ void draw_client_map(object *pl)
 		}
 
 		/* Anything to send? */
-		if (packet->len > 1)
+		if (packet->len >= 1)
 		{
 			socket_send_packet(&CONTR(pl)->socket, packet);
 		}
@@ -1342,11 +1342,11 @@ void draw_client_map2(object *pl)
 						{
 							if (mirror && mirror->last_eat)
 							{
-								packet_append_uint16(packet_layer, head->z + mirror->last_eat);
+								packet_append_sint16(packet_layer, head->z + mirror->last_eat);
 							}
 							else
 							{
-								packet_append_uint16(packet_layer, head->z);
+								packet_append_sint16(packet_layer, head->z);
 							}
 						}
 
@@ -1369,11 +1369,11 @@ void draw_client_map2(object *pl)
 						{
 							if (mirror && mirror->align)
 							{
-								packet_append_uint16(packet_layer, head->align + mirror->align);
+								packet_append_sint16(packet_layer, head->align + mirror->align);
 							}
 							else
 							{
-								packet_append_uint16(packet_layer, head->align);
+								packet_append_sint16(packet_layer, head->align);
 							}
 						}
 
@@ -1388,7 +1388,7 @@ void draw_client_map2(object *pl)
 
 							if (flags2 & MAP2_FLAG2_ROTATE)
 							{
-								packet_append_uint16(packet_layer, head->rotate);
+								packet_append_sint16(packet_layer, head->rotate);
 							}
 						}
 					}
@@ -1441,7 +1441,7 @@ void draw_client_map2(object *pl)
 	}
 
 	/* Verify that we in fact do need to send this. */
-	if (packet->len > 4)
+	if (packet->len >= 4)
 	{
 		socket_send_packet(&CONTR(pl)->socket, packet);
 	}
@@ -1450,7 +1450,7 @@ void draw_client_map2(object *pl)
 		packet_free(packet);
 	}
 
-	if (packet_sound->len > 1)
+	if (packet_sound->len >= 1)
 	{
 		socket_send_packet(&CONTR(pl)->socket, packet_sound);
 	}

@@ -265,7 +265,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
 		if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END)
 		{
-			cpl.stats.protection[type - CS_STAT_PROT_START] = packet_to_uint8(data, len, &pos);
+			cpl.stats.protection[type - CS_STAT_PROT_START] = packet_to_sint8(data, len, &pos);
 			WIDGET_REDRAW_ALL(RESIST_ID);
 		}
 		else
@@ -615,8 +615,8 @@ void socket_command_itemx(uint8 *data, size_t len, size_t pos)
 
 	itype = stype = item_qua = item_con = item_skill = item_level = 0;
 
-	dmode = packet_to_uint32(data, len, &pos);
-	loc = packet_to_uint32(data, len, &pos);
+	dmode = packet_to_sint32(data, len, &pos);
+	loc = packet_to_sint32(data, len, &pos);
 
 	if (dmode >= 0)
 	{
@@ -689,7 +689,7 @@ void socket_command_itemy(uint8 *data, size_t len, size_t pos)
 
 	itype = stype = item_qua = item_con = item_skill = item_level = 0;
 
-	dmode = packet_to_uint32(data, len, &pos);
+	dmode = packet_to_sint32(data, len, &pos);
 	loc = packet_to_uint32(data, len, &pos);
 
 	if (dmode >= 0)
@@ -1048,7 +1048,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 				/* Z position? */
 				if (flags & MAP2_FLAG_HEIGHT)
 				{
-					height = packet_to_uint16(data, len, &pos);
+					height = packet_to_sint16(data, len, &pos);
 				}
 
 				/* Zoom? */
@@ -1061,7 +1061,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 				/* Align? */
 				if (flags & MAP2_FLAG_ALIGN)
 				{
-					align = packet_to_uint16(data, len, &pos);
+					align = packet_to_sint16(data, len, &pos);
 				}
 
 				/* Double? */
@@ -1083,7 +1083,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
 					if (flags2 & MAP2_FLAG2_ROTATE)
 					{
-						rotate = packet_to_uint16(data, len, &pos);
+						rotate = packet_to_sint16(data, len, &pos);
 					}
 
 					if (flags2 & MAP2_FLAG2_INFRAVISION)

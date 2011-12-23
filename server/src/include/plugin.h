@@ -303,9 +303,13 @@ struct plugin_hooklist
 	size_t (*packet_get_pos)(packet_struct *);
 	void (*packet_merge)(packet_struct *, packet_struct *);
 	void (*packet_append_uint8)(packet_struct *, uint8);
+	void (*packet_append_sint8)(packet_struct *, sint8);
 	void (*packet_append_uint16)(packet_struct *, uint16);
+	void (*packet_append_sint16)(packet_struct *, sint16);
 	void (*packet_append_uint32)(packet_struct *, uint32);
+	void (*packet_append_sint32)(packet_struct *, sint32);
 	void (*packet_append_uint64)(packet_struct *, uint64);
+	void (*packet_append_sint64)(packet_struct *, sint64);
 	void (*packet_append_data_len)(packet_struct *, uint8 *, size_t);
 	void (*packet_append_string)(packet_struct *, const char *);
 	void (*packet_append_string_terminated)(packet_struct *, const char *);

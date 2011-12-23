@@ -85,7 +85,7 @@ void statistic_update(const char *type, object *op, sint64 i, const char *buf)
 	packet = packet_new(0, 256, 256);
 	packet_append_string_terminated(packet, type);
 	packet_append_string_terminated(packet, op->name);
-	packet_append_uint64(packet, i);
+	packet_append_sint64(packet, i);
 
 	if (buf)
 	{

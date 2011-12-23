@@ -502,7 +502,7 @@ void socket_command_skill_list(uint8 *data, size_t len, size_t pos)
 	{
 		packet_to_string(data, len, &pos, name, sizeof(name));
 		level = packet_to_uint8(data, len, &pos);
-		exp = packet_to_uint64(data, len, &pos);
+		exp = packet_to_sint64(data, len, &pos);
 
 		/* If the skill exists, mark it as known, and store the level/exp. */
 		if (skill_find(name, &skill_type, &skill_id))

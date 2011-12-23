@@ -561,7 +561,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				hooks->packet_append_uint16(packet, val);
+				hooks->packet_append_sint16(packet, val);
 			}
 			else
 			{
@@ -581,7 +581,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				hooks->packet_append_uint32(packet, val);
+				hooks->packet_append_sint32(packet, val);
 			}
 			else
 			{
