@@ -1277,11 +1277,11 @@ static void dump_level_colors_table(void)
 	{
 		vc += 100000;
 		vx += vc;
-		LOG(-1, "%4.2f, ", (((float) vc) / xc) / 125.0f);
+		LOG(llevInfo, "%4.2f, ", (((float) vc) / xc) / 125.0f);
 		xc += 2;
 	}
 
-	LOG(-1, "\n");
+	LOG(llevInfo, "\n");
 
 	for (i = 1; i < 201; i++)
 	{
