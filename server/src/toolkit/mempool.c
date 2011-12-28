@@ -128,7 +128,7 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 	pool->constructor = constructor;
 	pool->destructor = destructor;
 
-#if MEMORY_DEBUG || 1
+#if MEMORY_DEBUG
 	pool->flags |= MEMPOOL_BYPASS_POOLS;
 #endif
 
