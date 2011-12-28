@@ -88,41 +88,6 @@ int look_up_spell_name(const char *spname)
 }
 
 /**
- * Replace in string src all occurrences of key by replacement. The resulting
- * string is put into result; at most resultsize characters (including the
- * terminating null character) will be written to result. */
-void replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
-{
-	size_t resultlen, keylen;
-
-	/* special case to prevent infinite loop if key == replacement == "" */
-	if (strcmp(key, replacement) == 0)
-	{
-		snprintf(result, resultsize, "%s", src);
-		return;
-	}
-
-	keylen = strlen(key);
-	resultlen = 0;
-
-	while (*src != '\0' && resultlen + 1 < resultsize)
-	{
-		if (strncmp(src, key, keylen) == 0)
-		{
-			snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
-			resultlen += strlen(result + resultlen);
-			src += keylen;
-		}
-		else
-		{
-			result[resultlen++] = *src++;
-		}
-	}
-
-	result[resultlen] = '\0';
-}
-
-/**
  * Checks for a legal string by first trimming left whitespace and then
  * checking if there is anything left.
  * @param ustring The string to clean up.
@@ -204,74 +169,6 @@ void adjust_player_name(char *name)
 	{
 		*(--tmp) = '\0';
 	}
-}
-
-/**
- * Replaces any unprintable character in the given buffer with a space.
- * @param buf The buffer to modify. */
-void replace_unprintable_chars(char *buf)
-{
-	char *p;
-
-	for (p = buf; *p != '\0'; p++)
-	{
-		if (*p < ' ' || *p > '~')
-		{
-			*p = ' ';
-		}
-	}
-}
-
-/**
- * Splits a string delimited by passed in sep value into characters into an array of strings.
- * @param str The string to be split; will be modified.
- * @param array The string array; will be filled with pointers into str.
- * @param array_size The number of elements in array; if <code>str</code> contains more fields
- * excess fields are not split but included into the last element.
- * @param sep Separator to use.
- * @return The number of elements found; always less or equal to <code>array_size</code>. */
-size_t split_string(char *str, char *array[], size_t array_size, char sep)
-{
-	char *p;
-	size_t pos;
-
-	if (array_size <= 0)
-	{
-		return 0;
-	}
-
-	if (*str == '\0')
-	{
-		array[0] = str;
-		return 1;
-	}
-
-	pos = 0;
-	p = str;
-
-	while (pos < array_size)
-	{
-		array[pos++] = p;
-
-		while (*p != '\0' && *p != sep)
-		{
-			p++;
-		}
-
-		if (pos >= array_size)
-		{
-			break;
-		}
-
-		if (*p != sep)
-		{
-			break;
-		}
-
-		*p++ = '\0';
-	}
-
-	return pos;
 }
 
 /**
@@ -361,35 +258,6 @@ char *cleanup_chat_string(char *ustring)
 }
 
 /**
- * Adds thousand separators to a given number.
- * @param num Number.
- * @return Thousands-separated string. */
-char *format_number_comma(uint64 num)
-{
-	static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
-	char *buf;
-	int i = 0;
-
-	buf = &retbuf[sizeof(retbuf) - 1];
-	*buf = '\0';
-
-	do
-	{
-		if (i % 3 == 0 && i != 0)
-		{
-			*--buf = ',';
-		}
-
-		*--buf = '0' + num % 10;
-		num /= 10;
-		i++;
-	}
-	while (num != 0);
-
-	return buf;
-}
-
-/**
  * Copy a file.
  * @param filename Source file.
  * @param fpout Where to copy to. */
@@ -429,24 +297,5 @@ void convert_newline(char *str)
 		*(next + 1) = '\0';
 		snprintf(buf, sizeof(buf), "%s%s", str, next + 2);
 		strcpy(str, buf);
-	}
-}
-
-/**
- * Strips markup from a string.
- *
- * Replaces '<' characters with a space, effectively disabling any markup
- * (note that entities such as &lt; are still allowed).
- * @param str The string. */
-void string_remove_markup(char *str)
-{
-	char *cp;
-
-	for (cp = str; *cp != '\0'; cp++)
-	{
-		if (*cp == '<')
-		{
-			*cp = ' ';
-		}
 	}
 }

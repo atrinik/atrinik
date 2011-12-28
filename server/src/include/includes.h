@@ -47,6 +47,7 @@
 #include <pthread.h>
 
 #include <porting.h>
+#include <toolkit.h>
 
 #ifdef HAVE_FCNTL_H
 #	include <fcntl.h>

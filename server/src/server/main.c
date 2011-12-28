@@ -1128,15 +1128,17 @@ void cleanup(void)
 	race_free();
 	free_exp_objects();
 	free_srv_files();
+	new_chars_deinit();
 	free_regions();
 	objectlink_deinit();
 	object_deinit();
 	player_deinit();
 	ban_deinit();
 	party_deinit();
-	packet_deinit();
 	cache_remove_all();
 	remove_plugins();
+	toolkit_deinit();
+	free_object_loader();
 }
 
 /**

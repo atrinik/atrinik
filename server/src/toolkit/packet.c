@@ -37,15 +37,22 @@
 static mempool_struct *pool_packets;
 
 /**
- * Initialize the packet API. */
-void packet_init(void)
+ * Initialize the packet API.
+ * @internal */
+void toolkit_packet_init(void)
 {
-	pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+	TOOLKIT_INIT_FUNC_START(packet)
+	{
+		toolkit_import(mempool);
+		pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+	}
+	TOOLKIT_INIT_FUNC_END()
 }
 
 /**
- * Deinitialize the packet API. */
-void packet_deinit(void)
+ * Deinitialize the packet API.
+ * @internal */
+void toolkit_packet_deinit(void)
 {
 	mempool_free(pool_packets);
 }

@@ -247,8 +247,11 @@ set(SOURCES
 	src/toolkit/binreloc.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
+	src/toolkit/path.c
 	src/toolkit/shstr.c
+	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
+	src/toolkit/toolkit.c
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/move_on.c

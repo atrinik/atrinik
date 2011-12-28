@@ -63,7 +63,7 @@ START_TEST(test_adjust_player_name)
 }
 END_TEST
 
-static void check_split_string(const char *str, size_t array_size, ...)
+static void check_string_split(const char *str, size_t array_size, ...)
 {
 	char tmp[256], *array[64];
 	size_t result, i;
@@ -76,7 +76,7 @@ static void check_split_string(const char *str, size_t array_size, ...)
 		array[i] = NULL;
 	}
 
-	result = split_string(tmp, array, array_size, ':');
+	result = string_split(tmp, array, array_size, ':');
 	fail_if(result > array_size, "result == %zu > %zu == array_size", result, array_size);
 	va_start(arg, array_size);
 
@@ -91,7 +91,7 @@ static void check_split_string(const char *str, size_t array_size, ...)
 
 		if (i >= array_size)
 		{
-			fail("Internal error: too many arguments passed to check_split_string().");
+			fail("Internal error: too many arguments passed to check_string_split().");
 		}
 
 		if (i < result)
@@ -108,26 +108,26 @@ static void check_split_string(const char *str, size_t array_size, ...)
 	fail_if(result != i, "%zu != %zu", result, i);
 }
 
-START_TEST(test_split_string)
+START_TEST(test_string_split)
 {
-	check_split_string("", 0, NULL);
-	check_split_string("", 5, "", NULL);
-	check_split_string(":", 5, "", "", NULL);
-	check_split_string("::", 5, "", "", "", NULL);
-	check_split_string("abc:def:ghi", 0, NULL);
-	check_split_string("abc:def:ghi", 1, "abc:def:ghi", NULL);
-	check_split_string("abc:def:ghi", 2, "abc", "def:ghi", NULL);
-	check_split_string("abc:def:ghi", 3, "abc", "def", "ghi", NULL);
-	check_split_string("abc:def:ghi", 4, "abc", "def", "ghi", NULL);
-	check_split_string("::abc::def::", 0, NULL);
-	check_split_string("::abc::def::", 1, "::abc::def::", NULL);
-	check_split_string("::abc::def::", 2, "", ":abc::def::", NULL);
-	check_split_string("::abc::def::", 3, "", "", "abc::def::", NULL);
-	check_split_string("::abc::def::", 4, "", "", "abc", ":def::", NULL);
-	check_split_string("::abc::def::", 5, "", "", "abc", "", "def::", NULL);
-	check_split_string("::abc::def::", 6, "", "", "abc", "", "def", ":", NULL);
-	check_split_string("::abc::def::", 7, "", "", "abc", "", "def", "", "", NULL);
-	check_split_string("::abc::def::", 8, "", "", "abc", "", "def", "", "", NULL);
+	check_string_split("", 0, NULL);
+	check_string_split("", 5, "", NULL);
+	check_string_split(":", 5, "", "", NULL);
+	check_string_split("::", 5, "", "", "", NULL);
+	check_string_split("abc:def:ghi", 0, NULL);
+	check_string_split("abc:def:ghi", 1, "abc:def:ghi", NULL);
+	check_string_split("abc:def:ghi", 2, "abc", "def:ghi", NULL);
+	check_string_split("abc:def:ghi", 3, "abc", "def", "ghi", NULL);
+	check_string_split("abc:def:ghi", 4, "abc", "def", "ghi", NULL);
+	check_string_split("::abc::def::", 0, NULL);
+	check_string_split("::abc::def::", 1, "::abc::def::", NULL);
+	check_string_split("::abc::def::", 2, "", ":abc::def::", NULL);
+	check_string_split("::abc::def::", 3, "", "", "abc::def::", NULL);
+	check_string_split("::abc::def::", 4, "", "", "abc", ":def::", NULL);
+	check_string_split("::abc::def::", 5, "", "", "abc", "", "def::", NULL);
+	check_string_split("::abc::def::", 6, "", "", "abc", "", "def", ":", NULL);
+	check_string_split("::abc::def::", 7, "", "", "abc", "", "def", "", "", NULL);
+	check_string_split("::abc::def::", 8, "", "", "abc", "", "def", "", "", NULL);
 }
 END_TEST
 
@@ -164,32 +164,32 @@ START_TEST(test_cleanup_chat_string)
 }
 END_TEST
 
-static void check_format_number_comma(uint64 num, const char *expected)
+static void check_string_format_number_comma(uint64 num, const char *expected)
 {
 	char *cp;
 
-	cp = format_number_comma(num);
-	fail_if(strcmp(cp, expected), "format_number_comma() adjusted number '%"FMT64"' to '%s' but it was not the expected string '%s'.", num, cp, expected);
+	cp = string_format_number_comma(num);
+	fail_if(strcmp(cp, expected), "string_format_number_comma() adjusted number '%"FMT64"' to '%s' but it was not the expected string '%s'.", num, cp, expected);
 }
 
-START_TEST(test_format_number_comma)
+START_TEST(test_string_format_number_comma)
 {
-	check_format_number_comma(0, "0");
-	check_format_number_comma(1, "1");
-	check_format_number_comma(10, "10");
-	check_format_number_comma(100, "100");
-	check_format_number_comma(1000, "1,000");
-	check_format_number_comma(10000, "10,000");
-	check_format_number_comma(100000, "100,000");
-	check_format_number_comma(1000000, "1,000,000");
-	check_format_number_comma(10000000, "10,000,000");
-	check_format_number_comma(100000000, "100,000,000");
-	check_format_number_comma(1000000000, "1,000,000,000");
-	check_format_number_comma(10000000000LLU, "10,000,000,000");
-	check_format_number_comma(100000000000LLU, "100,000,000,000");
-	check_format_number_comma(1000000000000LLU, "1,000,000,000,000");
-	check_format_number_comma(10000000000000LLU, "10,000,000,000,000");
-	check_format_number_comma(100000000000000LLU, "100,000,000,000,000");
+	check_string_format_number_comma(0, "0");
+	check_string_format_number_comma(1, "1");
+	check_string_format_number_comma(10, "10");
+	check_string_format_number_comma(100, "100");
+	check_string_format_number_comma(1000, "1,000");
+	check_string_format_number_comma(10000, "10,000");
+	check_string_format_number_comma(100000, "100,000");
+	check_string_format_number_comma(1000000, "1,000,000");
+	check_string_format_number_comma(10000000, "10,000,000");
+	check_string_format_number_comma(100000000, "100,000,000");
+	check_string_format_number_comma(1000000000, "1,000,000,000");
+	check_string_format_number_comma(10000000000LLU, "10,000,000,000");
+	check_string_format_number_comma(100000000000LLU, "100,000,000,000");
+	check_string_format_number_comma(1000000000000LLU, "1,000,000,000,000");
+	check_string_format_number_comma(10000000000000LLU, "10,000,000,000,000");
+	check_string_format_number_comma(100000000000000LLU, "100,000,000,000,000");
 }
 END_TEST
 
@@ -203,10 +203,10 @@ static Suite *shstr_suite(void)
 	suite_add_tcase(s, tc_core);
 	tcase_add_test(tc_core, test_cleanup_string);
 	tcase_add_test(tc_core, test_adjust_player_name);
-	tcase_add_test(tc_core, test_split_string);
+	tcase_add_test(tc_core, test_string_split);
 	tcase_add_test(tc_core, test_buf_overflow);
 	tcase_add_test(tc_core, test_cleanup_chat_string);
-	tcase_add_test(tc_core, test_format_number_comma);
+	tcase_add_test(tc_core, test_string_format_number_comma);
 
 	return s;
 }

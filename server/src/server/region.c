@@ -363,6 +363,8 @@ void free_regions(void)
 		FREE_AND_NULL_PTR(reg->name);
 		FREE_AND_NULL_PTR(reg->parent_name);
 		FREE_AND_NULL_PTR(reg->longname);
+		FREE_AND_NULL_PTR(reg->map_first);
+		FREE_AND_NULL_PTR(reg->map_bg);
 		FREE_AND_NULL_PTR(reg->msg);
 		FREE_AND_NULL_PTR(reg->jailmap);
 		free(reg);

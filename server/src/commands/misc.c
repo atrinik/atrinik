@@ -859,13 +859,13 @@ int command_statistics(object *op, char *params)
 
 	(void) params;
 
-	draw_info_format(COLOR_WHITE, op, "Experience: %s", format_number_comma(op->stats.exp));
+	draw_info_format(COLOR_WHITE, op, "Experience: %s", string_format_number_comma(op->stats.exp));
 
 	if (op->level < MAXLEVEL)
 	{
-		char *cp = strdup_local(format_number_comma(level_exp(op->level + 1, 1.0)));
+		char *cp = strdup_local(string_format_number_comma(level_exp(op->level + 1, 1.0)));
 
-		draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
+		draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, string_format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
 		free(cp);
 	}
 

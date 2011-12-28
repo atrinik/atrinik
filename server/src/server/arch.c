@@ -182,6 +182,8 @@ void free_all_archs(void)
 	archetype *at, *next;
 	int i = 0;
 
+	HASH_CLEAR(hh, arch_table);
+
 	for (at = first_archetype; at != NULL; at = next)
 	{
 		if (at->more)
@@ -194,6 +196,7 @@ void free_all_archs(void)
 		}
 
 		FREE_AND_CLEAR_HASH(at->name);
+		object_destroy_inv(&at->clone);
 		FREE_AND_CLEAR_HASH(at->clone.name);
 		FREE_AND_CLEAR_HASH(at->clone.title);
 		FREE_AND_CLEAR_HASH(at->clone.race);

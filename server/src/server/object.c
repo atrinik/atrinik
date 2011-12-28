@@ -153,8 +153,6 @@ materialtype materials[NROFMATERIALS] =
  * init_materials(). */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
-static void object_remove_inv(object *op);
-
 /**
  * Initialize materials from file. */
 void init_materials(void)
@@ -900,6 +898,8 @@ void copy_owner(object *op, object *clone_ob)
  * @param op The object */
 void initialize_object(object *op)
 {
+	free_key_values(op);
+
 	/* the memset will clear all these values for us, but we need
 	 * to reduce the refcount on them. */
 	FREE_ONLY_HASH(op->name);
@@ -1514,7 +1514,7 @@ void drop_ob_inv(object *ob)
  * Destroy (free) inventory of an object. Used internally by
  * object_destroy() to recursively free the object's inventory.
  * @param ob Object to free the inventory of. */
-static void object_destroy_inv(object *ob)
+void object_destroy_inv(object *ob)
 {
 	object *tmp, *next;
 
@@ -1528,6 +1528,7 @@ static void object_destroy_inv(object *ob)
 		}
 
 		object_remove(tmp, 0);
+		object_destroy(tmp);
 	}
 }
 
@@ -1563,7 +1564,6 @@ void object_destroy(object *ob)
 	}
 
 	/* Remove and free the inventory. */
-	object_remove_inv(ob);
 	object_destroy_inv(ob);
 
 	/* Remove object from the active list. */
@@ -1821,28 +1821,6 @@ void object_remove(object *op, int flags)
 	else
 	{
 		LOG(llevBug, "object_remove(): Tried to remove object that is not on map or in inventory: %s.\n", query_name(op, NULL));
-	}
-}
-
-/**
- * Recursively remove the inventory of an object.
- * @param op Object. */
-static void object_remove_inv(object *op)
-{
-	object *tmp, *tmp2;
-
-	for (tmp = op->inv; tmp; tmp = tmp2)
-	{
-		/* Save pointer, gets NULL in object_remove */
-		tmp2 = tmp->below;
-
-		if (tmp->inv)
-		{
-			object_remove_inv(tmp);
-		}
-
-		/* No map, no check off */
-		object_remove(tmp, 0);
 	}
 }
 

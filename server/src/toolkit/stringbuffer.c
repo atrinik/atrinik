@@ -49,6 +49,24 @@
 static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
 /**
+ * Initialize the stringbuffer API.
+ * @internal */
+void toolkit_stringbuffer_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(stringbuffer)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the stringbuffer API.
+ * @internal */
+void toolkit_stringbuffer_deinit(void)
+{
+}
+
+/**
  * Create a new string buffer.
  * @return The newly allocated string buffer. */
 StringBuffer *stringbuffer_new(void)

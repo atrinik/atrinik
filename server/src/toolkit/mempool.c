@@ -47,6 +47,24 @@
 mempool_chunk_struct end_marker;
 
 /**
+ * Initialize the mempool API.
+ * @internal */
+void toolkit_mempool_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(mempool)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the mempool API.
+ * @internal */
+void toolkit_mempool_deinit(void)
+{
+}
+
+/**
  * Return the exponent exp needed to round n up to the nearest power of two, so that
  * (1 << exp) >= n and (1 << (exp -1)) \< n */
 uint32 nearest_pow_two_exp(uint32 n)
@@ -110,7 +128,7 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 	pool->constructor = constructor;
 	pool->destructor = destructor;
 
-#if MEMORY_DEBUG
+#if MEMORY_DEBUG || 1
 	pool->flags |= MEMPOOL_BYPASS_POOLS;
 #endif
 

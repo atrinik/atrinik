@@ -65,7 +65,7 @@ void init_spells(void)
 		char spellname[MAX_BUF], tmpresult[MAX_BUF];
 		archetype *at;
 
-		replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
+		string_replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
 		snprintf(spellname, sizeof(spellname), "spell_%s", tmpresult);
 
 		if ((at = find_archetype(spellname)))

@@ -88,7 +88,7 @@ void read_map_log(void)
 
 		map = get_linked_map();
 
-		if (split_string(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
+		if (string_split(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
 		{
 			LOG(llevDebug, "%s/temp.maps: ignoring invalid line: %s\n", settings.localdir, buf);
 			continue;

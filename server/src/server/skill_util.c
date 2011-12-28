@@ -444,7 +444,7 @@ void init_new_exp_system(void)
 		{
 			char icon[MAX_BUF], tmpresult[MAX_BUF];
 
-			replace(skills[i].name, " ", "_", tmpresult, sizeof(tmpresult));
+			string_replace(skills[i].name, " ", "_", tmpresult, sizeof(tmpresult));
 			snprintf(icon, sizeof(icon), "icon_%s.101", tmpresult);
 
 			if (!find_face(icon, 0))

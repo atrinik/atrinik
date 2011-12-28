@@ -171,15 +171,18 @@ void free_strings(void)
  * init_hash_table() if you are doing any object loading. */
 void init_library(void)
 {
+	toolkit_import(mempool);
+	toolkit_import(packet);
+	toolkit_import(shstr);
+	toolkit_import(stringbuffer);
+
 	init_environ();
-	init_hash_table();
 	init_globals();
 	objectlink_init();
 	object_init();
 	player_init();
 	ban_init();
 	party_init();
-	packet_init();
 	init_block();
 	LOG(llevInfo, "Atrinik Server, v%s\n", PACKAGE_VERSION);
 	LOG(llevInfo, "Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team.\n");

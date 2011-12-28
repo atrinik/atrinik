@@ -222,9 +222,14 @@ lex_error = 0;
 								{
 									insert_ob_in_ob(tmp, op);
 								}
-								else if (!arch_init)
+								else
 								{
-									LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
+									if (!arch_init)
+									{
+										LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
+									}
+
+									object_destroy(tmp);
 								}
 							}
 
@@ -953,6 +958,13 @@ static char *yval(void)
 	}
 
 	return cp;
+}
+
+/**
+ * Frees all memory allocated by the object loader. */
+void free_object_loader(void)
+{
+	yylex_destroy();
 }
 
 /* Buffer functions - needed to make load_object() recursive save. */

@@ -607,6 +607,19 @@ static new_char_struct *new_chars = NULL;
 static size_t num_new_chars = 0;
 
 /**
+ * Deinitialize ::new_chars. */
+void new_chars_deinit(void)
+{
+	if (new_chars)
+	{
+		free(new_chars);
+		new_chars = NULL;
+	}
+
+	num_new_chars = 0;
+}
+
+/**
  * Initialize ::new_chars by reading server_settings file. */
 void new_chars_init(void)
 {

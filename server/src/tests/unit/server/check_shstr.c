@@ -28,7 +28,8 @@
 
 static void setup(void)
 {
-	init_hash_table();
+	toolkit_deinit();
+	toolkit_import(shstr);
 }
 
 START_TEST(test_add_string)

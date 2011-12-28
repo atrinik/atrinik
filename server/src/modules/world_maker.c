@@ -479,7 +479,7 @@ void world_maker(void)
 						{
 							char msg[HUGE_BUF * 4];
 
-							replace(tmp->msg, "\n", "\\n", msg, sizeof(msg));
+							string_replace(tmp->msg, "\n", "\\n", msg, sizeof(msg));
 							FREE_AND_COPY_HASH(tmp->msg, msg);
 						}
 
