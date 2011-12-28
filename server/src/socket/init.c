@@ -109,7 +109,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->packet_tail = NULL;
 	pthread_mutex_init(&ns->packet_mutex, NULL);
 
-	ns->host = strdup_local(from_ip);
+	ns->host = strdup(from_ip);
 
 	packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
 	packet_append_uint32(packet, SOCKET_VERSION);
@@ -170,7 +170,7 @@ void init_ericserver(void)
 
 	if (init_sockets[0].fd == -1)
 	{
-		LOG(llevError, "Cannot create socket: %s\n", strerror_local(errno));
+		LOG(llevError, "Cannot create socket: %s\n", strerror(errno));
 	}
 
 	insock.sin_family = AF_INET;
@@ -182,7 +182,7 @@ void init_ericserver(void)
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevError, "init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror_local(errno));
+		LOG(llevError, "init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror(errno));
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that
@@ -194,13 +194,13 @@ void init_ericserver(void)
 
 		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
 		{
-			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror(errno));
 		}
 	}
 #else
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
 	{
-		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror_local(errno));
+		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror(errno));
 	}
 #endif
 
@@ -212,7 +212,7 @@ void init_ericserver(void)
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
 #endif
-		LOG(llevError, "Cannot bind socket to port %d: %s\n", ntohs(insock.sin_port), strerror_local(errno));
+		LOG(llevError, "Cannot bind socket to port %d: %s\n", ntohs(insock.sin_port), strerror(errno));
 	}
 
 	if (listen(init_sockets[0].fd, 5) == -1)
@@ -223,7 +223,7 @@ void init_ericserver(void)
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
 #endif
-		LOG(llevError, "Cannot listen on socket: %s\n", strerror_local(errno));
+		LOG(llevError, "Cannot listen on socket: %s\n", strerror(errno));
 	}
 
 	init_sockets[0].status = Ns_Wait;

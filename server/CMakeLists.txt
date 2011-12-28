@@ -97,6 +97,10 @@ check_function_exists(srand HAVE_SRAND)
 check_function_exists(getdtablesize HAVE_GETDTABLESIZE)
 check_function_exists(sysconf HAVE_SYSCONF)
 check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists(tempnam HAVE_TEMPNAM)
+check_function_exists(strcasestr HAVE_STRCASESTR)
+check_function_exists(strdup HAVE_STRDUP)
+check_function_exists(strtok_r HAVE_STRTOK_R)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
@@ -214,7 +218,6 @@ set(SOURCES
 	src/server/party.c
 	src/server/pathfinder.c
 	src/server/plugins.c
-	src/server/porting.c
 	src/server/quest.c
 	src/server/race.c
 	src/server/readable.c
@@ -245,9 +248,12 @@ set(SOURCES
 	src/socket/sounds.c
 	src/socket/updates.c
 	src/toolkit/binreloc.c
+	src/toolkit/math.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
 	src/toolkit/path.c
+	src/toolkit/porting.c
+	src/toolkit/sha1.c
 	src/toolkit/shstr.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c

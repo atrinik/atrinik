@@ -125,7 +125,7 @@ void init_spells(void)
 
 			if ((value = object_get_value(tmp, "spell_archname")))
 			{
-				spells[i].archname = strdup_local(value);
+				spells[i].archname = strdup(value);
 			}
 		}
 

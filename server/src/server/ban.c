@@ -71,7 +71,7 @@ static void add_ban_entry(char *name, char *ip)
 	memset(gptr, 0, sizeof(_ban_struct));
 	ol->objlink.ban = gptr;
 
-	ol->objlink.ban->ip = strdup_local(ip);
+	ol->objlink.ban->ip = strdup(ip);
 	FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
 	objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
 }

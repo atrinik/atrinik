@@ -28,8 +28,25 @@
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
 
-#include <sha1.h>
-#include <stdio.h>
+#include <global.h>
+
+/**
+ * Initialize the sha1 API.
+ * @internal */
+void toolkit_sha1_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(sha1)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the sha1 API.
+ * @internal */
+void toolkit_sha1_deinit(void)
+{
+}
 
 /*
  * 32-bit integer manipulation macros (big endian)

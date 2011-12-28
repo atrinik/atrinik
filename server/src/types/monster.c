@@ -1684,7 +1684,7 @@ static char *find_matching_message(const char *msg, const char *match)
 				/* If no next match, just want the rest of the string */
 				else
 				{
-					cp3 = strdup_local(cp2 + 1);
+					cp3 = strdup(cp2 + 1);
 				}
 
 				return cp3;

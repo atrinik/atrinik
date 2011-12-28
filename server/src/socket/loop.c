@@ -377,7 +377,7 @@ void doeric_server(void)
 
 	if (pollret == -1)
 	{
-		LOG(llevDebug, "doeric_server(): select failed: %s\n", strerror_local(errno));
+		LOG(llevDebug, "doeric_server(): select failed: %s\n", strerror(errno));
 		return;
 	}
 
@@ -418,7 +418,7 @@ void doeric_server(void)
 
 		if (init_sockets[newsocknum].fd == -1)
 		{
-			LOG(llevDebug, "doeric_server(): accept failed: %s\n", strerror_local(errno));
+			LOG(llevDebug, "doeric_server(): accept failed: %s\n", strerror(errno));
 		}
 		else
 		{

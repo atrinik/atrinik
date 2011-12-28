@@ -62,7 +62,6 @@
 		<Unit filename="..\..\src\client\menu.c" />
 		<Unit filename="..\..\src\client\updates.c" />
 		<Unit filename="..\..\src\client\player.c" />
-		<Unit filename="..\..\src\client\porting.c" />
 		<Unit filename="..\..\src\client\client.c" />
 		<Unit filename="..\..\src\client\video.c" />
 		<Unit filename="..\..\src\client\upgrader.c" />
@@ -73,9 +72,12 @@
 		<Unit filename="..\..\src\client\tilestretcher.c" />
 		<Unit filename="..\..\src\client\server_files.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\math.c" />
 		<Unit filename="..\..\src\toolkit\mempool.c" />
 		<Unit filename="..\..\src\toolkit\packet.c" />
 		<Unit filename="..\..\src\toolkit\path.c" />
+		<Unit filename="..\..\src\toolkit\porting.c" />
+		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\shstr.c" />
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
@@ -91,7 +93,6 @@
 		<Unit filename="..\..\src\toolkit_gui\range_buttons.c" />
 		<Unit filename="..\..\src\toolkit_gui\widget.c" />
 		<Unit filename="..\..\src\toolkit_gui\SDL_rotozoom.c" />
-		<Unit filename="..\..\src\toolkit_gui\sha1.c" />
 		<Unit filename="..\..\src\toolkit_gui\SDL_gfx.c" />
 		<Unit filename="..\..\src\toolkit_gui\clipboard.c" />
 		<Unit filename="..\..\src\gui\input.c" />

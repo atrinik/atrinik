@@ -535,7 +535,7 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
 	FILE *fp;
 	PyObject *ret = NULL;
 
-	fullpath = hooks->strdup_local(hooks->create_pathname(path));
+	fullpath = hooks->strdup(hooks->create_pathname(path));
 
 	fp = fopen(fullpath, "r");
 
@@ -679,7 +679,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	cp = hooks->strdup_local(name);
+	cp = hooks->strdup(name);
 	hooks->adjust_player_name(cp);
 	ret = hooks->player_exists(cp);
 	free(cp);
@@ -1020,8 +1020,8 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 	}
 
 	command = malloc(sizeof(python_cmd));
-	command->name = hooks->strdup_local(name);
-	command->script = hooks->strdup_local(path);
+	command->name = hooks->strdup(name);
+	command->script = hooks->strdup(path);
 	command->speed = speed;
 	HASH_ADD_KEYPTR(hh, python_commands, command->name, strlen(command->name), command);
 
@@ -1154,7 +1154,7 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	cp = hooks->strdup_local(text);
+	cp = hooks->strdup(text);
 	ret = Py_BuildValue("s", hooks->cleanup_chat_string(cp));
 	free(cp);
 
@@ -1674,7 +1674,7 @@ static PyCodeObject *compilePython(char *filename)
 		}
 
 		cache = malloc(sizeof(*cache));
-		cache->file = hooks->strdup_local(filename);
+		cache->file = hooks->strdup(filename);
 		cache->code = code;
 		cache->cached_time = stat_buf.st_mtime;
 		HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
@@ -2396,7 +2396,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 					free(*(char **) field_ptr);
 				}
 
-				*(char **) field_ptr = hooks->strdup_local(PyString_AsString(value));
+				*(char **) field_ptr = hooks->strdup(PyString_AsString(value));
 			}
 			else
 			{

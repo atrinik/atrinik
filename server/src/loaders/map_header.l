@@ -75,9 +75,9 @@ WS	[ \t]*
 lex_error = 0;
 %}
 
-^name{S}             m->name = strdup_local(yval());
-^bg_music{S}         m->bg_music = strdup_local(yval());
-^weather{S}          m->weather = strdup_local(yval());
+^name{S}             m->name = strdup(yval());
+^bg_music{S}         m->bg_music = strdup(yval());
+^weather{S}          m->weather = strdup(yval());
 ^region{S}           m->region = get_region_by_name(yval());
 ^enter_x{S}          m->enter_x = IVAL;
 ^enter_y{S}          m->enter_y = IVAL;
@@ -175,7 +175,7 @@ lex_error = 0;
 <MESSAGE>^endmsg{WS} {
 						BEGIN(INITIAL);
 
-						m->msg = strdup_local(msgbuf);
+						m->msg = strdup(msgbuf);
                      }
 <MESSAGE>.*	         {
 						if (msg_flag)

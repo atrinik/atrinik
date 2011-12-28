@@ -746,9 +746,15 @@ int main(int argc, char *argv[])
 	size_t i;
 	char version[MAX_BUF];
 
-	init_signals();
 	toolkit_import(binreloc);
+	toolkit_import(math);
 	toolkit_import(packet);
+	toolkit_import(porting);
+	toolkit_import(sha1);
+	toolkit_import(string);
+	toolkit_import(stringbuffer);
+
+	init_signals();
 	upgrader_init();
 	settings_init();
 	init_game_data();

@@ -1457,13 +1457,13 @@ int new_save_map(mapstruct *m, int flag)
 			strcpy(filename, m->path);
 		}
 
-		make_path_to_file(filename);
+		path_ensure_directories(filename);
 	}
 	else
 	{
 		if (m->tmpname == NULL)
 		{
-			m->tmpname = tempnam_local(settings.tmpdir, NULL);
+			m->tmpname = tempnam(settings.tmpdir, NULL);
 		}
 
 		strcpy(filename, m->tmpname);

@@ -141,6 +141,22 @@
 #cmakedefine HAVE_GETTIMEOFDAY
 #endif
 
+#ifndef HAVE_TEMPNAM
+#cmakedefine HAVE_TEMPNAM
+#endif
+
+#ifndef HAVE_STRCASESTR
+#cmakedefine HAVE_STRCASESTR
+#endif
+
+#ifndef HAVE_STRDUP
+#cmakedefine HAVE_STRDUP
+#endif
+
+#ifndef HAVE_STRTOK_R
+#cmakedefine HAVE_STRTOK_R
+#endif
+
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif

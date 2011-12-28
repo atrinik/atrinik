@@ -31,7 +31,7 @@ static void check_cleanup_string(const char *str, const char *expected)
 {
 	char *cp;
 
-	cp = cleanup_string(strdup_local(str));
+	cp = cleanup_string(strdup(str));
 	fail_if(strcmp(cp, expected), "cleanup_string() cleaned up string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
 }
 
@@ -39,7 +39,7 @@ START_TEST(test_cleanup_string)
 {
 	check_cleanup_string("  ~", "~");
 	check_cleanup_string("  \b\aoa", "oa");
-	fail_if(cleanup_string(strdup_local("   ")) != NULL, "cleanup_string() on whitespace-only string did not return NULL.");
+	fail_if(cleanup_string(strdup("   ")) != NULL, "cleanup_string() on whitespace-only string did not return NULL.");
 }
 END_TEST
 
@@ -47,7 +47,7 @@ static void check_adjust_player_name(const char *str, const char *expected)
 {
 	char *cp;
 
-	cp = strdup_local(str);
+	cp = strdup(str);
 	adjust_player_name(cp);
 	fail_if(strcmp(cp, expected), "adjust_player_name() adjusted string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
 	free(cp);
@@ -152,7 +152,7 @@ static void check_cleanup_chat_string(const char *str, const char *expected)
 {
 	char *cp;
 
-	cp = cleanup_chat_string(strdup_local(str));
+	cp = cleanup_chat_string(strdup(str));
 	fail_if(strcmp(cp, expected), "cleanup_chat_string() adjusted string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
 }
 

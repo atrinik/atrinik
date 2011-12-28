@@ -25,26 +25,76 @@
 
 /**
  * @file
- * This file contains various functions that are not really unique for
- * Atrinik, but rather provides what should be standard functions for
- * systems that do not have them. In this way, most of the nasty system
- * dependent stuff is contained here, with the program calling these
- * functions. */
+ * Cross-platform support. */
 
 #include <global.h>
 
-/** Used to generate temporary unique name. */
-static uint32 curtmp = 0;
+/**
+ * Initialize the porting API.
+ * @internal */
+void toolkit_porting_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(porting)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
 
 /**
- * A replacement for the tempnam() function since it's not defined
- * at some UNIX variants.
- * @param dir Directory where to create the file. Can be NULL, in which
- * case NULL is returned.
- * @param pfx prefix to create unique name. Can be NULL.
- * @return Path to temporary file, or NULL if failure. Must be freed by
- * caller. */
-char *tempnam_local(const char *dir, const char *pfx)
+ * Deinitialize the porting API.
+ * @internal */
+void toolkit_porting_deinit(void)
+{
+}
+
+#ifndef __CPROTO__
+
+#	ifndef HAVE_STRTOK_R
+/**
+ * Re-entrant string tokenizer; glibc version, licensed under GNU LGPL
+ * version 2.1. */
+char *strtok_r(char *s, const char *delim, char **save_ptr)
+{
+	char *token;
+
+	if (s == NULL)
+	{
+		s = *save_ptr;
+	}
+
+	/* Scan leading delimiters.  */
+	s += strspn(s, delim);
+
+	if (*s == '\0')
+	{
+		*save_ptr = s;
+		return NULL;
+	}
+
+	/* Find the end of the token.  */
+	token = s;
+	s = strpbrk(token, delim);
+
+	if (s == NULL)
+	{
+		/* This token finishes the string.  */
+		*save_ptr = strchr(token, '\0');
+	}
+	else
+	{
+		/* Terminate the token and make *SAVE_PTR point past it.  */
+		*s = '\0';
+		*save_ptr = s + 1;
+	}
+
+	return token;
+}
+#	endif
+
+#	ifndef HAVE_TEMPNAM
+static uint32 curtmp = 0;
+
+char *tempnam(const char *dir, const char *pfx)
 {
 	char *name;
 	pid_t pid = getpid();
@@ -77,16 +127,12 @@ char *tempnam_local(const char *dir, const char *pfx)
 
 	return NULL;
 }
+#	endif
 
-/**
- * A replacement of strdup(), since it's not defined at some
- * UNIX variants.
- * @param str String to duplicate.
- * @return Copy, needs to be freed by caller. NULL on memory allocation
- * error. */
-char *strdup_local(const char *str)
+#	ifndef HAVE_STRDUP
+char *strdup(const char *s)
 {
-	size_t len = strlen(str) + 1;
+	size_t len = strlen(s) + 1;
 	void *new = malloc(len);
 
 	if (!new)
@@ -94,123 +140,47 @@ char *strdup_local(const char *str)
 		return NULL;
 	}
 
-	return (char *) memcpy(new, str, len);
+	return (char *) memcpy(new, s, len);
 }
+#	endif
 
-/**
- * Takes an error number and returns a string with a description of the
- * error.
- * @param errnum The error number.
- * @return The description of the error. */
-char *strerror_local(int errnum)
+#	ifndef HAVE_STRERROR
+char *strerror(int errnum)
 {
-#if defined(HAVE_STRERROR)
-	return strerror(errnum);
-#else
-#	error Missing strerror().
+	return "";
+}
 #endif
-}
 
-/**
- * Computes the integer square root.
- * @param n Number of which to compute the root.
- * @return Integer square root. */
-unsigned long isqrt(unsigned long n)
-{
-	unsigned long op = n, res = 0, one;
-
-	/* "one" starts at the highest power of four <= than the argument. */
-	one = 1 << 30;
-
-	while (one > op)
-	{
-		one >>= 2;
-	}
-
-	while (one != 0)
-	{
-		if (op >= res + one)
-		{
-			op -= res + one;
-			/* Faster than 2 * one. */
-			res += one << 1;
-		}
-
-		res >>= 1;
-		one >>= 2;
-	}
-
-	return res;
-}
-
-/**
- * Checks if any directories in the given path doesn't exist, and creates
- * if necessary.
- * @param filename File path we'll want to access. Can be NULL. */
-void make_path_to_file(char *filename)
-{
-	char buf[MAX_BUF], *cp = buf;
-	struct stat statbuf;
-
-	if (!filename || !*filename)
-	{
-		return;
-	}
-
-	strcpy(buf, filename);
-
-	while ((cp = strchr(cp + 1, '/')))
-	{
-		*cp = '\0';
-
-		if (stat(buf, &statbuf) || !S_ISDIR(statbuf.st_mode))
-		{
-			if (mkdir(buf, 0777))
-			{
-				LOG(llevBug, "Cannot mkdir %s: %s\n", buf, strerror_local(errno));
-				return;
-			}
-		}
-
-		*cp = '/';
-	}
-}
-
-/**
- * Finds a substring in a string, in a case-insensitive manner.
- * @param s String we're searching in.
- * @param find String we're searching for.
- * @return Pointer to first occurrence of find in s, NULL if not found. */
-const char *strcasestr_local(const char *s, const char *find)
+#	ifndef HAVE_STRCASESTR
+const char *strcasestr(const char *haystack, const char *needle)
 {
 	char c, sc;
 	size_t len;
 
-	if ((c = *find++) != 0)
+	if ((c = *needle++) != 0)
 	{
 		c = tolower(c);
-		len = strlen(find);
+		len = strlen(needle);
 
 		do
 		{
 			do
 			{
-				if ((sc = *s++) == 0)
+				if ((sc = *haystack++) == 0)
 				{
 					return NULL;
 				}
 			}
 			while (tolower(sc) != c);
 		}
-		while (strncasecmp(s, find, len) != 0);
+		while (strncasecmp(haystack, needle, len) != 0);
 
-		s--;
+		haystack--;
 	}
 
-	return s;
+	return haystack;
 }
-
-#ifndef __CPROTO__
+#	endif
 
 #	ifndef HAVE_GETTIMEOFDAY
 int gettimeofday(struct timeval *tv, struct timezone *tz)

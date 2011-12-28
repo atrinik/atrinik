@@ -30,43 +30,6 @@
 #include <global.h>
 
 /**
- * Calculates a random number between min and max.
- *
- * It is suggested one uses this function rather than RANDOM()%, as it
- * would appear that a number of off-by-one-errors exist due to improper
- * use of %.
- *
- * This should also prevent SIGFPE.
- * @param min Starting range.
- * @param max Ending range.
- * @return The random number. */
-int rndm(int min, int max)
-{
-	if (max < 1 || max - min + 1 < 1)
-	{
-		LOG(llevBug, "Calling rndm() with min=%d max=%d\n", min, max);
-		return min;
-	}
-
-	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
-}
-
-/**
- * Calculates a chance of 1 in 'n'.
- * @param n Number.
- * @return 1 if the chance of 1/n was successful, 0 otherwise. */
-int rndm_chance(uint32 n)
-{
-	if (!n)
-	{
-		LOG(llevBug, "Calling rndm_chance() with n=0.\n");
-		return 0;
-	}
-
-	return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
-}
-
-/**
  * Return the number of the spell that whose name matches the passed
  * string argument.
  * @param spname Name of the spell to look up.

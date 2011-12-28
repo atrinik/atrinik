@@ -75,7 +75,7 @@ int socket_recv(socket_struct *ns)
 #else
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 		{
-			LOG(llevDebug, "socket_recv() got error %d: %s, returning %d.\n", errno, strerror_local(errno), stat_ret);
+			LOG(llevDebug, "socket_recv() got error %d: %s, returning %d.\n", errno, strerror(errno), stat_ret);
 			return stat_ret;
 		}
 #endif
@@ -93,7 +93,7 @@ void socket_enable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror_local(errno));
+		LOG(llevDebug, "socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror(errno));
 	}
 }
 
@@ -106,7 +106,7 @@ void socket_disable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror_local(errno));
+		LOG(llevDebug, "socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror(errno));
 	}
 }
 
@@ -205,7 +205,7 @@ void socket_buffer_write(socket_struct *ns)
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror_local(errno));
+				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror(errno));
 #endif
 				ns->status = Ns_Dead;
 				break;

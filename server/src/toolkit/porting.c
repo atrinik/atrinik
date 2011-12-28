@@ -25,10 +25,27 @@
 
 /**
  * @file
- * Handles implementing various functions that are not available on some
- * platforms. */
+ * Cross-platform support. */
 
 #include <global.h>
+
+/**
+ * Initialize the porting API.
+ * @internal */
+void toolkit_porting_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(porting)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the porting API.
+ * @internal */
+void toolkit_porting_deinit(void)
+{
+}
 
 #ifndef __CPROTO__
 
@@ -72,7 +89,97 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
 
 	return token;
 }
+#	endif
 
+#	ifndef HAVE_TEMPNAM
+static uint32 curtmp = 0;
+
+char *tempnam(const char *dir, const char *pfx)
+{
+	char *name;
+	pid_t pid = getpid();
+
+	if (!pfx)
+	{
+		pfx = "tmp.";
+	}
+
+	/* This is a pretty simple method - put the pid as a hex digit and
+	 * just keep incrementing the last digit. Check to see if the file
+	 * already exists - if so, we'll just keep looking - eventually we
+	 * should find one that is free. */
+	if (dir)
+	{
+		if (!(name = (char *) malloc(MAXPATHLEN)))
+		{
+			return NULL;
+		}
+
+		do
+		{
+			snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", dir, pfx, pid, curtmp);
+			curtmp++;
+		}
+		while (access(name, F_OK) != -1);
+
+		return name;
+	}
+
+	return NULL;
+}
+#	endif
+
+#	ifndef HAVE_STRDUP
+char *strdup(const char *s)
+{
+	size_t len = strlen(s) + 1;
+	void *new = malloc(len);
+
+	if (!new)
+	{
+		return NULL;
+	}
+
+	return (char *) memcpy(new, s, len);
+}
+#	endif
+
+#	ifndef HAVE_STRERROR
+char *strerror(int errnum)
+{
+	return "";
+}
+#endif
+
+#	ifndef HAVE_STRCASESTR
+const char *strcasestr(const char *haystack, const char *needle)
+{
+	char c, sc;
+	size_t len;
+
+	if ((c = *needle++) != 0)
+	{
+		c = tolower(c);
+		len = strlen(needle);
+
+		do
+		{
+			do
+			{
+				if ((sc = *haystack++) == 0)
+				{
+					return NULL;
+				}
+			}
+			while (tolower(sc) != c);
+		}
+		while (strncasecmp(haystack, needle, len) != 0);
+
+		haystack--;
+	}
+
+	return haystack;
+}
 #	endif
 
 #	ifndef HAVE_GETTIMEOFDAY

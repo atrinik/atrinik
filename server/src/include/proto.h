@@ -609,13 +609,6 @@ extern void map_event_free(map_event *tmp);
 extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
-/* src/server/porting.c */
-extern char *tempnam_local(const char *dir, const char *pfx);
-extern char *strdup_local(const char *str);
-extern char *strerror_local(int errnum);
-extern unsigned long isqrt(unsigned long n);
-extern void make_path_to_file(char *filename);
-extern const char *strcasestr_local(const char *s, const char *find);
 /* src/server/quest.c */
 extern void check_quest(object *op, object *quest_container);
 /* src/server/race.c */
@@ -781,21 +774,16 @@ extern void dump_monster_treasure(const char *name);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
-extern int rndm(int min, int max);
-extern int rndm_chance(uint32 n);
 extern int look_up_spell_name(const char *spname);
 extern char *cleanup_string(char *ustring);
 extern const char *get_word_from_string(const char *str, int *pos);
 extern void adjust_player_name(char *name);
-extern void string_replace_unprintable_chars(char *buf);
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 extern char *cleanup_chat_string(char *ustring);
-extern char *string_format_number_comma(uint64 num);
 extern void copy_file(const char *filename, FILE *fpout);
 extern void convert_newline(char *str);
-extern void string_remove_markup(char *str);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
 extern void init_world_darkness(void);
@@ -909,6 +897,12 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/math.c */
+extern void toolkit_math_init(void);
+extern void toolkit_math_deinit(void);
+extern unsigned long isqrt(unsigned long n);
+extern int rndm(int min, int max);
+extern int rndm_chance(uint32 n);
 /* src/toolkit/mempool.c */
 extern mempool_chunk_struct end_marker;
 extern void toolkit_mempool_init(void);
@@ -957,6 +951,23 @@ extern void toolkit_path_init(void);
 extern void toolkit_path_deinit(void);
 extern char *path_join(const char *path, const char *path2);
 extern char *path_dirname(const char *path);
+extern void path_ensure_directories(const char *path);
+/* src/toolkit/porting.c */
+extern void toolkit_porting_init(void);
+extern void toolkit_porting_deinit(void);
+/* src/toolkit/sha1.c */
+extern void toolkit_sha1_init(void);
+extern void toolkit_sha1_deinit(void);
+extern void sha1_starts(sha1_context *ctx);
+extern void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+extern void sha1_finish(sha1_context *ctx, unsigned char output[20]);
+extern void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
+extern int sha1_file(const char *path, unsigned char output[20]);
+extern void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
+extern void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
+extern void sha1_hmac_reset(sha1_context *ctx);
+extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/shstr.c */
 extern void toolkit_shstr_init(void);
 extern void toolkit_shstr_deinit(void);
@@ -971,6 +982,13 @@ extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
 extern void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);
+extern void string_replace_unprintable_chars(char *buf);
+extern char *string_format_number_comma(uint64 num);
+extern void string_remove_markup(char *str);
+extern void string_toupper(char *str);
+extern void string_tolower(char *str);
+extern char *string_whitespace_trim(char *str);
+extern char *string_whitespace_squeeze(char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

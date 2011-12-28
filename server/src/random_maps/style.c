@@ -91,7 +91,7 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs)
 			rn = realloc(rn, sizeof(char *) * entry_size);
 		}
 
-		rn[entries] = strdup_local(d->d_name);
+		rn[entries] = strdup(d->d_name);
 		entries++;
 	}
 

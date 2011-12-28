@@ -2426,8 +2426,6 @@ int boxRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r
 /* by Pete Shinners, pete@shinners.org                       */
 /* Originally from pygame, http://pygame.seul.org            */
 
-#define ABS(a) (((a)<0) ? -(a) : (a))
-
 /*!
 \brief Draw line with alpha blending.
 

@@ -25,18 +25,28 @@
 
 /**
  * @file
- * Standard includes. */
+ * Toolkit system header file.
+ *
+ * @author Alex Tokar */
 
-#ifndef INCLUDES_H
-#define INCLUDES_H
+#ifndef TOOLKIT_H
+#define TOOLKIT_H
 
-#include <config.h>
-#include <porting.h>
-#include <toolkit.h>
-#include <uthash.h>
-#include <define.h>
-#include <version.h>
-#include <logger.h>
-#include <newclient.h>
+typedef void (*toolkit_func)(void);
+
+#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
+#define toolkit_import(__api_name) toolkit_##__api_name##_init()
+
+#define TOOLKIT_INIT_FUNC_START(__api_name) \
+{ \
+	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
+	if (toolkit_imported(__api_name)) \
+	{ \
+		return; \
+	}
+
+#define TOOLKIT_INIT_FUNC_END() \
+	toolkit_import_register(__deinit_func); \
+}
 
 #endif

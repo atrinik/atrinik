@@ -30,7 +30,7 @@
  * API usage:
  *
  * @code
-char *str = strdup_local("hello world");
+char *str = strdup("hello world");
 cache_struct *res;
 
 // CACHE_FLAG_AUTOFREE will automatically free the pointer.

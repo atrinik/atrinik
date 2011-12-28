@@ -367,7 +367,7 @@ static void init_msgfile(void)
 
 					num_msgs++;
 					msgs = realloc(msgs, sizeof(char *) * num_msgs);
-					msgs[num_msgs - 1] = strdup_local(msgbuf);
+					msgs[num_msgs - 1] = strdup(msgbuf);
 					in_msg = 0;
 				}
 				else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1))

@@ -162,11 +162,11 @@ void read_client_images(void)
 				LOG(llevError, "read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
 			}
 
-			facesets[len].prefix = strdup_local(cps[1]);
-			facesets[len].fullname = strdup_local(cps[2]);
-			facesets[len].size = strdup_local(cps[4]);
-			facesets[len].extension = strdup_local(cps[5]);
-			facesets[len].comment = strdup_local(cps[6]);
+			facesets[len].prefix = strdup(cps[1]);
+			facesets[len].fullname = strdup(cps[2]);
+			facesets[len].size = strdup(cps[4]);
+			facesets[len].extension = strdup(cps[5]);
+			facesets[len].comment = strdup(cps[6]);
 		}
 	}
 

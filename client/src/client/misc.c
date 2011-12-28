@@ -30,90 +30,6 @@
 #include <global.h>
 
 /**
- * Computes the integer square root.
- * @param n Number of which to compute the root.
- * @return Integer square root. */
-unsigned long isqrt(unsigned long n)
-{
-	unsigned long op = n, res = 0, one;
-
-	/* "one" starts at the highest power of four <= than the argument. */
-	one = 1 << 30;
-
-	while (one > op)
-	{
-		one >>= 2;
-	}
-
-	while (one != 0)
-	{
-		if (op >= res + one)
-		{
-			op -= res + one;
-			/* Faster than 2 * one. */
-			res += one << 1;
-		}
-
-		res >>= 1;
-		one >>= 2;
-	}
-
-	return res;
-}
-
-/**
- * Splits a string delimited by passed in sep value into characters into an array of strings.
- * @param str The string to be split; will be modified.
- * @param array The string array; will be filled with pointers into str.
- * @param array_size The number of elements in array; if <code>str</code> contains more fields
- * excess fields are not split but included into the last element.
- * @param sep Separator to use.
- * @return The number of elements found; always less or equal to <code>array_size</code>. */
-size_t split_string(char *str, char *array[], size_t array_size, char sep)
-{
-	char *p;
-	size_t pos;
-
-	if (array_size <= 0)
-	{
-		return 0;
-	}
-
-	if (*str == '\0')
-	{
-		array[0] = str;
-		return 1;
-	}
-
-	pos = 0;
-	p = str;
-
-	while (pos < array_size)
-	{
-		array[pos++] = p;
-
-		while (*p != '\0' && *p != sep)
-		{
-			p++;
-		}
-
-		if (pos >= array_size)
-		{
-			break;
-		}
-
-		if (*p != sep)
-		{
-			break;
-		}
-
-		*p++ = '\0';
-	}
-
-	return pos;
-}
-
-/**
  * Like realloc(), but if more bytes are being allocated, they get set to
  * 0 using memset().
  * @param ptr Original pointer.
@@ -177,28 +93,6 @@ void browser_open(const char *url)
 }
 
 /**
- * Calculates a random number between min and max.
- *
- * It is suggested one uses this function rather than RANDOM()%, as it
- * would appear that a number of off-by-one-errors exist due to improper
- * use of %.
- *
- * This should also prevent SIGFPE.
- * @param min Starting range.
- * @param max Ending range.
- * @return The random number. */
-int rndm(int min, int max)
-{
-	if (max < 1 || max - min + 1 < 1)
-	{
-		LOG(llevBug, "BUG: Calling rndm() with min=%d max=%d\n", min, max);
-		return min;
-	}
-
-	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
-}
-
-/**
  * Get the full package version as string.
  *
  * If patch version is 0, it will not be appended to the version string.
@@ -232,30 +126,6 @@ char *package_get_version_partial(char *dst, size_t dstlen)
 
 	snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
 	return dst;
-}
-
-/**
- * Transforms a string to uppercase, in-place.
- * @param str String to transform, will be modified. */
-void strtoupper(char *str)
-{
-	while (*str != '\0')
-	{
-		*str = toupper(*str);
-		str++;
-	}
-}
-
-/**
- * Transforms a string to lowercase, in-place.
- * @param str String to transform, will be modified. */
-void strtolower(char *str)
-{
-	while (*str != '\0')
-	{
-		*str = tolower(*str);
-		str++;
-	}
 }
 
 /**
@@ -328,64 +198,4 @@ void screenshot_create(SDL_Surface *surface)
 	{
 		draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
 	}
-}
-
-/**
- * Trim left and right whitespace in string.
- *
- * @note Does in-place modification.
- * @param str String to trim.
- * @return 'str'. */
-char *whitespace_trim(char *str)
-{
-	char *cp;
-	size_t len;
-
-	cp = str;
-	len = strlen(cp);
-
-	while (isspace(cp[len - 1]))
-	{
-		cp[--len] = '\0';
-	}
-
-	while (isspace(*cp))
-	{
-		cp++;
-		len--;
-	}
-
-	memmove(str, cp, len + 1);
-
-	return str;
-}
-
-/**
- * Remove extraneous whitespace in a string.
- *
- * @note Does in-place modification.
- * @param str The string.
- * @return 'str'. */
-char *whitespace_squeeze(char *str)
-{
-	size_t r, w;
-
-	for (r = 0, w = 0; str[r] != '\0'; r++)
-	{
-		if (isspace(str[r]))
-		{
-			if (!w || !isspace(str[w - 1]))
-			{
-				str[w++] = ' ';
-			}
-		}
-		else
-		{
-			str[w++] = str[r];
-		}
-	}
-
-	str[w] = '\0';
-
-	return str;
 }

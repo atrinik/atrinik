@@ -94,7 +94,7 @@ static void hiscore_save(const score_table *table)
 
 	if (!fp)
 	{
-		LOG(llevBug, "Cannot create highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot create highscore file %s: %s\n", table->fname, strerror(errno));
 		return;
 	}
 
@@ -111,12 +111,12 @@ static void hiscore_save(const score_table *table)
 
 	if (ferror(fp))
 	{
-		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror(errno));
 		fclose(fp);
 	}
 	else if (fclose(fp) != 0)
 	{
-		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror_local(errno));
+		LOG(llevBug, "Cannot write to highscore file %s: %s\n", table->fname, strerror(errno));
 	}
 }
 
@@ -285,7 +285,7 @@ static void hiscore_load(score_table *table)
 		}
 		else
 		{
-			LOG(llevBug, "Cannot open highscore file %s: %s\n", table->fname, strerror_local(errno));
+			LOG(llevBug, "Cannot open highscore file %s: %s\n", table->fname, strerror(errno));
 		}
 	}
 	else
@@ -455,7 +455,7 @@ void hiscore_display(object *op, int max, const char *match)
 	{
 		char scorebuf[MAX_BUF];
 
-		if (match && !strcasestr_local(hiscore_table.entry[j].name, match) && !strcasestr_local(hiscore_table.entry[j].title, match))
+		if (match && !strcasestr(hiscore_table.entry[j].name, match) && !strcasestr(hiscore_table.entry[j].title, match))
 		{
 			continue;
 		}

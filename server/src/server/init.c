@@ -171,9 +171,13 @@ void free_strings(void)
  * init_hash_table() if you are doing any object loading. */
 void init_library(void)
 {
+	toolkit_import(math);
 	toolkit_import(mempool);
 	toolkit_import(packet);
+	toolkit_import(path);
+	toolkit_import(porting);
 	toolkit_import(shstr);
+	toolkit_import(string);
 	toolkit_import(stringbuffer);
 
 	init_environ();

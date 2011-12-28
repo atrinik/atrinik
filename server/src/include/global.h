@@ -30,11 +30,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-/* If we're not using GNU C, ignore __attribute__ */
-#ifndef __GNUC__
-#	define  __attribute__(x)
-#endif
-
 #include "includes.h"
 
 /**
@@ -238,6 +233,7 @@ if (_nv_)                          \
 #include <binreloc.h>
 #include <mempool.h>
 #include <packet.h>
+#include <sha1.h>
 #include <shstr.h>
 #include <socket.h>
 #include <stringbuffer.h>

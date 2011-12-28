@@ -1084,7 +1084,7 @@ int command_cmd_permission(object *op, char *params)
 
 		pl->num_cmd_permissions++;
 		pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
-		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
+		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup(cp);
 		draw_info_format(COLOR_GREEN, op, "%s has been granted permission for /%s.", pl->ob->name, cp);
 	}
 	else if (!strncmp(cp, "remove ", 7))

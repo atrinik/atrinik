@@ -28,33 +28,33 @@
 
 START_TEST(test_add_ban)
 {
-	fail_if(add_ban(strdup_local("Tester/")) == 1, "Successfully added a ban with add_ban() but no IP was entered.");
-	remove_ban(strdup_local("Tester/"));
+	fail_if(add_ban(strdup("Tester/")) == 1, "Successfully added a ban with add_ban() but no IP was entered.");
+	remove_ban(strdup("Tester/"));
 
-	fail_if(add_ban(strdup_local("Tester/:")) == 1, "Successfully added a ban with add_ban() but no IP was entered except a colon.");
-	remove_ban(strdup_local("Tester/:"));
+	fail_if(add_ban(strdup("Tester/:")) == 1, "Successfully added a ban with add_ban() but no IP was entered except a colon.");
+	remove_ban(strdup("Tester/:"));
 
-	fail_if(add_ban(strdup_local("Tester/:xxx.x.x.x")) == 0, "Failed to add a new ban with add_ban().");
-	remove_ban(strdup_local("Tester/:xxx.x.x.x"));
+	fail_if(add_ban(strdup("Tester/:xxx.x.x.x")) == 0, "Failed to add a new ban with add_ban().");
+	remove_ban(strdup("Tester/:xxx.x.x.x"));
 
-	fail_if(add_ban(strdup_local("Tester/:xxx.x.x.x:11")) == 1, "Successfully added a new ban with add_ban(), but the IP had colons in it.");
-	remove_ban(strdup_local("Tester/:xxx.x.x.x:11"));
+	fail_if(add_ban(strdup("Tester/:xxx.x.x.x:11")) == 1, "Successfully added a new ban with add_ban(), but the IP had colons in it.");
+	remove_ban(strdup("Tester/:xxx.x.x.x:11"));
 }
 END_TEST
 
 START_TEST(test_checkbanned)
 {
-	add_ban(strdup_local("Noob/:127.0.0.1"));
+	add_ban(strdup("Noob/:127.0.0.1"));
 	fail_if(checkbanned(add_string("Noob/"), "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
-	remove_ban(strdup_local("Noob/:127.0.0.1"));
+	remove_ban(strdup("Noob/:127.0.0.1"));
 
-	add_ban(strdup_local("Tester/:*"));
+	add_ban(strdup("Tester/:*"));
 	fail_if(checkbanned(add_string("Tester/"), "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
-	remove_ban(strdup_local("Tester/:*"));
+	remove_ban(strdup("Tester/:*"));
 
-	add_ban(strdup_local("*:xxx.xxx.xxx"));
+	add_ban(strdup("*:xxx.xxx.xxx"));
 	fail_if(checkbanned(NULL, "xxx.xxx.xxx") == 0, "checkbanned() failed to match a previously banned IP.");
-	remove_ban(strdup_local("*:xxx.xxx.xxx"));
+	remove_ban(strdup("*:xxx.xxx.xxx"));
 
 	fail_if(checkbanned(NULL, "10543./4t5vr.3546") == 1, "checkbanned() returned 1 for an IP that was not previously banned.");
 }
@@ -62,10 +62,10 @@ END_TEST
 
 START_TEST(test_remove_ban)
 {
-	add_ban(strdup_local("Tester/:xxx.x.x.x"));
-	fail_if(remove_ban(strdup_local("Tester/:xxx.x.x.x")) == 0, "remove_ban() failed to remove previously added ban.");
+	add_ban(strdup("Tester/:xxx.x.x.x"));
+	fail_if(remove_ban(strdup("Tester/:xxx.x.x.x")) == 0, "remove_ban() failed to remove previously added ban.");
 
-	fail_if(remove_ban(strdup_local("Tester~$#@:127.0.0.1")) == 1, "remove_ban() managed to remove nonexistent ban.");
+	fail_if(remove_ban(strdup("Tester~$#@:127.0.0.1")) == 1, "remove_ban() managed to remove nonexistent ban.");
 }
 END_TEST
 

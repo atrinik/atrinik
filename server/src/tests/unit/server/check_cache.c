@@ -28,7 +28,7 @@
 
 START_TEST(test_cache)
 {
-	char *str = strdup_local("hello world");
+	char *str = strdup("hello world");
 	cache_struct *res;
 	int i;
 	char buf[MAX_BUF];
@@ -49,7 +49,7 @@ START_TEST(test_cache)
 	for (i = 0; i <= 10; i++)
 	{
 		snprintf(buf, sizeof(buf), "hello, hello! %d", i);
-		str = strdup_local(buf);
+		str = strdup(buf);
 		snprintf(buf, sizeof(buf), "cache_test_%d", i);
 		fail_if(cache_add(buf, str, CACHE_FLAG_AUTOFREE) == 0, "Could not add cache entry.");
 		fail_if(cache_find(find_string(buf)) == NULL, "Could not find cache entry after it was added.");
@@ -84,11 +84,11 @@ START_TEST(test_cache)
 	fail_if(cache_remove(find_string("cache_test_8")) == 1, "Removed cache entry when it should have been removed already.");
 	fail_if(cache_remove(find_string("cache_test_0")) == 1, "Removed cache entry when it should have been removed already.");
 
-	str = strdup_local("hello hello world!!!");
+	str = strdup("hello hello world!!!");
 	fail_if(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE) == 0, "Could not add cache entry.");
 	fail_if(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE) == 1, "Added cache entry with same name.");
 
-	str = strdup_local("leet");
+	str = strdup("leet");
 	fail_if(cache_add("raas", str, CACHE_FLAG_PYOBJ) == 0, "Could not add cache entry.");
 	fail_if(cache_add("chair", str, CACHE_FLAG_PYOBJ) == 0, "Could not add cache entry.");
 	cache_remove_by_flags(CACHE_FLAG_PYOBJ);

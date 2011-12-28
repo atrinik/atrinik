@@ -79,7 +79,7 @@ static void parse_metaserver_data(char *info)
 {
 	char *tmp[6];
 
-	if (!info || split_string(info, tmp, arraysize(tmp), ':') != 6)
+	if (!info || string_split(info, tmp, arraysize(tmp), ':') != 6)
 	{
 		return;
 	}

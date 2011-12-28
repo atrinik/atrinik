@@ -217,27 +217,27 @@ void init_regions(void)
 		{
 			*end = '\0';
 			new = get_region_struct();
-			new->name = strdup_local(value);
+			new->name = strdup(value);
 		}
 		else if (!strcmp(key, "parent"))
 		{
 			*end = '\0';
-			new->parent_name = strdup_local(value);
+			new->parent_name = strdup(value);
 		}
 		else if (!strcmp(key, "longname"))
 		{
 			*end = '\0';
-			new->longname = strdup_local(value);
+			new->longname = strdup(value);
 		}
 		else if (!strcmp(key, "map_first"))
 		{
 			*end = '\0';
-			new->map_first = strdup_local(value);
+			new->map_first = strdup(value);
 		}
 		else if (!strcmp(key, "map_bg"))
 		{
 			*end = '\0';
-			new->map_bg = strdup_local(value);
+			new->map_bg = strdup(value);
 		}
 		else if (!strcmp(key, "map_quest"))
 		{
@@ -256,7 +256,7 @@ void init_regions(void)
 				continue;
 			}
 
-			new->jailmap = strdup_local(path);
+			new->jailmap = strdup(path);
 			new->jailx = x;
 			new->jaily = y;
 		}
@@ -275,7 +275,7 @@ void init_regions(void)
 
 			if (msgpos != 0)
 			{
-				new->msg = strdup_local(msgbuf);
+				new->msg = strdup(msgbuf);
 			}
 
 			/* we have to reset msgpos, or the next region will store both msg blocks. */

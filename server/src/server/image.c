@@ -127,11 +127,11 @@ int read_bmap_names(void)
 		if (cp)
 		{
 			cp++;
-			xbm[nroffiles].name = strdup_local(cp);
+			xbm[nroffiles].name = strdup(cp);
 		}
 		else
 		{
-			xbm[nroffiles].name = strdup_local(buf);
+			xbm[nroffiles].name = strdup(buf);
 		}
 
 		xbm[nroffiles].number = line;

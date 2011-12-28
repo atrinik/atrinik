@@ -141,4 +141,16 @@
 #cmakedefine HAVE_GETTIMEOFDAY
 #endif
 
+#ifndef HAVE_TEMPNAM
+#cmakedefine HAVE_TEMPNAM
+#endif
+
+#ifndef HAVE_STRCASESTR
+#cmakedefine HAVE_STRCASESTR
+#endif
+
+#ifndef HAVE_STRDUP
+#cmakedefine HAVE_STRDUP
+#endif
+
 #endif

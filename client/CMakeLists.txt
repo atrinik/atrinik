@@ -128,6 +128,9 @@ check_function_exists(srand48 HAVE_SRAND48)
 check_function_exists(srand HAVE_SRAND)
 check_function_exists(strtok_r HAVE_STRTOK_R)
 check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists(tempnam HAVE_TEMPNAM)
+check_function_exists(strcasestr HAVE_STRCASESTR)
+check_function_exists(strdup HAVE_STRDUP)
 
 # Add our includes.
 include_directories(src/include)
@@ -148,7 +151,6 @@ set(SOURCES
 	src/client/metaserver.c
 	src/client/misc.c
 	src/client/player.c
-	src/client/porting.c
 	src/client/server_files.c
 	src/client/server_settings.c
 	src/client/settings.c
@@ -188,9 +190,12 @@ set(SOURCES
 	src/gui/textwin.c
 	src/gui/updater.c
 	src/toolkit/binreloc.c
+	src/toolkit/math.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
 	src/toolkit/path.c
+	src/toolkit/porting.c
+	src/toolkit/sha1.c
 	src/toolkit/shstr.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
@@ -204,7 +209,6 @@ set(SOURCES
 	src/toolkit_gui/scrollbar.c
 	src/toolkit_gui/SDL_gfx.c
 	src/toolkit_gui/SDL_rotozoom.c
-	src/toolkit_gui/sha1.c
 	src/toolkit_gui/text.c
 	src/toolkit_gui/text_input.c
 	src/toolkit_gui/tooltip.c

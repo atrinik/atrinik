@@ -253,7 +253,7 @@ static int popup_draw_func_post(popup_struct *popup)
 
 					while (line)
 					{
-						if (split_string(line, tmp, arraysize(tmp), '\t') == 2)
+						if (string_split(line, tmp, arraysize(tmp), '\t') == 2)
 						{
 							download_packages = realloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
 							download_packages[download_packages_num].filename = strdup(tmp[0]);

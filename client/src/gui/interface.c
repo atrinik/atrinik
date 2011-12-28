@@ -257,8 +257,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 				if (!interface_data->input_cleanup_disable)
 				{
-					whitespace_squeeze(input_string);
-					whitespace_trim(input_string);
+					string_whitespace_squeeze(input_string);
+					string_whitespace_trim(input_string);
 				}
 
 				if (input_string[0] != '\0' || interface_data->input_allow_empty)

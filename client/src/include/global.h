@@ -30,27 +30,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-/** Unsigned 32-bit integer. */
-typedef unsigned int uint32;
-/** Signed 32-bit integer. */
-typedef signed int sint32;
-/** Unsigned 16-bit integer. */
-typedef unsigned short uint16;
-/** Signed 16-bit integer. */
-typedef signed short sint16;
-/** Unsigned 8-bit integer. */
-typedef unsigned char uint8;
-/** Signed 8-bit integer. */
-typedef signed char sint8;
-
-/** Object unique IDs. */
-typedef unsigned int tag_t;
-
-/* If we're not using GNU C, ignore __attribute__ */
-#ifndef __GNUC__
-#	define  __attribute__(x)
-#endif
-
 /* Include standard headers. */
 #include <SDL.h>
 #include <SDL_main.h>
@@ -58,18 +37,8 @@ typedef unsigned int tag_t;
 #include <SDL_ttf.h>
 #include <curl/curl.h>
 #include <zlib.h>
-#include <math.h>
-#include <config.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <signal.h>
 #include <pthread.h>
-
+#include <config.h>
 #include <porting.h>
 #include <toolkit.h>
 #define HASH_FUNCTION HASH_BER
@@ -77,109 +46,8 @@ typedef unsigned int tag_t;
 #include <utlist.h>
 #include <utarray.h>
 
-#ifdef HAVE_STDDEF_H
-#	include <stddef.h>
-#endif
-
-#ifdef HAVE_FCNTL_H
-#	include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#	include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#	include <sys/time.h>
-#endif
-
-#ifdef HAVE_TIME_H
-#	include <time.h>
-#endif
-
-#ifdef LINUX
-#	include <netdb.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
-#endif
-
 #ifdef HAVE_SDL_MIXER
 #	include <SDL_mixer.h>
-#endif
-
-#ifdef HAVE_DIRENT_H
-#	include <dirent.h>
-#	define NAMLEN(dirent) (strlen((dirent)->d_name))
-#elif defined(HAVE_SYS_NDIR_H) || defined(HAVE_SYS_DIR_H) || defined(HAVE_NDIR_H)
-#	define dirent direct
-#	define NAMLEN(dirent) ((dirent)->d_namlen)
-#	ifdef HAVE_SYS_NDIR_H
-#		include <sys/ndir.h>
-#	endif
-#	ifdef HAVE_SYS_DIR_H
-#		include <sys/dir.h>
-#	endif
-#	ifdef HAVE_NDIR_H
-#		include <ndir.h>
-#	endif
-#endif
-
-#ifdef HAVE_SRANDOM
-#	define RANDOM() random()
-#	define SRANDOM(xyz) srandom(xyz)
-#else
-#	ifdef HAVE_SRAND48
-#		define RANDOM() lrand48()
-#		define SRANDOM(xyz) srand48(xyz)
-#	else
-#		ifdef HAVE_SRAND
-#			define RANDOM() rand()
-#			define SRANDOM(xyz) srand(xyz)
-#		else
-#			error "Could not find a usable random routine"
-#		endif
-#	endif
-#endif
-
-#ifdef HAVE_STRICMP
-#	define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
-#endif
-
-#ifdef HAVE_STRNICMP
-#	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
-#endif
-
-#ifndef MIN
-#	define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-
-#ifndef MAX
-#	define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-#ifndef FABS
-#	define FABS(x) ((x) < 0 ? -(x) : (x))
-#endif
-
-#ifndef HAVE_STRTOK_R
-extern char *strtok_r(char *s, const char *delim, char **save_ptr);
-#endif
-
-#ifndef HAVE_GETTIMEOFDAY
-struct timezone
-{
-	/* Minutes west of Greenwich. */
-	int tz_minuteswest;
-	/* Type of DST correction. */
-	int tz_dsttime;
-};
-
-extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 #endif
 
 /** The log levels. */

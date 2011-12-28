@@ -25,18 +25,51 @@
 
 /**
  * @file
- * Standard includes. */
+ * Toolkit system.
+ *
+ * @author Alex Tokar */
 
-#ifndef INCLUDES_H
-#define INCLUDES_H
+#include <global.h>
 
-#include <config.h>
-#include <porting.h>
-#include <toolkit.h>
-#include <uthash.h>
-#include <define.h>
-#include <version.h>
-#include <logger.h>
-#include <newclient.h>
+static toolkit_func *deinit_funcs = NULL;
+static size_t deinit_funcs_num = 0;
 
-#endif
+void toolkit_import_register(toolkit_func func)
+{
+	deinit_funcs = realloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
+	deinit_funcs[deinit_funcs_num] = func;
+	deinit_funcs_num++;
+}
+
+int toolkit_check_imported(toolkit_func func)
+{
+	size_t i;
+
+	for (i = 0; i < deinit_funcs_num; i++)
+	{
+		if (deinit_funcs[i] == func)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+void toolkit_deinit(void)
+{
+	size_t i;
+
+	for (i = deinit_funcs_num; i > 0; i--)
+	{
+		deinit_funcs[i - 1]();
+	}
+
+	if (deinit_funcs)
+	{
+		free(deinit_funcs);
+		deinit_funcs = NULL;
+	}
+
+	deinit_funcs_num = 0;
+}

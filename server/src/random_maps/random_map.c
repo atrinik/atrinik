@@ -121,11 +121,11 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 	/* set the name of the map. */
 	FREE_AND_COPY_HASH(theMap->path, OutFileName);
 
-	theMap->name = strdup_local(RP->dungeon_name[0] ? RP->dungeon_name : OutFileName);
+	theMap->name = strdup(RP->dungeon_name[0] ? RP->dungeon_name : OutFileName);
 
 	if (RP->bg_music[0])
 	{
-		theMap->bg_music = strdup_local(RP->bg_music);
+		theMap->bg_music = strdup(RP->bg_music);
 	}
 
 	theMap->difficulty = RP->dungeon_level;

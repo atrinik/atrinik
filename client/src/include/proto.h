@@ -126,20 +126,13 @@ extern void metaserver_add(const char *ip, int port, const char *name, int playe
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
-extern unsigned long isqrt(unsigned long n);
-extern size_t split_string(char *str, char *array[], size_t array_size, char sep);
 extern void *reallocz(void *ptr, size_t old_size, size_t new_size);
 extern void convert_newline(char *str);
 extern void browser_open(const char *url);
-extern int rndm(int min, int max);
 extern char *package_get_version_full(char *dst, size_t dstlen);
 extern char *package_get_version_partial(char *dst, size_t dstlen);
-extern void strtoupper(char *str);
-extern void strtolower(char *str);
 extern int bmp2png(const char *path);
 extern void screenshot_create(SDL_Surface *surface);
-extern char *whitespace_trim(char *str);
-extern char *whitespace_squeeze(char *str);
 /* src/client/player.c */
 extern const char *gender_noun[4];
 extern void clear_player(void);
@@ -165,7 +158,6 @@ extern void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_
 extern void widget_show_label(widgetdata *widget);
 extern void widget_show_bitmap(widgetdata *widget);
 extern int gender_to_id(const char *gender);
-/* src/client/porting.c */
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_load(int post_load);
@@ -479,6 +471,12 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/math.c */
+extern void toolkit_math_init(void);
+extern void toolkit_math_deinit(void);
+extern unsigned long isqrt(unsigned long n);
+extern int rndm(int min, int max);
+extern int rndm_chance(uint32 n);
 /* src/toolkit/mempool.c */
 extern mempool_chunk_struct end_marker;
 extern void toolkit_mempool_init(void);
@@ -527,6 +525,23 @@ extern void toolkit_path_init(void);
 extern void toolkit_path_deinit(void);
 extern char *path_join(const char *path, const char *path2);
 extern char *path_dirname(const char *path);
+extern void path_ensure_directories(const char *path);
+/* src/toolkit/porting.c */
+extern void toolkit_porting_init(void);
+extern void toolkit_porting_deinit(void);
+/* src/toolkit/sha1.c */
+extern void toolkit_sha1_init(void);
+extern void toolkit_sha1_deinit(void);
+extern void sha1_starts(sha1_context *ctx);
+extern void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+extern void sha1_finish(sha1_context *ctx, unsigned char output[20]);
+extern void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
+extern int sha1_file(const char *path, unsigned char output[20]);
+extern void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
+extern void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
+extern void sha1_hmac_reset(sha1_context *ctx);
+extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/shstr.c */
 extern void toolkit_shstr_init(void);
 extern void toolkit_shstr_deinit(void);
@@ -544,6 +559,10 @@ extern size_t string_split(char *str, char *array[], size_t array_size, char sep
 extern void string_replace_unprintable_chars(char *buf);
 extern char *string_format_number_comma(uint64 num);
 extern void string_remove_markup(char *str);
+extern void string_toupper(char *str);
+extern void string_tolower(char *str);
+extern char *string_whitespace_trim(char *str);
+extern char *string_whitespace_squeeze(char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
@@ -706,17 +725,6 @@ extern SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoo
 extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 extern SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 extern SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
-/* src/toolkit_gui/sha1.c */
-extern void sha1_starts(sha1_context *ctx);
-extern void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
-extern void sha1_finish(sha1_context *ctx, unsigned char output[20]);
-extern void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
-extern int sha1_file(const char *path, unsigned char output[20]);
-extern void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
-extern void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
-extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
-extern void sha1_hmac_reset(sha1_context *ctx);
-extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit_gui/text.c */
 extern font_struct fonts[FONTS_MAX];
 extern void text_init(void);

@@ -106,7 +106,6 @@
 		<Unit filename="..\..\src\server\party.c" />
 		<Unit filename="..\..\src\server\pathfinder.c" />
 		<Unit filename="..\..\src\server\plugins.c" />
-		<Unit filename="..\..\src\server\porting.c" />
 		<Unit filename="..\..\src\server\quest.c" />
 		<Unit filename="..\..\src\server\race.c" />
 		<Unit filename="..\..\src\server\readable.c" />
@@ -137,9 +136,12 @@
 		<Unit filename="..\..\src\socket\sounds.c" />
 		<Unit filename="..\..\src\socket\updates.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\math.c" />
 		<Unit filename="..\..\src\toolkit\mempool.c" />
 		<Unit filename="..\..\src\toolkit\packet.c" />
 		<Unit filename="..\..\src\toolkit\path.c" />
+		<Unit filename="..\..\src\toolkit\porting.c" />
+		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\shstr.c" />
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />

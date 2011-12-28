@@ -155,7 +155,7 @@ int save_player(object *op, int flag)
 	}
 
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
-	make_path_to_file(filename);
+	path_ensure_directories(filename);
 	fp = fopen(filename, "w");
 	snprintf(backupfile, sizeof(backupfile), "%s.tmp", filename);
 	rename(filename, backupfile);
@@ -619,7 +619,7 @@ void check_login(object *op)
 
 			pl->num_cmd_permissions++;
 			pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
-			pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup_local(cp);
+			pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup(cp);
 		}
 		else if (!strcmp(buf, "spell_quickslot"))
 		{
@@ -660,7 +660,7 @@ void check_login(object *op)
 			cp++;
 
 			pl->region_maps = realloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
-			pl->region_maps[pl->num_region_maps] = strdup_local(cp);
+			pl->region_maps[pl->num_region_maps] = strdup(cp);
 			pl->num_region_maps++;
 		}
 	}

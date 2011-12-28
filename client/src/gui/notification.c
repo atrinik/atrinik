@@ -238,7 +238,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 			char key_buf[MAX_BUF];
 
 			keybind_get_key_shortcut(keybind->key, keybind->mod, key_buf, sizeof(key_buf));
-			strtoupper(key_buf);
+			string_toupper(key_buf);
 			stringbuffer_append_printf(sb, " (click or <b>%s</b>)", key_buf);
 		}
 	}

@@ -409,7 +409,7 @@ static PyObject *Atrinik_Object_Communicate(Atrinik_Object *obj, PyObject *args)
 
 	OBJEXISTCHECK(obj);
 
-	str = hooks->strdup_local(message);
+	str = hooks->strdup(message);
 	hooks->communicate(obj->obj, str);
 	free(str);
 
@@ -2187,7 +2187,7 @@ int Atrinik_Object_init(PyObject *module)
 
 			strncpy(buf, "f_", sizeof(buf) - 1);
 			strncat(buf, hooks->object_flag_names[flagno], sizeof(buf) - strlen(buf) - 1);
-			def->name = hooks->strdup_local(buf);
+			def->name = hooks->strdup(buf);
 
 			def->get = (getter) Object_GetFlag;
 			def->set = (setter) Object_SetFlag;

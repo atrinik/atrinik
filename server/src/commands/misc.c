@@ -863,7 +863,7 @@ int command_statistics(object *op, char *params)
 
 	if (op->level < MAXLEVEL)
 	{
-		char *cp = strdup_local(string_format_number_comma(level_exp(op->level + 1, 1.0)));
+		char *cp = strdup(string_format_number_comma(level_exp(op->level + 1, 1.0)));
 
 		draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, string_format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
 		free(cp);

@@ -314,7 +314,7 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 
 	/* Make a copy of the command, since execute_newserver_command
 	 * modifies the string. */
-	cp = hooks->strdup_local(command);
+	cp = hooks->strdup(command);
 	ret = hooks->execute_newserver_command(pl->pl->ob, cp);
 	free(cp);
 
