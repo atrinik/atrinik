@@ -29,7 +29,7 @@ protect_electricity 30
 protect_slash 20
 protect_impact 20
 protect_pierce 20
-proect_cleave 20
+protect_cleave 20
 speed -0.060
 level 1
 weight 248500
