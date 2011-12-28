@@ -747,14 +747,12 @@ int main(int argc, char *argv[])
 	char version[MAX_BUF];
 
 	init_signals();
-#ifndef WIN32
-	br_init(NULL);
-#endif
+	toolkit_import(binreloc);
+	toolkit_import(packet);
 	upgrader_init();
 	settings_init();
 	init_game_data();
 	curl_init();
-	packet_init();
 
 	while (argc > 1)
 	{

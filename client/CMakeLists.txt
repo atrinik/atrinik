@@ -190,8 +190,11 @@ set(SOURCES
 	src/toolkit/binreloc.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
+	src/toolkit/path.c
 	src/toolkit/shstr.c
+	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
+	src/toolkit/toolkit.c
 	src/toolkit_gui/button.c
 	src/toolkit_gui/clipboard.c
 	src/toolkit_gui/list.c

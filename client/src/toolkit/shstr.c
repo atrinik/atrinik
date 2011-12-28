@@ -34,10 +34,22 @@
 static shared_string *hash_table[TABLESIZE];
 
 /**
- * Initializes the hash-table used by the shared string library. */
-void init_hash_table(void)
+ * Initialize the shstr API.
+ * @internal */
+void toolkit_shstr_init(void)
 {
-	memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
+	TOOLKIT_INIT_FUNC_START(shstr)
+	{
+		memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the shstr API.
+ * @internal */
+void toolkit_shstr_deinit(void)
+{
 }
 
 /**

@@ -71,6 +71,7 @@ typedef unsigned int tag_t;
 #include <pthread.h>
 
 #include <porting.h>
+#include <toolkit.h>
 #define HASH_FUNCTION HASH_BER
 #include <uthash.h>
 #include <utlist.h>

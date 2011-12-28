@@ -46,7 +46,23 @@
  * Only used as an end marker for the lists */
 mempool_chunk_struct end_marker;
 
-struct mempool *pool_object, *pool_objectlink, *pool_player, *pool_bans, *pool_parties;
+/**
+ * Initialize the mempool API.
+ * @internal */
+void toolkit_mempool_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(mempool)
+	{
+	}
+	TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Deinitialize the mempool API.
+ * @internal */
+void toolkit_mempool_deinit(void)
+{
+}
 
 /**
  * Return the exponent exp needed to round n up to the nearest power of two, so that

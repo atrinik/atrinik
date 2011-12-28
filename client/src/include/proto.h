@@ -16,7 +16,6 @@ extern void socket_command_skill_ready(uint8 *data, size_t len, size_t pos);
 extern void socket_command_drawinfo(uint8 *data, size_t len, size_t pos);
 extern void socket_command_target(uint8 *data, size_t len, size_t pos);
 extern void socket_command_stats(uint8 *data, size_t len, size_t pos);
-extern void PreParseInfoStat(char *cmd);
 extern void socket_command_query(uint8 *data, size_t len, size_t pos);
 extern void send_reply(char *text);
 extern void socket_command_player(uint8 *data, size_t len, size_t pos);
@@ -468,28 +467,22 @@ extern void menu_textwin_font_dec(widgetdata *widget, int x, int y);
 /* src/gui/updater.c */
 extern void updater_open(void);
 /* src/toolkit/binreloc.c */
-extern int br_init(BrInitError *error);
-extern int br_init_lib(BrInitError *error);
-extern char *br_find_exe(const char *default_exe);
-extern char *br_find_exe_dir(const char *default_dir);
-extern char *br_find_prefix(const char *default_prefix);
-extern char *br_find_bin_dir(const char *default_bin_dir);
-extern char *br_find_sbin_dir(const char *default_sbin_dir);
-extern char *br_find_data_dir(const char *default_data_dir);
-extern char *br_find_locale_dir(const char *default_locale_dir);
-extern char *br_find_lib_dir(const char *default_lib_dir);
-extern char *br_find_libexec_dir(const char *default_libexec_dir);
-extern char *br_find_etc_dir(const char *default_etc_dir);
-extern char *br_strcat(const char *str1, const char *str2);
-extern char *br_build_path(const char *dir, const char *file);
-extern char *br_dirname(const char *path);
+extern void toolkit_binreloc_init(void);
+extern void toolkit_binreloc_deinit(void);
+extern char *binreloc_find_exe(const char *default_exe);
+extern char *binreloc_find_exe_dir(const char *default_dir);
+extern char *binreloc_find_prefix(const char *default_prefix);
+extern char *binreloc_find_bin_dir(const char *default_bin_dir);
+extern char *binreloc_find_sbin_dir(const char *default_sbin_dir);
+extern char *binreloc_find_data_dir(const char *default_data_dir);
+extern char *binreloc_find_locale_dir(const char *default_locale_dir);
+extern char *binreloc_find_lib_dir(const char *default_lib_dir);
+extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
+extern char *binreloc_find_etc_dir(const char *default_etc_dir);
 /* src/toolkit/mempool.c */
 extern mempool_chunk_struct end_marker;
-extern struct mempool *pool_object;
-extern struct mempool *pool_objectlink;
-extern struct mempool *pool_player;
-extern struct mempool *pool_bans;
-extern struct mempool *pool_parties;
+extern void toolkit_mempool_init(void);
+extern void toolkit_mempool_deinit(void);
 extern uint32 nearest_pow_two_exp(uint32 n);
 extern void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor);
 extern mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
@@ -497,8 +490,8 @@ extern void mempool_free(mempool_struct *pool);
 extern void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp);
 extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool);
 /* src/toolkit/packet.c */
-extern void packet_init(void);
-extern void packet_deinit(void);
+extern void toolkit_packet_init(void);
+extern void toolkit_packet_deinit(void);
 extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);
 extern void packet_free(packet_struct *packet);
 extern void packet_compress(packet_struct *packet);
@@ -529,15 +522,31 @@ extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
 extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
 extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
 extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
+/* src/toolkit/path.c */
+extern void toolkit_path_init(void);
+extern void toolkit_path_deinit(void);
+extern char *path_join(const char *path, const char *path2);
+extern char *path_dirname(const char *path);
 /* src/toolkit/shstr.c */
-extern void init_hash_table(void);
+extern void toolkit_shstr_init(void);
+extern void toolkit_shstr_deinit(void);
 extern shstr *add_string(const char *str);
 extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
 extern void ss_dump_table(int what, char *buf, size_t size);
+/* src/toolkit/string.c */
+extern void toolkit_string_init(void);
+extern void toolkit_string_deinit(void);
+extern void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
+extern size_t string_split(char *str, char *array[], size_t array_size, char sep);
+extern void string_replace_unprintable_chars(char *buf);
+extern char *string_format_number_comma(uint64 num);
+extern void string_remove_markup(char *str);
 /* src/toolkit/stringbuffer.c */
+extern void toolkit_stringbuffer_init(void);
+extern void toolkit_stringbuffer_deinit(void);
 extern StringBuffer *stringbuffer_new(void);
 extern char *stringbuffer_finish(StringBuffer *sb);
 extern const char *stringbuffer_finish_shared(StringBuffer *sb);
@@ -545,6 +554,10 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern size_t stringbuffer_length(StringBuffer *sb);
+/* src/toolkit/toolkit.c */
+extern void toolkit_import_register(toolkit_func func);
+extern int toolkit_check_imported(toolkit_func func);
+extern void toolkit_deinit(void);
 /* src/toolkit_gui/button.c */
 extern void button_init(void);
 extern int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus);

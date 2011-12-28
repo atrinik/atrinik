@@ -116,7 +116,7 @@ void system_end(void)
 	hfiles_deinit();
 	settings_deinit();
 	keybind_deinit();
-	packet_deinit();
+	toolkit_deinit();
 	SDL_Quit();
 }
 
@@ -418,7 +418,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
 		char *prefix;
 
 		/* Get the prefix. */
-		prefix = br_find_prefix("./");
+		prefix = binreloc_find_prefix("./");
 		/* Construct the path. */
 		snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE"/%s", prefix, fname);
 		free(prefix);
