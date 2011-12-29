@@ -1320,6 +1320,7 @@ extern void yy_map_headerset_debug(int bdebug);
 extern int yy_map_headerlex_destroy(void);
 extern void yy_map_headerfree(void *ptr);
 extern int map_set_variable(mapstruct *m, char *buf);
+extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
@@ -1376,4 +1377,5 @@ extern int yy_random_maplex_destroy(void);
 extern void yy_random_mapfree(void *ptr);
 extern int load_parameters(FILE *fp, int bufstate, RMParms *RP);
 extern int set_random_map_variable(RMParms *rp, const char *buf);
+extern void free_random_map_loader(void);
 #endif

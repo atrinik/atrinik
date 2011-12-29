@@ -270,6 +270,13 @@ int map_set_variable(mapstruct *m, char *buf)
 }
 
 /**
+ * Frees all memory allocated by the map header loader. */
+void free_map_header_loader(void)
+{
+	yylex_destroy();
+}
+
+/**
  * This loads the header information of the map. The header contains
  * things like difficulty, size, timeout, etc.
  * @param m Map being read.

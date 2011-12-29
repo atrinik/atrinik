@@ -187,3 +187,10 @@ int set_random_map_variable(RMParms *rp, const char *buf)
 
 	return retval;
 }
+
+/**
+ * Frees all memory allocated by the random map loader. */
+void free_random_map_loader(void)
+{
+	yylex_destroy();
+}

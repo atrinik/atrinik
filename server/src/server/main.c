@@ -1139,6 +1139,8 @@ void cleanup(void)
 	remove_plugins();
 	toolkit_deinit();
 	free_object_loader();
+	free_random_map_loader();
+	free_map_header_loader();
 }
 
 /**
