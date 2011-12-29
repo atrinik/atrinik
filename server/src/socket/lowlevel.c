@@ -235,6 +235,7 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
 	if (ns->status == Ns_Dead)
 	{
+		packet_free(packet);
 		return;
 	}
 
