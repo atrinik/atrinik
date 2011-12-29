@@ -75,8 +75,14 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 	packet->size = size;
 	packet->expand = expand;
 	packet->len = 0;
+	packet->data = NULL;
+
 	/* Allocate the initial data block. */
-	packet->data = malloc(packet->size);
+	if (packet->size)
+	{
+		packet->data = malloc(packet->size);
+	}
+
 	packet->ndelay = 0;
 	packet->type = type;
 
