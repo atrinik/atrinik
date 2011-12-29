@@ -31,62 +31,6 @@
 #include <loader.h>
 
 /**
- * Save all players.
- * @param flag If non zero, it means that we want to try and save
- * everyone, but keep the game running. Thus, we don't want to free any
- * information. */
-void emergency_save(int flag)
-{
-#ifndef NO_EMERGENCY_SAVE
-	LOG(llevSystem, "Emergency save:  ");
-
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (!pl->ob)
-		{
-			LOG(llevSystem, "No name, ignoring this.\n");
-			continue;
-		}
-
-		LOG(llevSystem, "%s ", pl->ob->name);
-		draw_info(COLOR_WHITE, pl->ob, "Emergency save...");
-
-		/* If we are not exiting the game (ie, this is sort of a backup
-		 * save), then don't change the location back to the village.
-		 * Note that there are other options to have backup saves be done
-		 * at the starting village */
-		if (!flag)
-		{
-			strcpy(pl->maplevel, first_map_path);
-
-			if (pl->ob->map != NULL)
-			{
-				pl->ob->map = NULL;
-			}
-
-			pl->ob->x = -1;
-			pl->ob->y = -1;
-		}
-
-		container_close(pl->ob, NULL);
-
-		if (!save_player(pl->ob, flag))
-		{
-			LOG(llevSystem, "(failed) ");
-			draw_info(COLOR_WHITE, pl->ob, "Emergency save failed, checking score...");
-		}
-
-		hiscore_check(pl->ob, 1);
-	}
-
-	LOG(llevSystem, "\n");
-#else
-	(void) flag;
-	LOG(llevSystem, "Emergency saves disabled, no save attempted\n");
-#endif
-}
-
-/**
  * Checks to see if the passed player name is valid or not. Does checks
  * like min/max name length, whether there is anyone else playing by that
  * name, and whether there are illegal characters in the player name.

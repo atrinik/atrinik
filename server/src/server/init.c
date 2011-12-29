@@ -1184,7 +1184,6 @@ static void rec_sighup(int i)
 
 	if (init_done)
 	{
-		emergency_save(0);
 		cleanup();
 	}
 
@@ -1241,7 +1240,6 @@ static void fatal_signal(int make_core)
 {
 	if (init_done)
 	{
-		emergency_save(0);
 		cleanup();
 	}
 

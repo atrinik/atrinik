@@ -402,7 +402,6 @@ extern void set_mobile_speed(object *op, int idx);
 extern long nroferrors;
 extern void LOG(LogLevel logLevel, const char *format, ...) __attribute__((format(printf, 2, 3)));
 /* src/server/login.c */
-extern void emergency_save(int flag);
 extern int check_name(player *pl, char *name);
 extern int save_player(object *op, int flag);
 extern void check_login(object *op);

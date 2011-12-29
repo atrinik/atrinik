@@ -169,8 +169,6 @@ int command_kick(object *ob, char *params)
 		{
 			object *op = pl->ob;
 
-			object_remove(op, 0);
-
 			if (params)
 			{
 				draw_info_flags_format(NDI_ALL, COLOR_WHITE, ob, "%s was kicked out of the game.", op->name);

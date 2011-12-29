@@ -80,7 +80,6 @@ void fatal(int err)
 
 	if (init_done)
 	{
-		emergency_save(0);
 		cleanup();
 	}
 
@@ -1114,6 +1113,7 @@ void clean_tmp_files(void)
 void cleanup(void)
 {
 	LOG(llevDebug, "Cleanup called. Freeing data.\n");
+	command_kick(NULL, NULL);
 	clean_tmp_files();
 	free_all_maps();
 	free_style_maps();

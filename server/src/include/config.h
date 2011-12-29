@@ -282,12 +282,6 @@
  * saves pretty well spread out (in a fairly random fashion). */
 #define AUTOSAVE 5000
 
-/**
- * Often, emergency save fails because the memory corruption that caused
- * the crash has trashed the characters too. Define NO_EMERGENCY_SAVE
- * to disable emergency saves. */
-#define NO_EMERGENCY_SAVE
-
 /** Socket version. */
 #define SOCKET_VERSION 1058
 
