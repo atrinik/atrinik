@@ -730,11 +730,13 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	}
 
 	packet_to_string(data, len, &pos, archname, sizeof(archname));
-
-	for (i = 0; i < NUM_STATS; i++)
-	{
-		stats[i] = packet_to_uint8(data, len, &pos);
-	}
+	stats[STR] = packet_to_uint8(data, len, &pos);
+	stats[DEX] = packet_to_uint8(data, len, &pos);
+	stats[CON] = packet_to_uint8(data, len, &pos);
+	stats[INT] = packet_to_uint8(data, len, &pos);
+	stats[WIS] = packet_to_uint8(data, len, &pos);
+	stats[POW] = packet_to_uint8(data, len, &pos);
+	stats[CHA] = packet_to_uint8(data, len, &pos);
 
 	player_arch = find_archetype(archname);
 
