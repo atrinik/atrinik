@@ -30,6 +30,10 @@
 #ifndef PORTING_H
 #define PORTING_H
 
+#ifndef _GNU_SOURCE
+#	define _GNU_SOURCE
+#endif
+
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__
 #	define  __attribute__(x)
