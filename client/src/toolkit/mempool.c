@@ -47,12 +47,21 @@
 mempool_chunk_struct end_marker;
 
 /**
+ * Contains all the allocated chunks. */
+static mempool_chunk_struct **mempool_chunks;
+/**
+ * Number of chunks in ::mempool_chunks. */
+static size_t mempool_chunks_num;
+
+/**
  * Initialize the mempool API.
  * @internal */
 void toolkit_mempool_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(mempool)
 	{
+		mempool_chunks = NULL;
+		mempool_chunks_num = 0;
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
@@ -62,6 +71,20 @@ void toolkit_mempool_init(void)
  * @internal */
 void toolkit_mempool_deinit(void)
 {
+	size_t i;
+
+	for (i = 0; i < mempool_chunks_num; i++)
+	{
+		free(mempool_chunks[i]);
+	}
+
+	if (mempool_chunks)
+	{
+		free(mempool_chunks);
+		mempool_chunks = NULL;
+	}
+
+	mempool_chunks_num = 0;
 }
 
 /**
@@ -128,10 +151,6 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 	pool->constructor = constructor;
 	pool->destructor = destructor;
 
-#if MEMORY_DEBUG
-	pool->flags |= MEMPOOL_BYPASS_POOLS;
-#endif
-
 	for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++)
 	{
 		pool->freelist[i] = &end_marker;
@@ -183,6 +202,12 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 	{
 		LOG(llevError, "expand_mempool(): Out of memory.\n");
 	}
+
+#ifndef PRODUCTION_SERVER
+	mempool_chunks = realloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
+	mempool_chunks[mempool_chunks_num] = first;
+	mempool_chunks_num++;
+#endif
 
 	pool->freelist[arraysize_exp] = first;
 	pool->nrof_allocated[arraysize_exp] += nrof_arrays;

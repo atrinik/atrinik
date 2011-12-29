@@ -225,11 +225,6 @@
 #define MAP_DEFAULTRESET 7200
 
 /**
- * If 1, used memory is freed on shutdown, allowing easier memory leak
- * checking with tools like Valgrind. */
-#define MEMORY_DEBUG 0
-
-/**
  * These define the players starting map and location on that map, and where
  * emergency saves are defined. This should be left as is unless you make
  * major changes to the map. */
