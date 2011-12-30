@@ -896,12 +896,22 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/console.c */
+extern size_t console_commands_num;
+extern void toolkit_console_init(void);
+extern void toolkit_console_deinit(void);
+extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
+extern void console_command_handle(void);
 /* src/toolkit/math.c */
 extern void toolkit_math_init(void);
 extern void toolkit_math_deinit(void);
 extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32 n);
+/* src/toolkit/memory.c */
+extern void toolkit_memory_init(void);
+extern void toolkit_memory_deinit(void);
+extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
 extern mempool_chunk_struct end_marker;
 extern void toolkit_mempool_init(void);

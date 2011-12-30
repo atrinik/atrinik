@@ -25,54 +25,32 @@
 
 /**
  * @file
- * Toolkit system header file.
+ * Console API header file.
  *
  * @author Alex Tokar */
 
-#ifndef TOOLKIT_H
-#define TOOLKIT_H
-
-/* Porting API header file has extra priority. */
-#include <porting.h>
-
-/* Now all the other header files that are part of the toolkit. */
-#include <binreloc.h>
-#include <console.h>
-#include <mempool.h>
-#include <packet.h>
-#include <sha1.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
-#include <utarray.h>
-#include <uthash.h>
-#include <utlist.h>
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
 /**
- * Toolkit (de)initialization function. */
-typedef void (*toolkit_func)(void);
+ * Console command handler function. */
+typedef void (*console_command_func)(const char *params);
 
 /**
- * Check if the specified API has been imported yet. */
-#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
-/**
- * Import the specified API (if it has not been imported yet). */
-#define toolkit_import(__api_name) toolkit_##__api_name##_init()
+ * One console command. */
+typedef struct console_command_struct
+{
+	/** Name of the command. */
+	char *command;
 
-/**
- * Start toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_START(__api_name) \
-{ \
-	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
-	if (toolkit_imported(__api_name)) \
-	{ \
-		return; \
-	}
+	/** The function that will handle the command. */
+	console_command_func handle_func;
 
-/**
- * End toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_END() \
-	toolkit_import_register(__deinit_func); \
-}
+	/** Brief, one-line description of the command. */
+	char *desc_brief;
+
+	/** Detailed description of the command. */
+	char *desc;
+} console_command_struct;
 
 #endif

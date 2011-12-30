@@ -688,6 +688,7 @@ int main(int argc, char *argv[])
 
 	toolkit_import(binreloc);
 	toolkit_import(math);
+	toolkit_import(memory);
 	toolkit_import(packet);
 	toolkit_import(porting);
 	toolkit_import(sha1);

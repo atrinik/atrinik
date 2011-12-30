@@ -72,7 +72,9 @@
 		<Unit filename="..\..\src\client\tilestretcher.c" />
 		<Unit filename="..\..\src\client\server_files.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\console.c" />
 		<Unit filename="..\..\src\toolkit\math.c" />
+		<Unit filename="..\..\src\toolkit\memory.c" />
 		<Unit filename="..\..\src\toolkit\mempool.c" />
 		<Unit filename="..\..\src\toolkit\packet.c" />
 		<Unit filename="..\..\src\toolkit\path.c" />

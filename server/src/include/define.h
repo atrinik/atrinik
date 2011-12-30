@@ -333,7 +333,7 @@
 #define BUTTON 92
 /**
  * Handle. */
-#define HANDLE 93
+#define TYPE_HANDLE 93
 /**
  * Special force for word of recall. */
 #define WORD_OF_RECALL 96

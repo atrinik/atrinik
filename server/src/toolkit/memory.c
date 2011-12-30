@@ -25,54 +25,43 @@
 
 /**
  * @file
- * Toolkit system header file.
- *
- * @author Alex Tokar */
+ * Memory API. */
 
-#ifndef TOOLKIT_H
-#define TOOLKIT_H
-
-/* Porting API header file has extra priority. */
-#include <porting.h>
-
-/* Now all the other header files that are part of the toolkit. */
-#include <binreloc.h>
-#include <console.h>
-#include <mempool.h>
-#include <packet.h>
-#include <sha1.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
-#include <utarray.h>
-#include <uthash.h>
-#include <utlist.h>
+#include <global.h>
 
 /**
- * Toolkit (de)initialization function. */
-typedef void (*toolkit_func)(void);
-
-/**
- * Check if the specified API has been imported yet. */
-#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
-/**
- * Import the specified API (if it has not been imported yet). */
-#define toolkit_import(__api_name) toolkit_##__api_name##_init()
-
-/**
- * Start toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_START(__api_name) \
-{ \
-	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
-	if (toolkit_imported(__api_name)) \
-	{ \
-		return; \
+ * Initialize the memory API.
+ * @internal */
+void toolkit_memory_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(memory)
+	{
 	}
-
-/**
- * End toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_END() \
-	toolkit_import_register(__deinit_func); \
+	TOOLKIT_INIT_FUNC_END()
 }
 
-#endif
+/**
+ * Deinitialize the memory API.
+ * @internal */
+void toolkit_memory_deinit(void)
+{
+}
+
+/**
+ * Like realloc(), but if more bytes are being allocated, they get set to
+ * 0 using memset().
+ * @param ptr Original pointer.
+ * @param old_size Size of the pointer.
+ * @param new_size New size the pointer should have.
+ * @return Resized pointer, NULL on failure. */
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
+{
+	void *new_ptr = realloc(ptr, new_size);
+
+	if (new_ptr && new_size > old_size)
+	{
+		memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
+	}
+
+	return new_ptr;
+}

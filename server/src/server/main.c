@@ -1350,6 +1350,8 @@ static void do_specials(void)
  * Iterate the main loop. */
 static void iterate_main_loop(void)
 {
+	console_command_handle();
+
 	nroferrors = 0;
 
 	/* Check and run a shutdown count (with messages and shutdown) */

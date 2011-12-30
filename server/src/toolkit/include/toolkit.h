@@ -32,11 +32,35 @@
 #ifndef TOOLKIT_H
 #define TOOLKIT_H
 
+/* Porting API header file has extra priority. */
+#include <porting.h>
+
+/* Now all the other header files that are part of the toolkit. */
+#include <binreloc.h>
+#include <console.h>
+#include <mempool.h>
+#include <packet.h>
+#include <sha1.h>
+#include <shstr.h>
+#include <socket.h>
+#include <stringbuffer.h>
+#include <utarray.h>
+#include <uthash.h>
+#include <utlist.h>
+
+/**
+ * Toolkit (de)initialization function. */
 typedef void (*toolkit_func)(void);
 
+/**
+ * Check if the specified API has been imported yet. */
 #define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
+/**
+ * Import the specified API (if it has not been imported yet). */
 #define toolkit_import(__api_name) toolkit_##__api_name##_init()
 
+/**
+ * Start toolkit API initialization function. */
 #define TOOLKIT_INIT_FUNC_START(__api_name) \
 { \
 	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
@@ -45,6 +69,8 @@ typedef void (*toolkit_func)(void);
 		return; \
 	}
 
+/**
+ * End toolkit API initialization function. */
 #define TOOLKIT_INIT_FUNC_END() \
 	toolkit_import_register(__deinit_func); \
 }

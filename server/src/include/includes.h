@@ -31,9 +31,7 @@
 #define INCLUDES_H
 
 #include <config.h>
-#include <porting.h>
 #include <toolkit.h>
-#include <uthash.h>
 #include <define.h>
 #include <version.h>
 #include <logger.h>

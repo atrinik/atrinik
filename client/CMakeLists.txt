@@ -190,7 +190,9 @@ set(SOURCES
 	src/gui/textwin.c
 	src/gui/updater.c
 	src/toolkit/binreloc.c
+	src/toolkit/console.c
 	src/toolkit/math.c
+	src/toolkit/memory.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
 	src/toolkit/path.c

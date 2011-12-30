@@ -39,12 +39,7 @@
 #include <zlib.h>
 #include <pthread.h>
 #include <config.h>
-#include <porting.h>
 #include <toolkit.h>
-#define HASH_FUNCTION HASH_BER
-#include <uthash.h>
-#include <utlist.h>
-#include <utarray.h>
 
 #ifdef HAVE_SDL_MIXER
 #	include <SDL_mixer.h>
@@ -67,13 +62,6 @@ typedef enum LogLevel
 
 #define HUGE_BUF 4096
 #define MAX_BUF 256
-
-#include <binreloc.h>
-#include <mempool.h>
-#include <packet.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
 
 #include <version.h>
 #include <scrollbar.h>

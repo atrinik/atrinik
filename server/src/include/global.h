@@ -230,14 +230,6 @@ if (_nv_)                          \
 /** The maximum level. */
 #define MAXLEVEL 115
 
-#include <binreloc.h>
-#include <mempool.h>
-#include <packet.h>
-#include <sha1.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
-
 /**
  * Used to link together shared strings. */
 typedef struct linked_char

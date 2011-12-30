@@ -248,7 +248,9 @@ set(SOURCES
 	src/socket/sounds.c
 	src/socket/updates.c
 	src/toolkit/binreloc.c
+	src/toolkit/console.c
 	src/toolkit/math.c
+	src/toolkit/memory.c
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
 	src/toolkit/path.c

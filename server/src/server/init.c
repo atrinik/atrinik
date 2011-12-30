@@ -101,8 +101,6 @@ char first_map_path[MAX_BUF];
 static void usage();
 static void help();
 static void init_beforeplay();
-static void fatal_signal(int make_core);
-static void init_signals();
 static void dump_level_colors_table();
 static void init_environ();
 static void init_defaults();
@@ -161,6 +159,12 @@ void free_strings(void)
 	}
 }
 
+static void console_command_shutdown(const char *params)
+{
+	cleanup();
+	exit(0);
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -171,6 +175,7 @@ void free_strings(void)
  * init_hash_table() if you are doing any object loading. */
 void init_library(void)
 {
+	toolkit_import(console);
 	toolkit_import(math);
 	toolkit_import(mempool);
 	toolkit_import(packet);
@@ -179,6 +184,14 @@ void init_library(void)
 	toolkit_import(shstr);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
+
+	console_command_add(
+		"shutdown",
+		console_command_shutdown,
+		"Shuts down the server",
+		"Shuts down the server, saving all the data and disconnecting all players.\n\n"
+		"All of the used memory is freed, if possible."
+	);
 
 	init_environ();
 	init_globals();
@@ -940,8 +953,6 @@ void init(int argc, char **argv)
 
 	SRANDOM(time(NULL));
 
-	/* Sets up signal interceptions */
-	init_signals();
 	/* Sort command tables */
 	init_commands();
 	/* Load up the old temp map files */
@@ -1156,117 +1167,6 @@ void compile_info(void)
 	LOG(llevInfo, "KeyValueSize:\t%"FMT64U"\n", (uint64) sizeof(key_value));
 
 	LOG(llevInfo, "Setup info: Done.\n");
-}
-
-/** @cond */
-
-static void rec_sigsegv(int i)
-{
-	(void) i;
-
-	LOG(llevSystem, "\nSIGSEGV received.\n");
-	fatal_signal(1);
-}
-
-static void rec_sigint(int i)
-{
-	(void) i;
-
-	LOG(llevSystem, "\nSIGINT received.\n");
-	fatal_signal(0);
-}
-
-static void rec_sighup(int i)
-{
-	(void) i;
-
-	LOG(llevSystem, "\nSIGHUP received\n");
-
-	if (init_done)
-	{
-		cleanup();
-	}
-
-	exit(0);
-}
-
-static void rec_sigquit(int i)
-{
-	(void) i;
-
-	LOG(llevSystem, "\nSIGQUIT received\n");
-	fatal_signal(1);
-}
-
-static void rec_sigpipe(int i)
-{
-	(void) i;
-
-#ifndef WIN32
-	LOG(llevSystem, "\nSIGPIPE received, ignoring\n");
-	signal(SIGPIPE, rec_sigpipe);
-#else
-	LOG(llevSystem, "\nSIGPIPE received\n");
-	fatal_signal(1);
-#endif
-}
-
-static void rec_sigbus(int i)
-{
-	(void) i;
-
-#ifdef SIGBUS
-	LOG(llevSystem, "\nSIGBUS received\n");
-	fatal_signal(1);
-#endif
-}
-
-static void rec_sigterm(int i)
-{
-	(void) i;
-
-	LOG(llevSystem,"\nSIGTERM received\n");
-	fatal_signal(0);
-}
-
-/** @endcond */
-
-/**
- * General signal handling. Will exit() in any case.
- *
- * @param make_core If set abort() instead of exit() to generate a core
- * dump. */
-static void fatal_signal(int make_core)
-{
-	if (init_done)
-	{
-		cleanup();
-	}
-
-	if (make_core)
-	{
-		abort();
-	}
-
-	exit(0);
-}
-
-/**
- * Setup the signal handlers. */
-static void init_signals(void)
-{
-#ifndef WIN32
-	/* init_signals() remove signals */
-	signal(SIGHUP, rec_sighup);
-	signal(SIGINT, rec_sigint);
-	signal(SIGQUIT, rec_sigquit);
-	signal(SIGSEGV, rec_sigsegv);
-	signal(SIGPIPE, rec_sigpipe);
-#	ifdef SIGBUS
-	signal(SIGBUS, rec_sigbus);
-#	endif
-	signal(SIGTERM, rec_sigterm);
-#endif
 }
 
 /**

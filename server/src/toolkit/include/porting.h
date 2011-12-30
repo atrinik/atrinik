@@ -90,7 +90,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <signal.h>
 #include <setjmp.h>
 #include <stdlib.h>
 #include <limits.h>
