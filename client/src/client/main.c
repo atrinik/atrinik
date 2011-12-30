@@ -282,66 +282,6 @@ static void init_game_data(void)
 	SRANDOM(time(NULL));
 }
 
-/** @cond */
-#ifndef WIN32
-
-static void fatal_signal(int make_core)
-{
-	if (make_core)
-	{
-		abort();
-	}
-
-	exit(0);
-}
-
-static void rec_sigsegv(int i)
-{
-	(void) i;
-
-	LOG(llevInfo, "\nSIGSEGV received.\n");
-	fatal_signal(1);
-}
-
-static void rec_sighup(int i)
-{
-	(void) i;
-
-	LOG(llevInfo, "\nSIGHUP received\n");
-	exit(0);
-}
-
-static void rec_sigquit(int i)
-{
-	(void) i;
-
-	LOG(llevInfo, "\nSIGQUIT received\n");
-	fatal_signal(1);
-}
-
-static void rec_sigterm(int i)
-{
-	(void) i;
-
-	LOG(llevInfo, "\nSIGTERM received\n");
-	fatal_signal(0);
-}
-#endif
-
-/** @endcond */
-
-/**
- * Initialize the signal handlers. */
-static void init_signals(void)
-{
-#ifndef WIN32
-	signal(SIGHUP, rec_sighup);
-	signal(SIGQUIT, rec_sigquit);
-	signal(SIGSEGV, rec_sigsegv);
-	signal(SIGTERM, rec_sigterm);
-#endif
-}
-
 /**
  * Game status chain.
  * @return 1. */
@@ -754,7 +694,6 @@ int main(int argc, char *argv[])
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
 
-	init_signals();
 	upgrader_init();
 	settings_init();
 	init_game_data();
