@@ -207,7 +207,7 @@ void console_command_handle(void)
 
 	/* If no input is ready yet, quit. */
 #ifndef WIN32
-	if (poll(stdin_fd, 1, 1000) == 0)
+	if (poll(stdin_fd, 1, 0) == 0)
 #else
 	if (WaitForSingleObject(stdin_handle, 0) != WAIT_OBJECT_0)
 #endif
