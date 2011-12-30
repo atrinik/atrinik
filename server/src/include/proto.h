@@ -782,7 +782,6 @@ extern int get_randomized_dir(int dir);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 extern char *cleanup_chat_string(char *ustring);
 extern void copy_file(const char *filename, FILE *fpout);
-extern void convert_newline(char *str);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
 extern void init_world_darkness(void);
@@ -998,6 +997,7 @@ extern void string_toupper(char *str);
 extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);
 extern char *string_whitespace_squeeze(char *str);
+extern void string_newline_to_literal(char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

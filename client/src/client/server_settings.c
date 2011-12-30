@@ -166,7 +166,7 @@ void server_settings_init(void)
 				size_t j = 0;
 
 				s_settings->text[text_id] = strdup(buf + 5);
-				convert_newline(s_settings->text[text_id]);
+				string_newline_to_literal(s_settings->text[text_id]);
 
 				if (text_id == SERVER_TEXT_PROTECTION_LETTERS)
 				{

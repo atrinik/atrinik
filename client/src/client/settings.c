@@ -189,7 +189,7 @@ void settings_init(void)
 			else if (!strncmp(cp, "desc ", 5))
 			{
 				setting->desc = strdup(cp + 5);
-				convert_newline(setting->desc);
+				string_newline_to_literal(setting->desc);
 			}
 			else if (!strncmp(cp, "internal ", 9))
 			{

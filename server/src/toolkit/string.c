@@ -281,3 +281,19 @@ char *string_whitespace_squeeze(char *str)
 
 	return str;
 }
+
+/**
+ * Replaces "\n" by a newline char.
+ *
+ * Since we are replacing 2 chars by 1, no overflow should happen.
+ * @param line Text to replace into. */
+void string_newline_to_literal(char *str)
+{
+	char *next;
+
+	while ((next = strstr(str, "\\n")))
+	{
+		*next = '\n';
+		memmove(next + 1, next + 2, strlen(next) - 1);
+	}
+}

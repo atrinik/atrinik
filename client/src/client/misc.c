@@ -30,24 +30,6 @@
 #include <global.h>
 
 /**
- * Replaces "\n" by a newline char.
- *
- * Since we are replacing 2 chars by 1, no overflow should happen.
- * @param line Text to replace into. */
-void convert_newline(char *str)
-{
-	char *next, buf[HUGE_BUF * 10];
-
-	while ((next = strstr(str, "\\n")))
-	{
-		*next = '\n';
-		*(next + 1) = '\0';
-		snprintf(buf, sizeof(buf), "%s%s", str, next + 2);
-		strcpy(str, buf);
-	}
-}
-
-/**
  * Opens an url in the system's default browser.
  * @param url URL to open. */
 void browser_open(const char *url)

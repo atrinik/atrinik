@@ -244,21 +244,3 @@ void copy_file(const char *filename, FILE *fpout)
 
 	fclose(fp);
 }
-
-/**
- * Replaces "\n" by a newline char.
- *
- * Since we are replacing 2 chars by 1, no overflow should happen.
- * @param line Text to replace into. */
-void convert_newline(char *str)
-{
-	char *next, buf[MAX_BUF];
-
-	while ((next = strstr(str, "\\n")))
-	{
-		*next = '\n';
-		*(next + 1) = '\0';
-		snprintf(buf, sizeof(buf), "%s%s", str, next + 2);
-		strcpy(str, buf);
-	}
-}

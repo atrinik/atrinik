@@ -126,7 +126,6 @@ extern void metaserver_add(const char *ip, int port, const char *name, int playe
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
-extern void convert_newline(char *str);
 extern void browser_open(const char *url);
 extern char *package_get_version_full(char *dst, size_t dstlen);
 extern char *package_get_version_partial(char *dst, size_t dstlen);
@@ -572,6 +571,7 @@ extern void string_toupper(char *str);
 extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);
 extern char *string_whitespace_squeeze(char *str);
+extern void string_newline_to_literal(char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
