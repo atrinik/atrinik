@@ -29,7 +29,7 @@ def main():
 		inf.add_link("Centennial Festival for Magical Girls (Patchouli, book 6 stg EX)", dest = "/sys_tell th_25.mid")
 		inf.add_link("U.N. Owen was Her? (Flandre, book 6 stg EX)", dest = "/sys_tell th_10.mid")
 		inf.add_link("Mystic Dream ~ Snow or Cherry Petal (book 7)", dest = "/sys_tell th_32.mid")
-		inf.add_link("Crystallized Silver (Letty, book 7)", dest = "/sys_tell th_30.mid")
+		inf.add_link("Crystallized Silver (Letty, book 7 stg 1)", dest = "/sys_tell th_30.mid")
 		inf.add_link("Doll Judgment ~ The Girl Who Played With Peoples' Shapes (Alice, book 7 stg 3)", dest = "/sys_tell th_26.mid")
 		inf.add_link("The Capital City of Flowers in the Sky (Lily White, book 7 stg 4)", dest = "/sys_tell th_21.mid")
 		inf.add_link("Phantom Ensemble (Prismriver Sisters, book 7 stg 4)", dest = "/sys_tell th_29.mid")
