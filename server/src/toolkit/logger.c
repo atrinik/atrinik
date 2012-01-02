@@ -58,6 +58,10 @@ void toolkit_logger_init(void)
  * @internal */
 void toolkit_logger_deinit(void)
 {
+	if (log_fp)
+	{
+		fclose(log_fp);
+	}
 }
 
 void logger_open_log(const char *path)
