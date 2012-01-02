@@ -148,6 +148,7 @@ extern int command_freeze(object *op, char *params);
 extern int command_summon(object *op, char *params);
 extern int command_teleport(object *op, char *params);
 extern int command_speed(object *op, char *params);
+extern int command_settime(object *op, char *params);
 extern int command_resetmap(object *op, char *params);
 extern int command_nowiz(object *op, char *params);
 extern int command_dm(object *op, char *params);
@@ -878,6 +879,8 @@ extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
 /* src/toolkit/console.c */
 extern size_t console_commands_num;
+extern char *command_generator(const char *text, int state);
+extern char **readline_completion(const char *text, int start, int end);
 extern void toolkit_console_init(void);
 extern void toolkit_console_deinit(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);

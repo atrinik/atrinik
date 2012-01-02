@@ -412,6 +412,32 @@ int command_speed(object *op, char *params)
 }
 
 /**
+ * Changes the current time.
+ * @param op DM.
+ * @param params New time.
+ * @return 1. */
+int command_settime(object *op, char *params)
+{
+	int hour;
+	timeofday_t tod;
+
+	if (!params || sscanf(params, "%d", &hour) != 1 || hour < 0 || hour >= HOURS_PER_DAY)
+	{
+		return 1;
+	}
+
+	get_tod(&tod);
+
+	while (tod.hour != hour)
+	{
+		tick_the_clock();
+		get_tod(&tod);
+	}
+
+	return 1;
+}
+
+/**
  * Resets a map.
  * @param op DM.
  * @param params Map to reset. Can be NULL for current op's map, or a map

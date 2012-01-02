@@ -142,7 +142,7 @@ void reset_sleep(void)
 	process_max_utime = 0;
 	process_min_utime = 999999999;
 	process_tot_mtime = 0;
-	pticks = 0;
+	pticks = 1;
 
 	(void) GETTIMEOFDAY(&last_time);
 }
