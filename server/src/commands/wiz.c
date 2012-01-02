@@ -391,27 +391,6 @@ int command_teleport(object *op, char *params)
 }
 
 /**
- * Changes the server speed.
- * @param op DM.
- * @param params New speed, or NULL to see the speed.
- * @return 1. */
-int command_speed(object *op, char *params)
-{
-	int i;
-
-	if (params == NULL || !sscanf(params, "%d", &i))
-	{
-		draw_info_format(COLOR_WHITE, op, "Current speed is %ld.", max_time);
-		return 1;
-	}
-
-	set_max_time(i);
-	reset_sleep();
-	draw_info(COLOR_WHITE, op, "The speed has changed.");
-	return 1;
-}
-
-/**
  * Changes the current time.
  * @param op DM.
  * @param params New time.

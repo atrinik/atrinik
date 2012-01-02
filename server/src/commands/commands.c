@@ -173,7 +173,6 @@ CommArray_s WizCommands[] =
 	{"dm_stealth", command_dm_stealth, 0.0, 0},
 	{"dm_light", command_dm_light, 0.0, 0},
 	{"wizpass", command_wizpass, 0.0, 0},
-	{"speed", command_speed, 0.0, 0},
 	{"cmd_permission", command_cmd_permission, 0.0, 0},
 	{"server_shout", command_server_shout, 0.0, 0},
 	{"settime", command_settime, 0.0, 0},
