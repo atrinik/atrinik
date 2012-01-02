@@ -154,6 +154,23 @@ static void console_command_shutdown(const char *params)
 	exit(0);
 }
 
+static void console_command_speed(const char *params)
+{
+	long int new_speed;
+
+	if (params && sscanf(params, "%ld", &new_speed) == 1)
+	{
+		set_max_time(new_speed);
+		reset_sleep();
+		logger_print(LOG(INFO), "The speed has been changed to %ld.", max_time);
+		draw_info_flags(NDI_ALL, COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
+	}
+	else
+	{
+		logger_print(LOG(INFO), "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
+	}
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -181,6 +198,14 @@ void init_library(void)
 		"Shuts down the server",
 		"Shuts down the server, saving all the data and disconnecting all players.\n\n"
 		"All of the used memory is freed, if possible."
+	);
+
+	console_command_add(
+		"speed",
+		console_command_speed,
+		"Changes the server's speed",
+		"Changes the speed of the server, which in turn affects how quickly everything is processed."
+		"Without an argument, shows the current speed and the default speed."
 	);
 
 	init_environ();
