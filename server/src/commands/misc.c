@@ -361,8 +361,6 @@ void receive_player_password(object *op)
 
 		packet = packet_new(CLIENT_CMD_NEW_CHAR, 0, 0);
 		socket_send_packet(&CONTR(op)->socket, packet);
-
-		LOG(llevInfo, "NewChar send for %s\n", op->name);
 		CONTR(op)->state = ST_ROLL_STAT;
 
 		return;
@@ -508,7 +506,7 @@ int command_party(object *op, char *params)
 
 		snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
 		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, NULL);
-		LOG(llevChat, "Party: %s [%s]: %s\n", op->name, CONTR(op)->party->name, params);
+		logger_print(LOG(CHAT), "[PARTY] [%s] [%s] %s", op->name, CONTR(op)->party->name, params);
 		return 1;
 	}
 	else if (!strcmp(params, "leave"))

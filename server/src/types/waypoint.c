@@ -171,7 +171,7 @@ void waypoint_compute_path(object *waypoint)
 		}
 		else
 		{
-			LOG(llevBug, "waypoint_compute_path(): Dynamic waypoint without valid target: '%s'\n", waypoint->name);
+			logger_print(LOG(BUG), "Dynamic waypoint without valid target: '%s'", waypoint->name);
 			return;
 		}
 	}
@@ -183,7 +183,7 @@ void waypoint_compute_path(object *waypoint)
 
 	if (!destmap)
 	{
-		LOG(llevBug, "waypoint_compute_path(): Invalid destination map '%s'\n", waypoint->slaying);
+		logger_print(LOG(BUG), "Invalid destination map '%s'", waypoint->slaying);
 		return;
 	}
 
@@ -191,7 +191,7 @@ void waypoint_compute_path(object *waypoint)
 
 	if (!path)
 	{
-		LOG(llevBug, "waypoint_compute_path(): No path to destination ('%s' -> '%s')\n", op->name, waypoint->name);
+		logger_print(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name, waypoint->name);
 		return;
 	}
 
@@ -202,21 +202,6 @@ void waypoint_compute_path(object *waypoint)
 	{
 		return;
 	}
-
-#ifdef DEBUG_PATHFINDING
-	{
-		path_node *tmp;
-
-		LOG(llevDebug, "waypoint_compute_path(): '%s' new path -> '%s': ", op->name, waypoint->name);
-
-		for (tmp = path; tmp; tmp = tmp->next)
-		{
-			LOG(llevDebug, "(%d, %d) ", tmp->x, tmp->y);
-		}
-
-		LOG(llevDebug, "\n");
-	}
-#endif
 
 	/* Textually encoded path */
 	FREE_AND_CLEAR_HASH(waypoint->msg);
@@ -281,7 +266,7 @@ void waypoint_move(object *op, object *waypoint)
 
 	if (!destmap)
 	{
-		LOG(llevBug, "waypoint_move(): Invalid destination map '%s' for '%s' -> '%s'\n", waypoint->slaying, op->name, waypoint->name);
+		logger_print(LOG(BUG), "Invalid destination map '%s' for '%s' -> '%s'", waypoint->slaying, op->name, waypoint->name);
 		return;
 	}
 
@@ -303,7 +288,7 @@ void waypoint_move(object *op, object *waypoint)
 		if (waypoint->stats.ac == 0)
 		{
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "move_waypoint(): '%s' reached destination '%s'\n", op->name, waypoint->name);
+			logger_print(LOG(DEBUG), "'%s' reached destination '%s'", op->name, waypoint->name);
 #endif
 
 			/* Trigger the TRIGGER event */
@@ -343,7 +328,7 @@ void waypoint_move(object *op, object *waypoint)
 			if (nextwp)
 			{
 #ifdef DEBUG_PATHFINDING
-				LOG(llevDebug, "waypoint_move(): '%s' next waypoint: '%s'\n", op->name, waypoint->title);
+				logger_print(LOG(DEBUG), "'%s' next waypoint: '%s'", op->name, waypoint->title);
 #endif
 				SET_FLAG(nextwp, FLAG_CURSED);
 				waypoint_move(op, get_active_waypoint(op));
@@ -351,7 +336,7 @@ void waypoint_move(object *op, object *waypoint)
 #ifdef DEBUG_PATHFINDING
 			else
 			{
-				LOG(llevDebug, "waypoint_move(): '%s' is missing next waypoint.\n", op->name);
+				logger_print(LOG(DEBUG), "'%s' is missing next waypoint.", op->name);
 			}
 #endif
 		}
@@ -384,7 +369,7 @@ void waypoint_move(object *op, object *waypoint)
 		if (rv.distance > 1 && rv.distance > global_rv.distance)
 		{
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "waypoint_move(): Path distance = %d for '%s' -> '%s'. Discarding old path.\n", rv.distance, op->name, op->enemy->name);
+			logger_print(LOG(DEBUG), "Path distance = %d for '%s' -> '%s'. Discarding old path.", rv.distance, op->name, op->enemy->name);
 #endif
 			FREE_AND_CLEAR_HASH(waypoint->msg);
 		}
@@ -435,7 +420,7 @@ void waypoint_move(object *op, object *waypoint)
 		if (QUERY_FLAG(waypoint, FLAG_NO_ATTACK) && waypoint->stats.Int++ > 10)
 		{
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "Stuck with a best-effort waypoint (%s). Accepting current position\n", waypoint->name);
+			logger_print(LOG(DEBUG), "Stuck with a best-effort waypoint (%s). Accepting current position", waypoint->name);
 #endif
 			/* A bit ugly, but will work for now (we want to trigger the "reached goal" above) */
 			waypoint->stats.hp = op->x;
@@ -447,7 +432,7 @@ void waypoint_move(object *op, object *waypoint)
 	if (global_rv.distance > 1 && !waypoint->msg && QUERY_FLAG(waypoint, FLAG_CONFUSED))
 	{
 #ifdef DEBUG_PATHFINDING
-		LOG(llevDebug, "waypoint_move(): No path found. '%s' standing still.\n", op->name);
+		logger_print(LOG(DEBUG), "No path found. '%s' standing still.", op->name);
 #endif
 		return;
 	}

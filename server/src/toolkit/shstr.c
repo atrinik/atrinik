@@ -96,7 +96,8 @@ static shared_string *new_shared_string(const char *str)
 
 	if (!ss)
 	{
-		LOG(llevError, "new_shared_string(): Out of memory.");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	ss->u.previous = NULL;
@@ -119,15 +120,6 @@ shstr *add_string(const char *str)
 	unsigned long ind;
 
 	GATHER(add_stats.calls);
-
-	/* Should really core dump here, since functions should not be calling
-	 * add_string with a null parameter.  But this will prevent a few
-	 * core dumps. */
-	if (str == NULL)
-	{
-		LOG(llevBug, "add_string(): Tried to add NULL string to hash table\n");
-		return NULL;
-	}
 
 	ind = hashstr(str);
 	ss = hash_table[ind];
@@ -211,16 +203,6 @@ shstr *add_string(const char *str)
  * @return str. */
 shstr *add_refcount(shstr *str)
 {
-#ifdef SECURE_SHSTR_HASH
-	shstr *tmp_str = find_string(str);
-
-	if (!str || str != tmp_str)
-	{
-		LOG(llevBug, "add_refcount(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
-		return NULL;
-	}
-#endif
-
 	GATHER(add_ref_stats.calls);
 	++(SS(str)->refcount);
 
@@ -294,16 +276,6 @@ void free_string_shared(shstr *str)
 {
 	shared_string *ss;
 
-#ifdef SECURE_SHSTR_HASH
-	shstr *tmp_str = find_string(str);
-
-	if (!str || str != tmp_str)
-	{
-		LOG(llevBug, "free_string_shared(): Tried to free an invalid string! >%s<\n", STRING_SAFE(str));
-		return;
-	}
-#endif
-
 	GATHER(free_stats.calls);
 	ss = SS(str);
 
@@ -366,47 +338,3 @@ void ss_dump_statistics(char *buf, size_t size)
 	snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
 }
 #endif
-
-/**
- * Dump the contents of the shared string tables.
- * @param what Combination of flags:
- * - ::SS_DUMP_TABLE: Dump the contents of the hash table to log.
- * - ::SS_DUMP_TOTALS: Return a string which says how many entries etc.
- *   there are in the table.
- * @param buf Buffer that will contain total information
- * if (what & SS_DUMP_TABLE). Left untouched else.
- * @param size Buffer's size. */
-void ss_dump_table(int what, char *buf, size_t size)
-{
-	int entries = 0, refs = 0, links = 0, i;
-
-	for (i = 0; i < TABLESIZE; i++)
-	{
-		shared_string *ss;
-
-		if ((ss = hash_table[i]) != NULL)
-		{
-			++entries;
-			refs += (ss->refcount & ~TOPBIT);
-
-			LOG(llevSystem, "%4d -- %4"FMT64U" refs '%s' %c\n", i, (uint64) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? ' ' : '#'));
-
-			while (ss->next)
-			{
-				ss = ss->next;
-				++links;
-				refs += (ss->refcount & ~TOPBIT);
-
-				if (what & SS_DUMP_TABLE)
-				{
-					LOG(llevSystem, "     -- %4"FMT64U" refs '%s' %c\n", (uint64) (ss->refcount & ~TOPBIT), ss->string, (ss->refcount & TOPBIT ? '*' : ' '));
-				}
-			}
-		}
-	}
-
-	if (what & SS_DUMP_TOTALS)
-	{
-		snprintf(buf, size, "\n%d entries, %d refs, %d links.", entries, refs, links);
-	}
-}

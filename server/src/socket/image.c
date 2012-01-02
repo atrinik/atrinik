@@ -139,7 +139,8 @@ void read_client_images(void)
 
 	if (!infile)
 	{
-		LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
+		logger_print(LOG(ERROR), "Unable to open %s", filename);
+		exit(1);
 	}
 
 	while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
@@ -151,7 +152,8 @@ void read_client_images(void)
 
 		if (string_split(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
 		{
-			LOG(llevBug, "read_client_images(): Bad line in image_info file, ignoring line:\n  %s", buf);
+			logger_print(LOG(ERROR), "Bad line in image_info file: %s", buf);
+			exit(1);
 		}
 		else
 		{
@@ -159,7 +161,8 @@ void read_client_images(void)
 
 			if (len >= MAX_FACE_SETS)
 			{
-				LOG(llevError, "read_client_images(): Too high a setnum in image_info file: %d > %d\n", len, MAX_FACE_SETS);
+				logger_print(LOG(ERROR), "Too high a setnum in image_info file: %d > %d", len, MAX_FACE_SETS);
+				exit(1);
 			}
 
 			facesets[len].prefix = strdup(cps[1]);
@@ -185,36 +188,36 @@ void read_client_images(void)
 		facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
 
 		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.datadir, file_num);
-		LOG(llevDebug, "Loading image file %s\n", filename);
-
-		/* We don't use more than one face set here! */
-		LOG(llevDebug, "Creating client_bmap....\n");
 		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
 
 		if ((fbmap = fopen(buf, "wb")) == NULL)
 		{
-			LOG(llevError, "read_client_images(): Unable to open %s\n", buf);
+			logger_print(LOG(ERROR), "Unable to open %s", buf);
+			exit(1);
 		}
 
 		infile = fopen(filename, "rb");
 
 		if (!infile)
 		{
-			LOG(llevError, "read_client_images(): Unable to open %s\n", filename);
+			logger_print(LOG(ERROR), "Unable to open %s", filename);
+			exit(1);
 		}
 
 		while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
 		{
 			if (strncmp(buf, "IMAGE ", 6) != 0)
 			{
-				LOG(llevError, "read_client_images(): Bad image line - not IMAGE, instead\n%s", buf);
+				logger_print(LOG(ERROR), "Bad image line - not IMAGE, instead: %s", buf);
+				exit(1);
 			}
 
 			num = atoi(buf + 6);
 
 			if (num < 0 || num >= nrofpixmaps)
 			{
-				LOG(llevError, "read_client_images(): Image num %d not in 0..%d\n%s", num, nrofpixmaps, buf);
+				logger_print(LOG(ERROR), "Image num %d not in 0..%d: %s", num, nrofpixmaps, buf);
+				exit(1);
 			}
 
 			/* Skip across the number data */
@@ -226,7 +229,8 @@ void read_client_images(void)
 
 			if (len == 0 || len > MAX_IMAGE_SIZE)
 			{
-				LOG(llevError, "read_client_images(): Length not valid: %d > %d \n%s", len, MAX_IMAGE_SIZE, buf);
+				logger_print(LOG(ERROR), "Length not valid: %d > %d: %s", len, MAX_IMAGE_SIZE, buf);
+				exit(1);
 			}
 
 			/* We don't actually care about the name if the image that
@@ -236,7 +240,8 @@ void read_client_images(void)
 
 			if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1)
 			{
-				LOG(llevError, "read_client_images(): Did not read desired amount of data, wanted %d, got %d\n%s", len, i, buf);
+				logger_print(LOG(ERROR), "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
+				exit(1);
 			}
 
 			facesets[file_num].faces[num].checksum = (uint32) crc32(1L, facesets[file_num].faces[num].data, len);

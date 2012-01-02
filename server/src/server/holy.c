@@ -40,7 +40,8 @@ static godlink *init_godslist(void)
 
 	if (gl == NULL)
 	{
-		LOG(llevError, "init_godslist(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	/* How to describe the god to the player */
@@ -62,8 +63,6 @@ void init_gods(void)
 {
 	archetype *at = NULL;
 
-	LOG(llevDebug, "Initializing gods...");
-
 	for (at = first_archetype; at != NULL; at = at->next)
 	{
 		if (at->clone.type == GOD)
@@ -71,8 +70,6 @@ void init_gods(void)
 			add_god_to_list(at);
 		}
 	}
-
-	LOG(llevDebug, " done.\n");
 }
 
 /**
@@ -84,7 +81,6 @@ static void add_god_to_list(archetype *god_arch)
 
 	if (!god_arch)
 	{
-		LOG(llevBug, "Tried to add null god to list!\n");
 		return;
 	}
 
@@ -104,10 +100,6 @@ static void add_god_to_list(archetype *god_arch)
 	}
 
 	first_god = god;
-
-#ifdef DEBUG_GODS
-	LOG(llevDebug, "Adding god %s (%d) to list\n", god->name, god->id);
-#endif
 }
 
 /**
@@ -127,11 +119,6 @@ godlink *get_rand_god(void)
 				break;
 			}
 		}
-	}
-
-	if (!god)
-	{
-		LOG(llevBug, "get_rand_god(): Can't find a random god!\n");
 	}
 
 	return god;
@@ -158,171 +145,10 @@ void free_all_god(void)
 {
 	godlink *god, *godnext;
 
-	LOG(llevDebug, "Freeing god information.\n");
-
 	for (god = first_god; god; god = godnext)
 	{
 		godnext = god->next;
 		FREE_AND_CLEAR_HASH(god->name);
 		free(god);
-	}
-}
-
-/**
- * Prints all gods using LOG(). */
-void dump_gods(void)
-{
-	godlink *glist;
-
-	LOG(llevInfo, "\n");
-
-	for (glist = first_god; glist; glist = glist->next)
-	{
-		object *god = pntr_to_god_obj(glist);
-		char tmpbuf[HUGE_BUF];
-		int tmpvar, gifts = 0;
-
-		tmpbuf[0] = '\0';
-
-		LOG(llevInfo, "GOD: %s\n", god->name);
-		LOG(llevInfo, " avatar stats:\n");
-		LOG(llevInfo, "  S:%d C:%d D:%d I:%d W:%d P:%d\n", god->stats.Str, god->stats.Con, god->stats.Dex, god->stats.Int, god->stats.Wis, god->stats.Pow);
-		LOG(llevInfo, "  lvl:%d speed:%4.2f\n", god->level, god->speed);
-		LOG(llevInfo, "  wc:%d ac:%d hp:%d dam:%d \n", god->stats.wc, god->stats.ac, god->stats.hp, god->stats.dam);
-		LOG(llevInfo, " enemy: %s\n", god->title ? god->title : "NONE");
-
-		if (god->other_arch)
-		{
-			object *serv = &god->other_arch->clone;
-			LOG(llevInfo, " servant stats: (%s)\n", god->other_arch->name);
-			LOG(llevInfo, "  S:%d C:%d D:%d I:%d W:%d P:%d\n", serv->stats.Str, serv->stats.Con, serv->stats.Dex, serv->stats.Int, serv->stats.Wis, serv->stats.Pow);
-			LOG(llevInfo, "  lvl:%d speed:%4.2f\n", serv->level, serv->speed);
-			LOG(llevInfo, "  wc:%d ac:%d hp:%d dam:%d \n", serv->stats.wc, serv->stats.ac, serv->stats.hp, serv->stats.dam);
-		}
-		else
-		{
-			LOG(llevInfo, " servant: NONE\n");
-		}
-
-		LOG(llevInfo, " aligned_race(s): %s\n", god->race);
-		LOG(llevInfo, " enemy_race(s): %s\n", (god->slaying ? god->slaying : "none"));
-		LOG(llevInfo, "%s", describe_protections(god, 1));
-
-		strcat(tmpbuf, "\n aura:");
-
-		strcat(tmpbuf, "\n paths:");
-
-		if ((tmpvar = god->path_attuned))
-		{
-			strcat(tmpbuf, "\n  ");
-			DESCRIBE_PATH(tmpbuf, tmpvar, "Attuned");
-		}
-
-		if ((tmpvar = god->path_repelled))
-		{
-			strcat(tmpbuf, "\n  ");
-			DESCRIBE_PATH(tmpbuf, tmpvar, "Repelled");
-		}
-
-		if ((tmpvar = god->path_denied))
-		{
-			strcat(tmpbuf, "\n  ");
-			DESCRIBE_PATH(tmpbuf, tmpvar, "Denied");
-		}
-
-		LOG(llevInfo, "%s\n", tmpbuf);
-		LOG(llevInfo, " Desc: %s\n", god->msg ? god->msg : "---");
-		LOG(llevInfo, " Priest gifts/limitations: ");
-
-		if (!QUERY_FLAG(god, FLAG_USE_WEAPON))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  weapon use is forbidden");
-		}
-
-		if (!QUERY_FLAG(god, FLAG_USE_ARMOUR))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  no armour may be worn");
-		}
-
-		if (QUERY_FLAG(god, FLAG_UNDEAD))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  is undead");
-		}
-
-		if (QUERY_FLAG(god, FLAG_SEE_IN_DARK))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  has infravision ");
-		}
-
-		if (QUERY_FLAG(god, FLAG_XRAYS))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  has X-ray vision");
-		}
-
-		if (QUERY_FLAG(god, FLAG_REFL_MISSILE))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  reflect missiles");
-		}
-
-		if (QUERY_FLAG(god, FLAG_REFL_SPELL))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  reflect spells");
-		}
-
-		if (QUERY_FLAG(god, FLAG_STEALTH))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  is stealthy");
-		}
-
-		if (QUERY_FLAG(god, FLAG_SEE_INVISIBLE))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  is (permanently) invisible");
-		}
-
-		if (QUERY_FLAG(god, FLAG_BLIND))
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  is blind");
-		}
-
-		if (god->last_heal)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  hp regenerate at %d",god->last_heal);
-		}
-
-		if (god->last_sp)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  sp regenerate at %d",god->last_sp);
-		}
-
-		if (god->last_eat)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  digestion is %s (%d)",god->last_eat<0?"slowed":"faster",god->last_eat);
-		}
-
-		if (god->last_grace)
-		{
-			gifts = 1;
-			LOG(llevInfo, "\n  grace regenerates at %d",god->last_grace);
-		}
-
-		if (!gifts)
-		{
-			LOG(llevInfo, "NONE");
-		}
-
-		LOG(llevInfo, "\n\n");
 	}
 }

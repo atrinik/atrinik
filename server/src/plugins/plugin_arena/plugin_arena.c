@@ -155,20 +155,13 @@ arena_maps_struct *arena_maps;
 /** Hooks. */
 struct plugin_hooklist *hooks;
 
-#undef LOG
-#define LOG hooks->LOG
-
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
 	hooks = hooklist;
-
-	LOG(llevDebug, "Arena: Atrinik Arena Plugin loading...\n");
-	LOG(llevDebug, "Arena:  [Done]\n");
 }
 
 MODULEAPI void closePlugin(void)
 {
-	LOG(llevDebug, "Arena: Arena Plugin closing.\n");
 }
 
 MODULEAPI void *getPluginProperty(int *type, ...)
@@ -204,8 +197,6 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 
 MODULEAPI void postinitPlugin(void)
 {
-	LOG(llevDebug, "Arena: Start postinitPlugin.\n");
-
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_LOGOUT);
 }
 
@@ -335,7 +326,7 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
 
 	if (!fh)
 	{
-		LOG(llevBug, "Arena: Could not open arena script: %s\n", arena_script_path);
+		hooks->logger_print(LOG(BUG), "Arena: Could not open arena script: %s", arena_script_path);
 		return;
 	}
 
@@ -645,7 +636,6 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	va_start(args, type);
 	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
-	LOG(llevDebug, "Arena: triggerEvent(): eventcode %d\n", eventcode);
 
 	activator = va_arg(args, object *);
 

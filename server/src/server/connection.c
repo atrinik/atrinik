@@ -91,13 +91,11 @@ void connection_object_remove(object *op)
 
 	if (!op->map)
 	{
-		LOG(llevBug, "connection_object_remove(): Object without map.\n");
 		return;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_IS_LINKED))
 	{
-		LOG(llevBug, "connection_object_remove(): Unlinked object.\n");
 		return;
 	}
 
@@ -114,7 +112,6 @@ void connection_object_remove(object *op)
 		}
 	}
 
-	LOG(llevBug, "connection_object_remove(): Couldn't find object.\n");
 	CLEAR_FLAG(op, FLAG_IS_LINKED);
 }
 

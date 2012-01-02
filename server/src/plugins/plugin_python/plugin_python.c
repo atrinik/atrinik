@@ -72,13 +72,6 @@ static const Atrinik_Constant constants[] =
 	{"WEST", WEST},
 	{"NORTHWEST", NORTHWEST},
 
-	{"llevSystem", llevSystem},
-	{"llevError", llevError},
-	{"llevBug", llevBug},
-	{"llevInfo", llevInfo},
-	{"llevDebug", llevDebug},
-	{"llevChat", llevChat},
-
 	{"PLUGIN_EVENT_NORMAL", PLUGIN_EVENT_NORMAL},
 	{"PLUGIN_EVENT_GLOBAL", PLUGIN_EVENT_GLOBAL},
 	{"PLUGIN_EVENT_MAP", PLUGIN_EVENT_MAP},
@@ -376,7 +369,7 @@ static const Atrinik_Constant constants_types[] =
 	{"SPINNER", SPINNER},
 	{"GATE", GATE},
 	{"BUTTON", BUTTON},
-	{"HANDLE", TYPE_HANDLE},
+	{"HANDLE", HANDLE},
 	{"WORD_OF_RECALL", WORD_OF_RECALL},
 	{"SIGN", SIGN},
 	{"BOOTS", BOOTS},
@@ -1162,27 +1155,22 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>LOG(int mode, string message)</h1>
+ * <h1>LOG(string mode, string message)</h1>
  * Logs a message.
- * @param mode Logging mode to use, one of:
- * - llevError: An irrecoverable error. Will shut down the server.
- * - llevBug: A bug; too many in the same tick will shut down the server.
- * - llevInfo: Info.
- * - llevDebug: Debug information.
+ * @param mode Logging mode to use, eg, "ERROR", "CHAT", etc.
  * @param message The message to log. */
 static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
 {
-	const char *string;
-	uint8 mode;
+	const char *mode, *string;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "Bs", &mode, &string))
+	if (!PyArg_ParseTuple(args, "ss", &mode, &string))
 	{
 		return NULL;
 	}
 
-	LOG(mode, string);
+	hooks->logger_print(mode, __FUNCTION__, __LINE__, string);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1610,7 +1598,7 @@ static PyCodeObject *compilePython(char *filename)
 
 	if (stat(filename, &stat_buf))
 	{
-		LOG(llevDebug, "Python: The script file %s can't be stat()ed.\n", filename);
+		hooks->logger_print(LOG(DEBUG), "Python: The script file %s can't be stat()ed.", filename);
 		return NULL;
 	}
 
@@ -1634,7 +1622,7 @@ static PyCodeObject *compilePython(char *filename)
 
 		if (!fp)
 		{
-			LOG(llevDebug, "Python: The script file %s can't be opened.\n", filename);
+			hooks->logger_print(LOG(WARNING), "Python: The script file %s can't be opened.", filename);
 			return NULL;
 		}
 
@@ -1810,8 +1798,6 @@ static int handle_event(va_list args)
 	context->options = va_arg(args, char *);
 	context->returnvalue = 0;
 
-	LOG(llevDebug, "Python: Start script file >%s<, activator: %s, who: %s, other: %s, text: %s, parms: %d, %d, %d, %d\n", script, STRING_OBJ_NAME(context->activator), STRING_OBJ_NAME(context->who), STRING_OBJ_NAME(context->other), STRING_SAFE(context->text), context->parms[0], context->parms[1], context->parms[2], context->parms[3]);
-
 	if (!do_script(context, script, context->who))
 	{
 		freeContext(context);
@@ -1844,7 +1830,6 @@ static int handle_event(va_list args)
 
 	rv = context->returnvalue;
 	freeContext(context);
-	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
 
 	return rv;
 }
@@ -1980,8 +1965,6 @@ MODULEAPI void *triggerEvent(int *type, ...)
 	event_type = va_arg(args, int);
 	eventcode = va_arg(args, int);
 
-	LOG(llevDebug, "Python: triggerEvent(): eventcode %d\n", eventcode);
-
 	switch (event_type)
 	{
 		case PLUGIN_EVENT_NORMAL:
@@ -1997,7 +1980,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
 			break;
 
 		default:
-			LOG(llevBug, "Python: Requested unknown event type %d.\n", event_type);
+			hooks->logger_print(LOG(BUG), "Python: Requested unknown event type %d.", event_type);
 			break;
 	}
 
@@ -2068,8 +2051,6 @@ static int cmd_customPython(object *op, char *params)
 	PythonContext *context = malloc(sizeof(PythonContext));
 	int rv;
 
-	LOG(llevDebug, "Python: handling command %s using script: %s\n", next_python_command->name, next_python_command->script);
-
 	context->activator = op;
 	context->who = op;
 	context->other = op;
@@ -2092,8 +2073,6 @@ static int cmd_customPython(object *op, char *params)
 	rv = context->returnvalue;
 	freeContext(context);
 
-	LOG(llevDebug, "Python: done (returned: %d).\n", rv);
-
 	return rv;
 }
 
@@ -2101,7 +2080,6 @@ MODULEAPI void postinitPlugin(void)
 {
 	PyGILState_STATE gilstate;
 
-	LOG(llevDebug, "Python: Start postinitPlugin.\n");
 	hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
 	initContextStack();
 
@@ -2223,8 +2201,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	hooks = hooklist;
 
-	LOG(llevDebug, "Python: Atrinik Python Plugin loading...\n");
-
 #ifdef IS_PY26
 	Py_Py3kWarningFlag++;
 #endif
@@ -2235,8 +2211,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	Py_Initialize();
 	PyEval_InitThreads();
-
-	LOG(llevDebug, "Python: Start initAtrinik.\n");
 
 #ifdef IS_PY3K
 	m = PyImport_ImportModule("Atrinik");
@@ -2254,10 +2228,10 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	}
 
 #ifndef WIN32
-	logfile_ptr = python_openlogfile(*hooks->logfile, "<stdout>");
+	logfile_ptr = python_openlogfile(hooks->logger_get_logfile(), "<stdout>");
 	PySys_SetObject("stdout", logfile_ptr);
 	PySys_SetObject("__stdout__", logfile_ptr);
-	logfile_ptr = python_openlogfile(*hooks->logfile, "<stderr>");
+	logfile_ptr = python_openlogfile(hooks->logger_get_logfile(), "<stderr>");
 	PySys_SetObject("stderr", logfile_ptr);
 	PySys_SetObject("__stderr__", logfile_ptr);
 #endif
@@ -2302,13 +2276,10 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
 	py_tstate = PyGILState_GetThisThreadState();
 	PyEval_ReleaseThread(py_tstate);
-
-	LOG(llevDebug, "Python:  [Done]\n");
 }
 
 MODULEAPI void closePlugin(void)
 {
-	LOG(llevDebug, "Python Plugin closing.\n");
 	hooks->cache_remove_by_flags(CACHE_FLAG_GEVENT);
 	PyGILState_Ensure();
 	Py_Finalize();

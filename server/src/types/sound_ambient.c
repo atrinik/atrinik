@@ -39,13 +39,13 @@ void sound_ambient_init(object *ob)
 	/* Must be on map... */
 	if (!ob->map)
 	{
-		LOG(llevBug, "Ambient sound effect object not on map.\n");
+		logger_print(LOG(BUG), "Ambient sound effect object not on map.");
 		return;
 	}
 
 	if (!ob->race || *ob->race == '\0')
 	{
-		LOG(llevBug, "Ambient sound effect object is missing sound effect filename.\n");
+		logger_print(LOG(BUG), "Ambient sound effect object is missing sound effect filename.");
 		return;
 	}
 

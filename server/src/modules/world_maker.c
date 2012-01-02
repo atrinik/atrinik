@@ -380,7 +380,8 @@ void world_maker(void)
 
 		if (!def_fp)
 		{
-			LOG(llevError, "world_maker(): Could not open '%s': %s\n", buf, strerror(errno));
+			logger_print(LOG(ERROR), "Could not open '%s': %s", buf, strerror(errno));
+			exit(1);
 		}
 
 		/* Load the first map. */

@@ -92,7 +92,7 @@ lex_error = 0;
 
 						if (v < -1 || v > MAX_DARKNESS)
 						{
-							LOG(llevBug, "Illegal map darkness %d (must be -1 to %d, defaulting to -1).\n", v, MAX_DARKNESS);
+							logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1).", v, MAX_DARKNESS);
 						}
 						else
 						{
@@ -116,7 +116,7 @@ lex_error = 0;
 
 						if (tile < 1 || tile > TILED_NUM)
 						{
-							LOG(llevBug, "load_map_header(): Tile location %d out of bounds (%s)\n", tile, m->path);
+							logger_print(LOG(BUG), "Tile location %d out of bounds (%s)", tile, m->path);
 						}
 						else
 						{
@@ -124,7 +124,7 @@ lex_error = 0;
 
 							if (m->tile_path[tile - 1])
 							{
-								LOG(llevBug, "load_map_header(): Tile location %d duplicated (%s <-> %s)\n", tile, m->path, m->tile_path[tile - 1]);
+								logger_print(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path, m->tile_path[tile - 1]);
 								FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
 							}
 
@@ -135,7 +135,7 @@ lex_error = 0;
 
 								if (check_path(path, 1) == -1)
 								{
-									LOG(llevBug, "load_map_header(): Can not normalize tile path %s %s %s\n", m->path, value, msgbuf);
+									logger_print(LOG(BUG), "Can not normalize tile path %s %s %s", m->path, value, msgbuf);
 									value = NULL;
 								}
 								else
@@ -196,7 +196,7 @@ lex_error = 0;
                      }
 
 .*                   {
-						LOG(llevBug, "Got unknown value in map header: %s\n", yytext);
+						logger_print(LOG(BUG), "Got unknown value in map header: %s", yytext);
 						return LL_NORMAL;
                      }
 
@@ -290,7 +290,7 @@ int load_map_header(mapstruct *m, FILE *fp)
 
 	if (!fgets(inbuf, sizeof(inbuf) - 1, fp) || strcmp(inbuf, "arch map\n"))
 	{
-		LOG(llevBug, "load_map_header(): First line should always be 'arch map', but it is not (%s)\n", m->path);
+		logger_print(LOG(BUG), "First line should always be 'arch map', but it is not (%s)", m->path);
 		return 0;
 	}
 

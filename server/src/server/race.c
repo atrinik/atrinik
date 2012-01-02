@@ -190,8 +190,6 @@ void race_init(void)
 	archetype *at, *tmp;
 	size_t i;
 
-	LOG(llevDebug, "Initializing races...");
-
 	for (at = first_archetype; at; at = at->next)
 	{
 		if (at->clone.type == MONSTER || at->clone.type == PLAYER)
@@ -214,8 +212,8 @@ void race_init(void)
 
 	if (!tmp)
 	{
-		LOG(llevError, "race_init(): Can't find required archetype: '%s'.\n", RACE_CORPSE_DEFAULT);
-		return;
+		logger_print(LOG(ERROR), "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);
+		exit(1);
 	}
 
 	/* Look through the races, and assign the default corpse archetype
@@ -227,28 +225,6 @@ void race_init(void)
 			races[i].corpse = tmp;
 		}
 	}
-
-	LOG(llevDebug, " done.\n");
-}
-
-/**
- * Dumps all race information. */
-void race_dump(void)
-{
-	size_t i;
-	objectlink *ol;
-
-	for (i = 0; i < num_races; i++)
-	{
-		LOG(llevInfo, "\nRACE '%s', corpse: '%s', %d members: ", races[i].name, races[i].corpse->name, races[i].num_members);
-
-		for (ol = races[i].members; ol; ol = ol->next)
-		{
-			LOG(llevInfo, "%s, ", ol->objlink.ob->arch->name);
-		}
-	}
-
-	LOG(llevInfo, "\n");
 }
 
 /**
@@ -270,5 +246,4 @@ void race_free(void)
 	}
 
 	free(races);
-	LOG(llevInfo, "Freed %"FMT64U" races.\n", (uint64) num_races);
 }

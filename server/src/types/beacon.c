@@ -73,7 +73,7 @@ void beacon_remove(object *ob)
 	}
 	else
 	{
-		LOG(llevBug, "beacon_remove(): Could not remove beacon %s from hashtable.\n", ob->name);
+		logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);
 	}
 }
 

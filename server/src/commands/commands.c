@@ -174,7 +174,6 @@ CommArray_s WizCommands[] =
 	{"dm_light", command_dm_light, 0.0, 0},
 	{"wizpass", command_wizpass, 0.0, 0},
 	{"speed", command_speed, 0.0, 0},
-	{"debug", command_debug, 0.0, 0},
 	{"cmd_permission", command_cmd_permission, 0.0, 0},
 	{"server_shout", command_server_shout, 0.0, 0}
 };
@@ -312,7 +311,7 @@ int execute_newserver_command(object *pl, char *command)
 
 		if (csp)
 		{
-			LOG(llevSystem, "WIZ: %s: /%s %s\n", pl->name, command, STRING_SAFE(cp));
+			logger_print(LOG(SYSTEM), "[WIZ] %s: /%s %s", pl->name, command, STRING_SAFE(cp));
 		}
 	}
 

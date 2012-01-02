@@ -69,6 +69,14 @@ elseif (GD_LIBRARY)
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif (GD_LIBRARY)
 
+find_library(READLINE_LIBRARY readline)
+
+if (READLINE_LIBRARY)
+	set(HAVE_READLINE true)
+elseif (READLINE_LIBRARY)
+	message(STATUS "Could not find readline library, simple interactive console will be used.")
+endif (READLINE_LIBRARY)
+
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
@@ -195,19 +203,16 @@ set(SOURCES
 	src/server/ban.c
 	src/server/cache.c
 	src/server/connection.c
-	src/server/daemon.c
 	src/server/exp.c
 	src/server/gods.c
 	src/server/hiscore.c
 	src/server/holy.c
 	src/server/image.c
-	src/server/info.c
 	src/server/init.c
 	src/server/item.c
 	src/server/light.c
 	src/server/links.c
 	src/server/living.c
-	src/server/logger.c
 	src/server/login.c
 	src/server/los.c
 	src/server/main.c
@@ -249,6 +254,7 @@ set(SOURCES
 	src/socket/updates.c
 	src/toolkit/binreloc.c
 	src/toolkit/console.c
+	src/toolkit/logger.c
 	src/toolkit/math.c
 	src/toolkit/memory.c
 	src/toolkit/mempool.c
@@ -421,6 +427,11 @@ endif (CHECK_LIBRARY)
 if (GD_LIBRARY)
 	target_link_libraries(atrinik-server ${GD_LIBRARY})
 endif (GD_LIBRARY)
+
+# Link readline if available.
+if (HAVE_READLINE)
+	target_link_libraries(atrinik-server ${READLINE_LIBRARY})
+endif (HAVE_READLINE)
 
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

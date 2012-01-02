@@ -116,7 +116,7 @@ void load_bans_file(void)
 		}
 		else
 		{
-			LOG(llevBug, "Malformed line in bans file: %s\n", buf);
+			logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
 		}
 	}
 
@@ -135,7 +135,7 @@ void save_bans_file(void)
 
 	if (!(fp = fopen(filename, "w")))
 	{
-		LOG(llevBug, "Cannot open %s for writing.\n", filename);
+		logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
 		return;
 	}
 
@@ -224,30 +224,15 @@ int remove_ban(char *input)
 
 /**
  * List all bans.
- * @param op Player object to print this information to, NULL to output
- * it to the log. */
+ * @param op Player object to print this information to. */
 void list_bans(object *op)
 {
 	objectlink *ol;
 
-	if (op)
-	{
-		draw_info(COLOR_WHITE, op, "List of bans:");
-	}
-	else
-	{
-		LOG(llevInfo, "List of bans:\n");
-	}
+	draw_info(COLOR_WHITE, op, "List of bans:");
 
 	for (ol = ban_list; ol; ol = ol->next)
 	{
-		if (op)
-		{
-			draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
-		}
-		else
-		{
-			LOG(llevInfo, "%s:%s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
-		}
+		draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
 	}
 }

@@ -71,24 +71,6 @@ static void dequeue_path_requests();
 static void do_specials();
 
 /**
- * Meant to be called whenever a fatal signal is intercepted. It will
- * call the emergency_save() and the clean_tmp_files() functions.
- * @param err Error level. */
-void fatal(int err)
-{
-	LOG(llevSystem, "Fatal: Shutdown server. Reason: %s\n", err == llevError ? "Fatal Error" : "BUG flood");
-
-	if (init_done)
-	{
-		cleanup();
-	}
-
-	abort();
-	LOG(llevSystem, "Exiting...\n");
-	exit(-1);
-}
-
-/**
  * Shows version information.
  * @param op If NULL the version is logged using LOG(), otherwise it is
  * shown to the player object using draw_info_format(). */
@@ -107,7 +89,7 @@ void version(object *op)
 	}
 	else
 	{
-		LOG(llevInfo, "This is Atrinik v%s.\n", PACKAGE_VERSION);
+		logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
 	}
 }
 
@@ -174,7 +156,7 @@ void enter_player_savebed(object *op)
 	 * while we're at it. */
 	if (oldmap == op->map && strcmp(CONTR(op)->savebed_map, oldmap->path))
 	{
-		LOG(llevDebug, "Player %s savebed location %s is invalid - going to EMERGENCY_MAPPATH (%s)\n", query_name(op, NULL), CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
+		logger_print(LOG(DEBUG), "Player %s savebed location %s is invalid - going to EMERGENCY_MAPPATH (%s)", query_name(op, NULL), CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
 		strcpy(CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
 		CONTR(op)->bed_x = EMERGENCY_X;
 		CONTR(op)->bed_y = EMERGENCY_Y;
@@ -222,7 +204,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	if (op->head)
 	{
 		op = op->head;
-		LOG(llevBug, "enter_map(): called from tail of object! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
+		logger_print(LOG(BUG), "called from tail of object! (obj:%s map: %s (%d,%d))", op->name, newmap->path, x, y);
 	}
 
 	/* this is a last secure check. In fact, newmap MUST legal and we only
@@ -230,7 +212,7 @@ static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
 	 * if not, we have somewhere missed some checks - give a note to the log. */
 	if (OUT_OF_MAP(newmap, x, y))
 	{
-		LOG(llevBug, "enter_map(): supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))\n", op->name, newmap->path, x, y);
+		logger_print(LOG(BUG), "supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))", op->name, newmap->path, x, y);
 		x = MAP_ENTER_X(newmap);
 		y = MAP_ENTER_Y(newmap);
 	}
@@ -521,7 +503,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	else
 	{
 		draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
-LOG(llevDebug, "enter_unique_map: Exit %s (%d,%d) on map %s leads no where.\n", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
+logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
 }
 
@@ -730,7 +712,7 @@ void enter_exit(object *op, object *exit_ob)
 		{
 			if (strncmp(CONTR(op)->maplevel, "/random/", 8))
 			{
-				LOG(llevBug, "enter_exit(): Pathname to map does not exist! player: %s (%s)\n", op->name, CONTR(op)->maplevel);
+				logger_print(LOG(BUG), "Pathname to map does not exist! player: %s (%s)", op->name, CONTR(op)->maplevel);
 				newmap = ready_map_name(EMERGENCY_MAPPATH, 0);
 				op->x = EMERGENCY_X;
 				op->y = EMERGENCY_Y;
@@ -739,7 +721,8 @@ void enter_exit(object *op, object *exit_ob)
 				 * really screwed up, so bail out now. */
 				if (!newmap)
 				{
-					LOG(llevError, "enter_exit(): could not load emergency map? Fatal error! (player: %s)\n", op->name);
+					logger_print(LOG(ERROR), "could not load emergency map? Fatal error! (player: %s)", op->name);
+					exit(1);
 				}
 			}
 			else
@@ -966,7 +949,7 @@ void process_events(mapstruct *map)
 		/* Now process op */
 		if (OBJECT_FREE(op))
 		{
-			LOG(llevBug, "process_events(): Free object on active list\n");
+			logger_print(LOG(BUG), "Free object on active list");
 			op->speed = 0;
 			update_ob_speed(op);
 			continue;
@@ -981,7 +964,7 @@ void process_events(mapstruct *map)
 
 		if (!op->speed)
 		{
-			LOG(llevBug, "process_events(): Object %s (%s, type:%d count:%d) has no speed, but is on active list\n", op->arch->name, query_name(op, NULL), op->type, op->count);
+			logger_print(LOG(BUG), "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
 			update_ob_speed(op);
 			continue;
 		}
@@ -993,7 +976,7 @@ void process_events(mapstruct *map)
 				continue;
 			}
 
-			LOG(llevBug, "process_events(): Object without map or inventory is on active list: %s (%d)\n", query_name(op, NULL), op->count);
+			logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
 			op->speed = 0;
 			update_ob_speed(op);
 			continue;
@@ -1085,8 +1068,6 @@ void clean_tmp_files(void)
 {
 	mapstruct *m, *next;
 
-	LOG(llevInfo, "Cleaning up...\n");
-
 	/* We save the maps - it may not be intuitive why, but if there are
 	 * unique items, we need to save the map so they get saved off. */
 	for (m = first_map; m != NULL; m = next)
@@ -1112,7 +1093,7 @@ void clean_tmp_files(void)
  * Clean up everything before exiting. */
 void cleanup(void)
 {
-	LOG(llevDebug, "Cleanup called. Freeing data.\n");
+	logger_print(LOG(DEBUG), "Cleanup called. Freeing data.");
 	command_kick(NULL, NULL);
 	clean_tmp_files();
 	free_all_maps();
@@ -1214,7 +1195,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
 	if (!oldmap)
 	{
-		LOG(llevBug, "swap_apartments(): Could not get oldmap using ready_map_name().\n");
+		logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
 		return 0;
 	}
 
@@ -1223,7 +1204,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
 	if (!newmap)
 	{
-		LOG(llevBug, "swap_apartments(): Could not get newmap using ready_map_name().\n");
+		logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
 		return 0;
 	}
 
@@ -1352,8 +1333,6 @@ static void iterate_main_loop(void)
 {
 	console_command_handle();
 
-	nroferrors = 0;
-
 	/* Check and run a shutdown count (with messages and shutdown) */
 	shutdown_agent(-1, NULL);
 
@@ -1404,7 +1383,7 @@ int main(int argc, char **argv)
 	/* Now that we have everything loaded, we can run unit tests. */
 	if (settings.unit_tests)
 	{
-		LOG(llevInfo, "Running unit tests...\n");
+		logger_print(LOG(INFO), "Running unit tests...");
 		check_main();
 		exit(0);
 	}
@@ -1413,7 +1392,7 @@ int main(int argc, char **argv)
 #ifdef HAVE_WORLD_MAKER
 	if (settings.world_maker)
 	{
-		LOG(llevInfo, "Running the world maker...\n");
+		logger_print(LOG(INFO), "Running the world maker...");
 		world_maker();
 		exit(0);
 	}
@@ -1442,7 +1421,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	LOG(llevInfo, "Server ready. Waiting for connections...\n");
+	logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
 	for (; ;)
 	{

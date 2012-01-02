@@ -446,7 +446,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevDebug, "put_object_in_sack: op not a player.\n");
 		return;
 	}
 

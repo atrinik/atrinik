@@ -174,7 +174,10 @@ int command_kick(object *ob, char *params)
 				draw_info_flags_format(NDI_ALL, COLOR_WHITE, ob, "%s was kicked out of the game.", op->name);
 			}
 
-			LOG(llevChat, "Kick: %s was kicked out of the game by %s.\n", op->name, ob ? ob->name : "a shutdown");
+			if (ob)
+			{
+				logger_print(LOG(CHAT), "[KICK] %s was kicked out of the game by %s.", op->name, ob->name);
+			}
 
 			CONTR(op)->socket.status = Ns_Dead;
 			remove_ns_dead_player(CONTR(op));
@@ -193,7 +196,7 @@ int command_shutdown_now(object *op, char *params)
 {
 	(void) params;
 
-	LOG(llevSystem, "Server shutdown started by %s\n", op->name);
+	logger_print(LOG(SYSTEM), "Server shut down by %s.", op->name);
 	command_kick(NULL, NULL);
 	cleanup();
 	exit(0);
@@ -452,7 +455,7 @@ int command_resetmap(object *op, char *params)
 
 	if (m->in_memory != MAP_IN_MEMORY)
 	{
-		LOG(llevBug, "Tried to swap out map which was not in memory.\n");
+		logger_print(LOG(BUG), "Tried to swap out map which was not in memory.");
 		return 0;
 	}
 
@@ -511,7 +514,7 @@ static int checkdm(object *op, char *pl_passwd)
 
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		LOG(llevBug, "Could not read DM file.\n");
+		logger_print(LOG(BUG), "Could not read DM file.");
 		return 0;
 	}
 
@@ -524,7 +527,7 @@ static int checkdm(object *op, char *pl_passwd)
 
 		if (sscanf(buf, "%[^:]:%[^:]:%s\n", name, passwd, host) != 3)
 		{
-			LOG(llevBug, "Malformed dm file entry: %s", buf);
+			logger_print(LOG(BUG), "Malformed dm file entry: %s", buf);
 		}
 		else if ((!strcmp(name, "*") || (op->name && !strcmp(op->name, name))) && (!strcmp(passwd, "*") || !strcmp(passwd, pl_passwd)) && (!strcmp(host, "*") || !strcmp(host, CONTR(op)->socket.host)))
 		{
@@ -603,7 +606,7 @@ void shutdown_agent(int timer, char *reason)
 		{
 			if (--real_count <= 0)
 			{
-				LOG(llevSystem, "Server shutdown started.\n");
+				logger_print(LOG(SYSTEM), "Server shut down.");
 				command_kick(NULL, NULL);
 				cleanup();
 				exit(0);
@@ -723,26 +726,6 @@ int command_ban(object *op, char *params)
 		list_bans(op);
 	}
 
-	return 1;
-}
-
-/**
- * Set debug level.
- * @param op Object requesting this.
- * @param params Command parameters.
- * @return 1. */
-int command_debug(object *op, char *params)
-{
-	int i;
-
-	if (params == NULL || !sscanf(params, "%d", &i))
-	{
-		draw_info_format(COLOR_WHITE, op, "Debug level is %d.", settings.debug);
-		return 1;
-	}
-
-	settings.debug = (enum LogLevel) FABS(i);
-	draw_info_format(COLOR_WHITE, op, "Set debug level to %d.", i);
 	return 1;
 }
 
@@ -949,7 +932,7 @@ int command_shutdown(object *op, char *params)
 		return 1;
 	}
 
-	LOG(llevSystem, "Shutdown agent started!\n");
+	logger_print(LOG(SYSTEM), "Server shutdown started by %s.", op->name);
 	shutdown_agent(i, bp);
 	draw_info_format(COLOR_GREEN, op, "Shutdown agent started! Timer set to %d seconds.", i);
 
@@ -1024,7 +1007,7 @@ int command_arrest(object *op, char *params)
 
 	enter_exit(pl->ob, dummy);
 	draw_info_format(COLOR_GREEN, op, "Jailed %s.", pl->ob->name);
-	LOG(llevChat, "Arrest: Player %s arrested by %s\n", pl->ob->name, op->name);
+	logger_print(LOG(CHAT), "[ARREST] Player %s arrested by %s", pl->ob->name, op->name);
 	return 1;
 }
 
@@ -1184,7 +1167,7 @@ int command_server_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "Server shout: %s: %s\n", op->name, params);
+	logger_print(LOG(CHAT), "[SERVER SHOUT]: [%s] %s", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
@@ -1219,7 +1202,7 @@ int command_mod_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "Mod shout: %s: %s\n", op->name, params);
+	logger_print(LOG(CHAT), "[MOD SHOUT] [%s] %s", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{

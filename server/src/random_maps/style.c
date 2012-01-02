@@ -346,6 +346,4 @@ void free_style_maps(void)
 		styles = next;
 		style_maps++;
 	}
-
-	LOG(llevDebug, "free_style_maps: Freed %d maps\n", style_maps);
 }

@@ -226,7 +226,7 @@ lex_error = 0;
 								{
 									if (!arch_init)
 									{
-										LOG(llevDebug, "Discarding object without arch: %s\n", STRING_SAFE(tmp->name));
+										logger_print(LOG(DEBUG), "Discarding object without arch: %s", STRING_SAFE(tmp->name));
 									}
 
 									object_destroy(tmp);
@@ -307,8 +307,8 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevError, "Object lacks name.\n");
-							return LL_IGNORED;
+							logger_print(LOG(ERROR), "Object lacks name.");
+							exit(1);
 						}
 
 						if (op->arch != NULL)
@@ -342,7 +342,8 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevError, "Name without val\n");
+							logger_print(LOG(ERROR), "Name without val");
+							exit(1);
 						}
 						else
 						{
@@ -354,7 +355,7 @@ lex_error = 0;
 
 						if (*yv == '\0')
 						{
-							LOG(llevBug, "Custom name without val.\n");
+							logger_print(LOG(BUG), "Custom name without val.");
 						}
 						else
 						{
@@ -381,7 +382,7 @@ lex_error = 0;
 
 						if (!art_amask)
 						{
-							LOG(llevBug, "Invalid amask '%s'.\n", yval());
+							logger_print(LOG(BUG), "Invalid amask '%s'.", yval());
 						}
 					}
 ^quickslot{S}       op->quickslot = IVAL;
@@ -457,7 +458,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "Object %s - can't find face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							logger_print(LOG(BUG), "Object %s - can't find face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 ^inv_face{S}        {
@@ -466,7 +467,7 @@ lex_error = 0;
 
 						if (!_face_)
 						{
-							LOG(llevBug, "Object %s - can't find inv_face %s.\n", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+							logger_print(LOG(BUG), "Object %s - can't find inv_face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
 						}
                     }
 
@@ -653,10 +654,7 @@ lex_error = 0;
 ^is_good{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_GOOD, IVAL);
 ^is_neutral{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_NEUTRAL, IVAL);
 ^lifesave{S}        SET_OR_CLEAR_FLAG(op, FLAG_LIFESAVE, IVAL);
-^sleep{S}           {
-						SET_OR_CLEAR_FLAG(op, FLAG_SLEEP, IVAL);
-						/*(LOG(llevDebug," Warning: Object %s has sleep set in arch.\n",op->name);*/
-                    }
+^sleep{S}           SET_OR_CLEAR_FLAG(op, FLAG_SLEEP, IVAL);
 ^stand_still{S}     SET_OR_CLEAR_FLAG(op, FLAG_STAND_STILL, IVAL);
 ^random_move{S}     SET_OR_CLEAR_FLAG(op, FLAG_RANDOM_MOVE, IVAL);
 ^only_attack{S}     SET_OR_CLEAR_FLAG(op, FLAG_ONLY_ATTACK, IVAL);
@@ -799,7 +797,7 @@ lex_error = 0;
 
 						if (*y == '\0')
 						{
-							LOG(llevBug, "loader(): Title without value.\n");
+							logger_print(LOG(BUG), "Title without value.");
 						}
 						else
 						{
@@ -909,7 +907,7 @@ lex_error = 0;
  * @return Always returns -1. */
 int yyerror(char *s)
 {
-	LOG(llevBug, "%s: %s\n", s, yytext);
+	logger_print(LOG(BUG), "%s: %s", s, yytext);
 	return -1;
 }
 
@@ -1107,7 +1105,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 			}
 		}
 
-		LOG(llevDebug, "Got EOF while scanning strings (%d)\n", retval);
+		logger_print(LOG(DEBUG), "Got EOF while scanning strings (%d)", retval);
 
 		/* Be sure we work on the right buffer */
 		if (cur_buffer)
@@ -1162,7 +1160,6 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 		}
 	}
 
-	/*LOG(llevDebug," load completed, object=%s %s (%d - %d)\n", op->name, op->title, op->item_quality, op->item_condition);*/
 	return retval;
 }
 

@@ -44,7 +44,7 @@ int command_say(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "Say: %s: %s\n", query_name(op, NULL), params);
+	logger_print(LOG(CHAT), "[SAY] [%s] %s", op->name, params);
 	communicate(op, params);
 
 	return 1;
@@ -69,7 +69,7 @@ int command_dmsay(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "DMsay: %s: %s\n", op->name, params);
+	logger_print(LOG(CHAT), "[DMSAY] [%s] %s", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
@@ -102,7 +102,7 @@ int command_shout(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "Shout: %s: %s\n", query_name(op, NULL), params);
+	logger_print(LOG(CHAT), "[SHOUT] [%s] %s", op->name, params);
 	draw_info_flags_format(NDI_PLAYER | NDI_ALL | NDI_SHOUT, COLOR_ORANGE, NULL, "%s shouts: %s", op->name, params);
 
 	return 1;
@@ -125,7 +125,7 @@ int command_tell(object *op, char *params)
 		return 0;
 	}
 
-	LOG(llevChat, "Tell: %s: %s\n", op->name, params);
+	logger_print(LOG(CHAT), "[TELL] [%s] %s", op->name, params);
 
 	name = params;
 	msg = strchr(name, ' ');
@@ -224,7 +224,7 @@ int command_t_tell(object *op, char *params)
 
 			if (m == CONTR(op)->target_object->map && xt == CONTR(op)->target_object->x && yt == CONTR(op)->target_object->y)
 			{
-				LOG(llevChat, "Talk to: %s: [%s]: %s\n", op->name, CONTR(op)->target_object->name, params);
+				logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", op->name, CONTR(op)->target_object->name, params);
 				talk_to_npc(op, CONTR(op)->target_object, params);
 				return 1;
 			}
@@ -245,7 +245,7 @@ int command_t_tell(object *op, char *params)
 		{
 			if (OBJECT_CAN_TALK(tmp))
 			{
-				LOG(llevChat, "Talk to: %s: [%s]: %s\n", op->name, tmp->name, params);
+				logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", op->name, tmp->name, params);
 
 				if (talk_to_npc(op, tmp, params))
 				{
@@ -945,7 +945,7 @@ static int basic_emote(object *op, char *params, int emotion)
 {
 	char buf[MAX_BUF], buf2[MAX_BUF], buf3[MAX_BUF];
 
-	LOG(llevChat, "Emote: %s, params: %s, target: %s, emote: %d\n", query_name(op, NULL), params ? params : "NULL", CONTR(op) ? query_name(CONTR(op)->target_object, NULL) : "NULL", emotion);
+	logger_print(LOG(CHAT), "[EMOTE] [%s] [%d] [%s] [%s]", op->name, emotion, params ? params : "none", CONTR(op) && CONTR(op)->target_object ? CONTR(op)->target_object->name : "none");
 
 	if (op->type == PLAYER)
 	{

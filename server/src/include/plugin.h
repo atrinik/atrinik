@@ -180,7 +180,6 @@ struct plugin_hooklist
 	int (*players_on_map)(mapstruct *);
 	char *(*create_pathname)(const char *);
 	char *(*normalize_path)(const char *, const char *, char *);
-	void (*LOG)(LogLevel, const char *, ...);
 	void (*free_string_shared)(const char *);
 	const char *(*add_string)(const char *);
 	void (*object_remove)(object *, int);
@@ -317,6 +316,8 @@ struct plugin_hooklist
 	void (*packet_append_map_music)(packet_struct *, object *, object *);
 	void (*packet_append_map_weather)(packet_struct *, object *, object *);
 	void (*socket_send_packet)(socket_struct *, packet_struct *);
+	void (*logger_print)(const char *, const char *, uint64, const char *, ...);
+	FILE *(*logger_get_logfile)(void);
 
 	const char **season_name;
 	const char **weekdays;
@@ -342,7 +343,6 @@ struct plugin_hooklist
 	mapstruct **first_map;
 	party_struct **first_party;
 	region **first_region;
-	FILE **logfile;
 	long *pticks;
 };
 

@@ -109,10 +109,6 @@ extern struct plugin_hooklist *hooks;
 #define INVENTORY_ALL 2
 /*@}*/
 
-#undef LOG
-/** @copydoc LOG */
-#define LOG hooks->LOG
-
 #undef FREE_AND_COPY_HASH
 #undef FREE_AND_CLEAR_HASH
 

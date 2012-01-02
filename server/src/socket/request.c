@@ -168,7 +168,7 @@ void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len
 	{
 		case ST_PLAYING:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "Got reply message with ST_PLAYING input state (player %s)\n", query_name(pl->ob, NULL));
+			logger_print(LOG(BUG), "Got reply message with ST_PLAYING input state (player %s)", query_name(pl->ob, NULL));
 			break;
 
 		case ST_GET_NAME:
@@ -182,7 +182,7 @@ void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len
 
 		default:
 			pl->socket.status = Ns_Dead;
-			LOG(llevBug, "Unknown input state: %d\n", pl->state);
+			logger_print(LOG(BUG), "Unknown input state: %d", pl->state);
 			break;
 	}
 }
@@ -206,8 +206,6 @@ void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, siz
 	}
 
 	ns->requested_file[file_type] = 1;
-
-	LOG(llevDebug, "Client %s rf #%d\n", ns->host, file_type);
 
 	packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[file_type].len, 0);
 	packet_append_uint8(packet, file_type);
@@ -550,7 +548,7 @@ void draw_client_map(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "draw_client_map(): Called with non-player: %s\n", pl->name);
+		logger_print(LOG(BUG), "Called with non-player: %s", pl->name);
 		return;
 	}
 

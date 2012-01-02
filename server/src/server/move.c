@@ -47,13 +47,12 @@ int move_ob(object *op, int dir, object *originator)
 
 	if (op == NULL)
 	{
-		LOG(llevBug, "move_ob(): Trying to move NULL.\n");
 		return 0;
 	}
 
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "move_ob: monster %s has been removed - will not process further\n", query_name(op, NULL));
+		logger_print(LOG(BUG), "monster %s has been removed - will not process further", query_name(op, NULL));
 		return 0;
 	}
 
@@ -272,7 +271,7 @@ int teleport(object *teleporter, uint8 tele_type, object *user)
 
 	if (!nrofalt)
 	{
-		LOG(llevBug, "teleport(): No alternative teleporters around!\n");
+		logger_print(LOG(BUG), "No alternative teleporters around!");
 		return 0;
 	}
 

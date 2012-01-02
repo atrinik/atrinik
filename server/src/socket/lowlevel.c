@@ -63,11 +63,11 @@ int socket_recv(socket_struct *ns)
 		{
 			if (WSAGetLastError() == WSAECONNRESET)
 			{
-				LOG(llevDebug, "Connection closed by client.\n");
+				logger_print(LOG(DEBUG), "Connection closed by client.");
 			}
 			else
 			{
-				LOG(llevDebug, "socket_recv() got error %d, returning %d.\n", WSAGetLastError(), stat_ret);
+				logger_print(LOG(DEBUG), "got error %d, returning %d.", WSAGetLastError(), stat_ret);
 			}
 
 			return stat_ret;
@@ -75,7 +75,7 @@ int socket_recv(socket_struct *ns)
 #else
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 		{
-			LOG(llevDebug, "socket_recv() got error %d: %s, returning %d.\n", errno, strerror(errno), stat_ret);
+			logger_print(LOG(DEBUG), "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
 			return stat_ret;
 		}
 #endif
@@ -93,7 +93,7 @@ void socket_enable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "socket_enable_no_delay(): Cannot enable TCP_NODELAY: %s\n", strerror(errno));
+		logger_print(LOG(DEBUG), "Cannot enable TCP_NODELAY: %s", strerror(errno));
 	}
 }
 
@@ -106,7 +106,7 @@ void socket_disable_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)))
 	{
-		LOG(llevDebug, "socket_disable_no_delay(): Cannot disable TCP_NODELAY: %s\n", strerror(errno));
+		logger_print(LOG(DEBUG), "Cannot disable TCP_NODELAY: %s", strerror(errno));
 	}
 }
 
@@ -201,11 +201,11 @@ void socket_buffer_write(socket_struct *ns)
 #ifdef WIN32
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
-				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d).\n", WSAGetLastError());
+				logger_print(LOG(DEBUG), "New socket write failed (%d).", WSAGetLastError());
 #else
 			if (errno != EWOULDBLOCK)
 			{
-				LOG(llevDebug, "socket_buffer_write(): New socket write failed (%d: %s).\n", errno, strerror(errno));
+				logger_print(LOG(DEBUG), "New socket write failed (%d: %s).", errno, strerror(errno));
 #endif
 				ns->status = Ns_Dead;
 				break;

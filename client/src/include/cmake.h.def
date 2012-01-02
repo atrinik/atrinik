@@ -50,6 +50,9 @@
 /* Is X11 XMU available? */
 #cmakedefine HAVE_X11_XMU
 
+/* Is readline available? */
+#cmakedefine HAVE_READLINE
+
 /* Are we compiling on GNU/Linux? */
 #cmakedefine LINUX
 

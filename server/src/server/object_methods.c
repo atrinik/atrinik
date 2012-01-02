@@ -263,7 +263,7 @@ int object_move_on(object *op, object *victim, object *originator, int state)
 		{
 			if (object_move_on_recursion_depth >= 500)
 			{
-				LOG(llevDebug, "object_move_on(): Aborting recursion [op arch %s, name %s; victim arch %s, name %s]\n", op->arch->name, op->name, victim->arch->name, victim->name);
+				logger_print(LOG(DEBUG), "Aborting recursion [op arch %s, name %s; victim arch %s, name %s]", op->arch->name, op->name, victim->arch->name, victim->name);
 				return OBJECT_METHOD_OK;
 			}
 

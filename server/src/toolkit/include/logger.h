@@ -25,40 +25,34 @@
 
 /**
  * @file
- * Log levels. */
+ * Logger API header file.
+ *
+ * @author Alex Tokar */
 
 #ifndef LOGGER_H
 #define LOGGER_H
 
-/**
- * Log levels for the LOG() function. */
-typedef enum LogLevel
-{
-	/**
-	 * Set GLOBAL_LOG_LEVEL to this, and no messages will be printed
-	 * out. */
-	llevNoLog = -1,
+typedef void (*logger_print_func)(const char *str);
 
-	/**
-	 * Used for system-type messages. */
-	llevSystem = 0,
+#define LOG(_level) LOG_##_level, __FUNCTION__, __LINE__
 
-	/** An irrecoverable fatal error; the server will shut down. */
-	llevError,
+#define LOG_INFO "INFO"
+#define LOG_WARNING "WARNING"
+#define LOG_DEBUG "DEBUG"
+#define LOG_BUG "BUG"
+#define LOG_ERROR "ERROR"
+#define LOG_SYSTEM "SYSTEM"
+#define LOG_CHAT "CHAT"
 
-	/**
-	 * A bug; after too many of these in a single tick the server will
-	 * shut down. */
-	llevBug,
-
-	/** Chat, for example, shout, say, etc. */
-	llevChat,
-
-	/** Just tell the log stuff we think it's useful to know. */
-	llevInfo,
-
-	/** Give out maximal information for debug and bug control. */
-	llevDebug
-} LogLevel;
+#define LOGGER_ESC_SEQ_BOLD "\033[1m"
+#define LOGGER_ESC_SEQ_BLACK "\033[30m"
+#define LOGGER_ESC_SEQ_RED "\033[31m"
+#define LOGGER_ESC_SEQ_GREEN "\033[32m"
+#define LOGGER_ESC_SEQ_YELLOW "\033[33m"
+#define LOGGER_ESC_SEQ_BLUE "\033[34m"
+#define LOGGER_ESC_SEQ_MAGENTA "\033[35m"
+#define LOGGER_ESC_SEQ_CYAN "\033[36m"
+#define LOGGER_ESC_SEQ_WHITE "\033[37m"
+#define LOGGER_ESC_SEQ_END "\033[0m"
 
 #endif

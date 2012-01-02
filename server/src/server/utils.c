@@ -233,7 +233,7 @@ void copy_file(const char *filename, FILE *fpout)
 
 	if (!fp)
 	{
-		LOG(llevBug, "copy_file(): Failed to open '%s'.\n", filename);
+		logger_print(LOG(BUG), "Failed to open '%s'.", filename);
 		return;
 	}
 

@@ -209,12 +209,11 @@ void sleep_delta(void)
 		sleep_time.tv_sec = sleep_sec;
 		sleep_time.tv_usec = sleep_usec;
 
-		/*LOG(llevDebug, "SLEEP-Time: %ds and %dus\n", sleep_time.tv_sec, sleep_time.tv_usec);*/
 		/* we ignore seconds to sleep - there is NO reason to put the server
 		 * for even a single second to sleep when there is someone connected. */
 		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
 		{
-			LOG(llevBug, "sleep_delta(): sleep delta out of range! (%"FMT64U"s %"FMT64U"us)\n", (uint64) sleep_time.tv_sec, (uint64) sleep_time.tv_usec);
+			logger_print(LOG(BUG), "sleep delta out of range! (%"FMT64U"s %"FMT64U"us)", (uint64) sleep_time.tv_sec, (uint64) sleep_time.tv_usec);
 		}
 
 #ifndef WIN32

@@ -98,7 +98,7 @@ static void common_object_process_changing(object *op)
 
 	if (!op->other_arch)
 	{
-		LOG(llevBug, "common_object_process_changing(): %s is missing other_arch.\n", op->name);
+		logger_print(LOG(BUG), "%s is missing other_arch.", op->name);
 		return;
 	}
 

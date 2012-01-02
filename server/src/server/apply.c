@@ -78,7 +78,6 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "do_learn_spell(): not a player ->%s\n", op->name);
 		return;
 	}
 
@@ -89,7 +88,6 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 
 		if (special_prayer || !tmp)
 		{
-			LOG(llevBug, "do_learn_spell(): spell already known, but can't upgrade it\n");
 			return;
 		}
 
@@ -101,7 +99,6 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	/* Learn new spell/prayer */
 	if (tmp)
 	{
-		LOG(llevBug, "do_learn_spell(): spell unknown, but special prayer mark present\n");
 		object_remove(tmp, 0);
 		object_destroy(tmp);
 	}
@@ -136,13 +133,11 @@ void do_forget_spell(object *op, int spell)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "do_forget_spell(): Not a player: %s (%d).\n", query_name(op, NULL), spell);
 		return;
 	}
 
 	if (!check_spell_known(op, spell))
 	{
-		LOG(llevBug, "do_forget_spell(): Spell %d not known.\n", spell);
 		return;
 	}
 
@@ -166,8 +161,6 @@ void do_forget_spell(object *op, int spell)
 			return;
 		}
 	}
-
-	LOG(llevBug, "do_forget_spell(): Couldn't find spell %d.\n", spell);
 }
 
 /**
@@ -313,7 +306,6 @@ void player_apply_below(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "player_apply_below() called for non player object >%s<\n", query_name(pl, NULL));
 		return;
 	}
 

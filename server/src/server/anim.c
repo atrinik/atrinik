@@ -80,11 +80,11 @@ void init_anim(void)
 	animations[0].facings = 0;
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
-	LOG(llevDebug, "Reading animations from %s...\n", buf);
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		LOG(llevError, "Can not open animations file Filename=%s\n", buf);
+		logger_print(LOG(ERROR), "Can not open animations file %s.", buf);
+		exit(1);
 	}
 
 	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
@@ -101,8 +101,8 @@ void init_anim(void)
 		{
 			if (num_frames)
 			{
-				LOG(llevError, "Didn't get a mina before %s\n", buf);
-				num_frames = 0;
+				logger_print(LOG(ERROR), "Didn't get a mina before %s.", buf);
+				exit(1);
 			}
 
 			num_animations++;
@@ -132,7 +132,7 @@ void init_anim(void)
 
 			if (num_frames % animations[num_animations].facings)
 			{
-				LOG(llevDebug, "Animation %s frame numbers (%d) is not a multiple of facings (%d)\n", STRING_SAFE(animations[num_animations].name), num_frames, animations[num_animations].facings);
+				logger_print(LOG(DEBUG), "Animation %s frame numbers (%d) is not a multiple of facings (%d)", STRING_SAFE(animations[num_animations].name), num_frames, animations[num_animations].facings);
 			}
 
 			num_frames = 0;
@@ -141,13 +141,13 @@ void init_anim(void)
 		{
 			if (!(animations[num_animations].facings = atoi(buf + 7)))
 			{
-				LOG(llevDebug, "Animation %s has 0 facings, line=%s\n", STRING_SAFE(animations[num_animations].name), buf);
+				logger_print(LOG(DEBUG), "Animation %s has 0 facings, line=%s", STRING_SAFE(animations[num_animations].name), buf);
 				animations[num_animations].facings = 1;
 			}
 
 			if (animations[num_animations].facings != 9 && animations[num_animations].facings != 25)
 			{
-				LOG(llevDebug, "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
+				logger_print(LOG(DEBUG), "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
 				animations[num_animations].facings = 1;
 			}
 		}
@@ -155,14 +155,12 @@ void init_anim(void)
 		{
 			if (!(faces[num_frames++] = find_face(buf, 0)))
 			{
-				LOG(llevBug, "Could not find face %s for animation %s\n", buf, STRING_SAFE(animations[num_animations].name));
+				logger_print(LOG(BUG), "Could not find face %s for animation %s", buf, STRING_SAFE(animations[num_animations].name));
 			}
 		}
 	}
 
 	fclose(fp);
-
-	LOG(llevDebug, "done. (got %d)\n", num_animations);
 }
 
 /**
@@ -195,7 +193,7 @@ int find_animation(char *name)
 		return match->num;
 	}
 
-	LOG(llevBug, "Unable to find animation %s\n", STRING_SAFE(name));
+	logger_print(LOG(BUG), "Unable to find animation %s", STRING_SAFE(name));
 	return 0;
 }
 
@@ -219,11 +217,6 @@ void animate_object(object *op, int count)
 
 	if (!op->animation_id || !numanim || op->head)
 	{
-#if 0
-		/* ONLY activate for active debugging */
-		if (op->animation_id)
-			LOG(llevBug,"Object %s (arch %s) lacks animation. (is tail: %s)\n", STRING_OBJ_NAME(op), STRING_OBJ_ARCH_NAME(op), op->head ? "yes" : "no");
-#endif
 		return;
 	}
 

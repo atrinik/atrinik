@@ -41,16 +41,14 @@
 
 #include <global.h>
 
-#ifndef WIN32
-#	include <poll.h>
-/**
- * stdin information for poll(). */
-static struct pollfd stdin_fd[1];
-#else
-/**
- * stdin handle. */
-static HANDLE stdin_handle;
+#ifdef HAVE_READLINE
+#	include <readline/readline.h>
+#	include <readline/history.h>
 #endif
+
+/**
+ * File descriptor set used in thread's select call. */
+static fd_set stdin_fd_set;
 
 /**
  * Dynamic array of all the possible console commands. */
@@ -59,6 +57,20 @@ static console_command_struct *console_commands;
 /**
  * Number of ::console_commands. */
 size_t console_commands_num;
+
+/**
+ * Command process queue. */
+static UT_array *command_process_queue;
+
+/**
+ * Mutex protecting command command process queue. */
+static pthread_mutex_t command_process_queue_mutex;
+
+#ifdef HAVE_READLINE
+/**
+ * Prompt for readline. */
+static const char *current_prompt;
+#endif
 
 /**
  * The help command of the console.
@@ -76,13 +88,13 @@ static void console_command_help(const char *params)
 			{
 				char *curr, *next, *cp;
 
-				LOG(llevInfo, "##### Command: %s #####\n", console_commands[i].command);
-				LOG(llevInfo, "\n");
+				logger_print(LOG(INFO), "##### Command: %s #####", console_commands[i].command);
+				logger_print(LOG(INFO), " ");
 
 				for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL)
 				{
 					cp = strndup(curr, next - curr);
-					LOG(llevInfo, "%s\n", cp);
+					logger_print(LOG(INFO), "%s", cp);
 					free(cp);
 				}
 
@@ -90,22 +102,181 @@ static void console_command_help(const char *params)
 			}
 		}
 
-		LOG(llevInfo, "No such command '%s'.\n", params);
+		logger_print(LOG(INFO), "No such command '%s'.", params);
 	}
 	/* Otherwise brief information about all available commands. */
 	else
 	{
-		LOG(llevInfo, "List of available commands:\n");
-		LOG(llevInfo, "\n");
+		logger_print(LOG(INFO), "List of available commands:");
+		logger_print(LOG(INFO), " ");
 
 		for (i = 0; i < console_commands_num; i++)
 		{
-			LOG(llevInfo, "\t- %s: %s\n", console_commands[i].command, console_commands[i].desc_brief);
+			logger_print(LOG(INFO), "    - %s: %s", console_commands[i].command, console_commands[i].desc_brief);
 		}
 
-		LOG(llevInfo, "\n");
-		LOG(llevInfo, "Use 'help <command>' to learn more about the specific command.\n");
+		logger_print(LOG(INFO), " ");
+		logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specific command.");
 	}
+}
+
+#ifdef HAVE_READLINE
+
+/**
+ * Implements callback handler for readline.
+ * @param line Line. */
+static void handle_line_fake(char *line)
+{
+	if (line)
+	{
+		rl_set_prompt(current_prompt);
+		rl_already_prompted = 1;
+	}
+}
+
+/**
+ * Handle enter key. */
+static int handle_enter(int cnt, int key)
+{
+	char *line;
+
+	line = rl_copy_text(0, rl_end);
+
+	rl_point = rl_end;
+	rl_redisplay();
+	rl_crlf();
+	rl_on_new_line();
+	rl_replace_line("", 1);
+
+	if (*line != '\0')
+	{
+		add_history(line);
+	}
+
+	pthread_mutex_lock(&command_process_queue_mutex);
+	utarray_push_back(command_process_queue, &line);
+	pthread_mutex_unlock(&command_process_queue_mutex);
+
+	free(line);
+	rl_redisplay();
+	rl_done = 1;
+
+	return 0;
+}
+
+/**
+ * Command generator for readline's completion. */
+char *command_generator(const char *text, int state)
+{
+	static size_t i, len;
+	char *command;
+
+	if (!state)
+	{
+		i = 0;
+		len = strlen(text);
+	}
+
+	while (i < console_commands_num)
+	{
+		command = console_commands[i].command;
+		i++;
+
+		if (strncmp(command, text, len) == 0)
+		{
+			return strdup(command);
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Readline completion. */
+char **readline_completion(const char *text, int start, int end)
+{
+	char **matches;
+
+	matches = NULL;
+
+	if (start == 0)
+	{
+		matches = rl_completion_matches(text, command_generator);
+	}
+
+	return matches;
+}
+
+/**
+ * Overrides the logger's standard printing function. */
+static void console_print(const char *str)
+{
+	char *saved_line;
+	int saved_point;
+
+	saved_line = rl_copy_text(0, rl_end);
+	saved_point = rl_point;
+
+	rl_set_prompt("");
+	rl_replace_line("", 0);
+	rl_redisplay();
+
+	logger_do_print(str);
+
+	rl_set_prompt(current_prompt);
+	rl_replace_line(saved_line, 0);
+	rl_point = saved_point;
+	rl_redisplay();
+
+	free(saved_line);
+}
+
+#endif
+
+/**
+ * Thread for acquiring stdin data.
+ * @param dummy Unused.
+ * @return NULL. */
+static void *do_thread(void *dummy)
+{
+	struct timeval tv;
+	int count;
+#ifndef HAVE_READLINE
+	char *line;
+	ssize_t numread;
+	size_t len;
+#endif
+
+	while (1)
+	{
+		FD_SET(STDIN_FILENO, &stdin_fd_set);
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+		count = select(FD_SETSIZE, &stdin_fd_set, NULL, NULL, &tv);
+
+		if (count <= 0)
+		{
+			continue;
+		}
+
+#ifdef HAVE_READLINE
+		rl_callback_read_char();
+#else
+		line = NULL;
+		numread = getline(&line, &len, stdin);
+
+		if (numread <= 0)
+		{
+			continue;
+		}
+
+		pthread_mutex_lock(&command_process_queue_mutex);
+		utarray_push_back(command_process_queue, &line);
+		pthread_mutex_unlock(&command_process_queue_mutex);
+#endif
+	}
+
+	return NULL;
 }
 
 /**
@@ -115,15 +286,33 @@ void toolkit_console_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(console)
 	{
+		pthread_t thread_id;
+		int ret;
+
+		toolkit_import(logger);
 		toolkit_import(memory);
 		console_commands = NULL;
 		console_commands_num = 0;
 
-#ifndef WIN32
-		stdin_fd[0].fd = fileno(stdin);
-		stdin_fd[0].events = POLLIN;
-#else
-		stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+		FD_ZERO(&stdin_fd_set);
+		utarray_new(command_process_queue, &ut_str_icd);
+
+#ifdef HAVE_READLINE
+		rl_readline_name = "atrinik-server";
+		rl_initialize();
+		rl_attempted_completion_function = readline_completion;
+
+		current_prompt = "> ";
+		rl_set_prompt(current_prompt);
+
+		if (rl_bind_key(RETURN, handle_enter))
+		{
+			logger_print(LOG(ERROR), "Could not bind enter.");
+			exit(1);
+		}
+
+		rl_callback_handler_install(current_prompt, handle_line_fake);
+		logger_set_print_func(console_print);
 #endif
 
 		/* Add the 'help' command. */
@@ -134,6 +323,15 @@ void toolkit_console_init(void)
 			"Displays the help, listing available console commands, etc.\n\n"
 			"'help <command>' can be used to get more detailed help about the specified command."
 		);
+
+		pthread_mutex_init(&command_process_queue_mutex, NULL);
+		ret = pthread_create(&thread_id, NULL, do_thread, NULL);
+
+		if (ret)
+		{
+			logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
+			exit(1);
+		}
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
@@ -159,6 +357,16 @@ void toolkit_console_deinit(void)
 	}
 
 	console_commands_num = 0;
+
+	logger_set_print_func(logger_do_print);
+
+#ifdef HAVE_READLINE
+    rl_unbind_key(RETURN);
+    rl_callback_handler_remove();
+
+	rl_set_prompt("");
+	rl_redisplay();
+#endif
 }
 
 /**
@@ -176,7 +384,7 @@ void console_command_add(const char *command, console_command_func handle_func, 
 	{
 		if (strcmp(console_commands[i].command, command) == 0)
 		{
-			LOG(llevBug, "console_command_add(): Tried to add duplicate entry for command '%s'.\n", command);
+			logger_print(LOG(BUG), "Tried to add duplicate entry for command '%s'.", command);
 			return;
 		}
 	}
@@ -195,63 +403,45 @@ void console_command_add(const char *command, console_command_func handle_func, 
  * main loop. */
 void console_command_handle(void)
 {
-	ssize_t numread;
-	char *line, *cp;
-	size_t len, i;
+	char **line, *cp;
+	size_t i;
 
-	/* If stdin is not connected to a terminal, no point in going on. */
-	if (!isatty(fileno(stdin)))
+	pthread_mutex_lock(&command_process_queue_mutex);
+
+	while ((line = (char **) utarray_front(command_process_queue)))
 	{
-		return;
-	}
+		/* Remove the newline. */
+		cp = strchr(*line, '\n');
 
-	/* If no input is ready yet, quit. */
-#ifndef WIN32
-	if (poll(stdin_fd, 1, 0) == 0)
-#else
-	if (WaitForSingleObject(stdin_handle, 0) != WAIT_OBJECT_0)
-#endif
-	{
-		return;
-	}
-
-	line = NULL;
-	numread = getline(&line, &len, stdin);
-
-	if (numread <= 0)
-	{
-		return;
-	}
-
-	/* Remove the newline. */
-	cp = strchr(line, '\n');
-
-	if (cp)
-	{
-		*cp = '\0';
-	}
-
-	/* Remove the command from the parameters. */
-	cp = strchr(line, ' ');
-
-	if (cp)
-	{
-		*(cp++) = '\0';
-
-		if (cp && *cp == '\0')
+		if (cp)
 		{
-			cp = NULL;
+			*cp = '\0';
 		}
-	}
 
-	for (i = 0; i < console_commands_num; i++)
-	{
-		if (strcmp(console_commands[i].command, line) == 0)
+		/* Remove the command from the parameters. */
+		cp = strchr(*line, ' ');
+
+		if (cp)
 		{
-			console_commands[i].handle_func(cp);
-			break;
+			*(cp++) = '\0';
+
+			if (cp && *cp == '\0')
+			{
+				cp = NULL;
+			}
 		}
+
+		for (i = 0; i < console_commands_num; i++)
+		{
+			if (strcmp(console_commands[i].command, *line) == 0)
+			{
+				console_commands[i].handle_func(cp);
+				break;
+			}
+		}
+
+		utarray_erase(command_process_queue, 0, 1);
 	}
 
-	free(line);
+	pthread_mutex_unlock(&command_process_queue_mutex);
 }

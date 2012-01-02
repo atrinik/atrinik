@@ -70,6 +70,14 @@ else (X11_FOUND)
 	message(STATUS "Warning: X11 not found - clipboard support will be disabled")
 endif (X11_FOUND)
 
+find_library(READLINE_LIBRARY readline)
+
+if (READLINE_LIBRARY)
+	set(HAVE_READLINE true)
+elseif (READLINE_LIBRARY)
+	message(STATUS "Could not find readline library, simple interactive console will be used.")
+endif (READLINE_LIBRARY)
+
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
@@ -240,6 +248,11 @@ endif (HAVE_X11)
 if (HAVE_X11_XMU)
 	target_link_libraries(atrinik ${X11_XMU_LIBRARY})
 endif (HAVE_X11_XMU)
+
+# Link readline if available.
+if (HAVE_READLINE)
+	target_link_libraries(atrinik ${READLINE_LIBRARY})
+endif (HAVE_READLINE)
 
 # Get all the include directories used to compile the client.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

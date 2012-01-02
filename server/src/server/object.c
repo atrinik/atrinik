@@ -174,7 +174,8 @@ void init_materials(void)
 
 	if (!(fp = fopen(filename, "r")))
 	{
-		LOG(llevBug, "Could not open materials file: %s\n", filename);
+		logger_print(LOG(ERROR), "Could not open materials file: %s", filename);
+		exit(1);
 	}
 
 	while (fgets(buf, sizeof(buf), fp))
@@ -191,7 +192,8 @@ void init_materials(void)
 
 			if (i > NUM_MATERIALS_REAL)
 			{
-				LOG(llevError, "Materials file contains declaration for material #%d but it doesn't exist.\n", i);
+				logger_print(LOG(ERROR), "Materials file contains declaration for material #%d but it doesn't exist.", i);
+				exit(1);
 			}
 
 			name[0] = '\0';
@@ -205,7 +207,8 @@ void init_materials(void)
 
 				if (!sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name))
 				{
-					LOG(llevError, "Bogus line in materials file: %s\n", buf);
+					logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+					exit(1);
 				}
 			}
 
@@ -220,7 +223,8 @@ void init_materials(void)
 		}
 		else
 		{
-			LOG(llevError, "Bogus line in materials file: %s\n", buf);
+			logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+			exit(1);
 		}
 	}
 
@@ -1091,7 +1095,7 @@ void update_ob_speed(object *op)
 	 * since they never really need to be updated. */
 	if (OBJECT_FREE(op) && op->speed)
 	{
-		LOG(llevBug, "Object %s is freed but has speed.\n", op->name);
+		logger_print(LOG(BUG), "Object %s is freed but has speed.", op->name);
 		op->speed = 0;
 	}
 
@@ -1178,7 +1182,6 @@ void update_object(object *op, int action)
 
 	if (op == NULL)
 	{
-		LOG(llevError, "update_object() called for NULL object.\n");
 		return;
 	}
 
@@ -1344,7 +1347,6 @@ void update_object(object *op, int action)
 	}
 	else
 	{
-		LOG(llevError, "update_object called with invalid action: %d\n", action);
 		return;
 	}
 
@@ -1381,7 +1383,6 @@ void drop_ob_inv(object *ob)
 	/* We don't handle players here */
 	if (ob->type == PLAYER)
 	{
-		LOG(llevBug, "drop_ob_inv() - tried to drop items of %s\n", ob->name);
 		return;
 	}
 
@@ -1540,17 +1541,6 @@ void object_destroy_inv(object *ob)
  * @param ob The object to destroy (free). */
 void object_destroy(object *ob)
 {
-	if (!QUERY_FLAG(ob, FLAG_REMOVED))
-	{
-		StringBuffer *sb = stringbuffer_new();
-		char *diff;
-
-		dump_object(ob, sb);
-		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "Destroy object called with non removed object\n:%s\n", diff);
-		free(diff);
-	}
-
 	free_key_values(ob);
 
 	if (QUERY_FLAG(ob, FLAG_IS_LINKED))
@@ -1586,7 +1576,7 @@ void object_destroy(object *ob)
 				break;
 
 			default:
-				LOG(llevBug, "object_destroy() custom attrset found in unsupported object %s (type %d)\n", STRING_OBJ_NAME(ob), ob->type);
+				logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
 		}
 
 		ob->custom_attrset = NULL;
@@ -1697,7 +1687,6 @@ void object_remove(object *op, int flags)
 {
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "object_remove(): Trying to remove a removed object: %s.\n", query_name(op, NULL));
 		return;
 	}
 
@@ -1818,10 +1807,6 @@ void object_remove(object *op, int flags)
 			object_check_move_off(op);
 		}
 	}
-	else
-	{
-		LOG(llevBug, "object_remove(): Tried to remove object that is not on map or in inventory: %s.\n", query_name(op, NULL));
-	}
 }
 
 /**
@@ -1845,13 +1830,11 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 	if (OBJECT_FREE(op))
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert freed object %s in map %s.\n", query_name(op, NULL), m->path);
 		return NULL;
 	}
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		LOG(llevBug, "insert_ob_in_map(): Trying to insert non removed object %s in map %s.\n", query_name(op, NULL), m->path);
 		return NULL;
 	}
 
@@ -1907,7 +1890,6 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
 	if (!m)
 	{
-		LOG(llevBug, "insert_ob_in_map(): Tried to insert object %s outside the map %s (%d, %d).\n", query_name(op, NULL), op->map->path, op->x, op->y);
 		return NULL;
 	}
 
@@ -2259,27 +2241,11 @@ object *object_insert_into(object *op, object *where, int flag)
 
 	if (!QUERY_FLAG(op, FLAG_REMOVED))
 	{
-		StringBuffer *sb;
-		char *diff;
-
-		sb = stringbuffer_new();
-		dump_object(op, sb);
-		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "Trying to insert (ob) inserted object.\n%s\n", diff);
-		free(diff);
 		return op;
 	}
 
 	if (where == NULL)
 	{
-		StringBuffer *sb;
-		char *diff;
-
-		sb = stringbuffer_new();
-		dump_object(op, sb);
-		diff = stringbuffer_finish(sb);
-		LOG(llevBug, "Trying to put object in NULL.\n%s\n", diff);
-		free(diff);
 		return op;
 	}
 
@@ -2410,7 +2376,6 @@ object *present_arch(archetype *at, mapstruct *m, int x, int y)
 
 	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
-		LOG(llevError, "present_arch() called outside map.\n");
 		return NULL;
 	}
 
@@ -2439,7 +2404,6 @@ object *present(uint8 type, mapstruct *m, int x, int y)
 
 	if (!(m = get_map_from_coord(m, &x, &y)))
 	{
-		LOG(llevError, "Present called outside map.\n");
 		return NULL;
 	}
 
@@ -2869,7 +2833,7 @@ object *load_object_str(char *obstr)
 
 	if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0))
 	{
-		LOG(llevBug, "load_object_str(): load_object() failed.");
+		logger_print(LOG(BUG), "load_object() failed.");
 		return NULL;
 	}
 
@@ -2896,7 +2860,7 @@ int auto_apply(object *op)
 
 	if (op->env && op->env->type == PLAYER)
 	{
-		LOG(llevDebug, "Object with auto_apply (%s, %s) found in %s.\n", op->name, op->arch->name, op->env->name);
+		logger_print(LOG(DEBUG), "Object with auto_apply (%s, %s) found in %s.", op->name, op->arch->name, op->env->name);
 		return 0;
 	}
 

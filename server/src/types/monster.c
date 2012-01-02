@@ -126,7 +126,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 			object *return_wp = get_return_waypoint(npc);
 
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "set_npc_enemy(): %s lost aggro and is returning home (%s:%d,%d)\n", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
+			logger_print(LOG(DEBUG), "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
 #endif
 			if (!return_wp)
 			{
@@ -167,7 +167,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 	if (!wp_archetype)
 	{
 #ifdef DEBUG_PATHFINDING
-		LOG(llevDebug, "set_npc_enemy(): Aggro waypoints disabled\n");
+		logger_print(LOG(DEBUG), "Aggro waypoints disabled");
 #endif
 		return;
 	}
@@ -184,7 +184,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 		SET_FLAG(aggro_wp, FLAG_DAMNED);
 		aggro_wp->owner = npc;
 #ifdef DEBUG_PATHFINDING
-		LOG(llevDebug, "set_npc_enemy(): created wp for '%s'\n", STRING_OBJ_NAME(npc));
+		logger_print(LOG(DEBUG), "created wp for '%s'", STRING_OBJ_NAME(npc));
 #endif
 	}
 
@@ -197,14 +197,14 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 			aggro_wp->enemy = enemy;
 			FREE_AND_ADD_REF_HASH(aggro_wp->name, enemy->name);
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "set_npc_enemy(): got wp for '%s' -> '%s'\n", npc->name, enemy->name);
+			logger_print(LOG(DEBUG), "got wp for '%s' -> '%s'", npc->name, enemy->name);
 #endif
 		}
 		else
 		{
 			aggro_wp->enemy = NULL;
 #ifdef DEBUG_PATHFINDING
-			LOG(llevDebug, "set_npc_enemy(): cleared aggro wp for '%s'\n", npc->name);
+			logger_print(LOG(DEBUG), "cleared aggro wp for '%s'", npc->name);
 #endif
 		}
 	}
@@ -416,7 +416,7 @@ static void process_func(object *op)
 
 	if (op->head)
 	{
-		LOG(llevBug, "move_monster(): called from tail part. (%s -- %s)\n", query_name(op, NULL), op->arch->name);
+		logger_print(LOG(BUG), "called from tail part. (%s -- %s)", query_name(op, NULL), op->arch->name);
 		return;
 	}
 
@@ -675,7 +675,7 @@ static void process_func(object *op)
 					break;
 
 				default:
-					LOG(llevDebug, "Illegal low mon-move: %d\n", op->attack_move_type & LO4);
+					logger_print(LOG(DEBUG), "Illegal low mon-move: %d", op->attack_move_type & LO4);
 			}
 
 			if (!special_dir)
@@ -1077,7 +1077,6 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 	if ((spell_item = monster_choose_random_spell(head, flags)) == NULL)
 	{
-		LOG(llevDebug, "monster_cast_spell: No spell found! Turned off spells in %s (%s) (%d,%d)\n", query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y );
 		/* Will be turned on when picking up book */
 		CLEAR_FLAG(head, FLAG_CAST_SPELL);
 		return 0;
@@ -1110,7 +1109,6 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 	if (sp_typ == -1 || (sp = find_spell(sp_typ)) == NULL)
 	{
-		LOG(llevDebug, "monster_cast_spell: Can't find spell #%d for mob %s (%s) (%d,%d)\n", sp_typ, query_name(head, NULL), head->map ? (head->map->name ? head->map->name : "<no map name>") : "<no map!>", head->x, head->y);
 		return 0;
 	}
 
@@ -1221,7 +1219,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 	if (bow == NULL)
 	{
-		LOG(llevBug, "Monster %s (%d) HAS_READY_BOW() without bow.\n", query_name(head, NULL), head->count);
+		logger_print(LOG(BUG), "Monster %s (%d) HAS_READY_BOW() without bow.", query_name(head, NULL), head->count);
 		CLEAR_FLAG(head, FLAG_READY_BOW);
 		return 0;
 	}
@@ -1534,7 +1532,7 @@ void communicate(object *op, char *txt)
 		 * something else after the slash. */
 		if (txt[0] != '/' || !txt[1])
 		{
-			LOG(llevBug, "communicate(): %s attempted an illegal command '%s'.\n", op->name, txt);
+			logger_print(LOG(BUG), "%s attempted an illegal command '%s'.", op->name, txt);
 			return;
 		}
 
@@ -1624,7 +1622,7 @@ static char *find_matching_message(const char *msg, const char *match)
 	{
 		if (strncmp(cp, "@match ", 7))
 		{
-			LOG(llevDebug, "find_matching_message(): Invalid message: %s\n", msg);
+			logger_print(LOG(DEBUG), "Invalid message: %s", msg);
 			return NULL;
 		}
 		else
@@ -1634,7 +1632,7 @@ static char *find_matching_message(const char *msg, const char *match)
 
 			if (!cp2)
 			{
-				LOG(llevDebug, "find_matching_message(): Found empty match response: %s\n", msg);
+				logger_print(LOG(DEBUG), "Found empty match response: %s", msg);
 				return NULL;
 			}
 

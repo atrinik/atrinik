@@ -358,7 +358,6 @@ archetype *determine_holy_arch(object *god, const char *type)
 
 	if (!god || !god->randomitems)
 	{
-		LOG(llevBug, "determine_holy_arch(): no god or god without randomitems\n");
 		return NULL;
 	}
 
@@ -425,7 +424,6 @@ static int follower_level_to_enchantments(int level, int difficulty)
 {
 	if (difficulty < 1)
 	{
-		LOG(llevBug, "follower_level_to_enchantments(): difficulty %d is invalid\n", difficulty);
 		return 0;
 	}
 
@@ -595,7 +593,6 @@ void god_intervention(object *op, object *god)
 
 	if (!god || !god->randomitems)
 	{
-		LOG(llevBug, "god_intervention(): (p:%s) no god %s or god without randomitems\n", query_name(op, NULL), query_name(god, NULL));
 		return;
 	}
 
@@ -633,7 +630,6 @@ void god_intervention(object *op, object *god)
 
 		if (!tr->item)
 		{
-			LOG(llevBug, "Empty entry in %s's treasure list\n", query_name(god, NULL));
 			continue;
 		}
 
@@ -745,7 +741,7 @@ void god_intervention(object *op, object *god)
 
 			if ((at = find_archetype("depletion")) == NULL)
 			{
-				LOG(llevBug, "Could not find archetype depletion.\n");
+				logger_print(LOG(BUG), "Could not find archetype depletion.");
 				continue;
 			}
 
@@ -915,16 +911,4 @@ static void lose_priest_exp(object *pl, int loss)
 {
 	(void) pl;
 	(void) loss;
-#if 0
-	if (!pl || pl->type != PLAYER || !pl->chosen_skill || !pl->chosen_skill->exp_obj)
-	{
-		LOG(llevBug, "Bad call to lose_priest_exp()\n");
-		return;
-	}
-
-	if ((loss = check_dm_add_exp_to_obj(pl->chosen_skill->exp_obj, loss, 0)))
-	{
-		add_exp(pl, -loss, pl->chosen_skill->stats.sp, 0);
-	}
-#endif
 }

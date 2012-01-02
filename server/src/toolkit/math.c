@@ -94,7 +94,7 @@ int rndm(int min, int max)
 {
 	if (max < 1 || max - min + 1 < 1)
 	{
-		LOG(llevBug, "Calling rndm() with min=%d max=%d\n", min, max);
+		logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
 		return min;
 	}
 
@@ -109,7 +109,7 @@ int rndm_chance(uint32 n)
 {
 	if (!n)
 	{
-		LOG(llevBug, "Calling rndm_chance() with n=0.\n");
+		logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");
 		return 0;
 	}
 

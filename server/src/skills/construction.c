@@ -550,7 +550,7 @@ static void construction_builder(object *op, int x, int y)
 
 	if (!new_arch)
 	{
-		LOG(llevBug, "construction_builder(): Unable to find archetype %s.\n", material->slaying);
+		logger_print(LOG(BUG), "Unable to find archetype %s.", material->slaying);
 		draw_info(COLOR_WHITE, op, "You can't use this strange material.");
 		return;
 	}
@@ -584,7 +584,7 @@ static void construction_builder(object *op, int x, int y)
 			break;
 
 		default:
-			LOG(llevBug, "construction_builder(): Invalid material subtype %d.\n", material->sub_type);
+			logger_print(LOG(BUG), "Invalid material subtype %d.", material->sub_type);
 			draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
 			break;
 	}
@@ -666,7 +666,6 @@ void construction_do(object *op, int dir)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "construction_do(): Construction can only be used by players.\n");
 		return;
 	}
 
@@ -705,7 +704,7 @@ void construction_do(object *op, int dir)
 
 	if (!floor_ob)
 	{
-		LOG(llevBug, "construction_do(): Undefined square on map %s (%d, %d)\n", op->map->path, x, y);
+		logger_print(LOG(BUG), "Undefined square on map %s (%d, %d)", op->map->path, x, y);
 		draw_info(COLOR_WHITE, op, "You'd better not build here, it looks weird.");
 		return;
 	}
@@ -759,7 +758,7 @@ void construction_do(object *op, int dir)
 			break;
 
 		default:
-			LOG(llevBug, "Skill item %s has invalid subtype.\n", query_name(skill_item, NULL));
+			logger_print(LOG(BUG), "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
 			draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
 			break;
 	}

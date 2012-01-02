@@ -366,7 +366,6 @@ void check_light_source_list(mapstruct *map)
 			{
 				if (!tmp->first)
 				{
-					LOG(llevBug, "check_light_source_list(): Map %s has no object on light source tile.\n", STRING_SAFE(m->path));
 					continue;
 				}
 
@@ -463,7 +462,6 @@ void remove_light_source_list(mapstruct *map)
 	{
 		if (!tmp->first)
 		{
-			LOG(llevBug, "remove_light_source_list(): Map %s has no object on light source tile.\n", STRING_SAFE(map->path));
 			continue;
 		}
 

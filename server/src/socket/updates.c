@@ -51,8 +51,8 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!update_files)
 	{
-		LOG(llevError, "updates_file_new(): Out of memory.\n");
-		return;
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	st_size = sb->st_size;
@@ -61,16 +61,16 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!contents)
 	{
-		LOG(llevError, "updates_file_new(): Out of memory.\n");
-		return;
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	fp = fopen(filename, "rb");
 
 	if (!fp)
 	{
-		LOG(llevError, "updates_file_new(): Could not open file '%s' for reading.\n", filename);
-		return;
+		logger_print(LOG(ERROR), "Could not open file '%s' for reading.", filename);
+		exit(1);
 	}
 
 	numread = fread(contents, 1, st_size, fp);
@@ -86,8 +86,8 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!compressed)
 	{
-		LOG(llevError, "updates_file_new(): Out of memory.\n");
-		return;
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, st_size, Z_BEST_COMPRESSION);
@@ -95,8 +95,8 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 	if (!update_files[update_files_num].contents)
 	{
-		LOG(llevError, "updates_file_new(): Out of memory.\n");
-		return;
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	memcpy(update_files[update_files_num].contents, compressed, numread);
@@ -110,8 +110,6 @@ static void updates_file_new(const char *filename, struct stat *sb)
 	packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);
 	packet_append_uint32(update_files[update_files_num].packet, update_files[update_files_num].ucomp_len);
 	packet_append_data_len(update_files[update_files_num].packet, update_files[update_files_num].contents, update_files[update_files_num].len);
-
-	LOG(llevDebug, "  Loaded '%s': ucomp: %"FMT64U", comp: %"FMT64U" (%3.1f%%), CRC32: %lx.\n", filename, (uint64) update_files[update_files_num].ucomp_len, (uint64) numread, (float) (numread * 100) / update_files[update_files_num].ucomp_len, update_files[update_files_num].checksum);
 	update_files_num++;
 }
 
@@ -149,8 +147,8 @@ static void updates_traverse(const char *path)
 
 	if (!dir)
 	{
-		LOG(llevError, "traverse_updates(): Could not open directory '%s'.\n", path);
-		return;
+		logger_print(LOG(ERROR), "Could not open directory '%s'.", path);
+		exit(1);
 	}
 
 	while ((d = readdir(dir)))
@@ -189,19 +187,17 @@ void updates_init(void)
 	update_files = NULL;
 	update_files_num = 0;
 
-	LOG(llevDebug, "Loading client updates...\n");
 	updates_traverse(UPDATES_DIR_NAME);
 	/* Sort the entries. */
 	qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)()) updates_file_compare);
 
 	snprintf(path, sizeof(path), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
-	LOG(llevDebug, "Creating '%s'...\n", path);
 	fp = fopen(path, "wb");
 
 	if (!fp)
 	{
-		LOG(llevError, "updates_init(): Could not open file '%s' for writing.\n", path);
-		return;
+		logger_print(LOG(ERROR), "Could not open file '%s' for writing.", path);
+		exit(1);
 	}
 
 	for (i = 0; i < update_files_num; i++)

@@ -39,7 +39,7 @@ void map_info_init(object *info)
 
 	if (!info->map)
 	{
-		LOG(llevBug, "Map info object not on map.\n");
+		logger_print(LOG(BUG), "Map info object not on map.");
 		return;
 	}
 
@@ -49,7 +49,7 @@ void map_info_init(object *info)
 		{
 			if (OUT_OF_MAP(info->map, x, y))
 			{
-				LOG(llevBug, "Map info object (%d, %d) spans invalid area.\n", info->x, info->y);
+				logger_print(LOG(BUG), "Map info object (%d, %d) spans invalid area.", info->x, info->y);
 				return;
 			}
 

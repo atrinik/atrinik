@@ -38,6 +38,7 @@
 /* Now all the other header files that are part of the toolkit. */
 #include <binreloc.h>
 #include <console.h>
+#include <logger.h>
 #include <mempool.h>
 #include <packet.h>
 #include <sha1.h>

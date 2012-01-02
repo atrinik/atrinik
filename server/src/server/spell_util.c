@@ -49,7 +49,6 @@ void init_spells(void)
 		return;
 	}
 
-	LOG(llevDebug, "Initializing spells... ");
 	init_spells_done = 1;
 
 	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
@@ -57,7 +56,8 @@ void init_spells(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "Cannot open file '%s' for writing.\n", filename);
+		logger_print(LOG(ERROR), "Cannot open file '%s' for writing.", filename);
+		exit(1);
 	}
 
 	for (i = 0; i < NROFREALSPELLS; i++)
@@ -133,7 +133,8 @@ void init_spells(void)
 		{
 			if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL)
 			{
-				LOG(llevError, "Spell %s needs arch %s, your archetypes file is out of date.\n", spells[i].name, spells[i].archname);
+				logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
+				exit(1);
 			}
 		}
 		else
@@ -145,7 +146,8 @@ void init_spells(void)
 		{
 			if (!find_face(spells[i].icon, 0))
 			{
-				LOG(llevError, "Spell '%s' needs face '%s', but it could not be found.\n", spells[i].name, spells[i].icon);
+				logger_print(LOG(ERROR), "Spell '%s' needs face '%s', but it could not be found.", spells[i].name, spells[i].icon);
+				exit(1);
 			}
 		}
 
@@ -165,58 +167,6 @@ void init_spells(void)
 	}
 
 	fclose(fp);
-	LOG(llevDebug, "done.\n");
-}
-
-/**
- * Dumps all the spells. */
-void dump_spells(void)
-{
-	int i;
-
-	for (i = 0; i < NROFREALSPELLS; i++)
-	{
-		if (!settings.dumparg)
-		{
-			const char *name1 = NULL, *name2 = NULL;
-
-			if (spellarch[i])
-			{
-				name1 = spellarch[i]->name;
-
-				if (spellarch[i]->clone.other_arch)
-				{
-					name2 = spellarch[i]->clone.other_arch->name;
-				}
-			}
-
-			LOG(llevInfo, "%d: %s: %s: %s\n", i, spells[i].name, (name1 ? name1 : "null"), (name2 ? name2 : "null"));
-		}
-		else if (!strcmp(settings.dumparg, "all") || !strcmp(settings.dumparg, spells[i].name))
-		{
-			int j;
-			object *caster, *tmp = NULL;
-
-			LOG(llevInfo, "Information about '%s' (ID: %d):\n", spells[i].name, i);
-			caster = get_object();
-
-			if (spellarch[i])
-			{
-				tmp = arch_to_object(spellarch[i]);
-			}
-
-			for (j = 1; j <= MAXLEVEL; j++)
-			{
-				caster->level = j;
-				LOG(llevInfo, " Level: %3d, Mana: %4d, Dam: %4d, Dam2: %4d\n", j, SP_level_spellpoint_cost(caster, i, -1), SP_level_dam_adjust(caster, i, -1, 1), tmp ? SP_level_dam_adjust(caster, i, tmp->stats.dam, 1) : 0);
-			}
-
-			if (strcmp(settings.dumparg, "all"))
-			{
-				exit(0);
-			}
-		}
-	}
 }
 
 /**
@@ -234,13 +184,13 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 
 	if (!archname || !m)
 	{
-		LOG(llevBug, "insert_spell_effect(): archname or map NULL.\n");
+		logger_print(LOG(BUG), "archname or map NULL.");
 		return 1;
 	}
 
 	if (!(effect_arch = find_archetype(archname)))
 	{
-		LOG(llevBug, "insert_spell_effect(): Couldn't find effect arch (%s).\n", archname);
+		logger_print(LOG(BUG), "Couldn't find effect arch (%s).", archname);
 		return 1;
 	}
 
@@ -252,7 +202,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 
 	if (!insert_ob_in_map(effect_ob, m, NULL, 0))
 	{
-		LOG(llevBug, "insert_spell_effect(): effect arch (%s) out of map (%s) (%d,%d) or failed insertion.\n", archname, effect_ob->map->name, x, y);
+		logger_print(LOG(BUG), "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
 
 		/* Something is wrong - kill object */
 		if (!QUERY_FLAG(effect_ob, FLAG_REMOVED))
@@ -323,7 +273,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 	if (!s)
 	{
-		LOG(llevBug, "cast_spell(): Unknown spell: %d\n", type);
+		logger_print(LOG(BUG), "Unknown spell: %d", type);
 		return 0;
 	}
 
@@ -704,7 +654,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		default:
-			LOG(llevBug, "cast_spell(): Invalid invalid spell: %d\n", type);
+			logger_print(LOG(BUG), "Invalid invalid spell: %d", type);
 			break;
 	}
 
@@ -923,7 +873,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 	if (!tmp)
 	{
-		LOG(llevBug, "cast_cone(): arch_to_object() failed!? (%s)\n", spell_arch->name);
+		logger_print(LOG(BUG), "arch_to_object() failed!? (%s)", spell_arch->name);
 		return 0;
 	}
 
@@ -968,12 +918,12 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 		if (!QUERY_FLAG(tmp, FLAG_FLYING))
 		{
-			LOG(llevDebug, "cast_cone(): arch %s doesn't have flying 1\n", spell_arch->name);
+			logger_print(LOG(DEBUG), "arch %s doesn't have flying 1", spell_arch->name);
 		}
 
 		if ((!QUERY_FLAG(tmp, FLAG_WALK_ON) || !QUERY_FLAG(tmp, FLAG_FLY_ON)) && tmp->stats.dam)
 		{
-			LOG(llevDebug, "cast_cone(): arch %s doesn't have walk_on 1 and fly_on 1\n", spell_arch->name);
+			logger_print(LOG(DEBUG), "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
 		}
 
 		if (!insert_ob_in_map(tmp, op->map, op, 0))
@@ -1037,7 +987,7 @@ void explode_object(object *op)
 
 	if (op->other_arch == NULL)
 	{
-		LOG(llevBug, "explode_object(): op %s without other_arch\n", query_name(op, NULL));
+		logger_print(LOG(BUG), "op %s without other_arch", query_name(op, NULL));
 		object_remove(op, 0);
 		return;
 	}
@@ -1257,7 +1207,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 	/* Sanity check */
 	if (level <= 0 || level > MAXLEVEL)
 	{
-		LOG(llevBug, "SP_level_dam_adjust(): object %s has invalid level %d\n", query_name(caster, NULL), level);
+		logger_print(LOG(BUG), "object %s has invalid level %d", query_name(caster, NULL), level);
 
 		if (level <= 0)
 		{

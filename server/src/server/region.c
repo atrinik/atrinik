@@ -58,7 +58,7 @@ region *get_region_by_name(const char *region_name)
 		}
 	}
 
-	LOG(llevDebug, "Got no region for region %s.\n", region_name);
+	logger_print(LOG(DEBUG), "Got no region for region %s.", region_name);
 	return NULL;
 }
 
@@ -81,7 +81,7 @@ char *get_region_longname(const region *r)
 		return get_region_longname(r->parent);
 	}
 
-	LOG(llevDebug, "Region %s has no parent and no longname.\n", r->name);
+	logger_print(LOG(DEBUG), "Region %s has no parent and no longname.", r->name);
 	return "no region name";
 }
 
@@ -101,7 +101,7 @@ char *get_region_msg(const region *r)
 		return get_region_msg(r->parent);
 	}
 
-	LOG(llevDebug, "Region %s has no parent and no msg.\n", r->name);
+	logger_print(LOG(DEBUG), "Region %s has no parent and no msg.", r->name);
 	return "no region message";
 }
 
@@ -118,7 +118,7 @@ object *get_jail_exit(object *op)
 
 	if (op->type != PLAYER)
 	{
-		LOG(llevBug, "get_jail_exit() called for non-player object.\n");
+		logger_print(LOG(BUG), "called for non-player object.");
 		return NULL;
 	}
 
@@ -147,7 +147,7 @@ object *get_jail_exit(object *op)
 		}
 	}
 
-	LOG(llevDebug, "No suitable jailmap for region %s was found.\n", reg->name);
+	logger_print(LOG(DEBUG), "No suitable jailmap for region %s was found.", reg->name);
 	return NULL;
 }
 
@@ -168,13 +168,12 @@ void init_regions(void)
 	}
 
 	snprintf(filename, sizeof(filename), "%s/regions.reg", settings.mapdir);
-	LOG(llevDebug, "Reading regions from %s...\n", filename);
 	fp = fopen(filename, "r");
 
 	if (!fp)
 	{
-		LOG(llevError, "init_regions(): Can't open regions file: %s.\n", filename);
-		return;
+		logger_print(LOG(ERROR), "Can't open regions file: %s.", filename);
+		exit(1);
 	}
 
 	while (fgets(buf, sizeof(buf) - 1, fp))
@@ -252,8 +251,8 @@ void init_regions(void)
 
 			if (sscanf(value, "%[^ ] %d %d\n", path, &x, &y) != 3)
 			{
-				LOG(llevError, "init_regions(): Malformed regions entry: jail %s\n", value);
-				continue;
+				logger_print(LOG(ERROR), "Malformed regions entry: jail %s", value);
+				exit(1);
 			}
 
 			new->jailmap = strdup(path);
@@ -302,12 +301,12 @@ void init_regions(void)
 		else
 		{
 			/* We should never get here, if we have, then something is wrong */
-			LOG(llevError, "Got unknown value in region file: %s %s\n", key, value);
+			logger_print(LOG(ERROR), "Got unknown value in region file: %s %s", key, value);
+			exit(1);
 		}
 	}
 
 	assign_region_parents();
-	LOG(llevDebug, " done\n");
 
 	fclose(fp);
 }
@@ -321,7 +320,8 @@ static region *get_region_struct(void)
 
 	if (new == NULL)
 	{
-		LOG(llevError, "get_region_struct(): Out of memory.");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	return new;
@@ -344,8 +344,6 @@ static void assign_region_parents(void)
 
 		region_count++;
 	}
-
-	LOG(llevDebug, "Assigned %u regions with %u parents.\n", region_count, parent_count);
 }
 
 /**
@@ -353,8 +351,6 @@ static void assign_region_parents(void)
 void free_regions(void)
 {
 	region *reg, *next;
-
-	LOG(llevDebug, "Freeing regions.\n");
 
 	for (reg = first_region; reg; reg = next)
 	{

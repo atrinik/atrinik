@@ -153,7 +153,6 @@ extern int command_nowiz(object *op, char *params);
 extern int command_dm(object *op, char *params);
 extern void shutdown_agent(int timer, char *reason);
 extern int command_ban(object *op, char *params);
-extern int command_debug(object *op, char *params);
 extern int command_wizpass(object *op, char *params);
 extern int command_dm_stealth(object *op, char *params);
 extern int command_dm_light(object *op, char *params);
@@ -253,7 +252,6 @@ extern archetype *find_archetype(const char *name);
 extern void arch_add(archetype *at);
 extern archetype *get_skill_archetype(int skillnr);
 extern void init_archetypes(void);
-extern void dump_all_archetypes(void);
 extern void free_all_archs(void);
 extern object *arch_to_object(archetype *at);
 extern object *create_singularity(const char *name);
@@ -290,8 +288,6 @@ extern void connection_object_remove(object *op);
 extern int connection_object_get_value(object *op);
 extern void connection_trigger(object *op, int state);
 extern void connection_trigger_button(object *op, int state);
-/* src/server/daemon.c */
-extern void become_daemon(char *filename);
 /* src/server/exp.c */
 extern uint64 new_levels[115 + 2];
 extern _level_color level_color[201];
@@ -317,7 +313,6 @@ extern void init_gods(void);
 extern godlink *get_rand_god(void);
 extern object *pntr_to_god_obj(godlink *godlnk);
 extern void free_all_god(void);
-extern void dump_gods(void);
 /* src/server/image.c */
 extern New_Face *new_faces;
 extern New_Face *blank_face;
@@ -328,16 +323,12 @@ extern int nrofpixmaps;
 extern int read_bmap_names(void);
 extern int find_face(char *name, int error);
 extern void free_all_images(void);
-/* src/server/info.c */
-extern void dump_abilities(void);
-extern void print_monsters(void);
 /* src/server/init.c */
 extern struct Settings settings;
 extern shstr_constants shstr_cons;
 extern int world_darkness;
 extern unsigned long todtick;
 extern long init_done;
-extern FILE *logfile;
 extern long nroftreasures;
 extern long nrofartifacts;
 extern long nrofallowedstr;
@@ -347,7 +338,6 @@ extern void init_library(void);
 extern void init_globals(void);
 extern void write_todclock(void);
 extern void init(int argc, char **argv);
-extern void compile_info(void);
 /* src/server/item.c */
 extern char *describe_protections(object *op, int newline);
 extern char *query_weight(object *op);
@@ -398,9 +388,6 @@ extern void fix_monster(object *op);
 extern object *insert_base_info_object(object *op);
 extern object *find_base_info_object(object *op);
 extern void set_mobile_speed(object *op, int idx);
-/* src/server/logger.c */
-extern long nroferrors;
-extern void LOG(LogLevel logLevel, const char *format, ...) __attribute__((format(printf, 2, 3)));
 /* src/server/login.c */
 extern int check_name(player *pl, char *name);
 extern int save_player(object *op, int flag);
@@ -419,7 +406,6 @@ extern artifactlist *first_artifactlist;
 extern godlink *first_god;
 extern player *last_player;
 extern uint32 global_round_tag;
-extern void fatal(int err);
 extern void version(object *op);
 extern char *crypt_string(char *str, char *salt);
 extern int check_password(char *typed, char *crypted);
@@ -615,7 +601,6 @@ extern const char *item_races[13];
 extern ob_race *race_find(shstr *name);
 extern ob_race *race_get_random(void);
 extern void race_init(void);
-extern void race_dump(void);
 extern void race_free(void);
 /* src/server/readable.c */
 extern int book_overflow(const char *buf1, const char *buf2, size_t booksize);
@@ -670,7 +655,6 @@ extern sint64 do_skill(object *op, int dir, const char *params);
 extern sint64 calc_skill_exp(object *who, object *op, int level);
 extern void init_new_exp_system(void);
 extern void free_exp_objects(void);
-extern void dump_skills(void);
 extern int check_skill_known(object *op, int skillnr);
 extern int lookup_skill_by_name(const char *string);
 extern int check_skill_to_fire(object *who, int type, const char *params);
@@ -709,7 +693,6 @@ extern spell_struct spells[52];
 extern char *spellpathnames[20];
 extern archetype *spellarch[52];
 extern void init_spells(void);
-extern void dump_spells(void);
 extern int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
 extern spell_struct *find_spell(int spelltype);
 extern int check_spell_known(object *op, int spell_type);
@@ -765,11 +748,9 @@ extern int fix_generated_item(object **op_ptr, object *creator, int difficulty, 
 extern artifactlist *find_artifactlist(int type);
 extern archetype *find_artifact_archtype(const char *name);
 extern artifact *find_artifact_type(const char *name, int type);
-extern void dump_artifacts(void);
 extern void give_artifact_abilities(object *op, artifact *art);
 extern int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
 extern void free_all_treasures(void);
-extern void dump_monster_treasure(const char *name);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
@@ -901,6 +882,14 @@ extern void toolkit_console_init(void);
 extern void toolkit_console_deinit(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);
+/* src/toolkit/logger.c */
+extern void toolkit_logger_init(void);
+extern void toolkit_logger_deinit(void);
+extern void logger_open_log(const char *path);
+extern FILE *logger_get_logfile(void);
+extern void logger_set_print_func(logger_print_func func);
+extern void logger_do_print(const char *str);
+extern void logger_print(const char *level, const char *function, uint64 line, const char *format, ...) __attribute__((format(printf, 4, 5)));
 /* src/toolkit/math.c */
 extern void toolkit_math_init(void);
 extern void toolkit_math_deinit(void);
@@ -959,6 +948,7 @@ extern void toolkit_path_init(void);
 extern void toolkit_path_deinit(void);
 extern char *path_join(const char *path, const char *path2);
 extern char *path_dirname(const char *path);
+extern char *path_basename(const char *path);
 extern void path_ensure_directories(const char *path);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
@@ -984,7 +974,6 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
-extern void ss_dump_table(int what, char *buf, size_t size);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);

@@ -107,7 +107,7 @@ int save_player(object *op, int flag)
 	if (!fp)
 	{
 		draw_info(COLOR_WHITE, op, "Can't open file for saving.");
-		LOG(llevDebug, "Can't open file for saving (%s).\n", filename);
+		logger_print(LOG(DEBUG), "Can't open file for saving (%s).", filename);
 		rename(backupfile, filename);
 		return 0;
 	}
@@ -282,11 +282,11 @@ static void wrong_password(player *pl)
 {
 	pl->socket.password_fails++;
 
-	LOG(llevSystem, "%s@%s: Failed to provide correct password.\n", query_name(pl->ob, NULL), pl->socket.host);
+	logger_print(LOG(SYSTEM), "%s@%s: Failed to provide correct password.", query_name(pl->ob, NULL), pl->socket.host);
 
 	if (pl->socket.password_fails >= MAX_PASSWORD_FAILURES)
 	{
-		LOG(llevSystem, "%s@%s: Failed to provide a correct password too many times!\n", query_name(pl->ob, NULL), pl->socket.host);
+		logger_print(LOG(SYSTEM), "%s@%s: Failed to provide a correct password too many times!", query_name(pl->ob, NULL), pl->socket.host);
 		draw_info_send(0, COLOR_RED, &pl->socket, "You have failed to provide a correct password too many times.");
 		pl->socket.status = Ns_Zombie;
 	}
@@ -336,20 +336,20 @@ void check_login(object *op)
 
 	if (pl->state == ST_PLAYING)
 	{
-		LOG(llevSystem, ">%s< from IP %s - double login!\n", op->name, pl->socket.host);
+		logger_print(LOG(SYSTEM), ">%s< from IP %s - double login!", op->name, pl->socket.host);
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
 	if (checkbanned(op->name, pl->socket.host))
 	{
-		LOG(llevSystem, "Ban: Banned player tried to login. [%s@%s]\n", op->name, pl->socket.host);
+		logger_print(LOG(SYSTEM), "Ban: Banned player tried to login. [%s@%s]", op->name, pl->socket.host);
 		draw_info_send(0, COLOR_RED, &pl->socket, "Connection refused due to a ban.");
 		pl->socket.status = Ns_Zombie;
 		return;
 	}
 
-	LOG(llevInfo, "Login %s from IP %s\n", op->name, pl->socket.host);
+	logger_print(LOG(INFO), "Login %s from IP %s", op->name, pl->socket.host);
 
 	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
 	fp = fopen(filename, "rb");
@@ -365,7 +365,7 @@ void check_login(object *op)
 
 	if (fstat(fileno(fp), &statbuf))
 	{
-		LOG(llevBug, "Unable to stat %s?\n", filename);
+		logger_print(LOG(BUG), "Unable to stat %s?", filename);
 		elapsed_save_time = 0;
 	}
 	else
@@ -374,7 +374,7 @@ void check_login(object *op)
 
 		if (elapsed_save_time < 0)
 		{
-			LOG(llevBug, "Player file %s was saved in the future? (%"FMT64U" time)\n", filename, (uint64) elapsed_save_time);
+			logger_print(LOG(BUG), "Player file %s was saved in the future? (%"FMT64U" time)", filename, (uint64) elapsed_save_time);
 			elapsed_save_time = 0;
 		}
 	}
@@ -550,7 +550,7 @@ void check_login(object *op)
 
 			if (i == NROFREALSPELLS)
 			{
-				LOG(llevDebug, "check_login(): Bogus spell (%s) in %s\n", cp, filename);
+				logger_print(LOG(DEBUG), "Bogus spell (%s) in %s", cp, filename);
 			}
 		}
 		else if (!strcmp(buf, "cmd_permission"))
@@ -572,7 +572,7 @@ void check_login(object *op)
 
 			if (spell_id < 0 || spell_id >= NROFREALSPELLS)
 			{
-				LOG(llevDebug, "check_login(): Bogus spell ID (#%d) in %s\n", spell_id, filename);
+				logger_print(LOG(DEBUG), "Bogus spell ID (#%d) in %s", spell_id, filename);
 			}
 
 			pl->spell_quickslots[value] = spell_id;
@@ -618,7 +618,6 @@ void check_login(object *op)
 	/* We transfer it to a new object */
 	op->custom_attrset = NULL;
 
-	LOG(llevDebug, "load obj for player: %s\n", op->name);
 	object_destroy(op);
 
 	/* Create a new object for the real player data */
@@ -683,7 +682,7 @@ void check_login(object *op)
 
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
-		LOG(llevBug, "Player %s was loaded without friendly flag!", query_name(op, NULL));
+		logger_print(LOG(BUG), "Player %s was loaded without friendly flag!", query_name(op, NULL));
 		SET_FLAG(op, FLAG_FRIENDLY);
 	}
 

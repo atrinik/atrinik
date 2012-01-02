@@ -149,11 +149,6 @@ static player *get_player(player *p)
 		p = (player *) get_poolchunk(pool_player);
 		memset(p, 0, sizeof(player));
 
-		if (p == NULL)
-		{
-			LOG(llevError, "get_player(): Out of memory\n");
-		}
-
 		if (!last_player)
 		{
 			first_player = last_player = p;
@@ -374,8 +369,8 @@ static archetype *get_player_archetype(archetype *at)
 
 		if (at == start)
 		{
-			LOG(llevError, "No player achetypes\n");
-			exit(-1);
+			logger_print(LOG(ERROR), "No player archetypes.");
+			exit(1);
 		}
 	}
 }
@@ -690,7 +685,7 @@ static int save_life(object *op)
 		}
 	}
 
-	LOG(llevBug, "save_life(): LIFESAVE set without applied object.\n");
+	logger_print(LOG(BUG), "LIFESAVE set without applied object.");
 	CLEAR_FLAG(op, FLAG_LIFESAVE);
 	/* Bring him home. */
 	enter_player_savebed(op);
@@ -1278,7 +1273,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
 	if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION))
 	{
-		LOG(llevBug, "Warning, dust %s is not AE spell!!\n", query_name(throw_ob, NULL));
+		logger_print(LOG(BUG), "Warning, dust %s is not AoE spell!!", query_name(throw_ob, NULL));
 		return;
 	}
 
@@ -1305,7 +1300,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	/* Problem occurred! */
 	else
 	{
-		LOG(llevBug, "cast_dust() can't find an archetype to use!\n");
+		logger_print(LOG(BUG), "can't find an archetype to use!");
 	}
 
 	if (op->type == PLAYER && arch)

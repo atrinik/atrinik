@@ -81,7 +81,6 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
 static int set_ring_bonus(object *op, int bonus, int level);
 static int get_magic(int diff);
-static void dump_monster_treasure_rec(const char *name, treasure *t, int depth);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
 static void free_artifactlist();
@@ -104,8 +103,8 @@ void load_treasures(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "Can't open treasures file: %s\n", filename);
-		return;
+		logger_print(LOG(ERROR), "Can't open treasures file: %s", filename);
+		exit(1);
 	}
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
@@ -155,8 +154,7 @@ void load_treasures(void)
 #ifdef TREASURE_DEBUG
 					if (t->next_yes || t->next_no)
 					{
-						LOG(llevBug, "Treasure %s is one item, but on treasure %s\n", tl->name, t->item ? t->item->name : t->name);
-						LOG(llevBug, " the next_yes or next_no field is set");
+						logger_print(LOG(BUG), "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
 					}
 #endif
 					tl->total_chance += t->chance;
@@ -165,7 +163,8 @@ void load_treasures(void)
 		}
 		else
 		{
-			LOG(llevError, "Treasure list didn't understand: %s\n", buf);
+			logger_print(LOG(ERROR), "Treasure list didn't understand: %s", buf);
+			exit(1);
 		}
 	}
 
@@ -199,8 +198,8 @@ static void create_money_table(void)
 
 		if (!coins_arch[i])
 		{
-			LOG(llevError, "create_money_table(): Can't find %s.\n", coins[i] ? coins[i] : "NULL");
-			return;
+			logger_print(LOG(ERROR), "Can't find %s.", coins[i] ? coins[i] : "NULL");
+			exit(1);
 		}
 	}
 }
@@ -268,7 +267,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 		{
 			if ((t->item = find_archetype(variable)) == NULL)
 			{
-				LOG(llevBug, "Treasure lacks archetype: %s\n", variable);
+				logger_print(LOG(BUG), "Treasure lacks archetype: %s", variable);
 			}
 
 			start_marker = 1;
@@ -401,11 +400,11 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 		}
 		else
 		{
-			LOG(llevBug, "Unknown treasure command: '%s', last entry %s\n", cp, t->name ? t->name : "null");
+			logger_print(LOG(BUG), "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
 		}
 	}
 
-	LOG(llevBug, "Treasure %s lacks 'end'.>%s<\n", t->name ? t->name : "NULL", cp ? cp : "NULL");
+	logger_print(LOG(BUG), "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
 
 	return t;
 }
@@ -436,13 +435,12 @@ void init_artifacts(void)
 	has_been_inited = 1;
 
 	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
-	LOG(llevDebug, " reading artifacts from %s...", filename);
 	fp = fopen(filename, "rb");
 
 	if (!fp)
 	{
-		LOG(llevError, "Can't open %s.\n", filename);
-		return;
+		logger_print(LOG(ERROR), "Can't open %s.", filename);
+		exit(1);
 	}
 
 	/* Start read in the artifact list */
@@ -539,7 +537,8 @@ void init_artifacts(void)
 		{
 			if ((atemp = find_archetype(cp + 9)) == NULL)
 			{
-				LOG(llevError, "init_artifacts(): Can't find def_arch %s.\n", cp + 9);
+				logger_print(LOG(ERROR), "Can't find def_arch %s.", cp + 9);
+				exit(1);
 			}
 
 			/* Ok, we have a name and an archetype */
@@ -568,17 +567,20 @@ void init_artifacts(void)
 
 			if (!load_object(fp, &(art->def_at.clone), NULL, LO_LINEMODE, MAP_STYLE))
 			{
-				LOG(llevError, "init_artifacts(): Could not load object.\n");
+				logger_print(LOG(ERROR), "Could not load object.");
+				exit(1);
 			}
 
 			if (!art->name)
 			{
-				LOG(llevError, "init_artifacts(): Object %s has no arch id name\n", art->def_at.clone.name);
+				logger_print(LOG(ERROR), "Object %s has no arch id name", art->def_at.clone.name);
+				exit(1);
 			}
 
 			if (!art->def_at_name)
 			{
-				LOG(llevError, "init_artifacts(): Artifact %s has no def arch\n", art->name);
+				logger_print(LOG(ERROR), "Artifact %s has no def arch", art->name);
+				exit(1);
 			}
 
 			/* Ok, now let's catch and copy the commands to our artifacts
@@ -587,7 +589,8 @@ void init_artifacts(void)
 
 			if (fseek(fp, old_pos, SEEK_SET))
 			{
-				LOG(llevError, "init_artifacts(): Could not fseek(fp, %ld, SEEK_SET).\n", old_pos);
+				logger_print(LOG(ERROR), "Could not fseek(fp, %ld, SEEK_SET).", old_pos);
+				exit(1);
 			}
 
 			/* The lex reader will bug when it don't get feed with a
@@ -609,14 +612,16 @@ void init_artifacts(void)
 				/* Should not possible. */
 				if (ftell(fp) > file_pos)
 				{
-					LOG(llevError, "init_artifacts(): fgets() read too much data! (%ld - %ld)\n", file_pos, ftell(fp));
+					logger_print(LOG(ERROR), "fgets() read too much data! (%ld - %ld)", file_pos, ftell(fp));
+					exit(1);
 				}
 			}
 
 			/* Now store the parse text in the artifacts list entry */
 			if ((art->parse_text = malloc(lcount)) == NULL)
 			{
-				LOG(llevError, "init_artifacts(): out of memory in ->parse_text (size %"FMT64U")\n", (uint64) lcount);
+				logger_print(LOG(ERROR), "out of memory in ->parse_text (size %"FMT64U")", (uint64) lcount);
+				exit(1);
 			}
 
 			memcpy(art->parse_text, buf_text, lcount);
@@ -644,7 +649,7 @@ void init_artifacts(void)
 		}
 		else
 		{
-			LOG(llevBug, "Unknown input in artifact file: %s\n", buf);
+			logger_print(LOG(BUG), "Unknown input in artifact file: %s", buf);
 		}
 	}
 
@@ -662,7 +667,7 @@ void init_artifacts(void)
 
 			if (!art->chance)
 			{
-				LOG(llevBug, "Artifact with no chance: %s\n", art->name);
+				logger_print(LOG(BUG), "Artifact with no chance: %s", art->name);
 			}
 			else
 			{
@@ -670,8 +675,6 @@ void init_artifacts(void)
 			}
 		}
 	}
-
-	LOG(llevDebug, "done.\n");
 }
 
 /**
@@ -685,7 +688,7 @@ void init_archetype_pointers(void)
 
 	if (!ring_arch_normal)
 	{
-		LOG(llevBug, "Can't find 'ring_normal' arch (from artifacts)\n");
+		logger_print(LOG(BUG), "Can't find 'ring_normal' arch (from artifacts)");
 	}
 
 	if (ring_arch == NULL)
@@ -695,7 +698,7 @@ void init_archetype_pointers(void)
 
 	if (!ring_arch)
 	{
-		LOG(llevBug, "Can't find 'ring_generic' arch\n");
+		logger_print(LOG(BUG), "Can't find 'ring_generic' arch");
 	}
 
 	if (amulet_arch_normal == NULL)
@@ -705,7 +708,7 @@ void init_archetype_pointers(void)
 
 	if (!amulet_arch_normal)
 	{
-		LOG(llevBug, "Can't find 'amulet_normal' arch (from artifacts)\n");
+		logger_print(LOG(BUG), "Can't find 'amulet_normal' arch (from artifacts)");
 	}
 
 	if (amulet_arch == NULL)
@@ -715,7 +718,7 @@ void init_archetype_pointers(void)
 
 	if (!amulet_arch)
 	{
-		LOG(llevBug, "Can't find 'amulet_generic' arch\n");
+		logger_print(LOG(BUG), "Can't find 'amulet_generic' arch");
 	}
 }
 
@@ -728,7 +731,8 @@ static treasurelist *get_empty_treasurelist(void)
 
 	if (tl == NULL)
 	{
-		LOG(llevError, "get_empty_treasurelist(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	tl->name = NULL;
@@ -753,7 +757,8 @@ static treasure *get_empty_treasure(void)
 
 	if (t == NULL)
 	{
-		LOG(llevError, "get_empty_treasure(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	t->change_arch.item_race = -1;
@@ -814,7 +819,7 @@ treasurelist *find_treasurelist(const char *name)
 		}
 	}
 
-	LOG(llevBug, "Bug: Couldn't find treasurelist %s\n", name);
+	logger_print(LOG(BUG), "Bug: Couldn't find treasurelist %s", name);
 	return NULL;
 }
 
@@ -844,7 +849,7 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 
 	if (ob->inv)
 	{
-		LOG(llevError, "generate_treasure(): Created multiple objects.\n");
+		logger_print(LOG(BUG), "Created multiple objects.");
 	}
 
 	return tmp;
@@ -864,7 +869,7 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
 {
 	if (tries++ > 100)
 	{
-		LOG(llevDebug, "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
+		logger_print(LOG(DEBUG), "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
 		return;
 	}
 
@@ -1087,7 +1092,7 @@ create_one_treasure_again_jmp:
 
 	if (!t || value > 0)
 	{
-		LOG(llevBug, "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s\n", tl ? tl->name : "(null)", op ? op->name : "(null)");
+		logger_print(LOG(BUG), "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
 		return;
 	}
 
@@ -2454,7 +2459,8 @@ static artifactlist *get_empty_artifactlist(void)
 
 	if (tl == NULL)
 	{
-		LOG(llevError, "get_empty_artifactlist(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	tl->next = NULL;
@@ -2473,7 +2479,8 @@ static artifact *get_empty_artifact(void)
 
 	if (t == NULL)
 	{
-		LOG(llevError, "get_empty_artifact(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	t->next = NULL;
@@ -2567,115 +2574,6 @@ artifact *find_artifact_type(const char *name, int type)
 }
 
 /**
- * For debugging purposes. Dumps all tables. */
-void dump_artifacts(void)
-{
-	artifactlist *al;
-	artifact *art;
-	linked_char *next;
-
-	for (al = first_artifactlist; al != NULL; al = al->next)
-	{
-		LOG(llevInfo, "Artifact has type %d, total_chance=%d\n", al->type, al->total_chance);
-
-		for (art = al->items; art != NULL; art = art->next)
-		{
-			LOG(llevInfo, "Artifact %-30s Difficulty %3d T-Style %d Chance %5d\n", art->name, art->difficulty, art->t_style, art->chance);
-
-			if (art->allowed != NULL)
-			{
-				LOG(llevInfo, "\tAllowed combinations:");
-
-				for (next = art->allowed; next != NULL; next = next->next)
-				{
-					LOG(llevInfo, "%s,", next->name);
-				}
-
-				LOG(llevInfo, "\n");
-			}
-		}
-	}
-
-	LOG(llevInfo, "\n");
-}
-
-/**
- * For debugging purposes. Dumps all treasures recursively.
- * @see dump_monster_treasure() */
-static void dump_monster_treasure_rec(const char *name, treasure *t, int depth)
-{
-	treasurelist *tl;
-	int i;
-
-	if (depth > 100)
-	{
-		return;
-	}
-
-	while (t != NULL)
-	{
-		if (t->name != NULL)
-		{
-			for (i = 0; i < depth; i++)
-			{
-				LOG(llevInfo, "  ");
-			}
-
-			LOG(llevInfo, "{   (list: %s)\n", t->name);
-			tl = find_treasurelist(t->name);
-			dump_monster_treasure_rec(name, tl->items, depth + 2);
-
-			for (i = 0; i < depth; i++)
-			{
-				LOG(llevInfo, "  ");
-			}
-
-			LOG(llevInfo, "}   (end of list: %s)\n", t->name);
-		}
-		else
-		{
-			for (i = 0; i < depth; i++)
-			{
-				LOG(llevInfo, "  ");
-			}
-
-			if (t->item->clone.type == FLESH)
-			{
-				LOG(llevInfo, "%s's %s\n", name, t->item->clone.name);
-			}
-			else
-			{
-				LOG(llevInfo, "%s\n", t->item->clone.name);
-			}
-		}
-
-		if (t->next_yes != NULL)
-		{
-			for (i = 0; i < depth; i++)
-			{
-				LOG(llevInfo, "  ");
-			}
-
-			LOG(llevInfo, " (if yes)\n");
-			dump_monster_treasure_rec(name, t->next_yes, depth + 1);
-		}
-
-		if (t->next_no != NULL)
-		{
-			for (i = 0; i < depth; i++)
-			{
-				LOG(llevInfo, "  ");
-			}
-
-			LOG(llevInfo, " (if no)\n");
-			dump_monster_treasure_rec(name, t->next_no, depth + 1);
-		}
-
-		t = t->next;
-	}
-}
-
-/**
  * Checks if op can be combined with art. */
 static int legal_artifact_combination(object *op, artifact *art)
 {
@@ -2692,7 +2590,7 @@ static int legal_artifact_combination(object *op, artifact *art)
 	for (tmp = art->allowed; tmp; tmp = tmp->next)
 	{
 #ifdef TREASURE_VERBOSE
-		LOG(llevDebug, "legal_art: %s\n", tmp->name);
+		logger_print(LOG(DEBUG), "legal_art: %s", tmp->name);
 #endif
 
 		if (*tmp->name == '!')
@@ -2737,7 +2635,8 @@ void give_artifact_abilities(object *op, artifact *art)
 
 		if (!load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT))
 		{
-			LOG(llevError, "give_artifact_abilities(): load_object() error (ob: %s art: %s).\n", op->name, art->name);
+			logger_print(LOG(ERROR), "load_object() error (ob: %s art: %s).", op->name, art->name);
+			exit(1);
 		}
 
 		FREE_AND_ADD_REF_HASH(op->artifact, art->name);
@@ -2781,7 +2680,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 	if (al == NULL)
 	{
 #ifdef TREASURE_VERBOSE
-		LOG(llevDebug, "Couldn't change %s into artifact - no table.\n", op->name);
+		logger_print(LOG(DEBUG), "Couldn't change %s into artifact - no table.", op->name);
 #endif
 		return 0;
 	}
@@ -2802,7 +2701,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
 		if (art == NULL || roll >= 0)
 		{
-			LOG(llevBug, "Got null entry and non zero roll in generate_artifact, type %d\n", op->type);
+			logger_print(LOG(BUG), "Got null entry and non zero roll in generate_artifact, type %d", op->type);
 			return 0;
 		}
 
@@ -2815,7 +2714,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 		if (!legal_artifact_combination(op, art))
 		{
 #ifdef TREASURE_VERBOSE
-			LOG(llevDebug, "%s of %s was not a legal combination.\n", op->name, art->item->name);
+			logger_print(LOG(DEBUG), "%s of %s was not a legal combination.", op->name, art->item->name);
 #endif
 			continue;
 		}
@@ -2941,8 +2840,6 @@ static void free_artifactlist(void)
 {
 	artifactlist *al, *nextal;
 
-	LOG(llevDebug, "Freeing artifact list.\n");
-
 	for (al = first_artifactlist; al; al = nextal)
 	{
 		nextal = al->next;
@@ -2961,8 +2858,6 @@ static void free_artifactlist(void)
 void free_all_treasures(void)
 {
 	treasurelist *tl, *next;
-
-	LOG(llevDebug, "Freeing treasure lists.\n");
 
 	for (tl = first_treasurelist; tl; tl = next)
 	{
@@ -3168,43 +3063,6 @@ set_material_real:
 }
 
 /**
- * For debugging purposes. Dumps all treasures for a given monster.
- * @param name Name of the monster to dump treasures for. */
-void dump_monster_treasure(const char *name)
-{
-	archetype *at;
-	int found;
-
-	found = 0;
-	LOG(llevInfo, "\n");
-
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (!strcasecmp(at->name, name))
-		{
-			LOG(llevInfo, "treasures for %s (arch: %s)\n", at->clone.name, at->name);
-
-			if (at->clone.randomitems != NULL)
-			{
-				dump_monster_treasure_rec(at->clone.name, at->clone.randomitems->items, 1);
-			}
-			else
-			{
-				LOG(llevInfo, "(nothing)\n");
-			}
-
-			LOG(llevInfo, "\n");
-			found++;
-		}
-	}
-
-	if (found == 0)
-	{
-		LOG(llevInfo, "No objects have the name %s!\n\n", name);
-	}
-}
-
-/**
  * Gets the environment level for treasure generation for the given
  * object.
  * @param op Object to get environment level of.
@@ -3215,7 +3073,6 @@ int get_environment_level(object *op)
 
 	if (!op)
 	{
-		LOG(llevBug, "get_environment_level() called for NULL object!\n");
 		return 1;
 	}
 
@@ -3286,12 +3143,13 @@ static void check_treasurelist(treasure *t, treasurelist *tl)
 {
 	if (t->item == NULL && t->name == NULL)
 	{
-		LOG(llevError, "Treasurelist %s has element with no name or archetype\n", tl->name);
+		logger_print(LOG(ERROR), "Treasurelist %s has element with no name or archetype", tl->name);
+		exit(1);
 	}
 
 	if (t->chance >= 100 && t->next_yes && (t->next || t->next_no))
 	{
-		LOG(llevBug, "Treasurelist %s has element that has 100%% generation, next_yes field as well as next or next_no\n", tl->name);
+		logger_print(LOG(BUG), "Treasurelist %s has element that has 100%% generation, next_yes field as well as next or next_no", tl->name);
 	}
 
 	/* find_treasurelist will print out its own error message */

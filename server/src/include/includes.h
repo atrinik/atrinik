@@ -34,7 +34,6 @@
 #include <toolkit.h>
 #include <define.h>
 #include <version.h>
-#include <logger.h>
 #include <newclient.h>
 
 #endif

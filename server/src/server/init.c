@@ -41,9 +41,6 @@ struct Settings settings =
 	"",
 	/* Client/server port */
 	CSPORT,
-	llevDebug,
-	/* dumpvalues, dumparg, daemonmode */
-	0, NULL, 0,
 	DATADIR,
 	LOCALDIR,
 	MAPDIR, PLAYERDIR, ARCHETYPES,TREASURES,
@@ -63,8 +60,7 @@ struct Settings settings =
 	0,
 	0,
 	10,
-	1.0f,
-	0
+	1.0f
 };
 
 /** The shared constants. */
@@ -82,9 +78,6 @@ archetype *level_up_arch = NULL;
 /** Ignores signals until init_done is true. */
 long init_done;
 
-/** Log file to use. */
-FILE *logfile;
-
 /** Number of treasures. */
 long nroftreasures;
 /** Number of artifacts. */
@@ -101,9 +94,7 @@ char first_map_path[MAX_BUF];
 static void usage();
 static void help();
 static void init_beforeplay();
-static void dump_level_colors_table();
 static void init_environ();
-static void init_defaults();
 static void init_dynamic();
 static void init_clocks();
 
@@ -151,8 +142,6 @@ void free_strings(void)
 	const char **ptr = (const char **) &shstr_cons;
 	int i = 0;
 
-	LOG(llevDebug, "Freeing all string constants\n");
-
 	for (i = 0; i < nrof_strings; i++)
 	{
 		FREE_ONLY_HASH(ptr[i]);
@@ -176,6 +165,7 @@ static void console_command_shutdown(const char *params)
 void init_library(void)
 {
 	toolkit_import(console);
+	toolkit_import(logger);
 	toolkit_import(math);
 	toolkit_import(mempool);
 	toolkit_import(packet);
@@ -201,8 +191,6 @@ void init_library(void)
 	ban_init();
 	party_init();
 	init_block();
-	LOG(llevInfo, "Atrinik Server, v%s\n", PACKAGE_VERSION);
-	LOG(llevInfo, "Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team.\n");
 	read_bmap_names();
 	init_materials();
 	/* Must be after we read in the bitmaps */
@@ -220,7 +208,7 @@ void init_library(void)
 
 	if (!level_up_arch)
 	{
-		LOG(llevBug, "Can't find '%s' arch\n", ARCHETYPE_LEVEL_UP);
+		logger_print(LOG(BUG), "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
 	}
 }
 
@@ -288,14 +276,9 @@ static void init_environ(void)
  * Might use environment variables as default for some of them. */
 void init_globals(void)
 {
-	if (settings.logfilename[0] == '\0')
+	if (settings.logfilename[0] != '\0')
 	{
-		logfile = stderr;
-	}
-	else if ((logfile = fopen(settings.logfilename, "w")) == NULL)
-	{
-		logfile = stderr;
-		LOG(llevBug, "Unable to open %s as the logfile - will use stderr instead\n", settings.logfilename);
+		logger_open_log(settings.logfilename);
 	}
 
 	/* Global round ticker */
@@ -316,17 +299,7 @@ void init_globals(void)
 	num_animations = 0;
 	animations = NULL;
 	animations_allocated = 0;
-	init_defaults();
 	object_methods_init();
-}
-
-/**
- * Initializes global variables which can be changed by options.
- *
- * Called by init_library(). */
-static void init_defaults(void)
-{
-	nroferrors = 0;
 }
 
 /**
@@ -346,7 +319,7 @@ static void init_dynamic(void)
 		at = at->next;
 	}
 
-	LOG(llevError, "init_dynamic(): You need an archetype called 'map' and it has to contain start map.\n");
+	logger_print(LOG(ERROR), "You need an archetype called 'map' and it has to contain start map.");
 }
 
 /**
@@ -361,7 +334,7 @@ void write_todclock(void)
 
 	if ((fp = fopen(filename, "w")) == NULL)
 	{
-		LOG(llevBug, "Cannot open %s for writing.\n", filename);
+		logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
 		return;
 	}
 
@@ -389,11 +362,10 @@ static void init_clocks(void)
 	}
 
 	snprintf(filename, sizeof(filename), "%s/clockdata", settings.localdir);
-	LOG(llevDebug, "Reading clockdata from %s...", filename);
 
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		LOG(llevDebug, "Can't open %s.\n", filename);
+		logger_print(LOG(DEBUG), "Can't open %s.", filename);
 		todtick = 0;
 		write_todclock();
 		return;
@@ -401,7 +373,6 @@ static void init_clocks(void)
 
 	if (fscanf(fp, "%lu", &todtick))
 	{
-		LOG(llevDebug, "todtick=%lu\n", todtick);
 	}
 
 	fclose(fp);
@@ -424,93 +395,6 @@ static void showscores(void)
 {
 	hiscore_display(NULL, 9999, NULL);
 	exit(0);
-}
-
-static void set_debug(void)
-{
-	settings.debug = llevDebug;
-}
-
-static void unset_debug(void)
-{
-	settings.debug = llevInfo;
-}
-
-static void set_timestamp(void)
-{
-	settings.timestamp = 1;
-}
-
-static void set_dumpmon1(void)
-{
-	settings.dumpvalues = DUMP_VALUE_MONSTERS;
-}
-
-static void set_dumpmon2(void)
-{
-	settings.dumpvalues = DUMP_VALUE_ABILITIES;
-}
-
-static void set_dumpmon3(void)
-{
-	settings.dumpvalues = DUMP_VALUE_ARTIFACTS;
-}
-
-static void set_dumpmon4(void)
-{
-	settings.dumpvalues = DUMP_VALUE_SPELLS;
-}
-
-static void set_dumpmon5(void)
-{
-	settings.dumpvalues = DUMP_VALUE_SKILLS;
-}
-
-static void set_dumpmon6(void)
-{
-	settings.dumpvalues = DUMP_VALUE_RACES;
-}
-
-static void set_dumpmon7(void)
-{
-	settings.dumpvalues = DUMP_VALUE_ALCHEMY;
-}
-
-static void set_dumpmon8(void)
-{
-	settings.dumpvalues = DUMP_VALUE_GODS;
-}
-
-static void set_dumpmon9(void)
-{
-	settings.dumpvalues = DUMP_VALUE_ALCHEMY_COSTS;
-}
-
-static void set_dumpmon10(void)
-{
-	settings.dumpvalues = DUMP_VALUE_ARCHETYPES;
-}
-
-static void set_dumpmon11(char *name)
-{
-	settings.dumpvalues = DUMP_VALUE_MONSTER_TREASURE;
-	settings.dumparg = name;
-}
-
-static void set_dumpmon12(void)
-{
-	settings.dumpvalues = DUMP_VALUE_LEVEL_COLORS;
-}
-
-static void set_spell_dump(char *arg)
-{
-	settings.dumpvalues = DUMP_VALUE_SPELLS;
-	settings.dumparg = arg;
-}
-
-static void set_daemon(void)
-{
-	settings.daemonmode = 1;
 }
 
 static void set_watchdog(void)
@@ -571,7 +455,8 @@ static void set_csport(const char *val)
 #ifndef WIN32
 	if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
 	{
-		LOG(llevError, "%d is an invalid csport number.\n", settings.csport);
+		logger_print(LOG(ERROR), "%d is an invalid csport number.", settings.csport);
+		exit(1);
 	}
 #endif
 }
@@ -601,7 +486,7 @@ static void set_unit_tests(void)
 #if defined(HAVE_CHECK)
 	settings.unit_tests = 1;
 #else
-	LOG(llevInfo, "The server was built without the check unit testing framework.\nIf you want to run unit tests, you must first install this framework.\n");
+	logger_print(LOG(INFO), "The server was built without the check unit testing framework. If you want to run unit tests, you must first install this framework.");
 	exit(0);
 #endif
 }
@@ -618,7 +503,7 @@ static void set_world_maker(const char *data)
 	}
 #else
 	(void) data;
-	LOG(llevInfo, "The server was built without the world maker module.\n");
+	logger_print(LOG(INFO), "The server was built without the world maker module.");
 	exit(0);
 #endif
 }
@@ -661,8 +546,6 @@ static struct Command_Line_Options options[] =
 	/* Honor -help also, since it is somewhat common */
 	{"-help", 0, 1, help},
 	{"-v", 0, 1, call_version},
-	{"-d", 0, 1, set_debug},
-	{"+d", 0, 1, unset_debug},
 	{"-data",1,1, set_datadir},
 	{"-local",1,1, set_localdir},
 	{"-maps", 1, 1, set_mapdir},
@@ -671,33 +554,15 @@ static struct Command_Line_Options options[] =
 	{"-uniquedir", 1, 1, set_uniquedir},
 	{"-tmpdir", 1, 1, set_tmpdir},
 	{"-log", 1, 1, set_logfile},
-	{"-ts", 0, 1, set_timestamp},
 
 	/* Pass 2 functions.  Most of these could probably be in pass 1,
 	 * as they don't require much of anything to bet set up. */
 	{"-csport", 1, 2, set_csport},
-	{"-detach", 0, 2, set_daemon},
 	{"-watchdog", 0, 2, set_watchdog},
 	{"-interactive", 0, 2, set_interactive},
 
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */
-	{"-o", 0, 3, compile_info},
-
-	{"-m1", 0, 3, set_dumpmon1},
-	{"-m2", 0, 3, set_dumpmon2},
-	{"-m3", 0, 3, set_dumpmon3},
-	{"-m4", 0, 3, set_dumpmon4},
-	{"-m5", 0, 3, set_dumpmon5},
-	{"-m6", 0, 3, set_dumpmon6},
-	{"-m7", 0, 3, set_dumpmon7},
-	{"-m8", 0, 3, set_dumpmon8},
-	{"-m9", 0, 3, set_dumpmon9},
-	{"-m10", 0, 3, set_dumpmon10},
-	{"-m11", 1, 3, set_dumpmon11},
-	{"-m12", 0, 3, set_dumpmon12},
-	{"-spell", 1, 3, set_spell_dump},
-
 	{"-tests", 0, 3, set_unit_tests},
 	{"-world_maker", 1, 3, set_world_maker},
 
@@ -740,7 +605,7 @@ static void parse_args(int argc, char *argv[], int pass)
 				{
 					if ((on_arg + options[i].num_args) >= argc)
 					{
-						LOG(llevSystem, "command line: %s requires an argument.\n", options[i].cmd_option);
+						logger_print(LOG(SYSTEM), "command line: %s requires an argument.", options[i].cmd_option);
 						exit(1);
 					}
 					else
@@ -771,7 +636,7 @@ static void parse_args(int argc, char *argv[], int pass)
 
 		if (i == sizeof(options) / sizeof(struct Command_Line_Options))
 		{
-			LOG(llevSystem, "Unknown option: %s\n", argv[on_arg]);
+			logger_print(LOG(SYSTEM), "Unknown option: %s", argv[on_arg]);
 			usage();
 			exit(1);
 		}
@@ -795,7 +660,7 @@ static void load_settings(void)
 
 	if (!fp)
 	{
-		LOG(llevBug, "No %s file found\n", SETTINGS);
+		logger_print(LOG(BUG), "No %s file found", SETTINGS);
 		return;
 	}
 
@@ -847,7 +712,7 @@ static void load_settings(void)
 			}
 			else
 			{
-				LOG(llevBug, "load_settings(): Unknown value for metaserver_notification: %s\n", cp);
+				logger_print(LOG(BUG), "Unknown value for metaserver_notification: %s", cp);
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_server"))
@@ -858,7 +723,7 @@ static void load_settings(void)
 			}
 			else
 			{
-				LOG(llevBug, "load_settings(): metaserver_server must have a value.\n");
+				logger_print(LOG(BUG), "metaserver_server must have a value.");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_host"))
@@ -869,7 +734,7 @@ static void load_settings(void)
 			}
 			else
 			{
-				LOG(llevBug, "load_settings(): metaserver_host must have a value.\n");
+				logger_print(LOG(BUG), "metaserver_host must have a value.");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_name"))
@@ -880,7 +745,7 @@ static void load_settings(void)
 			}
 			else
 			{
-				LOG(llevBug, "load_settings(): metaserver_name must have a value.\n");
+				logger_print(LOG(BUG), "metaserver_name must have a value.");
 			}
 		}
 		else if (!strcasecmp(buf, "metaserver_comment"))
@@ -893,7 +758,8 @@ static void load_settings(void)
 
 			if (tmp < 0)
 			{
-				LOG(llevError, "load_settings(): item_power_factor must be a positive number (%f < 0).\n", tmp);
+				logger_print(LOG(ERROR), "item_power_factor must be a positive number (%f < 0).", tmp);
+				exit(1);
 			}
 			else
 			{
@@ -912,12 +778,12 @@ static void load_settings(void)
 			}
 			else
 			{
-				LOG(llevBug, "load_settings(): client_maps must have a value.\n");
+				logger_print(LOG(BUG), "client_maps must have a value.");
 			}
 		}
 		else
 		{
-			LOG(llevBug, "Unknown value in %s file: %s\n", SETTINGS, buf);
+			logger_print(LOG(BUG), "Unknown value in %s file: %s", SETTINGS, buf);
 		}
 	}
 
@@ -937,7 +803,6 @@ void init(int argc, char **argv)
 
 	/* Must be done before init_signal() */
 	init_done = 0;
-	logfile = stderr;
 
 	/* First arg pass - right now it does
 	 * nothing, but in future specifying the
@@ -961,13 +826,6 @@ void init(int argc, char **argv)
 	init_regions();
 	hiscore_init();
 
-#ifndef WIN32
-	if (settings.daemonmode)
-	{
-		become_daemon(settings.logfilename[0] == '\0' ? "logfile" : settings.logfilename);
-	}
-#endif
-
 	init_beforeplay();
 	init_ericserver();
 	metaserver_init();
@@ -981,65 +839,47 @@ void init(int argc, char **argv)
  * Show the usage. */
 static void usage(void)
 {
-	LOG(llevInfo, "Usage: atrinik_server [-h] [-<flags>]...\n");
+	logger_print(LOG(INFO), "Usage: atrinik_server [-h] [-<flags>]...");
 }
 
 /**
  * Show help about the command line options. */
 static void help(void)
 {
-	LOG(llevInfo, "Flags:\n");
-	LOG(llevInfo, " -csport <port> Specifies the port to use for the new client/server code.\n");
-	LOG(llevInfo, " -d          Turns on some debugging.\n");
-	LOG(llevInfo, " +d          Turns off debugging (useful if server compiled with debugging\n");
-	LOG(llevInfo, "             as default).\n");
-	LOG(llevInfo, " -detach     The server will go in the background, closing all\n");
-	LOG(llevInfo, "             connections to the tty (UNIX only).\n");
-	LOG(llevInfo, " -h, -help   Display this information.\n");
-	LOG(llevInfo, " -log <file> Specifies which file to send output to.\n");
-	LOG(llevInfo, "             Only has meaning if -detach is specified.\n");
-	LOG(llevInfo, " -o          Prints out info on what was defined at compile time.\n");
-	LOG(llevInfo, " -s          Display the high-score list.\n");
-	LOG(llevInfo, " -score <name or class> Displays all high scores with matching name/class.\n");
-	LOG(llevInfo, " -stat_loss_on_death - If set, player loses stat when they die.\n");
-	LOG(llevInfo, " +stat_loss_on_death - If set, player does not lose a stat when they die.\n");
-	LOG(llevInfo, " -balanced_stat_loss - If set, death stat depletion is balanced by level etc.\n");
-	LOG(llevInfo, " +balanced_stat_loss - If set, ordinary death stat depletion is used.\n");
-	LOG(llevInfo, " -v          Print version information.\n");
-	LOG(llevInfo, " -data       Sets the lib dir (archetypes, treasures, etc.)\n");
-	LOG(llevInfo, " -local      Read/write local data (hiscore, unique items, etc.)\n");
-	LOG(llevInfo, " -maps       Sets the directory for maps.\n");
-	LOG(llevInfo, " -arch       Sets the archetype file to use.\n");
-	LOG(llevInfo, " -treasures  Sets the treasures file to use.\n");
-	LOG(llevInfo, " -uniquedir  Sets the unique items/maps directory.\n");
-	LOG(llevInfo, " -tmpdir     Sets the directory for temporary files (mostly maps.)\n");
-	LOG(llevInfo, " -m1         Dumps out object settings for all monsters.\n");
-	LOG(llevInfo, " -m2         Dumps out abilities for all monsters.\n");
-	LOG(llevInfo, " -m3         Dumps out artifact information.\n");
-	LOG(llevInfo, " -m4         Dumps out spell information.\n");
-	LOG(llevInfo, " -m5         Dumps out skill information.\n");
-	LOG(llevInfo, " -m6         Dumps out race information.\n");
-	LOG(llevInfo, " -m7         Dumps out alchemy information.\n");
-	LOG(llevInfo, " -m8         Dumps out gods information.\n");
-	LOG(llevInfo, " -m9         Dumps out more alchemy information (formula checking).\n");
-	LOG(llevInfo, " -m10        Dumps out all arches.\n");
-	LOG(llevInfo, " -m11 <arch> Dumps out list of treasures for a monster.\n");
-	LOG(llevInfo, " -m12        Dumps out level colors table.\n");
-	LOG(llevInfo, " -spell <name> Dumps various information about the specified spell\n");
-	LOG(llevInfo, "             (if 'all', information about all spells available). This\n");
-	LOG(llevInfo, "             is useful when debugging/balancing spells.\n");
+	logger_print(LOG(INFO), "Flags:");
+	logger_print(LOG(INFO), " -csport <port> Specifies the port to use for the new client/server code.");
+	logger_print(LOG(INFO), " -d          Turns on some debugging.");
+	logger_print(LOG(INFO), " +d          Turns off debugging (useful if server compiled with debugging");
+	logger_print(LOG(INFO), "             as default).");
+	logger_print(LOG(INFO), " -h, -help   Display this information.");
+	logger_print(LOG(INFO), " -log <file> Specifies which file to send output to.");
+	logger_print(LOG(INFO), "             Only has meaning if -detach is specified.");
+	logger_print(LOG(INFO), " -s          Display the high-score list.");
+	logger_print(LOG(INFO), " -score <name or class> Displays all high scores with matching name/class.");
+	logger_print(LOG(INFO), " -stat_loss_on_death - If set, player loses stat when they die.");
+	logger_print(LOG(INFO), " +stat_loss_on_death - If set, player does not lose a stat when they die.");
+	logger_print(LOG(INFO), " -balanced_stat_loss - If set, death stat depletion is balanced by level etc.");
+	logger_print(LOG(INFO), " +balanced_stat_loss - If set, ordinary death stat depletion is used.");
+	logger_print(LOG(INFO), " -v          Print version information.");
+	logger_print(LOG(INFO), " -data       Sets the lib dir (archetypes, treasures, etc.)");
+	logger_print(LOG(INFO), " -local      Read/write local data (hiscore, unique items, etc.)");
+	logger_print(LOG(INFO), " -maps       Sets the directory for maps.");
+	logger_print(LOG(INFO), " -arch       Sets the archetype file to use.");
+	logger_print(LOG(INFO), " -treasures  Sets the treasures file to use.");
+	logger_print(LOG(INFO), " -uniquedir  Sets the unique items/maps directory.");
+	logger_print(LOG(INFO), " -tmpdir     Sets the directory for temporary files (mostly maps.)");
 
 #if defined(HAVE_CHECK)
-	LOG(llevInfo, " -tests      Runs unit tests.\n");
+	logger_print(LOG(INFO), " -tests      Runs unit tests.");
 #endif
 
 #if defined(HAVE_WORLD_MAKER)
-	LOG(llevInfo, " -world_maker <path> Generates region maps and stores them in the specified path.\n");
+	logger_print(LOG(INFO), " -world_maker <path> Generates region maps and stores them in the specified path.");
 #endif
 
-	LOG(llevInfo, " -watchdog   Enables sending datagrams to an external watchdog program.\n");
-	LOG(llevInfo, " -interactive Enables interactive mode. Type 'help' in console for more information.\n");
-	LOG(llevInfo, " -ts         If enabled, all log entries will be prefixed with UNIX timestamp.\n");
+	logger_print(LOG(INFO), " -watchdog   Enables sending datagrams to an external watchdog program.");
+	logger_print(LOG(INFO), " -interactive Enables interactive mode. Type 'help' in console for more information.");
+	logger_print(LOG(INFO), " -ts         If enabled, all log entries will be prefixed with UNIX timestamp.");
 
 	exit(0);
 }
@@ -1055,203 +895,4 @@ static void init_beforeplay(void)
 	init_readable();
 	init_archetype_pointers();
 	init_new_exp_system();
-
-	if (settings.dumpvalues)
-	{
-		switch (settings.dumpvalues)
-		{
-			case DUMP_VALUE_MONSTERS:
-				print_monsters();
-				break;
-
-			case DUMP_VALUE_ABILITIES:
-				dump_abilities();
-				break;
-
-			case DUMP_VALUE_ARTIFACTS:
-				dump_artifacts();
-				break;
-
-			case DUMP_VALUE_SPELLS:
-				dump_spells();
-				break;
-
-			case DUMP_VALUE_SKILLS:
-				dump_skills();
-				break;
-
-			case DUMP_VALUE_RACES:
-				race_dump();
-				break;
-
-			case DUMP_VALUE_GODS:
-				dump_gods();
-				break;
-
-			case DUMP_VALUE_ARCHETYPES:
-				dump_all_archetypes();
-				break;
-
-			case DUMP_VALUE_MONSTER_TREASURE:
-				dump_monster_treasure(settings.dumparg);
-				break;
-
-			case DUMP_VALUE_LEVEL_COLORS:
-				dump_level_colors_table();
-				break;
-		}
-
-		exit(0);
-	}
-}
-
-/**
- * Dump compilation information, activated with the -o flag.
- *
- * It writes out information on how Imakefile and config.h was configured
- * at compile time. */
-void compile_info(void)
-{
-	int i = 0;
-
-	LOG(llevInfo, "Setup info:\n");
-	LOG(llevInfo, "Non-standard include files:\n");
-#if !defined (__STRICT_ANSI__) || defined (__sun__)
-#if !defined (Mips)
-	LOG(llevInfo, "<stdlib.h>\n");
-	i = 1;
-#endif
-
-#if !defined (MACH) && !defined (sony)
-	LOG(llevInfo, "<malloc.h>\n");
-	i = 1;
-#endif
-#endif
-
-#ifndef __STRICT_ANSI__
-#ifndef MACH
-	LOG(llevInfo, "<memory.h\n");
-	i = 1;
-#endif
-#endif
-
-#ifndef sgi
-	LOG(llevInfo, "<sys/timeb.h>\n");
-	i = 1;
-#endif
-
-	if (!i)
-	{
-		LOG(llevInfo, "(none)\n");
-	}
-
-	LOG(llevInfo, "Datadir:\t%s\n", settings.datadir);
-	LOG(llevInfo, "Localdir:\t%s\n", settings.localdir);
-
-	LOG(llevInfo, "Save player:\t<true>\n");
-	LOG(llevInfo, "Save mode:\t%4.4o\n", SAVE_MODE);
-	LOG(llevInfo, "Itemsdir:\t%s/%s\n", settings.localdir, settings.uniquedir);
-
-	LOG(llevInfo, "Tmpdir:\t\t%s\n", settings.tmpdir);
-	LOG(llevInfo, "Map timeout:\t%d\n", MAP_MAXTIMEOUT);
-	LOG(llevInfo, "Max_time:\t%d\n", MAX_TIME);
-
-	LOG(llevInfo, "Logfilename:\t%s (llev:%d)\n", settings.logfilename, settings.debug);
-	LOG(llevInfo, "ObjectSize:\t%"FMT64U" (living: %"FMT64U")\n", (uint64) sizeof(object), (uint64) sizeof(living));
-	LOG(llevInfo, "ObjectlinkSize:\t%"FMT64U"\n", (uint64) sizeof(objectlink));
-	LOG(llevInfo, "MapStructSize:\t%"FMT64U"\n", (uint64) sizeof(mapstruct));
-	LOG(llevInfo, "MapSpaceSize:\t%"FMT64U"\n", (uint64) sizeof(MapSpace));
-	LOG(llevInfo, "PlayerSize:\t%"FMT64U"\n", (uint64) sizeof(player));
-	LOG(llevInfo, "SocketSize:\t%"FMT64U"\n", (uint64) sizeof(socket_struct));
-	LOG(llevInfo, "PartylistSize:\t%"FMT64U"\n", (uint64) sizeof(party_struct));
-	LOG(llevInfo, "KeyValueSize:\t%"FMT64U"\n", (uint64) sizeof(key_value));
-
-	LOG(llevInfo, "Setup info: Done.\n");
-}
-
-/**
- * Dump level colors table. */
-static void dump_level_colors_table(void)
-{
-	int i, ii, range, tmp;
-
-	uint32 vx = 0, vc = 1000000;
-	float xc = 38;
-
-	for (i = 0; i < 100; i++)
-	{
-		vc += 100000;
-		vx += vc;
-		LOG(llevInfo, "%4.2f, ", (((float) vc) / xc) / 125.0f);
-		xc += 2;
-	}
-
-	LOG(llevInfo, "\n");
-
-	for (i = 1; i < 201; i++)
-	{
-		for (ii = i; ii > 1; ii--)
-		{
-			if (!calc_level_difference(i, ii))
-			{
-				break;
-			}
-		}
-
-		level_color[i].yellow = i - (i / 33);
-		level_color[i].blue = level_color[i].yellow - 1;
-		level_color[i].orange = i + (i / 33) + 1;
-
-		range = level_color[i].yellow - ii - 1;
-
-		if (range < 2)
-		{
-			level_color[i].green = level_color[i].blue - 1;
-			level_color[i].red = level_color[i].orange + 1;
-			level_color[i].purple = level_color[i].orange + 2;
-		}
-		else
-		{
-			tmp = (int) ((double) range * 0.4);
-
-			if (!tmp)
-			{
-				tmp = 1;
-			}
-			else if (tmp == range)
-			{
-				tmp--;
-			}
-
-			level_color[i].green = level_color[i].blue - (range - tmp);
-
-			range = (int) ((double) range * 0.75);
-
-			if (!range)
-			{
-				range = 0;
-			}
-
-			tmp = (int) ((double) range * 0.7);
-
-			if (!tmp)
-			{
-				tmp = 1;
-			}
-			else if (tmp == range)
-			{
-				tmp--;
-			}
-
-			if (tmp == range)
-			{
-				range++;
-			}
-
-			level_color[i].red = level_color[i].orange + (range - tmp);
-			level_color[i].purple = level_color[i].red + tmp;
-		}
-
-		LOG(llevSystem, "{ %d, %d, %d, %d, %d, %d},  lvl %d \n", ii + 1, level_color[i].green + 1, level_color[i].yellow, level_color[i].orange, level_color[i].red, level_color[i].purple, i);
-	}
 }

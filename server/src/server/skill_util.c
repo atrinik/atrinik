@@ -254,7 +254,7 @@ sint64 do_skill(object *op, int dir, const char *params)
 			break;
 
 		default:
-			LOG(llevDebug, "%s attempted to use unknown skill: %d\n", query_name(op, NULL), op->chosen_skill->stats.sp);
+			logger_print(LOG(DEBUG), "%s attempted to use unknown skill: %d", query_name(op, NULL), op->chosen_skill->stats.sp);
 			return success;
 			break;
 	}
@@ -296,7 +296,7 @@ sint64 calc_skill_exp(object *who, object *op, int level)
 	/* No exp for non players. */
 	if (!who || who->type != PLAYER)
 	{
-		LOG(llevDebug, "calc_skill_exp() called with who != PLAYER or NULL (%s (%s)- %s)\n", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
+		logger_print(LOG(DEBUG), "called with who != PLAYER or NULL (%s (%s)- %s)", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
 		return 0;
 	}
 
@@ -308,7 +308,6 @@ sint64 calc_skill_exp(object *who, object *op, int level)
 
 	if (!op)
 	{
-		LOG(llevBug, "calc_skill_exp() called with op == NULL (%s - %s)\n", query_name(who, NULL), query_name(op, NULL));
 		op_lvl = who->map->difficulty < 1 ? 1: who->map->difficulty;
 		op_exp = 0;
 	}
@@ -387,17 +386,16 @@ static void init_exp_obj(void)
 
 			if (nrofexpcat == MAX_EXP_CAT)
 			{
-				LOG(llevSystem, "Aborting! Reached limit of available experience\n");
-				LOG(llevError, "categories. Need to increase value of MAX_EXP_CAT.\n");
-				exit(0);
+				logger_print(LOG(ERROR), "Reached limit of available experience categories. Need to increase value of MAX_EXP_CAT.");
+				exit(1);
 			}
 		}
 	}
 
 	if (!nrofexpcat)
 	{
-		LOG(llevError, "Aborting! No experience objects found in archetypes.\n");
-		exit(0);
+		logger_print(LOG(ERROR), "Aborting! No experience objects found in archetypes.");
+		exit(1);
 	}
 }
 
@@ -426,7 +424,8 @@ void init_new_exp_system(void)
 		 * Now we can access the skill archetype by skill number or skill name. */
 		if (!(skills[i].at = get_skill_archetype(i)))
 		{
-			LOG(llevError, "Aborting! Skill #%d (%s) not found in archlist!\n", i, skills[i].name);
+			logger_print(LOG(ERROR), "Aborting! Skill #%d (%s) not found in archlist!", i, skills[i].name);
+			exit(1);
 		}
 	}
 
@@ -435,7 +434,8 @@ void init_new_exp_system(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "Cannot open file '%s' for writing.\n", filename);
+		logger_print(LOG(ERROR), "Cannot open file '%s' for writing.", filename);
+		exit(1);
 	}
 
 	for (i = 0; i < NROFSKILLS; i++)
@@ -449,7 +449,8 @@ void init_new_exp_system(void)
 
 			if (!find_face(icon, 0))
 			{
-				LOG(llevError, "Skill '%s' needs face '%s', but it could not be found.\n", skills[i].name, icon);
+				logger_print(LOG(ERROR), "Skill '%s' needs face '%s', but it could not be found.", skills[i].name, icon);
+				exit(1);
 			}
 
 			fprintf(fp, "%s\n%d\n%s\n%s\nend\n", skills[i].name, skills[i].category - 1, icon, skills[i].description);
@@ -473,29 +474,6 @@ void free_exp_objects(void)
 		}
 
 		object_destroy(exp_cat[i]);
-	}
-}
-
-/**
- * Dump debugging information about the skills. */
-void dump_skills(void)
-{
-	int i;
-
-	LOG(llevInfo, "exper_catgry \t str \t dex \t con \t wis \t cha \t int \t pow \n");
-
-	for (i = 0; i < nrofexpcat; i++)
-	{
-		LOG(llevInfo, "%d-%s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n", i, exp_cat[i]->name, exp_cat[i]->stats.Str, exp_cat[i]->stats.Dex, exp_cat[i]->stats.Con, exp_cat[i]->stats.Wis, exp_cat[i]->stats.Cha, exp_cat[i]->stats.Int, exp_cat[i]->stats.Pow);
-	}
-
-	LOG(llevInfo, "\n");
-	LOG(llevInfo, "%20s  %12s  %4s %4s %4s  %5s %5s %5s\n", "sk#       Skill name", "ExpCat", "Time", "Base", "xlvl", "Stat1", "Stat2", "Stat3");
-	LOG(llevInfo, "%20s  %12s  %4s %4s %4s  %5s %5s %5s\n", "---       ----------", "------", "----", "----", "----", "-----", "-----", "-----");
-
-	for (i = 0; i < NROFSKILLS; i++)
-	{
-		LOG(llevInfo, "%2d-%17s  %12s  %4d\n", i, skills[i].name, exp_cat[skills[i].category] != NULL ? exp_cat[skills[i].category]->name : "NONE", skills[i].time);
 	}
 }
 
@@ -709,15 +687,14 @@ int check_skill_to_apply(object *who, object *item)
 			break;
 
 		default:
-			LOG(llevDebug, "Warning: bad call of check_skill_to_apply()\n");
-			LOG(llevDebug, "No skill exists for item: %s\n", query_name(item, NULL));
+			logger_print(LOG(DEBUG), "No skill exists for item: %s", query_name(item, NULL));
 			return 0;
 	}
 
 	/* This should not happen */
 	if (skill == NO_SKILL_READY)
 	{
-		LOG(llevBug, "check_skill_to_apply() called for %s and item %s with skill NO_SKILL_READY\n", query_name(who, NULL), query_name(item, NULL));
+		logger_print(LOG(BUG), "check_skill_to_apply() called for %s and item %s with skill NO_SKILL_READY", query_name(who, NULL), query_name(item, NULL));
 	}
 
 	/* Check the additional skill if there is one */
@@ -756,7 +733,7 @@ int init_player_exp(object *pl)
 
 	if (pl->type != PLAYER)
 	{
-		LOG(llevBug, "init_player_exp(): called non-player %s.\n", query_name(pl, NULL));
+		logger_print(LOG(BUG), "called non-player %s.", query_name(pl, NULL));
 		return 0;
 	}
 
@@ -835,7 +812,6 @@ void unlink_skill(object *skillop)
 
 	if (!op || op->type != PLAYER)
 	{
-		LOG(llevBug, "unlink_skill() called for non-player %s!\n", query_name(op, NULL));
 		return;
 	}
 
@@ -1046,10 +1022,6 @@ int use_skill(object *op, char *string)
 		}
 	}
 
-#ifdef SKILL_UTIL_DEBUG
-	LOG(llevDebug, "use_skill(): got skill: %s\n", sknum > -1 ? skills[sknum].name : "none");
-#endif
-
 	/* Change to the new skill, then execute it. */
 	if (change_skill(op, sknum))
 	{
@@ -1087,7 +1059,7 @@ int change_skill(object *who, int sk_index)
 	{
 		if (object_apply_item(tmp, who, 0) != OBJECT_METHOD_OK)
 		{
-			LOG(llevBug, "change_skill(): can't apply new skill (%s - %d)\n", who->name, sk_index);
+			logger_print(LOG(BUG), "can't apply new skill (%s - %d)", who->name, sk_index);
 			return 0;
 		}
 
@@ -1098,7 +1070,7 @@ int change_skill(object *who, int sk_index)
 	{
 		if (object_apply_item(who->chosen_skill, who, AP_UNAPPLY) != OBJECT_METHOD_OK)
 		{
-			LOG(llevBug, "change_skill(): can't unapply old skill (%s - %d)\n", who->name, sk_index);
+			logger_print(LOG(BUG), "can't unapply old skill (%s - %d)", who->name, sk_index);
 		}
 	}
 
@@ -1131,13 +1103,13 @@ static int change_skill_to_skill(object *who, object *skl)
 
 	if (skl->env != who)
 	{
-		LOG(llevBug, "change_skill_to_skill: skill is not in players inventory (%s - %s)\n", query_name(who, NULL), query_name(skl, NULL));
+		logger_print(LOG(BUG), "skill is not in players inventory (%s - %s)", query_name(who, NULL), query_name(skl, NULL));
 		return 1;
 	}
 
 	if (object_apply_item(skl, who, AP_APPLY) != OBJECT_METHOD_OK)
 	{
-		LOG(llevBug, "change_skill(): can't apply new skill (%s - %s)\n", query_name(who, NULL), query_name(skl, NULL));
+		logger_print(LOG(BUG), "can't apply new skill (%s - %s)", query_name(who, NULL), query_name(skl, NULL));
 		return 1;
 	}
 
@@ -1285,13 +1257,13 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 			{
 				if (change_skill_to_skill(op, CONTR(op)->skill_weapon))
 				{
-					LOG(llevBug, "do_skill_attack(): couldn't give new hth skill to %s\n", query_name(op, NULL));
+					logger_print(LOG(BUG), "couldn't give new hth skill to %s", query_name(op, NULL));
 					return 0;
 				}
 			}
 			else
 			{
-				LOG(llevBug, "do_skill_attack(): no hth skill in player %s\n", query_name(op, NULL));
+				logger_print(LOG(BUG), "no hth skill in player %s", query_name(op, NULL));
 				return 0;
 			}
 		}
@@ -1345,7 +1317,6 @@ int SK_level(object *op)
 	/* Safety */
 	if (level <= 0)
 	{
-		LOG(llevBug, "SK_level(arch %s, name %s): level <= 0\n", op->arch->name, query_name(op, NULL));
 		level = 1;
 	}
 

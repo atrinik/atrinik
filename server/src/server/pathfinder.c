@@ -130,7 +130,7 @@ void request_new_path(object *waypoint)
 	}
 
 #ifdef DEBUG_PATHFINDING
-	LOG(llevDebug, "request_new_path(): enqueing path request for >%s< -> >%s<\n", waypoint->env->name, waypoint->name);
+	logger_print(LOG(DEBUG), "enqueing path request for >%s< -> >%s<", waypoint->env->name, waypoint->name);
 #endif
 
 	if (pathfinder_queue_enqueue(waypoint))
@@ -166,7 +166,7 @@ object *get_next_requested_path(void)
 	while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
-	LOG(llevDebug, "get_next_requested_path(): dequeued '%s' -> '%s'\n", waypoint->owner->name, waypoint->name);
+	logger_print(LOG(DEBUG), "dequeued '%s' -> '%s'", waypoint->owner->name, waypoint->name);
 #endif
 
 	CLEAR_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
@@ -189,7 +189,7 @@ static path_node *make_node(mapstruct *map, sint16 x, sint16 y, uint16 cost, pat
 	if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF)
 	{
 #ifdef DEBUG_PATHFINDING
-		LOG(llevDebug, "make_node(): Out of static buffer memory (this is not a problem)\n");
+		logger_print(LOG(DEBUG), "Out of static buffer memory (this is not a problem)");
 #endif
 		return NULL;
 	}
@@ -293,18 +293,6 @@ static void insert_priority_node(path_node *node, path_node **list)
 			node->prev->next = node;
 		}
 	}
-
-	/* Print out the values of the prioqueue -> should be ordered */
-#if 0
-	LOG(llevInfo, "post: ");
-
-	for (tmp = *list; tmp; tmp = tmp->next)
-	{
-		LOG(llevInfo, "%.3f ", tmp->heuristic);
-	}
-
-	LOG(llevInfo, "\n");
-#endif
 }
 
 /**
@@ -371,7 +359,7 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 
 	if (buf == NULL || *map == NULL)
 	{
-		LOG(llevBug, "get_path_next(): Illegal parameters.\n");
+		logger_print(LOG(BUG), "Illegal parameters.");
 		return 0;
 	}
 
@@ -394,7 +382,7 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 
 		if (mapend == NULL)
 		{
-			LOG(llevBug, "get_path_next(): No delimeter after map name in path description '%s' off %d\n", buf, *off);
+			logger_print(LOG(BUG), "No delimeter after map name in path description '%s' off %d", buf, *off);
 			return 0;
 		}
 
@@ -424,7 +412,7 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 
 	if (*map == NULL)
 	{
-		LOG(llevBug, "BIG: get_path_next(): Couldn't load map from description '%s' off %d\n", buf, *off);
+		logger_print(LOG(BUG), "Couldn't load map from description '%s' off %d", buf, *off);
 		return 0;
 	}
 
@@ -433,7 +421,7 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 
 	if (coord_end == coord_start || sscanf(coord_start, "%d,%d", x, y) != 2)
 	{
-		LOG(llevBug, "get_path_next(): Illegal coordinate pair in '%s' off %d\n", buf, *off);
+		logger_print(LOG(BUG), "Illegal coordinate pair in '%s' off %d", buf, *off);
 		return 0;
 	}
 
@@ -442,7 +430,7 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 
 	if (*map == NULL)
 	{
-		LOG(llevBug, "get_path_next(): Location (%d, %d) is out of map\n", *x, *y);
+		logger_print(LOG(BUG), "Location (%d, %d) is out of map", *x, *y);
 		return 0;
 	}
 
@@ -509,7 +497,7 @@ path_node *compress_path(path_node *path)
 	}
 
 #ifdef DEBUG_PATHFINDING
-	LOG(llevDebug, "compress_path(): removed %d nodes of %d (%.0f%%)\n", removed_nodes, total_nodes, (float)removed_nodes * 100.0 / (float)total_nodes);
+	logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes, total_nodes, (float)removed_nodes * 100.0 / (float)total_nodes);
 #endif
 
 	return path;
@@ -683,7 +671,6 @@ path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2,
 		}
 
 		traversal_id = 0;
-		LOG(llevDebug, "find_path(): Resetting traversal id\n");
 	}
 
 	traversal_id++;
@@ -771,25 +758,8 @@ path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2,
 	}
 
 #ifdef DEBUG_PATHFINDING
-	LOG(llevDebug, "find_path(): Explored %d tiles, stored %d.\n", searched_nodes, pathfinder_nodebuf_next);
+	logger_print(LOG(DEBUG), "Explored %d tiles, stored %d.", searched_nodes, pathfinder_nodebuf_next);
 	searched_nodes = 0;
-
-	/* This writes out the explored tiles on the source map. Useful for heuristic tweaking */
-#	if 0
-	{
-		int y, x;
-
-		for (y = 0; y < map1->height; y++)
-		{
-			for (x = 0; x < map1->height; x++)
-			{
-				LOG(llevInfo, "%c", (map1->bitmap[y] & (1U << x)) ? 'X' : '-');
-			}
-
-			LOG(llevInfo, "\n");
-		}
-	}
-#	endif
 #endif
 
 	return found_path;

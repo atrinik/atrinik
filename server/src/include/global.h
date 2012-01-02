@@ -330,18 +330,6 @@ typedef struct Settings
 	/** Port for new client/server */
 	uint16 csport;
 
-	/** Default debugging level */
-	LogLevel debug;
-
-	/** Set to dump various values/tables */
-	uint8 dumpvalues;
-
-	/** Additional arguments for some dump functions */
-	char *dumparg;
-
-	/** If true, detach and become daemon */
-	uint8 daemonmode;
-
 	/** Read only data files */
 	char *datadir;
 
@@ -410,8 +398,6 @@ typedef struct Settings
 
 	/** See note in setings file. */
 	float item_power_factor;
-
-	uint8 timestamp;
 } Settings;
 
 /** Constant shared string pointers. */

@@ -327,7 +327,6 @@ static void init_msgfile(void)
 	char buf[MAX_BUF], fname[MAX_BUF], *cp;
 
 	snprintf(fname, sizeof(fname), "%s/messages", settings.datadir);
-	LOG(llevDebug, "Reading messages from %s...\n", fname);
 
 	fp = fopen(fname, "r");
 
@@ -361,8 +360,7 @@ static void init_msgfile(void)
 				{
 					if (strlen(msgbuf) > BOOK_BUF)
 					{
-						LOG(llevBug, "This string exceeded max book buf size:\n");
-						LOG(llevBug, "  %s\n", msgbuf);
+						logger_print(LOG(BUG), "This string exceeded max book buf size: %s", msgbuf);
 					}
 
 					num_msgs++;
@@ -377,7 +375,7 @@ static void init_msgfile(void)
 				}
 				else if (error_lineno != 0)
 				{
-					LOG(llevBug, "Truncating book at %s, line %d\n", fname, error_lineno);
+					logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
 					error_lineno = 0;
 				}
 			}
@@ -389,14 +387,12 @@ static void init_msgfile(void)
 			}
 			else
 			{
-				LOG(llevBug, "Syntax error at %s, line %d\n", fname, lineno);
+				logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
 			}
 		}
 
 		fclose(fp);
 	}
-
-	LOG(llevDebug, "  Done, got %"FMT64U" messages.\n", (uint64) num_msgs);
 }
 
 /**
@@ -414,8 +410,6 @@ static void init_mon_info(void)
 			monsters[num_monsters - 1] = &at->clone;
 		}
 	}
-
-	LOG(llevDebug, "init_mon_info() got %"FMT64U" monsters...", (uint64) num_monsters);
 }
 
 /**
@@ -426,10 +420,8 @@ static void init_mon_info(void)
  * all the readable information. */
 void init_readable(void)
 {
-	LOG(llevDebug, "Initializing reading data... ");
 	init_msgfile();
 	init_mon_info();
-	LOG(llevDebug, " done.\n");
 }
 
 /**
@@ -887,8 +879,5 @@ void free_all_readable(void)
 	}
 
 	free(msgs);
-	LOG(llevDebug, "Freed %"FMT64U" book messages.\n", (uint64) num_msgs);
-
 	free(monsters);
-	LOG(llevDebug, "Freed %"FMT64U" book monsters.\n", (uint64) num_monsters);
 }

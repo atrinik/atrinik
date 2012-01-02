@@ -214,7 +214,7 @@ int cast_wor(object *op, object *caster)
 
 	if (dummy == NULL)
 	{
-		LOG(llevBug, "cast_wor(): get_archetype failed (%s - %s)!\n", query_name(op, NULL), query_name(caster, NULL));
+		logger_print(LOG(BUG), "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
 		return 0;
 	}
 
@@ -407,7 +407,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 	if (!op || !target)
 	{
-		LOG(llevBug, "cast_heal(): target or caster NULL (op: %s target: %s)\n", query_name(op, NULL), query_name(target, NULL));
+		logger_print(LOG(BUG), "target or caster NULL (op: %s target: %s)", query_name(op, NULL), query_name(target, NULL));
 		return 0;
 	}
 
@@ -663,7 +663,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 	if (insert_spell_effect(spells[spell_type].archname, target->map, target->x, target->y))
 	{
-		LOG(llevDebug, "insert_spell_effect() failed: spell:%d, obj:%s target:%s\n", spell_type, query_name(op, NULL), query_name(target, NULL));
+		logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s target:%s", spell_type, query_name(op, NULL), query_name(target, NULL));
 	}
 
 	return success;
@@ -752,7 +752,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 			if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y))
 			{
-				LOG(llevDebug, "insert_spell_effect() failed: spell:%d, obj:%s caster:%s target:%s\n", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+				logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
 			}
 
 			break;
@@ -814,7 +814,7 @@ int remove_depletion(object *op, object *target)
 
 	if ((at = find_archetype("depletion")) == NULL)
 	{
-		LOG(llevBug, "Could not find archetype depletion");
+		logger_print(LOG(BUG), "Could not find archetype depletion");
 		return 0;
 	}
 

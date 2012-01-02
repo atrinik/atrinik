@@ -43,7 +43,7 @@ static void write_map_log(void)
 
 	if (!(fp = fopen(buf, "w")))
 	{
-		LOG(llevBug, "Could not open %s for writing\n", buf);
+		logger_print(LOG(BUG), "Could not open %s for writing", buf);
 		return;
 	}
 
@@ -78,7 +78,6 @@ void read_map_log(void)
 
 	if (!(fp = fopen(buf, "r")))
 	{
-		LOG(llevDebug, "Could not open %s for reading\n", buf);
 		return;
 	}
 
@@ -90,7 +89,7 @@ void read_map_log(void)
 
 		if (string_split(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
 		{
-			LOG(llevDebug, "%s/temp.maps: ignoring invalid line: %s\n", settings.localdir, buf);
+			logger_print(LOG(DEBUG), "%s/temp.maps: ignoring invalid line: %s", settings.localdir, buf);
 			continue;
 		}
 
@@ -123,7 +122,7 @@ void swap_map(mapstruct *map, int force_flag)
 
 	if (map->in_memory != MAP_IN_MEMORY)
 	{
-		LOG(llevBug, "Tried to swap out map which was not in memory (%s).\n", map->path);
+		logger_print(LOG(BUG), "Tried to swap out map which was not in memory (%s).", map->path);
 		return;
 	}
 
@@ -157,7 +156,7 @@ void swap_map(mapstruct *map, int force_flag)
 	{
 		mapstruct *oldmap = map;
 
-		LOG(llevDebug, "Resetting1 map %s.\n", map->path);
+		logger_print(LOG(DEBUG), "Resetting1 map %s.", map->path);
 
 		if (map->events)
 		{
@@ -172,7 +171,7 @@ void swap_map(mapstruct *map, int force_flag)
 
 	if (new_save_map(map, 0) == -1)
 	{
-		LOG(llevBug, "Failed to swap map %s.\n", map->path);
+		logger_print(LOG(BUG), "Failed to swap map %s.", map->path);
 		/* Need to reset the in_memory flag so that delete map will also
 		 * free the objects with it. */
 		map->in_memory = MAP_IN_MEMORY;
@@ -244,7 +243,7 @@ void flush_old_maps(void)
 		/* Per player unique maps are never really reset. */
 		if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED)
 		{
-			LOG(llevDebug, "Resetting2 map %s.\n", m->path);
+			logger_print(LOG(DEBUG), "Resetting2 map %s.", m->path);
 			oldmap = m;
 			m = m->next;
 			delete_map(oldmap);
@@ -256,7 +255,7 @@ void flush_old_maps(void)
 		}
 		else
 		{
-			LOG(llevDebug, "Resetting3 map %s.\n", m->path);
+			logger_print(LOG(DEBUG), "Resetting3 map %s.", m->path);
 
 			if (m->events)
 			{

@@ -59,7 +59,7 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
 
 	if (!map || map != orig_map->tile_map[tile_num])
 	{
-		LOG(llevBug, "Failed to connect map %s with tile #%d (%s).\n", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
+		logger_print(LOG(BUG), "Failed to connect map %s with tile #%d (%s).", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
 		FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
 		return NULL;
 	}
@@ -267,7 +267,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 	{
 		mapstruct *m;
 
-		LOG(llevDebug, "relative_tile_position(): resetting traversal id\n");
+		logger_print(LOG(DEBUG), "resetting traversal id");
 
 		for (m = first_map; m != NULL; m = m->next)
 		{
@@ -298,7 +298,7 @@ mapstruct *has_been_loaded_sh(shstr *name)
 
 	if (*name != '/' && *name != '.')
 	{
-		LOG(llevDebug, "has_been_loaded_sh(): Found map name without starting '/' or '.' (%s)\n", name);
+		logger_print(LOG(DEBUG), "Found map name without starting '/' or '.' (%s)", name);
 		return NULL;
 	}
 
@@ -469,7 +469,7 @@ char *normalize_path(const char *src, const char *dst, char *path)
 
 	if (strstr(p, "//"))
 	{
-		LOG(llevBug, "Map path with unhandled '//' element: %s\n", buf);
+		logger_print(LOG(BUG), "Map path with unhandled '//' element: %s", buf);
 	}
 
 	*path = '\0';
@@ -492,7 +492,7 @@ char *normalize_path(const char *src, const char *dst, char *path)
 			}
 			else
 			{
-				LOG(llevBug, "Illegal path (too many \"..\" entries): %s\n", dst);
+				logger_print(LOG(BUG), "Illegal path (too many '..' entries): %s", dst);
 				*path = '\0';
 				return path;
 			}
@@ -911,7 +911,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 	{
 		if (i == LL_MORE)
 		{
-			LOG(llevDebug, "load_objects(%s): object %s - its a tail!\n", m->path ? m->path : ">no map<", query_short_name(op, NULL));
+			logger_print(LOG(DEBUG), "object %s - its a tail!",query_short_name(op, NULL));
 			continue;
 		}
 
@@ -920,7 +920,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 		 * will not be able to do anything with it either. */
 		if (op->arch == NULL)
 		{
-			LOG(llevDebug, "load_objects(%s): object %s (%d)- invalid archetype. (pos:%d,%d)\n", m->path ? m->path : ">no map<", query_short_name(op, NULL), op->type, op->x, op->y);
+			logger_print(LOG(DEBUG), "object %s (%d)- invalid archetype. (pos:%d,%d)", query_short_name(op, NULL), op->type, op->x, op->y);
 			continue;
 		}
 
@@ -1093,7 +1093,8 @@ mapstruct *get_linked_map(void)
 
 	if (map == NULL)
 	{
-		LOG(llevError, "get_linked_map(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	if (first_map)
@@ -1130,12 +1131,13 @@ static void allocate_map(mapstruct *m)
 
 	if (m->spaces || m->bitmap)
 	{
-		LOG(llevError, "allocate_map(): Callled with already allocated map (%s)\n", m->path);
+		logger_print(LOG(ERROR), "Callled with already allocated map (%s)", m->path);
+		exit(1);
 	}
 
 	if (m->buttons)
 	{
-		LOG(llevBug, "allocate_map(): Callled with already set buttons (%s)\n", m->path);
+		logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
 	}
 
 	m->spaces = calloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
@@ -1144,7 +1146,8 @@ static void allocate_map(mapstruct *m)
 
 	if (m->spaces == NULL || m->bitmap == NULL)
 	{
-		LOG(llevError, "allocate_map(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 }
 
@@ -1193,7 +1196,6 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (*filename != '/' && *filename != '.')
 	{
-		LOG(llevDebug, "load_original_map(): Filename without starting '/' - fixed. %s\n", filename);
 		tmp_fname[0] = '/';
 		strcpy(tmp_fname + 1, filename);
 		filename = tmp_fname;
@@ -1201,12 +1203,10 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (flags & MAP_PLAYER_UNIQUE)
 	{
-		LOG(llevDebug, "load_original_map unique: %s (%x)\n", filename, flags);
 		strcpy(pathname, filename);
 	}
 	else
 	{
-		LOG(llevDebug, "load_original_map: %s (%x) ", filename, flags);
 		strcpy(pathname, create_pathname(filename));
 	}
 
@@ -1216,43 +1216,36 @@ mapstruct *load_original_map(const char *filename, int flags)
 	{
 		if (!(flags & MAP_PLAYER_UNIQUE))
 		{
-			LOG(llevBug, "Can't open map file %s\n", pathname);
+			logger_print(LOG(BUG), "Can't open map file %s", pathname);
 		}
 
 		return NULL;
 	}
 
-	LOG(llevDebug, "link map. ");
 	m = get_linked_map();
 
-	LOG(llevDebug, "header: ");
 	FREE_AND_COPY_HASH(m->path, filename);
 
 	if (!load_map_header(m, fp))
 	{
-		LOG(llevBug, "Failure loading map header for %s, flags=%d\n", filename, flags);
+		logger_print(LOG(BUG), "Failure loading map header for %s, flags=%d", filename, flags);
 		delete_map(m);
 		return NULL;
 	}
 
-	LOG(llevDebug, "alloc. ");
 	allocate_map(m);
 
 	m->in_memory = MAP_LOADING;
-	LOG(llevDebug, "load objs:");
 	load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
-	LOG(llevDebug, "close. ");
 	fclose(fp);
-	LOG(llevDebug, "post set. ");
 
 	if (!MAP_DIFFICULTY(m))
 	{
-		LOG(llevBug, "Map %s has difficulty 0. Changing to 1.\n", filename);
+		logger_print(LOG(BUG), "Map %s has difficulty 0. Changing to 1.", filename);
 		MAP_DIFFICULTY(m) = 1;
 	}
 
 	set_map_reset_time(m);
-	LOG(llevDebug, "done!\n");
 	return m;
 }
 
@@ -1268,7 +1261,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 	if (!m->tmpname)
 	{
-		LOG(llevBug, "No temporary filename for map %s! Fallback to original!\n", m->path);
+		logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
 		strcpy(buf, m->path);
 		delete_map(m);
 		m = load_original_map(buf, 0);
@@ -1281,7 +1274,6 @@ static mapstruct *load_temporary_map(mapstruct *m)
 		return m;
 	}
 
-	LOG(llevDebug, "load_temporary_map: %s (%s) ", m->tmpname, m->path);
 	fp = fopen(m->tmpname, "rb");
 
 	if (!fp)
@@ -1291,7 +1283,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
 			return NULL;
 		}
 
-		LOG(llevBug, "Can't open temporary map %s! Fallback to original!\n", m->tmpname);
+		logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
 		strcpy(buf, m->path);
 		delete_map(m);
 		m = load_original_map(buf, 0);
@@ -1304,11 +1296,9 @@ static mapstruct *load_temporary_map(mapstruct *m)
 		return m;
 	}
 
-	LOG(llevDebug, "header: ");
-
 	if (!load_map_header(m, fp))
 	{
-		LOG(llevBug, "Error loading map header for %s (%s)! Fallback to original!\n", m->path, m->tmpname);
+		logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
 		delete_map(m);
 		m = load_original_map(m->path, 0);
 
@@ -1320,15 +1310,11 @@ static mapstruct *load_temporary_map(mapstruct *m)
 		return m;
 	}
 
-	LOG(llevDebug, "alloc. ");
 	allocate_map(m);
 
 	m->in_memory = MAP_LOADING;
-	LOG(llevDebug, "load objs:");
 	load_objects (m, fp, 0);
-	LOG(llevDebug, "close. ");
 	fclose(fp);
-	LOG(llevDebug, "done!\n");
 	return m;
 }
 
@@ -1395,14 +1381,10 @@ static void load_unique_objects(mapstruct *m)
 		return;
 	}
 
-	LOG(llevDebug, "open unique items file for %s\n", create_items_path(m->path));
 	fp = fopen(firstname, "rb");
 
 	if (!fp)
 	{
-		/* There is no expectation that every map will have unique items, but this
-		 * is debug output, so leave it in. */
-		LOG(llevDebug, "Can't open unique items file for %s\n", create_items_path(m->path));
 		return;
 	}
 
@@ -1435,7 +1417,6 @@ int new_save_map(mapstruct *m, int flag)
 
 	if (flag && !*m->path)
 	{
-		LOG(llevBug, "Tried to save map without path.\n");
 		return -1;
 	}
 
@@ -1450,7 +1431,6 @@ int new_save_map(mapstruct *m, int flag)
 			/* This ensures we always reload from original maps */
 			if (MAP_NOSAVE(m))
 			{
-				LOG(llevDebug, "skip map %s (no_save flag)\n", m->path);
 				return 0;
 			}
 
@@ -1469,15 +1449,13 @@ int new_save_map(mapstruct *m, int flag)
 		strcpy(filename, m->tmpname);
 	}
 
-	LOG(llevDebug, "Saving map %s to %s\n", m->path, filename);
-
 	m->in_memory = MAP_SAVING;
 	fp = fopen(filename, "w");
 
 	if (!fp)
 	{
-		LOG(llevError, "Can't open file %s for saving.\n", filename);
-		return -1;
+		logger_print(LOG(ERROR), "Can't open file %s for saving.", filename);
+		exit(1);
 	}
 
 	save_map_header(m, fp, flag);
@@ -1491,7 +1469,7 @@ int new_save_map(mapstruct *m, int flag)
 
 		if ((fp2 = fopen(buf, "w")) == NULL)
 		{
-			LOG(llevBug, "Can't open unique items file %s\n", buf);
+			logger_print(LOG(BUG), "Can't open unique items file %s", buf);
 		}
 
 		save_objects(m, fp, fp2);
@@ -1505,7 +1483,6 @@ int new_save_map(mapstruct *m, int flag)
 			}
 			else
 			{
-				LOG(llevDebug, "Saving unique items map to %s\n", buf);
 				fclose(fp2);
 				chmod(buf, SAVE_MODE);
 			}
@@ -1562,7 +1539,6 @@ void free_map(mapstruct *m, int flag)
 
 	if (!m->in_memory)
 	{
-		LOG(llevBug, "Trying to free freed map.\n");
 		return;
 	}
 
@@ -1593,7 +1569,7 @@ void free_map(mapstruct *m, int flag)
 		{
 			if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m)
 			{
-				LOG(llevBug, "Freeing map %s linked to %s which links back to another map.\n", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+				logger_print(LOG(BUG), "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
 			}
 
 			m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
@@ -1744,18 +1720,11 @@ mapstruct *ready_map_name(const char *name, int flags)
 			return NULL;
 		}
 
-		LOG(llevDebug, "RMN: unique. ");
 		load_unique_objects(m);
 
-		LOG(llevDebug, "clean. ");
 		clean_tmp_map(m);
 		m->in_memory = MAP_IN_MEMORY;
 	}
-
-	/* Below here is stuff common to both first time loaded maps and
-	 * temp maps. */
-
-	LOG(llevDebug, "end ready_map_name(%s)\n", m->path ? m->path : "<nopath>");
 
 	return m;
 }
@@ -1791,8 +1760,6 @@ void free_all_maps(void)
 		delete_map(first_map);
 		real_maps++;
 	}
-
-	LOG(llevDebug, "free_all_maps: Freed %d maps\n", real_maps);
 }
 
 /**
@@ -1812,7 +1779,7 @@ void update_position(mapstruct *m, int x, int y)
 
 	if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE)))
 	{
-		LOG(llevDebug, "update_position called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)\n", m->path, x, y);
+		logger_print(LOG(DEBUG), "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
 	}
 #endif
 
@@ -1822,9 +1789,6 @@ void update_position(mapstruct *m, int x, int y)
 	/* update our flags */
 	if (oldflags & P_FLAGS_UPDATE)
 	{
-#ifdef DEBUG_CORE
-		LOG(llevDebug, "UP - FLAGS: %d,%d\n", x, y);
-#endif
 		move_flags = 0;
 
 		/* This is a key function and highly often called - every saved tick is good. */
@@ -1937,7 +1901,7 @@ void update_position(mapstruct *m, int x, int y)
 		 * if they don't match, logic is broken someplace. */
 		if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR)))
 		{
-			LOG(llevDebug,"update_position: updated flags do not match old flags: %s (%d,%d) old:%x != %x\n", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
+			logger_print(LOG(DEBUG), "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
 		}
 #endif
 

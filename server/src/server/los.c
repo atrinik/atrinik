@@ -158,10 +158,6 @@ void set_block(int x, int y, int bx, int by)
 	block[x][y].x[idx] = bx;
 	block[x][y].y[idx] = by;
 	block[x][y].index++;
-
-#ifdef LOS_DEBUG
-	LOG(llevDebug, "setblock: added %d %d -> %d %d (%d)\n", x, y, bx, by, block[x][y].index);
-#endif
 }
 
 /**
@@ -332,10 +328,6 @@ void update_los(object *op)
 	{
 		return;
 	}
-
-#ifdef DEBUG_CORE
-	LOG(llevDebug, "LOS - %s\n", query_name(op));
-#endif
 
 	clear_los(op);
 

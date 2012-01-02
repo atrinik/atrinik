@@ -42,7 +42,6 @@ struct plugin_hooklist hooklist =
 	players_on_map,
 	create_pathname,
 	normalize_path,
-	LOG,
 	free_string_shared,
 	add_string,
 	object_remove,
@@ -179,6 +178,8 @@ struct plugin_hooklist hooklist =
 	packet_append_map_music,
 	packet_append_map_weather,
 	socket_send_packet,
+	logger_print,
+	logger_get_logfile,
 
 	season_name,
 	weekdays,
@@ -204,7 +205,6 @@ struct plugin_hooklist hooklist =
 	&first_map,
 	&first_party,
 	&first_region,
-	&logfile,
 	&pticks
 };
 
@@ -245,11 +245,10 @@ static void register_global_event(const char *plugin_name, int event_nr)
 
 	if (!plugin)
 	{
-		LOG(llevBug, "register_global_event(): Could not find plugin %s.\n", plugin_name);
+		logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
 		return;
 	}
 
-	LOG(llevDebug, "Plugin %s registered the event %d\n", plugin_name, event_nr);
 	plugin->gevent[event_nr] = 1;
 }
 
@@ -263,7 +262,7 @@ static void unregister_global_event(const char *plugin_name, int event_nr)
 
 	if (!plugin)
 	{
-		LOG(llevBug, "unregister_global_event(): Could not find plugin %s.\n", plugin_name);
+		logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
 		return;
 	}
 
@@ -368,8 +367,6 @@ void init_plugins(void)
 	DIR *plugdir;
 	char pluginfile[MAX_BUF];
 
-	LOG(llevInfo, "Initializing plugins from '%s':\n", PLUGINDIR);
-
 	if (!(plugdir = opendir(PLUGINDIR)))
 	{
 		return;
@@ -380,7 +377,6 @@ void init_plugins(void)
 		if (FILENAME_IS_PLUGIN(currentfile->d_name))
 		{
 			snprintf(pluginfile, sizeof(pluginfile), "%s/%s", PLUGINDIR, currentfile->d_name);
-			LOG(llevInfo, "Loading plugin %s\n", currentfile->d_name);
 			init_plugin(pluginfile);
 		}
 	}
@@ -431,7 +427,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!ptr)
 	{
-		LOG(llevBug, "Error while trying to load %s, returned: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while trying to load %s, returned: %s", pluginfile, plugins_dlerror());
 		return;
 	}
 
@@ -439,7 +435,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!initfunc)
 	{
-		LOG(llevBug, "Error while requesting 'initPlugin' from %s: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -448,7 +444,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!eventfunc)
 	{
-		LOG(llevBug, "Error while requesting 'triggerEvent' from %s: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -457,7 +453,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!pinitfunc)
 	{
-		LOG(llevBug, "Error while requesting 'postinitPlugin' from %s: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -466,7 +462,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!propfunc)
 	{
-		LOG(llevBug, "Error while requesting 'getPluginProperty' from %s: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -475,7 +471,7 @@ void init_plugin(const char *pluginfile)
 
 	if (!closefunc)
 	{
-		LOG(llevBug, "Error while requesting 'closePlugin' from %s: %s\n", pluginfile, plugins_dlerror());
+		logger_print(LOG(BUG), "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
 		plugins_dlclose(ptr);
 		return;
 	}
@@ -496,7 +492,6 @@ void init_plugin(const char *pluginfile)
 	initfunc(&hooklist);
 	propfunc(0, "Identification", plugin->id, sizeof(plugin->id));
 	propfunc(0, "FullName", plugin->fullname, sizeof(plugin->fullname));
-	LOG(llevDebug, "Plugin name: %s, known as %s\n", plugin->fullname, plugin->id);
 
 	if (!plugins_list)
 	{
@@ -509,7 +504,6 @@ void init_plugin(const char *pluginfile)
 	}
 
 	pinitfunc();
-	LOG(llevDebug, " [Done]\n");
 }
 
 /**
@@ -556,8 +550,6 @@ void remove_plugins(void)
 		return;
 	}
 
-	LOG(llevDebug, "Removing all plugins from memory.\n");
-
 	for (plugin = plugins_list; plugin; )
 	{
 		atrinik_plugin *next = plugin->next;
@@ -580,7 +572,7 @@ void map_event_obj_init(object *ob)
 
 	if (!ob->map)
 	{
-		LOG(llevBug, "Map event object not on map.\n");
+		logger_print(LOG(BUG), "Map event object not on map.");
 		return;
 	}
 
@@ -630,7 +622,7 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
 
 				if (!tmp->plugin)
 				{
-					LOG(llevBug, "trigger_map_event(): Tried to trigger map event #%d, but could not find plugin '%s'.\n", event_id, tmp->event->name);
+					logger_print(LOG(BUG), "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
 					return 0;
 				}
 			}
@@ -691,7 +683,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 
 	if ((event_obj = get_event_object(me, event_type)) == NULL)
 	{
-		LOG(llevBug, "Object with event flag and no event object: %s\n", STRING_OBJ_NAME(me));
+		logger_print(LOG(BUG), "Object with event flag and no event object: %s", STRING_OBJ_NAME(me));
 		me->event_flags &= ~(1 << event_type);
 		return 0;
 	}
@@ -719,13 +711,13 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
 		start_u = start.tv_sec * 1000000 + start.tv_usec;
 		stop_u = stop.tv_sec * 1000000 + stop.tv_usec;
 
-		LOG(llevDebug, "Running time: %2.6f seconds\n", (stop_u - start_u) / 1000000.0);
+		logger_print(LOG(DEBUG), "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
 #endif
 		return returnvalue;
 	}
 	else
 	{
-		LOG(llevBug, "event object with unknown plugin: %s, plugin %s\n", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
+		logger_print(LOG(BUG), "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
 		me->event_flags &= ~(1 << event_type);
 	}
 

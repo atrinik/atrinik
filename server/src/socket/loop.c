@@ -250,7 +250,7 @@ void remove_ns_dead_player(player *pl)
 		}
 	}
 
-	LOG(llevInfo, "Logout %s from IP %s\n", pl->ob->name, pl->socket.host);
+	logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);
 
 	/* To avoid problems with inventory window */
 	pl->ob->type = DEAD_OBJECT;
@@ -298,7 +298,7 @@ void doeric_server(void)
 	{
 		if (init_sockets[i].status == Ns_Add && !is_fd_valid(init_sockets[i].fd))
 		{
-			LOG(llevDebug, "doeric_server(): Invalid waiting fd %d\n", i);
+			logger_print(LOG(DEBUG), "Invalid waiting fd %d", i);
 			init_sockets[i].status = Ns_Dead;
 		}
 
@@ -319,7 +319,7 @@ void doeric_server(void)
 			{
 				if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 				{
-					LOG(llevInfo, "Keepalive: disconnecting %s: %d\n", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
+					logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
 					FREE_SOCKET(i);
 					continue;
 				}
@@ -337,13 +337,13 @@ void doeric_server(void)
 	{
 		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
 		{
-			LOG(llevDebug, "doeric_server(): Invalid file descriptor for player %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+			logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
 			pl->socket.status = Ns_Dead;
 		}
 
 		if (pl->socket.status != Ns_Dead && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 		{
-			LOG(llevInfo, "Keepalive: disconnecting %s [%s]: %d\n", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+			logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
 			pl->socket.status = Ns_Dead;
 		}
 
@@ -377,7 +377,7 @@ void doeric_server(void)
 
 	if (pollret == -1)
 	{
-		LOG(llevDebug, "doeric_server(): select failed: %s\n", strerror(errno));
+		logger_print(LOG(DEBUG), "select failed: %s", strerror(errno));
 		return;
 	}
 
@@ -393,7 +393,8 @@ void doeric_server(void)
 
 			if (!init_sockets)
 			{
-				LOG(llevError, "doeric_server(): Out of memory\n");
+				logger_print(LOG(ERROR), "OOM.");
+				exit(1);
 			}
 
 			newsocknum = socket_info.allocated_sockets;
@@ -418,7 +419,7 @@ void doeric_server(void)
 
 		if (init_sockets[newsocknum].fd == -1)
 		{
-			LOG(llevDebug, "doeric_server(): accept failed: %s\n", strerror(errno));
+			logger_print(LOG(DEBUG), "accept failed: %s", strerror(errno));
 		}
 		else
 		{
@@ -429,7 +430,7 @@ void doeric_server(void)
 
 			if (checkbanned(NULL, buf))
 			{
-				LOG(llevSystem, "Ban: Banned IP tried to connect: %s\n", buf);
+				logger_print(LOG(SYSTEM), "Ban: Banned IP tried to connect: %s", buf);
 #ifndef WIN32
 				close(init_sockets[newsocknum].fd);
 #else
@@ -468,7 +469,7 @@ void doeric_server(void)
 
 				if (rr < 0)
 				{
-					LOG(llevInfo, "Drop connection: %s\n", STRING_SAFE(init_sockets[i].host));
+					logger_print(LOG(INFO), "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
 					init_sockets[i].status = Ns_Dead;
 				}
 				else
@@ -518,7 +519,7 @@ void doeric_server(void)
 
 			if (rr < 0)
 			{
-				LOG(llevInfo, "Drop connection: %s (%s)\n", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+				logger_print(LOG(INFO), "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
 				pl->socket.status = Ns_Dead;
 			}
 			else

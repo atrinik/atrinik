@@ -124,51 +124,9 @@ static void init_archetable(void)
 {
 	archetype *at;
 
-	LOG(llevDebug, "Setting up archetable...");
-
 	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
 	{
 		arch_add(at);
-	}
-
-	LOG(llevDebug, " done.\n");
-}
-
-/**
- * Dumps _all_ archetypes and artifacts to debug-level output. */
-void dump_all_archetypes(void)
-{
-	archetype *at;
-	artifactlist *al;
-	artifact *art = NULL;
-	StringBuffer *sb;
-	char *diff;
-
-	for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more)
-	{
-		sb = stringbuffer_new();
-		dump_object(&at->clone, sb);
-		diff = stringbuffer_finish(sb);
-		LOG(llevInfo, "%s\n", diff);
-		free(diff);
-	}
-
-	LOG(llevInfo, "Artifacts fake arch list:\n");
-
-	for (al = first_artifactlist; al != NULL; al = al->next)
-	{
-		art = al->items;
-
-		do
-		{
-			sb = stringbuffer_new();
-			dump_object(&art->def_at.clone, sb);
-			diff = stringbuffer_finish(sb);
-			LOG(llevInfo, "%s\n", diff);
-			free(diff);
-			art = art->next;
-		}
-		while (art);
 	}
 }
 
@@ -206,8 +164,6 @@ void free_all_archs(void)
 		free(at);
 		i++;
 	}
-
-	LOG(llevDebug, "Freed %d archetypes\n", i);
 }
 
 /**
@@ -222,7 +178,8 @@ static archetype *get_archetype_struct(void)
 
 	if (new == NULL)
 	{
-		LOG(llevError, "get_archetype_struct(): Out of memory\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	/* To initial state other also */
@@ -256,16 +213,6 @@ static void first_arch_pass(FILE *fp)
 		/* Now we have the right speed_left value for out object.
 		 * copy_object() now will track down negative speed values, to
 		 * alter speed_left to guarantee a random & sensible start value. */
-		if (!op->layer && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
-		{
-			LOG(llevDebug, "Archetype %s has layer 0 without being sys_object!\n", STRING_OBJ_ARCH_NAME(op));
-		}
-
-		if (op->layer && QUERY_FLAG(op, FLAG_SYS_OBJECT))
-		{
-			LOG(llevDebug, "Archetype %s has layer %d (!= 0) and is sys_object!\n", STRING_OBJ_ARCH_NAME(op), op->layer);
-		}
-
 		switch (i)
 		{
 			/* A new archetype, just link it with the previous */
@@ -281,11 +228,6 @@ static void first_arch_pass(FILE *fp)
 				}
 
 				prev = last_more = at;
-
-				if (!op->type)
-				{
-					LOG(llevDebug, "Archetype %s has no type!\n", STRING_OBJ_ARCH_NAME(op));
-				}
 
 				break;
 
@@ -350,7 +292,7 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((at = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "Failed to find arch %s\n", STRING_SAFE(argument));
+				logger_print(LOG(BUG), "Failed to find arch %s", STRING_SAFE(argument));
 			}
 		}
 		else if (!strcmp("other_arch", variable))
@@ -359,7 +301,7 @@ static void second_arch_pass(FILE *fp_start)
 			{
 				if ((other = find_archetype(argument)) == NULL)
 				{
-					LOG(llevBug, "Failed to find other_arch %s\n", STRING_SAFE(argument));
+					logger_print(LOG(BUG), "Failed to find other_arch %s", STRING_SAFE(argument));
 				}
 				else if (at != NULL)
 				{
@@ -375,7 +317,7 @@ static void second_arch_pass(FILE *fp_start)
 
 				if (tl == NULL)
 				{
-					LOG(llevBug, "Failed to link treasure to arch. (arch: %s ->%s\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+					logger_print(LOG(BUG), "Failed to link treasure to arch. (arch: %s ->%s", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
 				}
 				else
 				{
@@ -394,7 +336,8 @@ static void second_arch_pass(FILE *fp_start)
 			}
 			else
 			{
-				LOG(llevError, "Got an arch %s not inside an Object.\n", argument);
+				logger_print(LOG(ERROR), "Got an arch %s not inside an Object.", argument);
+				exit(1);
 			}
 		}
 	}
@@ -406,8 +349,8 @@ static void second_arch_pass(FILE *fp_start)
 
 	if (!fp)
 	{
-		LOG(llevError, "Can't open %s.\n", filename);
-		return;
+		logger_print(LOG(ERROR), "Can't open %s.", filename);
+		exit(1);
 	}
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
@@ -437,14 +380,14 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((at = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "Second artifacts pass: Failed to find artifact %s\n", STRING_SAFE(argument));
+				logger_print(LOG(BUG), "Second artifacts pass: Failed to find artifact %s", STRING_SAFE(argument));
 			}
 		}
 		else if (!strcmp("def_arch", variable))
 		{
 			if ((other = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "Second artifacts pass: Failed to find def_arch %s from artifact %s\n", STRING_SAFE(argument), STRING_ARCH_NAME(at));
+				logger_print(LOG(BUG), "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
 			}
 
 			/* now copy from real arch the stuff from above to our "fake" arches */
@@ -455,7 +398,7 @@ static void second_arch_pass(FILE *fp_start)
 		{
 			if ((other = find_archetype(argument)) == NULL)
 			{
-				LOG(llevBug, "Second artifacts pass: Failed to find other_arch %s\n", STRING_SAFE(argument));
+				logger_print(LOG(BUG), "Second artifacts pass: Failed to find other_arch %s", STRING_SAFE(argument));
 			}
 			else if (at != NULL)
 			{
@@ -468,7 +411,7 @@ static void second_arch_pass(FILE *fp_start)
 
 			if (tl == NULL)
 			{
-				LOG(llevBug, "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)\n", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+				logger_print(LOG(BUG), "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
 			}
 			else if (at != NULL)
 			{
@@ -496,17 +439,14 @@ static void load_archetypes(void)
 #endif
 
 	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.archetypes);
-	LOG(llevDebug, "Reading archetypes from %s...\n", filename);
 
 	fp = fopen(filename, "rb");
 
 	if (!fp)
 	{
-		LOG(llevError, "Can't open archetype file.\n");
-		return;
+		logger_print(LOG(ERROR), "Can't open archetype file.");
+		exit(1);
 	}
-
-	LOG(llevDebug, "arch-pass 1...\n");
 
 #if TIME_ARCH_LOAD
 	GETTIMEOFDAY(&tv1);
@@ -526,24 +466,19 @@ static void load_archetypes(void)
 		sec--;
 	}
 
-	LOG(llevDebug, "Load took %d.%06d seconds\n", sec, usec);
+	logger_print(LOG(DEBUG), "Load took %d.%06d seconds", sec, usec);
 #endif
 
-	LOG(llevDebug, " done.\n");
 	init_archetable();
 
 	rewind(fp);
 
 	/* If not called before, reads all artifacts from file */
 	init_artifacts();
-	LOG(llevDebug, " loading treasure...\n");
 	load_treasures();
-	LOG(llevDebug, " done\n arch-pass 2...\n");
 	second_arch_pass(fp);
-	LOG(llevDebug, " done.\n");
 
 	fclose(fp);
-	LOG(llevDebug, "Reading archetypes done.\n");
 }
 
 /**
@@ -557,7 +492,6 @@ object *arch_to_object(archetype *at)
 
 	if (at == NULL)
 	{
-		LOG(llevBug, "arch_to_object(): Archetype at is NULL.\n");
 		return NULL;
 	}
 

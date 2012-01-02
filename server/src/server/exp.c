@@ -302,7 +302,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 	/* Sanity check */
 	if (!op)
 	{
-		LOG(llevBug, "add_exp(): Called for NULL object.\n");
 		return 0;
 	}
 
@@ -314,7 +313,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
 	if (skill_nr == CHOSEN_SKILL_NO)
 	{
-		LOG(llevDebug, "TODO: add_exp(): called for %s with exp %"FMT64". CHOSEN_SKILL_NO set. TODO: select skill.\n", query_name(op, NULL), exp_gain);
 		return 0;
 	}
 
@@ -325,7 +323,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 	/* Sanity */
 	if (!exp_skill)
 	{
-		LOG(llevDebug, "add_exp(): called for %s with skill nr %d / %"FMT64" exp - object has not this skill.\n", query_name(op, NULL), skill_nr, exp_gain);
 		return 0;
 	}
 
@@ -341,7 +338,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
 	if (!exp_ob)
 	{
-		LOG(llevBug, "add_exp() skill: %s - no exp_ob found!!\n", query_name(exp_skill, NULL));
 		return 0;
 	}
 
@@ -398,7 +394,6 @@ void player_lvl_adj(object *who, object *op)
 	/* No exp gain for indirect skills */
 	if (op->type == SKILL && !op->last_eat)
 	{
-		LOG(llevBug,"player_lvl_adj() called for indirect skill %s (who: %s)\n", query_name(op, NULL), who == NULL ? "<null>" : query_name(who, NULL));
 		return;
 	}
 
@@ -566,7 +561,6 @@ sint64 adjust_exp(object *pl, object *op, sint64 exp_gain)
 	/* Be sure this is a skill object from a player. */
 	if (op->type != SKILL || !pl || pl->type != PLAYER)
 	{
-		LOG(llevBug, "adjust_exp() - called for non player or non skill: skill: %s -> player: %s\n", query_name(op, NULL), query_name(pl, NULL));
 		return 0;
 	}
 
@@ -644,12 +638,6 @@ void apply_death_exp_penalty(object *op)
 		{
 			/* Check there is experience we can drain. */
 			lev_exp = tmp->stats.exp - new_levels[tmp->level];
-
-			/* Sanity check */
-			if (lev_exp < 0)
-			{
-				LOG(llevBug, "apply_death_exp_penalty(): Skill %s (%d %"FMT64") for player %s -> less exp as level need!\n", query_name(tmp, NULL), tmp->level, tmp->stats.exp, query_name(op, NULL));
-			}
 
 			if (!lev_exp)
 			{
@@ -731,7 +719,6 @@ float calc_level_difference(int who_lvl, int op_lvl)
 	/* Sanity checks */
 	if (who_lvl < 0 || who_lvl > 200 || op_lvl < 0 || op_lvl > 200)
 	{
-		LOG(llevBug, "calc_level_difference(): Level out of range! (%d - %d)\n", who_lvl, op_lvl);
 		return 0.0f;
 	}
 

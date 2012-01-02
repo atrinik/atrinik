@@ -87,11 +87,11 @@ int read_bmap_names(void)
 	size_t line = 0;
 
 	snprintf(buf, sizeof(buf), "%s/bmaps", settings.datadir);
-	LOG(llevDebug, "Reading bmaps from %s...", buf);
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		LOG(llevError, "Can't open bmaps file: %s\n", buf);
+		logger_print(LOG(ERROR), "Can't open bmaps file: %s", buf);
+		exit(1);
 	}
 
 	/* First count how many bitmaps we have, so we can allocate correctly */
@@ -148,8 +148,6 @@ int read_bmap_names(void)
 
 	fclose(fp);
 
-	LOG(llevDebug, " done (got %d/%d/%d)\n", nrofpixmaps, nrofbmaps, nroffiles);
-
 	new_faces = (New_Face *) malloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
 	for (i = 0; i < nrofpixmaps + 1; i++)
@@ -183,18 +181,8 @@ int read_bmap_names(void)
  * @param error Value to return if face was not found. */
 int find_face(char *name, int error)
 {
-	int i;
 	struct bmappair *bp, tmp;
 	char *p;
-
-	/* Using actual numbers for faces is a very bad idea.  This is because
-	 * each time the archetype file is rebuilt, all the face numbers
-	 * change. */
-	if ((i = atoi(name)))
-	{
-		LOG(llevBug, "Integer face name used: %s\n", name);
-		return i;
-	}
 
 	if ((p = strchr(name, '\n')))
 	{

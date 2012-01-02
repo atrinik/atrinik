@@ -60,12 +60,12 @@ void init_connection(socket_struct *ns, const char *from_ip)
 
 	if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1)
 	{
-		LOG(llevDebug, "init_connection(): Error on ioctlsocket.\n");
+		logger_print(LOG(DEBUG), "Error on ioctlsocket.");
 	}
 #else
 	if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1)
 	{
-		LOG(llevDebug, "init_connection(): Error on fcntl.\n");
+		logger_print(LOG(DEBUG), "Error on fcntl.");
 	}
 #endif
 
@@ -78,7 +78,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	{
 		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
 		{
-			LOG(llevDebug, "init_connection(): setsockopt unable to set output buf size to %d\n", bufsize);
+			logger_print(LOG(DEBUG), "setsockopt unable to set output buf size to %d", bufsize);
 		}
 	}
 
@@ -148,7 +148,6 @@ void init_ericserver(void)
 	socket_info.timeout.tv_usec = 0;
 	socket_info.nconns = 0;
 
-	LOG(llevDebug, "Initialize new client/server data\n");
 	socket_info.nconns = 1;
 	init_sockets = malloc(sizeof(socket_struct));
 	socket_info.allocated_sockets = 1;
@@ -158,7 +157,7 @@ void init_ericserver(void)
 
 	if (protox == NULL)
 	{
-		LOG(llevBug, "init_ericserver: Error getting protox\n");
+		logger_print(LOG(BUG), "Error getting protox");
 		return;
 	}
 
@@ -170,7 +169,8 @@ void init_ericserver(void)
 
 	if (init_sockets[0].fd == -1)
 	{
-		LOG(llevError, "Cannot create socket: %s\n", strerror(errno));
+		logger_print(LOG(ERROR), "Cannot create socket: %s", strerror(errno));
+		exit(1);
 	}
 
 	insock.sin_family = AF_INET;
@@ -182,7 +182,8 @@ void init_ericserver(void)
 
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
 	{
-		LOG(llevError, "init_ericserver(): Cannot setsockopt(SO_LINGER): %s\n", strerror(errno));
+		logger_print(LOG(ERROR), "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
+		exit(1);
 	}
 
 	/* Would be nice to have an autoconf check for this.  It appears that
@@ -194,13 +195,13 @@ void init_ericserver(void)
 
 		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
 		{
-			LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror(errno));
+			logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
 		}
 	}
 #else
 	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
 	{
-		LOG(llevDebug, "Cannot setsockopt(SO_REUSEADDR): %s\n", strerror(errno));
+		logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
 	}
 #endif
 
@@ -212,7 +213,8 @@ void init_ericserver(void)
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
 #endif
-		LOG(llevError, "Cannot bind socket to port %d: %s\n", ntohs(insock.sin_port), strerror(errno));
+		logger_print(LOG(ERROR), "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
+		exit(1);
 	}
 
 	if (listen(init_sockets[0].fd, 5) == -1)
@@ -223,7 +225,8 @@ void init_ericserver(void)
 		shutdown(init_sockets[0].fd, SD_BOTH);
 		closesocket(init_sockets[0].fd);
 #endif
-		LOG(llevError, "Cannot listen on socket: %s\n", strerror(errno));
+		logger_print(LOG(ERROR), "Cannot listen on socket: %s", strerror(errno));
+		exit(1);
 	}
 
 	init_sockets[0].status = Ns_Wait;
@@ -236,8 +239,6 @@ void init_ericserver(void)
  * Frees all the memory that ericserver allocates. */
 void free_all_newserver(void)
 {
-	LOG(llevDebug, "Freeing all new client/server information.\n");
-
 	free_socket_images();
 	free(init_sockets);
 }
@@ -258,7 +259,7 @@ void free_newsocket(socket_struct *ns)
 #endif
 	{
 #ifdef ESRV_DEBUG
-		LOG(llevDebug, "Error closing socket %d\n", ns->fd);
+		logger_print(LOG(DEBUG), "Error closing socket %d", ns->fd);
 #endif
 	}
 
@@ -287,11 +288,10 @@ static void load_srv_file(char *fname, int id)
 	size_t fsize, numread;
 	struct stat statbuf;
 
-	LOG(llevDebug, "Loading %s...", fname);
-
 	if ((fp = fopen(fname, "rb")) == NULL)
 	{
-		LOG(llevError, "Can't open file %s\n", fname);
+		logger_print(LOG(ERROR), "Can't open file %s", fname);
+		exit(1);
 	}
 
 	fstat(fileno(fp), &statbuf);
@@ -301,7 +301,8 @@ static void load_srv_file(char *fname, int id)
 
 	if (!contents)
 	{
-		LOG(llevError, "load_srv_file(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	numread = fread(contents, 1, fsize, fp);
@@ -319,7 +320,8 @@ static void load_srv_file(char *fname, int id)
 
 	if (!compressed)
 	{
-		LOG(llevError, "load_srv_file(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
@@ -327,7 +329,8 @@ static void load_srv_file(char *fname, int id)
 
 	if (!SrvClientFiles[id].file)
 	{
-		LOG(llevError, "load_srv_file(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	memcpy(SrvClientFiles[id].file, compressed, numread);
@@ -336,8 +339,6 @@ static void load_srv_file(char *fname, int id)
 	/* Free temporary buffers. */
 	free(contents);
 	free(compressed);
-
-	LOG(llevDebug, " size: %"FMT64U" (%"FMT64U") (crc uncomp.: %lu)\n", (uint64) SrvClientFiles[id].len_ucomp, (uint64) numread, SrvClientFiles[id].crc);
 }
 
 /**
@@ -349,14 +350,13 @@ static void create_client_settings(void)
 	int i;
 	FILE *fset_default, *fset_create;
 
-	LOG(llevDebug, "Creating %s/client_settings...\n", settings.localdir);
-
 	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datadir);
 
 	/* Open default */
 	if ((fset_default = fopen(buf, "rb")) == NULL)
 	{
-		LOG(llevError, "Can not open file %s\n", buf);
+		logger_print(LOG(ERROR), "Can not open file %s", buf);
+		exit(1);
 	}
 
 	/* Delete our target - we create it new now */
@@ -367,7 +367,8 @@ static void create_client_settings(void)
 	if ((fset_create = fopen(buf, "wb")) == NULL)
 	{
 		fclose(fset_default);
-		LOG(llevError, "Can not open file %s\n", buf);
+		logger_print(LOG(ERROR), "Can not open file %s", buf);
+		exit(1);
 	}
 
 	/* Copy default to target */
@@ -401,13 +402,13 @@ static void create_server_settings(void)
 	FILE *fp;
 
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
-	LOG(llevDebug, "Creating %s...\n", buf);
 
 	fp = fopen(buf, "wb");
 
 	if (!fp)
 	{
-		LOG(llevError, "Couldn't create %s.\n", buf);
+		logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+		exit(1);
 	}
 
 	/* Copy the default. */
@@ -435,13 +436,13 @@ static void create_server_animations(void)
 	FILE *fp, *fp2;
 
 	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
-	LOG(llevDebug, "Creating %s...\n", buf);
 
 	fp = fopen(buf, "wb");
 
 	if (!fp)
 	{
-		LOG(llevError, "Couldn't create %s.\n", buf);
+		logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+		exit(1);
 	}
 
 	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
@@ -449,7 +450,8 @@ static void create_server_animations(void)
 
 	if (!fp2)
 	{
-		LOG(llevError, "Couldn't open %s.\n", buf);
+		logger_print(LOG(ERROR), "Couldn't open %s.", buf);
+		exit(1);
 	}
 
 	while (fgets(buf, sizeof(buf), fp2))
@@ -534,8 +536,6 @@ void init_srv_files(void)
 void free_srv_files(void)
 {
 	int i;
-
-	LOG(llevDebug, "Freeing server/client files.\n");
 
 	for (i = 0; i < SRV_CLIENT_FILES; i++)
 	{

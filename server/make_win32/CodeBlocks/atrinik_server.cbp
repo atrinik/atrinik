@@ -83,19 +83,16 @@
 		<Unit filename="..\..\src\server\ban.c" />
 		<Unit filename="..\..\src\server\cache.c" />
 		<Unit filename="..\..\src\server\connection.c" />
-		<Unit filename="..\..\src\server\daemon.c" />
 		<Unit filename="..\..\src\server\exp.c" />
 		<Unit filename="..\..\src\server\gods.c" />
 		<Unit filename="..\..\src\server\hiscore.c" />
 		<Unit filename="..\..\src\server\holy.c" />
 		<Unit filename="..\..\src\server\image.c" />
-		<Unit filename="..\..\src\server\info.c" />
 		<Unit filename="..\..\src\server\init.c" />
 		<Unit filename="..\..\src\server\item.c" />
 		<Unit filename="..\..\src\server\light.c" />
 		<Unit filename="..\..\src\server\links.c" />
 		<Unit filename="..\..\src\server\living.c" />
-		<Unit filename="..\..\src\server\logger.c" />
 		<Unit filename="..\..\src\server\login.c" />
 		<Unit filename="..\..\src\server\los.c" />
 		<Unit filename="..\..\src\server\main.c" />
@@ -137,6 +134,7 @@
 		<Unit filename="..\..\src\socket\updates.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />
 		<Unit filename="..\..\src\toolkit\console.c" />
+		<Unit filename="..\..\src\toolkit\logger.c" />
 		<Unit filename="..\..\src\toolkit\math.c" />
 		<Unit filename="..\..\src\toolkit\memory.c" />
 		<Unit filename="..\..\src\toolkit\mempool.c" />
