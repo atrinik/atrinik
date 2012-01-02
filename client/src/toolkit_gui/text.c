@@ -162,7 +162,7 @@ void text_init(void)
 
 		if (!font)
 		{
-			LOG(llevError, "Unable to load font (%s): %s\n", fonts[i].path, TTF_GetError());
+			logger_print(LOG(ERROR), "Unable to load font (%s): %s", fonts[i].path, TTF_GetError());
 		}
 
 		fonts[i].font = font;
@@ -561,7 +561,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else
 		{
-			LOG(llevBug, "blt_character(): Invalid color: %s\n", cp + 1);
+			logger_print(LOG(BUG), "Invalid color: %s", cp + 1);
 		}
 
 		return 1;
@@ -1738,7 +1738,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	}
 	else
 	{
-		LOG(llevBug, "string_blt(): Invalid color: %s, text: %s\n", color_notation, text);
+		logger_print(LOG(BUG), "Invalid color: %s, text: %s", color_notation, text);
 		return;
 	}
 

@@ -200,13 +200,13 @@ void server_file_save(size_t id, unsigned char *data, size_t len)
 
 	if (!fp)
 	{
-		LOG(llevBug, "server_file_save(): Can't open %s for writing.\n", path);
+		logger_print(LOG(BUG), "Can't open %s for writing.", path);
 		return;
 	}
 
 	if (fwrite(data, 1, len, fp) != len)
 	{
-		LOG(llevBug, "server_file_save(): Failed to write to %s.\n", path);
+		logger_print(LOG(BUG), "Failed to write to %s.", path);
 	}
 	else
 	{

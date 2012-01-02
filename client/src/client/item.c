@@ -41,7 +41,7 @@ static object *object_new(void)
 
 	if (!op)
 	{
-		LOG(llevError, "object_new(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
 	}
 
 	return op;
@@ -334,7 +334,6 @@ void object_set_values(object *op, const char *name, sint32 weight, uint16 face,
 {
 	if (!op)
 	{
-		LOG (-1, "Error in object_set_values(): object pointer is NULL.\n");
 		return;
 	}
 

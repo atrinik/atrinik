@@ -97,7 +97,7 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
 
 	if (max_rows == 0)
 	{
-		LOG(llevBug, "list_create(): Attempted to create a list with 0 max rows, changing to 1.\n");
+		logger_print(LOG(BUG), "Attempted to create a list with 0 max rows, changing to 1.");
 		max_rows = 1;
 	}
 
@@ -145,7 +145,7 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 
 	if (col > list->cols)
 	{
-		LOG(llevBug, "list_add(): Attempted to add column #%u, but columns max is %u.\n", col, list->cols);
+		logger_print(LOG(BUG), "Attempted to add column #%u, but columns max is %u.", col, list->cols);
 		return;
 	}
 
@@ -215,7 +215,7 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
 {
 	if (col > list->cols)
 	{
-		LOG(llevBug, "list_set_column(): Attempted to change column #%u, but columns max is %u.\n", col, list->cols);
+		logger_print(LOG(BUG), "Attempted to change column #%u, but columns max is %u.", col, list->cols);
 		return;
 	}
 

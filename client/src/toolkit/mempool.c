@@ -184,14 +184,14 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 
 	if (pool->nrof_free[arraysize_exp] > 0)
 	{
-		LOG(llevBug, "expand_mempool() called with chunks still available in pool\n");
+		logger_print(LOG(BUG), "called with chunks still available in pool");
 	}
 
 	nrof_arrays = pool->expand_size >> arraysize_exp;
 
 	if (nrof_arrays == 0)
 	{
-		LOG(llevDebug, "expand_mempool() called with too big array size for its expand_size\n");
+		logger_print(LOG(DEBUG), "called with too big array size for its expand_size");
 		nrof_arrays = 1;
 	}
 
@@ -200,7 +200,8 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 
 	if (first == NULL)
 	{
-		LOG(llevError, "expand_mempool(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 #ifndef PRODUCTION_SERVER
@@ -290,7 +291,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
 
 	if (CHUNK_FREE(data))
 	{
-		LOG(llevBug, "return_poolchunk_array_real() on already free chunk (pool \"%s\")\n", pool->chunk_description);
+		logger_print(LOG(BUG), "on already free chunk (pool '%s')", pool->chunk_description);
 		return;
 	}
 

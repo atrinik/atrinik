@@ -409,7 +409,7 @@ void skills_init(void)
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			LOG(llevBug, "  Got unexpected EOF reading skills file.\n");
+			logger_print(LOG(BUG), "Got unexpected EOF reading skills file.");
 			break;
 		}
 
@@ -417,7 +417,7 @@ void skills_init(void)
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			LOG(llevBug, "  Got unexpected EOF reading skills file.\n");
+			logger_print(LOG(BUG), "Got unexpected EOF reading skills file.");
 			break;
 		}
 

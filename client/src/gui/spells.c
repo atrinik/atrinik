@@ -518,7 +518,7 @@ void spells_init(void)
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			logger_print(LOG(BUG), "Got unexpected EOF reading spells file.");
 			break;
 		}
 
@@ -526,7 +526,7 @@ void spells_init(void)
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			logger_print(LOG(BUG), "Got unexpected EOF reading spells file.");
 			break;
 		}
 
@@ -534,7 +534,7 @@ void spells_init(void)
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
-			LOG(llevBug, "  Got unexpected EOF reading spells file.\n");
+			logger_print(LOG(BUG), "Got unexpected EOF reading spells file.");
 			break;
 		}
 

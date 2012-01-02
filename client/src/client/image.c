@@ -110,7 +110,7 @@ void bmap_add(bmap_struct *bmap)
 	{
 		if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name))
 		{
-			LOG(llevBug, "bmap_add(): Double use of bmap name %s.\n", bmap->name);
+			logger_print(LOG(BUG), "Double use of bmap name %s.", bmap->name);
 		}
 
 		if (!bmaps_default[idx])
@@ -126,7 +126,7 @@ void bmap_add(bmap_struct *bmap)
 
 		if (idx == orig_idx)
 		{
-			LOG(llevBug, "bmap_add(): bmaps array is too small for %s.\n", bmap->name);
+			logger_print(LOG(BUG), "bmaps array is too small for %s.", bmap->name);
 			return;
 		}
 	}
@@ -146,7 +146,8 @@ void read_bmaps_p0(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "%s doesn't exist.\n", FILE_ATRINIK_P0);
+		logger_print(LOG(ERROR), "%s doesn't exist.", FILE_ATRINIK_P0);
+		exit(1);
 	}
 
 	memset((void *) bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
@@ -158,7 +159,8 @@ void read_bmaps_p0(void)
 	{
 		if (strncmp(buf, "IMAGE ", 6))
 		{
-			LOG(llevError, "The file %s is corrupted.\n", FILE_ATRINIK_P0);
+			logger_print(LOG(ERROR), "The file %s is corrupted.", FILE_ATRINIK_P0);
+			exit(1);
 		}
 
 		/* Skip across the image ID data. */
@@ -260,7 +262,7 @@ void read_bmaps(void)
 	{
 		if (sscanf(buf, "%x %x %s", &len, &crc, name) != 3)
 		{
-			LOG(llevBug, "Syntax error in server bmaps file: %s\n", buf);
+			logger_print(LOG(BUG), "Syntax error in server bmaps file: %s", buf);
 			break;
 		}
 
@@ -486,7 +488,7 @@ int request_face(int pnum)
 
 	if (num >= bmaps_size)
 	{
-		LOG(llevBug, "request_face(): Server sent picture ID too big (%d, max: %"FMT64U")\n", num, (uint64) bmaps_size);
+		logger_print(LOG(BUG), "Server sent picture ID too big (%d, max: %"FMT64U")", num, (uint64) bmaps_size);
 		return 0;
 	}
 

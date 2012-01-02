@@ -148,7 +148,8 @@ int Event_PollInputDevice(void)
 
 				if (!ScreenSurface)
 				{
-					LOG(llevError, "Unable to grab surface after resize event: %s\n", SDL_GetError());
+					logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
+					exit(1);
 				}
 
 				/* Set resolution to custom. */

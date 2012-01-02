@@ -214,7 +214,7 @@ int curl_connect(void *c_data)
 
 	if (res)
 	{
-		LOG(llevBug, "curl_thread(): curl_easy_perform() got error %d (%s).\n", res, curl_easy_strerror(res));
+		logger_print(LOG(BUG), "curl_easy_perform() got error %d (%s).", res, curl_easy_strerror(res));
 		curl_easy_cleanup(handle);
 		SDL_LockMutex(data->mutex);
 		data->status = -1;
@@ -277,7 +277,7 @@ curl_data *curl_download_start(const char *url)
 
 	if (!data->thread)
 	{
-		LOG(llevError, "curl_download_start(): Thread creation failed.\n");
+		logger_print(LOG(ERROR), "Thread creation failed.");
 	}
 
 	return data;

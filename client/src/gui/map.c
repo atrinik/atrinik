@@ -55,7 +55,7 @@ void load_mapdef_dat(void)
 
 	if (!(stream = fopen_wrapper(ARCHDEF_FILE, "r")))
 	{
-		LOG(llevBug, "Can't find file %s\n", ARCHDEF_FILE);
+		logger_print(LOG(BUG), "Can't find file %s", ARCHDEF_FILE);
 		return;
 	}
 

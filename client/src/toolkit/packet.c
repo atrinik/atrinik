@@ -189,7 +189,8 @@ static void packet_ensure(packet_struct *packet, size_t size)
 
 	if (!packet->data)
 	{
-		LOG(llevError, "packet_ensure(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 }
 

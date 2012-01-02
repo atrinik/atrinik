@@ -45,21 +45,6 @@
 #	include <SDL_mixer.h>
 #endif
 
-/** The log levels. */
-typedef enum LogLevel
-{
-	/** System-related message. */
-	llevSystem,
-	/** An irrecoverable error. */
-	llevError,
-	/** Bug report. */
-	llevBug,
-	/** Debugging message. */
-	llevDebug,
-	/** Information. */
-	llevInfo
-} LogLevel;
-
 #define HUGE_BUF 4096
 #define MAX_BUF 256
 

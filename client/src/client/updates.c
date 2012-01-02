@@ -76,7 +76,7 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 
 	if (!fp)
 	{
-		LOG(llevBug, "Could not open file '%s' for writing.\n", filename);
+		logger_print(LOG(BUG), "Could not open file '%s' for writing.", filename);
 		free(dest);
 		return;
 	}
@@ -85,7 +85,6 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 	fwrite(data, 1, len, fp);
 	fclose(fp);
 	free(dest);
-	LOG(llevInfo, "Updated file '%s'.\n", filename);
 }
 
 /**

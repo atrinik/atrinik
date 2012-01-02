@@ -85,7 +85,7 @@ void read_anims(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "read_anims(): Could not open anims server file.\n");
+		logger_print(LOG(ERROR), "Could not open anims server file.");
 	}
 
 	while (fgets(buf, sizeof(buf) - 1, fp))
@@ -105,7 +105,7 @@ void read_anims(void)
 			/* we should never hit this point */
 			else
 			{
-				LOG(llevBug, "load_anim_tmp(): Error parsing anims.tmp - unknown cmd: >%s<!\n", buf);
+				logger_print(LOG(BUG), "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
 			}
 		}
 		/* No, we are inside! */

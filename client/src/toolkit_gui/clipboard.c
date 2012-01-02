@@ -136,7 +136,7 @@ int clipboard_init(void)
 		}
 		else
 		{
-			LOG(llevBug, "SDL is not running on X11 display.\n");
+			logger_print(LOG(BUG), "SDL is not running on X11 display.");
 			return 0;
 		}
 

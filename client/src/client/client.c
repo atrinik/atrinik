@@ -97,7 +97,7 @@ void DoClient(void)
 	{
 		if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func)
 		{
-			LOG(llevBug, "Bad command from server (%d)\n", cmd->data[0]);
+			logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
 		}
 		else
 		{

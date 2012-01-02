@@ -115,21 +115,21 @@ void server_settings_init(void)
 		{
 			if (sscanf(buf + 11, "%d %d %d %d %d %d %d", &cur_char->stats_base[0], &cur_char->stats_base[1], &cur_char->stats_base[2], &cur_char->stats_base[3], &cur_char->stats_base[4], &cur_char->stats_base[5], &cur_char->stats_base[6]) != 7)
 			{
-				LOG(llevBug, "Error in settings file, line %d: not enough stats provided.\n", line);
+				logger_print(LOG(BUG), "Error in settings file, line %d: not enough stats provided.", line);
 			}
 		}
 		else if (!strncmp(buf, "stats_min ", 10))
 		{
 			if (sscanf(buf + 10, "%d %d %d %d %d %d %d", &cur_char->stats_min[0], &cur_char->stats_min[1], &cur_char->stats_min[2], &cur_char->stats_min[3], &cur_char->stats_min[4], &cur_char->stats_min[5], &cur_char->stats_min[6]) != 7)
 			{
-				LOG(llevBug, "Error in settings file, line %d: not enough stats provided.\n", line);
+				logger_print(LOG(BUG), "Error in settings file, line %d: not enough stats provided.", line);
 			}
 		}
 		else if (!strncmp(buf, "stats_max ", 10))
 		{
 			if (sscanf(buf + 10, "%d %d %d %d %d %d %d", &cur_char->stats_max[0], &cur_char->stats_max[1], &cur_char->stats_max[2], &cur_char->stats_max[3], &cur_char->stats_max[4], &cur_char->stats_max[5], &cur_char->stats_max[6]) != 7)
 			{
-				LOG(llevBug, "Error in settings file, line %d: not enough stats provided.\n", line);
+				logger_print(LOG(BUG), "Error in settings file, line %d: not enough stats provided.", line);
 			}
 		}
 		else if (!strncmp(buf, "desc ", 5))
@@ -221,7 +221,7 @@ void server_settings_init(void)
 			}
 			else
 			{
-				LOG(llevBug, "Error in settings file, more text entries than allowed on line %d.\n", line);
+				logger_print(LOG(BUG), "Error in settings file, more text entries than allowed on line %d.", line);
 			}
 		}
 	}

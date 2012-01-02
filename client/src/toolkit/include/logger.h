@@ -25,55 +25,34 @@
 
 /**
  * @file
- * Toolkit system header file.
+ * Logger API header file.
  *
  * @author Alex Tokar */
 
-#ifndef TOOLKIT_H
-#define TOOLKIT_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
-/* Porting API header file has extra priority. */
-#include <porting.h>
+typedef void (*logger_print_func)(const char *str);
 
-/* Now all the other header files that are part of the toolkit. */
-#include <binreloc.h>
-#include <console.h>
-#include <logger.h>
-#include <mempool.h>
-#include <packet.h>
-#include <sha1.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
-#include <utarray.h>
-#include <uthash.h>
-#include <utlist.h>
+#define LOG(_level) LOG_##_level, __FUNCTION__, __LINE__
 
-/**
- * Toolkit (de)initialization function. */
-typedef void (*toolkit_func)(void);
+#define LOG_INFO "INFO"
+#define LOG_WARNING "WARNING"
+#define LOG_DEBUG "DEBUG"
+#define LOG_BUG "BUG"
+#define LOG_ERROR "ERROR"
+#define LOG_SYSTEM "SYSTEM"
+#define LOG_CHAT "CHAT"
 
-/**
- * Check if the specified API has been imported yet. */
-#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
-/**
- * Import the specified API (if it has not been imported yet). */
-#define toolkit_import(__api_name) toolkit_##__api_name##_init()
-
-/**
- * Start toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_START(__api_name) \
-{ \
-	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
-	if (toolkit_imported(__api_name)) \
-	{ \
-		return; \
-	}
-
-/**
- * End toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_END() \
-	toolkit_import_register(__deinit_func); \
-}
+#define LOGGER_ESC_SEQ_BOLD "\033[1m"
+#define LOGGER_ESC_SEQ_BLACK "\033[30m"
+#define LOGGER_ESC_SEQ_RED "\033[31m"
+#define LOGGER_ESC_SEQ_GREEN "\033[32m"
+#define LOGGER_ESC_SEQ_YELLOW "\033[33m"
+#define LOGGER_ESC_SEQ_BLUE "\033[34m"
+#define LOGGER_ESC_SEQ_MAGENTA "\033[35m"
+#define LOGGER_ESC_SEQ_CYAN "\033[36m"
+#define LOGGER_ESC_SEQ_WHITE "\033[37m"
+#define LOGGER_ESC_SEQ_END "\033[0m"
 
 #endif

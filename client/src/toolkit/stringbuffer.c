@@ -75,7 +75,8 @@ StringBuffer *stringbuffer_new(void)
 
 	if (!sb)
 	{
-		LOG(llevError, "stringbuffer_new(): Out of memory.");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	sb->size = MAX_BUF;
@@ -200,7 +201,8 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 
 	if (tmp == NULL)
 	{
-		LOG(llevError, "stringbuffer_ensure(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
 	}
 
 	sb->buf = tmp;

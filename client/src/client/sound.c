@@ -80,7 +80,7 @@ static void sound_free(sound_data_struct *tmp)
 			break;
 
 		default:
-			LOG(llevBug, "sound_free(): Trying to free sound with unknown type: %d.\n", tmp->type);
+			logger_print(LOG(BUG), "Trying to free sound with unknown type: %d.", tmp->type);
 			break;
 	}
 
@@ -155,7 +155,7 @@ static int sound_add_effect(const char *filename, int volume, int loop)
 
 		if (!chunk)
 		{
-			LOG(llevBug, "sound_add_effect(): Could not load '%s'. Reason: %s.\n", filename, Mix_GetError());
+			logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", filename, Mix_GetError());
 			return -1;
 		}
 
@@ -249,7 +249,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 		if (!music)
 		{
-			LOG(llevBug, "sound_start_bg_music(): Could not load '%s'. Reason: %s.\n", path, Mix_GetError());
+			logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", path, Mix_GetError());
 			return;
 		}
 
@@ -318,7 +318,7 @@ void update_map_bg_music(const char *bg_music)
 
 		if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1)
 		{
-			LOG(llevBug, "parse_map_bg_music(): Bogus background music: '%s'\n", bg_music);
+			logger_print(LOG(BUG), "Bogus background music: '%s'", bg_music);
 			return;
 		}
 
@@ -454,7 +454,7 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
 	}
 	else
 	{
-		LOG(llevBug, "SoundCmd(): Invalid sound type: %d\n", type);
+		logger_print(LOG(BUG), "Invalid sound type: %d", type);
 		return;
 	}
 }
@@ -674,7 +674,7 @@ void sound_midi_play(const char *path)
 
 	if (!thread)
 	{
-		LOG(llevError, "sound_midi_play(): Thread creation failed.\n");
-		free(cp);
+		logger_print(LOG(ERROR), "Thread creation failed.");
+		exit(1);
 	}
 }

@@ -121,8 +121,6 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 	facenum = packet_to_uint32(data, len, &pos);
 	filesize = packet_to_uint32(data, len, &pos);
 
-	LOG(llevInfo, "ImageFromServer: %s\n", FaceList[facenum].name);
-
 	/* Save picture to cache and load it to FaceList. */
 	snprintf(buf, sizeof(buf), DIRECTORY_CACHE"/%s", FaceList[facenum].name);
 
@@ -1143,7 +1141,6 @@ void socket_command_data(uint8 *data, size_t len, size_t pos)
 	/* Allocate large enough buffer to hold the uncompressed file. */
 	dest = malloc(len_ucomp);
 
-	LOG(llevInfo, "DataCmd(): Uncompressing file #%d (len: %"FMT64U", uncompressed len: %lu)\n", data_type, (uint64) len, len_ucomp);
 	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data + pos, (uLong) len);
 	server_file_save(data_type, dest, len_ucomp);
 	free(dest);
@@ -1184,7 +1181,7 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
 
 	if (!dest)
 	{
-		LOG(llevError, "cmd_compressed(): Out of memory.\n");
+		logger_print(LOG(ERROR), "OOM.");
 	}
 
 	dest[0] = type;

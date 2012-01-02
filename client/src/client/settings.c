@@ -101,7 +101,8 @@ void settings_init(void)
 
 	if (!fp)
 	{
-		LOG(llevError, "settings_init(): Missing "FILE_SETTINGS_TXT", cannot continue.\n");
+		logger_print(LOG(ERROR), "Missing "FILE_SETTINGS_TXT", cannot continue.");
+		exit(1);
 	}
 
 	category = NULL;
@@ -171,7 +172,8 @@ void settings_init(void)
 
 				if (type_id == OPT_TYPE_NUM)
 				{
-					LOG(llevError, "Invalid type: %s\n", cp + 5);
+					logger_print(LOG(ERROR), "Invalid type: %s", cp + 5);
+					exit(1);
 				}
 				else if (type_id == OPT_TYPE_SELECT)
 				{
@@ -215,7 +217,7 @@ void settings_init(void)
 				}
 				else
 				{
-					LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
+					logger_print(LOG(BUG), "Invalid line: %s", cp);
 				}
 			}
 			else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "advance ", 8))
@@ -224,7 +226,7 @@ void settings_init(void)
 			}
 			else
 			{
-				LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
+				logger_print(LOG(BUG), "Invalid line: %s", cp);
 			}
 		}
 		else if (category)
@@ -236,7 +238,7 @@ void settings_init(void)
 			}
 			else
 			{
-				LOG(llevBug, "settings_init(): Invalid line: %s\n", cp);
+				logger_print(LOG(BUG), "Invalid line: %s", cp);
 			}
 		}
 		else if (!strncmp(cp, "category ", 9))
@@ -334,7 +336,7 @@ void settings_save(void)
 
 	if (!fp)
 	{
-		LOG(llevBug, "Could not open settings file ("FILE_SETTINGS_DAT").\n");
+		logger_print(LOG(BUG), "Could not open settings file ("FILE_SETTINGS_DAT").");
 		return;
 	}
 

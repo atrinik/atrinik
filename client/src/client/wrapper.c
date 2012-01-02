@@ -29,57 +29,6 @@
 
 #include <global.h>
 
-static FILE *logstream = NULL;
-
-/**
- * Human-readable names of log levels. */
-static const char *const loglevel_names[] =
-{
-	"[System] ",
-	"[Error]  ",
-	"[Bug]    ",
-	"[Debug]  ",
-	"[Info]   "
-};
-
-/**
- * Logs an error, debug output, etc.
- * @param logLevel Level of the log message (llevInfo, llevDebug, ...)
- * @param format Formatting of the message, like sprintf
- * @param ... Additional arguments for format */
-void LOG(LogLevel logLevel, char *format, ...)
-{
-	va_list ap;
-	char buf[HUGE_BUF * 4];
-
-	if (!logstream)
-	{
-		logstream = fopen_wrapper(LOG_FILE, "w");
-	}
-
-	va_start(ap, format);
-	vsnprintf(buf, sizeof(buf), format, ap);
-	va_end(ap);
-
-	fputs(loglevel_names[logLevel], stdout);
-	fputs(buf, stdout);
-
-	if (logstream)
-	{
-		fputs(loglevel_names[logLevel], logstream);
-		fputs(buf, logstream);
-		fflush(logstream);
-	}
-
-	if (logLevel == llevError)
-	{
-		LOG(llevInfo, "\nFatal error encountered. Exiting...\n");
-		system_end();
-		abort();
-		exit(-1);
-	}
-}
-
 /**
  * Start the base system, setting caption name and window icon. */
 void system_start(void)
@@ -95,8 +44,6 @@ void system_start(void)
 	}
 
 	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
-
-	logstream = fopen_wrapper(LOG_FILE, "w");
 }
 
 /**
@@ -233,7 +180,7 @@ void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp)
 	{
-		LOG(llevBug, "copy_file(): Failed to open '%s' for reading.\n", filename);
+		logger_print(LOG(BUG), "Failed to open '%s' for reading.", filename);
 		return;
 	}
 
@@ -243,7 +190,7 @@ void copy_file(const char *filename, const char *filename_out)
 
 	if (!fp_out)
 	{
-		LOG(llevBug, "copy_file(): Failed to open '%s' for writing.\n", filename_out);
+		logger_print(LOG(BUG), "Failed to open '%s' for writing.", filename_out);
 		fclose(fp);
 		return;
 	}

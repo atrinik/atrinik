@@ -45,13 +45,13 @@ void browser_open(const char *url)
 
 		if (system(buf) != 0)
 		{
-			LOG(llevBug, "browser_open(): Could not open '%s'.\n", url);
+			logger_print(LOG(BUG), "Could not open '%s'.", url);
 		}
 	}
 #elif defined(WIN32)
 	ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
 #else
-	LOG(llevDebug, "browser_open(): Unknown platform, cannot open '%s'.\n", url);
+	logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
 #endif
 }
 
@@ -104,7 +104,7 @@ int bmp2png(const char *path)
 
 	if (system(buf) != 0)
 	{
-		LOG(llevInfo, "bmp2png(): Could not convert %s from BMP to PNG.\n", path);
+		logger_print(LOG(INFO), "Could not convert %s from BMP to PNG.", path);
 		return 0;
 	}
 

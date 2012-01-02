@@ -169,9 +169,6 @@ void init_widgets_fromCurrent(void)
 	/* If can't open/load the interface file load defaults and create file */
 	if (!load_interface_file(INTERFACE_FILE))
 	{
-		/* Inform user */
-		LOG(llevInfo, "Can't open/load the interface file - %s. Resetting\n", INTERFACE_FILE);
-
 		/* Load the defaults - this also allocates priority list */
 		init_widgets_fromDefault();
 
@@ -562,8 +559,6 @@ void init_widgets(void)
 
 	    create_widget_object(i);
 	}
-
-	LOG(llevDebug, "..Allocated %d nodes!\n", i);
 }
 
 /**
@@ -684,7 +679,7 @@ widgetdata *create_widget(int widget_id)
 	static int widget_uid = 0;
 
 #ifdef DEBUG_WIDGET
-	LOG(llevInfo, "Entering create_widget()..\n");
+	logger_print(LOG(INFO), "Entering create_widget()..");
 #endif
 
 	/* allocate it */
@@ -735,10 +730,10 @@ widgetdata *create_widget(int widget_id)
 	++widget_uid;
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "..ALLOCATED: %s, WidgetObjID: %d\n", node->name, node->WidgetObjID);
+	logger_print(LOG(DEBUG), "..ALLOCATED: %s, WidgetObjID: %d", node->name, node->WidgetObjID);
 	debug_count_nodes(1);
 
-	LOG(llevInfo, "..create_widget(): Done.\n");
+	logger_print(LOG(INFO), "..create_widget(): Done.");
 #endif
 
 	return node;
@@ -750,7 +745,7 @@ void remove_widget(widgetdata *widget)
 	widgetdata *tmp = NULL;
 
 #ifdef DEBUG_WIDGET
-	LOG(llevInfo, "Entering remove_widget()..\n");
+	logger_print(LOG(INFO), "Entering remove_widget()..");
 #endif
 
 	/* node to delete is the only node in the tree, bye-bye binary tree :) */
@@ -840,7 +835,7 @@ void remove_widget(widgetdata *widget)
 	}
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "..REMOVED: %s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
+	logger_print(LOG(DEBUG), "..REMOVED: %s, WidgetObjID: %d", widget->name, widget->WidgetObjID);
 #endif
 
 	/* free the surface */
@@ -854,7 +849,7 @@ void remove_widget(widgetdata *widget)
 
 #ifdef DEBUG_WIDGET
 	debug_count_nodes(1);
-	LOG(llevInfo, "..remove_widget(): Done.\n");
+	logger_print(LOG(INFO), "..remove_widget(): Done.");
 #endif
 }
 
@@ -933,7 +928,7 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
 				printf("..");
 			}
 
-			LOG(llevInfo, "..%s, WidgetObjID: %d\n", widget->name, widget->WidgetObjID);
+			logger_print(LOG(INFO), "..%s, WidgetObjID: %d", widget->name, widget->WidgetObjID);
 		}
 
 		i++;
@@ -956,16 +951,16 @@ void debug_count_nodes(int output)
 {
 	int i = 0;
 
-	LOG(llevInfo, "Output of widget nodes:\n");
-	LOG(llevInfo, "========================================\n");
+	logger_print(LOG(INFO), "Output of widget nodes:");
+	logger_print(LOG(INFO), "========================================");
 
 	if (widget_list_head)
 	{
 		i = debug_count_nodes_rec(widget_list_head, 0, 0, output);
 	}
 
-	LOG(llevInfo, "========================================\n");
-	LOG(llevInfo, "..Total widget nodes: %d\n", i);
+	logger_print(LOG(INFO), "========================================");
+	logger_print(LOG(INFO), "..Total widget nodes: %d", i);
 }
 #endif
 
@@ -982,14 +977,13 @@ static int load_interface_file(char *filename)
 	int found_widget[TOTAL_SUBWIDGETS] = {0};
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "Entering load_interface_file()..\n");
+	logger_print(LOG(DEBUG), "Entering load_interface_file()..");
 #endif
 
 	/* Sanity check - if the file doesn't exist, exit with error */
 	if (!(stream = fopen_wrapper(filename, "r")))
 	{
-		/* Inform user */
-		LOG(llevInfo, "load_interface_file(): Can't find file %s.\n", filename);
+		logger_print(LOG(INFO), "Can't find file %s.", filename);
 		return 0;
 	}
 
@@ -1020,7 +1014,7 @@ static int load_interface_file(char *filename)
 		if (strncmp(keyword, "Widget:", 7) == 0)
 		{
 #ifdef DEBUG_WIDGET
-			LOG(llevDebug, "..Trying to find \"Widget: %s\"\n", parameter);
+			logger_print(LOG(DEBUG), "..Trying to find 'Widget: %s'", parameter);
 #endif
 
 			pos = 0;
@@ -1048,7 +1042,7 @@ static int load_interface_file(char *filename)
 				if (!found_widget[pos])
 				{
 #ifdef DEBUG_WIDGET
-					LOG(llevInfo, "Found! (Index = %d) (%d widgets total)\n", pos, TOTAL_SUBWIDGETS);
+					logger_print(LOG(INFO), "Found! (Index = %d) (%d widgets total)", pos, TOTAL_SUBWIDGETS);
 #endif
 					found_widget[pos] = 1;
 				}
@@ -1060,7 +1054,7 @@ static int load_interface_file(char *filename)
 				if (!widget)
 				{
 #ifdef DEBUG_WIDGET
-					LOG(llevDebug, ".. Failed to create widget!\n");
+					logger_print(LOG(DEBUG), ".. Failed to create widget!");
 #endif
 					continue;
 				}
@@ -1093,42 +1087,42 @@ static int load_interface_file(char *filename)
 					{
 						widget->x1 = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->x1);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->x1);
 #endif
 					}
 					else if (strncmp(keyword, "y:", 2) == 0)
 					{
 						widget->y1 = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->y1);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->y1);
 #endif
 					}
 					else if (strncmp(keyword, "moveable:", 9) == 0)
 					{
 						widget->moveable = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->moveable);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->moveable);
 #endif
 					}
 					else if (strncmp(keyword, "active:", 7) == 0)
 					{
 						widget->show = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->show);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->show);
 #endif
 					}
 					else if (strncmp(keyword, "width:", 6) == 0)
 					{
 						widget->wd = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->wd);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->wd);
 #endif
 					}
 					else if (strncmp(keyword, "height:", 7) == 0)
 					{
 						widget->ht = atoi(parameter);
 #ifdef DEBUG_WIDGET
-						LOG(llevDebug, "..Loading: (%s %d)\n", keyword, widget->ht);
+						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->ht);
 #endif
 					}
 					else if (!strncmp(keyword, "font:", 5))
@@ -1157,12 +1151,11 @@ static int load_interface_file(char *filename)
 		{
 			/* A newly created widget is loaded with the default values. */
 			create_widget_object(pos);
-			LOG(llevDebug, "load_interface_file(): Critical widget is missing! Recreating with default values.\n");
 		}
 	}
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "..load_interface_file(): Done.\n");
+	logger_print(LOG(DEBUG), "..load_interface_file(): Done.");
 #endif
 
 	return 1;
@@ -1913,7 +1906,7 @@ widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end)
 	/* ok, let's kick off the recursion. if we find our widget, we get a widget back. if not, we get a big fat NULL */
 	success = get_widget_owner_rec(x, y, start, end);
 
-	/*LOG(llevDebug, "WIDGET OWNER: %s, WidgetObjID: %d\n", success? success->name: "NULL", success? success->WidgetObjID: -1);*/
+	/*logger_print(LOG(DEBUG), "WIDGET OWNER: %s, WidgetObjID: %d", success? success->name: "NULL", success? success->WidgetObjID: -1);*/
 
 	return success;
 }
@@ -2144,14 +2137,14 @@ void process_widgets_rec(widgetdata *widget)
 void SetPriorityWidget(widgetdata *node)
 {
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "Entering SetPriorityWidget(WidgetObjID=%d)..\n", node->WidgetObjID);
+	logger_print(LOG(DEBUG), "Entering SetPriorityWidget(WidgetObjID=%d)..", node->WidgetObjID);
 #endif
 
 	/* widget doesn't exist, means parent node has no children, so nothing to do here */
 	if (!node)
 	{
 #ifdef DEBUG_WIDGET
-		LOG(llevDebug, "..SetPriorityWidget(): Done (Node does not exist).\n");
+		logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node does not exist).");
 #endif
 		return;
 	}
@@ -2162,11 +2155,11 @@ void SetPriorityWidget(widgetdata *node)
 	}
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "..BEFORE:\n");
-	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
-	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
-	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
-	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+	logger_print(LOG(DEBUG), "..BEFORE:");
+	logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
+	logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env? node->env->name: "NULL");
+	logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
+	logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 #endif
 
 	/* see if the node has a parent before continuing */
@@ -2189,7 +2182,7 @@ void SetPriorityWidget(widgetdata *node)
 	if (!node->prev)
 	{
 #ifdef DEBUG_WIDGET
-		LOG(llevDebug, "..SetPriorityWidget(): Done (Node already at front).\n");
+		logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node already at front).");
 #endif
 		/* no point continuing, node is already at the front */
 		return;
@@ -2241,13 +2234,13 @@ void SetPriorityWidget(widgetdata *node)
 	node->prev = NULL;
 
 #ifdef DEBUG_WIDGET
-	LOG(llevDebug, "..AFTER:\n");
-	LOG(llevDebug, "....node: %p - %s\n", node, node->name);
-	LOG(llevDebug, "....node->env: %p - %s\n", node->env, node->env? node->env->name: "NULL");
-	LOG(llevDebug, "....node->prev: %p - %s, node->next: %p - %s\n", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
-	LOG(llevDebug, "....node->inv: %p - %s, node->inv_rev: %p - %s\n", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
+	logger_print(LOG(DEBUG), "..AFTER:");
+	logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
+	logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env? node->env->name: "NULL");
+	logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev? node->prev->name: "NULL", node->next, node->next? node->next->name: "NULL");
+	logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv? node->inv->name: "NULL", node->inv_rev, node->inv_rev? node->inv_rev->name: "NULL");
 
-	LOG(llevDebug, "..SetPriorityWidget(): Done.\n");
+	logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done.");
 #endif
 }
 

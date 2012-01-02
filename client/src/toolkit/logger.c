@@ -25,55 +25,100 @@
 
 /**
  * @file
- * Toolkit system header file.
+ * Logger API.
  *
  * @author Alex Tokar */
 
-#ifndef TOOLKIT_H
-#define TOOLKIT_H
-
-/* Porting API header file has extra priority. */
-#include <porting.h>
-
-/* Now all the other header files that are part of the toolkit. */
-#include <binreloc.h>
-#include <console.h>
-#include <logger.h>
-#include <mempool.h>
-#include <packet.h>
-#include <sha1.h>
-#include <shstr.h>
-#include <socket.h>
-#include <stringbuffer.h>
-#include <utarray.h>
-#include <uthash.h>
-#include <utlist.h>
+#include <global.h>
+#include <stdarg.h>
 
 /**
- * Toolkit (de)initialization function. */
-typedef void (*toolkit_func)(void);
+ * Pointer to open log file, if any. */
+static FILE *log_fp;
 
 /**
- * Check if the specified API has been imported yet. */
-#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
-/**
- * Import the specified API (if it has not been imported yet). */
-#define toolkit_import(__api_name) toolkit_##__api_name##_init()
+ * The print function. */
+static logger_print_func print_func;
 
 /**
- * Start toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_START(__api_name) \
-{ \
-	toolkit_func __deinit_func = toolkit_##__api_name##_deinit; \
-	if (toolkit_imported(__api_name)) \
-	{ \
-		return; \
+ * Initialize the logger API.
+ * @internal */
+void toolkit_logger_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(logger)
+	{
+		log_fp = NULL;
+		logger_set_print_func(logger_do_print);
 	}
-
-/**
- * End toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_END() \
-	toolkit_import_register(__deinit_func); \
+	TOOLKIT_INIT_FUNC_END()
 }
 
-#endif
+/**
+ * Deinitialize the logger API.
+ * @internal */
+void toolkit_logger_deinit(void)
+{
+}
+
+void logger_open_log(const char *path)
+{
+	log_fp = fopen(path, "w");
+
+	if (!log_fp)
+	{
+		return;
+	}
+}
+
+FILE *logger_get_logfile(void)
+{
+	return log_fp ? log_fp : stdout;
+}
+
+void logger_set_print_func(logger_print_func func)
+{
+	print_func = func;
+}
+
+void logger_do_print(const char *str)
+{
+	fputs(str, stdout);
+}
+
+void logger_print(const char *level, const char *function, uint64 line, const char *format, ...)
+{
+	char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[HUGE_BUF];
+	va_list ap;
+	struct timeval tv;
+	struct tm *tm;
+
+	va_start(ap, format);
+	vsnprintf(formatted, sizeof(formatted), format, ap);
+	va_end(ap);
+
+	gettimeofday(&tv, NULL);
+	tm = localtime(&tv.tv_sec);
+
+	if (tm)
+	{
+		char timebuf2[MAX_BUF];
+
+		strftime(timebuf2, sizeof(timebuf2), "%H:%M:%S", tm);
+		snprintf(timebuf, sizeof(timebuf), "[%s.%06"FMT64U"] ", timebuf2, (uint64) tv.tv_usec);
+	}
+	else
+	{
+		timebuf[0] = '\0';
+	}
+
+	snprintf(buf, sizeof(buf), LOGGER_ESC_SEQ_BOLD"%s"LOGGER_ESC_SEQ_END LOGGER_ESC_SEQ_RED"%s"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_CYAN"[%s:%"FMT64U"]"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_YELLOW"%s"LOGGER_ESC_SEQ_END"\n", timebuf, level, function, line, formatted);
+
+	print_func(buf);
+
+	if (log_fp)
+	{
+		fputs(buf, log_fp);
+		fprintf(log_fp, "%s%s [%s:%"FMT64U"] %s\n", timebuf, level, function, line, formatted);
+		fflush(log_fp);
+	}
+}

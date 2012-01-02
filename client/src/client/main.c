@@ -290,16 +290,12 @@ static int game_status_chain(void)
 	if (GameStatus == GAME_STATUS_INIT)
 	{
 		cpl.mark_count = -1;
-		LOG(llevInfo, "GAMES_STATUS_INIT_1\n");
 
 		map_udate_flag = 2;
 		delete_player_lists();
-		LOG(llevInfo, "GAMES_STATUS_INIT_2\n");
 		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 		clear_map();
 		effect_stop();
-		LOG(llevInfo, "GAMES_STATUS_INIT_3\n");
-		LOG(llevInfo, "GAMES_STATUS_INIT_4\n");
 		GameStatus = GAME_STATUS_META;
 	}
 	else if (GameStatus == GAME_STATUS_META)
@@ -418,7 +414,6 @@ static int game_status_chain(void)
 		else if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
 			strcpy(cpl.name, text_input_string);
-			LOG(llevInfo, "Login: send name %s\n", text_input_string);
 			send_reply(text_input_string);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -435,7 +430,6 @@ static int game_status_chain(void)
 			strncpy(cpl.password, text_input_string, 39);
 			cpl.password[39] = '\0';
 
-			LOG(llevInfo, "Login: send password <*****>\n");
 			send_reply(cpl.password);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -449,7 +443,6 @@ static int game_status_chain(void)
 		}
 		else if (text_input_string_flag == 0 && text_input_string_end_flag)
 		{
-			LOG(llevInfo, "Login: send verify password <*****>\n");
 			send_reply(text_input_string);
 			GameStatus = GAME_STATUS_LOGIN;
 		}
@@ -506,7 +499,7 @@ static int load_bitmap(int idx)
 
 	if (!Bitmaps[idx] || !Bitmaps[idx]->bitmap)
 	{
-		LOG(llevBug, "load_bitmap(): Can't load bitmap %s\n", buf);
+		logger_print(LOG(BUG), "Can't load bitmap %s", buf);
 		return 0;
 	}
 
@@ -560,11 +553,7 @@ static void play_action_sounds(void)
  * List video modes available. */
 void list_vid_modes(void)
 {
-	const SDL_VideoInfo* vinfo = NULL;
 	SDL_Rect **modes;
-	int i;
-
-	LOG(llevInfo, "List Video Modes\n");
 
 	/* Get available fullscreen/hardware modes */
 	modes = SDL_ListModes(NULL, SDL_HWACCEL);
@@ -572,36 +561,9 @@ void list_vid_modes(void)
 	/* Check if there are any modes available */
 	if (modes == (SDL_Rect **) 0)
 	{
-		LOG(llevError, "No modes available!\n");
+		logger_print(LOG(ERROR), "No video modes available!");
+		exit(1);
 	}
-
-	/* Check if resolution is restricted */
-	if (modes == (SDL_Rect **) -1)
-	{
-		LOG(llevInfo, "All resolutions available.\n");
-	}
-	else
-	{
-		/* Print valid modes */
-		LOG(llevInfo, "Available Modes\n");
-
-		for (i = 0; modes[i]; ++i)
-		{
-			LOG(llevInfo, "  %d x %d\n", modes[i]->w, modes[i]->h);
-		}
-	}
-
-	vinfo = SDL_GetVideoInfo();
-	LOG(llevInfo, "VideoInfo: hardware surfaces? %s\n", vinfo->hw_available ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: windows manager? %s\n", vinfo->wm_available ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: hw to hw blit? %s\n", vinfo->blit_hw ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: hw to hw ckey blit? %s\n", vinfo->blit_hw_CC ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: hw to hw alpha blit? %s\n", vinfo->blit_hw_A ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: sw to hw blit? %s\n", vinfo->blit_sw ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: sw to hw ckey blit? %s\n", vinfo->blit_sw_CC ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: sw to hw alpha blit? %s\n", vinfo->blit_sw_A ? "yes":  "no");
-	LOG(llevInfo, "VideoInfo: color fill? %s\n", vinfo->blit_fill ? "yes" : "no");
-	LOG(llevInfo, "VideoInfo: video memory: %dKB\n", vinfo->video_mem);
 }
 
 /**
@@ -687,6 +649,7 @@ int main(int argc, char *argv[])
 	char version[MAX_BUF];
 
 	toolkit_import(binreloc);
+	toolkit_import(logger);
 	toolkit_import(math);
 	toolkit_import(memory);
 	toolkit_import(packet);
@@ -694,6 +657,8 @@ int main(int argc, char *argv[])
 	toolkit_import(sha1);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
+
+	logger_open_log(LOG_FILE);
 
 	upgrader_init();
 	settings_init();
@@ -731,14 +696,14 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			LOG(llevInfo, "Usage: %s [-server <name>] [-port <num>]\n", argv[0]);
+			logger_print(LOG(INFO), "Usage: %s [-server <name>] [-port <num>]", argv[0]);
 			exit(1);
 		}
 	}
 
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0)
 	{
-		LOG(llevBug, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		logger_print(LOG(ERROR), "Couldn't initialize SDL: %s", SDL_GetError());
 		exit(1);
 	}
 
@@ -748,7 +713,8 @@ int main(int argc, char *argv[])
 
 	if (!video_set_size())
 	{
-		LOG(llevError, "Couldn't set video size: %s\n", SDL_GetError());
+		logger_print(LOG(ERROR), "Couldn't set video size: %s", SDL_GetError());
+		exit(1);
 	}
 
 	sprite_init_system();
@@ -829,7 +795,7 @@ int main(int argc, char *argv[])
 		{
 			if (!game_status_chain())
 			{
-				LOG(llevError, "Error connecting: GameStatus: %d  SocketError: %d\n", GameStatus, socket_get_error());
+				logger_print(LOG(ERROR), "Error connecting: GameStatus: %d  SocketError: %d", GameStatus, socket_get_error());
 			}
 		}
 

@@ -70,7 +70,7 @@ _Sprite *sprite_load_file(char *fname, uint32 flags)
 
 	if (sprite == NULL)
 	{
-		LOG(llevBug, "sprite_load_file(): Can't load sprite %s\n", fname);
+		logger_print(LOG(BUG), "Can't load sprite %s", fname);
 		return NULL;
 	}
 
@@ -913,7 +913,7 @@ void play_anims(void)
 					break;
 
 				default:
-					LOG(llevBug, "Unknown animation type\n");
+					logger_print(LOG(BUG), "Unknown animation type");
 					break;
 			}
 		}
@@ -1094,7 +1094,7 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *col
 
 	if (!text_color_parse(color_notation, &color))
 	{
-		LOG(llevBug, "border_create_color(): Invalid color: %s\n", color_notation);
+		logger_print(LOG(BUG), "Invalid color: %s", color_notation);
 		return;
 	}
 

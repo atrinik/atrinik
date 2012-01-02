@@ -78,11 +78,9 @@ char *path_join(const char *path, const char *path2)
 /**
  * Extracts the directory component of a path.
  *
- * Similar to g_dirname() or the dirname commandline application.
- *
  * Example:
  * @code
- * path_dirname("/usr/local/foobar");  --> Returns: "/usr/local"
+ * path_dirname("/usr/local/foobar"); --> "/usr/local"
  * @endcode
  * @param path A path.
  * @return A directory name. This string should be freed when no longer
@@ -90,7 +88,8 @@ char *path_join(const char *path, const char *path2)
  * @author Hongli Lai (public domain) */
 char *path_dirname(const char *path)
 {
-	char *end, *result;
+	const char *end;
+	char *result;
 
 	if (!path)
 	{
@@ -121,6 +120,36 @@ char *path_dirname(const char *path)
 }
 
 /**
+ * Extracts the basename from path.
+ *
+ * Example:
+ * @code
+ * path_basename("/usr/bin/kate"); --> "kate"
+ * @endcode
+ * @param path A path.
+ * @return The basename of the path. Should be freed when no longer
+ * needed. */
+char *path_basename(const char *path)
+{
+	const char *slash;
+
+	if (!path)
+	{
+		return NULL;
+	}
+
+	while ((slash = strrchr(path, '/')))
+	{
+		if (*(slash + 1) != '\0')
+		{
+			return strdup(slash + 1);
+		}
+	}
+
+	return strdup(path);
+}
+
+/**
  * Checks whether any directories in the given path don't exist, and
  * creates them if necessary.
  * @param path The path to check. */
@@ -147,7 +176,7 @@ void path_ensure_directories(const char *path)
 		{
 			if (mkdir(buf, 0777))
 			{
-				LOG(llevBug, "path_mkdir_p(): Cannot mkdir %s: %s\n", buf, strerror(errno));
+				logger_print(LOG(BUG), "Cannot mkdir %s: %s", buf, strerror(errno));
 				return;
 			}
 		}
