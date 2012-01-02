@@ -256,6 +256,7 @@ static void *do_thread(void *dummy)
 
 		if (count <= 0)
 		{
+			usleep(10000);
 			continue;
 		}
 
