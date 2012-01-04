@@ -30,27 +30,6 @@
 #include <global.h>
 
 /**
- * Return the number of the spell that whose name matches the passed
- * string argument.
- * @param spname Name of the spell to look up.
- * @return -1 if no such spell name match is found, the spell ID
- * otherwise. */
-int look_up_spell_name(const char *spname)
-{
-	int i;
-
-	for (i = 0; i < NROFREALSPELLS; i++)
-	{
-		if (strcmp(spname, spells[i].name) == 0)
-		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-/**
  * Checks for a legal string by first trimming left whitespace and then
  * checking if there is anything left.
  * @param ustring The string to clean up.

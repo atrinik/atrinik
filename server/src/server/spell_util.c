@@ -1322,3 +1322,24 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
 
 	insert_ob_in_map(tmp, op->map, op, 0);
 }
+
+/**
+ * Return the number of the spell that whose name matches the passed
+ * string argument.
+ * @param spname Name of the spell to look up.
+ * @return -1 if no such spell name match is found, the spell ID
+ * otherwise. */
+int look_up_spell_name(const char *spname)
+{
+	int i;
+
+	for (i = 0; i < NROFREALSPELLS; i++)
+	{
+		if (strcmp(spname, spells[i].name) == 0)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}

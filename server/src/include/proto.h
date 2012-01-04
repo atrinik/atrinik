@@ -708,6 +708,7 @@ extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 extern void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
+extern int look_up_spell_name(const char *spname);
 /* src/server/statistics.c */
 extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, sint64 i, const char *buf);
