@@ -66,6 +66,14 @@ static UT_array *command_process_queue;
  * Mutex protecting command command process queue. */
 static pthread_mutex_t command_process_queue_mutex;
 
+/**
+ * The thread's ID. */
+static pthread_t thread_id;
+
+/**
+ * If 1, the thread is done executing. */
+static uint8 thread_done;
+
 #ifdef HAVE_READLINE
 /**
  * Prompt for readline. */
@@ -247,7 +255,7 @@ static void *do_thread(void *dummy)
 	size_t len;
 #endif
 
-	while (1)
+	while (!thread_done)
 	{
 		FD_SET(STDIN_FILENO, &stdin_fd_set);
 		tv.tv_sec = 0;
@@ -287,7 +295,6 @@ void toolkit_console_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(console)
 	{
-		pthread_t thread_id;
 		int ret;
 
 		toolkit_import(logger);
@@ -325,6 +332,7 @@ void toolkit_console_init(void)
 			"'help <command>' can be used to get more detailed help about the specified command."
 		);
 
+		thread_done = 0;
 		pthread_mutex_init(&command_process_queue_mutex, NULL);
 		ret = pthread_create(&thread_id, NULL, do_thread, NULL);
 
@@ -344,6 +352,9 @@ void toolkit_console_deinit(void)
 {
 	size_t i;
 
+	thread_done = 1;
+	pthread_join(thread_id, NULL);
+
 	for (i = 0; i < console_commands_num; i++)
 	{
 		free(console_commands[i].command);
@@ -358,6 +369,7 @@ void toolkit_console_deinit(void)
 	}
 
 	console_commands_num = 0;
+	utarray_free(command_process_queue);
 
 	logger_set_print_func(logger_do_print);
 

@@ -25,104 +25,72 @@
 
 /**
  * @file
- * Logger API.
+ * Signals API.
  *
  * @author Alex Tokar */
 
 #include <global.h>
-#include <stdarg.h>
+#include <signal.h>
 
-/**
- * Pointer to open log file, if any. */
-static FILE *log_fp;
+static void (*handler_func)(void);
 
-/**
- * The print function. */
-static logger_print_func print_func;
-
-/**
- * Initialize the logger API.
- * @internal */
-void toolkit_logger_init(void)
+static const int register_signals[] =
 {
-	TOOLKIT_INIT_FUNC_START(logger)
+	SIGINT, SIGTERM, SIGHUP, SIGSEGV
+};
+
+static void signal_handler(int signum)
+{
+	if (handler_func)
 	{
-		log_fp = NULL;
-		logger_set_print_func(logger_do_print);
+		handler_func();
+	}
+
+	if (signum == SIGSEGV)
+	{
+		abort();
+	}
+
+	exit(1);
+}
+
+/**
+ * Initialize the signals API.
+ * @internal */
+void toolkit_signals_init(void)
+{
+	TOOLKIT_INIT_FUNC_START(signals)
+	{
+		size_t i;
+		struct sigaction new_action, old_action;
+
+		handler_func = NULL;
+
+		for (i = 0; i < arraysize(register_signals); i++)
+		{
+			new_action.sa_handler = signal_handler;
+			sigemptyset(&new_action.sa_mask);
+			new_action.sa_flags = 0;
+
+			sigaction(register_signals[i], NULL, &old_action);
+
+			if (old_action.sa_handler != SIG_IGN)
+			{
+				sigaction(register_signals[i], &new_action, NULL);
+			}
+		}
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
 
 /**
- * Deinitialize the logger API.
+ * Deinitialize the signals API.
  * @internal */
-void toolkit_logger_deinit(void)
+void toolkit_signals_deinit(void)
 {
-	if (log_fp)
-	{
-		fclose(log_fp);
-	}
 }
 
-void logger_open_log(const char *path)
+void signals_set_handler_func(void (*func)(void))
 {
-	log_fp = fopen(path, "w");
-
-	if (!log_fp)
-	{
-		return;
-	}
-}
-
-FILE *logger_get_logfile(void)
-{
-	return log_fp ? log_fp : stdout;
-}
-
-void logger_set_print_func(logger_print_func func)
-{
-	print_func = func;
-}
-
-void logger_do_print(const char *str)
-{
-	fputs(str, stdout);
-}
-
-void logger_print(const char *level, const char *function, uint64 line, const char *format, ...)
-{
-	char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[HUGE_BUF];
-	va_list ap;
-	struct timeval tv;
-	struct tm *tm;
-
-	va_start(ap, format);
-	vsnprintf(formatted, sizeof(formatted), format, ap);
-	va_end(ap);
-
-	gettimeofday(&tv, NULL);
-	tm = localtime(&tv.tv_sec);
-
-	if (tm)
-	{
-		char timebuf2[MAX_BUF];
-
-		strftime(timebuf2, sizeof(timebuf2), "%H:%M:%S", tm);
-		snprintf(timebuf, sizeof(timebuf), "[%s.%06"FMT64U"] ", timebuf2, (uint64) tv.tv_usec);
-	}
-	else
-	{
-		timebuf[0] = '\0';
-	}
-
-	snprintf(buf, sizeof(buf), LOGGER_ESC_SEQ_BOLD"%s"LOGGER_ESC_SEQ_END LOGGER_ESC_SEQ_RED"%s"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_CYAN"[%s:%"FMT64U"]"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_YELLOW"%s"LOGGER_ESC_SEQ_END"\n", timebuf, level, function, line, formatted);
-
-	print_func(buf);
-
-	if (log_fp)
-	{
-		fputs(buf, log_fp);
-		fprintf(log_fp, "%s%s [%s:%"FMT64U"] %s\n", timebuf, level, function, line, formatted);
-		fflush(log_fp);
-	}
+	handler_func = func;
 }

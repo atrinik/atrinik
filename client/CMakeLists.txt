@@ -208,6 +208,7 @@ set(SOURCES
 	src/toolkit/porting.c
 	src/toolkit/sha1.c
 	src/toolkit/shstr.c
+	src/toolkit/signals.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
 	src/toolkit/toolkit.c

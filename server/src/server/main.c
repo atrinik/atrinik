@@ -1090,12 +1090,9 @@ void clean_tmp_files(void)
 }
 
 /**
- * Clean up everything before exiting. */
+ * Free all data before exiting. */
 void cleanup(void)
 {
-	logger_print(LOG(DEBUG), "Cleanup called. Freeing data.");
-	command_kick(NULL, NULL);
-	clean_tmp_files();
 	free_all_maps();
 	free_style_maps();
 	free_all_archs();
@@ -1122,6 +1119,16 @@ void cleanup(void)
 	free_object_loader();
 	free_random_map_loader();
 	free_map_header_loader();
+}
+
+/**
+ * Shut down the server, saving and freeing all data. */
+void server_shutdown(void)
+{
+	command_kick(NULL, NULL);
+	clean_tmp_files();
+	cleanup();
+	exit(0);
 }
 
 /**

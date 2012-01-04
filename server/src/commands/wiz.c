@@ -197,9 +197,7 @@ int command_shutdown_now(object *op, char *params)
 	(void) params;
 
 	logger_print(LOG(SYSTEM), "Server shut down by %s.", op->name);
-	command_kick(NULL, NULL);
-	cleanup();
-	exit(0);
+	server_shutdown();
 
 	/* Not reached */
 	return 1;
@@ -613,8 +611,7 @@ void shutdown_agent(int timer, char *reason)
 			{
 				logger_print(LOG(SYSTEM), "Server shut down.");
 				command_kick(NULL, NULL);
-				cleanup();
-				exit(0);
+				server_shutdown();
 			}
 		}
 

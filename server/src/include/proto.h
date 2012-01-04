@@ -417,6 +417,7 @@ extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void cleanup(void);
+extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
@@ -976,6 +977,10 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
+/* src/toolkit/signals.c */
+extern void toolkit_signals_init(void);
+extern void toolkit_signals_deinit(void);
+extern void signals_set_handler_func(void (*func)(void));
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);

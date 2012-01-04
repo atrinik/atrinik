@@ -150,8 +150,7 @@ void free_strings(void)
 
 static void console_command_shutdown(const char *params)
 {
-	cleanup();
-	exit(0);
+	server_shutdown();
 }
 
 static void console_command_speed(const char *params)
@@ -189,6 +188,7 @@ void init_library(void)
 	toolkit_import(path);
 	toolkit_import(porting);
 	toolkit_import(shstr);
+	toolkit_import(signals);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
 
@@ -207,6 +207,8 @@ void init_library(void)
 		"Changes the speed of the server, which in turn affects how quickly everything is processed."
 		"Without an argument, shows the current speed and the default speed."
 	);
+
+	signals_set_handler_func(cleanup);
 
 	init_environ();
 	init_globals();

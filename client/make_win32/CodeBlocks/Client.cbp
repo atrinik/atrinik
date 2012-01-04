@@ -82,6 +82,7 @@
 		<Unit filename="..\..\src\toolkit\porting.c" />
 		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\shstr.c" />
+		<Unit filename="..\..\src\toolkit\signals.c" />
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
 		<Unit filename="..\..\src\toolkit\toolkit.c" />

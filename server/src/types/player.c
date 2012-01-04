@@ -48,6 +48,14 @@ void player_init(void)
  * Deinitialize the player API. */
 void player_deinit(void)
 {
+	player *pl, *next;
+
+	for (pl = first_player; pl; pl = next)
+	{
+		next = pl->next;
+		free_player(pl);
+	}
+
 	mempool_free(pool_player);
 }
 
