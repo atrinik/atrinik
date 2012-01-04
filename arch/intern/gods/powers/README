@@ -1,5 +1,0 @@
-Inserting these powers in the treasure list of a god
-will give the powers or action defined in these arches.
-
-These arches are all of type BOOK and sys_objects.
-They are hard coded in the gods.c source file.

@@ -2,17 +2,6 @@
 # server/doc/treasures.dox or at
 # http://server.docs.atrinik.org/treasures.html
 
-#########################################################
-# Default "deity" - The Tabernacle
-#
-treasure deity_tabernacle
-  arch god_restore_grace
-  more
-  arch god_restore_hitpoints
-  more
-  arch god_grace_limit_medium
-end
-
 ##############################################################
 # PLAYER
 #

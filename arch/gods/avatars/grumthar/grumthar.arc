@@ -1,6 +1,5 @@
 Object Grumthar
 name Grumthar
-randomitems deity_tabernacle
 type 50
 no_pick 1
 layer 6

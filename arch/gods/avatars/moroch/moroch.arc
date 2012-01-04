@@ -1,6 +1,5 @@
 Object Moroch
 name Moroch
-randomitems deity_tabernacle
 type 50
 no_pick 1
 layer 6
