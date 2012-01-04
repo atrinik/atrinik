@@ -188,22 +188,6 @@ int command_kick(object *ob, char *params)
 }
 
 /**
- * Totally shuts down the server.
- * @param op DM shutting down the server.
- * @param params Ignored.
- * @return 1. */
-int command_shutdown_now(object *op, char *params)
-{
-	(void) params;
-
-	logger_print(LOG(SYSTEM), "Server shut down by %s.", op->name);
-	server_shutdown();
-
-	/* Not reached */
-	return 1;
-}
-
-/**
  * DM teleports to a map.
  * @param op DM teleporting.
  * @param params Map to teleport to. Can be absolute or relative path.

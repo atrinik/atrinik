@@ -168,7 +168,6 @@ CommArray_s WizCommands[] =
 	/* Administration-related commands. */
 	{"goto", command_goto, 0.0, 0},
 	{"shutdown", command_shutdown, 0.0, 0},
-	{"shutdown_now", command_shutdown_now, 0.0, 0},
 	{"resetmap", command_resetmap, 0.0, 0},
 	{"dm_stealth", command_dm_stealth, 0.0, 0},
 	{"dm_light", command_dm_light, 0.0, 0},

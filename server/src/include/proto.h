@@ -142,7 +142,6 @@ extern int command_rename_item(object *op, char *params);
 extern int command_cast_spell(object *op, char *params);
 /* src/commands/wiz.c */
 extern int command_kick(object *ob, char *params);
-extern int command_shutdown_now(object *op, char *params);
 extern int command_goto(object *op, char *params);
 extern int command_freeze(object *op, char *params);
 extern int command_summon(object *op, char *params);
@@ -754,7 +753,6 @@ extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
-extern int look_up_spell_name(const char *spname);
 extern char *cleanup_string(char *ustring);
 extern const char *get_word_from_string(const char *str, int *pos);
 extern void adjust_player_name(char *name);
