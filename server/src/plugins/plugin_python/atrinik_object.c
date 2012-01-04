@@ -860,8 +860,7 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
 /**
  * <h1>object.Remove()</h1>
  * Takes the object out of whatever map or inventory it is in. The object
- * can then be inserted or teleported somewhere else, or just left alone
- * for the garbage collection to take care of.
+ * can then be inserted or teleported somewhere else.
  * @warning Be careful when removing one of the objects involved in the
  * event activation (such as the activator/event/etc). It is recommended
  * you use "SetReturnValue(1)" or similar before the script exits if
@@ -871,6 +870,20 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 	(void) args;
 	OBJEXISTCHECK(obj);
 	hooks->object_remove(obj->obj, 0);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+/**
+ * <h1>object.Destroy()</h1>
+ * Frees all data associated with the object. The object must have been
+ * removed from map/environment first. */
+static PyObject *Atrinik_Object_Destroy(Atrinik_Object *obj, PyObject *args)
+{
+	(void) args;
+	OBJEXISTCHECK(obj);
+	hooks->object_destroy(obj->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1704,6 +1717,7 @@ static PyMethodDef methods[] =
 	{"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
+	{"Destroy", (PyCFunction) Atrinik_Object_Destroy, METH_NOARGS, 0},
 	{"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
 	{"CastIdentify", (PyCFunction) Atrinik_Object_CastIdentify, METH_VARARGS, 0},
 	{"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
