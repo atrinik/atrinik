@@ -83,3 +83,266 @@
    fun:PyObject_Realloc
 }
 
+{
+   readline leak #1
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_make_bare_keymap
+   fun:rl_generic_bind
+   fun:rl_parse_and_bind
+   fun:_rl_read_init_file
+   fun:rl_initialize
+}
+
+{
+   readline leak #2
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_make_bare_keymap
+   fun:rl_generic_bind
+   fun:bind_termcap_arrow_keys
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #3
+   Memcheck:Leak
+   fun:calloc
+   fun:_nc_build_names
+   fun:_nc_find_type_entry
+   fun:tgetstr
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #4
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #5
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_add_funmap_entry
+   fun:rl_initialize_funmap
+   fun:rl_initialize
+}
+
+{
+   readline leak #6
+   Memcheck:Leak
+   fun:realloc
+   fun:_nc_doalloc
+   fun:_nc_read_termtype
+   fun:_nc_read_file_entry
+   fun:_nc_read_entry
+   fun:_nc_setup_tinfo
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #7
+   Memcheck:Leak
+   fun:malloc
+   fun:_nc_read_termtype
+   fun:_nc_read_file_entry
+   fun:_nc_read_entry
+   fun:_nc_setup_tinfo
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #8
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:init_line_structures
+   fun:rl_redisplay
+   fun:readline_internal_setup
+   fun:_rl_callback_newline
+}
+
+{
+   readline leak #9
+   Memcheck:Leak
+   fun:realloc
+   fun:xrealloc
+   fun:rl_add_funmap_entry
+   fun:rl_initialize_funmap
+   fun:rl_initialize
+}
+
+{
+   readline leak #10
+   Memcheck:Leak
+   fun:calloc
+   fun:_nc_read_termtype
+   fun:_nc_read_file_entry
+   fun:_nc_read_entry
+   fun:_nc_setup_tinfo
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #11
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_initialize
+}
+
+{
+   readline leak #12
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_set_prompt
+}
+
+{
+   readline leak #13
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #14
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:_nc_trim_sgr0
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #15
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:_rl_read_init_file
+   fun:rl_initialize
+}
+
+{
+   readline leak #16
+   Memcheck:Leak
+   fun:calloc
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #17
+   Memcheck:Leak
+   fun:malloc
+   fun:_nc_tparm_analyze
+   fun:tparam_internal
+   fun:tparm
+   fun:set_attribute_9.isra.0
+   fun:_nc_trim_sgr0
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #18
+   Memcheck:Leak
+   fun:malloc
+   fun:_nc_home_terminfo
+   fun:_nc_next_db
+   fun:_nc_read_entry
+   fun:_nc_setup_tinfo
+   fun:_nc_setupterm
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #19
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:parser_if
+   fun:rl_parse_and_bind
+   fun:_rl_read_init_file
+   fun:rl_initialize
+}
+
+{
+   readline leak #20
+   Memcheck:Leak
+   fun:realloc
+   fun:_nc_doalloc
+   fun:get_space
+   fun:save_char
+   fun:tparam_internal
+   fun:tparm
+   fun:set_attribute_9.isra.0
+   fun:_nc_trim_sgr0
+   fun:tgetent
+   fun:_rl_init_terminal_io
+   fun:rl_initialize
+}
+
+{
+   readline leak #21
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:add_history
+   fun:handle_enter
+   fun:_rl_dispatch_subseq
+   fun:readline_internal_char
+   fun:rl_callback_read_char
+}
+
+{
+   readline leak #22
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:alloc_history_entry
+   fun:add_history
+   fun:handle_enter
+   fun:_rl_dispatch_subseq
+   fun:readline_internal_char
+   fun:rl_callback_read_char
+}
+
+{
+   readline leak #23
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:readline_internal_teardown
+   fun:rl_callback_read_char
+}
