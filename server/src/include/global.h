@@ -418,16 +418,8 @@ typedef struct shstr_constants
 	const char *ALIGNMENT_FORCE;
 	const char *alignment_force;
 
-	const char *grace_limit;
 	const char *restore_grace;
 	const char *restore_hitpoints;
-	const char *restore_spellpoints;
-	const char *heal_spell;
-	const char *remove_curse;
-	const char *remove_damnation;
-	const char *heal_depletion;
-	const char *message;
-	const char *enchant_weapon;
 
 	const char *player_info;
 	const char *BANK_GENERAL;

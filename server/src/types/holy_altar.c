@@ -74,11 +74,6 @@ static int apply_func(object *op, object *applier, int aflags)
 		bonus = ((applier->stats.Wis / 10) + (SK_level(applier) / 10));
 
 		applier->stats.grace = MIN(applier->stats.maxgrace, applier->stats.grace + bonus);
-
-		if (rndm_chance(MAX(1, 100 - bonus)))
-		{
-			god_intervention(applier, god);
-		}
 	}
 	/* Praying to another god! */
 	else

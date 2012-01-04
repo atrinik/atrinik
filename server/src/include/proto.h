@@ -302,8 +302,6 @@ extern uint64 calculate_total_exp(object *op);
 extern object *find_god(const char *name);
 extern void become_follower(object *op, object *new_god);
 extern const char *determine_god(object *op);
-extern archetype *determine_holy_arch(object *god, const char *type);
-extern void god_intervention(object *op, object *god);
 /* src/server/hiscore.c */
 extern void hiscore_init(void);
 extern void hiscore_check(object *op, int quiet);

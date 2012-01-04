@@ -117,16 +117,8 @@ static void init_strings(void)
 	shstr_cons.ALIGNMENT_FORCE = add_string("ALIGNMENT_FORCE");
 	shstr_cons.alignment_force = add_string("alignment_force");
 
-	shstr_cons.grace_limit = add_string("grace limit");
 	shstr_cons.restore_grace = add_string("restore grace");
 	shstr_cons.restore_hitpoints = add_string("restore hitpoints");
-	shstr_cons.restore_spellpoints = add_string("restore spellpoints");
-	shstr_cons.heal_spell = add_string("heal spell");
-	shstr_cons.remove_curse = add_string("remove curse");
-	shstr_cons.remove_damnation = add_string("remove damnation");
-	shstr_cons.heal_depletion = add_string("heal depletion");
-	shstr_cons.message = add_string("message");
-	shstr_cons.enchant_weapon = add_string("enchant weapon");
 
 	shstr_cons.player_info = add_string("player_info");
 	shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");
