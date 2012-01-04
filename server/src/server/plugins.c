@@ -45,6 +45,7 @@ struct plugin_hooklist hooklist =
 	free_string_shared,
 	add_string,
 	object_remove,
+	object_destroy,
 	fix_player,
 	insert_ob_in_ob,
 	draw_info_map,
