@@ -571,7 +571,7 @@ extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
-extern void signals_set_handler_func(void (*func)(void));
+extern void signals_register_handler_func(signals_handler_func func);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
