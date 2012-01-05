@@ -12,7 +12,9 @@ import Atrinik, Markup, traceback
 exception = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
 
 # Log the exception to the server log.
-Atrinik.LOG(Atrinik.llevDebug, exception)
+for line in exception.split("\n"):
+	if line:
+		Atrinik.Logger("WARNING", line)
 
 # Escape the markup in the exception message, and print it out to all online DMs.
 exception = Markup.markup_escape(exception)

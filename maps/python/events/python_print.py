@@ -4,7 +4,9 @@
 import Atrinik, Markup
 
 # Log the message to the server log.
-Atrinik.LOG(Atrinik.llevDebug, print_msg)
+for line in print_msg.split("\n"):
+	if line:
+		Atrinik.Logger("WARNING", line)
 
 # Escape the markup in the message, and print it out to all online DMs.
 print_msg = Markup.markup_escape(print_msg)

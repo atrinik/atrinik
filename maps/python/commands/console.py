@@ -146,7 +146,7 @@ def main():
 	if msg and msg.startswith("\""):
 		msg = msg[1:]
 
-	LOG(llevChat, "Console: {}: {}\n".format(activator.name, msg))
+	Logger("CHAT", "Console: {}: {}".format(activator.name, msg))
 
 	# Try to find the thread.
 	thread = find_thread()
