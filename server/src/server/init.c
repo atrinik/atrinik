@@ -200,7 +200,7 @@ void init_library(void)
 		"Without an argument, shows the current speed and the default speed."
 	);
 
-	signals_set_handler_func(cleanup);
+	signals_register_handler_func(cleanup);
 
 	init_environ();
 	init_globals();
