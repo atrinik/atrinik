@@ -1155,11 +1155,12 @@ static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>LOG(string mode, string message)</h1>
+ * <h1>logger(string type, string message)</h1>
  * Logs a message.
- * @param mode Logging mode to use, eg, "ERROR", "CHAT", etc.
- * @param message The message to log. */
-static PyObject *Atrinik_LOG(PyObject *self, PyObject *args)
+ * @param type Type of the message, eg, "WARNING", "ERROR", "CHAT",
+ * "INFO", etc.
+ * @param message The message to log. Cannot contain newlines. */
+static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
 {
 	const char *mode, *string;
 
@@ -1495,7 +1496,6 @@ static PyObject *Atrinik_print(PyObject *self, PyObject *args)
 		hooks->stringbuffer_append_string(sb, PyString_AsString(PyObject_Str(PyTuple_GetItem(args, i))));
 	}
 
-	hooks->stringbuffer_append_string(sb, "\n");
 	cp = hooks->stringbuffer_finish(sb);
 
 	locals = PyDict_New();
@@ -1539,7 +1539,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
 	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
 	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
-	{"LOG", Atrinik_LOG, METH_VARARGS, 0},
+	{"Logger", Atrinik_Logger, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
 	{"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
@@ -2177,25 +2177,9 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 	PyDict_SetItemString(PyModule_GetDict(module), name, list);
 }
 
-#ifndef WIN32
-/**
- * Open a log file in replacement for stdout and stderr.
- * @param fp File pointer.
- * @param name Name, for example, \<stdout\>.
- * @return The opened log file. */
-static PyObject *python_openlogfile(FILE *fp, char *name)
-{
-#ifdef IS_PY3K
-	return PyFile_FromFd(fileno(fp), name, "w", 1, NULL, NULL, NULL, 0);
-#else
-	return PyFile_FromFile(fp, name, "w", 0);
-#endif
-}
-#endif
-
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 {
-	PyObject *m, *d, *module_tmp, *logfile_ptr;
+	PyObject *m, *d, *module_tmp;
 	int i;
 	PyThreadState *py_tstate = NULL;
 
@@ -2226,15 +2210,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 	{
 		return;
 	}
-
-#ifndef WIN32
-	logfile_ptr = python_openlogfile(hooks->logger_get_logfile(), "<stdout>");
-	PySys_SetObject("stdout", logfile_ptr);
-	PySys_SetObject("__stdout__", logfile_ptr);
-	logfile_ptr = python_openlogfile(hooks->logger_get_logfile(), "<stderr>");
-	PySys_SetObject("stderr", logfile_ptr);
-	PySys_SetObject("__stderr__", logfile_ptr);
-#endif
 
 	module_add_constants(m, "Type", constants_types);
 	module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
