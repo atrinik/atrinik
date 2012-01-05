@@ -173,32 +173,6 @@ void handle_client(socket_struct *ns, player *pl)
 }
 
 /**
- * Tell the Atrinik watchdog program that we are still alive by sending
- * datagrams to port 13325 on localhost.
- * @see atrinik_watchdog */
-void watchdog(void)
-{
-	static int fd = -1;
-	static struct sockaddr_in insock;
-
-	if (fd == -1)
-	{
-		struct protoent *protoent;
-
-		if ((protoent = getprotobyname("udp")) == NULL || (fd = socket(PF_INET, SOCK_DGRAM, protoent->p_proto)) == -1)
-		{
-			return;
-		}
-
-		insock.sin_family = AF_INET;
-		insock.sin_port = htons((unsigned short) 13325);
-		insock.sin_addr.s_addr = inet_addr("127.0.0.1");
-	}
-
-	sendto(fd, (void *) &fd, 1, 0, (struct sockaddr *) &insock, sizeof(insock));
-}
-
-/**
  * Remove a player from the game that has been disconnected by logging
  * out, the socket connection was interrupted, etc.
  * @param pl The player to remove. */

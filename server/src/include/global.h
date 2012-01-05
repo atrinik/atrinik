@@ -381,9 +381,6 @@ typedef struct Settings
 	/** Location of the client maps. */
 	char client_maps_url[MAX_BUF];
 
-	/** Use watchdog? */
-	uint8 watchdog;
-
 	/** Are we going to run unit tests? */
 	uint8 unit_tests;
 

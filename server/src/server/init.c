@@ -57,7 +57,6 @@ struct Settings settings =
 	"",
 	0,
 	0,
-	0,
 	10,
 	1.0f
 };
@@ -354,11 +353,6 @@ static void showscores(void)
 	exit(0);
 }
 
-static void set_watchdog(void)
-{
-	settings.watchdog = 1;
-}
-
 static void set_datadir(char *path)
 {
 	settings.datadir = path;
@@ -510,7 +504,6 @@ static struct Command_Line_Options options[] =
 	/* Pass 2 functions.  Most of these could probably be in pass 1,
 	 * as they don't require much of anything to bet set up. */
 	{"-csport", 1, 2, set_csport},
-	{"-watchdog", 0, 2, set_watchdog},
 
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */
