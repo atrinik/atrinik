@@ -94,7 +94,6 @@ char first_map_path[MAX_BUF];
 static void usage();
 static void help();
 static void init_beforeplay();
-static void init_environ();
 static void init_dynamic();
 static void init_clocks();
 
@@ -202,7 +201,6 @@ void init_library(void)
 
 	signals_register_handler_func(cleanup);
 
-	init_environ();
 	init_globals();
 	objectlink_init();
 	object_init();
@@ -228,65 +226,6 @@ void init_library(void)
 	if (!level_up_arch)
 	{
 		logger_print(LOG(BUG), "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
-	}
-}
-
-/**
- * Initializes values from the environmental variables.
- *
- * Needs to be called very early, since command line options should
- * overwrite these if specified. */
-static void init_environ(void)
-{
-	char *cp;
-
-	cp = getenv("ATRINIK_LIBDIR");
-
-	if (cp)
-	{
-		settings.datadir = cp;
-	}
-
-	cp = getenv("ATRINIK_LOCALDIR");
-
-	if (cp)
-	{
-		settings.localdir = cp;
-	}
-
-	cp = getenv("ATRINIK_MAPDIR");
-
-	if (cp)
-	{
-		settings.mapdir = cp;
-	}
-
-	cp = getenv("ATRINIK_ARCHETYPES");
-
-	if (cp)
-	{
-		settings.archetypes = cp;
-	}
-
-	cp = getenv("ATRINIK_TREASURES");
-
-	if (cp)
-	{
-		settings.treasures = cp;
-	}
-
-	cp = getenv("ATRINIK_UNIQUEDIR");
-
-	if (cp)
-	{
-		settings.uniquedir = cp;
-	}
-
-	cp = getenv("ATRINIK_TMPDIR");
-
-	if (cp)
-	{
-		settings.tmpdir = cp;
 	}
 }
 
