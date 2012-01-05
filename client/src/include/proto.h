@@ -568,6 +568,10 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
+/* src/toolkit/signals.c */
+extern void toolkit_signals_init(void);
+extern void toolkit_signals_deinit(void);
+extern void signals_set_handler_func(void (*func)(void));
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
