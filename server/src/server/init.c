@@ -821,10 +821,6 @@ static void help(void)
 	logger_print(LOG(INFO), " -world_maker <path> Generates region maps and stores them in the specified path.");
 #endif
 
-	logger_print(LOG(INFO), " -watchdog   Enables sending datagrams to an external watchdog program.");
-	logger_print(LOG(INFO), " -interactive Enables interactive mode. Type 'help' in console for more information.");
-	logger_print(LOG(INFO), " -ts         If enabled, all log entries will be prefixed with UNIX timestamp.");
-
 	exit(0);
 }
 
