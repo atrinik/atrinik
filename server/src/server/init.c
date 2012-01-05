@@ -58,7 +58,6 @@ struct Settings settings =
 	0,
 	0,
 	0,
-	0,
 	10,
 	1.0f
 };
@@ -360,11 +359,6 @@ static void set_watchdog(void)
 	settings.watchdog = 1;
 }
 
-static void set_interactive(void)
-{
-	settings.interactive = 1;
-}
-
 static void set_datadir(char *path)
 {
 	settings.datadir = path;
@@ -517,7 +511,6 @@ static struct Command_Line_Options options[] =
 	 * as they don't require much of anything to bet set up. */
 	{"-csport", 1, 2, set_csport},
 	{"-watchdog", 0, 2, set_watchdog},
-	{"-interactive", 0, 2, set_interactive},
 
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */
