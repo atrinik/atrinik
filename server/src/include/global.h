@@ -354,9 +354,6 @@ typedef struct Settings
 	/** Directory to use for temporary files. */
 	char *tmpdir;
 
-	/** If true, players lose a random stat when they die. */
-	uint8 stat_loss_on_death;
-
 	/** If true, Death stat depletion based on level etc. */
 	uint8 balanced_stat_loss;
 

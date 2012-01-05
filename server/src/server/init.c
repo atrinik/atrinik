@@ -45,7 +45,6 @@ struct Settings settings =
 	LOCALDIR,
 	MAPDIR, PLAYERDIR, ARCHETYPES,TREASURES,
 	UNIQUE_DIR, TMPDIR,
-	STAT_LOSS_ON_DEATH,
 	BALANCED_STAT_LOSS,
 	/* This and the next 3 values are metaserver values */
 	0,
@@ -347,12 +346,6 @@ static void call_version(void)
 	exit(0);
 }
 
-static void showscores(void)
-{
-	hiscore_display(NULL, 9999, NULL);
-	exit(0);
-}
-
 static void set_datadir(char *path)
 {
 	settings.datadir = path;
@@ -388,12 +381,6 @@ static void set_tmpdir(char *path)
 	settings.tmpdir = path;
 }
 
-static void showscoresparm(const char *data)
-{
-	hiscore_display(NULL, 9999, data);
-	exit(0);
-}
-
 static void set_csport(const char *val)
 {
 	settings.csport = atoi(val);
@@ -407,33 +394,13 @@ static void set_csport(const char *val)
 #endif
 }
 
-static void stat_loss_on_death_true(void)
-{
-	settings.stat_loss_on_death = 1;
-}
-
-static void stat_loss_on_death_false(void)
-{
-	settings.stat_loss_on_death = 0;
-}
-
-static void balanced_stat_loss_true(void)
-{
-	settings.balanced_stat_loss = 1;
-}
-
-static void balanced_stat_loss_false(void)
-{
-	settings.balanced_stat_loss = 0;
-}
-
 static void set_unit_tests(void)
 {
 #if defined(HAVE_CHECK)
 	settings.unit_tests = 1;
 #else
 	logger_print(LOG(INFO), "The server was built without the check unit testing framework. If you want to run unit tests, you must first install this framework.");
-	exit(0);
+	exit(1);
 #endif
 }
 
@@ -448,9 +415,8 @@ static void set_world_maker(const char *data)
 		settings.world_maker_dir[sizeof(settings.world_maker_dir) - 1] = '\0';
 	}
 #else
-	(void) data;
 	logger_print(LOG(INFO), "The server was built without the world maker module.");
-	exit(0);
+	exit(1);
 #endif
 }
 
@@ -508,14 +474,7 @@ static struct Command_Line_Options options[] =
 	/* Start of pass 3 information. In theory, by pass 3, all data paths
 	 * and defaults should have been set up.  */
 	{"-tests", 0, 3, set_unit_tests},
-	{"-world_maker", 1, 3, set_world_maker},
-
-	{"-s", 0, 3, showscores},
-	{"-score", 1, 3, showscoresparm},
-	{"-stat_loss_on_death", 0, 3, stat_loss_on_death_true},
-	{"+stat_loss_on_death", 0, 3, stat_loss_on_death_false},
-	{"-balanced_stat_loss", 0, 3, balanced_stat_loss_true},
-	{"+balanced_stat_loss", 0, 3, balanced_stat_loss_false}
+	{"-world_maker", 1, 3, set_world_maker}
 };
 
 /**
@@ -792,18 +751,8 @@ static void help(void)
 {
 	logger_print(LOG(INFO), "Flags:");
 	logger_print(LOG(INFO), " -csport <port> Specifies the port to use for the new client/server code.");
-	logger_print(LOG(INFO), " -d          Turns on some debugging.");
-	logger_print(LOG(INFO), " +d          Turns off debugging (useful if server compiled with debugging");
-	logger_print(LOG(INFO), "             as default).");
 	logger_print(LOG(INFO), " -h, -help   Display this information.");
 	logger_print(LOG(INFO), " -log <file> Specifies which file to send output to.");
-	logger_print(LOG(INFO), "             Only has meaning if -detach is specified.");
-	logger_print(LOG(INFO), " -s          Display the high-score list.");
-	logger_print(LOG(INFO), " -score <name or class> Displays all high scores with matching name/class.");
-	logger_print(LOG(INFO), " -stat_loss_on_death - If set, player loses stat when they die.");
-	logger_print(LOG(INFO), " +stat_loss_on_death - If set, player does not lose a stat when they die.");
-	logger_print(LOG(INFO), " -balanced_stat_loss - If set, death stat depletion is balanced by level etc.");
-	logger_print(LOG(INFO), " +balanced_stat_loss - If set, ordinary death stat depletion is used.");
 	logger_print(LOG(INFO), " -v          Print version information.");
 	logger_print(LOG(INFO), " -data       Sets the lib dir (archetypes, treasures, etc.)");
 	logger_print(LOG(INFO), " -local      Read/write local data (hiscore, unique items, etc.)");

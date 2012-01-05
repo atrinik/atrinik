@@ -167,16 +167,6 @@
  * knows where to find the information. */
 #define RECYCLE_TMP_MAPS 0
 
-/**
- * Set this to 0 if you don't want characters to loose a random stat when
- * they die - instead, they just get deplete.
- *
- * Setting it to 1 keeps the old behavior. This can be
- * changed at run time via -stat_loss_on_death or +stat_loss_on_death.
- * In theory, this can be changed on a running server, but so glue code
- * in the wiz stuff would need to be added for that to happen. */
-#define STAT_LOSS_ON_DEATH 0
-
 /* If you get a complaint about O_NDELAY not being known/undefined, try
  * uncommenting this.
  * This may cause problems - O_NONBLOCK will return -1 on blocking writes

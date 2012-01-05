@@ -1091,22 +1091,9 @@ void kill_player(object *op)
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
 
-	/* Basically two ways to go - remove a stat permanently, or just
-	 * make it depletion.  This bunch of code deals with that aspect
-	 * of death. */
 	if (settings.balanced_stat_loss)
 	{
-		/* If stat loss is permanent, lose one stat only. */
-		/* Lower level chars don't lose as many stats because they suffer more
-		   if they do. */
-		if (settings.stat_loss_on_death)
-		{
-			num_stats_lose = 1;
-		}
-		else
-		{
-			num_stats_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
-		}
+		num_stats_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
 	}
 	else
 	{
@@ -1118,19 +1105,7 @@ void kill_player(object *op)
 	/* Only decrease stats if you are level 3 or higher. */
 	for (z = 0; z < num_stats_lose; z++)
 	{
-		if (settings.stat_loss_on_death && op->level > 3)
-		{
-			/* Pick a random stat and take a point off it. Tell the
-			 * player what he lost. */
-			i = rndm(1, NUM_STATS) - 1;
-			change_attr_value(&(op->stats), i, -1);
-			check_stat_bounds(&(op->stats));
-			change_attr_value(&(CONTR(op)->orig_stats), i, -1);
-			check_stat_bounds(&(CONTR(op)->orig_stats));
-			draw_info(COLOR_WHITE, op, lose_msg[i]);
-			lost_a_stat = 1;
-		}
-		else if (op->level > 3)
+		if (op->level > 3)
 		{
 			/* Deplete a stat */
 			archetype *deparch = find_archetype("depletion");
