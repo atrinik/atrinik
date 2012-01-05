@@ -575,9 +575,6 @@ typedef struct pl_player
 	/** If true, all maps are shown in daylight for the player. */
 	uint32 dm_light:1;
 
-	/** Player was removed from a map. Used by /resetmap command. */
-	uint32 dm_removed_from_map:1;
-
 	/** Is the player AFK? */
 	uint32 afk:1;
 

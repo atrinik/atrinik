@@ -173,14 +173,15 @@ void enter_player_savebed(object *op)
  * @param op The object leaving the map. */
 void leave_map(object *op)
 {
-	mapstruct *oldmap = op->map;
-
 	object_remove(op, 0);
 
-	if (oldmap && !oldmap->player_first)
+	if (!op->map->player_first)
 	{
-		set_map_timeout(oldmap);
+		set_map_timeout(op->map);
 	}
+
+	op->map = NULL;
+	CONTR(op)->last_update = NULL;
 }
 
 /**

@@ -233,21 +233,7 @@ void remove_ns_dead_player(player *pl)
 		container_close(pl->ob, NULL);
 
 		save_player(pl->ob, 0);
-
-		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
-		{
-			leave_map(pl->ob);
-		}
-
-		if (pl->ob->map)
-		{
-			if (pl->ob->map->in_memory == MAP_IN_MEMORY)
-			{
-				pl->ob->map->timeout = MAP_TIMEOUT(pl->ob->map);
-			}
-
-			pl->ob->map = NULL;
-		}
+		leave_map(pl->ob);
 	}
 
 	logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);

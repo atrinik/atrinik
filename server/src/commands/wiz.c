@@ -75,64 +75,6 @@ static player *get_other_player_from_name(object *op, char *name)
 }
 
 /**
- * Remove all players from the specified map, marking them with
- * player::dm_removed_from_map so we can re-insert them later.
- * @param m Map to remove players from.
- * @return How many players were removed. */
-static int dm_map_remove_objects(mapstruct *m)
-{
-	int count = 0;
-	player *pl;
-
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (pl->ob->map == m)
-		{
-			count++;
-			object_remove(pl->ob, 0);
-			pl->dm_removed_from_map = 1;
-			pl->ob->map = NULL;
-		}
-	}
-
-	return count;
-}
-
-/**
- * Re-insert players from previous reset of a map.
- * @param m Map to place the players to.
- * @param op Player object doing the reset. */
-static void dm_map_reinsert_players(mapstruct *m, object *op)
-{
-	player *pl;
-
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (pl->dm_removed_from_map)
-		{
-			pl->dm_removed_from_map = 0;
-			insert_ob_in_map(pl->ob, m, NULL, INS_NO_MERGE);
-			/* So that we don't access invalid values of old player's last_update map
-			 * pointer when sending map to the client. */
-			pl->last_update = NULL;
-
-			if (pl->ob != op)
-			{
-				if (QUERY_FLAG(pl->ob, FLAG_WIZ))
-				{
-					draw_info_format(COLOR_WHITE, pl->ob, "Map reset by %s.", op->name);
-				}
-				/* Write a nice little confusing message to the players */
-				else
-				{
-					draw_info(COLOR_WHITE, pl->ob, "Your surroundings seem different but still familiar. Haven't you been here before?");
-				}
-			}
-		}
-	}
-}
-
-/**
  * Kicks a player from the server.
  *
  * If both parameters are NULL, will kick all players.
@@ -408,6 +350,8 @@ int command_resetmap(object *op, char *params)
 {
 	mapstruct *m;
 	shstr *path;
+	object *tmp, *next, **players;
+	size_t players_num, i;
 	int flags;
 
 	if (params == NULL)
@@ -422,7 +366,7 @@ int command_resetmap(object *op, char *params)
 		free_string_shared(mapfile_sh);
 	}
 
-	if (m == NULL)
+	if (!m)
 	{
 		draw_info(COLOR_WHITE, op, "No such map.");
 		return 1;
@@ -447,7 +391,21 @@ int command_resetmap(object *op, char *params)
 	}
 
 	draw_info_format(COLOR_WHITE, op, "Start resetting map %s.", m->path);
-	draw_info_format(COLOR_WHITE, op, "Removed %d players from map. Reset map.", dm_map_remove_objects(m));
+
+	players = NULL;
+	players_num = 0;
+
+	for (tmp = m->player_first; tmp; tmp = next)
+	{
+		next = CONTR(tmp)->map_above;
+
+		leave_map(tmp);
+		players = realloc(players, sizeof(*players) * (players_num + 1));
+		players[players_num] = tmp;
+		players_num++;
+	}
+
+	draw_info_format(COLOR_WHITE, op, "Removed %"FMT64U" players from map. Reset map.", (uint64) players_num);
 	m->reset_time = seconds();
 	m->map_flags |= MAP_FLAG_FIXED_RTIME;
 	/* Store the path, so we can load it after swapping is done. */
@@ -458,7 +416,28 @@ int command_resetmap(object *op, char *params)
 	m = ready_map_name(path, flags);
 	free_string_shared(path);
 	draw_info(COLOR_WHITE, op, "Resetmap done.");
-	dm_map_reinsert_players(m, op);
+
+	for (i = 0; i < players_num; i++)
+	{
+		insert_ob_in_map(players[i], m, NULL, INS_NO_MERGE);
+
+		if (players[i] != op)
+		{
+			if (QUERY_FLAG(players[i], FLAG_WIZ))
+			{
+				draw_info_format(COLOR_WHITE, players[i], "Map reset by %s.", op->name);
+			}
+			else
+			{
+				draw_info(COLOR_WHITE, players[i], "Your surroundings seem different but still familiar. Haven't you been here before?");
+			}
+		}
+	}
+
+	if (players)
+	{
+		free(players);
+	}
 
 	return 1;
 }
