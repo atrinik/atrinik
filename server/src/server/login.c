@@ -98,7 +98,7 @@ int save_player(object *op, int flag)
 		return 0;
 	}
 
-	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
+	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, op->name, op->name);
 	path_ensure_directories(filename);
 	fp = fopen(filename, "w");
 	snprintf(backupfile, sizeof(backupfile), "%s.tmp", filename);
@@ -351,7 +351,7 @@ void check_login(object *op)
 
 	logger_print(LOG(INFO), "Login %s from IP %s", op->name, pl->socket.host);
 
-	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, op->name, op->name);
+	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, op->name, op->name);
 	fp = fopen(filename, "rb");
 
 	/* If no file, must be a new player, so lets get confirmation of

@@ -37,13 +37,13 @@
 
 /* Now all the other header files that are part of the toolkit. */
 #include <binreloc.h>
+#include <clioptions.h>
 #include <console.h>
 #include <logger.h>
 #include <mempool.h>
 #include <packet.h>
 #include <sha1.h>
 #include <shstr.h>
-#include <signals.h>
 #include <socket.h>
 #include <stringbuffer.h>
 #include <utarray.h>

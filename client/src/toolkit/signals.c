@@ -29,23 +29,14 @@
  *
  * This API, when imported, will register the signals defined in
  * ::register_signals (SIGSEGV, SIGINT, etc) for interception. When any
- * one of those signals has been intercepted, the ::handler_func will be
- * called, if it has been registered using signals_register_handler_func()
- * after importing the API. This handler function is completely optional,
- * and should only be used for freeing data allocated by the application.
- *
- * When the handler function (if any) finished, the appropriate action
- * will be done, based on the signal's type - aborting for SIGSEGV,
- * exiting with an error code for others.
+ * one of those signals has been intercepted, the appropriate action will
+ * be done, based on the signal's type - aborting for SIGSEGV, exiting
+ * with an error code for others.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 #include <signal.h>
-
-/**
- * The function to call when intercepting a signal. */
-static signals_handler_func handler_func;
 
 /**
  * The signals to register. */
@@ -59,12 +50,6 @@ static const int register_signals[] =
  * @param signum ID of the signal being intercepted. */
 static void signal_handler(int signum)
 {
-	/* If a handler function has been defined, call it first. */
-	if (handler_func)
-	{
-		handler_func();
-	}
-
 	/* SIGSEGV, so abort instead of exiting normally. */
 	if (signum == SIGSEGV)
 	{
@@ -83,9 +68,6 @@ void toolkit_signals_init(void)
 	{
 		size_t i;
 		struct sigaction new_action, old_action;
-
-		/* No handler function. */
-		handler_func = NULL;
 
 		/* Register the signals. */
 		for (i = 0; i < arraysize(register_signals); i++)
@@ -110,13 +92,4 @@ void toolkit_signals_init(void)
  * @internal */
 void toolkit_signals_deinit(void)
 {
-}
-
-/**
- * Register a handler function, which will be called when intercepting a
- * signal.
- * @param func The handler function to register. */
-void signals_register_handler_func(signals_handler_func func)
-{
-	handler_func = func;
 }

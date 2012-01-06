@@ -95,7 +95,7 @@ void load_bans_file(void)
 	char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
 	FILE *fp;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
 
 	if (!(fp = fopen(filename, "r")))
 	{
@@ -131,7 +131,7 @@ void save_bans_file(void)
 	FILE *fp;
 	objectlink *ol;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, BANFILE);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
 
 	if (!(fp = fopen(filename, "w")))
 	{

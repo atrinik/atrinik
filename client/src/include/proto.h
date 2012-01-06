@@ -468,8 +468,13 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/clioptions.c */
+extern void clioptions_option_config(const char *arg);
+extern void toolkit_clioptions_init(void);
+extern void toolkit_clioptions_deinit(void);
+extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc);
+extern void clioptions_parse(int argc, char *argv[]);
 /* src/toolkit/console.c */
-extern size_t console_commands_num;
 extern char *command_generator(const char *text, int state);
 extern char **readline_completion(const char *text, int start, int end);
 extern void toolkit_console_init(void);
@@ -571,7 +576,6 @@ extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
-extern void signals_register_handler_func(signals_handler_func func);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);

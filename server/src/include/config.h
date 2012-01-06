@@ -32,26 +32,6 @@
  * everything here should just be selectable by different run time
  * flags. However, for some things, that would just be too messy. */
 
-/** Location of read-only machine independent data. */
-#ifndef DATADIR
-#define DATADIR "./lib"
-#endif
-
-/** Location of the map files. */
-#ifndef MAPDIR
-#define MAPDIR  "../maps"
-#endif
-
-/** Location of changeable single system data (temp maps, etc). */
-#ifndef LOCALDIR
-#define LOCALDIR "./data"
-#endif
-
-/** Player directory. */
-#ifndef PLAYERDIR
-#define PLAYERDIR "players"
-#endif
-
 /** Location of plugins */
 #ifndef PLUGINDIR
 #define PLUGINDIR "./"
@@ -67,59 +47,7 @@
 #define BANFILE "bans"
 #endif
 
-/**
- * Your tmp-directory should be large enough to hold the uncompressed
- * map-files for all who are playing.
- *
- * It ought to be locally mounted, since the function used to generate
- * unique temporary filenames isn't guaranteed to work over NFS or AFS.
- *
- * On the other hand, if you know that only one Atrinik server will be
- * running using this temporary directory, it is likely to be safe to use
- * something that is NFS mounted (but performance may suffer as NFS is
- * slower than local disk). */
-#ifndef TMPDIR
-#define TMPDIR LOCALDIR"/tmp"
-#endif
 
-/**
- * Directory to use for unique items. This is placed into the 'lib'
- * directory.  Changing this will cause any old unique items file
- * not to be used. */
-#ifndef UNIQUE_DIR
-#define UNIQUE_DIR "unique-items"
-#endif
-
-/**
- * Use balanced stat loss code?
- * This code is a little more merciful with repeated stat loss at lower
- * levels. Basically, the more stats you have lost, the less likely that
- * you will lose more. Additionally, lower level characters are shown
- * a lot more mercy (there are caps on how much of a stat you can lose too).
- * On the nasty side, if you are higher level, you can lose multiple stats
- * _at_once_ and are shown less mercy when you die. But when you're higher
- * level, it is much easier to buy back your stats with potions.
- * Turn this on if you want death-based stat loss to be more merciful
- * at low levels and more cruel at high levels.
- * Only works when stats are depleted rather than lost. This option has
- * no effect if you are using genuine stat loss.
- *
- * The BALSL_.. values control this behavior.
- * BALSL_NUMBER_LOSSES_RATIO determines the number of stats to lose.
- * the character level is divided by that value, and that is how many
- * stats are lost.
- *
- * BALSL_MAX_LOSS_RATIO puts the upper limit on depletion of a stat -
- * basically, level/max_loss_ratio is the most a stat can be depleted.
- *
- * BALSL_LOSS_CHANCE_RATIO controls how likely it is a stat is depleted.
- * The chance not to lose a stat is
- * depleteness^2 / (depletedness^2+ level/ratio).
- * ie, if the stats current depleted value is 2 and the character is level
- * 15, the chance not to lose the stat is 4/(4+3) or 4/7.  The higher the
- * level, the more likely it is a stat can get really depleted, but
- * this gets more offset as the stat gets more depleted. */
-#define BALANCED_STAT_LOSS 0
 #define BALSL_LOSS_CHANCE_RATIO 4
 #define BALSL_NUMBER_LOSSES_RATIO 6
 #define BALSL_MAX_LOSS_RATIO 2
@@ -178,11 +106,6 @@
 */
 
 /**
- * CSPORT is the port used for the new client/server code. Change
- * if desired. */
-#define CSPORT 13327
-
-/**
  * MAP_DEFAULTTIMEOUT is the default number of ticks until a map is swapped out
  * after a player has left it. If it is set to 0, maps are
  * swapped out the instant the last player leaves it.
@@ -221,18 +144,6 @@
 #define EMERGENCY_MAPPATH "/emergency"
 #define EMERGENCY_X 0
 #define EMERGENCY_Y 0
-
-/**
- * These defines tells where, relative to LIBDIR, the archetypes, highscore and
- * treasures files and directories can be found. */
-#define ARCHETYPES "archetypes"
-#define TREASURES "treasures"
-#define SETTINGS "settings"
-/** Where the highscore file is located. */
-#define HIGHSCORE "highscore"
-
-/** Bail out if more are received during tick. */
-#define MAX_ERRORS 25
 
 /** How big steps to use when expanding object array. */
 #define OBJECT_EXPAND 2500

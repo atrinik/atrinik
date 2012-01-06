@@ -17,11 +17,17 @@ cp ../arch/* lib > /dev/null 2>&1
 # Clean up 'tmp' directory in 'data'.
 rm data/tmp/* > /dev/null 2>&1
 
+if [ -f "server-custom.cfg" ]; then
+	CLI_CONFIG="--config=server-custom.cfg"
+else
+	CLI_CONFIG=""
+fi
+
 # Start up the server. If running from a terminal, pass options to the
 # executable. Otherwise, start up the server with some sane options,
 # which includes redirecting the log to a file.
 if [ -t 1 ]; then
-	./atrinik-server "$@"
+	./atrinik-server "$CLI_CONFIG" "$@"
 else
-	./atrinik-server -log logfile.log
+	./atrinik-server "$CLI_CONFIG" -logfile logfile.log
 fi

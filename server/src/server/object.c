@@ -170,7 +170,7 @@ void init_materials(void)
 		material_real[i].def_race = RACE_TYPE_NONE;
 	}
 
-	snprintf(filename, sizeof(filename), "%s/materials", settings.datadir);
+	snprintf(filename, sizeof(filename), "%s/materials", settings.libpath);
 
 	if (!(fp = fopen(filename, "r")))
 	{

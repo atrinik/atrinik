@@ -343,7 +343,7 @@ static void second_arch_pass(FILE *fp_start)
 	}
 
 	/* Now re-parse the artifacts file too! */
-	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
+	snprintf(filename, sizeof(filename), "%s/artifacts", settings.libpath);
 
 	fp = fopen(filename, "rb");
 
@@ -438,7 +438,7 @@ static void load_archetypes(void)
 	struct timeval tv1, tv2;
 #endif
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.archetypes);
+	snprintf(filename, sizeof(filename), "%s/archetypes", settings.libpath);
 
 	fp = fopen(filename, "rb");
 

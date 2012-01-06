@@ -39,7 +39,7 @@ static void write_map_log(void)
 	char buf[MAX_BUF];
 	long current_time = time(NULL);
 
-	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.datapath);
 
 	if (!(fp = fopen(buf, "w")))
 	{
@@ -74,7 +74,7 @@ void read_map_log(void)
 	char buf[MAX_BUF];
 	int darkness;
 
-	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/temp.maps", settings.datapath);
 
 	if (!(fp = fopen(buf, "r")))
 	{
@@ -89,7 +89,7 @@ void read_map_log(void)
 
 		if (string_split(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3)
 		{
-			logger_print(LOG(DEBUG), "%s/temp.maps: ignoring invalid line: %s", settings.localdir, buf);
+			logger_print(LOG(DEBUG), "%s/temp.maps: ignoring invalid line: %s", settings.datapath, buf);
 			continue;
 		}
 

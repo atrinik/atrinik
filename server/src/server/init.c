@@ -25,40 +25,14 @@
 
 /**
  * @file
- * Server initialization, settings loading, command line handling and
- * such. */
-
-#define INIT_C
+ * Server initialization. */
 
 #include <global.h>
+#include <check_proto.h>
 
 /**
- * You unfortunately need to looking in include/global.h to see what these
- * correspond to. */
-struct Settings settings =
-{
-	/* Logfile */
-	"",
-	/* Client/server port */
-	CSPORT,
-	DATADIR,
-	LOCALDIR,
-	MAPDIR, PLAYERDIR, ARCHETYPES,TREASURES,
-	UNIQUE_DIR, TMPDIR,
-	BALANCED_STAT_LOSS,
-	/* This and the next 3 values are metaserver values */
-	0,
-	"",
-	"",
-	"",
-	"",
-	".",
-	"",
-	0,
-	0,
-	10,
-	1.0f
-};
+ * The server's settings. */
+struct settings_struct settings;
 
 /** The shared constants. */
 shstr_constants shstr_cons;
@@ -72,24 +46,12 @@ unsigned long todtick;
 /** Pointer to archetype that is used as effect when player levels up. */
 archetype *level_up_arch = NULL;
 
-/** Ignores signals until init_done is true. */
-long init_done;
-
-/** Number of treasures. */
-long nroftreasures;
-/** Number of artifacts. */
-long nrofartifacts;
-/** Number of allowed treasure combinations. */
-long nrofallowedstr;
-
 /** The starting map. */
 char first_map_path[MAX_BUF];
 
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
 
-static void usage();
-static void help();
 static void init_beforeplay();
 static void init_dynamic();
 static void init_clocks();
@@ -159,6 +121,169 @@ static void console_command_speed(const char *params)
 }
 
 /**
+ * Free all data before exiting. */
+static void cleanup(void)
+{
+	cache_remove_all();
+	remove_plugins();
+	player_deinit();
+	free_all_maps();
+	free_style_maps();
+	free_all_archs();
+	free_all_treasures();
+	free_all_images();
+	free_all_newserver();
+	free_all_readable();
+	free_all_god();
+	free_all_anim();
+	free_strings();
+	race_free();
+	free_exp_objects();
+	free_srv_files();
+	new_chars_deinit();
+	free_regions();
+	objectlink_deinit();
+	object_deinit();
+	ban_deinit();
+	party_deinit();
+	toolkit_deinit();
+	free_object_loader();
+	free_random_map_loader();
+	free_map_header_loader();
+}
+
+static void clioptions_option_unit(const char *arg)
+{
+	logger_print(LOG(INFO), "Running unit tests...");
+
+#ifdef HAVE_CHECK
+	cleanup();
+	check_main();
+	exit(0);
+#else
+	logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.")
+	exit(1);
+#endif
+}
+
+static void clioptions_option_worldmaker(const char *arg)
+{
+	settings.world_maker = 1;
+
+	if (arg)
+	{
+		strncpy(settings.world_maker_dir, arg, sizeof(settings.world_maker_dir) - 1);
+		settings.world_maker_dir[sizeof(settings.world_maker_dir) - 1] = '\0';
+	}
+}
+
+static void clioptions_option_version(const char *arg)
+{
+	version(NULL);
+	exit(0);
+}
+
+static void clioptions_option_port(const char *arg)
+{
+	int val;
+
+	val = atoi(arg);
+
+	if (val <= 0 || val > UINT16_MAX)
+	{
+		logger_print(LOG(ERROR), "%d is an invalid port number.", val);
+		exit(1);
+	}
+
+	settings.port = val;
+}
+
+static void clioptions_option_logfile(const char *arg)
+{
+	logger_open_log(arg);
+}
+
+static void clioptions_option_libpath(const char *arg)
+{
+	strncpy(settings.libpath, arg, sizeof(settings.libpath) - 1);
+	settings.libpath[sizeof(settings.libpath) - 1] = '\0';
+}
+
+static void clioptions_option_datapath(const char *arg)
+{
+	strncpy(settings.datapath, arg, sizeof(settings.datapath) - 1);
+	settings.datapath[sizeof(settings.datapath) - 1] = '\0';
+}
+
+static void clioptions_option_mapspath(const char *arg)
+{
+	strncpy(settings.mapspath, arg, sizeof(settings.mapspath) - 1);
+	settings.mapspath[sizeof(settings.mapspath) - 1] = '\0';
+}
+
+static void clioptions_option_metaserver_url(const char *arg)
+{
+	strncpy(settings.metaserver_url, arg, sizeof(settings.metaserver_url) - 1);
+	settings.metaserver_url[sizeof(settings.metaserver_url) - 1] = '\0';
+}
+
+static void clioptions_option_server_host(const char *arg)
+{
+	strncpy(settings.server_host, arg, sizeof(settings.server_host) - 1);
+	settings.server_host[sizeof(settings.server_host) - 1] = '\0';
+}
+
+static void clioptions_option_server_name(const char *arg)
+{
+	strncpy(settings.server_name, arg, sizeof(settings.server_name) - 1);
+	settings.server_name[sizeof(settings.server_name) - 1] = '\0';
+}
+
+static void clioptions_option_server_desc(const char *arg)
+{
+	strncpy(settings.server_desc, arg, sizeof(settings.server_desc) - 1);
+	settings.server_desc[sizeof(settings.server_desc) - 1] = '\0';
+}
+
+static void clioptions_option_client_maps_url(const char *arg)
+{
+	strncpy(settings.client_maps_url, arg, sizeof(settings.client_maps_url) - 1);
+	settings.client_maps_url[sizeof(settings.client_maps_url) - 1] = '\0';
+}
+
+static void clioptions_option_magic_devices_level(const char *arg)
+{
+	int val;
+
+	val = atoi(arg);
+
+	if (val < SINT8_MIN || val > SINT8_MAX)
+	{
+		logger_print(LOG(ERROR), "Invalid value for argument of --magic_devices_level (%d).", val);
+		exit(1);
+	}
+
+	settings.magic_devices_level = val;
+}
+
+static void clioptions_option_item_power_factor(const char *arg)
+{
+	settings.item_power_factor = atof(arg);
+}
+
+static void clioptions_option_python_reload_modules(const char *arg)
+{
+	if (KEYWORD_IS_TRUE(arg))
+	{
+		settings.python_reload_modules = 1;
+	}
+	else if (KEYWORD_IS_FALSE(arg))
+	{
+		settings.python_reload_modules = 0;
+	}
+}
+
+/**
  * It is vital that init_library() is called by any functions using this
  * library.
  *
@@ -166,8 +291,11 @@ static void console_command_speed(const char *params)
  * can replace the call to init_library() with init_globals() and
  * init_function_pointers(). Good idea to also call init_vars() and
  * init_hash_table() if you are doing any object loading. */
-void init_library(void)
+static void init_library(int argc, char *argv[])
 {
+	atexit(cleanup);
+
+	toolkit_import(clioptions);
 	toolkit_import(console);
 	toolkit_import(logger);
 	toolkit_import(math);
@@ -180,10 +308,11 @@ void init_library(void)
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
 
+	/* Add console commands. */
 	console_command_add(
 		"shutdown",
 		console_command_shutdown,
-		"Shuts down the server",
+		"Shuts down the server.",
 		"Shuts down the server, saving all the data and disconnecting all players.\n\n"
 		"All of the used memory is freed, if possible."
 	);
@@ -191,12 +320,170 @@ void init_library(void)
 	console_command_add(
 		"speed",
 		console_command_speed,
-		"Changes the server's speed",
+		"Changes the server's speed.",
 		"Changes the speed of the server, which in turn affects how quickly everything is processed."
 		"Without an argument, shows the current speed and the default speed."
 	);
 
-	signals_register_handler_func(cleanup);
+	/* Add command-line options. */
+	clioptions_add(
+		"unit",
+		NULL,
+		clioptions_option_unit,
+		0,
+		"Runs the unit tests.",
+		"Runs the unit tests."
+	);
+
+	clioptions_add(
+		"worldmaker",
+		NULL,
+		clioptions_option_worldmaker,
+		0,
+		"Generates the region maps.",
+		"Generates the region maps using the world maker module.\n\n"
+		"Directory where to store the generated data can be specified with an argument, eg,"
+		"'--worldmaker=/var/www/client-maps'."
+	);
+
+	clioptions_add(
+		"version",
+		NULL,
+		clioptions_option_version,
+		0,
+		"Displays the server version.",
+		"Displays the server version."
+	);
+
+	clioptions_add(
+		"logfile",
+		NULL,
+		clioptions_option_logfile,
+		1,
+		"Sets the file to write log to.",
+		"All of the output that is normally written to stdout will also be written to the specified file."
+	);
+
+	clioptions_add(
+		"port",
+		NULL,
+		clioptions_option_port,
+		1,
+		"Sets the port to use.",
+		"Sets the port to use for server/client communication."
+	);
+
+	clioptions_add(
+		"libpath",
+		NULL,
+		clioptions_option_libpath,
+		1,
+		"Read-only data files location.",
+		"Where the read-only files such as the collected treasures, artifacts,"
+		"archetypes etc reside."
+	);
+
+	clioptions_add(
+		"datapath",
+		NULL,
+		clioptions_option_datapath,
+		1,
+		"Read and write data files location.",
+		"Where to read and write player data, unique maps, etc."
+	);
+
+	clioptions_add(
+		"mapspath",
+		NULL,
+		clioptions_option_mapspath,
+		1,
+		"Map files location.",
+		"Where the maps are."
+	);
+
+	clioptions_add(
+		"metaserver_url",
+		NULL,
+		clioptions_option_metaserver_url,
+		1,
+		"URL of the metaserver.",
+		"URL of the metaserver."
+	);
+
+	clioptions_add(
+		"server_host",
+		NULL,
+		clioptions_option_server_host,
+		1,
+		"Hostname of the server.",
+		"Hostname of the server."
+	);
+
+	clioptions_add(
+		"server_name",
+		NULL,
+		clioptions_option_server_name,
+		1,
+		"Name of the server.",
+		"Name of the server."
+	);
+
+	clioptions_add(
+		"server_desc",
+		NULL,
+		clioptions_option_server_desc,
+		1,
+		"Description about the server.",
+		"Text that describes the server in a few sentences."
+	);
+
+	clioptions_add(
+		"client_maps_url",
+		NULL,
+		clioptions_option_client_maps_url,
+		1,
+		"URL of the client maps.",
+		"URL of the client maps."
+	);
+
+	clioptions_add(
+		"magic_devices_level",
+		NULL,
+		clioptions_option_magic_devices_level,
+		1,
+		"Magic devices level for players.",
+		"Adjustment to maximum magical device level the player may use."
+	);
+
+	clioptions_add(
+		"item_power_factor",
+		NULL,
+		clioptions_option_item_power_factor,
+		1,
+		"Item power factor.",
+		"item_power_factor is the relation of how the players equipped item_power"
+		"total relates to their overall level. If 1.0, then sum of the character's"
+		"equipped item's item_power can not be greater than their overall level."
+		"If 2.0, then that sum can not exceed twice the character's overall level."
+		"By setting this to a high enough value, you can effectively disable"
+		"the item_power code."
+	);
+
+	clioptions_add(
+		"python_reload_modules",
+		NULL,
+		clioptions_option_python_reload_modules,
+		1,
+		"Whether to reload Python modules.",
+		"Whether to reload Python user modules (eg Interface.py and the like)"
+		"each time a Python script executes. If enabled, executing scripts will"
+		"be slower, but allows for easy development of modules. This should not"
+		"be enabled on a production server."
+	);
+
+	memset(&settings, 0, sizeof(settings));
+	clioptions_option_config("server.cfg");
+	clioptions_parse(argc, argv);
 
 	init_globals();
 	objectlink_init();
@@ -231,11 +518,6 @@ void init_library(void)
  * Might use environment variables as default for some of them. */
 void init_globals(void)
 {
-	if (settings.logfilename[0] != '\0')
-	{
-		logger_open_log(settings.logfilename);
-	}
-
 	/* Global round ticker */
 	global_round_tag = 1;
 
@@ -246,9 +528,6 @@ void init_globals(void)
 	first_artifactlist = NULL;
 	first_archetype = NULL;
 	first_map = NULL;
-	nroftreasures = 0;
-	nrofartifacts = 0;
-	nrofallowedstr = 0;
 	init_strings();
 	init_object_initializers();
 	num_animations = 0;
@@ -285,7 +564,7 @@ void write_todclock(void)
 	char filename[MAX_BUF];
 	FILE *fp;
 
-	snprintf(filename, sizeof(filename), "%s/clockdata", settings.localdir);
+	snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
 	if ((fp = fopen(filename, "w")) == NULL)
 	{
@@ -316,7 +595,7 @@ static void init_clocks(void)
 		has_been_done = 1;
 	}
 
-	snprintf(filename, sizeof(filename), "%s/clockdata", settings.localdir);
+	snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
@@ -333,366 +612,6 @@ static void init_clocks(void)
 	fclose(fp);
 }
 
-/** @cond */
-
-static void set_logfile(char *val)
-{
-	settings.logfilename = val;
-}
-
-static void call_version(void)
-{
-	version(NULL);
-	exit(0);
-}
-
-static void set_datadir(char *path)
-{
-	settings.datadir = path;
-}
-
-static void set_localdir(char *path)
-{
-	settings.localdir = path;
-}
-
-static void set_mapdir(char *path)
-{
-	settings.mapdir = path;
-}
-
-static void set_archetypes(char *path)
-{
-	settings.archetypes = path;
-}
-
-static void set_treasures(char *path)
-{
-	settings.treasures = path;
-}
-
-static void set_uniquedir(char *path)
-{
-	settings.uniquedir = path;
-}
-
-static void set_tmpdir(char *path)
-{
-	settings.tmpdir = path;
-}
-
-static void set_csport(const char *val)
-{
-	settings.csport = atoi(val);
-
-#ifndef WIN32
-	if (settings.csport <= 0 || settings.csport > 32765 || (settings.csport < 1024 && getuid() != 0))
-	{
-		logger_print(LOG(ERROR), "%d is an invalid csport number.", settings.csport);
-		exit(1);
-	}
-#endif
-}
-
-static void set_unit_tests(void)
-{
-#if defined(HAVE_CHECK)
-	settings.unit_tests = 1;
-#else
-	logger_print(LOG(INFO), "The server was built without the check unit testing framework. If you want to run unit tests, you must first install this framework.");
-	exit(1);
-#endif
-}
-
-static void set_world_maker(const char *data)
-{
-#if defined(HAVE_WORLD_MAKER)
-	settings.world_maker = 1;
-
-	if (data)
-	{
-		strncpy(settings.world_maker_dir, data, sizeof(settings.world_maker_dir) - 1);
-		settings.world_maker_dir[sizeof(settings.world_maker_dir) - 1] = '\0';
-	}
-#else
-	logger_print(LOG(INFO), "The server was built without the world maker module.");
-	exit(1);
-#endif
-}
-
-/** @endcond */
-
-/** One command line option definition. */
-typedef struct Command_Line_Options
-{
-	/** How it is called on the command line */
-	char *cmd_option;
-
-	/** Number or args it takes */
-	uint8 num_args;
-
-	/** What pass this should be processed on. */
-	uint8 pass;
-
-	/**
-	 * Function to call when we match this.
-	 *
-	 * If num_args is true, then that gets passed to the function,
-	 * otherwise nothing is passed. */
-	void (*func)();
-} Command_Line_Options;
-
-/**
- * Valid command line options.
- *
- * The way this system works is pretty simple - parse_args takes the
- * options passed to the program and a pass number. If an option matches
- * both in name and in pass (and we have enough options), we call the
- * associated function. This makes writing a multi pass system very easy,
- * and it is very easy to add in new options. */
-static struct Command_Line_Options options[] =
-{
-	/* Pass 1 functions - Stuff that can/should be called before we actually
-	 * initialize any data. */
-	{"-h", 0, 1, help},
-	/* Honor -help also, since it is somewhat common */
-	{"-help", 0, 1, help},
-	{"-v", 0, 1, call_version},
-	{"-data",1,1, set_datadir},
-	{"-local",1,1, set_localdir},
-	{"-maps", 1, 1, set_mapdir},
-	{"-arch", 1, 1, set_archetypes},
-	{"-treasures", 1, 1, set_treasures},
-	{"-uniquedir", 1, 1, set_uniquedir},
-	{"-tmpdir", 1, 1, set_tmpdir},
-	{"-log", 1, 1, set_logfile},
-
-	/* Pass 2 functions.  Most of these could probably be in pass 1,
-	 * as they don't require much of anything to bet set up. */
-	{"-csport", 1, 2, set_csport},
-
-	/* Start of pass 3 information. In theory, by pass 3, all data paths
-	 * and defaults should have been set up.  */
-	{"-tests", 0, 3, set_unit_tests},
-	{"-world_maker", 1, 3, set_world_maker}
-};
-
-/**
- * Parse command line arguments.
- *
- * Note since this may be called before the library has been set up,
- * we don't use any of crossfires built in logging functions.
- * @param argc Length of argv.
- * @param argv[] Arguments.
- * @param pass Initialization pass arguments to use. */
-static void parse_args(int argc, char *argv[], int pass)
-{
-	size_t i;
-	int on_arg = 1;
-
-	while (on_arg < argc)
-	{
-		for (i = 0; i < sizeof(options) / sizeof(struct Command_Line_Options); i++)
-		{
-			if (!strcmp(options[i].cmd_option, argv[on_arg]) || (argv[on_arg][0] == '-' && !strcmp(options[i].cmd_option, argv[on_arg] + 1)))
-			{
-				/* Found a matching option, but should not be processed on
-				 * this pass.  Just skip over it */
-				if (options[i].pass != pass)
-				{
-					on_arg += options[i].num_args + 1;
-					break;
-				}
-
-				if (options[i].num_args)
-				{
-					if ((on_arg + options[i].num_args) >= argc)
-					{
-						logger_print(LOG(SYSTEM), "command line: %s requires an argument.", options[i].cmd_option);
-						exit(1);
-					}
-					else
-					{
-						if (options[i].num_args == 1)
-						{
-							options[i].func(argv[on_arg + 1]);
-						}
-
-						if (options[i].num_args == 2)
-						{
-							options[i].func(argv[on_arg + 1],argv[on_arg + 2]);
-						}
-
-						on_arg += options[i].num_args + 1;
-					}
-				}
-				/* takes no args */
-				else
-				{
-					options[i].func();
-					on_arg++;
-				}
-
-				break;
-			}
-		}
-
-		if (i == sizeof(options) / sizeof(struct Command_Line_Options))
-		{
-			logger_print(LOG(SYSTEM), "Unknown option: %s", argv[on_arg]);
-			usage();
-			exit(1);
-		}
-	}
-}
-
-/**
- * This loads the settings file.
- *
- * There could be debate whether this should be here or in the common
- * directory - but since only the server needs this information, having
- * it here probably makes more sense. */
-static void load_settings(void)
-{
-	char buf[MAX_BUF], *cp;
-	int	has_val;
-	FILE *fp;
-
-	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SETTINGS);
-	fp = fopen(buf, "rb");
-
-	if (!fp)
-	{
-		logger_print(LOG(BUG), "No %s file found", SETTINGS);
-		return;
-	}
-
-	while (fgets(buf, MAX_BUF - 1, fp) != NULL)
-	{
-		if (buf[0] == '#')
-		{
-			continue;
-		}
-
-		/* eliminate newline */
-		if ((cp = strrchr(buf, '\n')) != NULL)
-		{
-			*cp = '\0';
-		}
-
-		/* Skip over empty lines */
-		if (buf[0] == 0)
-		{
-			continue;
-		}
-
-		/* Skip all the spaces and set them to nulls.  If not space,
-		 * set cp to "" to make strcpy's and the like easier down below. */
-		if ((cp = strchr(buf, ' ')) != NULL)
-		{
-			while (*cp == ' ')
-			{
-				*cp++ = 0;
-			}
-
-			has_val = 1;
-		}
-		else
-		{
-			cp = "";
-			has_val = 0;
-		}
-
-		if (!strcasecmp(buf, "metaserver_notification"))
-		{
-			if (!strcasecmp(cp, "on") || !strcasecmp(cp, "true"))
-			{
-				settings.meta_on = 1;
-			}
-			else if (!strcasecmp(cp, "off") || !strcasecmp(cp, "false"))
-			{
-				settings.meta_on = 0;
-			}
-			else
-			{
-				logger_print(LOG(BUG), "Unknown value for metaserver_notification: %s", cp);
-			}
-		}
-		else if (!strcasecmp(buf, "metaserver_server"))
-		{
-			if (has_val)
-			{
-				strcpy(settings.meta_server, cp);
-			}
-			else
-			{
-				logger_print(LOG(BUG), "metaserver_server must have a value.");
-			}
-		}
-		else if (!strcasecmp(buf, "metaserver_host"))
-		{
-			if (has_val)
-			{
-				strcpy(settings.meta_host, cp);
-			}
-			else
-			{
-				logger_print(LOG(BUG), "metaserver_host must have a value.");
-			}
-		}
-		else if (!strcasecmp(buf, "metaserver_name"))
-		{
-			if (has_val)
-			{
-				strcpy(settings.meta_name, cp);
-			}
-			else
-			{
-				logger_print(LOG(BUG), "metaserver_name must have a value.");
-			}
-		}
-		else if (!strcasecmp(buf, "metaserver_comment"))
-		{
-			strcpy(settings.meta_comment, cp);
-		}
-		else if (!strcasecmp(buf, "item_power_factor"))
-		{
-			float tmp = atof(cp);
-
-			if (tmp < 0)
-			{
-				logger_print(LOG(ERROR), "item_power_factor must be a positive number (%f < 0).", tmp);
-				exit(1);
-			}
-			else
-			{
-				settings.item_power_factor = tmp;
-			}
-		}
-		else if (!strcasecmp(buf, "magic_devices_level"))
-		{
-			settings.magic_devices_level = atoi(cp);
-		}
-		else if (!strcasecmp(buf, "client_maps"))
-		{
-			if (has_val)
-			{
-				strcpy(settings.client_maps_url, cp);
-			}
-			else
-			{
-				logger_print(LOG(BUG), "client_maps must have a value.");
-			}
-		}
-		else
-		{
-			logger_print(LOG(BUG), "Unknown value in %s file: %s", SETTINGS, buf);
-		}
-	}
-
-	fclose(fp);
-}
-
 /**
  * This is the main server initialization function.
  *
@@ -704,20 +623,9 @@ void init(int argc, char **argv)
 	/* We don't want to be affected by players' umask */
 	(void) umask(0);
 
-	/* Must be done before init_signal() */
-	init_done = 0;
-
-	/* First arg pass - right now it does
-	 * nothing, but in future specifying the
-	 * LibDir in this pass would be reasonable*/
-	parse_args(argc, argv, 1);
-
 	/* Must be called early */
-	init_library();
-	/* Load the settings file */
-	load_settings();
+	init_library(argc, argv);
 	init_world_darkness();
-	parse_args(argc, argv, 2);
 
 	SRANDOM(time(NULL));
 
@@ -725,7 +633,6 @@ void init(int argc, char **argv)
 	init_commands();
 	/* Load up the old temp map files */
 	read_map_log();
-	parse_args(argc, argv, 3);
 	init_regions();
 	hiscore_init();
 
@@ -735,42 +642,6 @@ void init(int argc, char **argv)
 	load_bans_file();
 	statistics_init();
 	reset_sleep();
-	init_done = 1;
-}
-
-/**
- * Show the usage. */
-static void usage(void)
-{
-	logger_print(LOG(INFO), "Usage: atrinik_server [-h] [-<flags>]...");
-}
-
-/**
- * Show help about the command line options. */
-static void help(void)
-{
-	logger_print(LOG(INFO), "Flags:");
-	logger_print(LOG(INFO), " -csport <port> Specifies the port to use for the new client/server code.");
-	logger_print(LOG(INFO), " -h, -help   Display this information.");
-	logger_print(LOG(INFO), " -log <file> Specifies which file to send output to.");
-	logger_print(LOG(INFO), " -v          Print version information.");
-	logger_print(LOG(INFO), " -data       Sets the lib dir (archetypes, treasures, etc.)");
-	logger_print(LOG(INFO), " -local      Read/write local data (hiscore, unique items, etc.)");
-	logger_print(LOG(INFO), " -maps       Sets the directory for maps.");
-	logger_print(LOG(INFO), " -arch       Sets the archetype file to use.");
-	logger_print(LOG(INFO), " -treasures  Sets the treasures file to use.");
-	logger_print(LOG(INFO), " -uniquedir  Sets the unique items/maps directory.");
-	logger_print(LOG(INFO), " -tmpdir     Sets the directory for temporary files (mostly maps.)");
-
-#if defined(HAVE_CHECK)
-	logger_print(LOG(INFO), " -tests      Runs unit tests.");
-#endif
-
-#if defined(HAVE_WORLD_MAKER)
-	logger_print(LOG(INFO), " -world_maker <path> Generates region maps and stores them in the specified path.");
-#endif
-
-	exit(0);
 }
 
 /**

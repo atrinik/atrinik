@@ -1582,9 +1582,9 @@ enum apply_flag
 /*@}*/
 
 /** Check if the keyword represents a true value. */
-#define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
+#define KEYWORD_IS_TRUE(_keyword) (!strcasecmp((_keyword), "yes") || !strcasecmp((_keyword), "on") || !strcasecmp((_keyword), "true"))
 /** Check if the keyword represents a false value. */
-#define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
+#define KEYWORD_IS_FALSE(_keyword) (!strcasecmp((_keyword), "no") || !strcasecmp((_keyword), "off") || !strcasecmp((_keyword), "false"))
 
 /**
  * @defgroup SPAWN_RELATIVE_LEVEL_xxx Spawn point relative levels

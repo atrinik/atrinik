@@ -190,7 +190,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
 	}
 
 	/* Is what we were given a directory, or a file? */
-	snprintf(style_file_full_path, sizeof(style_file_full_path), "%s/%s", MAPDIR, style_file_path);
+	snprintf(style_file_full_path, sizeof(style_file_full_path), "%s/%s", settings.mapspath, style_file_path);
 
 	stat(style_file_full_path, &file_stat);
 
@@ -207,7 +207,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
 		char style_dir_full_path[256];
 
 		/* Get the names of all the files in that directory */
-		snprintf(style_dir_full_path, sizeof(style_dir_full_path), "%s/%s", MAPDIR, style_file_path);
+		snprintf(style_dir_full_path, sizeof(style_dir_full_path), "%s/%s", settings.mapspath, style_file_path);
 
 		/* First, skip subdirectories.  If we don't find anything, then try again
 		 * without skipping subdirs. */

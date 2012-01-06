@@ -121,7 +121,7 @@ static object *find_waypoint(object *op, shstr *name)
 static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
 	mapstruct *destmap;
-	int unique = !strncmp(op->map->path, settings.localdir, strlen(settings.localdir));
+	int unique = !strncmp(op->map->path, settings.datapath, strlen(settings.datapath));
 
 	/* If path is not normalized, normalize it */
 	if (!unique && *waypoint->slaying != '/')

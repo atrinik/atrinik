@@ -1703,39 +1703,40 @@ static int do_script(PythonContext *context, const char *filename, object *event
 
 	if (pycode)
 	{
-#ifndef PRODUCTION_SERVER
-		PyObject *modules = PyImport_GetModuleDict(), *key, *value;
-		Py_ssize_t pos = 0;
-		const char *m_filename;
-		char m_buf[MAX_BUF];
-
-		/* Create path name to the Python scripts directory. */
-		strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
-
-		/* Go through the loaded modules. */
-		while (PyDict_Next(modules, &pos, &key, &value))
+		if (hooks->settings->python_reload_modules)
 		{
-			m_filename = PyModule_GetFilename(value);
+			PyObject *modules = PyImport_GetModuleDict(), *key, *value;
+			Py_ssize_t pos = 0;
+			const char *m_filename;
+			char m_buf[MAX_BUF];
 
-			if (!m_filename)
+			/* Create path name to the Python scripts directory. */
+			strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+
+			/* Go through the loaded modules. */
+			while (PyDict_Next(modules, &pos, &key, &value))
 			{
-				PyErr_Clear();
-				continue;
-			}
+				m_filename = PyModule_GetFilename(value);
 
-			/* If this module was loaded from one of our script files,
-			 * reload it. */
-			if (!strncmp(m_filename, m_buf, strlen(m_buf)))
-			{
-				PyImport_ReloadModule(value);
-
-				if (PyErr_Occurred())
+				if (!m_filename)
 				{
-					PyErr_LOG();
+					PyErr_Clear();
+					continue;
+				}
+
+				/* If this module was loaded from one of our script files,
+				* reload it. */
+				if (!strncmp(m_filename, m_buf, strlen(m_buf)))
+				{
+					PyImport_ReloadModule(value);
+
+					if (PyErr_Occurred())
+					{
+						PyErr_LOG();
+					}
 				}
 			}
 		}
-#endif
 
 		pushContext(context);
 		dict = PyDict_Copy(py_globals_dict);

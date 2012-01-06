@@ -321,75 +321,66 @@ if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABL
 	_xyz_ = NULL;                \
 }
 
-/** Settings structure */
-typedef struct Settings
+/**
+ * The server settings. */
+typedef struct settings_struct
 {
-	/** Logfile to use */
-	char *logfilename;
+	/**
+	 * Port to use for client/server communication. */
+	uint16 port;
 
-	/** Port for new client/server */
-	uint16 csport;
+	/**
+	 * Read only data files, such as the collected archetypes. */
+	char libpath[MAX_BUF];
 
-	/** Read only data files */
-	char *datadir;
+	/**
+	 * Player data, unique maps, etc. */
+	char datapath[MAX_BUF];
 
-	/** Read/write data files */
-	char *localdir;
+	/**
+	 * Where the map files are. */
+	char mapspath[MAX_BUF];
 
-	/** Where the map files are. */
-	char *mapdir;
+	/**
+	 * HTTP URL of the metaserver. */
+	char metaserver_url[MAX_BUF];
 
-	/** Where the players are saved. */
-	char *playerdir;
+	/**
+	 * Hostname of this server. */
+	char server_host[MAX_BUF];
 
-	/** Name of the archetypes file - libdir is prepended. */
-	char *archetypes;
+	/**
+	 * Name of this server. */
+	char server_name[MAX_BUF];
 
-	/** Location of the treasures file. */
-	char *treasures;
+	/**
+	 * Comment about the server we send to the metaserver. */
+	char server_desc[MAX_BUF];
 
-	/** Directory for the unique items. */
-	char *uniquedir;
-
-	/** Directory to use for temporary files. */
-	char *tmpdir;
-
-	/** If true, Death stat depletion based on level etc. */
-	uint8 balanced_stat_loss;
-
-	/** True if we should send updates */
-	unsigned int meta_on:1;
-
-	/** HTTP URL of the metaserver. */
-	char meta_server[MAX_BUF];
-
-	/** Hostname of this server. */
-	char meta_host[MAX_BUF];
-
-	/** Name of this server. */
-	char meta_name[MAX_BUF];
-
-	/** Comment about the server we send to the metaserver. */
-	char meta_comment[MAX_BUF];
-
-	/** Where to store the images. */
-	char world_maker_dir[MAX_BUF];
-
-	/** Location of the client maps. */
+	/**
+	 * Location of the client maps. */
 	char client_maps_url[MAX_BUF];
 
-	/** Are we going to run unit tests? */
-	uint8 unit_tests;
-
-	/** Executing the world maker? */
+	/**
+	 * Executing the world maker? */
 	uint8 world_maker;
 
-	/** Adjustment to maximum magical device level the player may use. */
+	/**
+	 * Where to store the world maker images. */
+	char world_maker_dir[MAX_BUF];
+
+	/**
+	 * Adjustment to maximum magical device level the player may use. */
 	sint8 magic_devices_level;
 
-	/** See note in setings file. */
-	float item_power_factor;
-} Settings;
+	/**
+	 * See note in server.cfg. */
+	double item_power_factor;
+
+	/**
+	 * Whether to reload Python modules whenever Python script executes. */
+	uint8 python_reload_modules;
+} settings_struct;
 
 /** Constant shared string pointers. */
 typedef struct shstr_constants

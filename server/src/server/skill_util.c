@@ -429,7 +429,7 @@ void init_new_exp_system(void)
 		}
 	}
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, SRV_CLIENT_SKILLS_FILENAME);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, SRV_CLIENT_SKILLS_FILENAME);
 	fp = fopen(filename, "w");
 
 	if (!fp)

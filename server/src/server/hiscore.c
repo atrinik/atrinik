@@ -315,7 +315,7 @@ static void hiscore_load(score_table *table)
  * Initializes the module. */
 void hiscore_init(void)
 {
-	snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/%s", settings.localdir, HIGHSCORE);
+	snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/highscore", settings.datapath);
 	hiscore_load(&hiscore_table);
 }
 

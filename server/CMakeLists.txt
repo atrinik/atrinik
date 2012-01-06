@@ -253,6 +253,7 @@ set(SOURCES
 	src/socket/sounds.c
 	src/socket/updates.c
 	src/toolkit/binreloc.c
+	src/toolkit/clioptions.c
 	src/toolkit/console.c
 	src/toolkit/logger.c
 	src/toolkit/math.c

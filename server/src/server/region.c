@@ -167,7 +167,7 @@ void init_regions(void)
 		return;
 	}
 
-	snprintf(filename, sizeof(filename), "%s/regions.reg", settings.mapdir);
+	snprintf(filename, sizeof(filename), "%s/regions.reg", settings.mapspath);
 	fp = fopen(filename, "r");
 
 	if (!fp)

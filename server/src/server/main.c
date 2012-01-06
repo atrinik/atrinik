@@ -28,7 +28,6 @@
  * Server main related functions. */
 
 #include <global.h>
-#include <check_proto.h>
 
 #ifdef HAVE_CRYPT_H
 #		include <crypt.h>
@@ -446,7 +445,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 	/* Absolute path */
 	if (EXIT_PATH(exit_ob)[0] == '/')
 	{
-		snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(EXIT_PATH(exit_ob)));
+		snprintf(apartment, sizeof(apartment), "%s/players/%s/%s", settings.datapath, op->name, clean_path(EXIT_PATH(exit_ob)));
 		newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
 
 		if (!newmap)
@@ -472,7 +471,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 				*cp = 0;
 			}
 
-			snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s_%s", settings.localdir, settings.playerdir, op->name, tmpc, clean_path(EXIT_PATH(exit_ob)));
+			snprintf(apartment, sizeof(apartment), "%s/players/%s/%s_%s", settings.datapath, op->name, tmpc, clean_path(EXIT_PATH(exit_ob)));
 			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
 
 			if (!newmap)
@@ -484,7 +483,7 @@ static void enter_unique_map(object *op, object *exit_ob)
 		{
 			/* The exit is unique, but the map we are coming from is not unique. So
 			 * use the basic logic - don't need to demangle the path name */
-			snprintf(apartment, sizeof(apartment), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path)));
+			snprintf(apartment, sizeof(apartment), "%s/players/%s/%s", settings.datapath, op->name, clean_path(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path)));
 			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
 
 			if (!newmap)
@@ -567,7 +566,7 @@ void enter_exit(object *op, object *exit_ob)
 			{
 				if (strcmp(EXIT_PATH(exit_ob), "/random/"))
 				{
-					if (strncmp(exit_ob->map->path, settings.localdir, strlen(settings.localdir)))
+					if (strncmp(exit_ob->map->path, settings.datapath, strlen(settings.datapath)))
 					{
 						newmap = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path), 0);
 					}
@@ -614,7 +613,7 @@ void enter_exit(object *op, object *exit_ob)
 				 * They contain the full pathname of the map to go back to,
 				 * so we don't need to normalize it.
 				 * But we do need to see if it is unique or not  */
-				if (!strncmp(EXIT_PATH(exit_ob), settings.localdir, strlen(settings.localdir)))
+				if (!strncmp(EXIT_PATH(exit_ob), settings.datapath, strlen(settings.datapath)))
 				{
 					newmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED|MAP_PLAYER_UNIQUE);
 				}
@@ -702,7 +701,7 @@ void enter_exit(object *op, object *exit_ob)
 		 * We use the fact that when a player saves on a unique map, it prepends
 		 * the localdir to that name.  So its an easy way to see of the map is
 		 * unique or not. */
-		if (!strncmp(CONTR(op)->maplevel, settings.localdir, strlen(settings.localdir)))
+		if (!strncmp(CONTR(op)->maplevel, settings.datapath, strlen(settings.datapath)))
 		{
 			flags = MAP_PLAYER_UNIQUE;
 		}
@@ -1091,44 +1090,11 @@ void clean_tmp_files(void)
 }
 
 /**
- * Free all data before exiting. */
-void cleanup(void)
-{
-	free_all_maps();
-	free_style_maps();
-	free_all_archs();
-	free_all_treasures();
-	free_all_images();
-	free_all_newserver();
-	free_all_readable();
-	free_all_god();
-	free_all_anim();
-	free_strings();
-	race_free();
-	free_exp_objects();
-	free_srv_files();
-	new_chars_deinit();
-	free_regions();
-	objectlink_deinit();
-	object_deinit();
-	player_deinit();
-	ban_deinit();
-	party_deinit();
-	cache_remove_all();
-	remove_plugins();
-	toolkit_deinit();
-	free_object_loader();
-	free_random_map_loader();
-	free_map_header_loader();
-}
-
-/**
  * Shut down the server, saving and freeing all data. */
 void server_shutdown(void)
 {
 	command_kick(NULL, NULL);
 	clean_tmp_files();
-	cleanup();
 	exit(0);
 }
 
@@ -1195,8 +1161,8 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 	object *ob, *tmp, *tmp2, *dummy;
 	mapstruct *oldmap, *newmap;
 
-	snprintf(oldmappath, sizeof(oldmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(mapold));
-	snprintf(newmappath, sizeof(newmappath), "%s/%s/%s/%s", settings.localdir, settings.playerdir, op->name, clean_path(mapnew));
+	snprintf(oldmappath, sizeof(oldmappath), "%s/players/%s/%s", settings.datapath, op->name, clean_path(mapold));
+	snprintf(newmappath, sizeof(newmappath), "%s/players/%s/%s", settings.datapath, op->name, clean_path(mapnew));
 
 	/* So we can transfer our items from the old apartment. */
 	oldmap = ready_map_name(oldmappath, 2);
@@ -1320,7 +1286,7 @@ static void do_specials(void)
 		flush_old_maps();
 	}
 
-	if (settings.meta_on && !(pticks % 2521))
+	if (*settings.server_host != '\0' && !(pticks % 2521))
 	{
 		metaserver_info_update();
 	}
@@ -1377,16 +1343,6 @@ int main(int argc, char **argv)
 
 	init(argc, argv);
 	init_plugins();
-
-#ifdef HAVE_CHECK
-	/* Now that we have everything loaded, we can run unit tests. */
-	if (settings.unit_tests)
-	{
-		logger_print(LOG(INFO), "Running unit tests...");
-		check_main();
-		exit(0);
-	}
-#endif
 
 #ifdef HAVE_WORLD_MAKER
 	if (settings.world_maker)

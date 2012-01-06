@@ -51,7 +51,7 @@ void init_spells(void)
 
 	init_spells_done = 1;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, SRV_FILE_SPELLS_FILENAME);
 	fp = fopen(filename, "w");
 
 	if (!fp)

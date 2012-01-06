@@ -321,17 +321,12 @@ extern int read_bmap_names(void);
 extern int find_face(char *name, int error);
 extern void free_all_images(void);
 /* src/server/init.c */
-extern struct Settings settings;
+extern struct settings_struct settings;
 extern shstr_constants shstr_cons;
 extern int world_darkness;
 extern unsigned long todtick;
-extern long init_done;
-extern long nroftreasures;
-extern long nrofartifacts;
-extern long nrofallowedstr;
 extern char first_map_path[256];
 extern void free_strings(void);
-extern void init_library(void);
 extern void init_globals(void);
 extern void write_todclock(void);
 extern void init(int argc, char **argv);
@@ -413,7 +408,6 @@ extern char *clean_path(const char *file);
 extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
-extern void cleanup(void);
 extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
 extern int main(int argc, char **argv);
@@ -816,7 +810,6 @@ extern int cmd_ready_determine(object *tmp);
 extern void cmd_ready_clear(object *op, int type);
 /* src/socket/loop.c */
 extern void handle_client(socket_struct *ns, player *pl);
-extern void watchdog(void);
 extern void remove_ns_dead_player(player *pl);
 extern void doeric_server(void);
 extern void doeric_server_write(void);
@@ -874,8 +867,13 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/clioptions.c */
+extern void clioptions_option_config(const char *arg);
+extern void toolkit_clioptions_init(void);
+extern void toolkit_clioptions_deinit(void);
+extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc);
+extern void clioptions_parse(int argc, char *argv[]);
 /* src/toolkit/console.c */
-extern size_t console_commands_num;
 extern char *command_generator(const char *text, int state);
 extern char **readline_completion(const char *text, int start, int end);
 extern void toolkit_console_init(void);
@@ -977,7 +975,6 @@ extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
-extern void signals_register_handler_func(signals_handler_func func);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);

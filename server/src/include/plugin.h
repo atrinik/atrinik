@@ -345,6 +345,7 @@ struct plugin_hooklist
 	party_struct **first_party;
 	region **first_region;
 	long *pticks;
+	settings_struct *settings;
 };
 
 /** General API function. */

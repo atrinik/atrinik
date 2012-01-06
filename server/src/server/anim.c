@@ -29,8 +29,8 @@
 
 #include <global.h>
 
-Animations *animations;
-int num_animations, animations_allocated;
+Animations *animations = NULL;
+int num_animations = 0, animations_allocated;
 
 /**
  * Free all animations loaded */
@@ -38,13 +38,16 @@ void free_all_anim(void)
 {
 	int i;
 
-	for (i = 0; i <= num_animations; i++)
+	if (animations)
 	{
-		FREE_AND_CLEAR_HASH(animations[i].name);
-		free(animations[i].faces);
-	}
+		for (i = 0; i <= num_animations; i++)
+		{
+			FREE_AND_CLEAR_HASH(animations[i].name);
+			free(animations[i].faces);
+		}
 
-	free(animations);
+		free(animations);
+	}
 }
 
 /**
@@ -79,7 +82,7 @@ void init_anim(void)
 	animations[0].faces[0] = 0;
 	animations[0].facings = 0;
 
-	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{

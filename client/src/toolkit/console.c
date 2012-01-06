@@ -56,7 +56,7 @@ static console_command_struct *console_commands;
 
 /**
  * Number of ::console_commands. */
-size_t console_commands_num;
+static size_t console_commands_num;
 
 /**
  * Command process queue. */
@@ -124,7 +124,7 @@ static void console_command_help(const char *params)
 		}
 
 		logger_print(LOG(INFO), " ");
-		logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specific command.");
+		logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specified command.");
 	}
 }
 

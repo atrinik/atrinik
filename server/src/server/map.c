@@ -326,11 +326,11 @@ char *create_pathname(const char *name)
 
 	if (*name == '/')
 	{
-		snprintf(buf, sizeof(buf), "%s%s", settings.mapdir, name);
+		snprintf(buf, sizeof(buf), "%s%s", settings.mapspath, name);
 	}
 	else
 	{
-		snprintf(buf, sizeof(buf), "%s/%s", settings.mapdir, name);
+		snprintf(buf, sizeof(buf), "%s/%s", settings.mapspath, name);
 	}
 
 	return buf;
@@ -353,7 +353,7 @@ static char *create_items_path(shstr *s)
 		s++;
 	}
 
-	snprintf(buf, sizeof(buf), "%s/%s/", settings.localdir, settings.uniquedir);
+	snprintf(buf, sizeof(buf), "%s/unique-items/", settings.datapath);
 
 	for (t = buf + strlen(buf); *s; s++, t++)
 	{
@@ -378,7 +378,7 @@ static char *create_items_path(shstr *s)
  * array.
  * @param name Name of the file to check.
  * @param prepend_dir If set, then we call create_pathname(), which
- * prepends libdir and mapdir. Otherwise, we assume the name given is
+ * prepends libpath and mappath. Otherwise, we assume the name given is
  * fully complete.
  * @return -1 if it fails, otherwise the mode of the file. */
 int check_path(const char *name, int prepend_dir)
@@ -1443,7 +1443,10 @@ int new_save_map(mapstruct *m, int flag)
 	{
 		if (m->tmpname == NULL)
 		{
-			m->tmpname = tempnam(settings.tmpdir, NULL);
+			char path[MAX_BUF];
+
+			snprintf(path, sizeof(path), "%s/tmp", settings.datapath);
+			m->tmpname = tempnam(path, NULL);
 		}
 
 		strcpy(filename, m->tmpname);

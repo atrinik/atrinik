@@ -89,11 +89,11 @@ void display_motd(object *op)
 	char buf[MAX_BUF];
 	FILE *fp;
 
-	snprintf(buf, sizeof(buf), "%s/motd_custom", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/motd_custom", settings.datapath);
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{
-		snprintf(buf, sizeof(buf), "%s/motd", settings.localdir);
+		snprintf(buf, sizeof(buf), "%s/motd", settings.datapath);
 
 		if ((fp = fopen(buf, "r")) == NULL)
 		{
@@ -243,6 +243,7 @@ void free_player(player *pl)
 		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
 			object_remove(pl->ob, 0);
+			object_destroy(pl->ob);
 		}
 	}
 
@@ -316,11 +317,6 @@ void free_player(player *pl)
 	}
 
 	free_newsocket(&pl->socket);
-
-	if (pl->ob)
-	{
-		object_destroy(pl->ob);
-	}
 }
 static object void_container;
 /**
@@ -1025,11 +1021,7 @@ void kill_player(object *op)
 	char buf[HUGE_BUF];
 	int i;
 	object *tmp;
-	int z;
-	int num_stats_lose;
 	int lost_a_stat;
-	int lose_this_stat;
-	int this_stat;
 
 	if (pvp_area(NULL, op))
 	{
@@ -1091,26 +1083,20 @@ void kill_player(object *op)
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
 
-	if (settings.balanced_stat_loss)
-	{
-		num_stats_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
-	}
-	else
-	{
-		num_stats_lose = 1;
-	}
-
 	lost_a_stat = 0;
 
 	/* Only decrease stats if you are level 3 or higher. */
-	for (z = 0; z < num_stats_lose; z++)
+	if (op->level > 3)
 	{
-		if (op->level > 3)
-		{
-			/* Deplete a stat */
-			archetype *deparch = find_archetype("depletion");
-			object *dep;
+		int z, num_stats_lose, this_stat;
+		archetype *deparch;
+		object *dep;
 
+		deparch = find_archetype("depletion");
+		num_stats_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
+
+		for (z = 0; z < num_stats_lose; z++)
+		{
 			i = rndm(1, NUM_STATS) - 1;
 			dep = present_arch_in_ob(deparch, op);
 
@@ -1120,57 +1106,49 @@ void kill_player(object *op)
 				insert_ob_in_ob(dep, op);
 			}
 
-			lose_this_stat = 1;
+			/* Get the stat that we're about to deplete. */
+			this_stat = get_attr_value(&(dep->stats), i);
 
-			if (settings.balanced_stat_loss)
+			if (this_stat < 0)
 			{
-				/* Get the stat that we're about to deplete. */
-				this_stat = get_attr_value(&(dep->stats), i);
+				int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
+				int keep_chance = this_stat * this_stat;
 
-				if (this_stat < 0)
+				/* Yes, I am paranoid. Sue me. */
+				if (keep_chance < 1)
 				{
-					int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
-					int keep_chance = this_stat * this_stat;
+					keep_chance = 1;
+				}
 
-					/* Yes, I am paranoid. Sue me. */
-					if (keep_chance < 1)
+				/* There is a maximum depletion total per level. */
+				if (this_stat < -1 - op->level / BALSL_MAX_LOSS_RATIO)
+				{
+					continue;
+				}
+				else
+				{
+					/* Take loss chance vs keep chance to see if we retain the stat. */
+					if (rndm(0, loss_chance + keep_chance - 1) < keep_chance)
 					{
-						keep_chance = 1;
-					}
-
-					/* There is a maximum depletion total per level. */
-					if (this_stat < -1 - op->level / BALSL_MAX_LOSS_RATIO)
-					{
-						lose_this_stat = 0;
-					}
-					else
-					{
-						/* Take loss chance vs keep chance to see if we retain the stat. */
-						if (rndm(0, loss_chance + keep_chance - 1) < keep_chance)
-						{
-							lose_this_stat = 0;
-						}
+						continue;
 					}
 				}
 			}
 
-			if (lose_this_stat)
-			{
-				this_stat = get_attr_value(&(dep->stats), i);
+			this_stat = get_attr_value(&(dep->stats), i);
 
-				/* We could try to do something clever like find another
-				 * stat to reduce if this fails.  But chances are, if
-				 * stats have been depleted to -50, all are pretty low
-				 * and should be roughly the same, so it shouldn't make a
-				 * difference. */
-				if (this_stat >= -50)
-				{
-					change_attr_value(&(dep->stats), i, -1);
-					SET_FLAG(dep, FLAG_APPLIED);
-					draw_info(COLOR_WHITE, op, lose_msg[i]);
-					fix_player(op);
-					lost_a_stat = 1;
-				}
+			/* We could try to do something clever like find another
+			 * stat to reduce if this fails.  But chances are, if
+			 * stats have been depleted to -50, all are pretty low
+			 * and should be roughly the same, so it shouldn't make a
+			 * difference. */
+			if (this_stat >= -50)
+			{
+				change_attr_value(&(dep->stats), i, -1);
+				SET_FLAG(dep, FLAG_APPLIED);
+				draw_info(COLOR_WHITE, op, lose_msg[i]);
+				fix_player(op);
+				lost_a_stat = 1;
 			}
 		}
 	}
@@ -1353,7 +1331,7 @@ int player_exists(char *player_name)
 	FILE *fp;
 	char filename[HUGE_BUF];
 
-	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, player_name, player_name);
+	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, player_name, player_name);
 	fp = fopen(filename, "r");
 
 	if (fp)

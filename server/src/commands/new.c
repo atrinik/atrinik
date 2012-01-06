@@ -628,7 +628,7 @@ void new_chars_init(void)
 	size_t added = 0, i;
 
 	/* Open the server_settings file. */
-	snprintf(filename, sizeof(filename), "%s/server_settings", settings.localdir);
+	snprintf(filename, sizeof(filename), "%s/server_settings", settings.datapath);
 	fp = fopen(filename, "r");
 
 	while (fgets(buf, sizeof(buf) - 1, fp))

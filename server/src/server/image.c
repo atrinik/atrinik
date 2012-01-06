@@ -86,7 +86,7 @@ int read_bmap_names(void)
 	int nrofbmaps = 0, i;
 	size_t line = 0;
 
-	snprintf(buf, sizeof(buf), "%s/bmaps", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/bmaps", settings.libpath);
 
 	if ((fp = fopen(buf, "r")) == NULL)
 	{

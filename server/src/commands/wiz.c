@@ -476,7 +476,7 @@ static int checkdm(object *op, char *pl_passwd)
 	char name[MAX_BUF], passwd[MAX_BUF], host[MAX_BUF], buf[MAX_BUF], filename[MAX_BUF];
 	FILE *fp;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.localdir, DMFILE);
+	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, DMFILE);
 
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
@@ -806,7 +806,7 @@ int command_dm_password(object *op, char *params)
 	}
 
 	adjust_player_name(name);
-	snprintf(filename, sizeof(filename), "%s/%s/%s/%s.pl", settings.localdir, settings.playerdir, name, name);
+	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, name, name);
 
 	if (!player_exists(name))
 	{

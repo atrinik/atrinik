@@ -98,7 +98,7 @@ void load_treasures(void)
 	treasure *t;
 	int t_style, a_chance;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datadir, settings.treasures);
+	snprintf(filename, sizeof(filename), "%s/treasures", settings.libpath);
 	fp = fopen(filename, "rb");
 
 	if (!fp)
@@ -216,8 +216,6 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 	char buf[MAX_BUF], *cp = NULL, variable[MAX_BUF];
 	treasure *t = get_empty_treasure();
 	int value, start_marker = 0, t_style2, a_chance2;
-
-	nroftreasures++;
 
 	while (fgets(buf, MAX_BUF, fp) != NULL)
 	{
@@ -410,7 +408,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 }
 
 /**
- * Builds up the lists of artifacts from the file in the libdir.
+ * Builds up the lists of artifacts from the file in the libpath.
  *
  * Can be called multiple times without ill effects. */
 void init_artifacts(void)
@@ -434,7 +432,7 @@ void init_artifacts(void)
 
 	has_been_inited = 1;
 
-	snprintf(filename, sizeof(filename), "%s/artifacts", settings.datadir);
+	snprintf(filename, sizeof(filename), "%s/artifacts", settings.libpath);
 	fp = fopen(filename, "rb");
 
 	if (!fp)
@@ -474,7 +472,6 @@ void init_artifacts(void)
 		if (!strncmp(cp, "Allowed", 7))
 		{
 			art = get_empty_artifact();
-			nrofartifacts++;
 			none_flag = 0;
 			cp = strchr(cp, ' ') + 1;
 
@@ -491,8 +488,6 @@ void init_artifacts(void)
 
 			do
 			{
-				nrofallowedstr++;
-
 				/* Trim left whitespace. */
 				while (isspace(*cp))
 				{

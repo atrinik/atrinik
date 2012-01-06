@@ -198,6 +198,7 @@ set(SOURCES
 	src/gui/textwin.c
 	src/gui/updater.c
 	src/toolkit/binreloc.c
+	src/toolkit/clioptions.c
 	src/toolkit/console.c
 	src/toolkit/logger.c
 	src/toolkit/math.c

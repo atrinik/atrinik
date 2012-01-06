@@ -134,7 +134,7 @@ void read_client_images(void)
 
 	memset(facesets, 0, sizeof(facesets));
 
-	snprintf(filename, sizeof(filename), "%s/image_info", settings.datadir);
+	snprintf(filename, sizeof(filename), "%s/image_info", settings.libpath);
 	infile = fopen(filename, "rb");
 
 	if (!infile)
@@ -187,8 +187,8 @@ void read_client_images(void)
 
 		facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
 
-		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.datadir, file_num);
-		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
+		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.libpath, file_num);
+		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
 
 		if ((fbmap = fopen(buf, "wb")) == NULL)
 		{

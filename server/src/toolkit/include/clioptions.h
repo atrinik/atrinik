@@ -25,16 +25,45 @@
 
 /**
  * @file
- * Signals API header file.
+ * Command-line options API header file.
  *
  * @author Alex Tokar */
 
-#ifndef SIGNALS_H
-#define SIGNALS_H
+#ifndef CLIOPTIONS_H
+#define CLIOPTIONS_H
 
 /**
- * Definition for function that will be called when a signal has been
- * intercepted. */
-typedef void (*signals_handler_func)(void);
+ * Command line option handler function.
+ * @param arg Argument, if any. */
+typedef void (*clioptions_handler_func)(const char *arg);
+
+/**
+ * A single command line option. */
+typedef struct clioptions_struct
+{
+	/**
+	 * Long option name, eg, 'verbose'. */
+	char *longname;
+
+	/**
+	 * Short option name, eg, 'v'. */
+	char *shortname;
+
+	/**
+	 * Handler function for the option. */
+	clioptions_handler_func handle_func;
+
+	/**
+	 * Whether this option accepts an argument. */
+	uint8 argument;
+
+	/**
+	 * Brief description. */
+	char *desc_brief;
+
+	/**
+	 * More detailed description. */
+	char *desc;
+} clioptions_struct;
 
 #endif

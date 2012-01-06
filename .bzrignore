@@ -21,6 +21,7 @@ RE:server/unit/.*
 ./server/tools/upgrade/config.cfg
 *.db
 __pycache__
+server-custom.cfg
 
 # GNU/Linux
 core

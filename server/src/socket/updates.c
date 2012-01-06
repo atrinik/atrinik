@@ -191,7 +191,7 @@ void updates_init(void)
 	/* Sort the entries. */
 	qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)()) updates_file_compare);
 
-	snprintf(path, sizeof(path), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
+	snprintf(path, sizeof(path), "%s/%s", settings.datapath, UPDATES_FILE_NAME);
 	fp = fopen(path, "wb");
 
 	if (!fp)

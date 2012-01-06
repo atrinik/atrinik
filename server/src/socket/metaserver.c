@@ -42,7 +42,7 @@ typedef struct ms_update_info
 
 	/**
 	 * The port the server is using. */
-	char csport[MAX_BUF];
+	char port[MAX_BUF];
 
 	/**
 	 * Players currently in the game, separated by colons (':'). */
@@ -104,7 +104,7 @@ void metaserver_init(void)
 	int ret;
 	pthread_t thread_id;
 
-	if (!settings.meta_on)
+	if (*settings.server_host == '\0')
 	{
 		return;
 	}
@@ -113,7 +113,7 @@ void metaserver_init(void)
 
 	memset(&metaserver_info, 0, sizeof(metaserver_info));
 	/* Store the port number. */
-	snprintf(metaserver_info.csport, sizeof(metaserver_info.csport), "%d", settings.csport);
+	snprintf(metaserver_info.port, sizeof(metaserver_info.port), "%d", settings.port);
 	metaserver_info_update();
 
 	/* Init global cURL */
@@ -154,16 +154,16 @@ static void metaserver_update(void)
 	CURLcode res = 0;
 
 	/* Hostname. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.meta_host, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.server_host, CURLFORM_END);
 
 	/* Server version. */
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, PACKAGE_VERSION, CURLFORM_END);
 
 	/* Server comment. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.meta_comment, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.server_desc, CURLFORM_END);
 
 	/* Server name. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.meta_name, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.server_name, CURLFORM_END);
 
 	pthread_mutex_lock(&ms_info_mutex);
 	/* Number of players. */
@@ -173,7 +173,7 @@ static void metaserver_update(void)
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, metaserver_info.players, CURLFORM_END);
 
 	/* Port number. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.csport, CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.port, CURLFORM_END);
 	pthread_mutex_unlock(&ms_info_mutex);
 
 	/* Init "easy" cURL */
@@ -182,7 +182,7 @@ static void metaserver_update(void)
 	if (curl)
 	{
 		/* What URL that receives this POST */
-		curl_easy_setopt(curl, CURLOPT_URL, settings.meta_server);
+		curl_easy_setopt(curl, CURLOPT_URL, settings.metaserver_url);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
 		/* Almost always, we will get HTTP data returned

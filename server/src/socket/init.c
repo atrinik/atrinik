@@ -174,7 +174,7 @@ void init_ericserver(void)
 	}
 
 	insock.sin_family = AF_INET;
-	insock.sin_port = htons(settings.csport);
+	insock.sin_port = htons(settings.port);
 	insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	linger_opt.l_onoff = 0;
@@ -350,7 +350,7 @@ static void create_client_settings(void)
 	int i;
 	FILE *fset_default, *fset_create;
 
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.libpath);
 
 	/* Open default */
 	if ((fset_default = fopen(buf, "rb")) == NULL)
@@ -360,7 +360,7 @@ static void create_client_settings(void)
 	}
 
 	/* Delete our target - we create it new now */
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datapath);
 	unlink(buf);
 
 	/* Open target client_settings */
@@ -401,7 +401,7 @@ static void create_server_settings(void)
 	size_t i;
 	FILE *fp;
 
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
 
 	fp = fopen(buf, "wb");
 
@@ -412,7 +412,7 @@ static void create_server_settings(void)
 	}
 
 	/* Copy the default. */
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.libpath);
 	copy_file(buf, fp);
 
 	/* Add the level information. */
@@ -435,7 +435,7 @@ static void create_server_animations(void)
 	char buf[MAX_BUF];
 	FILE *fp, *fp2;
 
-	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
 
 	fp = fopen(buf, "wb");
 
@@ -445,7 +445,7 @@ static void create_server_animations(void)
 		exit(1);
 	}
 
-	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
 	fp2 = fopen(buf, "rb");
 
 	if (!fp2)
@@ -486,48 +486,48 @@ void init_srv_files(void)
 
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
-	snprintf(buf, sizeof(buf), "%s/hfiles", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_HFILES);
 
-	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_HFILES_V2);
 
-	snprintf(buf, sizeof(buf), "%s/animations", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_ANIMS);
 
-	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
 	load_srv_file(buf, SRV_CLIENT_BMAPS);
 
-	snprintf(buf, sizeof(buf), "%s/client_skills", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_skills", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_SKILLS);
 
-	snprintf(buf, sizeof(buf), "%s/client_spells", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/client_spells", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_SPELLS);
 
 	create_client_settings();
 
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datapath);
 	load_srv_file(buf, SRV_CLIENT_SETTINGS);
 
-	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, UPDATES_FILE_NAME);
+	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, UPDATES_FILE_NAME);
 	load_srv_file(buf, SRV_FILE_UPDATES);
 
-	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_FILE_SPELLS_FILENAME);
+	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, SRV_FILE_SPELLS_FILENAME);
 	load_srv_file(buf, SRV_FILE_SPELLS_V2);
 
 	create_server_settings();
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
 	load_srv_file(buf, SRV_SERVER_SETTINGS);
 	new_chars_init();
 
 	create_server_animations();
-	snprintf(buf, sizeof(buf), "%s/anims", settings.localdir);
+	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
 	load_srv_file(buf, SRV_CLIENT_ANIMS_V2);
 
-	snprintf(buf, sizeof(buf), "%s/effects", settings.datadir);
+	snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
 	load_srv_file(buf, SRV_CLIENT_EFFECTS);
 
-	snprintf(buf, sizeof(buf), "%s/%s", settings.localdir, SRV_CLIENT_SKILLS_FILENAME);
+	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, SRV_CLIENT_SKILLS_FILENAME);
 	load_srv_file(buf, SRV_CLIENT_SKILLS_V2);
 }
 
