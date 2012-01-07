@@ -160,4 +160,8 @@
 #cmakedefine HAVE_STRNDUP
 #endif
 
+#ifndef HAVE_SIGACTION
+#cmakedefine HAVE_SIGACTION
+#endif
+
 #endif

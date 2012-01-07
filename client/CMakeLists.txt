@@ -140,6 +140,7 @@ check_function_exists(tempnam HAVE_TEMPNAM)
 check_function_exists(strcasestr HAVE_STRCASESTR)
 check_function_exists(strdup HAVE_STRDUP)
 check_function_exists(strndup HAVE_STRNDUP)
+check_function_exists(sigaction HAVE_SIGACTION)
 
 # Add our includes.
 include_directories(src/include)
