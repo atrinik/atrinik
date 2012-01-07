@@ -160,7 +160,7 @@ static void clioptions_option_unit(const char *arg)
 	check_main();
 	exit(0);
 #else
-	logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.")
+	logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
 	exit(1);
 #endif
 }
