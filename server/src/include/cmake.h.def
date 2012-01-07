@@ -164,6 +164,10 @@
 #cmakedefine HAVE_STRTOK_R
 #endif
 
+#ifndef HAVE_SIGACTION
+#cmakedefine HAVE_SIGACTION
+#endif
+
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif
