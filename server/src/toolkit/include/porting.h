@@ -324,4 +324,8 @@ struct timezone
 extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 #endif
 
+#ifndef HAVE_GETLINE
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+#endif
+
 #endif

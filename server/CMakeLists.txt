@@ -111,6 +111,7 @@ check_function_exists(strdup HAVE_STRDUP)
 check_function_exists(strndup HAVE_STRNDUP)
 check_function_exists(strtok_r HAVE_STRTOK_R)
 check_function_exists(sigaction HAVE_SIGACTION)
+check_function_exists(getline HAVE_GETLINE)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)

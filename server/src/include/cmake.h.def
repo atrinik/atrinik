@@ -168,6 +168,10 @@
 #cmakedefine HAVE_SIGACTION
 #endif
 
+#ifndef HAVE_GETLINE
+#cmakedefine HAVE_GETLINE
+#endif
+
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif
