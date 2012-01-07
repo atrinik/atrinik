@@ -420,41 +420,45 @@ void console_command_handle(void)
 	size_t i;
 
 	pthread_mutex_lock(&command_process_queue_mutex);
+	line = (char **) utarray_front(command_process_queue);
+	pthread_mutex_unlock(&command_process_queue_mutex);
 
-	while ((line = (char **) utarray_front(command_process_queue)))
+	if (!line)
 	{
-		/* Remove the newline. */
-		cp = strchr(*line, '\n');
-
-		if (cp)
-		{
-			*cp = '\0';
-		}
-
-		/* Remove the command from the parameters. */
-		cp = strchr(*line, ' ');
-
-		if (cp)
-		{
-			*(cp++) = '\0';
-
-			if (cp && *cp == '\0')
-			{
-				cp = NULL;
-			}
-		}
-
-		for (i = 0; i < console_commands_num; i++)
-		{
-			if (strcmp(console_commands[i].command, *line) == 0)
-			{
-				console_commands[i].handle_func(cp);
-				break;
-			}
-		}
-
-		utarray_erase(command_process_queue, 0, 1);
+		return;
 	}
 
+	/* Remove the newline. */
+	cp = strchr(*line, '\n');
+
+	if (cp)
+	{
+		*cp = '\0';
+	}
+
+	/* Remove the command from the parameters. */
+	cp = strchr(*line, ' ');
+
+	if (cp)
+	{
+		*(cp++) = '\0';
+
+		if (cp && *cp == '\0')
+		{
+			cp = NULL;
+		}
+	}
+
+	for (i = 0; i < console_commands_num; i++)
+	{
+		if (strcmp(console_commands[i].command, *line) == 0)
+		{
+			console_commands[i].handle_func(cp);
+			break;
+		}
+	}
+
+	pthread_mutex_lock(&command_process_queue_mutex);
+	utarray_erase(command_process_queue, 0, 1);
 	pthread_mutex_unlock(&command_process_queue_mutex);
 }
