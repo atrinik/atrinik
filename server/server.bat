@@ -13,4 +13,4 @@ if not exist "data" (
 copy ..\arch\*.* lib\*.*
 del /q data\tmp\*
 
-atrinik_server.exe -log logfile.log
+atrinik_server.exe --logfile=logfile.log
