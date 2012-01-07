@@ -19,8 +19,6 @@ rm data/tmp/* > /dev/null 2>&1
 
 if [ -f "server-custom.cfg" ]; then
 	CLI_CONFIG="--config=server-custom.cfg"
-else
-	CLI_CONFIG=""
 fi
 
 # Start up the server. If running from a terminal, pass options to the
