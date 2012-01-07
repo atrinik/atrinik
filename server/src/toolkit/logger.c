@@ -116,12 +116,10 @@ void logger_print(const char *level, const char *function, uint64 line, const ch
 	}
 
 	snprintf(buf, sizeof(buf), LOGGER_ESC_SEQ_BOLD"%s"LOGGER_ESC_SEQ_END LOGGER_ESC_SEQ_RED"%s"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_CYAN"[%s:%"FMT64U"]"LOGGER_ESC_SEQ_END" "LOGGER_ESC_SEQ_YELLOW"%s"LOGGER_ESC_SEQ_END"\n", timebuf, level, function, line, formatted);
-
 	print_func(buf);
 
 	if (log_fp)
 	{
-		fputs(buf, log_fp);
 		fprintf(log_fp, "%s%s [%s:%"FMT64U"] %s\n", timebuf, level, function, line, formatted);
 		fflush(log_fp);
 	}
