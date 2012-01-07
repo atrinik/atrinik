@@ -47,10 +47,6 @@
 #endif
 
 /**
- * File descriptor set used in thread's select call. */
-static fd_set stdin_fd_set;
-
-/**
  * Dynamic array of all the possible console commands. */
 static console_command_struct *console_commands;
 
@@ -247,8 +243,6 @@ static void console_print(const char *str)
  * @return NULL. */
 static void *do_thread(void *dummy)
 {
-	struct timeval tv;
-	int count;
 #ifndef HAVE_READLINE
 	char *line;
 	ssize_t numread;
@@ -257,17 +251,6 @@ static void *do_thread(void *dummy)
 
 	while (!thread_done)
 	{
-		FD_SET(STDIN_FILENO, &stdin_fd_set);
-		tv.tv_sec = 0;
-		tv.tv_usec = 0;
-		count = select(FD_SETSIZE, &stdin_fd_set, NULL, NULL, &tv);
-
-		if (count <= 0)
-		{
-			usleep(10000);
-			continue;
-		}
-
 #ifdef HAVE_READLINE
 		rl_callback_read_char();
 #else
@@ -283,6 +266,8 @@ static void *do_thread(void *dummy)
 		utarray_push_back(command_process_queue, &line);
 		pthread_mutex_unlock(&command_process_queue_mutex);
 #endif
+
+		usleep(10000);
 	}
 
 	return NULL;
@@ -302,7 +287,6 @@ void toolkit_console_init(void)
 		console_commands = NULL;
 		console_commands_num = 0;
 
-		FD_ZERO(&stdin_fd_set);
 		utarray_new(command_process_queue, &ut_str_icd);
 
 #ifdef HAVE_READLINE
