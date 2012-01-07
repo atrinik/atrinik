@@ -29,65 +29,22 @@
 
 #include <global.h>
 
-static int lookup_god_by_name(const char *name);
-
-/**
- * Returns the ID of specified god.
- * @param name God to search for.
- * @return Identifier of god, -1 if not found. */
-static int lookup_god_by_name(const char *name)
-{
-	int godnr = -1;
-	size_t nmlen = strlen(name);
-
-	if (name && strcmp(name, "none"))
-	{
-		godlink *gl;
-
-		for (gl = first_god; gl; gl = gl->next)
-		{
-			if (!strncmp(name, gl->name, MIN(strlen(gl->name), nmlen)))
-			{
-				break;
-			}
-		}
-
-		if (gl)
-		{
-			godnr = gl->id;
-		}
-	}
-
-	return godnr;
-}
-
 /**
  * Returns pointer to specified god's object through pntr_to_god_obj().
  * @param name God's name.
  * @return Pointer to god's object, NULL if doesn't match any god. */
 object *find_god(const char *name)
 {
-	object *god = NULL;
+	archetype *at;
 
-	if (name)
+	at = find_archetype(name);
+
+	if (!at)
 	{
-		godlink *gl;
-
-		for (gl = first_god; gl; gl = gl->next)
-		{
-			if (!strcmp(name, gl->name))
-			{
-				break;
-			}
-		}
-
-		if (gl)
-		{
-			god = pntr_to_god_obj(gl);
-		}
+		return NULL;
 	}
 
-	return god;
+	return &at->clone;
 }
 
 /**
@@ -128,7 +85,7 @@ void become_follower(object *op, object *new_god)
 	{
 		draw_info_format(COLOR_WHITE, op, "%s's blessing is withdrawn from you.", exp_obj->title);
 		CLEAR_FLAG(exp_obj, FLAG_APPLIED);
-		(void) change_abil(op, exp_obj);
+		change_abil(op, exp_obj);
 		FREE_AND_CLEAR_HASH2(exp_obj->title);
 	}
 
@@ -167,7 +124,7 @@ const char *determine_god(object *op)
 	/* spells */
 	if ((op->type == CONE || op->type == SWARM_SPELL) && op->title)
 	{
-		if (lookup_god_by_name(op->title) >= 0)
+		if (find_god(op->title))
 		{
 			return op->title;
 		}

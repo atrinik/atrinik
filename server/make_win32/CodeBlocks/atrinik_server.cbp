@@ -86,7 +86,6 @@
 		<Unit filename="..\..\src\server\exp.c" />
 		<Unit filename="..\..\src\server\gods.c" />
 		<Unit filename="..\..\src\server\hiscore.c" />
-		<Unit filename="..\..\src\server\holy.c" />
 		<Unit filename="..\..\src\server\image.c" />
 		<Unit filename="..\..\src\server\init.c" />
 		<Unit filename="..\..\src\server\item.c" />

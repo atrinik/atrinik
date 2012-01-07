@@ -54,8 +54,6 @@ mapstruct *first_map;
 treasurelist *first_treasurelist;
 /** First artifact. */
 artifactlist *first_artifactlist;
-/** God list. */
-godlink *first_god;
 /*@}*/
 
 /** Last player. */

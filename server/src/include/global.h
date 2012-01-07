@@ -258,7 +258,6 @@ typedef struct linked_char
 #include <treasure.h>
 #include <commands.h>
 #include <artifact.h>
-#include <god.h>
 #include <race.h>
 #include <recipe.h>
 #include <spells.h>

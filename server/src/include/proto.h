@@ -305,11 +305,6 @@ extern const char *determine_god(object *op);
 extern void hiscore_init(void);
 extern void hiscore_check(object *op, int quiet);
 extern void hiscore_display(object *op, int max, const char *match);
-/* src/server/holy.c */
-extern void init_gods(void);
-extern godlink *get_rand_god(void);
-extern object *pntr_to_god_obj(godlink *godlnk);
-extern void free_all_god(void);
 /* src/server/image.c */
 extern New_Face *new_faces;
 extern New_Face *blank_face;
@@ -395,7 +390,6 @@ extern player *first_player;
 extern mapstruct *first_map;
 extern treasurelist *first_treasurelist;
 extern artifactlist *first_artifactlist;
-extern godlink *first_god;
 extern player *last_player;
 extern uint32 global_round_tag;
 extern void version(object *op);

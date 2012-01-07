@@ -134,7 +134,6 @@ static void cleanup(void)
 	free_all_images();
 	free_all_newserver();
 	free_all_readable();
-	free_all_god();
 	free_all_anim();
 	free_strings();
 	race_free();
@@ -651,7 +650,6 @@ static void init_beforeplay(void)
 	init_archetypes();
 	init_spells();
 	race_init();
-	init_gods();
 	init_readable();
 	init_archetype_pointers();
 	init_new_exp_system();

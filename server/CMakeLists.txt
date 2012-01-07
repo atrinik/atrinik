@@ -206,7 +206,6 @@ set(SOURCES
 	src/server/exp.c
 	src/server/gods.c
 	src/server/hiscore.c
-	src/server/holy.c
 	src/server/image.c
 	src/server/init.c
 	src/server/item.c
