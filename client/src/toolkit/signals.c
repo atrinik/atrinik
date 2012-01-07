@@ -42,7 +42,12 @@
  * The signals to register. */
 static const int register_signals[] =
 {
-	SIGINT, SIGTERM, SIGHUP, SIGSEGV
+#ifndef WIN32
+	SIGHUP,
+#endif
+	SIGINT,
+	SIGTERM,
+	SIGSEGV
 };
 
 /**
@@ -67,11 +72,13 @@ void toolkit_signals_init(void)
 	TOOLKIT_INIT_FUNC_START(signals)
 	{
 		size_t i;
-		struct sigaction new_action, old_action;
 
 		/* Register the signals. */
 		for (i = 0; i < arraysize(register_signals); i++)
 		{
+#ifdef HAVE_SIGACTION
+			struct sigaction new_action, old_action;
+
 			new_action.sa_handler = signal_handler;
 			sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = 0;
@@ -82,6 +89,9 @@ void toolkit_signals_init(void)
 			{
 				sigaction(register_signals[i], &new_action, NULL);
 			}
+#else
+			signal(register_signals[i], signal_handler);
+#endif
 		}
 	}
 	TOOLKIT_INIT_FUNC_END()

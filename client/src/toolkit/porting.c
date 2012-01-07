@@ -144,6 +144,32 @@ char *strdup(const char *s)
 }
 #	endif
 
+#	ifndef HAVE_STRNDUP
+char *strndup(const char *s, size_t n)
+{
+	size_t len;
+	char *new;
+
+	len = strlen(s);
+
+	if (n < len)
+	{
+		len = n;
+	}
+
+	new = malloc(len + 1);
+
+	if (!new)
+	{
+		return NULL;
+	}
+
+	new[len] = '\0';
+
+	return (char *) memcpy(new, s, len);
+}
+#	endif
+
 #	ifndef HAVE_STRERROR
 char *strerror(int errnum)
 {
@@ -216,6 +242,73 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	(void) tz;
 	return 0;
 #endif
+}
+#	endif
+
+#	ifndef HAVE_GETLINE
+ssize_t getline(char **lineptr, size_t *n, FILE *stream)
+{
+	char *buf;
+	size_t bufsize, numread;
+	int c;
+
+	if (!lineptr || !n)
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	buf = *lineptr;
+	bufsize = *n;
+	numread = 0;
+
+	c = fgetc(stream);
+
+	if (c == EOF)
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (!buf)
+	{
+		bufsize = 1;
+		buf = malloc(bufsize);
+
+		if (!buf)
+		{
+			return -1;
+		}
+	}
+
+	while (c != EOF)
+	{
+		if (numread > bufsize - 1)
+		{
+			bufsize += 1;
+			buf = realloc(buf, bufsize);
+
+			if (!buf)
+			{
+				return -1;
+			}
+		}
+
+		buf[numread++] = c;
+
+		if (c == '\n')
+		{
+			break;
+		}
+
+		c = fgetc(stream);
+	}
+
+	buf[numread] = '\0';
+	*lineptr = buf;
+	*n = bufsize;
+
+	return numread;
 }
 #	endif
 

@@ -288,6 +288,30 @@ typedef unsigned int tag_t;
 #	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
 #endif
 
+#ifndef HAVE_STRTOK_R
+extern char *strtok_r(char *s, const char *delim, char **save_ptr);
+#endif
+
+#ifndef HAVE_TEMPNAM
+extern char *tempnam(const char *dir, const char *pfx);
+#endif
+
+#ifndef HAVE_STRDUP
+extern char *strdup(const char *s);
+#endif
+
+#ifndef HAVE_STRNDUP
+extern char *strndup(const char *s, size_t n);
+#endif
+
+#ifndef HAVE_STRERROR
+extern char *strerror(int errnum);
+#endif
+
+#ifndef HAVE_STRCASESTR
+extern const char *strcasestr(const char *haystack, const char *needle);
+#endif
+
 #ifndef HAVE_GETTIMEOFDAY
 struct timezone
 {
@@ -300,16 +324,8 @@ struct timezone
 extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 #endif
 
-#ifndef HAVE_STRERROR
-extern char *strerror(int errnum);
-#endif
-
-#ifndef HAVE_STRCASESTR
-extern const char *strcasestr(const char *haystack, const char *needle);
-#endif
-
-#ifndef HAVE_TEMPNAM
-extern char *tempnam(const char *dir, const char *pfx);
+#ifndef HAVE_GETLINE
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 #endif
 
 #endif
