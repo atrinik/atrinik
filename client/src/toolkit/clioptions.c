@@ -288,6 +288,11 @@ void clioptions_parse(int argc, char *argv[])
 
 	for (i = 1; i < argc; i++)
 	{
+		if (*argv[i] == '\0')
+		{
+			continue;
+		}
+
 		for (opt = 0; opt < clioptions_num; opt++)
 		{
 			if (strncmp(argv[i], "--", 2) == 0)
