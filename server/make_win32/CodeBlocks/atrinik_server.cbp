@@ -24,8 +24,6 @@
 			<Add alias="All" targets="Release;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add option="-W" />
-			<Add option="-Wno-uninitialized -Wno-unused-parameter" />
 			<Add option="-D_CONSOLE" />
 			<Add option="-DWIN32" />
 			<Add option="-DDEBUG" />
