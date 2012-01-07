@@ -144,6 +144,32 @@ char *strdup(const char *s)
 }
 #	endif
 
+#	ifndef HAVE_STRNDUP
+char *strndup(const char *s, size_t n)
+{
+	size_t len;
+	char *new;
+
+	len = strlen(s);
+
+	if (n < len)
+	{
+		len = n;
+	}
+
+	new = malloc(len + 1);
+
+	if (!new)
+	{
+		return NULL;
+	}
+
+	new[len] = '\0';
+
+	return (char *) memcpy(new, s, len);
+}
+#	endif
+
 #	ifndef HAVE_STRERROR
 char *strerror(int errnum)
 {
