@@ -139,6 +139,7 @@ check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 check_function_exists(tempnam HAVE_TEMPNAM)
 check_function_exists(strcasestr HAVE_STRCASESTR)
 check_function_exists(strdup HAVE_STRDUP)
+check_function_exists(strndup HAVE_STRNDUP)
 
 # Add our includes.
 include_directories(src/include)

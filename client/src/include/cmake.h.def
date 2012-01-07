@@ -156,4 +156,8 @@
 #cmakedefine HAVE_STRDUP
 #endif
 
+#ifndef HAVE_STRNDUP
+#cmakedefine HAVE_STRNDUP
+#endif
+
 #endif
