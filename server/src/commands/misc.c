@@ -434,9 +434,9 @@ int command_gsay(object *op, char *params)
 {
 	char party_params[MAX_BUF];
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -497,9 +497,9 @@ int command_party(object *op, char *params)
 		}
 
 		params += 4;
-		params = cleanup_chat_string(params);
+		params = player_sanitize_input(params);
 
-		if (!params || *params == '\0')
+		if (!params)
 		{
 			return 1;
 		}
@@ -545,9 +545,9 @@ int command_party(object *op, char *params)
 	}
 	else if (!strncmp(params, "form ", 5))
 	{
-		params = cleanup_chat_string(params + 5);
+		params = player_sanitize_input(params + 5);
 
-		if (!params || *params == '\0')
+		if (!params)
 		{
 			draw_info(COLOR_RED, op, "Invalid party name to form.");
 			return 1;
@@ -628,9 +628,9 @@ int command_party(object *op, char *params)
 			return 1;
 		}
 
-		params = cleanup_chat_string(params + 4);
+		params = player_sanitize_input(params + 4);
 
-		if (!params || *params == '\0')
+		if (!params)
 		{
 			draw_info(COLOR_WHITE, op, "Whom do you want to kick from the party?");
 			return 1;

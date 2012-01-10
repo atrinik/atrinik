@@ -27,22 +27,6 @@
 #include <check.h>
 #include <stdarg.h>
 
-static void check_cleanup_string(const char *str, const char *expected)
-{
-	char *cp;
-
-	cp = cleanup_string(strdup(str));
-	fail_if(strcmp(cp, expected), "cleanup_string() cleaned up string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
-}
-
-START_TEST(test_cleanup_string)
-{
-	check_cleanup_string("  ~", "~");
-	check_cleanup_string("  \b\aoa", "oa");
-	fail_if(cleanup_string(strdup("   ")) != NULL, "cleanup_string() on whitespace-only string did not return NULL.");
-}
-END_TEST
-
 static void check_adjust_player_name(const char *str, const char *expected)
 {
 	char *cp;
@@ -148,22 +132,6 @@ START_TEST(test_buf_overflow)
 }
 END_TEST
 
-static void check_cleanup_chat_string(const char *str, const char *expected)
-{
-	char *cp;
-
-	cp = cleanup_chat_string(strdup(str));
-	fail_if(strcmp(cp, expected), "cleanup_chat_string() adjusted string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
-}
-
-START_TEST(test_cleanup_chat_string)
-{
-	check_cleanup_chat_string("   ---   ~ ~;   ", "---   ~ ~;   ");
-	check_cleanup_chat_string("   ^test^ ping", "^test^ ping");
-	check_cleanup_chat_string("              ", "");
-}
-END_TEST
-
 static void check_string_format_number_comma(uint64 num, const char *expected)
 {
 	char *cp;
@@ -201,11 +169,9 @@ static Suite *shstr_suite(void)
 	tcase_add_checked_fixture(tc_core, NULL, NULL);
 
 	suite_add_tcase(s, tc_core);
-	tcase_add_test(tc_core, test_cleanup_string);
 	tcase_add_test(tc_core, test_adjust_player_name);
 	tcase_add_test(tc_core, test_string_split);
 	tcase_add_test(tc_core, test_buf_overflow);
-	tcase_add_test(tc_core, test_cleanup_chat_string);
 	tcase_add_test(tc_core, test_string_format_number_comma);
 
 	return s;

@@ -37,9 +37,9 @@
  * @return 1 on success, 0 on failure. */
 int command_say(object *op, char *params)
 {
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -62,9 +62,9 @@ int command_dmsay(object *op, char *params)
 {
 	player *pl;
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -89,9 +89,9 @@ int command_dmsay(object *op, char *params)
  * @return 1 on success, 0 on failure */
 int command_shout(object *op, char *params)
 {
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -118,9 +118,9 @@ int command_tell(object *op, char *params)
 	char *name = NULL, *msg = NULL;
 	player *pl;
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -133,15 +133,7 @@ int command_tell(object *op, char *params)
 	if (msg)
 	{
 		*(msg++) = '\0';
-
-		if (*msg == '\0')
-		{
-			msg = NULL;
-		}
-		else
-		{
-			msg = cleanup_chat_string(msg);
-		}
+		msg = player_sanitize_input(msg);
 	}
 
 	if (!name)
@@ -158,7 +150,7 @@ int command_tell(object *op, char *params)
 		return 1;
 	}
 
-	if (!msg || *msg == '\0')
+	if (!msg)
 	{
 		draw_info_format(COLOR_WHITE, op, "Tell %s what?", pl->ob->name);
 		return 1;
@@ -203,9 +195,9 @@ int command_t_tell(object *op, char *params)
 		return 1;
 	}
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -952,13 +944,9 @@ static int basic_emote(object *op, char *params, int emotion)
 		CONTR(op)->stat_emotes_used++;
 	}
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (params && *params == '\0')
-	{
-		params = NULL;
-	}
-	else if (params)
+	if (params)
 	{
 		if (emotion != EMOTE_ME && emotion != EMOTE_MY && op->type == PLAYER)
 		{

@@ -1564,7 +1564,7 @@ int command_rename_item(object *op, char *params)
 	}
 
 	/* Will also clear unprintable chars. */
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
 	/* Clear custom name. */
 	if (!params)

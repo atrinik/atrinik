@@ -1715,11 +1715,11 @@ void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, 
 	packet_to_string(data, len, &pos, pswd_new, sizeof(pswd_new));
 
 	/* Make sure there are no untypeable characters... */
-	cleanup_chat_string(pswd_current);
-	cleanup_chat_string(pswd_new);
+	string_replace_unprintable_chars(pswd_current);
+	string_replace_unprintable_chars(pswd_new);
 
 	/* Make sure there is current and new password. */
-	if (!*pswd_current || !*pswd_new)
+	if (*pswd_current == '\0' || *pswd_new == '\0')
 	{
 		return;
 	}

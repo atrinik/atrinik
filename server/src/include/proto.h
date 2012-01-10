@@ -741,13 +741,11 @@ extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
-extern char *cleanup_string(char *ustring);
 extern const char *get_word_from_string(const char *str, int *pos);
 extern void adjust_player_name(char *name);
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
 extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
-extern char *cleanup_chat_string(char *ustring);
 extern void copy_file(const char *filename, FILE *fpout);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
@@ -1216,6 +1214,7 @@ extern void player_path_handle(player *pl);
 extern sint64 player_faction_reputation(player *pl, shstr *faction);
 extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
 extern int player_has_region_map(player *pl, region *r);
+extern char *player_sanitize_input(char *str);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */
 extern void object_type_init_player_mover(void);

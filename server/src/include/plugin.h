@@ -254,7 +254,6 @@ struct plugin_hooklist
 	void (*stringbuffer_append_string)(StringBuffer *, const char *);
 	void (*stringbuffer_append_printf)(StringBuffer *, const char *, ...);
 	char *(*stringbuffer_finish)(StringBuffer *);
-	char *(*cleanup_chat_string)(char *);
 	int (*find_face)(char *, int);
 	int (*find_animation)(char *);
 	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);

@@ -1545,9 +1545,9 @@ void communicate(object *op, char *txt)
 		if (cp)
 		{
 			*(cp++) = '\0';
-			cp = cleanup_string(cp);
+			string_whitespace_trim(cp);
 
-			if (cp && *cp == '\0')
+			if (*cp == '\0')
 			{
 				cp = NULL;
 			}

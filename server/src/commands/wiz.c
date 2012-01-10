@@ -1125,9 +1125,9 @@ int command_server_shout(object *op, char *params)
 {
 	player *pl;
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
@@ -1160,9 +1160,9 @@ int command_mod_shout(object *op, char *params)
 {
 	player *pl;
 
-	params = cleanup_chat_string(params);
+	params = player_sanitize_input(params);
 
-	if (!params || *params == '\0')
+	if (!params)
 	{
 		return 0;
 	}
