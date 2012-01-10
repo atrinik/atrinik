@@ -26,6 +26,15 @@ def get_randomized_dir(d):
 	from random import randint
 	return absdir(d + randint(0, 2) + randint(0, 2) - 2)
 
+## Removes extraneous whitespace and unprintable characters from player's
+## text input.
+def player_sanitize_input(s):
+	if not s:
+		return None
+
+	import string
+	return "".join("".join(c for c in s if c in string.printable).split(" "))
+
 ## Search squares around the activator, looking for an object identified
 ## by its name/count.
 ## @param activator The activator. Will search below and around this object.
