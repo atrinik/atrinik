@@ -2,11 +2,9 @@
 ## The /pirate_shout command.
 
 from Pirate import english2pirate
+from Common import player_sanitize_input
 
-try:
-	message = CleanupChatString(msg)
-except NameError:
-	message = None
+message = player_sanitize_input(msg)
 
 if not message:
 	activator.Write("No message given.", COLOR_RED)

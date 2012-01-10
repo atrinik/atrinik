@@ -5,6 +5,7 @@
 ## The command provides a chat for guild members.
 
 from Guild import Guild
+from Common import player_sanitize_input
 
 guild = Guild(None)
 
@@ -16,11 +17,7 @@ def main():
 		activator.Write("You are not member of any guild.", COLOR_RED)
 		return
 
-	message = WhatIsMessage()
-
-	# Do we have a message? Then clean it up.
-	if message:
-		message = CleanupChatString(message)
+	message = player_sanitize_input(msg)
 
 	if not message:
 		activator.Write("You must provide a message to send to other guild members.", COLOR_RED)
