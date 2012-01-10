@@ -1130,32 +1130,7 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>CleanupChatString(string text)</h1>
- * Cleans up a chat text removing special characters and extra whitespace.
- * @param text The text to cleanup.
- * @return Cleaned up text; can be None. */
-static PyObject *Atrinik_CleanupChatString(PyObject *self, PyObject *args)
-{
-	const char *text;
-	char *cp;
-	PyObject *ret;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &text))
-	{
-		return NULL;
-	}
-
-	cp = hooks->strdup(text);
-	ret = Py_BuildValue("s", hooks->cleanup_chat_string(cp));
-	free(cp);
-
-	return ret;
-}
-
-/**
- * <h1>logger(string type, string message)</h1>
+ * <h1>Logger(string type, string message)</h1>
  * Logs a message.
  * @param type Type of the message, eg, "WARNING", "ERROR", "CHAT",
  * "INFO", etc.
@@ -1538,7 +1513,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
 	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
 	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
-	{"CleanupChatString", Atrinik_CleanupChatString, METH_VARARGS, 0},
 	{"Logger", Atrinik_Logger, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
 	{"CostString", Atrinik_CostString, METH_VARARGS, 0},
