@@ -116,7 +116,6 @@ struct plugin_hooklist hooklist =
 	stringbuffer_append_string,
 	stringbuffer_append_printf,
 	stringbuffer_finish,
-	cleanup_chat_string,
 	find_face,
 	find_animation,
 	play_sound_player_only,

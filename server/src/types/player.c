@@ -1602,6 +1602,26 @@ int player_has_region_map(player *pl, region *r)
 	return 0;
 }
 
+/**
+ * Sanitize player's text input, removing extraneous whitespace,
+ * unprintable characters, etc.
+ * @param str Input to sanitize.
+ * @return Sanitized input; can be NULL if there's nothing in the string
+ * left. */
+char *player_sanitize_input(char *str)
+{
+	if (!str)
+	{
+		return NULL;
+	}
+
+	string_replace_unprintable_chars(str);
+	string_whitespace_squeeze(str);
+	string_whitespace_trim(str);
+
+	return *str == '\0' ? NULL : str;
+}
+
 /** @copydoc object_methods::remove_map_func */
 static void remove_map_func(object *op)
 {
