@@ -327,10 +327,31 @@ const char *string_get_word(const char *str, size_t *pos, char *word, size_t wor
 			word[i++] = *str;
 		}
 
-		*pos++;
+		(*pos)++;
 	}
 
 	word[i] = '\0';
 
 	return *word == '\0' ? NULL : word;
+}
+
+/**
+ * Checks if string is a number.
+ * @return 1 if the string is a number, 0 otherwise. */
+int string_isnumeric(const char *str)
+{
+	if (*str == '-')
+	{
+		str++;
+	}
+
+	while (*str != '\0')
+	{
+		if (!isdigit(*str))
+		{
+			return 0;
+		}
+	}
+
+	return 1;
 }
