@@ -690,8 +690,9 @@ void sell_item(object *op, object *pl, sint64 value)
  * @return One of @ref MONEYSTRING_xxx. */
 int get_money_from_string(const char *text, struct _money_block *money)
 {
-	int pos = 0;
-	const char *word;
+	size_t pos = 0;
+	char word[MAX_BUF];
+	int value;
 
 	memset(money, 0, sizeof(struct _money_block));
 
@@ -710,52 +711,42 @@ int get_money_from_string(const char *text, struct _money_block *money)
 
 	money->mode = MONEYSTRING_NOTHING;
 
-	while ((word = get_word_from_string(text, &pos)))
+	while (string_get_word(text, &pos, word, sizeof(word)))
 	{
-		int i = 0, flag = *word;
-
-		while (*(word + i) != '\0')
+		if (!string_isnumeric(word))
 		{
-			if (*(word + i) < '0' || *(word + i) > '9')
-			{
-				flag = 0;
-			}
-
-			i++;
+			continue;
 		}
 
-		/* If still set, we have a valid number in the word string */
-		if (flag)
+		value = atoi(word);
+
+		if (value > 0 && value < 1000000)
 		{
-			int value = atoi(word);
-
-			/* A valid number - now lets look we have a valid money keyword */
-			if (value > 0 && value < 1000000)
+			if (string_get_word(text, &pos, word, sizeof(word)))
 			{
-				if ((word = get_word_from_string(text, &pos)) && *word != '\0')
-				{
-					size_t len = strlen(word);
+				size_t len;
 
-					if (!strncasecmp("mithril", word, len))
-					{
-						money->mode = MONEYSTRING_AMOUNT;
-						money->mithril += value;
-					}
-					else if (!strncasecmp("gold", word, len))
-					{
-						money->mode = MONEYSTRING_AMOUNT;
-						money->gold += value;
-					}
-					else if (!strncasecmp("silver", word, len))
-					{
-						money->mode = MONEYSTRING_AMOUNT;
-						money->silver += value;
-					}
-					else if (!strncasecmp("copper", word, len))
-					{
-						money->mode = MONEYSTRING_AMOUNT;
-						money->copper += value;
-					}
+				len = strlen(word);
+
+				if (!strncasecmp("mithril", word, len))
+				{
+					money->mode = MONEYSTRING_AMOUNT;
+					money->mithril += value;
+				}
+				else if (!strncasecmp("gold", word, len))
+				{
+					money->mode = MONEYSTRING_AMOUNT;
+					money->gold += value;
+				}
+				else if (!strncasecmp("silver", word, len))
+				{
+					money->mode = MONEYSTRING_AMOUNT;
+					money->silver += value;
+				}
+				else if (!strncasecmp("copper", word, len))
+				{
+					money->mode = MONEYSTRING_AMOUNT;
+					money->copper += value;
 				}
 			}
 		}
