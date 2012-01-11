@@ -741,7 +741,6 @@ extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
-extern const char *get_word_from_string(const char *str, int *pos);
 extern void adjust_player_name(char *name);
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
