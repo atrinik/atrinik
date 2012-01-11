@@ -30,41 +30,6 @@
 #include <global.h>
 
 /**
- * Returns a single word from a string, free from left and right
- * whitespace.
- * @param str The string.
- * @param pos Position in string.
- * @return The word, NULL if there is no word left in str. */
-const char *get_word_from_string(const char *str, int *pos)
-{
-	/* this is used for controlled input which never should bigger than this */
-	static char buf[HUGE_BUF];
-	int i = 0;
-
-	buf[0] = '\0';
-
-	while (*(str + (*pos)) != '\0' && (!isalnum(*(str + (*pos))) && !isalpha(*(str + (*pos)))))
-	{
-		(*pos)++;
-	}
-
-	/* Nothing left. */
-	if (*(str + (*pos)) == '\0')
-	{
-		return NULL;
-	}
-
-	/* Copy until end of string or whitespace */
-	while (*(str + (*pos)) != '\0' && (isalnum(*(str + (*pos))) || isalpha(*(str + (*pos)))))
-	{
-		buf[i++] = *(str + (*pos)++);
-	}
-
-	buf[i] = '\0';
-	return buf;
-}
-
-/**
  * Adjusts a player name like "xxXxx " to "Xxxxx".
  * @param name Player name to adjust. */
 void adjust_player_name(char *name)
