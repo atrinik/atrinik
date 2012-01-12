@@ -28,28 +28,3 @@
  * General convenience functions for Atrinik. */
 
 #include <global.h>
-
-/**
- * Copy a file.
- * @param filename Source file.
- * @param fpout Where to copy to. */
-void copy_file(const char *filename, FILE *fpout)
-{
-	FILE *fp;
-	char buf[HUGE_BUF];
-
-	fp = fopen(filename, "r");
-
-	if (!fp)
-	{
-		logger_print(LOG(BUG), "Failed to open '%s'.", filename);
-		return;
-	}
-
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		fputs(buf, fpout);
-	}
-
-	fclose(fp);
-}
