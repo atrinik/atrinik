@@ -937,6 +937,7 @@ extern char *path_join(const char *path, const char *path2);
 extern char *path_dirname(const char *path);
 extern char *path_basename(const char *path);
 extern void path_ensure_directories(const char *path);
+extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
