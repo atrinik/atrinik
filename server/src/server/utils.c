@@ -30,32 +30,6 @@
 #include <global.h>
 
 /**
- * Adjusts a player name like "xxXxx " to "Xxxxx".
- * @param name Player name to adjust. */
-void adjust_player_name(char *name)
-{
-	char *tmp = name;
-
-	if (!tmp || *tmp == '\0')
-	{
-		return;
-	}
-
-	*tmp = toupper(*tmp);
-
-	while (*(++tmp) != '\0')
-	{
-		*tmp = tolower(*tmp);
-	}
-
-	/* Trim the right whitespace */
-	while (tmp >= name && *(tmp - 1) == ' ')
-	{
-		*(--tmp) = '\0';
-	}
-}
-
-/**
  * Returns a random direction (1..8).
  * @return The random direction. */
 int get_random_dir(void)
