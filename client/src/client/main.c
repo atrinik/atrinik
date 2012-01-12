@@ -278,8 +278,6 @@ static void init_game_data(void)
 
 	delete_player_lists();
 	metaserver_init();
-
-	SRANDOM(time(NULL));
 }
 
 /**
