@@ -36,6 +36,7 @@ void toolkit_math_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(math)
 	{
+		SRANDOM(time(NULL));
 	}
 	TOOLKIT_INIT_FUNC_END()
 }

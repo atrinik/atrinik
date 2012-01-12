@@ -626,8 +626,6 @@ void init(int argc, char **argv)
 	init_library(argc, argv);
 	init_world_darkness();
 
-	SRANDOM(time(NULL));
-
 	/* Sort command tables */
 	init_commands();
 	/* Load up the old temp map files */
