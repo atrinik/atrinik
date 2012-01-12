@@ -106,7 +106,7 @@ struct plugin_hooklist hooklist =
 	query_short_name,
 	beacon_locate,
 	strdup,
-	adjust_player_name,
+	player_cleanup_name,
 	find_party,
 	add_party_member,
 	remove_party_member,

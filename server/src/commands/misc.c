@@ -321,7 +321,7 @@ int onoff_value(char *line)
  * @param op Object. */
 void receive_player_name(object *op)
 {
-	adjust_player_name(CONTR(op)->write_buf + 1);
+	player_cleanup_name(CONTR(op)->write_buf + 1);
 
 	if (!check_name(CONTR(op), CONTR(op)->write_buf + 1))
 	{

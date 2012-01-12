@@ -27,94 +27,6 @@
 #include <check.h>
 #include <stdarg.h>
 
-static void check_adjust_player_name(const char *str, const char *expected)
-{
-	char *cp;
-
-	cp = strdup(str);
-	adjust_player_name(cp);
-	fail_if(strcmp(cp, expected), "adjust_player_name() adjusted string '%s' to '%s' but it was not the expected string '%s'.", str, cp, expected);
-	free(cp);
-}
-
-START_TEST(test_adjust_player_name)
-{
-	check_adjust_player_name("_AaA", "_aaa");
-	check_adjust_player_name("bleh", "Bleh");
-	check_adjust_player_name("oOooooO", "Ooooooo");
-	check_adjust_player_name("19a4", "19a4");
-	check_adjust_player_name("---   ~ ;   ", "---   ~ ;");
-}
-END_TEST
-
-static void check_string_split(const char *str, size_t array_size, ...)
-{
-	char tmp[256], *array[64];
-	size_t result, i;
-	va_list arg;
-
-	snprintf(tmp, sizeof(tmp), "%s", str);
-
-	for (i = 0; i < sizeof(array) / sizeof(*array); i++)
-	{
-		array[i] = NULL;
-	}
-
-	result = string_split(tmp, array, array_size, ':');
-	fail_if(result > array_size, "result == %zu > %zu == array_size", result, array_size);
-	va_start(arg, array_size);
-
-	for (i = 0; i < sizeof(array) / sizeof(*array); i++)
-	{
-		const char *expected_result = va_arg(arg, const char *);
-
-		if (expected_result == NULL)
-		{
-			break;
-		}
-
-		if (i >= array_size)
-		{
-			fail("Internal error: too many arguments passed to check_string_split().");
-		}
-
-		if (i < result)
-		{
-			fail_if(strcmp(array[i], expected_result) != 0, "strcmp(array[%zu] == %s, %s) != 0", i, array[i], expected_result);
-		}
-		else
-		{
-			fail_if(array[i] != NULL, "array[%zu] == NULL", i);
-		}
-	}
-
-	va_end(arg);
-	fail_if(result != i, "%zu != %zu", result, i);
-}
-
-START_TEST(test_string_split)
-{
-	check_string_split("", 0, NULL);
-	check_string_split("", 5, "", NULL);
-	check_string_split(":", 5, "", "", NULL);
-	check_string_split("::", 5, "", "", "", NULL);
-	check_string_split("abc:def:ghi", 0, NULL);
-	check_string_split("abc:def:ghi", 1, "abc:def:ghi", NULL);
-	check_string_split("abc:def:ghi", 2, "abc", "def:ghi", NULL);
-	check_string_split("abc:def:ghi", 3, "abc", "def", "ghi", NULL);
-	check_string_split("abc:def:ghi", 4, "abc", "def", "ghi", NULL);
-	check_string_split("::abc::def::", 0, NULL);
-	check_string_split("::abc::def::", 1, "::abc::def::", NULL);
-	check_string_split("::abc::def::", 2, "", ":abc::def::", NULL);
-	check_string_split("::abc::def::", 3, "", "", "abc::def::", NULL);
-	check_string_split("::abc::def::", 4, "", "", "abc", ":def::", NULL);
-	check_string_split("::abc::def::", 5, "", "", "abc", "", "def::", NULL);
-	check_string_split("::abc::def::", 6, "", "", "abc", "", "def", ":", NULL);
-	check_string_split("::abc::def::", 7, "", "", "abc", "", "def", "", "", NULL);
-	check_string_split("::abc::def::", 8, "", "", "abc", "", "def", "", "", NULL);
-}
-END_TEST
-
 START_TEST(test_buf_overflow)
 {
 	int i;
@@ -169,8 +81,6 @@ static Suite *shstr_suite(void)
 	tcase_add_checked_fixture(tc_core, NULL, NULL);
 
 	suite_add_tcase(s, tc_core);
-	tcase_add_test(tc_core, test_adjust_player_name);
-	tcase_add_test(tc_core, test_string_split);
 	tcase_add_test(tc_core, test_buf_overflow);
 	tcase_add_test(tc_core, test_string_format_number_comma);
 

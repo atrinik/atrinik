@@ -950,7 +950,7 @@ static int basic_emote(object *op, char *params, int emotion)
 	{
 		if (emotion != EMOTE_ME && emotion != EMOTE_MY && op->type == PLAYER)
 		{
-			adjust_player_name(params);
+			player_cleanup_name(params);
 		}
 	}
 

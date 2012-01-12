@@ -673,7 +673,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 	}
 
 	cp = hooks->strdup(name);
-	hooks->adjust_player_name(cp);
+	hooks->player_cleanup_name(cp);
 	ret = hooks->player_exists(cp);
 	free(cp);
 

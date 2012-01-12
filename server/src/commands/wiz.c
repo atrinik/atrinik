@@ -43,7 +43,7 @@ static player *get_other_player_from_name(object *op, char *name)
 		return NULL;
 	}
 
-	adjust_player_name(name);
+	player_cleanup_name(name);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
@@ -805,7 +805,7 @@ int command_dm_password(object *op, char *params)
 		return 0;
 	}
 
-	adjust_player_name(name);
+	player_cleanup_name(name);
 	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, name, name);
 
 	if (!player_exists(name))
