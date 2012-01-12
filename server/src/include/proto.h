@@ -742,8 +742,6 @@ extern int generate_artifact(object *op, int difficulty, int t_style, int a_chan
 extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
-/* src/server/utils.c */
-extern void copy_file(const char *filename, FILE *fpout);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
 extern void init_world_darkness(void);
