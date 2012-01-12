@@ -361,7 +361,7 @@ int string_isnumeric(const char *str)
  * its uppercase version, and all following letters into their lowercase
  * versions.
  * @param str String to capitalize. */
-void string_capitalize(const char *str)
+void string_capitalize(char *str)
 {
 	if (!str || *str == '\0')
 	{
