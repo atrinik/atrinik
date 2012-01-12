@@ -441,6 +441,8 @@ extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 extern int wall_blocked(mapstruct *m, int x, int y);
 /* src/server/move.c */
+extern int get_random_dir(void);
+extern int get_randomized_dir(int dir);
 extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 extern int teleport(object *teleporter, uint8 tele_type, object *user);
@@ -741,9 +743,6 @@ extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 extern object *create_artifact(object *op, char *artifactname);
 /* src/server/utils.c */
-extern int get_random_dir(void);
-extern int get_randomized_dir(int dir);
-extern int buf_overflow(const char *buf1, const char *buf2, size_t bufsize);
 extern void copy_file(const char *filename, FILE *fpout);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
