@@ -30,6 +30,23 @@
 #include <global.h>
 
 /**
+ * Returns a random direction (1..8).
+ * @return The random direction. */
+int get_random_dir(void)
+{
+	return rndm(1, 8);
+}
+
+/**
+ * Returns a random direction (1..8) similar to a given direction.
+ * @param dir The exact direction.
+ * @return The randomized direction. */
+int get_randomized_dir(int dir)
+{
+	return absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+}
+
+/**
  * Try to move object in specified direction.
  * @param op What to move.
  * @param dir Direction to move the object to.
