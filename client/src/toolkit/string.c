@@ -355,3 +355,25 @@ int string_isnumeric(const char *str)
 
 	return 1;
 }
+
+/**
+ * Capitalize a string, transforming the starting letter (if any) into
+ * its uppercase version, and all following letters into their lowercase
+ * versions.
+ * @param str String to capitalize. */
+void string_capitalize(char *str)
+{
+	if (!str || *str == '\0')
+	{
+		return;
+	}
+
+	*str = toupper(*str);
+	str++;
+
+	while (*str != '\0')
+	{
+		*str = tolower(*str);
+		str++;
+	}
+}
