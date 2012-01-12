@@ -27,52 +27,6 @@
 #include <check.h>
 #include <stdarg.h>
 
-START_TEST(test_buf_overflow)
-{
-	int i;
-
-	i = buf_overflow("1", "22", 3);
-	fail_if(i == 0, "'1' + '22' can't fit in a 3 char buffer but buf_overflow told us there won't be any overflow.");
-	i = buf_overflow("1", NULL, 1);
-	fail_if(i == 0, "'1' + NULL can't fit in a 1 char buffer but buf_overflow told us there won't be any overflow.");
-	i = buf_overflow("1", NULL, 2);
-	fail_if(i == 1, "'1' + NULL can fit in a 2 char buffer but buf_overflow told us it won't.");
-	i = buf_overflow("", NULL, 1);
-	fail_if(i == 1, "EMPTY + NULL can fit in a 1 char buffer but buf_overflow told us it won't.");
-	i = buf_overflow("", NULL, 0);
-	fail_if(i == 0, "EMPTY + NULL can't fit in a 0 char buffer but buf_overflow() told us there won't be any overflow.");
-}
-END_TEST
-
-static void check_string_format_number_comma(uint64 num, const char *expected)
-{
-	char *cp;
-
-	cp = string_format_number_comma(num);
-	fail_if(strcmp(cp, expected), "string_format_number_comma() adjusted number '%"FMT64"' to '%s' but it was not the expected string '%s'.", num, cp, expected);
-}
-
-START_TEST(test_string_format_number_comma)
-{
-	check_string_format_number_comma(0, "0");
-	check_string_format_number_comma(1, "1");
-	check_string_format_number_comma(10, "10");
-	check_string_format_number_comma(100, "100");
-	check_string_format_number_comma(1000, "1,000");
-	check_string_format_number_comma(10000, "10,000");
-	check_string_format_number_comma(100000, "100,000");
-	check_string_format_number_comma(1000000, "1,000,000");
-	check_string_format_number_comma(10000000, "10,000,000");
-	check_string_format_number_comma(100000000, "100,000,000");
-	check_string_format_number_comma(1000000000, "1,000,000,000");
-	check_string_format_number_comma(10000000000LLU, "10,000,000,000");
-	check_string_format_number_comma(100000000000LLU, "100,000,000,000");
-	check_string_format_number_comma(1000000000000LLU, "1,000,000,000,000");
-	check_string_format_number_comma(10000000000000LLU, "10,000,000,000,000");
-	check_string_format_number_comma(100000000000000LLU, "100,000,000,000,000");
-}
-END_TEST
-
 static Suite *shstr_suite(void)
 {
 	Suite *s = suite_create("utils");
@@ -81,8 +35,6 @@ static Suite *shstr_suite(void)
 	tcase_add_checked_fixture(tc_core, NULL, NULL);
 
 	suite_add_tcase(s, tc_core);
-	tcase_add_test(tc_core, test_buf_overflow);
-	tcase_add_test(tc_core, test_string_format_number_comma);
 
 	return s;
 }
