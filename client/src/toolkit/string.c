@@ -297,3 +297,61 @@ void string_newline_to_literal(char *str)
 		memmove(next + 1, next + 2, strlen(next) - 1);
 	}
 }
+
+/**
+ * Returns a single word from a string, free from left and right
+ * whitespace.
+ *
+ * Effectively allows looping through all the words in a string.
+ * @param str The string.
+ * @param[out] pos Position in string.
+ * @param word Where to store the word.
+ * @param wordsize Size of 'word'.
+ * @return 'word', NULL if 'word' is empty. */
+const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize)
+{
+	size_t i;
+
+	i = 0;
+	str += (*pos);
+
+	while (*str != '\0' && !isalnum(*str))
+	{
+		(*pos)++;
+	}
+
+	while (*str != '\0' && isalnum(*str))
+	{
+		if (i < wordsize - 1)
+		{
+			word[i++] = *str;
+		}
+
+		(*pos)++;
+	}
+
+	word[i] = '\0';
+
+	return *word == '\0' ? NULL : word;
+}
+
+/**
+ * Checks if string is a number.
+ * @return 1 if the string is a number, 0 otherwise. */
+int string_isnumeric(const char *str)
+{
+	if (*str == '-')
+	{
+		str++;
+	}
+
+	while (*str != '\0')
+	{
+		if (!isdigit(*str))
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
