@@ -115,7 +115,6 @@
 		<Unit filename="..\..\src\server\swap.c" />
 		<Unit filename="..\..\src\server\time.c" />
 		<Unit filename="..\..\src\server\treasure.c" />
-		<Unit filename="..\..\src\server\utils.c" />
 		<Unit filename="..\..\src\server\weather.c" />
 		<Unit filename="..\..\src\skills\construction.c" />
 		<Unit filename="..\..\src\skills\inscription.c" />

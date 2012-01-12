@@ -240,7 +240,6 @@ set(SOURCES
 	src/server/swap.c
 	src/server/time.c
 	src/server/treasure.c
-	src/server/utils.c
 	src/server/weather.c
 	src/skills/construction.c
 	src/skills/inscription.c
