@@ -1622,6 +1622,15 @@ char *player_sanitize_input(char *str)
 	return *str == '\0' ? NULL : str;
 }
 
+/**
+ * Cleans up a string that is, presumably, a player name.
+ * @param str The player name to clean up. */
+void player_cleanup_name(char *str)
+{
+	string_whitespace_trim(str);
+	string_capitalize(str);
+}
+
 /** @copydoc object_methods::remove_map_func */
 static void remove_map_func(object *op)
 {
