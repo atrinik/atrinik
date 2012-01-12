@@ -413,7 +413,12 @@ static void create_server_settings(void)
 
 	/* Copy the default. */
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.libpath);
-	copy_file(buf, fp);
+
+	if (!path_copy_file(buf, fp, "r"))
+	{
+		logger_print(LOG(ERROR), "Couldn't copy %s.", buf);
+		exit(1);
+	}
 
 	/* Add the level information. */
 	snprintf(buf, sizeof(buf), "level %d\n", MAXLEVEL);
