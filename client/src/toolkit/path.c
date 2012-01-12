@@ -184,3 +184,36 @@ void path_ensure_directories(const char *path)
 		*cp = '/';
 	}
 }
+
+/**
+ * Copy the contents of file 'src' into 'dst'.
+ * @param src Path of the file to copy contents from.
+ * @param dst Where to put the contents of 'src'.
+ * @param mode Mode to open 'src' in.
+ * @return 1 on success, 0 on failure. */
+int path_copy_file(const char *src, FILE *dst, const char *mode)
+{
+	FILE *fp;
+	char buf[HUGE_BUF];
+
+	if (!src || !dst || !mode)
+	{
+		return 0;
+	}
+
+	fp = fopen(src, mode);
+
+	if (!fp)
+	{
+		return 0;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		fputs(buf, dst);
+	}
+
+	fclose(fp);
+
+	return 1;
+}
