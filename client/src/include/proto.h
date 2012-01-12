@@ -589,6 +589,9 @@ extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);
 extern char *string_whitespace_squeeze(char *str);
 extern void string_newline_to_literal(char *str);
+extern const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize);
+extern int string_isnumeric(const char *str);
+extern void string_capitalize(char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
