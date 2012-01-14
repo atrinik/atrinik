@@ -377,3 +377,64 @@ void string_capitalize(char *str)
 		str++;
 	}
 }
+
+int string_startswith(const char *str, const char *cmp)
+{
+	if (!str || !cmp)
+	{
+		return 0;
+	}
+
+	if (strncmp(str, cmp, strlen(cmp)) == 0)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+int string_endswith(const char *str, const char *cmp)
+{
+	ssize_t len;
+
+	if (!str || !cmp)
+	{
+		return 0;
+	}
+
+	len = strlen(str) - strlen(cmp);
+	str += MAX(0, len);
+
+	if (str && strcmp(str, cmp) == 0)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+char *string_sub(const char *str, ssize_t start, ssize_t end)
+{
+	size_t n, max;
+
+	if (end < 0)
+	{
+		end = strlen(str) + end;
+	}
+	else if (start < 0)
+	{
+		end = strlen(str);
+		start = end + start;
+	}
+
+	if (!(str + start) || end - start < 0)
+	{
+		return strdup("");
+	}
+
+	str += start;
+	max = strlen(str);
+	n = MIN(max, (size_t) (end - start));
+
+	return strndup(str, n);
+}
