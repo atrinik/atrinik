@@ -377,3 +377,18 @@ void string_capitalize(char *str)
 		str++;
 	}
 }
+
+int string_startswith(const char *str, const char *cmp)
+{
+	if (!str || !cmp)
+	{
+		return 0;
+	}
+
+	if (strncmp(str, cmp, strlen(cmp)) == 0)
+	{
+		return 1;
+	}
+
+	return 0;
+}
