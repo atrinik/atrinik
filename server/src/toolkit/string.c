@@ -95,7 +95,7 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
 	char *p;
 	size_t pos;
 
-	if (array_size <= 0)
+	if (!str || array_size <= 0)
 	{
 		return 0;
 	}
