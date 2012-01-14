@@ -412,3 +412,29 @@ int string_endswith(const char *str, const char *cmp)
 
 	return 0;
 }
+
+char *string_sub(const char *str, ssize_t start, ssize_t end)
+{
+	size_t n, max;
+
+	if (end < 0)
+	{
+		end = strlen(str) + end;
+	}
+	else if (start < 0)
+	{
+		end = strlen(str);
+		start = end + start;
+	}
+
+	if (!(str + start) || end - start < 0)
+	{
+		return strdup("");
+	}
+
+	str += start;
+	max = strlen(str);
+	n = MIN(max, (size_t) (end - start));
+
+	return strndup(str, n);
+}
