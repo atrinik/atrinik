@@ -392,3 +392,23 @@ int string_startswith(const char *str, const char *cmp)
 
 	return 0;
 }
+
+int string_endswith(const char *str, const char *cmp)
+{
+	ssize_t len;
+
+	if (!str || !cmp)
+	{
+		return 0;
+	}
+
+	len = strlen(str) - strlen(cmp);
+	str += MAX(0, len);
+
+	if (str && strcmp(str, cmp) == 0)
+	{
+		return 1;
+	}
+
+	return 0;
+}
