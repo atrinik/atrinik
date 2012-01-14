@@ -979,6 +979,9 @@ extern void string_newline_to_literal(char *str);
 extern const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize);
 extern int string_isnumeric(const char *str);
 extern void string_capitalize(char *str);
+extern int string_startswith(const char *str, const char *cmp);
+extern int string_endswith(const char *str, const char *cmp);
+extern char *string_sub(const char *str, ssize_t start, ssize_t end);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
