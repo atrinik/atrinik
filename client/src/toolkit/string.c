@@ -95,15 +95,14 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
 	char *p;
 	size_t pos;
 
-	if (!str || array_size <= 0)
+	for (pos = 0; pos < array_size; pos++)
 	{
-		return 0;
+		array[pos] = NULL;
 	}
 
-	if (*str == '\0')
+	if (!str || *str == '\0' || array_size <= 0)
 	{
-		array[0] = str;
-		return 1;
+		return 0;
 	}
 
 	pos = 0;
