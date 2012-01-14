@@ -336,9 +336,9 @@ const char *string_get_word(const char *str, size_t *pos, char *word, size_t wor
 }
 
 /**
- * Checks if string is a number.
- * @return 1 if the string is a number, 0 otherwise. */
-int string_isnumeric(const char *str)
+ * Checks if string is a digit.
+ * @return 1 if the string is a digit, 0 otherwise. */
+int string_isdigit(const char *str)
 {
 	if (*str == '-')
 	{
