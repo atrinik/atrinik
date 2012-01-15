@@ -713,7 +713,7 @@ int get_money_from_string(const char *text, struct _money_block *money)
 
 	while (string_get_word(text, &pos, word, sizeof(word)))
 	{
-		if (!string_isnumeric(word))
+		if (!string_isdigit(word))
 		{
 			continue;
 		}
