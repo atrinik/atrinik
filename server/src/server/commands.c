@@ -67,34 +67,34 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(tsi), 0.0, COMMAND_PERMISSION);
 
 		/* [player] */
-		commands_add(COMMAND(afk), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(apply), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(cast), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(drop), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(gsay), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(hiscore), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(left), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(motd), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(party), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(pray), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(push), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(ready_skill), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(region_map), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(rename), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(reply), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(right), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(say), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(shout), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(statistics), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(sys_tell), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(t_tell), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(take), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(tell), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(time), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(use_skill), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(version), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(whereami), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(who), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(afk), 1.0, 0);
+		commands_add(COMMAND(apply), 1.0, 0);
+		commands_add(COMMAND(cast), 0.0, 0);
+		commands_add(COMMAND(drop), 1.0, 0);
+		commands_add(COMMAND(gsay), 1.0, 0);
+		commands_add(COMMAND(hiscore), 2.0, 0);
+		commands_add(COMMAND(left), 1.0, 0);
+		commands_add(COMMAND(motd), 1.0, 0);
+		commands_add(COMMAND(party), 1.0, 0);
+		commands_add(COMMAND(pray), 1.0, 0);
+		commands_add(COMMAND(push), 1.0, 0);
+		commands_add(COMMAND(ready_skill), 1.0, 0);
+		commands_add(COMMAND(region_map), 1.0, 0);
+		commands_add(COMMAND(rename), 1.0, 0);
+		commands_add(COMMAND(reply), 1.0, 0);
+		commands_add(COMMAND(right), 1.0, 0);
+		commands_add(COMMAND(say), 1.0, 0);
+		commands_add(COMMAND(shout), 1.0, 0);
+		commands_add(COMMAND(statistics), 1.0, 0);
+		commands_add(COMMAND(sys_tell), 1.0, 0);
+		commands_add(COMMAND(t_tell), 1.0, 0);
+		commands_add(COMMAND(take), 1.0, 0);
+		commands_add(COMMAND(tell), 1.0, 0);
+		commands_add(COMMAND(time), 1.0, 0);
+		commands_add(COMMAND(use_skill), 1.0, 0);
+		commands_add(COMMAND(version), 1.0, 0);
+		commands_add(COMMAND(whereami), 1.0, 0);
+		commands_add(COMMAND(who), 1.0, 0);
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
