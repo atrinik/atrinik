@@ -453,8 +453,6 @@ static const char *const constants_colors[][2] =
 };
 /* @endcparser */
 
-/** All the custom commands. */
-static python_cmd *python_commands = NULL;
 /** The Python cache. */
 static python_cache_entry *python_cache = NULL;
 
@@ -570,6 +568,260 @@ static void py_runfile_simple(const char *path, PyObject *locals)
 
 	Py_DECREF(globals);
 	Py_XDECREF(ret);
+}
+
+/**
+ * Log a Python exception. Will also send the exception to any online
+ * DMs or those with /resetmap command permission. */
+static void PyErr_LOG(void)
+{
+	PyObject *locals;
+	PyObject *ptype, *pvalue, *ptraceback;
+
+	/* Fetch the exception data. */
+	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+	PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+
+	/* Construct locals dictionary, with the exception data. */
+	locals = PyDict_New();
+	PyDict_SetItemString(locals, "exc_type", ptype);
+	PyDict_SetItemString(locals, "exc_value", pvalue);
+
+	if (ptraceback)
+	{
+		PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
+	}
+	else
+	{
+		Py_INCREF(Py_None);
+		PyDict_SetItemString(locals, "exc_traceback", Py_None);
+	}
+
+	py_runfile_simple("/python/events/python_exception.py", locals);
+	Py_DECREF(locals);
+
+	Py_XDECREF(ptype);
+	Py_XDECREF(pvalue);
+	Py_XDECREF(ptraceback);
+}
+
+/**
+ * Outputs the compiled bytecode for a given python file, using in-memory
+ * caching of bytecode. */
+static PyCodeObject *compilePython(char *filename)
+{
+	struct stat stat_buf;
+	python_cache_entry *cache;
+
+	if (stat(filename, &stat_buf))
+	{
+		hooks->logger_print(LOG(DEBUG), "Python: The script file %s can't be stat()ed.", filename);
+		return NULL;
+	}
+
+	HASH_FIND_STR(python_cache, filename, cache);
+
+	if (!cache || cache->cached_time < stat_buf.st_mtime)
+	{
+		FILE *fp;
+		struct _node *n;
+		PyCodeObject *code = NULL;
+
+		if (cache)
+		{
+			HASH_DEL(python_cache, cache);
+			Py_XDECREF(cache->code);
+			free(cache->file);
+			free(cache);
+		}
+
+		fp = fopen(filename, "r");
+
+		if (!fp)
+		{
+			hooks->logger_print(LOG(WARNING), "Python: The script file %s can't be opened.", filename);
+			return NULL;
+		}
+
+#ifdef WIN32
+		{
+			char buf[HUGE_BUF], *pystr = NULL;
+			size_t buf_len = 0, pystr_len = 0;
+
+			while (fgets(buf, sizeof(buf), fp))
+			{
+				buf_len = strlen(buf);
+				pystr_len += buf_len;
+				pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
+				strcpy(pystr + pystr_len - buf_len, buf);
+				pystr[pystr_len] = '\0';
+			}
+
+			n = PyParser_SimpleParseString(pystr, Py_file_input);
+			free(pystr);
+		}
+#else
+		n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
+#endif
+
+		if (n)
+		{
+			code = PyNode_Compile(n, filename);
+			PyNode_Free(n);
+		}
+
+		fclose(fp);
+
+		if (PyErr_Occurred())
+		{
+			PyErr_LOG();
+			return NULL;
+		}
+
+		cache = malloc(sizeof(*cache));
+		cache->file = hooks->strdup(filename);
+		cache->code = code;
+		cache->cached_time = stat_buf.st_mtime;
+		HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
+	}
+
+	return cache->code;
+}
+
+static int do_script(PythonContext *context, const char *filename, object *event)
+{
+	PyCodeObject *pycode;
+	PyObject *dict, *ret;
+	char path[HUGE_BUF];
+	PyGILState_STATE gilstate;
+
+	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
+
+	if (event && path[0] != '/')
+	{
+		char tmp_path[HUGE_BUF];
+		object *outermost = event;
+
+		while (outermost && outermost->env)
+		{
+			outermost = outermost->env;
+		}
+
+		if (outermost && outermost->map)
+		{
+			hooks->normalize_path(outermost->map->path, filename, tmp_path);
+			strncpy(path, hooks->create_pathname(tmp_path), sizeof(path) - 1);
+		}
+	}
+
+	gilstate = PyGILState_Ensure();
+
+	pycode = compilePython(path);
+
+	if (pycode)
+	{
+		if (hooks->settings->python_reload_modules)
+		{
+			PyObject *modules = PyImport_GetModuleDict(), *key, *value;
+			Py_ssize_t pos = 0;
+			const char *m_filename;
+			char m_buf[MAX_BUF];
+
+			/* Create path name to the Python scripts directory. */
+			strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+
+			/* Go through the loaded modules. */
+			while (PyDict_Next(modules, &pos, &key, &value))
+			{
+				m_filename = PyModule_GetFilename(value);
+
+				if (!m_filename)
+				{
+					PyErr_Clear();
+					continue;
+				}
+
+				/* If this module was loaded from one of our script files,
+				* reload it. */
+				if (!strncmp(m_filename, m_buf, strlen(m_buf)))
+				{
+					PyImport_ReloadModule(value);
+
+					if (PyErr_Occurred())
+					{
+						PyErr_LOG();
+					}
+				}
+			}
+		}
+
+		pushContext(context);
+		dict = PyDict_Copy(py_globals_dict);
+		PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
+		PyDict_SetItemString(dict, "me", wrap_object(context->who));
+
+		if (context->text)
+		{
+			PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
+		}
+		else if (context->event && context->event->sub_type == EVENT_SAY)
+		{
+			PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
+		}
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
+		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
+#else
+		ret = PyEval_EvalCode(pycode, dict, NULL);
+#endif
+
+		if (PyErr_Occurred())
+		{
+			PyErr_LOG();
+		}
+
+		Py_XDECREF(ret);
+		Py_DECREF(dict);
+
+		PyGILState_Release(gilstate);
+
+		return 1;
+	}
+
+	PyGILState_Release(gilstate);
+
+	return 0;
+}
+
+/** @copydoc command_func */
+static void command_custom_python(object *op, const char *command, char *params)
+{
+	PythonContext *context;
+	char path[MAX_BUF];
+
+	context = malloc(sizeof(PythonContext));
+	context->activator = op;
+	context->who = op;
+	context->other = op;
+	context->event = NULL;
+	context->parms[0] = 0;
+	context->parms[1] = 0;
+	context->parms[2] = 0;
+	context->parms[3] = 0;
+	context->text = params;
+	context->options = NULL;
+	context->returnvalue = 0;
+
+	snprintf(path, sizeof(path), "/python/commands/%s.py", command);
+
+	if (!do_script(context, path, NULL))
+	{
+		freeContext(context);
+		return;
+	}
+
+	context = popContext();
+	freeContext(context);
 }
 
 /**
@@ -980,39 +1232,26 @@ static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>RegisterCommand(string name, string path, float speed)</h1>
+ * <h1>RegisterCommand(string name, float speed, [flags = 0])</h1>
  * Register a custom command ran using Python script.
  * @param name Name of the command. For example, "roll" in order to create /roll
  * command. Note the lack of forward slash in the name.
- * @param path Path to the Python script to be executed when the command is used.
  * @param speed How long it takes to execute the command; 1.0 is usually fine.
- * @throws ValueError if the command is already registered. */
+ * @param flags Optional flags. */
 static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
-	const char *name, *path;
+	const char *name;
 	double speed;
-	python_cmd *command;
+	uint64 flags = 0;
 
 	(void) self;
 
-	if (!PyArg_ParseTuple(args, "ssd", &name, &path, &speed))
+	if (!PyArg_ParseTuple(args, "sd|K", &name, &speed, &flags))
 	{
 		return NULL;
 	}
 
-	HASH_FIND_STR(python_commands, name, command);
-
-	if (command)
-	{
-		PyErr_SetString(PyExc_ValueError, "RegisterCommand(): Command is already registered.");
-		return NULL;
-	}
-
-	command = malloc(sizeof(python_cmd));
-	command->name = hooks->strdup(name);
-	command->script = hooks->strdup(path);
-	command->speed = speed;
-	HASH_ADD_KEYPTR(hh, python_commands, command->name, strlen(command->name), command);
+	hooks->commands_add(name, command_custom_python, speed, flags);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1524,229 +1763,6 @@ static PyMethodDef AtrinikMethods[] =
 };
 
 /**
- * Log a Python exception. Will also send the exception to any online
- * DMs or those with /resetmap command permission. */
-static void PyErr_LOG(void)
-{
-	PyObject *locals;
-	PyObject *ptype, *pvalue, *ptraceback;
-
-	/* Fetch the exception data. */
-	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-	PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
-
-	/* Construct locals dictionary, with the exception data. */
-	locals = PyDict_New();
-	PyDict_SetItemString(locals, "exc_type", ptype);
-	PyDict_SetItemString(locals, "exc_value", pvalue);
-
-	if (ptraceback)
-	{
-		PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
-	}
-	else
-	{
-		Py_INCREF(Py_None);
-		PyDict_SetItemString(locals, "exc_traceback", Py_None);
-	}
-
-	py_runfile_simple("/python/events/python_exception.py", locals);
-	Py_DECREF(locals);
-
-	Py_XDECREF(ptype);
-	Py_XDECREF(pvalue);
-	Py_XDECREF(ptraceback);
-}
-
-/**
- * Outputs the compiled bytecode for a given python file, using in-memory
- * caching of bytecode. */
-static PyCodeObject *compilePython(char *filename)
-{
-	struct stat stat_buf;
-	python_cache_entry *cache;
-
-	if (stat(filename, &stat_buf))
-	{
-		hooks->logger_print(LOG(DEBUG), "Python: The script file %s can't be stat()ed.", filename);
-		return NULL;
-	}
-
-	HASH_FIND_STR(python_cache, filename, cache);
-
-	if (!cache || cache->cached_time < stat_buf.st_mtime)
-	{
-		FILE *fp;
-		struct _node *n;
-		PyCodeObject *code = NULL;
-
-		if (cache)
-		{
-			HASH_DEL(python_cache, cache);
-			Py_XDECREF(cache->code);
-			free(cache->file);
-			free(cache);
-		}
-
-		fp = fopen(filename, "r");
-
-		if (!fp)
-		{
-			hooks->logger_print(LOG(WARNING), "Python: The script file %s can't be opened.", filename);
-			return NULL;
-		}
-
-#ifdef WIN32
-		{
-			char buf[HUGE_BUF], *pystr = NULL;
-			size_t buf_len = 0, pystr_len = 0;
-
-			while (fgets(buf, sizeof(buf), fp))
-			{
-				buf_len = strlen(buf);
-				pystr_len += buf_len;
-				pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
-				strcpy(pystr + pystr_len - buf_len, buf);
-				pystr[pystr_len] = '\0';
-			}
-
-			n = PyParser_SimpleParseString(pystr, Py_file_input);
-			free(pystr);
-		}
-#else
-		n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
-#endif
-
-		if (n)
-		{
-			code = PyNode_Compile(n, filename);
-			PyNode_Free(n);
-		}
-
-		fclose(fp);
-
-		if (PyErr_Occurred())
-		{
-			PyErr_LOG();
-			return NULL;
-		}
-
-		cache = malloc(sizeof(*cache));
-		cache->file = hooks->strdup(filename);
-		cache->code = code;
-		cache->cached_time = stat_buf.st_mtime;
-		HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
-	}
-
-	return cache->code;
-}
-
-static int do_script(PythonContext *context, const char *filename, object *event)
-{
-	PyCodeObject *pycode;
-	PyObject *dict, *ret;
-	char path[HUGE_BUF];
-	PyGILState_STATE gilstate;
-
-	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
-
-	if (event && path[0] != '/')
-	{
-		char tmp_path[HUGE_BUF];
-		object *outermost = event;
-
-		while (outermost && outermost->env)
-		{
-			outermost = outermost->env;
-		}
-
-		if (outermost && outermost->map)
-		{
-			hooks->normalize_path(outermost->map->path, filename, tmp_path);
-			strncpy(path, hooks->create_pathname(tmp_path), sizeof(path) - 1);
-		}
-	}
-
-	gilstate = PyGILState_Ensure();
-
-	pycode = compilePython(path);
-
-	if (pycode)
-	{
-		if (hooks->settings->python_reload_modules)
-		{
-			PyObject *modules = PyImport_GetModuleDict(), *key, *value;
-			Py_ssize_t pos = 0;
-			const char *m_filename;
-			char m_buf[MAX_BUF];
-
-			/* Create path name to the Python scripts directory. */
-			strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
-
-			/* Go through the loaded modules. */
-			while (PyDict_Next(modules, &pos, &key, &value))
-			{
-				m_filename = PyModule_GetFilename(value);
-
-				if (!m_filename)
-				{
-					PyErr_Clear();
-					continue;
-				}
-
-				/* If this module was loaded from one of our script files,
-				* reload it. */
-				if (!strncmp(m_filename, m_buf, strlen(m_buf)))
-				{
-					PyImport_ReloadModule(value);
-
-					if (PyErr_Occurred())
-					{
-						PyErr_LOG();
-					}
-				}
-			}
-		}
-
-		pushContext(context);
-		dict = PyDict_Copy(py_globals_dict);
-		PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
-		PyDict_SetItemString(dict, "me", wrap_object(context->who));
-
-		if (context->text)
-		{
-			PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
-		}
-		else if (context->event && context->event->sub_type == EVENT_SAY)
-		{
-			PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
-		}
-
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
-		ret = PyEval_EvalCode((PyObject *) pycode, dict, NULL);
-#else
-		ret = PyEval_EvalCode(pycode, dict, NULL);
-#endif
-
-		if (PyErr_Occurred())
-		{
-			PyErr_LOG();
-		}
-
-		Py_XDECREF(ret);
-		Py_DECREF(dict);
-
-		PyGILState_Release(gilstate);
-
-		return 1;
-	}
-
-	PyGILState_Release(gilstate);
-
-	return 0;
-}
-
-/**
  * Handles normal events.
  * @param args List of arguments for context.
  * @return 0 on failure, script's return value otherwise. */
@@ -1969,30 +1985,6 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	va_start(args, type);
 	propname = va_arg(args, const char *);
 
-#if 0
-	if (!strcmp(propname, "command?"))
-	{
-		const char *cmdname = va_arg(args, const char *);
-		CommArray_s *rtn_cmd = va_arg(args, CommArray_s *);
-		python_cmd *command;
-
-		va_end(args);
-
-		HASH_FIND_STR(python_commands, cmdname, command);
-
-		if (command)
-		{
-			rtn_cmd->name = command->name;
-			rtn_cmd->time = command->speed;
-			rtn_cmd->func = cmd_customPython;
-			rtn_cmd->flags = 0;
-			next_python_command = command;
-			return rtn_cmd;
-		}
-
-		return NULL;
-	}
-#endif
 	if (!strcmp(propname, "Identification"))
 	{
 		buf = va_arg(args, char *);

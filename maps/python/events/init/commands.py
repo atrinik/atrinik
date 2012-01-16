@@ -4,11 +4,11 @@
 
 from Atrinik import *
 
-RegisterCommand("guild", "/python/commands/guild.py", 1)
-RegisterCommand("guildmembers", "/python/commands/guildmembers.py", 1)
-RegisterCommand("roll", "/python/commands/roll.py", 1)
-RegisterCommand("stime", "/python/commands/stime.py", 1)
-RegisterCommand("console", "/python/commands/console.py", 1)
-RegisterCommand("create", "/python/commands/create.py", 1)
-#RegisterCommand("pirate_say", "/python/commands/pirate_say.py", 1)
-#RegisterCommand("pirate_shout", "/python/commands/pirate_shout.py", 1)
+RegisterCommand("guild", 1)
+RegisterCommand("guildmembers",1)
+RegisterCommand("roll", 1)
+RegisterCommand("stime", 1)
+RegisterCommand("console", 1)
+RegisterCommand("create", 1)
+#RegisterCommand("pirate_say", 1)
+#RegisterCommand("pirate_shout", 1)

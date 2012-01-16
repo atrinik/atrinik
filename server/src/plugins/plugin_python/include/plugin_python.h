@@ -402,22 +402,6 @@ typedef struct
 	unsigned PY_LONG_LONG iter;
 } Atrinik_AttrList;
 
-/** This structure is used to define one Python-implemented command. */
-typedef struct python_cmd
-{
-	/** The name of the command, as known in the game. */
-	char *name;
-
-	/** The name of the script file to bind. */
-	char *script;
-
-	/** The speed of the command execution. */
-	double speed;
-
-	/** Hash handle. */
-	UT_hash_handle hh;
-} python_cmd;
-
 /** One cache entry. */
 typedef struct python_cache_entry
 {
