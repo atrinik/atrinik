@@ -170,6 +170,4 @@ def main():
 	thread = PyConsoleThread(activator)
 	thread.start()
 
-if activator.f_wiz or "console" in activator.Controller().cmd_permissions:
-	activator.speed_left += 1.0
-	main()
+main()

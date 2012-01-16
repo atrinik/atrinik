@@ -21,7 +21,7 @@ exception = Markup.markup_escape(exception)
 player = Atrinik.GetFirst("player")
 
 while player:
-	if player.ob.f_wiz or "dm" in player.cmd_permissions or "resetmap" in player.cmd_permissions:
+	if "[DEV]" in player.cmd_permissions or "[OP]" in player.cmd_permissions:
 		player.ob.Write(exception, Atrinik.COLOR_RED)
 
 	player = player.next

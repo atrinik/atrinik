@@ -13,7 +13,7 @@ print_msg = Markup.markup_escape(print_msg)
 player = Atrinik.GetFirst("player")
 
 while player:
-	if player.ob.f_wiz or "dm" in player.cmd_permissions or "resetmap" in player.cmd_permissions:
+	if "[DEV]" in player.cmd_permissions or "[OP]" in player.cmd_permissions:
 		player.ob.Write(print_msg, Atrinik.COLOR_ORANGE)
 
 	player = player.next

@@ -791,8 +791,8 @@ def main():
 			inf.add_msg(create_list(l, "withdraw", sort = Filter.SORT_ALPHA))
 			inf.add_link("I'd like to withdraw all my items.", dest = "withdraw all")
 
-	# Allow setting up the shop if the player is a DM.
-	elif activator.f_wiz and msg == "setup":
+	# Allow setting up the shop if the player is an operator.
+	elif "[OP]" in player.cmd_permissions and msg == "setup":
 		import json
 		temp = []
 		sign = None

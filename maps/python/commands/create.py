@@ -60,6 +60,4 @@ def main():
 	else:
 		obj.InsertInto(activator)
 
-if activator.f_wiz or "create" in activator.Controller().cmd_permissions:
-	activator.speed_left += 1.0
-	main()
+main()

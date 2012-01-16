@@ -14,7 +14,7 @@ def main():
 		inf.add_msg("Do you want to learn about the storage limits?")
 		inf.add_link("Tell me more...", dest = "tellmore")
 
-		if guild.member_is_admin(activator.name) or activator.f_wiz:
+		if guild.member_is_admin(activator.name) or "[OP]" in player.cmd_permissions:
 			inf.add_msg("As a guild administrator, you can drop any item into one of the non-pickable containers with custom name set to <green>rank access: Junior Member</green>, to only allow members of the Junior Member rank to open it.")
 			inf.add_msg("Use <green>rank access: None</green> to reset it back so anyone can access it.")
 

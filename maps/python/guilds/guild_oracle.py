@@ -16,10 +16,10 @@ def main():
 		inf.add_link("I'd like to manage the guild.", dest = "manage_guild")
 		inf.add_link("I'd like to manage the ranks.", dest = "manage_ranks")
 
-		if activator.f_wiz:
-			inf.add_msg("Since you're the Wizard, you can also add members directly or change the guild's founder.")
-			inf.add_link("I'd like to add a member.", dest = "wiz_addmember1")
-			inf.add_link("I'd like to change the guild's founder.", dest = "wiz_founder1")
+		if "[OP]" in player.cmd_permissions:
+			inf.add_msg("Since you're the Operator, you can also add members directly or change the guild's founder.")
+			inf.add_link("I'd like to add a member.", dest = "op_addmember1")
+			inf.add_link("I'd like to change the guild's founder.", dest = "op_founder1")
 
 	elif msg == "manage_members":
 		inf.add_msg("I can show you the guild's list of applications, or remove a member from the guild.\nOr would you rather give admin status to a member, or perhaps remove admin status from a fellow administrator?")
@@ -44,9 +44,9 @@ def main():
 
 		if not guild.member_exists(name):
 			inf.add_msg("No such member {}.".format(name))
-		elif not activator.f_wiz and name == activator.name:
+		elif not "[OP]" in player.cmd_permissions and name == activator.name:
 			inf.add_msg("You cannot remove yourself.")
-		elif not activator.f_wiz and guild.is_founder(name):
+		elif not "[OP]" in player.cmd_permissions and guild.is_founder(name):
 			inf.add_msg("You cannot remove the guild founder.")
 		elif guild.member_remove(name):
 			inf.add_msg("Successfully removed {} from the guild.".format(name))
@@ -92,9 +92,9 @@ def main():
 			inf.add_msg("No such member {}.".format(name))
 		elif not guild.member_is_admin(name):
 			inf.add_msg("This member is not an administrator.")
-		elif not activator.f_wiz and name == activator.name:
+		elif not "[OP]" in player.cmd_permissions and name == activator.name:
 			inf.add_msg("You cannot take away administrator rights from yourself.")
-		elif not activator.f_wiz and guild.is_founder(name):
+		elif not "[OP]" in player.cmd_permissions and guild.is_founder(name):
 			inf.add_msg("You cannot take administrator rights from the guild founder.")
 		elif guild.member_admin_remove(name):
 			inf.add_msg("Successfully removed administrator rights from {}.".format(name))
@@ -236,12 +236,12 @@ def main():
 		else:
 			inf.add_msg("Rank '{}' could not be removed.".format(rank))
 
-	elif msg.startswith("wiz_") and activator.f_wiz:
-		if msg == "wiz_addmember1":
+	elif msg.startswith("op_") and "[OP]" in player.cmd_permissions:
+		if msg == "op_addmember1":
 			inf.add_msg("Enter the player's name that you want to add to the guild.")
-			inf.set_text_input(prepend = "wiz_addmember2 ")
+			inf.set_text_input(prepend = "op_addmember2 ")
 
-		elif msg.startswith("wiz_addmember2 "):
+		elif msg.startswith("op_addmember2 "):
 			name = msg[15:].capitalize()
 
 			if not PlayerExists(name):
@@ -252,11 +252,11 @@ def main():
 				guild.member_add(name)
 				inf.add_msg("Successfully added {} to the guild.".format(name))
 
-		elif msg == "wiz_founder1":
+		elif msg == "op_founder1":
 			inf.add_msg("Enter the player's name that you want to make the founder of this guild.")
-			inf.set_text_input(prepend = "wiz_founder2 ")
+			inf.set_text_input(prepend = "op_founder2 ")
 
-		elif msg.startswith("wiz_founder2 "):
+		elif msg.startswith("op_founder2 "):
 			name = msg[13:].capitalize()
 
 			if not PlayerExists(name):

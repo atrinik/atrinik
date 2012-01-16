@@ -16,9 +16,9 @@ def is_in_player(obj):
 	return obj.type == Type.PLAYER
 
 def main():
-	# Don't allow skills to be used, except by administrators/DMs.
+	# Don't allow skills to be used, except by administrators/OPs.
 	if event_num == MEVENT_SKILL_USED:
-		if guild.member_is_admin(activator.name) or activator.f_wiz:
+		if guild.member_is_admin(activator.name) or "[OP]" in player.cmd_permissions:
 			return
 
 		activator.Write("You can't use skills here.", COLOR_RED)
@@ -62,7 +62,7 @@ def main():
 		if is_in_player(other):
 			return
 
-		if not activator.f_wiz and not guild.member_is_admin(activator.name) and not guild.member_can_pick(activator.name, other):
+		if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name) and not guild.member_can_pick(activator.name, other):
 			activator.Write("Your rank limits you from picking up the {}. Please see the Guild Storage Manager NPC for more details.".format(other.GetName()), COLOR_BLUE)
 			SetReturnValue(1)
 			return
@@ -85,7 +85,7 @@ def main():
 			activator.Write("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
 			SetReturnValue(OBJECT_METHOD_OK)
 	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
-		if not activator.f_wiz and not guild.member_is_admin(activator.name):
+		if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name):
 			activator.Write("You cannot use that command here.", COLOR_RED)
 			SetReturnValue(1)
 			return
