@@ -36,7 +36,7 @@ static int apply_func(object *applier, object *op, int aflags)
 {
 	(void) aflags;
 
-	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ))
+	if (QUERY_FLAG(applier, FLAG_BLIND))
 	{
 		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
 		return OBJECT_METHOD_OK;

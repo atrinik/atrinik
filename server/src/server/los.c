@@ -331,7 +331,7 @@ void update_los(object *op)
 
 	clear_los(op);
 
-	if (QUERY_FLAG(op, FLAG_WIZ))
+	if (CONTR(op)->tls)
 	{
 		return;
 	}

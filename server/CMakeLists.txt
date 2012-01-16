@@ -176,14 +176,56 @@ endforeach (name)
 
 # Add sources.
 set(SOURCES
-	src/commands/chat.c
-	src/commands/commands.c
-	src/commands/misc.c
-	src/commands/move.c
-	src/commands/new.c
-	src/commands/object.c
-	src/commands/range.c
-	src/commands/wiz.c
+	src/commands/permission/arrest.c
+	src/commands/permission/ban.c
+	src/commands/permission/cmd_permission.c
+	src/commands/permission/follow.c
+	src/commands/permission/freeze.c
+	src/commands/permission/goto.c
+	src/commands/permission/kick.c
+	src/commands/permission/mod_shout.c
+	src/commands/permission/no_shout.c
+	src/commands/permission/opsay.c
+	src/commands/permission/resetmap.c
+	src/commands/permission/server_shout.c
+	src/commands/permission/setpassword.c
+	src/commands/permission/settime.c
+	src/commands/permission/shutdown.c
+	src/commands/permission/summon.c
+	src/commands/permission/tcl.c
+	src/commands/permission/teleport.c
+	src/commands/permission/tgm.c
+	src/commands/permission/tli.c
+	src/commands/permission/tls.c
+	src/commands/permission/tsi.c
+	src/commands/player/afk.c
+	src/commands/player/apply.c
+	src/commands/player/cast.c
+	src/commands/player/drop.c
+	src/commands/player/gsay.c
+	src/commands/player/hiscore.c
+	src/commands/player/left.c
+	src/commands/player/motd.c
+	src/commands/player/party.c
+	src/commands/player/pray.c
+	src/commands/player/push.c
+	src/commands/player/ready_skill.c
+	src/commands/player/region_map.c
+	src/commands/player/rename.c
+	src/commands/player/reply.c
+	src/commands/player/right.c
+	src/commands/player/say.c
+	src/commands/player/shout.c
+	src/commands/player/statistics.c
+	src/commands/player/sys_tell.c
+	src/commands/player/t_tell.c
+	src/commands/player/take.c
+	src/commands/player/tell.c
+	src/commands/player/time.c
+	src/commands/player/use_skill.c
+	src/commands/player/version.c
+	src/commands/player/whereami.c
+	src/commands/player/who.c
 	src/random_maps/decor.c
 	src/random_maps/door.c
 	src/random_maps/exit.c
@@ -205,6 +247,7 @@ set(SOURCES
 	src/server/attack.c
 	src/server/ban.c
 	src/server/cache.c
+	src/server/commands.c
 	src/server/connection.c
 	src/server/exp.c
 	src/server/gods.c

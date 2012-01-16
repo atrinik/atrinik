@@ -67,7 +67,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		op->last_eat++;
 	}
 
-	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ) && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
+	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_SYS_OBJECT))
 	{
 		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
 		return OBJECT_METHOD_OK;

@@ -600,36 +600,22 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			if (QUERY_FLAG(op, FLAG_WIZ))
-			{
-				draw_info(COLOR_GRAY, op, "Your mortal self is blinded.");
-			}
-			else
-			{
-				draw_info(COLOR_GRAY, op, "You are blinded.");
-				SET_FLAG(op, FLAG_BLIND);
+			draw_info(COLOR_GRAY, op, "You are blinded.");
+			SET_FLAG(op, FLAG_BLIND);
 
-				if (op->type == PLAYER)
-				{
-					CONTR(op)->update_los = 1;
-				}
+			if (op->type == PLAYER)
+			{
+				CONTR(op)->update_los = 1;
 			}
 		}
 		else
 		{
-			if (QUERY_FLAG(op, FLAG_WIZ))
-			{
-				draw_info(COLOR_WHITE, op, "Your mortal self can now see again.");
-			}
-			else
-			{
-				draw_info(COLOR_WHITE, op, "Your vision returns.");
-				CLEAR_FLAG(op, FLAG_BLIND);
+			draw_info(COLOR_WHITE, op, "Your vision returns.");
+			CLEAR_FLAG(op, FLAG_BLIND);
 
-				if (op->type == PLAYER)
-				{
-					CONTR(op)->update_los = 1;
-				}
+			if (op->type == PLAYER)
+			{
+				CONTR(op)->update_los = 1;
 			}
 		}
 	}
@@ -654,34 +640,20 @@ int change_abil(object *op, object *tmp)
 
 		if (flag > 0)
 		{
-			if (QUERY_FLAG(op, FLAG_WIZ))
-			{
-				draw_info(COLOR_WHITE, op, "Your vision becomes a little clearer.");
-			}
-			else
-			{
-				draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
+			draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
 
-				if (op->type == PLAYER)
-				{
-					CONTR(op)->update_los = 1;
-				}
+			if (op->type == PLAYER)
+			{
+				CONTR(op)->update_los = 1;
 			}
 		}
 		else
 		{
-			if (QUERY_FLAG(op, FLAG_WIZ))
-			{
-				draw_info(COLOR_WHITE, op, "Your vision becomes a bit out of focus.");
-			}
-			else
-			{
-				draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
+			draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
 
-				if (op->type == PLAYER)
-				{
-					CONTR(op)->update_los = 1;
-				}
+			if (op->type == PLAYER)
+			{
+				CONTR(op)->update_los = 1;
 			}
 		}
 	}
@@ -1534,11 +1506,7 @@ fix_player_jump_resi:
 			if (QUERY_FLAG(tmp, FLAG_FLYING))
 			{
 				SET_MULTI_FLAG(op, FLAG_FLYING);
-
-				if (!QUERY_FLAG(op, FLAG_WIZ))
-				{
-					max = 1;
-				}
+				max = 1;
 			}
 
 			/* Slow penalty */

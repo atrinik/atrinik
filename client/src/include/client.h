@@ -264,9 +264,6 @@ typedef struct Player_Struct
 	 * password first. */
 	char partyjoin[MAX_BUF];
 
-	/** Whom to reply to. */
-	char player_reply[64];
-
 	/** Information about the object/spell being dragged. */
 	union
 	{
@@ -282,6 +279,10 @@ typedef struct Player_Struct
 
 	/** Version of the server's socket. */
 	int server_socket_version;
+
+	size_t target_object_index;
+
+	uint8 target_is_friend;
 } Client_Player;
 
 /** Check if the keyword represents a true value. */

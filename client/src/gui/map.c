@@ -176,6 +176,7 @@ void display_mapscroll(int dx, int dy)
 
 	memcpy((char *) &the_map, (char *) &newmap, sizeof(struct Map));
 	sound_ambient_mapcroll(dx, dy);
+	cpl.target_object_index = 0;
 }
 
 /**
@@ -394,7 +395,7 @@ void adjust_tile_stretch(void)
  * @param align X align.
  * @param rotate Rotation in degrees.
  * @param infravision Whether to show the object in red. */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision)
+void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend)
 {
 	the_map.cells[x][y].faces[layer] = face;
 	the_map.cells[x][y].flags[layer] = obj_flags;
@@ -416,6 +417,8 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
 	the_map.cells[x][y].alpha[layer] = alpha;
 	the_map.cells[x][y].rotate[layer] = rotate;
 	the_map.cells[x][y].infravision[layer] = infravision;
+	the_map.cells[x][y].target_object_count[layer] = target_object_count;
+	the_map.cells[x][y].target_is_friend[layer] = target_is_friend;
 }
 
 /**
@@ -441,6 +444,8 @@ void map_clear_cell(int x, int y)
 		the_map.cells[x][y].align[layer] = 0;
 		the_map.cells[x][y].rotate[layer] = 0;
 		the_map.cells[x][y].infravision[layer] = 0;
+		the_map.cells[x][y].target_object_count[layer] = 0;
+		the_map.cells[x][y].target_is_friend[layer] = 0;
 	}
 }
 
@@ -907,13 +912,138 @@ static void send_move_path(int tx, int ty)
 /**
  * Send a command to target an NPC.
  * @param tx NPC's X position.
- * @param ty NPC's Y position. */
-static void send_target(int tx, int ty)
+ * @param ty NPC's Y position.
+ * @param count NPC's UID. */
+static void send_target(int x, int y, uint32 count)
 {
-	char buf[MAX_BUF];
+	packet_struct *packet;
 
-	snprintf(buf, sizeof(buf), "/target !%d %d", tx, ty);
-	send_command(buf);
+	packet = packet_new(SERVER_CMD_TARGET, 16, 0);
+
+	if (x == -1 && y == -1)
+	{
+		packet_append_uint8(packet, CMD_TARGET_CLEAR);
+	}
+	else
+	{
+		packet_append_uint8(packet, CMD_TARGET_MAPXY);
+		packet_append_uint8(packet, x);
+		packet_append_uint8(packet, y);
+		packet_append_uint32(packet, count);
+	}
+
+	socket_send_packet(packet);
+}
+
+void send_combat(void)
+{
+	packet_struct *packet;
+
+	packet = packet_new(SERVER_CMD_TARGET, 4, 0);
+	packet_append_uint8(packet, CMD_TARGET_TCOMBAT);
+	socket_send_packet(packet);
+}
+
+static int map_target_cmp(const void *a, const void *b)
+{
+	int x1, y1, x2, y2;
+	unsigned long dist1, dist2;
+
+	x1 = ((map_target_struct *) a)->x - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2);
+	y1 = ((map_target_struct *) a)->y - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2);
+
+	x2 = ((map_target_struct *) b)->x - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2);
+	y2 = ((map_target_struct *) b)->y - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2);
+
+	dist1 = isqrt(x1 * x1 + y1 * y1);
+	dist2 = isqrt(x2 * x2 + y2 * y2);
+
+	if (dist1 < dist2)
+	{
+		return -1;
+	}
+	else if (dist1 > dist2)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void map_target_handle(uint8 is_friend)
+{
+	int x, y, layer;
+	UT_array *targets;
+	UT_icd icd = {sizeof(map_target_struct), NULL, NULL, NULL};
+	map_target_struct *p;
+	uint32 curr_target;
+
+	if (cpl.target_is_friend != is_friend)
+	{
+		cpl.target_object_index = 0;
+	}
+
+	utarray_new(targets, &icd);
+	curr_target = 0;
+
+	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
+	{
+		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
+		{
+			for (layer = 0; layer < NUM_REAL_LAYERS; layer++)
+			{
+				if (the_map.cells[x][y].target_object_count[layer] && the_map.cells[x][y].target_is_friend[layer] == is_friend)
+				{
+					map_target_struct target;
+
+					target.count = the_map.cells[x][y].target_object_count[layer];
+					target.x = x;
+					target.y = y;
+					utarray_push_back(targets, &target);
+
+					if (the_map.cells[x][y].probe[layer])
+					{
+						curr_target = target.count;
+					}
+				}
+			}
+		}
+	}
+
+	utarray_sort(targets, map_target_cmp);
+
+	if (cpl.target_object_index >= utarray_len(targets))
+	{
+		cpl.target_object_index = 0;
+	}
+
+	if (cpl.target_object_index == 0)
+	{
+		p = (map_target_struct *) utarray_front(targets);
+
+		if (p && p->count == curr_target)
+		{
+			cpl.target_object_index++;
+		}
+	}
+
+	p = (map_target_struct *) utarray_eltptr(targets, cpl.target_object_index);
+
+	if (p)
+	{
+		send_target(p->x, p->y, p->count);
+		cpl.target_object_index++;
+	}
+	else if (cpl.target_is_friend != is_friend)
+	{
+		send_target(-1, -1, 0);
+	}
+
+	cpl.target_is_friend = is_friend;
+
+	utarray_free(targets);
 }
 
 /**
@@ -938,7 +1068,7 @@ void widget_map_mevent(widgetdata *widget, SDL_Event *event)
 		 * otherwise the widget menu will be created. */
 		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
 		{
-			send_target(tx, ty);
+			send_target(tx, ty, 0);
 		}
 
 		right_click_ticks = -1;
@@ -1001,7 +1131,7 @@ static void menu_map_talk_to(widgetdata *widget, int x, int y)
 
 	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
 	{
-		send_target(tx, ty);
+		send_target(tx, ty, 0);
 		keybind_process_command("?HELLO");
 	}
 }

@@ -353,7 +353,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 					return 0;
 				}
 
-				if (!(QUERY_FLAG(op, FLAG_WIZ)))
+				if (op->type != PLAYER || !CONTR(op)->tgm)
 				{
 					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 					{
@@ -383,7 +383,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 		/* If it is an ability, assume that the designer of the archetype
 		 * knows what they are doing. */
-		if (item == CAST_NORMAL && !ability && SK_level(caster) < s->level && !QUERY_FLAG(op, FLAG_WIZ))
+		if (item == CAST_NORMAL && !ability && SK_level(caster) < s->level && (op->type != PLAYER || !CONTR(op)->tgm))
 		{
 			draw_info(COLOR_WHITE, op, "You lack enough skill to cast that spell.");
 			return 0;

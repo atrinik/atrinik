@@ -672,7 +672,7 @@ void enter_exit(object *op, object *exit_ob)
 				}
 
 				CONTR(op)->bed_x = EXIT_X(exit_ob), CONTR(op)->bed_y = EXIT_Y(exit_ob);
-				save_player(op, 1);
+				save_player(op);
 			}
 
 			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
@@ -851,7 +851,7 @@ static void process_players1(void)
 		 * the player is logging in. */
 		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
 		{
-			save_player(pl->ob, 1);
+			save_player(pl->ob);
 			pl->last_save_tick = pticks;
 			hiscore_check(pl->ob, 1);
 		}
@@ -1091,7 +1091,7 @@ void clean_tmp_files(void)
  * Shut down the server, saving and freeing all data. */
 void server_shutdown(void)
 {
-	command_kick(NULL, NULL);
+	player_disconnect_all();
 	clean_tmp_files();
 	exit(0);
 }
@@ -1290,33 +1290,46 @@ static void do_specials(void)
 	}
 }
 
-/**
- * Iterate the main loop. */
-static void iterate_main_loop(void)
+static time_t shutdown_time;
+static uint8 shutdown_active = 0;
+
+void shutdown_timer_start(time_t count)
 {
-	console_command_handle();
+	shutdown_time = time(NULL) + count;
+	shutdown_active = 1;
+}
 
-	/* Check and run a shutdown count (with messages and shutdown) */
-	shutdown_agent(-1, NULL);
+void shutdown_timer_stop(void)
+{
+	shutdown_active = 0;
+}
 
-	doeric_server();
+static int shutdown_timer_check(void)
+{
+	time_t now;
 
-	/* Global round ticker. */
-	global_round_tag++;
+	if (!shutdown_active)
+	{
+		return 0;
+	}
 
-	/* "do" something with objects with speed */
-	process_events(NULL);
+	now = time(NULL);
 
-	/* Removes unused maps after a certain timeout */
-	check_active_maps();
+	if (now >= shutdown_time)
+	{
+		return 1;
+	}
 
-	/* Routines called from time to time. */
-	do_specials();
+	if (now >= shutdown_time - 1)
+	{
+		draw_info_flags(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server is shutting down now.");
+	}
+	else if (!((shutdown_time - now) % 60))
+	{
+		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %"FMT64U":%"FMT64U".", (uint64) ((shutdown_time - now) / 60), (uint64) ((shutdown_time - now) % 60));
+	}
 
-	doeric_server_write();
-
-	/* Sleep proper amount of time before next tick */
-	sleep_delta();
+	return 0;
 }
 
 #ifdef HAVE_WORLD_MAKER
@@ -1378,6 +1391,34 @@ int main(int argc, char **argv)
 
 	for (; ;)
 	{
-		iterate_main_loop();
+		if (shutdown_timer_check())
+		{
+			break;
+		}
+
+		console_command_handle();
+
+		doeric_server();
+
+		/* Global round ticker. */
+		global_round_tag++;
+
+		/* "do" something with objects with speed */
+		process_events(NULL);
+
+		/* Removes unused maps after a certain timeout */
+		check_active_maps();
+
+		/* Routines called from time to time. */
+		do_specials();
+
+		doeric_server_write();
+
+		/* Sleep proper amount of time before next tick */
+		sleep_delta();
 	}
+
+	server_shutdown();
+
+	return 0;
 }

@@ -68,40 +68,6 @@ void system_end(void)
 }
 
 /**
- * Get a single word from a string, free from left and right whitespace.
- * @param str The string pointer
- * @param pos The position pointer
- * @return The word, or NULL if there is no word left */
-char *get_word_from_string(char *str, int *pos)
-{
-	static char buf[HUGE_BUF];
-	int i = 0;
-
-	buf[0] = '\0';
-
-	while (*(str + (*pos)) != '\0' && (!isalnum(*(str + (*pos))) && !isalpha(*(str + (*pos)))))
-	{
-		(*pos)++;
-	}
-
-	/* Nothing left */
-	if (*(str + (*pos)) == '\0')
-	{
-		return NULL;
-	}
-
-	/* Copy until end of string or whitespace */
-	while (*(str + (*pos)) != '\0' && (isalnum(*(str + (*pos))) || isalpha(*(str + (*pos)))))
-	{
-		buf[i++] = *(str + (*pos)++);
-	}
-
-	buf[i] = '\0';
-
-	return buf;
-}
-
-/**
  * Recursively creates directories from path.
  *
  * Used by file_path().

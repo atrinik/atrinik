@@ -138,31 +138,6 @@ int client_command_check(const char *cmd)
 		ignore_command(cmd + 7);
 		return 1;
 	}
-	else if (!strncmp(cmd, "/reply", 6))
-	{
-		cmd = strchr(cmd, ' ');
-
-		if (!cmd || *++cmd == '\0')
-		{
-			draw_info(COLOR_RED, "Usage: /reply <message>");
-		}
-		else
-		{
-			if (!cpl.player_reply[0])
-			{
-				draw_info(COLOR_RED, "There is no one you can /reply.");
-			}
-			else
-			{
-				char buf[2048];
-
-				snprintf(buf, sizeof(buf), "/tell %s %s", cpl.player_reply, cmd);
-				send_command(buf);
-			}
-		}
-
-		return 1;
-	}
 	else if (!strncmp(cmd, "/resetwidgets", 13))
 	{
 		reset_widget(NULL);

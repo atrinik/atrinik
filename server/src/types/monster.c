@@ -1521,49 +1521,6 @@ void communicate(object *op, char *txt)
 		return;
 	}
 
-	/* Makes it possible to do something like this in Python:
-	 * monster.Communicate("/dance") */
-	if (*txt == '/' && op->type != PLAYER)
-	{
-		CommArray_s *csp;
-		char *cp;
-
-		/* Sanity check: all commands must begin with a slash, and there must be
-		 * something else after the slash. */
-		if (txt[0] != '/' || !txt[1])
-		{
-			logger_print(LOG(BUG), "%s attempted an illegal command '%s'.", op->name, txt);
-			return;
-		}
-
-		/* Jump over the slash. */
-		txt++;
-
-		/* Remove the command from the parameters. */
-		cp = strchr(txt, ' ');
-
-		if (cp)
-		{
-			*(cp++) = '\0';
-			string_whitespace_trim(cp);
-
-			if (*cp == '\0')
-			{
-				cp = NULL;
-			}
-		}
-
-		csp = find_command_element(txt, CommunicationCommands, CommunicationCommandSize);
-
-		if (csp)
-		{
-			csp->func(op, cp);
-			return;
-		}
-
-		return;
-	}
-
 	snprintf(buf, sizeof(buf), "%s says: %s", query_name(op, NULL), txt);
 
 	if (op->type == PLAYER)

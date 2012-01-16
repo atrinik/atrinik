@@ -610,20 +610,6 @@ lex_error = 0;
 ^can_reflect_spell{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
 ^no_magic{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL);
 ^no_cleric{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_CLERIC, IVAL);
-^wiz{S}             {
-						if (IVAL)
-						{
-							SET_FLAG(op, FLAG_WIZ);
-							SET_FLAG(op, FLAG_WAS_WIZ);
-							SET_FLAG(op, FLAG_WIZPASS);
-						}
-						else
-						{
-							CLEAR_FLAG(op, FLAG_WIZ);
-							CLEAR_FLAG(op, FLAG_WIZPASS);
-						}
-                    }
-^was_wiz{S}         SET_OR_CLEAR_FLAG(op, FLAG_WAS_WIZ, IVAL);
 ^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
 ^tear_down{S}       {}
 ^luck{S}            {}

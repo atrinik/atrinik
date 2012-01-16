@@ -79,7 +79,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		return OBJECT_METHOD_OK;
 	}
 
-	if (QUERY_FLAG(applier, FLAG_BLIND) && !QUERY_FLAG(applier, FLAG_WIZ))
+	if (QUERY_FLAG(applier, FLAG_BLIND))
 	{
 		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
 		return OBJECT_METHOD_OK;
@@ -100,7 +100,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	lev_diff = op->level - (SK_level(applier) + BOOK_LEVEL_DIFF + book_level_mod[applier->stats.Int]);
 
-	if (!QUERY_FLAG(applier, FLAG_WIZ) && lev_diff > 0)
+	if (lev_diff > 0)
 	{
 		if (lev_diff < 2)
 		{

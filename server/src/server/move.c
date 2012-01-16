@@ -130,7 +130,7 @@ int move_ob(object *op, int dir, object *originator)
 	}
 
 	/* Single arch */
-	if (!QUERY_FLAG(op, FLAG_WIZPASS))
+	if (op->type != PLAYER || !CONTR(op)->tcl)
 	{
 		/* Is the spot blocked from something? */
 		if ((flags = blocked(op, m, xt, yt, op->terrain_flag)))

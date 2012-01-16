@@ -455,12 +455,8 @@ static const char *const constants_colors[][2] =
 
 /** All the custom commands. */
 static python_cmd *python_commands = NULL;
-/** Next command that needs to be run. */
-static python_cmd *next_python_command = NULL;
 /** The Python cache. */
 static python_cache_entry *python_cache = NULL;
-
-static int cmd_customPython(object *op, char *params);
 
 /**
  * Initialize the context stack. */
@@ -1973,6 +1969,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 	va_start(args, type);
 	propname = va_arg(args, const char *);
 
+#if 0
 	if (!strcmp(propname, "command?"))
 	{
 		const char *cmdname = va_arg(args, const char *);
@@ -1995,7 +1992,8 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 
 		return NULL;
 	}
-	else if (!strcmp(propname, "Identification"))
+#endif
+	if (!strcmp(propname, "Identification"))
 	{
 		buf = va_arg(args, char *);
 		size = va_arg(args, int);
@@ -2014,41 +2012,6 @@ MODULEAPI void *getPluginProperty(int *type, ...)
 
 	va_end(args);
 	return NULL;
-}
-
-/**
- * Run custom command using Python script.
- * @param op Object running the command.
- * @param params Command parameters.
- * @return 0 on failure, return value of the script otherwise. */
-static int cmd_customPython(object *op, char *params)
-{
-	PythonContext *context = malloc(sizeof(PythonContext));
-	int rv;
-
-	context->activator = op;
-	context->who = op;
-	context->other = op;
-	context->event = NULL;
-	context->parms[0] = 0;
-	context->parms[1] = 0;
-	context->parms[2] = 0;
-	context->parms[3] = 0;
-	context->text = params;
-	context->options = NULL;
-	context->returnvalue = 0;
-
-	if (!do_script(context, next_python_command->script, NULL))
-	{
-		freeContext(context);
-		return 0;
-	}
-
-	context = popContext();
-	rv = context->returnvalue;
-	freeContext(context);
-
-	return rv;
 }
 
 MODULEAPI void postinitPlugin(void)

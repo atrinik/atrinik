@@ -572,14 +572,8 @@ typedef struct pl_player
 	/** Internal use by praying to send pray message to player. */
 	uint32 was_praying:1;
 
-	/** If true, all maps are shown in daylight for the player. */
-	uint32 dm_light:1;
-
 	/** Is the player AFK? */
 	uint32 afk:1;
-
-	/** Is metaserver privacy activated? */
-	uint32 ms_privacy:1;
 
 	/** Update skill list when set. */
 	uint32 update_skills:1;
@@ -656,11 +650,6 @@ typedef struct pl_player
 	/** If 1, the player is not able to shout. */
 	uint8 no_shout;
 
-	/**
-	 * If true, no message to other players about entering the game, and
-	 * no entry in /who list. */
-	uint8 dm_stealth;
-
 	/** Last HP sent to party members. */
 	uint8 last_party_hp;
 
@@ -669,6 +658,21 @@ typedef struct pl_player
 
 	/** Last grace sent to party members. */
 	uint8 last_party_grace;
+
+	/** If 1, collision is disabled for this player. */
+	uint8 tcl;
+
+	/** Whether god mode is on or off. */
+	uint8 tgm;
+
+	/** If 1, disable lighting. */
+	uint8 tli;
+
+	/** If 1, LoS is disabled and player can see through walls. */
+	uint8 tls;
+
+	/** If 1, normally invisible items can be seen. */
+	uint8 tsi;
 
 	/** Can be less in case of poisoning. */
 	living orig_stats;
@@ -684,6 +688,10 @@ typedef struct pl_player
 
 	/** End of the movement path queue. */
 	player_path *move_path_end;
+
+	/**
+	 * Player name to reply to. */
+    char player_reply[64];
 } player;
 
 #endif

@@ -363,13 +363,6 @@ int pay_for_amount(sint64 to_pay, object *pl)
 		}
 	}
 
-#ifndef REAL_WIZ
-	if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
-	{
-		SET_FLAG(op, FLAG_WAS_WIZ);
-	}
-#endif
-
 	fix_player(pl);
 	return 1;
 }
@@ -406,13 +399,6 @@ int pay_for_item(object *op, object *pl)
 			to_pay = pay_from_container(op, pouch, to_pay);
 		}
 	}
-
-#ifndef REAL_WIZ
-	if (QUERY_FLAG(pl, FLAG_WAS_WIZ))
-	{
-		SET_FLAG(op, FLAG_WAS_WIZ);
-	}
-#endif
 
 	fix_player(pl);
 	return 1;

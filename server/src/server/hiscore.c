@@ -336,16 +336,6 @@ void hiscore_check(object *op, int quiet)
 		return;
 	}
 
-	if (QUERY_FLAG(op, FLAG_WAS_WIZ))
-	{
-		if (!quiet)
-		{
-			draw_info(COLOR_WHITE, op, "Since you have been in wizard mode, you can't enter the high-score list.");
-		}
-
-		return;
-	}
-
 	strncpy(new_score.name, op->name, sizeof(new_score.name));
 	new_score.name[sizeof(new_score.name) - 1] = '\0';
 

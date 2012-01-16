@@ -484,6 +484,8 @@ static void init_library(int argc, char *argv[])
 	clioptions_option_config("server.cfg");
 	clioptions_parse(argc, argv);
 
+	toolkit_import(commands);
+
 	init_globals();
 	objectlink_init();
 	object_init();
@@ -626,8 +628,6 @@ void init(int argc, char **argv)
 	init_library(argc, argv);
 	init_world_darkness();
 
-	/* Sort command tables */
-	init_commands();
 	/* Load up the old temp map files */
 	read_map_log();
 	init_regions();

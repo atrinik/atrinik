@@ -266,7 +266,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 	if (op->env == NULL && QUERY_FLAG(pl, FLAG_FLYING))
 	{
 		/* Player is flying and applying object not in inventory */
-		if (!QUERY_FLAG(pl, FLAG_WIZ) && !QUERY_FLAG(op, FLAG_FLYING) && !QUERY_FLAG(op, FLAG_FLY_ON))
+		if (!QUERY_FLAG(op, FLAG_FLYING) && !QUERY_FLAG(op, FLAG_FLY_ON))
 		{
 			draw_info(COLOR_WHITE, pl, "But you are floating high above the ground!");
 			return 0;

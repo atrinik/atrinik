@@ -259,8 +259,8 @@ int hit_player(object *op, int dam, object *hitter, int type)
 	int simple_attack;
 	int rtn_kill = 0;
 
-	/* If our target has no_damage 1 set or is wiz, we can't hurt him. */
-	if (QUERY_FLAG (op, FLAG_WIZ) || QUERY_FLAG(op, FLAG_INVULNERABLE))
+	/* If our target has no_damage 1 set, we can't hurt him. */
+	if ((op->type == PLAYER && CONTR(op)->tgm) || QUERY_FLAG(op, FLAG_INVULNERABLE))
 	{
 		return 0;
 	}
@@ -814,16 +814,13 @@ int kill_object(object *op, int dam, object *hitter, int type)
 	sint64 exp_gain = 0;
 	object *owner;
 
-	(void) dam;
-
 	/* Still got some HP left? */
 	if (op->stats.hp > 0)
 	{
 		return -1;
 	}
 
-	/* Cannot kill wizards. */
-	if (QUERY_FLAG(op, FLAG_WIZ))
+	if (op->type == PLAYER && CONTR(op)->tgm)
 	{
 		return 0;
 	}

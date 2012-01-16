@@ -64,7 +64,9 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
 	{socket_command_quest_list, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_move_path, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_ready, SOCKET_CMD_PLAYER_ONLY},
-	{socket_command_password_change, SOCKET_CMD_PLAYER_ONLY}
+	{socket_command_password_change, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_move, SOCKET_CMD_PLAYER_ONLY},
+	{socket_command_target, SOCKET_CMD_PLAYER_ONLY}
 };
 
 static int socket_command_check(socket_struct *ns, player *pl, uint8 *data, size_t len)
@@ -189,15 +191,12 @@ void remove_ns_dead_player(player *pl)
 		trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
 		statistics_player_logout(pl);
 
-		if (!pl->dm_stealth)
-		{
-			draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
-		}
+		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
 
 		/* If this player is in a party, leave the party */
 		if (pl->party)
 		{
-			command_party(pl->ob, "leave");
+			command_party(pl->ob, "party", "leave");
 		}
 
 		strncpy(pl->killer, "left", MAX_BUF - 1);
@@ -206,7 +205,7 @@ void remove_ns_dead_player(player *pl)
 		/* Be sure we have closed container when we leave */
 		container_close(pl->ob, NULL);
 
-		save_player(pl->ob, 0);
+		save_player(pl->ob);
 		leave_map(pl->ob);
 	}
 

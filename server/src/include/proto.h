@@ -1,168 +1,104 @@
 #ifndef __CPROTO__
-/* src/commands/chat.c */
-extern int command_say(object *op, char *params);
-extern int command_dmsay(object *op, char *params);
-extern int command_shout(object *op, char *params);
-extern int command_tell(object *op, char *params);
-extern int command_t_tell(object *op, char *params);
-extern int command_sys_tell(object *op, char *params);
-extern int command_nod(object *op, char *params);
-extern int command_dance(object *op, char *params);
-extern int command_kiss(object *op, char *params);
-extern int command_bounce(object *op, char *params);
-extern int command_smile(object *op, char *params);
-extern int command_cackle(object *op, char *params);
-extern int command_laugh(object *op, char *params);
-extern int command_giggle(object *op, char *params);
-extern int command_shake(object *op, char *params);
-extern int command_puke(object *op, char *params);
-extern int command_growl(object *op, char *params);
-extern int command_scream(object *op, char *params);
-extern int command_sigh(object *op, char *params);
-extern int command_sulk(object *op, char *params);
-extern int command_hug(object *op, char *params);
-extern int command_cry(object *op, char *params);
-extern int command_poke(object *op, char *params);
-extern int command_accuse(object *op, char *params);
-extern int command_grin(object *op, char *params);
-extern int command_bow(object *op, char *params);
-extern int command_clap(object *op, char *params);
-extern int command_blush(object *op, char *params);
-extern int command_burp(object *op, char *params);
-extern int command_chuckle(object *op, char *params);
-extern int command_cough(object *op, char *params);
-extern int command_flip(object *op, char *params);
-extern int command_frown(object *op, char *params);
-extern int command_gasp(object *op, char *params);
-extern int command_glare(object *op, char *params);
-extern int command_groan(object *op, char *params);
-extern int command_hiccup(object *op, char *params);
-extern int command_lick(object *op, char *params);
-extern int command_pout(object *op, char *params);
-extern int command_shiver(object *op, char *params);
-extern int command_shrug(object *op, char *params);
-extern int command_slap(object *op, char *params);
-extern int command_smirk(object *op, char *params);
-extern int command_snap(object *op, char *params);
-extern int command_sneeze(object *op, char *params);
-extern int command_snicker(object *op, char *params);
-extern int command_sniff(object *op, char *params);
-extern int command_snore(object *op, char *params);
-extern int command_spit(object *op, char *params);
-extern int command_strut(object *op, char *params);
-extern int command_thank(object *op, char *params);
-extern int command_twiddle(object *op, char *params);
-extern int command_wave(object *op, char *params);
-extern int command_whistle(object *op, char *params);
-extern int command_wink(object *op, char *params);
-extern int command_yawn(object *op, char *params);
-extern int command_beg(object *op, char *params);
-extern int command_bleed(object *op, char *params);
-extern int command_cringe(object *op, char *params);
-extern int command_think(object *op, char *params);
-extern int command_me(object *op, char *params);
-extern int command_stare(object *op, char *params);
-extern int command_sneer(object *op, char *params);
-extern int command_wince(object *op, char *params);
-extern int command_facepalm(object *op, char *params);
-extern int command_my(object *op, char *params);
-/* src/commands/commands.c */
-extern CommArray_s Commands[];
-extern const int CommandsSize;
-extern CommArray_s CommunicationCommands[];
-extern const int CommunicationCommandSize;
-extern CommArray_s WizCommands[];
-extern const int WizCommandsSize;
-extern void init_commands(void);
-extern CommArray_s *find_command_element(char *cmd, CommArray_s *commarray, int commsize);
-extern int can_do_wiz_command(player *pl, const char *command);
-extern int execute_newserver_command(object *pl, char *command);
-/* src/commands/misc.c */
-extern void maps_info(object *op);
-extern int command_motd(object *op, char *params);
-extern int command_who(object *op, char *params);
-extern int command_mapinfo(object *op, char *params);
-extern int command_time(object *op, char *params);
-extern int command_hiscore(object *op, char *params);
-extern int command_version(object *op, char *params);
-extern int command_praying(object *op, char *params);
-extern int onoff_value(char *line);
-extern void receive_player_name(object *op);
-extern void receive_player_password(object *op);
-extern int command_save(object *op, char *params);
-extern int command_afk(object *op, char *params);
-extern int command_gsay(object *op, char *params);
-extern int command_party(object *op, char *params);
-extern int command_whereami(object *op, char *params);
-extern int command_ms_privacy(object *op, char *params);
-extern int command_statistics(object *op, char *params);
-extern int command_region_map(object *op, char *params);
-/* src/commands/move.c */
-extern int command_east(object *op, char *params);
-extern int command_north(object *op, char *params);
-extern int command_northeast(object *op, char *params);
-extern int command_northwest(object *op, char *params);
-extern int command_south(object *op, char *params);
-extern int command_southeast(object *op, char *params);
-extern int command_southwest(object *op, char *params);
-extern int command_west(object *op, char *params);
-extern int command_turn_right(object *op, char *params);
-extern int command_turn_left(object *op, char *params);
-extern int command_push_object(object *op, char *params);
-/* src/commands/new.c */
-extern int command_run(object *op, char *params);
-extern int command_run_stop(object *op, char *params);
-extern void send_target_command(player *pl);
-extern int command_combat(object *op, char *params);
-extern int command_target(object *op, char *params);
-extern void new_chars_deinit(void);
-extern void new_chars_init(void);
-extern void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void send_spelllist_cmd(object *op, const char *spellname, int mode);
-extern void send_skilllist_cmd(object *op, object *skillp, int mode);
-extern void send_ready_skill(object *op, const char *skillname);
-extern void generate_ext_title(player *pl);
-/* src/commands/object.c */
-extern object *find_best_object_match(object *pl, char *params);
-extern int command_uskill(object *pl, char *params);
-extern int command_rskill(object *pl, char *params);
-extern int command_apply(object *op, char *params);
-extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
-extern void pick_up(object *op, object *alt, int no_mevent);
-extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
-extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
-extern void drop(object *op, object *tmp, int no_mevent);
-extern int command_take(object *op, char *params);
-extern int command_drop(object *op, char *params);
-extern object *find_marked_object(object *op);
-extern char *long_desc(object *tmp, object *caller);
-extern void examine(object *op, object *tmp, StringBuffer *sb_capture);
-extern int command_rename_item(object *op, char *params);
-/* src/commands/range.c */
-extern int command_cast_spell(object *op, char *params);
-/* src/commands/wiz.c */
-extern int command_kick(object *ob, char *params);
-extern int command_goto(object *op, char *params);
-extern int command_freeze(object *op, char *params);
-extern int command_summon(object *op, char *params);
-extern int command_teleport(object *op, char *params);
-extern int command_settime(object *op, char *params);
-extern int command_resetmap(object *op, char *params);
-extern int command_nowiz(object *op, char *params);
-extern int command_dm(object *op, char *params);
-extern void shutdown_agent(int timer, char *reason);
-extern int command_ban(object *op, char *params);
-extern int command_wizpass(object *op, char *params);
-extern int command_dm_stealth(object *op, char *params);
-extern int command_dm_light(object *op, char *params);
-extern int command_dm_password(object *op, char *params);
-extern int command_shutdown(object *op, char *params);
-extern int command_follow(object *op, char *params);
-extern int command_arrest(object *op, char *params);
-extern int command_cmd_permission(object *op, char *params);
-extern int command_no_shout(object *op, char *params);
-extern int command_server_shout(object *op, char *params);
-extern int command_mod_shout(object *op, char *params);
+/* src/commands/permission/arrest.c */
+extern void command_arrest(object *op, const char *command, char *params);
+/* src/commands/permission/ban.c */
+extern void command_ban(object *op, const char *command, char *params);
+/* src/commands/permission/cmd_permission.c */
+extern void command_cmd_permission(object *op, const char *command, char *params);
+/* src/commands/permission/follow.c */
+extern void command_follow(object *op, const char *command, char *params);
+/* src/commands/permission/freeze.c */
+extern void command_freeze(object *op, const char *command, char *params);
+/* src/commands/permission/goto.c */
+extern void command_goto(object *op, const char *command, char *params);
+/* src/commands/permission/kick.c */
+extern void command_kick(object *op, const char *command, char *params);
+/* src/commands/permission/mod_shout.c */
+extern void command_mod_shout(object *op, const char *command, char *params);
+/* src/commands/permission/no_shout.c */
+extern void command_no_shout(object *op, const char *command, char *params);
+/* src/commands/permission/opsay.c */
+extern void command_opsay(object *op, const char *command, char *params);
+/* src/commands/permission/resetmap.c */
+extern void command_resetmap(object *op, const char *command, char *params);
+/* src/commands/permission/server_shout.c */
+extern void command_server_shout(object *op, const char *command, char *params);
+/* src/commands/permission/setpassword.c */
+extern void command_setpassword(object *op, const char *command, char *params);
+/* src/commands/permission/settime.c */
+extern void command_settime(object *op, const char *command, char *params);
+/* src/commands/permission/shutdown.c */
+extern void command_shutdown(object *op, const char *command, char *params);
+/* src/commands/permission/summon.c */
+extern void command_summon(object *op, const char *command, char *params);
+/* src/commands/permission/tcl.c */
+extern void command_tcl(object *op, const char *command, char *params);
+/* src/commands/permission/teleport.c */
+extern void command_teleport(object *op, const char *command, char *params);
+/* src/commands/permission/tgm.c */
+extern void command_tgm(object *op, const char *command, char *params);
+/* src/commands/permission/tli.c */
+extern void command_tli(object *op, const char *command, char *params);
+/* src/commands/permission/tls.c */
+extern void command_tls(object *op, const char *command, char *params);
+/* src/commands/permission/tsi.c */
+extern void command_tsi(object *op, const char *command, char *params);
+/* src/commands/player/afk.c */
+extern void command_afk(object *op, const char *command, char *params);
+/* src/commands/player/apply.c */
+extern void command_apply(object *op, const char *command, char *params);
+/* src/commands/player/cast.c */
+extern void command_cast(object *op, const char *command, char *params);
+/* src/commands/player/drop.c */
+extern void command_drop(object *op, const char *command, char *params);
+/* src/commands/player/gsay.c */
+extern void command_gsay(object *op, const char *command, char *params);
+/* src/commands/player/hiscore.c */
+extern void command_hiscore(object *op, const char *command, char *params);
+/* src/commands/player/left.c */
+extern void command_left(object *op, const char *command, char *params);
+/* src/commands/player/motd.c */
+extern void command_motd(object *op, const char *command, char *params);
+/* src/commands/player/party.c */
+extern void command_party(object *op, const char *command, char *params);
+/* src/commands/player/pray.c */
+extern void command_pray(object *op, const char *command, char *params);
+/* src/commands/player/push.c */
+extern void command_push(object *op, const char *command, char *params);
+/* src/commands/player/ready_skill.c */
+extern void command_ready_skill(object *op, const char *command, char *params);
+/* src/commands/player/region_map.c */
+extern void command_region_map(object *op, const char *command, char *params);
+/* src/commands/player/rename.c */
+extern void command_rename(object *op, const char *command, char *params);
+/* src/commands/player/reply.c */
+extern void command_reply(object *op, const char *command, char *params);
+/* src/commands/player/right.c */
+extern void command_right(object *op, const char *command, char *params);
+/* src/commands/player/say.c */
+extern void command_say(object *op, const char *command, char *params);
+/* src/commands/player/shout.c */
+extern void command_shout(object *op, const char *command, char *params);
+/* src/commands/player/statistics.c */
+extern void command_statistics(object *op, const char *command, char *params);
+/* src/commands/player/sys_tell.c */
+extern void command_sys_tell(object *op, const char *command, char *params);
+/* src/commands/player/t_tell.c */
+extern void command_t_tell(object *op, const char *command, char *params);
+/* src/commands/player/take.c */
+extern void command_take(object *op, const char *command, char *params);
+/* src/commands/player/tell.c */
+extern void command_tell(object *op, const char *command, char *params);
+/* src/commands/player/time.c */
+extern void command_time(object *op, const char *command, char *params);
+/* src/commands/player/use_skill.c */
+extern void command_use_skill(object *op, const char *command, char *params);
+/* src/commands/player/version.c */
+extern void command_version(object *op, const char *command, char *params);
+/* src/commands/player/whereami.c */
+extern void command_whereami(object *op, const char *command, char *params);
+/* src/commands/player/who.c */
+extern void command_who(object *op, const char *command, char *params);
 /* src/random_maps/decor.c */
 extern void put_decor(mapstruct *map, char **layout, RMParms *RP);
 /* src/random_maps/door.c */
@@ -281,6 +217,12 @@ extern int cache_add(const char *key, void *ptr, uint32 flags);
 extern int cache_remove(shstr *key);
 extern void cache_remove_all(void);
 extern void cache_remove_by_flags(uint32 flags);
+/* src/server/commands.c */
+extern void toolkit_commands_init(void);
+extern void toolkit_commands_deinit(void);
+extern void commands_add(const char *name, command_func handle_func, double delay, uint64 flags);
+extern int commands_check_permission(player *pl, const char *command);
+extern void commands_handle(object *op, char *cmd);
 /* src/server/connection.c */
 extern void connection_object_add(object *op, mapstruct *map, int connected);
 extern void connection_object_remove(object *op);
@@ -377,7 +319,7 @@ extern object *find_base_info_object(object *op);
 extern void set_mobile_speed(object *op, int idx);
 /* src/server/login.c */
 extern int check_name(player *pl, char *name);
-extern int save_player(object *op, int flag);
+extern int save_player(object *op);
 extern void check_login(object *op);
 /* src/server/los.c */
 extern void init_block(void);
@@ -404,6 +346,8 @@ extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
+extern void shutdown_timer_start(time_t count);
+extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
@@ -571,7 +515,6 @@ extern path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct
 /* src/server/plugins.c */
 extern struct plugin_hooklist hooklist;
 extern object *get_event_object(object *op, int event_nr);
-extern CommArray_s *find_plugin_command(const char *cmd);
 extern void display_plugins_list(object *op);
 extern void init_plugins(void);
 extern void init_plugin(const char *pluginfile);
@@ -814,6 +757,8 @@ extern void metaserver_init(void);
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_addme(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void receive_player_name(object *op);
+extern void receive_player_password(object *op);
 extern void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
@@ -835,6 +780,16 @@ extern void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data
 extern void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void send_target_command(player *pl);
+extern void new_chars_deinit(void);
+extern void new_chars_init(void);
+extern void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void send_spelllist_cmd(object *op, const char *spellname, int mode);
+extern void send_skilllist_cmd(object *op, object *skillp, int mode);
+extern void send_ready_skill(object *op, const char *skillname);
+extern void generate_ext_title(player *pl);
+extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 /* src/socket/sounds.c */
 extern void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
 extern void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);
@@ -1191,6 +1146,7 @@ extern void object_type_init_pedestal(void);
 extern mempool_struct *pool_player;
 extern void player_init(void);
 extern void player_deinit(void);
+extern void player_disconnect_all(void);
 extern player *find_player(const char *plname);
 extern void display_motd(object *op);
 extern int playername_ok(char *cp);
@@ -1218,6 +1174,14 @@ extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 
 extern int player_has_region_map(player *pl, region *r);
 extern char *player_sanitize_input(char *str);
 extern void player_cleanup_name(char *str);
+extern object *find_marked_object(object *op);
+extern char *long_desc(object *tmp, object *caller);
+extern void examine(object *op, object *tmp, StringBuffer *sb_capture);
+extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
+extern void pick_up(object *op, object *alt, int no_mevent);
+extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
+extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
+extern void drop(object *op, object *tmp, int no_mevent);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */
 extern void object_type_init_player_mover(void);

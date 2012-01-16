@@ -227,7 +227,7 @@ static PyObject *Atrinik_Object_SetGod(Atrinik_Object *obj, PyObject *args)
 
 	OBJEXISTCHECK(obj);
 
-	if (hooks->command_rskill(obj->obj, "divine prayers"))
+	if (hooks->change_skill(obj->obj, SK_PRAYING))
 	{
 		object *god = hooks->find_god(name);
 
@@ -352,7 +352,7 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
 	}
 	else if (PyString_Check(what))
 	{
-		hooks->command_take(obj->obj, PyString_AsString(what));
+		hooks->command_take(obj->obj, "take", PyString_AsString(what));
 	}
 	else
 	{
@@ -381,7 +381,7 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 	}
 	else if (PyString_Check(what))
 	{
-		hooks->command_drop(obj->obj, PyString_AsString(what));
+		hooks->command_drop(obj->obj, "drop", PyString_AsString(what));
 	}
 	else
 	{

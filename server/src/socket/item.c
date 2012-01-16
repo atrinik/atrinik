@@ -309,14 +309,13 @@ void esrv_draw_look(object *pl)
 {
 	packet_struct *packet;
 	object *tmp, *last;
-	int start_look = 0, end_look = 0, wiz;
+	int start_look = 0, end_look = 0;
 
 	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y))
 	{
 		return;
 	}
 
-	wiz = QUERY_FLAG(pl, FLAG_WIZ);
 	/* Grab last (top) object without browsing the objects. */
 	tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
@@ -346,13 +345,9 @@ void esrv_draw_look(object *pl)
 
 		/* Skip map mask, sys_objects and invisible objects when we can't
 		 * see them. */
-		if (tmp->layer <= LAYER_FMASK || IS_SYS_INVISIBLE(tmp) || (!QUERY_FLAG(pl, FLAG_SEE_INVISIBLE) && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE)))
+		if ((tmp->layer <= LAYER_FMASK || IS_INVISIBLE(tmp, pl)) && !CONTR(pl)->tsi)
 		{
-			/* But only when we are not a DM */
-			if (!QUERY_FLAG(pl, FLAG_WIZ))
-			{
-				continue;
-			}
+			continue;
 		}
 
 		if (++start_look < CONTR(pl)->socket.look_position)
@@ -378,7 +373,7 @@ void esrv_draw_look(object *pl)
 
 		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
 
-		if (wiz && tmp->inv && tmp->type != PLAYER)
+		if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER)
 		{
 			esrv_draw_look_rec(pl, packet, tmp);
 		}
@@ -427,19 +422,12 @@ void esrv_send_inventory(object *pl, object *op)
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		if (!QUERY_FLAG(pl, FLAG_SEE_INVISIBLE) && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE))
+		if (IS_INVISIBLE(tmp, pl))
 		{
-			/* Skip this for DMs */
-			if (!QUERY_FLAG(pl, FLAG_WIZ))
-			{
-				continue;
-			}
+			continue;
 		}
 
-		if (LOOK_OBJ(tmp) || QUERY_FLAG(pl, FLAG_WIZ))
-		{
-			add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
-		}
+		add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 	}
 
 	socket_send_packet(&CONTR(pl)->socket, packet);
@@ -618,7 +606,7 @@ static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 		{
 			return head;
 		}
-		else if (head->inv && (QUERY_FLAG(pl, FLAG_WIZ) || (head->type == CONTAINER && CONTR(pl)->container == head)))
+		else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head)))
 		{
 			tmp2 = get_ob_from_count_rec(pl, head->inv, count);
 

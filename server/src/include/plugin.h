@@ -190,14 +190,14 @@ struct plugin_hooklist
 	void (*rune_spring)(object *, object *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
-	int (*command_rskill)(object *, char *);
+	int (*change_skill)(object *, int);
 	void (*become_follower)(object *, object *);
 	void (*pick_up)(object *, object *, int);
 	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
 	void (*esrv_send_item)(object *);
 	player *(*find_player)(const char *);
 	int (*manual_apply)(object *, object *, int);
-	int (*command_drop)(object *, char *);
+	void (*command_drop)(object *, const char *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
 	int (*kill_object)(object *, int, object *, int);
 	void (*do_learn_spell)(object *, int, int);
@@ -271,9 +271,9 @@ struct plugin_hooklist
 	int (*cache_remove)(shstr *);
 	void (*cache_remove_by_flags)(uint32);
 	shstr *(*find_string)(const char *);
-	int (*command_take)(object *, char *);
+	void (*command_take)(object *, const char *, char *);
 	void (*esrv_update_item)(int, object *);
-	int (*execute_newserver_command)(object *, char *);
+	void (*commands_handle)(object *, char *);
 	treasurelist *(*find_treasurelist)(const char *);
 	void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
 	void (*dump_object_rec)(object *, StringBuffer *);
@@ -317,7 +317,7 @@ struct plugin_hooklist
 	void (*packet_append_map_weather)(packet_struct *, object *, object *);
 	void (*socket_send_packet)(socket_struct *, packet_struct *);
 	void (*logger_print)(const char *, const char *, uint64, const char *, ...);
-	FILE *(*logger_get_logfile)(void);
+	void (*commands_add)(const char *, command_func, double, uint64);
 
 	const char **season_name;
 	const char **weekdays;

@@ -329,42 +329,7 @@ void print_tod(object *op)
  * @param op Player who requested time. */
 void time_info(object *op)
 {
-	int tot = 0, maxt = 0, mint = 99999999, long_count = 0, i;
-
 	print_tod(op);
-
-	if (!QUERY_FLAG(op, FLAG_WIZ))
-	{
-		return;
-	}
-
-	draw_info_format(COLOR_WHITE, op, "Total time:\nticks=%ld  time=%ld.%2ld", pticks, process_tot_mtime / 1000, process_tot_mtime % 1000);
-	draw_info_format(COLOR_WHITE, op, "avg time=%ldms  max time=%ldms  min time=%ldms", process_tot_mtime / pticks, process_max_utime / 1000, process_min_utime / 1000);
-	draw_info_format(COLOR_WHITE, op, "ticks longer than max time (%ldms) = %ld (%ld%%)", max_time / 1000, process_utime_long_count, 100 * process_utime_long_count / pticks);
-	draw_info_format(COLOR_WHITE, op, "Time last %ld ticks:", pticks > PBUFLEN ? PBUFLEN : pticks);
-
-	for (i = 0; i < (pticks > PBUFLEN ? PBUFLEN : pticks); i++)
-	{
-		tot += process_utime_save[i];
-
-		if (process_utime_save[i] > maxt)
-		{
-			maxt = process_utime_save[i];
-		}
-
-		if (process_utime_save[i] < mint)
-		{
-			mint = process_utime_save[i];
-		}
-
-		if (process_utime_save[i] > max_time)
-		{
-			long_count++;
-		}
-	}
-
-	draw_info_format(COLOR_WHITE, op, "avg time=%ldms  max time=%dms  min time=%dms", tot / (pticks > PBUFLEN ? PBUFLEN : pticks) / 1000, maxt / 1000, mint / 1000);
-	draw_info_format(COLOR_WHITE, op, "ticks longer than max time (%ldms) = %d (%ld%%)", max_time / 1000, long_count, 100 * long_count / (pticks > PBUFLEN ? PBUFLEN : pticks));
 }
 
 /**

@@ -67,17 +67,13 @@ int check_name(player *pl, char *name)
 /**
  * Saves a player to file.
  * @param op Player to save.
- * @param flag If set, it's only backup, i.e. don't remove objects from
- * inventory.
  * @return Non zero if successful. */
-int save_player(object *op, int flag)
+int save_player(object *op)
 {
 	FILE *fp;
 	char filename[MAX_BUF], backupfile[MAX_BUF];
 	player *pl = CONTR(op);
-	int i, wiz = QUERY_FLAG(op, FLAG_WIZ);
-
-	flag &= 1;
+	int i;
 
 	/* Sanity check - some stuff changes this when player is exiting */
 	if (op->type != PLAYER)
@@ -113,9 +109,12 @@ int save_player(object *op, int flag)
 	}
 
 	fprintf(fp, "password %s\n", pl->password);
-	fprintf(fp, "dm_stealth %d\n", pl->dm_stealth);
-	fprintf(fp, "ms_privacy %d\n", pl->ms_privacy);
 	fprintf(fp, "no_shout %d\n", pl->no_shout);
+	fprintf(fp, "tcl %d\n", pl->tcl);
+	fprintf(fp, "tgm %d\n", pl->tgm);
+	fprintf(fp, "tsi %d\n", pl->tsi);
+	fprintf(fp, "tli %d\n", pl->tli);
+	fprintf(fp, "tls %d\n", pl->tls);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
 	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
@@ -206,7 +205,6 @@ int save_player(object *op, int flag)
 	fprintf(fp, "endplst\n");
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-	CLEAR_FLAG(op, FLAG_WIZ);
 
 	save_object(fp, op);
 
@@ -217,11 +215,6 @@ int save_player(object *op, int flag)
 		CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 		rename(backupfile, filename);
 		return 0;
-	}
-
-	if (wiz)
-	{
-		SET_FLAG(op, FLAG_WIZ);
 	}
 
 	rename(backupfile, filename);
@@ -419,17 +412,29 @@ void check_login(object *op)
 		{
 			break;
 		}
-		else if (!strcmp(buf, "dm_stealth"))
-		{
-			pl->dm_stealth = value;
-		}
-		else if (!strcmp(buf, "ms_privacy"))
-		{
-			pl->ms_privacy = value;
-		}
 		else if (!strcmp(buf, "no_shout"))
 		{
 			pl->no_shout = value;
+		}
+		else if (!strcmp(buf, "tcl"))
+		{
+			pl->tcl = value;
+		}
+		else if (!strcmp(buf, "tgm"))
+		{
+			pl->tgm = value;
+		}
+		else if (!strcmp(buf, "tsi"))
+		{
+			pl->tsi = value;
+		}
+		else if (!strcmp(buf, "tli"))
+		{
+			pl->tli = value;
+		}
+		else if (!strcmp(buf, "tls"))
+		{
+			pl->tls = value;
 		}
 		else if (!strcmp(buf, "gen_hp"))
 		{
@@ -665,10 +670,7 @@ void check_login(object *op)
 	/* Display Message of the Day */
 	display_motd(op);
 
-	if (!pl->dm_stealth)
-	{
-		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
-	}
+	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", query_name(pl->ob, NULL));
 
 	/* Trigger the global LOGIN event */
 	trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);

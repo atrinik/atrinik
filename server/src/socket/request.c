@@ -149,7 +149,63 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_
 	}
 
 	packet_to_string(data, len, &pos, command, sizeof(command));
-	execute_newserver_command(pl->ob, command);
+	commands_handle(pl->ob, command);
+}
+
+/**
+ * Receive a player name, and force the first letter to be uppercase.
+ * @param op Object. */
+void receive_player_name(object *op)
+{
+	player_cleanup_name(CONTR(op)->write_buf + 1);
+
+	if (!check_name(CONTR(op), CONTR(op)->write_buf + 1))
+	{
+		get_name(op);
+		return;
+	}
+
+	FREE_AND_COPY_HASH(op->name, CONTR(op)->write_buf + 1);
+
+	get_password(op);
+}
+
+/**
+ * Receive player password.
+ * @param op Object. */
+void receive_player_password(object *op)
+{
+	unsigned int pwd_len = strlen(CONTR(op)->write_buf + 1);
+
+	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
+	{
+		draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
+		get_name(op);
+		return;
+	}
+
+	if (CONTR(op)->state == ST_CONFIRM_PASSWORD)
+	{
+		packet_struct *packet;
+
+		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
+		{
+			draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
+			get_name(op);
+			return;
+		}
+
+		packet = packet_new(CLIENT_CMD_NEW_CHAR, 0, 0);
+		socket_send_packet(&CONTR(op)->socket, packet);
+		CONTR(op)->state = ST_ROLL_STAT;
+
+		return;
+	}
+
+	strcpy(CONTR(op)->password, crypt_string(CONTR(op)->write_buf + 1, NULL));
+	CONTR(op)->state = ST_ROLL_STAT;
+	check_login(op);
+	return;
 }
 
 void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
@@ -651,7 +707,7 @@ void draw_client_map(object *pl)
 	}
 
 	/* Do LOS after calls to update_position */
-	if (!QUERY_FLAG(pl, FLAG_WIZ) && CONTR(pl)->update_los)
+	if (CONTR(pl)->update_los)
 	{
 		update_los(pl);
 		CONTR(pl)->update_los = 0;
@@ -798,7 +854,7 @@ void draw_client_map2(object *pl)
 	MapSpace *msp;
 	mapstruct *m;
 	int x, y, ax, ay, d, nx, ny;
-	int x_start, dm_light = 0;
+	int x_start, light_adjust;
 	int special_vision;
 	uint16 mask;
 	int wdark;
@@ -811,12 +867,7 @@ void draw_client_map2(object *pl)
 	packet_struct *packet, *packet_layer, *packet_sound;
 	size_t oldpos;
 
-	/* Do we have dm_light? */
-	if (CONTR(pl)->dm_light)
-	{
-		dm_light = global_darkness_table[MAX_DARKNESS];
-	}
-
+	light_adjust = CONTR(pl)->tli ? global_darkness_table[MAX_DARKNESS] : 0;
 	wdark = darkness_table[world_darkness];
 	/* Any kind of special vision? */
 	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -974,7 +1025,7 @@ void draw_client_map2(object *pl)
 			/* Calculate the darkness/light value for this tile. */
 			if (((outdoor && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!outdoor && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
 			{
-				d = msp->light_value + wdark + dm_light;
+				d = msp->light_value + wdark + light_adjust;
 			}
 			else
 			{
@@ -988,11 +1039,11 @@ void draw_client_map2(object *pl)
 						dark_value = MAX_DARKNESS;
 					}
 
-					d = global_darkness_table[dark_value] + msp->light_value + dm_light;
+					d = global_darkness_table[dark_value] + msp->light_value + light_adjust;
 				}
 				else
 				{
-					d = m->light_value + msp->light_value + dm_light;
+					d = m->light_value + msp->light_value + light_adjust;
 				}
 			}
 
@@ -1020,11 +1071,11 @@ void draw_client_map2(object *pl)
 
 					if ((MAP_OUTDOORS(mirror_map) && !(GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR))
 					{
-						d = mirror_msp->light_value + wdark + dm_light;
+						d = mirror_msp->light_value + wdark + light_adjust;
 					}
 					else
 					{
-						d = mirror_map->light_value + mirror_msp->light_value + dm_light;
+						d = mirror_map->light_value + mirror_msp->light_value + light_adjust;
 					}
 				}
 			}
@@ -1165,6 +1216,7 @@ void draw_client_map2(object *pl)
 						uint8 flags = 0, probe_val = 0;
 						uint32 flags2 = 0;
 						object *head = tmp->head ? tmp->head : tmp;
+						tag_t target_object_count = 0;
 
 						/* If we have a multi-arch object. */
 						if (quick_pos)
@@ -1260,6 +1312,12 @@ void draw_client_map2(object *pl)
 							flags2 |= MAP2_FLAG2_INFRAVISION;
 						}
 
+						if (head != pl && layer == LAYER_LIVING && IS_LIVE(head))
+						{
+							flags2 |= MAP2_FLAG2_TARGET;
+							target_object_count = head->count;
+						}
+
 						if (flags2)
 						{
 							flags |= MAP2_FLAG_MORE;
@@ -1274,7 +1332,7 @@ void draw_client_map2(object *pl)
 						}
 
 						/* Now, check if we have cached this. */
-						if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && mp->probe == probe_val)
+						if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || (mp->probe == probe_val && mp->target_object_count == target_object_count)))
 						{
 							continue;
 						}
@@ -1287,6 +1345,7 @@ void draw_client_map2(object *pl)
 						if (layer == LAYER_LIVING)
 						{
 							mp->probe = probe_val;
+							mp->target_object_count = target_object_count;
 						}
 
 						if (OBJECT_IS_HIDDEN(pl, head))
@@ -1387,6 +1446,12 @@ void draw_client_map2(object *pl)
 							if (flags2 & MAP2_FLAG2_ROTATE)
 							{
 								packet_append_sint16(packet_layer, head->rotate);
+							}
+
+							if (flags2 & MAP2_FLAG2_TARGET)
+							{
+								packet_append_uint32(packet_layer, target_object_count);
+								packet_append_uint8(packet_layer, is_friend_of(pl, head));
 							}
 						}
 					}
@@ -1743,4 +1808,721 @@ void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, 
 	/* Update the player's password. */
 	strcpy(pl->password, crypt_string(pswd_new, NULL));
 	draw_info(COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
+}
+
+void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+{
+	uint8 dir, run_on;
+
+	dir = packet_to_uint8(data, len, &pos);
+	dir = MAX(0, MIN(dir, 8));
+	run_on = packet_to_uint8(data, len, &pos);
+
+	pl->run_on = MAX(0, MIN(1, run_on));
+
+	if (dir != 0)
+	{
+		pl->ob->speed_left -= 1.0;
+		move_object(pl->ob, dir);
+	}
+}
+
+/**
+ * Send target command, calculate the target's color level, etc.
+ * @param pl Player requesting this. */
+void send_target_command(player *pl)
+{
+	packet_struct *packet;
+
+	if (!pl->ob->map)
+	{
+		return;
+	}
+
+	packet = packet_new(CLIENT_CMD_TARGET, 64, 64);
+	packet_append_uint8(packet, pl->combat_mode);
+
+	pl->ob->enemy = NULL;
+	pl->ob->enemy_count = 0;
+
+	if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob))
+	{
+		packet_append_uint8(packet, CMD_TARGET_SELF);
+		packet_append_string_terminated(packet, COLOR_YELLOW);
+		packet_append_string_terminated(packet, pl->ob->name);
+
+		pl->target_object = pl->ob;
+		pl->target_object_count = 0;
+		pl->target_map_pos = 0;
+	}
+	else
+	{
+		if (is_friend_of(pl->ob, pl->target_object))
+		{
+			packet_append_uint8(packet, CMD_TARGET_FRIEND);
+		}
+		else
+		{
+			packet_append_uint8(packet, CMD_TARGET_ENEMY);
+
+			pl->ob->enemy = pl->target_object;
+			pl->ob->enemy_count = pl->target_object_count;
+		}
+
+		if (pl->target_object->level < level_color[pl->ob->level].yellow)
+		{
+			if (pl->target_object->level < level_color[pl->ob->level].green)
+			{
+				packet_append_string_terminated(packet, COLOR_GRAY);
+			}
+			else
+			{
+				if (pl->target_object->level < level_color[pl->ob->level].blue)
+				{
+					packet_append_string_terminated(packet, COLOR_GREEN);
+				}
+				else
+				{
+					packet_append_string_terminated(packet, COLOR_BLUE);
+				}
+			}
+		}
+		else
+		{
+			if (pl->target_object->level >= level_color[pl->ob->level].purple)
+			{
+				packet_append_string_terminated(packet, COLOR_PURPLE);
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].red)
+			{
+				packet_append_string_terminated(packet, COLOR_RED);
+			}
+			else if (pl->target_object->level >= level_color[pl->ob->level].orange)
+			{
+				packet_append_string_terminated(packet, COLOR_ORANGE);
+			}
+			else
+			{
+				packet_append_string_terminated(packet, COLOR_YELLOW);
+			}
+		}
+
+		if (pl->tgm)
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
+			packet_append_string_terminated(packet, buf);
+		}
+		else
+		{
+			packet_append_string_terminated(packet, pl->target_object->name);
+		}
+	}
+
+	socket_send_packet(&pl->socket, packet);
+}
+
+/**
+ * This loads the first map an puts the player on it.
+ * @param op The player object. */
+static void set_first_map(object *op)
+{
+	object *current;
+
+	strcpy(CONTR(op)->maplevel, first_map_path);
+	op->x = -1;
+	op->y = -1;
+
+	if (!strcmp(first_map_path, "/tutorial"))
+	{
+		current = get_object();
+		FREE_AND_COPY_HASH(EXIT_PATH(current), first_map_path);
+		EXIT_X(current) = 1;
+		EXIT_Y(current) = 1;
+		current->last_eat = MAP_PLAYER_MAP;
+		enter_exit(op, current);
+		/* Update save bed position, so if we die, we don't end up in
+		 * the public version of the map. */
+		strncpy(CONTR(op)->savebed_map, CONTR(op)->maplevel, sizeof(CONTR(op)->savebed_map) - 1);
+	}
+	else
+	{
+		enter_exit(op, NULL);
+	}
+
+	/* Update save bed X/Y in any case. */
+	CONTR(op)->bed_x = op->x;
+	CONTR(op)->bed_y = op->y;
+}
+
+/**
+ * Information about a character the player may choose. */
+typedef struct new_char_struct
+{
+	/** Archetype of the player. */
+	char arch[MAX_BUF];
+
+	/**
+	 * Maximum number of points the player can allocate to their
+	 * character's stats. */
+	int points_max;
+
+	/** Base values of stats for this character. */
+	int stats_base[NUM_STATS];
+
+	/** Minimum values of stats for this character. */
+	int stats_min[NUM_STATS];
+
+	/** Maximum values of stats for this character. */
+	int stats_max[NUM_STATS];
+} new_char_struct;
+
+/** All the loaded characters. */
+static new_char_struct *new_chars = NULL;
+/** Number of ::new_chars. */
+static size_t num_new_chars = 0;
+
+/**
+ * Deinitialize ::new_chars. */
+void new_chars_deinit(void)
+{
+	if (new_chars)
+	{
+		free(new_chars);
+		new_chars = NULL;
+	}
+
+	num_new_chars = 0;
+}
+
+/**
+ * Initialize ::new_chars by reading server_settings file. */
+void new_chars_init(void)
+{
+	char filename[HUGE_BUF], buf[HUGE_BUF];
+	FILE *fp;
+	size_t added = 0, i;
+
+	/* Open the server_settings file. */
+	snprintf(filename, sizeof(filename), "%s/server_settings", settings.datapath);
+	fp = fopen(filename, "r");
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
+	{
+		/* New race; added keeps track of how many archetypes have been
+		 * added since the last new. */
+		if (!strncmp(buf, "char ", 5))
+		{
+			added = 0;
+		}
+		/* Add new archetype for this race. */
+		else if (!strncmp(buf, "gender ", 7))
+		{
+			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
+
+			/* Parse the line. */
+			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) != 3)
+			{
+				logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
+				exit(1);
+			}
+
+			new_chars = realloc(new_chars, sizeof(*new_chars) * (num_new_chars + 1));
+			strncpy(new_chars[num_new_chars].arch, arch, sizeof(new_chars[num_new_chars].arch) - 1);
+			new_chars[num_new_chars].arch[sizeof(new_chars[num_new_chars].arch) - 1] = '\0';
+			num_new_chars++;
+			added++;
+		}
+		/* Data that applies to any gender archetype of this race. */
+		else if (!strncmp(buf, "points_max ", 11) || !strncmp(buf, "stats_", 6))
+		{
+			/* Start from the end of the array. */
+			for (i = num_new_chars - 1; ; i--)
+			{
+				if (!strncmp(buf, "points_max ", 11))
+				{
+					new_chars[i].points_max = atoi(buf + 11);
+				}
+				else if (!strncmp(buf, "stats_base ", 11) && sscanf(buf + 11, "%d %d %d %d %d %d %d", &new_chars[i].stats_base[STR], &new_chars[i].stats_base[DEX], &new_chars[i].stats_base[CON], &new_chars[i].stats_base[INT], &new_chars[i].stats_base[WIS], &new_chars[i].stats_base[POW], &new_chars[i].stats_base[CHA]) != NUM_STATS)
+				{
+					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
+					exit(1);
+				}
+				else if (!strncmp(buf, "stats_min ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_min[STR], &new_chars[i].stats_min[DEX], &new_chars[i].stats_min[CON], &new_chars[i].stats_min[INT], &new_chars[i].stats_min[WIS], &new_chars[i].stats_min[POW], &new_chars[i].stats_min[CHA]) != NUM_STATS)
+				{
+					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
+					exit(1);
+				}
+				else if (!strncmp(buf, "stats_max ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_max[STR], &new_chars[i].stats_max[DEX], &new_chars[i].stats_max[CON], &new_chars[i].stats_max[INT], &new_chars[i].stats_max[WIS], &new_chars[i].stats_max[POW], &new_chars[i].stats_max[CHA]) != NUM_STATS)
+				{
+					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
+					exit(1);
+				}
+
+				/* Check if we have reached the total number of gender
+				 * archetypes added for this race. */
+				if (i == num_new_chars - added)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	fclose(fp);
+}
+
+/**
+ * Client sent us a new char creation.
+ *
+ * At this point we know the player's name and the password but nothing
+ * about his (player char) base arch.
+ *
+ * This command tells us which the player has selected and how he has
+ * setup the stats.
+ *
+ * If <b>anything</b> is not correct here, we kill this socket.
+ * @param params Parameters.
+ * @param len Length.
+ * @param pl Player structure. */
+void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+{
+	archetype *player_arch;
+	const char *name_tmp = NULL;
+	object *op = pl->ob;
+	int x = pl->ob->x, y = pl->ob->y;
+	int stats[NUM_STATS];
+	size_t i, j;
+	char archname[MAX_BUF];
+
+	/* Ignore the command if the player is already playing. */
+	if (pl->state == ST_PLAYING)
+	{
+		return;
+	}
+
+	/* Incorrect state... */
+	if (pl->state != ST_ROLL_STAT)
+	{
+		pl->socket.status = Ns_Dead;
+		return;
+	}
+
+	packet_to_string(data, len, &pos, archname, sizeof(archname));
+	stats[STR] = packet_to_uint8(data, len, &pos);
+	stats[DEX] = packet_to_uint8(data, len, &pos);
+	stats[CON] = packet_to_uint8(data, len, &pos);
+	stats[INT] = packet_to_uint8(data, len, &pos);
+	stats[WIS] = packet_to_uint8(data, len, &pos);
+	stats[POW] = packet_to_uint8(data, len, &pos);
+	stats[CHA] = packet_to_uint8(data, len, &pos);
+
+	player_arch = find_archetype(archname);
+
+	/* Invalid player arch? */
+	if (!player_arch || player_arch->clone.type != PLAYER)
+	{
+		pl->socket.status = Ns_Dead;
+		return;
+	}
+
+	for (i = 0; i < num_new_chars; i++)
+	{
+		if (!strcmp(archname, new_chars[i].arch))
+		{
+			break;
+		}
+	}
+
+	if (i == num_new_chars)
+	{
+		pl->socket.status = Ns_Dead;
+		return;
+	}
+
+	/* Ensure all stat points have been allocated. */
+	if (stats[STR] + stats[DEX] + stats[CON] + stats[INT] + stats[WIS] + stats[POW] + stats[CHA] != new_chars[i].stats_min[STR] + new_chars[i].stats_min[DEX] + new_chars[i].stats_min[CON] + new_chars[i].stats_min[INT] + new_chars[i].stats_min[WIS] + new_chars[i].stats_min[POW] + new_chars[i].stats_min[CHA] + new_chars[i].points_max)
+	{
+		pl->socket.status = Ns_Dead;
+		return;
+	}
+
+	/* Make sure all the stats are in a valid range. */
+	for (j = 0; j < NUM_STATS; j++)
+	{
+		if (stats[j] < new_chars[i].stats_min[j])
+		{
+			pl->socket.status = Ns_Dead;
+			return;
+		}
+		else if (stats[j] > new_chars[i].stats_max[j])
+		{
+			pl->socket.status = Ns_Dead;
+			return;
+		}
+	}
+
+	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
+	copy_object(&player_arch->clone, op, 0);
+	op->custom_attrset = pl;
+	pl->ob = op;
+	FREE_AND_CLEAR_HASH2(op->name);
+	op->name = name_tmp;
+	op->x = x;
+	op->y = y;
+	/* So the player faces east. */
+	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 3;
+	/* We assume that players always have a valid animation. */
+	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
+
+	pl->orig_stats.Str = stats[STR];
+	pl->orig_stats.Dex = stats[DEX];
+	pl->orig_stats.Con = stats[CON];
+	pl->orig_stats.Int = stats[INT];
+	pl->orig_stats.Wis = stats[WIS];
+	pl->orig_stats.Pow = stats[POW];
+	pl->orig_stats.Cha = stats[CHA];
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+	/* This must before then initial items are given. */
+	esrv_new_player(CONTR(op), op->weight + op->carrying);
+
+	/* Trigger the global BORN event */
+	trigger_global_event(GEVENT_BORN, op, NULL);
+
+	/* Trigger the global LOGIN event */
+	trigger_global_event(GEVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
+
+	CONTR(op)->state = ST_PLAYING;
+	FREE_AND_CLEAR_HASH2(op->msg);
+
+#ifdef AUTOSAVE
+	CONTR(op)->last_save_tick = pticks;
+#endif
+
+	display_motd(op);
+
+	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
+	init_player_exp(op);
+	give_initial_items(op, op->randomitems);
+	link_player_skills(op);
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+	/* Force sending of skill exp data to client */
+	CONTR(op)->last_stats.exp = 1;
+	fix_player(op);
+	esrv_update_item(UPD_FACE, op);
+	esrv_send_inventory(op, op);
+
+	set_first_map(op);
+	SET_FLAG(op, FLAG_FRIENDLY);
+
+	CONTR(op)->socket.update_tile = 0;
+	CONTR(op)->socket.look_position = 0;
+	CONTR(op)->socket.ext_title_flag = 1;
+	esrv_new_player(CONTR(op), op->weight + op->carrying);
+	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
+	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
+}
+
+/**
+ * Determine spell's path for spell list sending.
+ * @param op Object.
+ * @param spell_number Spell ID.
+ * @retval d Player is denied from casting the spell.
+ * @retval a Player is attuned to the spell.
+ * @retval r Player is repelled from the spell.
+ * @return If none of the above, a space character is returned. */
+static char spelllist_determine_path(object *op, int spell_number)
+{
+	uint32 path = spells[spell_number].path;
+
+	if ((op->path_denied & path))
+	{
+		return 'd';
+	}
+
+	if ((op->path_attuned & path) && !(op->path_repelled & path))
+	{
+		return 'a';
+	}
+
+	if ((op->path_repelled & path) && !(op->path_attuned & path))
+	{
+		return 'r';
+	}
+
+	return ' ';
+}
+
+/**
+ * Helper function for send_spelllist_cmd(), adds one spell to buffer
+ * which is then sent to the client as the spell list command.
+ * @param op Object.
+ * @param spell_number ID of the spell to add.
+ * @param packet Packet to append to. */
+static void add_spell_to_spelllist(object *op, int spell_number, packet_struct *packet)
+{
+	int cost = 0;
+
+	/* Determine cost of the spell */
+	if (spells[spell_number].type == SPELL_TYPE_PRIEST && CONTR(op)->skill_ptr[SK_PRAYING])
+	{
+		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_PRAYING]->level);
+	}
+	else if (spells[spell_number].type == SPELL_TYPE_WIZARD && CONTR(op)->skill_ptr[SK_SPELL_CASTING])
+	{
+		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
+	}
+
+	packet_append_string_terminated(packet, spells[spell_number].name);
+	packet_append_uint16(packet, cost);
+	packet_append_uint8(packet, spelllist_determine_path(op, spell_number));
+}
+
+/**
+ * Send spell list command to the client.
+ * @param op Player.
+ * @param spellname If specified, send only this spell name. Otherwise
+ * send all spells the player knows.
+ * @param mode One of @ref spelllist_modes. */
+void send_spelllist_cmd(object *op, const char *spellname, int mode)
+{
+	packet_struct *packet;
+
+	packet = packet_new(CLIENT_CMD_SPELL_LIST, 128, 128);
+	packet_append_uint8(packet, mode);
+
+	/* Send single name */
+	if (spellname)
+	{
+		add_spell_to_spelllist(op, look_up_spell_name(spellname), packet);
+	}
+	/* Send all. If the player is a wizard, send all spells in the game. */
+	else
+	{
+		uint16 i;
+
+		for (i = 0; i < CONTR(op)->nrofknownspells; i++)
+		{
+			add_spell_to_spelllist(op, CONTR(op)->known_spells[i], packet);
+		}
+	}
+
+	socket_send_packet(&CONTR(op)->socket, packet);
+}
+
+/**
+ * Send skill list to the client.
+ * @param op Object.
+ * @param skillp Skill object; if not NULL, will only send this skill.
+ * @param mode One of @ref spelllist_modes. */
+void send_skilllist_cmd(object *op, object *skillp, int mode)
+{
+	packet_struct *packet;
+
+	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
+	packet_append_uint8(packet, mode);
+
+	if (skillp)
+	{
+		add_skill_to_skilllist(skillp, packet);
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < NROFSKILLS; i++)
+		{
+			if (CONTR(op)->skill_ptr[i])
+			{
+				add_skill_to_skilllist(CONTR(op)->skill_ptr[i], packet);
+			}
+		}
+	}
+
+	socket_send_packet(&CONTR(op)->socket, packet);
+}
+
+/**
+ * Send skill ready command.
+ * @param op Object.
+ * @param skillname Name of skill to ready. */
+void send_ready_skill(object *op, const char *skillname)
+{
+	packet_struct *packet;
+
+	packet = packet_new(CLIENT_CMD_SKILL_READY, 32, 0);
+	packet_append_string_terminated(packet, skillname);
+	socket_send_packet(&CONTR(op)->socket, packet);
+}
+
+/**
+ * Generate player's extended name from race, gender, guild, etc.
+ * @param pl The player. */
+void generate_ext_title(player *pl)
+{
+	object *walk;
+	char prof[32] = "";
+	char title[32] = "";
+	char rank[32] = "";
+	char align[32] = "";
+	char race[MAX_BUF];
+	char name[MAX_BUF];
+	shstr *godname;
+
+	for (walk = pl->ob->inv; walk; walk = walk->below)
+	{
+		if (walk->name == shstr_cons.GUILD_FORCE && walk->arch->name == shstr_cons.guild_force)
+		{
+			if (walk->slaying)
+			{
+				strcpy(prof, walk->slaying);
+			}
+
+			if (walk->title)
+			{
+				strcpy(title, " the ");
+				strcat(title, walk->title);
+			}
+		}
+		else if (walk->name == shstr_cons.RANK_FORCE && walk->arch->name == shstr_cons.rank_force)
+		{
+			if (walk->title)
+			{
+				strcpy(rank, walk->title);
+				strcat(rank, " ");
+			}
+		}
+		else if (walk->name == shstr_cons.ALIGNMENT_FORCE && walk->arch->name == shstr_cons.alignment_force)
+		{
+			if (walk->title)
+			{
+				strcpy(align, walk->title);
+			}
+		}
+	}
+
+	strcpy(pl->quick_name, rank);
+	strcat(pl->quick_name, pl->ob->name);
+
+	snprintf(name, sizeof(name), "%s%s%s", rank, pl->ob->name, title);
+
+	if (pl->afk)
+	{
+		strncat(name, " [AFK]", sizeof(name) - strlen(name) - 1);
+	}
+
+	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s %s\n%s", name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)), prof, align);
+
+	godname = determine_god(pl->ob);
+
+	if (godname)
+	{
+		strncat(pl->ext_title, " follower of ", sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
+		strncat(pl->ext_title, godname, sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
+	}
+}
+
+void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+{
+	uint8 type;
+
+	type = packet_to_uint8(data, len, &pos);
+
+	if (type == CMD_TARGET_TCOMBAT)
+	{
+		if (pl->combat_mode)
+		{
+			pl->combat_mode = 0;
+		}
+		else
+		{
+			pl->combat_mode = 1;
+			pl->praying = 0;
+		}
+
+		send_target_command(pl);
+	}
+	else if (type == CMD_TARGET_MAPXY)
+	{
+		uint8 x, y;
+		uint32 count, target_object_count;
+		int i, xt, yt;
+		mapstruct *m;
+		object *tmp;
+
+		x = packet_to_uint8(data, len, &pos);
+		y = packet_to_uint8(data, len, &pos);
+		count = packet_to_uint32(data, len, &pos);
+
+		/* Validate the passed x/y. */
+		if (x >= pl->socket.mapx || y >= pl->socket.mapy)
+		{
+			return;
+		}
+
+		target_object_count = pl->target_object_count;
+		pl->target_object = NULL;
+		pl->target_object_count = 0;
+
+		(void) count;
+
+		for (i = 0; i <= SIZEOFFREE1 && !pl->target_object_count; i++)
+		{
+			/* Check whether we are still in range of the player's
+			 * viewport, and whether the player can see the square. */
+			if (x + freearr_x[i] < 0 || x + freearr_x[i] >= pl->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= pl->socket.mapy || pl->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW)
+			{
+				continue;
+			}
+
+			/* The x/y we got above is from the client's map, so 0,0 is
+			 * actually topmost (northwest) corner of the map in the client,
+			 * and not 0,0 of the actual map, so we need to transform it to
+			 * actual map coordinates. */
+			xt = pl->ob->x + (x - pl->socket.mapx_2) + freearr_x[i];
+			yt = pl->ob->y + (y - pl->socket.mapy_2) + freearr_y[i];
+			m = get_map_from_coord(pl->ob->map, &xt, &yt);
+
+			/* Invalid x/y. */
+			if (!m)
+			{
+				continue;
+			}
+
+			/* Nothing alive on this spot. */
+			if (!(GET_MAP_FLAGS(m, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER)))
+			{
+				continue;
+			}
+
+			FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_LIVING, tmp)
+			{
+				tmp = HEAD(tmp);
+
+				if ((!count || tmp->count == count) && IS_LIVE(tmp) && tmp != pl->ob && !IS_INVISIBLE(tmp, pl->ob) && !OBJECT_IS_HIDDEN(pl->ob, tmp))
+				{
+					pl->target_object = tmp;
+					pl->target_object_count = tmp->count;
+					FOR_MAP_LAYER_BREAK;
+				}
+			}
+			FOR_MAP_LAYER_END
+		}
+
+		if (pl->target_object_count != target_object_count)
+		{
+			send_target_command(pl);
+		}
+	}
+	else if (type == CMD_TARGET_CLEAR)
+	{
+		if (pl->target_object_count)
+		{
+			pl->target_object = NULL;
+			pl->target_object_count = 0;
+			send_target_command(pl);
+		}
+	}
 }

@@ -591,7 +591,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 			searched_nodes++;
 #endif
 
-			if (QUERY_FLAG(HEAD(op), FLAG_WIZPASS))
+			if (op->type == PLAYER && CONTR(op)->tcl)
 			{
 				block = 0;
 			}

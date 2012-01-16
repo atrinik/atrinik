@@ -1046,15 +1046,9 @@
  * Monster will evaporate if there is no enemy. */
 #define FLAG_ONLY_ATTACK 69
 /**
- * Player is a DM. */
-#define FLAG_WIZ 70
-/**
  * Allows players to pass quietly past monsters, with less chance of
  * the monsters noticing the player. */
 #define FLAG_STEALTH 71
-/**
- * The wizard can go through walls. */
-#define FLAG_WIZPASS 72
 /**
  * The object is linked with other objects. */
 #define FLAG_IS_LINKED 73
@@ -1091,9 +1085,6 @@
 /**
  * If set, won't get exp for reading the book. */
 #define FLAG_NO_SKILL_IDENT 91
-/**
- * Player was once a DM. */
-#define FLAG_WAS_WIZ 92
 /**
  * If set object can see even in darkness. */
 #define FLAG_SEE_IN_DARK 93
@@ -1224,7 +1215,7 @@
 	QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
 /** Check if the object is invisible. */
 #define IS_INVISIBLE(__ob_, __player_) \
-	(QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || (QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE) && !QUERY_FLAG(__player_, FLAG_SEE_INVISIBLE)))
+	((QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE)) && ((__player_)->type != PLAYER || !CONTR((__player_))->tsi))
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 

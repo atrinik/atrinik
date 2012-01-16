@@ -34,20 +34,6 @@
 #define DIRECTIONS_NUM 9
 
 /**
- * Directions to move into. */
-static const char *const directions_move[DIRECTIONS_NUM] =
-{
-	"/sw", "/s", "/se", "/w", "/stay", "/e", "/nw", "/n", "/ne"
-};
-
-/**
- * Directions to run into. */
-static const char *const directions_run[DIRECTIONS_NUM] =
-{
-	"/run 6", "/run 5", "/run 4", "/run 7", "/run 9", "/run 3", "/run 8", "/run 1", "/run 2"
-};
-
-/**
  * Directions to fire into. */
 static const int directions_fire[DIRECTIONS_NUM] =
 {
@@ -56,15 +42,10 @@ static const int directions_fire[DIRECTIONS_NUM] =
 
 void move_keys(int num)
 {
-	/* Runmode on, or ALT key trigger */
-	if (cpl.run_on && !cpl.fire_on)
-	{
-		send_command(directions_run[num - 1]);
-	}
-	else if (cpl.fire_on)
-	{
-		packet_struct *packet;
+	packet_struct *packet;
 
+	if (cpl.fire_on)
+	{
 		packet = packet_new(SERVER_CMD_FIRE, 64, 64);
 		packet_append_uint8(packet, directions_fire[num - 1]);
 		packet_append_uint8(packet, RangeFireMode);
@@ -123,16 +104,22 @@ void move_keys(int num)
 	}
 	else
 	{
-		if (num == 5)
+		if (num == 5 && !cpl.run_on)
 		{
-			packet_struct *packet;
-
 			packet = packet_new(SERVER_CMD_CLEAR, 0, 0);
 			socket_send_packet(packet);
 		}
 		else
 		{
-			send_command(directions_move[num - 1]);
+			if (num == 5)
+			{
+				cpl.run_on = 0;
+			}
+
+			packet = packet_new(SERVER_CMD_MOVE, 8, 0);
+			packet_append_uint8(packet, directions_fire[num - 1]);
+			packet_append_uint8(packet, cpl.run_on);
+			socket_send_packet(packet);
 		}
 	}
 }

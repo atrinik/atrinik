@@ -47,7 +47,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
 	draw_info(COLOR_WHITE, applier, "You save and your save bed location is updated.");
 	hiscore_check(applier, 0);
-	save_player(applier, 1);
+	save_player(applier);
 
 	return OBJECT_METHOD_OK;
 }

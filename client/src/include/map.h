@@ -192,6 +192,10 @@ typedef struct MapCell
 
 	/** Name of player on this cell. */
 	char pname[NUM_REAL_LAYERS][64];
+
+	uint32 target_object_count[NUM_REAL_LAYERS];
+
+	uint8 target_is_friend[NUM_REAL_LAYERS];
 } MapCell;
 
 /** Map structure. */
@@ -200,6 +204,13 @@ typedef struct Map
 	/** Map cells. */
 	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
+
+typedef struct map_target_struct
+{
+	uint32 count;
+	int x;
+	int y;
+} map_target_struct;
 
 /** Font used for the map name. */
 #define MAP_NAME_FONT FONT_SERIF14

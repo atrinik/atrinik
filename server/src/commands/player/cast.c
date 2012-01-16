@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Range related commands (casting, shooting, throwing, etc.). */
+ * Implements the /cast command.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
@@ -41,32 +43,12 @@
  * -1 if there is no match, -2 if there are multiple matches. */
 static int find_spell_byname(object *op, char *params, int options)
 {
-	/* number of spells known by op */
-	int numknown;
-	/* number of spell that is being cast */
 	int spnum, match = -1, i;
 	size_t paramlen = 0;
 
-	/* DMs know all spells */
-	if (QUERY_FLAG(op, FLAG_WIZ))
+	for (i = 0; i < CONTR(op)->nrofknownspells; i++)
 	{
-		numknown = NROFREALSPELLS;
-	}
-	else
-	{
-		numknown = CONTR(op)->nrofknownspells;
-	}
-
-	for (i = 0; i < numknown; i++)
-	{
-		if (QUERY_FLAG(op, FLAG_WIZ))
-		{
-			spnum = i;
-		}
-		else
-		{
-			spnum = CONTR(op)->known_spells[i];
-		}
+		spnum = CONTR(op)->known_spells[i];
 
 		if (!options)
 		{
@@ -91,26 +73,22 @@ static int find_spell_byname(object *op, char *params, int options)
 	return match;
 }
 
-/**
- * Casts the specified spell.
- * @param op Caster.
- * @param params Spell name.
- * @return 1 on success, 0 otherwise. */
-int command_cast_spell(object *op, char *params)
+/** @copydoc command_func */
+void command_cast(object *op, const char *command, char *params)
 {
 	char *cp = NULL;
 	int spnum = -1, spnum2 = -1;
 
-	if (!CONTR(op)->nrofknownspells && !QUERY_FLAG(op, FLAG_WIZ))
+	if (!CONTR(op)->nrofknownspells)
 	{
 		draw_info(COLOR_WHITE, op, "You don't know any spells.");
-		return 0;
+		return;
 	}
 
 	if (!params)
 	{
 		draw_info(COLOR_WHITE, op, "Cast which spell?");
-		return 0;
+		return;
 	}
 
 	/* This assumes simply that if the name of
@@ -138,11 +116,9 @@ int command_cast_spell(object *op, char *params)
 	if (spnum == -1)
 	{
 		draw_info_format(COLOR_WHITE, op, "You don't know the spell %s.", params);
-		return 0;
+		return;
 	}
 
 	CONTR(op)->chosen_spell = spnum;
 	fire(op, op->facing, FIRE_MODE_SPELL, NULL);
-
-	return 1;
 }

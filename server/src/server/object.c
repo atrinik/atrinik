@@ -299,11 +299,11 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	"can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
 	"has_ready_bow", "xrays", NULL, "is_floor", "lifesave",
 	"is_magical", NULL, "stand_still", "random_move", "only_attack",
-	"wiz", "stealth", NULL, NULL, "cursed",
+	NULL, "stealth", NULL, NULL, "cursed",
 	"damned", "is_buildable", "no_pvp", NULL, NULL,
 	"is_thrown", NULL, NULL, "is_male", "is_female",
 	"applied", "inv_locked", NULL, NULL, NULL,
-	"has_ready_weapon", "no_skill_ident", "was_wiz", "can_see_in_dark", "is_cauldron",
+	"has_ready_weapon", "no_skill_ident", NULL, "can_see_in_dark", "is_cauldron",
 	"is_dust", NULL, "one_hit", "draw_double_always", "berserk",
 	"no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
 	NULL, NULL, NULL, NULL, NULL,
@@ -2056,7 +2056,7 @@ int object_check_move_on(object *op, object *originator)
 			continue;
 		}
 
-		if (IS_LIVE(op) && !QUERY_FLAG(op, FLAG_WIZPASS) && QUERY_FLAG(tmp, FLAG_SLOW_MOVE) && (!tmp->terrain_flag || tmp->terrain_flag & op->terrain_flag))
+		if (IS_LIVE(op) && (op->type != PLAYER || !CONTR(op)->tcl) && QUERY_FLAG(tmp, FLAG_SLOW_MOVE) && (!tmp->terrain_flag || tmp->terrain_flag & op->terrain_flag))
 		{
 			op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
 		}

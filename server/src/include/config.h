@@ -74,16 +74,6 @@
 #define MAX_TIME 125000
 
 /**
- * Calling this REAL_WIZ is probably not really good. Something like
- * MUD_WIZ might be a better name.
- *
- * Basically, if REAL_WIZ is defined then the WIZ/WAS_WIZ flags for objects
- * are not set - instead, wizard created/manipulated objects appear as
- * normal objects.  This makes the wizard a little more mudlike, since
- * object manipulations will be usable for other objects. */
-#define REAL_WIZ
-
-/**
  * Set this if you want the temporary maps to be saved and reused across
  * Atrinik runs.  This can be especially useful for single player
  * servers, but even holds use for multiplayer servers.  The file used

@@ -63,6 +63,10 @@ typedef struct MapCell_struct
 	 * Probe cache. No need for an array, since this only appears
 	 * for players or monsters, both on layer 6. */
 	uint8 probe;
+
+	/**
+	 * Possible target object UID cache. */
+	tag_t target_object_count;
 } MapCell;
 
 /** One map for a player. */

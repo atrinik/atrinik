@@ -72,16 +72,12 @@ void metaserver_info_update(void)
 			continue;
 		}
 
-		if (!pl->ms_privacy && !pl->dm_stealth)
+		if (stringbuffer_length(sb))
 		{
-			if (sb->pos)
-			{
-				stringbuffer_append_string(sb, ":");
-			}
-
-			stringbuffer_append_string(sb, pl->quick_name);
+			stringbuffer_append_string(sb, ":");
 		}
 
+		stringbuffer_append_string(sb, pl->quick_name);
 		num_players++;
 	}
 

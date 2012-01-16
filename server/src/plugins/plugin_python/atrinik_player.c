@@ -51,9 +51,13 @@ static fields_struct fields[] =
 	{"bed_y", FIELDTYPE_SINT16, offsetof(player, bed_y), 0, 0},
 	{"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
 	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
-	{"dm_stealth", FIELDTYPE_BOOLEAN, offsetof(player, dm_stealth), 0, 0},
 	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
 	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
+	{"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0},
+	{"tgm", FIELDTYPE_BOOLEAN, offsetof(player, tgm), 0, 0},
+	{"tli", FIELDTYPE_BOOLEAN, offsetof(player, tli), 0, 0},
+	{"tls", FIELDTYPE_BOOLEAN, offsetof(player, tls), 0, 0},
+	{"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0},
 	{"known_spells", FIELDTYPE_LIST, offsetof(player, known_spells), 0, FIELDTYPE_KNOWN_SPELLS},
 	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
 	{"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
@@ -299,7 +303,6 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 {
 	const char *command;
 	char *cp;
-	int ret;
 
 	if (!PyArg_ParseTuple(args, "s", &command))
 	{
@@ -315,10 +318,11 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 	/* Make a copy of the command, since execute_newserver_command
 	 * modifies the string. */
 	cp = hooks->strdup(command);
-	ret = hooks->execute_newserver_command(pl->pl->ob, cp);
+	hooks->commands_handle(pl->pl->ob, cp);
 	free(cp);
 
-	return Py_BuildValue("i", ret);
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /**

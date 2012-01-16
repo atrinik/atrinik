@@ -107,7 +107,7 @@ int skill_inscription(object *op, const char *params)
 		return 0;
 	}
 
-	if (QUERY_FLAG(op, FLAG_BLIND) && !QUERY_FLAG(op, FLAG_WIZ))
+	if (QUERY_FLAG(op, FLAG_BLIND))
 	{
 		draw_info(COLOR_WHITE, op, "You are unable to write while blind.");
 		return 0;

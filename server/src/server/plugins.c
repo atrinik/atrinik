@@ -52,7 +52,7 @@ struct plugin_hooklist hooklist =
 	rune_spring,
 	cast_spell,
 	update_ob_speed,
-	command_rskill,
+	change_skill,
 	become_follower,
 	pick_up,
 	get_map_from_coord,
@@ -135,7 +135,7 @@ struct plugin_hooklist hooklist =
 	find_string,
 	command_take,
 	esrv_update_item,
-	execute_newserver_command,
+	commands_handle,
 	find_treasurelist,
 	create_treasure,
 	dump_object_rec,
@@ -179,7 +179,7 @@ struct plugin_hooklist hooklist =
 	packet_append_map_weather,
 	socket_send_packet,
 	logger_print,
-	logger_get_logfile,
+	commands_add,
 
 	season_name,
 	weekdays,
@@ -289,32 +289,6 @@ object *get_event_object(object *op, int event_nr)
 	}
 
 	return tmp;
-}
-
-/**
- * Tries to find if a given command is handled by a plugin.
- * @param cmd The command name to find.
- * @return Command array structure if found, NULL otherwise. */
-CommArray_s *find_plugin_command(const char *cmd)
-{
-	int i;
-	atrinik_plugin *plugin;
-	static CommArray_s rtn_cmd;
-
-	if (!plugins_list)
-	{
-		return NULL;
-	}
-
-	for (plugin = plugins_list; plugin; plugin = plugin->next)
-	{
-		if (plugin->propfunc(&i, "command?", cmd, &rtn_cmd))
-		{
-			return &rtn_cmd;
-		}
-	}
-
-	return NULL;
 }
 
 /**

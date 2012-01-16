@@ -513,7 +513,7 @@ int keybind_process_command_up(const char *cmd)
 		}
 		else if (!strcmp(cmd, "RUNON"))
 		{
-			send_command("/run_stop");
+			move_keys(5);
 			cpl.run_on = 0;
 		}
 		else if (!strcmp(cmd, "FIREON"))
@@ -692,19 +692,15 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "TARGET_ENEMY"))
 		{
-			send_command("/target 0");
+			map_target_handle(0);
 		}
 		else if (!strcmp(cmd, "TARGET_FRIEND"))
 		{
-			send_command("/target 1");
-		}
-		else if (!strcmp(cmd, "TARGET_SELF"))
-		{
-			send_command("/target 2");
+			map_target_handle(1);
 		}
 		else if (!strcmp(cmd, "COMBAT"))
 		{
-			send_command("/combat");
+			send_combat();
 		}
 		else if (!strcmp(cmd, "FIRE_READY"))
 		{
@@ -784,6 +780,11 @@ int keybind_process_command(const char *cmd)
 		{
 			if (!strcmp(cmd + 5, "_TOGGLE"))
 			{
+				if (cpl.run_on)
+				{
+					move_keys(5);
+				}
+
 				cpl.run_on = !cpl.run_on;
 			}
 			else

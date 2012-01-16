@@ -56,6 +56,8 @@ enum
 	SERVER_CMD_MOVE_PATH,
 	SERVER_CMD_ITEM_READY,
 	SERVER_CMD_PASSWORD_CHANGE,
+	SERVER_CMD_MOVE,
+	SERVER_CMD_TARGET,
 
 	SERVER_CMD_NROF
 };
@@ -234,6 +236,8 @@ enum
 #define MAP2_FLAG2_ROTATE 2
 /** The object should be highlighted in red. */
 #define MAP2_FLAG2_INFRAVISION 4
+/** Possible target. */
+#define MAP2_FLAG2_TARGET 8
 /*@}*/
 
 /**
@@ -294,6 +298,21 @@ enum
 #define CMD_SOUND_BACKGROUND 2
 /** Path to sound effect with an absolute filename. MIDI is not supported. */
 #define CMD_SOUND_ABSOLUTE 3
+/*@}*/
+
+/**
+ * @defgroup CMD_TARGET_xxx Target command types
+ * Target command types.
+ *@{*/
+/**
+ * Toggle target mode on/off. */
+#define CMD_TARGET_TCOMBAT 1
+/**
+ * Target something at the specified X/Y position on the map. */
+#define CMD_TARGET_MAPXY 2
+/**
+ * Clear target. */
+#define CMD_TARGET_CLEAR 3
 /*@}*/
 
 /**
