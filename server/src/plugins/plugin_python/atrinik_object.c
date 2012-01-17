@@ -394,30 +394,6 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 }
 
 /**
- * <h1>object.Communicate(string message)</h1>
- * Object says message to everybody on its map. Emote commands may be used.
- * @param message The message to say. */
-static PyObject *Atrinik_Object_Communicate(Atrinik_Object *obj, PyObject *args)
-{
-	const char *message;
-	char *str;
-
-	if (!PyArg_ParseTuple(args, "s", &message))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	str = hooks->strdup(message);
-	hooks->communicate(obj->obj, str);
-	free(str);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.Say(string message)</h1>
  * Object says message to everybody on its map.
  * @param message The message to say. */
@@ -1705,7 +1681,6 @@ static PyMethodDef methods[] =
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
 	{"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
-	{"Communicate", (PyCFunction) Atrinik_Object_Communicate, METH_VARARGS, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
 	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
