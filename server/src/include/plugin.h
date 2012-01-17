@@ -217,7 +217,6 @@ struct plugin_hooklist
 	sint64 (*query_money)(object *);
 	int (*pay_for_item)(object *, object *);
 	int (*pay_for_amount)(sint64, object *);
-	void (*communicate)(object *, char *);
 	object *(*object_create_clone)(object *);
 	object *(*get_object)(void);
 	void (*copy_object)(object *, object *, int);

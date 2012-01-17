@@ -79,7 +79,6 @@ struct plugin_hooklist hooklist =
 	query_money,
 	pay_for_item,
 	pay_for_amount,
-	communicate,
 	object_create_clone,
 	get_object,
 	copy_object,

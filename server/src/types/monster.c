@@ -1506,63 +1506,6 @@ static void rand_move(object *ob)
 }
 
 /**
- * Communication between NPC and player.
- * @param op Who is saying something.
- * @param txt What was said. */
-void communicate(object *op, char *txt)
-{
-	object *npc;
-	mapstruct *m;
-	int i, xt, yt;
-	char buf[HUGE_BUF];
-
-	if (!txt)
-	{
-		return;
-	}
-
-	snprintf(buf, sizeof(buf), "%s says: %s", query_name(op, NULL), txt);
-
-	if (op->type == PLAYER)
-	{
-		draw_info_map(NDI_PLAYER | NDI_SAY, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
-	}
-	else
-	{
-		draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
-	}
-
-	for (i = 0; i <= SIZEOFFREE2; i++)
-	{
-		xt = op->x + freearr_x[i];
-		yt = op->y + freearr_y[i];
-
-		if (!(m = get_map_from_coord(op->map, &xt, &yt)))
-		{
-			continue;
-		}
-
-		/* Check to see if we have magic ear or monster here. */
-		if (!(GET_MAP_FLAGS(m, xt, yt) & P_IS_MONSTER))
-		{
-			continue;
-		}
-
-		for (npc = GET_MAP_OB(m, xt, yt); npc; npc = npc->above)
-		{
-			/* Avoid talking to self. */
-			if (op != npc)
-			{
-				if (npc->type == MONSTER && op->type != PLAYER)
-				{
-					talk_to_npc(op, npc, txt);
-				}
-			}
-		}
-	}
-}
-
-/**
  * This function takes the message to be parsed in 'msg', the text to
  * match in 'match', and returns the portion of the message.
  * @param msg Message to parse.
