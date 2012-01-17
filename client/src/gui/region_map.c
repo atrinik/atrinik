@@ -717,7 +717,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			}
 		}
 		/* Quickport. */
-		else if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_QUICKPORT) && RM_IN_MAP(popup, event->motion.x, event->motion.y))
+		else if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && RM_IN_MAP(popup, event->motion.x, event->motion.y))
 		{
 			int xpos, ypos;
 			size_t i;

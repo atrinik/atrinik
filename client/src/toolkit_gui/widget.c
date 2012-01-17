@@ -1295,7 +1295,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 
 			add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
 
-			if (cpl.dm)
+			if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR))
 			{
 				add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
 			}

@@ -644,6 +644,9 @@ typedef struct pl_player
 	/** Table of protections last sent to the client. */
 	sint8 last_protection[NROFATTACKS];
 
+	/** Last gender sent to the client. */
+	uint8 last_gender;
+
 	/** If 1, the player is not able to shout. */
 	uint8 no_shout;
 

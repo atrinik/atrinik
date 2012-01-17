@@ -511,19 +511,13 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
 					break;
 
+				case CS_STAT_GENDER:
+					cpl.gender = packet_to_uint8(data, len, &pos);
+					break;
+
 				case CS_STAT_EXT_TITLE:
 				{
 					packet_to_string(data, len, &pos, cpl.ext_title, sizeof(cpl.ext_title));
-
-					if (strstr(cpl.ext_title, "[WIZ]"))
-					{
-						cpl.dm = 1;
-					}
-					else
-					{
-						cpl.dm = 0;
-					}
-
 					break;
 				}
 

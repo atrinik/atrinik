@@ -283,6 +283,10 @@ typedef struct Player_Struct
 	size_t target_object_index;
 
 	uint8 target_is_friend;
+
+	/**
+	 * Player's gender. */
+    uint8 gender;
 } Client_Player;
 
 /** Check if the keyword represents a true value. */

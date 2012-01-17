@@ -198,7 +198,7 @@ void help_handle_tabulator(void)
 
 		HASH_ITER(hh, hfiles, hfile, tmp)
 		{
-			if ((hfile->autocomplete || (cpl.dm && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input_string + 1, text_input_count - 1))
+			if ((hfile->autocomplete || (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input_string + 1, text_input_count - 1))
 			{
 				utarray_push_back(command_matches, &hfile->key);
 			}

@@ -520,6 +520,8 @@ void esrv_update_stats(player *pl)
 		pl->socket.ext_title_flag = 0;
 	}
 
+	AddIfInt(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
+
 	if (packet->len >= 1)
 	{
 		socket_send_packet(&pl->socket, packet);

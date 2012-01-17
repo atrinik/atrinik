@@ -326,7 +326,7 @@ static void upgrade_20_to_25(const char *from, const char *to)
 				else if (!strcmp(option_name, "Enable quickport"))
 				{
 					cat = OPT_CAT_DEVEL;
-					setting = OPT_QUICKPORT;
+					setting = OPT_OPERATOR;
 				}
 
 				if (cat != -1 && setting != -1)

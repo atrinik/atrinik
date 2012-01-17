@@ -143,8 +143,8 @@ enum
 	OPT_RELOAD_GFX,
 	/** Whether to disable /region_map cache. */
 	OPT_DISABLE_RM_CACHE,
-	/** Whether to enable quickport on the region map. */
-	OPT_QUICKPORT
+	/** Whether to enable the operator interface. */
+	OPT_OPERATOR
 };
 
 /*@}*/
