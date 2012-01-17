@@ -1853,7 +1853,6 @@ void send_target_command(player *pl)
 
 		pl->target_object = pl->ob;
 		pl->target_object_count = 0;
-		pl->target_map_pos = 0;
 	}
 	else
 	{

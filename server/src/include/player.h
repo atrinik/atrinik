@@ -554,9 +554,6 @@ typedef struct pl_player
 	/** Count of target. */
 	uint32 target_object_count;
 
-	/** Last target search position. */
-	uint32 target_map_pos;
-
 	/** Last weight limit sent to client. */
 	uint32 last_weight_limit;
 

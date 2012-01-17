@@ -314,18 +314,20 @@ const char *string_get_word(const char *str, size_t *pos, char *word, size_t wor
 	i = 0;
 	str += (*pos);
 
-	while (*str != '\0' && isspace(*str))
+	while (str && *str != '\0' && isspace(*str))
 	{
+		str++;
 		(*pos)++;
 	}
 
-	while (*str != '\0' && !isspace(*str))
+	while (str && *str != '\0' && !isspace(*str))
 	{
 		if (i < wordsize - 1)
 		{
 			word[i++] = *str;
 		}
 
+		str++;
 		(*pos)++;
 	}
 
