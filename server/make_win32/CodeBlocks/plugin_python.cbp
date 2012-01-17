@@ -37,6 +37,7 @@
 		</Build>
 		<Compiler>
 			<Add directory="..\..\src\include" />
+			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\random_maps" />
 			<Add directory="..\..\src\libs\zlib\include" />
 			<Add directory="include" />
