@@ -730,6 +730,7 @@ int main(int argc, char *argv[])
 	}
 
 	sound_init();
+	cmd_aliases_init();
 	keybind_load();
 	load_mapdef_dat();
 	read_bmaps_p0();

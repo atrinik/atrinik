@@ -53,6 +53,7 @@
 		<Unit filename="..\..\src\client\metaserver.c" />
 		<Unit filename="..\..\src\client\curl.c" />
 		<Unit filename="..\..\src\client\main.c" />
+		<Unit filename="..\..\src\client\cmd_aliases.c" />
 		<Unit filename="..\..\src\client\commands.c" />
 		<Unit filename="..\..\src\client\server_settings.c" />
 		<Unit filename="..\..\src\client\sound.c" />

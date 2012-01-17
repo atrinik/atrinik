@@ -7,6 +7,10 @@ extern Client_Player cpl;
 extern ClientSocket csocket;
 extern void DoClient(void);
 extern void check_animation_status(int anum);
+/* src/client/cmd_aliases.c */
+extern void cmd_aliases_init(void);
+extern void cmd_aliases_deinit(void);
+extern int cmd_aliases_handle(const char *cmd);
 /* src/client/commands.c */
 extern void socket_command_book(uint8 *data, size_t len, size_t pos);
 extern void socket_command_setup(uint8 *data, size_t len, size_t pos);
@@ -133,6 +137,11 @@ extern int bmp2png(const char *path);
 extern void screenshot_create(SDL_Surface *surface);
 /* src/client/player.c */
 extern const char *gender_noun[4];
+extern const char *gender_subjective[4];
+extern const char *gender_subjective_upper[4];
+extern const char *gender_objective[4];
+extern const char *gender_possessive[4];
+extern const char *gender_reflexive[4];
 extern void clear_player(void);
 extern void new_player(tag_t tag, long weight, short face);
 extern void client_send_apply(tag_t tag);

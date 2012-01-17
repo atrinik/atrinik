@@ -36,7 +36,11 @@
  * @return 0 to send command to server, 1 to not send it */
 int client_command_check(const char *cmd)
 {
-	if (!strncasecmp(cmd, "/ready_spell", 12))
+	if (cmd_aliases_handle(cmd))
+	{
+		return 1;
+	}
+	else if (!strncasecmp(cmd, "/ready_spell", 12))
 	{
 		cmd = strchr(cmd, ' ');
 

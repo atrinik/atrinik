@@ -151,6 +151,7 @@ include_directories(src/toolkit/include)
 set(SOURCES
 	src/client/animations.c
 	src/client/client.c
+	src/client/cmd_aliases.c
 	src/client/commands.c
 	src/client/curl.c
 	src/client/ignore.c

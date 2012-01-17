@@ -58,6 +58,7 @@ void system_end(void)
 	socket_deinitialize();
 	effects_deinit();
 	sound_deinit();
+	cmd_aliases_deinit();
 	free_bitmaps();
 	text_deinit();
 	hfiles_deinit();
