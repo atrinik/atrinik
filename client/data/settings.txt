@@ -228,9 +228,9 @@ category Devel
 		default off
 		desc Disables the region maps cache.
 	end
-	setting Enable quickport
+	setting Operator interface
 		type bool
 		default off
-		desc Enables using middle-click on the region map for instant teleportation.
+		desc Enables operator interface.
 	end
 end
