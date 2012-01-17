@@ -58,14 +58,15 @@ typedef struct cmd_alias_struct
 static cmd_alias_struct *cmd_aliases = NULL;
 
 /**
- * Initialize the command aliases system. */
-void cmd_aliases_init(void)
+ * Load command aliases file.
+ * @param path Where to load the file from. */
+static void cmd_aliases_load(const char *path)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *end;
 	cmd_alias_struct *cmd_alias;
 
-	fp = fopen_wrapper("settings/cmd_aliases.cfg", "r");
+	fp = fopen_wrapper(path, "r");
 
 	if (!fp)
 	{
@@ -114,6 +115,14 @@ void cmd_aliases_init(void)
 	}
 
 	fclose(fp);
+}
+
+/**
+ * Initialize the command aliases system. */
+void cmd_aliases_init(void)
+{
+	cmd_aliases_load("data/cmd_aliases.cfg");
+	cmd_aliases_load("settings/cmd_aliases.cfg");
 }
 
 /**
