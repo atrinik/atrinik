@@ -57,8 +57,12 @@ extern void command_gsay(object *op, const char *command, char *params);
 extern void command_hiscore(object *op, const char *command, char *params);
 /* src/commands/player/left.c */
 extern void command_left(object *op, const char *command, char *params);
+/* src/commands/player/me.c */
+extern void command_me(object *op, const char *command, char *params);
 /* src/commands/player/motd.c */
 extern void command_motd(object *op, const char *command, char *params);
+/* src/commands/player/my.c */
+extern void command_my(object *op, const char *command, char *params);
 /* src/commands/player/party.c */
 extern void command_party(object *op, const char *command, char *params);
 /* src/commands/player/pray.c */
@@ -1127,7 +1131,6 @@ extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
 extern void object_type_init_monster(void);
-extern void communicate(object *op, char *txt);
 extern int talk_to_npc(object *op, object *npc, char *txt);
 extern int faction_is_friend_of(object *mon, object *pl);
 extern int is_friend_of(object *op, object *obj);
