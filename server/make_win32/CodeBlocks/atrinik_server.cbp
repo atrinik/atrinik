@@ -78,7 +78,9 @@
 		<Unit filename="..\..\src\commands\player\gsay.c" />
 		<Unit filename="..\..\src\commands\player\hiscore.c" />
 		<Unit filename="..\..\src\commands\player\left.c" />
+		<Unit filename="..\..\src\commands\player\me.c" />
 		<Unit filename="..\..\src\commands\player\motd.c" />
+		<Unit filename="..\..\src\commands\player\my.c" />
 		<Unit filename="..\..\src\commands\player\party.c" />
 		<Unit filename="..\..\src\commands\player\pray.c" />
 		<Unit filename="..\..\src\commands\player\push.c" />

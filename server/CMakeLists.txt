@@ -205,7 +205,9 @@ set(SOURCES
 	src/commands/player/gsay.c
 	src/commands/player/hiscore.c
 	src/commands/player/left.c
+	src/commands/player/me.c
 	src/commands/player/motd.c
+	src/commands/player/my.c
 	src/commands/player/party.c
 	src/commands/player/pray.c
 	src/commands/player/push.c
