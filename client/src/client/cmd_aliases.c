@@ -25,7 +25,9 @@
 
 /**
  * @file
- * Handles command aliases system. */
+ * Handles command aliases system.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
