@@ -792,7 +792,7 @@ def main():
 			inf.add_link("I'd like to withdraw all my items.", dest = "withdraw all")
 
 	# Allow setting up the shop if the player is an operator.
-	elif "[OP]" in player.cmd_permissions and msg == "setup":
+	elif msg == "setup" and "[OP]" in activator.Controller().cmd_permissions:
 		import json
 		temp = []
 		sign = None

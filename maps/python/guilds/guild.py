@@ -30,7 +30,7 @@ def main():
 	# Enter the guild.
 	elif msg == "doenter":
 		# Is the activator a legitimate guild member?
-		if guild.member_approved(activator.name) or "[OP]" in player.cmd_permissions:
+		if guild.member_approved(activator.name) or "[OP]" in activator.Controller().cmd_permissions:
 			(m, x, y) = guild.get(guild.enter_pos)
 			activator.TeleportTo(m, x, y)
 			inf.dialog_close()

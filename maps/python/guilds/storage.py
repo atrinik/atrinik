@@ -6,6 +6,7 @@ from Guild import Guild
 other = WhoIsOther()
 event_num = GetEventNumber()
 guild = Guild(GetOptions())
+player = activator.Controller()
 
 ## Check whether the specified object is inside a player.
 ## @return True if the object is inside a player, False otherwise.

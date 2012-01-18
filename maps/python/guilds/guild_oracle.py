@@ -7,6 +7,7 @@ from Guild import Guild
 import re
 
 inf = Interface(activator, me)
+player = activator.Controller()
 guild = Guild(GetOptions())
 
 def main():
