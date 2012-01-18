@@ -187,6 +187,17 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 					{
 						stringbuffer_append_string(sb, params ? params : "");
 					}
+					else if (strcmp(cps[1], "mplayer") == 0)
+					{
+						if (sound_map_background(-1) && sound_playing_music())
+						{
+							stringbuffer_append_string(sb, sound_get_bg_music_basename());
+						}
+						else
+						{
+							stringbuffer_append_string(sb, "nothing");
+						}
+					}
 				}
 				else if (strcmp(cps[0], "gender") == 0)
 				{
