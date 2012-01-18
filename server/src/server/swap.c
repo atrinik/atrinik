@@ -156,8 +156,6 @@ void swap_map(mapstruct *map, int force_flag)
 	{
 		mapstruct *oldmap = map;
 
-		logger_print(LOG(DEBUG), "Resetting1 map %s.", map->path);
-
 		if (map->events)
 		{
 			/* Trigger the map reset event */
@@ -243,7 +241,6 @@ void flush_old_maps(void)
 		/* Per player unique maps are never really reset. */
 		if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED)
 		{
-			logger_print(LOG(DEBUG), "Resetting2 map %s.", m->path);
 			oldmap = m;
 			m = m->next;
 			delete_map(oldmap);
@@ -255,8 +252,6 @@ void flush_old_maps(void)
 		}
 		else
 		{
-			logger_print(LOG(DEBUG), "Resetting3 map %s.", m->path);
-
 			if (m->events)
 			{
 				/* Trigger the map reset event */
