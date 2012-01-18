@@ -395,7 +395,6 @@ extern void widget_show_mplayer(widgetdata *widget);
 extern void widget_mplayer_background(widgetdata *widget);
 extern void widget_mplayer_deinit(widgetdata *widget);
 extern void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event);
-extern void mplayer_now_playing(void);
 /* src/gui/notification.c */
 extern void notification_destroy(void);
 extern int notification_keybind_check(const char *cmd);
