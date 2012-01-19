@@ -181,7 +181,6 @@ set(SOURCES
 	src/commands/permission/cmd_permission.c
 	src/commands/permission/follow.c
 	src/commands/permission/freeze.c
-	src/commands/permission/goto.c
 	src/commands/permission/kick.c
 	src/commands/permission/mod_shout.c
 	src/commands/permission/no_shout.c
@@ -191,12 +190,13 @@ set(SOURCES
 	src/commands/permission/setpassword.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c
-	src/commands/permission/summon.c
 	src/commands/permission/tcl.c
-	src/commands/permission/teleport.c
 	src/commands/permission/tgm.c
 	src/commands/permission/tli.c
 	src/commands/permission/tls.c
+	src/commands/permission/tp.c
+	src/commands/permission/tphere.c
+	src/commands/permission/tpto.c
 	src/commands/permission/tsi.c
 	src/commands/player/afk.c
 	src/commands/player/apply.c

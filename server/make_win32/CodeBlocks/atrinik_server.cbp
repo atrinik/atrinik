@@ -53,7 +53,6 @@
 		<Unit filename="..\..\src\commands\permission\cmd_permission.c" />
 		<Unit filename="..\..\src\commands\permission\follow.c" />
 		<Unit filename="..\..\src\commands\permission\freeze.c" />
-		<Unit filename="..\..\src\commands\permission\goto.c" />
 		<Unit filename="..\..\src\commands\permission\kick.c" />
 		<Unit filename="..\..\src\commands\permission\mod_shout.c" />
 		<Unit filename="..\..\src\commands\permission\no_shout.c" />
@@ -63,13 +62,14 @@
 		<Unit filename="..\..\src\commands\permission\setpassword.c" />
 		<Unit filename="..\..\src\commands\permission\settime.c" />
 		<Unit filename="..\..\src\commands\permission\shutdown.c" />
-		<Unit filename="..\..\src\commands\permission\summon.c" />
 		<Unit filename="..\..\src\commands\permission\tcl.c" />
-		<Unit filename="..\..\src\commands\permission\teleport.c" />
 		<Unit filename="..\..\src\commands\permission\tgm.c" />
 		<Unit filename="..\..\src\commands\permission\tli.c" />
 		<Unit filename="..\..\src\commands\permission\tli.c" />
 		<Unit filename="..\..\src\commands\permission\tls.c" />
+		<Unit filename="..\..\src\commands\permission\tp.c" />
+		<Unit filename="..\..\src\commands\permission\tphere.c" />
+		<Unit filename="..\..\src\commands\permission\tpto.c" />
 		<Unit filename="..\..\src\commands\permission\tsi.c" />
 		<Unit filename="..\..\src\commands\player\afk.c" />
 		<Unit filename="..\..\src\commands\player\apply.c" />
