@@ -42,7 +42,7 @@ void command_tpto(object *op, const char *command, char *params)
 	params = player_sanitize_input(params);
 	pos = 0;
 
-	if (!params || string_get_word(params, &pos, path, sizeof(path)))
+	if (!params || !string_get_word(params, &pos, path, sizeof(path)))
 	{
 		return;
 	}
