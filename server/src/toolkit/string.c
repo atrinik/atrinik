@@ -352,6 +352,8 @@ int string_isdigit(const char *str)
 		{
 			return 0;
 		}
+
+		str++;
 	}
 
 	return 1;
