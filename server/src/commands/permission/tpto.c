@@ -25,13 +25,13 @@
 
 /**
  * @file
- * Implements the /goto command.
+ * Implements the /tpto command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_goto(object *op, const char *command, char *params)
+void command_tpto(object *op, const char *command, char *params)
 {
 }
