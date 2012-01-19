@@ -25,13 +25,13 @@
 
 /**
  * @file
- * Implements the /summon command.
+ * Implements the /tphere command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_summon(object *op, const char *command, char *params)
+void command_tphere(object *op, const char *command, char *params)
 {
 }
