@@ -9,8 +9,6 @@ extern void command_cmd_permission(object *op, const char *command, char *params
 extern void command_follow(object *op, const char *command, char *params);
 /* src/commands/permission/freeze.c */
 extern void command_freeze(object *op, const char *command, char *params);
-/* src/commands/permission/goto.c */
-extern void command_goto(object *op, const char *command, char *params);
 /* src/commands/permission/kick.c */
 extern void command_kick(object *op, const char *command, char *params);
 /* src/commands/permission/mod_shout.c */
@@ -29,18 +27,20 @@ extern void command_setpassword(object *op, const char *command, char *params);
 extern void command_settime(object *op, const char *command, char *params);
 /* src/commands/permission/shutdown.c */
 extern void command_shutdown(object *op, const char *command, char *params);
-/* src/commands/permission/summon.c */
-extern void command_summon(object *op, const char *command, char *params);
 /* src/commands/permission/tcl.c */
 extern void command_tcl(object *op, const char *command, char *params);
-/* src/commands/permission/teleport.c */
-extern void command_teleport(object *op, const char *command, char *params);
 /* src/commands/permission/tgm.c */
 extern void command_tgm(object *op, const char *command, char *params);
 /* src/commands/permission/tli.c */
 extern void command_tli(object *op, const char *command, char *params);
 /* src/commands/permission/tls.c */
 extern void command_tls(object *op, const char *command, char *params);
+/* src/commands/permission/tp.c */
+extern void command_tp(object *op, const char *command, char *params);
+/* src/commands/permission/tphere.c */
+extern void command_tphere(object *op, const char *command, char *params);
+/* src/commands/permission/tpto.c */
+extern void command_tpto(object *op, const char *command, char *params);
 /* src/commands/permission/tsi.c */
 extern void command_tsi(object *op, const char *command, char *params);
 /* src/commands/player/afk.c */
