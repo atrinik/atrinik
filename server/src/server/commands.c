@@ -48,7 +48,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(cmd_permission), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(goto), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(mod_shout), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(no_shout), 0.0, COMMAND_PERMISSION);
@@ -58,12 +57,13 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(setpassword), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(summon), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(teleport), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tgm), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tli), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tls), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(tp), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(tphere), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(tpto), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tsi), 0.0, COMMAND_PERMISSION);
 
 		/* [player] */
