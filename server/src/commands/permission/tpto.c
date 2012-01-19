@@ -34,4 +34,39 @@
 /** @copydoc command_func */
 void command_tpto(object *op, const char *command, char *params)
 {
+	char path[MAX_BUF], word[MAX_BUF];
+	size_t pos;
+	int x, y;
+	object *dummy;
+
+	params = player_sanitize_input(params);
+	pos = 0;
+
+	if (!params || string_get_word(params, &pos, path, sizeof(path)))
+	{
+		return;
+	}
+
+	x = y = -1;
+
+	if (string_get_word(params, &pos, word, sizeof(word)) && string_isdigit(word))
+	{
+		x = atoi(word);
+	}
+
+	if (string_get_word(params, &pos, word, sizeof(word)) && string_isdigit(word))
+	{
+		y = atoi(word);
+	}
+
+	dummy = get_object();
+	dummy->map = op->map;
+	dummy->stats.hp = x;
+	dummy->stats.sp = y;
+	FREE_AND_COPY_HASH(EXIT_PATH(dummy), path);
+	FREE_AND_COPY_HASH(dummy->name, path);
+
+	enter_exit(op, dummy);
+
+	object_destroy(dummy);
 }
