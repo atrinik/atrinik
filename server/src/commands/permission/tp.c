@@ -25,13 +25,13 @@
 
 /**
  * @file
- * Implements the /teleport command.
+ * Implements the /tp command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_teleport(object *op, const char *command, char *params)
+void command_tp(object *op, const char *command, char *params)
 {
 }
