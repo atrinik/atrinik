@@ -733,7 +733,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 					xpos = (xpos - rm_def->maps[i].xpos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
 					ypos = (ypos - rm_def->maps[i].ypos * (region_map_zoom / 100.0)) / (rm_def->pixel_size * (region_map_zoom / 100.0));
-					snprintf(buf, sizeof(buf), "/goto %s %d %d", rm_def->maps[i].path, xpos, ypos);
+					snprintf(buf, sizeof(buf), "/tpto %s %d %d", rm_def->maps[i].path, xpos, ypos);
 					send_command(buf);
 
 					/* Workaround so the middle click doesn't also trigger a
