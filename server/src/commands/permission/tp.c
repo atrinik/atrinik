@@ -34,4 +34,45 @@
 /** @copydoc command_func */
 void command_tp(object *op, const char *command, char *params)
 {
+	char word[MAX_BUF];
+	size_t pos;
+	player *dst, *who;
+
+	pos = 0;
+
+	if (!string_get_word(params, &pos, word, sizeof(word)))
+	{
+		draw_info(COLOR_WHITE, op, "Usage: /tp <dst> [who]");
+		return;
+	}
+
+	dst = find_player(word);
+
+	if (string_get_word(params, &pos, word, sizeof(word)))
+	{
+		who = find_player(word);
+	}
+	else
+	{
+		who = CONTR(op);
+	}
+
+	if (!dst || !who)
+	{
+		draw_info(COLOR_WHITE, op, "No such player.");
+		return;
+	}
+
+	if (dst == who)
+	{
+		draw_info(COLOR_WHITE, op, "You cannot teleport yourself to yourself.");
+		return;
+	}
+
+	draw_info_format(COLOR_WHITE, op, "Teleporting %s to %s.", who->ob->name, dst->ob->name);
+
+	object_remove(who->ob, 0);
+	who->ob->x = dst->ob->x;
+	who->ob->y = dst->ob->y;
+	insert_ob_in_map(who->ob, dst->ob->map, NULL, INS_NO_MERGE);
 }
