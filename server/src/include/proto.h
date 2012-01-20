@@ -339,7 +339,7 @@ extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
 extern void version(object *op);
-extern char *crypt_string(char *str, char *salt);
+extern char *crypt_string(const char *str, const char *salt);
 extern int check_password(char *typed, char *crypted);
 extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
@@ -350,7 +350,7 @@ extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
-extern void shutdown_timer_start(time_t count);
+extern void shutdown_timer_start(long secs);
 extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
@@ -941,6 +941,7 @@ extern void string_capitalize(char *str);
 extern int string_startswith(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
+extern int string_isempty(const char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
