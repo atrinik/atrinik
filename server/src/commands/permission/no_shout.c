@@ -34,4 +34,30 @@
 /** @copydoc command_func */
 void command_no_shout(object *op, const char *command, char *params)
 {
+	player *pl;
+
+	if (!params)
+	{
+		draw_info(COLOR_WHITE, op, "Usage: /no_shout <player>");
+		return;
+	}
+
+	pl = find_player(params);
+
+	if (!pl)
+	{
+		draw_info(COLOR_WHITE, op, "No such player.");
+		return;
+	}
+
+	if (pl->no_shout)
+	{
+		draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
+		pl->no_shout = 0;
+	}
+	else
+	{
+		draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
+		pl->no_shout = 1;
+	}
 }
