@@ -34,4 +34,26 @@
 /** @copydoc command_func */
 void command_mod_shout(object *op, const char *command, char *params)
 {
+	player *pl;
+
+	params = player_sanitize_input(params);
+
+	if (!params)
+	{
+		return;
+	}
+
+	logger_print(LOG(CHAT), "[MOD SHOUT] [%s] %s", op->name, params);
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (commands_check_permission(pl, command))
+		{
+			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator] (%s): %s", op->name, params);
+		}
+		else
+		{
+			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator]: %s", params);
+		}
+	}
 }
