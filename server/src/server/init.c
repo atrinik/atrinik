@@ -120,6 +120,79 @@ static void console_command_speed(const char *params)
 	}
 }
 
+static void console_command_setpassword(const char *params)
+{
+	size_t pos;
+	char playername[MAX_BUF];
+	const char *password;
+	player *pl;
+
+	pos = 0;
+
+	if (!string_get_word(params, &pos, playername, sizeof(playername)))
+	{
+		return;
+	}
+
+	password = params + pos;
+
+	if (string_isempty(password))
+	{
+		return;
+	}
+
+	pl = find_player(playername);
+
+	if (pl)
+	{
+		char filename[MAX_BUF], filename_out[MAX_BUF], buf[HUGE_BUF];
+		FILE *fp, *fp_out;
+
+		player_cleanup_name(playername);
+		snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, playername, playername);
+		snprintf(filename_out, sizeof(filename_out), "%s.tmp", filename);
+
+		fp = fopen(filename, "r");
+
+		if (!fp)
+		{
+			logger_print(LOG(WARNING), "Could not open %s.", filename);
+			return;
+		}
+
+		fp_out = fopen(filename_out, "w");
+
+		if (!fp_out)
+		{
+			logger_print(LOG(WARNING), "Could not open %s.", filename_out);
+			return;
+		}
+
+		while (fgets(buf, sizeof(buf) - 1, fp))
+		{
+			if (strncmp(buf, "password ", 9) == 0)
+			{
+				fprintf(fp_out, "password %s\n", crypt_string(password, NULL));
+			}
+			else
+			{
+				fputs(buf, fp_out);
+			}
+		}
+
+		fclose(fp);
+		fclose(fp_out);
+		unlink(filename);
+		rename(filename_out, filename);
+	}
+	else
+	{
+		strcpy(pl->password, crypt_string(password, NULL));
+	}
+
+	logger_print(LOG(INFO), "Changed password of %s.", playername);
+}
+
 /**
  * Free all data before exiting. */
 static void cleanup(void)
@@ -322,6 +395,13 @@ static void init_library(int argc, char *argv[])
 		"Changes the server's speed.",
 		"Changes the speed of the server, which in turn affects how quickly everything is processed."
 		"Without an argument, shows the current speed and the default speed."
+	);
+
+	console_command_add(
+		"setpassword",
+		console_command_setpassword,
+		"Changes a player's password.",
+		"Changes password for the specified player."
 	);
 
 	/* Add command-line options. */

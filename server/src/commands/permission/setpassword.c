@@ -34,4 +34,72 @@
 /** @copydoc command_func */
 void command_setpassword(object *op, const char *command, char *params)
 {
+	size_t pos;
+	char playername[MAX_BUF], *password;
+	player *pl;
+
+	pos = 0;
+
+	if (!string_get_word(params, &pos, playername, sizeof(playername)))
+	{
+		return;
+	}
+
+	password = params + pos;
+
+	if (string_isempty(password))
+	{
+		return;
+	}
+
+	pl = find_player(playername);
+
+	if (pl)
+	{
+		char filename[MAX_BUF], filename_out[MAX_BUF], buf[HUGE_BUF];
+		FILE *fp, *fp_out;
+
+		player_cleanup_name(playername);
+		snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, playername, playername);
+		snprintf(filename_out, sizeof(filename_out), "%s.tmp", filename);
+
+		fp = fopen(filename, "r");
+
+		if (!fp)
+		{
+			draw_info_format(COLOR_WHITE, op, "Could not open %s.", filename);
+			return;
+		}
+
+		fp_out = fopen(filename_out, "w");
+
+		if (!fp_out)
+		{
+			draw_info_format(COLOR_WHITE, op, "Could not open %s.", filename_out);
+			return;
+		}
+
+		while (fgets(buf, sizeof(buf) - 1, fp))
+		{
+			if (strncmp(buf, "password ", 9) == 0)
+			{
+				fprintf(fp_out, "password %s\n", crypt_string(password, NULL));
+			}
+			else
+			{
+				fputs(buf, fp_out);
+			}
+		}
+
+		fclose(fp);
+		fclose(fp_out);
+		unlink(filename);
+		rename(filename_out, filename);
+	}
+	else
+	{
+		strcpy(pl->password, crypt_string(password, NULL));
+	}
+
+	draw_info_format(COLOR_WHITE, op, "Changed password of %s.", playername);
 }
