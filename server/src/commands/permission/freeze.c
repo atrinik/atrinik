@@ -34,4 +34,38 @@
 /** @copydoc command_func */
 void command_freeze(object *op, const char *command, char *params)
 {
+	char word[MAX_BUF];
+	size_t pos;
+	player *pl;
+	int ticks;
+
+	pos = 0;
+
+	if (!string_get_word(params, &pos, word, sizeof(word)))
+	{
+		draw_info(COLOR_WHITE, op, "Usage: /freeze <player> [ticks]");
+		return;
+	}
+
+	pl = find_player(word);
+
+	if (!pl)
+	{
+		draw_info(COLOR_WHITE, op, "No such player.");
+		return;
+	}
+
+	if (string_get_word(params, &pos, word, sizeof(word)) && string_isdigit(word))
+	{
+		ticks = atoi(word);
+	}
+	else
+	{
+		ticks = 100;
+	}
+
+	draw_info(COLOR_RED, pl->ob, "You feel a mystical power binding you in place...");
+	draw_info_format(COLOR_WHITE, op, "You freeze %s for %d ticks.", pl->ob->name, ticks);
+
+	pl->ob->speed_left = -(pl->ob->speed * ticks);
 }
