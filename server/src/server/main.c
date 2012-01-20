@@ -95,13 +95,13 @@ void version(object *op)
  * @param str The string to crypt.
  * @param salt Salt, if NULL, random will be chosen.
  * @return The crypted string. */
-char *crypt_string(char *str, char *salt)
+char *crypt_string(const char *str, const char *salt)
 {
 #ifdef HAVE_CRYPT
 	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 	char s[2];
 
-	if (salt == NULL)
+	if (!salt)
 	{
 		size_t stringlen = strlen(c);
 
