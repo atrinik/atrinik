@@ -4,11 +4,18 @@
 
 from Atrinik import *
 
-RegisterCommand("guild", 1)
-RegisterCommand("guildmembers",1)
-RegisterCommand("roll", 1)
-RegisterCommand("stime", 1)
-RegisterCommand("console", 1)
-RegisterCommand("create", 1)
-#RegisterCommand("pirate_say", 1)
-#RegisterCommand("pirate_shout", 1)
+COMMAND_PERMISSION = 1
+
+commands = [
+	("guild", 1, 0),
+	("guildmembers", 1, 0),
+	("roll", 1, 0),
+	("stime", 1, 0),
+	("console", 1, COMMAND_PERMISSION),
+	("create", 1, COMMAND_PERMISSION),
+#	("pirate_say", 1, 0),
+#	("pirate_shout", 1, 0),
+]
+
+for t in commands:
+	RegisterCommand(*t)
