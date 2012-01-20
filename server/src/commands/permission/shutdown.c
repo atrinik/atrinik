@@ -58,8 +58,8 @@ void command_shutdown(object *op, const char *command, char *params)
 		secs = MAX(0, MIN(60, secs));
 		reason = player_sanitize_input(params + pos);
 
-		shutdown_timer_start(MAX(30, mins + secs));
-		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %d:%d.", mins, secs);
+		shutdown_timer_start(MAX(30, mins * 60 + secs));
+		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %02d:%02d minutes.", mins, secs);
 
 		if (reason)
 		{

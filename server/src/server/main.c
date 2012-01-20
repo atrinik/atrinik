@@ -1290,12 +1290,12 @@ static void do_specials(void)
 	}
 }
 
-static time_t shutdown_time;
+static long shutdown_time;
 static uint8 shutdown_active = 0;
 
-void shutdown_timer_start(time_t count)
+void shutdown_timer_start(long secs)
 {
-	shutdown_time = time(NULL) + count;
+	shutdown_time = pticks + secs * (1000000 / max_time);
 	shutdown_active = 1;
 }
 
@@ -1306,27 +1306,19 @@ void shutdown_timer_stop(void)
 
 static int shutdown_timer_check(void)
 {
-	time_t now;
-
 	if (!shutdown_active)
 	{
 		return 0;
 	}
 
-	now = time(NULL);
-
-	if (now >= shutdown_time)
+	if (pticks >= shutdown_time)
 	{
 		return 1;
 	}
 
-	if (now >= shutdown_time - 1)
+	if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time))
 	{
-		draw_info_flags(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server is shutting down now.");
-	}
-	else if (!((shutdown_time - now) % 60))
-	{
-		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %"FMT64U":%"FMT64U".", (uint64) ((shutdown_time - now) / 60), (uint64) ((shutdown_time - now) % 60));
+		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U":%02"FMT64U" minutes.", (uint64) ((shutdown_time - pticks) / (60 * (1000000 / max_time))), (uint64) ((shutdown_time - pticks) % (60 * (1000000 / max_time))));
 	}
 
 	return 0;
