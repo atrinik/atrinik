@@ -34,4 +34,25 @@
 /** @copydoc command_func */
 void command_kick(object *op, const char *command, char *params)
 {
+	player *pl;
+
+	if (!params)
+	{
+		draw_info(COLOR_WHITE, op, "Usage: /kick <player>");
+		return;
+	}
+
+	pl = find_player(params);
+
+	if (!pl)
+	{
+		draw_info(COLOR_WHITE, op, "No such player.");
+		return;
+	}
+
+	draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s was kicked out of the game.", pl->ob->name);
+	logger_print(LOG(CHAT), "[KICK] %s was kicked out of the game by %s.", pl->ob->name, op->name);
+
+	pl->socket.status = Ns_Dead;
+	remove_ns_dead_player(pl);
 }
