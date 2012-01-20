@@ -34,4 +34,13 @@
 /** @copydoc command_func */
 void command_tphere(object *op, const char *command, char *params)
 {
+	char newparams[HUGE_BUF];
+
+	if (!params)
+	{
+		return;
+	}
+
+	snprintf(newparams, sizeof(newparams), "%s %s", op->name, params);
+	COMMAND_EXECUTE(op, tp, newparams);
 }
