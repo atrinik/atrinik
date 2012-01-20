@@ -76,4 +76,8 @@ typedef struct command_struct
  * Shortcut macro for commands_add(). */
 #define COMMAND(__name) #__name, command_##__name
 
+/**
+ * Execute the specific command. */
+#define COMMAND_EXECUTE(__op, __command, __params) command_##__command((__op), #__command, (__params))
+
 #endif
