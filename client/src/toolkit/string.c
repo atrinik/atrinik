@@ -441,3 +441,8 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 
 	return strndup(str, n);
 }
+
+int string_isempty(const char *str)
+{
+	return !str || *str == '\0';
+}
