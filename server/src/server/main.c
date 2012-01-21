@@ -1318,7 +1318,7 @@ static int shutdown_timer_check(void)
 
 	if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time))
 	{
-		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U":%02"FMT64U" minutes.", (uint64) ((shutdown_time - pticks) / (60 * (1000000 / max_time))), (uint64) ((shutdown_time - pticks) % (60 * (1000000 / max_time))));
+		draw_info_flags_format(NDI_PLAYER | NDI_ALL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U":%02"FMT64U" minutes.", (uint64) ((shutdown_time - pticks) / (1000000 / max_time) / 60), (uint64) ((shutdown_time - pticks) / (1000000 / max_time) % 60));
 	}
 
 	return 0;
