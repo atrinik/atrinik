@@ -2366,11 +2366,11 @@ void generate_ext_title(player *pl)
 	object *walk;
 	char prof[32] = "";
 	char title[32] = "";
-	char rank[32] = "";
 	char align[32] = "";
 	char race[MAX_BUF];
 	char name[MAX_BUF];
 	shstr *godname;
+	int i;
 
 	for (walk = pl->ob->inv; walk; walk = walk->below)
 	{
@@ -2387,14 +2387,6 @@ void generate_ext_title(player *pl)
 				strcat(title, walk->title);
 			}
 		}
-		else if (walk->name == shstr_cons.RANK_FORCE && walk->arch->name == shstr_cons.rank_force)
-		{
-			if (walk->title)
-			{
-				strcpy(rank, walk->title);
-				strcat(rank, " ");
-			}
-		}
 		else if (walk->name == shstr_cons.ALIGNMENT_FORCE && walk->arch->name == shstr_cons.alignment_force)
 		{
 			if (walk->title)
@@ -2404,10 +2396,19 @@ void generate_ext_title(player *pl)
 		}
 	}
 
-	strcpy(pl->quick_name, rank);
-	strcat(pl->quick_name, pl->ob->name);
+	strncpy(pl->quick_name, pl->ob->name, sizeof(pl->quick_name) - 1);
+	pl->quick_name[sizeof(pl->quick_name) - 1] = '\0';
 
-	snprintf(name, sizeof(name), "%s%s%s", rank, pl->ob->name, title);
+	for (i = 0; i < pl->num_cmd_permissions; i++)
+	{
+		if (pl->cmd_permissions[i] && string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]"))
+		{
+			strncat(pl->quick_name, " ", sizeof(pl->quick_name) - strlen(pl->quick_name) - 1);
+			strncat(pl->quick_name, pl->cmd_permissions[i], sizeof(pl->quick_name) - strlen(pl->quick_name) - 1);
+		}
+	}
+
+	snprintf(name, sizeof(name), "%s%s", pl->quick_name, title);
 
 	if (pl->afk)
 	{
