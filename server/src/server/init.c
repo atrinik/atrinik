@@ -120,79 +120,6 @@ static void console_command_speed(const char *params)
 	}
 }
 
-static void console_command_setpassword(const char *params)
-{
-	size_t pos;
-	char playername[MAX_BUF];
-	const char *password;
-	player *pl;
-
-	pos = 0;
-
-	if (!string_get_word(params, &pos, playername, sizeof(playername)))
-	{
-		return;
-	}
-
-	password = params + pos;
-
-	if (string_isempty(password))
-	{
-		return;
-	}
-
-	pl = find_player(playername);
-
-	if (pl)
-	{
-		char filename[MAX_BUF], filename_out[MAX_BUF], buf[HUGE_BUF];
-		FILE *fp, *fp_out;
-
-		player_cleanup_name(playername);
-		snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, playername, playername);
-		snprintf(filename_out, sizeof(filename_out), "%s.tmp", filename);
-
-		fp = fopen(filename, "r");
-
-		if (!fp)
-		{
-			logger_print(LOG(WARNING), "Could not open %s.", filename);
-			return;
-		}
-
-		fp_out = fopen(filename_out, "w");
-
-		if (!fp_out)
-		{
-			logger_print(LOG(WARNING), "Could not open %s.", filename_out);
-			return;
-		}
-
-		while (fgets(buf, sizeof(buf) - 1, fp))
-		{
-			if (strncmp(buf, "password ", 9) == 0)
-			{
-				fprintf(fp_out, "password %s\n", crypt_string(password, NULL));
-			}
-			else
-			{
-				fputs(buf, fp_out);
-			}
-		}
-
-		fclose(fp);
-		fclose(fp_out);
-		unlink(filename);
-		rename(filename_out, filename);
-	}
-	else
-	{
-		strcpy(pl->password, crypt_string(password, NULL));
-	}
-
-	logger_print(LOG(INFO), "Changed password of %s.", playername);
-}
-
 /**
  * Free all data before exiting. */
 static void cleanup(void)
@@ -355,6 +282,19 @@ static void clioptions_option_python_reload_modules(const char *arg)
 	}
 }
 
+static void clioptions_option_default_permission_groups(const char *arg)
+{
+	if (strcmp(arg, "None") == 0)
+	{
+		settings.default_permission_groups[0] = '\0';
+	}
+	else
+	{
+		strncpy(settings.default_permission_groups, arg, sizeof(settings.default_permission_groups) - 1);
+		settings.default_permission_groups[sizeof(settings.default_permission_groups) - 1] = '\0';
+	}
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -395,13 +335,6 @@ static void init_library(int argc, char *argv[])
 		"Changes the server's speed.",
 		"Changes the speed of the server, which in turn affects how quickly everything is processed."
 		"Without an argument, shows the current speed and the default speed."
-	);
-
-	console_command_add(
-		"setpassword",
-		console_command_setpassword,
-		"Changes a player's password.",
-		"Changes password for the specified player."
 	);
 
 	/* Add command-line options. */
@@ -558,6 +491,17 @@ static void init_library(int argc, char *argv[])
 		"each time a Python script executes. If enabled, executing scripts will"
 		"be slower, but allows for easy development of modules. This should not"
 		"be enabled on a production server."
+	);
+
+	clioptions_add(
+		"default_permission_groups",
+		NULL,
+		clioptions_option_default_permission_groups,
+		1,
+		"Permission groups applied to all players.",
+		"Comma-delimited list of permission groups that every player will be"
+		"able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using"
+		"the option in the first place, ie, no default permission groups."
 	);
 
 	memset(&settings, 0, sizeof(settings));

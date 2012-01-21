@@ -379,6 +379,11 @@ typedef struct settings_struct
 	/**
 	 * Whether to reload Python modules whenever Python script executes. */
 	uint8 python_reload_modules;
+
+	/**
+	 * Comma-delimited list of permission groups each player
+	 * automatically has. */
+	char default_permission_groups[MAX_BUF];
 } settings_struct;
 
 /** Constant shared string pointers. */

@@ -34,13 +34,139 @@
 static command_struct *commands;
 
 /**
+ * Hash table containing all permission groups. */
+static permission_group_struct *permission_groups;
+
+/**
+ * Free a single permission group structure.
+ * @param tmp What to free. */
+static void commands_permission_group_free(permission_group_struct *tmp)
+{
+	size_t i;
+
+	free(tmp->name);
+
+	for (i = 0; i < tmp->cmd_permissions_num; i++)
+	{
+		free(tmp->cmd_permissions[i]);
+	}
+
+	if (tmp->cmd_permissions)
+	{
+		free(tmp->cmd_permissions);
+	}
+
+	free(tmp);
+}
+
+/**
+ * Add a single permission group structure to the hash table of
+ * permission groups.
+ * @param tmp What to add. */
+static void commands_permission_group_add(permission_group_struct *tmp)
+{
+	permission_group_struct *curr;
+
+	HASH_FIND(hh, permission_groups, tmp->name, strlen(tmp->name), curr);
+
+	/* If it already exists, remove it and free it. */
+	if (curr)
+	{
+		HASH_DEL(permission_groups, curr);
+		commands_permission_group_free(curr);
+	}
+
+	HASH_ADD_KEYPTR(hh, permission_groups, tmp->name, strlen(tmp->name), tmp);
+}
+
+/**
+ * Read command permissions config file.
+ * @param path File to read. */
+static void commands_permissions_read(const char *path)
+{
+	FILE *fp;
+	char buf[MAX_BUF], *end;
+	permission_group_struct *tmp;
+
+	fp = fopen(path, "r");
+
+	if (!fp)
+	{
+		logger_print(LOG(WARNING), "Could not open %s for reading.", path);
+		return;
+	}
+
+	tmp = NULL;
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		if (*buf == '\n' || *buf == '#')
+		{
+			continue;
+		}
+
+		end = strchr(buf, '\n');
+
+		if (end)
+		{
+			*end = '\0';
+		}
+
+		if (string_startswith(buf, "[") && string_endswith(buf, "]"))
+		{
+			if (tmp)
+			{
+				commands_permission_group_add(tmp);
+			}
+
+			tmp = calloc(1, sizeof(*tmp));
+			tmp->name = strdup(buf);
+		}
+		else if (tmp)
+		{
+			char *cps[2];
+
+			if (string_split(buf, cps, arraysize(cps), '=') == 2)
+			{
+				string_whitespace_trim(cps[0]);
+				string_whitespace_trim(cps[1]);
+
+				if (strcmp(cps[0], "cmd") == 0)
+				{
+					tmp->cmd_permissions = realloc(tmp->cmd_permissions, sizeof(*tmp->cmd_permissions) * (tmp->cmd_permissions_num + 1));
+					tmp->cmd_permissions[tmp->cmd_permissions_num] = strdup(cps[1]);
+					tmp->cmd_permissions_num++;
+				}
+			}
+		}
+	}
+
+	if (tmp)
+	{
+		commands_permission_group_add(tmp);
+	}
+
+	fclose(fp);
+}
+
+/**
  * Initialize the commands API.
  * @internal */
 void toolkit_commands_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(commands)
 	{
+		toolkit_import(path);
+
 		commands = NULL;
+		permission_groups = NULL;
+
+		commands_permissions_read("permissions.cfg");
+
+		if (path_exists("permissions-custom.cfg"))
+		{
+			commands_permissions_read("permissions-custom.cfg");
+		}
 
 		/* [operator] */
 		commands_add(COMMAND(arrest), 0.0, COMMAND_PERMISSION);
@@ -107,12 +233,20 @@ void toolkit_commands_init(void)
 void toolkit_commands_deinit(void)
 {
 	command_struct *curr, *tmp;
+	permission_group_struct *curr2, *tmp2;
+	size_t i;
 
 	HASH_ITER(hh, commands, curr, tmp)
 	{
 		HASH_DEL(commands, curr);
 		free(curr->name);
 		free(curr);
+	}
+
+	HASH_ITER(hh, permission_groups, curr2, tmp2)
+	{
+		HASH_DEL(permission_groups, curr2);
+		commands_permission_group_free(curr2);
 	}
 }
 
@@ -129,13 +263,57 @@ void commands_add(const char *name, command_func handle_func, double delay, uint
 	HASH_ADD_KEYPTR(hh, commands, command->name, strlen(command->name), command);
 }
 
+static int commands_check_permission_group(const char *name, size_t len, const char *command)
+{
+	size_t i;
+	permission_group_struct *tmp;
+
+	HASH_FIND(hh, permission_groups, name, len, tmp);
+
+	if (!tmp)
+	{
+		return 0;
+	}
+
+	for (i = 0; i < tmp->cmd_permissions_num; i++)
+	{
+		if (strcmp(tmp->cmd_permissions[i], "*") == 0 || strcmp(tmp->cmd_permissions[i], command) == 0)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 int commands_check_permission(player *pl, const char *command)
 {
 	int i;
 
+	if (settings.default_permission_groups && *settings.default_permission_groups != '\0')
+	{
+		char *curr, *next;
+
+		for (curr = settings.default_permission_groups; (curr && (next = strchr(curr, ','))) || curr; curr = next ? next + 1 : NULL)
+		{
+			if (commands_check_permission_group(curr, next ? (size_t) (next - curr) : strlen(curr), command))
+			{
+				return 1;
+			}
+		}
+	}
+
 	for (i = 0; i < pl->num_cmd_permissions; i++)
 	{
-		if (strcmp(pl->cmd_permissions[i], command) == 0)
+		if (!pl->cmd_permissions[i])
+		{
+			continue;
+		}
+
+		if (string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]") && commands_check_permission_group(pl->cmd_permissions[i], strlen(pl->cmd_permissions[i]), command))
+		{
+		}
+		else if (strcmp(pl->cmd_permissions[i], command) == 0)
 		{
 			return 1;
 		}
@@ -173,6 +351,12 @@ void commands_handle(object *op, char *cmd)
 
 		if (command)
 		{
+			if (command->flags & COMMAND_PERMISSION && !commands_check_permission(CONTR(op), cmd))
+			{
+				draw_info(COLOR_WHITE, op, "You do not have sufficient permissions for that command.");
+				return;
+			}
+
 			op->speed_left -= command->delay;
 			command->handle_func(op, cmd, params);
 			return;

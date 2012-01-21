@@ -43,7 +43,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 
 	if (!string_get_word(params, &pos, word, sizeof(word)))
 	{
-		draw_info(COLOR_RED, op, "Usage: /cmd_permission <player> <add|remove|list> [command]");
+		draw_info(COLOR_RED, op, "Usage: /cmd_permission <player> <add|remove|list> [permission]");
 		return;
 	}
 
@@ -69,7 +69,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 		{
 			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], params))
 			{
-				draw_info_format(COLOR_RED, op, "%s already has permission for /%s.", pl->ob->name, params);
+				draw_info_format(COLOR_RED, op, "%s already has permission for %s.", pl->ob->name, params);
 				return;
 			}
 		}
@@ -77,7 +77,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 		pl->num_cmd_permissions++;
 		pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
 		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup(params);
-		draw_info_format(COLOR_GREEN, op, "%s has been granted permission for /%s.", pl->ob->name, params);
+		draw_info_format(COLOR_GREEN, op, "%s has been granted permission for %s.", pl->ob->name, params);
 	}
 	else if (strcmp(word, "remove") == 0)
 	{
@@ -91,24 +91,24 @@ void command_cmd_permission(object *op, const char *command, char *params)
 			if (pl->cmd_permissions[i] && !strcmp(pl->cmd_permissions[i], params))
 			{
 				FREE_AND_NULL_PTR(pl->cmd_permissions[i]);
-				draw_info_format(COLOR_GREEN, op, "%s has had permission for /%s command removed.", pl->ob->name, params);
+				draw_info_format(COLOR_GREEN, op, "%s has had permission for %s removed.", pl->ob->name, params);
 				return;
 			}
 		}
 
-		draw_info_format(COLOR_RED, op, "%s does not have permission for /%s.", pl->ob->name, params);
+		draw_info_format(COLOR_RED, op, "%s does not have permission for %s.", pl->ob->name, params);
 	}
 	else if (strcmp(word, "list") == 0)
 	{
 		if (pl->cmd_permissions)
 		{
-			draw_info_format(COLOR_WHITE, op, "%s has permissions for the following commands:\n", pl->ob->name);
+			draw_info_format(COLOR_WHITE, op, "%s has the following permissions:\n", pl->ob->name);
 
 			for (i = 0; i < pl->num_cmd_permissions; i++)
 			{
 				if (pl->cmd_permissions[i])
 				{
-					draw_info_format(COLOR_WHITE, op, "/%s", pl->cmd_permissions[i]);
+					draw_info_format(COLOR_WHITE, op, "%s", pl->cmd_permissions[i]);
 				}
 			}
 		}

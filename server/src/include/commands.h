@@ -59,9 +59,31 @@ typedef struct command_struct
 	 * A combination of @ref COMMAND_xxx. */
 	uint64 flags;
 
-	/** Hash handle. */
+	/**
+	 * Hash handle. */
 	UT_hash_handle hh;
 } command_struct;
+
+/**
+ * A single permission group. */
+typedef struct permission_group_struct
+{
+	/**
+	 * Name, eg, '[OP]'. */
+	char *name;
+
+	/**
+	 * The command permissions for this group. */
+	char **cmd_permissions;
+
+	/**
+	 * Number of command permissions. */
+	size_t cmd_permissions_num;
+
+	/**
+	 * Hash handle. */
+	UT_hash_handle hh;
+} permission_group_struct;
 
 /**
  * @defgroup COMMAND_xxx Command flags
