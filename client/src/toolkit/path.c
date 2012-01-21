@@ -217,3 +217,19 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
 
 	return 1;
 }
+
+/**
+ * Check if the specified path exists.
+ * @param path Path to check.
+ * @return 1 if 'path' exists, 0 otherwise. */
+int path_exists(const char *path)
+{
+	struct stat statbuf;
+
+	if (stat(path, &statbuf) != 0)
+	{
+		return 0;
+	}
+
+	return 1;
+}
