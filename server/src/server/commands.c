@@ -234,7 +234,6 @@ void toolkit_commands_deinit(void)
 {
 	command_struct *curr, *tmp;
 	permission_group_struct *curr2, *tmp2;
-	size_t i;
 
 	HASH_ITER(hh, commands, curr, tmp)
 	{
