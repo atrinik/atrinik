@@ -78,6 +78,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 		pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
 		pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup(params);
 		draw_info_format(COLOR_GREEN, op, "%s has been granted permission for %s.", pl->ob->name, params);
+		pl->socket.ext_title_flag = 1;
 	}
 	else if (strcmp(word, "remove") == 0)
 	{
@@ -92,6 +93,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 			{
 				FREE_AND_NULL_PTR(pl->cmd_permissions[i]);
 				draw_info_format(COLOR_GREEN, op, "%s has had permission for %s removed.", pl->ob->name, params);
+				pl->socket.ext_title_flag = 1;
 				return;
 			}
 		}
