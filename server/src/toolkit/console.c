@@ -97,7 +97,7 @@ static void console_command_help(const char *params)
 
 				for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL)
 				{
-					cp = strndup(curr, next - curr);
+					cp = strndup(curr, next ? (size_t) (next - curr) : strlen(curr));
 					logger_print(LOG(INFO), "%s", cp);
 					free(cp);
 				}
