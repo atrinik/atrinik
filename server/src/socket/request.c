@@ -1169,8 +1169,8 @@ void draw_client_map2(object *pl)
 					}
 
 					/* This is done so that the player image is always shown
-					* to the player, even if they are standing on top of another
-					* player or monster. */
+					 * to the player, even if they are standing on top of another
+					 * player or monster. */
 					if (tmp && tmp->layer == LAYER_LIVING && pl->x == nx && pl->y == ny)
 					{
 						tmp = pl;
@@ -1189,19 +1189,19 @@ void draw_client_map2(object *pl)
 					}
 
 					/* Handle objects that are shown based on their direction
-					* and the player's position. */
+					 * and the player's position. */
 					if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION))
 					{
 						/* If the object is dir [0124568] and not in the top
-						* or right quadrant or on the central square, do not
-						* show it. */
+						 * or right quadrant or on the central square, do not
+						 * show it. */
 						if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2)))
 						{
 							tmp = NULL;
 						}
 						/* If the object is dir [0234768] and not in the top
-						* or left quadrant or on the central square, do not
-						* show it. */
+						 * or left quadrant or on the central square, do not
+						 * show it. */
 						else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2)))
 						{
 							tmp = NULL;
