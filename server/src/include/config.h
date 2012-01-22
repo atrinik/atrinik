@@ -185,7 +185,7 @@
  * This option is useful for bandwidth-limited servers, as it has nearly
  * no CPU impact, but halves the bandwidth usage of most common data
  * packets. */
-#define COMPRESS_DATA_PACKETS 1
+#define COMPRESS_DATA_PACKETS 0
 
 /**
  * Only data packets longer than this will be compressed if @ref COMPRESS_DATA_PACKETS
