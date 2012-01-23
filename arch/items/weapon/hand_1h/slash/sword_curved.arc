@@ -5,7 +5,7 @@ face sword_curved.101
 weapon_speed 0.02
 attack_slash 100
 item_level 3
-item_skill 4
+item_skill 16
 dam 5
 wc 4
 type 15

@@ -4,7 +4,7 @@ layer 3
 face voulge.101
 attack_cleave 100
 item_level 11
-item_skill 4
+item_skill 17
 weapon_speed 0.0175
 dam 8
 wc 5

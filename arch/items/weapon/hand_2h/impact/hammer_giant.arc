@@ -5,7 +5,7 @@ face hammer_giant.101
 weapon_speed 0.02
 attack_impact 100
 item_level 10
-item_skill 4
+item_skill 19
 dam 8
 wc 7
 type 15

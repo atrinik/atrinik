@@ -5,7 +5,7 @@ layer 3
 weapon_speed 0.02
 attack_impact 100
 item_level 7
-item_skill 4
+item_skill 19
 dam 6
 wc 5
 type 15

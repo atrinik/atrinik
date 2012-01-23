@@ -5,7 +5,7 @@ weapon_speed 0.02
 attack_pierce 100
 type 15
 item_level 10
-item_skill 4
+item_skill 18
 sub_type 6
 face lance.101
 material 18

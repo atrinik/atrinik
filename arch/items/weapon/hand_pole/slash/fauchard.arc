@@ -5,7 +5,7 @@ weapon_speed 0.0175
 attack_slash 100
 type 15
 item_level 11
-item_skill 4
+item_skill 16
 sub_type 9
 face fauchard.101
 material 18

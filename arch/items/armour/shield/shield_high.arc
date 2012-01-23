@@ -5,7 +5,6 @@ layer 3
 face shield_high.101
 ac 3
 last_heal 10
-item_skill 4
 item_level 9
 protect_impact 12
 protect_cleave 12

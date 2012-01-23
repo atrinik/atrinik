@@ -6,7 +6,6 @@ face shield_defender.101
 ac 4
 last_heal 15
 item_level 19
-item_skill 4
 protect_impact 12
 protect_cleave 6
 protect_pierce 6

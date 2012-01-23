@@ -5,7 +5,7 @@ face axe_battle.101
 attack_cleave 100
 weapon_speed 0.0225
 item_level 7
-item_skill 4
+item_skill 17
 dam 6
 wc 5
 type 15

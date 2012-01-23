@@ -6,7 +6,6 @@ face ball_and_chain.101
 ac 2
 wc 1
 item_level 4
-item_skill 4
 last_heal 5
 protect_impact 5
 protect_cleave 10

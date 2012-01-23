@@ -3,7 +3,7 @@ name bardiche
 layer 3
 face bardiche.101
 item_level 11
-item_skill 4
+item_skill 17
 attack_cleave 100
 weapon_speed 0.0175
 dam 8

@@ -7,7 +7,7 @@ sub_type 2
 material 8
 material_real 193
 item_level 19
-item_skill 1
+item_skill 15
 face sling_heavy.101
 wc 6
 wc_range 25

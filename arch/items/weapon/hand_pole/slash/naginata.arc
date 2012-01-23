@@ -3,7 +3,7 @@ name naginata
 layer 3
 weapon_speed 0.0175
 item_level 11
-item_skill 4
+item_skill 16
 attack_slash 100
 type 15
 sub_type 9

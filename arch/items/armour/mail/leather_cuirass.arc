@@ -7,7 +7,6 @@ last_heal 18
 last_sp 8
 ac 6
 item_level 7
-item_skill 4
 protect_impact 15
 protect_cleave 30
 protect_slash 15

@@ -5,7 +5,6 @@ layer 3
 face blade_stopper.101
 ac 4
 item_level 19
-item_skill 4
 last_heal 15
 protect_impact 12
 protect_cleave 6

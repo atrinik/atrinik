@@ -5,7 +5,7 @@ race crossbow bolts
 type 14
 sub_type 1
 item_level 19
-item_skill 1
+item_skill 14
 material 16
 material_real 258
 face crossbow_large.101

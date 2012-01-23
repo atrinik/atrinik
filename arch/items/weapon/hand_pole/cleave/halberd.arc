@@ -5,7 +5,7 @@ face halberd.101
 attack_cleave 100
 weapon_speed 0.0175
 item_level 11
-item_skill 4
+item_skill 17
 dam 8
 wc 5
 ac 2

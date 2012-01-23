@@ -5,7 +5,7 @@ face bec_de_corbin.101
 weapon_speed 0.0175
 attack_impact 100
 item_level 11
-item_skill 4
+item_skill 19
 dam 8
 wc 5
 ac 2

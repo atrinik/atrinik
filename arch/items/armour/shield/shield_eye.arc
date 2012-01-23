@@ -6,7 +6,6 @@ face shield_eye.101
 ac 3
 item_level 9
 last_heal 10
-item_skill 4
 protect_impact 5
 protect_cleave 5
 protect_pierce 10

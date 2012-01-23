@@ -4,7 +4,7 @@ layer 3
 race arrows
 type 14
 item_level 7
-item_skill 1
+item_skill 13
 wc 5
 wc_range 20
 dam 1

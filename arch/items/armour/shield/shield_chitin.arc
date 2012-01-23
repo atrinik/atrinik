@@ -5,7 +5,6 @@ layer 3
 face shield_chitin.101
 ac 3
 item_level 9
-item_skill 4
 last_heal 10
 protect_impact 4
 protect_cleave 10

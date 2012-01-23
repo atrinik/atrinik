@@ -5,7 +5,7 @@ weapon_speed 0.0175
 attack_pierce 100
 type 15
 item_level 11
-item_skill 4
+item_skill 18
 sub_type 10
 face bill_guisarme.101
 material 18

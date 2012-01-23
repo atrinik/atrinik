@@ -9,7 +9,6 @@ material 2
 material_real 65
 ac 7
 item_level 10
-item_skill 4
 protect_impact 17
 protect_slash 17
 protect_cleave 17

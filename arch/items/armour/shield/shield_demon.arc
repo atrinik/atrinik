@@ -6,7 +6,6 @@ face shield_demon.101
 ac 4
 item_level 19
 last_heal 15
-item_skill 4
 protect_impact 5
 protect_cleave 10
 protect_pierce 10

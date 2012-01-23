@@ -5,7 +5,6 @@ layer 3
 face shield_round.101
 ac 2
 item_level 3
-item_skill 4
 last_heal 5
 protect_impact 5
 protect_cleave 5
