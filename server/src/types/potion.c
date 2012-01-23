@@ -258,12 +258,12 @@ static int apply_func(object *op, object *applier, int aflags)
 			}
 			else if (indices[stat_id] == POTION_IMPROVE_SP)
 			{
-				level = CONTR(applier)->exp_ptr[EXP_MAGICAL]->level;
+				level = CONTR(applier)->skill_ptr[SK_SPELL_CASTING]->level;
 				max = applier->arch->clone.stats.maxsp;
 			}
 			else
 			{
-				level = CONTR(applier)->exp_ptr[EXP_WISDOM]->level;
+				level = CONTR(applier)->skill_ptr[SK_PRAYING]->level;
 				max = applier->arch->clone.stats.maxgrace;
 			}
 

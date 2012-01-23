@@ -302,7 +302,6 @@ int infect_object(object *victim, object *disease, int force)
 	{
 		set_owner(new_disease, disease->owner);
 		new_disease->chosen_skill = disease->chosen_skill;
-		new_disease->exp_obj = disease->exp_obj;
 	}
 	/* for diseases which are passed by hitting, set owner and praying skill */
 	else
@@ -318,7 +317,6 @@ int infect_object(object *victim, object *disease, int force)
 			if (new_disease->chosen_skill)
 			{
 				set_owner(new_disease, pl);
-				new_disease->exp_obj = new_disease->chosen_skill->exp_obj;
 			}
 		}
 	}
@@ -473,7 +471,6 @@ static void do_symptoms(object *disease)
 		/* Unfortunately, set_owner does the wrong thing to the skills pointers
 		 * resulting in exp going into the owners *current* chosen skill. */
 		new_symptom->chosen_skill = disease->chosen_skill;
-		new_symptom->exp_obj = disease->exp_obj;
 
 		CLEAR_FLAG(new_symptom, FLAG_NO_PASS);
 		insert_ob_in_ob(new_symptom, victim);

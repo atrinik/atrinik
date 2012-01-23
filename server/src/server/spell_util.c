@@ -968,7 +968,6 @@ void cone_drop(object *op)
 	if (op->chosen_skill)
 	{
 		new_ob->chosen_skill = op->chosen_skill;
-		new_ob->exp_obj = op->chosen_skill->exp_obj;
 	}
 
 	insert_ob_in_map(new_ob, op->map, op, 0);

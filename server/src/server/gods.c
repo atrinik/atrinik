@@ -55,10 +55,6 @@ object *find_god(const char *name)
  * @param new_god New god to worship. */
 void become_follower(object *op, object *new_god)
 {
-	/* obj. containing god data */
-	object *exp_obj = op->chosen_skill->exp_obj;
-	int i;
-
 	if (!op || !new_god)
 	{
 		return;
@@ -80,37 +76,13 @@ void become_follower(object *op, object *new_god)
 
 	draw_info_format(COLOR_NAVY, op, "You become a follower of %s!", new_god->name);
 
-	/* get rid of old god */
-	if (exp_obj->title)
+	if (op->chosen_skill->title)
 	{
-		draw_info_format(COLOR_WHITE, op, "%s's blessing is withdrawn from you.", exp_obj->title);
-		CLEAR_FLAG(exp_obj, FLAG_APPLIED);
-		change_abil(op, exp_obj);
-		FREE_AND_CLEAR_HASH2(exp_obj->title);
+		draw_info_format(COLOR_WHITE, op, "%s's blessing is withdrawn from you.", op->chosen_skill->title);
 	}
 
-	/* now change to the new gods attributes to exp_obj */
-	FREE_AND_COPY_HASH(exp_obj->title, new_god->name);
-	exp_obj->path_attuned = new_god->path_attuned;
-	exp_obj->path_repelled = new_god->path_repelled;
-	exp_obj->path_denied = new_god->path_denied;
-	/* copy god's protections */
-	memcpy(exp_obj->protection, new_god->protection, sizeof(new_god->protection));
-
-	/* make sure that certain immunities do NOT get passed to the
-	 * follower! */
-	for (i = 0; i < NROFATTACKS; i++)
-	{
-		if (exp_obj->protection[i] > 30 && (i == ATNR_FIRE || i == ATNR_COLD || i == ATNR_ELECTRICITY || i == ATNR_POISON))
-		{
-			exp_obj->protection[i] = 30;
-		}
-	}
-
+	FREE_AND_COPY_HASH(op->chosen_skill->title, new_god->name);
 	draw_info_format(COLOR_WHITE, op, "You are bathed in %s's aura.", new_god->name);
-
-	SET_FLAG(exp_obj, FLAG_APPLIED);
-	change_abil(op, exp_obj);
 }
 
 /**
@@ -130,24 +102,9 @@ const char *determine_god(object *op)
 		}
 	}
 
-	if (op->type == PLAYER)
+	if (op->type == PLAYER && CONTR(op)->skill_ptr[SK_PRAYING] && CONTR(op)->skill_ptr[SK_PRAYING]->title)
 	{
-		object *tmp;
-
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == EXPERIENCE && tmp->stats.Wis)
-			{
-				if (tmp->title)
-				{
-					return tmp->title;
-				}
-				else
-				{
-					return shstr_cons.none;
-				}
-			}
-		}
+		return CONTR(op)->skill_ptr[SK_PRAYING]->title;
 	}
 
 	return shstr_cons.none;

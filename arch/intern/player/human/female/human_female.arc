@@ -1,6 +1,6 @@
 Object human_female
 race human
-randomitems player_human_female
+randomitems player
 layer 6
 behavior 2
 no_pick 1

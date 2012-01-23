@@ -491,26 +491,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 					break;
 
-				case CS_STAT_SKILLEXP_AGILITY:
-				case CS_STAT_SKILLEXP_PERSONAL:
-				case CS_STAT_SKILLEXP_MENTAL:
-				case CS_STAT_SKILLEXP_PHYSIQUE:
-				case CS_STAT_SKILLEXP_MAGIC:
-				case CS_STAT_SKILLEXP_WISDOM:
-					cpl.stats.skill_exp[(type - CS_STAT_SKILLEXP_START) / 2] = packet_to_uint64(data, len, &pos);
-					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
-					break;
-
-				case CS_STAT_SKILLEXP_AGLEVEL:
-				case CS_STAT_SKILLEXP_PELEVEL:
-				case CS_STAT_SKILLEXP_MELEVEL:
-				case CS_STAT_SKILLEXP_PHLEVEL:
-				case CS_STAT_SKILLEXP_MALEVEL:
-				case CS_STAT_SKILLEXP_WILEVEL:
-					cpl.stats.skill_level[(type - CS_STAT_SKILLEXP_START - 1) / 2] = packet_to_uint8(data, len, &pos);
-					WIDGET_REDRAW_ALL(SKILL_LVL_ID);
-					break;
-
 				case CS_STAT_GENDER:
 					cpl.gender = packet_to_uint8(data, len, &pos);
 					break;

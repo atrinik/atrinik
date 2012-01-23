@@ -146,50 +146,28 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 }
 
 /**
- * <h1>player.GetSkill(int type, int id)</h1>
- * Get skill or experience object.
- * @param type One of:
- * - <b>TYPE_SKILL</b>: get skill object.
- * - <b>TYPE_EXPERIENCE</b>: get experience category object.
- * @param id ID of the skill/experience.
- * @throws ValueError if 'type' or 'id' parameters are not valid.
- * @return Skill/experience object, can be None if the player doesn't
- * have the skill or the experience category (the latter should not happen). */
+ * <h1>player.GetSkill(int id)</h1>
+ * Get skill object.
+ * @param id ID of the skill.
+ * @throws ValueError if 'id' parameter is not valid.
+ * @return Skill object, can be None if the player doesn'thave the
+ * skill. */
 static PyObject *Atrinik_Player_GetSkill(Atrinik_Player *pl, PyObject *args)
 {
-	sint32 type;
 	uint32 id;
 
-	if (!PyArg_ParseTuple(args, "iI", &type, &id))
+	if (!PyArg_ParseTuple(args, "I", &id))
 	{
 		return NULL;
 	}
 
-	if (type == SKILL)
+	if (id >= NROFSKILLS)
 	{
-		if (id >= NROFSKILLS)
-		{
-			PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_SKILL.");
-			return NULL;
-		}
-
-		return wrap_object(pl->pl->skill_ptr[id]);
-	}
-	else if (type == EXPERIENCE)
-	{
-		if (id >= MAX_EXP_CAT)
-		{
-			PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_EXPERIENCE.");
-			return NULL;
-		}
-
-		return wrap_object(pl->pl->exp_ptr[id]);
-	}
-	else
-	{
-		PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'type' is not valid.");
+		PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_SKILL.");
 		return NULL;
 	}
+
+	return wrap_object(pl->pl->skill_ptr[id]);
 }
 
 /**
@@ -364,42 +342,6 @@ static PyObject *Atrinik_Player_AcquireSpell(Atrinik_Player *pl, PyObject *args)
 	{
 		hooks->do_forget_spell(pl->pl->ob, spell);
 	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
- * <h1>player.DoKnowSkill(int skill)</h1>
- * Check if player knows a given skill.
- * @param skill ID of the skill to check for.
- * @return True if the player knows the skill, False otherwise. */
-static PyObject *Atrinik_Player_DoKnowSkill(Atrinik_Player *pl, PyObject *args)
-{
-	int skill;
-
-	if (!PyArg_ParseTuple(args, "i", &skill))
-	{
-		return NULL;
-	}
-
-	Py_ReturnBoolean(pl->pl->skill_ptr[skill]);
-}
-
-/**
- * <h1>player.AcquireSkill(int skill)</h1>
- * Player will learn skill.
- * @param skill ID of the skill to learn. */
-static PyObject *Atrinik_Player_AcquireSkill(Atrinik_Player *pl, PyObject *args)
-{
-	int skill;
-
-	if (!PyArg_ParseTuple(args, "i", &skill))
-	{
-		return NULL;
-	}
-
-	hooks->learn_skill(pl->pl->ob, NULL, NULL, skill, 0);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -649,8 +591,6 @@ static PyMethodDef methods[] =
 	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
 	{"DoKnowSpell", (PyCFunction) Atrinik_Player_DoKnowSpell, METH_VARARGS, 0},
 	{"AcquireSpell", (PyCFunction) Atrinik_Player_AcquireSpell, METH_VARARGS, 0},
-	{"DoKnowSkill", (PyCFunction) Atrinik_Player_DoKnowSkill, METH_VARARGS, 0},
-	{"AcquireSkill", (PyCFunction) Atrinik_Player_AcquireSkill, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},

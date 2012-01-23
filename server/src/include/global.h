@@ -221,14 +221,12 @@ if (_nv_)                          \
 #define EXP_PERSONAL 4
 #define EXP_PHYSICAL 5
 #define EXP_WISDOM 6
-/** Number of experience categories. */
-#define MAX_EXP_CAT 7
-
-/** Null experience object. */
-#define EXP_NONE 0
 
 /** The maximum level. */
 #define MAXLEVEL 115
+
+/** Maximum experience. */
+#define MAX_EXPERIENCE new_levels[MAXLEVEL]
 
 /**
  * Used to link together shared strings. */

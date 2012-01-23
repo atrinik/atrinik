@@ -105,14 +105,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 				break;
 
 			case SKILL:
-				if (!IS_INVISIBLE(op, applier))
-				{
-					/* It's a tool, need to unlink it */
-					unlink_skill(op);
-					draw_info_format(COLOR_WHITE, applier, "You stop using the %s.", query_name(op, applier));
-					draw_info_format(COLOR_WHITE, applier, "You can no longer use the skill: %s.", skills[op->stats.sp].name);
-				}
-
 				change_abil(applier, op);
 				applier->chosen_skill = NULL;
 				break;
@@ -234,17 +226,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 			break;
 
 		case SKILL:
-			if (!IS_INVISIBLE(op, applier))
-			{
-				link_player_skill(applier, op);
-				draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
-				draw_info_format(COLOR_WHITE, applier, "You can now use the skill: %s.", skills[op->stats.sp].name);
-			}
-			else
-			{
-				send_ready_skill(applier, skills[op->stats.sp].name);
-			}
-
+			send_ready_skill(applier, skills[op->stats.sp].name);
 			SET_FLAG(op, FLAG_APPLIED);
 			change_abil(applier, op);
 			applier->chosen_skill = op;

@@ -1,7 +1,7 @@
 Object thelra_female
 race thelra
 face thelra_f.151
-randomitems player_thelra_female
+randomitems player
 layer 6
 behavior 2
 is_female 1

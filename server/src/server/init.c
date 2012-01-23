@@ -137,7 +137,6 @@ static void cleanup(void)
 	free_all_anim();
 	free_strings();
 	race_free();
-	free_exp_objects();
 	free_srv_files();
 	new_chars_deinit();
 	free_regions();

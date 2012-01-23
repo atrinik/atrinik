@@ -345,7 +345,7 @@ void hiscore_check(object *op, int quiet)
 	strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
 	new_score.killer[sizeof(new_score.killer) - 1] = '\0';
 
-	new_score.exp = calculate_total_exp(op);
+	new_score.exp = op->stats.exp;
 
 	if (op->map == NULL)
 	{

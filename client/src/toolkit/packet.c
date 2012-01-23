@@ -279,7 +279,7 @@ void packet_append_sint64(packet_struct *packet, sint64 data)
 
 void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len)
 {
-	if (!data)
+	if (!data || len == 0)
 	{
 		return;
 	}

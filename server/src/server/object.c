@@ -830,10 +830,9 @@ static void set_owner_simple(object *op, object *owner)
 	op->ownercount = owner->count;
 }
 
-static void set_skill_pointers(object *op, object *chosen_skill, object *exp_obj)
+static void set_skill_pointers(object *op, object *chosen_skill)
 {
 	op->chosen_skill = chosen_skill;
-	op->exp_obj = exp_obj;
 }
 
 /**
@@ -854,7 +853,7 @@ void set_owner(object *op, object *owner)
 
 	if (owner->type == PLAYER && owner->chosen_skill)
 	{
-		set_skill_pointers(op, owner->chosen_skill, owner->chosen_skill->exp_obj);
+		set_skill_pointers(op, owner->chosen_skill);
 	}
 }
 
@@ -892,7 +891,7 @@ void copy_owner(object *op, object *clone_ob)
 
 	if (clone_ob->chosen_skill)
 	{
-		set_skill_pointers(op, clone_ob->chosen_skill, clone_ob->exp_obj);
+		set_skill_pointers(op, clone_ob->chosen_skill);
 	}
 }
 

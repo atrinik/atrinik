@@ -368,7 +368,7 @@ void skills_init(void)
 {
 	FILE *fp;
 	char line[HUGE_BUF];
-	size_t i, j, num_skills;
+	size_t i, j;
 
 	/* Free previously allocated skills. */
 	for (i = 0; i < SKILL_LIST_TYPES; i++)
@@ -390,7 +390,6 @@ void skills_init(void)
 	memset(&skill_list, 0, sizeof(*skill_list) * SKILL_LIST_TYPES);
 	memset(&skill_list_num, 0, sizeof(*skill_list_num) * SKILL_LIST_TYPES);
 	skill_list_type = 0;
-	num_skills = 0;
 
 	fp = server_file_open(SERVER_FILE_SKILLS);
 
@@ -448,7 +447,10 @@ void skills_init(void)
 
 				free(icon);
 				free(name);
-				num_skills++;
+
+				skill_list[SKILL_LIST_TYPES - 1] = realloc(skill_list[SKILL_LIST_TYPES - 1], sizeof(*skill_list[SKILL_LIST_TYPES - 1]) * (skill_list_num[SKILL_LIST_TYPES - 1] + 1));
+				skill_list[SKILL_LIST_TYPES - 1][skill_list_num[SKILL_LIST_TYPES - 1]] = entry;
+				skill_list_num[SKILL_LIST_TYPES - 1]++;
 				break;
 			}
 
@@ -457,20 +459,6 @@ void skills_init(void)
 	}
 
 	fclose(fp);
-
-	if (num_skills)
-	{
-		skill_list[SKILL_LIST_TYPES - 1] = malloc(sizeof(*skill_list[SKILL_LIST_TYPES - 1]) * num_skills);
-
-		for (i = 0; i < SKILL_LIST_TYPES - 1; i++)
-		{
-			for (j = 0; j < skill_list_num[i]; j++)
-			{
-				skill_list[SKILL_LIST_TYPES - 1][skill_list_num[SKILL_LIST_TYPES - 1]] = skill_list[i][j];
-				skill_list_num[SKILL_LIST_TYPES - 1]++;
-			}
-		}
-	}
 }
 
 /**
@@ -492,11 +480,9 @@ void skills_reload(void)
 void socket_command_skill_list(uint8 *data, size_t len, size_t pos)
 {
 	char name[MAX_BUF];
-	uint8 type, level;
+	uint8 level;
 	uint64 exp;
 	size_t skill_type, skill_id;
-
-	type = packet_to_uint8(data, len, &pos);
 
 	while (pos < len)
 	{
@@ -510,18 +496,10 @@ void socket_command_skill_list(uint8 *data, size_t len, size_t pos)
 			skill_entry_struct *skill;
 
 			skill = skill_get(skill_type, skill_id);
-
-			if (type == SPLIST_MODE_REMOVE)
-			{
-				skill->known = 0;
-			}
-			else
-			{
-				skill->known = 1;
-				skill->level = level;
-				skill->exp = exp;
-				WIDGET_REDRAW_ALL(SKILL_EXP_ID);
-			}
+			skill->known = 1;
+			skill->level = level;
+			skill->exp = exp;
+			WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 		}
 	}
 

@@ -334,7 +334,6 @@ extern void widget_input_do(widgetdata *widget);
 extern void socket_command_interface(uint8 *data, size_t len, size_t pos);
 extern void interface_redraw(void);
 /* src/gui/inventory.c */
-extern char *skill_level_name[];
 extern uint64 inventory_filter;
 extern void inventory_filter_set(uint64 filter);
 extern void inventory_filter_toggle(uint64 filter);

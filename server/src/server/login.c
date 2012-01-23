@@ -149,17 +149,17 @@ int save_player(object *op)
 	}
 
 	/* Save sp table */
-	fprintf(fp, "lev_sp %d\n", pl->exp_ptr[EXP_MAGICAL]->level);
+	fprintf(fp, "lev_sp %d\n", pl->skill_ptr[SK_SPELL_CASTING]->level);
 
-	for (i = 1; i <= pl->exp_ptr[EXP_MAGICAL]->level; i++)
+	for (i = 1; i <= pl->skill_ptr[SK_SPELL_CASTING]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levsp[i]);
 	}
 
 	/* Save grace table */
-	fprintf(fp, "lev_grace %d\n", pl->exp_ptr[EXP_WISDOM]->level);
+	fprintf(fp, "lev_grace %d\n", pl->skill_ptr[SK_PRAYING]->level);
 
-	for (i = 1; i <= pl->exp_ptr[EXP_WISDOM]->level; i++)
+	for (i = 1; i <= pl->skill_ptr[SK_PRAYING]->level; i++)
 	{
 		fprintf(fp, "%d\n", pl->levgrace[i]);
 	}
@@ -662,7 +662,6 @@ void check_login(object *op)
 #endif
 	op->carrying = sum_weight(op);
 
-	init_player_exp(op);
 	link_player_skills(op);
 
 	fix_player(op);
@@ -705,7 +704,7 @@ void check_login(object *op)
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 	esrv_new_player(pl, op->weight + op->carrying);
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
-	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
+	send_skilllist_cmd(op, NULL);
 	send_quickslots(pl);
 
 	/* Go through the player's inventory and inform the client about

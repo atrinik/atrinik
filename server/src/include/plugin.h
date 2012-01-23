@@ -222,11 +222,9 @@ struct plugin_hooklist
 	void (*copy_object)(object *, object *, int);
 	void (*enter_exit)(object *, object *);
 	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
-	int (*learn_skill)(object *, object *, char *, int, int);
 	object *(*find_marked_object)(object *);
 	int (*cast_identify)(object *, int, object *, int);
 	int (*lookup_skill_by_name)(const char *);
-	int (*check_skill_known)(object *, int);
 	archetype *(*find_archetype)(const char *);
 	object *(*arch_to_object)(archetype *);
 	object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);

@@ -227,9 +227,9 @@ int manual_apply(object *op, object *tmp, int aflag)
 	{
 		int tmp_lev;
 
-		if (tmp->item_skill)
+		if (tmp->item_skill && op->type == PLAYER)
 		{
-			tmp_lev = find_skill_exp_level(op, tmp->item_skill);
+			tmp_lev = CONTR(op)->skill_ptr[tmp->item_skill]->level;
 		}
 		else
 		{

@@ -370,7 +370,6 @@ void esrv_update_skills(player *pl)
 	packet_struct *packet;
 
 	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
-	packet_append_uint8(packet, SPLIST_MODE_UPDATE);
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
@@ -460,12 +459,6 @@ void esrv_update_stats(player *pl)
 			AddIfInt(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC, uint16);
 			AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS, uint32);
 		}
-	}
-
-	for (i = 0; i < pl->last_skill_index; i++)
-	{
-		AddIfInt(pl->last_skill_exp[i], pl->last_skill_ob[i]->stats.exp, pl->last_skill_id[i], uint64);
-		AddIfInt(pl->last_skill_level[i], (pl->last_skill_ob[i]->level), pl->last_skill_id[i] + 1, uint8);
 	}
 
 	flags = 0;
@@ -2205,7 +2198,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	display_motd(op);
 
 	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
-	init_player_exp(op);
 	give_initial_items(op, op->randomitems);
 	link_player_skills(op);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -2222,7 +2214,7 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	CONTR(op)->socket.look_position = 0;
 	CONTR(op)->socket.ext_title_flag = 1;
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
-	send_skilllist_cmd(op, NULL, SPLIST_MODE_ADD);
+	send_skilllist_cmd(op, NULL);
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 }
 
@@ -2318,12 +2310,11 @@ void send_spelllist_cmd(object *op, const char *spellname, int mode)
  * @param op Object.
  * @param skillp Skill object; if not NULL, will only send this skill.
  * @param mode One of @ref spelllist_modes. */
-void send_skilllist_cmd(object *op, object *skillp, int mode)
+void send_skilllist_cmd(object *op, object *skillp)
 {
 	packet_struct *packet;
 
 	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
-	packet_append_uint8(packet, mode);
 
 	if (skillp)
 	{

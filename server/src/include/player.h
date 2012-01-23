@@ -266,12 +266,6 @@ typedef struct pl_player
 	/** Quick jump table to skill objects in the player's inventory. */
 	object *skill_ptr[NROFSKILLS];
 
-	/** The exp object table. */
-	object *last_skill_ob[MAX_EXP_CAT];
-
-	/** Experience objects. */
-	object *exp_ptr[MAX_EXP_CAT];
-
 	/** Marked object. */
 	object *mark;
 
@@ -374,12 +368,6 @@ typedef struct pl_player
 	/** Last weapon speed index. */
 	char last_weapon_sp;
 
-	/** Last experience category level sent to client. */
-	char last_skill_level[MAX_EXP_CAT];
-
-	/** The CS_STATS_ id for client STATS cmd. */
-	uint8 last_skill_id[MAX_EXP_CAT];
-
 	/** Last overall level sent to the client. */
 	unsigned char last_level;
 
@@ -428,9 +416,6 @@ typedef struct pl_player
 
 	/** Count of marked object. */
 	uint32 mark_count;
-
-	/** Last skill category experience sent to client. */
-	sint64 last_skill_exp[MAX_EXP_CAT];
 
 	/** Skill experience for all skills. */
 	sint64 skill_exp[NROFSKILLS];

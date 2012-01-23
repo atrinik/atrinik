@@ -489,51 +489,6 @@ void widget_skillgroups(widgetdata *widget)
 		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
 	}
 
-	if (widget->redraw)
-	{
-		char buf[MAX_BUF];
-		_BLTFX bltfx;
-
-		widget->redraw = 0;
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_SKILL_LVL_BG], 0, 0, NULL, &bltfx);
-
-		string_blt(widget->widgetSF, FONT_MONO10, "Skill", 12, 3, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_MONO10, "Groups", 8, 14, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-
-		/* Agility */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Ag:", 6, 26, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), "%d", cpl.stats.skill_level[0]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 26, COLOR_WHITE, 0, NULL);
-
-		/* Mental */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Me:", 6, 38, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[2]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 38, COLOR_WHITE, 0, NULL);
-
-		/* Magic */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Ma:", 6, 49, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[4]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 49, COLOR_WHITE, 0, NULL);
-
-		/* Personality */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Pe:", 6, 62, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[1]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 62, COLOR_WHITE, 0, NULL);
-
-		/* Physique */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Ph:", 6, 74, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[3]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 74, COLOR_WHITE, 0, NULL);
-
-		/* Wisdom */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Wi:", 6, 86, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), " %d", cpl.stats.skill_level[5]);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 47 - string_get_width(FONT_ARIAL10, buf, 0), 86, COLOR_WHITE, 0, NULL);
-	}
-
 	box.x = widget->x1;
 	box.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);

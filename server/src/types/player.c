@@ -220,19 +220,9 @@ static player *get_player(player *p)
 
 	p->chosen_spell = -1;
 
-	/* We need to clear these to -1 and not zero - otherwise, if a player
-	 * quits and starts a new character, we won't send new values to the
-	 * client, as things like exp start at zero. */
-	for (i = 0; i < MAX_EXP_CAT; i++)
-	{
-		p->last_skill_exp[i] = -1;
-		p->last_skill_level[i] = -1;
-	}
-
 	/* Quick skill reminder for select hand weapon */
 	p->set_skill_weapon = NO_SKILL_READY;
 	p->set_skill_archery = NO_SKILL_READY;
-	p->last_skill_index = -1;
 	p->last_stats.exp = -1;
 
 	return p;
@@ -1192,9 +1182,6 @@ void kill_player(object *op)
 	/* Remove any disease */
 	cure_disease(op, NULL);
 
-	/* Apply death experience penalty. */
-	apply_death_exp_penalty(op);
-
 	if (op->stats.food <= 0)
 	{
 		op->stats.food = 999;
@@ -1936,7 +1923,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		{
 			if (tmp->item_skill)
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, find_skill_exp_skillname(tmp->item_skill));
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill].name);
 			}
 			else
 			{

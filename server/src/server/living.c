@@ -753,7 +753,7 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if (tmp->type != EXPERIENCE && !potion_max)
+	if (!potion_max)
 	{
 		for (j = 0; j < NUM_STATS; j++)
 		{
@@ -827,13 +827,13 @@ void drain_specific_stat(object *op, int deplete_stats)
  * @todo This function is too long, and should be cleaned / split. */
 void fix_player(object *op)
 {
-	int ring_count = 0, skill_level_max = 1;
+	int ring_count = 0;
 	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0, max_boni_grace = 0;
 	float tmp_con;
 	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
-	object *grace_obj = NULL, *mana_obj = NULL, *hp_obj = NULL, *wc_obj = NULL, *tmp, *skill_weapon = NULL;
+	object *grace_obj = NULL, *mana_obj = NULL, *tmp, *skill_weapon = NULL;
 	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
 
@@ -905,12 +905,6 @@ void fix_player(object *op)
 	op->path_denied = op->arch->clone.path_denied;
 	/* Reset terrain moving abilities */
 	op->terrain_flag = op->arch->clone.terrain_flag;
-
-	/* Only adjust skills which have no own level/exp values */
-	if (op->chosen_skill && !op->chosen_skill->last_eat && op->chosen_skill->exp_obj)
-	{
-		op->chosen_skill->level = op->chosen_skill->exp_obj->level;
-	}
 
 	FREE_AND_CLEAR_HASH(op->slaying);
 
@@ -1023,15 +1017,8 @@ void fix_player(object *op)
 			}
 		}
 
-		if (tmp->type == EXPERIENCE)
-		{
-			if (tmp->level > skill_level_max && !QUERY_FLAG(tmp, FLAG_STAND_STILL))
-			{
-				skill_level_max = tmp->level;
-			}
-		}
 		/* All skills, not only the applied ones */
-		else if (tmp->type == SKILL)
+		if (tmp->type == SKILL)
 		{
 			/* Let's remember the best bare hand skill */
 			if (tmp->stats.dam > 0)
@@ -1041,9 +1028,6 @@ void fix_player(object *op)
 					skill_weapon = tmp;
 				}
 			}
-
-			/* Save in table for quick access */
-			pl->skill_ptr[tmp->stats.sp] = tmp;
 		}
 		else if (tmp->type == QUEST_CONTAINER)
 		{
@@ -1270,30 +1254,6 @@ fix_player_no_armour:
 
 					break;
 
-				case EXPERIENCE:
-					if (tmp->stats.Str && !wc_obj)
-					{
-						wc_obj = tmp;
-					}
-
-					if (tmp->stats.Con && !hp_obj)
-					{
-						hp_obj = tmp;
-					}
-
-					/* For spellpoint determination */
-					if (tmp->stats.Pow && !mana_obj)
-					{
-						mana_obj = tmp;
-					}
-
-					if (tmp->stats.Wis && !grace_obj)
-					{
-						grace_obj = tmp;
-					}
-
-					break;
-
 				/* Skills modifying the character */
 				case SKILL:
 					/* Skill is a 'weapon' */
@@ -1510,7 +1470,7 @@ fix_player_jump_resi:
 			}
 
 			/* Slow penalty */
-			if (tmp->stats.exp && tmp->type != EXPERIENCE && tmp->type != SKILL)
+			if (tmp->stats.exp && tmp->type != SKILL)
 			{
 				if (tmp->stats.exp > 0)
 				{
@@ -1798,7 +1758,7 @@ fix_player_jump_resi:
 		op->stats.grace = op->stats.maxgrace;
 	}
 
-	op->stats.ac = ac + skill_level_max;
+	op->stats.ac = ac + op->level;
 
 	/* No weapon in our hand - we must use our hands */
 	if (pl->set_skill_weapon == NO_SKILL_READY)

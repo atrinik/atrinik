@@ -31,19 +31,6 @@
 
 #include <global.h>
 
-/**
- * Skill category names. */
-char *skill_level_name[] =
-{
-	"",
-	"Ag",
-	"Pe",
-	"Me",
-	"Ph",
-	"Ma",
-	"Wi"
-};
-
 /** Active inventory filter, one of @ref INVENTORY_FILTER_xxx. */
 uint64 inventory_filter = INVENTORY_FILTER_ALL;
 
@@ -255,20 +242,27 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 					if (ob->item_level)
 					{
-						snprintf(buf, sizeof(buf), "allowed: lvl %d %s", ob->item_level, skill_level_name[ob->item_skill]);
+						skill_entry_struct *skill;
 
-						if ((!ob->item_skill && ob->item_level <= cpl.stats.level) || (ob->item_skill && ob->item_level <= cpl.stats.skill_level[ob->item_skill - 1]))
+						if (ob->item_skill)
 						{
-							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+							skill = skill_get(SKILL_LIST_TYPES - 1, ob->item_skill - 1);
 						}
 						else
 						{
-							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 101, widget->y1 + 15, COLOR_RED, 0, NULL);
+							skill = NULL;
 						}
-					}
-					else
-					{
-						string_blt(ScreenSurface, FONT_ARIAL10, "allowed: all", widget->x1 + 101, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+
+						snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill ? skill->name : "");
+
+						if ((!ob->item_skill && ob->item_level <= cpl.stats.level) || (ob->item_skill && ob->item_level <= skill->level))
+						{
+							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+						}
+						else
+						{
+							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_RED, 0, NULL);
+						}
 					}
 				}
 			}

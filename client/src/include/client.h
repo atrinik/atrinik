@@ -149,12 +149,6 @@ typedef struct Stat_struct
 	/** Protections. */
 	sint16 protection[20];
 
-	/** Skill levels. */
-	sint16 skill_level[MAX_SKILL];
-
-	/** Skill experience. */
-	sint64 skill_exp[MAX_SKILL];
-
 	/** Ranged weapon damage. */
 	sint16 ranged_dam;
 

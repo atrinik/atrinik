@@ -104,7 +104,7 @@ int trap_show(object *trap, object *where)
 int trap_disarm(object *disarmer, object *trap)
 {
 	object *env = trap->env;
-	int disarmer_level = CONTR(disarmer)->exp_ptr[EXP_AGILITY]->level;
+	int disarmer_level = disarmer->level;
 
 	if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1))))
 	{

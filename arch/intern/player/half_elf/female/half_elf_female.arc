@@ -1,6 +1,6 @@
 Object half_elf_female
 race half-elf
-randomitems player_half_elf_female
+randomitems player
 layer 6
 behavior 2
 no_pick 1

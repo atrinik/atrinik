@@ -32,11 +32,6 @@
 
 #include <global.h>
 
-/** Array of experience objects in the game. */
-static object *exp_cat[MAX_EXP_CAT];
-/** Current number of experience categories in the game. */
-static int nrofexpcat = 0;
-
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] =
 {
@@ -79,98 +74,10 @@ static float lev_exp[MAXLEVEL + 1] =
 	1542.13f
 };
 
-/** Skill category table. */
-typedef struct _skill_name_table
-{
-	/** Name of the category. */
-	char *name;
-	/** ID of the category. */
-	int id;
-}_skill_name_table;
-
-/** Array of the skill categories. */
-static _skill_name_table skill_name_table[] =
-{
-	{"agility", CS_STAT_SKILLEXP_AGILITY},
-	{"personality", CS_STAT_SKILLEXP_PERSONAL},
-	{"mental", CS_STAT_SKILLEXP_MENTAL},
-	{"physique", CS_STAT_SKILLEXP_PHYSIQUE},
-	{"magic", CS_STAT_SKILLEXP_MAGIC},
-	{"wisdom", CS_STAT_SKILLEXP_WISDOM},
-	{"", -1}
-};
-
-static int item_skill_cs_stat[] =
-{
-	0,
-	CS_STAT_SKILLEXP_AGILITY,
-	CS_STAT_SKILLEXP_PERSONAL,
-	CS_STAT_SKILLEXP_MENTAL,
-	CS_STAT_SKILLEXP_PHYSIQUE,
-	CS_STAT_SKILLEXP_MAGIC,
-	CS_STAT_SKILLEXP_WISDOM
-};
-
 static int change_skill_to_skill(object *who, object *skl);
 static int attack_melee_weapon(object *op, int dir);
 static int attack_hth(object *pl, int dir, char *string);
 static int do_skill_attack(object *tmp, object *op, char *string);
-
-/**
- * Find and assign the skill experience stuff.
- * @param pl Player.
- * @param exp_ob Experience object.
- * @param idx Index. */
-static void find_skill_exp_name(object *pl, object *exp_ob, int idx)
-{
-	int s;
-
-	for (s = 0; skill_name_table[s].id != -1; s++)
-	{
-		if (!strcmp(skill_name_table[s].name, exp_ob->name))
-		{
-			CONTR(pl)->last_skill_ob[idx] = exp_ob;
-			CONTR(pl)->last_skill_id[idx] = skill_name_table[s].id;
-			CONTR(pl)->last_skill_index++;
-			return;
-		}
-	}
-}
-
-/**
- * Find and return player skill exp level of given index item_skill
- * using CS_STAT_SKILLEXP_xxx
- * @param pl Player.
- * @param item_skill Item skill.
- * @return Found level, 0 on failure. */
-int find_skill_exp_level(object *pl, int item_skill)
-{
-	int s;
-
-	for (s = 0; s < CONTR(pl)->last_skill_index; s++)
-	{
-		if (CONTR(pl)->last_skill_id[s] == item_skill_cs_stat[item_skill])
-		{
-			return CONTR(pl)->last_skill_ob[s]->level;
-		}
-	}
-
-	return 0;
-}
-
-/**
- * Find and return player skill exp level name of given index item_skill.
- * @param item_skill The skill experience category to look for.
- * @return Name of the skill experience category. */
-char *find_skill_exp_skillname(int item_skill)
-{
-	if (!item_skill || item_skill > 6)
-	{
-		return skill_name_table[6].name;
-	}
-
-	return skill_name_table[item_skill - 1].name;
-}
 
 /**
  * Main skills use function similar in scope to cast_spell().
@@ -217,7 +124,7 @@ sint64 do_skill(object *op, int dir, const char *params)
 			break;
 
 		case SK_FIND_TRAPS:
-			success = find_traps(op, CONTR(op)->exp_ptr[EXP_AGILITY]->level);
+			success = find_traps(op, op->level);
 			break;
 
 		case SK_REMOVE_TRAP:
@@ -270,7 +177,7 @@ sint64 do_skill(object *op, int dir, const char *params)
 	/* This is a good place to add experience for successfull use of skills.
 	 * Note that add_exp() will figure out player/monster experience
 	 * gain problems. */
-	if (success && skills[skill].category != EXP_NONE)
+	if (success)
 	{
 		add_exp(op, success, op->chosen_skill->stats.sp, 0);
 	}
@@ -368,38 +275,6 @@ sint64 calc_skill_exp(object *who, object *op, int level)
 }
 
 /**
- * This routine looks through all the assembled archetypes for experience
- * objects then copies their values into the ::exp_cat array. */
-static void init_exp_obj(void)
-{
-	archetype *at;
-
-	for (at = first_archetype; at; at = at->next)
-	{
-		if (at->clone.type == EXPERIENCE)
-		{
-			exp_cat[nrofexpcat] = get_object();
-			exp_cat[nrofexpcat]->level = 1;
-			exp_cat[nrofexpcat]->stats.exp = 0;
-			copy_object(&at->clone, exp_cat[nrofexpcat], 0);
-			nrofexpcat++;
-
-			if (nrofexpcat == MAX_EXP_CAT)
-			{
-				logger_print(LOG(ERROR), "Reached limit of available experience categories. Need to increase value of MAX_EXP_CAT.");
-				exit(1);
-			}
-		}
-	}
-
-	if (!nrofexpcat)
-	{
-		logger_print(LOG(ERROR), "Aborting! No experience objects found in archetypes.");
-		exit(1);
-	}
-}
-
-/**
  * Initialize the experience system. */
 void init_new_exp_system(void)
 {
@@ -414,9 +289,6 @@ void init_new_exp_system(void)
 	}
 
 	init_new_exp_done = 1;
-
-	/* Locate the experience objects and create list of them */
-	init_exp_obj();
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
@@ -458,43 +330,6 @@ void init_new_exp_system(void)
 	}
 
 	fclose(fp);
-}
-
-/**
- * Free all previously initialized experience objects. */
-void free_exp_objects(void)
-{
-	int i;
-
-	for (i = 0; i < MAX_EXP_CAT; i++)
-	{
-		if (!exp_cat[i])
-		{
-			continue;
-		}
-
-		object_destroy(exp_cat[i]);
-	}
-}
-
-/**
- * Check if object knows the specified skill.
- * @param op Object we're checking.
- * @param skillnr ID of the skill.
- * @return 1 if the object knows the skill, 0 otherwise. */
-int check_skill_known(object *op, int skillnr)
-{
-	object *tmp;
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == SKILL && tmp->stats.sp == skillnr)
-		{
-			return 1;
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -722,253 +557,54 @@ int check_skill_to_apply(object *who, object *item)
 }
 
 /**
- * Makes various checks and initialization of player experience objects.
- * If things aren't cool then we change them here.
- * @param pl Player.
- * @return 1 on success, 0 on failure. */
-int init_player_exp(object *pl)
-{
-	int i, j, exp_index = 0;
-	object *tmp, *exp_ob[MAX_EXP_CAT];
-
-	if (pl->type != PLAYER)
-	{
-		logger_print(LOG(BUG), "called non-player %s.", query_name(pl, NULL));
-		return 0;
-	}
-
-	CONTR(pl)->last_skill_index = 0;
-
-	/* First-pass find all current exp objects */
-	for (tmp = pl->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == EXPERIENCE)
-		{
-			exp_ob[exp_index] = tmp;
-			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
-			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
-			exp_index++;
-		}
-		else if (exp_index == MAX_EXP_CAT)
-		{
-			return 0;
-		}
-	}
-
-	/* Second - if pl has wrong nrof experience objects
-	 * then give player a complete roster. */
-
-	/* No exp objects - situation for a new player
-	 * or pre-skills/exp code player file */
-	if (!exp_index)
-	{
-		for (j = 0; j < nrofexpcat; j++)
-		{
-			tmp = get_object();
-			copy_object(exp_cat[j], tmp, 0);
-			insert_ob_in_ob(tmp, pl);
-			tmp->stats.exp = 0;
-			exp_ob[j] = tmp;
-			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
-
-			exp_index++;
-		}
-	}
-
-	/* Now we loop through one more time and set "apply" flag on valid
-	 * experience objects. Fix_player() requires this, and we get the
-	 * bonus of being able to ignore invalid experience objects in the
-	 * player inventory (player file from another game set up?). Also, we
-	 * reset the score (or "total" experience) of the player to be the
-	 * sum of all valid experience objects. */
-	pl->stats.exp = 0;
-
-	for (i = 0; i < exp_index; i++)
-	{
-		if (!QUERY_FLAG(exp_ob[i], FLAG_APPLIED))
-		{
-			SET_FLAG(exp_ob[i], FLAG_APPLIED);
-		}
-
-		if (pl->stats.exp < exp_ob[i]->stats.exp && !QUERY_FLAG(exp_ob[i], FLAG_STAND_STILL))
-		{
-			pl->stats.exp = exp_ob[i]->stats.exp;
-			pl->level = exp_ob[i]->level;
-		}
-
-		player_lvl_adj(NULL, exp_ob[i]);
-	}
-
-	return 1;
-}
-
-/**
- * Removes skill from a player skill list and unlinks the pointer to the
- * exp object.
- * @param skillop Skill object. */
-void unlink_skill(object *skillop)
-{
-	object *op = skillop ? skillop->env : NULL;
-
-	if (!op || op->type != PLAYER)
-	{
-		return;
-	}
-
-	send_skilllist_cmd(op, skillop, SPLIST_MODE_REMOVE);
-	skillop->exp_obj = NULL;
-}
-
-/**
  * Linking skills with experience objects and creating a linked list of
  * skills for later fast access.
  * @param pl Player. */
 void link_player_skills(object *pl)
 {
-	int i, cat = 0, sk_index = 0, exp_index = 0;
-	object *tmp, *sk_ob[NROFSKILLS], *exp_ob[MAX_EXP_CAT];
+	object *tmp;
+	int i;
 
-	/* We're going to unapply all skills */
 	pl->chosen_skill = NULL;
-	CONTR(pl)->last_skill_index = 0;
 
-	/* First find all exp and skill objects */
-	for (tmp = pl->inv; tmp && sk_index < 1000; tmp = tmp->below)
+	for (tmp = pl->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->type == EXPERIENCE)
+		if (tmp->type == SKILL)
 		{
-			CONTR(pl)->exp_ptr[tmp->sub_type] = tmp;
-			exp_ob[tmp->sub_type] = tmp;
-			find_skill_exp_name(pl, tmp, CONTR(pl)->last_skill_index);
-			tmp->nrof = 1;
-			exp_index++;
-		}
-		else if (tmp->type == SKILL)
-		{
-			/* For startup, lets unapply all skills */
+			CONTR(pl)->skill_ptr[tmp->stats.sp] = tmp;
 			CLEAR_FLAG(tmp, FLAG_APPLIED);
-			tmp->nrof = 1;
-			sk_ob[sk_index] = tmp;
-			sk_index++;
 		}
 	}
 
-	/* Ok, create linked list and link the associated skills to exp objects */
-	for (i = 0; i < sk_index; i++)
-	{
-		cat = skills[sk_ob[i]->stats.sp].category;
+	pl->stats.exp = 0;
 
-		if (cat == EXP_NONE)
+	for (i = 0; i < NROFSKILLS; i++)
+	{
+		/* Skip unused skill entries. */
+		if (!skills[i].description)
 		{
 			continue;
 		}
 
-		sk_ob[i]->exp_obj = exp_ob[cat];
-	}
-}
-
-/**
- * Links a skill to exp object when applied or learned by a player.
- * @param pl Player.
- * @param skillop Skill object.
- * @return 1 if it can link, 0 otherwise. */
-int link_player_skill(object *pl, object *skillop)
-{
-	object *tmp;
-	int cat = skills[skillop->stats.sp].category;
-
-	/* Ok the skill has an exp object, now find right one in pl inv */
-	if (cat != EXP_NONE)
-	{
-		for (tmp = pl->inv; tmp; tmp = tmp->below)
+		if (!CONTR(pl)->skill_ptr[i])
 		{
-			if (tmp->type == EXPERIENCE && tmp->sub_type == cat)
-			{
-				skillop->exp_obj = tmp;
-				break;
-			}
+			tmp = object_create_clone(&skills[i].at->clone);
+			insert_ob_in_ob(tmp, pl);
+			CONTR(pl)->skill_ptr[i] = tmp;
 		}
 
-		return 1;
-	}
-
-	skillop->exp_obj = NULL;
-	return 0;
-}
-
-/**
- * Player is trying to learn a skill. Success is based on Int.
- * @param pl Player object.
- * @param scroll Scroll object the player is learning this from, can be
- * NULL.
- * @param name Name of the skill to learn.
- * @param skillnr ID of the skill to learn.
- * @param scroll_flag Whether we're learning the skill from a scroll.
- * @retval 0 Player already knows the skill.
- * @retval 1 The player learns the skill.
- * @retval 2 Some failure. */
-int learn_skill(object *pl, object *scroll, char *name, int skillnr, int scroll_flag)
-{
-	object *tmp, *tmp2;
-	archetype *skill = NULL;
-
-	if (scroll)
-	{
-		skill = find_archetype(scroll->slaying);
-	}
-	else if (name)
-	{
-		skill = find_archetype(name);
-	}
-	else
-	{
-		skill = skills[skillnr].at;
-	}
-
-	if (!skill)
-	{
-		return 2;
-	}
-
-	tmp = arch_to_object(skill);
-
-	if (!tmp)
-	{
-		return 2;
-	}
-
-	/* Check if player already has it */
-	for (tmp2 = pl->inv; tmp2; tmp2 = tmp2->below)
-	{
-		if (tmp2->type == SKILL)
+		if (!QUERY_FLAG(CONTR(pl)->skill_ptr[i], FLAG_STAND_STILL))
 		{
-			if (tmp2->stats.sp == tmp->stats.sp)
+			pl->stats.exp += CONTR(pl)->skill_ptr[i]->stats.exp;
+
+			if (pl->stats.exp >= (sint64) MAX_EXPERIENCE)
 			{
-				draw_info_format(COLOR_WHITE, pl, "You already know the skill '%s'!", tmp->name);
-				return 0;
+				pl->stats.exp = MAX_EXPERIENCE;
 			}
 		}
 	}
 
-	/* Now a random chance to learn, based on player Int */
-	if (scroll_flag)
-	{
-		/* Failure */
-		if (rndm(0, 99) > learn_spell[pl->stats.Int])
-		{
-			return 2;
-		}
-	}
-
-	/* Everything is cool. Give 'em the skill */
-	insert_ob_in_ob(tmp, pl);
-	link_player_skill(pl, tmp);
-	play_sound_player_only (CONTR(pl), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
-	draw_info_format(COLOR_WHITE, pl, "You have learned the skill %s!", tmp->name);
-
-	send_skilllist_cmd(pl, tmp, SPLIST_MODE_ADD);
-
-	return 1;
+	player_lvl_adj(pl, NULL);
 }
 
 /**

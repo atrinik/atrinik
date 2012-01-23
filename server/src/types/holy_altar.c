@@ -89,7 +89,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
 		/* May switch gods, but it's random chance based on our current
 		 * level. Note it gets harder to swap gods the higher we get. */
-		if (QUERY_FLAG(op, FLAG_XRAYS) || rndm_chance(applier->chosen_skill->exp_obj->level))
+		if (QUERY_FLAG(op, FLAG_XRAYS) || rndm_chance(applier->chosen_skill->level))
 		{
 			become_follower(applier, &op->other_arch->clone);
 		}
