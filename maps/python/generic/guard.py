@@ -37,6 +37,12 @@ def main():
 			"Have you come here to cause trouble? If so, you came to the wrong place.",
 			"I haven't seen you before, so I'll make a deal with you. Stay out of trouble and I won't have a reason to hurt you.",
 			"You look like a shady character. Make one wrong move and you will wish you had never came here.",
+			"You have my ear, citizen.",
+			"Speak.",
+			"What is it, citizen?",
+			"Is there a problem?",
+			"Yes, citizen? What is it?",
+			"Disrespect the law, and you disrespect me.",
 		]
 
 		inf.add_msg(random.choice(replies))
