@@ -9,4 +9,5 @@ sp 21
 last_eat 1
 level 1
 exp 0
+stand_still 1
 end
