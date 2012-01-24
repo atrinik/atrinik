@@ -1,10 +1,9 @@
-	/************************************************************************
+/************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2011 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
-* Fork from Daimonin (Massive Multiplayer Online Role Playing Game)     *
-* and Crossfire (Multiplayer game for X-windows).                       *
+* Fork from Crossfire (Multiplayer game for X-windows).                 *
 *                                                                       *
 * This program is free software; you can redistribute it and/or modify  *
 * it under the terms of the GNU General Public License as published by  *
