@@ -833,7 +833,7 @@ void fix_player(object *op)
 	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
-	object *grace_obj = NULL, *mana_obj = NULL, *tmp, *skill_weapon = NULL;
+	object *tmp, *skill_weapon = NULL;
 	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
 
@@ -1672,17 +1672,17 @@ fix_player_jump_resi:
 		op->stats.maxhp += pl->levhp[i];
 	}
 
-	if (mana_obj)
+	if (pl->skill_ptr[SK_SPELL_CASTING])
 	{
-		for (i = 1; i < mana_obj->level + 1; i++)
+		for (i = 1; i < pl->skill_ptr[SK_SPELL_CASTING]->level + 1; i++)
 		{
 			op->stats.maxsp += pl->levsp[i];
 		}
 	}
 
-	if (grace_obj)
+	if (pl->skill_ptr[SK_PRAYING])
 	{
-		for (i = 1; i < grace_obj->level + 1; i++)
+		for (i = 1; i < pl->skill_ptr[SK_PRAYING]->level + 1; i++)
 		{
 			op->stats.maxgrace += pl->levgrace[i];
 		}
