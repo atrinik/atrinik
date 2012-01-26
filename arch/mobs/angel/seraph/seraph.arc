@@ -43,7 +43,6 @@ hp -1
 maxhp 100
 sp -1
 maxsp 17
-Pow 3
 ac 12
 wc 6
 dam 100
