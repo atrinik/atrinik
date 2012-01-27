@@ -68,15 +68,6 @@ static float pow_bonus[MAX_STAT + 1] =
 };
 
 /**
- * Wisdom bonus. */
-static float wis_bonus[MAX_STAT + 1] =
-{
-	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
-	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
-};
-
-/**
  * Charisma bonus.
  *
  * As a base value, you get in a shop 20% of the real value of an item.
@@ -134,19 +125,6 @@ int learn_spell[MAX_STAT + 1] =
 {
 	0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
 	100, 100, 100, 100, 100, 100
-};
-
-/**
- * Probability of messing up a divine spell. Based on wisdom. */
-int cleric_chance[MAX_STAT + 1] =
-{
-	100, 100, 100, 100, 90,
-	80, 70, 60, 50, 40,
-	30, 20, 10, 9, 8,
-	7, 6, 5, 4, 3,
-	2, 1, 0, 0, 0,
-	0, 0, 0, 0, 0,
-	0
 };
 
 /**
@@ -685,20 +663,6 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	if ((tmp->stats.grace || tmp->stats.maxgrace) && op->type == PLAYER)
-	{
-		success = 1;
-
-		if ((flag * tmp->stats.grace) > 0 || (flag * tmp->stats.maxgrace) > 0)
-		{
-			draw_info(COLOR_WHITE, op, "You feel closer to your deity!");
-		}
-		else
-		{
-			draw_info(COLOR_GRAY, op, "You suddenly feel less holy.");
-		}
-	}
-
 	if (tmp->stats.food && !QUERY_FLAG(tmp, FLAG_IS_USED_UP))
 	{
 		success = 1;
@@ -827,7 +791,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 void fix_player(object *op)
 {
 	int ring_count = 0;
-	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0, max_boni_grace = 0;
+	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0;
 	float tmp_con;
 	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
@@ -868,7 +832,6 @@ void fix_player(object *op)
 	pl->digestion = 3;
 	pl->gen_hp = 1;
 	pl->gen_sp = 1;
-	pl->gen_grace = 1;
 	pl->gen_sp_armour = 0;
 	pl->item_power = 0;
 	/* The used skills for fast access */
@@ -884,13 +847,8 @@ void fix_player(object *op)
 	op->stats.ac = ac;
 	op->stats.dam = op->arch->clone.stats.dam;
 
-	op->stats.maxhp = op->arch->clone.stats.maxhp;
-	op->stats.maxsp = op->arch->clone.stats.maxsp;
-	op->stats.maxgrace = op->arch->clone.stats.maxgrace;
-
-	pl->levhp[1] = (char) op->stats.maxhp;
-	pl->levsp[1] = (char) op->stats.maxsp;
-	pl->levgrace[1] = (char) op->stats.maxgrace;
+	op->stats.maxhp = op->arch->clone.stats.maxhp * (op->level + 3);
+	op->stats.maxsp = op->arch->clone.stats.maxsp * (pl->skill_ptr[SK_SPELL_CASTING] ? pl->skill_ptr[SK_SPELL_CASTING]->level : 1 + 3);
 
 	op->stats.wc_range = op->arch->clone.stats.wc_range;
 
@@ -1104,7 +1062,6 @@ void fix_player(object *op)
 					pl->encumbrance += (sint16) (3 * tmp->weight / 1000);
 					pl->digestion += tmp->stats.food;
 					pl->gen_sp += tmp->stats.sp;
-					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
 					pl->item_power += tmp->item_power;
@@ -1169,10 +1126,8 @@ fix_player_jump1:
 fix_player_no_armour:
 					max_boni_hp += tmp->stats.maxhp;
 					max_boni_sp += tmp->stats.maxsp;
-					max_boni_grace += tmp->stats.maxgrace;
 					pl->digestion += tmp->stats.food;
 					pl->gen_sp += tmp->stats.sp;
-					pl->gen_grace += tmp->stats.grace;
 					pl->gen_hp += tmp->stats.hp;
 					pl->gen_sp_armour += tmp->last_heal;
 					pl->item_power += tmp->item_power;
@@ -1292,7 +1247,6 @@ fix_player_no_armour:
 					ac += tmp->stats.ac;
 					op->stats.maxhp += tmp->stats.maxhp;
 					op->stats.maxsp += tmp->stats.maxsp;
-					op->stats.maxgrace += tmp->stats.maxgrace;
 					CONTR(op)->class_ob = tmp;
 					break;
 
@@ -1330,11 +1284,6 @@ fix_player_no_armour:
 					if (tmp->stats.maxsp)
 					{
 						op->stats.maxsp += tmp->stats.maxsp;
-					}
-
-					if (tmp->stats.maxgrace)
-					{
-						op->stats.maxgrace += tmp->stats.maxgrace;
 					}
 
 					goto fix_player_jump_resi;
@@ -1661,38 +1610,11 @@ fix_player_jump_resi:
 		adjust_light_source(op->map, op->x, op->y, light - old_glow);
 	}
 
-	/* *3 is base */
-	op->stats.maxhp += op->arch->clone.stats.maxhp + op->arch->clone.stats.maxhp;
-	op->stats.maxsp += op->arch->clone.stats.maxsp + op->arch->clone.stats.maxsp;
-	op->stats.maxgrace += op->arch->clone.stats.maxgrace + op->arch->clone.stats.maxgrace;
-
-	for (i = 1; i < op->level + 1; i++)
-	{
-		op->stats.maxhp += pl->levhp[i];
-	}
-
-	if (pl->skill_ptr[SK_SPELL_CASTING])
-	{
-		for (i = 1; i < pl->skill_ptr[SK_SPELL_CASTING]->level + 1; i++)
-		{
-			op->stats.maxsp += pl->levsp[i];
-		}
-	}
-
-	if (pl->skill_ptr[SK_PRAYING])
-	{
-		for (i = 1; i < pl->skill_ptr[SK_PRAYING]->level + 1; i++)
-		{
-			op->stats.maxgrace += pl->levgrace[i];
-		}
-	}
-
 	/* Now adjust with the % of the stats mali/boni. */
 	op->stats.maxhp += (int) ((float) op->stats.maxhp * con_bonus[op->stats.Con]) + max_boni_hp;
 	op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
-	op->stats.maxgrace += (int) ((float) op->stats.maxgrace * wis_bonus[op->stats.Wis]) + max_boni_grace;
 
-	/* HP/SP/Grace adjustments coming from class-defining object. */
+	/* HP/SP adjustments coming from class-defining object. */
 	if (CONTR(op)->class_ob)
 	{
 		if (CONTR(op)->class_ob->stats.hp)
@@ -1703,11 +1625,6 @@ fix_player_jump_resi:
 		if (CONTR(op)->class_ob->stats.sp)
 		{
 			op->stats.maxsp += ((float) op->stats.maxsp / 100.0f) * (float) CONTR(op)->class_ob->stats.sp;
-		}
-
-		if (CONTR(op)->class_ob->stats.grace)
-		{
-			op->stats.maxgrace += ((float) op->stats.maxgrace / 100.0f) * (float) CONTR(op)->class_ob->stats.grace;
 		}
 	}
 
@@ -1721,11 +1638,6 @@ fix_player_jump_resi:
 		op->stats.maxsp = 1;
 	}
 
-	if (op->stats.maxgrace < 1)
-	{
-		op->stats.maxgrace = 1;
-	}
-
 	if (op->stats.hp == -1)
 	{
 		op->stats.hp = op->stats.maxhp;
@@ -1734,11 +1646,6 @@ fix_player_jump_resi:
 	if (op->stats.sp == -1)
 	{
 		op->stats.sp = op->stats.maxsp;
-	}
-
-	if (op->stats.grace == -1)
-	{
-		op->stats.grace = op->stats.maxgrace;
 	}
 
 	/* Cap the pools to <= max */
@@ -1750,11 +1657,6 @@ fix_player_jump_resi:
 	if (op->stats.sp > op->stats.maxsp)
 	{
 		op->stats.sp = op->stats.maxsp;
-	}
-
-	if (op->stats.grace > op->stats.maxgrace)
-	{
-		op->stats.grace = op->stats.maxgrace;
 	}
 
 	op->stats.ac = ac + op->level;
@@ -1872,7 +1774,6 @@ void fix_monster(object *op)
 
 	op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) * base->stats.maxhp) / 10;
 	op->stats.maxsp = base->stats.maxsp * (op->level + 1);
-	op->stats.maxgrace = base->stats.maxgrace * (op->level + 1);
 
 	if (op->stats.hp == -1)
 	{
@@ -1884,11 +1785,6 @@ void fix_monster(object *op)
 		op->stats.sp = op->stats.maxsp;
 	}
 
-	if (op->stats.grace == -1)
-	{
-		op->stats.grace = op->stats.maxgrace;
-	}
-
 	/* Cap the pools to <= max */
 	if (op->stats.hp > op->stats.maxhp)
 	{
@@ -1898,11 +1794,6 @@ void fix_monster(object *op)
 	if (op->stats.sp > op->stats.maxsp)
 	{
 		op->stats.sp = op->stats.maxsp;
-	}
-
-	if (op->stats.grace > op->stats.maxgrace)
-	{
-		op->stats.grace = op->stats.maxgrace;
 	}
 
 	op->stats.ac = base->stats.ac + op->level;

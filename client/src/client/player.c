@@ -209,10 +209,8 @@ void init_player_data(void)
 	cpl.stats.maxhp = 1;
 	cpl.gen_hp = 0.0f;
 	cpl.gen_sp = 0.0f;
-	cpl.gen_grace = 0.0f;
 	cpl.target_hp = 0;
 
-	cpl.stats.maxgrace = 1;
 	cpl.stats.speed = 1;
 
 	cpl.ob->nrof = 1;
@@ -221,7 +219,6 @@ void init_player_data(void)
 	/* Avoid division by 0 errors */
 	cpl.stats.maxsp = 1;
 	cpl.stats.maxhp = 1;
-	cpl.stats.maxgrace = 1;
 
 	/* Displayed weapon speed is weapon speed/speed */
 	cpl.stats.speed = 0;
@@ -240,15 +237,6 @@ void init_player_data(void)
  * @param y Mouse Y. */
 void widget_player_data_event(widgetdata *widget, int x, int y)
 {
-	int mx = x - widget->x1, my = y - widget->y1;
-
-	if (mx >= 184 && mx <= 210 && my >= 5 && my <= 35)
-	{
-		if (!client_command_check("/pray"))
-		{
-			send_command("/pray");
-		}
-	}
 }
 
 /**
@@ -263,13 +251,10 @@ void widget_show_player_data(widgetdata *widget)
 	box.w = widget->wd - 12;
 	box.h = 36;
 	string_blt(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x1 + 6, widget->y1 + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
-
-	/* Prayer button */
-	sprite_blt(Bitmaps[BITMAP_PRAY], widget->x1 + 184, widget->y1 + 5, NULL, NULL);
 }
 
 /**
- * Show player stats widget with stats, health, mana, grace, etc.
+ * Show player stats widget with stats, health, mana, etc.
  * @param widget The widget object. */
 void widget_player_stats(widgetdata *widget)
 {
@@ -342,12 +327,6 @@ void widget_player_stats(widgetdata *widget)
 		string_truncate_overflow(FONT_ARIAL10, buf, 75);
 		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 34, COLOR_GREEN, 0, NULL);
 
-		/* Grace */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Grace", 58, 58, COLOR_WHITE, 0, NULL);
-		snprintf(buf, sizeof(buf), "%d/%d", cpl.stats.grace, cpl.stats.maxgrace);
-		string_truncate_overflow(FONT_ARIAL10, buf, 75);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 58, COLOR_GREEN, 0, NULL);
-
 		/* Food */
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Food", 58, 83, COLOR_WHITE, 0, NULL);
 	}
@@ -415,37 +394,6 @@ void widget_player_stats(widgetdata *widget)
 
 		sprite_blt(Bitmaps[BITMAP_SP_BACK], widget->x1 + 57, widget->y1 + 47, NULL, NULL);
 		sprite_blt(Bitmaps[BITMAP_SP], widget->x1 + 57, widget->y1 + 47, &box, NULL);
-	}
-
-	/* Grace bar */
-	if (cpl.stats.maxgrace)
-	{
-		tmp = cpl.stats.grace;
-
-		if (tmp < 0)
-		{
-			tmp = 0;
-		}
-
-		temp = (double) tmp / (double) cpl.stats.maxgrace;
-
-		box.x = 0;
-		box.y = 0;
-		box.h = Bitmaps[BITMAP_GRACE]->bitmap->h;
-		box.w = (int) (Bitmaps[BITMAP_GRACE]->bitmap->w * temp);
-
-		if (tmp && !box.w)
-		{
-			box.w = 1;
-		}
-
-		if (box.w > Bitmaps[BITMAP_GRACE]->bitmap->w)
-		{
-			box.w = Bitmaps[BITMAP_GRACE]->bitmap->w;
-		}
-
-		sprite_blt(Bitmaps[BITMAP_GRACE_BACK], widget->x1 + 57, widget->y1 + 71, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_GRACE], widget->x1 + 57, widget->y1 + 71, &box, NULL);
 	}
 
 	/* Food bar */
@@ -984,12 +932,6 @@ void widget_show_regeneration(widgetdata *widget)
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_sp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
 		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 13, COLOR_WHITE, 0, NULL);
-
-		/* Grace */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Grace:", 13, 23, COLOR_HGOLD, 0, NULL);
-		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_grace);
-		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 23, COLOR_WHITE, 0, NULL);
 	}
 
 	box.x = widget->x1;

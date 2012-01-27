@@ -61,9 +61,6 @@ typedef struct char_struct
 	/** Base SP. */
 	uint16 base_sp;
 
-	/** Base grace. */
-	uint16 base_grace;
-
 	/** Archetypes of the race's genders. */
 	char *gender_archetypes[GENDER_MAX];
 

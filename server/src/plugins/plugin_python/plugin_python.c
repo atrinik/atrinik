@@ -206,7 +206,6 @@ static const Atrinik_Constant constants[] =
 	{"P_NO_PASS", P_NO_PASS},
 	{"P_IS_PLAYER", P_IS_PLAYER},
 	{"P_IS_MONSTER", P_IS_MONSTER},
-	{"P_NO_CLERIC", P_NO_CLERIC},
 	{"P_PLAYER_ONLY", P_PLAYER_ONLY},
 	{"P_DOOR_CLOSED", P_DOOR_CLOSED},
 	{"P_CHECK_INV", P_CHECK_INV},
@@ -1163,15 +1162,14 @@ static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
 /**
  * <h1>GetSpell(int spell)</h1>
  * Get various information about a spell, including things like its
- * level, type, etc.
+ * level, name, etc.
  * @param spell ID of the spell, can be acquired using @ref Atrinik_GetSpellNr "GetSpellNr()".
  * @throws ValueError if the spell ID being looked up is invalid.
  * @return Dictionary containing information about the spell, with the
  * following entries:
  * - <b>name</b>: Name of the spell.
  * - <b>level</b>: Level required to cast the spell.
- * - <b>type</b>: 'wizard' if the spell is a wizard spell, 'priest' otherwise.
- * - <b>sp</b>: Base mana/grace required to cast the spell; modified by various factors.
+ * - <b>sp</b>: Base mana required to cast the spell; modified by various factors.
  * - <b>time</b>: Delay in ticks needed to cast another spell. */
 static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 {
@@ -1197,7 +1195,6 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 	PyDict_SetItemString(dict, "level", Py_BuildValue("i", hooks->spells[spell].level));
 	PyDict_SetItemString(dict, "desc", Py_BuildValue("s", hooks->spells[spell].description));
 	PyDict_SetItemString(dict, "icon", Py_BuildValue("s", hooks->spells[spell].icon));
-	PyDict_SetItemString(dict, "type", Py_BuildValue("s", hooks->spells[spell].type == SPELL_TYPE_WIZARD ? "wizard" : "priest"));
 	PyDict_SetItemString(dict, "cost", Py_BuildValue("i", hooks->spells[spell].cost));
 
 	return dict;

@@ -79,11 +79,6 @@ int move_ob(object *op, int dir, object *originator)
 		dir = get_randomized_dir(dir);
 	}
 
-	if (op->type == PLAYER)
-	{
-		CONTR(op)->praying = 0;
-	}
-
 	op->anim_moving_dir = dir;
 	op->anim_enemy_dir = dir;
 	op->anim_last_facing = -1;
@@ -377,25 +372,5 @@ int push_ob(object *op, int dir, object *pusher)
 	op->x = op->x + freearr_x[dir];
 	op->y = op->y + freearr_y[dir];
 	insert_ob_in_map(op, op->map, pusher, 0);
-	return 1;
-}
-
-int missile_reflection_adjust(object *op, int flag)
-{
-	/* no more direction/reflection! */
-	if (!op->stats.maxgrace)
-	{
-		return 0;
-	}
-
-	op->stats.maxgrace--;
-
-	/* restore the "how long we can fly" counter */
-	if (!flag)
-	{
-		op->last_sp = op->stats.grace;
-	}
-
-	/* go on with reflection/direction */
 	return 1;
 }

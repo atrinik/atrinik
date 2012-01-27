@@ -86,11 +86,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"hp.png", PIC_TYPE_TRANS},
 	{"sp.png", PIC_TYPE_TRANS},
-	{"grace.png", PIC_TYPE_TRANS},
 	{"food.png", PIC_TYPE_TRANS},
 	{"hp_back.png", PIC_TYPE_DEFAULT},
 	{"sp_back.png", PIC_TYPE_DEFAULT},
-	{"grace_back.png", PIC_TYPE_DEFAULT},
 	{"food_back.png", PIC_TYPE_DEFAULT},
 
 	{"apply.png", PIC_TYPE_DEFAULT},
@@ -160,7 +158,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"exp_skill_bubble.png", PIC_TYPE_TRANS},
 
 	{"trapped.png", PIC_TYPE_TRANS},
-	{"pray.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_ALPHA},
 	{"book_border.png", PIC_TYPE_ALPHA},
 	{"region_map.png", PIC_TYPE_ALPHA},

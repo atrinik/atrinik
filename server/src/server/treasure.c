@@ -1725,19 +1725,6 @@ make_prot_items:
 
 			break;
 
-		case 22:
-			/* Regenerate grace */
-			op->stats.grace += bonus;
-			op->value = (int) ((float) op->value * 1.35f);
-
-			if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0))
-			{
-				op->value = (int) ((float) op->value * 1.35f);
-				op->stats.grace++;
-			}
-
-			break;
-
 		default:
 			if (!bonus)
 			{
@@ -1823,11 +1810,6 @@ static void set_ring_item_power(object *ob)
 	if (ob->stats.sp > 0)
 	{
 		ob->item_power += ob->stats.sp + 1;
-	}
-
-	if (ob->stats.grace > 0)
-	{
-		ob->item_power += ob->stats.grace + 2;
 	}
 
 	tmp = 0;
@@ -2351,7 +2333,7 @@ jump_break1:
 						op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
 					}
 
-					/* Change food, hp, mana and grace bonuses to negative values */
+					/* Change food, hp, mana bonuses to negative values */
 					if (op->stats.food)
 					{
 						op->stats.food = -op->stats.food;
@@ -2365,11 +2347,6 @@ jump_break1:
 					if (op->stats.sp)
 					{
 						op->stats.sp = -op->stats.sp;
-					}
-
-					if (op->stats.grace)
-					{
-						op->stats.grace = -op->stats.grace;
 					}
 
 					/* Change any positive stat bonuses to negative bonuses. */

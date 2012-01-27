@@ -537,15 +537,7 @@ void fire(object *op, int dir, int type, char *params)
 
 		if (cost)
 		{
-			if (spells[CONTR(op)->chosen_spell].type == SPELL_TYPE_PRIEST)
-			{
-				op->stats.grace -= cost;
-			}
-			else
-			{
-				op->stats.sp -= cost;
-			}
-
+			op->stats.sp -= cost;
 			ret = OBJECT_METHOD_OK;
 		}
 	}
@@ -728,7 +720,7 @@ static void remove_unpaid_objects(object *op, object *env)
 }
 
 /**
- * Figures out how much hp/mana/grace points to regenerate.
+ * Figures out how much hp/mana points to regenerate.
  * @param regen Regeneration value used for client (for example, player::gen_client_hp).
  * @param regen_remainder Pointer to regen remainder (for example, player::gen_hp_remainder).
  * @return How much to regenerate. */
@@ -767,7 +759,7 @@ static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
 }
 
 /**
- * Regenerate player's hp/mana/grace, decrease food, etc.
+ * Regenerate player's hp/mana, decrease food, etc.
  *
  * We will only regenerate HP and mana if the player has some food in their
  * stomach.
@@ -775,10 +767,9 @@ static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
 void do_some_living(object *op)
 {
 	int last_food = op->stats.food;
-	int gen_hp, gen_sp, gen_grace;
+	int gen_hp, gen_sp;
 	int rate_hp = 2000;
 	int rate_sp = 1200;
-	int rate_grace = 400;
 	int add;
 
 	if (CONTR(op)->state != ST_PLAYING)
@@ -788,14 +779,12 @@ void do_some_living(object *op)
 
 	gen_hp = (CONTR(op)->gen_hp * (rate_hp / 20)) + (op->stats.maxhp / 4);
 	gen_sp = (CONTR(op)->gen_sp * (rate_sp / 20)) + op->stats.maxsp;
-	gen_grace = (CONTR(op)->gen_grace * (rate_grace / 20)) + op->stats.maxgrace;
 
 	gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
 
 	/* Update client's regen rates. */
 	CONTR(op)->gen_client_hp = ((float) (1000000 / MAX_TIME) / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
 	CONTR(op)->gen_client_sp = ((float) (1000000 / MAX_TIME) / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
-	CONTR(op)->gen_client_grace = ((float) (1000000 / MAX_TIME) / ((float) rate_grace / (MAX(gen_grace, 20) + 10))) * 10.0f;
 
 	/* Regenerate hit points. */
 	if (op->stats.hp < op->stats.maxhp && op->stats.food)
@@ -865,77 +854,6 @@ void do_some_living(object *op)
 	else
 	{
 		CONTR(op)->gen_sp_remainder = 0;
-	}
-
-	/* Stop and pray. */
-	if (CONTR(op)->praying && !CONTR(op)->was_praying)
-	{
-		if (op->stats.grace < op->stats.maxgrace)
-		{
-			object *god = find_god(determine_god(op));
-
-			if (god)
-			{
-				if (CONTR(op)->combat_mode)
-				{
-					draw_info_format(COLOR_WHITE, op, "You stop combat and start praying to %s...", god->name);
-					CONTR(op)->combat_mode = 0;
-					send_target_command(CONTR(op));
-				}
-				else
-				{
-					draw_info_format(COLOR_WHITE, op, "You start praying to %s...", god->name);
-				}
-
-				CONTR(op)->was_praying = 1;
-			}
-			else
-			{
-				draw_info(COLOR_WHITE, op, "You worship no deity to pray to!");
-				CONTR(op)->praying = 0;
-			}
-		}
-		else
-		{
-			CONTR(op)->praying = 0;
-			CONTR(op)->was_praying = 0;
-		}
-	}
-	else if (!CONTR(op)->praying && CONTR(op)->was_praying)
-	{
-		draw_info(COLOR_WHITE, op, "You stop praying.");
-		CONTR(op)->was_praying = 0;
-	}
-
-	/* Regenerate grace. */
-	if (CONTR(op)->praying || op->stats.grace < op->stats.maxgrace / 3)
-	{
-		if (op->stats.grace < op->stats.maxgrace)
-		{
-			add = get_regen_amount(!CONTR(op)->praying ? CONTR(op)->gen_client_grace / 10 : CONTR(op)->gen_client_grace, &CONTR(op)->gen_grace_remainder);
-
-			if (add)
-			{
-				op->stats.grace += add;
-				CONTR(op)->stat_grace_regen += add;
-
-				if (op->stats.grace > op->stats.maxgrace)
-				{
-					op->stats.grace = op->stats.maxgrace;
-				}
-			}
-		}
-		else
-		{
-			CONTR(op)->gen_grace_remainder = 0;
-		}
-
-		if (op->stats.grace >= op->stats.maxgrace)
-		{
-			op->stats.grace = op->stats.maxgrace;
-			draw_info(COLOR_WHITE, op, "You are full of grace and stop praying.");
-			CONTR(op)->was_praying = 0;
-		}
 	}
 
 	/* Digestion */
@@ -1029,7 +947,6 @@ void kill_player(object *op)
 		cure_disease(op, NULL);
 		op->stats.hp = op->stats.maxhp;
 		op->stats.sp = op->stats.maxsp;
-		op->stats.grace = op->stats.maxgrace;
 
 		if (op->stats.food <= 0)
 		{
@@ -1188,7 +1105,6 @@ void kill_player(object *op)
 
 	op->stats.hp = op->stats.maxhp;
 	op->stats.sp = op->stats.maxsp;
-	op->stats.grace = op->stats.maxgrace;
 
 	hiscore_check(op, 1);
 
@@ -1700,7 +1616,6 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 	object *mon = tmp->head ? tmp->head : tmp;
 	int val, val2, i, gender;
 
-	CONTR(op)->praying = 0;
 	gender = object_get_gender(mon);
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
@@ -2368,11 +2283,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 {
 	int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
-	if (pl->type == PLAYER)
-	{
-		CONTR(pl)->praying = 0;
-	}
-
 	/* IF the player is flying & trying to take the item out of a container
 	 * that is in his inventory, let him.  tmp->env points to the container
 	 * (sack, luggage, etc), tmp->env->env then points to the player (nested
@@ -2639,12 +2549,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 	if (!no_mevent && op->map && op->map->events && trigger_map_event(MEVENT_DROP, op->map, op, tmp, NULL, NULL, nrof))
 	{
 		return;
-	}
-
-	/* Stop praying. */
-	if (op->type == PLAYER)
-	{
-		CONTR(op)->praying = 0;
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_APPLIED))

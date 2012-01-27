@@ -174,7 +174,7 @@ static void eat_special_food(object *who, object *food)
 		}
 	}
 
-	/* Check for hp, sp and grace change */
+	/* Check for hp, sp change */
 	if (food->stats.hp)
 	{
 		if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
@@ -246,45 +246,6 @@ static void eat_special_food(object *who, object *food)
 			if (who->stats.sp > who->stats.maxsp)
 			{
 				who->stats.sp = who->stats.maxsp;
-			}
-		}
-	}
-
-	if (food->stats.grace && determine_god(who) != shstr_cons.none)
-	{
-		if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
-		{
-			int tmp = food->stats.grace;
-
-			if (tmp > 0)
-			{
-				tmp = -tmp;
-			}
-
-			draw_info(COLOR_WHITE, who, "Your grace is drained!");
-
-			if (QUERY_FLAG(food, FLAG_CURSED))
-			{
-				who->stats.grace += tmp * 2;
-			}
-			else
-			{
-				who->stats.grace += tmp * 3;
-			}
-
-			if (who->stats.grace < 0)
-			{
-				who->stats.grace = 0;
-			}
-		}
-		else
-		{
-			draw_info(COLOR_WHITE, who, "You are returned to a state of grace.");
-			who->stats.grace += food->stats.grace;
-
-			if (who->stats.grace > who->stats.maxgrace)
-			{
-				who->stats.grace = who->stats.maxgrace;
 			}
 		}
 	}

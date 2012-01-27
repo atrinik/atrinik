@@ -32,7 +32,7 @@ def main():
 			return
 
 		skill_name = {"wizard": "wizardry spells", "priest": "divine prayers"}[spell["type"]]
-		skill = activator.Controller().GetSkill(Type.SKILL, GetSkillNr(skill_name))
+		skill = activator.Controller().GetSkill(GetSkillNr(skill_name))
 		color = COLOR_GREEN if skill.level >= spell["level"] else COLOR_RED
 		inf.add_msg("{} requires level to {} use. Your {} skill is level {}.".format(name.capitalize(), spell["level"], skill_name, skill.level), color)
 

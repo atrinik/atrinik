@@ -30,12 +30,12 @@
 
 #include <global.h>
 
-/** Width of the hp/sp/grace stat bar. */
+/** Width of the hp/sp stat bar. */
 #define STAT_BAR_WIDTH 60
 
 /** Macro to create the stat bar markup. */
 #define PARTY_STAT_BAR() \
-	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 4><bar=#cb0202 %d 4><y=4><bar=#000000 %d 4><bar=#1818a4 %d 4><y=4><bar=#000000 %d 4><bar=#15bc15 %d 4>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (grace / 100.0)));
+	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 6><bar=#cb0202 %d 6><y=6><bar=#000000 %d 6><bar=#1818a4 %d 6>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
 
 /** Button buffer. */
 static button_struct button_close, button_help, button_parties, button_members, button_form, button_leave, button_password, button_chat;
@@ -282,12 +282,11 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 			else if (type == CMD_PARTY_WHO)
 			{
 				char name[MAX_BUF], bars[MAX_BUF];
-				uint8 hp, sp, grace;
+				uint8 hp, sp;
 
 				packet_to_string(data, len, &pos, name, sizeof(name));
 				hp = packet_to_uint8(data, len, &pos);
 				sp = packet_to_uint8(data, len, &pos);
-				grace = packet_to_uint8(data, len, &pos);
 				list_add(list_party, list_party->rows, 0, name);
 				PARTY_STAT_BAR();
 				list_add(list_party, list_party->rows - 1, 1, bars);
@@ -344,7 +343,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 	else if (type == CMD_PARTY_UPDATE)
 	{
 		char name[MAX_BUF], bars[MAX_BUF];
-		uint8 hp, sp, grace;
+		uint8 hp, sp;
 		uint32 row;
 
 		if (list_contents != CMD_PARTY_WHO)
@@ -355,7 +354,6 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 		packet_to_string(data, len, &pos, name, sizeof(name));
 		hp = packet_to_uint8(data, len, &pos);
 		sp = packet_to_uint8(data, len, &pos);
-		grace = packet_to_uint8(data, len, &pos);
 
 		PARTY_STAT_BAR();
 		cur_widget[PARTY_ID]->redraw = 1;

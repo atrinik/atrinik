@@ -94,8 +94,6 @@
 #define MAP_NOSAVE(m)          ((m)->map_flags & MAP_FLAG_NO_SAVE)
 /** Does the map disallow magic? */
 #define MAP_NOMAGIC(m)         ((m)->map_flags & MAP_FLAG_NOMAGIC)
-/** Does the map disallow priest spells? */
-#define MAP_NOPRIEST(m)        ((m)->map_flags & MAP_FLAG_NOPRIEST)
 /** Does the map disallow harmful spells? */
 #define MAP_NOHARM(m)          ((m)->map_flags & MAP_FLAG_NOHARM)
 /** Does the map disallow summoning spells? */
@@ -242,8 +240,6 @@
 #define P_IS_PLAYER           0x08
 /** There is a monster on this square. */
 #define P_IS_MONSTER            0x10
-/** No clerical spells cast here */
-#define P_NO_CLERIC           0x20
 /**
  * Only players are allowed to enter this space. This excludes mobs
  * and golems but also spell effects and thrown / fired items.
@@ -309,8 +305,6 @@
 #define MSP_EXTRA_NO_PVP 2
 /** No magic. */
 #define MSP_EXTRA_NO_MAGIC 4
-/** No prayers. */
-#define MSP_EXTRA_NO_CLERIC 8
 /*@}*/
 
 /** Single tile on a map */
@@ -389,8 +383,6 @@ typedef struct MapSpace_s
 #define MAP_FLAG_FIXED_RTIME 4
 /** No wizardry based spells */
 #define MAP_FLAG_NOMAGIC 8
-/** No prayer based spells */
-#define MAP_FLAG_NOPRIEST 16
 /** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM 32
 /**

@@ -81,12 +81,6 @@ typedef struct liv
 	/** Max spell points. */
 	sint16 maxsp;
 
-	/** Grace. Used to invoke clerical prayers. */
-	sint16 grace;
-
-	/** Max grace. */
-	sint16 maxgrace;
-
 	/** How much food in stomach. 0 = starved. */
 	sint16 food;
 

@@ -4,22 +4,20 @@ from Quests import LostMemories as quest
 from Packet import Notification
 import Temple
 
-activator = WhoIsActivator()
-me = WhoAmI()
-msg = WhatIsMessage().strip().lower()
 qm = QuestManagerMulti(activator, quest)
 inf = Interface(activator, me)
 
-class TempleCustom(Temple.TempleTabernacle):
-	pass
-
 def main():
 	if qm.started_part(1) and not qm.started_part(2):
-		def temple_post_init(self):
-			self.services = []
+		if msg == "hello":
+			inf.add_link("I need help recovering my memories.", dest = "helprecover")
 
-		TempleCustom.post_init = temple_post_init
-		Temple.handle_temple(TempleCustom, me, activator, msg)
+		elif msg == "helprecover":
+			inf.add_msg("Recovering your memories, you say? Hmm. That is quite difficult business indeed, and often near impossible.")
+			return
+
+	temple = Temple.TempleTabernacle(activator, me, inf)
+	temple.handle_chat(msg)
 
 main()
 inf.finish()

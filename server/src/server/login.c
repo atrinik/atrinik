@@ -116,7 +116,6 @@ int save_player(object *op)
 	fprintf(fp, "tls %d\n", pl->tls);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
-	fprintf(fp, "gen_grace %d\n", pl->gen_grace);
 	fprintf(fp, "spell %d\n", pl->chosen_spell);
 	fprintf(fp, "digestion %d\n", pl->digestion);
 
@@ -138,30 +137,6 @@ int save_player(object *op)
 	fprintf(fp, "Pow %d\n", pl->orig_stats.Pow);
 	fprintf(fp, "Wis %d\n", pl->orig_stats.Wis);
 	fprintf(fp, "Cha %d\n", pl->orig_stats.Cha);
-
-	/* Save hp table */
-	fprintf(fp, "lev_hp %d\n", op->level);
-
-	for (i = 1; i <= op->level; i++)
-	{
-		fprintf(fp, "%d\n", pl->levhp[i]);
-	}
-
-	/* Save sp table */
-	fprintf(fp, "lev_sp %d\n", pl->skill_ptr[SK_SPELL_CASTING]->level);
-
-	for (i = 1; i <= pl->skill_ptr[SK_SPELL_CASTING]->level; i++)
-	{
-		fprintf(fp, "%d\n", pl->levsp[i]);
-	}
-
-	/* Save grace table */
-	fprintf(fp, "lev_grace %d\n", pl->skill_ptr[SK_PRAYING]->level);
-
-	for (i = 1; i <= pl->skill_ptr[SK_PRAYING]->level; i++)
-	{
-		fprintf(fp, "%d\n", pl->levgrace[i]);
-	}
 
 	for (i = 0; i < pl->nrofknownspells; i++)
 	{
@@ -443,10 +418,6 @@ void check_login(object *op)
 		{
 			pl->gen_sp = value;
 		}
-		else if (!strcmp(buf, "gen_grace"))
-		{
-			pl->gen_grace = value;
-		}
 		else if (!strcmp(buf, "spell"))
 		{
 			pl->chosen_spell = value;
@@ -498,42 +469,6 @@ void check_login(object *op)
 		else if (!strcmp(buf, "Cha"))
 		{
 			pl->orig_stats.Cha = value;
-		}
-		else if (!strcmp(buf, "lev_hp"))
-		{
-			int j;
-
-			for (i = 1; i <= value; i++)
-			{
-				if (fscanf(fp, "%d\n", &j))
-				{
-					pl->levhp[i] = j;
-				}
-			}
-		}
-		else if (!strcmp(buf, "lev_sp"))
-		{
-			int j;
-
-			for (i = 1; i <= value; i++)
-			{
-				if (fscanf(fp, "%d\n", &j))
-				{
-					pl->levsp[i] = j;
-				}
-			}
-		}
-		else if (!strcmp(buf, "lev_grace"))
-		{
-			int j;
-
-			for (i = 1; i <= value; i++)
-			{
-				if (fscanf(fp, "%d\n", &j))
-				{
-					pl->levgrace[i] = j;
-				}
-			}
 		}
 		else if (!strcmp(buf, "known_spell"))
 		{

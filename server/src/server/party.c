@@ -88,7 +88,6 @@ void add_party_member(party_struct *party, object *op)
 
 	CONTR(op)->last_party_hp = 0;
 	CONTR(op)->last_party_sp = 0;
-	CONTR(op)->last_party_grace = 0;
 }
 
 /**
@@ -434,7 +433,7 @@ void remove_party(party_struct *party)
  * @param pl Player. */
 void party_update_who(player *pl)
 {
-	uint8 hp, sp, grace;
+	uint8 hp, sp;
 
 	if (!pl->party)
 	{
@@ -443,9 +442,8 @@ void party_update_who(player *pl)
 
 	hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
 	sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
-	grace = MAX(1, MIN((double) pl->ob->stats.grace / pl->ob->stats.maxgrace * 100.0f, 100));
 
-	if (hp != pl->last_party_hp || sp != pl->last_party_sp || grace != pl->last_party_grace)
+	if (hp != pl->last_party_hp || sp != pl->last_party_sp)
 	{
 		packet_struct *packet;
 		objectlink *ol;
@@ -455,7 +453,6 @@ void party_update_who(player *pl)
 		packet_append_string_terminated(packet, pl->ob->name);
 		packet_append_uint8(packet, hp);
 		packet_append_uint8(packet, sp);
-		packet_append_uint8(packet, grace);
 
 		for (ol = pl->party->members; ol; ol = ol->next)
 		{

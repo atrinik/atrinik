@@ -290,7 +290,7 @@ int infect_object(object *victim, object *disease, int force)
 	/* If we've gotten this far, go ahead and infect the victim. */
 	new_disease = get_object();
 	copy_object(disease, new_disease, 0);
-	new_disease->stats.food = disease->stats.maxgrace;
+	new_disease->stats.food = -1;
 	new_disease->value = disease->stats.maxhp;
 	/* self-limiting factor */
 	new_disease->stats.wc -= disease->last_grace;
@@ -301,23 +301,6 @@ int infect_object(object *victim, object *disease, int force)
 	{
 		set_owner(new_disease, disease->owner);
 		new_disease->chosen_skill = disease->chosen_skill;
-	}
-	/* for diseases which are passed by hitting, set owner and praying skill */
-	else
-	{
-		if (disease->env && disease->env->type == PLAYER)
-		{
-			object *pl = disease->env;
-
-			/* hm, we should for hit use the weapon? or the skill attached to this
-			 * specific disease? hmmm */
-			new_disease->chosen_skill = find_skill(pl, SK_PRAYING);
-
-			if (new_disease->chosen_skill)
-			{
-				set_owner(new_disease, pl);
-			}
-		}
 	}
 
 	insert_ob_in_ob(new_disease, victim);
@@ -435,7 +418,7 @@ static void do_symptoms(object *disease)
 		}
 
 		new_symptom->stats.maxsp = disease->stats.maxsp;
-		new_symptom->stats.food = new_symptom->stats.maxgrace;
+		new_symptom->stats.food = -1;
 
 		FREE_AND_COPY_HASH(new_symptom->name, disease->name);
 		new_symptom->level = disease->level;
@@ -699,12 +682,12 @@ int cure_disease(object *sufferer, object *caster)
 			{
 				if (sufferer->type == PLAYER)
 				{
-					draw_info_format(COLOR_WHITE, sufferer, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(COLOR_WHITE, sufferer, "The disease %s resists the cure spell!", disease->name);
 				}
 
 				if (sufferer != caster && caster->type == PLAYER)
 				{
-					draw_info_format(COLOR_WHITE, caster, "The disease %s resists the cure prayer!", disease->name);
+					draw_info_format(COLOR_WHITE, caster, "The disease %s resists the cure spell!", disease->name);
 				}
 			}
 		}

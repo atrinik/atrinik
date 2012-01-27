@@ -30,37 +30,6 @@
 
 #include <global.h>
 
-/**
- * @defgroup POTION_IMPROVE_xxx POTION_IMPROVE_xxx
- * Defines used in improvement potions handling code.
- *@{*/
-/** Number of stats available for improvement. */
-#define POTION_IMPROVE_STATS 3
-/** Health. */
-#define POTION_IMPROVE_HP 0
-/** Mana. */
-#define POTION_IMPROVE_SP 1
-/** Grace. */
-#define POTION_IMPROVE_GRACE 2
-/*@}*/
-
-/**
- * Offsets of the levxxx arrays in the player structure. These are used
- * in potion_improve_apply() for dynamic access. */
-static const size_t potion_improve_stat_offsets[POTION_IMPROVE_STATS] =
-{
-	offsetof(player, levhp), offsetof(player, levsp), offsetof(player, levgrace)
-};
-
-/**
- * String representations of the stats improvement potions can improve.
- * These are used in potion_improve_apply() to inform a player which stat
- * has increased (or decreased, in case of cursed potions). */
-static const char *const potion_improve_stat_names[POTION_IMPROVE_STATS] =
-{
-	"health", "mana", "grace"
-};
-
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
@@ -230,96 +199,6 @@ static int apply_func(object *op, object *applier, int aflags)
 
 			insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
 			play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
-		}
-	}
-	/* Improvement potion. */
-	else if (op->last_eat == 2)
-	{
-		int indices[POTION_IMPROVE_STATS] = {POTION_IMPROVE_HP, POTION_IMPROVE_SP, POTION_IMPROVE_GRACE};
-		int stat_id, i, level, max, val, done;
-		char *levarr, oldlev;
-
-		/* Shuffle the array so we check all the stats for possible
-		 * improvement in random order. */
-		permute(indices, 0, POTION_IMPROVE_STATS);
-
-		/* Check all the stats. As 'indices' has been shuffled, that is used
-		 * to determine which stat we're working on, instead of directly
-		 * using 'stat'. */
-		for (stat_id = 0, done = 0; stat_id < POTION_IMPROVE_STATS && !done; stat_id++)
-		{
-			/* Determine level related to this stat, and the maximum possible
-			 * value it can be improved to. */
-			if (indices[stat_id] == POTION_IMPROVE_HP)
-			{
-				level = applier->level;
-				max = applier->arch->clone.stats.maxhp;
-			}
-			else if (indices[stat_id] == POTION_IMPROVE_SP)
-			{
-				level = CONTR(applier)->skill_ptr[SK_SPELL_CASTING]->level;
-				max = applier->arch->clone.stats.maxsp;
-			}
-			else
-			{
-				level = CONTR(applier)->skill_ptr[SK_PRAYING]->level;
-				max = applier->arch->clone.stats.maxgrace;
-			}
-
-			/* Check to see if we can increase (or decrease, if the potion is
-			 * cursed) any stats. If the potion is cursed, we start at level
-			 * 2, because level 1 has the improvement fixed to the maximum
-			 * value (since it's the first level, obviously). */
-			for (i = OBJECT_CURSED(op) ? 2 : 1; i <= level; i++)
-			{
-				/* Get pointer to the array that stores the level
-				 * improvements for this stat. */
-				levarr = (void *) ((char *) CONTR(applier) + potion_improve_stat_offsets[indices[stat_id]]);
-
-				val = OBJECT_CURSED(op) ? 1 : max;
-
-				/* The value is the same for this level, go on. */
-				if (levarr[i] == val)
-				{
-					continue;
-				}
-
-				oldlev = levarr[i];
-				levarr[i] = val;
-				fix_player(applier);
-
-				if (OBJECT_CURSED(op))
-				{
-					insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
-					play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
-					draw_info_format(COLOR_WHITE, applier, "The foul potion burns like fire inside you, and your %s decreases by %d!", potion_improve_stat_names[indices[stat_id]], oldlev - levarr[i]);
-				}
-				else
-				{
-					insert_spell_effect("meffect_yellow", applier->map, applier->x, applier->y);
-					play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
-					draw_info_format(COLOR_WHITE, applier, "You feel a little more perfect, and your %s increases by %d!", potion_improve_stat_names[indices[stat_id]], levarr[i] - oldlev);
-				}
-
-				done = 1;
-				break;
-			}
-		}
-
-		/* No effect (because there is nothing to increase [or decrease, in
-		 * case of cursed potions]); inform the player. */
-		if (!done)
-		{
-			if (OBJECT_CURSED(op))
-			{
-				play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
-				draw_info(COLOR_WHITE, applier, "The potion was foul but had no effect on your tortured body.");
-			}
-			else
-			{
-				play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
-				draw_info(COLOR_WHITE, applier, "The potion had no effect - you are already perfect.");
-			}
 		}
 	}
 	/* Spell potion. */

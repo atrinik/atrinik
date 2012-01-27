@@ -29,7 +29,7 @@
  * Many statistics are currently cached in the player's structure as
  * uint64 for performance reasons, as it's not very efficient to send a
  * statistic update each time the player plays for another second, or
- * casts a spell, or regenerates some health/mana/grace. Thus, such
+ * casts a spell, or regenerates some health/mana. Thus, such
  * statistics are only updated in statistics_player_logout(), which is
  * called when the player logs out. */
 
@@ -108,7 +108,6 @@ void statistics_player_logout(player *pl)
 	statistic_update("damage_dealt", pl->ob, pl->stat_damage_dealt, NULL);
 	statistic_update("hp_regen", pl->ob, pl->stat_hp_regen, NULL);
 	statistic_update("sp_regen", pl->ob, pl->stat_sp_regen, NULL);
-	statistic_update("grace_regen", pl->ob, pl->stat_grace_regen, NULL);
 	statistic_update("food_consumed", pl->ob, pl->stat_food_consumed, NULL);
 	statistic_update("food_num_consumed", pl->ob, pl->stat_food_num_consumed, NULL);
 	statistic_update("damage_healed", pl->ob, pl->stat_damage_healed, NULL);
@@ -116,7 +115,6 @@ void statistics_player_logout(player *pl)
 	statistic_update("damage_heal_received", pl->ob, pl->stat_damage_heal_received, NULL);
 	statistic_update("steps_taken", pl->ob, pl->stat_steps_taken, NULL);
 	statistic_update("spells_cast", pl->ob, pl->stat_spells_cast, NULL);
-	statistic_update("prayers_cast", pl->ob, pl->stat_prayers_cast, NULL);
 	statistic_update("time_played", pl->ob, pl->stat_time_played, NULL);
 	statistic_update("time_afk", pl->ob, pl->stat_time_afk, NULL);
 	statistic_update("arrows_fired", pl->ob, pl->stat_arrows_fired, NULL);

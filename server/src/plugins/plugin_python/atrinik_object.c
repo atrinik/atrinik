@@ -119,8 +119,6 @@ static fields_struct fields[] =
 	{"maxhp", FIELDTYPE_SINT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
 	{"sp", FIELDTYPE_SINT16, offsetof(object, stats.sp), 0, 0},
 	{"maxsp", FIELDTYPE_SINT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
-	{"grace", FIELDTYPE_SINT16, offsetof(object, stats.grace), 0, 0},
-	{"maxgrace", FIELDTYPE_SINT16, offsetof(object, stats.maxgrace), FIELDFLAG_PLAYER_READONLY, 0},
 
 	{"food", FIELDTYPE_SINT16, offsetof(object, stats.food), 0, 0},
 	{"dam", FIELDTYPE_SINT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
@@ -192,46 +190,6 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
 	}
 
 	hooks->rune_spring(obj->obj, who->obj);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
- * <h1>object.GetGod()</h1>
- * Determine the object's god.
- * @return Returns a string of the god's name. */
-static PyObject *Atrinik_Object_GetGod(Atrinik_Object *obj, PyObject *args)
-{
-	(void) args;
-	OBJEXISTCHECK(obj);
-
-	return Py_BuildValue("s", hooks->determine_god(obj->obj));
-}
-
-/**
- * <h1>object.SetGod(string name)</h1>
- * Make an object become follower of a different god.
- *
- * The object must have the 'divine prayers' skill.
- * @param name Name of the god. */
-static PyObject *Atrinik_Object_SetGod(Atrinik_Object *obj, PyObject *args)
-{
-	const char *name;
-
-	if (!PyArg_ParseTuple(args, "s", &name))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	if (hooks->change_skill(obj->obj, SK_PRAYING))
-	{
-		object *god = hooks->find_god(name);
-
-		hooks->become_follower(obj->obj, god);
-	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1673,8 +1631,6 @@ static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
 static PyMethodDef methods[] =
 {
 	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
-	{"GetGod", (PyCFunction) Atrinik_Object_GetGod, METH_NOARGS, 0},
-	{"SetGod", (PyCFunction) Atrinik_Object_SetGod, METH_VARARGS, 0},
 	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
 	{"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},

@@ -823,7 +823,6 @@ static void process_players1(void)
 						pl->ob->enemy->attacked_by_distance = 1;
 					}
 
-					pl->praying = 0;
 					skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
 					/* We want only *one* swing - not several swings per tick */
 					pl->ob->weapon_speed_left += FABS((int) pl->ob->weapon_speed_left) + 1;

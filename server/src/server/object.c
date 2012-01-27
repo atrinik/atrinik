@@ -308,7 +308,7 @@ const char *object_flag_names[NUM_FLAGS + 1] =
 	NULL, NULL, NULL, NULL, NULL,
 	"sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
 	"make_ethereal", "is_player", "is_named", NULL, "no_teleport",
-	"corpse", "corpse_forced", "player_only", "no_cleric", "one_drop",
+	"corpse", "corpse_forced", "player_only", NULL, "one_drop",
 	"cursed_perm", "damned_perm", "door_closed", "is_spell", "is_missile",
 	"draw_direction", "draw_double", "is_assassin", NULL, "no_save",
 	NULL
@@ -1256,11 +1256,6 @@ void update_object(object *op, int action)
 				newflags |= P_NO_MAGIC;
 			}
 
-			if (QUERY_FLAG(op, FLAG_NO_CLERIC))
-			{
-				newflags |= P_NO_CLERIC;
-			}
-
 			if (QUERY_FLAG(op, FLAG_WALK_ON))
 			{
 				newflags |= P_WALK_ON;
@@ -1315,7 +1310,7 @@ void update_object(object *op, int action)
 		}
 
 		/* We must rebuild the flags when one of these flags is touched from our object */
-		if (QUERY_FLAG(op, FLAG_MONSTER) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_NO_CLERIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV)
+		if (QUERY_FLAG(op, FLAG_MONSTER) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,	FLAG_IS_FLOOR) || op->type == CHECK_INV)
 		{
 			newflags |= P_FLAGS_UPDATE;
 		}

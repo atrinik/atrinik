@@ -299,7 +299,6 @@ void command_party(object *op, const char *command, char *params)
 				packet_append_string_terminated(packet, ol->objlink.ob->name);
 				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
 				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
-				packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.grace / ol->objlink.ob->stats.maxgrace * 100.0f, 100)));
 			}
 
 			socket_send_packet(&CONTR(op)->socket, packet);

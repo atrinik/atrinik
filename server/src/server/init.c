@@ -67,16 +67,6 @@ static void init_strings(void)
 	shstr_cons.portal_active_name = add_string(PORTAL_ACTIVE_NAME);
 	shstr_cons.spell_quickslot = add_string("spell_quickslot");
 
-	shstr_cons.GUILD_FORCE = add_string("GUILD_FORCE");
-	shstr_cons.guild_force = add_string("guild_force");
-	shstr_cons.RANK_FORCE = add_string("RANK_FORCE");
-	shstr_cons.rank_force = add_string("rank_force");
-	shstr_cons.ALIGNMENT_FORCE = add_string("ALIGNMENT_FORCE");
-	shstr_cons.alignment_force = add_string("alignment_force");
-
-	shstr_cons.restore_grace = add_string("restore grace");
-	shstr_cons.restore_hitpoints = add_string("restore hitpoints");
-
 	shstr_cons.player_info = add_string("player_info");
 	shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");
 	shstr_cons.of_poison = add_string("of poison");

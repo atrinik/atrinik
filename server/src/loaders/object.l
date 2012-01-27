@@ -480,8 +480,6 @@ lex_error = 0;
 ^maxhp{S}           op->stats.maxhp = IVAL;
 ^sp{S}              op->stats.sp = IVAL;
 ^maxsp{S}           op->stats.maxsp = IVAL;
-^grace{S}           op->stats.grace = IVAL;
-^maxgrace{S}        op->stats.maxgrace = IVAL;
 ^exp{S}             op->stats.exp = atoll(yval());
 ^food{S}            op->stats.food = IVAL;
 ^dam{S}             op->stats.dam = IVAL;
@@ -607,7 +605,6 @@ lex_error = 0;
 ^can_reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
 ^can_reflect_spell{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
 ^no_magic{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL);
-^no_cleric{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_CLERIC, IVAL);
 ^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
 ^tear_down{S}       {}
 ^luck{S}            {}
@@ -1367,16 +1364,6 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 	if (op->stats.maxsp != op2->stats.maxsp)
 	{
 		FAST_SAVE_LONG(sb, "maxsp ", op->stats.maxsp);
-	}
-
-	if (op->stats.grace != op2->stats.grace)
-	{
-		FAST_SAVE_LONG(sb, "grace ", op->stats.grace);
-	}
-
-	if (op->stats.maxgrace != op2->stats.maxgrace)
-	{
-		FAST_SAVE_LONG(sb, "maxgrace ", op->stats.maxgrace);
 	}
 
 	if (op->stats.exp != op2->stats.exp)

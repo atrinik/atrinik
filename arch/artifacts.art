@@ -3908,7 +3908,7 @@ path_repelled 131072
 Cha 1
 Pow 1
 Wis 2
-grace 1
+sp 1
 material 0
 item_power 10
 end
@@ -3933,7 +3933,7 @@ value 138000
 is_magical 1
 path_attuned 65536
 path_repelled 64
-grace 1
+sp 1
 Wis 1
 item_power 5
 end
@@ -3956,7 +3956,7 @@ material 0
 type 70
 value 151000
 is_magical 1
-grace 2
+sp 2
 Int 1
 path_attuned 65664
 Wis 2
@@ -3983,7 +3983,7 @@ value 224000
 is_magical 1
 Wis 2
 Int 2
-grace 2
+sp 2
 Cha 2
 path_attuned 257
 path_repelled 131072
@@ -4618,133 +4618,6 @@ end
 #########
 # Food. #
 #########
-# Types of food which can affect player's status
-
-Allowed !pipeweed, all
-chance 100
-artifact food_mana_lesser
-def_arch food_generic
-Object
-title of lesser mana
-type 6
-sp 13
-is_magical 1
-end
-
-Allowed !pipeweed, all
-chance 85
-difficulty 16
-artifact food_mana_medium
-def_arch food_generic
-Object
-title of medium mana
-type 6
-sp 24
-is_magical 1
-value 100
-end
-
-Allowed !pipeweed, all
-chance 70
-difficulty 27
-artifact food_mana
-def_arch food_generic
-Object
-title of mana
-type 6
-sp 37
-is_magical 1
-value 200
-end
-
-Allowed !pipeweed, all
-chance 55
-difficulty 42
-artifact food_mana_greater
-def_arch food_generic
-Object
-title of greater mana
-type 6
-sp 57
-is_magical 1
-value 400
-end
-
-Allowed !pipeweed, all
-chance 100
-artifact food_grace_lesser
-def_arch food_generic
-Object
-title of lesser grace
-type 6
-grace 13
-is_magical 1
-end
-
-Allowed !pipeweed, all
-chance 85
-difficulty 16
-artifact food_grace_medium
-def_arch food_generic
-Object
-title of medium grace
-type 6
-grace 24
-is_magical 1
-value 100
-end
-
-Allowed !pipeweed, all
-chance 70
-difficulty 27
-artifact food_grace
-def_arch food_generic
-Object
-title of grace
-type 6
-grace 37
-is_magical 1
-value 200
-end
-
-Allowed !pipeweed, all
-chance 55
-difficulty 42
-artifact food_grace_greater
-def_arch food_generic
-Object
-title of greater grace
-type 6
-grace 57
-is_magical 1
-value 400
-end
-
-Allowed waybread
-chance 100
-difficulty 24
-artifact waybread_aelingas
-def_arch waybread
-Object
-title of Aelingas
-type 6
-Str 1
-Con 1
-is_magical 1
-value 980
-end
-
-Allowed drink_generic
-chance 90
-artifact drink_generic_wise
-def_arch drink_generic
-Object
-title of the wise
-type 54
-food 75
-value 200
-end
-
 Allowed none
 chance 1
 artifact beer_charob
@@ -5151,40 +5024,6 @@ value 170
 sp 2
 end
 
-# SPECIAL AREA
-# All items with <Allowed none> are excluded from masking
-# Define here unique items
-
-# Age force setting for player classes
-Allowed none
-chance 1
-artifact age_force_human
-def_arch age_force
-Object
-title human age force (artifacts generic)
-# We start at age 21
-hp 21
-# This is our max age
-# We count as "aged" if we are older than 60% of the max age
-maxhp 80
-# We are not unnatural aged by default
-sp   0
-# Our permanent (real) age was changed by 0 years by magic or higher forces
-grace  0
-end
-
-Allowed none
-chance 1
-artifact age_force_half_elf
-def_arch age_force
-Object
-title half-elf age force (artifacts generic)
-hp 21
-maxhp 100
-sp   0
-grace  0
-end
-
 Allowed none
 chance 1
 artifact cloak_rhun
@@ -5361,7 +5200,7 @@ def_arch ring_generic
 Object
 is_magical 1
 title of the prayers
-grace 1
+sp 1
 protect_poison 8
 is_named 1
 identified 1

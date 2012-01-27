@@ -283,11 +283,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(REGEN_ID);
 					break;
 
-				case CS_STAT_REG_GRACE:
-					cpl.gen_grace = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
-					WIDGET_REDRAW_ALL(REGEN_ID);
-					break;
-
 				case CS_STAT_HP:
 					temp = packet_to_uint32(data, len, &pos);
 
@@ -317,16 +312,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
 				case CS_STAT_MAXSP:
 					cpl.stats.maxsp = packet_to_uint16(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_GRACE:
-					cpl.stats.grace = packet_to_uint16(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_MAXGRACE:
-					cpl.stats.maxgrace = packet_to_uint16(data, len, &pos);
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 

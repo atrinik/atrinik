@@ -209,7 +209,6 @@ set(SOURCES
 	src/commands/player/motd.c
 	src/commands/player/my.c
 	src/commands/player/party.c
-	src/commands/player/pray.c
 	src/commands/player/push.c
 	src/commands/player/ready_skill.c
 	src/commands/player/region_map.c

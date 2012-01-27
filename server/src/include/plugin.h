@@ -199,7 +199,7 @@ struct plugin_hooklist
 	void (*command_drop)(object *, const char *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
 	int (*kill_object)(object *, int, object *, int);
-	void (*do_learn_spell)(object *, int, int);
+	void (*do_learn_spell)(object *, int);
 	void (*do_forget_spell)(object *, int);
 	int (*look_up_spell_name)(const char *);
 	int (*check_spell_known)(object *, int);

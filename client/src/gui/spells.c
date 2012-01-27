@@ -510,18 +510,10 @@ void spells_init(void)
 	while (fgets(line, sizeof(line) - 1, fp))
 	{
 		char *spell_name, *icon, desc[HUGE_BUF];
-		int spell_type, spell_path;
+		int spell_path;
 
 		line[strlen(line) - 1] = '\0';
 		spell_name = strdup(line);
-
-		if (!fgets(line, sizeof(line) - 1, fp))
-		{
-			logger_print(LOG(BUG), "Got unexpected EOF reading spells file.");
-			break;
-		}
-
-		spell_type = atoi(line);
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
@@ -562,7 +554,7 @@ void spells_init(void)
 				entry->icon = get_bmap_id(entry->icon_name);
 				entry->known = '\0';
 				entry->path = 0;
-				entry->type = spell_type - 1;
+				entry->type = 0;
 
 				free(icon);
 				free(spell_name);

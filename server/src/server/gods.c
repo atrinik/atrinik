@@ -101,10 +101,5 @@ const char *determine_god(object *op)
 		}
 	}
 
-	if (op->type == PLAYER && CONTR(op)->skill_ptr[SK_PRAYING] && CONTR(op)->skill_ptr[SK_PRAYING]->title)
-	{
-		return CONTR(op)->skill_ptr[SK_PRAYING]->title;
-	}
-
 	return shstr_cons.none;
 }

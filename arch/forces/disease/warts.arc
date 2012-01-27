@@ -11,7 +11,6 @@ magic 1
 identified 1
 Cha -4
 maxhp 1
-maxgrace 50
 speed 0.001
 last_sp 0
 maxsp 0

@@ -406,58 +406,14 @@ void player_lvl_adj(object *who, object *op)
 			}
 		}
 
-		if (who && who->type == PLAYER && op->type != SKILL && who->level > 1)
-		{
-			if (who->level > 4)
-			{
-				CONTR(who)->levhp[who->level] = (char) rndm(1, who->arch->clone.stats.maxhp);
-			}
-			else if (who->level > 2)
-			{
-				CONTR(who)->levhp[who->level] = (char) rndm(1, who->arch->clone.stats.maxhp / 2) + (who->arch->clone.stats.maxhp / 2);
-			}
-			else
-			{
-				CONTR(who)->levhp[who->level] = (char) who->arch->clone.stats.maxhp;
-			}
-		}
-
 		if (op->level > 1 && op->type == SKILL)
 		{
 			if (who)
 			{
-				/* If we leveled up praying or wizardry, we need to send a spell list update */
-				if (op->stats.sp == SK_PRAYING || op->stats.sp == SK_SPELL_CASTING)
+				/* If we leveled up wizardry, we need to send a spell list update */
+				if (op->stats.sp == SK_SPELL_CASTING)
 				{
 					send_spelllist_cmd(who, NULL, SPLIST_MODE_UPDATE);
-				}
-
-				if (who->type == PLAYER)
-				{
-					/* Mana */
-					if (op->stats.sp == SK_SPELL_CASTING)
-					{
-						if (op->level > 4)
-						{
-							CONTR(who)->levsp[op->level] = (char) rndm(1, who->arch->clone.stats.maxsp);
-						}
-						else
-						{
-							CONTR(who)->levsp[op->level] = (char) who->arch->clone.stats.maxsp;
-						}
-					}
-					/* Grace */
-					else if (op->stats.sp == SK_PRAYING)
-					{
-						if (op->level > 4)
-						{
-							CONTR(who)->levgrace[op->level] = (char) rndm(1, who->arch->clone.stats.maxgrace);
-						}
-						else
-						{
-							CONTR(who)->levgrace[op->level] = (char) who->arch->clone.stats.maxgrace;
-						}
-					}
 				}
 
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);

@@ -567,23 +567,6 @@ int blocks_magic(mapstruct *m, int x, int y)
 }
 
 /**
- * Check if clerical spells do not work on given coordinates on the given
- * map.
- * @param m Map.
- * @param x X position on the map.
- * @param y Y position on the map.
- * @return 1 if the given location blocks prayers. */
-int blocks_cleric(mapstruct *m, int x, int y)
-{
-	if (!(m = get_map_from_coord(m, &x, &y)))
-	{
-		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_CLERIC | P_OUT_OF_MAP);
-	}
-
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_CLERIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_CLERIC);
-}
-
-/**
  * Check if specified object cannot move onto x, y on the given map and
  * terrain.
  * @param op Object.
@@ -1824,11 +1807,6 @@ void update_position(mapstruct *m, int x, int y)
 			if (QUERY_FLAG(tmp, FLAG_NO_MAGIC))
 			{
 				flags |= P_NO_MAGIC;
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_NO_CLERIC))
-			{
-				flags |= P_NO_CLERIC;
 			}
 
 			if (QUERY_FLAG(tmp, FLAG_BLOCKSVIEW))

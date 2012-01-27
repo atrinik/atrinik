@@ -526,11 +526,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					draw_info_format(COLOR_WHITE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+					draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
 				}
 				else
 				{
-					draw_info(COLOR_WHITE, op, "The healing prayer fails!");
+					draw_info(COLOR_WHITE, op, "The healing spell fails!");
 				}
 			}
 
@@ -556,11 +556,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 			{
 				if (heal > 0)
 				{
-					draw_info_format(COLOR_WHITE, op, "The prayer heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+					draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
 				}
 				else
 				{
-					draw_info(COLOR_WHITE, op, "The healing prayer fails!");
+					draw_info(COLOR_WHITE, op, "The healing spell fails!");
 				}
 			}
 
@@ -865,7 +865,7 @@ int remove_depletion(object *op, object *target)
 	{
 		if (success)
 		{
-			draw_info(COLOR_WHITE, op, "Your prayer removes some depletion.");
+			draw_info(COLOR_WHITE, op, "Your spell removes some depletion.");
 		}
 		else
 		{
@@ -936,11 +936,11 @@ int remove_curse(object *op, object *target, int type, int src)
 			{
 				if (target->type == PLAYER)
 				{
-					draw_info_format(COLOR_WHITE, target, "The %s's curse is stronger than the prayer!", query_base_name(tmp, NULL));
+					draw_info_format(COLOR_WHITE, target, "The %s's curse is stronger than the spell!", query_base_name(tmp, NULL));
 				}
 				else if (op != target && op->type == PLAYER)
 				{
-					draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is stronger than your prayer!", query_base_name(tmp, NULL), query_base_name(target, NULL));
+					draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is stronger than your spell!", query_base_name(tmp, NULL), query_base_name(target, NULL));
 				}
 			}
 		}
@@ -950,7 +950,7 @@ int remove_curse(object *op, object *target, int type, int src)
 	{
 		if (success)
 		{
-			draw_info(COLOR_WHITE, op, "Your prayer removes some curses.");
+			draw_info(COLOR_WHITE, op, "Your spell removes some curses.");
 		}
 		else
 		{
@@ -1268,11 +1268,6 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 			if (disease->stats.maxhp > 0)
 			{
 				disease->stats.maxhp += strength;
-			}
-
-			if (disease->stats.maxgrace > 0)
-			{
-				disease->stats.maxgrace += strength;
 			}
 
 			if (disease->stats.dam)

@@ -12,5 +12,5 @@ type 40
 no_pick 1
 level 1
 maxsp 1
-grace 1
+hp 1
 end

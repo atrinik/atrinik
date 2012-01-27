@@ -327,15 +327,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
 		dam += (int) ((float) (dam / 2) * ((float) (hit_level - target_obj->level) / (target_obj->level > 25 ? 25.0f : (float) target_obj->level)));
 	}
 
-	/* Something hit player (can be disease or poison too), break
-	 * praying. */
-	if (op->type == PLAYER && CONTR(op)->was_praying)
-	{
-		draw_info(COLOR_WHITE, op, "Your praying is disrupted.");
-		CONTR(op)->praying = 0;
-		CONTR(op)->was_praying = 0;
-	}
-
 	/* Check for PVP areas. */
 	if (op->type == PLAYER || (get_owner(op) && op->owner->type == PLAYER))
 	{

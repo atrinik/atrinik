@@ -1164,9 +1164,6 @@
  * Only players can enter the tile with object that has this flag. */
 #define FLAG_PLAYER_ONLY 122
 /**
- * No priest spells can be cast on this tile. */
-#define FLAG_NO_CLERIC 123
-/**
  * One drop item. Used for quests, where the quest item with this flag
  * set will never drop more than once for one player. */
 #define FLAG_ONE_DROP 124

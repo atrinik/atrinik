@@ -61,11 +61,6 @@ void map_info_init(object *info)
 				msp->extra_flags |= MSP_EXTRA_NO_MAGIC;
 			}
 
-			if (QUERY_FLAG(info, FLAG_NO_CLERIC))
-			{
-				msp->extra_flags |= MSP_EXTRA_NO_CLERIC;
-			}
-
 			if (QUERY_FLAG(info, FLAG_NO_PVP))
 			{
 				msp->extra_flags |= MSP_EXTRA_NO_PVP;

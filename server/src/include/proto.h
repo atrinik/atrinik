@@ -65,8 +65,6 @@ extern void command_motd(object *op, const char *command, char *params);
 extern void command_my(object *op, const char *command, char *params);
 /* src/commands/player/party.c */
 extern void command_party(object *op, const char *command, char *params);
-/* src/commands/player/pray.c */
-extern void command_pray(object *op, const char *command, char *params);
 /* src/commands/player/push.c */
 extern void command_push(object *op, const char *command, char *params);
 /* src/commands/player/ready_skill.c */
@@ -174,8 +172,7 @@ extern int find_animation(char *name);
 extern void animate_object(object *op, int count);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
-extern object *find_special_prayer_mark(object *op, int spell);
-extern void do_learn_spell(object *op, int spell, int special_prayer);
+extern void do_learn_spell(object *op, int spell);
 extern void do_forget_spell(object *op, int spell);
 extern int manual_apply(object *op, object *tmp, int aflag);
 extern int player_apply(object *pl, object *op, int aflag, int quiet);
@@ -300,7 +297,6 @@ extern float cha_bonus[30 + 1];
 extern float speed_bonus[30 + 1];
 extern uint32 weight_limit[30 + 1];
 extern int learn_spell[30 + 1];
-extern int cleric_chance[30 + 1];
 extern int savethrow[115 + 1];
 extern const char *const restore_msg[7];
 extern const char *const lose_msg[7];
@@ -360,7 +356,6 @@ extern char *normalize_path(const char *src, const char *dst, char *path);
 extern int wall(mapstruct *m, int x, int y);
 extern int blocks_view(mapstruct *m, int x, int y);
 extern int blocks_magic(mapstruct *m, int x, int y);
-extern int blocks_cleric(mapstruct *m, int x, int y);
 extern int blocked(object *op, mapstruct *m, int x, int y, int terrain);
 extern int blocked_link(object *op, int xoff, int yoff);
 extern int blocked_link_2(object *op, mapstruct *map, int x, int y);
@@ -392,7 +387,6 @@ extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 extern int teleport(object *teleporter, uint8 tele_type, object *user);
 extern int push_ob(object *op, int dir, object *pusher);
-extern int missile_reflection_adjust(object *op, int flag);
 /* src/server/object.c */
 extern object *active_objects;
 extern const char *gender_noun[4];

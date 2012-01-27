@@ -279,7 +279,7 @@ void waypoint_move(object *op, object *waypoint)
 	dest_rv = &global_rv;
 
 	/* Reached the final destination? */
-	if ((int) global_rv.distance <= waypoint->stats.grace)
+	if ((int) global_rv.distance <= waypoint->stats.maxsp)
 	{
 		object *nextwp = NULL;
 

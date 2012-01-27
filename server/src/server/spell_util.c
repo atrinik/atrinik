@@ -72,11 +72,6 @@ void init_spells(void)
 			object *tmp = arch_to_object(at);
 			const char *value;
 
-			if ((value = object_get_value(tmp, "spell_type")))
-			{
-				spells[i].type = !strcmp(value, "wizard") ? SPELL_TYPE_WIZARD : SPELL_TYPE_PRIEST;
-			}
-
 			if ((value = object_get_value(tmp, "spell_level")))
 			{
 				spells[i].level = atoi(value);
@@ -158,7 +153,7 @@ void init_spells(void)
 			{
 				if (spells[i].path & (1 << j))
 				{
-					fprintf(fp, "%s\n%d\n%d\n%s\n%s\nend\n", spells[i].name, spells[i].type, j, spells[i].icon, spells[i].description);
+					fprintf(fp, "%s\n%d\n%s\n%s\nend\n", spells[i].name, j, spells[i].icon, spells[i].description);
 					break;
 				}
 			}
@@ -262,11 +257,10 @@ int check_spell_known(object *op, int spell_type)
  * @param item The type of object that is casting the spell.
  * @param stringarg Any options that are being used.
  * @return 0 on failure, non-zero on success and is used by caller to
- * drain mana/grace. */
+ * drain mana. */
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
 	spell_struct *s = find_spell(type);
-	shstr *godname = NULL;
 	object *target = NULL;
 	int success = 0, duration, spell_cost = 0;
 
@@ -315,17 +309,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			}
 		}
 
-		/* No magic and not a prayer. */
-		if (MAP_NOMAGIC(cast_op->map) && spells[type].type == SPELL_TYPE_WIZARD)
+		/* No magic. */
+		if (MAP_NOMAGIC(cast_op->map))
 		{
 			draw_info(COLOR_WHITE, op, "Powerful countermagic cancels all spellcasting here!");
-			return 0;
-		}
-
-		/* No prayer and a prayer. */
-		if (MAP_NOPRIEST(cast_op->map) && spells[type].type == SPELL_TYPE_PRIEST)
-		{
-			draw_info(COLOR_WHITE, op, "Powerful countermagic cancels all prayer spells here!");
 			return 0;
 		}
 
@@ -340,8 +327,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 		if (op->type == PLAYER)
 		{
-			CONTR(op)->praying = 0;
-
 			/* Cancel player spells which are denied, but only real spells (not
 			 * potions, wands, etc). */
 			if (item == CAST_NORMAL)
@@ -354,28 +339,11 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 				if (op->type != PLAYER || !CONTR(op)->tgm)
 				{
-					if (spells[type].type == SPELL_TYPE_WIZARD && op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
+					if (op->stats.sp < SP_level_spellpoint_cost(caster, type, -1))
 					{
 						draw_info(COLOR_WHITE, op, "You don't have enough mana.");
 						return 0;
 					}
-
-					if (spells[type].type == SPELL_TYPE_PRIEST && op->stats.grace < SP_level_spellpoint_cost(caster, type, -1))
-					{
-						draw_info(COLOR_WHITE, op, "You don't have enough grace.");
-						return 0;
-					}
-				}
-			}
-
-			/* If it a prayer, grab the player's god - if we have none, we
-			 * can't cast, except for potions. */
-			if (spells[type].type == SPELL_TYPE_PRIEST && item != CAST_POTION)
-			{
-				if ((godname = determine_god(op)) == shstr_cons.none)
-				{
-					draw_info(COLOR_WHITE, op, "You need a deity to cast a prayer!");
-					return 0;
 				}
 			}
 		}
@@ -421,27 +389,20 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			draw_info(COLOR_WHITE, op, "You auto-target yourself with this spell!");
 		}
 
-		if (!ability && ((s->type == SPELL_TYPE_WIZARD && blocks_magic(op->map, op->x, op->y)) || (s->type == SPELL_TYPE_PRIEST && blocks_cleric(op->map, op->x, op->y))))
+		if (!ability && blocks_magic(op->map, op->x, op->y))
 		{
 			if (op->type != PLAYER)
 			{
 				return 0;
 			}
 
-			if (s->type == SPELL_TYPE_PRIEST)
+			if (caster == op)
 			{
-				draw_info_format(COLOR_WHITE, op, "This ground is unholy! %s ignores you.", godname);
+				draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
 			}
 			else
 			{
-				if (caster == op)
-				{
-					draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
-				}
-				else
-				{
-					draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
-				}
+				draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
 			}
 
 			return 0;
@@ -449,30 +410,12 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 		if (item == CAST_NORMAL && op->type == PLAYER)
 		{
-			/* Chance to fumble the spell by too low wisdom. */
-			if (s->type == SPELL_TYPE_PRIEST && rndm(0, 99) < s->level / (float) MAX(1, op->chosen_skill->level) * cleric_chance[op->stats.Wis])
+			int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
+
+			if (failure < 0)
 			{
-				play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "missspell.ogg", 0, 0, 0, 0);
-				draw_info(COLOR_WHITE, op, "You fumble the prayer because your wisdom is low.");
-
-				/* Shouldn't happen... */
-				if (s->sp == 0)
-				{
-					return 0;
-				}
-
-				return rndm(1, SP_level_spellpoint_cost(caster, type, -1));
-			}
-
-			if (s->type == SPELL_TYPE_WIZARD)
-			{
-				int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
-
-				if (failure < 0)
-				{
-					draw_info(COLOR_WHITE, op, "You bungle the spell because you have too much heavy equipment in use.");
-					return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
-				}
+				draw_info(COLOR_WHITE, op, "You bungle the spell because you have too much heavy equipment in use.");
+				return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
 			}
 		}
 	}
@@ -497,14 +440,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
 	if (caster->type == PLAYER)
 	{
-		if (s->type == SPELL_TYPE_WIZARD)
-		{
-			CONTR(caster)->stat_spells_cast++;
-		}
-		else
-		{
-			CONTR(caster)->stat_prayers_cast++;
-		}
+		CONTR(caster)->stat_spells_cast++;
 	}
 
 	/* We need to calculate the spell point cost before the spell actually
@@ -811,8 +747,6 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 	tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 	tmp->x = x, tmp->y = y;
 	tmp->direction = dir;
-	tmp->stats.grace = tmp->last_sp;
-	tmp->stats.maxgrace = 60 + (RANDOM() % 12);
 
 	if (target)
 	{

@@ -611,7 +611,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -620,7 +620,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -628,7 +628,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -636,7 +636,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -644,7 +644,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -652,7 +652,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -660,7 +660,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -1517,7 +1517,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -1526,7 +1526,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -1534,7 +1534,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -1542,7 +1542,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -1550,7 +1550,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -1558,7 +1558,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -1566,7 +1566,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -1678,7 +1678,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -1687,7 +1687,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -1695,7 +1695,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -1703,7 +1703,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -1711,7 +1711,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -1719,7 +1719,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -1727,7 +1727,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -2236,7 +2236,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -2245,7 +2245,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -2253,7 +2253,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -2261,7 +2261,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -2269,7 +2269,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -2277,7 +2277,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -2285,7 +2285,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -2859,7 +2859,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -2868,7 +2868,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -2876,7 +2876,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -2884,7 +2884,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -2892,7 +2892,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -2900,7 +2900,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -2908,7 +2908,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -3170,7 +3170,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -3179,7 +3179,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -3187,7 +3187,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -3195,7 +3195,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -3203,7 +3203,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -3211,7 +3211,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -3219,7 +3219,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -3389,7 +3389,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -3398,7 +3398,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -3406,7 +3406,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -3414,7 +3414,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -3422,7 +3422,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -3430,7 +3430,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -3438,7 +3438,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -3490,7 +3490,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -3499,7 +3499,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -3507,7 +3507,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -3515,7 +3515,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -3523,7 +3523,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -3531,7 +3531,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -3539,7 +3539,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8
@@ -3632,7 +3632,7 @@ title wp2
 slaying world_0819
 hp 2
 sp 13
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -3641,7 +3641,7 @@ title wp3
 slaying world_0719
 hp 2
 sp 17
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp3
@@ -3649,7 +3649,7 @@ title wp4
 slaying world_0619
 hp 3
 sp 14
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp4
@@ -3657,7 +3657,7 @@ title wp5
 slaying world_0519
 hp 2
 sp 11
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp5
@@ -3665,7 +3665,7 @@ title wp6
 slaying world_0419
 hp 2
 sp 6
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp6
@@ -3673,7 +3673,7 @@ title wp7
 slaying world_0319
 hp 1
 sp 10
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp7
@@ -3681,7 +3681,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 end
 arch waypoint
 name wp8

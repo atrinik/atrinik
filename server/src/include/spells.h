@@ -100,16 +100,6 @@
 /*@}*/
 
 /**
- * @defgroup SPELL_TYPE_xxx Spell types
- * Spell types.
- *@{*/
-/** Base mage spell: using mana. */
-#define SPELL_TYPE_WIZARD  1
-/** Base cleric spell: using grace. */
-#define SPELL_TYPE_PRIEST  2
-/*@}*/
-
-/**
  * Number of different spell types, should be have value of the highest
  * spell type. */
 #define SPELL_TYPE_NROF	   2
@@ -136,9 +126,6 @@ typedef struct spell_struct
 {
 	/** Name of this spell. */
 	char name[BIG_NAME];
-
-	/** @ref SPELL_TYPE_xxx "Type of spell". */
-	int type;
 
 	/**
 	 * Face name that should be used as an icon in client's spell
@@ -285,7 +272,7 @@ enum spellnrs
 	SP_HOLYWORD
 };
 
-/** Multiplier for spell points / grace based on the attenuation. */
+/** Multiplier for spell points cost based on the attenuation. */
 #define PATH_SP_MULT(op, spell) (((op->path_attuned & spell->path) ? 0.8 : 1) * ((op->path_repelled & spell->path) ? 1.25 : 1))
 #define PATH_DMG_MULT(op, spell) (((op->path_attuned & spell->path) ? 1.25 : 1) * ((op->path_repelled & spell->path) ? 0.7 : 1))
 
@@ -317,9 +304,5 @@ enum spellnrs
 #define SPELL_MISS_ROLL_MIN 20
 /** Maximum number for rolls in spell_attack_missed(). */
 #define SPELL_MISS_ROLL_MAX 35
-
-/**
- * Get skill ID from spell's ID. */
-#define SPELL_TO_SKILL(spell) (spells[(spell)].type == SPELL_TYPE_PRIEST ? SK_PRAYING : SK_SPELL_CASTING)
 
 #endif

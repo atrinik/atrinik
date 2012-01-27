@@ -1029,7 +1029,7 @@ slaying world_0521
 hp 1
 sp 1
 wc 5
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp4
@@ -1038,7 +1038,7 @@ slaying world_0522
 hp 6
 sp 23
 wc 3
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp3
@@ -1047,7 +1047,7 @@ slaying world_0522
 hp 14
 sp 23
 wc 3
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp2
@@ -1055,7 +1055,7 @@ title wp3
 slaying world_0521
 hp 15
 sp 12
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp1

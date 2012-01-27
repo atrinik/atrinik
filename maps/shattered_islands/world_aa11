@@ -1985,28 +1985,28 @@ name wp4
 title wp1
 hp 11
 sp 10
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp3
 title wp4
 hp 8
 sp 9
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp2
 title wp3
 hp 7
 sp 12
-grace 1
+maxsp 1
 end
 arch waypoint
 name wp1
 title wp2
 hp 10
 sp 13
-grace 1
+maxsp 1
 cursed 1
 end
 end

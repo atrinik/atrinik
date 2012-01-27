@@ -21,8 +21,6 @@ hp -1
 maxhp 8
 sp -1
 maxsp 3
-grace -1
-maxgrace 3
 ac 0
 wc 2
 wc_range 20

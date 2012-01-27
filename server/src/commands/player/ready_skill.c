@@ -41,7 +41,6 @@ void command_ready_skill(object *op, const char *command, char *params)
 		return;
 	}
 
-	CONTR(op)->praying = 0;
 	skillno = lookup_skill_by_name(params);
 
 	if (skillno == -1)

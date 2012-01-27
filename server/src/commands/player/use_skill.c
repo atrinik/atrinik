@@ -39,6 +39,5 @@ void command_use_skill(object *op, const char *command, char *params)
 		return;
 	}
 
-	CONTR(op)->praying = 0;
 	use_skill(op, params);
 }

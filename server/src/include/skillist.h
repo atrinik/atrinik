@@ -70,7 +70,7 @@ skill_struct skills[NROFSKILLS] =
 
 	{"wizardry spells", "This skill allows casting wizardry based spells using mana (spellpoints). This skill is auto-used when casting the spell.", NULL, EXP_MAGICAL, 1},
 	{"magic devices", "Possessor can use basic magic items like wands and rods. This skill is auto-used when applying the item.", NULL, EXP_MAGICAL, 4},
-	{"divine prayers", "This skill allows praying to a deity and casting divine prayer spells using grace. This skill is auto-used when casting the prayer.", NULL, EXP_WISDOM, 0},
+	{"divine prayers", NULL, NULL, EXP_WISDOM, 0},
 
 	{"find traps", "This skill will find and reveal a trap near the player. The tile under the player and all around are searched.", NULL, EXP_AGILITY, 0},
 	{"remove traps", "After a trap is revealed this skill can remove the trap. The success of removing depends on the agility experience category level and the trap level. If the level of the trap is too high the trap can backfire, so be careful!", NULL, EXP_AGILITY, 0},

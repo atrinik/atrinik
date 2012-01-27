@@ -335,7 +335,7 @@ static PyObject *Atrinik_Player_AcquireSpell(Atrinik_Player *pl, PyObject *args)
 
 	if (learn)
 	{
-		hooks->do_learn_spell(pl->pl->ob, spell, 0);
+		hooks->do_learn_spell(pl->pl->ob, spell);
 	}
 	else
 	{

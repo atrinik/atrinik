@@ -101,7 +101,6 @@ lex_error = 0;
 ^light{S}            m->light_value = IVAL;
 ^no_save{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NO_SAVE, IVAL);
 ^no_magic{S}         SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOMAGIC, IVAL);
-^no_priest{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOPRIEST, IVAL);
 ^no_harm{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOHARM, IVAL);
 ^no_summon{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOSUMMON, IVAL);
 ^fixed_login{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_LOGIN, IVAL);
@@ -404,11 +403,6 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 	if (MAP_NOMAGIC(m))
 	{
 		fprintf(fp, "no_magic 1\n");
-	}
-
-	if (MAP_NOPRIEST(m))
-	{
-		fprintf(fp, "no_priest 1\n");
 	}
 
 	if (MAP_NOHARM(m))

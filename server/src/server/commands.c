@@ -203,7 +203,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(motd), 1.0, 0);
 		commands_add(COMMAND(my), 1.0, 0);
 		commands_add(COMMAND(party), 1.0, 0);
-		commands_add(COMMAND(pray), 1.0, 0);
 		commands_add(COMMAND(push), 1.0, 0);
 		commands_add(COMMAND(ready_skill), 1.0, 0);
 		commands_add(COMMAND(region_map), 1.0, 0);

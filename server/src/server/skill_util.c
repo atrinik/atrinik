@@ -140,11 +140,6 @@ sint64 do_skill(object *op, int dir, const char *params)
 			return success;
 			break;
 
-		case SK_PRAYING:
-			draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
-			return success;
-			break;
-
 		case SK_SPELL_CASTING:
 		case SK_BARGAINING:
 			draw_info(COLOR_WHITE, op, "This skill is already in effect.");
@@ -420,15 +415,7 @@ int check_skill_to_fire(object *who, int type, const char *params)
 			break;
 
 		case FIRE_MODE_SPELL:
-			if (spells[CONTR(who)->chosen_spell].type == SPELL_TYPE_PRIEST)
-			{
-				skillnr = SK_PRAYING;
-			}
-			else
-			{
-				skillnr = SK_SPELL_CASTING;
-			}
-
+			skillnr = SK_SPELL_CASTING;
 			break;
 
 		case FIRE_MODE_WAND:
@@ -561,17 +548,27 @@ int check_skill_to_apply(object *who, object *item)
  * @param pl Player. */
 void link_player_skills(object *pl)
 {
-	object *tmp;
+	object *tmp, *next;
 	int i;
 
 	pl->chosen_skill = NULL;
 
-	for (tmp = pl->inv; tmp; tmp = tmp->below)
+	for (tmp = pl->inv; tmp; tmp = next)
 	{
+		next = tmp->below;
+
 		if (tmp->type == SKILL)
 		{
-			CONTR(pl)->skill_ptr[tmp->stats.sp] = tmp;
-			CLEAR_FLAG(tmp, FLAG_APPLIED);
+			if (!skills[tmp->stats.sp].description)
+			{
+				object_remove(tmp, 0);
+				object_destroy(tmp);
+			}
+			else
+			{
+				CONTR(pl)->skill_ptr[tmp->stats.sp] = tmp;
+				CLEAR_FLAG(tmp, FLAG_APPLIED);
+			}
 		}
 	}
 
@@ -993,7 +990,7 @@ float get_skill_time(object *op, int skillnr)
 		skill_time = op->chosen_skill->stats.maxsp;
 		CONTR(op)->action_range = global_round_tag + skill_time;
 	}
-	else if (skillnr == SK_SPELL_CASTING || skillnr == SK_PRAYING)
+	else if (skillnr == SK_SPELL_CASTING)
 	{
 		skill_time = spells[CONTR(op)->chosen_spell].time;
 		CONTR(op)->action_casting = global_round_tag + skill_time;
@@ -1029,7 +1026,7 @@ int check_skill_action_time(object *op, object *skill)
 		return 0;
 	}
 
-	if (skill->stats.sp == SK_PRAYING || skill->stats.sp == SK_SPELL_CASTING)
+	if (skill->stats.sp == SK_SPELL_CASTING)
 	{
 		if (CONTR(op)->action_casting > global_round_tag)
 		{

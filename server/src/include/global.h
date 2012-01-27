@@ -394,16 +394,6 @@ typedef struct shstr_constants
 	const char *portal_active_name;
 	const char *spell_quickslot;
 
-	const char *GUILD_FORCE;
-	const char *guild_force;
-	const char *RANK_FORCE;
-	const char *rank_force;
-	const char *ALIGNMENT_FORCE;
-	const char *alignment_force;
-
-	const char *restore_grace;
-	const char *restore_hitpoints;
-
 	const char *player_info;
 	const char *BANK_GENERAL;
 

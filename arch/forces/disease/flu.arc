@@ -15,7 +15,6 @@ Int -1
 Cha -1
 maxhp 10
 dam 2
-maxgrace 6
 food -1
 speed 0.05
 last_sp 50

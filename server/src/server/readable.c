@@ -737,7 +737,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 }
 
 /**
- * Generate a message detailing the member incantations/prayers (and some of their
+ * Generate a message detailing the member incantations (and some of their
  * properties) belonging to a random spellpath.
  * @param level Level of the book.
  * @param buf Buffer to write the description into.
@@ -745,7 +745,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return 'buf'. */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
-	int path = rndm(1, NRSPELLPATHS) - 1, prayers = rndm(0, 1);
+	int path = rndm(1, NRSPELLPATHS) - 1;
 	int i, did_first_sp = 0;
 	uint32 pnum = spellpathdef[path];
 	StringBuffer *desc;
@@ -755,13 +755,13 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 	buf[0] = '\0';
 
 	/* Preamble */
-	stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of %s belonging to the path of %s:\n\n", spellpathnames[path], prayers ? "prayers" : "incantations", spellpathnames[path]);
+	stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
 
 	/* Now go through the entire list of spells. Add appropriate spells
 	 * in our message buffer */
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-		if ((prayers && spells[i].type != SPELL_TYPE_PRIEST) || !(pnum & spells[i].path))
+		if (!(pnum & spells[i].path))
 		{
 			continue;
 		}

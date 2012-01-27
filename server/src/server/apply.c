@@ -29,77 +29,20 @@
 #include <global.h>
 
 /**
- * Find a special prayer marker in object's inventory.
- *
- * Special prayers are granted by gods and lost when the follower decides
- * to pray to different gods. 'Force' objects keep track of which prayers
- * are special.
- * @param op Object to search in.
- * @param spell Spell ID to find.
- * @return The marker object, NULL if not found. */
-object *find_special_prayer_mark(object *op, int spell)
-{
-	object *tmp;
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == FORCE && tmp->slaying && strcmp(tmp->slaying, "special prayer") == 0 && tmp->stats.sp == spell)
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Insert a special prayer marker inside an object.
- * @param op The object to insert the marker to.
- * @param spell The spell (prayer) ID. */
-static void insert_special_prayer_mark(object *op, int spell)
-{
-	object *force = get_archetype("force");
-	force->speed = 0;
-	update_ob_speed(force);
-	FREE_AND_COPY_HASH(force->slaying, "special prayer");
-	force->stats.sp = spell;
-	insert_ob_in_ob(force, op);
-}
-
-/**
  * Make player learn a new spell.
  * @param op The player object learning the new spell.
- * @param spell Spell ID.
- * @param special_prayer Is this a special prayer? */
-void do_learn_spell(object *op, int spell, int special_prayer)
+ * @param spell Spell ID. */
+void do_learn_spell(object *op, int spell)
 {
-	object *tmp = find_special_prayer_mark(op, spell);
-
 	if (op->type != PLAYER)
 	{
 		return;
 	}
 
-	/* Upgrade special prayers to normal prayers */
 	if (check_spell_known(op, spell))
 	{
 		draw_info_format(COLOR_WHITE, op, "You already know the spell '%s'!", spells[spell].name);
-
-		if (special_prayer || !tmp)
-		{
-			return;
-		}
-
-		object_remove(tmp, 0);
-		object_destroy(tmp);
 		return;
-	}
-
-	/* Learn new spell/prayer */
-	if (tmp)
-	{
-		object_remove(tmp, 0);
-		object_destroy(tmp);
 	}
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
@@ -108,13 +51,6 @@ void do_learn_spell(object *op, int spell, int special_prayer)
 	if (CONTR(op)->nrofknownspells == 1)
 	{
 		CONTR(op)->chosen_spell = spell;
-	}
-
-	/* For god-given spells the player gets a reminder-mark inserted, that
-	 * this spell must be removed on changing cults! */
-	if (special_prayer)
-	{
-		insert_special_prayer_mark(op, spell);
 	}
 
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_ADD);
@@ -127,7 +63,6 @@ void do_learn_spell(object *op, int spell, int special_prayer)
  * @param spell ID of the spell. */
 void do_forget_spell(object *op, int spell)
 {
-	object *tmp;
 	int i;
 
 	if (op->type != PLAYER)
@@ -144,13 +79,6 @@ void do_forget_spell(object *op, int spell)
 	draw_info_format(COLOR_WHITE, op, "You lose knowledge of %s.", spells[spell].name);
 
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_REMOVE);
-	tmp = find_special_prayer_mark(op, spell);
-
-	if (tmp)
-	{
-		object_remove(tmp, 0);
-		object_destroy(tmp);
-	}
 
 	for (i = 0; i < CONTR(op)->nrofknownspells; i++)
 	{
@@ -177,11 +105,6 @@ void do_forget_spell(object *op, int spell)
 int manual_apply(object *op, object *tmp, int aflag)
 {
 	tmp = HEAD(tmp);
-
-	if (op->type == PLAYER)
-	{
-		CONTR(op)->praying = 0;
-	}
 
 	if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(tmp, FLAG_APPLIED))
 	{

@@ -75,8 +75,6 @@ void command_apply(object *op, const char *command, char *params)
 	char word[MAX_BUF];
 	object *ob;
 
-	CONTR(op)->praying = 0;
-
 	if (!params)
 	{
 		player_apply_below(op);

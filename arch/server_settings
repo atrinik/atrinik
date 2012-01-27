@@ -1,7 +1,6 @@
 char Human
 base_hp 32
 base_sp 6
-base_grace 6
 
 gender male human_male human_m.isw.111
 gender female human_female human_f.isw.111
@@ -17,7 +16,6 @@ end
 char Half-elf
 base_hp 32
 base_sp 6
-base_grace 6
 
 gender male half_elf_male human_m.isw.111
 gender female half_elf_female halfelf_f.isw.111
@@ -33,7 +31,6 @@ end
 char Dwarf
 base_hp 32
 base_sp 6
-base_grace 6
 
 gender male dwarf_male dwarf.151
 gender female dwarf_female dwarf.151
@@ -49,7 +46,6 @@ end
 char Thelra
 base_hp 32
 base_sp 6
-base_grace 6
 
 gender male thelra_male thelra_m.151
 gender female thelra_female thelra_f.151

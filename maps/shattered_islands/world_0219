@@ -912,7 +912,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -1428,7 +1428,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint
@@ -2719,7 +2719,7 @@ title wp8
 slaying world_0219
 hp 3
 sp 16
-grace 3
+maxsp 3
 cursed 1
 end
 arch waypoint

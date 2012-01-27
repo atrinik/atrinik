@@ -9,7 +9,6 @@ wc 1
 wc_range 20
 magic 1
 maxhp 1
-maxgrace -1
 identified 1
 food -1
 speed 0.001

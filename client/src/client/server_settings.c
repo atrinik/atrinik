@@ -90,10 +90,6 @@ void server_settings_init(void)
 		{
 			cur_char->base_sp = atoi(buf + 8);
 		}
-		else if (!strncmp(buf, "base_grace ", 11))
-		{
-			cur_char->base_grace = atoi(buf + 11);
-		}
 		else if (!strncmp(buf, "gender ", 7))
 		{
 			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];

@@ -47,8 +47,8 @@ typedef struct scr
 	/** Experience. */
 	uint64 exp;
 
-	/** Max hp, sp, grace when killed. */
-	int maxhp, maxsp, maxgrace;
+	/** Max hp, sp when killed. */
+	int maxhp, maxsp;
 
 	/** Position in the highscore list. */
 	int position;
@@ -76,7 +76,7 @@ static score_table hiscore_table;
  * @param size Size of the buffer. */
 static void put_score(const score *sc, char *buf, int size)
 {
-	snprintf(buf, size, "%s:%s:%"FMT64U":%s:%s:%d:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+	snprintf(buf, size, "%s:%s:%"FMT64U":%s:%s:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp);
 }
 
 /**
@@ -126,7 +126,7 @@ static void hiscore_save(const score_table *table)
  * @return Whether parsing was successful. */
 static int get_score(char *bp, score *sc)
 {
-	char *cp, *tmp[8];
+	char *cp, *tmp[7];
 
 	cp = strchr(bp, '\n');
 
@@ -135,7 +135,7 @@ static int get_score(char *bp, score *sc)
 		*cp = '\0';
 	}
 
-	if (string_split(bp, tmp, 8, ':') != 8)
+	if (string_split(bp, tmp, arraysize(tmp), ':') != arraysize(tmp))
 	{
 		return 0;
 	}
@@ -156,7 +156,6 @@ static int get_score(char *bp, score *sc)
 
 	sscanf(tmp[5], "%d", &sc->maxhp);
 	sscanf(tmp[6], "%d", &sc->maxsp);
-	sscanf(tmp[7], "%d", &sc->maxgrace);
 	return 1;
 }
 
@@ -170,7 +169,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
 	if (sc->killer[0] == '\0')
 	{
-		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s (%s) <%d><%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s (%s) <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp);
 	}
 	else
 	{
@@ -187,7 +186,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 			s2 = sc->killer;
 		}
 
-		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s %s %s on map %s <%d><%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp, sc->maxgrace);
+		snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s %s %s on map %s <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp);
 	}
 
 	return buf;
@@ -369,7 +368,6 @@ void hiscore_check(object *op, int quiet)
 
 	new_score.maxhp = (int) op->stats.maxhp;
 	new_score.maxsp = (int) op->stats.maxsp;
-	new_score.maxgrace = (int) op->stats.maxgrace;
 	add_score(&hiscore_table, &new_score, &old_score);
 
 	/* Everything below here is just related to print messages
@@ -428,7 +426,7 @@ void hiscore_display(object *op, int max, const char *match)
 	int printed_entries = 0;
 	size_t j;
 
-	draw_info(COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp><max grace>");
+	draw_info(COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp>");
 
 	for (j = 0; j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max; j++)
 	{

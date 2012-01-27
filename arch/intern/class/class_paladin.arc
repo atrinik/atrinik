@@ -7,7 +7,7 @@ face info.101
 no_drop 1
 applied 1
 hp 10
-grace 10
+sp 10
 Str 1
 Wis 2
 end

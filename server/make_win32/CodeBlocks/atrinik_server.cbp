@@ -82,7 +82,6 @@
 		<Unit filename="..\..\src\commands\player\motd.c" />
 		<Unit filename="..\..\src\commands\player\my.c" />
 		<Unit filename="..\..\src\commands\player\party.c" />
-		<Unit filename="..\..\src\commands\player\pray.c" />
 		<Unit filename="..\..\src\commands\player\push.c" />
 		<Unit filename="..\..\src\commands\player\ready_skill.c" />
 		<Unit filename="..\..\src\commands\player\region_map.c" />

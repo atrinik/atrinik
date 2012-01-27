@@ -416,7 +416,6 @@ void esrv_update_stats(player *pl)
 
 	AddIfInt(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP, uint16);
 	AddIfInt(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA, uint16);
-	AddIfInt(pl->last_gen_grace,pl->gen_client_grace, CS_STAT_REG_GRACE, uint16);
 	AddIfInt(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
 	AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
 	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
@@ -430,8 +429,6 @@ void esrv_update_stats(player *pl)
 		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, uint32);
 		AddIfInt(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, uint16);
 		AddIfInt(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, uint16);
-		AddIfInt(pl->last_stats.grace, pl->ob->stats.grace, CS_STAT_GRACE, uint16);
-		AddIfInt(pl->last_stats.maxgrace, pl->ob->stats.maxgrace, CS_STAT_MAXGRACE, uint16);
 		AddIfInt(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
 		AddIfInt(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT, uint8);
 		AddIfInt(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW, uint8);
@@ -2255,17 +2252,9 @@ static char spelllist_determine_path(object *op, int spell_number)
  * @param packet Packet to append to. */
 static void add_spell_to_spelllist(object *op, int spell_number, packet_struct *packet)
 {
-	int cost = 0;
+	int cost;
 
-	/* Determine cost of the spell */
-	if (spells[spell_number].type == SPELL_TYPE_PRIEST && CONTR(op)->skill_ptr[SK_PRAYING])
-	{
-		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_PRAYING]->level);
-	}
-	else if (spells[spell_number].type == SPELL_TYPE_WIZARD && CONTR(op)->skill_ptr[SK_SPELL_CASTING])
-	{
-		cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
-	}
+	cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
 
 	packet_append_string_terminated(packet, spells[spell_number].name);
 	packet_append_uint16(packet, cost);
@@ -2353,38 +2342,8 @@ void send_ready_skill(object *op, const char *skillname)
  * @param pl The player. */
 void generate_ext_title(player *pl)
 {
-	object *walk;
-	char prof[32] = "";
-	char title[32] = "";
-	char align[32] = "";
-	char race[MAX_BUF];
-	char name[MAX_BUF];
-	shstr *godname;
+	char name[MAX_BUF], race[MAX_BUF];
 	int i;
-
-	for (walk = pl->ob->inv; walk; walk = walk->below)
-	{
-		if (walk->name == shstr_cons.GUILD_FORCE && walk->arch->name == shstr_cons.guild_force)
-		{
-			if (walk->slaying)
-			{
-				strcpy(prof, walk->slaying);
-			}
-
-			if (walk->title)
-			{
-				strcpy(title, " the ");
-				strcat(title, walk->title);
-			}
-		}
-		else if (walk->name == shstr_cons.ALIGNMENT_FORCE && walk->arch->name == shstr_cons.alignment_force)
-		{
-			if (walk->title)
-			{
-				strcpy(align, walk->title);
-			}
-		}
-	}
 
 	strncpy(pl->quick_name, pl->ob->name, sizeof(pl->quick_name) - 1);
 	pl->quick_name[sizeof(pl->quick_name) - 1] = '\0';
@@ -2398,22 +2357,14 @@ void generate_ext_title(player *pl)
 		}
 	}
 
-	snprintf(name, sizeof(name), "%s%s", pl->quick_name, title);
+	snprintf(name, sizeof(name), "%s", pl->quick_name);
 
 	if (pl->afk)
 	{
 		strncat(name, " [AFK]", sizeof(name) - strlen(name) - 1);
 	}
 
-	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s %s\n%s", name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)), prof, align);
-
-	godname = determine_god(pl->ob);
-
-	if (godname)
-	{
-		strncat(pl->ext_title, " follower of ", sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
-		strncat(pl->ext_title, godname, sizeof(pl->ext_title) - strlen(pl->ext_title) - 1);
-	}
+	snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s", name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)));
 }
 
 void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
@@ -2431,7 +2382,6 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 		else
 		{
 			pl->combat_mode = 1;
-			pl->praying = 0;
 		}
 
 		send_target_command(pl);

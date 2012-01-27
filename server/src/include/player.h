@@ -202,15 +202,6 @@ typedef struct pl_player
 	/** For client: \<Rank\> \<Name\>\n\<Gender\> \<Race\> \<Profession\> */
 	char ext_title[MAX_EXT_TITLE];
 
-	/** How much HP the player gained on that level. */
-	char levhp[MAXLEVEL + 1];
-
-	/** How much SP the player gained on that level. */
-	char levsp[MAXLEVEL + 1];
-
-	/** How much grace the player gained on that level. */
-	char levgrace[MAXLEVEL + 1];
-
 	/** Who killed this player. */
 	char killer[BIG_NAME];
 
@@ -382,9 +373,6 @@ typedef struct pl_player
 	/** Bonuses to regeneration speed of sp. */
 	signed char gen_sp;
 
-	/** Bonuses to regeneration speed of grace. */
-	signed char gen_grace;
-
 	/** Input state of the player (name, password, etc). */
 	unsigned char state;
 
@@ -440,9 +428,6 @@ typedef struct pl_player
 	/** Mana regenerated. */
 	uint64 stat_sp_regen;
 
-	/** Grace regenerated. */
-	uint64 stat_grace_regen;
-
 	/** How many food points have been consumed. */
 	uint64 stat_food_consumed;
 
@@ -463,9 +448,6 @@ typedef struct pl_player
 
 	/** Number of spells cast. */
 	uint64 stat_spells_cast;
-
-	/** Number of prayers cast. */
-	uint64 stat_prayers_cast;
 
 	/** Number of seconds played. */
 	uint64 stat_time_played;
@@ -547,12 +529,6 @@ typedef struct pl_player
 	/** If true, player is in combat mode. */
 	uint32 combat_mode:1;
 
-	/** If true, player is praying and regaining grace. */
-	uint32 praying:1;
-
-	/** Internal use by praying to send pray message to player. */
-	uint32 was_praying:1;
-
 	/** Is the player AFK? */
 	uint32 afk:1;
 
@@ -577,26 +553,17 @@ typedef struct pl_player
 	/** Remainder for mana regen. */
 	uint16 gen_sp_remainder;
 
-	/** Remainder for grace regen. */
-	uint16 gen_grace_remainder;
-
 	/** Regeneration speed of HP. */
 	uint16 gen_client_hp;
 
 	/** Regeneration speed of mana. */
 	uint16 gen_client_sp;
 
-	/** Regeneration speed of grace. */
-	uint16 gen_client_grace;
-
 	/** Last regeneration of HP sent to client. */
 	uint16 last_gen_hp;
 
 	/** Last regeneration of mana sent to client. */
 	uint16 last_gen_sp;
-
-	/** Last regeneration of grace sent to client. */
-	uint16 last_gen_grace;
 
 	/** Table of last skill levels sent to client. */
 	sint16 skill_level[NROFSKILLS];
@@ -639,9 +606,6 @@ typedef struct pl_player
 
 	/** Last SP sent to party members. */
 	uint8 last_party_sp;
-
-	/** Last grace sent to party members. */
-	uint8 last_party_grace;
 
 	/** If 1, collision is disabled for this player. */
 	uint8 tcl;

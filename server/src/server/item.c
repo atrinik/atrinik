@@ -995,21 +995,15 @@ char *describe_item(object *op)
 			strcat(retbuf, buf);
 		}
 
-		if (CONTR(op)->gen_client_grace)
+		if (CONTR(op)->gen_client_hp)
 		{
-			sprintf(buf, "(grace reg. %3.1f)", (float) CONTR(op)->gen_client_grace / 10);
+			sprintf(buf, "(hp reg. %3.1f)", (float) CONTR(op)->gen_client_hp / 10);
 			strcat(retbuf, buf);
 		}
 
 		if (CONTR(op)->gen_client_sp)
 		{
 			sprintf(buf, "(mana reg. %3.1f)", (float) CONTR(op)->gen_client_sp / 10);
-			strcat(retbuf, buf);
-		}
-
-		if (CONTR(op)->gen_client_hp)
-		{
-			sprintf(buf, "(hp reg. %3.1f)", (float) CONTR(op)->gen_client_hp / 10);
 			strcat(retbuf, buf);
 		}
 	}
@@ -1258,12 +1252,6 @@ char *describe_item(object *op)
 						strcat(retbuf, buf);
 					}
 
-					if (op->stats.grace)
-					{
-						snprintf(buf, sizeof(buf), "(grace%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.grace * curse_multiplier);
-						strcat(retbuf, buf);
-					}
-
 					break;
 				}
 
@@ -1317,12 +1305,6 @@ char *describe_item(object *op)
 		if (op->stats.sp)
 		{
 			sprintf(buf, "(mana reg.%+3.1f)", 0.4f * op->stats.sp);
-			strcat(retbuf, buf);
-		}
-
-		if (op->stats.grace)
-		{
-			sprintf(buf, "(grace reg.%+3.1f)", 0.4f * op->stats.grace);
 			strcat(retbuf, buf);
 		}
 
@@ -1442,12 +1424,6 @@ char *describe_item(object *op)
 		if (op->stats.maxsp)
 		{
 			sprintf(buf, "(mana%+d)", op->stats.maxsp);
-			strcat(retbuf, buf);
-		}
-
-		if (op->stats.maxgrace)
-		{
-			sprintf(buf, "(grace%+d)", op->stats.maxgrace);
 			strcat(retbuf, buf);
 		}
 

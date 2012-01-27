@@ -119,7 +119,7 @@ static void process_func(object *op)
 					continue;
 				}
 			}
-			else if (op->stats.grace)
+			else if (op->stats.hp)
 			{
 				move_object(victim, dir);
 			}

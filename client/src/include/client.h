@@ -121,12 +121,6 @@ typedef struct Stat_struct
 	/** Max spell points. */
 	sint32 maxsp;
 
-	/** Grace. */
-	sint32 grace;
-
-	/** Max grace. */
-	sint32 maxgrace;
-
 	/** Total experience. */
 	sint64 exp;
 
@@ -212,9 +206,6 @@ typedef struct Player_Struct
 
 	/** Mana regeneration. */
 	float gen_sp;
-
-	/** Grace regeneration. */
-	float gen_grace;
 
 	/** Skill cooldown time. */
 	float action_timer;

@@ -13,7 +13,6 @@ Dex -3
 Cha -4
 maxhp 7
 dam -11
-maxgrace 15
 food -1
 speed 0.05
 last_sp 50
