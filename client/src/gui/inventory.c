@@ -241,20 +241,21 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 					if (ob->item_level)
 					{
-						skill_entry_struct *skill;
+						size_t skill_type, skill_id;
+						int level;
 
-						if (ob->item_skill)
+						if (ob->item_skill && skill_find(skill_names[ob->item_skill - 1], &skill_type, &skill_id))
 						{
-							skill = skill_get(SKILL_LIST_TYPES - 1, ob->item_skill - 1);
+							level = skill_get(skill_type, skill_id)->level;
+							snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill_names[ob->item_skill - 1]);
 						}
 						else
 						{
-							skill = NULL;
+							level = cpl.stats.level;
+							snprintf(buf, sizeof(buf), "lvl %d", ob->item_level);
 						}
 
-						snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill ? skill->name : "");
-
-						if ((!ob->item_skill && ob->item_level <= cpl.stats.level) || (ob->item_skill && ob->item_level <= skill->level))
+						if (ob->item_level <= level)
 						{
 							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 						}

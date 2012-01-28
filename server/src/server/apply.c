@@ -151,7 +151,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 		if (tmp->item_skill && op->type == PLAYER)
 		{
-			tmp_lev = CONTR(op)->skill_ptr[tmp->item_skill]->level;
+			tmp_lev = CONTR(op)->skill_ptr[tmp->item_skill - 1]->level;
 		}
 		else
 		{

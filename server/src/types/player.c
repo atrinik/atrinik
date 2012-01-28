@@ -1837,7 +1837,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		{
 			if (tmp->item_skill)
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill].name);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill - 1].name);
 			}
 			else
 			{

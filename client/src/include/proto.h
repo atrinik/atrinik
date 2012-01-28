@@ -426,6 +426,8 @@ extern void socket_command_region_map(uint8 *data, size_t len, size_t pos);
 /* src/gui/settings.c */
 extern void settings_open(void);
 /* src/gui/skills.c */
+extern char **skill_names;
+extern size_t skill_names_num;
 extern void widget_skills_render(widgetdata *widget);
 extern void widget_skills_mevent(widgetdata *widget, SDL_Event *event);
 extern int skill_find(const char *name, size_t *type, size_t *id);

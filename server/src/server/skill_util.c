@@ -306,6 +306,11 @@ void init_new_exp_system(void)
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
+		fprintf(fp, "skill %s\n", skills[i].name);
+	}
+
+	for (i = 0; i < NROFSKILLS; i++)
+	{
 		if (skills[i].description)
 		{
 			char icon[MAX_BUF], tmpresult[MAX_BUF];
@@ -319,7 +324,7 @@ void init_new_exp_system(void)
 				exit(1);
 			}
 
-			fprintf(fp, "%s\n%d\n%s\n%s\nend\n", skills[i].name, skills[i].category - 1, icon, skills[i].description);
+			fprintf(fp, "%d\n%d\n%s\n%s\nend\n", i, skills[i].category - 1, icon, skills[i].description);
 		}
 	}
 

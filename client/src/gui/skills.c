@@ -30,6 +30,9 @@
 
 #include <global.h>
 
+char **skill_names = NULL;
+size_t skill_names_num = 0;
+
 /** The skill list. */
 static skill_entry_struct **skill_list[SKILL_LIST_TYPES];
 /** Number of skills contained in each skill type array in ::skill_list. */
@@ -368,6 +371,8 @@ void skills_init(void)
 	FILE *fp;
 	char line[HUGE_BUF];
 	size_t i, j;
+	char *icon, desc[HUGE_BUF];
+	int id, type;
 
 	/* Free previously allocated skills. */
 	for (i = 0; i < SKILL_LIST_TYPES; i++)
@@ -386,6 +391,19 @@ void skills_init(void)
 		}
 	}
 
+	for (i = 0; i < skill_names_num; i++)
+	{
+		free(skill_names[i]);
+	}
+
+	if (skill_names)
+	{
+		free(skill_names);
+		skill_names = NULL;
+	}
+
+	skill_names_num = 0;
+
 	memset(&skill_list, 0, sizeof(*skill_list) * SKILL_LIST_TYPES);
 	memset(&skill_list_num, 0, sizeof(*skill_list_num) * SKILL_LIST_TYPES);
 	skill_list_type = 0;
@@ -399,11 +417,17 @@ void skills_init(void)
 
 	while (fgets(line, sizeof(line) - 1, fp))
 	{
-		char *name, *icon, desc[HUGE_BUF];
-		int type;
-
 		line[strlen(line) - 1] = '\0';
-		name = strdup(line);
+
+		if (string_startswith(line, "skill "))
+		{
+			skill_names = realloc(skill_names, sizeof(*skill_names) * (skill_names_num + 1));
+			skill_names[skill_names_num] = string_sub(line, 6, strlen(line));
+			skill_names_num++;
+			continue;
+		}
+
+		id = atoi(line);
 
 		if (!fgets(line, sizeof(line) - 1, fp))
 		{
@@ -435,7 +459,7 @@ void skills_init(void)
 				skill_list_num[type]++;
 
 				/* Store the data. */
-				strncpy(entry->name, name, sizeof(entry->name) - 1);
+				strncpy(entry->name, skill_names[id], sizeof(entry->name) - 1);
 				entry->name[sizeof(entry->name) - 1] = '\0';
 				strncpy(entry->desc, desc, sizeof(entry->desc) - 1);
 				entry->desc[sizeof(entry->desc) - 1] = '\0';
@@ -445,7 +469,6 @@ void skills_init(void)
 				entry->known = 0;
 
 				free(icon);
-				free(name);
 
 				skill_list[SKILL_LIST_TYPES - 1] = realloc(skill_list[SKILL_LIST_TYPES - 1], sizeof(*skill_list[SKILL_LIST_TYPES - 1]) * (skill_list_num[SKILL_LIST_TYPES - 1] + 1));
 				skill_list[SKILL_LIST_TYPES - 1][skill_list_num[SKILL_LIST_TYPES - 1]] = entry;
