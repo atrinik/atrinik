@@ -212,13 +212,6 @@ static player *get_player(player *p)
 		p->known_spells[i] = -1;
 	}
 
-	for (i = 0; i < MAX_QUICKSLOT; i++)
-	{
-		p->spell_quickslots[i] = SP_NO_SPELL;
-	}
-
-	p->chosen_spell = -1;
-
 	/* Quick skill reminder for select hand weapon */
 	p->set_skill_weapon = NO_SKILL_READY;
 	p->set_skill_archery = NO_SKILL_READY;
@@ -428,14 +421,6 @@ void give_initial_items(object *pl, treasurelist *items)
 		{
 			manual_apply(pl, op, 0);
 		}
-
-		if (op->type == ABILITY)
-		{
-			CONTR(pl)->known_spells[CONTR(pl)->nrofknownspells++] = op->stats.sp;
-			object_remove(op, 0);
-			object_destroy(op);
-			continue;
-		}
 	}
 }
 
@@ -467,123 +452,6 @@ void confirm_password(object *op)
 	CONTR(op)->write_buf[0] = '\0';
 	CONTR(op)->state = ST_CONFIRM_PASSWORD;
 	send_query(&CONTR(op)->socket, CMD_QUERY_CONFIRM_PASSWORD);
-}
-
-/**
- * Fire command for spells, range, throwing, etc.
- * @param op Object firing this.
- * @param dir Direction to fire to. */
-void fire(object *op, int dir, int type, char *params)
-{
-	int ret;
-	float skill_time;
-
-	if (op->type != PLAYER)
-	{
-		return;
-	}
-
-	if (type == FIRE_MODE_SPELL)
-	{
-		if (params)
-		{
-			CONTR(op)->chosen_spell = look_up_spell_name(params);
-		}
-
-		if (CONTR(op)->chosen_spell == -1)
-		{
-			return;
-		}
-	}
-
-	if (!check_skill_to_fire(op, type, params))
-	{
-		return;
-	}
-
-	/* Still need to recover from range action? */
-	if (!check_skill_action_time(op, op->chosen_skill))
-	{
-		return;
-	}
-
-	if (!dir && (type == FIRE_MODE_THROW || type == FIRE_MODE_BOW) && OBJECT_VALID(CONTR(op)->target_object, CONTR(op)->target_object_count))
-	{
-		rv_vector rv;
-
-		dir = get_dir_to_target(op, CONTR(op)->target_object, &rv);
-	}
-
-	if (dir)
-	{
-		if (QUERY_FLAG(op, FLAG_CONFUSED))
-		{
-			dir = get_randomized_dir(dir);
-		}
-
-		op->facing = dir;
-		op->anim_moving_dir = -1;
-		op->anim_last_facing = -1;
-		op->anim_enemy_dir = dir;
-	}
-
-	ret = OBJECT_METHOD_UNHANDLED;
-
-	if (type == FIRE_MODE_SPELL)
-	{
-		int cost;
-
-		cost = cast_spell(op, op, dir, CONTR(op)->chosen_spell, 0, CAST_NORMAL, NULL);
-
-		if (cost)
-		{
-			op->stats.sp -= cost;
-			ret = OBJECT_METHOD_OK;
-		}
-	}
-	else if (type == FIRE_MODE_THROW)
-	{
-		if (OBJECT_VALID(CONTR(op)->ready_object[READY_OBJ_THROW], CONTR(op)->ready_object_tag[READY_OBJ_THROW]) && CONTR(op)->ready_object[READY_OBJ_THROW]->env == op)
-		{
-			ret = object_throw(CONTR(op)->ready_object[READY_OBJ_THROW], op, dir);
-		}
-	}
-	else
-	{
-		object *tmp;
-
-		tmp = NULL;
-
-		if (type == FIRE_MODE_BOW)
-		{
-			tmp = CONTR(op)->equipment[PLAYER_EQUIP_BOW];
-		}
-		else if (type == FIRE_MODE_WAND)
-		{
-			tmp = CONTR(op)->equipment[PLAYER_EQUIP_MAGIC_DEVICE];
-		}
-		else if (type == FIRE_MODE_SKILL)
-		{
-			tmp = op->chosen_skill;
-		}
-
-		if (tmp)
-		{
-			ret = object_ranged_fire(tmp, op, dir);
-		}
-	}
-
-	if (ret == OBJECT_METHOD_OK)
-	{
-		skill_time = get_skill_time(op, op->chosen_skill->stats.sp);
-	}
-	else
-	{
-		skill_time = 0;
-	}
-
-	CONTR(op)->action_timer = skill_time / (1000000 / MAX_TIME) * 1000;
-	CONTR(op)->last_action_timer = 0;
 }
 
 /**

@@ -158,7 +158,6 @@ static const Atrinik_Constant constants[] =
 	{"PLAYER_EQUIP_LRING", PLAYER_EQUIP_LRING},
 	{"PLAYER_EQUIP_AMULET", PLAYER_EQUIP_AMULET},
 	{"PLAYER_EQUIP_WEAPON", PLAYER_EQUIP_WEAPON},
-	{"PLAYER_EQUIP_BOW", PLAYER_EQUIP_BOW},
 
 	{"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
 	{"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
@@ -1193,8 +1192,6 @@ static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
 
 	PyDict_SetItemString(dict, "name", Py_BuildValue("s", hooks->spells[spell].name));
 	PyDict_SetItemString(dict, "level", Py_BuildValue("i", hooks->spells[spell].level));
-	PyDict_SetItemString(dict, "desc", Py_BuildValue("s", hooks->spells[spell].description));
-	PyDict_SetItemString(dict, "icon", Py_BuildValue("s", hooks->spells[spell].icon));
 	PyDict_SetItemString(dict, "cost", Py_BuildValue("i", hooks->spells[spell].cost));
 
 	return dict;

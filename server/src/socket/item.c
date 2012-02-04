@@ -42,96 +42,58 @@ static int check_container(object *pl, object *con);
  * @return Flags. */
 unsigned int query_flags(object *op)
 {
-	unsigned int flags = 0;
+	uint32 flags = 0;
 
 	if (QUERY_FLAG(op, FLAG_APPLIED))
 	{
-		switch (op->type)
-		{
-			case BOW:
-			case WAND:
-			case ROD:
-				flags = a_readied;
-				break;
-
-			case WEAPON:
-				flags = a_wielded;
-				break;
-
-			case SKILL:
-			case ARMOUR:
-			case HELMET:
-			case SHIELD:
-			case RING:
-			case BOOTS:
-			case GLOVES:
-			case AMULET:
-			case GIRDLE:
-			case BRACERS:
-			case CLOAK:
-				flags = a_worn;
-				break;
-
-			case CONTAINER:
-				flags = a_active;
-				break;
-
-			default:
-				flags = a_applied;
-				break;
-		}
+		flags |= CS_FLAG_APPLIED;
 	}
 
 	if (op->type == CONTAINER && (op->attacked_by || (!op->env && QUERY_FLAG(op, FLAG_APPLIED))))
 	{
-		flags |= F_OPEN;
+		flags |= CS_FLAG_CONTAINER_OPEN;
 	}
 
 	if (QUERY_FLAG(op, FLAG_IS_TRAPPED))
 	{
-		flags |= F_TRAPPED;
+		flags |= CS_FLAG_IS_TRAPPED;
 	}
 
 	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
 	{
 		if (QUERY_FLAG(op, FLAG_DAMNED))
 		{
-			flags |= F_DAMNED;
+			flags |= CS_FLAG_DAMNED;
 		}
 		else if (QUERY_FLAG(op, FLAG_CURSED))
 		{
-			flags |= F_CURSED;
+			flags |= CS_FLAG_CURSED;
 		}
 	}
 
 	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
 	{
-		flags |= F_MAGIC;
+		flags |= CS_FLAG_IS_MAGICAL;
 	}
 
 	if (QUERY_FLAG(op, FLAG_UNPAID))
 	{
-		flags |= F_UNPAID;
+		flags |= CS_FLAG_UNPAID;
 	}
 
 	if (QUERY_FLAG(op, FLAG_INV_LOCKED))
 	{
-		flags |= F_LOCKED;
+		flags |= CS_FLAG_LOCKED;
 	}
 
-	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
+	if (QUERY_FLAG(op, FLAG_IS_READY))
 	{
-		flags |= F_INVISIBLE;
+		flags |= CS_FLAG_IS_READY;
 	}
 
-	if (QUERY_FLAG(op, FLAG_IS_ETHEREAL))
+	if (op->type == BOW)
 	{
-		flags |= F_ETHEREAL;
-	}
-
-	if (QUERY_FLAG(op, FLAG_NO_PICK))
-	{
-		flags |= F_NOPICK;
+		flags |= CS_FLAG_WEAPON_2H;
 	}
 
 	return flags;
@@ -154,7 +116,7 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 
 	if (flags & UPD_FLAGS)
 	{
-		packet_append_uint32(packet, query_flags(op));;
+		packet_append_uint32(packet, query_flags(op));
 	}
 
 	if (flags & UPD_WEIGHT)
@@ -184,7 +146,14 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 		packet_append_uint8(packet, op->type);
 		packet_append_uint8(packet, op->sub_type);
 
-		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
+		if (op->type == SPELL)
+		{
+			packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_SPELL_CASTING]->level));
+			packet_append_uint32(packet, spells[op->stats.sp].path);
+			packet_append_uint32(packet, spells[op->stats.sp].flags);
+			packet_append_string_terminated(packet, op->msg ? op->msg : "");
+		}
+		else if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
 			packet_append_uint8(packet, op->item_quality);
 			packet_append_uint8(packet, op->item_condition);
@@ -318,9 +287,10 @@ void esrv_draw_look(object *pl)
 	/* Grab last (top) object without browsing the objects. */
 	tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
-	packet = packet_new(CLIENT_CMD_ITEMY, 512, 256);
+	packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
 	packet_append_uint32(packet, 0);
 	packet_append_uint32(packet, 0);
+	packet_append_uint8(packet, 1);
 
 	if (CONTR(pl)->socket.look_position)
 	{
@@ -388,7 +358,7 @@ void esrv_close_container(object *op)
 {
 	packet_struct *packet;
 
-	packet = packet_new(CLIENT_CMD_ITEMX, 32, 0);
+	packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
 	packet_append_sint32(packet, -1);
 	packet_append_sint32(packet, -1);
 	socket_send_packet(&CONTR(op)->socket, packet);
@@ -404,7 +374,7 @@ void esrv_send_inventory(object *pl, object *op)
 	packet_struct *packet;
 	object *tmp;
 
-	packet = packet_new(CLIENT_CMD_ITEMY, 128, 256);
+	packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
 
 	/* In this case we're sending a container inventory */
 	if (pl != op)
@@ -418,6 +388,7 @@ void esrv_send_inventory(object *pl, object *op)
 	}
 
 	packet_append_uint32(packet, op->count);
+	packet_append_uint8(packet, 1);
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
@@ -506,9 +477,10 @@ static void esrv_send_item_send(object *pl, object *op)
 		return;
 	}
 
-	packet = packet_new(CLIENT_CMD_ITEMX, 64, 128);
+	packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
 	packet_append_sint32(packet, -4);
 	packet_append_uint32(packet, op->env->count);
+	packet_append_uint8(packet, 0);
 	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 	socket_send_packet(&CONTR(pl)->socket, packet);
 }
@@ -681,12 +653,6 @@ static void remove_quickslot(uint8 slot, player *pl)
 {
 	object *tmp;
 
-	if (pl->spell_quickslots[slot - 1] != SP_NO_SPELL)
-	{
-		pl->spell_quickslots[slot - 1] = SP_NO_SPELL;
-		return;
-	}
-
 	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
 	{
 		if (tmp->quickslot && tmp->quickslot == slot)
@@ -703,7 +669,6 @@ void send_quickslots(player *pl)
 {
 	packet_struct *packet;
 	object *tmp;
-	int i;
 
 	packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
 
@@ -711,19 +676,8 @@ void send_quickslots(player *pl)
 	{
 		if (tmp->quickslot)
 		{
-			packet_append_uint8(packet, QUICKSLOT_TYPE_ITEM);
 			packet_append_uint8(packet, tmp->quickslot - 1);
 			packet_append_uint32(packet, tmp->count);
-		}
-	}
-
-	for (i = 0; i < MAX_QUICKSLOT; i++)
-	{
-		if (pl->spell_quickslots[i] != SP_NO_SPELL)
-		{
-			packet_append_uint8(packet, QUICKSLOT_TYPE_SPELL);
-			packet_append_uint8(packet, i);
-			packet_append_string_terminated(packet, spells[pl->spell_quickslots[i]].name);
 		}
 	}
 
@@ -732,9 +686,10 @@ void send_quickslots(player *pl)
 
 void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	uint8 type, quickslot;
+	uint8 quickslot;
+	sint32 tag;
+	object *op;
 
-	type = packet_to_uint8(data, len, &pos);
 	quickslot = packet_to_uint8(data, len, &pos);
 
 	if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
@@ -742,18 +697,17 @@ void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t
 		return;
 	}
 
-	if (type == CMD_QUICKSLOT_SET)
+	tag = packet_to_uint32(data, len, &pos);
+
+	if (!tag)
 	{
-		tag_t tag;
-		object *op;
+		return;
+	}
 
-		tag = packet_to_uint32(data, len, &pos);
+	remove_quickslot(quickslot, pl);
 
-		if (!tag)
-		{
-			return;
-		}
-
+	if (tag != -1)
+	{
 		op = esrv_get_ob_from_count(pl->ob, tag);
 
 		if (!op)
@@ -761,28 +715,7 @@ void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t
 			return;
 		}
 
-		remove_quickslot(quickslot, pl);
 		op->quickslot = quickslot;
-	}
-	else if (type == CMD_QUICKSLOT_SETSPELL)
-	{
-		sint16 spell_id;
-		char spellname[MAX_BUF];
-
-		packet_to_string(data, len, &pos, spellname, sizeof(spellname));
-		spell_id = look_up_spell_name(spellname);
-
-		if (spell_id == SP_NO_SPELL)
-		{
-			return;
-		}
-
-		remove_quickslot(quickslot, pl);
-		pl->spell_quickslots[quickslot - 1] = spell_id;
-	}
-	else if (type == CMD_QUICKSLOT_UNSET)
-	{
-		remove_quickslot(quickslot, pl);
 	}
 }
 
@@ -1020,62 +953,4 @@ static int check_container(object *pl, object *con)
 	}
 
 	return ret;
-}
-
-/**
- * Sends a @ref CLIENT_CMD_READY to the player's client.
- * @param pl The player.
- * @param tag Object UID that the client should be notified about being
- * readied.
- * @param type Type of the object as returned by cmd_ready_determine(). */
-void cmd_ready_send(player *pl, tag_t tag, int type)
-{
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_ITEM_READY, 8, 0);
-	packet_append_uint8(packet, type);
-	packet_append_uint32(packet, tag);
-	socket_send_packet(&pl->socket, packet);
-}
-
-/**
- * Determines one of @ref READY_OBJ_xxx for the specified object.
- * @param tmp The object.
- * @return One of @ref READY_OBJ_xxx, -1 if not applicable to any of the
- * defined constants. */
-int cmd_ready_determine(object *tmp)
-{
-	/* System object, can't be any of the below. */
-	if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
-	{
-		return -1;
-	}
-
-	/* Arrows, or containers like quivers. */
-	if ((tmp->type == ARROW && !QUERY_FLAG(tmp, FLAG_IS_THROWN)) || tmp->type == CONTAINER)
-	{
-		return READY_OBJ_ARROW;
-	}
-
-	return READY_OBJ_THROW;
-}
-
-/**
- * Look through player's inventory and unready readied object of the
- * specified type.
- * @param op Player.
- * @param type One of @ref READY_OBJ_xxx that the readied object must
- * match. */
-void cmd_ready_clear(object *op, int type)
-{
-	object *tmp;
-
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (QUERY_FLAG(tmp, FLAG_IS_READY) && cmd_ready_determine(tmp) == type)
-		{
-			CLEAR_FLAG(tmp, FLAG_IS_READY);
-			break;
-		}
-	}
 }

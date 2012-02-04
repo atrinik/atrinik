@@ -65,7 +65,6 @@ static void init_strings(void)
 	shstr_cons.force = add_string("force");
 	shstr_cons.portal_destination_name = add_string(PORTAL_DESTINATION_NAME);
 	shstr_cons.portal_active_name = add_string(PORTAL_ACTIVE_NAME);
-	shstr_cons.spell_quickslot = add_string("spell_quickslot");
 
 	shstr_cons.player_info = add_string("player_info");
 	shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");

@@ -35,9 +35,6 @@ struct sockaddr_in insock;
 /** Client socket. */
 ClientSocket csocket;
 
-struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
-int RangeFireMode;
-
 /** Our selected server that we want to connect to. */
 server_struct *selected_server = NULL;
 
@@ -80,7 +77,9 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 {
 	{"intro.png", PIC_TYPE_DEFAULT},
 
-	{"player_doll_bg.png", PIC_TYPE_TRANS},
+	{"player_doll_bg.png", PIC_TYPE_ALPHA},
+	{"player_doll.png", PIC_TYPE_ALPHA},
+	{"player_doll_slot_border.png", PIC_TYPE_ALPHA},
 	{"login_inp.png", PIC_TYPE_DEFAULT},
 	{"invslot.png", PIC_TYPE_TRANS},
 
@@ -216,32 +215,13 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 _Sprite *Bitmaps[BITMAP_INIT];
 
 static void init_game_data();
-static void delete_player_lists();
 static int load_bitmap(int index);
-
-/**
- * Clear player lists like skill list, spell list, etc. */
-static void delete_player_lists(void)
-{
-	size_t i;
-
-	for (i = 0; i < FIRE_MODE_INIT; i++)
-	{
-		fire_mode_tab[i].amun = FIRE_ITEM_NO;
-		fire_mode_tab[i].item = FIRE_ITEM_NO;
-		fire_mode_tab[i].skill = NULL;
-		fire_mode_tab[i].spell = NULL;
-		fire_mode_tab[i].name[0] = '\0';
-	}
-}
 
 /**
  * Initialize game data. */
 static void init_game_data(void)
 {
 	size_t i;
-
-	memset(&fire_mode_tab, 0, sizeof(fire_mode_tab));
 
 	init_map_data(0, 0, 0, 0);
 
@@ -253,6 +233,7 @@ static void init_game_data(void)
 	memset(FaceList, 0, sizeof(struct _face_struct) * MAX_FACE_TILES);
 
 	init_keys();
+	memset(&cpl, 0, sizeof(cpl));
 	clear_player();
 	text_input_clear();
 
@@ -270,10 +251,9 @@ static void init_game_data(void)
 	text_input_string_end_flag = 0;
 	text_input_string_esc_flag = 0;
 	csocket.fd = -1;
-	RangeFireMode = 0;
 
-	delete_player_lists();
 	metaserver_init();
+	spells_init();
 }
 
 /**
@@ -286,7 +266,6 @@ static int game_status_chain(void)
 		cpl.mark_count = -1;
 
 		map_udate_flag = 2;
-		delete_player_lists();
 		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 		clear_map();
 		effect_stop();
@@ -720,7 +699,7 @@ int main(int argc, char *argv[])
 	load_bitmaps();
 
 	/* TODO: add later better error handling here */
-	for (i = BITMAP_DOLL; i < BITMAP_INIT; i++)
+	for (i = BITMAP_PLAYER_DOLL_BG; i < BITMAP_INIT; i++)
 	{
 		load_bitmap(i);
 	}
@@ -812,6 +791,7 @@ int main(int argc, char *argv[])
 
 			if (map_udate_flag > 0)
 			{
+				player_doll_update_items();
 				display_layer1();
 				display_layer3();
 				display_layer4();
@@ -827,23 +807,9 @@ int main(int argc, char *argv[])
 			/* Show the current dragged item */
 			if ((drag = draggingInvItem(DRAG_GET_STATUS)))
 			{
-				object *Item = NULL;
-
-				if (drag == DRAG_QUICKSLOT)
-				{
-					Item = object_find(cpl.dragging.tag);
-				}
-
 				SDL_GetMouseState(&x, &y);
 
-				if (drag == DRAG_QUICKSLOT_SPELL)
-				{
-					blit_face(cpl.dragging.spell->icon, x, y);
-				}
-				else
-				{
-					object_blit_centered(Item, x, y);
-				}
+				object_blit_centered(object_find(cpl.dragging.tag), x, y);
 			}
 
 			if (GameStatus <= GAME_STATUS_WAITFORPLAY)

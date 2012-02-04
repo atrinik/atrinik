@@ -104,33 +104,25 @@ typedef struct _face_struct
 
 typedef struct spell_entry_struct
 {
-	/** Name of the spell. */
-	char name[MAX_BUF];
-
-	/** Icon name */
-	char icon_name[MAX_BUF];
-
-	/** Description. */
-	char desc[HUGE_BUF];
-
-	/** Spell's icon. */
-	int icon;
-
-	/** Cost of spell. */
-	int cost;
+	/**
+	 * The spell object in player's inventory. */
+	object *spell;
 
 	/**
-	 * Contains what kind of relationship the player has with the spell's path:
-	 * - a: Attuned
-	 * - r: Repelled
-	 * - d: Denied */
-	char path;
+	 * Cost of spell. */
+	uint16 cost;
 
-	/** 1 if the player knows this spell, 0 otherwise. */
-	uint8 known;
+	/**
+	 * Spell's flags. */
+	uint32 flags;
 
-	/** Type of the spell (spell/prayer). */
-	uint8 type;
+	/**
+	 * Spell's path. */
+	uint32 path;
+
+	/**
+	 * Description of the spell. */
+	char msg[MAX_BUF];
 } spell_entry_struct;
 
 /**
@@ -196,19 +188,6 @@ typedef struct hfile_struct
 
 	UT_hash_handle hh;
 } hfile_struct;
-
-typedef enum _fire_mode_id
-{
-	FIRE_MODE_BOW,
-	FIRE_MODE_SPELL,
-	FIRE_MODE_WAND,
-	FIRE_MODE_SKILL,
-	FIRE_MODE_THROW,
-	FIRE_MODE_INIT
-}_fire_mode_id;
-
-/** If no fire item */
-#define FIRE_ITEM_NO -1
 
 /** Game statuses. */
 typedef enum _game_status
@@ -313,7 +292,9 @@ typedef enum _bitmap_index
 {
 	BITMAP_INTRO,
 
-	BITMAP_DOLL,
+	BITMAP_PLAYER_DOLL_BG,
+	BITMAP_PLAYER_DOLL,
+	BITMAP_PLAYER_DOLL_SLOT_BORDER,
 
 	BITMAP_LOGIN_INP,
 	BITMAP_INVSLOT,

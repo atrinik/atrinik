@@ -562,14 +562,18 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_itemx(uint8 *data, size_t len, size_t pos)
+void socket_command_item(uint8 *data, size_t len, size_t pos)
 {
-	int weight, loc, tag, face, flags, anim, nrof, dmode;
+	int weight, loc, tag, face, flags, anim, nrof, dmode, bflag;
 	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
 	uint8 animspeed, direction = 0;
-	char name[MAX_BUF];
+	char name[MAX_BUF], spell_msg[MAX_BUF];
+	uint16 spell_cost;
+	uint32 spell_path, spell_flags;
 
+	spell_cost = spell_path = spell_flags = 0;
 	itype = stype = item_qua = item_con = item_skill = item_level = 0;
+	bflag = 0;
 
 	dmode = packet_to_sint32(data, len, &pos);
 	loc = packet_to_sint32(data, len, &pos);
@@ -606,79 +610,7 @@ void socket_command_itemx(uint8 *data, size_t len, size_t pos)
 		loc = -1;
 	}
 
-	while (pos < len)
-	{
-		tag = packet_to_uint32(data, len, &pos);
-		flags = packet_to_uint32(data, len, &pos);
-		weight = packet_to_uint32(data, len, &pos);
-		face = packet_to_uint32(data, len, &pos);
-		request_face(face);
-		direction = packet_to_uint8(data, len, &pos);
-
-		if (loc)
-		{
-			itype = packet_to_uint8(data, len, &pos);
-			stype = packet_to_uint8(data, len, &pos);
-			item_qua = packet_to_uint8(data, len, &pos);
-			item_con = packet_to_uint8(data, len, &pos);
-			item_level = packet_to_uint8(data, len, &pos);
-			item_skill = packet_to_uint8(data, len, &pos);
-		}
-
-		packet_to_string(data, len, &pos, name, sizeof(name));
-		anim = packet_to_uint16(data, len, &pos);;
-		animspeed = packet_to_uint8(data, len, &pos);;
-		nrof = packet_to_uint32(data, len, &pos);;
-		update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 0);
-	}
-
-	map_udate_flag = 2;
-}
-
-/** @copydoc socket_command_struct::handle_func */
-void socket_command_itemy(uint8 *data, size_t len, size_t pos)
-{
-	int weight, loc, tag, face, flags, anim, nrof, dmode;
-	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
-	uint8 animspeed, direction = 0;
-	char name[MAX_BUF];
-
-	itype = stype = item_qua = item_con = item_skill = item_level = 0;
-
-	dmode = packet_to_sint32(data, len, &pos);
-	loc = packet_to_uint32(data, len, &pos);
-
-	if (dmode >= 0)
-	{
-		object_remove_inventory(object_find(loc));
-	}
-
-	/* send item flag */
-	if (dmode == -4)
-	{
-		/* and redirect it to our invisible sack */
-		if (loc == cpl.container_tag)
-		{
-			loc = -1;
-		}
-	}
-	/* container flag! */
-	else if (dmode == -1)
-	{
-		/* we catch the REAL container tag */
-		cpl.container_tag = loc;
-		object_remove_inventory(object_find(-1));
-
-		/* if this happens, we want to close the container */
-		if (loc == -1)
-		{
-			cpl.container_tag = -998;
-			return;
-		}
-
-		/* and redirect it to our invisible sack */
-		loc = -1;
-	}
+	bflag = packet_to_uint8(data, len, &pos);
 
 	while (pos < len)
 	{
@@ -693,18 +625,28 @@ void socket_command_itemy(uint8 *data, size_t len, size_t pos)
 		{
 			itype = packet_to_uint8(data, len, &pos);
 			stype = packet_to_uint8(data, len, &pos);
-			item_qua = packet_to_uint8(data, len, &pos);
-			item_con = packet_to_uint8(data, len, &pos);
-			item_level = packet_to_uint8(data, len, &pos);
-			item_skill = packet_to_uint8(data, len, &pos);
+
+			if (itype == TYPE_SPELL)
+			{
+				spell_cost = packet_to_uint16(data, len, &pos);
+				spell_path = packet_to_uint32(data, len, &pos);
+				spell_flags = packet_to_uint32(data, len, &pos);
+				packet_to_string(data, len, &pos, spell_msg, sizeof(spell_msg));
+			}
+			else
+			{
+				item_qua = packet_to_uint8(data, len, &pos);
+				item_con = packet_to_uint8(data, len, &pos);
+				item_level = packet_to_uint8(data, len, &pos);
+				item_skill = packet_to_uint8(data, len, &pos);
+			}
 		}
 
 		packet_to_string(data, len, &pos, name, sizeof(name));
-
 		anim = packet_to_uint16(data, len, &pos);
 		animspeed = packet_to_uint8(data, len, &pos);
 		nrof = packet_to_uint32(data, len, &pos);
-		update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, 1);
+		update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, spell_cost, spell_path, spell_flags, spell_msg, bflag);
 	}
 
 	map_udate_flag = 2;
@@ -715,9 +657,14 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 {
 	int weight, loc, tag, face, sendflags, flags, anim, nrof;
 	uint8 direction;
-	char name[MAX_BUF];
+	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
+	char name[MAX_BUF], spell_msg[MAX_BUF];
 	object *ip;
 	uint8 animspeed;
+	uint16 spell_cost;
+	uint32 spell_path, spell_flags;
+
+	spell_cost = spell_path = spell_flags = 0;
 
 	sendflags = packet_to_uint16(data, len, &pos);
 	tag = packet_to_uint32(data, len, &pos);
@@ -729,6 +676,7 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 	}
 
 	name[0] = '\0';
+	spell_msg[0] = '\0';
 	loc = ip->env ? ip->env->tag : 0;
 	weight = (int) (ip->weight * 1000);
 	face = ip->face;
@@ -738,6 +686,12 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 	animspeed = ip->anim_speed;
 	nrof = ip->nrof;
 	direction = ip->direction;
+	itype = ip->itype;
+	stype = ip->stype;
+	item_qua = ip->item_qua;
+	item_con = ip->item_con;
+	item_skill = ip->item_skill;
+	item_level = ip->item_level;
 
 	if (sendflags & UPD_LOCATION)
 	{
@@ -765,6 +719,27 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 		direction = packet_to_uint8(data, len, &pos);
 	}
 
+	if (sendflags & UPD_TYPE)
+	{
+		itype = packet_to_uint8(data, len, &pos);
+		stype = packet_to_uint8(data, len, &pos);
+
+		if (itype == TYPE_SPELL)
+		{
+			spell_cost = packet_to_uint16(data, len, &pos);
+			spell_path = packet_to_uint32(data, len, &pos);
+			spell_flags = packet_to_uint32(data, len, &pos);
+			packet_to_string(data, len, &pos, spell_msg, sizeof(spell_msg));
+		}
+		else
+		{
+			item_qua = packet_to_uint8(data, len, &pos);
+			item_con = packet_to_uint8(data, len, &pos);
+			item_level = packet_to_uint8(data, len, &pos);
+			item_skill = packet_to_uint8(data, len, &pos);
+		}
+	}
+
 	if (sendflags & UPD_NAME)
 	{
 		packet_to_string(data, len, &pos, name, sizeof(name));
@@ -785,7 +760,7 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 		nrof = packet_to_uint32(data, len, &pos);
 	}
 
-	update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, 254, 254, 254, 254, 254, 254, direction, 0);
+	update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_level, item_skill, direction, spell_cost, spell_path, spell_flags, spell_msg, 0);
 	map_udate_flag = 2;
 }
 
@@ -1109,25 +1084,6 @@ void socket_command_data(uint8 *data, size_t len, size_t pos)
 	uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data + pos, (uLong) len);
 	server_file_save(data_type, dest, len_ucomp);
 	free(dest);
-}
-
-/** @copydoc socket_command_struct::handle_func */
-void socket_command_item_ready(uint8 *data, size_t len, size_t pos)
-{
-	uint8 type;
-	tag_t tag;
-
-	type = packet_to_uint8(data, len, &pos);
-	tag = packet_to_uint32(data, len, &pos);
-
-	if (type == READY_OBJ_ARROW)
-	{
-		fire_mode_tab[FIRE_MODE_BOW].amun = tag;
-	}
-	else if (type == READY_OBJ_THROW)
-	{
-		fire_mode_tab[FIRE_MODE_THROW].item = tag;
-	}
 }
 
 /** @copydoc socket_command_struct::handle_func */

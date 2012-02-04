@@ -37,6 +37,26 @@ int common_object_apply(object *op, object *applier, int aflags)
 	return OBJECT_METHOD_UNHANDLED;
 }
 
+static int object_apply_item_check_type(object *op, object *tmp)
+{
+	if (!QUERY_FLAG(tmp, FLAG_APPLIED))
+	{
+		return 0;
+	}
+
+	if (op->type == tmp->type)
+	{
+		return 1;
+	}
+
+	if (OBJECT_IS_RANGED(op) && OBJECT_IS_RANGED(tmp))
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 int object_apply_item(object *op, object *applier, int aflags)
 {
 	int basic_aflag;
@@ -125,6 +145,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 			case BOW:
 			case WAND:
 			case ROD:
+			case SPELL:
 				draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
 				break;
 
@@ -154,16 +175,18 @@ int object_apply_item(object *op, object *applier, int aflags)
 	 * something of that type applied - if so, unapply it. */
 	for (tmp = applier->inv; tmp; tmp = tmp->below)
 	{
-		if ((tmp->type == op->type || ((op->type == WAND || op->type == ROD) && (tmp->type == WAND || tmp->type == ROD))) && QUERY_FLAG(tmp, FLAG_APPLIED) && tmp != op)
+		if (tmp == op || !object_apply_item_check_type(op, tmp))
 		{
-			if (tmp->type == RING && !ring_left)
-			{
-				ring_left = 1;
-			}
-			else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK)
-			{
-				return OBJECT_METHOD_ERROR;
-			}
+			continue;
+		}
+
+		if (tmp->type == RING && !ring_left)
+		{
+			ring_left = 1;
+		}
+		else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK)
+		{
+			return OBJECT_METHOD_ERROR;
 		}
 	}
 
@@ -182,11 +205,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 			if ((op->sub_type >= WEAP_POLE_IMPACT || op->sub_type >= WEAP_2H_IMPACT) && CONTR(applier)->equipment[PLAYER_EQUIP_SHIELD])
 			{
 				draw_info(COLOR_WHITE, applier, "You can't wield this weapon and a shield.");
-				return OBJECT_METHOD_ERROR;
-			}
-
-			if (!check_skill_to_apply(applier, op))
-			{
 				return OBJECT_METHOD_ERROR;
 			}
 
@@ -234,11 +252,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		case WAND:
 		case ROD:
 		case BOW:
-			if (!check_skill_to_apply(applier, op))
-			{
-				return OBJECT_METHOD_ERROR;
-			}
-
+		case SPELL:
 			draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
 			SET_FLAG(op, FLAG_APPLIED);
 

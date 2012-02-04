@@ -40,8 +40,6 @@ void init_spells(void)
 {
 	static int init_spells_done = 0;
 	int i;
-	FILE *fp;
-	char filename[MAX_BUF];
 
 	if (init_spells_done)
 	{
@@ -49,15 +47,6 @@ void init_spells(void)
 	}
 
 	init_spells_done = 1;
-
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, SRV_FILE_SPELLS_FILENAME);
-	fp = fopen(filename, "w");
-
-	if (!fp)
-	{
-		logger_print(LOG(ERROR), "Cannot open file '%s' for writing.", filename);
-		exit(1);
-	}
 
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
@@ -67,61 +56,15 @@ void init_spells(void)
 		string_replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
 		snprintf(spellname, sizeof(spellname), "spell_%s", tmpresult);
 
-		if ((at = find_archetype(spellname)))
+		at = find_archetype(spellname);
+
+		if (!at)
 		{
-			object *tmp = arch_to_object(at);
-			const char *value;
-
-			if ((value = object_get_value(tmp, "spell_level")))
-			{
-				spells[i].level = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_cost")))
-			{
-				spells[i].sp = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_time")))
-			{
-				spells[i].time = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_range")))
-			{
-				spells[i].range = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_bdam")))
-			{
-				spells[i].bdam = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_bdur")))
-			{
-				spells[i].bdur = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_ldam")))
-			{
-				spells[i].ldam = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_ldur")))
-			{
-				spells[i].ldur = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_spl")))
-			{
-				spells[i].spl = atoi(value);
-			}
-
-			if ((value = object_get_value(tmp, "spell_archname")))
-			{
-				spells[i].archname = strdup(value);
-			}
+			logger_print(LOG(ERROR), "Could not find required archetype %s.", spellname);
+			exit(1);
 		}
+
+		at->clone.stats.sp = i;
 
 		if (spells[i].archname)
 		{
@@ -135,32 +78,7 @@ void init_spells(void)
 		{
 			spellarch[i] = NULL;
 		}
-
-		if (spells[i].icon)
-		{
-			if (!find_face(spells[i].icon, 0))
-			{
-				logger_print(LOG(ERROR), "Spell '%s' needs face '%s', but it could not be found.", spells[i].name, spells[i].icon);
-				exit(1);
-			}
-		}
-
-		if (spells[i].icon && spells[i].description)
-		{
-			int j;
-
-			for (j = 0; j < NRSPELLPATHS; j++)
-			{
-				if (spells[i].path & (1 << j))
-				{
-					fprintf(fp, "%s\n%d\n%s\n%s\nend\n", spells[i].name, j, spells[i].icon, spells[i].description);
-					break;
-				}
-			}
-		}
 	}
-
-	fclose(fp);
 }
 
 /**
@@ -169,8 +87,7 @@ void init_spells(void)
  * @param m Map.
  * @param x X position on map.
  * @param y Y position on map.
- * @return 1 on failure, 0 otherwise.
- * @todo Does not support multi arch effects yet. */
+ * @return 1 on failure, 0 otherwise. */
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 {
 	archetype *effect_arch;

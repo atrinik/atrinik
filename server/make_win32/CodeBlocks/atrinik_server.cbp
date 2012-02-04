@@ -73,7 +73,6 @@
 		<Unit filename="..\..\src\commands\permission\tsi.c" />
 		<Unit filename="..\..\src\commands\player\afk.c" />
 		<Unit filename="..\..\src\commands\player\apply.c" />
-		<Unit filename="..\..\src\commands\player\cast.c" />
 		<Unit filename="..\..\src\commands\player\drop.c" />
 		<Unit filename="..\..\src\commands\player\gsay.c" />
 		<Unit filename="..\..\src\commands\player\hiscore.c" />
@@ -240,6 +239,7 @@
 		<Unit filename="..\..\src\types\gloves.c" />
 		<Unit filename="..\..\src\types\god.c" />
 		<Unit filename="..\..\src\types\gravestone.c" />
+		<Unit filename="..\..\src\types\greaves.c" />
 		<Unit filename="..\..\src\types\handle.c" />
 		<Unit filename="..\..\src\types\helmet.c" />
 		<Unit filename="..\..\src\types\holy_altar.c" />
@@ -286,6 +286,7 @@
 		<Unit filename="..\..\src\types\spawn_point.c" />
 		<Unit filename="..\..\src\types\spawn_point_info.c" />
 		<Unit filename="..\..\src\types\spawn_point_mob.c" />
+		<Unit filename="..\..\src\types\spell.c" />
 		<Unit filename="..\..\src\types\spinner.c" />
 		<Unit filename="..\..\src\types\swarm_spell.c" />
 		<Unit filename="..\..\src\types\symptom.c" />

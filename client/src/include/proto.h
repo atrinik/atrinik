@@ -23,8 +23,7 @@ extern void socket_command_stats(uint8 *data, size_t len, size_t pos);
 extern void socket_command_query(uint8 *data, size_t len, size_t pos);
 extern void send_reply(char *text);
 extern void socket_command_player(uint8 *data, size_t len, size_t pos);
-extern void socket_command_itemx(uint8 *data, size_t len, size_t pos);
-extern void socket_command_itemy(uint8 *data, size_t len, size_t pos);
+extern void socket_command_item(uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_update(uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_delete(uint8 *data, size_t len, size_t pos);
 extern void socket_command_mapstats(uint8 *data, size_t len, size_t pos);
@@ -32,7 +31,6 @@ extern void socket_command_map(uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(uint8 *data, size_t len, size_t pos);
 extern void socket_command_new_char(uint8 *data, size_t len, size_t pos);
 extern void socket_command_data(uint8 *data, size_t len, size_t pos);
-extern void socket_command_item_ready(uint8 *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
@@ -68,8 +66,9 @@ extern void object_set_values(object *op, const char *name, sint32 weight, uint1
 extern void toggle_locked(object *op);
 extern void object_send_mark(object *op);
 extern void ready_object(object *op);
+extern void objects_deinit(void);
 extern void objects_init(void);
-extern void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag);
+extern void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, uint16 spell_cost, uint32 spell_path, uint32 spell_flags, const char *spell_msg, int bflag);
 extern void animate_objects(void);
 extern void object_blit_centered(object *tmp, int x, int y);
 /* src/client/keybind.c */
@@ -95,8 +94,6 @@ extern int keybind_process_command(const char *cmd);
 /* src/client/main.c */
 extern SDL_Surface *ScreenSurface;
 extern struct sockaddr_in insock;
-extern struct _fire_mode fire_mode_tab[FIRE_MODE_INIT];
-extern int RangeFireMode;
 extern server_struct *selected_server;
 extern uint32 LastTick;
 extern int f_custom_cursor;
@@ -165,6 +162,7 @@ extern void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_
 extern void widget_show_label(widgetdata *widget);
 extern void widget_show_bitmap(widgetdata *widget);
 extern int gender_to_id(const char *gender);
+extern void player_doll_update_items(void);
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_load(int post_load);
@@ -250,6 +248,7 @@ extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int 
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
 extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, SDL_Color *color);
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
+extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 /* src/client/tilestretcher.c */
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);
@@ -437,14 +436,15 @@ extern void skills_init(void);
 extern void skills_reload(void);
 extern void socket_command_skill_list(uint8 *data, size_t len, size_t pos);
 /* src/gui/spells.c */
+extern void spells_init(void);
 extern void widget_spells_render(widgetdata *widget);
 extern void widget_spells_mevent(widgetdata *widget, SDL_Event *event);
 extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
+extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
 extern int spell_find_path_selected(const char *name, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
-extern void spells_init(void);
-extern void spells_reload(void);
-extern void socket_command_spell_list(uint8 *data, size_t len, size_t pos);
+extern void spells_update(object *op, uint16 cost, uint32 path, uint32 flags, const char *msg);
+extern void spells_remove(object *op);
 /* src/gui/target.c */
 extern void widget_event_target(widgetdata *widget, int x, int y);
 extern void widget_show_target(widgetdata *widget);

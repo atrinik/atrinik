@@ -144,15 +144,10 @@ object *arrow_find(object *op, shstr *type)
 		return NULL;
 	}
 
-	tmp = CONTR(op)->ready_object[READY_OBJ_ARROW];
+	tmp = CONTR(op)->equipment[PLAYER_EQUIP_AMMO];
 
 	/* Nothing readied. */
-	if (!tmp || !OBJECT_VALID(tmp, CONTR(op)->ready_object_tag[READY_OBJ_ARROW]))
-	{
-		return NULL;
-	}
-
-	if (tmp->env != op)
+	if (!tmp)
 	{
 		return NULL;
 	}

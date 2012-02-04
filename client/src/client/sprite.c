@@ -1099,3 +1099,16 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *col
 
 	border_create_sdl_color(surface, coords, &color);
 }
+
+void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation)
+{
+	SDL_Color color;
+
+	if (!text_color_parse(color_notation, &color))
+	{
+		logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+		return;
+	}
+
+	border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
+}

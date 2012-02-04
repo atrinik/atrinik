@@ -645,4 +645,8 @@ typedef struct magic_mirror_struct
  * Check whether the object is a flying projectile. */
 #define OBJECT_IS_PROJECTILE(ob) (QUERY_FLAG((ob), FLAG_FLYING) && (QUERY_FLAG((ob), FLAG_IS_MISSILE) || QUERY_FLAG((ob), FLAG_IS_SPELL)))
 
+/**
+ * Check whether the object is a ranged weapon. */
+#define OBJECT_IS_RANGED(_ob) ((_ob)->type == WAND || (_ob)->type == ROD || (_ob)->type == BOW || (_ob)->type == SPELL)
+
 #endif

@@ -133,13 +133,13 @@ typedef struct obj
 #define TYPE_TIMED_GATE	            26
 #define TYPE_TRIGGER		        27
 #define TYPE_GRIMREAPER	            28
-#define TYPE_MAGIC_EAR	            29
+#define TYPE_SPELL	                29
 #define TYPE_TRIGGER_BUTTON	        30
 #define TYPE_TRIGGER_ALTAR	        31
 #define TYPE_TRIGGER_PEDESTAL       32
 #define TYPE_SHIELD		            33
 #define TYPE_HELMET		            34
-#define TYPE_HORN		            35
+#define TYPE_GREAVES		        35
 #define TYPE_MONEY		            36
 #define TYPE_CLASS                  37
 #define TYPE_GRAVESTONE	            38

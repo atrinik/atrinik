@@ -34,13 +34,4 @@
 /** Maximum quickslot groups. */
 #define MAX_QUICKSLOT_GROUPS 4
 
-/** One quickslot. */
-typedef struct _quickslot
-{
-	/** If this is item, what tag ID. */
-	int tag;
-
-	spell_entry_struct *spell;
-} _quickslot;
-
 #endif

@@ -68,7 +68,7 @@ enum
 	CLIENT_CMD_MAP,
 	CLIENT_CMD_DRAWINFO,
 	CLIENT_CMD_FILE_UPDATE,
-	CLIENT_CMD_ITEMX,
+	CLIENT_CMD_ITEM,
 	CLIENT_CMD_SOUND,
 	CLIENT_CMD_TARGET,
 	CLIENT_CMD_ITEM_UPDATE,
@@ -79,20 +79,17 @@ enum
 	CLIENT_CMD_SKILL_READY,
 	CLIENT_CMD_PLAYER,
 	CLIENT_CMD_MAPSTATS,
-	CLIENT_CMD_SPELL_LIST,
 	CLIENT_CMD_SKILL_LIST,
 	CLIENT_CMD_VERSION,
 	CLIENT_CMD_SETUP,
 	CLIENT_CMD_QUERY,
 	CLIENT_CMD_DATA,
 	CLIENT_CMD_NEW_CHAR,
-	CLIENT_CMD_ITEMY,
 	CLIENT_CMD_BOOK,
 	CLIENT_CMD_PARTY,
 	CLIENT_CMD_QUICKSLOT,
 	CLIENT_CMD_COMPRESSED,
 	CLIENT_CMD_REGION_MAP,
-	CLIENT_CMD_ITEM_READY,
 	CLIENT_CMD_SOUND_AMBIENT,
 	CLIENT_CMD_INTERFACE,
 	CLIENT_CMD_NOTIFICATION,
@@ -103,28 +100,6 @@ enum
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
-
-/**
- * @defgroup CMD_QUICKSLOT_xxx Quickslot commands
- * The various quickslot commands.
- *@{*/
-/** Set an item as a quickslot. Uses object::quickslot. */
-#define CMD_QUICKSLOT_SET 1
-/** Set a spell as a quickslot. Uses player::spell_quickslots. */
-#define CMD_QUICKSLOT_SETSPELL 2
-/** Unset a quickslot, be it spell or item. */
-#define CMD_QUICKSLOT_UNSET 3
-/*@}*/
-
-/**
- * @defgroup QUICKSLOT_TYPE_xxx Quickslot data types
- * Quickslot data types.
- *@{*/
-/** Item quickslot. */
-#define QUICKSLOT_TYPE_ITEM 1
-/** Spell quickslot. */
-#define QUICKSLOT_TYPE_SPELL 2
-/*@}*/
 
 /**
  * @defgroup CMD_TARGET_xxx Target command types
@@ -379,49 +354,39 @@ enum
 /*@}*/
 
 /**
- * @defgroup cs_item_flags Client/server item flags
+ * @defgroup CS_FLAG_xxx Client/server item flags
  * Flags for the item command. Used in query_flags().
  *@{*/
-
-/** These flags are used if the item is applied. */
-enum
-{
-	/** No flag. */
-	a_none,
-	/** The item is readied. */
-	a_readied,
-	/** The item is wielded. */
-	a_wielded,
-	/** The item is worn. */
-	a_worn,
-	/** The item is active. */
-	a_active,
-	/** The item is applied. */
-	a_applied
-};
-
-/** @copydoc FLAG_APPLIED */
-#define F_APPLIED       0x000F
-/** @copydoc FLAG_IS_ETHEREAL */
-#define F_ETHEREAL      0x0080
-/** @copydoc FLAG_IS_INVISIBLE */
-#define F_INVISIBLE     0x0100
-/** @copydoc FLAG_UNPAID */
-#define F_UNPAID        0x0200
-/** @copydoc FLAG_IS_MAGICAL */
-#define F_MAGIC         0x0400
-/** @copydoc FLAG_CURSED */
-#define F_CURSED        0x0800
-/** @copydoc FLAG_DAMNED */
-#define F_DAMNED        0x1000
-/** @copydoc CONTAINER */
-#define F_OPEN          0x2000
-/** @copydoc FLAG_NO_PICK */
-#define F_NOPICK        0x4000
-/** @copydoc FLAG_INV_LOCKED */
-#define F_LOCKED        0x8000
-/** @copydoc FLAG_IS_TRAPPED */
-#define F_TRAPPED       0x10000
+/**
+ * The item is applied. */
+#define CS_FLAG_APPLIED 1
+/**
+ * The item is unpaid. */
+#define CS_FLAG_UNPAID 2
+/**
+ * The item is magical. */
+#define CS_FLAG_IS_MAGICAL 4
+/**
+ * The item is cursed. */
+#define CS_FLAG_CURSED 8
+/**
+ * The item is damned. */
+#define CS_FLAG_DAMNED 16
+/**
+ * The item is an opened container. */
+#define CS_FLAG_CONTAINER_OPEN 32
+/**
+ * The item is locked. */
+#define CS_FLAG_LOCKED 64
+/**
+ * The item is trapped. */
+#define CS_FLAG_IS_TRAPPED 128
+/**
+ * The item is readied ammunition. */
+#define CS_FLAG_IS_READY 256
+/**
+ * The item is a two-handed weapon. */
+#define CS_FLAG_WEAPON_2H 512
 /*@}*/
 
 /**

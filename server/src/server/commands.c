@@ -194,7 +194,6 @@ void toolkit_commands_init(void)
 		/* [player] */
 		commands_add(COMMAND(afk), 1.0, 0);
 		commands_add(COMMAND(apply), 1.0, 0);
-		commands_add(COMMAND(cast), 0.0, 0);
 		commands_add(COMMAND(drop), 1.0, 0);
 		commands_add(COMMAND(gsay), 1.0, 0);
 		commands_add(COMMAND(hiscore), 2.0, 0);

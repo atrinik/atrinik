@@ -96,183 +96,6 @@ typedef struct ClientSocket
 	int fd;
 } ClientSocket;
 
-typedef struct Stat_struct
-{
-	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
-
-	/** Weapon class. */
-	sint16 wc;
-
-	/** Armour class. */
-	sint16 ac;
-
-	/** Level. */
-	uint32 level;
-
-	/** Hit points. */
-	sint32 hp;
-
-	/** Max hit points */
-	sint32 maxhp;
-
-	/** Spell points. */
-	sint32 sp;
-
-	/** Max spell points. */
-	sint32 maxsp;
-
-	/** Total experience. */
-	sint64 exp;
-
-	/** How much food in stomach. */
-	sint16 food;
-
-	/** How much damage the player does when hitting. */
-	sint16 dam;
-
-	/** Player's speed; gets converted to a float for display. */
-	sint32 speed;
-
-	/** Weapon speed; gets converted to a float for display. */
-	int weapon_sp;
-
-	/** Contains fire on/run on flags. */
-	uint16 flags;
-
-	/** Protections. */
-	sint16 protection[20];
-
-	/** Ranged weapon damage. */
-	sint16 ranged_dam;
-
-	/** Ranged weapon wc. */
-	sint16 ranged_wc;
-
-	/** Ranged weapon speed. */
-	sint32 ranged_ws;
-} Stats;
-
-/** The player structure. */
-typedef struct Player_Struct
-{
-	/** Player object. */
-	object *ob;
-
-	/** Items below the player (pl.below->inv). */
-	object *below;
-
-	/** Inventory of an open container. */
-	object *sack;
-
-	/** Tag of the open container. */
-	sint32 container_tag;
-
-	/** Player's weight limit. */
-	uint32 weight_limit;
-
-	/** Are we a DM? */
-	int dm;
-
-	/** Target mode. */
-	int	target_mode;
-
-	/** Target. */
-	int	target_code;
-
-	/** Target's color. */
-	char target_color[COLOR_BUF];
-
-	/** Target name. */
-	char target_name[MAX_BUF];
-
-	int loc;
-	int tag;
-	int nrof;
-
-	/** Readied skill. */
-	skill_entry_struct *skill;
-
-	int warn_hp;
-
-	/* Input mode: no, console (textstring), numinput */
-	int input_mode;
-	int	nummode;
-
-	/** Currently marked item. */
-	int mark_count;
-
-	/** HP regeneration. */
-	float gen_hp;
-
-	/** Mana regeneration. */
-	float gen_sp;
-
-	/** Skill cooldown time. */
-	float action_timer;
-
-	/** 1 if fire key is pressed. */
-	uint8 fire_on;
-
-	/** 1 if run key is on. */
-	uint8 run_on;
-
-	/** Player's carrying weight. */
-	float real_weight;
-
-	int warn_statdown;
-	int warn_statup;
-
-	/** Player stats. */
-	Stats stats;
-
-	/** HP of our target in percent. */
-	char target_hp;
-
-	/** Player's name. */
-	char name[40];
-
-	/** Player's password. Only used while logging in. */
-	char password[40];
-
-	char num_text[300];
-	char skill_name[128];
-
-	/** Rank and name of char. */
-	char ext_title[MAX_BUF];
-
-	/** Party name this player is member of. */
-	char partyname[MAX_BUF];
-
-	/**
-	 * Buffer for party name the player is joining, but has to enter
-	 * password first. */
-	char partyjoin[MAX_BUF];
-
-	/** Information about the object/spell being dragged. */
-	union
-	{
-		/** ID of the object being dragged. */
-		int tag;
-
-		/** Spell being dragged. */
-		spell_entry_struct *spell;
-	} dragging;
-
-	/** Which inventory widget has the focus. */
-	int inventory_focus;
-
-	/** Version of the server's socket. */
-	int server_socket_version;
-
-	size_t target_object_index;
-
-	uint8 target_is_friend;
-
-	/**
-	 * Player's gender. */
-    uint8 gender;
-} Client_Player;
-
 /** Check if the keyword represents a true value. */
 #define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
 /** Check if the keyword represents a false value. */
@@ -290,5 +113,21 @@ typedef struct socket_command_struct
 {
 	void (*handle_func)(uint8 *data, size_t len, size_t pos);
 } socket_command_struct;
+
+/**
+ * @defgroup SPELL_DESC_xxx Spell flags
+ * Spell flags.
+ *@{*/
+/** Spell is safe to cast in town. */
+#define SPELL_DESC_TOWN         0x01
+/** Spell is fired in a direction (bullet, bolt, ...). */
+#define SPELL_DESC_DIRECTION    0x02
+/** Spell can be cast on self. */
+#define SPELL_DESC_SELF         0x04
+/** Spell can be cast on friendly creature. */
+#define SPELL_DESC_FRIENDLY     0x08
+/** Spell can be cast on enemy creature. */
+#define SPELL_DESC_ENEMY        0x10
+/*@}*/
 
 #endif

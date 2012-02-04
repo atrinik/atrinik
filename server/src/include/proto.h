@@ -47,8 +47,6 @@ extern void command_tsi(object *op, const char *command, char *params);
 extern void command_afk(object *op, const char *command, char *params);
 /* src/commands/player/apply.c */
 extern void command_apply(object *op, const char *command, char *params);
-/* src/commands/player/cast.c */
-extern void command_cast(object *op, const char *command, char *params);
 /* src/commands/player/drop.c */
 extern void command_drop(object *op, const char *command, char *params);
 /* src/commands/player/gsay.c */
@@ -579,8 +577,7 @@ extern sint64 do_skill(object *op, int dir, const char *params);
 extern sint64 calc_skill_exp(object *who, object *op, int level);
 extern void init_new_exp_system(void);
 extern int lookup_skill_by_name(const char *string);
-extern int check_skill_to_fire(object *who, int type, const char *params);
-extern int check_skill_to_apply(object *who, object *item);
+extern int check_skill_to_fire(object *op, object *weapon);
 extern void link_player_skills(object *pl);
 extern int use_skill(object *op, char *string);
 extern int change_skill(object *who, int sk_index);
@@ -722,7 +719,6 @@ extern void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data
 extern void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
-extern void cmd_ready_send(player *pl, tag_t tag, int type);
 extern int cmd_ready_determine(object *tmp);
 extern void cmd_ready_clear(object *op, int type);
 /* src/socket/loop.c */
@@ -1071,6 +1067,8 @@ extern void object_type_init_god(void);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
 extern void object_type_init_gravestone(void);
+/* src/types/greaves.c */
+extern void object_type_init_greaves(void);
 /* src/types/handle.c */
 extern void object_type_init_handle(void);
 /* src/types/helmet.c */
@@ -1144,7 +1142,6 @@ extern void give_initial_items(object *pl, treasurelist *items);
 extern void get_name(object *op);
 extern void get_password(object *op);
 extern void confirm_password(object *op);
-extern void fire(object *op, int dir, int type, char *params);
 extern int handle_newcs_player(player *pl);
 extern void do_some_living(object *op);
 extern void kill_player(object *op);
@@ -1217,6 +1214,8 @@ extern void object_type_init_spawn_point(void);
 extern void object_type_init_spawn_point_info(void);
 /* src/types/spawn_point_mob.c */
 extern void object_type_init_spawn_point_mob(void);
+/* src/types/spell.c */
+extern void object_type_init_spell(void);
 /* src/types/spinner.c */
 extern void object_type_init_spinner(void);
 /* src/types/swarm_spell.c */

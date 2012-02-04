@@ -190,11 +190,17 @@
  * A magic mirror which allows you to see objects on a different coordinate. */
 #define MAGIC_MIRROR 28
 /**
+ * Spell information object. */
+#define SPELL 29
+/**
  * Shield. */
 #define SHIELD 33
 /**
  * Helmet. */
 #define HELMET 34
+/**
+ * Greaves. */
+#define GREAVES 35
 /**
  * Money (copper, silver, etc). */
 #define MONEY 36

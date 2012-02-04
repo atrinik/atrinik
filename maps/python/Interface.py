@@ -76,7 +76,7 @@ class Interface:
 			obj.InsertInto(self._activator)
 
 	def dialog_close(self):
-		self._activator.Controller().SendPacket(29, "", None)
+		self._activator.Controller().SendPacket(26, "", None)
 
 	def finish(self, disable_timeout = False):
 		if not self._msg:
@@ -123,7 +123,7 @@ class Interface:
 				data += [9]
 
 		# Send the data.
-		pl.SendPacket(29, fmt, *data)
+		pl.SendPacket(26, fmt, *data)
 
 		# If there is any movement behavior, update the amount of time
 		# the NPC should pause moving for.

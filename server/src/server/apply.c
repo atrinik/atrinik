@@ -48,11 +48,6 @@ void do_learn_spell(object *op, int spell)
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
 	CONTR(op)->known_spells[CONTR(op)->nrofknownspells++] = spell;
 
-	if (CONTR(op)->nrofknownspells == 1)
-	{
-		CONTR(op)->chosen_spell = spell;
-	}
-
 	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_ADD);
 	draw_info_format(COLOR_WHITE, op, "You have learned the spell %s!", spells[spell].name);
 }

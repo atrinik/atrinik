@@ -200,7 +200,6 @@ set(SOURCES
 	src/commands/permission/tsi.c
 	src/commands/player/afk.c
 	src/commands/player/apply.c
-	src/commands/player/cast.c
 	src/commands/player/drop.c
 	src/commands/player/gsay.c
 	src/commands/player/hiscore.c
@@ -364,6 +363,7 @@ set(SOURCES
 	src/types/gloves.c
 	src/types/god.c
 	src/types/gravestone.c
+	src/types/greaves.c
 	src/types/handle.c
 	src/types/helmet.c
 	src/types/holy_altar.c
@@ -410,6 +410,7 @@ set(SOURCES
 	src/types/spawn_point.c
 	src/types/spawn_point_info.c
 	src/types/spawn_point_mob.c
+	src/types/spell.c
 	src/types/spinner.c
 	src/types/swarm_spell.c
 	src/types/symptom.c

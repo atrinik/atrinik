@@ -443,11 +443,11 @@ void esrv_update_stats(player *pl)
 		AddIfInt(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
 		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, uint32);
 
-		if (pl->equipment[PLAYER_EQUIP_BOW] && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_BOW]->race)))
+		if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]->race)))
 		{
-			AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_DAM, uint16);
-			AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WC, uint16);
-			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_BOW], arrow), CS_STAT_RANGED_WS, uint32);
+			AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_DAM, uint16);
+			AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WC, uint16);
+			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WS, uint32);
 		}
 		else
 		{
@@ -1683,9 +1683,7 @@ void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_
 {
 	tag_t tag;
 	object *tmp;
-	int type;
 
-	/* Get the ID of the object this is being done for. */
 	tag = packet_to_uint32(data, len, &pos);
 
 	if (!tag)
@@ -1693,50 +1691,35 @@ void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_
 		return;
 	}
 
-	/* Search for the object in the player's inventory. */
+	/* Try to look for objects to unready first. */
 	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
 	{
-		if (tmp->count == tag)
+		if (QUERY_FLAG(tmp, FLAG_IS_READY))
 		{
-			/* Determine whether this object can be readied. */
-			type = cmd_ready_determine(tmp);
+			CLEAR_FLAG(tmp, FLAG_IS_READY);
+			esrv_update_item(UPD_FLAGS, tmp);
+			fix_player(pl->ob);
+			draw_info_format(COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
 
-			if (type == -1)
+			/* If we wanted to unready the object, no point in going on. */
+			if (tmp->count == tag)
 			{
 				return;
 			}
 
-			/* If it's already readied, just unready it. */
-			if (QUERY_FLAG(tmp, FLAG_IS_READY))
-			{
-				CLEAR_FLAG(tmp, FLAG_IS_READY);
-				pl->ready_object[type] = NULL;
-				/* Inform the client about the change. */
-				cmd_ready_send(pl, -1, type);
+			break;
+		}
+	}
 
-				draw_info_format(COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
-			}
-			/* Otherwise ready it. */
-			else
-			{
-				/* Unready previously readied object of this type, if any. */
-				cmd_ready_clear(pl->ob, type);
-				SET_FLAG(tmp, FLAG_IS_READY);
-				pl->ready_object[type] = tmp;
-				pl->ready_object_tag[type] = tmp->count;
-				/* Inform the client about the change. */
-				cmd_ready_send(pl, tag, type);
-
-				if (type == READY_OBJ_ARROW)
-				{
-					draw_info_format(COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
-				}
-				else if (type == READY_OBJ_THROW)
-				{
-					draw_info_format(COLOR_WHITE, pl->ob, "Ready %s for throwing.", query_base_name(tmp, pl->ob));
-				}
-			}
-
+	/* If we are here, we want to ready an object. */
+	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->count == tag)
+		{
+			SET_FLAG(tmp, FLAG_IS_READY);
+			esrv_update_item(UPD_FLAGS, tmp);
+			fix_player(pl->ob);
+			draw_info_format(COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
 			break;
 		}
 	}
@@ -1745,15 +1728,59 @@ void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_
 void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	int dir;
-	uint8 type;
-	char params[MAX_BUF];
+	float skill_time;
 
 	dir = packet_to_uint8(data, len, &pos);
 	dir = MAX(0, MIN(dir, 8));
-	type = packet_to_uint8(data, len, &pos);
-	packet_to_string(data, len, &pos, params, sizeof(params));
 
-	fire(pl->ob, dir, type, params);
+	if (!pl->equipment[PLAYER_EQUIP_WEAPON])
+	{
+		return;
+	}
+
+	if (!check_skill_to_fire(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]))
+	{
+		return;
+	}
+
+	/* Still need to recover from range action? */
+	if (!check_skill_action_time(pl->ob, pl->ob->chosen_skill))
+	{
+		return;
+	}
+
+	if (!dir)
+	{
+		dir = pl->ob->facing;
+
+		/* Should not happen... */
+		if (!dir)
+		{
+			return;
+		}
+	}
+
+	if (QUERY_FLAG(pl->ob, FLAG_CONFUSED))
+	{
+		dir = get_randomized_dir(dir);
+	}
+
+	pl->ob->facing = dir;
+	pl->ob->anim_moving_dir = -1;
+	pl->ob->anim_last_facing = -1;
+	pl->ob->anim_enemy_dir = dir;
+
+	if (object_ranged_fire(pl->equipment[PLAYER_EQUIP_WEAPON], pl->ob, dir) == OBJECT_METHOD_OK)
+	{
+		skill_time = get_skill_time(pl->ob, pl->ob->chosen_skill->stats.sp);
+	}
+	else
+	{
+		skill_time = 0;
+	}
+
+	pl->action_timer = skill_time / (1000000 / MAX_TIME) * 1000;
+	pl->last_action_timer = 0;
 }
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
@@ -2215,53 +2242,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 }
 
 /**
- * Determine spell's path for spell list sending.
- * @param op Object.
- * @param spell_number Spell ID.
- * @retval d Player is denied from casting the spell.
- * @retval a Player is attuned to the spell.
- * @retval r Player is repelled from the spell.
- * @return If none of the above, a space character is returned. */
-static char spelllist_determine_path(object *op, int spell_number)
-{
-	uint32 path = spells[spell_number].path;
-
-	if ((op->path_denied & path))
-	{
-		return 'd';
-	}
-
-	if ((op->path_attuned & path) && !(op->path_repelled & path))
-	{
-		return 'a';
-	}
-
-	if ((op->path_repelled & path) && !(op->path_attuned & path))
-	{
-		return 'r';
-	}
-
-	return ' ';
-}
-
-/**
- * Helper function for send_spelllist_cmd(), adds one spell to buffer
- * which is then sent to the client as the spell list command.
- * @param op Object.
- * @param spell_number ID of the spell to add.
- * @param packet Packet to append to. */
-static void add_spell_to_spelllist(object *op, int spell_number, packet_struct *packet)
-{
-	int cost;
-
-	cost = SP_level_spellpoint_cost(op, spell_number, CONTR(op)->skill_ptr[SK_SPELL_CASTING]->level);
-
-	packet_append_string_terminated(packet, spells[spell_number].name);
-	packet_append_uint16(packet, cost);
-	packet_append_uint8(packet, spelllist_determine_path(op, spell_number));
-}
-
-/**
  * Send spell list command to the client.
  * @param op Player.
  * @param spellname If specified, send only this spell name. Otherwise
@@ -2269,28 +2249,6 @@ static void add_spell_to_spelllist(object *op, int spell_number, packet_struct *
  * @param mode One of @ref spelllist_modes. */
 void send_spelllist_cmd(object *op, const char *spellname, int mode)
 {
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_SPELL_LIST, 128, 128);
-	packet_append_uint8(packet, mode);
-
-	/* Send single name */
-	if (spellname)
-	{
-		add_spell_to_spelllist(op, look_up_spell_name(spellname), packet);
-	}
-	/* Send all. If the player is a wizard, send all spells in the game. */
-	else
-	{
-		uint16 i;
-
-		for (i = 0; i < CONTR(op)->nrofknownspells; i++)
-		{
-			add_spell_to_spelllist(op, CONTR(op)->known_spells[i], packet);
-		}
-	}
-
-	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**

@@ -33,7 +33,6 @@
 spell_struct spells[NROFREALSPELLS] =
 {
 	{"firestorm",
-	 "icon_firestorm.101", "A cone of fire you project in front of you. The spell gains strength as you grow in level, so it remains one of your best spells even at high level.",
 	 15, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_fire.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_DUST | SPELL_USE_BOOK | SPELL_USE_POTION, SPELL_DESC_DIRECTION,
@@ -41,7 +40,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"icestorm",
-	 "icon_icestorm.101", "A cone of ice which freezes monsters facing the caster. This spell gains power with level, so it remains useful even at high level.",
 	 15, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_ice.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK | SPELL_USE_POTION | SPELL_USE_DUST, SPELL_DESC_DIRECTION,
@@ -49,7 +47,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"minor healing",
-	 "icon_minor_healing.101", "This spell heals minor wounds on either the caster or the target.",
 	 1, 4, 8, 3, 6, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM | SPELL_USE_SCROLL | SPELL_USE_ROD | SPELL_USE_POTION | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -57,7 +54,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cure poison",
-	 "icon_cure_poison.101", "This spell cures all poison from your character.",
 	 15, 5, 8, 3, 6, 4, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_POTION | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -65,7 +61,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cure disease",
-	 "icon_cure_disease.101", "This spell cures all diseases from your character.",
 	 15, 5, 8, 3, 6, 4, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -73,7 +68,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"strength self",
-	 "icon_strength_self.101", "This spell will increase your strength by some amount. Recasting while in effect will refresh the wear out counter.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 0, 0, 0, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_POTION | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
@@ -81,7 +75,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"identify",
-	 "icon_identify.101", "This spell identifies some items in your inventory. Number of items identified is your literacy level and your Intelligence stat combined.",
 	 1, 5, 8, 3, 6, 2, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN,
@@ -89,7 +82,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"asteroid",
-	 "icon_asteroid.101", "Fires an asteroid in front of you, which explodes into a cone of ice if it hits an object.",
 	 30, 5, 32, 2, 0, 3, 1.0,
 	 4, 10, 4, 16, 8, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -97,7 +89,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"frost nova",
-	 "icon_frost_nova.101", "Similar to the spell of asteroid, but this spell fires a bunch of asteroids in front of you, which then explode into cones of ice if they hit something.",
 	 70, 5, 42, 2, 0, 3, 1.0,
 	 4, 10, 4, 8, 6, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -105,7 +96,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"remove curse",
-	 "icon_remove_curse.101", "This spell removes any curse from applied items. Unapplied items are not affected.",
 	 1, 5, 8, 3, 6, 2, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN | SPELL_DESC_FRIENDLY,
@@ -113,7 +103,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"remove damnation",
-	 "icon_remove_damnation.101", "This spell removes any curse or damnation from applied items. Unapplied items are not affected.",
 	 1, 5, 8, 3, 6, 2, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_TOWN | SPELL_DESC_FRIENDLY,
@@ -121,7 +110,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause light wounds",
-	 "icon_cause_light_wounds.101", "This spell creates a missile which inflicts damage to your enemies.",
 	 1, 4, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_wound.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_DIRECTION,
@@ -129,7 +117,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"confuse",
-	 NULL, NULL,
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_confusion.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -137,7 +124,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"magic bullet",
-	 "icon_magic_bullet.101", "This spell fires a magical bullet which does not track but instead flies in one direction until it hits something.",
 	 1, 4, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_bullet1.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_DIRECTION,
@@ -145,7 +131,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"summon golem",
-	 NULL, NULL,
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 4, 9, "magic_summon1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -153,7 +138,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"remove depletion",
-	 "icon_remove_depletion.101", "This spell restores depleted stats of your character.",
 	 1, 5, 8, 3, 6,0, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_SELF | SPELL_DESC_TOWN,
@@ -161,7 +145,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"probe",
-	 "icon_probe.101", "Probe will invoke a magic ball which will give you information about the monster it hits. Probe tells you about the monster's level, the damage it does, and so on. A probe will be invisible to the monster and will invoke no aggression.",
 	 1, 2, 8, 3, 6, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_default.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_BOOK, SPELL_DESC_TOWN | SPELL_DESC_DIRECTION,
@@ -169,7 +152,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"town portal",
-	 "icon_town_portal.101", "This spell allows you to set up magic portals from one place to another.",
 	 15, 30, 8, 1, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_BOOK, SPELL_DESC_SELF,
@@ -177,7 +159,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"create food",
-	 "icon_create_food.101", "Creates food in your inventory which you may eat, but will vanish if dropped.",
 	 1, 30, 8, 1, 0, 3, 1.0,
 	 3, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -185,7 +166,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"word of recall",
-	 "icon_default.101", "Teleports you to your house, apartment, or wherever you applied a bed to reality. This spell takes a while to complete, but is faster the higher level you are.",
 	 12, 5, 24, 1, 19, 3, 1.0,
 	 25, 3, 3, 4, 0, "magic_teleport.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -193,7 +173,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"recharge",
-	 "icon_default.101", "Recharges marked wand in your inventory. There is a slight chance that the wand will be destroyed when using this spell.",
 	 16, 50, 100, 2, 10, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_invisible.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -201,7 +180,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"greater healing",
-	 "icon_greater_healing.101", "An improved version of minor healing, this spell heals wounds on either the caster or the target.",
 	 10, 6, 8, 3, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM | SPELL_USE_SCROLL | SPELL_USE_ROD | SPELL_USE_POTION, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -209,7 +187,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"restoration",
-	 "icon_default.101", "Heals the target or the caster, restores food and removes any disease, confusion and poison.",
 	 20, 10, 12, 3, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -217,7 +194,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"protection from cold",
-	 "icon_prot_cold.101", "Raises your protection to cold. The protection raised by this spell depends on the caster's level.",
 	 30, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -225,7 +201,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"protection from fire",
-	 "icon_prot_fire.101", "Raises your protection to fire. The protection raised by this spell depends on the caster's level.",
 	 30, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -233,7 +208,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"protection from electricity",
-	 "icon_prot_elec.101", "Raises your protection to electricity. The protection raised by this spell depends on the caster's level.",
 	 30, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -241,7 +215,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"protection from poison",
-	 "icon_prot_poison.101", "Raises your protection to poison. The protection raised by this spell depends on the caster's level.",
 	 30, 22, 100, 2, 0, 3, 1.0,
 	 1, 350, 3, 4, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_BALM, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -249,7 +222,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"consecrate",
-	 "icon_consecrate.101", "Consecrates the altar you are standing on to your god. The spell may fail if the altar's level is higher than yours.",
 	 25, 10, 70, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -257,7 +229,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"finger of death",
-	 "icon_finger_of_death.101", "You point your finger at targeted creature, and it gets struck by the power of your god.",
 	 20, 7, 12, 2, 0, 5, 1.0,
 	 8, 0, 2, 0, 15, "magic_hword.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_ENEMY,
@@ -265,7 +236,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause cold",
-	 NULL, NULL,
 	 5, 10, 50, 2, 0, 3, 1.0,
 	 8, 0, 4, 2, 7, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -273,7 +243,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause flu",
-	 NULL, NULL,
 	 10, 12, 50, 2, 0, 3, 1.0,
 	 10, 0, 4, 2, 7, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -281,7 +250,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause leprosy",
-	 NULL, NULL,
 	 15, 14, 58, 2, 0, 3, 1.0,
 	 6, 0, 4, 2, 7, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -289,7 +257,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause smallpox",
-	 NULL, NULL,
 	 20, 16, 58, 2, 0, 3, 1.0,
 	 8, 0, 4, 2, 7, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -297,7 +264,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cause pneumonic plague",
-	 NULL, NULL,
 	 25, 18, 58, 2, 0, 3, 1.0,
 	 8, 0, 4, 2, 7, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -305,7 +271,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"meteor",
-	 "icon_meteor.101", "Fires a meteor in front of you, which explodes into a cone of fire if it hits an object.",
 	 30, 5, 32, 2, 0, 3, 1.0,
 	 4, 10, 4, 16, 8, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -313,7 +278,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"meteor swarm",
-	 "icon_meteor_swarm.101", "Similar to the spell of meteor, but this spell fires a bunch of meteors in front of you, which then explode into cones of fire if they hit something.",
 	 70, 5, 42, 2, 0, 3, 1.0,
 	 4, 10, 4, 8, 6, "magic_rstrike.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -321,7 +285,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"poison fog",
-	 NULL, NULL,
 	 5, 18, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -329,7 +292,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"bullet swarm",
-	 "icon_bullet_swarm.101", "Fires 5 magic bullets in front of you at once.",
 	 65, 5, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 9, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -337,7 +299,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"bullet storm",
-	 "icon_bullet_storm.101", "Fires 3 magic bullets in front of you at once.",
 	 50, 4, 86, 2, 0, 3, 1.0,
 	 0, 0, 0, 0, 9, "magic_bullet1.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -345,7 +306,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"destruction",
-	 "icon_destruction.101", "Creatures around you get struck by a magical power.",
 	 30, 20, 20, 0, 3, 3, 1.0,
 	 4, 1, 3, 20, 24, "magic_destruction.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -353,7 +313,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"create bomb",
-	 NULL, NULL,
 	 10, 10, 30, 2, 0, 3, 1.0,
 	 10, 9, 0, 30, 9, "magic_bomb.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -361,7 +320,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"cure confusion",
-	 "icon_default.101", "Cures any confusion your target or yourself may have.",
 	 1, 5, 8, 3, 6,4, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST | SPELL_USE_POTION | SPELL_USE_BOOK, SPELL_DESC_SELF | SPELL_DESC_FRIENDLY | SPELL_DESC_TOWN,
@@ -369,7 +327,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"transform wealth",
-	 "icon_transform_wealth.101", "Mark wealth object (money, coppers for example) and cast this spell. The coppers will be transformed into silvers at regular money rate (you must have enough copper coins). There is 20% of the money sacrifice to cast it, so 100 coppers will become 80 coppers.",
 	 15, 18, 40, 2, 7, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_turn.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -377,7 +334,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"magic missile",
-	 "icon_magic_missile.101", "Fires a missile at currently selected target, following the target wherever they go.",
 	 40, 3, 8, 3, 6, 9, 1.0,
 	 4, 5, 4, 4, 9, "magic_missile.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_ENEMY,
@@ -385,7 +341,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"rain of healing",
-	 "icon_rain_of_healing.101", "This spell heals all friends around and below the caster, excluding the caster.",
 	 20, 6, 18, 0, 0, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -393,7 +348,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"party heal",
-	 "icon_party_heal.101", "Heals all nearby party members, including the caster.",
 	 20, 6, 16, 0, 0, 0, 1.0,
 	 0, 0, 0, 0, 0, "magic_stat.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION | SPELL_DESC_TOWN,
@@ -401,7 +355,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"frostbolt",
-	 "icon_frostbolt.101", "A blast of cold is fired in straight line. Each part of it can hit enemies only once.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_ice.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -409,7 +362,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"firebolt",
-	 "icon_firebolt.101", "A blast of fire is fired in straight line. Each part of it can hit enemies only once.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_fire.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -417,7 +369,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"lightning",
-	 "icon_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
 	 20, 5, 8, 3, 6, 0, 1.0,
 	 4, 7, 4, 0, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -425,7 +376,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"forked lightning",
-	 "icon_forked_lightning.101", "Lightning is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls. The main line of lightning may create forks of lightning, which will do less damage.",
 	 25, 5, 8, 3, 6, 0, 1.0,
 	 4, 4, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
@@ -433,7 +383,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"negative energy bolt",
-	 "icon_negabolt.101", "A blast of negative energy is fired in straight line. Each part of it can hit enemies only once and it will bounce off of walls.",
 	 1, 5, 8, 3, 6, 0, 1.0,
 	 4, 5, 4, 8, 9, "magic_elec.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,
@@ -441,7 +390,6 @@ spell_struct spells[NROFREALSPELLS] =
 	},
 
 	{"holy word",
-	 "icon_holy_word.101", "Cone of holy power that will damage all undead creatures it hits.",
 	 35, 6, 12, 0, 0, 0, 1.0,
 	 4, 6, 4, 4, 9, "magic_hword.ogg",
 	 SPELL_USE_CAST, SPELL_DESC_DIRECTION,

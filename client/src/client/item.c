@@ -76,6 +76,11 @@ void objects_free(object *op)
 
 	while (op)
 	{
+		if (op->itype == TYPE_SPELL)
+		{
+			spells_remove(op);
+		}
+
 		if (op->inv)
 		{
 			objects_free(op->inv);
@@ -185,6 +190,11 @@ void object_remove(object *op)
 	if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack)
 	{
 		return;
+	}
+
+	if (op->itype == TYPE_SPELL)
+	{
+		spells_remove(op);
 	}
 
 	if (op->inv)
@@ -463,14 +473,18 @@ void ready_object(object *op)
 }
 
 /**
- * Initializes the various objects of ::cpl structure, freeing them first
- * if necessary. */
-void objects_init(void)
+ * Deinitialize the various objects of ::cpl structure. */
+void objects_deinit(void)
 {
 	objects_free(cpl.sack);
 	objects_free(cpl.below);
 	objects_free(cpl.ob);
+}
 
+/**
+ * Initializes the various objects of ::cpl structure. */
+void objects_init(void)
+{
 	cpl.ob = object_new();
 	cpl.below = object_new();
 	cpl.sack = object_new();
@@ -483,7 +497,7 @@ void objects_init(void)
  * Update an object with new attributes.
  * @param tag The object ID to update.
  * @param loc Location of the object. */
-void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, int bflag)
+void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, uint16 spell_cost, uint32 spell_path, uint32 spell_flags, const char *spell_msg, int bflag)
 {
 	object *ip, *env;
 
@@ -512,7 +526,17 @@ void update_object(int tag, int loc, const char *name, int weight, int face, int
 			ip = NULL;
 		}
 
-		object_set_values(ip ? ip : object_create(env, tag, bflag), name, weight, (uint16) face, flags, (uint16) anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
+		if (!ip)
+		{
+			ip = object_create(env, tag, bflag);
+		}
+
+		object_set_values(ip, name, weight, (uint16) face, flags, (uint16) anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
+
+		if (itype == TYPE_SPELL && *spell_msg != '\0')
+		{
+			spells_update(ip, spell_cost, spell_path, spell_flags, spell_msg);
+		}
 	}
 }
 

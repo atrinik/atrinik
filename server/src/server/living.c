@@ -957,6 +957,11 @@ void fix_player(object *op)
 	 * there are all our skills, forces and hidden system objects. */
 	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
 	{
+		if (QUERY_FLAG(tmp, FLAG_IS_READY))
+		{
+			pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
+		}
+
 		/* Add here more types we can and must skip. */
 		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL)
 		{
@@ -1009,13 +1014,12 @@ void fix_player(object *op)
 					pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
 					break;
 
-				case WAND:
-				case ROD:
-					pl->equipment[PLAYER_EQUIP_MAGIC_DEVICE] = tmp;
-					break;
-
 				case WEAPON:
-					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
+					if (!pl->equipment[PLAYER_EQUIP_WEAPON])
+					{
+						pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
+					}
+
 					/* Our weapon */
 					pl->selected_weapon = tmp;
 					i = tmp->sub_type % 4;
@@ -1155,26 +1159,14 @@ fix_player_no_armour:
 					break;
 
 				case BOW:
-					pl->equipment[PLAYER_EQUIP_BOW] = tmp;
+				case WAND:
+				case ROD:
+				case SPELL:
+					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 
-					/* As a special bonus range weapons can be permanently applied and
-					 * will add stat bonus */
 					for (i = 0; i < NUM_STATS; i++)
 					{
 						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
-					if (tmp->sub_type == RANGE_WEAP_BOW)
-					{
-						pl->set_skill_archery = SK_MISSILE_WEAPON;
-					}
-					else if (tmp->sub_type == RANGE_WEAP_XBOWS)
-					{
-						pl->set_skill_archery = SK_XBOW_WEAP;
-					}
-					else
-					{
-						pl->set_skill_archery = SK_SLING_WEAP;
 					}
 
 					break;

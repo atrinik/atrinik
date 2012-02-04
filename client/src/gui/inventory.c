@@ -45,6 +45,12 @@ static int inventory_matches_filter(object *op)
 		return 1;
 	}
 
+	/* Never show spell objects in the inventory. */
+	if (op->itype == TYPE_SPELL)
+	{
+		return 0;
+	}
+
 	/* Always show open container, and the items inside. */
 	if (cpl.container_tag == op->tag || (op->env && op->env->env))
 	{
@@ -56,7 +62,7 @@ static int inventory_matches_filter(object *op)
 		return 1;
 	}
 
-	if (inventory_filter & INVENTORY_FILTER_APPLIED && op->flags & F_APPLIED)
+	if (inventory_filter & INVENTORY_FILTER_APPLIED && op->flags & CS_FLAG_APPLIED)
 	{
 		return 1;
 	}
@@ -66,12 +72,12 @@ static int inventory_matches_filter(object *op)
 		return 1;
 	}
 
-	if (inventory_filter & INVENTORY_FILTER_MAGICAL && op->flags & F_MAGIC)
+	if (inventory_filter & INVENTORY_FILTER_MAGICAL && op->flags & CS_FLAG_IS_MAGICAL)
 	{
 		return 1;
 	}
 
-	if (inventory_filter & INVENTORY_FILTER_CURSED && op->flags & (F_CURSED | F_DAMNED))
+	if (inventory_filter & INVENTORY_FILTER_CURSED && op->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED))
 	{
 		return 1;
 	}
@@ -81,12 +87,12 @@ static int inventory_matches_filter(object *op)
 		return 1;
 	}
 
-	if (inventory_filter & INVENTORY_FILTER_UNAPPLIED && !(op->flags & F_APPLIED))
+	if (inventory_filter & INVENTORY_FILTER_UNAPPLIED && !(op->flags & CS_FLAG_APPLIED))
 	{
 		return 1;
 	}
 
-	if (inventory_filter & INVENTORY_FILTER_LOCKED && op->flags & F_LOCKED)
+	if (inventory_filter & INVENTORY_FILTER_LOCKED && op->flags & CS_FLAG_LOCKED)
 	{
 		return 1;
 	}
@@ -666,8 +672,6 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
  * @param y Y position of the item */
 void object_blit_inventory(object *tmp, int x, int y)
 {
-	int fire_ready;
-
 	object_blit_centered(tmp, x, y);
 
 	if (tmp->nrof > 1)
@@ -686,47 +690,44 @@ void object_blit_inventory(object *tmp, int x, int y)
 		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
-	/* Determine whether there is a readied object for firing or not. */
-	fire_ready = (fire_mode_tab[FIRE_MODE_THROW].item == tmp->tag || fire_mode_tab[FIRE_MODE_BOW].amun == tmp->tag) && tmp->env == cpl.ob;
-
-	if (tmp->flags & F_APPLIED)
+	if (tmp->flags & CS_FLAG_APPLIED)
 	{
 		sprite_blt(Bitmaps[BITMAP_APPLY], x, y, NULL, NULL);
 
-		if (fire_ready)
+		if (tmp->flags & CS_FLAG_IS_READY)
 		{
 			sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y + 8, NULL, NULL);
 		}
 	}
-	else if (tmp->flags & F_UNPAID)
+	else if (tmp->flags & CS_FLAG_UNPAID)
 	{
 		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
 	}
-	else if (fire_ready)
+	else if (tmp->flags & CS_FLAG_IS_READY)
 	{
 		sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y, NULL, NULL);
 	}
 
-	if (tmp->flags & F_LOCKED)
+	if (tmp->flags & CS_FLAG_LOCKED)
 	{
 		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
 	}
 
-	if (tmp->flags & F_MAGIC)
+	if (tmp->flags & CS_FLAG_IS_MAGICAL)
 	{
 		sprite_blt(Bitmaps[BITMAP_MAGIC], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
 	}
 
-	if (tmp->flags & F_DAMNED)
+	if (tmp->flags & CS_FLAG_DAMNED)
 	{
 		sprite_blt(Bitmaps[BITMAP_DAMNED], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
 	}
-	else if (tmp->flags & F_CURSED)
+	else if (tmp->flags & CS_FLAG_CURSED)
 	{
 		sprite_blt(Bitmaps[BITMAP_CURSED], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
 	}
 
-	if (tmp->flags & F_TRAPPED)
+	if (tmp->flags & CS_FLAG_IS_TRAPPED)
 	{
 		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + INVENTORY_ICON_SIZE / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->w / 2, y + INVENTORY_ICON_SIZE / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->h / 2, NULL, NULL);
 	}
@@ -949,7 +950,7 @@ void widget_inventory_handle_lock(widgetdata *widget)
 		return;
 	}
 
-	if (ob->flags & F_LOCKED)
+	if (ob->flags & CS_FLAG_LOCKED)
 	{
 		draw_info_format(COLOR_DGOLD, "unlock %s", ob->s_name);
 	}
@@ -1078,7 +1079,7 @@ void widget_inventory_handle_drop(widgetdata *widget)
 		return;
 	}
 
-	if (ob->flags & F_LOCKED)
+	if (ob->flags & CS_FLAG_LOCKED)
 	{
 		draw_info(COLOR_DGOLD, "That item is locked.");
 		return;

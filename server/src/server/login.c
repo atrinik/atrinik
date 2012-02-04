@@ -116,7 +116,6 @@ int save_player(object *op)
 	fprintf(fp, "tls %d\n", pl->tls);
 	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
 	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
-	fprintf(fp, "spell %d\n", pl->chosen_spell);
 	fprintf(fp, "digestion %d\n", pl->digestion);
 
 	if (op->map)
@@ -148,14 +147,6 @@ int save_player(object *op)
 		if (pl->cmd_permissions[i])
 		{
 			fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
-		}
-	}
-
-	for (i = 0; i < MAX_QUICKSLOT; i++)
-	{
-		if (pl->spell_quickslots[i] != SP_NO_SPELL)
-		{
-			fprintf(fp, "spell_quickslot %d %d\n", i, pl->spell_quickslots[i]);
 		}
 	}
 
@@ -272,11 +263,10 @@ void check_login(object *op)
 	FILE *fp;
 	void *mybuffer;
 	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF];
-	int i, value, correct = 0, type;
+	int i, value, correct = 0;
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
-	object *tmp;
 
 	strcpy(pl->maplevel, first_map_path);
 
@@ -418,10 +408,6 @@ void check_login(object *op)
 		{
 			pl->gen_sp = value;
 		}
-		else if (!strcmp(buf, "spell"))
-		{
-			pl->chosen_spell = value;
-		}
 		else if (!strcmp(buf, "digestion"))
 		{
 			pl->digestion = value;
@@ -503,18 +489,6 @@ void check_login(object *op)
 			pl->num_cmd_permissions++;
 			pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * pl->num_cmd_permissions);
 			pl->cmd_permissions[pl->num_cmd_permissions - 1] = strdup(cp);
-		}
-		else if (!strcmp(buf, "spell_quickslot"))
-		{
-			char *cp = strrchr(bufall, ' ');
-			sint16 spell_id = atoi(cp + 1);
-
-			if (spell_id < 0 || spell_id >= NROFREALSPELLS)
-			{
-				logger_print(LOG(DEBUG), "Bogus spell ID (#%d) in %s", spell_id, filename);
-			}
-
-			pl->spell_quickslots[value] = spell_id;
 		}
 		else if (!strcmp(buf, "faction"))
 		{
@@ -640,23 +614,6 @@ void check_login(object *op)
 	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
 	send_skilllist_cmd(op, NULL);
 	send_quickslots(pl);
-
-	/* Go through the player's inventory and inform the client about
-	 * readied objects. */
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (QUERY_FLAG(tmp, FLAG_IS_READY))
-		{
-			type = cmd_ready_determine(tmp);
-
-			if (type != -1)
-			{
-				pl->ready_object[type] = tmp;
-				pl->ready_object_tag[type] = tmp->count;
-				cmd_ready_send(pl, tmp->count, type);
-			}
-		}
-	}
 
 	if (op->map && op->map->events)
 	{

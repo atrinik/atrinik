@@ -39,24 +39,25 @@
  * Player doll item positions.
  *
  * Used to determine where to put item sprites on the player doll. */
-static _player_doll_pos player_doll[PDOLL_INIT] =
+static int player_doll_positions[PLAYER_DOLL_MAX][2] =
 {
-	{93,	55},
-	{93,	8},
-	{93,	100},
-	{93,	158},
-	{135,	95},
-	{50,	95},
-	{50,	134},
-	{135,	134},
-	{54,	51},
-	{141,	10},
-	{5,		148},
-	{180,	148},
-	{5,		108},
-	{180,	108},
-	{43,	10},
-	{4,		10}
+	{22, 6},
+	{22, 44},
+	{22, 82},
+	{22, 120},
+	{22, 158},
+
+	{62, 6},
+	{62, 44},
+	{62, 82},
+	{62, 120},
+	{62, 158},
+
+	{102, 6},
+	{102, 44},
+	{102, 82},
+	{102, 120},
+	{102, 158}
 };
 
 /** Weapon speed table. */
@@ -109,9 +110,10 @@ const char *gender_reflexive[GENDER_MAX] =
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player(void)
 {
+	objects_deinit();
 	memset(&cpl, 0, sizeof(cpl));
-	quickslots_init();
 	objects_init();
+	quickslots_init();
 	init_player_data();
 	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
@@ -203,8 +205,6 @@ void init_player_data(void)
 
 	cpl.container_tag = -996;
 
-	memset(&cpl.stats, 0, sizeof(Stats));
-
 	cpl.stats.maxsp = 1;
 	cpl.stats.maxhp = 1;
 	cpl.gen_hp = 0.0f;
@@ -226,8 +226,6 @@ void init_player_data(void)
 	cpl.action_timer = 0.0f;
 
 	cpl.container_tag = -997;
-
-	RangeFireMode = 0;
 }
 
 /**
@@ -446,13 +444,8 @@ void widget_skillgroups(widgetdata *widget)
  * @param widget The widget object. */
 void widget_show_player_doll(widgetdata *widget)
 {
-	object *tmp;
 	char *tooltip_text = NULL;
-	int idx, tooltip_index = -1, ring_flag = 0;
-	int mx, my;
-
-	/* This is ugly to calculate because it's a curve which increases heavily
-	 * with lower weapon_speed... So, we use a table */
+	int i, xpos, ypos, mx, my;
 	int ws_temp = cpl.stats.weapon_sp;
 
 	if (ws_temp < 0)
@@ -464,12 +457,7 @@ void widget_show_player_doll(widgetdata *widget)
 		ws_temp = 18;
 	}
 
-	sprite_blt(Bitmaps[BITMAP_DOLL], widget->x1, widget->y1, NULL, NULL);
-
-	if (!cpl.ob)
-	{
-		return;
-	}
+	sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL_BG], widget->x1, widget->y1, NULL, NULL);
 
 	string_blt(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
 	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
@@ -492,101 +480,38 @@ void widget_show_player_doll(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
 	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
 
-	/* Show items applied */
-	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
+	for (i = 0; i < PLAYER_DOLL_MAX; i++)
 	{
-		if (tmp->flags & F_APPLIED)
+		rectangle_create(ScreenSurface, widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER]->bitmap->w, Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER]->bitmap->h, PLAYER_DOLL_SLOT_COLOR);
+	}
+
+	sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL], widget->x1, widget->y1, NULL, NULL);
+
+	SDL_GetMouseState(&mx, &my);
+
+	for (i = 0; i < PLAYER_DOLL_MAX; i++)
+	{
+		sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER], widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], NULL, NULL);
+
+		if (!cpl.player_doll[i])
 		{
-			idx = -1;
+			continue;
+		}
 
-			switch (tmp->itype)
-			{
-				case TYPE_ARMOUR:
-					idx = PDOLL_ARMOUR;
-					break;
+		xpos = widget->x1 + player_doll_positions[i][0] + 2;
+		ypos = widget->y1 + player_doll_positions[i][1] + 2;
 
-				case TYPE_HELMET:
-					idx = PDOLL_HELM;
-					break;
+		object_blit_centered(cpl.player_doll[i], xpos, ypos);
 
-				case TYPE_GIRDLE:
-					idx = PDOLL_GIRDLE;
-					break;
-
-				case TYPE_BOOTS:
-					idx = PDOLL_BOOT;
-					break;
-
-				case TYPE_WEAPON:
-					idx = PDOLL_RHAND;
-					break;
-
-				case TYPE_SHIELD:
-					idx = PDOLL_LHAND;
-					break;
-
-				case TYPE_RING:
-					idx = PDOLL_RRING;
-					break;
-
-				case TYPE_BRACERS:
-					idx = PDOLL_BRACER;
-					break;
-
-				case TYPE_AMULET:
-					idx = PDOLL_AMULET;
-					break;
-
-				case TYPE_SKILL_ITEM:
-					idx = PDOLL_SKILL_ITEM;
-					break;
-
-				case TYPE_BOW:
-					idx = PDOLL_BOW;
-					break;
-
-				case TYPE_GLOVES:
-					idx = PDOLL_GAUNTLET;
-					break;
-
-				case TYPE_CLOAK:
-					idx = PDOLL_ROBE;
-					break;
-
-				case TYPE_LIGHT_APPLY:
-					idx = PDOLL_LIGHT;
-					break;
-
-				case TYPE_WAND:
-				case TYPE_ROD:
-				case TYPE_HORN:
-					idx = PDOLL_WAND;
-					break;
-			}
-
-			if (idx == PDOLL_RRING)
-			{
-				idx += ++ring_flag & 1;
-			}
-
-			if (idx != -1)
-			{
-				object_blit_centered(tmp, player_doll[idx].xpos + widget->x1, player_doll[idx].ypos + widget->y1);
-
-				SDL_GetMouseState(&mx, &my);
-
-				/* Prepare item name tooltip */
-				if (mx >= widget->x1 + player_doll[idx].xpos && mx < widget->x1 + player_doll[idx].xpos + 33 && my >= widget->y1 + player_doll[idx].ypos && my < widget->y1 + player_doll[idx].ypos + 33)
-				{
-					tooltip_index = idx;
-					tooltip_text = tmp->s_name;
-				}
-			}
+		/* Prepare item name tooltip */
+		if (mx > xpos && mx <= xpos + INVENTORY_ICON_SIZE && my > ypos && my <= widget->y1 + ypos + INVENTORY_ICON_SIZE)
+		{
+			tooltip_text = cpl.player_doll[i]->s_name;
 		}
 	}
 
 	/* Draw item name tooltip */
-	if (tooltip_index != -1)
+	if (tooltip_text)
 	{
 		tooltip_create(mx, my, FONT_ARIAL10, tooltip_text);
 	}
@@ -1204,11 +1129,98 @@ int gender_to_id(const char *gender)
 
 	for (i = 0; i < GENDER_MAX; i++)
 	{
-		if (!strcmp(gender_noun[i], gender))
+		if (strcmp(gender_noun[i], gender) == 0)
 		{
 			return i;
 		}
 	}
 
 	return -1;
+}
+
+void player_doll_update_items(void)
+{
+	object *tmp;
+	int i, ring_num;
+
+	memset(&cpl.player_doll, 0, sizeof(cpl.player_doll));
+
+	ring_num = 0;
+
+	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
+	{
+		if (!(tmp->flags & CS_FLAG_APPLIED) && !(tmp->flags & CS_FLAG_IS_READY))
+		{
+			continue;
+		}
+
+		if (tmp->flags & CS_FLAG_IS_READY)
+		{
+			i = PLAYER_DOLL_AMMO;
+		}
+		else if (tmp->itype == TYPE_AMULET)
+		{
+			i = PLAYER_DOLL_AMULET;
+		}
+		else if (tmp->itype == TYPE_WEAPON)
+		{
+			i = PLAYER_DOLL_WEAPON;
+		}
+		else if (tmp->itype == TYPE_GLOVES)
+		{
+			i = PLAYER_DOLL_GAUNTLETS;
+		}
+		else if (tmp->itype == TYPE_RING && ring_num == 0)
+		{
+			i = PLAYER_DOLL_RING_RIGHT;
+			ring_num++;
+		}
+		else if (tmp->itype == TYPE_HELMET)
+		{
+			i = PLAYER_DOLL_HELM;
+		}
+		else if (tmp->itype == TYPE_ARMOUR)
+		{
+			i = PLAYER_DOLL_ARMOUR;
+		}
+		else if (tmp->itype == TYPE_GIRDLE)
+		{
+			i = PLAYER_DOLL_BELT;
+		}
+		else if (tmp->itype == TYPE_GREAVES)
+		{
+			i = PLAYER_DOLL_GREAVES;
+		}
+		else if (tmp->itype == TYPE_BOOTS)
+		{
+			i = PLAYER_DOLL_BOOTS;
+		}
+		else if (tmp->itype == TYPE_CLOAK)
+		{
+			i = PLAYER_DOLL_CLOAK;
+		}
+		else if (tmp->itype == TYPE_BRACERS)
+		{
+			i = PLAYER_DOLL_BRACERS;
+		}
+		else if (tmp->itype == TYPE_SHIELD)
+		{
+			i = PLAYER_DOLL_SHIELD;
+		}
+		else if (tmp->itype == TYPE_LIGHT_APPLY)
+		{
+			i = PLAYER_DOLL_LIGHT;
+		}
+		else if (tmp->itype == TYPE_RING && ring_num == 1)
+		{
+			i = PLAYER_DOLL_RING_LEFT;
+			ring_num++;
+		}
+		else
+		{
+			continue;
+		}
+
+		cpl.player_doll[i] = tmp;
+	}
 }

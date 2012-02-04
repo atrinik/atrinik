@@ -39,77 +39,34 @@ int client_command_check(const char *cmd)
 	{
 		return 1;
 	}
-	else if (!strncasecmp(cmd, "/ready_spell", 12))
+	else if (strncasecmp(cmd, "/ready_spell", 12) == 0)
 	{
 		cmd = strchr(cmd, ' ');
 
 		if (!cmd || *++cmd == '\0')
 		{
 			draw_info(COLOR_GREEN, "Usage: /ready_spell <spell name>");
+			return 1;
 		}
 		else
 		{
-			size_t spell_path, spell_id;
+			object *tmp;
 
-			if (spell_find(cmd, &spell_path, &spell_id))
+			for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 			{
-				spell_entry_struct *spell = spell_get(spell_path, spell_id);
+				if (tmp->itype == TYPE_SPELL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
+				{
+					if (!(tmp->flags & CS_FLAG_APPLIED))
+					{
+						client_send_apply(tmp->tag);
+					}
 
-				if (spell->known)
-				{
-					fire_mode_tab[FIRE_MODE_SPELL].spell = spell;
-					RangeFireMode = FIRE_MODE_SPELL;
-					draw_info_format(COLOR_GREEN, "Readied %s.", spell->name);
-					return 1;
-				}
-				else
-				{
-					draw_info_format(COLOR_RED, "You have no knowledge of the spell %s.", spell->name);
 					return 1;
 				}
 			}
 		}
 
 		draw_info(COLOR_RED, "Unknown spell.");
-		return 1;
-	}
-	else if (!strncasecmp(cmd, "/ready_skill", 12))
-	{
-		cmd = strchr(cmd, ' ');
-
-		if (!cmd || *++cmd == '\0')
-		{
-			draw_info(COLOR_RED, "Usage: /ready_skill <skill name>");
-		}
-		else
-		{
-			size_t type, id;
-
-			if (skill_find(cmd, &type, &id))
-			{
-				skill_entry_struct *skill = skill_get(type, id);
-
-				if (skill->known)
-				{
-					char buf[MAX_BUF];
-
-					fire_mode_tab[FIRE_MODE_SKILL].skill = skill;
-					RangeFireMode = FIRE_MODE_SKILL;
-					draw_info_format(COLOR_GREEN, "Readied %s.", skill->name);
-
-					snprintf(buf, sizeof(buf), "/ready_skill %s", skill->name);
-					send_command(buf);
-					return 1;
-				}
-				else
-				{
-					draw_info_format(COLOR_RED, "You have no knowledge of the skill %s.", skill->name);
-					return 1;
-				}
-			}
-		}
-
-		draw_info(COLOR_RED, "Unknown skill.");
 		return 1;
 	}
 	else if (!strncmp(cmd, "/help", 5))
@@ -320,6 +277,26 @@ int client_command_check(const char *cmd)
 			snprintf(buf, sizeof(buf), "/console noinf::obj = find_obj(me, count = %d)", ob->tag);
 			send_command(buf);
 		}
+
+		return 1;
+	}
+	else if (strncasecmp(cmd, "/cast", 5) == 0)
+	{
+		char buf[HUGE_BUF];
+
+		cmd += 6;
+
+		if (!cmd || *cmd == '\0')
+		{
+			return 1;
+		}
+
+		snprintf(buf, sizeof(buf), "/ready_spell %s", cmd);
+		client_command_check(buf);
+
+		cpl.fire_on = 1;
+		move_keys(5);
+		cpl.fire_on = 0;
 
 		return 1;
 	}

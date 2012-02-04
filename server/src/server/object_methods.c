@@ -116,6 +116,7 @@ void object_methods_init(void)
 	object_type_init_gloves();
 	object_type_init_god();
 	object_type_init_gravestone();
+	object_type_init_greaves();
 	object_type_init_handle();
 	object_type_init_helmet();
 	object_type_init_holy_altar();
@@ -162,6 +163,7 @@ void object_methods_init(void)
 	object_type_init_spawn_point();
 	object_type_init_spawn_point_info();
 	object_type_init_spawn_point_mob();
+	object_type_init_spell();
 	object_type_init_spinner();
 	object_type_init_swarm_spell();
 	object_type_init_symptom();

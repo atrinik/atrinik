@@ -365,71 +365,41 @@ int lookup_skill_by_name(const char *string)
 
 /**
  * Check skill for firing.
- * @param who Object.
- * @param type Fire mode.
- * @param params Optional arguments.
+ * @param op Who is firing.
+ * @param weapon Weapon that is being fired.
  * @return 1 on success, 0 on failure. */
-int check_skill_to_fire(object *who, int type, const char *params)
+int check_skill_to_fire(object *op, object *weapon)
 {
-	int skillnr = -1;
-	object *tmp;
+	int skillnr;
 
-	if (who->type != PLAYER)
+	skillnr = -1;
+
+	if (weapon->type == BOW)
 	{
-		return 1;
+		if (weapon->sub_type == 2)
+		{
+			skillnr = SK_SLING_WEAP;
+		}
+		else if (weapon->sub_type == 1)
+		{
+			skillnr = SK_XBOW_WEAP;
+		}
+		else
+		{
+			skillnr = SK_MISSILE_WEAPON;
+		}
 	}
-
-	switch (type)
+	else if (weapon->type == SPELL)
 	{
-		case FIRE_MODE_SKILL:
-			if (!params)
-			{
-				return 0;
-			}
-
-			skillnr = lookup_skill_by_name(params);
-
-			if (skillnr == -1)
-			{
-				return 0;
-			}
-
-			break;
-
-		case FIRE_MODE_BOW:
-			tmp = CONTR(who)->equipment[PLAYER_EQUIP_BOW];
-
-			if (!tmp)
-			{
-				return 0;
-			}
-
-			if (tmp->sub_type == 2)
-			{
-				skillnr = SK_SLING_WEAP;
-			}
-			else if (tmp->sub_type == 1)
-			{
-				skillnr = SK_XBOW_WEAP;
-			}
-			else
-			{
-				skillnr = SK_MISSILE_WEAPON;
-			}
-
-			break;
-
-		case FIRE_MODE_SPELL:
-			skillnr = SK_SPELL_CASTING;
-			break;
-
-		case FIRE_MODE_WAND:
-			skillnr = SK_USE_MAGIC_ITEM;
-			break;
-
-		case FIRE_MODE_THROW:
-			skillnr = SK_THROWING;
-			break;
+		skillnr = SK_SPELL_CASTING;
+	}
+	else if (weapon->type == ROD || weapon->type == WAND)
+	{
+		skillnr = SK_USE_MAGIC_ITEM;
+	}
+	else if (weapon->type == ARROW)
+	{
+		skillnr = SK_THROWING;
 	}
 
 	if (skillnr == -1)
@@ -437,114 +407,7 @@ int check_skill_to_fire(object *who, int type, const char *params)
 		return 0;
 	}
 
-	return change_skill(who, skillnr);
-}
-
-/**
- * When a player tried to use an object which requires a skill this
- * function is called.
- * @param who Player object.
- * @param item The object to apply.
- * @return 1 if it can be applied, 0 otherwise. */
-int check_skill_to_apply(object *who, object *item)
-{
-	int skill = 0, tmp;
-	/* perhaps we need a additional skill to use */
-	int add_skill = NO_SKILL_READY;
-
-	/* Only for players. */
-	if (who->type != PLAYER)
-	{
-		return 1;
-	}
-
-	/* First figure out the required skills from the item */
-	switch (item->type)
-	{
-		case WEAPON:
-			tmp = item->sub_type;
-
-			/* Polearm */
-			if (tmp >= WEAP_POLE_IMPACT)
-			{
-				/* Select the right weapon type. */
-				tmp = item->sub_type - WEAP_POLE_IMPACT;
-				add_skill = SK_POLEARMS;
-			}
-			/* Two handed  */
-			else if (tmp >= WEAP_2H_IMPACT)
-			{
-				/* Select the right weapon type. */
-				tmp = item->sub_type - WEAP_2H_IMPACT;
-				add_skill = SK_TWOHANDS;
-			}
-
-			if (tmp == WEAP_1H_IMPACT)
-			{
-				skill = SK_MELEE_WEAPON;
-			}
-			else if (tmp == WEAP_1H_SLASH)
-			{
-				skill = SK_SLASH_WEAP;
-			}
-			else if (tmp == WEAP_1H_CLEAVE)
-			{
-				skill = SK_CLEAVE_WEAP;
-			}
-			else if (tmp == WEAP_1H_PIERCE)
-			{
-				skill = SK_PIERCE_WEAP;
-			}
-
-			break;
-
-		case BOW:
-			skill = bow_get_skill(item);
-			break;
-
-		case SCROLL:
-			skill = SK_LITERACY;
-			break;
-
-		case POTION:
-		case ROD:
-		case WAND:
-			skill = SK_USE_MAGIC_ITEM;
-			break;
-
-		default:
-			logger_print(LOG(DEBUG), "No skill exists for item: %s", query_name(item, NULL));
-			return 0;
-	}
-
-	/* This should not happen */
-	if (skill == NO_SKILL_READY)
-	{
-		logger_print(LOG(BUG), "check_skill_to_apply() called for %s and item %s with skill NO_SKILL_READY", query_name(who, NULL), query_name(item, NULL));
-	}
-
-	/* Check the additional skill if there is one */
-	if (add_skill != NO_SKILL_READY)
-	{
-		if (!change_skill(who, add_skill))
-		{
-			return 0;
-		}
-
-		change_skill(who, NO_SKILL_READY);
-	}
-
-	/* If this skill is ready, all is fine. if not, ready it, if it can't
-	 * readied, we can't apply/use/do it. */
-	if (!who->chosen_skill || (who->chosen_skill && who->chosen_skill->stats.sp != skill))
-	{
-		if (!change_skill(who, skill))
-		{
-			return 0;
-		}
-	}
-
-	return 1;
+	return change_skill(op, skillnr);
 }
 
 /**
@@ -997,7 +860,7 @@ float get_skill_time(object *op, int skillnr)
 	}
 	else if (skillnr == SK_SPELL_CASTING)
 	{
-		skill_time = spells[CONTR(op)->chosen_spell].time;
+		skill_time = spells[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->stats.sp].time;
 		CONTR(op)->action_casting = global_round_tag + skill_time;
 	}
 	else if (skill_time)

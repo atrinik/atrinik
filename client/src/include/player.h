@@ -45,39 +45,30 @@
 #define GENDER_MAX 4
 /*@}*/
 
-/** IDs of the player doll items. */
-typedef enum _player_doll_enum
+enum
 {
-	PDOLL_ARMOUR,
-	PDOLL_HELM,
-	PDOLL_GIRDLE,
-	PDOLL_BOOT,
-	PDOLL_RHAND,
-	PDOLL_LHAND,
-	PDOLL_RRING,
-	PDOLL_LRING,
-	PDOLL_BRACER,
-	PDOLL_AMULET,
-	PDOLL_SKILL_ITEM,
-	PDOLL_WAND,
-	PDOLL_BOW,
-	PDOLL_GAUNTLET,
-	PDOLL_ROBE,
-	PDOLL_LIGHT,
+	PLAYER_DOLL_AMMO,
+	PLAYER_DOLL_AMULET,
+	PLAYER_DOLL_WEAPON,
+	PLAYER_DOLL_GAUNTLETS,
+	PLAYER_DOLL_RING_RIGHT,
 
-	/* Must be last element */
-	PDOLL_INIT
-} _player_doll_enum;
+	PLAYER_DOLL_HELM,
+	PLAYER_DOLL_ARMOUR,
+	PLAYER_DOLL_BELT,
+	PLAYER_DOLL_GREAVES,
+	PLAYER_DOLL_BOOTS,
 
-/** Player doll item position structure. */
-typedef struct _player_doll_pos
-{
-	/** X position. */
-	int xpos;
+	PLAYER_DOLL_CLOAK,
+	PLAYER_DOLL_BRACERS,
+	PLAYER_DOLL_SHIELD,
+	PLAYER_DOLL_LIGHT,
+	PLAYER_DOLL_RING_LEFT,
 
-	/** Y position. */
-	int ypos;
-} _player_doll_pos;
+	PLAYER_DOLL_MAX
+};
+
+#define PLAYER_DOLL_SLOT_COLOR "353734"
 
 /**
  * Enumerations of the READY_OBJ_xxx constants used by
@@ -89,5 +80,190 @@ enum
 	READY_OBJ_THROW,
 	READY_OBJ_MAX
 };
+
+typedef struct Stat_struct
+{
+	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
+
+	/** Weapon class. */
+	sint16 wc;
+
+	/** Armour class. */
+	sint16 ac;
+
+	/** Level. */
+	uint32 level;
+
+	/** Hit points. */
+	sint32 hp;
+
+	/** Max hit points */
+	sint32 maxhp;
+
+	/** Spell points. */
+	sint32 sp;
+
+	/** Max spell points. */
+	sint32 maxsp;
+
+	/** Total experience. */
+	sint64 exp;
+
+	/** How much food in stomach. */
+	sint16 food;
+
+	/** How much damage the player does when hitting. */
+	sint16 dam;
+
+	/** Player's speed; gets converted to a float for display. */
+	sint32 speed;
+
+	/** Weapon speed; gets converted to a float for display. */
+	int weapon_sp;
+
+	/** Contains fire on/run on flags. */
+	uint16 flags;
+
+	/** Protections. */
+	sint16 protection[20];
+
+	/** Ranged weapon damage. */
+	sint16 ranged_dam;
+
+	/** Ranged weapon wc. */
+	sint16 ranged_wc;
+
+	/** Ranged weapon speed. */
+	sint32 ranged_ws;
+} Stats;
+
+/** The player structure. */
+typedef struct Player_Struct
+{
+	/** Player object. */
+	object *ob;
+
+	/** Items below the player (pl.below->inv). */
+	object *below;
+
+	/** Inventory of an open container. */
+	object *sack;
+
+	/** Tag of the open container. */
+	sint32 container_tag;
+
+	/** Player's weight limit. */
+	uint32 weight_limit;
+
+	/** Are we a DM? */
+	int dm;
+
+	/** Target mode. */
+	int	target_mode;
+
+	/** Target. */
+	int	target_code;
+
+	/** Target's color. */
+	char target_color[COLOR_BUF];
+
+	/** Target name. */
+	char target_name[MAX_BUF];
+
+	int loc;
+	int tag;
+	int nrof;
+
+	/** Readied skill. */
+	skill_entry_struct *skill;
+
+	int warn_hp;
+
+	/* Input mode: no, console (textstring), numinput */
+	int input_mode;
+	int	nummode;
+
+	/** Currently marked item. */
+	int mark_count;
+
+	/** HP regeneration. */
+	float gen_hp;
+
+	/** Mana regeneration. */
+	float gen_sp;
+
+	/** Skill cooldown time. */
+	float action_timer;
+
+	/** 1 if fire key is pressed. */
+	uint8 fire_on;
+
+	/** 1 if run key is on. */
+	uint8 run_on;
+
+	/** Player's carrying weight. */
+	float real_weight;
+
+	int warn_statdown;
+	int warn_statup;
+
+	/** Player stats. */
+	Stats stats;
+
+	/** HP of our target in percent. */
+	char target_hp;
+
+	/** Player's name. */
+	char name[40];
+
+	/** Player's password. Only used while logging in. */
+	char password[40];
+
+	char num_text[300];
+	char skill_name[128];
+
+	/** Rank and name of char. */
+	char ext_title[MAX_BUF];
+
+	/** Party name this player is member of. */
+	char partyname[MAX_BUF];
+
+	/**
+	 * Buffer for party name the player is joining, but has to enter
+	 * password first. */
+	char partyjoin[MAX_BUF];
+
+	/** Information about the object/spell being dragged. */
+	union
+	{
+		/** ID of the object being dragged. */
+		int tag;
+
+		/** Spell being dragged. */
+		spell_entry_struct *spell;
+	} dragging;
+
+	/** Which inventory widget has the focus. */
+	int inventory_focus;
+
+	/** Version of the server's socket. */
+	int server_socket_version;
+
+	size_t target_object_index;
+
+	uint8 target_is_friend;
+
+	/**
+	 * Player's gender. */
+    uint8 gender;
+
+	object *player_doll[PLAYER_DOLL_MAX];
+
+	uint32 path_attuned;
+
+	uint32 path_repelled;
+
+	uint32 path_denied;
+} Client_Player;
 
 #endif

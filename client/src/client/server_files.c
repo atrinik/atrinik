@@ -34,7 +34,7 @@
 static const char *const server_file_names[SERVER_FILES_MAX] =
 {
 	NULL, NULL, NULL, NULL, "bmaps",
-	NULL, "updates", "spells", "settings",
+	NULL, "updates", NULL, "settings",
 	"anims", "effects", "skills", "hfiles"
 };
 
@@ -42,7 +42,7 @@ static const char *const server_file_names[SERVER_FILES_MAX] =
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, read_bmaps,
-	NULL, file_updates_parse, spells_init, server_settings_init,
+	NULL, file_updates_parse, NULL, server_settings_init,
 	read_anims, effects_init, skills_init, hfiles_init
 };
 
@@ -50,7 +50,7 @@ static void (*server_file_funcs[SERVER_FILES_MAX])() =
 static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
 	NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, spells_reload, NULL,
+	NULL, NULL, NULL, NULL,
 	anims_reset, effects_reinit, skills_reload, NULL
 };
 

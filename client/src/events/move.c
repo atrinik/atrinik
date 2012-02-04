@@ -47,58 +47,6 @@ void move_keys(int num)
 	{
 		packet = packet_new(SERVER_CMD_FIRE, 64, 64);
 		packet_append_uint8(packet, directions_fire[num - 1]);
-		packet_append_uint8(packet, RangeFireMode);
-
-		if (RangeFireMode == FIRE_MODE_SKILL)
-		{
-			if (!fire_mode_tab[FIRE_MODE_SKILL].skill)
-			{
-				draw_info(COLOR_WHITE, "No skill selected.");
-				return;
-			}
-
-			packet_append_string_terminated(packet, fire_mode_tab[RangeFireMode].skill->name);
-		}
-		else if (RangeFireMode == FIRE_MODE_SPELL)
-		{
-			if (!fire_mode_tab[FIRE_MODE_SPELL].spell)
-			{
-				draw_info(COLOR_WHITE, "No spell selected.");
-				return;
-			}
-
-			packet_append_string_terminated(packet, fire_mode_tab[RangeFireMode].spell->name);
-		}
-		else if (RangeFireMode == FIRE_MODE_BOW)
-		{
-			if (fire_mode_tab[FIRE_MODE_BOW].item == FIRE_ITEM_NO)
-			{
-				draw_info(COLOR_WHITE, "No range weapon selected.");
-				return;
-			}
-			else if (fire_mode_tab[FIRE_MODE_BOW].amun == FIRE_ITEM_NO)
-			{
-				draw_info(COLOR_WHITE, "No ammunition selected.");
-				return;
-			}
-		}
-		else if (RangeFireMode == FIRE_MODE_THROW)
-		{
-			if (fire_mode_tab[FIRE_MODE_THROW].item == FIRE_ITEM_NO)
-			{
-				draw_info(COLOR_WHITE, "No item selected.");
-				return;
-			}
-		}
-		else if (RangeFireMode == FIRE_MODE_WAND)
-		{
-			if (fire_mode_tab[FIRE_MODE_WAND].item == FIRE_ITEM_NO)
-			{
-				draw_info(COLOR_WHITE, "No device selected.");
-				return;
-			}
-		}
-
 		socket_send_packet(packet);
 	}
 	else

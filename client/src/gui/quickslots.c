@@ -29,7 +29,7 @@
 #include <global.h>
 
 /** Quick slot entries */
-static _quickslot quick_slots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
+static int quickslots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
 
 /** Current quickslot group */
 int quickslot_group = 1;
@@ -54,56 +54,19 @@ int quickslots_pos[MAX_QUICK_SLOTS][2] =
  * 'tag'.
  * @param slot Quickslot ID.
  * @param tag ID of the item to set. */
-static void quickslot_set_item(uint8 slot, sint32 tag)
+static void quickslot_set(uint8 slot, sint32 tag)
 {
 	packet_struct *packet;
 
 	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
-	packet_append_uint8(packet, CMD_QUICKSLOT_SET);
 	packet_append_uint8(packet, slot);
 	packet_append_uint32(packet, tag);
 	socket_send_packet(packet);
 }
 
-/**
- * Tell the server to set quickslot with ID 'slot' to the spell with name
- * 'spell_name'.
- * @param slot Quickslot ID.
- * @param spell_name Name of the spell to set. */
-static void quickslot_set_spell(uint8 slot, char *spell_name)
-{
-	packet_struct *packet;
-
-	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
-	packet_append_uint8(packet, CMD_QUICKSLOT_SETSPELL);
-	packet_append_uint8(packet, slot);
-	packet_append_string_terminated(packet, spell_name);
-	socket_send_packet(packet);
-}
-
-/**
- * Tell the server to unset the specified quickslot ID.
- * @param slot Quickslot ID to unset. */
-static void quickslot_unset(uint8 slot)
-{
-	packet_struct *packet;
-
-	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
-	packet_append_uint8(packet, CMD_QUICKSLOT_UNSET);
-	packet_append_uint8(packet, slot);
-	socket_send_packet(packet);
-}
-
 void quickslots_init(void)
 {
-	size_t slot;
-
-	/* Clear all quickslots. */
-	for (slot = 0; slot < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; slot++)
-	{
-		quick_slots[slot].tag = -1;
-		quick_slots[slot].spell = NULL;
-	}
+	memset(&quickslots, 0, sizeof(quickslots));
 }
 
 /**
@@ -119,13 +82,9 @@ static void quickslots_remove(int tag)
 
 	for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
 	{
-		if (quick_slots[i].tag == tag)
+		if (quickslots[i] == tag)
 		{
-			quick_slots[i].tag = -1;
-		}
-		else if (quick_slots[i].tag != -1 && !object_find_object_inv(cpl.ob, quick_slots[i].tag))
-		{
-			quick_slots[i].tag = -1;
+			quickslots[i] = -1;
 		}
 	}
 }
@@ -150,19 +109,17 @@ void quickslots_handle_key(int slot)
 			return;
 		}
 
-		quick_slots[slot].spell = NULL;
-
-		if (quick_slots[slot].tag == ob->tag)
+		if (quickslots[slot] == ob->tag)
 		{
-			quick_slots[slot].tag = -1;
-			quickslot_unset(slot + 1);
+			quickslots[slot] = -1;
+			quickslot_set(slot + 1, -1);
 		}
 		else
 		{
 			quickslots_remove(ob->tag);
 
-			quick_slots[slot].tag = ob->tag;
-			quickslot_set_item(slot + 1, ob->tag);
+			quickslots[slot] = ob->tag;
+			quickslot_set(slot + 1, ob->tag);
 
 			draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", real_slot + 1, quickslot_group, ob->s_name);
 		}
@@ -170,16 +127,24 @@ void quickslots_handle_key(int slot)
 	/* Apply item or ready spell */
 	else
 	{
-		if (quick_slots[slot].spell)
-		{
-			fire_mode_tab[FIRE_MODE_SPELL].spell = quick_slots[slot].spell;
-			RangeFireMode = FIRE_MODE_SPELL;
-		}
-		else if (quick_slots[slot].tag != -1 && object_find(quick_slots[slot].tag))
-		{
-			draw_info_format(COLOR_DGOLD, "F%d of group %d quick apply %s", real_slot + 1, quickslot_group, object_find(quick_slots[slot].tag)->s_name);
+		object *tmp;
 
-			client_send_apply(quick_slots[slot].tag);
+		if (quickslots[slot] != -1 && (tmp = object_find(quickslots[slot])))
+		{
+			size_t spell_path, spell_id;
+			spell_entry_struct *spell;
+
+			if (tmp->itype == TYPE_SPELL && spell_find(tmp->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF)
+			{
+				char buf[MAX_BUF];
+
+				snprintf(buf, sizeof(buf), "/cast %s", tmp->s_name);
+				send_command_check(buf);
+			}
+			else
+			{
+				client_send_apply(quickslots[slot]);
+			}
 		}
 		else
 		{
@@ -260,16 +225,12 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 		/* Now calculate the real quickslot, according to the selected group */
 		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
 
-		/* Spell in quickslot */
-		if (quick_slots[j].spell)
-		{
-			/* Output the sprite */
-			blit_face(quick_slots[j].spell->icon, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
-		}
 		/* Item in quickslot */
-		else if (quick_slots[j].tag != -1)
+		if (quickslots[j] != -1)
 		{
-			object *tmp = object_find_object(cpl.ob, quick_slots[j].tag);
+			object *tmp;
+
+			tmp = object_find_object(cpl.ob, quickslots[j]);
 
 			/* If we located the item */
 			if (tmp)
@@ -325,18 +286,10 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 		/* Valid slot */
 		if (i != -1)
 		{
-			if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT_SPELL)
-			{
-				quick_slots[i].tag = -1;
-				quick_slots[i].spell = cpl.dragging.spell;
-				quickslot_set_spell(i + 1, quick_slots[i].spell->name);
-				cpl.dragging.spell = NULL;
-			}
-			else if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
+			if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
 			{
 				quickslots_remove(cpl.dragging.tag);
-				quick_slots[i].tag = cpl.dragging.tag;
-				quick_slots[i].spell = NULL;
+				quickslots[i] = cpl.dragging.tag;
 
 				if (!object_find_object_inv(cpl.ob, cpl.dragging.tag))
 				{
@@ -344,7 +297,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 				}
 				else
 				{
-					quickslot_set_item(i + 1, cpl.dragging.tag);
+					quickslot_set(i + 1, cpl.dragging.tag);
 					draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", i + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, object_find(cpl.dragging.tag)->s_name);
 				}
 			}
@@ -360,25 +313,19 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 		{
 			if (event->button.button == SDL_BUTTON_LEFT)
 			{
-				if (quick_slots[i].spell)
+				if (quickslots[i] != -1)
 				{
-					cpl.dragging.spell = quick_slots[i].spell;
-					draggingInvItem(DRAG_QUICKSLOT_SPELL);
-					quick_slots[i].spell = NULL;
-				}
-				else if (quick_slots[i].tag != -1)
-				{
-					cpl.dragging.tag = quick_slots[i].tag;
+					cpl.dragging.tag = quickslots[i];
 					draggingInvItem(DRAG_QUICKSLOT);
-					quick_slots[i].tag = -1;
+					quickslots[i] = -1;
 				}
 
-				quickslot_unset(i + 1);
+				quickslot_set(i + 1, -1);
 			}
 			else
 			{
-				draw_info_format(COLOR_DGOLD, "apply %s", object_find(quick_slots[i].tag)->s_name);
-				client_send_apply(quick_slots[i].tag);
+				draw_info_format(COLOR_DGOLD, "apply %s", object_find(quickslots[i])->s_name);
+				client_send_apply(quickslots[i]);
 			}
 		}
 		else if (event->motion.x >= widget->x1 + 266 && event->motion.x <= widget->x1 + 282 && event->motion.y >= widget->y1 && event->motion.y <= widget->y1 + 34 && (widget->ht <= 34))
@@ -418,13 +365,11 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 
 			if (event->motion.x >= widget->x1 + quickslots_pos[i][qsx] + xoff && event->motion.x < widget->x1 + quickslots_pos[i][qsx] + xoff + 33 && event->motion.y >= widget->y1 + quickslots_pos[i][qsy] && event->motion.y < widget->y1 + quickslots_pos[i][qsy] + 33)
 			{
-				if (quick_slots[j].spell)
+				if (quickslots[j] != -1)
 				{
-					tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, quick_slots[j].spell->name);
-				}
-				else if (quick_slots[j].tag != -1)
-				{
-					object *tmp = object_find_object(cpl.ob, quick_slots[j].tag);
+					object *tmp;
+
+					tmp = object_find_object(cpl.ob, quickslots[j]);
 
 					/* If we located the item */
 					if (tmp)
@@ -440,35 +385,13 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
 {
-	uint8 type, slot;
+	uint8 slot;
 
-	/* Clear all quickslots. */
-	for (slot = 0; slot < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; slot++)
-	{
-		quick_slots[slot].tag = -1;
-		quick_slots[slot].spell = NULL;
-	}
+	quickslots_init();
 
 	while (pos < len)
 	{
-		type = packet_to_uint8(data, len, &pos);
 		slot = packet_to_uint8(data, len, &pos);
-
-		if (type == QUICKSLOT_TYPE_ITEM)
-		{
-			quick_slots[slot].tag = packet_to_uint32(data, len, &pos);
-		}
-		else if (type == QUICKSLOT_TYPE_SPELL)
-		{
-			char spell_name[MAX_BUF];
-			size_t spell_path, spell_id;
-
-			packet_to_string(data, len, &pos, spell_name, sizeof(spell_name));
-
-			if (spell_find(spell_name, &spell_path, &spell_id))
-			{
-				quick_slots[slot].spell = spell_get(spell_path, spell_id);
-			}
-		}
+		quickslots[slot] = packet_to_uint32(data, len, &pos);
 	}
 }

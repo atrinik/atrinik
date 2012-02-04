@@ -97,12 +97,10 @@ enum
 	PLAYER_EQUIP_AMULET,
 	/** Weapon. */
 	PLAYER_EQUIP_WEAPON,
-	/** Bow/crossbow/etc. */
-	PLAYER_EQUIP_BOW,
+	/** Ammunition. */
+	PLAYER_EQUIP_AMMO,
 	/** Skill item. */
 	PLAYER_EQUIP_SKILL_ITEM,
-	/** Wand/rod/horn/etc. */
-	PLAYER_EQUIP_MAGIC_DEVICE,
 
 	/** Maximum number of equipment. */
 	PLAYER_EQUIP_MAX
@@ -149,17 +147,6 @@ typedef struct player_path
 	 * destination. */
 	uint8 fails;
 } player_path;
-
-/**
- * Enumerations of the READY_OBJ_xxx constants used by
- * @ref CLIENT_CMD_READY.
- * @anchor READY_OBJ_xxx */
-enum
-{
-	READY_OBJ_ARROW,
-	READY_OBJ_THROW,
-	READY_OBJ_MAX
-};
 
 /** Minimum length a player name must have. */
 #define PLAYER_NAME_MIN 2
@@ -280,12 +267,6 @@ typedef struct pl_player
 
 	/** Player's quest container. */
 	object *quest_container;
-
-	/** Readied objects (arrows, quivers, bolts, etc). */
-	object *ready_object[READY_OBJ_MAX];
-
-	/** UIDs of the readied objects. */
-	tag_t ready_object_tag[READY_OBJ_MAX];
 
 	/** For the client target HP marker. */
 	char target_hp;
@@ -541,9 +522,6 @@ typedef struct pl_player
 	/** Last ranged weapon speed sent. */
 	sint32 last_ranged_ws;
 
-	/** Type of readied spell. */
-	sint16 chosen_spell;
-
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
 
@@ -582,9 +560,6 @@ typedef struct pl_player
 
 	/** Total item power of objects equipped. */
 	sint16 item_power;
-
-	/** IDs of spell quickslots. */
-	sint16 spell_quickslots[MAX_QUICKSLOT];
 
 	/** Last ranged damage sent. */
 	sint16 last_ranged_dam;

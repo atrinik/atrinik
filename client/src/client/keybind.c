@@ -682,13 +682,6 @@ int keybind_process_command(const char *cmd)
 			packet = packet_new(SERVER_CMD_QUESTLIST, 0, 0);
 			socket_send_packet(packet);
 		}
-		else if (!strcmp(cmd, "RANGE"))
-		{
-			if (RangeFireMode++ == FIRE_MODE_INIT - 1)
-			{
-				RangeFireMode = 0;
-			}
-		}
 		else if (!strcmp(cmd, "TARGET_ENEMY"))
 		{
 			map_target_handle(0);
