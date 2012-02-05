@@ -283,11 +283,18 @@ int client_command_check(const char *cmd)
 	else if (strncasecmp(cmd, "/cast", 5) == 0)
 	{
 		char buf[HUGE_BUF];
+		size_t spell_path, spell_id;
 
 		cmd += 6;
 
 		if (!cmd || *cmd == '\0')
 		{
+			return 1;
+		}
+
+		if (!spell_find(cmd, &spell_path, &spell_id))
+		{
+			draw_info(COLOR_RED, "Unknown spell.");
 			return 1;
 		}
 
