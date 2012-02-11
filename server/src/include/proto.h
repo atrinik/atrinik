@@ -170,8 +170,6 @@ extern int find_animation(char *name);
 extern void animate_object(object *op, int count);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
-extern void do_learn_spell(object *op, int spell);
-extern void do_forget_spell(object *op, int spell);
 extern int manual_apply(object *op, object *tmp, int aflag);
 extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
@@ -184,7 +182,6 @@ extern archetype *base_info_archetype;
 extern archetype *level_up_arch;
 extern archetype *find_archetype(const char *name);
 extern void arch_add(archetype *at);
-extern archetype *get_skill_archetype(int skillnr);
 extern void init_archetypes(void);
 extern void free_all_archs(void);
 extern object *arch_to_object(archetype *at);
@@ -237,7 +234,6 @@ extern void player_lvl_adj(object *who, object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);
 /* src/server/gods.c */
 extern object *find_god(const char *name);
-extern void become_follower(object *op, object *new_god);
 extern const char *determine_god(object *op);
 /* src/server/hiscore.c */
 extern void hiscore_init(void);
@@ -492,7 +488,6 @@ extern void add_party_member(party_struct *party, object *op);
 extern void remove_party_member(party_struct *party, object *op);
 extern void form_party(object *op, const char *name);
 extern party_struct *find_party(const char *name);
-extern sint16 party_member_get_skill(object *op, object *skill);
 extern int party_can_open_corpse(object *pl, object *corpse);
 extern void party_handle_corpse(object *pl, object *corpse);
 extern void send_party_message(party_struct *party, const char *msg, int flag, object *op);
@@ -610,7 +605,6 @@ extern archetype *spellarch[52];
 extern void init_spells(void);
 extern int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
 extern spell_struct *find_spell(int spelltype);
-extern int check_spell_known(object *op, int spell_type);
 extern int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
 extern int cast_create_obj(object *op, object *new_op, int dir);
 extern int fire_bolt(object *op, object *caster, int dir, int type);
@@ -693,7 +687,7 @@ extern void draw_info(const char *color, object *pl, const char *buf);
 extern void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
 extern void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
 /* src/socket/init.c */
-extern _srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
+extern _srv_client_files SrvClientFiles[SERVER_FILES_MAX];
 extern Socket_Info socket_info;
 extern socket_struct *init_sockets;
 extern void init_connection(socket_struct *ns, const char *from_ip);
@@ -719,8 +713,6 @@ extern void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data
 extern void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
-extern int cmd_ready_determine(object *tmp);
-extern void cmd_ready_clear(object *op, int type);
 /* src/socket/loop.c */
 extern void handle_client(socket_struct *ns, player *pl);
 extern void remove_ns_dead_player(player *pl);
@@ -747,8 +739,6 @@ extern void socket_command_request_file(socket_struct *ns, player *pl, uint8 *da
 extern void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_query(socket_struct *ns, uint8 type);
-extern void add_skill_to_skilllist(object *skill, packet_struct *packet);
-extern void esrv_update_skills(player *pl);
 extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32 weight);
 extern void draw_client_map(object *pl);
@@ -768,9 +758,6 @@ extern void send_target_command(player *pl);
 extern void new_chars_deinit(void);
 extern void new_chars_init(void);
 extern void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void send_spelllist_cmd(object *op, const char *spellname, int mode);
-extern void send_skilllist_cmd(object *op, object *skillp);
-extern void send_ready_skill(object *op, const char *skillname);
 extern void generate_ext_title(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 /* src/socket/sounds.c */
@@ -906,6 +893,7 @@ extern void toolkit_signals_deinit(void);
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
 extern void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
+extern void string_replace_char(char *str, const char *key, const char replacement);
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);
 extern void string_replace_unprintable_chars(char *buf);
 extern char *string_format_number_comma(uint64 num);

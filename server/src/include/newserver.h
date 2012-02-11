@@ -127,7 +127,7 @@ typedef struct socket_struct
 	/** Does the client want sound? */
 	uint32 sound:1;
 
-	uint8 requested_file[SRV_CLIENT_FILES];
+	uint8 requested_file[SERVER_FILES_MAX];
 
 	/** Is the client a bot? */
 	uint8 is_bot;

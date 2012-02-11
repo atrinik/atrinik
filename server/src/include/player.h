@@ -73,36 +73,56 @@ enum
  * @anchor PLAYER_EQUIP_xxx */
 enum
 {
-	/** Armor. */
-	PLAYER_EQUIP_MAIL,
-	/** Gauntlets. */
-	PLAYER_EQUIP_GAUNTLET,
-	/** Bracers. */
-	PLAYER_EQUIP_BRACER,
-	/** Helmet. */
-	PLAYER_EQUIP_HELM,
-	/** Boots. */
-	PLAYER_EQUIP_BOOTS,
-	/** Cloak. */
-	PLAYER_EQUIP_CLOAK,
-	/** Girdle. */
-	PLAYER_EQUIP_GIRDLE,
-	/** Shield. */
-	PLAYER_EQUIP_SHIELD,
-	/** Right ring. */
-	PLAYER_EQUIP_RRING,
-	/** Left ring. */
-	PLAYER_EQUIP_LRING,
-	/** Amulet. */
-	PLAYER_EQUIP_AMULET,
-	/** Weapon. */
-	PLAYER_EQUIP_WEAPON,
-	/** Ammunition. */
+	/**
+	 * Ammunition. */
 	PLAYER_EQUIP_AMMO,
-	/** Skill item. */
-	PLAYER_EQUIP_SKILL_ITEM,
+	/**
+	 * Amulet. */
+	PLAYER_EQUIP_AMULET,
+	/**
+	 * Weapon. */
+	PLAYER_EQUIP_WEAPON,
+	/**
+	 * Gauntlets. */
+	PLAYER_EQUIP_GAUNTLETS,
+	/**
+	 * Right ring. */
+	PLAYER_EQUIP_RING_RIGHT,
 
-	/** Maximum number of equipment. */
+	/**
+	 * Helm. */
+	PLAYER_EQUIP_HELM,
+	/**
+	 * Armor. */
+	PLAYER_EQUIP_ARMOUR,
+	/**
+	 * Belt. */
+	PLAYER_EQUIP_BELT,
+	/**
+	 * Greaves. */
+	PLAYER_EQUIP_GREAVES,
+	/**
+	 * Boots. */
+	PLAYER_EQUIP_BOOTS,
+
+	/**
+	 * Cloak. */
+	PLAYER_EQUIP_CLOAK,
+	/**
+	 * Bracers. */
+	PLAYER_EQUIP_BRACERS,
+	/**
+	 * Shield. */
+	PLAYER_EQUIP_SHIELD,
+	/**
+	 * Light (lantern, torch). */
+	PLAYER_EQUIP_LIGHT,
+	/**
+	 * Left ring. */
+	PLAYER_EQUIP_RING_LEFT,
+
+	/**
+	 * Maximum number of equipment. */
 	PLAYER_EQUIP_MAX
 };
 
@@ -159,6 +179,8 @@ typedef struct player_path
 
 /** Maximum length a player password can have. */
 #define PLAYER_PASSWORD_MAX 30
+
+#define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
 /** The player structure. */
 typedef struct pl_player
@@ -226,14 +248,6 @@ typedef struct pl_player
 	/** The object representing the player. */
 	object *ob;
 
-	/** The weapon in our hand. */
-	object *selected_weapon;
-
-	/**
-	 * The hand-to-hand skill we use when we not using a weapon (like
-	 * karate). */
-	object *skill_weapon;
-
 	/** Target object. */
 	object *target_object;
 
@@ -270,12 +284,6 @@ typedef struct pl_player
 
 	/** For the client target HP marker. */
 	char target_hp;
-
-	/** Skill number of used weapon skill for fast access. */
-	int set_skill_weapon;
-
-	/** Skill number of used archery skill for fast access. */
-	int set_skill_archery;
 
 	/** X coordinate of respawn (savebed). */
 	int bed_x;
@@ -513,14 +521,23 @@ typedef struct pl_player
 	/** Is the player AFK? */
 	uint32 afk:1;
 
-	/** Update skill list when set. */
-	uint32 update_skills:1;
-
 	/** Any numbers typed before a command. */
 	uint32 count;
 
 	/** Last ranged weapon speed sent. */
 	sint32 last_ranged_ws;
+
+	/**
+	 * Last attuned spell path sent to client. */
+	uint32 last_path_attuned;
+
+	/**
+	 * Last repelled spell path sent to client. */
+	uint32 last_path_repelled;
+
+	/**
+	 * Last denied spell path sent to client. */
+	uint32 last_path_denied;
 
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;
@@ -551,12 +568,6 @@ typedef struct pl_player
 
 	/** Some anim flags for special player animation handling. */
 	uint16 anim_flags;
-
-	/** Number of known spells.. */
-	uint16 nrofknownspells;
-
-	/** Spells known by the player. */
-	sint16 known_spells[NROFREALSPELLS];
 
 	/** Total item power of objects equipped. */
 	sint16 item_power;

@@ -322,8 +322,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 		return 0;
 	}
 
-	/* Mark the skills for update */
-	CONTR(op)->update_skills = 1;
+	esrv_update_item(UPD_EXTRA, exp_skill);
 
 	/* General adjustments for playbalance */
 	if (!exact)
@@ -377,12 +376,6 @@ void player_lvl_adj(object *who, object *op)
 		op = who;
 	}
 
-	/* No exp gain for indirect skills */
-	if (op->type == SKILL && !op->last_eat)
-	{
-		return;
-	}
-
 	if (op->level < MAXLEVEL && op->stats.exp >= (sint64) level_exp(op->level + 1, 1.0))
 	{
 		op->level++;
@@ -410,12 +403,6 @@ void player_lvl_adj(object *who, object *op)
 		{
 			if (who)
 			{
-				/* If we leveled up wizardry, we need to send a spell list update */
-				if (op->stats.sp == SK_SPELL_CASTING)
-				{
-					send_spelllist_cmd(who, NULL, SPLIST_MODE_UPDATE);
-				}
-
 				snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
 				draw_info(COLOR_RED, who, buf);
 			}

@@ -73,7 +73,6 @@ static float lev_exp[MAXLEVEL + 1] =
 	1542.13f
 };
 
-static int change_skill_to_skill(object *who, object *skl);
 static int attack_melee_weapon(object *op, int dir);
 static int attack_hth(object *pl, int dir, char *string);
 static int do_skill_attack(object *tmp, object *op, char *string);
@@ -111,14 +110,14 @@ sint64 do_skill(object *op, int dir, const char *params)
 			attack_hth(op, dir, "karate-chopped");
 			break;
 
-		case SK_BOXING:
+		case SK_UNARMED:
 			attack_hth(op, dir, "punched");
 			break;
 
-		case SK_MELEE_WEAPON:
-		case SK_SLASH_WEAP:
-		case SK_CLEAVE_WEAP:
-		case SK_PIERCE_WEAP:
+		case SK_IMPACT_WEAPONS:
+		case SK_SLASH_WEAPONS:
+		case SK_CLEAVE_WEAPONS:
+		case SK_PIERCE_WEAPONS:
 			attack_melee_weapon(op, dir);
 			break;
 
@@ -126,7 +125,7 @@ sint64 do_skill(object *op, int dir, const char *params)
 			success = find_traps(op, op->level);
 			break;
 
-		case SK_REMOVE_TRAP:
+		case SK_REMOVE_TRAPS:
 			success = remove_trap(op);
 			break;
 
@@ -134,13 +133,13 @@ sint64 do_skill(object *op, int dir, const char *params)
 			draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
 			break;
 
-		case SK_USE_MAGIC_ITEM:
-		case SK_MISSILE_WEAPON:
+		case SK_MAGIC_DEVICES:
+		case SK_BOW_ARCHERY:
 			draw_info(COLOR_WHITE, op, "There is no special attack for this skill.");
 			return success;
 			break;
 
-		case SK_SPELL_CASTING:
+		case SK_WIZARDRY_SPELLS:
 		case SK_BARGAINING:
 			draw_info(COLOR_WHITE, op, "This skill is already in effect.");
 			return success;
@@ -272,63 +271,29 @@ sint64 calc_skill_exp(object *who, object *op, int level)
  * Initialize the experience system. */
 void init_new_exp_system(void)
 {
-	static int init_new_exp_done = 0;
 	int i;
-	FILE *fp;
-	char filename[MAX_BUF];
-
-	if (init_new_exp_done)
-	{
-		return;
-	}
-
-	init_new_exp_done = 1;
+	archetype *at;
+	char buf[MAX_BUF];
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
-		/* Link the skill archetype ptr to skill list for fast access.
-		 * Now we can access the skill archetype by skill number or skill name. */
-		if (!(skills[i].at = get_skill_archetype(i)))
+		snprintf(buf, sizeof(buf), "skill_%s", skills[i].name);
+		string_replace_char(buf, " ", '_');
+
+		at = find_archetype(buf);
+
+		if (!at)
 		{
-			logger_print(LOG(ERROR), "Aborting! Skill #%d (%s) not found in archlist!", i, skills[i].name);
-			exit(1);
+			continue;
 		}
+
+		skills[i].at = at;
+
+		/* Set some default values for the archetype. */
+		at->clone.stats.sp = i;
+		at->clone.level = 1;
+		at->clone.stats.exp = 0;
 	}
-
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, SRV_CLIENT_SKILLS_FILENAME);
-	fp = fopen(filename, "w");
-
-	if (!fp)
-	{
-		logger_print(LOG(ERROR), "Cannot open file '%s' for writing.", filename);
-		exit(1);
-	}
-
-	for (i = 0; i < NROFSKILLS; i++)
-	{
-		fprintf(fp, "skill %s\n", skills[i].name);
-	}
-
-	for (i = 0; i < NROFSKILLS; i++)
-	{
-		if (skills[i].description)
-		{
-			char icon[MAX_BUF], tmpresult[MAX_BUF];
-
-			string_replace(skills[i].name, " ", "_", tmpresult, sizeof(tmpresult));
-			snprintf(icon, sizeof(icon), "icon_%s.101", tmpresult);
-
-			if (!find_face(icon, 0))
-			{
-				logger_print(LOG(ERROR), "Skill '%s' needs face '%s', but it could not be found.", skills[i].name, icon);
-				exit(1);
-			}
-
-			fprintf(fp, "%d\n%d\n%s\n%s\nend\n", i, skills[i].category - 1, icon, skills[i].description);
-		}
-	}
-
-	fclose(fp);
 }
 
 /**
@@ -378,24 +343,24 @@ int check_skill_to_fire(object *op, object *weapon)
 	{
 		if (weapon->sub_type == 2)
 		{
-			skillnr = SK_SLING_WEAP;
+			skillnr = SK_SLING_ARCHERY;
 		}
 		else if (weapon->sub_type == 1)
 		{
-			skillnr = SK_XBOW_WEAP;
+			skillnr = SK_CROSSBOW_ARCHERY;
 		}
 		else
 		{
-			skillnr = SK_MISSILE_WEAPON;
+			skillnr = SK_BOW_ARCHERY;
 		}
 	}
 	else if (weapon->type == SPELL)
 	{
-		skillnr = SK_SPELL_CASTING;
+		skillnr = SK_WIZARDRY_SPELLS;
 	}
 	else if (weapon->type == ROD || weapon->type == WAND)
 	{
-		skillnr = SK_USE_MAGIC_ITEM;
+		skillnr = SK_MAGIC_DEVICES;
 	}
 	else if (weapon->type == ARROW)
 	{
@@ -416,36 +381,15 @@ int check_skill_to_fire(object *op, object *weapon)
  * @param pl Player. */
 void link_player_skills(object *pl)
 {
-	object *tmp, *next;
 	int i;
-
-	pl->chosen_skill = NULL;
-
-	for (tmp = pl->inv; tmp; tmp = next)
-	{
-		next = tmp->below;
-
-		if (tmp->type == SKILL)
-		{
-			if (!skills[tmp->stats.sp].description)
-			{
-				object_remove(tmp, 0);
-				object_destroy(tmp);
-			}
-			else
-			{
-				CONTR(pl)->skill_ptr[tmp->stats.sp] = tmp;
-				CLEAR_FLAG(tmp, FLAG_APPLIED);
-			}
-		}
-	}
+	object *tmp;
 
 	pl->stats.exp = 0;
 
 	for (i = 0; i < NROFSKILLS; i++)
 	{
 		/* Skip unused skill entries. */
-		if (!skills[i].description)
+		if (!skills[i].at)
 		{
 			continue;
 		}
@@ -548,68 +492,19 @@ int use_skill(object *op, char *string)
  * @return 0 on failure, 1 on success. */
 int change_skill(object *who, int sk_index)
 {
-	object *tmp;
+	if (who->type != PLAYER)
+	{
+		return 0;
+	}
 
 	if (who->chosen_skill && who->chosen_skill->stats.sp == sk_index)
 	{
 		return 1;
 	}
 
-	if (sk_index >= 0 && sk_index < NROFSKILLS && (tmp = find_skill(who, sk_index)) != NULL)
+	if (CONTR(who)->skill_ptr[sk_index])
 	{
-		if (object_apply_item(tmp, who, 0) != OBJECT_METHOD_OK)
-		{
-			logger_print(LOG(BUG), "can't apply new skill (%s - %d)", who->name, sk_index);
-			return 0;
-		}
-
-		return 1;
-	}
-
-	if (who->chosen_skill)
-	{
-		if (object_apply_item(who->chosen_skill, who, AP_UNAPPLY) != OBJECT_METHOD_OK)
-		{
-			logger_print(LOG(BUG), "can't unapply old skill (%s - %d)", who->name, sk_index);
-		}
-	}
-
-	if (sk_index >= 0)
-	{
-		draw_info_format(COLOR_WHITE, who, "You have no knowledge of %s.", skills[sk_index].name);
-	}
-
-	return 0;
-}
-
-/**
- * Like change_skill(), but uses skill object instead of looking for the
- * skill number.
- * @param who Living to change skill for.
- * @param skl Skill object.
- * @return 0 on failure, 1 on success. */
-static int change_skill_to_skill(object *who, object *skl)
-{
-	/* Quick sanity check */
-	if (!skl)
-	{
-		return 1;
-	}
-
-	if (who->chosen_skill == skl)
-	{
-		return 0;
-	}
-
-	if (skl->env != who)
-	{
-		logger_print(LOG(BUG), "skill is not in players inventory (%s - %s)", query_name(who, NULL), query_name(skl, NULL));
-		return 1;
-	}
-
-	if (object_apply_item(skl, who, AP_APPLY) != OBJECT_METHOD_OK)
-	{
-		logger_print(LOG(BUG), "can't apply new skill (%s - %s)", query_name(who, NULL), query_name(skl, NULL));
+		who->chosen_skill = CONTR(who)->skill_ptr[sk_index];
 		return 1;
 	}
 
@@ -746,35 +641,18 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 static int do_skill_attack(object *tmp, object *op, char *string)
 {
 	int success;
-	char *name = query_name(tmp, NULL);
+	char *name = query_name(tmp, op);
 
 	if (op->type == PLAYER)
 	{
-		/* No selected weapon, change to our hth skill. */
-		if (!CONTR(op)->selected_weapon)
+		if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
 		{
-			if (CONTR(op)->skill_weapon)
-			{
-				if (change_skill_to_skill(op, CONTR(op)->skill_weapon))
-				{
-					logger_print(LOG(BUG), "couldn't give new hth skill to %s", query_name(op, NULL));
-					return 0;
-				}
-			}
-			else
-			{
-				logger_print(LOG(BUG), "no hth skill in player %s", query_name(op, NULL));
-				return 0;
-			}
+			op->chosen_skill = CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
 		}
-	}
-
-	/* If we have 'ready weapon' but no 'melee weapons' skill readied
-	 * this will flip to that skill. This is only window dressing for
-	 * the players -- no need to do this for monsters. */
-	if (op->type == PLAYER && QUERY_FLAG(op, FLAG_READY_WEAPON) && (!op->chosen_skill || op->chosen_skill->stats.sp != CONTR(op)->set_skill_weapon))
-	{
-		change_skill(op, CONTR(op)->set_skill_weapon);
+		else
+		{
+			op->chosen_skill = CONTR(op)->skill_ptr[SK_UNARMED];
+		}
 	}
 
 	success = attack_ob(tmp, op);
@@ -853,12 +731,12 @@ float get_skill_time(object *op, int skillnr)
 		return 0;
 	}
 
-	if (skillnr == SK_USE_MAGIC_ITEM || skillnr == SK_MISSILE_WEAPON || skillnr == SK_THROWING || skillnr == SK_XBOW_WEAP || skillnr == SK_SLING_WEAP)
+	if (skillnr == SK_MAGIC_DEVICES || skillnr == SK_BOW_ARCHERY || skillnr == SK_THROWING || skillnr == SK_CROSSBOW_ARCHERY || skillnr == SK_SLING_ARCHERY)
 	{
 		skill_time = op->chosen_skill->stats.maxsp;
 		CONTR(op)->action_range = global_round_tag + skill_time;
 	}
-	else if (skillnr == SK_SPELL_CASTING)
+	else if (skillnr == SK_WIZARDRY_SPELLS)
 	{
 		skill_time = spells[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->stats.sp].time;
 		CONTR(op)->action_casting = global_round_tag + skill_time;
@@ -894,7 +772,7 @@ int check_skill_action_time(object *op, object *skill)
 		return 0;
 	}
 
-	if (skill->stats.sp == SK_SPELL_CASTING)
+	if (skill->stats.sp == SK_WIZARDRY_SPELLS)
 	{
 		if (CONTR(op)->action_casting > global_round_tag)
 		{

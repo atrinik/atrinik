@@ -59,34 +59,28 @@
  * file */
 skill_struct skills[NROFSKILLS] =
 {
-	{"alchemy", NULL, NULL, EXP_PERSONAL, 10},
-	{"common literacy", "This skill allows you to read the common language. You get experience by reading unread books.", NULL, EXP_MENTAL, 0},
-	{"bargaining", NULL, NULL, EXP_PERSONAL, 0},
-	{"construction", "This skill allows you to modify contents of the game, like your apartment. See nearby construction manager NPC for help and explanation of this skill.", NULL, EXP_PERSONAL, 0},
-
-	{"punching", "This skill is the basic hand-to-hand attack skill. You will use this skill automatically when attacking without a weapon.", NULL, EXP_PHYSICAL, 0},
-	{"karate", NULL, NULL, EXP_PHYSICAL, 0},
-	{"throwing", "Throwing is the skill to throw weapons in a deadly way at your opponent. This skill has a separate entry in the range selection.", NULL, EXP_AGILITY, 1},
-
-	{"wizardry spells", "This skill allows casting wizardry based spells using mana (spellpoints). This skill is auto-used when casting the spell.", NULL, EXP_MAGICAL, 1},
-	{"magic devices", "Possessor can use basic magic items like wands and rods. This skill is auto-used when applying the item.", NULL, EXP_MAGICAL, 4},
-	{"divine prayers", NULL, NULL, EXP_WISDOM, 0},
-
-	{"find traps", "This skill will find and reveal a trap near the player. The tile under the player and all around are searched.", NULL, EXP_AGILITY, 0},
-	{"remove traps", "After a trap is revealed this skill can remove the trap. The success of removing depends on the agility experience category level and the trap level. If the level of the trap is too high the trap can backfire, so be careful!", NULL, EXP_AGILITY, 0},
-
-	{"bow archery", "This skill will allow the use of bows as range weapons. Bows use arrows as ammunition. This skill is auto-used when a bow is used.", NULL, EXP_AGILITY, 0},
-	{"crossbow archery", "This skill will allow the use of crossbows as range weapons. Crossbows use bolts as ammunition. This skill is auto-used when a crossbow is used.", NULL, EXP_AGILITY, 0},
-	{"sling archery", "This skill will allow the use of slings as range weapons. Slings use sling stones as ammunition. This skill is auto-used when a sling is used.", NULL, EXP_AGILITY, 0},
-
-	{"slash weapons", "This skill allows the use of swords and all other slash weapons. Weapons of this type do 'slash damage'. This skill is auto-used when the right weapon is applied.", NULL, EXP_PHYSICAL, 0},
-	{"cleave weapons", "This skill allows the use of axes and all other cleave weapons. Weapons of this type do 'cleave damage'. This skill is auto-used when the right weapon is applied.", NULL, EXP_PHYSICAL, 0},
-	{"pierce weapons", "This skill allows the use of daggers, rapiers and other pierce weapons. Weapons of this type do 'pierce damage'. This skill is auto-used when the right weapon is applied.", NULL, EXP_PHYSICAL, 0},
-	{"impact weapons", "This skill allows the use of clubs, maces and other impact weapons. Weapons of this type do 'impact damage'. This skill is auto-used when the right weapon is applied.", NULL, EXP_PHYSICAL, 0},
-
-	{"two-hand mastery", "This skill allows the use of two-hand weapons. This skill is auto-used from other skills.", NULL, EXP_PHYSICAL, 0},
-	{"polearm mastery", "This skill allows the use of polearm weapons. This skill is auto-used from other skills.", NULL, EXP_PHYSICAL, 0},
-	{"inscription", "Allows writing content into books.", NULL, EXP_MENTAL, 0},
+	{"alchemy", NULL, 10},
+	{"literacy", NULL, 0},
+	{"bargaining", NULL, 0},
+	{"construction", NULL, 0},
+	{"unarmed", NULL, 0},
+	{"karate", NULL, 0},
+	{"throwing", NULL, 1},
+	{"wizardry spells", NULL, 1},
+	{"magic devices", NULL, 4},
+	{"divine prayers", NULL, 0},
+	{"find traps", NULL, 0},
+	{"remove traps", NULL, 0},
+	{"bow archery", NULL, 0},
+	{"crossbow archery", NULL, 0},
+	{"sling archery", NULL, 0},
+	{"slash weapons", NULL, 0},
+	{"cleave weapons", NULL, 0},
+	{"pierce weapons", NULL, 0},
+	{"impact weapons", NULL, 0},
+	{"two-hand mastery", NULL, 0},
+	{"polearm mastery", NULL, 0},
+	{"inscription", NULL, 0},
 };
 
 #endif

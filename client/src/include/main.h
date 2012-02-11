@@ -132,27 +132,12 @@ typedef struct spell_entry_struct
 
 typedef struct skill_entry_struct
 {
-	/** Name of the skill. */
-	char name[MAX_BUF];
+	object *skill;
 
-	/** Icon name */
-	char icon_name[MAX_BUF];
-
-	/** Description. */
-	char desc[HUGE_BUF];
-
-	/** Skill's icon. */
-	int icon;
-
-	/** 1 if the player knows this skill, 0 otherwise. */
-	uint8 known;
-
-	int level;
+	uint8 level;
 
 	sint64 exp;
 } skill_entry_struct;
-
-#define SKILL_LIST_TYPES 7
 
 /** Fire mode structure */
 typedef struct _fire_mode

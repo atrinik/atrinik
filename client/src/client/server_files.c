@@ -33,25 +33,22 @@
 /** File names of the server files inside srv_files directory. */
 static const char *const server_file_names[SERVER_FILES_MAX] =
 {
-	NULL, NULL, NULL, NULL, "bmaps",
-	NULL, "updates", NULL, "settings",
-	"anims", "effects", "skills", "hfiles"
+	"bmaps", "updates", "settings",
+	"anims", "effects", "hfiles"
 };
 
 /** Post-loading functions to call. */
 static void (*server_file_funcs[SERVER_FILES_MAX])() =
 {
-	NULL, NULL, NULL, NULL, read_bmaps,
-	NULL, file_updates_parse, NULL, server_settings_init,
-	read_anims, effects_init, skills_init, hfiles_init
+	read_bmaps, file_updates_parse, server_settings_init,
+	read_anims, effects_init, hfiles_init
 };
 
 /** Functions to call if the server file was already loaded. */
 static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
 {
-	NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL,
-	anims_reset, effects_reinit, skills_reload, NULL
+	NULL, NULL, NULL,
+	anims_reset, effects_reinit, NULL
 };
 
 /**
@@ -59,9 +56,8 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX])() =
  * are necessary before we connect to a server. */
 static void (*server_file_funcs_init[SERVER_FILES_MAX])() =
 {
-	NULL, NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, NULL,
-	NULL, NULL, NULL, hfiles_init
+	NULL, NULL, NULL,
+	NULL, NULL, hfiles_init
 };
 
 /** The server files. */

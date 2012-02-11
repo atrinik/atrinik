@@ -82,6 +82,31 @@ void string_replace(const char *src, const char *key, const char *replacement, c
 }
 
 /**
+ * Perform in-place replacement of all characters in 'key'.
+ * @param str String to modify.
+ * @param key Characters to replace, eg, " \t" to match all spaces and
+ * tabs.
+ * @param replacement What to replace matched characters with. */
+void string_replace_char(char *str, const char *key, const char replacement)
+{
+	size_t i;
+
+	while (*str != '\0')
+	{
+		for (i = 0; key[i] != '\0'; i++)
+		{
+			if (key[i] == *str)
+			{
+				*str = replacement;
+				break;
+			}
+		}
+
+		str++;
+	}
+}
+
+/**
  * Splits a string delimited by passed in sep value into characters into an array of strings.
  * @param str The string to be split; will be modified.
  * @param array The string array; will be filled with pointers into str.

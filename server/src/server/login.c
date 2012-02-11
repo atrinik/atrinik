@@ -137,11 +137,6 @@ int save_player(object *op)
 	fprintf(fp, "Wis %d\n", pl->orig_stats.Wis);
 	fprintf(fp, "Cha %d\n", pl->orig_stats.Cha);
 
-	for (i = 0; i < pl->nrofknownspells; i++)
-	{
-		fprintf(fp, "known_spell %s\n", spells[pl->known_spells[i]].name);
-	}
-
 	for (i = 0; i < pl->num_cmd_permissions; i++)
 	{
 		if (pl->cmd_permissions[i])
@@ -186,16 +181,6 @@ int save_player(object *op)
 	chmod(filename, SAVE_MODE);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 	return 1;
-}
-
-/**
- * Sort loaded spells by comparing a1 against a2.
- * @param a1 Spell ID to compare
- * @param a2 Spell ID to compare
- * @return Return value of strcmp on the two spell names. */
-static int spell_sort(const void *a1, const void *a2)
-{
-	return strcmp(spells[(int) *(sint16 *) a1].name, spells[(int) *(sint16 *) a2].name);
 }
 
 /**
@@ -263,7 +248,7 @@ void check_login(object *op)
 	FILE *fp;
 	void *mybuffer;
 	char filename[MAX_BUF], buf[MAX_BUF], bufall[MAX_BUF];
-	int i, value, correct = 0;
+	int value, correct = 0;
 	player *pl = CONTR(op), *pltmp;
 	time_t elapsed_save_time = 0;
 	struct stat	statbuf;
@@ -456,28 +441,6 @@ void check_login(object *op)
 		{
 			pl->orig_stats.Cha = value;
 		}
-		else if (!strcmp(buf, "known_spell"))
-		{
-			char *cp = strchr(bufall, '\n');
-
-			*cp = '\0';
-			cp = strchr(bufall, ' ');
-			cp++;
-
-			for (i = 0; i < NROFREALSPELLS; i++)
-			{
-				if (!strcmp(spells[i].name, cp))
-				{
-					pl->known_spells[pl->nrofknownspells++] = i;
-					break;
-				}
-			}
-
-			if (i == NROFREALSPELLS)
-			{
-				logger_print(LOG(DEBUG), "Bogus spell (%s) in %s", cp, filename);
-			}
-		}
 		else if (!strcmp(buf, "cmd_permission"))
 		{
 			char *cp = strchr(bufall, '\n');
@@ -570,9 +533,8 @@ void check_login(object *op)
 #endif
 	op->carrying = sum_weight(op);
 
-	link_player_skills(op);
-
 	fix_player(op);
+	link_player_skills(op);
 
 	/* Display Message of the Day */
 	display_motd(op);
@@ -584,10 +546,6 @@ void check_login(object *op)
 
 	esrv_new_player(pl, op->weight + op->carrying);
 	esrv_send_inventory(op, op);
-
-	/* This seems to compile without warnings now.  Don't know if it works
-	 * on SGI's or not, however. */
-	qsort((void *) pl->known_spells, pl->nrofknownspells, sizeof(pl->known_spells[0]), (void *) (int (*)()) spell_sort);
 
 	if (!QUERY_FLAG(op, FLAG_FRIENDLY))
 	{
@@ -611,8 +569,6 @@ void check_login(object *op)
 	/* We assume that players always have a valid animation. */
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
 	esrv_new_player(pl, op->weight + op->carrying);
-	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
-	send_skilllist_cmd(op, NULL);
 	send_quickslots(pl);
 
 	if (op->map && op->map->events)

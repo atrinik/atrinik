@@ -57,7 +57,6 @@ static fields_struct fields[] =
 	{"tli", FIELDTYPE_BOOLEAN, offsetof(player, tli), 0, 0},
 	{"tls", FIELDTYPE_BOOLEAN, offsetof(player, tls), 0, 0},
 	{"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0},
-	{"known_spells", FIELDTYPE_LIST, offsetof(player, known_spells), 0, FIELDTYPE_KNOWN_SPELLS},
 	{"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
 	{"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
 	{"fame", FIELDTYPE_SINT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
@@ -297,50 +296,6 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 	cp = hooks->strdup(command);
 	hooks->commands_handle(pl->pl->ob, cp);
 	free(cp);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
- * <h1>player.DoKnowSpell(int spell)</h1>
- * Check if player knows a given spell.
- * @param spell ID of the spell to check for.
- * @return True if the player knows the spell, False otherwise. */
-static PyObject *Atrinik_Player_DoKnowSpell(Atrinik_Player *pl, PyObject *args)
-{
-	int spell;
-
-	if (!PyArg_ParseTuple(args, "i", &spell))
-	{
-		return NULL;
-	}
-
-	Py_ReturnBoolean(hooks->check_spell_known(pl->pl->ob, spell));
-}
-
-/**
- * <h1>player.AcquireSpell(int spell, int [learn = True])</h1>
- * Player acquires the specified spell.
- * @param spell ID of the spell to acquire.
- * @param learn If False, the player will forget the spell instead. */
-static PyObject *Atrinik_Player_AcquireSpell(Atrinik_Player *pl, PyObject *args)
-{
-	int spell, learn = 1;
-
-	if (!PyArg_ParseTuple(args, "i|i", &spell, &learn))
-	{
-		return NULL;
-	}
-
-	if (learn)
-	{
-		hooks->do_learn_spell(pl->pl->ob, spell);
-	}
-	else
-	{
-		hooks->do_forget_spell(pl->pl->ob, spell);
-	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -588,8 +543,6 @@ static PyMethodDef methods[] =
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
 	{"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
 	{"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
-	{"DoKnowSpell", (PyCFunction) Atrinik_Player_DoKnowSpell, METH_VARARGS, 0},
-	{"AcquireSpell", (PyCFunction) Atrinik_Player_AcquireSpell, METH_VARARGS, 0},
 	{"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},

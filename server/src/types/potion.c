@@ -41,7 +41,7 @@ static int apply_func(object *op, object *applier, int aflags)
 	}
 
 	/* Use magic devices skill for using potions. */
-	if (!change_skill(applier, SK_USE_MAGIC_ITEM))
+	if (!change_skill(applier, SK_MAGIC_DEVICES))
 	{
 		return OBJECT_METHOD_ERROR;
 	}

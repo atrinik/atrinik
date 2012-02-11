@@ -142,26 +142,6 @@ spell_struct *find_spell(int spelltype)
 }
 
 /**
- * Checks to see if player knows the spell.
- * @param op Object we're checking.
- * @param spell_type Spell ID.
- * @return 1 if op knows the spell, 0 otherwise. */
-int check_spell_known(object *op, int spell_type)
-{
-	int i;
-
-	for (i = 0; i < CONTR(op)->nrofknownspells; i++)
-	{
-		if (CONTR(op)->known_spells[i] == spell_type)
-		{
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-/**
  * Cast a spell.
  * @param op The creature that is owner of the object that is casting the
  * spell.

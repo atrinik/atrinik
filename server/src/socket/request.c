@@ -92,7 +92,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
 			uint64 len_ucomp, crc;
 
 			file_type = packet_to_uint8(data, len, &pos);
-			file_type = MAX(0, MIN(SRV_CLIENT_FILES - 1, file_type));
+			file_type = MAX(0, MIN(SERVER_FILES_MAX - 1, file_type));
 
 			len_ucomp = packet_to_uint64(data, len, &pos);
 			crc = packet_to_uint64(data, len, &pos);
@@ -253,7 +253,7 @@ void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, siz
 	}
 
 	file_type = packet_to_uint8(data, len, &pos);
-	file_type = MIN(SRV_CLIENT_FILES - 1, file_type);
+	file_type = MIN(SERVER_FILES_MAX - 1, file_type);
 
 	if (ns->requested_file[file_type])
 	{
@@ -333,65 +333,6 @@ void send_query(socket_struct *ns, uint8 type)
 	}
 
 /**
- * Helper function for send_skilllist_cmd() and esrv_update_skills(), adds
- * one skill to buffer which is then sent to the client as the skill list
- * command.
- * @param skill Skill object to add.
- * @param packet Packet to append to. */
-void add_skill_to_skilllist(object *skill, packet_struct *packet)
-{
-	packet_append_string_terminated(packet, skill->name);
-	packet_append_uint8(packet, skill->level);
-
-	/* Normal skills */
-	if (skill->last_eat == 1)
-	{
-		packet_append_sint64(packet, skill->stats.exp);
-	}
-	/* 'Buy level' skills */
-	else if (skill->last_eat == 2)
-	{
-		packet_append_sint64(packet, -2);
-	}
-	/* No level skills */
-	else
-	{
-		packet_append_sint64(packet, -1);
-	}
-}
-
-/**
- * Send the player skills to the client.
- * @param pl Player to send the skills to. */
-void esrv_update_skills(player *pl)
-{
-	int i;
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
-
-	for (i = 0; i < NROFSKILLS; i++)
-	{
-		if (pl->skill_ptr[i] && pl->skill_ptr[i]->last_eat)
-		{
-			object *tmp;
-
-			tmp = pl->skill_ptr[i];
-
-			/* Send only when something has changed */
-			if (tmp->stats.exp != pl->skill_exp[i] || tmp->level != pl->skill_level[i])
-			{
-				add_skill_to_skilllist(tmp, packet);
-				pl->skill_exp[i] = tmp->stats.exp;
-				pl->skill_level[i] = tmp->level;
-			}
-		}
-	}
-
-	socket_send_packet(&pl->socket, packet);
-}
-
-/**
  * Sends player statistics update.
  *
  * We look at the old values, and only send what has changed.
@@ -420,6 +361,7 @@ void esrv_update_stats(player *pl)
 	AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
 	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
 	AddIfInt(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP, uint8);
+	AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, uint32);
 
 	if (pl->ob)
 	{
@@ -441,7 +383,9 @@ void esrv_update_stats(player *pl)
 		AddIfInt(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
 		AddIfInt(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
 		AddIfInt(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
-		AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, uint32);
+		AddIfInt(pl->last_path_attuned, pl->ob->path_attuned, CS_STAT_PATH_ATTUNED, uint32);
+		AddIfInt(pl->last_path_repelled, pl->ob->path_repelled, CS_STAT_PATH_REPELLED, uint32);
+		AddIfInt(pl->last_path_denied, pl->ob->path_denied, CS_STAT_PATH_DENIED, uint32);
 
 		if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]->race)))
 		{
@@ -2222,11 +2166,11 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 
 	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
 	give_initial_items(op, op->randomitems);
-	link_player_skills(op);
 	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 	/* Force sending of skill exp data to client */
 	CONTR(op)->last_stats.exp = 1;
 	fix_player(op);
+	link_player_skills(op);
 	esrv_update_item(UPD_FACE, op);
 	esrv_send_inventory(op, op);
 
@@ -2237,62 +2181,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	CONTR(op)->socket.look_position = 0;
 	CONTR(op)->socket.ext_title_flag = 1;
 	esrv_new_player(CONTR(op), op->weight + op->carrying);
-	send_skilllist_cmd(op, NULL);
-	send_spelllist_cmd(op, NULL, SPLIST_MODE_ADD);
-}
-
-/**
- * Send spell list command to the client.
- * @param op Player.
- * @param spellname If specified, send only this spell name. Otherwise
- * send all spells the player knows.
- * @param mode One of @ref spelllist_modes. */
-void send_spelllist_cmd(object *op, const char *spellname, int mode)
-{
-}
-
-/**
- * Send skill list to the client.
- * @param op Object.
- * @param skillp Skill object; if not NULL, will only send this skill.
- * @param mode One of @ref spelllist_modes. */
-void send_skilllist_cmd(object *op, object *skillp)
-{
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_SKILL_LIST, 128, 128);
-
-	if (skillp)
-	{
-		add_skill_to_skilllist(skillp, packet);
-	}
-	else
-	{
-		int i;
-
-		for (i = 0; i < NROFSKILLS; i++)
-		{
-			if (CONTR(op)->skill_ptr[i])
-			{
-				add_skill_to_skilllist(CONTR(op)->skill_ptr[i], packet);
-			}
-		}
-	}
-
-	socket_send_packet(&CONTR(op)->socket, packet);
-}
-
-/**
- * Send skill ready command.
- * @param op Object.
- * @param skillname Name of skill to ready. */
-void send_ready_skill(object *op, const char *skillname)
-{
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_SKILL_READY, 32, 0);
-	packet_append_string_terminated(packet, skillname);
-	socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**

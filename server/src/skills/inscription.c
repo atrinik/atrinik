@@ -92,7 +92,7 @@ int skill_inscription(object *op, const char *params)
 		return 0;
 	}
 
-	skill_item = CONTR(op)->equipment[PLAYER_EQUIP_SKILL_ITEM];
+	skill_item = NULL;
 
 	if (!skill_item)
 	{

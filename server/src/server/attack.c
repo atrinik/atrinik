@@ -749,15 +749,8 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
 	{
 		if (on_same_map(ol->objlink.ob, op))
 		{
-			sint16 skill_id = party_member_get_skill(ol->objlink.ob, skill);
-
-			if (skill_id == NO_SKILL_READY)
-			{
-				continue;
-			}
-
 			count++;
-			shares += (CONTR(ol->objlink.ob)->skill_ptr[skill_id]->level + 4);
+			shares += (CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp]->level + 4);
 		}
 	}
 
@@ -773,15 +766,8 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
 		{
 			if (ol->objlink.ob != op && on_same_map(ol->objlink.ob, op))
 			{
-				sint16 skill_id = party_member_get_skill(ol->objlink.ob, skill);
-
-				if (skill_id == NO_SKILL_READY)
-				{
-					continue;
-				}
-
-				nexp = (CONTR(ol->objlink.ob)->skill_ptr[skill_id]->level + 4) * share;
-				add_exp(ol->objlink.ob, nexp, skill_id, 0);
+				nexp = (CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp]->level + 4) * share;
+				add_exp(ol->objlink.ob, nexp, skill->stats.sp, 0);
 				given += nexp;
 			}
 		}

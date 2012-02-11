@@ -80,6 +80,10 @@ void objects_free(object *op)
 		{
 			spells_remove(op);
 		}
+		else if (op->itype == TYPE_SKILL)
+		{
+			skills_remove(op);
+		}
 
 		if (op->inv)
 		{
@@ -195,6 +199,10 @@ void object_remove(object *op)
 	if (op->itype == TYPE_SPELL)
 	{
 		spells_remove(op);
+	}
+	else if (op->itype == TYPE_SKILL)
+	{
+		skills_remove(op);
 	}
 
 	if (op->inv)
@@ -337,79 +345,6 @@ object *object_create(object *env, sint32 tag, int bflag)
 }
 
 /**
- * Set object's values.
- * @param op Object. */
-void object_set_values(object *op, const char *name, sint32 weight, uint16 face, int flags, uint16 anim, uint16 animspeed, sint32 nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 dir)
-{
-	if (!op)
-	{
-		return;
-	}
-
-	if (nrof < 0)
-	{
-		op->nrof = 1;
-		strncpy(op->s_name, "Warning: Old name cmd! This is a bug.", sizeof(op->s_name) - 1);
-		op->s_name[sizeof(op->s_name) - 1] = '\0';
-	}
-	/* we have a nrof - object1 command */
-	else
-	{
-		/* Program always expect at least 1 object internal */
-		if (nrof == 0)
-		{
-			nrof = 1;
-		}
-
-		op->nrof = nrof;
-
-		if (*name != '\0')
-		{
-			strncpy(op->s_name, name, sizeof(op->s_name) - 1);
-			op->s_name[sizeof(op->s_name) - 1] = '\0';
-		}
-	}
-
-	op->weight = (float) weight / 1000;
-
-	if (itype != 254)
-	{
-		op->itype = itype;
-	}
-
-	if (stype != 254)
-	{
-		op->stype = stype;
-	}
-
-	if (qual != 254)
-	{
-		op->item_qua = qual;
-	}
-
-	if (cond != 254)
-	{
-		op->item_con = cond;
-	}
-
-	if (skill != 254)
-	{
-		op->item_skill = skill;
-	}
-
-	if (level != 254)
-	{
-		op->item_level = level;
-	}
-
-	op->face = face;
-	op->animation_id = anim;
-	op->anim_speed = animspeed;
-	op->direction = dir;
-	op->flags = flags;
-}
-
-/**
  * Toggle the locked status of an object.
  * @param op Object. */
 void toggle_locked(object *op)
@@ -491,53 +426,6 @@ void objects_init(void)
 
 	cpl.below->weight = -111;
 	cpl.sack->weight = -111;
-}
-
-/**
- * Update an object with new attributes.
- * @param tag The object ID to update.
- * @param loc Location of the object. */
-void update_object(int tag, int loc, const char *name, int weight, int face, int flags, int anim, int animspeed, int nrof, uint8 itype, uint8 stype, uint8 qual, uint8 cond, uint8 skill, uint8 level, uint8 direction, uint16 spell_cost, uint32 spell_path, uint32 spell_flags, const char *spell_msg, int bflag)
-{
-	object *ip, *env;
-
-	ip = object_find(tag);
-	env = object_find(loc);
-
-	/* Need to do some special handling if this is the player that is
-	 * being updated. */
-	if (cpl.ob->tag == tag)
-	{
-		cpl.ob->nrof = 1;
-		cpl.ob->weight = (float) weight / 1000;
-		cpl.ob->face = face;
-		cpl.ob->flags = flags;
-
-		cpl.ob->animation_id = anim;
-		cpl.ob->anim_speed = animspeed;
-		cpl.ob->nrof = nrof;
-		cpl.ob->direction = direction;
-	}
-	else
-	{
-		if (ip && ip->env != env)
-		{
-			object_remove(ip);
-			ip = NULL;
-		}
-
-		if (!ip)
-		{
-			ip = object_create(env, tag, bflag);
-		}
-
-		object_set_values(ip, name, weight, (uint16) face, flags, (uint16) anim, (uint16) animspeed, nrof, itype, stype, qual, cond, skill, level, direction);
-
-		if (itype == TYPE_SPELL && *spell_msg != '\0')
-		{
-			spells_update(ip, spell_cost, spell_path, spell_flags, spell_msg);
-		}
-	}
 }
 
 /**

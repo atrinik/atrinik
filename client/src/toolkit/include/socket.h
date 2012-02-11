@@ -413,8 +413,8 @@ enum
 #define UPD_DIRECTION 256
 /** Update object's type, subtype, qua/con, level and skill. */
 #define UPD_TYPE 512
-/** If set, do not use object's inventory animation instead of normal animation. */
-#define UPD_ANIM_NO_INV 1024
+/** Extra data, such as spell/skill data. */
+#define UPD_EXTRA 1024
 /*@}*/
 
 /**
@@ -455,6 +455,9 @@ enum
 #define CS_STAT_RANGED_DAM 37
 #define CS_STAT_RANGED_WC 38
 #define CS_STAT_RANGED_WS 39
+#define CS_STAT_PATH_ATTUNED 40
+#define CS_STAT_PATH_REPELLED 41
+#define CS_STAT_PATH_DENIED 42
 
 #define CS_STAT_RESIST_START	100
 #define CS_STAT_RESIST_END		117
@@ -530,5 +533,21 @@ enum
 /** Object is probed */
 #define FFLAG_PROBE     0x80
 /*@}*/
+
+/**
+ * @anchor SERVER_FILE_xxx
+ * Server file IDs. */
+enum
+{
+	SERVER_FILE_BMAPS,
+	SERVER_FILE_UPDATES,
+	SERVER_FILE_SETTINGS,
+	SERVER_FILE_ANIMS,
+	SERVER_FILE_EFFECTS,
+	SERVER_FILE_HFILES,
+
+	/** Last index. */
+	SERVER_FILES_MAX
+};
 
 #endif

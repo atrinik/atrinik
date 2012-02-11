@@ -91,7 +91,7 @@ unsigned int query_flags(object *op)
 		flags |= CS_FLAG_IS_READY;
 	}
 
-	if (op->type == BOW)
+	if (QUERY_FLAG(op, FLAG_TWO_HANDED))
 	{
 		flags |= CS_FLAG_WEAPON_2H;
 	}
@@ -128,11 +128,11 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 	{
 		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
-			packet_append_uint32(packet, op->inv_face->number);
+			packet_append_uint16(packet, op->inv_face->number);
 		}
 		else
 		{
-			packet_append_uint32(packet, op->face->number);
+			packet_append_uint16(packet, op->face->number);
 		}
 	}
 
@@ -146,25 +146,23 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 		packet_append_uint8(packet, op->type);
 		packet_append_uint8(packet, op->sub_type);
 
-		if (op->type == SPELL)
-		{
-			packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_SPELL_CASTING]->level));
-			packet_append_uint32(packet, spells[op->stats.sp].path);
-			packet_append_uint32(packet, spells[op->stats.sp].flags);
-			packet_append_string_terminated(packet, op->msg ? op->msg : "");
-		}
-		else if (QUERY_FLAG(op, FLAG_IDENTIFIED))
+		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
 		{
 			packet_append_uint8(packet, op->item_quality);
 			packet_append_uint8(packet, op->item_condition);
 			packet_append_uint8(packet, op->item_level);
-			packet_append_uint8(packet, op->item_skill);
+
+			if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1])
+			{
+				packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
+			}
+			else
+			{
+				packet_append_uint32(packet, 0);
+			}
 		}
 		else
 		{
-			packet_append_uint8(packet, 255);
-			packet_append_uint8(packet, 255);
-			packet_append_uint8(packet, 255);
 			packet_append_uint8(packet, 255);
 		}
 	}
@@ -176,14 +174,7 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 
 	if (flags & UPD_ANIM)
 	{
-		if (!(flags & UPD_ANIM_NO_INV) && op->inv_animation_id)
-		{
-			packet_append_uint16(packet, op->inv_animation_id);
-		}
-		else
-		{
-			packet_append_uint16(packet, op->animation_id);
-		}
+		packet_append_uint16(packet, op->animation_id);
 	}
 
 	if (flags & UPD_ANIMSPEED)
@@ -225,6 +216,22 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 	{
 		packet_append_uint32(packet, op->nrof);
 	}
+
+	if (flags & UPD_EXTRA)
+	{
+		if (op->type == SPELL)
+		{
+			packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
+			packet_append_uint32(packet, spells[op->stats.sp].path);
+			packet_append_uint32(packet, spells[op->stats.sp].flags);
+			packet_append_string_terminated(packet, op->msg ? op->msg : "");
+		}
+		else if (op->type == SKILL)
+		{
+			packet_append_uint8(packet, op->level);
+			packet_append_sint64(packet, op->stats.exp);
+		}
+	}
 }
 
 /**
@@ -248,7 +255,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
 
 	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
-		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
+		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 
 		if (tmp->inv && tmp->type != PLAYER)
 		{
@@ -340,7 +347,7 @@ void esrv_draw_look(object *pl)
 			break;
 		}
 
-		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIM_NO_INV | UPD_ANIMSPEED | UPD_NROF);
+		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 
 		if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER)
 		{
@@ -397,7 +404,7 @@ void esrv_send_inventory(object *pl, object *op)
 			continue;
 		}
 
-		add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+		add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
 	}
 
 	socket_send_packet(&CONTR(pl)->socket, packet);
@@ -481,7 +488,7 @@ static void esrv_send_item_send(object *pl, object *op)
 	packet_append_sint32(packet, -4);
 	packet_append_uint32(packet, op->env->count);
 	packet_append_uint8(packet, 0);
-	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
 	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 

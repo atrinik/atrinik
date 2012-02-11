@@ -50,7 +50,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 
 	/* If the device level is higher than player's magic skill,
 	 * don't allow using the device. */
-	if (shooter->type == PLAYER && op->level > CONTR(shooter)->skill_ptr[SK_SPELL_CASTING]->level + settings.magic_devices_level)
+	if (shooter->type == PLAYER && op->level > CONTR(shooter)->skill_ptr[SK_WIZARDRY_SPELLS]->level + settings.magic_devices_level)
 	{
 		draw_info_format(COLOR_WHITE, shooter, "The %s is impossible to handle for you.", op->name);
 		return OBJECT_METHOD_UNHANDLED;

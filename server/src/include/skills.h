@@ -29,9 +29,6 @@
 #ifndef SKILLS_H
 #define SKILLS_H
 
-/** Marks no skill being ready. */
-#define NO_SKILL_READY -1
-
 /** Skill numbers. */
 enum skillnrs
 {
@@ -44,40 +41,40 @@ enum skillnrs
 	/** Player is able to alter maps like apartment in real-time. */
 	SK_CONSTRUCTION,
 
-	/** Can attack hand-to-hand, see attack_hth() */
-	SK_BOXING,
-	/** Can attack hand-to-hand, see attack_hth() */
+	/** Can attack hand-to-hand */
+	SK_UNARMED,
+	/** @deprecated */
 	SK_KARATE,
 	/** Player can throw items */
 	SK_THROWING,
 
 	/** Player can cast magic spells */
-	SK_SPELL_CASTING,
+	SK_WIZARDRY_SPELLS,
 	/** Player use wands/horns/rods */
-	SK_USE_MAGIC_ITEM,
-	/** Player can cast cleric spells and regenerate grace points */
+	SK_MAGIC_DEVICES,
+	/** @deprecated */
 	SK_PRAYING,
 
 	/** Player can find traps better */
 	SK_FIND_TRAPS,
 	/** Player can remove traps */
-	SK_REMOVE_TRAP,
+	SK_REMOVE_TRAPS,
 
 	/** Player can use bows. */
-	SK_MISSILE_WEAPON,
+	SK_BOW_ARCHERY,
 	/** Player can use crossbows. */
-	SK_XBOW_WEAP,
+	SK_CROSSBOW_ARCHERY,
 	/** Player can use slings. */
-	SK_SLING_WEAP,
+	SK_SLING_ARCHERY,
 
 	/** Player can use slash weapons. */
-	SK_SLASH_WEAP,
+	SK_SLASH_WEAPONS,
 	/** Player can use cleave weapons. */
-	SK_CLEAVE_WEAP,
+	SK_CLEAVE_WEAPONS,
 	/** Player can use pierce weapons. */
-	SK_PIERCE_WEAP,
+	SK_PIERCE_WEAPONS,
 	/** Player can attack with impact weapons */
-	SK_MELEE_WEAPON,
+	SK_IMPACT_WEAPONS,
 
 	/** Player can use two-handed weapons. */
 	SK_TWOHANDS,
@@ -97,14 +94,8 @@ typedef struct skill_struct
 	/** How to describe it to the player */
 	char *name;
 
-	/** Description of the skill for client's skill list. */
-	char *description;
-
 	/** Pointer to the skill archetype in the archlist */
 	archetype *at;
-
-	/** The experience category to which this skill belongs */
-	short category;
 
 	/** Base number of ticks it takes to use the skill */
 	short time;

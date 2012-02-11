@@ -68,11 +68,7 @@
  * to the correct type before usage. */
 static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
-	if (al->field == FIELDTYPE_KNOWN_SPELLS)
-	{
-		return (uint16 *) ((void *) ((char *) al->ptr + offsetof(player, nrofknownspells)));
-	}
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS)
+	if (al->field == FIELDTYPE_CMD_PERMISSIONS)
 	{
 		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_cmd_permissions)));
 	}
@@ -95,11 +91,7 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
  * @return The length of the provided AttrList. */
 static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 {
-	if (al->field == FIELDTYPE_KNOWN_SPELLS)
-	{
-		return *(uint16 *) attr_list_len_ptr(al);
-	}
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS)
+	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		return *(int *) attr_list_len_ptr(al);
 	}
@@ -119,13 +111,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
 
 	ptr = (void *) ((char *) al->ptr + al->offset);
 
-	/* Known spells; cast to sint16. */
-	if (al->field == FIELDTYPE_KNOWN_SPELLS)
-	{
-		field.type = FIELDTYPE_SINT16;
-		ptr = &((sint16 *) ptr)[*(unsigned PY_LONG_LONG *) idx];
-	}
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
+	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		field.type = FIELDTYPE_CSTR;
 		ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
@@ -208,31 +194,8 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 	len = attr_list_len(al);
 	ptr = (void *) ((char *) al->ptr + al->offset);
 
-	/* Known spells array. */
-	if (al->field == FIELDTYPE_KNOWN_SPELLS)
-	{
-		i = *(unsigned PY_LONG_LONG *) idx;
-
-		/* Known spells array is fixed size; cannot go over the maximum. */
-		if (len >= sizeof(((player *) NULL)->known_spells))
-		{
-			PyErr_SetString(PyExc_OverflowError, "Overflow error.");
-			return -1;
-		}
-
-		/* Make sure the value is not already in the array, to prevent the
-		 * the array from filling up with duplicate entries. */
-		if (attr_list_contains(al, value))
-		{
-			PyErr_SetString(PyExc_ValueError, "Value is already inside the array.");
-			return -1;
-		}
-
-		field.type = FIELDTYPE_SINT16;
-		ptr = &((sint16 *) ptr)[i];
-	}
 	/* Command permissions. */
-	else if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
+	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
 	{
 		i = *(unsigned PY_LONG_LONG *) idx;
 
@@ -292,13 +255,6 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 	/* Success! */
 	if (ret == 0)
 	{
-		/* Increased known spells successfully, so increase the total
-		 * number of known spells as well (if we were adding a new one,
-		 * that is). */
-		if (al->field == FIELDTYPE_KNOWN_SPELLS && i >= len)
-		{
-			(*(uint16 *) attr_list_len_ptr(al))++;
-		}
 	}
 	/* Failure; overflow, invalid value or some other kind of error. */
 	else if (ret == -1)
@@ -609,7 +565,7 @@ int Atrinik_AttrList_init(PyObject *module)
  * @param ptr Pointer to the structure the array is in.
  * @param offset Where the array is in the structure.
  * @param field Type of the array being handled; for example,
- * @ref FIELDTYPE_KNOWN_SPELLS.
+ * @ref FIELDTYPE_REGION_MAPS.
  * @return The new wrapper object. */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {

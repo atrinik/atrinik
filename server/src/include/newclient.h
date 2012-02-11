@@ -59,29 +59,4 @@ typedef struct _srv_client_files
 	unsigned long crc;
 } _srv_client_files;
 
-/** Name of the client spells file. */
-#define SRV_FILE_SPELLS_FILENAME "client_spells_v2"
-/** Name of the client skills file. */
-#define SRV_CLIENT_SKILLS_FILENAME "client_skills_v2"
-
-/** Srv client files. */
-enum
-{
-	SRV_CLIENT_SKILLS,
-	SRV_CLIENT_SPELLS,
-	SRV_CLIENT_SETTINGS,
-	SRV_CLIENT_ANIMS,
-	SRV_CLIENT_BMAPS,
-	SRV_CLIENT_HFILES,
-	SRV_FILE_UPDATES,
-	SRV_FILE_SPELLS_V2,
-	SRV_SERVER_SETTINGS,
-	SRV_CLIENT_ANIMS_V2,
-	SRV_CLIENT_EFFECTS,
-	SRV_CLIENT_SKILLS_V2,
-	SRV_CLIENT_HFILES_V2,
-	/* last index */
-	SRV_CLIENT_FILES
-};
-
 #endif

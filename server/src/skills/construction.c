@@ -668,7 +668,7 @@ void construction_do(object *op, int dir)
 		return;
 	}
 
-	skill_item = CONTR(op)->equipment[PLAYER_EQUIP_SKILL_ITEM];
+	skill_item = NULL;
 
 	if (!skill_item)
 	{

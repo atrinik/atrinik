@@ -29,63 +29,6 @@
 #include <global.h>
 
 /**
- * Make player learn a new spell.
- * @param op The player object learning the new spell.
- * @param spell Spell ID. */
-void do_learn_spell(object *op, int spell)
-{
-	if (op->type != PLAYER)
-	{
-		return;
-	}
-
-	if (check_spell_known(op, spell))
-	{
-		draw_info_format(COLOR_WHITE, op, "You already know the spell '%s'!", spells[spell].name);
-		return;
-	}
-
-	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "learnspell.ogg", 0, 0, 0, 0);
-	CONTR(op)->known_spells[CONTR(op)->nrofknownspells++] = spell;
-
-	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_ADD);
-	draw_info_format(COLOR_WHITE, op, "You have learned the spell %s!", spells[spell].name);
-}
-
-/**
- * Make player forget a spell.
- * @param op Player object to make forget the spell.
- * @param spell ID of the spell. */
-void do_forget_spell(object *op, int spell)
-{
-	int i;
-
-	if (op->type != PLAYER)
-	{
-		return;
-	}
-
-	if (!check_spell_known(op, spell))
-	{
-		return;
-	}
-
-	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "lose_some.ogg", 0, 0, 0, 0);
-	draw_info_format(COLOR_WHITE, op, "You lose knowledge of %s.", spells[spell].name);
-
-	send_spelllist_cmd(op, spells[spell].name, SPLIST_MODE_REMOVE);
-
-	for (i = 0; i < CONTR(op)->nrofknownspells; i++)
-	{
-		if (CONTR(op)->known_spells[i] == spell)
-		{
-			CONTR(op)->known_spells[i] = CONTR(op)->known_spells[--CONTR(op)->nrofknownspells];
-			return;
-		}
-	}
-}
-
-/**
  * Main apply handler.
  *
  * Checks for unpaid items before applying.

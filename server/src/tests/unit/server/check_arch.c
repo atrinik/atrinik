@@ -25,19 +25,6 @@
 #include <global.h>
 #include <check.h>
 
-START_TEST(test_get_skill_archetype)
-{
-	archetype *arch;
-
-	arch = get_skill_archetype(lookup_skill_by_name("alchemy"));
-	fail_if(arch == NULL, "Should be able to discover the alchemy skill.");
-	fail_if(strcmp(arch->name, "skill_alchemy"), "Should have returned skill_alchemy but returned '%s'.", arch->name);
-
-	arch = get_skill_archetype(-1);
-	fail_if(arch != NULL, "Asking for skill with ID -1 should return NULL.");
-}
-END_TEST
-
 START_TEST(test_item_matched_string)
 {
 	object *pl, *o1, *o2;
@@ -124,7 +111,6 @@ static Suite *arch_suite(void)
 	tcase_add_checked_fixture(tc_core, NULL, NULL);
 
 	suite_add_tcase(s, tc_core);
-	tcase_add_test(tc_core, test_get_skill_archetype);
 	tcase_add_test(tc_core, test_item_matched_string);
 	tcase_add_test(tc_core, test_arch_to_object);
 	tcase_add_test(tc_core, test_create_singularity);

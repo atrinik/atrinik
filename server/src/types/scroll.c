@@ -62,7 +62,7 @@ static int apply_func(object *applier, object *op, int aflags)
 		}
 
 		/* Also need the appropriate skill for the scroll's spell. */
-		if (!change_skill(applier, SK_SPELL_CASTING))
+		if (!change_skill(applier, SK_WIZARDRY_SPELLS))
 		{
 			draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
 			return OBJECT_METHOD_OK;

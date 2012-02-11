@@ -29,33 +29,6 @@
 #ifndef SERVER_FILES_H
 #define SERVER_FILES_H
 
-/**
- * @anchor SERVER_FILE_xxx
- * Server file IDs. */
-enum
-{
-	/** @deprecated */
-	SERVER_FILE_UNUSED4,
-	/** @deprecated */
-	SERVER_FILE_UNUSED1,
-	/** @deprecated */
-	SERVER_FILE_UNUSED2,
-	/** @deprecated */
-	SERVER_FILE_UNUSED3,
-	SERVER_FILE_BMAPS,
-	SERVER_FILE_UNUSED5,
-	SERVER_FILE_UPDATES,
-	SERVER_FILE_SPELLS,
-	SERVER_FILE_SETTINGS,
-	SERVER_FILE_ANIMS,
-	SERVER_FILE_EFFECTS,
-	SERVER_FILE_SKILLS,
-	SERVER_FILE_HFILES,
-
-	/** Last index. */
-	SERVER_FILES_MAX
-};
-
 /** One server file. */
 typedef struct server_files_struct
 {

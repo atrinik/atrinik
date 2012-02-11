@@ -1,15 +1,16 @@
-Name: main
-Title: General Help
+help main
+title General Help
+msg
 Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at <a=url>http://www.atrinik.org</a> for FAQ, playing guides, and more.
 
 Quick help:
 
 Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
 
-<title>See also:</title>
+<title>See Also:</title>
 List of <a=help>contributors</a>
-<p>
-<title>Useful commands</title>
+
+<title>Useful Commands</title>
 <a=help>afk</a>
 <a=help>apply</a>
 <a=help>cast</a>
@@ -26,6 +27,9 @@ List of <a=help>contributors</a>
 <a=help>mark</a>
 <a=help>motd</a>
 <a=help>ms_privacy</a>
+<a=help>music_pause</a>
+<a=help>music_resume</a>
+<a=help>np</a>
 <a=help>party</a>
 <a=help>pray</a>
 <a=help>push</a>
@@ -48,12 +52,17 @@ List of <a=help>contributors</a>
 <a=help>version</a>
 <a=help>whereami</a>
 <a=help>who</a>
+
 <title>Miscellaneous</title>
 <a=help>drop and take</a>
 <a=help>writing pen</a>
-==========
-Name: apply
-Title: Apply Command
+endmsg
+end
+
+help apply
+autocomplete 1
+title Apply Command
+msg
 The /apply command is used to apply selected things. For example, you can wield a sword in your inventory, or wear an armour. You can also apply things like stairs to enter them, or handles to activate gates.
 
 /apply can also be used to apply specified item in your inventory, for example, /apply amulet
@@ -70,13 +79,21 @@ This would always unapply the item 'amulet' from your inventory, never applying 
 <a=help>drop</a>
 <a=help>drop_key</a>
 <a=help>get</a>
-==========
-Name: pray
-Title: Pray Command
+endmsg
+end
+
+help pray
+autocomplete 1
+title Pray Command
+msg
 The pray command is used to start praying to your god, to regenerate your grace. By default, it is bound to the P key. If you are praying and you move, attack an enemy or you get attacked, you will automatically stop praying.
-==========
-Name: run
-Title: Run Command
+endmsg
+end
+
+help run
+autocomplete 1
+title Run Command
+msg
 The run command is used to prepare your character for running. Your character will run in direction you press until you type /run_stop or press the ALT key.
 
 <title>Syntax:</title>
@@ -84,9 +101,13 @@ The run command is used to prepare your character for running. Your character wi
 <p>
 <title>See Also:</title>
 <a=help>run_stop</a>
-==========
-Name: run_stop
-Title: Stop Run Command
+endmsg
+end
+
+help run_stop
+autocomplete 1
+title Run_stop Command
+msg
 The stop run command is used to stop your character from being in 'run mode' by previous usage of /run command.
 
 <title>Syntax:</title>
@@ -94,41 +115,57 @@ The stop run command is used to stop your character from being in 'run mode' by 
 <p>
 <title>See Also:</title>
 <a=help>run</a>
-==========
-Name: cast
-Title: Cast Command
+endmsg
+end
+
+help cast
+autocomplete 1
+title Cast Command
+msg
 The cast command will immediately cast a spell in the direction you're currently facing. It is useful to bind this command to your keys, like this:
 "/cast magic bullet"
 
 <title>Syntax:</title>
-/cast [name of spell]
-==========
-Name: shout
-Title: Shout Command
+/cast &lt;name of spell&gt;
+endmsg
+end
+
+help shout
+autocomplete 1
+title Shout Command
+msg
 The shout command is the main communication command. It will display your message to all currently logged in players.
 
 <title>Syntax:</title>
-/shout [your message]
+/shout &lt;your message&gt;
 <p>
 <title>See Also:</title>
 <a=help>reply</a>
 <a=help>say</a>
 <a=help>tell</a>
-==========
-Name: tell
-Title: Tell Command
+endmsg
+end
+
+help tell
+autocomplete 1
+title Tell Command
+msg
 The tell command is used to send a private message to another player online. Only he will be able to see the message!
 
 <title>Syntax:</title>
-/tell [name] [your message]
+/tell &lt;name&gt; [your message]
 <p>
 <title>See Also:</title>
 <a=help>reply</a>
 <a=help>say</a>
 <a=help>shout</a>
-==========
-Name: reply
-Title: Reply Command
+endmsg
+end
+
+help reply
+autocomplete 1
+title Reply Command
+msg
 The reply command is used to reply to the last player that sent you a private message. There's no need to specify his name, just the message!
 
 <title>Syntax:</title>
@@ -138,31 +175,45 @@ The reply command is used to reply to the last player that sent you a private me
 <a=help>say</a>
 <a=help>shout</a>
 <a=help>tell</a>
-==========
-Name: who
-Title: Who Command
+endmsg
+end
+
+help who
+autocomplete 1
+title Who Command
+msg
 The who command is used to display all players currently online. It will show their name, level, race and gender.
 
 <title>Syntax:</title>
 /who
-==========
-Name: mapinfo
-Title: Map Info Command
+endmsg
+end
+
+help mapinfo
+autocomplete 1
+title Map Info Command
+msg
 The map info command will give you some info about the map. It will show you the map path, map name, and a message the author may have left.
 
 <title>Syntax:</title>
 /mapinfo
-==========
-Name: motd
-Title: MOTD Command
+endmsg
+end
+
+help motd
+autocomplete 1
+title MOTD Command
+msg
 The Message of the Day command will show you the current message of the day, as configured by the server administrator or a DM.
 
 <title>Syntax:</title>
 /motd
-==========
-Name: dm
-Title: Dungeon Master Command
-Autocomplete: 0
+endmsg
+end
+
+help dm
+title DM Command
+msg
 Allows you to become a Dungeon Master, if you are allowed to.
 
 <title>Syntax:</title>
@@ -194,39 +245,57 @@ Allows you to become a Dungeon Master, if you are allowed to.
 <a=help>summon</a>
 <a=help>teleport</a>
 <a=help>wizpass</a>
-==========
-Name: time
-Title: Time Command
+endmsg
+end
+
+help time
+autocomplete 1
+title Time Command
+msg
 The time command displays the current in-game time.
 
 <title>Syntax:</title>
 /time
-==========
-Name: version
-Title: Version Command
+endmsg
+end
+
+help version
+autocomplete 1
+title Version Command
+msg
 The version command shows you the current server's version.
 
 <title>Syntax:</title>
 /version
-==========
-Name: mark
-Title: Mark Command
-Autocomplete: 0
+endmsg
+end
+
+help mark
+title Mark Command
+msg
 The mark command marks a specified item in your inventory. It is, by default, bound to the M key. Some common examples of usage:
 
 Smith will identify your current marked item.
 
 A quest reward could require you to mark an item which will be improved.
-==========
-Name: save
-Title: Save Command
+endmsg
+end
+
+help save
+autocomplete 1
+title Save Command
+msg
 The save command will save your character at your present location. This is automatically done every 10 minutes and when you logout, but it can be used as a "just-in-case" command. Remember, you must have some experience in order to be able to save your character!
 
 <title>Syntax:</title>
 /save
-==========
-Name: hiscore
-Title: Highscore Command
+endmsg
+end
+
+help hiscore
+autocomplete 1
+title Highscore Command
+msg
 The highscore command shows the top players in the game, the ones with most experience points.
 
 <title>Syntax:</title>
@@ -234,9 +303,13 @@ The highscore command shows the top players in the game, the ones with most expe
 
 To search for someone in the highscore list:
 /hiscore [name]
-==========
-Name: party
-Title: Party Command
+endmsg
+end
+
+help party
+autocomplete 1
+title Party Command
+msg
 The party command can be used to form a party, say a message in your party, and so on.
 
 However, note that there is a party GUI in the client, which can be opened by clicking the Party button at right top of the client. The GUI includes listing all existing parties, seeing who's in a party you're member of, forming new party, etc.
@@ -276,15 +349,22 @@ To kick another player from your party:
 <p>
 <title>See Also:</title>
 <a=help>gsay</a>
-==========
-Name: gsay
-Title: Gsay Command
+endmsg
+end
+
+help gsay
+autocomplete 1
+title Gsay Command
+msg
 The Gsay command is an alias to "/party say". You can use it to send a message to your party.
 <title>Syntax:</title>
 /gsay [your message]
-==========
-Name: drop_key
-Title: Drop
+endmsg
+end
+
+help drop_key
+title Drop
+msg
 The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
 <p>
 <title>See Also:</title>
@@ -292,9 +372,12 @@ The drop key is by default bound to the D key. It is used to drop items from you
 <a=help>drop</a>
 <a=help>get</a>
 <a=help>take</a>
-==========
-Name: drop and take
-Title: Drop and Take Syntax
+endmsg
+end
+
+help drop and take
+title Drop and Take Syntax
+msg
 This page explains syntax that can be used in both /drop and /take commands. Note that with /drop, you will never drop locked or god-given items. With /take, you cannot pick up more items than your weight limit allows, but you can get to very slow speed.
 
 Drop all cursed/damned items:
@@ -349,9 +432,13 @@ Drop 1-handed, 2-handed and polearm pierce weapons:
 /drop pierce weapons
 
 The syntax in the above examples always applies to both commands.
-==========
-Name: drop
-Title: Drop Command
+endmsg
+end
+
+help drop
+autocomplete 1
+title Drop Command
+msg
 You can use the /drop command to drop specific items from your inventory. If you have a container open, dropped items from your inventory will go into the container (even if the container is in your inventory). It has the same syntax as the /take command.
 
 For syntax and usage, see
@@ -362,9 +449,13 @@ For syntax and usage, see
 <a=help>drop_key</a>
 <a=help>get</a>
 <a=help>take</a>
-==========
-Name: take
-Title: Take Command
+endmsg
+end
+
+help take
+autocomplete 1
+title Take Command
+msg
 The /take command can be used to take items on floor, or items in your currently open container (even if you have the container in your inventory). It has the same syntax as the /drop command.
 
 For syntax and usage, see
@@ -374,9 +465,12 @@ For syntax and usage, see
 <a=help>apply</a>
 <a=help>drop_key</a>
 <a=help>get</a>
-==========
-Name: get
-Title: Get
+endmsg
+end
+
+help get
+title Get
+msg
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
 However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -&gt; General -&gt; Collect All Items.
@@ -385,9 +479,13 @@ However, it is possible to configure the client to get all items if there are mu
 <a=help>apply</a>
 <a=help>drop</a>
 <a=help>drop_key</a>
-==========
-Name: push
-Title: Push Command
+endmsg
+end
+
+help push
+autocomplete 1
+title Push Command
+msg
 The push command is used to push objects out of your way. Rolling objects like barrels can be pushed.
 
 <title>Syntax:</title>
@@ -396,9 +494,13 @@ The push command is used to push objects out of your way. Rolling objects like b
 <title>See Also:</title>
 <a=help>left</a>
 <a=help>right</a>
-==========
-Name: left
-Title: Left Command
+endmsg
+end
+
+help left
+autocomplete 1
+title Left Command
+msg
 The left command is used to turn your character left.
 
 <title>Syntax:</title>
@@ -407,9 +509,13 @@ The left command is used to turn your character left.
 <title>See Also:</title>
 <a=help>push</a>
 <a=help>right</a>
-==========
-Name: right
-Title: Right Command
+endmsg
+end
+
+help right
+autocomplete 1
+title Right Command
+msg
 The right command is used to turn your character right.
 
 <title>Syntax:</title>
@@ -418,16 +524,23 @@ The right command is used to turn your character right.
 <title>See Also:</title>
 <a=help>push</a>
 <a=help>left</a>
-==========
-Name: roll
-Title: Roll Command
+endmsg
+end
+
+help roll
+autocomplete 1
+title Roll Command
+msg
 The roll command is used to roll a dice. The results will be displayed to everyone on the map in range.
 
 <title>Syntax:</title>
 /roll [times to roll the dice]d[number of sides]
-==========
-Name: emotions
-Title: Emotion Commands
+endmsg
+end
+
+help emotions
+title Emotion Commands
+msg
 This is the list of all emote commands:
 
 /me
@@ -490,32 +603,44 @@ This is the list of all emote commands:
 /wince
 /wink
 /yawn
-==========
-Name: afk
-Title: AFK Command
+endmsg
+end
+
+help afk
+autocomplete 1
+title AFK Command
+msg
 The AFK (Away From Keyboard) command is used to mark you as away. It will be displayed in the client as a "reminder" next to your name, and will appear in the who list for everyone to see.
 
 <title>Syntax:</title>
 /afk
-==========
-Name: whereami
-Title: Where am I Command
+endmsg
+end
+
+help whereami
+autocomplete 1
+title Where Am I Command
+msg
 This command will tell you your current location, along with the location's information, a story, etc.
 
 <title>Syntax:</title>
 /whereami
-==========
-Name: ms_privacy
-Title: Metaserver Privacy Command
-Autocomplete: 0
+endmsg
+end
+
+help ms_privacy
+title Metaserver Privacy Command
+msg
 This command is used to turn metaserver privacy on/off. While on, your player name will not be reported to the metaserver, so it won't be visible on the site's server list.
 
 <title>Syntax:</title>
 /ms_privacy
-==========
-Name: say
-Title: Say Command
-Autocomplete: 0
+endmsg
+end
+
+help say
+title Say Command
+msg
 The say command is used to talk with other players on same map, interact with NPCs, activating teleporters and gates and other things.
 
 This command does not require you to type anything before your message; you just write the message, and it gets said on the map you're located at.
@@ -527,31 +652,46 @@ This command does not require you to type anything before your message; you just
 <a=help>reply</a>
 <a=help>shout</a>
 <a=help>tell</a>
-==========
-Name: guild
-Title: Guild Command
+endmsg
+end
+
+help guild
+autocomplete 1
+title Guild Command
+msg
 This command will send a message to all online members of your current guild.
 
 <title>Syntax:</title>
 /guild [message]
-==========
-Name: guildmembers
-Title: Guild Members Command
-Autocomplete: 0
+endmsg
+end
+
+help guildmembers
+autocomplete 1
+title Guild Members Command
+msg
 This command will show all online members of your guild.
 
 <title>Syntax:</title>
 /guildmembers
-==========
-Name: statistics
-Title: Statistics Command
+endmsg
+end
+
+help statistics
+autocomplete 1
+title Statistics Command
+msg
 The /statistics command will show you various statistics related to your character, like total experience, experience needed for next level, item power of all equipped items, and so on.
 
 <title>Syntax:</title>
 /statistics
-==========
-Name: rename
-Title: Rename Command
+endmsg
+end
+
+help rename
+autocomplete 1
+title Rename Command
+msg
 The /rename command can be used to rename any item in your inventory, except money. Simply mark the item you want to rename, and use, for example:
 
 /rename Hello World!
@@ -565,10 +705,13 @@ Use /rename with no parameters to clear the custom name of an item.
 
 To clear item's custom name:
 /rename
-==========
-Name: summon
-Title: Summon Command
-DM: 1
+endmsg
+end
+
+help summon
+autocomplete_wiz 1
+title Summon Command
+msg
 This command allows you to summon a player next to yourself. The summoned player will get a message saying that he was summoned.
 
 <title>Syntax:</title>
@@ -577,10 +720,13 @@ This command allows you to summon a player next to yourself. The summoned player
 <title>See Also:</title>
 <a=help>goto</a>
 <a=help>teleport</a>
-==========
-Name: teleport
-Title: Teleport Command
-DM: 1
+endmsg
+end
+
+help teleport
+autocomplete_wiz 1
+title Teleport Command
+msg
 This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have <a=help>dm_stealth</a> on.
 
 <title>Syntax:</title>
@@ -589,10 +735,13 @@ This command allows you to teleport yourself next to another player. The player 
 <title>See Also:</title>
 <a=help>goto</a>
 <a=help>summon</a>
-==========
-Name: goto
-Title: Go To Command
-DM: 1
+endmsg
+end
+
+help goto
+autocomplete_wiz 1
+title Go To Command
+msg
 The goto command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
 
 <title>Syntax:</title>
@@ -601,10 +750,13 @@ The goto command is used to teleport yourself to a specified map path, with opti
 <title>See Also:</title>
 <a=help>summon</a>
 <a=help>teleport</a>
-==========
-Name: kick
-Title: Kick Command
-DM: 1
+endmsg
+end
+
+help kick
+autocomplete_wiz 1
+title Kick Command
+msg
 The kick command is used to kick another player from the game.
 
 <title>Syntax:</title>
@@ -612,10 +764,13 @@ The kick command is used to kick another player from the game.
 <p>
 <title>See Also:</title>
 <a=help>ban</a>
-==========
-Name: ban
-Title: Ban Command
-DM: 1
+endmsg
+end
+
+help ban
+autocomplete_wiz 1
+title Ban Command
+msg
 The ban command can be used to ban player and/or IP address from the game. Note that IP addresses cannot contain ':' characters, so IPv4 addresses only.
 
 <title>Examples:</title>
@@ -637,10 +792,13 @@ Remove Noob's ban (same syntax as above applies):
 <p>
 <title>See Also:</title>
 <a=help>kick</a>
-==========
-Name: plugin
-Title: Load Plugin Command
-DM: 1
+endmsg
+end
+
+help plugin
+autocomplete_wiz 1
+title Load Plugin Command
+msg
 This command will load a plugin based on its filename.
 
 <title>Syntax:</title>
@@ -649,10 +807,13 @@ This command will load a plugin based on its filename.
 <title>See Also:</title>
 <a=help>pluglist</a>
 <a=help>plugout</a>
-==========
-Name: plugout
-Title: Unload Plugin Command
-DM: 1
+endmsg
+end
+
+help plugout
+autocomplete_wiz 1
+title Unload Plugin Command
+msg
 This command will unload a specified plugin.
 
 <title>Syntax:</title>
@@ -661,10 +822,13 @@ This command will unload a specified plugin.
 <title>See Also:</title>
 <a=help>plugin</a>
 <a=help>pluglist</a>
-==========
-Name: pluglist
-Title: List Plugins Command
-DM: 1
+endmsg
+end
+
+help pluglist
+autocomplete_wiz 1
+title List Plugins Command
+msg
 This command will show currently loaded plugins, along with loadable plugins from the server's plugins directory.
 
 <title>Syntax:</title>
@@ -673,10 +837,13 @@ This command will show currently loaded plugins, along with loadable plugins fro
 <title>See Also:</title>
 <a=help>plugin</a>
 <a=help>plugout</a>
-==========
-Name: shutdown
-Title: Shutdown Command
-DM: 1
+endmsg
+end
+
+help shutdown
+autocomplete_wiz 1
+title Shutdown Command
+msg
 This command will start a shutdown timer that will shutdown the server in specified number of seconds. Optionally, a reason for the shutdown can be provided.
 
 <title>Syntax:</title>
@@ -684,10 +851,13 @@ This command will start a shutdown timer that will shutdown the server in specif
 <p>
 <title>See Also:</title>
 <a=help>shutdown_now</a>
-==========
-Name: shutdown_now
-Title: Shutdown Now Command
-DM: 1
+endmsg
+end
+
+help shutdown_now
+autocomplete_wiz 1
+title Shutdown Now Command
+msg
 This command will instantly shutdown the server.
 
 <title>Syntax:</title>
@@ -695,27 +865,36 @@ This command will instantly shutdown the server.
 <p>
 <title>See Also:</title>
 <a=help>shutdown</a>
-==========
-Name: resetmap
-Title: Reset Map Command
-DM: 1
+endmsg
+end
+
+help resetmap
+autocomplete_wiz 1
+title Reset Map Command
+msg
 This command will reset map the DM is currently on. Optionally, a map path can be given to reset another map and not the one DM is on.
 
 <title>Syntax:</title>
 /resetmap [map]
-==========
-Name: create
-Title: Create Command
-DM: 1
+endmsg
+end
+
+help create
+autocomplete_wiz 1
+title Create Command
+msg
 The DM create command used to create almost any item.
 <title>NOTE: VERY DANGEROUS, USE WITH CAUTION!</title>
 
 <title>Syntax:</title>
 /create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ...
-==========
-Name: addexp
-Title: Add Exp Command
-DM: 1
+endmsg
+end
+
+help addexp
+autocomplete_wiz 1
+title Add Exp Command
+msg
 The DM add exp command is used to add exp to specified skill to a player.
 
 <title>Syntax:</title>
@@ -723,35 +902,46 @@ The DM add exp command is used to add exp to specified skill to a player.
 
 List skill IDs:
 /addexp
-==========
-Name: dm_stealth
-Title: DM Stealth Command
-DM: 1
+endmsg
+end
+
+help dm_stealth
+autocomplete_wiz 1
+title DM Stealth Command
+msg
 This command is used to allow a DM to become "stealthed" and invisible on /who list to anyone who is not a DM. On login their entering message will not be shown to other players. When other players message this DM they will get "No such player" message.
 
 <title>Syntax:</title>
 /dm_stealth
-==========
-Name: dm_light
-Title: DM Light Command
-DM: 1
-This
+endmsg
+end
+
+help dm_light
+autocomplete_wiz 1
+title DM Light Command
+msg
 This command is used to make all maps appear in daylight for the DM.
 
 <title>Syntax:</title>
 /dm_light
-==========
-Name: wizpass
-Title: Wiz Pass Command
-DM: 1
+endmsg
+end
+
+help wizpass
+autocomplete_wiz 1
+title Wiz Pass Command
+msg
 This command will turn on/off the ability to walk through walls and obstacles.
 
 <title>Syntax:</title>
 /wizpass
-==========
-Name: motd_set
-Title: Set MOTD Command
-DM: 1
+endmsg
+end
+
+help motd_set
+autocomplete_wiz 1
+title Set MOTD Command
+msg
 This command can be used to change the Message of the Day from game. It is useful to use this for game events, as this message will be automatically displayed to players upon logging in. This command does not overwrite the "default" Message of the Day, but it inserts a custom one, which is then used instead of the default one.
 
 <title>Syntax:</title>
@@ -760,42 +950,57 @@ To revert the original (default) Message of the Day:
 
 To set a custom Message of the Day:
 /motd_set [message]
-==========
-Name: dmsay
-Title: DM Say Command
-DM: 1
+endmsg
+end
+
+help dmsay
+autocomplete_wiz 1
+title DM Say Command
+msg
 This command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
 
 <title>Syntax:</title>
 /dmsay [your message]
-==========
-Name: arrest
-Title: Arrest Command
-DM: 1
+endmsg
+end
+
+help arrest
+autocomplete_wiz 1
+title Arrest Command
+msg
 The arrest command can be used to arrest a player. Note that there will be no way for the player to escape, since even their savebed location will be set to the jail, so when they die or use word of recall, they will appear there again. To release the player, you need to summon them somewhere, and ensure they apply a savebed, so they don't reappear in the jail.
 
 <title>Syntax:</title>
 /arrest [player]
-==========
-Name: insert_into
-Title: Insert Into Command
-DM: 1
+endmsg
+end
+
+help insert_into
+autocomplete_wiz 1
+title Insert Into Command
+msg
 This command allows you to insert marked item inside another object.
 
 <title>Syntax:</title>
 /insert_into [<a=help>object_id</a>]
-==========
-Name: remove
-Title: Remove Command
-DM: 1
+endmsg
+end
+
+help remove
+autocomplete_wiz 1
+title Remove Command
+msg
 This command is used to remove another object from the game (cannot be used on players).
 
 <title>Syntax:</title>
 /remove [<a=help>object_id</a>]
-==========
-Name: patch
-Title: Patch Command
-DM: 1
+endmsg
+end
+
+help patch
+autocomplete_wiz 1
+title Patch Command
+msg
 This command can be used to patch an attribute of an object.
 
 <title>Syntax:</title>
@@ -804,10 +1009,13 @@ This command can be used to patch an attribute of an object.
 <title>Examples:</title>
 /patch guard friendly 0
 /patch floor no_pass 1
-==========
-Name: follow
-Title: Follow Command
-DM: 1
+endmsg
+end
+
+help follow
+autocomplete_wiz 1
+title Follow Command
+msg
 This command can allow a DM to follow another player (if the DM is invisible, the player will not know they are being followed).
 
 <title>Syntax:</title>
@@ -815,18 +1023,24 @@ This command can allow a DM to follow another player (if the DM is invisible, th
 
 To stop following someone:
 /follow
-==========
-Name: dm_password
-Title: DM Password Command
-DM: 1
+endmsg
+end
+
+help dm_password
+autocomplete_wiz 1
+title DM Password Command
+msg
 This command allows DM to change player's password.
 
 <title>Syntax:</title>
 /dm_password [player] [new password]
-==========
-Name: cmd_permission
-Title: Command Permission Command
-DM: 1
+endmsg
+end
+
+help cmd_permission
+autocomplete_wiz 1
+title Command Permission Command
+msg
 This command can allow DM to change DM command permissions for another player. In other words, it allows for a non-DM to acquire permissions to use DM commands like /kick.
 
 <title>Examples:</title>
@@ -841,11 +1055,19 @@ Remove Tester's permission to use /kick:
 
 List Tester's permissions:
 /cmd_permission Tester list
-==========
-Name: object_id
-Title: Object ID
-DM: 1
-Autocomplete: 0
+endmsg
+end
+
+help summon
+autocomplete_wiz 1
+title Summon Command
+msg
+endmsg
+end
+
+help object_id
+title Object ID
+msg
 When a help page mentions <b>object_id</b> in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
 
 If you use the object's ID, you have to put a hash symbol in front of it, for example:
@@ -858,9 +1080,13 @@ It's easier to use the object's name, but many objects have spaces in the names,
 /remove skeleton mage
 
 The IDs/names will first be checked against the online players (not in their inventories though), then below you (including inventories), and at last on the whole map the DM is standing on (including inventories).
-==========
-Name: ignore
-Title: Ignore Command
+endmsg
+end
+
+help ignore
+autocomplete 1
+title Ignore Command
+msg
 You can ignore another player's chat from various chat types using the ignore command.
 
 <title>Syntax:</title>
@@ -870,9 +1096,13 @@ Where:<padding=4>
 <b>player name</b>: Name of the player to ignore (or <b>*</b> to ignore all players)
 <b>chat type</b>: Chat type to ignore the player from, one of: <b>say</b>, <b>shout</b>, <b>tell</b>, <b>emote</b> or <b>*</b> (all the chat types)
 </padding>
-==========
-Name: use_skill
-Title: Use Skill Command
+endmsg
+end
+
+help use_skill
+autocomplete 1
+title Use Skill Command
+msg
 The <b>/use_skill</b> command can be used to use a skill, for example, the <b>construction</b> skill. Note that many skills cannot be used in this way, for example, melee, archery, etc.
 
 <title>Syntax:</title>
@@ -881,9 +1111,13 @@ The <b>/use_skill</b> command can be used to use a skill, for example, the <b>co
 Where:<padding=4>
 <b>skill name</b>: Full name of the skill to use, for example, <b>construction</b>
 </padding>
-==========
-Name: ready_spell
-Title: Ready Spell Command
+endmsg
+end
+
+help ready_spell
+autocomplete 1
+title Ready Spell Command
+msg
 The </b>/ready_spell</b> command can be used to ready a spell into the range box.
 
 <title>Syntax:</title>
@@ -892,9 +1126,13 @@ The </b>/ready_spell</b> command can be used to ready a spell into the range box
 Where:<padding=4>
 <b>spell name</b>: Full name of the spell to ready, for example, <b>magic bullet</b>
 </padding>
-==========
-Name: ready_skill
-Title: Ready Skill Command
+endmsg
+end
+
+help ready_skill
+autocomplete 1
+title Ready Skill Command
+msg
 The </b>/ready_skill</b> command can be used to ready a skill.
 
 <title>Syntax:</title>
@@ -903,16 +1141,22 @@ The </b>/ready_skill</b> command can be used to ready a skill.
 Where:<padding=4>
 <b>skill name</b>: Full name of the skill to ready, for example, <b>construction</b>
 </padding>
-==========
-Name: writing pen
-Title: Writing Pen
+endmsg
+end
+
+help writing pen
+title Writing Pen
+msg
 <book>Inscription Skill</book>You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
 
 /use_skill inscription &lt;message to write&gt;
-==========
-Name: contributors
-Title: </u><u>
-<book>Atrinik Contributors</book><font=sans 14><b><o=#000000><c=#cf6900>Programming:</c></o></b></font><padding=4>
+endmsg
+end
+
+help contributors
+title Atrinik Contributors
+msg
+<font=sans 14><b><o=#000000><c=#cf6900>Programming:</c></o></b></font><padding=4>
 Alex "<b>Cleo</b>" Tokar (+maps)
 Daniel "<b>Lippy</b>" Liptrot
 Dantee
@@ -933,9 +1177,12 @@ Glenn Hanna
 David "<b>Ddhanna</b>" Hanna
 Pete "<b>Arantor</b>" Spicer
 </padding>
-==========
-Name: music player
-Title: Music Player Widget
+endmsg
+end
+
+help music player
+title Music Player Widget
+msg
 You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).
 
 Note that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.
@@ -957,9 +1204,12 @@ If you stop the music player and you want the in-game area music to return, you 
 You can construct your own playlist using the music player by <b>blacklisting</b> songs you don't want on the playlist. In order to blacklist a song, select it in the music list and press the <b>-</b> button. Blacklisted entries will appear in red color on the music list, and will never play in the shuffle mode. You can remove a song from the blacklist by selecting it and clicking the <b>+</b> button (which will appear instead of the <b>-</b> one).
 
 In order to mass-change blacklist status of all the songs, select a song, and hold down the <b>-</b>/<b>+</b> button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
-==========
-Name: spell list
-Title: Spell List Widget
+endmsg
+end
+
+help spell list
+title Spell List Widget
+msg
 The spells widget allows you to browse all in-game spells sorted by their path.
 
 Right of the spells list, you can see the currently selected spell's description (if any). If you know the selected spell, you will be able to see the mana/grace cost below the description, near the bottom. You will also see the spell's icon, and path <b>Status</b>. Usually, this will be <b>Normal</b>, but if you apply an object that is attuned to a certain path, or repelled/denied from it, you will see that in the <b>Status</b>.
@@ -970,6 +1220,364 @@ Use mouse wheel or drag the slider to scroll the list of spells (if applicable).
 
 In order to ready a spell, double-click its name in the spells list. You can also drag the currently selected spell's icon in the bottom right corner, and drop it into your quickslots for fast access.
 
-You can filter the list of spells using the buttons above the currently selected spell's description. If you press <b>Known</b>, only spells that you know will be shown - otherwise, both known and uknown are shown. The <b>&lt;</b> and <b>&gt;</b> buttons allow you to switch between types of spells shown: wizardry <b>spells</b>, divine <b>prayers</b>, or <b>all</b>.
+You can filter the list of spells using the buttons above the currently selected spell's description. If you press <b>Known</b>, only spells that you know will be shown - otherwise, both known and unknown are shown. The <b>&lt;</b> and <b>&gt;</b> buttons allow you to switch between types of spells shown: wizardry <b>spells</b>, divine <b>prayers</b>, or <b>all</b>.
 
-==========
+The <b>F9</b> key (default) can be used to open/close the widget.
+endmsg
+end
+
+help skill list
+title Skill List Widget
+msg
+The skills widget allows you to browse all in-game skills sorted by their skill category (Agility, Physique, etc).
+
+Right of the skills list, you can see the currently selected skill's description (if any). If you know the selected skill, you will will be able to see the skill's level, experience and its icon.
+
+<title>Controls</title>
+
+Use mouse wheel or drag the slider to scroll the list of skills (if applicable). Switch between skill categories by clicking the <b>&lt;</b> and <b>&gt;</b> buttons below the list of skills. If you keep holding those buttons, the skill categories will continue changing. The last skill category will show you all the skills, from all the categories.
+
+In order to ready a skill, double-click its name in the skills list.
+
+By default, both known and unknown skills are shown in the skills list, with the unknown ones grayed out. You can change the list to only show known skills by pressing the <b>Known</b> button.
+
+The <b>F10</b> key (default) can be used to open/close the widget.
+endmsg
+end
+
+help party list
+title Party List Widget
+msg
+The party widget allows you to form and join parties. While in a party, you can chat with fellow members of the party using the <a=help:gsay>/gsay</a> command. In addition, you will automatically share gained experience with your party members, but only if they are nearby.
+
+<title>Controls</title>
+
+In order to join a party, double-click the party name in the list. If no party is available, you will have to form a party yourself; this can be done by pressing the <b>Form</b> button, and entering the new party name in the text input that pops up.
+
+After joining/forming a party, the list will switch to show you the party members, including their HP, mana and grace bars. You can switch back to the list of parties using the <b>Parties</b> button, and back to members using <b>Members</b> button.
+
+If you are currently a member of a party, additional buttons will be available, including the <b>Leave</b> button, using which you can leave the party at any time. There is also a <b>Password</b> button, with which you can change the party password, but only if you are the party leader. The <b>Chat</b> button will pop up the regular text input, with <a=help:gsay>/gsay</a> prefixed, so you can immediately type in your party chat message.
+
+For more advanced controls, see the documentation for the <a=help:party>/party command</a>.
+endmsg
+end
+
+help region map
+title Region Map
+msg
+The region map shows you a map of the current region you are located on, for example, Strakewood Island. This is handy to find new places of interest, quest locations, etc.
+
+If you hover the mouse over buildings and some other locations, you will see a tooltip with the area description, which is useful for getting around in large cities.
+
+<title>Controls</title>
+
+The <b>R</b> key (default) may be used to bring up the region map - alternatively you can click its icon (a map piece) in the buttons panel at top right.
+
+In order to scroll the map, hold down the left mouse button over the visible map - the closer you are to the center of the visible map, the slower it will scroll. You can also use the arrow keys to scroll the map, and hold down shift in order to scroll faster with the arrow keys.
+
+Zooming the map can be done using <b>Page Up</b> key to zoom the map in, or <b>Page Down</b> key to zoom it out. Using the mouse wheel is also possible.
+endmsg
+end
+
+help esc menu
+title Settings
+msg
+Inside this popup, you can change various settings - for example, your keybindings (macros), your character's password (if you're currently in-game), or client-related settings.
+
+When you open this popup, you will see <a=help:client settings>Client Settings</a> and <a=help:keybinding settings>Key Settings</a>. If you are currently in-game, you will also see <b>Logout</b> (which logs you out of the game) and <b>Back to Play</b> (which closes the popup). Also if you're in-game, you will see a <a=help:password change>Password</a> button on the top left.
+
+<title>Controls</title>
+
+The controls are very straightforward - either use the arrow keys to scroll through the available options and press enter on the one you select, or click the one you want using the mouse.
+endmsg
+end
+
+help client settings
+title Client Settings
+msg
+Allows you to change client-related settings. The <b>&lt;</b> and <b>&gt;</b> buttons above the list can be used to change the settings category.
+
+<title>Controls</title>
+
+Regular list controls apply - such as using the mouse wheel or dragging the slider to scroll, up and down arrow keys to move, etc.
+
+Left and right arrow keys can be used instead of <b>&lt;</b> and <b>&gt;</b> setting buttons. If you hold down shift, the settings category buttons will be affected instead.
+
+Clicking <b>Apply</b> button will immediately apply the new settings - which is useful if you are checking out the different resolutions, for example. The <b>Done</b> button will do the same as <b>Apply</b>, but will also exit the popup.
+endmsg
+end
+
+help keybinding settings
+title Key Settings
+msg
+Allows you to change keybindings (macros).
+
+Whenever you press a key, the keybindings are checked for a matching key. This process is first done for keys with keyboard modifiers, and after that, for keys without any keyboard modifiers, which will also work even if the current keyboard modifier state does not match. This is done so, for example, firing still works when you hold the <b>CTRL</b> key (default) and a direction key - otherwise, the keybindings would only match on CTRL+direction keybindings. Keys with keyboard modifiers are done first so that it is possible to override this behavior with your own keybindings.
+
+<title>Controls</title>
+
+In order to change a keybinding, you double-click it in the list of keybindings (or press enter on the selected one). The editing text inputs appear, and the command text input will be focused. When you are done changing it (if applicable), press enter and the focus will switch to the keyboard shortcut, and you will be prompted to press the key combination for the keybinding. You can use modifiers such as shift, ctrl, alt, etc. After entering the shortcut, press enter again and the change will be applied. If you do not want to change the shortcut, you can just click the <b>Apply</b> button after you have entered the keybinding command.
+
+The <b>Add</b> button can be used to add a new keybinding - the process is the same as editing (explained above), but both text inputs do not have any input to edit (obviously).
+
+<b>Remove</b> button will remove the selected keybinding, and <b>Repeat</b> button will turn the repeat flag on/off. If the repeat flag for a keybinding is on, the shortcut will repeat after a short delay while it's still being held down.
+endmsg
+end
+
+help main screen
+title Main Screen
+msg
+The main screen contains the list of servers (on the left), and list of latest game news (on the right).
+
+The list of servers allows you to choose the server to play on - the <b>Main Server</b> is the recommended one to play on.
+
+The list of latest game news keeps you updated about game updates on the <b>Main Server</b>. You can read more about any of the updates in the list by double-clicking the name of the update in the list, or using enter after switching to the list (see further down for list controls).
+
+<title>Controls</title>
+
+By default, the servers list is focused. Focus is a keyboard-only concept, which means that only the focused list will receive keyboard events, such as using the arrow keys to move in the list. If there is more than one active list on the screen, such as the main screen, you can use the <b>Tab</b> key to cycle between them.
+
+Lists use standard GUI behavior - that is, up and down arrow keys to scroll, page up/down to scroll several lines at once, enter to trigger an action, etc. The mouse may also be used to use the lists, such as dragging the list slider (if any) to scroll the list quickly, or using the mouse wheel. Clicking an entry in the list once will select it (which is otherwise accomplished with arrow keys), while double-click triggers an action (like enter).
+
+The <b>Play</b> button will connect you to the selected game server - same as using enter in the servers list. <b>Refresh</b> will re-download the list of servers, if you want to see updated player counts, for example.
+
+The <b>Settings</b> button may be used to open the settings popup, which allows you to edit client and key settings.
+
+The <b>Update</b> button will check for client updates - if you see in the game news that there is a new client available, this is the button you want. After clicking it, a popup will open - please wait patiently until all the progress dots turn green, then follow the instructions.
+
+The <b>Quit</b> button will exit the client, but the <b>ESC</b> key can also be used instead of that.
+endmsg
+end
+
+help npc interface
+title NPC Interface
+msg
+This is the main interface used for conversations with NPCs.
+
+<title>Controls</title>
+
+In order to proceed with the conversation, you need to select a response from the blue links below the NPC's message. You can either click the link, or press its shortcut number on the keyboard, as indicated in front of the link (for example, if there's [1] in front of the link, you need to press <b>1</b> on the keyboard).
+
+If there are no responses, that means the NPC has finished talking to you, and you can close the conversation using either the <b>X</b> button, or the <b>Close</b> button. Pressing <b>ESC</b> is also an option.
+
+If the NPC's message is too long, you will be able to scroll the message contents using the arrow keys, page up/down keys, or by using the scrollbar with the mouse.
+endmsg
+end
+
+help password change
+title Password Change
+msg
+If you are logged in, you can change your character's password by clicking the <b>Password</b> button in the <a=help:esc menu>settings</a> popup ("ESC menu").
+
+You will need to provide the current password of your character, and the new one.
+endmsg
+end
+
+help np
+title Now Playing Command
+autocomplete 1
+msg
+If you are currently playing a music file from the <a=help:music player>music player widget</a>, this command will display the currently playing music for nearby players to see in their chat windows, using the /me command.
+
+<title>Syntax:</title>
+
+/np
+endmsg
+end
+
+help music_pause
+title Pause Music Command
+autocomplete 1
+msg
+Pauses currently playing background music, if any.
+
+<title>Syntax:</title>
+
+/music_pause
+
+<title>See Also:</title>
+
+<a=help>music_resume</a>
+endmsg
+end
+
+help music_resume
+title Resume Music Command
+autocomplete 1
+msg
+Resumes previously paused music.
+
+<title>Syntax:</title>
+
+/music_resume
+
+<title>See Also:</title>
+
+<a=help>music_pause</a>
+endmsg
+end
+
+help basics_movement
+title Basics: Movement
+msg
+<title>Movement</title>
+There are two choices for movement in Atrinik: keyboard and mouse. Mouse-based movement is easier to use, however, the keyboard is more accurate.
+
+<b>Mouse:</b>
+Move the mouse over the map area, and you'll see the square below your mouse highlighted with green borders. If you click that area, your character will try to move there.
+
+<b>Keyboard:</b>
+You can use the keyboard numpad to move around, for example, <b>3</b> on the numpad would move your character one step east. You can hold down the numpad key to run in this manner in the direction specified by the numpad key you are holding down. If you want to stop running, simply release the key.
+
+<title>Obstacles</title>
+There are many obstacles to walk around in the world, ranging from trees to rocks, walls, deep water, doors, gates and the like.
+
+Doors can be opened by walking into them with your character and will stay open for a short amount of time. Note that some doors require keys to open.
+
+Gates can usually be opened using levers, switches, buttons and the like. Some may even require a secret activation phrase to open - thus it is a good idea to explore around.
+endmsg
+end
+
+help basics_object_interaction
+title Basics: Object Interaction
+msg
+<title>Interacting With Objects</title>
+
+Interacting with objects is an often-used part of the game. The objects right below your feet appear in a screen near the middle bottom. You can select them using the mouse, or with the arrow keys. In order to interact with them, you apply them, either by middle-clicking them, or pressing <b>A</b> key to interact with the selected object.
+
+The outcome of your interaction depends on the object you applied - stairs, ropes, ladders, etc will allow you to move across areas. Levers may be used to open gates or secret passages, light sources such as torches or lamps can be lit, etc.
+
+Pressing the <b>E</b> key will examine the currently selected object, which may reveal more information about it.
+
+The spacebar may be used in order to quickly apply the first object below your feet that you can interact with.
+endmsg
+end
+
+help basics_talking
+title Basics: Talking
+msg
+<title>Talking To NPCs</title>
+
+<b>Keyboard:</b>
+Press the <b>T</b> key to talk to the nearest NPC.
+
+<b>Mouse:</b>
+Target the NPC by right-clicking them on the map, and then click the <b>Hello</b> button near the bottom middle part of the screen. Another way is right-clicking the square the NPC is standing on and holding the right mouse button for a short amount of time, then selecting <b>Talk To NPC</b> option in the menu that pops up.
+
+<title>Talking To Players</title>
+
+You can use the text input to talk to nearby players. This can be accessed by pressing <b>ENTER</b>. If you type text in the text input and then press <b>ENTER</b> again, your message will be heard by all nearby players.
+
+It is also possible to use commands in the text input. For example, typing <b>/shout Hello all!</b> in the text input and pressing <b>ENTER</b> would shout out the message <b>Hello all!</b> for all online players to see. There are other chat-related commands, such as <b>/tell &lt;player&gt; Private message</b>, among others. See the <a=help:chat_guide>Chat Guide</a> for more details. You can also check out the list of <a=help:commands>commands</a> that you can use in the text input.
+endmsg
+end
+
+help basics_inventory_interaction
+title Basics: Inventory Interaction
+msg
+<title>Interacting With Inventory Items</title>
+
+In order to open your inventory, hold the <b>SHIFT</b>, or click the bag icon on the inventory widget (left side of the screen, above the messages text window). While the inventory is open, your player doll is shown as well near the top left part of the screen, which shows the items you are wearing and/or wielding.
+
+Various items can be interacted with, such as compasses, which will tell you the direction you are currently facing, or light sources such as torches, which can be lit inside your inventory, and then wielded with a second interaction. Armor can be worn, weapons can be wielded, magic devices such as wands can be readied for firing, etc.
+
+<b>Keyboard:</b>
+Select an item in your inventory using the arrow keys. Now, if you press the <b>A</b> key, you will apply the selected item, thus interacting with it. If the item is, for example, a piece of armor, you will put it on your character - or if you're already wearing it, you'll unwear it.
+
+You can use the <b>E</b> key to learn more about the selected item, if it's identified. The <b>M</b> key will mark the selected item, which is used in some NPC dialogues, such as when you want to send an item using the post office. Ammunition can be readied for firing using the <b>F</b> key.
+
+<b>Mouse:</b>
+In order to interact with an item using the mouse, you can drag-and-drop the item from your inventory into the player doll. If the item is, for example, a piece of armor, you will put it on your character. In order to unwear/unwield an item, drag it from your player doll back into the inventory.
+
+Marking an item can be done by pressing the middle mouse button on the item you want to mark, which is used in some NPC dialogues, such as when you want to send an item using the post office. Note that some inventory-related actions can currently only be done using the keyboard shortcuts, such as examining items.
+endmsg
+end
+
+help basics_quest_list
+title Basics: Quest List
+msg
+<title>Quest List</title>
+
+The quest list is a mini-journal that you can view at any time using the <b>Q</b> key, or by clicking the button with book icon near the top right. It lists unfinished quests, as well as those that you have finished in the past. However, the unfinished ones have more detailed instructions about your current objective(s).
+endmsg
+end
+
+help basics_weight
+title Basics: Weight
+msg
+<title>Weight Of Items</title>
+
+Each item in your inventory has a certain weight, which is cumulatively added to your carrying weight. The closer your carrying weight is to your maximum weight capacity (which is affected by the <b>Strength</b> stat), the slower your character will move.
+endmsg
+end
+
+help basics_caverns
+title Basics: Caverns
+msg
+<title>Caverns</title>
+
+Caverns can usually be entered by walking on top of one of the dark squares. The wind often makes eerie noises around the entrance, so it's easy to tell if you're near one.
+
+If you enter a cavern, you can tell where to exit it, due to the light coming from the outside.
+endmsg
+end
+
+help basics_hunger
+title Basics: Hunger
+msg
+<title>Eating Food To Prevent Hunger</title>
+
+In order to avoid starving to death, you have to eat food or drink nutricious liquids. Certain food often drops from monsters, and taverns always have plenty of food to sell.
+
+The food bar is the brown bar in the <b>Stats</b> window near the top of the screen. Once it completely empties, you will start losing HP, and you will eventually starve to death, so be careful. Food items can be eaten by interacting with them (applying them), either from your inventory, or below your feet. Beware of unidentified food however, as it can be poisonous.
+
+If you start starving, your character will attempt to grab the first food item in your inventory, which can be dangerous because, as mentioned above, food can be poisonous.
+endmsg
+end
+
+help basics_taking_dropping
+title Basics: Taking And Dropping Items
+msg
+<title>Taking And Dropping Items</title>
+
+<b>Keyboard:</b>
+In order to take an item from the ground, select it in the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and press <b>G</b> key. The object will be picked up straight into your inventory.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a> and select the item that you want to drop, then press the <b>D</b> key.
+
+<b>Mouse:</b>
+In order to take an item from the ground, drag it from the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and drop it into your inventory screen.
+
+If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a>, drag the item to drop, and drop it anywhere on the visible map area.
+
+<title>Multiple Items</title>
+
+If you try to take or drop items from a stack, you will be asked how many to take/drop. By default, the value to take/drop will be all in the stack, so you can just press the take/drop key again, press enter, or click the enter icon in the popup.
+endmsg
+end
+
+help basics_containers
+title Basics: Containers
+msg
+<title>Using Containers</title>
+
+Containers are useful for sorting items in your inventory, for example, a container loot, important items, or food. You can even have your character automatically pick up items into the specified container, instead of into the inventory. Containers are also often used part of areas such as treasure vaults, buildings, homes, etc, such as chests, lockers, drawers, shelves, etc, and sometimes contain items of importance, loot, quest items, etc.
+
+In order to open a container <a=help:basics_object_interaction>below your feet</a>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
+
+Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become <i>readied</i>, and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
+
+You can only have one container open at any time (be it in your inventory, or below your feet).
+endmsg
+end
+
+help basics_region_map
+title Basics: Region Map
+msg
+<title>Region Map</title>
+
+The region map allows you to see the whole map of the region you're located in, for example, Incuna or Strakewood Island. In order to see the map of the region, you must have found the map first - either by talking to NPCs who sell or just give out maps, finding it in dungeon or a chest, or completing quests.
+
+In order to bring up the map of the current region, either press the <b>R</b> key, or click the button with map icon near the top right.
+endmsg
+end

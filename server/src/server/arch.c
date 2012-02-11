@@ -76,25 +76,6 @@ void arch_add(archetype *at)
 }
 
 /**
- * Get the skill object for skill ID.
- * @param skillnr The skill number to find object for.
- * @return Object if found, NULL otherwise. */
-archetype *get_skill_archetype(int skillnr)
-{
-	archetype *at;
-
-	for (at = first_archetype; at != NULL; at = at->next)
-	{
-		if (at->clone.type == SKILL && at->clone.stats.sp == skillnr)
-		{
-			return at;
-		}
-	}
-
-	return NULL;
-}
-
-/**
  * Initializes the internal linked list of archetypes (read from file).
  * Some commonly used archetype pointers like ::empty_archetype,
  * ::base_info_archetype are initialized.

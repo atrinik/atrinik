@@ -65,7 +65,7 @@ typedef struct obj
 	sint32 nrof;
 
 	/** How much item weights. */
-	float weight;
+	double weight;
 
 	/** Index for face array. */
 	sint16 face;
@@ -95,8 +95,8 @@ typedef struct obj
 	/** Item's condition. */
 	uint8 item_con;
 
-	/** Required skill. */
-	uint8 item_skill;
+	/** UID of the required skill. */
+	uint32 item_skill_tag;
 
 	/** Requires level. */
 	uint8 item_level;

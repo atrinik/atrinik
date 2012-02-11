@@ -1006,6 +1006,9 @@
  * Monster can cast spells. */
 #define FLAG_CAST_SPELL 52
 /**
+ * Item requires two hands to wield. */
+#define FLAG_TWO_HANDED 54
+/**
  * Monster can fire bows. */
 #define FLAG_USE_BOW 55
 /**

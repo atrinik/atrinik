@@ -123,11 +123,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 				draw_info_format(COLOR_WHITE, applier, "You unwield %s.", query_name(op, applier));
 				break;
 
-			case SKILL:
-				change_abil(applier, op);
-				applier->chosen_skill = NULL;
-				break;
-
 			case ARMOUR:
 			case HELMET:
 			case SHIELD:
@@ -146,6 +141,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 			case WAND:
 			case ROD:
 			case SPELL:
+			case SKILL:
 				draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
 				break;
 
@@ -242,17 +238,11 @@ int object_apply_item(object *op, object *applier, int aflags)
 			change_abil(applier, op);
 			break;
 
-		case SKILL:
-			send_ready_skill(applier, skills[op->stats.sp].name);
-			SET_FLAG(op, FLAG_APPLIED);
-			change_abil(applier, op);
-			applier->chosen_skill = op;
-			break;
-
 		case WAND:
 		case ROD:
 		case BOW:
 		case SPELL:
+		case SKILL:
 			draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
 			SET_FLAG(op, FLAG_APPLIED);
 

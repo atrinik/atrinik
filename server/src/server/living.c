@@ -695,13 +695,6 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
-	/* If the attuned/repelled/denied paths changed, we need to update the
-	 * spell list. */
-	if (op->path_attuned != refop.path_attuned || op->path_repelled != refop.path_repelled || op->path_denied != refop.path_denied)
-	{
-		send_spelllist_cmd(op, NULL, SPLIST_MODE_UPDATE);
-	}
-
 	if (tmp->type == POISONING)
 	{
 		success = 1;
@@ -778,6 +771,66 @@ void drain_specific_stat(object *op, int deplete_stats)
 	fix_player(op);
 }
 
+static void living_apply_flags(object *op, object *tmp)
+{
+	op->path_attuned |= tmp->path_attuned;
+	op->path_repelled |= tmp->path_repelled;
+	op->path_denied |= tmp->path_denied;
+
+	op->terrain_flag |= tmp->terrain_type;
+
+	if (QUERY_FLAG(tmp, FLAG_LIFESAVE))
+	{
+		SET_FLAG(op, FLAG_LIFESAVE);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_REFL_SPELL))
+	{
+		SET_FLAG(op, FLAG_REFL_SPELL);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_REFL_MISSILE))
+	{
+		SET_FLAG(op, FLAG_REFL_MISSILE);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_STEALTH))
+	{
+		SET_FLAG(op, FLAG_STEALTH);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_XRAYS))
+	{
+		SET_FLAG(op, FLAG_XRAYS);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_BLIND))
+	{
+		SET_FLAG(op, FLAG_BLIND);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_SEE_IN_DARK))
+	{
+		SET_FLAG(op, FLAG_SEE_IN_DARK);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_CAN_PASS_THRU))
+	{
+		SET_FLAG(op, FLAG_CAN_PASS_THRU);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_MAKE_ETHEREAL))
+	{
+		SET_FLAG(op, FLAG_CAN_PASS_THRU);
+		SET_FLAG(op, FLAG_IS_ETHEREAL);
+	}
+
+	if (QUERY_FLAG(tmp, FLAG_FLYING))
+	{
+		SET_FLAG(op, FLAG_FLYING);
+	}
+}
+
 /**
  * Updates all abilities given by applied objects in the inventory
  * of the given object.
@@ -791,12 +844,11 @@ void drain_specific_stat(object *op, int deplete_stats)
 void fix_player(object *op)
 {
 	int ring_count = 0;
-	int tmp_item, old_glow, max_boni_hp = 0, max_boni_sp = 0;
-	float tmp_con;
-	int i, j, inv_flag, inv_see_flag, light, weapon_weight, best_wc, best_ac, wc, ac;
+	int old_glow, max_boni_hp = 0, max_boni_sp = 0;
+	int i, j, light;
 	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
 	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
-	object *tmp, *skill_weapon = NULL;
+	object *tmp;
 	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
 
@@ -818,7 +870,6 @@ void fix_player(object *op)
 	}
 
 	pl = CONTR(op);
-	inv_flag = inv_see_flag = weapon_weight = best_wc = best_ac = wc = ac = 0;
 
 	op->stats.Str = pl->orig_stats.Str;
 	op->stats.Dex = pl->orig_stats.Dex;
@@ -828,27 +879,20 @@ void fix_player(object *op)
 	op->stats.Pow = pl->orig_stats.Pow;
 	op->stats.Cha = pl->orig_stats.Cha;
 
-	pl->selected_weapon = pl->skill_weapon = NULL;
 	pl->digestion = 3;
 	pl->gen_hp = 1;
 	pl->gen_sp = 1;
 	pl->gen_sp_armour = 0;
 	pl->item_power = 0;
-	/* The used skills for fast access */
-	pl->set_skill_weapon = NO_SKILL_READY;
-	pl->set_skill_archery = NO_SKILL_READY;
 
 	pl->encumbrance = 0;
 
-	/* For players, we adjust with the values */
-	ac = op->arch->clone.stats.ac;
-	wc = op->arch->clone.stats.wc;
-	op->stats.wc = wc;
-	op->stats.ac = ac;
+	op->stats.wc = op->arch->clone.stats.wc;
+	op->stats.ac = op->arch->clone.stats.ac;
 	op->stats.dam = op->arch->clone.stats.dam;
 
-	op->stats.maxhp = op->arch->clone.stats.maxhp * (op->level + 3);
-	op->stats.maxsp = op->arch->clone.stats.maxsp * (pl->skill_ptr[SK_SPELL_CASTING] ? pl->skill_ptr[SK_SPELL_CASTING]->level : 1 + 3);
+	op->stats.maxhp = op->arch->clone.stats.maxhp;
+	op->stats.maxsp = op->arch->clone.stats.maxsp;
 
 	op->stats.wc_range = op->arch->clone.stats.wc_range;
 
@@ -865,16 +909,6 @@ void fix_player(object *op)
 
 	FREE_AND_CLEAR_HASH(op->slaying);
 
-	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
-	{
-		inv_flag = 1;
-	}
-
-	if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
-	{
-		inv_see_flag = 1;
-	}
-
 	if (!QUERY_FLAG(&op->arch->clone, FLAG_XRAYS))
 	{
 		CLEAR_FLAG(op, FLAG_XRAYS);
@@ -888,16 +922,6 @@ void fix_player(object *op)
 	if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_ETHEREAL))
 	{
 		CLEAR_MULTI_FLAG(op, FLAG_IS_ETHEREAL);
-	}
-
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_INVISIBLE))
-	{
-		CLEAR_MULTI_FLAG(op, FLAG_IS_INVISIBLE);
-	}
-
-	if (!QUERY_FLAG(&op->arch->clone, FLAG_SEE_INVISIBLE))
-	{
-		CLEAR_FLAG(op, FLAG_SEE_INVISIBLE);
 	}
 
 	if (!QUERY_FLAG(&op->arch->clone, FLAG_LIFESAVE))
@@ -950,547 +974,312 @@ void fix_player(object *op)
 
 	/* Initializing player arrays from the values in player archetype clone:  */
 	memset(&pl->equipment, 0, sizeof(pl->equipment));
+	memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
 	memcpy(&op->protection, &op->arch->clone.protection, sizeof(op->protection));
 	memcpy(&op->attack, &op->arch->clone.attack, sizeof(op->attack));
 
-	/* Now we browse the inventory... There is not only our equipment -
-	 * there are all our skills, forces and hidden system objects. */
-	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
+	for (tmp = op->inv; tmp; tmp = tmp->below)
 	{
 		if (QUERY_FLAG(tmp, FLAG_IS_READY))
 		{
 			pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
+			continue;
 		}
 
-		/* Add here more types we can and must skip. */
+		if (tmp->type == QUEST_CONTAINER)
+		{
+			pl->quest_container = tmp;
+			continue;
+		}
+
 		if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL)
 		{
 			continue;
 		}
 
-		/* This is needed, because our applied light can be overruled by a light giving
-		 * object like holy glowing aura force or something */
 		if (tmp->glow_radius > light)
 		{
-			/* Don't use this item when it is a 'not applied LIGHT_APPLY' */
 			if (tmp->type != LIGHT_APPLY || QUERY_FLAG(tmp, FLAG_APPLIED))
 			{
 				light = tmp->glow_radius;
 			}
 		}
 
-		/* All skills, not only the applied ones */
 		if (tmp->type == SKILL)
 		{
-			/* Let's remember the best bare hand skill */
-			if (tmp->stats.dam > 0)
-			{
-				if (!skill_weapon || skill_weapon->stats.dam < tmp->stats.dam)
-				{
-					skill_weapon = tmp;
-				}
-			}
-		}
-		else if (tmp->type == QUEST_CONTAINER)
-		{
-			pl->quest_container = tmp;
+			pl->skill_ptr[tmp->stats.sp] = tmp;
 		}
 
-		/* This checks all applied items in the inventory */
 		if (QUERY_FLAG(tmp, FLAG_APPLIED))
 		{
-			/* Still applied stuff */
-			switch (tmp->type)
+			if (tmp->type == POTION_EFFECT)
 			{
-				case LIGHT_APPLY:
-					if (tmp->glow_radius > light)
+				for (i = 0; i < NUM_STATS; i++)
+				{
+					change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+				}
+
+				for (i = 0; i < NROFATTACKS; i++)
+				{
+					if (tmp->protection[i] > potion_protection_bonus[i])
 					{
-						light = tmp->glow_radius;
+						potion_protection_bonus[i] = tmp->protection[i];
+					}
+					else if (tmp->protection[i] < potion_protection_malus[i])
+					{
+						potion_protection_malus[i] = tmp->protection[i];
 					}
 
-					break;
-
-				case SKILL_ITEM:
-					pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
-					break;
-
-				case WEAPON:
-					if (!pl->equipment[PLAYER_EQUIP_WEAPON])
+					if (tmp->attack[i] > potion_attack[i])
 					{
-						pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
+						potion_attack[i] = tmp->attack[i];
 					}
+				}
 
-					/* Our weapon */
-					pl->selected_weapon = tmp;
-					i = tmp->sub_type % 4;
+				living_apply_flags(op, tmp);
+			}
+			else if (tmp->type == CLASS || tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE || tmp->type == SYMPTOM)
+			{
+				if (tmp->type == CLASS)
+				{
+					pl->class_ob = tmp;
+				}
 
-					if (i == WEAP_1H_IMPACT)
-					{
-						pl->set_skill_weapon = SK_MELEE_WEAPON;
-					}
-					else if (i == WEAP_1H_SLASH)
-					{
-						pl->set_skill_weapon = SK_SLASH_WEAP;
-					}
-					else if (i == WEAP_1H_CLEAVE)
-					{
-						pl->set_skill_weapon = SK_CLEAVE_WEAP;
-					}
-					else
-					{
-						pl->set_skill_weapon = SK_PIERCE_WEAP;
-					}
+				if (ARMOUR_SPEED(tmp) && (float) ARMOUR_SPEED(tmp) / 10.0f < max)
+				{
+					max = ARMOUR_SPEED(tmp) / 10.0f;
+				}
 
-					op->weapon_speed = tmp->weapon_speed;
+				for (i = 0; i < NUM_STATS; i++)
+				{
+					change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+				}
 
-					if (!op->weapon_speed)
-					{
-						logger_print(LOG(BUG), "monster/player %s applied weapon %s without weapon speed!", op->name, tmp->name);
-					}
-
-					wc += (tmp->stats.wc + tmp->magic);
-
-					if (tmp->stats.ac && tmp->stats.ac + tmp->magic > 0)
-					{
-						ac += tmp->stats.ac + tmp->magic;
-					}
-
-					op->stats.dam += (tmp->stats.dam + tmp->magic);
-					weapon_weight = tmp->weight;
-
-					if (tmp->slaying)
-					{
-						FREE_AND_COPY_HASH(op->slaying, tmp->slaying);
-					}
-
-					pl->encumbrance += (sint16) (3 * tmp->weight / 1000);
-					pl->digestion += tmp->stats.food;
-					pl->gen_sp += tmp->stats.sp;
-					pl->gen_hp += tmp->stats.hp;
-					pl->gen_sp_armour += tmp->last_heal;
-					pl->item_power += tmp->item_power;
-
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
-					break;
-
-				/* All armours + rings and amulets */
-				case RING:
-					pl->equipment[PLAYER_EQUIP_RRING + ring_count] = tmp;
-					ring_count++;
-					goto fix_player_no_armour;
-
-				case AMULET:
-					pl->equipment[PLAYER_EQUIP_AMULET] = tmp;
-					goto fix_player_no_armour;
-
-				case BRACERS:
-					pl->equipment[PLAYER_EQUIP_BRACER] = tmp;
-					goto fix_player_jump1;
-
-				case ARMOUR:
-					pl->equipment[PLAYER_EQUIP_MAIL] = tmp;
-					pl->encumbrance += (int) tmp->weight / 1000;
-					goto fix_player_jump1;
-
-				case SHIELD:
-					pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
-					pl->encumbrance += (int) tmp->weight / 2000;
-					goto fix_player_jump1;
-
-				case GIRDLE:
-					pl->equipment[PLAYER_EQUIP_GIRDLE] = tmp;
-					goto fix_player_jump1;
-
-				case HELMET:
-					pl->equipment[PLAYER_EQUIP_HELM] = tmp;
-					goto fix_player_jump1;
-
-				case BOOTS:
-					pl->equipment[PLAYER_EQUIP_BOOTS] = tmp;
-					goto fix_player_jump1;
-
-				case GLOVES:
-					pl->equipment[PLAYER_EQUIP_GAUNTLET] = tmp;
-					goto fix_player_jump1;
-
-				case CLOAK:
-					pl->equipment[PLAYER_EQUIP_CLOAK] = tmp;
-
-fix_player_jump1:
-					/* Used for ALL armours except rings and amulets */
-					if (ARMOUR_SPEED(tmp) && (float) ARMOUR_SPEED(tmp) / 10.0f < max)
-					{
-						max = ARMOUR_SPEED(tmp) / 10.0f;
-					}
-
-fix_player_no_armour:
-					max_boni_hp += tmp->stats.maxhp;
-					max_boni_sp += tmp->stats.maxsp;
-					pl->digestion += tmp->stats.food;
-					pl->gen_sp += tmp->stats.sp;
-					pl->gen_hp += tmp->stats.hp;
-					pl->gen_sp_armour += tmp->last_heal;
-					pl->item_power += tmp->item_power;
-
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
+				if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
+				{
 					if (tmp->stats.wc)
 					{
-						wc += (tmp->stats.wc + tmp->magic);
+						op->stats.wc += tmp->stats.wc + tmp->magic;
 					}
 
 					if (tmp->stats.dam)
 					{
-						op->stats.dam += (tmp->stats.dam + tmp->magic);
+						op->stats.dam += tmp->stats.dam + tmp->magic;
 					}
 
 					if (tmp->stats.ac)
 					{
-						ac += (tmp->stats.ac + tmp->magic);
+						op->stats.ac += (tmp->stats.ac + tmp->magic);
 					}
 
-					break;
-
-				case BOW:
-				case WAND:
-				case ROD:
-				case SPELL:
-					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
-
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
-					break;
-
-				/* No protection from potion effect - resist only! */
-				case POTION_EFFECT:
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
-					/* Collect highest bonus & malus - only highest one counts,
-					 * no adding potion effects of same resist */
-					for (i = 0; i < NROFATTACKS; i++)
-					{
-						/* Collect highest/lowest resistance */
-						if (tmp->protection[i] > potion_protection_bonus[i])
-						{
-							potion_protection_bonus[i] = tmp->protection[i];
-						}
-						else if (tmp->protection[i] < potion_protection_malus[i])
-						{
-							potion_protection_malus[i] = tmp->protection[i];
-						}
-
-						if (tmp->attack[i] > potion_attack[i])
-						{
-							potion_attack[i] = tmp->attack[i];
-						}
-					}
-
-					break;
-
-				/* Skills modifying the character */
-				case SKILL:
-					/* Skill is a 'weapon' */
-					if (tmp->stats.dam > 0)
-					{
-						wc += tmp->stats.wc;
-						ac += tmp->stats.ac;
-						op->weapon_speed = tmp->weapon_speed;
-						weapon_weight = tmp->weight;
-						op->stats.dam += tmp->stats.dam;
-					}
-					else
-					{
-						op->stats.dam += tmp->stats.dam;
-						wc += tmp->stats.wc;
-						ac += tmp->stats.ac;
-					}
-
-					if (tmp->slaying)
-					{
-						FREE_AND_COPY_HASH(op->slaying, tmp->slaying);
-					}
-
-					pl->encumbrance += (int) 3 * tmp->weight / 1000;
-					break;
-
-				case CLASS:
-					/* Copy some values from the class object to the
-					 * player. */
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
-					}
-
-					wc += tmp->stats.wc;
-					op->stats.dam += tmp->stats.dam;
-					ac += tmp->stats.ac;
 					op->stats.maxhp += tmp->stats.maxhp;
 					op->stats.maxsp += tmp->stats.maxsp;
-					CONTR(op)->class_ob = tmp;
-					break;
+				}
 
-				case FORCE:
-					if (ARMOUR_SPEED(tmp) && (float)ARMOUR_SPEED(tmp) / 10.0f < max)
-					{
-						max = ARMOUR_SPEED(tmp) / 10.0f;
-					}
-
-					for (i = 0; i < NUM_STATS; i++)
-					{
-						change_attr_value(&(op->stats), i, get_attr_value(&(tmp->stats), i));
-					}
-
-					if (tmp->stats.wc)
-					{
-						wc += (tmp->stats.wc + tmp->magic);
-					}
-
-					if (tmp->stats.dam)
-					{
-						op->stats.dam += (tmp->stats.dam + tmp->magic);
-					}
-
-					if (tmp->stats.ac)
-					{
-						ac += (tmp->stats.ac + tmp->magic);
-					}
-
-					if (tmp->stats.maxhp)
-					{
-						op->stats.maxhp += tmp->stats.maxhp;
-					}
-
-					if (tmp->stats.maxsp)
-					{
-						op->stats.maxsp += tmp->stats.maxsp;
-					}
-
-					goto fix_player_jump_resi;
-
-				case DISEASE:
-				case SYMPTOM:
+				if (tmp->type == DISEASE || tmp->type == SYMPTOM)
+				{
 					speed_reduce_from_disease = (float) tmp->last_sp / 100.0f;
 
 					if (speed_reduce_from_disease == 0.0f)
 					{
 						speed_reduce_from_disease = 1.0f;
 					}
+				}
 
-				case POISONING:
-					for (i = 0; i < NUM_STATS; i++)
+				for (i = 0; i < NROFATTACKS; i++)
+				{
+					if (tmp->protection[i] > protect_exact_boni[i])
 					{
-						change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+						protect_exact_boni[i] = tmp->protection[i];
+					}
+					else if (tmp->protection[i] < 0)
+					{
+						protect_exact_mali[i] += (-tmp->protection[i]);
 					}
 
-				case BLINDNESS:
-				case CONFUSION:
-fix_player_jump_resi:
-
-					for (i = 0; i < NROFATTACKS; i++)
+					if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
 					{
-						if (tmp->protection[i] > protect_exact_boni[i])
+						if (tmp->attack[i] > 0)
 						{
-							protect_exact_boni[i] = tmp->protection[i];
-						}
-						else if (tmp->protection[i] < 0)
-						{
-							protect_exact_mali[i] += (-tmp->protection[i]);
-						}
-
-						if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
-						{
-							if (tmp->attack[i] > 0)
-							{
-								if ((op->attack[i] + tmp->attack[i]) <= 120)
-								{
-									op->attack[i] += tmp->attack[i];
-								}
-								else
-								{
-									op->attack[i] = 120;
-								}
-							}
-						}
-					}
-
-					break;
-
-				/* Catch items which are applied but should not be -
-				 * or we forgot to catch them here. */
-				default:
-					logger_print(LOG(DEBUG), "unexpected applied object %s (%d)(clear flag now!)", query_name(tmp, NULL), tmp->type);
-					CLEAR_FLAG(tmp, FLAG_APPLIED);
-					break;
-			}
-
-			/* We just add a given terrain */
-			op->terrain_flag |= tmp->terrain_type;
-			op->path_attuned |= tmp->path_attuned;
-			op->path_repelled |= tmp->path_repelled;
-			op->path_denied |= tmp->path_denied;
-
-			if (QUERY_FLAG(tmp, FLAG_LIFESAVE))
-			{
-				SET_FLAG(op, FLAG_LIFESAVE);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_REFL_SPELL))
-			{
-				SET_FLAG(op, FLAG_REFL_SPELL);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_REFL_MISSILE))
-			{
-				SET_FLAG(op, FLAG_REFL_MISSILE);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_STEALTH))
-			{
-				SET_FLAG(op, FLAG_STEALTH);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_UNDEAD) && !QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD))
-			{
-				SET_FLAG(op, FLAG_UNDEAD);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_XRAYS))
-			{
-				SET_FLAG(op, FLAG_XRAYS);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_BLIND))
-			{
-				SET_FLAG(op, FLAG_BLIND);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_SEE_IN_DARK))
-			{
-				SET_FLAG(op, FLAG_SEE_IN_DARK);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_SEE_INVISIBLE))
-			{
-				SET_FLAG(op, FLAG_SEE_INVISIBLE);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_MAKE_INVISIBLE))
-			{
-				SET_MULTI_FLAG(op, FLAG_IS_INVISIBLE);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_CAN_PASS_THRU))
-			{
-				SET_MULTI_FLAG(op, FLAG_CAN_PASS_THRU);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_MAKE_ETHEREAL))
-			{
-				SET_MULTI_FLAG(op, FLAG_CAN_PASS_THRU);
-				SET_MULTI_FLAG(op, FLAG_IS_ETHEREAL);
-			}
-
-			if (QUERY_FLAG(tmp, FLAG_FLYING))
-			{
-				SET_MULTI_FLAG(op, FLAG_FLYING);
-				max = 1;
-			}
-
-			/* Slow penalty */
-			if (tmp->stats.exp && tmp->type != SKILL)
-			{
-				if (tmp->stats.exp > 0)
-				{
-					added_speed += (float) tmp->stats.exp / 3.0f;
-					bonus_speed += 1.0f + (float) tmp->stats.exp / 3.0f;
-				}
-				else
-				{
-					added_speed += (float) tmp->stats.exp;
-				}
-			}
-		}
-	}
-
-	/* Now collect all our real armour stuff - this will now add *after* all force
-	 * or non potion effects effecting resist, attack or protection - also this will
-	 * give us a sorted adding.
-	 * But the most important point is that we calculate *here* and only here the equipment
-	 * quality modifier for players.
-	 * Note, that for bows/arrows the calculation is done "on the fly" when the
-	 * throw/fire object is created! */
-	for (j = 0; j < PLAYER_EQUIP_MAX; j++)
-	{
-		if (pl->equipment[j])
-		{
-			tmp = pl->equipment[j];
-			tmp_con = (float) tmp->item_condition / 100.0f;
-
-			/* Only quality adjustment for *positive* values! */
-			for (i = 0; i < NROFATTACKS; i++)
-			{
-				if (tmp->protection[i] > 0)
-				{
-					tmp_item = (int) ((float) tmp->protection[i] * tmp_con);
-					protect_boni[i] += ((100 - protect_boni[i]) * tmp_item) / 100;
-				}
-				else if (tmp->protection[i] < 0)
-				{
-					protect_mali[i] += ((100 - protect_mali[i]) * (-tmp->protection[i])) / 100;
-				}
-
-				if (tmp->type != BOW)
-				{
-					if (tmp->attack[i] > 0)
-					{
-						tmp_item = (int) ((float) tmp->attack[i] * tmp_con);
-
-						if ((op->attack[i] + tmp_item) <= 120)
-						{
-							op->attack[i] += tmp_item;
-						}
-						else
-						{
-							op->attack[i] = 120;
+							op->attack[i] = MIN(UINT8_MAX, op->attack[i] + tmp->attack[i]);
 						}
 					}
 				}
-			}
-		}
-	}
 
-	/* Now we add in all our values... we add in our potions effects as well as
-	 * our attack boni and/or protections. */
-	for (j = 1, i = 0; i < NROFATTACKS; i++, j <<= 1)
-	{
-		if (potion_attack[i])
-		{
-			if ((op->attack[i] + potion_attack[i]) > 120)
+				living_apply_flags(op, tmp);
+			}
+			else if (tmp->type == AMULET)
 			{
-				op->attack[i] = 120;
+				pl->equipment[PLAYER_EQUIP_AMULET] = tmp;
+			}
+			else if (tmp->type == WEAPON || OBJECT_IS_RANGED(tmp))
+			{
+				if (!pl->equipment[PLAYER_EQUIP_WEAPON] || pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON)
+				{
+					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
+				}
+			}
+			else if (tmp->type == GLOVES)
+			{
+				pl->equipment[PLAYER_EQUIP_GAUNTLETS] = tmp;
+			}
+			else if (tmp->type == RING && ring_count == 0)
+			{
+				pl->equipment[PLAYER_EQUIP_RING_RIGHT] = tmp;
+				ring_count++;
+			}
+			else if (tmp->type == HELMET)
+			{
+				pl->equipment[PLAYER_EQUIP_HELM] = tmp;
+			}
+			else if (tmp->type == ARMOUR)
+			{
+				pl->equipment[PLAYER_EQUIP_ARMOUR] = tmp;
+			}
+			else if (tmp->type == GIRDLE)
+			{
+				pl->equipment[PLAYER_EQUIP_BELT] = tmp;
+			}
+			else if (tmp->type == GREAVES)
+			{
+				pl->equipment[PLAYER_EQUIP_GREAVES] = tmp;
+			}
+			else if (tmp->type == BOOTS)
+			{
+				pl->equipment[PLAYER_EQUIP_BOOTS] = tmp;
+			}
+			else if (tmp->type == CLOAK)
+			{
+				pl->equipment[PLAYER_EQUIP_CLOAK] = tmp;
+			}
+			else if (tmp->type == BRACERS)
+			{
+				pl->equipment[PLAYER_EQUIP_BRACERS] = tmp;
+			}
+			else if (tmp->type == SHIELD)
+			{
+				pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
+			}
+			else if (tmp->type == LIGHT_APPLY)
+			{
+				pl->equipment[PLAYER_EQUIP_LIGHT] = tmp;
+			}
+			else if (tmp->type == RING && ring_count == 1)
+			{
+				pl->equipment[PLAYER_EQUIP_RING_LEFT] = tmp;
+				ring_count++;
 			}
 			else
 			{
-				op->attack[i] += potion_attack[i];
+				logger_print(LOG(BUG), "Unexpected applied object ('%s' in %s).", query_name(tmp, op), op->name);
+				CLEAR_FLAG(tmp, FLAG_APPLIED);
 			}
 		}
 	}
 
-	/* Add protection bonuses.
-	 * Ensure that protection is between 0 - 100. */
+	for (i = 0; i < PLAYER_EQUIP_MAX; i++)
+	{
+		if (!pl->equipment[i])
+		{
+			continue;
+		}
+
+		if (i == PLAYER_EQUIP_SHIELD && pl->equipment[PLAYER_EQUIP_WEAPON] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON], FLAG_TWO_HANDED))
+		{
+			continue;
+		}
+
+		if (i == PLAYER_EQUIP_AMMO)
+		{
+			continue;
+		}
+
+		/* Used for ALL armours except rings and amulets */
+		if (ARMOUR_SPEED(pl->equipment[i]) && (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max)
+		{
+			max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
+		}
+
+		if (pl->equipment[i]->weapon_speed)
+		{
+			op->weapon_speed = pl->equipment[i]->weapon_speed;
+		}
+
+		if (pl->equipment[i]->stats.ac)
+		{
+			op->stats.ac += pl->equipment[i]->stats.ac + pl->equipment[i]->magic;
+		}
+
+		if (!OBJECT_IS_RANGED(pl->equipment[i]))
+		{
+			if (pl->equipment[i]->stats.wc)
+			{
+				op->stats.wc += pl->equipment[i]->stats.wc + pl->equipment[i]->magic;
+			}
+
+			if (pl->equipment[i]->stats.dam)
+			{
+				op->stats.dam += pl->equipment[i]->stats.dam + pl->equipment[i]->magic;
+			}
+		}
+
+		max_boni_hp += pl->equipment[i]->stats.maxhp;
+		max_boni_sp += pl->equipment[i]->stats.maxsp;
+
+		pl->encumbrance += (sint16) (3 * pl->equipment[i]->weight / 1000);
+		pl->digestion += pl->equipment[i]->stats.food;
+		pl->gen_sp += pl->equipment[i]->stats.sp;
+		pl->gen_hp += pl->equipment[i]->stats.hp;
+		pl->gen_sp_armour += pl->equipment[i]->last_heal;
+
+		pl->item_power += pl->equipment[i]->item_power;
+
+		for (j = 0; j < NUM_STATS; j++)
+		{
+			change_attr_value(&op->stats, j, get_attr_value(&pl->equipment[i]->stats, j));
+		}
+
+		living_apply_flags(op, pl->equipment[i]);
+
+		for (j = 0; j < NROFATTACKS; j++)
+		{
+			if (pl->equipment[i]->protection[j] > 0)
+			{
+				protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
+			}
+			else if (pl->equipment[i]->protection[j] < 0)
+			{
+				protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
+			}
+
+			if (pl->equipment[i]->attack[j] > 0)
+			{
+				op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int) ((float) pl->equipment[i]->attack[j] * ((float) pl->equipment[i]->item_condition / 100.0f)));
+			}
+		}
+
+		if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL)
+		{
+			if (pl->equipment[i]->stats.exp > 0)
+			{
+				added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
+				bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
+			}
+			else
+			{
+				added_speed += (float) pl->equipment[i]->stats.exp;
+			}
+		}
+	}
+
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		if (potion_attack[i])
+		{
+			op->attack[i] = MIN(UINT8_MAX, op->attack[i] + potion_attack[i]);
+		}
+	}
+
 	for (i = 0; i < NROFATTACKS; i++)
 	{
 		int ptemp;
@@ -1507,22 +1296,10 @@ fix_player_jump_resi:
 		}
 
 		ptemp = protect_boni[i] + protect_exact_boni[i] - protect_mali[i] - protect_exact_mali[i];
-
-		if (ptemp < -100)
-		{
-			op->protection[i] = -100;
-		}
-		else if (ptemp > 100)
-		{
-			op->protection[i] = 100;
-		}
-		else
-		{
-			op->protection[i] = ptemp;
-		}
+		op->protection[i] = MIN(100, MAX(-100, ptemp));
 	}
 
-	check_stat_bounds(&(op->stats));
+	check_stat_bounds(&op->stats);
 
 	/* Now the speed thing... */
 	op->speed += speed_bonus[op->stats.Dex];
@@ -1531,7 +1308,6 @@ fix_player_jump_resi:
 	{
 		op->speed += added_speed / 10.0f;
 	}
-	/* Something wrong here...: */
 	else
 	{
 		op->speed /= 1.0f - added_speed;
@@ -1596,11 +1372,13 @@ fix_player_jump_resi:
 
 	op->glow_radius = light;
 
-	/* We must do -old_gow + light */
 	if (op->map && old_glow != light)
 	{
 		adjust_light_source(op->map, op->x, op->y, light - old_glow);
 	}
+
+	op->stats.maxhp *= op->level + 3;
+	op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] ? pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
 
 	/* Now adjust with the % of the stats mali/boni. */
 	op->stats.maxhp += (int) ((float) op->stats.maxhp * con_bonus[op->stats.Con]) + max_boni_hp;
@@ -1651,49 +1429,16 @@ fix_player_jump_resi:
 		op->stats.sp = op->stats.maxsp;
 	}
 
-	op->stats.ac = ac + op->level;
-
-	/* No weapon in our hand - we must use our hands */
-	if (pl->set_skill_weapon == NO_SKILL_READY)
+	if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
 	{
-		if (skill_weapon)
-		{
-			/* Now we must add this special skill attack */
-			for (i = 0; i < NROFATTACKS; i++)
-			{
-				if (op->attack[i] + skill_weapon->attack[i] > 120)
-				{
-					op->attack[i] = 120;
-				}
-				else
-				{
-					op->attack[i] += skill_weapon->attack[i];
-				}
-			}
-
-			pl->skill_weapon = skill_weapon;
-			op->stats.wc = wc + skill_weapon->level;
-			op->stats.dam = (sint16) ((float) op->stats.dam * LEVEL_DAMAGE(skill_weapon->level));
-		}
-		else
-		{
-			logger_print(LOG(BUG), "player %s has no hth skill!", op->name);
-		}
+		op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
+		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
+		op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 	}
-	/* Weapon in hand */
 	else
 	{
-		/* Weapon without the skill applied... */
-		if (!pl->skill_ptr[pl->set_skill_weapon])
-		{
-			logger_print(LOG(BUG), "player %s has weapon selected but not the skill #%d!!!", op->name, pl->set_skill_weapon);
-		}
-		else
-		{
-			op->stats.wc = wc + pl->skill_ptr[pl->set_skill_weapon]->level;
-			op->stats.dam = (sint16) ((float) op->stats.dam * LEVEL_DAMAGE(pl->skill_ptr[pl->set_skill_weapon]->level));
-			op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
-		}
+		op->stats.wc += SKILL_LEVEL(pl, SK_UNARMED);
+		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED));
 	}
 
 	/* Now the last adds - stat bonus to damage and WC */
@@ -1716,33 +1461,6 @@ fix_player_jump_resi:
 		logger_print(LOG(BUG), "Player %s had no quest container, fixing.", op->name);
 		insert_ob_in_ob(quest_container, op);
 		pl->quest_container = quest_container;
-	}
-
-	if (QUERY_FLAG(op, FLAG_IS_INVISIBLE))
-	{
-		/* We must reinsert us in the invisible chain */
-		if (!inv_flag)
-		{
-			update_object(op, UP_OBJ_LAYER);
-		}
-	}
-	/* And !FLAG_IS_INVISIBLE */
-	else if (inv_flag)
-	{
-		update_object(op, UP_OBJ_LAYER);
-	}
-
-	if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE))
-	{
-		if (!inv_see_flag)
-		{
-			pl->socket.update_tile = 0;
-		}
-	}
-	/* And !FLAG_SEE_INVISIBLE */
-	else if (inv_see_flag)
-	{
-		pl->socket.update_tile = 0;
 	}
 }
 

@@ -69,7 +69,7 @@ int common_object_throw(object *op, object *shooter, int dir)
 
 	if (QUERY_FLAG(op, FLAG_DUST))
 	{
-		if ((shooter->type == PLAYER && !change_skill(shooter, SK_USE_MAGIC_ITEM)) || op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS || !spells[op->stats.sp].archname || !(spells[op->stats.sp].flags & SPELL_DESC_DIRECTION))
+		if ((shooter->type == PLAYER && !change_skill(shooter, SK_MAGIC_DEVICES)) || op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS || !spells[op->stats.sp].archname || !(spells[op->stats.sp].flags & SPELL_DESC_DIRECTION))
 		{
 			draw_info_format(COLOR_WHITE, shooter, "You scatter the %s, but nothing happens.", query_short_name(op, shooter));
 		}

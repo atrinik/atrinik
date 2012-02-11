@@ -522,12 +522,6 @@ void doeric_server_write(void)
 		esrv_update_stats(pl);
 		party_update_who(pl);
 
-		if (pl->update_skills)
-		{
-			esrv_update_skills(pl);
-			pl->update_skills = 0;
-		}
-
 		draw_client_map(pl->ob);
 
 		if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile)

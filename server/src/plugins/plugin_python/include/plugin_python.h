@@ -255,8 +255,6 @@ typedef enum
 	FIELDTYPE_BOOLEAN,
 	/** AttrList field type; the field is an array. */
 	FIELDTYPE_LIST,
-	/** Player's known spells array. */
-	FIELDTYPE_KNOWN_SPELLS,
 	/** Player's command permissions. */
 	FIELDTYPE_CMD_PERMISSIONS,
 	/** Player's faction reputations. */
@@ -394,7 +392,7 @@ typedef struct
 
 	/**
 	 * Type of the array being handled; for example,
-	 * @ref FIELDTYPE_KNOWN_SPELLS. */
+	 * @ref FIELDTYPE_REGION_MAPS. */
 	field_type field;
 
 	/** Used to keep track of iteration index. */

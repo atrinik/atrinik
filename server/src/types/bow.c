@@ -48,15 +48,15 @@ int bow_get_skill(object *bow)
 {
 	if (bow->sub_type == RANGE_WEAP_BOW)
 	{
-		return SK_MISSILE_WEAPON;
+		return SK_BOW_ARCHERY;
 	}
 	else if (bow->sub_type == RANGE_WEAP_XBOWS)
 	{
-		return SK_XBOW_WEAP;
+		return SK_CROSSBOW_ARCHERY;
 	}
 	else
 	{
-		return SK_SLING_WEAP;
+		return SK_SLING_ARCHERY;
 	}
 }
 

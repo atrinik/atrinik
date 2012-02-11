@@ -45,8 +45,8 @@ static int inventory_matches_filter(object *op)
 		return 1;
 	}
 
-	/* Never show spell objects in the inventory. */
-	if (op->itype == TYPE_SPELL)
+	/* Never show spell/skill objects in the inventory. */
+	if (op->itype == TYPE_SPELL || op->itype == TYPE_SKILL)
 	{
 		return 0;
 	}
@@ -247,13 +247,14 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 					if (ob->item_level)
 					{
-						size_t skill_type, skill_id;
+						object *skill;
+						size_t skill_id;
 						int level;
 
-						if (ob->item_skill && skill_find(skill_names[ob->item_skill - 1], &skill_type, &skill_id))
+						if (ob->item_skill_tag && (skill = object_find(ob->item_skill_tag)) && skill_find_object(skill, &skill_id))
 						{
-							level = skill_get(skill_type, skill_id)->level;
-							snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill_names[ob->item_skill - 1]);
+							level = skill_get(skill_id)->level;
+							snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill->s_name);
 						}
 						else
 						{

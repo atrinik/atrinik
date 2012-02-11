@@ -30,7 +30,7 @@
 #include "zlib.h"
 
 /** All the server/client files. */
-_srv_client_files SrvClientFiles[SRV_CLIENT_FILES];
+_srv_client_files SrvClientFiles[SERVER_FILES_MAX];
 
 /** Socket information. */
 Socket_Info socket_info;
@@ -95,7 +95,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->password_fails = 0;
 	ns->is_bot = 0;
 
-	for (i = 0; i < SRV_CLIENT_FILES; i++)
+	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
 		ns->requested_file[i] = 0;
 	}
@@ -341,57 +341,6 @@ static void load_srv_file(char *fname, int id)
 }
 
 /**
- * Get the lib/settings default file and create the data/client_settings
- * file from it. */
-static void create_client_settings(void)
-{
-	char buf[MAX_BUF * 4];
-	int i;
-	FILE *fset_default, *fset_create;
-
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.libpath);
-
-	/* Open default */
-	if ((fset_default = fopen(buf, "rb")) == NULL)
-	{
-		logger_print(LOG(ERROR), "Can not open file %s", buf);
-		exit(1);
-	}
-
-	/* Delete our target - we create it new now */
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datapath);
-	unlink(buf);
-
-	/* Open target client_settings */
-	if ((fset_create = fopen(buf, "wb")) == NULL)
-	{
-		fclose(fset_default);
-		logger_print(LOG(ERROR), "Can not open file %s", buf);
-		exit(1);
-	}
-
-	/* Copy default to target */
-	while (fgets(buf, MAX_BUF, fset_default) != NULL)
-	{
-		fputs(buf, fset_create);
-	}
-
-	fclose(fset_default);
-
-	/* Now add the level information */
-	snprintf(buf, sizeof(buf), "level %d\n", MAXLEVEL);
-	fputs(buf, fset_create);
-
-	for (i = 0; i <= MAXLEVEL; i++)
-	{
-		snprintf(buf, sizeof(buf), "%"FMT64HEX"\n", new_levels[i]);
-		fputs(buf, fset_create);
-	}
-
-	fclose(fset_create);
-}
-
-/**
  * Get the lib/server_settings default file and create the
  * data/server_settings file from it. */
 static void create_server_settings(void)
@@ -490,49 +439,26 @@ void init_srv_files(void)
 
 	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
-	snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_HFILES);
-
-	snprintf(buf, sizeof(buf), "%s/hfiles_v2", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_HFILES_V2);
-
-	snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_ANIMS);
-
 	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
-	load_srv_file(buf, SRV_CLIENT_BMAPS);
+	load_srv_file(buf, SERVER_FILE_BMAPS);
 
-	snprintf(buf, sizeof(buf), "%s/client_skills", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_SKILLS);
-
-	snprintf(buf, sizeof(buf), "%s/client_spells", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_SPELLS);
-
-	create_client_settings();
-
-	snprintf(buf, sizeof(buf), "%s/client_settings", settings.datapath);
-	load_srv_file(buf, SRV_CLIENT_SETTINGS);
-
-	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, UPDATES_FILE_NAME);
-	load_srv_file(buf, SRV_FILE_UPDATES);
-
-	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, SRV_FILE_SPELLS_FILENAME);
-	load_srv_file(buf, SRV_FILE_SPELLS_V2);
+	snprintf(buf, sizeof(buf), "%s/"UPDATES_FILE_NAME, settings.datapath);
+	load_srv_file(buf, SERVER_FILE_UPDATES);
 
 	create_server_settings();
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
-	load_srv_file(buf, SRV_SERVER_SETTINGS);
+	load_srv_file(buf, SERVER_FILE_SETTINGS);
 	new_chars_init();
 
 	create_server_animations();
 	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
-	load_srv_file(buf, SRV_CLIENT_ANIMS_V2);
+	load_srv_file(buf, SERVER_FILE_ANIMS);
 
 	snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
-	load_srv_file(buf, SRV_CLIENT_EFFECTS);
+	load_srv_file(buf, SERVER_FILE_HFILES);
 
-	snprintf(buf, sizeof(buf), "%s/%s", settings.datapath, SRV_CLIENT_SKILLS_FILENAME);
-	load_srv_file(buf, SRV_CLIENT_SKILLS_V2);
+	snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
+	load_srv_file(buf, SERVER_FILE_HFILES);
 }
 
 /**
@@ -541,7 +467,7 @@ void free_srv_files(void)
 {
 	int i;
 
-	for (i = 0; i < SRV_CLIENT_FILES; i++)
+	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
 		free(SrvClientFiles[i].file);
 	}

@@ -140,29 +140,6 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_skill_ready(uint8 *data, size_t len, size_t pos)
-{
-	size_t type, id;
-
-	packet_to_string(data, len, &pos, cpl.skill_name, sizeof(cpl.skill_name));
-	cpl.skill = NULL;
-
-	if (skill_find(cpl.skill_name, &type, &id))
-	{
-		skill_entry_struct *skill;
-
-		skill = skill_get(type, id);
-
-		if (skill->known)
-		{
-			cpl.skill = skill;
-		}
-	}
-
-	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
-}
-
-/** @copydoc socket_command_struct::handle_func */
 void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 {
 	uint16 flags;
@@ -427,6 +404,18 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
+				case CS_STAT_PATH_ATTUNED:
+					cpl.path_attuned = packet_to_uint32(data, len, &pos);
+					break;
+
+				case CS_STAT_PATH_REPELLED:
+					cpl.path_repelled = packet_to_uint32(data, len, &pos);
+					break;
+
+				case CS_STAT_PATH_DENIED:
+					cpl.path_denied = packet_to_uint32(data, len, &pos);
+					break;
+
 				case CS_STAT_EXP:
 					cpl.stats.exp = packet_to_uint64(data, len, &pos);
 					WIDGET_REDRAW_ALL(MAIN_LVL_ID);
@@ -561,19 +550,104 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 	ignore_list_load();
 }
 
+static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)
+{
+	if (flags & UPD_LOCATION)
+	{
+		/* Currently unused. */
+		packet_to_uint32(data, len, pos);
+	}
+
+	if (flags & UPD_FLAGS)
+	{
+		tmp->flags = packet_to_uint32(data, len, pos);
+	}
+
+	if (flags & UPD_WEIGHT)
+	{
+		tmp->weight = (double) packet_to_uint32(data, len, pos) / 1000.0;
+	}
+
+	if (flags & UPD_FACE)
+	{
+		tmp->face = packet_to_uint16(data, len, pos);
+		request_face(tmp->face);
+	}
+
+	if (flags & UPD_DIRECTION)
+	{
+		tmp->direction = packet_to_uint8(data, len, pos);
+	}
+
+	if (flags & UPD_TYPE)
+	{
+		tmp->itype = packet_to_uint8(data, len, pos);
+		tmp->stype = packet_to_uint8(data, len, pos);
+		tmp->item_qua = packet_to_uint8(data, len, pos);
+
+		if (tmp->item_qua != 255)
+		{
+			tmp->item_con = packet_to_uint8(data, len, pos);
+			tmp->item_level = packet_to_uint8(data, len, pos);
+			tmp->item_skill_tag = packet_to_uint32(data, len, pos);
+		}
+	}
+
+	if (flags & UPD_NAME)
+	{
+		packet_to_string(data, len, pos, tmp->s_name, sizeof(tmp->s_name));
+	}
+
+	if (flags & UPD_ANIM)
+	{
+		tmp->animation_id = packet_to_uint16(data, len, pos);
+	}
+
+	if (flags & UPD_ANIMSPEED)
+	{
+		tmp->anim_speed = packet_to_uint8(data, len, pos);
+	}
+
+	if (flags & UPD_NROF)
+	{
+		tmp->nrof = packet_to_uint32(data, len, pos);
+	}
+
+	if (flags & UPD_EXTRA)
+	{
+		if (tmp->itype == TYPE_SPELL)
+		{
+			uint16 spell_cost;
+			uint32 spell_path, spell_flags;
+			char spell_msg[MAX_BUF];
+
+			spell_cost = packet_to_uint16(data, len, pos);
+			spell_path = packet_to_uint32(data, len, pos);
+			spell_flags = packet_to_uint32(data, len, pos);
+			packet_to_string(data, len, pos, spell_msg, sizeof(spell_msg));
+
+			spells_update(tmp, spell_cost, spell_path, spell_flags, spell_msg);
+		}
+		else if (tmp->itype == TYPE_SKILL)
+		{
+			uint8 skill_level;
+			sint64 skill_exp;
+
+			skill_level = packet_to_uint8(data, len, pos);
+			skill_exp = packet_to_sint64(data, len, pos);
+
+			skills_update(tmp, skill_level, skill_exp);
+		}
+	}
+}
+
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_item(uint8 *data, size_t len, size_t pos)
 {
-	int weight, loc, tag, face, flags, anim, nrof, dmode, bflag;
-	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
-	uint8 animspeed, direction = 0;
-	char name[MAX_BUF], spell_msg[MAX_BUF];
-	uint16 spell_cost;
-	uint32 spell_path, spell_flags;
-
-	spell_cost = spell_path = spell_flags = 0;
-	itype = stype = item_qua = item_con = item_skill = item_level = 0;
-	bflag = 0;
+	sint32 dmode, loc;
+	uint32 tag, flags;
+	object *env, *tmp;
+	uint8 bflag;
 
 	dmode = packet_to_sint32(data, len, &pos);
 	loc = packet_to_sint32(data, len, &pos);
@@ -612,41 +686,32 @@ void socket_command_item(uint8 *data, size_t len, size_t pos)
 
 	bflag = packet_to_uint8(data, len, &pos);
 
+	env = object_find(loc);
+
 	while (pos < len)
 	{
 		tag = packet_to_uint32(data, len, &pos);
-		flags = packet_to_uint32(data, len, &pos);
-		weight = packet_to_uint32(data, len, &pos);
-		face = packet_to_uint32(data, len, &pos);
-		request_face(face);
-		direction = packet_to_uint8(data, len, &pos);
+		tmp = object_find(tag);
+
+		if (tmp && tmp->env != env)
+		{
+			object_remove(tmp);
+			tmp = NULL;
+		}
+
+		if (!tmp)
+		{
+			tmp = object_create(env, tag, bflag);
+		}
+
+		flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF;
 
 		if (loc)
 		{
-			itype = packet_to_uint8(data, len, &pos);
-			stype = packet_to_uint8(data, len, &pos);
-
-			if (itype == TYPE_SPELL)
-			{
-				spell_cost = packet_to_uint16(data, len, &pos);
-				spell_path = packet_to_uint32(data, len, &pos);
-				spell_flags = packet_to_uint32(data, len, &pos);
-				packet_to_string(data, len, &pos, spell_msg, sizeof(spell_msg));
-			}
-			else
-			{
-				item_qua = packet_to_uint8(data, len, &pos);
-				item_con = packet_to_uint8(data, len, &pos);
-				item_level = packet_to_uint8(data, len, &pos);
-				item_skill = packet_to_uint8(data, len, &pos);
-			}
+			flags |= UPD_TYPE | UPD_EXTRA;
 		}
 
-		packet_to_string(data, len, &pos, name, sizeof(name));
-		anim = packet_to_uint16(data, len, &pos);
-		animspeed = packet_to_uint8(data, len, &pos);
-		nrof = packet_to_uint32(data, len, &pos);
-		update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_skill, item_level, direction, spell_cost, spell_path, spell_flags, spell_msg, bflag);
+		command_item_update(data, len, &pos, flags, tmp);
 	}
 
 	map_udate_flag = 2;
@@ -655,112 +720,20 @@ void socket_command_item(uint8 *data, size_t len, size_t pos)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 {
-	int weight, loc, tag, face, sendflags, flags, anim, nrof;
-	uint8 direction;
-	uint8 itype, stype, item_qua, item_con, item_skill, item_level;
-	char name[MAX_BUF], spell_msg[MAX_BUF];
-	object *ip;
-	uint8 animspeed;
-	uint16 spell_cost;
-	uint32 spell_path, spell_flags;
+	uint32 flags, tag;
+	object *tmp;
 
-	spell_cost = spell_path = spell_flags = 0;
-
-	sendflags = packet_to_uint16(data, len, &pos);
+	flags = packet_to_uint16(data, len, &pos);
 	tag = packet_to_uint32(data, len, &pos);
-	ip = object_find(tag);
 
-	if (!ip)
+	tmp = object_find(tag);
+
+	if (!tmp)
 	{
 		return;
 	}
 
-	name[0] = '\0';
-	spell_msg[0] = '\0';
-	loc = ip->env ? ip->env->tag : 0;
-	weight = (int) (ip->weight * 1000);
-	face = ip->face;
-	request_face(face);
-	flags = ip->flags;
-	anim = ip->animation_id;
-	animspeed = ip->anim_speed;
-	nrof = ip->nrof;
-	direction = ip->direction;
-	itype = ip->itype;
-	stype = ip->stype;
-	item_qua = ip->item_qua;
-	item_con = ip->item_con;
-	item_skill = ip->item_skill;
-	item_level = ip->item_level;
-
-	if (sendflags & UPD_LOCATION)
-	{
-		loc = packet_to_uint32(data, len, &pos);
-	}
-
-	if (sendflags & UPD_FLAGS)
-	{
-		flags = packet_to_uint32(data, len, &pos);
-	}
-
-	if (sendflags & UPD_WEIGHT)
-	{
-		weight = packet_to_uint32(data, len, &pos);
-	}
-
-	if (sendflags & UPD_FACE)
-	{
-		face = packet_to_uint32(data, len, &pos);
-		request_face(face);
-	}
-
-	if (sendflags & UPD_DIRECTION)
-	{
-		direction = packet_to_uint8(data, len, &pos);
-	}
-
-	if (sendflags & UPD_TYPE)
-	{
-		itype = packet_to_uint8(data, len, &pos);
-		stype = packet_to_uint8(data, len, &pos);
-
-		if (itype == TYPE_SPELL)
-		{
-			spell_cost = packet_to_uint16(data, len, &pos);
-			spell_path = packet_to_uint32(data, len, &pos);
-			spell_flags = packet_to_uint32(data, len, &pos);
-			packet_to_string(data, len, &pos, spell_msg, sizeof(spell_msg));
-		}
-		else
-		{
-			item_qua = packet_to_uint8(data, len, &pos);
-			item_con = packet_to_uint8(data, len, &pos);
-			item_level = packet_to_uint8(data, len, &pos);
-			item_skill = packet_to_uint8(data, len, &pos);
-		}
-	}
-
-	if (sendflags & UPD_NAME)
-	{
-		packet_to_string(data, len, &pos, name, sizeof(name));
-	}
-
-	if (sendflags & UPD_ANIM)
-	{
-		anim = packet_to_uint16(data, len, &pos);
-	}
-
-	if (sendflags & UPD_ANIMSPEED)
-	{
-		animspeed = packet_to_uint8(data, len, &pos);
-	}
-
-	if (sendflags & UPD_NROF)
-	{
-		nrof = packet_to_uint32(data, len, &pos);
-	}
-
-	update_object(tag, loc, name, weight, face, flags, anim, animspeed, nrof, itype, stype, item_qua, item_con, item_level, item_skill, direction, spell_cost, spell_path, spell_flags, spell_msg, 0);
+	command_item_update(data, len, &pos, flags, tmp);
 	map_udate_flag = 2;
 }
 

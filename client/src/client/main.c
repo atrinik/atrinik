@@ -254,6 +254,7 @@ static void init_game_data(void)
 
 	metaserver_init();
 	spells_init();
+	skills_init();
 }
 
 /**

@@ -190,7 +190,6 @@ struct plugin_hooklist
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
 	int (*change_skill)(object *, int);
-	void (*become_follower)(object *, object *);
 	void (*pick_up)(object *, object *, int);
 	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
 	void (*esrv_send_item)(object *);
@@ -199,10 +198,7 @@ struct plugin_hooklist
 	void (*command_drop)(object *, const char *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
 	int (*kill_object)(object *, int, object *, int);
-	void (*do_learn_spell)(object *, int);
-	void (*do_forget_spell)(object *, int);
 	int (*look_up_spell_name)(const char *);
-	int (*check_spell_known)(object *, int);
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);

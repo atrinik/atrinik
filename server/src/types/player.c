@@ -157,7 +157,6 @@ int playername_ok(char *cp)
 static player *get_player(player *p)
 {
 	object *op = arch_to_object(get_player_archetype(NULL));
-	int i;
 
 	if (!p)
 	{
@@ -206,15 +205,6 @@ static player *get_player(player *p)
 
 	FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 
-	/* Would be better if '0' was not a defined spell */
-	for (i = 0; i < NROFREALSPELLS; i++)
-	{
-		p->known_spells[i] = -1;
-	}
-
-	/* Quick skill reminder for select hand weapon */
-	p->set_skill_weapon = NO_SKILL_READY;
-	p->set_skill_archery = NO_SKILL_READY;
 	p->last_stats.exp = -1;
 
 	return p;
@@ -1021,7 +1011,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 	}
 
 	/* Casting POTION 'dusts' is really use_magic_item skill */
-	if (op->type == PLAYER && throw_ob->type == POTION && !change_skill(op, SK_USE_MAGIC_ITEM))
+	if (op->type == PLAYER && throw_ob->type == POTION && !change_skill(op, SK_MAGIC_DEVICES))
 	{
 		return;
 	}
