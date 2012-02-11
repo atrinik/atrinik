@@ -473,7 +473,7 @@ static void esrv_send_item_send(object *pl, object *op)
 {
 	packet_struct *packet;
 
-	if (!CONTR(pl))
+	if (!CONTR(pl) || CONTR(pl)->state != ST_PLAYING)
 	{
 		return;
 	}
@@ -514,7 +514,7 @@ void esrv_send_item(object *op)
 			esrv_send_item_send(tmp, op);
 		}
 	}
-	else if (op->env->type == PLAYER && CONTR(op->env)->state == ST_PLAYING)
+	else if (op->env->type == PLAYER)
 	{
 		esrv_send_item_send(op->env, op);
 	}
