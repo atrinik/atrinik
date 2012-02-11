@@ -2155,7 +2155,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	/* Trigger the global LOGIN event */
 	trigger_global_event(GEVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
 
-	CONTR(op)->state = ST_PLAYING;
 	FREE_AND_CLEAR_HASH2(op->msg);
 
 #ifdef AUTOSAVE
@@ -2171,6 +2170,8 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	CONTR(op)->last_stats.exp = 1;
 	fix_player(op);
 	link_player_skills(op);
+	CONTR(op)->state = ST_PLAYING;
+	esrv_new_player(CONTR(op), op->weight + op->carrying);
 	esrv_update_item(UPD_FACE, op);
 	esrv_send_inventory(op, op);
 
@@ -2180,7 +2181,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	CONTR(op)->socket.update_tile = 0;
 	CONTR(op)->socket.look_position = 0;
 	CONTR(op)->socket.ext_title_flag = 1;
-	esrv_new_player(CONTR(op), op->weight + op->carrying);
 }
 
 /**

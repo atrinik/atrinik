@@ -527,7 +527,6 @@ void check_login(object *op)
 		op->stats.hp = 1;
 	}
 
-	pl->state = ST_PLAYING;
 #ifdef AUTOSAVE
 	pl->last_save_tick = pticks;
 #endif
@@ -535,6 +534,8 @@ void check_login(object *op)
 
 	fix_player(op);
 	link_player_skills(op);
+
+	pl->state = ST_PLAYING;
 
 	/* Display Message of the Day */
 	display_motd(op);

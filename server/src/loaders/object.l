@@ -196,8 +196,10 @@ lex_error = 0;
 						{
 							object *tmp;
 							artifact *art_amask_tmp;
+							const char *archname;
 
 							tmp = get_object();
+							archname = yval();
 							tmp->arch = find_archetype(yval());
 
 							if (tmp->arch != NULL)
@@ -224,7 +226,7 @@ lex_error = 0;
 								{
 									if (!arch_init)
 									{
-										logger_print(LOG(DEBUG), "Discarding object without arch: %s", STRING_SAFE(tmp->name));
+										logger_print(LOG(DEBUG), "Discarding object without arch: %s", archname);
 									}
 
 									object_destroy(tmp);

@@ -514,7 +514,7 @@ void esrv_send_item(object *op)
 			esrv_send_item_send(tmp, op);
 		}
 	}
-	else if (op->env->type == PLAYER)
+	else if (op->env->type == PLAYER && CONTR(op->env)->state == ST_PLAYING)
 	{
 		esrv_send_item_send(op->env, op);
 	}
