@@ -68,14 +68,6 @@ class BaseTemple:
 			],
 		}
 
-	## Check whether activator is of an enemy god.
-	def is_enemy_god(self):
-		# No enemy god, can't be an enemy.
-		if not self._enemy_name:
-			return False
-
-		return self._activator.GetGod() == self._enemy_name
-
 	## Handle chat.
 	## @param msg The message that activated the chat.
 	## @return True if the chat was handled, False otherwise.
@@ -83,11 +75,8 @@ class BaseTemple:
 		if msg == "hello":
 			self._inf.add_msg("Welcome to the church of {0}. I am {1}, a devoted servant of {0}.".format(self._name, self._me.name))
 
-			# We don't like enemy gods.
-			if self.is_enemy_god():
-				self._inf.add_msg("... I see that you are a follower of {}. It would be best for you to leave immediately.".format(self._enemy_name))
-				self._inf.add_link("Tell me about {}.".format(self._enemy_name), dest = self._enemy_name)
-				return True
+			if self._enemy_name:
+				self._inf.add_msg("Beware that followers of {} are not welcome here.".format(self._enemy_name))
 
 			# Custom message to say before services.
 			if self.hello_msg:
@@ -104,6 +93,9 @@ class BaseTemple:
 
 			self._inf.add_link("Tell me about {}.".format(self._name), dest = self._name)
 
+			if self._enemy_name:
+				self._inf.add_link("Tell me about {}.".format(self._enemy_name), dest = self._enemy_name)
+
 			return True
 		# Explain about the temple's god.
 		elif msg == self._name:
@@ -113,10 +105,6 @@ class BaseTemple:
 		elif self._enemy_name and msg == self._enemy_name:
 			self._inf.add_msg(self._enemy_desc)
 			return True
-
-		# No services for followers of enemy god.
-		if self.is_enemy_god():
-			return False
 
 		is_buy = False
 
@@ -158,79 +146,79 @@ class BaseTemple:
 ## Grunhilde.
 class TempleGrunhilde(BaseTemple):
 	_name = "Grunhilde"
-	_desc = "I am a servant of the Valkyrie Queen and the Goddess of Victory, Grunhilde.\nIf you would like to join our Temple and fight for our cause, please touch the altar and Grunhilde will smile upon you."
+	_desc = "I am a servant of the Valkyrie Queen and the Goddess of Victory, Grunhilde."
 
 ## Dalosha.
 class TempleDalosha(BaseTemple):
 	_name = "Dalosha"
-	_desc = "I am a servant of the first Queen of the Drow and Spider Goddess, Dalosha.\nIf you would like to join our Temple, please touch the altar and Dalosha will smile upon you."
+	_desc = "I am a servant of the first Queen of the Drow and Spider Goddess, Dalosha."
 	_enemy_name = "Tylowyn"
-	_enemy_desc = "The high elves and their oppressive queen!  Do not be swayed by her traps, she started the war with her attempt to enforce proper elven conduct in war.  Tylowyn was too cowardly and weak to realize that it was our destiny to rule the world, so now she and her elves shall also perish!"
+	_enemy_desc = "The high elves and their oppressive queen! Do not be swayed by her traps, she started the war with her attempt to enforce proper elven conduct in war. Tylowyn was too cowardly and weak to realize that it was our destiny to rule the world, so now she and her elves shall also perish!"
 
 ## Drolaxi.
 class TempleDrolaxi(BaseTemple):
 	_name = "Drolaxi"
-	_desc = "I am a servant of Queen of the Chaotic Seas and the Goddess of Water, Drolaxi.\nIf you would like to join our Temple, please touch the altar and Drolaxi will smile upon you."
+	_desc = "I am a servant of Queen of the Chaotic Seas and the Goddess of Water, Drolaxi."
 	_enemy_name = "Shaligar"
-	_enemy_desc = "Flames and terror does he seek to spread.  Do not be deceived, although the flame be kin to the Lady, he is complerely mad.  Avoid the scorching flames or they will consume you.  We shall rule the world and all shall be seas!"
+	_enemy_desc = "Flames and terror does he seek to spread. Do not be deceived, although the flame be kin to the Lady, he is complerely mad. Avoid the scorching flames or they will consume you. We shall rule the world and all shall be seas!"
 
 ## Grumthar.
 class TempleGrumthar(BaseTemple):
 	_name = "Grumthar"
-	_desc = "I am a servant of the First Dwarven Lord and the God of Smithery, Grumthar.\nIf you would like to join our Temple, please touch the altar and Grumthar will smile upon you."
+	_desc = "I am a servant of the First Dwarven Lord and the God of Smithery, Grumthar."
 	_enemy_name = "Jotarl"
-	_enemy_desc = "Do not be speaking of that Giant tyrant amongst us.  Him and his giants have long sought to crush the little folk.  He has those goblin vermin under his wing also."
+	_enemy_desc = "Do not be speaking of that Giant tyrant amongst us. Him and his giants have long sought to crush the little folk. He has those goblin vermin under his wing also."
 
 ## Jotarl.
 class TempleJotarl(BaseTemple):
 	_name = "Jotarl"
-	_desc = "I am a servant of the Titan King and the God of the Giants, Jotarl.\nIf you would like to join our Temple, please touch the altar and Jotarl will smile upon you."
+	_desc = "I am a servant of the Titan King and the God of the Giants, Jotarl."
 	_enemy_name = "Grumthar"
-	_enemy_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves!  The Dwarves shall fall and we shall claim their gold for ourselves."
+	_enemy_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves! The Dwarves shall fall and we shall claim their gold for ourselves."
 
 ## Moroch.
 class TempleMoroch(BaseTemple):
 	_name = "Moroch"
-	_desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch.\nIf you would like to join our Temple, please touch the altar and Moroch will smile upon you."
+	_desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch."
 	_enemy_name = "Terria"
-	_enemy_desc = "Do you honestly believe the lies of those naturists?  The powers of undeath will rule the universe and the servants of Nature will fail.  The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
+	_enemy_desc = "Do you honestly believe the lies of those naturists? The powers of undeath will rule the universe and the servants of Nature will fail. The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
 
 ## Rashindel.
 class TempleRashindel(BaseTemple):
 	_name = "Rashindel"
-	_desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel.\nIf you would like to join our Circle, please touch the altar and Rashindel will smile upon you."
+	_desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel."
 	_enemy_name = "Tabernacle"
-	_enemy_desc = "Accursed fool, do not mention that name in our presence!  In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice.  After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
+	_enemy_desc = "Accursed fool, do not mention that name in our presence! In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice. After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
 
 ## Rogroth.
 class TempleRogroth(BaseTemple):
 	_name = "Rogroth"
-	_desc = "I am a servant of the King of the Stormy Skies and the God of Lightning, Rogroth.\nIf you would like to join our Temple, please touch the altar and Rogroth will smile upon you."
+	_desc = "I am a servant of the King of the Stormy Skies and the God of Lightning, Rogroth."
 
 ## TempleShaligar.
 class TempleShaligar(BaseTemple):
 	_name = "Shaligar"
-	_desc = "I am a servant of King of the Lava and the God of Flame, Shaligar.\nIf you would like to join our Temple, please touch the altar and Shaligar will smile upon you."
+	_desc = "I am a servant of King of the Lava and the God of Flame, Shaligar."
 	_enemy_name = "Drolaxi"
-	_enemy_desc = "Ah, the weak and cowardly sister of the Flame Lord.  One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
+	_enemy_desc = "Ah, the weak and cowardly sister of the Flame Lord. One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
 
 ## Tabernacle.
 class TempleTabernacle(BaseTemple):
 	_name = "Tabernacle"
-	_desc = "I am a servant of the God of Light and King of the Angels, Tabernacle.\nIf you would like to join our Church, please touch the altar and Tabernacle will smile upon you."
+	_desc = "I am a servant of the God of Light and King of the Angels, Tabernacle."
 	_enemy_name = "Rashindel"
-	_enemy_desc = "Caution child, for you speak of the Fallen One.  In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand.  In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle.  The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
+	_enemy_desc = "Caution child, for you speak of the Fallen One. In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand. In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle. The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
 
 ## Terria.
 class TempleTerria(BaseTemple):
 	_name = "Terria"
-	_desc = "I am a servant of Mother Earth and the Goddess of Life, Terria.\nIf you would like to join our Temple, please touch the altar and Terria will smile upon you."
+	_desc = "I am a servant of Mother Earth and the Goddess of Life, Terria."
 	_enemy_name = "Moroch"
-	_enemy_desc = "Speak not of the Dark Lord here!  The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous.  Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
+	_enemy_desc = "Speak not of the Dark Lord here! The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous. Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
 
 ## Tylowyn.
 class TempleTylowyn(BaseTemple):
 	_name = "Tylowyn"
-	_desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn.\nIf you would like to join our Temple, please touch the altar and Tylowyn will smile upon you."
+	_desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn."
 	_enemy_name = "Dalosha"
-	_enemy_desc = "That rebellious heretic!  In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery.  After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there.  Avoid those drow if you know what is best for you."
+	_enemy_desc = "That rebellious heretic! In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery. After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there. Avoid those drow if you know what is best for you."
