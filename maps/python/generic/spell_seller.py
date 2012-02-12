@@ -10,7 +10,7 @@ def main():
 
 	if msg == "hello":
 		inf.add_msg("Welcome, dear customer! I'm {}.".format(me.name))
-		inf.add_msg("Are you here to buy one of my {0}? I can offer you the following {0}.".format({"wizard": "spells", "priest": "prayers"}[GetSpell(GetSpellNr(spells[0]))["type"]]))
+		inf.add_msg("Are you here to buy one of my spells? I can offer you the following spells.")
 
 		for spell in spells:
 			inf.add_link(spell.capitalize(), dest = "buy1 " + spell)
@@ -21,22 +21,20 @@ def main():
 		if not name in spells:
 			return
 
-		spell_nr = GetSpellNr(name)
-		spell = GetSpell(spell_nr)
+		spell = GetArchetype("spell_" + name.replace(" ", "_")).clone
 
 		inf.add_msg("Ah, so you want to buy {}?".format(name))
-		inf.add_msg_icon(spell["icon"], spell["desc"], fit = True)
+		inf.add_msg_icon(spell.face[0], spell.msg, fit = True)
 
-		if activator.Controller().DoKnowSpell(spell_nr):
+		if activator.FindObject(type = Type.SPELL, name = name):
 			inf.add_msg("... but it seems you already know {}.".format(name))
 			return
 
-		skill_name = {"wizard": "wizardry spells", "priest": "divine prayers"}[spell["type"]]
-		skill = activator.Controller().GetSkill(GetSkillNr(skill_name))
-		color = COLOR_GREEN if skill.level >= spell["level"] else COLOR_RED
-		inf.add_msg("{} requires level to {} use. Your {} skill is level {}.".format(name.capitalize(), spell["level"], skill_name, skill.level), color)
+		skill = activator.FindObject(type = Type.SKILL, name = "wizardry spells")
+		color = COLOR_GREEN if skill.level >= spell.level else COLOR_RED
+		inf.add_msg("{} requires level {} to use. Your wizardry spells skill is level {}.".format(name.capitalize(), spell.level, skill.level), color)
 
-		inf.add_msg("{} will cost you {}. Is that okay?".format(name.capitalize(), CostString(spell["cost"])))
+		inf.add_msg("{} will cost you {}. Is that okay?".format(name.capitalize(), CostString(spell.value)))
 		inf.add_link("Buy {}".format(name), dest = "buy2 " + name)
 
 	elif msg.startswith("buy2 "):
@@ -45,18 +43,16 @@ def main():
 		if not name in spells:
 			return
 
-		spell_nr = GetSpellNr(name)
-
-		if activator.Controller().DoKnowSpell(spell_nr):
+		if activator.FindObject(type = Type.SPELL, name = name):
 			return
 
-		spell = GetSpell(spell_nr)
+		spell = GetArchetype("spell_" + name.replace(" ", "_")).clone
 
-		if activator.PayAmount(spell["cost"]):
-			inf.add_msg("You pay {}.".format(CostString(spell["cost"])), COLOR_YELLOW)
+		if activator.PayAmount(spell.value):
+			inf.add_msg("You pay {}.".format(CostString(spell.value)), COLOR_YELLOW)
 			inf.add_msg("Pleasure doing business with you!")
-			inf.add_msg_icon(spell["icon"], name, fit = True)
-			activator.Controller().AcquireSpell(spell_nr)
+			inf.add_msg_icon(spell.face[0], name, fit = True)
+			activator.CreateObject(spell.arch.name)
 		else:
 			inf.add_msg("You don't have enough money...")
 
