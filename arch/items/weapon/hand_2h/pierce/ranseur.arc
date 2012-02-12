@@ -4,9 +4,9 @@ layer 3
 weapon_speed 0.0175
 item_level 11
 item_skill 18
+two_handed 1
 attack_pierce 100
 type 15
-sub_type 10
 face ranseur.101
 material 18
 material_real 65

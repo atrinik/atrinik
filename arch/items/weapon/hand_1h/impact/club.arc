@@ -8,7 +8,6 @@ item_skill 19
 dam 4
 wc 4
 type 15
-sub_type 0
 material 16
 material_real 258
 weight 3000

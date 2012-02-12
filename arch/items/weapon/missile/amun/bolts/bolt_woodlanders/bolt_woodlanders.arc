@@ -9,7 +9,6 @@ wc 0
 wc_range 20
 last_sp 4
 type 13
-sub_type 2
 face bolt_woodlanders.101
 animation bolt_woodlanders
 anim_speed 1

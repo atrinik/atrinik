@@ -9,7 +9,6 @@ dam 1
 last_grace 11
 last_sp 7
 type 13
-sub_type 132
 wc_range 20
 nrof 1
 animation t_rock

@@ -9,7 +9,6 @@ wc 0
 wc_range 20
 last_sp 5
 type 13
-sub_type 2
 face bolt_fey.101
 animation bolt_fey
 anim_speed 1

@@ -3276,30 +3276,28 @@ int item_matched_string(object *pl, object *op, const char *name)
 
 		if (op->type == WEAPON)
 		{
-			weapon_type = op->sub_type % 4;
-
-			if (weapon_type == WEAP_1H_IMPACT)
+			if (op->item_skill - 1 == SK_IMPACT_WEAPONS)
 			{
 				if (!strcasecmp(cp, "impact weapons"))
 				{
 					return 2;
 				}
 			}
-			else if (weapon_type == WEAP_1H_SLASH)
+			else if (op->item_skill - 1 == SK_SLASH_WEAPONS)
 			{
 				if (!strcasecmp(cp, "slash weapons"))
 				{
 					return 2;
 				}
 			}
-			else if (weapon_type == WEAP_1H_CLEAVE)
+			else if (op->item_skill - 1 == SK_CLEAVE_WEAPONS)
 			{
 				if (!strcasecmp(cp, "cleave weapons"))
 				{
 					return 2;
 				}
 			}
-			else if (weapon_type == WEAP_1H_PIERCE)
+			else if (op->item_skill - 1 == SK_PIERCE_WEAPONS)
 			{
 				if (!strcasecmp(cp, "pierce weapons"))
 				{

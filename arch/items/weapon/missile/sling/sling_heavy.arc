@@ -3,11 +3,11 @@ name heavy sling
 layer 3
 race sling stones
 type 14
-sub_type 2
 material 8
 material_real 193
 item_level 19
 item_skill 15
+two_handed 1
 face sling_heavy.101
 wc 6
 wc_range 25

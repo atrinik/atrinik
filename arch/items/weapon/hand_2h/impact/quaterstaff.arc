@@ -7,9 +7,9 @@ attack_impact 100
 dam 8
 item_level 10
 item_skill 19
+two_handed 1
 wc 7
 type 15
-sub_type 4
 material 16
 material_real 258
 weight 1750

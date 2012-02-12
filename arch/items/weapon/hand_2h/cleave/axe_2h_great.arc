@@ -7,9 +7,9 @@ weapon_speed 0.02
 dam 8
 item_level 10
 item_skill 17
+two_handed 1
 wc 7
 type 15
-sub_type 7
 material 18
 material_real 65
 weight 2500

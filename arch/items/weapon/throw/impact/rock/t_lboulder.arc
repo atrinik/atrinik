@@ -10,7 +10,6 @@ last_sp 7
 dam 5
 type 13
 wc_range 20
-sub_type 132
 nrof 1
 weight 120000
 animation t_lboulder

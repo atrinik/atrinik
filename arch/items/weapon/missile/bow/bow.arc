@@ -5,11 +5,11 @@ race arrows
 type 14
 item_level 7
 item_skill 13
+two_handed 1
 wc 5
 wc_range 20
 dam 1
 last_sp 4
-sub_type 0
 material 16
 material_real 258
 face bow.101

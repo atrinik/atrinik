@@ -10,7 +10,6 @@ dam 3
 wc_range 20
 nrof 1
 type 13
-sub_type 128
 animation t_hammer
 anim_speed 5
 is_animated 0

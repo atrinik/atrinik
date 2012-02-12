@@ -10,7 +10,6 @@ wc 0
 last_sp 6
 attack_pierce 100
 type 13
-sub_type 1
 animation arrow_fey
 anim_speed 1
 is_animated 0

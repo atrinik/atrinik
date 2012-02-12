@@ -46,18 +46,12 @@ sint32 bow_get_ws(object *bow, object *arrow)
  * @return Required skill to use the object. */
 int bow_get_skill(object *bow)
 {
-	if (bow->sub_type == RANGE_WEAP_BOW)
+	if (bow->item_skill)
 	{
-		return SK_BOW_ARCHERY;
+		return bow->item_skill - 1;
 	}
-	else if (bow->sub_type == RANGE_WEAP_XBOWS)
-	{
-		return SK_CROSSBOW_ARCHERY;
-	}
-	else
-	{
-		return SK_SLING_ARCHERY;
-	}
+
+	return SK_BOW_ARCHERY;
 }
 
 /** @copydoc object_methods::ranged_fire_func */

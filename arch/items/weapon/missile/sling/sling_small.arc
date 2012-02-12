@@ -3,9 +3,10 @@ name small sling
 layer 3
 race sling stones
 type 14
-sub_type 2
 material 8
 material_real 193
+item_skill 15
+two_handed 1
 face sling_small.101
 wc 4
 wc_range 18

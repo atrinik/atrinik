@@ -10,7 +10,6 @@ last_sp 7
 wc_range 20
 nrof 1
 type 13
-sub_type 130
 animation t_dagger
 anim_speed 5
 is_animated 0

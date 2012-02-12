@@ -6,7 +6,7 @@ attack_pierce 100
 type 15
 item_level 11
 item_skill 18
-sub_type 10
+two_handed 1
 face partisan.101
 material 18
 material_real 65

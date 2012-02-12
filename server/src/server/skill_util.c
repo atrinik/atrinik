@@ -301,13 +301,9 @@ int check_skill_to_fire(object *op, object *weapon)
 
 	if (weapon->type == BOW)
 	{
-		if (weapon->sub_type == 2)
+		if (weapon->item_skill)
 		{
-			skillnr = SK_SLING_ARCHERY;
-		}
-		else if (weapon->sub_type == 1)
-		{
-			skillnr = SK_CROSSBOW_ARCHERY;
+			skillnr = weapon->item_skill - 1;
 		}
 		else
 		{

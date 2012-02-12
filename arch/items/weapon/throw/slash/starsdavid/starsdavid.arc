@@ -10,7 +10,6 @@ last_sp 7
 nrof 1
 type 13
 wc_range 20
-sub_type 129
 animation starsdavid
 is_animated 0
 anim_speed 5

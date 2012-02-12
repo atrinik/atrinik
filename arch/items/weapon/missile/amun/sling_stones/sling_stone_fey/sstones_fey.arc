@@ -14,7 +14,6 @@ anim_speed 10
 is_animated 0
 is_turnable 1
 type 13
-sub_type 3
 nrof 1
 weight 85
 value 15

@@ -5,8 +5,8 @@ weapon_speed 0.02
 attack_pierce 100
 item_level 10
 item_skill 18
+two_handed 1
 type 15
-sub_type 6
 face trident.101
 material 2
 material_real 65
