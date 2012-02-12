@@ -4,6 +4,7 @@ layer 3
 face dagger_small.101
 weapon_speed 0.02
 attack_pierce 100
+item_skill 18
 dam 4
 wc 4
 type 15

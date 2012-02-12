@@ -159,14 +159,6 @@ sint64 do_skill(object *op, int dir, const char *params)
 			break;
 	}
 
-	/* For players we now update the speed_left from using the skill.
-	 * Monsters have no skill use time because of the random nature in
-	 * which use_monster_skill is called already simulates this. -b.t. */
-	if (op->type == PLAYER)
-	{
-		op->speed_left -= get_skill_time(op,skill);
-	}
-
 	/* This is a good place to add experience for successfull use of skills.
 	 * Note that add_exp() will figure out player/monster experience
 	 * gain problems. */
@@ -333,6 +325,10 @@ int check_skill_to_fire(object *op, object *weapon)
 	else if (weapon->type == ARROW)
 	{
 		skillnr = SK_THROWING;
+	}
+	else if (weapon->type == SKILL)
+	{
+		skillnr = weapon->stats.sp;
 	}
 
 	if (skillnr == -1)
@@ -613,77 +609,4 @@ object *SK_skill(object *op)
 	}
 
 	return NULL;
-}
-
-/**
- * Returns the amount of time it takes to use a skill.
- * @param op Player.
- * @param skillnr ID of the skill to check.
- * @return Amount of time the skill takes. */
-float get_skill_time(object *op, int skillnr)
-{
-	float skill_time = skills[skillnr].time;
-
-	if (op->type != PLAYER)
-	{
-		return 0;
-	}
-
-	if (skillnr == SK_MAGIC_DEVICES || skillnr == SK_BOW_ARCHERY || skillnr == SK_THROWING || skillnr == SK_CROSSBOW_ARCHERY || skillnr == SK_SLING_ARCHERY)
-	{
-		skill_time = op->chosen_skill->stats.maxsp;
-		CONTR(op)->action_range = global_round_tag + skill_time;
-	}
-	else if (skillnr == SK_WIZARDRY_SPELLS)
-	{
-		skill_time = spells[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->stats.sp].time;
-		CONTR(op)->action_casting = global_round_tag + skill_time;
-	}
-	else if (skill_time)
-	{
-		int level = SK_level(op) / 10;
-
-		/* Now this should be MUCH harder */
-		if (skill_time > 1.0f)
-		{
-			skill_time -= (level / 3) * 0.1f;
-
-			if (skill_time < 1.0f)
-			{
-				skill_time = 1.0f;
-			}
-		}
-	}
-
-	return FABS(skill_time);
-}
-
-/**
- * We check the action timer for a skill.
- * @param op Player.
- * @param skill Skill object.
- * @return 1 if the skill action is possible, 0 otherwise. */
-int check_skill_action_time(object *op, object *skill)
-{
-	if (!skill)
-	{
-		return 0;
-	}
-
-	if (skill->stats.sp == SK_WIZARDRY_SPELLS)
-	{
-		if (CONTR(op)->action_casting > global_round_tag)
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		if (CONTR(op)->action_range > global_round_tag)
-		{
-			return 0;
-		}
-	}
-
-	return 1;
 }

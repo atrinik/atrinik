@@ -619,6 +619,7 @@ lex_error = 0;
 ^behavior{S}        op->behavior = IVAL;
 ^use_fix_pos{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
 ^is_ethereal{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
+^two_handed{S}      SET_OR_CLEAR_FLAG(op, FLAG_TWO_HANDED, IVAL);
 ^can_cast_spell{S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
 ^can_use_scroll{S}  {}
 ^can_use_range{S}   {}

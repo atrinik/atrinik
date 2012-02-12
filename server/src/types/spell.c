@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir)
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
 	int cost;
 
@@ -40,6 +40,12 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 	if (cost)
 	{
 		shooter->stats.sp -= cost;
+
+		if (delay)
+		{
+			*delay = spells[op->stats.sp].time;
+		}
+
 		return OBJECT_METHOD_OK;
 	}
 

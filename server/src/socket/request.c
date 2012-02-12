@@ -1672,7 +1672,7 @@ void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_
 void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	int dir;
-	float skill_time;
+	double skill_time, delay;
 
 	dir = packet_to_uint8(data, len, &pos);
 	dir = MAX(0, MIN(dir, 8));
@@ -1687,44 +1687,27 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 		return;
 	}
 
-	/* Still need to recover from range action? */
-	if (!check_skill_action_time(pl->ob, pl->ob->chosen_skill))
+	if (pl->ob->weapon_speed_left > 0.0)
 	{
 		return;
 	}
 
-	if (!dir)
-	{
-		dir = pl->ob->facing;
+	skill_time = skills[pl->ob->chosen_skill->stats.sp].time;
+	delay = 0;
 
-		/* Should not happen... */
-		if (!dir)
+	object_ranged_fire(pl->equipment[PLAYER_EQUIP_WEAPON], pl->ob, dir, &delay);
+
+	if (skill_time > 1.0f)
+	{
+		skill_time -= (SK_level(pl->ob) / 10 / 3) * 0.1f;
+
+		if (skill_time < 1.0f)
 		{
-			return;
+			skill_time = 1.0f;
 		}
 	}
 
-	if (QUERY_FLAG(pl->ob, FLAG_CONFUSED))
-	{
-		dir = get_randomized_dir(dir);
-	}
-
-	pl->ob->facing = dir;
-	pl->ob->anim_moving_dir = -1;
-	pl->ob->anim_last_facing = -1;
-	pl->ob->anim_enemy_dir = dir;
-
-	if (object_ranged_fire(pl->equipment[PLAYER_EQUIP_WEAPON], pl->ob, dir) == OBJECT_METHOD_OK)
-	{
-		skill_time = get_skill_time(pl->ob, pl->ob->chosen_skill->stats.sp);
-	}
-	else
-	{
-		skill_time = 0;
-	}
-
-	pl->action_timer = skill_time / (1000000 / MAX_TIME) * 1000;
-	pl->last_action_timer = 0;
+	pl->ob->weapon_speed_left = skill_time + delay;
 }
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)

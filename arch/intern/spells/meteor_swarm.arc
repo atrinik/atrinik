@@ -4,6 +4,8 @@ name meteor swarm
 layer 3
 face icon_meteor_swarm.101
 no_drop 1
+level 70
+value 200000
 msg
 Similar to the spell of meteor, but this spell fires a bunch of meteors in front of you, which then explode into cones of fire if they hit something.
 endmsg

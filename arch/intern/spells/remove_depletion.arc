@@ -7,4 +7,6 @@ no_drop 1
 msg
 This spell restores depleted stats of your character.
 endmsg
+level 1
+value 0
 end

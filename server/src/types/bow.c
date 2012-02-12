@@ -61,7 +61,7 @@ int bow_get_skill(object *bow)
 }
 
 /** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir)
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
 	object *arrow, *skill;
 
@@ -112,8 +112,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 		arrow->stats.wc += skill->last_heal;
 		/* Add tiles range. */
 		arrow->last_sp += skill->last_sp;
-		/* Skill action time. */
-		skill->stats.maxsp = op->stats.sp + arrow->last_grace;
 	}
 
 	/* Add WC and damage bonuses. */
@@ -122,6 +120,11 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 
 	/* Use the bow's WC range. */
 	arrow->stats.wc_range = op->stats.wc_range;
+
+	if (delay)
+	{
+		*delay = op->stats.sp + arrow->last_grace;
+	}
 
 	arrow = object_projectile_fire(arrow, shooter, dir);
 

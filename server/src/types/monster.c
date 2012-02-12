@@ -1223,7 +1223,7 @@ static int monster_use_bow(object *head, object *part, int dir)
 		return 0;
 	}
 
-	object_ranged_fire(bow, part, dir);
+	object_ranged_fire(bow, part, dir, NULL);
 
 	return 1;
 }

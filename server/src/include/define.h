@@ -545,19 +545,6 @@
 /*@}*/
 
 /**
- * @defgroup skill_type_sub_types Skill type sub types
- * Some skills are auto used, some should not be
- * able to use with fire xxx (use_skill)
- *@{*/
-/** Normal skill but not direct usable with use_skill() */
-#define ST1_SKILL_NORMAL    0
-/** Skill can be used with fire and use_skill() */
-#define ST1_SKILL_USE       1
-/** Skill is used indirect by server */
-#define ST1_SKILL_INDIRECT  2
-/*@}*/
-
-/**
  * @defgroup container_sub_types Container sub types
  * Containers can be different items: normal containers, mob corpse
  * or player corpse.

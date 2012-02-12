@@ -4,6 +4,8 @@ name holy word
 layer 3
 face icon_holy_word.101
 no_drop 1
+level 35
+value 60000
 msg
 Cone of holy power that will damage all undead creatures it hits.
 endmsg

@@ -4,6 +4,7 @@ layer 3
 face tulwar.101
 weapon_speed 0.0225
 attack_slash 100
+item_skill 16
 dam 4
 wc 5
 type 15

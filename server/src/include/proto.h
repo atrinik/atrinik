@@ -476,7 +476,7 @@ extern object *object_projectile_fire(object *op, object *shooter, int dir);
 extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
 extern object *object_projectile_stop(object *op, int reason);
-extern int object_ranged_fire(object *op, object *shooter, int dir);
+extern int object_ranged_fire(object* op, object* shooter, int dir, double* delay);
 extern int object_throw(object *op, object *shooter, int dir);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];

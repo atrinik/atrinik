@@ -4,6 +4,8 @@ name bullet swarm
 layer 3
 face icon_bullet_swarm.101
 no_drop 1
+level 65
+value 175000
 msg
 Fires 5 magic bullets in front of you at once.
 endmsg

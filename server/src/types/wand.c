@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir)
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
 	if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS)
 	{
@@ -52,9 +52,9 @@ static int ranged_fire_func(object *op, object *shooter, int dir)
 		op->stats.food--;
 	}
 
-	if (shooter->chosen_skill)
+	if (delay)
 	{
-		shooter->chosen_skill->stats.maxsp = op->last_grace;
+		*delay = op->last_grace;
 	}
 
 	return OBJECT_METHOD_OK;

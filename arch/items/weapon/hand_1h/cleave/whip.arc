@@ -4,6 +4,7 @@ layer 3
 face whip.101
 attack_cleave 100
 weapon_speed 0.025
+item_skill 17
 dam 4
 wc 5
 type 15

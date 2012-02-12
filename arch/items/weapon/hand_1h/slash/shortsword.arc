@@ -4,6 +4,7 @@ layer 3
 face shortsword.101
 weapon_speed 0.025
 attack_slash 100
+item_skill 16
 dam 4
 wc 4
 type 15

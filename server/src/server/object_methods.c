@@ -411,15 +411,36 @@ object *object_projectile_stop(object *op, int reason)
 }
 
 /** @copydoc object_methods::ranged_fire_func */
-int object_ranged_fire(object *op, object *shooter, int dir)
+int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
 {
 	object_methods *methods;
+
+	if (!dir)
+	{
+		dir = shooter->facing;
+
+		/* Should not happen... */
+		if (!dir)
+		{
+			return OBJECT_METHOD_UNHANDLED;
+		}
+	}
+
+	if (QUERY_FLAG(shooter, FLAG_CONFUSED))
+	{
+		dir = get_randomized_dir(dir);
+	}
+
+	shooter->facing = dir;
+	shooter->anim_moving_dir = -1;
+	shooter->anim_last_facing = -1;
+	shooter->anim_enemy_dir = dir;
 
 	for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback)
 	{
 		if (methods->ranged_fire_func)
 		{
-			return methods->ranged_fire_func(op, shooter, dir);
+			return methods->ranged_fire_func(op, shooter, dir, delay);
 		}
 	}
 

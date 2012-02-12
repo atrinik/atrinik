@@ -129,9 +129,10 @@ typedef struct object_methods
 	 * weapons/potions, firing wands/rods, etc.
 	 * @param op The weapon being fired (bow, wand, throwing object).
 	 * @param shooter Who is doing the firing.
-	 * @dir dir Direction to fire into.
+	 * @param dir Direction to fire into.
+	 * @param[out] delay If non-NULL, will contain delay caused by this action.
 	 * @return One of @ref OBJECT_METHOD_xxx. */
-	int (*ranged_fire_func)(object *op, object *shooter, int dir);
+	int (*ranged_fire_func)(object *op, object *shooter, int dir, double *delay);
 
 	/**
 	 * Used to throw an object.

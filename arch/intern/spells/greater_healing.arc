@@ -4,6 +4,8 @@ name greater healing
 layer 3
 face icon_greater_healing.101
 no_drop 1
+level 10
+value 20000
 msg
 An improved version of minor healing, this spell heals wounds on either the caster or the target.
 endmsg
