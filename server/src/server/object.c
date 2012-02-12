@@ -3219,7 +3219,7 @@ void init_object_initializers(void)
 int item_matched_string(object *pl, object *op, const char *name)
 {
 	char *cp, local_name[MAX_BUF];
-	int count, retval = 0, book_level, book_level2, weapon_type;
+	int count, retval = 0, book_level, book_level2;
 
 	/* strtok is destructive to name */
 	strcpy(local_name, name);
