@@ -12,7 +12,6 @@ material 18
 material_real 65
 dam 8
 wc 5
-ac 2
 weight 4500
 value 875
 end
