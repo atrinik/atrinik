@@ -64,6 +64,8 @@ void init_spells(void)
 			exit(1);
 		}
 
+		spells[i].at = at;
+
 		at->clone.stats.sp = i;
 
 		if (spells[i].archname)
@@ -245,14 +247,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			}
 		}
 
-		/* If it is an ability, assume that the designer of the archetype
-		 * knows what they are doing. */
-		if (item == CAST_NORMAL && !ability && SK_level(caster) < s->level && (op->type != PLAYER || !CONTR(op)->tgm))
-		{
-			draw_info(COLOR_WHITE, op, "You lack enough skill to cast that spell.");
-			return 0;
-		}
-
 		if (item == CAST_POTION)
 		{
 			/* If the potion casts a self spell, don't use the facing
@@ -303,17 +297,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			}
 
 			return 0;
-		}
-
-		if (item == CAST_NORMAL && op->type == PLAYER)
-		{
-			int failure = rndm(0, 199) - CONTR(op)->encumbrance + op->chosen_skill->level - s->level + 35;
-
-			if (failure < 0)
-			{
-				draw_info(COLOR_WHITE, op, "You bungle the spell because you have too much heavy equipment in use.");
-				return rndm(0, SP_level_spellpoint_cost(caster, type, -1));
-			}
 		}
 	}
 
@@ -1150,25 +1133,4 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
 	tmp->direction = dir;
 
 	insert_ob_in_map(tmp, op->map, op, 0);
-}
-
-/**
- * Return the number of the spell that whose name matches the passed
- * string argument.
- * @param spname Name of the spell to look up.
- * @return -1 if no such spell name match is found, the spell ID
- * otherwise. */
-int look_up_spell_name(const char *spname)
-{
-	int i;
-
-	for (i = 0; i < NROFREALSPELLS; i++)
-	{
-		if (strcmp(spname, spells[i].name) == 0)
-		{
-			return i;
-		}
-	}
-
-	return -1;
 }

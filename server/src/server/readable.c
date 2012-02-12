@@ -766,13 +766,6 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 			continue;
 		}
 
-		/* Book level determines max spell level to show
-		 * thus higher level books are more comprehensive */
-		if (spells[i].level > (level * 8))
-		{
-			continue;
-		}
-
 		if (strlen(spells[i].name) + stringbuffer_length(desc) >= booksize)
 		{
 			break;

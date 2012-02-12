@@ -563,9 +563,6 @@ typedef struct pl_player
 	/** Table of last skill levels sent to client. */
 	sint16 skill_level[NROFSKILLS];
 
-	/** How much our player is encumbered. */
-	sint16 encumbrance;
-
 	/** Some anim flags for special player animation handling. */
 	uint16 anim_flags;
 

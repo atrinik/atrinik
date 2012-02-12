@@ -297,38 +297,6 @@ void init_new_exp_system(void)
 }
 
 /**
- * Look up a skill by name.
- * @param string Name of the skill to look for.
- * @return ID of the skill if found, -1 otherwise. */
-int lookup_skill_by_name(const char *string)
-{
-	int skillnr = 0;
-	size_t nmlen;
-	char name[MAX_BUF];
-
-	if (!string)
-	{
-		return -1;
-	}
-
-	strcpy(name, string);
-	nmlen = strlen(name);
-
-	for (skillnr = 0; skillnr < NROFSKILLS; skillnr++)
-	{
-		if (strlen(name) >= strlen(skills[skillnr].name))
-		{
-			if (!strncmp(name, skills[skillnr].name, MIN(strlen(skills[skillnr].name), nmlen)))
-			{
-				return skillnr;
-			}
-		}
-	}
-
-	return -1;
-}
-
-/**
  * Check skill for firing.
  * @param op Who is firing.
  * @param weapon Weapon that is being fired.
@@ -413,76 +381,6 @@ void link_player_skills(object *pl)
 	}
 
 	player_lvl_adj(pl, NULL);
-}
-
-/**
- * Similar to invoke command, it executes the skill in the
- * direction that the user is facing.
- * @param op Player trying to use a skill.
- * @param string Parameter for the skill to use.
- * @retval 0 Unable to change to the requested skill, or unable to use
- * the skill properly.
- * @retval 1 Skill correctly used. */
-int use_skill(object *op, char *string)
-{
-	int sknum = -1;
-
-	/* The skill name appears at the beginning of the string,
-	 * need to reset the string to next word, if it exists. */
-	if (string && (sknum = lookup_skill_by_name(string)) >= 0)
-	{
-		size_t len;
-
-		if (sknum == -1)
-		{
-			draw_info_format(COLOR_WHITE, op, "Unable to find skill by name %s", string);
-			return 0;
-		}
-
-		len = strlen(skills[sknum].name);
-
-		/* All this logic goes and skips over the skill name to find any
-		 * options given to the skill. */
-		if (len >= strlen(string))
-		{
-			*string = '\0';
-		}
-		else
-		{
-			while (len--)
-			{
-				string++;
-			}
-
-			while (*string == ' ')
-			{
-				string++;
-			}
-		}
-
-		if (strlen(string) == 0)
-		{
-			string = NULL;
-		}
-	}
-
-	/* Change to the new skill, then execute it. */
-	if (change_skill(op, sknum))
-	{
-		if (op->chosen_skill->sub_type != ST1_SKILL_USE)
-		{
-			draw_info(COLOR_WHITE, op, "You can't use this skill in this way.");
-		}
-		else
-		{
-			if (do_skill(op, op->facing, string))
-			{
-				return 1;
-			}
-		}
-	}
-
-	return 0;
 }
 
 /**

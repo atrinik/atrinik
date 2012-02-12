@@ -198,7 +198,6 @@ struct plugin_hooklist
 	void (*command_drop)(object *, const char *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
 	int (*kill_object)(object *, int, object *, int);
-	int (*look_up_spell_name)(const char *);
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);
@@ -219,7 +218,6 @@ struct plugin_hooklist
 	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
 	object *(*find_marked_object)(object *);
 	int (*cast_identify)(object *, int, object *, int);
-	int (*lookup_skill_by_name)(const char *);
 	archetype *(*find_archetype)(const char *);
 	object *(*arch_to_object)(archetype *);
 	object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);

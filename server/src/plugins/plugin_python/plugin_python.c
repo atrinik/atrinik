@@ -316,8 +316,10 @@ static const Atrinik_Constant constants_types[] =
 	{"KEY", KEY},
 	{"MAP", MAP},
 	{"MAGIC_MIRROR", MAGIC_MIRROR},
+	{"SPELL", SPELL},
 	{"SHIELD", SHIELD},
 	{"HELMET", HELMET},
+	{"GREAVES", GREAVES},
 	{"MONEY", MONEY},
 	{"CLASS", CLASS},
 	{"GRAVESTONE", GRAVESTONE},
@@ -1143,83 +1145,6 @@ static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>GetSpellNr(string name)</h1>
- * Get the ID of the passed spell name.
- * @param name The spell name.
- * @return ID of the spell, -1 if no such spell exists. */
-static PyObject *Atrinik_GetSpellNr(PyObject *self, PyObject *args)
-{
-	const char *spell;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &spell))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->look_up_spell_name(spell));
-}
-
-/**
- * <h1>GetSpell(int spell)</h1>
- * Get various information about a spell, including things like its
- * level, name, etc.
- * @param spell ID of the spell, can be acquired using @ref Atrinik_GetSpellNr "GetSpellNr()".
- * @throws ValueError if the spell ID being looked up is invalid.
- * @return Dictionary containing information about the spell, with the
- * following entries:
- * - <b>name</b>: Name of the spell.
- * - <b>level</b>: Level required to cast the spell.
- * - <b>sp</b>: Base mana required to cast the spell; modified by various factors.
- * - <b>time</b>: Delay in ticks needed to cast another spell. */
-static PyObject *Atrinik_GetSpell(PyObject *self, PyObject *args)
-{
-	int spell;
-	PyObject *dict;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "i", &spell))
-	{
-		return NULL;
-	}
-
-	if (spell < 0 || spell >= NROFREALSPELLS)
-	{
-		PyErr_SetString(PyExc_ValueError, "Invalid ID of a spell.");
-		return NULL;
-	}
-
-	dict = PyDict_New();
-
-	PyDict_SetItemString(dict, "name", Py_BuildValue("s", hooks->spells[spell].name));
-	PyDict_SetItemString(dict, "level", Py_BuildValue("i", hooks->spells[spell].level));
-	PyDict_SetItemString(dict, "cost", Py_BuildValue("i", hooks->spells[spell].cost));
-
-	return dict;
-}
-
-/**
- * <h1>GetSkillNr(string name)</h1>
- * Get the ID of the skill.
- * @param name The skill name.
- * @return ID of the skill, -1 if no such skill exists. */
-static PyObject *Atrinik_GetSkillNr(PyObject *self, PyObject *args)
-{
-	const char *skill;
-
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &skill))
-	{
-		return NULL;
-	}
-
-	return Py_BuildValue("i", hooks->lookup_skill_by_name(skill));
-}
-
-/**
  * <h1>RegisterCommand(string name, float speed, [flags = 0])</h1>
  * Register a custom command ran using Python script.
  * @param name Name of the command. For example, "roll" in order to create /roll
@@ -1670,6 +1595,35 @@ static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *args)
 }
 
 /**
+ * <h1>GetArchetype(archname)</h1>
+ * Finds an archetype.
+ * @param archname Name of the archetype to find.
+ * @throws AtrinikError if 'archname' is not a valid archetype.
+ * @return The archetype. * */
+static PyObject *Atrinik_GetArchetype(PyObject *self, PyObject *args)
+{
+	const char *archname;
+	archetype *at;
+
+	(void) self;
+
+	if (!PyArg_ParseTuple(args, "s", &archname))
+	{
+		return NULL;
+	}
+
+	at = hooks->find_archetype(archname);
+
+	if (!at)
+	{
+		PyErr_Format(AtrinikError, "GetArchetype(): The archetype '%s' doesn't exist.", archname);
+		return NULL;
+	}
+
+	return wrap_archetype(at);
+}
+
+/**
  * <h1>print(...)</h1>
  * Prints the string representations of the given objects to the server
  * log, as well as all online DMs. */
@@ -1728,9 +1682,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"GetReturnValue", Atrinik_GetReturnValue, METH_NOARGS, 0},
 	{"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
 	{"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
-	{"GetSpellNr", Atrinik_GetSpellNr, METH_VARARGS, 0},
-	{"GetSpell", Atrinik_GetSpell, METH_VARARGS, 0},
-	{"GetSkillNr", Atrinik_GetSkillNr, METH_VARARGS, 0},
 	{"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
 	{"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
 	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
@@ -1746,6 +1697,7 @@ static PyMethodDef AtrinikMethods[] =
 	{"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
 	{"CreateObject", Atrinik_CreateObject, METH_VARARGS, 0},
 	{"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
+	{"GetArchetype", Atrinik_GetArchetype, METH_VARARGS, 0},
 	{"print", Atrinik_print, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };

@@ -127,9 +127,6 @@ typedef struct spell_struct
 	/** Name of this spell. */
 	char name[BIG_NAME];
 
-	/** Level required to cast this spell. */
-	int level;
-
 	/** Spellpoint cost to cast it. */
 	int sp;
 
@@ -191,8 +188,7 @@ typedef struct spell_struct
 	/** Pointer to archetype used by spell. */
 	char *archname;
 
-	/** How much money the spell costs to buy. */
-	int cost;
+	archetype *at;
 } spell_struct;
 
 /** Marks no spell. */

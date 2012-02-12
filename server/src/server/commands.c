@@ -203,7 +203,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(my), 1.0, 0);
 		commands_add(COMMAND(party), 1.0, 0);
 		commands_add(COMMAND(push), 1.0, 0);
-		commands_add(COMMAND(ready_skill), 1.0, 0);
 		commands_add(COMMAND(region_map), 1.0, 0);
 		commands_add(COMMAND(rename), 1.0, 0);
 		commands_add(COMMAND(reply), 1.0, 0);
@@ -216,7 +215,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(take), 1.0, 0);
 		commands_add(COMMAND(tell), 1.0, 0);
 		commands_add(COMMAND(time), 1.0, 0);
-		commands_add(COMMAND(use_skill), 1.0, 0);
 		commands_add(COMMAND(version), 1.0, 0);
 		commands_add(COMMAND(whereami), 1.0, 0);
 		commands_add(COMMAND(who), 1.0, 0);

@@ -209,7 +209,6 @@ set(SOURCES
 	src/commands/player/my.c
 	src/commands/player/party.c
 	src/commands/player/push.c
-	src/commands/player/ready_skill.c
 	src/commands/player/region_map.c
 	src/commands/player/rename.c
 	src/commands/player/reply.c
@@ -222,7 +221,6 @@ set(SOURCES
 	src/commands/player/take.c
 	src/commands/player/tell.c
 	src/commands/player/time.c
-	src/commands/player/use_skill.c
 	src/commands/player/version.c
 	src/commands/player/whereami.c
 	src/commands/player/who.c

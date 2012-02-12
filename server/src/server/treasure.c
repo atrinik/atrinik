@@ -1879,7 +1879,7 @@ static int get_random_spell(int level, int flags)
 	/* Collect the list of spells we can choose from. */
 	for (i = 0; i < NROFREALSPELLS; i++)
 	{
-		if (level >= spells[i].level && spells[i].spell_use & flags)
+		if (level >= spells[i].at->clone.level && spells[i].spell_use & flags)
 		{
 			possible_spells[num_spells] = i;
 			num_spells++;
@@ -1999,9 +1999,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
 				op->level = temp;
 
-				if (temp < spells[op->stats.sp].level)
+				if (temp < spells[op->stats.sp].at->clone.level)
 				{
-					temp = spells[op->stats.sp].level;
+					temp = spells[op->stats.sp].at->clone.level;
 				}
 
 				break;
@@ -2054,9 +2054,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 					temp = MAXLEVEL;
 				}
 
-				if (!is_special && temp < spells[op->stats.sp].level)
+				if (!is_special && temp < spells[op->stats.sp].at->clone.level)
 				{
-					temp = spells[op->stats.sp].level;
+					temp = spells[op->stats.sp].at->clone.level;
 				}
 
 				op->level = temp;
@@ -2248,9 +2248,9 @@ jump_break1:
 					temp = MAXLEVEL;
 				}
 
-				if (temp < spells[op->stats.sp].level)
+				if (temp < spells[op->stats.sp].at->clone.level)
 				{
-					temp = spells[op->stats.sp].level;
+					temp = spells[op->stats.sp].at->clone.level;
 				}
 
 				op->level = temp;
@@ -2286,9 +2286,9 @@ jump_break1:
 
 				op->level = temp;
 
-				if (temp < spells[op->stats.sp].level)
+				if (temp < spells[op->stats.sp].at->clone.level)
 				{
-					temp = spells[op->stats.sp].level;
+					temp = spells[op->stats.sp].at->clone.level;
 				}
 
 				op->value = (int) (1850.0f * spells[op->stats.sp].value_mul);

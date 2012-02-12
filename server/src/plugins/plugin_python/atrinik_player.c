@@ -144,31 +144,6 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 }
 
 /**
- * <h1>player.GetSkill(int id)</h1>
- * Get skill object.
- * @param id ID of the skill.
- * @throws ValueError if 'id' parameter is not valid.
- * @return Skill object, can be None if the player doesn'thave the
- * skill. */
-static PyObject *Atrinik_Player_GetSkill(Atrinik_Player *pl, PyObject *args)
-{
-	uint32 id;
-
-	if (!PyArg_ParseTuple(args, "I", &id))
-	{
-		return NULL;
-	}
-
-	if (id >= NROFSKILLS)
-	{
-		PyErr_SetString(PyExc_ValueError, "player.GetSkill(): 'id' is not valid for TYPE_SKILL.");
-		return NULL;
-	}
-
-	return wrap_object(pl->pl->skill_ptr[id]);
-}
-
-/**
  * <h1>player.AddExp(int skill, int exp, int [exact = False])</h1>
  * Add (or subtract) experience.
  * @param skill ID of the skill to receive/lose exp in.
@@ -536,7 +511,6 @@ static PyMethodDef methods[] =
 {
 	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
 	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
-	{"GetSkill", (PyCFunction) Atrinik_Player_GetSkill, METH_VARARGS, 0},
 	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
 	{"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
 	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},

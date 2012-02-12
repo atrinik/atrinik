@@ -197,13 +197,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 				return OBJECT_METHOD_ERROR;
 			}
 
-			/* If we have applied a shield, don't allow applying of polearm or two-handed weapons. */
-			if ((op->sub_type >= WEAP_POLE_IMPACT || op->sub_type >= WEAP_2H_IMPACT) && CONTR(applier)->equipment[PLAYER_EQUIP_SHIELD])
-			{
-				draw_info(COLOR_WHITE, applier, "You can't wield this weapon and a shield.");
-				return OBJECT_METHOD_ERROR;
-			}
-
 			draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
 			SET_FLAG(op, FLAG_APPLIED);
 			SET_FLAG(applier, FLAG_READY_WEAPON);
@@ -211,13 +204,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 			break;
 
 		case SHIELD:
-			/* Don't allow polearm or two-handed weapons with a shield. */
-			if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_POLE_IMPACT || CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]->sub_type >= WEAP_2H_IMPACT))
-			{
-				draw_info(COLOR_WHITE, applier, "You can't use a shield with your current weapon.");
-				return OBJECT_METHOD_ERROR;
-			}
-
 		case ARMOUR:
 		case HELMET:
 		case BOOTS:
@@ -243,6 +229,12 @@ int object_apply_item(object *op, object *applier, int aflags)
 		case BOW:
 		case SPELL:
 		case SKILL:
+			if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level)
+			{
+				draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill is too low to use %s.", query_name(op, applier));
+				return OBJECT_METHOD_ERROR;
+			}
+
 			draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
 			SET_FLAG(op, FLAG_APPLIED);
 

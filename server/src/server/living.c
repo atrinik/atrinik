@@ -885,8 +885,6 @@ void fix_player(object *op)
 	pl->gen_sp_armour = 0;
 	pl->item_power = 0;
 
-	pl->encumbrance = 0;
-
 	op->stats.wc = op->arch->clone.stats.wc;
 	op->stats.ac = op->arch->clone.stats.ac;
 	op->stats.dam = op->arch->clone.stats.dam;
@@ -1226,7 +1224,6 @@ void fix_player(object *op)
 		max_boni_hp += pl->equipment[i]->stats.maxhp;
 		max_boni_sp += pl->equipment[i]->stats.maxsp;
 
-		pl->encumbrance += (sint16) (3 * pl->equipment[i]->weight / 1000);
 		pl->digestion += pl->equipment[i]->stats.food;
 		pl->gen_sp += pl->equipment[i]->stats.sp;
 		pl->gen_hp += pl->equipment[i]->stats.hp;

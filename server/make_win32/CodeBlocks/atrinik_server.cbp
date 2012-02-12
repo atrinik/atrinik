@@ -82,7 +82,6 @@
 		<Unit filename="..\..\src\commands\player\my.c" />
 		<Unit filename="..\..\src\commands\player\party.c" />
 		<Unit filename="..\..\src\commands\player\push.c" />
-		<Unit filename="..\..\src\commands\player\ready_skill.c" />
 		<Unit filename="..\..\src\commands\player\region_map.c" />
 		<Unit filename="..\..\src\commands\player\rename.c" />
 		<Unit filename="..\..\src\commands\player\reply.c" />
@@ -95,7 +94,6 @@
 		<Unit filename="..\..\src\commands\player\take.c" />
 		<Unit filename="..\..\src\commands\player\tell.c" />
 		<Unit filename="..\..\src\commands\player\time.c" />
-		<Unit filename="..\..\src\commands\player\use_skill.c" />
 		<Unit filename="..\..\src\commands\player\version.c" />
 		<Unit filename="..\..\src\commands\player\whereami.c" />
 		<Unit filename="..\..\src\commands\player\who.c" />
