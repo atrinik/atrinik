@@ -360,7 +360,6 @@ void esrv_update_stats(player *pl)
 	AddIfInt(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
 	AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
 	AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
-	AddIfInt(pl->last_weapon_sp, pl->weapon_sp, CS_STAT_WEAP_SP, uint8);
 	AddIfInt(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, uint32);
 
 	if (pl->ob)
@@ -1687,7 +1686,7 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 		return;
 	}
 
-	if (pl->ob->weapon_speed_left > 0.0)
+	if (pl->action_attack > global_round_tag)
 	{
 		return;
 	}
@@ -1707,7 +1706,10 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 		}
 	}
 
-	pl->ob->weapon_speed_left = skill_time + delay;
+	pl->action_attack = global_round_tag + skill_time + delay;
+
+	pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+	pl->last_action_timer = 0;
 }
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)

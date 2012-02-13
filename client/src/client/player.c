@@ -115,6 +115,7 @@ void clear_player(void)
 	objects_init();
 	quickslots_init();
 	init_player_data();
+	skills_init();
 	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
@@ -223,7 +224,6 @@ void init_player_data(void)
 	/* Displayed weapon speed is weapon speed/speed */
 	cpl.stats.speed = 0;
 	cpl.stats.weapon_sp = 0;
-	cpl.action_timer = 0.0f;
 
 	cpl.container_tag = -997;
 }
@@ -535,9 +535,6 @@ void widget_show_main_lvl(widgetdata *widget)
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
-		double multi, line;
-		int s;
-		sint64 level_exp;
 		_BLTFX bltfx;
 
 		widget->redraw = 0;
@@ -554,41 +551,7 @@ void widget_show_main_lvl(widgetdata *widget)
 
 		string_blt_format(widget->widgetSF, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
 
-		/* Calculate the exp bubbles */
-		level_exp = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
-		multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level]) * 10.0), &line);
-
-		sprite_blt(Bitmaps[BITMAP_EXP_BORDER], 9, 49, NULL, &bltfx);
-
-		if (multi)
-		{
-			box.x = 0;
-			box.y = 0;
-			box.h = Bitmaps[BITMAP_EXP_SLIDER]->bitmap->h;
-			box.w = (int) (Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w * multi);
-
-			if (!box.w)
-			{
-				box.w = 1;
-			}
-
-			if (box.w > Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w)
-			{
-				box.w = Bitmaps[BITMAP_EXP_SLIDER]->bitmap->w;
-			}
-
-			sprite_blt(Bitmaps[BITMAP_EXP_SLIDER], 9, 49, &box, &bltfx);
-		}
-
-		for (s = 0; s < 10; s++)
-		{
-			sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE2], 10 + s * 8, 40, NULL, &bltfx);
-		}
-
-		for (s = 0; s < (int) line; s++)
-		{
-			sprite_blt(Bitmaps[BITMAP_EXP_BUBBLE1], 10 + s * 8, 40, NULL, &bltfx);
-		}
+		player_draw_exp_progress(widget->widgetSF, 4, 35, cpl.stats.exp, cpl.stats.level);
 	}
 
 	box.x = widget->x1;
@@ -632,16 +595,7 @@ void widget_show_skill_exp(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		int s;
-		sint64 level_exp;
 		_BLTFX bltfx;
-		char buf[MAX_BUF];
-		sint64 liLExp = 0;
-		sint64 liLExpTNL = 0;
-		sint64 liTExp = 0;
-		sint64 liTExpTNL = 0;
-		double fLExpPercent = 0;
-		double multi = 0, line = 0;
 
 		widget->redraw = 0;
 		bltfx.surface = widget->widgetSF;
@@ -653,162 +607,7 @@ void widget_show_skill_exp(widgetdata *widget)
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
-		if (cpl.skill_name[0] != '\0')
-		{
-			switch (setting_get_int(OPT_CAT_GENERAL, OPT_EXP_DISPLAY))
-			{
-				/* Default */
-				default:
-				case 0:
-					snprintf(buf, sizeof(buf), "%s", cpl.skill_name);
-					break;
-
-				/* LExp% || LExp/LExp tnl || TExp/TExp tnl || (LExp%) LExp/LExp tnl */
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-					if (cpl.skill && (cpl.skill->exp >= 0 || cpl.skill->exp == -2))
-					{
-						snprintf(buf, sizeof(buf), "%s - level: %d", cpl.skill_name, cpl.skill->level);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "%s - level: **", cpl.skill_name);
-					}
-
-					break;
-			}
-
-			string_blt(widget->widgetSF, FONT_ARIAL10, buf, 28, 0, COLOR_WHITE, 0, NULL);
-
-			if (cpl.skill && cpl.skill->exp >= 0)
-			{
-				level_exp = cpl.skill->exp - s_settings->level_exp[cpl.skill->level];
-				multi = modf(((double) level_exp / (double) (s_settings->level_exp[cpl.skill->level + 1] - s_settings->level_exp[cpl.skill->level]) * 10.0), &line);
-
-				liTExp = cpl.skill->exp;
-				liTExpTNL = s_settings->level_exp[cpl.skill->level + 1];
-
-				liLExp = liTExp - s_settings->level_exp[cpl.skill->level];
-				liLExpTNL = liTExpTNL - s_settings->level_exp[cpl.skill->level];
-
-				fLExpPercent = ((float) liLExp / (float) (liLExpTNL)) * 100.0f;
-			}
-
-			switch (setting_get_int(OPT_CAT_GENERAL, OPT_EXP_DISPLAY))
-			{
-				/* Default */
-				default:
-				case 0:
-					if (cpl.skill && cpl.skill->exp >= 0)
-					{
-						snprintf(buf, sizeof(buf), "%d / %-9"FMT64, cpl.skill->level, cpl.skill->exp);
-					}
-					else if (cpl.skill && cpl.skill->exp == -2)
-					{
-						snprintf(buf, sizeof(buf), "%d / **", cpl.skill->level);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "** / **");
-					}
-
-					break;
-
-				/* LExp% */
-				case 1:
-					if (cpl.skill && cpl.skill->exp >= 0)
-					{
-						snprintf(buf, sizeof(buf), "%#05.2f%%", fLExpPercent);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "**.**%%");
-					}
-
-					break;
-
-				/* LExp/LExp tnl */
-				case 2:
-					if (cpl.skill && cpl.skill->exp >= 0)
-					{
-						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liLExp, liLExpTNL);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "** / **");
-					}
-
-					break;
-
-				/* TExp/TExp tnl */
-				case 3:
-					if (cpl.skill && cpl.skill->exp >= 0)
-					{
-						snprintf(buf, sizeof(buf), "%"FMT64" / %"FMT64, liTExp, liTExpTNL);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "** / **");
-					}
-
-					break;
-
-				/* (LExp%) LExp/LExp tnl */
-				case 4:
-					if (cpl.skill && cpl.skill->exp >= 0)
-					{
-						snprintf(buf, sizeof(buf), "%#05.2f%% - %"FMT64, fLExpPercent, liLExpTNL - liLExp);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "(**.**%%) **");
-					}
-
-					break;
-			}
-
-			if (cpl.skill && (uint32) cpl.skill->level == s_settings->max_level)
-			{
-				strncpy(buf, "Maximum level reached", sizeof(buf) - 1);
-			}
-
-			string_blt(widget->widgetSF, FONT_ARIAL10, buf, 28, 9, COLOR_WHITE, 0, NULL);
-
-			snprintf(buf, sizeof(buf), "%1.2f sec", cpl.action_timer);
-			string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 3 - string_get_width(FONT_ARIAL10, buf, 0), 0, COLOR_WHITE, 0, NULL);
-		}
-
-		sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BORDER], 142, 11, NULL, &bltfx);
-
-		if (multi)
-		{
-			box.x = 0;
-			box.y = 0;
-			box.h = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->h;
-			box.w = (int) (Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w * multi);
-
-			if (!box.w)
-			{
-				box.w = 1;
-			}
-
-			if (box.w > Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w)
-			{
-				box.w = Bitmaps[BITMAP_EXP_SKILL_LINE]->bitmap->w;
-			}
-
-			sprite_blt(Bitmaps[BITMAP_EXP_SKILL_LINE], 145, 18, &box, &bltfx);
-		}
-
-		if (line > 0)
-		{
-			for (s = 0; s < (int) line; s++)
-			{
-				sprite_blt(Bitmaps[BITMAP_EXP_SKILL_BUBBLE], 145 + s * 5, 13, NULL, &bltfx);
-			}
-		}
+		string_blt_format(widget->widgetSF, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
 	}
 
 	box.x = widget->x1;
@@ -1223,4 +1022,40 @@ void player_doll_update_items(void)
 
 		cpl.player_doll[i] = tmp;
 	}
+}
+
+void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level)
+{
+	_BLTFX bltfx;
+	int line_width, offset, i;
+	double fractional, integral;
+	SDL_Rect box;
+
+	bltfx.surface = surface;
+	bltfx.flags = 0;
+
+	line_width = Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->w * EXP_PROGRESS_BUBBLES;
+	offset = (double) Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h / 2.0 + 0.5;
+	fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
+
+	filledRectAlpha(surface, x, y, x + line_width + offset * 2, y + Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h + offset * 4, 150);
+
+	for (i = 0; i < EXP_PROGRESS_BUBBLES; i++)
+	{
+		sprite_blt(Bitmaps[i < (int) integral ? BITMAP_EXP_BUBBLE_ON : BITMAP_EXP_BUBBLE_OFF], x + offset + i * Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->w, y + offset, NULL, &bltfx);
+	}
+
+	box.x = x + offset;
+	box.y = y + Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h + offset * 2;
+	box.w = line_width;
+	box.h = offset;
+
+	rectangle_create(surface, box.x, box.y, box.w, box.h, "404040");
+
+	box.w = (double) box.w * fractional;
+	rectangle_create(surface, box.x, box.y, box.w, box.h, "0000ff");
+
+	box.y += offset / 4;
+	box.h /= 2;
+	rectangle_create(surface, box.x, box.y, box.w, box.h, "4040ff");
 }

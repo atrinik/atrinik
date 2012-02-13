@@ -1365,7 +1365,6 @@ void fix_player(object *op)
 	}
 
 	update_ob_speed(op);
-	op->weapon_speed_add = op->weapon_speed;
 
 	op->glow_radius = light;
 
@@ -1447,9 +1446,6 @@ void fix_player(object *op)
 	}
 
 	op->stats.wc += thaco_bonus[op->stats.Dex];
-
-	/* For the client */
-	pl->weapon_sp = (char) (op->weapon_speed / 0.0025f);
 
 	if (!pl->quest_container)
 	{

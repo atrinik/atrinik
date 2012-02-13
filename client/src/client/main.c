@@ -130,8 +130,8 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 
 	{"exp_border.png", PIC_TYPE_DEFAULT},
 	{"exp_line.png", PIC_TYPE_DEFAULT},
-	{"exp_bubble.png", PIC_TYPE_TRANS},
-	{"exp_bubble2.png", PIC_TYPE_TRANS},
+	{"exp_bubble_on.png", PIC_TYPE_ALPHA},
+	{"exp_bubble_off.png", PIC_TYPE_ALPHA},
 
 	{"main_stats.png", PIC_TYPE_DEFAULT},
 	{"below.png", PIC_TYPE_DEFAULT},

@@ -735,9 +735,6 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 					snprintf(buf, sizeof(buf), "/tpto %s %d %d", rm_def->maps[i].path, xpos, ypos);
 					send_command(buf);
 
-					/* Workaround so the middle click doesn't also trigger a
-					 * fire action. */
-					cpl.action_timer = 0.0001f;
 					popup_destroy(popup);
 					return 1;
 				}

@@ -35,7 +35,7 @@
  * @param list List to draw the frame for. */
 static void list_draw_frame(list_struct *list)
 {
-	draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list) + list->frame_offset, list->width, LIST_ROWS_HEIGHT(list));
+	draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list), list->width, LIST_ROWS_HEIGHT(list));
 }
 
 /**
@@ -164,7 +164,7 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 		}
 	}
 
-	list->text[row][col] = strdup(str);
+	list->text[row][col] = str ? strdup(str) : NULL;
 }
 
 /**
@@ -340,7 +340,7 @@ void list_show(list_struct *list, int x, int y)
 
 	if (list->scrollbar_enabled)
 	{
-		scrollbar_render(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list) + list->frame_offset);
+		scrollbar_render(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list));
 	}
 
 	/* Doing coloring of each row? */
@@ -348,7 +348,7 @@ void list_show(list_struct *list, int x, int y)
 	{
 		for (row = 0; row < list->max_rows; row++)
 		{
-			box.y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list));
 			list->row_color_func(list, row, box);
 		}
 	}
@@ -365,13 +365,13 @@ void list_show(list_struct *list, int x, int y)
 		/* Color selected row. */
 		if (list->row_selected_func && (row + 1) == list->row_selected)
 		{
-			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 			list->row_selected_func(list, box);
 		}
 		/* Color highlighted row. */
 		else if (list->row_highlight_func && (row + 1) == list->row_highlighted)
 		{
-			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+			box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 			list->row_highlight_func(list, box);
 		}
 
@@ -405,7 +405,7 @@ void list_show(list_struct *list, int x, int y)
 				text_rect.w = list->col_widths[col] + list->col_spacings[col];
 				text_rect.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + 1, text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 			}
 
 			if (list->post_column_func)
@@ -537,7 +537,7 @@ static void list_scroll(list_struct *list, int up, int scroll)
 		row_selected -= scroll;
 
 		/* Adjust row offset if needed. */
-		if (row_offset > (row_selected - 1))
+		if (row_offset > (row_selected - max_rows + 1))
 		{
 			row_offset -= scroll;
 		}
@@ -663,7 +663,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
  * @return 1 if the event was handled, 0 otherwise. */
 int list_handle_mouse(list_struct *list, SDL_Event *event)
 {
-	uint32 row, old_highlighted, old_selected;
+	uint32 row, col, old_highlighted, old_selected;
 	int mx, my;
 
 	if (!list)
@@ -702,58 +702,45 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
 	 * below. */
 	list->row_highlighted = 0;
 
-	/* See which row the mouse is over. */
-	for (row = list->row_offset; row < list->rows; row++)
+	if (list_mouse_get_pos(list, event->motion.x, event->motion.y, &row, &col))
 	{
-		/* Stop if we reached maximum number of visible rows. */
-		if (LIST_ROW_OFFSET(row, list) == list->max_rows)
+		if (list->handle_mouse_row_func)
 		{
-			break;
+			list->handle_mouse_row_func(list, row, event);
 		}
 
-		/* Is the mouse over this row? */
-		if ((uint32) my > (LIST_ROWS_START(list) + LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + list->frame_offset && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) + 1) * LIST_ROW_HEIGHT(list))
+		/* Mouse click? */
+		if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 		{
-			if (list->handle_mouse_row_func)
+			/* See if we clicked on this row earlier, and whether this
+			 * should be considered a double click. */
+			if (SDL_GetTicks() - list->click_tick < DOUBLE_CLICK_DELAY)
 			{
-				list->handle_mouse_row_func(list, row, event);
-			}
-
-			/* Mouse click? */
-			if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
-			{
-				/* See if we clicked on this row earlier, and whether this
-				 * should be considered a double click. */
-				if (SDL_GetTicks() - list->click_tick < DOUBLE_CLICK_DELAY)
+				/* Double click, handle it as if enter was used. */
+				if (list->handle_enter_func)
 				{
-					/* Double click, handle it as if enter was used. */
-					if (list->handle_enter_func)
-					{
-						list->handle_enter_func(list);
-						list->click_tick = 0;
-					}
+					list->handle_enter_func(list);
+					list->click_tick = 0;
+				}
 
-					/* Update selected row (in case enter handling
-					 * function did not actually jump to another GUI,
-					 * thus removing the need for this list). */
-					list->row_selected = row + 1;
-				}
-				/* Normal click. */
-				else
-				{
-					/* Update selected row and click ticks for above
-					 * double click calculation. */
-					list->row_selected = row + 1;
-					list->click_tick = SDL_GetTicks();
-				}
+				/* Update selected row (in case enter handling
+				 * function did not actually jump to another GUI,
+				 * thus removing the need for this list). */
+				list->row_selected = row + 1;
 			}
-			/* Not a mouse click, so update highlighted row. */
+			/* Normal click. */
 			else
 			{
-				list->row_highlighted = row + 1;
+				/* Update selected row and click ticks for above
+				 * double click calculation. */
+				list->row_selected = row + 1;
+				list->click_tick = SDL_GetTicks();
 			}
-
-			break;
+		}
+		/* Not a mouse click, so update highlighted row. */
+		else
+		{
+			list->row_highlighted = row + 1;
 		}
 	}
 
@@ -767,6 +754,42 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
 	if (old_highlighted != list->row_highlighted || old_selected != list->row_selected)
 	{
 		return 1;
+	}
+
+	return 0;
+}
+
+int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col)
+{
+	uint32 w;
+
+	mx -= list->px;
+	my -= list->py;
+
+	/* See which row the mouse is over. */
+	for (*row = list->row_offset; *row < list->rows; (*row)++)
+	{
+		/* Stop if we reached maximum number of visible rows. */
+		if (LIST_ROW_OFFSET(*row, list) == list->max_rows)
+		{
+			break;
+		}
+
+		/* Is the mouse over this row? */
+		if ((uint32) my >= (LIST_ROWS_START(list) + LIST_ROW_OFFSET(*row, list) * LIST_ROW_HEIGHT(list)) && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(*row, list) + 1) * LIST_ROW_HEIGHT(list))
+		{
+			w = 0;
+
+			for (*col = 0; *col < list->cols; (*col)++)
+			{
+				if ((uint32) mx >= list->x + list->frame_offset + w && (uint32) mx < list->x + list->frame_offset + w + list->col_widths[*col] + list->col_spacings[*col])
+				{
+					return 1;
+				}
+
+				w += list->col_widths[*col] + list->col_spacings[*col];
+			}
+		}
 	}
 
 	return 0;

@@ -160,6 +160,7 @@ extern void widget_show_label(widgetdata *widget);
 extern void widget_show_bitmap(widgetdata *widget);
 extern int gender_to_id(const char *gender);
 extern void player_doll_update_items(void);
+extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level);
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_load(int post_load);
@@ -646,6 +647,7 @@ extern void list_offsets_ensure(list_struct *list);
 extern void list_remove(list_struct *list);
 extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
 extern int list_handle_mouse(list_struct *list, SDL_Event *event);
+extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
 extern void list_sort(list_struct *list, int type);
 extern int list_set_selected(list_struct *list, const char *str, uint32 col);
 /* src/toolkit_gui/popup.c */

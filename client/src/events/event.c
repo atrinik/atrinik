@@ -83,7 +83,7 @@ int Event_PollInputDevice(void)
 			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (!cpl.action_timer && widget_mouse_event.owner == cur_widget[MAP_ID])
+			else if (widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 

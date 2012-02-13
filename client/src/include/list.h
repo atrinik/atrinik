@@ -205,9 +205,9 @@ typedef struct list_struct
 } list_struct;
 
 /** Calculate list's row height. */
-#define LIST_ROW_HEIGHT(list) (FONT_HEIGHT((list)->font) + (list)->row_height_adjust)
+#define LIST_ROW_HEIGHT(list) ((list)->font != -1 ? FONT_HEIGHT((list)->font) : 0 + (list)->row_height_adjust)
 /** Figure out Y position where rows should actually start. */
-#define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing)
+#define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
 /** Figure out maximum visible rows. */
 #define LIST_ROWS_MAX(list) ((uint32) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
 /** Calculate the height of the rows. */

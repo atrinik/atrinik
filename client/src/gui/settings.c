@@ -231,7 +231,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	(void) col;
 
 	x = list->x + list->frame_offset;
-	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list)) + list->frame_offset;
+	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list));
 
 	/* Settings list. */
 	if (setting_type == SETTING_TYPE_SETTINGS)

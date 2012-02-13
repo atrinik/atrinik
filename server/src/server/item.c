@@ -28,13 +28,6 @@
 
 #include <global.h>
 
-/** Weapon speed table, to figure out a text representation of weapon's speed */
-static float weapon_speed_table[19] =
-{
-	20.0f,	18.0f, 	10.0f, 	8.0f, 	5.5f, 	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
-	2.15f, 	1.95f,	1.80f, 	1.60f, 	1.52f, 	1.44f, 	1.32f, 	1.25f, 	1.20f
-};
-
 /** Word representations of numbers used by get_number() */
 static char numbers[21][20] =
 {
@@ -1196,20 +1189,7 @@ char *describe_item(object *op)
 
 					if (op->type == WEAPON)
 					{
-						/* This is ugly to calculate because it's a curve that increases heavily
-						 * with lower weapon_speed... So, we use a table */
-						int ws_temp = (int) (op->weapon_speed / 0.0025f);
-
-						if (ws_temp < 0)
-						{
-							ws_temp = 0;
-						}
-						else if (ws_temp > 18)
-						{
-							ws_temp = 18;
-						}
-
-						sprintf(buf, "(%3.2f sec)", weapon_speed_table[ws_temp]);
+						sprintf(buf, "(%3.2f sec)", ((float) op->last_grace / (1000000 / MAX_TIME)));
 						strcat(retbuf, buf);
 
 						if (op->level > 0)

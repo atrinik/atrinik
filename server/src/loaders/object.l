@@ -861,7 +861,6 @@ lex_error = 0;
 ^weapon_speed{S}    {
 						op->weapon_speed = FVAL;
 						op->weapon_speed_left = 0;
-						op->weapon_speed_add = op->weapon_speed;
                     }
 ^item_power{S}      op->item_power = IVAL;
 

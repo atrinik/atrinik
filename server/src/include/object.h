@@ -450,9 +450,6 @@ typedef struct obj
 	/** Weapon speed left */
 	float weapon_speed_left;
 
-	/** Weapon speed add */
-	float weapon_speed_add;
-
 	/** Str, Con, Dex, etc */
 	living stats;
 

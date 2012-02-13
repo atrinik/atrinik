@@ -332,20 +332,16 @@ typedef struct pl_player
 	/** Fame rating in the world. */
 	sint64 fame;
 
+	uint32 action_attack;
+
 	/** weapon_speed_left * 1000 and cast from float to int for client. */
-	int action_timer;
+	uint32 action_timer;
 
 	/** Previous value of action timer sent to the client. */
-	int last_action_timer;
+	uint32 last_action_timer;
 
 	/** Last speed value sent to client. */
 	float last_speed;
-
-	/** Weapon speed index (mainly used for client). */
-	char weapon_sp;
-
-	/** Last weapon speed index. */
-	char last_weapon_sp;
 
 	/** Last overall level sent to the client. */
 	unsigned char last_level;

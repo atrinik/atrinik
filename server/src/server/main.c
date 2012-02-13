@@ -794,13 +794,11 @@ static void process_players1(void)
 			}
 		}
 
-		pl->ob->weapon_speed_left -= pl->ob->weapon_speed_add;
-
 		/* Use the target system to hit our target - don't hit friendly
 		 * objects, ourselves or when we are not in combat mode. */
 		if (pl->target_object && pl->combat_mode && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object))
 		{
-			if (pl->ob->weapon_speed_left <= 0)
+			if (global_round_tag >= pl->action_attack)
 			{
 				/* Now we force target as enemy */
 				pl->ob->enemy = pl->target_object;
@@ -824,16 +822,12 @@ static void process_players1(void)
 					}
 
 					skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
-					/* We want only *one* swing - not several swings per tick */
-					pl->ob->weapon_speed_left += FABS((int) pl->ob->weapon_speed_left) + 1;
+
+					pl->action_attack = global_round_tag + (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON ? pl->equipment[PLAYER_EQUIP_WEAPON]->last_grace : pl->skill_ptr[SK_UNARMED]->last_grace);
+
+					pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+					pl->last_action_timer = 0;
 				}
-			}
-		}
-		else
-		{
-			if (pl->ob->weapon_speed_left <= 0)
-			{
-				pl->ob->weapon_speed_left = 0;
 			}
 		}
 
@@ -986,7 +980,7 @@ void process_events(mapstruct *map)
 		/* As long we are > 0, we are not ready to swing. */
 		if (op->weapon_speed_left > 0)
 		{
-			op->weapon_speed_left -= op->weapon_speed_add;
+			op->weapon_speed_left -= op->weapon_speed;
 		}
 
 		if (op->speed_left > 0)

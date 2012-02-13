@@ -70,16 +70,7 @@ enum
 
 #define PLAYER_DOLL_SLOT_COLOR "353734"
 
-/**
- * Enumerations of the READY_OBJ_xxx constants used by
- * @ref BINARY_CMD_READY.
- * @anchor READY_OBJ_xxx */
-enum
-{
-	READY_OBJ_ARROW,
-	READY_OBJ_THROW,
-	READY_OBJ_MAX
-};
+#define EXP_PROGRESS_BUBBLES 10
 
 typedef struct Stat_struct
 {
@@ -174,9 +165,6 @@ typedef struct Player_Struct
 	int tag;
 	int nrof;
 
-	/** Readied skill. */
-	skill_entry_struct *skill;
-
 	int warn_hp;
 
 	/* Input mode: no, console (textstring), numinput */
@@ -220,7 +208,6 @@ typedef struct Player_Struct
 	char password[40];
 
 	char num_text[300];
-	char skill_name[128];
 
 	/** Rank and name of char. */
 	char ext_title[MAX_BUF];

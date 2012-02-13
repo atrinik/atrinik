@@ -42,6 +42,9 @@ static button_struct button_close, button_help;
 /**
  * The skills list. */
 static list_struct *list_skills = NULL;
+/**
+ * Currently selected skill in the skills list. */
+static size_t selected_skill;
 
 /**
  * Initialize skills system. */
@@ -49,21 +52,62 @@ void skills_init(void)
 {
 	skill_list = NULL;
 	skill_list_num = 0;
+	selected_skill = 0;
 }
 
-/**
- * Handle double click inside the skills list.
- * @param list The skills list. */
-static void list_handle_enter(list_struct *list)
+/** @copydoc list_struct::post_column_func */
+static void list_post_column(list_struct *list, uint32 row, uint32 col)
 {
-	/* Ready the selected skill, if any. */
-	if (list->text)
+	size_t skill_id;
+	SDL_Rect box;
+	_BLTFX bltfx;
+
+	skill_id = row * list->cols + col;
+
+	if (skill_id >= skill_list_num)
+	{
+		return;
+	}
+
+	if (!FaceList[skill_list[skill_id]->skill->face].sprite)
+	{
+		return;
+	}
+
+	box.x = list->x + list->frame_offset + INVENTORY_ICON_SIZE * col;
+	box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
+	box.w = INVENTORY_ICON_SIZE;
+	box.h = INVENTORY_ICON_SIZE;
+
+	bltfx.surface = list->surface;
+	bltfx.flags = 0;
+
+	sprite_blt(FaceList[skill_list[skill_id]->skill->face].sprite, box.x, box.y, NULL, &bltfx);
+
+	if (selected_skill == skill_id)
 	{
 		char buf[MAX_BUF];
 
-		snprintf(buf, sizeof(buf), "/ready_skill %s", list->text[list->row_selected - 1][0]);
-		client_command_check(buf);
+		border_create_color(list->surface, &box, "ff0000");
+
+		strncpy(buf, skill_list[skill_id]->skill->s_name, sizeof(buf) - 1);
+		buf[sizeof(buf) - 1] = '\0';
+		string_title(buf);
+
+		box.w = 170;
+		string_blt(list->surface, FONT_SERIF12, buf, 147, 25, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+
+		string_blt_format(list->surface, FONT_ARIAL11, 165, 45, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Current level</b>: %d", skill_list[skill_id]->level);
+		string_blt(list->surface, FONT_ARIAL11, "<b>Skill progress</b>:", 165, 60, COLOR_WHITE, TEXT_MARKUP, NULL);
+
+		player_draw_exp_progress(list->surface, 165, 80, skill_list[skill_id]->exp, skill_list[skill_id]->level);
 	}
+}
+
+/** @copydoc list_struct::row_color_func */
+static void list_row_color(list_struct *list, int row, SDL_Rect box)
+{
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 25, 25, 25));
 }
 
 /**
@@ -85,10 +129,8 @@ static void skill_list_reload(void)
 
 	for (i = 0; i < skill_list_num; i++)
 	{
-		list_add(list_skills, list_skills->rows, 0, skill_list[i]->skill->s_name);
+		list_add(list_skills, list_skills->rows - (i % list_skills->cols == 0 ? 0 : 1), i % list_skills->cols, NULL);
 	}
-
-	list_sort(list_skills, LIST_SORT_ALPHA);
 
 	if (list_skills->rows == rows)
 	{
@@ -115,12 +157,19 @@ void widget_skills_render(widgetdata *widget)
 	/* Create the skill list. */
 	if (!list_skills)
 	{
-		list_skills = list_create(12, 1, 8);
-		list_skills->handle_enter_func = list_handle_enter;
+		list_skills = list_create(5, 4, 8);
+		list_skills->post_column_func = list_post_column;
+		list_skills->row_color_func = list_row_color;
+		list_skills->row_selected_func = NULL;
+		list_skills->row_highlight_func = NULL;
 		list_skills->surface = widget->widgetSF;
+		list_skills->row_height_adjust = INVENTORY_ICON_SIZE;
+		list_set_font(list_skills, -1);
 		list_scrollbar_enable(list_skills);
-		list_set_column(list_skills, 0, 130, 7, NULL, -1);
-		list_set_font(list_skills, FONT_ARIAL10);
+		list_set_column(list_skills, 0, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 1, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 2, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 3, INVENTORY_ICON_SIZE, 0, NULL, -1);
 		skill_list_reload();
 
 		/* Create various buttons... */
@@ -146,41 +195,6 @@ void widget_skills_render(widgetdata *widget)
 		list_set_parent(list_skills, widget->x1, widget->y1);
 		list_show(list_skills, 10, 2);
 
-#if 0
-		/* Show the skill's icon, if it's known. */
-		if (list_skills->text && skill_list[skill_list_type][skill_id]->known)
-		{
-			_Sprite *icon = FaceList[skill_list[skill_list_type][skill_id]->icon].sprite;
-			char level_buf[MAX_BUF], exp_buf[MAX_BUF];
-
-			if (skill_list[skill_list_type][skill_id]->exp == -1)
-			{
-				strncpy(level_buf, "<b>Level</b>: n/a", sizeof(level_buf) - 1);
-				level_buf[sizeof(level_buf) - 1] = '\0';
-			}
-			else
-			{
-				snprintf(level_buf, sizeof(level_buf), "<b>Level</b>: %d", skill_list[skill_list_type][skill_id]->level);
-			}
-
-			if (skill_list[skill_list_type][skill_id]->exp >= 0)
-			{
-				snprintf(exp_buf, sizeof(exp_buf), "<b>Exp</b>: %"FMT64, skill_list[skill_list_type][skill_id]->exp);
-			}
-			else
-			{
-				strncpy(exp_buf, "<b>Exp</b>: n/a", sizeof(exp_buf) - 1);
-				exp_buf[sizeof(exp_buf) - 1] = '\0';
-			}
-
-			string_blt(widget->widgetSF, FONT_ARIAL10, level_buf, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL);
-			string_blt(widget->widgetSF, FONT_ARIAL10, exp_buf, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL);
-
-			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
-			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);
-		}
-#endif
-
 		widget->redraw = list_need_redraw(list_skills);
 	}
 
@@ -204,11 +218,26 @@ void widget_skills_render(widgetdata *widget)
  * @param event The event to handle. */
 void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 {
+	uint32 row, col;
+
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
 	if (list_skills && list_handle_mouse(list_skills, event))
 	{
 		widget->redraw = 1;
+	}
+
+	if (event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col))
+	{
+		size_t skill_id;
+
+		skill_id = row * list_skills->cols + col;
+
+		if (skill_id < skill_list_num && selected_skill != skill_id)
+		{
+			selected_skill = skill_id;
+			widget->redraw = 1;
+		}
 	}
 
 	if (button_event(&button_close, event))

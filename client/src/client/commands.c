@@ -469,10 +469,8 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					break;
 
 				case CS_STAT_EXT_TITLE:
-				{
 					packet_to_string(data, len, &pos, cpl.ext_title, sizeof(cpl.ext_title));
 					break;
-				}
 
 				case CS_STAT_RANGED_DAM:
 					cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);

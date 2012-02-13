@@ -112,7 +112,6 @@ static fields_struct fields[] =
 	{"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
 	{"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
 	{"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0, 0},
-	{"weapon_speed_add", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_add), 0, 0},
 	{"exp", FIELDTYPE_SINT64, offsetof(object, stats.exp), 0, 0},
 
 	{"hp", FIELDTYPE_SINT32, offsetof(object, stats.hp), 0, 0},
