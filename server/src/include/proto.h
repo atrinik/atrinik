@@ -65,8 +65,6 @@ extern void command_my(object *op, const char *command, char *params);
 extern void command_party(object *op, const char *command, char *params);
 /* src/commands/player/push.c */
 extern void command_push(object *op, const char *command, char *params);
-/* src/commands/player/ready_skill.c */
-extern void command_ready_skill(object *op, const char *command, char *params);
 /* src/commands/player/region_map.c */
 extern void command_region_map(object *op, const char *command, char *params);
 /* src/commands/player/rename.c */
@@ -91,8 +89,6 @@ extern void command_take(object *op, const char *command, char *params);
 extern void command_tell(object *op, const char *command, char *params);
 /* src/commands/player/time.c */
 extern void command_time(object *op, const char *command, char *params);
-/* src/commands/player/use_skill.c */
-extern void command_use_skill(object *op, const char *command, char *params);
 /* src/commands/player/version.c */
 extern void command_version(object *op, const char *command, char *params);
 /* src/commands/player/whereami.c */
@@ -476,7 +472,7 @@ extern object *object_projectile_fire(object *op, object *shooter, int dir);
 extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
 extern object *object_projectile_stop(object *op, int reason);
-extern int object_ranged_fire(object* op, object* shooter, int dir, double* delay);
+extern int object_ranged_fire(object *op, object *shooter, int dir, double *delay);
 extern int object_throw(object *op, object *shooter, int dir);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
@@ -571,16 +567,12 @@ extern float stat_exp_mult[30 + 1];
 extern sint64 do_skill(object *op, int dir, const char *params);
 extern sint64 calc_skill_exp(object *who, object *op, int level);
 extern void init_new_exp_system(void);
-extern int lookup_skill_by_name(const char *string);
 extern int check_skill_to_fire(object *op, object *weapon);
 extern void link_player_skills(object *pl);
-extern int use_skill(object *op, char *string);
 extern int change_skill(object *who, int sk_index);
 extern int skill_attack(object *tmp, object *pl, int dir, char *string);
 extern int SK_level(object *op);
 extern object *SK_skill(object *op);
-extern float get_skill_time(object *op, int skillnr);
-extern int check_skill_action_time(object *op, object *skill);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
@@ -618,7 +610,6 @@ extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 extern void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
-extern int look_up_spell_name(const char *spname);
 /* src/server/statistics.c */
 extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, sint64 i, const char *buf);
@@ -906,6 +897,7 @@ extern void string_newline_to_literal(char *str);
 extern const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize);
 extern int string_isdigit(const char *str);
 extern void string_capitalize(char *str);
+extern void string_title(char *str);
 extern int string_startswith(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
