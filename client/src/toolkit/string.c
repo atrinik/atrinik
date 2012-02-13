@@ -417,6 +417,8 @@ void string_title(char *str)
 		return;
 	}
 
+	previous_cased = 0;
+
 	while (*str != '\0')
 	{
 		if (islower(*str))
