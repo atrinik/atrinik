@@ -810,12 +810,17 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
 
 /**
  * <h1>object.Destroy()</h1>
- * Frees all data associated with the object. The object must have been
- * removed from map/environment first. */
+ * Frees all data associated with the object. */
 static PyObject *Atrinik_Object_Destroy(Atrinik_Object *obj, PyObject *args)
 {
 	(void) args;
 	OBJEXISTCHECK(obj);
+
+	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
+	{
+		hooks->object_remove(obj->obj, 0);
+	}
+
 	hooks->object_destroy(obj->obj);
 
 	Py_INCREF(Py_None);
