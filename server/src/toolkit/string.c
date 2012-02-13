@@ -405,6 +405,47 @@ void string_capitalize(char *str)
 	}
 }
 
+/**
+ * Titlecase a string.
+ * @param str String to titlecase. */
+void string_title(char *str)
+{
+	uint8 previous_cased;
+
+	if (!str)
+	{
+		return;
+	}
+
+	while (*str != '\0')
+	{
+		if (islower(*str))
+		{
+			if (!previous_cased)
+			{
+				*str = toupper(*str);
+			}
+
+			previous_cased = 1;
+		}
+		else if (isupper(*str))
+		{
+			if (previous_cased)
+			{
+				*str = tolower(*str);
+			}
+
+			previous_cased = 1;
+		}
+		else
+		{
+			previous_cased = 0;
+		}
+
+		str++;
+	}
+}
+
 int string_startswith(const char *str, const char *cmp)
 {
 	if (!str || !cmp)
