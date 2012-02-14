@@ -938,7 +938,7 @@ void map_target_handle(uint8 is_friend)
 		{
 			for (layer = 0; layer < NUM_REAL_LAYERS; layer++)
 			{
-				if (the_map.cells[x][y].target_object_count[layer] && the_map.cells[x][y].target_is_friend[layer] == is_friend)
+				if (the_map.cells[x][y].faces[layer] && the_map.cells[x][y].target_object_count[layer] && the_map.cells[x][y].target_is_friend[layer] == is_friend)
 				{
 					map_target_struct target;
 
