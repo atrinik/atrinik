@@ -60,15 +60,6 @@ static int player_doll_positions[PLAYER_DOLL_MAX][2] =
 	{102, 158}
 };
 
-/** Weapon speed table. */
-static float weapon_speed_table[19] =
-{
-	20.0f, 	18.0f, 	10.0f, 	8.0f, 	5.5f,
-	4.25f, 	3.50f, 	3.05f, 	2.70f, 	2.35f,
-	2.15f,	1.95f,	1.80f, 	1.60f, 	1.52f,
-	1.44f, 	1.32f, 	1.25f, 	1.20f
-};
-
 /**
  * Gender nouns. */
 const char *gender_noun[GENDER_MAX] =
@@ -200,17 +191,12 @@ void init_player_data(void)
 {
 	new_player(0, 0, 0);
 
-	cpl.fire_on = 0;
-	cpl.run_on = 0;
 	cpl.inventory_focus = BELOW_INV_ID;
 
 	cpl.container_tag = -996;
 
 	cpl.stats.maxsp = 1;
 	cpl.stats.maxhp = 1;
-	cpl.gen_hp = 0.0f;
-	cpl.gen_sp = 0.0f;
-	cpl.target_hp = 0;
 
 	cpl.stats.speed = 1;
 
@@ -220,10 +206,6 @@ void init_player_data(void)
 	/* Avoid division by 0 errors */
 	cpl.stats.maxsp = 1;
 	cpl.stats.maxhp = 1;
-
-	/* Displayed weapon speed is weapon speed/speed */
-	cpl.stats.speed = 0;
-	cpl.stats.weapon_sp = 0;
 
 	cpl.container_tag = -997;
 }
@@ -446,16 +428,6 @@ void widget_show_player_doll(widgetdata *widget)
 {
 	char *tooltip_text = NULL;
 	int i, xpos, ypos, mx, my;
-	int ws_temp = cpl.stats.weapon_sp;
-
-	if (ws_temp < 0)
-	{
-		ws_temp = 0;
-	}
-	else if (ws_temp > 18)
-	{
-		ws_temp = 18;
-	}
 
 	sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL_BG], widget->x1, widget->y1, NULL, NULL);
 
@@ -473,7 +445,7 @@ void widget_show_player_doll(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 140, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
 	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
 	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 140, widget->y1 + 225, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", weapon_speed_table[ws_temp]);
+	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
 
 	string_blt(ScreenSurface, FONT_ARIAL10, "Speed", widget->x1 + 92, widget->y1 + 193, COLOR_HGOLD, 0, NULL);
 	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 93, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);

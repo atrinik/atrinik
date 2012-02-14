@@ -439,7 +439,7 @@ enum
 #define CS_STAT_ARMOUR			16
 #define CS_STAT_SPEED			17
 #define CS_STAT_FOOD			18
-#define CS_STAT_WEAP_SP 		19
+#define CS_STAT_WEAPON_SPEED 19
 #define CS_STAT_RANGE			20
 #define CS_STAT_TITLE			21
 #define CS_STAT_POW				22

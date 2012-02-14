@@ -109,8 +109,8 @@ typedef struct Stat_struct
 	/** Player's speed; gets converted to a float for display. */
 	sint32 speed;
 
-	/** Weapon speed; gets converted to a float for display. */
-	int weapon_sp;
+	/** Weapon speed. */
+	double weapon_speed;
 
 	/** Contains fire on/run on flags. */
 	uint16 flags;

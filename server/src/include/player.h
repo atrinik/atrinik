@@ -343,6 +343,9 @@ typedef struct pl_player
 	/** Last speed value sent to client. */
 	float last_speed;
 
+	/** Last weapon speed value sent to client. */
+	float last_weapon_speed;
+
 	/** Last overall level sent to the client. */
 	unsigned char last_level;
 

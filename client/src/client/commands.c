@@ -447,8 +447,8 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
-				case CS_STAT_WEAP_SP:
-					cpl.stats.weapon_sp = packet_to_uint8(data, len, &pos);
+				case CS_STAT_WEAPON_SPEED:
+					cpl.stats.weapon_speed = abs(packet_to_uint32(data, len, &pos)) / FLOAT_MULTF;
 					break;
 
 				case CS_STAT_FLAGS:
@@ -460,7 +460,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					break;
 
 				case CS_STAT_ACTION_TIME:
-					cpl.action_timer = abs(packet_to_uint32(data, len, &pos)) / 1000.0f;
+					cpl.action_timer = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
 					WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 					break;
 
