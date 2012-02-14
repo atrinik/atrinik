@@ -508,9 +508,6 @@ typedef struct pl_player
 	/** If true, update line of sight with update_los(). */
 	uint32 update_los:1;
 
-	/** If true, player is in combat mode. */
-	uint32 combat_mode:1;
-
 	/** Is the player AFK? */
 	uint32 afk:1;
 

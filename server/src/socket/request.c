@@ -1788,7 +1788,6 @@ void send_target_command(player *pl)
 	}
 
 	packet = packet_new(CLIENT_CMD_TARGET, 64, 64);
-	packet_append_uint8(packet, pl->combat_mode);
 
 	pl->ob->enemy = NULL;
 	pl->ob->enemy_count = 0;
@@ -2205,20 +2204,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 
 	type = packet_to_uint8(data, len, &pos);
 
-	if (type == CMD_TARGET_TCOMBAT)
-	{
-		if (pl->combat_mode)
-		{
-			pl->combat_mode = 0;
-		}
-		else
-		{
-			pl->combat_mode = 1;
-		}
-
-		send_target_command(pl);
-	}
-	else if (type == CMD_TARGET_MAPXY)
+	if (type == CMD_TARGET_MAPXY)
 	{
 		uint8 x, y;
 		uint32 count, target_object_count;
