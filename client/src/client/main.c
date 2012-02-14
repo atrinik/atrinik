@@ -617,7 +617,7 @@ static void DisplayCustomCursor(void)
  * @return 0 */
 int main(int argc, char *argv[])
 {
-	int x, y, drag, done = 0;
+	int done = 0;
 	uint32 anim_tick, frame_start_time;
 	size_t i;
 	char version[MAX_BUF];
@@ -805,12 +805,13 @@ int main(int argc, char *argv[])
 				map_udate_flag = 0;
 			}
 
-			/* Show the current dragged item */
-			if ((drag = draggingInvItem(DRAG_GET_STATUS)))
+			/* Show the currently dragged item. */
+			if (event_dragging_check())
 			{
-				SDL_GetMouseState(&x, &y);
+				int mx, my;
 
-				object_blit_centered(object_find(cpl.dragging.tag), x, y);
+				SDL_GetMouseState(&mx, &my);
+				object_blit_centered(object_find(cpl.dragging_tag), mx, my);
 			}
 
 			if (GameStatus <= GAME_STATUS_WAITFORPLAY)

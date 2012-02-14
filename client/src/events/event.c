@@ -31,17 +31,38 @@
 
 int old_mouse_y = 0;
 
-/* src:  (if != DRAG_GET_STATUS) set actual dragging source.
- * item: (if != NULL) set actual dragging item.
- * ret:  the actual dragging source. */
-int draggingInvItem(int src)
+int event_dragging_check(void)
 {
-	static int drag_src = DRAG_NONE;
+	int mx, my;
 
-	if (src != DRAG_GET_STATUS)
-		drag_src = src;
+	if (!cpl.dragging_tag)
+	{
+		return 0;
+	}
 
-	return drag_src;
+	if (SDL_GetMouseState(&mx, &my) != SDL_BUTTON_LEFT)
+	{
+		return 0;
+	}
+
+	if (abs(cpl.dragging_startx - mx) < 3 && abs(cpl.dragging_starty - my) < 3)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+void event_dragging_start(int tag, int mx, int my)
+{
+	cpl.dragging_tag = tag;
+	cpl.dragging_startx = mx;
+	cpl.dragging_starty = my;
+}
+
+void event_dragging_stop(void)
+{
+	cpl.dragging_tag = 0;
 }
 
 /**
@@ -164,12 +185,12 @@ int Event_PollInputDevice(void)
 
 				if (widget_event_mouseup(x, y, &event))
 				{
-					/* Sanity handling */
-					draggingInvItem(DRAG_NONE);
+					event_dragging_stop();
 					break;
 				}
 
-				draggingInvItem(DRAG_NONE);
+				event_dragging_stop();
+
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -182,7 +203,7 @@ int Event_PollInputDevice(void)
 				x_custom_cursor = x;
 				y_custom_cursor = y;
 
-				if (widget_event_mousemv(x, y, &event))
+				if (!event_dragging_check() && widget_event_mousemv(x, y, &event))
 				{
 					break;
 				}
@@ -197,7 +218,7 @@ int Event_PollInputDevice(void)
 					break;
 				}
 
-				if (widget_event_mousedn(x, y, &event))
+				if (!event_dragging_check() && widget_event_mousedn(x, y, &event))
 				{
 					break;
 				}

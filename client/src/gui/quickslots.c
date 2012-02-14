@@ -286,24 +286,22 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 		/* Valid slot */
 		if (i != -1)
 		{
-			if (draggingInvItem(DRAG_GET_STATUS) == DRAG_QUICKSLOT)
+			if (cpl.dragging_tag)
 			{
-				quickslots_remove(cpl.dragging.tag);
-				quickslots[i] = cpl.dragging.tag;
+				quickslots_remove(cpl.dragging_tag);
+				quickslots[i] = cpl.dragging_tag;
 
-				if (!object_find_object_inv(cpl.ob, cpl.dragging.tag))
+				if (!object_find_object_inv(cpl.ob, cpl.dragging_tag))
 				{
 					draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
 				}
 				else
 				{
-					quickslot_set(i + 1, cpl.dragging.tag);
-					draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", i + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, object_find(cpl.dragging.tag)->s_name);
+					quickslot_set(i + 1, cpl.dragging_tag);
+					draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", i + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, object_find(cpl.dragging_tag)->s_name);
 				}
 			}
 		}
-
-		draggingInvItem(DRAG_NONE);
 	}
 	else if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
@@ -315,8 +313,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 			{
 				if (quickslots[i] != -1)
 				{
-					cpl.dragging.tag = quickslots[i];
-					draggingInvItem(DRAG_QUICKSLOT);
+					event_dragging_start(quickslots[i], 0, 0);
 					quickslots[i] = -1;
 				}
 

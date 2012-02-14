@@ -282,7 +282,8 @@ extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 extern void mouse_InputNumber(void);
 /* src/events/event.c */
 extern int old_mouse_y;
-extern int draggingInvItem(int src);
+extern int event_dragging_check(void);
+extern void event_dragging_start(int tag, int mx, int my);
 extern void resize_window(int width, int height);
 extern int Event_PollInputDevice(void);
 /* src/events/keys.c */

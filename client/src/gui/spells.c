@@ -283,7 +283,7 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 	{
 		help_show("spell list");
 	}
-	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !draggingInvItem(DRAG_GET_STATUS))
+	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		size_t spell_id;
 		_Sprite *icon;
@@ -297,8 +297,7 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 
 		if (event->motion.x >= widget->x1 + widget->wd - 5 - icon->bitmap->w && event->motion.x <= widget->x1 + widget->wd - 5 && event->motion.y >= widget->y1 + widget->ht - 5 - icon->bitmap->h && event->motion.y <= widget->y1 + widget->ht - 5)
 		{
-			cpl.dragging.tag = spell_list[spell_list_path][spell_id]->spell->tag;
-			draggingInvItem(DRAG_QUICKSLOT);
+			cpl.dragging_tag = spell_list[spell_list_path][spell_id]->spell->tag;
 		}
 	}
 }

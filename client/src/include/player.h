@@ -220,15 +220,17 @@ typedef struct Player_Struct
 	 * password first. */
 	char partyjoin[MAX_BUF];
 
-	/** Information about the object/spell being dragged. */
-	union
-	{
-		/** ID of the object being dragged. */
-		int tag;
+	/**
+	 * Which item is being dragged. */
+	tag_t dragging_tag;
 
-		/** Spell being dragged. */
-		spell_entry_struct *spell;
-	} dragging;
+	/**
+	 * X position where the item was dragged from. */
+	int dragging_startx;
+
+	/**
+	 * Y position where the item was dragged from. */
+	int dragging_starty;
 
 	/** Which inventory widget has the focus. */
 	int inventory_focus;

@@ -871,8 +871,9 @@ void menu_inventory_drag(widgetdata *widget, int x, int y)
 		return;
 	}
 
-	cpl.dragging.tag = ob->tag;
-	draggingInvItem(DRAG_QUICKSLOT);
+	cpl.dragging_tag = ob->tag;
+	cpl.dragging_startx = x;
+	cpl.dragging_starty = y;
 }
 
 /**

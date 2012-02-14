@@ -406,7 +406,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			textwin->selection_end = -1;
 			WIDGET_REDRAW(widget);
 		}
-		else if (event->type == SDL_MOUSEMOTION && !draggingInvItem(DRAG_GET_STATUS))
+		else if (event->type == SDL_MOUSEMOTION)
 		{
 			WIDGET_REDRAW(widget);
 			textwin->selection_started = 1;

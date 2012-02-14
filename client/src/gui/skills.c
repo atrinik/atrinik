@@ -233,10 +233,20 @@ void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
 
 		skill_id = row * list_skills->cols + col;
 
-		if (skill_id < skill_list_num && selected_skill != skill_id)
+		if (skill_id < skill_list_num)
 		{
-			selected_skill = skill_id;
-			widget->redraw = 1;
+			if (event->type == SDL_MOUSEBUTTONUP)
+			{
+				if (selected_skill != skill_id)
+				{
+					selected_skill = skill_id;
+					widget->redraw = 1;
+				}
+			}
+			else if (event->type == SDL_MOUSEBUTTONDOWN)
+			{
+				event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
+			}
 		}
 	}
 
