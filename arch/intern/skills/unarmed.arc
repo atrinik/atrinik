@@ -4,4 +4,5 @@ type 43
 face icon_unarmed.101
 no_drop 1
 last_grace 20
+attack_impact 100
 end

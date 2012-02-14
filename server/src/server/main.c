@@ -823,7 +823,7 @@ static void process_players1(void)
 
 					skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
 
-					pl->action_attack = global_round_tag + (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON ? pl->equipment[PLAYER_EQUIP_WEAPON]->last_grace : pl->skill_ptr[SK_UNARMED]->last_grace);
+					pl->action_attack = global_round_tag + pl->ob->weapon_speed;
 
 					pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
 					pl->last_action_timer = 0;

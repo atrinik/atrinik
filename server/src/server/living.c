@@ -898,7 +898,7 @@ void fix_player(object *op)
 	light = op->arch->clone.glow_radius;
 
 	op->speed = op->arch->clone.speed;
-	op->weapon_speed = op->arch->clone.weapon_speed;
+	op->weapon_speed = 0;
 	op->path_attuned = op->arch->clone.path_attuned;
 	op->path_repelled = op->arch->clone.path_repelled;
 	op->path_denied = op->arch->clone.path_denied;
@@ -1198,11 +1198,6 @@ void fix_player(object *op)
 			max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
 		}
 
-		if (pl->equipment[i]->weapon_speed)
-		{
-			op->weapon_speed = pl->equipment[i]->weapon_speed;
-		}
-
 		if (pl->equipment[i]->stats.ac)
 		{
 			op->stats.ac += pl->equipment[i]->stats.ac + pl->equipment[i]->magic;
@@ -1218,6 +1213,36 @@ void fix_player(object *op)
 			if (pl->equipment[i]->stats.dam)
 			{
 				op->stats.dam += pl->equipment[i]->stats.dam + pl->equipment[i]->magic;
+			}
+
+			for (j = 0; j < NROFATTACKS; j++)
+			{
+				if (pl->equipment[i]->protection[j] > 0)
+				{
+					protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
+				}
+				else if (pl->equipment[i]->protection[j] < 0)
+				{
+					protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
+				}
+
+				if (pl->equipment[i]->attack[j] > 0)
+				{
+					op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int) ((float) pl->equipment[i]->attack[j] * ((float) pl->equipment[i]->item_condition / 100.0f)));
+				}
+			}
+
+			if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL)
+			{
+				if (pl->equipment[i]->stats.exp > 0)
+				{
+					added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
+					bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
+				}
+				else
+				{
+					added_speed += (float) pl->equipment[i]->stats.exp;
+				}
 			}
 		}
 
@@ -1237,36 +1262,6 @@ void fix_player(object *op)
 		}
 
 		living_apply_flags(op, pl->equipment[i]);
-
-		for (j = 0; j < NROFATTACKS; j++)
-		{
-			if (pl->equipment[i]->protection[j] > 0)
-			{
-				protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
-			}
-			else if (pl->equipment[i]->protection[j] < 0)
-			{
-				protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
-			}
-
-			if (pl->equipment[i]->attack[j] > 0)
-			{
-				op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int) ((float) pl->equipment[i]->attack[j] * ((float) pl->equipment[i]->item_condition / 100.0f)));
-			}
-		}
-
-		if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL)
-		{
-			if (pl->equipment[i]->stats.exp > 0)
-			{
-				added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
-				bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
-			}
-			else
-			{
-				added_speed += (float) pl->equipment[i]->stats.exp;
-			}
-		}
 	}
 
 	for (i = 0; i < NROFATTACKS; i++)
@@ -1427,12 +1422,26 @@ void fix_player(object *op)
 
 	if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
 	{
+		op->weapon_speed = pl->equipment[PLAYER_EQUIP_WEAPON]->last_grace;
 		op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
 		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
 		op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 	}
 	else
 	{
+		if (pl->skill_ptr[SK_UNARMED])
+		{
+			op->weapon_speed = pl->skill_ptr[SK_UNARMED]->last_grace;
+
+			for (i = 0; i < NROFATTACKS; i++)
+			{
+				if (pl->skill_ptr[SK_UNARMED]->attack[i])
+				{
+					op->attack[i] = MIN(UINT8_MAX, op->attack[i] + pl->skill_ptr[SK_UNARMED]->attack[i]);
+				}
+			}
+		}
+
 		op->stats.wc += SKILL_LEVEL(pl, SK_UNARMED);
 		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED));
 	}
