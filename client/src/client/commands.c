@@ -598,6 +598,11 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 	if (flags & UPD_NROF)
 	{
 		tmp->nrof = packet_to_uint32(data, len, pos);
+
+		if (tmp->nrof == 0)
+		{
+			tmp->nrof = 1;
+		}
 	}
 
 	if (flags & UPD_EXTRA)
