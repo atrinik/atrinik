@@ -136,17 +136,12 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"main_stats.png", PIC_TYPE_DEFAULT},
 	{"below.png", PIC_TYPE_DEFAULT},
 
-	{"target_talk.png", PIC_TYPE_TRANS},
-
 	{"warn_hp.png", PIC_TYPE_DEFAULT},
 	{"warn_food.png", PIC_TYPE_DEFAULT},
 
 	{"range_buttons_off.png", PIC_TYPE_DEFAULT},
 	{"range_buttons_left.png", PIC_TYPE_DEFAULT},
 	{"range_buttons_right.png", PIC_TYPE_DEFAULT},
-
-	{"target_hp.png", PIC_TYPE_DEFAULT},
-	{"target_hp_b.png", PIC_TYPE_DEFAULT},
 
 	{"textwin_mask.png", PIC_TYPE_DEFAULT},
 
@@ -163,7 +158,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"skill_lvl_bg.png",PIC_TYPE_DEFAULT},
 	{"menu_buttons.png",PIC_TYPE_DEFAULT},
 	{"player_info_bg.png",PIC_TYPE_DEFAULT},
-	{"target_bg.png", PIC_TYPE_DEFAULT},
 	{"textinput.png", PIC_TYPE_DEFAULT},
 
 	{"square_highlight.png", PIC_TYPE_DEFAULT},

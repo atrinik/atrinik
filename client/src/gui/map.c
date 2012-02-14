@@ -487,8 +487,13 @@ static int get_top_floor_height(int x, int y)
  * @param x X position of the object.
  * @param y Y position of the object.
  * @param k Layer.
- * @param player_height_offset Player's height offset. */
-static void draw_map_object(int x, int y, int layer, int sub_layer, int player_height_offset)
+ * @param player_height_offset Player's height offset.
+ * @param[out] target_cell Where to store the map cell the player's
+ * target is at, if any.
+ * @param[out] target_layer Where to store the layer the player's target
+ * is at, if any.
+ * @param target_rect Where to store coordinate info for target. */
+static void draw_map_object(int x, int y, int layer, int sub_layer, int player_height_offset, struct MapCell **target_cell, int *target_layer, SDL_Rect *target_rect)
 {
 	struct MapCell *map = &the_map.cells[x][y];
 	_Sprite *face_sprite;
@@ -715,113 +720,14 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		}
 	}
 
-	if (map->probe[GET_MAP_LAYER(layer, sub_layer)] && cpl.target_code)
+	if (map->probe[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		const char *hp_col;
-		Uint32 sdl_col;
-		SDL_Rect rect;
-		SDL_Color color;
-
-		if (cpl.target_hp > 90)
-		{
-			hp_col = COLOR_GREEN;
-		}
-		else if (cpl.target_hp > 75)
-		{
-			hp_col = COLOR_DGOLD;
-		}
-		else if (cpl.target_hp > 50)
-		{
-			hp_col = COLOR_HGOLD;
-		}
-		else if (cpl.target_hp > 25)
-		{
-			hp_col = COLOR_ORANGE;
-		}
-		else if (cpl.target_hp > 10)
-		{
-			hp_col = COLOR_YELLOW;
-		}
-		else
-		{
-			hp_col = COLOR_RED;
-		}
-
-		temp = (xml - xtemp * 2) - 1;
-
-		if (temp <= 0)
-		{
-			temp = 1;
-		}
-
-		if (temp >= 300)
-		{
-			temp = 300;
-		}
-
-		mid = map->probe[GET_MAP_LAYER(layer, sub_layer)];
-
-		if (mid <= 0)
-		{
-			mid = 1;
-		}
-
-		if (mid > 100)
-		{
-			mid = 100;
-		}
-
-		temp = (int) (((double) temp / 100.0) * (double) mid);
-
-		rect.h = 2;
-		rect.w = temp;
-		rect.x = 0;
-		rect.y = 0;
-
-		text_color_parse(hp_col, &color);
-		sdl_col = SDL_MapRGB(cur_widget[MAP_ID]->widgetSF->format, color.r, color.g, color.b);
-
-		/* First draw the bar */
-		rect.x = xmpos + xtemp - 1;
-		rect.y = yl - 9;
-		rect.h = 1;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		/* Horizontal lines of left bracket */
-		rect.h = 1;
-		rect.w = 3;
-		rect.x = xmpos + xtemp - 3;
-		rect.y = yl - 11;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		rect.y = yl - 7;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		/* Horizontal lines of right bracket */
-		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 3;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		rect.y = yl - 11;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		/* Vertical lines */
-		rect.w = 1;
-		rect.h = 5;
-		rect.x = xmpos + xtemp - 3;
-		rect.y = yl - 11;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-		rect.x = xmpos + xtemp + (xml - xtemp * 2) - 1;
-		SDL_FillRect(cur_widget[MAP_ID]->widgetSF, &rect, sdl_col);
-
-		/* Draw the name of target if it's not a player */
-		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && map->pname[GET_MAP_LAYER(layer, sub_layer)][0]))
-		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2 - 2, yl - 24, cpl.target_color, TEXT_OUTLINE, NULL);
-		}
-
-		/* Draw HP remaining percent */
-		if (cpl.target_hp > 0)
-		{
-			char hp_text[9];
-
-			snprintf(hp_text, sizeof(hp_text), "HP: %d%%", cpl.target_hp);
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, hp_text, xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, hp_text, 0) / 2 - 2, yl - 36, hp_col, TEXT_OUTLINE, NULL);
-		}
+		*target_cell = map;
+		*target_layer = GET_MAP_LAYER(layer, sub_layer);
+		target_rect->x = xmpos + xtemp;
+		target_rect->y = yl - 9;
+		target_rect->w = (xml - xtemp * 2);
+		target_rect->h = 1;
 	}
 }
 
@@ -830,18 +736,21 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 void map_draw_map(void)
 {
 	int player_height_offset;
-	int x, y, layer, sub_layer;
+	int x, y, layer, sub_layer, target_layer;
+	struct MapCell *target_cell;
+	SDL_Rect target_rect;
 	int tx, ty;
 
 	player_height_offset = get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
+	target_cell = NULL;
 
 	/* Draw floor and fmasks. */
 	for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++)
 	{
 		for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++)
 		{
-			draw_map_object(x, y, LAYER_FLOOR, 0, player_height_offset);
-			draw_map_object(x, y, LAYER_FMASK, 0, player_height_offset);
+			draw_map_object(x, y, LAYER_FLOOR, 0, player_height_offset, &target_cell, &target_layer, &target_rect);
+			draw_map_object(x, y, LAYER_FMASK, 0, player_height_offset, &target_cell, &target_layer, &target_rect);
 		}
 	}
 
@@ -859,7 +768,7 @@ void map_draw_map(void)
 						continue;
 					}
 
-					draw_map_object(x, y, layer, sub_layer, player_height_offset);
+					draw_map_object(x, y, layer, sub_layer, player_height_offset, &target_cell, &target_layer, &target_rect);
 				}
 			}
 		}
@@ -868,6 +777,51 @@ void map_draw_map(void)
 	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
 		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
+	}
+
+	if (target_cell)
+	{
+		const char *hp_color;
+
+		if (cpl.target_hp > 90)
+		{
+			hp_color = COLOR_GREEN;
+		}
+		else if (cpl.target_hp > 75)
+		{
+			hp_color = COLOR_DGOLD;
+		}
+		else if (cpl.target_hp > 50)
+		{
+			hp_color = COLOR_HGOLD;
+		}
+		else if (cpl.target_hp > 25)
+		{
+			hp_color = COLOR_ORANGE;
+		}
+		else if (cpl.target_hp > 10)
+		{
+			hp_color = COLOR_YELLOW;
+		}
+		else
+		{
+			hp_color = COLOR_RED;
+		}
+
+		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && target_cell->pname[target_layer][0]))
+		{
+			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
+		}
+
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y - 2, 1, 5, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y - 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y + 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w + 1, target_rect.y - 2, 1, 5, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w - 1, target_rect.y - 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w - 1, target_rect.y + 2, 3, 1, hp_color);
+
+		target_rect.w = MAX(1, MIN(100, (int) (((double) target_rect.w / 100.0) * (double) target_cell->probe[target_layer])));
+		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x, target_rect.y, target_rect.w, target_rect.h, hp_color);
 	}
 }
 
