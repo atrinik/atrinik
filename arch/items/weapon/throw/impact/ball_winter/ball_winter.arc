@@ -2,7 +2,6 @@ Object ball_winter
 name winter ball
 layer 3
 face ball_winter.101
-weapon_speed 0.035
 attack_impact 100
 last_grace 11
 last_sp 7

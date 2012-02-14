@@ -2,7 +2,6 @@ Object snowball
 name snowball
 layer 3
 face snowball.101
-weapon_speed 0.035
 attack_impact 100
 last_grace 11
 last_sp 7

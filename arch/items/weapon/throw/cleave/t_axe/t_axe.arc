@@ -2,7 +2,6 @@ Object t_axe
 name throwing axe
 face t_axe.101
 layer 3
-weapon_speed 0.027
 attack_cleave 100
 dam 3
 last_grace 11

@@ -2,7 +2,6 @@ Object starsdavid2
 name throwing goldstar
 face starsofdavid.101
 layer 3
-weapon_speed 0.027
 attack_slash 100
 dam 3
 last_grace 11
