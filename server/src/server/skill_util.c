@@ -370,6 +370,8 @@ void link_player_skills(object *pl)
 				pl->stats.exp = MAX_EXPERIENCE;
 			}
 		}
+
+		player_lvl_adj(pl, CONTR(pl)->skill_ptr[i]);
 	}
 
 	player_lvl_adj(pl, NULL);
