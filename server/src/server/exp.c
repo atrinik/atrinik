@@ -322,8 +322,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 		return 0;
 	}
 
-	esrv_update_item(UPD_EXTRA, exp_skill);
-
 	/* General adjustments for playbalance */
 	if (!exact)
 	{
@@ -355,6 +353,8 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
 	player_lvl_adj(op, exp_skill);
 	player_lvl_adj(op, NULL);
+
+	esrv_update_item(UPD_EXTRA, exp_skill);
 
 	return exp_gain;
 }
