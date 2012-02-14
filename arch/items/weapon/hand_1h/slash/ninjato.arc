@@ -2,7 +2,7 @@ Object ninjato
 name ninjato
 layer 3
 face ninjato.101
-weapon_speed 0.025
+last_grace 16
 attack_slash 100
 item_level 3
 item_skill 16

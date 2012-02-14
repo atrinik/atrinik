@@ -2,7 +2,7 @@ Object mstar_small
 name small morningstar
 face mstar_small.101
 layer 3
-weapon_speed 0.025
+last_grace 16
 attack_impact 100
 item_skill 19
 dam 4

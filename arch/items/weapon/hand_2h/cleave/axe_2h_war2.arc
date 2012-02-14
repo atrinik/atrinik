@@ -3,7 +3,7 @@ name 2h war axe
 layer 3
 face axe_2h_war2.101
 attack_cleave 100
-weapon_speed 0.02
+last_grace 22
 item_level 10
 item_skill 17
 two_handed 1

@@ -2,7 +2,7 @@ Object bec_de_corbin
 layer 3
 name bec de corbin
 face bec_de_corbin.101
-weapon_speed 0.0175
+last_grace 24
 attack_impact 100
 item_level 11
 item_skill 19

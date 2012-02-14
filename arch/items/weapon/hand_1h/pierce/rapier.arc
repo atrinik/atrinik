@@ -2,7 +2,7 @@ Object rapier
 name rapier
 layer 3
 face rapier.101
-weapon_speed 0.0225
+last_grace 18
 attack_pierce 100
 item_level 7
 item_skill 18

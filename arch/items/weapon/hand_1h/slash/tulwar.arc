@@ -2,7 +2,7 @@ Object tulwar
 name tulwar
 layer 3
 face tulwar.101
-weapon_speed 0.0225
+last_grace 18
 attack_slash 100
 item_skill 16
 dam 4

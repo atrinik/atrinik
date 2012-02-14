@@ -2,7 +2,7 @@ Object shortsword
 name shortsword
 layer 3
 face shortsword.101
-weapon_speed 0.025
+last_grace 16
 attack_slash 100
 item_skill 16
 dam 4

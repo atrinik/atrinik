@@ -1,7 +1,7 @@
 Object ranseur
 name ranseur
 layer 3
-weapon_speed 0.0175
+last_grace 24
 item_level 11
 item_skill 18
 two_handed 1

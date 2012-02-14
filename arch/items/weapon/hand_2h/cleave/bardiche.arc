@@ -6,7 +6,7 @@ item_level 11
 item_skill 17
 two_handed 1
 attack_cleave 100
-weapon_speed 0.0175
+last_grace 24
 dam 8
 wc 5
 type 15

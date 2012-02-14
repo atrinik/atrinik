@@ -1,7 +1,7 @@
 Object forc_military
 name military forc
 layer 3
-weapon_speed 0.02
+last_grace 22
 attack_pierce 100
 type 15
 item_level 10

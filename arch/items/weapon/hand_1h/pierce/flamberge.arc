@@ -2,7 +2,7 @@ Object flamberge
 name flamberge
 layer 3
 face flamberge.101
-weapon_speed 0.02
+last_grace 22
 attack_pierce 100
 item_level 7
 item_skill 18

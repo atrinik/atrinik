@@ -2,7 +2,7 @@ Object hammer_swar_giant
 layer 3
 name spiked war hammer
 face hammer_swar_giant.101
-weapon_speed 0.02
+last_grace 22
 attack_impact 100
 item_level 10
 item_skill 19

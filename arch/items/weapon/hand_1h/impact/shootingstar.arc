@@ -2,7 +2,7 @@ Object shootingstar
 name shootingstar
 face shootingstar.101
 layer 3
-weapon_speed 0.0225
+last_grace 18
 attack_impact 100
 item_level 7
 item_skill 19

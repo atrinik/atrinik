@@ -1,7 +1,7 @@
 Object fauchard
 name fauchard
 layer 3
-weapon_speed 0.0175
+last_grace 24
 attack_slash 100
 type 15
 item_level 11

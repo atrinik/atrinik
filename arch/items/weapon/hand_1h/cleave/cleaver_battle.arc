@@ -3,7 +3,7 @@ name battle cleaver
 layer 3
 face cleaver_battle.101
 attack_cleave 100
-weapon_speed 0.0225
+last_grace 18
 item_level 7
 item_skill 17
 dam 6

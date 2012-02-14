@@ -2,7 +2,7 @@ Object katana
 name katana
 layer 3
 face katana.101
-weapon_speed 0.025
+last_grace 16
 attack_slash 100
 item_level 7
 item_skill 16

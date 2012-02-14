@@ -2,7 +2,7 @@ Object saber
 name saber
 layer 3
 face saber.101
-weapon_speed 0.025
+last_grace 16
 attack_pierce 100
 item_level 7
 item_skill 18

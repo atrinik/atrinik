@@ -3,7 +3,7 @@ name whip
 layer 3
 face whip.101
 attack_cleave 100
-weapon_speed 0.025
+last_grace 16
 item_skill 17
 dam 4
 wc 5

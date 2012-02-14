@@ -2,7 +2,7 @@ Object club_giant_spiked
 layer 3
 name giant spiked club
 face club_giant_spiked.101
-weapon_speed 0.0175
+last_grace 24
 attack_impact 100
 item_level 10
 item_skill 19

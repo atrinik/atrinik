@@ -2,7 +2,7 @@ Object mace_spiked
 name spiked mace
 face mace_spiked.101
 layer 3
-weapon_speed 0.0225
+last_grace 18
 attack_impact 100
 item_level 3
 item_skill 19

@@ -1,7 +1,7 @@
 Object naginata
 name naginata
 layer 3
-weapon_speed 0.0175
+last_grace 24
 item_level 11
 item_skill 16
 two_handed 1

@@ -2,7 +2,7 @@ Object hammer
 name hammer
 face hammer.101
 layer 3
-weapon_speed 0.02
+last_grace 22
 attack_impact 100
 item_level 3
 item_skill 19

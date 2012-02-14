@@ -3,7 +3,7 @@ name 2h battle axe
 layer 3
 face axe_2h_battle.101
 attack_cleave 100
-weapon_speed 0.02
+last_grace 22
 dam 8
 item_level 10
 item_skill 17

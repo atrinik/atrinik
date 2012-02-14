@@ -2,7 +2,7 @@ Object hammer_small
 name small hammer
 face hammer_small.101
 layer 3
-weapon_speed 0.025
+last_grace 16
 attack_impact 100
 item_skill 19
 dam 4

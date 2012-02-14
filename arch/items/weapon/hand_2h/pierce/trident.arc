@@ -1,7 +1,7 @@
 Object trident
 name trident
 layer 3
-weapon_speed 0.02
+last_grace 22
 attack_pierce 100
 item_level 10
 item_skill 18

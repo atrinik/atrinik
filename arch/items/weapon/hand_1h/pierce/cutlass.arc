@@ -2,7 +2,7 @@ Object cutlass
 name cutlass
 layer 3
 face cutlass.101
-weapon_speed 0.025
+last_grace 16
 attack_pierce 100
 item_level 3
 item_skill 18

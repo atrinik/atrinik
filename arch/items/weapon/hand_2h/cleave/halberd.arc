@@ -3,7 +3,7 @@ name halberd
 layer 3
 face halberd.101
 attack_cleave 100
-weapon_speed 0.0175
+last_grace 24
 item_level 11
 item_skill 17
 two_handed 1

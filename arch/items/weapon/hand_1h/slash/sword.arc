@@ -2,7 +2,7 @@ Object sword
 name sword
 layer 3
 face sword.101
-weapon_speed 0.0225
+last_grace 18
 attack_slash 100
 item_level 3
 item_skill 16
