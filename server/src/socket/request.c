@@ -2226,8 +2226,6 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 		pl->target_object = NULL;
 		pl->target_object_count = 0;
 
-		(void) count;
-
 		for (i = 0; i <= SIZEOFFREE1 && !pl->target_object_count; i++)
 		{
 			/* Check whether we are still in range of the player's
