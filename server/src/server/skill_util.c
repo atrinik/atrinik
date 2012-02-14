@@ -73,8 +73,6 @@ static float lev_exp[MAXLEVEL + 1] =
 	1542.13f
 };
 
-static int attack_melee_weapon(object *op, int dir);
-static int attack_hth(object *pl, int dir, char *string);
 static int do_skill_attack(object *tmp, object *op, char *string);
 
 /**
@@ -106,43 +104,12 @@ sint64 do_skill(object *op, int dir, const char *params)
 
 	switch (skill)
 	{
-		case SK_KARATE:
-			attack_hth(op, dir, "karate-chopped");
-			break;
-
-		case SK_UNARMED:
-			attack_hth(op, dir, "punched");
-			break;
-
-		case SK_IMPACT_WEAPONS:
-		case SK_SLASH_WEAPONS:
-		case SK_CLEAVE_WEAPONS:
-		case SK_PIERCE_WEAPONS:
-			attack_melee_weapon(op, dir);
-			break;
-
 		case SK_FIND_TRAPS:
 			success = find_traps(op, op->level);
 			break;
 
 		case SK_REMOVE_TRAPS:
 			success = remove_trap(op);
-			break;
-
-		case SK_THROWING:
-			draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
-			break;
-
-		case SK_MAGIC_DEVICES:
-		case SK_BOW_ARCHERY:
-			draw_info(COLOR_WHITE, op, "There is no special attack for this skill.");
-			return success;
-			break;
-
-		case SK_WIZARDRY_SPELLS:
-		case SK_BARGAINING:
-			draw_info(COLOR_WHITE, op, "This skill is already in effect.");
-			return success;
 			break;
 
 		case SK_CONSTRUCTION:
@@ -153,10 +120,21 @@ sint64 do_skill(object *op, int dir, const char *params)
 			success = skill_inscription(op, params);
 			break;
 
-		default:
-			logger_print(LOG(DEBUG), "%s attempted to use unknown skill: %d", query_name(op, NULL), op->chosen_skill->stats.sp);
-			return success;
+		case SK_THROWING:
+			if (CONTR(op)->equipment[PLAYER_EQUIP_AMMO])
+			{
+				object_throw(CONTR(op)->equipment[PLAYER_EQUIP_AMMO], op, dir);
+			}
+			else
+			{
+				draw_info(COLOR_WHITE, op, "You don't have any ammunition readied to throw.");
+			}
+
 			break;
+
+		default:
+			draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
+			return 0;
 	}
 
 	/* This is a good place to add experience for successfull use of skills.
@@ -401,62 +379,6 @@ int change_skill(object *who, int sk_index)
 	}
 
 	return 0;
-}
-
-/**
- * This handles melee weapon attacks -b.t.
- * @param op Living thing attacking.
- * @param dir Attack direction.
- * @return 0 if no attack was done, nonzero otherwise. */
-static int attack_melee_weapon(object *op, int dir)
-{
-	if (!QUERY_FLAG(op, FLAG_READY_WEAPON))
-	{
-		if (op->type == PLAYER)
-		{
-			draw_info(COLOR_WHITE, op, "You have no ready weapon to attack with!");
-		}
-
-		return 0;
-	}
-
-	return skill_attack(NULL, op, dir, NULL);
-}
-
-/**
- * This handles all hand-to-hand attacks.
- * @param pl Object attacking.
- * @param dir Attack direction.
- * @param string Describes the attack ("karate-chop", "punch", ...).
- * @return 0 if no attack was done, nonzero otherwise. */
-static int attack_hth(object *pl, int dir, char *string)
-{
-	object *enemy = NULL, *weapon;
-
-	if (QUERY_FLAG(pl, FLAG_READY_WEAPON))
-	{
-		for (weapon = pl->inv; weapon; weapon = weapon->below)
-		{
-			if (weapon->type != WEAPON || !QUERY_FLAG(weapon, FLAG_APPLIED))
-			{
-				continue;
-			}
-
-			CLEAR_FLAG(weapon, FLAG_APPLIED);
-			CLEAR_FLAG(pl, FLAG_READY_WEAPON);
-			fix_player(pl);
-
-			if (pl->type == PLAYER)
-			{
-				draw_info(COLOR_WHITE, pl, "You unwield your weapon in order to attack.");
-				esrv_update_item(UPD_FLAGS, weapon);
-			}
-
-			break;
-		}
-	}
-
-	return skill_attack(enemy, pl, dir, string);
 }
 
 /**
