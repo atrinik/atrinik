@@ -30,9 +30,6 @@ Alex "Cleo" Tokar - GPLv2:
 	exp_bubble_on.png
 	exp_bubble_off.png
 	exp_line.png
-	exp_skill_border.png
-	exp_skill_bubble.png
-	exp_skill_line.png
 	eyes.png
 	fire_ready.png
 	food.png
@@ -76,9 +73,6 @@ Alex "Cleo" Tokar - GPLv2:
 	sp.png
 	sp_back.png
 	square_highlight.png
-	target_bg.png
-	target_hp.png
-	target_hp_b.png
 	textinput.png
 	textwin_mask.png
 	unpaid.png
@@ -112,8 +106,6 @@ David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
 	range_tool_no.png
 	range_wizard.png
 	range_wizard_no.png
-	target_attack.png
-	target_normal.png
 	trapped.png
 	warn_food.png
 	warn_hp.png
