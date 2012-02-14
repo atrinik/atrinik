@@ -1443,7 +1443,7 @@ void fix_player(object *op)
 		}
 
 		op->stats.wc += SKILL_LEVEL(pl, SK_UNARMED);
-		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED));
+		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED)) / 2;
 	}
 
 	/* Now the last adds - stat bonus to damage and WC */
