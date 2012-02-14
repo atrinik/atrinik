@@ -279,14 +279,11 @@ enum
  * Target command types.
  *@{*/
 /**
- * Toggle target mode on/off. */
-#define CMD_TARGET_TCOMBAT 1
-/**
  * Target something at the specified X/Y position on the map. */
-#define CMD_TARGET_MAPXY 2
+#define CMD_TARGET_MAPXY 1
 /**
  * Clear target. */
-#define CMD_TARGET_CLEAR 3
+#define CMD_TARGET_CLEAR 2
 /*@}*/
 
 /**

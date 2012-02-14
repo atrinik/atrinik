@@ -185,10 +185,6 @@ static void upgrade_20_to_25(const char *from, const char *to)
 					{
 						new_cmd = "?FIRE_READY";
 					}
-					else if (!strcmp(command, "?COMBAT_TOGGLE"))
-					{
-						new_cmd = "?COMBAT";
-					}
 					else if (!strcmp(command, "?M_TARGET_ENEMY"))
 					{
 						new_cmd = "?TARGET_ENEMY";

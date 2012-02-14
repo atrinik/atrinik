@@ -690,10 +690,6 @@ int keybind_process_command(const char *cmd)
 		{
 			map_target_handle(1);
 		}
-		else if (!strcmp(cmd, "COMBAT"))
-		{
-			send_combat();
-		}
 		else if (!strcmp(cmd, "FIRE_READY"))
 		{
 			widget_inventory_handle_ready(cur_widget[cpl.inventory_focus]);

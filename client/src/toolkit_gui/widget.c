@@ -69,7 +69,6 @@ static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"TARGET",          336, 681, 264,  31, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"MAININV",           1, 508, 271,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1363,10 +1362,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				widget_range_event(widget, x, y, *event, MOUSE_DOWN);
 				break;
 
-			case TARGET_ID:
-				widget_event_target(widget, x, y);
-				break;
-
 			case MAIN_INV_ID:
 			case BELOW_INV_ID:
 				widget_inventory_event(widget, event);
@@ -2007,10 +2002,6 @@ static void process_widget(widgetdata *widget)
 
 		case RANGE_ID:
 			widget_show_range(widget);
-			break;
-
-		case TARGET_ID:
-			widget_show_target(widget);
 			break;
 
 		case MAIN_INV_ID:

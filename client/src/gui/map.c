@@ -934,15 +934,6 @@ static void send_target(int x, int y, uint32 count)
 	socket_send_packet(packet);
 }
 
-void send_combat(void)
-{
-	packet_struct *packet;
-
-	packet = packet_new(SERVER_CMD_TARGET, 4, 0);
-	packet_append_uint8(packet, CMD_TARGET_TCOMBAT);
-	socket_send_packet(packet);
-}
-
 static int map_target_cmp(const void *a, const void *b)
 {
 	int x1, y1, x2, y2;

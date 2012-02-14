@@ -136,9 +136,7 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"main_stats.png", PIC_TYPE_DEFAULT},
 	{"below.png", PIC_TYPE_DEFAULT},
 
-	{"target_attack.png", PIC_TYPE_TRANS},
 	{"target_talk.png", PIC_TYPE_TRANS},
-	{"target_normal.png", PIC_TYPE_TRANS},
 
 	{"warn_hp.png", PIC_TYPE_DEFAULT},
 	{"warn_food.png", PIC_TYPE_DEFAULT},
@@ -151,10 +149,6 @@ static _bitmap_name bitmap_name[BITMAP_INIT] =
 	{"target_hp_b.png", PIC_TYPE_DEFAULT},
 
 	{"textwin_mask.png", PIC_TYPE_DEFAULT},
-
-	{"exp_skill_border.png", PIC_TYPE_DEFAULT},
-	{"exp_skill_line.png", PIC_TYPE_DEFAULT},
-	{"exp_skill_bubble.png", PIC_TYPE_TRANS},
 
 	{"trapped.png", PIC_TYPE_TRANS},
 	{"book.png", PIC_TYPE_ALPHA},

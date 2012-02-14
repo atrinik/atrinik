@@ -149,9 +149,6 @@ typedef struct Player_Struct
 	/** Are we a DM? */
 	int dm;
 
-	/** Target mode. */
-	int	target_mode;
-
 	/** Target. */
 	int	target_code;
 

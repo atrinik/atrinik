@@ -198,7 +198,6 @@ set(SOURCES
 	src/gui/settings.c
 	src/gui/skills.c
 	src/gui/spells.c
-	src/gui/target.c
 	src/gui/textwin.c
 	src/gui/updater.c
 	src/toolkit/binreloc.c

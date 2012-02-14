@@ -208,17 +208,6 @@ void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_target(uint8 *data, size_t len, size_t pos)
 {
-	cpl.target_mode = packet_to_uint8(data, len, &pos);
-
-	if (cpl.target_mode)
-	{
-		sound_play_effect("weapon_attack.ogg", 100);
-	}
-	else
-	{
-		sound_play_effect("weapon_hold.ogg", 100);
-	}
-
 	cpl.target_code = packet_to_uint8(data, len, &pos);
 	packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
 	packet_to_string(data, len, &pos, cpl.target_name, sizeof(cpl.target_name));
