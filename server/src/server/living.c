@@ -1193,7 +1193,7 @@ void fix_player(object *op)
 		}
 
 		/* Used for ALL armours except rings and amulets */
-		if (ARMOUR_SPEED(pl->equipment[i]) && (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max)
+		if (IS_ARMOR(pl->equipment[i]) && ARMOUR_SPEED(pl->equipment[i]) && (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max)
 		{
 			max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
 		}
