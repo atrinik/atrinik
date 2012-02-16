@@ -100,6 +100,26 @@ static void command_buffer_enqueue(command_buffer *buf, command_buffer **queue_s
 }
 
 /**
+ * Enqueue a command buffer first in a queue. */
+static void command_buffer_enqueue_first(command_buffer *buf, command_buffer **queue_start, command_buffer **queue_end)
+{
+	buf->next = *queue_start;
+	buf->prev = NULL;
+
+	if (*queue_end == NULL)
+	{
+		*queue_end = buf;
+	}
+
+	if (buf->next)
+	{
+		buf->next->prev = buf;
+	}
+
+	*queue_start = buf;
+}
+
+/**
  * Remove the first command buffer from a queue. */
 static command_buffer *command_buffer_dequeue(command_buffer **queue_start, command_buffer **queue_end)
 {
@@ -165,7 +185,7 @@ command_buffer *get_next_input_command(void)
 void add_input_command(command_buffer *buf)
 {
 	SDL_LockMutex(input_buffer_mutex);
-	command_buffer_enqueue(buf, &input_queue_start, &input_queue_end);
+	command_buffer_enqueue_first(buf, &input_queue_start, &input_queue_end);
 	SDL_CondSignal(input_buffer_cond);
 	SDL_UnlockMutex(input_buffer_mutex);
 }
