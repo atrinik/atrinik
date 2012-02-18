@@ -1497,6 +1497,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		char buf[2];
 		int mx, my;
 		static uint32 ticks = 0;
+		SDL_Rect blit_dest;
 
 		buf[0] = c;
 		buf[1] = '\0';
@@ -1577,7 +1578,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 		/* Output the rendered character to the screen and free the
 		 * used surface. */
-		SDL_BlitSurface(ttf_surface, NULL, surface, dest);
+		blit_dest.x = dest->x;
+		blit_dest.y = dest->y;
+		SDL_BlitSurface(ttf_surface, NULL, surface, &blit_dest);
 		SDL_FreeSurface(ttf_surface);
 	}
 
