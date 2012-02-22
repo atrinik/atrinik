@@ -550,3 +550,18 @@ int string_isempty(const char *str)
 {
 	return !str || *str == '\0';
 }
+
+int char_contains(const char c, const char *key)
+{
+	size_t i;
+
+	for (i = 0; key[i] != '\0'; i++)
+	{
+		if (c == key[i])
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
