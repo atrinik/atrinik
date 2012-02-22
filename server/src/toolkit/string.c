@@ -368,6 +368,36 @@ const char *string_get_word(const char *str, size_t *pos, char *word, size_t wor
 }
 
 /**
+ * Skips whitespace and the first word in the string.
+ * @param str String.
+ * @param[out] i Position to adjust.
+ * @param dir If 1, skip to the right, if -1, skip to the left. */
+void string_skip_word(const char *str, size_t *i, int dir)
+{
+	/* Skip whitespace. */
+	while (str[*i] != '\0' && isspace(str[*i]))
+	{
+		if (dir == -1 && *i == 0)
+		{
+			break;
+		}
+
+		*i += dir;
+	}
+
+	/* Skip a word. */
+	while (str[*i] != '\0' && !isspace(str[*i]))
+	{
+		if (dir == -1 && *i == 0)
+		{
+			break;
+		}
+
+		*i += dir;
+	}
+}
+
+/**
  * Checks if string is a digit.
  * @return 1 if the string is a digit, 0 otherwise. */
 int string_isdigit(const char *str)
