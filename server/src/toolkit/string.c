@@ -580,3 +580,18 @@ int string_contains(const char *str, const char *key)
 
 	return 0;
 }
+
+int string_contains_other(const char *str, const char *key)
+{
+	while (*str != '\0')
+	{
+		if (!char_contains(*str, key))
+		{
+			return 1;
+		}
+
+		str++;
+	}
+
+	return 0;
+}
