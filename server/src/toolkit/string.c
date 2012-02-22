@@ -595,3 +595,19 @@ int string_contains_other(const char *str, const char *key)
 
 	return 0;
 }
+
+char *string_create_char_range(char start, char end)
+{
+	char *str, c;
+
+	str = malloc((end - start + 1) + 1);
+
+	for (c = start; c <= end; c++)
+	{
+		str[c - start] = c;
+	}
+
+	str[c - start + 1] = '\0';
+
+	return str;
+}
