@@ -182,6 +182,8 @@ typedef struct player_path
 
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
+#define PLAYER_WEIGHT_LIMIT(_pl) (120.0 + 1.5 * SKILL_LEVEL((_pl), SK_CONSTITUTION))
+
 /** The player structure. */
 typedef struct pl_player
 {
@@ -449,9 +451,6 @@ typedef struct pl_player
 	/** Number of books read. */
 	uint64 stat_books_read;
 
-	/** Number of unique books read (the ones that give exp). */
-	uint64 stat_unique_books_read;
-
 	/** Number of potions used. */
 	uint64 stat_potions_used;
 
@@ -469,15 +468,6 @@ typedef struct pl_player
 
 	/** Total number of unique corpses searched. */
 	uint64 stat_corpses_searched;
-
-	/** Number of traps found using the find traps skill. */
-	uint64 stat_traps_found;
-
-	/** Number of traps successfully disarmed. */
-	uint64 stat_traps_disarmed;
-
-	/** Number of traps sprung. */
-	uint64 stat_traps_sprung;
 
 	/** Number of times the player has enabled AFK mode. */
 	uint64 stat_afk_used;
@@ -503,7 +493,7 @@ typedef struct pl_player
 	uint32 target_object_count;
 
 	/** Last weight limit sent to client. */
-	uint32 last_weight_limit;
+	double last_weight_limit;
 
 	/** If true, update line of sight with update_los(). */
 	uint32 update_los:1;
@@ -580,6 +570,9 @@ typedef struct pl_player
 	/** Last SP sent to party members. */
 	uint8 last_party_sp;
 
+	/** Last stats sent to the client. */
+	living last_stats;
+
 	/** If 1, collision is disabled for this player. */
 	uint8 tcl;
 
@@ -594,12 +587,6 @@ typedef struct pl_player
 
 	/** If 1, normally invisible items can be seen. */
 	uint8 tsi;
-
-	/** Can be less in case of poisoning. */
-	living orig_stats;
-
-	/** Last stats sent to the client. */
-	living last_stats;
 
 	/** Pointer to the party this player is member of. */
 	party_struct *party;

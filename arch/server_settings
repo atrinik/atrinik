@@ -1,68 +1,31 @@
 char Human
-base_hp 32
-base_sp 6
-
 gender male human_male human_m.isw.111
 gender female human_female human_f.isw.111
-
-points_max 5
-stats_base 12 12 12 12 12 12 12
-stats_min 12 12 12 12 12 12 12
-stats_max 14 14 14 14 14 14 14
 
 desc Humans are the generalists of the races. They are fit for any trade, and usually pick up a skill from their parents in addition to what they've learned as apprentices in their craft. Females have the same stats as males.
 end
 
 char Half-elf
-base_hp 32
-base_sp 6
-
 gender male half_elf_male human_m.isw.111
 gender female half_elf_female halfelf_f.isw.111
-
-points_max 5
-stats_base 12 13 11 12 11 13 12
-stats_min 12 13 11 12 11 13 12
-stats_max 14 15 13 14 13 15 14
 
 desc The name half-elf can be confusing because it is used for humans with elvish blood in the 2nd or 3rd generation. Real half bloods are normally counted as elves. Half-elves are very similar to humans but a bit more focused on power and dexterity.
 end
 
 char Dwarf
-base_hp 32
-base_sp 6
-
 gender male dwarf_male dwarf.151
 gender female dwarf_female dwarf.151
-
-points_max 5
-stats_base 13 11 13 12 12 11 12
-stats_min 13 11 13 12 12 11 12
-stats_max 15 13 15 14 14 13 14
 
 desc Some dwarves have joined the human fight against Moroch and their skills were very valuable. Some have traveled to the human realms but there are also rumors from hidden dwarf cities in the deeps. The dwarves themselves don't talk much about it...
 end
 
 char Thelra
-base_hp 32
-base_sp 6
-
 gender male thelra_male thelra_m.151
 gender female thelra_female thelra_f.151
-
-points_max 5
-stats_base 12 12 13 14 12 13 12
-stats_min 12 12 13 14 12 13 12
-stats_max 13 14 14 15 14 15 14
 
 desc The race of Thelra is a powerful and fierce race from the cold North. They decided to help fight alongside the chronomancers of Thraal in the war against Moroch. They excel as wizards, but can take on most other skills quite well.
 end
 
-text Select your race and then press <b>Enter</b> or click the <b>Next</b> button to continue.
-text Select the gender of your character and then press <b>Enter</b> or click the <b>Next</b> button to continue.
-text You're nearly done! Pick the stats for your new character by clicking the buttons or using the arrow keys. You must use up <u>all</u> available points before you can start playing. After you're done, press <b>Enter</b> or click the <b>Play</b> button to start playing.\n\n<y=-3><font=sans.ttf 14><c=#b1a841>Stats Selection</c></font>
-text <b>Strength</b>: Affects damage done with melee and ranged weapons, and increases maximum carry limit.\n<b>Dexterity</b>: Improves chance to hit enemies with melee and ranged weapons, and increases movement speed.\n<b>Constitution</b>: Increases maximum hitpoints.\n<b>Intelligence</b>: Increases effectiveness of various spells.\n<b>Wisdom</b>: Increases maximum grace and decreases the chance to fumble casting a prayer.\n<b>Power</b>: Increases maximum mana.\n<b>Charisma</b>: Slightly increases the money received for selling items to shops.
-text <y=10><font=sans.ttf 14><c=#b1a841>Character Creation</c></font>\nTo create a character, simply type your desired character name and press <b>Enter</b>. You'll be prompted for a password -- remember to pick a strong one! If the name is available, you'll be prompted to verify the password you just entered. If not, the name is already taken and you'll have to pick a different one.\n\nNote that the Atrinik website account has nothing to do with your game character.
 text <font=serif.ttf 10>Protection Table</font>\n<y=6>Physical\n<y=5>Elemental\n<y=5>Magical\n<y=5>Spherical
 text I S C P W F C E P A M Mi B Pa Fo G Ch D Sl Co
 text Impact Slash Cleave Pierce Weaponmagic Fire Cold Electricity Poison Acid Magic Mind Blind Paralyze Force Godpower Chaos Drain Slow Confusion

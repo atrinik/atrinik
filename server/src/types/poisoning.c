@@ -40,26 +40,7 @@ static void process_func(object *op)
 		return;
 	}
 
-	/* If we successfully do damage to the player, the poison effects
-	 * worsen... */
-	if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL) && op->env->type == PLAYER)
-	{
-		int i;
-
-		/* Pick some stats to 'deplete'. */
-		for (i = 0; i < NUM_STATS; i++)
-		{
-			if (!(RANDOM() % 2) && get_attr_value(&op->stats, i) > -(MAX_STAT / 2))
-			{
-				/* Now deplete the stat. Relatively small chance that the depletion
-				 * will be worse than usual. */
-				change_attr_value(&op->stats, i, !(RANDOM() % 6) ? -2 : -1);
-				draw_info(COLOR_GRAY, op->env, lose_msg[i]);
-			}
-		}
-
-		fix_player(op->env);
-	}
+	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
 }
 
 /**

@@ -317,6 +317,15 @@ if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABL
 	_xyz_ = NULL;                \
 }
 
+enum
+{
+	ALLOWED_CHARS_ACCOUNT,
+	ALLOWED_CHARS_CHARNAME,
+	ALLOWED_CHARS_PASSWORD,
+
+	ALLOWED_CHARS_NUM
+};
+
 /**
  * The server settings. */
 typedef struct settings_struct
@@ -381,6 +390,10 @@ typedef struct settings_struct
 	 * Comma-delimited list of permission groups each player
 	 * automatically has. */
 	char default_permission_groups[MAX_BUF];
+
+	/**
+	 * Allowed characters for certain strings. */
+	char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
 } settings_struct;
 
 /** Constant shared string pointers. */

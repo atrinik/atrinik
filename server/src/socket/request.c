@@ -366,18 +366,11 @@ void esrv_update_stats(player *pl)
 		AddIfInt(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
 		AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
 		AddIfFloat(pl->last_weapon_speed, pl->ob->weapon_speed / (1000000 / MAX_TIME), CS_STAT_WEAPON_SPEED);
-		AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
+		AddIfFloat(pl->last_weight_limit, PLAYER_WEIGHT_LIMIT(pl), CS_STAT_WEIGHT_LIM);
 		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, uint32);
 		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, uint32);
 		AddIfInt(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, uint16);
 		AddIfInt(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, uint16);
-		AddIfInt(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
-		AddIfInt(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT, uint8);
-		AddIfInt(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW, uint8);
-		AddIfInt(pl->last_stats.Wis, pl->ob->stats.Wis, CS_STAT_WIS, uint8);
-		AddIfInt(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX, uint8);
-		AddIfInt(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON, uint8);
-		AddIfInt(pl->last_stats.Cha, pl->ob->stats.Cha, CS_STAT_CHA, uint8);
 		AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP, uint64);
 		AddIfInt(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC, uint16);
 		AddIfInt(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
@@ -1903,123 +1896,6 @@ static void set_first_map(object *op)
 }
 
 /**
- * Information about a character the player may choose. */
-typedef struct new_char_struct
-{
-	/** Archetype of the player. */
-	char arch[MAX_BUF];
-
-	/**
-	 * Maximum number of points the player can allocate to their
-	 * character's stats. */
-	int points_max;
-
-	/** Base values of stats for this character. */
-	int stats_base[NUM_STATS];
-
-	/** Minimum values of stats for this character. */
-	int stats_min[NUM_STATS];
-
-	/** Maximum values of stats for this character. */
-	int stats_max[NUM_STATS];
-} new_char_struct;
-
-/** All the loaded characters. */
-static new_char_struct *new_chars = NULL;
-/** Number of ::new_chars. */
-static size_t num_new_chars = 0;
-
-/**
- * Deinitialize ::new_chars. */
-void new_chars_deinit(void)
-{
-	if (new_chars)
-	{
-		free(new_chars);
-		new_chars = NULL;
-	}
-
-	num_new_chars = 0;
-}
-
-/**
- * Initialize ::new_chars by reading server_settings file. */
-void new_chars_init(void)
-{
-	char filename[HUGE_BUF], buf[HUGE_BUF];
-	FILE *fp;
-	size_t added = 0, i;
-
-	/* Open the server_settings file. */
-	snprintf(filename, sizeof(filename), "%s/server_settings", settings.datapath);
-	fp = fopen(filename, "r");
-
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		/* New race; added keeps track of how many archetypes have been
-		 * added since the last new. */
-		if (!strncmp(buf, "char ", 5))
-		{
-			added = 0;
-		}
-		/* Add new archetype for this race. */
-		else if (!strncmp(buf, "gender ", 7))
-		{
-			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
-
-			/* Parse the line. */
-			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) != 3)
-			{
-				logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
-				exit(1);
-			}
-
-			new_chars = realloc(new_chars, sizeof(*new_chars) * (num_new_chars + 1));
-			strncpy(new_chars[num_new_chars].arch, arch, sizeof(new_chars[num_new_chars].arch) - 1);
-			new_chars[num_new_chars].arch[sizeof(new_chars[num_new_chars].arch) - 1] = '\0';
-			num_new_chars++;
-			added++;
-		}
-		/* Data that applies to any gender archetype of this race. */
-		else if (!strncmp(buf, "points_max ", 11) || !strncmp(buf, "stats_", 6))
-		{
-			/* Start from the end of the array. */
-			for (i = num_new_chars - 1; ; i--)
-			{
-				if (!strncmp(buf, "points_max ", 11))
-				{
-					new_chars[i].points_max = atoi(buf + 11);
-				}
-				else if (!strncmp(buf, "stats_base ", 11) && sscanf(buf + 11, "%d %d %d %d %d %d %d", &new_chars[i].stats_base[STR], &new_chars[i].stats_base[DEX], &new_chars[i].stats_base[CON], &new_chars[i].stats_base[INT], &new_chars[i].stats_base[WIS], &new_chars[i].stats_base[POW], &new_chars[i].stats_base[CHA]) != NUM_STATS)
-				{
-					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
-					exit(1);
-				}
-				else if (!strncmp(buf, "stats_min ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_min[STR], &new_chars[i].stats_min[DEX], &new_chars[i].stats_min[CON], &new_chars[i].stats_min[INT], &new_chars[i].stats_min[WIS], &new_chars[i].stats_min[POW], &new_chars[i].stats_min[CHA]) != NUM_STATS)
-				{
-					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
-					exit(1);
-				}
-				else if (!strncmp(buf, "stats_max ", 10) && sscanf(buf + 10, "%d %d %d %d %d %d %d", &new_chars[i].stats_max[STR], &new_chars[i].stats_max[DEX], &new_chars[i].stats_max[CON], &new_chars[i].stats_max[INT], &new_chars[i].stats_max[WIS], &new_chars[i].stats_max[POW], &new_chars[i].stats_max[CHA]) != NUM_STATS)
-				{
-					logger_print(LOG(ERROR), "Bogus line in %s: %s", filename, buf);
-					exit(1);
-				}
-
-				/* Check if we have reached the total number of gender
-				 * archetypes added for this race. */
-				if (i == num_new_chars - added)
-				{
-					break;
-				}
-			}
-		}
-	}
-
-	fclose(fp);
-}
-
-/**
  * Client sent us a new char creation.
  *
  * At this point we know the player's name and the password but nothing
@@ -2038,8 +1914,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	const char *name_tmp = NULL;
 	object *op = pl->ob;
 	int x = pl->ob->x, y = pl->ob->y;
-	int stats[NUM_STATS];
-	size_t i, j;
 	char archname[MAX_BUF];
 
 	/* Ignore the command if the player is already playing. */
@@ -2056,13 +1930,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	}
 
 	packet_to_string(data, len, &pos, archname, sizeof(archname));
-	stats[STR] = packet_to_uint8(data, len, &pos);
-	stats[DEX] = packet_to_uint8(data, len, &pos);
-	stats[CON] = packet_to_uint8(data, len, &pos);
-	stats[INT] = packet_to_uint8(data, len, &pos);
-	stats[WIS] = packet_to_uint8(data, len, &pos);
-	stats[POW] = packet_to_uint8(data, len, &pos);
-	stats[CHA] = packet_to_uint8(data, len, &pos);
 
 	player_arch = find_archetype(archname);
 
@@ -2071,42 +1938,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	{
 		pl->socket.status = Ns_Dead;
 		return;
-	}
-
-	for (i = 0; i < num_new_chars; i++)
-	{
-		if (!strcmp(archname, new_chars[i].arch))
-		{
-			break;
-		}
-	}
-
-	if (i == num_new_chars)
-	{
-		pl->socket.status = Ns_Dead;
-		return;
-	}
-
-	/* Ensure all stat points have been allocated. */
-	if (stats[STR] + stats[DEX] + stats[CON] + stats[INT] + stats[WIS] + stats[POW] + stats[CHA] != new_chars[i].stats_min[STR] + new_chars[i].stats_min[DEX] + new_chars[i].stats_min[CON] + new_chars[i].stats_min[INT] + new_chars[i].stats_min[WIS] + new_chars[i].stats_min[POW] + new_chars[i].stats_min[CHA] + new_chars[i].points_max)
-	{
-		pl->socket.status = Ns_Dead;
-		return;
-	}
-
-	/* Make sure all the stats are in a valid range. */
-	for (j = 0; j < NUM_STATS; j++)
-	{
-		if (stats[j] < new_chars[i].stats_min[j])
-		{
-			pl->socket.status = Ns_Dead;
-			return;
-		}
-		else if (stats[j] > new_chars[i].stats_max[j])
-		{
-			pl->socket.status = Ns_Dead;
-			return;
-		}
 	}
 
 	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
@@ -2121,14 +1952,6 @@ void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t 
 	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 3;
 	/* We assume that players always have a valid animation. */
 	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-
-	pl->orig_stats.Str = stats[STR];
-	pl->orig_stats.Dex = stats[DEX];
-	pl->orig_stats.Con = stats[CON];
-	pl->orig_stats.Int = stats[INT];
-	pl->orig_stats.Wis = stats[WIS];
-	pl->orig_stats.Pow = stats[POW];
-	pl->orig_stats.Cha = stats[CHA];
 
 	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 	/* This must before then initial items are given. */

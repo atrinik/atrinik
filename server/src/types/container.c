@@ -111,11 +111,7 @@ static void container_open(object *applier, object *op)
 
 		for (tmp = op->inv; tmp; tmp = tmp->below)
 		{
-			if (tmp->type == RUNE)
-			{
-				rune_spring(tmp, applier);
-			}
-			else if (tmp->type == MONSTER)
+			if (tmp->type == MONSTER)
 			{
 				int i;
 

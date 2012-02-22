@@ -712,50 +712,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 	switch (spell_type)
 	{
-		case SP_STRENGTH:
-			force->speed_left = -1;
-
-			if (tmp->type != PLAYER)
-			{
-				if (op->type == PLAYER)
-				{
-					draw_info(COLOR_WHITE, op, "You can't cast this kind of spell on your target.");
-				}
-
-				return 0;
-			}
-			else if (op->type == PLAYER && op != tmp)
-			{
-				draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
-			}
-
-			if (force->stats.Str < 2)
-			{
-				force->stats.Str++;
-
-				if (op->type == PLAYER && op != tmp)
-				{
-					draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
-				}
-			}
-			else
-			{
-				msg_flag = 0;
-				draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
-
-				if (op->type == PLAYER && op != tmp)
-				{
-					draw_info_format(COLOR_WHITE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
-				}
-			}
-
-			if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y))
-			{
-				logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
-			}
-
-			break;
-
 		/* Attacktype protection spells */
 		case SP_PROT_COLD:
 			i = ATNR_COLD;
@@ -797,91 +753,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 	}
 
 	return 1;
-}
-
-/**
- * Cast remove depletion spell.
- * @param op Object casting this.
- * @param target Target.
- * @return 0 on failure / no depletion, number of stats cured
- * otherwise. */
-int remove_depletion(object *op, object *target)
-{
-	archetype *at;
-	object *depl;
-	int i, success = 0;
-
-	if ((at = find_archetype("depletion")) == NULL)
-	{
-		logger_print(LOG(BUG), "Could not find archetype depletion");
-		return 0;
-	}
-
-	if (!op || !target)
-	{
-		return 0;
-	}
-
-	if (target->type != PLAYER)
-	{
-		/* Fake messages for non player... */
-		if (op->type == PLAYER)
-		{
-			draw_info_format(COLOR_WHITE, op, "You cast depletion on %s.", query_base_name(target, NULL));
-			draw_info(COLOR_WHITE, op, "There is no depletion.");
-		}
-
-		return 0;
-	}
-
-	if (op != target)
-	{
-		if (op->type == PLAYER)
-		{
-			draw_info_format(COLOR_WHITE, op, "You cast depletion on %s.", query_base_name(target, NULL));
-		}
-		else if (target->type == PLAYER)
-		{
-			draw_info_format(COLOR_WHITE, target, "%s casts remove depletion on you.", query_base_name(op, NULL));
-		}
-	}
-
-	if ((depl = present_arch_in_ob(at, target)) != NULL)
-	{
-		for (i = 0; i < NUM_STATS; i++)
-		{
-			if (get_attr_value(&depl->stats, i))
-			{
-				success++;
-				draw_info(COLOR_WHITE, target, restore_msg[i]);
-			}
-		}
-
-		object_remove(depl, 0);
-		fix_player(target);
-	}
-
-	if (op != target && op->type == PLAYER)
-	{
-		if (success)
-		{
-			draw_info(COLOR_WHITE, op, "Your spell removes some depletion.");
-		}
-		else
-		{
-			draw_info(COLOR_WHITE, op, "There is no depletion.");
-		}
-	}
-
-	/* If success, target got info before */
-	if (op != target && target->type == PLAYER && !success)
-	{
-		draw_info(COLOR_WHITE, target, "There is no depletion.");
-	}
-
-	insert_spell_effect(spells[SP_REMOVE_DEPLETION].archname, target->map, target->x, target->y);
-
-	return success;
 }
 
 /**
@@ -1022,7 +893,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 		*done += 1;
 	}
 
-	if (mode == IDENTIFY_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level + op->stats.Int)
+	if (mode == IDENTIFY_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level)
 	{
 		return 0;
 	}

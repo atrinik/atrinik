@@ -601,9 +601,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
 		case ATNR_PARALYZE:
 		case ATNR_BLIND:
 		{
-			int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
-
-			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff]))
+			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)))
 			{
 				if (attacknum == ATNR_CONFUSION)
 				{

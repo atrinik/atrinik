@@ -323,10 +323,13 @@ int push_ob(object *op, int dir, object *pusher)
 	}
 
 	/* Check whether we are strong enough to push this object. */
+	/* TODO */
+#if 0
 	if (op->weight && (op->weight / 50000 - 1 > 0 ? rndm(0, op->weight / 50000 - 1) : 0) > pusher->stats.Str)
 	{
 		return 0;
 	}
+#endif
 
 	x = op->x + freearr_x[dir];
 	y = op->y + freearr_y[dir];

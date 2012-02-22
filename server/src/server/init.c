@@ -126,7 +126,6 @@ static void cleanup(void)
 	free_strings();
 	race_free();
 	free_srv_files();
-	new_chars_deinit();
 	free_regions();
 	objectlink_deinit();
 	object_deinit();
@@ -279,6 +278,92 @@ static void clioptions_option_default_permission_groups(const char *arg)
 	{
 		strncpy(settings.default_permission_groups, arg, sizeof(settings.default_permission_groups) - 1);
 		settings.default_permission_groups[sizeof(settings.default_permission_groups) - 1] = '\0';
+	}
+}
+
+static void clioptions_option_allowed_chars(const char *arg)
+{
+	char word[MAX_BUF], *cmd;
+	size_t type, pos;
+	const char *allowed_chars_names[ALLOWED_CHARS_NUM] = {"account", "charname", "password"};
+
+	pos = 0;
+
+	if (!string_get_word(arg, &pos, word, sizeof(word)))
+	{
+		return;
+	}
+
+	for (type = 0; type < ALLOWED_CHARS_NUM; type++)
+	{
+		if (strcmp(word, allowed_chars_names[type]) == 0)
+		{
+			break;
+		}
+	}
+
+	if (type == ALLOWED_CHARS_NUM)
+	{
+		return;
+	}
+
+	settings.allowed_chars[type][0] = '\0';
+
+	while (string_get_word(arg, &pos, word, sizeof(word)))
+	{
+		if (string_startswith(word, "[") && string_endswith(word, "]"))
+		{
+			cmd = string_sub(word, 1, -1);
+
+			if (string_startswith(cmd, ":") && string_endswith(cmd, ":"))
+			{
+				char start, end;
+
+				if (strcmp(cmd, ":alphalower:") == 0)
+				{
+					start = 'a';
+					end = 'z';
+				}
+				else if (strcmp(cmd, ":alphaupper:") == 0)
+				{
+					start = 'A';
+					end = 'Z';
+				}
+				else if (strcmp(cmd, ":numeric:") == 0)
+				{
+					start = '0';
+					end = '9';
+				}
+				else if (strcmp(cmd, ":print:") == 0)
+				{
+					start = '!';
+					end = '}';
+				}
+				else if (strcmp(cmd, ":space:") == 0)
+				{
+					start = end = ' ';
+				}
+				else
+				{
+					start = end = '\0';
+				}
+
+				if (start != '\0' && end != '\0')
+				{
+					char *chars;
+
+					chars = string_create_char_range(start, end);
+					strncat(settings.allowed_chars[type], chars, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
+					free(chars);
+				}
+			}
+			else
+			{
+				strncat(settings.allowed_chars[type], cmd, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
+			}
+
+			free(cmd);
+		}
 	}
 }
 
@@ -489,6 +574,15 @@ static void init_library(int argc, char *argv[])
 		"Comma-delimited list of permission groups that every player will be"
 		"able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using"
 		"the option in the first place, ie, no default permission groups."
+	);
+
+	clioptions_add(
+		"allowed_chars",
+		NULL,
+		clioptions_option_allowed_chars,
+		1,
+		"",
+		""
 	);
 
 	memset(&settings, 0, sizeof(settings));

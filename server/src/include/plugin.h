@@ -186,7 +186,6 @@ struct plugin_hooklist
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
 	void (*draw_info_map)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
-	void (*rune_spring)(object *, object *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
 	int (*change_skill)(object *, int);

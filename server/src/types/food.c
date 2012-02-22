@@ -42,14 +42,6 @@ static void create_food_force(object* who, object *food, object *force)
 {
 	int i;
 
-	force->stats.Str = food->stats.Str;
-	force->stats.Pow = food->stats.Pow;
-	force->stats.Dex = food->stats.Dex;
-	force->stats.Con = food->stats.Con;
-	force->stats.Int = food->stats.Int;
-	force->stats.Wis = food->stats.Wis;
-	force->stats.Cha = food->stats.Cha;
-
 	for (i = 0; i < NROFATTACKS; i++)
 	{
 		force->protection[i] = food->protection[i];
@@ -59,55 +51,6 @@ static void create_food_force(object* who, object *food, object *force)
 	if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED))
 	{
 		int stat_multiplier = QUERY_FLAG(food, FLAG_CURSED) ? 2 : 3;
-
-		if (force->stats.Str > 0)
-		{
-			force->stats.Str =- force->stats.Str;
-		}
-
-		force->stats.Str *= stat_multiplier;
-
-		if (force->stats.Dex > 0)
-		{
-			force->stats.Dex =- force->stats.Dex;
-		}
-
-		force->stats.Dex *= stat_multiplier;
-
-		if (force->stats.Con > 0)
-		{
-			force->stats.Con =- force->stats.Con;
-		}
-
-		force->stats.Con *= stat_multiplier;
-
-		if (force->stats.Int > 0)
-		{
-			force->stats.Int =- force->stats.Int;
-		}
-
-		force->stats.Int *= stat_multiplier;
-
-		if (force->stats.Wis > 0)
-		{
-			force->stats.Wis =- force->stats.Wis;
-		}
-
-		force->stats.Wis *= stat_multiplier;
-
-		if (force->stats.Pow > 0)
-		{
-			force->stats.Pow =- force->stats.Pow;
-		}
-
-		force->stats.Pow *= stat_multiplier;
-
-		if (force->stats.Cha > 0)
-		{
-			force->stats.Cha =- force->stats.Cha;
-		}
-
-		force->stats.Cha *= stat_multiplier;
 
 		for (i = 0; i < NROFATTACKS; i++)
 		{
@@ -155,22 +98,14 @@ static void create_food_force(object* who, object *food, object *force)
  * @param food The food object. */
 static void eat_special_food(object *who, object *food)
 {
-	/* if there is any stat or protection value - create force for the object! */
-	if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha)
-	{
-		create_food_force(who, food, get_archetype("force"));
-	}
-	else
-	{
-		int i;
+	int i;
 
-		for (i = 0; i < NROFATTACKS; i++)
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		if (food->protection[i] > 0)
 		{
-			if (food->protection[i] > 0)
-			{
-				create_food_force(who, food, get_archetype("force"));
-				break;
-			}
+			create_food_force(who, food, get_archetype("force"));
+			break;
 		}
 	}
 

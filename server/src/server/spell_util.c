@@ -346,10 +346,6 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			success = cast_heal(op, SK_level(caster), target, type);
 			break;
 
-		case SP_REMOVE_DEPLETION:
-			success = remove_depletion(op, target);
-			break;
-
 		case SP_REMOVE_CURSE:
 		case SP_REMOVE_DAMNATION:
 			success = remove_curse(op, target, type, item);
@@ -448,7 +444,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		case SP_DESTRUCTION:
-			success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
+			success = cast_destruction(op, caster, 15, AT_MAGIC);
 			break;
 
 		case SP_TRANSFORM_WEALTH:
@@ -469,7 +465,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		default:
-			logger_print(LOG(BUG), "Invalid invalid spell: %d", type);
+			logger_print(LOG(BUG), "Invalid spell: %d", type);
 			break;
 	}
 

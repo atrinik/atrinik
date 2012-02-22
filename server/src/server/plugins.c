@@ -48,7 +48,6 @@ struct plugin_hooklist hooklist =
 	fix_player,
 	insert_ob_in_ob,
 	draw_info_map,
-	rune_spring,
 	cast_spell,
 	update_ob_speed,
 	change_skill,

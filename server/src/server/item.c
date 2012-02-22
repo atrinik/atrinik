@@ -963,7 +963,7 @@ static void describe_terrain(object *op, char *retbuf)
  * @return The described information. */
 char *describe_item(object *op)
 {
-	int attr,val, more_info = 0, id_true = 0;
+	int more_info = 0, id_true = 0;
 	char buf[MAX_BUF];
 	static char retbuf[VERY_BIG_BUF * 3];
 
@@ -1266,16 +1266,6 @@ char *describe_item(object *op)
 				default:
 					return retbuf;
 			}
-
-			/* These count for every "normal" item player deals with - mostly equipment */
-			for (attr = 0; attr < NUM_STATS; attr++)
-			{
-				if ((val = get_attr_value(&(op->stats), attr)) != 0)
-				{
-					sprintf(buf, "(%s%+d)", short_stat_name[attr], val);
-					strcat(retbuf, buf);
-				}
-			}
 		}
 	}
 
@@ -1483,51 +1473,5 @@ void identify(object *op)
 	else
 	{
 		esrv_send_item(op);
-	}
-}
-
-/**
- * Check if an object marked with FLAG_IS_TRAPPED still has a known trap
- * in it.
- * @param op The object to check. */
-void set_trapped_flag(object *op)
-{
-	object *tmp;
-	uint32 flag;
-
-	if (!op)
-	{
-		return;
-	}
-
-	/* Player and monsters are not marked. */
-	if (op->type == PLAYER || op->type == MONSTER)
-	{
-		return;
-	}
-
-	flag = QUERY_FLAG(op, FLAG_IS_TRAPPED);
-	CLEAR_FLAG(op, FLAG_IS_TRAPPED);
-
-	for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-	{
-		/* Must be a rune AND visible */
-		if (tmp->type == RUNE && tmp->stats.Cha <= 1)
-		{
-			SET_FLAG(op, FLAG_IS_TRAPPED);
-			return;
-		}
-	}
-
-	if (QUERY_FLAG(op, FLAG_IS_TRAPPED) != flag)
-	{
-		if (op->env)
-		{
-			esrv_update_item(UPD_FLAGS, op);
-		}
-		else
-		{
-			update_object(op, UP_OBJ_FACE);
-		}
 	}
 }

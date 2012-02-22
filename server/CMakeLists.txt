@@ -271,9 +271,7 @@ set(SOURCES
 	src/server/readable.c
 	src/server/re-cmp.c
 	src/server/region.c
-	src/server/rune.c
 	src/server/shop.c
-	src/server/skills.c
 	src/server/skill_util.c
 	src/server/spell_effect.c
 	src/server/spell_util.c

@@ -368,14 +368,17 @@ static void create_server_settings(void)
 		exit(1);
 	}
 
+	for (i = 0; i < ALLOWED_CHARS_NUM; i++)
+	{
+		fprintf(fp, "text %s\n", settings.allowed_chars[i]);
+	}
+
 	/* Add the level information. */
-	snprintf(buf, sizeof(buf), "level %d\n", MAXLEVEL);
-	fputs(buf, fp);
+	fprintf(fp, "level %d\n", MAXLEVEL);
 
 	for (i = 0; i <= MAXLEVEL; i++)
 	{
-		snprintf(buf, sizeof(buf), "%"FMT64HEX"\n", new_levels[i]);
-		fputs(buf, fp);
+		fprintf(fp, "%"FMT64HEX"\n", new_levels[i]);
 	}
 
 	fclose(fp);
@@ -448,7 +451,6 @@ void init_srv_files(void)
 	create_server_settings();
 	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
 	load_srv_file(buf, SERVER_FILE_SETTINGS);
-	new_chars_init();
 
 	create_server_animations();
 	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);

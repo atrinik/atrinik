@@ -151,56 +151,6 @@ static int apply_func(object *op, object *applier, int aflags)
 			draw_info(COLOR_WHITE, applier, "Nothing happened.");
 		}
 	}
-	/* Potion of minor restoration (removes depletion). */
-	else if (op->last_eat == 1)
-	{
-		int i;
-
-		/* Cursed potion of minor restoration; reverse effects (stats are
-		 * depleted). */
-		if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))
-		{
-			/* Drain 2 stats if the potion is cursed, 4 if it's damned. */
-			for (i = QUERY_FLAG(op, FLAG_DAMNED) ? 0 : 2; i < 4; i++)
-			{
-				drain_stat(applier);
-			}
-
-			insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
-			play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
-		}
-		else
-		{
-			archetype *at;
-			object *depletion;
-
-			at = find_archetype("depletion");
-
-			depletion = present_arch_in_ob(at, applier);
-
-			if (depletion)
-			{
-				for (i = 0; i < NUM_STATS; i++)
-				{
-					if (get_attr_value(&depletion->stats, i))
-					{
-						draw_info(COLOR_WHITE, applier, restore_msg[i]);
-					}
-				}
-
-				object_remove(depletion, 0);
-				object_destroy(depletion);
-				fix_player(applier);
-			}
-			else
-			{
-				draw_info(COLOR_WHITE, applier, "You are not depleted.");
-			}
-
-			insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
-			play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
-		}
-	}
 	/* Spell potion. */
 	else if (op->stats.sp != SP_NO_SPELL)
 	{

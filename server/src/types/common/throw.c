@@ -99,7 +99,7 @@ int common_object_throw(object *op, object *shooter, int dir)
 	insert_ob_in_ob(op, copy);
 
 	/* Calculate moving speed. */
-	copy->speed = MIN(1.0f, (speed_bonus[shooter->stats.Str] + 1.0f) / 1.5f);
+	copy->speed = 0.2;
 
 	if (op->type != ARROW)
 	{
@@ -142,16 +142,6 @@ int common_object_throw(object *op, object *shooter, int dir)
 	copy->stats.dam += copy->magic;
 	copy->stats.wc += SK_level(shooter);
 	copy->stats.wc += copy->magic;
-
-	if (shooter->type == PLAYER)
-	{
-		copy->stats.dam += dam_bonus[shooter->stats.Str] / 2;
-		copy->stats.wc += thaco_bonus[shooter->stats.Dex];
-	}
-	else
-	{
-		copy->stats.wc += 5;
-	}
 
 	copy->stats.dam = (sint16) ((double) copy->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
 

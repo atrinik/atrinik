@@ -266,7 +266,6 @@ extern char *query_base_name(object *op, object *caller);
 extern char *describe_item(object *op);
 extern int need_identify(object *op);
 extern void identify(object *op);
-extern void set_trapped_flag(object *op);
 /* src/server/light.c */
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
 extern void check_light_source_list(mapstruct *map);
@@ -281,24 +280,11 @@ extern void free_objectlinkpt(objectlink *obp);
 extern objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr);
 extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
 /* src/server/living.c */
-extern int dam_bonus[30 + 1];
-extern int thaco_bonus[30 + 1];
-extern float cha_bonus[30 + 1];
-extern float speed_bonus[30 + 1];
-extern uint32 weight_limit[30 + 1];
-extern int learn_spell[30 + 1];
-extern int savethrow[115 + 1];
-extern const char *const restore_msg[7];
-extern const char *const lose_msg[7];
-extern const char *const statname[7];
-extern const char *const short_stat_name[7];
 extern void set_attr_value(living *stats, int attr, sint8 value);
 extern void change_attr_value(living *stats, int attr, sint8 value);
 extern sint8 get_attr_value(living *stats, int attr);
 extern void check_stat_bounds(living *stats);
 extern int change_abil(object *op, object *tmp);
-extern void drain_stat(object *op);
-extern void drain_specific_stat(object *op, int deplete_stats);
 extern void fix_player(object *op);
 extern void fix_monster(object *op);
 extern object *insert_base_info_object(object *op);
@@ -533,11 +519,6 @@ extern char *get_region_msg(const region *r);
 extern object *get_jail_exit(object *op);
 extern void init_regions(void);
 extern void free_regions(void);
-/* src/server/rune.c */
-extern int trap_see(object *op, object *trap, int level);
-extern int trap_show(object *trap, object *where);
-extern int trap_disarm(object *disarmer, object *trap);
-extern void trap_adjust(object *trap, int difficulty);
 /* src/server/shop.c */
 extern sint64 query_cost(object *tmp, object *who, int flag);
 extern char *cost_string_from_value(sint64 cost);
@@ -558,11 +539,8 @@ extern sint64 bank_get_balance(object *op);
 extern int bank_deposit(object *op, const char *text, sint64 *value);
 extern int bank_withdraw(object *op, const char *text, sint64 *value);
 extern sint64 insert_coins(object *pl, sint64 value);
-/* src/server/skills.c */
-extern skill_struct skills[NROFSKILLS];
-extern sint64 find_traps(object *pl, int level);
-extern sint64 remove_trap(object *op);
 /* src/server/skill_util.c */
+extern skill_struct skills[NROFSKILLS];
 extern float stat_exp_mult[30 + 1];
 extern sint64 do_skill(object *op, int dir, const char *params);
 extern sint64 calc_skill_exp(object *who, object *op, int level);
@@ -582,7 +560,6 @@ extern int cast_destruction(object *op, object *caster, int dam, int attacktype)
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
-extern int remove_depletion(object *op, object *target);
 extern int remove_curse(object *op, object *target, int type, int src);
 extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
 extern int cast_identify(object *op, int level, object *single_ob, int mode);
@@ -746,8 +723,6 @@ extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data,
 extern void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
-extern void new_chars_deinit(void);
-extern void new_chars_init(void);
 extern void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void generate_ext_title(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
@@ -895,6 +870,7 @@ extern char *string_whitespace_trim(char *str);
 extern char *string_whitespace_squeeze(char *str);
 extern void string_newline_to_literal(char *str);
 extern const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize);
+extern void string_skip_word(const char *str, size_t *i, int dir);
 extern int string_isdigit(const char *str);
 extern void string_capitalize(char *str);
 extern void string_title(char *str);
@@ -902,6 +878,10 @@ extern int string_startswith(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
 extern int string_isempty(const char *str);
+extern int char_contains(const char c, const char *key);
+extern int string_contains(const char *str, const char *key);
+extern int string_contains_other(const char *str, const char *key);
+extern char *string_create_char_range(char start, char end);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
@@ -1167,7 +1147,6 @@ extern void object_type_init_ring(void);
 /* src/types/rod.c */
 extern void object_type_init_rod(void);
 /* src/types/rune.c */
-extern void rune_spring(object *op, object *victim);
 extern void object_type_init_rune(void);
 /* src/types/savebed.c */
 extern void object_type_init_savebed(void);

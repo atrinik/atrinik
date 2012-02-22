@@ -147,9 +147,7 @@
 		<Unit filename="..\..\src\server\readable.c" />
 		<Unit filename="..\..\src\server\re-cmp.c" />
 		<Unit filename="..\..\src\server\region.c" />
-		<Unit filename="..\..\src\server\rune.c" />
 		<Unit filename="..\..\src\server\shop.c" />
-		<Unit filename="..\..\src\server\skills.c" />
 		<Unit filename="..\..\src\server\skill_util.c" />
 		<Unit filename="..\..\src\server\spell_effect.c" />
 		<Unit filename="..\..\src\server\spell_util.c" />

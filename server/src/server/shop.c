@@ -41,7 +41,6 @@ sint64 query_cost(object *tmp, object *who, int flag)
 	sint64 val;
 	double diff;
 	int number;
-	int charisma = 11;
 
 	if ((number = tmp->nrof) == 0)
 	{
@@ -128,32 +127,14 @@ sint64 query_cost(object *tmp, object *who, int flag)
 		return val;
 	}
 
-	/* First, we adjust charisma for players and count skills in */
-	if (who != NULL && who->type == PLAYER)
-	{
-		/* Used for SK_BARGAINING modification */
-		charisma = who->stats.Cha;
-
-		/* This skill will give us a charisma boost */
-		if (find_skill(who, SK_BARGAINING))
-		{
-			charisma += 4;
-
-			if (charisma > MAX_STAT)
-			{
-				charisma = MAX_STAT;
-			}
-		}
-	}
-
 	/* Now adjust for sell or buy multiplier */
 	if (flag == COST_BUY)
 	{
-		diff = (double) (1.0 - (double) cha_bonus[charisma]);
+		diff = 1.0;
 	}
 	else
 	{
-		diff = (double) (0.20 + (double) cha_bonus[charisma]);
+		diff = 0.20;
 	}
 
 	val = (val * (long) (1000 * (diff))) / 1000;

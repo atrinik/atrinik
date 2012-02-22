@@ -64,7 +64,7 @@ skill_struct skills[NROFSKILLS] =
 	{"bargaining", NULL, 0},
 	{"construction", NULL, 0},
 	{"unarmed", NULL, 0},
-	{"karate", NULL, 0},
+	{"constitution", NULL, 0},
 	{"throwing", NULL, 1},
 	{"wizardry spells", NULL, 1},
 	{"magic devices", NULL, 4},

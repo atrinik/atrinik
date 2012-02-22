@@ -129,13 +129,6 @@ int save_player(object *op)
 
 	fprintf(fp, "savebed_map %s\n", pl->savebed_map);
 	fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
-	fprintf(fp, "Str %d\n", pl->orig_stats.Str);
-	fprintf(fp, "Dex %d\n", pl->orig_stats.Dex);
-	fprintf(fp, "Con %d\n", pl->orig_stats.Con);
-	fprintf(fp, "Int %d\n", pl->orig_stats.Int);
-	fprintf(fp, "Pow %d\n", pl->orig_stats.Pow);
-	fprintf(fp, "Wis %d\n", pl->orig_stats.Wis);
-	fprintf(fp, "Cha %d\n", pl->orig_stats.Cha);
 
 	for (i = 0; i < pl->num_cmd_permissions; i++)
 	{
@@ -340,14 +333,6 @@ void check_login(object *op)
 #endif
 
 	pl->party = NULL;
-
-	pl->orig_stats.Str = 0;
-	pl->orig_stats.Dex = 0;
-	pl->orig_stats.Con = 0;
-	pl->orig_stats.Int = 0;
-	pl->orig_stats.Pow = 0;
-	pl->orig_stats.Wis = 0;
-	pl->orig_stats.Cha = 0;
 	strcpy(pl->savebed_map, first_map_path);
 	pl->bed_x = 0;
 	pl->bed_y = 0;
@@ -412,34 +397,6 @@ void check_login(object *op)
 		else if (!strcmp(buf, "bed_y"))
 		{
 			pl->bed_y = value;
-		}
-		else if (!strcmp(buf, "Str"))
-		{
-			pl->orig_stats.Str = value;
-		}
-		else if (!strcmp(buf, "Dex"))
-		{
-			pl->orig_stats.Dex = value;
-		}
-		else if (!strcmp(buf, "Con"))
-		{
-			pl->orig_stats.Con = value;
-		}
-		else if (!strcmp(buf, "Int"))
-		{
-			pl->orig_stats.Int = value;
-		}
-		else if (!strcmp(buf, "Pow"))
-		{
-			pl->orig_stats.Pow = value;
-		}
-		else if (!strcmp(buf, "Wis"))
-		{
-			pl->orig_stats.Wis = value;
-		}
-		else if (!strcmp(buf, "Cha"))
-		{
-			pl->orig_stats.Cha = value;
 		}
 		else if (!strcmp(buf, "cmd_permission"))
 		{

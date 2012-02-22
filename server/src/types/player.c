@@ -790,9 +790,7 @@ void do_some_living(object *op)
 void kill_player(object *op)
 {
 	char buf[HUGE_BUF];
-	int i;
 	object *tmp;
-	int lost_a_stat;
 
 	if (pvp_area(NULL, op))
 	{
@@ -852,91 +850,6 @@ void kill_player(object *op)
 	trigger_global_event(GEVENT_PLAYER_DEATH, NULL, op);
 
 	play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
-
-	lost_a_stat = 0;
-
-	/* Only decrease stats if you are level 3 or higher. */
-	if (op->level > 3)
-	{
-		int z, num_stats_lose, this_stat;
-		archetype *deparch;
-		object *dep;
-
-		deparch = find_archetype("depletion");
-		num_stats_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
-
-		for (z = 0; z < num_stats_lose; z++)
-		{
-			i = rndm(1, NUM_STATS) - 1;
-			dep = present_arch_in_ob(deparch, op);
-
-			if (!dep)
-			{
-				dep = arch_to_object(deparch);
-				insert_ob_in_ob(dep, op);
-			}
-
-			/* Get the stat that we're about to deplete. */
-			this_stat = get_attr_value(&(dep->stats), i);
-
-			if (this_stat < 0)
-			{
-				int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
-				int keep_chance = this_stat * this_stat;
-
-				/* Yes, I am paranoid. Sue me. */
-				if (keep_chance < 1)
-				{
-					keep_chance = 1;
-				}
-
-				/* There is a maximum depletion total per level. */
-				if (this_stat < -1 - op->level / BALSL_MAX_LOSS_RATIO)
-				{
-					continue;
-				}
-				else
-				{
-					/* Take loss chance vs keep chance to see if we retain the stat. */
-					if (rndm(0, loss_chance + keep_chance - 1) < keep_chance)
-					{
-						continue;
-					}
-				}
-			}
-
-			this_stat = get_attr_value(&(dep->stats), i);
-
-			/* We could try to do something clever like find another
-			 * stat to reduce if this fails.  But chances are, if
-			 * stats have been depleted to -50, all are pretty low
-			 * and should be roughly the same, so it shouldn't make a
-			 * difference. */
-			if (this_stat >= -50)
-			{
-				change_attr_value(&(dep->stats), i, -1);
-				SET_FLAG(dep, FLAG_APPLIED);
-				draw_info(COLOR_WHITE, op, lose_msg[i]);
-				fix_player(op);
-				lost_a_stat = 1;
-			}
-		}
-	}
-
-	/* If no stat lost, tell the player. */
-	if (!lost_a_stat)
-	{
-		const char *god = determine_god(op);
-
-		if (god && god != shstr_cons.none)
-		{
-			draw_info_format(COLOR_WHITE, op, "For a brief moment you feel the holy presence of %s protecting you.", god);
-		}
-		else
-		{
-			draw_info(COLOR_WHITE, op, "For a brief moment you feel a holy presence protecting you.");
-		}
-	}
 
 	/* Put a gravestone up where the character 'almost' died. */
 	tmp = arch_to_object(find_archetype("gravestone"));
@@ -1136,18 +1049,7 @@ object *find_skill(object *op, int skillnr)
  * @return 1 if the player can carry that weight, 0 otherwise. */
 int player_can_carry(object *pl, uint32 weight)
 {
-	uint32 effective_weight_limit;
-
-	if (pl->stats.Str <= MAX_STAT)
-	{
-		effective_weight_limit = weight_limit[pl->stats.Str];
-	}
-	else
-	{
-		effective_weight_limit = weight_limit[MAX_STAT];
-	}
-
-	return (pl->carrying + weight) < effective_weight_limit;
+	return (pl->carrying + weight) < (PLAYER_WEIGHT_LIMIT(CONTR(pl)) * 100.0);
 }
 
 /**
@@ -2002,21 +1904,7 @@ dirty_little_jump1:
 
 			if (floor_ob && floor_ob->type == SHOP_FLOOR && tmp->type != MONEY)
 			{
-				/* Used for SK_BARGAINING modification */
-				int charisma = op->stats.Cha;
-
-				/* This skill gives us a charisma boost */
-				if (find_skill(op, SK_BARGAINING))
-				{
-					charisma += 4;
-
-					if (charisma > MAX_STAT)
-					{
-						charisma = MAX_STAT;
-					}
-				}
-
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "This shop will pay you %s (%0.1f%%).", query_cost_string(tmp, op, COST_SELL), 20.0f + 100.0f * cha_bonus[charisma]);
+				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
 			}
 		}
 	}
