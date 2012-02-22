@@ -34,11 +34,11 @@ void system_start(void)
 {
 	SDL_Surface *icon;
 
-	icon = IMG_Load_wrapper(DIRECTORY_BITMAPS"/"CLIENT_ICON_NAME);
+	icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
 
 	if (icon)
 	{
-		SDL_WM_SetIcon(icon, 0);
+		SDL_WM_SetIcon(icon, NULL);
 		SDL_FreeSurface(icon);
 	}
 

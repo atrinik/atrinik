@@ -59,7 +59,6 @@
  * For each level we store an own bitmap copy. */
 #define DARK_LEVELS 7
 
-#define DIRECTORY_BITMAPS "bitmaps"
 #define DIRECTORY_SFX "sfx"
 #define DIRECTORY_CACHE "cache"
 #define DIRECTORY_GFX_USER "gfx_user"
