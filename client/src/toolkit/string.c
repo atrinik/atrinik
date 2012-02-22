@@ -85,7 +85,7 @@ void string_replace(const char *src, const char *key, const char *replacement, c
  * Perform in-place replacement of all characters in 'key'.
  * @param str String to modify.
  * @param key Characters to replace, eg, " \t" to match all spaces and
- * tabs.
+ * tabs. NULL to match any character.
  * @param replacement What to replace matched characters with. */
 void string_replace_char(char *str, const char *key, const char replacement)
 {
@@ -93,13 +93,20 @@ void string_replace_char(char *str, const char *key, const char replacement)
 
 	while (*str != '\0')
 	{
-		for (i = 0; key[i] != '\0'; i++)
+		if (key)
 		{
-			if (key[i] == *str)
+			for (i = 0; key[i] != '\0'; i++)
 			{
-				*str = replacement;
-				break;
+				if (key[i] == *str)
+				{
+					*str = replacement;
+					break;
+				}
 			}
+		}
+		else
+		{
+			*str = replacement;
 		}
 
 		str++;
@@ -361,6 +368,36 @@ const char *string_get_word(const char *str, size_t *pos, char *word, size_t wor
 }
 
 /**
+ * Skips whitespace and the first word in the string.
+ * @param str String.
+ * @param[out] i Position to adjust.
+ * @param dir If 1, skip to the right, if -1, skip to the left. */
+void string_skip_word(const char *str, size_t *i, int dir)
+{
+	/* Skip whitespace. */
+	while (str[*i] != '\0' && isspace(str[*i]))
+	{
+		if (dir == -1 && *i == 0)
+		{
+			break;
+		}
+
+		*i += dir;
+	}
+
+	/* Skip a word. */
+	while (str[*i] != '\0' && !isspace(str[*i]))
+	{
+		if (dir == -1 && *i == 0)
+		{
+			break;
+		}
+
+		*i += dir;
+	}
+}
+
+/**
  * Checks if string is a digit.
  * @return 1 if the string is a digit, 0 otherwise. */
 int string_isdigit(const char *str)
@@ -512,4 +549,65 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 int string_isempty(const char *str)
 {
 	return !str || *str == '\0';
+}
+
+int char_contains(const char c, const char *key)
+{
+	size_t i;
+
+	for (i = 0; key[i] != '\0'; i++)
+	{
+		if (c == key[i])
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+int string_contains(const char *str, const char *key)
+{
+	while (*str != '\0')
+	{
+		if (char_contains(*str, key))
+		{
+			return 1;
+		}
+
+		str++;
+	}
+
+	return 0;
+}
+
+int string_contains_other(const char *str, const char *key)
+{
+	while (*str != '\0')
+	{
+		if (!char_contains(*str, key))
+		{
+			return 1;
+		}
+
+		str++;
+	}
+
+	return 0;
+}
+
+char *string_create_char_range(char start, char end)
+{
+	char *str, c;
+
+	str = malloc((end - start + 1) + 1);
+
+	for (c = start; c <= end; c++)
+	{
+		str[start - c] = c;
+	}
+
+	str[start - c + 1] = '\0';
+
+	return str;
 }
