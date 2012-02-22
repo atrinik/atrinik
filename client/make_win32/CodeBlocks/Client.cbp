@@ -68,6 +68,7 @@
 		<Unit filename="..\..\src\client\misc.c" />
 		<Unit filename="..\..\src\client\item.c" />
 		<Unit filename="..\..\src\client\sprite.c" />
+		<Unit filename="..\..\src\client\texture.c" />
 		<Unit filename="..\..\src\client\wrapper.c" />
 		<Unit filename="..\..\src\client\tilestretcher.c" />
 		<Unit filename="..\..\src\client\server_files.c" />
@@ -104,6 +105,7 @@
 		<Unit filename="..\..\src\gui\party.c" />
 		<Unit filename="..\..\src\gui\help.c" />
 		<Unit filename="..\..\src\gui\fps.c" />
+		<Unit filename="..\..\src\gui\game_news.c" />
 		<Unit filename="..\..\src\gui\protections.c" />
 		<Unit filename="..\..\src\gui\map.c" />
 		<Unit filename="..\..\src\gui\book.c" />
@@ -121,10 +123,12 @@
 		<Unit filename="..\..\src\gui\textwin.c" />
 		<Unit filename="..\..\src\gui\updater.c" />
 		<Unit filename="..\..\src\gui\settings.c" />
+		<Unit filename="..\..\src\gui\settings_client.c" />
+		<Unit filename="..\..\src\gui\settings_keybinding.c" />
 		<Unit filename="..\..\src\gui\interface.c" />
 		<Unit filename="..\..\src\gui\inventory.c" />
+		<Unit filename="..\..\src\gui\login.c" />
 		<Unit filename="..\..\src\gui\skills.c" />
-		<Unit filename="..\..\src\events\console.c" />
 		<Unit filename="..\..\src\events\keys.c" />
 		<Unit filename="..\..\src\events\move.c" />
 		<Unit filename="..\..\src\events\event.c" />

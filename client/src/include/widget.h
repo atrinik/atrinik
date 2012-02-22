@@ -122,6 +122,8 @@ typedef struct widgetdata
 	int resize_flags;
 
 	int disable_snapping;
+
+	uint32 showed_ticks;
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
@@ -173,11 +175,17 @@ typedef struct _widget_label
 	const char *color;
 } _widget_label;
 
-typedef struct _widget_bitmap
+typedef struct _widget_texture
 {
-	/** The ID of the bitmap. */
-	int bitmap_id;
-} _widget_bitmap;
+	/** The texture. */
+	texture_struct *texture;
+} _widget_texture;
+
+typedef struct widget_input_struct
+{
+	text_input_struct text_input;
+	text_input_history_struct *text_input_history;
+} widget_input_struct;
 
 /** A more specialized kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
 typedef struct _widget_container_strip
@@ -256,7 +264,7 @@ typedef enum WidgetID
 	NOTIFICATION_ID,
 	CONTAINER_ID,
 	LABEL_ID,
-	BITMAP_ID,
+	TEXTURE_ID,
 
 	/** The total number of widgets. */
 	TOTAL_WIDGETS
@@ -338,14 +346,21 @@ typedef struct widgetresize
 /** Macro to redraw widget using the array. */
 #define WIDGET_REDRAW(__tmp) __tmp->redraw = 1;
 
+#define WIDGET_SHOW(_widget) \
+{ \
+	(_widget)->show = 1; \
+	(_widget)->showed_ticks = SDL_GetTicks(); \
+}
+
 /* Macro to redraw all widgets of a particular type. Don't use this often. */
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
 
 /** Macros to grab extended widget attributes. This works similar to inheritance. */
 #define TEXTWIN(__textwin) ((textwin_struct *) ((__textwin)->subwidget))
+#define WIDGET_INPUT(_widget) ((widget_input_struct *) (_widget)->subwidget)
 #define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
 #define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
-#define BITMAP(__widget_bitmap) (_widget_bitmap *) (__widget_bitmap->subwidget)
+#define WIDGET_TEXTURE(__widget_texture) (_widget_texture *) (__widget_texture->subwidget)
 #define CONTAINER_STRIP(__widget_container_strip) \
 	(_widget_container_strip *) ( ((_widget_container *) (__widget_container_strip->subwidget)) ->subcontainer)
 #define MENU(__menu) \

@@ -283,7 +283,10 @@ void widget_show_mplayer(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	/* The list doesn't exist yet, create it. */
@@ -353,19 +356,14 @@ void widget_show_mplayer(widgetdata *widget)
 		button_create(&button_blacklist);
 		button_create(&button_help);
 		button_create(&button_close);
-		button_blacklist.bitmap = button_help.bitmap = button_close.bitmap = BITMAP_BUTTON_ROUND;
-		button_blacklist.bitmap_pressed = button_help.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-		button_blacklist.bitmap_over = button_help.bitmap_over = button_close.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+		button_blacklist.texture = button_help.texture = button_close.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_blacklist.texture_pressed = button_help.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_blacklist.texture_over = button_help.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 	}
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
 		box.w = widget->wd;
@@ -402,16 +400,16 @@ void widget_show_mplayer(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 	button_play.x = widget->x1 + 10;
-	button_play.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
+	button_play.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
 	button_render(&button_play, sound_map_background(-1) ? "Stop" : "Play");
 
-	button_shuffle.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w + 5;
-	button_shuffle.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON]->bitmap->h - 4;
+	button_shuffle.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w + 5;
+	button_shuffle.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
 	button_shuffle.pressed_forced = shuffle;
 	button_render(&button_shuffle, "Shuffle");
 
-	button_blacklist.x = widget->x1 + 10 + Bitmaps[BITMAP_BUTTON]->bitmap->w * 2 + 5 * 2;
-	button_blacklist.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
+	button_blacklist.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
+	button_blacklist.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button_round")->h - 5;
 	button_blacklist.disabled = list_mplayer->row_selected == list_mplayer->rows;
 
 	/* Do mass blacklist status change if the button has been held for
@@ -426,12 +424,12 @@ void widget_show_mplayer(widgetdata *widget)
 	button_render(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
 
 	/* Show close button. */
-	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
+	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
 	button_close.y = widget->y1 + 4;
 	button_render(&button_close, "X");
 
 	/* Show help button. */
-	button_help.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4;
+	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
 	button_render(&button_help, "?");
 }

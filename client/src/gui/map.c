@@ -502,12 +502,11 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	int xml, xmpos, xtemp = 0;
 	uint16 face;
 	int mid, mnr;
-	uint32 stretch = 0;
-	_BLTFX bltfx;
+	uint32 stretch, flags;
 	int bitmap_h, bitmap_w;
 	int zoom_x, zoom_y;
+	uint8 dark_level, alpha;
 
-	bltfx.surface = NULL;
 	xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
 	ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
 	face = map->faces[GET_MAP_LAYER(layer, sub_layer)];
@@ -583,67 +582,57 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 
 	if (temp == 210)
 	{
-		bltfx.dark_level = 0;
+		dark_level = 0;
 	}
 	else if (temp == 180)
 	{
-		bltfx.dark_level = 1;
+		dark_level = 1;
 	}
 	else if (temp == 150)
 	{
-		bltfx.dark_level = 2;
+		dark_level = 2;
 	}
 	else if (temp == 120)
 	{
-		bltfx.dark_level = 3;
+		dark_level = 3;
 	}
 	else if (temp == 90)
 	{
-		bltfx.dark_level = 4;
+		dark_level = 4;
 	}
 	else if (temp == 60)
 	{
-		bltfx.dark_level = 5;
+		dark_level = 5;
 	}
 	else if (temp == 0)
 	{
-		bltfx.dark_level = 7;
+		dark_level = 7;
 	}
 	else
 	{
-		bltfx.dark_level = 6;
+		dark_level = 6;
 	}
 
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
+	flags = 0;
+	alpha = SDL_ALPHA_OPAQUE;
+	stretch = 0;
 
 	if (map->infravision[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		bltfx.flags |= BLTFX_FLAG_RED;
+		flags |= BLTFX_FLAG_RED;
 	}
 	else
 	{
-		bltfx.flags |= BLTFX_FLAG_DARK;
-	}
-
-	if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_INVISIBLE)
-	{
-		bltfx.flags &= ~BLTFX_FLAG_DARK;
-		bltfx.flags |= BLTFX_FLAG_GREY;
+		flags |= BLTFX_FLAG_DARK;
 	}
 
 	if (map->alpha[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		bltfx.flags &= ~BLTFX_FLAG_DARK;
-		bltfx.flags |= BLTFX_FLAG_SRCALPHA;
-		bltfx.alpha = map->alpha[GET_MAP_LAYER(layer, sub_layer)];
+		alpha = map->alpha[GET_MAP_LAYER(layer, sub_layer)];
 	}
-
-	stretch = 0;
 
 	if (layer <= 2 && map->stretch[sub_layer])
 	{
-		bltfx.flags |= BLTFX_FLAG_STRETCH;
 		stretch = map->stretch[sub_layer];
 	}
 
@@ -663,14 +652,14 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		yl -= map->height[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	sprite_blt_map(face_sprite, xl, yl, NULL, &bltfx, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+	map_sprite_show(face_sprite, xl, yl, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
 	if (map->draw_double[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		sprite_blt_map(face_sprite, xl, yl - 22, NULL, &bltfx, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+		map_sprite_show(face_sprite, xl, yl - 22, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 	}
 
 	if (xml == MAP_TILE_POS_XOFF)
@@ -696,27 +685,27 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SLEEP], xl + bitmap_w / 2, yl - 5, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			map_surface_show(TEXTURE_CLIENT("sleep"), xl + bitmap_w / 2, yl - 5, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_CONFUSE], xl + bitmap_w / 2 - 1, yl - 4, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			map_surface_show(TEXTURE_CLIENT("confused"), xl + bitmap_w / 2 - 1, yl - 4, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_SCARED], xl + bitmap_w / 2 + 10, yl - 4, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			map_surface_show(TEXTURE_CLIENT("scared"), xl + bitmap_w / 2 + 10, yl - 4, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_BLIND], xl + bitmap_w / 2 + 3, yl - 6, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			map_surface_show(TEXTURE_CLIENT("blind"), xl + bitmap_w / 2 + 3, yl - 6, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED)
 		{
-			sprite_blt_map(Bitmaps[BITMAP_PARALYZE], xl + bitmap_w / 2 + 2, yl + 3, NULL, NULL, 0, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			map_surface_show(TEXTURE_CLIENT("paralyzed"), xl + bitmap_w / 2 + 3, yl + 3, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 	}
 
@@ -776,7 +765,7 @@ void map_draw_map(void)
 
 	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
 	{
-		map_draw_one(tx, ty, Bitmaps[BITMAP_SQUARE_HIGHLIGHT]);
+		map_draw_one(tx, ty, TEXTURE_CLIENT("square_highlight"));
 	}
 
 	if (target_cell)
@@ -829,15 +818,15 @@ void map_draw_map(void)
  * Draw one sprite on map.
  * @param x X position.
  * @param y Y position.
- * @param sprite What to draw. */
-void map_draw_one(int x, int y, _Sprite *sprite)
+ * @param surface What to draw. */
+void map_draw_one(int x, int y, SDL_Surface *surface)
 {
 	int xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
-	int ypos = (MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) + MAP_TILE_POS_YOFF - sprite->bitmap->h;
+	int ypos = (MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) + MAP_TILE_POS_YOFF - surface->h;
 
-	if (sprite->bitmap->w > MAP_TILE_POS_XOFF)
+	if (surface->w > MAP_TILE_POS_XOFF)
 	{
-		xpos -= (sprite->bitmap->w - MAP_TILE_POS_XOFF) / 2;
+		xpos -= (surface->w - MAP_TILE_POS_XOFF) / 2;
 	}
 
 	if (the_map.cells[x][y].faces[1])
@@ -845,7 +834,7 @@ void map_draw_one(int x, int y, _Sprite *sprite)
 		ypos = (ypos - get_top_floor_height(x, y)) + get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 	}
 
-	sprite_blt_map(sprite, xpos, ypos, NULL, NULL, 0, 0, 0, 0);
+	map_surface_show(surface, xpos, ypos, SDL_ALPHA_OPAQUE, 0, 0, 0, 0);
 }
 
 /**
@@ -1145,7 +1134,7 @@ void widget_map_render(widgetdata *widget)
 	{
 		if (setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING) && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING))
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_HP], widget->x1 + 393 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 298 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, NULL);
+			surface_show(ScreenSurface, widget->x1 + 393 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 298 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_hp"));
 		}
 	}
 	else
@@ -1153,7 +1142,7 @@ void widget_map_render(widgetdata *widget)
 		/* Low food */
 		if (setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING) && ((float) cpl.stats.food / 1000.0f) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING))
 		{
-			sprite_blt(Bitmaps[BITMAP_WARN_FOOD], widget->x1 + 390 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 294 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, NULL);
+			surface_show(ScreenSurface, widget->x1 + 390 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 294 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_food"));
 		}
 	}
 

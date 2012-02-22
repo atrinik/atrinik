@@ -196,6 +196,7 @@ int get_quickslot(int x, int y)
  * @param vertical_quickslot Is the quickslot vertical? 1 for vertical, 0 for horizontal. */
 void show_quickslots(int x, int y, int vertical_quickslot)
 {
+	SDL_Surface *texture;
 	int i, j;
 	char buf[16];
 	int qsx, qsy, xoff;
@@ -206,16 +207,17 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 		qsx = 1;
 		qsy = 0;
 		xoff = 0;
-		sprite_blt(Bitmaps[BITMAP_QUICKSLOTSV], x, y, NULL, NULL);
+		texture = TEXTURE_CLIENT("quickslotsv");
 	}
 	else
 	{
 		qsx = 0;
 		qsy = 1;
 		xoff = -17;
-		sprite_blt(Bitmaps[BITMAP_QUICKSLOTS], x, y, NULL, NULL);
+		texture = TEXTURE_CLIENT("quickslots");
 	}
 
+	surface_show(ScreenSurface, x, y, NULL, texture);
 	quickslots_remove(-1);
 
 	/* Loop through quickslots. Do not loop through all the quickslots,
@@ -250,11 +252,11 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + Bitmaps[BITMAP_QUICKSLOTSV]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x, y + Bitmaps[BITMAP_QUICKSLOTS]->bitmap->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_blt(ScreenSurface, FONT_ARIAL10, buf, x, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 

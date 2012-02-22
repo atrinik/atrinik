@@ -57,9 +57,9 @@ enum
 /** Button buffers. */
 static button_struct buttons[NUM_BUTTONS];
 /** Images to render on top of the buttons, -1 for none. */
-static int button_images[NUM_BUTTONS] =
+static const char *button_images[NUM_BUTTONS] =
 {
-	BITMAP_ICON_MAGIC, BITMAP_ICON_SKILL, BITMAP_ICON_PARTY, BITMAP_ICON_MUSIC, BITMAP_ICON_MAP, BITMAP_ICON_QUEST, -1, BITMAP_ICON_COGS
+	"magic", "skill", "party", "music", "map", "quest", NULL, "cogs"
 };
 /** Tooltip texts for the buttons. */
 static const char *const button_tooltips[NUM_BUTTONS] =
@@ -86,16 +86,16 @@ void widget_menubuttons(widgetdata *widget)
 		for (i = 0; i < NUM_BUTTONS; i++)
 		{
 			button_create(&buttons[i]);
-			buttons[i].bitmap = BITMAP_BUTTON_RECT;
-			buttons[i].bitmap_over = BITMAP_BUTTON_RECT_HOVER;
-			buttons[i].bitmap_pressed = BITMAP_BUTTON_RECT_DOWN;
+			buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_rect");
+			buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_over");
+			buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_down");
 		}
 
 		buttons[BUTTON_HELP].flags |= TEXT_MARKUP;
 		buttons[BUTTON_HELP].font = FONT_SANS16;
 	}
 
-	sprite_blt(Bitmaps[BITMAP_MENU_BUTTONS], widget->x1, widget->y1, NULL, NULL);
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("menu_buttons"));
 
 	x = 4;
 	y = 3;
@@ -106,7 +106,7 @@ void widget_menubuttons(widgetdata *widget)
 		if (i && !(i % 2))
 		{
 			x = 4;
-			y += Bitmaps[buttons[i].bitmap]->bitmap->h + 1;
+			y += TEXTURE_SURFACE(buttons[i].texture)->h + 1;
 		}
 
 		text = NULL;
@@ -137,12 +137,15 @@ void widget_menubuttons(widgetdata *widget)
 		button_render(&buttons[i], text);
 		button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
 
-		if (button_images[i] != -1)
+		if (button_images[i])
 		{
-			sprite_blt(Bitmaps[button_images[i]], widget->x1 + x, widget->y1 + y, NULL, NULL);
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
+			surface_show(ScreenSurface, widget->x1 + x, widget->y1 + y, NULL, TEXTURE_CLIENT(buf));
 		}
 
-		x += Bitmaps[buttons[i].bitmap]->bitmap->w + 3;
+		x += TEXTURE_SURFACE(buttons[i].texture)->w + 3;
 	}
 }
 

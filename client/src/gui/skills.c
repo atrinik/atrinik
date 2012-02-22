@@ -60,7 +60,6 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 {
 	size_t skill_id;
 	SDL_Rect box;
-	_BLTFX bltfx;
 
 	skill_id = row * list->cols + col;
 
@@ -79,10 +78,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	box.w = INVENTORY_ICON_SIZE;
 	box.h = INVENTORY_ICON_SIZE;
 
-	bltfx.surface = list->surface;
-	bltfx.flags = 0;
-
-	sprite_blt(FaceList[skill_list[skill_id]->skill->face].sprite, box.x, box.y, NULL, &bltfx);
+	surface_show(list->surface, box.x, box.y, NULL, FaceList[skill_list[skill_id]->skill->face].sprite->bitmap);
 
 	if (selected_skill == skill_id)
 	{
@@ -151,7 +147,10 @@ void widget_skills_render(widgetdata *widget)
 	/* Create the surface. */
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	/* Create the skill list. */
@@ -175,19 +174,14 @@ void widget_skills_render(widgetdata *widget)
 		/* Create various buttons... */
 		button_create(&button_close);
 		button_create(&button_help);
-		button_close.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
-		button_close.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-		button_close.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 	}
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
 		box.w = widget->wd;
@@ -203,11 +197,11 @@ void widget_skills_render(widgetdata *widget)
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
 
 	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
+	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
 	button_close.y = widget->y1 + 4;
 	button_render(&button_close, "X");
 
-	button_help.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4;
+	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
 	button_render(&button_help, "?");
 }

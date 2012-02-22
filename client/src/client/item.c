@@ -615,5 +615,5 @@ void object_blit_centered(object *tmp, int x, int y)
 		}
 	}
 
-	sprite_blt(FaceList[tmp->face].sprite, x + xstart, y + ystart, &box, NULL);
+	surface_show(ScreenSurface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
 }

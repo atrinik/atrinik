@@ -44,38 +44,19 @@ void button_init()
 	button_create(&button_mousestate);
 }
 
-/**
- * Show a button.
- * @param bitmap_id Bitmap ID to use for the button.
- * @param bitmap_id_over Bitmap ID to use for the button when the mouse
- * is over the button. -1 to use 'bitmap_id'.
- * @param bitmap_id_clicked Bitmap ID to use for the button when left
- * mouse button is down. -1 to use 'bitmap_id'.
- * @param x X position of the button.
- * @param y Y position of the button.
- * @param text Text to display in the middle of the button. Can be NULL
- * for no text.
- * @param font Font to use for the text. One of @ref FONT_xxx.
- * @param color Color to use for the text.
- * @param color_shadow Shadow color of the text.
- * @param color_over Color to use when the mouse is over the button. -1
- * to use 'color'.
- * @param color_over_shadow Shadow color to use when the mouse is over
- * the button. -1 to use 'color_shadow'.
- * @param flags Text @ref TEXT_xxx "flags".
- * @return 1 if left mouse button is being held over the button, 0
- * otherwise. */
-int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus)
+/** @deprecated */
+int button_show(const char *texture, const char *texture_over, const char *texture_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus)
 {
-	_Sprite *sprite = Bitmaps[bitmap_id];
+	SDL_Surface *surface;
 	int mx, my, ret = 0, state;
 	const char *use_color = color, *use_color_shadow = color_shadow;
 
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
+	surface = TEXTURE_CLIENT(texture);
 
 	/* Is the mouse inside the button? */
-	if (focus && mx > x && mx < x + sprite->bitmap->w && my > y && my < y + sprite->bitmap->h)
+	if (focus && mx > x && mx < x + surface->w && my > y && my < y + surface->h)
 	{
 		/* Change color. */
 		use_color = color_over;
@@ -84,10 +65,9 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 		/* Left button clicked? */
 		if (state == SDL_BUTTON_LEFT)
 		{
-			/* Change bitmap. */
-			if (bitmap_id_clicked != -1)
+			if (texture_clicked)
 			{
-				sprite = Bitmaps[bitmap_id_clicked];
+				surface = TEXTURE_CLIENT(texture_clicked);
 			}
 
 			if (!ticks || SDL_GetTicks() - ticks > ticks_delay)
@@ -99,45 +79,44 @@ int button_show(int bitmap_id, int bitmap_id_over, int bitmap_id_clicked, int x,
 		}
 		else
 		{
-			if (bitmap_id_over != -1)
+			if (texture_over)
 			{
-				sprite = Bitmaps[bitmap_id_over];
+				surface = TEXTURE_CLIENT(texture_over);
 			}
 
 			ticks = 0;
 		}
 	}
 
-	/* Draw the bitmap. */
-	sprite_blt(sprite, x, y, NULL, NULL);
+	surface_show(ScreenSurface, x, y, NULL, surface);
 
 	/* If text was passed, draw it as well. */
 	if (text)
 	{
-		string_blt_shadow(ScreenSurface, font, text, x + sprite->bitmap->w / 2 - string_get_width(font, text, flags) / 2, y + sprite->bitmap->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, flags, NULL);
+		string_blt_shadow(ScreenSurface, font, text, x + surface->w / 2 - string_get_width(font, text, flags) / 2, y + surface->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, flags, NULL);
 	}
 
 	return ret;
 }
 
 /**
- * Determine button's sprite, based on its bitmap settings and whether it
- * is currently pressed, or mouse is over it.
+ * Determine button's texture, based on its texture settings and whether
+ * it is currently pressed, or mouse is over it.
  * @param button Button.
- * @return Sprite to use. */
-static _Sprite *button_determine_sprite(button_struct *button)
+ * @return Texture to use. */
+static texture_struct *button_determine_texture(button_struct *button)
 {
-	if (button->pressed && button->bitmap_pressed != -1)
+	if (button->pressed && button->texture_pressed)
 	{
-		return Bitmaps[button->bitmap_pressed];
+		return button->texture_pressed;
 	}
-	else if (button->mouse_over && button->bitmap_over != -1)
+	else if (button->mouse_over && button->texture_over)
 	{
-		return Bitmaps[button->bitmap_over];
+		return button->texture_over;
 	}
 	else
 	{
-		return Bitmaps[button->bitmap];
+		return button->texture;
 	}
 }
 
@@ -147,13 +126,14 @@ static _Sprite *button_determine_sprite(button_struct *button)
 void button_create(button_struct *button)
 {
 	/* Initialize default values. */
+	button->surface = ScreenSurface;
 	button->x = button->y = 0;
-	button->bitmap = BITMAP_BUTTON;
-	button->bitmap_over = -1;
-	button->bitmap_pressed = BITMAP_BUTTON_DOWN;
-	button->bitmap_over = BITMAP_BUTTON_HOVER;
+	button->texture = texture_get(TEXTURE_TYPE_CLIENT, "button");
+	button->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_down");
+	button->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_over");;
 	button->font = FONT_ARIAL10;
 	button->flags = 0;
+	button->center = 1;
 	button->color = COLOR_WHITE;
 	button->color_shadow = COLOR_BLACK;
 	button->color_over = COLOR_HGOLD;
@@ -163,13 +143,19 @@ void button_create(button_struct *button)
 	button->repeat_func = NULL;
 }
 
+void button_set_parent(button_struct *button, int px, int py)
+{
+	button->px = px;
+	button->py = py;
+}
+
 /**
  * Render a button.
  * @param button Button to render.
  * @param text Optional text to render. */
 void button_render(button_struct *button, const char *text)
 {
-	_Sprite *sprite;
+	SDL_Surface *texture;
 
 	/* Make sure the mouse is still over the button. */
 	if (button->mouse_over || button->pressed)
@@ -177,7 +163,7 @@ void button_render(button_struct *button, const char *text)
 		int state, mx, my, mover;
 
 		state = SDL_GetMouseState(&mx, &my);
-		mover = BUTTON_MOUSE_OVER(button, mx, my, Bitmaps[button->bitmap]);
+		mover = BUTTON_MOUSE_OVER(button, mx, my, TEXTURE_SURFACE(button->texture));
 
 		if (!mover)
 		{
@@ -195,12 +181,13 @@ void button_render(button_struct *button, const char *text)
 		button->pressed = 1;
 	}
 
-	sprite = button_determine_sprite(button);
-	sprite_blt(sprite, button->x, button->y, NULL, NULL);
+	texture = TEXTURE_SURFACE(button_determine_texture(button));
+	surface_show(button->surface, button->x, button->y, NULL, texture);
 
 	if (text)
 	{
 		const char *color, *color_shadow;
+		int x, y;
 
 		if (button->mouse_over)
 		{
@@ -213,7 +200,23 @@ void button_render(button_struct *button, const char *text)
 			color_shadow = button->color_shadow;
 		}
 
-		string_blt_shadow(ScreenSurface, button->font, text, button->x + sprite->bitmap->w / 2 - string_get_width(button->font, text, button->flags) / 2, button->y + sprite->bitmap->h / 2 - FONT_HEIGHT(button->font) / 2, color, color_shadow, button->flags, NULL);
+		x = button->x;
+		y = button->y;
+
+		if (button->center)
+		{
+			x += texture->w / 2 - string_get_width(button->font, text, button->flags) / 2;
+			y += texture->h / 2 - FONT_HEIGHT(button->font) / 2;
+		}
+
+		if (!color_shadow)
+		{
+			string_blt(button->surface, button->font, text, x, y, color, button->flags, NULL);
+		}
+		else
+		{
+			string_blt_shadow(button->surface, button->font, text, x, y, color, color_shadow, button->flags, NULL);
+		}
 	}
 
 	if (button->repeat_func && button->pressed && SDL_GetTicks() - button->pressed_ticks > button->pressed_repeat_ticks)
@@ -231,7 +234,7 @@ void button_render(button_struct *button, const char *text)
  * @return 1 if the event makes the button pressed, 0 otherwise. */
 int button_event(button_struct *button, SDL_Event *event)
 {
-	_Sprite *sprite;
+	SDL_Surface *texture;
 	int old_mouse_over;
 
 	if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEMOTION)
@@ -256,9 +259,9 @@ int button_event(button_struct *button, SDL_Event *event)
 		return 0;
 	}
 
-	sprite = button_determine_sprite(button);
+	texture = TEXTURE_SURFACE(button_determine_texture(button));
 
-	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, sprite))
+	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, texture))
 	{
 		/* Left mouse click, the button has been pressed. */
 		if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)

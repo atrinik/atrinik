@@ -169,22 +169,24 @@ set(SOURCES
 	src/client/socket.c
 	src/client/sound.c
 	src/client/sprite.c
+	src/client/texture.c
 	src/client/tilestretcher.c
 	src/client/updates.c
 	src/client/upgrader.c
 	src/client/video.c
 	src/client/wrapper.c
-	src/events/console.c
 	src/events/event.c
 	src/events/keys.c
 	src/events/move.c
 	src/gui/book.c
 	src/gui/effects.c
 	src/gui/fps.c
+	src/gui/game_news.c
 	src/gui/help.c
 	src/gui/input.c
 	src/gui/interface.c
 	src/gui/inventory.c
+	src/gui/login.c
 	src/gui/main.c
 	src/gui/map.c
 	src/gui/menu_buttons.c
@@ -196,6 +198,8 @@ set(SOURCES
 	src/gui/range.c
 	src/gui/region_map.c
 	src/gui/settings.c
+	src/gui/settings_client.c
+	src/gui/settings_keybinding.c
 	src/gui/skills.c
 	src/gui/spells.c
 	src/gui/textwin.c

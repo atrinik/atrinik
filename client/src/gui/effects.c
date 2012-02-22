@@ -556,7 +556,7 @@ void effect_sprites_play(void)
 	uint32 ticks;
 
 	/* No current effect or not playing, quit. */
-	if (!current_effect || GameStatus != GAME_STATUS_PLAY)
+	if (!current_effect || cpl.state != ST_PLAY)
 	{
 		return;
 	}
@@ -613,7 +613,7 @@ void effect_sprites_play(void)
 		}
 
 		/* Show the sprite. */
-		sprite_blt_map(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, NULL, NULL, 0, tmp->def->zoom, tmp->def->zoom, 0);
+		map_sprite_show(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, 0, 0, SDL_ALPHA_OPAQUE, 0, tmp->def->zoom, tmp->def->zoom, 0);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */

@@ -95,16 +95,11 @@ int Event_PollInputDevice(void)
 	/* Execute mouse actions, even if mouse button is being held. */
 	if ((SDL_GetTicks() - Ticks > 125) || !Ticks)
 	{
-		if (GameStatus >= GAME_STATUS_PLAY)
+		if (cpl.state >= ST_PLAY)
 		{
-			if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
-			{
-				Ticks = SDL_GetTicks();
-				mouse_InputNumber();
-			}
 			/* Mouse gesture: hold right+left buttons or middle button
 			 * to fire. */
-			else if (widget_mouse_event.owner == cur_widget[MAP_ID])
+			if (widget_mouse_event.owner == cur_widget[MAP_ID])
 			{
 				int state = SDL_GetMouseState(&x, &y);
 
@@ -154,7 +149,7 @@ int Event_PollInputDevice(void)
 			{
 				continue;
 			}
-			else if (GameStatus <= GAME_STATUS_WAITFORPLAY && main_screen_event(&event))
+			else if (cpl.state <= ST_WAITFORPLAY && main_screen_event(&event))
 			{
 				continue;
 			}
@@ -178,7 +173,7 @@ int Event_PollInputDevice(void)
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				if (GameStatus < GAME_STATUS_PLAY)
+				if (cpl.state < ST_PLAY)
 				{
 					break;
 				}
@@ -195,7 +190,7 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEMOTION:
 			{
-				if (GameStatus < GAME_STATUS_PLAY)
+				if (cpl.state < ST_PLAY)
 				{
 					break;
 				}
@@ -213,7 +208,7 @@ int Event_PollInputDevice(void)
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if (GameStatus < GAME_STATUS_PLAY)
+				if (cpl.state < ST_PLAY)
 				{
 					break;
 				}
@@ -228,6 +223,15 @@ int Event_PollInputDevice(void)
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
+				if (widget_input_handle_key(cur_widget[IN_NUMBER_ID], &event))
+				{
+					break;
+				}
+				else if (widget_input_handle_key(cur_widget[IN_CONSOLE_ID], &event))
+				{
+					break;
+				}
+
 				key_handle_event(&event.key);
 				break;
 
@@ -242,6 +246,7 @@ int Event_PollInputDevice(void)
 		old_mouse_y = y;
 	}
 
+#if 0
 	if (!text_input_string_flag)
 	{
 		size_t i;
@@ -271,6 +276,7 @@ int Event_PollInputDevice(void)
 			}
 		}
 	}
+#endif
 
 	return done;
 }

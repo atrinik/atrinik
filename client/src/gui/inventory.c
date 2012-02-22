@@ -216,7 +216,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		{
 			char buf[MAX_BUF];
 
-			sprite_blt(Bitmaps[cpl.inventory_focus == widget->WidgetTypeID ? BITMAP_INVSLOT : BITMAP_INVSLOT_U], x, y, NULL, NULL);
+			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->WidgetTypeID ? "invslot" : "invslot_u"));
 
 			if (ob->nrof > 1)
 			{
@@ -283,14 +283,14 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		/* If the object is marked, show that. */
 		if (ob->tag == cpl.mark_count)
 		{
-			sprite_blt(Bitmaps[BITMAP_INVSLOT_MARKED], x, y, NULL, NULL);
+			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("invslot_marked"));
 		}
 
 		/* If it's the currently open container, add the 'container
 		 * start' graphic. */
 		if (ob->tag == cpl.container_tag)
 		{
-			sprite_blt(Bitmaps[BITMAP_CMARK_START], x, y, NULL, NULL);
+			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_start"));
 		}
 		/* Object inside the open container... */
 		else if (ob->env == cpl.sack)
@@ -299,12 +299,12 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			 * 'object in the middle of container' graphic. */
 			if (ob->next)
 			{
-				sprite_blt(Bitmaps[BITMAP_CMARK_MIDDLE], x, y, NULL, NULL);
+				surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_middle"));
 			}
 			/* The end, show the 'end of container' graphic instead. */
 			else
 			{
-				sprite_blt(Bitmaps[BITMAP_CMARK_END], x, y, NULL, NULL);
+				surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_end"));
 			}
 		}
 
@@ -352,7 +352,7 @@ void widget_inventory_render(widgetdata *widget)
 				resize_widget(widget, RESIZE_BOTTOM, 32);
 			}
 
-			sprite_blt(Bitmaps[BITMAP_INV_BG], widget->x1, widget->y1, NULL, NULL);
+			surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inv_bg"));
 
 			string_blt(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
 			string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
@@ -383,11 +383,11 @@ void widget_inventory_render(widgetdata *widget)
 			resize_widget(widget, RESIZE_BOTTOM, 129);
 		}
 
-		sprite_blt(Bitmaps[BITMAP_INVENTORY], widget->x1, widget->y1, NULL, NULL);
+		surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inventory"));
 	}
 	else if (widget->WidgetTypeID == BELOW_INV_ID)
 	{
-		sprite_blt(Bitmaps[BITMAP_BELOW], widget->x1, widget->y1, NULL, NULL);
+		surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("below"));
 	}
 
 	if (inventory->scrollbar_info.redraw)
@@ -673,6 +673,8 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
  * @param y Y position of the item */
 void object_blit_inventory(object *tmp, int x, int y)
 {
+	SDL_Surface *icon;
+
 	object_blit_centered(tmp, x, y);
 
 	if (tmp->nrof > 1)
@@ -693,44 +695,52 @@ void object_blit_inventory(object *tmp, int x, int y)
 
 	if (tmp->flags & CS_FLAG_APPLIED)
 	{
-		sprite_blt(Bitmaps[BITMAP_APPLY], x, y, NULL, NULL);
+		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("apply"));
 
 		if (tmp->flags & CS_FLAG_IS_READY)
 		{
-			sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y + 8, NULL, NULL);
+			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("fire_ready") + 8);
 		}
 	}
 	else if (tmp->flags & CS_FLAG_UNPAID)
 	{
-		sprite_blt(Bitmaps[BITMAP_UNPAID], x, y, NULL, NULL);
+		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("unpaid"));
 	}
 	else if (tmp->flags & CS_FLAG_IS_READY)
 	{
-		sprite_blt(Bitmaps[BITMAP_FIRE_READY], x, y, NULL, NULL);
+		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("fire_ready"));
 	}
 
 	if (tmp->flags & CS_FLAG_LOCKED)
 	{
-		sprite_blt(Bitmaps[BITMAP_LOCK], x, y + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_LOCK]->bitmap->w - 2, NULL, NULL);
+		icon = TEXTURE_CLIENT("lock");
+		surface_show(ScreenSurface, x, y + INVENTORY_ICON_SIZE - icon->w - 2, NULL, icon);
 	}
 
 	if (tmp->flags & CS_FLAG_IS_MAGICAL)
 	{
-		sprite_blt(Bitmaps[BITMAP_MAGIC], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_MAGIC]->bitmap->w - 2, y + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_MAGIC]->bitmap->h - 2, NULL, NULL);
+		icon = TEXTURE_CLIENT("magic");
+		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE - icon->w - 2, y + INVENTORY_ICON_SIZE - icon->h - 2, NULL, icon);
 	}
 
-	if (tmp->flags & CS_FLAG_DAMNED)
+	if (tmp->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED))
 	{
-		sprite_blt(Bitmaps[BITMAP_DAMNED], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_DAMNED]->bitmap->w - 2, y, NULL, NULL);
-	}
-	else if (tmp->flags & CS_FLAG_CURSED)
-	{
-		sprite_blt(Bitmaps[BITMAP_CURSED], x + INVENTORY_ICON_SIZE - Bitmaps[BITMAP_CURSED]->bitmap->w - 2, y, NULL, NULL);
+		if (tmp->flags & CS_FLAG_DAMNED)
+		{
+			icon = TEXTURE_CLIENT("damned");
+		}
+		else
+		{
+			icon = TEXTURE_CLIENT("cursed");
+		}
+
+		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE - icon->w - 2, y, NULL, icon);
 	}
 
 	if (tmp->flags & CS_FLAG_IS_TRAPPED)
 	{
-		sprite_blt(Bitmaps[BITMAP_TRAPPED], x + INVENTORY_ICON_SIZE / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->w / 2, y + INVENTORY_ICON_SIZE / 2 - Bitmaps[BITMAP_TRAPPED]->bitmap->h / 2, NULL, NULL);
+		icon = TEXTURE_CLIENT("trapped");
+		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE / 2 - icon->w / 2, y + INVENTORY_ICON_SIZE / 2 - icon->h / 2, NULL, icon);
 	}
 }
 
@@ -1041,14 +1051,14 @@ void widget_inventory_handle_get(widgetdata *widget)
 	{
 		char buf[MAX_BUF];
 
-		cpl.input_mode = INPUT_MODE_NUMBER;
-		text_input_open(22);
+		WIDGET_SHOW(cur_widget[IN_NUMBER_ID]);
+
 		cpl.loc = loc;
 		cpl.tag = ob->tag;
 		cpl.nrof = nrof;
 		cpl.nummode = NUM_MODE_GET;
 		snprintf(buf, sizeof(buf), "%d", nrof);
-		text_input_set_string(buf);
+		text_input_set(&WIDGET_INPUT(cur_widget[IN_NUMBER_ID])->text_input, buf);
 		strncpy(cpl.num_text, ob->s_name, sizeof(cpl.num_text) - 1);
 		cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
 		return;
@@ -1106,14 +1116,14 @@ void widget_inventory_handle_drop(widgetdata *widget)
 	{
 		char buf[MAX_BUF];
 
-		cpl.input_mode = INPUT_MODE_NUMBER;
-		text_input_open(22);
+		WIDGET_SHOW(cur_widget[IN_NUMBER_ID]);
+
 		cpl.loc = loc;
 		cpl.tag = ob->tag;
 		cpl.nrof = nrof;
 		cpl.nummode = NUM_MODE_DROP;
 		snprintf(buf, sizeof(buf), "%d", nrof);
-		text_input_set_string(buf);
+		text_input_set(&WIDGET_INPUT(cur_widget[IN_NUMBER_ID])->text_input, buf);
 		strncpy(cpl.num_text, ob->s_name, sizeof(cpl.num_text) - 1);
 		cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
 		return;

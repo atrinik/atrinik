@@ -41,8 +41,8 @@ static UT_array *command_matches = NULL;
  * key press. */
 static size_t command_index = 0;
 /**
- * ::text_input_string cache. */
-static char command_buf[MAX_INPUT_STRING];
+ * Last console string cache. */
+static char command_buf[HUGE_BUF];
 
 /**
  * Frees the ::hfiles hashtable. */
@@ -175,21 +175,21 @@ static int command_match_cmp(const void *a, const void *b)
 
 /**
  * Handle tabulator key in console text input. */
-void help_handle_tabulator(void)
+void help_handle_tabulator(text_input_struct *text_input)
 {
 	size_t len;
-	char buf[MAX_INPUT_STRING], *space;
+	char buf[sizeof(text_input->str)], *space;
 
 	/* Only handle the key if we have any help files, the text input
 	 * starts with '/', and there is either no space in the text input
 	 * or there is nothing after the space. */
-	if (!command_matches || *text_input_string != '/' || ((space = strrchr(text_input_string, ' ')) && *(space + 1) != '\0'))
+	if (!command_matches || *text_input->str != '/' || ((space = strrchr(text_input->str, ' ')) && *(space + 1) != '\0'))
 	{
 		return;
 	}
 
 	/* Does not match the previous command buffer, so rebuild the array. */
-	if (strcmp(command_buf, text_input_string))
+	if (strcmp(command_buf, text_input->str))
 	{
 		hfile_struct *hfile, *tmp;
 
@@ -197,7 +197,7 @@ void help_handle_tabulator(void)
 
 		HASH_ITER(hh, hfiles, hfile, tmp)
 		{
-			if ((hfile->autocomplete || (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input_string + 1, text_input_count - 1))
+			if ((hfile->autocomplete || (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input->str + 1, text_input->num - 1))
 			{
 				utarray_push_back(command_matches, &hfile->key);
 			}
@@ -206,8 +206,7 @@ void help_handle_tabulator(void)
 		utarray_sort(command_matches, command_match_cmp);
 		command_index = 0;
 
-		/* Cannot overflow, same size as ::text_input_string. */
-		strcpy(command_buf, text_input_string);
+		strcpy(command_buf, text_input->str);
 	}
 
 	len = utarray_len(command_matches);
@@ -218,7 +217,7 @@ void help_handle_tabulator(void)
 	}
 
 	snprintf(buf, sizeof(buf), "/%s ", *((char **) utarray_eltptr(command_matches, command_index)));
-	text_input_set_string(buf);
+	text_input_set(text_input, buf);
 	strcpy(command_buf, buf);
 
 	command_index++;

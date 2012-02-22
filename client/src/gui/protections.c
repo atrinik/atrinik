@@ -41,18 +41,15 @@ void widget_show_resist(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_RESIST_BG]->bitmap, Bitmaps[BITMAP_RESIST_BG]->bitmap->format, Bitmaps[BITMAP_RESIST_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("resist_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-
-		sprite_blt(Bitmaps[BITMAP_RESIST_BG], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("resist_bg"));
 		string_blt(widget->widgetSF, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 	}
 

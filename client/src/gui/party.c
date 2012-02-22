@@ -102,7 +102,10 @@ void widget_party_background(widgetdata *widget)
 	/* Create the surface. */
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	/* Create the party list. */
@@ -128,9 +131,9 @@ void widget_party_background(widgetdata *widget)
 		button_create(&button_leave);
 		button_create(&button_password);
 		button_create(&button_chat);
-		button_close.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
-		button_close.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-		button_close.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 
 		button_parties.flags = button_members.flags = TEXT_MARKUP;
 		widget->redraw = 1;
@@ -147,12 +150,7 @@ void widget_party_render(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
-
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
 		box.w = widget->wd;
@@ -172,11 +170,11 @@ void widget_party_render(widgetdata *widget)
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &dst);
 
 	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
+	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
 	button_close.y = widget->y1 + 4;
 	button_render(&button_close, "X");
 
-	button_help.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4;
+	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
 	button_render(&button_help, "?");
 
@@ -210,6 +208,8 @@ void widget_party_render(widgetdata *widget)
  * @param event Event to handle. */
 void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 {
+	char buf[MAX_BUF];
+
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
 	if (list_party && list_handle_mouse(list_party, event))
@@ -234,15 +234,13 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (cpl.partyname[0] == '\0' && button_event(&button_form, event))
 	{
-		cpl.input_mode = INPUT_MODE_CONSOLE;
-		text_input_open(253);
-		text_input_set_string("/party form ");
+		snprintf(buf, sizeof(buf), "?MCON /party_form ");
+		keybind_process_command(buf);
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
 	{
-		cpl.input_mode = INPUT_MODE_CONSOLE;
-		text_input_open(253);
-		text_input_set_string("/party password ");
+		snprintf(buf, sizeof(buf), "?MCON /party password ");
+		keybind_process_command(buf);
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
 	{
@@ -250,9 +248,8 @@ void widget_party_mevent(widgetdata *widget, SDL_Event *event)
 	}
 	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
 	{
-		cpl.input_mode = INPUT_MODE_CONSOLE;
-		text_input_open(253);
-		text_input_set_string("/gsay ");
+		snprintf(buf, sizeof(buf), "?MCON /gsay ");
+		keybind_process_command(buf);
 	}
 }
 
@@ -334,10 +331,11 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 	 * enter the password. */
 	else if (type == CMD_PARTY_PASSWORD)
 	{
+		char buf[MAX_BUF];
+
 		packet_to_string(data, len, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
-		cpl.input_mode = INPUT_MODE_CONSOLE;
-		text_input_open(253);
-		text_input_set_string("/party joinpassword ");
+		snprintf(buf, sizeof(buf), "?MCON /joinpassword ");
+		keybind_process_command(buf);
 	}
 	/* Update list of party members. */
 	else if (type == CMD_PARTY_UPDATE)

@@ -58,7 +58,7 @@ void system_end(void)
 	effects_deinit();
 	sound_deinit();
 	cmd_aliases_deinit();
-	free_bitmaps();
+	texture_deinit();
 	text_deinit();
 	hfiles_deinit();
 	settings_deinit();

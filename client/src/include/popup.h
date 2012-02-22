@@ -61,11 +61,13 @@ typedef struct popup_struct
 	 * to ::ScreenSurface. */
 	SDL_Surface *surface;
 
-	/** Bitmap ID to blit on the surface. */
-	int bitmap_id;
+	/**
+	 * Texture to use. */
+	texture_struct *texture;
 
-	/** Disable automatically blitting the bitmap on the popup surface? */
-	uint8 disable_bitmap_blit;
+	/**
+	 * Disable automatically blitting the texture on the popup surface? */
+	uint8 disable_texture_blit;
 
 	/** Custom data. */
 	void *custom_data;
@@ -117,7 +119,7 @@ typedef struct popup_struct
 	 * the main surface.
 	 * @param popup The popup.
 	 * @return 0 to destroy the popup, 1 otherwise. */
-	int (*draw_func_post)(struct popup_struct *popup);
+	int (*draw_post_func)(struct popup_struct *popup);
 
 	/**
 	 * Function used for handling mouse/key events when popup is visible.

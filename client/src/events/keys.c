@@ -42,20 +42,9 @@ void init_keys(void)
  * @param event The event to handle. */
 void key_handle_event(SDL_KeyboardEvent *event)
 {
-	/* Handle text input. */
-	if (text_input_string_flag)
-	{
-		text_input_handle(event);
-		return;
-	}
-	else if (text_input_string_end_flag)
-	{
-		return;
-	}
-
 	if (event->type == SDL_KEYDOWN)
 	{
-		if (GameStatus == GAME_STATUS_PLAY && event->keysym.sym == SDLK_ESCAPE)
+		if (cpl.state == ST_PLAY && event->keysym.sym == SDLK_ESCAPE)
 		{
 			settings_open();
 			return;

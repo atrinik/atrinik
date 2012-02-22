@@ -637,15 +637,8 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "CONSOLE"))
 		{
-			if (cpl.input_mode == INPUT_MODE_NO)
-			{
-				cpl.input_mode = INPUT_MODE_CONSOLE;
-				text_input_open(253);
-			}
-			else if (cpl.input_mode == INPUT_MODE_CONSOLE)
-			{
-				cpl.input_mode = INPUT_MODE_NO;
-			}
+			WIDGET_SHOW(cur_widget[IN_CONSOLE_ID]);
+			text_input_set(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input, NULL);
 		}
 		else if (!strcmp(cmd, "APPLY"))
 		{
@@ -726,7 +719,7 @@ int keybind_process_command(const char *cmd)
 				cmd++;
 			}
 
-			text_input_set_string(cmd);
+			text_input_set(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input, cmd);
 		}
 		else if (!strcmp(cmd, "UP"))
 		{

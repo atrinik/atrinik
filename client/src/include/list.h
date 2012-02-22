@@ -133,6 +133,11 @@ typedef struct list_struct
 	uint64 text_flags;
 
 	/**
+	 * Pointer to some custom data. If non-NULL, will be freed when list
+	 * is destroyed. */
+	void *data;
+
+	/**
 	 * Function that will draw frame (and/or other effects) right before
 	 * the column names and the actual rows.
 	 * @param list List. */

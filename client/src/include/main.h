@@ -174,239 +174,69 @@ typedef struct hfile_struct
 	UT_hash_handle hh;
 } hfile_struct;
 
-/** Game statuses. */
-typedef enum _game_status
+/**
+ * Player's state. */
+typedef enum player_state_t
 {
-	/** Call this add start to autoinit */
-	GAME_STATUS_INIT,
+	/**
+	 * Just initialized the client. */
+	ST_INIT,
 
-	/** To to connect to meta server */
-	GAME_STATUS_META,
+	/**
+	 * Re-download metaserver list. */
+	ST_META,
 
-	/** Start all up without full reset or meta calling */
-	GAME_STATUS_START,
+	/**
+	 * Close opened socket if any, prepare for connection. */
+	ST_START,
 
-	/** We are NOT connected to anything */
-	GAME_STATUS_WAITLOOP,
+	/**
+	 * Waiting to select a server to play on. */
+	ST_WAITLOOP,
 
-	/** We have a server + port, init and start */
-	GAME_STATUS_STARTCONNECT,
+	/**
+	 * Selected a server, so start the connection procedure. */
+	ST_STARTCONNECT,
 
-	/** If this is set, we start connecting */
-	GAME_STATUS_CONNECT,
+	/**
+	 * Open a connection to the server. */
+	ST_CONNECT,
 
-	/** Now the steps: Connect, we send version */
-	GAME_STATUS_VERSION,
+	/**
+	 * Wait for setup command from the server. */
+	ST_WAITSETUP,
 
-	/** We ready to send setup commands */
-	GAME_STATUS_SETUP,
+	/**
+	 * Request files as necessary. */
+	ST_REQUEST_FILES,
 
-	/** We wait for server response */
-	GAME_STATUS_WAITSETUP,
+	/**
+	 * Choosing which character to login with. */
+	ST_LOGIN,
 
-	/** After we get response from setup, we request files if needed */
-	GAME_STATUS_REQUEST_FILES,
+	/**
+	 * Waiting for the relevant data packets to start playing. */
+	ST_WAITFORPLAY,
 
-	/** All setup is done, now try to enter game */
-	GAME_STATUS_ADDME,
-
-	/** Now we wait for LOGIN request of the server */
-	GAME_STATUS_LOGIN,
-
-	/** All this here is tricky */
-	GAME_STATUS_NAME,
-
-	/** Server will trigger this when asking for password */
-	GAME_STATUS_PSWD,
-
-	/** Client will then show input panel or so */
-	GAME_STATUS_VERIFYPSWD,
-
-	/** Show new char creation screen and send /nc command when finished */
-	GAME_STATUS_NEW_CHAR,
-
-	/** We simply wait for game start.
-	 * Means, this is not a serial stepping here */
-	GAME_STATUS_WAITFORPLAY,
-
-	/** We are in quit menu */
-	GAME_STATUS_QUIT,
-
-	/** We play now. */
-	GAME_STATUS_PLAY
-} _game_status;
-
-enum
-{
-	ESC_MENU_KEYS,
-	ESC_MENU_SETTINGS,
-	ESC_MENU_LOGOUT,
-	ESC_MENU_BACK,
-
-	/* Last index */
-	ESC_MENU_INDEX
-};
+	/**
+	 * Playing. */
+	ST_PLAY
+} player_state_t;
 
 /* With this, we overrule bitmap loading params.
  * For example, we need for fonts an attached palette, and not the native vid mode */
 
-/** Surface must stay in palette mode, not in vid mode */
-#define SURFACE_FLAG_PALETTE 	1
 /** Use this when you want a colkey in a true color picture - color should be 0 */
 #define SURFACE_FLAG_COLKEY_16M 2
 #define SURFACE_FLAG_DISPLAYFORMAT 4
 #define SURFACE_FLAG_DISPLAYFORMATALPHA 8
-
-/** Types of pictures. */
-typedef enum _pic_type
-{
-	PIC_TYPE_DEFAULT, PIC_TYPE_PALETTE, PIC_TYPE_TRANS, PIC_TYPE_ALPHA
-} _pic_type;
-
-/** Bitmap name structure */
-typedef struct _bitmap_name
-{
-	/** Name */
-	char *name;
-
-	/** Type */
-	_pic_type type;
-} _bitmap_name;
-
-typedef enum _bitmap_index
-{
-	BITMAP_INTRO,
-
-	BITMAP_PLAYER_DOLL_BG,
-	BITMAP_PLAYER_DOLL,
-	BITMAP_PLAYER_DOLL_SLOT_BORDER,
-
-	BITMAP_LOGIN_INP,
-	BITMAP_INVSLOT,
-
-	/* Status bars */
-	BITMAP_HP,
-	BITMAP_SP,
-	BITMAP_FOOD,
-	BITMAP_HP_BACK,
-	BITMAP_SP_BACK,
-	BITMAP_FOOD_BACK,
-
-	BITMAP_APPLY,
-	BITMAP_UNPAID,
-	BITMAP_CURSED,
-	BITMAP_DAMNED,
-	BITMAP_LOCK,
-	BITMAP_MAGIC,
-	BITMAP_FIRE_READY,
-
-	BITMAP_RANGE,
-	BITMAP_RANGE_MARKER,
-	BITMAP_RANGE_SKILL,
-	BITMAP_RANGE_SKILL_NO,
-	BITMAP_RANGE_THROW,
-	BITMAP_RANGE_THROW_NO,
-	BITMAP_RANGE_TOOL,
-	BITMAP_RANGE_TOOL_NO,
-	BITMAP_RANGE_WIZARD,
-	BITMAP_RANGE_WIZARD_NO,
-
-	BITMAP_CMARK_START,
-	BITMAP_CMARK_END,
-	BITMAP_CMARK_MIDDLE,
-
-	BITMAP_NUMBER,
-	BITMAP_INVSLOT_U,
-
-	BITMAP_DEATH,
-	BITMAP_SLEEP,
-	BITMAP_CONFUSE,
-	BITMAP_PARALYZE,
-	BITMAP_SCARED,
-	BITMAP_BLIND,
-
-	BITMAP_QUICKSLOTS,
-	BITMAP_QUICKSLOTSV,
-	BITMAP_INVENTORY,
-	BITMAP_INV_BG,
-
-	BITMAP_EXP_BORDER,
-	BITMAP_EXP_SLIDER,
-	BITMAP_EXP_BUBBLE_ON,
-	BITMAP_EXP_BUBBLE_OFF,
-
-	BITMAP_STATS_BG,
-	BITMAP_BELOW,
-
-	BITMAP_WARN_HP,
-	BITMAP_WARN_FOOD,
-
-	BITMAP_RANGE_BUTTONS_OFF,
-	BITMAP_RANGE_BUTTONS_LEFT,
-	BITMAP_RANGE_BUTTONS_RIGHT,
-
-	BITMAP_TEXTWIN_MASK,
-
-	BITMAP_TRAPPED,
-	BITMAP_BOOK,
-	BITMAP_BOOK_BORDER,
-	BITMAP_REGION_MAP,
-	BITMAP_INVSLOT_MARKED,
-	BITMAP_MSCURSOR_MOVE,
-	BITMAP_RESIST_BG,
-	BITMAP_MAIN_LVL_BG,
-	BITMAP_SKILL_EXP_BG,
-	BITMAP_REGEN_BG,
-	BITMAP_SKILL_LVL_BG,
-	BITMAP_MENU_BUTTONS,
-	BITMAP_PLAYER_INFO,
-	BITMAP_TEXTINPUT,
-
-	BITMAP_SQUARE_HIGHLIGHT,
-	BITMAP_SERVERS_BG,
-	BITMAP_SERVERS_BG_OVER,
-	BITMAP_NEWS_BG,
-	BITMAP_EYES,
-	BITMAP_POPUP,
-	BITMAP_BUTTON_ROUND,
-	BITMAP_BUTTON_ROUND_DOWN,
-	BITMAP_BUTTON_ROUND_HOVER,
-	BITMAP_BUTTON_RECT,
-	BITMAP_BUTTON_RECT_HOVER,
-	BITMAP_BUTTON_RECT_DOWN,
-	BITMAP_MAP_MARKER,
-	BITMAP_LOADING_OFF,
-	BITMAP_LOADING_ON,
-	BITMAP_BUTTON,
-	BITMAP_BUTTON_DOWN,
-	BITMAP_BUTTON_HOVER,
-	BITMAP_CHECKBOX,
-	BITMAP_CHECKBOX_ON,
-	BITMAP_CONTENT,
-	BITMAP_ICON_MUSIC,
-	BITMAP_ICON_MAGIC,
-	BITMAP_ICON_SKILL,
-	BITMAP_ICON_PARTY,
-	BITMAP_ICON_MAP,
-	BITMAP_ICON_COGS,
-	BITMAP_ICON_QUEST,
-	BITMAP_FPS,
-	BITMAP_INTERFACE,
-	BITMAP_INTERFACE_BORDER,
-	BITMAP_BUTTON_LARGE,
-	BITMAP_BUTTON_LARGE_DOWN,
-	BITMAP_BUTTON_LARGE_HOVER,
-	BITMAP_BUTTON_ROUND_LARGE,
-	BITMAP_BUTTON_ROUND_LARGE_DOWN,
-	BITMAP_BUTTON_ROUND_LARGE_HOVER,
-
-	BITMAP_INIT
-}_bitmap_index;
 
 /* For custom cursors */
 enum
 {
 	MSCURSOR_MOVE = 1
 };
+
+#define IS_ENTER(_keysym) ((_keysym) == SDLK_RETURN || (_keysym) == SDLK_KP_ENTER)
 
 #endif

@@ -80,6 +80,9 @@ typedef struct interface_struct
 
 	/** If 1, allow sending empty text input string. */
 	uint8 input_allow_empty;
+
+	/** If 1, enable text input. */
+	uint8 text_input;
 } interface_struct;
 
 /**

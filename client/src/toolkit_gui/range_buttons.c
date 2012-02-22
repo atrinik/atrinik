@@ -46,28 +46,33 @@ static uint32 ticks = 0;
 int range_buttons_show(int x, int y, int *val, int advance)
 {
 	int state, mx, my;
+	SDL_Surface *texture_off, *texture_left, *texture_right;
 
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
 
+	texture_off = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_off"));
+	texture_left = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_left"));
+	texture_right = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_right"));
+
 	/* Show the two range buttons. */
-	sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_OFF], x, y, NULL, NULL);
+	surface_show(ScreenSurface, x, y, NULL, texture_off);
 
 	/* Check the Y position. */
-	if (my > y && my < y + Bitmaps[BITMAP_RANGE_BUTTONS_OFF]->bitmap->h && state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - ticks > 125))
+	if (my > y && my < y + texture_off->h && state == SDL_BUTTON(SDL_BUTTON_LEFT) && (!ticks || SDL_GetTicks() - ticks > 125))
 	{
 		/* If the left range button was clicked, decrease the value. */
-		if (mx > x && mx < x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w)
+		if (mx > x && mx < x + texture_left->w)
 		{
-			sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_LEFT], x, y, NULL, NULL);
+			surface_show(ScreenSurface, x, y, NULL, texture_left);
 			*val -= advance;
 			ticks = SDL_GetTicks();
 			return 1;
 		}
 		/* Otherwise increase it. */
-		else if (mx > x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w && mx < x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w)
+		else if (mx > x + texture_left->w && mx < x + texture_left->w + texture_right->w)
 		{
-			sprite_blt(Bitmaps[BITMAP_RANGE_BUTTONS_RIGHT], x + Bitmaps[BITMAP_RANGE_BUTTONS_LEFT]->bitmap->w, y, NULL, NULL);
+			surface_show(ScreenSurface, x + texture_left->w, y, NULL, texture_right);
 			*val += advance;
 			ticks = SDL_GetTicks();
 			return 1;

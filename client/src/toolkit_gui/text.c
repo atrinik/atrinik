@@ -477,7 +477,7 @@ void text_anchor_execute(text_blit_info *info)
 	/* No action specified. */
 	else if (info->anchor_action[0] == '\0')
 	{
-		if (GameStatus == GAME_STATUS_PLAY)
+		if (cpl.state == ST_PLAY)
 		{
 			/* It's not a command, so prepend "/say " to it. */
 			if (buf2[0] != '/')
@@ -526,6 +526,12 @@ void blt_character_init(text_blit_info *info)
 	info->calc_bold = 0;
 	info->calc_font = -1;
 	info->hcenter_y = 0;
+	info->height = 0;
+	info->start_x = 0;
+	info->start_y = 0;
+	info->highlight = 0;
+	info->highlight_color.r = info->highlight_color.g = info->highlight_color.b = 0;
+	info->tooltip_text[0] = '\0';
 }
 
 /**
@@ -976,12 +982,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d>", face, &x, &y, &align, &alpha) >= 1)
 				{
-					_BLTFX bltfx;
-					int id = get_bmap_id(face);
+					int id;
 
-					bltfx.surface = surface;
-					bltfx.alpha = alpha;
-					bltfx.flags = alpha != 255 ? BLTFX_FLAG_SRCALPHA : 0;
+					id = get_bmap_id(face);
 
 					if (id != -1 && FaceList[id].sprite)
 					{
@@ -995,7 +998,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 							y += -dest->y;
 						}
 
-						sprite_blt(FaceList[id].sprite, dest->x + x, dest->y + y, NULL, &bltfx);
+						surface_show_alpha(surface, dest->x + x, dest->y + y, NULL, FaceList[id].sprite->bitmap, alpha);
 					}
 				}
 			}
@@ -1368,6 +1371,132 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 			return strchr(cp + 6, '>') - cp + 1;
 		}
+		else if (!strncmp(cp, "<ctooltip=", 10))
+		{
+			if (surface || info->obscured)
+			{
+				int mx, my;
+				char tooltip_width[MAX_BUF], tooltip_height[MAX_BUF], tooltip_text[HUGE_BUF];
+				int tooltip_max_width;
+
+				SDL_GetMouseState(&mx, &my);
+				text_adjust_coords(surface, &mx, &my);
+
+				if (mx >= dest->x && my >= dest->y && sscanf(cp + 10, "%64s %64s %d %512[^>]>", tooltip_width, tooltip_height, &tooltip_max_width, tooltip_text) == 4)
+				{
+					int wd, ht;
+
+					if (string_startswith(tooltip_width, "w:"))
+					{
+						wd = string_get_width(*font, tooltip_width + 2, 0);
+					}
+					else
+					{
+						wd = atoi(tooltip_width);
+					}
+
+					if (string_startswith(tooltip_height, "h:"))
+					{
+						ht = string_get_height(*font, tooltip_height + 2, 0);
+					}
+					else
+					{
+						ht = atoi(tooltip_height);
+					}
+
+					if (box)
+					{
+						if (box->w)
+						{
+							wd = MIN(box->w - (dest->x - info->start_x), wd);
+						}
+
+						if (box->h)
+						{
+							ht = MIN(box->h - (dest->y - info->start_y), ht);
+						}
+					}
+
+					if (info->obscured)
+					{
+						ht -= info->height;
+					}
+
+					if (mx < dest->x + wd && my < dest->y + ht)
+					{
+						SDL_GetMouseState(&mx, &my);
+						tooltip_create(mx, my, *font, tooltip_text);
+
+						if (tooltip_max_width >= 0)
+						{
+							tooltip_multiline(tooltip_max_width);
+						}
+					}
+				}
+			}
+
+			return strchr(cp + 10, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "<tooltip=", 9))
+		{
+			if (surface || info->obscured)
+			{
+				if (sscanf(cp + 9, "%512[^>]>", info->tooltip_text) == 1)
+				{
+				}
+			}
+
+			return strchr(cp + 10, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</tooltip>", 10))
+		{
+			if (surface || info->obscured)
+			{
+				info->tooltip_text[0] = '\0';
+			}
+
+			return 10;
+		}
+		else if (!strncmp(cp, "<h=#", 4))
+		{
+			int r, g, b;
+
+			if ((surface || info->obscured) && sscanf(cp + 4, "%2X%2X%2X>", &r, &g, &b) == 3)
+			{
+				info->highlight = 1;
+				info->highlight_color.r = r;
+				info->highlight_color.g = g;
+				info->highlight_color.b = b;
+			}
+
+			return strchr(cp + 4, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</h>", 4))
+		{
+			if (surface || info->obscured)
+			{
+				info->highlight = 0;
+			}
+
+			return 4;
+		}
+		else if (!strncmp(cp, "<line=", 6))
+		{
+			int x1, y1, x2, y2;
+
+			if ((surface || info->obscured) && sscanf(cp + 6, "%d,%d,%d,%d", &x1, &y1, &x2, &y2) == 4)
+			{
+				if (info->obscured)
+				{
+					y1 = MAX(0, y1 - info->height);
+					y2 = MAX(1, y2 - info->height);
+				}
+
+				lineRGBA(surface, dest->x + x1, dest->y + y1, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
+			}
+
+			return strchr(cp + 6, '>') - cp + 1;
+		}
 	}
 
 	if (info->in_book_title && !strncmp(cp, "\">", 2))
@@ -1495,23 +1624,42 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
-		int mx, my;
-		static uint32 ticks = 0;
+		SDL_Color *use_color;
 		SDL_Rect blit_dest;
 
 		buf[0] = c;
 		buf[1] = '\0';
+		use_color = color;
 
-		/* Are we inside an anchor tag and we clicked the text? */
-		if (info->anchor_tag && SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_LEFT) && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1))
+		if (info->anchor_tag || info->highlight || *info->tooltip_text != '\0')
 		{
+			int state, mx, my, orig_mx, orig_my;
+
+			state = SDL_GetMouseState(&mx, &my);
+			orig_mx = mx;
+			orig_my = my;
 			text_adjust_coords(surface, &mx, &my);
 
-			if (mx >= dest->x && mx <= dest->x + width && my >= dest->y && my <= dest->y + FONT_HEIGHT(*font) && (!ticks || SDL_GetTicks() - ticks > 125))
+			if (mx >= dest->x && mx < dest->x + width && my >= dest->y && my < dest->y + FONT_HEIGHT(*font))
 			{
-				ticks = SDL_GetTicks();
+				static uint32 ticks = 0;
 
-				text_anchor_execute(info);
+				if (info->anchor_tag && state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125))
+				{
+					ticks = SDL_GetTicks();
+					text_anchor_execute(info);
+				}
+
+				if (*info->tooltip_text != '\0')
+				{
+					tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
+					tooltip_multiline(0);
+				}
+
+				if (info->highlight)
+				{
+					use_color = &info->highlight_color;
+				}
 			}
 		}
 
@@ -1545,7 +1693,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		/* Render the character. */
 		if (flags & TEXT_SOLID || info->used_alpha != 255)
 		{
-			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *color);
+			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *use_color);
 
 			/* Opacity. */
 			if (info->used_alpha != 255)
@@ -1565,7 +1713,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		}
 		else
 		{
-			ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *color);
+			ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *use_color);
 		}
 
 		if (info->in_strikethrough)
@@ -1573,7 +1721,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 			int font_height;
 
 			font_height = TTF_FontHeight(fonts[*font].font);
-			lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, color->r, color->g, color->b, 255);
+			lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, use_color->r, use_color->g, use_color->b, 255);
 		}
 
 		/* Output the rendered character to the screen and free the
@@ -1745,6 +1893,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	}
 
 	blt_character_init(&info);
+	info.start_x = x;
+	info.start_y = y;
 
 	if (text_debug && box && surface)
 	{
@@ -1819,6 +1969,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 			{
 				skip = 1;
 			}
+
+			info.height = height;
 
 			/* Draw characters until we have reached the cut point (last_space). */
 			while (*cp != '\0' && last_space > 0)

@@ -146,7 +146,10 @@ void widget_spells_render(widgetdata *widget)
 	/* Create the surface. */
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_CONTENT]->bitmap, Bitmaps[BITMAP_CONTENT]->bitmap->format, Bitmaps[BITMAP_CONTENT]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	/* Create the spell list. */
@@ -166,20 +169,16 @@ void widget_spells_render(widgetdata *widget)
 		button_create(&button_close);
 		button_create(&button_help);
 		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
-		button_close.bitmap = button_path_left.bitmap = button_path_right.bitmap = button_help.bitmap = BITMAP_BUTTON_ROUND;
-		button_close.bitmap_pressed = button_path_left.bitmap_pressed = button_path_right.bitmap_pressed = button_help.bitmap_pressed = BITMAP_BUTTON_ROUND_DOWN;
-		button_close.bitmap_over = button_path_left.bitmap_over = button_path_right.bitmap_over = button_help.bitmap_over = BITMAP_BUTTON_ROUND_HOVER;
+		button_close.texture = button_path_left.texture = button_path_right.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_path_left.texture_pressed = button_path_right.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_path_left.texture_over = button_path_right.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 	}
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
 		size_t spell_id;
 
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[BITMAP_CONTENT], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
 		box.w = widget->wd;
@@ -202,8 +201,10 @@ void widget_spells_render(widgetdata *widget)
 		 * a selected spell and it's a known one. */
 		if (list_spells->text)
 		{
-			_Sprite *icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite;
+			SDL_Surface *icon;
 			const char *status;
+
+			icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite->bitmap;
 
 			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
 
@@ -225,8 +226,8 @@ void widget_spells_render(widgetdata *widget)
 			}
 
 			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
-			draw_frame(widget->widgetSF, widget->wd - 6 - icon->bitmap->w, widget->ht - 6 - icon->bitmap->h, icon->bitmap->w + 1, icon->bitmap->h + 1);
-			sprite_blt(icon, widget->wd - 5 - icon->bitmap->w, widget->ht - 5 - icon->bitmap->h, NULL, &bltfx);
+			draw_frame(widget->widgetSF, widget->wd - 6 - icon->w, widget->ht - 6 - icon->h, icon->w + 1, icon->h + 1);
+			surface_show(widget->widgetSF, widget->wd - 5 - icon->w, widget->ht - 5 - icon->h, NULL, icon);
 		}
 
 		widget->redraw = list_need_redraw(list_spells);
@@ -237,20 +238,20 @@ void widget_spells_render(widgetdata *widget)
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
 
 	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w - 4;
+	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
 	button_close.y = widget->y1 + 4;
 	button_render(&button_close, "X");
 
-	button_help.x = widget->x1 + widget->wd - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->w * 2 - 4;
+	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
 	button_render(&button_help, "?");
 
 	button_path_left.x = widget->x1 + 6;
-	button_path_left.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
+	button_path_left.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_left.texture)->h - 5;
 	button_render(&button_path_left, "<");
 
 	button_path_right.x = widget->x1 + 6 + 130;
-	button_path_right.y = widget->y1 + widget->ht - Bitmaps[BITMAP_BUTTON_ROUND]->bitmap->h - 5;
+	button_path_right.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_right.texture)->h - 5;
 	button_render(&button_path_right, ">");
 }
 

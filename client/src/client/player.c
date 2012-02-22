@@ -226,7 +226,7 @@ void widget_show_player_data(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	sprite_blt(Bitmaps[BITMAP_PLAYER_INFO], widget->x1, widget->y1, NULL, NULL);
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("player_info_bg"));
 
 	box.w = widget->wd - 12;
 	box.h = 36;
@@ -241,59 +241,23 @@ void widget_player_stats(widgetdata *widget)
 	double temp;
 	SDL_Rect box;
 	int tmp;
+	SDL_Surface *texture;
 
-	/* Let's look if we have a backbuffer SF, if not create one from the background */
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_STATS_BG]->bitmap, Bitmaps[BITMAP_STATS_BG]->bitmap->format, Bitmaps[BITMAP_STATS_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("stats_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
-	/* We have a backbuffer SF, test for the redrawing flag and do the redrawing */
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
-		_BLTFX bltfx;
 
 		widget->redraw = 0;
 
-		/* We redraw here only all halfway static stuff *
-		 * We simply don't need to redraw that stuff every frame, how often the stats change? */
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.dark_level = 0;
-		bltfx.alpha = 0;
-
-		sprite_blt(Bitmaps[BITMAP_STATS_BG], 0, 0, NULL, &bltfx);
-
-		string_blt(widget->widgetSF, FONT_MONO9, "Stats", 8, 4, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-
-		/* Strength */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Str", 8, 17, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 17, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Str);
-
-		/* Dexterity */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Dex", 8, 28, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 28, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Dex);
-
-		/* Constitution */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Con", 8, 39, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 39, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Con);
-
-		/* Intelligence */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Int", 8, 50, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 50, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Int);
-
-		/* Wisdom */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Wis", 8, 61, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 61, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Wis);
-
-		/* Power */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Pow", 8, 72, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 72, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Pow);
-
-		/* Charisma */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Cha", 8, 83, COLOR_WHITE, 0, NULL);
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 33, 83, COLOR_GREEN, 0, NULL, "%02d", cpl.stats.Cha);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("stats_bg"));
 
 		/* Health */
 		string_blt(widget->widgetSF, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);
@@ -319,6 +283,7 @@ void widget_player_stats(widgetdata *widget)
 	/* Health bar */
 	if (cpl.stats.maxhp)
 	{
+		texture = TEXTURE_CLIENT("hp");
 		tmp = cpl.stats.hp;
 
 		if (tmp < 0)
@@ -329,26 +294,27 @@ void widget_player_stats(widgetdata *widget)
 		temp = (double) tmp / (double) cpl.stats.maxhp;
 		box.x = 0;
 		box.y = 0;
-		box.h = Bitmaps[BITMAP_HP]->bitmap->h;
-		box.w = (int) (Bitmaps[BITMAP_HP]->bitmap->w * temp);
+		box.h = texture->h;
+		box.w = (int) (texture->w * temp);
 
 		if (tmp && !box.w)
 		{
 			box.w = 1;
 		}
 
-		if (box.w > Bitmaps[BITMAP_HP]->bitmap->w)
+		if (box.w > texture->w)
 		{
-			box.w = Bitmaps[BITMAP_HP]->bitmap->w;
+			box.w = texture->w;
 		}
 
-		sprite_blt(Bitmaps[BITMAP_HP_BACK], widget->x1 + 57, widget->y1 + 23, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_HP], widget->x1 + 57, widget->y1 + 23, &box, NULL);
+		surface_show(ScreenSurface, widget->x1 + 57, widget->y1 + 23, NULL, TEXTURE_CLIENT("hp_back"));
+		surface_show(ScreenSurface, widget->x1 + 57, widget->y1 + 23, &box, texture);
 	}
 
 	/* Mana bar */
 	if (cpl.stats.maxsp)
 	{
+		texture = TEXTURE_CLIENT("hp");
 		tmp = cpl.stats.sp;
 
 		if (tmp < 0)
@@ -359,23 +325,24 @@ void widget_player_stats(widgetdata *widget)
 		temp = (double) tmp / (double) cpl.stats.maxsp;
 		box.x = 0;
 		box.y = 0;
-		box.h = Bitmaps[BITMAP_SP]->bitmap->h;
-		box.w = (int) (Bitmaps[BITMAP_SP]->bitmap->w * temp);
+		box.h = texture->h;
+		box.w = (int) (texture->w * temp);
 
 		if (tmp && !box.w)
 		{
 			box.w = 1;
 		}
 
-		if (box.w > Bitmaps[BITMAP_SP]->bitmap->w)
+		if (box.w > texture->w)
 		{
-			box.w = Bitmaps[BITMAP_SP]->bitmap->w;
+			box.w = texture->w;
 		}
 
-		sprite_blt(Bitmaps[BITMAP_SP_BACK], widget->x1 + 57, widget->y1 + 47, NULL, NULL);
-		sprite_blt(Bitmaps[BITMAP_SP], widget->x1 + 57, widget->y1 + 47, &box, NULL);
+		surface_show(ScreenSurface, widget->x1 + 57, widget->y1 + 47, NULL, TEXTURE_CLIENT("sp_back"));
+		surface_show(ScreenSurface, widget->x1 + 57, widget->y1 + 47, &box, texture);
 	}
 
+	texture = TEXTURE_CLIENT("food");
 	/* Food bar */
 	tmp = cpl.stats.food;
 
@@ -387,21 +354,21 @@ void widget_player_stats(widgetdata *widget)
 	temp = (double) tmp / 1000;
 	box.x = 0;
 	box.y = 0;
-	box.h = Bitmaps[BITMAP_FOOD]->bitmap->h;
-	box.w = (int) (Bitmaps[BITMAP_FOOD]->bitmap->w * temp);
+	box.h = texture->h;
+	box.w = (int) (texture->w * temp);
 
 	if (tmp && !box.w)
 	{
 		box.w = 1;
 	}
 
-	if (box.w > Bitmaps[BITMAP_FOOD]->bitmap->w)
+	if (box.w > texture->w)
 	{
-		box.w = Bitmaps[BITMAP_FOOD]->bitmap->w;
+		box.w = texture->w;
 	}
 
-	sprite_blt(Bitmaps[BITMAP_FOOD_BACK], widget->x1 + 87, widget->y1 + 88, NULL, NULL);
-	sprite_blt(Bitmaps[BITMAP_FOOD], widget->x1 + 87, widget->y1 + 88, &box, NULL);
+	surface_show(ScreenSurface, widget->x1 + 87, widget->y1 + 88, NULL, TEXTURE_CLIENT("food_back"));
+	surface_show(ScreenSurface, widget->x1 + 87, widget->y1 + 88, &box, texture);
 }
 
 /**
@@ -413,7 +380,10 @@ void widget_skillgroups(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_LVL_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("skill_lvl_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	box.x = widget->x1;
@@ -426,10 +396,13 @@ void widget_skillgroups(widgetdata *widget)
  * @param widget The widget object. */
 void widget_show_player_doll(widgetdata *widget)
 {
-	char *tooltip_text = NULL;
+	char *tooltip_text;
 	int i, xpos, ypos, mx, my;
+	SDL_Surface *texture_slot_border;
 
-	sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL_BG], widget->x1, widget->y1, NULL, NULL);
+	tooltip_text = NULL;
+
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("player_doll_bg"));
 
 	string_blt(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
 	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
@@ -452,18 +425,20 @@ void widget_show_player_doll(widgetdata *widget)
 	string_blt(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
 	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
 
+	texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
+
 	for (i = 0; i < PLAYER_DOLL_MAX; i++)
 	{
-		rectangle_create(ScreenSurface, widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER]->bitmap->w, Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER]->bitmap->h, PLAYER_DOLL_SLOT_COLOR);
+		rectangle_create(ScreenSurface, widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
 	}
 
-	sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL], widget->x1, widget->y1, NULL, NULL);
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("player_doll"));
 
 	SDL_GetMouseState(&mx, &my);
 
 	for (i = 0; i < PLAYER_DOLL_MAX; i++)
 	{
-		sprite_blt(Bitmaps[BITMAP_PLAYER_DOLL_SLOT_BORDER], widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], NULL, NULL);
+		surface_show(ScreenSurface, widget->x1 + player_doll_positions[i][0], widget->y1 + player_doll_positions[i][1], NULL, texture_slot_border);
 
 		if (!cpl.player_doll[i])
 		{
@@ -501,20 +476,19 @@ void widget_show_main_lvl(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->format, Bitmaps[BITMAP_MAIN_LVL_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("main_lvl_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
-		_BLTFX bltfx;
 
 		widget->redraw = 0;
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
 
-		sprite_blt(Bitmaps[BITMAP_MAIN_LVL_BG], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("main_lvl_bg"));
 
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
@@ -562,19 +536,17 @@ void widget_show_skill_exp(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->format, Bitmaps[BITMAP_SKILL_EXP_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("skill_exp_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	if (widget->redraw)
 	{
-		_BLTFX bltfx;
-
 		widget->redraw = 0;
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
 
-		sprite_blt(Bitmaps[BITMAP_SKILL_EXP_BG], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("skill_exp_bg"));
 
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 		string_blt(widget->widgetSF, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
@@ -596,20 +568,19 @@ void widget_show_regeneration(widgetdata *widget)
 
 	if (!widget->widgetSF)
 	{
-		widget->widgetSF = SDL_ConvertSurface(Bitmaps[BITMAP_REGEN_BG]->bitmap, Bitmaps[BITMAP_REGEN_BG]->bitmap->format, Bitmaps[BITMAP_REGEN_BG]->bitmap->flags);
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("regen_bg");
+		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
-		_BLTFX bltfx;
 
 		widget->redraw = 0;
-		bltfx.surface = widget->widgetSF;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
 
-		sprite_blt(Bitmaps[BITMAP_REGEN_BG], 0, 0, NULL, &bltfx);
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("regen_bg"));
 
 		string_blt(widget->widgetSF, FONT_SANS8, "R", 4, 1, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 		string_blt(widget->widgetSF, FONT_SANS8, "e", 4, 7, COLOR_HGOLD, TEXT_OUTLINE, NULL);
@@ -882,11 +853,11 @@ void widget_show_label(widgetdata *widget)
 	string_blt(ScreenSurface, label->font, label->text, widget->x1, widget->y1, label->color, 0, NULL);
 }
 
-void widget_show_bitmap(widgetdata *widget)
+void widget_show_texture(widgetdata *widget)
 {
-	_widget_bitmap *bitmap = BITMAP(widget);
+	_widget_texture *texture = WIDGET_TEXTURE(widget);
 
-	sprite_blt(Bitmaps[bitmap->bitmap_id], widget->x1, widget->y1, NULL, NULL);
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_SURFACE(texture->texture));
 }
 
 /**
@@ -998,27 +969,27 @@ void player_doll_update_items(void)
 
 void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level)
 {
-	_BLTFX bltfx;
+	SDL_Surface *texture_bubble_on, *texture_bubble_off;
 	int line_width, offset, i;
 	double fractional, integral;
 	SDL_Rect box;
 
-	bltfx.surface = surface;
-	bltfx.flags = 0;
+	texture_bubble_on = TEXTURE_CLIENT("exp_bubble_on");
+	texture_bubble_off = TEXTURE_CLIENT("exp_bubble_off");
 
-	line_width = Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->w * EXP_PROGRESS_BUBBLES;
-	offset = (double) Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h / 2.0 + 0.5;
+	line_width = texture_bubble_on->w * EXP_PROGRESS_BUBBLES;
+	offset = (double) texture_bubble_on->h / 2.0 + 0.5;
 	fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
 
-	filledRectAlpha(surface, x, y, x + line_width + offset * 2, y + Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h + offset * 4, 150);
+	filledRectAlpha(surface, x, y, x + line_width + offset * 2, y + texture_bubble_on->h + offset * 4, 150);
 
 	for (i = 0; i < EXP_PROGRESS_BUBBLES; i++)
 	{
-		sprite_blt(Bitmaps[i < (int) integral ? BITMAP_EXP_BUBBLE_ON : BITMAP_EXP_BUBBLE_OFF], x + offset + i * Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->w, y + offset, NULL, &bltfx);
+		surface_show(surface, x + offset + i * texture_bubble_on->w, y + offset, NULL, i < (int) integral ? texture_bubble_on : texture_bubble_off);
 	}
 
 	box.x = x + offset;
-	box.y = y + Bitmaps[BITMAP_EXP_BUBBLE_ON]->bitmap->h + offset * 2;
+	box.y = y + texture_bubble_on->h + offset * 2;
 	box.w = line_width;
 	box.h = offset;
 

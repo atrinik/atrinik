@@ -256,6 +256,18 @@ typedef struct text_blit_info
 	/**
 	 * Used for calculations by the 'hcenter' tag. */
 	int hcenter_y;
+
+	int height;
+
+	int start_x;
+
+	int start_y;
+
+	uint8 highlight;
+
+	SDL_Color highlight_color;
+
+	char tooltip_text[MAX_BUF * 2];
 } text_blit_info;
 
 /**

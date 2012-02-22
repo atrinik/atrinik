@@ -63,13 +63,9 @@ static int popup_draw_func(popup_struct *popup)
 {
 	if (popup->redraw)
 	{
-		_BLTFX bltfx;
 		SDL_Rect box;
 
-		bltfx.surface = popup->surface;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
 
 		/* Draw the book name. */
 		box.w = BOOK_TITLE_WIDTH;
@@ -93,8 +89,8 @@ static int popup_draw_func(popup_struct *popup)
 	return 1;
 }
 
-/** @copydoc popup_struct::draw_func_post */
-static int popup_draw_func_post(popup_struct *popup)
+/** @copydoc popup_struct::draw_post_func */
+static int popup_draw_post_func(popup_struct *popup)
 {
 	scrollbar_render(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
 
@@ -103,7 +99,7 @@ static int popup_draw_func_post(popup_struct *popup)
 		button_tooltip(&popup->button_left.button, FONT_ARIAL10, "Go back");
 	}
 
-	sprite_blt(Bitmaps[BITMAP_BOOK_BORDER], popup->x, popup->y, NULL, NULL);
+	surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("book_border"));
 
 	return 1;
 }
@@ -266,17 +262,17 @@ void book_load(const char *data, int len)
 	book_scroll_lines = box.y;
 
 	/* Create the book popup if it doesn't exist yet. */
-	if (!popup_get_head() || popup_get_head()->bitmap_id != BITMAP_BOOK)
+	if (!popup_get_head() || popup_get_head()->texture != texture_get(TEXTURE_TYPE_CLIENT, "book"))
 	{
 		popup_struct *popup;
 
-		popup = popup_create(BITMAP_BOOK);
+		popup = popup_create("book");
 		popup->draw_func = popup_draw_func;
-		popup->draw_func_post = popup_draw_func_post;
+		popup->draw_post_func = popup_draw_post_func;
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->clipboard_copy_func = popup_clipboard_copy_func;
-		popup->disable_bitmap_blit = 1;
+		popup->disable_texture_blit = 1;
 
 		popup->button_left.x = 25;
 		popup->button_left.y = 25;
@@ -301,7 +297,7 @@ void book_load(const char *data, int len)
  * Redraw the book GUI. */
 void book_redraw(void)
 {
-	if (popup_get_head() && popup_get_head()->bitmap_id == BITMAP_BOOK)
+	if (popup_get_head() && popup_get_head()->texture == texture_get(TEXTURE_TYPE_CLIENT, "book"))
 	{
 		popup_get_head()->redraw = 1;
 	}

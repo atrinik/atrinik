@@ -312,8 +312,7 @@ int client_command_check(const char *cmd)
 	}
 	else if (strncasecmp(cmd, "/cast", 5) == 0)
 	{
-		char buf[HUGE_BUF];
-		size_t spell_path, spell_id;
+		object *tmp;
 
 		cmd += 6;
 
@@ -322,25 +321,38 @@ int client_command_check(const char *cmd)
 			return 1;
 		}
 
-		if (!spell_find(cmd, &spell_path, &spell_id))
+		for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 		{
-			draw_info(COLOR_RED, "Unknown spell.");
-			return 1;
+			if (tmp->itype == TYPE_SPELL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
+			{
+				uint8 applied;
+
+				applied = tmp->flags & CS_FLAG_APPLIED;
+
+				if (!applied)
+				{
+					client_send_apply(tmp->tag);
+				}
+
+				cpl.fire_on = 1;
+				move_keys(5);
+				cpl.fire_on = 0;
+
+				if (!applied)
+				{
+					client_send_apply(tmp->tag);
+				}
+
+				return 1;
+			}
 		}
 
-		snprintf(buf, sizeof(buf), "/ready_spell %s", cmd);
-		client_command_check(buf);
-
-		cpl.fire_on = 1;
-		move_keys(5);
-		cpl.fire_on = 0;
-
+		draw_info(COLOR_RED, "Unknown spell.");
 		return 1;
 	}
 	else if (strncasecmp(cmd, "/use_skill", 10) == 0)
 	{
-		char buf[HUGE_BUF];
-		size_t skill_id;
+		object *tmp;
 
 		cmd += 11;
 
@@ -349,18 +361,54 @@ int client_command_check(const char *cmd)
 			return 1;
 		}
 
-		if (!skill_find(cmd, &skill_id))
+		for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 		{
-			draw_info(COLOR_RED, "Unknown skill.");
+			if (tmp->itype == TYPE_SKILL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
+			{
+				uint8 applied;
+
+				applied = tmp->flags & CS_FLAG_APPLIED;
+
+				if (!applied)
+				{
+					client_send_apply(tmp->tag);
+				}
+
+				cpl.fire_on = 1;
+				move_keys(5);
+				cpl.fire_on = 0;
+
+				if (!applied)
+				{
+					client_send_apply(tmp->tag);
+				}
+
+				return 1;
+			}
+		}
+
+		draw_info(COLOR_RED, "Unknown skill.");
+		return 1;
+	}
+	else if (strncasecmp(cmd, "/clearcache", 11) == 0)
+	{
+		cmd += 11;
+
+		if (string_isempty(cmd))
+		{
 			return 1;
 		}
 
-		snprintf(buf, sizeof(buf), "/ready_skill %s", cmd);
-		client_command_check(buf);
-
-		cpl.fire_on = 1;
-		move_keys(5);
-		cpl.fire_on = 0;
+		if (strcasecmp(cmd, "sound") == 0)
+		{
+			sound_clear_cache();
+			draw_info(COLOR_GREEN, "Sound cache cleared.");
+		}
+		else if (strcasecmp(cmd, "textures") == 0)
+		{
+			texture_clear_cache();
+			draw_info(COLOR_GREEN, "Texture cache cleared.");
+		}
 
 		return 1;
 	}
@@ -377,54 +425,4 @@ void send_command_check(const char *cmd)
 	{
 		send_command(cmd);
 	}
-}
-
-/**
- * Blit a window slider.
- * @param slider Sprite of the slider
- * @param maxlen Maximum length of the slider
- * @param winlen Window length
- * @param startoff Start position offset
- * @param len Length of the slider
- * @param x X position of the slider to display
- * @param y Y position of the slider to display */
-void blt_window_slider(_Sprite *slider, int maxlen, int winlen, int startoff, int len, int x, int y)
-{
-	SDL_Rect box;
-	double temp;
-	int startpos, len_h;
-
-	if (len != -1)
-		len_h = len;
-	else
-		len_h = slider->bitmap->h;
-
-	if (maxlen < winlen)
-		maxlen = winlen;
-
-	if (startoff + winlen > maxlen)
-		maxlen = startoff + winlen;
-
-	box.x = 0;
-	box.y = 0;
-	box.w = slider->bitmap->w;
-
-	/* now we have 100% = 1.0 to 0% = 0.0 of the length */
-
-	/* between 0.0 <-> 1.0 */
-	temp = (double)winlen / (double)maxlen;
-
-	/* startpixel */
-	startpos = (int)((double)startoff * ((double)len_h / (double )maxlen));
-
-	temp = (double)len_h * temp;
-	box.h = (Uint16) temp;
-
-	if (!box.h)
-		box.h = 1;
-
-	if (startoff + winlen >= maxlen && startpos + box.h < len_h)
-		startpos ++;
-
-	sprite_blt(slider, x, y + startpos, &box, NULL);
 }

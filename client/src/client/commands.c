@@ -75,9 +75,9 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
 		}
 	}
 
-	if (GameStatus != GAME_STATUS_PLAY)
+	if (cpl.state != ST_PLAY)
 	{
-		GameStatus = GAME_STATUS_REQUEST_FILES;
+		cpl.state = ST_REQUEST_FILES;
 	}
 }
 
@@ -281,118 +281,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					WIDGET_REDRAW_ALL(STATS_ID);
 					break;
 
-				case CS_STAT_STR:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Str)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Str = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_INT:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Int)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Int = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_POW:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Pow)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Pow = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_WIS:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Wis)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Wis = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_DEX:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Dex)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Dex = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_CON:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Con)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Con = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
-				case CS_STAT_CHA:
-					temp = packet_to_uint8(data, len, &pos);
-
-					if (temp > cpl.stats.Cha)
-					{
-						cpl.warn_statup = 1;
-					}
-					else
-					{
-						cpl.warn_statdown = 1;
-					}
-
-					cpl.stats.Cha = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
-					break;
-
 				case CS_STAT_PATH_ATTUNED:
 					cpl.path_attuned = packet_to_uint32(data, len, &pos);
 					break;
@@ -477,34 +365,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 	}
 }
 
-/** @copydoc socket_command_struct::handle_func */
-void socket_command_query(uint8 *data, size_t len, size_t pos)
-{
-	uint8 type;
-
-	type = packet_to_uint8(data, len, &pos);
-
-	if (type == CMD_QUERY_GET_NAME)
-	{
-		cpl.name[0] = '\0';
-		cpl.password[0] = '\0';
-		GameStatus = GAME_STATUS_NAME;
-	}
-	else if (type == CMD_QUERY_GET_PASSWORD)
-	{
-		GameStatus = GAME_STATUS_PSWD;
-	}
-	else if (type == CMD_QUERY_CONFIRM_PASSWORD)
-	{
-		GameStatus = GAME_STATUS_VERIFYPSWD;
-	}
-
-	if (GameStatus >= GAME_STATUS_NAME && GameStatus <= GAME_STATUS_VERIFYPSWD)
-	{
-		text_input_open(64);
-	}
-}
-
 /**
  * Sends a reply to the server.
  * @param text Null terminated string of text to send. */
@@ -522,8 +382,7 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 {
 	int tag, weight, face;
 
-	GameStatus = GAME_STATUS_PLAY;
-	text_input_string_end_flag = 0;
+	cpl.state = ST_PLAY;
 
 	tag = packet_to_uint32(data, len, &pos);
 	weight = packet_to_uint32(data, len, &pos);
@@ -1025,12 +884,6 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 void socket_command_version(uint8 *data, size_t len, size_t pos)
 {
 	cpl.server_socket_version = packet_to_uint32(data, len, &pos);
-}
-
-/** @copydoc socket_command_struct::handle_func */
-void socket_command_new_char(uint8 *data, size_t len, size_t pos)
-{
-	GameStatus = GAME_STATUS_NEW_CHAR;
 }
 
 /** @copydoc socket_command_struct::handle_func */

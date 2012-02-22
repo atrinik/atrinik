@@ -49,15 +49,12 @@ void progress_dots_create(progress_dots *progress)
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y)
 {
 	uint8 i;
-	_BLTFX bltfx;
-
-	bltfx.surface = surface;
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
+	SDL_Surface *texture;
 
 	for (i = 0; i < PROGRESS_DOTS_NUM; i++)
 	{
-		sprite_blt(Bitmaps[progress->dot == i || progress->done ? BITMAP_LOADING_ON : BITMAP_LOADING_OFF], x + (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + PROGRESS_DOTS_SPACING) * i, y, NULL, &bltfx);
+		texture = TEXTURE_CLIENT(progress->dot == i || progress->done ? "loading_on" : "loading_off");
+		surface_show(surface, x + (texture->w + PROGRESS_DOTS_SPACING) * i, y, NULL, texture);
 	}
 
 	/* Progress the lit dot. */
@@ -82,5 +79,5 @@ int progress_dots_width(progress_dots *progress)
 {
 	(void) progress;
 
-	return (Bitmaps[BITMAP_LOADING_ON]->bitmap->w + PROGRESS_DOTS_SPACING) * PROGRESS_DOTS_NUM - PROGRESS_DOTS_SPACING;
+	return (TEXTURE_CLIENT("loading_on")->w + PROGRESS_DOTS_SPACING) * PROGRESS_DOTS_NUM - PROGRESS_DOTS_SPACING;
 }

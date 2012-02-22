@@ -74,8 +74,6 @@ enum
 
 typedef struct Stat_struct
 {
-	sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
-
 	/** Weapon class. */
 	sint16 wc;
 
@@ -164,8 +162,6 @@ typedef struct Player_Struct
 
 	int warn_hp;
 
-	/* Input mode: no, console (textstring), numinput */
-	int input_mode;
 	int	nummode;
 
 	/** Currently marked item. */
@@ -250,6 +246,8 @@ typedef struct Player_Struct
 	uint32 path_repelled;
 
 	uint32 path_denied;
+
+	player_state_t state;
 } Client_Player;
 
 #endif

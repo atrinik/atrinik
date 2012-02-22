@@ -51,6 +51,8 @@
 #include <scrollbar.h>
 #include <item.h>
 #include <text.h>
+#include <text_input.h>
+#include <texture.h>
 #include <curl.h>
 #include <book.h>
 #include <interface.h>

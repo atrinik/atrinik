@@ -53,11 +53,6 @@
 /** Maximum map size. */
 #define MAP_MAX_SIZE 17
 
-/** Max string length in input string. */
-#define MAX_INPUT_STRING 256
-/** Max input history lines. */
-#define MAX_HISTORY_LINES 20
-
 /**
  * The number of our dark levels.
  *

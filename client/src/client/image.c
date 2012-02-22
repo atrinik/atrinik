@@ -560,5 +560,5 @@ void blit_face(int id, int x, int y)
 		return;
 	}
 
-	sprite_blt(FaceList[id].sprite, x, y, NULL, NULL);
+	surface_show(ScreenSurface, x, y, NULL, FaceList[id].sprite->bitmap);
 }

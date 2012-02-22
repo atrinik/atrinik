@@ -30,37 +30,50 @@
 #define BUTTON_H
 
 /** Determine whether the x,y position is over the specified button. */
-#define BUTTON_MOUSE_OVER(button, mx, my, sprite) ((mx) >= (button)->x && (mx) < (button)->x + (sprite)->bitmap->w && (my) >= (button)->y && (my) < (button)->y + (sprite)->bitmap->h)
+#define BUTTON_MOUSE_OVER(button, mx, my, texture) ((mx) - (button)->px >= (button)->x && (mx) - (button)->px < (button)->x + (texture)->w && (my) - (button)->py >= (button)->y && (my) - (button)->py < (button)->y + (texture)->h)
 /** Delay in milliseconds for the tooltip to appear (if any). */
 #define BUTTON_TOOLTIP_DELAY 750
 
 /** Button structure. */
 typedef struct button_struct
 {
+	/**
+	 * Surface to use for rendering. */
+	SDL_Surface *surface;
+
 	/** X position. */
 	int x;
 
 	/** Y position. */
 	int y;
 
-	/** Bitmap to normally use for the button. */
-	int bitmap;
+	int px;
+
+	int py;
 
 	/**
-	 * Bitmap to use if the mouse is over the button, -1 to use regular
-	 * one. */
-	int bitmap_over;
+	 * Texture to normally use for the button. */
+	texture_struct *texture;
 
 	/**
-	 * Bitmap to use if the button is being pressed, -1 to use regular
+	 * Texture to use if the mouse is over the button, NULL to use regular
 	 * one. */
-	int bitmap_pressed;
+	texture_struct *texture_over;
+
+	/**
+	 * Texture to use if the button is being pressed, NULL to use regular
+	 * one. */
+	texture_struct *texture_pressed;
 
 	/** Font used for the text. */
 	int font;
 
 	/** Text flags. */
 	uint64 flags;
+
+	/**
+	 * Whether to center the text vertically and horizontally. */
+    uint8 center;
 
 	/** Color of the text. */
 	const char *color;

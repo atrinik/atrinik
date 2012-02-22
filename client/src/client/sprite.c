@@ -40,12 +40,6 @@ static int dark_alpha[DARK_LEVELS] =
 	0, 44, 80, 117, 153, 190, 226
 };
 
-/** Darkness filter. */
-static SDL_Surface *darkness_filter[DARK_LEVELS] =
-{
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
-
 static void red_scale(_Sprite *sprite);
 static void grey_scale(_Sprite *sprite);
 static void fow_scale(_Sprite *sprite);
@@ -189,208 +183,51 @@ void sprite_free_sprite(_Sprite *sprite)
 	free(sprite);
 }
 
-/**
- * Blit a sprite.
- * @param sprite Sprite.
- * @param x X position.
- * @param y Y position.
- * @param box Box.
- * @param bltfx Bltfx. */
-void sprite_blt(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx)
+void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src)
 {
-	SDL_Rect dst;
-	SDL_Surface *surface, *blt_sprite;
+	SDL_Rect dstrect;
 
-	if (!sprite)
-	{
-		return;
-	}
+	dstrect.x = x;
+	dstrect.y = y;
 
-	blt_sprite = sprite->bitmap;
-
-	if (bltfx && bltfx->surface)
-	{
-		surface = bltfx->surface;
-	}
-	else
-	{
-		surface = ScreenSurface;
-	}
-
-	dst.x = x;
-	dst.y = y;
-
-	if (bltfx)
-	{
-		if (bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-		{
-			SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
-		}
-	}
-
-	if (!blt_sprite)
-	{
-		return;
-	}
-
-	if (box)
-	{
-		SDL_BlitSurface(blt_sprite, box, surface, &dst);
-	}
-	else
-	{
-		SDL_BlitSurface(blt_sprite, NULL, surface, &dst);
-	}
-
-	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
-	{
-		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-	}
+	SDL_BlitSurface(src, srcrect, surface, &dstrect);
 }
 
-/**
- * Blit a sprite on map surface.
- * @param sprite Sprite.
- * @param x X position.
- * @param y Y position.
- * @param box Box.
- * @param bltfx Bltfx.
- * @param stretch How much to stretch the sprite. */
-void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+void surface_show_alpha(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, int alpha)
 {
-	SDL_Rect dst;
-	SDL_Surface *surface, *blt_sprite, *tmp;
+	SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
+	surface_show(surface, x, y, srcrect, src);
+	SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+}
+
+void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+{
+	SDL_Rect dstrect;
 	int smooth;
 
-	if (!sprite)
+	dstrect.x = x;
+	dstrect.y = y;
+
+	if (stretch)
 	{
-		return;
-	}
+		SDL_Surface *tmp;
+		Uint8 n = (stretch >> 24) & 0xFF;
+		Uint8 e = (stretch >> 16) & 0xFF;
+		Uint8 w = (stretch >> 8) & 0xFF;
+		Uint8 s = stretch & 0xFF;
+		int ht_diff;
 
-	blt_sprite = sprite->bitmap;
-	surface = cur_widget[MAP_ID]->widgetSF;
-	dst.x = x;
-	dst.y = y;
+		tmp = tile_stretch(surface, n, e, s, w);
 
-	if (bltfx)
-	{
-		/* Is there an effect overlay active? */
-		if (effect_has_overlay())
-		{
-			/* There is one, so add an overlay to the image if there isn't
-			 * one yet. */
-			if (!sprite->effect)
-			{
-				effect_scale(sprite);
-			}
-
-			blt_sprite = sprite->effect;
-		}
-		/* No overlay, but the image was previously overlayed; need to
-		 * free the dark surfaces so they can be re-rendered, without the
-		 * overlay. */
-		else if (sprite->effect)
-		{
-			size_t i;
-
-			SDL_FreeSurface(sprite->effect);
-			sprite->effect = NULL;
-
-			for (i = 0; i < DARK_LEVELS; i++)
-			{
-				if (sprite->dark_level[i])
-				{
-					SDL_FreeSurface(sprite->dark_level[i]);
-					sprite->dark_level[i] = NULL;
-				}
-			}
-		}
-
-		if (bltfx->flags & BLTFX_FLAG_DARK)
-		{
-			/* Last dark level is "no color" */
-			if (bltfx->dark_level == DARK_LEVELS)
-			{
-				return;
-			}
-
-			/* We create the filter surfaces only when needed, and then store them */
-			if (!darkness_filter[bltfx->dark_level])
-			{
-				SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA, dark_alpha[bltfx->dark_level]);
-				darkness_filter[bltfx->dark_level] = SDL_DisplayFormatAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap);
-				SDL_SetAlpha(Bitmaps[BITMAP_TEXTWIN_MASK]->bitmap, SDL_SRCALPHA | SDL_RLEACCEL, 255);
-			}
-
-			if (sprite->dark_level[bltfx->dark_level])
-			{
-				blt_sprite = sprite->dark_level[bltfx->dark_level];
-			}
-			else
-			{
-				blt_sprite = SDL_DisplayFormatAlpha(blt_sprite);
-				SDL_BlitSurface(darkness_filter[bltfx->dark_level], NULL, blt_sprite, NULL);
-				sprite->dark_level[bltfx->dark_level] = blt_sprite;
-			}
-		}
-		else if (bltfx->flags & BLTFX_FLAG_FOW)
-		{
-			if (!sprite->fog_of_war)
-			{
-				fow_scale(sprite);
-			}
-
-			blt_sprite = sprite->fog_of_war;
-		}
-		else if (bltfx->flags & BLTFX_FLAG_RED)
-		{
-			if (!sprite->red)
-			{
-				red_scale(sprite);
-			}
-
-			blt_sprite = sprite->red;
-		}
-		else if (bltfx->flags & BLTFX_FLAG_GREY)
-		{
-			if (!sprite->grey)
-			{
-				grey_scale(sprite);
-			}
-
-			blt_sprite = sprite->grey;
-		}
-
-		if (!blt_sprite)
+		if (!tmp)
 		{
 			return;
 		}
 
-		if (bltfx->flags & BLTFX_FLAG_STRETCH)
-		{
-			Uint8 n = (stretch >> 24) & 0xFF;
-			Uint8 e = (stretch >> 16) & 0xFF;
-			Uint8 w = (stretch >> 8) & 0xFF;
-			Uint8 s = stretch & 0xFF;
-			int ht_diff;
+		ht_diff = tmp->h - surface->h;
 
-			tmp = tile_stretch(blt_sprite, n, e, s, w);
-
-			if (!tmp)
-			{
-				return;
-			}
-
-			ht_diff = tmp->h - blt_sprite->h;
-
-			blt_sprite = tmp;
-			dst.y = dst.y - ht_diff;
-		}
-	}
-
-	if (!blt_sprite)
-	{
-		return;
+		surface = tmp;
+		dstrect.y = dstrect.y - ht_diff;
 	}
 
 	/* If this is just a flip with no rotate, force disabled interpolation. */
@@ -405,39 +242,132 @@ void sprite_blt_map(_Sprite *sprite, int x, int y, SDL_Rect *box, _BLTFX *bltfx,
 
 	if (rotate)
 	{
-		blt_sprite = rotozoomSurfaceXY(blt_sprite, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+		surface = rotozoomSurfaceXY(surface, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!blt_sprite)
+		if (!surface)
 		{
 			return;
 		}
 	}
 	else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
 	{
-		blt_sprite = zoomSurface(blt_sprite, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+		surface = zoomSurface(surface, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!blt_sprite)
+		if (!surface)
 		{
 			return;
 		}
 	}
 
-	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+	if (alpha != SDL_ALPHA_OPAQUE)
 	{
-		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, bltfx->alpha);
+		SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
 	}
 
-	SDL_BlitSurface(blt_sprite, box, surface, &dst);
+	SDL_BlitSurface(surface, NULL, surface, &dstrect);
 
-	if (bltfx && bltfx->flags & BLTFX_FLAG_SRCALPHA && !(ScreenSurface->flags & SDL_HWSURFACE))
+	if (alpha != SDL_ALPHA_OPAQUE)
 	{
-		SDL_SetAlpha(blt_sprite, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+		SDL_SetAlpha(surface, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
 	if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate)
 	{
-		SDL_FreeSurface(blt_sprite);
+		SDL_FreeSurface(surface);
 	}
+}
+
+void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+{
+	SDL_Surface *surface;
+
+	if (!sprite)
+	{
+		return;
+	}
+
+	surface = sprite->bitmap;
+
+	/* Is there an effect overlay active? */
+	if (effect_has_overlay())
+	{
+		/* There is one, so add an overlay to the image if there isn't
+		 * one yet. */
+		if (!sprite->effect)
+		{
+			effect_scale(sprite);
+		}
+
+		surface = sprite->effect;
+	}
+	/* No overlay, but the image was previously overlayed; need to
+	 * free the dark surfaces so they can be re-rendered, without the
+	 * overlay. */
+	else if (sprite->effect)
+	{
+		uint8 i;
+
+		SDL_FreeSurface(sprite->effect);
+		sprite->effect = NULL;
+
+		for (i = 0; i < DARK_LEVELS; i++)
+		{
+			if (sprite->dark_level[i])
+			{
+				SDL_FreeSurface(sprite->dark_level[i]);
+				sprite->dark_level[i] = NULL;
+			}
+		}
+	}
+
+	if (flags & BLTFX_FLAG_DARK)
+	{
+		/* Last dark level is "no color" */
+		if (dark_level == DARK_LEVELS)
+		{
+			return;
+		}
+
+		if (sprite->dark_level[dark_level])
+		{
+			surface = sprite->dark_level[dark_level];
+		}
+		else
+		{
+			surface = SDL_DisplayFormatAlpha(surface);
+			filledRectAlpha(surface, 0, 0, surface->w - 1, surface->h - 1, dark_alpha[dark_level]);
+			sprite->dark_level[dark_level] = surface;
+		}
+	}
+	else if (flags & BLTFX_FLAG_FOW)
+	{
+		if (!sprite->fog_of_war)
+		{
+			fow_scale(sprite);
+		}
+
+		surface = sprite->fog_of_war;
+	}
+	else if (flags & BLTFX_FLAG_RED)
+	{
+		if (!sprite->red)
+		{
+			red_scale(sprite);
+		}
+
+		surface = sprite->red;
+	}
+	else if (flags & BLTFX_FLAG_GREY)
+	{
+		if (!sprite->grey)
+		{
+			grey_scale(sprite);
+		}
+
+		surface = sprite->grey;
+	}
+
+	map_surface_show(surface, x, y, alpha, stretch, zoom_x, zoom_y, rotate);
 }
 
 /**
@@ -891,7 +821,7 @@ void play_anims(void)
 						xpos = cur_widget[MAP_ID]->x1 + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 						ypos = cur_widget[MAP_ID]->y1 + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 
-						sprite_blt(Bitmaps[BITMAP_DEATH], xpos + anim->x - 5, ypos + tmp_y - 4, NULL, NULL);
+						surface_show(ScreenSurface, xpos + anim->x - 5, ypos + tmp_y - 4, NULL, TEXTURE_CLIENT("death"));
 						snprintf(buf, sizeof(buf), "%d", anim->value);
 
 						tmp_off = 0;

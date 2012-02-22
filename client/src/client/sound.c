@@ -110,8 +110,8 @@ void sound_init(void)
 }
 
 /**
- * Deinitialize the sound system. */
-void sound_deinit(void)
+ * Free the sound cache. */
+static void sound_cache_free(void)
 {
 #ifdef HAVE_SDL_MIXER
 	sound_data_struct *curr, *tmp;
@@ -121,11 +121,26 @@ void sound_deinit(void)
 		HASH_DEL(sound_data, curr);
 		sound_free(curr);
 	}
+#endif
+}
 
+/**
+ * Deinitialize the sound system. */
+void sound_deinit(void)
+{
+	sound_cache_free();
+#ifdef HAVE_SDL_MIXER
 	Mix_CloseAudio();
 #endif
 
 	enabled = 0;
+}
+
+/**
+ * Hook for clearing the sound API cache. */
+void sound_clear_cache(void)
+{
+	sound_cache_free();
 }
 
 /**

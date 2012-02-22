@@ -32,18 +32,13 @@
 /** Text IDs from server_settings file. */
 enum
 {
-	SERVER_TEXT_STEP0,
-	SERVER_TEXT_STEP1,
-	SERVER_TEXT_STEP2,
-
-	SERVER_TEXT_STATS,
-	SERVER_TEXT_LOGIN,
-
 	SERVER_TEXT_PROTECTION_GROUPS,
 	SERVER_TEXT_PROTECTION_LETTERS,
 	SERVER_TEXT_PROTECTION_FULL,
-
 	SERVER_TEXT_SPELL_PATHS,
+	SERVER_TEXT_ALLOWED_CHARS_ACCOUNT,
+	SERVER_TEXT_ALLOWED_CHARS_CHARNAME,
+	SERVER_TEXT_ALLOWED_CHARS_PASSWORD,
 
 	SERVER_TEXT_MAX
 };
@@ -54,29 +49,11 @@ typedef struct char_struct
 	/** The race name. */
 	char *name;
 
-	/** Base HP. */
-	uint32 base_hp;
-
-	/** Base SP. */
-	uint16 base_sp;
-
 	/** Archetypes of the race's genders. */
 	char *gender_archetypes[GENDER_MAX];
 
 	/** Face names of the race's genders. */
 	char *gender_faces[GENDER_MAX];
-
-	/** Maximum number of points to assign to stats. */
-	uint16 points_max;
-
-	/** Base stats. */
-	int stats_base[NUM_STATS];
-
-	/** Minimum values of stats. */
-	int stats_min[NUM_STATS];
-
-	/** Maximum values of stats. */
-	int stats_max[NUM_STATS];
 
 	/** Description of the race. */
 	char *desc;

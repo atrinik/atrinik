@@ -37,14 +37,17 @@ static interface_struct *interface_data = NULL;
  * The interface popup. */
 static popup_struct *interface_popup = NULL;
 /**
- * History. */
-static UT_array *history = NULL;
-/**
  * Button buffers. */
 static button_struct button_hello, button_close;
 /**
  * Character shortcuts for links. */
 static const char character_shortcuts[] = "123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM{}<>/?~!@#$%^&*()";
+/**
+ * Text input history. */
+static text_input_history_struct *text_input_history = NULL;
+/**
+ * Text input in the interface. */
+static text_input_struct text_input;
 
 /**
  * Destroy the interface data, if any. */
@@ -77,8 +80,6 @@ static void interface_destroy(void)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len)
 {
-	(void) len;
-
 	if (anchor_action[0] == '\0' && buf[0] != '/')
 	{
 		if (!interface_data->progressed || SDL_GetTicks() >= interface_data->progressed_ticks)
@@ -129,13 +130,9 @@ static int popup_draw_func(popup_struct *popup)
 {
 	if (popup->redraw)
 	{
-		_BLTFX bltfx;
 		SDL_Rect box;
 
-		bltfx.surface = popup->surface;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
 
 		if (interface_data->icon)
 		{
@@ -164,8 +161,8 @@ static int popup_draw_func(popup_struct *popup)
 	return !interface_data->destroy;
 }
 
-/** @copydoc popup_struct::draw_func_post */
-static int popup_draw_func_post(popup_struct *popup)
+/** @copydoc popup_struct::draw_post_func */
+static int popup_draw_post_func(popup_struct *popup)
 {
 	scrollbar_render(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
@@ -177,27 +174,19 @@ static int popup_draw_func_post(popup_struct *popup)
 	button_close.y = popup->y + INTERFACE_BUTTON_CLOSE_STARTY;
 	button_render(&button_close, "Close");
 
-	if (text_input_string_flag)
+	if (interface_data->text_input)
 	{
-		SDL_Rect dst;
-
-		dst.x = popup->x + popup->surface->w / 2 - Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
-		dst.y = popup->y + popup->surface->h - Bitmaps[BITMAP_LOGIN_INP]->bitmap->h - 15;
-		dst.w = Bitmaps[BITMAP_LOGIN_INP]->bitmap->w;
-		dst.h = Bitmaps[BITMAP_LOGIN_INP]->bitmap->h;
-		text_input_show(ScreenSurface, dst.x, dst.y, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
+		text_input_show(&text_input, ScreenSurface, popup->x + popup->surface->w / 2 - text_input.w / 2, popup->y + popup->surface->h - text_input.h - 15);
 	}
 
-	sprite_blt(Bitmaps[BITMAP_INTERFACE_BORDER], popup->x, popup->y, NULL, NULL);
+	surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("interface_border"));
 	return 1;
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
 static int popup_destroy_callback(popup_struct *popup)
 {
-	(void) popup;
 	interface_destroy();
-	text_input_close();
 	interface_popup = NULL;
 	return 1;
 }
@@ -205,7 +194,6 @@ static int popup_destroy_callback(popup_struct *popup)
 /** @copydoc popup_button::event_func */
 static int popup_button_event_func(popup_button *button)
 {
-	(void) button;
 	help_show("npc interface");
 	return 1;
 }
@@ -241,18 +229,22 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
-		if (text_input_string_flag)
+		if (interface_data->text_input)
 		{
 			if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab)
 			{
-				text_input_add_char('\t');
+				text_input_add_char(&text_input, '\t');
 			}
-			else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER || event->key.keysym.sym == SDLK_TAB)
+			else if (event->key.keysym.sym == SDLK_ESCAPE)
+			{
+				interface_data->text_input = 0;
+				return 1;
+			}
+			else if (IS_ENTER(event->key.keysym.sym))
 			{
 				char *input_string;
 
-				text_input_history_add(text_input_string);
-				input_string = strdup(text_input_string);
+				input_string = strdup(text_input.str);
 
 				if (!interface_data->input_cleanup_disable)
 				{
@@ -260,7 +252,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 					string_whitespace_trim(input_string);
 				}
 
-				if (input_string[0] != '\0' || interface_data->input_allow_empty)
+				if (*input_string != '\0' || interface_data->input_allow_empty)
 				{
 					StringBuffer *sb;
 					char *cp;
@@ -286,15 +278,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 				free(input_string);
 
-				text_input_close();
-				return 1;
+				interface_data->text_input = 0;
 			}
-			else if (event->key.keysym.sym == SDLK_ESCAPE)
-			{
-				text_input_close();
-				return 1;
-			}
-			else if (text_input_handle(&event->key))
+
+			if (text_input_event(&text_input, event))
 			{
 				return 1;
 			}
@@ -320,8 +307,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
-				text_input_open(255);
-				text_input_set_history(history);
+				interface_data->text_input = 1;
+				text_input_set(&text_input, NULL);
 				return 1;
 
 			default:
@@ -361,7 +348,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			return 1;
 		}
 	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + Bitmaps[popup->bitmap_id]->bitmap->w && event->motion.y >= popup->y && event->motion.y < popup->y + Bitmaps[popup->bitmap_id]->bitmap->h)
+	else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y && event->motion.y < popup->y + popup->surface->h)
 	{
 		if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
@@ -381,15 +368,13 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 /** @copydoc popup_struct::clipboard_copy_func */
 static const char *popup_clipboard_copy_func(popup_struct *popup)
 {
-	(void) popup;
 	return interface_data->message;
 }
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_interface(uint8 *data, size_t len, size_t pos)
 {
-	uint8 text_input = 0, scroll_bottom = 0;
-	char type, text_input_content[HUGE_BUF];
+	uint8 scroll_bottom = 0, type;
 	StringBuffer *sb_message;
 	size_t links_len, char_shortcuts_len, i;
 	SDL_Rect box;
@@ -406,13 +391,13 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
 	if (!interface_popup)
 	{
-		interface_popup = popup_create(BITMAP_INTERFACE);
+		interface_popup = popup_create("interface");
 		interface_popup->draw_func = popup_draw_func;
-		interface_popup->draw_func_post = popup_draw_func_post;
+		interface_popup->draw_post_func = popup_draw_post_func;
 		interface_popup->destroy_callback_func = popup_destroy_callback;
 		interface_popup->event_func = popup_event_func;
 		interface_popup->clipboard_copy_func = popup_clipboard_copy_func;
-		interface_popup->disable_bitmap_blit = 1;
+		interface_popup->disable_texture_blit = 1;
 
 		interface_popup->button_left.event_func = popup_button_event_func;
 		interface_popup->button_left.x = 380;
@@ -423,8 +408,12 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		interface_popup->button_right.y = 4;
 	}
 
-	/* Make sure text input is not open. */
-	text_input_close();
+	if (!text_input_history)
+	{
+		text_input_history = text_input_history_create();
+		text_input_create(&text_input);
+		text_input_set_history(&text_input, text_input_history);
+	}
 
 	/* Destroy previous interface data. */
 	interface_destroy();
@@ -436,12 +425,6 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	interface_data->font = FONT_ARIAL11;
 	utarray_new(interface_data->links, &ut_str_icd);
 	sb_message = stringbuffer_new();
-
-	/* Create new history array if it doesn't exist yet. */
-	if (!history)
-	{
-		utarray_new(history, &ut_str_icd);
-	}
 
 	/* Parse the data. */
 	while (pos < len)
@@ -488,9 +471,14 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 			}
 
 			case CMD_INTERFACE_INPUT:
-				text_input = 1;
+			{
+				char text_input_content[HUGE_BUF];
+
+				interface_data->text_input = 1;
 				packet_to_string(data, len, &pos, text_input_content, sizeof(text_input_content));
+				text_input_set(&text_input, text_input_content);
 				break;
+			}
 
 			case CMD_INTERFACE_INPUT_PREPEND:
 			{
@@ -520,13 +508,6 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 			default:
 				break;
 		}
-	}
-
-	if (text_input)
-	{
-		text_input_open(255);
-		text_input_set_history(history);
-		text_input_set_string(text_input_content);
 	}
 
 	links_len = utarray_len(interface_data->links);
@@ -568,9 +549,9 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	button_create(&button_hello);
 	button_create(&button_close);
 
-	button_hello.bitmap = button_close.bitmap = BITMAP_BUTTON_LARGE;
-	button_hello.bitmap_over = button_close.bitmap_over = BITMAP_BUTTON_LARGE_HOVER;
-	button_hello.bitmap_pressed = button_close.bitmap_pressed = BITMAP_BUTTON_LARGE_DOWN;
+	button_hello.texture = button_close.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_large");
+	button_hello.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
+	button_hello.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
 	button_hello.font = button_close.font = FONT_ARIAL13;
 }
 

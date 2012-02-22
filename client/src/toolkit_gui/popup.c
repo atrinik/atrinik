@@ -36,18 +36,17 @@ static popup_struct *popup_head = NULL;
 
 /**
  * Create a new popup.
- * @param bitmap_id Bitmap ID to use for the popup's background.
+ * @param texture Name of the texture to use.
  * @return The created popup. */
-popup_struct *popup_create(int bitmap_id)
+popup_struct *popup_create(const char *texture)
 {
 	popup_struct *popup;
 	int mx, my;
 
 	popup = calloc(1, sizeof(popup_struct));
+	popup->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
 	/* Create the surface used by the popup. */
-	popup->surface = SDL_ConvertSurface(Bitmaps[bitmap_id]->bitmap, Bitmaps[bitmap_id]->bitmap->format, Bitmaps[bitmap_id]->bitmap->flags);
-	/* Store the bitmap used. */
-	popup->bitmap_id = bitmap_id;
+	popup->surface = SDL_ConvertSurface(TEXTURE_SURFACE(popup->texture), TEXTURE_SURFACE(popup->texture)->format, TEXTURE_SURFACE(popup->texture)->flags);
 	DL_PREPEND(popup_head, popup);
 
 	SDL_GetMouseState(&mx, &my);
@@ -64,9 +63,9 @@ popup_struct *popup_create(int bitmap_id)
 	popup->button_right.y = 6;
 	popup->button_right.text = strdup("X");
 
-	popup->button_left.button.bitmap = popup->button_right.button.bitmap = BITMAP_BUTTON_ROUND_LARGE;
-	popup->button_left.button.bitmap_pressed = popup->button_right.button.bitmap_pressed = BITMAP_BUTTON_ROUND_LARGE_DOWN;
-	popup->button_left.button.bitmap_over = popup->button_right.button.bitmap_over = BITMAP_BUTTON_ROUND_LARGE_HOVER;
+	popup->button_left.button.texture = popup->button_right.button.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large");
+	popup->button_left.button.texture_pressed = popup->button_right.button.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_down");
+	popup->button_left.button.texture_over = popup->button_right.button.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_over");
 
 	popup->selection_start = popup->selection_end = -1;
 	popup->redraw = 1;
@@ -128,7 +127,7 @@ void popup_destroy_all(void)
  * @param button The button to render. */
 static void popup_button_render(popup_struct *popup, popup_button *button)
 {
-	if (button->button.bitmap != -1)
+	if (button->button.texture)
 	{
 		button->button.x = popup->x + button->x;
 		button->button.y = popup->y + button->y;
@@ -143,15 +142,9 @@ void popup_render(popup_struct *popup)
 {
 	SDL_Rect box;
 
-	if (!popup->disable_bitmap_blit)
+	if (!popup->disable_texture_blit)
 	{
-		_BLTFX bltfx;
-
-		/* Draw the background of the popup. */
-		bltfx.surface = popup->surface;
-		bltfx.flags = 0;
-		bltfx.alpha = 0;
-		sprite_blt(Bitmaps[popup->bitmap_id], 0, 0, NULL, &bltfx);
+		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
 	}
 
 	/* Calculate the popup's X/Y positions. */
@@ -176,9 +169,9 @@ void popup_render(popup_struct *popup)
 	popup_button_render(popup, &popup->button_left);
 	popup_button_render(popup, &popup->button_right);
 
-	if (popup->draw_func_post)
+	if (popup->draw_post_func)
 	{
-		if (!popup->draw_func_post(popup))
+		if (!popup->draw_post_func(popup))
 		{
 			popup_destroy(popup);
 			return;
@@ -273,7 +266,7 @@ int popup_handle_event(SDL_Event *event)
 
 			return 1;
 		}
-		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + Bitmaps[popup_head->bitmap_id]->bitmap->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + Bitmaps[popup_head->bitmap_id]->bitmap->h)
+		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + TEXTURE_SURFACE(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + TEXTURE_SURFACE(popup_head->texture)->h)
 		{
 			if (event->button.button == SDL_BUTTON_LEFT)
 			{

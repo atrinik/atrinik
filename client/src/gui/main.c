@@ -64,8 +64,6 @@ static uint32 char_race_selected;
 static int char_gender_selected;
 /** Number of stat points left to assign. */
 static int char_points_left;
-/** Assigned stats points. */
-static int char_points_assigned[7];
 /** Maximum number of character creation steps. */
 const int char_step_max = 2;
 
@@ -119,7 +117,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 
-		scrollbar_render(&scrollbar_news, popup->surface, Bitmaps[popup->bitmap_id]->bitmap->w - 28, 45);
+		scrollbar_render(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
 		return 1;
 	}
 	/* Haven't started downloading yet. */
@@ -225,43 +223,6 @@ static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
 }
 
 /**
- * (Re-)initialize character creation. Used when first showing the popup,
- * or when using the 'Previous' buttons to reset the current data.
- * @param list If not NULL, will be removed. */
-static void char_creation_reset(list_struct *list)
-{
-	/* Reset race. */
-	if (char_step == 0)
-	{
-		char_race_selected = 0;
-	}
-
-	/* Reset gender. */
-	if (char_step == 0 || char_step == 1)
-	{
-		char_gender_selected = 0;
-	}
-
-	/* Reset assigned points. */
-	if (char_step == 0 || char_step == 2)
-	{
-		memset(&char_points_assigned, 0, sizeof(char_points_assigned));
-	}
-
-	/* Can we actually go back? */
-	if (char_step)
-	{
-		char_step--;
-	}
-
-	if (list)
-	{
-		list_remove(list);
-		list_creation = NULL;
-	}
-}
-
-/**
  * Handle enter, double-clicking etc in character creation popup.
  * @param list Associated list; holds the selected entry etc. Will be
  * removed. */
@@ -284,14 +245,11 @@ static void char_creation_enter(list_struct *list)
 		buf[0] = tolower(buf[0]);
 		buf[sizeof(buf) - 1] = '\0';
 		char_gender_selected = gender_to_id(buf);
-		/* Initialize maximum stat points that can be assigned. */
-		char_points_left = s_settings->characters[char_race_selected].points_max;
 	}
 	/* Selected stats, create the character. */
 	else if (char_step == 2)
 	{
 		packet_struct *packet;
-		size_t i;
 
 		if (char_points_left)
 		{
@@ -300,12 +258,6 @@ static void char_creation_enter(list_struct *list)
 
 		packet = packet_new(SERVER_CMD_NEW_CHAR, 64, 64);
 		packet_append_string_terminated(packet, s_settings->characters[char_race_selected].gender_archetypes[char_gender_selected]);
-
-		for (i = 0; i < NUM_STATS; i++)
-		{
-			packet_append_uint8(packet, s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
-		}
-
 		socket_send_packet(packet);
 		return;
 	}
@@ -319,48 +271,8 @@ static void char_creation_enter(list_struct *list)
 	}
 }
 
-/**
- * Adjust specified stat, taking into account the character's min/max
- * stats.
- * @param stat_id Stat ID.
- * @param adjust If higher than 0 the stat will be increased, if lower
- * than 0 it will be decreased. */
-static void char_stat_change(int stat_id, int adjust)
-{
-	int points = s_settings->characters[char_race_selected].stats_base[stat_id] + char_points_assigned[stat_id];
-
-	/* Add to stat, if possible. */
-	if (adjust > 0 && char_points_left && points < s_settings->characters[char_race_selected].stats_max[stat_id])
-	{
-		char_points_assigned[stat_id]++;
-		char_points_left--;
-	}
-	/* Subtract from stat, if possible. */
-	else if (adjust < 0 && points > s_settings->characters[char_race_selected].stats_min[stat_id])
-	{
-		char_points_assigned[stat_id]--;
-		char_points_left++;
-	}
-}
-
-/** @copydoc list_struct::key_event_func */
-static int char_creation_key(list_struct *list, SDLKey key)
-{
-	switch (key)
-	{
-		/* Change selected stats using left/right arrow keys. */
-		case SDLK_RIGHT:
-		case SDLK_LEFT:
-			char_stat_change(list->row_selected - 1, key == SDLK_LEFT ? -1 : 1);
-			return 1;
-
-		default:
-			return -1;
-	}
-}
-
-/** @copydoc popup_struct::draw_func_post */
-static int popup_draw_func_post(popup_struct *popup)
+/** @copydoc popup_struct::draw_post_func */
+static int popup_draw_post_func(popup_struct *popup)
 {
 	size_t i;
 	int face = 0, x, y;
@@ -368,13 +280,6 @@ static int popup_draw_func_post(popup_struct *popup)
 
 	x = popup->x;
 	y = popup->y;
-
-	/* Not creating character, only show the message text window. */
-	if (GameStatus != GAME_STATUS_NEW_CHAR)
-	{
-		textwin_show(x + Bitmaps[popup->bitmap_id]->bitmap->w / 2, y + 40, 220, 132);
-		return 1;
-	}
 
 	y += 65;
 
@@ -432,7 +337,6 @@ static int popup_draw_func_post(popup_struct *popup)
 			list_creation->row_highlight_func = NULL;
 			list_creation->row_selected_func = NULL;
 			list_creation->draw_frame_func = NULL;
-			list_creation->key_event_func = char_creation_key;
 			list_add(list_creation, 0, 0, "STR:");
 			list_add(list_creation, 1, 0, "DEX:");
 			list_add(list_creation, 2, 0, "CON:");
@@ -474,9 +378,6 @@ static int popup_draw_func_post(popup_struct *popup)
 
 	if (char_step == 2)
 	{
-		box.w = 370;
-		box.h = 150;
-		string_blt(ScreenSurface, FONT_ARIAL10, s_settings->text[SERVER_TEXT_STATS], x + 116, y + 10, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 	else
 	{
@@ -486,22 +387,6 @@ static int popup_draw_func_post(popup_struct *popup)
 	/* Show the stat values and the range buttons. */
 	if (char_step == 2)
 	{
-		int adjust = 0;
-
-		for (i = 0; i < NUM_STATS; i++)
-		{
-			/* Calculate the current stat value and show it. */
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 10 + i * 18 + 4, i == list_creation->row_selected - 1 ? COLOR_GREEN : COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%.2d", s_settings->characters[char_race_selected].stats_base[i] + char_points_assigned[i]);
-
-			/* One of the range buttons clicked? */
-			if (range_buttons_show(x + 80, y + 10 + i * 18, &adjust, 1))
-			{
-				char_stat_change(i, adjust);
-			}
-		}
-
-		string_blt_shadow(ScreenSurface, FONT_SANS12, "Left:", x + 20, y + 144, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-		string_blt_shadow_format(ScreenSurface, FONT_ARIAL12, x + 60, y + 145, COLOR_HGOLD, COLOR_BLACK, 0, NULL, "%d", char_points_left);
 	}
 
 	y += 100;
@@ -509,21 +394,6 @@ static int popup_draw_func_post(popup_struct *popup)
 	if (char_step == 2)
 	{
 		y += 65;
-	}
-
-	/* Show previous button if we're not in the first step. */
-	if (char_step > 0)
-	{
-		if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + 19, y, "Previous", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
-		{
-			char_creation_reset(list_creation);
-		}
-	}
-
-	/* Show the next button, or the play button if we're in the last step. */
-	if (button_show(BITMAP_BUTTON, BITMAP_BUTTON_HOVER, BITMAP_BUTTON_DOWN, x + (char_step == char_step_max ? 90 : 220), y, char_step == char_step_max ? "Play" : "Next", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
-	{
-		char_creation_enter(list_creation);
 	}
 
 	return 1;
@@ -536,40 +406,28 @@ static int popup_draw_func(popup_struct *popup)
 {
 	uint8 downloading;
 	SDL_Rect box;
-	char buf[MAX_BUF];
-	int x, y;
 
 	/* Waiting to log in. */
-	if (GameStatus == GAME_STATUS_WAITFORPLAY)
+	if (cpl.state == ST_WAITFORPLAY)
 	{
-		box.w = Bitmaps[popup->bitmap_id]->bitmap->w;
-		box.h = Bitmaps[popup->bitmap_id]->bitmap->h;
+		box.w = popup->surface->w;
+		box.h = popup->surface->h;
 		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return 1;
 	}
-	else if (GameStatus == GAME_STATUS_NEW_CHAR)
-	{
-		box.w = 420;
-		box.h = 22;
-		string_blt_shadow_format(popup->surface, FONT_SERIF14, 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box, "Welcome, %s!", cpl.name);
-		box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 40;
-		box.h = char_step == 2 ? 70 : 30;
-		string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_STEP0 + char_step], 20, 45, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
-		return 1;
-	}
 	/* Playing now, so destroy this popup. */
-	else if (GameStatus == GAME_STATUS_PLAY)
+	else if (cpl.state == ST_PLAY)
 	{
 		return 0;
 	}
 	/* Connection terminated while we were trying to login. */
-	else if (GameStatus <= GAME_STATUS_WAITLOOP)
+	else if (cpl.state <= ST_WAITLOOP)
 	{
 		return 0;
 	}
 
 	/* Downloading the files, or updates haven't finished yet? */
-	downloading = GameStatus < GAME_STATUS_LOGIN || !file_updates_finished();
+	downloading = cpl.state < ST_LOGIN || !file_updates_finished();
 
 	progress.done = !downloading;
 	progress_dots_show(&progress, popup->surface, 75, 42);
@@ -584,75 +442,7 @@ static int popup_draw_func(popup_struct *popup)
 		return 1;
 	}
 
-	box.w = Bitmaps[popup->bitmap_id]->bitmap->w / 2;
-	x = Bitmaps[popup->bitmap_id]->bitmap->w / 4 - text_input_center_offset();
-	y = 85;
-
-	/* Player name. */
-	if (GameStatus == GAME_STATUS_NAME)
-	{
-		string_blt(popup->surface, FONT_ARIAL10, "Enter your name", 0, 65, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-		text_input_string[0] = toupper(text_input_string[0]);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, text_input_string, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
-	}
-	else if (cpl.name[0])
-	{
-		cpl.name[0] = toupper(cpl.name[0]);
-		text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
-		text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, cpl.name, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
-	}
-
-	y += 35;
-
-	/* Player password. */
-	if (GameStatus == GAME_STATUS_PSWD || cpl.password[0])
-	{
-		char *cp;
-
-		strncpy(buf, GameStatus == GAME_STATUS_PSWD ? text_input_string : cpl.password, sizeof(buf) - 1);
-
-		for (cp = buf; *cp; cp++)
-		{
-			*cp = '*';
-		}
-
-		if (GameStatus == GAME_STATUS_PSWD)
-		{
-			string_blt(popup->surface, FONT_ARIAL10, "Enter your password", 0, 105, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-			text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
-		}
-		else
-		{
-			text_input_draw_background(popup->surface, x, y, BITMAP_LOGIN_INP);
-			text_input_draw_text(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
-		}
-	}
-
-	y += 35;
-
-	/* Verify password for character creation. */
-	if (GameStatus == GAME_STATUS_VERIFYPSWD)
-	{
-		char *cp;
-
-		strncpy(buf, text_input_string, sizeof(buf) - 1);
-
-		for (cp = buf; *cp; cp++)
-		{
-			*cp = '*';
-		}
-
-		string_blt(popup->surface, FONT_ARIAL10, "New Character: Verify Password", 0, 140, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-		text_input_show(popup->surface, x, y, FONT_ARIAL10, buf, COLOR_WHITE, 0, BITMAP_LOGIN_INP, NULL);
-		char_step = 0;
-		char_creation_reset(NULL);
-	}
-
-	y += 20;
-
-	box.w = Bitmaps[popup->bitmap_id]->bitmap->w - 45;
-	box.h = 120;
-	string_blt_shadow(popup->surface, FONT_ARIAL12, s_settings->text[SERVER_TEXT_LOGIN], x, y, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	box.w = popup->surface->w / 2;
 
 	return 1;
 }
@@ -665,9 +455,9 @@ static int popup_destroy_callback_func(popup_struct *popup)
 	list_remove(list_creation);
 	list_creation = NULL;
 
-	if (GameStatus != GAME_STATUS_PLAY)
+	if (cpl.state != ST_PLAY)
 	{
-		GameStatus = GAME_STATUS_START;
+		cpl.state = ST_START;
 	}
 
 	return 1;
@@ -676,36 +466,6 @@ static int popup_destroy_callback_func(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
-	(void) popup;
-
-	/* Handle events in character creation. */
-	if (GameStatus == GAME_STATUS_NEW_CHAR)
-	{
-		/* Handle list events. */
-		if (list_creation)
-		{
-			if (list_handle_keyboard(list_creation, event))
-			{
-				return 1;
-			}
-			else if (list_handle_mouse(list_creation, event))
-			{
-				return 1;
-			}
-		}
-	}
-
-	if (event->type == SDL_KEYDOWN)
-	{
-		/* Try to handle text input. */
-		if (text_input_handle(&event->key))
-		{
-			return 1;
-		}
-
-		/* Ignore. */
-		return 0;
-	}
 
 	return -1;
 }
@@ -724,13 +484,14 @@ static void list_handle_enter(list_struct *list)
 		/* Valid server, start connecting. */
 		if (selected_server)
 		{
-			popup_struct *popup = popup_create(BITMAP_POPUP);
+			login_start();
+			return;
+			popup_struct *popup = popup_create("popup");
 
 			popup->draw_func = popup_draw_func;
-			popup->draw_func_post = popup_draw_func_post;
+			popup->draw_post_func = popup_draw_post_func;
 			popup->event_func = popup_event_func;
 			popup->destroy_callback_func = popup_destroy_callback_func;
-			GameStatus = GAME_STATUS_STARTCONNECT;
 			progress_dots_create(&progress);
 		}
 	}
@@ -738,7 +499,7 @@ static void list_handle_enter(list_struct *list)
 	{
 		if (list->text && list->text[list->row_selected - 1])
 		{
-			popup_struct *popup = popup_create(BITMAP_POPUP);
+			popup_struct *popup = popup_create("popup");
 
 			popup->draw_func = news_popup_draw_func;
 			popup->event_func = news_popup_event_func;
@@ -761,19 +522,37 @@ static void list_handle_esc(list_struct *list)
  * connecting to server, etc. */
 void main_screen_render(void)
 {
+	SDL_Surface *texture;
 	int x, y;
 	size_t server_count;
 	server_struct *node;
 	char buf[MAX_BUF];
 	SDL_Rect box;
 
-	x = 15;
-	y = ScreenSurface->h - Bitmaps[BITMAP_SERVERS_BG]->bitmap->h - 5;
+	texture = TEXTURE_CLIENT("intro");
 
 	/* Background */
-	sprite_blt(Bitmaps[BITMAP_INTRO], 0, 0, NULL, NULL);
-	textwin_show(Bitmaps[BITMAP_INTRO]->bitmap->w, 1, ScreenSurface->w - Bitmaps[BITMAP_INTRO]->bitmap->w - 2, ScreenSurface->h - 3);
-	sprite_blt(Bitmaps[BITMAP_SERVERS_BG], x, y, NULL, NULL);
+	surface_show(ScreenSurface, 0, 0, NULL, texture);
+	textwin_show(texture->w, 1, ScreenSurface->w - texture->w - 2, ScreenSurface->h - 3);
+
+	/* Calculate whether to show the eyes or not. Blinks every
+	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
+	 * showing the eyes again. */
+	if (SDL_GetTicks() - eyes_blink_ticks >= (eyes_draw ? EYES_BLINK_TIME : EYES_BLINK_DELAY))
+	{
+		eyes_blink_ticks = SDL_GetTicks();
+		eyes_draw = !eyes_draw;
+	}
+
+	if (eyes_draw)
+	{
+		surface_show(ScreenSurface, texture->w - 90, 310, NULL, TEXTURE_CLIENT("eyes"));
+	}
+
+	texture = TEXTURE_CLIENT("servers_bg");
+	x = 15;
+	y = ScreenSurface->h - texture->h - 5;
+	surface_show(ScreenSurface, x, y, NULL, texture);
 
 	server_count = server_get_count();
 
@@ -859,12 +638,14 @@ void main_screen_render(void)
 		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
 	}
 
-	sprite_blt(Bitmaps[BITMAP_SERVERS_BG_OVER], x, y, NULL, NULL);
+	texture = TEXTURE_CLIENT("servers_bg_over");
+	surface_show(ScreenSurface, x, y, NULL, texture);
 
-	x += Bitmaps[BITMAP_SERVERS_BG_OVER]->bitmap->w + 20;
-	sprite_blt(Bitmaps[BITMAP_NEWS_BG], x, y, NULL, NULL);
+	x += texture->w + 20;
+	texture = TEXTURE_CLIENT("news_bg");
+	surface_show(ScreenSurface, x, y, NULL, texture);
 
-	box.w = Bitmaps[BITMAP_NEWS_BG]->bitmap->w;
+	box.w = texture->w;
 	box.h = 0;
 	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
@@ -918,20 +699,6 @@ void main_screen_render(void)
 	/* Show the news list. */
 	list_show(list_news, x + 13, y + 10);
 
-	/* Calculate whether to show the eyes or not. Blinks every
-	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
-	 * showing the eyes again. */
-	if (SDL_GetTicks() - eyes_blink_ticks >= (eyes_draw ? EYES_BLINK_TIME : EYES_BLINK_DELAY))
-	{
-		eyes_blink_ticks = SDL_GetTicks();
-		eyes_draw = !eyes_draw;
-	}
-
-	if (eyes_draw)
-	{
-		sprite_blt(Bitmaps[BITMAP_EYES], Bitmaps[BITMAP_INTRO]->bitmap->w - 90, 310, NULL, NULL);
-	}
-
 	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_quit.x = 489;
 	y += 2;
 
@@ -960,6 +727,11 @@ void main_screen_render(void)
  * @return 1 if the event was handled, 0 otherwise. */
 int main_screen_event(SDL_Event *event)
 {
+	if (!list_servers)
+	{
+		return 0;
+	}
+
 	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y))
@@ -983,7 +755,7 @@ int main_screen_event(SDL_Event *event)
 	{
 		if (!ms_connecting(-1))
 		{
-			GameStatus = GAME_STATUS_META;
+			cpl.state = ST_META;
 		}
 
 		return 1;

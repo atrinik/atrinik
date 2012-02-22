@@ -170,24 +170,6 @@ enum
 	OPT_TYPE_NUM
 };
 
-/**
- * Setting type the user has requested to open.
- * @anchor SETTING_TYPE_xxx */
-enum
-{
-	/** No setting selected yet. */
-	SETTING_TYPE_NONE,
-	/** Client settings. */
-	SETTING_TYPE_SETTINGS,
-	/** Keybindings. */
-	SETTING_TYPE_KEYBINDINGS,
-	/** Character's password. */
-	SETTING_TYPE_PASSWORD,
-
-	/** Number of the setting types. */
-	SETTING_TYPE_NUM
-};
-
 /** Range setting data. */
 typedef struct setting_range
 {

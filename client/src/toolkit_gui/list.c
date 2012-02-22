@@ -495,6 +495,11 @@ void list_remove(list_struct *list)
 		return;
 	}
 
+	if (list->data)
+	{
+		free(list->data);
+	}
+
 	list_clear(list);
 
 	free(list->col_widths);

@@ -30,624 +30,406 @@
 
 #include <global.h>
 
-/** Current text input string. */
-char text_input_string[MAX_INPUT_STRING];
-static char text_input_string_editing[MAX_INPUT_STRING];
-/** Number of characters in the text input string. */
-int text_input_count;
-/** Cursor position in the text input string. */
-static int text_input_cursor_pos = 0;
-/** Maximum allowed characters in the text input string. */
-static int text_input_max;
-
-/** Text input history. */
-static UT_array *text_input_history = NULL;
-/** Stores console history. */
-static UT_array *console_history = NULL;
-/**
- * Position in the text input history -- used when browsing through the
- * history. */
-static size_t text_input_history_pos = 0;
-
-/** If 1, we have an open console. */
-int text_input_string_flag;
-/** If 1, we submitted some text using the console. */
-int text_input_string_end_flag;
-/** If 1, ESC was pressed while entering some text to console. */
-int text_input_string_esc_flag;
-/** When the console was opened. */
-uint32 text_input_opened;
-
-/**
- * Calculate X offset for centering a text input bitmap.
- * @return The offset. */
-int text_input_center_offset(void)
+text_input_history_struct *text_input_history_create(void)
 {
-	return Bitmaps[BITMAP_LOGIN_INP]->bitmap->w / 2;
+	text_input_history_struct *tmp;
+
+	tmp = calloc(1, sizeof(*tmp));
+	utarray_new(tmp->history, &ut_str_icd);
+
+	return tmp;
+}
+
+void text_input_history_free(text_input_history_struct *history)
+{
+	utarray_free(history->history);
+	free(history);
 }
 
 /**
- * Draw text input's background (the bitmap).
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position.
- * @param bitmap Bitmap to use. */
-void text_input_draw_background(SDL_Surface *surface, int x, int y, int bitmap)
-{
-	_BLTFX bltfx;
-
-	bltfx.surface = surface;
-	bltfx.flags = 0;
-	bltfx.alpha = 0;
-	sprite_blt(Bitmaps[bitmap], x, y, NULL, &bltfx);
-}
-
-/**
- * Draw text input's text.
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position.
- * @param font Font to use.
- * @param text Text to draw.
- * @param color_notation Color to use.
- * @param flags Text @ref TEXT_xxx "flags".
- * @param bitmap Bitmap to use.
- * @param box Contains coordinates to use and maximum string width. */
-void text_input_draw_text(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
-{
-	if (!box)
-	{
-		SDL_Rect box2;
-
-		box2.x = 0;
-		box2.y = 0;
-		box2.w = Bitmaps[bitmap]->bitmap->w;
-		box2.h = Bitmaps[bitmap]->bitmap->h;
-		box = &box2;
-	}
-
-	x += 6 + box->x;
-	y += box->h / 2 - FONT_HEIGHT(font) / 2 + box->y;
-
-	box->w = box->w - 13 - box->x;
-	box->h = FONT_HEIGHT(font);
-	box->x = 0;
-	box->y = 0;
-
-	string_blt(surface, font, text, x, y, color_notation, flags | TEXT_WIDTH, box);
-}
-
-/**
- * Show text input.
- * @param surface Surface to use.
- * @param x X position.
- * @param y Y position.
- * @param font Font to use.
- * @param text Text to draw.
- * @param color_notation Color to use.
- * @param flags Text @ref TEXT_xxx "flags".
- * @param bitmap Bitmap to use.
- * @param box Contains coordinates to use and maximum string width. */
-void text_input_show(SDL_Surface *surface, int x, int y, int font, const char *text, const char *color_notation, uint64 flags, int bitmap, SDL_Rect *box)
-{
-	char buf[HUGE_BUF];
-	SDL_Rect box2;
-	size_t pos = text_input_cursor_pos;
-	const char *cp = text;
-	int underscore_width = glyph_get_width(font, '_');
-	text_blit_info info;
-
-	blt_character_init(&info);
-
-	box2.w = 0;
-
-	/* Figure out the width by going backwards. */
-	while (pos > 0)
-	{
-		/* Reached the maximum yet? */
-		if (box2.w + glyph_get_width(font, *(cp + pos)) + underscore_width > Bitmaps[bitmap]->bitmap->w - 13 - (box ? box->x * 2 : 0))
-		{
-			break;
-		}
-
-		blt_character(&font, font, NULL, &box2, cp + pos, NULL, NULL, 0, NULL, NULL, &info);
-		pos--;
-	}
-
-	/* Adjust the text position if necessary. */
-	if (pos)
-	{
-		text += pos;
-	}
-
-	/* Draw the background. */
-	text_input_draw_background(surface, x, y, bitmap);
-	strncpy(buf, text, text_input_cursor_pos - pos);
-	buf[text_input_cursor_pos - pos] = '_';
-	buf[text_input_cursor_pos - pos + 1] = '\0';
-
-	if (text + (text_input_cursor_pos - pos))
-	{
-		strcpy(buf + (text_input_cursor_pos - pos + 1), text + (text_input_cursor_pos - pos));
-	}
-
-	/* Draw the text. */
-	text_input_draw_text(surface, x, y, font, buf, color_notation, flags, bitmap, box);
-}
-
-/**
- * Clear text input. */
-void text_input_clear(void)
-{
-	text_input_string[0] = '\0';
-	text_input_count = 0;
-	text_input_history_pos = 0;
-	text_input_history = NULL;
-	text_input_cursor_pos = 0;
-	text_input_string_flag = 0;
-	text_input_string_end_flag = 0;
-	text_input_string_esc_flag = 0;
-}
-
-/**
- * Open text input.
- * @param maxchar Maximum number of allowed characters. */
-void text_input_open(int maxchar)
-{
-	int interval, delay;
-
-	interval = 120 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
-	delay = interval + 300 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
-
-	text_input_clear();
-	text_input_max = maxchar;
-	SDL_EnableKeyRepeat(delay, interval);
-
-	if (cpl.input_mode != INPUT_MODE_NUMBER)
-	{
-		cpl.inventory_focus = BELOW_INV_ID;
-	}
-
-	/* Raise the text/number input widget. */
-	if (cpl.input_mode == INPUT_MODE_NUMBER)
-	{
-		SetPriorityWidget(cur_widget[IN_NUMBER_ID]);
-	}
-	else if (cpl.input_mode == INPUT_MODE_CONSOLE)
-	{
-		SetPriorityWidget(cur_widget[IN_CONSOLE_ID]);
-		sound_play_effect("console.ogg", 100);
-	}
-
-	text_input_string_flag = 1;
-	text_input_opened = SDL_GetTicks();
-	text_input_history = NULL;
-
-	if (cpl.input_mode == INPUT_MODE_CONSOLE)
-	{
-		if (!console_history)
-		{
-			utarray_new(console_history, &ut_str_icd);
-		}
-
-		text_input_set_history(console_history);
-	}
-}
-
-/**
- * Close previously opened text input. */
-void text_input_close(void)
-{
-	cpl.input_mode = INPUT_MODE_NO;
-	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-	text_input_string_flag = 0;
-	text_input_string_end_flag = 0;
-	text_input_string_esc_flag = 0;
-	keybind_state_ensure();
-}
-
-/**
- * Add string to the text input history.
+ * Add string to text input history.
+ * @param history The history to add to.
  * @param text The text to add to the history. */
-void text_input_history_add(const char *text)
+static void text_input_history_add(text_input_history_struct *history, const char *text)
 {
 	char **p;
 
-	if (!text_input_history)
+	if (!history)
 	{
 		return;
 	}
 
-	p = (char **) utarray_back(text_input_history);
+	p = (char **) utarray_back(history->history);
 
 	if (p && !strcmp(*p, text))
 	{
 		return;
 	}
 
-	utarray_push_back(text_input_history, &text);
+	utarray_push_back(history->history, &text);
 
-	if (utarray_len(text_input_history) > (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES))
+	if (utarray_len(history->history) > (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES))
 	{
-		utarray_erase(text_input_history, 0, utarray_len(text_input_history) - (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES));
+		utarray_erase(history->history, 0, utarray_len(history->history) - (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES));
 	}
 }
 
-/**
- * Set the history array to use.
- * @param history The array to use. */
-void text_input_set_history(UT_array *history)
+void text_input_create(text_input_struct *text_input)
 {
-	text_input_history = history;
-	text_input_history_pos = 0;
+	int interval, delay;
+
+	memset(text_input, 0, sizeof(*text_input));
+	text_input->focus = 1;
+	text_input->font = FONT_ARIAL11;
+	text_input->max = MIN(sizeof(text_input->str), 256);
+	text_input->w = 200;
+	text_input->h = FONT_HEIGHT(text_input->font);
+
+	interval = 120 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
+	delay = interval + 300 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
+	SDL_EnableKeyRepeat(delay, interval);
 }
 
-/**
- * Put string to the text input.
- * @param text The string. */
-void text_input_set_string(const char *text)
+void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history)
 {
-	/* Copy to input buffer. */
-	strncpy(text_input_string, text, sizeof(text_input_string) - 1);
-	text_input_string[sizeof(text_input_string) - 1] = '\0';
-	/* Set cursor after inserted text. */
-	text_input_cursor_pos = text_input_count = strlen(text);
+	text_input->history = history;
 }
 
-/**
- * Add character to the text input.
- * @param c Character to add. */
-void text_input_add_char(char c)
+void text_input_set(text_input_struct *text_input, const char *str)
 {
-	int i;
+	strncpy(text_input->str, str ? str : "", text_input->max - 1);
+	text_input->str[text_input->max - 1] = '\0';
+	text_input->pos = text_input->num = strlen(text_input->str);
+}
 
-	if (text_input_count >= text_input_max)
+void text_input_set_parent(text_input_struct *text_input, int px, int py)
+{
+	text_input->px = px;
+	text_input->py = py;
+}
+
+int text_input_mouse_over(text_input_struct *text_input, int mx, int my)
+{
+	SDL_Rect coords;
+
+	mx -= text_input->px;
+	my -= text_input->py;
+
+	coords.x = text_input->x - 1;
+	coords.y = text_input->y - 1;
+	coords.w = text_input->w + 2;
+	coords.h = text_input->h + 2;
+
+	if (mx >= coords.x && mx < coords.x + coords.w && my >= coords.y && my < coords.y + coords.h)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+void text_input_show_edit_password(text_input_struct *text_input)
+{
+	string_replace_char(text_input->str, NULL, '*');
+}
+
+void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y)
+{
+	text_blit_info info;
+	int underscore_width;
+	size_t pos;
+	char buf[HUGE_BUF], *cp;
+	SDL_Rect coords, box;
+
+	text_input->x = x;
+	text_input->y = y;
+
+	coords.x = text_input->x - 1;
+	coords.y = text_input->y - 1;
+	coords.w = text_input->w + 2;
+	coords.h = text_input->h + 2;
+	rectangle_create(surface, coords.x, coords.y, coords.w, coords.h, "000000");
+	coords.x -= 1;
+	coords.y -= 1;
+	coords.w += 2;
+	coords.h += 2;
+	border_create_color(surface, &coords, "303030");
+
+	cp = NULL;
+	box.w = 0;
+
+	if (text_input->show_edit_func)
+	{
+		cp = strdup(text_input->str);
+		text_input->show_edit_func(text_input);
+	}
+
+	blt_character_init(&info);
+	underscore_width = glyph_get_width(text_input->font, '_');
+
+	/* Figure out the width by going backwards. */
+	for (pos = text_input->pos; pos; pos--)
+	{
+		/* Reached the maximum yet? */
+		if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->w)
+		{
+			break;
+		}
+
+		blt_character(&text_input->font, text_input->font, NULL, &box, text_input->str + pos, NULL, NULL, 0, NULL, NULL, &info);
+	}
+
+	strncpy(buf, text_input->str + pos, text_input->pos - pos);
+
+	if (text_input->focus)
+	{
+		buf[text_input->pos - pos] = '_';
+		buf[text_input->pos - pos + 1] = '\0';
+	}
+	else
+	{
+		buf[text_input->pos - pos] = '\0';
+	}
+
+	if ((text_input->str + pos) + (text_input->pos - pos))
+	{
+		strcat(buf, (text_input->str + pos) + (text_input->pos - pos));
+	}
+
+	box.w = text_input->w;
+	box.h = text_input->h;
+	string_blt(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+
+	if (cp)
+	{
+		text_input_set(text_input, cp);
+		free(cp);
+	}
+}
+
+void text_input_add_char(text_input_struct *text_input, char c)
+{
+	size_t i;
+
+	if (text_input->num >= text_input->max)
 	{
 		return;
 	}
 
-	i = text_input_count;
+	i = text_input->num;
 
-	while (i >= text_input_cursor_pos)
+	for (i = text_input->num; i >= text_input->pos; i--)
 	{
-		text_input_string[i + 1] = text_input_string[i];
-		i--;
+		text_input->str[i + 1] = text_input->str[i];
+
+		if (i == 0)
+		{
+			break;
+		}
 	}
 
-	text_input_string[text_input_cursor_pos] = c;
-	text_input_cursor_pos++;
-	text_input_count++;
-	text_input_string[text_input_count] = '\0';
+	text_input->str[text_input->pos] = c;
+	text_input->pos++;
+	text_input->num++;
+	text_input->str[text_input->num] = '\0';
 }
 
-/**
- * Skips whitespace and the first word in the input string.
- * @param[out] i Position to adjust.
- * @param left If 1, skip to the left, to the right otherwise. */
-static void text_input_skip_word(int *i, int left)
+int text_input_event(text_input_struct *text_input, SDL_Event *event)
 {
-	/* Skip whitespace. */
-	while (text_input_string[*i] == ' ' && (left ? *i >= 0 : *i < text_input_count))
-	{
-		*i += left ? -1 : 1;
-	}
-
-	/* Skip a word. */
-	while (text_input_string[*i] != ' ' && (left ? *i >= 0 : *i < text_input_count))
-	{
-		*i += left ? -1 : 1;
-	}
-}
-
-/**
- * Handle text input keyboard event.
- * @param key The keyboard event.
- * @return 1 if the event was handled, 0 otherwise. */
-int text_input_handle(SDL_KeyboardEvent *key)
-{
-	int i;
-
-	if (key->type != SDL_KEYDOWN)
+	if (!text_input->focus)
 	{
 		return 0;
 	}
 
-	if (keybind_command_matches_event("?PASTE", key))
+	if (event->type == SDL_KEYDOWN)
 	{
-		char *clipboard_contents;
-
-		clipboard_contents = clipboard_get();
-
-		if (clipboard_contents)
+		if (keybind_command_matches_event("?PASTE", &event->key))
 		{
-			strncat(text_input_string, clipboard_contents, sizeof(text_input_string) - text_input_count - 1);
-			text_input_cursor_pos = text_input_count = strlen(text_input_string);
+			char *clipboard_contents;
 
-			for (i = 0; i < text_input_count; i++)
+			clipboard_contents = clipboard_get();
+
+			if (clipboard_contents)
 			{
-				if (text_input_string[i] < ' ' || text_input_string[i] > '~')
-				{
-					text_input_string[i] = ' ';
-				}
+				strncat(text_input->str, clipboard_contents, text_input->max - text_input->num - 1);
+				text_input->str[text_input->max - 1] = '\0';
+				text_input->pos = text_input->num = strlen(text_input->str);
+				string_replace_unprintable_chars(text_input->str);
+
+				free(clipboard_contents);
 			}
 
-			free(clipboard_contents);
-		}
-
-		return 1;
-	}
-
-	switch (key->keysym.sym)
-	{
-		case SDLK_ESCAPE:
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-			text_input_string_esc_flag = 1;
-			return 1;
-
-		case SDLK_KP_ENTER:
-		case SDLK_RETURN:
-		case SDLK_TAB:
-			if (key->keysym.sym != SDLK_TAB || GameStatus < GAME_STATUS_WAITFORPLAY)
-			{
-				SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
-				text_input_string_flag = 0;
-				/* Mark that we've got something here. */
-				text_input_string_end_flag = 1;
-
-				if (text_input_string[0] != '\0')
-				{
-					text_input_history_add(text_input_string);
-				}
-
-				return 1;
-			}
-			else if (key->keysym.sym == SDLK_TAB)
-			{
-				help_handle_tabulator();
-				return 1;
-			}
-
-			break;
-
-		/* Erases the previous character or word if CTRL is pressed. */
-		case SDLK_BACKSPACE:
-			if (text_input_count && text_input_cursor_pos)
-			{
-				int ii = text_input_cursor_pos;
-
-				/* Where we will end up, by default one character back. */
-				i = ii - 1;
-
-				if (key->keysym.mod & KMOD_CTRL)
-				{
-					text_input_skip_word(&i, 1);
-					/* We end up at the beginning of the current word. */
-					i++;
-				}
-
-				while (ii <= text_input_count)
-				{
-					text_input_string[i++] = text_input_string[ii++];
-				}
-
-				text_input_cursor_pos -= (ii - i);
-				text_input_count -= (ii - i);
-			}
-
-			return 1;
-
-		case SDLK_DELETE:
-		{
-			int ii = text_input_cursor_pos;
-
-			/* Where we will end up, by default one character ahead. */
-			i = ii + 1;
-
-			if (ii == text_input_count)
-			{
-				return 1;
-			}
-
-			if (key->keysym.mod & KMOD_CTRL)
-			{
-				text_input_skip_word(&i, 0);
-			}
-
-			while (i <= text_input_count)
-			{
-				text_input_string[ii++] = text_input_string[i++];
-			}
-
-			text_input_count -= (i - ii);
 			return 1;
 		}
+		else if (IS_ENTER(event->key.keysym.sym))
+		{
+			SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
 
-		/* Shifts a character or a word if CTRL is pressed. */
-		case SDLK_LEFT:
-			if (key->keysym.mod & KMOD_CTRL)
+			if (*text_input->str != '\0')
 			{
-				i = text_input_cursor_pos - 1;
-				text_input_skip_word(&i, 1);
-				/* Places the cursor on the first letter of this word. */
-				text_input_cursor_pos = i + 1;
-			}
-			else if (text_input_cursor_pos > 0)
-			{
-				text_input_cursor_pos--;
+				text_input_history_add(text_input->history, text_input->str);
 			}
 
 			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_BACKSPACE)
+		{
+			if (text_input->num && text_input->pos)
+			{
+				size_t i, j;
 
-		/* Shifts a character or a word if CTRL is pressed. */
-		case SDLK_RIGHT:
-			if (key->keysym.mod & KMOD_CTRL)
-			{
-				i = text_input_cursor_pos;
-				text_input_skip_word(&i, 0);
-				/* Places the cursor right after the skipped word. */
-				text_input_cursor_pos = i;
-			}
-			else if (text_input_cursor_pos < text_input_count)
-			{
-				text_input_cursor_pos++;
+				i = j = text_input->pos;
+				i--;
+
+				if (event->key.keysym.mod & KMOD_CTRL)
+				{
+					string_skip_word(text_input->str, &i, -1);
+				}
+
+				while (j <= text_input->num)
+				{
+					text_input->str[i++] = text_input->str[j++];
+				}
+
+				text_input->pos -= (j - i);
+				text_input->num -= (j - i);
 			}
 
 			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_DELETE)
+		{
+			if (text_input->pos != text_input->num)
+			{
+				size_t i, j;
 
-		/* Scroll forward in history. */
-		case SDLK_UP:
-			if (text_input_history)
+				i = j = text_input->pos;
+				i++;
+
+				if (event->key.keysym.mod & KMOD_CTRL)
+				{
+					string_skip_word(text_input->str, &i, 1);
+				}
+
+				while (i <= text_input->num)
+				{
+					text_input->str[j++] = text_input->str[i++];
+				}
+
+				text_input->num -= (i - j);
+			}
+
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_LEFT)
+		{
+			if (event->key.keysym.mod & KMOD_CTRL)
+			{
+				size_t i;
+
+				i = text_input->pos - 1;
+				string_skip_word(text_input->str, &i, -1);
+				text_input->pos = i;
+			}
+			else if (text_input->pos != 0)
+			{
+				text_input->pos--;
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_RIGHT)
+		{
+			if (event->key.keysym.mod & KMOD_CTRL)
+			{
+				size_t i;
+
+				i = text_input->pos;
+				string_skip_word(text_input->str, &i, 1);
+				text_input->pos = i;
+			}
+			else if (text_input->pos < text_input->num)
+			{
+				text_input->pos++;
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_UP)
+		{
+			if (text_input->history)
 			{
 				char **p;
 
-				p = (char **) utarray_eltptr(text_input_history, utarray_len(text_input_history) - 1 - text_input_history_pos);
+				p = (char **) utarray_eltptr(text_input->history->history, utarray_len(text_input->history->history) - 1 - text_input->history->pos);
 
 				if (p)
 				{
-					if (text_input_history_pos == 0)
+					if (text_input->history->pos == 0)
 					{
-						strncpy(text_input_string_editing, text_input_string, sizeof(text_input_string_editing) - 1);
-						text_input_string_editing[sizeof(text_input_string_editing) - 1] = '\0';
+						strncpy(text_input->str_editing, text_input->str, sizeof(text_input->str_editing) - 1);
+						text_input->str_editing[sizeof(text_input->str_editing) - 1] = '\0';
 					}
 
-					text_input_history_pos++;
-					text_input_set_string(*p);
+					text_input->history->pos++;
+					text_input_set(text_input, *p);
 				}
 			}
 
 			return 1;
-
-		/* Scroll backward in history. */
-		case SDLK_DOWN:
-			if (text_input_history)
+		}
+		else if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			if (text_input->history)
 			{
-				if (text_input_history_pos > 0)
+				if (text_input->history->pos > 0)
 				{
-					text_input_history_pos--;
+					text_input->history->pos--;
 
-					if (text_input_history_pos == 0)
+					if (text_input->history->pos == 0)
 					{
-						text_input_set_string(text_input_string_editing);
-						text_input_string_editing[0] = '\0';
+						text_input_set(text_input, text_input->str_editing);
+						text_input->str_editing[0] = '\0';
 					}
 					else
 					{
 						char **p;
 
-						p = (char **) utarray_eltptr(text_input_history, utarray_len(text_input_history) - text_input_history_pos);
+						p = (char **) utarray_eltptr(text_input->history->history, utarray_len(text_input->history->history) - text_input->history->pos);
 
 						if (p)
 						{
-							text_input_set_string(*p);
+							text_input_set(text_input, *p);
 						}
 					}
 				}
-				else if (text_input_string[0] != '\0')
+				else if (*text_input->str != '\0')
 				{
-					text_input_history_add(text_input_string);
-					text_input_set_string("");
+					text_input_history_add(text_input->history, text_input->str);
+					text_input_set(text_input, NULL);
 				}
 			}
-
-			return 1;
-
-		/* Go to the start of the text input. */
-		case SDLK_HOME:
-			text_input_cursor_pos = 0;
-			return 1;
-
-		/* Go to the end of the text input. */
-		case SDLK_END:
-			text_input_cursor_pos = text_input_count;
-			return 1;
-
-		default:
+		}
+		else if (event->key.keysym.sym == SDLK_HOME)
+		{
+			text_input->pos = 0;
+		}
+		else if (event->key.keysym.sym == SDLK_END)
+		{
+			text_input->pos = text_input->num;
+		}
+		else
 		{
 			char c;
 
-			/* We want only numbers in number mode - even when shift is held. */
-			if (cpl.input_mode == INPUT_MODE_NUMBER)
+			c = event->key.keysym.unicode & 0xff;
+
+			if (isprint(c) && (!text_input->character_check_func || text_input->character_check_func(text_input, c)))
 			{
-				switch (key->keysym.sym)
+				if (event->key.keysym.mod & KMOD_SHIFT)
 				{
-					case SDLK_0:
-					case SDLK_KP0:
-						c = '0';
-						break;
-
-					case SDLK_KP1:
-					case SDLK_1:
-						c = '1';
-						break;
-
-					case SDLK_KP2:
-					case SDLK_2:
-						c = '2';
-						break;
-
-					case SDLK_KP3:
-					case SDLK_3:
-						c = '3';
-						break;
-
-					case SDLK_KP4:
-					case SDLK_4:
-						c = '4';
-						break;
-
-					case SDLK_KP5:
-					case SDLK_5:
-						c = '5';
-						break;
-
-					case SDLK_KP6:
-					case SDLK_6:
-						c = '6';
-						break;
-
-					case SDLK_KP7:
-					case SDLK_7:
-						c = '7';
-						break;
-
-					case SDLK_KP8:
-					case SDLK_8:
-						c = '8';
-						break;
-
-					case SDLK_KP9:
-					case SDLK_9:
-						c = '9';
-						break;
-
-					default:
-						c = '\0';
-						break;
+					c = toupper(c);
 				}
 
-				if (c)
-				{
-					text_input_add_char(c);
-					return 1;
-				}
+				text_input_add_char(text_input, c);
+				return 1;
 			}
-			else
-			{
-				c = key->keysym.unicode & 0xff;
-
-				if (c >= 32)
-				{
-					if (key->keysym.mod & KMOD_SHIFT)
-					{
-						c = toupper(c);
-					}
-
-					text_input_add_char(c);
-					return 1;
-				}
-			}
-
-			break;
 		}
 	}
 

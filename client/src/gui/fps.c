@@ -65,7 +65,7 @@ void widget_show_fps(widgetdata *widget)
 {
 	char buf[MAX_BUF];
 
-	sprite_blt(Bitmaps[BITMAP_FPS], widget->x1, widget->y1, NULL, NULL);
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("fps"));
 
 	snprintf(buf, sizeof(buf), "%d", fps_current);
 	string_blt(ScreenSurface, FONT_ARIAL11, "fps:", widget->x1 + 5, widget->y1 + 4, COLOR_WHITE, 0, NULL);

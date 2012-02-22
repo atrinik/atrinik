@@ -28,24 +28,59 @@
 
 #include <global.h>
 
-/**
- * Mouse event for number input widget.
- * @param x Mouse X position
- * @param y Mouse Y position */
-void widget_number_event(widgetdata *widget, int x, int y)
+static void widget_input_handle_enter(widgetdata *widget)
 {
-	int mx = 0, my = 0;
-	mx = x - widget->x1;
-	my = y - widget->y1;
+	text_input_struct *text_input;
 
-	/* Close number input */
-	if (text_input_string_flag && cpl.input_mode == INPUT_MODE_NUMBER)
+	widget->show = 0;
+	text_input = &WIDGET_INPUT(widget)->text_input;
+
+	if (*text_input->str != '\0')
 	{
-		if (mx > 239 && mx < 249 && my > 5 && my < 17)
+		if (widget->WidgetTypeID == IN_NUMBER_ID)
 		{
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-			text_input_string_flag = 0;
-			text_input_string_end_flag = 1;
+			int tmp;
+
+			tmp = atoi(text_input->str);
+
+			/* If you enter a number higher than the real nrof, you
+			  * will pickup all. */
+			if (tmp > cpl.nrof)
+			{
+				tmp = cpl.nrof;
+			}
+
+			if (tmp > 0 && tmp <= cpl.nrof)
+			{
+				client_send_move(cpl.loc, cpl.tag, tmp);
+				draw_info_format(COLOR_DGOLD, "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
+
+				if (cpl.nummode == NUM_MODE_GET)
+				{
+					sound_play_effect("get.ogg", 100);
+				}
+				else
+				{
+					sound_play_effect("drop.ogg", 100);
+				}
+			}
+		}
+		/* Handle console input. */
+		else if (widget->WidgetTypeID == IN_CONSOLE_ID)
+		{
+			char buf[sizeof(text_input->str) + 32];
+
+			/* If it's not command, it's say */
+			if (*text_input->str != '/')
+			{
+				snprintf(buf, sizeof(buf), "/say %s", text_input->str);
+			}
+			else
+			{
+				strcpy(buf, text_input->str);
+			}
+
+			send_command_check(buf);
 		}
 	}
 }
@@ -56,13 +91,10 @@ void widget_number_event(widgetdata *widget, int x, int y)
  * @param y Y position of the console */
 void widget_show_console(widgetdata *widget)
 {
-	SDL_Rect box;
+	text_input_struct *text_input;
 
-	box.x = 3;
-	box.y = 0;
-	box.w = Bitmaps[BITMAP_TEXTINPUT]->bitmap->w;
-	box.h = Bitmaps[BITMAP_TEXTINPUT]->bitmap->h;
-	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_TEXTINPUT, &box);
+	text_input = &WIDGET_INPUT(widget)->text_input;
+	text_input_show(text_input, ScreenSurface, widget->x1, widget->y1);
 }
 
 /**
@@ -71,116 +103,63 @@ void widget_show_console(widgetdata *widget)
  * @param y Y position of the number input */
 void widget_show_number(widgetdata *widget)
 {
-	SDL_Rect box;
+	text_input_struct *text_input;
+	keybind_struct *keybind;
 	char buf[MAX_BUF];
 
-	box.x = 3;
-	box.y = 9;
-	box.w = Bitmaps[BITMAP_NUMBER]->bitmap->w - 22;
-	box.h = Bitmaps[BITMAP_NUMBER]->bitmap->h;
-	text_input_show(ScreenSurface, widget->x1, widget->y1, FONT_ARIAL11, text_input_string, COLOR_WHITE, 0, BITMAP_NUMBER, &box);
+	text_input = &WIDGET_INPUT(widget)->text_input;
+	keybind = NULL;
+	text_input_show(text_input, ScreenSurface, widget->x1, widget->y1);
+
+	if (cpl.nummode == NUM_MODE_GET)
+	{
+		keybind = keybind_find_by_command("?GET");
+	}
+	else if (cpl.nummode == NUM_MODE_DROP)
+	{
+		keybind = keybind_find_by_command("?DROP");
+	}
+
+	/* If the macro key is active and enough time has passed, end the
+	 * input string. */
+	if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - widget->showed_ticks > 125)
+	{
+		widget_input_handle_enter(widget);
+		keys[keybind->key].time = SDL_GetTicks() + 125;
+	}
 
 	snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
 	string_truncate_overflow(FONT_ARIAL10, buf, 220);
 	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
 }
 
-void widget_input_do(widgetdata *widget)
+int widget_input_handle_key(widgetdata *widget, SDL_Event *event)
 {
-	/* ESC was pressed. */
-	if (text_input_string_esc_flag)
+	text_input_struct *text_input;
+
+	if (widget->show == 0 || event->type != SDL_KEYDOWN)
 	{
-		widget->show = 0;
-		text_input_close();
-		return;
+		return 0;
 	}
 
-	/* Handle ?DROP and ?GET key repeating for number input. */
-	if (cpl.input_mode == INPUT_MODE_NUMBER)
+	text_input = &WIDGET_INPUT(widget)->text_input;
+
+	if (event->key.keysym.sym == SDLK_ESCAPE)
 	{
-		keybind_struct *keybind = NULL;
-
-		if (cpl.nummode == NUM_MODE_GET)
-		{
-			keybind = keybind_find_by_command("?GET");
-		}
-		else if (cpl.nummode == NUM_MODE_DROP)
-		{
-			keybind = keybind_find_by_command("?DROP");
-		}
-
-		/* If the macro key is active and enough time has passed, end the
-		 * input string. */
-		if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - text_input_opened > 125)
-		{
-			text_input_string_flag = 0;
-			text_input_string_end_flag = 1;
-			keys[keybind->key].time = SDL_GetTicks() + 125;
-		}
-	}
-
-	/* Is there a finished input? */
-	if (text_input_string_flag == 0 && text_input_string_end_flag)
-	{
-		/* Any input? */
-		if (text_input_string[0] != '\0')
-		{
-			/* Handle number input. */
-			if (cpl.input_mode == INPUT_MODE_NUMBER)
-			{
-				int tmp;
-
-				tmp = atoi(text_input_string);
-
-				/* If you enter a number higher than the real nrof, you
-				 * will pickup all. */
-				if (tmp > cpl.nrof)
-				{
-					tmp = cpl.nrof;
-				}
-
-				if (tmp > 0 && tmp <= cpl.nrof)
-				{
-					client_send_move(cpl.loc, cpl.tag, tmp);
-					draw_info_format(COLOR_DGOLD, "%s %d from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", tmp, cpl.nrof, cpl.num_text);
-
-					if (cpl.nummode == NUM_MODE_GET)
-					{
-						sound_play_effect("get.ogg", 100);
-					}
-					else
-					{
-						sound_play_effect("drop.ogg", 100);
-					}
-				}
-			}
-			/* Handle console input. */
-			else if (cpl.input_mode == INPUT_MODE_CONSOLE)
-			{
-				char buf[MAX_INPUT_STRING + 32];
-
-				/* If it's not command, it's say */
-				if (*text_input_string != '/')
-				{
-					snprintf(buf, sizeof(buf), "/say %s", text_input_string);
-				}
-				else
-				{
-					strcpy(buf, text_input_string);
-				}
-
-				if (!client_command_check(text_input_string))
-				{
-					send_command(buf);
-				}
-			}
-		}
-
 		widget->show = 0;
-		text_input_close();
+	}
+	else if (IS_ENTER(event->key.keysym.sym))
+	{
+		widget_input_handle_enter(widget);
+	}
+	else if (event->key.keysym.sym == SDLK_TAB && widget->WidgetTypeID == IN_CONSOLE_ID)
+	{
+		help_handle_tabulator(text_input);
 	}
 	else
 	{
-		widget->show = 1;
+		text_input_event(text_input, event);
 	}
+
+	return 1;
 }

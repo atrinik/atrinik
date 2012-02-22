@@ -498,8 +498,8 @@ static void region_map_resize(int adjust)
 	surface_pan(region_map_png, &region_map_pos);
 }
 
-/** @copydoc popup_struct::draw_func_post */
-static int popup_draw_func_post(popup_struct *popup)
+/** @copydoc popup_struct::draw_post_func */
+static int popup_draw_post_func(popup_struct *popup)
 {
 	int ret_png, ret_def;
 	SDL_Rect box, dest;
@@ -510,7 +510,7 @@ static int popup_draw_func_post(popup_struct *popup)
 
 	/* Show direction markers. */
 	string_blt(ScreenSurface, FONT_SERIF14, "N", popup->x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_blt(ScreenSurface, FONT_SERIF14, "E", popup->x + Bitmaps[BITMAP_REGION_MAP]->bitmap->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	string_blt(ScreenSurface, FONT_SERIF14, "E", popup->x + popup->surface->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
 	string_blt(ScreenSurface, FONT_SERIF14, "S", popup->x, popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
 	string_blt(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
 
@@ -566,7 +566,7 @@ static int popup_draw_func_post(popup_struct *popup)
 		{
 			SDL_Surface *marker_rotated;
 
-			marker_rotated = rotozoomSurface(Bitmaps[BITMAP_MAP_MARKER]->bitmap, -((player_direction - 1) * 45), 1.0, 1);
+			marker_rotated = rotozoomSurface(TEXTURE_CLIENT("map_marker"), -((player_direction - 1) * 45), 1.0, 1);
 			/* Calculate the player's marker position. */
 			marker.x = map->xpos + current_x * rm_def->pixel_size - marker_rotated->w / 2 + rm_def->pixel_size / 2;
 			marker.y = map->ypos + current_y * rm_def->pixel_size - marker_rotated->h / 2 + rm_def->pixel_size / 2;
@@ -853,8 +853,8 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 		}
 	}
 
-	popup = popup_create(BITMAP_REGION_MAP);
-	popup->draw_func_post = popup_draw_func_post;
+	popup = popup_create("region_map");
+	popup->draw_post_func = popup_draw_post_func;
 	popup->event_func = popup_event_func;
 
 	popup->button_left.x = RM_BUTTON_LEFT_STARTX;

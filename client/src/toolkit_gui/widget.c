@@ -54,38 +54,38 @@ static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
 {
 	/* base widgets */
-	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1},
-	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0},
-	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0},
-	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAININV",           1, 508, 271,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"FPS",             123,  47,  70,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"NOTIFICATION_ID", 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"BITMAP",            0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0, 0},
+	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0, 0},
+	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAININV",           1, 508, 271,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"FPS",             123,  47,  70,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"NOTIFICATION_ID", 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"TEXTURE",           0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	/* subwidgets */
-	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 
@@ -190,7 +190,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	_menu *menu;
 	_menuitem *menuitem;
 	_widget_label *label;
-	_widget_bitmap *bitmap;
+	_widget_texture *texture;
 	int widget_type_id = widget_subtype_id;
 
 	/* map the widget subtype to widget type */
@@ -355,24 +355,45 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			widget->subwidget = (_widget_label *) label;
 			break;
 
-		case BITMAP_ID:
-			bitmap = malloc(sizeof(_widget_bitmap));
+		case TEXTURE_ID:
+			texture = malloc(sizeof(*texture));
 
-			if (!bitmap)
+			if (!texture)
 			{
 				exit(0);
 			}
 
 			/* begin initializing the members */
-			bitmap->bitmap_id = 0;
+			texture->texture = NULL;
 			/* have the subwidget point to it */
-			widget->subwidget = (_widget_bitmap *) bitmap;
+			widget->subwidget = (_widget_texture *) texture;
 			break;
 
 		case MAIN_INV_ID:
 		case BELOW_INV_ID:
 			widget->subwidget = calloc(1, sizeof(inventory_struct));
 			widget_inventory_init(widget);
+			break;
+
+		case IN_CONSOLE_ID:
+		case IN_NUMBER_ID:
+			widget->subwidget = calloc(1, sizeof(widget_input_struct));
+			text_input_create(&WIDGET_INPUT(widget)->text_input);
+			WIDGET_INPUT(widget)->text_input.w = widget->wd - 6;
+			WIDGET_INPUT(widget)->text_input.h = widget->ht - 6;
+
+			if (widget->WidgetTypeID == IN_NUMBER_ID)
+			{
+				WIDGET_INPUT(widget)->text_input.h -= 10;
+				WIDGET_INPUT(widget)->text_input.max = 20;
+			}
+			else
+			{
+				WIDGET_INPUT(widget)->text_input.max = 250;
+				WIDGET_INPUT(widget)->text_input_history = text_input_history_create();
+				text_input_set_history(&WIDGET_INPUT(widget)->text_input, WIDGET_INPUT(widget)->text_input_history);
+			}
+
 			break;
 	}
 
@@ -477,6 +498,13 @@ void remove_widget_object_intern(widgetdata *widget)
 
 				break;
 			}
+
+			case IN_NUMBER_ID:
+			case IN_CONSOLE_ID:
+				if (WIDGET_INPUT(widget)->text_input_history)
+				{
+					text_input_history_free(WIDGET_INPUT(widget)->text_input_history);
+				}
 		}
 
 		free(widget->subwidget);
@@ -1371,10 +1399,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				widget_player_data_event(widget, x, y);
 				break;
 
-			case IN_NUMBER_ID:
-				widget_number_event(widget, x, y);
-				break;
-
 			case MPLAYER_ID:
 				widget_mplayer_mevent(widget, event);
 				break;
@@ -2033,8 +2057,8 @@ static void process_widget(widgetdata *widget)
 			widget_show_label(widget);
 			break;
 
-		case BITMAP_ID:
-			widget_show_bitmap(widget);
+		case TEXTURE_ID:
+			widget_show_texture(widget);
 			break;
 
 		case MPLAYER_ID:
@@ -2689,19 +2713,19 @@ widgetdata *add_label(char *text, int font, const char *color)
 	return widget;
 }
 
-/** Creates a bitmap. */
-widgetdata *add_bitmap(int bitmap_id)
+/** Creates a texture. */
+widgetdata *add_texture(const char *texture)
 {
 	widgetdata *widget;
-	_widget_bitmap *bitmap;
+	_widget_texture *widget_texture;
 
-	widget = create_widget_object(BITMAP_ID);
-	bitmap = BITMAP(widget);
+	widget = create_widget_object(TEXTURE_ID);
+	widget_texture = WIDGET_TEXTURE(widget);
 
-	bitmap->bitmap_id = bitmap_id;
+	widget_texture->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
 
-	resize_widget(widget, RESIZE_RIGHT, Bitmaps[bitmap_id]->bitmap->w);
-	resize_widget(widget, RESIZE_BOTTOM, Bitmaps[bitmap_id]->bitmap->h);
+	resize_widget(widget, RESIZE_RIGHT, TEXTURE_SURFACE(widget_texture->texture)->w);
+	resize_widget(widget, RESIZE_BOTTOM, TEXTURE_SURFACE(widget_texture->texture)->h);
 
 	return widget;
 }
@@ -2731,7 +2755,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 /** Adds a menuitem to a menu. */
 void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val)
 {
-	widgetdata *widget_menuitem, *widget_label, *widget_bitmap, *tmp;
+	widgetdata *widget_menuitem, *widget_label, *widget_texture, *tmp;
 	_widget_container *container_menuitem, *container_menu;
 	_widget_container_strip *container_strip_menuitem;
 	_menuitem *menuitem;
@@ -2753,11 +2777,8 @@ void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata
 
 	if (menu_type == MENU_CHECKBOX)
 	{
-		/* This is really just test code to see if bitmaps work.
-		 * Menuitems will later contain checkboxes later anyway,
-		 * so this will probably evolve into proper code later. */
-		widget_bitmap = add_bitmap(val ? BITMAP_CHECKBOX_ON : BITMAP_CHECKBOX);
-		insert_widget_in_container(widget_menuitem, widget_bitmap);
+		widget_texture = add_texture(val ? "checkbox_on" : "checkbox_off");
+		insert_widget_in_container(widget_menuitem, widget_texture);
 	}
 
 	insert_widget_in_container(widget_menuitem, widget_label);
