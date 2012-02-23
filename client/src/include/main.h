@@ -238,5 +238,6 @@ enum
 };
 
 #define IS_ENTER(_keysym) ((_keysym) == SDLK_RETURN || (_keysym) == SDLK_KP_ENTER)
+#define IS_NEXT(_keysym) ((_keysym) == SDLK_TAB || IS_ENTER((_keysym)))
 
 #endif
