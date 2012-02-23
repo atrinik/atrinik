@@ -172,42 +172,42 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	{
 		if (IS_NEXT(event->key.keysym.sym))
 		{
+			if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.keysym.sym))
+			{
+				packet_struct *packet;
+
+				packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
+
+				if (button_tab_login.pressed_forced)
+				{
+					packet_append_uint8(packet, CMD_ACCOUNT_LOGIN);
+				}
+				else
+				{
+					packet_append_uint8(packet, CMD_ACCOUNT_REGISTER);
+				}
+
+				for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
+				{
+					if (*text_inputs[i].str == '\0')
+					{
+						draw_info(COLOR_RED, "You must enter a valid value for all text inputs.");
+						packet_free(packet);
+						return 1;
+					}
+
+					packet_append_string_terminated(packet, text_inputs[i].str);
+				}
+
+				socket_send_packet(packet);
+				return 1;
+			}
+
 			text_inputs[text_input_current].focus = 0;
 			text_input_current++;
 
 			if (text_input_current == LOGIN_TEXT_INPUT_MAX)
 			{
-				if (IS_ENTER(event->key.keysym.sym))
-				{
-					packet_struct *packet;
-
-					packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
-
-					if (button_tab_login.pressed_forced)
-					{
-						packet_append_uint8(packet, CMD_ACCOUNT_LOGIN);
-					}
-					else
-					{
-						packet_append_uint8(packet, CMD_ACCOUNT_REGISTER);
-					}
-
-					for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
-					{
-						if (*text_inputs[i].str == '\0')
-						{
-							draw_info(COLOR_RED, "You must enter a valid value for all text inputs.");
-							packet_free(packet);
-							return 1;
-						}
-
-						packet_append_string_terminated(packet, text_inputs[i].str);
-					}
-
-					socket_send_packet(packet);
-					return 1;
-				}
-
 				text_input_current = LOGIN_TEXT_INPUT_NAME;
 			}
 
