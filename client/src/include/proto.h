@@ -631,7 +631,6 @@ extern int toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
 /* src/toolkit_gui/button.c */
 extern void button_init(void);
-extern int button_show(const char *texture, const char *texture_over, const char *texture_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus);
 extern void button_create(button_struct *button);
 extern void button_set_parent(button_struct *button, int px, int py);
 extern void button_render(button_struct *button, const char *text);
