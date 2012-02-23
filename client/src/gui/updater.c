@@ -99,6 +99,9 @@ static size_t download_packages_downloaded = 0;
 static uint8 download_package_process = 0;
 /** Progress dots in the popup. */
 static progress_dots progress;
+/**
+ * Button buffer. */
+static button_struct button_close, button_retry, button_restart;
 
 /**
  * Get temporary directory where updates will be stored.
@@ -177,19 +180,18 @@ static void updater_download_clean(void)
 	download_packages_downloaded = 0;
 }
 
-/**
- * Draw contents in the popup. */
-static int popup_draw_post_func(popup_struct *popup)
+/** @copydoc popup_struct::draw_post_func */
+static int popup_draw_post(popup_struct *popup)
 {
 	SDL_Rect box;
 
 	box.x = popup->x;
-	box.y = popup->y + 10;
+	box.y = popup->y;
 	box.w = popup->surface->w;
-	box.h = popup->surface->h;
+	box.h = 38;
 
-	string_blt(ScreenSurface, FONT_SERIF20, "Updater", box.x, box.y - 5, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-	box.y += 50;
+	string_blt(ScreenSurface, FONT_SERIF20, "Updater", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	box.y += 60;
 
 	/* Show the progress dots. */
 	progress_dots_show(&progress, ScreenSurface, box.x + box.w / 2 - progress_dots_width(&progress) / 2, box.y);
@@ -228,13 +230,9 @@ static int popup_draw_post_func(popup_struct *popup)
 
 			box.y += 20;
 
-			/* Give the user a chance to retry. */
-			if (button_show("button", "button_over", "button_down", box.x + box.w / 2 - TEXTURE_CLIENT("button")->w / 2, box.y, "Retry", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
-			{
-				updater_download_clean();
-				updater_download_start();
-				return 1;
-			}
+			button_retry.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_retry.texture)->w / 2;
+			button_retry.y = box.y;
+			button_render(&button_retry, "Retry");
 		}
 		/* Finished downloading. */
 		else if (ret == 1)
@@ -359,10 +357,9 @@ static int popup_draw_post_func(popup_struct *popup)
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 60;
 
-			if (button_show("button", "button_over", "button_down", box.x + box.w / 2 - TEXTURE_CLIENT("button")->w / 2, box.y, "Close", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
-			{
-				return 0;
-			}
+			button_close.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_close.texture)->w / 2;
+			button_close.y = box.y;
+			button_render(&button_close, "Close");
 		}
 		else
 		{
@@ -380,17 +377,11 @@ static int popup_draw_post_func(popup_struct *popup)
 			box.y += 60;
 
 			/* Show a restart button, which will call up_dater.exe to
-			 * apply the updates (using atrinik_updater.bat) and restarts
+			 * apply the updates (using atrinik_updater.bat) and restart
 			 * the client. */
-			if (button_show("button", "button_over", "button_down", box.x + box.w / 2 - TEXTURE_CLIENT("button")->w / 2, box.y, "Restart", FONT_ARIAL10, COLOR_WHITE, COLOR_BLACK, COLOR_HGOLD, COLOR_BLACK, 0, popup_get_head() == popup))
-			{
-				char path[HUGE_BUF], wdir[HUGE_BUF];
-
-				snprintf(path, sizeof(path), "%s\\up_dater.exe", getcwd(wdir, sizeof(wdir) - 1));
-				ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
-				system_end();
-				exit(0);
-			}
+			button_restart.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_restart.texture)->w / 2;
+			button_restart.y = box.y;
+			button_render(&button_restart, "Restart");
 #else
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 20;
@@ -402,16 +393,43 @@ static int popup_draw_post_func(popup_struct *popup)
 	return 1;
 }
 
+/** @copydoc popup_struct::popup_event_func */
+static int popup_event(popup_struct *popup, SDL_Event *event)
+{
+	if (button_event(&button_close, event))
+	{
+		popup_destroy(popup);
+		return 1;
+	}
+	else if (button_event(&button_retry, event))
+	{
+		updater_download_clean();
+		updater_download_start();
+		return 1;
+	}
+#ifdef WIN32
+	else if (button_event(&button_restart, event))
+	{
+		char path[HUGE_BUF], wdir[HUGE_BUF];
+
+		snprintf(path, sizeof(path), "%s\\up_dater.exe", getcwd(wdir, sizeof(wdir) - 1));
+		ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
+		system_end();
+		exit(0);
+		return 1;
+	}
+#endif
+
+	return -1;
+}
+
 /**
  * Called when the updater popup is destroyed; frees the data used (if
  * any), etc.
  * @param popup Updater popup. */
 static int popup_destroy_callback(popup_struct *popup)
 {
-	(void) popup;
-
 	updater_download_clean();
-
 	return 1;
 }
 
@@ -424,7 +442,12 @@ void updater_open(void)
 	/* Create the popup. */
 	popup = popup_create("popup");
 	popup->destroy_callback_func = popup_destroy_callback;
-	popup->draw_post_func = popup_draw_post_func;
+	popup->draw_post_func = popup_draw_post;
+	popup->event_func = popup_event;
+
+	button_create(&button_close);
+	button_create(&button_retry);
+	button_create(&button_restart);
 
 	updater_download_start();
 }
