@@ -228,7 +228,7 @@ extern sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *r
 extern void sprite_free_sprite(sprite_struct *sprite);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
 extern void surface_show_alpha(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, int alpha);
-extern void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
+extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);

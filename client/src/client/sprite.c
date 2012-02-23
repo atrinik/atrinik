@@ -193,20 +193,9 @@ void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Sur
 	SDL_BlitSurface(src, srcrect, surface, &dstrect);
 }
 
-void surface_show_alpha(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, int alpha)
+void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
-	SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
-	surface_show(surface, x, y, srcrect, src);
-	SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-}
-
-void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
-{
-	SDL_Rect dstrect;
 	int smooth;
-
-	dstrect.x = x;
-	dstrect.y = y;
 
 	if (stretch)
 	{
@@ -215,19 +204,16 @@ void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 st
 		Uint8 e = (stretch >> 16) & 0xFF;
 		Uint8 w = (stretch >> 8) & 0xFF;
 		Uint8 s = stretch & 0xFF;
-		int ht_diff;
 
-		tmp = tile_stretch(surface, n, e, s, w);
+		tmp = tile_stretch(src, n, e, s, w);
 
 		if (!tmp)
 		{
 			return;
 		}
 
-		ht_diff = tmp->h - surface->h;
-
-		surface = tmp;
-		dstrect.y = dstrect.y - ht_diff;
+		y -= tmp->h - src->h;
+		src = tmp;
 	}
 
 	/* If this is just a flip with no rotate, force disabled interpolation. */
@@ -242,38 +228,38 @@ void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 st
 
 	if (rotate)
 	{
-		surface = rotozoomSurfaceXY(surface, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+		src = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!surface)
+		if (!src)
 		{
 			return;
 		}
 	}
 	else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
 	{
-		surface = zoomSurface(surface, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+		src = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!surface)
+		if (!src)
 		{
 			return;
 		}
 	}
 
-	if (alpha != SDL_ALPHA_OPAQUE)
+	if (alpha)
 	{
-		SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+		SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
 	}
 
-	SDL_BlitSurface(surface, NULL, surface, &dstrect);
+	surface_show(surface, x, y, srcrect, src);
 
-	if (alpha != SDL_ALPHA_OPAQUE)
+	if (alpha)
 	{
-		SDL_SetAlpha(surface, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+		SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
 	}
 
 	if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate)
 	{
-		SDL_FreeSurface(surface);
+		SDL_FreeSurface(src);
 	}
 }
 
@@ -367,7 +353,7 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 		surface = sprite->grey;
 	}
 
-	map_surface_show(surface, x, y, alpha, stretch, zoom_x, zoom_y, rotate);
+	surface_show_effects(cur_widget[MAP_ID]->widgetSF, x, y, NULL, surface, alpha, stretch, zoom_x, zoom_y, rotate);
 }
 
 /**

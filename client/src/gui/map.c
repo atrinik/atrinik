@@ -614,7 +614,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	}
 
 	flags = 0;
-	alpha = SDL_ALPHA_OPAQUE;
+	alpha = 0;
 	stretch = 0;
 
 	if (map->infravision[GET_MAP_LAYER(layer, sub_layer)])
@@ -685,27 +685,27 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
 		{
-			map_surface_show(TEXTURE_CLIENT("sleep"), xl + bitmap_w / 2, yl - 5, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2, yl - 5, NULL, TEXTURE_CLIENT("sleep"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED)
 		{
-			map_surface_show(TEXTURE_CLIENT("confused"), xl + bitmap_w / 2 - 1, yl - 4, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 - 1, yl - 4, NULL, TEXTURE_CLIENT("confused"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED)
 		{
-			map_surface_show(TEXTURE_CLIENT("scared"), xl + bitmap_w / 2 + 10, yl - 4, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 10, yl - 4, NULL, TEXTURE_CLIENT("scared"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED)
 		{
-			map_surface_show(TEXTURE_CLIENT("blind"), xl + bitmap_w / 2 + 3, yl - 6, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 3, yl - 6, NULL, TEXTURE_CLIENT("blind"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED)
 		{
-			map_surface_show(TEXTURE_CLIENT("paralyzed"), xl + bitmap_w / 2 + 3, yl + 3, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 3, yl + 3, NULL, TEXTURE_CLIENT("paralyzed"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 	}
 
@@ -834,7 +834,7 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
 		ypos = (ypos - get_top_floor_height(x, y)) + get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 	}
 
-	map_surface_show(surface, xpos, ypos, SDL_ALPHA_OPAQUE, 0, 0, 0, 0);
+	surface_show_effects(cur_widget[MAP_ID]->widgetSF, xpos, ypos, NULL, surface, 0, 0, 0, 0, 0);
 }
 
 /**

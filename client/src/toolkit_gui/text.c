@@ -978,9 +978,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int x = 0, y = 0, alpha = 255, align = 0;
+				int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0;
+				uint32 stretch = 0;
 
-				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d>", face, &x, &y, &align, &alpha) >= 1)
+				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %u>", face, &x, &y, &align, &alpha, &zoom_x, &zoom_y, &rotate, &stretch) >= 1)
 				{
 					int id;
 
@@ -998,7 +999,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							y += -dest->y;
 						}
 
-						surface_show_alpha(surface, dest->x + x, dest->y + y, NULL, FaceList[id].sprite->bitmap, alpha);
+						surface_show_effects(surface, dest->x + x, dest->y + y, NULL, FaceList[id].sprite->bitmap, alpha, stretch, zoom_x, zoom_y, rotate);
 					}
 				}
 			}
