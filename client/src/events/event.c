@@ -280,3 +280,16 @@ int Event_PollInputDevice(void)
 
 	return done;
 }
+
+void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
+{
+	SDL_Event event;
+
+	event.type = type;
+	event.key.which = 0;
+	event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
+	event.key.keysym.unicode = key;
+	event.key.keysym.sym = key;
+	event.key.keysym.mod = mod;
+	SDL_PushEvent(&event);
+}
