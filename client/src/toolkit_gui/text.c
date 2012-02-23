@@ -2159,8 +2159,8 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
  * set (both box->w and box->h can be 0 to indicate unlimited). */
 void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
-	string_blt(surface, font, text, x + 1, y - 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
-	string_blt(surface, font, text, x, y - 2, color_notation, flags, box);
+	string_blt(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
+	string_blt(surface, font, text, x, y, color_notation, flags, box);
 }
 
 /**

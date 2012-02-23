@@ -405,7 +405,7 @@ void list_show(list_struct *list, int x, int y)
 				text_rect.w = list->col_widths[col] + list->col_spacings[col];
 				text_rect.h = LIST_ROW_HEIGHT(list);
 				/* Output the text. */
-				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)) + 1, text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				string_blt_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 			}
 
 			if (list->post_column_func)

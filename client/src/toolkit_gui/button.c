@@ -215,7 +215,7 @@ void button_render(button_struct *button, const char *text)
 		}
 		else
 		{
-			string_blt_shadow(button->surface, button->font, text, x, y, color, color_shadow, button->flags, NULL);
+			string_blt_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
 		}
 	}
 
