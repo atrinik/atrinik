@@ -41,6 +41,7 @@ enum
 	SERVER_CMD_CLEAR,
 	SERVER_CMD_REQUEST_UPDATE,
 	SERVER_CMD_KEEPALIVE,
+	SERVER_CMD_ACCOUNT,
 	SERVER_CMD_ITEM_EXAMINE,
 	SERVER_CMD_ITEM_APPLY,
 	SERVER_CMD_ITEM_MOVE,
@@ -50,7 +51,6 @@ enum
 	SERVER_CMD_ITEM_LOCK,
 	SERVER_CMD_ITEM_MARK,
 	SERVER_CMD_FIRE,
-	SERVER_CMD_NEW_CHAR,
 	SERVER_CMD_QUICKSLOT,
 	SERVER_CMD_QUESTLIST,
 	SERVER_CMD_MOVE_PATH,
@@ -289,6 +289,24 @@ enum
 /**
  * Clear target. */
 #define CMD_TARGET_CLEAR 2
+/*@}*/
+
+/**
+ * @defgroup CMD_ACCOUNT_xxx Account command types
+ * Account command types.
+ *@{*/
+/**
+ * Login as the specified account. */
+#define CMD_ACCOUNT_LOGIN 1
+/**
+ * Create the specified account. */
+#define CMD_ACCOUNT_REGISTER 2
+/**
+ * Create a new character. */
+#define CMD_ACCOUNT_NEW_CHAR 3
+/**
+ * Change the current account's password. */
+#define CMD_ACCOUNT_PSWD 4
 /*@}*/
 
 /**

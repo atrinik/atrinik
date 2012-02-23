@@ -115,6 +115,7 @@
 		<Unit filename="..\..\src\random_maps\square_spiral.c" />
 		<Unit filename="..\..\src\random_maps\style.c" />
 		<Unit filename="..\..\src\random_maps\wall.c" />
+		<Unit filename="..\..\src\server\account.c" />
 		<Unit filename="..\..\src\server\anim.c" />
 		<Unit filename="..\..\src\server\apply.c" />
 		<Unit filename="..\..\src\server\arch.c" />

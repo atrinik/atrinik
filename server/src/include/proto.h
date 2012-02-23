@@ -156,6 +156,13 @@ extern int surround_flag4(mapstruct *map, int i, int j, RMParms *RP);
 extern void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP);
 extern object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms *RP);
 extern object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP);
+/* src/server/account.c */
+extern void account_init(void);
+extern void account_deinit(void);
+extern void account_login(socket_struct *ns, const char *name, const char *password);
+extern void account_register(socket_struct *ns, const char *name, const char *password, const char *password2);
+extern void account_new_char(socket_struct *ns, const char *name, const char *archname);
+extern void account_password_change(socket_struct *ns, const char *password, const char *password2);
 /* src/server/anim.c */
 extern Animations *animations;
 extern int num_animations;
@@ -723,7 +730,7 @@ extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data,
 extern void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
-extern void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void generate_ext_title(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 /* src/socket/sounds.c */

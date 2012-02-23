@@ -239,6 +239,7 @@ set(SOURCES
 	src/random_maps/square_spiral.c
 	src/random_maps/style.c
 	src/random_maps/wall.c
+	src/server/account.c
 	src/server/anim.c
 	src/server/apply.c
 	src/server/arch.c

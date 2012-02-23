@@ -1862,133 +1862,59 @@ void send_target_command(player *pl)
 	socket_send_packet(&pl->socket, packet);
 }
 
-/**
- * This loads the first map an puts the player on it.
- * @param op The player object. */
-static void set_first_map(object *op)
+void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	object *current;
+	uint8 type;
 
-	strcpy(CONTR(op)->maplevel, first_map_path);
-	op->x = -1;
-	op->y = -1;
+	type = packet_to_uint8(data, len, &pos);
 
-	if (!strcmp(first_map_path, "/tutorial"))
+	if (type == CMD_ACCOUNT_LOGIN)
 	{
-		current = get_object();
-		FREE_AND_COPY_HASH(EXIT_PATH(current), first_map_path);
-		EXIT_X(current) = 1;
-		EXIT_Y(current) = 1;
-		current->last_eat = MAP_PLAYER_MAP;
-		enter_exit(op, current);
-		/* Update save bed position, so if we die, we don't end up in
-		 * the public version of the map. */
-		strncpy(CONTR(op)->savebed_map, CONTR(op)->maplevel, sizeof(CONTR(op)->savebed_map) - 1);
+		char name[MAX_BUF], password[MAX_BUF];
+
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		packet_to_string(data, len, &pos, password, sizeof(password));
+
+		if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
+		{
+			return;
+		}
+
+		account_login(ns, name, password);
 	}
-	else
+	else if (type == CMD_ACCOUNT_REGISTER)
 	{
-		enter_exit(op, NULL);
+		char name[MAX_BUF], password[MAX_BUF], password2[MAX_BUF];
+
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		packet_to_string(data, len, &pos, password, sizeof(password));
+		packet_to_string(data, len, &pos, password2, sizeof(password2));
+
+		if (*name == '\0' || *password == '\0' || *password2 == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password2, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
+		{
+			return;
+		}
+
+		account_register(ns, name, password, password2);
 	}
-
-	/* Update save bed X/Y in any case. */
-	CONTR(op)->bed_x = op->x;
-	CONTR(op)->bed_y = op->y;
-}
-
-/**
- * Client sent us a new char creation.
- *
- * At this point we know the player's name and the password but nothing
- * about his (player char) base arch.
- *
- * This command tells us which the player has selected and how he has
- * setup the stats.
- *
- * If <b>anything</b> is not correct here, we kill this socket.
- * @param params Parameters.
- * @param len Length.
- * @param pl Player structure. */
-void socket_command_new_char(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-	archetype *player_arch;
-	const char *name_tmp = NULL;
-	object *op = pl->ob;
-	int x = pl->ob->x, y = pl->ob->y;
-	char archname[MAX_BUF];
-
-	/* Ignore the command if the player is already playing. */
-	if (pl->state == ST_PLAYING)
+	else if (type == CMD_ACCOUNT_NEW_CHAR)
 	{
-		return;
-	}
+		char name[MAX_BUF], archname[MAX_BUF];
 
-	/* Incorrect state... */
-	if (pl->state != ST_ROLL_STAT)
+		packet_to_string(data, len, &pos, name, sizeof(name));
+		packet_to_string(data, len, &pos, archname, sizeof(archname));
+
+		account_new_char(ns, name, archname);
+	}
+	else if (type == CMD_ACCOUNT_PSWD)
 	{
-		pl->socket.status = Ns_Dead;
-		return;
+		char password[MAX_BUF], password2[MAX_BUF];
+
+		packet_to_string(data, len, &pos, password, sizeof(password));
+		packet_to_string(data, len, &pos, password2, sizeof(password2));
+
+		account_password_change(ns, password, password2);
 	}
-
-	packet_to_string(data, len, &pos, archname, sizeof(archname));
-
-	player_arch = find_archetype(archname);
-
-	/* Invalid player arch? */
-	if (!player_arch || player_arch->clone.type != PLAYER)
-	{
-		pl->socket.status = Ns_Dead;
-		return;
-	}
-
-	FREE_AND_ADD_REF_HASH(name_tmp, op->name);
-	copy_object(&player_arch->clone, op, 0);
-	op->custom_attrset = pl;
-	pl->ob = op;
-	FREE_AND_CLEAR_HASH2(op->name);
-	op->name = name_tmp;
-	op->x = x;
-	op->y = y;
-	/* So the player faces east. */
-	op->direction = op->anim_last_facing = op->anim_last_facing_last = op->facing = 3;
-	/* We assume that players always have a valid animation. */
-	SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-
-	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-	/* This must before then initial items are given. */
-	esrv_new_player(CONTR(op), op->weight + op->carrying);
-
-	/* Trigger the global BORN event */
-	trigger_global_event(GEVENT_BORN, op, NULL);
-
-	/* Trigger the global LOGIN event */
-	trigger_global_event(GEVENT_LOGIN, CONTR(op), CONTR(op)->socket.host);
-
-	FREE_AND_CLEAR_HASH2(op->msg);
-
-#ifdef AUTOSAVE
-	CONTR(op)->last_save_tick = pticks;
-#endif
-
-	display_motd(op);
-
-	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, op, "%s entered the game.", op->name);
-	give_initial_items(op, op->randomitems);
-	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
-	/* Force sending of skill exp data to client */
-	CONTR(op)->last_stats.exp = 1;
-	fix_player(op);
-	link_player_skills(op);
-	CONTR(op)->state = ST_PLAYING;
-	esrv_new_player(CONTR(op), op->weight + op->carrying);
-	esrv_update_item(UPD_FACE, op);
-	esrv_send_inventory(op, op);
-
-	set_first_map(op);
-	SET_FLAG(op, FLAG_FRIENDLY);
-
-	CONTR(op)->socket.update_tile = 0;
-	CONTR(op)->socket.look_position = 0;
-	CONTR(op)->socket.ext_title_flag = 1;
 }
 
 /**
