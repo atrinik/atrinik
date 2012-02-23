@@ -91,6 +91,7 @@ int Event_PollInputDevice(void)
 	int x, y, done = 0;
 	static Uint32 Ticks = 0;
 	int tx, ty;
+	SDLKey key;
 
 	/* Execute mouse actions, even if mouse button is being held. */
 	if ((SDL_GetTicks() - Ticks > 125) || !Ticks)
@@ -246,37 +247,23 @@ int Event_PollInputDevice(void)
 		old_mouse_y = y;
 	}
 
-#if 0
-	if (!text_input_string_flag)
+	for (key = 0; key < SDLK_LAST; key++)
 	{
-		size_t i;
-
-		for (i = 0; i < SDLK_LAST; i++)
+		/* Ignore modifier keys. */
+		if (KEY_IS_MODIFIER(key))
 		{
-			/* Ignore modifier keys. */
-			if (KEY_IS_MODIFIER(i))
-			{
-				continue;
-			}
+			continue;
+		}
 
-			if (keys[i].pressed && keys[i].time + KEY_REPEAT_TIME - 5 < LastTick)
+		if (keys[key].pressed && keys[key].time + KEY_REPEAT_TIME - 5 < LastTick)
+		{
+			while ((keys[key].time += KEY_REPEAT_TIME - 5) < LastTick)
 			{
-				while ((keys[i].time += KEY_REPEAT_TIME - 5) < LastTick)
-				{
-					keys[i].repeated = 1;
-
-					event.type = SDL_KEYDOWN;
-					event.key.which = 0;
-					event.key.state = SDL_PRESSED;
-					event.key.keysym.unicode = 0;
-					event.key.keysym.mod = SDL_GetModState();
-					event.key.keysym.sym = i;
-					SDL_PushEvent(&event);
-				}
+				keys[key].repeated = 1;
+				event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
 			}
 		}
 	}
-#endif
 
 	return done;
 }
