@@ -221,12 +221,15 @@ typedef struct list_struct
  * Adjust row ID by the row offset, thus transforming row ID to
  * 0-[max visible rows]. */
 #define LIST_ROW_OFFSET(row, list) ((row) - (list)->row_offset)
-/** Figure out full height of the list, including its header. */
+/**
+ * Figure out full height of the list, including its header. */
 #define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
+/**
+ * Figure out the full width of the list, including its scrollbar, if it
+ * has one. */
+#define LIST_WIDTH_FULL(list) ((list)->width + ((list)->scrollbar_enabled ? (list)->scrollbar.background.w : 0))
 /** Calculate whether mouse is over the specified list. */
-#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + (list)->width + LIST_SCROLLBAR_WIDTH && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
-/** Scrollbar width used by lists. */
-#define LIST_SCROLLBAR_WIDTH 6
+#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + LIST_WIDTH_FULL((list)) && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
 
 /**
  * @defgroup LIST_SORT_xxx List sort types
