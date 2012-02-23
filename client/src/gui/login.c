@@ -39,6 +39,8 @@ enum
 	LOGIN_TEXT_INPUT_NUM
 };
 
+#define LOGIN_TEXT_INPUT_MAX ((button_tab_login.pressed_forced ? LOGIN_TEXT_INPUT_PASSWORD : LOGIN_TEXT_INPUT_PASSWORD2) + 1)
+
 /**
  * Progress dots when connecting. */
 static progress_dots progress;
@@ -72,9 +74,34 @@ static int popup_draw(popup_struct *popup)
 	SDL_Rect box;
 	size_t i;
 
+	/* Waiting to log in. */
+	if (cpl.state == ST_WAITFORPLAY)
+	{
+		box.w = popup->surface->w;
+		box.h = popup->surface->h;
+		string_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		return 1;
+	}
+	/* Playing now, so destroy this popup. */
+	else if (cpl.state == ST_PLAY)
+	{
+		return 0;
+	}
+	/* Connection terminated while we were trying to login. */
+	else if (cpl.state < ST_STARTCONNECT)
+	{
+		return 0;
+	}
+
 	box.w = popup->surface->w;
 	box.h = 38;
 	string_show_shadow(popup->surface, FONT_SERIF14, "Login", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+
+	if (cpl.state < ST_LOGIN || !file_updates_finished())
+	{
+		progress_dots_show(&progress, popup->surface, 70, 90);
+		return 1;
+	}
 
 	box.w = text_inputs[LOGIN_TEXT_INPUT_NAME].w;
 	text_offset_set(popup->x, popup->y);
@@ -123,18 +150,62 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 {
 	size_t i;
 
+	if (button_event(&button_tab_login, event))
+	{
+		button_tab_login.pressed_forced = 1;
+		button_tab_register.pressed_forced = 0;
+		return 1;
+	}
+	else if (button_event(&button_tab_register, event))
+	{
+		button_tab_register.pressed_forced = 1;
+		button_tab_login.pressed_forced = 0;
+		return 1;
+	}
+
+	if (cpl.state < ST_LOGIN || !file_updates_finished())
+	{
+		return -1;
+	}
+
 	if (event->type == SDL_KEYDOWN)
 	{
-		if (event->key.keysym.sym == SDLK_TAB || IS_ENTER(event->key.keysym.sym))
+		if (IS_NEXT(event->key.keysym.sym))
 		{
 			text_inputs[text_input_current].focus = 0;
 			text_input_current++;
 
-			if ((button_tab_login.pressed_forced && text_input_current == LOGIN_TEXT_INPUT_PASSWORD2) || text_input_current == LOGIN_TEXT_INPUT_NUM)
+			if (text_input_current == LOGIN_TEXT_INPUT_MAX)
 			{
 				if (IS_ENTER(event->key.keysym.sym))
 				{
+					packet_struct *packet;
 
+					packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
+
+					if (button_tab_login.pressed_forced)
+					{
+						packet_append_uint8(packet, CMD_ACCOUNT_LOGIN);
+					}
+					else
+					{
+						packet_append_uint8(packet, CMD_ACCOUNT_REGISTER);
+					}
+
+					for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
+					{
+						if (*text_inputs[i].str == '\0')
+						{
+							draw_info(COLOR_RED, "You must enter a valid value for all text inputs.");
+							packet_free(packet);
+							return 1;
+						}
+
+						packet_append_string_terminated(packet, text_inputs[i].str);
+					}
+
+					socket_send_packet(packet);
+					return 1;
 				}
 
 				text_input_current = LOGIN_TEXT_INPUT_NAME;
@@ -149,7 +220,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	{
 		if (event->button.button == SDL_BUTTON_LEFT)
 		{
-			for (i = 0; i < (button_tab_login.pressed_forced ? LOGIN_TEXT_INPUT_PASSWORD2 : LOGIN_TEXT_INPUT_NUM); i++)
+			for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
 			{
 				if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y))
 				{
@@ -164,19 +235,6 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 	if (text_input_event(&text_inputs[text_input_current], event))
 	{
-		return 1;
-	}
-
-	if (button_event(&button_tab_login, event))
-	{
-		button_tab_login.pressed_forced = 1;
-		button_tab_register.pressed_forced = 0;
-		return 1;
-	}
-	else if (button_event(&button_tab_register, event))
-	{
-		button_tab_register.pressed_forced = 1;
-		button_tab_login.pressed_forced = 0;
 		return 1;
 	}
 

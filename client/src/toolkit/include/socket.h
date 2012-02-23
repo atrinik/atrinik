@@ -41,15 +41,16 @@ enum
 	SERVER_CMD_CLEAR,
 	SERVER_CMD_REQUEST_UPDATE,
 	SERVER_CMD_KEEPALIVE,
+	SERVER_CMD_ACCOUNT,
 	SERVER_CMD_ITEM_EXAMINE,
 	SERVER_CMD_ITEM_APPLY,
 	SERVER_CMD_ITEM_MOVE,
+	/** @deprecated */
 	SERVER_CMD_REPLY,
 	SERVER_CMD_PLAYER_CMD,
 	SERVER_CMD_ITEM_LOCK,
 	SERVER_CMD_ITEM_MARK,
 	SERVER_CMD_FIRE,
-	SERVER_CMD_NEW_CHAR,
 	SERVER_CMD_QUICKSLOT,
 	SERVER_CMD_QUESTLIST,
 	SERVER_CMD_MOVE_PATH,
@@ -76,14 +77,18 @@ enum
 	CLIENT_CMD_STATS,
 	CLIENT_CMD_IMAGE,
 	CLIENT_CMD_ANIM,
+	/** @deprecated */
 	CLIENT_CMD_SKILL_READY,
 	CLIENT_CMD_PLAYER,
 	CLIENT_CMD_MAPSTATS,
+	/** @deprecated */
 	CLIENT_CMD_SKILL_LIST,
 	CLIENT_CMD_VERSION,
 	CLIENT_CMD_SETUP,
+	/** @deprecated */
 	CLIENT_CMD_QUERY,
 	CLIENT_CMD_DATA,
+	/** @deprecated */
 	CLIENT_CMD_NEW_CHAR,
 	CLIENT_CMD_BOOK,
 	CLIENT_CMD_PARTY,
@@ -284,6 +289,24 @@ enum
 /**
  * Clear target. */
 #define CMD_TARGET_CLEAR 2
+/*@}*/
+
+/**
+ * @defgroup CMD_ACCOUNT_xxx Account command types
+ * Account command types.
+ *@{*/
+/**
+ * Login as the specified account. */
+#define CMD_ACCOUNT_LOGIN 1
+/**
+ * Create the specified account. */
+#define CMD_ACCOUNT_REGISTER 2
+/**
+ * Create a new character. */
+#define CMD_ACCOUNT_NEW_CHAR 3
+/**
+ * Change the current account's password. */
+#define CMD_ACCOUNT_PSWD 4
 /*@}*/
 
 /**

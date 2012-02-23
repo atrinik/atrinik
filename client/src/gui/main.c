@@ -62,8 +62,6 @@ static int char_step = 0;
 static uint32 char_race_selected;
 /** Selected @ref GENDER_xxx "gender". */
 static int char_gender_selected;
-/** Number of stat points left to assign. */
-static int char_points_left;
 /** Maximum number of character creation steps. */
 const int char_step_max = 2;
 
@@ -249,16 +247,6 @@ static void char_creation_enter(list_struct *list)
 	/* Selected stats, create the character. */
 	else if (char_step == 2)
 	{
-		packet_struct *packet;
-
-		if (char_points_left)
-		{
-			return;
-		}
-
-		packet = packet_new(SERVER_CMD_NEW_CHAR, 64, 64);
-		packet_append_string_terminated(packet, s_settings->characters[char_race_selected].gender_archetypes[char_gender_selected]);
-		socket_send_packet(packet);
 		return;
 	}
 
