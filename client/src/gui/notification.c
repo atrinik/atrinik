@@ -136,7 +136,6 @@ void widget_notification_render(widgetdata *widget)
 		notification->alpha = 255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double) NOTIFICATION_DEFAULT_FADEOUT);
 	}
 
-	/* Blit the surface. */
 	dst.x = widget->x1;
 	dst.y = widget->y1;
 	SDL_SetAlpha(widget->widgetSF, SDL_SRCALPHA, notification->alpha);
@@ -254,12 +253,12 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	box.y = 0;
 	box.w = NOTIFICATION_DEFAULT_WIDTH;
 	box.h = 0;
-	string_blt(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+	string_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
 	ht = box.h;
 
 	/* Calculate the maximum text width. */
 	box.h = 0;
-	string_blt(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+	string_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
 	wd = box.w;
 
 	box.x = 0;
@@ -291,7 +290,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	/* Render the text. */
 	box.w = wd;
 	box.h = ht;
-	string_blt(cur_widget[NOTIFICATION_ID]->widgetSF, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	string_show(cur_widget[NOTIFICATION_ID]->widgetSF, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 	free(cp);
 }

@@ -31,7 +31,7 @@
 #include <global.h>
 
 /**
- * If 1, all text shown using 'box' parameter of string_blt() for max
+ * If 1, all text shown using 'box' parameter of string_show() for max
  * width/height will have a frame around it. */
 static uint8 text_debug = 0;
 
@@ -186,7 +186,7 @@ void text_deinit(void)
 }
 
 /**
- * If string_blt() is called on surface that is not ScreenSurface, you
+ * If string_show() is called on surface that is not ScreenSurface, you
  * must use this to set mouse X/Y detection offset, so things like links
  * will work correctly.
  *
@@ -203,7 +203,7 @@ void text_offset_set(int x, int y)
 
 /**
  * Reset the text offset. This must be done after text_offset_set() and
- * string_blt() calls eventually, */
+ * string_show() calls eventually, */
 void text_offset_reset(void)
 {
 	text_offset_mx = text_offset_my = -1;
@@ -437,9 +437,9 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 
 /**
  * Execute anchor.
- * @param info Text blit info, should contain the anchor action and tag
+ * @param info Text info, should contain the anchor action and tag
  * position. */
-void text_anchor_execute(text_blit_info *info)
+void text_anchor_execute(text_info_struct *info)
 {
 	size_t len;
 	char *buf2, *pos;
@@ -510,10 +510,10 @@ void text_anchor_execute(text_blit_info *info)
 }
 
 /**
- * Initialize the 'info' argument of blt_character(). Should only be
+ * Initialize the 'info' argument of text_show_character(). Should only be
  * called once.
- * @param info The text blit information to initialize. */
-void blt_character_init(text_blit_info *info)
+ * @param info The text information to initialize. */
+void text_show_character_init(text_info_struct *info)
 {
 	info->anchor_tag = NULL;
 	info->anchor_action[0] = '\0';
@@ -545,11 +545,11 @@ void blt_character_init(text_blit_info *info)
  * @param cp String we are working on, cp[0] is the character to draw.
  * @param color Color to use.
  * @param orig_color Original color.
- * @param flags Flags as passed to string_blt().
+ * @param flags Flags as passed to string_show().
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_blit_info *info)
+int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
 {
 	int width, minx, ret = 1, restore_font = -1, new_style;
 	char c = *cp;
@@ -1266,7 +1266,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 					hcenter_box.w = box->w - (dest->w - box->w);
 					hcenter_box.h = 0;
-					string_blt(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
+					string_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
 					dest->y += ht / 2 - hcenter_box.h / 2;
 					info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
 					free(tmpbuf);
@@ -1298,7 +1298,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 					if (id != -1 && FaceList[id].sprite)
 					{
 						int icon_w, icon_h, icon_orig_w, icon_orig_h;
-						_Sprite *icon_sprite;
+						sprite_struct *icon_sprite;
 						SDL_Rect icon_box, icon_dst;
 						double zoom_factor;
 
@@ -1625,7 +1625,7 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 		SDL_Surface *ttf_surface;
 		char buf[2];
 		SDL_Color *use_color;
-		SDL_Rect blit_dest;
+		SDL_Rect dstrect;
 
 		buf[0] = c;
 		buf[1] = '\0';
@@ -1726,9 +1726,9 @@ int blt_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest
 
 		/* Output the rendered character to the screen and free the
 		 * used surface. */
-		blit_dest.x = dest->x;
-		blit_dest.y = dest->y;
-		SDL_BlitSurface(ttf_surface, NULL, surface, &blit_dest);
+		dstrect.x = dest->x;
+		dstrect.y = dest->y;
+		SDL_BlitSurface(ttf_surface, NULL, surface, &dstrect);
 		SDL_FreeSurface(ttf_surface);
 	}
 
@@ -1816,7 +1816,7 @@ int glyph_get_height(int font, char c)
 			selection_box.w = 0; \
 			selection_box.h = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)); \
 \
-			if (blt_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1) \
+			if (text_show_character(&font, orig_font, NULL, &selection_box, cp, &color, &orig_color, flags, box, &x_adjust, &info) == 1) \
 			{ \
 				SDL_FillRect(surface, &selection_box, -1); \
 \
@@ -1867,7 +1867,7 @@ int glyph_get_height(int font, char c)
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
+void string_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
 {
 	const char *cp = text;
 	SDL_Rect dest;
@@ -1880,7 +1880,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 	int mx, my, mstate = 0, old_x;
 	sint64 select_start = 0, select_end = 0;
 	uint8 select_color_changed = 0;
-	text_blit_info info;
+	text_info_struct info;
 
 	if (text_color_parse(color_notation, &color))
 	{
@@ -1892,7 +1892,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		return;
 	}
 
-	blt_character_init(&info);
+	text_show_character_init(&info);
 	info.start_x = x;
 	info.start_y = y;
 
@@ -1980,7 +1980,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 				STRING_BLT_SELECT_BEGIN();
 
 				info.obscured = skip;
-				ret = blt_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
+				ret = text_show_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 				info.obscured = 0;
 
 				STRING_BLT_SELECT_END();
@@ -2051,7 +2051,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 
 			/* Do not do any drawing, just calculate how many characters
 			 * to jump and the width. */
-			pos += blt_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box, &x_adjust, &info);
+			pos += text_show_character(&font, orig_font, NULL, &dest, cp + pos, &color, &orig_color, flags, box, &x_adjust, &info);
 		}
 	}
 
@@ -2076,7 +2076,7 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
 		skip = 0;
 		STRING_BLT_SELECT_BEGIN();
 
-		cp += blt_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
+		cp += text_show_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 
 		STRING_BLT_SELECT_END();
 
@@ -2157,39 +2157,39 @@ void string_blt(SDL_Surface *surface, int font, const char *text, int x, int y, 
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_blt_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
+void string_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
-	string_blt(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
-	string_blt(surface, font, text, x, y, color_notation, flags, box);
+	string_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
+	string_show(surface, font, text, x, y, color_notation, flags, box);
 }
 
 /**
- * Like string_blt(), but allows using printf-like format specifiers.
+ * Like string_show(), but allows using printf-like format specifiers.
  *
- * @copydoc string_blt() */
-void string_blt_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
+ * @copydoc string_show() */
+void string_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, text);
 	vsnprintf(buf, sizeof(buf), text, ap);
-	string_blt(surface, font, buf, x, y, color_notation, flags, box);
+	string_show(surface, font, buf, x, y, color_notation, flags, box);
 	va_end(ap);
 }
 
 /**
- * Like string_blt_shadow(), but allows using printf-like format specifiers.
+ * Like string_show_shadow(), but allows using printf-like format specifiers.
  *
- * @copydoc string_blt_shadow() */
-void string_blt_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
+ * @copydoc string_show_shadow() */
+void string_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, text);
 	vsnprintf(buf, sizeof(buf), text, ap);
-	string_blt_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
+	string_show_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
 	va_end(ap);
 }
 
@@ -2204,16 +2204,16 @@ int string_get_width(int font, const char *text, uint64 flags)
 {
 	SDL_Rect dest;
 	const char *cp = text;
-	text_blit_info info;
+	text_info_struct info;
 
-	blt_character_init(&info);
+	text_show_character_init(&info);
 	TTF_SetFontStyle(fonts[font].font, TTF_STYLE_NORMAL);
 
 	dest.w = 0;
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
+		cp += text_show_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
 	}
 
 	return dest.w;
@@ -2235,7 +2235,7 @@ int string_get_height(int font, const char *text, uint64 flags)
 	SDL_Rect dest;
 	const char *cp;
 	int max_height;
-	text_blit_info info;
+	text_info_struct info;
 
 	max_height = FONT_HEIGHT(font);
 
@@ -2245,14 +2245,14 @@ int string_get_height(int font, const char *text, uint64 flags)
 		return max_height;
 	}
 
-	blt_character_init(&info);
+	text_show_character_init(&info);
 
 	cp = text;
 	dest.w = 0;
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
+		cp += text_show_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
 
 		if (FONT_HEIGHT(font) > max_height)
 		{
@@ -2292,20 +2292,20 @@ void string_truncate_overflow(int font, char *text, int max_width)
  * if any.
  * @param info Where to store the information.
  * @param text The text to parse. */
-void text_anchor_parse(text_blit_info *info, const char *text)
+void text_anchor_parse(text_info_struct *info, const char *text)
 {
 	const char *cp = text;
 	SDL_Rect dest;
 	int font = FONT_ARIAL10;
 
-	blt_character_init(info);
+	text_show_character_init(info);
 	info->obscured = 1;
 
 	dest.w = 0;
 
 	while (*cp != '\0')
 	{
-		cp += blt_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
+		cp += text_show_character(&font, font, NULL, &dest, cp, NULL, NULL, TEXT_MARKUP, NULL, NULL, info);
 
 		if (info->anchor_tag)
 		{

@@ -496,13 +496,13 @@ void animate_objects(void)
 }
 
 /**
- * Blit the object, centering it. Animation offsets are taken into
+ * Draw the object, centering it. Animation offsets are taken into
  * account for perfect centering, even with different image sizes in
  * animation.
- * @param tmp Object to blit.
+ * @param tmp Object to show.
  * @param x X position.
  * @param y Y position. */
-void object_blit_centered(object *tmp, int x, int y)
+void object_show_centered(object *tmp, int x, int y)
 {
 	int temp, xstart, xlen, ystart, ylen;
 	sint16 face;

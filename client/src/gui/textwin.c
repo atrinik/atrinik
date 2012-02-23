@@ -61,7 +61,7 @@ void textwin_readjust(widgetdata *widget)
 		box.h = 0;
 		box.x = 0;
 		box.y = 0;
-		string_blt(NULL, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+		string_show(NULL, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 
 		/* Adjust the counts. */
 		textwin->num_lines = box.h - 1;
@@ -115,7 +115,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 	box.y = 0;
 	/* Get the string's height. */
-	string_blt(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	string_show(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 	scroll = box.h;
 
 	/* Adjust the counts. */
@@ -138,7 +138,7 @@ void draw_info_flags(const char *color, int flags, const char *str)
 
 			/* Get the string's height. */
 			box.h = 0;
-			string_blt(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+			string_show(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 			scroll = box.h - 1;
 
 			free(buf);
@@ -269,7 +269,7 @@ void textwin_show(int x, int y, int w, int h)
 	box.h = 0;
 	box.x = 0;
 	box.y = 0;
-	string_blt(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	string_show(NULL, textwin->font, textwin->entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 	scroll = box.h;
 
 	box.x = x;
@@ -284,7 +284,7 @@ void textwin_show(int x, int y, int w, int h)
 
 	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-	string_blt(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
+	string_show(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 }
 
 /**
@@ -345,7 +345,7 @@ void widget_textwin_show(widgetdata *widget)
 			box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 			box_text.y = textwin->scroll_offset;
 			text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-			string_blt(widget->widgetSF, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget), COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+			string_show(widget->widgetSF, textwin->font, textwin->entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget), COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
 			text_set_selection(NULL, NULL, NULL);
 		}
 

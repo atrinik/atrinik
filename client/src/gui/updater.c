@@ -190,7 +190,7 @@ static int popup_draw_post(popup_struct *popup)
 	box.w = popup->surface->w;
 	box.h = 38;
 
-	string_blt(ScreenSurface, FONT_SERIF20, "Updater", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	string_show(ScreenSurface, FONT_SERIF20, "Updater", box.x, box.y, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 	box.y += 60;
 
 	/* Show the progress dots. */
@@ -203,11 +203,11 @@ static int popup_draw_post(popup_struct *popup)
 		/* Downloading list of updates? */
 		if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL)))
 		{
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Downloading list of updates...", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "Downloading list of updates...", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 		}
 		else
 		{
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64" out of %"FMT64"...", (uint64) download_package_next, (uint64) download_packages_num);
+			string_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64" out of %"FMT64"...", (uint64) download_package_next, (uint64) download_packages_num);
 		}
 	}
 
@@ -226,7 +226,7 @@ static int popup_draw_post(popup_struct *popup)
 			cleanup_patch_files();
 			progress.done = 1;
 
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Connection timed out.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "Connection timed out.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 			box.y += 20;
 
@@ -354,7 +354,7 @@ static int popup_draw_post(popup_struct *popup)
 		/* No packages, so the client is up-to-date. */
 		if (!download_packages_num)
 		{
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 60;
 
 			button_close.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_close.texture)->w / 2;
@@ -364,14 +364,14 @@ static int popup_draw_post(popup_struct *popup)
 		else
 		{
 #ifdef WIN32
-			string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" update(s) downloaded successfully.", (uint64) download_packages_downloaded);
+			string_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" update(s) downloaded successfully.", (uint64) download_packages_downloaded);
 			box.y += 20;
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Restart the client to complete the update.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "Restart the client to complete the update.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 			if (download_packages_downloaded < download_packages_num)
 			{
-				string_blt_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" update(s) failed to download (possibly due to a connection failure).", (uint64) (download_packages_num - download_packages_downloaded));
-				string_blt_shadow(ScreenSurface, FONT_ARIAL11, "You may need to retry updating after restarting the client.", box.x, box.y + 40, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+				string_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64" update(s) failed to download (possibly due to a connection failure).", (uint64) (download_packages_num - download_packages_downloaded));
+				string_show_shadow(ScreenSurface, FONT_ARIAL11, "You may need to retry updating after restarting the client.", box.x, box.y + 40, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			}
 
 			box.y += 60;
@@ -383,9 +383,9 @@ static int popup_draw_post(popup_struct *popup)
 			button_restart.y = box.y;
 			button_show(&button_restart, "Restart");
 #else
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 20;
-			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "manager to update, or visit <a=url:http://www.atrinik.org/>www.atrinik.org</a> for help.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+			string_show_shadow(ScreenSurface, FONT_ARIAL11, "manager to update, or visit <a=url:http://www.atrinik.org/>www.atrinik.org</a> for help.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 #endif
 		}
 	}

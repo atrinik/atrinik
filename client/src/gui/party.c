@@ -154,7 +154,7 @@ void widget_party_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_show(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		if (list_party)
 		{

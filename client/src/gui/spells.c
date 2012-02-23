@@ -182,19 +182,19 @@ void widget_spells_render(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->wd;
-		string_blt(widget->widgetSF, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_show(widget->widgetSF, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		list_set_parent(list_spells, widget->x1, widget->y1);
 		list_show(list_spells, 10, 2);
 
 		box.w = 160;
-		string_blt(widget->widgetSF, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		string_show(widget->widgetSF, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		/* Show the spell's description. */
 		if (list_spells->text && spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
 		{
 			box.h = 120;
 			box.w = 150;
-			string_blt(widget->widgetSF, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->msg, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP, &box);
+			string_show(widget->widgetSF, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->msg, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP, &box);
 		}
 
 		/* Show info such as the spell cost, path status, etc if there is
@@ -206,7 +206,7 @@ void widget_spells_render(widgetdata *widget)
 
 			icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite->bitmap;
 
-			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
+			string_show_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
 
 			if (cpl.path_denied & spell_list[spell_list_path][spell_id]->path)
 			{
@@ -225,7 +225,7 @@ void widget_spells_render(widgetdata *widget)
 				status = "Normal";
 			}
 
-			string_blt_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
+			string_show_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
 			draw_frame(widget->widgetSF, widget->wd - 6 - icon->w, widget->ht - 6 - icon->h, icon->w + 1, icon->h + 1);
 			surface_show(widget->widgetSF, widget->wd - 5 - icon->w, widget->ht - 5 - icon->h, NULL, icon);
 		}
@@ -287,7 +287,7 @@ void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
 	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		size_t spell_id;
-		_Sprite *icon;
+		sprite_struct *icon;
 
 		if (!spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
 		{

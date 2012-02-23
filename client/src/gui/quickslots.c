@@ -238,13 +238,13 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			if (tmp)
 			{
 				/* Show it */
-				object_blit_inventory(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+				object_show_inventory(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
 			}
 		}
 
 		/* For each quickslot, output the F1-F8 shortcut */
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
@@ -252,11 +252,11 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, x, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 

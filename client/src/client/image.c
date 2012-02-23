@@ -549,11 +549,11 @@ int get_bmap_id(char *name)
 }
 
 /**
- * Blit a face.
+ * Draw a face.
  * @param id ID of the face.
  * @param x X position.
  * @param y Y position. */
-void blit_face(int id, int x, int y)
+void face_show(int id, int x, int y)
 {
 	if (id == -1 || !FaceList[id].sprite)
 	{

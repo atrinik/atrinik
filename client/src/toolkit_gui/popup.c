@@ -142,7 +142,7 @@ void popup_render(popup_struct *popup)
 {
 	SDL_Rect box;
 
-	if (!popup->disable_texture_blit)
+	if (!popup->disable_texture_drawing)
 	{
 		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
 	}

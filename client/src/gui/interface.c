@@ -110,7 +110,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 static void interface_execute_link(size_t link_id)
 {
 	char **p;
-	text_blit_info info;
+	text_info_struct info;
 
 	p = (char **) utarray_eltptr(interface_data->links, link_id);
 
@@ -136,13 +136,13 @@ static int popup_draw_func(popup_struct *popup)
 
 		if (interface_data->icon)
 		{
-			string_blt_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+			string_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
 		}
 
 		text_offset_set(popup->x, popup->y);
 		box.w = INTERFACE_TITLE_WIDTH;
 		box.h = FONT_HEIGHT(FONT_SERIF14);
-		string_blt(popup->surface, FONT_SERIF14, interface_data->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		string_show(popup->surface, FONT_SERIF14, interface_data->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 		box.w = INTERFACE_TEXT_WIDTH;
 		box.h = INTERFACE_TEXT_HEIGHT;
@@ -150,7 +150,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.y = interface_data->scroll_offset;
 		text_set_anchor_handle(text_anchor_handle);
 		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
-		string_blt(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_show(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
 		text_set_anchor_handle(NULL);
 		text_offset_reset();
@@ -397,7 +397,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		interface_popup->destroy_callback_func = popup_destroy_callback;
 		interface_popup->event_func = popup_event_func;
 		interface_popup->clipboard_copy_func = popup_clipboard_copy_func;
-		interface_popup->disable_texture_blit = 1;
+		interface_popup->disable_texture_drawing = 1;
 
 		interface_popup->button_left.event_func = popup_button_event_func;
 		interface_popup->button_left.x = 380;
@@ -535,7 +535,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
 	box.w = INTERFACE_TEXT_WIDTH;
 	box.h = INTERFACE_TEXT_HEIGHT;
-	string_blt(NULL, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	string_show(NULL, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	interface_data->num_lines = box.h;
 
 	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);

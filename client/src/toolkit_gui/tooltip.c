@@ -68,12 +68,12 @@ void tooltip_multiline(int max_width)
 	box.y = 0;
 	box.w = max_width;
 	box.h = 0;
-	string_blt(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+	string_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
 	tooltip_w = max_width;
 	tooltip_h = box.h;
 
 	box.h = 0;
-	string_blt(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+	string_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
 	tooltip_w = box.w;
 }
 
@@ -126,7 +126,7 @@ void tooltip_show(void)
 	}
 
 	SDL_FillRect(ScreenSurface, &box, -1);
-	string_blt(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
+	string_show(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
 }
 
 /**

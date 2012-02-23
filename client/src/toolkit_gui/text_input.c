@@ -135,7 +135,7 @@ void text_input_show_edit_password(text_input_struct *text_input)
 
 void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y)
 {
-	text_blit_info info;
+	text_info_struct info;
 	int underscore_width;
 	size_t pos;
 	char buf[HUGE_BUF], *cp;
@@ -164,7 +164,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 		text_input->show_edit_func(text_input);
 	}
 
-	blt_character_init(&info);
+	text_show_character_init(&info);
 	underscore_width = glyph_get_width(text_input->font, '_');
 
 	/* Figure out the width by going backwards. */
@@ -176,7 +176,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 			break;
 		}
 
-		blt_character(&text_input->font, text_input->font, NULL, &box, text_input->str + pos, NULL, NULL, 0, NULL, NULL, &info);
+		text_show_character(&text_input->font, text_input->font, NULL, &box, text_input->str + pos, NULL, NULL, 0, NULL, NULL, &info);
 	}
 
 	strncpy(buf, text_input->str + pos, text_input->pos - pos);
@@ -198,7 +198,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 
 	box.w = text_input->w;
 	box.h = text_input->h;
-	string_blt(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+	string_show(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
 
 	if (cp)
 	{

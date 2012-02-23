@@ -138,7 +138,7 @@ void widget_show_mapname(widgetdata *widget)
 
 	box.w = widget->wd;
 	box.h = 0;
-	string_blt_format(ScreenSurface, MAP_NAME_FONT, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
+	string_show_format(ScreenSurface, MAP_NAME_FONT, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
 }
 
 /**
@@ -496,7 +496,7 @@ static int get_top_floor_height(int x, int y)
 static void draw_map_object(int x, int y, int layer, int sub_layer, int player_height_offset, struct MapCell **target_cell, int *target_layer, SDL_Rect *target_rect)
 {
 	struct MapCell *map = &the_map.cells[x][y];
-	_Sprite *face_sprite;
+	sprite_struct *face_sprite;
 	int ypos, xpos;
 	int xl, yl, temp;
 	int xml, xmpos, xtemp = 0;
@@ -577,7 +577,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		xl += map->align[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	/* Blit the face in the darkness level the tile pos has */
+	/* Draw the face in the darkness level the tile pos has */
 	temp = map->darkness;
 
 	if (temp == 210)
@@ -619,11 +619,11 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 
 	if (map->infravision[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		flags |= BLTFX_FLAG_RED;
+		flags |= SPRITE_FLAG_RED;
 	}
 	else
 	{
-		flags |= BLTFX_FLAG_DARK;
+		flags |= SPRITE_FLAG_DARK;
 	}
 
 	if (map->alpha[GET_MAP_LAYER(layer, sub_layer)])
@@ -676,11 +676,11 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
+			string_show(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
 		}
 	}
 
-	/* Perhaps the object has a marked effect, blit it now */
+	/* Perhaps the object has a marked effect, show it. */
 	if (map->flags[GET_MAP_LAYER(layer, sub_layer)])
 	{
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
@@ -799,7 +799,7 @@ void map_draw_map(void)
 
 		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && target_cell->pname[target_layer][0]))
 		{
-			string_blt(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
+			string_show(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
 		}
 
 		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y - 2, 1, 5, hp_color);
@@ -1158,7 +1158,7 @@ void widget_map_render(widgetdata *widget)
 
 			while (cp)
 			{
-				string_blt(ScreenSurface, FONT_SERIF16, cp, widget->x1 + widget->widgetSF->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y1 + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
+				string_show(ScreenSurface, FONT_SERIF16, cp, widget->x1 + widget->widgetSF->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y1 + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
 				y_offset += FONT_HEIGHT(FONT_SERIF16);
 				cp = strtok(NULL, "\n");
 			}

@@ -207,8 +207,8 @@ enum
 
 /**
  * Structure that holds information about markup and other things when
- * blitting. */
-typedef struct text_blit_info
+ * drawing. */
+typedef struct text_info_struct
 {
 	/** Anchor tag position. */
 	char *anchor_tag;
@@ -268,11 +268,11 @@ typedef struct text_blit_info
 	SDL_Color highlight_color;
 
 	char tooltip_text[MAX_BUF * 2];
-} text_blit_info;
+} text_info_struct;
 
 /**
  * @defgroup TEXT_xxx Text flags
- * Various text flags for controlling behavior of string_blt().
+ * Various text flags for controlling behavior of string_show().
  *@{*/
 /** Parse markup, otherwise it will be rendered as normal text. */
 #define TEXT_MARKUP 1

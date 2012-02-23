@@ -130,7 +130,7 @@ void widget_show_number(widgetdata *widget)
 
 	snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
 	string_truncate_overflow(FONT_ARIAL10, buf, 220);
-	string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
+	string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
 }
 
 int widget_input_handle_key(widgetdata *widget, SDL_Event *event)

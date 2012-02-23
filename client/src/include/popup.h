@@ -57,7 +57,7 @@ typedef struct popup_button
 typedef struct popup_struct
 {
 	/**
-	 * Surface the popup uses for blitting. This surface is then copied
+	 * Surface the popup uses for drawing. This surface is then copied
 	 * to ::ScreenSurface. */
 	SDL_Surface *surface;
 
@@ -66,8 +66,8 @@ typedef struct popup_struct
 	texture_struct *texture;
 
 	/**
-	 * Disable automatically blitting the texture on the popup surface? */
-	uint8 disable_texture_blit;
+	 * Disable automatically drawing the texture on the popup surface? */
+	uint8 disable_texture_drawing;
 
 	/** Custom data. */
 	void *custom_data;
@@ -115,7 +115,7 @@ typedef struct popup_struct
 	int (*draw_func)(struct popup_struct *popup);
 
 	/**
-	 * Function used for drawing after blitting the popup's surface on
+	 * Function used for drawing after drawing the popup's surface on
 	 * the main surface.
 	 * @param popup The popup.
 	 * @return 0 to destroy the popup, 1 otherwise. */

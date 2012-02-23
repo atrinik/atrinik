@@ -30,41 +30,21 @@
 #define SPRITE_H
 
 /**
- * @defgroup BLTFX_FLAG_xxx BLTFX flags
- * BLTFX flags.
+ * @defgroup SPRITE_FLAG_xxx Sprite drawing flags
+ * Sprite drawing flags.
  *@{*/
 /** Use darkness. */
-#define BLTFX_FLAG_DARK     1
-/** Alpha. */
-#define BLTFX_FLAG_SRCALPHA 2
+#define SPRITE_FLAG_DARK 1
 /** Fog of war. */
-#define BLTFX_FLAG_FOW      4
+#define SPRITE_FLAG_FOW 2
 /** Red. */
-#define BLTFX_FLAG_RED      8
+#define SPRITE_FLAG_RED 4
 /** Gray. */
-#define BLTFX_FLAG_GREY     16
-/** Stretch the bitmap. */
-#define BLTFX_FLAG_STRETCH  32
+#define SPRITE_FLAG_GRAY 8
 /*@}*/
 
-/** Here we can change default blitting options or set special options */
-typedef struct _BLTFX
-{
-	/** Combination of @ref BLTFX_FLAG_xxx */
-	uint32 flags;
-
-	/** If not NULL, overrule default screen */
-	SDL_Surface *surface;
-
-	/** Use dark_level[i] surface. */
-	int dark_level;
-
-	/** Alpha value. */
-	uint8 alpha;
-} _BLTFX;
-
 /** Sprite structure. */
-typedef struct _Sprite
+typedef struct sprite_struct
 {
 	/** Rows of blank pixels before first color information. */
 	int border_up;
@@ -95,7 +75,7 @@ typedef struct _Sprite
 
 	/** Dark levels. */
 	SDL_Surface *dark_level[DARK_LEVELS];
-} _Sprite;
+} sprite_struct;
 
 /**
  * @defgroup ANIM_xxx Animation types

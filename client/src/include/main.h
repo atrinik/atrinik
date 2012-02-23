@@ -89,7 +89,7 @@ typedef struct msg_anim_struct
 typedef struct _face_struct
 {
 	/* Our face data. if != null, face is loaded */
-	struct _Sprite *sprite;
+	struct sprite_struct *sprite;
 
 	/* Our face name. if != null, face is requested */
 	char *name;

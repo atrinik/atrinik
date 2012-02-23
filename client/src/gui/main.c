@@ -94,7 +94,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		box.w = 420;
 		box.h = 22;
 		/* Show the news title. */
-		string_blt(popup->surface, FONT_SERIF12, list_news->text[list_news->row_selected - 1][0], 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		string_show(popup->surface, FONT_SERIF12, list_news->text[list_news->row_selected - 1][0], 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 		box.w = NEWS_MAX_WIDTH;
 		box.h = NEWS_MAX_HEIGHT;
@@ -102,7 +102,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		/* Calculate number of last displayed lines. */
 		if (!news_num_lines)
 		{
-			string_blt(NULL, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+			string_show(NULL, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 			news_num_lines = box.h;
 			scrollbar_create(&scrollbar_news, 15, 240, &news_scroll_offset, &news_num_lines, box.y);
 			scrollbar_news.px = popup->x;
@@ -114,7 +114,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		box.y = news_scroll_offset;
 		/* Show the news. */
 		text_offset_set(popup->x, popup->y);
-		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_show(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 
 		scrollbar_show(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
@@ -158,7 +158,7 @@ static int news_popup_draw_func(popup_struct *popup)
 	}
 
 	/* Haven't downloaded the text yet, inform the user. */
-	string_blt(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 40, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
+	string_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 40, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
 	return 1;
 }
 
@@ -354,7 +354,7 @@ static int popup_draw_post_func(popup_struct *popup)
 	{
 		box.w = 460;
 		box.h = 96;
-		string_blt(ScreenSurface, FONT_SERIF12, s_settings->characters[list_creation->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_show(ScreenSurface, FONT_SERIF12, s_settings->characters[list_creation->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		for (i = 0; i < GENDER_MAX; i++)
 		{
@@ -381,7 +381,7 @@ static int popup_draw_post_func(popup_struct *popup)
 	}
 	else
 	{
-		blit_face(face, x + 300, y + 35);
+		face_show(face, x + 300, y + 35);
 	}
 
 	/* Show the stat values and the range buttons. */
@@ -412,7 +412,7 @@ static int popup_draw_func(popup_struct *popup)
 	{
 		box.w = popup->surface->w;
 		box.h = popup->surface->h;
-		string_blt_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		string_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return 1;
 	}
 	/* Playing now, so destroy this popup. */
@@ -435,7 +435,7 @@ static int popup_draw_func(popup_struct *popup)
 	/* Show that we are connecting to the server. */
 	box.w = 420;
 	box.h = 22;
-	string_blt_shadow(popup->surface, FONT_SERIF14, "Character Login", 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	string_show_shadow(popup->surface, FONT_SERIF14, "Character Login", 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	if (downloading)
 	{
@@ -621,21 +621,21 @@ void main_screen_render(void)
 	if (node)
 	{
 		snprintf(buf, sizeof(buf), "Version: %s", node->version);
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+		string_show_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 
 		box.w = 410;
 		box.h = 48;
-		string_blt(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_show(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 197, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	/* Show whether we are connecting to the metaserver or not. */
 	if (ms_connecting(-1))
 	{
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+		string_show_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
 	}
 	else
 	{
-		string_blt_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
+		string_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
 	}
 
 	texture = TEXTURE_CLIENT("servers_bg_over");
@@ -647,7 +647,7 @@ void main_screen_render(void)
 
 	box.w = texture->w;
 	box.h = 0;
-	string_blt_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+	string_show_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 	/* No list yet, make one and start downloading the data. */
 	if (!list_news)

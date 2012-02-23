@@ -71,7 +71,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.w = BOOK_TITLE_WIDTH;
 		box.h = BOOK_TITLE_HEIGHT;
 		text_offset_set(popup->x, popup->y);
-		string_blt(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_show(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
 		box.w = BOOK_TEXT_WIDTH;
@@ -79,7 +79,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.y = book_scroll;
 		text_color_set(0, 0, 255);
 		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
-		string_blt(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		string_show(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
 		text_offset_reset();
 
@@ -257,7 +257,7 @@ void book_load(const char *data, int len)
 	/* Calculate the line numbers. */
 	box.w = BOOK_TEXT_WIDTH;
 	box.h = BOOK_TEXT_HEIGHT;
-	string_blt(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	string_show(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
 
@@ -272,7 +272,7 @@ void book_load(const char *data, int len)
 		popup->event_func = popup_event_func;
 		popup->destroy_callback_func = popup_destroy_callback;
 		popup->clipboard_copy_func = popup_clipboard_copy_func;
-		popup->disable_texture_blit = 1;
+		popup->disable_texture_drawing = 1;
 
 		popup->button_left.x = 25;
 		popup->button_left.y = 25;

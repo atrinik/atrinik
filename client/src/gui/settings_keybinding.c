@@ -160,7 +160,7 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = popup->surface->w;
 	box.h = 38;
-	string_blt(popup->surface, FONT_SERIF20, "Keybinding Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	string_show(popup->surface, FONT_SERIF20, "Keybinding Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	list_show(list_keybindings, 30, 50);
 	list_set_parent(list_keybindings, popup->x, popup->y);
@@ -181,9 +181,9 @@ static int popup_draw(popup_struct *popup)
 	{
 		int key, mod;
 
-		string_blt_shadow(popup->surface, FONT_ARIAL11, "Command: ", 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-		string_blt_shadow(popup->surface, FONT_ARIAL11, "Key: ", 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-		string_blt_shadow(popup->surface, FONT_ARIAL10, "Press ESC to cancel.", 160, popup->surface->h - 36, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_show_shadow(popup->surface, FONT_ARIAL11, "Command: ", 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_show_shadow(popup->surface, FONT_ARIAL11, "Key: ", 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+		string_show_shadow(popup->surface, FONT_ARIAL10, "Press ESC to cancel.", 160, popup->surface->h - 36, COLOR_WHITE, COLOR_BLACK, 0, NULL);
 
 		text_input_set_parent(&text_input_command, popup->x, popup->y);
 		text_input_set_parent(&text_input_key, popup->x, popup->y);
@@ -199,11 +199,11 @@ static int popup_draw(popup_struct *popup)
 			char buf[MAX_BUF];
 
 			keybind_get_key_shortcut(key, mod, buf, sizeof(buf));
-			string_blt(popup->surface, text_input_key.font, buf, text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+			string_show(popup->surface, text_input_key.font, buf, text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		}
 		else if (text_input_key.focus)
 		{
-			string_blt(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+			string_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		}
 
 		button_apply.x = text_input_key.x + text_input_key.w - TEXTURE_SURFACE(button_apply.texture)->w;

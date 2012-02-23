@@ -68,6 +68,6 @@ void widget_show_fps(widgetdata *widget)
 	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("fps"));
 
 	snprintf(buf, sizeof(buf), "%d", fps_current);
-	string_blt(ScreenSurface, FONT_ARIAL11, "fps:", widget->x1 + 5, widget->y1 + 4, COLOR_WHITE, 0, NULL);
-	string_blt(ScreenSurface, FONT_ARIAL11, buf, widget->x1 + widget->wd - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y1 + 4, COLOR_WHITE, 0, NULL);
+	string_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x1 + 5, widget->y1 + 4, COLOR_WHITE, 0, NULL);
+	string_show(ScreenSurface, FONT_ARIAL11, buf, widget->x1 + widget->wd - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y1 + 4, COLOR_WHITE, 0, NULL);
 }

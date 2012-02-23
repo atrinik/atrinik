@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
 				int mx, my;
 
 				SDL_GetMouseState(&mx, &my);
-				object_blit_centered(object_find(cpl.dragging_tag), mx, my);
+				object_show_centered(object_find(cpl.dragging_tag), mx, my);
 			}
 
 			if (cpl.state <= ST_WAITFORPLAY)

@@ -865,7 +865,7 @@ uint8 effect_has_overlay(void)
 /**
  * Add an effect overlay to a sprite.
  * @param sprite The sprite to add overlay to. */
-void effect_scale(_Sprite *sprite)
+void effect_scale(sprite_struct *sprite)
 {
 	int j, k, r, g, b, a, idx;
 	Uint8 vals[4];

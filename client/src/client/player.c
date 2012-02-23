@@ -230,7 +230,7 @@ void widget_show_player_data(widgetdata *widget)
 
 	box.w = widget->wd - 12;
 	box.h = 36;
-	string_blt(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x1 + 6, widget->y1 + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	string_show(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x1 + 6, widget->y1 + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 }
 
 /**
@@ -260,22 +260,21 @@ void widget_player_stats(widgetdata *widget)
 		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("stats_bg"));
 
 		/* Health */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);
 		snprintf(buf, sizeof(buf), "%d/%d", cpl.stats.hp, cpl.stats.maxhp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 90);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 10, COLOR_GREEN, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 10, COLOR_GREEN, 0, NULL);
 
 		/* Mana */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Mana", 58, 34, COLOR_WHITE, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Mana", 58, 34, COLOR_WHITE, 0, NULL);
 		snprintf(buf, sizeof(buf), "%d/%d", cpl.stats.sp, cpl.stats.maxsp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 75);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 34, COLOR_GREEN, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 34, COLOR_GREEN, 0, NULL);
 
 		/* Food */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Food", 58, 83, COLOR_WHITE, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Food", 58, 83, COLOR_WHITE, 0, NULL);
 	}
 
-	/* Now we blit our backbuffer SF */
 	box.x = widget->x1;
 	box.y = widget->y1;
 	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
@@ -404,26 +403,26 @@ void widget_show_player_doll(widgetdata *widget)
 
 	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("player_doll_bg"));
 
-	string_blt(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
-	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 10, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
-	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 10, widget->y1 + 225, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
+	string_show(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x1 + 20, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	string_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 9, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
+	string_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 10, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
+	string_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 10, widget->y1 + 225, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 40, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-	string_blt(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x1 + 155, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	string_blt(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 139, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
-	string_blt(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 140, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
-	string_blt(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 140, widget->y1 + 225, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
+	string_show(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x1 + 155, widget->y1 + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	string_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x1 + 139, widget->y1 + 205, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
+	string_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x1 + 140, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
+	string_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x1 + 140, widget->y1 + 225, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 170, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
 
-	string_blt(ScreenSurface, FONT_ARIAL10, "Speed", widget->x1 + 92, widget->y1 + 193, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 93, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	string_blt(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
-	string_blt_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
+	string_show(ScreenSurface, FONT_ARIAL10, "Speed", widget->x1 + 92, widget->y1 + 193, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 93, widget->y1 + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
+	string_show(ScreenSurface, FONT_ARIAL10, "AC", widget->x1 + 92, widget->y1 + 215, COLOR_HGOLD, 0, NULL);
+	string_show_format(ScreenSurface, FONT_MONO10, widget->x1 + 92, widget->y1 + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
 
 	texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
@@ -448,7 +447,7 @@ void widget_show_player_doll(widgetdata *widget)
 		xpos = widget->x1 + player_doll_positions[i][0] + 2;
 		ypos = widget->y1 + player_doll_positions[i][1] + 2;
 
-		object_blit_centered(cpl.player_doll[i], xpos, ypos);
+		object_show_centered(cpl.player_doll[i], xpos, ypos);
 
 		/* Prepare item name tooltip */
 		if (mx > xpos && mx <= xpos + INVENTORY_ICON_SIZE && my > ypos && my <= widget->y1 + ypos + INVENTORY_ICON_SIZE)
@@ -490,12 +489,12 @@ void widget_show_main_lvl(widgetdata *widget)
 
 		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("main_lvl_bg"));
 
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
 		snprintf(buf, sizeof(buf), "<b>%d</b>", cpl.stats.level);
-		string_blt(widget->widgetSF, FONT_SERIF14, buf, widget->wd - 4 - string_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
+		string_show(widget->widgetSF, FONT_SERIF14, buf, widget->wd - 4 - string_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
 
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
+		string_show_format(widget->widgetSF, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
 
 		player_draw_exp_progress(widget->widgetSF, 4, 35, cpl.stats.exp, cpl.stats.level);
 	}
@@ -548,10 +547,10 @@ void widget_show_skill_exp(widgetdata *widget)
 
 		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("skill_exp_bg"));
 
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
-		string_blt_format(widget->widgetSF, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
+		string_show_format(widget->widgetSF, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
 	}
 
 	box.x = widget->x1;
@@ -582,23 +581,23 @@ void widget_show_regeneration(widgetdata *widget)
 
 		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("regen_bg"));
 
-		string_blt(widget->widgetSF, FONT_SANS8, "R", 4, 1, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_SANS8, "e", 4, 7, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_SANS8, "g", 4, 13, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_SANS8, "e", 4, 21, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		string_blt(widget->widgetSF, FONT_SANS8, "n", 4, 27, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_SANS8, "R", 4, 1, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_SANS8, "e", 4, 7, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_SANS8, "g", 4, 13, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_SANS8, "e", 4, 21, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->widgetSF, FONT_SANS8, "n", 4, 27, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
 		/* Health */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "HP:", 13, 3, COLOR_HGOLD, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "HP:", 13, 3, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_hp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 3, COLOR_WHITE, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 3, COLOR_WHITE, 0, NULL);
 
 		/* Mana */
-		string_blt(widget->widgetSF, FONT_ARIAL10, "Mana:", 13, 13, COLOR_HGOLD, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, "Mana:", 13, 13, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_sp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 45);
-		string_blt(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 13, COLOR_WHITE, 0, NULL);
+		string_show(widget->widgetSF, FONT_ARIAL10, buf, widget->wd - 5 - string_get_width(FONT_ARIAL10, buf, 0), 13, COLOR_WHITE, 0, NULL);
 	}
 
 	box.x = widget->x1;
@@ -850,7 +849,7 @@ void widget_show_label(widgetdata *widget)
 {
 	_widget_label *label = LABEL(widget);
 
-	string_blt(ScreenSurface, label->font, label->text, widget->x1, widget->y1, label->color, 0, NULL);
+	string_show(ScreenSurface, label->font, label->text, widget->x1, widget->y1, label->color, 0, NULL);
 }
 
 void widget_show_texture(widgetdata *widget)

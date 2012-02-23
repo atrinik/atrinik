@@ -207,8 +207,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			}
 		}
 
-		/* Blit the object. */
-		object_blit_inventory(ob, x, y);
+		object_show_inventory(ob, x, y);
 
 		/* If this object is selected, show the selected graphic and
 		 * show some extra information in the widget. */
@@ -230,20 +229,20 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			if (widget->WidgetTypeID == MAIN_INV_ID)
 			{
 				string_truncate_overflow(FONT_ARIAL10, buf, widget->wd - 26 - 4);
-				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 2, COLOR_HGOLD, 0, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 
 				/* 255 item quality marks the item as unidentified. */
 				if (ob->item_qua == 255)
 				{
-					string_blt(ScreenSurface, FONT_ARIAL10, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, 0, NULL);
+					string_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, 0, NULL);
 				}
 				else
 				{
-					string_blt(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-					string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
+					string_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+					string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
 
 					if (ob->item_level)
 					{
@@ -264,11 +263,11 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 						if (ob->item_level <= level)
 						{
-							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
 						}
 						else
 						{
-							string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_RED, 0, NULL);
+							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_RED, 0, NULL);
 						}
 					}
 				}
@@ -276,7 +275,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			else if (widget->WidgetTypeID == BELOW_INV_ID)
 			{
 				string_truncate_overflow(FONT_ARIAL10, buf, 250);
-				string_blt(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 6, widget->y1 + 3, COLOR_HGOLD, 0, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 6, widget->y1 + 3, COLOR_HGOLD, 0, NULL);
 			}
 		}
 
@@ -354,20 +353,20 @@ void widget_inventory_render(widgetdata *widget)
 
 			surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inv_bg"));
 
-			string_blt(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
-			string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
+			string_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
+			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
-			string_blt(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-			string_blt_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit / 1000.0);
+			string_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit / 1000.0);
 
 			if (inventory_filter == INVENTORY_FILTER_ALL)
 			{
-				string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 			else
 			{
-				string_blt(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
-				string_blt(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x1 + 54, widget->y1 + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x1 + 54, widget->y1 + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 
 			return;
@@ -663,19 +662,19 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 }
 
 /**
- * Blit an inventory item to the screen surface.
+ * Draw an inventory item on the screen surface.
  *
- * Uses blt_inv_item_centered() to draw the item's face and center it.
+ * Uses object_show_centered() to draw the item's face and center it.
  * Draws any additional flags (like magical, cursed, damned) as icons
  * and draws nrof (if higher than 1) of items near the bottom.
  * @param tmp Pointer to the inventory item
  * @param x X position of the item
  * @param y Y position of the item */
-void object_blit_inventory(object *tmp, int x, int y)
+void object_show_inventory(object *tmp, int x, int y)
 {
 	SDL_Surface *icon;
 
-	object_blit_centered(tmp, x, y);
+	object_show_centered(tmp, x, y);
 
 	if (tmp->nrof > 1)
 	{
@@ -690,7 +689,7 @@ void object_blit_inventory(object *tmp, int x, int y)
 			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
-		string_blt(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	if (tmp->flags & CS_FLAG_APPLIED)

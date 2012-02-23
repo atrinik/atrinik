@@ -40,9 +40,9 @@ static int dark_alpha[DARK_LEVELS] =
 	0, 44, 80, 117, 153, 190, 226
 };
 
-static void red_scale(_Sprite *sprite);
-static void grey_scale(_Sprite *sprite);
-static void fow_scale(_Sprite *sprite);
+static void red_scale(sprite_struct *sprite);
+static void grey_scale(sprite_struct *sprite);
+static void fow_scale(sprite_struct *sprite);
 
 /**
  * Initialize the sprite system. */
@@ -57,9 +57,9 @@ void sprite_init_system(void)
  * @param fname Sprite filename.
  * @param flags Flags for the sprite.
  * @return NULL if failed, the sprite otherwise. */
-_Sprite *sprite_load_file(char *fname, uint32 flags)
+sprite_struct *sprite_load_file(char *fname, uint32 flags)
 {
-	_Sprite *sprite = sprite_tryload_file(fname, flags, NULL);
+	sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
 
 	if (sprite == NULL)
 	{
@@ -76,9 +76,9 @@ _Sprite *sprite_load_file(char *fname, uint32 flags)
  * @param flag Flags
  * @param rwop Pointer to memory for the image
  * @return The sprite if success, NULL otherwise */
-_Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
+sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 {
-	_Sprite *sprite;
+	sprite_struct *sprite;
 	SDL_Surface *bitmap;
 	uint32 ckflags, tmp = 0;
 
@@ -94,12 +94,12 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 		bitmap = IMG_LoadPNG_RW(rwop);
 	}
 
-	if (!(sprite = malloc(sizeof(_Sprite))))
+	if (!(sprite = malloc(sizeof(sprite_struct))))
 	{
 		return NULL;
 	}
 
-	memset(sprite, 0, sizeof(_Sprite));
+	memset(sprite, 0, sizeof(sprite_struct));
 
 	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
 
@@ -135,7 +135,7 @@ _Sprite *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 /**
  * Free a sprite.
  * @param sprite Sprite to free. */
-void sprite_free_sprite(_Sprite *sprite)
+void sprite_free_sprite(sprite_struct *sprite)
 {
 	int i;
 
@@ -277,7 +277,7 @@ void map_surface_show(SDL_Surface *surface, int x, int y, uint8 alpha, uint32 st
 	}
 }
 
-void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
 	SDL_Surface *surface;
 
@@ -320,7 +320,7 @@ void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_lev
 		}
 	}
 
-	if (flags & BLTFX_FLAG_DARK)
+	if (flags & SPRITE_FLAG_DARK)
 	{
 		/* Last dark level is "no color" */
 		if (dark_level == DARK_LEVELS)
@@ -339,7 +339,7 @@ void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_lev
 			sprite->dark_level[dark_level] = surface;
 		}
 	}
-	else if (flags & BLTFX_FLAG_FOW)
+	else if (flags & SPRITE_FLAG_FOW)
 	{
 		if (!sprite->fog_of_war)
 		{
@@ -348,7 +348,7 @@ void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_lev
 
 		surface = sprite->fog_of_war;
 	}
-	else if (flags & BLTFX_FLAG_RED)
+	else if (flags & SPRITE_FLAG_RED)
 	{
 		if (!sprite->red)
 		{
@@ -357,7 +357,7 @@ void map_sprite_show(_Sprite *sprite, int x, int y, uint32 flags, uint8 dark_lev
 
 		surface = sprite->red;
 	}
-	else if (flags & BLTFX_FLAG_GREY)
+	else if (flags & SPRITE_FLAG_GRAY)
 	{
 		if (!sprite->grey)
 		{
@@ -452,9 +452,9 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 }
 
 /**
- * Create _Sprite::red surface for a sprite.
+ * Create sprite_struct::red surface for a sprite.
  * @param sprite Sprite. */
-static void red_scale(_Sprite *sprite)
+static void red_scale(sprite_struct *sprite)
 {
 	int j, k;
 	Uint8 r, g, b, a;
@@ -476,9 +476,9 @@ static void red_scale(_Sprite *sprite)
 }
 
 /**
- * Create _Sprite::grey surface for a sprite.
+ * Create sprite_struct::grey surface for a sprite.
  * @param sprite Sprite. */
-static void grey_scale(_Sprite *sprite)
+static void grey_scale(sprite_struct *sprite)
 {
 	int j, k;
 	Uint8 r, g, b, a;
@@ -499,9 +499,9 @@ static void grey_scale(_Sprite *sprite)
 }
 
 /**
- * Create _Sprite::fow surface for a sprite.
+ * Create sprite_struct::fow surface for a sprite.
  * @param sprite Sprite. */
-static void fow_scale(_Sprite *sprite)
+static void fow_scale(sprite_struct *sprite)
 {
 	int j, k;
 	Uint8 r, g, b, a;
@@ -802,12 +802,12 @@ void play_anims(void)
 						if (anim->value < 0)
 						{
 							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
+							string_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
 						}
 						else
 						{
 							snprintf(buf, sizeof(buf), "%d", anim->value);
-							string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
+							string_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
 						}
 					}
 
@@ -836,7 +836,7 @@ void play_anims(void)
 						else if (anim->value < 10000)
 							tmp_off = -12;
 
-						string_blt(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
+						string_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
 					}
 
 					break;
@@ -860,7 +860,7 @@ void play_anims(void)
  * @param sprite1
  * @param sprite2
  * @return  */
-int sprite_collision(int x, int y, int x2, int y2, _Sprite *sprite1, _Sprite *sprite2)
+int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2)
 {
 	int left1, left2;
 	int right1, right2;
