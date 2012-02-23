@@ -604,10 +604,10 @@ char *string_create_char_range(char start, char end)
 
 	for (c = start; c <= end; c++)
 	{
-		str[start - c] = c;
+		str[c - start] = c;
 	}
 
-	str[start - c + 1] = '\0';
+	str[c - start + 1] = '\0';
 
 	return str;
 }
