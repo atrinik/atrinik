@@ -76,18 +76,12 @@ static void text_input_history_add(text_input_history_struct *history, const cha
 
 void text_input_create(text_input_struct *text_input)
 {
-	int interval, delay;
-
 	memset(text_input, 0, sizeof(*text_input));
 	text_input->focus = 1;
 	text_input->font = FONT_ARIAL11;
 	text_input->max = MIN(sizeof(text_input->str), 256);
 	text_input->w = 200;
 	text_input->h = FONT_HEIGHT(text_input->font);
-
-	interval = 120 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
-	delay = interval + 300 / (setting_get_int(OPT_CAT_CLIENT, OPT_KEY_REPEAT_SPEED) + 1);
-	SDL_EnableKeyRepeat(delay, interval);
 }
 
 void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history)
@@ -263,8 +257,6 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 		}
 		else if (IS_ENTER(event->key.keysym.sym))
 		{
-			SDL_EnableKeyRepeat(0 , SDL_DEFAULT_REPEAT_INTERVAL);
-
 			if (*text_input->str != '\0')
 			{
 				text_input_history_add(text_input->history, text_input->str);
