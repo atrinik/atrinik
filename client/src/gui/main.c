@@ -703,22 +703,22 @@ void main_screen_render(void)
 	y += 2;
 
 	button_play.y = y + 10;
-	button_render(&button_play, "Play");
+	button_show(&button_play, "Play");
 
 	button_refresh.y = y + 35;
-	button_render(&button_refresh, "Refresh");
+	button_show(&button_refresh, "Refresh");
 
 	button_settings.y = y + 60;
-	button_render(&button_settings, "Settings");
+	button_show(&button_settings, "Settings");
 
 	button_update.y = y + 85;
-	button_render(&button_update, "Update");
+	button_show(&button_update, "Update");
 
 	button_help.y = y + 110;
-	button_render(&button_help, "Help");
+	button_show(&button_help, "Help");
 
 	button_quit.y = y + 224;
-	button_render(&button_quit, "Quit");
+	button_show(&button_quit, "Quit");
 }
 
 /**

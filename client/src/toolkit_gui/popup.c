@@ -125,13 +125,13 @@ void popup_destroy_all(void)
  * Render a single popup button.
  * @param popup Popup.
  * @param button The button to render. */
-static void popup_button_render(popup_struct *popup, popup_button *button)
+static void popup_button_show(popup_struct *popup, popup_button *button)
 {
 	if (button->button.texture)
 	{
 		button->button.x = popup->x + button->x;
 		button->button.y = popup->y + button->y;
-		button_render(&button->button, button->text ? button->text : "");
+		button_show(&button->button, button->text ? button->text : "");
 	}
 }
 
@@ -166,8 +166,8 @@ void popup_render(popup_struct *popup)
 	box.y = popup->y;
 	SDL_BlitSurface(popup->surface, NULL, ScreenSurface, &box);
 
-	popup_button_render(popup, &popup->button_left);
-	popup_button_render(popup, &popup->button_right);
+	popup_button_show(popup, &popup->button_left);
+	popup_button_show(popup, &popup->button_right);
 
 	if (popup->draw_post_func)
 	{

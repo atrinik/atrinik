@@ -134,7 +134,7 @@ void widget_menubuttons(widgetdata *widget)
 
 		buttons[i].x = widget->x1 + x;
 		buttons[i].y = widget->y1 + y;
-		button_render(&buttons[i], text);
+		button_show(&buttons[i], text);
 		button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
 
 		if (button_images[i])

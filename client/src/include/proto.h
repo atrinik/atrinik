@@ -633,7 +633,7 @@ extern void toolkit_deinit(void);
 extern void button_init(void);
 extern void button_create(button_struct *button);
 extern void button_set_parent(button_struct *button, int px, int py);
-extern void button_render(button_struct *button, const char *text);
+extern void button_show(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
 extern void button_tooltip(button_struct *button, int font, const char *text);
 /* src/toolkit_gui/clipboard.c */

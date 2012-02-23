@@ -401,12 +401,12 @@ void widget_show_mplayer(widgetdata *widget)
 
 	button_play.x = widget->x1 + 10;
 	button_play.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
-	button_render(&button_play, sound_map_background(-1) ? "Stop" : "Play");
+	button_show(&button_play, sound_map_background(-1) ? "Stop" : "Play");
 
 	button_shuffle.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w + 5;
 	button_shuffle.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
 	button_shuffle.pressed_forced = shuffle;
-	button_render(&button_shuffle, "Shuffle");
+	button_show(&button_shuffle, "Shuffle");
 
 	button_blacklist.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
 	button_blacklist.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button_round")->h - 5;
@@ -421,17 +421,17 @@ void widget_show_mplayer(widgetdata *widget)
 		button_blacklist.pressed_ticks = SDL_GetTicks();
 	}
 
-	button_render(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
+	button_show(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
 
 	/* Show close button. */
 	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
 	button_close.y = widget->y1 + 4;
-	button_render(&button_close, "X");
+	button_show(&button_close, "X");
 
 	/* Show help button. */
 	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
-	button_render(&button_help, "?");
+	button_show(&button_help, "?");
 }
 
 /**

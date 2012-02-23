@@ -232,7 +232,7 @@ static int popup_draw_post(popup_struct *popup)
 
 			button_retry.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_retry.texture)->w / 2;
 			button_retry.y = box.y;
-			button_render(&button_retry, "Retry");
+			button_show(&button_retry, "Retry");
 		}
 		/* Finished downloading. */
 		else if (ret == 1)
@@ -359,7 +359,7 @@ static int popup_draw_post(popup_struct *popup)
 
 			button_close.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_close.texture)->w / 2;
 			button_close.y = box.y;
-			button_render(&button_close, "Close");
+			button_show(&button_close, "Close");
 		}
 		else
 		{
@@ -381,7 +381,7 @@ static int popup_draw_post(popup_struct *popup)
 			 * the client. */
 			button_restart.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_restart.texture)->w / 2;
 			button_restart.y = box.y;
-			button_render(&button_restart, "Restart");
+			button_show(&button_restart, "Restart");
 #else
 			string_blt_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 20;

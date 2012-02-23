@@ -240,19 +240,19 @@ void widget_spells_render(widgetdata *widget)
 	/* Render the various buttons. */
 	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
 	button_close.y = widget->y1 + 4;
-	button_render(&button_close, "X");
+	button_show(&button_close, "X");
 
 	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
-	button_render(&button_help, "?");
+	button_show(&button_help, "?");
 
 	button_path_left.x = widget->x1 + 6;
 	button_path_left.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_left.texture)->h - 5;
-	button_render(&button_path_left, "<");
+	button_show(&button_path_left, "<");
 
 	button_path_right.x = widget->x1 + 6 + 130;
 	button_path_right.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_right.texture)->h - 5;
-	button_render(&button_path_right, ">");
+	button_show(&button_path_right, ">");
 }
 
 /**

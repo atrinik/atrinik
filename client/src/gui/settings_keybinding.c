@@ -171,11 +171,11 @@ static int popup_draw(popup_struct *popup)
 
 	button_new.x = 30;
 	button_new.y = popup->surface->h - 74;
-	button_render(&button_new, "Add");
+	button_show(&button_new, "Add");
 
 	button_remove.x = 30;
 	button_remove.y = popup->surface->h - 51;
-	button_render(&button_remove, "Remove");
+	button_show(&button_remove, "Remove");
 
 	if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT)
 	{
@@ -208,7 +208,7 @@ static int popup_draw(popup_struct *popup)
 
 		button_apply.x = text_input_key.x + text_input_key.w - TEXTURE_SURFACE(button_apply.texture)->w;
 		button_apply.y = text_input_key.y + 20;
-		button_render(&button_apply, "Apply");
+		button_show(&button_apply, "Apply");
 	}
 
 	return 1;

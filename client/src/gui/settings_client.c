@@ -242,7 +242,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		button_checkbox->color = "8c7a7a";
 		button_checkbox->color_over = "b09a9a";
 		button_set_parent(button_checkbox, list->px, list->py);
-		button_render(button_checkbox, setting_get_int(setting_category_selected, row) ? "<x=1><y=1><c=#"COLOR_HGOLD"><line=0,0,12,12><line=12,0,0,12></c>" : NULL);
+		button_show(button_checkbox, setting_get_int(setting_category_selected, row) ? "<x=1><y=1><c=#"COLOR_HGOLD"><line=0,0,12,12><line=12,0,0,12></c>" : NULL);
 
 		box.x = button_checkbox->x;
 		box.y = button_checkbox->y;
@@ -289,13 +289,13 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		button_left->x = dst.x - TEXTURE_SURFACE(button_left->texture)->w - 1;
 		button_left->y = dst.y;
 		button_set_parent(button_left, list->px, list->py);
-		button_render(button_left, "<");
+		button_show(button_left, "<");
 
 		button_right->surface = list->surface;
 		button_right->x = dst.x + dst.w;
 		button_right->y = dst.y;
 		button_set_parent(button_right, list->px, list->py);
-		button_render(button_right, ">");
+		button_show(button_right, ">");
 	}
 }
 
@@ -380,19 +380,19 @@ static int popup_draw(popup_struct *popup)
 
 	button_category_left.x = list_settings->x;
 	button_category_left.y = 50;
-	button_render(&button_category_left, "<");
+	button_show(&button_category_left, "<");
 
 	button_category_right.x = list_settings->x + list_settings->width - TEXTURE_SURFACE(button_category_right.texture)->w;
 	button_category_right.y = 50;
-	button_render(&button_category_right, ">");
+	button_show(&button_category_right, ">");
 
 	button_apply.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_apply.texture)->w;
 	button_apply.y = popup->surface->h - 72;
-	button_render(&button_apply, "Apply");
+	button_show(&button_apply, "Apply");
 
 	button_done.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_done.texture)->w;
 	button_done.y = popup->surface->h - 50;
-	button_render(&button_done, "Done");
+	button_show(&button_done, "Done");
 
 	if (setting->desc)
 	{

@@ -90,7 +90,7 @@ void button_set_parent(button_struct *button, int px, int py)
  * Render a button.
  * @param button Button to render.
  * @param text Optional text to render. */
-void button_render(button_struct *button, const char *text)
+void button_show(button_struct *button, const char *text)
 {
 	SDL_Surface *texture;
 

@@ -199,11 +199,11 @@ void widget_skills_render(widgetdata *widget)
 	/* Render the various buttons. */
 	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
 	button_close.y = widget->y1 + 4;
-	button_render(&button_close, "X");
+	button_show(&button_close, "X");
 
 	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
-	button_render(&button_help, "?");
+	button_show(&button_help, "?");
 }
 
 /**

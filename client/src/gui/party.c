@@ -172,33 +172,33 @@ void widget_party_render(widgetdata *widget)
 	/* Render the various buttons. */
 	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
 	button_close.y = widget->y1 + 4;
-	button_render(&button_close, "X");
+	button_show(&button_close, "X");
 
 	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
 	button_help.y = widget->y1 + 4;
-	button_render(&button_help, "?");
+	button_show(&button_help, "?");
 
 	button_parties.x = widget->x1 + 244;
 	button_parties.y = widget->y1 + 38;
-	button_render(&button_parties, list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
+	button_show(&button_parties, list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
 
 	button_members.x = button_form.x = widget->x1 + 244;
 	button_members.y = button_form.y = widget->y1 + 60;
 
 	if (cpl.partyname[0] == '\0')
 	{
-		button_render(&button_form, "Form");
+		button_show(&button_form, "Form");
 	}
 	else
 	{
-		button_render(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
+		button_show(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
 		button_leave.x = button_password.x = button_chat.x = widget->x1 + 244;
 		button_leave.y = widget->y1 + 82;
 		button_password.y = widget->y1 + 104;
 		button_chat.y = widget->y1 + 126;
-		button_render(&button_leave, "Leave");
-		button_render(&button_password, "Password");
-		button_render(&button_chat, "Chat");
+		button_show(&button_leave, "Leave");
+		button_show(&button_password, "Password");
+		button_show(&button_chat, "Chat");
 	}
 }
 

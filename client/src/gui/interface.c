@@ -168,11 +168,11 @@ static int popup_draw_post_func(popup_struct *popup)
 
 	button_hello.x = popup->x + INTERFACE_BUTTON_HELLO_STARTX;
 	button_hello.y = popup->y + INTERFACE_BUTTON_HELLO_STARTY;
-	button_render(&button_hello, "Hello");
+	button_show(&button_hello, "Hello");
 
 	button_close.x = popup->x + INTERFACE_BUTTON_CLOSE_STARTX;
 	button_close.y = popup->y + INTERFACE_BUTTON_CLOSE_STARTY;
-	button_render(&button_close, "Close");
+	button_show(&button_close, "Close");
 
 	if (interface_data->text_input)
 	{

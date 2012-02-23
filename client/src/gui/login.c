@@ -111,10 +111,10 @@ static int popup_draw_post(popup_struct *popup)
 
 	button_tab_login.x = popup->x + 38;
 	button_tab_login.y = popup->y + 38;
-	button_render(&button_tab_login, "Login");
+	button_show(&button_tab_login, "Login");
 	button_tab_register.x = button_tab_login.x + TEXTURE_SURFACE(button_tab_login.texture)->w + 1;
 	button_tab_register.y = button_tab_login.y;
-	button_render(&button_tab_register, "Register");
+	button_show(&button_tab_register, "Register");
 	return 1;
 }
 
