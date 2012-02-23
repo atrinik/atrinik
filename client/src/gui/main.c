@@ -117,7 +117,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		string_blt(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_offset_reset();
 
-		scrollbar_render(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
+		scrollbar_show(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
 		return 1;
 	}
 	/* Haven't started downloading yet. */

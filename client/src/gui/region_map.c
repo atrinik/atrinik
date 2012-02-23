@@ -630,8 +630,8 @@ static int popup_draw_post_func(popup_struct *popup)
 		scrollbar_horizontal.max_lines = region_map_pos.w;
 	}
 
-	scrollbar_render(&scrollbar, ScreenSurface, popup->x + RM_SCROLLBAR_STARTX, popup->y + RM_SCROLLBAR_STARTY);
-	scrollbar_render(&scrollbar_horizontal, ScreenSurface, popup->x + RM_SCROLLBARH_STARTX, popup->y + RM_SCROLLBARH_STARTY);
+	scrollbar_show(&scrollbar, ScreenSurface, popup->x + RM_SCROLLBAR_STARTX, popup->y + RM_SCROLLBAR_STARTY);
+	scrollbar_show(&scrollbar_horizontal, ScreenSurface, popup->x + RM_SCROLLBARH_STARTX, popup->y + RM_SCROLLBARH_STARTY);
 
 	dest.x = box.x;
 	dest.y = box.y;

@@ -425,7 +425,7 @@ void widget_inventory_render(widgetdata *widget)
 	}
 
 	inventory->scrollbar_info.num_lines = ceil((double) i / INVENTORY_COLS(inventory));
-	scrollbar_render(&inventory->scrollbar, ScreenSurface, widget->x1 + inventory->x + inventory->w, widget->y1 + inventory->y);
+	scrollbar_show(&inventory->scrollbar, ScreenSurface, widget->x1 + inventory->x + inventory->w, widget->y1 + inventory->y);
 }
 
 /**

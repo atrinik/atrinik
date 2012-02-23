@@ -430,7 +430,7 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
  * @param surface Surface to render on.
  * @param x X position on the surface.
  * @param y Y position on the surface. */
-void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
+void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
 {
 	int horizontal;
 

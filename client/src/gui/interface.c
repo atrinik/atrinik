@@ -164,7 +164,7 @@ static int popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::draw_post_func */
 static int popup_draw_post_func(popup_struct *popup)
 {
-	scrollbar_render(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
+	scrollbar_show(&interface_data->scrollbar, ScreenSurface, popup->x + 432, popup->y + 71);
 
 	button_hello.x = popup->x + INTERFACE_BUTTON_HELLO_STARTX;
 	button_hello.y = popup->y + INTERFACE_BUTTON_HELLO_STARTY;

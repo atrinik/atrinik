@@ -92,7 +92,7 @@ static int popup_draw_func(popup_struct *popup)
 /** @copydoc popup_struct::draw_post_func */
 static int popup_draw_post_func(popup_struct *popup)
 {
-	scrollbar_render(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
+	scrollbar_show(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
 
 	if (book_help_history_enabled)
 	{

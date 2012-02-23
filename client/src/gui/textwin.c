@@ -352,7 +352,7 @@ void widget_textwin_show(widgetdata *widget)
 		textwin->scrollbar.max_lines = TEXTWIN_ROWS_VISIBLE(widget);
 		textwin->scrollbar.px = widget->x1;
 		textwin->scrollbar.py = widget->y1;
-		scrollbar_render(&textwin->scrollbar, widget->widgetSF, widget->wd - 1 - textwin->scrollbar.background.w, 1);
+		scrollbar_show(&textwin->scrollbar, widget->widgetSF, widget->wd - 1 - textwin->scrollbar.background.w, 1);
 
 		widget->redraw = scrollbar_need_redraw(&textwin->scrollbar);
 	}

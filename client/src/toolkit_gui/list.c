@@ -340,7 +340,7 @@ void list_show(list_struct *list, int x, int y)
 
 	if (list->scrollbar_enabled)
 	{
-		scrollbar_render(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list));
+		scrollbar_show(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list));
 	}
 
 	/* Doing coloring of each row? */

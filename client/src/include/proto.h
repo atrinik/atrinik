@@ -681,7 +681,7 @@ extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *
 extern void scrollbar_info_create(scrollbar_info_struct *info);
 extern void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll);
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
-extern void scrollbar_render(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
+extern void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
 extern int scrollbar_get_width(scrollbar_struct *scrollbar);
 /* src/toolkit_gui/SDL_gfx.c */
