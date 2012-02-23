@@ -30,73 +30,10 @@
 
 #include <global.h>
 
-static button_struct button_mousestate;
 /**
- * Last clicked ticks to prevent single button click from triggering many
- * actions at once. */
-static uint32 ticks = 0;
-/**
- * How many milliseconds must past before a button repeat is triggered. */
-static uint32 ticks_delay;
-
+ * Initialize the button API. */
 void button_init()
 {
-	button_create(&button_mousestate);
-}
-
-/** @deprecated */
-int button_show(const char *texture, const char *texture_over, const char *texture_clicked, int x, int y, const char *text, int font, const char *color, const char *color_shadow, const char *color_over, const char *color_over_shadow, uint64 flags, uint8 focus)
-{
-	SDL_Surface *surface;
-	int mx, my, ret = 0, state;
-	const char *use_color = color, *use_color_shadow = color_shadow;
-
-	/* Get state of the mouse and the x/y. */
-	state = SDL_GetMouseState(&mx, &my);
-	surface = TEXTURE_CLIENT(texture);
-
-	/* Is the mouse inside the button? */
-	if (focus && mx > x && mx < x + surface->w && my > y && my < y + surface->h)
-	{
-		/* Change color. */
-		use_color = color_over;
-		use_color_shadow = color_over_shadow;
-
-		/* Left button clicked? */
-		if (state == SDL_BUTTON_LEFT)
-		{
-			if (texture_clicked)
-			{
-				surface = TEXTURE_CLIENT(texture_clicked);
-			}
-
-			if (!ticks || SDL_GetTicks() - ticks > ticks_delay)
-			{
-				ticks_delay = ticks ? 125 : 700;
-				ticks = SDL_GetTicks();
-				ret = 1;
-			}
-		}
-		else
-		{
-			if (texture_over)
-			{
-				surface = TEXTURE_CLIENT(texture_over);
-			}
-
-			ticks = 0;
-		}
-	}
-
-	surface_show(ScreenSurface, x, y, NULL, surface);
-
-	/* If text was passed, draw it as well. */
-	if (text)
-	{
-		string_blt_shadow(ScreenSurface, font, text, x + surface->w / 2 - string_get_width(font, text, flags) / 2, y + surface->h / 2 - FONT_HEIGHT(font) / 2, use_color, use_color_shadow, flags, NULL);
-	}
-
-	return ret;
 }
 
 /**
