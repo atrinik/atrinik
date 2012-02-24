@@ -399,6 +399,7 @@ static void init_library(int argc, char *argv[])
 
 	toolkit_import(clioptions);
 	toolkit_import(console);
+	toolkit_import(datetime);
 	toolkit_import(logger);
 	toolkit_import(math);
 	toolkit_import(memory);
@@ -410,7 +411,6 @@ static void init_library(int argc, char *argv[])
 	toolkit_import(signals);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
-	toolkit_import(time);
 
 	/* Add console commands. */
 	console_command_add(
