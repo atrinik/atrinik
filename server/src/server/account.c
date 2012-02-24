@@ -30,6 +30,28 @@
 
 #include <global.h>
 
+typedef struct account_struct
+{
+	char *name;
+
+	char *password;
+
+	char *last_host;
+
+	time_t last_time;
+
+	struct
+	{
+		archetype *at;
+
+		char *name;
+
+		uint8 level;
+	} characters;
+
+	size_t characters_num;
+} account_struct;
+
 void account_init(void)
 {
 }
@@ -38,18 +60,103 @@ void account_deinit(void)
 {
 }
 
-void account_login(socket_struct *ns, const char *name, const char *password)
+static void account_free(account_struct *account)
 {
 }
 
-void account_register(socket_struct *ns, const char *name, const char *password, const char *password2)
+static void account_save(account_struct *account, const char *path)
 {
 }
 
-void account_new_char(socket_struct *ns, const char *name, const char *archname)
+static void account_load(account_struct *account, const char *path)
 {
 }
 
-void account_password_change(socket_struct *ns, const char *password, const char *password2)
+char *account_make_path(const char *name)
+{
+	StringBuffer *sb;
+	size_t i;
+	char *cp;
+
+	sb = stringbuffer_new();
+	stringbuffer_append_printf(sb, "%s/accounts/", settings.datapath);
+
+	for (i = 0; i < settings.limits[ALLOWED_CHARS_ACCOUNT][0]; i++)
+	{
+		stringbuffer_append_string_len(sb, name, i + 1);
+		stringbuffer_append_string(sb, "/");
+	}
+
+	stringbuffer_append_printf(sb, "%s.dat", name);
+	cp = stringbuffer_finish(sb);
+
+	return cp;
+}
+
+void account_login(socket_struct *ns, char *name, char *password)
+{
+}
+
+void account_register(socket_struct *ns, char *name, char *password, char *password2)
+{
+	size_t name_len, password_len;
+	char *path;
+	account_struct account;
+
+	if (ns->account)
+	{
+		ns->status = Ns_Dead;
+		return;
+	}
+
+	if (*name == '\0' || *password == '\0' || *password2 == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password2, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid name and/or password.");
+		return;
+	}
+
+	name_len = strlen(name);
+	password_len = strlen(name);
+
+	/* Ensure the name/password lengths are within the allowed range.
+	 * No need to compare 'password2' length, as it needs to be the same
+	 * as 'password' anyway. */
+	if (name_len < settings.limits[ALLOWED_CHARS_ACCOUNT][0] || name_len > settings.limits[ALLOWED_CHARS_ACCOUNT][1] || password_len < settings.limits[ALLOWED_CHARS_PASSWORD][0] || password_len > settings.limits[ALLOWED_CHARS_PASSWORD][1])
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid length for name and/or password.");
+		return;
+	}
+
+	if (strcmp(password, password2) != 0)
+	{
+		draw_info_send(0, COLOR_RED, ns, "The passwords did not match.");
+		return;
+	}
+
+	string_tolower(name);
+	path = account_make_path(name);
+
+	if (path_exists(path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "That account name is already registered.");
+		return;
+	}
+
+	account.name = name;
+	account.password = string_crypt(password, NULL);
+	account.last_host = ns->host;
+	account.last_time = time_getutc();
+	account.characters = NULL;
+	account.characters_num = 0;
+	account_save(&account, path);
+
+	ns->account = strdup(name);
+}
+
+void account_new_char(socket_struct *ns, char *name, char *archname)
+{
+}
+
+void account_password_change(socket_struct *ns, char *password, char *password2)
 {
 }

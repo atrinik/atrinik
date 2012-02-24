@@ -1890,11 +1890,6 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
 		packet_to_string(data, len, &pos, password, sizeof(password));
 		packet_to_string(data, len, &pos, password2, sizeof(password2));
 
-		if (*name == '\0' || *password == '\0' || *password2 == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password2, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
-		{
-			return;
-		}
-
 		account_register(ns, name, password, password2);
 	}
 	else if (type == CMD_ACCOUNT_NEW_CHAR)

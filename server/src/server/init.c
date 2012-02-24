@@ -115,6 +115,7 @@ static void cleanup(void)
 	cache_remove_all();
 	remove_plugins();
 	player_deinit();
+	account_deinit();
 	free_all_maps();
 	free_style_maps();
 	free_all_archs();
@@ -283,20 +284,28 @@ static void clioptions_option_default_permission_groups(const char *arg)
 
 static void clioptions_option_allowed_chars(const char *arg)
 {
-	char word[MAX_BUF], *cmd;
+	char word[MAX_BUF], *cps[2], *cmd;
 	size_t type, pos;
 	const char *allowed_chars_names[ALLOWED_CHARS_NUM] = {"account", "charname", "password"};
+	int lower, upper;
 
 	pos = 0;
 
 	if (!string_get_word(arg, &pos, ' ', word, sizeof(word)))
 	{
+		logger_print(LOG(ERROR), "Invalid argument for allowed_chars option: %s", arg);
+		return;
+	}
+
+	if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps))
+	{
+		logger_print(LOG(ERROR), "Invalid word in allowed_chars option: %s", word);
 		return;
 	}
 
 	for (type = 0; type < ALLOWED_CHARS_NUM; type++)
 	{
-		if (strcmp(word, allowed_chars_names[type]) == 0)
+		if (strcmp(cps[0], allowed_chars_names[type]) == 0)
 		{
 			break;
 		}
@@ -304,9 +313,18 @@ static void clioptions_option_allowed_chars(const char *arg)
 
 	if (type == ALLOWED_CHARS_NUM)
 	{
+		logger_print(LOG(ERROR), "Invalid allowed_chars option type: %s", cps[0]);
 		return;
 	}
 
+	if (sscanf(cps[1], "%d-%d", &lower, &upper) != 2)
+	{
+		logger_print(LOG(ERROR), "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
+		return;
+	}
+
+	settings.limits[type][0] = lower;
+	settings.limits[type][1] = upper;
 	settings.allowed_chars[type][0] = '\0';
 
 	while (string_get_word(arg, &pos, ' ', word, sizeof(word)))
@@ -383,6 +401,7 @@ static void init_library(int argc, char *argv[])
 	toolkit_import(console);
 	toolkit_import(logger);
 	toolkit_import(math);
+	toolkit_import(memory);
 	toolkit_import(mempool);
 	toolkit_import(packet);
 	toolkit_import(path);
@@ -391,6 +410,7 @@ static void init_library(int argc, char *argv[])
 	toolkit_import(signals);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
+	toolkit_import(time);
 
 	/* Add console commands. */
 	console_command_add(
@@ -606,6 +626,7 @@ static void init_library(int argc, char *argv[])
 	init_archetypes();
 	init_dynamic();
 	init_clocks();
+	account_init();
 
 	/* init some often used default archetypes */
 	if (level_up_arch == NULL)

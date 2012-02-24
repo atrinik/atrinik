@@ -162,6 +162,8 @@ typedef struct socket_struct
 	 * socket is disconnected. */
 	uint32 keepalive;
 
+	char *account;
+
     struct packet_struct *packet_recv;
     struct packet_struct *packet_recv_cmd;
 } socket_struct;

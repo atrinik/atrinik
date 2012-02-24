@@ -394,6 +394,10 @@ typedef struct settings_struct
 	/**
 	 * Allowed characters for certain strings. */
 	char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
+
+	/**
+	 * Limits on the allowed characters. */
+	size_t limits[ALLOWED_CHARS_NUM][2];
 } settings_struct;
 
 /** Constant shared string pointers. */
