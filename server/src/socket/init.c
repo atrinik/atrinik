@@ -94,6 +94,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->mapy_2 = 8;
 	ns->password_fails = 0;
 	ns->is_bot = 0;
+	ns->account = NULL;
 
 	for (i = 0; i < SERVER_FILES_MAX; i++)
 	{
@@ -265,6 +266,11 @@ void free_newsocket(socket_struct *ns)
 	if (ns->host)
 	{
 		free(ns->host);
+	}
+
+	if (ns->account)
+	{
+		free(ns->account);
 	}
 
 	packet_free(ns->packet_recv);

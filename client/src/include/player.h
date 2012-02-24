@@ -248,6 +248,22 @@ typedef struct Player_Struct
 	uint32 path_denied;
 
 	player_state_t state;
+
+	/**
+	 * Account name that we are logged into. */
+	char account[MAX_BUF];
+
+	/**
+	 * Current IP. */
+	char host[MAX_BUF];
+
+	/**
+	 * Last IP that the account was used from. */
+	char last_host[MAX_BUF];
+
+	/**
+	 * Last time the account was used. */
+	char last_time[MAX_BUF];
 } Client_Player;
 
 #endif

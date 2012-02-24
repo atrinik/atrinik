@@ -70,7 +70,7 @@ static socket_command_struct commands[CLIENT_CMD_NROF] =
 	{socket_command_setup},
 	{NULL},
 	{socket_command_data},
-	{NULL},
+	{socket_command_characters},
 	{socket_command_book},
 	{socket_command_party},
 	{socket_command_quickslots},

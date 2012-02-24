@@ -300,6 +300,9 @@ extern void book_name_change(const char *name, size_t len);
 extern void book_load(const char *data, int len);
 extern void book_redraw(void);
 extern void book_add_help_history(const char *name);
+/* src/gui/characters.c */
+extern void socket_command_characters(uint8 *data, size_t len, size_t pos);
+extern void characters_open(void);
 /* src/gui/effects.c */
 extern void effects_init(void);
 extern void effects_deinit(void);

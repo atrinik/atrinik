@@ -185,18 +185,12 @@ void receive_player_password(object *op)
 
 	if (CONTR(op)->state == ST_CONFIRM_PASSWORD)
 	{
-		packet_struct *packet;
-
 		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
 		{
 			draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
 			get_name(op);
 			return;
 		}
-
-		packet = packet_new(CLIENT_CMD_NEW_CHAR, 0, 0);
-		socket_send_packet(&CONTR(op)->socket, packet);
-		CONTR(op)->state = ST_ROLL_STAT;
 
 		return;
 	}

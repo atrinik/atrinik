@@ -211,8 +211,12 @@ typedef enum player_state_t
 	ST_REQUEST_FILES,
 
 	/**
-	 * Choosing which account to login with, and which character. */
+	 * Choosing which account to login with. */
 	ST_LOGIN,
+
+	/**
+	 * Choosing which character to play with. */
+	ST_CHARACTERS,
 
 	/**
 	 * Waiting for the relevant data packets to start playing. */

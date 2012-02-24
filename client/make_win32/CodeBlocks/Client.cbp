@@ -110,6 +110,7 @@
 		<Unit filename="..\..\src\gui\protections.c" />
 		<Unit filename="..\..\src\gui\map.c" />
 		<Unit filename="..\..\src\gui\book.c" />
+		<Unit filename="..\..\src\gui\characters.c" />
 		<Unit filename="..\..\src\gui\effects.c" />
 		<Unit filename="..\..\src\gui\main.c" />
 		<Unit filename="..\..\src\gui\range.c" />

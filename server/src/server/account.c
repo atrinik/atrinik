@@ -69,11 +69,17 @@ static void account_free(account_struct *account)
 	{
 		free(account->characters[i].name);
 	}
+
+	if (account->characters)
+	{
+		free(account->characters);
+	}
 }
 
 static int account_save(account_struct *account, const char *path)
 {
 	FILE *fp;
+	size_t i;
 
 	fp = fopen(path, "w");
 
@@ -82,6 +88,17 @@ static int account_save(account_struct *account, const char *path)
 		logger_print(LOG(BUG), "Could not open %s for writing.", path);
 		return 0;
 	}
+
+	fprintf(fp, "pswd %s\n", account->password);
+	fprintf(fp, "host %s\n", account->last_host);
+	fprintf(fp, "time %"FMT64U"\n", (uint64) account->last_time);
+
+	for (i = 0; i < account->characters_num; i++)
+	{
+		fprintf(fp, "char %s:%s:%d\n", account->characters[i].at->name, account->characters[i].name, account->characters[i].level);
+	}
+
+	fclose(fp);
 
 	return 1;
 }
@@ -98,6 +115,9 @@ static int account_load(account_struct *account, const char *path)
 		logger_print(LOG(BUG), "Could not open %s for reading.", path);
 		return 0;
 	}
+
+	account->characters = NULL;
+	account->characters_num = 0;
 
 	while (fgets(buf, sizeof(buf), fp))
 	{
@@ -160,6 +180,23 @@ static int account_load(account_struct *account, const char *path)
 
 static void account_send_characters(socket_struct *ns, account_struct *account)
 {
+	packet_struct *packet;
+	size_t i;
+
+	packet = packet_new(CLIENT_CMD_CHARACTERS, 64, 64);
+	packet_append_string_terminated(packet, ns->account);
+	packet_append_string_terminated(packet, ns->host);
+	packet_append_string_terminated(packet, account->last_host);
+	packet_append_string_terminated(packet, ctime(&account->last_time));
+
+	for (i = 0; i < account->characters_num; i++)
+	{
+		packet_append_string_terminated(packet, account->characters[i].at->name);
+		packet_append_string_terminated(packet, account->characters[i].name);
+		packet_append_uint8(packet, account->characters[i].level);
+	}
+
+	socket_send_packet(ns, packet);
 }
 
 char *account_make_path(const char *name)
@@ -203,13 +240,17 @@ void account_login(socket_struct *ns, char *name, char *password)
 	string_tolower(name);
 	path = account_make_path(name);
 
-	if (path_exists(path))
+	if (!path_exists(path))
 	{
 		draw_info_send(0, COLOR_RED, ns, "No such account.");
 		return;
 	}
 
-	account_load(&account, path);
+	if (!account_load(&account, path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+		return;
+	}
 
 	if (strcmp(string_crypt(password, account.password), account.password) != 0)
 	{
@@ -218,13 +259,15 @@ void account_login(socket_struct *ns, char *name, char *password)
 		return;
 	}
 
-	account.last_host = ns->host;
+	ns->account = strdup(name);
+
+	free(account.last_host);
+	account.last_host = strdup(ns->host);
 	account.last_time = datetime_getutc();
+
 	account_save(&account, path);
 	account_send_characters(ns, &account);
 	account_free(&account);
-
-	ns->account = strdup(name);
 }
 
 void account_register(socket_struct *ns, char *name, char *password, char *password2)
@@ -246,7 +289,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 	}
 
 	name_len = strlen(name);
-	password_len = strlen(name);
+	password_len = strlen(password);
 
 	/* Ensure the name/password lengths are within the allowed range.
 	 * No need to compare 'password2' length, as it needs to be the same
@@ -272,6 +315,8 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 		return;
 	}
 
+	path_ensure_directories(path);
+
 	account.password = string_crypt(password, NULL);
 	account.last_host = ns->host;
 	account.last_time = datetime_getutc();
@@ -285,6 +330,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 	}
 
 	ns->account = strdup(name);
+	account_send_characters(ns, &account);
 }
 
 void account_new_char(socket_struct *ns, char *name, char *archname)

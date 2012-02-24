@@ -42,7 +42,7 @@ enum
 #define LOGIN_TEXT_INPUT_MAX ((button_tab_login.pressed_forced ? LOGIN_TEXT_INPUT_PASSWORD : LOGIN_TEXT_INPUT_PASSWORD2) + 1)
 
 /**
- * Progress dots when connecting. */
+ * Progress dots buffer. */
 static progress_dots progress;
 /**
  * Button buffer. */
@@ -74,21 +74,8 @@ static int popup_draw(popup_struct *popup)
 	SDL_Rect box;
 	size_t i;
 
-	/* Waiting to log in. */
-	if (cpl.state == ST_WAITFORPLAY)
-	{
-		box.w = popup->surface->w;
-		box.h = popup->surface->h;
-		string_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-		return 1;
-	}
-	/* Playing now, so destroy this popup. */
-	else if (cpl.state == ST_PLAY)
-	{
-		return 0;
-	}
 	/* Connection terminated while we were trying to login. */
-	else if (cpl.state < ST_STARTCONNECT)
+	if (cpl.state < ST_STARTCONNECT)
 	{
 		return 0;
 	}
@@ -200,6 +187,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 				}
 
 				socket_send_packet(packet);
+				characters_open();
+				popup_destroy(popup);
 				return 1;
 			}
 
@@ -241,6 +230,17 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	return -1;
 }
 
+/** @copydoc popup_struct::destroy_callback_func */
+static int popup_destroy_callback(popup_struct *popup)
+{
+	if (cpl.state != ST_CHARACTERS)
+	{
+		cpl.state = ST_START;
+	}
+
+	return 1;
+}
+
 /**
  * Start the login procedure. */
 void login_start(void)
@@ -273,6 +273,7 @@ void login_start(void)
 	popup->draw_func = popup_draw;
 	popup->draw_post_func = popup_draw_post;
 	popup->event_func = popup_event;
+	popup->destroy_callback_func = popup_destroy_callback;
 
 	cpl.state = ST_STARTCONNECT;
 }

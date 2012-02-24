@@ -179,6 +179,7 @@ set(SOURCES
 	src/events/keys.c
 	src/events/move.c
 	src/gui/book.c
+	src/gui/characters.c
 	src/gui/effects.c
 	src/gui/fps.c
 	src/gui/game_news.c
