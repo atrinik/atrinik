@@ -39,7 +39,7 @@ void command_tp(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, word, sizeof(word)))
+	if (!string_get_word(params, &pos, ' ', word, sizeof(word)))
 	{
 		draw_info(COLOR_WHITE, op, "Usage: /tp <dst> [who]");
 		return;
@@ -47,7 +47,7 @@ void command_tp(object *op, const char *command, char *params)
 
 	dst = find_player(word);
 
-	if (string_get_word(params, &pos, word, sizeof(word)))
+	if (string_get_word(params, &pos, ' ', word, sizeof(word)))
 	{
 		who = find_player(word);
 	}

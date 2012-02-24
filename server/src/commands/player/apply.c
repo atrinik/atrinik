@@ -84,7 +84,7 @@ void command_apply(object *op, const char *command, char *params)
 	aflag = 0;
 	pos = 0;
 
-	if (string_get_word(params, &pos, word, sizeof(word)))
+	if (string_get_word(params, &pos, ' ', word, sizeof(word)))
 	{
 		if (strcmp(word, "-a") == 0)
 		{
@@ -96,7 +96,7 @@ void command_apply(object *op, const char *command, char *params)
 		}
 	}
 
-	if (string_get_word(params, &pos, word, sizeof(word)))
+	if (string_get_word(params, &pos, ' ', word, sizeof(word)))
 	{
 		if (strcmp(word, "-u") == 0)
 		{

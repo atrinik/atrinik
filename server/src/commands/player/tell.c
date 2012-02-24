@@ -39,7 +39,7 @@ void command_tell(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, name, sizeof(name)))
+	if (!string_get_word(params, &pos, ' ', name, sizeof(name)))
 	{
 		draw_info(COLOR_WHITE, op, "Tell whom what?");
 		return;

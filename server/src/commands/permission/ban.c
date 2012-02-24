@@ -38,7 +38,7 @@ void command_ban(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, word, sizeof(word)))
+	if (!string_get_word(params, &pos, ' ', word, sizeof(word)))
 	{
 		return;
 	}

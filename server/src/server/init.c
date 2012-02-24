@@ -289,7 +289,7 @@ static void clioptions_option_allowed_chars(const char *arg)
 
 	pos = 0;
 
-	if (!string_get_word(arg, &pos, word, sizeof(word)))
+	if (!string_get_word(arg, &pos, ' ', word, sizeof(word)))
 	{
 		return;
 	}
@@ -309,7 +309,7 @@ static void clioptions_option_allowed_chars(const char *arg)
 
 	settings.allowed_chars[type][0] = '\0';
 
-	while (string_get_word(arg, &pos, word, sizeof(word)))
+	while (string_get_word(arg, &pos, ' ', word, sizeof(word)))
 	{
 		if (string_startswith(word, "[") && string_endswith(word, "]"))
 		{

@@ -39,7 +39,7 @@ void command_setpassword(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, playername, sizeof(playername)))
+	if (!string_get_word(params, &pos, ' ', playername, sizeof(playername)))
 	{
 		return;
 	}
