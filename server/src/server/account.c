@@ -32,8 +32,6 @@
 
 typedef struct account_struct
 {
-	char *name;
-
 	char *password;
 
 	char *last_host;
@@ -47,7 +45,7 @@ typedef struct account_struct
 		char *name;
 
 		uint8 level;
-	} characters;
+	} *characters;
 
 	size_t characters_num;
 } account_struct;
@@ -62,13 +60,105 @@ void account_deinit(void)
 
 static void account_free(account_struct *account)
 {
+	size_t i;
+
+	free(account->password);
+	free(account->last_host);
+
+	for (i = 0; i < account->characters_num; i++)
+	{
+		free(account->characters[i].name);
+	}
 }
 
-static void account_save(account_struct *account, const char *path)
+static int account_save(account_struct *account, const char *path)
 {
+	FILE *fp;
+
+	fp = fopen(path, "w");
+
+	if (!fp)
+	{
+		logger_print(LOG(BUG), "Could not open %s for writing.", path);
+		return 0;
+	}
+
+	return 1;
 }
 
-static void account_load(account_struct *account, const char *path)
+static int account_load(account_struct *account, const char *path)
+{
+	FILE *fp;
+	char buf[MAX_BUF], *end;
+
+	fp = fopen(path, "rb");
+
+	if (!fp)
+	{
+		logger_print(LOG(BUG), "Could not open %s for reading.", path);
+		return 0;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		end = strchr(buf, '\n');
+
+		if (end)
+		{
+			*end = '\0';
+		}
+
+		if (strncmp(buf, "pswd ", 5) == 0)
+		{
+			account->password = strdup(buf + 5);
+		}
+		else if (strncmp(buf, "host ", 5) == 0)
+		{
+			account->last_host = strdup(buf + 5);
+		}
+		else if (strncmp(buf, "time ", 5) == 0)
+		{
+			account->last_time = atoll(buf);
+		}
+		else if (strncmp(buf, "char ", 5) == 0)
+		{
+			size_t pos, word_num;
+			char word[MAX_BUF];
+
+			account->characters = realloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
+			pos = 5;
+			word_num = 0;
+
+			while (string_get_word(buf, &pos, ':', word, sizeof(word)))
+			{
+				switch (word_num)
+				{
+					case 0:
+						account->characters[account->characters_num].at = find_archetype(word);
+						break;
+
+					case 1:
+						account->characters[account->characters_num].name = strdup(word);
+						break;
+
+					case 2:
+						account->characters[account->characters_num].level = atoi(word);
+						break;
+				}
+
+				word_num++;
+			}
+
+			account->characters_num++;
+		}
+	}
+
+	fclose(fp);
+
+	return 1;
+}
+
+static void account_send_characters(socket_struct *ns, account_struct *account)
 {
 }
 
@@ -95,6 +185,46 @@ char *account_make_path(const char *name)
 
 void account_login(socket_struct *ns, char *name, char *password)
 {
+	account_struct account;
+	char *path;
+
+	if (ns->account)
+	{
+		ns->status = Ns_Dead;
+		return;
+	}
+
+	if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid name and/or password.");
+		return;
+	}
+
+	string_tolower(name);
+	path = account_make_path(name);
+
+	if (path_exists(path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "No such account.");
+		return;
+	}
+
+	account_load(&account, path);
+
+	if (strcmp(string_crypt(password, account.password), account.password) != 0)
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid password.");
+		account_free(&account);
+		return;
+	}
+
+	account.last_host = ns->host;
+	account.last_time = datetime_getutc();
+	account_save(&account, path);
+	account_send_characters(ns, &account);
+	account_free(&account);
+
+	ns->account = strdup(name);
 }
 
 void account_register(socket_struct *ns, char *name, char *password, char *password2)
@@ -142,13 +272,17 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 		return;
 	}
 
-	account.name = name;
 	account.password = string_crypt(password, NULL);
 	account.last_host = ns->host;
-	account.last_time = time_getutc();
+	account.last_time = datetime_getutc();
 	account.characters = NULL;
 	account.characters_num = 0;
-	account_save(&account, path);
+
+	if (!account_save(&account, path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
+		return;
+	}
 
 	ns->account = strdup(name);
 }
