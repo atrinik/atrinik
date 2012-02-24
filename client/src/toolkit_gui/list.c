@@ -750,7 +750,7 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
 	}
 
 	/* Handle mouse wheel for scrolling. */
-	if (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN)
+	if (event->type == SDL_MOUSEBUTTONDOWN && (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN))
 	{
 		list_scroll(list, event->button.button == SDL_BUTTON_WHEELUP, 1);
 		return 1;
