@@ -48,7 +48,16 @@ void toolkit_datetime_deinit(void)
 {
 }
 
+/**
+ * Get the current UTC time as UNIX timestamp.
+ * @return UTC time as UNIX timestamp. */
 time_t datetime_getutc(void)
 {
-	return 0;
+	time_t t;
+	struct tm *tm;
+
+	time(&t);
+	tm = gmtime(&t);
+
+	return mktime(tm);
 }
