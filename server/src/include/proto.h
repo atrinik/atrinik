@@ -895,6 +895,7 @@ extern void toolkit_stringbuffer_deinit(void);
 extern StringBuffer *stringbuffer_new(void);
 extern char *stringbuffer_finish(StringBuffer *sb);
 extern const char *stringbuffer_finish_shared(StringBuffer *sb);
+extern void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len);
 extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
