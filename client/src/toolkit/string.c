@@ -619,7 +619,7 @@ char *string_create_char_range(char start, char end)
  * @param str The string to crypt.
  * @param salt Salt, if NULL, random will be chosen.
  * @return The crypted string. */
-char *string_crypt(const char *str, const char *salt)
+char *string_crypt(char *str, const char *salt)
 {
 #ifdef HAVE_CRYPT
 	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
