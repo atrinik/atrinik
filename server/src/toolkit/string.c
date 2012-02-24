@@ -335,23 +335,24 @@ void string_newline_to_literal(char *str)
  * Effectively allows looping through all the words in a string.
  * @param str The string.
  * @param[out] pos Position in string.
+ * @param delim Delimeter character.
  * @param word Where to store the word.
  * @param wordsize Size of 'word'.
  * @return 'word', NULL if 'word' is empty. */
-const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize)
+const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize)
 {
 	size_t i;
 
 	i = 0;
 	str += (*pos);
 
-	while (str && *str != '\0' && isspace(*str))
+	while (str && *str != '\0' && *str == delim)
 	{
 		str++;
 		(*pos)++;
 	}
 
-	while (str && *str != '\0' && !isspace(*str))
+	while (str && *str != '\0' && *str != delim)
 	{
 		if (i < wordsize - 1)
 		{
