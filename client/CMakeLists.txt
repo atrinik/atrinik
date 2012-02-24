@@ -219,6 +219,7 @@ set(SOURCES
 	src/toolkit/signals.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
+	src/toolkit/time.c
 	src/toolkit/toolkit.c
 	src/toolkit_gui/button.c
 	src/toolkit_gui/clipboard.c

@@ -615,6 +615,7 @@ extern int char_contains(const char c, const char *key);
 extern int string_contains(const char *str, const char *key);
 extern int string_contains_other(const char *str, const char *key);
 extern char *string_create_char_range(char start, char end);
+extern char *string_crypt(const char *str, const char *salt);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
@@ -626,6 +627,10 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern size_t stringbuffer_length(StringBuffer *sb);
+/* src/toolkit/time.c */
+extern void toolkit_time_init(void);
+extern void toolkit_time_deinit(void);
+extern time_t time_getutc(void);
 /* src/toolkit/toolkit.c */
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
