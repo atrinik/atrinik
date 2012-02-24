@@ -24,7 +24,9 @@
 
 /**
  * @file
- * Math related functions. */
+ * Math related functions.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
