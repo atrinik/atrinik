@@ -184,6 +184,7 @@
 		<Unit filename="..\..\src\toolkit\signals.c" />
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
+		<Unit filename="..\..\src\toolkit\time.c" />
 		<Unit filename="..\..\src\toolkit\toolkit.c" />
 		<Unit filename="..\..\src\types\common\apply.c" />
 		<Unit filename="..\..\src\types\common\describe.c" />

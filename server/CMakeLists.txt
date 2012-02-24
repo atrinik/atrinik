@@ -308,6 +308,7 @@ set(SOURCES
 	src/toolkit/signals.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
+	src/toolkit/time.c
 	src/toolkit/toolkit.c
 	src/types/common/apply.c
 	src/types/common/describe.c
