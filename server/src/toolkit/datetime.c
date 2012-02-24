@@ -24,31 +24,31 @@
 
 /**
  * @file
- * Time API.
+ * Date and time API.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /**
- * Initialize the time API.
+ * Initialize the datetime API.
  * @internal */
-void toolkit_time_init(void)
+void toolkit_datetime_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(time)
+	TOOLKIT_INIT_FUNC_START(datetime)
 	{
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
 
 /**
- * Deinitialize the time API.
+ * Deinitialize the datetime API.
  * @internal */
-void toolkit_time_deinit(void)
+void toolkit_datetime_deinit(void)
 {
 }
 
-time_t time_getutc(void)
+time_t datetime_getutc(void)
 {
 	return 0;
 }

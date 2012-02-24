@@ -296,6 +296,7 @@ set(SOURCES
 	src/toolkit/binreloc.c
 	src/toolkit/clioptions.c
 	src/toolkit/console.c
+	src/toolkit/datetime.c
 	src/toolkit/logger.c
 	src/toolkit/math.c
 	src/toolkit/memory.c
@@ -308,7 +309,6 @@ set(SOURCES
 	src/toolkit/signals.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
-	src/toolkit/time.c
 	src/toolkit/toolkit.c
 	src/types/common/apply.c
 	src/types/common/describe.c

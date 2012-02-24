@@ -491,6 +491,10 @@ extern void toolkit_console_init(void);
 extern void toolkit_console_deinit(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);
+/* src/toolkit/datetime.c */
+extern void toolkit_datetime_init(void);
+extern void toolkit_datetime_deinit(void);
+extern time_t datetime_getutc(void);
 /* src/toolkit/logger.c */
 extern void toolkit_logger_init(void);
 extern void toolkit_logger_deinit(void);
@@ -627,10 +631,6 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern size_t stringbuffer_length(StringBuffer *sb);
-/* src/toolkit/time.c */
-extern void toolkit_time_init(void);
-extern void toolkit_time_deinit(void);
-extern time_t time_getutc(void);
 /* src/toolkit/toolkit.c */
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
