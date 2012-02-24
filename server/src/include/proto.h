@@ -876,7 +876,7 @@ extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);
 extern char *string_whitespace_squeeze(char *str);
 extern void string_newline_to_literal(char *str);
-extern const char *string_get_word(const char *str, size_t *pos, char *word, size_t wordsize);
+extern const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize);
 extern void string_skip_word(const char *str, size_t *i, int dir);
 extern int string_isdigit(const char *str);
 extern void string_capitalize(char *str);
