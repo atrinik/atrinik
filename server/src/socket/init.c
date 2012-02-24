@@ -371,6 +371,7 @@ static void create_server_settings(void)
 	for (i = 0; i < ALLOWED_CHARS_NUM; i++)
 	{
 		fprintf(fp, "text %s\n", settings.allowed_chars[i]);
+		fprintf(fp, "text %"FMT64U"-%"FMT64U"\n", (uint64) settings.limits[i][0], (uint64) settings.limits[i][1]);
 	}
 
 	/* Add the level information. */
