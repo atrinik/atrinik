@@ -118,16 +118,24 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 }
 
 /**
+ * Append a string of the specified length to a string buffer instance.
+ * @param sb The string buffer to modify.
+ * @param str The string to append.
+ * @param len Length of the string. */
+void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len)
+{
+	stringbuffer_ensure(sb, len + 1);
+	memcpy(sb->buf + sb->pos, str, len);
+	sb->pos += len;
+}
+
+/**
  * Append a string to a string buffer instance.
  * @param sb The string buffer to modify.
  * @param str The string to append. */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
-	size_t len = strlen(str);
-
-	stringbuffer_ensure(sb, len + 1);
-	memcpy(sb->buf + sb->pos, str, len);
-	sb->pos += len;
+	stringbuffer_append_string_len(sb, str, strlen(str));
 }
 
 /**
