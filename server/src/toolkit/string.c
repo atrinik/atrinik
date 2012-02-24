@@ -35,6 +35,7 @@ void toolkit_string_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(string)
 	{
+		toolkit_import(math);
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
@@ -611,4 +612,34 @@ char *string_create_char_range(char start, char end)
 	str[c - start + 1] = '\0';
 
 	return str;
+}
+
+/**
+ * Encrypt a string. Used for password storage on disk.
+ * @param str The string to crypt.
+ * @param salt Salt, if NULL, random will be chosen.
+ * @return The crypted string. */
+char *string_crypt(const char *str, const char *salt)
+{
+#ifdef HAVE_CRYPT
+	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+	char s[2];
+
+	if (!salt)
+	{
+		size_t stringlen = strlen(c);
+
+		s[0] = c[rndm(1, stringlen) - 1];
+		s[1] = c[rndm(1, stringlen) - 1];
+	}
+	else
+	{
+		s[0] = salt[0];
+		s[1] = salt[1];
+	}
+
+	return crypt(str, s);
+#else
+	return str;
+#endif
 }
