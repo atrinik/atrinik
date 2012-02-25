@@ -972,7 +972,7 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, ui
 	offset = (double) texture_bubble_on->h / 2.0 + 0.5;
 	fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
 
-	filledRectAlpha(surface, x, y, x + line_width + offset * 2, y + texture_bubble_on->h + offset * 4, 150);
+	rectangle_create(surface, x, y, line_width + offset * 2, texture_bubble_on->h + offset * 4, "020202");
 
 	for (i = 0; i < EXP_PROGRESS_BUBBLES; i++)
 	{
