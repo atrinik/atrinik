@@ -29,7 +29,6 @@
 #include <global.h>
 #include <loader.h>
 
-static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
 
@@ -139,8 +138,6 @@ void display_motd(object *op)
  * @return The player structure. */
 static player *get_player(player *p)
 {
-	object *op = arch_to_object(get_player_archetype(NULL));
-
 	if (!p)
 	{
 		p = (player *) get_poolchunk(pool_player);
@@ -168,19 +165,10 @@ static player *get_player(player *p)
 	p->last_save_tick = 9999999;
 #endif
 
-	/* This is where we set up initial CONTR(op) */
-	op->custom_attrset = p;
-	p->ob = op;
-	op->speed_left = 0.5;
-	op->speed = 1.0;
-	op->run_away = 0;
-
 	p->target_hp = -1;
 	p->gen_sp_armour = 0;
 	p->last_speed = -1;
 	p->update_los = 1;
-
-	FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
 
 	p->last_stats.exp = -1;
 
@@ -272,40 +260,6 @@ void free_player(player *pl)
 		{
 			object_remove(pl->ob, 0);
 			object_destroy(pl->ob);
-		}
-	}
-}
-
-/**
- * Returns the next player archetype from archetype list. Not very
- * efficient routine, but used only when creating new players.
- * @note There MUST be at least one player archetype!
- * @param at The archetype list.
- * @return The archetype, if not found, fatal error. */
-static archetype *get_player_archetype(archetype *at)
-{
-	archetype *start = at;
-
-	for (; ;)
-	{
-		if (at == NULL || at->next == NULL)
-		{
-			at = first_archetype;
-		}
-		else
-		{
-			at = at->next;
-		}
-
-		if (at->clone.type == PLAYER)
-		{
-			return at;
-		}
-
-		if (at == start)
-		{
-			logger_print(LOG(ERROR), "No player archetypes.");
-			exit(1);
 		}
 	}
 }
@@ -2590,7 +2544,6 @@ static int player_load(player *pl, const char *path)
 static void player_create(player *pl, const char *path, archetype *at, const char *name)
 {
 	copy_object(&at->clone, pl->ob, 0);
-	pl->ob->custom_attrset = pl;
 	FREE_AND_COPY_HASH(pl->ob->name, name);
 
 	SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
@@ -2641,7 +2594,6 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 
 	/* Create a new object for the player object data. */
 	pl->ob = get_object();
-	pl->ob->custom_attrset = pl;
 
 #ifdef SAVE_INTERVAL
 	pl->last_save_time = time(NULL);
@@ -2660,6 +2612,10 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 		player_create(pl, path, at, name);
 	}
 
+	pl->ob->custom_attrset = pl;
+	pl->ob->speed_left = 0.5;
+
+	sum_weight(pl->ob);
 	fix_player(pl->ob);
 	link_player_skills(pl->ob);
 
@@ -2691,7 +2647,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 	}
 
 	pl->ob->anim_last_facing = pl->ob->anim_last_facing_last = pl->ob->facing = pl->ob->direction;
-	SET_ANIMATION_STATE(pl->ob);
+	SET_ANIMATION(pl->ob, (NUM_ANIMATIONS(pl->ob) / NUM_FACINGS(pl->ob)) * pl->ob->direction);
 
 	esrv_new_player(pl, pl->ob->weight + pl->ob->carrying);
 	esrv_send_inventory(pl->ob, pl->ob);
