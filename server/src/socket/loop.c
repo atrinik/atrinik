@@ -184,29 +184,26 @@ void remove_ns_dead_player(player *pl)
 		return;
 	}
 
-	if (pl->socket.state == ST_PLAYING)
+	/* Trigger the global LOGOUT event */
+	trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
+	statistics_player_logout(pl);
+
+	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+
+	/* If this player is in a party, leave the party */
+	if (pl->party)
 	{
-		/* Trigger the global LOGOUT event */
-		trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
-		statistics_player_logout(pl);
-
-		draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
-
-		/* If this player is in a party, leave the party */
-		if (pl->party)
-		{
-			command_party(pl->ob, "party", "leave");
-		}
-
-		strncpy(pl->killer, "left", MAX_BUF - 1);
-		hiscore_check(pl->ob, 1);
-
-		/* Be sure we have closed container when we leave */
-		container_close(pl->ob, NULL);
-
-		player_save(pl->ob);
-		leave_map(pl->ob);
+		command_party(pl->ob, "party", "leave");
 	}
+
+	strncpy(pl->killer, "left", MAX_BUF - 1);
+	hiscore_check(pl->ob, 1);
+
+	/* Be sure we have closed container when we leave */
+	container_close(pl->ob, NULL);
+
+	player_save(pl->ob);
+	leave_map(pl->ob);
 
 	logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);
 
