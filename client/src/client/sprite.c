@@ -320,8 +320,11 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 		}
 		else
 		{
+			char buf[MAX_BUF];
+
 			surface = SDL_DisplayFormatAlpha(surface);
-			filledRectAlpha(surface, 0, 0, surface->w - 1, surface->h - 1, dark_alpha[dark_level]);
+			snprintf(buf, sizeof(buf), "rectangle:500,500,%d", dark_alpha[dark_level]);
+			SDL_BlitSurface(TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, surface, NULL);
 			sprite->dark_level[dark_level] = surface;
 		}
 	}
