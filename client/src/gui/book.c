@@ -70,7 +70,6 @@ static int popup_draw_func(popup_struct *popup)
 		/* Draw the book name. */
 		box.w = BOOK_TITLE_WIDTH;
 		box.h = BOOK_TITLE_HEIGHT;
-		text_offset_set(popup->x, popup->y);
 		string_show(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
@@ -81,7 +80,6 @@ static int popup_draw_func(popup_struct *popup)
 		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
 		string_show(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
-		text_offset_reset();
 
 		popup->redraw = 0;
 	}

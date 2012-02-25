@@ -254,11 +254,12 @@ void textwin_handle_copy(widgetdata *widget)
 /**
  * Display the message text window, without handling scrollbar/mouse
  * actions.
+ * @param surface Surface to draw on.
  * @param x X position.
  * @param y Y position.
  * @param w Maximum width.
  * @param h Maximum height. */
-void textwin_show(int x, int y, int w, int h)
+void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
 {
 	widgetdata *widget = cur_widget[MSGWIN_ID];
 	textwin_struct *textwin = TEXTWIN(widget);
@@ -276,15 +277,15 @@ void textwin_show(int x, int y, int w, int h)
 	box.y = y;
 	box.w = w;
 	box.h = h;
-	SDL_FillRect(ScreenSurface, &box, 0);
-	draw_frame(ScreenSurface, x, y, box.w, box.h);
+	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0, 0, 0));
+	draw_frame(surface, x, y, box.w, box.h);
 
 	box.w = w - 3;
 	box.h = h;
 
 	box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-	string_show(ScreenSurface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
+	string_show(surface, textwin->font, textwin->entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 }
 
 /**

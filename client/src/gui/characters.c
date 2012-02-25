@@ -45,7 +45,7 @@ enum
 static progress_dots progress;
 /**
  * Button buffer. */
-static button_struct button_tab_characters, button_tab_new, button_tab_password;
+static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right;
 /**
  * Text input buffers. */
 static text_input_struct text_inputs[TEXT_INPUT_NUM];
@@ -55,6 +55,12 @@ static list_struct *list_characters;
 /**
  * Currently selected text input. */
 static size_t text_input_current;
+/**
+ * Which character race is selected in the character creation tab. */
+static size_t character_race;
+/**
+ * Which gender is selected in the character creation tab. */
+static size_t character_gender;
 
 /** @copydoc text_input_struct::character_check_func */
 static int text_input_character_check(text_input_struct *text_input, char c)
@@ -117,6 +123,10 @@ static int popup_draw(popup_struct *popup)
 	SDL_Rect box;
 	size_t i;
 
+	box.w = popup->surface->w;
+	box.h = 38;
+	string_show_shadow_format(popup->surface, FONT_SERIF14, 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box, "Welcome, %s", cpl.account);
+
 	/* Waiting to log in. */
 	if (cpl.state == ST_WAITFORPLAY)
 	{
@@ -130,9 +140,14 @@ static int popup_draw(popup_struct *popup)
 		return 0;
 	}
 
+	textwin_show(popup->surface, 265, 45, 220, 132);
+
 	button_set_parent(&button_tab_characters, popup->x, popup->y);
 	button_set_parent(&button_tab_new, popup->x, popup->y);
 	button_set_parent(&button_tab_password, popup->x, popup->y);
+	button_set_parent(&button_character_gender, popup->x, popup->y);
+	button_set_parent(&button_character_left, popup->x, popup->y);
+	button_set_parent(&button_character_right, popup->x, popup->y);
 
 	button_tab_characters.x = 38;
 	button_tab_characters.y = 38;
@@ -156,7 +171,41 @@ static int popup_draw(popup_struct *popup)
 	}
 	else if (button_tab_new.pressed_forced)
 	{
-		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 80);
+		int max_width, width;
+
+		max_width = 0;
+
+		for (i = 0; i < s_settings->num_characters; i++)
+		{
+			width = string_get_width(FONT_SERIF12, s_settings->characters[i].name, 0);
+
+			if (width > max_width)
+			{
+				max_width = width;
+			}
+		}
+
+		string_show_format(popup->surface, FONT_ARIAL10, 38, 80, COLOR_WHITE, TEXT_MARKUP, NULL, "<bar=#202020 50 60><icon=%s 50 60><border=#909090 50 60>", s_settings->characters[character_race].gender_faces[character_gender]);
+
+		button_character_left.x = 100;
+		button_character_left.y = 80;
+		button_show(&button_character_left, "<");
+
+		box.w = max_width;
+		box.h = 0;
+		string_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+
+		button_character_right.x = button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5 + max_width + 5;
+		button_character_right.y = 80;
+		button_show(&button_character_right, ">");
+
+		button_character_gender.x = button_character_left.x;
+		button_character_gender.y = button_character_left.y + 30;
+		button_show(&button_character_gender, character_gender == GENDER_MALE ? "Female" : "Male");
+
+		box.w = text_inputs[TEXT_INPUT_CHARNAME].w;
+		string_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 162, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 180);
 	}
 	else if (button_tab_password.pressed_forced)
 	{
@@ -166,13 +215,6 @@ static int popup_draw(popup_struct *popup)
 		}
 	}
 
-	return 1;
-}
-
-/** @copydoc popup_struct::popup_draw_post_func */
-static int popup_draw_post(popup_struct *popup)
-{
-	textwin_show(popup->x + 265, popup->y + 45, 220, 132);
 	return 1;
 }
 
@@ -194,6 +236,10 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 		text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
 		text_inputs[TEXT_INPUT_CHARNAME].focus = 1;
+
+		character_race = 0;
+		character_gender = GENDER_MALE;
+
 		return 1;
 	}
 	else if (button_event(&button_tab_password, event))
@@ -223,6 +269,33 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 		if (text_input_event(&text_inputs[TEXT_INPUT_CHARNAME], event))
 		{
 			return 1;
+		}
+		else if (button_event(&button_character_gender, event))
+		{
+			character_gender = character_gender == GENDER_MALE ? GENDER_FEMALE : GENDER_MALE;
+			return 1;
+		}
+		else if (button_event(&button_character_left, event))
+		{
+			if (character_race == 0)
+			{
+				character_race = s_settings->num_characters - 1;
+			}
+			else
+			{
+				character_race--;
+			}
+		}
+		else if (button_event(&button_character_right, event))
+		{
+			if (character_race == s_settings->num_characters - 1)
+			{
+				character_race = 0;
+			}
+			else
+			{
+				character_race++;
+			}
 		}
 	}
 	else if (button_tab_password.pressed_forced)
@@ -340,18 +413,23 @@ void characters_open(void)
 
 	popup = popup_create("popup");
 	popup->draw_func = popup_draw;
-	popup->draw_post_func = popup_draw_post;
 	popup->event_func = popup_event;
 	popup->destroy_callback_func = popup_destroy_callback;
 
 	button_create(&button_tab_characters);
 	button_create(&button_tab_new);
 	button_create(&button_tab_password);
+	button_create(&button_character_gender);
+	button_create(&button_character_left);
+	button_create(&button_character_right);
 	button_tab_characters.pressed_forced = 1;
-	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = popup->surface;
+	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = popup->surface;
 	button_tab_characters.texture = button_tab_new.texture = button_tab_password.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_tab");
 	button_tab_characters.texture_over = button_tab_new.texture_over = button_tab_password.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_over");
 	button_tab_characters.texture_pressed = button_tab_new.texture_pressed = button_tab_password.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_down");
+	button_character_left.texture = button_character_right.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+	button_character_left.texture_over = button_character_right.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+	button_character_left.texture_pressed = button_character_right.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
 
 	for (i = 0; i < TEXT_INPUT_NUM; i++)
 	{

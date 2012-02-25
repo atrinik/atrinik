@@ -154,11 +154,16 @@ void popup_render(popup_struct *popup)
 	/* Handle drawing inside the popup. */
 	if (popup->draw_func)
 	{
+		text_offset_set(popup->x, popup->y);
+
 		if (!popup->draw_func(popup))
 		{
+			text_offset_reset();
 			popup_destroy(popup);
 			return;
 		}
+
+		text_offset_reset();
 	}
 
 	/* Show the popup in the middle of the screen. */

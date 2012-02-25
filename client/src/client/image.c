@@ -550,15 +550,16 @@ int get_bmap_id(char *name)
 
 /**
  * Draw a face.
- * @param id ID of the face.
+ * @param surface Surface to draw on.
  * @param x X position.
- * @param y Y position. */
-void face_show(int id, int x, int y)
+ * @param y Y position.
+ * @param id ID of the face. */
+void face_show(SDL_Surface *surface, int x, int y, int id)
 {
 	if (id == -1 || !FaceList[id].sprite)
 	{
 		return;
 	}
 
-	surface_show(ScreenSurface, x, y, NULL, FaceList[id].sprite->bitmap);
+	surface_show(surface, x, y, NULL, FaceList[id].sprite->bitmap);
 }

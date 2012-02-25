@@ -111,9 +111,7 @@ static int news_popup_draw_func(popup_struct *popup)
 		/* Skip rows we scrolled past. */
 		box.y = news_scroll_offset;
 		/* Show the news. */
-		text_offset_set(popup->x, popup->y);
 		string_show(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
-		text_offset_reset();
 
 		scrollbar_show(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
 		return 1;
@@ -369,7 +367,7 @@ static int popup_draw_post_func(popup_struct *popup)
 	}
 	else
 	{
-		face_show(face, x + 300, y + 35);
+		face_show(ScreenSurface, x + 300, y + 35, face);
 	}
 
 	/* Show the stat values and the range buttons. */
@@ -521,7 +519,7 @@ void main_screen_render(void)
 
 	/* Background */
 	surface_show(ScreenSurface, 0, 0, NULL, texture);
-	textwin_show(texture->w, 1, ScreenSurface->w - texture->w - 2, ScreenSurface->h - 3);
+	textwin_show(ScreenSurface, texture->w, 1, ScreenSurface->w - texture->w - 2, ScreenSurface->h - 3);
 
 	/* Calculate whether to show the eyes or not. Blinks every
 	 * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until

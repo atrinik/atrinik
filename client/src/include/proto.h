@@ -50,7 +50,7 @@ extern void read_bmaps(void);
 extern void finish_face_cmd(int facenum, uint32 checksum, char *face);
 extern int request_face(int pnum);
 extern int get_bmap_id(char *name);
-extern void face_show(int id, int x, int y);
+extern void face_show(SDL_Surface *surface, int x, int y, int id);
 /* src/client/item.c */
 extern void objects_free(object *op);
 extern object *object_find_object_inv(object *op, sint32 tag);
@@ -301,8 +301,8 @@ extern void book_load(const char *data, int len);
 extern void book_redraw(void);
 extern void book_add_help_history(const char *name);
 /* src/gui/characters.c */
-extern void socket_command_characters(uint8 *data, size_t len, size_t pos);
 extern void characters_open(void);
+extern void socket_command_characters(uint8 *data, size_t len, size_t pos);
 /* src/gui/effects.c */
 extern void effects_init(void);
 extern void effects_deinit(void);
@@ -458,7 +458,7 @@ extern void draw_info_flags(const char *color, int flags, const char *str);
 extern void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
 extern void textwin_handle_copy(widgetdata *widget);
-extern void textwin_show(int x, int y, int w, int h);
+extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
 extern void textwin_create_scrollbar(widgetdata *widget);
 extern void widget_textwin_show(widgetdata *widget);
 extern void textwin_event(widgetdata *widget, SDL_Event *event);
