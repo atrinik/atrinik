@@ -177,7 +177,7 @@ void texture_clear_cache(void)
 	{
 		HASH_ITER(hh, textures[i], curr, tmp)
 		{
-			texture_data_new(i, tmp);
+			texture_data_new(i, curr);
 		}
 	}
 }
