@@ -370,6 +370,8 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 		return;
 	}
 
+	string_title(name);
+
 	if (player_exists(name))
 	{
 		draw_info_send(0, COLOR_RED, ns, "Character with that name already exists.");
