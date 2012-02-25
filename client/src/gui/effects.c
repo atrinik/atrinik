@@ -613,7 +613,7 @@ void effect_sprites_play(void)
 		}
 
 		/* Show the sprite. */
-		map_sprite_show(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, 0, 0, SDL_ALPHA_OPAQUE, 0, tmp->def->zoom, tmp->def->zoom, 0);
+		map_sprite_show(FaceList[tmp->def->id].sprite, tmp->x, tmp->y, 0, 0, 0, 0, tmp->def->zoom, tmp->def->zoom, 0);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
