@@ -413,7 +413,7 @@ void list_show(list_struct *list, int x, int y)
 				{
 					string_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 				}
-				else
+				else if (text_color)
 				{
 					string_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 				}
