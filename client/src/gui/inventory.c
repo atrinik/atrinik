@@ -351,7 +351,7 @@ void widget_inventory_render(widgetdata *widget)
 				resize_widget(widget, RESIZE_BOTTOM, 32);
 			}
 
-			surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inv_bg"));
+			surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inventory_bg"));
 
 			string_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
 			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);

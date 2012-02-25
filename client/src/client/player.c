@@ -247,7 +247,7 @@ void widget_player_stats(widgetdata *widget)
 	{
 		SDL_Surface *texture;
 
-		texture = TEXTURE_CLIENT("stats_bg");
+		texture = TEXTURE_CLIENT("main_stats");
 		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
@@ -257,7 +257,7 @@ void widget_player_stats(widgetdata *widget)
 
 		widget->redraw = 0;
 
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("stats_bg"));
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("main_stats"));
 
 		/* Health */
 		string_show(widget->widgetSF, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);
@@ -313,7 +313,7 @@ void widget_player_stats(widgetdata *widget)
 	/* Mana bar */
 	if (cpl.stats.maxsp)
 	{
-		texture = TEXTURE_CLIENT("hp");
+		texture = TEXTURE_CLIENT("sp");
 		tmp = cpl.stats.sp;
 
 		if (tmp < 0)
@@ -477,7 +477,7 @@ void widget_show_main_lvl(widgetdata *widget)
 	{
 		SDL_Surface *texture;
 
-		texture = TEXTURE_CLIENT("main_lvl_bg");
+		texture = TEXTURE_CLIENT("main_level_bg");
 		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
@@ -487,7 +487,7 @@ void widget_show_main_lvl(widgetdata *widget)
 
 		widget->redraw = 0;
 
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("main_lvl_bg"));
+		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("main_level_bg"));
 
 		string_show(widget->widgetSF, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
