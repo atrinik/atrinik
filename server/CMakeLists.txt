@@ -257,7 +257,6 @@ set(SOURCES
 	src/server/light.c
 	src/server/links.c
 	src/server/living.c
-	src/server/login.c
 	src/server/los.c
 	src/server/main.c
 	src/server/map.c

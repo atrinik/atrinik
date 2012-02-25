@@ -206,7 +206,7 @@ void socket_buffer_write(socket_struct *ns)
 			{
 				logger_print(LOG(DEBUG), "New socket write failed (%d: %s).", errno, strerror(errno));
 #endif
-				ns->status = Ns_Dead;
+				ns->state = ST_DEAD;
 				break;
 			}
 			/* EWOULDBLOCK: We can't write because socket is busy. */
@@ -232,7 +232,7 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 	packet_struct *tmp;
 	size_t toread;
 
-	if (ns->status == Ns_Dead)
+	if (ns->state == ST_DEAD)
 	{
 		packet_free(packet);
 		return;

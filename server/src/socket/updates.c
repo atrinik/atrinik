@@ -214,7 +214,7 @@ void socket_command_request_update(socket_struct *ns, player *pl, uint8 *data, s
 	char buf[MAX_BUF];
 	update_file_struct *tmp;
 
-	if (ns->status != Ns_Add)
+	if (ns->state != ST_LOGIN)
 	{
 		return;
 	}

@@ -186,11 +186,12 @@ typedef struct list_struct
 	/**
 	 * Hook to use for setting text color based on row/column.
 	 * @param list List.
-	 * @param default_color Color that will be used by default.
 	 * @param row Text row.
 	 * @param col Column.
-	 * @return Color to use for the text. */
-	const char *(*text_color_hook)(struct list_struct *list, const char *default_color, uint32 row, uint32 col);
+	 * @param[out] color What color to use.
+	 * @param[out] color_shadow What color to use for the text's shadow,
+	 * NULL to disable shadow. */
+	void (*text_color_hook)(struct list_struct *list, uint32 row, uint32 col, const char **color, const char **color_shadow);
 
 	/**
 	 * Callback function to call after drawing one column in a list.

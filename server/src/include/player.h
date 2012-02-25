@@ -363,9 +363,6 @@ typedef struct pl_player
 	/** Bonuses to regeneration speed of sp. */
 	signed char gen_sp;
 
-	/** Input state of the player (name, password, etc). */
-	unsigned char state;
-
 	/** Player should keep moving in dir until run is off. */
 	unsigned char run_on;
 

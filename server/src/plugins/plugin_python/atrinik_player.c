@@ -260,7 +260,7 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
 		return NULL;
 	}
 
-	if (pl->pl->state != ST_PLAYING)
+	if (pl->pl->socket.state != ST_PLAYING)
 	{
 		PyErr_SetString(AtrinikError, "ExecuteCommand(): Player is not in a state to execute commands.");
 		return NULL;

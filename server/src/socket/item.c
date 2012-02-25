@@ -473,7 +473,7 @@ static void esrv_send_item_send(object *pl, object *op)
 {
 	packet_struct *packet;
 
-	if (!CONTR(pl) || CONTR(pl)->state != ST_PLAYING)
+	if (!CONTR(pl) || CONTR(pl)->socket.state != ST_PLAYING)
 	{
 		return;
 	}

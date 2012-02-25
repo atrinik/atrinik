@@ -3466,3 +3466,28 @@ int object_get_gender(object *op)
 
 	return GENDER_NEUTER;
 }
+
+void object_reverse_inventory(object *op)
+{
+	object *tmp, *next;
+
+	next = op->inv->below;
+	op->inv->above = NULL;
+	op->inv->below = NULL;
+
+	while (next)
+	{
+		next = next->below;
+
+		tmp = next;
+		tmp->above = NULL;
+		tmp->below = op->inv;
+		tmp->below->above = tmp;
+		op->inv = tmp;
+
+		if (tmp->inv)
+		{
+			object_reverse_inventory(tmp);
+		}
+	}
+}

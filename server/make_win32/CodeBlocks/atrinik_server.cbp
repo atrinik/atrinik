@@ -133,7 +133,6 @@
 		<Unit filename="..\..\src\server\light.c" />
 		<Unit filename="..\..\src\server\links.c" />
 		<Unit filename="..\..\src\server\living.c" />
-		<Unit filename="..\..\src\server\login.c" />
 		<Unit filename="..\..\src\server\los.c" />
 		<Unit filename="..\..\src\server\main.c" />
 		<Unit filename="..\..\src\server\map.c" />

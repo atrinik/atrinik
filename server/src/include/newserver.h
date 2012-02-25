@@ -76,14 +76,14 @@ struct Map
 };
 
 /** Possible socket statuses. */
-enum Sock_Status
+enum
 {
-	Ns_Avail,
-	Ns_Wait,
-	Ns_Add,
-	Ns_Login,
-	Ns_Dead,
-	Ns_Zombie
+	ST_AVAILABLE,
+	ST_WAITING,
+	ST_LOGIN,
+	ST_PLAYING,
+	ST_DEAD,
+	ST_ZOMBIE
 };
 
 /** This contains basic information on the socket structure. */
@@ -147,7 +147,7 @@ typedef struct socket_struct
 	uint8 ext_title_flag;
 
 	/** Current state of the socket. */
-	enum Sock_Status status;
+	int state;
 
 	/** Last map. */
 	struct Map lastmap;

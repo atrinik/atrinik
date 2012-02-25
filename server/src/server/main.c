@@ -671,7 +671,7 @@ void enter_exit(object *op, object *exit_ob)
 				}
 
 				CONTR(op)->bed_x = EXIT_X(exit_ob), CONTR(op)->bed_y = EXIT_Y(exit_ob);
-				save_player(op);
+				player_save(op);
 			}
 
 			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
@@ -841,16 +841,16 @@ static void process_players1(void)
 #ifdef AUTOSAVE
 		/* Check for ST_PLAYING state so that we don't try to save off when
 		 * the player is logging in. */
-		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->state == ST_PLAYING)
+		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING)
 		{
-			save_player(pl->ob);
+			player_save(pl->ob);
 			pl->last_save_tick = pticks;
 			hiscore_check(pl->ob, 1);
 		}
 #endif
 
 		/* Update total playing time. */
-		if (pl->state == ST_PLAYING && time(NULL) > pl->last_stat_time_played)
+		if (pl->socket.state == ST_PLAYING && time(NULL) > pl->last_stat_time_played)
 		{
 			pl->last_stat_time_played = time(NULL);
 
@@ -961,11 +961,6 @@ void process_events(mapstruct *map)
 
 		if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL)
 		{
-			if (op->type == PLAYER && CONTR(op)->state != ST_PLAYING)
-			{
-				continue;
-			}
-
 			logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
 			op->speed = 0;
 			update_ob_speed(op);

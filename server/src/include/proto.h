@@ -163,7 +163,8 @@ extern char *account_make_path(const char *name);
 extern void account_login(socket_struct *ns, char *name, char *password);
 extern void account_register(socket_struct *ns, char *name, char *password, char *password2);
 extern void account_new_char(socket_struct *ns, char *name, char *archname);
-extern void account_password_change(socket_struct *ns, char *password, char *password2);
+extern void account_login_char(socket_struct *ns, char *name);
+extern void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
 /* src/server/anim.c */
 extern Animations *animations;
 extern int num_animations;
@@ -298,10 +299,6 @@ extern void fix_monster(object *op);
 extern object *insert_base_info_object(object *op);
 extern object *find_base_info_object(object *op);
 extern void set_mobile_speed(object *op, int idx);
-/* src/server/login.c */
-extern int check_name(player *pl, char *name);
-extern int save_player(object *op);
-extern void check_login(object *op);
 /* src/server/los.c */
 extern void init_block(void);
 extern void set_block(int x, int y, int bx, int by);
@@ -450,6 +447,7 @@ extern int object_set_value(object *op, const char *key, const char *value, int 
 extern void init_object_initializers(void);
 extern int item_matched_string(object *pl, object *op, const char *name);
 extern int object_get_gender(object *op);
+extern void object_reverse_inventory(object *op);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;
@@ -706,15 +704,10 @@ extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 /* src/socket/request.c */
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void socket_command_addme(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void receive_player_name(object *op);
-extern void receive_player_password(object *op);
-extern void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void send_query(socket_struct *ns, uint8 type);
 extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32 weight);
 extern void draw_client_map(object *pl);
@@ -1109,13 +1102,8 @@ extern void player_deinit(void);
 extern void player_disconnect_all(void);
 extern player *find_player(const char *plname);
 extern void display_motd(object *op);
-extern int playername_ok(char *cp);
 extern void free_player(player *pl);
-extern int add_player(socket_struct *ns);
 extern void give_initial_items(object *pl, treasurelist *items);
-extern void get_name(object *op);
-extern void get_password(object *op);
-extern void confirm_password(object *op);
 extern int handle_newcs_player(player *pl);
 extern void do_some_living(object *op);
 extern void kill_player(object *op);
@@ -1141,6 +1129,9 @@ extern void pick_up(object *op, object *alt, int no_mevent);
 extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
 extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
 extern void drop(object *op, object *tmp, int no_mevent);
+extern StringBuffer *player_make_path(const char *name);
+extern void player_save(object *op);
+extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */
 extern void object_type_init_player_mover(void);

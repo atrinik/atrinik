@@ -54,6 +54,7 @@ static text_input_struct text_inputs[LOGIN_TEXT_INPUT_NUM];
  * Currently selected text input. */
 static size_t text_input_current;
 
+/** @copydoc text_input_struct::character_check_func */
 static int text_input_character_check(text_input_struct *text_input, char c)
 {
 	if (text_input == &text_inputs[LOGIN_TEXT_INPUT_NAME] && !char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_ACCOUNT]))
@@ -75,7 +76,7 @@ static int popup_draw(popup_struct *popup)
 	size_t i;
 
 	/* Connection terminated while we were trying to login. */
-	if (cpl.state < ST_STARTCONNECT)
+	if (cpl.state < ST_STARTCONNECT || cpl.state == ST_CHARACTERS)
 	{
 		return 0;
 	}
@@ -162,6 +163,13 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 			if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.keysym.sym))
 			{
 				packet_struct *packet;
+				uint32 lower, upper;
+
+				if (button_tab_register.pressed_forced && strcmp(text_inputs[LOGIN_TEXT_INPUT_PASSWORD].str, text_inputs[LOGIN_TEXT_INPUT_PASSWORD2].str) != 0)
+				{
+					draw_info(COLOR_RED, "The passwords do not match.");
+					return 1;
+				}
 
 				packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
 
@@ -182,13 +190,17 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 						packet_free(packet);
 						return 1;
 					}
+					else if (sscanf(s_settings->text[i == LOGIN_TEXT_INPUT_NAME ? SERVER_TEXT_ALLOWED_CHARS_ACCOUNT_MAX : SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[i].num < lower || text_inputs[i].num > upper))
+					{
+						draw_info_format(COLOR_RED, "%s must be between %d and %d characters long.", i == LOGIN_TEXT_INPUT_NAME ? "Account name" : "Password", lower, upper);
+						packet_free(packet);
+						return 1;
+					}
 
 					packet_append_string_terminated(packet, text_inputs[i].str);
 				}
 
 				socket_send_packet(packet);
-				characters_open();
-				popup_destroy(popup);
 				return 1;
 			}
 

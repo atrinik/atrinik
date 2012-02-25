@@ -66,11 +66,6 @@ void metaserver_info_update(void)
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (pl->state != ST_PLAYING)
-		{
-			continue;
-		}
-
 		if (stringbuffer_length(sb))
 		{
 			stringbuffer_append_string(sb, ":");

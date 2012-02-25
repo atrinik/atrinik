@@ -27,6 +27,7 @@
  * Player related functions. */
 
 #include <global.h>
+#include <loader.h>
 
 static archetype *get_player_archetype(archetype *at);
 static int save_life(object *op);
@@ -61,7 +62,7 @@ void player_disconnect_all(void)
 {
 	while (first_player)
 	{
-		first_player->socket.status = Ns_Dead;
+		first_player->socket.state = ST_DEAD;
 		remove_ns_dead_player(first_player);
 	}
 }
@@ -76,7 +77,7 @@ player *find_player(const char *plname)
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
-		if (pl->ob && pl->state == ST_PLAYING && !strncasecmp(pl->ob->name, plname, MAX_NAME))
+		if (strncasecmp(pl->ob->name, plname, MAX_NAME) == 0)
 		{
 			return pl;
 		}
@@ -132,24 +133,6 @@ void display_motd(object *op)
 }
 
 /**
- * Checks if player name contains illegal characters or not.
- * @param cp The player name.
- * @return 1 if the player name doesn't contain illegal characters, 0
- * otherwise. */
-int playername_ok(char *cp)
-{
-	for (; *cp != '\0'; cp++)
-	{
-		if (!((*cp >= 'a' && *cp <= 'z') || (*cp >= 'A' && *cp <= 'Z')) && *cp != '-' && *cp != '_')
-		{
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-/**
  * Returns the player structure. If 'p' is null, we create a new one.
  * Otherwise, we recycle the one that is passed.
  * @param p Player structure to recycle or NULL for new structure.
@@ -185,17 +168,12 @@ static player *get_player(player *p)
 	p->last_save_tick = 9999999;
 #endif
 
-	/* Init. respawn position */
-	strcpy(p->savebed_map, first_map_path);
-
 	/* This is where we set up initial CONTR(op) */
 	op->custom_attrset = p;
 	p->ob = op;
 	op->speed_left = 0.5;
 	op->speed = 1.0;
 	op->run_away = 0;
-
-	p->state = ST_ROLL_STAT;
 
 	p->target_hp = -1;
 	p->gen_sp_armour = 0;
@@ -298,34 +276,6 @@ void free_player(player *pl)
 	}
 }
 
-static object void_container;
-
-/**
- * Tries to add a player on the connection in ns.
- *
- * All we can really get in this is some settings like host and display
- * mode.
- * @param ns The socket of this player.
- * @return 0. */
-int add_player(socket_struct *ns)
-{
-	player *p = get_player(NULL);
-	memcpy(&p->socket, ns, sizeof(socket_struct));
-
-	/* now, we start the login procedure! */
-	p->socket.status = Ns_Login;
-	p->socket.below_clear = 0;
-	p->socket.update_tile = 0;
-	p->socket.look_position = 0;
-
-	get_name(p->ob);
-
-	/* Avoid gc of the player */
-	insert_ob_in_ob(p->ob, &void_container);
-
-	return 0;
-}
-
 /**
  * Returns the next player archetype from archetype list. Not very
  * efficient routine, but used only when creating new players.
@@ -414,36 +364,6 @@ void give_initial_items(object *pl, treasurelist *items)
 }
 
 /**
- * Send query to op's socket to get player name.
- * @param op Object to send the query to. */
-void get_name(object *op)
-{
-	CONTR(op)->write_buf[0] = '\0';
-	CONTR(op)->state = ST_GET_NAME;
-	send_query(&CONTR(op)->socket, CMD_QUERY_GET_NAME);
-}
-
-/**
- * Send query to op's socket to get player's password.
- * @param op Object to send the query to. */
-void get_password(object *op)
-{
-	CONTR(op)->write_buf[0] = '\0';
-	CONTR(op)->state = ST_GET_PASSWORD;
-	send_query(&CONTR(op)->socket, CMD_QUERY_GET_PASSWORD);
-}
-
-/**
- * If this is a new character, we will need to confirm the password.
- * @param op Object to send the query to. */
-void confirm_password(object *op)
-{
-	CONTR(op)->write_buf[0] = '\0';
-	CONTR(op)->state = ST_CONFIRM_PASSWORD;
-	send_query(&CONTR(op)->socket, CMD_QUERY_CONFIRM_PASSWORD);
-}
-
-/**
  * This is similar to handle_player(), but is only used by the new
  * client/server stuff.
  *
@@ -462,7 +382,7 @@ int handle_newcs_player(player *pl)
 
 	handle_client(&pl->socket, pl);
 
-	if (!pl->ob || !OBJECT_ACTIVE(pl->ob) || pl->socket.status == Ns_Dead)
+	if (!pl->ob || !OBJECT_ACTIVE(pl->ob) || pl->socket.state == ST_DEAD)
 	{
 		return -1;
 	}
@@ -628,11 +548,6 @@ void do_some_living(object *op)
 	int rate_hp = 2000;
 	int rate_sp = 1200;
 	int add;
-
-	if (CONTR(op)->state != ST_PLAYING)
-	{
-		return;
-	}
 
 	gen_hp = (CONTR(op)->gen_hp * (rate_hp / 20)) + (op->stats.maxhp / 4);
 	gen_sp = (CONTR(op)->gen_sp * (rate_sp / 20)) + op->stats.maxsp;
@@ -897,7 +812,7 @@ void kill_player(object *op)
 
 	/* Show a nasty message */
 	draw_info(COLOR_WHITE, op, "YOU HAVE DIED.");
-	save_player(op);
+	player_save(op);
 }
 
 /**
@@ -2358,7 +2273,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 #ifdef SAVE_INTERVAL
 	if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_UNPAID) && (tmp->nrof ? tmp->value * tmp->nrof : tmp->value > 2000) && (CONTR(op)->last_save_time + SAVE_INTERVAL) <= time(NULL))
 	{
-		save_player(op, 1);
+		player_save(op);
 		CONTR(op)->last_save_time = time(NULL);
 	}
 #endif
@@ -2442,6 +2357,352 @@ void drop(object *op, object *tmp, int no_mevent)
 	{
 		drop_object(op, tmp, 0, no_mevent);
 	}
+}
+
+StringBuffer *player_make_path(const char *name)
+{
+	StringBuffer *sb;
+	size_t i;
+
+	sb = stringbuffer_new();
+	stringbuffer_append_printf(sb, "%s/players/", settings.datapath);
+
+	for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0]; i++)
+	{
+		stringbuffer_append_string_len(sb, name, i + 1);
+		stringbuffer_append_string(sb, "/");
+	}
+
+	return sb;
+}
+
+void player_save(object *op)
+{
+	player *pl;
+	StringBuffer *sb;
+	char *path, pathtmp[HUGE_BUF];
+	FILE *fp;
+	int i;
+
+	/* Is this a map players can't save on? */
+	if (op->map && MAP_PLAYER_NO_SAVE(op->map))
+	{
+		return;
+	}
+
+	pl = CONTR(op);
+	sb = player_make_path(op->name);
+	stringbuffer_append_printf(sb, "%s.dat", op->name);
+	path = stringbuffer_finish(sb);
+
+	path_ensure_directories(path);
+	snprintf(pathtmp, sizeof(pathtmp), "%s.tmp", path);
+	rename(path, pathtmp);
+
+	fp = fopen(path, "w");
+
+	if (!fp)
+	{
+		draw_info(COLOR_WHITE, op, "Can't open file for saving.");
+		logger_print(LOG(BUG), "Can't open file for saving: %s.", path);
+		rename(pathtmp, path);
+		free(path);
+		return;
+	}
+
+	fprintf(fp, "password %s\n", pl->password);
+	fprintf(fp, "no_shout %d\n", pl->no_shout);
+	fprintf(fp, "tcl %d\n", pl->tcl);
+	fprintf(fp, "tgm %d\n", pl->tgm);
+	fprintf(fp, "tsi %d\n", pl->tsi);
+	fprintf(fp, "tli %d\n", pl->tli);
+	fprintf(fp, "tls %d\n", pl->tls);
+	fprintf(fp, "gen_hp %d\n", pl->gen_hp);
+	fprintf(fp, "gen_sp %d\n", pl->gen_sp);
+	fprintf(fp, "digestion %d\n", pl->digestion);
+	fprintf(fp, "map %s\n", op->map ? op->map->path : EMERGENCY_MAPPATH);
+	fprintf(fp, "bed_map %s\n", pl->savebed_map);
+	fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
+
+	for (i = 0; i < pl->num_cmd_permissions; i++)
+	{
+		if (pl->cmd_permissions[i])
+		{
+			fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
+		}
+	}
+
+	for (i = 0; i < pl->num_faction_ids; i++)
+	{
+		if (pl->faction_ids[i])
+		{
+			fprintf(fp, "faction %s %"FMT64"\n", pl->faction_ids[i], pl->faction_reputation[i]);
+		}
+	}
+
+	for (i = 0; i < pl->num_region_maps; i++)
+	{
+		if (pl->region_maps[i])
+		{
+			fprintf(fp, "rmap %s\n", pl->region_maps[i]);
+		}
+	}
+
+	fprintf(fp, "fame %"FMT64"\n", pl->fame);
+	fprintf(fp, "endplst\n");
+
+	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+	save_object(fp, op);
+	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+
+	/* Make sure the write succeeded */
+	if (fclose(fp) == EOF)
+	{
+		draw_info(COLOR_WHITE, op, "Can't save character.");
+		rename(pathtmp, path);
+		free(path);
+		return;
+	}
+
+	chmod(path, SAVE_MODE);
+	unlink(pathtmp);
+}
+
+static int player_load(player *pl, const char *path)
+{
+	FILE *fp;
+	char buf[MAX_BUF], *end;
+	void *loaderbuf;
+
+	fp = fopen(path, "rb");
+
+	if (!fp)
+	{
+		return 0;
+	}
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		end = strchr(buf, '\n');
+
+		if (end)
+		{
+			*end = '\0';
+		}
+
+		if (strcmp(buf, "endplst") == 0)
+		{
+			break;
+		}
+		else if (strncmp(buf, "no_shout ", 9) == 0)
+		{
+			pl->no_shout = atoi(buf + 9);
+		}
+		else if (strncmp(buf, "tcl ", 4) == 0)
+		{
+			pl->tcl = atoi(buf + 4);
+		}
+		else if (strncmp(buf, "tgm ", 4) == 0)
+		{
+			pl->tgm = atoi(buf + 4);
+		}
+		else if (strncmp(buf, "tsi ", 4) == 0)
+		{
+			pl->tsi = atoi(buf + 4);
+		}
+		else if (strncmp(buf, "tli ", 4) == 0)
+		{
+			pl->tli = atoi(buf + 4);
+		}
+		else if (strncmp(buf, "tls ", 4) == 0)
+		{
+			pl->tls = atoi(buf + 4);
+		}
+		else if (strncmp(buf, "map ", 4) == 0)
+		{
+			strncpy(pl->maplevel, buf + 4, sizeof(pl->maplevel) - 1);
+			pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+		}
+		else if (strncmp(buf, "bed_map ", 8) == 0)
+		{
+			strncpy(pl->savebed_map, buf + 8, sizeof(pl->savebed_map) - 1);
+			pl->savebed_map[sizeof(pl->savebed_map) - 1] = '\0';
+		}
+		else if (strncmp(buf, "bed_x ", 5) == 0)
+		{
+			pl->bed_x = atoi(buf + 5);
+		}
+		else if (strncmp(buf, "bed_y ", 5) == 0)
+		{
+			pl->bed_y = atoi(buf + 5);
+		}
+		else if (strncmp(buf, "cmd_permission ", 15) == 0)
+		{
+			pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
+			pl->cmd_permissions[pl->num_cmd_permissions] = strdup(buf + 15);
+			pl->num_cmd_permissions++;
+		}
+		else if (strncmp(buf, "faction ", 8) == 0)
+		{
+			size_t pos;
+			char faction_id[MAX_BUF];
+			sint64 rep;
+
+			pos = 8;
+
+			if (string_get_word(buf, &pos, ' ', faction_id, sizeof(faction_id)))
+			{
+				rep = atoll(buf + pos);
+
+				pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+				pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+				pl->faction_ids[pl->num_faction_ids] = add_string(faction_id);
+				pl->faction_reputation[pl->num_faction_ids] = rep;
+				pl->num_faction_ids++;
+			}
+		}
+		else if (strncmp(buf, "fame ", 5) == 0)
+		{
+			pl->fame = atoi(buf + 5);
+		}
+		else if (strncmp(buf, "rmap ", 5) == 0)
+		{
+			pl->region_maps = realloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
+			pl->region_maps[pl->num_region_maps] = strdup(buf + 5);
+			pl->num_region_maps++;
+		}
+	}
+
+	SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+	loaderbuf = create_loader_buffer(fp);
+	load_object(fp, pl->ob, loaderbuf, LO_REPEAT, 0);
+	delete_loader_buffer(loaderbuf);
+	CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+	fclose(fp);
+
+	/* The inventory of players is loaded in reverse order, so we need to
+	 * reorder it. */
+	object_reverse_inventory(pl->ob);
+
+	return 1;
+}
+
+static void player_create(player *pl, const char *path, archetype *at, const char *name)
+{
+	copy_object(&at->clone, pl->ob, 0);
+	pl->ob->custom_attrset = pl;
+	FREE_AND_COPY_HASH(pl->ob->name, name);
+
+	SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+	give_initial_items(pl->ob, pl->ob->randomitems);
+	trigger_global_event(GEVENT_BORN, pl->ob, NULL);
+	CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+
+	strncpy(pl->maplevel, first_map_path, sizeof(pl->maplevel) - 1);
+	pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+	pl->ob->x = -1;
+	pl->ob->y = -1;
+}
+
+void player_login(socket_struct *ns, const char *name, archetype *at)
+{
+	player *pl;
+	StringBuffer *sb;
+	char *path;
+
+	pl = find_player(name);
+
+	if (pl)
+	{
+		pl->socket.state = ST_DEAD;
+		remove_ns_dead_player(pl);
+	}
+
+	if (checkbanned(name, ns->host))
+	{
+		logger_print(LOG(SYSTEM), "Ban: Banned player tried to login. [%s@%s]", name, ns->host);
+		draw_info_send(0, COLOR_RED, ns, "Connection refused due to a ban.");
+		ns->state = ST_ZOMBIE;
+		return;
+	}
+
+	logger_print(LOG(INFO), "Login %s from IP %s", name, ns->host);
+
+	pl = get_player(NULL);
+	memcpy(&pl->socket, ns, sizeof(socket_struct));
+
+	/* Basically, the add_player copies the socket structure into
+	 * the player structure, so this one (which is from init_sockets)
+	 * is not needed anymore. */
+	ns->login_count = 0;
+	ns->keepalive = 0;
+	socket_info.nconns--;
+	ns->state = ST_AVAILABLE;
+
+	/* Create a new object for the player object data. */
+	pl->ob = get_object();
+	pl->ob->custom_attrset = pl;
+
+#ifdef SAVE_INTERVAL
+	pl->last_save_time = time(NULL);
+#endif
+
+#ifdef AUTOSAVE
+	pl->last_save_tick = pticks;
+#endif
+
+	sb = player_make_path(name);
+	stringbuffer_append_printf(sb, "%s.dat", name);
+	path = stringbuffer_finish(sb);
+
+	if (!player_load(pl, path))
+	{
+		player_create(pl, path, at, name);
+	}
+
+	fix_player(pl->ob);
+	link_player_skills(pl->ob);
+
+	pl->socket.state = ST_PLAYING;
+
+	display_motd(pl->ob);
+	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
+	trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);
+	enter_exit(pl->ob, NULL);
+
+	/* No savebed map yet, initialize it. */
+	if (*pl->savebed_map == '\0')
+	{
+		strncpy(pl->savebed_map, pl->maplevel, sizeof(pl->savebed_map) - 1);
+		pl->savebed_map[sizeof(pl->savebed_map) - 1] = '\0';
+
+		pl->bed_x = pl->ob->x;
+		pl->bed_y = pl->ob->y;
+	}
+
+	pl->socket.update_tile = 0;
+	pl->socket.look_position = 0;
+	pl->socket.ext_title_flag = 1;
+
+	/* No direction; default to southeast. */
+	if (!pl->ob->direction)
+	{
+		pl->ob->direction = SOUTHEAST;
+	}
+
+	pl->ob->anim_last_facing = pl->ob->anim_last_facing_last = pl->ob->facing = pl->ob->direction;
+	SET_ANIMATION_STATE(pl->ob);
+
+	esrv_new_player(pl, pl->ob->weight + pl->ob->carrying);
+	esrv_send_inventory(pl->ob, pl->ob);
+	send_quickslots(pl);
+
+	if (pl->ob->map && pl->ob->map->events)
+	{
+		trigger_map_event(MEVENT_LOGIN, pl->ob->map, pl->ob, NULL, NULL, NULL, 0);
+	}
+
+	free(path);
 }
 
 /** @copydoc object_methods::remove_map_func */

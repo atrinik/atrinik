@@ -113,36 +113,11 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
 	socket_send_packet(ns, packet);
 }
 
-/**
- * The client has requested to be added to the game. This is what takes
- * care of it.
- *
- * We tell the client how things worked out. */
-void socket_command_addme(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-	if (ns->status != Ns_Add || add_player(ns))
-	{
-		ns->status = Ns_Dead;
-	}
-	else
-	{
-		/* Basically, the add_player copies the socket structure into
-		 * the player structure, so this one (which is from init_sockets)
-		 * is not needed anymore. */
-		ns->addme = 1;
-		/* Reset idle counter */
-		ns->login_count = 0;
-		ns->keepalive = 0;
-		socket_info.nconns--;
-		ns->status = Ns_Avail;
-	}
-}
-
 void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	char command[MAX_BUF];
 
-	if (pl->state != ST_PLAYING)
+	if (pl->socket.state != ST_PLAYING)
 	{
 		return;
 	}
@@ -151,97 +126,12 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_
 	commands_handle(pl->ob, command);
 }
 
-/**
- * Receive a player name, and force the first letter to be uppercase.
- * @param op Object. */
-void receive_player_name(object *op)
-{
-	player_cleanup_name(CONTR(op)->write_buf + 1);
-
-	if (!check_name(CONTR(op), CONTR(op)->write_buf + 1))
-	{
-		get_name(op);
-		return;
-	}
-
-	FREE_AND_COPY_HASH(op->name, CONTR(op)->write_buf + 1);
-
-	get_password(op);
-}
-
-/**
- * Receive player password.
- * @param op Object. */
-void receive_player_password(object *op)
-{
-	unsigned int pwd_len = strlen(CONTR(op)->write_buf + 1);
-
-	if (pwd_len < PLAYER_PASSWORD_MIN || pwd_len > PLAYER_PASSWORD_MAX)
-	{
-		draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
-		get_name(op);
-		return;
-	}
-
-	if (CONTR(op)->state == ST_CONFIRM_PASSWORD)
-	{
-		if (!check_password(CONTR(op)->write_buf + 1, CONTR(op)->password))
-		{
-			draw_info_send(0, COLOR_RED, &CONTR(op)->socket, "That password has an invalid length.");
-			get_name(op);
-			return;
-		}
-
-		return;
-	}
-
-	strcpy(CONTR(op)->password, crypt_string(CONTR(op)->write_buf + 1, NULL));
-	CONTR(op)->state = ST_ROLL_STAT;
-	check_login(op);
-	return;
-}
-
-void socket_command_reply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-	char buf[MAX_BUF];
-
-	packet_to_string(data, len, &pos, buf, sizeof(buf));
-
-	strcpy(pl->write_buf, ":");
-	strncat(pl->write_buf, buf, 250);
-	pl->write_buf[250] = '\0';
-
-	pl->socket.ext_title_flag = 1;
-
-	switch (pl->state)
-	{
-		case ST_PLAYING:
-			pl->socket.status = Ns_Dead;
-			logger_print(LOG(BUG), "Got reply message with ST_PLAYING input state (player %s)", query_name(pl->ob, NULL));
-			break;
-
-		case ST_GET_NAME:
-			receive_player_name(pl->ob);
-			break;
-
-		case ST_GET_PASSWORD:
-		case ST_CONFIRM_PASSWORD:
-			receive_player_password(pl->ob);
-			break;
-
-		default:
-			pl->socket.status = Ns_Dead;
-			logger_print(LOG(BUG), "Unknown input state: %d", pl->state);
-			break;
-	}
-}
-
 void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	uint8 file_type;
 	packet_struct *packet;
 
-	if (ns->status != Ns_Add)
+	if (ns->state != ST_LOGIN)
 	{
 		return;
 	}
@@ -272,7 +162,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t l
 	if (ver == 0 || ver == 991017 || ver == 1055)
 	{
 		draw_info_send(0, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
-		ns->status = Ns_Zombie;
+		ns->state = ST_ZOMBIE;
 		return;
 	}
 
@@ -294,20 +184,6 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t
 	}
 
 	esrv_move_object(pl->ob, to, tag, nrof);
-}
-
-/**
- * Asks the client to query the user.
- *
- * This way, the client knows it needs to send something back (vs just
- * printing out a message). */
-void send_query(socket_struct *ns, uint8 type)
-{
-	packet_struct *packet;
-
-	packet = packet_new(CLIENT_CMD_QUERY, 4, 0);
-	packet_append_uint8(packet, type);
-	socket_send_packet(ns, packet);
 }
 
 #define AddIfInt(_old, _new, _type, _bitsize) \
@@ -1886,6 +1762,14 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
 
 		account_register(ns, name, password, password2);
 	}
+	else if (type == CMD_ACCOUNT_LOGIN_CHAR)
+	{
+		char name[MAX_BUF];
+
+		packet_to_string(data, len, &pos, name, sizeof(name));
+
+		account_login_char(ns, name);
+	}
 	else if (type == CMD_ACCOUNT_NEW_CHAR)
 	{
 		char name[MAX_BUF], archname[MAX_BUF];
@@ -1897,12 +1781,13 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
 	}
 	else if (type == CMD_ACCOUNT_PSWD)
 	{
-		char password[MAX_BUF], password2[MAX_BUF];
+		char password[MAX_BUF], password_new[MAX_BUF], password_new2[MAX_BUF];
 
 		packet_to_string(data, len, &pos, password, sizeof(password));
-		packet_to_string(data, len, &pos, password2, sizeof(password2));
+		packet_to_string(data, len, &pos, password_new, sizeof(password_new));
+		packet_to_string(data, len, &pos, password_new2, sizeof(password_new2));
 
-		account_password_change(ns, password, password2);
+		account_password_change(ns, password, password_new, password_new2);
 	}
 }
 

@@ -33,6 +33,7 @@
  * Commands used for sending data from client to server. */
 enum
 {
+	/** @deprecated */
 	SERVER_CMD_ADDME,
 	SERVER_CMD_ASK_FACE,
 	SERVER_CMD_SETUP,
@@ -301,11 +302,14 @@ enum
  * Create the specified account. */
 #define CMD_ACCOUNT_REGISTER 2
 /**
+ * Login with a character. */
+#define CMD_ACCOUNT_LOGIN_CHAR 3
+/**
  * Create a new character. */
-#define CMD_ACCOUNT_NEW_CHAR 3
+#define CMD_ACCOUNT_NEW_CHAR 4
 /**
  * Change the current account's password. */
-#define CMD_ACCOUNT_PSWD 4
+#define CMD_ACCOUNT_PSWD 5
 /*@}*/
 
 /**

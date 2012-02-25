@@ -1233,25 +1233,6 @@
 #define HI4    240
 /*@}*/
 
-/**
- * @defgroup st_defines Player states
- * Use of the state-variable in player objects.
- *@{*/
-
-/** Usual state. */
-#define ST_PLAYING              0
-/** New character, rolling stats. */
-#define ST_ROLL_STAT            1
-/** New character, choosing class. */
-#define ST_CHANGE_CLASS         2
-/** Player just connected. */
-#define ST_GET_NAME             3
-/** Name entered, now for password. */
-#define ST_GET_PASSWORD         4
-/** New character, confirm password. */
-#define ST_CONFIRM_PASSWORD     5
-/*@}*/
-
 #define BLANK_FACE_NAME "blank.111"
 #define NEXT_ITEM_FACE_NAME "next_item.101"
 #define PREVIOUS_ITEM_FACE_NAME "prev_item.101"

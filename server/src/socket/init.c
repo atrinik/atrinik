@@ -87,7 +87,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 	ns->faceset = 0;
 	ns->sound = 0;
 	ns->ext_title_flag = 1;
-	ns->status = Ns_Add;
+	ns->state = ST_LOGIN;
 	ns->mapx = 17;
 	ns->mapy = 17;
 	ns->mapx_2 = 8;
@@ -229,7 +229,7 @@ void init_ericserver(void)
 		exit(1);
 	}
 
-	init_sockets[0].status = Ns_Wait;
+	init_sockets[0].state = ST_WAITING;
 	read_client_images();
 	updates_init();
 	init_srv_files();

@@ -42,7 +42,7 @@ typedef struct socket_command_struct
 
 static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
 {
-	{socket_command_addme, 0},
+	{NULL, 0},
 	{socket_command_ask_face, 0},
 	{socket_command_setup, 0},
 	{socket_command_version, 0},
@@ -54,7 +54,7 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
 	{socket_command_item_examine, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_apply, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_move, SOCKET_CMD_PLAYER_ONLY},
-	{socket_command_reply, SOCKET_CMD_PLAYER_ONLY},
+	{NULL, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_player_cmd, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_lock, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_mark, SOCKET_CMD_PLAYER_ONLY},
@@ -76,7 +76,7 @@ static int socket_command_check(socket_struct *ns, player *pl, uint8 *data, size
 	pos = 2;
 	type = packet_to_uint8(data, len, &pos);
 
-	if (type >= SERVER_CMD_NROF)
+	if (type >= SERVER_CMD_NROF || !socket_commands[type].handle_func)
 	{
 		return -1;
 	}
@@ -102,7 +102,7 @@ static void fill_command_buffer(socket_struct *ns)
 	{
 		toread = 0;
 
-		if (ns->status == Ns_Dead)
+		if (ns->state == ST_DEAD)
 		{
 			break;
 		}
@@ -147,7 +147,7 @@ void handle_client(socket_struct *ns, player *pl)
 
 		/* If it is a player, and they don't have any speed left, we
 		 * return, and will parse the data when they do have time. */
-		if (ns->status == Ns_Zombie || ns->status == Ns_Dead || (pl && pl->state == ST_PLAYING && pl->ob && pl->ob->speed_left < 0))
+		if (ns->state == ST_ZOMBIE || ns->state == ST_DEAD || (pl && pl->socket.state == ST_PLAYING && pl->ob && pl->ob->speed_left < 0))
 		{
 			break;
 		}
@@ -155,7 +155,7 @@ void handle_client(socket_struct *ns, player *pl)
 		len = 2 + (ns->packet_recv_cmd->data[0] << 8) + ns->packet_recv_cmd->data[1];
 
 		/* Reset idle counter. */
-		if (pl && pl->state == ST_PLAYING)
+		if (pl && pl->socket.state == ST_PLAYING)
 		{
 			ns->login_count = 0;
 			ns->keepalive = 0;
@@ -184,7 +184,7 @@ void remove_ns_dead_player(player *pl)
 		return;
 	}
 
-	if (pl->state == ST_PLAYING)
+	if (pl->socket.state == ST_PLAYING)
 	{
 		/* Trigger the global LOGOUT event */
 		trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
@@ -204,7 +204,7 @@ void remove_ns_dead_player(player *pl)
 		/* Be sure we have closed container when we leave */
 		container_close(pl->ob, NULL);
 
-		save_player(pl->ob);
+		player_save(pl->ob);
 		leave_map(pl->ob);
 	}
 
@@ -233,7 +233,7 @@ static int is_fd_valid(int fd)
  * sets its status to Ns_Avail and decrements number of connections. */
 #define FREE_SOCKET(i) \
 	free_newsocket(&init_sockets[(i)]); \
-	init_sockets[(i)].status = Ns_Avail; \
+	init_sockets[(i)].state = ST_AVAILABLE; \
 	socket_info.nconns--;
 
 /**
@@ -254,26 +254,26 @@ void doeric_server(void)
 
 	for (i = 0; i < socket_info.allocated_sockets; i++)
 	{
-		if (init_sockets[i].status == Ns_Add && !is_fd_valid(init_sockets[i].fd))
+		if (init_sockets[i].state == ST_LOGIN && !is_fd_valid(init_sockets[i].fd))
 		{
 			logger_print(LOG(DEBUG), "Invalid waiting fd %d", i);
-			init_sockets[i].status = Ns_Dead;
+			init_sockets[i].state = ST_DEAD;
 		}
 
-		if (init_sockets[i].status == Ns_Dead)
+		if (init_sockets[i].state == ST_DEAD)
 		{
 			FREE_SOCKET(i);
 		}
-		else if (init_sockets[i].status == Ns_Zombie)
+		else if (init_sockets[i].state == ST_ZOMBIE)
 		{
 			if (init_sockets[i].login_count++ >= 1000000 / MAX_TIME)
 			{
-				init_sockets[i].status = Ns_Dead;
+				init_sockets[i].state = ST_DEAD;
 			}
 		}
-		else if (init_sockets[i].status != Ns_Avail)
+		else if (init_sockets[i].state != ST_AVAILABLE)
 		{
-			if (init_sockets[i].status > Ns_Wait)
+			if (init_sockets[i].state > ST_WAITING)
 			{
 				if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 				{
@@ -293,30 +293,30 @@ void doeric_server(void)
 	 * we may remove some. */
 	for (pl = first_player; pl != NULL; )
 	{
-		if (pl->socket.status != Ns_Dead && !is_fd_valid(pl->socket.fd))
+		if (pl->socket.state != ST_DEAD && !is_fd_valid(pl->socket.fd))
 		{
 			logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
-			pl->socket.status = Ns_Dead;
+			pl->socket.state = ST_DEAD;
 		}
 
-		if (pl->socket.status != Ns_Dead && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
+		if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time))
 		{
 			logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
-			pl->socket.status = Ns_Dead;
+			pl->socket.state = ST_DEAD;
 		}
 
-		if (pl->socket.status == Ns_Dead)
+		if (pl->socket.state == ST_DEAD)
 		{
 			player *npl = pl->next;
 
 			remove_ns_dead_player(pl);
 			pl = npl;
 		}
-		else if (pl->socket.status == Ns_Zombie)
+		else if (pl->socket.state == ST_ZOMBIE)
 		{
 			if (pl->socket.login_count++ >= 1000000 / MAX_TIME)
 			{
-				pl->socket.status = Ns_Dead;
+				pl->socket.state = ST_DEAD;
 			}
 		}
 		else
@@ -357,7 +357,7 @@ void doeric_server(void)
 
 			newsocknum = socket_info.allocated_sockets;
 			socket_info.allocated_sockets++;
-			init_sockets[newsocknum].status = Ns_Avail;
+			init_sockets[newsocknum].state = ST_AVAILABLE;
 		}
 		else
 		{
@@ -365,7 +365,7 @@ void doeric_server(void)
 
 			for (j = 1; j < socket_info.allocated_sockets; j++)
 			{
-				if (init_sockets[j].status == Ns_Avail)
+				if (init_sockets[j].state == ST_AVAILABLE)
 				{
 					newsocknum = j;
 					break;
@@ -410,7 +410,7 @@ void doeric_server(void)
 	{
 		for (i = 1; i < socket_info.allocated_sockets; i++)
 		{
-			if (init_sockets[i].status == Ns_Avail)
+			if (init_sockets[i].state == ST_AVAILABLE)
 			{
 				continue;
 			}
@@ -428,7 +428,7 @@ void doeric_server(void)
 				if (rr < 0)
 				{
 					logger_print(LOG(INFO), "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
-					init_sockets[i].status = Ns_Dead;
+					init_sockets[i].state = ST_DEAD;
 				}
 				else
 				{
@@ -436,12 +436,12 @@ void doeric_server(void)
 				}
 			}
 
-			if (init_sockets[i].status == Ns_Avail)
+			if (init_sockets[i].state == ST_AVAILABLE)
 			{
 				continue;
 			}
 
-			if (init_sockets[i].status == Ns_Dead)
+			if (init_sockets[i].state == ST_DEAD)
 			{
 				FREE_SOCKET(i);
 				continue;
@@ -452,7 +452,7 @@ void doeric_server(void)
 				socket_buffer_write(&init_sockets[i]);
 			}
 
-			if (init_sockets[i].status == Ns_Dead)
+			if (init_sockets[i].state == ST_DEAD)
 			{
 				FREE_SOCKET(i);
 			}
@@ -465,7 +465,7 @@ void doeric_server(void)
 		next = pl->next;
 
 		/* Kill players if we have problems */
-		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.fd, &tmp_exceptions))
 		{
 			remove_ns_dead_player(pl);
 			continue;
@@ -478,7 +478,7 @@ void doeric_server(void)
 			if (rr < 0)
 			{
 				logger_print(LOG(INFO), "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
-				pl->socket.status = Ns_Dead;
+				pl->socket.state = ST_DEAD;
 			}
 			else
 			{
@@ -488,7 +488,7 @@ void doeric_server(void)
 
 		/* Perhaps something was bad in handle_client(), or player has
 		 * left the game. */
-		if (pl->socket.status == Ns_Dead)
+		if (pl->socket.state == ST_DEAD)
 		{
 			remove_ns_dead_player(pl);
 			continue;
@@ -513,7 +513,7 @@ void doeric_server_write(void)
 	{
 		next = pl->next;
 
-		if (pl->socket.status == Ns_Dead || FD_ISSET(pl->socket.fd, &tmp_exceptions))
+		if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.fd, &tmp_exceptions))
 		{
 			remove_ns_dead_player(pl);
 			continue;

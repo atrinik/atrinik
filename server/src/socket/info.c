@@ -80,7 +80,7 @@ void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, obje
 		return;
 	}
 
-	if (CONTR(pl)->state != ST_PLAYING)
+	if (CONTR(pl)->socket.state != ST_PLAYING)
 	{
 		return;
 	}

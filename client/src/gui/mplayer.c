@@ -56,19 +56,13 @@ static void list_handle_enter(list_struct *list)
 	shuffle = 0;
 }
 
-/**
- * Handle list::text_color_hook in the music player list. */
-static const char *list_text_color_hook(list_struct *list, const char *default_color, uint32 row, uint32 col)
+/** @copydoc list_struct::text_color_hook */
+static void list_text_color_hook(list_struct *list, uint32 row, uint32 col, const char **color, const char **color_shadow)
 {
-	(void) list;
-	(void) col;
-
 	if (shuffle_blacklist[row])
 	{
-		return COLOR_RED;
+		*color = COLOR_RED;
 	}
-
-	return default_color;
 }
 
 /**

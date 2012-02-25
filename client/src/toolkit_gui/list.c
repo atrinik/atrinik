@@ -383,7 +383,7 @@ void list_show(list_struct *list, int x, int y)
 			/* Is there any text to show? */
 			if (list->text[row][col])
 			{
-				const char *text_color;
+				const char *text_color, *text_color_shadow;
 				SDL_Rect text_rect;
 
 				extra_width = 0;
@@ -395,17 +395,28 @@ void list_show(list_struct *list, int x, int y)
 				}
 
 				text_color = list->focus ? COLOR_WHITE : COLOR_GRAY;
+				text_color_shadow = COLOR_BLACK;
 
 				if (list->text_color_hook)
 				{
-					text_color = list->text_color_hook(list, text_color, row, col);
+					list->text_color_hook(list, row, col, &text_color, &text_color_shadow);
 				}
 
 				/* Add width limit on the string. */
+				text_rect.x = list->x + w + extra_width;
+				text_rect.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 				text_rect.w = list->col_widths[col] + list->col_spacings[col];
 				text_rect.h = LIST_ROW_HEIGHT(list);
+
 				/* Output the text. */
-				string_show_shadow(list->surface, list->font, list->text[row][col], list->x + w + extra_width, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), text_color, COLOR_BLACK, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				if (text_color_shadow)
+				{
+					string_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				}
+				else
+				{
+					string_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+				}
 			}
 
 			if (list->post_column_func)
