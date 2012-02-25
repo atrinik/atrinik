@@ -392,7 +392,7 @@ int client_command_check(const char *cmd)
 	}
 	else if (strncasecmp(cmd, "/clearcache", 11) == 0)
 	{
-		cmd += 11;
+		cmd += 12;
 
 		if (string_isempty(cmd))
 		{
