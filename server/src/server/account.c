@@ -50,6 +50,8 @@ typedef struct account_struct
 	size_t characters_num;
 } account_struct;
 
+#define ACCOUNT_CHARACTERS_LIMIT 16
+
 void account_init(void)
 {
 }
@@ -138,7 +140,7 @@ static int account_load(account_struct *account, const char *path)
 		}
 		else if (strncmp(buf, "time ", 5) == 0)
 		{
-			account->last_time = atoll(buf);
+			account->last_time = atoll(buf + 5);
 		}
 		else if (strncmp(buf, "char ", 5) == 0)
 		{
@@ -274,13 +276,12 @@ void account_login(socket_struct *ns, char *name, char *password)
 	}
 
 	ns->account = strdup(name);
+	account_send_characters(ns, &account);
 
 	free(account.last_host);
 	account.last_host = strdup(ns->host);
 	account.last_time = datetime_getutc();
-
 	account_save(&account, path);
-	account_send_characters(ns, &account);
 	account_free(&account);
 	free(path);
 }
@@ -353,6 +354,71 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 void account_new_char(socket_struct *ns, char *name, char *archname)
 {
+	archetype *at;
+	char *path;
+	account_struct account;
+
+	if (!ns->account)
+	{
+		ns->state = ST_DEAD;
+		return;
+	}
+
+	if (*name == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_CHARNAME]))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid character name");
+		return;
+	}
+
+	if (player_exists(name))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Character with that name already exists.");
+		return;
+	}
+
+	at = find_archetype(archname);
+
+	if (!at || at->clone.type != PLAYER)
+	{
+		draw_info_send(0, COLOR_RED, ns, "Invalid archname.");
+		return;
+	}
+
+	path = account_make_path(ns->account);
+
+	if (!account_load(&account, path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+		free(path);
+		return;
+	}
+
+	if (account.characters_num >= ACCOUNT_CHARACTERS_LIMIT)
+	{
+		draw_info_send(0, COLOR_RED, ns, "You have reached the maximum number of allowed characters per account.");
+		account_free(&account);
+		free(path);
+		return;
+	}
+
+	account.characters = realloc(account.characters, sizeof(*account.characters) * (account.characters_num + 1));
+	account.characters[account.characters_num].at = at;
+	account.characters[account.characters_num].name = strdup(name);
+	account.characters[account.characters_num].level = 1;
+	account.characters_num++;
+
+	if (!account_save(&account, path))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
+		account_free(&account);
+		free(path);
+		return;
+	}
+
+	draw_info_send(0, COLOR_GREEN, ns, "New character created successfully.");
+	account_send_characters(ns, &account);
+	account_free(&account);
+	free(path);
 }
 
 void account_login_char(socket_struct *ns, char *name)

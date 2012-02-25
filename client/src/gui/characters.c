@@ -45,7 +45,7 @@ enum
 static progress_dots progress;
 /**
  * Button buffer. */
-static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right;
+static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right, button_done;
 /**
  * Text input buffers. */
 static text_input_struct text_inputs[TEXT_INPUT_NUM];
@@ -142,12 +142,17 @@ static int popup_draw(popup_struct *popup)
 
 	textwin_show(popup->surface, 265, 45, 220, 132);
 
+	box.w = 220;
+	box.h = 80;
+	string_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %sUTC.", cpl.host, cpl.last_host, cpl.last_time);
+
 	button_set_parent(&button_tab_characters, popup->x, popup->y);
 	button_set_parent(&button_tab_new, popup->x, popup->y);
 	button_set_parent(&button_tab_password, popup->x, popup->y);
 	button_set_parent(&button_character_gender, popup->x, popup->y);
 	button_set_parent(&button_character_left, popup->x, popup->y);
 	button_set_parent(&button_character_right, popup->x, popup->y);
+	button_set_parent(&button_done, popup->x, popup->y);
 
 	button_tab_characters.x = 38;
 	button_tab_characters.y = 38;
@@ -185,10 +190,10 @@ static int popup_draw(popup_struct *popup)
 			}
 		}
 
-		string_show_format(popup->surface, FONT_ARIAL10, 38, 80, COLOR_WHITE, TEXT_MARKUP, NULL, "<bar=#202020 50 60><icon=%s 50 60><border=#909090 50 60>", s_settings->characters[character_race].gender_faces[character_gender]);
+		string_show_format(popup->surface, FONT_ARIAL10, 38, 90, COLOR_WHITE, TEXT_MARKUP, NULL, "<bar=#202020 50 60><icon=%s 50 60><border=#909090 50 60>", s_settings->characters[character_race].gender_faces[character_gender]);
 
 		button_character_left.x = 100;
-		button_character_left.y = 80;
+		button_character_left.y = 90;
 		button_show(&button_character_left, "<");
 
 		box.w = max_width;
@@ -196,7 +201,7 @@ static int popup_draw(popup_struct *popup)
 		string_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 		button_character_right.x = button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5 + max_width + 5;
-		button_character_right.y = 80;
+		button_character_right.y = 90;
 		button_show(&button_character_right, ">");
 
 		button_character_gender.x = button_character_left.x;
@@ -204,15 +209,27 @@ static int popup_draw(popup_struct *popup)
 		button_show(&button_character_gender, character_gender == GENDER_MALE ? "Female" : "Male");
 
 		box.w = text_inputs[TEXT_INPUT_CHARNAME].w;
-		string_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 162, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
-		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 180);
+		string_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 190);
+
+		button_done.x = text_inputs[TEXT_INPUT_CHARNAME].x + text_inputs[TEXT_INPUT_CHARNAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+		button_done.y = 210;
+		button_show(&button_done, "Done");
 	}
 	else if (button_tab_password.pressed_forced)
 	{
-		for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++)
-		{
-			text_input_show(&text_inputs[i], popup->surface, 50, 50 + i * 30);
-		}
+		box.w = text_inputs[TEXT_INPUT_PASSWORD].w;
+		string_show(popup->surface, FONT_ARIAL12, "Current password [<tooltip=Enter your current password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_show(popup->surface, FONT_ARIAL12, "New password [<tooltip=Enter your new password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		string_show(popup->surface, FONT_ARIAL12, "Verify new password [<tooltip=Enter your new password again.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+
+		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD], popup->surface, 50, 110);
+		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW], popup->surface, 50, 150);
+		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW2], popup->surface, 50, 190);
+
+		button_done.x = text_inputs[TEXT_INPUT_PASSWORD_NEW2].x + text_inputs[TEXT_INPUT_CHARNAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+		button_done.y = 210;
+		button_show(&button_done, "Done");
 	}
 
 	return 1;
@@ -266,6 +283,36 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	}
 	else if (button_tab_new.pressed_forced)
 	{
+		if (event->type == SDL_KEYDOWN)
+		{
+			if (IS_ENTER(event->key.keysym.sym))
+			{
+				uint32 lower, upper;
+				packet_struct *packet;
+
+				if (*text_inputs[TEXT_INPUT_CHARNAME].str == '\0')
+				{
+					draw_info(COLOR_RED, "You must enter a character name.");
+					return 1;
+				}
+				else if (sscanf(s_settings->text[SERVER_TEXT_ALLOWED_CHARS_CHARNAME_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[TEXT_INPUT_CHARNAME].num < lower || text_inputs[TEXT_INPUT_CHARNAME].num > upper))
+				{
+					draw_info_format(COLOR_RED, "Character name must be between %d and %d characters long.", lower, upper);
+					return 1;
+				}
+
+				packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
+				packet_append_uint8(packet, CMD_ACCOUNT_NEW_CHAR);
+				packet_append_string_terminated(packet, text_inputs[TEXT_INPUT_CHARNAME].str);
+				packet_append_string_terminated(packet, s_settings->characters[character_race].gender_archetypes[character_gender]);
+				socket_send_packet(packet);
+
+				button_tab_new.pressed_forced = 0;
+				button_tab_characters.pressed_forced = 1;
+				return 1;
+			}
+		}
+
 		if (text_input_event(&text_inputs[TEXT_INPUT_CHARNAME], event))
 		{
 			return 1;
@@ -296,6 +343,10 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 			{
 				character_race++;
 			}
+		}
+		else if (button_event(&button_done, event))
+		{
+			event_push_key_once(SDLK_RETURN, 0);
 		}
 	}
 	else if (button_tab_password.pressed_forced)
@@ -384,6 +435,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 		{
 			return 1;
 		}
+		else if (button_event(&button_done, event))
+		{
+			event_push_key_once(SDLK_RETURN, 0);
+			return 1;
+		}
 	}
 
 	return -1;
@@ -422,8 +478,9 @@ void characters_open(void)
 	button_create(&button_character_gender);
 	button_create(&button_character_left);
 	button_create(&button_character_right);
+	button_create(&button_done);
 	button_tab_characters.pressed_forced = 1;
-	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = popup->surface;
+	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = button_done.surface = popup->surface;
 	button_tab_characters.texture = button_tab_new.texture = button_tab_password.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_tab");
 	button_tab_characters.texture_over = button_tab_new.texture_over = button_tab_password.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_over");
 	button_tab_characters.texture_pressed = button_tab_new.texture_pressed = button_tab_password.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_down");
@@ -491,6 +548,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 	packet_to_string(data, len, &pos, cpl.host, sizeof(cpl.host));
 	packet_to_string(data, len, &pos, cpl.last_host, sizeof(cpl.last_host));
 	packet_to_string(data, len, &pos, cpl.last_time, sizeof(cpl.last_time));
+	string_replace_char(cpl.last_time, "\n", ' ');
 
 	while (pos < len)
 	{
@@ -507,5 +565,11 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 			snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>Level: %d", name, level);
 			list_add(list_characters, list_characters->rows - 1, 1, buf);
 		}
+	}
+
+	if (list_characters->rows == 0)
+	{
+		button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
+		button_tab_new.pressed_forced = 1;
 	}
 }

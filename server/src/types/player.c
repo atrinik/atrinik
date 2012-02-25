@@ -871,27 +871,6 @@ int pvp_area(object *attacker, object *victim)
 }
 
 /**
- * Check whether the specified player exists.
- * @param player_name Player name to check for.
- * @return 1 if the player exists, 0 otherwise. */
-int player_exists(char *player_name)
-{
-	FILE *fp;
-	char filename[HUGE_BUF];
-
-	snprintf(filename, sizeof(filename), "%s/players/%s/%s.pl", settings.datapath, player_name, player_name);
-	fp = fopen(filename, "r");
-
-	if (fp)
-	{
-		fclose(fp);
-		return 1;
-	}
-
-	return 0;
-}
-
-/**
  * Looks for the skill and returns a pointer to it if found.
  * @param op The object to look for the skill in.
  * @param skillnr Skill ID.
@@ -2313,27 +2292,46 @@ void drop(object *op, object *tmp, int no_mevent)
 	}
 }
 
-StringBuffer *player_make_path(const char *name)
+char *player_make_path(const char *name, const char *ext)
 {
 	StringBuffer *sb;
+	char *name_lower, *cp;
 	size_t i;
 
 	sb = stringbuffer_new();
 	stringbuffer_append_printf(sb, "%s/players/", settings.datapath);
+	name_lower = strdup(name);
+	string_tolower(name_lower);
 
 	for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0]; i++)
 	{
-		stringbuffer_append_string_len(sb, name, i + 1);
+		stringbuffer_append_string_len(sb, name_lower, i + 1);
 		stringbuffer_append_string(sb, "/");
 	}
 
-	return sb;
+	stringbuffer_append_string(sb, ext);
+
+	free(name_lower);
+	cp = stringbuffer_finish(sb);
+
+	return cp;
+}
+
+int player_exists(const char *name)
+{
+	char *path;
+	int ret;
+
+	path = player_make_path(name, "player.dat");
+	ret = path_exists(path);
+	free(path);
+
+	return ret;
 }
 
 void player_save(object *op)
 {
 	player *pl;
-	StringBuffer *sb;
 	char *path, pathtmp[HUGE_BUF];
 	FILE *fp;
 	int i;
@@ -2345,9 +2343,7 @@ void player_save(object *op)
 	}
 
 	pl = CONTR(op);
-	sb = player_make_path(op->name);
-	stringbuffer_append_printf(sb, "%s.dat", op->name);
-	path = stringbuffer_finish(sb);
+	path = player_make_path(op->name, "player.dat");
 
 	path_ensure_directories(path);
 	snprintf(pathtmp, sizeof(pathtmp), "%s.tmp", path);
@@ -2544,6 +2540,7 @@ static int player_load(player *pl, const char *path)
 static void player_create(player *pl, const char *path, archetype *at, const char *name)
 {
 	copy_object(&at->clone, pl->ob, 0);
+	pl->ob->custom_attrset = pl;
 	FREE_AND_COPY_HASH(pl->ob->name, name);
 
 	SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
@@ -2560,7 +2557,6 @@ static void player_create(player *pl, const char *path, archetype *at, const cha
 void player_login(socket_struct *ns, const char *name, archetype *at)
 {
 	player *pl;
-	StringBuffer *sb;
 	char *path;
 
 	pl = find_player(name);
@@ -2603,9 +2599,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 	pl->last_save_tick = pticks;
 #endif
 
-	sb = player_make_path(name);
-	stringbuffer_append_printf(sb, "%s.dat", name);
-	path = stringbuffer_finish(sb);
+	path = player_make_path(name, "player.dat");
 
 	if (!player_load(pl, path))
 	{

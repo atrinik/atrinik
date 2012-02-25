@@ -197,6 +197,15 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 					packet_append_string_terminated(packet, text_inputs[i].str);
 				}
 
+				for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
+				{
+					text_input_set(&text_inputs[i], NULL);
+				}
+
+				text_inputs[text_input_current].focus = 0;
+				text_input_current = LOGIN_TEXT_INPUT_NAME;
+				text_inputs[text_input_current].focus = 1;
+
 				socket_send_packet(packet);
 				return 1;
 			}
