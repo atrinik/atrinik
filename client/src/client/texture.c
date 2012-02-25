@@ -64,11 +64,18 @@ static int texture_data_new(int type, texture_struct *tmp)
 		}
 		else if (strncmp(tmp->name, "rectangle:", 10) == 0)
 		{
-			int w, h;
+			int w, h, alpha;
 
-			if (sscanf(tmp->name + 10, "%d,%d", &w, &h) == 2)
+			alpha = 255;
+
+			if (sscanf(tmp->name + 10, "%d,%d,%d", &w, &h, &alpha) >= 2)
 			{
 				surface = SDL_CreateRGBSurface(get_video_flags(), w, h, video_get_bpp(), 0, 0, 0, 0);
+
+				if (alpha != 255)
+				{
+					SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+				}
 			}
 			else
 			{
