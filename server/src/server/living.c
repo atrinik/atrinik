@@ -1019,7 +1019,7 @@ void fix_player(object *op)
 	{
 		op->speed = 0.01f;
 	}
-	else
+	else if (!pl->tgm)
 	{
 		/* Max kg we can carry */
 		double f = (PLAYER_WEIGHT_LIMIT(pl)) * ENCUMBRANCE_LIMIT;
