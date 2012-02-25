@@ -3471,15 +3471,20 @@ void object_reverse_inventory(object *op)
 {
 	object *tmp, *next;
 
+	if (!op->inv)
+	{
+		return;
+	}
+
 	next = op->inv->below;
 	op->inv->above = NULL;
 	op->inv->below = NULL;
 
 	while (next)
 	{
+		tmp = next;
 		next = next->below;
 
-		tmp = next;
 		tmp->above = NULL;
 		tmp->below = op->inv;
 		tmp->below->above = tmp;
