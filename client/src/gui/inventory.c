@@ -357,7 +357,7 @@ void widget_inventory_render(widgetdata *widget)
 			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
 			string_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit / 1000.0);
+			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
 
 			if (inventory_filter == INVENTORY_FILTER_ALL)
 			{
@@ -698,7 +698,7 @@ void object_show_inventory(object *tmp, int x, int y)
 
 		if (tmp->flags & CS_FLAG_IS_READY)
 		{
-			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("fire_ready") + 8);
+			surface_show(ScreenSurface, x, y + 8, NULL, TEXTURE_CLIENT("fire_ready"));
 		}
 	}
 	else if (tmp->flags & CS_FLAG_UNPAID)

@@ -142,7 +142,7 @@ typedef struct Player_Struct
 	sint32 container_tag;
 
 	/** Player's weight limit. */
-	uint32 weight_limit;
+	double weight_limit;
 
 	/** Are we a DM? */
 	int dm;

@@ -333,7 +333,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					break;
 
 				case CS_STAT_WEIGHT_LIM:
-					set_weight_limit(packet_to_uint32(data, len, &pos));
+					cpl.weight_limit = abs(packet_to_uint32(data, len, &pos)) / FLOAT_MULTF;
 					break;
 
 				case CS_STAT_ACTION_TIME:

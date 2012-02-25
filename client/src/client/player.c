@@ -178,14 +178,6 @@ void send_command(const char *command)
 }
 
 /**
- * Set the player's weight limit.
- * @param wlim The weight limit to set. */
-void set_weight_limit(uint32 wlim)
-{
-	cpl.weight_limit = wlim;
-}
-
-/**
  * Initialize player data. */
 void init_player_data(void)
 {

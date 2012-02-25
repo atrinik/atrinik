@@ -136,7 +136,6 @@ extern void client_send_apply(tag_t tag);
 extern void client_send_examine(tag_t tag);
 extern void client_send_move(int loc, int tag, int nrof);
 extern void send_command(const char *command);
-extern void set_weight_limit(uint32 wlim);
 extern void init_player_data(void);
 extern void widget_player_data_event(widgetdata *widget, int x, int y);
 extern void widget_show_player_data(widgetdata *widget);
