@@ -2303,13 +2303,13 @@ char *player_make_path(const char *name, const char *ext)
 	name_lower = strdup(name);
 	string_tolower(name_lower);
 
-	for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0]; i++)
+	for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0] - 1; i++)
 	{
 		stringbuffer_append_string_len(sb, name_lower, i + 1);
 		stringbuffer_append_string(sb, "/");
 	}
 
-	stringbuffer_append_string(sb, ext);
+	stringbuffer_append_printf(sb, "%s/%s", name_lower, ext);
 
 	free(name_lower);
 	cp = stringbuffer_finish(sb);
