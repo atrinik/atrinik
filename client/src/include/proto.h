@@ -287,6 +287,7 @@ extern void event_dragging_stop(void);
 extern void resize_window(int width, int height);
 extern int Event_PollInputDevice(void);
 extern void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod);
+extern void event_push_key_once(SDLKey key, SDLMod mod);
 /* src/events/keys.c */
 extern key_struct keys[SDLK_LAST];
 extern void init_keys(void);

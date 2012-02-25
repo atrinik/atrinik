@@ -280,3 +280,9 @@ void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
 	event.key.keysym.mod = mod;
 	SDL_PushEvent(&event);
 }
+
+void event_push_key_once(SDLKey key, SDLMod mod)
+{
+	event_push_key(SDL_KEYDOWN, key, mod);
+	event_push_key(SDL_KEYUP, key, mod);
+}
