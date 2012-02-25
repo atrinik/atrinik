@@ -464,7 +464,7 @@ void init_srv_files(void)
 	load_srv_file(buf, SERVER_FILE_ANIMS);
 
 	snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
-	load_srv_file(buf, SERVER_FILE_HFILES);
+	load_srv_file(buf, SERVER_FILE_EFFECTS);
 
 	snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
 	load_srv_file(buf, SERVER_FILE_HFILES);
