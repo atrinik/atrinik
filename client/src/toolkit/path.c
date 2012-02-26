@@ -241,6 +241,7 @@ int path_touch(const char *path)
 {
 	FILE *fp;
 
+	path_ensure_directories(path);
 	fp = fopen(path, "w");
 
 	if (!fp)
