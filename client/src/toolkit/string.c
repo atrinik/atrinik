@@ -376,23 +376,23 @@ const char *string_get_word(const char *str, size_t *pos, char delim, char *word
  * @param dir If 1, skip to the right, if -1, skip to the left. */
 void string_skip_word(const char *str, size_t *i, int dir)
 {
+	uint8 whitespace;
+
+	whitespace = 1;
+
 	/* Skip whitespace. */
-	while (str[*i] != '\0' && isspace(str[*i]))
+	while (((dir == -1 && *i != 0) || (dir == 1 && str[*i] != '\0')))
 	{
-		if (dir == -1 && *i == 0)
+		if (isspace(str[*i + MIN(0, dir)]))
 		{
-			break;
+			if (!whitespace)
+			{
+				break;
+			}
 		}
-
-		*i += dir;
-	}
-
-	/* Skip a word. */
-	while (str[*i] != '\0' && !isspace(str[*i]))
-	{
-		if (dir == -1 && *i == 0)
+		else if (whitespace)
 		{
-			break;
+			whitespace = 0;
 		}
 
 		*i += dir;
