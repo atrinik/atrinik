@@ -1490,10 +1490,27 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 			if ((surface || info->obscured) && sscanf(cp + 4, "%2X%2X%2X>", &r, &g, &b) == 3)
 			{
-				info->highlight = 1;
-				info->highlight_color.r = r;
-				info->highlight_color.g = g;
-				info->highlight_color.b = b;
+				/* Find the ending tag. */
+				char *pos = strstr(cp, "</h>");
+
+				if (pos)
+				{
+					char *buf;
+
+					buf = malloc(pos - cp - 11);
+					memcpy(buf, cp + 11, pos - cp - 11);
+					buf[pos - cp - 11] = '\0';
+					info->highlight_rect.x = dest->x;
+					info->highlight_rect.y = dest->y;
+					info->highlight_rect.w = string_get_width(*font, buf, flags);
+					info->highlight_rect.h = string_get_height(*font, buf, flags);
+					free(buf);
+
+					info->highlight = 1;
+					info->highlight_color.r = r;
+					info->highlight_color.g = g;
+					info->highlight_color.b = b;
+				}
 			}
 
 			return strchr(cp + 4, '>') - cp + 1;
@@ -1647,7 +1664,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 	/* Draw the character (unless it's a space, since there's no point in
 	 * drawing whitespace [but only if underline style is not active,
 	 * since we do want the underline below the space]). */
-	if (surface && ((c != ' ' && c != '\t') || info->in_underline || info->anchor_tag))
+	if (surface && ((c != ' ' && c != '\t') || info->in_underline || info->anchor_tag || info->highlight || *info->tooltip_text != '\0'))
 	{
 		SDL_Surface *ttf_surface;
 		char buf[2];
@@ -1682,11 +1699,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 					tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
 					tooltip_multiline(0);
 				}
+			}
 
-				if (info->highlight)
-				{
-					use_color = &info->highlight_color;
-				}
+			if (info->highlight && mx >= info->highlight_rect.x && mx < info->highlight_rect.x + info->highlight_rect.w && my >= info->highlight_rect.y && my < info->highlight_rect.y + info->highlight_rect.h)
+			{
+				use_color = &info->highlight_color;
 			}
 		}
 

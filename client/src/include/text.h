@@ -265,6 +265,8 @@ typedef struct text_info_struct
 
 	uint8 highlight;
 
+	SDL_Rect highlight_rect;
+
 	SDL_Color highlight_color;
 
 	char tooltip_text[MAX_BUF * 2];
