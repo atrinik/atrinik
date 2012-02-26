@@ -1028,7 +1028,7 @@ void fix_player(object *op)
 		{
 			sint32 weight_limit;
 
-			weight_limit = PLAYER_WEIGHT_LIMIT(pl) * 100.0;
+			weight_limit = PLAYER_WEIGHT_LIMIT(pl) * 1000.0;
 
 			if (op->carrying >= weight_limit)
 			{
