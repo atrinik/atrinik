@@ -83,6 +83,54 @@ static void list_text_color(list_struct *list, uint32 row, uint32 col, const cha
 	if (col == 0)
 	{
 		*color_shadow = NULL;
+		*color = NULL;
+	}
+}
+
+/** @copydoc list_struct::post_column_func */
+static void list_post_column(list_struct *list, uint32 row, uint32 col)
+{
+	if (col == 0)
+	{
+		static uint32 ticks[2] = {0, 0};
+		static uint8 state[2] = {0, 0};
+		uint16 anim_id, face;
+		size_t idx;
+
+		anim_id = atoi(list->text[row][col]);
+		check_animation_status(anim_id);
+		idx = list->row_selected - 1 == row ? 1 : 0;
+
+		if (SDL_GetTicks() - ticks[idx] > 500)
+		{
+			ticks[idx] = SDL_GetTicks();
+			state[idx]++;
+		}
+
+		if (state[idx] >= (animations[anim_id].num_animations / animations[anim_id].facings))
+		{
+			state[idx] = 0;
+		}
+
+		if (list->row_selected - 1 == row)
+		{
+			face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * (5 + 8) + state[idx]];
+		}
+		else
+		{
+			face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * 5 + state[idx]];
+		}
+
+		request_face(face);
+
+		if (FaceList[face].name)
+		{
+			char *facename;
+
+			facename = string_sub(FaceList[face].name, 0, -4);
+			string_show_format(list->surface, FONT_ARIAL10, list->x, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_WHITE, TEXT_MARKUP, NULL, "<img=%s 0 10 0 0 0 0 0 0 50 45>", facename);
+			free(facename);
+		}
 	}
 }
 
@@ -239,6 +287,15 @@ static int popup_draw(popup_struct *popup)
 static int popup_event(popup_struct *popup, SDL_Event *event)
 {
 	size_t i;
+
+	if (event->type == SDL_KEYDOWN)
+	{
+		if (event->key.keysym.sym == SDLK_ESCAPE)
+		{
+			popup_destroy(popup);
+			return 1;
+		}
+	}
 
 	if (button_event(&button_tab_characters, event))
 	{
@@ -502,8 +559,9 @@ void characters_open(void)
 	}
 
 	list_characters = list_create(3, 2, 8);
-	list_characters->text_color_hook = list_text_color;
 	list_characters->handle_enter_func = list_handle_enter;
+	list_characters->text_color_hook = list_text_color;
+	list_characters->post_column_func = list_post_column;
 	list_characters->surface = popup->surface;
 	list_characters->row_height_adjust = 45;
 	list_characters->text_flags = TEXT_MARKUP;
@@ -532,7 +590,8 @@ static int archname_to_character(const char *archname, size_t *race, size_t *gen
 
 void socket_command_characters(uint8 *data, size_t len, size_t pos)
 {
-	char archname[MAX_BUF], name[MAX_BUF];
+	char archname[MAX_BUF], name[MAX_BUF], buf[MAX_BUF], race_gender[MAX_BUF];
+	uint16 anim_id;
 	uint8 level;
 	size_t race, gender;
 
@@ -554,17 +613,22 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 	{
 		packet_to_string(data, len, &pos, archname, sizeof(archname));
 		packet_to_string(data, len, &pos, name, sizeof(name));
+		anim_id = packet_to_uint16(data, len, &pos);
 		level = packet_to_uint8(data, len, &pos);
 
 		if (archname_to_character(archname, &race, &gender))
 		{
-			char buf[MAX_BUF];
-
-			snprintf(buf, sizeof(buf), "<icon=%s 40 60>", s_settings->characters[race].gender_faces[gender]);
-			list_add(list_characters, list_characters->rows, 0, buf);
-			snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>%s %s\nLevel: %d", name, s_settings->characters[race].name, gender_noun[gender], level);
-			list_add(list_characters, list_characters->rows - 1, 1, buf);
+			snprintf(race_gender, sizeof(race_gender), "%s %s\n", s_settings->characters[race].name, gender_noun[gender]);
 		}
+		else
+		{
+			*race_gender = '\0';
+		}
+
+		snprintf(buf, sizeof(buf), "%d", anim_id);
+		list_add(list_characters, list_characters->rows, 0, buf);
+		snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>%sLevel: %d", name, race_gender, level);
+		list_add(list_characters, list_characters->rows - 1, 1, buf);
 	}
 
 	if (list_characters->rows == 0)

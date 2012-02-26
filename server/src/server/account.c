@@ -195,6 +195,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
 	{
 		packet_append_string_terminated(packet, account->characters[i].at->name);
 		packet_append_string_terminated(packet, account->characters[i].name);
+		packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
 		packet_append_uint8(packet, account->characters[i].level);
 	}
 
