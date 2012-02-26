@@ -978,10 +978,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0;
+				int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, width = 0, height = 0;
 				uint32 stretch = 0;
 
-				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %u>", face, &x, &y, &align, &alpha, &zoom_x, &zoom_y, &rotate, &stretch) >= 1)
+				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %u %d %d>", face, &x, &y, &align, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &width, &height) >= 1)
 				{
 					int id;
 
@@ -990,6 +990,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 					if (id != -1 && FaceList[id].sprite)
 					{
 						int w, h;
+						SDL_Rect srcrect;
 
 						w = FaceList[id].sprite->bitmap->w;
 						h = FaceList[id].sprite->bitmap->h;
@@ -1019,7 +1020,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							}
 						}
 
-						surface_show_effects(surface, dest->x + x, dest->y + y, NULL, FaceList[id].sprite->bitmap, alpha, stretch, zoom_x, zoom_y, rotate);
+						srcrect.x = 0;
+						srcrect.y = 0;
+						srcrect.w = width ? width : w;
+						srcrect.h = height ? height : h;
+
+						surface_show_effects(surface, dest->x + x, dest->y + y, &srcrect, FaceList[id].sprite->bitmap, alpha, stretch, zoom_x, zoom_y, rotate);
 					}
 				}
 			}
