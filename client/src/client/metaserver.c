@@ -36,7 +36,7 @@ static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://at
 #define NUM_METASERVERS (sizeof(metaservers) / sizeof(metaservers[0]))
 
 /** Are we connecting to the metaserver? */
-static int metaserver_connecting;
+static int metaserver_connecting = 1;
 /** Mutex to protect ::metaserver_connecting. */
 static SDL_mutex *metaserver_connecting_mutex;
 /** The list of the servers. */
@@ -46,7 +46,7 @@ static size_t server_count;
 /** Mutex to protect ::server_head and ::server_count. */
 static SDL_mutex *server_head_mutex;
 /** Is metaserver enabled? */
-static uint8 enabled;
+static uint8 enabled = 1;
 
 /**
  * Initialize the metaserver data. */
@@ -55,8 +55,6 @@ void metaserver_init(void)
 	/* Initialize the data. */
 	server_head = NULL;
 	server_count = 0;
-	metaserver_connecting = 1;
-	enabled = 1;
 
 	/* Initialize mutexes. */
 	metaserver_connecting_mutex = SDL_CreateMutex();

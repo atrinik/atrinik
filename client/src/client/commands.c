@@ -394,6 +394,9 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 	map_redraw_flag = 1;
 
 	ignore_list_load();
+
+	cur_widget[IN_CONSOLE_ID]->show = 0;
+	cur_widget[IN_NUMBER_ID]->show = 0;
 }
 
 static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)

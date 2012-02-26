@@ -102,7 +102,9 @@ extern size_t animations_num;
 extern struct screensize *Screensize;
 extern _face_struct FaceList[32767];
 extern struct msg_anim_struct msg_anim;
+extern clioption_settings_struct clioption_settings;
 extern void list_vid_modes(void);
+extern void clioption_settings_deinit(void);
 extern int main(int argc, char *argv[]);
 /* src/client/menu.c */
 extern int client_command_check(const char *cmd);
@@ -568,6 +570,8 @@ extern char *path_basename(const char *path);
 extern void path_ensure_directories(const char *path);
 extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 extern int path_exists(const char *path);
+extern int path_touch(const char *path);
+extern size_t path_size(const char *path);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);

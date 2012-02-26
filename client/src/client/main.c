@@ -38,11 +38,6 @@ ClientSocket csocket;
 /** Our selected server that we want to connect to. */
 server_struct *selected_server = NULL;
 
-/** Used with -server command line option. */
-static char argServerName[2048];
-/** Used with -server command line option. */
-static int argServerPort;
-
 /** System time counter in ms since program start. */
 uint32 LastTick;
 
@@ -70,6 +65,10 @@ struct msg_anim_struct msg_anim;
 /** Last time we sent keepalive command. */
 static uint32 last_keepalive;
 
+/**
+ * Command line option settings. */
+clioption_settings_struct clioption_settings;
+
 static void init_game_data();
 
 /**
@@ -86,9 +85,6 @@ static void init_game_data(void)
 	msg_anim.message[0] = '\0';
 
 	start_anim = NULL;
-
-	argServerName[0] = '\0';
-	argServerPort = 13327;
 
 	cpl.state = ST_INIT;
 	map_udate_flag = 2;
@@ -117,14 +113,22 @@ static int game_status_chain(void)
 	}
 	else if (cpl.state == ST_META)
 	{
+		size_t i, pos;
+		char host[MAX_BUF], port[MAX_BUF];
+		uint16 port_num;
+
 		metaserver_clear_data();
 		map_udate_flag = 2;
 
 		metaserver_add("127.0.0.1", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
-		if (argServerName[0] != '\0')
+		for (i = 0; i < clioption_settings.servers_num; i++)
 		{
-			metaserver_add(argServerName, argServerPort, argServerName, -1, "user server", "Server from command line -server option.");
+			pos = 0;
+			string_get_word(clioption_settings.servers[i], &pos, ':', host, sizeof(host));
+			string_get_word(clioption_settings.servers[i], &pos, ':', port, sizeof(port));
+			port_num = atoi(port);
+			metaserver_add(host, port_num ? port_num : 13327, host, -1, "user server", "Server from command line --server option.");
 		}
 
 		metaserver_get_servers();
@@ -281,6 +285,59 @@ static void DisplayCustomCursor(void)
 	}
 }
 
+void clioption_settings_deinit(void)
+{
+	size_t i;
+
+	for (i = 0; i < clioption_settings.servers_num; i++)
+	{
+		free(clioption_settings.servers[i]);
+	}
+
+	if (clioption_settings.servers)
+	{
+		free(clioption_settings.servers);
+	}
+
+	for (i = 0; i < arraysize(clioption_settings.connect); i++)
+	{
+		if (clioption_settings.connect[i])
+		{
+			free(clioption_settings.connect[i]);
+		}
+	}
+}
+
+static void clioptions_option_server(const char *arg)
+{
+	clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+	clioption_settings.servers[clioption_settings.servers_num] = strdup(arg);
+	clioption_settings.servers_num++;
+}
+
+static void clioptions_option_connect(const char *arg)
+{
+	size_t pos, idx;
+	char word[MAX_BUF];
+
+	pos = idx = 0;
+
+	while (string_get_word(arg, &pos, ':', word, sizeof(word)))
+	{
+		clioption_settings.connect[idx++] = strdup(word);
+	}
+}
+
+static void clioptions_option_nometa(const char *arg)
+{
+	metaserver_disable();
+}
+
+static void clioptions_option_text_debug(const char *arg)
+{
+	text_enable_debug();
+}
+
 /**
  * The main function.
  * @param argc Number of arguments.
@@ -288,11 +345,13 @@ static void DisplayCustomCursor(void)
  * @return 0 */
 int main(int argc, char *argv[])
 {
+	char *path;
 	int done = 0;
 	uint32 anim_tick, frame_start_time;
 	char version[MAX_BUF];
 
 	toolkit_import(binreloc);
+	toolkit_import(clioptions);
 	toolkit_import(logger);
 	toolkit_import(math);
 	toolkit_import(memory);
@@ -302,48 +361,59 @@ int main(int argc, char *argv[])
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
 
+	clioptions_add(
+		"server",
+		NULL,
+		clioptions_option_server,
+		1,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"connect",
+		NULL,
+		clioptions_option_connect,
+		1,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"nometa",
+		NULL,
+		clioptions_option_nometa,
+		0,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"text_debug",
+		NULL,
+		clioptions_option_text_debug,
+		0,
+		"",
+		""
+	);
+
+	memset(&clioption_settings, 0, sizeof(clioption_settings));
+	clioptions_option_config(file_path("client.cfg", "r"));
+	path = file_path("client-custom.cfg", "r");
+
+	if (path_exists(path))
+	{
+		clioptions_option_config(path);
+	}
+
+	clioptions_parse(argc, argv);
+
 	logger_open_log(LOG_FILE);
 
 	upgrader_init();
 	settings_init();
 	init_game_data();
 	curl_init();
-
-	while (argc > 1)
-	{
-		argc--;
-
-		if (strcmp(argv[argc - 1], "-port") == 0)
-		{
-			argServerPort = atoi(argv[argc]);
-			argc--;
-		}
-		else if (strcmp(argv[argc - 1], "-server") == 0)
-		{
-			strcpy(argServerName, argv[argc]);
-
-			if (strchr(argv[argc], ':') != '\0')
-			{
-				argServerPort = atoi(strrchr(argv[argc], ':') + 1);
-				*strchr(argServerName, ':') = '\0';
-			}
-
-			argc--;
-		}
-		else if (!strcmp(argv[argc], "-nometa"))
-		{
-			metaserver_disable();
-		}
-		else if (!strcmp(argv[argc], "-text-debug"))
-		{
-			text_enable_debug();
-		}
-		else
-		{
-			logger_print(LOG(INFO), "Usage: %s [-server <name>] [-port <num>]", argv[0]);
-			exit(1);
-		}
-	}
 
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0)
 	{
@@ -406,9 +476,13 @@ int main(int argc, char *argv[])
 		/* Have we been shutdown? */
 		if (handle_socket_shutdown())
 		{
-			cpl.state = ST_INIT;
-			/* Make sure no popup is visible. */
-			popup_destroy_all();
+			if (cpl.state != ST_STARTCONNECT)
+			{
+				cpl.state = ST_INIT;
+				/* Make sure no popup is visible. */
+				popup_destroy_all();
+			}
+
 			continue;
 		}
 

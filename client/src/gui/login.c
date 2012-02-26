@@ -46,7 +46,7 @@ enum
 static progress_dots progress;
 /**
  * Button buffer. */
-static button_struct button_tab_login, button_tab_register;
+static button_struct button_tab_login, button_tab_register, button_done;
 /**
  * Text input buffers. */
 static text_input_struct text_inputs[LOGIN_TEXT_INPUT_NUM];
@@ -85,10 +85,40 @@ static int popup_draw(popup_struct *popup)
 	box.h = 38;
 	string_show_shadow(popup->surface, FONT_SERIF14, "Login", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
+	textwin_show(popup->surface, 265, 45, 220, 132);
+
+	button_set_parent(&button_tab_login, popup->x, popup->y);
+	button_set_parent(&button_tab_register, popup->x, popup->y);
+	button_set_parent(&button_done, popup->x, popup->y);
+
+	button_tab_login.x = 38;
+	button_tab_login.y = 38;
+	button_show(&button_tab_login, "Login");
+
+	button_tab_register.x = button_tab_login.x + TEXTURE_SURFACE(button_tab_login.texture)->w + 1;
+	button_tab_register.y = button_tab_login.y;
+	button_show(&button_tab_register, "Register");
+
 	if (cpl.state < ST_LOGIN || !file_updates_finished())
 	{
 		progress_dots_show(&progress, popup->surface, 70, 90);
 		return 1;
+	}
+
+	if (clioption_settings.connect[1])
+	{
+		text_input_set(&text_inputs[LOGIN_TEXT_INPUT_NAME], clioption_settings.connect[1]);
+		free(clioption_settings.connect[1]);
+		clioption_settings.connect[1] = NULL;
+		event_push_key_once(SDLK_RETURN, 0);
+	}
+
+	if (clioption_settings.connect[2])
+	{
+		text_input_set(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD], clioption_settings.connect[2]);
+		free(clioption_settings.connect[2]);
+		clioption_settings.connect[2] = NULL;
+		event_push_key_once(SDLK_RETURN, 0);
 	}
 
 	box.w = text_inputs[LOGIN_TEXT_INPUT_NAME].w;
@@ -113,20 +143,10 @@ static int popup_draw(popup_struct *popup)
 		text_input_show(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD2], popup->surface, 50, 190);
 	}
 
-	return 1;
-}
+	button_done.x = text_inputs[LOGIN_TEXT_INPUT_NAME].x + text_inputs[LOGIN_TEXT_INPUT_NAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+	button_done.y = button_tab_register.pressed_forced ? 210 : 170;
+	button_show(&button_done, "Done");
 
-/** @copydoc popup_struct::popup_draw_post_func */
-static int popup_draw_post(popup_struct *popup)
-{
-	textwin_show(ScreenSurface, popup->x + 265, popup->y + 45, 220, 132);
-
-	button_tab_login.x = popup->x + 38;
-	button_tab_login.y = popup->y + 38;
-	button_show(&button_tab_login, "Login");
-	button_tab_register.x = button_tab_login.x + TEXTURE_SURFACE(button_tab_login.texture)->w + 1;
-	button_tab_register.y = button_tab_login.y;
-	button_show(&button_tab_register, "Register");
 	return 1;
 }
 
@@ -145,6 +165,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	{
 		button_tab_register.pressed_forced = 1;
 		button_tab_login.pressed_forced = 0;
+		return 1;
+	}
+	else if (button_event(&button_done, event))
+	{
+		event_push_key_once(SDLK_RETURN, 0);
 		return 1;
 	}
 
@@ -196,6 +221,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 					packet_append_string_terminated(packet, text_inputs[i].str);
 				}
+
+				strncpy(cpl.password, text_inputs[LOGIN_TEXT_INPUT_PASSWORD].str, sizeof(cpl.password) - 1);
+				cpl.password[sizeof(cpl.password) - 1] = '\0';
 
 				for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
 				{
@@ -268,8 +296,15 @@ void login_start(void)
 
 	progress_dots_create(&progress);
 
+	popup = popup_create("popup");
+	popup->draw_func = popup_draw;
+	popup->event_func = popup_event;
+	popup->destroy_callback_func = popup_destroy_callback;
+
 	button_create(&button_tab_login);
 	button_create(&button_tab_register);
+	button_create(&button_done);
+	button_tab_login.surface = button_tab_register.surface = button_done.surface = popup->surface;
 	button_tab_login.pressed_forced = 1;
 	button_tab_login.texture = button_tab_register.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_tab");
 	button_tab_login.texture_over = button_tab_register.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_over");
@@ -286,12 +321,6 @@ void login_start(void)
 	text_inputs[LOGIN_TEXT_INPUT_NAME].focus = 1;
 	text_inputs[LOGIN_TEXT_INPUT_PASSWORD].show_edit_func = text_inputs[LOGIN_TEXT_INPUT_PASSWORD2].show_edit_func = text_input_show_edit_password;
 	text_input_current = LOGIN_TEXT_INPUT_NAME;
-
-	popup = popup_create("popup");
-	popup->draw_func = popup_draw;
-	popup->draw_post_func = popup_draw_post;
-	popup->event_func = popup_event;
-	popup->destroy_callback_func = popup_destroy_callback;
 
 	cpl.state = ST_STARTCONNECT;
 }

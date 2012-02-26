@@ -64,6 +64,7 @@ void system_end(void)
 	settings_deinit();
 	keybind_deinit();
 	toolkit_deinit();
+	clioption_settings_deinit();
 	SDL_Quit();
 }
 

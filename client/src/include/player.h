@@ -197,9 +197,6 @@ typedef struct Player_Struct
 	/** Player's name. */
 	char name[40];
 
-	/** Player's password. Only used while logging in. */
-	char password[40];
-
 	char num_text[300];
 
 	/** Rank and name of char. */
@@ -252,6 +249,10 @@ typedef struct Player_Struct
 	/**
 	 * Account name that we are logged into. */
 	char account[MAX_BUF];
+
+	/**
+	 * Password that was used to log in. */
+	char password[MAX_BUF];
 
 	/**
 	 * Current IP. */

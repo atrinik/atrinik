@@ -37,7 +37,7 @@ enum
 	BUTTON_SETTINGS,
 	BUTTON_KEY_SETTINGS,
 	BUTTON_LOGOUT,
-	BUTTON_BACK,
+	BUTTON_DISCONNECT,
 
 	BUTTON_NUM
 };
@@ -46,7 +46,7 @@ enum
  * Names of the buttons. */
 static const char *const button_names[BUTTON_NUM] =
 {
-	"Client Settings", "Key Settings", "Logout", "Back to Play"
+	"Client Settings", "Key Settings", "Logout", "Disconnect"
 };
 
 /**
@@ -69,6 +69,13 @@ static void settings_button_handle(popup_struct *popup, size_t button)
 	}
 	else if (button == BUTTON_LOGOUT)
 	{
+		clioption_settings.connect[1] = strdup(cpl.account);
+		clioption_settings.connect[2] = strdup(cpl.password);
+		socket_close(&csocket);
+		login_start();
+	}
+	else if (button == BUTTON_DISCONNECT)
+	{
 		socket_close(&csocket);
 		cpl.state = ST_INIT;
 	}
@@ -90,7 +97,7 @@ static int popup_draw(popup_struct *popup)
 
 	for (i = 0; i < BUTTON_NUM; i++)
 	{
-		if (cpl.state != ST_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+		if (cpl.state != ST_PLAY && (i == BUTTON_DISCONNECT || i == BUTTON_LOGOUT))
 		{
 			continue;
 		}
@@ -146,7 +153,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 		for (i = 0; i < BUTTON_NUM; i++)
 		{
-			if (cpl.state != ST_PLAY && (i == BUTTON_BACK || i == BUTTON_LOGOUT))
+			if (cpl.state != ST_PLAY && (i == BUTTON_DISCONNECT || i == BUTTON_LOGOUT))
 			{
 				continue;
 			}
@@ -195,13 +202,9 @@ void settings_open(void)
 	popup = popup_create("popup");
 	popup->draw_func = popup_draw;
 	popup->event_func = popup_event;
-#if 0
-	popup->draw_post_func = popup_draw_post;
-	popup->destroy_callback_func = popup_destroy_callback;
-#endif
 
 	popup->button_left.event_func = popup_button_event;
 	popup_button_set_text(&popup->button_left, "?");
 
-	button_selected = cpl.state == ST_PLAY ? BUTTON_BACK : BUTTON_SETTINGS;
+	button_selected = cpl.state == ST_PLAY ? BUTTON_DISCONNECT : BUTTON_SETTINGS;
 }

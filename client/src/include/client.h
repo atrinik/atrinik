@@ -130,4 +130,13 @@ typedef struct socket_command_struct
 #define SPELL_DESC_ENEMY        0x10
 /*@}*/
 
+typedef struct clioption_settings_struct
+{
+	char **servers;
+
+	size_t servers_num;
+
+	char *connect[4];
+} clioption_settings_struct;
+
 #endif

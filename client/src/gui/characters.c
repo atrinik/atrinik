@@ -45,7 +45,7 @@ enum
 static progress_dots progress;
 /**
  * Button buffer. */
-static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right, button_done;
+static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right, button_login, button_done;
 /**
  * Text input buffers. */
 static text_input_struct text_inputs[TEXT_INPUT_NUM];
@@ -145,6 +145,10 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 		packet_append_uint8(packet, CMD_ACCOUNT_LOGIN_CHAR);
 		packet_append_string_terminated(packet, buf);
 		socket_send_packet(packet);
+
+		strncpy(cpl.name, buf, sizeof(cpl.name) - 1);
+		cpl.name[sizeof(cpl.name) - 1] = '\0';
+
 		return 1;
 	}
 
@@ -200,6 +204,7 @@ static int popup_draw(popup_struct *popup)
 	button_set_parent(&button_character_gender, popup->x, popup->y);
 	button_set_parent(&button_character_left, popup->x, popup->y);
 	button_set_parent(&button_character_right, popup->x, popup->y);
+	button_set_parent(&button_login, popup->x, popup->y);
 	button_set_parent(&button_done, popup->x, popup->y);
 
 	button_tab_characters.x = 38;
@@ -221,6 +226,10 @@ static int popup_draw(popup_struct *popup)
 	{
 		list_set_parent(list_characters, popup->x, popup->y);
 		list_show(list_characters, 36, 50);
+
+		button_login.x = list_characters->x + LIST_WIDTH_FULL(list_characters) / 2 - TEXTURE_SURFACE(button_login.texture)->w / 2;
+		button_login.y = list_characters->y + LIST_HEIGHT_FULL(list_characters) + 8;
+		button_show(&button_login, "<b>Login</b>");
 	}
 	else if (button_tab_new.pressed_forced)
 	{
@@ -330,6 +339,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 		text_inputs[text_input_current].focus = 1;
 		return 1;
 	}
+	else if (button_event(button_tab_characters.pressed_forced ? &button_login : &button_done, event))
+	{
+		event_push_key_once(SDLK_RETURN, 0);
+		return 1;
+	}
 
 	if (button_tab_characters.pressed_forced)
 	{
@@ -400,10 +414,6 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 			{
 				character_race++;
 			}
-		}
-		else if (button_event(&button_done, event))
-		{
-			event_push_key_once(SDLK_RETURN, 0);
 		}
 	}
 	else if (button_tab_password.pressed_forced)
@@ -492,11 +502,6 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 		{
 			return 1;
 		}
-		else if (button_event(&button_done, event))
-		{
-			event_push_key_once(SDLK_RETURN, 0);
-			return 1;
-		}
 	}
 
 	return -1;
@@ -536,14 +541,20 @@ void characters_open(void)
 	button_create(&button_character_left);
 	button_create(&button_character_right);
 	button_create(&button_done);
+	button_create(&button_login);
 	button_tab_characters.pressed_forced = 1;
-	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = button_done.surface = popup->surface;
+	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = button_login.surface = button_done.surface = popup->surface;
 	button_tab_characters.texture = button_tab_new.texture = button_tab_password.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_tab");
 	button_tab_characters.texture_over = button_tab_new.texture_over = button_tab_password.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_over");
 	button_tab_characters.texture_pressed = button_tab_new.texture_pressed = button_tab_password.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_down");
 	button_character_left.texture = button_character_right.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
 	button_character_left.texture_over = button_character_right.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 	button_character_left.texture_pressed = button_character_right.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+	button_login.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_large");
+	button_login.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
+	button_login.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
+	button_login.flags = TEXT_MARKUP;
+	button_login.font = FONT_SERIF14;
 
 	for (i = 0; i < TEXT_INPUT_NUM; i++)
 	{
@@ -623,6 +634,14 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 		else
 		{
 			*race_gender = '\0';
+		}
+
+		if (clioption_settings.connect[3] && strcasecmp(clioption_settings.connect[3], name) == 0)
+		{
+			list_characters->row_selected = list_characters->rows + 1;
+			free(clioption_settings.connect[3]);
+			clioption_settings.connect[3] = NULL;
+			event_push_key_once(SDLK_RETURN, 0);
 		}
 
 		snprintf(buf, sizeof(buf), "%d", anim_id);

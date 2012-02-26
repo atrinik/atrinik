@@ -590,6 +590,12 @@ void main_screen_render(void)
 			}
 
 			list_add(list_servers, i, 2, buf);
+
+			if (clioption_settings.connect[0] && strcasecmp(clioption_settings.connect[0], node->name) == 0)
+			{
+				list_servers->row_selected = i + 1;
+				event_push_key_once(SDLK_RETURN, 0);
+			}
 		}
 
 		/* Store the new count. */
