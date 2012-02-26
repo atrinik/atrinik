@@ -259,8 +259,9 @@ void free_player(player *pl)
 		if (!QUERY_FLAG(pl->ob, FLAG_REMOVED))
 		{
 			object_remove(pl->ob, 0);
-			object_destroy(pl->ob);
 		}
+
+		object_destroy(pl->ob);
 	}
 }
 
