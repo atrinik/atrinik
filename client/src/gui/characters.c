@@ -62,6 +62,44 @@ static size_t character_race;
  * Which gender is selected in the character creation tab. */
 static size_t character_gender;
 
+/**
+ * Switch to the specified tab in the characters GUI.
+ * @param button The button tab to switch to. */
+static void button_tab_switch(button_struct *button)
+{
+	if (button == &button_tab_characters)
+	{
+		button_tab_new.pressed_forced = button_tab_password.pressed_forced = 0;
+		button_tab_characters.pressed_forced = 1;
+	}
+	else if (button == &button_tab_new)
+	{
+		button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
+		button_tab_new.pressed_forced = 1;
+
+		text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
+		text_inputs[TEXT_INPUT_CHARNAME].focus = 1;
+
+		character_race = 0;
+		character_gender = GENDER_MALE;
+	}
+	else if (button == &button_tab_password)
+	{
+		size_t i;
+
+		button_tab_characters.pressed_forced = button_tab_new.pressed_forced = 0;
+		button_tab_password.pressed_forced = 1;
+
+		for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++)
+		{
+			text_input_set(&text_inputs[i], NULL);
+		}
+
+		text_input_current = TEXT_INPUT_PASSWORD;
+		text_inputs[text_input_current].focus = 1;
+	}
+}
+
 /** @copydoc text_input_struct::character_check_func */
 static int text_input_character_check(text_input_struct *text_input, char c)
 {
@@ -308,35 +346,17 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 	if (button_event(&button_tab_characters, event))
 	{
-		button_tab_new.pressed_forced = button_tab_password.pressed_forced = 0;
-		button_tab_characters.pressed_forced = 1;
+		button_tab_switch(&button_tab_characters);
 		return 1;
 	}
 	else if (button_event(&button_tab_new, event))
 	{
-		button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
-		button_tab_new.pressed_forced = 1;
-
-		text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
-		text_inputs[TEXT_INPUT_CHARNAME].focus = 1;
-
-		character_race = 0;
-		character_gender = GENDER_MALE;
-
+		button_tab_switch(&button_tab_new);
 		return 1;
 	}
 	else if (button_event(&button_tab_password, event))
 	{
-		button_tab_characters.pressed_forced = button_tab_new.pressed_forced = 0;
-		button_tab_password.pressed_forced = 1;
-
-		for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++)
-		{
-			text_input_set(&text_inputs[i], NULL);
-		}
-
-		text_input_current = TEXT_INPUT_PASSWORD;
-		text_inputs[text_input_current].focus = 1;
+		button_tab_switch(&button_tab_password);
 		return 1;
 	}
 	else if (button_event(button_tab_characters.pressed_forced ? &button_login : &button_done, event))
@@ -378,8 +398,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 				packet_append_string_terminated(packet, s_settings->characters[character_race].gender_archetypes[character_gender]);
 				socket_send_packet(packet);
 
-				button_tab_new.pressed_forced = 0;
-				button_tab_characters.pressed_forced = 1;
+				text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
+
 				return 1;
 			}
 		}
@@ -579,10 +599,15 @@ void characters_open(void)
 	list_set_column(list_characters, 0, 55, 0, NULL, -1);
 	list_set_column(list_characters, 1, 150, 0, NULL, -1);
 	list_scrollbar_enable(list_characters);
-
-	cpl.state = ST_CHARACTERS;
 }
 
+/**
+ * Resolves an archname to race ID and gender ID, using the information
+ * in ::s_settings.
+ * @param archname Archname.
+ * @param[out] race Will contain race ID.
+ * @param[out] gender Will contain gender ID.
+ * @return 1 on success, 0 on failure. */
 static int archname_to_character(const char *archname, size_t *race, size_t *gender)
 {
 	for (*race = 0; *race < s_settings->num_characters; (*race)++)
@@ -599,9 +624,10 @@ static int archname_to_character(const char *archname, size_t *race, size_t *gen
 	return 0;
 }
 
+/** @copydoc socket_command_struct::handle_func */
 void socket_command_characters(uint8 *data, size_t len, size_t pos)
 {
-	char archname[MAX_BUF], name[MAX_BUF], buf[MAX_BUF], race_gender[MAX_BUF];
+	char archname[MAX_BUF], name[MAX_BUF], region_name[MAX_BUF], buf[MAX_BUF], race_gender[MAX_BUF];
 	uint16 anim_id;
 	uint8 level;
 	size_t race, gender;
@@ -624,9 +650,11 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 	{
 		packet_to_string(data, len, &pos, archname, sizeof(archname));
 		packet_to_string(data, len, &pos, name, sizeof(name));
+		packet_to_string(data, len, &pos, region_name, sizeof(region_name));
 		anim_id = packet_to_uint16(data, len, &pos);
 		level = packet_to_uint8(data, len, &pos);
 
+		/* If it's a valid player arch, add race and gender information. */
 		if (archname_to_character(archname, &race, &gender))
 		{
 			snprintf(race_gender, sizeof(race_gender), "%s %s\n", s_settings->characters[race].name, gender_noun[gender]);
@@ -636,6 +664,8 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 			*race_gender = '\0';
 		}
 
+		/* If we have specified a character in '--connect' command line
+		 * option, update the selected row and create an enter event. */
 		if (clioption_settings.connect[3] && strcasecmp(clioption_settings.connect[3], name) == 0)
 		{
 			list_characters->row_selected = list_characters->rows + 1;
@@ -646,13 +676,18 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 
 		snprintf(buf, sizeof(buf), "%d", anim_id);
 		list_add(list_characters, list_characters->rows, 0, buf);
-		snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>%sLevel: %d", name, race_gender, level);
+		snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>%sLevel: %d\n%s", name, race_gender, level, region_name);
 		list_add(list_characters, list_characters->rows - 1, 1, buf);
 	}
 
+	/* No characters yet, so switch to the character creation tab. */
 	if (list_characters->rows == 0)
 	{
-		button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
-		button_tab_new.pressed_forced = 1;
+		button_tab_switch(&button_tab_new);
+	}
+	/* Characters tab otherwise. */
+	else
+	{
+		button_tab_switch(&button_tab_characters);
 	}
 }

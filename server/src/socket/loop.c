@@ -203,6 +203,7 @@ void remove_ns_dead_player(player *pl)
 	container_close(pl->ob, NULL);
 
 	player_save(pl->ob);
+	account_logout_char(&pl->socket, pl);
 	leave_map(pl->ob);
 
 	logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);

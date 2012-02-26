@@ -164,6 +164,7 @@ extern void account_login(socket_struct *ns, char *name, char *password);
 extern void account_register(socket_struct *ns, char *name, char *password, char *password2);
 extern void account_new_char(socket_struct *ns, char *name, char *archname);
 extern void account_login_char(socket_struct *ns, char *name);
+extern void account_logout_char(socket_struct *ns, player *pl);
 extern void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
 /* src/server/anim.c */
 extern Animations *animations;

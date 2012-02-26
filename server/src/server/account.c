@@ -44,6 +44,8 @@ typedef struct account_struct
 
 		char *name;
 
+		char *region_name;
+
 		uint8 level;
 	} *characters;
 
@@ -97,7 +99,7 @@ static int account_save(account_struct *account, const char *path)
 
 	for (i = 0; i < account->characters_num; i++)
 	{
-		fprintf(fp, "char %s:%s:%d\n", account->characters[i].at->name, account->characters[i].name, account->characters[i].level);
+		fprintf(fp, "char %s:%s:%s:%d\n", account->characters[i].at->name, account->characters[i].name, account->characters[i].region_name, account->characters[i].level);
 	}
 
 	fclose(fp);
@@ -144,33 +146,19 @@ static int account_load(account_struct *account, const char *path)
 		}
 		else if (strncmp(buf, "char ", 5) == 0)
 		{
-			size_t pos, word_num;
-			char word[MAX_BUF];
+			char *cps[4];
 
-			account->characters = realloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
-			pos = 5;
-			word_num = 0;
-
-			while (string_get_word(buf, &pos, ':', word, sizeof(word)))
+			if (string_split(buf + 5, cps, arraysize(cps), ':') != arraysize(cps))
 			{
-				switch (word_num)
-				{
-					case 0:
-						account->characters[account->characters_num].at = find_archetype(word);
-						break;
-
-					case 1:
-						account->characters[account->characters_num].name = strdup(word);
-						break;
-
-					case 2:
-						account->characters[account->characters_num].level = atoi(word);
-						break;
-				}
-
-				word_num++;
+				logger_print(LOG(BUG), "Invalid character entry in file: %s", path);
+				continue;
 			}
 
+			account->characters = realloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
+			account->characters[account->characters_num].at = find_archetype(cps[0]);
+			account->characters[account->characters_num].name = strdup(cps[1]);
+			account->characters[account->characters_num].region_name = strdup(cps[2]);
+			account->characters[account->characters_num].level = atoi(cps[3]);
 			account->characters_num++;
 		}
 	}
@@ -195,6 +183,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
 	{
 		packet_append_string_terminated(packet, account->characters[i].at->name);
 		packet_append_string_terminated(packet, account->characters[i].name);
+		packet_append_string_terminated(packet, account->characters[i].region_name);
 		packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
 		packet_append_uint8(packet, account->characters[i].level);
 	}
@@ -470,6 +459,37 @@ void account_login_char(socket_struct *ns, char *name)
 
 	player_login(ns, name, account.characters[i].at);
 	account_free(&account);
+}
+
+void account_logout_char(socket_struct *ns, player *pl)
+{
+	char *path;
+	account_struct account;
+	size_t i;
+
+	path = account_make_path(ns->account);
+
+	if (!account_load(&account, path))
+	{
+		free(path);
+		return;
+	}
+
+	for (i = 0; i < account.characters_num; i++)
+	{
+		if (strcmp(account.characters[i].name, pl->ob->name) == 0)
+		{
+			free(account.characters[i].region_name);
+			account.characters[i].region_name = strdup(get_region_longname(pl->ob->map->region));
+			string_replace_char(account.characters[i].region_name, ":", ' ');
+			account.characters[i].level = pl->ob->level;
+			break;
+		}
+	}
+
+	account_save(&account, path);
+	account_free(&account);
+	free(path);
 }
 
 void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2)
