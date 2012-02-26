@@ -4,6 +4,7 @@ face human_m.isw.111
 randomitems player
 layer 6
 behavior 2
+friendly 1
 is_male 1
 no_pick 1
 direction 4

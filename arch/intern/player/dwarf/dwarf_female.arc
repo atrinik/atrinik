@@ -4,6 +4,7 @@ face dwarf.151
 randomitems player
 layer 6
 behavior 2
+friendly 1
 is_female 1
 no_pick 1
 direction 4

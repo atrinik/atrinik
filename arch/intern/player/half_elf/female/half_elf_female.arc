@@ -3,6 +3,7 @@ race half-elf
 randomitems player
 layer 6
 behavior 2
+friendly 1
 no_pick 1
 is_female 1
 is_neutral 1
