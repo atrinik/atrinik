@@ -106,31 +106,12 @@ void widget_show_console(widgetdata *widget)
 void widget_show_number(widgetdata *widget)
 {
 	text_input_struct *text_input;
-	keybind_struct *keybind;
 	char buf[MAX_BUF];
 
 	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("number"));
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
-	keybind = NULL;
 	text_input_show(text_input, ScreenSurface, widget->x1 + widget->wd / 2 - text_input->w / 2, widget->y1 + widget->ht / 2 - text_input->h / 2 + 8);
-
-	if (cpl.nummode == NUM_MODE_GET)
-	{
-		keybind = keybind_find_by_command("?GET");
-	}
-	else if (cpl.nummode == NUM_MODE_DROP)
-	{
-		keybind = keybind_find_by_command("?DROP");
-	}
-
-	/* If the macro key is active and enough time has passed, end the
-	 * input string. */
-	if (keybind && keys[keybind->key].pressed && SDL_GetTicks() - widget->showed_ticks > 125)
-	{
-		widget_input_handle_enter(widget);
-		keys[keybind->key].time = SDL_GetTicks() + 125;
-	}
 
 	snprintf(buf, sizeof(buf), "%s how many from %d %s", cpl.nummode == NUM_MODE_GET ? "get" : "drop", cpl.nrof, cpl.num_text);
 	string_truncate_overflow(FONT_ARIAL10, buf, 220);
@@ -149,6 +130,13 @@ int widget_input_handle_key(widgetdata *widget, SDL_Event *event)
 	if (widget->show == 0 || event->type != SDL_KEYDOWN)
 	{
 		return 0;
+	}
+
+	if (SDL_GetTicks() - widget->showed_ticks > 125 && ((cpl.nummode == NUM_MODE_GET && keybind_command_matches_event("?GET", &event->key)) || (cpl.nummode == NUM_MODE_DROP && keybind_command_matches_event("?DROP", &event->key))))
+	{
+		widget_input_handle_enter(widget);
+		keys[event->key.keysym.sym].time = SDL_GetTicks() + 125;
+		return 1;
 	}
 
 	text_input = &WIDGET_INPUT(widget)->text_input;

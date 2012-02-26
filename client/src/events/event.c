@@ -257,11 +257,9 @@ int Event_PollInputDevice(void)
 
 		if (keys[key].pressed && keys[key].time + KEY_REPEAT_TIME - 5 < LastTick)
 		{
-			while ((keys[key].time += KEY_REPEAT_TIME - 5) < LastTick)
-			{
-				keys[key].repeated = 1;
-				event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
-			}
+			keys[key].time = LastTick + KEY_REPEAT_TIME - 5;
+			keys[key].repeated = 1;
+			event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
 		}
 	}
 
