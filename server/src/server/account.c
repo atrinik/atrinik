@@ -409,6 +409,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 	account.characters = realloc(account.characters, sizeof(*account.characters) * (account.characters_num + 1));
 	account.characters[account.characters_num].at = at;
 	account.characters[account.characters_num].name = strdup(name);
+	account.characters[account.characters_num].region_name = strdup("");
 	account.characters[account.characters_num].level = 1;
 	account.characters_num++;
 
