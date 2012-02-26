@@ -84,6 +84,16 @@ void text_input_create(text_input_struct *text_input)
 	text_input->h = FONT_HEIGHT(text_input->font);
 }
 
+void text_input_reset(text_input_struct *text_input)
+{
+	if (text_input->history)
+	{
+		text_input->history->pos = 0;
+	}
+
+	text_input_set(text_input, NULL);
+}
+
 void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history)
 {
 	text_input->history = history;

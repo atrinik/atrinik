@@ -229,7 +229,7 @@ extern sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *r
 extern void sprite_free_sprite(sprite_struct *sprite);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
 extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
-extern void map_sprite_show(SDL_Surface* surface, int x, int y, SDL_Rect* srcrect, sprite_struct* sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
+extern void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color);
@@ -823,6 +823,7 @@ extern void text_enable_debug(void);
 extern text_input_history_struct *text_input_history_create(void);
 extern void text_input_history_free(text_input_history_struct *history);
 extern void text_input_create(text_input_struct *text_input);
+extern void text_input_reset(text_input_struct *text_input);
 extern void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history);
 extern void text_input_set(text_input_struct *text_input, const char *str);
 extern void text_input_set_parent(text_input_struct *text_input, int px, int py);

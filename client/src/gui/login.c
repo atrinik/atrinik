@@ -223,7 +223,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 				for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++)
 				{
-					text_input_set(&text_inputs[i], NULL);
+					text_input_reset(&text_inputs[i]);
 				}
 
 				text_inputs[text_input_current].focus = 0;

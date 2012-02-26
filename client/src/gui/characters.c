@@ -77,7 +77,7 @@ static void button_tab_switch(button_struct *button)
 		button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
 		button_tab_new.pressed_forced = 1;
 
-		text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
+		text_input_reset(&text_inputs[TEXT_INPUT_CHARNAME]);
 		text_inputs[TEXT_INPUT_CHARNAME].focus = 1;
 
 		character_race = 0;
@@ -92,7 +92,7 @@ static void button_tab_switch(button_struct *button)
 
 		for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++)
 		{
-			text_input_set(&text_inputs[i], NULL);
+			text_input_reset(&text_inputs[i]);
 		}
 
 		text_input_current = TEXT_INPUT_PASSWORD;
@@ -398,7 +398,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 				packet_append_string_terminated(packet, s_settings->characters[character_race].gender_archetypes[character_gender]);
 				socket_send_packet(packet);
 
-				text_input_set(&text_inputs[TEXT_INPUT_CHARNAME], NULL);
+				text_input_reset(&text_inputs[TEXT_INPUT_CHARNAME]);
 
 				return 1;
 			}
@@ -478,7 +478,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 					for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++)
 					{
-						text_input_set(&text_inputs[i], NULL);
+						text_input_reset(&text_inputs[i]);
 						text_inputs[i].focus = 0;
 					}
 

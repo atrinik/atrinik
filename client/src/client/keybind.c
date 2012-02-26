@@ -638,7 +638,7 @@ int keybind_process_command(const char *cmd)
 		else if (!strcmp(cmd, "CONSOLE"))
 		{
 			WIDGET_SHOW(cur_widget[IN_CONSOLE_ID]);
-			text_input_set(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input, NULL);
+			text_input_reset(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input);
 		}
 		else if (!strcmp(cmd, "APPLY"))
 		{

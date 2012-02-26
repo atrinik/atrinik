@@ -306,7 +306,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 			case SDLK_RETURN:
 			case SDLK_KP_ENTER:
 				interface_data->text_input = 1;
-				text_input_set(&text_input, NULL);
+				text_input_reset(&text_input);
 				return 1;
 
 			default:
@@ -474,6 +474,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
 				interface_data->text_input = 1;
 				packet_to_string(data, len, &pos, text_input_content, sizeof(text_input_content));
+				text_input_reset(&text_input);
 				text_input_set(&text_input, text_input_content);
 				break;
 			}

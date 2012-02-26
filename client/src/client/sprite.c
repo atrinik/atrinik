@@ -263,16 +263,16 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
 	}
 }
 
-void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
-	SDL_Surface *surface;
+	SDL_Surface *src;
 
 	if (!sprite)
 	{
 		return;
 	}
 
-	surface = sprite->bitmap;
+	src = sprite->bitmap;
 
 	/* Is there an effect overlay active? */
 	if (effect_has_overlay())
@@ -284,7 +284,7 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 			effect_scale(sprite);
 		}
 
-		surface = sprite->effect;
+		src = sprite->effect;
 	}
 	/* No overlay, but the image was previously overlayed; need to
 	 * free the dark surfaces so they can be re-rendered, without the
@@ -316,16 +316,16 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 
 		if (sprite->dark_level[dark_level])
 		{
-			surface = sprite->dark_level[dark_level];
+			src = sprite->dark_level[dark_level];
 		}
 		else
 		{
 			char buf[MAX_BUF];
 
-			surface = SDL_DisplayFormatAlpha(surface);
+			src = SDL_DisplayFormatAlpha(src);
 			snprintf(buf, sizeof(buf), "rectangle:500,500,%d", dark_alpha[dark_level]);
-			SDL_BlitSurface(TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, surface, NULL);
-			sprite->dark_level[dark_level] = surface;
+			SDL_BlitSurface(TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, src, NULL);
+			sprite->dark_level[dark_level] = src;
 		}
 	}
 	else if (flags & SPRITE_FLAG_FOW)
@@ -335,7 +335,7 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 			fow_scale(sprite);
 		}
 
-		surface = sprite->fog_of_war;
+		src = sprite->fog_of_war;
 	}
 	else if (flags & SPRITE_FLAG_RED)
 	{
@@ -344,7 +344,7 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 			red_scale(sprite);
 		}
 
-		surface = sprite->red;
+		src = sprite->red;
 	}
 	else if (flags & SPRITE_FLAG_GRAY)
 	{
@@ -353,10 +353,10 @@ void map_sprite_show(sprite_struct *sprite, int x, int y, uint32 flags, uint8 da
 			grey_scale(sprite);
 		}
 
-		surface = sprite->grey;
+		src = sprite->grey;
 	}
 
-	surface_show_effects(cur_widget[MAP_ID]->widgetSF, x, y, NULL, surface, alpha, stretch, zoom_x, zoom_y, rotate);
+	surface_show_effects(surface, x, y, srcrect, src, alpha, stretch, zoom_x, zoom_y, rotate);
 }
 
 /**
