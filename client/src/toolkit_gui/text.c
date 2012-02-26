@@ -1025,7 +1025,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						srcrect.w = width ? width : w;
 						srcrect.h = height ? height : h;
 
-						surface_show_effects(surface, dest->x + x, dest->y + y, &srcrect, FaceList[id].sprite->bitmap, alpha, stretch, zoom_x, zoom_y, rotate);
+						map_sprite_show(surface, dest->x + x, dest->y + y, &srcrect, FaceList[id].sprite, 0, 0, alpha, stretch, zoom_x, zoom_y, rotate);
 					}
 				}
 			}

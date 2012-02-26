@@ -652,14 +652,14 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		yl -= map->height[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	map_sprite_show(face_sprite, xl, yl, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+	map_sprite_show(cur_widget[MAP_ID]->widgetSF, xl, yl, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
 	if (map->draw_double[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		map_sprite_show(face_sprite, xl, yl - 22, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+		map_sprite_show(cur_widget[MAP_ID]->widgetSF, xl, yl - 22, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 	}
 
 	if (xml == MAP_TILE_POS_XOFF)
