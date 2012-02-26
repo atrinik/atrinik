@@ -609,7 +609,7 @@ char *string_create_char_range(char start, char end)
 		str[c - start] = c;
 	}
 
-	str[c - start + 1] = '\0';
+	str[c - start] = '\0';
 
 	return str;
 }
