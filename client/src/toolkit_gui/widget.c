@@ -379,12 +379,10 @@ widgetdata *create_widget_object(int widget_subtype_id)
 		case IN_NUMBER_ID:
 			widget->subwidget = calloc(1, sizeof(widget_input_struct));
 			text_input_create(&WIDGET_INPUT(widget)->text_input);
-			WIDGET_INPUT(widget)->text_input.w = widget->wd - 6;
-			WIDGET_INPUT(widget)->text_input.h = widget->ht - 6;
+			WIDGET_INPUT(widget)->text_input.w = widget->wd - 16;
 
 			if (widget->WidgetTypeID == IN_NUMBER_ID)
 			{
-				WIDGET_INPUT(widget)->text_input.h -= 10;
 				WIDGET_INPUT(widget)->text_input.max = 20;
 			}
 			else

@@ -96,7 +96,7 @@ void widget_show_console(widgetdata *widget)
 	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("textinput"));
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
-	text_input_show(text_input, ScreenSurface, widget->x1, widget->y1);
+	text_input_show(text_input, ScreenSurface, widget->x1 + widget->wd / 2 - text_input->w / 2, widget->y1 + widget->ht / 2 - text_input->h / 2);
 }
 
 /**
@@ -113,7 +113,7 @@ void widget_show_number(widgetdata *widget)
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
 	keybind = NULL;
-	text_input_show(text_input, ScreenSurface, widget->x1, widget->y1);
+	text_input_show(text_input, ScreenSurface, widget->x1 + widget->wd / 2 - text_input->w / 2, widget->y1 + widget->ht / 2 - text_input->h / 2 + 8);
 
 	if (cpl.nummode == NUM_MODE_GET)
 	{
