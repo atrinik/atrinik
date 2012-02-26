@@ -338,7 +338,7 @@ void esrv_draw_look(object *pl)
 			packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
 			packet_append_uint32(packet, 0);
 			packet_append_sint32(packet, -1);
-			packet_append_uint16(packet, prev_item_face->number);
+			packet_append_uint16(packet, next_item_face->number);
 			packet_append_uint8(packet, 0);
 			packet_append_string_terminated(packet, "Next group of items");
 			packet_append_uint16(packet, 0);
