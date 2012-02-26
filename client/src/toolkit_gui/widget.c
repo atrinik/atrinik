@@ -384,6 +384,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 			if (widget->WidgetTypeID == IN_NUMBER_ID)
 			{
 				WIDGET_INPUT(widget)->text_input.max = 20;
+				WIDGET_INPUT(widget)->text_input.character_check_func = widget_number_input_character_check;
 			}
 			else
 			{

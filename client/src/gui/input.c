@@ -137,6 +137,11 @@ void widget_show_number(widgetdata *widget)
 	string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 8, widget->y1 + 6, COLOR_HGOLD, 0, NULL);
 }
 
+int widget_number_input_character_check(text_input_struct *text_input, char c)
+{
+	return isdigit(c);
+}
+
 int widget_input_handle_key(widgetdata *widget, SDL_Event *event)
 {
 	text_input_struct *text_input;

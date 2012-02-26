@@ -333,6 +333,7 @@ extern void help_handle_tabulator(text_input_struct *text_input);
 /* src/gui/input.c */
 extern void widget_show_console(widgetdata *widget);
 extern void widget_show_number(widgetdata *widget);
+extern int widget_number_input_character_check(text_input_struct *text_input, char c);
 extern int widget_input_handle_key(widgetdata *widget, SDL_Event *event);
 /* src/gui/interface.c */
 extern void socket_command_interface(uint8 *data, size_t len, size_t pos);
