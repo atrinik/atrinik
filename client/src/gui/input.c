@@ -148,13 +148,14 @@ int widget_input_handle_key(widgetdata *widget, SDL_Event *event)
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
 
+	if (IS_ENTER(event->key.keysym.sym))
+	{
+		widget_input_handle_enter(widget);
+	}
+
 	if (event->key.keysym.sym == SDLK_ESCAPE)
 	{
 		widget->show = 0;
-	}
-	else if (IS_ENTER(event->key.keysym.sym))
-	{
-		widget_input_handle_enter(widget);
 	}
 	else if (event->key.keysym.sym == SDLK_TAB && widget->WidgetTypeID == IN_CONSOLE_ID)
 	{
