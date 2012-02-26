@@ -562,7 +562,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 
 			snprintf(buf, sizeof(buf), "<icon=%s 40 60>", s_settings->characters[race].gender_faces[gender]);
 			list_add(list_characters, list_characters->rows, 0, buf);
-			snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>Level: %d", name, level);
+			snprintf(buf, sizeof(buf), "<y=3><a=charname><c=#"COLOR_HGOLD"><font=serif 12>%s</font></c></a>\n<y=2>%s %s\nLevel: %d", name, s_settings->characters[race].name, gender_noun[gender], level);
 			list_add(list_characters, list_characters->rows - 1, 1, buf);
 		}
 	}
