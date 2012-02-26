@@ -3,19 +3,22 @@ Alex "Cleo" Tokar - GPLv2:
 	below.png
 	button.png
 	button_down.png
-	button_hover.png
+	button_over.png
 	button_rect.png
 	button_rect_down.png
-	button_rect_hover.png
+	button_rect_over.png
 	button_round.png
 	button_round_down.png
-	button_round_hover.png
+	button_round_over.png
 	button_large.png
 	button_large_down.png
-	button_large_hover.png
+	button_large_over.png
 	button_round_large.png
 	button_round_large_down.png
-	button_round_large_hover.png
+	button_round_large_over.png
+	button_tab.png
+	button_tab_down.png
+	button_tab_over.png
 	book_border.png
 	checkbox.png
 	checkbox_on.png
@@ -26,10 +29,8 @@ Alex "Cleo" Tokar - GPLv2:
 	content.png
 	cursed.png
 	damned.png
-	exp_border.png
 	exp_bubble_on.png
 	exp_bubble_off.png
-	exp_line.png
 	eyes.png
 	fire_ready.png
 	food.png
@@ -53,7 +54,6 @@ Alex "Cleo" Tokar - GPLv2:
 	loading_off.png
 	loading_on.png
 	lock.png
-	login_inp.png
 	magic.png
 	main_level_bg.png
 	main_stats.png
@@ -61,7 +61,8 @@ Alex "Cleo" Tokar - GPLv2:
 	menu_buttons.png
 	number.png
 	paralyzed.png
-	player_doll_bg.png (doll picture by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)
+	player_doll_bg.png
+	player_doll_slot_border.png
 	player_info_bg.png
 	regen_bg.png
 	region_map.png
@@ -74,7 +75,6 @@ Alex "Cleo" Tokar - GPLv2:
 	sp_back.png
 	square_highlight.png
 	textinput.png
-	textwin_mask.png
 	unpaid.png
 	range_buttons_left.png
 	range_buttons_off.png
@@ -96,16 +96,7 @@ Sammy Broock - GPLv2:
 David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
 	blind.png
 	death.png
-	range.png (from player_doll_bg.png)
-	range_marker.png
-	range_skill.png
-	range_skill_no.png
-	range_throw.png
-	range_throw_no.png
-	range_tool.png
-	range_tool_no.png
-	range_wizard.png
-	range_wizard_no.png
 	trapped.png
 	warn_food.png
 	warn_hp.png
+	player_doll.png
