@@ -319,7 +319,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 			{
 				size_t i;
 
-				i = text_input->pos - 1;
+				i = text_input->pos;
 				string_skip_word(text_input->str, &i, -1);
 				text_input->pos = i;
 			}
