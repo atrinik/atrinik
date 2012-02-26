@@ -93,6 +93,8 @@ void widget_show_console(widgetdata *widget)
 {
 	text_input_struct *text_input;
 
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("textinput"));
+
 	text_input = &WIDGET_INPUT(widget)->text_input;
 	text_input_show(text_input, ScreenSurface, widget->x1, widget->y1);
 }
@@ -106,6 +108,8 @@ void widget_show_number(widgetdata *widget)
 	text_input_struct *text_input;
 	keybind_struct *keybind;
 	char buf[MAX_BUF];
+
+	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("number"));
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
 	keybind = NULL;
