@@ -232,3 +232,42 @@ int path_exists(const char *path)
 
 	return 1;
 }
+
+/**
+ * Create a new blank file.
+ * @param path Path to the file.
+ * @return 1 on success, 0 on failure. */
+int path_touch(const char *path)
+{
+	FILE *fp;
+
+	fp = fopen(path, "w");
+
+	if (!fp)
+	{
+		return 0;
+	}
+
+	if (fclose(fp) == EOF)
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+/**
+ * Get size of the specified file, in bytes.
+ * @param path Path to the file.
+ * @return Size of the file. */
+size_t path_size(const char *path)
+{
+	struct stat statbuf;
+
+	if (stat(path, &statbuf) != 0)
+	{
+		return 0;
+	}
+
+	return statbuf.st_size;
+}
