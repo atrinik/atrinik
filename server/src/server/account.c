@@ -355,7 +355,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 void account_new_char(socket_struct *ns, char *name, char *archname)
 {
 	archetype *at;
-	char *path;
+	char *path, *path_player;
 	account_struct account;
 
 	if (!ns->account)
@@ -402,6 +402,19 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 		free(path);
 		return;
 	}
+
+	path_player = player_make_path(name, "player.dat");
+
+	if (!path_touch(path_player))
+	{
+		draw_info_send(0, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
+		account_free(&account);
+		free(path);
+		free(path_player);
+		return;
+	}
+
+	free(path_player);
 
 	account.characters = realloc(account.characters, sizeof(*account.characters) * (account.characters_num + 1));
 	account.characters[account.characters_num].at = at;

@@ -2424,6 +2424,11 @@ static int player_load(player *pl, const char *path)
 	char buf[MAX_BUF], *end;
 	void *loaderbuf;
 
+	if (path_size(path) == 0)
+	{
+		return 0;
+	}
+
 	fp = fopen(path, "rb");
 
 	if (!fp)
