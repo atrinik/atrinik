@@ -125,11 +125,6 @@ static int popup_draw(popup_struct *popup)
 	string_show(popup->surface, FONT_ARIAL12, "Account name [<tooltip=Enter your account's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 	string_show(popup->surface, FONT_ARIAL12, "Password [<tooltip=Enter your password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
-	if (button_tab_register.pressed_forced)
-	{
-		string_show(popup->surface, FONT_ARIAL12, "Verify password [<tooltip=Enter your password again.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
-	}
-
 	for (i = 0; i < LOGIN_TEXT_INPUT_NUM; i++)
 	{
 		text_input_set_parent(&text_inputs[i], popup->x, popup->y);
@@ -140,6 +135,7 @@ static int popup_draw(popup_struct *popup)
 
 	if (button_tab_register.pressed_forced)
 	{
+		string_show(popup->surface, FONT_ARIAL12, "Verify password [<tooltip=Enter your password again.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 		text_input_show(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD2], popup->surface, 50, 190);
 	}
 
