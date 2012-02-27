@@ -481,7 +481,7 @@ void account_logout_char(socket_struct *ns, player *pl)
 		if (strcmp(account.characters[i].name, pl->ob->name) == 0)
 		{
 			free(account.characters[i].region_name);
-			account.characters[i].region_name = strdup(get_region_longname(pl->ob->map->region));
+			account.characters[i].region_name = strdup(pl->ob->map->region ? get_region_longname(pl->ob->map->region) : "???");
 			string_replace_char(account.characters[i].region_name, ":", ' ');
 			account.characters[i].level = pl->ob->level;
 			break;
