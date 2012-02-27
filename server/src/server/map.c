@@ -2537,3 +2537,83 @@ int wall_blocked(mapstruct *m, int x, int y)
 
 	return r;
 }
+
+int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
+{
+	MapSpace *msp;
+	uint8 outdoor;
+	int darkness;
+
+	if (mirror)
+	{
+		*mirror = NULL;
+	}
+
+	msp = GET_MAP_SPACE_PTR(m, x, y);
+	outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+
+	if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
+	{
+		darkness = msp->light_value + global_darkness_table[world_darkness];
+	}
+	else
+	{
+		/* Check if map info object bound to this tile has a darkness. */
+		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1)
+		{
+			int dark_value;
+
+			dark_value = msp->map_info->item_power;
+
+			if (dark_value < 0 || dark_value > MAX_DARKNESS)
+			{
+				dark_value = MAX_DARKNESS;
+			}
+
+			darkness = global_darkness_table[dark_value] + msp->light_value;
+		}
+		else
+		{
+			darkness = m->light_value + msp->light_value;
+		}
+	}
+
+	if (msp->flags & P_MAGIC_MIRROR)
+	{
+		object *tmp;
+		magic_mirror_struct *m_data;
+		mapstruct *mirror_map;
+
+		FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp)
+		{
+			if (tmp->type == MAGIC_MIRROR)
+			{
+				if (mirror)
+				{
+					*mirror = tmp;
+				}
+
+				m_data = MMIRROR(tmp);
+
+				if (m_data && (mirror_map = magic_mirror_get_map(tmp)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y))
+				{
+					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
+
+					if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR))
+					{
+						darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
+					}
+					else
+					{
+						darkness = mirror_map->light_value + mirror_msp->light_value;
+					}
+				}
+
+				break;
+			}
+		}
+		FOR_MAP_LAYER_END
+	}
+
+	return darkness;
+}

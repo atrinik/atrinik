@@ -362,6 +362,7 @@ extern int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstru
 extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 extern int wall_blocked(mapstruct *m, int x, int y);
+extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);

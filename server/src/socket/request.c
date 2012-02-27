@@ -624,9 +624,6 @@ void packet_append_map_weather(packet_struct *packet, object *op, object *map_in
 	packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
 }
 
-/** Darkness table */
-static int darkness_table[] = {0, 10, 30, 60, 120, 260, 480, 960};
-
 /** Clear a map cell. */
 #define map_clearcell(_cell_) \
 { \
@@ -652,21 +649,17 @@ void draw_client_map2(object *pl)
 	MapSpace *msp;
 	mapstruct *m;
 	int x, y, ax, ay, d, nx, ny;
-	int x_start, light_adjust;
+	int x_start;
 	int special_vision;
 	uint16 mask;
-	int wdark;
 	int layer, dark;
 	int anim_value, anim_type, ext_flags;
 	int num_layers;
-	int outdoor;
 	object *mirror = NULL;
 	uint8 have_sound_ambient;
 	packet_struct *packet, *packet_layer, *packet_sound;
 	size_t oldpos;
 
-	light_adjust = CONTR(pl)->tli ? global_darkness_table[MAX_DARKNESS] : 0;
-	wdark = darkness_table[world_darkness];
 	/* Any kind of special vision? */
 	special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
 	map2_count++;
@@ -818,64 +811,11 @@ void draw_client_map2(object *pl)
 				}
 			}
 
-			outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+			d = map_get_darkness(m, nx, ny, &mirror);
 
-			/* Calculate the darkness/light value for this tile. */
-			if (((outdoor && !(GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) || (!outdoor && GET_MAP_FLAGS(m, nx, ny) & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
+			if (CONTR(pl)->tli)
 			{
-				d = msp->light_value + wdark + light_adjust;
-			}
-			else
-			{
-				/* Check if map info object bound to this tile has a darkness. */
-				if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1)
-				{
-					int dark_value = msp->map_info->item_power;
-
-					if (dark_value < 0 || dark_value > MAX_DARKNESS)
-					{
-						dark_value = MAX_DARKNESS;
-					}
-
-					d = global_darkness_table[dark_value] + msp->light_value + light_adjust;
-				}
-				else
-				{
-					d = m->light_value + msp->light_value + light_adjust;
-				}
-			}
-
-			if (GET_MAP_FLAGS(m, nx, ny) & P_MAGIC_MIRROR)
-			{
-				object *mirror_tmp;
-				magic_mirror_struct *m_data;
-				mapstruct *mirror_map;
-
-				/* Try to find the magic mirror, but only search on layer 0. */
-				for (mirror_tmp = GET_MAP_OB(m, nx, ny); mirror_tmp && mirror_tmp->layer == LAYER_SYS; mirror_tmp = mirror_tmp->above)
-				{
-					if (mirror_tmp->type == MAGIC_MIRROR)
-					{
-						mirror = mirror_tmp;
-						break;
-					}
-				}
-
-				m_data = MMIRROR(mirror);
-
-				if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y))
-				{
-					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
-
-					if ((MAP_OUTDOORS(mirror_map) && !(GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && GET_MAP_FLAGS(mirror_map, m_data->x, m_data->y) & P_OUTDOOR))
-					{
-						d = mirror_msp->light_value + wdark + light_adjust;
-					}
-					else
-					{
-						d = mirror_map->light_value + mirror_msp->light_value + light_adjust;
-					}
-				}
+				d += global_darkness_table[MAX_DARKNESS];
 			}
 
 			/* Tile is not normally visible */
