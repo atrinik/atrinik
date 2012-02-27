@@ -40,6 +40,8 @@ static fields_struct fields[] =
 	{"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0},
 	{"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0},
 	{"env", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0},
+	{"head", FIELDTYPE_OBJECT, offsetof(object, head), FIELDFLAG_READONLY, 0},
+	{"more", FIELDTYPE_OBJECT, offsetof(object, more), FIELDFLAG_READONLY, 0},
 	{"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0},
 	{"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY, 0},
 	{"custom_name", FIELDTYPE_SHSTR, offsetof(object, custom_name), 0, 0},
