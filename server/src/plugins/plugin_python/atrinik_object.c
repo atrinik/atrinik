@@ -2128,7 +2128,7 @@ PyObject *wrap_object(object *what)
 
 	if (wrapper)
 	{
-		wrapper->obj = HEAD(what);
+		wrapper->obj = what;
 		wrapper->count = wrapper->obj->count;
 	}
 
