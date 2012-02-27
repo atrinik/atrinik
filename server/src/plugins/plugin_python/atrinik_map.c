@@ -136,7 +136,7 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.GetLayer(int x, int y, int layer)</h1>
+ * <h1>map.GetLayer(int x, int y, int layer, int [sub_layer = -1])</h1>
  * Construct a list containing objects with the specified layer on the
  * specified square.
  *
@@ -149,6 +149,7 @@ for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x, WhoIsActivator
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @param layer Layer we are looking for, should be one of @ref LAYER_xxx.
+ * @param sub_layer Sub-layer to look for; if -1, will look for all sub-layers.
  * @throws ValueError if 'layer' is invalid.
  * @throws AtrinikError if there was an error trying to get the objects (invalid
  * x/y or not on nearby tiled map, for example).
