@@ -1488,21 +1488,22 @@ enum apply_flag
  * @param _m Map.
  * @param _x X position.
  * @param _y Y position.
- * @param _layer Layer, one of @ref LAYER_xxx. Will include sub-layers for
- * non-system objects.
+ * @param _layer Layer, one of @ref LAYER_xxx.
+ * @param _sub_layer Which sub-layer to look for. If -1, will search all
+ * sub-layers.
  * @param _obj Variable of an object pointer (does not need to be
  * initialized); will contain the found object, if any.
  * @warning Does not support stacking.
  * @note Use @ref FOR_MAP_LAYER_BREAK to break out, instead of the
  * traditional 'break'.  */
-#define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _obj) \
+#define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _sub_layer, _obj) \
 { \
 	int __sub_layer; \
 	object *__tmp, *__next; \
 	tag_t __next_tag; \
-	for (__sub_layer = 0; __sub_layer < ((_layer) == 0 ? 1 : NUM_SUB_LAYERS); __sub_layer++) \
+	for (__sub_layer = ((_sub_layer) == -1 ? 0 : (_sub_layer)); __sub_layer < ((_layer) == LAYER_SYS ? 1 : ((_sub_layer) == -1 ? NUM_SUB_LAYERS : ((_sub_layer) + 1))); __sub_layer++) \
 	{ \
-		for (__tmp = (_layer) == 0 ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
+		for (__tmp = (_layer) == LAYER_SYS ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
 		{ \
 			__next = __tmp->above; \
 			if (__next) \
