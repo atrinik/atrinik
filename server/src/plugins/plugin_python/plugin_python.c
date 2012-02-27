@@ -2693,10 +2693,10 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 			return Py_BuildValue("s", (char *) field_ptr);
 
 		case FIELDTYPE_UINT8:
-			return Py_BuildValue("B", *(uint8 *) field_ptr);
+			return Py_BuildValue("b", *(uint8 *) field_ptr);
 
 		case FIELDTYPE_SINT8:
-			return Py_BuildValue("b", *(sint8 *) field_ptr);
+			return Py_BuildValue("B", *(sint8 *) field_ptr);
 
 		case FIELDTYPE_UINT16:
 			return Py_BuildValue("H", *(uint16 *) field_ptr);

@@ -691,7 +691,7 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
 	object *match;
 	PyObject *list = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Bzzziii", kwlist, &mode, &archname, &name, &title, &type, &multiple, &unpaid))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|bzzziii", kwlist, &mode, &archname, &name, &title, &type, &multiple, &unpaid))
 	{
 		return NULL;
 	}
@@ -1110,7 +1110,7 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *ar
 	int nr;
 	sint8 val;
 
-	if (!PyArg_ParseTuple(args, "ib", &nr, &val))
+	if (!PyArg_ParseTuple(args, "iB", &nr, &val))
 	{
 		return NULL;
 	}
@@ -1167,7 +1167,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 	int nr;
 	uint8 val;
 
-	if (!PyArg_ParseTuple(args, "iB", &nr, &val))
+	if (!PyArg_ParseTuple(args, "ib", &nr, &val))
 	{
 		return NULL;
 	}
@@ -1270,7 +1270,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
 	mapstruct *m;
 	PyObject *callable = NULL, *list;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "B|BiO", kwlist, &range, &type, &beyond, &callable))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "b|biO", kwlist, &range, &type, &beyond, &callable))
 	{
 		return NULL;
 	}

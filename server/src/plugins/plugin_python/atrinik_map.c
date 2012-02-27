@@ -163,7 +163,7 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 	PyObject *list;
 	object *tmp;
 
-	if (!PyArg_ParseTuple(args, "iiB|b", &x, &y, &layer, &sub_layer))
+	if (!PyArg_ParseTuple(args, "iib|B", &x, &y, &layer, &sub_layer))
 	{
 		return NULL;
 	}
