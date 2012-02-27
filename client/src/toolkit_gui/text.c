@@ -978,10 +978,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, width = 0, height = 0;
+				int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, width = 0, height = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
 				uint32 stretch = 0;
 
-				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %u %d %d>", face, &x, &y, &align, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &width, &height) >= 1)
+				if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %d %d %d %u %d %d>", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &width, &height) >= 1)
 				{
 					int id;
 
@@ -1016,20 +1016,41 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 						if (align & 4)
 						{
-							y = (y + MAP_TILE_POS_YOFF) - h;
-
-							if (w > MAP_TILE_POS_XOFF)
+							if (quick_pos)
 							{
-								x -= (w - MAP_TILE_POS_XOFF) / 2;
+								int mnr, mid;
+
+								mnr = quick_pos;
+								mid = mnr >> 4;
+								mnr &= 0x0f;
+								y = y - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - h;
+								x -= MultiArchs[mid].part[mnr].xoff;
+
+								if (w > MultiArchs[mid].xlen)
+								{
+									x += (MultiArchs[mid].xlen - w) >> 1;
+								}
+							}
+							else
+							{
+								y = (y + MAP_TILE_POS_YOFF) - h;
+
+								if (w > MAP_TILE_POS_XOFF)
+								{
+									x -= (w - MAP_TILE_POS_XOFF) / 2;
+								}
 							}
 						}
 
-						srcrect.x = 0;
-						srcrect.y = 0;
-						srcrect.w = width ? width : w;
-						srcrect.h = height ? height : h;
+						if (width || height)
+						{
+							srcrect.x = 0;
+							srcrect.y = 0;
+							srcrect.w = width;
+							srcrect.h = height;
+						}
 
-						map_sprite_show(surface, dest->x + x, dest->y + y, &srcrect, FaceList[id].sprite, 0, 0, alpha, stretch, zoom_x, zoom_y, rotate);
+						map_sprite_show(surface, dest->x + x, dest->y + y, width || height ? &srcrect : NULL, FaceList[id].sprite, sprite_flags, dark_level, alpha, stretch, zoom_x, zoom_y, rotate);
 					}
 				}
 			}
