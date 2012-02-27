@@ -1658,9 +1658,17 @@ static PyMethodDef methods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 {
-	OBJEXISTCHECK(obj);
+	fields_struct *field;
 
-	return generic_field_getter((fields_struct *) context, obj->obj);
+	OBJEXISTCHECK(obj);
+	field = (fields_struct *) context;
+
+	if (field->offset == offsetof(object, head))
+	{
+		return wrap_object(HEAD(obj->obj));
+	}
+
+	return generic_field_getter(field, obj->obj);
 }
 
 /**
