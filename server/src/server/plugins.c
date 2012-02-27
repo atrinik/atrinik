@@ -169,6 +169,7 @@ struct plugin_hooklist hooklist =
 	socket_send_packet,
 	logger_print,
 	commands_add,
+	map_get_darkness,
 
 	season_name,
 	weekdays,

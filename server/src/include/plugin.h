@@ -307,6 +307,7 @@ struct plugin_hooklist
 	void (*socket_send_packet)(socket_struct *, packet_struct *);
 	void (*logger_print)(const char *, const char *, uint64, const char *, ...);
 	void (*commands_add)(const char *, command_func, double, uint64);
+    int (*map_get_darkness)(mapstruct *, int, int, object **);
 
 	const char **season_name;
 	const char **weekdays;

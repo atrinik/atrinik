@@ -466,6 +466,32 @@ static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *map, PyObject *args)
 	return Py_BuildValue("i", hooks->find_free_spot(ob->obj->arch, ob->obj, m, x, y, start, stop + 1));
 }
 
+/**
+ * <h1>map.GetDarkness(int x, int y)</h1>
+ * Gets the darkness value of the specified square.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return The darkness value. */
+static PyObject *Atrinik_Map_GetDarkness(Atrinik_Map *map, PyObject *args)
+{
+	int x, y;
+	mapstruct *m;
+
+	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	{
+		return NULL;
+	}
+
+	m = hooks->get_map_from_coord(map->map, &x, &y);
+
+	if (!m)
+	{
+		RAISE("Unable to get map using get_map_from_coord().");
+	}
+
+	return Py_BuildValue("i", hooks->map_get_darkness(m, x, y, NULL));
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
@@ -484,6 +510,7 @@ static PyMethodDef MapMethods[] =
 	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
 	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
 	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
+	{"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
