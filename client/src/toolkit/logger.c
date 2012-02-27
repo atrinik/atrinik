@@ -90,7 +90,7 @@ void logger_do_print(const char *str)
 
 void logger_print(const char *level, const char *function, uint64 line, const char *format, ...)
 {
-	char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[HUGE_BUF];
+	char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
 	va_list ap;
 	struct timeval tv;
 	struct tm *tm;
