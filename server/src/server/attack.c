@@ -445,7 +445,7 @@ void hit_map(object *op, int dir, int reduce)
 
 	owner = HEAD(owner);
 
-	FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, tmp)
+	FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
 	{
 		tmp = HEAD(tmp);
 

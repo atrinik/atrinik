@@ -42,7 +42,7 @@ void command_sys_tell(object *op, const char *command, char *params)
 		return;
 	}
 
-	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_SYS, tmp)
+	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_SYS, -1, tmp)
 	{
 		if (HAS_EVENT(tmp, EVENT_SAY))
 		{

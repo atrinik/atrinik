@@ -107,7 +107,7 @@ void common_object_projectile_process(object *op)
 		object *tmp;
 		int ret;
 
-		FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_LIVING, tmp);
+		FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_LIVING, -1, tmp)
 		{
 			tmp = HEAD(tmp);
 

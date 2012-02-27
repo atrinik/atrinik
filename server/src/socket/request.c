@@ -967,7 +967,7 @@ void draw_client_map2(object *pl)
 					/* This is done so that the player image is always shown
 					 * to the player, even if they are standing on top of another
 					 * player or monster. */
-					if (tmp && tmp->layer == LAYER_LIVING && pl->x == nx && pl->y == ny)
+					if (tmp && tmp->layer == pl->layer && tmp->sub_layer == pl->sub_layer && pl->x == nx && pl->y == ny)
 					{
 						tmp = pl;
 					}
@@ -1878,7 +1878,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 				continue;
 			}
 
-			FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_LIVING, tmp)
+			FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_LIVING, -1, tmp)
 			{
 				tmp = HEAD(tmp);
 

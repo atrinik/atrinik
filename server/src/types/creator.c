@@ -40,7 +40,7 @@ static int creator_obj_exists(object *op, object *check)
 {
 	object *tmp;
 
-	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, tmp)
+	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp)
 	{
 		if (tmp->arch == check->arch && tmp->name == check->name && tmp->type == check->type)
 		{
