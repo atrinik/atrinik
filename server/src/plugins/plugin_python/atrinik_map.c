@@ -157,11 +157,12 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 {
 	int x, y;
 	uint8 layer;
+	sint8 sub_layer = -1;
 	mapstruct *m;
 	PyObject *list;
 	object *tmp;
 
-	if (!PyArg_ParseTuple(args, "iiB", &x, &y, &layer))
+	if (!PyArg_ParseTuple(args, "iiB|b", &x, &y, &layer, &sub_layer))
 	{
 		return NULL;
 	}
@@ -180,21 +181,11 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 
 	list = PyList_New(0);
 
-	/* Handle layer 0 specially: it's always at the start. */
-	if (layer == 0)
+	FOR_MAP_LAYER_BEGIN(m, x, y, layer, sub_layer, tmp)
 	{
-		for (tmp = GET_MAP_OB(m, x, y); tmp && tmp->layer == layer; tmp = tmp->above)
-		{
-			PyList_Append(list, wrap_object(tmp));
-		}
+		PyList_Append(list, wrap_object(tmp));
 	}
-	else
-	{
-		for (tmp = GET_MAP_OB_LAYER(m, x, y, layer, 0); tmp && tmp->layer == layer; tmp = tmp->above)
-		{
-			PyList_Append(list, wrap_object(tmp));
-		}
-	}
+	FOR_MAP_LAYER_END
 
 	return list;
 }
