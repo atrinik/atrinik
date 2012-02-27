@@ -108,6 +108,7 @@ static fields_struct fields[] =
 	{"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0},
 
 	{"layer", FIELDTYPE_UINT8, offsetof(object, layer), 0, 0},
+	{"sub_layer", FIELDTYPE_UINT8, offsetof(object, sub_layer), 0, 0},
 	{"speed", FIELDTYPE_FLOAT, offsetof(object, speed), FIELDFLAG_PLAYER_READONLY, 0},
 	{"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
 	{"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
