@@ -374,6 +374,7 @@ extern void main_screen_render(void);
 extern int main_screen_event(SDL_Event *event);
 /* src/gui/map.c */
 extern _mapdata MapData;
+extern _multi_part_obj MultiArchs[16];
 extern void load_mapdef_dat(void);
 extern void widget_show_mapname(widgetdata *widget);
 extern void clear_map(void);

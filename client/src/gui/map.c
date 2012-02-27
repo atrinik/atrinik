@@ -36,7 +36,7 @@ static SDL_Surface *zoomed = NULL;
 /** Current shown map: mapname, length, etc */
 _mapdata MapData;
 
-static _multi_part_obj MultiArchs[16];
+_multi_part_obj MultiArchs[16];
 
 /** Holds coordinates of the last map square the mouse was over. */
 static int old_map_mouse_x = 0, old_map_mouse_y = 0;
