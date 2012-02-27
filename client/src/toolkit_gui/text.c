@@ -995,9 +995,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						w = FaceList[id].sprite->bitmap->w;
 						h = FaceList[id].sprite->bitmap->h;
 
-						if (rotate || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
+						if (rotate)
 						{
 							rotozoomSurfaceSizeXY(w, h, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
+						}
+						else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
+						{
+							zoomSurfaceSize(w, h, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
 						}
 
 						if (align & 1)
