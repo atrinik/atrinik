@@ -69,7 +69,7 @@ class Map2Markup:
 		if floor:
 			z += floor.z
 
-		if self._mmirror:
+		if z and self._mmirror:
 			z += self._mmirror.last_eat
 
 		return z
@@ -80,7 +80,7 @@ class Map2Markup:
 		for obj in self._get_objects(x, y, LAYER_FLOOR, -1):
 			z = obj.z
 
-			if self._mmirror:
+			if z and self._mmirror:
 				z += self._mmirror.last_eat
 
 			if z > top:
