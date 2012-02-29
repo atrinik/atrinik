@@ -312,8 +312,6 @@ extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
 extern void version(object *op);
-extern char *crypt_string(const char *str, const char *salt);
-extern int check_password(char *typed, char *crypted);
 extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
@@ -721,7 +719,6 @@ extern void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data,
 extern void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
 extern void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
