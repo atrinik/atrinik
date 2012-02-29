@@ -222,7 +222,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 
 	GetSystemTimeAsFileTime(&time);
 
-	res = ((time.dwHighDateTime << 32) | time.dwLowDateTime) / 10 - DELTA_EPOCH;
+	res = (((unsigned __int64) time.dwHighDateTime << 32) | time.dwLowDateTime) / 10 - DELTA_EPOCH;
 	tv->tv_sec = (long) (res / 1000000UL);
 	tv->tv_usec = (long) (res % 1000000UL);
 
