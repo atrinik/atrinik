@@ -167,4 +167,8 @@
 #cmakedefine HAVE_GETLINE
 #endif
 
+#ifndef HAVE_USLEEP
+#cmakedefine HAVE_USLEEP
+#endif
+
 #endif

@@ -311,4 +311,27 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 }
 #	endif
 
+#	ifndef HAVE_USLEEP
+int usleep(uint32 usec)
+{
+	struct timeval tv1, tv2;
+
+	if (gettimeofday(&tv1, NULL) != 0)
+	{
+		return -1;
+	}
+
+	do
+	{
+		if (gettimeofday(&tv2, NULL) != 0)
+		{
+			return -1;
+		}
+	}
+	while ((tv2.tv_usec - tv1.tv_usec) < usec);
+
+	return 0;
+}
+#endif
+
 #endif

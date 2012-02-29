@@ -142,6 +142,7 @@ check_function_exists(strdup HAVE_STRDUP)
 check_function_exists(strndup HAVE_STRNDUP)
 check_function_exists(sigaction HAVE_SIGACTION)
 check_function_exists(getline HAVE_GETLINE)
+check_function_exists(usleep HAVE_USLEEP)
 
 # Add our includes.
 include_directories(src/include)
