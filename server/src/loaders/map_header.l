@@ -127,18 +127,44 @@ lex_error = 0;
 							}
 
 							/* If path is not absolute, try to normalize it */
-							if (check_path(value, 1) == -1)
+							if (check_path(value, m->map_flags & MAP_FLAG_UNIQUE ? 0 : 1) == -1)
 							{
-								normalize_path(m->path, value, path);
-
-								if (check_path(path, 1) == -1)
+								if (m->map_flags & MAP_FLAG_UNIQUE)
 								{
-									logger_print(LOG(BUG), "Can not normalize tile path %s %s %s", m->path, value, msgbuf);
-									value = NULL;
+									char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
+
+									path_unclean(m->path, uncleanpath, sizeof(uncleanpath));
+									dirnamepath = path_dirname(uncleanpath);
+									normalize_path(uncleanpath, value, path);
+									free(dirnamepath);
+									path_clean(path, cleanpath, sizeof(cleanpath));
+
+									dirnamepath = path_dirname(m->path);
+									basenamepath = path_basename(dirnamepath);
+									pl_path = player_make_path(basenamepath, cleanpath);
+
+									strncpy(path, pl_path, sizeof(path) - 1);
+									path[sizeof(path) - 1] = '\0';
+
+									free(pl_path);
+									free(basenamepath);
+									free(dirnamepath);
+
+									value = path;
 								}
 								else
 								{
-									value = path;
+									normalize_path(m->path, value, path);
+
+									if (check_path(path, 1) == -1)
+									{
+										logger_print(LOG(BUG), "Can not normalize tile path %s %s %s", m->path, value, msgbuf);
+										value = NULL;
+									}
+									else
+									{
+										value = path;
+									}
 								}
 							}
 
@@ -146,8 +172,9 @@ lex_error = 0;
 							if (value)
 							{
 								mapstruct *neighbor;
-								shstr *path_sh = add_string(value);
+								shstr *path_sh;
 
+								path_sh = add_string(value);
 								m->tile_path[tile - 1] = path_sh;
 
 								/* If the neighboring map tile has been loaded, set up the map pointers */

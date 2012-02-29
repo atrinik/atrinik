@@ -60,7 +60,6 @@ player *last_player;
 
 uint32 global_round_tag;
 
-static char *unclean_path(const char *src);
 static void process_players1();
 static void process_players2();
 static void dequeue_path_requests();
@@ -304,46 +303,6 @@ char *clean_path(const char *file)
 }
 
 /**
- * Takes a path and replaces all $ with /.
- *
- * This basically undoes clean_path().
- *
- * We use strncpy so that we do not change the original string.
- *
- * We are smart enough to start after the last / in case we are getting
- * passed a string that points to a unique map path.
- * @param src The path to unclean.
- * @return Uncleaned up path. */
-static char *unclean_path(const char *src)
-{
-	static char newpath[MAX_BUF], *cp2;
-	const char *cp;
-
-	cp = strrchr(src, '/');
-
-	if (cp)
-	{
-		strncpy(newpath, cp + 1, MAX_BUF - 1);
-	}
-	else
-	{
-		strncpy(newpath, src, MAX_BUF - 1);
-	}
-
-	newpath[MAX_BUF - 1] = '\0';
-
-	for (cp2 = newpath; *cp2 != '\0'; cp2++)
-	{
-		if (*cp2 == '$')
-		{
-			*cp2 = '/';
-		}
-	}
-
-	return newpath;
-}
-
-/**
  * The player is trying to enter a randomly generated map. In this case,
  * generate the random map as needed.
  * @param pl The player object entering the map.
@@ -395,71 +354,35 @@ static void enter_random_map(object *pl, object *exit_ob)
  * @param exit_ob Exit object the player is entering from */
 static void enter_unique_map(object *op, object *exit_ob)
 {
-	char apartment[HUGE_BUF];
+	char cleanpath[HUGE_BUF], *path;
 	mapstruct *newmap;
 
 	/* Absolute path */
 	if (EXIT_PATH(exit_ob)[0] == '/')
 	{
-		snprintf(apartment, sizeof(apartment), "%s/players/%s/%s", settings.datapath, op->name, clean_path(EXIT_PATH(exit_ob)));
-		newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
-
-		if (!newmap)
-		{
-			newmap = load_original_map(create_pathname(EXIT_PATH(exit_ob)), MAP_PLAYER_UNIQUE);
-		}
+		path_clean(EXIT_PATH(exit_ob), cleanpath, sizeof(cleanpath));
 	}
 	/* Relative path */
 	else
 	{
-		char reldir[HUGE_BUF], tmpc[HUGE_BUF], tmp_path[HUGE_BUF], *cp;
+		char fullpath[HUGE_BUF];
 
-		if (MAP_UNIQUE(exit_ob->map))
-		{
-			strncpy(reldir, unclean_path(exit_ob->map->path), sizeof(reldir) - 1);
-
-			/* Need to copy this over, as clean_path only has one static return buffer */
-			strncpy(tmpc, clean_path(reldir), sizeof(tmpc) - 1);
-
-			/* Remove final component, if any */
-			if ((cp = strrchr(tmpc, '$')) != NULL)
-			{
-				*cp = 0;
-			}
-
-			snprintf(apartment, sizeof(apartment), "%s/players/%s/%s_%s", settings.datapath, op->name, tmpc, clean_path(EXIT_PATH(exit_ob)));
-			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
-
-			if (!newmap)
-			{
-				newmap = load_original_map(create_pathname(normalize_path(reldir, EXIT_PATH(exit_ob), tmp_path)), MAP_PLAYER_UNIQUE);
-			}
-		}
-		else
-		{
-			/* The exit is unique, but the map we are coming from is not unique. So
-			 * use the basic logic - don't need to demangle the path name */
-			snprintf(apartment, sizeof(apartment), "%s/players/%s/%s", settings.datapath, op->name, clean_path(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path)));
-			newmap = ready_map_name(apartment, MAP_PLAYER_UNIQUE);
-
-			if (!newmap)
-			{
-				newmap = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path), 0);
-			}
-		}
+		normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath);
+		path_clean(fullpath, cleanpath, sizeof(cleanpath));
 	}
+
+	path = player_make_path(op->name, cleanpath);
+	newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+	free(path);
 
 	if (newmap)
 	{
-		FREE_AND_COPY_HASH(newmap->path, apartment);
-		newmap->map_flags |= MAP_FLAG_UNIQUE;
-
 		enter_map(op, newmap, EXIT_X(exit_ob), EXIT_Y(exit_ob), QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
 	}
 	else
 	{
 		draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
-logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
+		logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
 	}
 }
 
@@ -571,7 +494,7 @@ void enter_exit(object *op, object *exit_ob)
 				 * But we do need to see if it is unique or not  */
 				if (!strncmp(EXIT_PATH(exit_ob), settings.datapath, strlen(settings.datapath)))
 				{
-					newmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED|MAP_PLAYER_UNIQUE);
+					newmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED | MAP_PLAYER_UNIQUE);
 				}
 				else
 				{

@@ -54,7 +54,7 @@ static void free_all_objects(mapstruct *m);
  * @return NULL if loading or tiling fails, loaded neighbor map otherwise. */
 static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
-	mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? 1 : 0));
+	mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
 
 	if (!map || map != orig_map->tile_map[tile_num])
 	{
@@ -1168,7 +1168,7 @@ mapstruct *load_original_map(const char *filename, int flags)
 {
 	FILE *fp;
 	mapstruct *m;
-	char pathname[MAX_BUF], tmp_fname[MAX_BUF];
+	char pathname[HUGE_BUF], tmp_fname[HUGE_BUF];
 
 	/* No sense in doing this all for random maps, it will all fail anyways. */
 	if (!strncmp(filename, "/random/", 8))
@@ -1192,21 +1192,35 @@ mapstruct *load_original_map(const char *filename, int flags)
 		strcpy(pathname, create_pathname(filename));
 	}
 
-	fp = fopen(pathname, "rb");
+	if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname))
+	{
+		char *basenamepath, uncleanpath[HUGE_BUF];
+
+		basenamepath = path_basename(pathname);
+		path_unclean(basenamepath, uncleanpath, sizeof(uncleanpath));
+		free(basenamepath);
+
+		fp = fopen(create_pathname(uncleanpath), "rb");
+	}
+	else
+	{
+		fp = fopen(pathname, "rb");
+	}
 
 	if (!fp)
 	{
-		if (!(flags & MAP_PLAYER_UNIQUE))
-		{
-			logger_print(LOG(BUG), "Can't open map file %s", pathname);
-		}
-
+		logger_print(LOG(BUG), "Can't open map file %s", pathname);
 		return NULL;
 	}
 
 	m = get_linked_map();
 
 	FREE_AND_COPY_HASH(m->path, filename);
+
+	if (flags & MAP_PLAYER_UNIQUE)
+	{
+		m->map_flags |= MAP_FLAG_UNIQUE;
+	}
 
 	if (!load_map_header(m, fp))
 	{
