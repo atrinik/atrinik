@@ -264,7 +264,7 @@ typedef struct Player_Struct
 
 	/**
 	 * Last time the account was used. */
-	char last_time[MAX_BUF];
+	time_t last_time;
 } Client_Player;
 
 #endif

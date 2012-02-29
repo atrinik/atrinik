@@ -211,6 +211,7 @@ static void list_handle_enter(list_struct *list)
 static int popup_draw(popup_struct *popup)
 {
 	SDL_Rect box;
+	char timebuf[MAX_BUF];
 	size_t i;
 
 	box.w = popup->surface->w;
@@ -234,7 +235,8 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = 220;
 	box.h = 80;
-	string_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %sUTC.", cpl.host, cpl.last_host, cpl.last_time);
+	strftime(timebuf, sizeof(timebuf), "%a %b %d %H:%M:%S %Y", localtime(&cpl.last_time));
+	string_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %s.", cpl.host, cpl.last_host, timebuf);
 
 	button_set_parent(&button_tab_characters, popup->x, popup->y);
 	button_set_parent(&button_tab_new, popup->x, popup->y);
@@ -643,8 +645,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
 	packet_to_string(data, len, &pos, cpl.account, sizeof(cpl.account));
 	packet_to_string(data, len, &pos, cpl.host, sizeof(cpl.host));
 	packet_to_string(data, len, &pos, cpl.last_host, sizeof(cpl.last_host));
-	packet_to_string(data, len, &pos, cpl.last_time, sizeof(cpl.last_time));
-	string_replace_char(cpl.last_time, "\n", ' ');
+	cpl.last_time = datetime_utctolocal(packet_to_uint64(data, len, &pos));
 
 	while (pos < len)
 	{

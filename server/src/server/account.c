@@ -177,7 +177,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
 	packet_append_string_terminated(packet, ns->account);
 	packet_append_string_terminated(packet, ns->host);
 	packet_append_string_terminated(packet, account->last_host);
-	packet_append_string_terminated(packet, ctime(&account->last_time));
+	packet_append_uint64(packet, account->last_time);
 
 	for (i = 0; i < account->characters_num; i++)
 	{
