@@ -45,7 +45,7 @@ enum
 static progress_dots progress;
 /**
  * Button buffer. */
-static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_gender, button_character_left, button_character_right, button_login, button_done;
+static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_male, button_character_female, button_character_left, button_character_right, button_login, button_done;
 /**
  * Text input buffers. */
 static text_input_struct text_inputs[TEXT_INPUT_NUM];
@@ -241,7 +241,8 @@ static int popup_draw(popup_struct *popup)
 	button_set_parent(&button_tab_characters, popup->x, popup->y);
 	button_set_parent(&button_tab_new, popup->x, popup->y);
 	button_set_parent(&button_tab_password, popup->x, popup->y);
-	button_set_parent(&button_character_gender, popup->x, popup->y);
+	button_set_parent(&button_character_male, popup->x, popup->y);
+	button_set_parent(&button_character_female, popup->x, popup->y);
 	button_set_parent(&button_character_left, popup->x, popup->y);
 	button_set_parent(&button_character_right, popup->x, popup->y);
 	button_set_parent(&button_login, popup->x, popup->y);
@@ -301,9 +302,13 @@ static int popup_draw(popup_struct *popup)
 		button_character_right.y = 90;
 		button_show(&button_character_right, ">");
 
-		button_character_gender.x = button_character_left.x;
-		button_character_gender.y = button_character_left.y + 30;
-		button_show(&button_character_gender, character_gender == GENDER_MALE ? "Female" : "Male");
+		button_character_male.x = button_character_left.x;
+		button_character_male.y = button_character_left.y + 30;
+		button_show(&button_character_male, "Male");
+
+		button_character_female.x = button_character_male.x + TEXTURE_SURFACE(button_character_female.texture)->w + 5;
+		button_character_female.y = button_character_male.y;
+		button_show(&button_character_female, "Female");
 
 		box.w = text_inputs[TEXT_INPUT_CHARNAME].w;
 		string_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
@@ -410,9 +415,14 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 		{
 			return 1;
 		}
-		else if (button_event(&button_character_gender, event))
+		else if (button_event(&button_character_male, event))
 		{
-			character_gender = character_gender == GENDER_MALE ? GENDER_FEMALE : GENDER_MALE;
+			character_gender = GENDER_MALE;
+			return 1;
+		}
+		else if (button_event(&button_character_female, event))
+		{
+			character_gender = GENDER_FEMALE;
 			return 1;
 		}
 		else if (button_event(&button_character_left, event))
@@ -559,13 +569,14 @@ void characters_open(void)
 	button_create(&button_tab_characters);
 	button_create(&button_tab_new);
 	button_create(&button_tab_password);
-	button_create(&button_character_gender);
+	button_create(&button_character_male);
+	button_create(&button_character_female);
 	button_create(&button_character_left);
 	button_create(&button_character_right);
 	button_create(&button_done);
 	button_create(&button_login);
 	button_tab_characters.pressed_forced = 1;
-	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_gender.surface = button_character_left.surface = button_character_right.surface = button_login.surface = button_done.surface = popup->surface;
+	button_tab_characters.surface = button_tab_new.surface = button_tab_password.surface = button_character_male.surface = button_character_female.surface = button_character_left.surface = button_character_right.surface = button_login.surface = button_done.surface = popup->surface;
 	button_tab_characters.texture = button_tab_new.texture = button_tab_password.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_tab");
 	button_tab_characters.texture_over = button_tab_new.texture_over = button_tab_password.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_over");
 	button_tab_characters.texture_pressed = button_tab_new.texture_pressed = button_tab_password.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_tab_down");
