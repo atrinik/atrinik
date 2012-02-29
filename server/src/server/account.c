@@ -253,11 +253,11 @@ void account_login(socket_struct *ns, char *name, char *password)
 		free(path);
 
 		ns->password_fails++;
-		logger_print(LOG(SYSTEM), "%s@%s: Failed to provide correct password.", ns->account, ns->host);
+		logger_print(LOG(SYSTEM), "%s: Failed to provide correct password for account %s.", ns->host, ns->account);
 
 		if (ns->password_fails >= MAX_PASSWORD_FAILURES)
 		{
-			logger_print(LOG(SYSTEM), "%s@%s: Failed to provide a correct password too many times!", ns->account, ns->host);
+			logger_print(LOG(SYSTEM), "%s: Failed to provide a correct password for account %s too many times!", ns->host, ns->account);
 			draw_info_send(0, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
 			ns->state = ST_ZOMBIE;
 		}
