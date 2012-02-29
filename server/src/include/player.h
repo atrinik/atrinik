@@ -168,18 +168,6 @@ typedef struct player_path
 	uint8 fails;
 } player_path;
 
-/** Minimum length a player name must have. */
-#define PLAYER_NAME_MIN 2
-
-/** Maximum length a player name can have. */
-#define PLAYER_NAME_MAX 12
-
-/** Minimum length a player password must have. */
-#define PLAYER_PASSWORD_MIN 2
-
-/** Maximum length a player password can have. */
-#define PLAYER_PASSWORD_MAX 30
-
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
 #define PLAYER_WEIGHT_LIMIT(_pl) (120.0 + 1.5 * SKILL_LEVEL((_pl), SK_CONSTITUTION))
