@@ -90,47 +90,6 @@ void version(object *op)
 }
 
 /**
- * Encrypt a string. Used for password storage on disk.
- * @param str The string to crypt.
- * @param salt Salt, if NULL, random will be chosen.
- * @return The crypted string. */
-char *crypt_string(const char *str, const char *salt)
-{
-#ifdef HAVE_CRYPT
-	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
-	char s[2];
-
-	if (!salt)
-	{
-		size_t stringlen = strlen(c);
-
-		s[0] = c[rndm(1, stringlen) - 1];
-		s[1] = c[rndm(1, stringlen) - 1];
-	}
-	else
-	{
-		s[0] = salt[0];
-		s[1] = salt[1];
-	}
-
-	return crypt(str, s);
-#else
-	return str;
-#endif
-}
-
-/**
- * Check if typed password and crypted password in the player file are
- * the same.
- * @param typed The typed password.
- * @param crypted Crypted password from file.
- * @return 1 if the passwords match, 0 otherwise. */
-int check_password(char *typed, char *crypted)
-{
-	return !strcmp(crypt_string(typed, crypted), crypted);
-}
-
-/**
  * This is a basic little function to put the player back to his
  * savebed. We do some error checking - it's possible that the
  * savebed map may no longer exist, so we make sure the player
