@@ -2361,7 +2361,6 @@ void player_save(object *op)
 		return;
 	}
 
-	fprintf(fp, "password %s\n", pl->password);
 	fprintf(fp, "no_shout %d\n", pl->no_shout);
 	fprintf(fp, "tcl %d\n", pl->tcl);
 	fprintf(fp, "tgm %d\n", pl->tgm);
