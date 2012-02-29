@@ -45,9 +45,9 @@ void command_hiscore(object *op, const char *command, char *params)
 		}
 		else
 		{
-			if (strlen(params) < PLAYER_NAME_MIN)
+			if (strlen(params) < settings.limits[ALLOWED_CHARS_CHARNAME][0])
 			{
-				draw_info_format(COLOR_WHITE, op, "Your search term must be at least %d characters long.", PLAYER_NAME_MIN);
+				draw_info_format(COLOR_WHITE, op, "Your search term must be at least %"FMT64U" characters long.", (uint64) settings.limits[ALLOWED_CHARS_CHARNAME][0]);
 				return;
 			}
 		}
