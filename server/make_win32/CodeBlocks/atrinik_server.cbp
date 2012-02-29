@@ -59,7 +59,6 @@
 		<Unit filename="..\..\src\commands\permission\opsay.c" />
 		<Unit filename="..\..\src\commands\permission\resetmap.c" />
 		<Unit filename="..\..\src\commands\permission\server_shout.c" />
-		<Unit filename="..\..\src\commands\permission\setpassword.c" />
 		<Unit filename="..\..\src\commands\permission\settime.c" />
 		<Unit filename="..\..\src\commands\permission\shutdown.c" />
 		<Unit filename="..\..\src\commands\permission\tcl.c" />

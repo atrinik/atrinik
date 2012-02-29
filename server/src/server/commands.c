@@ -179,7 +179,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(server_shout), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(setpassword), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);

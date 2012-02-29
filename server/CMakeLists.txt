@@ -187,7 +187,6 @@ set(SOURCES
 	src/commands/permission/opsay.c
 	src/commands/permission/resetmap.c
 	src/commands/permission/server_shout.c
-	src/commands/permission/setpassword.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c
 	src/commands/permission/tcl.c
