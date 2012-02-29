@@ -327,4 +327,8 @@ extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 #endif
 
+#ifndef HAVE_USLEEP
+extern int usleep(uint32 usec);
+#endif
+
 #endif

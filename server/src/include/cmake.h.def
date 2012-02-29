@@ -171,6 +171,10 @@
 #cmakedefine HAVE_GETLINE
 #endif
 
+#ifndef HAVE_USLEEP
+#cmakedefine HAVE_USLEEP
+#endif
+
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
 #endif
