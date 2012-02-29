@@ -502,6 +502,7 @@ extern void console_command_handle(void);
 extern void toolkit_datetime_init(void);
 extern void toolkit_datetime_deinit(void);
 extern time_t datetime_getutc(void);
+extern time_t datetime_utctolocal(time_t t);
 /* src/toolkit/logger.c */
 extern void toolkit_logger_init(void);
 extern void toolkit_logger_deinit(void);

@@ -61,3 +61,12 @@ time_t datetime_getutc(void)
 
 	return mktime(tm);
 }
+
+/**
+ * Converts UTC time to local time.
+ * @param t UTC time.
+ * @return Converted local time. */
+time_t datetime_utctolocal(time_t t)
+{
+	return t - (datetime_getutc() - time(NULL));
+}
