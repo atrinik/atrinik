@@ -63,7 +63,7 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
 	{socket_command_quest_list, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_move_path, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_item_ready, SOCKET_CMD_PLAYER_ONLY},
-	{socket_command_password_change, SOCKET_CMD_PLAYER_ONLY},
+	{NULL, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_move, SOCKET_CMD_PLAYER_ONLY},
 	{socket_command_target, SOCKET_CMD_PLAYER_ONLY}
 };

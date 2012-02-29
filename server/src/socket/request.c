@@ -1521,46 +1521,6 @@ void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t
 	ns->keepalive = 0;
 }
 
-void socket_command_password_change(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-	char pswd_current[MAX_BUF], pswd_new[MAX_BUF];
-	size_t pswd_len;
-
-	/* Get the current and new password. */
-	packet_to_string(data, len, &pos, pswd_current, sizeof(pswd_current));
-	packet_to_string(data, len, &pos, pswd_new, sizeof(pswd_new));
-
-	/* Make sure there are no untypeable characters... */
-	string_replace_unprintable_chars(pswd_current);
-	string_replace_unprintable_chars(pswd_new);
-
-	/* Make sure there is current and new password. */
-	if (*pswd_current == '\0' || *pswd_new == '\0')
-	{
-		return;
-	}
-
-	pswd_len = strlen(pswd_new);
-
-	/* Make sure the new password has a valid length. */
-	if (pswd_len < PLAYER_PASSWORD_MIN || pswd_len > PLAYER_PASSWORD_MAX)
-	{
-		draw_info_format(COLOR_RED, pl->ob, "That password has an invalid length (must be %d-%d).", PLAYER_PASSWORD_MIN, PLAYER_PASSWORD_MAX);
-		return;
-	}
-
-	/* Ensure the current password matches, but silently ignore if it
-	 * doesn't as the client should handle this. */
-	if (!strcmp(crypt_string(pswd_current, NULL), pl->password))
-	{
-		return;
-	}
-
-	/* Update the player's password. */
-	strcpy(pl->password, crypt_string(pswd_new, NULL));
-	draw_info(COLOR_GREEN, pl->ob, "Your password has been changed successfully.");
-}
-
 void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	uint8 dir, run_on;
