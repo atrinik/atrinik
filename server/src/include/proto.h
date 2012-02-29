@@ -833,6 +833,8 @@ extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
+extern char *path_clean(const char *path, char *buf, size_t bufsize);
+extern char *path_unclean(const char *path, char *buf, size_t bufsize);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);

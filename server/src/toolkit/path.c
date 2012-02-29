@@ -272,3 +272,66 @@ size_t path_size(const char *path)
 
 	return statbuf.st_size;
 }
+
+char *path_clean(const char *path, char *buf, size_t bufsize)
+{
+	size_t i;
+
+	i = 0;
+
+	while (path && *path != '\0' && i < bufsize - 1)
+	{
+		if (*path == '/')
+		{
+			buf[i] = '$';
+		}
+		else
+		{
+			buf[i] = *path;
+		}
+
+		path++;
+		i++;
+	}
+
+	buf[i] = '\0';
+
+	return buf;
+}
+
+char *path_unclean(const char *path, char *buf, size_t bufsize)
+{
+	const char *cp;
+	size_t i;
+
+	i = 0;
+	cp = strrchr(path, '/');
+
+	if (cp)
+	{
+		cp += 1;
+	}
+	else
+	{
+		cp = path;
+	}
+
+	while (cp && *cp != '\0' && i < bufsize - 1)
+	{
+		if (*cp == '$')
+		{
+			buf[i] = '/';
+		}
+		else
+		{
+			buf[i] = *cp;
+		}
+
+		cp++;
+		i++;
+	}
+
+	buf[i] = '\0';
+
+	return buf;
+}
