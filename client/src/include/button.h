@@ -73,7 +73,7 @@ typedef struct button_struct
 
 	/**
 	 * Whether to center the text vertically and horizontally. */
-    uint8 center;
+	uint8 center;
 
 	/** Color of the text. */
 	const char *color;

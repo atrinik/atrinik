@@ -234,7 +234,7 @@ typedef struct Player_Struct
 
 	/**
 	 * Player's gender. */
-    uint8 gender;
+	uint8 gender;
 
 	object *player_doll[PLAYER_DOLL_MAX];
 

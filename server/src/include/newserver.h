@@ -164,8 +164,8 @@ typedef struct socket_struct
 
 	char *account;
 
-    struct packet_struct *packet_recv;
-    struct packet_struct *packet_recv_cmd;
+	struct packet_struct *packet_recv;
+	struct packet_struct *packet_recv_cmd;
 } socket_struct;
 
 /**

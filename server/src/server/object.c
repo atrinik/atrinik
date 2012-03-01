@@ -2028,8 +2028,8 @@ int object_check_move_on(object *op, object *originator)
 {
 	object *tmp;
 	tag_t tag;
-    mapstruct *m;
-    int x, y;
+	mapstruct *m;
+	int x, y;
 
 	if (QUERY_FLAG(op, FLAG_NO_APPLY))
 	{

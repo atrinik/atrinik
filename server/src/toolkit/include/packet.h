@@ -69,7 +69,7 @@ typedef struct packet_struct
 
 	/**
 	 * The packet's command type. */
-    uint8 type;
+	uint8 type;
 } packet_struct;
 
 /**
