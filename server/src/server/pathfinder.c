@@ -399,7 +399,6 @@ int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int
 	}
 
 	/* Select the map we are aiming at */
-	/* TODO: Handle unique maps? */
 	if (*mappath)
 	{
 		/* We assume map name is already normalized */

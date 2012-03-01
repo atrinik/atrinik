@@ -138,7 +138,7 @@ mapstruct *magic_mirror_get_map(object *mirror)
 	}
 
 	/* Try to load the map. */
-	data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED | (string_startswith(mirror->slaying, settings.datapath) ? MAP_PLAYER_UNIQUE : 0));
+	data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED);
 
 	if (!data->map)
 	{

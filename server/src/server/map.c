@@ -1625,6 +1625,11 @@ mapstruct *ready_map_name(const char *name, int flags)
 		return m;
 	}
 
+	if (!(flags & MAP_PLAYER_UNIQUE) && string_startswith(name, settings.datapath))
+	{
+		flags |= MAP_PLAYER_UNIQUE;
+	}
+
 	/* Unique maps always get loaded from their original location, and never
 	 * a temp location.  Likewise, if map_flush is set, or we have never loaded
 	 * this map, load it now.  I removed the reset checking from here -

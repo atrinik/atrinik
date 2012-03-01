@@ -398,16 +398,7 @@ void enter_exit(object *op, object *exit_ob)
 			}
 			else
 			{
-				int flags;
-
-				flags = MAP_NAME_SHARED;
-
-				if (string_startswith(EXIT_PATH(exit_ob), settings.datapath))
-				{
-					flags |= MAP_PLAYER_UNIQUE;
-				}
-
-				m = ready_map_name(EXIT_PATH(exit_ob), flags);
+				m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
 			}
 
 			/* If exit is damned, update player's savebed position. */
@@ -428,16 +419,7 @@ void enter_exit(object *op, object *exit_ob)
 	}
 	else if (op->type == PLAYER)
 	{
-		int flags;
-
-		flags = 0;
-
-		if (string_startswith(CONTR(op)->maplevel, settings.datapath))
-		{
-			flags |= MAP_PLAYER_UNIQUE;
-		}
-
-		m = ready_map_name(CONTR(op)->maplevel, flags);
+		m = ready_map_name(CONTR(op)->maplevel, 0);
 		x = op->x;
 		y = op->y;
 		pos_flag = 1;
