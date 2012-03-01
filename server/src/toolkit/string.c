@@ -633,6 +633,12 @@ int string_contains(const char *str, const char *key)
 	return 0;
 }
 
+/**
+ * Check whether the specified string contains any characters other than
+ * those specified in 'key'.
+ * @param str String to check.
+ * @param key Characters to look for.
+ * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise. */
 int string_contains_other(const char *str, const char *key)
 {
 	while (*str != '\0')
