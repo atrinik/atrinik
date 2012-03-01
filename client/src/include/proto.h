@@ -485,6 +485,10 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
+/* src/toolkit/bzr.c */
+extern void toolkit_bzr_init(void);
+extern void toolkit_bzr_deinit(void);
+extern int bzr_get_revision(void);
 /* src/toolkit/clioptions.c */
 extern void clioptions_option_config(const char *arg);
 extern void toolkit_clioptions_init(void);
@@ -575,6 +579,9 @@ extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
+extern char *path_clean(const char *path, char *buf, size_t bufsize);
+extern char *path_unclean(const char *path, char *buf, size_t bufsize);
+extern char *path_file_contents(const char *path);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
