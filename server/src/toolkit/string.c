@@ -613,6 +613,11 @@ int char_contains(const char c, const char *key)
 	return 0;
 }
 
+/**
+ * Check whether the specified string contains any of the characters in 'key'.
+ * @param str String to check.
+ * @param key Characters to look for.
+ * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise. */
 int string_contains(const char *str, const char *key)
 {
 	while (*str != '\0')
