@@ -74,10 +74,31 @@ void magic_mirror_init(object *mirror)
 	/* Map path was specified, so try to normalize it. */
 	else
 	{
-		char tmp_path[HUGE_BUF];
+		char fullpath[HUGE_BUF];
 
-		normalize_path(mirror->map->path, mirror->slaying, tmp_path);
-		FREE_AND_COPY_HASH(mirror->slaying, tmp_path);
+		if (*mirror->slaying != '/' && MAP_UNIQUE(mirror->map))
+		{
+			char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
+
+			path_unclean(mirror->map->path, uncleanpath, sizeof(uncleanpath));
+			normalize_path(uncleanpath, mirror->slaying, fullpath);
+			path_clean(fullpath, cleanpath, sizeof(cleanpath));
+
+			dirnamepath = path_dirname(mirror->map->path);
+			basenamepath = path_basename(dirnamepath);
+			pl_path = player_make_path(basenamepath, cleanpath);
+
+			FREE_AND_COPY_HASH(mirror->slaying, pl_path);
+
+			free(pl_path);
+			free(basenamepath);
+			free(dirnamepath);
+		}
+		else
+		{
+			normalize_path(mirror->map->path, mirror->slaying, fullpath);
+			FREE_AND_COPY_HASH(mirror->slaying, fullpath);
+		}
 	}
 
 	/* Initialize custom_attrset. */
@@ -117,7 +138,7 @@ mapstruct *magic_mirror_get_map(object *mirror)
 	}
 
 	/* Try to load the map. */
-	data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED);
+	data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED | (string_startswith(mirror->slaying, settings.datapath) ? MAP_PLAYER_UNIQUE : 0));
 
 	if (!data->map)
 	{
