@@ -49,6 +49,9 @@ player *last_player;
 
 uint32 global_round_tag;
 
+static long shutdown_time;
+static uint8 shutdown_active = 0;
+
 static void process_players1();
 static void process_players2();
 static void dequeue_path_requests();
@@ -1021,9 +1024,6 @@ static void do_specials(void)
 	}
 }
 
-static long shutdown_time;
-static uint8 shutdown_active = 0;
-
 void shutdown_timer_start(long secs)
 {
 	shutdown_time = pticks + secs * (1000000 / max_time);
@@ -1056,7 +1056,7 @@ static int shutdown_timer_check(void)
 }
 
 #ifdef HAVE_WORLD_MAKER
-void world_maker();
+extern void world_maker();
 #endif
 
 /**
