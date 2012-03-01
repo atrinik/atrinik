@@ -120,7 +120,9 @@ static object *find_waypoint(object *op, shstr *name)
 static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
 	mapstruct *destmap;
-	int unique = !strncmp(op->map->path, settings.datapath, strlen(settings.datapath));
+	int unique;
+
+	unique = string_startswith(op->map->path, settings.datapath);
 
 	/* If path is not normalized, normalize it */
 	if (!unique && *waypoint->slaying != '/')
@@ -361,9 +363,8 @@ void waypoint_move(object *op, object *waypoint)
 	if (QUERY_FLAG(waypoint, FLAG_DAMNED) && waypoint->msg && (waypoint->stats.hp != waypoint->x || waypoint->stats.sp != waypoint->y))
 	{
 		rv_vector rv;
-		mapstruct *path_destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
 
-		get_rangevector_from_mapcoords(destmap, waypoint->stats.hp, waypoint->stats.sp, path_destmap, waypoint->x, waypoint->y, &rv, RV_DIAGONAL_DISTANCE);
+		get_rangevector_from_mapcoords(destmap, waypoint->stats.hp, waypoint->stats.sp, destmap, waypoint->x, waypoint->y, &rv, RV_DIAGONAL_DISTANCE);
 
 		if (rv.distance > 1 && rv.distance > global_rv.distance)
 		{
