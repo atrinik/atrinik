@@ -272,30 +272,6 @@ void set_map_timeout(mapstruct *map)
 }
 
 /**
- * Takes a path and replaces all / with $.
- *
- * We use strncpy so that we do not change the original string.
- * @param file Path to clean.
- * @return Cleaned up path. */
-char *clean_path(const char *file)
-{
-	static char newpath[MAX_BUF], *cp;
-
-	strncpy(newpath, file, MAX_BUF - 1);
-	newpath[MAX_BUF - 1] = '\0';
-
-	for (cp = newpath; *cp != '\0'; cp++)
-	{
-		if (*cp == '/')
-		{
-			*cp = '$';
-		}
-	}
-
-	return newpath;
-}
-
-/**
  * The player is trying to enter a randomly generated map. In this case,
  * generate the random map as needed.
  * @param pl The player object entering the map.

@@ -315,7 +315,6 @@ extern void version(object *op);
 extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
-extern char *clean_path(const char *file);
 extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
