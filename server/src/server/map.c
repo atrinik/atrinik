@@ -371,60 +371,6 @@ static char *create_items_path(shstr *s)
 }
 
 /**
- * This function checks if a file with the given path exists.
- *
- * It tries out all the compression suffixes listed in the @ref uncomp
- * array.
- * @param name Name of the file to check.
- * @param prepend_dir If set, then we call create_pathname(), which
- * prepends libpath and mappath. Otherwise, we assume the name given is
- * fully complete.
- * @return -1 if it fails, otherwise the mode of the file. */
-int check_path(const char *name, int prepend_dir)
-{
-	char buf[MAX_BUF];
-#ifndef WIN32
-	struct stat statbuf;
-	int mode = 0;
-#endif
-
-	if (prepend_dir)
-	{
-		strcpy(buf, create_pathname(name));
-	}
-	else
-	{
-		strcpy(buf, name);
-	}
-
-#ifdef WIN32
-	return _access(buf, 0);
-#else
-	if (stat(buf, &statbuf) != 0)
-	{
-		return -1;
-	}
-
-	if (!S_ISREG(statbuf.st_mode))
-	{
-		return -1;
-	}
-
-	if (((statbuf.st_mode & S_IRGRP) && getegid() == statbuf.st_gid) || ((statbuf.st_mode & S_IRUSR) && geteuid() == statbuf.st_uid) || (statbuf.st_mode & S_IROTH))
-	{
-		mode |= 4;
-	}
-
-	if ((statbuf.st_mode & S_IWGRP && getegid() == statbuf.st_gid) || (statbuf.st_mode & S_IWUSR && geteuid() == statbuf.st_uid) || (statbuf.st_mode & S_IWOTH))
-	{
-		mode |= 2;
-	}
-
-	return mode;
-#endif
-}
-
-/**
  * Make path absolute and remove ".." and "." entries.
  *
  * path will become a normalized (absolute) version of the path in dst,

@@ -328,7 +328,6 @@ extern int global_darkness_table[7 + 1];
 extern int map_tiled_reverse[8];
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
-extern int check_path(const char *name, int prepend_dir);
 extern char *normalize_path(const char *src, const char *dst, char *path);
 extern int wall(mapstruct *m, int x, int y);
 extern int blocks_view(mapstruct *m, int x, int y);

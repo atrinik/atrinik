@@ -126,10 +126,9 @@ lex_error = 0;
 								FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
 							}
 
-							/* If path is not absolute, try to normalize it */
-							if (check_path(value, m->map_flags & MAP_FLAG_UNIQUE ? 0 : 1) == -1)
+							if (m->map_flags & MAP_FLAG_UNIQUE)
 							{
-								if (m->map_flags & MAP_FLAG_UNIQUE)
+								if (!path_exists(value))
 								{
 									char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
 
@@ -152,19 +151,19 @@ lex_error = 0;
 
 									value = path;
 								}
+							}
+							else if (!path_exists(create_pathname(value)))
+							{
+								normalize_path(m->path, value, path);
+
+								if (!path_exists(create_pathname(path)))
+								{
+									logger_print(LOG(BUG), "Can not normalize tile path %s %s", m->path, value);
+									value = NULL;
+								}
 								else
 								{
-									normalize_path(m->path, value, path);
-
-									if (check_path(path, 1) == -1)
-									{
-										logger_print(LOG(BUG), "Can not normalize tile path %s %s %s", m->path, value, msgbuf);
-										value = NULL;
-									}
-									else
-									{
-										value = path;
-									}
+									value = path;
 								}
 							}
 
