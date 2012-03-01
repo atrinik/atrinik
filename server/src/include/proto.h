@@ -328,7 +328,6 @@ extern int global_darkness_table[7 + 1];
 extern int map_tiled_reverse[8];
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
-extern char *normalize_path(const char *src, const char *dst, char *path);
 extern int wall(mapstruct *m, int x, int y);
 extern int blocks_view(mapstruct *m, int x, int y);
 extern int blocks_magic(mapstruct *m, int x, int y);
@@ -836,8 +835,6 @@ extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
-extern char *path_clean(const char *path, char *buf, size_t bufsize);
-extern char *path_unclean(const char *path, char *buf, size_t bufsize);
 extern char *path_file_contents(const char *path);
 extern char *path_normalize(const char *path);
 /* src/toolkit/porting.c */
