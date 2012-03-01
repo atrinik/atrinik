@@ -685,35 +685,34 @@ static PyCodeObject *compilePython(char *filename)
 	return cache->code;
 }
 
-static int do_script(PythonContext *context, const char *filename, object *event)
+static int do_script(PythonContext *context, const char *filename)
 {
 	PyCodeObject *pycode;
 	PyObject *dict, *ret;
-	char path[HUGE_BUF];
 	PyGILState_STATE gilstate;
 
-	strncpy(path, hooks->create_pathname(filename), sizeof(path) - 1);
-
-	if (event && path[0] != '/')
+	if (context->event && context->who && context->who->map && *filename != '/' && !hooks->string_startswith(filename, hooks->settings->datapath))
 	{
-		char tmp_path[HUGE_BUF];
-		object *outermost = event;
+		char fullpath[HUGE_BUF];
 
-		while (outermost && outermost->env)
+		if (MAP_UNIQUE(context->who->map))
 		{
-			outermost = outermost->env;
+			char uncleanpath[HUGE_BUF];
+
+			hooks->path_unclean(context->who->map->path, uncleanpath, sizeof(uncleanpath));
+			hooks->normalize_path(uncleanpath, filename, fullpath);
+		}
+		else
+		{
+			hooks->normalize_path(context->who->map->path, filename, fullpath);
 		}
 
-		if (outermost && outermost->map)
-		{
-			hooks->normalize_path(outermost->map->path, filename, tmp_path);
-			strncpy(path, hooks->create_pathname(tmp_path), sizeof(path) - 1);
-		}
+		FREE_AND_COPY_HASH(context->event->race, fullpath);
 	}
 
 	gilstate = PyGILState_Ensure();
 
-	pycode = compilePython(path);
+	pycode = compilePython(hooks->create_pathname(context->event ? context->event->race : filename));
 
 	if (pycode)
 	{
@@ -811,7 +810,7 @@ static void command_custom_python(object *op, const char *command, char *params)
 
 	snprintf(path, sizeof(path), "/python/commands/%s.py", command);
 
-	if (!do_script(context, path, NULL))
+	if (!do_script(context, path))
 	{
 		freeContext(context);
 		return;
@@ -1728,7 +1727,7 @@ static int handle_event(va_list args)
 	context->options = va_arg(args, char *);
 	context->returnvalue = 0;
 
-	if (!do_script(context, script, context->who))
+	if (!do_script(context, script))
 	{
 		freeContext(context);
 		return 0;
@@ -1783,7 +1782,7 @@ static int handle_map_event(va_list args)
 	context->text = va_arg(args, char *);
 	context->parms[0] = va_arg(args, int);
 
-	if (!do_script(context, script, context->who))
+	if (!do_script(context, script))
 	{
 		freeContext(context);
 		return 0;
@@ -1873,7 +1872,7 @@ static int handle_global_event(int event_type, va_list args)
 			break;
 	}
 
-	if (!do_script(context, "/python/events/python_event.py", NULL))
+	if (!do_script(context, "/python/events/python_event.py"))
 	{
 		freeContext(context);
 		return 0;
