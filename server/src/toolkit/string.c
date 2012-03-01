@@ -654,6 +654,16 @@ int string_contains_other(const char *str, const char *key)
 	return 0;
 }
 
+/**
+ * Create a string containing characters in the specified character range.
+ *
+ * Example:
+ * @code
+ * string_create_char_range('a', 'd'); --> "abcd"
+ * @endcode
+ * @param start Character index start.
+ * @param end Character index end.
+ * @return The generated string. */
 char *string_create_char_range(char start, char end)
 {
 	char *str, c;
