@@ -224,3 +224,47 @@ size_t stringbuffer_length(StringBuffer *sb)
 {
 	return sb->pos;
 }
+
+/**
+ * Find character 'c' in the specified StringBuffer instance, searching
+ * left-to-right.
+ * @param sb The StringBuffer instance to search in.
+ * @param c Character to look for.
+ * @return Index in the StringBuffer's buffer, -1 if the character was
+ * not found. */
+ssize_t stringbuffer_index(StringBuffer *sb, char c)
+{
+	size_t i;
+
+	for (i = 0; i < sb->pos; i++)
+	{
+		if (sb->buf[i] == c)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+/**
+ * Find character 'c' in the specified StringBuffer instance, searching
+ * right-to-left.
+ * @param sb The StringBuffer instance to search in.
+ * @param c Character to look for.
+ * @return Index in the StringBuffer's buffer, -1 if the character was
+ * not found. */
+ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
+{
+	size_t i;
+
+	for (i = sb->pos; i > 0; i--)
+	{
+		if (sb->buf[i - 1] == c)
+		{
+			return i - 1;
+		}
+	}
+
+	return -1;
+}
