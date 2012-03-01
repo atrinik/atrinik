@@ -272,90 +272,6 @@ void set_map_timeout(mapstruct *map)
 }
 
 /**
- * The player is trying to enter a randomly generated map. In this case,
- * generate the random map as needed.
- * @param pl The player object entering the map.
- * @param exit_ob Exit object the player entered from. */
-static void enter_random_map(object *pl, object *exit_ob)
-{
-	mapstruct *new_map;
-	char newmap_name[HUGE_BUF];
-	static uint64 reference_number = 0;
-	RMParms rp;
-
-	memset(&rp, 0, sizeof(RMParms));
-	rp.Xsize = -1;
-	rp.Ysize = -1;
-
-	if (exit_ob->msg)
-	{
-		set_random_map_variable(&rp, exit_ob->msg);
-	}
-
-	rp.origin_x = exit_ob->x;
-	rp.origin_y = exit_ob->y;
-	strcpy(rp.origin_map, pl->map->path);
-
-	/* Pick a new pathname for the new map. Currently, we just use a
-	 * static variable and increment the counter one each time. */
-	snprintf(newmap_name, sizeof(newmap_name), "/random/%" FMT64U, reference_number++);
-
-	/* Now to generate the actual map. */
-	new_map = generate_random_map(newmap_name, &rp);
-
-	/* Update the exit_ob so it now points directly at the newly created
-	 * random map. */
-	if (new_map)
-	{
-		int x, y;
-
-		x = EXIT_X(exit_ob) = MAP_ENTER_X(new_map);
-		y = EXIT_Y(exit_ob) = MAP_ENTER_Y(new_map);
-		FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), newmap_name);
-		FREE_AND_COPY_HASH(new_map->path, newmap_name);
-		enter_map(pl, new_map, x, y, QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
-	}
-}
-
-/**
- * Code to enter/detect a character entering a unique map.
- * @param op Player object entering the map
- * @param exit_ob Exit object the player is entering from */
-static void enter_unique_map(object *op, object *exit_ob)
-{
-	char cleanpath[HUGE_BUF], *path;
-	mapstruct *newmap;
-
-	/* Absolute path */
-	if (EXIT_PATH(exit_ob)[0] == '/')
-	{
-		path_clean(EXIT_PATH(exit_ob), cleanpath, sizeof(cleanpath));
-	}
-	/* Relative path */
-	else
-	{
-		char fullpath[HUGE_BUF];
-
-		normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath);
-		path_clean(fullpath, cleanpath, sizeof(cleanpath));
-	}
-
-	path = player_make_path(op->name, cleanpath);
-	newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
-	free(path);
-
-	if (newmap)
-	{
-		enter_map(op, newmap, EXIT_X(exit_ob), EXIT_Y(exit_ob), QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
-		logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, NULL), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH (script?)" : "NO_MAP (script?)");
-	}
-}
-
-/**
  * Tries to move object to exit object.
  * @param op Player or monster object using the exit.
  * @param exit_ob Exit object (boat, exit, etc). If NULL, then
@@ -363,231 +279,209 @@ static void enter_unique_map(object *op, object *exit_ob)
  * used when loading the player object. */
 void enter_exit(object *op, object *exit_ob)
 {
-	object *tmp;
+	mapstruct *m;
+	int x, y, pos_flag;
 
-	if (op->head)
-	{
-		op = op->head;
-	}
+	op = HEAD(op);
 
-	/* First, lets figure out what map we go */
+	/* First, lets figure out what map we go to. */
 	if (exit_ob)
 	{
-		/* check to see if we make a randomly generated map */
-		if (EXIT_PATH(exit_ob) && EXIT_PATH(exit_ob)[1] == '!')
+		if (!EXIT_PATH(exit_ob))
 		{
-			if (op->type != PLAYER)
-			{
-				return;
-			}
-
-			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
-			{
-				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
-			}
-
-			enter_random_map(op, exit_ob);
+			return;
 		}
-		else if (exit_ob->last_eat == MAP_PLAYER_MAP)
+
+		x = EXIT_X(exit_ob);
+		y = EXIT_Y(exit_ob);
+		pos_flag = QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS);
+
+		if (strcmp(EXIT_PATH(exit_ob), "/random/") == 0)
 		{
+			char newmap_name[HUGE_BUF];
+			static uint64 reference_number = 0;
+			RMParms rp;
+
 			if (op->type != PLAYER)
 			{
 				return;
 			}
 
-			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
+			memset(&rp, 0, sizeof(RMParms));
+			rp.Xsize = -1;
+			rp.Ysize = -1;
+
+			if (exit_ob->msg)
 			{
-				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
+				set_random_map_variable(&rp, exit_ob->msg);
 			}
 
-			enter_unique_map(op, exit_ob);
+			rp.origin_x = exit_ob->x;
+			rp.origin_y = exit_ob->y;
+			strncpy(rp.origin_map, op->map->path, sizeof(rp.origin_map) - 1);
+			rp.origin_map[sizeof(rp.origin_map) - 1] = '\0';
+
+			/* Pick a new pathname for the new map. Currently, we just use a
+			 * static variable and increment the counter by one each time. */
+			snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
+
+			/* Now to generate the actual map. */
+			m = generate_random_map(newmap_name, &rp);
+
+			/* Update the exit_ob so it now points directly at the newly created
+			 * random map. */
+			if (m)
+			{
+				x = EXIT_X(exit_ob) = MAP_ENTER_X(m);
+				y = EXIT_Y(exit_ob) = MAP_ENTER_Y(m);
+				FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), newmap_name);
+				FREE_AND_COPY_HASH(m->path, newmap_name);
+			}
+		}
+		else if (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(op->map) && EXIT_PATH(exit_ob)[0] != '/'))
+		{
+			char cleanpath[HUGE_BUF], *path;
+
+			if (op->type != PLAYER)
+			{
+				return;
+			}
+
+			/* Absolute path */
+			if (EXIT_PATH(exit_ob)[0] == '/')
+			{
+				path_clean(EXIT_PATH(exit_ob), cleanpath, sizeof(cleanpath));
+			}
+			/* Relative path */
+			else
+			{
+				char fullpath[HUGE_BUF];
+
+				/* If we are on a unique map, we need to demangle the original
+				 * path. */
+				if (MAP_UNIQUE(op->map))
+				{
+					char uncleanpath[HUGE_BUF];
+
+					path_unclean(op->map->path, uncleanpath, sizeof(uncleanpath));
+					normalize_path(uncleanpath, EXIT_PATH(exit_ob), fullpath);
+				}
+				else
+				{
+					normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath);
+				}
+
+				path_clean(fullpath, cleanpath, sizeof(cleanpath));
+			}
+
+			path = player_make_path(op->name, cleanpath);
+			m = ready_map_name(path, MAP_PLAYER_UNIQUE);
+			free(path);
 		}
 		else
 		{
-			int x = EXIT_X(exit_ob), y = EXIT_Y(exit_ob);
-			char tmp_path[HUGE_BUF];
-			/* 'Normal' exits that do not do anything special
-			 * Simple enough we don't need another routine for it. */
-			mapstruct *newmap = NULL;
+			char fullpath[HUGE_BUF];
 
 			if (exit_ob->map)
 			{
-				if (strcmp(EXIT_PATH(exit_ob), "/random/"))
+				m = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath), 0);
+
+				/* Failed to load a random map? */
+				if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0)
 				{
-					if (strncmp(exit_ob->map->path, settings.datapath, strlen(settings.datapath)))
-					{
-						newmap = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path), 0);
-					}
-					else
-					{
-						newmap = ready_map_name(normalize_path("", EXIT_PATH(exit_ob), tmp_path), 0);
-					}
-				}
-
-				/* This is either a new random map to load, or we failed
-				 * to load an old random map. */
-				if (!newmap && !strncmp(EXIT_PATH(exit_ob), "/random/", 8))
-				{
-					if (op->type != PLAYER)
-					{
-						return;
-					}
-
-					/* Maps that go down have a message set. However, maps
-					 * that go up, don't. If the going home has reset, there
-					 * isn't much point generating a random map, because it
-					 * won't match the maps, so just teleport the player
-					 * to their savebed map. */
-					if (exit_ob->msg)
-					{
-						if (exit_ob->sub_type == ST1_EXIT_SOUND && op->map)
-						{
-							play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
-						}
-
-						enter_random_map(op, exit_ob);
-					}
-					else
-					{
-						enter_player_savebed(op);
-					}
-
+					enter_player_savebed(op);
 					return;
 				}
 			}
 			else
 			{
-				/* For word of recall and other force objects
-				 * They contain the full pathname of the map to go back to,
-				 * so we don't need to normalize it.
-				 * But we do need to see if it is unique or not  */
-				if (!strncmp(EXIT_PATH(exit_ob), settings.datapath, strlen(settings.datapath)))
+				int flags;
+
+				flags = MAP_NAME_SHARED;
+
+				if (string_startswith(EXIT_PATH(exit_ob), settings.datapath))
 				{
-					newmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED | MAP_PLAYER_UNIQUE);
+					flags |= MAP_PLAYER_UNIQUE;
 				}
-				else
-				{
-					newmap = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
-				}
+
+				m = ready_map_name(EXIT_PATH(exit_ob), flags);
 			}
 
-			if (!newmap)
+			/* If exit is damned, update player's savebed position. */
+			if (QUERY_FLAG(exit_ob, FLAG_DAMNED) && m && op->type == PLAYER)
 			{
-				if (op->type == PLAYER)
-				{
-					draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, NULL));
-				}
-
-				return;
-			}
-
-			/* -1, -1 marks to use the default ENTER_xx position of the map */
-			if (x == -1 && y == -1)
-			{
-				x = MAP_ENTER_X(newmap);
-				y = MAP_ENTER_Y(newmap);
-			}
-
-			/* If exit is damned, update player's death and WoR home-position
-			 * and delete town portal. */
-			if (QUERY_FLAG(exit_ob, FLAG_DAMNED))
-			{
-				if (op->type != PLAYER)
-				{
-					return;
-				}
-
-				/* Remove an old force with a slaying field == PORTAL_DESTINATION_NAME */
-				for (tmp = op->inv; tmp != NULL; tmp = tmp->below)
-				{
-					if (tmp->type == FORCE && tmp->slaying && tmp->slaying == shstr_cons.portal_destination_name)
-					{
-						break;
-					}
-				}
-
-				if (tmp)
-				{
-					object_remove(tmp, 0);
-					object_destroy(tmp);
-				}
-
-				if (exit_ob->map)
-				{
-					strcpy(CONTR(op)->savebed_map, normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path));
-				}
-				else
-				{
-					strcpy(CONTR(op)->savebed_map, EXIT_PATH(exit_ob));
-				}
-
-				CONTR(op)->bed_x = EXIT_X(exit_ob), CONTR(op)->bed_y = EXIT_Y(exit_ob);
+				strncpy(CONTR(op)->savebed_map, m->path, sizeof(CONTR(op)->savebed_map) - 1);
+				CONTR(op)->savebed_map[sizeof(CONTR(op)->savebed_map) - 1] = '\0';
+				CONTR(op)->bed_x = x;
+				CONTR(op)->bed_y = y;
 				player_save(op);
 			}
-
-			if (exit_ob->sub_type == ST1_EXIT_SOUND && exit_ob->map)
-			{
-				play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
-			}
-
-			enter_map(op, newmap, x, y, QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS));
 		}
 
-		if (exit_ob->stats.dam && op->type == PLAYER)
+		if (!m)
 		{
-			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
+			logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, op), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH" : "NO_MAP");
 		}
 	}
 	else if (op->type == PLAYER)
 	{
-		int flags = 0;
-		mapstruct *newmap;
+		int flags;
 
-		/* Hypothetically, I guess its possible that a standard map matches
-		 * the localdir, but that seems pretty unlikely - unlikely enough that
-		 * I'm not going to attempt to try to deal with that possibility.
-		 * We use the fact that when a player saves on a unique map, it prepends
-		 * the localdir to that name.  So its an easy way to see of the map is
-		 * unique or not. */
-		if (!strncmp(CONTR(op)->maplevel, settings.datapath, strlen(settings.datapath)))
+		flags = 0;
+
+		if (string_startswith(CONTR(op)->maplevel, settings.datapath))
 		{
-			flags = MAP_PLAYER_UNIQUE;
+			flags |= MAP_PLAYER_UNIQUE;
 		}
 
-		newmap = ready_map_name(CONTR(op)->maplevel, flags);
+		m = ready_map_name(CONTR(op)->maplevel, flags);
+		x = op->x;
+		y = op->y;
+		pos_flag = 1;
 
-		if (!newmap)
+		if (!m)
 		{
-			if (strncmp(CONTR(op)->maplevel, "/random/", 8))
-			{
-				logger_print(LOG(BUG), "Pathname to map does not exist! player: %s (%s)", op->name, CONTR(op)->maplevel);
-				newmap = ready_map_name(EMERGENCY_MAPPATH, 0);
-				op->x = EMERGENCY_X;
-				op->y = EMERGENCY_Y;
-
-				/* If we can't load the emergency map, something is probably
-				 * really screwed up, so bail out now. */
-				if (!newmap)
-				{
-					logger_print(LOG(ERROR), "could not load emergency map? Fatal error! (player: %s)", op->name);
-					exit(1);
-				}
-			}
-			else
+			if (strncmp(CONTR(op)->maplevel, "/random/", 8) == 0)
 			{
 				enter_player_savebed(op);
 				return;
 			}
+			else
+			{
+				m = ready_map_name(EMERGENCY_MAPPATH, 0);
+				op->x = EMERGENCY_X;
+				op->y = EMERGENCY_Y;
+			}
 		}
+	}
 
-		/* -1,-1 marks to use the default ENTER_xx position of the map */
-		if ((op->x == -1 && op->y == -1) || MAP_FIXEDLOGIN(newmap))
+	if (!m)
+	{
+		if (exit_ob)
 		{
-			op->x = MAP_ENTER_X(newmap);
-			op->y = MAP_ENTER_Y(newmap);
+			draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, op));
 		}
 
-		enter_map(op, newmap, op->x, op->y, 1);
+		return;
+	}
+
+	/* -1,-1 marks to use the default ENTER_xx position of the map */
+	if ((x == -1 && y == -1) || MAP_FIXEDLOGIN(m))
+	{
+		x = MAP_ENTER_X(m);
+		y = MAP_ENTER_Y(m);
+	}
+
+	if (exit_ob && exit_ob->sub_type == ST1_EXIT_SOUND)
+	{
+		play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
+	}
+
+	enter_map(op, m, x, y, pos_flag);
+
+	if (exit_ob && exit_ob->stats.dam && op->type == PLAYER)
+	{
+		hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 	}
 }
 
