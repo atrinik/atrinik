@@ -72,11 +72,11 @@ void magic_mirror_init(object *mirror)
 		FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
 	}
 	/* Map path was specified, so try to normalize it. */
-	else
+	else if (*mirror->slaying != '/' && !string_startswith(mirror->slaying, settings.datapath))
 	{
 		char fullpath[HUGE_BUF];
 
-		if (*mirror->slaying != '/' && MAP_UNIQUE(mirror->map))
+		if (MAP_UNIQUE(mirror->map))
 		{
 			char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
 
