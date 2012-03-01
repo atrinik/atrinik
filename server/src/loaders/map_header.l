@@ -133,10 +133,9 @@ lex_error = 0;
 									char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
 
 									path_unclean(m->path, uncleanpath, sizeof(uncleanpath));
-									dirnamepath = path_dirname(uncleanpath);
 									normalize_path(uncleanpath, value, path);
-									free(dirnamepath);
 									path_clean(path, cleanpath, sizeof(cleanpath));
+									normalize_path(m->path, cleanpath, path);
 
 									dirnamepath = path_dirname(m->path);
 									basenamepath = path_basename(dirnamepath);
