@@ -151,6 +151,81 @@ char *path_basename(const char *path)
 }
 
 /**
+ * Normalize a path, eg, foo//bar, foo/foo2/../bar, foo/./bar all become
+ * foo/bar.
+ *
+ * If the path begins with either a forward slash or a dot *and* a forward
+ * slash, they will be preserved.
+ * @param path Path to normalize.
+ * @return The normalized path; never NULL. Must be freed. */
+char *path_normalize(const char *path)
+{
+	StringBuffer *sb;
+	size_t pos, startsbpos;
+	char component[MAX_BUF];
+	ssize_t last_slash;
+
+	if (string_isempty(path))
+	{
+		return strdup(".");
+	}
+
+	sb = stringbuffer_new();
+	pos = 0;
+
+	if (string_startswith(path, "/"))
+	{
+		stringbuffer_append_string(sb, "/");
+	}
+	else if (string_startswith(path, "./"))
+	{
+		stringbuffer_append_string(sb, "./");
+	}
+
+	startsbpos = sb->pos;
+
+	while (string_get_word(path, &pos, '/', component, sizeof(component)))
+	{
+		if (strcmp(component, ".") == 0)
+		{
+			continue;
+		}
+
+		if (strcmp(component, "..") == 0)
+		{
+			if (sb->pos > startsbpos)
+			{
+				last_slash = stringbuffer_rindex(sb, '/');
+
+				if (last_slash == -1)
+				{
+					logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
+					continue;
+				}
+
+				sb->pos = last_slash;
+			}
+		}
+		else
+		{
+			if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/')
+			{
+				stringbuffer_append_string(sb, "/");
+			}
+
+			stringbuffer_append_string(sb, component);
+		}
+	}
+
+	if (sb->pos == 0)
+	{
+		stringbuffer_append_string(sb, ".");
+	}
+
+	return stringbuffer_finish(sb);
+}
+
+/**
  * Checks whether any directories in the given path don't exist, and
  * creates them if necessary.
  * @param path The path to check. */
@@ -301,81 +376,6 @@ char *path_file_contents(const char *path)
 	}
 
 	fclose(fp);
-
-	return stringbuffer_finish(sb);
-}
-
-/**
- * Normalize a path, eg, foo//bar, foo/foo2/../bar, foo/./bar all become
- * foo/bar.
- *
- * If the path begins with either a forward slash or a dot *and* a forward
- * slash, they will be preserved.
- * @param path Path to normalize.
- * @return The normalized path; never NULL. Must be freed. */
-char *path_normalize(const char *path)
-{
-	StringBuffer *sb;
-	size_t pos, startsbpos;
-	char component[MAX_BUF];
-	ssize_t last_slash;
-
-	if (string_isempty(path))
-	{
-		return strdup(".");
-	}
-
-	sb = stringbuffer_new();
-	pos = 0;
-
-	if (string_startswith(path, "/"))
-	{
-		stringbuffer_append_string(sb, "/");
-	}
-	else if (string_startswith(path, "./"))
-	{
-		stringbuffer_append_string(sb, "./");
-	}
-
-	startsbpos = sb->pos;
-
-	while (string_get_word(path, &pos, '/', component, sizeof(component)))
-	{
-		if (strcmp(component, ".") == 0)
-		{
-			continue;
-		}
-
-		if (strcmp(component, "..") == 0)
-		{
-			if (sb->pos > startsbpos)
-			{
-				last_slash = stringbuffer_rindex(sb, '/');
-
-				if (last_slash == -1)
-				{
-					logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
-					continue;
-				}
-
-				sb->pos = last_slash;
-			}
-		}
-		else
-		{
-			if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/')
-			{
-				stringbuffer_append_string(sb, "/");
-			}
-
-			stringbuffer_append_string(sb, component);
-		}
-	}
-
-	if (sb->pos == 0)
-	{
-		stringbuffer_append_string(sb, ".");
-	}
 
 	return stringbuffer_finish(sb);
 }
