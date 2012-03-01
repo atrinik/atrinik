@@ -534,6 +534,11 @@ int string_startswithchar(const char *str, const char *cmp)
 	return 0;
 }
 
+/**
+ * Check whether the specified string ends with another string.
+ * @param str String to check.
+ * @param cmp What to check for.
+ * @return 1 if 'str' ends with 'cmp', 0 otherwise. */
 int string_endswith(const char *str, const char *cmp)
 {
 	ssize_t len;
