@@ -492,6 +492,35 @@ static PyObject *Atrinik_Map_GetDarkness(Atrinik_Map *map, PyObject *args)
 	return Py_BuildValue("i", hooks->map_get_darkness(m, x, y, NULL));
 }
 
+/**
+ * <h1>map.GetPath(string path, bool [unique = False], string [name = None])</h1>
+ * Construct a path based on the path of 'map', with 'path' appended.
+ * @param unique If True, construct a unique path.
+ * @param name If 'map' is not unique and 'unique' is True, this is required
+ * to determine which player the unique map belongs to.
+ * @return The created path. */
+static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args)
+{
+	const char *path, *name;
+	int unique;
+	char *cp;
+	PyObject *ret;
+
+	unique = 0;
+	name = NULL;
+
+	if (!PyArg_ParseTuple(args, "s|is", &path, &unique, &name))
+	{
+		return NULL;
+	}
+
+	cp = hooks->map_get_path(map->map, path, unique, name);
+	ret = Py_BuildValue("s", cp);
+	free(cp);
+
+	return ret;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
@@ -511,6 +540,7 @@ static PyMethodDef MapMethods[] =
 	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
 	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
 	{"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
+	{"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
