@@ -502,6 +502,26 @@ int string_startswith(const char *str, const char *cmp)
 	return 0;
 }
 
+int string_startswithchar(const char *str, const char *cmp)
+{
+	if (!str || !cmp)
+	{
+		return 0;
+	}
+
+	while (*cmp != '\0')
+	{
+		if (*str == *cmp)
+		{
+			return 1;
+		}
+
+		cmp++;
+	}
+
+	return 0;
+}
+
 int string_endswith(const char *str, const char *cmp)
 {
 	ssize_t len;

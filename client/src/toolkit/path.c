@@ -35,6 +35,8 @@ void toolkit_path_init(void)
 {
 	TOOLKIT_INIT_FUNC_START(path)
 	{
+		toolkit_import(logger);
+		toolkit_import(string);
 		toolkit_import(stringbuffer);
 	}
 	TOOLKIT_INIT_FUNC_END()
@@ -273,69 +275,6 @@ size_t path_size(const char *path)
 	return statbuf.st_size;
 }
 
-char *path_clean(const char *path, char *buf, size_t bufsize)
-{
-	size_t i;
-
-	i = 0;
-
-	while (path && *path != '\0' && i < bufsize - 1)
-	{
-		if (*path == '/')
-		{
-			buf[i] = '$';
-		}
-		else
-		{
-			buf[i] = *path;
-		}
-
-		path++;
-		i++;
-	}
-
-	buf[i] = '\0';
-
-	return buf;
-}
-
-char *path_unclean(const char *path, char *buf, size_t bufsize)
-{
-	const char *cp;
-	size_t i;
-
-	i = 0;
-	cp = strrchr(path, '/');
-
-	if (cp)
-	{
-		cp += 1;
-	}
-	else
-	{
-		cp = path;
-	}
-
-	while (cp && *cp != '\0' && i < bufsize - 1)
-	{
-		if (*cp == '$')
-		{
-			buf[i] = '/';
-		}
-		else
-		{
-			buf[i] = *cp;
-		}
-
-		cp++;
-		i++;
-	}
-
-	buf[i] = '\0';
-
-	return buf;
-}
-
 char *path_file_contents(const char *path)
 {
 	FILE *fp;
@@ -357,6 +296,73 @@ char *path_file_contents(const char *path)
 	}
 
 	fclose(fp);
+
+	return stringbuffer_finish(sb);
+}
+
+char *path_normalize(const char *path)
+{
+	StringBuffer *sb;
+	size_t pos, startsbpos;
+	char component[MAX_BUF];
+	ssize_t last_slash;
+
+	if (string_isempty(path))
+	{
+		return strdup(".");
+	}
+
+	sb = stringbuffer_new();
+	pos = 0;
+
+	if (string_startswith(path, "/"))
+	{
+		stringbuffer_append_string(sb, "/");
+	}
+	else if (string_startswith(path, "./"))
+	{
+		stringbuffer_append_string(sb, "./");
+	}
+
+	startsbpos = sb->pos;
+
+	while (string_get_word(path, &pos, '/', component, sizeof(component)))
+	{
+		if (strcmp(component, ".") == 0)
+		{
+			continue;
+		}
+
+		if (strcmp(component, "..") == 0)
+		{
+			if (sb->pos > startsbpos)
+			{
+				last_slash = stringbuffer_rindex(sb, '/');
+
+				if (last_slash == -1)
+				{
+					logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
+					continue;
+				}
+
+				sb->pos = last_slash;
+			}
+		}
+		else
+		{
+			if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/')
+			{
+				stringbuffer_append_string(sb, "/");
+			}
+
+			stringbuffer_append_string(sb, component);
+		}
+	}
+
+	if (sb->pos == 0)
+	{
+		stringbuffer_append_string(sb, ".");
+	}
 
 	return stringbuffer_finish(sb);
 }

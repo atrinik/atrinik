@@ -579,9 +579,8 @@ extern int path_copy_file(const char *src, FILE *dst, const char *mode);
 extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
-extern char *path_clean(const char *path, char *buf, size_t bufsize);
-extern char *path_unclean(const char *path, char *buf, size_t bufsize);
 extern char *path_file_contents(const char *path);
+extern char *path_normalize(const char *path);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
@@ -629,6 +628,7 @@ extern int string_isdigit(const char *str);
 extern void string_capitalize(char *str);
 extern void string_title(char *str);
 extern int string_startswith(const char *str, const char *cmp);
+extern int string_startswithchar(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
 extern int string_isempty(const char *str);
@@ -648,6 +648,8 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern size_t stringbuffer_length(StringBuffer *sb);
+extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
+extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
