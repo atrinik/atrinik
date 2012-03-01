@@ -2582,3 +2582,77 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
 	return darkness;
 }
+
+char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name)
+{
+	char *ret;
+
+	if (MAP_UNIQUE(m))
+	{
+		char *file, *filedir, *joined;
+
+		/* Demangle the original map path, and get the original
+		 * directory the map was in. */
+		file = path_basename(m->path);
+		string_replace_char(file, "$", '/');
+		filedir = path_dirname(file);
+
+		if (unique)
+		{
+			char *newpath, *dir;
+
+			/* Construct the new path. */
+			joined = path_join(filedir, path);
+			newpath = path_normalize(joined);
+			string_replace_char(newpath, "/", '$');
+
+			/* We need the data directory the map is in. */
+			dir = path_dirname(m->path);
+
+			/* Construct the path pointing inside the data directory. */
+			ret = path_join(dir, newpath);
+
+			free(newpath);
+			free(dir);
+		}
+		else
+		{
+			joined = path_join(filedir, path);
+			ret = path_normalize(joined);
+		}
+
+		free(joined);
+		free(filedir);
+		free(file);
+	}
+	else
+	{
+		char *filedir, *joined;
+
+		filedir = path_dirname(m->path);
+
+		if (unique && name)
+		{
+			char *newpath;
+
+			/* Construct the new path. */
+			joined = path_join(filedir, path);
+			newpath = path_normalize(joined);
+			string_replace_char(newpath, "/", '$');
+
+			ret = player_make_path(name, newpath);
+
+			free(newpath);
+		}
+		else
+		{
+			joined = path_join(filedir, path);
+			ret = path_normalize(joined);
+		}
+
+		free(joined);
+		free(filedir);
+	}
+
+	return ret;
+}
