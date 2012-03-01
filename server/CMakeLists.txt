@@ -2,6 +2,7 @@
 
 project(atrinik-server C)
 cmake_minimum_required(VERSION 2.6)
+set(EXECUTABLE atrinik-server)
 
 # Include build configuration.
 include(build.config)
@@ -9,21 +10,6 @@ include(build.config)
 if (EXISTS build.user)
 	include(build.user)
 endif (EXISTS build.user)
-
-# Compiling on GNU/Linux.
-set(LINUX true)
-# Plugin suffix.
-set(PLUGIN_SUFFIX ".so")
-
-# cURL is required by the metaserver.
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
-set(HAVE_CURL true)
-
-# zlib is required by the server.
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
-set(HAVE_ZLIB true)
 
 # Need Flex...
 find_package(FLEX REQUIRED)
@@ -34,22 +20,6 @@ find_library(DL_LIBRARY dl)
 if (NOT DL_LIBRARY)
 	message(FATAL_ERROR "Could not find dl library.")
 endif (NOT DL_LIBRARY)
-
-# Try to find some GNU/Linux libraries.
-if (UNIX)
-	find_library(MATH_LIBRARY m)
-	find_library(CRYPT_LIBRARY crypt)
-
-	if (NOT MATH_LIBRARY)
-		message(FATAL_ERROR "Could not find math library.")
-	endif (NOT MATH_LIBRARY)
-
-	if (CRYPT_LIBRARY)
-		set(HAVE_CRYPT true)
-	elseif (CRYPT_LIBRARY)
-		message(STATUS "Could not find crypt library, encryption of player passwords will be disabled.")
-	endif (CRYPT_LIBRARY)
-endif (UNIX)
 
 # Check is used for unit tests, but is optional.
 find_library(CHECK_LIBRARY check)
@@ -68,51 +38,6 @@ if (GD_LIBRARY)
 elseif (GD_LIBRARY)
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif (GD_LIBRARY)
-
-find_library(READLINE_LIBRARY readline)
-
-if (READLINE_LIBRARY)
-	set(HAVE_READLINE true)
-elseif (READLINE_LIBRARY)
-	message(STATUS "Could not find readline library, simple interactive console will be used.")
-endif (READLINE_LIBRARY)
-
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-
-# Check for various include files.
-check_include_files(fcntl.h HAVE_FCNTL_H)
-check_include_files(unistd.h HAVE_UNISTD_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(time.h HAVE_TIME_H)
-check_include_files(stddef.h HAVE_STDDEF_H)
-check_include_files(dirent.h HAVE_DIRENT_H)
-check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
-check_include_files(sys/dir.h HAVE_SYS_DIR_H)
-check_include_files(ndir.h HAVE_NDIR_H)
-check_include_files(crypt.h HAVE_CRYPT_H)
-check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-
-# Check for various functions.
-check_function_exists(strerror HAVE_STRERROR)
-check_function_exists(strcasecmp HAVE_STRCASECMP)
-check_function_exists(strncasecmp HAVE_STRNCASECMP)
-check_function_exists(stricmp HAVE_STRICMP)
-check_function_exists(strnicmp HAVE_STRNICMP)
-check_function_exists(srandom HAVE_SRANDOM)
-check_function_exists(srand48 HAVE_SRAND48)
-check_function_exists(srand HAVE_SRAND)
-check_function_exists(getdtablesize HAVE_GETDTABLESIZE)
-check_function_exists(sysconf HAVE_SYSCONF)
-check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
-check_function_exists(tempnam HAVE_TEMPNAM)
-check_function_exists(strcasestr HAVE_STRCASESTR)
-check_function_exists(strdup HAVE_STRDUP)
-check_function_exists(strndup HAVE_STRNDUP)
-check_function_exists(strtok_r HAVE_STRTOK_R)
-check_function_exists(sigaction HAVE_SIGACTION)
-check_function_exists(getline HAVE_GETLINE)
-check_function_exists(usleep HAVE_USLEEP)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
@@ -140,12 +65,6 @@ if (ENABLE_DEBUG)
 	add_definitions(-g)
 endif (ENABLE_DEBUG)
 
-# Check sizes of 'long' and 'long long' to determine architecture (32-bit
-# or 64-bit)
-include(CheckTypeSize)
-check_type_size("long" SIZEOF_LONG)
-check_type_size("long long" SIZEOF_LONG_LONG)
-
 # Configure the .h file with the configuration options (size of long,
 # package version, etc).
 configure_file(src/include/cmake.h.def src/include/cmake.h)
@@ -153,7 +72,6 @@ configure_file(src/include/version.h.def src/include/version.h)
 
 # Add our includes.
 include_directories(src/include)
-include_directories(src/toolkit/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
 
@@ -174,6 +92,8 @@ foreach (name ${LEXERS})
 	get_property(out VARIABLE PROPERTY FLEX_${name}_OUTPUTS)
 	set(LEXERS_OUT ${LEXERS_OUT} ${out})
 endforeach (name)
+
+include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
 set(SOURCES
@@ -292,23 +212,7 @@ set(SOURCES
 	src/socket/request.c
 	src/socket/sounds.c
 	src/socket/updates.c
-	src/toolkit/binreloc.c
-	src/toolkit/clioptions.c
-	src/toolkit/console.c
-	src/toolkit/datetime.c
-	src/toolkit/logger.c
-	src/toolkit/math.c
-	src/toolkit/memory.c
-	src/toolkit/mempool.c
-	src/toolkit/packet.c
-	src/toolkit/path.c
-	src/toolkit/porting.c
-	src/toolkit/sha1.c
-	src/toolkit/shstr.c
-	src/toolkit/signals.c
-	src/toolkit/string.c
-	src/toolkit/stringbuffer.c
-	src/toolkit/toolkit.c
+	${SOURCES_TOOLKIT}
 	src/types/common/apply.c
 	src/types/common/describe.c
 	src/types/common/move_on.c
@@ -446,37 +350,21 @@ elseif (HAVE_WORLD_MAKER)
 endif (HAVE_WORLD_MAKER)
 
 # Compile the sources into an executable.
-add_executable(atrinik-server ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
+add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
+include(src/toolkit/cmake-post.txt)
 
 # Link libraries.
-target_link_libraries(atrinik-server ${CURL_LIBRARY})
-target_link_libraries(atrinik-server ${ZLIB_LIBRARY})
-target_link_libraries(atrinik-server ${DL_LIBRARY})
-
-# Link math...
-if (MATH_LIBRARY)
-	target_link_libraries(atrinik-server ${MATH_LIBRARY})
-endif (MATH_LIBRARY)
-
-# Link crypt.
-if (CRYPT_LIBRARY)
-	target_link_libraries(atrinik-server ${CRYPT_LIBRARY})
-endif (CRYPT_LIBRARY)
+target_link_libraries(${EXECUTABLE} ${DL_LIBRARY})
 
 # Link check.
 if (CHECK_LIBRARY)
-	target_link_libraries(atrinik-server ${CHECK_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
 endif (CHECK_LIBRARY)
 
 # Link GD.
 if (GD_LIBRARY)
-	target_link_libraries(atrinik-server ${GD_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
 endif (GD_LIBRARY)
-
-# Link readline if available.
-if (HAVE_READLINE)
-	target_link_libraries(atrinik-server ${READLINE_LIBRARY})
-endif (HAVE_READLINE)
 
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

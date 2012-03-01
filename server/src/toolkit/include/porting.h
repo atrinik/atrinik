@@ -82,6 +82,7 @@
 #	define PLUGIN_SUFFIX ".dll"
 #else
 #	include <cmake.h>
+#	include <toolkit_cmake.h>
 #endif
 
 #include <math.h>

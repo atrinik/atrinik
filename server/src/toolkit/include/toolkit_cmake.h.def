@@ -1,0 +1,172 @@
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
+*                                                                       *
+* Fork from Crossfire (Multiplayer game for X-windows).                 *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 2 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
+#ifndef TOOLKIT_CMAKE_H
+#define TOOLKIT_CMAKE_H
+
+/* Are we compiling on GNU/Linux? */
+#cmakedefine LINUX
+
+/* Plugin suffix. */
+#define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
+
+/* Is cURL available? */
+#cmakedefine HAVE_CURL
+
+/* Is zlib available? */
+#cmakedefine HAVE_ZLIB
+
+/* Is crypt available? */
+#cmakedefine HAVE_CRYPT
+
+/* Is readline available? */
+#cmakedefine HAVE_READLINE
+
+#ifndef HAVE_FCNTL_H
+#cmakedefine HAVE_FCNTL_H
+#endif
+
+#ifndef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H
+#endif
+
+#ifndef HAVE_SYS_TIME_H
+#cmakedefine HAVE_SYS_TIME_H
+#endif
+
+#ifndef HAVE_TIME_H
+#cmakedefine HAVE_TIME_H
+#endif
+
+#ifndef HAVE_STDDEF_H
+#cmakedefine HAVE_STDDEF_H
+#endif
+
+#ifndef HAVE_DIRENT_H
+#cmakedefine HAVE_DIRENT_H
+#endif
+
+#ifndef HAVE_SYS_NDIR_H
+#cmakedefine HAVE_SYS_NDIR_H
+#endif
+
+#ifndef HAVE_SYS_NDIR_H
+#cmakedefine HAVE_SYS_DIR_H
+#endif
+
+#ifndef HAVE_NDIR_H
+#cmakedefine HAVE_NDIR_H
+#endif
+
+#ifndef HAVE_CRYPT_H
+#cmakedefine HAVE_CRYPT_H
+#endif
+
+#ifndef HAVE_ARPA_INET_H
+#cmakedefine HAVE_ARPA_INET_H
+#endif
+
+#ifndef HAVE_STRERROR
+#cmakedefine HAVE_STRERROR
+#endif
+
+#ifndef HAVE_STRCASECMP
+#cmakedefine HAVE_STRCASECMP
+#endif
+
+#ifndef HAVE_STRNCASECMP
+#cmakedefine HAVE_STRNCASECMP
+#endif
+
+#ifndef HAVE_STRICMP
+#cmakedefine HAVE_STRICMP
+#endif
+
+#ifndef HAVE_STRNICMP
+#cmakedefine HAVE_STRNICMP
+#endif
+
+#ifndef HAVE_SRANDOM
+#cmakedefine HAVE_SRANDOM
+#endif
+
+#ifndef HAVE_SRAND48
+#cmakedefine HAVE_SRAND48
+#endif
+
+#ifndef HAVE_SRAND
+#cmakedefine HAVE_SRAND
+#endif
+
+#ifndef HAVE_GETDTABLESIZE
+#cmakedefine HAVE_GETDTABLESIZE
+#endif
+
+#ifndef HAVE_SYSCONF
+#cmakedefine HAVE_SYSCONF
+#endif
+
+#ifndef HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_GETTIMEOFDAY
+#endif
+
+#ifndef HAVE_TEMPNAM
+#cmakedefine HAVE_TEMPNAM
+#endif
+
+#ifndef HAVE_STRCASESTR
+#cmakedefine HAVE_STRCASESTR
+#endif
+
+#ifndef HAVE_STRDUP
+#cmakedefine HAVE_STRDUP
+#endif
+
+#ifndef HAVE_STRNDUP
+#cmakedefine HAVE_STRNDUP
+#endif
+
+#ifndef HAVE_STRTOK_R
+#cmakedefine HAVE_STRTOK_R
+#endif
+
+#ifndef HAVE_SIGACTION
+#cmakedefine HAVE_SIGACTION
+#endif
+
+#ifndef HAVE_GETLINE
+#cmakedefine HAVE_GETLINE
+#endif
+
+#ifndef HAVE_USLEEP
+#cmakedefine HAVE_USLEEP
+#endif
+
+/* The size of 'long'. */
+#define SIZEOF_LONG @SIZEOF_LONG@
+
+/* The size of 'long long'. */
+#define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+#endif

@@ -34,6 +34,7 @@ server/atrinik-server
 CMakeCache.txt
 CMakeFiles
 cmake.h
+toolkit_cmake.h
 cmake_install.cmake
 client/atrinik
 *.kdev*

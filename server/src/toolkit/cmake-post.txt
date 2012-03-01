@@ -1,0 +1,17 @@
+target_link_libraries(${EXECUTABLE} ${CURL_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${ZLIB_LIBRARY})
+
+# Link math...
+if (MATH_LIBRARY)
+	target_link_libraries(${EXECUTABLE} ${MATH_LIBRARY})
+endif (MATH_LIBRARY)
+
+# Link crypt.
+if (CRYPT_LIBRARY)
+	target_link_libraries(${EXECUTABLE} ${CRYPT_LIBRARY})
+endif (CRYPT_LIBRARY)
+
+# Link readline if available.
+if (HAVE_READLINE)
+	target_link_libraries(${EXECUTABLE} ${READLINE_LIBRARY})
+endif (HAVE_READLINE)
