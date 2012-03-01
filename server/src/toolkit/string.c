@@ -487,6 +487,11 @@ void string_title(char *str)
 	}
 }
 
+/**
+ * Check whether the specified string starts with another string.
+ * @param str String to check.
+ * @param cmp What to check for.
+ * @return 1 if 'str' starts with 'cmp', 0 otherwise. */
 int string_startswith(const char *str, const char *cmp)
 {
 	if (string_isempty(str) || string_isempty(cmp))
