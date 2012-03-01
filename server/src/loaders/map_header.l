@@ -118,7 +118,11 @@ lex_error = 0;
 						}
 						else
 						{
-							char *value = yval(), path[HUGE_BUF];
+							char *value, *path;
+							shstr *path_sh;
+							mapstruct *neighbor;
+
+							value = yval();
 
 							if (m->tile_path[tile - 1])
 							{
@@ -126,66 +130,22 @@ lex_error = 0;
 								FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
 							}
 
-							if (m->map_flags & MAP_FLAG_UNIQUE)
+							path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE && !string_startswithchar(value, "/."), NULL);
+							path_sh = add_string(path);
+							free(path);
+
+							m->tile_path[tile - 1] = path_sh;
+
+							/* If the neighboring map tile has been loaded, set up the map pointers */
+							if ((neighbor = has_been_loaded_sh(path_sh)) && (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING))
 							{
-								if (!string_startswith(value, settings.datapath))
+								int dest_tile = map_tiled_reverse[tile - 1];
+
+								m->tile_map[tile - 1] = neighbor;
+
+								if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path)
 								{
-									char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
-
-									path_unclean(m->path, uncleanpath, sizeof(uncleanpath));
-									normalize_path(uncleanpath, value, path);
-									path_clean(path, cleanpath, sizeof(cleanpath));
-									normalize_path(m->path, cleanpath, path);
-
-									dirnamepath = path_dirname(m->path);
-									basenamepath = path_basename(dirnamepath);
-									pl_path = player_make_path(basenamepath, cleanpath);
-
-									strncpy(path, pl_path, sizeof(path) - 1);
-									path[sizeof(path) - 1] = '\0';
-
-									free(pl_path);
-									free(basenamepath);
-									free(dirnamepath);
-
-									value = path;
-								}
-							}
-							else if (!path_exists(create_pathname(value)))
-							{
-								normalize_path(m->path, value, path);
-
-								if (!path_exists(create_pathname(path)))
-								{
-									logger_print(LOG(BUG), "Can not normalize tile path %s %s", m->path, value);
-									value = NULL;
-								}
-								else
-								{
-									value = path;
-								}
-							}
-
-							/* We have a correct path to a neighbor tile */
-							if (value)
-							{
-								mapstruct *neighbor;
-								shstr *path_sh;
-
-								path_sh = add_string(value);
-								m->tile_path[tile - 1] = path_sh;
-
-								/* If the neighboring map tile has been loaded, set up the map pointers */
-								if ((neighbor = has_been_loaded_sh(path_sh)) && (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING))
-								{
-									int dest_tile = map_tiled_reverse[tile - 1];
-
-									m->tile_map[tile - 1] = neighbor;
-
-									if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path)
-									{
-										neighbor->tile_map[dest_tile] = m;
-									}
+									neighbor->tile_map[dest_tile] = m;
 								}
 							}
 						}

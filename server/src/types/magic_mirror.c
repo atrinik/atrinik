@@ -71,34 +71,13 @@ void magic_mirror_init(object *mirror)
 	{
 		FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
 	}
-	/* Map path was specified, so try to normalize it. */
-	else if (*mirror->slaying != '/' && !string_startswith(mirror->slaying, settings.datapath))
+	else if (!string_startswithchar(mirror->slaying, "/."))
 	{
-		char fullpath[HUGE_BUF];
+		char *path;
 
-		if (MAP_UNIQUE(mirror->map))
-		{
-			char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
-
-			path_unclean(mirror->map->path, uncleanpath, sizeof(uncleanpath));
-			normalize_path(uncleanpath, mirror->slaying, fullpath);
-			path_clean(fullpath, cleanpath, sizeof(cleanpath));
-
-			dirnamepath = path_dirname(mirror->map->path);
-			basenamepath = path_basename(dirnamepath);
-			pl_path = player_make_path(basenamepath, cleanpath);
-
-			FREE_AND_COPY_HASH(mirror->slaying, pl_path);
-
-			free(pl_path);
-			free(basenamepath);
-			free(dirnamepath);
-		}
-		else
-		{
-			normalize_path(mirror->map->path, mirror->slaying, fullpath);
-			FREE_AND_COPY_HASH(mirror->slaying, fullpath);
-		}
+		path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);
+		FREE_AND_COPY_HASH(mirror->slaying, path);
+		free(path);
 	}
 
 	/* Initialize custom_attrset. */

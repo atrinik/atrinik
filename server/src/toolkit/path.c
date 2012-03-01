@@ -382,6 +382,10 @@ char *path_normalize(const char *path)
 	{
 		stringbuffer_append_string(sb, "/");
 	}
+	else if (string_startswith(path, "./"))
+	{
+		stringbuffer_append_string(sb, "./");
+	}
 
 	startsbpos = sb->pos;
 

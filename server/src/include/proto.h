@@ -357,6 +357,7 @@ extern int on_same_map(object *op1, object *op2);
 extern int players_on_map(mapstruct *m);
 extern int wall_blocked(mapstruct *m, int x, int y);
 extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
+extern char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
@@ -838,6 +839,7 @@ extern size_t path_size(const char *path);
 extern char *path_clean(const char *path, char *buf, size_t bufsize);
 extern char *path_unclean(const char *path, char *buf, size_t bufsize);
 extern char *path_file_contents(const char *path);
+extern char *path_normalize(const char *path);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
@@ -885,6 +887,7 @@ extern int string_isdigit(const char *str);
 extern void string_capitalize(char *str);
 extern void string_title(char *str);
 extern int string_startswith(const char *str, const char *cmp);
+extern int string_startswithchar(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
 extern int string_isempty(const char *str);
@@ -904,6 +907,8 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern size_t stringbuffer_length(StringBuffer *sb);
+extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
+extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);

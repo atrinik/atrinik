@@ -341,53 +341,15 @@ void enter_exit(object *op, object *exit_ob)
 				FREE_AND_COPY_HASH(m->path, newmap_name);
 			}
 		}
-		else if (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(op->map) && EXIT_PATH(exit_ob)[0] != '/'))
-		{
-			char cleanpath[HUGE_BUF], *path;
-
-			if (op->type != PLAYER)
-			{
-				return;
-			}
-
-			/* Absolute path */
-			if (EXIT_PATH(exit_ob)[0] == '/')
-			{
-				path_clean(EXIT_PATH(exit_ob), cleanpath, sizeof(cleanpath));
-			}
-			/* Relative path */
-			else
-			{
-				char fullpath[HUGE_BUF];
-
-				/* If we are on a unique map, we need to demangle the original
-				 * path. */
-				if (MAP_UNIQUE(op->map))
-				{
-					char uncleanpath[HUGE_BUF];
-
-					path_unclean(op->map->path, uncleanpath, sizeof(uncleanpath));
-					normalize_path(uncleanpath, EXIT_PATH(exit_ob), fullpath);
-				}
-				else
-				{
-					normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath);
-				}
-
-				path_clean(fullpath, cleanpath, sizeof(cleanpath));
-			}
-
-			path = player_make_path(op->name, cleanpath);
-			m = ready_map_name(path, MAP_PLAYER_UNIQUE);
-			free(path);
-		}
 		else
 		{
-			char fullpath[HUGE_BUF];
-
 			if (exit_ob->map)
 			{
-				m = ready_map_name(normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), fullpath), 0);
+				char *path;
+
+				path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && EXIT_PATH(exit_ob)[0] != '/')), op->name);
+				m = ready_map_name(path, 0);
+				free(path);
 
 				/* Failed to load a random map? */
 				if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0)
@@ -871,16 +833,18 @@ static void dequeue_path_requests(void)
  * @return 1 on success, 0 on failure. */
 int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
-	char cleanpath[HUGE_BUF], *path;
+	char *cleanpath, *path;
 	int i, j;
 	object *ob, *tmp, *tmp2, *dummy;
 	mapstruct *oldmap, *newmap;
 
 	/* So we can transfer our items from the old apartment. */
-	path_clean(mapold, cleanpath, sizeof(cleanpath));
+	cleanpath = strdup(mapold);
+	string_replace_char(cleanpath, "/", '$');
 	path = player_make_path(op->name, cleanpath);
 	oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
 	free(path);
+	free(cleanpath);
 
 	if (!oldmap)
 	{
@@ -889,10 +853,12 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 	}
 
 	/* Our new map. */
-	path_clean(mapnew, cleanpath, sizeof(cleanpath));
+	cleanpath = strdup(mapnew);
+	string_replace_char(cleanpath, "/", '$');
 	path = player_make_path(op->name, cleanpath);
 	newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
 	free(path);
+	free(cleanpath);
 
 	if (!newmap)
 	{

@@ -303,14 +303,11 @@ static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
 static void arena_map_parse_script(const char *arena_script, object *exit_ob, arena_maps_struct *arena_map)
 {
 	FILE *fh;
-	char buf[MAX_BUF], tmp_path[HUGE_BUF];
-	char *arena_script_path;
+	char buf[MAX_BUF], *path, *arena_script_path;
 
-	/* Normalize the path to the script, allowing relative paths */
-	hooks->normalize_path(exit_ob->map->path, arena_script, tmp_path);
-
-	/* Create path name to the script in maps directory */
-	arena_script_path = hooks->create_pathname(tmp_path);
+	path = hooks->map_get_path(exit_ob->map, arena_script, 0, NULL);
+	arena_script_path = hooks->create_pathname(path);
+	free(path);
 
 	/* Initialize defaults */
 	arena_map->max_players = 0;
@@ -385,24 +382,25 @@ static int arena_full(arena_maps_struct *arena_map)
  * @return 0 to operate the entrance (teleport the player), 1 otherwise. */
 int arena_enter(object *who, object *exit_ob, const char *arena_script)
 {
-	char tmp_path[HUGE_BUF];
+	char *path;
 	arena_maps_struct *arena_maps_tmp;
 
-	/* The exit must have a path */
-	if (!exit_ob->slaying)
+	/* The exit must have a path. */
+	if (!EXIT_PATH(exit_ob))
 	{
 		return 0;
 	}
 
-	/* Normalize the map's path */
-	hooks->normalize_path(exit_ob->map->path, EXIT_PATH(exit_ob), tmp_path);
+	path = hooks->map_get_path(exit_ob->map, EXIT_PATH(exit_ob), MAP_UNIQUE(exit_ob->map), who->name);
 
 	/* Go through the list of arenas */
 	for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next)
 	{
 		/* If the exit's path matches this arena */
-		if (!strcmp(arena_maps_tmp->path, tmp_path))
+		if (strcmp(arena_maps_tmp->path, path) == 0)
 		{
+			free(path);
+
 			/* If the arena is full, show a message to the player */
 			if (arena_full(arena_maps_tmp))
 			{
@@ -459,7 +457,8 @@ int arena_enter(object *who, object *exit_ob, const char *arena_script)
 
 	/* If we are here, the arena doesn't have an entry in the linked list -- create it */
 	arena_maps_tmp = (arena_maps_struct *) malloc(sizeof(arena_maps_struct));
-	strncpy(arena_maps_tmp->path, tmp_path, sizeof(arena_maps_tmp->path) - 1);
+	strncpy(arena_maps_tmp->path, path, sizeof(arena_maps_tmp->path) - 1);
+	free(path);
 
 	/* Parse script options */
 	arena_map_parse_script(arena_script, exit_ob, arena_maps_tmp);

@@ -40,7 +40,6 @@ struct plugin_hooklist hooklist =
 	present_in_ob,
 	players_on_map,
 	create_pathname,
-	normalize_path,
 	free_string_shared,
 	add_string,
 	object_remove,
@@ -170,8 +169,8 @@ struct plugin_hooklist hooklist =
 	logger_print,
 	commands_add,
 	map_get_darkness,
-	path_unclean,
-	string_startswith,
+	map_get_path,
+	string_startswithchar,
 
 	season_name,
 	weekdays,

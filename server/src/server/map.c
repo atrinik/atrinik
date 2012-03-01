@@ -371,90 +371,6 @@ static char *create_items_path(shstr *s)
 }
 
 /**
- * Make path absolute and remove ".." and "." entries.
- *
- * path will become a normalized (absolute) version of the path in dst,
- * with all relative path references (".." and "." - parent directory and
- * same directory) resolved (path will not contain any ".." or "."
- * elements, even if dst did).
- *
- * If dst was not already absolute, the directory part of src will be
- * used as the base path and dst will be added to it.
- * @param src Already normalized file name for finding absolute path.
- * @param dst Path to normalize. Should be either an absolute path or a
- * path relative to src.
- * @param path Buffer for normalized path.
- * @return Pointer to path. */
-char *normalize_path(const char *src, const char *dst, char *path)
-{
-	char *p;
-	char buf[HUGE_BUF];
-
-	if (*dst == '/')
-	{
-		strcpy(buf, dst);
-	}
-	else
-	{
-		strcpy(buf, src);
-
-		if ((p = strrchr(buf, '/')))
-		{
-			p[1] = '\0';
-		}
-		else
-		{
-			strcpy(buf, "/");
-		}
-
-		strcat(buf, dst);
-	}
-
-	p = buf;
-
-	if (strstr(p, "//"))
-	{
-		logger_print(LOG(BUG), "Map path with unhandled '//' element: %s", buf);
-	}
-
-	*path = '\0';
-	p = strtok(p, "/");
-
-	while (p)
-	{
-		/* Ignore "./" path elements */
-		if (!strcmp(p, "."))
-		{
-		}
-		else if (!strcmp(p, ".."))
-		{
-			/* Remove last inserted path element from 'path' */
-			char *separator = strrchr(path, '/');
-
-			if (separator)
-			{
-				*separator = '\0';
-			}
-			else
-			{
-				logger_print(LOG(BUG), "Illegal path (too many '..' entries): %s", dst);
-				*path = '\0';
-				return path;
-			}
-		}
-		else
-		{
-			strcat(path, "/");
-			strcat(path, p);
-		}
-
-		p = strtok(NULL, "/");
-	}
-
-	return path;
-}
-
-/**
  * Check if there is a wall on specified map at x, y.
  *
  * Caller should check for @ref P_PASS_THRU in the return value to see if
@@ -1140,13 +1056,12 @@ mapstruct *load_original_map(const char *filename, int flags)
 
 	if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname))
 	{
-		char *basenamepath, uncleanpath[HUGE_BUF];
+		char *path;
 
-		basenamepath = path_basename(pathname);
-		path_unclean(basenamepath, uncleanpath, sizeof(uncleanpath));
-		free(basenamepath);
-
-		fp = fopen(create_pathname(uncleanpath), "rb");
+		path = path_basename(pathname);
+		string_replace_char(path, "$", '/');
+		fp = fopen(create_pathname(path), "rb");
+		free(path);
 	}
 	else
 	{

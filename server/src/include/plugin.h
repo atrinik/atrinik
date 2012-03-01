@@ -178,7 +178,6 @@ struct plugin_hooklist
 	object *(*present_in_ob)(unsigned char, object *);
 	int (*players_on_map)(mapstruct *);
 	char *(*create_pathname)(const char *);
-	char *(*normalize_path)(const char *, const char *, char *);
 	void (*free_string_shared)(const char *);
 	const char *(*add_string)(const char *);
 	void (*object_remove)(object *, int);
@@ -308,8 +307,8 @@ struct plugin_hooklist
 	void (*logger_print)(const char *, const char *, uint64, const char *, ...);
 	void (*commands_add)(const char *, command_func, double, uint64);
 	int (*map_get_darkness)(mapstruct *, int, int, object **);
-	char *(*path_unclean)(const char *, char *, size_t);
-	int (*string_startswith)(const char *, const char *);
+	char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
+	int (*string_startswithchar)(const char *, const char *);
 
 	const char **season_name;
 	const char **weekdays;

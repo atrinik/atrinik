@@ -691,23 +691,13 @@ static int do_script(PythonContext *context, const char *filename)
 	PyObject *dict, *ret;
 	PyGILState_STATE gilstate;
 
-	if (context->event && context->who && context->who->map && *filename != '/' && !hooks->string_startswith(filename, hooks->settings->datapath))
+	if (context->event && context->who && context->who->map && !hooks->string_startswithchar(filename, "/."))
 	{
-		char fullpath[HUGE_BUF];
+		char *path;
 
-		if (MAP_UNIQUE(context->who->map))
-		{
-			char uncleanpath[HUGE_BUF];
-
-			hooks->path_unclean(context->who->map->path, uncleanpath, sizeof(uncleanpath));
-			hooks->normalize_path(uncleanpath, filename, fullpath);
-		}
-		else
-		{
-			hooks->normalize_path(context->who->map->path, filename, fullpath);
-		}
-
-		FREE_AND_COPY_HASH(context->event->race, fullpath);
+		path = hooks->map_get_path(context->who->map, filename, 0, NULL);
+		FREE_AND_COPY_HASH(context->event->race, path);
+		free(path);
 	}
 
 	gilstate = PyGILState_Ensure();
