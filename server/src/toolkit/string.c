@@ -489,7 +489,7 @@ void string_title(char *str)
 
 int string_startswith(const char *str, const char *cmp)
 {
-	if (!str || !cmp)
+	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
 	}
@@ -504,7 +504,7 @@ int string_startswith(const char *str, const char *cmp)
 
 int string_startswithchar(const char *str, const char *cmp)
 {
-	if (!str || !cmp)
+	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
 	}
@@ -526,7 +526,7 @@ int string_endswith(const char *str, const char *cmp)
 {
 	ssize_t len;
 
-	if (!str || !cmp)
+	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
 	}
