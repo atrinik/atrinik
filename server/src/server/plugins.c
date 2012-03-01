@@ -170,6 +170,8 @@ struct plugin_hooklist hooklist =
 	logger_print,
 	commands_add,
 	map_get_darkness,
+	path_unclean,
+	string_startswith,
 
 	season_name,
 	weekdays,
