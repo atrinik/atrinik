@@ -585,6 +585,11 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 	return strndup(str, n);
 }
 
+/**
+ * Convenience function to check whether a string is empty.
+ * @param str String to check.
+ * @return 1 if 'str' is either NULL or if it begins with the NUL
+ * character. */
 int string_isempty(const char *str)
 {
 	return !str || *str == '\0';
