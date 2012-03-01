@@ -170,7 +170,7 @@ struct plugin_hooklist hooklist =
 	commands_add,
 	map_get_darkness,
 	map_get_path,
-	string_startswithchar,
+	char_contains,
 
 	season_name,
 	weekdays,

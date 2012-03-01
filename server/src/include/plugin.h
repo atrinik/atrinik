@@ -308,7 +308,7 @@ struct plugin_hooklist
 	void (*commands_add)(const char *, command_func, double, uint64);
 	int (*map_get_darkness)(mapstruct *, int, int, object **);
 	char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
-	int (*string_startswithchar)(const char *, const char *);
+	int (*char_contains)(char, const char *);
 
 	const char **season_name;
 	const char **weekdays;

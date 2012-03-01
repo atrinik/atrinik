@@ -121,8 +121,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
 	mapstruct *destmap;
 
-	/* If path is not normalized, normalize it */
-	if (!string_startswithchar(waypoint->slaying, "/."))
+	if (!char_contains(*waypoint->slaying, "/."))
 	{
 		char *path;
 
