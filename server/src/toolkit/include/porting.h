@@ -122,6 +122,10 @@
 #	include <arpa/inet.h>
 #endif
 
+#ifdef HAVE_CRYPT_H
+#	include <crypt.h>
+#endif
+
 #ifdef LINUX
 #	include <netdb.h>
 #	include <sys/socket.h>

@@ -28,10 +28,6 @@
 
 #include <global.h>
 
-#ifdef HAVE_CRYPT_H
-#	include <crypt.h>
-#endif
-
 /** Object used in process_events(). */
 static object marker;
 /** Where to search for .bzr directory. */
