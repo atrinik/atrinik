@@ -595,6 +595,12 @@ int string_isempty(const char *str)
 	return !str || *str == '\0';
 }
 
+/**
+ * Check if the specified character equals to any of the characters in
+ * 'key'.
+ * '@param c Character to check.
+ * '@param key Characters to look for.
+ * '@return 1 if 'c' equals to any of the character in 'key', 0 otherwise. */
 int char_contains(const char c, const char *key)
 {
 	size_t i;
