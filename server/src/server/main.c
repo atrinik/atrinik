@@ -1016,16 +1016,16 @@ static void dequeue_path_requests(void)
  * @return 1 on success, 0 on failure. */
 int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
-	char oldmappath[HUGE_BUF], newmappath[HUGE_BUF];
+	char cleanpath[HUGE_BUF], *path;
 	int i, j;
 	object *ob, *tmp, *tmp2, *dummy;
 	mapstruct *oldmap, *newmap;
 
-	snprintf(oldmappath, sizeof(oldmappath), "%s/players/%s/%s", settings.datapath, op->name, clean_path(mapold));
-	snprintf(newmappath, sizeof(newmappath), "%s/players/%s/%s", settings.datapath, op->name, clean_path(mapnew));
-
 	/* So we can transfer our items from the old apartment. */
-	oldmap = ready_map_name(oldmappath, 2);
+	path_clean(mapold, cleanpath, sizeof(cleanpath));
+	path = player_make_path(op->name, cleanpath);
+	oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+	free(path);
 
 	if (!oldmap)
 	{
@@ -1034,17 +1034,16 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 	}
 
 	/* Our new map. */
-	newmap = ready_map_name(create_pathname(mapnew), 6);
+	path_clean(mapnew, cleanpath, sizeof(cleanpath));
+	path = player_make_path(op->name, cleanpath);
+	newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+	free(path);
 
 	if (!newmap)
 	{
 		logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
 		return 0;
 	}
-
-	/* Goes to player directory. */
-	FREE_AND_COPY_HASH(newmap->path, newmappath);
-	newmap->map_flags |= MAP_FLAG_UNIQUE;
 
 	/* Go through every square on old apartment map, looking for things
 	 * to transfer. */
