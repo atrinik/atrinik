@@ -129,21 +129,21 @@
 /**
  * Always load map from the map directory, and don't do unique items or
  * the like. */
-#define MAP_FLUSH         0x1
+#define MAP_FLUSH         1
 /**
  * This map is player-specific. Don't do any more name translation on
  * it. */
-#define MAP_PLAYER_UNIQUE 0x2
+#define MAP_PLAYER_UNIQUE 2
 /** Unused. */
-#define MAP_BLOCK         0x4
+#define MAP_BLOCK         4
 /** Active objects shouldn't be put on active list. */
-#define MAP_STYLE         0x8
+#define MAP_STYLE         8
 /** Unused. */
-#define MAP_ARTIFACT      0x20
+#define MAP_ARTIFACT      16
 /** Indicates that the name string is a shared string */
-#define MAP_NAME_SHARED   0x40
+#define MAP_NAME_SHARED   32
 /** Original map. Generate treasures */
-#define MAP_ORIGINAL      0x80
+#define MAP_ORIGINAL      64
 /*@}*/
 
 /**
