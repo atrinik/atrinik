@@ -69,8 +69,6 @@ static uint32 last_keepalive;
  * Command line option settings. */
 clioption_settings_struct clioption_settings;
 
-static void init_game_data();
-
 /**
  * Initialize game data. */
 static void init_game_data(void)
