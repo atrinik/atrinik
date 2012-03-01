@@ -681,10 +681,11 @@ char *string_create_char_range(char start, char end)
 }
 
 /**
- * Encrypt a string. Used for password storage on disk.
+ * Encrypt a string using the crypt library.
  * @param str The string to crypt.
  * @param salt Salt, if NULL, random will be chosen.
- * @return The crypted string. */
+ * @return The crypted string. If the crypt library is not available,
+ * 'str' is returned instead. */
 char *string_crypt(char *str, const char *salt)
 {
 #ifdef HAVE_CRYPT
