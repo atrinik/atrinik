@@ -128,7 +128,7 @@ lex_error = 0;
 
 							if (m->map_flags & MAP_FLAG_UNIQUE)
 							{
-								if (!path_exists(value))
+								if (!string_startswith(value, settings.datapath))
 								{
 									char uncleanpath[HUGE_BUF], cleanpath[HUGE_BUF], *dirnamepath, *basenamepath, *pl_path;
 
