@@ -275,6 +275,11 @@ size_t path_size(const char *path)
 	return statbuf.st_size;
 }
 
+/**
+ * Load the entire contents of file 'path' into a StringBuffer instance,
+ * then return the created string.
+ * @param path File to load contents of.
+ * @return The loaded contents. Must be freed. */
 char *path_file_contents(const char *path)
 {
 	FILE *fp;
