@@ -168,6 +168,7 @@
 		<Unit filename="..\..\src\socket\sounds.c" />
 		<Unit filename="..\..\src\socket\updates.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\bzr.c" />
 		<Unit filename="..\..\src\toolkit\clioptions.c" />
 		<Unit filename="..\..\src\toolkit\console.c" />
 		<Unit filename="..\..\src\toolkit\datetime.c" />

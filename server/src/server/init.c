@@ -397,6 +397,7 @@ static void init_library(int argc, char *argv[])
 {
 	atexit(cleanup);
 
+	toolkit_import(bzr);
 	toolkit_import(clioptions);
 	toolkit_import(console);
 	toolkit_import(datetime);

@@ -30,13 +30,6 @@
 
 /** Object used in process_events(). */
 static object marker;
-/** Where to search for .bzr directory. */
-static const char *const branch_paths[] =
-{
-	".", ".."
-};
-/** Revision number of the branch, if any. */
-static uint32 branch_revision = 0;
 
 /**
  * @defgroup first_xxx Beginnings of linked lists.
@@ -69,9 +62,13 @@ void version(object *op)
 {
 	if (op)
 	{
-		if (branch_revision)
+		int revision;
+
+		revision = bzr_get_revision();
+
+		if (revision)
 		{
-			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, branch_revision);
+			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
 		}
 		else
 		{
@@ -1200,10 +1197,6 @@ void world_maker();
  * @return 0. */
 int main(int argc, char **argv)
 {
-	char buf[HUGE_BUF];
-	size_t i;
-	FILE *fp;
-
 #ifdef WIN32
 	/* Open all files in binary mode by default. */
 	_set_fmode(_O_BINARY);
@@ -1222,27 +1215,6 @@ int main(int argc, char **argv)
 #endif
 
 	memset(&marker, 0, sizeof(struct obj));
-
-	/* Try to find branch revision. */
-	for (i = 0; i < arraysize(branch_paths); i++)
-	{
-		snprintf(buf, sizeof(buf), "%s/.bzr/branch/last-revision", branch_paths[i]);
-		fp = fopen(buf, "r");
-
-		if (fp && fgets(buf, sizeof(buf) - 1, fp))
-		{
-			char *end = strchr(buf, ' ');
-
-			if (end)
-			{
-				*end = '\0';
-			}
-
-			branch_revision = atoi(buf);
-			fclose(fp);
-			break;
-		}
-	}
 
 	logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
