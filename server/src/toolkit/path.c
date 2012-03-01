@@ -305,6 +305,14 @@ char *path_file_contents(const char *path)
 	return stringbuffer_finish(sb);
 }
 
+/**
+ * Normalize a path, eg, foo//bar, foo/foo2/../bar, foo/./bar all become
+ * foo/bar.
+ *
+ * If the path begins with either a forward slash or a dot *and* a forward
+ * slash, they will be preserved.
+ * @param path Path to normalize.
+ * @return The normalized path; never NULL. Must be freed. */
 char *path_normalize(const char *path)
 {
 	StringBuffer *sb;
