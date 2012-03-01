@@ -532,6 +532,30 @@ int string_endswith(const char *str, const char *cmp)
 	return 0;
 }
 
+/**
+ * Construct a substring from a string.
+ *
+ * 'start' and 'end' can be negative.
+ *
+ * If 'start' is, eg, -10, the starting index will automatically become (strlen(str) - 10),
+ * in other words, 10 characters from the right, and the ending index will become
+ * strlen(str), so you can use it to get the last 10 characters of a string, for
+ * example.
+ *
+ * If 'end' is, eg, -1, the ending index will automatically become (strlen(str) - 1),
+ * in other words, one less character from the right. In this case, 'start'
+ * is unmodified.
+ *
+ * Example:
+ * @code
+ * string_sub("hello world", 1, -1); --> "ello worl"
+ * string_sub("hello world", 4, strlen("hello world")); --> "o world"
+ * string_sub("hello world", -5, 0); --> "world"
+ * @endcode
+ * @param str String to get a substring from.
+ * @param start Starting index, eg, 0 for the beginning.
+ * @param end Ending index, eg, strlen(end) for the end.
+ * @return The created substring; never NULL. Must be freed. */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
 	size_t n, max;
