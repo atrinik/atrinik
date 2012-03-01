@@ -508,33 +508,6 @@ int string_startswith(const char *str, const char *cmp)
 }
 
 /**
- * Check whether the specified string starts with any of the characters
- * in 'cmp'.
- * @param str String to check.
- * @param cmp Character to look for at the start of 'str'.
- * @return 1 if any of the characters in 'cmp' are at the start of 'str',
- * 0 otherwise. */
-int string_startswithchar(const char *str, const char *cmp)
-{
-	if (string_isempty(str) || string_isempty(cmp))
-	{
-		return 0;
-	}
-
-	while (*cmp != '\0')
-	{
-		if (*str == *cmp)
-		{
-			return 1;
-		}
-
-		cmp++;
-	}
-
-	return 0;
-}
-
-/**
  * Check whether the specified string ends with another string.
  * @param str String to check.
  * @param cmp What to check for.
