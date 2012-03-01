@@ -317,7 +317,7 @@ char *string_whitespace_squeeze(char *str)
  * Replaces "\n" by a newline char.
  *
  * Since we are replacing 2 chars by 1, no overflow should happen.
- * @param line Text to replace into. */
+ * @param str Text to replace into. */
 void string_newline_to_literal(char *str)
 {
 	char *next;
@@ -487,9 +487,14 @@ void string_title(char *str)
 	}
 }
 
+/**
+ * Check whether the specified string starts with another string.
+ * @param str String to check.
+ * @param cmp What to check for.
+ * @return 1 if 'str' starts with 'cmp', 0 otherwise. */
 int string_startswith(const char *str, const char *cmp)
 {
-	if (!str || !cmp)
+	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
 	}
@@ -502,31 +507,16 @@ int string_startswith(const char *str, const char *cmp)
 	return 0;
 }
 
-int string_startswithchar(const char *str, const char *cmp)
-{
-	if (!str || !cmp)
-	{
-		return 0;
-	}
-
-	while (*cmp != '\0')
-	{
-		if (*str == *cmp)
-		{
-			return 1;
-		}
-
-		cmp++;
-	}
-
-	return 0;
-}
-
+/**
+ * Check whether the specified string ends with another string.
+ * @param str String to check.
+ * @param cmp What to check for.
+ * @return 1 if 'str' ends with 'cmp', 0 otherwise. */
 int string_endswith(const char *str, const char *cmp)
 {
 	ssize_t len;
 
-	if (!str || !cmp)
+	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
 	}
@@ -542,6 +532,30 @@ int string_endswith(const char *str, const char *cmp)
 	return 0;
 }
 
+/**
+ * Construct a substring from a string.
+ *
+ * 'start' and 'end' can be negative.
+ *
+ * If 'start' is, eg, -10, the starting index will automatically become (strlen(str) - 10),
+ * in other words, 10 characters from the right, and the ending index will become
+ * strlen(str), so you can use it to get the last 10 characters of a string, for
+ * example.
+ *
+ * If 'end' is, eg, -1, the ending index will automatically become (strlen(str) - 1),
+ * in other words, one less character from the right. In this case, 'start'
+ * is unmodified.
+ *
+ * Example:
+ * @code
+ * string_sub("hello world", 1, -1); --> "ello worl"
+ * string_sub("hello world", 4, strlen("hello world")); --> "o world"
+ * string_sub("hello world", -5, 0); --> "world"
+ * @endcode
+ * @param str String to get a substring from.
+ * @param start Starting index, eg, 0 for the beginning.
+ * @param end Ending index, eg, strlen(end) for the end.
+ * @return The created substring; never NULL. Must be freed. */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
 	size_t n, max;
@@ -568,11 +582,22 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 	return strndup(str, n);
 }
 
+/**
+ * Convenience function to check whether a string is empty.
+ * @param str String to check.
+ * @return 1 if 'str' is either NULL or if it begins with the NUL
+ * character. */
 int string_isempty(const char *str)
 {
 	return !str || *str == '\0';
 }
 
+/**
+ * Check if the specified character equals to any of the characters in
+ * 'key'.
+ * @param c Character to check.
+ * @param key Characters to look for.
+ * @return 1 if 'c' equals to any of the character in 'key', 0 otherwise. */
 int char_contains(const char c, const char *key)
 {
 	size_t i;
@@ -588,6 +613,11 @@ int char_contains(const char c, const char *key)
 	return 0;
 }
 
+/**
+ * Check whether the specified string contains any of the characters in 'key'.
+ * @param str String to check.
+ * @param key Characters to look for.
+ * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise. */
 int string_contains(const char *str, const char *key)
 {
 	while (*str != '\0')
@@ -603,6 +633,12 @@ int string_contains(const char *str, const char *key)
 	return 0;
 }
 
+/**
+ * Check whether the specified string contains any characters other than
+ * those specified in 'key'.
+ * @param str String to check.
+ * @param key Characters to look for.
+ * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise. */
 int string_contains_other(const char *str, const char *key)
 {
 	while (*str != '\0')
@@ -618,6 +654,16 @@ int string_contains_other(const char *str, const char *key)
 	return 0;
 }
 
+/**
+ * Create a string containing characters in the specified character range.
+ *
+ * Example:
+ * @code
+ * string_create_char_range('a', 'd'); --> "abcd"
+ * @endcode
+ * @param start Character index start.
+ * @param end Character index end.
+ * @return The generated string. */
 char *string_create_char_range(char start, char end)
 {
 	char *str, c;
@@ -635,10 +681,11 @@ char *string_create_char_range(char start, char end)
 }
 
 /**
- * Encrypt a string. Used for password storage on disk.
+ * Encrypt a string using the crypt library.
  * @param str The string to crypt.
  * @param salt Salt, if NULL, random will be chosen.
- * @return The crypted string. */
+ * @return The crypted string. If the crypt library is not available,
+ * 'str' is returned instead. */
 char *string_crypt(char *str, const char *salt)
 {
 #ifdef HAVE_CRYPT
