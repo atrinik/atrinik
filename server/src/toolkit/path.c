@@ -335,3 +335,28 @@ char *path_unclean(const char *path, char *buf, size_t bufsize)
 
 	return buf;
 }
+
+char *path_file_contents(const char *path)
+{
+	FILE *fp;
+	StringBuffer *sb;
+	char buf[MAX_BUF];
+
+	fp = fopen(path, "rb");
+
+	if (!fp)
+	{
+		return NULL;
+	}
+
+	sb = stringbuffer_new();
+
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		stringbuffer_append_string(sb, buf);
+	}
+
+	fclose(fp);
+
+	return stringbuffer_finish(sb);
+}
