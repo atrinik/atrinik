@@ -82,6 +82,7 @@
 #	define PLUGIN_SUFFIX ".dll"
 #else
 #	include <cmake.h>
+#	include <toolkit_cmake.h>
 #endif
 
 #include <math.h>
@@ -119,6 +120,10 @@
 
 #ifdef HAVE_ARPA_INET_H
 #	include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_CRYPT_H
+#	include <crypt.h>
 #endif
 
 #ifdef LINUX

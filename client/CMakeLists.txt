@@ -2,6 +2,7 @@
 
 project(atrinik C)
 cmake_minimum_required(VERSION 2.6)
+set(EXECUTABLE atrinik)
 
 # Include build configuration.
 include(build.config)
@@ -9,9 +10,6 @@ include(build.config)
 if (EXISTS build.user)
 	include(build.user)
 endif (EXISTS build.user)
-
-# Compiling on GNU/Linux.
-set(LINUX true)
 
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
@@ -28,17 +26,6 @@ set(HAVE_SDL_IMAGE true)
 find_package(SDL_ttf REQUIRED)
 include_directories(${SDLTTF_INCLUDE_DIR})
 set(HAVE_SDL_TTF true)
-
-# cURL is required by the metaserver.
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
-set(HAVE_CURL true)
-
-# zlib is required to uncompress binary commands (if they have been
-# compressed by the server) and data files sent by the server.
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
-set(HAVE_ZLIB true)
 
 # SDL_mixer is optional, as sound is not a must-have.
 find_package(SDL_mixer)
@@ -70,14 +57,6 @@ else (X11_FOUND)
 	message(STATUS "Warning: X11 not found - clipboard support will be disabled")
 endif (X11_FOUND)
 
-find_library(READLINE_LIBRARY readline)
-
-if (READLINE_LIBRARY)
-	set(HAVE_READLINE true)
-elseif (READLINE_LIBRARY)
-	message(STATUS "Could not find readline library, simple interactive console will be used.")
-endif (READLINE_LIBRARY)
-
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
@@ -104,49 +83,9 @@ if (ENABLE_DEBUG)
 	add_definitions(-g)
 endif (ENABLE_DEBUG)
 
-# Check sizes of 'long' and 'long long' to determine architecture (32-bit
-# or 64-bit)
-include(CheckTypeSize)
-check_type_size("long" SIZEOF_LONG)
-check_type_size("long long" SIZEOF_LONG_LONG)
-
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-
-# Check for various include files.
-check_include_files(fcntl.h HAVE_FCNTL_H)
-check_include_files(unistd.h HAVE_UNISTD_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(time.h HAVE_TIME_H)
-check_include_files(stddef.h HAVE_STDDEF_H)
-check_include_files(dirent.h HAVE_DIRENT_H)
-check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
-check_include_files(sys/dir.h HAVE_SYS_DIR_H)
-check_include_files(ndir.h HAVE_NDIR_H)
-check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-
-# Check for various functions.
-check_function_exists(strerror HAVE_STRERROR)
-check_function_exists(strcasecmp HAVE_STRCASECMP)
-check_function_exists(strncasecmp HAVE_STRNCASECMP)
-check_function_exists(stricmp HAVE_STRICMP)
-check_function_exists(strnicmp HAVE_STRNICMP)
-check_function_exists(srandom HAVE_SRANDOM)
-check_function_exists(srand48 HAVE_SRAND48)
-check_function_exists(srand HAVE_SRAND)
-check_function_exists(strtok_r HAVE_STRTOK_R)
-check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
-check_function_exists(tempnam HAVE_TEMPNAM)
-check_function_exists(strcasestr HAVE_STRCASESTR)
-check_function_exists(strdup HAVE_STRDUP)
-check_function_exists(strndup HAVE_STRNDUP)
-check_function_exists(sigaction HAVE_SIGACTION)
-check_function_exists(getline HAVE_GETLINE)
-check_function_exists(usleep HAVE_USLEEP)
-
 # Add our includes.
 include_directories(src/include)
-include_directories(src/toolkit/include)
+include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
 set(SOURCES
@@ -206,23 +145,7 @@ set(SOURCES
 	src/gui/spells.c
 	src/gui/textwin.c
 	src/gui/updater.c
-	src/toolkit/binreloc.c
-	src/toolkit/clioptions.c
-	src/toolkit/console.c
-	src/toolkit/datetime.c
-	src/toolkit/logger.c
-	src/toolkit/math.c
-	src/toolkit/memory.c
-	src/toolkit/mempool.c
-	src/toolkit/packet.c
-	src/toolkit/path.c
-	src/toolkit/porting.c
-	src/toolkit/sha1.c
-	src/toolkit/shstr.c
-	src/toolkit/signals.c
-	src/toolkit/string.c
-	src/toolkit/stringbuffer.c
-	src/toolkit/toolkit.c
+	${SOURCES_TOOLKIT}
 	src/toolkit_gui/button.c
 	src/toolkit_gui/clipboard.c
 	src/toolkit_gui/list.c
@@ -238,34 +161,28 @@ set(SOURCES
 	src/toolkit_gui/widget.c)
 
 # Compile the sources into an executable.
-add_executable(atrinik ${SOURCES})
+add_executable(${EXECUTABLE} ${SOURCES})
+include(src/toolkit/cmake-post.txt)
 
 # Link all the available libraries.
-target_link_libraries(atrinik ${SDL_LIBRARY})
-target_link_libraries(atrinik ${SDLIMAGE_LIBRARY})
-target_link_libraries(atrinik ${SDLTTF_LIBRARY})
-target_link_libraries(atrinik ${CURL_LIBRARY})
-target_link_libraries(atrinik ${ZLIB_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
-	target_link_libraries(atrinik ${SDLMIXER_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
 endif (HAVE_SDL_MIXER)
 
 # Link X11 if available.
 if (HAVE_X11)
-	target_link_libraries(atrinik ${X11_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${X11_LIBRARY})
 endif (HAVE_X11)
 
 # Link X11 XMU if available.
 if (HAVE_X11_XMU)
-	target_link_libraries(atrinik ${X11_XMU_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
 endif (HAVE_X11_XMU)
-
-# Link readline if available.
-if (HAVE_READLINE)
-	target_link_libraries(atrinik ${READLINE_LIBRARY})
-endif (HAVE_READLINE)
 
 # Get all the include directories used to compile the client.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

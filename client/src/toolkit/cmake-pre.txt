@@ -1,0 +1,103 @@
+# Compiling on GNU/Linux.
+set(LINUX true)
+# Plugin suffix.
+set(PLUGIN_SUFFIX ".so")
+
+# cURL is required by the metaserver.
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+set(HAVE_CURL true)
+
+find_package(ZLIB REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIR})
+set(HAVE_ZLIB true)
+
+# Try to find some GNU/Linux libraries.
+if (UNIX)
+	find_library(MATH_LIBRARY m)
+	find_library(CRYPT_LIBRARY crypt)
+
+	if (NOT MATH_LIBRARY)
+		message(FATAL_ERROR "Could not find math library.")
+	endif (NOT MATH_LIBRARY)
+
+	if (CRYPT_LIBRARY)
+		set(HAVE_CRYPT true)
+	elseif (CRYPT_LIBRARY)
+		message(STATUS "Could not find crypt library, encryption of strings such as passwords will be disabled.")
+	endif (CRYPT_LIBRARY)
+endif (UNIX)
+
+find_library(READLINE_LIBRARY readline)
+
+if (READLINE_LIBRARY)
+	set(HAVE_READLINE true)
+elseif (READLINE_LIBRARY)
+	message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
+endif (READLINE_LIBRARY)
+
+include(CheckIncludeFiles)
+include(CheckFunctionExists)
+
+# Check for various include files.
+check_include_files(fcntl.h HAVE_FCNTL_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(sys/time.h HAVE_SYS_TIME_H)
+check_include_files(time.h HAVE_TIME_H)
+check_include_files(stddef.h HAVE_STDDEF_H)
+check_include_files(dirent.h HAVE_DIRENT_H)
+check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
+check_include_files(sys/dir.h HAVE_SYS_DIR_H)
+check_include_files(ndir.h HAVE_NDIR_H)
+check_include_files(crypt.h HAVE_CRYPT_H)
+check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
+
+# Check for various functions.
+check_function_exists(strerror HAVE_STRERROR)
+check_function_exists(strcasecmp HAVE_STRCASECMP)
+check_function_exists(strncasecmp HAVE_STRNCASECMP)
+check_function_exists(stricmp HAVE_STRICMP)
+check_function_exists(strnicmp HAVE_STRNICMP)
+check_function_exists(srandom HAVE_SRANDOM)
+check_function_exists(srand48 HAVE_SRAND48)
+check_function_exists(srand HAVE_SRAND)
+check_function_exists(getdtablesize HAVE_GETDTABLESIZE)
+check_function_exists(sysconf HAVE_SYSCONF)
+check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists(tempnam HAVE_TEMPNAM)
+check_function_exists(strcasestr HAVE_STRCASESTR)
+check_function_exists(strdup HAVE_STRDUP)
+check_function_exists(strndup HAVE_STRNDUP)
+check_function_exists(strtok_r HAVE_STRTOK_R)
+check_function_exists(sigaction HAVE_SIGACTION)
+check_function_exists(getline HAVE_GETLINE)
+check_function_exists(usleep HAVE_USLEEP)
+
+# Check sizes of 'long' and 'long long' to determine architecture (32-bit
+# or 64-bit)
+include(CheckTypeSize)
+check_type_size("long" SIZEOF_LONG)
+check_type_size("long long" SIZEOF_LONG_LONG)
+
+configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
+
+include_directories(src/toolkit/include)
+
+set(SOURCES_TOOLKIT
+	src/toolkit/binreloc.c
+	src/toolkit/clioptions.c
+	src/toolkit/console.c
+	src/toolkit/datetime.c
+	src/toolkit/logger.c
+	src/toolkit/math.c
+	src/toolkit/memory.c
+	src/toolkit/mempool.c
+	src/toolkit/packet.c
+	src/toolkit/path.c
+	src/toolkit/porting.c
+	src/toolkit/sha1.c
+	src/toolkit/shstr.c
+	src/toolkit/signals.c
+	src/toolkit/string.c
+	src/toolkit/stringbuffer.c
+	src/toolkit/toolkit.c)
