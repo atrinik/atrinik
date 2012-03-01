@@ -51,9 +51,9 @@ char first_map_path[MAX_BUF];
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
 
-static void init_beforeplay();
-static void init_dynamic();
-static void init_clocks();
+static void init_beforeplay(void);
+static void init_dynamic(void);
+static void init_clocks(void);
 
 /**
  * Initialize the ::shstr_cons structure. */

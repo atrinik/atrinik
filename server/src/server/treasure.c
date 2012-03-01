@@ -68,21 +68,21 @@ static archetype *amulet_arch_normal = NULL;
 
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
 static void change_treasure(struct _change_arch *ca, object *op);
-static treasurelist *get_empty_treasurelist();
-static treasure *get_empty_treasure();
+static treasurelist *get_empty_treasurelist(void);
+static treasure *get_empty_treasure(void);
 static void put_treasure(object *op, object *creator, int flags);
-static artifactlist *get_empty_artifactlist();
-static artifact *get_empty_artifact();
+static artifactlist *get_empty_artifactlist(void);
+static artifact *get_empty_artifact(void);
 static void check_treasurelist(treasure *t, treasurelist *tl);
 static void set_material_real(object *op, struct _change_arch *change_arch);
-static void create_money_table();
+static void create_money_table(void);
 static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
 static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
 static int set_ring_bonus(object *op, int bonus, int level);
 static int get_magic(int diff);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
-static void free_artifactlist();
+static void free_artifactlist(void);
 static void free_artifact(artifact *at);
 
 /**

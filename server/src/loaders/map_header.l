@@ -28,7 +28,7 @@
 
 #define YY_DECL int map_lex_load(mapstruct *m)
 
-static char *yval();
+static char *yval(void);
 
 static char msgbuf[HUGE_BUF];
 static int lex_error, msg_flag;

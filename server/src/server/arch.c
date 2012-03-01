@@ -49,7 +49,7 @@ archetype *base_info_archetype;
 /** Pointer to level up effect archetype. */
 archetype *level_up_arch;
 
-static void load_archetypes();
+static void load_archetypes(void);
 
 /**
  * Finds, using the hashtable, which archetype matches the given name.

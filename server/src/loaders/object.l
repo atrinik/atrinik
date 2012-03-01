@@ -34,7 +34,7 @@
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
 #define MAXDEPTH 10
 
-static char *yval();
+static char *yval(void);
 
 /* that's needed to track the used buffers for recursive calling */
 static void *cur_buffer;

@@ -33,8 +33,8 @@
 /** First region. */
 region *first_region = NULL;
 
-static region *get_region_struct();
-static void assign_region_parents();
+static region *get_region_struct(void);
+static void assign_region_parents(void);
 
 /**
  * Gets a region by name.

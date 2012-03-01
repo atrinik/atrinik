@@ -52,10 +52,10 @@ uint32 global_round_tag;
 static long shutdown_time;
 static uint8 shutdown_active = 0;
 
-static void process_players1();
-static void process_players2();
-static void dequeue_path_requests();
-static void do_specials();
+static void process_players1(void);
+static void process_players2(void);
+static void dequeue_path_requests(void);
+static void do_specials(void);
 
 /**
  * Shows version information.

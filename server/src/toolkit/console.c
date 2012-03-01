@@ -357,8 +357,8 @@ void toolkit_console_deinit(void)
 	logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
-    rl_unbind_key(RETURN);
-    rl_callback_handler_remove();
+	rl_unbind_key(RETURN);
+	rl_callback_handler_remove();
 
 	rl_set_prompt("");
 	rl_redisplay();
