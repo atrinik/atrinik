@@ -347,7 +347,7 @@ void enter_exit(object *op, object *exit_ob)
 			{
 				char *path;
 
-				path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && EXIT_PATH(exit_ob)[0] != '/')), op->name);
+				path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
 				m = ready_map_name(path, 0);
 				free(path);
 

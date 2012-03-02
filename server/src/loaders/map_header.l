@@ -130,9 +130,16 @@ lex_error = 0;
 								FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
 							}
 
-							path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE, NULL);
-							path_sh = add_string(path);
-							free(path);
+							if (map_path_isabs(value))
+							{
+								path_sh = add_string(value);
+							}
+							else
+							{
+								path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE, NULL);
+								path_sh = add_string(path);
+								free(path);
+							}
 
 							m->tile_path[tile - 1] = path_sh;
 
