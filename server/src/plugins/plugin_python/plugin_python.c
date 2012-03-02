@@ -1226,48 +1226,6 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>LocateBeacon(string name, string [map_path = None])</h1>
- * Locate a beacon.
- * @param name The beacon name to find.
- * @return The beacon if found, None otherwise. */
-static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
-{
-	const char *name, *map_path = NULL;
-	shstr *beacon_name = NULL;
-	mapstruct *m;
-	object *myob;
-
-	if (!PyArg_ParseTuple(args, "s|z", &name, &map_path))
-	{
-		return NULL;
-	}
-
-	if (map_path && (m = hooks->ready_map_name(map_path, 0)) && MAP_UNIQUE(m))
-	{
-		char *filedir, *pl_name, *joined;
-
-		filedir = hooks->path_dirname(m->path);
-		pl_name = hooks->path_basename(filedir);
-		joined = hooks->string_join("-", pl_name, name, NULL);
-
-		FREE_AND_COPY_HASH(beacon_name, joined);
-
-		free(joined);
-		free(pl_name);
-		free(filedir);
-	}
-	else
-	{
-		FREE_AND_COPY_HASH(beacon_name, name);
-	}
-
-	myob = hooks->beacon_locate(beacon_name);
-	FREE_AND_CLEAR_HASH(beacon_name);
-
-	return wrap_object(myob);
-}
-
-/**
  * <h1>FindParty(string name)</h1>
  * Find a party by name.
  * @param name The party name to find.
@@ -1694,7 +1652,6 @@ static PyMethodDef AtrinikMethods[] =
 	{"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
 	{"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
 	{"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
-	{"LocateBeacon", Atrinik_LocateBeacon, METH_VARARGS, 0},
 	{"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
 	{"Logger", Atrinik_Logger, METH_VARARGS, 0},
 	{"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},

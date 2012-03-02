@@ -521,6 +521,47 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args)
 	return ret;
 }
 
+/**
+ * <h1>map.LocateBeacon(string name)</h1>
+ * Locate a beacon.
+ * @param name The beacon name to find.
+ * @return The beacon if found, None otherwise. */
+static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
+{
+	const char *name;
+	shstr *beacon_name = NULL;
+	object *myob;
+
+	if (!PyArg_ParseTuple(args, "s", &name))
+	{
+		return NULL;
+	}
+
+	if (MAP_UNIQUE(map->map))
+	{
+		char *filedir, *pl_name, *joined;
+
+		filedir = hooks->path_dirname(map->map->path);
+		pl_name = hooks->path_basename(filedir);
+		joined = hooks->string_join("-", pl_name, name, NULL);
+
+		FREE_AND_COPY_HASH(beacon_name, joined);
+
+		free(joined);
+		free(pl_name);
+		free(filedir);
+	}
+	else
+	{
+		FREE_AND_COPY_HASH(beacon_name, name);
+	}
+
+	myob = hooks->beacon_locate(beacon_name);
+	FREE_AND_CLEAR_HASH(beacon_name);
+
+	return wrap_object(myob);
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
@@ -541,6 +582,7 @@ static PyMethodDef MapMethods[] =
 	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
 	{"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
 	{"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS, 0},
+	{"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
