@@ -27,6 +27,7 @@
  * String API. */
 
 #include <global.h>
+#include <stdarg.h>
 
 /**
  * Initialize the string API.
@@ -36,6 +37,7 @@ void toolkit_string_init(void)
 	TOOLKIT_INIT_FUNC_START(string)
 	{
 		toolkit_import(math);
+		toolkit_import(stringbuffer);
 	}
 	TOOLKIT_INIT_FUNC_END()
 }
@@ -711,6 +713,27 @@ char *string_crypt(char *str, const char *salt)
 #endif
 }
 
-char *string_join(const char *delim, ...) __attribute__((format(printf, 1, 2)))
+char *string_join(const char *delim, ...)
 {
+	StringBuffer *sb;
+	va_list args;
+	const char *str;
+
+	sb = stringbuffer_new();
+
+	va_start(args, delim);
+
+	while ((str = va_arg(args, const char *)))
+	{
+		if (sb->pos && delim)
+		{
+			stringbuffer_append_string(sb, delim);
+		}
+
+		stringbuffer_append_string(sb, str);
+	}
+
+	va_end(args);
+
+	return stringbuffer_finish(sb);
 }
