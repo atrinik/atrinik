@@ -57,6 +57,7 @@ static int apply_func(object *op, object *applier, int aflags)
 		if (op->other_arch && op->other_arch->clone.sub_type & 1)
 		{
 			op->animation_id = op->other_arch->clone.animation_id;
+			op->state = 0;
 			SET_ANIMATION_STATE(op);
 			esrv_update_item(UPD_FACE | UPD_ANIM, op);
 		}
