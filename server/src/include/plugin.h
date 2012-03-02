@@ -312,6 +312,7 @@ struct plugin_hooklist
 	char *(*path_dirname)(const char *);
 	char *(*path_basename)(const char *);
 	char *(*string_join)(const char *delim, ...);
+	object *(*get_env_recursive)(object *);
 
 	const char **season_name;
 	const char **weekdays;

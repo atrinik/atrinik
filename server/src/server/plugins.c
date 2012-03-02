@@ -174,6 +174,7 @@ struct plugin_hooklist hooklist =
 	path_dirname,
 	path_basename,
 	string_join,
+	get_env_recursive,
 
 	season_name,
 	weekdays,
