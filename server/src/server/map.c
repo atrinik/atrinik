@@ -2500,7 +2500,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
 int map_path_isabs(const char *path)
 {
-	if (*path == '/' || string_startswith(*path, settings.datapath))
+	if (*path == '/' || string_startswith(path, settings.datapath))
 	{
 		return 1;
 	}
