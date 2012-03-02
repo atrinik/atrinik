@@ -1226,24 +1226,41 @@ static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
 }
 
 /**
- * <h1>LocateBeacon(string name)</h1>
+ * <h1>LocateBeacon(string name, string [map_path = None])</h1>
  * Locate a beacon.
  * @param name The beacon name to find.
  * @return The beacon if found, None otherwise. */
 static PyObject *Atrinik_LocateBeacon(PyObject *self, PyObject *args)
 {
-	const char *name;
+	const char *name, *map_path = NULL;
 	shstr *beacon_name = NULL;
+	mapstruct *m;
 	object *myob;
 
-	(void) self;
-
-	if (!PyArg_ParseTuple(args, "s", &name))
+	if (!PyArg_ParseTuple(args, "s|z", &name, &map_path))
 	{
 		return NULL;
 	}
 
-	FREE_AND_COPY_HASH(beacon_name, name);
+	if (map_path && (m = hooks->ready_map_name(map_path, 0)) && MAP_UNIQUE(m))
+	{
+		char *filedir, *pl_name, *joined;
+
+		filedir = hooks->path_dirname(m->path);
+		pl_name = hooks->path_basename(filedir);
+		joined = hooks->string_join("-", pl_name, name, NULL);
+
+		FREE_AND_COPY_HASH(beacon_name, joined);
+
+		free(joined);
+		free(pl_name);
+		free(filedir);
+	}
+	else
+	{
+		FREE_AND_COPY_HASH(beacon_name, name);
+	}
+
 	myob = hooks->beacon_locate(beacon_name);
 	FREE_AND_CLEAR_HASH(beacon_name);
 
