@@ -15,7 +15,7 @@ f = open(sys.argv[1], "w")
 
 for line in lines:
 	# Line has format specifiers, adjust it.
-	if line.find(", ...);") != -1:
+	if line.find("format, ...);") != -1 or line.find("fmt, ...);") != -1:
 		commas = line.count(", ")
 		line = line.replace(", ...);", ", ...) __attribute__((format(printf, {0}, {1})));".format(commas, commas + 1))
 

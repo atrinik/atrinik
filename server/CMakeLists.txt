@@ -388,7 +388,7 @@ add_custom_target(proto
 	COMMAND sed -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
 	COMMAND cmake -E echo "#endif" >> src/include/proto.h
 	COMMAND cmake -E remove -f src/include/proto.h.bak
-	COMMAND python tools/adjust_proto.py src/include/proto.h || exit 5
+	COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 	COMMENT "Generating prototypes..."
 	VERBATIM)
@@ -407,7 +407,7 @@ if (CHECK_LIBRARY)
 		COMMAND sed -e "s/\"\" //g" < src/tests/check_proto.h.bak >> src/tests/check_proto.h
 		COMMAND cmake -E echo "#endif" >> src/tests/check_proto.h
 		COMMAND cmake -E remove -f src/tests/check_proto.h.bak
-		COMMAND python tools/adjust_proto.py src/tests/check_proto.h || exit 5
+		COMMAND python src/toolkit/adjust_proto.py src/tests/check_proto.h || exit 5
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		COMMENT "Generating unit test prototypes..."
 		VERBATIM)
