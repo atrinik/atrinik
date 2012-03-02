@@ -50,6 +50,24 @@ static beacon_struct *beacons = NULL;
 void beacon_add(object *ob)
 {
 	beacon_struct *beacon;
+	object *env;
+
+	env = get_env_recursive(ob);
+
+	if (MAP_UNIQUE(env->map))
+	{
+		char *filedir, *pl_name, *joined;
+
+		filedir = path_dirname(env->map->path);
+		pl_name = path_basename(filedir);
+		joined = string_join("-", pl_name, ob->name, NULL);
+
+		FREE_AND_COPY_HASH(ob->name, joined);
+
+		free(joined);
+		free(pl_name);
+		free(filedir);
+	}
 
 	beacon = malloc(sizeof(beacon_struct));
 	beacon->ob = ob;
