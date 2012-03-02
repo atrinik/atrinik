@@ -1,7 +1,7 @@
 ## @file
 ## Script for the torches in the first room of Underground City II.
 
-import threading, os.path
+import threading
 
 def main():
 	# The effect is going on, do not allow apply the torches.

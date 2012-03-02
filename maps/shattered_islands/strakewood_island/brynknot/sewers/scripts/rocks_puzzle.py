@@ -1,8 +1,6 @@
 ## @file
 ## Script for the rocks puzzle in second level of Brynknot Sewers.
 
-import os.path
-
 def main():
 	# The rocks.
 	rocks = [
@@ -13,7 +11,8 @@ def main():
 	]
 
 	for rock in rocks:
-		ReadyMap(os.path.dirname(me.map.path) + "/" + rock[0]).Insert(LocateBeacon(rock[3]).env, rock[1], rock[2])
+		m = ReadyMap(me.map.GetPath(rock[0]))
+		m.Insert(m.LocateBeacon(rock[3]).env, rock[1], rock[2])
 
 	key = me.FindObject(archname = "key2")
 

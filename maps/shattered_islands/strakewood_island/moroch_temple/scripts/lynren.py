@@ -54,12 +54,12 @@ def main():
 
 			elif msg == "perform":
 				# Activate the spell effect.
-				beacon = LocateBeacon("lynren_lever")
+				beacon = me.map.LocateBeacon("lynren_lever")
 				beacon.env.Apply(beacon.env, APPLY_TOGGLE)
 
 				inf.dialog_close()
 				activator.Write("You use the variation of the holy word prayer to free Lynren the paladin from her imprisonment.", COLOR_GREEN)
-				activator.Write("{} says: Thank you, thank you! I hope to meet you again once more... For now, farewell.".format(me.name), COLOR_NAVY)
+				activator.Write("{} says: Thank you, thank you! I hope to meet you again once more... For now, farewell!".format(me.name), COLOR_NAVY)
 				obj = me.FindObject(archname = "goldcoin").Clone()
 				activator.Write("Moments after Lynren vanishes, some sparkling gold coins materialize in your hand out of nowhere...")
 				obj.InsertInto(activator)

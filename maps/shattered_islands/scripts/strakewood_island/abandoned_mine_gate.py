@@ -7,7 +7,7 @@ from Interface import Interface
 inf = Interface(activator, me)
 
 def main():
-	lever = LocateBeacon("abandoned_mine_gate_lever").env
+	lever = me.map.LocateBeacon("abandoned_mine_gate_lever").env
 
 	# The lever has been activated so the gate is (going) down.
 	if lever.speed:

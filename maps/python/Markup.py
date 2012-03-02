@@ -200,9 +200,7 @@ class Map2Markup:
 		locations = [(self._map, x, y)]
 
 		if self._mmirror:
-			import os.path
-
-			mirror_map = self._mmirror.map if not self._mmirror.slaying else ReadyMap(os.path.join(os.path.dirname(self._mmirror.map.path), self._mmirror.slaying))
+			mirror_map = self._mmirror.map if not self._mmirror.slaying else ReadyMap(self._mmirror.map.GetPath(self._mmirror.slaying))
 			mirror_x = self._mmirror.x if self._mmirror.hp == -1 else self._mmirror.hp
 			mirror_y = self._mmirror.y if self._mmirror.sp == -1 else self._mmirror.sp
 			locations.append((mirror_map, mirror_x, mirror_y))

@@ -13,7 +13,7 @@ def main():
 		inf.set_text_input()
 	else:
 		inf.dialog_close()
-		info = LocateBeacon("creation_music_changer").env
+		info = me.map.LocateBeacon("creation_music_changer").env
 		info.slaying = "no_music" if msg == "none" else msg.strip()
 		# Construct new map name from old one.
 		info.race = re.sub(r"\([a-zA-Z0-9_\-\.]+\)", "({})".format(info.slaying), info.race)
