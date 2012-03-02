@@ -2236,13 +2236,13 @@ void string_show_shadow(SDL_Surface *surface, int font, const char *text, int x,
  * Like string_show(), but allows using printf-like format specifiers.
  *
  * @copydoc string_show() */
-void string_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
+void string_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
-	va_start(ap, text);
-	vsnprintf(buf, sizeof(buf), text, ap);
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
 	string_show(surface, font, buf, x, y, color_notation, flags, box);
 	va_end(ap);
 }
@@ -2251,13 +2251,13 @@ void string_show_format(SDL_Surface *surface, int font, int x, int y, const char
  * Like string_show_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc string_show_shadow() */
-void string_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *text, ...)
+void string_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
-	va_start(ap, text);
-	vsnprintf(buf, sizeof(buf), text, ap);
+	va_start(ap, format);
+	vsnprintf(buf, sizeof(buf), format, ap);
 	string_show_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
 	va_end(ap);
 }
