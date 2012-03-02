@@ -2512,14 +2512,14 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 {
 	char *ret;
 
-	if (map_path_isabs(path))
-	{
-		return strdup(path);
-	}
-
 	if (MAP_UNIQUE(m))
 	{
 		char *file, *filedir, *joined;
+
+		if (map_path_isabs(path))
+		{
+			return strdup(path);
+		}
 
 		/* Demangle the original map path, and get the original
 		 * directory the map was in. */
