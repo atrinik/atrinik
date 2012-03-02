@@ -5,4 +5,4 @@
 from random import choice
 
 # Randomly choose the X/Y.
-activator.TeleportTo("/shattered_islands/world_1113", choice((7, 10, 13, 16)), choice((7, 8)), 0)
+activator.TeleportTo("/shattered_islands/world_1113", choice((7, 10, 13, 16)), choice((7, 8)))
