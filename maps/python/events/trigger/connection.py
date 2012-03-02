@@ -21,26 +21,17 @@ event = WhatIsEvent()
 def main():
 	# Get the configuration.
 	options = GetOptions().split(";")
+	m = me.map
 
-	# Is there a map path?
 	if len(options) > 1 and options[1]:
-		# Starts with /, so it's absolute path.
-		if options[1].startswith("/"):
-			path = options[1]
-		# Otherwise a relative one.
-		else:
-			import os.path
-			path = "{}/{}".format(os.path.dirname(me.map.path), options[1])
-
-		# Load up the destination map.
-		ReadyMap(path)
+		m = m.GetPath(options[1])
 
 	# Set the return value, if any.
 	if len(options) > 2:
 		SetReturnValue(int(options[2]))
 
 	# Try to find the beacon.
-	beacon = LocateBeacon(options[0])
+	beacon = m.LocateBeacon(options[0])
 
 	if not beacon or not beacon.env:
 		raise AtrinikError("Could not find beacon {} or beacon is not inside inventory.".format(options[0]))
