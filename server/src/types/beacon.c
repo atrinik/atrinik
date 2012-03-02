@@ -54,13 +54,13 @@ void beacon_add(object *ob)
 
 	env = get_env_recursive(ob);
 
-	if (MAP_UNIQUE(env->map))
+	if (MAP_UNIQUE(env->map) && !map_path_isabs(ob->name))
 	{
 		char *filedir, *pl_name, *joined;
 
 		filedir = path_dirname(env->map->path);
 		pl_name = path_basename(filedir);
-		joined = string_join("-", pl_name, ob->name, NULL);
+		joined = string_join("-", "/", pl_name, ob->name, NULL);
 
 		FREE_AND_COPY_HASH(ob->name, joined);
 

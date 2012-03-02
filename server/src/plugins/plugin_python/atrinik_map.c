@@ -543,7 +543,7 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 
 		filedir = hooks->path_dirname(map->map->path);
 		pl_name = hooks->path_basename(filedir);
-		joined = hooks->string_join("-", pl_name, name, NULL);
+		joined = hooks->string_join("-", "/", pl_name, name, NULL);
 
 		FREE_AND_COPY_HASH(beacon_name, joined);
 
