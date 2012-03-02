@@ -493,7 +493,7 @@ static PyObject *Atrinik_Map_GetDarkness(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.GetPath(string path, bool [unique = False], string [name = None])</h1>
+ * <h1>map.GetPath(string path, bool [unique = map.f_unique], string [name = None])</h1>
  * Construct a path based on the path of 'map', with 'path' appended.
  * @param unique If True, construct a unique path.
  * @param name If 'map' is not unique and 'unique' is True, this is required
@@ -506,7 +506,7 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args)
 	char *cp;
 	PyObject *ret;
 
-	unique = 0;
+	unique = MAP_UNIQUE(map->map) ? 1 : 0;
 	name = NULL;
 
 	if (!PyArg_ParseTuple(args, "s|is", &path, &unique, &name))
