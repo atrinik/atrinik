@@ -710,3 +710,7 @@ char *string_crypt(char *str, const char *salt)
 	return str;
 #endif
 }
+
+char *string_join(const char *delim, ...) __attribute__((format(printf, 1, 2)))
+{
+}
