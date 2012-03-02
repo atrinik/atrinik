@@ -18,7 +18,7 @@ def main():
 		beacons = ["uc_torch_1", "uc_torch_2", "uc_torch_3", "uc_torch_4"]
 
 		for beacon in beacons:
-			yield LocateBeacon(beacon).env
+			yield me.map.LocateBeacon(beacon).env
 
 	torches = []
 
@@ -38,6 +38,15 @@ def main():
 	## The threading timer function for the effect.
 	## @param progress Progress in the effect.
 	def timer(progress):
+		if progress == 0:
+			# Find the gate closer spawn point.
+			beacon = ReadyMap(me.map.GetPath("underground_city_a_0602")).LocateBeacon("uc_torch_gate_closer")
+
+			# If the gate closer spawn point has the monster spawned, make it go
+			# close the gate.
+			if beacon.env.enemy:
+				beacon.env.enemy.FindObject(archname = "waypoint", name = "wp1").f_cursed = True
+
 		# Go through the torches.
 		for torch in torches:
 			# Light/extinguish the torch.
@@ -56,18 +65,8 @@ def main():
 	activator.Controller().Sound("gate_open.ogg")
 	activator.Write("You hear the sound of old gears turning...", COLOR_YELLOW)
 
-	# Make sure the map with the gate is in memory.
-	ReadyMap(os.path.dirname(me.map.path) + "/underground_city_a_0602")
 	# Apply the switch that opens the gate.
-	me.Apply(LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
-
-	# Find the gate closer spawn point.
-	beacon = LocateBeacon("uc_torch_gate_closer")
-
-	# If the gate closer spawn point has the monster spawned, make it go
-	# close the gate.
-	if beacon.env.enemy:
-		beacon.env.enemy.FindObject(archname = "waypoint", name = "wp1").f_cursed = True
+	me.Apply(ReadyMap(me.map.GetPath("underground_city_a_0602")).LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
 
 	# Start the torches effect.
 	t = threading.Timer(0.5, timer, [0])
