@@ -2514,74 +2514,113 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
 	if (MAP_UNIQUE(m))
 	{
-		char *file, *filedir, *joined;
-
 		if (map_path_isabs(path))
 		{
-			return strdup(path);
-		}
+			if (unique)
+			{
+				char *dir, *cp;
 
-		/* Demangle the original map path, and get the original
-		 * directory the map was in. */
-		file = path_basename(m->path);
-		string_replace_char(file, "$", '/');
-		filedir = path_dirname(file);
+				dir = path_dirname(m->path);
+				cp = strdup(path);
+				string_replace_char(cp, "/", '$');
 
-		if (unique)
-		{
-			char *newpath, *dir;
+				ret = path_join(dir, cp);
 
-			/* Construct the new path. */
-			joined = path_join(filedir, path);
-			newpath = path_normalize(joined);
-			string_replace_char(newpath, "/", '$');
-
-			/* We need the data directory the map is in. */
-			dir = path_dirname(m->path);
-
-			/* Construct the path pointing inside the data directory. */
-			ret = path_join(dir, newpath);
-
-			free(newpath);
-			free(dir);
+				free(cp);
+				free(dir);
+			}
+			else
+			{
+				return strdup(path);
+			}
 		}
 		else
 		{
-			joined = path_join(filedir, path);
-			ret = path_normalize(joined);
-		}
+			char *file, *filedir, *joined;
 
-		free(joined);
-		free(filedir);
-		free(file);
+			/* Demangle the original map path, and get the original
+			 * directory the map was in. */
+			file = path_basename(m->path);
+			string_replace_char(file, "$", '/');
+			filedir = path_dirname(file);
+
+			if (unique)
+			{
+				char *newpath, *dir;
+
+				/* Construct the new path. */
+				joined = path_join(filedir, path);
+				newpath = path_normalize(joined);
+				string_replace_char(newpath, "/", '$');
+
+				/* We need the data directory the map is in. */
+				dir = path_dirname(m->path);
+
+				/* Construct the path pointing inside the data directory. */
+				ret = path_join(dir, newpath);
+
+				free(newpath);
+				free(dir);
+			}
+			else
+			{
+				joined = path_join(filedir, path);
+				ret = path_normalize(joined);
+			}
+
+			free(joined);
+			free(filedir);
+			free(file);
+		}
 	}
 	else
 	{
-		char *filedir, *joined;
-
-		filedir = path_dirname(m->path);
-
-		if (unique && name)
+		if (map_path_isabs(path))
 		{
-			char *newpath;
+			if (unique && name)
+			{
+				char *cp;
 
-			/* Construct the new path. */
-			joined = path_join(filedir, path);
-			newpath = path_normalize(joined);
-			string_replace_char(newpath, "/", '$');
+				cp = strdup(path);
+				string_replace_char(cp, "/", '$');
 
-			ret = player_make_path(name, newpath);
+				ret = player_make_path(name, cp);
 
-			free(newpath);
+				free(cp);
+			}
+			else
+			{
+				return strdup(path);
+			}
 		}
 		else
 		{
-			joined = path_join(filedir, path);
-			ret = path_normalize(joined);
-		}
+			char *filedir, *joined;
 
-		free(joined);
-		free(filedir);
+			filedir = path_dirname(m->path);
+
+			if (unique && name)
+			{
+				char *newpath;
+
+				/* Construct the new path. */
+				joined = path_join(filedir, path);
+				newpath = path_normalize(joined);
+				string_replace_char(newpath, "/", '$');
+
+				ret = player_make_path(name, newpath);
+
+				free(newpath);
+			}
+			else
+			{
+				joined = path_join(filedir, path);
+				ret = path_normalize(joined);
+			}
+
+			free(joined);
+			free(filedir);
+		}
 	}
 
 	return ret;

@@ -169,7 +169,7 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>object.TeleportTo(string map, int x, int y, bool [unique = False], bool [sound = True])</h1>
+ * <h1>object.TeleportTo(string map, int x, int y, bool [unique = False])</h1>
  * Teleport object to the given position of map.
  * @param path Map path to teleport the object to.
  * @param x X position on the map.
@@ -181,9 +181,9 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
 	static char *kwlist[] = {"path", "x", "y", "unique", "sound", NULL};
 	const char *path;
 	object *tmp;
-	int x, y, unique = 0, sound = 1;
+	int x, y, unique = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|ii", kwlist, &path, &x, &y, &unique, &sound))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|ii", kwlist, &path, &x, &y, &unique))
 	{
 		return NULL;
 	}
@@ -191,6 +191,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
 	OBJEXISTCHECK(obj);
 
 	tmp = hooks->get_object();
+	tmp->map = obj->obj->map;
 	FREE_AND_COPY_HASH(EXIT_PATH(tmp), path);
 	EXIT_X(tmp) = x;
 	EXIT_Y(tmp) = y;
@@ -201,11 +202,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
 	}
 
 	hooks->enter_exit(obj->obj, tmp);
-
-	if (obj->obj->map && sound)
-	{
-		hooks->play_sound_map(obj->obj->map, CMD_SOUND_EFFECT, "teleport.ogg", obj->obj->x, obj->obj->y, 0, 0);
-	}
+	hooks->object_destroy(tmp);
 
 	Py_INCREF(Py_None);
 	return Py_None;
