@@ -893,6 +893,7 @@ extern int string_contains(const char *str, const char *key);
 extern int string_contains_other(const char *str, const char *key);
 extern char *string_create_char_range(char start, char end);
 extern char *string_crypt(char *str, const char *salt);
+extern char *string_join(const char *delim, ...);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

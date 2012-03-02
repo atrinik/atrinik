@@ -171,6 +171,9 @@ struct plugin_hooklist hooklist =
 	map_get_darkness,
 	map_get_path,
 	map_path_isabs,
+	path_dirname,
+	path_basename,
+	string_join,
 
 	season_name,
 	weekdays,

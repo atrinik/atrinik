@@ -309,6 +309,9 @@ struct plugin_hooklist
 	int (*map_get_darkness)(mapstruct *, int, int, object **);
 	char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
     int (*map_path_isabs)(const char *);
+	char *(*path_dirname)(const char *);
+	char *(*path_basename)(const char *);
+	char *(*string_join)(const char *delim, ...);
 
 	const char **season_name;
 	const char **weekdays;
