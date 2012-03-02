@@ -691,11 +691,14 @@ static int do_script(PythonContext *context, const char *filename)
 	PyObject *dict, *ret;
 	PyGILState_STATE gilstate;
 
-	if (context->event && context->who && context->who->map && !hooks->map_path_isabs(filename))
+	if (context->event && !hooks->map_path_isabs(filename))
 	{
 		char *path;
+		object *env;
 
-		path = hooks->map_get_path(context->who->map, filename, 0, NULL);
+		env = hooks->get_env_recursive(context->event);
+
+		path = hooks->map_get_path(env->map, filename, 0, NULL);
 		FREE_AND_COPY_HASH(context->event->race, path);
 		free(path);
 	}
