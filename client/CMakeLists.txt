@@ -206,7 +206,7 @@ add_custom_target(proto
 	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
 	COMMAND cmake -E echo "#endif" >> src/include/proto.h
 	COMMAND cmake -E remove -f src/include/proto.h.bak
-	COMMAND python src/adjust_proto.py src/include/proto.h || exit 5
+	COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 	COMMENT "Generating prototypes..."
 	VERBATIM)

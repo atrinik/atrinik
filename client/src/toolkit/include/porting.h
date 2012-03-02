@@ -70,14 +70,14 @@
 #	define socklen_t int
 #	define sleep(_x) Sleep((_x) * 1000)
 
-#	define HAVE_STRICMP
-#	define HAVE_STRNICMP
-#	define HAVE_ZLIB
-#	define HAVE_STRERROR
-#	define HAVE_SRAND
-#	define HAVE_FCNTL_H
-#	define HAVE_TIME_H
-#	define HAVE_STDDEF_H
+#	define HAVE_STRICMP 1
+#	define HAVE_STRNICMP 1
+#	define HAVE_ZLIB 1
+#	define HAVE_STRERROR 1
+#	define HAVE_SRAND 1
+#	define HAVE_FCNTL_H 1
+#	define HAVE_TIME_H 1
+#	define HAVE_STDDEF_H 1
 
 #	define PLUGIN_SUFFIX ".dll"
 #else
