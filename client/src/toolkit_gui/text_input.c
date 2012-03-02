@@ -281,11 +281,14 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 				size_t i, j;
 
 				i = j = text_input->pos;
-				i--;
 
 				if (event->key.keysym.mod & KMOD_CTRL)
 				{
 					string_skip_word(text_input->str, &i, -1);
+				}
+				else
+				{
+					i--;
 				}
 
 				while (j <= text_input->num)
@@ -306,11 +309,14 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 				size_t i, j;
 
 				i = j = text_input->pos;
-				i++;
 
 				if (event->key.keysym.mod & KMOD_CTRL)
 				{
 					string_skip_word(text_input->str, &i, 1);
+				}
+				else
+				{
+					i++;
 				}
 
 				while (i <= text_input->num)
