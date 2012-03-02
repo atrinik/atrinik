@@ -2498,9 +2498,24 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 	return darkness;
 }
 
+int map_path_isabs(const char *path)
+{
+	if (*path == '/' || string_startswith(*path, settings.datapath))
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
 char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name)
 {
 	char *ret;
+
+	if (map_path_isabs(path))
+	{
+		return strdup(path);
+	}
 
 	if (MAP_UNIQUE(m))
 	{

@@ -691,7 +691,7 @@ static int do_script(PythonContext *context, const char *filename)
 	PyObject *dict, *ret;
 	PyGILState_STATE gilstate;
 
-	if (context->event && context->who && context->who->map && !hooks->char_contains(*filename, "/."))
+	if (context->event && context->who && context->who->map && !hooks->map_path_isabs(filename))
 	{
 		char *path;
 

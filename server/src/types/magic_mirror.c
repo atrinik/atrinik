@@ -71,7 +71,7 @@ void magic_mirror_init(object *mirror)
 	{
 		FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
 	}
-	else if (!char_contains(*mirror->slaying, "/."))
+	else if (!map_path_isabs(mirror->slaying))
 	{
 		char *path;
 

@@ -121,7 +121,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
 	mapstruct *destmap;
 
-	if (!char_contains(*waypoint->slaying, "/."))
+	if (!map_path_isabs(waypoint->slaying))
 	{
 		char *path;
 
