@@ -70,11 +70,20 @@ static int texture_data_new(int type, texture_struct *tmp)
 
 			if (sscanf(tmp->name + 10, "%d,%d,%d", &w, &h, &alpha) >= 2)
 			{
+				char *cp;
+
 				surface = SDL_CreateRGBSurface(get_video_flags(), w, h, video_get_bpp(), 0, 0, 0, 0);
 
 				if (alpha != 255)
 				{
 					SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+				}
+
+				cp = strchr(tmp->name + 10, ';');
+
+				if (cp)
+				{
+					string_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, NULL);
 				}
 			}
 			else
