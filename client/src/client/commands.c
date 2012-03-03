@@ -200,7 +200,7 @@ void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 		msg_anim.color[sizeof(msg_anim.color) - 1] = '\0';
 	}
 
-	draw_info_flags(color, flags, str);
+	draw_info_tab(CHAT_TYPE_CHAT, "Xxx", color, str);
 
 	free(str);
 }

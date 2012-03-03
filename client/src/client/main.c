@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 	load_mapdef_dat();
 	read_bmaps_p0();
 	server_files_init();
-	init_widgets_fromCurrent();
+	widget_init();
 
 	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 

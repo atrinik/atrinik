@@ -620,6 +620,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strncmp(cmd, "PAGE", 4))
 		{
+#if 0
 			widgetdata *widget;
 
 			cmd += 4;
@@ -634,6 +635,7 @@ int keybind_process_command(const char *cmd)
 				widget = cur_widget[*(cmd + 4) == '\0' ? CHATWIN_ID : MSGWIN_ID];
 				scrollbar_scroll_adjust(&TEXTWIN(widget)->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
 			}
+#endif
 		}
 		else if (!strcmp(cmd, "CONSOLE"))
 		{

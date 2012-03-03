@@ -29,23 +29,32 @@
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
 
-/** Custom attributes for text window widgets. */
-typedef struct textwin_struct
+#include <button.h>
+
+typedef struct textwin_tab_struct
 {
-	/** The text in the text window. */
+	size_t type;
+
+	char *name;
+
 	char *entries;
 
-	/** Length of the entries. */
 	size_t entries_size;
-
-	/** Font used. */
-	int font;
 
 	/** Scroll offset. */
 	uint32 scroll_offset;
 
 	/** Number of lines. */
 	uint32 num_lines;
+
+	button_struct button;
+} textwin_tab_struct;
+
+/** Custom attributes for text window widgets. */
+typedef struct textwin_struct
+{
+	/** Font used. */
+	int font;
 
 	/** The scrollbar. */
 	scrollbar_struct scrollbar;
@@ -58,7 +67,19 @@ typedef struct textwin_struct
 
 	/** End of selection. */
 	sint64 selection_end;
+
+	char **tabs_allowed;
+
+	size_t tabs_allowed_num;
+
+	struct textwin_tab_struct *tabs;
+
+	size_t tabs_num;
+
+	size_t tab_selected;
 } textwin_struct;
+
+#define TEXTWIN_TAB_HEIGHT 20
 
 /**
  * @defgroup TEXTWIN_TEXT_xxx Textwin text coordinates
@@ -71,12 +92,12 @@ typedef struct textwin_struct
 /** Maximum width of the text in the widget. */
 #define TEXTWIN_TEXT_WIDTH(_widget) ((_widget)->wd - scrollbar_get_width(&TEXTWIN((_widget))->scrollbar) - (TEXTWIN_TEXT_STARTX((_widget)) * 2))
 /** Maximum height of the text in the widget. */
-#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2))
+#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2) - TEXTWIN_TAB_HEIGHT)
 /*@}*/
 
 /** Get the maximum number of visible rows. */
 #define TEXTWIN_ROWS_VISIBLE(widget) (TEXTWIN_TEXT_HEIGHT((widget)) / FONT_HEIGHT(TEXTWIN((widget))->font))
 /** Get the base flags depending on the text window. */
-#define TEXTWIN_TEXT_FLAGS(widget) ((widget)->WidgetTypeID == MSGWIN_ID ? TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE : TEXT_WORD_WRAP)
+#define TEXTWIN_TEXT_FLAGS(widget) (TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE)
 
 #endif
