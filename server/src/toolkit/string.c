@@ -762,3 +762,21 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
 
 	return stringbuffer_finish(sb);
 }
+
+char *string_repeat(const char *str, size_t num)
+{
+	size_t len, i;
+	char *ret;
+
+	len = strlen(str);
+	ret = malloc(sizeof(char) * (len * num) + 1);
+
+	for (i = 0; i < num; i++)
+	{
+		strcpy(ret + (len * i), str);
+	}
+
+	ret[len * i] = '\0';
+
+	return ret;
+}
