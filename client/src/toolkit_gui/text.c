@@ -1522,7 +1522,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				{
 					char *buf;
 
-					buf = malloc(pos - cp - 11);
+					buf = malloc(pos - cp - 11 + 1);
 					memcpy(buf, cp + 11, pos - cp - 11);
 					buf[pos - cp - 11] = '\0';
 					info->highlight_rect.x = dest->x;
