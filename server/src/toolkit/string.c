@@ -737,3 +737,28 @@ char *string_join(const char *delim, ...)
 
 	return stringbuffer_finish(sb);
 }
+
+char *string_join_array(const char *delim, char **array, size_t arraysize)
+{
+	StringBuffer *sb;
+	size_t i;
+
+	sb = stringbuffer_new();
+
+	for (i = 0; i < arraysize; i++)
+	{
+		if (!array[i])
+		{
+			continue;
+		}
+
+		if (sb->pos && delim)
+		{
+			stringbuffer_append_string(sb, delim);
+		}
+
+		stringbuffer_append_string(sb, array[i]);
+	}
+
+	return stringbuffer_finish(sb);
+}
