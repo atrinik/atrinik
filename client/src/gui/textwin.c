@@ -549,26 +549,34 @@ void widget_textwin_show(widgetdata *widget)
 
 		if (textwin->tabs)
 		{
-			size_t i;
-			int button_x;
+			int height_adjust;
 
-			button_x = 0;
+			height_adjust = 0;
 
-			for (i = 0; i < textwin->tabs_num; i++)
+			if (textwin->tabs_num > 1)
 			{
-				if (i == textwin->tab_selected)
+				size_t i;
+				int button_x;
+
+				button_x = 0;
+				height_adjust = TEXTWIN_TAB_HEIGHT;
+
+				for (i = 0; i < textwin->tabs_num; i++)
 				{
-					textwin->tabs[i].button.pressed_forced = 1;
+					if (i == textwin->tab_selected)
+					{
+						textwin->tabs[i].button.pressed_forced = 1;
+					}
+
+					textwin->tabs[i].button.x = button_x;
+					textwin->tabs[i].button.y = 0;
+					textwin->tabs[i].button.surface = widget->widgetSF;
+					button_set_parent(&textwin->tabs[i].button, widget->x1, widget->y1);
+					button_show(&textwin->tabs[i].button, textwin->tabs[i].name);
+					textwin->tabs[i].button.pressed_forced = 0;
+
+					button_x += TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w - 1;
 				}
-
-				textwin->tabs[i].button.x = button_x;
-				textwin->tabs[i].button.y = 0;
-				textwin->tabs[i].button.surface = widget->widgetSF;
-				button_set_parent(&textwin->tabs[i].button, widget->x1, widget->y1);
-				button_show(&textwin->tabs[i].button, textwin->tabs[i].name);
-				textwin->tabs[i].button.pressed_forced = 0;
-
-				button_x += TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w - 1;
 			}
 
 			/* Show the text entries, if any. */
@@ -580,14 +588,14 @@ void widget_textwin_show(widgetdata *widget)
 				box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 				box_text.y = textwin->tabs[textwin->tab_selected].scroll_offset;
 				text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-				string_show(widget->widgetSF, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + TEXTWIN_TAB_HEIGHT, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+				string_show(widget->widgetSF, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + height_adjust, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
 				text_set_selection(NULL, NULL, NULL);
 			}
 
 			textwin->scrollbar.max_lines = TEXTWIN_ROWS_VISIBLE(widget);
 			textwin->scrollbar.px = widget->x1;
 			textwin->scrollbar.py = widget->y1;
-			scrollbar_show(&textwin->scrollbar, widget->widgetSF, widget->wd - 1 - textwin->scrollbar.background.w, TEXTWIN_TEXT_STARTY(widget) + TEXTWIN_TAB_HEIGHT);
+			scrollbar_show(&textwin->scrollbar, widget->widgetSF, widget->wd - 1 - textwin->scrollbar.background.w, TEXTWIN_TEXT_STARTY(widget) + height_adjust);
 
 			widget->redraw = scrollbar_need_redraw(&textwin->scrollbar);
 		}
