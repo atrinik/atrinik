@@ -40,54 +40,16 @@
 
 #include <global.h>
 
-static int load_interface_file(char *filename);
 static void process_widget(widgetdata *widget);
 
-/** Current (default) data list of all widgets. */
-static widgetdata def_widget[TOTAL_SUBWIDGETS];
-
-/** Default data list of all widgets. */
-/* {name, x1, y1, wd, ht, moveable?, show?, redraw?, unique?, no_kill?, visible?, delete_inv?, save?, save_width_height?
- * * the next members are used internally *
- * next(NULL), prev(NULL), inv(NULL), inv_rev(NULL), env(NULL), type_next(NULL), type_prev(NULL),
- * subwidget(NULL), widgetSF(NULL), WidgetTypeID(0), WidgetSubtypeID(0), WidgetObjID(0)} */
-static const widgetdata con_widget[TOTAL_SUBWIDGETS] =
+static const char *const widget_names[TOTAL_SUBWIDGETS] =
 {
-	/* base widgets */
-	{"MAP", 0, 10, 850, 600, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-	{"STATS",           227,   0, 172, 102, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"RESIST",          497,   0, 198,  79, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAIN_LVL",        399,  39,  98,  62, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILL_EXP",       497,  79, 198,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"REGEN",           399,   0,  98,  39, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILL_LVL",       695,   0,  52, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENUBUTTONS",     747,   0,  47, 101, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"QUICKSLOTS",      735, 489, 282,  34, 1, 1, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CHATWIN",         631, 540, 392, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0, 0},
-	{"MSGWIN",            1, 540, 308, 226, 1, 1, 1, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 80, 80, 0, 0, 0},
-	{"PLAYERDOLL",        0,  41, 219, 243, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"BELOWINV",        331, 713, 274,  55, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"PLAYERINFO",        0,   0, 219,  41, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"RANGEBOX",          6,  51,  94,  60, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAININV",           1, 508, 271,  32, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MAPNAME",         228, 106,  36,  16, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CONSOLE",         339, 655, 256,  25, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"NUMBER",          340, 637, 256,  43, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"FPS",             123,  47,  70,  22, 1, 1, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MPLAYER", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SPELLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"SKILLS", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"PARTY", 474, 101, 320, 190, 1, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"NOTIFICATION_ID", 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"CONTAINER",         0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"LABEL",             0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"TEXTURE",           0,   0,   5,   5, 1, 1, 1, 0, 0, 1, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	/* subwidgets */
-	{"CONTAINER_STRIP",   0,   0, 128, 128, 1, 0, 1, 0, 1, 1, 0, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENU",              0,   0,   5,   5, 0, 1, 1, 0, 0, 1, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{"MENUITEM",          0,   0,   5,   5, 0, 1, 1, 0, 0, 0, 1, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	"map", "stats", "resist", "main_lvl", "skill_exp", "regen",
+	"skill_lvl", "menubuttons", "quickslots", "textwin", "playerdoll",
+	"belowinv", "playerinfo", "rangebox", "maininv", "mapname", "console",
+	"number", "fps", "mplayer", "spells", "skills", "party", "notification",
+	"container", "label", "texture", "container_strip", "menu", "menuitem"
 };
-
 
 /* Default overall priority tree. Will change during runtime.
  * Widget at the top (head) of the tree has highest priority.
@@ -130,49 +92,122 @@ static widgetresize widget_event_resize =
  * Example: Prevents widgets from using mouse events during dragging procedure */
 static int IsMouseExclusive = 0;
 
-/**
- * Load the defaults and initialize the priority list.
- * Create the interface file, if it doesn't exist */
-static void init_widgets_fromDefault(void)
+static int widget_id_from_name(const char *name)
 {
-	int lp;
+	int i;
 
-	/* Exit, if there are no widget IDs */
-	if (!TOTAL_SUBWIDGETS)
+	for (i = 0; i < TOTAL_SUBWIDGETS; i++)
+	{
+		if (strcmp(widget_names[i], name) == 0)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static void widget_load(void)
+{
+	FILE *fp;
+	char buf[HUGE_BUF], *end, *cp;
+	widgetdata *widget;
+
+	fp = fopen_wrapper("settings/interface.cfg", "r");
+
+	if (!fp)
 	{
 		return;
 	}
 
-	/* Store the constant default widget lookup in the current lookup(s) */
-	for (lp = 0; lp < TOTAL_SUBWIDGETS; ++lp)
-	{
-		def_widget[lp] = con_widget[lp];
-	}
+	widget = NULL;
 
-	/* Initiate the linked lists for the widgets. */
-	init_widgets();
+	while (fgets(buf, sizeof(buf), fp))
+	{
+		if (*buf == '#' || *buf == '\n')
+		{
+			continue;
+		}
+
+		end = strchr(buf, '\n');
+
+		if (end)
+		{
+			*end = '\0';
+		}
+
+		if (string_startswith(buf, "[") && string_endswith(buf, "]"))
+		{
+			int id;
+
+			cp = string_sub(buf, 1, -1);
+			id = widget_id_from_name(cp);
+			free(cp);
+
+			if (id == -1)
+			{
+				logger_print(LOG(DEBUG), "Invalid widget: %s", buf);
+				continue;
+			}
+
+			widget = create_widget_object(id);
+		}
+		else if (widget)
+		{
+			char *cps[2];
+
+			if (string_split(buf, cps, arraysize(cps), '=') != arraysize(cps))
+			{
+				logger_print(LOG(BUG), "Invalid line: %s", buf);
+				continue;
+			}
+
+			string_whitespace_trim(cps[0]);
+			string_whitespace_trim(cps[1]);
+
+			if (strcmp(cps[0], "moveable") == 0)
+			{
+				KEYWORD_TO_BOOLEAN(cps[1], widget->moveable);
+			}
+			else if (strcmp(cps[0], "shown") == 0)
+			{
+				KEYWORD_TO_BOOLEAN(cps[1], widget->show);
+			}
+			else if (strcmp(cps[0], "x") == 0)
+			{
+				widget->x1 = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "y") == 0)
+			{
+				widget->y1 = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "w") == 0)
+			{
+				widget->wd = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "h") == 0)
+			{
+				widget->ht = atoi(cps[1]);
+			}
+			else
+			{
+				switch (widget->WidgetTypeID)
+				{
+					case CHATWIN_ID:
+						widget_textwin_load(widget, cps[0], cps[1]);
+						break;
+				}
+			}
+		}
+	}
 }
 
 /**
  * Try to load the main interface file and initialize the priority list
  * On failure, initialize the widgets with init_widgets_fromDefault() */
-void init_widgets_fromCurrent(void)
+void widget_init(void)
 {
-	/* Exit, if there are no widgets */
-	if (!TOTAL_SUBWIDGETS)
-	{
-		return;
-	}
-
-	/* If can't open/load the interface file load defaults and create file */
-	if (!load_interface_file(INTERFACE_FILE))
-	{
-		/* Load the defaults - this also allocates priority list */
-		init_widgets_fromDefault();
-
-		/* Create the interface file */
-		save_interface_file();
-	}
+	widget_load();
 
 	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 	{
@@ -184,7 +219,6 @@ void init_widgets_fromCurrent(void)
 widgetdata *create_widget_object(int widget_subtype_id)
 {
 	widgetdata *widget;
-	textwin_struct *textwin;
 	_widget_container *container;
 	_widget_container_strip *container_strip;
 	_menu *menu;
@@ -217,7 +251,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	}
 
 	/* don't create more than one widget if it is a unique widget */
-	if (con_widget[widget_subtype_id].unique && cur_widget[widget_subtype_id])
+	if (cur_widget[widget_subtype_id] && cur_widget[widget_subtype_id]->unique)
 	{
 		return NULL;
 	}
@@ -225,24 +259,14 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	/* allocate the widget node, this should always be the first function called in here */
 	widget = create_widget(widget_subtype_id);
 	widget->WidgetTypeID = widget_type_id;
+	widget->name = strdup(widget_names[widget_type_id]);
+	widget->show = 1;
 
 	/* allocate the custom attributes for the widget if applicable */
 	switch (widget->WidgetTypeID)
 	{
 		case CHATWIN_ID:
-		case MSGWIN_ID:
-			textwin = calloc(1, sizeof(textwin_struct));
-
-			if (!textwin)
-			{
-				exit(0);
-			}
-
-			textwin->font = FONT_ARIAL11;
-			textwin->selection_start = -1;
-			textwin->selection_end = -1;
-			widget->subwidget = (textwin_struct *) textwin;
-			textwin_create_scrollbar(widget);
+			widget_textwin_init(widget);
 			break;
 
 		case MAPNAME_ID:
@@ -379,7 +403,6 @@ widgetdata *create_widget_object(int widget_subtype_id)
 		case IN_NUMBER_ID:
 			widget->subwidget = calloc(1, sizeof(widget_input_struct));
 			text_input_create(&WIDGET_INPUT(widget)->text_input);
-			WIDGET_INPUT(widget)->text_input.w = widget->wd - 16;
 
 			if (widget->WidgetTypeID == IN_NUMBER_ID)
 			{
@@ -422,11 +445,7 @@ void remove_widget_object_intern(widgetdata *widget)
 	_widget_container_strip *container_strip;
 	int widget_subtype_id = widget->WidgetSubtypeID;
 
-	/* If this flag is enabled, we need to delete all contents of the widget too, which calls for some recursion. */
-	if (widget->delete_inv)
-	{
-		remove_widget_inv(widget);
-	}
+	remove_widget_inv(widget);
 
 	/* If this widget happens to be the owner of an event, keeping them pointed to it is a bad idea. */
 	if (widget_mouse_event.owner == widget)
@@ -455,6 +474,17 @@ void remove_widget_object_intern(widgetdata *widget)
 
 	/* Get the environment if it exists, this is used to make containers auto-resize when the widget is deleted. */
 	tmp = widget->env;
+
+	switch (widget_subtype_id)
+	{
+		case MPLAYER_ID:
+			widget_mplayer_deinit(widget);
+			break;
+
+		case CHATWIN_ID:
+			widget_textwin_deinit(widget);
+			break;
+	}
 
 	/* remove the custom attribute nodes if they exist */
 	if (widget->subwidget)
@@ -485,19 +515,6 @@ void remove_widget_object_intern(widgetdata *widget)
 
 				break;
 
-			case CHATWIN_ID:
-			case MSGWIN_ID:
-			{
-				textwin_struct *textwin = TEXTWIN(widget);
-
-				if (textwin->entries)
-				{
-					free(textwin->entries);
-				}
-
-				break;
-			}
-
 			case IN_NUMBER_ID:
 			case IN_CONSOLE_ID:
 				if (WIDGET_INPUT(widget)->text_input_history)
@@ -508,13 +525,6 @@ void remove_widget_object_intern(widgetdata *widget)
 
 		free(widget->subwidget);
 		widget->subwidget = NULL;
-	}
-
-	switch (widget_subtype_id)
-	{
-		case MPLAYER_ID:
-			widget_mplayer_deinit(widget);
-			break;
 	}
 
 	/* finally de-allocate the widget node, this should always be the last node removed in here */
@@ -532,8 +542,8 @@ void remove_widget_object_intern(widgetdata *widget)
 		/* otherwise if its inventory is empty, resize it to its default size */
 		else
 		{
-			resize_widget(tmp, RESIZE_RIGHT, con_widget[tmp->WidgetSubtypeID].wd);
-			resize_widget(tmp, RESIZE_BOTTOM, con_widget[tmp->WidgetSubtypeID].ht);
+			resize_widget(tmp, RESIZE_RIGHT, cur_widget[tmp->WidgetSubtypeID]->wd);
+			resize_widget(tmp, RESIZE_BOTTOM, cur_widget[tmp->WidgetSubtypeID]->ht);
 		}
 	}
 }
@@ -555,34 +565,6 @@ void remove_widget_inv(widgetdata *widget)
 		tmp = widget->next;
 		/* then remove the widget, and slowly work our way up the tree deleting widgets until we get to the original widget again */
 		remove_widget_object(widget);
-	}
-}
-
-/** Wrapper function to initiate one of each widget. */
-/* TODO: this is looking more and more like a function to simply initiate all the widgets with their default attributes,
- * as loading from a file now creates nodes dynamically instead, so this function is now doomed to that role */
-void init_widgets(void)
-{
-	int i;
-
-	/* exit, if there're no widgets */
-	if (!TOTAL_SUBWIDGETS)
-	{
-	    return;
-	}
-
-	/* in all cases should reset */
-	kill_widgets();
-
-	/* initiate the widget tree and everything else that links to it. */
-	for (i = 0; i < TOTAL_SUBWIDGETS; ++i)
-	{
-		if (!con_widget[i].no_kill)
-		{
-			continue;
-		}
-
-	    create_widget_object(i);
 	}
 }
 
@@ -618,11 +600,11 @@ void reset_widget(const char *name)
 
 		if (!name || !strcasecmp(tmp->name, name))
 		{
-			tmp->x1 = con_widget[tmp->WidgetTypeID].x1;
-			tmp->y1 = con_widget[tmp->WidgetTypeID].y1;
-			tmp->wd = con_widget[tmp->WidgetTypeID].wd;
-			tmp->ht = con_widget[tmp->WidgetTypeID].ht;
-			tmp->show = con_widget[tmp->WidgetTypeID].show;
+			tmp->x1 = cur_widget[tmp->WidgetTypeID]->x1;
+			tmp->y1 = cur_widget[tmp->WidgetTypeID]->y1;
+			tmp->wd = cur_widget[tmp->WidgetTypeID]->wd;
+			tmp->ht = cur_widget[tmp->WidgetTypeID]->ht;
+			tmp->show = cur_widget[tmp->WidgetTypeID]->show;
 			WIDGET_REDRAW(tmp);
 		}
 	}
@@ -708,7 +690,7 @@ widgetdata *create_widget(int widget_id)
 #endif
 
 	/* allocate it */
-	node = malloc(sizeof(widgetdata));
+	node = calloc(1, sizeof(widgetdata));
 
 	if (!node)
 	{
@@ -716,8 +698,6 @@ widgetdata *create_widget(int widget_id)
 	}
 
 	/* set the members */
-	/* this also sets all pointers in the struct to NULL */
-	*node = con_widget[widget_id];
 	node->WidgetSubtypeID = widget_id;
 	/* give it a unique ID */
 	node->WidgetObjID = widget_uid;
@@ -923,8 +903,8 @@ void detach_widget(widgetdata *widget)
 	/* otherwise if its inventory is empty, resize it to its default size */
 	else
 	{
-		resize_widget(widget->env, RESIZE_RIGHT, con_widget[widget->env->WidgetSubtypeID].wd);
-		resize_widget(widget->env, RESIZE_BOTTOM, con_widget[widget->env->WidgetSubtypeID].ht);
+		resize_widget(widget->env, RESIZE_RIGHT, cur_widget[widget->env->WidgetSubtypeID]->wd);
+		resize_widget(widget->env, RESIZE_BOTTOM, cur_widget[widget->env->WidgetSubtypeID]->ht);
 	}
 
 	/* widget is no longer in a container */
@@ -989,276 +969,59 @@ void debug_count_nodes(int output)
 }
 #endif
 
-/**
- * Load the widgets interface from a file.
- * @param filename The interface filename.
- * @return 1 on success, 0 on failure. */
-static int load_interface_file(char *filename)
+static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 {
-	int i = -1, pos;
-	FILE *stream;
-	widgetdata *widget = NULL;
-	char line[256], keyword[256], parameter[256];
-	int found_widget[TOTAL_SUBWIDGETS] = {0};
+	char *padding;
 
-#ifdef DEBUG_WIDGET
-	logger_print(LOG(DEBUG), "Entering load_interface_file()..");
-#endif
-
-	/* Sanity check - if the file doesn't exist, exit with error */
-	if (!(stream = fopen_wrapper(filename, "r")))
+	for ( ; widget; widget = widget->prev)
 	{
-		logger_print(LOG(INFO), "Can't find file %s.", filename);
-		return 0;
-	}
-
-	/* Read the settings from the file */
-	while (fgets(line, 255, stream))
-	{
-		if (line[0] == '#' || line[0] == '\n')
-		{
-			continue;
-		}
-
-		i = 0;
-
-		while (line[i] && line[i] != ':')
-		{
-			i++;
-		}
-
-		line[++i] = '\0';
-
-		strncpy(keyword, line, sizeof(keyword));
-		strncpy(parameter, line + i + 1, sizeof(parameter));
-
-		/* Remove the newline character */
-		parameter[strcspn(line + i + 1, "\n")] = 0;
-
-		/* Beginning */
-		if (strncmp(keyword, "Widget:", 7) == 0)
-		{
-#ifdef DEBUG_WIDGET
-			logger_print(LOG(DEBUG), "..Trying to find 'Widget: %s'", parameter);
-#endif
-
-			pos = 0;
-
-			/* Find the index of the widget for reference */
-			while (pos < TOTAL_SUBWIDGETS && (strcmp(con_widget[pos].name, parameter) != 0))
-			{
-				++pos;
-			}
-
-			/* The widget name couldn't be found? */
-			if (pos >= TOTAL_SUBWIDGETS)
-			{
-				continue;
-			}
-			/* Get the block */
-			else
-			{
-				if (!con_widget[pos].no_kill)
-				{
-					continue;
-				}
-
-				/* If we haven't found this widget, mark it */
-				if (!found_widget[pos])
-				{
-#ifdef DEBUG_WIDGET
-					logger_print(LOG(INFO), "Found! (Index = %d) (%d widgets total)", pos, TOTAL_SUBWIDGETS);
-#endif
-					found_widget[pos] = 1;
-				}
-
-				/* create the widget with that ID, it is already fully initialized to the defaults */
-				widget = create_widget_object(pos);
-
-				/* in case something went wrong */
-				if (!widget)
-				{
-#ifdef DEBUG_WIDGET
-					logger_print(LOG(DEBUG), ".. Failed to create widget!");
-#endif
-					continue;
-				}
-
-				while (fgets(line, 255, stream))
-				{
-					if (line[0] == '#' || line[0] == '\n')
-					{
-						continue;
-					}
-
-					/* End marker */
-					if (!strncmp(line, "end", 3))
-					{
-						break;
-					}
-
-					i = 0;
-
-					while (line[i] && line[i] != ':')
-					{
-						i++;
-					}
-
-					line[++i] = '\0';
-					strcpy(keyword, line);
-					strcpy(parameter, line + i + 1);
-
-					if (strncmp(keyword, "x:", 2) == 0)
-					{
-						widget->x1 = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->x1);
-#endif
-					}
-					else if (strncmp(keyword, "y:", 2) == 0)
-					{
-						widget->y1 = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->y1);
-#endif
-					}
-					else if (strncmp(keyword, "moveable:", 9) == 0)
-					{
-						widget->moveable = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->moveable);
-#endif
-					}
-					else if (strncmp(keyword, "active:", 7) == 0)
-					{
-						widget->show = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->show);
-#endif
-					}
-					else if (strncmp(keyword, "width:", 6) == 0)
-					{
-						widget->wd = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->wd);
-#endif
-					}
-					else if (strncmp(keyword, "height:", 7) == 0)
-					{
-						widget->ht = atoi(parameter);
-#ifdef DEBUG_WIDGET
-						logger_print(LOG(DEBUG), "..Loading: (%s %d)", keyword, widget->ht);
-#endif
-					}
-					else if (!strncmp(keyword, "font:", 5))
-					{
-						textwin_struct *textwin = TEXTWIN(widget);
-						char font_name[MAX_BUF];
-						int font_size, font_id;
-
-						if (textwin && sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1)
-						{
-							textwin->font = font_id;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	fclose(stream);
-
-	/* Go through the widgets */
-	for (pos = 0; pos < TOTAL_SUBWIDGETS; ++pos)
-	{
-		/* If a required widget was not found, load the default data for it. */
-		if (!found_widget[pos] && con_widget[pos].no_kill)
-		{
-			/* A newly created widget is loaded with the default values. */
-			create_widget_object(pos);
-		}
-	}
-
-#ifdef DEBUG_WIDGET
-	logger_print(LOG(DEBUG), "..load_interface_file(): Done.");
-#endif
-
-	return 1;
-}
-
-/**
- * Save the widgets interface to a file. */
-void save_interface_file(void)
-{
-	FILE *stream;
-
-	/* Leave, if there's an error opening or creating */
-	if (!(stream = fopen_wrapper(INTERFACE_FILE, "w")))
-	{
-		return;
-	}
-
-	fputs("#############################################\n", stream);
-	fputs("# This is the Atrinik client interface file #\n", stream);
-	fputs("#############################################\n", stream);
-
-	/* start walking through the widgets */
-	save_interface_file_rec(widget_list_foot, stream);
-
-	fclose(stream);
-}
-
-/**
- * The recursive part of save_interface_file().
- * NEVER call this explicitly, use save_interface_file() in order to use this safely. */
-void save_interface_file_rec(widgetdata *widget, FILE *stream)
-{
-	do
-	{
-		/* skip the widget if it shouldn't be saved */
-		if (!widget->save)
-		{
-			widget = widget->prev;
-			continue;
-		}
-
-		/* we want to process the widgets starting from the left hand side of the tree first */
 		if (widget->inv_rev)
 		{
-			save_interface_file_rec(widget->inv_rev, stream);
+			widget_save_rec(fp, widget->inv_rev, depth + 1);
 		}
 
-		fprintf(stream, "\nWidget: %s\n", widget->name);
-		fprintf(stream, "moveable: %d\n", widget->moveable);
-		fprintf(stream, "active: %d\n", widget->show);
-		fprintf(stream, "x: %d\n", widget->x1);
-		fprintf(stream, "y: %d\n", widget->y1);
+		padding = string_repeat("\t", depth);
 
-		if (widget->save_width_height)
-		{
-			fprintf(stream, "width: %d\n", widget->wd);
-			fprintf(stream, "height: %d\n", widget->ht);
-		}
+		fprintf(fp, "%s[%s]\n", padding, widget->name);
+		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
+		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
+		fprintf(fp, "%sx = %d\n", padding, widget->x1);
+		fprintf(fp, "%sy = %d\n", padding, widget->y1);
+		fprintf(fp, "%sw = %d\n", padding, widget->wd);
+		fprintf(fp, "%sh = %d\n", padding, widget->ht);
 
 		switch (widget->WidgetTypeID)
 		{
 			case CHATWIN_ID:
-			case MSGWIN_ID:
-			{
-				textwin_struct *textwin = TEXTWIN(widget);
-
-				fprintf(stream, "font: %s %"FMT64U"\n", get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+				widget_textwin_save(widget, fp, padding);
 				break;
-			}
 		}
 
-		/* End of block */
-		fputs("end\n", stream);
+		fprintf(fp, "\n");
 
-		/* get the next sibling for our next loop */
-		widget = widget->prev;
+		free(padding);
 	}
-	while (widget);
+}
+
+static void widget_save(void)
+{
+	FILE *fp;
+
+	fp = fopen_wrapper("settings/interface.cfg", "w");
+
+	if (!fp)
+	{
+		return;
+	}
+
+	widget_save_rec(fp, widget_list_foot, 0);
+	fclose(fp);
+}
+
+void widget_deinit(void)
+{
+	widget_save();
+	kill_widgets();
 }
 
 /**
@@ -1342,7 +1105,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 			{
 				add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
 			}
-			else if (widget->WidgetSubtypeID == MSGWIN_ID || widget->WidgetSubtypeID == CHATWIN_ID)
+			else if (widget->WidgetSubtypeID == CHATWIN_ID)
 			{
 				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
 				add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
@@ -1381,7 +1144,6 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				break;
 
 			case CHATWIN_ID:
-			case MSGWIN_ID:
 				textwin_event(widget, event);
 				break;
 
@@ -1487,7 +1249,6 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 				break;
 
 			case CHATWIN_ID:
-			case MSGWIN_ID:
 				textwin_event(widget, event);
 				break;
 
@@ -1569,7 +1330,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 			for (tmp = widget_list_head; tmp; tmp = tmp->next)
 			{
-				if (tmp == widget || tmp->disable_snapping || !tmp->show || !tmp->visible)
+				if (tmp == widget || tmp->disable_snapping || !tmp->show)
 				{
 					continue;
 				}
@@ -1742,7 +1503,6 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		switch (widget->WidgetTypeID)
 		{
 			case CHATWIN_ID:
-			case MSGWIN_ID:
 				textwin_event(widget, event);
 				break;
 
@@ -2011,7 +1771,6 @@ static void process_widget(widgetdata *widget)
 			break;
 
 		case CHATWIN_ID:
-		case MSGWIN_ID:
 			widget_textwin_show(widget);
 			break;
 
@@ -2125,7 +1884,7 @@ void process_widgets_rec(widgetdata *widget)
 		process_widget_background(widget);
 
 		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show && widget->visible)
+		if (widget->show)
 		{
 			process_widget(widget);
 		}
@@ -2481,7 +2240,7 @@ widgetdata *widget_find_copy_from(void)
 
 	for (tmp = widget_list_head; tmp; tmp = tmp->next)
 	{
-		if (tmp->WidgetTypeID == CHATWIN_ID || tmp->WidgetTypeID == MSGWIN_ID)
+		if (tmp->WidgetTypeID == CHATWIN_ID)
 		{
 			return tmp;
 		}
