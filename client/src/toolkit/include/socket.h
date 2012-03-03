@@ -574,4 +574,12 @@ enum
 	SERVER_FILES_MAX
 };
 
+#define CHAT_TYPE_ALL 0
+#define CHAT_TYPE_GAME 1
+#define CHAT_TYPE_CHAT 2
+#define CHAT_TYPE_PUBLIC 3
+#define CHAT_TYPE_PRIVATE 4
+#define CHAT_TYPE_GUILD 5
+#define CHAT_TYPE_PARTY 6
+
 #endif
