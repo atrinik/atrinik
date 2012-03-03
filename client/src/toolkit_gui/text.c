@@ -1316,7 +1316,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 					memcpy(tmpbuf, tag_start, len);
 					tmpbuf[len] = '\0';
 
-					hcenter_box.w = box->w - (dest->w - box->w);
+					hcenter_box.w = box ? (box->w - (dest->w - box->w)) : 0;
 					hcenter_box.h = 0;
 					string_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
 					dest->y += ht / 2 - hcenter_box.h / 2;
