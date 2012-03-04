@@ -195,7 +195,7 @@ static int trigger_func(object *op, object *cause, int state)
 
 	if (op->msg)
 	{
-		draw_info_map(0, COLOR_NAVY, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, op->msg);
+		draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, op->msg);
 	}
 
 	return OBJECT_METHOD_OK;

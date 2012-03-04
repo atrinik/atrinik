@@ -100,7 +100,7 @@ static void console_command_speed(const char *params)
 		set_max_time(new_speed);
 		reset_sleep();
 		logger_print(LOG(INFO), "The speed has been changed to %ld.", max_time);
-		draw_info_flags(NDI_ALL, COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
+		draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
 	}
 	else
 	{

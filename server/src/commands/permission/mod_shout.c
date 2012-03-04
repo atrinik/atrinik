@@ -34,6 +34,7 @@
 void command_mod_shout(object *op, const char *command, char *params)
 {
 	player *pl;
+	char name[MAX_BUF];
 
 	params = player_sanitize_input(params);
 
@@ -48,11 +49,14 @@ void command_mod_shout(object *op, const char *command, char *params)
 	{
 		if (commands_check_permission(pl, command))
 		{
-			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator] (%s): %s", op->name, params);
+			snprintf(name, sizeof(name), "[Moderator] (%s)", op->name);
 		}
 		else
 		{
-			draw_info_flags_format(NDI_PLAYER, COLOR_BRIGHT_PURPLE, pl->ob, "[Moderator]: %s", params);
+			strncpy(name, "[Moderator]", sizeof(name) - 1);
+			name[sizeof(name) - 1] = '\0';
 		}
+
+		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_BRIGHT_PURPLE, pl->ob, params);
 	}
 }

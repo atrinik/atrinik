@@ -161,7 +161,7 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 		OBJEXISTCHECK(ob);
 	}
 
-	hooks->send_party_message(party->party, msg, flags, ob ? ob->obj : NULL);
+	hooks->send_party_message(party->party, msg, flags, ob ? ob->obj : NULL, NULL);
 
 	Py_INCREF(Py_None);
 	return Py_None;

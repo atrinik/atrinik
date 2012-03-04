@@ -49,7 +49,7 @@ void command_kick(object *op, const char *command, char *params)
 		return;
 	}
 
-	draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s was kicked out of the game.", pl->ob->name);
+	draw_info_format(COLOR_WHITE, NULL, "%s was kicked out of the game.", pl->ob->name);
 	logger_print(LOG(CHAT), "[KICK] %s was kicked out of the game by %s.", pl->ob->name, op->name);
 
 	pl->socket.state = ST_DEAD;

@@ -48,7 +48,7 @@ void command_opsay(object *op, const char *command, char *params)
 	{
 		if (commands_check_permission(pl, command))
 		{
-			draw_info_flags_format(NDI_PLAYER, COLOR_RED, pl->ob, "[Operators]: %s: %s", op->name, params);
+			draw_info_type(CHAT_TYPE_OPERATOR, op->name, COLOR_RED, pl->ob, params);
 		}
 	}
 }

@@ -266,6 +266,8 @@ enum
 #define CMD_MAPSTATS_MUSIC 2
 /** Change map weather. */
 #define CMD_MAPSTATS_WEATHER 3
+/** Text animation. */
+#define CMD_MAPSTATS_TEXT_ANIM 4
 /*@}*/
 
 /**
@@ -574,12 +576,13 @@ enum
 	SERVER_FILES_MAX
 };
 
-#define CHAT_TYPE_ALL 0
-#define CHAT_TYPE_GAME 1
-#define CHAT_TYPE_CHAT 2
-#define CHAT_TYPE_PUBLIC 3
-#define CHAT_TYPE_PRIVATE 4
-#define CHAT_TYPE_GUILD 5
-#define CHAT_TYPE_PARTY 6
+#define CHAT_TYPE_ALL 1
+#define CHAT_TYPE_GAME 2
+#define CHAT_TYPE_CHAT 3
+#define CHAT_TYPE_PUBLIC 4
+#define CHAT_TYPE_PRIVATE 5
+#define CHAT_TYPE_GUILD 6
+#define CHAT_TYPE_PARTY 7
+#define CHAT_TYPE_OPERATOR 8
 
 #endif

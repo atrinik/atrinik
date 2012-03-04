@@ -646,7 +646,7 @@ void do_some_living(object *op)
 
 	if ((op->stats.hp <= 0 || op->stats.food < 0) && !CONTR(op)->tgm)
 	{
-		draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s starved to death.", op->name);
+		draw_info_format(COLOR_WHITE, NULL, "%s starved to death.", op->name);
 		strcpy(CONTR(op)->killer, "starvation");
 		kill_player(op);
 	}
@@ -1228,24 +1228,24 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
 	if (QUERY_FLAG(mon, FLAG_IS_GOOD))
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_EVIL))
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL))
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 	else
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
 	}
 
-	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
-	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
-	draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
+	draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
+	draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
+	draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
 
 	for (val = val2 = -1, i = 0; i < NROFATTACKS; i++)
 	{
@@ -1261,12 +1261,12 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
 	if (val != -1)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
 	}
 
 	if (val2 != -1)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
 	}
 
 	for (val =- 1, val2 = i = 0; i < NROFATTACKS; i++)
@@ -1280,36 +1280,36 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
 	if (val != -1)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Best armour protection seems to be for %s.", attack_name[val]);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Best armour protection seems to be for %s.", attack_name[val]);
 	}
 
 	if (QUERY_FLAG(mon, FLAG_UNDEAD))
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is an undead force.", gender_subjective_upper[gender]);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is an undead force.", gender_subjective_upper[gender]);
 	}
 
 	switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1))
 	{
 		case 1:
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
 			break;
 
 		case 2:
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
 			break;
 
 		case 3:
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
 			break;
 
 		default:
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
 			break;
 	}
 
 	if (present_in_ob(POISONING, mon) != NULL)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s looks very ill.", gender_subjective_upper[gender]);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s looks very ill.", gender_subjective_upper[gender]);
 	}
 }
 
@@ -1412,17 +1412,17 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 	}
 
 	buf[VERY_BIG_BUF - 1] = '\0';
-	draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+	draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 	buf[0] = '\0';
 
 	if (tmp->custom_name)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "You name it %s.", tmp->custom_name);
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "You name it %s.", tmp->custom_name);
 	}
 
 	if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER)
 	{
-		draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
+		draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
 		examine_living(op, tmp, sb_capture);
 	}
 	/* We don't double use the item_xxx arch commands, so they are always valid */
@@ -1430,26 +1430,26 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 	{
 		if (QUERY_FLAG(tmp, FLAG_IS_GOOD))
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is good aligned.");
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is good aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_EVIL))
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is evil aligned.");
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is evil aligned.");
 		}
 		else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL))
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It is neutral aligned.");
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is neutral aligned.");
 		}
 
 		if (tmp->item_level)
 		{
 			if (tmp->item_skill)
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill - 1].name);
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill - 1].name);
 			}
 			else
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "It needs a level of %d to use.", tmp->item_level);
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It needs a level of %d to use.", tmp->item_level);
 			}
 		}
 
@@ -1457,11 +1457,11 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		{
 			if (QUERY_FLAG(tmp, FLAG_INDESTRUCTIBLE))
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
 			}
 			else
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
 			}
 		}
 
@@ -1479,7 +1479,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 				{
 					int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
 
-					draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+					draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 
 					/* Gray. */
 					if (tmp->level < level_color[level].green)
@@ -1538,7 +1538,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+						draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1562,7 +1562,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 					/* Has magic modifier? */
 					if (tmp->weapon_speed != 1.0f)
 					{
-						draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+						draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 
 						/* Bad */
 						if (tmp->weapon_speed > 1.0f)
@@ -1577,7 +1577,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 					}
 				}
 
-				draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+				draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 
 				if (tmp->weapon_speed == 1.0f)
 				{
@@ -1668,7 +1668,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
 	if (buf[0] != '\0')
 	{
-		draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+		draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 	}
 
 	if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED)))
@@ -1684,7 +1684,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 			}
 		}
 
-		draw_info_full(0, COLOR_WHITE, sb_capture, op, buf);
+		draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 	}
 
 	if (tmp->weight)
@@ -1693,15 +1693,15 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
 		if (tmp->type == MONSTER)
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
 		}
 		else if (tmp->type == PLAYER)
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
 		}
 		else
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
 		}
 	}
 
@@ -1710,22 +1710,22 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		/* Unpaid clone shop item */
 		if (QUERY_FLAG(tmp, FLAG_UNPAID))
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 		}
 		/* God-given item */
 		else
 		{
-			draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
+			draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
 			if (QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 			{
 				if (tmp->value)
 				{
-					draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
+					draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
 				}
 				else
 				{
-					draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+					draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 				}
 			}
 		}
@@ -1736,11 +1736,11 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
 			}
 			else
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
 				goto dirty_little_jump1;
 			}
 		}
@@ -1753,7 +1753,7 @@ dirty_little_jump1:
 
 			if (floor_ob && floor_ob->type == SHOP_FLOOR && tmp->type != MONEY)
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
 			}
 		}
 	}
@@ -1763,11 +1763,11 @@ dirty_little_jump1:
 		{
 			if (QUERY_FLAG(tmp, FLAG_UNPAID))
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
 			}
 			else
 			{
-				draw_info_full_format(0, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
+				draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
 			}
 		}
 	}
@@ -1780,15 +1780,15 @@ dirty_little_jump1:
 		 * out the extra message */
 		if ((need_identify(tmp) || QUERY_FLAG(tmp, FLAG_QUEST_ITEM)) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))
 		{
-			draw_info_full(0, COLOR_WHITE, sb_capture, op, "The object has a story:");
-			draw_info_full(0, COLOR_WHITE, sb_capture, op, tmp->msg);
+			draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "The object has a story:");
+			draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, tmp->msg);
 		}
 	}
 
 	trigger_map_event(MEVENT_EXAMINE, op->map, op, tmp, NULL, NULL, 0);
 
 	/* Blank line */
-	draw_info_full(0, COLOR_WHITE, sb_capture, op, " ");
+	draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, " ");
 }
 
 /**
@@ -2575,7 +2575,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 	if (checkbanned(name, ns->host))
 	{
 		logger_print(LOG(SYSTEM), "Ban: Banned player tried to login. [%s@%s]", name, ns->host);
-		draw_info_send(0, COLOR_RED, ns, "Connection refused due to a ban.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
 		ns->state = ST_ZOMBIE;
 		return;
 	}
@@ -2621,7 +2621,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 	pl->socket.state = ST_PLAYING;
 
 	display_motd(pl->ob);
-	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
+	draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
 	trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);
 	enter_exit(pl->ob, NULL);
 

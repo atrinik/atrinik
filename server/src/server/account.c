@@ -225,7 +225,7 @@ void account_login(socket_struct *ns, char *name, char *password)
 
 	if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid name and/or password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid name and/or password.");
 		return;
 	}
 
@@ -234,21 +234,21 @@ void account_login(socket_struct *ns, char *name, char *password)
 
 	if (!path_exists(path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "No such account.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "No such account.");
 		free(path);
 		return;
 	}
 
 	if (!account_load(&account, path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
 		free(path);
 		return;
 	}
 
 	if (strcmp(string_crypt(password, account.password), account.password) != 0)
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
 		account_free(&account);
 		free(path);
 
@@ -258,7 +258,7 @@ void account_login(socket_struct *ns, char *name, char *password)
 		if (ns->password_fails >= MAX_PASSWORD_FAILURES)
 		{
 			logger_print(LOG(SYSTEM), "%s: Failed to provide a correct password for account %s too many times!", ns->host, ns->account);
-			draw_info_send(0, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
+			draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
 			ns->state = ST_ZOMBIE;
 		}
 
@@ -290,7 +290,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 	if (*name == '\0' || *password == '\0' || *password2 == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password2, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid name and/or password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid name and/or password.");
 		return;
 	}
 
@@ -302,13 +302,13 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 	 * as 'password' anyway. */
 	if (name_len < settings.limits[ALLOWED_CHARS_ACCOUNT][0] || name_len > settings.limits[ALLOWED_CHARS_ACCOUNT][1] || password_len < settings.limits[ALLOWED_CHARS_PASSWORD][0] || password_len > settings.limits[ALLOWED_CHARS_PASSWORD][1])
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid length for name and/or password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid length for name and/or password.");
 		return;
 	}
 
 	if (strcmp(password, password2) != 0)
 	{
-		draw_info_send(0, COLOR_RED, ns, "The passwords did not match.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "The passwords did not match.");
 		return;
 	}
 
@@ -317,7 +317,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 	if (path_exists(path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "That account name is already registered.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "That account name is already registered.");
 		free(path);
 		return;
 	}
@@ -332,7 +332,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 	if (!account_save(&account, path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
 		free(path);
 		return;
 	}
@@ -356,7 +356,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (*name == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_CHARNAME]))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid character name");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid character name");
 		return;
 	}
 
@@ -364,7 +364,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (player_exists(name))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Character with that name already exists.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Character with that name already exists.");
 		return;
 	}
 
@@ -372,7 +372,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (!at || at->clone.type != PLAYER)
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid archname.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid archname.");
 		return;
 	}
 
@@ -380,14 +380,14 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (!account_load(&account, path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
 		free(path);
 		return;
 	}
 
 	if (account.characters_num >= ACCOUNT_CHARACTERS_LIMIT)
 	{
-		draw_info_send(0, COLOR_RED, ns, "You have reached the maximum number of allowed characters per account.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have reached the maximum number of allowed characters per account.");
 		account_free(&account);
 		free(path);
 		return;
@@ -397,7 +397,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (!path_touch(path_player))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
 		account_free(&account);
 		free(path);
 		free(path_player);
@@ -415,13 +415,13 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
 	if (!account_save(&account, path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
 		account_free(&account);
 		free(path);
 		return;
 	}
 
-	draw_info_send(0, COLOR_GREEN, ns, "New character created successfully.");
+	draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "New character created successfully.");
 	account_send_characters(ns, &account);
 	account_free(&account);
 	free(path);
@@ -453,7 +453,7 @@ void account_login_char(socket_struct *ns, char *name)
 
 	if (i == account.characters_num)
 	{
-		draw_info_send(0, COLOR_RED, ns, "No such character.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "No such character.");
 		account_free(&account);
 		return;
 	}
@@ -507,7 +507,7 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
 	if (*password == '\0' || *password_new == '\0' || *password_new2 == '\0' || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password_new, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]) || string_contains_other(password_new2, settings.allowed_chars[ALLOWED_CHARS_PASSWORD]))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
 		return;
 	}
 
@@ -515,13 +515,13 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
 	if (password_new_len < settings.limits[ALLOWED_CHARS_PASSWORD][0] || password_new_len > settings.limits[ALLOWED_CHARS_PASSWORD][1])
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid length for password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid length for password.");
 		return;
 	}
 
 	if (strcmp(password_new, password_new2) != 0)
 	{
-		draw_info_send(0, COLOR_RED, ns, "The new passwords did not match.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "The new passwords did not match.");
 		return;
 	}
 
@@ -529,14 +529,14 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
 	if (!account_load(&account, path))
 	{
-		draw_info_send(0, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
 		free(path);
 		return;
 	}
 
 	if (strcmp(string_crypt(password, account.password), account.password) != 0)
 	{
-		draw_info_send(0, COLOR_RED, ns, "Invalid password.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
 		account_free(&account);
 		free(path);
 		return;
@@ -547,11 +547,11 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
 	if (account_save(&account, path))
 	{
-		draw_info_send(0, COLOR_GREEN, ns, "Password changed successfully.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");
 	}
 	else
 	{
-		draw_info_send(0, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
 	}
 
 	account_free(&account);

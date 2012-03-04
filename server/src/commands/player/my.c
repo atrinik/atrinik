@@ -43,5 +43,5 @@ void command_my(object *op, const char *command, char *params)
 	}
 
 	snprintf(buf, sizeof(buf), "%s's %s", op->name, params);
-	draw_info_map(NDI_PLAYER, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+	draw_info_map(CHAT_TYPE_PUBLIC, op->name, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 }

@@ -191,7 +191,8 @@ static void check_quest_container(object *op, object *quest_container, object *q
 				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone_ob, NULL));
 			}
 
-			draw_info_flags(NDI_ANIM, COLOR_NAVY, op, buf);
+			draw_map_text_anim(op, COLOR_NAVY, buf);
+			draw_info(COLOR_NAVY, op, buf);
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 			break;
 		}
@@ -232,7 +233,8 @@ static void check_quest_container(object *op, object *quest_container, object *q
 					}
 				}
 
-				draw_info_flags(NDI_ANIM, COLOR_NAVY, op, buf);
+				draw_map_text_anim(op, COLOR_NAVY, buf);
+				draw_info(COLOR_NAVY, op, buf);
 			}
 
 			break;
@@ -268,12 +270,15 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
 			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
 			{
-				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone_ob, NULL), num + 1, MAX(1, quest_object->last_grace));
+				snprintf(buf, sizeof(buf), "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone_ob, NULL), num + 1, MAX(1, quest_object->last_grace));
 			}
 			else
 			{
-				draw_info_flags_format(NDI_ANIM, COLOR_NAVY, op, "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone_ob, NULL));
+				snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone_ob, NULL));
 			}
+
+			draw_map_text_anim(op, COLOR_NAVY, buf);
+			draw_info(COLOR_NAVY, op, buf);
 
 			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 			break;

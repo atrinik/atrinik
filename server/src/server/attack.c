@@ -898,11 +898,11 @@ int kill_object(object *op, int dam, object *hitter, int type)
 		/* Tell everyone that this player has died. */
 		if (get_owner(hitter))
 		{
-			draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
+			draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
 		}
 		else
 		{
-			draw_info_flags_format(NDI_ALL, COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
+			draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
 		}
 
 		/* Update player's killer. */

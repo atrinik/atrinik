@@ -258,15 +258,15 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObjec
 static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"x", "y", "distance", "message", "color", "flags", NULL};
-	int flags = 0, x, y, d;
-	const char *message, *color = COLOR_BLUE;
+	int type = CHAT_TYPE_GAME, x, y, d;
+	const char *message, *color = COLOR_BLUE, *name = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiis|si", kwlist, &x, &y, &d, &message, &color, &flags))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiis|si", kwlist, &x, &y, &d, &message, &color, &type))
 	{
 		return NULL;
 	}
 
-	hooks->draw_info_map(flags, color, map->map, x, y, d, NULL, NULL, message);
+	hooks->draw_info_map(type, name, color, map->map, x, y, d, NULL, NULL, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;

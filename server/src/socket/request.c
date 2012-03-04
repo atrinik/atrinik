@@ -161,7 +161,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t l
 
 	if (ver == 0 || ver == 991017 || ver == 1055)
 	{
-		draw_info_send(0, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
+		draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
 		ns->state = ST_ZOMBIE;
 		return;
 	}
@@ -391,6 +391,17 @@ static inline void copy_lastmap(socket_struct *ns, int dx, int dy)
 	}
 
 	memcpy(&(ns->lastmap), &newmap, sizeof(struct Map));
+}
+
+void draw_map_text_anim(object *pl, const char *color, const char *text)
+{
+	packet_struct *packet;
+
+	packet = packet_new(CLIENT_CMD_MAPSTATS, 64, 64);
+	packet_append_uint8(packet, CMD_MAPSTATS_TEXT_ANIM);
+	packet_append_string_terminated(packet, color);
+	packet_append_string_terminated(packet, text);
+	socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**

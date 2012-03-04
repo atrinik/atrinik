@@ -184,7 +184,7 @@ struct plugin_hooklist
 	void (*object_destroy)(object *);
 	void (*fix_player)(object *);
 	object *(*insert_ob_in_ob)(object *, object *);
-	void (*draw_info_map)(int , const char *color, mapstruct *, int, int, int, object *, object *, const char *);
+	void (*draw_info_map)(uint8, const char *, const char *, mapstruct *, int, int, int, object *, object *, const char *);
 	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
 	void (*update_ob_speed)(object *);
 	int (*change_skill)(object *, int);
@@ -236,7 +236,7 @@ struct plugin_hooklist
 	party_struct *(*find_party)(const char *);
 	void (*add_party_member)(party_struct *, object *);
 	void (*remove_party_member)(party_struct *, object *);
-	void (*send_party_message)(party_struct *, const char *, int, object *);
+	void (*send_party_message)(party_struct *, const char *, int, object *, object *);
 	void (*dump_object)(object *, StringBuffer *);
 	StringBuffer *(*stringbuffer_new)(void);
 	void (*stringbuffer_append_string)(StringBuffer *, const char *);
@@ -274,8 +274,8 @@ struct plugin_hooklist
 	void (*examine)(object *, object *, StringBuffer *sb_capture);
 	void (*draw_info)(const char *, object *, const char *);
 	void (*draw_info_format)(const char *, object *, const char *, ...);
-	void (*draw_info_flags)(int, const char *, object *, const char *);
-	void (*draw_info_flags_format)(int, const char *, object *, const char *, ...);
+	void (*draw_info_type)(uint8, const char *, const char *, object *, const char *);
+	void (*draw_info_type_format)(uint8, const char *, const char *, object *, const char *, ...);
 	artifactlist *(*find_artifactlist)(int);
 	void (*give_artifact_abilities)(object *, artifact *);
 	int (*connection_object_get_value)(object *);

@@ -47,5 +47,5 @@ void command_shout(object *op, const char *command, char *params)
 	}
 
 	logger_print(LOG(CHAT), "[SHOUT] [%s] %s", op->name, params);
-	draw_info_flags_format(NDI_PLAYER | NDI_ALL | NDI_SHOUT, COLOR_ORANGE, NULL, "%s shouts: %s", op->name, params);
+	draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
 }

@@ -71,11 +71,9 @@ typedef struct widgetdata
 	/** Delete all widgets inside if widget is deleted. */
 	int delete_inv;
 
-	/** Should the widget be saved to the interface.gui file? */
-	int save;
-
-	/** Save the widget's height/width? */
-	int save_width_height;
+	/**
+	 * If 1, will not save this widget. */
+	uint no_save;
 
 	/** Next widget. */
 	struct widgetdata *next;

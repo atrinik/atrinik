@@ -43,12 +43,13 @@
 	vsnprintf(buf, sizeof(buf), format, ap); \
 	va_end(ap);
 
-void draw_info_send(int flags, const char *color, socket_struct *ns, const char *buf)
+void draw_info_send(uint8 type, const char *name, const char *color, socket_struct *ns, const char *buf)
 {
 	packet_struct *packet;
 
 	packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
-	packet_append_uint16(packet, flags);
+	packet_append_uint8(packet, type);
+	packet_append_string_terminated(packet, name ? name : "");
 	packet_append_string_terminated(packet, color);
 	packet_append_string_terminated(packet, buf);
 	socket_send_packet(ns, packet);
@@ -60,16 +61,16 @@ void draw_info_send(int flags, const char *color, socket_struct *ns, const char 
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw. */
-void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
+void draw_info_full(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
 {
 	/* Handle global messages. */
-	if (flags & NDI_ALL)
+	if (!pl)
 	{
 		player *tmppl;
 
 		for (tmppl = first_player; tmppl; tmppl = tmppl->next)
 		{
-			draw_info_full((flags & ~NDI_ALL), color, NULL, tmppl->ob, buf);
+			draw_info_full(type, name, color, NULL, tmppl->ob, buf);
 		}
 
 		return;
@@ -92,43 +93,43 @@ void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, obje
 	}
 	else
 	{
-		draw_info_send(flags, color, &CONTR(pl)->socket, buf);
+		draw_info_send(type, name, color, &CONTR(pl)->socket, buf);
 	}
 }
 
 /**
- * Similar to draw_info() but allows to use printf style
+ * Similar to draw_info_full but allows using printf style
  * formatting.
  * @param flags Flags.
  * @param pl Player.
  * @param format Format.
- * @see draw_info() */
-void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
+ * @see draw_info_full */
+void draw_info_full_format(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
 {
 	DRAW_INFO_FORMAT_CONSTRUCT();
-	draw_info_full(flags, color, sb_capture, pl, buf);
+	draw_info_full(type, name, color, sb_capture, pl, buf);
 }
 
-void draw_info_flags(int flags, const char *color, object *pl, const char *buf)
+void draw_info_type(uint8 type, const char *name, const char *color, object *pl, const char *buf)
 {
-	draw_info_full(flags, color, NULL, pl, buf);
+	draw_info_full(type, name, color, NULL, pl, buf);
 }
 
-void draw_info_flags_format(int flags, const char *color, object *pl, const char *format, ...)
+void draw_info_type_format(uint8 type, const char *name, const char *color, object *pl, const char *format, ...)
 {
 	DRAW_INFO_FORMAT_CONSTRUCT();
-	draw_info_full(flags, color, NULL, pl, buf);
+	draw_info_full(type, name, color, NULL, pl, buf);
 }
 
 void draw_info(const char *color, object *pl, const char *buf)
 {
-	draw_info_full(0, color, NULL, pl, buf);
+	draw_info_full(CHAT_TYPE_GAME, NULL, color, NULL, pl, buf);
 }
 
 void draw_info_format(const char *color, object *pl, const char *format, ...)
 {
 	DRAW_INFO_FORMAT_CONSTRUCT();
-	draw_info_full(0, color, NULL, pl, buf);
+	draw_info_full(CHAT_TYPE_GAME, NULL, color, NULL, pl, buf);
 }
 
 /**
@@ -145,7 +146,7 @@ void draw_info_format(const char *color, object *pl, const char *format, ...)
  * @param op Will not write to this player.
  * @param op2 Will not write to this player either.
  * @param buf What to write. */
-void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
+void draw_info_map(uint8 type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
 {
 	int distance, i;
 	object *pl;
@@ -162,7 +163,7 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 		{
 			if (pl != op && pl != op2)
 			{
-				draw_info_flags(flags, color, pl, buf);
+				draw_info_type(type, name, color, pl, buf);
 			}
 		}
 
@@ -176,7 +177,7 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 	{
 		if (pl != op && pl != op2 && (POW2(pl->x - x) + POW2(pl->y - y)) <= distance)
 		{
-			draw_info_flags(flags, color, pl, buf);
+			draw_info_type(type, name, color, pl, buf);
 		}
 	}
 
@@ -189,7 +190,7 @@ void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, i
 			{
 				if (pl != op && pl != op2 && get_rangevector_from_mapcoords(map, x, y, pl->map, pl->x, pl->y, &rv, RV_NO_DISTANCE) && POW2(rv.distance_x) + POW2(rv.distance_y) <= distance)
 				{
-					draw_info_flags(flags, color, pl, buf);
+					draw_info_type(type, name, color, pl, buf);
 				}
 			}
 		}

@@ -188,7 +188,7 @@ void remove_ns_dead_player(player *pl)
 	trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
 	statistics_player_logout(pl);
 
-	draw_info_flags_format(NDI_ALL, COLOR_DK_ORANGE, NULL, "%s left the game.", query_name(pl->ob, NULL));
+	draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
 
 	/* If this player is in a party, leave the party */
 	if (pl->party)

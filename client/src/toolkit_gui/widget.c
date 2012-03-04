@@ -110,8 +110,9 @@ static int widget_id_from_name(const char *name)
 static void widget_load(void)
 {
 	FILE *fp;
-	char buf[HUGE_BUF], *end, *cp;
-	widgetdata *widget;
+	char buf[HUGE_BUF], *end, *line, *cp;
+	int depth, prev_depth;
+	widgetdata *widget, *top;
 
 	fp = fopen_wrapper("settings/interface.cfg", "r");
 
@@ -120,7 +121,8 @@ static void widget_load(void)
 		return;
 	}
 
-	widget = NULL;
+	widget = top = NULL;
+	prev_depth = 0;
 
 	while (fgets(buf, sizeof(buf), fp))
 	{
@@ -136,29 +138,59 @@ static void widget_load(void)
 			*end = '\0';
 		}
 
-		if (string_startswith(buf, "[") && string_endswith(buf, "]"))
+		depth = 0;
+		line = buf;
+
+		while (*line == '\t')
+		{
+			depth++;
+			line++;
+		}
+
+		if (string_startswith(line, "[") && string_endswith(line, "]"))
 		{
 			int id;
 
-			cp = string_sub(buf, 1, -1);
+			cp = string_sub(line, 1, -1);
 			id = widget_id_from_name(cp);
 			free(cp);
 
 			if (id == -1)
 			{
-				logger_print(LOG(DEBUG), "Invalid widget: %s", buf);
+				logger_print(LOG(DEBUG), "Invalid widget: %s", line);
 				continue;
 			}
 
+			if (prev_depth != 0 && top && widget)
+			{
+				int i;
+				widgetdata *tmp;
+
+				tmp = top;
+
+				for (i = 1; i < prev_depth; i++)
+				{
+					tmp = tmp->inv;
+				}
+
+				insert_widget_in_container(tmp, widget);
+			}
+
 			widget = create_widget_object(id);
+			prev_depth = depth;
+
+			if (depth == 0)
+			{
+				top = widget;
+			}
 		}
 		else if (widget)
 		{
 			char *cps[2];
 
-			if (string_split(buf, cps, arraysize(cps), '=') != arraysize(cps))
+			if (string_split(line, cps, arraysize(cps), '=') != arraysize(cps))
 			{
-				logger_print(LOG(BUG), "Invalid line: %s", buf);
+				logger_print(LOG(BUG), "Invalid line: %s", line);
 				continue;
 			}
 
@@ -172,6 +204,10 @@ static void widget_load(void)
 			else if (strcmp(cps[0], "shown") == 0)
 			{
 				KEYWORD_TO_BOOLEAN(cps[1], widget->show);
+			}
+			else if (strcmp(cps[0], "resizeable") == 0)
+			{
+				KEYWORD_TO_BOOLEAN(cps[1], widget->resizeable);
 			}
 			else if (strcmp(cps[0], "x") == 0)
 			{
@@ -188,6 +224,14 @@ static void widget_load(void)
 			else if (strcmp(cps[0], "h") == 0)
 			{
 				widget->ht = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "min_w") == 0)
+			{
+				widget->min_w = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "min_h") == 0)
+			{
+				widget->min_h = atoi(cps[1]);
 			}
 			else
 			{
@@ -261,6 +305,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	widget->WidgetTypeID = widget_type_id;
 	widget->name = strdup(widget_names[widget_type_id]);
 	widget->show = 1;
+	widget->redraw = 1;
 
 	/* allocate the custom attributes for the widget if applicable */
 	switch (widget->WidgetTypeID)
@@ -975,9 +1020,9 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 
 	for ( ; widget; widget = widget->prev)
 	{
-		if (widget->inv_rev)
+		if (widget->no_save)
 		{
-			widget_save_rec(fp, widget->inv_rev, depth + 1);
+			continue;
 		}
 
 		padding = string_repeat("\t", depth);
@@ -985,10 +1030,21 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		fprintf(fp, "%s[%s]\n", padding, widget->name);
 		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
 		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
+		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
 		fprintf(fp, "%sx = %d\n", padding, widget->x1);
 		fprintf(fp, "%sy = %d\n", padding, widget->y1);
 		fprintf(fp, "%sw = %d\n", padding, widget->wd);
 		fprintf(fp, "%sh = %d\n", padding, widget->ht);
+
+		if (widget->min_w)
+		{
+			fprintf(fp, "%smin_w = %d\n", padding, widget->min_w);
+		}
+
+		if (widget->min_h)
+		{
+			fprintf(fp, "%smin_h = %d\n", padding, widget->min_h);
+		}
 
 		switch (widget->WidgetTypeID)
 		{
@@ -997,7 +1053,15 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 				break;
 		}
 
-		fprintf(fp, "\n");
+		if (widget->inv_rev)
+		{
+			widget_save_rec(fp, widget->inv_rev, depth + 1);
+		}
+
+		if (depth == 0)
+		{
+			fprintf(fp, "\n");
+		}
 
 		free(padding);
 	}
@@ -2498,6 +2562,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	/* Place the menu at these co-ordinates. */
 	widget_menu->x1 = x;
 	widget_menu->y1 = y;
+	widget_menu->no_save = 1;
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
 	/* Magic numbers for now, maybe it will be possible in future to customize this in files. */

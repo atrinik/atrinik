@@ -34,6 +34,7 @@
 void command_server_shout(object *op, const char *command, char *params)
 {
 	player *pl;
+	char name[MAX_BUF];
 
 	params = player_sanitize_input(params);
 
@@ -48,11 +49,14 @@ void command_server_shout(object *op, const char *command, char *params)
 	{
 		if (commands_check_permission(pl, command))
 		{
-			draw_info_flags_format(NDI_PLAYER, COLOR_GREEN, pl->ob, "[Server] (%s): %s", op->name, params);
+			snprintf(name, sizeof(name), "[Server] (%s)", op->name);
 		}
 		else
 		{
-			draw_info_flags_format(NDI_PLAYER, COLOR_GREEN, pl->ob, "[Server]: %s", params);
+			strncpy(name, "[Server]", sizeof(name) - 1);
+			name[sizeof(name) - 1] = '\0';
 		}
+
+		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_GREEN, pl->ob, params);
 	}
 }

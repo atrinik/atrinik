@@ -475,7 +475,7 @@ extern void form_party(object *op, const char *name);
 extern party_struct *find_party(const char *name);
 extern int party_can_open_corpse(object *pl, object *corpse);
 extern void party_handle_corpse(object *pl, object *corpse);
-extern void send_party_message(party_struct *party, const char *msg, int flag, object *op);
+extern void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except);
 extern void remove_party(party_struct *party);
 extern void party_update_who(player *pl);
 /* src/server/pathfinder.c */
@@ -649,14 +649,14 @@ extern void read_client_images(void);
 extern void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void face_get_data(int face, uint8 **ptr, uint16 *len);
 /* src/socket/info.c */
-extern void draw_info_send(int flags, const char *color, socket_struct *ns, const char *buf);
-extern void draw_info_full(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
-extern void draw_info_full_format(int flags, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
-extern void draw_info_flags(int flags, const char *color, object *pl, const char *buf);
-extern void draw_info_flags_format(int flags, const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 4, 5)));
+extern void draw_info_send(uint8 type, const char *name, const char *color, socket_struct *ns, const char *buf);
+extern void draw_info_full(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
+extern void draw_info_full_format(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 6, 7)));
+extern void draw_info_type(uint8 type, const char *name, const char *color, object *pl, const char *buf);
+extern void draw_info_type_format(uint8 type, const char *name, const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
 extern void draw_info(const char *color, object *pl, const char *buf);
 extern void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
-extern void draw_info_map(int flags, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
+extern void draw_info_map(uint8 type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
 /* src/socket/init.c */
 extern _srv_client_files SrvClientFiles[SERVER_FILES_MAX];
 extern Socket_Info socket_info;
@@ -707,6 +707,7 @@ extern void socket_command_version(socket_struct *ns, player *pl, uint8 *data, s
 extern void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32 weight);
+extern void draw_map_text_anim(object *pl, const char *color, const char *text);
 extern void draw_client_map(object *pl);
 extern void packet_append_map_name(packet_struct *packet, object *op, object *map_info);
 extern void packet_append_map_music(packet_struct *packet, object *op, object *map_info);
@@ -894,6 +895,8 @@ extern int string_contains_other(const char *str, const char *key);
 extern char *string_create_char_range(char start, char end);
 extern char *string_crypt(char *str, const char *salt);
 extern char *string_join(const char *delim, ...);
+extern char *string_join_array(const char *delim, char **array, size_t arraysize);
+extern char *string_repeat(const char *str, size_t num);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

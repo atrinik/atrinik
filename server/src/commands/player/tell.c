@@ -72,6 +72,5 @@ void command_tell(object *op, const char *command, char *params)
 	pl->player_reply[sizeof(pl->player_reply) - 1] = '\0';
 
 	logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);
-	draw_info_flags_format(NDI_PLAYER, COLOR_NAVY, op, "You tell %s: %s", name, msg);
-	draw_info_flags_format(NDI_PLAYER | NDI_TELL, COLOR_NAVY, pl->ob, "%s tells you: %s", op->name, msg);
+	draw_info_type(CHAT_TYPE_PRIVATE, op->name, COLOR_NAVY, pl->ob, msg);
 }

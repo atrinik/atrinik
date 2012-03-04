@@ -313,13 +313,13 @@ void party_handle_corpse(object *pl, object *corpse)
  * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
  * @param op Player sending the message. If not NULL, this player will
  * not receive the message. */
-void send_party_message(party_struct *party, const char *msg, int flag, object *op)
+void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except)
 {
 	objectlink *ol;
 
 	for (ol = party->members; ol; ol = ol->next)
 	{
-		if (ol->objlink.ob == op)
+		if (ol->objlink.ob == except)
 		{
 			continue;
 		}
@@ -330,7 +330,7 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
 		}
 		else if (flag == PARTY_MESSAGE_CHAT)
 		{
-			draw_info_flags(NDI_PLAYER, COLOR_YELLOW, ol->objlink.ob, msg);
+			draw_info_type(CHAT_TYPE_PARTY, op->name, COLOR_YELLOW, ol->objlink.ob, msg);
 		}
 	}
 }

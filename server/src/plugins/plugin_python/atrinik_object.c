@@ -338,7 +338,7 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 	OBJEXISTCHECK(obj);
 
 	snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
-	hooks->draw_info_map(0, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+	hooks->draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -354,17 +354,17 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"message", "color", "flags", NULL};
-	int flags = 0;
-	const char *message, *color = COLOR_ORANGE;
+	uint8 type = CHAT_TYPE_GAME;
+	const char *message, *color = COLOR_ORANGE, *name = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &message, &color, &flags))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &message, &color, &type))
 	{
 		return NULL;
 	}
 
 	OBJEXISTCHECK(obj);
 
-	hooks->draw_info_flags(flags, color, obj->obj, message);
+	hooks->draw_info_type(type, name, color, obj->obj, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;

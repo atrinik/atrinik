@@ -31,9 +31,11 @@
 
 #include <button.h>
 
+#define TEXTWIN_TAB_NAME(_tab) ((_tab)->name ? (_tab)->name : textwin_tab_names[(_tab)->type - 1])
+
 typedef struct textwin_tab_struct
 {
-	size_t type;
+	uint8 type;
 
 	char *name;
 
@@ -68,10 +70,6 @@ typedef struct textwin_struct
 	/** End of selection. */
 	sint64 selection_end;
 
-	char **tabs_allowed;
-
-	size_t tabs_allowed_num;
-
 	struct textwin_tab_struct *tabs;
 
 	size_t tabs_num;
@@ -92,7 +90,7 @@ typedef struct textwin_struct
 /** Maximum width of the text in the widget. */
 #define TEXTWIN_TEXT_WIDTH(_widget) ((_widget)->wd - scrollbar_get_width(&TEXTWIN((_widget))->scrollbar) - (TEXTWIN_TEXT_STARTX((_widget)) * 2))
 /** Maximum height of the text in the widget. */
-#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2) - TEXTWIN_TAB_HEIGHT)
+#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2) - textwin_tabs_height((_widget)))
 /*@}*/
 
 /** Get the maximum number of visible rows. */

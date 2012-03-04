@@ -78,7 +78,7 @@ void command_party(object *op, const char *command, char *params)
 		}
 
 		snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
-		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, NULL);
+		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, op, NULL);
 		logger_print(LOG(CHAT), "[PARTY] [%s] [%s] %s", op->name, CONTR(op)->party->name, params);
 	}
 	else if (!strcmp(params, "leave"))
@@ -91,7 +91,7 @@ void command_party(object *op, const char *command, char *params)
 
 		draw_info_format(COLOR_WHITE, op, "You leave party %s.", CONTR(op)->party->name);
 		snprintf(buf, sizeof(buf), "%s leaves party %s.", op->name, CONTR(op)->party->name);
-		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op);
+		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, op);
 
 		remove_party_member(CONTR(op)->party, op);
 	}
@@ -111,7 +111,7 @@ void command_party(object *op, const char *command, char *params)
 
 		strncpy(CONTR(op)->party->passwd, params + 9, sizeof(CONTR(op)->party->passwd) - 1);
 		snprintf(buf, sizeof(buf), "The password for party %s changed to '%s'.", CONTR(op)->party->name, CONTR(op)->party->passwd);
-		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
+		send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
 	}
 	else if (!strncmp(params, "form ", 5))
 	{
@@ -167,7 +167,7 @@ void command_party(object *op, const char *command, char *params)
 			{
 				CONTR(op)->party->loot = i;
 				snprintf(buf, sizeof(buf), "Party looting mode changed to '%s'.", party_loot_modes[i]);
-				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
+				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
 				return;
 			}
 		}
@@ -215,7 +215,7 @@ void command_party(object *op, const char *command, char *params)
 			{
 				remove_party_member(CONTR(op)->party, ol->objlink.ob);
 				snprintf(buf, sizeof(buf), "%s has been kicked from the party.", ol->objlink.ob->name);
-				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, NULL);
+				send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
 				draw_info_format(COLOR_RED, ol->objlink.ob, "You have been kicked from the party '%s'.", CONTR(op)->party->name);
 				return;
 			}
@@ -328,7 +328,7 @@ void command_party(object *op, const char *command, char *params)
 				CONTR(op)->stat_joined_party++;
 				draw_info_format(COLOR_GREEN, op, "You have joined party: %s.", party->name);
 				snprintf(buf, sizeof(buf), "%s joined party %s.", op->name, party->name);
-				send_party_message(party, buf, PARTY_MESSAGE_STATUS, op);
+				send_party_message(party, buf, PARTY_MESSAGE_STATUS, op, op);
 				return;
 			}
 			/* Party password was typed but it wasn't correct. */

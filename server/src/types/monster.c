@@ -1658,7 +1658,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 		else
 		{
 			snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
-			draw_info_map(0, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
+			draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
 		}
 
 		free(cp);

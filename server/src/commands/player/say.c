@@ -33,8 +33,6 @@
 /** @copydoc command_func */
 void command_say(object *op, const char *command, char *params)
 {
-	char buf[HUGE_BUF];
-
 	params = player_sanitize_input(params);
 
 	if (!params)
@@ -43,6 +41,5 @@ void command_say(object *op, const char *command, char *params)
 	}
 
 	logger_print(LOG(CHAT), "[SAY] [%s] %s", op->name, params);
-	snprintf(buf, sizeof(buf), "%s says: %s", op->name, params);
-	draw_info_map(NDI_PLAYER | NDI_SAY, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+	draw_info_map(CHAT_TYPE_PUBLIC, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
 }

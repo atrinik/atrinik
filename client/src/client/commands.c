@@ -142,65 +142,19 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 {
-	uint16 flags;
-	char color[COLOR_BUF], *str;
+	uint8 type;
+	char name[MAX_BUF], color[COLOR_BUF], *str;
 	StringBuffer *sb;
 
-	flags = packet_to_uint16(data, len, &pos);
+	type = packet_to_uint8(data, len, &pos);
+	packet_to_string(data, len, &pos, name, sizeof(name));
 	packet_to_string(data, len, &pos, color, sizeof(color));
+
 	sb = stringbuffer_new();
-
-	if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS) && (flags & NDI_PLAYER))
-	{
-		time_t now = time(NULL);
-		char timebuf[32], *format;
-		struct tm *tm = localtime(&now);
-		size_t timelen;
-
-		switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS))
-		{
-			/* HH:MM */
-			case 1:
-			default:
-				format = "%H:%M";
-				break;
-
-			/* HH:MM:SS */
-			case 2:
-				format = "%H:%M:%S";
-				break;
-
-			/* H:MM AM/PM */
-			case 3:
-				format = "%I:%M %p";
-				break;
-
-			/* H:MM:SS AM/PM */
-			case 4:
-				format = "%I:%M:%S %p";
-				break;
-		}
-
-		timelen = strftime(timebuf, sizeof(timebuf), format, tm);
-
-		if (timelen != 0)
-		{
-			stringbuffer_append_printf(sb, "[%s] ", timebuf);
-		}
-	}
-
 	packet_to_stringbuffer(data, len, &pos, sb);
 	str = stringbuffer_finish(sb);
 
-	if (flags & NDI_ANIM)
-	{
-		strncpy(msg_anim.message, str, sizeof(msg_anim.message) - 1);
-		msg_anim.tick = LastTick;
-		strncpy(msg_anim.color, color, sizeof(msg_anim.color) - 1);
-		msg_anim.color[sizeof(msg_anim.color) - 1] = '\0';
-	}
-
-	draw_info_tab(CHAT_TYPE_CHAT, "Xxx", color, str);
+	draw_info_tab(type, name, color, str);
 
 	free(str);
 }
@@ -658,6 +612,12 @@ void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
 		{
 			packet_to_string(data, len, &pos, buf, sizeof(buf));
 			update_map_weather(buf);
+		}
+		else if (type == CMD_MAPSTATS_TEXT_ANIM)
+		{
+			packet_to_string(data, len, &pos, msg_anim.color, sizeof(msg_anim.color));
+			packet_to_string(data, len, &pos, msg_anim.message, sizeof(msg_anim.message));
+			msg_anim.tick = SDL_GetTicks();
 		}
 	}
 }
