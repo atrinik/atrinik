@@ -1175,6 +1175,9 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
 				add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
 				add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+				add_menuitem(menu, "Tabs  >", &menu_textwin_submenu_tabs, MENU_SUBMENU, 0);
+				add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
+				add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
 			}
 		}
 
@@ -1194,7 +1197,7 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		/* Handler(s) for miscellaneous mouse movement(s) go here. */
 
 		/* Special case for menuitems, if menuitem or a widget inside is clicked on, calls the function tied to the menuitem. */
-		widget_menu_event(widget, x, y);
+		widget_menu_event(widget, event);
 
 		/* Place here all the mousedown handlers. */
 		switch (widget->WidgetTypeID)
@@ -2516,7 +2519,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 }
 
 /** Creates a label with the given text, font and colour, and sets the size of the widget to the correct boundaries. */
-widgetdata *add_label(char *text, int font, const char *color)
+widgetdata *add_label(const char *text, int font, const char *color)
 {
 	widgetdata *widget;
 	_widget_label *label;
@@ -2524,7 +2527,7 @@ widgetdata *add_label(char *text, int font, const char *color)
 	widget = create_widget_object(LABEL_ID);
 	label = LABEL(widget);
 
-	label->text = text;
+	label->text = strdup(text);
 
 	label->font = font;
 	label->color = color;
@@ -2576,7 +2579,7 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 }
 
 /** Adds a menuitem to a menu. */
-void add_menuitem(widgetdata *menu, char *text, void (*menu_func_ptr)(widgetdata *, int, int), int menu_type, int val)
+void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event), int menu_type, int val)
 {
 	widgetdata *widget_menuitem, *widget_label, *widget_texture, *tmp;
 	_widget_container *container_menuitem, *container_menu;
@@ -2696,159 +2699,78 @@ void widget_redraw_all(int widget_type_id)
 	}
 }
 
-void menu_move_widget(widgetdata *widget, int x, int y)
+void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	widget_event_start_move(widget, x, y);
+	widget_event_start_move(widget, event->motion.x, event->motion.y);
 }
 
-void menu_create_widget(widgetdata *widget, int x, int y)
+void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
 	create_widget_object(widget->WidgetSubtypeID);
 }
 
-void menu_remove_widget(widgetdata *widget, int x, int y)
+void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
 	remove_widget_object(widget);
 }
 
-void menu_detach_widget(widgetdata *widget, int x, int y)
+void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
 	detach_widget(widget);
 }
 
-void menu_set_say_filter(widgetdata *widget, int x, int y)
+void menu_inv_filter_all(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
-}
-
-void menu_set_shout_filter(widgetdata *widget, int x, int y)
-{
-	(void) widget;
-	(void) x;
-	(void) y;
-}
-
-void menu_set_gsay_filter(widgetdata *widget, int x, int y)
-{
-	(void) widget;
-	(void) x;
-	(void) y;
-}
-
-void menu_set_tell_filter(widgetdata *widget, int x, int y)
-{
-	(void) widget;
-	(void) x;
-	(void) y;
-}
-
-void menu_set_channel_filter(widgetdata *widget, int x, int y)
-{
-	(void) widget;
-	(void) x;
-	(void) y;
-}
-
-void submenu_chatwindow_filters(widgetdata *widget, int x, int y)
-{
-	(void) x;
-	(void) y;
-	add_menuitem(widget, "Say", &menu_set_say_filter, MENU_CHECKBOX, 0);
-	add_menuitem(widget, "Shout", &menu_set_shout_filter, MENU_CHECKBOX, 0);
-	add_menuitem(widget, "Group", &menu_set_gsay_filter, MENU_CHECKBOX, 0);
-	add_menuitem(widget, "Tells", &menu_set_tell_filter, MENU_CHECKBOX, 0);
-	add_menuitem(widget, "Channels", &menu_set_channel_filter, MENU_CHECKBOX, 0);
-}
-
-void menu_inv_filter_all(widgetdata *widget, int x, int y)
-{
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_set(INVENTORY_FILTER_ALL);
 }
 
-void menu_inv_filter_applied(widgetdata *widget, int x, int y)
+void menu_inv_filter_applied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
 }
 
-void menu_inv_filter_containers(widgetdata *widget, int x, int y)
+void menu_inv_filter_containers(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
 }
 
-void menu_inv_filter_magical(widgetdata *widget, int x, int y)
+void menu_inv_filter_magical(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
 }
 
-void menu_inv_filter_cursed(widgetdata *widget, int x, int y)
+void menu_inv_filter_cursed(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_CURSED);
 }
 
-void menu_inv_filter_unidentified(widgetdata *widget, int x, int y)
+void menu_inv_filter_unidentified(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
 }
 
-void menu_inv_filter_locked(widgetdata *widget, int x, int y)
+void menu_inv_filter_locked(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
 }
 
-void menu_inv_filter_unapplied(widgetdata *widget, int x, int y)
+void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
 }
 
-void menu_inv_filter_submenu(widgetdata *widget, int x, int y)
+void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 }
 
-void menu_inventory_submenu_more(widgetdata *widget, int x, int y)
+void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 }
 
-void menu_inventory_submenu_quickslots(widgetdata *widget, int x, int y)
+void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
+}
+
+void menu_textwin_submenu_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
 }

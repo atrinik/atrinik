@@ -1038,13 +1038,9 @@ void widget_map_mevent(widgetdata *widget, SDL_Event *event)
 
 /**
  * Press the "Walk Here" option in map widget menu. */
-static void menu_map_walk_here(widgetdata *widget, int x, int y)
+static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	int tx, ty;
-
-	(void) widget;
-	(void) x;
-	(void) y;
 
 	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
 	{
@@ -1054,13 +1050,9 @@ static void menu_map_walk_here(widgetdata *widget, int x, int y)
 
 /**
  * Press the "Talk To NPC" option in map widget menu. */
-static void menu_map_talk_to(widgetdata *widget, int x, int y)
+static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	int tx, ty;
-
-	(void) widget;
-	(void) x;
-	(void) y;
 
 	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
 	{

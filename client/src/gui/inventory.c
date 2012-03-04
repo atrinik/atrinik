@@ -748,11 +748,8 @@ void object_show_inventory(object *tmp, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_drop(widgetdata *widget, int x, int y)
+void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?DROP");
 }
 
@@ -761,11 +758,8 @@ void menu_inventory_drop(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_dropall(widgetdata *widget, int x, int y)
+void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	send_command_check("/drop all");
 }
 
@@ -774,11 +768,8 @@ void menu_inventory_dropall(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_get(widgetdata *widget, int x, int y)
+void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?GET");
 }
 
@@ -787,11 +778,8 @@ void menu_inventory_get(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_getall(widgetdata *widget, int x, int y)
+void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	send_command_check("/take all");
 }
 
@@ -800,11 +788,8 @@ void menu_inventory_getall(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_examine(widgetdata *widget, int x, int y)
+void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?EXAMINE");
 }
 
@@ -813,11 +798,8 @@ void menu_inventory_examine(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_loadtoconsole(widgetdata *widget, int x, int y)
+void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	send_command_check("/console-obj");
 }
 
@@ -826,11 +808,8 @@ void menu_inventory_loadtoconsole(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_mark(widgetdata *widget, int x, int y)
+void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?MARK");
 }
 
@@ -839,11 +818,8 @@ void menu_inventory_mark(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_lock(widgetdata *widget, int x, int y)
+void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?LOCK");
 }
 
@@ -852,11 +828,8 @@ void menu_inventory_lock(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_ready(widgetdata *widget, int x, int y)
+void menu_inventory_ready(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) widget;
-	(void) x;
-	(void) y;
 	keybind_process_command("?FIRE_READY");
 }
 
@@ -865,13 +838,9 @@ void menu_inventory_ready(widgetdata *widget, int x, int y)
  * @param widget The widget.
  * @param x X.
  * @param y Y. */
-void menu_inventory_drag(widgetdata *widget, int x, int y)
+void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	object *ob;
-
-	(void) widget;
-	(void) x;
-	(void) y;
 
 	ob = widget_inventory_get_selected(widget);
 
@@ -881,8 +850,8 @@ void menu_inventory_drag(widgetdata *widget, int x, int y)
 	}
 
 	cpl.dragging_tag = ob->tag;
-	cpl.dragging_startx = x;
-	cpl.dragging_starty = y;
+	cpl.dragging_startx = event->motion.x;
+	cpl.dragging_starty = event->motion.y;
 }
 
 /**

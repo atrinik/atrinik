@@ -218,7 +218,7 @@ typedef struct _menu
 typedef struct _menuitem
 {
 	/** Pointer to the function that performs the relevant operation when the menuitem is clicked. */
-	void (*menu_func_ptr)(widgetdata *, int, int);
+	void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event);
 
 	/** The type of menuitem. */
 	int menu_type;

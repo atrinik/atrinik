@@ -776,12 +776,12 @@ void widget_highlight_menu(widgetdata *widget)
 				add_menuitem(tmp_menu->submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);
 			}
 		}
-		else
+		else if (tmp_menu->owner->WidgetTypeID == CHATWIN_ID)
 		{
-			/* TODO: Remove this later. It's hardcoded here for testing. */
-			submenu_chatwindow_filters(tmp_menu->submenu, 0, 0);
-			add_menuitem(tmp_menu->submenu, "Test", &menu_detach_widget, MENU_SUBMENU, 0);
-			add_menuitem(tmp_menu->submenu, "Test2", &menu_detach_widget, MENU_SUBMENU, 0);
+			if (submenuitem->menu_func_ptr == menu_textwin_submenu_tabs)
+			{
+				textwin_submenu_tabs(tmp_menu->owner, tmp_menu->submenu);
+			}
 		}
 
 		menu_finalize(tmp_menu->submenu);
@@ -789,7 +789,7 @@ void widget_highlight_menu(widgetdata *widget)
 }
 
 /** Handles events when the menuitem is clicked on. */
-void widget_menu_event(widgetdata *widget, int x, int y)
+void widget_menu_event(widgetdata *widget, SDL_Event *event)
 {
 	widgetdata *tmp;
 	_menuitem *menuitem;
@@ -820,21 +820,9 @@ void widget_menu_event(widgetdata *widget, int x, int y)
 
 		if (widget_mouse_event.owner)
 		{
-			widget_menuitem_event(widget_mouse_event.owner, x, y, menuitem->menu_func_ptr);
+			menuitem->menu_func_ptr(widget_mouse_event.owner, tmp, event);
 		}
 	}
-}
-
-/** Call the function for the menuitem that was clicked on. */
-void widget_menuitem_event(widgetdata *widget, int x, int y, void (*menu_func_ptr)(widgetdata *, int, int))
-{
-	/* sanity check */
-	if (!menu_func_ptr)
-	{
-		return;
-	}
-
-	menu_func_ptr(widget, x, y);
 }
 
 void widget_show_label(widgetdata *widget)

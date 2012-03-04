@@ -212,6 +212,22 @@ static int textwin_tab_compare(const void *a, const void *b)
 	return tab_one->type - tab_two->type;
 }
 
+size_t textwin_tab_name_to_id(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < arraysize(textwin_tab_names); i++)
+	{
+		if (strcmp(textwin_tab_names[i], name) == 0)
+		{
+			return i + 1;
+
+		}
+	}
+
+	return CHAT_TYPE_PRIVATE;
+}
+
 void textwin_tab_free(textwin_tab_struct *tab)
 {
 }
@@ -246,24 +262,15 @@ void textwin_tab_remove(widgetdata *widget, const char *name)
 void textwin_tab_add(widgetdata *widget, const char *name)
 {
 	textwin_struct *textwin;
-	size_t id;
 	char buf[MAX_BUF];
 
 	textwin = TEXTWIN(widget);
 	textwin->tabs = memory_reallocz(textwin->tabs, sizeof(*textwin->tabs) * textwin->tabs_num, sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
 
-	for (id = 0; id < arraysize(textwin_tab_names); id++)
-	{
-		if (strcmp(textwin_tab_names[id], name) == 0)
-		{
-			textwin->tabs[textwin->tabs_num].type = id + 1;
-			break;
-		}
-	}
+	textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 
-	if (textwin->tabs[textwin->tabs_num].type == 0)
+	if (name)
 	{
-		textwin->tabs[textwin->tabs_num].type = CHAT_TYPE_PRIVATE;
 		textwin->tabs[textwin->tabs_num].name = strdup(name);
 	}
 
@@ -285,7 +292,7 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 
 	for (*id = 0; *id < textwin->tabs_num; (*id)++)
 	{
-		if (textwin->tabs[*id].type == type && (!textwin->tabs[*id].name || !name || strcmp(textwin->tabs[*id].name, name) == 0))
+		if (textwin->tabs[*id].type == type && (!textwin->tabs[*id].name || string_isempty(name) || strcmp(textwin->tabs[*id].name, name) == 0))
 		{
 			return 1;
 		}
@@ -788,12 +795,9 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
  * @param widget The text window widget.
  * @param x X.
  * @param y Y. */
-void menu_textwin_clear(widgetdata *widget, int x, int y)
+void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_struct *textwin;
-
-	(void) x;
-	(void) y;
 
 	textwin = TEXTWIN(widget);
 	free(textwin->tabs[textwin->tab_selected].entries);
@@ -807,11 +811,8 @@ void menu_textwin_clear(widgetdata *widget, int x, int y)
  * @param widget The text window widget.
  * @param x X.
  * @param y Y. */
-void menu_textwin_copy(widgetdata *widget, int x, int y)
+void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
-
 	textwin_handle_copy(widget);
 }
 
@@ -840,10 +841,8 @@ static void textwin_font_adjust(widgetdata *widget, int adjust)
  * @param widget The text window widget.
  * @param x X.
  * @param y Y. */
-void menu_textwin_font_inc(widgetdata *widget, int x, int y)
+void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
 	textwin_font_adjust(widget, 1);
 }
 
@@ -852,9 +851,82 @@ void menu_textwin_font_inc(widgetdata *widget, int x, int y)
  * @param widget The text window widget.
  * @param x X.
  * @param y Y. */
-void menu_textwin_font_dec(widgetdata *widget, int x, int y)
+void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	(void) x;
-	(void) y;
 	textwin_font_adjust(widget, -1);
+}
+
+void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *tmp;
+	_widget_label *label;
+	size_t id;
+
+	for (tmp = menuitem->inv; tmp; tmp = tmp->next)
+	{
+		if (tmp->WidgetTypeID == LABEL_ID)
+		{
+			label = LABEL(menuitem->inv);
+
+			if (textwin_tab_find(widget, textwin_tab_name_to_id(label->text), label->text, &id))
+			{
+				textwin_tab_remove(widget, label->text);
+			}
+			else
+			{
+				textwin_tab_add(widget, label->text);
+			}
+
+			WIDGET_REDRAW(widget);
+			break;
+		}
+	}
+}
+
+void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu)
+{
+	widgetdata *tmp, *menuitem;
+	textwin_struct *textwin;
+	size_t i, id;
+	uint8 found;
+	_widget_label *label;
+
+	for (i = 0; i < arraysize(textwin_tab_names); i++)
+	{
+		add_menuitem(menu, textwin_tab_names[i], &menu_textwin_tab, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+	}
+
+	for (tmp = cur_widget[CHATWIN_ID]; tmp; tmp = tmp->type_next)
+	{
+		textwin = TEXTWIN(tmp);
+
+		for (i = 0; i < textwin->tabs_num; i++)
+		{
+			if (!textwin->tabs[i].name)
+			{
+				continue;
+			}
+
+			found = 0;
+
+			for (menuitem = menu->inv; menuitem; menuitem = menuitem->next)
+			{
+				if (menuitem->inv->WidgetTypeID == LABEL_ID)
+				{
+					label = LABEL(menuitem->inv);
+
+					if (strcmp(label->text, textwin->tabs[i].name) == 0)
+					{
+						found = 1;
+						break;
+					}
+				}
+			}
+
+			if (!found)
+			{
+				add_menuitem(menu, textwin->tabs[i].name, &menu_textwin_tab, MENU_CHECKBOX, tmp == widget);
+			}
+		}
+	}
 }
