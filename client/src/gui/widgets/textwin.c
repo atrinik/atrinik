@@ -57,6 +57,11 @@ void textwin_readjust(widgetdata *widget)
 {
 	textwin_struct *textwin = TEXTWIN(widget);
 
+	if (!textwin->tabs)
+	{
+		return;
+	}
+
 	if (textwin->tabs[textwin->tab_selected].entries)
 	{
 		SDL_Rect box;
