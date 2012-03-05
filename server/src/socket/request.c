@@ -338,6 +338,7 @@ void esrv_new_player(player *pl, uint32 weight)
 	packet_append_uint32(packet, pl->ob->count);
 	packet_append_uint32(packet, weight);
 	packet_append_uint32(packet, pl->ob->face->number);
+	packet_append_string_terminated(packet, pl->ob->name);
 	socket_send_packet(&pl->socket, packet);
 }
 

@@ -342,6 +342,7 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 	weight = packet_to_uint32(data, len, &pos);
 	face = packet_to_uint32(data, len, &pos);
 	request_face(face);
+	packet_to_string(data, len, &pos, cpl.name, sizeof(cpl.name));
 
 	new_player(tag, weight, face);
 	map_udate_flag = 2;

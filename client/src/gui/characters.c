@@ -184,9 +184,6 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 		packet_append_string_terminated(packet, buf);
 		socket_send_packet(packet);
 
-		strncpy(cpl.name, buf, sizeof(cpl.name) - 1);
-		cpl.name[sizeof(cpl.name) - 1] = '\0';
-
 		return 1;
 	}
 
