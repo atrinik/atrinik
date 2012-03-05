@@ -282,6 +282,69 @@ void toolkit_widget_init(void)
 	}
 }
 
+/** @copydoc widgetdata::menu_handle_func */
+static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
+{
+	widgetdata *menu;
+
+	/* Create a context menu for the widget clicked on. */
+	menu = create_menu(event->motion.x, event->motion.y, widget);
+
+	if ((widget->sub_type == MAIN_INV_ID || widget->sub_type == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, event->motion.x, event->motion.y))
+	{
+		if (widget->sub_type == MAIN_INV_ID)
+		{
+			add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
+		}
+
+		add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
+
+		if (widget->sub_type == BELOW_INV_ID)
+		{
+			add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
+		}
+
+		add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
+
+		if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR))
+		{
+			add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
+		}
+
+		if (widget->sub_type == MAIN_INV_ID)
+		{
+			add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
+		}
+
+		/* Process the right click event so the correct item is
+		 * selected. */
+		widget->event_func(widget, event);
+	}
+	else
+	{
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+
+		if (widget->sub_type == MAIN_INV_ID)
+		{
+			add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
+		}
+		else if (widget->sub_type == CHATWIN_ID)
+		{
+			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+			add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
+			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
+			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+			add_menuitem(menu, "Tabs  >", &menu_textwin_submenu_tabs, MENU_SUBMENU, 0);
+			add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
+			add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
+		}
+	}
+
+	menu_finalize(menu);
+
+	return 1;
+}
+
 /** Wrapper function to handle the creation of a widget. */
 widgetdata *create_widget_object(int widget_subtype_id)
 {
@@ -323,6 +386,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	widget->name = strdup(widget_names[widget_type_id]);
 	widget->show = 1;
 	widget->redraw = 1;
+	widget->menu_handle_func = widget_menu_handle;
 
 	if (widget_initializers[widget->type])
 	{
@@ -939,65 +1003,8 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (event->button.button == SDL_BUTTON_RIGHT && widget->type != MAP_ID && !cur_widget[MENU_ID])
+	if (event->button.button == SDL_BUTTON_RIGHT && !cur_widget[MENU_ID] && widget->menu_handle_func && widget->menu_handle_func(widget, event))
 	{
-		widgetdata *menu;
-
-		/* Create a context menu for the widget clicked on. */
-		menu = create_menu(x, y, widget);
-
-		if ((widget->sub_type == MAIN_INV_ID || widget->sub_type == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, x, y))
-		{
-			if (widget->sub_type == MAIN_INV_ID)
-			{
-				add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
-			}
-
-			add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
-
-			if (widget->sub_type == BELOW_INV_ID)
-			{
-				add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
-			}
-
-			add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
-
-			if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR))
-			{
-				add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
-			}
-
-			if (widget->sub_type == MAIN_INV_ID)
-			{
-				add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
-			}
-
-			/* Process the right click event so the correct item is
-			 * selected. */
-			widget->event_func(widget, event);
-		}
-		else
-		{
-			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
-
-			if (widget->sub_type == MAIN_INV_ID)
-			{
-				add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
-			}
-			else if (widget->sub_type == CHATWIN_ID)
-			{
-				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
-				add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
-				add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
-				add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
-				add_menuitem(menu, "Tabs  >", &menu_textwin_submenu_tabs, MENU_SUBMENU, 0);
-				add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
-				add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
-			}
-		}
-
-		menu_finalize(menu);
-
 		return 1;
 	}
 	/* Start resizing. */

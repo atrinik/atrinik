@@ -1209,6 +1209,7 @@ void widget_map_init(widgetdata *widget)
 {
 	widget->draw_func = widget_draw;
 	widget->event_func = widget_event;
+	widget->menu_handle_func = NULL;
 
 	SetPriorityWidget_reverse(widget);
 }

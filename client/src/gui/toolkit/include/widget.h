@@ -125,6 +125,8 @@ typedef struct widgetdata
 	int (*load_func)(struct widgetdata *widget, const char *keyword, const char *parameter);
 
 	void (*save_func)(struct widgetdata *widget, FILE *fp, const char *padding);
+
+	int (*menu_handle_func)(struct widgetdata *widget, SDL_Event *event);
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
