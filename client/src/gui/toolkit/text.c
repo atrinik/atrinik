@@ -408,8 +408,8 @@ static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 
 		if (widget)
 		{
-			*mx -= widget->x1;
-			*my -= widget->y1;
+			*mx -= widget->x;
+			*my -= widget->y;
 		}
 	}
 }

@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Implements text window widgets.
+ * Implements text window type widgets.
  *
  * @author Alex Tokar */
 
@@ -269,7 +269,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 
 	textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 
-	if (name)
+	if (!string_startswith(name, "[") && !string_endswith(name, "]"))
 	{
 		textwin->tabs[textwin->tabs_num].name = strdup(name);
 	}
@@ -292,7 +292,7 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 
 	for (*id = 0; *id < textwin->tabs_num; (*id)++)
 	{
-		if (textwin->tabs[*id].type == type && (!textwin->tabs[*id].name || string_isempty(name) || strcmp(textwin->tabs[*id].name, name) == 0))
+		if (textwin->tabs[*id].type == type || (textwin->tabs[*id].type == CHAT_TYPE_PRIVATE && textwin->tabs[*id].name && !string_isempty(name) && strcmp(textwin->tabs[*id].name, name) == 0))
 		{
 			return 1;
 		}
@@ -428,101 +428,6 @@ void textwin_handle_copy(widgetdata *widget)
 	free(cp);
 }
 
-void widget_textwin_deinit(widgetdata *widget)
-{
-}
-
-void widget_textwin_init(widgetdata *widget)
-{
-	textwin_struct *textwin;
-
-	textwin = calloc(1, sizeof(*textwin));
-
-	if (!textwin)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
-
-	textwin->font = FONT_ARIAL11;
-	textwin->selection_start = -1;
-	textwin->selection_end = -1;
-	widget->subwidget = textwin;
-	textwin_create_scrollbar(widget);
-}
-
-void widget_textwin_load(widgetdata *widget, const char *keyword, const char *parameter)
-{
-	textwin_struct *textwin;
-
-	textwin = TEXTWIN(widget);
-
-	if (strcmp(keyword, "font") == 0)
-	{
-		char font_name[MAX_BUF];
-		int font_size, font_id;
-
-		if (sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1)
-		{
-			textwin->font = font_id;
-		}
-	}
-	else if (strcmp(keyword, "tabs") == 0)
-	{
-		size_t pos;
-		char word[MAX_BUF];
-
-		pos = 0;
-
-		while (string_get_word(parameter, &pos, ':', word, sizeof(word)))
-		{
-			if (string_startswith(word, "/"))
-			{
-				textwin_tab_remove(widget, word + 1);
-			}
-			else
-			{
-				if (strcmp(word, "*") == 0)
-				{
-					size_t i;
-
-					for (i = 0; i < arraysize(textwin_tab_names); i++)
-					{
-						textwin_tab_add(widget, textwin_tab_names[i]);
-					}
-				}
-				else
-				{
-					textwin_tab_add(widget, word);
-				}
-			}
-		}
-	}
-}
-
-void widget_textwin_save(widgetdata *widget, FILE *fp, const char *padding)
-{
-	textwin_struct *textwin;
-
-	textwin = TEXTWIN(widget);
-
-	fprintf(fp, "%sfont = %s %"FMT64U"\n", padding, get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
-
-	if (textwin->tabs_num)
-	{
-		size_t i;
-
-		fprintf(fp, "%stabs = ", padding);
-
-		for (i = 0; i < textwin->tabs_num; i++)
-		{
-			fprintf(fp, "%s%s", i == 0 ? "" : ":", TEXTWIN_TAB_NAME(&textwin->tabs[i]));
-		}
-
-		fprintf(fp, "\n");
-	}
-}
-
 /**
  * Display the message text window, without handling scrollbar/mouse
  * actions.
@@ -589,7 +494,7 @@ int textwin_tabs_height(widgetdata *widget)
 
 	for (i = 0; i < textwin->tabs_num; i++)
 	{
-		if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->wd)
+		if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->w)
 		{
 			button_x = 0;
 			button_y += TEXTWIN_TAB_HEIGHT - 1;
@@ -612,10 +517,8 @@ void textwin_create_scrollbar(widgetdata *widget)
 	textwin->scrollbar.redraw = &widget->redraw;
 }
 
-/**
- * Display widget text windows.
- * @param widget The widget object. */
-void widget_textwin_show(widgetdata *widget)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box;
 	textwin_struct *textwin = TEXTWIN(widget);
@@ -628,27 +531,27 @@ void widget_textwin_show(widgetdata *widget)
 	}
 
 	/* If we don't have a backbuffer, create it */
-	if (!widget->widgetSF || widget->wd != widget->widgetSF->w || widget->ht != widget->widgetSF->h)
+	if (!widget->surface || widget->w != widget->surface->w || widget->h != widget->surface->h)
 	{
-		if (widget->widgetSF)
+		if (widget->surface)
 		{
-			SDL_FreeSurface(widget->widgetSF);
+			SDL_FreeSurface(widget->surface);
 		}
 
-		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), widget->wd, widget->ht, video_get_bpp(), 0, 0, 0, 0);
-		SDL_SetColorKey(widget->widgetSF, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+		widget->surface = SDL_CreateRGBSurface(get_video_flags(), widget->w, widget->h, video_get_bpp(), 0, 0, 0, 0);
+		SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
 		textwin_readjust(widget);
 	}
 
 	if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY)))
 	{
-		filledRectAlpha(ScreenSurface, widget->x1, widget->y1, widget->x1 + widget->wd - 1, widget->y1 + widget->ht - 1, alpha);
+		filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, alpha);
 	}
 
 	/* Let's draw the widgets in the backbuffer */
 	if (widget->redraw)
 	{
-		SDL_FillRect(widget->widgetSF, NULL, 0);
+		SDL_FillRect(widget->surface, NULL, 0);
 
 		if (textwin->tabs)
 		{
@@ -665,7 +568,7 @@ void widget_textwin_show(widgetdata *widget)
 
 				for (i = 0; i < textwin->tabs_num; i++)
 				{
-					if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->wd)
+					if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->w)
 					{
 						button_x = 0;
 						button_y += TEXTWIN_TAB_HEIGHT - 1;
@@ -673,15 +576,15 @@ void widget_textwin_show(widgetdata *widget)
 
 					textwin->tabs[i].button.x = button_x;
 					textwin->tabs[i].button.y = button_y;
-					textwin->tabs[i].button.surface = widget->widgetSF;
-					button_set_parent(&textwin->tabs[i].button, widget->x1, widget->y1);
+					textwin->tabs[i].button.surface = widget->surface;
+					button_set_parent(&textwin->tabs[i].button, widget->x, widget->y);
 					button_show(&textwin->tabs[i].button, TEXTWIN_TAB_NAME(&textwin->tabs[i]));
 
 					button_x += TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w - 1;
 				}
 
 				yadjust = button_y + TEXTWIN_TAB_HEIGHT;
-				BORDER_CREATE_BOTTOM(widget->widgetSF, 0, 0, widget->wd, yadjust, textwin_border_color, 1);
+				BORDER_CREATE_BOTTOM(widget->surface, 0, 0, widget->w, yadjust, textwin_border_color, 1);
 				yadjust -= 1;
 			}
 
@@ -694,41 +597,38 @@ void widget_textwin_show(widgetdata *widget)
 				box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 				box_text.y = textwin->tabs[textwin->tab_selected].scroll_offset;
 				text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-				string_show(widget->widgetSF, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + yadjust, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+				string_show(widget->surface, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + yadjust, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
 				text_set_selection(NULL, NULL, NULL);
 			}
 
 			textwin->scrollbar.max_lines = TEXTWIN_ROWS_VISIBLE(widget);
-			textwin->scrollbar.px = widget->x1;
-			textwin->scrollbar.py = widget->y1;
-			scrollbar_show(&textwin->scrollbar, widget->widgetSF, widget->wd - 1 - textwin->scrollbar.background.w, TEXTWIN_TEXT_STARTY(widget) + yadjust);
+			textwin->scrollbar.px = widget->x;
+			textwin->scrollbar.py = widget->y;
+			scrollbar_show(&textwin->scrollbar, widget->surface, widget->w - 1 - textwin->scrollbar.background.w, TEXTWIN_TEXT_STARTY(widget) + yadjust);
 
 			widget->redraw = scrollbar_need_redraw(&textwin->scrollbar);
 		}
 	}
 
-	box.x = widget->x1;
-	box.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
 	SDL_GetMouseState(&mx, &my);
 
-	if (mx < widget->x1 || mx > widget->x1 + widget->wd || my < widget->y1 || my > widget->y1 + widget->ht)
+	if (mx < widget->x || mx > widget->x + widget->w || my < widget->y || my > widget->y + widget->h)
 	{
 		widget->resize_flags = 0;
 	}
 
-	BORDER_CREATE_TOP(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_LEFT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_RIGHT(ScreenSurface, widget->x1, widget->y1, widget->wd, widget->ht, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_TOP(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_LEFT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_RIGHT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color, 1);
 }
 
-/**
- * Handle text window mouse events.
- * @param event SDL event type.
- * @param WidgetID Widget ID. */
-void textwin_event(widgetdata *widget, SDL_Event *event)
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	textwin_struct *textwin = TEXTWIN(widget);
 
@@ -742,7 +642,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			{
 				textwin->tab_selected = i;
 				WIDGET_REDRAW(widget);
-				return;
+				return 1;
 			}
 			else if (BUTTON_MOUSE_OVER(&textwin->tabs[i].button, event->motion.x, event->motion.y, TEXTURE_SURFACE(textwin->tabs[i].button.texture)))
 			{
@@ -754,7 +654,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 	if (scrollbar_event(&textwin->scrollbar, event))
 	{
 		WIDGET_REDRAW(widget);
-		return;
+		return 1;
 	}
 
 	if (event->button.button == SDL_BUTTON_LEFT)
@@ -762,6 +662,7 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 		if (event->type == SDL_MOUSEBUTTONUP)
 		{
 			textwin->selection_started = 0;
+			return 1;
 		}
 		else if (event->type == SDL_MOUSEBUTTONDOWN)
 		{
@@ -769,11 +670,13 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 			textwin->selection_start = -1;
 			textwin->selection_end = -1;
 			WIDGET_REDRAW(widget);
+			return 1;
 		}
 		else if (event->type == SDL_MOUSEMOTION)
 		{
 			WIDGET_REDRAW(widget);
 			textwin->selection_started = 1;
+			return 1;
 		}
 	}
 
@@ -782,12 +685,126 @@ void textwin_event(widgetdata *widget, SDL_Event *event)
 		if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
 			scrollbar_scroll_adjust(&textwin->scrollbar, -1);
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
 			scrollbar_scroll_adjust(&textwin->scrollbar, 1);
+			return 1;
 		}
 	}
+
+	return 0;
+}
+
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+}
+
+/** @copydoc widgetdata::load_func */
+static int widget_load(widgetdata *widget, const char *keyword, const char *parameter)
+{
+	textwin_struct *textwin;
+
+	textwin = TEXTWIN(widget);
+
+	if (strcmp(keyword, "font") == 0)
+	{
+		char font_name[MAX_BUF];
+		int font_size, font_id;
+
+		if (sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1)
+		{
+			textwin->font = font_id;
+			return 1;
+		}
+	}
+	else if (strcmp(keyword, "tabs") == 0)
+	{
+		size_t pos;
+		char word[MAX_BUF];
+
+		pos = 0;
+
+		while (string_get_word(parameter, &pos, ':', word, sizeof(word)))
+		{
+			if (string_startswith(word, "/"))
+			{
+				textwin_tab_remove(widget, word + 1);
+			}
+			else
+			{
+				if (strcmp(word, "*") == 0)
+				{
+					size_t i;
+
+					for (i = 0; i < arraysize(textwin_tab_names); i++)
+					{
+						textwin_tab_add(widget, textwin_tab_names[i]);
+					}
+				}
+				else
+				{
+					textwin_tab_add(widget, word);
+				}
+			}
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/** @copydoc widgetdata::save_func */
+static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
+{
+	textwin_struct *textwin;
+
+	textwin = TEXTWIN(widget);
+
+	fprintf(fp, "%sfont = %s %"FMT64U"\n", padding, get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+
+	if (textwin->tabs_num)
+	{
+		size_t i;
+
+		fprintf(fp, "%stabs = ", padding);
+
+		for (i = 0; i < textwin->tabs_num; i++)
+		{
+			fprintf(fp, "%s%s", i == 0 ? "" : ":", TEXTWIN_TAB_NAME(&textwin->tabs[i]));
+		}
+
+		fprintf(fp, "\n");
+	}
+}
+
+void widget_textwin_init(widgetdata *widget)
+{
+	textwin_struct *textwin;
+
+	textwin = calloc(1, sizeof(*textwin));
+
+	if (!textwin)
+	{
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
+	}
+
+	textwin->font = FONT_ARIAL11;
+	textwin->selection_start = -1;
+	textwin->selection_end = -1;
+
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
+	widget->save_func = widget_save;
+	widget->load_func = widget_load;
+	widget->deinit_func = widget_deinit;
+	widget->subwidget = textwin;
+
+	textwin_create_scrollbar(widget);
 }
 
 /**
@@ -864,7 +881,7 @@ void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event
 
 	for (tmp = menuitem->inv; tmp; tmp = tmp->next)
 	{
-		if (tmp->WidgetTypeID == LABEL_ID)
+		if (tmp->type == LABEL_ID)
 		{
 			label = LABEL(menuitem->inv);
 
@@ -911,7 +928,7 @@ void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu)
 
 			for (menuitem = menu->inv; menuitem; menuitem = menuitem->next)
 			{
-				if (menuitem->inv->WidgetTypeID == LABEL_ID)
+				if (menuitem->inv->type == LABEL_ID)
 				{
 					label = LABEL(menuitem->inv);
 

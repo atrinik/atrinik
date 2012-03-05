@@ -59,9 +59,9 @@
 /** Calculate number of rows in the inventory. */
 #define INVENTORY_ROWS(_inventory) ((_inventory)->h / INVENTORY_ICON_SIZE)
 /** Decide where to look for objects, depending on the inventory widget's type. */
-#define INVENTORY_WHERE(_widget) ((_widget)->WidgetTypeID == MAIN_INV_ID ? cpl.ob : cpl.below)
+#define INVENTORY_WHERE(_widget) ((_widget)->type == MAIN_INV_ID ? cpl.ob : cpl.below)
 /** Check whether the mouse is inside the inventory area. */
-#define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my) ((_mx) >= (_widget)->x1 + INVENTORY((_widget))->x && (_mx) < (_widget)->x1 + INVENTORY((_widget))->x + INVENTORY((_widget))->w && (_my) >= (_widget)->y1 + INVENTORY((_widget))->y && (_my) < (_widget)->y1 + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
+#define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my) ((_mx) >= (_widget)->x + INVENTORY((_widget))->x && (_mx) < (_widget)->x + INVENTORY((_widget))->x + INVENTORY((_widget))->w && (_my) >= (_widget)->y + INVENTORY((_widget))->y && (_my) < (_widget)->y + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
 
 /**
  * The inventory data. */

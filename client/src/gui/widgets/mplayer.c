@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Handles music player widget code.
+ * Implements mplayer type widgets.
  *
  * @author Alex Tokar */
 
@@ -266,21 +266,19 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 	closedir(dir);
 }
 
-/**
- * Render the music player widget.
- * @param widget The widget. */
-void widget_show_mplayer(widgetdata *widget)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box, box2;
 	const char *bg_music;
 	char buf[HUGE_BUF];
 
-	if (!widget->widgetSF)
+	if (!widget->surface)
 	{
 		SDL_Surface *texture;
 
 		texture = TEXTURE_CLIENT("content");
-		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
 	}
 
 	/* The list doesn't exist yet, create it. */
@@ -292,7 +290,7 @@ void widget_show_mplayer(widgetdata *widget)
 		list_mplayer = list_create(12, 1, 8);
 		list_mplayer->handle_enter_func = list_handle_enter;
 		list_mplayer->text_color_hook = list_text_color_hook;
-		list_mplayer->surface = widget->widgetSF;
+		list_mplayer->surface = widget->surface;
 		list_scrollbar_enable(list_mplayer);
 		list_set_column(list_mplayer, 0, 130, 7, NULL, -1);
 		list_set_font(list_mplayer, FONT_ARIAL10);
@@ -357,29 +355,29 @@ void widget_show_mplayer(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
+		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
-		box.w = widget->wd;
-		string_show(widget->widgetSF, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-		list_set_parent(list_mplayer, widget->x1, widget->y1);
+		box.w = widget->w;
+		string_show(widget->surface, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_mplayer, widget->x, widget->y);
 		list_show(list_mplayer, 10, 2);
 		box.w /= 2;
-		string_show(widget->widgetSF, FONT_SANS10, "Currently playing:", widget->wd / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+		string_show(widget->surface, FONT_SANS10, "Currently playing:", widget->w / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		box.h = 120;
 		box.w -= 6;
-		string_show(widget->widgetSF, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->wd / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		string_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		widget->redraw = list_need_redraw(list_mplayer);
 	}
 
-	box2.x = widget->x1;
-	box2.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
+	box2.x = widget->x;
+	box2.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
 
 	bg_music = sound_get_bg_music_basename();
 	box.h = 0;
-	box.w = widget->wd / 2;
+	box.w = widget->w / 2;
 
 	/* Store the background music file name in temporary buffer and
 	 * make sure it won't overflow by truncating it if necessary. */
@@ -391,19 +389,19 @@ void widget_show_mplayer(widgetdata *widget)
 	}
 
 	/* Show the music that is being played. */
-	string_show(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x1 + widget->wd / 2 - 5, widget->y1 + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+	string_show(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x + widget->w / 2 - 5, widget->y + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
-	button_play.x = widget->x1 + 10;
-	button_play.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
+	button_play.x = widget->x + 10;
+	button_play.y = widget->y + widget->h - TEXTURE_CLIENT("button")->h - 4;
 	button_show(&button_play, sound_map_background(-1) ? "Stop" : "Play");
 
-	button_shuffle.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w + 5;
-	button_shuffle.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button")->h - 4;
+	button_shuffle.x = widget->x + 10 + TEXTURE_CLIENT("button")->w + 5;
+	button_shuffle.y = widget->y + widget->h - TEXTURE_CLIENT("button")->h - 4;
 	button_shuffle.pressed_forced = shuffle;
 	button_show(&button_shuffle, "Shuffle");
 
-	button_blacklist.x = widget->x1 + 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
-	button_blacklist.y = widget->y1 + widget->ht - TEXTURE_CLIENT("button_round")->h - 5;
+	button_blacklist.x = widget->x + 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
+	button_blacklist.y = widget->y + widget->h - TEXTURE_CLIENT("button_round")->h - 5;
 	button_blacklist.disabled = list_mplayer->row_selected == list_mplayer->rows;
 
 	/* Do mass blacklist status change if the button has been held for
@@ -418,23 +416,19 @@ void widget_show_mplayer(widgetdata *widget)
 	button_show(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
 
 	/* Show close button. */
-	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
-	button_close.y = widget->y1 + 4;
+	button_close.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w - 4;
+	button_close.y = widget->y + 4;
 	button_show(&button_close, "X");
 
 	/* Show help button. */
-	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
-	button_help.y = widget->y1 + 4;
+	button_help.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
+	button_help.y = widget->y + 4;
 	button_show(&button_help, "?");
 }
 
-/**
- * Process background tasks of the music player widget.
- * @param widget The music player widget. */
-void widget_mplayer_background(widgetdata *widget)
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
 {
-	(void) widget;
-
 	/* If shuffle is enabled, check whether we need to start playing
 	 * another song. */
 	if (shuffle)
@@ -443,28 +437,15 @@ void widget_mplayer_background(widgetdata *widget)
 	}
 }
 
-/**
- * Deinitialize the music player widget.
- * @param widget The music player widget. */
-void widget_mplayer_deinit(widgetdata *widget)
-{
-	(void) widget;
-
-	free(shuffle_blacklist);
-	shuffle_blacklist = NULL;
-}
-
-/**
- * Handle mouse events for the music player widget.
- * @param widget The widget.
- * @param event The event. */
-void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
 	if (list_mplayer && list_handle_mouse(list_mplayer, event))
 	{
 		widget->redraw = 1;
+		return 1;
 	}
 
 	if (button_event(&button_play, event))
@@ -479,6 +460,8 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 		{
 			list_handle_enter(list_mplayer);
 		}
+
+		return 1;
 	}
 	else if (button_event(&button_shuffle, event))
 	{
@@ -494,19 +477,43 @@ void widget_mplayer_mevent(widgetdata *widget, SDL_Event *event)
 			sound_start_bg_music("no_music", 0, 0);
 			sound_map_background(0);
 		}
+
+		return 1;
 	}
 	else if (button_event(&button_blacklist, event))
 	{
 		/* Toggle the blacklist state of the selected row. */
 		mplayer_blacklist_toggle(list_mplayer);
 		mplayer_blacklist_save(list_mplayer);
+		return 1;
 	}
 	else if (button_event(&button_close, event))
 	{
 		widget->show = 0;
+		return 1;
 	}
 	else if (button_event(&button_help, event))
 	{
 		help_show("music player");
+		return 1;
 	}
+
+	return 0;
+}
+
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+	free(shuffle_blacklist);
+	shuffle_blacklist = NULL;
+}
+
+/**
+ * Initialize one mplayer widget. */
+void widget_mplayer_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
+	widget->event_func = widget_event;
+	widget->deinit_func = widget_deinit;
 }

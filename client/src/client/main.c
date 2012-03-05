@@ -252,11 +252,6 @@ void list_vid_modes(void)
 static void display_layer1(void)
 {
 	SDL_FillRect(ScreenSurface, NULL, 0);
-
-	if (cpl.state == ST_PLAY)
-	{
-		widget_map_render(cur_widget[MAP_ID]);
-	}
 }
 
 /**
@@ -441,7 +436,7 @@ int main(int argc, char *argv[])
 	load_mapdef_dat();
 	read_bmaps_p0();
 	server_files_init();
-	widget_init();
+	toolkit_widget_init();
 
 	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 
@@ -459,7 +454,6 @@ int main(int argc, char *argv[])
 	}
 
 	textwin_init();
-	fps_init();
 	settings_apply();
 	scrollbar_init();
 	button_init();
@@ -586,8 +580,6 @@ int main(int argc, char *argv[])
 		{
 			SDL_Delay(setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME));
 		}
-
-		fps_do();
 	}
 
 	system_end();

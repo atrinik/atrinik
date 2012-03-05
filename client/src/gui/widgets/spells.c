@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Handles the spells widget code.
+ * Implements spells type widgets.
  *
  * @author Alex Tokar */
 
@@ -134,173 +134,6 @@ static void button_repeat_func(button_struct *button)
 
 	spell_list_path = path;
 	spell_list_reload();
-}
-
-/**
- * Render the spell list widget.
- * @param widget The widget to render. */
-void widget_spells_render(widgetdata *widget)
-{
-	SDL_Rect box, box2;
-
-	/* Create the surface. */
-	if (!widget->widgetSF)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
-	/* Create the spell list. */
-	if (!list_spells)
-	{
-		list_spells = list_create(12, 1, 8);
-		list_spells->handle_enter_func = list_handle_enter;
-		list_spells->surface = widget->widgetSF;
-		list_scrollbar_enable(list_spells);
-		list_set_column(list_spells, 0, 130, 7, NULL, -1);
-		list_set_font(list_spells, FONT_ARIAL10);
-		spell_list_reload();
-
-		/* Create various buttons... */
-		button_create(&button_path_left);
-		button_create(&button_path_right);
-		button_create(&button_close);
-		button_create(&button_help);
-		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
-		button_close.texture = button_path_left.texture = button_path_right.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_path_left.texture_pressed = button_path_right.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_path_left.texture_over = button_path_right.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-	}
-
-	if (widget->redraw)
-	{
-		size_t spell_id;
-
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
-		box.h = 0;
-		box.w = widget->wd;
-		string_show(widget->widgetSF, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-		list_set_parent(list_spells, widget->x1, widget->y1);
-		list_show(list_spells, 10, 2);
-
-		box.w = 160;
-		string_show(widget->widgetSF, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->ht - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-
-		/* Show the spell's description. */
-		if (list_spells->text && spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
-		{
-			box.h = 120;
-			box.w = 150;
-			string_show(widget->widgetSF, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->msg, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP, &box);
-		}
-
-		/* Show info such as the spell cost, path status, etc if there is
-		 * a selected spell and it's a known one. */
-		if (list_spells->text)
-		{
-			SDL_Surface *icon;
-			const char *status;
-
-			icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite->bitmap;
-
-			string_show_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
-
-			if (cpl.path_denied & spell_list[spell_list_path][spell_id]->path)
-			{
-				status = "Denied";
-			}
-			else if (cpl.path_attuned & spell_list[spell_list_path][spell_id]->path && !(cpl.path_repelled & spell_list[spell_list_path][spell_id]->path))
-			{
-				status = "Attuned";
-			}
-			else if (cpl.path_repelled & spell_list[spell_list_path][spell_id]->path && !(cpl.path_attuned & spell_list[spell_list_path][spell_id]->path))
-			{
-				status = "Repelled";
-			}
-			else
-			{
-				status = "Normal";
-			}
-
-			string_show_format(widget->widgetSF, FONT_ARIAL10, 160, widget->ht - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
-			draw_frame(widget->widgetSF, widget->wd - 6 - icon->w, widget->ht - 6 - icon->h, icon->w + 1, icon->h + 1);
-			surface_show(widget->widgetSF, widget->wd - 5 - icon->w, widget->ht - 5 - icon->h, NULL, icon);
-		}
-
-		widget->redraw = list_need_redraw(list_spells);
-	}
-
-	box2.x = widget->x1;
-	box2.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
-
-	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
-	button_close.y = widget->y1 + 4;
-	button_show(&button_close, "X");
-
-	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
-	button_help.y = widget->y1 + 4;
-	button_show(&button_help, "?");
-
-	button_path_left.x = widget->x1 + 6;
-	button_path_left.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_left.texture)->h - 5;
-	button_show(&button_path_left, "<");
-
-	button_path_right.x = widget->x1 + 6 + 130;
-	button_path_right.y = widget->y1 + widget->ht - TEXTURE_SURFACE(button_path_right.texture)->h - 5;
-	button_show(&button_path_right, ">");
-}
-
-/**
- * Handle mouse events inside the spells widget.
- * @param widget The spells widget.
- * @param event The event to handle. */
-void widget_spells_mevent(widgetdata *widget, SDL_Event *event)
-{
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list_spells && list_handle_mouse(list_spells, event))
-	{
-		widget->redraw = 1;
-	}
-
-	if (button_event(&button_path_left, event))
-	{
-		button_repeat_func(&button_path_left);
-	}
-	else if (button_event(&button_path_right, event))
-	{
-		button_repeat_func(&button_path_right);
-	}
-	else if (button_event(&button_close, event))
-	{
-		widget->show = 0;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("spell list");
-	}
-	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
-	{
-		size_t spell_id;
-		sprite_struct *icon;
-
-		if (!spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
-		{
-			return;
-		}
-
-		icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite;
-
-		if (event->motion.x >= widget->x1 + widget->wd - 5 - icon->bitmap->w && event->motion.x <= widget->x1 + widget->wd - 5 && event->motion.y >= widget->y1 + widget->ht - 5 - icon->bitmap->h && event->motion.y <= widget->y1 + widget->ht - 5)
-		{
-			cpl.dragging_tag = spell_list[spell_list_path][spell_id]->spell->tag;
-		}
-	}
 }
 
 /**
@@ -454,4 +287,182 @@ void spells_remove(object *op)
 	spell_list_num[spell_path]--;
 
 	spell_list_reload();
+}
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	SDL_Rect box, box2;
+
+	/* Create the surface. */
+	if (!widget->surface)
+	{
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+	}
+
+	/* Create the spell list. */
+	if (!list_spells)
+	{
+		list_spells = list_create(12, 1, 8);
+		list_spells->handle_enter_func = list_handle_enter;
+		list_spells->surface = widget->surface;
+		list_scrollbar_enable(list_spells);
+		list_set_column(list_spells, 0, 130, 7, NULL, -1);
+		list_set_font(list_spells, FONT_ARIAL10);
+		spell_list_reload();
+
+		/* Create various buttons... */
+		button_create(&button_path_left);
+		button_create(&button_path_right);
+		button_create(&button_close);
+		button_create(&button_help);
+		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
+		button_close.texture = button_path_left.texture = button_path_right.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_path_left.texture_pressed = button_path_right.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_path_left.texture_over = button_path_right.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+	}
+
+	if (widget->redraw)
+	{
+		size_t spell_id;
+
+		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
+
+		box.h = 0;
+		box.w = widget->w;
+		string_show(widget->surface, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_spells, widget->x, widget->y);
+		list_show(list_spells, 10, 2);
+
+		box.w = 160;
+		string_show(widget->surface, FONT_SERIF12, s_settings->spell_paths[spell_list_path], 0, widget->h - FONT_HEIGHT(FONT_SERIF12) - 7, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+
+		/* Show the spell's description. */
+		if (list_spells->text && spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
+		{
+			box.h = 120;
+			box.w = 150;
+			string_show(widget->surface, FONT_ARIAL10, spell_list[spell_list_path][spell_id]->msg, 160, 40, COLOR_WHITE, TEXT_WORD_WRAP, &box);
+		}
+
+		/* Show info such as the spell cost, path status, etc if there is
+		 * a selected spell and it's a known one. */
+		if (list_spells->text)
+		{
+			SDL_Surface *icon;
+			const char *status;
+
+			icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite->bitmap;
+
+			string_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", spell_list[spell_list_path][spell_id]->cost);
+
+			if (cpl.path_denied & spell_list[spell_list_path][spell_id]->path)
+			{
+				status = "Denied";
+			}
+			else if (cpl.path_attuned & spell_list[spell_list_path][spell_id]->path && !(cpl.path_repelled & spell_list[spell_list_path][spell_id]->path))
+			{
+				status = "Attuned";
+			}
+			else if (cpl.path_repelled & spell_list[spell_list_path][spell_id]->path && !(cpl.path_attuned & spell_list[spell_list_path][spell_id]->path))
+			{
+				status = "Repelled";
+			}
+			else
+			{
+				status = "Normal";
+			}
+
+			string_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
+			draw_frame(widget->surface, widget->w - 6 - icon->w, widget->h - 6 - icon->h, icon->w + 1, icon->h + 1);
+			surface_show(widget->surface, widget->w - 5 - icon->w, widget->h - 5 - icon->h, NULL, icon);
+		}
+
+		widget->redraw = list_need_redraw(list_spells);
+	}
+
+	box2.x = widget->x;
+	box2.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
+
+	/* Render the various buttons. */
+	button_close.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w - 4;
+	button_close.y = widget->y + 4;
+	button_show(&button_close, "X");
+
+	button_help.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
+	button_help.y = widget->y + 4;
+	button_show(&button_help, "?");
+
+	button_path_left.x = widget->x + 6;
+	button_path_left.y = widget->y + widget->h - TEXTURE_SURFACE(button_path_left.texture)->h - 5;
+	button_show(&button_path_left, "<");
+
+	button_path_right.x = widget->x + 6 + 130;
+	button_path_right.y = widget->y + widget->h - TEXTURE_SURFACE(button_path_right.texture)->h - 5;
+	button_show(&button_path_right, ">");
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	/* If the list has handled the mouse event, we need to redraw the
+	 * widget. */
+	if (list_spells && list_handle_mouse(list_spells, event))
+	{
+		widget->redraw = 1;
+		return 1;
+	}
+
+	if (button_event(&button_path_left, event))
+	{
+		button_repeat_func(&button_path_left);
+		return 1;
+	}
+	else if (button_event(&button_path_right, event))
+	{
+		button_repeat_func(&button_path_right);
+		return 1;
+	}
+	else if (button_event(&button_close, event))
+	{
+		widget->show = 0;
+		return 1;
+	}
+	else if (button_event(&button_help, event))
+	{
+		help_show("spell list");
+		return 1;
+	}
+	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		size_t spell_id;
+		sprite_struct *icon;
+
+		if (!spell_find_path_selected(list_spells->text[list_spells->row_selected - 1][0], &spell_id))
+		{
+			return 0;
+		}
+
+		icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite;
+
+		if (event->motion.x >= widget->x + widget->w - 5 - icon->bitmap->w && event->motion.x <= widget->x + widget->w - 5 && event->motion.y >= widget->y + widget->h - 5 - icon->bitmap->h && event->motion.y <= widget->y + widget->h - 5)
+		{
+			cpl.dragging_tag = spell_list[spell_list_path][spell_id]->spell->tag;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize one spells widget. */
+void widget_spells_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 }

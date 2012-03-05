@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Map drawing.
+ * Implements map type widgets.
  *
  * @author Alex Tokar */
 
@@ -77,68 +77,6 @@ void load_mapdef_dat(void)
 	}
 
 	fclose(stream);
-}
-
-/**
- * Show map name widget.
- * @param x X position of the map name
- * @param y Y position of the map name */
-void widget_show_mapname(widgetdata *widget)
-{
-	SDL_Rect box;
-	int alpha;
-
-	alpha = 255;
-
-	if (MapData.name_fadeout_start || MapData.name[0] == '\0')
-	{
-		uint32 time_passed;
-
-		time_passed = SDL_GetTicks() - MapData.name_fadeout_start;
-
-		if (time_passed > MAP_NAME_FADEOUT || MapData.name[0] == '\0')
-		{
-			if (MapData.name[0] != '\0')
-			{
-				alpha = MIN(255, 255 * ((double) (time_passed - MAP_NAME_FADEOUT) / MAP_NAME_FADEOUT));
-
-				if (alpha == 255)
-				{
-					MapData.name_fadeout_start = 0;
-				}
-			}
-
-			if (MapData.name_new[0] != '\0')
-			{
-				strncpy(MapData.name, MapData.name_new, sizeof(MapData.name) - 1);
-				MapData.name[sizeof(MapData.name) - 1] = '\0';
-
-				resize_widget(widget, RESIZE_RIGHT, string_get_width(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
-				resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
-
-				MapData.name_new[0] = '\0';
-			}
-		}
-		else
-		{
-			alpha = 255 * (1.0 - (double) time_passed / MAP_NAME_FADEOUT);
-		}
-	}
-	else if (MapData.name_new[0] != '\0')
-	{
-		if (strcmp(MapData.name_new, MapData.name) != 0)
-		{
-			MapData.name_fadeout_start = SDL_GetTicks();
-		}
-		else
-		{
-			MapData.name_new[0] = '\0';
-		}
-	}
-
-	box.w = widget->wd;
-	box.h = 0;
-	string_show_format(ScreenSurface, MAP_NAME_FONT, widget->x1, widget->y1, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
 }
 
 /**
@@ -652,14 +590,14 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 		yl -= map->height[GET_MAP_LAYER(layer, sub_layer)];
 	}
 
-	map_sprite_show(cur_widget[MAP_ID]->widgetSF, xl, yl, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+	map_sprite_show(cur_widget[MAP_ID]->surface, xl, yl, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 
 	/* Double faces are shown twice, one above the other, when not lower
 	 * on the screen than the player. This simulates high walls without
 	 * obscuring the user's view. */
 	if (map->draw_double[GET_MAP_LAYER(layer, sub_layer)])
 	{
-		map_sprite_show(cur_widget[MAP_ID]->widgetSF, xl, yl - 22, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+		map_sprite_show(cur_widget[MAP_ID]->surface, xl, yl - 22, NULL, face_sprite, flags, dark_level, alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 	}
 
 	if (xml == MAP_TILE_POS_XOFF)
@@ -676,7 +614,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))))
 		{
-			string_show(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
+			string_show(cur_widget[MAP_ID]->surface, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
 		}
 	}
 
@@ -685,27 +623,27 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP)
 		{
-			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2, yl - 5, NULL, TEXTURE_CLIENT("sleep"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->surface, xl + bitmap_w / 2, yl - 5, NULL, TEXTURE_CLIENT("sleep"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED)
 		{
-			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 - 1, yl - 4, NULL, TEXTURE_CLIENT("confused"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->surface, xl + bitmap_w / 2 - 1, yl - 4, NULL, TEXTURE_CLIENT("confused"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED)
 		{
-			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 10, yl - 4, NULL, TEXTURE_CLIENT("scared"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->surface, xl + bitmap_w / 2 + 10, yl - 4, NULL, TEXTURE_CLIENT("scared"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED)
 		{
-			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 3, yl - 6, NULL, TEXTURE_CLIENT("blind"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->surface, xl + bitmap_w / 2 + 3, yl - 6, NULL, TEXTURE_CLIENT("blind"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 
 		if (map->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED)
 		{
-			surface_show_effects(cur_widget[MAP_ID]->widgetSF, xl + bitmap_w / 2 + 3, yl + 3, NULL, TEXTURE_CLIENT("paralyzed"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+			surface_show_effects(cur_widget[MAP_ID]->surface, xl + bitmap_w / 2 + 3, yl + 3, NULL, TEXTURE_CLIENT("paralyzed"), alpha, stretch, map->zoom_x[GET_MAP_LAYER(layer, sub_layer)], map->zoom_y[GET_MAP_LAYER(layer, sub_layer)], map->rotate[GET_MAP_LAYER(layer, sub_layer)]);
 		}
 	}
 
@@ -799,18 +737,18 @@ void map_draw_map(void)
 
 		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && target_cell->pname[target_layer][0]))
 		{
-			string_show(cur_widget[MAP_ID]->widgetSF, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
+			string_show(cur_widget[MAP_ID]->surface, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
 		}
 
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y - 2, 1, 5, hp_color);
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y - 2, 3, 1, hp_color);
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x - 2, target_rect.y + 2, 3, 1, hp_color);
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w + 1, target_rect.y - 2, 1, 5, hp_color);
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w - 1, target_rect.y - 2, 3, 1, hp_color);
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x + target_rect.w - 1, target_rect.y + 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x - 2, target_rect.y - 2, 1, 5, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x - 2, target_rect.y - 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x - 2, target_rect.y + 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x + target_rect.w + 1, target_rect.y - 2, 1, 5, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x + target_rect.w - 1, target_rect.y - 2, 3, 1, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x + target_rect.w - 1, target_rect.y + 2, 3, 1, hp_color);
 
 		target_rect.w = MAX(1, MIN(100, (int) (((double) target_rect.w / 100.0) * (double) target_cell->probe[target_layer])));
-		rectangle_create(cur_widget[MAP_ID]->widgetSF, target_rect.x, target_rect.y, target_rect.w, target_rect.h, hp_color);
+		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x, target_rect.y, target_rect.w, target_rect.h, hp_color);
 	}
 }
 
@@ -834,7 +772,7 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
 		ypos = (ypos - get_top_floor_height(x, y)) + get_top_floor_height(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2) - 1, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2) - 1);
 	}
 
-	surface_show_effects(cur_widget[MAP_ID]->widgetSF, xpos, ypos, NULL, surface, 0, 0, 0, 0, 0);
+	surface_show_effects(cur_widget[MAP_ID]->surface, xpos, ypos, NULL, surface, 0, 0, 0, 0, 0);
 }
 
 /**
@@ -979,204 +917,6 @@ void map_target_handle(uint8 is_friend)
 	utarray_free(targets);
 }
 
-/**
- * Handle mouse events inside the map widget.
- * @param widget The widget.
- * @param event The event to handle. */
-void widget_map_mevent(widgetdata *widget, SDL_Event *event)
-{
-	int tx, ty;
-
-	(void) widget;
-
-	/* Check if the mouse is in play field. */
-	if (!mouse_to_tile_coords(event->motion.x, event->motion.y, &tx, &ty))
-	{
-		return;
-	}
-
-	if (event->type == SDL_MOUSEBUTTONUP)
-	{
-		/* Send target command if we released the right button in time;
-		 * otherwise the widget menu will be created. */
-		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
-		{
-			send_target(tx, ty, 0);
-		}
-
-		right_click_ticks = -1;
-	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		if (event->button.button == SDL_BUTTON_RIGHT)
-		{
-			right_click_ticks = SDL_GetTicks();
-		}
-		/* Running */
-		else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT)
-		{
-			if (cpl.fire_on || cpl.run_on)
-			{
-				move_keys(dir_from_tile_coords(tx, ty));
-			}
-			else
-			{
-				send_move_path(tx, ty);
-			}
-		}
-	}
-	else if (event->type == SDL_MOUSEMOTION)
-	{
-		if (tx != old_map_mouse_x || ty != old_map_mouse_y)
-		{
-			map_redraw_flag = 1;
-			old_map_mouse_x = tx;
-			old_map_mouse_y = ty;
-		}
-	}
-}
-
-/**
- * Press the "Walk Here" option in map widget menu. */
-static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-	int tx, ty;
-
-	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
-	{
-		send_move_path(tx, ty);
-	}
-}
-
-/**
- * Press the "Talk To NPC" option in map widget menu. */
-static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-	int tx, ty;
-
-	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x1, cur_widget[MENU_ID]->y1, &tx, &ty))
-	{
-		send_target(tx, ty, 0);
-		keybind_process_command("?HELLO");
-	}
-}
-
-/**
- * Render the map widget.
- * @param widget The widget. */
-void widget_map_render(widgetdata *widget)
-{
-	static int gfx_toggle = 0;
-	SDL_Rect box;
-	int mx, my;
-
-	if (!widget->widgetSF)
-	{
-		widget->widgetSF = SDL_CreateRGBSurface(get_video_flags(), 850, 600, video_get_bpp(), 0, 0, 0, 0);
-	}
-
-	/* Make sure the map widget is always the last to handle events for. */
-	SetPriorityWidget_reverse(widget);
-
-	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
-	{
-		int w, h;
-
-		zoomSurfaceSize(widget->widgetSF->w, widget->widgetSF->h, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, &w, &h);
-		widget->wd = w;
-		widget->ht = h;
-	}
-
-	/* We recreate the map only when there is a change. */
-	if (map_redraw_flag)
-	{
-		SDL_FillRect(widget->widgetSF, NULL, 0);
-		map_draw_map();
-		map_redraw_flag = 0;
-		effect_sprites_play();
-
-		if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
-		{
-			if (zoomed)
-			{
-				SDL_FreeSurface(zoomed);
-			}
-
-			zoomed = zoomSurface(widget->widgetSF, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
-		}
-	}
-
-	box.x = widget->x1;
-	box.y = widget->y1;
-
-	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) == 100)
-	{
-		SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
-	}
-	else
-	{
-		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &box);
-	}
-
-	/* The damage numbers */
-	play_anims();
-
-	/* Draw warning icons above player */
-	if ((gfx_toggle++ & 63) < 25)
-	{
-		if (setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING) && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING))
-		{
-			surface_show(ScreenSurface, widget->x1 + 393 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 298 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_hp"));
-		}
-	}
-	else
-	{
-		/* Low food */
-		if (setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING) && ((float) cpl.stats.food / 1000.0f) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING))
-		{
-			surface_show(ScreenSurface, widget->x1 + 390 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y1 + 294 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_food"));
-		}
-	}
-
-	/* Process message animations */
-	if (msg_anim.message[0] != '\0')
-	{
-		if ((LastTick - msg_anim.tick) < 3000)
-		{
-			int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
-			char *msg = strdup(msg_anim.message), *cp;
-
-			cp = strtok(msg, "\n");
-
-			while (cp)
-			{
-				string_show(ScreenSurface, FONT_SERIF16, cp, widget->x1 + widget->widgetSF->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y1 + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
-				y_offset += FONT_HEIGHT(FONT_SERIF16);
-				cp = strtok(NULL, "\n");
-			}
-
-			free(msg);
-		}
-		else
-		{
-			msg_anim.message[0] = '\0';
-		}
-	}
-
-	/* Holding the right mouse button for some time, create a menu. */
-	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) && right_click_ticks != -1 && SDL_GetTicks() - right_click_ticks > 500)
-	{
-		widgetdata *menu;
-
-		menu = create_menu(mx, my, widget);
-		add_menuitem(menu, "Walk Here", &menu_map_walk_here, MENU_NORMAL, 0);
-		add_menuitem(menu, "Talk To NPC", &menu_map_talk_to, MENU_NORMAL, 0);
-		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
-		menu_finalize(menu);
-		right_click_ticks = -1;
-	}
-}
-
 /** Tile offsets used in mouse_to_tile_coords(). */
 const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] =
 {
@@ -1223,8 +963,8 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 
 	/* Adjust mouse x/y, making it look as if the map was drawn from
 	 * top left corner, in order to simplify comparisons below. */
-	mx -= (MAP_START_XOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->x1;
-	my -= (MAP_START_YOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->y1;
+	mx -= (MAP_START_XOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->x;
+	my -= (MAP_START_YOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) + cur_widget[MAP_ID]->y;
 
 	/* Go through all the map squares. */
 	for (x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) - 1; x >= 0; x--)
@@ -1263,4 +1003,212 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 	}
 
 	return 0;
+}
+
+/**
+ * Press the "Walk Here" option in map widget menu. */
+static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	int tx, ty;
+
+	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y, &tx, &ty))
+	{
+		send_move_path(tx, ty);
+	}
+}
+
+/**
+ * Press the "Talk To NPC" option in map widget menu. */
+static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	int tx, ty;
+
+	if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y, &tx, &ty))
+	{
+		send_target(tx, ty, 0);
+		keybind_process_command("?HELLO");
+	}
+}
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	static int gfx_toggle = 0;
+	SDL_Rect box;
+	int mx, my;
+
+	if (!widget->surface)
+	{
+		widget->surface = SDL_CreateRGBSurface(get_video_flags(), 850, 600, video_get_bpp(), 0, 0, 0, 0);
+	}
+
+	/* Make sure the map widget is always the last to handle events for. */
+	SetPriorityWidget_reverse(widget);
+
+	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
+	{
+		int w, h;
+
+		zoomSurfaceSize(widget->surface->w, widget->surface->h, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, &w, &h);
+		widget->w = w;
+		widget->h = h;
+	}
+
+	/* We recreate the map only when there is a change. */
+	if (map_redraw_flag)
+	{
+		SDL_FillRect(widget->surface, NULL, 0);
+		map_draw_map();
+		map_redraw_flag = 0;
+		effect_sprites_play();
+
+		if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100)
+		{
+			if (zoomed)
+			{
+				SDL_FreeSurface(zoomed);
+			}
+
+			zoomed = zoomSurface(widget->surface, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+		}
+	}
+
+	box.x = widget->x;
+	box.y = widget->y;
+
+	if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) == 100)
+	{
+		SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+	}
+	else
+	{
+		SDL_BlitSurface(zoomed, NULL, ScreenSurface, &box);
+	}
+
+	/* The damage numbers */
+	play_anims();
+
+	/* Draw warning icons above player */
+	if ((gfx_toggle++ & 63) < 25)
+	{
+		if (setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING) && ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING))
+		{
+			surface_show(ScreenSurface, widget->x + 393 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y + 298 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_hp"));
+		}
+	}
+	else
+	{
+		/* Low food */
+		if (setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING) && ((float) cpl.stats.food / 1000.0f) * 100 <= setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING))
+		{
+			surface_show(ScreenSurface, widget->x + 390 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), widget->y + 294 * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0), NULL, TEXTURE_CLIENT("warn_food"));
+		}
+	}
+
+	/* Process message animations */
+	if (msg_anim.message[0] != '\0')
+	{
+		if ((LastTick - msg_anim.tick) < 3000)
+		{
+			int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
+			char *msg = strdup(msg_anim.message), *cp;
+
+			cp = strtok(msg, "\n");
+
+			while (cp)
+			{
+				string_show(ScreenSurface, FONT_SERIF16, cp, widget->x + widget->surface->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
+				y_offset += FONT_HEIGHT(FONT_SERIF16);
+				cp = strtok(NULL, "\n");
+			}
+
+			free(msg);
+		}
+		else
+		{
+			msg_anim.message[0] = '\0';
+		}
+	}
+
+	/* Holding the right mouse button for some time, create a menu. */
+	if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) && right_click_ticks != -1 && SDL_GetTicks() - right_click_ticks > 500)
+	{
+		widgetdata *menu;
+
+		menu = create_menu(mx, my, widget);
+		add_menuitem(menu, "Walk Here", &menu_map_walk_here, MENU_NORMAL, 0);
+		add_menuitem(menu, "Talk To NPC", &menu_map_talk_to, MENU_NORMAL, 0);
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		menu_finalize(menu);
+		right_click_ticks = -1;
+	}
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	int tx, ty;
+
+	/* Check if the mouse is in play field. */
+	if (!mouse_to_tile_coords(event->motion.x, event->motion.y, &tx, &ty))
+	{
+		return 1;
+	}
+
+	if (event->type == SDL_MOUSEBUTTONUP)
+	{
+		/* Send target command if we released the right button in time;
+		 * otherwise the widget menu will be created. */
+		if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500)
+		{
+			send_target(tx, ty, 0);
+		}
+
+		right_click_ticks = -1;
+		return 1;
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_RIGHT)
+		{
+			right_click_ticks = SDL_GetTicks();
+		}
+		/* Running */
+		else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT)
+		{
+			if (cpl.fire_on || cpl.run_on)
+			{
+				move_keys(dir_from_tile_coords(tx, ty));
+			}
+			else
+			{
+				send_move_path(tx, ty);
+			}
+		}
+
+		return 1;
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		if (tx != old_map_mouse_x || ty != old_map_mouse_y)
+		{
+			map_redraw_flag = 1;
+			old_map_mouse_x = tx;
+			old_map_mouse_y = ty;
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize one map widget. */
+void widget_map_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
+
+	SetPriorityWidget_reverse(widget);
 }

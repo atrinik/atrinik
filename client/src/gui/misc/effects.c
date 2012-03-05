@@ -595,10 +595,10 @@ void effect_sprites_play(void)
 		{
 			if (tmp->x + x_check < 0)
 			{
-				tmp->x = cur_widget[MAP_ID]->wd;
+				tmp->x = cur_widget[MAP_ID]->w;
 				continue;
 			}
-			else if (tmp->x - x_check > cur_widget[MAP_ID]->wd)
+			else if (tmp->x - x_check > cur_widget[MAP_ID]->w)
 			{
 				tmp->x = -x_check;
 				continue;
@@ -606,14 +606,14 @@ void effect_sprites_play(void)
 		}
 
 		/* Off-screen? */
-		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > cur_widget[MAP_ID]->ht) || tmp->y + y_check < 0 || tmp->y - y_check > cur_widget[MAP_ID]->ht)
+		if ((tmp->def->kill_side_left && tmp->x + x_check < 0) || (tmp->def->kill_side_right && tmp->x - x_check > cur_widget[MAP_ID]->h) || tmp->y + y_check < 0 || tmp->y - y_check > cur_widget[MAP_ID]->h)
 		{
 			effect_sprite_remove(tmp);
 			continue;
 		}
 
 		/* Show the sprite. */
-		map_sprite_show(cur_widget[MAP_ID]->widgetSF, tmp->x, tmp->y, NULL, FaceList[tmp->def->id].sprite, 0, 0, 0, 0, tmp->def->zoom, tmp->def->zoom, 0);
+		map_sprite_show(cur_widget[MAP_ID]->surface, tmp->x, tmp->y, NULL, FaceList[tmp->def->id].sprite, 0, 0, 0, 0, tmp->def->zoom, tmp->def->zoom, 0);
 		num_sprites++;
 
 		/* Move it if there is no delay configured or if enough time has passed. */
@@ -685,12 +685,12 @@ void effect_sprites_play(void)
 			else
 			{
 				/* Calculate where to put the sprite. */
-				sprite->x = (double) cur_widget[MAP_ID]->wd * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
+				sprite->x = (double) cur_widget[MAP_ID]->w * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
 			}
 
 			if (sprite->def->reverse)
 			{
-				sprite->y = cur_widget[MAP_ID]->ht - FaceList[sprite->def->id].sprite->bitmap->h;
+				sprite->y = cur_widget[MAP_ID]->h - FaceList[sprite->def->id].sprite->bitmap->h;
 			}
 			else if (sprite->def->y != -1)
 			{

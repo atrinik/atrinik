@@ -235,7 +235,7 @@ int client_command_check(const char *cmd)
 
 		if (!strncasecmp(cmd, " map", 4))
 		{
-			surface_save = cur_widget[MAP_ID]->widgetSF;
+			surface_save = cur_widget[MAP_ID]->surface;
 		}
 		else
 		{
@@ -408,6 +408,34 @@ int client_command_check(const char *cmd)
 		{
 			texture_clear_cache();
 			draw_info(COLOR_GREEN, "Texture cache cleared.");
+		}
+
+		return 1;
+	}
+	else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag "))
+	{
+		char *cps[3];
+		tag_t loc, tag;
+		uint32 num;
+
+		if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps))
+		{
+			return 1;
+		}
+
+		loc = atoi(cps[0]);
+		tag = atoi(cps[1]);
+		num = atoi(cps[2]);
+
+		client_send_move(loc, tag, num);
+
+		if (string_startswith(cmd, "/gettag "))
+		{
+			sound_play_effect("get.ogg", 100);
+		}
+		else
+		{
+			sound_play_effect("drop.ogg", 100);
 		}
 
 		return 1;

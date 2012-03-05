@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Implements the skills widget.
+ * Implements skills type widgets.
  *
  * @author Alex Tokar */
 
@@ -138,123 +138,6 @@ static void skill_list_reload(void)
 }
 
 /**
- * Render the skill list widget.
- * @param widget The widget to render. */
-void widget_skills_render(widgetdata *widget)
-{
-	SDL_Rect box, box2;
-
-	/* Create the surface. */
-	if (!widget->widgetSF)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
-	/* Create the skill list. */
-	if (!list_skills)
-	{
-		list_skills = list_create(5, 4, 8);
-		list_skills->post_column_func = list_post_column;
-		list_skills->row_color_func = list_row_color;
-		list_skills->row_selected_func = NULL;
-		list_skills->row_highlight_func = NULL;
-		list_skills->surface = widget->widgetSF;
-		list_skills->row_height_adjust = INVENTORY_ICON_SIZE;
-		list_set_font(list_skills, -1);
-		list_scrollbar_enable(list_skills);
-		list_set_column(list_skills, 0, INVENTORY_ICON_SIZE, 0, NULL, -1);
-		list_set_column(list_skills, 1, INVENTORY_ICON_SIZE, 0, NULL, -1);
-		list_set_column(list_skills, 2, INVENTORY_ICON_SIZE, 0, NULL, -1);
-		list_set_column(list_skills, 3, INVENTORY_ICON_SIZE, 0, NULL, -1);
-		skill_list_reload();
-
-		/* Create various buttons... */
-		button_create(&button_close);
-		button_create(&button_help);
-		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-	}
-
-	if (widget->redraw)
-	{
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
-		box.h = 0;
-		box.w = widget->wd;
-		string_show(widget->widgetSF, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-		list_set_parent(list_skills, widget->x1, widget->y1);
-		list_show(list_skills, 10, 2);
-
-		widget->redraw = list_need_redraw(list_skills);
-	}
-
-	box2.x = widget->x1;
-	box2.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box2);
-
-	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w - 4;
-	button_close.y = widget->y1 + 4;
-	button_show(&button_close, "X");
-
-	button_help.x = widget->x1 + widget->wd - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
-	button_help.y = widget->y1 + 4;
-	button_show(&button_help, "?");
-}
-
-/**
- * Handle mouse events inside the skills widget.
- * @param widget The skills widget.
- * @param event The event to handle. */
-void widget_skills_mevent(widgetdata *widget, SDL_Event *event)
-{
-	uint32 row, col;
-
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list_skills && list_handle_mouse(list_skills, event))
-	{
-		widget->redraw = 1;
-	}
-
-	if (event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col))
-	{
-		size_t skill_id;
-
-		skill_id = row * list_skills->cols + col;
-
-		if (skill_id < skill_list_num)
-		{
-			if (event->type == SDL_MOUSEBUTTONUP)
-			{
-				if (selected_skill != skill_id)
-				{
-					selected_skill = skill_id;
-					widget->redraw = 1;
-				}
-			}
-			else if (event->type == SDL_MOUSEBUTTONDOWN)
-			{
-				event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
-			}
-		}
-	}
-
-	if (button_event(&button_close, event))
-	{
-		widget->show = 0;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("skill list");
-	}
-}
-
-/**
  * Find a skill in the ::skill_list based on its name.
  *
  * Partial skill names will be matched.
@@ -342,4 +225,131 @@ void skills_remove(object *op)
 	skill_list_num--;
 
 	skill_list_reload();
+}
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	SDL_Rect box, box2;
+
+	/* Create the surface. */
+	if (!widget->surface)
+	{
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+	}
+
+	/* Create the skill list. */
+	if (!list_skills)
+	{
+		list_skills = list_create(5, 4, 8);
+		list_skills->post_column_func = list_post_column;
+		list_skills->row_color_func = list_row_color;
+		list_skills->row_selected_func = NULL;
+		list_skills->row_highlight_func = NULL;
+		list_skills->surface = widget->surface;
+		list_skills->row_height_adjust = INVENTORY_ICON_SIZE;
+		list_set_font(list_skills, -1);
+		list_scrollbar_enable(list_skills);
+		list_set_column(list_skills, 0, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 1, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 2, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		list_set_column(list_skills, 3, INVENTORY_ICON_SIZE, 0, NULL, -1);
+		skill_list_reload();
+
+		/* Create various buttons... */
+		button_create(&button_close);
+		button_create(&button_help);
+		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+	}
+
+	if (widget->redraw)
+	{
+		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
+
+		box.h = 0;
+		box.w = widget->w;
+		string_show(widget->surface, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		list_set_parent(list_skills, widget->x, widget->y);
+		list_show(list_skills, 10, 2);
+
+		widget->redraw = list_need_redraw(list_skills);
+	}
+
+	box2.x = widget->x;
+	box2.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
+
+	/* Render the various buttons. */
+	button_close.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w - 4;
+	button_close.y = widget->y + 4;
+	button_show(&button_close, "X");
+
+	button_help.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
+	button_help.y = widget->y + 4;
+	button_show(&button_help, "?");
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	uint32 row, col;
+
+	/* If the list has handled the mouse event, we need to redraw the
+	 * widget. */
+	if (list_skills && list_handle_mouse(list_skills, event))
+	{
+		widget->redraw = 1;
+		return 1;
+	}
+
+	if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col))
+	{
+		size_t skill_id;
+
+		skill_id = row * list_skills->cols + col;
+
+		if (skill_id < skill_list_num)
+		{
+			if (event->type == SDL_MOUSEBUTTONUP)
+			{
+				if (selected_skill != skill_id)
+				{
+					selected_skill = skill_id;
+					widget->redraw = 1;
+					return 1;
+				}
+			}
+			else if (event->type == SDL_MOUSEBUTTONDOWN)
+			{
+				event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
+				return 1;
+			}
+		}
+	}
+
+	if (button_event(&button_close, event))
+	{
+		widget->show = 0;
+		return 1;
+	}
+	else if (button_event(&button_help, event))
+	{
+		help_show("skill list");
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize one skills widget. */
+void widget_skills_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 }

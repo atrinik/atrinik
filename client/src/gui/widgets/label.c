@@ -24,34 +24,57 @@
 
 /**
  * @file
- * Event related header file. */
+ * Implements label type widgets.
+ *
+ * @author Alex Tokar
+ * @author Daniel Liptrot */
 
-#ifndef EVENT_H
-#define EVENT_H
+#include <global.h>
 
-enum
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
-	DRAG_GET_STATUS = -1,
-	DRAG_NONE,
-	DRAG_QUICKSLOT,
-	DRAG_QUICKSLOT_SPELL
-};
+	_widget_label *label;
+
+	label = (_widget_label *) widget->subwidget;
+
+	if (label->text)
+	{
+		string_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, 0, NULL);
+	}
+}
+
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+	_widget_label *label;
+
+	label = (_widget_label *) widget->subwidget;
+
+	if (label->text)
+	{
+		free(label->text);
+	}
+}
 
 /**
- * Key information. */
-typedef struct key_struct
+ * Initialize one label widget. */
+void widget_label_init(widgetdata *widget)
 {
-	/** If 1, the key is pressed. */
-	uint8 pressed;
+	_widget_label *label;
 
-	/** Last repeat time. */
-	uint32 time;
+	label = calloc(1, sizeof(*label));
 
-	/** Whether the key is being repeated. */
-	uint8 repeated;
-} key_struct;
+	if (!label)
+	{
+		logger_print(LOG(ERROR), "OOM.");
+		exit(-1);
+	}
 
-#define EVENT_IS_MOUSE(_event) ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || (_event)->type == SDL_MOUSEMOTION)
-#define EVENT_IS_KEY(_event) ((_event)->type == SDL_KEYDOWN || (_event)->type == SDL_KEYUP)
+	label->font = FONT_ARIAL10;
+	label->color = COLOR_WHITE;
 
-#endif
+	widget->draw_func = widget_draw;
+	widget->deinit_func = widget_deinit;
+	widget->subwidget = label;
+}

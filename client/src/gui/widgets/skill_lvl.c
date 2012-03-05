@@ -24,34 +24,33 @@
 
 /**
  * @file
- * Event related header file. */
+ * Implements skill level type widgets.
+ *
+ * @author Alex Tokar */
 
-#ifndef EVENT_H
-#define EVENT_H
+#include <global.h>
 
-enum
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
-	DRAG_GET_STATUS = -1,
-	DRAG_NONE,
-	DRAG_QUICKSLOT,
-	DRAG_QUICKSLOT_SPELL
-};
+	SDL_Rect box;
+
+	if (!widget->surface)
+	{
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("skill_lvl_bg");
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+	}
+
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+}
 
 /**
- * Key information. */
-typedef struct key_struct
+ * Initialize one skill level widget. */
+void widget_skill_lvl_init(widgetdata *widget)
 {
-	/** If 1, the key is pressed. */
-	uint8 pressed;
-
-	/** Last repeat time. */
-	uint32 time;
-
-	/** Whether the key is being repeated. */
-	uint8 repeated;
-} key_struct;
-
-#define EVENT_IS_MOUSE(_event) ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || (_event)->type == SDL_MOUSEMOTION)
-#define EVENT_IS_KEY(_event) ((_event)->type == SDL_KEYDOWN || (_event)->type == SDL_KEYUP)
-
-#endif
+	widget->draw_func = widget_draw;
+}

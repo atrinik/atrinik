@@ -24,50 +24,67 @@
 
 /**
  * @file
- * Handles fps widget.
+ * Implements skill experience type widgets.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
-static Uint32 fps_lasttime;
-static Uint32 fps_current;
-/** Number of frames drawn. */
-static Uint32 fps_frames;
-
-/**
- * Initialize variables used by fps widget. */
-void fps_init(void)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
-	fps_lasttime = SDL_GetTicks();
-	fps_current = fps_frames = 0;
-}
+	SDL_Rect box;
+	static uint32 action_tick = 0;
 
-/**
- * Called at the end of each frame to calculate the current fps (if
- * applicable). */
-void fps_do(void)
-{
-	fps_frames++;
-
-	if (fps_lasttime < SDL_GetTicks() - 1000)
+	/* Pre-emptively tick down the skill delay timer */
+	if (cpl.action_timer > 0)
 	{
-		fps_lasttime = SDL_GetTicks();
-		fps_current = fps_frames;
-		fps_frames = 0;
+		if (LastTick - action_tick > 125)
+		{
+			cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
+
+			if (cpl.action_timer < 0)
+			{
+				cpl.action_timer = 0;
+			}
+
+			action_tick = LastTick;
+			WIDGET_REDRAW(widget);
+		}
 	}
+	else
+	{
+		action_tick = LastTick;
+	}
+
+	if (!widget->surface)
+	{
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("skill_exp_bg");
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+	}
+
+	if (widget->redraw)
+	{
+		widget->redraw = 0;
+
+		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("skill_exp_bg"));
+
+		string_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		string_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+
+		string_show_format(widget->surface, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
+	}
+
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
 /**
- * Show the fps widget
- * @param widget Widget. */
-void widget_show_fps(widgetdata *widget)
+ * Initialize one skill experience widget. */
+void widget_skill_exp_init(widgetdata *widget)
 {
-	char buf[MAX_BUF];
-
-	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("fps"));
-
-	snprintf(buf, sizeof(buf), "%d", fps_current);
-	string_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x1 + 5, widget->y1 + 4, COLOR_WHITE, 0, NULL);
-	string_show(ScreenSurface, FONT_ARIAL11, buf, widget->x1 + widget->wd - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y1 + 4, COLOR_WHITE, 0, NULL);
+	widget->draw_func = widget_draw;
 }

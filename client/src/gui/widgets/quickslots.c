@@ -24,7 +24,9 @@
 
 /**
  * @file
- *  */
+ * Implements quickslots type widgets.
+ *
+ * @author Alex Tokar */
 
 #include <global.h>
 
@@ -39,14 +41,14 @@ int quickslot_group = 1;
  * which quickslot bitmap is displayed. */
 int quickslots_pos[MAX_QUICK_SLOTS][2] =
 {
-	{17,	1},
-	{50,	1},
-	{83,	1},
-	{116,	1},
-	{149,	1},
-	{182,	1},
-	{215,	1},
-	{248,	1}
+	{17, 1},
+	{50, 1},
+	{83, 1},
+	{116, 1},
+	{149, 1},
+	{182, 1},
+	{215, 1},
+	{248, 1}
 };
 
 /**
@@ -163,7 +165,7 @@ int get_quickslot(int x, int y)
 	int i, j;
 	int qsx, qsy, xoff;
 
-	if (cur_widget[QUICKSLOT_ID]->ht > 34)
+	if (cur_widget[QUICKSLOT_ID]->h > 34)
 	{
 		qsx = 1;
 		qsy = 0;
@@ -180,7 +182,7 @@ int get_quickslot(int x, int y)
 	{
 		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
 
-		if (x >= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID]->x1 + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID]->y1 + quickslots_pos[i][qsy] + 32)
+		if (x >= cur_widget[QUICKSLOT_ID]->x + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID]->x + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID]->y + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID]->y + quickslots_pos[i][qsy] + 32)
 		{
 			return j;
 		}
@@ -189,17 +191,16 @@ int get_quickslot(int x, int y)
 	return -1;
 }
 
-/**
- * Show quickslots widget.
- * @param x X position of the quickslots
- * @param y Y position of the quickslots
- * @param vertical_quickslot Is the quickslot vertical? 1 for vertical, 0 for horizontal. */
-void show_quickslots(int x, int y, int vertical_quickslot)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
+	int vertical_quickslot;
 	SDL_Surface *texture;
 	int i, j;
 	char buf[16];
 	int qsx, qsy, xoff;
+
+	vertical_quickslot = widget->h > 34;
 
 	/* Figure out which bitmap to use */
 	if (vertical_quickslot)
@@ -217,7 +218,7 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 		texture = TEXTURE_CLIENT("quickslots");
 	}
 
-	surface_show(ScreenSurface, x, y, NULL, texture);
+	surface_show(ScreenSurface, widget->x, widget->y, NULL, texture);
 	quickslots_remove(-1);
 
 	/* Loop through quickslots. Do not loop through all the quickslots,
@@ -238,13 +239,13 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 			if (tmp)
 			{
 				/* Show it */
-				object_show_inventory(tmp, x + quickslots_pos[i][qsx] + xoff, y + quickslots_pos[i][qsy]);
+				object_show_inventory(tmp, widget->x + quickslots_pos[i][qsx] + xoff, widget->y + quickslots_pos[i][qsy]);
 			}
 		}
 
 		/* For each quickslot, output the F1-F8 shortcut */
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		string_show(ScreenSurface, FONT_ARIAL10, buf, x + quickslots_pos[i][qsx] + xoff + 12, y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + quickslots_pos[i][qsx] + xoff + 12, widget->y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
@@ -252,32 +253,16 @@ void show_quickslots(int x, int y, int vertical_quickslot)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		string_show(ScreenSurface, FONT_ARIAL10, buf, x - 1, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x - 1, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		string_show(ScreenSurface, FONT_ARIAL10, buf, x, y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 
-/** We come here for quickslots shown during the game */
-void widget_quickslots(widgetdata *widget)
-{
-	if (widget->ht > 34)
-	{
-		show_quickslots(widget->x1, widget->y1, 1);
-	}
-	else
-	{
-		show_quickslots(widget->x1, widget->y1, 0);
-	}
-}
-
-/**
- * Handle mouse events over quickslots.
- * @param widget The quickslots widget.
- * @param event The event to handle. */
-void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
@@ -327,24 +312,24 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 				client_send_apply(quickslots[i]);
 			}
 		}
-		else if (event->motion.x >= widget->x1 + 266 && event->motion.x <= widget->x1 + 282 && event->motion.y >= widget->y1 && event->motion.y <= widget->y1 + 34 && (widget->ht <= 34))
+		else if (event->motion.x >= widget->x + 266 && event->motion.x <= widget->x + 282 && event->motion.y >= widget->y && event->motion.y <= widget->y + 34 && (widget->h <= 34))
 		{
-			widget->wd = 34;
-			widget->ht = 282;
-			widget->x1 += 266;
+			widget->w = 34;
+			widget->h = 282;
+			widget->x += 266;
 		}
-		else if (event->motion.x >= widget->x1 && event->motion.x <= widget->x1 + 34 && event->motion.y >= widget->y1 && event->motion.y <= widget->y1 + 15 && (widget->ht > 34))
+		else if (event->motion.x >= widget->x && event->motion.x <= widget->x + 34 && event->motion.y >= widget->y && event->motion.y <= widget->y + 15 && (widget->h > 34))
 		{
-			widget->wd = 282;
-			widget->ht = 34;
-			widget->x1 -= 266;
+			widget->w = 282;
+			widget->h = 34;
+			widget->x -= 266;
 		}
 	}
 	else if (event->type == SDL_MOUSEMOTION)
 	{
 		int i, j, qsx, qsy, xoff;
 
-		if (widget->ht > 34)
+		if (widget->h > 34)
 		{
 			qsx = 1;
 			qsy = 0;
@@ -362,7 +347,7 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 			/* Now calculate the real quickslot, according to the selected group */
 			j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
 
-			if (event->motion.x >= widget->x1 + quickslots_pos[i][qsx] + xoff && event->motion.x < widget->x1 + quickslots_pos[i][qsx] + xoff + 33 && event->motion.y >= widget->y1 + quickslots_pos[i][qsy] && event->motion.y < widget->y1 + quickslots_pos[i][qsy] + 33)
+			if (event->motion.x >= widget->x + quickslots_pos[i][qsx] + xoff && event->motion.x < widget->x + quickslots_pos[i][qsx] + xoff + 33 && event->motion.y >= widget->y + quickslots_pos[i][qsy] && event->motion.y < widget->y + quickslots_pos[i][qsy] + 33)
 			{
 				if (quickslots[j] != -1)
 				{
@@ -379,6 +364,16 @@ void widget_quickslots_mouse_event(widgetdata *widget, SDL_Event *event)
 			}
 		}
 	}
+
+	return 0;
+}
+
+/**
+ * Initialize one quickslots widget. */
+void widget_quickslots_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 }
 
 /** @copydoc socket_command_struct::handle_func */

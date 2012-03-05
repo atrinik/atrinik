@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Handles the party widget.
+ * Implements party type widgets.
  *
  * @author Alex Tokar */
 
@@ -88,169 +88,6 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 	}
 
 	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
-}
-
-/**
- * Process the party widget in the background (even if it's hidden).
- *
- * This is mostly so the surface and the list are always created, in the
- * case that the widget is hidden, but player uses "/party list" or
- * similar.
- * @param widget The widget. */
-void widget_party_background(widgetdata *widget)
-{
-	/* Create the surface. */
-	if (!widget->widgetSF)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
-	/* Create the party list. */
-	if (!list_party)
-	{
-		list_party = list_create(12, 2, 8);
-		list_party->handle_enter_func = list_handle_enter;
-		list_party->surface = widget->widgetSF;
-		list_party->text_flags = TEXT_MARKUP;
-		list_party->row_highlight_func = list_row_highlight;
-		list_party->row_selected_func = list_row_selected;
-		list_scrollbar_enable(list_party);
-		list_set_column(list_party, 0, 130, 7, NULL, -1);
-		list_set_column(list_party, 1, 60, 7, NULL, -1);
-		list_party->header_height = 6;
-
-		/* Create various buttons... */
-		button_create(&button_close);
-		button_create(&button_help);
-		button_create(&button_parties);
-		button_create(&button_members);
-		button_create(&button_form);
-		button_create(&button_leave);
-		button_create(&button_password);
-		button_create(&button_chat);
-		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-
-		button_parties.flags = button_members.flags = TEXT_MARKUP;
-		widget->redraw = 1;
-		list_contents = -1;
-	}
-}
-
-/**
- * Render the party widget.
- * @param widget The widget. */
-void widget_party_render(widgetdata *widget)
-{
-	SDL_Rect box, dst;
-
-	if (widget->redraw)
-	{
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
-		box.h = 0;
-		box.w = widget->wd;
-		string_show(widget->widgetSF, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-
-		if (list_party)
-		{
-			list_set_parent(list_party, widget->x1, widget->y1);
-			list_show(list_party, 10, 23);
-		}
-
-		widget->redraw = list_need_redraw(list_party);
-	}
-
-	dst.x = widget->x1;
-	dst.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &dst);
-
-	/* Render the various buttons. */
-	button_close.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w - 4;
-	button_close.y = widget->y1 + 4;
-	button_show(&button_close, "X");
-
-	button_help.x = widget->x1 + widget->wd - TEXTURE_CLIENT("button_round")->w * 2 - 4;
-	button_help.y = widget->y1 + 4;
-	button_show(&button_help, "?");
-
-	button_parties.x = widget->x1 + 244;
-	button_parties.y = widget->y1 + 38;
-	button_show(&button_parties, list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
-
-	button_members.x = button_form.x = widget->x1 + 244;
-	button_members.y = button_form.y = widget->y1 + 60;
-
-	if (cpl.partyname[0] == '\0')
-	{
-		button_show(&button_form, "Form");
-	}
-	else
-	{
-		button_show(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
-		button_leave.x = button_password.x = button_chat.x = widget->x1 + 244;
-		button_leave.y = widget->y1 + 82;
-		button_password.y = widget->y1 + 104;
-		button_chat.y = widget->y1 + 126;
-		button_show(&button_leave, "Leave");
-		button_show(&button_password, "Password");
-		button_show(&button_chat, "Chat");
-	}
-}
-
-/**
- * Handle mouse events inside the party widget.
- * @param widget The widget.
- * @param event Event to handle. */
-void widget_party_mevent(widgetdata *widget, SDL_Event *event)
-{
-	char buf[MAX_BUF];
-
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list_party && list_handle_mouse(list_party, event))
-	{
-		widget->redraw = 1;
-	}
-	else if (button_event(&button_close, event))
-	{
-		widget->show = 0;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("party list");
-	}
-	else if (button_event(&button_parties, event))
-	{
-		send_command("/party list");
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_members, event))
-	{
-		send_command("/party who");
-	}
-	else if (cpl.partyname[0] == '\0' && button_event(&button_form, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /party_form ");
-		keybind_process_command(buf);
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /party password ");
-		keybind_process_command(buf);
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
-	{
-		send_command("/party leave");
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /gsay ");
-		keybind_process_command(buf);
-	}
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -393,4 +230,176 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 			}
 		}
 	}
+}
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	SDL_Rect box, dst;
+
+	if (widget->redraw)
+	{
+		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
+
+		box.h = 0;
+		box.w = widget->w;
+		string_show(widget->surface, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+
+		if (list_party)
+		{
+			list_set_parent(list_party, widget->x, widget->y);
+			list_show(list_party, 10, 23);
+		}
+
+		widget->redraw = list_need_redraw(list_party);
+	}
+
+	dst.x = widget->x;
+	dst.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &dst);
+
+	/* Render the various buttons. */
+	button_close.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w - 4;
+	button_close.y = widget->y + 4;
+	button_show(&button_close, "X");
+
+	button_help.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
+	button_help.y = widget->y + 4;
+	button_show(&button_help, "?");
+
+	button_parties.x = widget->x + 244;
+	button_parties.y = widget->y + 38;
+	button_show(&button_parties, list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
+
+	button_members.x = button_form.x = widget->x + 244;
+	button_members.y = button_form.y = widget->y + 60;
+
+	if (cpl.partyname[0] == '\0')
+	{
+		button_show(&button_form, "Form");
+	}
+	else
+	{
+		button_show(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
+		button_leave.x = button_password.x = button_chat.x = widget->x + 244;
+		button_leave.y = widget->y + 82;
+		button_password.y = widget->y + 104;
+		button_chat.y = widget->y + 126;
+		button_show(&button_leave, "Leave");
+		button_show(&button_password, "Password");
+		button_show(&button_chat, "Chat");
+	}
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+	/* Create the surface. */
+	if (!widget->surface)
+	{
+		SDL_Surface *texture;
+
+		texture = TEXTURE_CLIENT("content");
+		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+	}
+
+	/* Create the party list. */
+	if (!list_party)
+	{
+		list_party = list_create(12, 2, 8);
+		list_party->handle_enter_func = list_handle_enter;
+		list_party->surface = widget->surface;
+		list_party->text_flags = TEXT_MARKUP;
+		list_party->row_highlight_func = list_row_highlight;
+		list_party->row_selected_func = list_row_selected;
+		list_scrollbar_enable(list_party);
+		list_set_column(list_party, 0, 130, 7, NULL, -1);
+		list_set_column(list_party, 1, 60, 7, NULL, -1);
+		list_party->header_height = 6;
+
+		/* Create various buttons... */
+		button_create(&button_close);
+		button_create(&button_help);
+		button_create(&button_parties);
+		button_create(&button_members);
+		button_create(&button_form);
+		button_create(&button_leave);
+		button_create(&button_password);
+		button_create(&button_chat);
+		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+
+		button_parties.flags = button_members.flags = TEXT_MARKUP;
+		widget->redraw = 1;
+		list_contents = -1;
+	}
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	char buf[MAX_BUF];
+
+	/* If the list has handled the mouse event, we need to redraw the
+	 * widget. */
+	if (list_party && list_handle_mouse(list_party, event))
+	{
+		widget->redraw = 1;
+		return 1;
+	}
+	else if (button_event(&button_close, event))
+	{
+		widget->show = 0;
+		return 1;
+	}
+	else if (button_event(&button_help, event))
+	{
+		help_show("party list");
+		return 1;
+	}
+	else if (button_event(&button_parties, event))
+	{
+		send_command("/party list");
+		return 1;
+	}
+	else if (cpl.partyname[0] != '\0' && button_event(&button_members, event))
+	{
+		send_command("/party who");
+		return 1;
+	}
+	else if (cpl.partyname[0] == '\0' && button_event(&button_form, event))
+	{
+		snprintf(buf, sizeof(buf), "?MCON /party_form ");
+		keybind_process_command(buf);
+		return 1;
+	}
+	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
+	{
+		snprintf(buf, sizeof(buf), "?MCON /party password ");
+		keybind_process_command(buf);
+		return 1;
+	}
+	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
+	{
+		send_command("/party leave");
+		return 1;
+	}
+	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
+	{
+		snprintf(buf, sizeof(buf), "?MCON /gsay ");
+		keybind_process_command(buf);
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize one party widget. */
+void widget_party_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
+	widget->event_func = widget_event;
 }

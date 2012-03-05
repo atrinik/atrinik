@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Handles inventory related functions.
+ * Implements inventory type widgets.
  *
  * @author Alex Tokar */
 
@@ -129,33 +129,6 @@ void inventory_filter_toggle(uint64 filter)
 }
 
 /**
- * Initialize the inventory widget.
- * @param widget Widget to initialize. */
-void widget_inventory_init(widgetdata *widget)
-{
-	inventory_struct *inventory = INVENTORY(widget);
-
-	if (widget->WidgetTypeID == MAIN_INV_ID)
-	{
-		inventory->x = 3;
-		inventory->y = 31;
-		inventory->w = 256;
-		inventory->h = 96;
-	}
-	else if (widget->WidgetTypeID == BELOW_INV_ID)
-	{
-		inventory->x = 5;
-		inventory->y = 19;
-		inventory->w = 256;
-		inventory->h = 32;
-	}
-
-	scrollbar_info_create(&inventory->scrollbar_info);
-	scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
-	inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
-}
-
-/**
  * Render a single object in the inventory widget.
  *
  * If 'mx' and 'my' are not -1, no rendering is done and instead the
@@ -187,8 +160,8 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		r_col = *r % INVENTORY_COLS(inventory);
 
 		/* Calculate the X/Y positions. */
-		x = widget->x1 + inventory->x + r_col * INVENTORY_ICON_SIZE;
-		y = widget->y1 + inventory->y + r_row * INVENTORY_ICON_SIZE;
+		x = widget->x + inventory->x + r_col * INVENTORY_ICON_SIZE;
+		y = widget->y + inventory->y + r_row * INVENTORY_ICON_SIZE;
 
 		/* Increase the rendering index. */
 		*r += 1;
@@ -215,7 +188,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		{
 			char buf[MAX_BUF];
 
-			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->WidgetTypeID ? "invslot" : "invslot_u"));
+			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->type ? "invslot" : "invslot_u"));
 
 			if (ob->nrof > 1)
 			{
@@ -226,23 +199,23 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 				snprintf(buf, sizeof(buf), "%s", ob->s_name);
 			}
 
-			if (widget->WidgetTypeID == MAIN_INV_ID)
+			if (widget->type == MAIN_INV_ID)
 			{
-				string_truncate_overflow(FONT_ARIAL10, buf, widget->wd - 26 - 4);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 26, widget->y1 + 2, COLOR_HGOLD, 0, NULL);
+				string_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + widget->wd - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
 
 				/* 255 item quality marks the item as unidentified. */
 				if (ob->item_qua == 255)
 				{
-					string_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x1 + 26, widget->y1 + 15, COLOR_RED, 0, NULL);
+					string_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x + 26, widget->y + 15, COLOR_RED, 0, NULL);
 				}
 				else
 				{
-					string_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x1 + 26, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-					string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 53, widget->y1 + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
+					string_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x + 26, widget->y + 15, COLOR_HGOLD, 0, NULL);
+					string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 53, widget->y + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
 
 					if (ob->item_level)
 					{
@@ -263,19 +236,19 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 						if (ob->item_level <= level)
 						{
-							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
+							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_HGOLD, 0, NULL);
 						}
 						else
 						{
-							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 95, widget->y1 + 15, COLOR_RED, 0, NULL);
+							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_RED, 0, NULL);
 						}
 					}
 				}
 			}
-			else if (widget->WidgetTypeID == BELOW_INV_ID)
+			else if (widget->type == BELOW_INV_ID)
 			{
 				string_truncate_overflow(FONT_ARIAL10, buf, 250);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x1 + 6, widget->y1 + 3, COLOR_HGOLD, 0, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 6, widget->y + 3, COLOR_HGOLD, 0, NULL);
 			}
 		}
 
@@ -313,10 +286,8 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 	return 0;
 }
 
-/**
- * Render the inventory widget.
- * @param widget Widget to render. */
-void widget_inventory_render(widgetdata *widget)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
 	inventory_struct *inventory;
 	object *tmp, *tmp2;
@@ -324,7 +295,7 @@ void widget_inventory_render(widgetdata *widget)
 
 	inventory = INVENTORY(widget);
 
-	if (widget->WidgetTypeID == MAIN_INV_ID)
+	if (widget->type == MAIN_INV_ID)
 	{
 		/* Recalculate the weight, as it may have changed. */
 		cpl.real_weight = 0.0;
@@ -339,34 +310,34 @@ void widget_inventory_render(widgetdata *widget)
 			cpl.real_weight += tmp->weight * (float) tmp->nrof;
 		}
 
-		if (cpl.inventory_focus != widget->WidgetTypeID)
+		if (cpl.inventory_focus != widget->type)
 		{
 			if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
 			{
 				cur_widget[PDOLL_ID]->show = 0;
 			}
 
-			if (widget->ht != 32)
+			if (widget->h != 32)
 			{
 				resize_widget(widget, RESIZE_BOTTOM, 32);
 			}
 
-			surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inventory_bg"));
+			surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("inventory_bg"));
 
-			string_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x1 + 162, widget->y1 + 4, COLOR_HGOLD, 0, NULL);
-			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
+			string_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x + 162, widget->y + 4, COLOR_HGOLD, 0, NULL);
+			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
-			string_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x1 + 162, widget->y1 + 15, COLOR_HGOLD, 0, NULL);
-			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x1 + 207, widget->y1 + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
+			string_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x + 162, widget->y + 15, COLOR_HGOLD, 0, NULL);
+			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
 
 			if (inventory_filter == INVENTORY_FILTER_ALL)
 			{
-				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 			else
 			{
-				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x1 + 35, widget->y1 + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
-				string_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x1 + 54, widget->y1 + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				string_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x + 54, widget->y + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 
 			return;
@@ -377,16 +348,16 @@ void widget_inventory_render(widgetdata *widget)
 			cur_widget[PDOLL_ID]->show = 1;
 		}
 
-		if (widget->ht != 129)
+		if (widget->h != 129)
 		{
 			resize_widget(widget, RESIZE_BOTTOM, 129);
 		}
 
-		surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("inventory"));
+		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("inventory"));
 	}
-	else if (widget->WidgetTypeID == BELOW_INV_ID)
+	else if (widget->type == BELOW_INV_ID)
 	{
-		surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("below"));
+		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("below"));
 	}
 
 	if (inventory->scrollbar_info.redraw)
@@ -424,14 +395,11 @@ void widget_inventory_render(widgetdata *widget)
 	}
 
 	inventory->scrollbar_info.num_lines = ceil((double) i / INVENTORY_COLS(inventory));
-	scrollbar_show(&inventory->scrollbar, ScreenSurface, widget->x1 + inventory->x + inventory->w, widget->y1 + inventory->y);
+	scrollbar_show(&inventory->scrollbar, ScreenSurface, widget->x + inventory->x + inventory->w, widget->y + inventory->y);
 }
 
-/**
- * Handle events in inventory widget.
- * @param widget The widget.
- * @param event Event to handle. */
-void widget_inventory_event(widgetdata *widget, SDL_Event *event)
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	inventory_struct *inventory;
 
@@ -439,7 +407,7 @@ void widget_inventory_event(widgetdata *widget, SDL_Event *event)
 
 	if (scrollbar_event(&inventory->scrollbar, event))
 	{
-		return;
+		return 1;
 	}
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
@@ -447,12 +415,12 @@ void widget_inventory_event(widgetdata *widget, SDL_Event *event)
 		if (event->button.button == SDL_BUTTON_WHEELUP)
 		{
 			widget_inventory_handle_arrow_key(widget, SDLK_LEFT);
-			return;
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_WHEELDOWN)
 		{
 			widget_inventory_handle_arrow_key(widget, SDLK_RIGHT);
-			return;
+			return 1;
 		}
 		else if (event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT)
 		{
@@ -503,11 +471,51 @@ void widget_inventory_event(widgetdata *widget, SDL_Event *event)
 				{
 					keybind_process_command("?APPLY");
 				}
-			}
 
-			return;
+				return 1;
+			}
 		}
 	}
+
+	return 0;
+}
+
+/**
+ * Initialize one inventory widget. */
+void widget_inventory_init(widgetdata *widget)
+{
+	inventory_struct *inventory;
+
+	inventory = calloc(1, sizeof(*inventory));
+
+	if (!inventory)
+	{
+		logger_print(LOG(ERROR), "OOM.");
+		exit(-1);
+	}
+
+	if (widget->type == MAIN_INV_ID)
+	{
+		inventory->x = 3;
+		inventory->y = 31;
+		inventory->w = 256;
+		inventory->h = 96;
+	}
+	else if (widget->type == BELOW_INV_ID)
+	{
+		inventory->x = 5;
+		inventory->y = 19;
+		inventory->w = 256;
+		inventory->h = 32;
+	}
+
+	scrollbar_info_create(&inventory->scrollbar_info);
+	scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
+	inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
+
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
+	widget->subwidget = inventory;
 }
 
 /**
@@ -960,7 +968,7 @@ void widget_inventory_handle_get(widgetdata *widget)
 	}
 
 	/* 'G' in main inventory. */
-	if (widget->WidgetTypeID == MAIN_INV_ID)
+	if (widget->type == MAIN_INV_ID)
 	{
 		/* Need to have an open container to do 'get' in main inventory... */
 		if (!container)
@@ -989,7 +997,7 @@ void widget_inventory_handle_get(widgetdata *widget)
 		}
 	}
 	/* 'G' in below inventory. */
-	else if (widget->WidgetTypeID == BELOW_INV_ID)
+	else if (widget->type == BELOW_INV_ID)
 	{
 		/* If there is an open container on the ground and the item to
 		 * 'get' is not the container and it's not inside the container,
@@ -1017,18 +1025,18 @@ void widget_inventory_handle_get(widgetdata *widget)
 	}
 	else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 1))
 	{
+		widget_input_struct *input;
 		char buf[MAX_BUF];
 
-		WIDGET_SHOW(cur_widget[IN_NUMBER_ID]);
+		WIDGET_SHOW(cur_widget[INPUT_ID]);
+		input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
 
-		cpl.loc = loc;
-		cpl.tag = ob->tag;
-		cpl.nrof = nrof;
-		cpl.nummode = NUM_MODE_GET;
+		snprintf(input->title_text, sizeof(input->title_text), "Take how many from %d %s?", nrof, ob->s_name);
+		snprintf(input->prepend_text, sizeof(input->prepend_text), "/gettag %d %d ", loc, ob->tag);
 		snprintf(buf, sizeof(buf), "%d", nrof);
-		text_input_set(&WIDGET_INPUT(cur_widget[IN_NUMBER_ID])->text_input, buf);
-		strncpy(cpl.num_text, ob->s_name, sizeof(cpl.num_text) - 1);
-		cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
+		text_input_set(&input->text_input, buf);
+		input->text_input.character_check_func = text_input_number_character_check;
+		text_input_set_history(&input->text_input, NULL);
 		return;
 	}
 
@@ -1046,7 +1054,7 @@ void widget_inventory_handle_drop(widgetdata *widget)
 	int nrof;
 	sint32 loc;
 
-	if (widget->WidgetTypeID != MAIN_INV_ID)
+	if (widget->type != MAIN_INV_ID)
 	{
 		return;
 	}
@@ -1082,18 +1090,18 @@ void widget_inventory_handle_drop(widgetdata *widget)
 	}
 	else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 2))
 	{
+		widget_input_struct *input;
 		char buf[MAX_BUF];
 
-		WIDGET_SHOW(cur_widget[IN_NUMBER_ID]);
+		WIDGET_SHOW(cur_widget[INPUT_ID]);
+		input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
 
-		cpl.loc = loc;
-		cpl.tag = ob->tag;
-		cpl.nrof = nrof;
-		cpl.nummode = NUM_MODE_DROP;
+		snprintf(input->title_text, sizeof(input->title_text), "Drop how many from %d %s?", nrof, ob->s_name);
+		snprintf(input->prepend_text, sizeof(input->prepend_text), "/droptag %d %d ", loc, ob->tag);
 		snprintf(buf, sizeof(buf), "%d", nrof);
-		text_input_set(&WIDGET_INPUT(cur_widget[IN_NUMBER_ID])->text_input, buf);
-		strncpy(cpl.num_text, ob->s_name, sizeof(cpl.num_text) - 1);
-		cpl.num_text[sizeof(cpl.num_text) - 1] = '\0';
+		text_input_set(&input->text_input, buf);
+		input->text_input.character_check_func = text_input_number_character_check;
+		text_input_set_history(&input->text_input, NULL);
 		return;
 	}
 
@@ -1109,7 +1117,7 @@ void widget_inventory_handle_ready(widgetdata *widget)
 {
 	object *ob;
 
-	if (widget->WidgetTypeID != MAIN_INV_ID)
+	if (widget->type != MAIN_INV_ID)
 	{
 		return;
 	}

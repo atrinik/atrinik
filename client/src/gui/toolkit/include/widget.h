@@ -39,41 +39,35 @@ typedef struct widgetdata
 	char *name;
 
 	/** X position. */
-	int x1;
+	int x;
 
 	/** Y position. */
-	int y1;
+	int y;
 
 	/** Width. */
-	int wd;
+	int w;
 
 	/** Height. */
-	int ht;
+	int h;
 
 	/** Is the widget moveable? */
-	int moveable;
+	uint8 moveable;
 
 	/** Is the widget visible? */
-	int show;
+	uint8 show;
 
 	/** Widget must be redrawn. */
 	uint8 redraw;
 
 	/** Should this widget be the only one of its type? */
-	int unique;
+	uint8 unique;
 
 	/** Must there be at least one of this widget type alive? */
-	int no_kill;
-
-	/** If not visible, widget is not displayed but is still active. */
-	int visible;
-
-	/** Delete all widgets inside if widget is deleted. */
-	int delete_inv;
+	uint8 no_kill;
 
 	/**
 	 * If 1, will not save this widget. */
-	uint no_save;
+	uint8 no_save;
 
 	/** Next widget. */
 	struct widgetdata *next;
@@ -100,16 +94,13 @@ typedef struct widgetdata
 	void *subwidget;
 
 	/** Surface used to draw the widget. */
-	SDL_Surface *widgetSF;
+	SDL_Surface *surface;
 
 	/** The ID for the type of the widget. */
-	int WidgetTypeID;
+	int type;
 
 	/** The ID for the subtype of widget, used as a way of creating specific widgets. */
-	int WidgetSubtypeID;
-
-	/** A unique ID for the widget object. */
-	int WidgetObjID;
+	int sub_type;
 
 	uint8 resizeable;
 
@@ -122,6 +113,18 @@ typedef struct widgetdata
 	int disable_snapping;
 
 	uint32 showed_ticks;
+
+	void (*draw_func)(struct widgetdata *widget);
+
+	void (*background_func)(struct widgetdata *widget);
+
+	int (*event_func)(struct widgetdata *widget, SDL_Event *event);
+
+	void (*deinit_func)(struct widgetdata *widget);
+
+	int (*load_func)(struct widgetdata *widget, const char *keyword, const char *parameter);
+
+	void (*save_func)(struct widgetdata *widget, FILE *fp, const char *padding);
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside them. */
@@ -182,7 +185,12 @@ typedef struct _widget_texture
 typedef struct widget_input_struct
 {
 	text_input_struct text_input;
+
 	text_input_history_struct *text_input_history;
+
+	char title_text[MAX_BUF];
+
+	char prepend_text[MAX_BUF];
 } widget_input_struct;
 
 /** A more specialized kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
@@ -248,11 +256,9 @@ typedef enum WidgetID
 	PDOLL_ID,
 	BELOW_INV_ID,
 	PLAYER_INFO_ID,
-	RANGE_ID,
 	MAIN_INV_ID,
 	MAPNAME_ID,
-	IN_CONSOLE_ID,
-	IN_NUMBER_ID,
+	INPUT_ID,
 	FPS_ID,
 	MPLAYER_ID,
 	SPELLS_ID,

@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Implements menu buttons code.
+ * Implements menu buttons type widgets.
  *
  * @author Alex Tokar */
 
@@ -66,36 +66,15 @@ static const char *const button_tooltips[NUM_BUTTONS] =
 {
 	"Spells", "Skills", "Party", "Music player", "Region map", "Quest list", "Help", "Settings"
 };
-/** Whether the ::buttons have been initialized. */
-static uint8 did_init = 0;
 
-/**
- * Show menu buttons widget.
- * @param widget The widget. */
-void widget_menubuttons(widgetdata *widget)
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
 	size_t i;
 	const char *text;
 	int x, y;
 
-	/* Initialize buttons. */
-	if (!did_init)
-	{
-		did_init = 1;
-
-		for (i = 0; i < NUM_BUTTONS; i++)
-		{
-			button_create(&buttons[i]);
-			buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_rect");
-			buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_over");
-			buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_down");
-		}
-
-		buttons[BUTTON_HELP].flags |= TEXT_MARKUP;
-		buttons[BUTTON_HELP].font = FONT_SANS16;
-	}
-
-	surface_show(ScreenSurface, widget->x1, widget->y1, NULL, TEXTURE_CLIENT("menu_buttons"));
+	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("menu_buttons"));
 
 	x = 4;
 	y = 3;
@@ -132,8 +111,8 @@ void widget_menubuttons(widgetdata *widget)
 			buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
 		}
 
-		buttons[i].x = widget->x1 + x;
-		buttons[i].y = widget->y1 + y;
+		buttons[i].x = widget->x + x;
+		buttons[i].y = widget->y + y;
 		button_show(&buttons[i], text);
 		button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
 
@@ -142,25 +121,17 @@ void widget_menubuttons(widgetdata *widget)
 			char buf[MAX_BUF];
 
 			snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
-			surface_show(ScreenSurface, widget->x1 + x, widget->y1 + y, NULL, TEXTURE_CLIENT(buf));
+			surface_show(ScreenSurface, widget->x + x, widget->y + y, NULL, TEXTURE_CLIENT(buf));
 		}
 
 		x += TEXTURE_SURFACE(buttons[i].texture)->w + 3;
 	}
 }
 
-/**
- * Handle mouse events over the menu buttons widget.
- *
- * Basically calls the right functions depending on which button was
- * clicked.
- * @param widget The widget object.
- * @param event The event to handle. */
-void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	size_t i;
-
-	(void) widget;
 
 	for (i = 0; i < NUM_BUTTONS; i++)
 	{
@@ -209,7 +180,30 @@ void widget_menubuttons_event(widgetdata *widget, SDL_Event *event)
 				help_show("main");
 			}
 
-			break;
+			return 1;
 		}
 	}
+
+	return 0;
+}
+
+/**
+ * Initialize one menu buttons widget. */
+void widget_menu_buttons_init(widgetdata *widget)
+{
+	size_t i;
+
+	for (i = 0; i < NUM_BUTTONS; i++)
+	{
+		button_create(&buttons[i]);
+		buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_rect");
+		buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_over");
+		buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_down");
+	}
+
+	buttons[BUTTON_HELP].flags |= TEXT_MARKUP;
+	buttons[BUTTON_HELP].font = FONT_SANS16;
+
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 }

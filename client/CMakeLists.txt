@@ -85,6 +85,7 @@ endif (ENABLE_DEBUG)
 
 # Add our includes.
 include_directories(src/include)
+include_directories(src/gui/toolkit/include)
 include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
@@ -118,47 +119,58 @@ set(SOURCES
 	src/events/event.c
 	src/events/keys.c
 	src/events/move.c
-	src/gui/book.c
-	src/gui/characters.c
-	src/gui/effects.c
-	src/gui/fps.c
-	src/gui/game_news.c
-	src/gui/help.c
-	src/gui/input.c
-	src/gui/interface.c
-	src/gui/inventory.c
-	src/gui/login.c
-	src/gui/main.c
-	src/gui/map.c
-	src/gui/menu_buttons.c
-	src/gui/mplayer.c
-	src/gui/notification.c
-	src/gui/party.c
-	src/gui/protections.c
-	src/gui/quickslots.c
-	src/gui/range.c
-	src/gui/region_map.c
-	src/gui/settings.c
-	src/gui/settings_client.c
-	src/gui/settings_keybinding.c
-	src/gui/skills.c
-	src/gui/spells.c
-	src/gui/textwin.c
-	src/gui/updater.c
-	${SOURCES_TOOLKIT}
-	src/toolkit_gui/button.c
-	src/toolkit_gui/clipboard.c
-	src/toolkit_gui/list.c
-	src/toolkit_gui/popup.c
-	src/toolkit_gui/progress.c
-	src/toolkit_gui/range_buttons.c
-	src/toolkit_gui/scrollbar.c
-	src/toolkit_gui/SDL_gfx.c
-	src/toolkit_gui/SDL_rotozoom.c
-	src/toolkit_gui/text.c
-	src/toolkit_gui/text_input.c
-	src/toolkit_gui/tooltip.c
-	src/toolkit_gui/widget.c)
+	src/gui/misc/effects.c
+	src/gui/misc/game_news.c
+	src/gui/misc/main.c
+	src/gui/popups/book.c
+	src/gui/popups/characters.c
+	src/gui/popups/help.c
+	src/gui/popups/interface.c
+	src/gui/popups/login.c
+	src/gui/popups/region_map.c
+	src/gui/popups/settings.c
+	src/gui/popups/settings_client.c
+	src/gui/popups/settings_keybinding.c
+	src/gui/popups/updater.c
+	src/gui/toolkit/button.c
+	src/gui/toolkit/clipboard.c
+	src/gui/toolkit/list.c
+	src/gui/toolkit/popup.c
+	src/gui/toolkit/progress.c
+	src/gui/toolkit/range_buttons.c
+	src/gui/toolkit/scrollbar.c
+	src/gui/toolkit/SDL_gfx.c
+	src/gui/toolkit/SDL_rotozoom.c
+	src/gui/toolkit/text.c
+	src/gui/toolkit/text_input.c
+	src/gui/toolkit/tooltip.c
+	src/gui/toolkit/widget.c
+	src/gui/widgets/container.c
+	src/gui/widgets/fps.c
+	src/gui/widgets/input.c
+	src/gui/widgets/inventory.c
+	src/gui/widgets/label.c
+	src/gui/widgets/main_lvl.c
+	src/gui/widgets/map.c
+	src/gui/widgets/mapname.c
+	src/gui/widgets/menu.c
+	src/gui/widgets/menu_buttons.c
+	src/gui/widgets/mplayer.c
+	src/gui/widgets/notification.c
+	src/gui/widgets/party.c
+	src/gui/widgets/playerdoll.c
+	src/gui/widgets/playerinfo.c
+	src/gui/widgets/protections.c
+	src/gui/widgets/quickslots.c
+	src/gui/widgets/regen.c
+	src/gui/widgets/skill_exp.c
+	src/gui/widgets/skill_lvl.c
+	src/gui/widgets/skills.c
+	src/gui/widgets/spells.c
+	src/gui/widgets/stats.c
+	src/gui/widgets/texture.c
+	src/gui/widgets/textwin.c
+	${SOURCES_TOOLKIT})
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES})

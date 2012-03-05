@@ -34,22 +34,21 @@
  * -# If applicable, add handler code to get_widget_owner().
  * -# Add handler function to process_widget().
  *
- * @author Dantee
  * @author Alex Tokar
- * @author Daniel Liptrot */
+ * @author Daniel Liptrot
+ * @author Dantee */
 
 #include <global.h>
 
-static void process_widget(widgetdata *widget);
-
 static const char *const widget_names[TOTAL_SUBWIDGETS] =
 {
-	"map", "stats", "resist", "main_lvl", "skill_exp", "regen",
-	"skill_lvl", "menubuttons", "quickslots", "textwin", "playerdoll",
-	"belowinv", "playerinfo", "rangebox", "maininv", "mapname", "console",
-	"number", "fps", "mplayer", "spells", "skills", "party", "notification",
+	"map", "stats", "protections", "main_lvl", "skill_exp", "regen",
+	"skill_lvl", "menu_buttons", "quickslots", "textwin", "playerdoll",
+	"belowinv", "playerinfo", "maininv", "mapname",
+	"input", "fps", "mplayer", "spells", "skills", "party", "notification",
 	"container", "label", "texture", "container_strip", "menu", "menuitem"
 };
+static void (*widget_initializers[TOTAL_SUBWIDGETS])(widgetdata *);
 
 /* Default overall priority tree. Will change during runtime.
  * Widget at the top (head) of the tree has highest priority.
@@ -211,19 +210,19 @@ static void widget_load(void)
 			}
 			else if (strcmp(cps[0], "x") == 0)
 			{
-				widget->x1 = atoi(cps[1]);
+				widget->x = atoi(cps[1]);
 			}
 			else if (strcmp(cps[0], "y") == 0)
 			{
-				widget->y1 = atoi(cps[1]);
+				widget->y = atoi(cps[1]);
 			}
 			else if (strcmp(cps[0], "w") == 0)
 			{
-				widget->wd = atoi(cps[1]);
+				widget->w = atoi(cps[1]);
 			}
 			else if (strcmp(cps[0], "h") == 0)
 			{
-				widget->ht = atoi(cps[1]);
+				widget->h = atoi(cps[1]);
 			}
 			else if (strcmp(cps[0], "min_w") == 0)
 			{
@@ -233,14 +232,12 @@ static void widget_load(void)
 			{
 				widget->min_h = atoi(cps[1]);
 			}
+			else if (widget->load_func && widget->load_func(widget, cps[0], cps[1]))
+			{
+			}
 			else
 			{
-				switch (widget->WidgetTypeID)
-				{
-					case CHATWIN_ID:
-						widget_textwin_load(widget, cps[0], cps[1]);
-						break;
-				}
+				logger_print(LOG(BUG), "Invalid line: %s = %s", cps[0], cps[1]);
 			}
 		}
 	}
@@ -249,8 +246,34 @@ static void widget_load(void)
 /**
  * Try to load the main interface file and initialize the priority list
  * On failure, initialize the widgets with init_widgets_fromDefault() */
-void widget_init(void)
+void toolkit_widget_init(void)
 {
+	widget_initializers[CONTAINER_ID] = widget_container_init;
+	widget_initializers[FPS_ID] = widget_fps_init;
+	widget_initializers[INPUT_ID] = widget_input_init;
+	widget_initializers[MAIN_INV_ID] = widget_inventory_init;
+	widget_initializers[BELOW_INV_ID] = widget_inventory_init;
+	widget_initializers[LABEL_ID] = widget_label_init;
+	widget_initializers[MAIN_LVL_ID] = widget_main_lvl_init;
+	widget_initializers[MAP_ID] = widget_map_init;
+	widget_initializers[MAPNAME_ID] = widget_mapname_init;
+	widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
+	widget_initializers[MPLAYER_ID] = widget_mplayer_init;
+	widget_initializers[NOTIFICATION_ID] = widget_notification_init;
+	widget_initializers[PARTY_ID] = widget_party_init;
+	widget_initializers[PDOLL_ID] = widget_playerdoll_init;
+	widget_initializers[PLAYER_INFO_ID] = widget_playerinfo_init;
+	widget_initializers[RESIST_ID] = widget_protections_init;
+	widget_initializers[QUICKSLOT_ID] = widget_quickslots_init;
+	widget_initializers[REGEN_ID] = widget_regen_init;
+	widget_initializers[SKILL_EXP_ID] = widget_skill_exp_init;
+	widget_initializers[SKILL_LVL_ID] = widget_skill_lvl_init;
+	widget_initializers[SKILLS_ID] = widget_skills_init;
+	widget_initializers[SPELLS_ID] = widget_spells_init;
+	widget_initializers[STATS_ID] = widget_stats_init;
+	widget_initializers[TEXTURE_ID] = widget_texture_init;
+	widget_initializers[CHATWIN_ID] = widget_textwin_init;
+
 	widget_load();
 
 	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
@@ -263,12 +286,6 @@ void widget_init(void)
 widgetdata *create_widget_object(int widget_subtype_id)
 {
 	widgetdata *widget;
-	_widget_container *container;
-	_widget_container_strip *container_strip;
-	_menu *menu;
-	_menuitem *menuitem;
-	_widget_label *label;
-	_widget_texture *texture;
 	int widget_type_id = widget_subtype_id;
 
 	/* map the widget subtype to widget type */
@@ -302,166 +319,14 @@ widgetdata *create_widget_object(int widget_subtype_id)
 
 	/* allocate the widget node, this should always be the first function called in here */
 	widget = create_widget(widget_subtype_id);
-	widget->WidgetTypeID = widget_type_id;
+	widget->type = widget_type_id;
 	widget->name = strdup(widget_names[widget_type_id]);
 	widget->show = 1;
 	widget->redraw = 1;
 
-	/* allocate the custom attributes for the widget if applicable */
-	switch (widget->WidgetTypeID)
+	if (widget_initializers[widget->type])
 	{
-		case CHATWIN_ID:
-			widget_textwin_init(widget);
-			break;
-
-		case MAPNAME_ID:
-			/* set the bounding box to another one that exists, otherwise it can be wrong initially */
-			if (cur_widget[MAPNAME_ID])
-			{
-				widget->wd = cur_widget[MAPNAME_ID]->wd;
-				widget->ht = cur_widget[MAPNAME_ID]->ht;
-			}
-
-			break;
-
-		case CONTAINER_ID:
-			container = malloc(sizeof(_widget_container));
-
-			if (!container)
-			{
-				exit(0);
-			}
-
-			/* begin initializing the members */
-			container->widget_type = -1;
-			container->outer_padding_top = 10;
-			container->outer_padding_bottom = 10;
-			container->outer_padding_left = 10;
-			container->outer_padding_right = 10;
-			container->x_left_buf1 = 0;
-			container->x_left_buf2 = 0;
-			container->x_right_buf1 = 0;
-			container->x_right_buf2 = 0;
-			container->y_top_buf1 = 0;
-			container->y_top_buf2 = 0;
-			container->y_bottom_buf1 = 0;
-			container->y_bottom_buf2 = 0;
-			/* have the subwidget point to it */
-			widget->subwidget = (_widget_container *) container;
-
-			/* allocate the custom attributes for the container if applicable */
-			switch (widget->WidgetSubtypeID)
-			{
-				case CONTAINER_STRIP_ID:
-				case MENU_ID:
-				case MENUITEM_ID:
-					container_strip = malloc(sizeof(_widget_container_strip));
-
-					if (!container_strip)
-					{
-						exit(0);
-					}
-
-					/* Begin initializing the members. */
-					container_strip->inner_padding = 10;
-					container_strip->horizontal = 0;
-					container_strip->size = 0;
-					/* Have the subcontainer point to it. */
-					container->subcontainer = (_widget_container_strip *) container_strip;
-
-					/* Allocate the custom attributes for the strip container if applicable. */
-					switch (widget->WidgetSubtypeID)
-					{
-						case MENU_ID:
-							menu = malloc(sizeof(_menu));
-
-							if (!menu)
-							{
-								exit(0);
-							}
-
-							/* Begin initializing the members. */
-							menu->submenu = NULL;
-							menu->owner = NULL;
-							/* Have the sub strip container point to it. */
-							container_strip->subcontainer_strip = (_menu *) menu;
-							break;
-
-						case MENUITEM_ID:
-							menuitem = malloc(sizeof(_menuitem));
-
-							if (!menuitem)
-							{
-								exit(0);
-							}
-
-							/* Begin initializing the members. */
-							menuitem->menu_func_ptr = NULL;
-							menuitem->menu_type = MENU_NORMAL;
-							/* Have the sub strip container point to it. */
-							container_strip->subcontainer_strip = (_menuitem *) menuitem;
-							break;
-					}
-
-					break;
-			}
-
-			break;
-
-		case LABEL_ID:
-			label = malloc(sizeof(_widget_label));
-
-			if (!label)
-			{
-				exit(0);
-			}
-
-			/* begin initializing the members */
-			label->text = "";
-			label->font = FONT_ARIAL10;
-			label->color = COLOR_WHITE;
-			/* have the subwidget point to it */
-			widget->subwidget = (_widget_label *) label;
-			break;
-
-		case TEXTURE_ID:
-			texture = malloc(sizeof(*texture));
-
-			if (!texture)
-			{
-				exit(0);
-			}
-
-			/* begin initializing the members */
-			texture->texture = NULL;
-			/* have the subwidget point to it */
-			widget->subwidget = (_widget_texture *) texture;
-			break;
-
-		case MAIN_INV_ID:
-		case BELOW_INV_ID:
-			widget->subwidget = calloc(1, sizeof(inventory_struct));
-			widget_inventory_init(widget);
-			break;
-
-		case IN_CONSOLE_ID:
-		case IN_NUMBER_ID:
-			widget->subwidget = calloc(1, sizeof(widget_input_struct));
-			text_input_create(&WIDGET_INPUT(widget)->text_input);
-
-			if (widget->WidgetTypeID == IN_NUMBER_ID)
-			{
-				WIDGET_INPUT(widget)->text_input.max = 20;
-				WIDGET_INPUT(widget)->text_input.character_check_func = widget_number_input_character_check;
-			}
-			else
-			{
-				WIDGET_INPUT(widget)->text_input.max = 250;
-				WIDGET_INPUT(widget)->text_input_history = text_input_history_create();
-				text_input_set_history(&WIDGET_INPUT(widget)->text_input, WIDGET_INPUT(widget)->text_input_history);
-			}
-
-			break;
+		widget_initializers[widget->type](widget);
 	}
 
 	return widget;
@@ -471,7 +336,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 void remove_widget_object(widgetdata *widget)
 {
 	/* don't delete the last widget if there needs to be at least one of this widget type */
-	if (widget->no_kill && cur_widget[widget->WidgetSubtypeID] == type_list_foot[widget->WidgetSubtypeID])
+	if (widget->no_kill && cur_widget[widget->sub_type] == type_list_foot[widget->sub_type])
 	{
 		return;
 	}
@@ -486,9 +351,6 @@ void remove_widget_object(widgetdata *widget)
 void remove_widget_object_intern(widgetdata *widget)
 {
 	widgetdata *tmp;
-	_widget_container *container;
-	_widget_container_strip *container_strip;
-	int widget_subtype_id = widget->WidgetSubtypeID;
 
 	remove_widget_inv(widget);
 
@@ -520,54 +382,16 @@ void remove_widget_object_intern(widgetdata *widget)
 	/* Get the environment if it exists, this is used to make containers auto-resize when the widget is deleted. */
 	tmp = widget->env;
 
-	switch (widget_subtype_id)
+	if (widget->deinit_func)
 	{
-		case MPLAYER_ID:
-			widget_mplayer_deinit(widget);
-			break;
-
-		case CHATWIN_ID:
-			widget_textwin_deinit(widget);
-			break;
+		widget->deinit_func(widget);
 	}
+
+	free(widget->name);
 
 	/* remove the custom attribute nodes if they exist */
 	if (widget->subwidget)
 	{
-		switch (widget_subtype_id)
-		{
-			case CONTAINER_STRIP_ID:
-			case MENU_ID:
-			case MENUITEM_ID:
-				if (widget_subtype_id == MENUITEM_ID)
-				{
-					container_strip = CONTAINER_STRIP(widget);
-
-					if (container_strip->subcontainer_strip)
-					{
-						free(container_strip->subcontainer_strip);
-						container_strip->subcontainer_strip = NULL;
-					}
-				}
-
-				container = CONTAINER(widget);
-
-				if (container->subcontainer)
-				{
-					free(container->subcontainer);
-					container->subcontainer = NULL;
-				}
-
-				break;
-
-			case IN_NUMBER_ID:
-			case IN_CONSOLE_ID:
-				if (WIDGET_INPUT(widget)->text_input_history)
-				{
-					text_input_history_free(WIDGET_INPUT(widget)->text_input_history);
-				}
-		}
-
 		free(widget->subwidget);
 		widget->subwidget = NULL;
 	}
@@ -581,14 +405,14 @@ void remove_widget_object_intern(widgetdata *widget)
 		/* if something else exists in its inventory, make it auto-resize to fit the widgets inside */
 		if (tmp->inv)
 		{
-			resize_widget(tmp->inv, RESIZE_RIGHT, tmp->inv->wd);
-			resize_widget(tmp->inv, RESIZE_BOTTOM, tmp->inv->ht);
+			resize_widget(tmp->inv, RESIZE_RIGHT, tmp->inv->w);
+			resize_widget(tmp->inv, RESIZE_BOTTOM, tmp->inv->h);
 		}
 		/* otherwise if its inventory is empty, resize it to its default size */
 		else
 		{
-			resize_widget(tmp, RESIZE_RIGHT, cur_widget[tmp->WidgetSubtypeID]->wd);
-			resize_widget(tmp, RESIZE_BOTTOM, cur_widget[tmp->WidgetSubtypeID]->ht);
+			resize_widget(tmp, RESIZE_RIGHT, cur_widget[tmp->sub_type]->w);
+			resize_widget(tmp, RESIZE_BOTTOM, cur_widget[tmp->sub_type]->h);
 		}
 	}
 }
@@ -645,11 +469,11 @@ void reset_widget(const char *name)
 
 		if (!name || !strcasecmp(tmp->name, name))
 		{
-			tmp->x1 = cur_widget[tmp->WidgetTypeID]->x1;
-			tmp->y1 = cur_widget[tmp->WidgetTypeID]->y1;
-			tmp->wd = cur_widget[tmp->WidgetTypeID]->wd;
-			tmp->ht = cur_widget[tmp->WidgetTypeID]->ht;
-			tmp->show = cur_widget[tmp->WidgetTypeID]->show;
+			tmp->x = cur_widget[tmp->type]->x;
+			tmp->y = cur_widget[tmp->type]->y;
+			tmp->w = cur_widget[tmp->type]->w;
+			tmp->h = cur_widget[tmp->type]->h;
+			tmp->show = cur_widget[tmp->type]->show;
 			WIDGET_REDRAW(tmp);
 		}
 	}
@@ -662,22 +486,22 @@ static void widget_ensure_onscreen(widgetdata *widget)
 {
 	int dx = 0, dy = 0;
 
-	if (widget->x1 < 0)
+	if (widget->x < 0)
 	{
-		dx = -widget->x1;
+		dx = -widget->x;
 	}
-	else if (widget->x1 + widget->wd > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
+	else if (widget->x + widget->w > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
 	{
-		dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->wd - widget->x1;
+		dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->w - widget->x;
 	}
 
-	if (widget->y1 < 0)
+	if (widget->y < 0)
 	{
-		dy = -widget->y1;
+		dy = -widget->y;
 	}
-	else if (widget->y1 + widget->ht > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
+	else if (widget->y + widget->h > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
 	{
-		dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->ht - widget->y1;
+		dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->h - widget->y;
 	}
 
 	move_widget_rec(widget, dx, dy);
@@ -727,8 +551,6 @@ void kill_widget_tree(widgetdata *widget)
 widgetdata *create_widget(int widget_id)
 {
 	widgetdata *node;
-	/* our unique widget count variable */
-	static int widget_uid = 0;
 
 #ifdef DEBUG_WIDGET
 	logger_print(LOG(INFO), "Entering create_widget()..");
@@ -743,9 +565,7 @@ widgetdata *create_widget(int widget_id)
 	}
 
 	/* set the members */
-	node->WidgetSubtypeID = widget_id;
-	/* give it a unique ID */
-	node->WidgetObjID = widget_uid;
+	node->sub_type = widget_id;
 
 	/* link it up to the tree if the root exists */
 	if (widget_list_head)
@@ -776,11 +596,8 @@ widgetdata *create_widget(int widget_id)
 		type_list_foot[widget_id] = node;
 	}
 
-	/* increment the unique ID counter */
-	++widget_uid;
-
 #ifdef DEBUG_WIDGET
-	logger_print(LOG(DEBUG), "..ALLOCATED: %s, WidgetObjID: %d", node->name, node->WidgetObjID);
+	logger_print(LOG(DEBUG), "..ALLOCATED: %s", node->name);
 	debug_count_nodes(1);
 
 	logger_print(LOG(INFO), "..create_widget(): Done.");
@@ -803,8 +620,8 @@ void remove_widget(widgetdata *widget)
 	{
 		widget_list_head = NULL;
 		widget_list_foot = NULL;
-		cur_widget[widget->WidgetSubtypeID] = NULL;
-		type_list_foot[widget->WidgetSubtypeID] = NULL;
+		cur_widget[widget->sub_type] = NULL;
+		type_list_foot[widget->sub_type] = NULL;
 	}
 	else
 	{
@@ -860,21 +677,21 @@ void remove_widget(widgetdata *widget)
 		}
 
 		/* if widget type list has only one node, kill it */
-		if (cur_widget[widget->WidgetSubtypeID] == type_list_foot[widget->WidgetSubtypeID])
+		if (cur_widget[widget->sub_type] == type_list_foot[widget->sub_type])
 		{
-			cur_widget[widget->WidgetSubtypeID] = type_list_foot[widget->WidgetSubtypeID] = NULL;
+			cur_widget[widget->sub_type] = type_list_foot[widget->sub_type] = NULL;
 		}
 		/* widget is head node */
-		else if (widget == cur_widget[widget->WidgetSubtypeID])
+		else if (widget == cur_widget[widget->sub_type])
 		{
-			cur_widget[widget->WidgetSubtypeID] = cur_widget[widget->WidgetSubtypeID]->type_next;
-			cur_widget[widget->WidgetSubtypeID]->type_prev = NULL;
+			cur_widget[widget->sub_type] = cur_widget[widget->sub_type]->type_next;
+			cur_widget[widget->sub_type]->type_prev = NULL;
 		}
 		/* widget is foot node */
-		else if (widget == type_list_foot[widget->WidgetSubtypeID])
+		else if (widget == type_list_foot[widget->sub_type])
 		{
-			type_list_foot[widget->WidgetSubtypeID] = type_list_foot[widget->WidgetSubtypeID]->type_prev;
-			type_list_foot[widget->WidgetSubtypeID]->type_next = NULL;
+			type_list_foot[widget->sub_type] = type_list_foot[widget->sub_type]->type_prev;
+			type_list_foot[widget->sub_type]->type_next = NULL;
 		}
 		/* widget is in middle of type list */
 		else
@@ -885,14 +702,14 @@ void remove_widget(widgetdata *widget)
 	}
 
 #ifdef DEBUG_WIDGET
-	logger_print(LOG(DEBUG), "..REMOVED: %s, WidgetObjID: %d", widget->name, widget->WidgetObjID);
+	logger_print(LOG(DEBUG), "..REMOVED: %s", widget->name);
 #endif
 
 	/* free the surface */
-	if (widget->widgetSF)
+	if (widget->surface)
 	{
-		SDL_FreeSurface(widget->widgetSF);
-		widget->widgetSF = NULL;
+		SDL_FreeSurface(widget->surface);
+		widget->surface = NULL;
 	}
 
 	free(widget);
@@ -942,14 +759,14 @@ void detach_widget(widgetdata *widget)
 	/* if something else exists in the container's inventory, make it auto-resize to fit the widgets inside */
 	if (widget->env->inv)
 	{
-		resize_widget(widget->env->inv, RESIZE_RIGHT, widget->env->inv->wd);
-		resize_widget(widget->env->inv, RESIZE_BOTTOM, widget->env->inv->ht);
+		resize_widget(widget->env->inv, RESIZE_RIGHT, widget->env->inv->w);
+		resize_widget(widget->env->inv, RESIZE_BOTTOM, widget->env->inv->h);
 	}
 	/* otherwise if its inventory is empty, resize it to its default size */
 	else
 	{
-		resize_widget(widget->env, RESIZE_RIGHT, cur_widget[widget->env->WidgetSubtypeID]->wd);
-		resize_widget(widget->env, RESIZE_BOTTOM, cur_widget[widget->env->WidgetSubtypeID]->ht);
+		resize_widget(widget->env, RESIZE_RIGHT, cur_widget[widget->env->sub_type]->w);
+		resize_widget(widget->env, RESIZE_BOTTOM, cur_widget[widget->env->sub_type]->h);
 	}
 
 	/* widget is no longer in a container */
@@ -978,7 +795,7 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
 				printf("..");
 			}
 
-			logger_print(LOG(INFO), "..%s, WidgetObjID: %d", widget->name, widget->WidgetObjID);
+			logger_print(LOG(INFO), "..%s", widget->name);
 		}
 
 		i++;
@@ -1031,10 +848,10 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
 		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
-		fprintf(fp, "%sx = %d\n", padding, widget->x1);
-		fprintf(fp, "%sy = %d\n", padding, widget->y1);
-		fprintf(fp, "%sw = %d\n", padding, widget->wd);
-		fprintf(fp, "%sh = %d\n", padding, widget->ht);
+		fprintf(fp, "%sx = %d\n", padding, widget->x);
+		fprintf(fp, "%sy = %d\n", padding, widget->y);
+		fprintf(fp, "%sw = %d\n", padding, widget->w);
+		fprintf(fp, "%sh = %d\n", padding, widget->h);
 
 		if (widget->min_w)
 		{
@@ -1046,11 +863,9 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 			fprintf(fp, "%smin_h = %d\n", padding, widget->min_h);
 		}
 
-		switch (widget->WidgetTypeID)
+		if (widget->save_func)
 		{
-			case CHATWIN_ID:
-				widget_textwin_save(widget, fp, padding);
-				break;
+			widget->save_func(widget, fp, padding);
 		}
 
 		if (widget->inv_rev)
@@ -1082,7 +897,7 @@ static void widget_save(void)
 	fclose(fp);
 }
 
-void widget_deinit(void)
+void toolkit_widget_deinit(void)
 {
 	widget_save();
 	kill_widgets();
@@ -1124,23 +939,23 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 	SetPriorityWidget(widget);
 
 	/* Right mouse button was clicked */
-	if (event->button.button == SDL_BUTTON_RIGHT && widget->WidgetTypeID != MAP_ID && !cur_widget[MENU_ID])
+	if (event->button.button == SDL_BUTTON_RIGHT && widget->type != MAP_ID && !cur_widget[MENU_ID])
 	{
 		widgetdata *menu;
 
 		/* Create a context menu for the widget clicked on. */
 		menu = create_menu(x, y, widget);
 
-		if ((widget->WidgetSubtypeID == MAIN_INV_ID || widget->WidgetSubtypeID == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, x, y))
+		if ((widget->sub_type == MAIN_INV_ID || widget->sub_type == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, x, y))
 		{
-			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			if (widget->sub_type == MAIN_INV_ID)
 			{
 				add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
 			}
 
 			add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
 
-			if (widget->WidgetSubtypeID == BELOW_INV_ID)
+			if (widget->sub_type == BELOW_INV_ID)
 			{
 				add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
 			}
@@ -1152,24 +967,24 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 				add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
 			}
 
-			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			if (widget->sub_type == MAIN_INV_ID)
 			{
 				add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
 			}
 
 			/* Process the right click event so the correct item is
 			 * selected. */
-			widget_inventory_event(widget, event);
+			widget->event_func(widget, event);
 		}
 		else
 		{
 			add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
 
-			if (widget->WidgetSubtypeID == MAIN_INV_ID)
+			if (widget->sub_type == MAIN_INV_ID)
 			{
 				add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
 			}
-			else if (widget->WidgetSubtypeID == CHATWIN_ID)
+			else if (widget->sub_type == CHATWIN_ID)
 			{
 				add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
 				add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
@@ -1199,62 +1014,14 @@ int widget_event_mousedn(int x, int y, SDL_Event *event)
 		/* Special case for menuitems, if menuitem or a widget inside is clicked on, calls the function tied to the menuitem. */
 		widget_menu_event(widget, event);
 
-		/* Place here all the mousedown handlers. */
-		switch (widget->WidgetTypeID)
+		if (widget->event_func)
 		{
-			case MENU_B_ID:
-				widget_menubuttons_event(widget, event);
-				break;
-
-			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, event);
-				break;
-
-			case CHATWIN_ID:
-				textwin_event(widget, event);
-				break;
-
-			case RANGE_ID:
-				widget_range_event(widget, x, y, *event, MOUSE_DOWN);
-				break;
-
-			case MAIN_INV_ID:
-			case BELOW_INV_ID:
-				widget_inventory_event(widget, event);
-				break;
-
-			case PLAYER_INFO_ID:
-				widget_player_data_event(widget, x, y);
-				break;
-
-			case MPLAYER_ID:
-				widget_mplayer_mevent(widget, event);
-				break;
-
-			case SPELLS_ID:
-				widget_spells_mevent(widget, event);
-				break;
-
-			case MAP_ID:
-				widget_map_mevent(widget, event);
-				break;
-
-			case SKILLS_ID:
-				widget_skills_mevent(widget, event);
-				break;
-
-			case PARTY_ID:
-				widget_party_mevent(widget, event);
-				break;
-
-			case NOTIFICATION_ID:
-				widget_notification_event(widget, event);
-				break;
+			widget->event_func(widget, event);
 		}
 	}
 
 	/* User didn't click on a menu, so remove any menus that exist. */
-	if (widget->WidgetSubtypeID != MENU_ID)
+	if (widget->sub_type != MENU_ID)
 	{
 		widgetdata *menu, *tmp;
 
@@ -1308,49 +1075,9 @@ int widget_event_mouseup(int x, int y, SDL_Event *event)
 			return 0;
 		}
 
-		/* Handler for the widgets go here */
-		switch (widget->WidgetTypeID)
+		if (widget->event_func)
 		{
-			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, event);
-				break;
-
-			case CHATWIN_ID:
-				textwin_event(widget, event);
-				break;
-
-			case RANGE_ID:
-				widget_range_event(widget, x, y, *event, MOUSE_UP);
-				break;
-
-			case MAIN_INV_ID:
-			case BELOW_INV_ID:
-				widget_inventory_event(widget, event);
-				break;
-
-			case MPLAYER_ID:
-				widget_mplayer_mevent(widget, event);
-				break;
-
-			case SPELLS_ID:
-				widget_spells_mevent(widget, event);
-				break;
-
-			case MENU_B_ID:
-				widget_menubuttons_event(widget, event);
-				break;
-
-			case MAP_ID:
-				widget_map_mevent(widget, event);
-				break;
-
-			case SKILLS_ID:
-				widget_skills_mevent(widget, event);
-				break;
-
-			case PARTY_ID:
-				widget_party_mevent(widget, event);
-				break;
+			widget->event_func(widget, event);
 		}
 
 		return 1;
@@ -1402,86 +1129,86 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 					continue;
 				}
 
-				if (y + widget->ht > tmp->y1 && y < tmp->y1 + tmp->ht)
+				if (y + widget->h > tmp->y && y < tmp->y + tmp->h)
 				{
 					/* Your left border <-> other right border */
-					delta = abs(tmp->x1 + tmp->wd - x);
+					delta = abs(tmp->x + tmp->w - x);
 
 					if (delta <= hsnap)
 					{
-						nx = tmp->x1 + tmp->wd;
+						nx = tmp->x + tmp->w;
 						hsnap = delta;
 					}
 
 					/* Your right border <-> other left border */
-					delta = abs(tmp->x1 - x - widget->wd);
+					delta = abs(tmp->x - x - widget->w);
 
 					if (delta <= hsnap)
 					{
-						nx = tmp->x1 - widget->wd;
+						nx = tmp->x - widget->w;
 						hsnap = delta;
 					}
 				}
 
-				if (widget->y1 + widget->ht >= tmp->y1 && widget->y1 <= tmp->y1 + tmp->ht)
+				if (widget->y + widget->h >= tmp->y && widget->y <= tmp->y + tmp->h)
 				{
 					/* Your left border <-> other left border */
-					delta = abs(tmp->x1 - x);
+					delta = abs(tmp->x - x);
 
 					if (delta <= hsnap)
 					{
-						nx = tmp->x1;
+						nx = tmp->x;
 						hsnap = delta;
 					}
 
 					/* Your right border <-> other right border */
-					delta = abs(tmp->x1 + tmp->wd - x - widget->wd);
+					delta = abs(tmp->x + tmp->w - x - widget->w);
 
 					if (delta <= hsnap)
 					{
-						nx = tmp->x1 + tmp->wd - widget->wd;
+						nx = tmp->x + tmp->w - widget->w;
 						hsnap = delta;
 					}
 				}
 
-				if (x + widget->wd > tmp->x1 && x < tmp->x1 + tmp->wd)
+				if (x + widget->w > tmp->x && x < tmp->x + tmp->w)
 				{
 					/* Your top border <-> other bottom border */
-					delta = abs(tmp->y1 + tmp->ht - y);
+					delta = abs(tmp->y + tmp->h - y);
 
 					if (delta <= vsnap)
 					{
-						ny = tmp->y1 + tmp->ht;
+						ny = tmp->y + tmp->h;
 						vsnap = delta;
 					}
 
 					/* Your bottom border <-> other top border */
-					delta = abs(tmp->y1 - y - widget->ht);
+					delta = abs(tmp->y - y - widget->h);
 
 					if (delta <= vsnap)
 					{
-						ny = tmp->y1 - widget->ht;
+						ny = tmp->y - widget->h;
 						vsnap = delta;
 					}
 				}
 
-				if (widget->x1 + widget->wd >= tmp->x1 && widget->x1 <= tmp->x1 + tmp->wd)
+				if (widget->x + widget->w >= tmp->x && widget->x <= tmp->x + tmp->w)
 				{
 					/* Your top border <-> other top border */
-					delta = abs(tmp->y1 - y);
+					delta = abs(tmp->y - y);
 
 					if (delta <= vsnap)
 					{
-						ny = tmp->y1;
+						ny = tmp->y;
 						vsnap = delta;
 					}
 
 					/* Your bottom border <-> other bottom border */
-					delta = abs(tmp->y1 + tmp->ht - y - widget->ht);
+					delta = abs(tmp->y + tmp->h - y - widget->h);
 
 					if (delta <= vsnap)
 					{
-						ny = tmp->y1 + tmp->ht - widget->ht;
+						ny = tmp->y + tmp->h - widget->h;
 						vsnap = delta;
 					}
 				}
@@ -1490,7 +1217,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 		/* we move the widget here, as well as all the widgets inside it if they exist */
 		/* we use the recursive version since we already have the outermost container */
-		move_widget_rec(widget, nx - widget->x1, ny - widget->y1);
+		move_widget_rec(widget, nx - widget->x, ny - widget->y);
 
 		/* Ensure widget is on-screen. */
 		if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
@@ -1513,12 +1240,12 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 
 		if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
 		{
-			resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x1 - x + widget->wd : x - widget->x1));
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x - x + widget->w : x - widget->x));
 		}
 
 		if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
 		{
-			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y1 - y + widget->ht : y - widget->y1));
+			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y - y + widget->h : y - widget->y));
 		}
 
 		return 1;
@@ -1545,66 +1272,28 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 			widget->resizeable = 1;
 			widget->resize_flags = 0;
 
-			if (y >= widget->y1 && y <= widget->y1 + 2)
+			if (y >= widget->y && y <= widget->y + 2)
 			{
 				widget->resize_flags |= RESIZE_TOP;
 			}
-			else if (y >= widget->y1 + widget->ht - 2 && y <= widget->y1 + widget->ht)
+			else if (y >= widget->y + widget->h - 2 && y <= widget->y + widget->h)
 			{
 				widget->resize_flags |= RESIZE_BOTTOM;
 			}
 
-			if (x >= widget->x1 && x <= widget->x1 + 2)
+			if (x >= widget->x && x <= widget->x + 2)
 			{
 				widget->resize_flags |= RESIZE_LEFT;
 			}
-			else if (x >= widget->x1 + widget->wd - 2 && x <= widget->x1 + widget->wd)
+			else if (x >= widget->x + widget->w - 2 && x <= widget->x + widget->w)
 			{
 				widget->resize_flags |= RESIZE_RIGHT;
 			}
 		}
 
-		/* Handlers for miscellaneous mouse movements go here */
-
-		/* Handlers for the widgets mouse move */
-		switch (widget->WidgetTypeID)
+		if (widget->event_func)
 		{
-			case CHATWIN_ID:
-				textwin_event(widget, event);
-				break;
-
-			case MAIN_INV_ID:
-			case BELOW_INV_ID:
-				widget_inventory_event(widget, event);
-				break;
-
-			case MPLAYER_ID:
-				widget_mplayer_mevent(widget, event);
-				break;
-
-			case SPELLS_ID:
-				widget_spells_mevent(widget, event);
-				break;
-
-			case MENU_B_ID:
-				widget_menubuttons_event(widget, event);
-				break;
-
-			case MAP_ID:
-				widget_map_mevent(widget, event);
-				break;
-
-			case SKILLS_ID:
-				widget_skills_mevent(widget, event);
-				break;
-
-			case PARTY_ID:
-				widget_party_mevent(widget, event);
-				break;
-
-			case QUICKSLOT_ID:
-				widget_quickslots_mouse_event(widget, event);
-				break;
+			widget->event_func(widget, event);
 		}
 
 		return 1;
@@ -1628,8 +1317,8 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 
 	/* start the movement procedures */
 	widget_event_move.owner = widget;
-	widget_event_move.xOffset = x - widget->x1;
-	widget_event_move.yOffset = y - widget->y1;
+	widget_event_move.xOffset = x - widget->x;
+	widget_event_move.yOffset = y - widget->y;
 
 	/* enable the custom cursor */
 	f_custom_cursor = MSCURSOR_MOVE;
@@ -1697,11 +1386,7 @@ int widget_event_move_stop(int x, int y)
 /** Updates the widget mouse event struct in order to respond to an event. */
 int widget_event_respond(int x, int y)
 {
-	/* only update the owner if there is no event override taking place */
-	if (!widget_event_override())
-	{
-		widget_mouse_event.owner = get_widget_owner(x, y, NULL, NULL);
-	}
+	widget_mouse_event.owner = get_widget_owner(x, y, NULL, NULL);
 
 	/* sanity check.. return if mouse is not in a widget */
 	if (!widget_mouse_event.owner)
@@ -1714,12 +1399,6 @@ int widget_event_respond(int x, int y)
 	widget_mouse_event.y = y;
 
 	return 1;
-}
-
-/** Priority override function, we have to have that here for resizing... */
-int widget_event_override(void)
-{
-	return 0;
 }
 
 /** Find the widget with mouse focus on a mouse-hit-test basis. */
@@ -1750,7 +1429,7 @@ widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end)
 	/* ok, let's kick off the recursion. if we find our widget, we get a widget back. if not, we get a big fat NULL */
 	success = get_widget_owner_rec(x, y, start, end);
 
-	/*logger_print(LOG(DEBUG), "WIDGET OWNER: %s, WidgetObjID: %d", success? success->name: "NULL", success? success->WidgetObjID: -1);*/
+	/*logger_print(LOG(DEBUG), "WIDGET OWNER: %s", success? success->name: "NULL");*/
 
 	return success;
 }
@@ -1781,10 +1460,10 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 			continue;
 		}
 
-		switch (widget->WidgetTypeID)
+		switch (widget->type)
 		{
 			default:
-				if (x >= widget->x1 && x <= (widget->x1 + widget->wd) && y >= widget->y1 && y <= (widget->y1 + widget->ht))
+				if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h))
 				{
 					return widget;
 				}
@@ -1796,134 +1475,6 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 	while (widget || widget != end);
 
 	return NULL;
-}
-
-/**
- * Function list for each widget. Calls the widget with the process type.
- * @param nID The widget ID. */
-static void process_widget(widgetdata *widget)
-{
-	switch (widget->WidgetTypeID)
-	{
-		case STATS_ID:
-			widget_player_stats(widget);
-			break;
-
-		case RESIST_ID:
-			widget_show_resist(widget);
-			break;
-
-		case MAIN_LVL_ID:
-			widget_show_main_lvl(widget);
-			break;
-
-		case SKILL_EXP_ID:
-			widget_show_skill_exp(widget);
-			break;
-
-		case REGEN_ID:
-			widget_show_regeneration(widget);
-			break;
-
-		case SKILL_LVL_ID:
-			widget_skillgroups(widget);
-			break;
-
-		case MENU_B_ID:
-			widget_menubuttons(widget);
-			break;
-
-		case QUICKSLOT_ID:
-			widget_quickslots(widget);
-			break;
-
-		case CHATWIN_ID:
-			widget_textwin_show(widget);
-			break;
-
-		case PDOLL_ID:
-			widget_show_player_doll(widget);
-			break;
-
-		case PLAYER_INFO_ID:
-			widget_show_player_data(widget);
-			break;
-
-		case RANGE_ID:
-			widget_show_range(widget);
-			break;
-
-		case MAIN_INV_ID:
-		case BELOW_INV_ID:
-			widget_inventory_render(widget);
-			break;
-
-		case MAPNAME_ID:
-			widget_show_mapname(widget);
-			break;
-
-		case IN_CONSOLE_ID:
-			widget_show_console(widget);
-			break;
-
-		case IN_NUMBER_ID:
-			widget_show_number(widget);
-			break;
-
-		case FPS_ID:
-			widget_show_fps(widget);
-			break;
-
-		case CONTAINER_ID:
-			widget_show_container(widget);
-			break;
-
-		case LABEL_ID:
-			widget_show_label(widget);
-			break;
-
-		case TEXTURE_ID:
-			widget_show_texture(widget);
-			break;
-
-		case MPLAYER_ID:
-			widget_show_mplayer(widget);
-			break;
-
-		case SPELLS_ID:
-			widget_spells_render(widget);
-			break;
-
-		case SKILLS_ID:
-			widget_skills_render(widget);
-			break;
-
-		case PARTY_ID:
-			widget_party_render(widget);
-			break;
-
-		case NOTIFICATION_ID:
-			widget_notification_render(widget);
-			break;
-	}
-}
-
-/**
- * Process background tasks of a widget; called even if the widget is
- * not currently visible.
- * @param widget The widget. */
-static void process_widget_background(widgetdata *widget)
-{
-	switch (widget->WidgetTypeID)
-	{
-		case MPLAYER_ID:
-			widget_mplayer_background(widget);
-			break;
-
-		case PARTY_ID:
-			widget_party_background(widget);
-			break;
-	}
 }
 
 /**
@@ -1948,12 +1499,14 @@ void process_widgets_rec(widgetdata *widget)
 {
 	do
 	{
-		process_widget_background(widget);
-
-		/* if widget isn't hidden, process it. this is mostly to do with rendering them */
-		if (widget->show)
+		if (widget->background_func)
 		{
-			process_widget(widget);
+			widget->background_func(widget);
+		}
+
+		if (widget->show && widget->draw_func)
+		{
+			widget->draw_func(widget);
 		}
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
@@ -1976,7 +1529,7 @@ void process_widgets_rec(widgetdata *widget)
 void SetPriorityWidget(widgetdata *node)
 {
 #ifdef DEBUG_WIDGET
-	logger_print(LOG(DEBUG), "Entering SetPriorityWidget(WidgetObjID=%d)..", node->WidgetObjID);
+	logger_print(LOG(DEBUG), "Entering SetPriorityWidget..");
 #endif
 
 	/* widget doesn't exist, means parent node has no children, so nothing to do here */
@@ -1988,7 +1541,7 @@ void SetPriorityWidget(widgetdata *node)
 		return;
 	}
 
-	if (node->WidgetTypeID == MAP_ID)
+	if (node->type == MAP_ID)
 	{
 		return;
 	}
@@ -2008,7 +1561,7 @@ void SetPriorityWidget(widgetdata *node)
 
 		/* Strip containers are sorted in a fixed order, and no part of any widget inside should be covered by a sibling.
 		 * This means we don't need to bother moving the node to the front inside the container. */
-		switch (node->env->WidgetSubtypeID)
+		switch (node->env->sub_type)
 		{
 			case CONTAINER_STRIP_ID:
 			case MENU_ID:
@@ -2156,7 +1709,7 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 	}
 
 	/* if the widget isn't a container, get out of here */
-	if (widget_container->WidgetTypeID != CONTAINER_ID)
+	if (widget_container->type != CONTAINER_ID)
 	{
 		return;
 	}
@@ -2165,7 +1718,7 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 	container = CONTAINER(widget_container);
 
 	/* check to see if the widget is compatible with it */
-	if (container->widget_type != -1 && container->widget_type != widget->WidgetTypeID)
+	if (container->widget_type != -1 && container->widget_type != widget->type)
 	{
 		return;
 	}
@@ -2175,7 +1728,7 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 	/* snap the widget into the widget container if it is a strip container */
 	if (widget_container->inv)
 	{
-		switch (widget_container->WidgetSubtypeID)
+		switch (widget_container->sub_type)
 		{
 			case CONTAINER_STRIP_ID:
 			case MENU_ID:
@@ -2185,12 +1738,12 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 				/* container is horizontal, insert the widget to the right of the first widget in its inventory */
 				if (container_strip->horizontal)
 				{
-					move_widget_rec(widget, widget_container->inv->x1 + widget_container->inv->wd + container_strip->inner_padding - widget->x1, widget_container->y1 + container->outer_padding_top - widget->y1);
+					move_widget_rec(widget, widget_container->inv->x + widget_container->inv->w + container_strip->inner_padding - widget->x, widget_container->y + container->outer_padding_top - widget->y);
 				}
 				/* otherwise the container is vertical, so insert the widget below the first child widget */
 				else
 				{
-					move_widget_rec(widget, widget_container->x1 + container->outer_padding_left - widget->x1, widget_container->inv->y1 + widget_container->inv->ht + container_strip->inner_padding - widget->y1);
+					move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->inv->y + widget_container->inv->h + container_strip->inner_padding - widget->y);
 				}
 
 				break;
@@ -2199,7 +1752,7 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 	/* no widgets inside it yet, so snap it to the bounds of the container */
 	else
 	{
-		move_widget(widget, widget_container->x1 + container->outer_padding_left - widget->x1, widget_container->y1 + container->outer_padding_top - widget->y1);
+		move_widget(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->y + container->outer_padding_top - widget->y);
 	}
 
 	/* link up the adjacent nodes, there *should* be at least two nodes next to each other here so no sanity checks should be required */
@@ -2252,8 +1805,8 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 
 	/* resize the container to fit the new widget. a little dirty trick here,
 	 * we just resize the widget inside by nothing and it will trigger the auto-resize */
-	resize_widget(widget, RESIZE_RIGHT, widget->wd);
-	resize_widget(widget, RESIZE_BOTTOM, widget->ht);
+	resize_widget(widget, RESIZE_RIGHT, widget->w);
+	resize_widget(widget, RESIZE_BOTTOM, widget->h);
 }
 
 /** Get the outermost container the widget is inside. */
@@ -2288,7 +1841,7 @@ widgetdata *widget_find_by_surface(SDL_Surface *surface)
 
 	for (tmp = widget_list_head; tmp; tmp = tmp->next)
 	{
-		if (tmp->widgetSF == surface)
+		if (tmp->surface == surface)
 		{
 			return tmp;
 		}
@@ -2307,7 +1860,7 @@ widgetdata *widget_find_copy_from(void)
 
 	for (tmp = widget_list_head; tmp; tmp = tmp->next)
 	{
-		if (tmp->WidgetTypeID == CHATWIN_ID)
+		if (tmp->type == CHATWIN_ID)
 		{
 			return tmp;
 		}
@@ -2340,8 +1893,8 @@ void move_widget_rec(widgetdata *widget, int x, int y)
 	}
 
 	/* move the widget */
-	widget->x1 += x;
-	widget->y1 += y;
+	widget->x += x;
+	widget->y += y;
 
 	/* here, we want to walk through the inventory of the widget, if it exists.
 	 * when we come across a widget, we move it like we did with the container.
@@ -2354,14 +1907,14 @@ void move_widget_rec(widgetdata *widget, int x, int y)
 
 void resize_widget(widgetdata *widget, int side, int offset)
 {
-	int x = widget->x1;
-	int y = widget->y1;
-	int width = widget->wd;
-	int height = widget->ht;
+	int x = widget->x;
+	int y = widget->y;
+	int width = widget->w;
+	int height = widget->h;
 
 	if (side & RESIZE_LEFT)
 	{
-		x = widget->x1 + widget->wd - offset;
+		x = widget->x + widget->w - offset;
 		width = offset;
 	}
 	else if (side & RESIZE_RIGHT)
@@ -2371,7 +1924,7 @@ void resize_widget(widgetdata *widget, int side, int offset)
 
 	if (side & RESIZE_TOP)
 	{
-		y = widget->y1 + widget->ht - offset;
+		y = widget->y + widget->h - offset;
 		height = offset;
 	}
 	else if (side & RESIZE_BOTTOM)
@@ -2389,10 +1942,10 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 	_widget_container *container = NULL;
 
 	/* move the widget. this is the easy bit, watch as your eyes bleed when you see the next thing we have to do */
-	widget->x1 = x;
-	widget->y1 = y;
-	widget->wd = width;
-	widget->ht = height;
+	widget->x = x;
+	widget->y = y;
+	widget->w = width;
+	widget->h = height;
 
 	WIDGET_REDRAW(widget);
 
@@ -2414,7 +1967,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 		container = CONTAINER(widget_container);
 
 		/* special case for strip containers */
-		switch (widget_container->WidgetSubtypeID)
+		switch (widget_container->sub_type)
 		{
 			case CONTAINER_STRIP_ID:
 			case MENU_ID:
@@ -2425,46 +1978,46 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 				if (container_strip->horizontal)
 				{
 					/* now move everything we come across */
-					move_widget_rec(widget, 0, widget_container->y1 + container->outer_padding_top - widget->y1);
+					move_widget_rec(widget, 0, widget_container->y + container->outer_padding_top - widget->y);
 
 					/* every node before the widget we push right */
 					for (tmp = widget->prev; tmp; tmp = tmp->prev)
 					{
-						move_widget_rec(tmp, tmp->next->x1 + tmp->next->wd - tmp->x1 + container_strip->inner_padding, widget_container->y1 + container->outer_padding_top - tmp->y1);
+						move_widget_rec(tmp, tmp->next->x + tmp->next->w - tmp->x + container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
 					}
 
 					/* while every node after the widget we push left */
 					for (tmp = widget->next; tmp; tmp = tmp->next)
 					{
-						move_widget_rec(tmp, tmp->prev->x1 - tmp->x1 - tmp->wd - container_strip->inner_padding, widget_container->y1 + container->outer_padding_top - tmp->y1);
+						move_widget_rec(tmp, tmp->prev->x - tmp->x - tmp->w - container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
 					}
 
 					/* we have to set this, otherwise stupid things happen */
-					x = widget_container->inv_rev->x1;
+					x = widget_container->inv_rev->x;
 					/* we don't want the container moving up or down in this case */
-					y = widget_container->y1 + container->outer_padding_top;
+					y = widget_container->y + container->outer_padding_top;
 				}
 				else
 				{
 					/* now move everything we come across */
-					move_widget_rec(widget, widget_container->x1 + container->outer_padding_left - widget->x1, 0);
+					move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, 0);
 
 					/* every node before the widget we push downwards */
 					for (tmp = widget->prev; tmp; tmp = tmp->prev)
 					{
-						move_widget_rec(tmp, widget_container->x1 + container->outer_padding_left - tmp->x1, tmp->next->y1 + tmp->next->ht - tmp->y1 + container_strip->inner_padding);
+						move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->next->y + tmp->next->h - tmp->y + container_strip->inner_padding);
 					}
 
 					/* while every node after the widget we push upwards */
 					for (tmp = widget->next; tmp; tmp = tmp->next)
 					{
-						move_widget_rec(tmp, widget_container->x1 + container->outer_padding_left - tmp->x1, tmp->prev->y1 - tmp->y1 - tmp->ht - container_strip->inner_padding);
+						move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->prev->y - tmp->y - tmp->h - container_strip->inner_padding);
 					}
 
 					/* we don't want the container moving sideways in this case */
-					x = widget_container->x1 + container->outer_padding_left;
+					x = widget_container->x + container->outer_padding_left;
 					/* we have to set this, otherwise stupid things happen */
-					y = widget_container->inv_rev->y1;
+					y = widget_container->inv_rev->y;
 				}
 				break;
 		}
@@ -2475,32 +2028,32 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 		for (tmp = widget_container->inv; tmp; tmp = tmp->next)
 		{
 			/* widget's left x co-ordinate becomes greater than tmp's left x coordinate */
-			if (cmp1->x1 > tmp->x1)
+			if (cmp1->x > tmp->x)
 			{
-				x = tmp->x1;
-				width += cmp1->x1 - tmp->x1;
+				x = tmp->x;
+				width += cmp1->x - tmp->x;
 				cmp1 = tmp;
 			}
 
 			/* widget's top y co-ordinate becomes greater than tmp's top y coordinate */
-			if (cmp2->y1 > tmp->y1)
+			if (cmp2->y > tmp->y)
 			{
-				y = tmp->y1;
-				height += cmp2->y1 - tmp->y1;
+				y = tmp->y;
+				height += cmp2->y - tmp->y;
 				cmp2 = tmp;
 			}
 
 			/* widget's right x co-ordinate becomes less than tmp's right x coordinate */
-			if (cmp3->x1 + cmp3->wd < tmp->x1 + tmp->wd)
+			if (cmp3->x + cmp3->w < tmp->x + tmp->w)
 			{
-				width += tmp->x1 + tmp->wd - cmp3->x1 - cmp3->wd;
+				width += tmp->x + tmp->w - cmp3->x - cmp3->w;
 				cmp3 = tmp;
 			}
 
 			/* widget's bottom y co-ordinate becomes less than tmp's bottom y coordinate */
-			if (cmp4->y1 + cmp4->ht < tmp->y1 + tmp->ht)
+			if (cmp4->y + cmp4->h < tmp->y + tmp->h)
 			{
-				height += tmp->y1 + tmp->ht - cmp4->y1 - cmp4->ht;
+				height += tmp->y + tmp->h - cmp4->y - cmp4->h;
 				cmp4 = tmp;
 			}
 		}
@@ -2511,7 +2064,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 		height += container->outer_padding_top + container->outer_padding_bottom;
 
 		/* after all that, we now check to see if the parent needs to be resized before we waste even more resources going recursive */
-		if (x != widget_container->x1 || y != widget_container->y1 || width != widget_container->wd || height != widget_container->ht)
+		if (x != widget_container->x || y != widget_container->y || width != widget_container->w || height != widget_container->h)
 		{
 			resize_widget_rec(widget_container, x, width, y, height);
 		}
@@ -2563,8 +2116,8 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	_widget_container_strip *container_strip_menu = CONTAINER_STRIP(widget_menu);
 
 	/* Place the menu at these co-ordinates. */
-	widget_menu->x1 = x;
-	widget_menu->y1 = y;
+	widget_menu->x = x;
+	widget_menu->y = y;
 	widget_menu->no_save = 1;
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
@@ -2616,7 +2169,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 	menuitem->menu_type = menu_type;
 
 	/* Sanity check. Menuitems should always exist inside a menu. */
-	if (widget_menuitem->env && widget_menuitem->env->WidgetSubtypeID == MENU_ID)
+	if (widget_menuitem->env && widget_menuitem->env->sub_type == MENU_ID)
 	{
 		container_menu = CONTAINER(widget_menuitem->env);
 
@@ -2629,11 +2182,11 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 
 				if (menu_type == MENU_CHECKBOX)
 				{
-					resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - tmp->inv_rev->wd - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+					resize_widget(tmp->inv, RESIZE_RIGHT, menu->w - tmp->inv_rev->w - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
 				}
 				else
 				{
-					resize_widget(tmp->inv, RESIZE_RIGHT, menu->wd - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
+					resize_widget(tmp->inv, RESIZE_RIGHT, menu->w - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
 				}
 			}
 		}
@@ -2657,31 +2210,31 @@ void menu_finalize(widgetdata *widget)
 	int xoff = 0, yoff = 0;
 
 	/* Would the menu go over the maximum screen width? */
-	if (widget->x1 + widget->wd > ScreenSurface->w)
+	if (widget->x + widget->w > ScreenSurface->w)
 	{
 		/* Will appear to the left of the cursor instead of right of it. */
-		xoff = -widget->wd;
+		xoff = -widget->w;
 
 		/* Take submenus into account, and shift them depending on the
 		 * parent menu's width. */
-		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		if (widget->type_prev && widget->type_prev->sub_type == MENU_ID)
 		{
-			xoff += -widget->type_prev->wd + 4;
+			xoff += -widget->type_prev->w + 4;
 		}
 	}
 
 	/* Similar checks for screen height. */
-	if (widget->y1 + widget->ht > ScreenSurface->h)
+	if (widget->y + widget->h > ScreenSurface->h)
 	{
 		/* Submenu, shift it up, so all of it can appear. */
-		if (widget->type_prev && widget->type_prev->WidgetSubtypeID == MENU_ID)
+		if (widget->type_prev && widget->type_prev->sub_type == MENU_ID)
 		{
-			yoff = ScreenSurface->h - widget->ht - widget->y1 - 1;
+			yoff = ScreenSurface->h - widget->h - widget->y - 1;
 		}
 		/* Will appear above the cursor. */
 		else
 		{
-			yoff = -widget->ht;
+			yoff = -widget->h;
 		}
 	}
 
@@ -2691,9 +2244,9 @@ void menu_finalize(widgetdata *widget)
 /** Redraws all widgets of a particular type. */
 void widget_redraw_all(int widget_type_id)
 {
-	widgetdata *widget = cur_widget[widget_type_id];
+	widgetdata *widget;
 
-	for (; widget; widget = widget->type_next)
+	for (widget = cur_widget[widget_type_id]; widget; widget = widget->type_next)
 	{
 		widget->redraw = 1;
 	}
@@ -2706,7 +2259,7 @@ void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event
 
 void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	create_widget_object(widget->WidgetSubtypeID);
+	create_widget_object(widget->sub_type);
 }
 
 void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)

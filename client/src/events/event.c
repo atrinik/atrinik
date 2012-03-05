@@ -224,11 +224,7 @@ int Event_PollInputDevice(void)
 
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
-				if (widget_input_handle_key(cur_widget[IN_NUMBER_ID], &event))
-				{
-					break;
-				}
-				else if (widget_input_handle_key(cur_widget[IN_CONSOLE_ID], &event))
+				if (widget_input_handle_key(cur_widget[INPUT_ID], &event))
 				{
 					break;
 				}

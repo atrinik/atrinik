@@ -24,81 +24,60 @@
 
 /**
  * @file
- * Implements the protections table widget.
+ * Implements FPS type widgets.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /**
- * Show the protection table widget.
- * @param widget The widget. */
-void widget_show_resist(widgetdata *widget)
+ * FPS widget data. */
+typedef struct widget_fps_struct
 {
-	SDL_Rect box;
-	size_t i;
-	int x = 5, y = 2, mx, my;
+	/**
+	 * Last time the FPS was calculated. */
+	uint32 lasttime;
 
-	if (!widget->widgetSF)
+	/**
+	 * Current FPS. */
+	uint32 current;
+
+	/**
+	 * Number of frames drawn since last calculation. */
+	uint32 frames;
+} widget_fps_struct;
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	widget_fps_struct *tmp;
+	char buf[MAX_BUF];
+
+	tmp = (widget_fps_struct *) widget->subwidget;
+	tmp->frames++;
+
+	if (tmp->lasttime < SDL_GetTicks() - 1000)
 	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("resist_bg");
-		widget->widgetSF = SDL_ConvertSurface(texture, texture->format, texture->flags);
+		tmp->lasttime = SDL_GetTicks();
+		tmp->current = tmp->frames;
+		tmp->frames = 0;
 	}
 
-	if (widget->redraw)
-	{
-		surface_show(widget->widgetSF, 0, 0, NULL, TEXTURE_CLIENT("resist_bg"));
-		string_show(widget->widgetSF, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-	}
+	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("fps"));
 
-	SDL_GetMouseState(&mx, &my);
+	snprintf(buf, sizeof(buf), "%d", tmp->current);
+	string_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x + 5, widget->y + 4, COLOR_WHITE, 0, NULL);
+	string_show(ScreenSurface, FONT_ARIAL11, buf, widget->x + widget->w - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y + 4, COLOR_WHITE, 0, NULL);
+}
 
-	for (i = 0; i < sizeof(cpl.stats.protection) / sizeof(*cpl.stats.protection); i++)
-	{
-		if (!(i % 5))
-		{
-			y += 15;
-			x = 5;
-		}
+/**
+ * Initialize one FPS widget. */
+void widget_fps_init(widgetdata *widget)
+{
+	widget_fps_struct *tmp;
 
-		if (widget->redraw)
-		{
-			const char *color;
+	widget->draw_func = widget_draw;
 
-			/* Figure out color for the protection value. */
-			if (!cpl.stats.protection[i])
-			{
-				color = COLOR_GRAY;
-			}
-			else if (cpl.stats.protection[i] < 0)
-			{
-				color = COLOR_RED;
-			}
-			else if (cpl.stats.protection[i] >= 100)
-			{
-				color = COLOR_ORANGE;
-			}
-			else
-			{
-				color = COLOR_WHITE;
-			}
-
-			string_show_format(widget->widgetSF, FONT_MONO9, x, y + 1, color, TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
-		}
-
-		/* Show a tooltip with the protection's full name. */
-		if (mx >= widget->x1 + x && mx < widget->x1 + x + 38 && my >= widget->y1 + y && my < widget->y1 + y + 15)
-		{
-			tooltip_create(mx, my, FONT_ARIAL10, s_settings->protection_full[i]);
-		}
-
-		x += 38;
-	}
-
-	widget->redraw = 0;
-	box.x = widget->x1;
-	box.y = widget->y1;
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &box);
+	widget->subwidget = tmp = calloc(1, sizeof(*tmp));
+	tmp->lasttime = SDL_GetTicks();
 }

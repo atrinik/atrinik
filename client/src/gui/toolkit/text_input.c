@@ -137,6 +137,11 @@ void text_input_show_edit_password(text_input_struct *text_input)
 	string_replace_char(text_input->str, NULL, '*');
 }
 
+int text_input_number_character_check(text_input_struct *text_input, char c)
+{
+	return isdigit(c);
+}
+
 void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y)
 {
 	text_info_struct info;

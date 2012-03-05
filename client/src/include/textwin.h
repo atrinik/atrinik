@@ -88,9 +88,9 @@ typedef struct textwin_struct
 /** Text starting Y position. */
 #define TEXTWIN_TEXT_STARTY(_widget) (1)
 /** Maximum width of the text in the widget. */
-#define TEXTWIN_TEXT_WIDTH(_widget) ((_widget)->wd - scrollbar_get_width(&TEXTWIN((_widget))->scrollbar) - (TEXTWIN_TEXT_STARTX((_widget)) * 2))
+#define TEXTWIN_TEXT_WIDTH(_widget) ((_widget)->w - scrollbar_get_width(&TEXTWIN((_widget))->scrollbar) - (TEXTWIN_TEXT_STARTX((_widget)) * 2))
 /** Maximum height of the text in the widget. */
-#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->ht - (TEXTWIN_TEXT_STARTY((_widget)) * 2) - textwin_tabs_height((_widget)))
+#define TEXTWIN_TEXT_HEIGHT(_widget) ((_widget)->h - (TEXTWIN_TEXT_STARTY((_widget)) * 2) - textwin_tabs_height((_widget)))
 /*@}*/
 
 /** Get the maximum number of visible rows. */

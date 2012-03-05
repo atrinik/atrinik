@@ -24,34 +24,40 @@
 
 /**
  * @file
- * Event related header file. */
+ * Implements texture type widgets.
+ *
+ * @author Alex Tokar
+ * @author Daniel Liptrot */
 
-#ifndef EVENT_H
-#define EVENT_H
+#include <global.h>
 
-enum
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
 {
-	DRAG_GET_STATUS = -1,
-	DRAG_NONE,
-	DRAG_QUICKSLOT,
-	DRAG_QUICKSLOT_SPELL
-};
+	_widget_texture *texture;
+
+	texture = (_widget_texture *) widget->subwidget;
+
+	if (texture->texture)
+	{
+		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_SURFACE(texture->texture));
+	}
+}
 
 /**
- * Key information. */
-typedef struct key_struct
+ * Initialize one texture widget. */
+void widget_texture_init(widgetdata *widget)
 {
-	/** If 1, the key is pressed. */
-	uint8 pressed;
+	_widget_texture *texture;
 
-	/** Last repeat time. */
-	uint32 time;
+	texture = calloc(1, sizeof(*texture));
 
-	/** Whether the key is being repeated. */
-	uint8 repeated;
-} key_struct;
+	if (!texture)
+	{
+		logger_print(LOG(ERROR), "OOM.");
+		exit(-1);
+	}
 
-#define EVENT_IS_MOUSE(_event) ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || (_event)->type == SDL_MOUSEMOTION)
-#define EVENT_IS_KEY(_event) ((_event)->type == SDL_KEYDOWN || (_event)->type == SDL_KEYUP)
-
-#endif
+	widget->draw_func = widget_draw;
+	widget->subwidget = texture;
+}

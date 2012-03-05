@@ -639,8 +639,16 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "CONSOLE"))
 		{
-			WIDGET_SHOW(cur_widget[IN_CONSOLE_ID]);
-			text_input_reset(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input);
+			widget_input_struct *input;
+
+			WIDGET_SHOW(cur_widget[INPUT_ID]);
+			input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
+			text_input_reset(&input->text_input);
+			snprintf(input->title_text, sizeof(input->title_text), "Send message to %s:", "[PUBLIC]");
+			strncpy(input->prepend_text, "/say ", sizeof(input->prepend_text) - 1);
+			input->prepend_text[sizeof(input->prepend_text) - 1] = '\0';
+			input->text_input.character_check_func = NULL;
+			text_input_set_history(&input->text_input, input->text_input_history);
 		}
 		else if (!strcmp(cmd, "APPLY"))
 		{
@@ -721,7 +729,7 @@ int keybind_process_command(const char *cmd)
 				cmd++;
 			}
 
-			text_input_set(&WIDGET_INPUT(cur_widget[IN_CONSOLE_ID])->text_input, cmd);
+			text_input_set(&WIDGET_INPUT(cur_widget[INPUT_ID])->text_input, cmd);
 		}
 		else if (!strcmp(cmd, "UP"))
 		{

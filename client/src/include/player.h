@@ -156,13 +156,7 @@ typedef struct Player_Struct
 	/** Target name. */
 	char target_name[MAX_BUF];
 
-	int loc;
-	int tag;
-	int nrof;
-
 	int warn_hp;
-
-	int	nummode;
 
 	/** Currently marked item. */
 	int mark_count;
@@ -196,8 +190,6 @@ typedef struct Player_Struct
 
 	/** Player's name. */
 	char name[40];
-
-	char num_text[300];
 
 	/** Rank and name of char. */
 	char ext_title[MAX_BUF];

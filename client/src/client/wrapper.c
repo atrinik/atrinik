@@ -51,7 +51,7 @@ void system_end(void)
 {
 	notification_destroy();
 	popup_destroy_all();
-	widget_deinit();
+	toolkit_widget_deinit();
 	curl_deinit();
 	socket_deinitialize();
 	effects_deinit();

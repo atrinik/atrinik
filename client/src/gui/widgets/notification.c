@@ -24,6 +24,42 @@
 
 /**
  * @file
+ * Implements notification type widgets.
+ *
+ * Similar to tooltips, but instead triggered by player actions. Such a
+ * notification can even define an action to execute when the notification
+ * is clicked, or if the notification has a keybinding shortcut assigned
+ * to it, when the shortcut key is pressed (thus overriding normal
+ * behavior of that particular shortcut).
+ *
+ * @author Alex Tokar */
+
+/************************************************************************
+*            Atrinik, a Multiplayer Online Role Playing Game            *
+*                                                                       *
+*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
+*                                                                       *
+* Fork from Crossfire (Multiplayer game for X-windows).                 *
+*                                                                       *
+* This program is free software; you can redistribute it and/or modify  *
+* it under the terms of the GNU General Public License as published by  *
+* the Free Software Foundation; either version 2 of the License, or     *
+* (at your option) any later version.                                   *
+*                                                                       *
+* This program is distributed in the hope that it will be useful,       *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+* GNU General Public License for more details.                          *
+*                                                                       *
+* You should have received a copy of the GNU General Public License     *
+* along with this program; if not, write to the Free Software           *
+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+*                                                                       *
+* The author can be reached at admin@atrinik.org                        *
+************************************************************************/
+
+/**
+ * @file
  * Implements notification widget. Similar to tooltips, but instead
  * triggered by player actions. Such a notification can even define an
  * action to execute when the notification is clicked, or if the
@@ -98,68 +134,6 @@ int notification_keybind_check(const char *cmd)
 	}
 
 	return 0;
-}
-
-/**
- * Render the notification widget.
- * @param widget The widget. */
-void widget_notification_render(widgetdata *widget)
-{
-	SDL_Rect dst;
-
-	/* Nothing to render... */
-	if (!notification)
-	{
-		return;
-	}
-
-	/* Update the widget's position to below map name. */
-	widget->x1 = cur_widget[MAPNAME_ID]->x1;
-	widget->y1 = cur_widget[MAPNAME_ID]->y1 + cur_widget[MAPNAME_ID]->ht;
-
-	/* Check whether we should do fade out. */
-	if (SDL_GetTicks() - notification->start_ticks > notification->delay - NOTIFICATION_DEFAULT_FADEOUT)
-	{
-		int fade;
-
-		/* Calculate how far into the fading animation we are. */
-		fade = SDL_GetTicks() - notification->start_ticks - (notification->delay - NOTIFICATION_DEFAULT_FADEOUT);
-
-		/* Completed the fading animation? */
-		if (fade > NOTIFICATION_DEFAULT_FADEOUT)
-		{
-			notification_destroy();
-			return;
-		}
-
-		/* Adjust the alpha value... */
-		notification->alpha = 255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double) NOTIFICATION_DEFAULT_FADEOUT);
-	}
-
-	dst.x = widget->x1;
-	dst.y = widget->y1;
-	SDL_SetAlpha(widget->widgetSF, SDL_SRCALPHA, notification->alpha);
-	SDL_BlitSurface(widget->widgetSF, NULL, ScreenSurface, &dst);
-
-	/* Do highlight. */
-	if (widget_mouse_event.owner == widget && notification->action)
-	{
-		filledRectAlpha(ScreenSurface, dst.x, dst.y, dst.x + widget->wd, dst.y + widget->ht, 0xffffff3c);
-	}
-}
-
-/**
- * Handle notification widget event.
- * @param widget The widget.
- * @param event The event to handle. */
-void widget_notification_event(widgetdata *widget, SDL_Event *event)
-{
-	(void) widget;
-
-	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
-	{
-		notification_action_do();
-	}
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -270,27 +244,93 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	resize_widget(cur_widget[NOTIFICATION_ID], RESIZE_RIGHT, box.w);
 	resize_widget(cur_widget[NOTIFICATION_ID], RESIZE_BOTTOM, box.h);
 
-	if (cur_widget[NOTIFICATION_ID]->widgetSF)
+	if (cur_widget[NOTIFICATION_ID]->surface)
 	{
-		SDL_FreeSurface(cur_widget[NOTIFICATION_ID]->widgetSF);
+		SDL_FreeSurface(cur_widget[NOTIFICATION_ID]->surface);
 	}
 
 	/* Create a new surface. */
-	cur_widget[NOTIFICATION_ID]->widgetSF = SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
+	cur_widget[NOTIFICATION_ID]->surface = SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
 
 	/* Fill the surface with the background color. */
 	if (text_color_parse("e6e796", &color))
 	{
-		SDL_FillRect(cur_widget[NOTIFICATION_ID]->widgetSF, &box, SDL_MapRGB(cur_widget[NOTIFICATION_ID]->widgetSF->format, color.r, color.g, color.b));
+		SDL_FillRect(cur_widget[NOTIFICATION_ID]->surface, &box, SDL_MapRGB(cur_widget[NOTIFICATION_ID]->surface->format, color.r, color.g, color.b));
 	}
 
 	/* Create a border. */
-	border_create_color(cur_widget[NOTIFICATION_ID]->widgetSF, &box, "606060");
+	border_create_color(cur_widget[NOTIFICATION_ID]->surface, &box, "606060");
 
 	/* Render the text. */
 	box.w = wd;
 	box.h = ht;
-	string_show(cur_widget[NOTIFICATION_ID]->widgetSF, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	string_show(cur_widget[NOTIFICATION_ID]->surface, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 	free(cp);
+}
+
+/** @copydoc widgetdata::draw_func */
+static void widget_draw(widgetdata *widget)
+{
+	SDL_Rect dst;
+
+	/* Nothing to render... */
+	if (!notification)
+	{
+		return;
+	}
+
+	/* Update the widget's position to below map name. */
+	widget->x = cur_widget[MAPNAME_ID]->x;
+	widget->y = cur_widget[MAPNAME_ID]->y + cur_widget[MAPNAME_ID]->h;
+
+	/* Check whether we should do fade out. */
+	if (SDL_GetTicks() - notification->start_ticks > notification->delay - NOTIFICATION_DEFAULT_FADEOUT)
+	{
+		int fade;
+
+		/* Calculate how far into the fading animation we are. */
+		fade = SDL_GetTicks() - notification->start_ticks - (notification->delay - NOTIFICATION_DEFAULT_FADEOUT);
+
+		/* Completed the fading animation? */
+		if (fade > NOTIFICATION_DEFAULT_FADEOUT)
+		{
+			notification_destroy();
+			return;
+		}
+
+		/* Adjust the alpha value... */
+		notification->alpha = 255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double) NOTIFICATION_DEFAULT_FADEOUT);
+	}
+
+	dst.x = widget->x;
+	dst.y = widget->y;
+	SDL_SetAlpha(widget->surface, SDL_SRCALPHA, notification->alpha);
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &dst);
+
+	/* Do highlight. */
+	if (widget_mouse_event.owner == widget && notification->action)
+	{
+		filledRectAlpha(ScreenSurface, dst.x, dst.y, dst.x + widget->w, dst.y + widget->h, 0xffffff3c);
+	}
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		notification_action_do();
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Initialize one notification widget. */
+void widget_notification_init(widgetdata *widget)
+{
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 }
