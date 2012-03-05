@@ -40,6 +40,7 @@
 
 #include <global.h>
 
+static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] =
 {
 	"map", "stats", "protections", "main_lvl", "skill_exp", "regen",
@@ -106,22 +107,20 @@ static int widget_id_from_name(const char *name)
 	return -1;
 }
 
-static void widget_load(void)
+static int widget_load(const char *path, uint8 defaults)
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *end, *line, *cp;
-	int depth, prev_depth;
-	widgetdata *widget, *top;
+	widgetdata *widget;
 
-	fp = fopen_wrapper("settings/interface.cfg", "r");
+	fp = fopen_wrapper(path, "r");
 
 	if (!fp)
 	{
-		return;
+		return 0;
 	}
 
-	widget = top = NULL;
-	prev_depth = 0;
+	widget = NULL;
 
 	while (fgets(buf, sizeof(buf), fp))
 	{
@@ -137,12 +136,10 @@ static void widget_load(void)
 			*end = '\0';
 		}
 
-		depth = 0;
 		line = buf;
 
 		while (*line == '\t')
 		{
-			depth++;
 			line++;
 		}
 
@@ -160,28 +157,7 @@ static void widget_load(void)
 				continue;
 			}
 
-			if (prev_depth != 0 && top && widget)
-			{
-				int i;
-				widgetdata *tmp;
-
-				tmp = top;
-
-				for (i = 1; i < prev_depth; i++)
-				{
-					tmp = tmp->inv;
-				}
-
-				insert_widget_in_container(tmp, widget);
-			}
-
-			widget = create_widget_object(id);
-			prev_depth = depth;
-
-			if (depth == 0)
-			{
-				top = widget;
-			}
+			widget = defaults ? &def_widget[id] : create_widget_object(id);
 		}
 		else if (widget)
 		{
@@ -241,6 +217,8 @@ static void widget_load(void)
 			}
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -274,7 +252,13 @@ void toolkit_widget_init(void)
 	widget_initializers[TEXTURE_ID] = widget_texture_init;
 	widget_initializers[CHATWIN_ID] = widget_textwin_init;
 
-	widget_load();
+	if (!widget_load("data/interface.cfg", 1))
+	{
+		logger_print(LOG(ERROR), "Could not load widget defaults from data/interface.cfg.");
+		exit(-1);
+	}
+
+	widget_load("settings/interface.cfg", 0);
 
 	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 	{
@@ -384,7 +368,6 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	widget = create_widget(widget_subtype_id);
 	widget->type = widget_type_id;
 	widget->name = strdup(widget_names[widget_type_id]);
-	widget->show = 1;
 	widget->redraw = 1;
 	widget->menu_handle_func = widget_menu_handle;
 
@@ -533,11 +516,11 @@ void reset_widget(const char *name)
 
 		if (!name || !strcasecmp(tmp->name, name))
 		{
-			tmp->x = cur_widget[tmp->type]->x;
-			tmp->y = cur_widget[tmp->type]->y;
-			tmp->w = cur_widget[tmp->type]->w;
-			tmp->h = cur_widget[tmp->type]->h;
-			tmp->show = cur_widget[tmp->type]->show;
+			tmp->x = def_widget[tmp->type].x;
+			tmp->y = def_widget[tmp->type].y;
+			tmp->w = def_widget[tmp->type].w;
+			tmp->h = def_widget[tmp->type].h;
+			tmp->show = def_widget[tmp->type].show;
 			WIDGET_REDRAW(tmp);
 		}
 	}
@@ -629,6 +612,7 @@ widgetdata *create_widget(int widget_id)
 	}
 
 	/* set the members */
+	memcpy(node, &def_widget[widget_id], sizeof(*node));
 	node->sub_type = widget_id;
 
 	/* link it up to the tree if the root exists */
