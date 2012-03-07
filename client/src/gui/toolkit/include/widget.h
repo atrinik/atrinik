@@ -63,11 +63,11 @@ typedef struct widgetdata
 	uint8 unique;
 
 	/** Must there be at least one of this widget type alive? */
-	uint8 no_kill;
+	uint8 required;
 
 	/**
-	 * If 1, will not save this widget. */
-	uint8 no_save;
+	 * If 0, will not save this widget. */
+	uint8 save;
 
 	/** Next widget. */
 	struct widgetdata *next;

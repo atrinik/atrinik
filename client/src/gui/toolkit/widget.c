@@ -158,6 +158,12 @@ static int widget_load(const char *path, uint8 defaults)
 			}
 
 			widget = defaults ? &def_widget[id] : create_widget_object(id);
+
+			if (defaults)
+			{
+				widget->required = 1;
+				widget->save = 1;
+			}
 		}
 		else if (widget)
 		{
@@ -183,6 +189,14 @@ static int widget_load(const char *path, uint8 defaults)
 			else if (strcmp(cps[0], "resizeable") == 0)
 			{
 				KEYWORD_TO_BOOLEAN(cps[1], widget->resizeable);
+			}
+			else if (strcmp(cps[0], "required") == 0)
+			{
+				KEYWORD_TO_BOOLEAN(cps[1], widget->required);
+			}
+			else if (strcmp(cps[0], "save") == 0)
+			{
+				KEYWORD_TO_BOOLEAN(cps[1], widget->save);
 			}
 			else if (strcmp(cps[0], "x") == 0)
 			{
@@ -383,7 +397,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 void remove_widget_object(widgetdata *widget)
 {
 	/* don't delete the last widget if there needs to be at least one of this widget type */
-	if (widget->no_kill && cur_widget[widget->sub_type] == type_list_foot[widget->sub_type])
+	if (widget->required && cur_widget[widget->sub_type] == type_list_foot[widget->sub_type])
 	{
 		return;
 	}
@@ -885,7 +899,7 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 
 	for ( ; widget; widget = widget->prev)
 	{
-		if (widget->no_save)
+		if (!widget->save)
 		{
 			continue;
 		}
@@ -896,6 +910,7 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
 		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
+		fprintf(fp, "%srequired = %s\n", padding, widget->required ? "yes" : "no");
 		fprintf(fp, "%sx = %d\n", padding, widget->x);
 		fprintf(fp, "%sy = %d\n", padding, widget->y);
 		fprintf(fp, "%sw = %d\n", padding, widget->w);
@@ -2109,7 +2124,6 @@ widgetdata *create_menu(int x, int y, widgetdata *owner)
 	/* Place the menu at these co-ordinates. */
 	widget_menu->x = x;
 	widget_menu->y = y;
-	widget_menu->no_save = 1;
 	/* Point the menu to the owner. */
 	(MENU(widget_menu))->owner = owner;
 	/* Magic numbers for now, maybe it will be possible in future to customize this in files. */
