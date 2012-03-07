@@ -2271,7 +2271,12 @@ void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event
 
 void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	create_widget_object(widget->sub_type);
+	widgetdata *tmp;
+
+	tmp = create_widget_object(widget->sub_type);
+	tmp->x = menuitem->env->x;
+	tmp->y = menuitem->env->y;
+	widget_ensure_onscreen(tmp);
 }
 
 void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
