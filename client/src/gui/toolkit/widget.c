@@ -273,11 +273,7 @@ void toolkit_widget_init(void)
 	}
 
 	widget_load("settings/interface.cfg", 0);
-
-	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
-	{
-		widgets_ensure_onscreen();
-	}
+	widgets_ensure_onscreen();
 }
 
 /** @copydoc widgetdata::menu_handle_func */
@@ -546,6 +542,11 @@ void reset_widget(const char *name)
 static void widget_ensure_onscreen(widgetdata *widget)
 {
 	int dx = 0, dy = 0;
+
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
+	{
+		return;
+	}
 
 	if (widget->x < 0)
 	{
