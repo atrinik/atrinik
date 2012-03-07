@@ -545,7 +545,7 @@ extern void toolkit_widget_deinit(void);
 extern int widget_event_mousedn(int x, int y, SDL_Event *event);
 extern int widget_event_mouseup(int x, int y, SDL_Event *event);
 extern int widget_event_mousemv(int x, int y, SDL_Event *event);
-extern int widget_event_start_move(widgetdata *widget, int x, int y);
+extern int widget_event_start_move(widgetdata *widget);
 extern int widget_event_move_stop(int x, int y);
 extern int widget_event_respond(int x, int y);
 extern widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
@@ -587,7 +587,6 @@ extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *me
 extern void menu_textwin_submenu_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/container.c */
 extern void widget_container_init(widgetdata *widget);
-/* src/gui/widgets/container_strip.c */
 /* src/gui/widgets/fps.c */
 extern void widget_fps_init(widgetdata *widget);
 /* src/gui/widgets/input.c */
@@ -649,7 +648,6 @@ extern void widget_highlight_menu(widgetdata *widget);
 extern void widget_menu_event(widgetdata *widget, SDL_Event *event);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
-/* src/gui/widgets/menuitem.c */
 /* src/gui/widgets/mplayer.c */
 extern void widget_mplayer_init(widgetdata *widget);
 /* src/gui/widgets/notification.c */

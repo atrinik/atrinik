@@ -1308,8 +1308,10 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 }
 
 /** Handles the initiation of widget dragging. */
-int widget_event_start_move(widgetdata *widget, int x, int y)
+int widget_event_start_move(widgetdata *widget)
 {
+	int x, y;
+
 	/* get the outermost container so we can move the container with everything in it */
 	widget = get_outermost_container(widget);
 
@@ -1318,6 +1320,10 @@ int widget_event_start_move(widgetdata *widget, int x, int y)
 	{
 		return 0;
 	}
+
+	x = widget->x + widget->w / 2;
+	y = widget->y + widget->h / 2;
+	SDL_WarpMouse(x, y);
 
 	/* we know this widget owns the mouse.. */
 	widget_event_move.active = 1;
@@ -2260,7 +2266,7 @@ void widget_redraw_all(int widget_type_id)
 
 void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	widget_event_start_move(widget, event->motion.x, event->motion.y);
+	widget_event_start_move(widget);
 }
 
 void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
