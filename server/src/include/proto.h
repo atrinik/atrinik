@@ -753,6 +753,13 @@ extern void toolkit_clioptions_init(void);
 extern void toolkit_clioptions_deinit(void);
 extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc);
 extern void clioptions_parse(int argc, char *argv[]);
+/* src/toolkit/colorspace.c */
+extern void toolkit_colorspace_init(void);
+extern void toolkit_colorspace_deinit(void);
+extern double colorspace_rgb_max(double rgb[3]);
+extern double colorspace_rgb_min(double rgb[3]);
+extern void colorspace_rgb2hsv(double rgb[3], double hsv[3]);
+extern void colorspace_hsv2rgb(double hsv[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern char *command_generator(const char *text, int state);
 extern char **readline_completion(const char *text, int start, int end);
