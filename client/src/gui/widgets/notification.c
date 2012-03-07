@@ -259,7 +259,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	}
 
 	/* Create a border. */
-	border_create_color(cur_widget[NOTIFICATION_ID]->surface, &box, "606060");
+	border_create_color(cur_widget[NOTIFICATION_ID]->surface, &box, 1, "606060");
 
 	/* Render the text. */
 	box.w = wd;

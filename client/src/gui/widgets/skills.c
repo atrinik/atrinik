@@ -84,7 +84,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	{
 		char buf[MAX_BUF];
 
-		border_create_color(list->surface, &box, "ff0000");
+		border_create_color(list->surface, &box, 1, "ff0000");
 
 		strncpy(buf, skill_list[skill_id]->skill->s_name, sizeof(buf) - 1);
 		buf[sizeof(buf) - 1] = '\0';

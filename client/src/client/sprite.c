@@ -994,19 +994,19 @@ void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32
 	SDL_FillRect(surface, &dst, color);
 }
 
-void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, SDL_Color *color)
+void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color)
 {
 	uint32 color_mapped;
 
 	color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
 
-	BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
-	BORDER_CREATE_BOTTOM(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
-	BORDER_CREATE_LEFT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
-	BORDER_CREATE_RIGHT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, 1);
+	BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+	BORDER_CREATE_BOTTOM(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+	BORDER_CREATE_LEFT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+	BORDER_CREATE_RIGHT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
 }
 
-void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation)
+void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation)
 {
 	SDL_Color color;
 
@@ -1016,7 +1016,7 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *col
 		return;
 	}
 
-	border_create_sdl_color(surface, coords, &color);
+	border_create_sdl_color(surface, coords, thickness, &color);
 }
 
 void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation)

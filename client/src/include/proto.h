@@ -226,8 +226,8 @@ extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
-extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, SDL_Color *color);
-extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, const char *color_notation);
+extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color);
+extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 /* src/client/texture.c */
 extern void texture_init(void);

@@ -60,7 +60,7 @@ static int texture_data_new(int type, texture_struct *tmp)
 			box.y = 0;
 			box.w = surface->w;
 			box.h = surface->h;
-			border_create_color(surface, &box, "950000");
+			border_create_color(surface, &box, 1, "950000");
 		}
 		else if (strncmp(tmp->name, "rectangle:", 10) == 0)
 		{

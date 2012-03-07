@@ -67,7 +67,7 @@ static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *
 	(void) elem;
 	(void) horizontal;
 	SDL_FillRect(surface, box, SDL_MapRGB(surface->format, scrollbar_color_bg.r, scrollbar_color_bg.g, scrollbar_color_bg.b));
-	border_create_sdl_color(surface, box, &scrollbar_color_fg);
+	border_create_sdl_color(surface, box, 1, &scrollbar_color_fg);
 }
 
 /** @copydoc scrollbar_element::render_func */
@@ -81,7 +81,7 @@ static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *bo
 		color = &scrollbar_color_highlight;
 	}
 
-	border_create_sdl_color(surface, box, color);
+	border_create_sdl_color(surface, box, 1, color);
 
 	/* Create the arrow. */
 	if (horizontal)
@@ -109,7 +109,7 @@ static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *
 		color = &scrollbar_color_highlight;
 	}
 
-	border_create_sdl_color(surface, box, color);
+	border_create_sdl_color(surface, box, 1, color);
 
 	/* Create the arrow. */
 	if (horizontal)
@@ -137,7 +137,7 @@ static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box,
 	 * slider. */
 	if (elem->highlight)
 	{
-		border_create_sdl_color(surface, box, &scrollbar_color_highlight);
+		border_create_sdl_color(surface, box, 1, &scrollbar_color_highlight);
 	}
 }
 

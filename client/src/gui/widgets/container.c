@@ -57,7 +57,7 @@ static void widget_draw(widgetdata *widget)
 		box.y = 0;
 		box.w = widget->w;
 		box.h = widget->h;
-		border_create_color(widget->surface, &box, "606060");
+		border_create_color(widget->surface, &box, 1, "606060");
 	}
 
 	box.x = widget->x;

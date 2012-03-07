@@ -162,7 +162,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 	coords.y -= 1;
 	coords.w += 2;
 	coords.h += 2;
-	border_create_color(surface, &coords, "303030");
+	border_create_color(surface, &coords, 1, "303030");
 
 	cp = NULL;
 	box.w = 0;

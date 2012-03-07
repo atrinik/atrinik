@@ -251,11 +251,11 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 		if (button_checkbox->mouse_over)
 		{
-			border_create_color(list->surface, &box, "b09a9a");
+			border_create_color(list->surface, &box, 1, "b09a9a");
 		}
 		else
 		{
-			border_create_color(list->surface, &box, "8c7a7a");
+			border_create_color(list->surface, &box, 1, "8c7a7a");
 		}
 	}
 	/* Select or range. */
