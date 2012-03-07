@@ -342,6 +342,11 @@ extern void button_tooltip(button_struct *button, int font, const char *text);
 extern int clipboard_init(void);
 extern int clipboard_set(const char *str);
 extern char *clipboard_get(void);
+/* src/gui/toolkit/color_picker.c */
+extern void color_picker_create(color_picker_struct *color_picker);
+extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
+extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
+extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
 /* src/gui/toolkit/list.c */
 extern void list_set_parent(list_struct *list, int px, int py);
 extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
@@ -746,6 +751,15 @@ extern void toolkit_clioptions_init(void);
 extern void toolkit_clioptions_deinit(void);
 extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc);
 extern void clioptions_parse(int argc, char *argv[]);
+/* src/toolkit/colorspace.c */
+extern void toolkit_colorspace_init(void);
+extern void toolkit_colorspace_deinit(void);
+extern double colorspace_rgb_max(double rgb[3]);
+extern double colorspace_rgb_min(double rgb[3]);
+extern void colorspace_rgb2hsv(double rgb[3], double hsv[3]);
+extern void colorspace_hsv2rgb(double hsv[3], double rgb[3]);
+extern void colorspace_rgb2hsl(double rgb[3], double hsl[3]);
+extern void colorspace_hsl2rgb(double hsl[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern char *command_generator(const char *text, int state);
 extern char **readline_completion(const char *text, int start, int end);

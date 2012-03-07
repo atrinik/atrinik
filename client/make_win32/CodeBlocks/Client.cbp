@@ -92,6 +92,7 @@
 		<Unit filename="..\..\src\gui\popups\updater.c" />
 		<Unit filename="..\..\src\gui\toolkit\button.c" />
 		<Unit filename="..\..\src\gui\toolkit\clipboard.c" />
+		<Unit filename="..\..\src\gui\toolkit\color_picker.c" />
 		<Unit filename="..\..\src\gui\toolkit\list.c" />
 		<Unit filename="..\..\src\gui\toolkit\popup.c" />
 		<Unit filename="..\..\src\gui\toolkit\progress.c" />

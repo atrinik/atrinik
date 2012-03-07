@@ -22,71 +22,43 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/**
- * @file
- * The main include file, included by most C files. */
+#ifndef COLOR_PICKER_H
+#define COLOR_PICKER_H
 
-#ifndef GLOBAL_H
-#define GLOBAL_H
+enum
+{
+	COLOR_PICKER_ELEM_COLOR,
+	COLOR_PICKER_ELEM_HUE,
 
-/* Include standard headers. */
-#include <SDL.h>
-#include <SDL_main.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <curl/curl.h>
-#include <zlib.h>
-#include <pthread.h>
-#include <config.h>
-#include <toolkit.h>
+	COLOR_PICKER_ELEM_NUM
+};
 
-#ifdef HAVE_SDL_MIXER
-#	include <SDL_mixer.h>
-#endif
+typedef struct color_picker_element_struct
+{
+	SDL_Rect coords;
 
-#define HUGE_BUF 4096
-#define MAX_BUF 256
+	int posx;
 
-#include <version.h>
-#include <scrollbar.h>
-#include <item.h>
-#include <text.h>
-#include <text_input.h>
-#include <texture.h>
-#include <curl.h>
-#include <book.h>
-#include <interface.h>
-#include <commands.h>
-#include <main.h>
-#include <client.h>
-#include <effects.h>
-#include <sprite.h>
-#include <widget.h>
-#include <textwin.h>
-#include <player.h>
-#include <party.h>
-#include <misc.h>
-#include <event.h>
-#include <ignore.h>
-#include <sound.h>
-#include <map.h>
-#include <inventory.h>
-#include <menu.h>
-#include <list.h>
-#include <button.h>
-#include <color_picker.h>
-#include <popup.h>
-#include <server_settings.h>
-#include <server_files.h>
-#include <image.h>
-#include <settings.h>
-#include <keybind.h>
-#include <sha1.h>
-#include <progress.h>
-#include <updater.h>
+	int posy;
 
-#ifndef __CPROTO__
-#	include <proto.h>
-#endif
+	uint8 dragging;
+} color_picker_element_struct;
+
+typedef struct color_picker_struct
+{
+	int x;
+
+	int y;
+
+	int px;
+
+	int py;
+
+	color_picker_element_struct elements[COLOR_PICKER_ELEM_NUM];
+
+	uint8 border_thickness;
+
+	double hsv[3];
+} color_picker_struct;
 
 #endif

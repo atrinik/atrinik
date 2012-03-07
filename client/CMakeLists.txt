@@ -134,6 +134,7 @@ set(SOURCES
 	src/gui/popups/updater.c
 	src/gui/toolkit/button.c
 	src/gui/toolkit/clipboard.c
+	src/gui/toolkit/color_picker.c
 	src/gui/toolkit/list.c
 	src/gui/toolkit/popup.c
 	src/gui/toolkit/progress.c
