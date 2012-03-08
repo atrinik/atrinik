@@ -294,7 +294,7 @@ void settings_load(void)
 			}
 		}
 
-		if (*cp == '#' || *cp == '\0')
+		if (*cp == '\0')
 		{
 			continue;
 		}
