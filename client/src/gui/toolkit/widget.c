@@ -328,6 +328,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 			add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
 			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
 			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+			add_menuitem(menu, "Timestamps", &menu_textwin_timestamps, MENU_CHECKBOX, TEXTWIN(widget)->timestamps);
 			add_menuitem(menu, "Tabs  >", &menu_textwin_submenu_tabs, MENU_SUBMENU, 0);
 			add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
 			add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);

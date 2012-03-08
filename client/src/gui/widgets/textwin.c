@@ -94,7 +94,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
 	timebuf[0] = tabname[0] = plname[0] = '\0';
 
-	if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS))
+	if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS) && textwin->timestamps)
 	{
 		time_t now = time(NULL);
 		char tmptimebuf[MAX_BUF], *format;
@@ -151,8 +151,6 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 	textwin->tabs[id].entries[textwin->tabs[id].entries_size + len] = '\0';
 	textwin->tabs[id].entries_size += len;
 	free(cp);
-
-	//logger_print(LOG(INFO), "%s", textwin->tabs[id].entries);
 
 	box.y = 0;
 	/* Get the string's height. */
@@ -759,6 +757,10 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 
 		return 1;
 	}
+	else if (strcmp(keyword, "timestamps") == 0)
+	{
+		KEYWORD_TO_BOOLEAN(parameter, textwin->timestamps);
+	}
 
 	return 0;
 }
@@ -771,6 +773,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 	textwin = TEXTWIN(widget);
 
 	fprintf(fp, "%sfont = %s %"FMT64U"\n", padding, get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+	fprintf(fp, "%stimestamps = %s\n", padding, textwin->timestamps ? "yes" : "no");
 
 	if (textwin->tabs_num)
 	{
@@ -877,6 +880,14 @@ void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_font_adjust(widget, -1);
+}
+
+void menu_textwin_timestamps(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	textwin_struct *textwin;
+
+	textwin = TEXTWIN(widget);
+	textwin->timestamps = !textwin->timestamps;
 }
 
 void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)

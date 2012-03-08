@@ -729,6 +729,7 @@ extern void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 extern void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_textwin_timestamps(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu);
 /* src/toolkit/binreloc.c */

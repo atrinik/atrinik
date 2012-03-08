@@ -75,6 +75,8 @@ typedef struct textwin_struct
 	size_t tabs_num;
 
 	size_t tab_selected;
+
+	uint8 timestamps;
 } textwin_struct;
 
 #define TEXTWIN_TAB_HEIGHT 20
