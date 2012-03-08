@@ -292,3 +292,25 @@ int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 
 	return 0;
 }
+
+int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my)
+{
+	size_t i;
+	int x, y;
+
+	mx -= color_picker->px;
+	my -= color_picker->py;
+
+	for (i = 0; i < COLOR_PICKER_ELEM_NUM; i++)
+	{
+		x = color_picker->x + color_picker->elements[i].coords.x;
+		y = color_picker->y + color_picker->elements[i].coords.y;
+
+		if (mx >= x && my >= y && mx < x + color_picker->elements[i].coords.w && my < y + color_picker->elements[i].coords.h)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
