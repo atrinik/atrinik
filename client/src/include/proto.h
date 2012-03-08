@@ -310,6 +310,8 @@ extern void book_add_help_history(const char *name);
 /* src/gui/popups/characters.c */
 extern void characters_open(void);
 extern void socket_command_characters(uint8 *data, size_t len, size_t pos);
+/* src/gui/popups/color_chooser.c */
+extern color_picker_struct *color_chooser_open(void);
 /* src/gui/popups/help.c */
 extern void hfiles_deinit(void);
 extern void hfiles_init(void);

@@ -124,6 +124,7 @@ set(SOURCES
 	src/gui/misc/main.c
 	src/gui/popups/book.c
 	src/gui/popups/characters.c
+	src/gui/popups/color_chooser.c
 	src/gui/popups/help.c
 	src/gui/popups/interface.c
 	src/gui/popups/login.c

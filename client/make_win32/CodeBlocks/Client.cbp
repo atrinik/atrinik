@@ -82,6 +82,7 @@
 		<Unit filename="..\..\src\gui\misc\main.c" />
 		<Unit filename="..\..\src\gui\popups\book.c" />
 		<Unit filename="..\..\src\gui\popups\characters.c" />
+		<Unit filename="..\..\src\gui\popups\color_chooser.c" />
 		<Unit filename="..\..\src\gui\popups\help.c" />
 		<Unit filename="..\..\src\gui\popups\interface.c" />
 		<Unit filename="..\..\src\gui\popups\login.c" />
