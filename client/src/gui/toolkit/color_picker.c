@@ -29,7 +29,7 @@
 
 #include <global.h>
 
-void color_picker_create(color_picker_struct *color_picker)
+void color_picker_create(color_picker_struct *color_picker, int size)
 {
 	size_t i;
 
@@ -45,19 +45,47 @@ void color_picker_create(color_picker_struct *color_picker)
 
 	color_picker->elements[0].coords.x = 0;
 	color_picker->elements[0].coords.y = 0;
-	color_picker->elements[0].coords.w += 101;
-	color_picker->elements[0].coords.h += 101;
+	color_picker->elements[0].coords.w += size + 1;
+	color_picker->elements[0].coords.h += size + 1;
 
 	color_picker->elements[1].coords.x = color_picker->elements[0].coords.w;
 	color_picker->elements[1].coords.y = 0;
-	color_picker->elements[1].coords.w += 10;
-	color_picker->elements[1].coords.h += 101;
+	color_picker->elements[1].coords.w += size / 10 + 1;
+	color_picker->elements[1].coords.h += size + 1;
 }
 
 void color_picker_set_parent(color_picker_struct *color_picker, int px, int py)
 {
 	color_picker->px = px;
 	color_picker->py = py;
+}
+
+void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation)
+{
+	SDL_Color color;
+	double rgb[3];
+
+	if (!text_color_parse(color_notation, &color))
+	{
+		logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+		return;
+	}
+
+	rgb[0] = 1.0 * ((double) color.r / 255.0);
+	rgb[1] = 1.0 * ((double) color.g / 255.0);
+	rgb[2] = 1.0 * ((double) color.b / 255.0);
+	colorspace_rgb2hsv(rgb, color_picker->hsv);
+}
+
+void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b)
+{
+	double rgb[3];
+
+	colorspace_hsv2rgb(color_picker->hsv, rgb);
+
+	*r = 255 * rgb[0];
+	*g = 255 * rgb[1];
+	*b = 255 * rgb[2];
 }
 
 static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *color_picker, size_t type, SDL_Event *event)
@@ -131,7 +159,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 
 		for (y = 0; y < box.h; y++)
 		{
-			hsv[0] = fabs(1.0 * ((double) y / (double) box.h) - 1.0);
+			hsv[0] = fabs(1.0 * ((double) y / (double) (box.h - 1)) - 1.0);
 			colorspace_hsv2rgb(hsv, rgb);
 
 			dest.x = box.x;
@@ -143,6 +171,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			{
 				if (mx >= dest.x && my >= dest.y && mx < dest.x + dest.w && my < dest.y + dest.h)
 				{
+					logger_print(LOG(INFO), "old: %f, new: %f, %f", color_picker->hsv[0], hsv[0], ((double) y / (double) (box.h - 1)));
 					color_picker->hsv[0] = hsv[0];
 					return 1;
 				}
@@ -154,7 +183,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			g = 255 * rgb[1];
 			b = 255 * rgb[2];
 
-			if (color_picker->hsv[0] == hsv[0])
+			if (color_picker->hsv[0] >= hsv[0] && color_picker->hsv[0] < hsv[0] + (1.0 * (1.0 / (double) box.h)))
 			{
 				r = 255 - r;
 				g = 255 - g;
@@ -175,18 +204,18 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 
 		for (x = 0; x < box.w; x++)
 		{
-			hsv[2] = 1.0 * ((double) x / box.w);
+			hsv[2] = 1.0 * ((double) x / (box.w - 1));
 
-			if (color_picker->hsv[2] == hsv[2])
+			if (color_picker->hsv[2] >= hsv[2] && color_picker->hsv[2] < hsv[2] + (1.0 * (1.0 / (double) box.w)))
 			{
 				selx = x;
 			}
 
 			for (y = 0; y < box.h; y++)
 			{
-				hsv[1] = fabs(1.0 * ((double) y / box.h) - 1.0);
+				hsv[1] = fabs(1.0 * ((double) y / (box.h - 1)) - 1.0);
 
-				if (color_picker->hsv[1] == hsv[1])
+				if (color_picker->hsv[1] >= hsv[1] && color_picker->hsv[1] < hsv[1] + (1.0 * (1.0 / (double) box.h)))
 				{
 					sely = y;
 				}
