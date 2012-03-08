@@ -565,7 +565,7 @@ extern void SetPriorityWidget_reverse(widgetdata *node);
 extern void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
 extern widgetdata *get_outermost_container(widgetdata *widget);
 extern widgetdata *widget_find_by_surface(SDL_Surface *surface);
-extern widgetdata *widget_find_copy_from(void);
+extern widgetdata *widget_find_by_type(int type);
 extern void move_widget(widgetdata *widget, int x, int y);
 extern void move_widget_rec(widgetdata *widget, int x, int y);
 extern void resize_widget(widgetdata *widget, int side, int offset);

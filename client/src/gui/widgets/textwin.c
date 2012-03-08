@@ -381,7 +381,7 @@ void textwin_handle_copy(widgetdata *widget)
 
 	if (!widget)
 	{
-		widget = widget_find_copy_from();
+		widget = widget_find_by_type(CHATWIN_ID);
 
 		if (!widget)
 		{

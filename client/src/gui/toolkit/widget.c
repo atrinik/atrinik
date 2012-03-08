@@ -1864,16 +1864,16 @@ widgetdata *widget_find_by_surface(SDL_Surface *surface)
 }
 
 /**
- * Find the first widget to do a copy operation from, depending on the
- * priority list.
- * @return Widget to copy from, can be NULL. */
-widgetdata *widget_find_copy_from(void)
+ * Find the first widget in the priority list that matches type 'type'.
+ * @param type Widget type to look for.
+ * @return Widget if found, NULL otherwise. */
+widgetdata *widget_find_by_type(int type)
 {
 	widgetdata *tmp;
 
 	for (tmp = widget_list_head; tmp; tmp = tmp->next)
 	{
-		if (tmp->type == CHATWIN_ID)
+		if (tmp->type == type)
 		{
 			return tmp;
 		}
