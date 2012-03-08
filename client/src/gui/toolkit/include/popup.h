@@ -108,6 +108,10 @@ typedef struct popup_struct
 	/** Whether redrawing is in order. */
 	uint8 redraw;
 
+	uint8 modal;
+
+	uint8 destroy_on_switch;
+
 	/**
 	 * Function used for drawing on the popup's surface.
 	 * @param popup The popup.

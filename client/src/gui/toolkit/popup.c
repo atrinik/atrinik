@@ -69,6 +69,7 @@ popup_struct *popup_create(const char *texture)
 
 	popup->selection_start = popup->selection_end = -1;
 	popup->redraw = 1;
+	popup->modal = 1;
 
 	return popup;
 }
@@ -226,6 +227,15 @@ static int popup_button_handle_event(popup_button *button, SDL_Event *event)
 int popup_handle_event(SDL_Event *event)
 {
 	int ret;
+
+	if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN && !(event->motion.x >= popup_head->x && event->motion.x < popup_head->x + TEXTURE_SURFACE(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + TEXTURE_SURFACE(popup_head->texture)->h))
+	{
+		if (popup_head->destroy_on_switch)
+		{
+			popup_destroy(popup_head);
+			return 0;
+		}
+	}
 
 	/* No popup is visible. */
 	if (!popup_head)
