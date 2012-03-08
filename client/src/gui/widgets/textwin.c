@@ -760,6 +760,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 	else if (strcmp(keyword, "timestamps") == 0)
 	{
 		KEYWORD_TO_BOOLEAN(parameter, textwin->timestamps);
+		return 1;
 	}
 
 	return 0;
