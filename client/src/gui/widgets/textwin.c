@@ -549,7 +549,12 @@ static void widget_draw(widgetdata *widget)
 
 	if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY)))
 	{
-		filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, alpha);
+		SDL_Color bg_color;
+
+		if (text_color_parse(setting_get_str(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_BG_COLOR), &bg_color))
+		{
+			filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, ((uint32) bg_color.r << 24) | ((uint32) bg_color.g << 16) | ((uint32) bg_color.b << 8) | (uint32) alpha);
+		}
 	}
 
 	/* Let's draw the widgets in the backbuffer */

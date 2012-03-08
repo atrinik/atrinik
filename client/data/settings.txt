@@ -124,6 +124,11 @@ category Client
 		default off
 		desc Allows moving widgets off-screen.
 	end
+	setting Text window background color
+		type color
+		default #000000
+		desc Background color of text windows.
+	end
 	setting Text window background transparency
 		type range
 		range 0 - 255

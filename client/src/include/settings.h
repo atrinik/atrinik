@@ -93,6 +93,8 @@ enum
 	OPT_MINIMIZE_LATENCY,
 	/** Whether to allow dragging widgets off-screen. */
 	OPT_OFFSCREEN_WIDGETS,
+	/** Background color of text windows. */
+	OPT_TEXT_WINDOW_BG_COLOR,
 	/** Transparency of text windows. */
 	OPT_TEXT_WINDOW_TRANSPARENCY,
 
