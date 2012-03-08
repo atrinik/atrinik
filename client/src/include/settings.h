@@ -165,6 +165,8 @@ enum
 	OPT_TYPE_SELECT,
 	/** Integer - internal type. */
 	OPT_TYPE_INT,
+	/** Color picker. */
+	OPT_TYPE_COLOR,
 
 	/** Number of the different options. */
 	OPT_TYPE_NUM

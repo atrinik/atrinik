@@ -33,7 +33,7 @@
 /** Text representations of the setting types. */
 static const char *const opt_types[OPT_TYPE_NUM] =
 {
-	"bool", "input_num", "input_text", "range", "select", "int"
+	"bool", "input_num", "input_text", "range", "select", "int", "color"
 };
 
 /** List of setting categories. */
@@ -77,6 +77,7 @@ static void setting_load_value(setting_struct *setting, const char *str)
 			break;
 
 		case OPT_TYPE_INPUT_TEXT:
+		case OPT_TYPE_COLOR:
 			if (setting->val.str)
 			{
 				free(setting->val.str);
@@ -447,6 +448,7 @@ void *setting_get(setting_struct *setting)
 			return &setting->val.i;
 
 		case OPT_TYPE_INPUT_TEXT:
+		case OPT_TYPE_COLOR:
 			return setting->val.str;
 	}
 
@@ -658,6 +660,7 @@ int setting_is_text(setting_struct *setting)
 	switch (setting->type)
 	{
 		case OPT_TYPE_INPUT_TEXT:
+		case OPT_TYPE_COLOR:
 			return 1;
 	}
 
