@@ -56,16 +56,16 @@ popup_struct *popup_create(const char *texture)
 	button_create(&popup->button_left.button);
 	button_create(&popup->button_right.button);
 
-	popup->button_left.x = 6;
-	popup->button_left.y = 6;
-
-	popup->button_right.x = 468;
-	popup->button_right.y = 6;
-	popup->button_right.text = strdup("X");
-
 	popup->button_left.button.texture = popup->button_right.button.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large");
 	popup->button_left.button.texture_pressed = popup->button_right.button.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_down");
 	popup->button_left.button.texture_over = popup->button_right.button.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_over");
+
+	popup->button_left.x = 6;
+	popup->button_left.y = 6;
+
+	popup->button_right.x = popup->surface->w - TEXTURE_SURFACE(popup->button_right.button.texture)->w - 6;
+	popup->button_right.y = 6;
+	popup->button_right.text = strdup("X");
 
 	popup->selection_start = popup->selection_end = -1;
 	popup->redraw = 1;
