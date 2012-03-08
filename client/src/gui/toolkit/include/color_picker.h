@@ -90,6 +90,8 @@ typedef struct color_picker_struct
 	 * Which color is currently selected, in HSV (hue,saturation,value)
 	 * colorspace. */
 	double hsv[3];
+
+	void (*callback_func)(struct color_picker_struct *color_picker);
 } color_picker_struct;
 
 #endif

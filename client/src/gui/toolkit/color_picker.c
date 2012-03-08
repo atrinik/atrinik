@@ -332,6 +332,11 @@ int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 		{
 			if (color_picker_element_show(NULL, color_picker, i, event))
 			{
+				if (color_picker->callback_func)
+				{
+					color_picker->callback_func(color_picker);
+				}
+
 				color_picker->elements[i].dragging = 1;
 				return 1;
 			}
