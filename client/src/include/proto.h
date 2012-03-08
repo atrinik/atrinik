@@ -167,6 +167,7 @@ extern sint64 setting_get_int(int cat, int setting);
 extern void settings_apply(void);
 extern void settings_apply_change(void);
 extern void setting_set_int(int cat, int setting, sint64 val);
+extern void setting_set_str(int cat, int setting, const char *val);
 extern int setting_is_text(setting_struct *setting);
 extern sint64 category_from_name(const char *name);
 extern sint64 setting_from_name(const char *name);

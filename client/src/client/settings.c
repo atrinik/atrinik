@@ -652,6 +652,25 @@ void setting_set_int(int cat, int setting, sint64 val)
 }
 
 /**
+ * Set settings's string value.
+ * @param cat ID of the category the setting is in.
+ * @param setting Setting ID inside the category.
+ * @param val Value to set. */
+void setting_set_str(int cat, int setting, const char *val)
+{
+	setting_struct *set;
+
+	set = setting_categories[cat]->settings[setting];
+
+	if (set->val.str)
+	{
+		free(set->val.str);
+	}
+
+	set->val.str = strdup(val);
+}
+
+/**
  * Check if the specified setting has a string value.
  * @param setting The setting.
  * @return 1 if it has a string value, 0 otherwise. */
