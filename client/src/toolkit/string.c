@@ -665,7 +665,7 @@ int string_contains_other(const char *str, const char *key)
  * @endcode
  * @param start Character index start.
  * @param end Character index end.
- * @return The generated string. */
+ * @return The generated string; never NULL. Must be freed. */
 char *string_create_char_range(char start, char end)
 {
 	char *str, c;
@@ -713,6 +713,16 @@ char *string_crypt(char *str, const char *salt)
 #endif
 }
 
+/**
+ * Join all the provided strings into one.
+ *
+ * Example:
+ * @code
+ * string_join(", ", "hello", "world", NULL); --> "hello, world"
+ * @endcode
+ * @param delim Delimeter to use, eg, ", ". Can be NULL.
+ * @param ... Strings to join. Must have a terminating NULL entry.
+ * @return Joined string; never NULL. Must be freed. */
 char *string_join(const char *delim, ...)
 {
 	StringBuffer *sb;
@@ -738,6 +748,25 @@ char *string_join(const char *delim, ...)
 	return stringbuffer_finish(sb);
 }
 
+/**
+ * Similar to string_join(), but for an array of string pointers.
+ *
+ * Example:
+ * @code
+ * char **strs;
+ * size_t strs_num;
+ *
+ * strs_num = 2;
+ * strs = malloc(sizeof(*strs) * strs_num);
+ * strs[0] = strdup("hello");
+ * strs[1] = strdup("world");
+ *
+ * string_join_array(", ", strs, strs_num); --> "hello, world"
+ * @endcode
+ * @param delim Delimeter to use, eg, ", ". Can be NULL.
+ * @param array Array of string pointers.
+ * @param arraysize Number of entries inside ::array.
+ * @return Joined string; never NULL. Must be freed. */
 char *string_join_array(const char *delim, char **array, size_t arraysize)
 {
 	StringBuffer *sb;
@@ -763,6 +792,16 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
 	return stringbuffer_finish(sb);
 }
 
+/**
+ * Repeat the specified string X number of times.
+ *
+ * Example:
+ * @code
+ * string_repeat("world", 5); --> "worldworldworldworldworld"
+ * @endcode
+ * @param str String to repeat.
+ * @param num How many times to repeat the string.
+ * @return Constructed string; never NULL. Must be freed. */
 char *string_repeat(const char *str, size_t num)
 {
 	size_t len, i;
@@ -773,6 +812,7 @@ char *string_repeat(const char *str, size_t num)
 
 	for (i = 0; i < num; i++)
 	{
+		/* Cannot overflow; 'ret' has been allocated to hold enough characters. */
 		strcpy(ret + (len * i), str);
 	}
 
