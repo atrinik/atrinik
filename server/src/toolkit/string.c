@@ -748,6 +748,25 @@ char *string_join(const char *delim, ...)
 	return stringbuffer_finish(sb);
 }
 
+/**
+ * Similar to string_join(), but for an array of string pointers.
+ *
+ * Example:
+ * @code
+ * char **strs;
+ * size_t strs_num;
+ *
+ * strs_num = 2;
+ * strs = malloc(sizeof(*strs) * strs_num);
+ * strs[0] = strdup("hello");
+ * strs[1] = strdup("world");
+ *
+ * string_join_array(", ", strs, strs_num); --> "hello, world"
+ * @endcode
+ * @param delim Delimeter to use, eg, ", ". Can be NULL.
+ * @param array Array of string pointers.
+ * @param arraysize Number of entries inside ::array.
+ * @return Joined string; never NULL. Must be freed. */
 char *string_join_array(const char *delim, char **array, size_t arraysize)
 {
 	StringBuffer *sb;
