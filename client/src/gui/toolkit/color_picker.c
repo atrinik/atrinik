@@ -29,6 +29,11 @@
 
 #include <global.h>
 
+/**
+ * Create a new color picker.
+ * @param color_picker Color picker that will be initialized.
+ * @param size Size of the color picker. For best results, use a nice
+ * round number such as 50, 100, 150, etc. */
 void color_picker_create(color_picker_struct *color_picker, int size)
 {
 	size_t i;
@@ -54,12 +59,21 @@ void color_picker_create(color_picker_struct *color_picker, int size)
 	color_picker->elements[1].coords.h += size + 1;
 }
 
+/**
+ * Set the color picker's parent x/y positions.
+ * @param color_picker Color picker.
+ * @param px Parent X.
+ * @param py Parent Y. */
 void color_picker_set_parent(color_picker_struct *color_picker, int px, int py)
 {
 	color_picker->px = px;
 	color_picker->py = py;
 }
 
+/**
+ * Set color picker's color, using HTML color notation.
+ * @param color_picker Color picker.
+ * @param color_notation The notation to set. */
 void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation)
 {
 	SDL_Color color;
@@ -77,6 +91,12 @@ void color_picker_set_notation(color_picker_struct *color_picker, const char *co
 	colorspace_rgb2hsv(rgb, color_picker->hsv);
 }
 
+/**
+ * Get color picker's currently selected color as RGB.
+ * @param color_picker Color picker.
+ * @param[out] r Will contain the red value.
+ * @param[out] g Will contain the green value.
+ * @param[out] b Will contain the blue value. */
 void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b)
 {
 	double rgb[3];
@@ -88,6 +108,16 @@ void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g,
 	*b = 255 * rgb[2];
 }
 
+/**
+ * Show one color picker element.
+ * @param surface Surface to use. Can be NULL in the case that 'event' is
+ * non-NULL.
+ * @param color_picker The color picker.
+ * @param type Which element to show.
+ * @param event If non-NULL, will check for mouse events inside the color
+ * picker element.
+ * @return 1 if event is non-NULL and a mouse event was handled, 0
+ * otherwise. */
 static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *color_picker, size_t type, SDL_Event *event)
 {
 	SDL_Rect box;
@@ -103,6 +133,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 
 	mx = my = 0;
 
+	/* Create the border, if applicable. */
 	if (color_picker->border_thickness)
 	{
 		if (surface)
@@ -116,11 +147,14 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 		box.h -= color_picker->border_thickness * 2;
 	}
 
+	/* Check for events. */
 	if (event)
 	{
 		mx = event->motion.x - color_picker->px;
 		my = event->motion.y - color_picker->py;
 
+		/* If the element is being dragged, clamp the mouse x/y positions
+		 * to the element's dimensions. */
 		if (color_picker->elements[type].dragging && event->type == SDL_MOUSEMOTION)
 		{
 			if (mx < box.x)
@@ -148,52 +182,14 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			return 0;
 		}
 	}
+	/* If the element says it's being dragged, but the mouse state says
+	 * otherwise, stop dragging. */
 	else if (color_picker->elements[type].dragging && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT)
 	{
 		color_picker->elements[type].dragging = 0;
 	}
 
-	if (type == COLOR_PICKER_ELEM_HUE)
-	{
-		hsv[1] = hsv[2] = 1.0;
-
-		for (y = 0; y < box.h; y++)
-		{
-			hsv[0] = fabs(1.0 * ((double) y / (double) (box.h - 1)) - 1.0);
-			colorspace_hsv2rgb(hsv, rgb);
-
-			dest.x = box.x;
-			dest.y = box.y + y;
-			dest.w = box.w;
-			dest.h = 1;
-
-			if (event)
-			{
-				if (mx >= dest.x && my >= dest.y && mx < dest.x + dest.w && my < dest.y + dest.h)
-				{
-					logger_print(LOG(INFO), "old: %f, new: %f, %f", color_picker->hsv[0], hsv[0], ((double) y / (double) (box.h - 1)));
-					color_picker->hsv[0] = hsv[0];
-					return 1;
-				}
-
-				continue;
-			}
-
-			r = 255 * rgb[0];
-			g = 255 * rgb[1];
-			b = 255 * rgb[2];
-
-			if (color_picker->hsv[0] >= hsv[0] && color_picker->hsv[0] < hsv[0] + (1.0 * (1.0 / (double) box.h)))
-			{
-				r = 255 - r;
-				g = 255 - g;
-				b = 255 - b;
-			}
-
-			SDL_FillRect(surface, &dest, SDL_MapRGB(surface->format, r, g, b));
-		}
-	}
-	else if (type == COLOR_PICKER_ELEM_COLOR)
+	if (type == COLOR_PICKER_ELEM_COLOR)
 	{
 		int selx, sely;
 		uint32 pixel;
@@ -206,6 +202,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 		{
 			hsv[2] = 1.0 * ((double) x / (box.w - 1));
 
+			/* If this is the currently selected value, store the X coordinate. */
 			if (color_picker->hsv[2] >= hsv[2] && color_picker->hsv[2] < hsv[2] + (1.0 * (1.0 / (double) box.w)))
 			{
 				selx = x;
@@ -215,6 +212,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			{
 				hsv[1] = fabs(1.0 * ((double) y / (box.h - 1)) - 1.0);
 
+				/* If this is the currently selected saturation, store the Y coordinate. */
 				if (color_picker->hsv[1] >= hsv[1] && color_picker->hsv[1] < hsv[1] + (1.0 * (1.0 / (double) box.h)))
 				{
 					sely = y;
@@ -243,6 +241,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			}
 		}
 
+		/* Draw the crosshair for saturation/value. */
 		if (surface)
 		{
 			for (x = 0; x < box.w; x++)
@@ -260,10 +259,54 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 			}
 		}
 	}
+	else if (type == COLOR_PICKER_ELEM_HUE)
+	{
+		hsv[1] = hsv[2] = 1.0;
+
+		for (y = 0; y < box.h; y++)
+		{
+			hsv[0] = fabs(1.0 * ((double) y / (double) (box.h - 1)) - 1.0);
+			colorspace_hsv2rgb(hsv, rgb);
+
+			dest.x = box.x;
+			dest.y = box.y + y;
+			dest.w = box.w;
+			dest.h = 1;
+
+			if (event)
+			{
+				if (mx >= dest.x && my >= dest.y && mx < dest.x + dest.w && my < dest.y + dest.h)
+				{
+					color_picker->hsv[0] = hsv[0];
+					return 1;
+				}
+
+				continue;
+			}
+
+			r = 255 * rgb[0];
+			g = 255 * rgb[1];
+			b = 255 * rgb[2];
+
+			/* If this is the currently selected hue, invert the colors. */
+			if (color_picker->hsv[0] >= hsv[0] && color_picker->hsv[0] < hsv[0] + (1.0 * (1.0 / (double) box.h)))
+			{
+				r = 255 - r;
+				g = 255 - g;
+				b = 255 - b;
+			}
+
+			SDL_FillRect(surface, &dest, SDL_MapRGB(surface->format, r, g, b));
+		}
+	}
 
 	return 0;
 }
 
+/**
+ * Show the specified color picker.
+ * @param surface Surface to use.
+ * @param color_picker Color picker to show. */
 void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker)
 {
 	size_t i;
@@ -274,6 +317,11 @@ void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker)
 	}
 }
 
+/**
+ * Handle an event inside the specified color picker.
+ * @param color_picker Color picker.
+ * @param event Event to handle.
+ * @return 1 if the event was handled, 0 otherwise. */
 int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 {
 	if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) && event->button.button == SDL_BUTTON_LEFT)
@@ -293,6 +341,12 @@ int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 	return 0;
 }
 
+/**
+ * Check if mouse is over the specified color picker.
+ * @param color_picker Color picker.
+ * @param mx Mouse X.
+ * @param my Mouse Y.
+ * @return 1 if mx,my is over the color picker, 0 otherwise. */
 int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my)
 {
 	size_t i;
