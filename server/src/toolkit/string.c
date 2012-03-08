@@ -713,6 +713,16 @@ char *string_crypt(char *str, const char *salt)
 #endif
 }
 
+/**
+ * Join all the provided strings into one.
+ *
+ * Example:
+ * @code
+ * string_join(", ", "hello", "world", NULL); --> "hello, world"
+ * @endcode
+ * @param delim Delimeter to use, eg, ", ". Can be NULL.
+ * @param ... Strings to join. Must have a terminating NULL entry.
+ * @return Joined string; never NULL. Must be freed. */
 char *string_join(const char *delim, ...)
 {
 	StringBuffer *sb;
