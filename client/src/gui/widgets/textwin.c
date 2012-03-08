@@ -260,6 +260,7 @@ void textwin_tab_remove(widgetdata *widget, const char *name)
 
 		textwin->tabs = realloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
 		textwin->tabs_num--;
+		textwin_readjust(widget);
 		break;
 	}
 }
@@ -286,7 +287,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 	textwin->tabs_num++;
 
 	qsort((void *) textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (void *) (int (*)()) textwin_tab_compare);
-	textwin_create_scrollbar(widget);
+	textwin_readjust(widget);
 }
 
 int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *id)
