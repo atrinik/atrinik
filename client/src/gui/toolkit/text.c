@@ -424,6 +424,11 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 {
 	uint32 r, g, b;
 
+	if (*color_notation == '#')
+	{
+		color_notation++;
+	}
+
 	if (sscanf(color_notation, "%2X%2X%2X", &r, &g, &b) == 3)
 	{
 		color->r = r;
