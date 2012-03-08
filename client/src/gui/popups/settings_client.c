@@ -35,6 +35,19 @@ typedef union list_settings_graphic_union
 	/**
 	 * Button buffer. */
 	button_struct button[2];
+
+	/**
+	 * Text-related buffers. */
+	struct
+	{
+		/**
+		 * Text input buffer. */
+		text_input_struct text_input;
+
+		/**
+		 * Button buffer. */
+		button_struct button;
+	} text;
 } list_settings_graphic_union;
 
 /**
@@ -46,6 +59,12 @@ static size_t setting_category_selected;
 /**
  * The settings list. */
 static list_struct *list_settings;
+/**
+ * Currently focused text input. */
+static text_input_struct *text_input_focused;
+/**
+ * Currently selected text input for color picker. */
+static text_input_struct *text_input_selected;
 
 /**
  * Change setting value.
@@ -106,6 +125,31 @@ static void setting_change_value(int cat, int set, sint64 val)
 	}
 }
 
+/**
+ * Figure out setting ID by text input structure pointer.
+ * @param text_input Text input to find.
+ * @return The setting ID if found, -1 otherwise. */
+static int setting_find_by_text_input(text_input_struct *text_input)
+{
+	uint32 row;
+	setting_struct *setting;
+
+	for (row = 0; row < list_settings->rows; row++)
+	{
+		setting = setting_categories[setting_category_selected]->settings[row];
+
+		if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR)
+		{
+			if (&((list_settings_graphic_union *) list_settings->data)[row].text.text_input == text_input)
+			{
+				return row;
+			}
+		}
+	}
+
+	return -1;
+}
+
 /** @copydoc button_struct::repeat_func */
 static void settings_list_button_repeat(button_struct *button)
 {
@@ -159,6 +203,7 @@ static void settings_list_reload(void)
 	size_t i;
 	setting_struct *setting;
 
+	text_input_focused = text_input_selected = NULL;
 	list_settings->data = memory_reallocz(list_settings->data, sizeof(list_settings_graphic_union) * list_settings->rows, sizeof(list_settings_graphic_union) * setting_categories[setting_category_selected]->settings_num);
 
 	/* Clear all the rows. */
@@ -202,6 +247,29 @@ static void settings_list_reload(void)
 			button_left->texture_pressed = button_right->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
 			button_left->repeat_func = button_right->repeat_func = settings_list_button_repeat;
 		}
+		else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR)
+		{
+			text_input_struct *text_input;
+
+			text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
+			text_input_create(text_input);
+			text_input_set(text_input, setting_get_str(setting_category_selected, i));
+			text_input->font = FONT_ARIAL10;
+			text_input->w = 100;
+			text_input->h = FONT_HEIGHT(text_input->font);
+			text_input->focus = 0;
+
+			if (setting->type == OPT_TYPE_COLOR)
+			{
+				button_struct *button;
+
+				button = &((list_settings_graphic_union *) list_settings->data)[i].text.button;
+				button_create(button);
+				button->color_shadow = button->color_over_shadow = NULL;
+				button->texture = texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:40,14");
+				button->texture_over = button->texture_pressed = NULL;
+			}
+		}
 	}
 
 	list_offsets_ensure(list_settings);
@@ -221,7 +289,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	}
 
 	x = list->x + list->frame_offset;
-	y = LIST_ROWS_START(list) + (row * LIST_ROW_HEIGHT(list));
+	y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 
 	/* Show the actual setting name. */
 	string_show_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 3, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
@@ -297,6 +365,54 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		button_set_parent(button_right, list->px, list->py);
 		button_show(button_right, ">");
 	}
+	else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR)
+	{
+		text_input_struct *text_input;
+		SDL_Rect dst;
+
+		dst.x = x + list->width - 2;
+		dst.y = y + 2;
+
+		if (setting->type == OPT_TYPE_COLOR)
+		{
+			button_struct *button;
+			SDL_Color color;
+			SDL_Rect box;
+			char color_notation[COLOR_BUF];
+
+			button = &((list_settings_graphic_union *) list_settings->data)[row].text.button;
+			dst.x -= TEXTURE_SURFACE(button->texture)->w;
+			button_set_parent(button, list->px, list->py);
+			button->surface = list->surface;
+			button->x = dst.x;
+			button->y = dst.y;
+			button_show(button, NULL);
+
+			if (text_color_parse(setting_get_str(setting_category_selected, row), &color))
+			{
+				snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255 - color.r, 255 - color.g, 255 - color.b);
+			}
+			else
+			{
+				color.r = color.g = color.b = 0;
+				snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255, 255, 255);
+			}
+
+			box.w = TEXTURE_SURFACE(button->texture)->w;
+			box.h = TEXTURE_SURFACE(button->texture)->h;
+			string_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "<bar=#%.2X%.2X%.2X %d %d>", color.r, color.g, color.b, box.w, box.h);
+			string_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+
+			dst.x -= 5;
+		}
+
+		text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
+		dst.x -= text_input->w;
+		text_input->focus = text_input_focused == text_input;
+		text_input_set_parent(text_input, list->px, list->py);
+		text_input_show(text_input, list->surface, dst.x, dst.y + 1);
+		text_input->focus = 0;
+	}
 }
 
 /** @copydoc list_struct::handle_enter_func */
@@ -314,6 +430,25 @@ static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *even
 	if (event->type == SDL_MOUSEMOTION)
 	{
 		list->row_selected = row + 1;
+	}
+}
+
+/** @copydoc color_picker::callback_func */
+static void color_picker_callback(color_picker_struct *color_picker)
+{
+	char color_notation[MAX_BUF];
+	double rgb[3];
+	int i;
+
+	colorspace_hsv2rgb(color_picker->hsv, rgb);
+	snprintf(color_notation, sizeof(color_notation), "#%.2X%.2X%.2X", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
+
+	i = setting_find_by_text_input(text_input_selected);
+
+	if (i != -1)
+	{
+		text_input_set(text_input_selected, color_notation);
+		setting_set_str(setting_category_selected, i, color_notation);
 	}
 }
 
@@ -412,6 +547,46 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 	if (event->type == SDL_KEYDOWN)
 	{
+		if (text_input_focused)
+		{
+			text_input_focused->focus = 1;
+
+			if (event->key.keysym.sym == SDLK_ESCAPE)
+			{
+				text_input_focused = NULL;
+				return 1;
+			}
+			else if (IS_ENTER(event->key.keysym.sym))
+			{
+				int i;
+				text_input_struct *text_input;
+
+				i = setting_find_by_text_input(text_input_focused);
+
+				if (i == -1)
+				{
+					return 1;
+				}
+
+				setting = setting_categories[setting_category_selected]->settings[i];
+				text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
+				text_input_focused = NULL;
+
+				if (setting->type == OPT_TYPE_COLOR && !text_color_parse(text_input->str, NULL))
+				{
+					text_input_set(text_input, setting_get_str(setting_category_selected, i));
+					return 1;
+				}
+
+				setting_set_str(setting_category_selected, i, text_input->str);
+				return 1;
+			}
+			else if (text_input_event(text_input_focused, event))
+			{
+				return 1;
+			}
+		}
+
 		if (event->key.keysym.sym == SDLK_ESCAPE)
 		{
 			popup_destroy(popup);
@@ -443,6 +618,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 			return 1;
 		}
+	}
+
+	if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	{
+		text_input_focused = NULL;
 	}
 
 	for (row = 0; row < list_settings->rows; row++)
@@ -481,6 +661,38 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 			else if (button_event(button_right, event))
 			{
 				settings_list_button_repeat(button_right);
+				return 1;
+			}
+		}
+		else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR)
+		{
+			text_input_struct *text_input;
+
+			text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
+
+			if (setting->type == OPT_TYPE_COLOR)
+			{
+				button_struct *button;
+
+				button = &((list_settings_graphic_union *) list_settings->data)[row].text.button;
+
+				if (button_event(button, event))
+				{
+					color_picker_struct *color_picker;
+
+					text_input_selected = text_input;
+
+					color_picker = color_chooser_open();
+					color_picker->callback_func = color_picker_callback;
+					color_picker_set_notation(color_picker, setting_get_str(setting_category_selected, row));
+
+					return 1;
+				}
+			}
+
+			if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y)) || (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym)))
+			{
+				text_input_focused = text_input;
 				return 1;
 			}
 		}
