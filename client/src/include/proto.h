@@ -349,6 +349,7 @@ extern void color_picker_set_notation(color_picker_struct *color_picker, const c
 extern void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b);
 extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
 extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
+extern int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my);
 /* src/gui/toolkit/list.c */
 extern void list_set_parent(list_struct *list, int px, int py);
 extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
