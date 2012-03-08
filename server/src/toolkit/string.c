@@ -665,7 +665,7 @@ int string_contains_other(const char *str, const char *key)
  * @endcode
  * @param start Character index start.
  * @param end Character index end.
- * @return The generated string. */
+ * @return The generated string; never NULL. Must be freed. */
 char *string_create_char_range(char start, char end)
 {
 	char *str, c;
