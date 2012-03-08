@@ -792,6 +792,16 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
 	return stringbuffer_finish(sb);
 }
 
+/**
+ * Repeat the specified string X number of times.
+ *
+ * Example:
+ * @code
+ * string_repeat("world", 5); --> "worldworldworldworldworld"
+ * @endcode
+ * @param str String to repeat.
+ * @param num How many times to repeat the string.
+ * @return Constructed string; never NULL. Must be freed. */
 char *string_repeat(const char *str, size_t num)
 {
 	size_t len, i;
@@ -802,6 +812,7 @@ char *string_repeat(const char *str, size_t num)
 
 	for (i = 0; i < num; i++)
 	{
+		/* Cannot overflow; 'ret' has been allocated to hold enough characters. */
 		strcpy(ret + (len * i), str);
 	}
 
