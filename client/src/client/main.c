@@ -299,6 +299,11 @@ void clioption_settings_deinit(void)
 			free(clioption_settings.connect[i]);
 		}
 	}
+
+	if (clioption_settings.game_news_url)
+	{
+		free(clioption_settings.game_news_url);
+	}
 }
 
 static void clioptions_option_server(const char *arg)
@@ -329,6 +334,11 @@ static void clioptions_option_nometa(const char *arg)
 static void clioptions_option_text_debug(const char *arg)
 {
 	text_enable_debug();
+}
+
+static void clioptions_option_game_news_url(const char *arg)
+{
+	clioption_settings.game_news_url = strdup(arg);
 }
 
 /**
@@ -385,6 +395,15 @@ int main(int argc, char *argv[])
 		"text_debug",
 		NULL,
 		clioptions_option_text_debug,
+		0,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"game_news_url",
+		NULL,
+		clioptions_option_game_news_url,
 		0,
 		"",
 		""
