@@ -66,13 +66,6 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 	return -1;
 }
 
-/** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback(popup_struct *popup)
-{
-	free(popup->custom_data);
-	return 1;
-}
-
 /**
  * Open a color chooser popup.
  * @return Allocated color picker. */
@@ -87,7 +80,6 @@ color_picker_struct *color_chooser_open(void)
 	popup = popup_create("content");
 	popup->draw_func = popup_draw;
 	popup->event_func = popup_event;
-	popup->destroy_callback_func = popup_destroy_callback;
 	popup->custom_data = color_picker;
 	popup->modal = 0;
 	popup->destroy_on_switch = 1;

@@ -102,6 +102,11 @@ void popup_destroy(popup_struct *popup)
 		free(popup->buf);
 	}
 
+	if (popup->custom_data)
+	{
+		free(popup->custom_data);
+	}
+
 	popup_button_free(&popup->button_right);
 	popup_button_free(&popup->button_left);
 
