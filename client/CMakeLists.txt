@@ -121,7 +121,7 @@ set(SOURCES
 	src/events/move.c
 	src/gui/misc/effects.c
 	src/gui/misc/game_news.c
-	src/gui/misc/main.c
+	src/gui/misc/intro.c
 	src/gui/popups/book.c
 	src/gui/popups/characters.c
 	src/gui/popups/color_chooser.c

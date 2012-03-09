@@ -300,8 +300,8 @@ extern void effect_scale(sprite_struct *sprite);
 /* src/gui/misc/game_news.c */
 extern void game_news_open(const char *title);
 /* src/gui/misc/main.c */
-extern void main_screen_render(void);
-extern int main_screen_event(SDL_Event *event);
+extern void intro_show(void);
+extern int intro_event(SDL_Event *event);
 /* src/gui/popups/book.c */
 extern UT_array *book_help_history;
 extern void book_name_change(const char *name, size_t len);

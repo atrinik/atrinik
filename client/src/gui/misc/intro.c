@@ -95,7 +95,7 @@ static void list_handle_esc(list_struct *list)
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
-void main_screen_render(void)
+void intro_show(void)
 {
 	SDL_Surface *texture;
 	int x, y;
@@ -306,7 +306,7 @@ void main_screen_render(void)
  * Handle event in the main screen.
  * @param event The event to handle.
  * @return 1 if the event was handled, 0 otherwise. */
-int main_screen_event(SDL_Event *event)
+int intro_event(SDL_Event *event)
 {
 	if (!list_servers)
 	{

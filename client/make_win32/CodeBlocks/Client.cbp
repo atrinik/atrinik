@@ -79,7 +79,7 @@
 		<Unit filename="..\..\src\events\move.c" />
 		<Unit filename="..\..\src\gui\misc\effects.c" />
 		<Unit filename="..\..\src\gui\misc\game_news.c" />
-		<Unit filename="..\..\src\gui\misc\main.c" />
+		<Unit filename="..\..\src\gui\misc\intro.c" />
 		<Unit filename="..\..\src\gui\popups\book.c" />
 		<Unit filename="..\..\src\gui\popups\characters.c" />
 		<Unit filename="..\..\src\gui\popups\color_chooser.c" />

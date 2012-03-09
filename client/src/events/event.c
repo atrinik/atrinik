@@ -150,7 +150,7 @@ int Event_PollInputDevice(void)
 			{
 				continue;
 			}
-			else if (cpl.state <= ST_WAITFORPLAY && main_screen_event(&event))
+			else if (cpl.state <= ST_WAITFORPLAY && intro_event(&event))
 			{
 				continue;
 			}

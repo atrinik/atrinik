@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
 
 			if (cpl.state <= ST_WAITFORPLAY)
 			{
-				main_screen_render();
+				intro_show();
 			}
 
 			if (f_custom_cursor)
