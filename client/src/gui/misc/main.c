@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Servers list, logging to a server, creating new character, etc.
+ * The intro screen.
  *
  * @author Alex Tokar */
 
@@ -34,13 +34,6 @@
 #define EYES_BLINK_TIME (10 * 1000)
 /** How long the eyes remain 'closed' (not drawn). */
 #define EYES_BLINK_DELAY (200)
-
-/** Maximum width of the news text. */
-#define NEWS_MAX_WIDTH 455
-/** Maximum height of the news text. */
-#define NEWS_MAX_HEIGHT 250
-/** Font of the news text. */
-#define NEWS_FONT FONT_SANS12
 
 /**
  * Last server count to see when to re-create the servers list. Since the
@@ -55,404 +48,13 @@ static curl_data *news_data = NULL;
 static uint32 eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8 eyes_draw = 1;
-
-/** Character creation step. */
-static int char_step = 0;
-/** Selected race. */
-static uint32 char_race_selected;
-/** Selected @ref GENDER_xxx "gender". */
-static int char_gender_selected;
-/** Maximum number of character creation steps. */
-const int char_step_max = 2;
-
-/** Progress dots in login. */
-static progress_dots progress;
 /** Button buffer. */
 static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_quit;
-/** News scrollbar. */
-static scrollbar_struct scrollbar_news;
-/** Buffers for scrolling text in the news popup. */
-static uint32 news_scroll_offset, news_num_lines;
 
 /** The news list. */
 static list_struct *list_news = NULL;
 /** The servers list. */
 static list_struct *list_servers = NULL;
-/** Character creation list. */
-static list_struct *list_creation = NULL;
-
-/** @copydoc popup_struct::draw_func */
-static int news_popup_draw_func(popup_struct *popup)
-{
-	/* Got the news yet? */
-	if (popup->buf)
-	{
-		SDL_Rect box;
-
-		box.w = 420;
-		box.h = 22;
-		/* Show the news title. */
-		string_show(popup->surface, FONT_SERIF12, list_news->text[list_news->row_selected - 1][0], 40, 8, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-
-		box.w = NEWS_MAX_WIDTH;
-		box.h = NEWS_MAX_HEIGHT;
-
-		/* Calculate number of last displayed lines. */
-		if (!news_num_lines)
-		{
-			string_show(NULL, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
-			news_num_lines = box.h;
-			scrollbar_create(&scrollbar_news, 15, 240, &news_scroll_offset, &news_num_lines, box.y);
-			scrollbar_news.px = popup->x;
-			scrollbar_news.py = popup->y;
-			box.h = NEWS_MAX_HEIGHT;
-		}
-
-		/* Skip rows we scrolled past. */
-		box.y = news_scroll_offset;
-		/* Show the news. */
-		string_show(popup->surface, NEWS_FONT, popup->buf, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
-
-		scrollbar_show(&scrollbar_news, popup->surface, popup->surface->w - 28, 45);
-		return 1;
-	}
-	/* Haven't started downloading yet. */
-	else if (!popup->custom_data)
-	{
-		char url[MAX_BUF], *id;
-		CURL *curl;
-
-		/* Initialize cURL, escape the selected row's text and construct
-		 * the url to use for downloading. */
-		curl = curl_easy_init();
-		id = curl_easy_escape(curl, list_news->text[list_news->row_selected - 1][0], 0);
-		snprintf(url, sizeof(url), "http://www.atrinik.org/client_news.php?news=%s", id);
-		curl_free(id);
-		curl_easy_cleanup(curl);
-
-		/* Start downloading. */
-		popup->custom_data = curl_download_start(url);
-	}
-	/* Downloading. */
-	else
-	{
-		/* Check if we finished yet. */
-		int ret = curl_download_finished(popup->custom_data);
-
-		/* Yes, we finished, store the string we got. */
-		if (ret == 1)
-		{
-			popup->buf = strdup(((curl_data *) popup->custom_data)->memory ? ((curl_data *) popup->custom_data)->memory : "???");
-		}
-
-		/* Free the cURL data if we finished. */
-		if (ret != 0)
-		{
-			curl_data_free(popup->custom_data);
-			popup->custom_data = NULL;
-		}
-	}
-
-	/* Haven't downloaded the text yet, inform the user. */
-	string_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 10, 40, COLOR_WHITE, TEXT_ALIGN_CENTER, NULL);
-	return 1;
-}
-
-/** @copydoc popup_struct::event_func */
-static int news_popup_event_func(popup_struct *popup, SDL_Event *event)
-{
-	if (popup->buf && scrollbar_event(&scrollbar_news, event))
-	{
-		return 1;
-	}
-
-	if (event->type == SDL_KEYDOWN)
-	{
-		/* Escape was pressed? */
-		if (event->key.keysym.sym == SDLK_ESCAPE)
-		{
-			/* Free the cURL data, if any. */
-			if (popup->custom_data)
-			{
-				curl_data_free(popup->custom_data);
-				popup->custom_data = NULL;
-			}
-		}
-		/* Scroll the text. */
-		else if (event->key.keysym.sym == SDLK_DOWN && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, 1);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_UP && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, -1);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_PAGEUP && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, -scrollbar_news.max_lines);
-			return 1;
-		}
-		else if (event->key.keysym.sym == SDLK_PAGEDOWN && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, scrollbar_news.max_lines);
-			return 1;
-		}
-	}
-	/* Mouse wheel? */
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
-	{
-		if (event->button.button == SDL_BUTTON_WHEELDOWN && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, 1);
-			return 1;
-		}
-		else if (event->button.button == SDL_BUTTON_WHEELUP && popup->buf)
-		{
-			scrollbar_scroll_adjust(&scrollbar_news, -1);
-			return 1;
-		}
-	}
-
-	return -1;
-}
-
-/**
- * Handle enter, double-clicking etc in character creation popup.
- * @param list Associated list; holds the selected entry etc. Will be
- * removed. */
-static void char_creation_enter(list_struct *list)
-{
-	char buf[MAX_BUF];
-
-	/* Picked race. */
-	if (char_step == 0)
-	{
-		char_race_selected = list->row_selected - 1;
-	}
-	/* Picked gender. */
-	else if (char_step == 1)
-	{
-		/* This is more complicated than the above, because we have to
-		 * change the gender's first letter back to lowercase, and find
-		 * its ID. */
-		strncpy(buf, list->text[list->row_selected - 1][0], sizeof(buf) - 1);
-		buf[0] = tolower(buf[0]);
-		buf[sizeof(buf) - 1] = '\0';
-		char_gender_selected = gender_to_id(buf);
-	}
-	/* Selected stats, create the character. */
-	else if (char_step == 2)
-	{
-		return;
-	}
-
-	char_step++;
-
-	if (list)
-	{
-		list_remove(list);
-		list_creation = NULL;
-	}
-}
-
-/** @copydoc popup_struct::draw_post_func */
-static int popup_draw_post_func(popup_struct *popup)
-{
-	size_t i;
-	int face = 0, x, y;
-	SDL_Rect box;
-
-	x = popup->x;
-	y = popup->y;
-
-	y += 65;
-
-	if (char_step == 2)
-	{
-		y += 40;
-	}
-
-	if (!list_creation)
-	{
-		/* Create a new list. */
-		list_creation = list_create(7, 1, 0);
-		list_creation->handle_enter_func = char_creation_enter;
-
-		/* Show list of races. */
-		if (char_step == 0)
-		{
-			list_set_column(list_creation, 0, 250, 7, NULL, -1);
-
-			for (i = 0; i < s_settings->num_characters; i++)
-			{
-				list_add(list_creation, i, 0, s_settings->characters[i].name);
-			}
-		}
-		/* List of genders. */
-		else if (char_step == 1)
-		{
-			char buf[30];
-			size_t row = 0;
-
-			list_set_column(list_creation, 0, 250, 7, NULL, -1);
-
-			for (i = 0; i < GENDER_MAX; i++)
-			{
-				/* Does the selected race have this gender? */
-				if (s_settings->characters[char_race_selected].gender_archetypes[i])
-				{
-					/* Uppercase the first letter of the gender's name
-					 * and add it to the list. */
-					strncpy(buf, gender_noun[i], sizeof(buf) - 1);
-					buf[0] = toupper(buf[0]);
-					buf[sizeof(buf) - 1] = '\0';
-					list_add(list_creation, row, 0, buf);
-					row++;
-				}
-			}
-		}
-		/* The stats. */
-		else if (char_step == 2)
-		{
-			list_set_column(list_creation, 0, 30, 7, NULL, -1);
-			list_creation->y += 2;
-			list_creation->row_height_adjust = 6;
-			list_creation->row_color_func = NULL;
-			list_creation->row_highlight_func = NULL;
-			list_creation->row_selected_func = NULL;
-			list_creation->draw_frame_func = NULL;
-			list_add(list_creation, 0, 0, "STR:");
-			list_add(list_creation, 1, 0, "DEX:");
-			list_add(list_creation, 2, 0, "CON:");
-			list_add(list_creation, 3, 0, "INT:");
-			list_add(list_creation, 4, 0, "WIS:");
-			list_add(list_creation, 5, 0, "POW:");
-			list_add(list_creation, 6, 0, "CHA:");
-		}
-	}
-
-	list_show(list_creation, x + 20, y);
-
-	/* Race picking, pick first possible gender. */
-	if (char_step == 0)
-	{
-		box.w = 460;
-		box.h = 96;
-		string_show(ScreenSurface, FONT_SERIF12, s_settings->characters[list_creation->row_selected - 1].desc, x + 20, y + 125, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
-
-		for (i = 0; i < GENDER_MAX; i++)
-		{
-			/* Does the selected race have this gender? */
-			if (s_settings->characters[list_creation->row_selected - 1].gender_archetypes[i])
-			{
-				break;
-			}
-		}
-	}
-	else if (char_step == 1)
-	{
-		char buf[MAX_BUF];
-
-		strncpy(buf, list_creation->text[list_creation->row_selected - 1][0], sizeof(buf) - 1);
-		buf[0] = tolower(buf[0]);
-		buf[sizeof(buf) - 1] = '\0';
-	}
-
-	if (char_step == 2)
-	{
-	}
-	else
-	{
-		face_show(ScreenSurface, x + 300, y + 35, face);
-	}
-
-	/* Show the stat values and the range buttons. */
-	if (char_step == 2)
-	{
-	}
-
-	y += 100;
-
-	if (char_step == 2)
-	{
-		y += 65;
-	}
-
-	return 1;
-}
-
-/**
- * Draw the server connection/character creation popup.
- * @param popup Popup. */
-static int popup_draw_func(popup_struct *popup)
-{
-	uint8 downloading;
-	SDL_Rect box;
-
-	/* Waiting to log in. */
-	if (cpl.state == ST_WAITFORPLAY)
-	{
-		box.w = popup->surface->w;
-		box.h = popup->surface->h;
-		string_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-		return 1;
-	}
-	/* Playing now, so destroy this popup. */
-	else if (cpl.state == ST_PLAY)
-	{
-		return 0;
-	}
-	/* Connection terminated while we were trying to login. */
-	else if (cpl.state <= ST_WAITLOOP)
-	{
-		return 0;
-	}
-
-	/* Downloading the files, or updates haven't finished yet? */
-	downloading = cpl.state < ST_LOGIN || !file_updates_finished();
-
-	progress.done = !downloading;
-	progress_dots_show(&progress, popup->surface, 75, 42);
-
-	/* Show that we are connecting to the server. */
-	box.w = 420;
-	box.h = 22;
-	string_show_shadow(popup->surface, FONT_SERIF14, "Character Login", 40, 8, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-
-	if (downloading)
-	{
-		return 1;
-	}
-
-	box.w = popup->surface->w / 2;
-
-	return 1;
-}
-
-/** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback_func(popup_struct *popup)
-{
-	(void) popup;
-
-	list_remove(list_creation);
-	list_creation = NULL;
-
-	if (cpl.state != ST_PLAY)
-	{
-		cpl.state = ST_START;
-	}
-
-	return 1;
-}
-
-/** @copydoc popup_struct::event_func */
-static int popup_event_func(popup_struct *popup, SDL_Event *event)
-{
-
-	return -1;
-}
 
 /**
  * Handle enter key being pressed in the servers list.
@@ -470,24 +72,13 @@ static void list_handle_enter(list_struct *list)
 		{
 			login_start();
 			return;
-			popup_struct *popup = popup_create("popup");
-
-			popup->draw_func = popup_draw_func;
-			popup->draw_post_func = popup_draw_post_func;
-			popup->event_func = popup_event_func;
-			popup->destroy_callback_func = popup_destroy_callback_func;
-			progress_dots_create(&progress);
 		}
 	}
 	else if (list == list_news)
 	{
 		if (list->text && list->text[list->row_selected - 1])
 		{
-			popup_struct *popup = popup_create("popup");
-
-			popup->draw_func = news_popup_draw_func;
-			popup->event_func = news_popup_event_func;
-			news_scroll_offset = news_num_lines = 0;
+			game_news_open(list->text[list->row_selected - 1][0]);
 		}
 	}
 }
@@ -643,7 +234,7 @@ void main_screen_render(void)
 	if (!list_news)
 	{
 		/* Start downloading. */
-		news_data = curl_download_start("http://www.atrinik.org/client_news.php");
+		news_data = curl_download_start(clioption_settings.game_news_url);
 
 		list_news = list_create(18, 1, 8);
 		list_news->focus = 0;

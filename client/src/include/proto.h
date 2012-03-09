@@ -298,8 +298,8 @@ extern void effect_stop(void);
 extern uint8 effect_has_overlay(void);
 extern void effect_scale(sprite_struct *sprite);
 /* src/gui/misc/game_news.c */
+extern void game_news_open(const char *title);
 /* src/gui/misc/main.c */
-extern const int char_step_max;
 extern void main_screen_render(void);
 extern int main_screen_event(SDL_Event *event);
 /* src/gui/popups/book.c */
