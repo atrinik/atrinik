@@ -28,7 +28,7 @@
 			<Add option="-DCURL_STATICLIB" />
 			<Add directory="..\..\src\include" />
 			<Add directory="..\..\src\toolkit\include" />
-			<Add directory="..\..\src\toolkit_gui\include" />
+			<Add directory="..\..\src\gui\toolkit\include" />
 			<Add directory="include" />
 			<Add directory="include\SDL" />
 		</Compiler>
