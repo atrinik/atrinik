@@ -58,6 +58,10 @@ typedef struct curl_data
 	 * - -1: An error occurred trying to get the data.
 	 * - 1: cURL thread finished and the data is ready to be used. */
 	sint8 status;
+
+	/**
+	 * Will contain HTTP code. */
+	int http_code;
 } curl_data;
 
 #define CURL_TIMEOUT 15

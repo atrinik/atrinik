@@ -222,6 +222,7 @@ int curl_connect(void *c_data)
 	}
 
 	curl_easy_getinfo(handle, CURLINFO_HTTP_CODE, &http_code);
+	data->http_code = http_code;
 
 	if (http_code != 200)
 	{
@@ -253,6 +254,7 @@ curl_data *curl_data_new(const char *url)
 	data->memory = NULL;
 	data->size = 0;
 	data->status = 0;
+	data->http_code = -1;
 	/* Create a mutex to protect the structure. */
 	data->mutex = SDL_CreateMutex();
 
