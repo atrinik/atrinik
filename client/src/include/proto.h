@@ -205,7 +205,6 @@ extern void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos);
 extern void sound_pause_music(void);
 extern void sound_resume_music(void);
 extern int sound_playing_music(void);
-extern void sound_midi_play(const char *path);
 /* src/client/sprite.c */
 extern struct _anim *start_anim;
 extern SDL_Surface *FormatHolder;
@@ -299,7 +298,7 @@ extern uint8 effect_has_overlay(void);
 extern void effect_scale(sprite_struct *sprite);
 /* src/gui/misc/game_news.c */
 extern void game_news_open(const char *title);
-/* src/gui/misc/main.c */
+/* src/gui/misc/intro.c */
 extern void intro_show(void);
 extern int intro_event(SDL_Event *event);
 /* src/gui/popups/book.c */
