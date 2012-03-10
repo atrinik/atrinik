@@ -287,6 +287,11 @@ void clioption_settings_deinit(void)
 		free(clioption_settings.servers[i]);
 	}
 
+	for (i = 0; i < clioption_settings.metaservers_num; i++)
+	{
+		free(clioption_settings.metaservers[i]);
+	}
+
 	if (clioption_settings.servers)
 	{
 		free(clioption_settings.servers);
@@ -311,6 +316,13 @@ static void clioptions_option_server(const char *arg)
 	clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
 	clioption_settings.servers[clioption_settings.servers_num] = strdup(arg);
 	clioption_settings.servers_num++;
+}
+
+static void clioptions_option_metaserver(const char *arg)
+{
+	clioption_settings.metaservers = realloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
+	clioption_settings.metaservers[clioption_settings.metaservers_num] = strdup(arg);
+	clioption_settings.metaservers_num++;
 }
 
 static void clioptions_option_connect(const char *arg)
@@ -368,6 +380,15 @@ int main(int argc, char *argv[])
 		"server",
 		NULL,
 		clioptions_option_server,
+		1,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"metaserver",
+		NULL,
+		clioptions_option_metaserver,
 		1,
 		"",
 		""

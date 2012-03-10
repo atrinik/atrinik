@@ -30,11 +30,6 @@
 
 #include <global.h>
 
-/** List of metaservers. Will loop these until we successfully connect to one. */
-static const char *const metaservers[] = {"http://meta.atrinik.org/", "http://atokar.is-a-geek.net/", "http://www.wordowl.com/misc/atrinik/"};
-/** The number of ::metaservers. */
-#define NUM_METASERVERS (sizeof(metaservers) / sizeof(metaservers[0]))
-
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
 /** Mutex to protect ::metaserver_connecting. */
@@ -200,31 +195,27 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
  * @return Always returns 0. */
 int metaserver_thread(void *dummy)
 {
-	size_t metaserver_id;
+	size_t i;
 	curl_data *data;
 
-	(void) dummy;
-
 	/* Go through all the metaservers in the list */
-	for (metaserver_id = 0; metaserver_id < NUM_METASERVERS; metaserver_id++)
+	for (i = clioption_settings.metaservers_num; i > 0; i--)
 	{
-		data = curl_data_new(metaservers[metaserver_id]);
+		data = curl_data_new(clioption_settings.metaservers[i - 1]);
 
-		/* If the connection succeeded, break out */
+		/* If the connection succeeded, break out. */
 		if (curl_connect(data) == 1 && data->memory)
 		{
-			char *buf = strdup(data->memory), *cp, *saveptr = NULL;
+			char word[HUGE_BUF];
+			size_t pos;
 
-			cp = strtok_r(buf, "\n", &saveptr);
+			pos = 0;
 
-			/* Loop through all the lines returned */
-			while (cp)
+			while (string_get_word(data->memory, &pos, '\n', word, sizeof(word)))
 			{
-				parse_metaserver_data(cp);
-				cp = strtok_r(NULL, "\n", &saveptr);
+				parse_metaserver_data(word);
 			}
 
-			free(buf);
 			curl_data_free(data);
 			break;
 		}

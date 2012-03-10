@@ -147,6 +147,10 @@ typedef struct clioption_settings_struct
 
 	size_t servers_num;
 
+	char **metaservers;
+
+	size_t metaservers_num;
+
 	char *connect[4];
 
 	char *game_news_url;
