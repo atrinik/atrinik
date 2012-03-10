@@ -101,8 +101,6 @@ static int game_status_chain(void)
 {
 	if (cpl.state == ST_INIT)
 	{
-		cpl.mark_count = -1;
-
 		map_udate_flag = 2;
 		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 		clear_map();
