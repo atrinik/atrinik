@@ -377,7 +377,7 @@ void object_send_mark(object *op)
 
 	if (cpl.mark_count == op->tag)
 	{
-		cpl.mark_count = -1;
+		cpl.mark_count = 0;
 	}
 	else
 	{
