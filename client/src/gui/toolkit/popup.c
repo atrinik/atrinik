@@ -238,7 +238,7 @@ int popup_handle_event(SDL_Event *event)
 		if (popup_head->destroy_on_switch)
 		{
 			popup_destroy(popup_head);
-			return 0;
+			return 1;
 		}
 	}
 
