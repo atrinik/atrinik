@@ -418,6 +418,7 @@ void textwin_handle_copy(widgetdata *widget)
 	}
 
 	cp[i] = '\0';
+	cp = text_strip_markup(cp, NULL, 1);
 
 	clipboard_set(cp);
 	free(str);
