@@ -40,7 +40,7 @@ static void widget_input_handle_enter(widgetdata *widget)
 	if (*text_input->str != '\0')
 	{
 		StringBuffer *sb;
-		char *cp;
+		char *cp, *str;
 
 		sb = stringbuffer_new();
 
@@ -49,7 +49,9 @@ static void widget_input_handle_enter(widgetdata *widget)
 			stringbuffer_append_string(sb, WIDGET_INPUT(widget)->prepend_text);
 		}
 
-		stringbuffer_append_string(sb, text_input->str);
+		str = text_escape_markup(text_input->str);
+		stringbuffer_append_string(sb, str);
+		free(str);
 
 		cp = stringbuffer_finish(sb);
 		send_command_check(cp);
