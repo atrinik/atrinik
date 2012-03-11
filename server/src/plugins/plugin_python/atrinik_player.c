@@ -504,6 +504,43 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>player.DrawInfo(string message, string [color = @ref COLOR_ORANGE], int [type = @ref CHAT_TYPE_GAME], bool [global = False], string [name = None])</h1>
+ * Sends a message to the specified player.
+ * @param message The message to send.
+ * @param color Color to use for the message. Can be one of @ref COLOR_xxx
+ * or an HTML color notation.
+ * @param type One of @ref CHAT_TYPE_xxx.
+ * @param global If True, the message will be broadcasted to all players.
+ * @param name Player name that is the source of this message, if applicable.
+ * If None and 'type' is not @ref CHAT_TYPE_GAME, player.ob.name will be used. */
+static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+{
+	static char *kwlist[] = {"message", "color", "type", "global", "name", NULL};
+	const char *message, *color, *name;
+	uint8 type, global;
+
+	color = COLOR_ORANGE;
+	type = CHAT_TYPE_GAME;
+	global = 0;
+	name = NULL;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|sbbz", kwlist, &message, &color, &type, &global, &name))
+	{
+		return NULL;
+	}
+
+	if (!name && type != CHAT_TYPE_GAME)
+	{
+		name = pl->pl->ob->name;
+	}
+
+	hooks->draw_info_type(type, name, color, global ? NULL : pl->pl->ob, message);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -521,6 +558,7 @@ static PyMethodDef methods[] =
 	{"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
 	{"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
 	{"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
+	{"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
 	{NULL, NULL, 0, 0}
 };
 
