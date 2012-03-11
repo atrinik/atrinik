@@ -614,7 +614,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer, int player_h
 	{
 		if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1 || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2 && strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))) || (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3 && !strncasecmp(map->pname[GET_MAP_LAYER(layer, sub_layer)], cpl.name, strlen(map->pname[GET_MAP_LAYER(layer, sub_layer)]))))
 		{
-			text_show(cur_widget[MAP_ID]->surface, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - string_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
+			text_show(cur_widget[MAP_ID]->surface, FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], xmpos + xtemp + (xml - xtemp * 2) / 2 - text_get_width(FONT_SANS9, map->pname[GET_MAP_LAYER(layer, sub_layer)], 0) / 2 - 2, yl - 24, map->pcolor[GET_MAP_LAYER(layer, sub_layer)], TEXT_OUTLINE, NULL);
 		}
 	}
 
@@ -737,7 +737,7 @@ void map_draw_map(void)
 
 		if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) && target_cell->pname[target_layer][0]))
 		{
-			text_show(cur_widget[MAP_ID]->surface, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - string_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
+			text_show(cur_widget[MAP_ID]->surface, FONT_SANS9, cpl.target_name, target_rect.x + target_rect.w / 2 - text_get_width(FONT_SANS9, cpl.target_name, 0) / 2, target_rect.y - 15, cpl.target_color, TEXT_OUTLINE, NULL);
 		}
 
 		rectangle_create(cur_widget[MAP_ID]->surface, target_rect.x - 2, target_rect.y - 2, 1, 5, hp_color);
@@ -1117,7 +1117,7 @@ static void widget_draw(widgetdata *widget)
 
 			while (cp)
 			{
-				text_show(ScreenSurface, FONT_SERIF16, cp, widget->x + widget->surface->w / 2 - string_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
+				text_show(ScreenSurface, FONT_SERIF16, cp, widget->x + widget->surface->w / 2 - text_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2, widget->y + 300 - bmoff + y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP, NULL);
 				y_offset += FONT_HEIGHT(FONT_SERIF16);
 				cp = strtok(NULL, "\n");
 			}

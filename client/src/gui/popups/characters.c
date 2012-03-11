@@ -277,7 +277,7 @@ static int popup_draw(popup_struct *popup)
 
 		for (i = 0; i < s_settings->num_characters; i++)
 		{
-			width = string_get_width(FONT_SERIF12, s_settings->characters[i].name, 0);
+			width = text_get_width(FONT_SERIF12, s_settings->characters[i].name, 0);
 
 			if (width > max_width)
 			{

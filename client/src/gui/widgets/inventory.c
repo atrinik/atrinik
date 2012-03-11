@@ -205,7 +205,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - text_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
 
 				/* 255 item quality marks the item as unidentified. */
 				if (ob->item_qua == 255)
@@ -697,7 +697,7 @@ void object_show_inventory(object *tmp, int x, int y)
 			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
-		text_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - text_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	if (tmp->flags & CS_FLAG_APPLIED)

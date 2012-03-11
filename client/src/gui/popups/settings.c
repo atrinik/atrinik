@@ -162,7 +162,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 			if (event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40))
 			{
-				width = string_get_width(FONT_SERIF40, button_names[i], 0);
+				width = text_get_width(FONT_SERIF40, button_names[i], 0);
 				x = popup->x + popup->surface->w / 2 - width / 2;
 
 				if (event->motion.x >= x && event->motion.x < x + width)

@@ -920,7 +920,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				 * temporary buffer so we can calculate its width. */
 				memcpy(buf, cp + 8, pos - cp - 8);
 				buf[pos - cp - 8] = '\0';
-				w = dest->x + box->w / 2 - string_get_width(*font, buf, flags) / 2;
+				w = dest->x + box->w / 2 - text_get_width(*font, buf, flags) / 2;
 				free(buf);
 
 				if (surface)
@@ -1469,7 +1469,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 					if (string_startswith(tooltip_width, "w:"))
 					{
-						wd = string_get_width(*font, tooltip_width + 2, 0);
+						wd = text_get_width(*font, tooltip_width + 2, 0);
 					}
 					else
 					{
@@ -1556,7 +1556,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 					buf[pos - cp - 11] = '\0';
 					info->highlight_rect.x = dest->x;
 					info->highlight_rect.y = dest->y;
-					info->highlight_rect.w = string_get_width(*font, buf, flags);
+					info->highlight_rect.w = text_get_width(*font, buf, flags);
 					info->highlight_rect.h = string_get_height(*font, buf, flags);
 					free(buf);
 
@@ -2002,7 +2002,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 	/* Align to the center. */
 	if (box && flags & TEXT_ALIGN_CENTER)
 	{
-		x += box->w / 2 - string_get_width(font, text, flags) / 2;
+		x += box->w / 2 - text_get_width(font, text, flags) / 2;
 	}
 
 	if (box && flags & TEXT_VALIGN_CENTER)
@@ -2298,7 +2298,7 @@ void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const
  * @param text String to get width of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's width. */
-int string_get_width(int font, const char *text, uint64 flags)
+int text_get_width(int font, const char *text, uint64 flags)
 {
 	SDL_Rect dest;
 	const char *cp = text;

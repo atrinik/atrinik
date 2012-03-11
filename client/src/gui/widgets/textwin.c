@@ -279,7 +279,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 	}
 
 	button_create(&textwin->tabs[textwin->tabs_num].button);
-	snprintf(buf, sizeof(buf), "rectangle:%1$d,20,255;<border=#606060 %1$d 20>", string_get_width(textwin->tabs[textwin->tabs_num].button.font, TEXTWIN_TAB_NAME(&textwin->tabs[textwin->tabs_num]), 0) + 10);
+	snprintf(buf, sizeof(buf), "rectangle:%1$d,20,255;<border=#606060 %1$d 20>", text_get_width(textwin->tabs[textwin->tabs_num].button.font, TEXTWIN_TAB_NAME(&textwin->tabs[textwin->tabs_num]), 0) + 10);
 	textwin->tabs[textwin->tabs_num].button.texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
 	textwin->tabs[textwin->tabs_num].button.texture_over = textwin->tabs[textwin->tabs_num].button.texture_pressed = NULL;
 	textwin->tabs_num++;

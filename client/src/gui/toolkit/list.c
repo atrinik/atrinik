@@ -321,7 +321,7 @@ void list_show(list_struct *list, int x, int y)
 		/* Center it? */
 		if (list->col_centered[col])
 		{
-			extra_width = list->col_widths[col] / 2 - string_get_width(list->font, list->col_names[col], 0) / 2;
+			extra_width = list->col_widths[col] / 2 - text_get_width(list->font, list->col_names[col], 0) / 2;
 		}
 
 		/* Actually draw the column name. */
@@ -391,7 +391,7 @@ void list_show(list_struct *list, int x, int y)
 				/* Center it. */
 				if (list->col_centered[col])
 				{
-					extra_width = list->col_widths[col] / 2 - string_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
+					extra_width = list->col_widths[col] / 2 - text_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
 				}
 
 				text_color = list->focus ? COLOR_WHITE : COLOR_GRAY;

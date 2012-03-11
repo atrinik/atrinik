@@ -95,7 +95,7 @@ void tooltip_show(void)
 	}
 	else
 	{
-		text_box.w = string_get_width(tooltip_font, tooltip_text, 0);
+		text_box.w = text_get_width(tooltip_font, tooltip_text, 0);
 	}
 
 	if (tooltip_h != -1)

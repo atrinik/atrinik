@@ -510,9 +510,9 @@ static int popup_draw_post_func(popup_struct *popup)
 
 	/* Show direction markers. */
 	text_show(ScreenSurface, FONT_SERIF14, "N", popup->x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	text_show(ScreenSurface, FONT_SERIF14, "E", popup->x + popup->surface->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "E", popup->x + popup->surface->w - RM_BORDER_SIZE / 2 - text_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
 	text_show(ScreenSurface, FONT_SERIF14, "S", popup->x, popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	text_show(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - text_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
 
 	box.w = RM_TITLE_WIDTH;
 	box.h = RM_TITLE_HEIGHT;

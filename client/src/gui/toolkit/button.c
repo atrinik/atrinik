@@ -142,7 +142,7 @@ void button_show(button_struct *button, const char *text)
 
 		if (button->center)
 		{
-			x += texture->w / 2 - string_get_width(button->font, text, button->flags) / 2;
+			x += texture->w / 2 - text_get_width(button->font, text, button->flags) / 2;
 			y += texture->h / 2 - FONT_HEIGHT(button->font) / 2;
 		}
 

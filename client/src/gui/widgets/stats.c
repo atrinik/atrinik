@@ -58,13 +58,13 @@ static void widget_draw(widgetdata *widget)
 		text_show(widget->surface, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);
 		snprintf(buf, sizeof(buf), "%d/%d", cpl.stats.hp, cpl.stats.maxhp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 90);
-		text_show(widget->surface, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 10, COLOR_GREEN, 0, NULL);
+		text_show(widget->surface, FONT_ARIAL10, buf, 160 - text_get_width(FONT_ARIAL10, buf, 0), 10, COLOR_GREEN, 0, NULL);
 
 		/* Mana */
 		text_show(widget->surface, FONT_ARIAL10, "Mana", 58, 34, COLOR_WHITE, 0, NULL);
 		snprintf(buf, sizeof(buf), "%d/%d", cpl.stats.sp, cpl.stats.maxsp);
 		string_truncate_overflow(FONT_ARIAL10, buf, 75);
-		text_show(widget->surface, FONT_ARIAL10, buf, 160 - string_get_width(FONT_ARIAL10, buf, 0), 34, COLOR_GREEN, 0, NULL);
+		text_show(widget->surface, FONT_ARIAL10, buf, 160 - text_get_width(FONT_ARIAL10, buf, 0), 34, COLOR_GREEN, 0, NULL);
 
 		/* Food */
 		text_show(widget->surface, FONT_ARIAL10, "Food", 58, 83, COLOR_WHITE, 0, NULL);
