@@ -62,7 +62,7 @@ static void widget_draw(widgetdata *widget)
 				MapData.name[sizeof(MapData.name) - 1] = '\0';
 
 				resize_widget(widget, RESIZE_RIGHT, text_get_width(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
-				resize_widget(widget, RESIZE_BOTTOM, string_get_height(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
+				resize_widget(widget, RESIZE_BOTTOM, text_get_height(MAP_NAME_FONT, MapData.name, TEXT_MARKUP));
 
 				MapData.name_new[0] = '\0';
 			}

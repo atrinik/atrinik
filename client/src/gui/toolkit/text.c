@@ -1478,7 +1478,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 					if (string_startswith(tooltip_height, "h:"))
 					{
-						ht = string_get_height(*font, tooltip_height + 2, 0);
+						ht = text_get_height(*font, tooltip_height + 2, 0);
 					}
 					else
 					{
@@ -1557,7 +1557,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 					info->highlight_rect.x = dest->x;
 					info->highlight_rect.y = dest->y;
 					info->highlight_rect.w = text_get_width(*font, buf, flags);
-					info->highlight_rect.h = string_get_height(*font, buf, flags);
+					info->highlight_rect.h = text_get_height(*font, buf, flags);
 					free(buf);
 
 					info->highlight = 1;
@@ -2328,7 +2328,7 @@ int text_get_width(int font, const char *text, uint64 flags)
  * @param text String to get height of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's height. */
-int string_get_height(int font, const char *text, uint64 flags)
+int text_get_height(int font, const char *text, uint64 flags)
 {
 	SDL_Rect dest;
 	const char *cp;

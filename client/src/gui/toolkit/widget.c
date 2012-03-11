@@ -2100,7 +2100,7 @@ widgetdata *add_label(const char *text, int font, const char *color)
 	label->color = color;
 
 	resize_widget(widget, RESIZE_RIGHT, text_get_width(font, text, 0));
-	resize_widget(widget, RESIZE_BOTTOM, string_get_height(font, text, 0) + 3);
+	resize_widget(widget, RESIZE_BOTTOM, text_get_height(font, text, 0) + 3);
 
 	return widget;
 }
