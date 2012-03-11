@@ -189,6 +189,16 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 }
 
 /**
+ * Append a single character to the specified string buffer instance.
+ * @param sb The string buffer to modify.
+ * @param c The character to append. */
+void stringbuffer_append_char(StringBuffer *sb, const char c)
+{
+	stringbuffer_ensure(sb, 1);
+	sb->buf[sb->pos++] = c;
+}
+
+/**
  * Make sure that at least len bytes are available in the passed string
  * buffer.
  * @param sb The string buffer to modify.
