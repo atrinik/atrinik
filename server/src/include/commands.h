@@ -91,6 +91,9 @@ typedef struct permission_group_struct
 /**
  * The command requires a permission. */
 #define COMMAND_PERMISSION 1
+/**
+ * Markup can be used in this command. */
+#define COMMAND_ALLOW_MARKUP 2
 /*@}*/
 
 /**
