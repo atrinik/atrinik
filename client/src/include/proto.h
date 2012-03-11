@@ -502,6 +502,7 @@ extern void text_set_anchor_handle(text_anchor_handle_func func);
 extern const char *get_font_filename(int font);
 extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
+extern char *text_escape_markup(const char *buf);
 extern int text_color_parse(const char *color_notation, SDL_Color *color);
 extern void text_anchor_execute(text_info_struct *info);
 extern void text_show_character_init(text_info_struct *info);

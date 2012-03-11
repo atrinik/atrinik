@@ -378,6 +378,37 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
 }
 
 /**
+ * Escapes markup in 'buf'.
+ * @param buf String to escape markup in.
+ * @return New string with markup escaped; never NULL. Must be freed. */
+char *text_escape_markup(const char *buf)
+{
+	StringBuffer *sb;
+
+	sb = stringbuffer_new();
+
+	while (*buf != '\0')
+	{
+		if (*buf == '<')
+		{
+			stringbuffer_append_string(sb, "&lt;");
+		}
+		else if (*buf == '>')
+		{
+			stringbuffer_append_string(sb, "&gt;");
+		}
+		else
+		{
+			stringbuffer_append_char(sb, *buf);
+		}
+
+		buf++;
+	}
+
+	return stringbuffer_finish(sb);
+}
+
+/**
  * Adjust mouse X/Y coordinates for mouse-related checks based on which
  * surface we're using.
  * @param surface The surface.
@@ -1905,7 +1936,7 @@ int glyph_get_height(int font, char c)
 		select_color_changed = 0; \
 	} \
 \
-	if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && *cp != '\r') \
+	if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT) \
 	{ \
 		if (my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= old_x && mx <= old_x + glyph_get_width(FONT_TRY_INFO(font, info, surface), *cp)) \
 		{ \
