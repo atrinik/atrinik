@@ -799,7 +799,7 @@ static void command_custom_python(object *op, const char *command, char *params)
 	context->parms[1] = 0;
 	context->parms[2] = 0;
 	context->parms[3] = 0;
-	context->text = params;
+	context->text = params ? params : "";
 	context->options = NULL;
 	context->returnvalue = 0;
 
