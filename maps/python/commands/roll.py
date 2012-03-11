@@ -37,6 +37,6 @@ def main():
 	(num, sides) = parse
 
 	# Tell everyone about the roll.
-	activator.map.Message(activator.x, activator.y, MAP_INFO_NORMAL, "{} rolls a magical die ({}d{}) and gets: {}.".format(activator.name, num, sides, ", ".join(str(randrange(sides) + 1) for die in range(num))), COLOR_ORANGE)
+	activator.map.DrawInfo(activator.x, activator.y, "{} rolls a magical die ({}d{}) and gets: {}.".format(activator.name, num, sides, ", ".join(str(randrange(sides) + 1) for die in range(num))), COLOR_ORANGE)
 
 main()
