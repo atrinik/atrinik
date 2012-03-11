@@ -918,6 +918,7 @@ extern void stringbuffer_append_string_len(StringBuffer *sb, const char *str, si
 extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
+extern void stringbuffer_append_char(StringBuffer *sb, const char c);
 extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
