@@ -202,20 +202,20 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			if (widget->type == MAIN_INV_ID)
 			{
 				string_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - string_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
 
 				/* 255 item quality marks the item as unidentified. */
 				if (ob->item_qua == 255)
 				{
-					string_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x + 26, widget->y + 15, COLOR_RED, 0, NULL);
+					text_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x + 26, widget->y + 15, COLOR_RED, 0, NULL);
 				}
 				else
 				{
-					string_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x + 26, widget->y + 15, COLOR_HGOLD, 0, NULL);
-					string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 53, widget->y + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
+					text_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x + 26, widget->y + 15, COLOR_HGOLD, 0, NULL);
+					text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 53, widget->y + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
 
 					if (ob->item_level)
 					{
@@ -236,11 +236,11 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 						if (ob->item_level <= level)
 						{
-							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_HGOLD, 0, NULL);
+							text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_HGOLD, 0, NULL);
 						}
 						else
 						{
-							string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_RED, 0, NULL);
+							text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_RED, 0, NULL);
 						}
 					}
 				}
@@ -248,7 +248,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			else if (widget->type == BELOW_INV_ID)
 			{
 				string_truncate_overflow(FONT_ARIAL10, buf, 250);
-				string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 6, widget->y + 3, COLOR_HGOLD, 0, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 6, widget->y + 3, COLOR_HGOLD, 0, NULL);
 			}
 		}
 
@@ -324,20 +324,20 @@ static void widget_draw(widgetdata *widget)
 
 			surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("inventory_bg"));
 
-			string_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x + 162, widget->y + 4, COLOR_HGOLD, 0, NULL);
-			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
+			text_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x + 162, widget->y + 4, COLOR_HGOLD, 0, NULL);
+			text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
-			string_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x + 162, widget->y + 15, COLOR_HGOLD, 0, NULL);
-			string_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
+			text_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x + 162, widget->y + 15, COLOR_HGOLD, 0, NULL);
+			text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
 
 			if (inventory_filter == INVENTORY_FILTER_ALL)
 			{
-				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 			else
 			{
-				string_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
-				string_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x + 54, widget->y + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x + 54, widget->y + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 
 			return;
@@ -697,7 +697,7 @@ void object_show_inventory(object *tmp, int x, int y)
 			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
-		string_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - string_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	if (tmp->flags & CS_FLAG_APPLIED)

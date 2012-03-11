@@ -509,14 +509,14 @@ static int popup_draw_post_func(popup_struct *popup)
 	box.h = popup->surface->h;
 
 	/* Show direction markers. */
-	string_show(ScreenSurface, FONT_SERIF14, "N", popup->x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_show(ScreenSurface, FONT_SERIF14, "E", popup->x + popup->surface->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
-	string_show(ScreenSurface, FONT_SERIF14, "S", popup->x, popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-	string_show(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "N", popup->x, popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "E", popup->x + popup->surface->w - RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "E", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "S", popup->x, popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
+	text_show(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 - string_get_width(FONT_SERIF14, "W", 0) / 2, popup->y, COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
 
 	box.w = RM_TITLE_WIDTH;
 	box.h = RM_TITLE_HEIGHT;
-	string_show(ScreenSurface, FONT_SERIF14, region_name, popup->x + RM_TITLE_STARTX, popup->y + RM_TITLE_STARTY, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SERIF14, region_name, popup->x + RM_TITLE_STARTX, popup->y + RM_TITLE_STARTY, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	box.x = popup->x + RM_MAP_STARTX;
 	box.y = popup->y + RM_MAP_STARTY;
@@ -530,14 +530,14 @@ static int popup_draw_post_func(popup_struct *popup)
 	/* We failed. */
 	if (ret_png == -1 || ret_def == -1)
 	{
-		string_show(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
+		text_show(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
 		return 1;
 	}
 
 	/* Still in progress. */
 	if (ret_png == 0 || ret_def == 0)
 	{
-		string_show(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
+		text_show(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
 		return 1;
 	}
 
@@ -591,7 +591,7 @@ static int popup_draw_post_func(popup_struct *popup)
 		{
 			if (rm_def->labels[i].hidden < 1)
 			{
-				string_show(region_map_png, FONT_SERIF20, rm_def->labels[i].text, rm_def->labels[i].x, rm_def->labels[i].y, COLOR_HGOLD, TEXT_MARKUP | TEXT_OUTLINE, NULL);
+				text_show(region_map_png, FONT_SERIF20, rm_def->labels[i].text, rm_def->labels[i].x, rm_def->labels[i].y, COLOR_HGOLD, TEXT_MARKUP | TEXT_OUTLINE, NULL);
 			}
 		}
 

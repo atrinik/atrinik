@@ -70,7 +70,7 @@ static int popup_draw_func(popup_struct *popup)
 		/* Draw the book name. */
 		box.w = BOOK_TITLE_WIDTH;
 		box.h = BOOK_TITLE_HEIGHT;
-		string_show(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		/* Draw the content. */
 		box.w = BOOK_TEXT_WIDTH;
@@ -78,7 +78,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.y = book_scroll;
 		text_color_set(0, 0, 255);
 		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
-		string_show(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_show(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
 
 		popup->redraw = 0;
@@ -255,7 +255,7 @@ void book_load(const char *data, int len)
 	/* Calculate the line numbers. */
 	box.w = BOOK_TEXT_WIDTH;
 	box.h = BOOK_TEXT_HEIGHT;
-	string_show(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	text_show(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	book_lines = box.h;
 	book_scroll_lines = box.y;
 

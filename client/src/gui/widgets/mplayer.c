@@ -359,14 +359,14 @@ static void widget_draw(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->w;
-		string_show(widget->surface, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		text_show(widget->surface, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 		list_set_parent(list_mplayer, widget->x, widget->y);
 		list_show(list_mplayer, 10, 2);
 		box.w /= 2;
-		string_show(widget->surface, FONT_SANS10, "Currently playing:", widget->w / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+		text_show(widget->surface, FONT_SANS10, "Currently playing:", widget->w / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		box.h = 120;
 		box.w -= 6;
-		string_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		widget->redraw = list_need_redraw(list_mplayer);
 	}
@@ -389,7 +389,7 @@ static void widget_draw(widgetdata *widget)
 	}
 
 	/* Show the music that is being played. */
-	string_show(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x + widget->w / 2 - 5, widget->y + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+	text_show(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x + widget->w / 2 - 5, widget->y + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 	button_play.x = widget->x + 10;
 	button_play.y = widget->y + widget->h - TEXTURE_CLIENT("button")->h - 4;

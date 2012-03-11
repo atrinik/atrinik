@@ -327,7 +327,7 @@ void list_show(list_struct *list, int x, int y)
 		/* Actually draw the column name. */
 		if (list->col_names[col])
 		{
-			string_show_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GRAY, COLOR_BLACK, 0, NULL);
+			text_show_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GRAY, COLOR_BLACK, 0, NULL);
 		}
 
 		w += list->col_widths[col] + list->col_spacings[col];
@@ -411,11 +411,11 @@ void list_show(list_struct *list, int x, int y)
 				/* Output the text. */
 				if (text_color_shadow)
 				{
-					string_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+					text_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 				}
 				else if (text_color)
 				{
-					string_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+					text_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
 				}
 			}
 

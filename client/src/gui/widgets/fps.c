@@ -66,8 +66,8 @@ static void widget_draw(widgetdata *widget)
 	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("fps"));
 
 	snprintf(buf, sizeof(buf), "%d", tmp->current);
-	string_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x + 5, widget->y + 4, COLOR_WHITE, 0, NULL);
-	string_show(ScreenSurface, FONT_ARIAL11, buf, widget->x + widget->w - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y + 4, COLOR_WHITE, 0, NULL);
+	text_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x + 5, widget->y + 4, COLOR_WHITE, 0, NULL);
+	text_show(ScreenSurface, FONT_ARIAL11, buf, widget->x + widget->w - 5 - string_get_width(FONT_ARIAL11, buf, 0), widget->y + 4, COLOR_WHITE, 0, NULL);
 }
 
 /**

@@ -86,7 +86,7 @@ static void widget_draw(widgetdata *widget)
 
 	box.w = widget->w;
 	box.h = 0;
-	string_show_format(ScreenSurface, MAP_NAME_FONT, widget->x, widget->y, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
+	text_show_format(ScreenSurface, MAP_NAME_FONT, widget->x, widget->y, COLOR_HGOLD, TEXT_MARKUP, &box, "<alpha=%d>%s</alpha>", alpha, MapData.name);
 }
 
 /**

@@ -40,7 +40,7 @@ static void widget_draw(widgetdata *widget)
 
 	if (label->text)
 	{
-		string_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, 0, NULL);
+		text_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, 0, NULL);
 	}
 }
 

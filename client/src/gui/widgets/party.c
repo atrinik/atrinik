@@ -243,7 +243,7 @@ static void widget_draw(widgetdata *widget)
 
 		box.h = 0;
 		box.w = widget->w;
-		string_show(widget->surface, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+		text_show(widget->surface, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		if (list_party)
 		{

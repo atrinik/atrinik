@@ -245,7 +245,7 @@ static void widget_draw(widgetdata *widget)
 
 		/* For each quickslot, output the F1-F8 shortcut */
 		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + quickslots_pos[i][qsx] + xoff + 12, widget->y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + quickslots_pos[i][qsx] + xoff + 12, widget->y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
@@ -253,11 +253,11 @@ static void widget_draw(widgetdata *widget)
 	/* Now output the group */
 	if (vertical_quickslot)
 	{
-		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x - 1, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x - 1, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 	else
 	{
-		string_show(ScreenSurface, FONT_ARIAL10, buf, widget->x, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 }
 

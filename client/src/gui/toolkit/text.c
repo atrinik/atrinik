@@ -31,7 +31,7 @@
 #include <global.h>
 
 /**
- * If 1, all text shown using 'box' parameter of string_show() for max
+ * If 1, all text shown using 'box' parameter of text_show() for max
  * width/height will have a frame around it. */
 static uint8 text_debug = 0;
 
@@ -186,7 +186,7 @@ void text_deinit(void)
 }
 
 /**
- * If string_show() is called on surface that is not ScreenSurface, you
+ * If text_show() is called on surface that is not ScreenSurface, you
  * must use this to set mouse X/Y detection offset, so things like links
  * will work correctly.
  *
@@ -203,7 +203,7 @@ void text_offset_set(int x, int y)
 
 /**
  * Reset the text offset. This must be done after text_offset_set() and
- * string_show() calls eventually, */
+ * text_show() calls eventually, */
 void text_offset_reset(void)
 {
 	text_offset_mx = text_offset_my = -1;
@@ -585,7 +585,7 @@ void text_show_character_init(text_info_struct *info)
  * @param cp String we are working on, cp[0] is the character to draw.
  * @param color Color to use.
  * @param orig_color Original color.
- * @param flags Flags as passed to string_show().
+ * @param flags Flags as passed to text_show().
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
@@ -1347,7 +1347,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 					hcenter_box.w = box ? (box->w - (dest->w - box->w)) : 0;
 					hcenter_box.h = 0;
-					string_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
+					text_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
 					dest->y += ht / 2 - hcenter_box.h / 2;
 					info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
 					free(tmpbuf);
@@ -1965,7 +1965,7 @@ int glyph_get_height(int font, char c)
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
+void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
 {
 	const char *cp = text;
 	SDL_Rect dest;
@@ -2255,39 +2255,39 @@ void string_show(SDL_Surface *surface, int font, const char *text, int x, int y,
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void string_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
+void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
-	string_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
-	string_show(surface, font, text, x, y, color_notation, flags, box);
+	text_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
+	text_show(surface, font, text, x, y, color_notation, flags, box);
 }
 
 /**
- * Like string_show(), but allows using printf-like format specifiers.
+ * Like text_show(), but allows using printf-like format specifiers.
  *
- * @copydoc string_show() */
-void string_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+ * @copydoc text_show() */
+void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, format);
 	vsnprintf(buf, sizeof(buf), format, ap);
-	string_show(surface, font, buf, x, y, color_notation, flags, box);
+	text_show(surface, font, buf, x, y, color_notation, flags, box);
 	va_end(ap);
 }
 
 /**
- * Like string_show_shadow(), but allows using printf-like format specifiers.
+ * Like text_show_shadow(), but allows using printf-like format specifiers.
  *
- * @copydoc string_show_shadow() */
-void string_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+ * @copydoc text_show_shadow() */
+void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
 	char buf[HUGE_BUF * 4];
 	va_list ap;
 
 	va_start(ap, format);
 	vsnprintf(buf, sizeof(buf), format, ap);
-	string_show_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
+	text_show_shadow(surface, font, buf, x, y, color_notation, color_shadow_notation, flags, box);
 	va_end(ap);
 }
 

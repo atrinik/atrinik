@@ -39,7 +39,7 @@ static void widget_draw(widgetdata *widget)
 
 	box.w = widget->w - 12;
 	box.h = 36;
-	string_show(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x + 6, widget->y + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	text_show(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x + 6, widget->y + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 }
 
 /**

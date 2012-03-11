@@ -136,12 +136,12 @@ static int popup_draw_func(popup_struct *popup)
 
 		if (interface_data->icon)
 		{
-			string_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+			text_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
 		}
 
 		box.w = INTERFACE_TITLE_WIDTH;
 		box.h = FONT_HEIGHT(FONT_SERIF14);
-		string_show(popup->surface, FONT_SERIF14, interface_data->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+		text_show(popup->surface, FONT_SERIF14, interface_data->title, INTERFACE_TITLE_STARTX, INTERFACE_TITLE_STARTY + INTERFACE_TITLE_HEIGHT / 2 - box.h / 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 		box.w = INTERFACE_TEXT_WIDTH;
 		box.h = INTERFACE_TEXT_HEIGHT;
@@ -149,7 +149,7 @@ static int popup_draw_func(popup_struct *popup)
 		box.y = interface_data->scroll_offset;
 		text_set_anchor_handle(text_anchor_handle);
 		text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
-		string_show(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+		text_show(popup->surface, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 		text_set_selection(NULL, NULL, NULL);
 		text_set_anchor_handle(NULL);
 
@@ -534,7 +534,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
 	box.w = INTERFACE_TEXT_WIDTH;
 	box.h = INTERFACE_TEXT_HEIGHT;
-	string_show(NULL, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+	text_show(NULL, interface_data->font, interface_data->message, INTERFACE_TEXT_STARTX, INTERFACE_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 	interface_data->num_lines = box.h;
 
 	scrollbar_create(&interface_data->scrollbar, 11, 434, &interface_data->scroll_offset, &interface_data->num_lines, box.y);

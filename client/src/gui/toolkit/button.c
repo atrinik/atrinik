@@ -148,11 +148,11 @@ void button_show(button_struct *button, const char *text)
 
 		if (!color_shadow)
 		{
-			string_show(button->surface, button->font, text, x, y, color, button->flags, NULL);
+			text_show(button->surface, button->font, text, x, y, color, button->flags, NULL);
 		}
 		else
 		{
-			string_show_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
+			text_show_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
 		}
 	}
 

@@ -71,7 +71,7 @@ static void widget_draw(widgetdata *widget)
 	text_input_show(text_input, ScreenSurface, widget->x + widget->w / 2 - text_input->w / 2, widget->y + widget->h / 2 - text_input->h / 2 + 8);
 
 	string_truncate_overflow(FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 220);
-	string_show(ScreenSurface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, widget->x + 8, widget->y + 6, COLOR_HGOLD, 0, NULL);
+	text_show(ScreenSurface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, widget->x + 8, widget->y + 6, COLOR_HGOLD, 0, NULL);
 }
 
 void widget_input_init(widgetdata *widget)

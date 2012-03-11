@@ -153,26 +153,26 @@ static void widget_draw(widgetdata *widget)
 
 	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("player_doll_bg"));
 
-	string_show(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x + 20, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	string_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 9, widget->y + 205, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
-	string_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 10, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
-	string_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 10, widget->y + 225, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
+	text_show(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x + 20, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	text_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 9, widget->y + 205, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
+	text_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 10, widget->y + 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
+	text_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 10, widget->y + 225, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-	string_show(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x + 155, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	string_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 139, widget->y + 205, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
-	string_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 140, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
-	string_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 140, widget->y + 225, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
+	text_show(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x + 155, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	text_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 139, widget->y + 205, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
+	text_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 140, widget->y + 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
+	text_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 140, widget->y + 225, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
 
-	string_show(ScreenSurface, FONT_ARIAL10, "Speed", widget->x + 92, widget->y + 193, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 93, widget->y + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	string_show(ScreenSurface, FONT_ARIAL10, "AC", widget->x + 92, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	string_show_format(ScreenSurface, FONT_MONO10, widget->x + 92, widget->y + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
+	text_show(ScreenSurface, FONT_ARIAL10, "Speed", widget->x + 92, widget->y + 193, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 93, widget->y + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
+	text_show(ScreenSurface, FONT_ARIAL10, "AC", widget->x + 92, widget->y + 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 92, widget->y + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
 
 	texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 

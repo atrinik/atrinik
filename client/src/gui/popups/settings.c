@@ -91,7 +91,7 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = popup->surface->w;
 	box.h = 38;
-	string_show(popup->surface, FONT_SERIF20, "Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	text_show(popup->surface, FONT_SERIF20, "Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	box.h = 0;
 
@@ -104,11 +104,11 @@ static int popup_draw(popup_struct *popup)
 
 		if (button_selected == i)
 		{
-			string_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", button_names[i]);
+			text_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "<c=#9f0408>&gt;</c> %s <c=#9f0408>&lt;</c>", button_names[i]);
 		}
 		else
 		{
-			string_show_shadow(popup->surface, FONT_SERIF40, button_names[i], 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+			text_show_shadow(popup->surface, FONT_SERIF40, button_names[i], 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 		}
 	}
 

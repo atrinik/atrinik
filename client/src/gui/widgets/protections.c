@@ -48,7 +48,7 @@ static void widget_draw(widgetdata *widget)
 	if (widget->redraw)
 	{
 		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("resist_bg"));
-		string_show(widget->surface, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		text_show(widget->surface, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 	}
 
 	SDL_GetMouseState(&mx, &my);
@@ -83,7 +83,7 @@ static void widget_draw(widgetdata *widget)
 				color = COLOR_WHITE;
 			}
 
-			string_show_format(widget->surface, FONT_MONO9, x, y + 1, color, TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
+			text_show_format(widget->surface, FONT_MONO9, x, y + 1, color, TEXT_MARKUP, NULL, "<c=#d4d553>%s</c>%s %02d", s_settings->protection_letters[i], s_settings->protection_letters[i][1] == '\0' ? " " : "", cpl.stats.protection[i]);
 		}
 
 		/* Show a tooltip with the protection's full name. */

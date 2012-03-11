@@ -46,7 +46,7 @@ static int popup_draw(popup_struct *popup)
 	colorspace_hsv2rgb(color_picker->hsv, rgb);
 	box.w = 100;
 	box.h = 200;
-	string_show_format(popup->surface, FONT_ARIAL11, color_picker->x + 180, color_picker->y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Preview:\n<bar=#%.2X%.2X%.2X 80 20><border=#303030 80 20>\n\nChoose your desired color, then dismiss this popup.", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
+	text_show_format(popup->surface, FONT_ARIAL11, color_picker->x + 180, color_picker->y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Preview:\n<bar=#%.2X%.2X%.2X 80 20><border=#303030 80 20>\n\nChoose your desired color, then dismiss this popup.", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
 
 	return 1;
 }

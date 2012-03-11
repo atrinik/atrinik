@@ -292,7 +292,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 	y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 
 	/* Show the actual setting name. */
-	string_show_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 3, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
+	text_show_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 3, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
 
 	SDL_GetMouseState(&mx, &my);
 
@@ -346,11 +346,11 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 		if (setting->type == OPT_TYPE_SELECT)
 		{
-			string_show(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
+			text_show(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
 		}
 		else if (setting->type == OPT_TYPE_RANGE)
 		{
-			string_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
+			text_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
 		}
 
 		button_left->surface = list->surface;
@@ -400,8 +400,8 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 			box.w = TEXTURE_SURFACE(button->texture)->w;
 			box.h = TEXTURE_SURFACE(button->texture)->h;
-			string_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "<bar=#%.2X%.2X%.2X %d %d>", color.r, color.g, color.b, box.w, box.h);
-			string_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+			text_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "<bar=#%.2X%.2X%.2X %d %d>", color.r, color.g, color.b, box.w, box.h);
+			text_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 			dst.x -= 5;
 		}
@@ -497,7 +497,7 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = popup->surface->w;
 	box.h = 38;
-	string_show(popup->surface, FONT_SERIF20, "Client Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	text_show(popup->surface, FONT_SERIF20, "Client Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	list_show(list_settings, 30, 50);
 	list_set_parent(list_settings, popup->x, popup->y);
@@ -506,7 +506,7 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = list_settings->width;
 	box.h = 0;
-	string_show(popup->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, list_settings->x, list_settings->y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+	text_show(popup->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, list_settings->x, list_settings->y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 	button_set_parent(&button_category_left, popup->x, popup->y);
 	button_set_parent(&button_category_right, popup->x, popup->y);
@@ -533,7 +533,7 @@ static int popup_draw(popup_struct *popup)
 	{
 		box.w = LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_apply.texture)->w;
 		box.h = 66;
-		string_show_shadow(popup->surface, FONT_ARIAL11, setting->desc, list_settings->x - 2, popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		text_show_shadow(popup->surface, FONT_ARIAL11, setting->desc, list_settings->x - 2, popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}
 
 	return 1;

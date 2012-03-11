@@ -83,7 +83,7 @@ static int texture_data_new(int type, texture_struct *tmp)
 
 				if (cp)
 				{
-					string_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, NULL);
+					text_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, NULL);
 				}
 			}
 			else

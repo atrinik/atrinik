@@ -227,12 +227,12 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	box.y = 0;
 	box.w = NOTIFICATION_DEFAULT_WIDTH;
 	box.h = 0;
-	string_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+	text_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
 	ht = box.h;
 
 	/* Calculate the maximum text width. */
 	box.h = 0;
-	string_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+	text_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
 	wd = box.w;
 
 	box.x = 0;
@@ -264,7 +264,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
 	/* Render the text. */
 	box.w = wd;
 	box.h = ht;
-	string_show(cur_widget[NOTIFICATION_ID]->surface, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	text_show(cur_widget[NOTIFICATION_ID]->surface, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
 	free(cp);
 }

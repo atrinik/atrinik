@@ -274,7 +274,7 @@ typedef struct text_info_struct
 
 /**
  * @defgroup TEXT_xxx Text flags
- * Various text flags for controlling behavior of string_show().
+ * Various text flags for controlling behavior of text_show().
  *@{*/
 /** Parse markup, otherwise it will be rendered as normal text. */
 #define TEXT_MARKUP 1

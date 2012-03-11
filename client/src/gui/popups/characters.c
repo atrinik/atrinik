@@ -166,7 +166,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 			char *facename;
 
 			facename = string_sub(FaceList[face].name, 0, -4);
-			string_show_format(list->surface, FONT_ARIAL10, list->x, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_WHITE, TEXT_MARKUP, NULL, "<img=%s 0 10 0 0 0 0 0 0 0 0 0 50 45>", facename);
+			text_show_format(list->surface, FONT_ARIAL10, list->x, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_WHITE, TEXT_MARKUP, NULL, "<img=%s 0 10 0 0 0 0 0 0 0 0 0 50 45>", facename);
 			free(facename);
 		}
 	}
@@ -213,14 +213,14 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = popup->surface->w;
 	box.h = 38;
-	string_show_shadow_format(popup->surface, FONT_SERIF14, 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box, "Welcome, %s", cpl.account);
+	text_show_shadow_format(popup->surface, FONT_SERIF14, 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box, "Welcome, %s", cpl.account);
 
 	/* Waiting to log in. */
 	if (cpl.state == ST_WAITFORPLAY)
 	{
 		box.w = popup->surface->w;
 		box.h = popup->surface->h;
-		string_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		text_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return 1;
 	}
 	else if (cpl.state == ST_PLAY || cpl.state < ST_STARTCONNECT)
@@ -233,7 +233,7 @@ static int popup_draw(popup_struct *popup)
 	box.w = 220;
 	box.h = 80;
 	strftime(timebuf, sizeof(timebuf), "%a %b %d %H:%M:%S %Y", localtime(&cpl.last_time));
-	string_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %s.", cpl.host, cpl.last_host, timebuf);
+	text_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %s.", cpl.host, cpl.last_host, timebuf);
 
 	button_set_parent(&button_tab_characters, popup->x, popup->y);
 	button_set_parent(&button_tab_new, popup->x, popup->y);
@@ -285,7 +285,7 @@ static int popup_draw(popup_struct *popup)
 			}
 		}
 
-		string_show_format(popup->surface, FONT_ARIAL10, 38, 90, COLOR_WHITE, TEXT_MARKUP, NULL, "<bar=#202020 50 60><icon=%s 50 60><border=#909090 50 60>", s_settings->characters[character_race].gender_faces[character_gender]);
+		text_show_format(popup->surface, FONT_ARIAL10, 38, 90, COLOR_WHITE, TEXT_MARKUP, NULL, "<bar=#202020 50 60><icon=%s 50 60><border=#909090 50 60>", s_settings->characters[character_race].gender_faces[character_gender]);
 
 		button_character_left.x = 100;
 		button_character_left.y = 90;
@@ -293,7 +293,7 @@ static int popup_draw(popup_struct *popup)
 
 		box.w = max_width;
 		box.h = 0;
-		string_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		text_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
 		button_character_right.x = button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5 + max_width + 5;
 		button_character_right.y = 90;
@@ -308,7 +308,7 @@ static int popup_draw(popup_struct *popup)
 		button_show(&button_character_female, "Female");
 
 		box.w = text_inputs[TEXT_INPUT_CHARNAME].w;
-		string_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 190);
 
 		button_done.x = text_inputs[TEXT_INPUT_CHARNAME].x + text_inputs[TEXT_INPUT_CHARNAME].w - TEXTURE_SURFACE(button_done.texture)->w;
@@ -318,9 +318,9 @@ static int popup_draw(popup_struct *popup)
 	else if (button_tab_password.pressed_forced)
 	{
 		box.w = text_inputs[TEXT_INPUT_PASSWORD].w;
-		string_show(popup->surface, FONT_ARIAL12, "Current password [<tooltip=Enter your current password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
-		string_show(popup->surface, FONT_ARIAL12, "New password [<tooltip=Enter your new password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
-		string_show(popup->surface, FONT_ARIAL12, "Verify new password [<tooltip=Enter your new password again.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_ARIAL12, "Current password [<tooltip=Enter your current password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_ARIAL12, "New password [<tooltip=Enter your new password.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_ARIAL12, "Verify new password [<tooltip=Enter your new password again.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
 		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD], popup->surface, 50, 110);
 		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW], popup->surface, 50, 150);

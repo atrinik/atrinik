@@ -80,7 +80,7 @@ static int popup_draw(popup_struct *popup)
 
 	box.w = popup->surface->w;
 	box.h = 38;
-	string_show(popup->surface, FONT_SERIF16, game_news->title, 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+	text_show(popup->surface, FONT_SERIF16, game_news->title, 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
 	ret = curl_download_finished(game_news->data);
 
@@ -89,12 +89,12 @@ static int popup_draw(popup_struct *popup)
 
 	if (ret == -1)
 	{
-		string_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return 1;
 	}
 	else if (ret == 0)
 	{
-		string_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+		text_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		return 1;
 	}
 	else if (ret == 1)
@@ -103,7 +103,7 @@ static int popup_draw(popup_struct *popup)
 		{
 			game_news->msg = strdup(game_news->data->memory ? game_news->data->memory : "???");
 
-			string_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+			text_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
 			game_news->num_lines = box.h;
 			scrollbar_create(&game_news->scrollbar, 15, 240, &game_news->scroll_offset, &game_news->num_lines, box.y);
 			box.h = NEWS_MAX_HEIGHT;
@@ -113,7 +113,7 @@ static int popup_draw(popup_struct *popup)
 	box.w = NEWS_MAX_WIDTH;
 	box.h = NEWS_MAX_HEIGHT;
 	box.y = game_news->scroll_offset;
-	string_show(popup->surface, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+	text_show(popup->surface, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
 
 	game_news->scrollbar.px = popup->x;
 	game_news->scrollbar.py = popup->y;

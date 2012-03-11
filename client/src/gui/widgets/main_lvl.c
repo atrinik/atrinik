@@ -51,12 +51,12 @@ static void widget_draw(widgetdata *widget)
 
 		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("main_level_bg"));
 
-		string_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		text_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
 		snprintf(buf, sizeof(buf), "<b>%d</b>", cpl.stats.level);
-		string_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - string_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
+		text_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - string_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
 
-		string_show_format(widget->surface, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
+		text_show_format(widget->surface, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
 
 		player_draw_exp_progress(widget->surface, 4, 35, cpl.stats.exp, cpl.stats.level);
 	}

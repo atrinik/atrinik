@@ -207,7 +207,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 
 	box.w = text_input->w;
 	box.h = text_input->h;
-	string_show(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+	text_show(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
 
 	if (cp)
 	{
