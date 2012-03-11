@@ -414,15 +414,7 @@ void textwin_handle_copy(widgetdata *widget)
 	/* Remove the special \r color changers. */
 	for (pos = 0; pos < (size_t) (end - start + 1); pos++)
 	{
-		if (str[pos] == '\r')
-		{
-			pos += 6;
-		}
-		else
-		{
-			cp[i] = str[pos];
-			i++;
-		}
+		cp[i++] = str[pos];
 	}
 
 	cp[i] = '\0';
