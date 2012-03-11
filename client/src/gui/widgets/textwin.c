@@ -70,7 +70,7 @@ void textwin_readjust(widgetdata *widget)
 		box.h = 0;
 		box.x = 0;
 		box.y = 0;
-		string_show(NULL, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+		string_show(NULL, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 
 		/* Adjust the counts. */
 		textwin->tabs[textwin->tab_selected].num_lines = box.h - 1;
@@ -460,7 +460,7 @@ void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
 				box.h = 0;
 				box.x = 0;
 				box.y = 0;
-				string_show(NULL, textwin->font, textwin->tabs[i].entries, 3, 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+				string_show(NULL, textwin->font, textwin->tabs[i].entries, 3, 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 				scroll = box.h;
 
 				box.x = x;
@@ -475,7 +475,7 @@ void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
 
 				box.y = MAX(0, scroll - (h / FONT_HEIGHT(textwin->font)));
 
-				string_show(surface, textwin->font, textwin->tabs[i].entries, x + 3, y + 1, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
+				string_show(surface, textwin->font, textwin->tabs[i].entries, x + 3, y + 1, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box);
 				break;
 			}
 		}
@@ -606,7 +606,7 @@ static void widget_draw(widgetdata *widget)
 				box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 				box_text.y = textwin->tabs[textwin->tab_selected].scroll_offset;
 				text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
-				string_show(widget->surface, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + yadjust, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+				string_show(widget->surface, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + yadjust, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
 				text_set_selection(NULL, NULL, NULL);
 			}
 
