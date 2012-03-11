@@ -564,23 +564,6 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 	char c = *cp;
 	uint8 remove_bold = 0;
 
-	if (c == '\r')
-	{
-		if (text_color_parse(cp + 1, color))
-		{
-			orig_color->r = color->r;
-			orig_color->g = color->g;
-			orig_color->b = color->b;
-			return 7;
-		}
-		else
-		{
-			logger_print(LOG(BUG), "Invalid color: %s", cp + 1);
-		}
-
-		return 1;
-	}
-
 	/* Doing markup? */
 	if (flags & TEXT_MARKUP && c == '<')
 	{
