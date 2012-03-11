@@ -102,7 +102,7 @@ static int game_status_chain(void)
 	if (cpl.state == ST_INIT)
 	{
 		map_udate_flag = 2;
-		sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
+
 		clear_map();
 		effect_stop();
 		cpl.state = ST_META;
@@ -475,8 +475,6 @@ int main(int argc, char *argv[])
 	read_bmaps_p0();
 	server_files_init();
 	toolkit_widget_init();
-
-	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 
 	draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
 	draw_info(COLOR_GREEN, "Init network...");
