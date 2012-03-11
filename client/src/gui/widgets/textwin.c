@@ -140,7 +140,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
 	if (!string_isempty(name))
 	{
-		snprintf(plname, sizeof(plname), "%s: ", name);
+		snprintf(plname, sizeof(plname), "<a=pmto>%s</a>: ", name);
 	}
 
 	cp = string_join("", "<c=#", color, ", 1>", timebuf, tabname, plname, str, "\n", NULL);
