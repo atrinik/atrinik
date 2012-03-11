@@ -2055,7 +2055,12 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 			/* Store the last space. */
 			if (is_lf || last_space == 0)
 			{
-				last_space = MAX(1, pos);
+				last_space = pos;
+
+				if (last_space == 0 && !is_lf)
+				{
+					last_space = 1;
+				}
 			}
 
 			/* See if we should skip drawing. */
