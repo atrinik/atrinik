@@ -143,7 +143,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 		snprintf(plname, sizeof(plname), "%s: ", name);
 	}
 
-	cp = string_join("", "\r", color, timebuf, tabname, plname, str, "\n", NULL);
+	cp = string_join("", "<c=#", color, ", 1>", timebuf, tabname, plname, str, "\n", NULL);
 	len = strlen(cp);
 	/* Resize the characters array as needed. */
 	textwin->tabs[id].entries = realloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
