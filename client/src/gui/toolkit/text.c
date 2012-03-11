@@ -938,10 +938,22 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		/* Anchor tag. */
 		else if (!strncmp(cp, "<a>", 3) || !strncmp(cp, "<a=", 3))
 		{
+			ret = 3;
+
+			/* Scan for action other than the default. */
+			if (sscanf(cp, "<a=%1024[^>]>", info->anchor_action) == 1)
+			{
+				ret = strchr(cp + 3, '>') - cp + 1;
+			}
+			else
+			{
+				info->anchor_action[0] = '\0';
+			}
+
 			if (surface || info->obscured)
 			{
 				/* Change to light blue only if no custom color was specified. */
-				if (color && color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE))
+				if (color && color->r == orig_color->r && color->g == orig_color->g && color->b == orig_color->b && !(flags & TEXT_NO_COLOR_CHANGE) && !string_startswith(info->anchor_action, "#"))
 				{
 					color->r = text_link_color.r;
 					color->g = text_link_color.g;
@@ -949,16 +961,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				}
 
 				info->anchor_tag = strchr(cp, '>') + 1;
-				info->anchor_action[0] = '\0';
 			}
 
-			/* Scan for action other than the default. */
-			if (sscanf(cp, "<a=%1024[^>]>", info->anchor_action) == 1)
-			{
-				return strchr(cp + 3, '>') - cp + 1;
-			}
-
-			return 3;
+			return ret;
 		}
 		else if (!strncmp(cp, "</a>", 4))
 		{
