@@ -104,7 +104,7 @@ void intro_show(void)
 	char buf[MAX_BUF];
 	SDL_Rect box;
 
-	sound_start_bg_music("orchestral.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
+	sound_start_bg_music("intro.ogg", setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 
 	texture = TEXTURE_CLIENT("intro");
 
