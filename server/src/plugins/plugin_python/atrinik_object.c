@@ -350,7 +350,8 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
  * @param message The message to write.
  * @param color Color to write the message in. Can be one of
  * @ref COLOR_xxx or a HTML color notation.
- * @param flags Optional flags, one of @ref NDI_xxx. */
+ * @param flags Optional flags, one of @ref NDI_xxx.
+ * @deprecated Use player.DrawInfo() instead */
 static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
 	static char *kwlist[] = {"message", "color", "flags", NULL};
