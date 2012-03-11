@@ -1892,7 +1892,7 @@ int glyph_get_height(int font, char c)
 
 /**
  * Begin handling text mouse-based selection. */
-#define STRING_BLT_SELECT_BEGIN() \
+#define TEXT_SHOW_SELECT_BEGIN() \
 { \
 	if (!skip && selection_start && selection_end) \
 	{ \
@@ -1928,7 +1928,7 @@ int glyph_get_height(int font, char c)
 
 /**
  * End handling text mouse-based selection. */
-#define STRING_BLT_SELECT_END() \
+#define TEXT_SHOW_SELECT_END() \
 { \
 	if (select_color_changed) \
 	{ \
@@ -2075,13 +2075,13 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 			{
 				old_x = dest.x;
 
-				STRING_BLT_SELECT_BEGIN();
+				TEXT_SHOW_SELECT_BEGIN();
 
 				info.obscured = skip;
 				ret = text_show_character(&font, orig_font, skip ? NULL : surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 				info.obscured = 0;
 
-				STRING_BLT_SELECT_END();
+				TEXT_SHOW_SELECT_END();
 
 				cp += ret;
 				last_space -= ret;
@@ -2172,11 +2172,11 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
 		old_x = dest.x;
 		skip = 0;
-		STRING_BLT_SELECT_BEGIN();
+		TEXT_SHOW_SELECT_BEGIN();
 
 		cp += text_show_character(&font, orig_font, surface, &dest, cp, &color, &orig_color, flags, box, &x_adjust, &info);
 
-		STRING_BLT_SELECT_END();
+		TEXT_SHOW_SELECT_END();
 
 		if (FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) > max_height)
 		{
