@@ -567,7 +567,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 	/* Doing markup? */
 	if (flags & TEXT_MARKUP && c == '<')
 	{
-		/* Color tag: <c=r,g,b> */
+		/* Color tag: <c=#RRGGBB> */
 		if (!strncmp(cp, "<c=", 3))
 		{
 			char *pos;
@@ -575,13 +575,19 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
 				uint32 r, g, b;
+				int change_orig = 0;
 
 				/* Parse the r,g,b colors. */
-				if ((cp[3] == '#' && sscanf(cp, "<c=#%2X%2X%2X>", &r, &g, &b) == 3))
+				if ((cp[3] == '#' && sscanf(cp, "<c=#%2X%2X%2X %d>", &r, &g, &b, &change_orig) >= 3))
 				{
 					color->r = r;
 					color->g = g;
 					color->b = b;
+
+					if (change_orig)
+					{
+						SDL_color_copy(orig_color, color);
+					}
 				}
 				else
 				{
