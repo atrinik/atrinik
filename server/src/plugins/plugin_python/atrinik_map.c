@@ -245,28 +245,36 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObjec
 }
 
 /**
- * <h1>map.Message(int x, int y, int distance, string message, int [color = @ref COLOR_BLUE], int [flags = 0])</h1>
- * Write a message to all players on a map.
+ * <h1>map.DrawInfo(int x, int y, string message, int [color = @ref COLOR_BLUE], int [type = @ref CHAT_TYPE_GAME], string [name = None], int [distance = @ref MAP_INFO_NORMAL])</h1>
+ * Send a message to all players on a map.
  * @param x X position on the map.
  * @param y Y position on the map.
- * @param distance Maximum distance for players to be away from x, y to
- * hear the message.
- * @param message Message to write.
- * @param color Color to write the message in. Can be one of
- * @ref COLOR_xxx or a HTML color notation.
- * @param flags Optional flags, one of @ref NDI_xxx. */
-static PyObject *Atrinik_Map_Message(Atrinik_Map *map, PyObject *args, PyObject *keywds)
+ * @param message The message to send.
+ * @param color Color to use for the message. Can be one of @ref COLOR_xxx
+ * or an HTML color notation.
+ * @param type One of @ref CHAT_TYPE_xxx.
+ * @param global If True, the message will be broadcasted to all players.
+ * @param name Player name that is the source of this message, if applicable.
+ * @param distance Maximum distance for players to be away from x,y to
+ * hear the message. */
+static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"x", "y", "distance", "message", "color", "flags", NULL};
-	int type = CHAT_TYPE_GAME, x, y, d;
-	const char *message, *color = COLOR_BLUE, *name = NULL;
+	static char *kwlist[] = {"x", "y", "distance", "message", "color", "type", "name", NULL};
+	int x, y, distance;
+	const char *message, *color, *name;
+	uint8 type;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiis|si", kwlist, &x, &y, &d, &message, &color, &type))
+	color = COLOR_BLUE;
+	type = CHAT_TYPE_GAME;
+	name = NULL;
+	distance = MAP_INFO_NORMAL;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|sizi", kwlist, &x, &y, &message, &color, &type, &name, &distance))
 	{
 		return NULL;
 	}
 
-	hooks->draw_info_map(type, name, color, map->map, x, y, d, NULL, NULL, message);
+	hooks->draw_info_map(type, name, color, map->map, x, y, distance, NULL, NULL, message);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -572,7 +580,7 @@ static PyMethodDef MapMethods[] =
 	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
 	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
 	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
-	{"Message", (PyCFunction) Atrinik_Map_Message, METH_VARARGS | METH_KEYWORDS, 0},
+	{"DrawInfo", (PyCFunction) Atrinik_Map_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
 	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
 	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
 	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
