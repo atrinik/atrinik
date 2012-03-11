@@ -269,7 +269,7 @@ static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject
 	name = NULL;
 	distance = MAP_INFO_NORMAL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|sizi", kwlist, &x, &y, &message, &color, &type, &name, &distance))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|sbzi", kwlist, &x, &y, &message, &color, &type, &name, &distance))
 	{
 		return NULL;
 	}
