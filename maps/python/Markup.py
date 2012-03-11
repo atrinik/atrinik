@@ -98,18 +98,13 @@ class Map2Markup:
 						tmp = obj.head
 
 						while tmp:
-							if not tmp.f_hidden and tmp != obj:
-								tmp.f_hidden = True
+							if tmp != obj:
 								self._hidden_objects.append(tmp)
 
 							tmp = tmp.more
 
-	def _unhide_objects(self):
-		for obj in self._hidden_objects:
-			obj.f_hidden = False
-
 	def _render(self, x, y, obj):
-		if not obj or obj.f_hidden:
+		if not obj or obj.f_hidden or obj in self._hidden_objects:
 			return
 
 		darkness = self._map.GetDarkness(x, y)
@@ -241,7 +236,5 @@ class Map2Markup:
 						continue
 
 					self._render(x, y, self._get_object(x, y, layer, sub_layer))
-
-		self._unhide_objects()
 
 		return "".join(self._ret)
