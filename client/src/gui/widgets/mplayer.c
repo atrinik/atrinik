@@ -385,7 +385,7 @@ static void widget_draw(widgetdata *widget)
 	{
 		strncpy(buf, bg_music, sizeof(buf) - 1);
 		buf[sizeof(buf) - 1] = '\0';
-		string_truncate_overflow(FONT_SANS11, buf, 150);
+		text_truncate_overflow(FONT_SANS11, buf, 150);
 	}
 
 	/* Show the music that is being played. */

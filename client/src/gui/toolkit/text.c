@@ -2366,7 +2366,7 @@ int text_get_height(int font, const char *text, uint64 flags)
  * @param font Font used for the text.
  * @param text The text.
  * @param max_width Maximum possible width. */
-void string_truncate_overflow(int font, char *text, int max_width)
+void text_truncate_overflow(int font, char *text, int max_width)
 {
 	size_t pos = 0;
 	int width = 0;

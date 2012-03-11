@@ -60,13 +60,13 @@ static void widget_draw(widgetdata *widget)
 		/* Health */
 		text_show(widget->surface, FONT_ARIAL10, "HP:", 13, 3, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_hp);
-		string_truncate_overflow(FONT_ARIAL10, buf, 45);
+		text_truncate_overflow(FONT_ARIAL10, buf, 45);
 		text_show(widget->surface, FONT_ARIAL10, buf, widget->w - 5 - text_get_width(FONT_ARIAL10, buf, 0), 3, COLOR_WHITE, 0, NULL);
 
 		/* Mana */
 		text_show(widget->surface, FONT_ARIAL10, "Mana:", 13, 13, COLOR_HGOLD, 0, NULL);
 		snprintf(buf, sizeof(buf), "%2.1f/s", cpl.gen_sp);
-		string_truncate_overflow(FONT_ARIAL10, buf, 45);
+		text_truncate_overflow(FONT_ARIAL10, buf, 45);
 		text_show(widget->surface, FONT_ARIAL10, buf, widget->w - 5 - text_get_width(FONT_ARIAL10, buf, 0), 13, COLOR_WHITE, 0, NULL);
 	}
 

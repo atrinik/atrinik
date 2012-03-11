@@ -201,7 +201,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 			if (widget->type == MAIN_INV_ID)
 			{
-				string_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
+				text_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
 				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
@@ -247,7 +247,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			}
 			else if (widget->type == BELOW_INV_ID)
 			{
-				string_truncate_overflow(FONT_ARIAL10, buf, 250);
+				text_truncate_overflow(FONT_ARIAL10, buf, 250);
 				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 6, widget->y + 3, COLOR_HGOLD, 0, NULL);
 			}
 		}
