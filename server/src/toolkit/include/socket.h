@@ -587,5 +587,6 @@ enum
 #define CMD_TALK_NPC 1
 #define CMD_TALK_INV 2
 #define CMD_TALK_BELOW 3
+#define CMD_TALK_CONTAINER 4
 
 #endif

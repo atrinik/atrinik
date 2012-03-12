@@ -1925,7 +1925,24 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 			return;
 		}
 
-		for (tmp = (type == CMD_TALK_INV ? pl->ob->inv : GET_MAP_OB_LAST(pl->ob->map, pl->ob->x, pl->ob->y)); tmp; tmp = tmp->below)
+		if (type == CMD_TALK_INV)
+		{
+			tmp = pl->ob->inv;
+		}
+		else if (type == CMD_TALK_BELOW)
+		{
+			tmp = GET_MAP_OB_LAST(pl->ob->map, pl->ob->x, pl->ob->y);
+		}
+		else if (type == CMD_TALK_CONTAINER && pl->container)
+		{
+			tmp = pl->container->inv;
+		}
+		else
+		{
+			return;
+		}
+
+		for ( ; tmp; tmp = tmp->below)
 		{
 			if (tmp->count == tag && HAS_EVENT(tmp, EVENT_SAY))
 			{
