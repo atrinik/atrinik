@@ -1,4 +1,4 @@
-from Atrinik import SetReturnValue
+from Atrinik import SetReturnValue, Type
 
 class Interface:
 	def __init__(self, activator, npc):
@@ -46,9 +46,9 @@ class Interface:
 
 		if not dest.startswith("/"):
 			if self._npc.env == self._activator:
-				prepend = "/talk 2 {}".format(self._npc.count)
-			elif not self._npc.f_alive:
-				prepend = "/talk 3 {}".format(self._npc.count)
+				prepend = "/talk 2 {} ".format(self._npc.count)
+			elif not self._npc.type in (Type.PLAYER, Type.MONSTER):
+				prepend = "/talk 3 {} ".format(self._npc.count)
 
 		return prepend + dest
 
