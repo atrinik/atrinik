@@ -45,8 +45,11 @@ class Interface:
 		prepend = ""
 
 		if not dest.startswith("/"):
-			if self._npc.env == self._activator:
-				prepend = "/talk 2 {} ".format(self._npc.count)
+			if self._npc.env:
+				if self._npc.env == self._activator:
+					prepend = "/talk 2 {} ".format(self._npc.count)
+				elif self._npc.env == self._activator.Controller().container:
+					prepend = "/talk 4 {} ".format(self._npc.count)
 			elif not self._npc.type in (Type.PLAYER, Type.MONSTER):
 				prepend = "/talk 3 {} ".format(self._npc.count)
 
