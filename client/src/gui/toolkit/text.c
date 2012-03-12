@@ -66,6 +66,12 @@ static SDL_Color text_link_color = {0, 0, 0, 0};
 /** @copydoc text_anchor_handle_func */
 static text_anchor_handle_func text_anchor_handle = NULL;
 
+/**
+ * If non-NULL, when blitting text inside an anchor tag, anchor execution
+ * function will be called with this pointer as the optional custom data
+ * argument. */
+static void *text_anchor_info_ptr = NULL;
+
 /** All the usable fonts. */
 font_struct fonts[FONTS_MAX] =
 {
@@ -243,6 +249,14 @@ void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
 void text_set_anchor_handle(text_anchor_handle_func func)
 {
 	text_anchor_handle = func;
+}
+
+/**
+ * Set the value of ::text_anchor_info_ptr.
+ * @param ptr Value to set. */
+void text_set_anchor_info(void *ptr)
+{
+	text_anchor_info_ptr = ptr;
 }
 
 /**
@@ -1738,6 +1752,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		if (info->anchor_tag || info->highlight || *info->tooltip_text != '\0')
 		{
 			int state, mx, my, orig_mx, orig_my;
+
+			if (info->anchor_tag && text_anchor_info_ptr)
+			{
+				text_anchor_execute(info, text_anchor_info_ptr);
+			}
 
 			state = SDL_GetMouseState(&mx, &my);
 			orig_mx = mx;

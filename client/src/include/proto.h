@@ -499,6 +499,7 @@ extern void text_offset_reset(void);
 extern void text_color_set(int r, int g, int b);
 extern void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
 extern void text_set_anchor_handle(text_anchor_handle_func func);
+extern void text_set_anchor_info(void *ptr);
 extern const char *get_font_filename(int font);
 extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
