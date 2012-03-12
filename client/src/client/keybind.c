@@ -827,7 +827,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "HELLO"))
 		{
-			send_command("/t_tell hello");
+			send_command("/talk 1 hello");
 		}
 
 		return 1;

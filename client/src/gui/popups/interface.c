@@ -87,7 +87,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 			StringBuffer *sb = stringbuffer_new();
 			char *cp;
 
-			stringbuffer_append_printf(sb, "/t_tell %s", buf);
+			stringbuffer_append_printf(sb, "/talk 1 %s", buf);
 			cp = stringbuffer_finish(sb);
 			send_command_check(cp);
 			free(cp);
@@ -259,7 +259,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 					if (!interface_data->text_input_prepend || interface_data->text_input_prepend[0] != '/')
 					{
-						stringbuffer_append_string(sb, "/t_tell ");
+						stringbuffer_append_string(sb, "/talk 1 ");
 					}
 
 					if (interface_data->text_input_prepend)
