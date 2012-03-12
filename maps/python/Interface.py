@@ -46,9 +46,9 @@ class Interface:
 
 		if not dest.startswith("/"):
 			if self._npc.env == self._activator:
-				prepend = "/talk 2"
+				prepend = "/talk 2 {}".format(self._npc.count)
 			elif not self._npc.f_alive:
-				prepend = "/talk 3"
+				prepend = "/talk 3 {}".format(self._npc.count)
 
 		return prepend + dest
 
