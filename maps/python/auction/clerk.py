@@ -385,11 +385,11 @@ def create_list(l, action, back = None, sort = None, start = None):
 			code += b64encode(back.encode()).decode()
 
 		# Add the action link
-		s += "[<a=:/t_tell " + action + " " + code + ">" + action + "</a>"
+		s += "[<a=:/talk 1 " + action + " " + code + ">" + action + "</a>"
 
 		# If buying, add examine link as well.
 		if action == "buy":
-			s += ", <a=:/t_tell examine " + code + ">examine</a>"
+			s += ", <a=:/talk 1 examine " + code + ">examine</a>"
 
 		# Add the object's name and the cost.
 		s += "] " + obj.GetName() + ": <u>" + CostString(int(obj.ReadKey("auction_house_value"))) + "</u> (each)"
@@ -404,7 +404,7 @@ def create_list(l, action, back = None, sort = None, start = None):
 				if nrof <= val:
 					break
 
-				links.append("<a=:/t_tell buy " + code + " " + str(val) + ">" + str(val) + "</a>")
+				links.append("<a=:/talk 1 buy " + code + " " + str(val) + ">" + str(val) + "</a>")
 
 			s += " [" + "; ".join(links) + "]"
 

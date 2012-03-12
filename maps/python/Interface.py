@@ -41,7 +41,20 @@ class Interface:
 	def add_msg_icon_object(self, obj):
 		self.add_msg_icon(obj.face[0], obj.GetName())
 
+	def _get_dest(self, dest):
+		prepend = ""
+
+		if not dest.startswith("/"):
+			if self._npc.env == self._activator:
+				prepend = "/talk 2"
+			elif not self._npc.f_alive:
+				prepend = "/talk 3"
+
+		return prepend + dest
+
 	def add_link(self, link, action = "", dest = ""):
+		dest = self._get_dest(dest)
+
 		if dest or action:
 			self._links.append("<a=" + action + ":" + dest + ">" + link + "</a>")
 		elif not link.startswith("<a"):
@@ -57,7 +70,7 @@ class Interface:
 
 	def set_text_input(self, text = "", prepend = None, allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False):
 		self._text_input = text
-		self._text_input_prepend = prepend
+		self._text_input_prepend = self._get_dest(prepend)
 		self._allow_tab = allow_tab
 		self._allow_empty = allow_empty
 		self._cleanup_text = cleanup_text
