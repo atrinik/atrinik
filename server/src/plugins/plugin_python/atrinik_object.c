@@ -345,33 +345,6 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Write(string message, string [color = @ref COLOR_ORANGE], int [flags = 0])</h1>
- * Writes a message to a specific player object.
- * @param message The message to write.
- * @param color Color to write the message in. Can be one of
- * @ref COLOR_xxx or a HTML color notation.
- * @param flags Optional flags, one of @ref NDI_xxx.
- * @deprecated Use player.DrawInfo() instead */
-static PyObject *Atrinik_Object_Write(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
-{
-	static char *kwlist[] = {"message", "color", "flags", NULL};
-	uint8 type = CHAT_TYPE_GAME;
-	const char *message, *color = COLOR_ORANGE, *name = NULL;
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &message, &color, &type))
-	{
-		return NULL;
-	}
-
-	OBJEXISTCHECK(obj);
-
-	hooks->draw_info_type(type, name, color, obj->obj, message);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-/**
  * <h1>object.GetGender()</h1>
  * Get an object's gender.
  * @return One of the constants from Gender module @ref plugin_python_constants_gender "constants". */
@@ -1612,7 +1585,6 @@ static PyMethodDef methods[] =
 	{"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
 	{"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
 	{"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
-	{"Write", (PyCFunction) Atrinik_Object_Write, METH_VARARGS | METH_KEYWORDS, 0},
 	{"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
 	{"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
 	{"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
