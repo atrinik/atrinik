@@ -136,8 +136,6 @@ set(SOURCES
 	src/commands/player/say.c
 	src/commands/player/shout.c
 	src/commands/player/statistics.c
-	src/commands/player/sys_tell.c
-	src/commands/player/t_tell.c
 	src/commands/player/take.c
 	src/commands/player/tell.c
 	src/commands/player/time.c

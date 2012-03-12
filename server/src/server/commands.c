@@ -209,8 +209,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(say), 1.0, 0);
 		commands_add(COMMAND(shout), 1.0, 0);
 		commands_add(COMMAND(statistics), 1.0, 0);
-		commands_add(COMMAND(sys_tell), 1.0, 0);
-		commands_add(COMMAND(t_tell), 1.0, 0);
 		commands_add(COMMAND(take), 1.0, 0);
 		commands_add(COMMAND(tell), 1.0, 0);
 		commands_add(COMMAND(time), 1.0, 0);

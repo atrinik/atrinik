@@ -88,8 +88,6 @@
 		<Unit filename="..\..\src\commands\player\say.c" />
 		<Unit filename="..\..\src\commands\player\shout.c" />
 		<Unit filename="..\..\src\commands\player\statistics.c" />
-		<Unit filename="..\..\src\commands\player\sys_tell.c" />
-		<Unit filename="..\..\src\commands\player\t_tell.c" />
 		<Unit filename="..\..\src\commands\player\take.c" />
 		<Unit filename="..\..\src\commands\player\tell.c" />
 		<Unit filename="..\..\src\commands\player\time.c" />
