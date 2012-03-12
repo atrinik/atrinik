@@ -78,6 +78,7 @@ void clear_player(void)
 {
 	objects_deinit();
 	memset(&cpl, 0, sizeof(cpl));
+	cpl.mark_count = -1;
 	objects_init();
 	quickslots_init();
 	init_player_data();
