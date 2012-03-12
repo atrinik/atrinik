@@ -336,7 +336,7 @@ void toolkit_console_deinit(void)
 	size_t i;
 
 	thread_done = 1;
-	pthread_join(thread_id, NULL);
+	pthread_cancel(thread_id);
 
 	for (i = 0; i < console_commands_num; i++)
 	{
