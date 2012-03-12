@@ -440,6 +440,47 @@ int client_command_check(const char *cmd)
 
 		return 1;
 	}
+	else if (string_startswith(cmd, "/talk"))
+	{
+		char type[MAX_BUF];
+		size_t pos;
+		uint8 type_num;
+		packet_struct *packet;
+
+		pos = 5;
+
+		if (!string_get_word(cmd, &pos, ' ', type, sizeof(type)) || string_isempty(cmd + pos))
+		{
+			return 1;
+		}
+
+		type_num = atoi(type);
+
+		packet = packet_new(SERVER_CMD_TALK, 64, 64);
+		packet_append_uint8(packet, type_num);
+
+		if (type_num == CMD_TALK_NPC)
+		{
+			packet_append_string_terminated(packet, cmd + pos);
+		}
+		else if (type_num == CMD_TALK_INV || type_num == CMD_TALK_BELOW)
+		{
+			char tag[MAX_BUF];
+
+			if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag)) || string_isempty(cmd + pos))
+			{
+				packet_free(packet);
+				return 1;
+			}
+
+			packet_append_uint32(packet, atoi(tag));
+			packet_append_string_terminated(packet, cmd + pos);
+		}
+
+		socket_send_packet(packet);
+
+		return 1;
+	}
 
 	return 0;
 }
