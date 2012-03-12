@@ -42,6 +42,6 @@ void command_me(object *op, const char *command, char *params)
 		return;
 	}
 
-	snprintf(buf, sizeof(buf), "%s %s", op->name, params);
-	draw_info_map(CHAT_TYPE_PUBLIC, op->name, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+	snprintf(buf, sizeof(buf), "<a=#charname>%s</a> %s", op->name, params);
+	draw_info_map(CHAT_TYPE_PUBLIC, NULL, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 }

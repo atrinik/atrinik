@@ -49,7 +49,7 @@ void command_server_chat(object *op, const char *command, char *params)
 	{
 		if (commands_check_permission(pl, command))
 		{
-			snprintf(name, sizeof(name), "[Server] (%s)", op->name);
+			snprintf(name, sizeof(name), "[Server] (<a=#charname>%s</a>)", op->name);
 		}
 		else
 		{
@@ -57,6 +57,6 @@ void command_server_chat(object *op, const char *command, char *params)
 			name[sizeof(name) - 1] = '\0';
 		}
 
-		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_GREEN, pl->ob, params);
+		draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, pl->ob, params);
 	}
 }

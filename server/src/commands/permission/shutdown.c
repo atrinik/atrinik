@@ -47,7 +47,7 @@ void command_shutdown(object *op, const char *command, char *params)
 	if (strcasecmp(when, "stop") == 0)
 	{
 		shutdown_timer_stop();
-		draw_info_type(CHAT_TYPE_GAME, "[Server]", COLOR_GREEN, NULL, "Server shut down stopped.");
+		draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down stopped.");
 	}
 	else if (sscanf(when, "%d:%d", &mins, &secs) == 2)
 	{
@@ -58,11 +58,11 @@ void command_shutdown(object *op, const char *command, char *params)
 		reason = player_sanitize_input(params + pos);
 
 		shutdown_timer_start(MAX(30, mins * 60 + secs));
-		draw_info_type_format(CHAT_TYPE_GAME, "[Server]", COLOR_GREEN, NULL, "Server shut down started; will shut down in %02d:%02d minutes.", mins, secs);
+		draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %02d:%02d minutes.", mins, secs);
 
 		if (reason)
 		{
-			draw_info_type(CHAT_TYPE_GAME, "[Server]", COLOR_GREEN, NULL, reason);
+			draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: %s", reason);
 		}
 	}
 }
