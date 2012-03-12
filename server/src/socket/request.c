@@ -1897,7 +1897,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 				if (pl->target_object != npc || pl->target_object_count != npc->count)
 				{
 					pl->target_object = npc;
-					pl->target_object->count = npc->count;
+					pl->target_object_count = npc->count;
 					send_target_command(pl);
 				}
 			}
