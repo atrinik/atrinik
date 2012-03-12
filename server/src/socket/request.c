@@ -1825,6 +1825,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 	uint8 type;
 	char msg[HUGE_BUF];
 
+	pl->ob->speed_left -= 1.0;
+
 	type = packet_to_uint8(data, len, &pos);
 
 	if (type == CMD_TALK_NPC)
