@@ -194,7 +194,7 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
  * @param c The character to append. */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
-	stringbuffer_ensure(sb, 1);
+	stringbuffer_ensure(sb, 1 + 1);
 	sb->buf[sb->pos++] = c;
 }
 
