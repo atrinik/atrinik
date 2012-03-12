@@ -724,6 +724,7 @@ extern void send_target_command(player *pl);
 extern void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void generate_ext_title(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+extern void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 /* src/socket/sounds.c */
 extern void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
 extern void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);

@@ -1819,3 +1819,117 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 		}
 	}
 }
+
+void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+{
+	uint8 type;
+	char msg[HUGE_BUF];
+
+	type = packet_to_uint8(data, len, &pos);
+
+	if (type == CMD_TALK_NPC)
+	{
+		int i, x, y;
+		mapstruct *m;
+		object *tmp, *npc;
+
+		packet_to_string(data, len, &pos, msg, sizeof(msg));
+		player_sanitize_input(msg);
+
+		if (string_isempty(msg))
+		{
+			return;
+		}
+
+		npc = NULL;
+
+		if (OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object))
+		{
+			for (i = 0; i <= SIZEOFFREE2; i++)
+			{
+				x = pl->ob->x + freearr_x[i];
+				y = pl->ob->y + freearr_y[i];
+				m = get_map_from_coord(pl->ob->map, &x, &y);
+
+				if (!m)
+				{
+					continue;
+				}
+
+				if (m == pl->target_object->map && x == pl->target_object->x && y == pl->target_object->y)
+				{
+					npc = pl->target_object;
+					break;
+				}
+			}
+		}
+
+		for (i = 0; i <= SIZEOFFREE2 && !npc; i++)
+		{
+			x = pl->ob->x + freearr_x[i];
+			y = pl->ob->y + freearr_y[i];
+			m = get_map_from_coord(pl->ob->map, &x, &y);
+
+			if (!m)
+			{
+				continue;
+			}
+
+			FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
+			{
+				if (OBJECT_CAN_TALK(tmp))
+				{
+					npc = tmp;
+					FOR_MAP_LAYER_BREAK;
+				}
+			}
+			FOR_MAP_LAYER_END
+		}
+
+		if (npc)
+		{
+			logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
+
+			if (talk_to_npc(pl->ob, npc, msg))
+			{
+				if (pl->target_object != npc || pl->target_object_count != npc->count)
+				{
+					pl->target_object = npc;
+					pl->target_object->count = npc->count;
+					send_target_command(pl);
+				}
+			}
+		}
+		else if (OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object))
+		{
+			draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);
+		}
+		else
+		{
+			draw_info(COLOR_WHITE, pl->ob, "There are no NPCs that you can talk to nearby.");
+		}
+	}
+	else if (type == CMD_TALK_INV || type == CMD_TALK_BELOW)
+	{
+		tag_t tag;
+		object *tmp;
+
+		tag = packet_to_uint32(data, len, &pos);
+		packet_to_string(data, len, &pos, msg, sizeof(msg));
+		player_sanitize_input(msg);
+
+		if (string_isempty(msg))
+		{
+			return;
+		}
+
+		for (tmp = (type == CMD_TALK_INV ? pl->ob->inv : GET_MAP_OB_LAST(pl->ob->map, pl->ob->x, pl->ob->y)); tmp; tmp = tmp->below)
+		{
+			if (tmp->count == tag && HAS_EVENT(tmp, EVENT_SAY))
+			{
+				trigger_event(EVENT_SAY, pl->ob, tmp, NULL, msg, 0, 0, 0, 0);
+				break;
+			}
+		}
+	}
+}
