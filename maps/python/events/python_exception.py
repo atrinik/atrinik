@@ -22,6 +22,6 @@ player = Atrinik.GetFirst("player")
 
 while player:
 	if "[DEV]" in player.cmd_permissions or "[OP]" in player.cmd_permissions:
-		player.ob.Write(exception, Atrinik.COLOR_RED)
+		player.DrawInfo(exception, Atrinik.COLOR_RED)
 
 	player = player.next

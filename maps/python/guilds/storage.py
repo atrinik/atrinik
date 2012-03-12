@@ -22,7 +22,7 @@ def main():
 		if guild.member_is_admin(activator.name) or "[OP]" in player.cmd_permissions:
 			return
 
-		activator.Write("You can't use skills here.", COLOR_RED)
+		pl.DrawInfo("You can't use skills here.", COLOR_RED)
 		SetReturnValue(1)
 	# Allow anyone to drop items and put them to containers, but log it.
 	elif event_num == MEVENT_DROP:
@@ -31,7 +31,7 @@ def main():
 
 		# There must be floor, and it must have 'unique 1' set.
 		if not layer or not layer[0] or not layer[0].f_unique:
-			activator.Write("You cannot drop that here; use one of the storage areas.", COLOR_RED)
+			pl.DrawInfo("You cannot drop that here; use one of the storage areas.", COLOR_RED)
 			SetReturnValue(1)
 			return
 
@@ -44,14 +44,14 @@ def main():
 			rank = other.custom_name[13:]
 
 			if not WhoAmI().f_no_pick:
-				activator.Write("Only non-pickable containers can be given rank access.", COLOR_RED)
+				pl.DrawInfo("Only non-pickable containers can be given rank access.", COLOR_RED)
 			elif rank == "None":
-				activator.Write("The {} is now accessible to all.".format(WhoAmI().GetName()), COLOR_GREEN)
+				pl.DrawInfo("The {} is now accessible to all.".format(WhoAmI().GetName()), COLOR_GREEN)
 				WhoAmI().title = None
 			elif not guild.rank_exists(rank):
-				activator.Write("No such rank '{}'.".format(rank), COLOR_RED)
+				pl.DrawInfo("No such rank '{}'.".format(rank), COLOR_RED)
 			else:
-				activator.Write("The {} is now only accessible to members with the '{}' rank.".format(WhoAmI().GetName(), rank), COLOR_GREEN)
+				pl.DrawInfo("The {} is now only accessible to members with the '{}' rank.".format(WhoAmI().GetName(), rank), COLOR_GREEN)
 				WhoAmI().title = "[" + rank + "]"
 
 			SetReturnValue(1)
@@ -64,7 +64,7 @@ def main():
 			return
 
 		if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name) and not guild.member_can_pick(activator.name, other):
-			activator.Write("Your rank limits you from picking up the {}. Please see the Guild Storage Manager NPC for more details.".format(other.GetName()), COLOR_BLUE)
+			pl.DrawInfo("Your rank limits you from picking up the {}. Please see the Guild Storage Manager NPC for more details.".format(other.GetName()), COLOR_BLUE)
 			SetReturnValue(1)
 			return
 
@@ -80,14 +80,14 @@ def main():
 		SetReturnValue(-1)
 
 		if other.type != Type.CONTAINER and not other.f_no_pick:
-			activator.Write("You must get it first!\n", COLOR_WHITE)
+			pl.DrawInfo("You must get it first!\n", COLOR_WHITE)
 			SetReturnValue(OBJECT_METHOD_OK)
 		elif other.type == Type.CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
-			activator.Write("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
+			pl.DrawInfo("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
 			SetReturnValue(OBJECT_METHOD_OK)
 	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
 		if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name):
-			activator.Write("You cannot use that command here.", COLOR_RED)
+			pl.DrawInfo("You cannot use that command here.", COLOR_RED)
 			SetReturnValue(1)
 			return
 

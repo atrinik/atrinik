@@ -11,7 +11,7 @@ def main():
 
 		# Do not allow players to apply lights.
 		if activator.type == Type.PLAYER and other.type == Type.LIGHT_APPLY:
-			activator.Write("Something seems to prevent you from using the {}...".format(other.GetName()), COLOR_WHITE)
+			pl.DrawInfo("Something seems to prevent you from using the {}...".format(other.GetName()), COLOR_WHITE)
 			SetReturnValue(OBJECT_METHOD_OK)
 	# Enter the map.
 	elif event_num == MEVENT_ENTER:

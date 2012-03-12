@@ -39,8 +39,8 @@ def main():
 	# Apply the switch the beacon is in.
 	me.Apply(beacon.env, APPLY_TOGGLE | APPLY_NO_EVENT)
 
-	# Write a message, if any.
-	if event.msg:
-		activator.Write(event.msg, COLOR_WHITE)
+	# Send a message, if any.
+	if event.msg and pl:
+		pl.DrawInfo(event.msg, COLOR_WHITE)
 
 main()

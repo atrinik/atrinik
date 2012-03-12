@@ -8,10 +8,10 @@ guild = Guild(GetOptions())
 
 def main():
 	if not guild.member_approved(activator.name):
-		activator.Write("You have been removed from the guild while you were offline. Goodbye!", COLOR_RED)
+		pl.DrawInfo("You have been removed from the guild while you were offline. Goodbye!", COLOR_RED)
 		guild.member_kick(activator)
 	elif activator.map.path[-7:] == "/oracle" and not guild.member_is_admin(activator.name):
-		activator.Write("You have had administrator rights taken away while you were offline.", COLOR_RED)
+		pl.DrawInfo("You have had administrator rights taken away while you were offline.", COLOR_RED)
 		guild.member_kick(activator)
 
 main()

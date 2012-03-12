@@ -11,6 +11,6 @@ def main():
 		return
 
 	SetReturnValue(1)
-	activator.Write("You don't see the need to take so many mushrooms with you...", COLOR_YELLOW)
+	pl.DrawInfo("You don't see the need to take so many mushrooms with you...", COLOR_YELLOW)
 
 main()

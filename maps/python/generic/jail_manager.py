@@ -84,7 +84,7 @@ def main():
 		else:
 			force.Remove()
 			inf.add_msg("{} has been released early.".format(pl.name))
-			pl.Write("You have been released early.", COLOR_GREEN)
+			pl.Controller().DrawInfo("You have been released early.", COLOR_GREEN)
 
 main()
 inf.finish()

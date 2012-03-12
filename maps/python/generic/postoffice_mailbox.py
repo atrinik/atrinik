@@ -9,9 +9,9 @@ def main():
 	msgs = post.withdraw(activator, 0)
 
 	if msgs:
-		activator.Write("\n".join(msgs))
+		pl.DrawInfo("\n".join(msgs))
 	else:
-		activator.Write("There are no items for you.")
+		pl.DrawInfo("There are no items for you.")
 
 try:
 	main()

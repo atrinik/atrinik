@@ -9,7 +9,7 @@ guild = Guild(GetOptions())
 
 def main():
 	if not guild.member_is_admin(activator.name) and not "[OP]" in activator.Controller().cmd_permissions:
-		activator.Write("Entry forbidden. Only guild administrators are permitted.", COLOR_RED)
+		pl.DrawInfo("Entry forbidden. Only guild administrators are permitted.", COLOR_RED)
 		pos = guild.get(guild.oracle_pos)
 
 		if pos:

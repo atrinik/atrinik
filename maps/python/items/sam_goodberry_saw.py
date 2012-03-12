@@ -15,9 +15,9 @@ def main():
 				branches = CreateObject("deserted_island_branch")
 				branches.nrof = 10
 				branches.InsertInto(activator)
-				activator.Write("You cut down ten thick branches from the tree. You should return with the branches to Sam Goodberry.", COLOR_YELLOW)
+				pl.DrawInfo("You cut down ten thick branches from the tree. You should return with the branches to Sam Goodberry.", COLOR_YELLOW)
 				return
 
-	activator.Write("\nStand right next to a tree in order to cut down some branches.", "FDD017")
+	pl.DrawInfo("\nStand right next to a tree in order to cut down some branches.", "FDD017")
 
 main()

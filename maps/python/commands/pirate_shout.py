@@ -4,6 +4,6 @@
 from Pirate import english2pirate
 
 if not msg:
-	activator.Write("No message given.", COLOR_RED)
+	pl.DrawInfo("No message given.", COLOR_RED)
 else:
-	activator.Controller().ExecuteCommand("/shout " + english2pirate(msg))
+	pl.ExecuteCommand("/shout " + english2pirate(msg))

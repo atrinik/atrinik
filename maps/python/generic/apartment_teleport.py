@@ -9,7 +9,7 @@ def main():
 
 	# No apartment, teleport them back.
 	if not pinfo:
-		activator.Write("You don't own an apartment here!", COLOR_WHITE)
+		pl.DrawInfo("You don't own an apartment here!", COLOR_WHITE)
 		activator.SetPosition(me.hp, me.sp)
 	else:
 		pinfo.race = me.map.path

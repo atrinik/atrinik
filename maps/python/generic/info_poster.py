@@ -41,9 +41,9 @@ def main():
 				messages.append("There are {} member(s) awaiting approval in your guild.".format(count))
 
 	if messages:
-		activator.Write("\n".join(messages), COLOR_WHITE)
+		pl.DrawInfo("\n".join(messages), COLOR_WHITE)
 	else:
-		activator.Write("There is currently nothing of interest.", COLOR_WHITE)
+		pl.DrawInfo("There is currently nothing of interest.", COLOR_WHITE)
 
 try:
 	main()

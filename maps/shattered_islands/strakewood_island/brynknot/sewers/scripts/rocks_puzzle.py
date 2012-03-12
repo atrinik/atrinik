@@ -18,8 +18,8 @@ def main():
 
 	if not activator.FindObject(INVENTORY_CONTAINERS, key.arch.name, key.name):
 		key.Clone().InsertInto(activator)
-		activator.Write("The rocks have moved back to their resting place and you have received a key.", COLOR_NAVY)
+		pl.DrawInfo("The rocks have moved back to their resting place and you have received a key.", COLOR_NAVY)
 	else:
-		activator.Write("The rocks have moved back to their resting place.", COLOR_NAVY)
+		pl.DrawInfo("The rocks have moved back to their resting place.", COLOR_NAVY)
 
 main()

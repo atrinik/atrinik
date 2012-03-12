@@ -14,13 +14,13 @@ def main():
 	g = guild.pl_get_guild(activator.name)
 
 	if not g or not g[2]:
-		activator.Write("You are not member of any guild.", COLOR_RED)
+		pl.DrawInfo("You are not member of any guild.", COLOR_RED)
 		return
 
 	message = player_sanitize_input(msg)
 
 	if not message:
-		activator.Write("You must provide a message to send to other guild members.", COLOR_RED)
+		pl.DrawInfo("You must provide a message to send to other guild members.", COLOR_RED)
 		return
 
 	# Simply switch the guild name we are managing.
@@ -36,6 +36,6 @@ def main():
 		player = FindPlayer(member)
 
 		if player:
-			player.Write("[{0}] {1}: {2}".format(guildname, activator.name, message), COLOR_BLUE, NDI_PLAYER)
+			player.Controller().DrawInfo(message, COLOR_BLUE, CHAT_TYPE_GUILD, name = activator.name)
 
 main()

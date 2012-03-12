@@ -28,10 +28,10 @@ def main2():
 	import threading
 
 	def timer():
-		activator.Write("hi 1!")
-		activator.Write("hi 2!")
-		activator.Write("hi 3!")
-		activator.Write("hi 4!")
+		pl.DrawInfo("hi 1!")
+		pl.DrawInfo("hi 2!")
+		pl.DrawInfo("hi 3!")
+		pl.DrawInfo("hi 4!")
 		t = threading.Timer(0.005, timer)
 		t.start()
 

@@ -31,7 +31,7 @@ def main():
 	parse = parse_params()
 
 	if not parse:
-		activator.Write("Usage: /roll <times>d<sides>", COLOR_RED)
+		pl.DrawInfo("Usage: /roll <times>d<sides>", COLOR_RED)
 		return
 
 	(num, sides) = parse

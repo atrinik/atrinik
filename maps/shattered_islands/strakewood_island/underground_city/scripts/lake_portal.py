@@ -9,10 +9,10 @@ qm = QuestManagerMulti(activator, quest)
 
 def main():
 	if not qm.started_part(1) or not qm.completed_part(1):
-		activator.Write("The portal bounces you away as soon as you touch it. It appears to be sealed by the powers of the elven god Llwyfen.", COLOR_RED)
+		pl.DrawInfo("The portal bounces you away as soon as you touch it. It appears to be sealed by the powers of the elven god Llwyfen.", COLOR_RED)
 
 		if not qm.started_part(1):
-			activator.Write("Perhaps you should search for a priest of Llwyfen to learn more.", COLOR_YELLOW)
+			pl.DrawInfo("Perhaps you should search for a priest of Llwyfen to learn more.", COLOR_YELLOW)
 			qm.start(1)
 
 		d = random.randint(1, SIZEOFFREE1)
@@ -22,7 +22,7 @@ def main():
 		amulet = activator.FindObject(INVENTORY_CONTAINERS, "amulet_llwyfen")
 
 		if amulet:
-			activator.Write("Upon coming into contact with the portal, the amulet of Llwyfen shatters and you feel as if an invisible force was being removed! The seal is broken.", COLOR_GREEN)
+			pl.DrawInfo("Upon coming into contact with the portal, the amulet of Llwyfen shatters and you feel as if an invisible force was being removed! The seal is broken.", COLOR_GREEN)
 			amulet.Remove()
 
 main()

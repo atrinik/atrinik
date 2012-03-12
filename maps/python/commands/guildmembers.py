@@ -12,7 +12,7 @@ def main():
 	g = guild.pl_get_guild(activator.name)
 
 	if not g or not g[2]:
-		activator.Write("You are not member of any guild.", COLOR_RED)
+		pl.DrawInfo("You are not member of any guild.", COLOR_RED)
 		return
 
 	msg = WhatIsMessage()
@@ -24,14 +24,14 @@ def main():
 	# Get the guild founder.
 	founder = guild.get_founder()
 
-	activator.Write("\n{} of {}:".format("Members" if all_members else "Online members", g[0]), COLOR_WHITE)
+	pl.DrawInfo("\n{} of {}:".format("Members" if all_members else "Online members", g[0]), COLOR_WHITE)
 
 	if all_members and FindPlayer(founder):
 		name = "<green>{}</green>".format(founder)
 	else:
 		name = founder
 
-	activator.Write("Founder: {}".format(name), COLOR_WHITE)
+	pl.DrawInfo("Founder: {}".format(name), COLOR_WHITE)
 
 	admins = []
 	members = []
@@ -60,10 +60,10 @@ def main():
 
 	if admins:
 		admins.sort()
-		activator.Write("\nAdministrators:\n{}".format(", ".join(admins)), COLOR_WHITE)
+		pl.DrawInfo("\nAdministrators:\n{}".format(", ".join(admins)), COLOR_WHITE)
 
 	if members:
 		members.sort()
-		activator.Write("\nMembers:\n{}".format(", ".join(members)), COLOR_WHITE)
+		pl.DrawInfo("\nMembers:\n{}".format(", ".join(members)), COLOR_WHITE)
 
 main()

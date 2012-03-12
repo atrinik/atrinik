@@ -62,8 +62,8 @@ def main():
 		t = threading.Timer(0.5, timer, [progress + 1])
 		t.start()
 
-	activator.Controller().Sound("gate_open.ogg")
-	activator.Write("You hear the sound of old gears turning...", COLOR_YELLOW)
+	pl.Sound("gate_open.ogg")
+	pl.DrawInfo("You hear the sound of old gears turning...", COLOR_YELLOW)
 
 	# Apply the switch that opens the gate.
 	me.Apply(ReadyMap(me.map.GetPath("underground_city_a_0602")).LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)

@@ -5,6 +5,9 @@
 ## containers.
 
 def main():
-	activator.Write(WhatIsEvent().msg, COLOR_WHITE)
+	if not pl:
+		return
+
+	pl.DrawInfo(WhatIsEvent().msg, COLOR_WHITE)
 
 main()

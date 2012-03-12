@@ -25,7 +25,7 @@ def main():
 		try:
 			obj = CreateObject(archname)
 		except AtrinikError as err:
-			activator.Write(str(err), COLOR_RED)
+			pl.DrawInfo(str(err), COLOR_RED)
 			break
 
 		obj.f_identified = True
@@ -35,7 +35,7 @@ def main():
 				obj.Artificate(artname)
 			except AtrinikError as err:
 				obj.Destroy()
-				activator.Write(str(err), COLOR_RED)
+				pl.DrawInfo(str(err), COLOR_RED)
 				break
 
 		if attribs:

@@ -6,17 +6,17 @@ def main():
 	marked = activator.Controller().FindMarkedObject()
 
 	if not marked:
-		activator.Write("You need to mark the object you want to smoke.", COLOR_BLUE)
+		pl.DrawInfo("You need to mark the object you want to smoke.", COLOR_BLUE)
 		return
 
 	# Not pipeweed?
 	if marked.arch.name != "pipeweed":
-		activator.Write("You can't smoke that.", COLOR_BLUE)
+		pl.DrawInfo("You can't smoke that.", COLOR_BLUE)
 		return
 
 	# Have we smoked lately?
 	if activator.FindObject(0, "force", "pipeweed_force"):
-		activator.Write("That was a nice smoke, but you'll have to wait for its effects to lessen before taking another...", COLOR_BLUE)
+		pl.DrawInfo("That was a nice smoke, but you'll have to wait for its effects to lessen before taking another...", COLOR_BLUE)
 		return
 
 	force = activator.CreateObject("force")
@@ -31,7 +31,7 @@ def main():
 
 	# Cursed or damned pipeweed? Worsen the stat effects...
 	if marked.f_cursed or marked.f_damned:
-		activator.Write("Ack, that was some rotten pipeweed!", COLOR_RED)
+		pl.DrawInfo("Ack, that was some rotten pipeweed!", COLOR_RED)
 		force.Int = -5
 		force.Wis = -5
 	else:
