@@ -827,7 +827,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strcmp(cmd, "HELLO"))
 		{
-			send_command("/talk 1 hello");
+			send_command_check("/talk 1 hello");
 		}
 
 		return 1;
@@ -835,11 +835,7 @@ int keybind_process_command(const char *cmd)
 	else
 	{
 		draw_info(COLOR_DGOLD, cmd);
-
-		if (!client_command_check(cmd))
-		{
-			send_command(cmd);
-		}
+		send_command_check(cmd);
 	}
 
 	return 0;
