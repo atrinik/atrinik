@@ -154,7 +154,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
 	box.y = 0;
 	/* Get the string's height. */
-	text_show(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	text_show(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 	scroll = box.h;
 
 	/* Adjust the counts. */
@@ -175,7 +175,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
 			/* Get the string's height. */
 			box.h = 0;
-			text_show(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_WHITE, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+			text_show(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
 			scroll = box.h - 1;
 
 			free(buf);
