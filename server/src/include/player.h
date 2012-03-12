@@ -543,8 +543,8 @@ typedef struct pl_player
 	/** Last gender sent to the client. */
 	uint8 last_gender;
 
-	/** If 1, the player is not able to shout. */
-	uint8 no_shout;
+	/** If 1, the player is not able to chat. */
+	uint8 no_chat;
 
 	/** Last HP sent to party members. */
 	uint8 last_party_hp;

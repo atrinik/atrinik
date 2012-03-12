@@ -2361,7 +2361,7 @@ void player_save(object *op)
 		return;
 	}
 
-	fprintf(fp, "no_shout %d\n", pl->no_shout);
+	fprintf(fp, "no_chat %d\n", pl->no_chat);
 	fprintf(fp, "tcl %d\n", pl->tcl);
 	fprintf(fp, "tgm %d\n", pl->tgm);
 	fprintf(fp, "tsi %d\n", pl->tsi);
@@ -2449,9 +2449,9 @@ static int player_load(player *pl, const char *path)
 		{
 			break;
 		}
-		else if (strncmp(buf, "no_shout ", 9) == 0)
+		else if (strncmp(buf, "no_chat ", 8) == 0)
 		{
-			pl->no_shout = atoi(buf + 9);
+			pl->no_chat = atoi(buf + 8);
 		}
 		else if (strncmp(buf, "tcl ", 4) == 0)
 		{

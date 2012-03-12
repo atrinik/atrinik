@@ -11,16 +11,16 @@ extern void command_follow(object *op, const char *command, char *params);
 extern void command_freeze(object *op, const char *command, char *params);
 /* src/commands/permission/kick.c */
 extern void command_kick(object *op, const char *command, char *params);
-/* src/commands/permission/mod_shout.c */
-extern void command_mod_shout(object *op, const char *command, char *params);
-/* src/commands/permission/no_shout.c */
-extern void command_no_shout(object *op, const char *command, char *params);
+/* src/commands/permission/mod_chat.c */
+extern void command_mod_chat(object *op, const char *command, char *params);
+/* src/commands/permission/no_chat.c */
+extern void command_no_chat(object *op, const char *command, char *params);
 /* src/commands/permission/opsay.c */
 extern void command_opsay(object *op, const char *command, char *params);
 /* src/commands/permission/resetmap.c */
 extern void command_resetmap(object *op, const char *command, char *params);
-/* src/commands/permission/server_shout.c */
-extern void command_server_shout(object *op, const char *command, char *params);
+/* src/commands/permission/server_chat.c */
+extern void command_server_chat(object *op, const char *command, char *params);
 /* src/commands/permission/settime.c */
 extern void command_settime(object *op, const char *command, char *params);
 /* src/commands/permission/shutdown.c */
@@ -45,6 +45,8 @@ extern void command_tsi(object *op, const char *command, char *params);
 extern void command_afk(object *op, const char *command, char *params);
 /* src/commands/player/apply.c */
 extern void command_apply(object *op, const char *command, char *params);
+/* src/commands/player/chat.c */
+extern void command_chat(object *op, const char *command, char *params);
 /* src/commands/player/drop.c */
 extern void command_drop(object *op, const char *command, char *params);
 /* src/commands/player/gsay.c */
@@ -73,14 +75,8 @@ extern void command_reply(object *op, const char *command, char *params);
 extern void command_right(object *op, const char *command, char *params);
 /* src/commands/player/say.c */
 extern void command_say(object *op, const char *command, char *params);
-/* src/commands/player/shout.c */
-extern void command_shout(object *op, const char *command, char *params);
 /* src/commands/player/statistics.c */
 extern void command_statistics(object *op, const char *command, char *params);
-/* src/commands/player/sys_tell.c */
-extern void command_sys_tell(object *op, const char *command, char *params);
-/* src/commands/player/t_tell.c */
-extern void command_t_tell(object *op, const char *command, char *params);
 /* src/commands/player/take.c */
 extern void command_take(object *op, const char *command, char *params);
 /* src/commands/player/tell.c */

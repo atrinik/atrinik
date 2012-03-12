@@ -24,14 +24,14 @@
 
 /**
  * @file
- * Implements the /server_shout command.
+ * Implements the /mod_chat command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_server_shout(object *op, const char *command, char *params)
+void command_mod_chat(object *op, const char *command, char *params)
 {
 	player *pl;
 	char name[MAX_BUF];
@@ -43,20 +43,20 @@ void command_server_shout(object *op, const char *command, char *params)
 		return;
 	}
 
-	logger_print(LOG(CHAT), "[SERVER SHOUT]: [%s] %s", op->name, params);
+	logger_print(LOG(CHAT), "[MOD CHAT] [%s] %s", op->name, params);
 
 	for (pl = first_player; pl; pl = pl->next)
 	{
 		if (commands_check_permission(pl, command))
 		{
-			snprintf(name, sizeof(name), "[Server] (%s)", op->name);
+			snprintf(name, sizeof(name), "[Moderator] (%s)", op->name);
 		}
 		else
 		{
-			strncpy(name, "[Server]", sizeof(name) - 1);
+			strncpy(name, "[Moderator]", sizeof(name) - 1);
 			name[sizeof(name) - 1] = '\0';
 		}
 
-		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_GREEN, pl->ob, params);
+		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_BRIGHT_PURPLE, pl->ob, params);
 	}
 }

@@ -24,39 +24,28 @@
 
 /**
  * @file
- * Implements the /no_shout command.
+ * Implements the /chat command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_no_shout(object *op, const char *command, char *params)
+void command_chat(object *op, const char *command, char *params)
 {
-	player *pl;
+	if (CONTR(op)->no_chat)
+	{
+		draw_info(COLOR_WHITE, op, "You are no longer allowed to shout.");
+		return;
+	}
+
+	params = player_sanitize_input(params);
 
 	if (!params)
 	{
-		draw_info(COLOR_WHITE, op, "Usage: /no_shout <player>");
 		return;
 	}
 
-	pl = find_player(params);
-
-	if (!pl)
-	{
-		draw_info(COLOR_WHITE, op, "No such player.");
-		return;
-	}
-
-	if (pl->no_shout)
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
-		pl->no_shout = 0;
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
-		pl->no_shout = 1;
-	}
+	logger_print(LOG(CHAT), "[CHAT] [%s] %s", op->name, params);
+	draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
 }

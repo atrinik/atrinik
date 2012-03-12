@@ -103,11 +103,11 @@ set(SOURCES
 	src/commands/permission/follow.c
 	src/commands/permission/freeze.c
 	src/commands/permission/kick.c
-	src/commands/permission/mod_shout.c
-	src/commands/permission/no_shout.c
+	src/commands/permission/mod_chat.c
+	src/commands/permission/no_chat.c
 	src/commands/permission/opsay.c
 	src/commands/permission/resetmap.c
-	src/commands/permission/server_shout.c
+	src/commands/permission/server_chat.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c
 	src/commands/permission/tcl.c
@@ -120,6 +120,7 @@ set(SOURCES
 	src/commands/permission/tsi.c
 	src/commands/player/afk.c
 	src/commands/player/apply.c
+	src/commands/player/chat.c
 	src/commands/player/drop.c
 	src/commands/player/gsay.c
 	src/commands/player/hiscore.c
@@ -134,7 +135,6 @@ set(SOURCES
 	src/commands/player/reply.c
 	src/commands/player/right.c
 	src/commands/player/say.c
-	src/commands/player/shout.c
 	src/commands/player/statistics.c
 	src/commands/player/take.c
 	src/commands/player/tell.c

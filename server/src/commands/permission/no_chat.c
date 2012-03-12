@@ -24,39 +24,39 @@
 
 /**
  * @file
- * Implements the /mod_shout command.
+ * Implements the /no_chat command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_mod_shout(object *op, const char *command, char *params)
+void command_no_chat(object *op, const char *command, char *params)
 {
 	player *pl;
-	char name[MAX_BUF];
-
-	params = player_sanitize_input(params);
 
 	if (!params)
 	{
+		draw_info(COLOR_WHITE, op, "Usage: /no_chat <player>");
 		return;
 	}
 
-	logger_print(LOG(CHAT), "[MOD SHOUT] [%s] %s", op->name, params);
+	pl = find_player(params);
 
-	for (pl = first_player; pl; pl = pl->next)
+	if (!pl)
 	{
-		if (commands_check_permission(pl, command))
-		{
-			snprintf(name, sizeof(name), "[Moderator] (%s)", op->name);
-		}
-		else
-		{
-			strncpy(name, "[Moderator]", sizeof(name) - 1);
-			name[sizeof(name) - 1] = '\0';
-		}
+		draw_info(COLOR_WHITE, op, "No such player.");
+		return;
+	}
 
-		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_BRIGHT_PURPLE, pl->ob, params);
+	if (pl->no_chat)
+	{
+		draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
+		pl->no_chat = 0;
+	}
+	else
+	{
+		draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
+		pl->no_chat = 1;
 	}
 }

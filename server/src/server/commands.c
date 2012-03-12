@@ -174,11 +174,11 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(mod_shout), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(no_shout), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(mod_chat), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(no_chat), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
-		commands_add(COMMAND(server_shout), 0.0, COMMAND_PERMISSION);
+		commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
 		commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
@@ -193,6 +193,7 @@ void toolkit_commands_init(void)
 		/* [player] */
 		commands_add(COMMAND(afk), 1.0, 0);
 		commands_add(COMMAND(apply), 1.0, 0);
+		commands_add(COMMAND(chat), 1.0, 0);
 		commands_add(COMMAND(drop), 1.0, 0);
 		commands_add(COMMAND(gsay), 1.0, 0);
 		commands_add(COMMAND(hiscore), 2.0, 0);
@@ -207,7 +208,6 @@ void toolkit_commands_init(void)
 		commands_add(COMMAND(reply), 1.0, 0);
 		commands_add(COMMAND(right), 1.0, 0);
 		commands_add(COMMAND(say), 1.0, 0);
-		commands_add(COMMAND(shout), 1.0, 0);
 		commands_add(COMMAND(statistics), 1.0, 0);
 		commands_add(COMMAND(take), 1.0, 0);
 		commands_add(COMMAND(tell), 1.0, 0);

@@ -51,7 +51,7 @@ static fields_struct fields[] =
 	{"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
 	{"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
 	{"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
-	{"no_shout", FIELDTYPE_BOOLEAN, offsetof(player, no_shout), 0, 0},
+	{"no_chat", FIELDTYPE_BOOLEAN, offsetof(player, no_chat), 0, 0},
 	{"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0},
 	{"tgm", FIELDTYPE_BOOLEAN, offsetof(player, tgm), 0, 0},
 	{"tli", FIELDTYPE_BOOLEAN, offsetof(player, tli), 0, 0},

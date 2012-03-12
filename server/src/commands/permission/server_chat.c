@@ -24,20 +24,17 @@
 
 /**
  * @file
- * Implements the /shout command.
+ * Implements the /server_chat command.
  *
  * @author Alex Tokar */
 
 #include <global.h>
 
 /** @copydoc command_func */
-void command_shout(object *op, const char *command, char *params)
+void command_server_chat(object *op, const char *command, char *params)
 {
-	if (CONTR(op)->no_shout)
-	{
-		draw_info(COLOR_WHITE, op, "You are no longer allowed to shout.");
-		return;
-	}
+	player *pl;
+	char name[MAX_BUF];
 
 	params = player_sanitize_input(params);
 
@@ -46,6 +43,20 @@ void command_shout(object *op, const char *command, char *params)
 		return;
 	}
 
-	logger_print(LOG(CHAT), "[SHOUT] [%s] %s", op->name, params);
-	draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
+	logger_print(LOG(CHAT), "[SERVER CHAT]: [%s] %s", op->name, params);
+
+	for (pl = first_player; pl; pl = pl->next)
+	{
+		if (commands_check_permission(pl, command))
+		{
+			snprintf(name, sizeof(name), "[Server] (%s)", op->name);
+		}
+		else
+		{
+			strncpy(name, "[Server]", sizeof(name) - 1);
+			name[sizeof(name) - 1] = '\0';
+		}
+
+		draw_info_type(CHAT_TYPE_CHAT, name, COLOR_GREEN, pl->ob, params);
+	}
 }

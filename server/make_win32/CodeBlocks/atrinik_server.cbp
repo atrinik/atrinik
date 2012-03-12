@@ -54,11 +54,11 @@
 		<Unit filename="..\..\src\commands\permission\follow.c" />
 		<Unit filename="..\..\src\commands\permission\freeze.c" />
 		<Unit filename="..\..\src\commands\permission\kick.c" />
-		<Unit filename="..\..\src\commands\permission\mod_shout.c" />
-		<Unit filename="..\..\src\commands\permission\no_shout.c" />
+		<Unit filename="..\..\src\commands\permission\mod_chat.c" />
+		<Unit filename="..\..\src\commands\permission\no_chat.c" />
 		<Unit filename="..\..\src\commands\permission\opsay.c" />
 		<Unit filename="..\..\src\commands\permission\resetmap.c" />
-		<Unit filename="..\..\src\commands\permission\server_shout.c" />
+		<Unit filename="..\..\src\commands\permission\server_chat.c" />
 		<Unit filename="..\..\src\commands\permission\settime.c" />
 		<Unit filename="..\..\src\commands\permission\shutdown.c" />
 		<Unit filename="..\..\src\commands\permission\tcl.c" />
@@ -72,6 +72,7 @@
 		<Unit filename="..\..\src\commands\permission\tsi.c" />
 		<Unit filename="..\..\src\commands\player\afk.c" />
 		<Unit filename="..\..\src\commands\player\apply.c" />
+		<Unit filename="..\..\src\commands\player\chat.c" />
 		<Unit filename="..\..\src\commands\player\drop.c" />
 		<Unit filename="..\..\src\commands\player\gsay.c" />
 		<Unit filename="..\..\src\commands\player\hiscore.c" />
@@ -86,7 +87,6 @@
 		<Unit filename="..\..\src\commands\player\reply.c" />
 		<Unit filename="..\..\src\commands\player\right.c" />
 		<Unit filename="..\..\src\commands\player\say.c" />
-		<Unit filename="..\..\src\commands\player\shout.c" />
 		<Unit filename="..\..\src\commands\player\statistics.c" />
 		<Unit filename="..\..\src\commands\player\take.c" />
 		<Unit filename="..\..\src\commands\player\tell.c" />
