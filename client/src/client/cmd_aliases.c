@@ -182,21 +182,55 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 			{
 				if (strcmp(cps[0], "get") == 0)
 				{
-					if (strcmp(cps[1], "arg") == 0)
+					char *str, *cps2[2];
+
+					if (string_split(cps[1], cps2, arraysize(cps2), ';') < 1)
 					{
-						stringbuffer_append_string(sb, params ? params : "");
+						continue;
 					}
-					else if (strcmp(cps[1], "mplayer") == 0)
+
+					if (strcmp(cps2[0], "arg") == 0)
+					{
+						str = strdup(params ? params : "");
+					}
+					else if (strcmp(cps2[0], "mplayer") == 0)
 					{
 						if (sound_map_background(-1) && sound_playing_music())
 						{
-							stringbuffer_append_string(sb, sound_get_bg_music_basename());
+							str = strdup(sound_get_bg_music_basename());
 						}
 						else
 						{
-							stringbuffer_append_string(sb, "nothing");
+							str = strdup("nothing");
 						}
 					}
+					else
+					{
+						str = strdup("???");
+					}
+
+					if (cps2[1])
+					{
+						if (strcmp(cps2[1], "upper") == 0)
+						{
+							string_toupper(str);
+						}
+						else if (strcmp(cps2[1], "lower") == 0)
+						{
+							string_tolower(str);
+						}
+						else if (strcmp(cps2[1], "capitalize") == 0)
+						{
+							string_capitalize(str);
+						}
+						else if (strcmp(cps2[1], "titlecase") == 0)
+						{
+							string_title(str);
+						}
+					}
+
+					stringbuffer_append_string(sb, str);
+					free(str);
 				}
 				else if (strcmp(cps[0], "gender") == 0)
 				{
