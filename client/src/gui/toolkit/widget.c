@@ -544,7 +544,7 @@ static void widget_ensure_onscreen(widgetdata *widget)
 {
 	int dx = 0, dy = 0;
 
-	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
+	if (setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 	{
 		return;
 	}
@@ -1228,11 +1228,7 @@ int widget_event_mousemv(int x, int y, SDL_Event *event)
 		move_widget_rec(widget, nx - widget->x, ny - widget->y);
 
 		/* Ensure widget is on-screen. */
-		if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
-		{
-			widget_ensure_onscreen(widget);
-		}
-
+		widget_ensure_onscreen(widget);
 		map_udate_flag = 2;
 
 		return 1;
