@@ -463,7 +463,7 @@ int client_command_check(const char *cmd)
 		{
 			packet_append_string_terminated(packet, cmd + pos);
 		}
-		else if (type_num == CMD_TALK_INV || type_num == CMD_TALK_BELOW)
+		else
 		{
 			char tag[MAX_BUF];
 
