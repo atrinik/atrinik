@@ -1911,7 +1911,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 			draw_info(COLOR_WHITE, pl->ob, "There are no NPCs that you can talk to nearby.");
 		}
 	}
-	else if (type == CMD_TALK_INV || type == CMD_TALK_BELOW)
+	else if (type == CMD_TALK_INV || type == CMD_TALK_BELOW || type == CMD_TALK_CONTAINER)
 	{
 		tag_t tag;
 		object *tmp;
