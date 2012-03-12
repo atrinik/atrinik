@@ -68,7 +68,7 @@ class Interface:
 	def set_title(self, title):
 		self._title = title
 
-	def set_text_input(self, text = "", prepend = None, allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False):
+	def set_text_input(self, text = "", prepend = "", allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False):
 		self._text_input = text
 		self._text_input_prepend = self._get_dest(prepend)
 		self._allow_tab = allow_tab
