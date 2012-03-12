@@ -804,9 +804,6 @@ end
 arch grassd_m13
 x 6
 y 15
-arch event_obj
-player_only 1
-end
 end
 arch floor_sand_d1
 x 6
