@@ -173,7 +173,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 }
 
 /** @copydoc text_anchor_handle_func */
-static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len)
+static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
 	if (strcmp(anchor_action, "charname") == 0)
 	{
@@ -199,7 +199,7 @@ static void list_handle_enter(list_struct *list)
 
 		text_anchor_parse(&info, list->text[list->row_selected - 1][1]);
 		text_set_anchor_handle(text_anchor_handle);
-		text_anchor_execute(&info);
+		text_anchor_execute(&info, NULL);
 		text_set_anchor_handle(NULL);
 	}
 }

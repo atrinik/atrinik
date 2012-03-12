@@ -81,18 +81,34 @@ void textwin_readjust(widgetdata *widget)
 	WIDGET_REDRAW(widget);
 }
 
-static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const char *name, const char *color, const char *str)
+/** @copydoc text_anchor_handle_func */
+static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
+{
+	if (strcmp(anchor_action, "#charname") == 0)
+	{
+		char *str;
+
+		str = (char *) custom_data;
+		strncpy(str, buf, MAX_BUF - 1);
+		str[MAX_BUF - 1] = '\0';
+		return 1;
+	}
+
+	return 0;
+}
+
+static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const char *color, const char *str)
 {
 	textwin_struct *textwin;
 	SDL_Rect box;
 	size_t len, scroll;
-	char timebuf[MAX_BUF], tabname[MAX_BUF], plname[MAX_BUF], *cp;
+	char timebuf[MAX_BUF], tabname[MAX_BUF], *cp;
 
 	textwin = TEXTWIN(widget);
 	box.w = TEXTWIN_TEXT_WIDTH(widget);
 	box.h = 0;
 
-	timebuf[0] = tabname[0] = plname[0] = '\0';
+	timebuf[0] = tabname[0] = '\0';
 
 	if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS) && textwin->timestamps)
 	{
@@ -138,12 +154,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 		snprintf(tabname, sizeof(tabname), "%s ", textwin_tab_names[type - 1]);
 	}
 
-	if (!string_isempty(name))
-	{
-		snprintf(plname, sizeof(plname), "<a=#charname>%s</a>: ", name);
-	}
-
-	cp = string_join("", "<c=#", color, " 1>", timebuf, tabname, plname, str, "\n", NULL);
+	cp = string_join("", "<c=#", color, " 1>", timebuf, tabname, str, "\n", NULL);
 	len = strlen(cp);
 	/* Resize the characters array as needed. */
 	textwin->tabs[id].entries = realloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
@@ -305,12 +316,24 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 	return 0;
 }
 
-void draw_info_tab(size_t type, const char *name, const char *color, const char *str)
+void draw_info_tab(size_t type, const char *color, const char *str)
 {
+	text_info_struct info;
+	char name[MAX_BUF];
 	widgetdata *widget;
 	textwin_struct *textwin;
 	uint32 bottom;
 	size_t i;
+
+	text_anchor_parse(&info, str);
+	text_set_anchor_handle(text_anchor_handle);
+	text_anchor_execute(&info, name);
+	text_set_anchor_handle(NULL);
+
+	if (!string_isempty(name) && ignore_check(name, "*"))
+	{
+		return;
+	}
 
 	for (widget = cur_widget[CHATWIN_ID]; widget; widget = widget->type_next)
 	{
@@ -326,11 +349,11 @@ void draw_info_tab(size_t type, const char *name, const char *color, const char 
 
 		if (textwin_tab_find(widget, type, name, &i))
 		{
-			textwin_tab_append(widget, i, type, name, color, str);
+			textwin_tab_append(widget, i, type, color, str);
 
 			if (textwin_tab_find(widget, CHAT_TYPE_ALL, NULL, &i))
 			{
-				textwin_tab_append(widget, i, type, name, color, str);
+				textwin_tab_append(widget, i, type, color, str);
 			}
 		}
 
@@ -354,7 +377,7 @@ void draw_info_format(const char *color, char *format, ...)
 	vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	draw_info_tab(CHAT_TYPE_GAME, NULL, color, buf);
+	draw_info_tab(CHAT_TYPE_GAME, color, buf);
 }
 
 /**
@@ -363,7 +386,7 @@ void draw_info_format(const char *color, char *format, ...)
  * @param str The string. */
 void draw_info(const char *color, const char *str)
 {
-	draw_info_tab(CHAT_TYPE_GAME, NULL, color, str);
+	draw_info_tab(CHAT_TYPE_GAME, color, str);
 }
 
 /**

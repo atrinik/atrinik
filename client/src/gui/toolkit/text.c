@@ -478,8 +478,9 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 /**
  * Execute anchor.
  * @param info Text info, should contain the anchor action and tag
- * position. */
-void text_anchor_execute(text_info_struct *info)
+ * position.
+ * @param custom_data User-supplied data. Can be NULL. */
+void text_anchor_execute(text_info_struct *info, void *custom_data)
 {
 	size_t len;
 	char *buf2, *pos;
@@ -511,7 +512,7 @@ void text_anchor_execute(text_info_struct *info)
 
 	buf2 = text_strip_markup(buf2, &len, 1);
 
-	if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len))
+	if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf2, len, custom_data))
 	{
 	}
 	/* No action specified. */
@@ -1750,7 +1751,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				if (info->anchor_tag && state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125))
 				{
 					ticks = SDL_GetTicks();
-					text_anchor_execute(info);
+					text_anchor_execute(info, NULL);
 				}
 
 				if (*info->tooltip_text != '\0')

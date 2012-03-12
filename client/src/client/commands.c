@@ -143,18 +143,17 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 {
 	uint8 type;
-	char name[MAX_BUF], color[COLOR_BUF], *str;
+	char color[COLOR_BUF], *str;
 	StringBuffer *sb;
 
 	type = packet_to_uint8(data, len, &pos);
-	packet_to_string(data, len, &pos, name, sizeof(name));
 	packet_to_string(data, len, &pos, color, sizeof(color));
 
 	sb = stringbuffer_new();
 	packet_to_stringbuffer(data, len, &pos, sb);
 	str = stringbuffer_finish(sb);
 
-	draw_info_tab(type, name, color, str);
+	draw_info_tab(type, color, str);
 
 	free(str);
 }

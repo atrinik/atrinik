@@ -49,8 +49,15 @@ void draw_info_send(uint8 type, const char *name, const char *color, socket_stru
 
 	packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
 	packet_append_uint8(packet, type);
-	packet_append_string_terminated(packet, name ? name : "");
 	packet_append_string_terminated(packet, color);
+
+	if (name)
+	{
+		packet_append_string(packet, "<a=#charname>");
+		packet_append_string(packet, name);
+		packet_append_string(packet, "</a>: ");
+	}
+
 	packet_append_string_terminated(packet, buf);
 	socket_send_packet(ns, packet);
 }

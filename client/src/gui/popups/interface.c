@@ -78,7 +78,7 @@ static void interface_destroy(void)
 }
 
 /** @copydoc text_anchor_handle_func */
-static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len)
+static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
 	if (anchor_action[0] == '\0' && buf[0] != '/')
 	{
@@ -121,7 +121,7 @@ static void interface_execute_link(size_t link_id)
 
 	text_anchor_parse(&info, *p);
 	text_set_anchor_handle(text_anchor_handle);
-	text_anchor_execute(&info);
+	text_anchor_execute(&info, NULL);
 	text_set_anchor_handle(NULL);
 }
 
