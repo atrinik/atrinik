@@ -33,7 +33,7 @@
 /** @copydoc command_func */
 void command_tell(object *op, const char *command, char *params)
 {
-	char name[MAX_BUF], *msg;
+	char name[MAX_BUF], *msg, buf[HUGE_BUF];
 	size_t pos;
 	player *pl;
 
@@ -72,5 +72,9 @@ void command_tell(object *op, const char *command, char *params)
 	pl->player_reply[sizeof(pl->player_reply) - 1] = '\0';
 
 	logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);
-	draw_info_type(CHAT_TYPE_PRIVATE, op->name, COLOR_NAVY, pl->ob, msg);
+
+	snprintf(buf, sizeof(buf), "<a=#charname>%s</a> tells you: %s", op->name, msg);
+	draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);
+	snprintf(buf, sizeof(buf), "You tell <a=#charname>%s</a>: %s", pl->ob->name, msg);
+	draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
 }
