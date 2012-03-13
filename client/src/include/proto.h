@@ -596,7 +596,6 @@ extern void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, 
 extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_submenu_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/container.c */
 extern void widget_container_init(widgetdata *widget);
 /* src/gui/widgets/fps.c */
@@ -729,13 +728,6 @@ extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
 extern int textwin_tabs_height(widgetdata *widget);
 extern void textwin_create_scrollbar(widgetdata *widget);
 extern void widget_textwin_init(widgetdata *widget);
-extern void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_timestamps(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu);
 /* src/toolkit/binreloc.c */
 extern void toolkit_binreloc_init(void);
 extern void toolkit_binreloc_deinit(void);

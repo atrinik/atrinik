@@ -84,13 +84,18 @@ void textwin_readjust(widgetdata *widget)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-	if (strcmp(anchor_action, "#charname") == 0)
+	if (custom_data && strcmp(anchor_action, "#charname") == 0)
 	{
-		char *str;
+		StringBuffer *sb;
 
-		str = (char *) custom_data;
-		strncpy(str, buf, MAX_BUF - 1);
-		str[MAX_BUF - 1] = '\0';
+		sb = (StringBuffer *) custom_data;
+
+		if (sb->pos)
+		{
+			stringbuffer_append_char(sb, ':');
+		}
+
+		stringbuffer_append_string(sb, buf);
 		return 1;
 	}
 
@@ -319,19 +324,23 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 void draw_info_tab(size_t type, const char *color, const char *str)
 {
 	text_info_struct info;
-	char name[MAX_BUF];
+	StringBuffer *sb;
+	char *name;
 	widgetdata *widget;
 	textwin_struct *textwin;
 	uint32 bottom;
 	size_t i;
 
+	sb = stringbuffer_new();
 	text_anchor_parse(&info, str);
 	text_set_anchor_handle(text_anchor_handle);
-	text_anchor_execute(&info, name);
+	text_anchor_execute(&info, sb);
 	text_set_anchor_handle(NULL);
+	name = stringbuffer_finish(sb);
 
 	if (!string_isempty(name) && ignore_check(name, "*"))
 	{
+		free(name);
 		return;
 	}
 
@@ -362,6 +371,8 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 			scrollbar_scroll_to(&textwin->scrollbar, SCROLL_BOTTOM(&textwin->scrollbar));
 		}
 	}
+
+	free(name);
 }
 
 /**
@@ -617,13 +628,30 @@ static void widget_draw(widgetdata *widget)
 			if (textwin->tabs[textwin->tab_selected].entries)
 			{
 				SDL_Rect box_text;
+				StringBuffer *sb;
+				char *charnames;
+
+				sb = stringbuffer_new();
 
 				box_text.w = TEXTWIN_TEXT_WIDTH(widget);
 				box_text.h = TEXTWIN_TEXT_HEIGHT(widget);
 				box_text.y = textwin->tabs[textwin->tab_selected].scroll_offset;
 				text_set_selection(&textwin->selection_start, &textwin->selection_end, &textwin->selection_started);
+				text_set_anchor_handle(text_anchor_handle);
+				text_set_anchor_info(sb);
 				text_show(widget->surface, textwin->font, textwin->tabs[textwin->tab_selected].entries, TEXTWIN_TEXT_STARTX(widget), TEXTWIN_TEXT_STARTY(widget) + yadjust, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_SKIP, &box_text);
+				text_set_anchor_info(NULL);
+				text_set_anchor_handle(NULL);
 				text_set_selection(NULL, NULL, NULL);
+
+				charnames = stringbuffer_finish(sb);
+
+				if (textwin->tabs[textwin->tab_selected].charnames)
+				{
+					free(textwin->tabs[textwin->tab_selected].charnames);
+				}
+
+				textwin->tabs[textwin->tab_selected].charnames = charnames;
 			}
 
 			textwin->scrollbar.max_lines = TEXTWIN_ROWS_VISIBLE(widget);
@@ -812,38 +840,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 	}
 }
 
-void widget_textwin_init(widgetdata *widget)
-{
-	textwin_struct *textwin;
-
-	textwin = calloc(1, sizeof(*textwin));
-
-	if (!textwin)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
-
-	textwin->font = FONT_ARIAL11;
-	textwin->selection_start = -1;
-	textwin->selection_end = -1;
-
-	widget->draw_func = widget_draw;
-	widget->event_func = widget_event;
-	widget->save_func = widget_save;
-	widget->load_func = widget_load;
-	widget->deinit_func = widget_deinit;
-	widget->subwidget = textwin;
-
-	textwin_create_scrollbar(widget);
-}
-
-/**
- * The 'Clear' menu action for text windows.
- * @param widget The text window widget.
- * @param x X.
- * @param y Y. */
-void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+static void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_struct *textwin;
 
@@ -854,20 +851,11 @@ void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
 	WIDGET_REDRAW(widget);
 }
 
-/**
- * Handle the 'Copy' menu action for text windows.
- * @param widget The text window widget.
- * @param x X.
- * @param y Y. */
-void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+static void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_handle_copy(widget);
 }
 
-/**
- * Adjust the specified text window widget's font size.
- * @param widget The text window.
- * @param adjust How much to adjust the size by. */
 static void textwin_font_adjust(widgetdata *widget, int adjust)
 {
 	textwin_struct *textwin;
@@ -884,35 +872,17 @@ static void textwin_font_adjust(widgetdata *widget, int adjust)
 	}
 }
 
-/**
- * The 'Increase Font Size' menu action for text windows.
- * @param widget The text window widget.
- * @param x X.
- * @param y Y. */
-void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+static void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_font_adjust(widget, 1);
 }
 
-/**
- * The 'Decrease Font Size' menu action for text windows.
- * @param widget The text window widget.
- * @param x X.
- * @param y Y. */
-void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+static void menu_textwin_font_dec(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	textwin_font_adjust(widget, -1);
 }
 
-void menu_textwin_timestamps(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-	textwin_struct *textwin;
-
-	textwin = TEXTWIN(widget);
-	textwin->timestamps = !textwin->timestamps;
-}
-
-void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+static void menu_textwin_tabs_one(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	widgetdata *tmp;
 	_widget_label *label;
@@ -939,17 +909,19 @@ void menu_textwin_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event
 	}
 }
 
-void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu)
+static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-	widgetdata *tmp, *menuitem;
+	widgetdata *tmp, *tmp2, *submenu;
 	textwin_struct *textwin;
 	size_t i, id;
 	uint8 found;
 	_widget_label *label;
 
+	submenu = MENU(menuitem->env)->submenu;
+
 	for (i = 0; i < arraysize(textwin_tab_names); i++)
 	{
-		add_menuitem(menu, textwin_tab_names[i], &menu_textwin_tab, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+		add_menuitem(submenu, textwin_tab_names[i], &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
 	}
 
 	for (tmp = cur_widget[CHATWIN_ID]; tmp; tmp = tmp->type_next)
@@ -965,11 +937,11 @@ void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu)
 
 			found = 0;
 
-			for (menuitem = menu->inv; menuitem; menuitem = menuitem->next)
+			for (tmp2 = submenu->inv; tmp2; tmp2 = tmp2->next)
 			{
-				if (menuitem->inv->type == LABEL_ID)
+				if (tmp2->inv->type == LABEL_ID)
 				{
-					label = LABEL(menuitem->inv);
+					label = LABEL(tmp2->inv);
 
 					if (strcmp(label->text, textwin->tabs[i].name) == 0)
 					{
@@ -981,8 +953,122 @@ void textwin_submenu_tabs(widgetdata *widget, widgetdata *menu)
 
 			if (!found)
 			{
-				add_menuitem(menu, textwin->tabs[i].name, &menu_textwin_tab, MENU_CHECKBOX, tmp == widget);
+				add_menuitem(submenu, textwin->tabs[i].name, &menu_textwin_tabs_one, MENU_CHECKBOX, tmp == widget);
 			}
 		}
 	}
+}
+
+static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *submenu, *tmp;
+	_widget_label *label;
+	char *cp, buf[HUGE_BUF];
+
+	submenu = MENU(menuitem->env)->submenu;
+
+	for (tmp = menuitem->inv; tmp; tmp = tmp->next)
+	{
+		if (tmp->type == LABEL_ID)
+		{
+			label = LABEL(menuitem->inv);
+
+			cp = string_sub(label->text, 0, -3);
+
+			snprintf(buf, sizeof(buf), "<a=#charname:%s>Add as Buddy</a>", cp);
+			add_menuitem(submenu, buf, NULL, MENU_NORMAL, 0);
+
+			free(cp);
+			break;
+		}
+	}
+}
+
+static void menu_textwin_players(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	textwin_struct *textwin;
+	size_t pos;
+	char charname[MAX_BUF], buf[HUGE_BUF];
+	uint8 found;
+	widgetdata *tmp, *submenu;
+	_widget_label *label;
+
+	textwin = TEXTWIN(widget);
+	submenu = MENU(menuitem->env)->submenu;
+	pos = 0;
+
+	while (string_get_word(textwin->tabs[textwin->tab_selected].charnames, &pos, ':', charname, sizeof(charname)))
+	{
+		found = 0;
+
+		snprintf(buf, sizeof(buf), "%s  >", charname);
+
+		for (tmp = submenu->inv; tmp; tmp = tmp->next)
+		{
+			if (tmp->inv->type == LABEL_ID)
+			{
+				label = LABEL(tmp->inv);
+
+				if (strcmp(label->text, buf) == 0)
+				{
+					found = 1;
+					break;
+				}
+			}
+		}
+
+		if (!found)
+		{
+			add_menuitem(submenu, buf, &menu_textwin_players_one, MENU_SUBMENU, 0);
+		}
+	}
+}
+
+static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
+{
+	widgetdata *menu;
+
+	menu = create_menu(event->motion.x, event->motion.y, widget);
+
+	add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+	add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
+	add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
+
+	add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
+	add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
+	add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
+	add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
+	add_menuitem(menu, "Tabs  >", &menu_textwin_tabs, MENU_SUBMENU, 0);
+	add_menuitem(menu, "Players  >", &menu_textwin_players, MENU_SUBMENU, 0);
+
+	menu_finalize(menu);
+
+	return 1;
+}
+
+void widget_textwin_init(widgetdata *widget)
+{
+	textwin_struct *textwin;
+
+	textwin = calloc(1, sizeof(*textwin));
+
+	if (!textwin)
+	{
+		logger_print(LOG(ERROR), "OOM.");
+		exit(1);
+	}
+
+	textwin->font = FONT_ARIAL11;
+	textwin->selection_start = -1;
+	textwin->selection_end = -1;
+
+	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
+	widget->save_func = widget_save;
+	widget->load_func = widget_load;
+	widget->deinit_func = widget_deinit;
+	widget->menu_handle_func = widget_menu_handle;
+	widget->subwidget = textwin;
+
+	textwin_create_scrollbar(widget);
 }

@@ -34,7 +34,7 @@
 /** Handles highlighting of menuitems when the cursor is hovering over them. */
 void widget_highlight_menu(widgetdata *widget)
 {
-	widgetdata *tmp, *tmp2, *tmp3;
+	widgetdata *tmp, *tmp2, *tmp3, *submenuwidget = NULL;
 	_menu *menu = NULL, *tmp_menu = NULL;
 	_menuitem *menuitem = NULL, *submenuitem = NULL;
 	int visible, create_submenu = 0, x = 0, y = 0;
@@ -90,6 +90,7 @@ void widget_highlight_menu(widgetdata *widget)
 			{
 				create_submenu = 1;
 				submenuitem = menuitem;
+				submenuwidget = tmp;
 				x = tmp->x + widget->w - 4;
 				y = tmp->y - (CONTAINER(widget))->outer_padding_top;
 			}
@@ -174,12 +175,10 @@ void widget_highlight_menu(widgetdata *widget)
 				add_menuitem(tmp_menu->submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);
 			}
 		}
-		else if (tmp_menu->owner->type == CHATWIN_ID)
+
+		if (submenuitem->menu_func_ptr)
 		{
-			if (submenuitem->menu_func_ptr == menu_textwin_submenu_tabs)
-			{
-				textwin_submenu_tabs(tmp_menu->owner, tmp_menu->submenu);
-			}
+			submenuitem->menu_func_ptr(tmp_menu->owner, submenuwidget, NULL);
 		}
 
 		menu_finalize(tmp_menu->submenu);
@@ -216,7 +215,7 @@ void widget_menu_event(widgetdata *widget, SDL_Event *event)
 		 * Make it the mouse owner as this is what the user is interacting with. */
 		widget_mouse_event.owner = (MENU(tmp->env))->owner;
 
-		if (widget_mouse_event.owner)
+		if (widget_mouse_event.owner && menuitem->menu_type != MENU_SUBMENU && menuitem->menu_func_ptr)
 		{
 			menuitem->menu_func_ptr(widget_mouse_event.owner, tmp, event);
 		}

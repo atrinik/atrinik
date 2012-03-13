@@ -322,17 +322,6 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 		{
 			add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
 		}
-		else if (widget->sub_type == CHATWIN_ID)
-		{
-			add_menuitem(menu, "Clear", &menu_textwin_clear, MENU_NORMAL, 0);
-			add_menuitem(menu, "Copy", &menu_textwin_copy, MENU_NORMAL, 0);
-			add_menuitem(menu, "Increase Font Size", &menu_textwin_font_inc, MENU_NORMAL, 0);
-			add_menuitem(menu, "Decrease Font Size", &menu_textwin_font_dec, MENU_NORMAL, 0);
-			add_menuitem(menu, "Timestamps", &menu_textwin_timestamps, MENU_CHECKBOX, TEXTWIN(widget)->timestamps);
-			add_menuitem(menu, "Tabs  >", &menu_textwin_submenu_tabs, MENU_SUBMENU, 0);
-			add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
-			add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
-		}
 	}
 
 	menu_finalize(menu);
@@ -2335,9 +2324,5 @@ void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_E
 }
 
 void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-}
-
-void menu_textwin_submenu_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 }

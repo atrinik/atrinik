@@ -50,6 +50,8 @@ typedef struct textwin_tab_struct
 	uint32 num_lines;
 
 	button_struct button;
+
+	char *charnames;
 } textwin_tab_struct;
 
 /** Custom attributes for text window widgets. */
