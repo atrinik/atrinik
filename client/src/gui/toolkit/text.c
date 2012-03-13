@@ -1753,7 +1753,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		{
 			int state, mx, my, orig_mx, orig_my;
 
-			if (info->anchor_tag && text_anchor_info_ptr)
+			if (info->anchor_tag && cp == info->anchor_tag && text_anchor_info_ptr)
 			{
 				text_anchor_execute(info, text_anchor_info_ptr);
 			}
