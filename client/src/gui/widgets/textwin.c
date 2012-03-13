@@ -84,7 +84,7 @@ void textwin_readjust(widgetdata *widget)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-	if (custom_data && strcmp(anchor_action, "#charname") == 0)
+	if (custom_data && string_startswith(anchor_action, "#charname"))
 	{
 		StringBuffer *sb;
 
@@ -312,7 +312,7 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 
 	for (*id = 0; *id < textwin->tabs_num; (*id)++)
 	{
-		if (textwin->tabs[*id].type == type || (textwin->tabs[*id].type == CHAT_TYPE_PRIVATE && textwin->tabs[*id].name && !string_isempty(name) && strcmp(textwin->tabs[*id].name, name) == 0))
+		if (textwin->tabs[*id].type == type && (string_isempty(name) || (string_startswith(name, "[") && string_endswith(name, "]")) || (textwin->tabs[*id].name && strcmp(textwin->tabs[*id].name, name) == 0)))
 		{
 			return 1;
 		}
@@ -329,6 +329,7 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 	widgetdata *widget;
 	textwin_struct *textwin;
 	uint32 bottom;
+	uint8 found;
 	size_t i;
 
 	sb = stringbuffer_new();
@@ -338,10 +339,19 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 	text_set_anchor_handle(NULL);
 	name = stringbuffer_finish(sb);
 
-	if (!string_isempty(name) && ignore_check(name, "*"))
+	if (!string_isempty(name))
 	{
-		free(name);
-		return;
+		if (ignore_check(name, "*"))
+		{
+			free(name);
+			return;
+		}
+
+		if (strcmp(info.anchor_action, "#charnamereply") == 0)
+		{
+			strncpy(cpl.charname_reply, name, sizeof(cpl.charname_reply) - 1);
+			cpl.charname_reply[sizeof(cpl.charname_reply) - 1] = '\0';
+		}
 	}
 
 	for (widget = cur_widget[CHATWIN_ID]; widget; widget = widget->type_next)
@@ -355,11 +365,22 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 
 		WIDGET_REDRAW(widget);
 		bottom = SCROLL_BOTTOM(&textwin->scrollbar);
+		found = 0;
 
-		if (textwin_tab_find(widget, type, name, &i))
+		if (textwin_tab_find(widget, type, NULL, &i))
 		{
 			textwin_tab_append(widget, i, type, color, str);
+			found = 1;
+		}
 
+		if (!string_isempty(name) && textwin_tab_find(widget, type, name, &i))
+		{
+			textwin_tab_append(widget, i, type, color, str);
+			found = 1;
+		}
+
+		if (found)
+		{
 			if (textwin_tab_find(widget, CHAT_TYPE_ALL, NULL, &i))
 			{
 				textwin_tab_append(widget, i, type, color, str);
@@ -694,7 +715,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 			if (button_event(&textwin->tabs[i].button, event))
 			{
 				textwin->tab_selected = i;
-				WIDGET_REDRAW(widget);
+				textwin_readjust(widget);
 				return 1;
 			}
 			else if (BUTTON_MOUSE_OVER(&textwin->tabs[i].button, event->motion.x, event->motion.y, TEXTURE_SURFACE(textwin->tabs[i].button.texture)))
@@ -959,6 +980,62 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
 	}
 }
 
+/** @copydoc text_anchor_handle_func */
+static int text_anchor_handle_players_tab(const char *anchor_action, const char *buf, size_t len, void *custom_data)
+{
+	if (strcmp(anchor_action, "#addbuddy") == 0)
+	{
+		return 1;
+	}
+	else if (strcmp(anchor_action, "#opentab") == 0)
+	{
+		widgetdata *widget;
+		textwin_struct *textwin;
+		size_t i;
+
+		widget = widget_find_by_type(CHATWIN_ID);
+		textwin = TEXTWIN(widget);
+
+		if (textwin_tab_find(widget, CHAT_TYPE_PRIVATE, buf, &i))
+		{
+			textwin->tab_selected = i;
+			textwin_readjust(widget);
+		}
+		else
+		{
+			textwin_tab_add(widget, buf);
+		}
+
+		return 1;
+	}
+	else if (strcmp(anchor_action, "#ignore") == 0)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+static void menu_textwin_players_one_tab(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *tmp;
+	_widget_label *label;
+	text_info_struct info;
+
+	for (tmp = menuitem->inv; tmp; tmp = tmp->next)
+	{
+		if (tmp->type == LABEL_ID)
+		{
+			label = LABEL(menuitem->inv);
+
+			text_anchor_parse(&info, label->text);
+			text_set_anchor_handle(text_anchor_handle_players_tab);
+			text_anchor_execute(&info, NULL);
+			text_set_anchor_handle(NULL);
+		}
+	}
+}
+
 static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	widgetdata *submenu, *tmp;
@@ -975,8 +1052,14 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
 
 			cp = string_sub(label->text, 0, -3);
 
-			snprintf(buf, sizeof(buf), "<a=#charname:%s>Add as Buddy</a>", cp);
-			add_menuitem(submenu, buf, NULL, MENU_NORMAL, 0);
+			snprintf(buf, sizeof(buf), "<a=#addbuddy:%s>Add As Buddy</a>", cp);
+			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
+
+			snprintf(buf, sizeof(buf), "<a=#opentab:%s>Open Tab</a>", cp);
+			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
+
+			snprintf(buf, sizeof(buf), "<a=#ignore:%s>Ignore</a>", cp);
+			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
 			free(cp);
 			break;

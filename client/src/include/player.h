@@ -257,6 +257,10 @@ typedef struct Player_Struct
 	/**
 	 * Last time the account was used. */
 	time_t last_time;
+
+	/**
+	 * Character name to reply to. */
+    char charname_reply[MAX_BUF];
 } Client_Player;
 
 #endif
