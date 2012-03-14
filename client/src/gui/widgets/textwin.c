@@ -249,6 +249,20 @@ size_t textwin_tab_name_to_id(const char *name)
 
 void textwin_tab_free(textwin_tab_struct *tab)
 {
+	if (tab->name)
+	{
+		free(tab->name);
+	}
+
+	if (tab->entries)
+	{
+		free(tab->entries);
+	}
+
+	if (tab->charnames)
+	{
+		free(tab->charnames);
+	}
 }
 
 void textwin_tab_remove(widgetdata *widget, const char *name)
@@ -774,6 +788,20 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
+	textwin_struct *textwin;
+	size_t i;
+
+	textwin = TEXTWIN(widget);
+
+	for (i = 0; i < textwin->tabs_num; i++)
+	{
+		textwin_tab_free(&textwin->tabs[i]);
+	}
+
+	if (textwin->tabs)
+	{
+		free(textwin->tabs);
+	}
 }
 
 /** @copydoc widgetdata::load_func */
