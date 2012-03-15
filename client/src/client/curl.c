@@ -161,7 +161,6 @@ int curl_connect(void *c_data)
 {
 	curl_data *data = (curl_data *) c_data;
 	char user_agent[MAX_BUF], version[MAX_BUF];
-	CURL *handle;
 	CURLcode res;
 	long http_code;
 
@@ -178,9 +177,9 @@ int curl_connect(void *c_data)
 #endif
 
 	/* Init "easy" cURL */
-	handle = curl_easy_init();
+	data->handle = curl_easy_init();
 
-	if (!handle)
+	if (!data->handle)
 	{
 		SDL_LockMutex(data->mutex);
 		data->status = -1;
@@ -189,39 +188,39 @@ int curl_connect(void *c_data)
 	}
 
 	/* Set connection timeout. */
-	curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, CURL_TIMEOUT);
+	curl_easy_setopt(data->handle, CURLOPT_CONNECTTIMEOUT, CURL_TIMEOUT);
 	/* Disable signals since we are in a thread. See
 	 * http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTNOSIGNAL
 	 * for details. */
-	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
+	curl_easy_setopt(data->handle, CURLOPT_NOSIGNAL, 1);
 
 	SDL_LockMutex(data->mutex);
-	curl_easy_setopt(handle, CURLOPT_URL, data->url);
-	curl_easy_setopt(handle, CURLOPT_REFERER, data->url);
-	curl_easy_setopt(handle, CURLOPT_SHARE, handle_share);
+	curl_easy_setopt(data->handle, CURLOPT_URL, data->url);
+	curl_easy_setopt(data->handle, CURLOPT_REFERER, data->url);
+	curl_easy_setopt(data->handle, CURLOPT_SHARE, handle_share);
 	SDL_UnlockMutex(data->mutex);
 
 	/* The callback function. */
-	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, curl_callback);
-	curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *) data);
+	curl_easy_setopt(data->handle, CURLOPT_WRITEFUNCTION, curl_callback);
+	curl_easy_setopt(data->handle, CURLOPT_WRITEDATA, (void *) data);
 
 	/* Set user agent. */
-	curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
+	curl_easy_setopt(data->handle, CURLOPT_USERAGENT, user_agent);
 
 	/* Get the data. */
-	res = curl_easy_perform(handle);
+	res = curl_easy_perform(data->handle);
 
 	if (res)
 	{
 		logger_print(LOG(BUG), "curl_easy_perform() got error %d (%s).", res, curl_easy_strerror(res));
-		curl_easy_cleanup(handle);
 		SDL_LockMutex(data->mutex);
 		data->status = -1;
 		SDL_UnlockMutex(data->mutex);
+		curl_easy_cleanup(data->handle);
 		return -1;
 	}
 
-	curl_easy_getinfo(handle, CURLINFO_HTTP_CODE, &http_code);
+	curl_easy_getinfo(data->handle, CURLINFO_HTTP_CODE, &http_code);
 	data->http_code = http_code;
 
 	if (http_code != 200)
@@ -229,14 +228,15 @@ int curl_connect(void *c_data)
 		SDL_LockMutex(data->mutex);
 		data->status = -1;
 		SDL_UnlockMutex(data->mutex);
+		curl_easy_cleanup(data->handle);
 		return -1;
 	}
-
-	curl_easy_cleanup(handle);
 
 	SDL_LockMutex(data->mutex);
 	data->status = 1;
 	SDL_UnlockMutex(data->mutex);
+
+	curl_easy_cleanup(data->handle);
 
 	return 1;
 }
@@ -247,13 +247,10 @@ int curl_connect(void *c_data)
  * @return The new structure. */
 curl_data *curl_data_new(const char *url)
 {
-	curl_data *data = malloc(sizeof(curl_data));
+	curl_data *data;
 
-	/* Store the url. */
+	data = calloc(1, sizeof(curl_data));
 	data->url = strdup(url);
-	data->memory = NULL;
-	data->size = 0;
-	data->status = 0;
 	data->http_code = -1;
 	/* Create a mutex to protect the structure. */
 	data->mutex = SDL_CreateMutex();
@@ -298,6 +295,64 @@ sint8 curl_download_finished(curl_data *data)
 	SDL_UnlockMutex(data->mutex);
 
 	return status;
+}
+
+/**
+ * @param data cURL data structure.
+ * @param info Type of information to acquire. One of:
+ * - CURLINFO_CONTENT_LENGTH_DOWNLOAD; size of the download in bytes, can
+ *   be -1 if the size is not known.
+ * - CURLINFO_SPEED_DOWNLOAD; speed in bytes that the file is being
+ *   downloaded at.
+ * - CURLINFO_SIZE_DOWNLOAD; how many bytes have been downloaded so far. */
+double curl_download_sizeinfo(curl_data *data, CURLINFO info)
+{
+	CURLcode res;
+	double val;
+
+	if (curl_download_finished(data) != 0 || !data->handle)
+	{
+		return 0;
+	}
+
+	res = curl_easy_getinfo(data->handle, info, &val);
+
+	if (res == CURLE_OK)
+	{
+		return val;
+	}
+
+	return 0;
+}
+
+/**
+ * Construct speed information string.
+ * @param data cURL data structure.
+ * @param buf Where to store the information.
+ * @param bufsize Size of 'buf'.
+ * @return 'buf'. */
+char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
+{
+	double speed, received, size;
+
+	speed = curl_download_sizeinfo(data, CURLINFO_SPEED_DOWNLOAD);
+	received = curl_download_sizeinfo(data, CURLINFO_SIZE_DOWNLOAD);
+	size = curl_download_sizeinfo(data, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+
+	if (!speed && !received && !size)
+	{
+		*buf = '\0';
+	}
+	else if (size == -1)
+	{
+		snprintf(buf, bufsize, "%0.3f MB/s", speed / 1024.0 / 1024.0);
+	}
+	else
+	{
+		snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s", received * 100.0 / size, speed / 1024.0 / 1024.0);
+	}
+
+	return buf;
 }
 
 /**

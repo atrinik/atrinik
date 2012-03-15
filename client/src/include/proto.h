@@ -34,6 +34,8 @@ extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url);
 extern curl_data *curl_download_start(const char *url);
 extern sint8 curl_download_finished(curl_data *data);
+extern double curl_download_sizeinfo(curl_data *data, CURLINFO info);
+extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);
 extern void curl_data_free(curl_data *data);
 extern void curl_init(void);
 extern void curl_deinit(void);

@@ -62,6 +62,10 @@ typedef struct curl_data
 	/**
 	 * Will contain HTTP code. */
 	int http_code;
+
+	/**
+	 * cURL handle being used. */
+	CURL *handle;
 } curl_data;
 
 #define CURL_TIMEOUT 15
