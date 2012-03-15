@@ -2025,14 +2025,21 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 	}
 
 	/* Align to the center. */
-	if (box && flags & TEXT_ALIGN_CENTER)
+	if (box && flags & (TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER))
 	{
-		x += box->w / 2 - text_get_width(font, text, flags) / 2;
-	}
+		int w, h;
 
-	if (box && flags & TEXT_VALIGN_CENTER)
-	{
-		y += box->h / 2 - FONT_HEIGHT(font) / 2;
+		text_get_width_height(font, text, flags & ~(TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER), box, flags & TEXT_ALIGN_CENTER ? &w : NULL, flags & TEXT_VALIGN_CENTER ? &h : NULL);
+
+		if (flags & TEXT_ALIGN_CENTER)
+		{
+			x += box->w / 2 - w / 2;
+		}
+
+		if (flags & TEXT_VALIGN_CENTER)
+		{
+			y += box->h / 2 - h / 2;
+		}
 	}
 
 	if (selection_start && selection_end)
@@ -2389,6 +2396,45 @@ int text_get_height(int font, const char *text, uint64 flags)
 	}
 
 	return max_height;
+}
+
+/**
+ * Calculate text's pixel height and width.
+ * @param font Font. One of @ref FONT_xxx.
+ * @param text Text to get width and height of.
+ * @param flags Combination of @ref TEXT_xxx flags.
+ * @param box Optional, may contain maximum width/height (for word wrap,
+ * for example).
+ * @param[out] w Will contain the calculated width.
+ * @param[out] h Will contain the calculated height. */
+void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h)
+{
+	SDL_Rect box2;
+
+	box2.w = box ? box->w : 0;
+	box2.h = box ? box->h : 0;
+
+	if (w)
+	{
+		flags |= TEXT_MAX_WIDTH;
+	}
+
+	if (h)
+	{
+		flags |= TEXT_HEIGHT;
+	}
+
+	text_show(NULL, font, text, 0, 0, COLOR_WHITE, flags, &box2);
+
+	if (w)
+	{
+		*w = box2.w;
+	}
+
+	if (h)
+	{
+		*h = box2.h;
+	}
 }
 
 /**

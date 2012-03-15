@@ -518,6 +518,7 @@ extern void text_show_format(SDL_Surface *surface, int font, int x, int y, const
 extern void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 9, 10)));
 extern int text_get_width(int font, const char *text, uint64 flags);
 extern int text_get_height(int font, const char *text, uint64 flags);
+extern void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h);
 extern void text_truncate_overflow(int font, char *text, int max_width);
 extern void text_anchor_parse(text_info_struct *info, const char *text);
 extern void text_enable_debug(void);
