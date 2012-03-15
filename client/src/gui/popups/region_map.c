@@ -530,14 +530,28 @@ static int popup_draw_post_func(popup_struct *popup)
 	/* We failed. */
 	if (ret_png == -1 || ret_def == -1)
 	{
-		text_show(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
+		curl_data *tmp;
+
+		tmp = ret_png == -1 ? data_png : data_def;
+
+		if (tmp->http_code != -1)
+		{
+			text_show_format(ScreenSurface, FONT_SERIF14, box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box, "Error: %d", tmp->http_code);
+		}
+		else
+		{
+			text_show(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
+		}
+
 		return 1;
 	}
 
 	/* Still in progress. */
 	if (ret_png == 0 || ret_def == 0)
 	{
-		text_show(ScreenSurface, FONT_SERIF14, "Downloading the map, please wait...", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
+		char buf[MAX_BUF];
+
+		text_show_format(ScreenSurface, FONT_SERIF14, box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box, "Downloading the map, please wait...\n%s", curl_download_speedinfo(ret_png == 0 ? data_png : data_def, buf, sizeof(buf)));
 		return 1;
 	}
 
