@@ -47,7 +47,9 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] =
 	"skill_lvl", "menu_buttons", "quickslots", "textwin", "playerdoll",
 	"belowinv", "playerinfo", "maininv", "mapname",
 	"input", "fps", "mplayer", "spells", "skills", "party", "notification",
-	"container", "label", "texture", "container_strip", "menu", "menuitem"
+	"container", "label", "texture", "buddy",
+
+	"container_strip", "menu", "menuitem"
 };
 static void (*widget_initializers[TOTAL_SUBWIDGETS])(widgetdata *);
 
@@ -178,7 +180,11 @@ static int widget_load(const char *path, uint8 defaults)
 			string_whitespace_trim(cps[0]);
 			string_whitespace_trim(cps[1]);
 
-			if (strcmp(cps[0], "moveable") == 0)
+			if (strcmp(cps[0], "id") == 0)
+			{
+				widget->id = strdup(cps[1]);
+			}
+			else if (strcmp(cps[0], "moveable") == 0)
 			{
 				KEYWORD_TO_BOOLEAN(cps[1], widget->moveable);
 			}
@@ -240,6 +246,7 @@ static int widget_load(const char *path, uint8 defaults)
  * On failure, initialize the widgets with init_widgets_fromDefault() */
 void toolkit_widget_init(void)
 {
+	widget_initializers[BUDDY_ID] = widget_buddy_init;
 	widget_initializers[CONTAINER_ID] = widget_container_init;
 	widget_initializers[FPS_ID] = widget_fps_init;
 	widget_initializers[INPUT_ID] = widget_input_init;
@@ -435,6 +442,11 @@ void remove_widget_object_intern(widgetdata *widget)
 	}
 
 	free(widget->name);
+
+	if (widget->id)
+	{
+		free(widget->id);
+	}
 
 	/* remove the custom attribute nodes if they exist */
 	if (widget->subwidget)
@@ -898,6 +910,12 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		padding = string_repeat("\t", depth);
 
 		fprintf(fp, "%s[%s]\n", padding, widget->name);
+
+		if (widget->id)
+		{
+			fprintf(fp, "%sid = %s\n", padding, widget->id);
+		}
+
 		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
 		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
@@ -1866,6 +1884,41 @@ widgetdata *widget_find_by_type(int type)
 	}
 
 	return NULL;
+}
+
+/**
+ * Find a widget by type and its identifier string.
+ * @param type Widget type to look for.
+ * @param id Identifier.
+ * @return Matching widget if found, NULL otherwise. */
+widgetdata *widget_find_type_id(int type, const char *id)
+{
+	widgetdata *tmp;
+
+	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	{
+		if (tmp->type == type && tmp->id && strcmp(tmp->id, id) == 0)
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
+}
+
+widgetdata *widget_find_create_type_id(int type, const char *id)
+{
+	widgetdata *tmp;
+
+	tmp = widget_find_type_id(type, id);
+
+	if (!tmp)
+	{
+		tmp = create_widget_object(type);
+		tmp->id = strdup(id);
+	}
+
+	return tmp;
 }
 
 /* wrapper function to get the outermost container the widget is inside before moving it */

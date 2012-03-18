@@ -38,6 +38,9 @@ typedef struct widgetdata
 	/** Widget name. */
 	char *name;
 
+	/** Unique identifier. */
+	char *id;
+
 	/** X position. */
 	int x;
 
@@ -270,6 +273,7 @@ typedef enum WidgetID
 	CONTAINER_ID,
 	LABEL_ID,
 	TEXTURE_ID,
+	BUDDY_ID,
 
 	/** The total number of widgets. */
 	TOTAL_WIDGETS

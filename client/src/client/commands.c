@@ -335,8 +335,6 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 {
 	int tag, weight, face;
 
-	cpl.state = ST_PLAY;
-
 	tag = packet_to_uint32(data, len, &pos);
 	weight = packet_to_uint32(data, len, &pos);
 	face = packet_to_uint32(data, len, &pos);
@@ -347,9 +345,9 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
-	ignore_list_load();
-
 	cur_widget[INPUT_ID]->show = 0;
+
+	cpl.state = ST_PLAY;
 }
 
 static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)

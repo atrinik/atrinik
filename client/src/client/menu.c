@@ -114,11 +114,6 @@ int client_command_check(const char *cmd)
 
 		return 1;
 	}
-	else if (!strncmp(cmd, "/ignore", 7))
-	{
-		ignore_command(cmd + 7);
-		return 1;
-	}
 	else if (!strncmp(cmd, "/resetwidgets", 13))
 	{
 		reset_widget(NULL);

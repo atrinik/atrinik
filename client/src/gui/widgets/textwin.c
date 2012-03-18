@@ -355,7 +355,11 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 
 	if (!string_isempty(name))
 	{
-		if (ignore_check(name, "*"))
+		widgetdata *ignore_widget;
+
+		ignore_widget = widget_find_create_type_id(BUDDY_ID, "ignore");
+
+		if (widget_buddy_check(ignore_widget, name) != -1)
 		{
 			free(name);
 			return;

@@ -39,11 +39,6 @@ extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 extern void curl_data_free(curl_data *data);
 extern void curl_init(void);
 extern void curl_deinit(void);
-/* src/client/ignore.c */
-extern void ignore_list_clear(void);
-extern void ignore_list_load(void);
-extern int ignore_check(const char *name, const char *type);
-extern void ignore_command(const char *cmd);
 /* src/client/image.c */
 extern bmap_struct *bmap_find(const char *name);
 extern void bmap_add(bmap_struct *bmap);
@@ -143,6 +138,7 @@ extern void send_command(const char *command);
 extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
 extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level);
+extern char *player_make_path(const char *path);
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_load(int post_load);
@@ -573,6 +569,8 @@ extern void insert_widget_in_container(widgetdata *widget_container, widgetdata 
 extern widgetdata *get_outermost_container(widgetdata *widget);
 extern widgetdata *widget_find_by_surface(SDL_Surface *surface);
 extern widgetdata *widget_find_by_type(int type);
+extern widgetdata *widget_find_type_id(int type, const char *id);
+extern widgetdata *widget_find_create_type_id(int type, const char *id);
 extern void move_widget(widgetdata *widget, int x, int y);
 extern void move_widget_rec(widgetdata *widget, int x, int y);
 extern void resize_widget(widgetdata *widget, int side, int offset);
@@ -599,6 +597,11 @@ extern void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, 
 extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+/* src/gui/widgets/buddy.c */
+extern void widget_buddy_add(widgetdata *widget, const char *name);
+extern void widget_buddy_remove(widgetdata *widget, const char *name);
+extern ssize_t widget_buddy_check(widgetdata *widget, const char *name);
+extern void widget_buddy_init(widgetdata *widget);
 /* src/gui/widgets/container.c */
 extern void widget_container_init(widgetdata *widget);
 /* src/gui/widgets/fps.c */

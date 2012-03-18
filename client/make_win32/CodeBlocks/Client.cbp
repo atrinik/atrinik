@@ -53,7 +53,6 @@
 		<Unit filename="..\..\src\client\cmd_aliases.c" />
 		<Unit filename="..\..\src\client\commands.c" />
 		<Unit filename="..\..\src\client\curl.c" />
-		<Unit filename="..\..\src\client\ignore.c" />
 		<Unit filename="..\..\src\client\image.c" />
 		<Unit filename="..\..\src\client\item.c" />
 		<Unit filename="..\..\src\client\keybind.c" />
@@ -105,6 +104,7 @@
 		<Unit filename="..\..\src\gui\toolkit\text_input.c" />
 		<Unit filename="..\..\src\gui\toolkit\tooltip.c" />
 		<Unit filename="..\..\src\gui\toolkit\widget.c" />
+		<Unit filename="..\..\src\gui\widgets\buddy.c" />
 		<Unit filename="..\..\src\gui\widgets\container.c" />
 		<Unit filename="..\..\src\gui\widgets\fps.c" />
 		<Unit filename="..\..\src\gui\widgets\input.c" />

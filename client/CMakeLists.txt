@@ -95,7 +95,6 @@ set(SOURCES
 	src/client/cmd_aliases.c
 	src/client/commands.c
 	src/client/curl.c
-	src/client/ignore.c
 	src/client/image.c
 	src/client/item.c
 	src/client/keybind.c
@@ -147,6 +146,7 @@ set(SOURCES
 	src/gui/toolkit/text_input.c
 	src/gui/toolkit/tooltip.c
 	src/gui/toolkit/widget.c
+	src/gui/widgets/buddy.c
 	src/gui/widgets/container.c
 	src/gui/widgets/fps.c
 	src/gui/widgets/input.c
