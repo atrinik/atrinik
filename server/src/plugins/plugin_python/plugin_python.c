@@ -748,7 +748,7 @@ static int do_script(PythonContext *context, const char *filename)
 		pushContext(context);
 		dict = PyDict_Copy(py_globals_dict);
 		PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
-		PyDict_SetItemString(dict, "pl", wrap_player(context->activator->type == PLAYER ? CONTR(context->activator) : NULL));
+		PyDict_SetItemString(dict, "pl", wrap_player(context->activator && context->activator->type == PLAYER ? CONTR(context->activator) : NULL));
 		PyDict_SetItemString(dict, "me", wrap_object(context->who));
 
 		if (context->text)
