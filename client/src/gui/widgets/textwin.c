@@ -335,6 +335,24 @@ int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *i
 	return 0;
 }
 
+void textwin_tab_open(widgetdata *widget, const char *name)
+{
+	textwin_struct *textwin;
+	size_t i;
+
+	textwin = TEXTWIN(widget);
+
+	if (textwin_tab_find(widget, CHAT_TYPE_PRIVATE, name, &i))
+	{
+		textwin->tab_selected = i;
+		textwin_readjust(widget);
+	}
+	else
+	{
+		textwin_tab_add(widget, name);
+	}
+}
+
 void draw_info_tab(size_t type, const char *color, const char *str)
 {
 	text_info_struct info;
@@ -1022,21 +1040,9 @@ static int text_anchor_handle_players_tab(const char *anchor_action, const char 
 	else if (strcmp(anchor_action, "#opentab") == 0)
 	{
 		widgetdata *widget;
-		textwin_struct *textwin;
-		size_t i;
 
 		widget = widget_find_by_type(CHATWIN_ID);
-		textwin = TEXTWIN(widget);
-
-		if (textwin_tab_find(widget, CHAT_TYPE_PRIVATE, buf, &i))
-		{
-			textwin->tab_selected = i;
-			textwin_readjust(widget);
-		}
-		else
-		{
-			textwin_tab_add(widget, buf);
-		}
+		textwin_tab_open(widget, buf);
 
 		return 1;
 	}

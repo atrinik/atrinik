@@ -598,7 +598,7 @@ extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SD
 extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/buddy.c */
-extern void widget_buddy_add(widgetdata *widget, const char *name);
+extern void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort);
 extern void widget_buddy_remove(widgetdata *widget, const char *name);
 extern ssize_t widget_buddy_check(widgetdata *widget, const char *name);
 extern void widget_buddy_init(widgetdata *widget);
@@ -726,6 +726,7 @@ extern void textwin_tab_free(textwin_tab_struct *tab);
 extern void textwin_tab_remove(widgetdata *widget, const char *name);
 extern void textwin_tab_add(widgetdata *widget, const char *name);
 extern int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *id);
+extern void textwin_tab_open(widgetdata *widget, const char *name);
 extern void draw_info_tab(size_t type, const char *color, const char *str);
 extern void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
