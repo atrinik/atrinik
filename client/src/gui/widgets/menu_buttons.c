@@ -49,6 +49,8 @@ enum
 	BUTTON_HELP,
 	/** Esc menu. */
 	BUTTON_SETTINGS,
+	BUTTON_BUDDY,
+	BUTTON_IGNORE,
 
 	/** Total number of the buttons. */
 	NUM_BUTTONS
@@ -59,12 +61,12 @@ static button_struct buttons[NUM_BUTTONS];
 /** Images to render on top of the buttons, -1 for none. */
 static const char *button_images[NUM_BUTTONS] =
 {
-	"magic", "skill", "party", "music", "map", "quest", NULL, "cogs"
+	"magic", "skill", "party", "music", "map", "quest", NULL, "cogs", "buddy", "ignore"
 };
 /** Tooltip texts for the buttons. */
 static const char *const button_tooltips[NUM_BUTTONS] =
 {
-	"Spells", "Skills", "Party", "Music player", "Region map", "Quest list", "Help", "Settings"
+	"Spells", "Skills", "Party", "Music player", "Region map", "Quest list", "Help", "Settings", "Buddy List", "Ignore List"
 };
 
 /** @copydoc widgetdata::draw_func */
@@ -82,7 +84,7 @@ static void widget_draw(widgetdata *widget)
 	/* Render the buttons. */
 	for (i = 0; i < NUM_BUTTONS; i++)
 	{
-		if (i && !(i % 2))
+		if (i && !(i % 3))
 		{
 			x = 4;
 			y += TEXTURE_SURFACE(buttons[i].texture)->h + 1;
@@ -109,6 +111,13 @@ static void widget_draw(widgetdata *widget)
 		else if (i == BUTTON_PARTY)
 		{
 			buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
+		}
+		else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE)
+		{
+			widgetdata *tmp;
+
+			tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
+			buttons[i].pressed_forced = tmp ? tmp->show : 0;
 		}
 
 		buttons[i].x = widget->x + x;
@@ -178,6 +187,14 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 			else if (i == BUTTON_HELP)
 			{
 				help_show("main");
+			}
+			else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE)
+			{
+				widgetdata *tmp;
+
+				tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
+				tmp->show = !tmp->show;
+				SetPriorityWidget(tmp);
 			}
 
 			return 1;
