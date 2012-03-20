@@ -920,10 +920,26 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
 		fprintf(fp, "%srequired = %s\n", padding, widget->required ? "yes" : "no");
-		fprintf(fp, "%sx = %d\n", padding, widget->x);
-		fprintf(fp, "%sy = %d\n", padding, widget->y);
-		fprintf(fp, "%sw = %d\n", padding, widget->w);
-		fprintf(fp, "%sh = %d\n", padding, widget->h);
+
+		if (widget->x != def_widget[widget->type].x)
+		{
+			fprintf(fp, "%sx = %d\n", padding, widget->x);
+		}
+
+		if (widget->y != def_widget[widget->type].y)
+		{
+			fprintf(fp, "%sy = %d\n", padding, widget->y);
+		}
+
+		if (widget->w != def_widget[widget->type].w)
+		{
+			fprintf(fp, "%sw = %d\n", padding, widget->w);
+		}
+
+		if (widget->h != def_widget[widget->type].h)
+		{
+			fprintf(fp, "%sh = %d\n", padding, widget->h);
+		}
 
 		if (widget->min_w)
 		{
