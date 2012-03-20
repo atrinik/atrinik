@@ -299,14 +299,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	uint32 row, col;
 
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list_skills && list_handle_mouse(list_skills, event))
-	{
-		widget->redraw = 1;
-		return 1;
-	}
-
 	if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col))
 	{
 		size_t skill_id;
@@ -330,6 +322,14 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 				return 1;
 			}
 		}
+	}
+
+	/* If the list has handled the mouse event, we need to redraw the
+	 * widget. */
+	if (list_skills && list_handle_mouse(list_skills, event))
+	{
+		widget->redraw = 1;
+		return 1;
 	}
 
 	if (button_event(&button_close, event))
