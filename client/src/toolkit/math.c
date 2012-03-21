@@ -35,6 +35,10 @@
 #define API_NAME math
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the math API.
  * @internal */
 void toolkit_math_init(void)
@@ -51,6 +55,7 @@ void toolkit_math_init(void)
  * @internal */
 void toolkit_math_deinit(void)
 {
+	init = 0;
 }
 
 /**

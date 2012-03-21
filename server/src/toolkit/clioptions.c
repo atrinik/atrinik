@@ -35,6 +35,10 @@
 #define API_NAME clioptions
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
+/**
  * All of the available command line options. */
 static clioptions_struct *clioptions;
 
@@ -222,31 +226,35 @@ void toolkit_clioptions_init(void)
  * @internal */
 void toolkit_clioptions_deinit(void)
 {
-	size_t i;
-
-	for (i = 0; i < clioptions_num; i++)
+	TOOLKIT_DEINIT_FUNC_START(clioptions)
 	{
-		if (clioptions[i].longname)
+		size_t i;
+
+		for (i = 0; i < clioptions_num; i++)
 		{
-			free(clioptions[i].longname);
+			if (clioptions[i].longname)
+			{
+				free(clioptions[i].longname);
+			}
+
+			if (clioptions[i].shortname)
+			{
+				free(clioptions[i].shortname);
+			}
+
+			free(clioptions[i].desc_brief);
+			free(clioptions[i].desc);
 		}
 
-		if (clioptions[i].shortname)
+		if (clioptions)
 		{
-			free(clioptions[i].shortname);
+			free(clioptions);
+			clioptions = NULL;
 		}
 
-		free(clioptions[i].desc_brief);
-		free(clioptions[i].desc);
+		clioptions_num = 0;
 	}
-
-	if (clioptions)
-	{
-		free(clioptions);
-		clioptions = NULL;
-	}
-
-	clioptions_num = 0;
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -260,6 +268,8 @@ void toolkit_clioptions_deinit(void)
 void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (!longname && !shortname)
 	{

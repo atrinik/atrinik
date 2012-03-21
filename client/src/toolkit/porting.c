@@ -33,6 +33,10 @@
 #define API_NAME porting
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the porting API.
  * @internal */
 void toolkit_porting_init(void)
@@ -48,6 +52,7 @@ void toolkit_porting_init(void)
  * @internal */
 void toolkit_porting_deinit(void)
 {
+	init = 0;
 }
 
 #ifndef __CPROTO__

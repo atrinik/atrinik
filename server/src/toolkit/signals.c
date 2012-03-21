@@ -42,6 +42,10 @@
 #define API_NAME signals
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
+/**
  * The signals to register. */
 static const int register_signals[] =
 {
@@ -105,4 +109,8 @@ void toolkit_signals_init(void)
  * @internal */
 void toolkit_signals_deinit(void)
 {
+	TOOLKIT_DEINIT_FUNC_START(signals)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }

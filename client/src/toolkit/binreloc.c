@@ -40,6 +40,10 @@
 #define API_NAME binreloc
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Canonical filename of the executable. May be NULL. */
 static char *exe = NULL;
 
@@ -49,6 +53,7 @@ static char *exe = NULL;
 static char *_binreloc_find_exe()
 {
 #ifndef ENABLE_BINRELOC
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return NULL;
 #else
 	char *path, *path2, *line, *result;
@@ -56,6 +61,8 @@ static char *_binreloc_find_exe()
 	ssize_t size;
 	struct stat stat_buf;
 	FILE *f;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* Read from /proc/self/exe (symlink) */
 	if (sizeof(path) > SSIZE_MAX)
@@ -209,6 +216,8 @@ void toolkit_binreloc_deinit(void)
 		free(exe);
 		exe = NULL;
 	}
+
+	init = 0;
 }
 
 /**

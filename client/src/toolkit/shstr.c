@@ -33,6 +33,10 @@
  * Name of the API. */
 #define API_NAME shstr
 
+/**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
@@ -53,6 +57,7 @@ void toolkit_shstr_init(void)
  * @internal */
 void toolkit_shstr_deinit(void)
 {
+	init = 0;
 }
 
 /**

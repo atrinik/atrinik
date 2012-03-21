@@ -35,6 +35,10 @@
 #define API_NAME clioptions
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * All of the available command line options. */
 static clioptions_struct *clioptions;
 
@@ -247,6 +251,7 @@ void toolkit_clioptions_deinit(void)
 	}
 
 	clioptions_num = 0;
+	init = 0;
 }
 
 /**
@@ -260,6 +265,8 @@ void toolkit_clioptions_deinit(void)
 void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (!longname && !shortname)
 	{

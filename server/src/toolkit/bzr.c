@@ -35,6 +35,10 @@
 #define API_NAME bzr
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
+/**
  * Where to search for .bzr directory. */
 static const char *const branch_paths[] =
 {
@@ -64,6 +68,10 @@ void toolkit_bzr_init(void)
  * @internal */
 void toolkit_bzr_deinit(void)
 {
+	TOOLKIT_DEINIT_FUNC_START(bzr)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

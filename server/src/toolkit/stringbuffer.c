@@ -49,6 +49,10 @@
  * Name of the API. */
 #define API_NAME stringbuffer
 
+/**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
 static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
 /**
@@ -67,6 +71,10 @@ void toolkit_stringbuffer_init(void)
  * @internal */
 void toolkit_stringbuffer_deinit(void)
 {
+	TOOLKIT_DEINIT_FUNC_START(stringbuffer)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

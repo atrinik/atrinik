@@ -35,6 +35,10 @@
 #define API_NAME sha1
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
+/**
  * Initialize the sha1 API.
  * @internal */
 void toolkit_sha1_init(void)
@@ -50,6 +54,10 @@ void toolkit_sha1_init(void)
  * @internal */
 void toolkit_sha1_deinit(void)
 {
+	TOOLKIT_DEINIT_FUNC_START(sha1)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /*

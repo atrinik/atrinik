@@ -34,6 +34,10 @@
 #define API_NAME string
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
+/**
  * Initialize the string API.
  * @internal */
 void toolkit_string_init(void)
@@ -51,6 +55,10 @@ void toolkit_string_init(void)
  * @internal */
 void toolkit_string_deinit(void)
 {
+	TOOLKIT_DEINIT_FUNC_START(string)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

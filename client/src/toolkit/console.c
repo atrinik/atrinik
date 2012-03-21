@@ -44,6 +44,10 @@
  * Name of the API. */
 #define API_NAME console
 
+/**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
 #ifdef HAVE_READLINE
 #	include <readline/readline.h>
 #	include <readline/history.h>
@@ -173,7 +177,7 @@ static int handle_enter(int cnt, int key)
 
 /**
  * Command generator for readline's completion. */
-char *command_generator(const char *text, int state)
+static char *command_generator(const char *text, int state)
 {
 	static size_t i, len;
 	char *command;
@@ -200,7 +204,7 @@ char *command_generator(const char *text, int state)
 
 /**
  * Readline completion. */
-char **readline_completion(const char *text, int start, int end)
+static char **readline_completion(const char *text, int start, int end)
 {
 	char **matches;
 
@@ -367,6 +371,8 @@ void toolkit_console_deinit(void)
 	rl_set_prompt("");
 	rl_redisplay();
 #endif
+
+	init = 0;
 }
 
 /**
@@ -378,6 +384,8 @@ void toolkit_console_deinit(void)
 void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* Make sure the command doesn't exist yet. */
 	for (i = 0; i < console_commands_num; i++)

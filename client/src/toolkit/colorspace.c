@@ -35,6 +35,10 @@
 #define API_NAME colorspace
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the colorspace API.
  * @internal */
 void toolkit_colorspace_init(void)
@@ -50,6 +54,7 @@ void toolkit_colorspace_init(void)
  * @internal */
 void toolkit_colorspace_deinit(void)
 {
+	init = 0;
 }
 
 /**

@@ -36,6 +36,10 @@
 #define API_NAME packet
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * The packets memory pool. */
 static mempool_struct *pool_packets;
 
@@ -58,6 +62,7 @@ void toolkit_packet_init(void)
 void toolkit_packet_deinit(void)
 {
 	mempool_free(pool_packets);
+	init = 0;
 }
 
 /**

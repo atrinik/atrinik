@@ -35,6 +35,10 @@
 #define API_NAME datetime
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the datetime API.
  * @internal */
 void toolkit_datetime_init(void)
@@ -50,6 +54,7 @@ void toolkit_datetime_init(void)
  * @internal */
 void toolkit_datetime_deinit(void)
 {
+	init = 0;
 }
 
 /**

@@ -44,6 +44,10 @@
 #define API_NAME mempool
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
  * Only used as an end marker for the lists */
@@ -88,6 +92,8 @@ void toolkit_mempool_deinit(void)
 	}
 
 	mempool_chunks_num = 0;
+
+	init = 0;
 }
 
 /**

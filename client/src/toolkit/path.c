@@ -33,6 +33,10 @@
 #define API_NAME path
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the path API.
  * @internal */
 void toolkit_path_init(void)
@@ -51,6 +55,7 @@ void toolkit_path_init(void)
  * @internal */
 void toolkit_path_deinit(void)
 {
+	init = 0;
 }
 
 /**

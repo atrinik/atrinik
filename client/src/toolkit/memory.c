@@ -33,6 +33,10 @@
 #define API_NAME memory
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Initialize the memory API.
  * @internal */
 void toolkit_memory_init(void)
@@ -48,6 +52,7 @@ void toolkit_memory_init(void)
  * @internal */
 void toolkit_memory_deinit(void)
 {
+	init = 0;
 }
 
 /**

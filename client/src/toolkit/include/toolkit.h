@@ -68,7 +68,8 @@ typedef void (*toolkit_func)(void);
 	if (toolkit_imported(__api_name)) \
 	{ \
 		return; \
-	}
+	} \
+	init = 1;
 
 /**
  * End toolkit API initialization function. */
@@ -79,10 +80,15 @@ typedef void (*toolkit_func)(void);
 #ifndef PRODUCTION
 #	define TOOLKIT_FUNC_PROTECTOR(__api_name) \
 { \
-	if (!toolkit_imported(__api_name)) \
+	if (!init) \
 	{ \
-		toolkit_import(logger); \
-		logger_print(LOG(WARNING), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
+		static uint8 did_warn = 0; \
+		if (!did_warn) \
+		{ \
+			toolkit_import(logger); \
+			logger_print(LOG(WARNING), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
+			did_warn = 1; \
+		} \
 	} \
 }
 #else

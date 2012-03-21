@@ -30,6 +30,14 @@
 
 #include <global.h>
 
+/**
+ * Name of the API. */
+#define API_NAME commands
+
+/**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
 static command_struct *commands;
 
 /**
@@ -224,26 +232,32 @@ void toolkit_commands_init(void)
  * @internal */
 void toolkit_commands_deinit(void)
 {
-	command_struct *curr, *tmp;
-	permission_group_struct *curr2, *tmp2;
-
-	HASH_ITER(hh, commands, curr, tmp)
+	TOOLKIT_DEINIT_FUNC_START(commands)
 	{
-		HASH_DEL(commands, curr);
-		free(curr->name);
-		free(curr);
-	}
+		command_struct *curr, *tmp;
+		permission_group_struct *curr2, *tmp2;
 
-	HASH_ITER(hh, permission_groups, curr2, tmp2)
-	{
-		HASH_DEL(permission_groups, curr2);
-		commands_permission_group_free(curr2);
+		HASH_ITER(hh, commands, curr, tmp)
+		{
+			HASH_DEL(commands, curr);
+			free(curr->name);
+			free(curr);
+		}
+
+		HASH_ITER(hh, permission_groups, curr2, tmp2)
+		{
+			HASH_DEL(permission_groups, curr2);
+			commands_permission_group_free(curr2);
+		}
 	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 void commands_add(const char *name, command_func handle_func, double delay, uint64 flags)
 {
 	command_struct *command;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	command = malloc(sizeof(*command));
 	command->name = strdup(name);
@@ -281,6 +295,8 @@ int commands_check_permission(player *pl, const char *command)
 {
 	int i;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (settings.default_permission_groups && *settings.default_permission_groups != '\0')
 	{
 		char *curr, *next;
@@ -316,6 +332,8 @@ int commands_check_permission(player *pl, const char *command)
 
 void commands_handle(object *op, char *cmd)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (cmd[0] == '/' && cmd[1] != '\0')
 	{
 		char *cp, *params;

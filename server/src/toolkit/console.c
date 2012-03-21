@@ -44,6 +44,10 @@
  * Name of the API. */
 #define API_NAME console
 
+/**
+ * If 1, the API has been initialized. */
+static uint8 did_init = 0;
+
 #ifdef HAVE_READLINE
 #	include <readline/readline.h>
 #	include <readline/history.h>
@@ -173,7 +177,7 @@ static int handle_enter(int cnt, int key)
 
 /**
  * Command generator for readline's completion. */
-char *command_generator(const char *text, int state)
+static char *command_generator(const char *text, int state)
 {
 	static size_t i, len;
 	char *command;
@@ -200,7 +204,7 @@ char *command_generator(const char *text, int state)
 
 /**
  * Readline completion. */
-char **readline_completion(const char *text, int start, int end)
+static char **readline_completion(const char *text, int start, int end)
 {
 	char **matches;
 
@@ -337,36 +341,40 @@ void toolkit_console_init(void)
  * @internal */
 void toolkit_console_deinit(void)
 {
-	size_t i;
-
-	thread_done = 1;
-	pthread_cancel(thread_id);
-
-	for (i = 0; i < console_commands_num; i++)
+	TOOLKIT_DEINIT_FUNC_START(console)
 	{
-		free(console_commands[i].command);
-		free(console_commands[i].desc_brief);
-		free(console_commands[i].desc);
-	}
+		size_t i;
 
-	if (console_commands)
-	{
-		free(console_commands);
-		console_commands = NULL;
-	}
+		thread_done = 1;
+		pthread_cancel(thread_id);
 
-	console_commands_num = 0;
-	utarray_free(command_process_queue);
+		for (i = 0; i < console_commands_num; i++)
+		{
+			free(console_commands[i].command);
+			free(console_commands[i].desc_brief);
+			free(console_commands[i].desc);
+		}
 
-	logger_set_print_func(logger_do_print);
+		if (console_commands)
+		{
+			free(console_commands);
+			console_commands = NULL;
+		}
+
+		console_commands_num = 0;
+		utarray_free(command_process_queue);
+
+		logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
-	rl_unbind_key(RETURN);
-	rl_callback_handler_remove();
+		rl_unbind_key(RETURN);
+		rl_callback_handler_remove();
 
-	rl_set_prompt("");
-	rl_redisplay();
+		rl_set_prompt("");
+		rl_redisplay();
 #endif
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -378,6 +386,8 @@ void toolkit_console_deinit(void)
 void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* Make sure the command doesn't exist yet. */
 	for (i = 0; i < console_commands_num; i++)

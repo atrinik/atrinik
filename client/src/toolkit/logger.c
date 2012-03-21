@@ -36,6 +36,10 @@
 #define API_NAME logger
 
 /**
+ * If 1, the API has been initialized. */
+static uint8 init = 0;
+
+/**
  * Pointer to open log file, if any. */
 static FILE *log_fp;
 
@@ -65,6 +69,8 @@ void toolkit_logger_deinit(void)
 	{
 		fclose(log_fp);
 	}
+
+	init = 0;
 }
 
 void logger_open_log(const char *path)
@@ -87,6 +93,7 @@ FILE *logger_get_logfile(void)
 
 void logger_set_print_func(logger_print_func func)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	print_func = func;
 }
 
