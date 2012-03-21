@@ -68,7 +68,7 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-	if (widget->sub_type == MENUITEM_ID)
+	if (widget->sub_type == MENUITEM_ID && event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		_menuitem *menuitem;
 
