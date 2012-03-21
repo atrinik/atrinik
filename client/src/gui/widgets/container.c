@@ -65,8 +65,35 @@ static void widget_draw(widgetdata *widget)
 	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	if (widget->sub_type == MENUITEM_ID)
+	{
+		_menuitem *menuitem;
+
+		if (widget->env->sub_type != MENU_ID)
+		{
+			return 0;
+		}
+
+		menuitem = MENUITEM(widget);
+		widget_mouse_event.owner = (MENU(widget->env))->owner;
+
+		if (widget_mouse_event.owner && menuitem->menu_type != MENU_SUBMENU && menuitem->menu_func_ptr)
+		{
+			menuitem->menu_func_ptr(widget_mouse_event.owner, widget, event);
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
 /**
- * Initialize one container widget. */
+ * Initialize one container widget.
+ * @param widget Widget to initialize. */
 void widget_container_init(widgetdata *widget)
 {
 	_widget_container *container;
@@ -86,6 +113,7 @@ void widget_container_init(widgetdata *widget)
 	container->outer_padding_right = 10;
 
 	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 	widget->subwidget = container;
 
 	if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID)

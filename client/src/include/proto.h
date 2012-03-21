@@ -553,9 +553,7 @@ extern widgetdata *create_widget(int widget_id);
 extern void remove_widget(widgetdata *widget);
 extern void detach_widget(widgetdata *widget);
 extern void toolkit_widget_deinit(void);
-extern int widget_event_mousedn(int x, int y, SDL_Event *event);
-extern int widget_event_mouseup(int x, int y, SDL_Event *event);
-extern int widget_event_mousemv(int x, int y, SDL_Event *event);
+extern int widgets_event(SDL_Event *event);
 extern int widget_event_start_move(widgetdata *widget);
 extern int widget_event_move_stop(int x, int y);
 extern int widget_event_respond(int x, int y);
@@ -608,7 +606,6 @@ extern void widget_container_init(widgetdata *widget);
 extern void widget_fps_init(widgetdata *widget);
 /* src/gui/widgets/input.c */
 extern void widget_input_init(widgetdata *widget);
-extern int widget_input_handle_key(widgetdata *widget, SDL_Event *event);
 /* src/gui/widgets/inventory.c */
 extern uint64 inventory_filter;
 extern void inventory_filter_set(uint64 filter);
@@ -662,7 +659,6 @@ extern void widget_map_init(widgetdata *widget);
 extern void widget_mapname_init(widgetdata *widget);
 /* src/gui/widgets/menu.c */
 extern void widget_highlight_menu(widgetdata *widget);
-extern void widget_menu_event(widgetdata *widget, SDL_Event *event);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
 /* src/gui/widgets/mplayer.c */

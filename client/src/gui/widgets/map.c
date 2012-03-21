@@ -1149,10 +1149,15 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	int tx, ty;
 
+	if (!EVENT_IS_MOUSE(event))
+	{
+		return 0;
+	}
+
 	/* Check if the mouse is in play field. */
 	if (!mouse_to_tile_coords(event->motion.x, event->motion.y, &tx, &ty))
 	{
-		return 1;
+		return 0;
 	}
 
 	if (event->type == SDL_MOUSEBUTTONUP)

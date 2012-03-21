@@ -348,6 +348,8 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 			{
 				text_input->pos--;
 			}
+
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_RIGHT)
 		{
@@ -363,6 +365,8 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 			{
 				text_input->pos++;
 			}
+
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_UP)
 		{
@@ -418,14 +422,21 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 					text_input_set(text_input, NULL);
 				}
 			}
+
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_HOME)
 		{
 			text_input->pos = 0;
+			return 1;
 		}
 		else if (event->key.keysym.sym == SDLK_END)
 		{
 			text_input->pos = text_input->num;
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_RSHIFT || event->key.keysym.sym == SDLK_LSHIFT)
+		{
 		}
 		else
 		{

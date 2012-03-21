@@ -992,339 +992,258 @@ void toolkit_widget_deinit(void)
 }
 
 /**
- * Mouse is down. Check for owner of the mouse focus.
- * Setup widget dragging, if enabled
- * @param x Mouse X position.
- * @param y Mouse Y position.
- * @param event SDL event type.
- * @return 1 if this is a widget and we're handling the mouse, 0 otherwise. */
-int widget_event_mousedn(int x, int y, SDL_Event *event)
+ * Make widgets try to handle an event.
+ * @param event Event to handle.
+ * @return 1 if the event was handled, 0 otherwise. */
+int widgets_event(SDL_Event *event)
 {
 	widgetdata *widget;
+	int ret;
 
-	/* Try to put down a widget that is being moved. */
+	/* Widget is being moved. */
 	if (widget_event_move.active)
 	{
-		return widget_event_move_stop(x, y);
-	}
-
-	/* Update the widget event struct if the mouse is in a widget, or
-	 * else get out of here for sanity reasons. */
-	if (!widget_event_respond(x, y))
-	{
-		return 0;
-	}
-
-	widget = widget_mouse_event.owner;
-
-	/* sanity check */
-	if (!widget)
-	{
-		return 0;
-	}
-
-	/* Set the priority to this widget */
-	SetPriorityWidget(widget);
-
-	/* Right mouse button was clicked */
-	if (event->button.button == SDL_BUTTON_RIGHT && !cur_widget[MENU_ID] && widget->menu_handle_func && widget->menu_handle_func(widget, event))
-	{
-		return 1;
-	}
-	/* Start resizing. */
-	else if (widget->resizeable && widget->resize_flags && event->button.button == SDL_BUTTON_LEFT)
-	{
-		widget_event_resize.active = 1;
-		widget_event_resize.owner = widget;
-	}
-	/* Normal condition - respond to mouse down event */
-	else
-	{
-		/* Handler(s) for miscellaneous mouse movement(s) go here. */
-
-		/* Special case for menuitems, if menuitem or a widget inside is clicked on, calls the function tied to the menuitem. */
-		widget_menu_event(widget, event);
-
-		if (widget->event_func)
-		{
-			widget->event_func(widget, event);
-		}
-	}
-
-	/* User didn't click on a menu, so remove any menus that exist. */
-	if (widget->sub_type != MENU_ID)
-	{
-		widgetdata *menu, *tmp;
-
-		for (menu = cur_widget[MENU_ID]; menu; menu = tmp)
-		{
-			tmp = menu->type_next;
-			remove_widget_object(menu);
-		}
-	}
-
-	return 1;
-}
-
-/**
- * Mouse is up. Check for owner of mouse focus.
- * Stop dragging the widget, if active.
- * @param x Mouse X position.
- * @param y Mouse Y position.
- * @param event SDL event type.
- * @return 1 if this is a widget and we're handling the mouse, 0 otherwise. */
-int widget_event_mouseup(int x, int y, SDL_Event *event)
-{
-	widgetdata *widget;
-
-	/* Widget is now being moved, don't do anything. */
-	if (widget_event_move.active)
-	{
-		return 1;
-	}
-	/* End resizing. */
-	else if (widget_event_resize.active)
-	{
-		widget_event_resize.active = 0;
-		widget_event_resize.owner = NULL;
-		return 1;
-	}
-	/* Normal condition - respond to mouse up event */
-	else
-	{
-		/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
-		if (!widget_event_respond(x, y))
-		{
-			return 0;
-		}
-
-		widget = widget_mouse_event.owner;
-
-		/* sanity check */
-		if (!widget)
-		{
-			return 0;
-		}
-
-		if (widget->event_func)
-		{
-			widget->event_func(widget, event);
-		}
-
-		return 1;
-	}
-}
-
-/**
- * Mouse was moved. Check for owner of mouse focus.
- * Drag the widget, if active.
- * @param x Mouse X position.
- * @param y Mouse Y position.
- * @param event SDL event type.
- * @return 1 if this is a widget and we're handling the mouse, 0 otherwise. */
-int widget_event_mousemv(int x, int y, SDL_Event *event)
-{
-	widgetdata *widget;
-
-	/* Widget moving condition */
-	if (widget_event_move.active)
-	{
-		int nx, ny;
-
 		widget = widget_event_move.owner;
 
-		/* The widget being moved doesn't exist. Sanity check in case something mad like this happens. */
-		if (!widget)
+		if (event->type == SDL_MOUSEMOTION)
 		{
-			return 0;
-		}
+			int x, y, nx, ny;
 
-		x -= widget_event_move.xOffset;
-		y -= widget_event_move.yOffset;
-		nx = x;
-		ny = y;
+			x = event->motion.x - widget_event_move.xOffset;
+			y = event->motion.y - widget_event_move.yOffset;
+			nx = x;
+			ny = y;
 
-		/* Widget snapping logic courtesy of OpenTTD (GPLv2). */
-		if (setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS))
-		{
-			widgetdata *tmp;
-			int delta, hsnap, vsnap;
-
-			delta = 0;
-			hsnap = vsnap = setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS);
-
-			for (tmp = widget_list_head; tmp; tmp = tmp->next)
+			/* Widget snapping logic courtesy of OpenTTD (GPLv2). */
+			if (setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS))
 			{
-				if (tmp == widget || tmp->disable_snapping || !tmp->show)
+				widgetdata *tmp;
+				int delta, hsnap, vsnap;
+
+				delta = 0;
+				hsnap = vsnap = setting_get_int(OPT_CAT_GENERAL, OPT_SNAP_RADIUS);
+
+				for (tmp = widget_list_head; tmp; tmp = tmp->next)
 				{
-					continue;
-				}
-
-				if (y + widget->h > tmp->y && y < tmp->y + tmp->h)
-				{
-					/* Your left border <-> other right border */
-					delta = abs(tmp->x + tmp->w - x);
-
-					if (delta <= hsnap)
+					if (tmp == widget || tmp->disable_snapping || !tmp->show)
 					{
-						nx = tmp->x + tmp->w;
-						hsnap = delta;
+						continue;
 					}
 
-					/* Your right border <-> other left border */
-					delta = abs(tmp->x - x - widget->w);
-
-					if (delta <= hsnap)
+					if (y + widget->h > tmp->y && y < tmp->y + tmp->h)
 					{
-						nx = tmp->x - widget->w;
-						hsnap = delta;
-					}
-				}
+						/* Your left border <-> other right border */
+						delta = abs(tmp->x + tmp->w - x);
 
-				if (widget->y + widget->h >= tmp->y && widget->y <= tmp->y + tmp->h)
-				{
-					/* Your left border <-> other left border */
-					delta = abs(tmp->x - x);
+						if (delta <= hsnap)
+						{
+							nx = tmp->x + tmp->w;
+							hsnap = delta;
+						}
 
-					if (delta <= hsnap)
-					{
-						nx = tmp->x;
-						hsnap = delta;
-					}
+						/* Your right border <-> other left border */
+						delta = abs(tmp->x - x - widget->w);
 
-					/* Your right border <-> other right border */
-					delta = abs(tmp->x + tmp->w - x - widget->w);
-
-					if (delta <= hsnap)
-					{
-						nx = tmp->x + tmp->w - widget->w;
-						hsnap = delta;
-					}
-				}
-
-				if (x + widget->w > tmp->x && x < tmp->x + tmp->w)
-				{
-					/* Your top border <-> other bottom border */
-					delta = abs(tmp->y + tmp->h - y);
-
-					if (delta <= vsnap)
-					{
-						ny = tmp->y + tmp->h;
-						vsnap = delta;
+						if (delta <= hsnap)
+						{
+							nx = tmp->x - widget->w;
+							hsnap = delta;
+						}
 					}
 
-					/* Your bottom border <-> other top border */
-					delta = abs(tmp->y - y - widget->h);
-
-					if (delta <= vsnap)
+					if (widget->y + widget->h >= tmp->y && widget->y <= tmp->y + tmp->h)
 					{
-						ny = tmp->y - widget->h;
-						vsnap = delta;
+						/* Your left border <-> other left border */
+						delta = abs(tmp->x - x);
+
+						if (delta <= hsnap)
+						{
+							nx = tmp->x;
+							hsnap = delta;
+						}
+
+						/* Your right border <-> other right border */
+						delta = abs(tmp->x + tmp->w - x - widget->w);
+
+						if (delta <= hsnap)
+						{
+							nx = tmp->x + tmp->w - widget->w;
+							hsnap = delta;
+						}
 					}
-				}
 
-				if (widget->x + widget->w >= tmp->x && widget->x <= tmp->x + tmp->w)
-				{
-					/* Your top border <-> other top border */
-					delta = abs(tmp->y - y);
-
-					if (delta <= vsnap)
+					if (x + widget->w > tmp->x && x < tmp->x + tmp->w)
 					{
-						ny = tmp->y;
-						vsnap = delta;
+						/* Your top border <-> other bottom border */
+						delta = abs(tmp->y + tmp->h - y);
+
+						if (delta <= vsnap)
+						{
+							ny = tmp->y + tmp->h;
+							vsnap = delta;
+						}
+
+						/* Your bottom border <-> other top border */
+						delta = abs(tmp->y - y - widget->h);
+
+						if (delta <= vsnap)
+						{
+							ny = tmp->y - widget->h;
+							vsnap = delta;
+						}
 					}
 
-					/* Your bottom border <-> other bottom border */
-					delta = abs(tmp->y + tmp->h - y - widget->h);
-
-					if (delta <= vsnap)
+					if (widget->x + widget->w >= tmp->x && widget->x <= tmp->x + tmp->w)
 					{
-						ny = tmp->y + tmp->h - widget->h;
-						vsnap = delta;
+						/* Your top border <-> other top border */
+						delta = abs(tmp->y - y);
+
+						if (delta <= vsnap)
+						{
+							ny = tmp->y;
+							vsnap = delta;
+						}
+
+						/* Your bottom border <-> other bottom border */
+						delta = abs(tmp->y + tmp->h - y - widget->h);
+
+						if (delta <= vsnap)
+						{
+							ny = tmp->y + tmp->h - widget->h;
+							vsnap = delta;
+						}
 					}
 				}
 			}
+
+			move_widget_rec(widget, nx - widget->x, ny - widget->y);
+			widget_ensure_onscreen(widget);
+
+			map_udate_flag = 2;
 		}
-
-		/* we move the widget here, as well as all the widgets inside it if they exist */
-		/* we use the recursive version since we already have the outermost container */
-		move_widget_rec(widget, nx - widget->x, ny - widget->y);
-
-		/* Ensure widget is on-screen. */
-		widget_ensure_onscreen(widget);
-		map_udate_flag = 2;
+		else if (event->type == SDL_MOUSEBUTTONDOWN)
+		{
+			return widget_event_move_stop(event->motion.x, event->motion.y);
+		}
 
 		return 1;
 	}
+	/* Widget is being resized. */
 	else if (widget_event_resize.active)
 	{
 		widget = widget_event_resize.owner;
 
-		if (!widget)
+		if (event->type == SDL_MOUSEBUTTONUP)
 		{
-			return 0;
+			widget_event_resize.active = 0;
+			widget_event_resize.owner = NULL;
 		}
-
-		if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+		else if (event->type == SDL_MOUSEMOTION)
 		{
-			resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x - x + widget->w : x - widget->x));
-		}
+			if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+			{
+				resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x - event->motion.x + widget->w : event->motion.x - widget->x));
+			}
 
-		if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
-		{
-			resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y - y + widget->h : y - widget->y));
+			if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
+			{
+				resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y - event->motion.y + widget->h : event->motion.y - widget->y));
+			}
 		}
 
 		return 1;
 	}
-	/* Normal condition - respond to mouse move event */
-	else
+
+	if (EVENT_IS_MOUSE(event))
 	{
-		/* update the widget event struct if the mouse is in a widget, or else get out of here for sanity reasons */
-		if (!widget_event_respond(x, y))
+		if (!widget_event_respond(event->motion.x, event->motion.y))
 		{
 			return 0;
 		}
 
 		widget = widget_mouse_event.owner;
 
-		/* sanity check */
-		if (!widget)
+		if (event->type == SDL_MOUSEMOTION)
 		{
-			return 0;
-		}
+			if (widget->resizeable)
+			{
+				widget->resize_flags = 0;
 
-		if (widget->resizeable)
-		{
-			widget->resizeable = 1;
-			widget->resize_flags = 0;
+				if (event->motion.y >= widget->y && event->motion.y <= widget->y + 2)
+				{
+					widget->resize_flags |= RESIZE_TOP;
+				}
+				else if (event->motion.y >= widget->y + widget->h - 2 && event->motion.y <= widget->y + widget->h)
+				{
+					widget->resize_flags |= RESIZE_BOTTOM;
+				}
 
-			if (y >= widget->y && y <= widget->y + 2)
-			{
-				widget->resize_flags |= RESIZE_TOP;
-			}
-			else if (y >= widget->y + widget->h - 2 && y <= widget->y + widget->h)
-			{
-				widget->resize_flags |= RESIZE_BOTTOM;
-			}
-
-			if (x >= widget->x && x <= widget->x + 2)
-			{
-				widget->resize_flags |= RESIZE_LEFT;
-			}
-			else if (x >= widget->x + widget->w - 2 && x <= widget->x + widget->w)
-			{
-				widget->resize_flags |= RESIZE_RIGHT;
+				if (event->motion.x >= widget->x && event->motion.x <= widget->x + 2)
+				{
+					widget->resize_flags |= RESIZE_LEFT;
+				}
+				else if (event->motion.x >= widget->x + widget->w - 2 && event->motion.x <= widget->x + widget->w)
+				{
+					widget->resize_flags |= RESIZE_RIGHT;
+				}
 			}
 		}
+		else if (event->type == SDL_MOUSEBUTTONDOWN)
+		{
+			/* Set the priority to this widget. */
+			SetPriorityWidget(widget);
+
+			/* Right mouse button was clicked, try to create menu. */
+			if (event->button.button == SDL_BUTTON_RIGHT && !cur_widget[MENU_ID] && widget->menu_handle_func && widget->menu_handle_func(widget, event))
+			{
+				return 1;
+			}
+			/* Start resizing. */
+			else if (widget->resize_flags && event->button.button == SDL_BUTTON_LEFT)
+			{
+				widget_event_resize.active = 1;
+				widget_event_resize.owner = widget;
+				return 1;
+			}
+
+			if (cur_widget[MENU_ID] && widget->sub_type != MENUITEM_ID && widget->env && widget->env->sub_type == MENUITEM_ID)
+			{
+				widget = widget->env;
+			}
+		}
+
+		ret = 0;
 
 		if (widget->event_func)
 		{
-			widget->event_func(widget, event);
+			ret = widget->event_func(widget, event);
 		}
 
-		return 1;
+		if (event->type == SDL_MOUSEBUTTONDOWN)
+		{
+			widgetdata *tmp, *next;
+
+			for (tmp = cur_widget[MENU_ID]; tmp; tmp = next)
+			{
+				next = tmp->type_next;
+				remove_widget_object(tmp);
+			}
+		}
+
+		return ret;
 	}
+	else
+	{
+		for (widget = widget_list_head; widget; widget = widget->next)
+		{
+			if (widget->event_func && widget->event_func(widget, event))
+			{
+				return 1;
+			}
+		}
+	}
+
+	return 0;
 }
 
 /** Handles the initiation of widget dragging. */

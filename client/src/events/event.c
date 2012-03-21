@@ -144,18 +144,6 @@ int Event_PollInputDevice(void)
 			continue;
 		}
 
-		if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEMOTION || event.type == SDL_KEYUP || event.type == SDL_KEYDOWN)
-		{
-			if (popup_handle_event(&event))
-			{
-				continue;
-			}
-			else if (cpl.state <= ST_WAITFORPLAY && intro_event(&event))
-			{
-				continue;
-			}
-		}
-
 		switch (event.type)
 		{
 			/* Screen has been resized, update screen size. */
@@ -173,63 +161,42 @@ int Event_PollInputDevice(void)
 				resize_window(event.resize.w, event.resize.h);
 				break;
 
-			case SDL_MOUSEBUTTONUP:
-				if (cpl.state < ST_PLAY)
-				{
-					break;
-				}
-
-				if (widget_event_mouseup(x, y, &event))
-				{
-					event_dragging_stop();
-					break;
-				}
-
-				event_dragging_stop();
-
-				break;
-
-			case SDL_MOUSEMOTION:
-			{
-				if (cpl.state < ST_PLAY)
-				{
-					break;
-				}
-
-				x_custom_cursor = x;
-				y_custom_cursor = y;
-
-				if (!event_dragging_check() && widget_event_mousemv(x, y, &event))
-				{
-					break;
-				}
-
-				break;
-			}
-
 			case SDL_MOUSEBUTTONDOWN:
-			{
-				if (cpl.state < ST_PLAY)
-				{
-					break;
-				}
-
-				if (!event_dragging_check() && widget_event_mousedn(x, y, &event))
-				{
-					break;
-				}
-
-				break;
-			}
-
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEMOTION:
 			case SDL_KEYUP:
 			case SDL_KEYDOWN:
-				if (widget_input_handle_key(cur_widget[INPUT_ID], &event))
+				if (event.type == SDL_MOUSEMOTION)
+				{
+					x_custom_cursor = x;
+					y_custom_cursor = y;
+				}
+
+				if (popup_handle_event(&event))
 				{
 					break;
 				}
 
-				key_handle_event(&event.key);
+				if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP)
+				{
+					break;
+				}
+
+				if (cpl.state <= ST_WAITFORPLAY && intro_event(&event))
+				{
+					break;
+				}
+				else if (cpl.state == ST_PLAY && widgets_event(&event))
+				{
+					break;
+				}
+
+				if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+				{
+					key_handle_event(&event.key);
+					break;
+				}
+
 				break;
 
 			case SDL_QUIT:
@@ -238,6 +205,11 @@ int Event_PollInputDevice(void)
 
 			default:
 				break;
+		}
+
+		if (event.type == SDL_MOUSEBUTTONUP)
+		{
+			event_dragging_stop();
 		}
 
 		old_mouse_y = y;

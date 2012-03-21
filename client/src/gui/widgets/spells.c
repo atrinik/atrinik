@@ -437,7 +437,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		help_show("spell list");
 		return 1;
 	}
-	else if (list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+	else if (list_spells && list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		size_t spell_id;
 		sprite_struct *icon;
