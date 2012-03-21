@@ -437,6 +437,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 		}
 		else if (event->key.keysym.sym == SDLK_RSHIFT || event->key.keysym.sym == SDLK_LSHIFT)
 		{
+			return 1;
 		}
 		else
 		{
