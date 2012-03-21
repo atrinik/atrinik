@@ -1029,6 +1029,7 @@ void widget_inventory_handle_get(widgetdata *widget)
 		char buf[MAX_BUF];
 
 		WIDGET_SHOW(cur_widget[INPUT_ID]);
+		SetPriorityWidget(cur_widget[INPUT_ID]);
 		input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
 
 		snprintf(input->title_text, sizeof(input->title_text), "Take how many from %d %s?", nrof, ob->s_name);
@@ -1094,6 +1095,7 @@ void widget_inventory_handle_drop(widgetdata *widget)
 		char buf[MAX_BUF];
 
 		WIDGET_SHOW(cur_widget[INPUT_ID]);
+		SetPriorityWidget(cur_widget[INPUT_ID]);
 		input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
 
 		snprintf(input->title_text, sizeof(input->title_text), "Drop how many from %d %s?", nrof, ob->s_name);

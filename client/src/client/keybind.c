@@ -642,6 +642,7 @@ int keybind_process_command(const char *cmd)
 			widget_input_struct *input;
 
 			WIDGET_SHOW(cur_widget[INPUT_ID]);
+			SetPriorityWidget(cur_widget[INPUT_ID]);
 			input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
 			text_input_reset(&input->text_input);
 			snprintf(input->title_text, sizeof(input->title_text), "Send message to %s:", "[PUBLIC]");
