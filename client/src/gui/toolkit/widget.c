@@ -916,10 +916,25 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 			fprintf(fp, "%sid = %s\n", padding, widget->id);
 		}
 
-		fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
-		fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
-		fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
-		fprintf(fp, "%srequired = %s\n", padding, widget->required ? "yes" : "no");
+		if (widget->moveable != def_widget[widget->type].moveable)
+		{
+			fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
+		}
+
+		if (widget->show != def_widget[widget->type].show)
+		{
+			fprintf(fp, "%sshow = %s\n", padding, widget->show ? "yes" : "no");
+		}
+
+		if (widget->resizeable != def_widget[widget->type].resizeable)
+		{
+			fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
+		}
+
+		if (widget->required != def_widget[widget->type].required)
+		{
+			fprintf(fp, "%srequired = %s\n", padding, widget->required ? "yes" : "no");
+		}
 
 		if (widget->x != def_widget[widget->type].x)
 		{
@@ -941,12 +956,12 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 			fprintf(fp, "%sh = %d\n", padding, widget->h);
 		}
 
-		if (widget->min_w)
+		if (widget->min_w != def_widget[widget->type].min_w)
 		{
 			fprintf(fp, "%smin_w = %d\n", padding, widget->min_w);
 		}
 
-		if (widget->min_h)
+		if (widget->min_h != def_widget[widget->type].min_h)
 		{
 			fprintf(fp, "%smin_h = %d\n", padding, widget->min_h);
 		}
