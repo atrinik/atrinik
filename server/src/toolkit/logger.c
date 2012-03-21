@@ -32,6 +32,10 @@
 #include <stdarg.h>
 
 /**
+ * Name of the API. */
+#define API_NAME logger
+
+/**
  * Pointer to open log file, if any. */
 static FILE *log_fp;
 
@@ -65,6 +69,8 @@ void toolkit_logger_deinit(void)
 
 void logger_open_log(const char *path)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	log_fp = fopen(path, "w");
 
 	if (!log_fp)
@@ -75,6 +81,7 @@ void logger_open_log(const char *path)
 
 FILE *logger_get_logfile(void)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return log_fp ? log_fp : stdout;
 }
 
@@ -85,6 +92,7 @@ void logger_set_print_func(logger_print_func func)
 
 void logger_do_print(const char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	fputs(str, stdout);
 }
 
@@ -94,6 +102,8 @@ void logger_print(const char *level, const char *function, uint64 line, const ch
 	va_list ap;
 	struct timeval tv;
 	struct tm *tm;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	va_start(ap, format);
 	vsnprintf(formatted, sizeof(formatted), format, ap);

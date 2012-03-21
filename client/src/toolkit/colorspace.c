@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME colorspace
+
+/**
  * Initialize the colorspace API.
  * @internal */
 void toolkit_colorspace_init(void)
@@ -52,6 +56,8 @@ void toolkit_colorspace_deinit(void)
  * @author LIBGIMP (GNU LGPL 3.0) */
 double colorspace_rgb_max(const double rgb[3])
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (rgb[0] > rgb[1])
 	{
 		return (rgb[0] > rgb[2]) ? rgb[0] : rgb[2];
@@ -66,6 +72,8 @@ double colorspace_rgb_max(const double rgb[3])
  * @author LIBGIMP (GNU LGPL 3.0) */
 double colorspace_rgb_min(const double rgb[3])
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (rgb[0] < rgb[1])
 	{
 		return (rgb[0] < rgb[2]) ? rgb[0] : rgb[2];
@@ -82,6 +90,8 @@ double colorspace_rgb_min(const double rgb[3])
 void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
 {
 	double max, min, delta;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	max = colorspace_rgb_max(rgb);
 	min = colorspace_rgb_min(rgb);
@@ -127,6 +137,8 @@ void colorspace_hsv2rgb(const double hsv[3], double rgb[3])
 	int i;
 	double f, w, q, t;
 	double hue;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (hsv[1] == 0.0)
 	{

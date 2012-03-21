@@ -29,6 +29,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME memory
+
+/**
  * Initialize the memory API.
  * @internal */
 void toolkit_memory_init(void)
@@ -56,6 +60,8 @@ void toolkit_memory_deinit(void)
 void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
 {
 	void *new_ptr = realloc(ptr, new_size);
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (new_ptr && new_size > old_size)
 	{

@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME math
+
+/**
  * Initialize the math API.
  * @internal */
 void toolkit_math_init(void)
@@ -56,6 +60,8 @@ void toolkit_math_deinit(void)
 unsigned long isqrt(unsigned long n)
 {
 	unsigned long op = n, res = 0, one;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* "one" starts at the highest power of four <= than the argument. */
 	one = 1 << 30;
@@ -94,6 +100,8 @@ unsigned long isqrt(unsigned long n)
  * @return The random number. */
 int rndm(int min, int max)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (max < 1 || max - min + 1 < 1)
 	{
 		logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
@@ -109,6 +117,8 @@ int rndm(int min, int max)
  * @return 1 if the chance of 1/n was successful, 0 otherwise. */
 int rndm_chance(uint32 n)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!n)
 	{
 		logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");

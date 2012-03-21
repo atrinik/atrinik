@@ -40,6 +40,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME mempool
+
+/**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
  * Only used as an end marker for the lists */
@@ -98,6 +102,8 @@ uint32 nearest_pow_two_exp(uint32 n)
 	};
 	uint32 i;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (n <= 64)
 	{
 		return exp_lookup[n];
@@ -118,6 +124,7 @@ uint32 nearest_pow_two_exp(uint32 n)
  * @param destructor Destructor function. */
 void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	pool->constructor = constructor;
 	pool->destructor = destructor;
 }
@@ -137,6 +144,8 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 {
 	int i;
 	mempool_struct *pool;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	pool = calloc(1, sizeof(mempool_struct));
 
@@ -165,6 +174,7 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
  * @param pool The mempool to free. */
 void mempool_free(mempool_struct *pool)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	free(pool);
 }
 
@@ -180,6 +190,8 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 	uint32 i;
 	mempool_chunk_struct *first, *ptr;
 	int chunksize_real, nrof_arrays;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (pool->nrof_free[arraysize_exp] > 0)
 	{
@@ -203,7 +215,7 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 		exit(1);
 	}
 
-#ifndef PRODUCTION_SERVER
+#ifndef PRODUCTION
 	mempool_chunks = realloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
 	mempool_chunks[mempool_chunks_num] = first;
 	mempool_chunks_num++;
@@ -244,6 +256,8 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 {
 	mempool_chunk_struct *new_obj;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	pthread_mutex_lock(&pool->mutex);
 
@@ -287,6 +301,8 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool)
 {
 	mempool_chunk_struct *old = MEM_POOLDATA(data);
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (CHUNK_FREE(data))
 	{

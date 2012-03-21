@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME bzr
+
+/**
  * Where to search for .bzr directory. */
 static const char *const branch_paths[] =
 {
@@ -67,6 +71,8 @@ void toolkit_bzr_deinit(void)
  * in (if any). */
 int bzr_get_revision(void)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (branch_revision == -1)
 	{
 		size_t i;

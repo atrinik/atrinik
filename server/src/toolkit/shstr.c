@@ -29,6 +29,10 @@
 
 #include <global.h>
 
+/**
+ * Name of the API. */
+#define API_NAME shstr
+
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
@@ -62,6 +66,8 @@ static unsigned long hashstr(const char *str)
 	unsigned int rot = 0;
 	const char *p;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	GATHER(hash_stats.calls);
 
 	for (p = str; i < MAXSTRING && *p; p++, i++)
@@ -87,6 +93,8 @@ static shared_string *new_shared_string(const char *str)
 {
 	shared_string *ss;
 	size_t n = strlen(str);
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* Allocate room for a struct which can hold str. Note
 	 * that some bytes for the string are already allocated in the
@@ -117,6 +125,8 @@ shstr *add_string(const char *str)
 {
 	shared_string *ss;
 	unsigned long ind;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	GATHER(add_stats.calls);
 
@@ -202,6 +212,7 @@ shstr *add_string(const char *str)
  * @return str. */
 shstr *add_refcount(shstr *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	GATHER(add_ref_stats.calls);
 	++(SS(str)->refcount);
 
@@ -215,6 +226,7 @@ shstr *add_refcount(shstr *str)
  * @return Refcount of the string. */
 int query_refcount(shstr *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return SS(str)->refcount & ~TOPBIT;
 }
 
@@ -226,6 +238,8 @@ shstr *find_string(const char *str)
 {
 	shared_string *ss;
 	unsigned long ind;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	GATHER(find_stats.calls);
 
@@ -274,6 +288,8 @@ shstr *find_string(const char *str)
 void free_string_shared(shstr *str)
 {
 	shared_string *ss;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	GATHER(free_stats.calls);
 	ss = SS(str);

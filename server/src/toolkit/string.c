@@ -30,6 +30,10 @@
 #include <stdarg.h>
 
 /**
+ * Name of the API. */
+#define API_NAME string
+
+/**
  * Initialize the string API.
  * @internal */
 void toolkit_string_init(void)
@@ -56,6 +60,8 @@ void toolkit_string_deinit(void)
 void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
 	size_t resultlen, keylen;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	/* Special case to prevent infinite loop if key == replacement == "" */
 	if (strcmp(key, replacement) == 0)
@@ -94,6 +100,8 @@ void string_replace_char(char *str, const char *key, const char replacement)
 {
 	size_t i;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while (*str != '\0')
 	{
 		if (key)
@@ -128,6 +136,8 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
 {
 	char *p;
 	size_t pos;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (pos = 0; pos < array_size; pos++)
 	{
@@ -174,6 +184,8 @@ void string_replace_unprintable_chars(char *buf)
 {
 	char *p;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	for (p = buf; *p != '\0'; p++)
 	{
 		if (*p < ' ' || *p > '~')
@@ -192,6 +204,8 @@ char *string_format_number_comma(uint64 num)
 	static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
 	char *buf;
 	int i = 0;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	buf = &retbuf[sizeof(retbuf) - 1];
 	*buf = '\0';
@@ -222,6 +236,8 @@ void string_remove_markup(char *str)
 {
 	char *cp;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	for (cp = str; *cp != '\0'; cp++)
 	{
 		if (*cp == '<')
@@ -236,6 +252,8 @@ void string_remove_markup(char *str)
  * @param str String to transform, will be modified. */
 void string_toupper(char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while (*str != '\0')
 	{
 		*str = toupper(*str);
@@ -248,6 +266,8 @@ void string_toupper(char *str)
  * @param str String to transform, will be modified. */
 void string_tolower(char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while (*str != '\0')
 	{
 		*str = tolower(*str);
@@ -265,6 +285,8 @@ char *string_whitespace_trim(char *str)
 {
 	char *cp;
 	size_t len;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	cp = str;
 	len = strlen(cp);
@@ -295,6 +317,8 @@ char *string_whitespace_squeeze(char *str)
 {
 	size_t r, w;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	for (r = 0, w = 0; str[r] != '\0'; r++)
 	{
 		if (isspace(str[r]))
@@ -324,6 +348,8 @@ void string_newline_to_literal(char *str)
 {
 	char *next;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while ((next = strstr(str, "\\n")))
 	{
 		*next = '\n';
@@ -345,6 +371,8 @@ void string_newline_to_literal(char *str)
 const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	i = 0;
 	str += (*pos);
@@ -380,6 +408,8 @@ void string_skip_word(const char *str, size_t *i, int dir)
 {
 	uint8 whitespace;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	whitespace = 1;
 
 	/* Skip whitespace. */
@@ -406,6 +436,8 @@ void string_skip_word(const char *str, size_t *i, int dir)
  * @return 1 if the string is a digit, 0 otherwise. */
 int string_isdigit(const char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (*str == '-')
 	{
 		str++;
@@ -431,6 +463,8 @@ int string_isdigit(const char *str)
  * @param str String to capitalize. */
 void string_capitalize(char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!str || *str == '\0')
 	{
 		return;
@@ -452,6 +486,8 @@ void string_capitalize(char *str)
 void string_title(char *str)
 {
 	uint8 previous_cased;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (!str)
 	{
@@ -496,6 +532,8 @@ void string_title(char *str)
  * @return 1 if 'str' starts with 'cmp', 0 otherwise. */
 int string_startswith(const char *str, const char *cmp)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (string_isempty(str) || string_isempty(cmp))
 	{
 		return 0;
@@ -517,6 +555,8 @@ int string_startswith(const char *str, const char *cmp)
 int string_endswith(const char *str, const char *cmp)
 {
 	ssize_t len;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (string_isempty(str) || string_isempty(cmp))
 	{
@@ -562,6 +602,8 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
 	size_t n, max;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (end < 0)
 	{
 		end = strlen(str) + end;
@@ -591,6 +633,8 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
  * character. */
 int string_isempty(const char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	return !str || *str == '\0';
 }
 
@@ -603,6 +647,8 @@ int string_isempty(const char *str)
 int char_contains(const char c, const char *key)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (i = 0; key[i] != '\0'; i++)
 	{
@@ -622,6 +668,8 @@ int char_contains(const char c, const char *key)
  * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise. */
 int string_contains(const char *str, const char *key)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while (*str != '\0')
 	{
 		if (char_contains(*str, key))
@@ -643,6 +691,8 @@ int string_contains(const char *str, const char *key)
  * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise. */
 int string_contains_other(const char *str, const char *key)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	while (*str != '\0')
 	{
 		if (!char_contains(*str, key))
@@ -670,6 +720,8 @@ char *string_create_char_range(char start, char end)
 {
 	char *str, c;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	str = malloc((end - start + 1) + 1);
 
 	for (c = start; c <= end; c++)
@@ -694,6 +746,8 @@ char *string_crypt(char *str, const char *salt)
 	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
 	char s[2];
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!salt)
 	{
 		size_t stringlen = strlen(c);
@@ -709,6 +763,7 @@ char *string_crypt(char *str, const char *salt)
 
 	return crypt(str, s);
 #else
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return str;
 #endif
 }
@@ -728,6 +783,8 @@ char *string_join(const char *delim, ...)
 	StringBuffer *sb;
 	va_list args;
 	const char *str;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	sb = stringbuffer_new();
 
@@ -772,6 +829,8 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
 	StringBuffer *sb;
 	size_t i;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	sb = stringbuffer_new();
 
 	for (i = 0; i < arraysize; i++)
@@ -806,6 +865,8 @@ char *string_repeat(const char *str, size_t num)
 {
 	size_t len, i;
 	char *ret;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	len = strlen(str);
 	ret = malloc(sizeof(char) * (len * num) + 1);

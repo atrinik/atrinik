@@ -45,6 +45,10 @@
 #include <global.h>
 #include <stdarg.h>
 
+/**
+ * Name of the API. */
+#define API_NAME stringbuffer
+
 static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
 /**
@@ -72,6 +76,8 @@ StringBuffer *stringbuffer_new(void)
 {
 	StringBuffer *sb = malloc(sizeof(StringBuffer));
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!sb)
 	{
 		logger_print(LOG(ERROR), "OOM.");
@@ -94,6 +100,8 @@ char *stringbuffer_finish(StringBuffer *sb)
 {
 	char *result;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	sb->buf[sb->pos] = '\0';
 	result = sb->buf;
 	free(sb);
@@ -113,6 +121,8 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 	char *str = stringbuffer_finish(sb);
 	const char *result = add_string(str);
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	free(str);
 	return result;
 }
@@ -124,6 +134,8 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
  * @param len Length of the string. */
 void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	stringbuffer_ensure(sb, len + 1);
 	memcpy(sb->buf + sb->pos, str, len);
 	sb->pos += len;
@@ -135,6 +147,7 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t le
  * @param str The string to append. */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	stringbuffer_append_string_len(sb, str, strlen(str));
 }
 
@@ -145,6 +158,8 @@ void stringbuffer_append_string(StringBuffer *sb, const char *str)
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 {
 	size_t size = MAX_BUF;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (; ;)
 	{
@@ -183,6 +198,8 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
  * @param sb2 The string buffer to append; it must be different from sb. */
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	stringbuffer_ensure(sb, sb2->pos + 1);
 	memcpy(sb->buf + sb->pos, sb2->buf, sb2->pos);
 	sb->pos += sb2->pos;
@@ -194,6 +211,8 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
  * @param c The character to append. */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	stringbuffer_ensure(sb, 1 + 1);
 	sb->buf[sb->pos++] = c;
 }
@@ -207,6 +226,8 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 {
 	char *tmp;
 	size_t new_size;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (sb->pos + len <= sb->size)
 	{
@@ -232,6 +253,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
  * @return Current length of 'sb'. */
 size_t stringbuffer_length(StringBuffer *sb)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return sb->pos;
 }
 
@@ -245,6 +267,8 @@ size_t stringbuffer_length(StringBuffer *sb)
 ssize_t stringbuffer_index(StringBuffer *sb, char c)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (i = 0; i < sb->pos; i++)
 	{
@@ -267,6 +291,8 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
 ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
 {
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (i = sb->pos; i > 0; i--)
 	{

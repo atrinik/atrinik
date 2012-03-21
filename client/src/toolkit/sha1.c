@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME sha1
+
+/**
  * Initialize the sha1 API.
  * @internal */
 void toolkit_sha1_init(void)

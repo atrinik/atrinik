@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME datetime
+
+/**
  * Initialize the datetime API.
  * @internal */
 void toolkit_datetime_init(void)
@@ -56,6 +60,8 @@ time_t datetime_getutc(void)
 	time_t t;
 	struct tm *tm;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	time(&t);
 	tm = gmtime(&t);
 
@@ -68,5 +74,6 @@ time_t datetime_getutc(void)
  * @return Converted local time. */
 time_t datetime_utctolocal(time_t t)
 {
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return t - (datetime_getutc() - time(NULL));
 }

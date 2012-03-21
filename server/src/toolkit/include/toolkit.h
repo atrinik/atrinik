@@ -76,4 +76,18 @@ typedef void (*toolkit_func)(void);
 	toolkit_import_register(__deinit_func); \
 }
 
+#ifndef PRODUCTION
+#	define TOOLKIT_FUNC_PROTECTOR(__api_name) \
+{ \
+	if (!toolkit_imported(__api_name)) \
+	{ \
+		toolkit_import(logger); \
+		logger_print(LOG(WARNING), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
+	} \
+}
+#else
+#	define TOOLKIT_FUNC_PROTECTOR
+#endif
+
+
 #endif

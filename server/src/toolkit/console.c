@@ -40,6 +40,10 @@
 
 #include <global.h>
 
+/**
+ * Name of the API. */
+#define API_NAME console
+
 #ifdef HAVE_READLINE
 #	include <readline/readline.h>
 #	include <readline/history.h>
@@ -401,6 +405,8 @@ void console_command_handle(void)
 {
 	char **line, *cp;
 	size_t i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	pthread_mutex_lock(&command_process_queue_mutex);
 	line = (char **) utarray_front(command_process_queue);

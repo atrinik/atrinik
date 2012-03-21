@@ -31,6 +31,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME clioptions
+
+/**
  * All of the available command line options. */
 static clioptions_struct *clioptions;
 
@@ -46,6 +50,8 @@ void clioptions_option_config(const char *arg)
 	FILE *fp;
 	char buf[HUGE_BUF], longname[HUGE_BUF], argument[HUGE_BUF], **argv;
 	int argc, i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	fp = fopen(arg, "r");
 
@@ -284,6 +290,8 @@ void clioptions_parse(int argc, char *argv[])
 {
 	int i;
 	size_t opt;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	for (i = 1; i < argc; i++)
 	{

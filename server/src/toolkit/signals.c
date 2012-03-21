@@ -38,6 +38,10 @@
 #include <signal.h>
 
 /**
+ * Name of the API. */
+#define API_NAME signals
+
+/**
  * The signals to register. */
 static const int register_signals[] =
 {

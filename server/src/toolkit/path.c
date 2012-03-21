@@ -29,6 +29,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME path
+
+/**
  * Initialize the path API.
  * @internal */
 void toolkit_path_init(void)
@@ -59,6 +63,8 @@ char *path_join(const char *path, const char *path2)
 	StringBuffer *sb;
 	size_t len;
 	char *cp;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	sb = stringbuffer_new();
 	stringbuffer_append_string(sb, path);
@@ -91,6 +97,8 @@ char *path_dirname(const char *path)
 {
 	const char *end;
 	char *result;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (!path)
 	{
@@ -134,6 +142,8 @@ char *path_basename(const char *path)
 {
 	const char *slash;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!path)
 	{
 		return NULL;
@@ -164,6 +174,8 @@ char *path_normalize(const char *path)
 	size_t pos, startsbpos;
 	char component[MAX_BUF];
 	ssize_t last_slash;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (string_isempty(path))
 	{
@@ -234,6 +246,8 @@ void path_ensure_directories(const char *path)
 	char buf[MAXPATHLEN], *cp;
 	struct stat statbuf;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!path || *path == '\0')
 	{
 		return;
@@ -272,6 +286,8 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
 	FILE *fp;
 	char buf[HUGE_BUF];
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (!src || !dst || !mode)
 	{
 		return 0;
@@ -302,6 +318,8 @@ int path_exists(const char *path)
 {
 	struct stat statbuf;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (stat(path, &statbuf) != 0)
 	{
 		return 0;
@@ -317,6 +335,8 @@ int path_exists(const char *path)
 int path_touch(const char *path)
 {
 	FILE *fp;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	path_ensure_directories(path);
 	fp = fopen(path, "w");
@@ -342,6 +362,8 @@ size_t path_size(const char *path)
 {
 	struct stat statbuf;
 
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
 	if (stat(path, &statbuf) != 0)
 	{
 		return 0;
@@ -360,6 +382,8 @@ char *path_file_contents(const char *path)
 	FILE *fp;
 	StringBuffer *sb;
 	char buf[MAX_BUF];
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	fp = fopen(path, "rb");
 

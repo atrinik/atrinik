@@ -29,6 +29,10 @@
 #include <global.h>
 
 /**
+ * Name of the API. */
+#define API_NAME porting
+
+/**
  * Initialize the porting API.
  * @internal */
 void toolkit_porting_init(void)
