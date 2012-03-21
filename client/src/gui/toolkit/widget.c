@@ -923,7 +923,7 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 
 		if (widget->show != def_widget[widget->type].show)
 		{
-			fprintf(fp, "%sshow = %s\n", padding, widget->show ? "yes" : "no");
+			fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		}
 
 		if (widget->resizeable != def_widget[widget->type].resizeable)
