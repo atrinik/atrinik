@@ -44,11 +44,15 @@ typedef struct buddy_struct
 
 	/**
 	 * Button buffer. */
-	button_struct button_close, button_help;
+	button_struct button_close, button_help, button_add;
 
 	/**
 	 * The list. */
 	list_struct *list;
+
+	/**
+	 * Text input buffer. */
+	text_input_struct text_input;
 } buddy_struct;
 
 #define WIDGET_BUDDY(_widget) ((buddy_struct *) (_widget)->subwidget)
@@ -87,6 +91,8 @@ void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort)
 	{
 		list_sort(tmp->list, LIST_SORT_ALPHA);
 	}
+
+	widget->redraw = 1;
 }
 
 /**
@@ -115,6 +121,8 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
 				break;
 			}
 		}
+
+		widget->redraw = 1;
 	}
 }
 
@@ -271,6 +279,12 @@ static void widget_draw(widgetdata *widget)
 	tmp->button_help.x = widget->x + widget->w - TEXTURE_SURFACE(tmp->button_close.texture)->w - TEXTURE_SURFACE(tmp->button_help.texture)->w - 4;
 	tmp->button_help.y = widget->y + 4;
 	button_show(&tmp->button_help, "?");
+
+	text_input_show(&tmp->text_input, ScreenSurface, widget->x + 160, widget->y + 100);
+
+	tmp->button_add.x = widget->x + 160;
+	tmp->button_add.y = widget->y + 130;
+	button_show(&tmp->button_add, "Add");
 }
 
 /** @copydoc widgetdata::event_func */
@@ -297,6 +311,46 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
 		snprintf(buf, sizeof(buf), "%s list", widget->id);
 		help_show(buf);
+		return 1;
+	}
+	else if (button_event(&tmp->button_add, event) || (tmp->text_input.focus && event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym)))
+	{
+		if (tmp->text_input.focus)
+		{
+			if (*tmp->text_input.str != '\0')
+			{
+				widget_buddy_add(widget, tmp->text_input.str, 1);
+				text_input_set(&tmp->text_input, NULL);
+			}
+
+			tmp->text_input.focus = 0;
+		}
+		else
+		{
+			tmp->text_input.focus = 1;
+		}
+
+		return 1;
+	}
+	else if (text_input_event(&tmp->text_input, event))
+	{
+		return 1;
+	}
+
+	if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(&tmp->text_input, event->motion.x, event->motion.y))
+		{
+			tmp->text_input.focus = 1;
+			return 1;
+		}
+
+		tmp->text_input.focus = 0;
+	}
+
+	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+	{
+		tmp->text_input.focus = 0;
 		return 1;
 	}
 
@@ -351,7 +405,12 @@ void widget_buddy_init(widgetdata *widget)
 
 	button_create(&tmp->button_close);
 	button_create(&tmp->button_help);
+	button_create(&tmp->button_add);
 	tmp->button_close.texture = tmp->button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
 	tmp->button_close.texture_pressed = tmp->button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
 	tmp->button_close.texture_over = tmp->button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+
+	text_input_create(&tmp->text_input);
+	tmp->text_input.focus = 0;
+	tmp->text_input.w = 60;
 }
