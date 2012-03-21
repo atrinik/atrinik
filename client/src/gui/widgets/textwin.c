@@ -1033,21 +1033,28 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle_players_tab(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-	if (strcmp(anchor_action, "#addbuddy") == 0)
+	widgetdata *widget;
+
+	if (strcmp(anchor_action, "#buddy") == 0 || strcmp(anchor_action, "#ignore") == 0)
 	{
+		widget = widget_find_create_type_id(BUDDY_ID, anchor_action + 1);
+
+		if (widget_buddy_check(widget, buf) == -1)
+		{
+			widget_buddy_add(widget, buf, 1);
+		}
+		else
+		{
+			widget_buddy_remove(widget, buf);
+		}
+
 		return 1;
 	}
 	else if (strcmp(anchor_action, "#opentab") == 0)
 	{
-		widgetdata *widget;
-
 		widget = widget_find_by_type(CHATWIN_ID);
 		textwin_tab_open(widget, buf);
 
-		return 1;
-	}
-	else if (strcmp(anchor_action, "#ignore") == 0)
-	{
 		return 1;
 	}
 
@@ -1090,13 +1097,13 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
 
 			cp = string_sub(label->text, 0, -3);
 
-			snprintf(buf, sizeof(buf), "<a=#addbuddy:%s>Add As Buddy</a>", cp);
+			snprintf(buf, sizeof(buf), "<a=#buddy:%s>%s</a>", cp, widget_buddy_check(widget_find_type_id(BUDDY_ID, "buddy"), cp) == -1 ? "Add Buddy" : "Remove Buddy");
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
 			snprintf(buf, sizeof(buf), "<a=#opentab:%s>Open Tab</a>", cp);
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-			snprintf(buf, sizeof(buf), "<a=#ignore:%s>Ignore</a>", cp);
+			snprintf(buf, sizeof(buf), "<a=#ignore:%s>%s</a>", cp, widget_buddy_check(widget_find_type_id(BUDDY_ID, "ignore"), cp) == -1 ? "Ignore" : "Unignore");
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
 			free(cp);
