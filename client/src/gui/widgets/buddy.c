@@ -140,7 +140,7 @@ ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 
 	while ((p = (char **) utarray_next(WIDGET_BUDDY(widget)->names, p)))
 	{
-		if (strcmp(*p, name) == 0)
+		if (strcasecmp(*p, name) == 0)
 		{
 			return utarray_eltidx(WIDGET_BUDDY(widget)->names, p);
 		}
