@@ -353,7 +353,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		tmp->text_input.focus = 0;
 	}
 
-	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE)
+	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE && tmp->text_input.focus)
 	{
 		tmp->text_input.focus = 0;
 		return 1;
