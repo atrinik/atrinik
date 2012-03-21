@@ -128,13 +128,18 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
 
 /**
  * Check if the specified character name is a buddy.
- * @param widget Widget to check.
+ * @param widget Widget to check. Can be NULL, in which case -1 is returned.
  * @param name Character name to check.
  * @return -1 if the character name is not a buddy, index in the character
  * names array otherwise. */
 ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 {
 	char **p;
+
+	if (!widget)
+	{
+		return -1;
+	}
 
 	p = NULL;
 
