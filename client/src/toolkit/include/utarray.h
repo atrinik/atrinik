@@ -206,7 +206,7 @@ typedef struct {
 #define utarray_find(a,v,cmp) bsearch((v),(a)->d,(a)->i,(a)->icd->sz,cmp)
 
 #define utarray_front(a) (((a)->i) ? (_utarray_eltptr(a,0)) : NULL)
-#define utarray_next(a,e) (((e)==NULL) ? utarray_front(a) : ((((a)->i) > (utarray_eltidx(a,e)+1)) ? _utarray_eltptr(a,utarray_eltidx(a,e)+1) : NULL))
+#define utarray_next(a,e) (((e)==NULL) ? utarray_front(a) : ((((a)->i) > ((size_t) utarray_eltidx(a,e)+1)) ? _utarray_eltptr(a,(size_t) utarray_eltidx(a,e)+1) : NULL))
 #define utarray_back(a) (((a)->i) ? (_utarray_eltptr(a,(a)->i-1)) : NULL)
 #define utarray_eltidx(a,e) (((char*)(e) >= (char*)((a)->d)) ? (ssize_t) (((char*)(e) - (char*)((a)->d))/(a)->icd->sz) : -1)
 

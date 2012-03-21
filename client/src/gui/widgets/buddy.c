@@ -111,7 +111,7 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
 		uint32 row;
 
 		tmp = WIDGET_BUDDY(widget);
-		utarray_erase(tmp->names, idx, 1);
+		utarray_erase(tmp->names, (size_t) idx, 1);
 
 		for (row = 0; row < tmp->list->rows; row++)
 		{
