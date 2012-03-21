@@ -36,7 +36,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * Initialize the math API.
@@ -55,7 +55,10 @@ void toolkit_math_init(void)
  * @internal */
 void toolkit_math_deinit(void)
 {
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_START(math)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

@@ -34,7 +34,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * Initialize the path API.
@@ -55,7 +55,10 @@ void toolkit_path_init(void)
  * @internal */
 void toolkit_path_deinit(void)
 {
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_START(path)
+	{
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

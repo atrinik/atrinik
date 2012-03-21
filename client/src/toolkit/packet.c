@@ -37,7 +37,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * The packets memory pool. */
@@ -61,8 +61,11 @@ void toolkit_packet_init(void)
  * @internal */
 void toolkit_packet_deinit(void)
 {
-	mempool_free(pool_packets);
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_START(packet)
+	{
+		mempool_free(pool_packets);
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

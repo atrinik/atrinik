@@ -37,7 +37,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * Pointer to open log file, if any. */
@@ -65,12 +65,14 @@ void toolkit_logger_init(void)
  * @internal */
 void toolkit_logger_deinit(void)
 {
-	if (log_fp)
+	TOOLKIT_DEINIT_FUNC_START(logger)
 	{
-		fclose(log_fp);
+		if (log_fp)
+		{
+			fclose(log_fp);
+		}
 	}
-
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 void logger_open_log(const char *path)

@@ -45,7 +45,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
@@ -78,22 +78,24 @@ void toolkit_mempool_init(void)
  * @internal */
 void toolkit_mempool_deinit(void)
 {
-	size_t i;
-
-	for (i = 0; i < mempool_chunks_num; i++)
+	TOOLKIT_DEINIT_FUNC_START(mempool)
 	{
-		free(mempool_chunks[i]);
+		size_t i;
+
+		for (i = 0; i < mempool_chunks_num; i++)
+		{
+			free(mempool_chunks[i]);
+		}
+
+		if (mempool_chunks)
+		{
+			free(mempool_chunks);
+			mempool_chunks = NULL;
+		}
+
+		mempool_chunks_num = 0;
 	}
-
-	if (mempool_chunks)
-	{
-		free(mempool_chunks);
-		mempool_chunks = NULL;
-	}
-
-	mempool_chunks_num = 0;
-
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

@@ -41,7 +41,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * Canonical filename of the executable. May be NULL. */
@@ -211,13 +211,15 @@ void toolkit_binreloc_init(void)
  * @internal */
 void toolkit_binreloc_deinit(void)
 {
-	if (exe)
+	TOOLKIT_DEINIT_FUNC_START(binreloc)
 	{
-		free(exe);
-		exe = NULL;
+		if (exe)
+		{
+			free(exe);
+			exe = NULL;
+		}
 	}
-
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

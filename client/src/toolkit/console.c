@@ -46,7 +46,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 #ifdef HAVE_READLINE
 #	include <readline/readline.h>
@@ -341,38 +341,40 @@ void toolkit_console_init(void)
  * @internal */
 void toolkit_console_deinit(void)
 {
-	size_t i;
-
-	thread_done = 1;
-	pthread_cancel(thread_id);
-
-	for (i = 0; i < console_commands_num; i++)
+	TOOLKIT_DEINIT_FUNC_START(console)
 	{
-		free(console_commands[i].command);
-		free(console_commands[i].desc_brief);
-		free(console_commands[i].desc);
-	}
+		size_t i;
 
-	if (console_commands)
-	{
-		free(console_commands);
-		console_commands = NULL;
-	}
+		thread_done = 1;
+		pthread_cancel(thread_id);
 
-	console_commands_num = 0;
-	utarray_free(command_process_queue);
+		for (i = 0; i < console_commands_num; i++)
+		{
+			free(console_commands[i].command);
+			free(console_commands[i].desc_brief);
+			free(console_commands[i].desc);
+		}
 
-	logger_set_print_func(logger_do_print);
+		if (console_commands)
+		{
+			free(console_commands);
+			console_commands = NULL;
+		}
+
+		console_commands_num = 0;
+		utarray_free(command_process_queue);
+
+		logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
-	rl_unbind_key(RETURN);
-	rl_callback_handler_remove();
+		rl_unbind_key(RETURN);
+		rl_callback_handler_remove();
 
-	rl_set_prompt("");
-	rl_redisplay();
+		rl_set_prompt("");
+		rl_redisplay();
 #endif
-
-	init = 0;
+	}
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**

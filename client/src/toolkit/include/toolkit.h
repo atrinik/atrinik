@@ -69,7 +69,7 @@ typedef void (*toolkit_func)(void);
 	{ \
 		return; \
 	} \
-	init = 1;
+	did_init = 1;
 
 /**
  * End toolkit API initialization function. */
@@ -77,10 +77,22 @@ typedef void (*toolkit_func)(void);
 	toolkit_import_register(__deinit_func); \
 }
 
+/**
+ * Start toolkit API deinitialization function. */
+#define TOOLKIT_DEINIT_FUNC_START(__api_name) \
+{
+
+/**
+ * End toolkit API deinitialization function. */
+#define TOOLKIT_DEINIT_FUNC_END() \
+	did_init = 0; \
+}
+
+
 #ifndef PRODUCTION
 #	define TOOLKIT_FUNC_PROTECTOR(__api_name) \
 { \
-	if (!init) \
+	if (!did_init) \
 	{ \
 		static uint8 did_warn = 0; \
 		if (!did_warn) \

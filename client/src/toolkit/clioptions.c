@@ -36,7 +36,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 init = 0;
+static uint8 did_init = 0;
 
 /**
  * All of the available command line options. */
@@ -226,32 +226,35 @@ void toolkit_clioptions_init(void)
  * @internal */
 void toolkit_clioptions_deinit(void)
 {
-	size_t i;
-
-	for (i = 0; i < clioptions_num; i++)
+	TOOLKIT_DEINIT_FUNC_START(clioptions)
 	{
-		if (clioptions[i].longname)
+		size_t i;
+
+		for (i = 0; i < clioptions_num; i++)
 		{
-			free(clioptions[i].longname);
+			if (clioptions[i].longname)
+			{
+				free(clioptions[i].longname);
+			}
+
+			if (clioptions[i].shortname)
+			{
+				free(clioptions[i].shortname);
+			}
+
+			free(clioptions[i].desc_brief);
+			free(clioptions[i].desc);
 		}
 
-		if (clioptions[i].shortname)
+		if (clioptions)
 		{
-			free(clioptions[i].shortname);
+			free(clioptions);
+			clioptions = NULL;
 		}
 
-		free(clioptions[i].desc_brief);
-		free(clioptions[i].desc);
+		clioptions_num = 0;
 	}
-
-	if (clioptions)
-	{
-		free(clioptions);
-		clioptions = NULL;
-	}
-
-	clioptions_num = 0;
-	init = 0;
+	TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
