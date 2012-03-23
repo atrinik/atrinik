@@ -99,6 +99,11 @@ typedef struct widgetdata
 	/** Surface used to draw the widget. */
 	SDL_Surface *surface;
 
+	/** Texture used. */
+	texture_struct *texture;
+
+	int texture_type;
+
 	/** The ID for the type of the widget. */
 	int type;
 
@@ -311,6 +316,14 @@ enum
 	MENU_SUBMENU,
 	MENU_CHECKBOX,
 	MENU_RADIO
+};
+
+enum
+{
+	WIDGET_TEXTURE_TYPE_NONE,
+	WIDGET_TEXTURE_TYPE_NORMAL,
+
+	WIDGET_TEXTURE_TYPE_NUM
 };
 
 /** Used for mouse button/move events */

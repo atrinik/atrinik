@@ -35,21 +35,11 @@ static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("main_level_bg");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 
 		widget->redraw = 0;
-
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("main_level_bg"));
 
 		text_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 

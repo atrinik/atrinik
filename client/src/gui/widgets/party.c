@@ -239,14 +239,13 @@ static void widget_draw(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
 		box.h = 0;
 		box.w = widget->w;
 		text_show(widget->surface, FONT_SERIF12, "Party", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		if (list_party)
 		{
+			list_party->surface = widget->surface;
 			list_set_parent(list_party, widget->x, widget->y);
 			list_show(list_party, 10, 23);
 		}
@@ -294,21 +293,11 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget)
 {
-	/* Create the surface. */
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	/* Create the party list. */
 	if (!list_party)
 	{
 		list_party = list_create(12, 2, 8);
 		list_party->handle_enter_func = list_handle_enter;
-		list_party->surface = widget->surface;
 		list_party->text_flags = TEXT_MARKUP;
 		list_party->row_highlight_func = list_row_highlight;
 		list_party->row_selected_func = list_row_selected;

@@ -33,9 +33,11 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
+	SDL_Rect box, box2;
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("player_info_bg"));
+	box2.x = widget->x;
+	box2.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
 
 	box.w = widget->w - 12;
 	box.h = 36;

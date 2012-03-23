@@ -26,7 +26,6 @@ Alex "Cleo" Tokar - GPLv2:
 	cmark_middle.png
 	cmark_start.png
 	confused.png
-	content.png
 	cursed.png
 	damned.png
 	exp_bubble_on.png
@@ -57,22 +56,13 @@ Alex "Cleo" Tokar - GPLv2:
 	loading_on.png
 	lock.png
 	magic.png
-	main_level_bg.png
-	main_stats.png
 	map_marker.png
-	menu_buttons.png
 	number.png
 	paralyzed.png
-	player_doll_bg.png
 	player_doll_slot_border.png
-	player_info_bg.png
-	regen_bg.png
 	region_map.png
-	resist_bg.png
 	scared.png
 	servers_bg.png
-	skill_exp_bg.png
-	skill_lvl_bg.png
 	sp.png
 	sp_back.png
 	square_highlight.png
@@ -81,10 +71,11 @@ Alex "Cleo" Tokar - GPLv2:
 	range_buttons_left.png
 	range_buttons_off.png
 	range_buttons_right.png
-	fps.png
 	interface.png
 	interface_border.png
 	popup.png
+	widget_bg.png
+	widget_border.png
 
 Glenn Hanna - GPLv2:
 	book.png

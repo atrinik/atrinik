@@ -273,14 +273,6 @@ static void widget_draw(widgetdata *widget)
 	const char *bg_music;
 	char buf[HUGE_BUF];
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	/* The list doesn't exist yet, create it. */
 	if (!list_mplayer)
 	{
@@ -355,8 +347,6 @@ static void widget_draw(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
 		box.h = 0;
 		box.w = widget->w;
 		text_show(widget->surface, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);

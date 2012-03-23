@@ -35,14 +35,6 @@ static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box;
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("skill_lvl_bg");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	box.x = widget->x;
 	box.y = widget->y;
 	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);

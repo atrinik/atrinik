@@ -193,6 +193,23 @@ void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Sur
 	SDL_BlitSurface(src, srcrect, surface, &dstrect);
 }
 
+void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box)
+{
+	SDL_Rect dest, srcrect;
+
+	for (dest.x = 0; dest.x < box->w; dest.x += srcsize ? srcsize->w : src->w)
+	{
+		for (dest.y = 0; dest.y < box->h; dest.y += srcsize ? srcsize->h : src->h)
+		{
+			srcrect.x = srcsize ? MAX(0, srcsize->x) : 0;
+			srcrect.y = srcsize ? MAX(0, srcsize->y) : 0;
+			srcrect.w = MIN(srcsize ? srcsize->w : src->w, box->w - dest.x);
+			srcrect.h = MIN(srcsize ? srcsize->h : src->h, box->h - dest.y);
+			surface_show(surface, x + dest.x, y + dest.y, &srcrect, src);
+		}
+	}
+}
+
 void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
 	int smooth;
@@ -1017,6 +1034,31 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, 
 	}
 
 	border_create_sdl_color(surface, coords, thickness, &color);
+}
+
+void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture)
+{
+	SDL_Rect srcrect, box;
+
+	srcrect.x = thickness;
+	srcrect.y = 0;
+	srcrect.w = texture->w - thickness * 2;
+	srcrect.h = thickness;
+	box.w = coords->w;
+	box.h = thickness;
+	surface_show_fill(surface, coords->x, coords->y, &srcrect, texture, &box);
+	srcrect.y = texture->h - thickness;
+	surface_show_fill(surface, coords->x, coords->y + coords->h - thickness, &srcrect, texture, &box);
+
+	srcrect.x = 0;
+	srcrect.y = 0;
+	srcrect.w = thickness;
+	srcrect.h = texture->h;
+	box.w = thickness;
+	box.h = coords->h;
+	surface_show_fill(surface, coords->x, coords->y, &srcrect, texture, &box);
+	srcrect.x = texture->w - thickness;
+	surface_show_fill(surface, coords->x + coords->w - thickness, coords->y, &srcrect, texture, &box);
 }
 
 void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation)

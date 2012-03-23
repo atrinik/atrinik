@@ -232,15 +232,6 @@ static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box, box2;
 
-	/* Create the surface. */
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	/* Create the skill list. */
 	if (!list_skills)
 	{
@@ -269,8 +260,6 @@ static void widget_draw(widgetdata *widget)
 
 	if (widget->redraw)
 	{
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
-
 		box.h = 0;
 		box.w = widget->w;
 		text_show(widget->surface, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);

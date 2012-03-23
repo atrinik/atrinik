@@ -211,6 +211,7 @@ extern sprite_struct *sprite_load_file(char *fname, uint32 flags);
 extern sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop);
 extern void sprite_free_sprite(sprite_struct *sprite);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
+extern void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box);
 extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
@@ -226,6 +227,7 @@ extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int 
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color);
 extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color);
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation);
+extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 /* src/client/texture.c */
 extern void texture_init(void);

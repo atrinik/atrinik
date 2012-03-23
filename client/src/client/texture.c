@@ -83,7 +83,11 @@ static int texture_data_new(int type, texture_struct *tmp)
 
 				if (cp)
 				{
-					text_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, NULL);
+					SDL_Rect box;
+
+					box.w = w;
+					box.h = h;
+					text_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, &box);
 				}
 			}
 			else

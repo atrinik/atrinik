@@ -57,19 +57,9 @@ static void widget_draw(widgetdata *widget)
 		action_tick = LastTick;
 	}
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("skill_exp_bg");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	if (widget->redraw)
 	{
 		widget->redraw = 0;
-
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("skill_exp_bg"));
 
 		text_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 		text_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);

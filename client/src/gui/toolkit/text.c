@@ -1311,41 +1311,71 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 			return 10;
 		}
-		else if (!strncmp(cp, "<bar=#", 6))
+		else if (!strncmp(cp, "<bar=", 5))
 		{
 			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
-				uint32 r, g, b;
+				char texture[MAX_BUF];
 				int bar_w, bar_h;
 
-				if (sscanf(cp + 6, "%2X%2X%2X %d %d>", &r, &g, &b, &bar_w, &bar_h) == 5)
+				bar_w = -1;
+				bar_h = -1;
+
+				if (sscanf(cp + 5, "%128[^ >] %d %d>", texture, &bar_w, &bar_h) >= 1)
 				{
 					SDL_Rect bar_dst;
+					SDL_Color bar_color;
 
 					bar_dst.x = dest->x;
 					bar_dst.y = dest->y;
-					bar_dst.w = bar_w;
-					bar_dst.h = bar_h;
-					SDL_FillRect(surface, &bar_dst, SDL_MapRGB(surface->format, r, g, b));
+					bar_dst.w = box && bar_w == -1 ? box->w : bar_w;
+					bar_dst.h = box && bar_h == -1 ? box->h : bar_h;
+
+					if (*texture == '#' && text_color_parse(texture, &bar_color))
+					{
+						SDL_FillRect(surface, &bar_dst, SDL_MapRGB(surface->format, bar_color.r, bar_color.g, bar_color.b));
+					}
+					else
+					{
+						surface_show_fill(surface, bar_dst.x, bar_dst.y, NULL, TEXTURE_CLIENT(texture), &bar_dst);
+					}
 				}
 			}
 
-			return strchr(cp + 6, '>') - cp + 1;
+			return strchr(cp + 5, '>') - cp + 1;
 		}
-		else if (!strncmp(cp, "<border=#", 9))
+		else if (!strncmp(cp, "<border=", 8))
 		{
 			if (surface && !(flags & TEXT_NO_COLOR_CHANGE))
 			{
-				uint32 r, g, b;
+				char texture[MAX_BUF];
 				int wd, ht, thickness = 1;
 
-				if (sscanf(cp + 9, "%2X%2X%2X %d %d %d>", &r, &g, &b, &wd, &ht, &thickness) >= 5)
+				wd = -1;
+				ht = -1;
+
+				if (sscanf(cp + 8, "%128[^ >] %d %d %d>", texture, &wd, &ht, &thickness) >= 1)
 				{
-					border_create(surface, dest->x, dest->y, wd, ht, SDL_MapRGB(surface->format, r, g, b), thickness);
+					SDL_Rect border_dst;
+					SDL_Color border_color;
+
+					border_dst.x = dest->x;
+					border_dst.y = dest->y;
+					border_dst.w = box && wd == -1 ? box->w : wd;
+					border_dst.h = box && ht == -1 ? box->h : ht;
+
+					if (*texture == '#' && text_color_parse(texture, &border_color))
+					{
+						border_create(surface, border_dst.x, border_dst.y, border_dst.w, border_dst.h, SDL_MapRGB(surface->format, border_color.r, border_color.g, border_color.b), thickness);
+					}
+					else
+					{
+						border_create_texture(surface, &border_dst, thickness, TEXTURE_CLIENT(texture));
+					}
 				}
 			}
 
-			return strchr(cp + 9, '>') - cp + 1;
+			return strchr(cp + 8, '>') - cp + 1;
 		}
 		else if (!strncmp(cp, "<hcenter=", 9))
 		{

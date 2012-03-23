@@ -294,15 +294,6 @@ static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box, box2;
 
-	/* Create the surface. */
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	/* Create the spell list. */
 	if (!list_spells)
 	{
@@ -328,8 +319,6 @@ static void widget_draw(widgetdata *widget)
 	if (widget->redraw)
 	{
 		size_t spell_id;
-
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.h = 0;
 		box.w = widget->w;

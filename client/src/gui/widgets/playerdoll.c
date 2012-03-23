@@ -145,13 +145,16 @@ void player_doll_update_items(void)
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
+	SDL_Rect box;
 	char *tooltip_text;
 	int i, xpos, ypos, mx, my;
 	SDL_Surface *texture_slot_border;
 
 	tooltip_text = NULL;
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("player_doll_bg"));
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
 	text_show(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x + 20, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
 	text_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 9, widget->y + 205, COLOR_HGOLD, 0, NULL);

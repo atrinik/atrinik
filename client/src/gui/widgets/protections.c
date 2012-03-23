@@ -37,17 +37,8 @@ static void widget_draw(widgetdata *widget)
 	size_t i;
 	int x = 5, y = 2, mx, my;
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("resist_bg");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	if (widget->redraw)
 	{
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("resist_bg"));
 		text_show(widget->surface, FONT_SERIF10, "Protection Table", x, y, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 	}
 

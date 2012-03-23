@@ -50,6 +50,7 @@ typedef struct widget_fps_struct
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
+	SDL_Rect box;
 	widget_fps_struct *tmp;
 	char buf[MAX_BUF];
 
@@ -63,7 +64,9 @@ static void widget_draw(widgetdata *widget)
 		tmp->frames = 0;
 	}
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("fps"));
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
 	snprintf(buf, sizeof(buf), "%d", tmp->current);
 	text_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x + 5, widget->y + 4, COLOR_WHITE, 0, NULL);

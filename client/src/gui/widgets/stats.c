@@ -38,21 +38,11 @@ static void widget_draw(widgetdata *widget)
 	int tmp;
 	SDL_Surface *texture;
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("main_stats");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	if (widget->redraw)
 	{
 		char buf[MAX_BUF];
 
 		widget->redraw = 0;
-
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("main_stats"));
 
 		/* Health */
 		text_show(widget->surface, FONT_ARIAL10, "HP", 58, 10, COLOR_WHITE, 0, NULL);

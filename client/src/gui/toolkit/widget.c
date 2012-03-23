@@ -184,6 +184,10 @@ static int widget_load(const char *path, uint8 defaults)
 			{
 				widget->id = strdup(cps[1]);
 			}
+			else if (strcmp(cps[0], "texture_type") == 0)
+			{
+				widget->texture_type = atoi(cps[1]);
+			}
 			else if (strcmp(cps[0], "moveable") == 0)
 			{
 				KEYWORD_TO_BOOLEAN(cps[1], widget->moveable);
@@ -381,6 +385,17 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	if (widget_initializers[widget->type])
 	{
 		widget_initializers[widget->type](widget);
+	}
+
+	if (!widget->texture && widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
+	{
+		if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
+		{
+			char buf[MAX_BUF];
+
+			snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg><border=widget_border -1 -1 2>", widget->w, widget->h);
+			widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
+		}
 	}
 
 	return widget;
@@ -1473,6 +1488,22 @@ void process_widgets_rec(widgetdata *widget)
 
 		if (widget->show && widget->draw_func)
 		{
+			if (widget->texture)
+			{
+				if (!widget->surface)
+				{
+					SDL_Surface *texture;
+
+					texture = TEXTURE_SURFACE(widget->texture);
+					widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+				}
+
+				if (widget->redraw)
+				{
+					surface_show(widget->surface, 0, 0, NULL, TEXTURE_SURFACE(widget->texture));
+				}
+			}
+
 			widget->draw_func(widget);
 		}
 

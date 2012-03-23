@@ -243,20 +243,10 @@ static void widget_draw(widgetdata *widget)
 
 	tmp = WIDGET_BUDDY(widget);
 
-	if (!widget->surface)
-	{
-		SDL_Surface *texture;
-
-		texture = TEXTURE_CLIENT("content");
-		widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
-	}
-
 	if (widget->redraw)
 	{
 		SDL_Rect box;
 		char buf[MAX_BUF];
-
-		surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("content"));
 
 		box.w = widget->w;
 		box.h = 0;

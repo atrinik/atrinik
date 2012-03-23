@@ -72,11 +72,14 @@ static const char *const button_tooltips[NUM_BUTTONS] =
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
+	SDL_Rect box;
 	size_t i;
 	const char *text;
 	int x, y;
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("menu_buttons"));
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
 	x = 4;
 	y = 3;
