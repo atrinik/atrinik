@@ -749,11 +749,11 @@ extern void toolkit_bzr_init(void);
 extern void toolkit_bzr_deinit(void);
 extern int bzr_get_revision(void);
 /* src/toolkit/clioptions.c */
-extern void clioptions_option_config(const char *arg);
 extern void toolkit_clioptions_init(void);
 extern void toolkit_clioptions_deinit(void);
 extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8 argument, const char *desc_brief, const char *desc);
 extern void clioptions_parse(int argc, char *argv[]);
+extern int clioptions_load_config(const char *path, const char *category);
 /* src/toolkit/colorspace.c */
 extern void toolkit_colorspace_init(void);
 extern void toolkit_colorspace_deinit(void);

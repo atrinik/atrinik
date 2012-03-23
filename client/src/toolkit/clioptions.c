@@ -49,59 +49,13 @@ static size_t clioptions_num;
 /**
  * The --config command-line option.
  * @param arg The file to open for reading. */
-void clioptions_option_config(const char *arg)
+static void clioptions_option_config(const char *arg)
 {
-	FILE *fp;
-	char buf[HUGE_BUF], longname[HUGE_BUF], argument[HUGE_BUF], **argv;
-	int argc, i;
-
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-	fp = fopen(arg, "r");
-
-	if (!fp)
+	if (!clioptions_load_config(arg, "[General]"))
 	{
-		logger_print(LOG(ERROR), "Could not open '%s' for reading.", arg);
+		logger_print(LOG(ERROR), "Could not open file for reading: %s", arg);
 		exit(1);
 	}
-
-	argv = NULL;
-	argc = 0;
-
-	argv = realloc(argv, sizeof(*argv) * (argc + 1));
-	argv[argc] = strdup("");
-	argc++;
-
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		/* Comment or blank line, skip. */
-		if (*buf == '#' || *buf == '\n')
-		{
-			continue;
-		}
-
-		if (sscanf(buf, "%s = %[^\n]\n", longname, argument) == 2)
-		{
-			char cp[HUGE_BUF];
-
-			string_newline_to_literal(argument);
-			snprintf(cp, sizeof(cp), "--%s=%s", longname, argument);
-			argv = realloc(argv, sizeof(*argv) * (argc + 1));
-			argv[argc] = strdup(cp);
-			argc++;
-		}
-	}
-
-	clioptions_parse(argc, argv);
-
-	for (i = 0; i < argc; i++)
-	{
-		free(argv[i]);
-	}
-
-	free(argv);
-
-	fclose(fp);
 }
 
 /**
@@ -358,4 +312,88 @@ void clioptions_parse(int argc, char *argv[])
 			exit(1);
 		}
 	}
+}
+
+/**
+ * Load command-line options from config file.
+ * @param path File to load from.
+ * @param category Category of options to read; NULL for all.
+ * @return 1 on success, 0 on failure. */
+int clioptions_load_config(const char *path, const char *category)
+{
+	FILE *fp;
+	char buf[HUGE_BUF], *end, category_cur[MAX_BUF], **argv;
+	int argc, i;
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+	fp = fopen(path, "r");
+
+	if (!fp)
+	{
+		return 0;
+	}
+
+	argv = NULL;
+	argc = 0;
+
+	argv = realloc(argv, sizeof(*argv) * (argc + 1));
+	argv[argc] = strdup("");
+	argc++;
+
+	category_cur[0] = '\0';
+
+	while (fgets(buf, sizeof(buf) - 1, fp))
+	{
+		end = strchr(buf, '\n');
+
+		if (end)
+		{
+			*end = '\0';
+		}
+
+		/* Comment or blank line, skip. */
+		if (*buf == '#' || *buf == '\0')
+		{
+			continue;
+		}
+
+		if (string_startswith(buf, "[") && string_endswith(buf, "]"))
+		{
+			strncpy(category_cur, buf, sizeof(category_cur) - 1);
+			category_cur[sizeof(category_cur) - 1] = '\0';
+		}
+		else if (!category || strcasecmp(category, category_cur) == 0)
+		{
+			char *cps[2], cp[HUGE_BUF];
+
+			if (string_split(buf, cps, arraysize(cps), '=') != arraysize(cps))
+			{
+				logger_print(LOG(BUG), "Invalid line: %s", buf);
+				continue;
+			}
+
+			string_whitespace_trim(cps[0]);
+			string_whitespace_trim(cps[1]);
+			string_newline_to_literal(cps[1]);
+
+			snprintf(cp, sizeof(cp), "--%s=%s", cps[0], cps[1]);
+			argv = realloc(argv, sizeof(*argv) * (argc + 1));
+			argv[argc] = strdup(cp);
+			argc++;
+		}
+	}
+
+	clioptions_parse(argc, argv);
+
+	for (i = 0; i < argc; i++)
+	{
+		free(argv[i]);
+	}
+
+	free(argv);
+
+	fclose(fp);
+
+	return 1;
 }

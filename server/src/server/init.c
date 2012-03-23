@@ -607,7 +607,7 @@ static void init_library(int argc, char *argv[])
 	);
 
 	memset(&settings, 0, sizeof(settings));
-	clioptions_option_config("server.cfg");
+	clioptions_load_config("server.cfg", "[General]");
 	clioptions_parse(argc, argv);
 
 	toolkit_import(commands);
