@@ -440,7 +440,7 @@ void updater_open(void)
 	popup_struct *popup;
 
 	/* Create the popup. */
-	popup = popup_create("popup");
+	popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
 	popup->destroy_callback_func = popup_destroy_callback;
 	popup->draw_post_func = popup_draw_post;
 	popup->event_func = popup_event;

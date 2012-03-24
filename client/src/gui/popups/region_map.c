@@ -867,7 +867,7 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 		}
 	}
 
-	popup = popup_create("region_map");
+	popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "region_map"));
 	popup->draw_post_func = popup_draw_post_func;
 	popup->event_func = popup_event_func;
 

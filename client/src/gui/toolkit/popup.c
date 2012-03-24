@@ -36,15 +36,15 @@ static popup_struct *popup_head = NULL;
 
 /**
  * Create a new popup.
- * @param texture Name of the texture to use.
+ * @param texture The texture to use.
  * @return The created popup. */
-popup_struct *popup_create(const char *texture)
+popup_struct *popup_create(texture_struct *texture)
 {
 	popup_struct *popup;
 	int mx, my;
 
 	popup = calloc(1, sizeof(popup_struct));
-	popup->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
+	popup->texture = texture;
 	/* Create the surface used by the popup. */
 	popup->surface = SDL_ConvertSurface(TEXTURE_SURFACE(popup->texture), TEXTURE_SURFACE(popup->texture)->format, TEXTURE_SURFACE(popup->texture)->flags);
 	DL_PREPEND(popup_head, popup);

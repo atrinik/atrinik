@@ -389,7 +389,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
 	if (!interface_popup)
 	{
-		interface_popup = popup_create("interface");
+		interface_popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "interface"));
 		interface_popup->draw_func = popup_draw_func;
 		interface_popup->draw_post_func = popup_draw_post_func;
 		interface_popup->destroy_callback_func = popup_destroy_callback;

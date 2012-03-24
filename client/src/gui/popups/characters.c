@@ -558,7 +558,7 @@ void characters_open(void)
 
 	progress_dots_create(&progress);
 
-	popup = popup_create("popup");
+	popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
 	popup->draw_func = popup_draw;
 	popup->event_func = popup_event;
 	popup->destroy_callback_func = popup_destroy_callback;
