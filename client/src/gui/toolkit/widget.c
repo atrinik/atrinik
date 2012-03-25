@@ -1494,13 +1494,13 @@ void process_widgets_rec(widgetdata *widget)
 				{
 					SDL_Surface *texture;
 
-					texture = TEXTURE_SURFACE(widget->texture);
+					texture = texture_surface(widget->texture);
 					widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
 				}
 
 				if (widget->redraw)
 				{
-					surface_show(widget->surface, 0, 0, NULL, TEXTURE_SURFACE(widget->texture));
+					surface_show(widget->surface, 0, 0, NULL, texture_surface(widget->texture));
 				}
 			}
 
@@ -2135,8 +2135,8 @@ widgetdata *add_texture(const char *texture)
 
 	widget_texture->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
 
-	resize_widget(widget, RESIZE_RIGHT, TEXTURE_SURFACE(widget_texture->texture)->w);
-	resize_widget(widget, RESIZE_BOTTOM, TEXTURE_SURFACE(widget_texture->texture)->h);
+	resize_widget(widget, RESIZE_RIGHT, texture_surface(widget_texture->texture)->w);
+	resize_widget(widget, RESIZE_BOTTOM, texture_surface(widget_texture->texture)->h);
 
 	return widget;
 }

@@ -95,7 +95,7 @@ static int popup_draw(popup_struct *popup)
 	button_tab_login.y = 38;
 	button_show(&button_tab_login, "Login");
 
-	button_tab_register.x = button_tab_login.x + TEXTURE_SURFACE(button_tab_login.texture)->w + 1;
+	button_tab_register.x = button_tab_login.x + texture_surface(button_tab_login.texture)->w + 1;
 	button_tab_register.y = button_tab_login.y;
 	button_show(&button_tab_register, "Register");
 
@@ -139,7 +139,7 @@ static int popup_draw(popup_struct *popup)
 		text_input_show(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD2], popup->surface, 50, 190);
 	}
 
-	button_done.x = text_inputs[LOGIN_TEXT_INPUT_NAME].x + text_inputs[LOGIN_TEXT_INPUT_NAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+	button_done.x = text_inputs[LOGIN_TEXT_INPUT_NAME].x + text_inputs[LOGIN_TEXT_INPUT_NAME].w - texture_surface(button_done.texture)->w;
 	button_done.y = button_tab_register.pressed_forced ? 210 : 170;
 	button_show(&button_done, "Done");
 

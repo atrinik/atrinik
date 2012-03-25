@@ -582,13 +582,13 @@ int textwin_tabs_height(widgetdata *widget)
 
 	for (i = 0; i < textwin->tabs_num; i++)
 	{
-		if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->w)
+		if (button_x + texture_surface(textwin->tabs[i].button.texture)->w > widget->w)
 		{
 			button_x = 0;
 			button_y += TEXTWIN_TAB_HEIGHT - 1;
 		}
 
-		button_x += TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w - 1;
+		button_x += texture_surface(textwin->tabs[i].button.texture)->w - 1;
 	}
 
 	return button_y + TEXTWIN_TAB_HEIGHT - 1;
@@ -661,7 +661,7 @@ static void widget_draw(widgetdata *widget)
 
 				for (i = 0; i < textwin->tabs_num; i++)
 				{
-					if (button_x + TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w > widget->w)
+					if (button_x + texture_surface(textwin->tabs[i].button.texture)->w > widget->w)
 					{
 						button_x = 0;
 						button_y += TEXTWIN_TAB_HEIGHT - 1;
@@ -673,7 +673,7 @@ static void widget_draw(widgetdata *widget)
 					button_set_parent(&textwin->tabs[i].button, widget->x, widget->y);
 					button_show(&textwin->tabs[i].button, TEXTWIN_TAB_NAME(&textwin->tabs[i]));
 
-					button_x += TEXTURE_SURFACE(textwin->tabs[i].button.texture)->w - 1;
+					button_x += texture_surface(textwin->tabs[i].button.texture)->w - 1;
 				}
 
 				yadjust = button_y + TEXTWIN_TAB_HEIGHT;
@@ -754,7 +754,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 				textwin_readjust(widget);
 				return 1;
 			}
-			else if (BUTTON_MOUSE_OVER(&textwin->tabs[i].button, event->motion.x, event->motion.y, TEXTURE_SURFACE(textwin->tabs[i].button.texture)))
+			else if (BUTTON_MOUSE_OVER(&textwin->tabs[i].button, event->motion.x, event->motion.y, texture_surface(textwin->tabs[i].button.texture)))
 			{
 				WIDGET_REDRAW(widget);
 			}

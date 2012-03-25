@@ -347,8 +347,8 @@ int client_command_check(const char *cmd)
 		}
 		else if (strcasecmp(cmd, "textures") == 0)
 		{
-			texture_clear_cache();
-			draw_info(COLOR_GREEN, "Texture cache cleared.");
+			texture_reload();
+			draw_info(COLOR_GREEN, "Textures reloaded.");
 		}
 
 		return 1;

@@ -305,7 +305,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		button_checkbox = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
 
 		button_checkbox->surface = list->surface;
-		button_checkbox->x = x + list->width - TEXTURE_SURFACE(button_checkbox->texture)->w - 2;
+		button_checkbox->x = x + list->width - texture_surface(button_checkbox->texture)->w - 2;
 		button_checkbox->y = y + 1;
 		button_checkbox->color = "8c7a7a";
 		button_checkbox->color_over = "b09a9a";
@@ -314,8 +314,8 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
 		box.x = button_checkbox->x;
 		box.y = button_checkbox->y;
-		box.w = TEXTURE_SURFACE(button_checkbox->texture)->w;
-		box.h = TEXTURE_SURFACE(button_checkbox->texture)->h;
+		box.w = texture_surface(button_checkbox->texture)->w;
+		box.h = texture_surface(button_checkbox->texture)->h;
 
 		if (button_checkbox->mouse_over)
 		{
@@ -337,7 +337,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		button_right = &((list_settings_graphic_union *) list_settings->data)[row].button[1];
 		val = setting_get_int(setting_category_selected, row);
 
-		dst.x = x + list->width - 1 - 150 - TEXTURE_SURFACE(button_left->texture)->w;
+		dst.x = x + list->width - 1 - 150 - texture_surface(button_left->texture)->w;
 		dst.y = y + 1;
 		dst.w = 150;
 		dst.h = LIST_ROW_HEIGHT(list) - 2;
@@ -354,7 +354,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 		}
 
 		button_left->surface = list->surface;
-		button_left->x = dst.x - TEXTURE_SURFACE(button_left->texture)->w - 1;
+		button_left->x = dst.x - texture_surface(button_left->texture)->w - 1;
 		button_left->y = dst.y;
 		button_set_parent(button_left, list->px, list->py);
 		button_show(button_left, "<");
@@ -381,7 +381,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 			char color_notation[COLOR_BUF];
 
 			button = &((list_settings_graphic_union *) list_settings->data)[row].text.button;
-			dst.x -= TEXTURE_SURFACE(button->texture)->w;
+			dst.x -= texture_surface(button->texture)->w;
 			button_set_parent(button, list->px, list->py);
 			button->surface = list->surface;
 			button->x = dst.x;
@@ -398,8 +398,8 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 				snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255, 255, 255);
 			}
 
-			box.w = TEXTURE_SURFACE(button->texture)->w;
-			box.h = TEXTURE_SURFACE(button->texture)->h;
+			box.w = texture_surface(button->texture)->w;
+			box.h = texture_surface(button->texture)->h;
 			text_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "<bar=#%.2X%.2X%.2X %d %d>", color.r, color.g, color.b, box.w, box.h);
 			text_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
@@ -517,21 +517,21 @@ static int popup_draw(popup_struct *popup)
 	button_category_left.y = 50;
 	button_show(&button_category_left, "<");
 
-	button_category_right.x = list_settings->x + list_settings->width - TEXTURE_SURFACE(button_category_right.texture)->w;
+	button_category_right.x = list_settings->x + list_settings->width - texture_surface(button_category_right.texture)->w;
 	button_category_right.y = 50;
 	button_show(&button_category_right, ">");
 
-	button_apply.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_apply.texture)->w;
+	button_apply.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - texture_surface(button_apply.texture)->w;
 	button_apply.y = popup->surface->h - 72;
 	button_show(&button_apply, "Apply");
 
-	button_done.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_done.texture)->w;
+	button_done.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - texture_surface(button_done.texture)->w;
 	button_done.y = popup->surface->h - 50;
 	button_show(&button_done, "Done");
 
 	if (setting->desc)
 	{
-		box.w = LIST_WIDTH_FULL(list_settings) - TEXTURE_SURFACE(button_apply.texture)->w;
+		box.w = LIST_WIDTH_FULL(list_settings) - texture_surface(button_apply.texture)->w;
 		box.h = 66;
 		text_show_shadow(popup->surface, FONT_ARIAL11, setting->desc, list_settings->x - 2, popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 	}

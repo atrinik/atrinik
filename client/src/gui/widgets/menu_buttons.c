@@ -90,7 +90,7 @@ static void widget_draw(widgetdata *widget)
 		if (i && !(i % 3))
 		{
 			x = 4;
-			y += TEXTURE_SURFACE(buttons[i].texture)->h + 1;
+			y += texture_surface(buttons[i].texture)->h + 1;
 		}
 
 		text = NULL;
@@ -136,7 +136,7 @@ static void widget_draw(widgetdata *widget)
 			surface_show(ScreenSurface, widget->x + x, widget->y + y, NULL, TEXTURE_CLIENT(buf));
 		}
 
-		x += TEXTURE_SURFACE(buttons[i].texture)->w + 3;
+		x += texture_surface(buttons[i].texture)->w + 3;
 	}
 }
 

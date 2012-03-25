@@ -206,7 +206,7 @@ static int popup_draw(popup_struct *popup)
 			text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
 		}
 
-		button_apply.x = text_input_key.x + text_input_key.w - TEXTURE_SURFACE(button_apply.texture)->w;
+		button_apply.x = text_input_key.x + text_input_key.w - texture_surface(button_apply.texture)->w;
 		button_apply.y = text_input_key.y + 20;
 		button_show(&button_apply, "Apply");
 	}

@@ -248,10 +248,10 @@ static int popup_draw(popup_struct *popup)
 	button_tab_characters.x = 38;
 	button_tab_characters.y = 38;
 	button_show(&button_tab_characters, "Characters");
-	button_tab_new.x = button_tab_characters.x + TEXTURE_SURFACE(button_tab_characters.texture)->w + 1;
+	button_tab_new.x = button_tab_characters.x + texture_surface(button_tab_characters.texture)->w + 1;
 	button_tab_new.y = button_tab_characters.y;
 	button_show(&button_tab_new, "New");
-	button_tab_password.x = button_tab_new.x + TEXTURE_SURFACE(button_tab_new.texture)->w + 1;
+	button_tab_password.x = button_tab_new.x + texture_surface(button_tab_new.texture)->w + 1;
 	button_tab_password.y = button_tab_new.y;
 	button_show(&button_tab_password, "Password");
 
@@ -265,7 +265,7 @@ static int popup_draw(popup_struct *popup)
 		list_set_parent(list_characters, popup->x, popup->y);
 		list_show(list_characters, 36, 50);
 
-		button_login.x = list_characters->x + LIST_WIDTH_FULL(list_characters) / 2 - TEXTURE_SURFACE(button_login.texture)->w / 2;
+		button_login.x = list_characters->x + LIST_WIDTH_FULL(list_characters) / 2 - texture_surface(button_login.texture)->w / 2;
 		button_login.y = list_characters->y + LIST_HEIGHT_FULL(list_characters) + 8;
 		button_show(&button_login, "<b>Login</b>");
 	}
@@ -293,9 +293,9 @@ static int popup_draw(popup_struct *popup)
 
 		box.w = max_width;
 		box.h = 0;
-		text_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+		text_show_shadow(popup->surface, FONT_SERIF12, s_settings->characters[character_race].name, button_character_left.x + texture_surface(button_character_left.texture)->w + 5, button_character_left.y, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
-		button_character_right.x = button_character_left.x + TEXTURE_SURFACE(button_character_left.texture)->w + 5 + max_width + 5;
+		button_character_right.x = button_character_left.x + texture_surface(button_character_left.texture)->w + 5 + max_width + 5;
 		button_character_right.y = 90;
 		button_show(&button_character_right, ">");
 
@@ -303,7 +303,7 @@ static int popup_draw(popup_struct *popup)
 		button_character_male.y = button_character_left.y + 30;
 		button_show(&button_character_male, "Male");
 
-		button_character_female.x = button_character_male.x + TEXTURE_SURFACE(button_character_female.texture)->w + 5;
+		button_character_female.x = button_character_male.x + texture_surface(button_character_female.texture)->w + 5;
 		button_character_female.y = button_character_male.y;
 		button_show(&button_character_female, "Female");
 
@@ -311,7 +311,7 @@ static int popup_draw(popup_struct *popup)
 		text_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 		text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 190);
 
-		button_done.x = text_inputs[TEXT_INPUT_CHARNAME].x + text_inputs[TEXT_INPUT_CHARNAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+		button_done.x = text_inputs[TEXT_INPUT_CHARNAME].x + text_inputs[TEXT_INPUT_CHARNAME].w - texture_surface(button_done.texture)->w;
 		button_done.y = 210;
 		button_show(&button_done, "Done");
 	}
@@ -326,7 +326,7 @@ static int popup_draw(popup_struct *popup)
 		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW], popup->surface, 50, 150);
 		text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW2], popup->surface, 50, 190);
 
-		button_done.x = text_inputs[TEXT_INPUT_PASSWORD_NEW2].x + text_inputs[TEXT_INPUT_CHARNAME].w - TEXTURE_SURFACE(button_done.texture)->w;
+		button_done.x = text_inputs[TEXT_INPUT_PASSWORD_NEW2].x + text_inputs[TEXT_INPUT_CHARNAME].w - texture_surface(button_done.texture)->w;
 		button_done.y = 210;
 		button_show(&button_done, "Done");
 	}

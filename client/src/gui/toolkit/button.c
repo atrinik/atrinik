@@ -100,7 +100,7 @@ void button_show(button_struct *button, const char *text)
 		int state, mx, my, mover;
 
 		state = SDL_GetMouseState(&mx, &my);
-		mover = BUTTON_MOUSE_OVER(button, mx, my, TEXTURE_SURFACE(button->texture));
+		mover = BUTTON_MOUSE_OVER(button, mx, my, texture_surface(button->texture));
 
 		if (!mover)
 		{
@@ -118,7 +118,7 @@ void button_show(button_struct *button, const char *text)
 		button->pressed = 1;
 	}
 
-	texture = TEXTURE_SURFACE(button_determine_texture(button));
+	texture = texture_surface(button_determine_texture(button));
 	surface_show(button->surface, button->x, button->y, NULL, texture);
 
 	if (text)
@@ -196,7 +196,7 @@ int button_event(button_struct *button, SDL_Event *event)
 		return 0;
 	}
 
-	texture = TEXTURE_SURFACE(button_determine_texture(button));
+	texture = texture_surface(button_determine_texture(button));
 
 	if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, texture))
 	{

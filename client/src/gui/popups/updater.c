@@ -230,7 +230,7 @@ static int popup_draw_post(popup_struct *popup)
 
 			box.y += 20;
 
-			button_retry.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_retry.texture)->w / 2;
+			button_retry.x = box.x + box.w / 2 - texture_surface(button_retry.texture)->w / 2;
 			button_retry.y = box.y;
 			button_show(&button_retry, "Retry");
 		}
@@ -357,7 +357,7 @@ static int popup_draw_post(popup_struct *popup)
 			text_show_shadow(ScreenSurface, FONT_ARIAL11, "Your client is up-to-date.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 			box.y += 60;
 
-			button_close.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_close.texture)->w / 2;
+			button_close.x = box.x + box.w / 2 - texture_surface(button_close.texture)->w / 2;
 			button_close.y = box.y;
 			button_show(&button_close, "Close");
 		}
@@ -379,7 +379,7 @@ static int popup_draw_post(popup_struct *popup)
 			/* Show a restart button, which will call up_dater.exe to
 			 * apply the updates (using atrinik_updater.bat) and restart
 			 * the client. */
-			button_restart.x = box.x + box.w / 2 - TEXTURE_SURFACE(button_restart.texture)->w / 2;
+			button_restart.x = box.x + box.w / 2 - texture_surface(button_restart.texture)->w / 2;
 			button_restart.y = box.y;
 			button_show(&button_restart, "Restart");
 #else

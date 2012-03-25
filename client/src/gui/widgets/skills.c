@@ -274,11 +274,11 @@ static void widget_draw(widgetdata *widget)
 	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
 
 	/* Render the various buttons. */
-	button_close.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w - 4;
+	button_close.x = widget->x + widget->w - texture_surface(button_close.texture)->w - 4;
 	button_close.y = widget->y + 4;
 	button_show(&button_close, "X");
 
-	button_help.x = widget->x + widget->w - TEXTURE_SURFACE(button_close.texture)->w * 2 - 4;
+	button_help.x = widget->x + widget->w - texture_surface(button_close.texture)->w * 2 - 4;
 	button_help.y = widget->y + 4;
 	button_show(&button_help, "?");
 }

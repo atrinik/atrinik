@@ -232,8 +232,10 @@ extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, c
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
-extern void texture_clear_cache(void);
-extern texture_struct *texture_get(int type, const char *name);
+extern void texture_reload(void);
+extern void texture_gc(void);
+extern texture_struct *texture_get(texture_type_t type, const char *name);
+extern SDL_Surface *texture_surface(texture_struct *texture);
 /* src/client/tilestretcher.c */
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);

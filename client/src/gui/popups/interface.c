@@ -132,7 +132,7 @@ static int popup_draw_func(popup_struct *popup)
 	{
 		SDL_Rect box;
 
-		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
+		surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
 
 		if (interface_data->icon)
 		{

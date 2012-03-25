@@ -51,9 +51,9 @@ int range_buttons_show(int x, int y, int *val, int advance)
 	/* Get state of the mouse and the x/y. */
 	state = SDL_GetMouseState(&mx, &my);
 
-	texture_off = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_off"));
-	texture_left = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_left"));
-	texture_right = TEXTURE_SURFACE(texture_get(TEXTURE_TYPE_CLIENT, "texture_right"));
+	texture_off = texture_surface(texture_get(TEXTURE_TYPE_CLIENT, "texture_off"));
+	texture_left = texture_surface(texture_get(TEXTURE_TYPE_CLIENT, "texture_left"));
+	texture_right = texture_surface(texture_get(TEXTURE_TYPE_CLIENT, "texture_right"));
 
 	/* Show the two range buttons. */
 	surface_show(ScreenSurface, x, y, NULL, texture_off);

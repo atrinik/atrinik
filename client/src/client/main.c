@@ -594,6 +594,7 @@ int main(int argc, char *argv[])
 			tooltip_show();
 		}
 
+		texture_gc();
 		SDL_Flip(ScreenSurface);
 
 		LastTick = SDL_GetTicks();

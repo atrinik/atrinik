@@ -30,22 +30,29 @@
 
 #include <global.h>
 
+/**
+ * All the textures. */
 static texture_struct *textures[TEXTURE_TYPE_NUM];
 
-static void texture_data_free(int type, texture_struct *tmp)
+/**
+ * Free texture's data (ie, its surface).
+ * @param tmp Texture. */
+static void texture_data_free(texture_struct *tmp)
 {
-	if (type == TEXTURE_TYPE_SOFTWARE || type == TEXTURE_TYPE_CLIENT)
+	if (tmp->surface)
 	{
-		if (tmp->data.surface)
-		{
-			SDL_FreeSurface(tmp->data.surface);
-		}
+		SDL_FreeSurface(tmp->surface);
+		tmp->surface = NULL;
 	}
 }
 
-static int texture_data_new(int type, texture_struct *tmp)
+/**
+ * (Re-)create texture's data (the surface).
+ * @param tmp Texture.
+ * @return 1 on success, 0 on failure. */
+static int texture_data_new(texture_struct *tmp)
 {
-	if (type == TEXTURE_TYPE_SOFTWARE)
+	if (tmp->type == TEXTURE_TYPE_SOFTWARE)
 	{
 		SDL_Surface *surface;
 
@@ -102,11 +109,11 @@ static int texture_data_new(int type, texture_struct *tmp)
 			return 0;
 		}
 
-		texture_data_free(type, tmp);
-		tmp->data.surface = SDL_DisplayFormatAlpha(surface);
+		texture_data_free(tmp);
+		tmp->surface = SDL_DisplayFormatAlpha(surface);
 		SDL_FreeSurface(surface);
 	}
-	else if (type == TEXTURE_TYPE_CLIENT)
+	else if (tmp->type == TEXTURE_TYPE_CLIENT)
 	{
 		char path[HUGE_BUF];
 		SDL_Surface *surface;
@@ -116,36 +123,46 @@ static int texture_data_new(int type, texture_struct *tmp)
 
 		if (!surface)
 		{
-			logger_print(LOG(BUG), "Could not load texture (%d): %s", type, path);
+			logger_print(LOG(BUG), "Could not load texture: %s", path);
 			return 0;
 		}
 
 		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surface->format->colorkey);
-		texture_data_free(type, tmp);
-		tmp->data.surface = SDL_DisplayFormatAlpha(surface);
+		texture_data_free(tmp);
+		tmp->surface = SDL_DisplayFormatAlpha(surface);
 		SDL_FreeSurface(surface);
 	}
 
 	return 1;
 }
 
-static void texture_free(int type, texture_struct *tmp)
+/**
+ * Free a texture.
+ * @param tmp Texture to free. */
+static void texture_free(texture_struct *tmp)
 {
 	free(tmp->name);
-	texture_data_free(type, tmp);
+	texture_data_free(tmp);
 	free(tmp);
 }
 
-static texture_struct *texture_new(int type, const char *name)
+/**
+ * Allocate a new texture structure.
+ * @param type Type of the texture, one of ::texture_type_t.
+ * @param name Name of the texture.
+ * @return The allocated texture; NULL on failure. */
+static texture_struct *texture_new(texture_type_t type, const char *name)
 {
 	texture_struct *tmp;
 
 	tmp = calloc(1, sizeof(*tmp));
 	tmp->name = strdup(name);
+	tmp->type = type;
+	tmp->last_used = time(NULL);
 
-	if (!texture_data_new(type, tmp))
+	if (!texture_data_new(tmp))
 	{
-		texture_free(type, tmp);
+		texture_free(tmp);
 		return NULL;
 	}
 
@@ -154,48 +171,98 @@ static texture_struct *texture_new(int type, const char *name)
 	return tmp;
 }
 
+/**
+ * Initialize the texture API. */
 void texture_init(void)
 {
-	int i;
+	texture_type_t type;
 
-	for (i = 0; i < TEXTURE_TYPE_NUM; i++)
+	for (type = 0; type < TEXTURE_TYPE_NUM; type++)
 	{
-		textures[i] = NULL;
+		textures[type] = NULL;
 	}
 
 	texture_new(TEXTURE_TYPE_SOFTWARE, TEXTURE_FALLBACK_NAME);
 }
 
+/**
+ * Deinitialize the texture API. */
 void texture_deinit(void)
 {
-	int i;
+	texture_type_t type;
 	texture_struct *curr, *tmp;
 
-	for (i = 0; i < TEXTURE_TYPE_NUM; i++)
+	for (type = 0; type < TEXTURE_TYPE_NUM; type++)
 	{
-		HASH_ITER(hh, textures[i], curr, tmp)
+		HASH_ITER(hh, textures[type], curr, tmp)
 		{
-			HASH_DEL(textures[i], curr);
-			texture_free(i, curr);
+			HASH_DEL(textures[type], curr);
+			texture_free(curr);
 		}
 	}
 }
 
-void texture_clear_cache(void)
+/**
+ * Reload all textures. */
+void texture_reload(void)
 {
-	int i;
+	texture_type_t type;
 	texture_struct *curr, *tmp;
 
-	for (i = 0; i < TEXTURE_TYPE_NUM; i++)
+	for (type = 0; type < TEXTURE_TYPE_NUM; type++)
 	{
-		HASH_ITER(hh, textures[i], curr, tmp)
+		HASH_ITER(hh, textures[type], curr, tmp)
 		{
-			texture_data_new(i, curr);
+			texture_data_new(curr);
 		}
 	}
 }
 
-texture_struct *texture_get(int type, const char *name)
+/**
+ * Garbage-collect textures. */
+void texture_gc(void)
+{
+	time_t now;
+	struct timeval tv1, tv2;
+	int done;
+	texture_type_t type;
+	texture_struct *curr, *tmp;
+
+	if (!rndm_chance(TEXTURE_GC_CHANCE))
+	{
+		return;
+	}
+
+	logger_print(LOG(INFO), "gc is happening");
+
+	now = time(NULL);
+	gettimeofday(&tv1, NULL);
+	done = 0;
+
+	for (type = 0; type < TEXTURE_TYPE_NUM && !done; type++)
+	{
+		HASH_ITER(hh, textures[type], curr, tmp)
+		{
+			if (curr->surface && now - curr->last_used >= TEXTURE_GC_FREE_TIME)
+			{
+				texture_data_free(curr);
+			}
+
+			if (gettimeofday(&tv2, NULL) == 0 && tv2.tv_usec - tv1.tv_usec >= TEXTURE_GC_MAX_TIME)
+			{
+				done = 1;
+				break;
+			}
+		}
+	}
+}
+
+/**
+ * Find specified texture in the hash table, allocating it if necessary.
+ * @param type Type of the texture to look for.
+ * @param name Name of the texture.
+ * @return The texture; never NULL. */
+texture_struct *texture_get(texture_type_t type, const char *name)
 {
 	texture_struct *tmp;
 
@@ -212,4 +279,27 @@ texture_struct *texture_get(int type, const char *name)
 	}
 
 	return tmp;
+}
+
+/**
+ * Acquire texture's surface.
+ * @param texture Texture.
+ * @return Texture's surface, never NULL. */
+SDL_Surface *texture_surface(texture_struct *texture)
+{
+	texture->last_used = time(NULL);
+
+	/* No surface, which means that the texture's surface was freed by
+	 * the garbage collector, so re-create it. */
+	if (!texture->surface)
+	{
+		/* If we could not load up the texture's surface for some reason,
+		 * use the fallback texture surface. */
+		if (!texture_data_new(texture))
+		{
+			return texture_get(TEXTURE_TYPE_SOFTWARE, TEXTURE_FALLBACK_NAME)->surface;
+		}
+	}
+
+	return texture->surface;
 }

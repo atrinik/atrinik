@@ -40,7 +40,7 @@ static void widget_draw(widgetdata *widget)
 
 	if (texture->texture)
 	{
-		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_SURFACE(texture->texture));
+		surface_show(ScreenSurface, widget->x, widget->y, NULL, texture_surface(texture->texture));
 	}
 }
 

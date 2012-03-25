@@ -46,7 +46,7 @@ popup_struct *popup_create(texture_struct *texture)
 	popup = calloc(1, sizeof(popup_struct));
 	popup->texture = texture;
 	/* Create the surface used by the popup. */
-	popup->surface = SDL_ConvertSurface(TEXTURE_SURFACE(popup->texture), TEXTURE_SURFACE(popup->texture)->format, TEXTURE_SURFACE(popup->texture)->flags);
+	popup->surface = SDL_ConvertSurface(texture_surface(popup->texture), texture_surface(popup->texture)->format, texture_surface(popup->texture)->flags);
 	DL_PREPEND(popup_head, popup);
 
 	SDL_GetMouseState(&mx, &my);
@@ -63,7 +63,7 @@ popup_struct *popup_create(texture_struct *texture)
 	popup->button_left.x = 6;
 	popup->button_left.y = 6;
 
-	popup->button_right.x = popup->surface->w - TEXTURE_SURFACE(popup->button_right.button.texture)->w - 6;
+	popup->button_right.x = popup->surface->w - texture_surface(popup->button_right.button.texture)->w - 6;
 	popup->button_right.y = 6;
 	popup->button_right.text = strdup("X");
 
@@ -150,7 +150,7 @@ void popup_render(popup_struct *popup)
 
 	if (!popup->disable_texture_drawing)
 	{
-		surface_show(popup->surface, 0, 0, NULL, TEXTURE_SURFACE(popup->texture));
+		surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
 	}
 
 	/* Calculate the popup's X/Y positions. */
@@ -233,7 +233,7 @@ int popup_handle_event(SDL_Event *event)
 {
 	int ret;
 
-	if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN && !(event->motion.x >= popup_head->x && event->motion.x < popup_head->x + TEXTURE_SURFACE(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + TEXTURE_SURFACE(popup_head->texture)->h))
+	if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN && !(event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h))
 	{
 		if (popup_head->destroy_on_switch)
 		{
@@ -286,7 +286,7 @@ int popup_handle_event(SDL_Event *event)
 
 			return 1;
 		}
-		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + TEXTURE_SURFACE(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + TEXTURE_SURFACE(popup_head->texture)->h)
+		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h)
 		{
 			if (event->button.button == SDL_BUTTON_LEFT)
 			{
