@@ -34,6 +34,25 @@
 static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box;
+
+	if (widget->redraw)
+	{
+		widget->redraw = 0;
+
+		text_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+		text_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+
+		text_show_format(widget->surface, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
+	}
+
+	box.x = widget->x;
+	box.y = widget->y;
+	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
 	static uint32 action_tick = 0;
 
 	/* Pre-emptively tick down the skill delay timer */
@@ -56,20 +75,6 @@ static void widget_draw(widgetdata *widget)
 	{
 		action_tick = LastTick;
 	}
-
-	if (widget->redraw)
-	{
-		widget->redraw = 0;
-
-		text_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		text_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-
-		text_show_format(widget->surface, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
-	}
-
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
 /**
@@ -77,4 +82,5 @@ static void widget_draw(widgetdata *widget)
 void widget_skill_exp_init(widgetdata *widget)
 {
 	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
 }
