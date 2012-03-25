@@ -310,14 +310,13 @@ int client_command_check(const char *cmd)
 		object *tmp;
 		uint8 type;
 
+		type = string_startswith(cmd, "/cast ") ? TYPE_SPELL : TYPE_SKILL;
 		cmd = strchr(cmd, ' ') + 1;
 
 		if (string_isempty(cmd))
 		{
 			return 1;
 		}
-
-		type = string_startswith(cmd, "/cast ") ? TYPE_SPELL : TYPE_SKILL;
 
 		for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 		{
