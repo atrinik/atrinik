@@ -233,8 +233,6 @@ void texture_gc(void)
 		return;
 	}
 
-	logger_print(LOG(INFO), "gc is happening");
-
 	now = time(NULL);
 	gettimeofday(&tv1, NULL);
 	done = 0;
