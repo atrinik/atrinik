@@ -39,18 +39,31 @@ static const int directions_fire[DIRECTIONS_NUM] =
 	6, 5, 4, 7, 0, 3, 8, 1, 2
 };
 
-void move_keys(int num)
+void client_send_fire(int num, tag_t tag)
 {
 	packet_struct *packet;
 
+	packet = packet_new(SERVER_CMD_FIRE, 64, 64);
+	packet_append_uint8(packet, directions_fire[num - 1]);
+
+	if (tag)
+	{
+		packet_append_uint32(packet, tag);
+	}
+
+	socket_send_packet(packet);
+}
+
+void move_keys(int num)
+{
 	if (cpl.fire_on)
 	{
-		packet = packet_new(SERVER_CMD_FIRE, 64, 64);
-		packet_append_uint8(packet, directions_fire[num - 1]);
-		socket_send_packet(packet);
+		client_send_fire(num, 0);
 	}
 	else
 	{
+		packet_struct *packet;
+
 		if (num == 5 && !cpl.run_on)
 		{
 			packet = packet_new(SERVER_CMD_CLEAR, 0, 0);

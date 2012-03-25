@@ -279,6 +279,7 @@ extern key_struct keys[SDLK_LAST];
 extern void init_keys(void);
 extern void key_handle_event(SDL_KeyboardEvent *event);
 /* src/events/move.c */
+extern void client_send_fire(int num, tag_t tag);
 extern void move_keys(int num);
 extern int dir_from_tile_coords(int tx, int ty);
 /* src/gui/misc/effects.c */

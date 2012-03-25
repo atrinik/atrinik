@@ -305,84 +305,30 @@ int client_command_check(const char *cmd)
 
 		return 1;
 	}
-	else if (strncasecmp(cmd, "/cast", 5) == 0)
+	else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill "))
 	{
 		object *tmp;
+		uint8 type;
 
-		cmd += 6;
+		cmd = strchr(cmd, ' ') + 1;
 
-		if (!cmd || *cmd == '\0')
+		if (string_isempty(cmd))
 		{
 			return 1;
 		}
 
+		type = string_startswith(cmd, "/cast ") ? TYPE_SPELL : TYPE_SKILL;
+
 		for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
 		{
-			if (tmp->itype == TYPE_SPELL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
+			if (tmp->itype == type && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
 			{
-				uint8 applied;
-
-				applied = tmp->flags & CS_FLAG_APPLIED;
-
-				if (!applied)
-				{
-					client_send_apply(tmp->tag);
-				}
-
-				cpl.fire_on = 1;
-				move_keys(5);
-				cpl.fire_on = 0;
-
-				if (!applied)
-				{
-					client_send_apply(tmp->tag);
-				}
-
+				client_send_fire(5, tmp->tag);
 				return 1;
 			}
 		}
 
-		draw_info(COLOR_RED, "Unknown spell.");
-		return 1;
-	}
-	else if (strncasecmp(cmd, "/use_skill", 10) == 0)
-	{
-		object *tmp;
-
-		cmd += 11;
-
-		if (!cmd || *cmd == '\0')
-		{
-			return 1;
-		}
-
-		for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
-		{
-			if (tmp->itype == TYPE_SKILL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0)
-			{
-				uint8 applied;
-
-				applied = tmp->flags & CS_FLAG_APPLIED;
-
-				if (!applied)
-				{
-					client_send_apply(tmp->tag);
-				}
-
-				cpl.fire_on = 1;
-				move_keys(5);
-				cpl.fire_on = 0;
-
-				if (!applied)
-				{
-					client_send_apply(tmp->tag);
-				}
-
-				return 1;
-			}
-		}
-
-		draw_info(COLOR_RED, "Unknown skill.");
+		draw_info_format(COLOR_RED, "Unknown %s.", type == TYPE_SPELL ? "spell" : "skill");
 		return 1;
 	}
 	else if (strncasecmp(cmd, "/clearcache", 11) == 0)

@@ -1487,17 +1487,37 @@ void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_
 void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
 	int dir;
+	tag_t tag;
+	object *tmp;
 	double skill_time, delay;
 
 	dir = packet_to_uint8(data, len, &pos);
 	dir = MAX(0, MIN(dir, 8));
+	tag = packet_to_uint32(data, len, &pos);
 
-	if (!pl->equipment[PLAYER_EQUIP_WEAPON])
+	tmp = NULL;
+
+	if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->count == tag)
+	{
+		tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
+	}
+	else if (tag)
+	{
+		for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->count == tag && (tmp->type == SPELL || tmp->type == SKILL))
+			{
+				break;
+			}
+		}
+	}
+
+	if (!tmp)
 	{
 		return;
 	}
 
-	if (!check_skill_to_fire(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]))
+	if (!check_skill_to_fire(pl->ob, tmp))
 	{
 		return;
 	}
@@ -1510,7 +1530,7 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 	skill_time = skills[pl->ob->chosen_skill->stats.sp].time;
 	delay = 0;
 
-	object_ranged_fire(pl->equipment[PLAYER_EQUIP_WEAPON], pl->ob, dir, &delay);
+	object_ranged_fire(tmp, pl->ob, dir, &delay);
 
 	if (skill_time > 1.0f)
 	{
