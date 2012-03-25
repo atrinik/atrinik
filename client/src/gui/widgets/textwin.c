@@ -38,7 +38,7 @@ static Uint32 textwin_border_color;
 static Uint32 textwin_border_color_selected;
 const char *const textwin_tab_names[] =
 {
-	"[ALL]", "[GAME]", "[CHAT]", "[PUBLIC]", "[PRIVATE]", "[GUILD]", "[PARTY]"
+	"[ALL]", "[GAME]", "[CHAT]", "[PUBLIC]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
 /**
@@ -992,6 +992,11 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
 
 	for (i = 0; i < arraysize(textwin_tab_names); i++)
 	{
+		if (i + 1 == CHAT_TYPE_OPERATOR && !setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR))
+		{
+			continue;
+		}
+
 		add_menuitem(submenu, textwin_tab_names[i], &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
 	}
 
