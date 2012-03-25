@@ -57,7 +57,7 @@ typedef struct texture_struct
 #define TEXTURE_CLIENT(_name) (texture_surface(texture_get(TEXTURE_TYPE_CLIENT, (_name))))
 
 #define TEXTURE_GC_MAX_TIME 100000
-#define TEXTURE_GC_CHANCE 100
+#define TEXTURE_GC_CHANCE 500
 #define TEXTURE_GC_FREE_TIME 60 * 15
 
 #endif
