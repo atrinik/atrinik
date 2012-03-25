@@ -1495,21 +1495,26 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 	dir = MAX(0, MIN(dir, 8));
 	tag = packet_to_uint32(data, len, &pos);
 
-	tmp = NULL;
-
-	if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->count == tag)
+	if (tag)
 	{
-		tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
-	}
-	else if (tag)
-	{
-		for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
+		if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->count == tag)
 		{
-			if (tmp->count == tag && (tmp->type == SPELL || tmp->type == SKILL))
+			tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
+		}
+		else
+		{
+			for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
 			{
-				break;
+				if (tmp->count == tag && (tmp->type == SPELL || tmp->type == SKILL))
+				{
+					break;
+				}
 			}
 		}
+	}
+	else
+	{
+		tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
 	}
 
 	if (!tmp)
