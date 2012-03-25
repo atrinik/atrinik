@@ -340,6 +340,18 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 	return 1;
 }
 
+static void widget_texture_create(widgetdata *widget)
+{
+	char buf[MAX_BUF];
+
+	if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
+	{
+		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg><border=widget_border -1 -1 2>", widget->w, widget->h);
+	}
+
+	widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
+}
+
 /** Wrapper function to handle the creation of a widget. */
 widgetdata *create_widget_object(int widget_subtype_id)
 {
@@ -389,13 +401,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 
 	if (!widget->texture && widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
 	{
-		if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
-		{
-			char buf[MAX_BUF];
-
-			snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg><border=widget_border -1 -1 2>", widget->w, widget->h);
-			widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
-		}
+		widget_texture_create(widget);
 	}
 
 	return widget;
@@ -1979,6 +1985,14 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 	widget->y = y;
 	widget->w = width;
 	widget->h = height;
+
+	/* Recreate texture. */
+	if (widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
+	{
+		widget_texture_create(widget);
+		SDL_FreeSurface(widget->surface);
+		widget->surface = NULL;
+	}
 
 	WIDGET_REDRAW(widget);
 

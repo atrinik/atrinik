@@ -294,9 +294,19 @@ static void widget_draw(widgetdata *widget)
 	uint32 i, r;
 
 	inventory = INVENTORY(widget);
+	surface_show(ScreenSurface, widget->x, widget->y, NULL, widget->surface);
 
 	if (widget->type == MAIN_INV_ID)
 	{
+		int face;
+
+		face = get_bmap_id("bag.101");
+
+		if (face != -1 && FaceList[face].sprite)
+		{
+			surface_show(ScreenSurface, widget->x - FaceList[face].sprite->border_left + 8, widget->y - FaceList[face].sprite->border_up + 5, NULL, FaceList[face].sprite->bitmap);
+		}
+
 		/* Recalculate the weight, as it may have changed. */
 		cpl.real_weight = 0.0;
 
@@ -321,8 +331,6 @@ static void widget_draw(widgetdata *widget)
 			{
 				resize_widget(widget, RESIZE_BOTTOM, 32);
 			}
-
-			surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("inventory_bg"));
 
 			text_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x + 162, widget->y + 4, COLOR_HGOLD, 0, NULL);
 			text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
@@ -353,11 +361,11 @@ static void widget_draw(widgetdata *widget)
 			resize_widget(widget, RESIZE_BOTTOM, 129);
 		}
 
-		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("inventory"));
+		surface_show(ScreenSurface, widget->x + inventory->x - 1, widget->y + inventory->y - 1, NULL, texture_surface(inventory->texture));
 	}
 	else if (widget->type == BELOW_INV_ID)
 	{
-		surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("below"));
+		surface_show(ScreenSurface, widget->x + inventory->x - 1, widget->y + inventory->y - 1, NULL, texture_surface(inventory->texture));
 	}
 
 	if (inventory->scrollbar_info.redraw)
@@ -485,6 +493,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 void widget_inventory_init(widgetdata *widget)
 {
 	inventory_struct *inventory;
+	char buf[MAX_BUF];
 
 	inventory = calloc(1, sizeof(*inventory));
 
@@ -512,6 +521,9 @@ void widget_inventory_init(widgetdata *widget)
 	scrollbar_info_create(&inventory->scrollbar_info);
 	scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
 	inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
+
+	snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=inventory_bg><border=widget_border>", inventory->w + 1 * 2 + inventory->scrollbar.background.w, inventory->h + 1 * 2);
+	inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
 
 	widget->draw_func = widget_draw;
 	widget->event_func = widget_event;

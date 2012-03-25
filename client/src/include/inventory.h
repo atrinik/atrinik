@@ -87,6 +87,9 @@ typedef struct inventory_struct
 
 	/** Holds scrollbar information. */
 	scrollbar_info_struct scrollbar_info;
+
+	/** Texture to use for the background. */
+	texture_struct *texture;
 } inventory_struct;
 
 #endif
