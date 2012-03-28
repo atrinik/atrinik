@@ -41,5 +41,5 @@ void command_say(object *op, const char *command, char *params)
 	}
 
 	logger_print(LOG(CHAT), "[SAY] [%s] %s", op->name, params);
-	draw_info_map(CHAT_TYPE_PUBLIC, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
+	draw_info_map(CHAT_TYPE_LOCAL, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
 }

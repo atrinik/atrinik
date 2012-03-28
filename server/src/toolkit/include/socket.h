@@ -578,7 +578,7 @@ enum
 #define CHAT_TYPE_ALL 1
 #define CHAT_TYPE_GAME 2
 #define CHAT_TYPE_CHAT 3
-#define CHAT_TYPE_PUBLIC 4
+#define CHAT_TYPE_LOCAL 4
 #define CHAT_TYPE_PRIVATE 5
 #define CHAT_TYPE_GUILD 6
 #define CHAT_TYPE_PARTY 7

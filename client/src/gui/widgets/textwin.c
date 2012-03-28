@@ -38,7 +38,7 @@ static Uint32 textwin_border_color;
 static Uint32 textwin_border_color_selected;
 const char *const textwin_tab_names[] =
 {
-	"[ALL]", "[GAME]", "[CHAT]", "[PUBLIC]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
+	"[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
 /**

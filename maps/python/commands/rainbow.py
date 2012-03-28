@@ -14,6 +14,6 @@ def main():
 		(r, g, b) = colorsys.hsv_to_rgb(h, s, v)
 		newmsg += "<c=#%2X%2X%2X>%s</c>" % (255 * r, 255 * g, 255 * b, c)
 
-	activator.map.DrawInfo(activator.x, activator.y, newmsg, COLOR_WHITE, CHAT_TYPE_PUBLIC, activator.name)
+	activator.map.DrawInfo(activator.x, activator.y, newmsg, COLOR_WHITE, CHAT_TYPE_LOCAL, activator.name)
 
 main()
