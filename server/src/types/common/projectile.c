@@ -309,7 +309,7 @@ int common_object_projectile_hit(object *op, object *victim)
 
 	/* Victim is not an alive object or we're friends with the victim,
 	 * pass... */
-	if (!IS_LIVE(victim) || is_friend_of(owner, victim) || (QUERY_FLAG(op, FLAG_IS_SPELL) && spell_attack_missed(owner, victim)))
+	if (!IS_LIVE(victim) || is_friend_of(owner, victim))
 	{
 		return OBJECT_METHOD_UNHANDLED;
 	}

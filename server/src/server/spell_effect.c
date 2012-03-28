@@ -288,7 +288,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 				}
 
 				/* Skip the caster and not alive objects. */
-				if (tmp == caster || !IS_LIVE(tmp) || spell_attack_missed(hitter, tmp))
+				if (tmp == caster || !IS_LIVE(tmp))
 				{
 					continue;
 				}
@@ -1056,13 +1056,6 @@ int finger_of_death(object *op, object *target)
 	hitter->x = target->x;
 	hitter->y = target->y;
 	insert_ob_in_map(hitter, target->map, op, 0);
-
-	if (spell_attack_missed(hitter, target))
-	{
-		draw_info_format(COLOR_ORANGE, op, "Your finger of death misses %s!", target->name);
-		object_remove(hitter, 0);
-		return 1;
-	}
 
 	dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
 	hit_player(target, dam, hitter, AT_INTERNAL);

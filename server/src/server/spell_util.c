@@ -870,7 +870,7 @@ void check_fired_arch(object *op)
 		}
 
 		/* Let friends fire through friends */
-		if (is_friend_of(hitter, head) || head == hitter || spell_attack_missed(op, head))
+		if (is_friend_of(hitter, head) || head == hitter)
 		{
 			continue;
 		}

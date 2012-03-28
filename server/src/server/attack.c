@@ -461,12 +461,6 @@ void hit_map(object *op, int dir, int reduce)
 			continue;
 		}
 
-		/* Check if the spell missed or not. */
-		if (IS_ATTACK_SPELL(op) && spell_attack_missed(op, tmp))
-		{
-			continue;
-		}
-
 		dam = op->stats.dam;
 
 		if (tmp->quick_pos && reduce)
@@ -1356,27 +1350,4 @@ int is_melee_range(object *hitter, object *enemy)
 	}
 
 	return 0;
-}
-
-/**
- * Checks if a spell attack missed its enemy.
- * @param hitter The spell.
- * @param enemy The enemy.
- * @return 1 if the attack missed, 0 otherwise. */
-int spell_attack_missed(object *hitter, object *enemy)
-{
-	int roll = rndm(SPELL_MISS_ROLL_MIN, SPELL_MISS_ROLL_MAX);
-
-	if (hitter->map)
-	{
-		/* Adjust roll for various situations. */
-		roll += adj_attackroll(hitter, enemy);
-	}
-
-	if (roll >= SPELL_MISS_ROLL_MAX || enemy->level <= hitter->level + roll)
-	{
-		return 0;
-	}
-
-	return 1;
 }
