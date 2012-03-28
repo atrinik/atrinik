@@ -61,7 +61,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 {
 	int basic_aflag;
 	object *tmp;
-	uint8 ring_left;
+	uint8 ring_left, weapon_offhand;
 
 	if (!op || !applier)
 	{
@@ -166,6 +166,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 	}
 
 	ring_left = 0;
+	weapon_offhand = 0;
 
 	/* This goes through and checks to see if the player already has
 	 * something of that type applied - if so, unapply it. */
@@ -179,6 +180,10 @@ int object_apply_item(object *op, object *applier, int aflags)
 		if (tmp->type == RING && !ring_left)
 		{
 			ring_left = 1;
+		}
+		else if (tmp->type == WEAPON && !weapon_offhand)
+		{
+			weapon_offhand = 1;
 		}
 		else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK)
 		{

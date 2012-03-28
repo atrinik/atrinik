@@ -819,7 +819,11 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == WEAPON || OBJECT_IS_RANGED(tmp))
 			{
-				if (!pl->equipment[PLAYER_EQUIP_WEAPON] || pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON)
+				if (tmp->type == WEAPON && pl->equipment[PLAYER_EQUIP_WEAPON])
+				{
+					pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
+				}
+				else if (!pl->equipment[PLAYER_EQUIP_WEAPON] || pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON)
 				{
 					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 				}
@@ -863,7 +867,10 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == SHIELD)
 			{
-				pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
+				if (!pl->equipment[PLAYER_EQUIP_SHIELD])
+				{
+					pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
+				}
 			}
 			else if (tmp->type == LIGHT_APPLY)
 			{
