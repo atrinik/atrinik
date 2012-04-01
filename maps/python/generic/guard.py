@@ -43,6 +43,7 @@ def main():
 			"Is there a problem?",
 			"Yes, citizen? What is it?",
 			"Disrespect the law, and you disrespect me.",
+			"I used to be an adventurer like you... but then I took a sword to the gut.",
 		]
 
 		inf.add_msg(random.choice(replies))
