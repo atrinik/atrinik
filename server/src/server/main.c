@@ -428,7 +428,7 @@ void enter_exit(object *op, object *exit_ob)
 
 	if (exit_ob && exit_ob->stats.dam && op->type == PLAYER)
 	{
-		hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
+		attack_perform(exit_ob, op);
 	}
 }
 

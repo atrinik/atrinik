@@ -76,10 +76,10 @@ enum skillnrs
 	/** Player can attack with impact weapons */
 	SK_IMPACT_WEAPONS,
 
-	/** Player can use two-handed weapons. */
-	SK_TWOHANDS,
-	/** Player can use polearms. */
-	SK_POLEARMS,
+	SK_ARMOUR_LIGHT,
+	SK_ARMOUR_MEDIUM,
+	SK_ARMOUR_HEAVY,
+	SK_BLOCKING,
 
 	/** Inscription. */
 	SK_INSCRIPTION,

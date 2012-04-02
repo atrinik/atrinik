@@ -319,7 +319,7 @@ int common_object_projectile_hit(object *op, object *victim)
 		int dam;
 
 		OBJ_DESTROYED_BEGIN(op);
-		dam = hit_player(victim, op->stats.dam, op, 0);
+		dam = attack_perform(op, victim);
 
 		if (OBJ_DESTROYED(op))
 		{

@@ -78,8 +78,10 @@ skill_struct skills[NROFSKILLS] =
 	{"cleave weapons", NULL, 0},
 	{"pierce weapons", NULL, 0},
 	{"impact weapons", NULL, 0},
-	{"two-hand mastery", NULL, 0},
-	{"polearm mastery", NULL, 0},
+	{"light armour", NULL, 0},
+	{"medium armour", NULL, 0},
+	{"heavy armour", NULL, 0},
+	{"blocking", NULL, 0},
 	{"inscription", NULL, 0},
 };
 

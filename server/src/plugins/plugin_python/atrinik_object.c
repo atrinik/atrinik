@@ -412,11 +412,8 @@ static PyObject *Atrinik_Object_Fix(Atrinik_Object *obj, PyObject *args)
 
 /**
  * <h1>object.Hit(object target, int damage)</h1>
- * Make 'object' hit 'target' for the specified amount of damage.
+ * Make 'object' hit 'target'.
  * @param target The object to hit.
- * @param damage How much damage to do. If -1, the target object will be
- * killed, otherwise the actual damage done is calculated depending on
- * the hitter's attack types, the target's protections, etc.
  * @throws ValueError if 'target' is not on map or is not alive. */
 static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 {
@@ -438,17 +435,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 		return NULL;
 	}
 
-	/* Kill the target. */
-	if (damage == -1)
-	{
-		target->obj->stats.hp = -1;
-		hooks->kill_object(target->obj, 0, obj->obj, 0);
-	}
-	/* Do damage. */
-	else
-	{
-		hooks->hit_player(target->obj, damage, obj->obj, 0);
-	}
+	hooks->attack_perform(obj->obj, target->obj);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1530,7 +1517,7 @@ static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject 
  * @throws AtrinikError if the artifact name is invalid. */
 static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
 {
-	const char *name = NULL;
+	const char *name;
 	artifactlist *artlist;
 	artifact *art;
 

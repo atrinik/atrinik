@@ -462,10 +462,10 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 		}
 	}
 
-	success = attack_ob(tmp, op);
+	success = attack_perform(op, tmp);
 
 	/* Print appropriate messages to the player. */
-	if (success && string != NULL)
+	if (success > 0 && string != NULL)
 	{
 		if (op->type == PLAYER)
 		{
@@ -519,6 +519,28 @@ object *SK_skill(object *op)
 	if (head->type == PLAYER && head->chosen_skill)
 	{
 		return head->chosen_skill;
+	}
+
+	return NULL;
+}
+
+object *skill_get(object *op, int skill_nr)
+{
+	if (op->type == PLAYER)
+	{
+		return CONTR(op)->skill_ptr[skill_nr];
+	}
+	else if (op->type == MONSTER)
+	{
+		object *tmp;
+
+		for (tmp = op->inv; tmp; tmp = tmp->below)
+		{
+			if (tmp->type == SKILL && tmp->stats.sp == skill_nr)
+			{
+				return tmp;
+			}
+		}
 	}
 
 	return NULL;

@@ -40,7 +40,7 @@ static void process_func(object *op)
 		return;
 	}
 
-	hit_player(op->env, op->stats.dam, op, AT_INTERNAL);
+	attack_perform(op, op->env);
 }
 
 /**

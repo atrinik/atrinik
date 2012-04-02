@@ -66,11 +66,11 @@ static void process_func(object *op)
 
 	if (QUERY_FLAG(op, FLAG_LIFESAVE))
 	{
-		hit_map(op, 0, 0);
+		hit_map(op, 0);
 		return;
 	}
 
-	hit_map(op, 0, 1);
+	hit_map(op, 0);
 
 	if ((op->stats.hp -= 2) < 0)
 	{
@@ -126,8 +126,6 @@ static void process_func(object *op)
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
-
 	if (!state)
 	{
 		return OBJECT_METHOD_OK;
@@ -140,7 +138,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 
 	if (IS_LIVE(victim))
 	{
-		hit_player(victim, op->stats.dam, op, AT_INTERNAL);
+		attack_perform(op, victim);
 	}
 
 	return OBJECT_METHOD_OK;

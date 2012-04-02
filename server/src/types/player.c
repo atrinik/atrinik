@@ -32,6 +32,13 @@
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
 
+static int player_equip_types[PLAYER_EQUIP_MAX] =
+{
+	ARROW, AMULET, WEAPON, GLOVES, RING,
+	HELMET, ARMOUR, GIRDLE, GREAVES, BOOTS,
+	CLOAK, BRACERS, SHIELD, LIGHT_APPLY, RING
+};
+
 /**
  * Player memory pool. */
 mempool_struct *pool_player;
@@ -2291,6 +2298,28 @@ void drop(object *op, object *tmp, int no_mevent)
 	{
 		drop_object(op, tmp, 0, no_mevent);
 	}
+}
+
+object *player_equipment_get(object *pl, int type)
+{
+	if (pl->type == PLAYER)
+	{
+		return CONTR(pl)->equipment[type];
+	}
+	else if (pl->type == MONSTER)
+	{
+		object *tmp;
+
+		for (tmp = pl->inv; tmp; tmp = tmp->below)
+		{
+			if (QUERY_FLAG(tmp, FLAG_APPLIED) && tmp->type == player_equip_types[type])
+			{
+				return tmp;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 char *player_make_path(const char *name, const char *ext)

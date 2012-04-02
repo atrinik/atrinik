@@ -243,9 +243,8 @@ int cast_wor(object *op, object *caster)
  * @param op Who is casting.
  * @param caster What object is casting.
  * @param dam Base damage to do.
- * @param attacktype Attacktype.
  * @return 1. */
-int cast_destruction(object *op, object *caster, int dam, int attacktype)
+int cast_destruction(object *op, object *caster, int dam)
 {
 	int i, j, range, xt, yt;
 	object *tmp, *hitter;
@@ -259,6 +258,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 	/* Calculate maximum range of the spell */
 	range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
 	dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
+	hitter->stats.dam = dam;
 
 	for (i = -range; i < range + 1; i++)
 	{
@@ -288,21 +288,14 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
 				}
 
 				/* Skip the caster and not alive objects. */
-				if (tmp == caster || !IS_LIVE(tmp))
+				if (tmp == op || !IS_LIVE(tmp))
 				{
 					continue;
 				}
 
 				if (!is_friend_of(op, tmp))
 				{
-					sint16 damage = dam;
-
-					if (tmp->quick_pos)
-					{
-						damage /= (tmp->quick_pos >> 4) + 1;
-					}
-
-					hit_player(tmp, damage, hitter, attacktype);
+					attack_perform(hitter, tmp);
 					break;
 				}
 			}
@@ -1058,7 +1051,8 @@ int finger_of_death(object *op, object *target)
 	insert_ob_in_map(hitter, target->map, op, 0);
 
 	dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
-	hit_player(target, dam, hitter, AT_INTERNAL);
+	hitter->stats.dam = dam;
+	attack_perform(hitter, target);
 	object_remove(hitter, 0);
 
 	return 1;
