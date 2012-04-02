@@ -59,7 +59,7 @@ def main():
 				elif hasattr(obj, "f_" + attrib):
 					setattr(obj, "f_" + attrib, True if val else False)
 				else:
-					obj.WriteKey(attrib, str(val))
+					obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
 
 		if obj.f_monster:
 			activator.map.Insert(obj, activator.x, activator.y)
