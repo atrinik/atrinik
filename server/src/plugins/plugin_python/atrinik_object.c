@@ -1574,6 +1574,26 @@ static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>object.Load(string lines)</h1>
+ * Load archetype-like attribute/value pairs into the object. For example,
+ * "attack_protect 20\ndam 10".
+ * @param lines Lines to load into the object. */
+static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
+{
+	const char *lines;
+
+	if (!PyArg_ParseTuple(args, "s", &lines))
+	{
+		return NULL;
+	}
+
+	hooks->set_variable(obj->obj, lines);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -1618,6 +1638,7 @@ static PyMethodDef methods[] =
 	{"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
 	{"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger, METH_VARARGS, 0},
 	{"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
+	{"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 
