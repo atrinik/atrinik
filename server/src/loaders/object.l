@@ -1154,7 +1154,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
  * values.
  * @param op Object to alter.
  * @param buf Modifications to apply. */
-int set_variable(object *op, char *buf)
+int set_variable(object *op, const char *buf)
 {
 	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
 	int retval, depth;

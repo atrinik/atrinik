@@ -1274,7 +1274,7 @@ extern void free_object_loader(void);
 extern void delete_loader_buffer(void *buffer);
 extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
-extern int set_variable(object *op, char *buf);
+extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c*/
