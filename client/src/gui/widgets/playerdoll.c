@@ -34,7 +34,7 @@
  * Player doll item positions.
  *
  * Used to determine where to put item sprites on the player doll. */
-static int player_doll_positions[PLAYER_DOLL_MAX][2] =
+static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
 {
 	{22, 6},
 	{22, 44},
@@ -54,93 +54,6 @@ static int player_doll_positions[PLAYER_DOLL_MAX][2] =
 	{102, 120},
 	{102, 158}
 };
-
-void player_doll_update_items(void)
-{
-	object *tmp;
-	int i, ring_num;
-
-	memset(&cpl.player_doll, 0, sizeof(cpl.player_doll));
-
-	ring_num = 0;
-
-	for (tmp = cpl.ob->inv; tmp; tmp = tmp->next)
-	{
-		if (!(tmp->flags & CS_FLAG_APPLIED) && !(tmp->flags & CS_FLAG_IS_READY))
-		{
-			continue;
-		}
-
-		if (tmp->flags & CS_FLAG_IS_READY)
-		{
-			i = PLAYER_DOLL_AMMO;
-		}
-		else if (tmp->itype == TYPE_AMULET)
-		{
-			i = PLAYER_DOLL_AMULET;
-		}
-		else if (tmp->itype == TYPE_WEAPON)
-		{
-			i = PLAYER_DOLL_WEAPON;
-		}
-		else if (tmp->itype == TYPE_GLOVES)
-		{
-			i = PLAYER_DOLL_GAUNTLETS;
-		}
-		else if (tmp->itype == TYPE_RING && ring_num == 0)
-		{
-			i = PLAYER_DOLL_RING_RIGHT;
-			ring_num++;
-		}
-		else if (tmp->itype == TYPE_HELMET)
-		{
-			i = PLAYER_DOLL_HELM;
-		}
-		else if (tmp->itype == TYPE_ARMOUR)
-		{
-			i = PLAYER_DOLL_ARMOUR;
-		}
-		else if (tmp->itype == TYPE_GIRDLE)
-		{
-			i = PLAYER_DOLL_BELT;
-		}
-		else if (tmp->itype == TYPE_GREAVES)
-		{
-			i = PLAYER_DOLL_GREAVES;
-		}
-		else if (tmp->itype == TYPE_BOOTS)
-		{
-			i = PLAYER_DOLL_BOOTS;
-		}
-		else if (tmp->itype == TYPE_CLOAK)
-		{
-			i = PLAYER_DOLL_CLOAK;
-		}
-		else if (tmp->itype == TYPE_BRACERS)
-		{
-			i = PLAYER_DOLL_BRACERS;
-		}
-		else if (tmp->itype == TYPE_SHIELD)
-		{
-			i = PLAYER_DOLL_SHIELD;
-		}
-		else if (tmp->itype == TYPE_LIGHT_APPLY)
-		{
-			i = PLAYER_DOLL_LIGHT;
-		}
-		else if (tmp->itype == TYPE_RING && ring_num == 1)
-		{
-			i = PLAYER_DOLL_RING_LEFT;
-			ring_num++;
-		}
-		else
-		{
-			continue;
-		}
-
-		cpl.player_doll[i] = tmp;
-	}
-}
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
@@ -179,7 +92,7 @@ static void widget_draw(widgetdata *widget)
 
 	texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
-	for (i = 0; i < PLAYER_DOLL_MAX; i++)
+	for (i = 0; i < PLAYER_EQUIP_MAX; i++)
 	{
 		rectangle_create(ScreenSurface, widget->x + player_doll_positions[i][0], widget->y + player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
 	}
@@ -188,11 +101,11 @@ static void widget_draw(widgetdata *widget)
 
 	SDL_GetMouseState(&mx, &my);
 
-	for (i = 0; i < PLAYER_DOLL_MAX; i++)
+	for (i = 0; i < PLAYER_EQUIP_MAX; i++)
 	{
 		surface_show(ScreenSurface, widget->x + player_doll_positions[i][0], widget->y + player_doll_positions[i][1], NULL, texture_slot_border);
 
-		if (!cpl.player_doll[i])
+		if (!cpl.equipment[i])
 		{
 			continue;
 		}
@@ -200,12 +113,12 @@ static void widget_draw(widgetdata *widget)
 		xpos = widget->x + player_doll_positions[i][0] + 2;
 		ypos = widget->y + player_doll_positions[i][1] + 2;
 
-		object_show_centered(cpl.player_doll[i], xpos, ypos);
+		object_show_centered(cpl.equipment[i], xpos, ypos);
 
 		/* Prepare item name tooltip */
 		if (mx > xpos && mx <= xpos + INVENTORY_ICON_SIZE && my > ypos && my <= widget->y + ypos + INVENTORY_ICON_SIZE)
 		{
-			tooltip_text = cpl.player_doll[i]->s_name;
+			tooltip_text = cpl.equipment[i]->s_name;
 		}
 	}
 

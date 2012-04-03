@@ -459,7 +459,7 @@ static int attack_perform_attacktype(object *hitter, object *target, object *hit
 int attack_perform(object *hitter, object *target)
 {
 	int dam, damage[NROFATTACKS], roll, attacktype, bodypart, maxdam;
-	object *hitter_ob, *hitter_owner, *weapon, *weapon_off, *shield;
+	object *hitter_ob, *hitter_owner, *weapon, *hand_main, *hand_off, *shield;
 
 	if ((target->type == PLAYER && CONTR(target)->tgm) || QUERY_FLAG(target, FLAG_INVULNERABLE))
 	{
@@ -509,6 +509,7 @@ int attack_perform(object *hitter, object *target)
 		CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
 	}
 
+	/* Face the target. */
 	if (IS_LIVE(hitter))
 	{
 		rv_vector rv;
@@ -520,24 +521,59 @@ int attack_perform(object *hitter, object *target)
 		}
 	}
 
-	weapon = player_equipment_get(hitter, PLAYER_EQUIP_WEAPON);
-	weapon_off = player_equipment_get(hitter, PLAYER_EQUIP_SHIELD);
+	weapon = NULL;
 
-	if (weapon && weapon->type == WEAPON)
+	/* Get the items in both hands. */
+	hand_main = player_equipment_get(hitter, PLAYER_EQUIP_HAND_MAIN);
+	hand_off = player_equipment_get(hitter, PLAYER_EQUIP_HAND_OFF);
+
+	/* If the main hand has a weapon, use it as the hitting object. */
+	if (hand_main && hand_main->type == WEAPON)
 	{
-		hitter_ob = weapon;
-
-		if (weapon_off && weapon_off->type == WEAPON && rndm_chance(2))
-		{
-			hitter_ob = weapon_off;
-		}
+		hitter_ob = weapon = hand_main;
 	}
+	/* No weapon, so the hitter is also the hitting object (spell/arrow/etc). */
 	else
 	{
 		hitter_ob = hitter;
 	}
 
+	/* Offhand has a weapon, use it if main hand has no weapon or it does
+	 * but we roll 50/50 chance to use the offhand weapon. */
+	if (hand_off && hand_off->type == WEAPON && (!hand_main || rndm_chance(2)))
+	{
+		hitter_ob = weapon = hand_off;
+	}
+
+	/* Still no weapon; try to use the unarmed skill. */
+	if (!weapon)
+	{
+		weapon = skill_get(hitter, SK_UNARMED);
+
+		if (weapon)
+		{
+			hitter_ob = weapon;
+		}
+	}
+
 	dam = rndm(hitter_ob->stats.dam / 2 + 1, hitter_ob->stats.dam);
+
+	if (weapon)
+	{
+		object *skill;
+
+		skill = weapon_get_skill(weapon, hitter_owner);
+
+		if (skill)
+		{
+			dam *= LEVEL_DAMAGE(skill->level);
+		}
+	}
+
+	if (hitter_ob != hitter)
+	{
+		dam += rndm(hitter->stats.dam / 2 + 1, hitter->stats.dam);
+	}
 
 	if (hitter_ob->slaying)
 	{
@@ -584,13 +620,22 @@ int attack_perform(object *hitter, object *target)
 
 	attack_absorb_damage(hitter, target, target, damage);
 
-	shield = player_equipment_get(target, PLAYER_EQUIP_SHIELD);
+	/* Try to use the shield in the offhand. */
+	shield = player_equipment_get(target, PLAYER_EQUIP_HAND_OFF);
 
+	/* Nothing in offhand, try to use main hand's weapon as a shield. */
 	if (!shield)
 	{
-		shield = weapon;
+		shield = player_equipment_get(target, PLAYER_EQUIP_HAND_MAIN);
+
+		/* Main hand is not a weapon, so no shield. */
+		if (shield->type != WEAPON)
+		{
+			shield = NULL;
+		}
 	}
-	else if (shield->type == WEAPON)
+	/* Offhand is not a shield, so no shield. */
+	else if (shield->type != SHIELD)
 	{
 		shield = NULL;
 	}

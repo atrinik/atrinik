@@ -452,14 +452,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 
 	if (op->type == PLAYER)
 	{
-		if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
-		{
-			op->chosen_skill = CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
-		}
-		else
-		{
-			op->chosen_skill = CONTR(op)->skill_ptr[SK_UNARMED];
-		}
+		op->chosen_skill = weapon_get_skill(CONTR(op)->equipment[PLAYER_EQUIP_HAND_MAIN], op);
 	}
 
 	success = attack_perform(op, tmp);

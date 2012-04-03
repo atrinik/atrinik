@@ -181,7 +181,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 		{
 			ring_left = 1;
 		}
-		else if (tmp->type == WEAPON && !weapon_offhand)
+		else if (tmp->type == WEAPON && !QUERY_FLAG(tmp, FLAG_TWO_HANDED) && !QUERY_FLAG(op, FLAG_TWO_HANDED) && !weapon_offhand)
 		{
 			weapon_offhand = 1;
 		}
@@ -202,9 +202,9 @@ int object_apply_item(object *op, object *applier, int aflags)
 				return OBJECT_METHOD_ERROR;
 			}
 
-			if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && OBJECT_IS_RANGED(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]))
+			if (CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN] && OBJECT_IS_RANGED(CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN]))
 			{
-				object_apply_item(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON], applier, AP_UNAPPLY);
+				object_apply_item(CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN], applier, AP_UNAPPLY);
 			}
 
 			draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));

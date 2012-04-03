@@ -558,7 +558,6 @@ int main(int argc, char *argv[])
 
 			if (map_udate_flag > 0)
 			{
-				player_doll_update_items();
 				display_layer1();
 				display_layer3();
 

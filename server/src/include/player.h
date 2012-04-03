@@ -69,64 +69,6 @@ enum
 };
 
 /**
- * Player equipment.
- * @anchor PLAYER_EQUIP_xxx */
-enum
-{
-	/**
-	 * Ammunition. */
-	PLAYER_EQUIP_AMMO,
-	/**
-	 * Amulet. */
-	PLAYER_EQUIP_AMULET,
-	/**
-	 * Weapon. */
-	PLAYER_EQUIP_WEAPON,
-	/**
-	 * Gauntlets. */
-	PLAYER_EQUIP_GAUNTLETS,
-	/**
-	 * Right ring. */
-	PLAYER_EQUIP_RING_RIGHT,
-
-	/**
-	 * Helm. */
-	PLAYER_EQUIP_HELM,
-	/**
-	 * Armor. */
-	PLAYER_EQUIP_ARMOUR,
-	/**
-	 * Belt. */
-	PLAYER_EQUIP_BELT,
-	/**
-	 * Greaves. */
-	PLAYER_EQUIP_GREAVES,
-	/**
-	 * Boots. */
-	PLAYER_EQUIP_BOOTS,
-
-	/**
-	 * Cloak. */
-	PLAYER_EQUIP_CLOAK,
-	/**
-	 * Bracers. */
-	PLAYER_EQUIP_BRACERS,
-	/**
-	 * Shield. */
-	PLAYER_EQUIP_SHIELD,
-	/**
-	 * Light (lantern, torch). */
-	PLAYER_EQUIP_LIGHT,
-	/**
-	 * Left ring. */
-	PLAYER_EQUIP_RING_LEFT,
-
-	/**
-	 * Maximum number of equipment. */
-	PLAYER_EQUIP_MAX
-};
-
-/**
  * @defgroup PLAYER_AFLAG_xxx Player animation flags
  *@{*/
 /** If set, show fighting animation. */
@@ -500,6 +442,10 @@ typedef struct pl_player
 	/**
 	 * Last denied spell path sent to client. */
 	uint32 last_path_denied;
+
+	/**
+	 * Last sent UIDs of player's equipment. */
+	uint32 last_equipment[PLAYER_EQUIP_MAX];
 
 	/** Last fire/run on flags sent to client. */
 	uint16 last_flags;

@@ -505,6 +505,9 @@ enum
 #define CS_STAT_RES_HOLYWORD	116
 #define CS_STAT_RES_BLIND		117
 
+#define CS_STAT_EQUIP_START 100
+#define CS_STAT_EQUIP_END 115
+
 #define CS_STAT_PROT_START 130
 #define CS_STAT_PROT_END 149
 /*@}*/
@@ -578,7 +581,7 @@ enum
 #define CHAT_TYPE_ALL 1
 #define CHAT_TYPE_GAME 2
 #define CHAT_TYPE_CHAT 3
-#define CHAT_TYPE_PUBLIC 4
+#define CHAT_TYPE_LOCAL 4
 #define CHAT_TYPE_PRIVATE 5
 #define CHAT_TYPE_GUILD 6
 #define CHAT_TYPE_PARTY 7
@@ -588,5 +591,63 @@ enum
 #define CMD_TALK_INV 2
 #define CMD_TALK_BELOW 3
 #define CMD_TALK_CONTAINER 4
+
+/**
+ * Player equipment.
+ * @anchor PLAYER_EQUIP_xxx */
+enum
+{
+	/**
+	 * Ammunition. */
+	PLAYER_EQUIP_AMMO,
+	/**
+	 * Amulet. */
+	PLAYER_EQUIP_AMULET,
+	/**
+	 * Weapon. */
+	PLAYER_EQUIP_HAND_MAIN,
+	/**
+	 * Gauntlets. */
+	PLAYER_EQUIP_GAUNTLETS,
+	/**
+	 * Right ring. */
+	PLAYER_EQUIP_RING_RIGHT,
+
+	/**
+	 * Helm. */
+	PLAYER_EQUIP_HELM,
+	/**
+	 * Armor. */
+	PLAYER_EQUIP_ARMOUR,
+	/**
+	 * Belt. */
+	PLAYER_EQUIP_BELT,
+	/**
+	 * Greaves. */
+	PLAYER_EQUIP_GREAVES,
+	/**
+	 * Boots. */
+	PLAYER_EQUIP_BOOTS,
+
+	/**
+	 * Cloak. */
+	PLAYER_EQUIP_CLOAK,
+	/**
+	 * Bracers. */
+	PLAYER_EQUIP_BRACERS,
+	/**
+	 * Shield. */
+	PLAYER_EQUIP_HAND_OFF,
+	/**
+	 * Light (lantern, torch). */
+	PLAYER_EQUIP_LIGHT,
+	/**
+	 * Left ring. */
+	PLAYER_EQUIP_RING_LEFT,
+
+	/**
+	 * Maximum number of equipment. */
+	PLAYER_EQUIP_MAX
+};
 
 #endif
