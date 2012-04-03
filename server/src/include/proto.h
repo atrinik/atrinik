@@ -1217,6 +1217,8 @@ extern void object_type_init_waypoint(void);
 /* src/types/wealth.c */
 extern void object_type_init_wealth(void);
 /* src/types/weapon.c */
+extern int weapon_determine_skill(object *op);
+extern object *weapon_get_skill(object *op, object *owner);
 extern void object_type_init_weapon(void);
 /* src/types/word_of_recall.c */
 extern void object_type_init_word_of_recall(void);
