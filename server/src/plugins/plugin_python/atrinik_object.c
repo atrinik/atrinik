@@ -1581,6 +1581,36 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 	return Py_None;
 }
 
+/**
+ * <h1>object.ExperienceAdd(int exp, int [exact = False], int [level = False])</h1>
+ * Add (or subtract) experience to skill object.
+ * @param exp How much exp to gain/lose. If 'level' is true, this is the
+ * number of levels to gain/lose in the specified skill.
+ * @param exact If True, the given exp will not be capped.
+ * @param level If True, will calculate exact experience needed for next
+ * (or previous) level. */
+static PyObject *Atrinik_Object_ExperienceAdd(Atrinik_Object *obj, PyObject *args)
+{
+	sint64 exp_gain;
+	int exact = 0, level = 0;
+
+	if (!PyArg_ParseTuple(args, "L|ii", &exp_gain, &exact, &level))
+	{
+		return NULL;
+	}
+
+	if (level)
+	{
+		level = MAX(1, MIN(MAXLEVEL, obj->obj->level + exp_gain));
+		exp_gain = hooks->level_exp(level, 1.0) - obj->obj->stats.exp;
+	}
+
+	hooks->skill_experience_add(obj->obj, exp_gain, exact);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -1626,6 +1656,7 @@ static PyMethodDef methods[] =
 	{"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger, METH_VARARGS, 0},
 	{"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
 	{"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS, 0},
+	{"ExperienceAdd", (PyCFunction) Atrinik_Object_ExperienceAdd, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };
 

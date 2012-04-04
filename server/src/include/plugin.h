@@ -199,7 +199,7 @@ struct plugin_hooklist
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);
-	sint64 (*add_exp)(object *, sint64, int, int);
+	sint64 (*skill_experience_add)(object *, sint64, int);
 	const char *(*determine_god)(object *);
 	object *(*find_god)(const char *);
 	void (*register_global_event)(const char *, int);
@@ -313,6 +313,7 @@ struct plugin_hooklist
 	char *(*string_join)(const char *delim, ...);
 	object *(*get_env_recursive)(object *);
 	int (*set_variable)(object *, const char *);
+	uint64 (*level_exp)(int, double);
 
 	const char **season_name;
 	const char **weekdays;

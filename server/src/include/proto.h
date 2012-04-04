@@ -226,7 +226,6 @@ extern void connection_trigger_button(object *op, int state);
 extern uint64 new_levels[115 + 2];
 extern _level_color level_color[201];
 extern uint64 level_exp(int level, double expmul);
-extern sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact);
 extern void player_lvl_adj(object *who, object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);
 /* src/server/gods.c */
@@ -548,6 +547,7 @@ extern int skill_attack(object *tmp, object *pl, int dir, char *string);
 extern int SK_level(object *op);
 extern object *SK_skill(object *op);
 extern object *skill_get(object *op, int skill_nr);
+extern sint64 skill_experience_add(object *skill, sint64 exp_gain, int exact);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);

@@ -653,13 +653,6 @@ int cure_disease(object *sufferer, object *caster)
 
 				remove_symptoms(disease);
 				object_remove(disease, 0);
-
-				/* we assume the caster has the right casting skill applied */
-				if (caster && !caster->type == PLAYER)
-				{
-					add_exp(caster, disease->stats.exp, caster->chosen_skill->stats.sp, 0);
-				}
-
 				object_destroy(disease);
 			}
 			else
