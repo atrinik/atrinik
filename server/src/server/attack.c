@@ -629,7 +629,7 @@ int attack_perform(object *hitter, object *target)
 		shield = player_equipment_get(target, PLAYER_EQUIP_HAND_MAIN);
 
 		/* Main hand is not a weapon, so no shield. */
-		if (shield->type != WEAPON)
+		if (shield && shield->type != WEAPON)
 		{
 			shield = NULL;
 		}
