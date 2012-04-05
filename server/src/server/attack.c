@@ -570,7 +570,7 @@ int attack_perform(object *hitter, object *target)
 		}
 	}
 
-	if (hitter_ob != hitter)
+	if (hitter_ob != hitter && hitter->stats.dam)
 	{
 		dam += rndm(hitter->stats.dam / 2 + 1, hitter->stats.dam);
 	}
