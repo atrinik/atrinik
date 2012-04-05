@@ -609,12 +609,12 @@ int attack_perform(object *hitter, object *target)
 	{
 		if (hitter_ob->attack[attacktype])
 		{
-			damage[attacktype] = dam * ((double) hitter_ob->attack[attacktype] * 0.01);
+			damage[attacktype] = MAX(1, dam * ((double) hitter_ob->attack[attacktype] * 0.01));
+		}
 
-			if (damage[attacktype] <= 0)
-			{
-				damage[attacktype] = 1;
-			}
+		if (hitter != hitter_ob && hitter->attack[attacktype])
+		{
+			damage[attacktype] += MAX(1, dam * ((double) hitter->attack[attacktype] * 0.01));
 		}
 	}
 
