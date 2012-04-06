@@ -572,11 +572,11 @@ int main(int argc, char *argv[])
 		if (!setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME))
 		{
 			uint32 elapsed_time;
-				elapsed_time = SDL_GetTicks() - frame_start_time;
+
+			elapsed_time = SDL_GetTicks() - frame_start_time;
 
 			while (1)
 			{
-
 				if (elapsed_time < 1000 / FRAMES_PER_SECOND)
 				{
 					SDL_Delay(MAX(1, 1000 / FRAMES_PER_SECOND - elapsed_time));
