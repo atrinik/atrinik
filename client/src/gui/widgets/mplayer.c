@@ -222,6 +222,7 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 {
 	DIR *dir;
 	struct dirent *currentfile;
+	char buf[HUGE_BUF];
 
 	/* Read the media directory and add the file names to the list. */
 	dir = opendir(path);
@@ -260,7 +261,14 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 			}
 		}
 
-		list_add(list, list->rows, 0, currentfile->d_name);
+		snprintf(buf, sizeof(buf), "%s/%s", path, currentfile->d_name);
+
+		/* Ignore files that cannot be accessed for reading; insufficient
+		 * permissions, or broken symlinks, for example. */
+		if (access(buf, R_OK) == 0)
+		{
+			list_add(list, list->rows, 0, currentfile->d_name);
+		}
 	}
 
 	closedir(dir);
