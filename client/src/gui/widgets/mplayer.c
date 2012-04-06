@@ -30,20 +30,31 @@
 
 #include <global.h>
 
-/** File where the blacklist data is stored. */
+/**
+ * File where the blacklist data is stored. */
 #define FILE_MPLAYER_BLACKLIST "mplayer.blacklist"
 /**
  * How many milliseconds the blacklist button must be held in order to
  * mass-change blacklist status. */
 #define BLACKLIST_ALL_DELAY 1500
 
-/** Is shuffle enabled? */
+/**
+ * Is shuffle enabled? */
 static uint8 shuffle = 0;
-/** Blacklisted music files. */
+/**
+ * Blacklisted music files. */
 static uint8 *shuffle_blacklist = NULL;
-/** Button buffer. */
+/**
+ * Button buffer. */
 static button_struct button_play, button_shuffle, button_blacklist, button_close, button_help;
-/** The music player list. */
+/**
+ * Scrollbar buffer. */
+static scrollbar_struct scrollbar_progress;
+/**
+ * Scrollbar info buffer. */
+static scrollbar_info_struct scrollbar_progress_info;
+/**
+ * The music player list. */
 static list_struct *list_mplayer = NULL;
 
 /**
@@ -108,8 +119,9 @@ static void mplayer_do_shuffle(list_struct *list)
 
 	list->row_selected = selected + 1;
 	list->row_offset = MIN(list->rows - list->max_rows, selected);
-	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), 0);
 	cur_widget[MPLAYER_ID]->redraw = 1;
+
+	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), 0);
 }
 
 /**
@@ -351,6 +363,9 @@ static void widget_draw(widgetdata *widget)
 		button_blacklist.texture = button_help.texture = button_close.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
 		button_blacklist.texture_pressed = button_help.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
 		button_blacklist.texture_over = button_help.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+
+		scrollbar_create(&scrollbar_progress, 130, 11, &scrollbar_progress_info.scroll_offset, &scrollbar_progress_info.num_lines, 1);
+		scrollbar_progress.redraw = &scrollbar_progress_info.redraw;
 	}
 
 	if (widget->redraw)
@@ -362,9 +377,14 @@ static void widget_draw(widgetdata *widget)
 		list_show(list_mplayer, 10, 2);
 		box.w /= 2;
 		text_show(widget->surface, FONT_SANS10, "Currently playing:", widget->w / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+
+		scrollbar_progress.px = widget->x;
+		scrollbar_progress.py = widget->y;
+		scrollbar_show(&scrollbar_progress, widget->surface, 170, 50);
+
 		box.h = 120;
 		box.w -= 6;
-		text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 60, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+		text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
 		widget->redraw = list_need_redraw(list_mplayer);
 	}
@@ -427,23 +447,65 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget)
 {
+	uint32 duration, num_lines;
+
 	/* If shuffle is enabled, check whether we need to start playing
 	 * another song. */
 	if (shuffle)
 	{
 		mplayer_check_shuffle();
 	}
+
+	duration = sound_music_get_duration();
+	num_lines = duration + duration / 10;
+
+	if (num_lines != scrollbar_progress_info.num_lines)
+	{
+		scrollbar_progress_info.num_lines = num_lines;
+		scrollbar_progress.max_lines = MAX(1, duration / 10);
+		widget->redraw = 1;
+	}
+
+	if (list_mplayer)
+	{
+		if (scrollbar_progress_info.redraw && sound_music_can_seek())
+		{
+			sound_music_seek(scrollbar_progress_info.scroll_offset + 1);
+			scrollbar_progress_info.redraw = 0;
+			widget->redraw = 1;
+		}
+		else
+		{
+			uint32 offset;
+
+			offset = scrollbar_progress_info.scroll_offset;
+			scrollbar_progress.redraw = NULL;
+			scrollbar_scroll_to(&scrollbar_progress, sound_music_get_offset());
+			scrollbar_progress.redraw = &scrollbar_progress_info.redraw;
+
+			if (offset != scrollbar_progress_info.scroll_offset)
+			{
+				widget->redraw = 1;
+			}
+		}
+	}
 }
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-	/* If the list has handled the mouse event, we need to redraw the
-	 * widget. */
-	if (list_mplayer && list_handle_mouse(list_mplayer, event))
+	if (list_mplayer)
 	{
-		widget->redraw = 1;
-		return 1;
+		if (list_handle_mouse(list_mplayer, event))
+		{
+			widget->redraw = 1;
+			return 1;
+		}
+		else if (scrollbar_event(&scrollbar_progress, event))
+		{
+			widget->redraw = 1;
+			return 1;
+		}
 	}
 
 	if (button_event(&button_play, event))

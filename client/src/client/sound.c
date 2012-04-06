@@ -30,18 +30,39 @@
 
 #include <global.h>
 
-/** Path to the background music file being played. */
+/**
+ * Path to the background music file being played. */
 static char *sound_background;
-/** If 1, will not allow music change based on map. */
+/**
+ * When the background music started playing. */
+static struct timeval sound_background_started;
+/**
+ * If 1, will not allow music change based on map. */
 static uint8 sound_map_background_disabled = 0;
-/** Whether the sound system is active. */
+/**
+ * Whether the sound system is active. */
 static uint8 enabled = 0;
-/** Doubly-linked list of all playing ambient sound effects. */
+/**
+ * Doubly-linked list of all playing ambient sound effects. */
 static sound_ambient_struct *sound_ambient_head = NULL;
 
 #ifdef HAVE_SDL_MIXER
 
-/** Loaded sounds. */
+/**
+ * Duration of this background music. */
+static uint32 sound_background_duration;
+/**
+ * Whether to try to update the background music's duration in database. */
+static uint8 sound_background_update_duration;
+/**
+ * How many times to loop the currently playing background music, -1
+ * to loopy infinitely. */
+static int sound_background_loop;
+/**
+ * Volume the background music was started at. */
+static int sound_background_volume;
+/**
+ * Loaded sounds. */
 static sound_data_struct *sound_data;
 
 /**
@@ -87,6 +108,89 @@ static void sound_free(sound_data_struct *tmp)
 	free(tmp);
 }
 
+/**
+ * Get duration of a music file.
+ * @param filename The music file.
+ * @return The duration. */
+static uint32 sound_music_file_get_duration(const char *filename)
+{
+	char path[HUGE_BUF];
+	char *contents;
+	uint32 duration;
+
+	snprintf(path, sizeof(path), DIRECTORY_MEDIA"/durations/%s", filename);
+	contents = path_file_contents(file_path(path, "r"));
+
+	if (!contents)
+	{
+		return 0;
+	}
+
+	duration = atoi(contents);
+	free(contents);
+
+	return duration;
+}
+
+/**
+ * Update duration of a music file.
+ * @param filename The music file.
+ * @param duration Duration to set. */
+static void sound_music_file_set_duration(const char *filename, uint32 duration)
+{
+	char path[HUGE_BUF];
+	FILE *fp;
+
+	snprintf(path, sizeof(path), DIRECTORY_MEDIA"/durations/%s", filename);
+	fp = fopen_wrapper(path, "w");
+
+	if (!fp)
+	{
+		logger_print(LOG(BUG), "Could not open file for writing: %s", path);
+		return;
+	}
+
+	fprintf(fp, "%u", duration);
+	fclose(fp);
+}
+
+/**
+ * Hook called when music has finished playing. */
+static void sound_music_finished(void)
+{
+	uint32 duration;
+	char *tmp;
+	const char *bg_music;
+
+	if (!sound_background)
+	{
+		return;
+	}
+
+	tmp = sound_background;
+	bg_music = sound_get_bg_music_basename();
+	duration = sound_music_get_offset();
+
+	sound_background = NULL;
+
+	if (sound_background_update_duration && (!sound_background_duration || duration != sound_background_duration))
+	{
+		sound_music_file_set_duration(bg_music, duration);
+	}
+
+	if (sound_background_loop)
+	{
+		if (sound_background_loop > 0)
+		{
+			sound_background_loop--;
+		}
+
+		sound_start_bg_music(bg_music, sound_background_volume, sound_background_loop);
+	}
+
+	free(tmp);
+}
+
 #endif
 
 /**
@@ -104,6 +208,8 @@ void sound_init(void)
 		draw_info_format(COLOR_RED, "Could not initialize audio device; sound will not be heard. Reason: %s", Mix_GetError());
 		enabled = 0;
 	}
+
+	Mix_HookMusicFinished(sound_music_finished);
 #else
 	enabled = 0;
 #endif
@@ -188,10 +294,6 @@ static int sound_add_effect(const char *filename, int volume, int loop)
 
 	return channel;
 #else
-	(void) filename;
-	(void) volume;
-	(void) loop;
-
 	return -1;
 #endif
 }
@@ -274,8 +376,14 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	sound_stop_bg_music();
 
 	sound_background = strdup(path);
+	gettimeofday(&sound_background_started, NULL);
+	sound_background_loop = loop;
+	sound_background_volume = volume;
+	sound_background_duration = sound_music_file_get_duration(filename);
+	sound_background_update_duration = 1;
+
 	Mix_VolumeMusic(volume);
-	Mix_PlayMusic((Mix_Music *) tmp->data, loop);
+	Mix_PlayMusic((Mix_Music *) tmp->data, 0);
 
 	/* Due to a bug in SDL_mixer, some audio types (such as XM, among
 	 * others) will continue playing even when the volume has been set to
@@ -283,12 +391,8 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	 * and unpause it in sound_update_volume(), if the volume changes. */
 	if (volume == 0)
 	{
-		Mix_PauseMusic();
+		sound_pause_music();
 	}
-#else
-	(void) filename;
-	(void) volume;
-	(void) loop;
 #endif
 }
 
@@ -303,12 +407,31 @@ void sound_stop_bg_music(void)
 
 	if (sound_background)
 	{
+		free(sound_background);
+		sound_background = NULL;
 #ifdef HAVE_SDL_MIXER
 		Mix_HaltMusic();
 #endif
-		free(sound_background);
-		sound_background = NULL;
 	}
+}
+
+/**
+ * Pause playing background music. */
+void sound_pause_music(void)
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_PauseMusic();
+	sound_background_update_duration = 0;
+#endif
+}
+
+/**
+ * Resume playing background music. */
+void sound_resume_music(void)
+{
+#ifdef HAVE_SDL_MIXER
+	Mix_ResumeMusic();
+#endif
 }
 
 /**
@@ -361,13 +484,13 @@ void sound_update_volume(void)
 		{
 			if (!Mix_PausedMusic())
 			{
-				Mix_PauseMusic();
+				sound_pause_music();
 			}
 		}
 		/* Non-zero and already paused, so resume the music. */
 		else if (Mix_PausedMusic())
 		{
-			Mix_ResumeMusic();
+			sound_resume_music();
 		}
 	}
 #endif
@@ -399,20 +522,86 @@ const char *sound_get_bg_music_basename(void)
 
 /**
  * Get or set ::sound_map_background_disabled.
- * @param new If -1, will return the current value of ::sound_map_background_disabled;
+ * @param val If -1, will return the current value of ::sound_map_background_disabled;
  * any other value will set ::sound_map_background_disabled to that value.
  * @return Value of ::sound_map_background_disabled. */
-uint8 sound_map_background(int new)
+uint8 sound_map_background(int val)
 {
-	if (new == -1)
+	if (val == -1)
 	{
 		return sound_map_background_disabled;
 	}
 	else
 	{
-		sound_map_background_disabled = new;
-		return new;
+		sound_map_background_disabled = val;
+		return val;
 	}
+}
+
+/**
+ * Get the offset of the background music that is being played.
+ * @return The offset. */
+uint32 sound_music_get_offset(void)
+{
+	struct timeval tv;
+
+	if (!sound_background)
+	{
+		return 0;
+	}
+
+	gettimeofday(&tv, NULL);
+
+	return ((double) (tv.tv_sec - sound_background_started.tv_sec) + ((double) (tv.tv_usec - sound_background_started.tv_usec) / 1000000.0)) - 0.5;
+}
+
+/**
+ * Check whether the currently playing music can seek to a different
+ * position.
+ * @return 1 if the music can have playing position changed, 0 otherwise. */
+int sound_music_can_seek(void)
+{
+	if (!sound_background)
+	{
+		return 0;
+	}
+
+	switch (Mix_GetMusicType(NULL))
+	{
+		case MUS_OGG:
+		case MUS_MP3:
+		case MUS_MP3_MAD:
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+/**
+ * Seek the currently playing background music to the specified offset
+ * (in seconds).
+ * @param offset Offset to seek to. */
+void sound_music_seek(uint32 offset)
+{
+	if (!sound_music_can_seek())
+	{
+		return;
+	}
+
+	Mix_RewindMusic();
+	Mix_SetMusicPosition(offset);
+
+	gettimeofday(&sound_background_started, NULL);
+	sound_background_started.tv_sec -= offset;
+}
+
+/**
+ * Get duration of the currently playing background music.
+ * @return The duration. */
+uint32 sound_music_get_duration()
+{
+	return sound_background_duration;
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -621,24 +810,6 @@ void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos)
 			}
 		}
 	}
-}
-
-/**
- * Pause playing background music. */
-void sound_pause_music(void)
-{
-#ifdef HAVE_SDL_MIXER
-	Mix_PauseMusic();
-#endif
-}
-
-/**
- * Resume playing background music. */
-void sound_resume_music(void)
-{
-#ifdef HAVE_SDL_MIXER
-	Mix_ResumeMusic();
-#endif
 }
 
 /**
