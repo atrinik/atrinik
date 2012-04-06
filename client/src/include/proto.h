@@ -91,7 +91,6 @@ extern uint32 LastTick;
 extern int f_custom_cursor;
 extern int x_custom_cursor;
 extern int y_custom_cursor;
-extern int map_udate_flag;
 extern int map_redraw_flag;
 extern _anim_table *anim_table;
 extern Animations *animations;
@@ -564,8 +563,7 @@ extern int widget_event_move_stop(int x, int y);
 extern int widget_event_respond(int x, int y);
 extern widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
 extern widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
-extern void process_widgets(void);
-extern void process_widgets_rec(widgetdata *widget);
+extern void process_widgets(int draw);
 extern void SetPriorityWidget(widgetdata *node);
 extern void SetPriorityWidget_reverse(widgetdata *node);
 extern void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
@@ -677,7 +675,6 @@ extern void widget_notification_init(widgetdata *widget);
 extern void socket_command_party(uint8 *data, size_t len, size_t pos);
 extern void widget_party_init(widgetdata *widget);
 /* src/gui/widgets/playerdoll.c */
-extern void player_doll_update_items(void);
 extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);

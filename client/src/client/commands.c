@@ -132,7 +132,6 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 	}
 
 	FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
-	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
 	book_redraw();
@@ -165,7 +164,6 @@ void socket_command_target(uint8 *data, size_t len, size_t pos)
 	packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
 	packet_to_string(data, len, &pos, cpl.target_name, sizeof(cpl.target_name));
 
-	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
 
@@ -347,7 +345,6 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 	packet_to_string(data, len, &pos, cpl.name, sizeof(cpl.name));
 
 	new_player(tag, weight, face);
-	map_udate_flag = 2;
 	map_redraw_flag = 1;
 
 	cur_widget[INPUT_ID]->show = 0;
@@ -523,8 +520,6 @@ void socket_command_item(uint8 *data, size_t len, size_t pos)
 
 		command_item_update(data, len, &pos, flags, tmp);
 	}
-
-	map_udate_flag = 2;
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -544,7 +539,6 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 	}
 
 	command_item_update(data, len, &pos, flags, tmp);
-	map_udate_flag = 2;
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -557,8 +551,6 @@ void socket_command_item_delete(uint8 *data, size_t len, size_t pos)
 		tag = packet_to_uint32(data, len, &pos);
 		delete_object(tag);
 	}
-
-	map_udate_flag = 2;
 }
 
 /**
@@ -841,7 +833,6 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 	}
 
 	adjust_tile_stretch();
-	map_udate_flag = 2;
 	map_redraw_flag = 1;
 }
 

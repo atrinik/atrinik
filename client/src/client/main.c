@@ -46,7 +46,7 @@ int x_custom_cursor = 0;
 int y_custom_cursor = 0;
 
 /* update map area */
-int map_udate_flag, map_redraw_flag;
+int map_redraw_flag;
 
 /** The stored "anim commands" we created out of anims.tmp. */
 _anim_table *anim_table = NULL;
@@ -85,7 +85,6 @@ static void init_game_data(void)
 	start_anim = NULL;
 
 	cpl.state = ST_INIT;
-	map_udate_flag = 2;
 	map_redraw_flag = 1;
 	csocket.fd = -1;
 
@@ -101,8 +100,6 @@ static int game_status_chain(void)
 {
 	if (cpl.state == ST_INIT)
 	{
-		map_udate_flag = 2;
-
 		clear_map();
 		effect_stop();
 		cpl.state = ST_META;
@@ -114,7 +111,6 @@ static int game_status_chain(void)
 		uint16 port_num;
 
 		metaserver_clear_data();
-		map_udate_flag = 2;
 
 		metaserver_add("127.0.0.1", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
@@ -132,8 +128,6 @@ static int game_status_chain(void)
 	}
 	else if (cpl.state == ST_START)
 	{
-		map_udate_flag = 2;
-
 		if (csocket.fd != -1)
 		{
 			socket_close(&csocket);
@@ -146,7 +140,6 @@ static int game_status_chain(void)
 	}
 	else if (cpl.state == ST_STARTCONNECT)
 	{
-		map_udate_flag = 2;
 		draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
 		last_keepalive = SDL_GetTicks();
 		cpl.state = ST_CONNECT;
@@ -191,7 +184,6 @@ static int game_status_chain(void)
 	else if (cpl.state == ST_WAITFORPLAY)
 	{
 		clear_map();
-		map_udate_flag = 2;
 	}
 
 	return 1;
@@ -242,24 +234,6 @@ void list_vid_modes(void)
 	{
 		logger_print(LOG(ERROR), "No video modes available!");
 		exit(1);
-	}
-}
-
-/**
- * Map, animations and other effects. */
-static void display_layer1(void)
-{
-	SDL_FillRect(ScreenSurface, NULL, 0);
-}
-
-/**
- * Process the widgets if we're playing. */
-static void display_layer3(void)
-{
-	/* Process the widgets */
-	if (cpl.state == ST_PLAY)
-	{
-		process_widgets();
 	}
 }
 
@@ -548,25 +522,16 @@ int main(int argc, char *argv[])
 				{
 					anim_tick = LastTick;
 					animate_objects();
-					map_udate_flag = 2;
 				}
 
 				play_action_sounds();
 			}
 
-			map_udate_flag = 2;
+			SDL_FillRect(ScreenSurface, NULL, 0);
 
-			if (map_udate_flag > 0)
+			if (cpl.state == ST_PLAY)
 			{
-				display_layer1();
-				display_layer3();
-
-				if (cpl.state != ST_PLAY)
-				{
-					SDL_FillRect(ScreenSurface, NULL, 0);
-				}
-
-				map_udate_flag = 0;
+				process_widgets(1);
 			}
 
 			/* Show the currently dragged item. */
@@ -589,8 +554,14 @@ int main(int argc, char *argv[])
 			}
 
 			popup_render_all();
-
 			tooltip_show();
+		}
+		else
+		{
+			if (cpl.state == ST_PLAY)
+			{
+				process_widgets(0);
+			}
 		}
 
 		texture_gc();
@@ -600,18 +571,24 @@ int main(int argc, char *argv[])
 
 		if (!setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME))
 		{
-			uint32 elapsed_time = SDL_GetTicks() - frame_start_time, wanted_fps;
+			uint32 elapsed_time;
+				elapsed_time = SDL_GetTicks() - frame_start_time;
 
-			wanted_fps = FRAMES_PER_SECOND;
-
-			if (!(SDL_GetAppState() & SDL_APPACTIVE))
+			while (1)
 			{
-				wanted_fps = 2;
-			}
 
-			if (elapsed_time < 1000 / wanted_fps)
-			{
-				SDL_Delay(1000 / wanted_fps - elapsed_time);
+				if (elapsed_time < 1000 / FRAMES_PER_SECOND)
+				{
+					SDL_Delay(MAX(1, 1000 / FRAMES_PER_SECOND - elapsed_time));
+
+					if (!(SDL_GetAppState() & SDL_APPACTIVE) && SDL_GetTicks() - frame_start_time < 1000)
+					{
+						SDL_PumpEvents();
+						continue;
+					}
+				}
+
+				break;
 			}
 		}
 		else

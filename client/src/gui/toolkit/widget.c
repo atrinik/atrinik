@@ -1154,8 +1154,6 @@ int widgets_event(SDL_Event *event)
 
 			move_widget_rec(widget, nx - widget->x, ny - widget->y);
 			widget_ensure_onscreen(widget);
-
-			map_udate_flag = 2;
 		}
 		else if (event->type == SDL_MOUSEBUTTONDOWN)
 		{
@@ -1466,33 +1464,19 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 }
 
 /**
- * Traverse through all the widgets and call the corresponding handlers.
- * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
-void process_widgets(void)
-{
-	/* sanity check */
-	if (!widget_list_foot)
-	{
-		return;
-	}
-
-	process_widgets_rec(widget_list_foot);
-}
-
-/**
  * The priority list is a binary tree, so we walk the tree by using loops and recursions.
  * We actually only need to recurse for every child node. When we traverse the siblings, we can just do a simple loop.
  * This makes it as fast as a linear linked list if there are no child nodes. */
-void process_widgets_rec(widgetdata *widget)
+static void process_widgets_rec(int draw, widgetdata *widget)
 {
-	do
+	for ( ; widget; widget = widget->prev)
 	{
 		if (widget->background_func)
 		{
 			widget->background_func(widget);
 		}
 
-		if (widget->show && widget->draw_func)
+		if (draw && widget->show && widget->draw_func)
 		{
 			if (widget->texture)
 			{
@@ -1516,13 +1500,17 @@ void process_widgets_rec(widgetdata *widget)
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
 		{
-			process_widgets_rec(widget->inv_rev);
+			process_widgets_rec(draw, widget->inv_rev);
 		}
-
-		/* get the previous sibling for our next loop */
-		widget = widget->prev;
 	}
-	while (widget);
+}
+
+/**
+ * Traverse through all the widgets and call the corresponding handlers.
+ * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
+void process_widgets(int draw)
+{
+	process_widgets_rec(draw, widget_list_foot);
 }
 
 /**
