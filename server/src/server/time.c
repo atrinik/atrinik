@@ -179,11 +179,9 @@ static void log_time(long process_utime)
 void sleep_delta(void)
 {
 	static struct timeval new_time;
-	static struct timeval def_time = {0, 100000};
-	static struct timeval sleep_time;
 	long sleep_sec, sleep_usec;
 
-	(void) GETTIMEOFDAY(&new_time);
+	GETTIMEOFDAY(&new_time);
 
 	sleep_sec = last_time.tv_sec - new_time.tv_sec;
 	sleep_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
@@ -205,35 +203,20 @@ void sleep_delta(void)
 
 	if (sleep_sec >= 0 && sleep_usec > 0)
 	{
+		static struct timeval sleep_time;
+
 		sleep_time.tv_sec = sleep_sec;
 		sleep_time.tv_usec = sleep_usec;
 
-		/* we ignore seconds to sleep - there is NO reason to put the server
-		 * for even a single second to sleep when there is someone connected. */
-		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
+#ifndef WIN32
+		select(0, NULL, NULL, NULL, &sleep_time);
+#else
+		if (sleep_time.tv_sec)
 		{
-			logger_print(LOG(BUG), "sleep delta out of range! (%"FMT64U"s %"FMT64U"us)", (uint64) sleep_time.tv_sec, (uint64) sleep_time.tv_usec);
+			Sleep(sleep_time.tv_sec * 1000);
 		}
 
-#ifndef WIN32
-		/* 'select' doesn't work on Windows, 'Sleep' is used instead */
-		if (sleep_time.tv_sec || sleep_time.tv_usec > 500000)
-		{
-			select(0, NULL, NULL, NULL, &def_time);
-		}
-		else
-		{
-			select(0, NULL, NULL, NULL, &sleep_time);
-		}
-#else
-		if (sleep_time.tv_usec >= 1000)
-		{
-			Sleep((int) (sleep_time.tv_usec / 1000));
-		}
-		else if (sleep_time.tv_usec)
-		{
-			Sleep(1);
-		}
+        Sleep((int) (sleep_time.tv_usec / 1000.0));
 #endif
 	}
 	else
@@ -252,7 +235,7 @@ void sleep_delta(void)
 
 	/* Don't do too much catching up:
 	 * (Things can still get jerky on a slow/loaded computer) */
-	if (last_time.tv_sec * 1000000 + last_time.tv_usec < new_time.tv_sec * 1000000 + new_time.tv_usec)
+	if ((last_time.tv_sec - new_time.tv_sec) * 1000000 + (last_time.tv_usec - new_time.tv_usec) < 0)
 	{
 		last_time.tv_sec = new_time.tv_sec;
 		last_time.tv_usec = new_time.tv_usec;
