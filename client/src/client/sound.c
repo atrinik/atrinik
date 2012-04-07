@@ -35,7 +35,7 @@
 static char *sound_background;
 /**
  * When the background music started playing. */
-static struct timeval sound_background_started;
+static uint32 sound_background_started;
 /**
  * If 1, will not allow music change based on map. */
 static uint8 sound_map_background_disabled = 0;
@@ -175,6 +175,7 @@ static void sound_music_finished(void)
 
 	if (sound_background_update_duration && (!sound_background_duration || duration != sound_background_duration))
 	{
+		logger_print(LOG(INFO), "Updating: %s, previous: %d, new: %d", bg_music, sound_background_duration, duration);
 		sound_music_file_set_duration(bg_music, duration);
 	}
 
@@ -376,7 +377,6 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	sound_stop_bg_music();
 
 	sound_background = strdup(path);
-	gettimeofday(&sound_background_started, NULL);
 	sound_background_loop = loop;
 	sound_background_volume = volume;
 	sound_background_duration = sound_music_file_get_duration(filename);
@@ -384,6 +384,8 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
 	Mix_VolumeMusic(volume);
 	Mix_PlayMusic((Mix_Music *) tmp->data, 0);
+
+	sound_background_started = SDL_GetTicks();
 
 	/* Due to a bug in SDL_mixer, some audio types (such as XM, among
 	 * others) will continue playing even when the volume has been set to
@@ -543,16 +545,12 @@ uint8 sound_map_background(int val)
  * @return The offset. */
 uint32 sound_music_get_offset(void)
 {
-	struct timeval tv;
-
 	if (!sound_background)
 	{
 		return 0;
 	}
 
-	gettimeofday(&tv, NULL);
-
-	return ((double) (tv.tv_sec - sound_background_started.tv_sec) + ((double) (tv.tv_usec - sound_background_started.tv_usec) / 1000000.0)) - 0.5;
+	return (SDL_GetTicks() - sound_background_started) / 1000;
 }
 
 /**
@@ -592,8 +590,7 @@ void sound_music_seek(uint32 offset)
 	Mix_RewindMusic();
 	Mix_SetMusicPosition(offset);
 
-	gettimeofday(&sound_background_started, NULL);
-	sound_background_started.tv_sec -= offset;
+	sound_background_started = SDL_GetTicks() - offset;
 }
 
 /**
