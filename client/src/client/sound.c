@@ -175,7 +175,6 @@ static void sound_music_finished(void)
 
 	if (sound_background_update_duration && (!sound_background_duration || duration != sound_background_duration))
 	{
-		logger_print(LOG(INFO), "Updating: %s, previous: %d, new: %d", bg_music, sound_background_duration, duration);
 		sound_music_file_set_duration(bg_music, duration);
 	}
 
