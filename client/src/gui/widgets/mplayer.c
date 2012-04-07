@@ -457,7 +457,7 @@ static void widget_background(widgetdata *widget)
 	}
 
 	duration = sound_music_get_duration();
-	num_lines = duration + duration / 10;
+	num_lines = duration + MAX(1, duration / 10);
 
 	if (num_lines != scrollbar_progress_info.num_lines)
 	{
