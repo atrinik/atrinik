@@ -535,7 +535,7 @@ void list_remove(list_struct *list)
  * @param list List to scroll.
  * @param up If 1, scroll the list upwards, otherwise downwards.
  * @param scroll Amount to scroll by. */
-static void list_scroll(list_struct *list, int up, int scroll)
+void list_scroll(list_struct *list, int up, int scroll)
 {
 	/* The actual values are unsigned. Changing them to signed here
 	 * makes it easier to check for overflows below. */
