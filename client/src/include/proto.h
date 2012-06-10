@@ -373,6 +373,7 @@ extern void list_clear_rows(list_struct *list);
 extern void list_clear(list_struct *list);
 extern void list_offsets_ensure(list_struct *list);
 extern void list_remove(list_struct *list);
+extern void list_scroll(list_struct *list, int up, int scroll);
 extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
 extern int list_handle_mouse(list_struct *list, SDL_Event *event);
 extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
@@ -685,11 +686,8 @@ extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);
 /* src/gui/widgets/quickslots.c */
-extern int quickslot_group;
-extern int quickslots_pos[8][2];
 extern void quickslots_init(void);
 extern void quickslots_handle_key(int slot);
-extern int get_quickslot(int x, int y);
 extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
 /* src/gui/widgets/regen.c */
