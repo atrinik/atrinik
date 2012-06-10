@@ -78,6 +78,19 @@ static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag
 }
 
 /**
+ * Scroll the quickslots list.
+ * @param widget Quickslots widget.
+ * @param up If 1, scroll upwards, otherwise scroll downwards.
+ * @param scroll Scroll amount. */
+void quickslots_scroll(widgetdata *widget, int up, int scroll)
+{
+	widget_quickslots_struct *tmp;
+
+	tmp = (widget_quickslots_struct *) widget->subwidget;
+	list_scroll(tmp->list, up, scroll);
+}
+
+/**
  * Remove item from the quickslots by tag.
  * @param tag Item tag to remove from quickslots. */
 static void quickslots_remove(widgetdata *widget, tag_t tag)
