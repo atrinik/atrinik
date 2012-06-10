@@ -38,6 +38,17 @@
  * mass-change blacklist status. */
 #define BLACKLIST_ALL_DELAY 1500
 
+enum
+{
+	BUTTON_PLAY,
+	BUTTON_SHUFFLE,
+	BUTTON_BLACKLIST,
+	BUTTON_CLOSE,
+	BUTTON_HELP,
+
+	BUTTON_NUM
+};
+
 /**
  * Is shuffle enabled? */
 static uint8 shuffle = 0;
@@ -46,7 +57,7 @@ static uint8 shuffle = 0;
 static uint8 *shuffle_blacklist = NULL;
 /**
  * Button buffer. */
-static button_struct button_play, button_shuffle, button_blacklist, button_close, button_help;
+static button_struct buttons[BUTTON_NUM];
 /**
  * Scrollbar buffer. */
 static scrollbar_struct scrollbar_progress;
@@ -289,9 +300,9 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box, box2;
-	const char *bg_music;
+	SDL_Rect box;
 	char buf[HUGE_BUF];
+	size_t i;
 
 	/* The list doesn't exist yet, create it. */
 	if (!list_mplayer)
@@ -355,14 +366,17 @@ static void widget_draw(widgetdata *widget)
 			list_add(list_mplayer, list_mplayer->rows, 0, "Disable music");
 		}
 
-		button_create(&button_play);
-		button_create(&button_shuffle);
-		button_create(&button_blacklist);
-		button_create(&button_help);
-		button_create(&button_close);
-		button_blacklist.texture = button_help.texture = button_close.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_blacklist.texture_pressed = button_help.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_blacklist.texture_over = button_help.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			button_create(&buttons[i]);
+
+			if (i == BUTTON_BLACKLIST || i == BUTTON_HELP || i == BUTTON_CLOSE)
+			{
+				buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+				buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+				buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+			}
+		}
 
 		scrollbar_create(&scrollbar_progress, 130, 11, &scrollbar_progress_info.scroll_offset, &scrollbar_progress_info.num_lines, 1);
 		scrollbar_progress.redraw = &scrollbar_progress_info.redraw;
@@ -370,6 +384,8 @@ static void widget_draw(widgetdata *widget)
 
 	if (widget->redraw)
 	{
+		const char *bg_music;
+
 		box.h = 0;
 		box.w = widget->w;
 		text_show(widget->surface, FONT_SERIF12, "Music Player", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
@@ -377,6 +393,22 @@ static void widget_draw(widgetdata *widget)
 		list_show(list_mplayer, 10, 2);
 		box.w /= 2;
 		text_show(widget->surface, FONT_SANS10, "Currently playing:", widget->w / 2, 22, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+
+		bg_music = sound_get_bg_music_basename();
+		box.h = 0;
+		box.w = widget->w / 2;
+
+		/* Store the background music file name in temporary buffer and
+		 * make sure it won't overflow by truncating it if necessary. */
+		if (bg_music)
+		{
+			strncpy(buf, bg_music, sizeof(buf) - 1);
+			buf[sizeof(buf) - 1] = '\0';
+			text_truncate_overflow(FONT_SANS11, buf, 150);
+		}
+
+		/* Show the music that is being played. */
+		text_show(widget->surface, FONT_SANS11, bg_music ? buf : "No music", widget->w / 2 - 5, 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
 		scrollbar_progress.px = widget->x;
 		scrollbar_progress.py = widget->y;
@@ -386,62 +418,36 @@ static void widget_draw(widgetdata *widget)
 		box.w -= 6;
 		text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.", widget->w / 2, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
-		widget->redraw = list_need_redraw(list_mplayer);
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			buttons[i].surface = widget->surface;
+			button_set_parent(&buttons[i], widget->x, widget->y);
+		}
+
+		buttons[BUTTON_PLAY].x = 10;
+		buttons[BUTTON_PLAY].y = widget->h - TEXTURE_CLIENT("button")->h - 4;
+		button_show(&buttons[BUTTON_PLAY], sound_map_background(-1) ? "Stop" : "Play");
+
+		buttons[BUTTON_SHUFFLE].x = 10 + TEXTURE_CLIENT("button")->w + 5;
+		buttons[BUTTON_SHUFFLE].y = widget->h - TEXTURE_CLIENT("button")->h - 4;
+		buttons[BUTTON_SHUFFLE].pressed_forced = shuffle;
+		button_show(&buttons[BUTTON_SHUFFLE], "Shuffle");
+
+		buttons[BUTTON_BLACKLIST].x = 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
+		buttons[BUTTON_BLACKLIST].y = widget->h - TEXTURE_CLIENT("button_round")->h - 5;
+		buttons[BUTTON_BLACKLIST].disabled = list_mplayer->row_selected == list_mplayer->rows;
+		button_show(&buttons[BUTTON_BLACKLIST], mplayer_blacklisted(list_mplayer) ? "+" : "-");
+
+		/* Show close button. */
+		buttons[BUTTON_CLOSE].x = widget->w - TEXTURE_CLIENT("button_round")->w - 4;
+		buttons[BUTTON_CLOSE].y = 4;
+		button_show(&buttons[BUTTON_CLOSE], "X");
+
+		/* Show help button. */
+		buttons[BUTTON_HELP].x = widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
+		buttons[BUTTON_HELP].y = 4;
+		button_show(&buttons[BUTTON_HELP], "?");
 	}
-
-	box2.x = widget->x;
-	box2.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
-
-	bg_music = sound_get_bg_music_basename();
-	box.h = 0;
-	box.w = widget->w / 2;
-
-	/* Store the background music file name in temporary buffer and
-	 * make sure it won't overflow by truncating it if necessary. */
-	if (bg_music)
-	{
-		strncpy(buf, bg_music, sizeof(buf) - 1);
-		buf[sizeof(buf) - 1] = '\0';
-		text_truncate_overflow(FONT_SANS11, buf, 150);
-	}
-
-	/* Show the music that is being played. */
-	text_show(ScreenSurface, FONT_SANS11, bg_music ? buf : "No music", widget->x + widget->w / 2 - 5, widget->y + 34, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-
-	button_play.x = widget->x + 10;
-	button_play.y = widget->y + widget->h - TEXTURE_CLIENT("button")->h - 4;
-	button_show(&button_play, sound_map_background(-1) ? "Stop" : "Play");
-
-	button_shuffle.x = widget->x + 10 + TEXTURE_CLIENT("button")->w + 5;
-	button_shuffle.y = widget->y + widget->h - TEXTURE_CLIENT("button")->h - 4;
-	button_shuffle.pressed_forced = shuffle;
-	button_show(&button_shuffle, "Shuffle");
-
-	button_blacklist.x = widget->x + 10 + TEXTURE_CLIENT("button")->w * 2 + 5 * 2;
-	button_blacklist.y = widget->y + widget->h - TEXTURE_CLIENT("button_round")->h - 5;
-	button_blacklist.disabled = list_mplayer->row_selected == list_mplayer->rows;
-
-	/* Do mass blacklist status change if the button has been held for
-	 * some time. */
-	if (button_blacklist.pressed && SDL_GetTicks() - button_blacklist.pressed_ticks > BLACKLIST_ALL_DELAY)
-	{
-		mplayer_blacklist_mass_toggle(list_mplayer, mplayer_blacklisted(list_mplayer));
-		mplayer_blacklist_save(list_mplayer);
-		button_blacklist.pressed_ticks = SDL_GetTicks();
-	}
-
-	button_show(&button_blacklist, mplayer_blacklisted(list_mplayer) ? "+" : "-");
-
-	/* Show close button. */
-	button_close.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w - 4;
-	button_close.y = widget->y + 4;
-	button_show(&button_close, "X");
-
-	/* Show help button. */
-	button_help.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
-	button_help.y = widget->y + 4;
-	button_show(&button_help, "?");
 }
 
 /** @copydoc widgetdata::background_func */
@@ -489,11 +495,41 @@ static void widget_background(widgetdata *widget)
 			}
 		}
 	}
+
+	/* Do mass blacklist status change if the button has been held for
+	 * some time. */
+	if (buttons[BUTTON_BLACKLIST].pressed && SDL_GetTicks() - buttons[BUTTON_BLACKLIST].pressed_ticks > BLACKLIST_ALL_DELAY)
+	{
+		mplayer_blacklist_mass_toggle(list_mplayer, mplayer_blacklisted(list_mplayer));
+		mplayer_blacklist_save(list_mplayer);
+		buttons[BUTTON_BLACKLIST].pressed_ticks = SDL_GetTicks();
+	}
+
+	if (!widget->redraw)
+	{
+		widget->redraw = list_need_redraw(list_mplayer);
+	}
+
+	if (!widget->redraw)
+	{
+		size_t i;
+
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			if (button_need_redraw(&buttons[i]))
+			{
+				widget->redraw = 1;
+				break;
+			}
+		}
+	}
 }
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
+	size_t i;
+
 	if (list_mplayer)
 	{
 		if (list_handle_mouse(list_mplayer, event))
@@ -508,54 +544,65 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		}
 	}
 
-	if (button_event(&button_play, event))
+	for (i = 0; i < BUTTON_NUM; i++)
 	{
-		if (sound_map_background(-1))
+		if (button_event(&buttons[i], event))
 		{
-			sound_start_bg_music("no_music", 0, 0);
-			sound_map_background(0);
-			shuffle = 0;
-		}
-		else
-		{
-			list_handle_enter(list_mplayer);
+			switch (i)
+			{
+				case BUTTON_PLAY:
+					if (sound_map_background(-1))
+					{
+						sound_start_bg_music("no_music", 0, 0);
+						sound_map_background(0);
+						shuffle = 0;
+					}
+					else
+					{
+						list_handle_enter(list_mplayer);
+					}
+
+					break;
+
+				case BUTTON_SHUFFLE:
+					shuffle = !shuffle;
+
+					if (shuffle)
+					{
+						mplayer_do_shuffle(list_mplayer);
+						sound_map_background(1);
+					}
+					else
+					{
+						sound_start_bg_music("no_music", 0, 0);
+						sound_map_background(0);
+					}
+
+					break;
+
+				case BUTTON_BLACKLIST:
+					/* Toggle the blacklist state of the selected row. */
+					mplayer_blacklist_toggle(list_mplayer);
+					mplayer_blacklist_save(list_mplayer);
+					break;
+
+				case BUTTON_CLOSE:
+					widget->show = 0;
+					break;
+
+				case BUTTON_HELP:
+					help_show("music player");
+					break;
+			}
+
+			widget->redraw = 1;
+			return 1;
 		}
 
-		return 1;
-	}
-	else if (button_event(&button_shuffle, event))
-	{
-		shuffle = !shuffle;
-
-		if (shuffle)
+		if (buttons[i].redraw)
 		{
-			mplayer_do_shuffle(list_mplayer);
-			sound_map_background(1);
+			widget->redraw = 1;
 		}
-		else
-		{
-			sound_start_bg_music("no_music", 0, 0);
-			sound_map_background(0);
-		}
-
-		return 1;
-	}
-	else if (button_event(&button_blacklist, event))
-	{
-		/* Toggle the blacklist state of the selected row. */
-		mplayer_blacklist_toggle(list_mplayer);
-		mplayer_blacklist_save(list_mplayer);
-		return 1;
-	}
-	else if (button_event(&button_close, event))
-	{
-		widget->show = 0;
-		return 1;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("music player");
-		return 1;
 	}
 
 	return 0;

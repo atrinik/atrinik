@@ -250,6 +250,13 @@ static void DisplayCustomCursor(void)
 	}
 }
 
+/**
+ * Hook for detecting background music changes. */
+static void sound_background_hook(void)
+{
+	WIDGET_REDRAW_ALL(MPLAYER_ID);
+}
+
 void clioption_settings_deinit(void)
 {
 	size_t i;
@@ -469,6 +476,8 @@ int main(int argc, char *argv[])
 	settings_apply();
 	scrollbar_init();
 	button_init();
+
+	sound_background_hook_register(sound_background_hook);
 
 	LastTick = anim_tick = SDL_GetTicks();
 
