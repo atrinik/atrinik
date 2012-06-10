@@ -67,7 +67,6 @@ static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag
 
 	tmp = (widget_quickslots_struct *) widget->subwidget;
 	slot = (row * MAX_QUICK_SLOTS) + (col + 1);
-	logger_print(LOG(INFO), "%d, %u, %u", slot, row, col);
 
 	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
 	packet_append_uint8(packet, slot);
