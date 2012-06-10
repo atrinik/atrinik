@@ -64,6 +64,27 @@ static int sound_background_volume;
 /**
  * Loaded sounds. */
 static sound_data_struct *sound_data;
+/**
+ * Hook function calle whenever ::sound_background changes its value. */
+static void (*sound_background_hook)(void);
+
+/**
+ * Execute the ::sound_background_hook callback. */
+static void sound_background_hook_execute(void)
+{
+	if (sound_background_hook)
+	{
+		sound_background_hook();
+	}
+}
+
+/**
+ * Register a new ::sound_background_hook callback.
+ * @param ptr New callback to register. */
+void sound_background_hook_register(void *ptr)
+{
+	sound_background_hook = ptr;
+}
 
 /**
  * Add a sound entry to the ::sound_data array.
@@ -172,6 +193,7 @@ static void sound_music_finished(void)
 	duration = sound_music_get_offset();
 
 	sound_background = NULL;
+	sound_background_hook_execute();
 
 	if (sound_background_update_duration && (!sound_background_duration || duration != sound_background_duration))
 	{
@@ -198,6 +220,7 @@ static void sound_music_finished(void)
 void sound_init(void)
 {
 	sound_background = NULL;
+	sound_background_hook = NULL;
 
 #ifdef HAVE_SDL_MIXER
 	sound_data = NULL;
@@ -376,6 +399,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 	sound_stop_bg_music();
 
 	sound_background = strdup(path);
+	sound_background_hook_execute();
 	sound_background_loop = loop;
 	sound_background_volume = volume;
 	sound_background_duration = sound_music_file_get_duration(filename);
@@ -410,6 +434,7 @@ void sound_stop_bg_music(void)
 	{
 		free(sound_background);
 		sound_background = NULL;
+		sound_background_hook_execute();
 #ifdef HAVE_SDL_MIXER
 		Mix_HaltMusic();
 #endif
