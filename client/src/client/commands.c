@@ -177,12 +177,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 	{
 		type = packet_to_uint8(data, len, &pos);
 
-		if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END)
-		{
-			cpl.stats.protection[type - CS_STAT_PROT_START] = packet_to_sint8(data, len, &pos);
-			WIDGET_REDRAW_ALL(RESIST_ID);
-		}
-		else if (type >= CS_STAT_EQUIP_START && type <= CS_STAT_EQUIP_END)
+		if (type >= CS_STAT_EQUIP_START && type <= CS_STAT_EQUIP_END)
 		{
 			cpl.equipment[type - CS_STAT_EQUIP_START] = object_find(packet_to_uint32(data, len, &pos));
 			WIDGET_REDRAW_ALL(PDOLL_ID);
@@ -219,22 +214,22 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					}
 
 					cpl.stats.hp = temp;
-					WIDGET_REDRAW_ALL(STATS_ID);
+					widget_redraw_type_id(STAT_ID, "health");
 					break;
 
 				case CS_STAT_MAXHP:
 					cpl.stats.maxhp = packet_to_uint32(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
+					widget_redraw_type_id(STAT_ID, "health");
 					break;
 
 				case CS_STAT_SP:
 					cpl.stats.sp = packet_to_uint16(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
+					widget_redraw_type_id(STAT_ID, "mana");
 					break;
 
 				case CS_STAT_MAXSP:
 					cpl.stats.maxsp = packet_to_uint16(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
+					widget_redraw_type_id(STAT_ID, "mana");
 					break;
 
 				case CS_STAT_PATH_ATTUNED:
@@ -277,7 +272,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
 				case CS_STAT_FOOD:
 					cpl.stats.food = packet_to_uint16(data, len, &pos);
-					WIDGET_REDRAW_ALL(STATS_ID);
+					widget_redraw_type_id(STAT_ID, "food");
 					break;
 
 				case CS_STAT_WEAPON_SPEED:
@@ -303,6 +298,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
 				case CS_STAT_EXT_TITLE:
 					packet_to_string(data, len, &pos, cpl.ext_title, sizeof(cpl.ext_title));
+					WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
 					break;
 
 				case CS_STAT_RANGED_DAM:

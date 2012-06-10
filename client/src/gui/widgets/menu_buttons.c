@@ -72,71 +72,81 @@ static const char *const button_tooltips[NUM_BUTTONS] =
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
 	size_t i;
-	const char *text;
-	int x, y;
 
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+	if (widget->redraw)
+	{
+		const char *text;
+		int x, y;
 
-	x = 4;
-	y = 3;
+		x = 4;
+		y = 3;
 
-	/* Render the buttons. */
+		/* Render the buttons. */
+		for (i = 0; i < NUM_BUTTONS; i++)
+		{
+			if (i && !(i % 3))
+			{
+				x = 4;
+				y += texture_surface(buttons[i].texture)->h + 1;
+			}
+
+			text = NULL;
+
+			if (i == BUTTON_HELP)
+			{
+				text = "<y=2>?";
+			}
+			else if (i == BUTTON_SPELLS)
+			{
+				buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;
+			}
+			else if (i == BUTTON_MPLAYER)
+			{
+				buttons[i].pressed_forced = cur_widget[MPLAYER_ID]->show;
+			}
+			else if (i == BUTTON_SKILLS)
+			{
+				buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
+			}
+			else if (i == BUTTON_PARTY)
+			{
+				buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
+			}
+			else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE)
+			{
+				widgetdata *tmp;
+
+				tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
+				buttons[i].pressed_forced = tmp ? tmp->show : 0;
+			}
+
+			buttons[i].x = x;
+			buttons[i].y = y;
+			buttons[i].surface = widget->surface;
+			button_set_parent(&buttons[i], widget->x, widget->y);
+			button_show(&buttons[i], text);
+
+			if (button_images[i])
+			{
+				char buf[MAX_BUF];
+
+				snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
+				surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(buf));
+			}
+
+			x += texture_surface(buttons[i].texture)->w + 3;
+		}
+	}
+
 	for (i = 0; i < NUM_BUTTONS; i++)
 	{
-		if (i && !(i % 3))
-		{
-			x = 4;
-			y += texture_surface(buttons[i].texture)->h + 1;
-		}
-
-		text = NULL;
-
-		if (i == BUTTON_HELP)
-		{
-			text = "<y=2>?";
-		}
-		else if (i == BUTTON_SPELLS)
-		{
-			buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;
-		}
-		else if (i == BUTTON_MPLAYER)
-		{
-			buttons[i].pressed_forced = cur_widget[MPLAYER_ID]->show;
-		}
-		else if (i == BUTTON_SKILLS)
-		{
-			buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
-		}
-		else if (i == BUTTON_PARTY)
-		{
-			buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
-		}
-		else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE)
-		{
-			widgetdata *tmp;
-
-			tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
-			buttons[i].pressed_forced = tmp ? tmp->show : 0;
-		}
-
-		buttons[i].x = widget->x + x;
-		buttons[i].y = widget->y + y;
-		button_show(&buttons[i], text);
 		button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
 
-		if (button_images[i])
+		if (button_need_redraw(&buttons[i]))
 		{
-			char buf[MAX_BUF];
-
-			snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
-			surface_show(ScreenSurface, widget->x + x, widget->y + y, NULL, TEXTURE_CLIENT(buf));
+			widget->redraw++;
 		}
-
-		x += texture_surface(buttons[i].texture)->w + 3;
 	}
 }
 
@@ -200,7 +210,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 				SetPriorityWidget(tmp);
 			}
 
+			widget->redraw = 1;
+
 			return 1;
+		}
+		else if (buttons[i].redraw)
+		{
+			widget->redraw = 1;
 		}
 	}
 

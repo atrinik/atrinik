@@ -120,14 +120,12 @@
 		<Unit filename="..\..\src\gui\widgets\party.c" />
 		<Unit filename="..\..\src\gui\widgets\playerdoll.c" />
 		<Unit filename="..\..\src\gui\widgets\playerinfo.c" />
-		<Unit filename="..\..\src\gui\widgets\protections.c" />
 		<Unit filename="..\..\src\gui\widgets\quickslots.c" />
 		<Unit filename="..\..\src\gui\widgets\regen.c" />
 		<Unit filename="..\..\src\gui\widgets\skill_exp.c" />
-		<Unit filename="..\..\src\gui\widgets\skill_lvl.c" />
 		<Unit filename="..\..\src\gui\widgets\skills.c" />
 		<Unit filename="..\..\src\gui\widgets\spells.c" />
-		<Unit filename="..\..\src\gui\widgets\stats.c" />
+		<Unit filename="..\..\src\gui\widgets\stat.c" />
 		<Unit filename="..\..\src\gui\widgets\texture.c" />
 		<Unit filename="..\..\src\gui\widgets\textwin.c" />
 		<Unit filename="..\..\src\toolkit\binreloc.c" />

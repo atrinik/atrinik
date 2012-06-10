@@ -754,7 +754,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 				textwin_readjust(widget);
 				return 1;
 			}
-			else if (BUTTON_MOUSE_OVER(&textwin->tabs[i].button, event->motion.x, event->motion.y, texture_surface(textwin->tabs[i].button.texture)))
+
+			if (textwin->tabs[i].button.redraw)
 			{
 				WIDGET_REDRAW(widget);
 			}

@@ -381,7 +381,7 @@ void list_show(list_struct *list, int x, int y)
 		for (col = 0; col < list->cols; col++)
 		{
 			/* Is there any text to show? */
-			if (list->text[row][col])
+			if (list->text[row][col] && list->font != -1)
 			{
 				const char *text_color, *text_color_shadow;
 				SDL_Rect text_rect;

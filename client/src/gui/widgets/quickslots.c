@@ -30,63 +30,73 @@
 
 #include <global.h>
 
-/** Quick slot entries */
-static int quickslots[MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS];
-
-/** Current quickslot group */
-int quickslot_group = 1;
-
-/**
- * Quickslot positions, because some things change depending on
- * which quickslot bitmap is displayed. */
-int quickslots_pos[MAX_QUICK_SLOTS][2] =
+typedef struct widget_quickslots_struct
 {
-	{17, 1},
-	{50, 1},
-	{83, 1},
-	{116, 1},
-	{149, 1},
-	{182, 1},
-	{215, 1},
-	{248, 1}
-};
+	list_struct *list;
+} widget_quickslots_struct;
+
+void quickslots_init(void)
+{
+	widgetdata *widget;
+	widget_quickslots_struct *tmp;
+	uint32 i;
+
+	for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next)
+	{
+		tmp = (widget_quickslots_struct *) widget->subwidget;
+		list_clear(tmp->list);
+
+		for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
+		{
+			list_add(tmp->list, (uint32) ((double) i / (double) MAX_QUICK_SLOTS - 0.5), i % tmp->list->cols, NULL);
+		}
+	}
+}
 
 /**
  * Tell the server to set quickslot with ID 'slot' to the item with ID
  * 'tag'.
  * @param slot Quickslot ID.
  * @param tag ID of the item to set. */
-static void quickslot_set(uint8 slot, sint32 tag)
+static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag)
 {
+	widget_quickslots_struct *tmp;
+	uint32 slot;
 	packet_struct *packet;
+	char buf[MAX_BUF];
+
+	tmp = (widget_quickslots_struct *) widget->subwidget;
+	slot = (row + 1) * (col + 1);
 
 	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
 	packet_append_uint8(packet, slot);
-	packet_append_uint32(packet, tag);
+	packet_append_sint32(packet, tag);
 	socket_send_packet(packet);
-}
 
-void quickslots_init(void)
-{
-	memset(&quickslots, 0, sizeof(quickslots));
+	snprintf(buf, sizeof(buf), "%d", tag);
+	tmp->list->text[row][col] = strdup(buf);
 }
 
 /**
  * Remove item from the quickslots by tag.
- *
- * Will also make sure all the quickslot tags still resolve to the
- * correct inventory objects.
- * @param tag Item tag to remove from quickslots. -1 not to remove
- * anything. */
-static void quickslots_remove(int tag)
+ * @param tag Item tag to remove from quickslots. */
+static void quickslots_remove(widgetdata *widget, tag_t tag)
 {
-	int i;
+	widget_quickslots_struct *tmp;
+	uint32 row, col;
 
-	for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++)
+	tmp = (widget_quickslots_struct *) widget->subwidget;
+
+	for (row = 0; row < tmp->list->rows; row++)
 	{
-		if (quickslots[i] == tag)
+		for (col = 0; col < tmp->list->cols; col++)
 		{
-			quickslots[i] = -1;
+			if (tmp->list->text[row][col] && (tag_t) atoi(tmp->list->text[row][col]) == tag)
+			{
+				free(tmp->list->text[row][col]);
+				tmp->list->text[row][col] = NULL;
+				break;
+			}
 		}
 	}
 }
@@ -94,275 +104,173 @@ static void quickslots_remove(int tag)
 /* Handle quickslot key event. */
 void quickslots_handle_key(int slot)
 {
-	int real_slot;
+	widgetdata *widget;
+	widget_quickslots_struct *tmp;
+	uint32 row, col;
+	object *ob;
 
-	real_slot = slot;
-	slot = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + slot;
-
-	/* Put item into quickslot */
-	if (cpl.inventory_focus == MAIN_INV_ID)
+	for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next)
 	{
-		object *ob;
+		tmp = (widget_quickslots_struct *) widget->subwidget;
+		row = tmp->list->row_offset;
+		col = slot;
 
-		ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
-
-		if (!ob)
+		if (tmp->list->text[row][col])
 		{
-			return;
-		}
+			sint32 tag;
 
-		if (quickslots[slot] == ob->tag)
-		{
-			quickslots[slot] = -1;
-			quickslot_set(slot + 1, -1);
-		}
-		else
-		{
-			quickslots_remove(ob->tag);
+			tag = atoi(tmp->list->text[row][col]);
 
-			quickslots[slot] = ob->tag;
-			quickslot_set(slot + 1, ob->tag);
-
-			draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", real_slot + 1, quickslot_group, ob->s_name);
-		}
-	}
-	/* Apply item or ready spell */
-	else
-	{
-		object *tmp;
-
-		if (quickslots[slot] != -1 && (tmp = object_find(quickslots[slot])))
-		{
-			size_t spell_path, spell_id;
-			spell_entry_struct *spell;
-
-			if (tmp->itype == TYPE_SPELL && spell_find(tmp->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF)
+			if (cpl.inventory_focus == MAIN_INV_ID)
 			{
-				char buf[MAX_BUF];
+				ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
 
-				snprintf(buf, sizeof(buf), "/cast %s", tmp->s_name);
-				send_command_check(buf);
+				if (ob)
+				{
+					if (ob->tag == tag)
+					{
+						free(tmp->list->text[row][col]);
+						tmp->list->text[row][col] = NULL;
+						quickslot_set(widget, row, col, -1);
+					}
+					else
+					{
+						char buf[MAX_BUF];
+
+						quickslots_remove(widget, ob->tag);
+
+						snprintf(buf, sizeof(buf), "%d", ob->tag);
+						tmp->list->text[row][col] = strdup(buf);
+						quickslot_set(widget, row, col, ob->tag);
+					}
+				}
 			}
 			else
 			{
-				client_send_apply(quickslots[slot]);
+				size_t spell_path, spell_id;
+				spell_entry_struct *spell;
+
+				ob = object_find(tag);
+
+				if (ob->itype == TYPE_SPELL && spell_find(ob->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF)
+				{
+					char buf[MAX_BUF];
+
+					snprintf(buf, sizeof(buf), "/cast %s", ob->s_name);
+					send_command_check(buf);
+				}
+				else
+				{
+					client_send_apply(tag);
+				}
 			}
-		}
-		else
-		{
-			draw_info_format(COLOR_DGOLD, "F%d of group %d quick slot is empty", real_slot + 1, quickslot_group);
+
+			break;
 		}
 	}
 }
 
-/**
- * Get the current quickslot ID based on mouse coordinates.
- * @param x Mouse X.
- * @param y Mouse Y.
- * @return Quickslot ID if mouse is over it, -1 if not. */
-int get_quickslot(int x, int y)
+/** @copydoc list_struct::post_column_func */
+static void list_post_column(list_struct *list, uint32 row, uint32 col)
 {
-	int i, j;
-	int qsx, qsy, xoff;
+	object *tmp;
 
-	if (cur_widget[QUICKSLOT_ID]->h > 34)
+	if (!list->text[row][col])
 	{
-		qsx = 1;
-		qsy = 0;
-		xoff = 0;
-	}
-	else
-	{
-		qsx = 0;
-		qsy = 1;
-		xoff = -17;
+		return;
 	}
 
-	for (i = 0; i < MAX_QUICK_SLOTS; i++)
+	tmp = object_find_object(cpl.ob, atoi(list->text[row][col]));
+
+	if (tmp)
 	{
-		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
-
-		if (x >= cur_widget[QUICKSLOT_ID]->x + quickslots_pos[i][qsx] + xoff && x <= cur_widget[QUICKSLOT_ID]->x + quickslots_pos[i][qsx] + xoff + 32 && y >= cur_widget[QUICKSLOT_ID]->y + quickslots_pos[i][qsy] && y <= cur_widget[QUICKSLOT_ID]->y + quickslots_pos[i][qsy] + 32)
-		{
-			return j;
-		}
+		object_show_inventory(list->surface, tmp, list->x + list->frame_offset + INVENTORY_ICON_SIZE * col, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)));
 	}
+}
 
-	return -1;
+/** @copydoc list_struct::row_color_func */
+static void list_row_color(list_struct *list, int row, SDL_Rect box)
+{
+	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 25, 25, 25));
 }
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	int vertical_quickslot;
-	SDL_Surface *texture;
-	int i, j;
-	char buf[16];
-	int qsx, qsy, xoff;
+	widget_quickslots_struct *tmp;
 
-	vertical_quickslot = widget->h > 34;
-
-	/* Figure out which bitmap to use */
-	if (vertical_quickslot)
+	if (!widget->redraw)
 	{
-		qsx = 1;
-		qsy = 0;
-		xoff = 0;
-		texture = TEXTURE_CLIENT("quickslotsv");
-	}
-	else
-	{
-		qsx = 0;
-		qsy = 1;
-		xoff = -17;
-		texture = TEXTURE_CLIENT("quickslots");
+		return;
 	}
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, texture);
-	quickslots_remove(-1);
+	widget->redraw++;
 
-	/* Loop through quickslots. Do not loop through all the quickslots,
-	 * like MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS. */
-	for (i = 0; i < MAX_QUICK_SLOTS; i++)
-	{
-		/* Now calculate the real quickslot, according to the selected group */
-		j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
-
-		/* Item in quickslot */
-		if (quickslots[j] != -1)
-		{
-			object *tmp;
-
-			tmp = object_find_object(cpl.ob, quickslots[j]);
-
-			/* If we located the item */
-			if (tmp)
-			{
-				/* Show it */
-				object_show_inventory(tmp, widget->x + quickslots_pos[i][qsx] + xoff, widget->y + quickslots_pos[i][qsy]);
-			}
-		}
-
-		/* For each quickslot, output the F1-F8 shortcut */
-		snprintf(buf, sizeof(buf), "F%d", i + 1);
-		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + quickslots_pos[i][qsx] + xoff + 12, widget->y + quickslots_pos[i][qsy] - 7, COLOR_WHITE, TEXT_OUTLINE, NULL);
-	}
-
-	snprintf(buf, sizeof(buf), "Group %d", quickslot_group);
-
-	/* Now output the group */
-	if (vertical_quickslot)
-	{
-		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x - 1, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
-	}
-	else
-	{
-		text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x, widget->y + texture->h, COLOR_WHITE, TEXT_OUTLINE, NULL);
-	}
+	tmp = (widget_quickslots_struct *) widget->subwidget;
+	tmp->list->surface = widget->surface;
+	list_set_parent(tmp->list, widget->x, widget->y);
+	list_show(tmp->list, 2, 2);
 }
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-	if (event->type == SDL_MOUSEBUTTONUP)
+	widget_quickslots_struct *tmp;
+	uint32 row, col;
+
+	tmp = (widget_quickslots_struct *) widget->subwidget;
+
+	if (EVENT_IS_MOUSE(event) && list_mouse_get_pos(tmp->list, event->motion.x, event->motion.y, &row, &col))
 	{
-		int i;
-
-		i = get_quickslot(event->motion.x, event->motion.y);
-
-		/* Valid slot */
-		if (i != -1)
+		if (event->button.button == SDL_BUTTON_LEFT)
 		{
-			if (cpl.dragging_tag)
+			if (event->type == SDL_MOUSEBUTTONUP)
 			{
-				quickslots_remove(cpl.dragging_tag);
-				quickslots[i] = cpl.dragging_tag;
-
-				if (!object_find_object_inv(cpl.ob, cpl.dragging_tag))
+				if (event_dragging_check())
 				{
-					draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
+					if (!object_find_object_inv(cpl.ob, cpl.dragging_tag))
+					{
+						draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
+					}
+					else
+					{
+						quickslots_remove(widget, cpl.dragging_tag);
+						quickslot_set(widget, row, col, cpl.dragging_tag);
+					}
 				}
 				else
 				{
-					quickslot_set(i + 1, cpl.dragging_tag);
-					draw_info_format(COLOR_DGOLD, "Set F%d of group %d to %s", i + 1 - MAX_QUICK_SLOTS * quickslot_group + MAX_QUICK_SLOTS, quickslot_group, object_find(cpl.dragging_tag)->s_name);
+					quickslots_handle_key(col);
+				}
+
+				return 1;
+			}
+			else if (event->type == SDL_MOUSEBUTTONDOWN && tmp->list->text[row][col])
+			{
+				event_dragging_start(atoi(tmp->list->text[row][col]), event->motion.x, event->motion.y);
+				return 1;
+			}
+		}
+		else if (event->type == SDL_MOUSEMOTION)
+		{
+			if (tmp->list->text[row][col])
+			{
+				object *ob;
+
+				ob = object_find_object(cpl.ob, atoi(tmp->list->text[row][col]));
+
+				if (ob)
+				{
+					tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, ob->s_name);
 				}
 			}
 		}
 	}
-	else if (event->type == SDL_MOUSEBUTTONDOWN)
+
+	if (list_handle_mouse(tmp->list, event))
 	{
-		int i = get_quickslot(event->motion.x, event->motion.y);
-
-		if (i != -1)
-		{
-			if (event->button.button == SDL_BUTTON_LEFT)
-			{
-				if (quickslots[i] != -1)
-				{
-					event_dragging_start(quickslots[i], 0, 0);
-					quickslots[i] = -1;
-				}
-
-				quickslot_set(i + 1, -1);
-			}
-			else
-			{
-				draw_info_format(COLOR_DGOLD, "apply %s", object_find(quickslots[i])->s_name);
-				client_send_apply(quickslots[i]);
-			}
-		}
-		else if (event->motion.x >= widget->x + 266 && event->motion.x <= widget->x + 282 && event->motion.y >= widget->y && event->motion.y <= widget->y + 34 && (widget->h <= 34))
-		{
-			widget->w = 34;
-			widget->h = 282;
-			widget->x += 266;
-		}
-		else if (event->motion.x >= widget->x && event->motion.x <= widget->x + 34 && event->motion.y >= widget->y && event->motion.y <= widget->y + 15 && (widget->h > 34))
-		{
-			widget->w = 282;
-			widget->h = 34;
-			widget->x -= 266;
-		}
-	}
-	else if (event->type == SDL_MOUSEMOTION)
-	{
-		int i, j, qsx, qsy, xoff;
-
-		if (widget->h > 34)
-		{
-			qsx = 1;
-			qsy = 0;
-			xoff = 0;
-		}
-		else
-		{
-			qsx = 0;
-			qsy = 1;
-			xoff = -17;
-		}
-
-		for (i = 0; i < MAX_QUICK_SLOTS; i++)
-		{
-			/* Now calculate the real quickslot, according to the selected group */
-			j = MAX_QUICK_SLOTS * quickslot_group - MAX_QUICK_SLOTS + i;
-
-			if (event->motion.x >= widget->x + quickslots_pos[i][qsx] + xoff && event->motion.x < widget->x + quickslots_pos[i][qsx] + xoff + 33 && event->motion.y >= widget->y + quickslots_pos[i][qsy] && event->motion.y < widget->y + quickslots_pos[i][qsy] + 33)
-			{
-				if (quickslots[j] != -1)
-				{
-					object *tmp;
-
-					tmp = object_find_object(cpl.ob, quickslots[j]);
-
-					/* If we located the item */
-					if (tmp)
-					{
-						tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, tmp->s_name);
-					}
-				}
-			}
-		}
+		widget->redraw = 1;
+		return 1;
 	}
 
 	return 0;
@@ -372,20 +280,51 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
  * Initialize one quickslots widget. */
 void widget_quickslots_init(widgetdata *widget)
 {
+	widget_quickslots_struct *tmp;
+	uint32 i;
+
+	tmp = calloc(1, sizeof(*tmp));
+	tmp->list = list_create(1, MAX_QUICK_SLOTS, 0);
+	tmp->list->post_column_func = list_post_column;
+	tmp->list->row_color_func = list_row_color;
+	tmp->list->row_selected_func = NULL;
+	tmp->list->row_highlight_func = NULL;
+	tmp->list->row_height_adjust = INVENTORY_ICON_SIZE;
+	tmp->list->header_height = tmp->list->frame_offset = 0;
+	list_set_font(tmp->list, -1);
+	list_scrollbar_enable(tmp->list);
+
+	for (i = 0; i < tmp->list->cols; i++)
+	{
+		list_set_column(tmp->list, i, INVENTORY_ICON_SIZE, 0, NULL, -1);
+	}
+
 	widget->draw_func = widget_draw;
 	widget->event_func = widget_event;
+	widget->subwidget = tmp;
 }
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
 {
+	widgetdata *widget;
+	widget_quickslots_struct *tmp;
 	uint8 slot;
+	tag_t tag;
+	char buf[MAX_BUF];
 
 	quickslots_init();
 
 	while (pos < len)
 	{
 		slot = packet_to_uint8(data, len, &pos);
-		quickslots[slot] = packet_to_uint32(data, len, &pos);
+		tag = packet_to_uint32(data, len, &pos);
+		snprintf(buf, sizeof(buf), "%d", tag);
+
+		for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next)
+		{
+			tmp = (widget_quickslots_struct *) widget->subwidget;
+			list_add(tmp->list, (uint32) ((double) slot / (double) MAX_QUICK_SLOTS - 0.5), slot % tmp->list->cols, buf);
+		}
 	}
 }

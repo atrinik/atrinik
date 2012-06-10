@@ -33,15 +33,14 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box, box2;
+	SDL_Rect box;
 
-	box2.x = widget->x;
-	box2.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
-
-	box.w = widget->w - 12;
-	box.h = 36;
-	text_show(ScreenSurface, FONT_ARIAL10, cpl.ext_title, widget->x + 6, widget->y + 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	if (widget->redraw)
+	{
+		box.w = widget->w - 12;
+		box.h = 36;
+		text_show(widget->surface, FONT_ARIAL10, cpl.ext_title, 6, 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+	}
 }
 
 /**

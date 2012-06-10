@@ -502,7 +502,7 @@ void animate_objects(void)
  * @param tmp Object to show.
  * @param x X position.
  * @param y Y position. */
-void object_show_centered(object *tmp, int x, int y)
+void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
 {
 	int temp, xstart, xlen, ystart, ylen;
 	sint16 face;
@@ -615,5 +615,5 @@ void object_show_centered(object *tmp, int x, int y)
 		}
 	}
 
-	surface_show(ScreenSurface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
+	surface_show(surface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
 }

@@ -64,14 +64,14 @@ static void widget_draw(widgetdata *widget)
 {
 	text_input_struct *text_input;
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("number"));
+	widget->redraw++;
 
 	text_input = &WIDGET_INPUT(widget)->text_input;
 	text_input->w = widget->w - 16;
-	text_input_show(text_input, ScreenSurface, widget->x + widget->w / 2 - text_input->w / 2, widget->y + widget->h / 2 - text_input->h / 2 + 8);
+	text_input_show(text_input, widget->surface, widget->w / 2 - text_input->w / 2, widget->h / 2 - text_input->h / 2 + 8);
 
 	text_truncate_overflow(FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 220);
-	text_show(ScreenSurface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, widget->x + 8, widget->y + 6, COLOR_HGOLD, 0, NULL);
+	text_show(widget->surface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 8, 6, COLOR_HGOLD, 0, NULL);
 }
 
 /** @copydoc widgetdata::event_func */

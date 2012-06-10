@@ -162,14 +162,12 @@ set(SOURCES
 	src/gui/widgets/party.c
 	src/gui/widgets/playerdoll.c
 	src/gui/widgets/playerinfo.c
-	src/gui/widgets/protections.c
 	src/gui/widgets/quickslots.c
 	src/gui/widgets/regen.c
 	src/gui/widgets/skill_exp.c
-	src/gui/widgets/skill_lvl.c
 	src/gui/widgets/skills.c
 	src/gui/widgets/spells.c
-	src/gui/widgets/stats.c
+	src/gui/widgets/stat.c
 	src/gui/widgets/texture.c
 	src/gui/widgets/textwin.c
 	${SOURCES_TOOLKIT})

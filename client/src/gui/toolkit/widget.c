@@ -43,8 +43,8 @@
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] =
 {
-	"map", "stats", "protections", "main_lvl", "skill_exp", "regen",
-	"skill_lvl", "menu_buttons", "quickslots", "textwin", "playerdoll",
+	"map", "stat", "main_lvl", "skill_exp", "regen",
+	"menu_buttons", "quickslots", "textwin", "playerdoll",
 	"belowinv", "playerinfo", "maininv", "mapname",
 	"input", "fps", "mplayer", "spells", "skills", "party", "notification",
 	"container", "label", "texture", "buddy",
@@ -266,14 +266,12 @@ void toolkit_widget_init(void)
 	widget_initializers[PARTY_ID] = widget_party_init;
 	widget_initializers[PDOLL_ID] = widget_playerdoll_init;
 	widget_initializers[PLAYER_INFO_ID] = widget_playerinfo_init;
-	widget_initializers[RESIST_ID] = widget_protections_init;
 	widget_initializers[QUICKSLOT_ID] = widget_quickslots_init;
 	widget_initializers[REGEN_ID] = widget_regen_init;
 	widget_initializers[SKILL_EXP_ID] = widget_skill_exp_init;
-	widget_initializers[SKILL_LVL_ID] = widget_skill_lvl_init;
 	widget_initializers[SKILLS_ID] = widget_skills_init;
 	widget_initializers[SPELLS_ID] = widget_spells_init;
-	widget_initializers[STATS_ID] = widget_stats_init;
+	widget_initializers[STAT_ID] = widget_stat_init;
 	widget_initializers[TEXTURE_ID] = widget_texture_init;
 	widget_initializers[CHATWIN_ID] = widget_textwin_init;
 
@@ -347,6 +345,8 @@ static void widget_texture_create(widgetdata *widget)
 	if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
 	{
 		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg><border=widget_border -1 -1 2>", widget->w, widget->h);
+		widget->cw = MAX(0, widget->w - 2);
+		widget->ch = MAX(0, widget->h - 2);
 	}
 
 	widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
@@ -394,14 +394,14 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	widget->redraw = 1;
 	widget->menu_handle_func = widget_menu_handle;
 
-	if (widget_initializers[widget->type])
-	{
-		widget_initializers[widget->type](widget);
-	}
-
 	if (!widget->texture && widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
 	{
 		widget_texture_create(widget);
+	}
+
+	if (widget_initializers[widget->type])
+	{
+		widget_initializers[widget->type](widget);
 	}
 
 	return widget;
@@ -1469,6 +1469,8 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
  * This makes it as fast as a linear linked list if there are no child nodes. */
 static void process_widgets_rec(int draw, widgetdata *widget)
 {
+	uint8 redraw;
+
 	for ( ; widget; widget = widget->prev)
 	{
 		if (widget->background_func)
@@ -1480,9 +1482,15 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 		{
 			if (widget->texture)
 			{
-				if (!widget->surface)
+				if (!widget->surface || widget->surface->w != widget->w || widget->surface->h != widget->h)
 				{
 					SDL_Surface *texture;
+
+					if (widget->surface)
+					{
+						widget_texture_create(widget);
+						SDL_FreeSurface(widget->surface);
+					}
 
 					texture = texture_surface(widget->texture);
 					widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
@@ -1494,7 +1502,21 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 				}
 			}
 
+			redraw = widget->redraw;
 			widget->draw_func(widget);
+
+			if (widget->texture)
+			{
+				SDL_Rect box;
+
+				box.x = widget->x;
+				box.y = widget->y;
+				box.w = 0;
+				box.h = 0;
+				SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+			}
+
+			widget->redraw -= redraw;
 		}
 
 		/* we want to process the widgets starting from the right hand side of the tree first */
@@ -1974,14 +1996,6 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 	widget->w = width;
 	widget->h = height;
 
-	/* Recreate texture. */
-	if (widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
-	{
-		widget_texture_create(widget);
-		SDL_FreeSurface(widget->surface);
-		widget->surface = NULL;
-	}
-
 	WIDGET_REDRAW(widget);
 
 	/* now we get our parent node if it exists */
@@ -2283,6 +2297,19 @@ void widget_redraw_all(int widget_type_id)
 	for (widget = cur_widget[widget_type_id]; widget; widget = widget->type_next)
 	{
 		widget->redraw = 1;
+	}
+}
+
+void widget_redraw_type_id(int type, const char *id)
+{
+	widgetdata *widget;
+
+	for (widget = cur_widget[type]; widget; widget = widget->type_next)
+	{
+		if (widget->id && strcmp(widget->id, id) == 0)
+		{
+			widget->redraw = 1;
+		}
 	}
 }
 

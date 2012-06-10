@@ -58,65 +58,61 @@ static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
 	char *tooltip_text;
 	int i, xpos, ypos, mx, my;
 	SDL_Surface *texture_slot_border;
 
 	tooltip_text = NULL;
+	widget->redraw++;
 
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+	text_show(widget->surface, FONT_SANS12, "<b>Ranged</b>", 20, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	text_show(widget->surface, FONT_ARIAL10, "DMG", 9, 205, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 40, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
+	text_show(widget->surface, FONT_ARIAL10, "WC", 10, 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 40, 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
+	text_show(widget->surface, FONT_ARIAL10, "WS", 10, 225, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 40, 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-	text_show(ScreenSurface, FONT_SANS12, "<b>Ranged</b>", widget->x + 20, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	text_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 9, widget->y + 205, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
-	text_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 10, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
-	text_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 10, widget->y + 225, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 40, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
+	text_show(widget->surface, FONT_SANS12, "<b>Melee</b>", 155, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+	text_show(widget->surface, FONT_ARIAL10, "DMG", 139, 205, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 170, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
+	text_show(widget->surface, FONT_ARIAL10, "WC", 140, 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 170, 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
+	text_show(widget->surface, FONT_ARIAL10, "WS", 140, 225, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 170, 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
 
-	text_show(ScreenSurface, FONT_SANS12, "<b>Melee</b>", widget->x + 155, widget->y + 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-	text_show(ScreenSurface, FONT_ARIAL10, "DMG", widget->x + 139, widget->y + 205, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
-	text_show(ScreenSurface, FONT_ARIAL10, "WC", widget->x + 140, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
-	text_show(ScreenSurface, FONT_ARIAL10, "WS", widget->x + 140, widget->y + 225, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 170, widget->y + 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
-
-	text_show(ScreenSurface, FONT_ARIAL10, "Speed", widget->x + 92, widget->y + 193, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 93, widget->y + 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-	text_show(ScreenSurface, FONT_ARIAL10, "AC", widget->x + 92, widget->y + 215, COLOR_HGOLD, 0, NULL);
-	text_show_format(ScreenSurface, FONT_MONO10, widget->x + 92, widget->y + 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
+	text_show(widget->surface, FONT_ARIAL10, "Speed", 92, 193, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 93, 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
+	text_show(widget->surface, FONT_ARIAL10, "AC", 92, 215, COLOR_HGOLD, 0, NULL);
+	text_show_format(widget->surface, FONT_MONO10, 92, 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
 
 	texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
 	for (i = 0; i < PLAYER_EQUIP_MAX; i++)
 	{
-		rectangle_create(ScreenSurface, widget->x + player_doll_positions[i][0], widget->y + player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
+		rectangle_create(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
 	}
 
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, TEXTURE_CLIENT("player_doll"));
+	surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("player_doll"));
 
 	SDL_GetMouseState(&mx, &my);
 
 	for (i = 0; i < PLAYER_EQUIP_MAX; i++)
 	{
-		surface_show(ScreenSurface, widget->x + player_doll_positions[i][0], widget->y + player_doll_positions[i][1], NULL, texture_slot_border);
+		surface_show(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], NULL, texture_slot_border);
 
 		if (!cpl.equipment[i])
 		{
 			continue;
 		}
 
-		xpos = widget->x + player_doll_positions[i][0] + 2;
-		ypos = widget->y + player_doll_positions[i][1] + 2;
+		xpos = player_doll_positions[i][0] + 2;
+		ypos = player_doll_positions[i][1] + 2;
 
-		object_show_centered(cpl.equipment[i], xpos, ypos);
+		object_show_centered(widget->surface, cpl.equipment[i], xpos, ypos);
 
 		/* Prepare item name tooltip */
-		if (mx > xpos && mx <= xpos + INVENTORY_ICON_SIZE && my > ypos && my <= widget->y + ypos + INVENTORY_ICON_SIZE)
+		if (mx - widget->x > xpos && mx - widget->x <= xpos + INVENTORY_ICON_SIZE && my - widget->y > ypos && my - widget->y <= ypos + INVENTORY_ICON_SIZE)
 		{
 			tooltip_text = cpl.equipment[i]->s_name;
 		}

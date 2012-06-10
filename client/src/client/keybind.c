@@ -798,7 +798,7 @@ int keybind_process_command(const char *cmd)
 		else if (!strncmp(cmd, "QUICKSLOT_", 10))
 		{
 			cmd += 10;
-
+#if 0
 			if (!strcmp(cmd, "GROUP_PREV"))
 			{
 				quickslot_group--;
@@ -818,6 +818,7 @@ int keybind_process_command(const char *cmd)
 				}
 			}
 			else
+#endif
 			{
 				quickslots_handle_key(MAX(1, MIN(8, atoi(cmd))) - 1);
 			}

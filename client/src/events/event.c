@@ -40,10 +40,7 @@ int event_dragging_check(void)
 		return 0;
 	}
 
-	if (SDL_GetMouseState(&mx, &my) != SDL_BUTTON_LEFT)
-	{
-		return 0;
-	}
+	SDL_GetMouseState(&mx, &my);
 
 	if (abs(cpl.dragging_startx - mx) < 3 && abs(cpl.dragging_starty - my) < 3)
 	{

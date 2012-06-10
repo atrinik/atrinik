@@ -149,6 +149,12 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 	inventory = INVENTORY(widget);
 	row = i / INVENTORY_COLS(inventory);
 
+	if (mx != -1 && my != -1)
+	{
+		mx -= widget->x;
+		my -= widget->y;
+	}
+
 	/* Check if this object should be visible. */
 	if (row >= inventory->scrollbar_info.scroll_offset && row < inventory->scrollbar_info.scroll_offset + INVENTORY_ROWS(inventory))
 	{
@@ -160,8 +166,8 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		r_col = *r % INVENTORY_COLS(inventory);
 
 		/* Calculate the X/Y positions. */
-		x = widget->x + inventory->x + r_col * INVENTORY_ICON_SIZE;
-		y = widget->y + inventory->y + r_row * INVENTORY_ICON_SIZE;
+		x = inventory->x + r_col * INVENTORY_ICON_SIZE;
+		y = inventory->y + r_row * INVENTORY_ICON_SIZE;
 
 		/* Increase the rendering index. */
 		*r += 1;
@@ -180,7 +186,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			}
 		}
 
-		object_show_inventory(ob, x, y);
+		object_show_inventory(widget->surface, ob, x, y);
 
 		/* If this object is selected, show the selected graphic and
 		 * show some extra information in the widget. */
@@ -188,7 +194,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 		{
 			char buf[MAX_BUF];
 
-			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->type ? "invslot" : "invslot_u"));
+			surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->type ? "invslot" : "invslot_u"));
 
 			if (ob->nrof > 1)
 			{
@@ -202,20 +208,20 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			if (widget->type == MAIN_INV_ID)
 			{
 				text_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
-				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 26, widget->y + 2, COLOR_HGOLD, 0, NULL);
+				text_show(widget->surface, FONT_ARIAL10, buf, 26, 2, COLOR_HGOLD, 0, NULL);
 
 				snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + widget->w - 4 - text_get_width(FONT_ARIAL10, buf, 0), widget->y + 15, COLOR_HGOLD, 0, NULL);
+				text_show(widget->surface, FONT_ARIAL10, buf, widget->w - 4 - text_get_width(FONT_ARIAL10, buf, 0), 15, COLOR_HGOLD, 0, NULL);
 
 				/* 255 item quality marks the item as unidentified. */
 				if (ob->item_qua == 255)
 				{
-					text_show(ScreenSurface, FONT_ARIAL10, "not identified", widget->x + 26, widget->y + 15, COLOR_RED, 0, NULL);
+					text_show(widget->surface, FONT_ARIAL10, "not identified", 26, 15, COLOR_RED, 0, NULL);
 				}
 				else
 				{
-					text_show(ScreenSurface, FONT_ARIAL10, "con: ", widget->x + 26, widget->y + 15, COLOR_HGOLD, 0, NULL);
-					text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 53, widget->y + 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
+					text_show(widget->surface, FONT_ARIAL10, "con: ", 26, 15, COLOR_HGOLD, 0, NULL);
+					text_show_format(widget->surface, FONT_ARIAL10, 53, 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
 
 					if (ob->item_level)
 					{
@@ -236,11 +242,11 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 
 						if (ob->item_level <= level)
 						{
-							text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_HGOLD, 0, NULL);
+							text_show(widget->surface, FONT_ARIAL10, buf, 95, 15, COLOR_HGOLD, 0, NULL);
 						}
 						else
 						{
-							text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 95, widget->y + 15, COLOR_RED, 0, NULL);
+							text_show(widget->surface, FONT_ARIAL10, buf, 95, 15, COLOR_RED, 0, NULL);
 						}
 					}
 				}
@@ -248,21 +254,21 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			else if (widget->type == BELOW_INV_ID)
 			{
 				text_truncate_overflow(FONT_ARIAL10, buf, 250);
-				text_show(ScreenSurface, FONT_ARIAL10, buf, widget->x + 6, widget->y + 3, COLOR_HGOLD, 0, NULL);
+				text_show(widget->surface, FONT_ARIAL10, buf, 6, 3, COLOR_HGOLD, 0, NULL);
 			}
 		}
 
 		/* If the object is marked, show that. */
 		if (ob->tag == cpl.mark_count)
 		{
-			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("invslot_marked"));
+			surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("invslot_marked"));
 		}
 
 		/* If it's the currently open container, add the 'container
 		 * start' graphic. */
 		if (ob->tag == cpl.container_tag)
 		{
-			surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_start"));
+			surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_start"));
 		}
 		/* Object inside the open container... */
 		else if (ob->env == cpl.sack)
@@ -271,12 +277,12 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 			 * 'object in the middle of container' graphic. */
 			if (ob->next)
 			{
-				surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_middle"));
+				surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_middle"));
 			}
 			/* The end, show the 'end of container' graphic instead. */
 			else
 			{
-				surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("cmark_end"));
+				surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_end"));
 			}
 		}
 
@@ -294,7 +300,7 @@ static void widget_draw(widgetdata *widget)
 	uint32 i, r;
 
 	inventory = INVENTORY(widget);
-	surface_show(ScreenSurface, widget->x, widget->y, NULL, widget->surface);
+	widget->redraw++;
 
 	if (widget->type == MAIN_INV_ID)
 	{
@@ -304,7 +310,7 @@ static void widget_draw(widgetdata *widget)
 
 		if (face != -1 && FaceList[face].sprite)
 		{
-			surface_show(ScreenSurface, widget->x - FaceList[face].sprite->border_left + 8, widget->y - FaceList[face].sprite->border_up + 5, NULL, FaceList[face].sprite->bitmap);
+			surface_show(widget->surface, -FaceList[face].sprite->border_left + 8, -FaceList[face].sprite->border_up + 5, NULL, FaceList[face].sprite->bitmap);
 		}
 
 		/* Recalculate the weight, as it may have changed. */
@@ -332,20 +338,20 @@ static void widget_draw(widgetdata *widget)
 				resize_widget(widget, RESIZE_BOTTOM, 32);
 			}
 
-			text_show(ScreenSurface, FONT_ARIAL10, "Carrying", widget->x + 162, widget->y + 4, COLOR_HGOLD, 0, NULL);
-			text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
+			text_show(widget->surface, FONT_ARIAL10, "Carrying", 162, 4, COLOR_HGOLD, 0, NULL);
+			text_show_format(widget->surface, FONT_ARIAL10, 207, 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
-			text_show(ScreenSurface, FONT_ARIAL10, "Limit", widget->x + 162, widget->y + 15, COLOR_HGOLD, 0, NULL);
-			text_show_format(ScreenSurface, FONT_ARIAL10, widget->x + 207, widget->y + 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
+			text_show(widget->surface, FONT_ARIAL10, "Limit", 162, 15, COLOR_HGOLD, 0, NULL);
+			text_show_format(widget->surface, FONT_ARIAL10, 207, 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
 
 			if (inventory_filter == INVENTORY_FILTER_ALL)
 			{
-				text_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(widget->surface, FONT_ARIAL10, "(SHIFT for inventory)", 35, 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 			else
 			{
-				text_show(ScreenSurface, FONT_ARIAL10, "(SHIFT for inventory)", widget->x + 35, widget->y + 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
-				text_show(ScreenSurface, FONT_ARIAL10, "filter(s) active", widget->x + 54, widget->y + 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(widget->surface, FONT_ARIAL10, "(SHIFT for inventory)", 35, 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
+				text_show(widget->surface, FONT_ARIAL10, "filter(s) active", 54, 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
 			}
 
 			return;
@@ -361,11 +367,11 @@ static void widget_draw(widgetdata *widget)
 			resize_widget(widget, RESIZE_BOTTOM, 129);
 		}
 
-		surface_show(ScreenSurface, widget->x + inventory->x - 1, widget->y + inventory->y - 1, NULL, texture_surface(inventory->texture));
+		surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
 	}
 	else if (widget->type == BELOW_INV_ID)
 	{
-		surface_show(ScreenSurface, widget->x + inventory->x - 1, widget->y + inventory->y - 1, NULL, texture_surface(inventory->texture));
+		surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
 	}
 
 	if (inventory->scrollbar_info.redraw)
@@ -403,7 +409,9 @@ static void widget_draw(widgetdata *widget)
 	}
 
 	inventory->scrollbar_info.num_lines = ceil((double) i / INVENTORY_COLS(inventory));
-	scrollbar_show(&inventory->scrollbar, ScreenSurface, widget->x + inventory->x + inventory->w, widget->y + inventory->y);
+	inventory->scrollbar.px = widget->x;
+	inventory->scrollbar.py = widget->y;
+	scrollbar_show(&inventory->scrollbar, widget->surface, inventory->x + inventory->w, inventory->y);
 }
 
 /** @copydoc widgetdata::event_func */
@@ -690,11 +698,11 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
  * @param tmp Pointer to the inventory item
  * @param x X position of the item
  * @param y Y position of the item */
-void object_show_inventory(object *tmp, int x, int y)
+void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 {
 	SDL_Surface *icon;
 
-	object_show_centered(tmp, x, y);
+	object_show_centered(surface, tmp, x, y);
 
 	if (tmp->nrof > 1)
 	{
@@ -709,37 +717,37 @@ void object_show_inventory(object *tmp, int x, int y)
 			snprintf(buf, sizeof(buf), "%d", tmp->nrof);
 		}
 
-		text_show(ScreenSurface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - text_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
+		text_show(surface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - text_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
 	}
 
 	if (tmp->flags & CS_FLAG_APPLIED)
 	{
-		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("apply"));
+		surface_show(surface, x, y, NULL, TEXTURE_CLIENT("apply"));
 
 		if (tmp->flags & CS_FLAG_IS_READY)
 		{
-			surface_show(ScreenSurface, x, y + 8, NULL, TEXTURE_CLIENT("fire_ready"));
+			surface_show(surface, x, y + 8, NULL, TEXTURE_CLIENT("fire_ready"));
 		}
 	}
 	else if (tmp->flags & CS_FLAG_UNPAID)
 	{
-		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("unpaid"));
+		surface_show(surface, x, y, NULL, TEXTURE_CLIENT("unpaid"));
 	}
 	else if (tmp->flags & CS_FLAG_IS_READY)
 	{
-		surface_show(ScreenSurface, x, y, NULL, TEXTURE_CLIENT("fire_ready"));
+		surface_show(surface, x, y, NULL, TEXTURE_CLIENT("fire_ready"));
 	}
 
 	if (tmp->flags & CS_FLAG_LOCKED)
 	{
 		icon = TEXTURE_CLIENT("lock");
-		surface_show(ScreenSurface, x, y + INVENTORY_ICON_SIZE - icon->w - 2, NULL, icon);
+		surface_show(surface, x, y + INVENTORY_ICON_SIZE - icon->w - 2, NULL, icon);
 	}
 
 	if (tmp->flags & CS_FLAG_IS_MAGICAL)
 	{
 		icon = TEXTURE_CLIENT("magic");
-		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE - icon->w - 2, y + INVENTORY_ICON_SIZE - icon->h - 2, NULL, icon);
+		surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2, y + INVENTORY_ICON_SIZE - icon->h - 2, NULL, icon);
 	}
 
 	if (tmp->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED))
@@ -753,13 +761,13 @@ void object_show_inventory(object *tmp, int x, int y)
 			icon = TEXTURE_CLIENT("cursed");
 		}
 
-		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE - icon->w - 2, y, NULL, icon);
+		surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2, y, NULL, icon);
 	}
 
 	if (tmp->flags & CS_FLAG_IS_TRAPPED)
 	{
 		icon = TEXTURE_CLIENT("trapped");
-		surface_show(ScreenSurface, x + INVENTORY_ICON_SIZE / 2 - icon->w / 2, y + INVENTORY_ICON_SIZE / 2 - icon->h / 2, NULL, icon);
+		surface_show(surface, x + INVENTORY_ICON_SIZE / 2 - icon->w / 2, y + INVENTORY_ICON_SIZE / 2 - icon->h / 2, NULL, icon);
 	}
 }
 

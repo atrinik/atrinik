@@ -62,7 +62,7 @@ extern void ready_object(object *op);
 extern void objects_deinit(void);
 extern void objects_init(void);
 extern void animate_objects(void);
-extern void object_show_centered(object *tmp, int x, int y);
+extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y);
 /* src/client/keybind.c */
 extern keybind_struct **keybindings;
 extern size_t keybindings_num;
@@ -343,6 +343,7 @@ extern void updater_open(void);
 extern void button_init(void);
 extern void button_create(button_struct *button);
 extern void button_set_parent(button_struct *button, int px, int py);
+extern int button_need_redraw(button_struct *button);
 extern void button_show(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
 extern void button_tooltip(button_struct *button, int font, const char *text);
@@ -587,6 +588,7 @@ extern void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_pt
 extern void add_separator(widgetdata *widget);
 extern void menu_finalize(widgetdata *widget);
 extern void widget_redraw_all(int widget_type_id);
+extern void widget_redraw_type_id(int type, const char *id);
 extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
@@ -621,7 +623,7 @@ extern void widget_inventory_init(widgetdata *widget);
 extern uint32 widget_inventory_num_items(widgetdata *widget);
 extern object *widget_inventory_get_selected(widgetdata *widget);
 extern void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key);
-extern void object_show_inventory(object *tmp, int x, int y);
+extern void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y);
 extern void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
@@ -682,8 +684,6 @@ extern void widget_party_init(widgetdata *widget);
 extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);
-/* src/gui/widgets/protections.c */
-extern void widget_protections_init(widgetdata *widget);
 /* src/gui/widgets/quickslots.c */
 extern int quickslot_group;
 extern int quickslots_pos[8][2];
@@ -696,8 +696,6 @@ extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
 extern void widget_regen_init(widgetdata *widget);
 /* src/gui/widgets/skill_exp.c */
 extern void widget_skill_exp_init(widgetdata *widget);
-/* src/gui/widgets/skill_lvl.c */
-extern void widget_skill_lvl_init(widgetdata *widget);
 /* src/gui/widgets/skills.c */
 extern void skills_init(void);
 extern int skill_find(const char *name, size_t *id);
@@ -715,8 +713,8 @@ extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
 extern void spells_update(object *op, uint16 cost, uint32 path, uint32 flags, const char *msg);
 extern void spells_remove(object *op);
 extern void widget_spells_init(widgetdata *widget);
-/* src/gui/widgets/stats.c */
-extern void widget_stats_init(widgetdata *widget);
+/* src/gui/widgets/stat.c */
+extern void widget_stat_init(widgetdata *widget);
 /* src/gui/widgets/texture.c */
 extern void widget_texture_init(widgetdata *widget);
 /* src/gui/widgets/textwin.c */

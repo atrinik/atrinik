@@ -114,6 +114,10 @@ typedef struct button_struct
 	 * Function called on button repeat
 	 * @param button The button. */
 	void (*repeat_func)(struct button_struct *button);
+
+	/**
+	 * Whether the button needs redrawing. */
+	uint8 redraw;
 } button_struct;
 
 #endif

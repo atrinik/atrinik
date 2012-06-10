@@ -86,6 +86,35 @@ void button_set_parent(button_struct *button, int px, int py)
 	button->py = py;
 }
 
+int button_need_redraw(button_struct *button)
+{
+	int ret;
+
+	ret = 0;
+
+	if (button->mouse_over || button->pressed)
+	{
+		int state, mx, my, mover;
+
+		state = SDL_GetMouseState(&mx, &my);
+		mover = BUTTON_MOUSE_OVER(button, mx, my, texture_surface(button->texture));
+
+		if (button->mouse_over && !mover)
+		{
+			button->mouse_over = 0;
+			ret = 1;
+		}
+
+		if (button->pressed && (!mover || state != SDL_BUTTON_LEFT))
+		{
+			button->pressed = 0;
+			ret = 1;
+		}
+	}
+
+	return ret;
+}
+
 /**
  * Render a button.
  * @param button Button to render.
@@ -94,24 +123,7 @@ void button_show(button_struct *button, const char *text)
 {
 	SDL_Surface *texture;
 
-	/* Make sure the mouse is still over the button. */
-	if (button->mouse_over || button->pressed)
-	{
-		int state, mx, my, mover;
-
-		state = SDL_GetMouseState(&mx, &my);
-		mover = BUTTON_MOUSE_OVER(button, mx, my, texture_surface(button->texture));
-
-		if (!mover)
-		{
-			button->mouse_over = 0;
-		}
-
-		if (!mover || state != SDL_BUTTON_LEFT)
-		{
-			button->pressed = 0;
-		}
-	}
+	button_need_redraw(button);
 
 	if (button->pressed_forced)
 	{
@@ -162,6 +174,8 @@ void button_show(button_struct *button, const char *text)
 		button->pressed_ticks = SDL_GetTicks();
 		button->pressed_repeat_ticks = 150;
 	}
+
+	button->redraw = 0;
 }
 
 /**
@@ -183,6 +197,7 @@ int button_event(button_struct *button, SDL_Event *event)
 	if (event->type == SDL_MOUSEBUTTONUP)
 	{
 		button->pressed = 0;
+		button->redraw = 1;
 		return 0;
 	}
 
@@ -206,6 +221,7 @@ int button_event(button_struct *button, SDL_Event *event)
 			button->pressed = 1;
 			button->pressed_ticks = SDL_GetTicks();
 			button->pressed_repeat_ticks = 750;
+			button->redraw = 1;
 			return 1;
 		}
 		else
@@ -219,6 +235,11 @@ int button_event(button_struct *button, SDL_Event *event)
 				button->hover_ticks = SDL_GetTicks();
 			}
 		}
+	}
+
+	if (old_mouse_over != button->mouse_over)
+	{
+		button->redraw = 1;
 	}
 
 	return 0;

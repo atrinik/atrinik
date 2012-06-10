@@ -50,27 +50,39 @@ typedef struct widget_fps_struct
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
 	widget_fps_struct *tmp;
-	char buf[MAX_BUF];
+
+	tmp = (widget_fps_struct *) widget->subwidget;
+
+	if (widget->redraw)
+	{
+		char buf[MAX_BUF];
+
+		snprintf(buf, sizeof(buf), "%d", tmp->current);
+		text_show(widget->surface, FONT_ARIAL11, "fps:", 5, 4, COLOR_WHITE, 0, NULL);
+		text_show(widget->surface, FONT_ARIAL11, buf, widget->w - 5 - text_get_width(FONT_ARIAL11, buf, 0), 4, COLOR_WHITE, 0, NULL);
+	}
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+	widget_fps_struct *tmp;
 
 	tmp = (widget_fps_struct *) widget->subwidget;
 	tmp->frames++;
 
 	if (tmp->lasttime < SDL_GetTicks() - 1000)
 	{
+		if (tmp->current != tmp->frames)
+		{
+			widget->redraw = 1;
+		}
+
 		tmp->lasttime = SDL_GetTicks();
 		tmp->current = tmp->frames;
 		tmp->frames = 0;
 	}
-
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
-
-	snprintf(buf, sizeof(buf), "%d", tmp->current);
-	text_show(ScreenSurface, FONT_ARIAL11, "fps:", widget->x + 5, widget->y + 4, COLOR_WHITE, 0, NULL);
-	text_show(ScreenSurface, FONT_ARIAL11, buf, widget->x + widget->w - 5 - text_get_width(FONT_ARIAL11, buf, 0), widget->y + 4, COLOR_WHITE, 0, NULL);
 }
 
 /**
@@ -80,6 +92,7 @@ void widget_fps_init(widgetdata *widget)
 	widget_fps_struct *tmp;
 
 	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
 
 	widget->subwidget = tmp = calloc(1, sizeof(*tmp));
 	tmp->lasttime = SDL_GetTicks();

@@ -53,6 +53,10 @@ typedef struct widgetdata
 	/** Height. */
 	int h;
 
+	int cw;
+
+	int ch;
+
 	/** Is the widget moveable? */
 	uint8 moveable;
 
@@ -203,6 +207,11 @@ typedef struct widget_input_struct
 	char prepend_text[MAX_BUF];
 } widget_input_struct;
 
+typedef struct widget_stat_struct
+{
+	char *texture;
+} widget_stat_struct;
+
 /** A more specialized kind of container, where widgets snap into it when inserted, and where widgets are sorted into rows and columns. */
 typedef struct _widget_container_strip
 {
@@ -254,12 +263,10 @@ enum _MEvent
 typedef enum WidgetID
 {
 	MAP_ID,
-	STATS_ID,
-	RESIST_ID,
+	STAT_ID,
 	MAIN_LVL_ID,
 	SKILL_EXP_ID,
 	REGEN_ID,
-	SKILL_LVL_ID,
 	MENU_B_ID,
 	QUICKSLOT_ID,
 	CHATWIN_ID,
