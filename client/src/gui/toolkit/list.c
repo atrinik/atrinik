@@ -553,7 +553,7 @@ void list_scroll(list_struct *list, int up, int scroll)
 		row_selected -= scroll;
 
 		/* Adjust row offset if needed. */
-		if (row_offset > (row_selected - max_rows + 1))
+		if (row_offset >= (row_selected - 1))
 		{
 			row_offset -= scroll;
 		}
