@@ -183,6 +183,7 @@ extern int socket_initialize(void);
 extern void socket_deinitialize(void);
 extern int socket_open(struct ClientSocket *csock, char *host, int port);
 /* src/client/sound.c */
+extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);
 extern void sound_deinit(void);
 extern void sound_clear_cache(void);
