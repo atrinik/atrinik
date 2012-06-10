@@ -704,7 +704,7 @@ void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t
 		return;
 	}
 
-	tag = packet_to_uint32(data, len, &pos);
+	tag = packet_to_sint32(data, len, &pos);
 
 	if (!tag)
 	{
