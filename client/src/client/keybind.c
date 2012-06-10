@@ -779,27 +779,24 @@ int keybind_process_command(const char *cmd)
 		else if (!strncmp(cmd, "QUICKSLOT_", 10))
 		{
 			cmd += 10;
-#if 0
-			if (!strcmp(cmd, "GROUP_PREV"))
-			{
-				quickslot_group--;
 
-				if (quickslot_group < 1)
+			if (string_startswith(cmd, "GROUP_"))
+			{
+				widgetdata *widget;
+
+				cmd += 6;
+				widget = widget_find_by_type(QUICKSLOT_ID);
+
+				if (strcmp(cmd, "NEXT") == 0)
 				{
-					quickslot_group = MAX_QUICKSLOT_GROUPS;
+					quickslots_scroll(widget, 0, 1);
+				}
+				else if (strcmp(cmd, "PREV") == 0)
+				{
+					quickslots_scroll(widget, 1, 1);
 				}
 			}
-			else if (!strcmp(cmd, "GROUP_NEXT"))
-			{
-				quickslot_group++;
-
-				if (quickslot_group > MAX_QUICKSLOT_GROUPS)
-				{
-					quickslot_group = 1;
-				}
-			}
-			else
-#endif
+			else if (string_isdigit(cmd))
 			{
 				quickslots_handle_key(MAX(1, MIN(8, atoi(cmd))) - 1);
 			}
