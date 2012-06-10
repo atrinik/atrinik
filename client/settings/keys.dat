@@ -71,30 +71,6 @@ bind
 	command /push
 end
 bind
-	# page up
-	key 280
-	repeat 1
-	command ?PAGEUP
-end
-bind
-	# page down
-	key 281
-	repeat 1
-	command ?PAGEDOWN
-end
-bind
-	# insert
-	key 277
-	repeat 1
-	command ?PAGEUP_MSG
-end
-bind
-	# delete
-	key 127
-	repeat 1
-	command ?PAGEDOWN_MSG
-end
-bind
 	# return
 	key 13
 	command ?CONSOLE

@@ -618,25 +618,6 @@ int keybind_process_command(const char *cmd)
 				move_keys(5);
 			}
 		}
-		else if (!strncmp(cmd, "PAGE", 4))
-		{
-#if 0
-			widgetdata *widget;
-
-			cmd += 4;
-
-			if (!strncmp(cmd, "UP", 2))
-			{
-				widget = cur_widget[*(cmd + 2) == '\0' ? CHATWIN_ID : MSGWIN_ID];
-				scrollbar_scroll_adjust(&TEXTWIN(widget)->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
-			}
-			else if (!strncmp(cmd, "DOWN", 4))
-			{
-				widget = cur_widget[*(cmd + 4) == '\0' ? CHATWIN_ID : MSGWIN_ID];
-				scrollbar_scroll_adjust(&TEXTWIN(widget)->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
-			}
-#endif
-		}
 		else if (!strcmp(cmd, "CONSOLE"))
 		{
 			widget_input_struct *input;

@@ -805,6 +805,20 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		}
 	}
 
+	if (event->type == SDL_KEYDOWN)
+	{
+		if (event->key.keysym.sym == SDLK_PAGEUP)
+		{
+			scrollbar_scroll_adjust(&textwin->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
+			return 1;
+		}
+		else if (event->key.keysym.sym == SDLK_PAGEDOWN)
+		{
+			scrollbar_scroll_adjust(&textwin->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
