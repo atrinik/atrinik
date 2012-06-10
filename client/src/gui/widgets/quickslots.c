@@ -66,7 +66,8 @@ static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag
 	char buf[MAX_BUF];
 
 	tmp = (widget_quickslots_struct *) widget->subwidget;
-	slot = (row + 1) * (col + 1);
+	slot = (row * MAX_QUICK_SLOTS) + (col + 1);
+	logger_print(LOG(INFO), "%d, %u, %u", slot, row, col);
 
 	packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
 	packet_append_uint8(packet, slot);
@@ -108,6 +109,7 @@ void quickslots_handle_key(int slot)
 	widget_quickslots_struct *tmp;
 	uint32 row, col;
 	object *ob;
+	sint32 tag;
 
 	for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next)
 	{
@@ -115,54 +117,51 @@ void quickslots_handle_key(int slot)
 		row = tmp->list->row_offset;
 		col = slot;
 
-		if (tmp->list->text[row][col])
+		tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : -1;
+
+		if (cpl.inventory_focus == MAIN_INV_ID)
 		{
-			sint32 tag;
+			ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
 
-			tag = atoi(tmp->list->text[row][col]);
-
-			if (cpl.inventory_focus == MAIN_INV_ID)
+			if (ob)
 			{
-				ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
-
-				if (ob)
+				if (ob->tag == tag)
 				{
-					if (ob->tag == tag)
-					{
-						free(tmp->list->text[row][col]);
-						tmp->list->text[row][col] = NULL;
-						quickslot_set(widget, row, col, -1);
-					}
-					else
-					{
-						char buf[MAX_BUF];
-
-						quickslots_remove(widget, ob->tag);
-
-						snprintf(buf, sizeof(buf), "%d", ob->tag);
-						tmp->list->text[row][col] = strdup(buf);
-						quickslot_set(widget, row, col, ob->tag);
-					}
-				}
-			}
-			else
-			{
-				size_t spell_path, spell_id;
-				spell_entry_struct *spell;
-
-				ob = object_find(tag);
-
-				if (ob->itype == TYPE_SPELL && spell_find(ob->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF)
-				{
-					char buf[MAX_BUF];
-
-					snprintf(buf, sizeof(buf), "/cast %s", ob->s_name);
-					send_command_check(buf);
+					free(tmp->list->text[row][col]);
+					tmp->list->text[row][col] = NULL;
+					quickslot_set(widget, row, col, -1);
 				}
 				else
 				{
-					client_send_apply(tag);
+					char buf[MAX_BUF];
+
+					quickslots_remove(widget, ob->tag);
+
+					snprintf(buf, sizeof(buf), "%d", ob->tag);
+					tmp->list->text[row][col] = strdup(buf);
+					quickslot_set(widget, row, col, ob->tag);
 				}
+			}
+
+			break;
+		}
+		else if (tag != -1)
+		{
+			size_t spell_path, spell_id;
+			spell_entry_struct *spell;
+
+			ob = object_find(tag);
+
+			if (ob->itype == TYPE_SPELL && spell_find(ob->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF)
+			{
+				char buf[MAX_BUF];
+
+				snprintf(buf, sizeof(buf), "/cast %s", ob->s_name);
+				send_command_check(buf);
+			}
+			else
+			{
+				client_send_apply(tag);
 			}
 
 			break;
