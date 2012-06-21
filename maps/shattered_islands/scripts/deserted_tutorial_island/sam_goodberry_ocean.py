@@ -11,7 +11,7 @@ def main():
 
 	elif msg == "verywell":
 		inf.dialog_close()
-		activator.TeleportTo("/shattered_islands/incuna/ship_lower_deck", 2, 2, sound = False)
+		activator.TeleportTo("/shattered_islands/incuna/ship_lower_deck", 2, 2)
 
 main()
 inf.finish()

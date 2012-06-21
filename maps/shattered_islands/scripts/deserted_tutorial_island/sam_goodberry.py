@@ -139,7 +139,7 @@ def main():
 				inf.add_msg("You return the saw to {} and help him repair the boat.".format(me.name), COLOR_YELLOW)
 				inf.add_msg("After patching up the boat and setting everything in order, you set sail.", COLOR_YELLOW)
 				inf.add_msg("You feel tired after all that hard work, perhaps you should speak to {}...".format(me.name), COLOR_YELLOW)
-				activator.TeleportTo("/shattered_islands/world_af01", 4, 6, sound = False)
+				activator.TeleportTo("/shattered_islands/world_af01", 4, 6)
 				qm.complete(6, sound = "fanfare6.ogg")
 		else:
 			inf.add_msg("We need some thick branches to repair the boat, {}.".format(activator.name))
