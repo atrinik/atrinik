@@ -34,9 +34,6 @@
  * Path to the background music file being played. */
 static char *sound_background;
 /**
- * When the background music started playing. */
-static uint32 sound_background_started;
-/**
  * If 1, will not allow music change based on map. */
 static uint8 sound_map_background_disabled = 0;
 /**
@@ -48,6 +45,9 @@ static sound_ambient_struct *sound_ambient_head = NULL;
 
 #ifdef HAVE_SDL_MIXER
 
+/**
+ * When the background music started playing. */
+static uint32 sound_background_started;
 /**
  * Duration of this background music. */
 static uint32 sound_background_duration;
@@ -76,14 +76,6 @@ static void sound_background_hook_execute(void)
 	{
 		sound_background_hook();
 	}
-}
-
-/**
- * Register a new ::sound_background_hook callback.
- * @param ptr New callback to register. */
-void sound_background_hook_register(void *ptr)
-{
-	sound_background_hook = ptr;
 }
 
 /**
@@ -216,13 +208,23 @@ static void sound_music_finished(void)
 #endif
 
 /**
+ * Register a new ::sound_background_hook callback.
+ * @param ptr New callback to register. */
+void sound_background_hook_register(void *ptr)
+{
+#ifdef HAVE_SDL_MIXER
+	sound_background_hook = ptr;
+#endif
+}
+
+/**
  * Initialize the sound system. */
 void sound_init(void)
 {
 	sound_background = NULL;
-	sound_background_hook = NULL;
 
 #ifdef HAVE_SDL_MIXER
+	sound_background_hook = NULL;
 	sound_data = NULL;
 	enabled = 1;
 
@@ -434,8 +436,8 @@ void sound_stop_bg_music(void)
 	{
 		free(sound_background);
 		sound_background = NULL;
-		sound_background_hook_execute();
 #ifdef HAVE_SDL_MIXER
+		sound_background_hook_execute();
 		Mix_HaltMusic();
 #endif
 	}
@@ -574,7 +576,11 @@ uint32 sound_music_get_offset(void)
 		return 0;
 	}
 
+#ifdef HAVE_SDL_MIXER
 	return (SDL_GetTicks() - sound_background_started) / 1000;
+#else
+	return 0;
+#endif
 }
 
 /**
@@ -588,6 +594,7 @@ int sound_music_can_seek(void)
 		return 0;
 	}
 
+#ifdef HAVE_SDL_MIXER
 	switch (Mix_GetMusicType(NULL))
 	{
 		case MUS_OGG:
@@ -596,8 +603,11 @@ int sound_music_can_seek(void)
 			return 1;
 
 		default:
-			return 0;
+			break;
 	}
+#endif
+
+	return 0;
 }
 
 /**
@@ -611,10 +621,12 @@ void sound_music_seek(uint32 offset)
 		return;
 	}
 
+#ifdef HAVE_SDL_MIXER
 	Mix_RewindMusic();
 	Mix_SetMusicPosition(offset);
 
 	sound_background_started = SDL_GetTicks() - offset;
+#endif
 }
 
 /**
@@ -622,7 +634,11 @@ void sound_music_seek(uint32 offset)
  * @return The duration. */
 uint32 sound_music_get_duration()
 {
+#ifdef HAVE_SDL_MIXER
 	return sound_background_duration;
+#else
+	return 0;
+#endif
 }
 
 /** @copydoc socket_command_struct::handle_func */
