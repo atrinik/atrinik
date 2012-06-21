@@ -26,6 +26,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-DMINGW" />
 			<Add option="-DCURL_STATICLIB" />
+			<Add option="-DHAVE_SDL_MIXER" />
 			<Add directory="..\..\src\include" />
 			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\gui\toolkit\include" />
