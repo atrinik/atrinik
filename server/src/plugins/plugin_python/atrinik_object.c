@@ -178,7 +178,7 @@ static fields_struct fields[] =
  * @param sound If False, will not play a sound effect. */
 static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"path", "x", "y", "unique", "sound", NULL};
+	static char *kwlist[] = {"path", "x", "y", "unique", NULL};
 	const char *path;
 	object *tmp;
 	int x, y, unique = 0;
