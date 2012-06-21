@@ -73,7 +73,9 @@
 #	define HAVE_STRICMP 1
 #	define HAVE_STRNICMP 1
 #	define HAVE_ZLIB 1
-#	define HAVE_STRERROR 1
+#	ifndef HAVE_STRERROR
+#		define HAVE_STRERROR 1
+#	endif
 #	define HAVE_SRAND 1
 #	define HAVE_FCNTL_H 1
 #	define HAVE_TIME_H 1
