@@ -2593,6 +2593,12 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 	player *pl;
 	char *path;
 
+	/* Not in the login procedure, can't login. */
+	if (ns->state != ST_LOGIN)
+	{
+		return;
+	}
+
 	pl = find_player(name);
 
 	if (pl)
