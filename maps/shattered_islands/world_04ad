@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Modified: 2012-06-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3460,7 +3460,7 @@ level 15
 direction 3
 arch event_obj
 sub_type 6
-race python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end

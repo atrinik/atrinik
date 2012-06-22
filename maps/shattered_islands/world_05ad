@@ -717,7 +717,7 @@ level 15
 direction 7
 arch event_obj
 sub_type 6
-race python/generic/bank.py
+race /python/generic/bank.py
 end
 end
 end
