@@ -184,6 +184,8 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 		packet_append_string_terminated(packet, buf);
 		socket_send_packet(packet);
 
+		cpl.state = ST_WAITFORPLAY;
+
 		return 1;
 	}
 
