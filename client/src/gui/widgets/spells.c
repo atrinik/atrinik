@@ -44,9 +44,21 @@ static size_t spell_list_num[SPELL_PATH_NUM];
 /** Currently selected spell path ID. */
 static size_t spell_list_path = 0;
 
-/** Button buffer. */
-static button_struct button_path_left, button_path_right, button_close, button_help;
-/** The spells list. */
+enum
+{
+	BUTTON_PATH_LEFT,
+	BUTTON_PATH_RIGHT,
+	BUTTON_CLOSE,
+	BUTTON_HELP,
+
+	BUTTON_NUM
+};
+
+/**
+ * Button buffer. */
+static button_struct buttons[BUTTON_NUM];
+/**
+ * The spells list. */
 static list_struct *list_spells = NULL;
 
 /**
@@ -114,7 +126,7 @@ static void button_repeat_func(button_struct *button)
 {
 	int path = spell_list_path;
 
-	if (button == &button_path_left)
+	if (button == &buttons[BUTTON_PATH_LEFT])
 	{
 		path--;
 	}
@@ -292,7 +304,8 @@ void spells_remove(object *op)
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box, box2;
+	SDL_Rect box;
+	size_t i;
 
 	/* Create the spell list. */
 	if (!list_spells)
@@ -305,15 +318,18 @@ static void widget_draw(widgetdata *widget)
 		list_set_font(list_spells, FONT_ARIAL10);
 		spell_list_reload();
 
-		/* Create various buttons... */
-		button_create(&button_path_left);
-		button_create(&button_path_right);
-		button_create(&button_close);
-		button_create(&button_help);
-		button_path_left.repeat_func = button_path_right.repeat_func = button_repeat_func;
-		button_close.texture = button_path_left.texture = button_path_right.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_path_left.texture_pressed = button_path_right.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_path_left.texture_over = button_path_right.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			button_create(&buttons[i]);
+			buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+			buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+			buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+
+			if (i == BUTTON_PATH_LEFT || i == BUTTON_PATH_RIGHT)
+			{
+				buttons[i].repeat_func = button_repeat_func;
+			}
+		}
 	}
 
 	if (widget->redraw)
@@ -370,34 +386,60 @@ static void widget_draw(widgetdata *widget)
 			surface_show(widget->surface, widget->w - 5 - icon->w, widget->h - 5 - icon->h, NULL, icon);
 		}
 
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			buttons[i].surface = widget->surface;
+			button_set_parent(&buttons[i], widget->x, widget->y);
+		}
+
+		buttons[BUTTON_PATH_LEFT].x = 6;
+		buttons[BUTTON_PATH_LEFT].y = widget->h - texture_surface(buttons[BUTTON_PATH_LEFT].texture)->h - 5;
+		button_show(&buttons[BUTTON_PATH_LEFT], "<");
+
+		buttons[BUTTON_PATH_RIGHT].x = 6 + 130;
+		buttons[BUTTON_PATH_RIGHT].y = widget->h - texture_surface(buttons[BUTTON_PATH_RIGHT].texture)->h - 5;
+		button_show(&buttons[BUTTON_PATH_RIGHT], ">");
+
+		/* Show close button. */
+		buttons[BUTTON_CLOSE].x = widget->w - texture_surface(buttons[BUTTON_CLOSE].texture)->w - 4;
+		buttons[BUTTON_CLOSE].y = 4;
+		button_show(&buttons[BUTTON_CLOSE], "X");
+
+		/* Show help button. */
+		buttons[BUTTON_HELP].x = widget->w - texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
+		buttons[BUTTON_HELP].y = 4;
+		button_show(&buttons[BUTTON_HELP], "?");
+	}
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+	if (!widget->redraw)
+	{
 		widget->redraw = list_need_redraw(list_spells);
 	}
 
-	box2.x = widget->x;
-	box2.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
+	if (!widget->redraw)
+	{
+		size_t i;
 
-	/* Render the various buttons. */
-	button_close.x = widget->x + widget->w - texture_surface(button_close.texture)->w - 4;
-	button_close.y = widget->y + 4;
-	button_show(&button_close, "X");
-
-	button_help.x = widget->x + widget->w - texture_surface(button_close.texture)->w * 2 - 4;
-	button_help.y = widget->y + 4;
-	button_show(&button_help, "?");
-
-	button_path_left.x = widget->x + 6;
-	button_path_left.y = widget->y + widget->h - texture_surface(button_path_left.texture)->h - 5;
-	button_show(&button_path_left, "<");
-
-	button_path_right.x = widget->x + 6 + 130;
-	button_path_right.y = widget->y + widget->h - texture_surface(button_path_right.texture)->h - 5;
-	button_show(&button_path_right, ">");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			if (button_need_redraw(&buttons[i]))
+			{
+				widget->redraw = 1;
+				break;
+			}
+		}
+	}
 }
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
+	size_t i;
+
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
 	if (list_spells && list_handle_mouse(list_spells, event))
@@ -406,27 +448,37 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		return 1;
 	}
 
-	if (button_event(&button_path_left, event))
+	for (i = 0; i < BUTTON_NUM; i++)
 	{
-		button_repeat_func(&button_path_left);
-		return 1;
+		if (button_event(&buttons[i], event))
+		{
+			switch (i)
+			{
+				case BUTTON_PATH_LEFT:
+				case BUTTON_PATH_RIGHT:
+					button_repeat_func(&buttons[i]);
+					break;
+
+				case BUTTON_CLOSE:
+					widget->show = 0;
+					break;
+
+				case BUTTON_HELP:
+					help_show("spell list");
+					break;
+			}
+
+			widget->redraw = 1;
+			return 1;
+		}
+
+		if (buttons[i].redraw)
+		{
+			widget->redraw = 1;
+		}
 	}
-	else if (button_event(&button_path_right, event))
-	{
-		button_repeat_func(&button_path_right);
-		return 1;
-	}
-	else if (button_event(&button_close, event))
-	{
-		widget->show = 0;
-		return 1;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("spell list");
-		return 1;
-	}
-	else if (list_spells && list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
+
+	if (list_spells && list_spells->text && event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT)
 	{
 		size_t spell_id;
 		sprite_struct *icon;
@@ -453,5 +505,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 void widget_spells_init(widgetdata *widget)
 {
 	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
 	widget->event_func = widget_event;
 }
