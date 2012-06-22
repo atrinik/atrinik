@@ -30,15 +30,23 @@
 
 #include <global.h>
 
+enum
+{
+	BUTTON_CLOSE,
+	BUTTON_HELP,
+
+	BUTTON_NUM
+};
+
+/**
+ * Button buffer. */
+static button_struct buttons[BUTTON_NUM];
 /**
  * The skills list. */
 static skill_entry_struct **skill_list;
 /**
  * Number of skills contained in ::skill_list. */
 static size_t skill_list_num;
-/**
- * Button buffer. */
-static button_struct button_close, button_help;
 /**
  * The skills list. */
 static list_struct *list_skills = NULL;
@@ -230,7 +238,8 @@ void skills_remove(object *op)
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box, box2;
+	SDL_Rect box;
+	size_t i;
 
 	/* Create the skill list. */
 	if (!list_skills)
@@ -250,12 +259,13 @@ static void widget_draw(widgetdata *widget)
 		list_set_column(list_skills, 3, INVENTORY_ICON_SIZE, 0, NULL, -1);
 		skill_list_reload();
 
-		/* Create various buttons... */
-		button_create(&button_close);
-		button_create(&button_help);
-		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			button_create(&buttons[i]);
+			buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+			buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+			buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+		}
 	}
 
 	if (widget->redraw)
@@ -266,27 +276,50 @@ static void widget_draw(widgetdata *widget)
 		list_set_parent(list_skills, widget->x, widget->y);
 		list_show(list_skills, 10, 2);
 
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			buttons[i].surface = widget->surface;
+			button_set_parent(&buttons[i], widget->x, widget->y);
+		}
+
+		buttons[BUTTON_CLOSE].x = widget->w - texture_surface(buttons[BUTTON_CLOSE].texture)->w - 4;
+		buttons[BUTTON_CLOSE].y = 4;
+		button_show(&buttons[BUTTON_CLOSE], "X");
+
+		buttons[BUTTON_HELP].x = widget->w - texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
+		buttons[BUTTON_HELP].y = 4;
+		button_show(&buttons[BUTTON_HELP], "?");
+	}
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+	if (!widget->redraw)
+	{
 		widget->redraw = list_need_redraw(list_skills);
 	}
 
-	box2.x = widget->x;
-	box2.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box2);
+	if (!widget->redraw)
+	{
+		size_t i;
 
-	/* Render the various buttons. */
-	button_close.x = widget->x + widget->w - texture_surface(button_close.texture)->w - 4;
-	button_close.y = widget->y + 4;
-	button_show(&button_close, "X");
-
-	button_help.x = widget->x + widget->w - texture_surface(button_close.texture)->w * 2 - 4;
-	button_help.y = widget->y + 4;
-	button_show(&button_help, "?");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			if (button_need_redraw(&buttons[i]))
+			{
+				widget->redraw = 1;
+				break;
+			}
+		}
+	}
 }
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	uint32 row, col;
+	size_t i;
 
 	if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col))
 	{
@@ -321,15 +354,30 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		return 1;
 	}
 
-	if (button_event(&button_close, event))
+
+	for (i = 0; i < BUTTON_NUM; i++)
 	{
-		widget->show = 0;
-		return 1;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("skill list");
-		return 1;
+		if (button_event(&buttons[i], event))
+		{
+			switch (i)
+			{
+				case BUTTON_CLOSE:
+					widget->show = 0;
+					break;
+
+				case BUTTON_HELP:
+					help_show("skill list");
+					break;
+			}
+
+			widget->redraw = 1;
+			return 1;
+		}
+
+		if (buttons[i].redraw)
+		{
+			widget->redraw = 1;
+		}
 	}
 
 	return 0;
@@ -340,5 +388,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 void widget_skills_init(widgetdata *widget)
 {
 	widget->draw_func = widget_draw;
+	widget->background_func = widget_background;
 	widget->event_func = widget_event;
 }
