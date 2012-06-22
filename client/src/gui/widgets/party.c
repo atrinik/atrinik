@@ -35,14 +35,28 @@
 
 /** Macro to create the stat bar markup. */
 #define PARTY_STAT_BAR() \
-	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 6><bar=#cb0202 %d 6><y=6><bar=#000000 %d 6><bar=#1818a4 %d 6>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
+	snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 6><bar=#cb0202 %d 6><border=#909090 60 6><y=6><bar=#000000 %d 6><bar=#1818a4 %d 6><border=#909090 60 6>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
 
-/** Button buffer. */
-static button_struct button_close, button_help, button_parties, button_members, button_form, button_leave, button_password, button_chat;
+enum
+{
+	BUTTON_PARTIES,
+	BUTTON_MEMBERS,
+	BUTTON_FORM,
+	BUTTON_LEAVE,
+	BUTTON_PASSWORD,
+	BUTTON_CHAT,
+	BUTTON_CLOSE,
+	BUTTON_HELP,
 
-/** The party list. */
+	BUTTON_NUM
+};
+
+/**
+ * Button buffer. */
+static button_struct buttons[BUTTON_NUM];
+/**
+ * The party list. */
 static list_struct *list_party = NULL;
-
 /**
  * What type of data is currently in the list; -1 means no data,
  * otherwise one of @ref CMD_PARTY_xxx. */
@@ -68,11 +82,6 @@ static void list_handle_enter(list_struct *list)
  * @param box Dimensions for the row. */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
-	if (list_contents == CMD_PARTY_WHO)
-	{
-		box.w -= STAT_BAR_WIDTH + list->col_spacings[0];
-	}
-
 	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
 }
 
@@ -82,11 +91,6 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
  * @param box Dimensions for the row. */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
-	if (list_contents == CMD_PARTY_WHO)
-	{
-		box.w -= STAT_BAR_WIDTH + list->col_spacings[0];
-	}
-
 	SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
 }
 
@@ -235,7 +239,8 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box, dst;
+	SDL_Rect box;
+	size_t i;
 
 	if (widget->redraw)
 	{
@@ -250,49 +255,51 @@ static void widget_draw(widgetdata *widget)
 			list_show(list_party, 10, 23);
 		}
 
-		widget->redraw = list_need_redraw(list_party);
-	}
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			buttons[i].surface = widget->surface;
+			button_set_parent(&buttons[i], widget->x, widget->y);
+		}
 
-	dst.x = widget->x;
-	dst.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &dst);
+		/* Render the various buttons. */
+		buttons[BUTTON_CLOSE].x = widget->w - TEXTURE_CLIENT("button_round")->w - 4;
+		buttons[BUTTON_CLOSE].y = 4;
+		button_show(&buttons[BUTTON_CLOSE], "X");
 
-	/* Render the various buttons. */
-	button_close.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w - 4;
-	button_close.y = widget->y + 4;
-	button_show(&button_close, "X");
+		buttons[BUTTON_HELP].x = widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
+		buttons[BUTTON_HELP].y = 4;
+		button_show(&buttons[BUTTON_HELP], "?");
 
-	button_help.x = widget->x + widget->w - TEXTURE_CLIENT("button_round")->w * 2 - 4;
-	button_help.y = widget->y + 4;
-	button_show(&button_help, "?");
+		buttons[BUTTON_PARTIES].x = 244;
+		buttons[BUTTON_PARTIES].y = 38;
+		button_show(&buttons[BUTTON_PARTIES], list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
 
-	button_parties.x = widget->x + 244;
-	button_parties.y = widget->y + 38;
-	button_show(&button_parties, list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
+		buttons[BUTTON_MEMBERS].x = buttons[BUTTON_FORM].x = 244;
+		buttons[BUTTON_MEMBERS].y = buttons[BUTTON_FORM].y = 60;
 
-	button_members.x = button_form.x = widget->x + 244;
-	button_members.y = button_form.y = widget->y + 60;
-
-	if (cpl.partyname[0] == '\0')
-	{
-		button_show(&button_form, "Form");
-	}
-	else
-	{
-		button_show(&button_members, list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
-		button_leave.x = button_password.x = button_chat.x = widget->x + 244;
-		button_leave.y = widget->y + 82;
-		button_password.y = widget->y + 104;
-		button_chat.y = widget->y + 126;
-		button_show(&button_leave, "Leave");
-		button_show(&button_password, "Password");
-		button_show(&button_chat, "Chat");
+		if (cpl.partyname[0] == '\0')
+		{
+			button_show(&buttons[BUTTON_FORM], "Form");
+		}
+		else
+		{
+			button_show(&buttons[BUTTON_MEMBERS], list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
+			buttons[BUTTON_LEAVE].x = buttons[BUTTON_PASSWORD].x = buttons[BUTTON_CHAT].x = 244;
+			buttons[BUTTON_LEAVE].y = 82;
+			buttons[BUTTON_PASSWORD].y = 104;
+			buttons[BUTTON_CHAT].y = 126;
+			button_show(&buttons[BUTTON_LEAVE], "Leave");
+			button_show(&buttons[BUTTON_PASSWORD], "Password");
+			button_show(&buttons[BUTTON_CHAT], "Chat");
+		}
 	}
 }
 
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget)
 {
+	size_t i;
+
 	/* Create the party list. */
 	if (!list_party)
 	{
@@ -306,22 +313,41 @@ static void widget_background(widgetdata *widget)
 		list_set_column(list_party, 1, 60, 7, NULL, -1);
 		list_party->header_height = 6;
 
-		/* Create various buttons... */
-		button_create(&button_close);
-		button_create(&button_help);
-		button_create(&button_parties);
-		button_create(&button_members);
-		button_create(&button_form);
-		button_create(&button_leave);
-		button_create(&button_password);
-		button_create(&button_chat);
-		button_close.texture = button_help.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-		button_close.texture_pressed = button_help.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-		button_close.texture_over = button_help.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			button_create(&buttons[i]);
 
-		button_parties.flags = button_members.flags = TEXT_MARKUP;
+			if (i == BUTTON_CLOSE || i == BUTTON_HELP)
+			{
+				buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+				buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+				buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+			}
+			else if (i == BUTTON_PARTIES || i == BUTTON_MEMBERS)
+			{
+				buttons[i].flags = TEXT_MARKUP;
+			}
+		}
+
 		widget->redraw = 1;
 		list_contents = -1;
+	}
+
+	if (!widget->redraw)
+	{
+		widget->redraw = list_need_redraw(list_party);
+	}
+
+	if (!widget->redraw)
+	{
+		for (i = 0; i < BUTTON_NUM; i++)
+		{
+			if (button_need_redraw(&buttons[i]))
+			{
+				widget->redraw = 1;
+				break;
+			}
+		}
 	}
 }
 
@@ -329,6 +355,7 @@ static void widget_background(widgetdata *widget)
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
 	char buf[MAX_BUF];
+	size_t i;
 
 	/* If the list has handled the mouse event, we need to redraw the
 	 * widget. */
@@ -337,48 +364,62 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		widget->redraw = 1;
 		return 1;
 	}
-	else if (button_event(&button_close, event))
+
+	for (i = 0; i < BUTTON_NUM; i++)
 	{
-		widget->show = 0;
-		return 1;
-	}
-	else if (button_event(&button_help, event))
-	{
-		help_show("party list");
-		return 1;
-	}
-	else if (button_event(&button_parties, event))
-	{
-		send_command("/party list");
-		return 1;
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_members, event))
-	{
-		send_command("/party who");
-		return 1;
-	}
-	else if (cpl.partyname[0] == '\0' && button_event(&button_form, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /party_form ");
-		keybind_process_command(buf);
-		return 1;
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_password, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /party password ");
-		keybind_process_command(buf);
-		return 1;
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_leave, event))
-	{
-		send_command("/party leave");
-		return 1;
-	}
-	else if (cpl.partyname[0] != '\0' && button_event(&button_chat, event))
-	{
-		snprintf(buf, sizeof(buf), "?MCON /gsay ");
-		keybind_process_command(buf);
-		return 1;
+		if ((cpl.partyname[0] == '\0' && (i == BUTTON_PASSWORD || i == BUTTON_LEAVE || i == BUTTON_CHAT || i == BUTTON_MEMBERS)) || (cpl.partyname[0] != '\0' && (i == BUTTON_FORM)))
+		{
+			continue;
+		}
+
+		if (button_event(&buttons[i], event))
+		{
+			switch (i)
+			{
+				case BUTTON_PARTIES:
+					send_command("/party list");
+					break;
+
+				case BUTTON_MEMBERS:
+					send_command("/party who");
+					break;
+
+				case BUTTON_FORM:
+					snprintf(buf, sizeof(buf), "?MCON /party form ");
+					keybind_process_command(buf);
+					break;
+
+				case BUTTON_PASSWORD:
+					snprintf(buf, sizeof(buf), "?MCON /party password ");
+					keybind_process_command(buf);
+					break;
+
+				case BUTTON_LEAVE:
+					send_command("/party leave");
+					break;
+
+				case BUTTON_CHAT:
+					snprintf(buf, sizeof(buf), "?MCON /gsay ");
+					keybind_process_command(buf);
+					break;
+
+				case BUTTON_CLOSE:
+					widget->show = 0;
+					break;
+
+				case BUTTON_HELP:
+					help_show("spell list");
+					break;
+			}
+
+			widget->redraw = 1;
+			return 1;
+		}
+
+		if (buttons[i].redraw)
+		{
+			widget->redraw = 1;
+		}
 	}
 
 	return 0;
