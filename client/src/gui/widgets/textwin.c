@@ -288,6 +288,7 @@ void textwin_tab_remove(widgetdata *widget, const char *name)
 
 		textwin->tabs = realloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
 		textwin->tabs_num--;
+		textwin->tab_selected = MIN(textwin->tab_selected, textwin->tabs_num - 1);
 		textwin_readjust(widget);
 		break;
 	}
