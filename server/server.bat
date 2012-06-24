@@ -13,4 +13,8 @@ if not exist "data" (
 copy ..\arch\*.* lib\*.*
 del /q data\tmp\*
 
-atrinik_server.exe --logfile=logfile.log
+if exist "server-custom.cfg" (
+	set CLI_CONFIG=--config=server-custom.cfg
+)
+
+atrinik_server.exe %CLI_CONFIG% --logfile=logfile.log
