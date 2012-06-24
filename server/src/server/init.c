@@ -385,6 +385,18 @@ static void clioptions_option_allowed_chars(const char *arg)
 	}
 }
 
+static void clioptions_option_control_allowed_ips(const char *arg)
+{
+	strncpy(settings.control_allowed_ips, arg, sizeof(settings.control_allowed_ips) - 1);
+	settings.control_allowed_ips[sizeof(settings.control_allowed_ips) - 1] = '\0';
+}
+
+static void clioptions_option_control_player(const char *arg)
+{
+	strncpy(settings.control_player, arg, sizeof(settings.control_player) - 1);
+	settings.control_player[sizeof(settings.control_player) - 1] = '\0';
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -601,6 +613,24 @@ static void init_library(int argc, char *argv[])
 		"allowed_chars",
 		NULL,
 		clioptions_option_allowed_chars,
+		1,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"control_allowed_ips",
+		NULL,
+		clioptions_option_control_allowed_ips,
+		1,
+		"",
+		""
+	);
+
+	clioptions_add(
+		"control_player",
+		NULL,
+		clioptions_option_control_player,
 		1,
 		"",
 		""

@@ -1975,3 +1975,73 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 		}
 	}
 }
+
+void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+{
+	size_t pos2;
+	char word[MAX_BUF], app_name[MAX_BUF];
+	uint8 ip_match, type;
+	player *controller;
+
+	if (strcasecmp(settings.control_allowed_ips, "none") == 0)
+	{
+		return;
+	}
+
+	pos2 = 0;
+	ip_match = 0;
+
+	while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word)))
+	{
+		if (strcmp(ns->host, word) == 0)
+		{
+			ip_match = 1;
+			break;
+		}
+	}
+
+	if (!ip_match)
+	{
+		return;
+	}
+
+	packet_to_string(data, len, &pos, app_name, sizeof(app_name));
+	type = packet_to_uint8(data, len, &pos);
+
+	if (string_isempty(app_name))
+	{
+		return;
+	}
+
+	controller = string_isempty(settings.control_player) ? first_player : find_player(settings.control_player);
+
+	if (type == CMD_CONTROL_UPDATE_MAP)
+	{
+		char mappath[HUGE_BUF];
+		sint16 x, y;
+
+		packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+		x = packet_to_sint16(data, len, &pos);
+		y = packet_to_sint16(data, len, &pos);
+
+		if (controller)
+		{
+			shstr *mappath_sh;
+			mapstruct *m;
+			char buf[HUGE_BUF];
+
+			mappath_sh = add_string(mappath);
+			m = has_been_loaded_sh(mappath_sh);
+			free_string_shared(mappath_sh);
+
+			if (m)
+			{
+				snprintf(buf, sizeof(buf), "%s", mappath);
+				COMMAND_EXECUTE(controller->ob, resetmap, buf);
+			}
+
+			snprintf(buf, sizeof(buf), "%s %d %d", mappath, x, y);
+			COMMAND_EXECUTE(controller->ob, tpto, buf);
+		}
+	}
+}

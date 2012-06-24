@@ -42,7 +42,7 @@ typedef struct socket_command_struct
 
 static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
 {
-	{NULL, 0},
+	{socket_command_control, 0},
 	{socket_command_ask_face, 0},
 	{socket_command_setup, 0},
 	{socket_command_version, 0},
