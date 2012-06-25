@@ -52,9 +52,9 @@ if (ENABLE_AGGRESSIVE_WARNINGS)
 endif (ENABLE_AGGRESSIVE_WARNINGS)
 
 # Turn warnings into errors?
-if (NOT DISABLE_WARNING_ERRORS)
+if (ENABLE_WARNING_ERRORS)
 	add_definitions(-Werror)
-endif (NOT DISABLE_WARNING_ERRORS)
+endif (ENABLE_WARNING_ERRORS)
 
 # Disable optimization?
 if (DISABLE_OPTIMIZING)
