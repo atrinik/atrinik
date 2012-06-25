@@ -79,6 +79,11 @@ void logger_open_log(const char *path)
 {
 	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+	if (log_fp)
+	{
+		fclose(log_fp);
+	}
+
 	log_fp = fopen(path, "w");
 
 	if (!log_fp)

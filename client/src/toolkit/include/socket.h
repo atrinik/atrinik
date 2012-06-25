@@ -33,8 +33,7 @@
  * Commands used for sending data from client to server. */
 enum
 {
-	/** @deprecated */
-	SERVER_CMD_ADDME,
+	SERVER_CMD_CONTROL,
 	SERVER_CMD_ASK_FACE,
 	SERVER_CMD_SETUP,
 	SERVER_CMD_VERSION,
@@ -588,6 +587,14 @@ enum
 #define CMD_TALK_INV 2
 #define CMD_TALK_BELOW 3
 #define CMD_TALK_CONTAINER 4
+
+/**
+ * @defgroup CMD_CONTROL_xxx Control command types
+ *@{*/
+/**
+ * Map file has been updated. */
+#define CMD_CONTROL_UPDATE_MAP 1
+/*@}*/
 
 /**
  * Player equipment.
