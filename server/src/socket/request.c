@@ -2044,4 +2044,17 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 			COMMAND_EXECUTE(controller->ob, tpto, buf);
 		}
 	}
+	else
+	{
+		return;
+	}
+
+	if (controller)
+	{
+		packet_struct *packet;
+
+		packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+		packet_append_data_len(packet, data, len);
+		socket_send_packet(&controller->socket, packet);
+	}
 }
