@@ -29,6 +29,7 @@ extern void socket_command_map(uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(uint8 *data, size_t len, size_t pos);
 extern void socket_command_data(uint8 *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
+extern void socket_command_control(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url);
@@ -253,6 +254,10 @@ extern void file_updates_parse(void);
 extern void upgrader_init(void);
 extern char *upgrader_get_version_partial(char *dst, size_t dstlen);
 /* src/client/video.c */
+extern Display *SDL_display;
+extern Window SDL_window;
+extern void video_init(void);
+extern void video_window_activate(uint8 switch_desktop);
 extern int video_get_bpp(void);
 extern int video_set_size(void);
 extern uint32 get_video_flags(void);

@@ -31,21 +31,6 @@
  * @author Alex Tokar */
 
 #include <global.h>
-#include <SDL_syswm.h>
-
-#if defined(HAVE_X11)
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-
-#ifdef HAVE_X11_XMU
-#	include <X11/Xmu/Atoms.h>
-#endif
-
-static Display *SDL_Display = NULL;
-static Window SDL_Window;
-#elif defined(WIN32)
-static HWND SDL_Window = NULL;
-#endif
 
 #if defined(HAVE_X11)
 static int clipboard_filter(const SDL_Event *event)
@@ -77,7 +62,7 @@ static int clipboard_filter(const SDL_Event *event)
 			sevent.xselection.requestor = req->requestor;
 			sevent.xselection.time = req->time;
 
-			if (XGetWindowProperty(SDL_Display, DefaultRootWindow(SDL_Display), XA_CUT_BUFFER0, 0, INT_MAX / 4, False, req->target, &sevent.xselection.target, &seln_format, &nbytes, &overflow, &seln_data) == Success)
+			if (XGetWindowProperty(SDL_display, DefaultRootWindow(SDL_display), XA_CUT_BUFFER0, 0, INT_MAX / 4, False, req->target, &sevent.xselection.target, &seln_format, &nbytes, &overflow, &seln_data) == Success)
 			{
 				if (sevent.xselection.target == req->target)
 				{
@@ -89,15 +74,15 @@ static int clipboard_filter(const SDL_Event *event)
 						}
 					}
 
-					XChangeProperty(SDL_Display, req->requestor, req->property, sevent.xselection.target, seln_format, PropModeReplace, seln_data, nbytes);
+					XChangeProperty(SDL_display, req->requestor, req->property, sevent.xselection.target, seln_format, PropModeReplace, seln_data, nbytes);
 					sevent.xselection.property = req->property;
 				}
 
 				XFree(seln_data);
 			}
 
-			XSendEvent(SDL_Display, req->requestor, False, 0, &sevent);
-			XSync(SDL_Display, False);
+			XSendEvent(SDL_display, req->requestor, False, 0, &sevent);
+			XSync(SDL_display, False);
 		}
 
 		break;
@@ -113,43 +98,18 @@ static int clipboard_filter(const SDL_Event *event)
  * @return 1 on success, 0 on failure. */
 int clipboard_init(void)
 {
-	SDL_SysWMinfo info;
-
-	/* Grab the window manager specific information. */
-	SDL_VERSION(&info.version);
-
-	if (SDL_GetWMInfo(&info))
+	if (!SDL_display)
 	{
-		/* Save the information for later use. */
-#if defined(HAVE_X11)
-		if (info.subsystem == SDL_SYSWM_X11)
-		{
-			SDL_Display = info.info.x11.display;
-			SDL_Window = info.info.x11.window;
-
-			/* Enable the special window hook events. */
-			SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-			SDL_SetEventFilter(clipboard_filter);
-
-			return 1;
-		}
-		else
-		{
-			logger_print(LOG(BUG), "SDL is not running on X11 display.");
-			return 0;
-		}
-
-#elif defined(WIN32)
-		SDL_Window = info.window;
-		return 1;
-
-#else
 		return 0;
-
-#endif
 	}
 
-	return 0;
+#if defined(HAVE_X11)
+	/* Enable the special window hook events. */
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+	SDL_SetEventFilter(clipboard_filter);
+#endif
+
+	return 1;
 }
 
 /**
@@ -158,23 +118,23 @@ int clipboard_init(void)
  * @return 1 on success, 0 on failure. */
 int clipboard_set(const char *str)
 {
-#if defined(HAVE_X11)
-	if (!SDL_Display)
+	if (!SDL_display)
 	{
 		return 0;
 	}
 
-	XChangeProperty(SDL_Display, DefaultRootWindow(SDL_Display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned const char *) str, strlen(str));
+#if defined(HAVE_X11)
+	XChangeProperty(SDL_display, DefaultRootWindow(SDL_display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned const char *) str, strlen(str));
 
-	if (XGetSelectionOwner(SDL_Display, XA_PRIMARY) != SDL_Window)
+	if (XGetSelectionOwner(SDL_display, XA_PRIMARY) != SDL_window)
 	{
-		XSetSelectionOwner(SDL_Display, XA_PRIMARY, SDL_Window, CurrentTime);
+		XSetSelectionOwner(SDL_display, XA_PRIMARY, SDL_window, CurrentTime);
 	}
 
 #ifdef HAVE_X11_XMU
-	if (XGetSelectionOwner(SDL_Display, XA_CLIPBOARD(SDL_Display)) != SDL_Window)
+	if (XGetSelectionOwner(SDL_display, XA_CLIPBOARD(SDL_display)) != SDL_window)
 	{
-		XSetSelectionOwner(SDL_Display, XA_CLIPBOARD(SDL_Display), SDL_Window, CurrentTime);
+		XSetSelectionOwner(SDL_display, XA_CLIPBOARD(SDL_display), SDL_window, CurrentTime);
 	}
 #endif
 
@@ -192,12 +152,7 @@ int clipboard_set(const char *str)
 
 	return 1;
 #elif defined(WIN32)
-	if (!SDL_Window)
-	{
-		return 0;
-	}
-
-	if (OpenClipboard(SDL_Window))
+	if (OpenClipboard(SDL_window))
 	{
 		SIZE_T i, size;
 		HANDLE hMem;
@@ -248,7 +203,6 @@ int clipboard_set(const char *str)
 
 	return 1;
 #else
-	(void) str;
 	return 0;
 #endif
 }
@@ -266,18 +220,21 @@ char *clipboard_get(void)
 	int seln_format;
 	unsigned long nbytes, overflow;
 	char *src;
+#endif
 
-	if (!SDL_Display)
+	if (!SDL_display)
 	{
-		return NULL;
+		return 0;
 	}
 
-	owner = XGetSelectionOwner(SDL_Display, XA_PRIMARY);
 	result = NULL;
 
-	if (owner == None || owner == SDL_Window)
+#if defined(HAVE_X11)
+	owner = XGetSelectionOwner(SDL_display, XA_PRIMARY);
+
+	if (owner == None || owner == SDL_window)
 	{
-		owner = DefaultRootWindow(SDL_Display);
+		owner = DefaultRootWindow(SDL_display);
 		selection = XA_CUT_BUFFER0;
 	}
 	else
@@ -285,9 +242,9 @@ char *clipboard_get(void)
 		int selection_response = 0;
 		SDL_Event event;
 
-		owner = SDL_Window;
-		selection = XInternAtom(SDL_Display, "SDL_SELECTION", False);
-		XConvertSelection(SDL_Display, XA_PRIMARY, XA_STRING, selection, owner, CurrentTime);
+		owner = SDL_window;
+		selection = XInternAtom(SDL_display, "SDL_SELECTION", False);
+		XConvertSelection(SDL_display, XA_PRIMARY, XA_STRING, selection, owner, CurrentTime);
 
 		while (!selection_response)
 		{
@@ -305,7 +262,7 @@ char *clipboard_get(void)
 		}
 	}
 
-	if (XGetWindowProperty(SDL_Display, owner, selection, 0, INT_MAX / 4, False, XA_STRING, &seln_type, &seln_format, &nbytes, &overflow, (unsigned char **) &src) == Success)
+	if (XGetWindowProperty(SDL_display, owner, selection, 0, INT_MAX / 4, False, XA_STRING, &seln_type, &seln_format, &nbytes, &overflow, (unsigned char **) &src) == Success)
 	{
 		if (seln_type == XA_STRING)
 		{
@@ -315,12 +272,7 @@ char *clipboard_get(void)
 		XFree(src);
 	}
 #elif defined(WIN32)
-	if (!SDL_Window)
-	{
-		return NULL;
-	}
-
-	if (IsClipboardFormatAvailable(CF_TEXT) && OpenClipboard(SDL_Window))
+	if (IsClipboardFormatAvailable(CF_TEXT) && OpenClipboard(SDL_window))
 	{
 		HANDLE hMem;
 		char *src;
@@ -336,8 +288,6 @@ char *clipboard_get(void)
 
 		CloseClipboard();
 	}
-#else
-	result = NULL;
 #endif
 
 	return result;

@@ -437,18 +437,9 @@ int main(int argc, char *argv[])
 
 	/* Start the system after starting SDL */
 	system_start();
-	list_vid_modes();
-
-	if (!video_set_size())
-	{
-		logger_print(LOG(ERROR), "Couldn't set video size: %s", SDL_GetError());
-		exit(1);
-	}
-
+	video_init();
 	sprite_init_system();
-
 	SDL_EnableUNICODE(1);
-
 	text_init();
 	texture_init();
 	sound_init();

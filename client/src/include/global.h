@@ -32,6 +32,7 @@
 /* Include standard headers. */
 #include <SDL.h>
 #include <SDL_main.h>
+#include <SDL_syswm.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <curl/curl.h>
@@ -42,6 +43,25 @@
 
 #ifdef HAVE_SDL_MIXER
 #	include <SDL_mixer.h>
+#endif
+
+#if defined(HAVE_X11)
+#	include <X11/Xlib.h>
+#	include <X11/Xatom.h>
+#	ifdef HAVE_X11_XMU
+#		include <X11/Xmu/Atoms.h>
+#	endif
+#endif
+
+#if defined(HAVE_X11)
+typedef Display *SDL_display_type;
+typedef Window SDL_window_type;
+#elif defined(WIN32)
+typedef HWND SDL_display_type;
+typedef HWND SDL_window_type;
+#else
+typedef void *SDL_display_type;
+typedef void *SDL_window_type;
 #endif
 
 #define HUGE_BUF 4096

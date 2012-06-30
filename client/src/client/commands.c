@@ -883,3 +883,18 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
 
 	free(dest);
 }
+
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_control(uint8 *data, size_t len, size_t pos)
+{
+	char app_name[MAX_BUF];
+	uint8 type;
+
+	packet_to_string(data, len, &pos, app_name, sizeof(app_name));
+	type = packet_to_uint8(data, len, &pos);
+
+	if (type == CMD_CONTROL_UPDATE_MAP)
+	{
+		video_window_activate(1);
+	}
+}
