@@ -46,6 +46,7 @@ _CPack_Packages/
 install_manifest.txt
 Makefile
 build.user
+.directory
 
 # Win32
 Thumbs.db
