@@ -184,6 +184,7 @@
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
 		<Unit filename="..\..\src\toolkit\toolkit.c" />
+		<Unit filename="..\..\src\toolkit\x11.c" />
 		<Unit filename="..\..\src\types\common\apply.c" />
 		<Unit filename="..\..\src\types\common\describe.c" />
 		<Unit filename="..\..\src\types\common\move_on.c" />
