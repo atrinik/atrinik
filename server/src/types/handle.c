@@ -119,7 +119,7 @@ static void process_func(object *op)
  * Initialize the handle type object methods. */
 void object_type_init_handle(void)
 {
-	object_type_methods[HANDLE].apply_func = apply_func;
-	object_type_methods[HANDLE].trigger_func = trigger_func;
-	object_type_methods[HANDLE].process_func = process_func;
+	object_type_methods[TYPE_HANDLE].apply_func = apply_func;
+	object_type_methods[TYPE_HANDLE].trigger_func = trigger_func;
+	object_type_methods[TYPE_HANDLE].process_func = process_func;
 }

@@ -367,7 +367,7 @@ static const Atrinik_Constant constants_types[] =
 	{"SPINNER", SPINNER},
 	{"GATE", GATE},
 	{"BUTTON", BUTTON},
-	{"HANDLE", HANDLE},
+	{"HANDLE", TYPE_HANDLE},
 	{"WORD_OF_RECALL", WORD_OF_RECALL},
 	{"SIGN", SIGN},
 	{"BOOTS", BOOTS},
