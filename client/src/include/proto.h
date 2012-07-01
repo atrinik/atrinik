@@ -254,10 +254,9 @@ extern void file_updates_parse(void);
 extern void upgrader_init(void);
 extern char *upgrader_get_version_partial(char *dst, size_t dstlen);
 /* src/client/video.c */
-extern Display *SDL_display;
-extern Window SDL_window;
+extern x11_display_type SDL_display;
+extern x11_window_type SDL_window;
 extern void video_init(void);
-extern void video_window_activate(uint8 switch_desktop);
 extern int video_get_bpp(void);
 extern int video_set_size(void);
 extern uint32 get_video_flags(void);
@@ -353,10 +352,6 @@ extern int button_need_redraw(button_struct *button);
 extern void button_show(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
 extern void button_tooltip(button_struct *button, int font, const char *text);
-/* src/gui/toolkit/clipboard.c */
-extern int clipboard_init(void);
-extern int clipboard_set(const char *str);
-extern char *clipboard_get(void);
 /* src/gui/toolkit/color_picker.c */
 extern void color_picker_create(color_picker_struct *color_picker, int size);
 extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
@@ -926,8 +921,16 @@ extern void stringbuffer_append_char(StringBuffer *sb, const char c);
 extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
-/* src/toolkit/toolkit.c*/
+/* src/toolkit/toolkit.c */
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
+/* src/toolkit/x11.c*/
+extern void toolkit_x11_init(void);
+extern void toolkit_x11_deinit(void);
+extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);
+extern void x11_window_activate(x11_display_type display, x11_window_type win, uint8 switch_desktop);
+extern int x11_clipboard_register_events(void);
+extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
+extern char *x11_clipboard_get(x11_display_type display, x11_window_type win);
 #endif

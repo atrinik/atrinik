@@ -152,6 +152,14 @@
 #	endif
 #endif
 
+#ifdef HAVE_X11
+#	include <X11/Xlib.h>
+#	include <X11/Xatom.h>
+#	ifdef HAVE_X11_XMU
+#		include <X11/Xmu/Atoms.h>
+#	endif
+#endif
+
 #ifdef HAVE_SRANDOM
 #	define RANDOM() random()
 #	define SRANDOM(xyz) srandom(xyz)
@@ -292,6 +300,17 @@ typedef unsigned int tag_t;
 /* Only C99 has lrint. */
 #ifndef _ISOC99_SOURCE
 #	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
+#endif
+
+#if defined(HAVE_X11)
+	typedef Display *x11_display_type;
+	typedef Window x11_window_type;
+#elif defined(WIN32)
+	typedef HWND x11_display_type;
+	typedef HWND x11_window_type;
+#else
+	typedef void *x11_display_type;
+	typedef void *x11_window_type;
 #endif
 
 #ifndef HAVE_STRTOK_R

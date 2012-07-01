@@ -37,12 +37,6 @@
 /* Is SDL_mixer available? */
 #cmakedefine HAVE_SDL_MIXER
 
-/* Is X11 available? */
-#cmakedefine HAVE_X11
-
-/* Is X11 XMU available? */
-#cmakedefine HAVE_X11_XMU
-
 #define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
 
 #endif

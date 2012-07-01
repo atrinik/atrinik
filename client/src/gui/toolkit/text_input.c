@@ -256,7 +256,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 		{
 			char *clipboard_contents;
 
-			clipboard_contents = clipboard_get();
+			clipboard_contents = x11_clipboard_get(SDL_display, SDL_window);
 
 			if (clipboard_contents)
 			{

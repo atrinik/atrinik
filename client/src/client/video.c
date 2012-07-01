@@ -30,10 +30,10 @@
 
 /**
  * The display. */
-SDL_display_type SDL_display;
+x11_display_type SDL_display;
 /**
  * The window. */
-SDL_window_type SDL_window;
+x11_window_type SDL_window;
 
 /**
  * Initialize the video system. */
@@ -71,149 +71,6 @@ void video_init(void)
 		SDL_window = SDL_display = info.window;
 #endif
 	}
-}
-
-#if defined(HAVE_X11)
-/**
- * Sends event to X11.
- *
- * @author Tomas Styblo (wmctrl - GPLv2) */
-static int x11_send_event(Display *disp, Window win, char *msg, unsigned long data0, unsigned long data1, unsigned long data2, unsigned long data3, unsigned long data4)
-{
-	XEvent event;
-	long mask;
-
-	mask = SubstructureRedirectMask | SubstructureNotifyMask;
-	event.xclient.type = ClientMessage;
-	event.xclient.serial = 0;
-	event.xclient.send_event = True;
-	event.xclient.message_type = XInternAtom(disp, msg, False);
-	event.xclient.window = win;
-	event.xclient.format = 32;
-	event.xclient.data.l[0] = data0;
-	event.xclient.data.l[1] = data1;
-	event.xclient.data.l[2] = data2;
-	event.xclient.data.l[3] = data3;
-	event.xclient.data.l[4] = data4;
-
-	if (!XSendEvent(disp, DefaultRootWindow(disp), False, mask, &event))
-	{
-		logger_print(LOG(BUG), "Cannot send event: %s", msg);
-		return 0;
-	}
-
-	return 1;
-}
-
-/**
- * Acquires X11 window's property.
- *
- * @author Tomas Styblo (wmctrl - GPLv2) */
-static char *x11_get_property(Display *disp, Window win, Atom xa_prop_type, char *prop_name, unsigned long *size)
-{
-	Atom xa_prop_name;
-	Atom xa_ret_type;
-	int ret_format;
-	unsigned long ret_nitems;
-	unsigned long ret_bytes_after;
-	unsigned long tmp_size;
-	unsigned char *ret_prop;
-	char *ret;
-
-	xa_prop_name = XInternAtom(disp, prop_name, False);
-
-	/* MAX_PROPERTY_VALUE_LEN / 4 explanation (XGetWindowProperty manpage):
-	 *
-	 * long_length = Specifies the length in 32-bit multiples of the
-	 *               data to be retrieved.
-	 */
-	if (XGetWindowProperty(disp, win, xa_prop_name, 0, 1024, False, xa_prop_type, &xa_ret_type, &ret_format, &ret_nitems, &ret_bytes_after, &ret_prop) != Success)
-	{
-		logger_print(LOG(BUG), "Cannot get property: %s", prop_name);
-		return NULL;
-	}
-
-	if (xa_ret_type != xa_prop_type)
-	{
-		logger_print(LOG(BUG), "Invalid type of property: %s", prop_name);
-		XFree(ret_prop);
-		return NULL;
-	}
-
-	/* Terminate the result to make string handling easier. */
-	tmp_size = (ret_format / 8) * ret_nitems;
-	ret = malloc(tmp_size + 1);
-	memcpy(ret, ret_prop, tmp_size);
-	ret[tmp_size] = '\0';
-
-	if (size)
-	{
-		*size = tmp_size;
-	}
-
-	XFree(ret_prop);
-	return ret;
-}
-
-/**
- * Get the actual client window. */
-static Window x11_get_window(void)
-{
-	Window root, parent, *children;
-	unsigned int children_count;
-
-	XQueryTree(SDL_display, SDL_window, &root, &parent, &children, &children_count);
-
-	return parent;
-}
-
-#endif
-
-/**
- * Raises the client's window.
- * @param switch_desktop If 1, will also switch the desktop to that of
- * the client's desktop.
- * @author Tomas Styblo (wmctrl - GPLv2) */
-void video_window_activate(uint8 switch_desktop)
-{
-#if defined(HAVE_X11)
-	Window win;
-#endif
-
-	if (!SDL_display)
-	{
-		return;
-	}
-
-#if defined(HAVE_X11)
-	win = x11_get_window();
-
-	if (switch_desktop)
-	{
-		unsigned long *desktop;
-
-		if (!(desktop = (unsigned long *) x11_get_property(SDL_display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL)))
-		{
-			if (!(desktop = (unsigned long *) x11_get_property(SDL_display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL)))
-			{
-				logger_print(LOG(BUG), "Cannot find desktop ID of the window.");
-			}
-		}
-
-		if (desktop)
-		{
-			if (!x11_send_event(SDL_display, DefaultRootWindow(SDL_display), "_NET_CURRENT_DESKTOP", *desktop, 0, 0, 0, 0))
-			{
-				logger_print(LOG(BUG), "Cannot switch desktop.");
-			}
-
-			free(desktop);
-		}
-	}
-
-	x11_send_event(SDL_display, win, "_NET_ACTIVE_WINDOW", 0, 0, 0, 0, 0);
-	XMapRaised(SDL_display, win);
-#endif
 }
 
 /**

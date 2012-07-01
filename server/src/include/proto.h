@@ -916,6 +916,14 @@ extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
+/* src/toolkit/x11.c */
+extern void toolkit_x11_init(void);
+extern void toolkit_x11_deinit(void);
+extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);
+extern void x11_window_activate(x11_display_type display, x11_window_type win, uint8 switch_desktop);
+extern int x11_clipboard_register_events(void);
+extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
+extern char *x11_clipboard_get(x11_display_type display, x11_window_type win);
 /* src/types/common/apply.c */
 extern int common_object_apply(object *op, object *applier, int aflags);
 extern int object_apply_item(object *op, object *applier, int aflags);

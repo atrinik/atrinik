@@ -43,6 +43,12 @@
 /* Is readline available? */
 #cmakedefine HAVE_READLINE
 
+/* Is X11 available? */
+#cmakedefine HAVE_X11
+
+/* Is X11 XMU available? */
+#cmakedefine HAVE_X11_XMU
+
 #ifndef HAVE_FCNTL_H
 #cmakedefine HAVE_FCNTL_H
 #endif

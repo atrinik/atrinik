@@ -37,26 +37,6 @@ else (SDLMIXER_FOUND)
 	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
 endif (SDLMIXER_FOUND)
 
-# X11 is optional, since it's only used for clipboard support on GNU/Linux.
-# Thus, if X11 is not available, clipboard support will be disabled.
-find_package(X11)
-
-if (X11_FOUND)
-	include_directories(${X11_INCLUDE_DIR})
-	set(HAVE_X11 true)
-
-	# Try to find X11 XMU.
-	find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
-
-	if (X11_XMU_LIBRARY)
-		set(HAVE_X11_XMU true)
-	else (X11_XMU_LIBRARY)
-		message(STATUS "Warning: X11 XMU not found - ctrl+v support will be disabled")
-	endif (X11_XMU_LIBRARY)
-else (X11_FOUND)
-	message(STATUS "Warning: X11 not found - clipboard support will be disabled")
-endif (X11_FOUND)
-
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
@@ -133,7 +113,6 @@ set(SOURCES
 	src/gui/popups/settings_keybinding.c
 	src/gui/popups/updater.c
 	src/gui/toolkit/button.c
-	src/gui/toolkit/clipboard.c
 	src/gui/toolkit/color_picker.c
 	src/gui/toolkit/list.c
 	src/gui/toolkit/popup.c
@@ -185,16 +164,6 @@ target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
 if (HAVE_SDL_MIXER)
 	target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
 endif (HAVE_SDL_MIXER)
-
-# Link X11 if available.
-if (HAVE_X11)
-	target_link_libraries(${EXECUTABLE} ${X11_LIBRARY})
-endif (HAVE_X11)
-
-# Link X11 XMU if available.
-if (HAVE_X11_XMU)
-	target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
-endif (HAVE_X11_XMU)
 
 # Get all the include directories used to compile the client.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

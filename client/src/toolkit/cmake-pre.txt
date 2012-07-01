@@ -36,6 +36,24 @@ elseif (READLINE_LIBRARY)
 	message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
 endif (READLINE_LIBRARY)
 
+find_package(X11)
+
+if (X11_FOUND)
+	include_directories(${X11_INCLUDE_DIR})
+	set(HAVE_X11 true)
+
+	# Try to find X11 XMU.
+	find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
+
+	if (X11_XMU_LIBRARY)
+		set(HAVE_X11_XMU true)
+	else (X11_XMU_LIBRARY)
+		message(STATUS "Warning: X11 XMU not found, some features may be disabled")
+	endif (X11_XMU_LIBRARY)
+else (X11_FOUND)
+	message(STATUS "Warning: X11 not found, some features may be disabled")
+endif (X11_FOUND)
+
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
@@ -102,4 +120,5 @@ set(SOURCES_TOOLKIT
 	src/toolkit/signals.c
 	src/toolkit/string.c
 	src/toolkit/stringbuffer.c
-	src/toolkit/toolkit.c)
+	src/toolkit/toolkit.c
+	src/toolkit/x11.c)

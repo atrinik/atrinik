@@ -895,6 +895,6 @@ void socket_command_control(uint8 *data, size_t len, size_t pos)
 
 	if (type == CMD_CONTROL_UPDATE_MAP)
 	{
-		video_window_activate(1);
+		x11_window_activate(SDL_display, x11_window_get_parent(SDL_display, SDL_window), 1);
 	}
 }

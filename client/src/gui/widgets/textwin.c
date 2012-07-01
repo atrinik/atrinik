@@ -512,7 +512,7 @@ void textwin_handle_copy(widgetdata *widget)
 	cp[i] = '\0';
 	cp = text_strip_markup(cp, NULL, 1);
 
-	clipboard_set(cp);
+	x11_clipboard_set(SDL_display, SDL_window, cp);
 	free(str);
 	free(cp);
 }

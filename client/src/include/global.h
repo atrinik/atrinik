@@ -45,25 +45,6 @@
 #	include <SDL_mixer.h>
 #endif
 
-#if defined(HAVE_X11)
-#	include <X11/Xlib.h>
-#	include <X11/Xatom.h>
-#	ifdef HAVE_X11_XMU
-#		include <X11/Xmu/Atoms.h>
-#	endif
-#endif
-
-#if defined(HAVE_X11)
-typedef Display *SDL_display_type;
-typedef Window SDL_window_type;
-#elif defined(WIN32)
-typedef HWND SDL_display_type;
-typedef HWND SDL_window_type;
-#else
-typedef void *SDL_display_type;
-typedef void *SDL_window_type;
-#endif
-
 #define HUGE_BUF 4096
 #define MAX_BUF 256
 

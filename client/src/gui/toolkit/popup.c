@@ -281,7 +281,7 @@ int popup_handle_event(SDL_Event *event)
 			str = malloc(sizeof(char) * (end - start + 1 + 1));
 			memcpy(str, contents + start, end - start + 1);
 			str[end - start + 1] = '\0';
-			clipboard_set(str);
+			x11_clipboard_set(SDL_display, SDL_window, str);
 			free(str);
 
 			return 1;

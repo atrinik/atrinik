@@ -15,3 +15,13 @@ endif (CRYPT_LIBRARY)
 if (HAVE_READLINE)
 	target_link_libraries(${EXECUTABLE} ${READLINE_LIBRARY})
 endif (HAVE_READLINE)
+
+# Link X11 if available.
+if (HAVE_X11)
+	target_link_libraries(${EXECUTABLE} ${X11_LIBRARY})
+endif (HAVE_X11)
+
+# Link X11 XMU if available.
+if (HAVE_X11_XMU)
+	target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
+endif (HAVE_X11_XMU)

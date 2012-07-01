@@ -356,6 +356,7 @@ int main(int argc, char *argv[])
 	toolkit_import(sha1);
 	toolkit_import(string);
 	toolkit_import(stringbuffer);
+	toolkit_import(x11);
 
 	clioptions_add(
 		"server",
@@ -458,7 +459,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (!clipboard_init())
+	if (!x11_clipboard_register_events())
 	{
 		draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
 	}
