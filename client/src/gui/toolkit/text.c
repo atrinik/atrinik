@@ -587,6 +587,7 @@ void text_show_character_init(text_info_struct *info)
 	info->highlight = 0;
 	info->highlight_color.r = info->highlight_color.g = info->highlight_color.b = 0;
 	info->tooltip_text[0] = '\0';
+	info->flip = 0;
 }
 
 /**
@@ -1577,7 +1578,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				}
 			}
 
-			return strchr(cp + 10, '>') - cp + 1;
+			return strchr(cp + 9, '>') - cp + 1;
 		}
 		else if (!strncmp(cp, "</tooltip>", 10))
 		{
@@ -1644,6 +1645,40 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			}
 
 			return strchr(cp + 6, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "<flip=", 6))
+		{
+			if (surface || info->obscured)
+			{
+				char flip_type[MAX_BUF];
+
+				if (sscanf(cp + 6, "%64[^>]>", flip_type) == 1)
+				{
+					if (strcmp(flip_type, "horizontal") == 0)
+					{
+						info->flip = TEXT_FLIP_HORIZONTAL;
+					}
+					else if (strcmp(flip_type, "vertical") == 0)
+					{
+						info->flip = TEXT_FLIP_VERTICAL;
+					}
+					else if (strcmp(flip_type, "both") == 0)
+					{
+						info->flip = TEXT_FLIP_BOTH;
+					}
+				}
+			}
+
+			return strchr(cp + 6, '>') - cp + 1;
+		}
+		else if (!strncmp(cp, "</flip>", 7))
+		{
+			if (surface || info->obscured)
+			{
+				info->flip = 0;
+			}
+
+			return 7;
 		}
 	}
 
@@ -1875,6 +1910,15 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 			font_height = TTF_FontHeight(fonts[*font].font);
 			lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, use_color->r, use_color->g, use_color->b, 255);
+		}
+
+		if (info->flip)
+		{
+			SDL_Surface *ttf_surface_orig;
+
+			ttf_surface_orig = ttf_surface;
+			ttf_surface = zoomSurface(ttf_surface_orig, info->flip & TEXT_FLIP_HORIZONTAL ? -1.0 : 1.0, info->flip & TEXT_FLIP_VERTICAL ? -1.0 : 1.0, 0);
+			SDL_FreeSurface(ttf_surface_orig);
 		}
 
 		/* Output the rendered character to the screen and free the

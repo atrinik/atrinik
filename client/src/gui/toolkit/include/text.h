@@ -265,6 +265,8 @@ typedef struct text_info_struct
 
 	uint8 highlight;
 
+	uint8 flip;
+
 	SDL_Rect highlight_rect;
 
 	SDL_Color highlight_color;
@@ -323,6 +325,10 @@ typedef struct text_info_struct
  * consideration. */
 #define TEXT_MAX_WIDTH 4096
 /*@}*/
+
+#define TEXT_FLIP_HORIZONTAL 1
+#define TEXT_FLIP_VERTICAL 2
+#define TEXT_FLIP_BOTH (TEXT_FLIP_HORIZONTAL | TEXT_FLIP_VERTICAL)
 
 /**
  * @defgroup COLOR_xxx Color HTML notations
