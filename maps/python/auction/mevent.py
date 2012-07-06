@@ -33,11 +33,9 @@ def main():
 		SetReturnValue(1)
 	# Apply event, do not allow applying the items in the boxes.
 	elif event == MEVENT_APPLY:
-		SetReturnValue(-1)
-
 		if not is_in_player(other):
 			pl.DrawInfo("You cannot do that here.", COLOR_RED)
-			SetReturnValue(OBJECT_METHOD_OK)
+			SetReturnValue(OBJECT_METHOD_OK + 1)
 	# Picked up an item, try to pay for it.
 	elif event == MEVENT_PICK:
 		seller = other.ReadKey("auction_house_seller")

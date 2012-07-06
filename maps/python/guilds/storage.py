@@ -77,14 +77,12 @@ def main():
 		if is_in_player(other):
 			return
 
-		SetReturnValue(-1)
-
 		if other.type != Type.CONTAINER and not other.f_no_pick:
 			pl.DrawInfo("You must get it first!\n", COLOR_WHITE)
-			SetReturnValue(OBJECT_METHOD_OK)
+			SetReturnValue(OBJECT_METHOD_OK + 1)
 		elif other.type == Type.CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
 			pl.DrawInfo("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
-			SetReturnValue(OBJECT_METHOD_OK)
+			SetReturnValue(OBJECT_METHOD_OK + 1)
 	elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
 		if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name):
 			pl.DrawInfo("You cannot use that command here.", COLOR_RED)

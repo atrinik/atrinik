@@ -75,9 +75,9 @@ int manual_apply(object *op, object *tmp, int aflag)
 	{
 		int retval = trigger_map_event(MEVENT_APPLY, op->map, op, tmp, NULL, NULL, aflag);
 
-		if (retval != -1)
+		if (retval)
 		{
-			return retval;
+			return retval - 1;
 		}
 	}
 
