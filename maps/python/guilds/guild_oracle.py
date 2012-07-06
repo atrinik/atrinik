@@ -243,7 +243,7 @@ def main():
 			inf.set_text_input(prepend = "op_addmember2 ")
 
 		elif msg.startswith("op_addmember2 "):
-			name = msg[15:].capitalize()
+			name = msg[14:].capitalize()
 
 			if not PlayerExists(name):
 				inf.add_msg("No such player.")
@@ -258,7 +258,7 @@ def main():
 			inf.set_text_input(prepend = "op_founder2 ")
 
 		elif msg.startswith("op_founder2 "):
-			name = msg[13:].capitalize()
+			name = msg[12:].capitalize()
 
 			if not PlayerExists(name):
 				inf.add_msg("No such player.")
