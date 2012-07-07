@@ -1423,20 +1423,63 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				char face[MAX_BUF];
 				int wd, ht, fit_to_size = 0;
 
-				if (sscanf(cp + 6, "%128[^ ] %d %d %d>", face, &wd, &ht, &fit_to_size) >= 3)
+				wd = ht = -1;
+
+				if (sscanf(cp + 6, "%255[^ >] %d %d %d>", face, &wd, &ht, &fit_to_size) >= 1)
 				{
-					int id = get_bmap_id(face);
+					int id;
+					sprite_struct *icon_sprite;
+					SDL_Surface *icon_surface;
+
+					id = get_bmap_id(face);
+					icon_sprite = NULL;
+					icon_surface = NULL;
 
 					if (id != -1 && FaceList[id].sprite)
 					{
+						icon_sprite = FaceList[id].sprite;
+						icon_surface = icon_sprite->bitmap;
+					}
+
+					if (!icon_sprite)
+					{
+						uint8 is_software;
+
+						is_software = strncmp(face, "soft:", 5) == 0;
+						icon_surface = texture_surface(texture_get(is_software ? TEXTURE_TYPE_SOFTWARE : TEXTURE_TYPE_CLIENT, is_software ? face + 5 : face));
+					}
+
+					if (icon_surface)
+					{
 						int icon_w, icon_h, icon_orig_w, icon_orig_h;
-						sprite_struct *icon_sprite;
+						int border_up, border_down, border_left, border_right;
 						SDL_Rect icon_box, icon_dst;
 						double zoom_factor;
 
-						icon_sprite = FaceList[id].sprite;
-						icon_w = icon_orig_w = icon_sprite->bitmap->w - icon_sprite->border_left - icon_sprite->border_right;
-						icon_h = icon_orig_h = icon_sprite->bitmap->h - icon_sprite->border_up - icon_sprite->border_down;
+						if (icon_sprite)
+						{
+							border_up = icon_sprite->border_up;
+							border_down = icon_sprite->border_down;
+							border_left = icon_sprite->border_left;
+							border_right = icon_sprite->border_right;
+						}
+						else
+						{
+							surface_borders_get(icon_surface, &border_up, &border_down, &border_left, &border_right, icon_surface->format->colorkey);
+						}
+
+						icon_w = icon_orig_w = icon_surface->w - border_left - border_right;
+						icon_h = icon_orig_h = icon_surface->h - border_up - border_down;
+
+						if (wd == -1)
+						{
+							wd = icon_w;
+						}
+
+						if (ht == -1)
+						{
+							ht = icon_h;
+						}
 
 						if (icon_w > wd)
 						{
@@ -1469,8 +1512,8 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							}
 						}
 
-						icon_box.x = icon_sprite->border_left;
-						icon_box.y = icon_sprite->border_up;
+						icon_box.x = border_left;
+						icon_box.y = border_up;
 						icon_box.w = icon_w;
 						icon_box.h = icon_h;
 
@@ -1485,7 +1528,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							zoom_x = (double) icon_w / icon_orig_w;
 							zoom_y = (double) icon_h / icon_orig_h;
 
-							tmp_icon = zoomSurface(icon_sprite->bitmap, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+							tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
 
 							icon_box.x *= zoom_x;
 							icon_box.y *= zoom_y;
@@ -1495,7 +1538,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						}
 						else
 						{
-							SDL_BlitSurface(icon_sprite->bitmap, &icon_box, surface, &icon_dst);
+							SDL_BlitSurface(icon_surface, &icon_box, surface, &icon_dst);
 						}
 					}
 				}
