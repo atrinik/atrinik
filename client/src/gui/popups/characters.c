@@ -193,7 +193,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
 }
 
 /** @copydoc list_struct::handle_enter_func */
-static void list_handle_enter(list_struct *list)
+static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	if (list->row_selected)
 	{

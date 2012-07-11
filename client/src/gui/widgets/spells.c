@@ -73,7 +73,7 @@ void spells_init(void)
 /**
  * Handle double click inside the spells list.
  * @param list The spells list. */
-static void list_handle_enter(list_struct *list)
+static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	/* Ready the selected spell, if any. */
 	if (list->text)

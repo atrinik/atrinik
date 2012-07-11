@@ -170,8 +170,9 @@ typedef struct list_struct
 	/**
 	 * Function to handle enter key being pressed on a selected row, or
 	 * a row being double clicked.
-	 * @param list List. */
-	void (*handle_enter_func)(struct list_struct *list);
+	 * @param list List.
+	 * @param Event Event that triggered this. */
+	void (*handle_enter_func)(struct list_struct *list, SDL_Event *event);
 
 	/**
 	 * Custom function to call for handling keyboard events.

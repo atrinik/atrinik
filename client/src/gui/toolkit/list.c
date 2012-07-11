@@ -658,7 +658,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
 		case SDLK_KP_ENTER:
 			if (list->handle_enter_func)
 			{
-				list->handle_enter_func(list);
+				list->handle_enter_func(list, event);
 			}
 
 			return 1;
@@ -735,7 +735,7 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
 				/* Double click, handle it as if enter was used. */
 				if (list->handle_enter_func)
 				{
-					list->handle_enter_func(list);
+					list->handle_enter_func(list, event);
 					list->click_tick = 0;
 				}
 

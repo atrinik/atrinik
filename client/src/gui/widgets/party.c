@@ -65,7 +65,7 @@ static sint8 list_contents = -1;
 /**
  * Handle enter/double click for the party list.
  * @param list List. */
-static void list_handle_enter(list_struct *list)
+static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	if (list_contents == CMD_PARTY_LIST && list->text)
 	{

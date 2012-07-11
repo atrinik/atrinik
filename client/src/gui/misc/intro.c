@@ -59,7 +59,7 @@ static list_struct *list_servers = NULL;
 /**
  * Handle enter key being pressed in the servers list.
  * @param list The servers list. */
-static void list_handle_enter(list_struct *list)
+static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	/* Servers list? */
 	if (list == list_servers)
@@ -331,7 +331,7 @@ int intro_event(SDL_Event *event)
 
 	if (button_event(&button_play, event))
 	{
-		list_handle_enter(list_servers);
+		list_handle_enter(list_servers, event);
 		return 1;
 	}
 	else if (button_event(&button_refresh, event))

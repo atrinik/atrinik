@@ -71,7 +71,7 @@ static list_struct *list_mplayer = NULL;
 /**
  * Handle music list double-click and "Play" button.
  * @param list The music list. */
-static void list_handle_enter(list_struct *list)
+static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
 	sound_map_background(1);
@@ -559,7 +559,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 					}
 					else
 					{
-						list_handle_enter(list_mplayer);
+						list_handle_enter(list_mplayer, event);
 					}
 
 					break;
