@@ -144,11 +144,6 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 
 	xa_prop_name = XInternAtom(display, prop_name, False);
 
-	/* MAX_PROPERTY_VALUE_LEN / 4 explanation (XGetWindowProperty manpage):
-	 *
-	 * long_length = Specifies the length in 32-bit multiples of the
-	 *               data to be retrieved.
-	 */
 	if (XGetWindowProperty(display, win, xa_prop_name, 0, 1024, False, xa_prop_type, &xa_ret_type, &ret_format, &ret_nitems, &ret_bytes_after, &ret_prop) != Success)
 	{
 		logger_print(LOG(BUG), "Cannot get property: %s", prop_name);
@@ -216,6 +211,8 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 
 	x11_send_event(display, win, "_NET_ACTIVE_WINDOW", 0, 0, 0, 0, 0);
 	XMapRaised(display, win);
+#elif defined(WIN32)
+	SetForegroundWindow(win);
 #endif
 }
 
