@@ -107,7 +107,9 @@ static int keybinding_action(SDLKey key)
 	if (key == SDLK_n)
 	{
 		keybinding_state = KEYBINDING_STATE_ADD;
+		text_input_command.focus = 1;
 		text_input_set(&text_input_command, NULL);
+		text_input_key.focus = 0;
 		text_input_set(&text_input_key, "0 0");
 		return 1;
 	}
@@ -141,6 +143,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 		keybinding_state = KEYBINDING_STATE_EDIT;
 		keybinding_id = list->row_selected - 1;
 
+		text_input_command.focus = !EVENT_IS_KEY(event);
 		text_input_set(&text_input_command, keybindings[keybinding_id]->command);
 		snprintf(buf, sizeof(buf), "%d %d", keybindings[keybinding_id]->key, keybindings[keybinding_id]->mod);
 		text_input_set(&text_input_key, buf);
@@ -260,6 +263,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 					keybinding_apply();
 					return 1;
 				}
+			}
+			else if (IS_ENTER(event->key.keysym.sym))
+			{
+				text_input_command.focus = 1;
+				return 1;
 			}
 		}
 	}
@@ -381,8 +389,8 @@ void settings_keybinding_open(void)
 	text_input_create(&text_input_command);
 	text_input_create(&text_input_key);
 
+	text_input_command.focus = text_input_key.focus = 0;
 	text_input_key.show_edit_func = text_input_show_edit;
-	text_input_key.focus = 0;
 
 	list_keybindings = list_create(12, 3, 8);
 	list_keybindings->handle_enter_func = list_handle_enter;
