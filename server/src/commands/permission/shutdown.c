@@ -53,12 +53,11 @@ void command_shutdown(object *op, const char *command, char *params)
 	{
 		char *reason;
 
-		mins = MAX(0, mins);
-		secs = MAX(0, MIN(60, secs));
+		secs = MAX(30, MAX(0, MIN(60, secs)) + MAX(0, mins) * 60);
 		reason = player_sanitize_input(params + pos);
 
-		shutdown_timer_start(MAX(30, mins * 60 + secs));
-		draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %02d:%02d minutes.", mins, secs);
+		shutdown_timer_start(secs);
+		draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %02d:%02d minutes.", secs / 60, secs % 60);
 
 		if (reason)
 		{
