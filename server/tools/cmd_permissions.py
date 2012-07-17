@@ -3,7 +3,7 @@
 # Script for getting information about command permissions
 # of specific (or all) players.
 
-import getopt, sys, os
+import getopt, sys, os, re
 
 class colors:
 	bold = "\033[1m"
@@ -11,46 +11,48 @@ class colors:
 	red = "\033[91m"
 	end = "\033[0m"
 
+class patterns:
+	cmd_permission = re.compile(r"cmd_permission (.+)\n")
+
 def usage():
 	print("\n" + colors.bold + colors.underscore + "Use:" + colors.end + colors.end)
 	print("\nScript to print information about players' command permissions.\n")
 	print(colors.bold + colors.underscore + "Options:" + colors.end + colors.end)
 	print("\n\t-h, --help:\n\t\tDisplay this help.")
 	print("\n\t-d " + colors.underscore + "directory" + colors.end + ", --directory=" + colors.underscore + "directory" + colors.end + ":\n\t\tSpecify data directory where player files are. Default is '../data/players'.")
-	print("\n\t-p " + colors.underscore + "player1,player2" + colors.end + ", --players=" + colors.underscore + "player1,player2" + colors.end + ":\n\t\tComma separated list of players to list permissions for.")
+	print("\n\t-p " + colors.underscore + "player" + colors.end + ", --player=" + colors.underscore + "player" + colors.end + ":\n\t\tPlayer to list permissions for. Can be specified multiple times for multiple players.")
 
-def get_cmd_permissions(file):
+def get_cmd_permissions(path):
 	perms = []
 
 	try:
-		fp = open(file)
+		fp = open(path)
 
 		for line in fp:
-			if line[:15] == "cmd_permission ":
-				perms.append("/" + line[15:-1])
+			if line == "endplst\n":
+				break
+
+			match = patterns.cmd_permission.match(line)
+
+			if match:
+				command = match.group(1)
+				perms.append(command if command.startswith("[") and command.endswith("]") else "/" + command)
 
 		fp.close()
-	except IOError, err:
+	except IOError as err:
 		print(err)
 
 	return perms
 
-def parse_file(path, player):
-	file = path + "/" + player + "/" + player + ".pl"
-	perms = get_cmd_permissions(file)
-
-	if perms:
-		print(colors.red + player + colors.end + ":\t\t" + ", ".join(perms))
-
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "hd:p:", ["help", "directory=", "players="])
-except getopt.GetoptError, err:
+	opts, args = getopt.getopt(sys.argv[1:], "hd:p:", ["help", "directory=", "player="])
+except getopt.GetoptError as err:
 	print(err)
 	usage()
 	sys.exit(2)
 
 path = "../data/players"
-players = None
+players = []
 
 for o, a in opts:
 	if o in ("-h", "--help"):
@@ -58,16 +60,17 @@ for o, a in opts:
 		sys.exit()
 	elif o in ("-d", "--directory"):
 		path = a
-	elif o in ("-p", "--players"):
-		players = a
+	elif o in ("-p", "--player"):
+		players.append(a.lower())
 
-if players:
-	list_players = players.split(",")
+for (dirpath, dirnames, filenames) in os.walk(path):
+	for filename in filenames:
+		if filename == "player.dat":
+			player_name = os.path.basename(dirpath)
 
-	for player in list_players:
-		parse_file(path, player.strip())
-else:
-	files = os.listdir(path)
+			if not players or player_name in players:
+				perms = get_cmd_permissions(os.path.join(dirpath, filename))
 
-	for player in files:
-		parse_file(path, player)
+				if perms:
+					print(colors.red + player_name.title() + colors.end + ":\t\t" + ", ".join(perms))
+
