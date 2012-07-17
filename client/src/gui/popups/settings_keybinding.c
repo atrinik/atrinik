@@ -246,7 +246,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 					text_input_command.focus = 0;
 					text_input_key.focus = 1;
 
-					if (keybinding_state == KEYBINDING_STATE_EDIT && event->key.keysym.sym == SDLK_TAB)
+					if (keybinding_state == KEYBINDING_STATE_EDIT)
 					{
 						text_input_set(&text_input_key, "0 0");
 					}
