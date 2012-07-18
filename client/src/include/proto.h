@@ -606,6 +606,8 @@ extern void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, 
 extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+/* src/gui/widgets/active_effects.c */
+extern void widget_active_effects_init(widgetdata *widget);
 /* src/gui/widgets/buddy.c */
 extern void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort);
 extern void widget_buddy_remove(widgetdata *widget, const char *name);

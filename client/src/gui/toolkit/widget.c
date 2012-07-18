@@ -47,7 +47,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] =
 	"menu_buttons", "quickslots", "textwin", "playerdoll",
 	"belowinv", "playerinfo", "maininv", "mapname",
 	"input", "fps", "mplayer", "spells", "skills", "party", "notification",
-	"container", "label", "texture", "buddy",
+	"container", "label", "texture", "buddy", "active_effects",
 
 	"container_strip", "menu", "menuitem"
 };
@@ -250,6 +250,7 @@ static int widget_load(const char *path, uint8 defaults)
  * On failure, initialize the widgets with init_widgets_fromDefault() */
 void toolkit_widget_init(void)
 {
+	widget_initializers[ACTIVE_EFFECTS_ID] = widget_active_effects_init;
 	widget_initializers[BUDDY_ID] = widget_buddy_init;
 	widget_initializers[CONTAINER_ID] = widget_container_init;
 	widget_initializers[FPS_ID] = widget_fps_init;

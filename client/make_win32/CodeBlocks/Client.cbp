@@ -104,6 +104,7 @@
 		<Unit filename="..\..\src\gui\toolkit\text_input.c" />
 		<Unit filename="..\..\src\gui\toolkit\tooltip.c" />
 		<Unit filename="..\..\src\gui\toolkit\widget.c" />
+		<Unit filename="..\..\src\gui\widgets\active_effects.c" />
 		<Unit filename="..\..\src\gui\widgets\buddy.c" />
 		<Unit filename="..\..\src\gui\widgets\container.c" />
 		<Unit filename="..\..\src\gui\widgets\fps.c" />
