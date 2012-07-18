@@ -350,6 +350,7 @@ extern int wall_blocked(mapstruct *m, int x, int y);
 extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
 extern int map_path_isabs(const char *path);
 extern char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name);
+extern int map_force_reset(mapstruct *m);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);

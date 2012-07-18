@@ -2625,3 +2625,58 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
 	return ret;
 }
+
+/**
+ * Force the reset of a map, removing any players on it, swapping it out
+ * and reloading it.
+ * @param m Map to reset.
+ * @return 1 on success, 0 on failure. */
+int map_force_reset(mapstruct *m)
+{
+	object *tmp, *next, **players;
+	size_t players_num, i;
+	shstr *path;
+	int flags;
+
+	/* Cannot reset no-save unique maps, random maps, or maps that are
+	 * not in memory. */
+	if (!m || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0 || m->in_memory != MAP_IN_MEMORY)
+	{
+		return 0;
+	}
+
+	players = NULL;
+	players_num = 0;
+
+	for (tmp = m->player_first; tmp; tmp = next)
+	{
+		next = CONTR(tmp)->map_above;
+
+		leave_map(tmp);
+		players = realloc(players, sizeof(*players) * (players_num + 1));
+		players[players_num] = tmp;
+		players_num++;
+	}
+
+	m->reset_time = seconds();
+	m->map_flags |= MAP_FLAG_FIXED_RTIME;
+	/* Store the path, so we can load it after swapping is done. */
+	path = add_refcount(m->path);
+	flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
+	swap_map(m, 1);
+
+	m = ready_map_name(path, flags);
+	free_string_shared(path);
+
+	for (i = 0; i < players_num; i++)
+	{
+		insert_ob_in_map(players[i], m, NULL, INS_NO_MERGE);
+	}
+
+	if (players)
+	{
+		free(players);
+	}
+
+	return 1;
+}
