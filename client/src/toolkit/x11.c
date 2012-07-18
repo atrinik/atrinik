@@ -210,6 +210,7 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 	}
 
 	x11_send_event(display, win, "_NET_ACTIVE_WINDOW", 0, 0, 0, 0, 0);
+	x11_send_event(display, win, "_NET_WM_STATE_DEMANDS_ATTENTION", 0, 0, 0, 0, 0);
 	XMapRaised(display, win);
 #elif defined(WIN32)
 	SetForegroundWindow(win);
