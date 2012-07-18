@@ -61,7 +61,7 @@ static int apply_func(object *op, object *applier, int aflags)
 			draw_info(COLOR_NAVY, applier, op->msg);
 		}
 
-		enter_exit(applier, op);
+		object_enter_map(applier, op, NULL, 0, 0, 0);
 	}
 
 	return OBJECT_METHOD_OK;

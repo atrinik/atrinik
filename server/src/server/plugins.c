@@ -74,7 +74,7 @@ struct plugin_hooklist hooklist =
 	object_create_clone,
 	get_object,
 	copy_object,
-	enter_exit,
+	object_enter_map,
 	play_sound_map,
 	find_marked_object,
 	cast_identify,

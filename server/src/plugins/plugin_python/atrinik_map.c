@@ -501,23 +501,26 @@ static PyObject *Atrinik_Map_GetDarkness(Atrinik_Map *map, PyObject *args)
 }
 
 /**
- * <h1>map.GetPath(string path, bool [unique = map.f_unique], string [name = None])</h1>
+ * <h1>map.GetPath(string [path = None], bool [unique = map.f_unique], string [name = None])</h1>
  * Construct a path based on the path of 'map', with 'path' appended.
+ * @param path Path to append. If None, will append the filename of 'map' instead.
  * @param unique If True, construct a unique path.
  * @param name If 'map' is not unique and 'unique' is True, this is required
  * to determine which player the unique map belongs to.
  * @return The created path. */
-static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args)
+static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
+	static char *kwlist[] = {"path", "unique", "name", NULL};
 	const char *path, *name;
 	int unique;
 	char *cp;
 	PyObject *ret;
 
+	path = NULL;
 	unique = MAP_UNIQUE(map->map) ? 1 : 0;
 	name = NULL;
 
-	if (!PyArg_ParseTuple(args, "s|is", &path, &unique, &name))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zis", kwlist, &path, &unique, &name))
 	{
 		return NULL;
 	}
@@ -589,7 +592,7 @@ static PyMethodDef MapMethods[] =
 	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
 	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
 	{"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
-	{"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS, 0},
+	{"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS | METH_KEYWORDS, 0},
 	{"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
 	{NULL, NULL, 0, 0}
 };

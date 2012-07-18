@@ -67,7 +67,7 @@ static void process_func(object *op)
 
 		if (EXIT_PATH(op))
 		{
-			enter_exit(tmp, op);
+			object_enter_map(tmp, op, NULL, 0, 0, 0);
 		}
 		else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1)
 		{
@@ -88,9 +88,6 @@ static void process_func(object *op)
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) cause;
-	(void) state;
-
 	process_func(op);
 
 	return OBJECT_METHOD_OK;

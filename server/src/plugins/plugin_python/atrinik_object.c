@@ -169,40 +169,35 @@ static fields_struct fields[] =
  *@{*/
 
 /**
- * <h1>object.TeleportTo(string map, int x, int y, bool [unique = False])</h1>
+ * <h1>object.TeleportTo(string map, int [x = -1], int [y = -1])</h1>
  * Teleport object to the given position of map.
  * @param path Map path to teleport the object to.
  * @param x X position on the map.
- * @param y Y position on the map.
- * @param unique If True, the destination will be unique map for the player.
- * @param sound If False, will not play a sound effect. */
+ * @param y Y position on the map. */
 static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"path", "x", "y", "unique", NULL};
+	static char *kwlist[] = {"path", "x", "y", NULL};
 	const char *path;
-	object *tmp;
-	int x, y, unique = 0;
+	int x, y;
+	mapstruct *m;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|ii", kwlist, &path, &x, &y, &unique))
+	x = y = -1;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &path, &x, &y))
 	{
 		return NULL;
 	}
 
 	OBJEXISTCHECK(obj);
+	m = hooks->ready_map_name(path, 0);
 
-	tmp = hooks->get_object();
-	tmp->map = obj->obj->map;
-	FREE_AND_COPY_HASH(EXIT_PATH(tmp), path);
-	EXIT_X(tmp) = x;
-	EXIT_Y(tmp) = y;
-
-	if (unique)
+	if (!m)
 	{
-		tmp->last_eat = MAP_PLAYER_MAP;
+		PyErr_Format(AtrinikError, "object.TeleportTo(): Could not load map %s.", path);
+		return NULL;
 	}
 
-	hooks->enter_exit(obj->obj, tmp);
-	hooks->object_destroy(tmp);
+	hooks->object_enter_map(obj->obj, NULL, m, x, y, 1);
 
 	Py_INCREF(Py_None);
 	return Py_None;

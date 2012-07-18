@@ -2028,7 +2028,6 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 		{
 			shstr *mappath_sh;
 			mapstruct *m;
-			char buf[HUGE_BUF];
 
 			mappath_sh = add_string(mappath);
 			m = has_been_loaded_sh(mappath_sh);
@@ -2036,12 +2035,21 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 
 			if (m)
 			{
-				snprintf(buf, sizeof(buf), "%s", mappath);
-				COMMAND_EXECUTE(controller->ob, resetmap, buf);
+				map_force_reset(m);
+			}
+			else
+			{
+				m = ready_map_name(mappath, 0);
 			}
 
-			snprintf(buf, sizeof(buf), "%s %d %d", mappath, x, y);
-			COMMAND_EXECUTE(controller->ob, tpto, buf);
+			if (!m)
+			{
+				draw_info_format(COLOR_WHITE, controller->ob, "Could not load map: %s", mappath);
+			}
+			else
+			{
+				object_enter_map(controller->ob, NULL, m, x, y, 1);
+			}
 		}
 	}
 	else

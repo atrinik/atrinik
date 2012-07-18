@@ -2510,11 +2510,13 @@ int map_path_isabs(const char *path)
 
 char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name)
 {
-	char *ret;
+	char *path_tmp, *ret;
+
+	path_tmp = NULL;
 
 	if (MAP_UNIQUE(m))
 	{
-		if (map_path_isabs(path))
+		if (path && map_path_isabs(path))
 		{
 			if (unique)
 			{
@@ -2543,6 +2545,11 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 			file = path_basename(m->path);
 			string_replace_char(file, "$", '/');
 			filedir = path_dirname(file);
+
+			if (!path)
+			{
+				path = path_tmp = path_basename(file);
+			}
 
 			if (unique)
 			{
@@ -2575,7 +2582,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 	}
 	else
 	{
-		if (map_path_isabs(path))
+		if (path && map_path_isabs(path))
 		{
 			if (unique && name)
 			{
@@ -2599,6 +2606,11 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
 			filedir = path_dirname(m->path);
 
+			if (!path)
+			{
+				path = path_tmp = path_basename(m->path);
+			}
+
 			if (unique && name)
 			{
 				char *newpath;
@@ -2621,6 +2633,11 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 			free(joined);
 			free(filedir);
 		}
+	}
+
+	if (path_tmp)
+	{
+		free(path_tmp);
 	}
 
 	return ret;

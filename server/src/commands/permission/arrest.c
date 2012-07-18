@@ -59,7 +59,7 @@ void command_arrest(object *op, const char *command, char *params)
 		return;
 	}
 
-	enter_exit(pl->ob, dummy);
+	object_enter_map(pl->ob, dummy, NULL, 0, 0, 0);
 	draw_info_format(COLOR_GREEN, op, "Jailed %s.", pl->ob->name);
 	logger_print(LOG(CHAT), "[ARREST] Player %s arrested by %s.", pl->ob->name, op->name);
 }

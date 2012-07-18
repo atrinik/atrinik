@@ -3496,3 +3496,203 @@ void object_reverse_inventory(object *op)
 		}
 	}
 }
+
+int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos)
+{
+	mapstruct *oldmap;
+
+	op = HEAD(op);
+	oldmap = op->map;
+
+	if (!m && exit_ob)
+	{
+		if (!EXIT_PATH(exit_ob))
+		{
+			return 0;
+		}
+
+		x = EXIT_X(exit_ob);
+		y = EXIT_Y(exit_ob);
+		fixed_pos = QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS);
+
+		if (strcmp(EXIT_PATH(exit_ob), "/random/") == 0)
+		{
+			char newmap_name[HUGE_BUF];
+			static uint64 reference_number = 0;
+			RMParms rp;
+
+			if (op->type != PLAYER)
+			{
+				return 0;
+			}
+
+			memset(&rp, 0, sizeof(RMParms));
+			rp.Xsize = -1;
+			rp.Ysize = -1;
+
+			if (exit_ob->msg)
+			{
+				set_random_map_variable(&rp, exit_ob->msg);
+			}
+
+			rp.origin_x = exit_ob->x;
+			rp.origin_y = exit_ob->y;
+			strncpy(rp.origin_map, op->map->path, sizeof(rp.origin_map) - 1);
+			rp.origin_map[sizeof(rp.origin_map) - 1] = '\0';
+
+			/* Pick a new pathname for the new map. Currently, we just use a
+			 * static variable and increment the counter by one each time. */
+			snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
+
+			/* Now to generate the actual map. */
+			m = generate_random_map(newmap_name, &rp);
+
+			/* Update the exit_ob so it now points directly at the newly created
+			 * random map. */
+			if (m)
+			{
+				x = EXIT_X(exit_ob) = MAP_ENTER_X(m);
+				y = EXIT_Y(exit_ob) = MAP_ENTER_Y(m);
+				FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), newmap_name);
+				FREE_AND_COPY_HASH(m->path, newmap_name);
+			}
+		}
+		else
+		{
+			if (exit_ob->map)
+			{
+				char *path;
+
+				path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
+				m = ready_map_name(path, 0);
+				free(path);
+
+				/* Failed to load a random map? */
+				if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0)
+				{
+					return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+				}
+			}
+			else
+			{
+				m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
+			}
+		}
+
+		if (!m)
+		{
+			draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, op));
+			logger_print(LOG(BUG), "Exit %s on map %s (%d,%d) leads no where.", query_name(exit_ob, op), exit_ob->map ? exit_ob->map->path : "no map", exit_ob->x, exit_ob->y);
+			return 0;
+		}
+
+		/* If exit is damned, update player's savebed position. */
+		if (QUERY_FLAG(exit_ob, FLAG_DAMNED) && op->type == PLAYER)
+		{
+			strncpy(CONTR(op)->savebed_map, m->path, sizeof(CONTR(op)->savebed_map) - 1);
+			CONTR(op)->savebed_map[sizeof(CONTR(op)->savebed_map) - 1] = '\0';
+			CONTR(op)->bed_x = x;
+			CONTR(op)->bed_y = y;
+			player_save(op);
+		}
+	}
+
+	if (!m)
+	{
+		m = ready_map_name(EMERGENCY_MAPPATH, 0);
+		x = EMERGENCY_X;
+		y = EMERGENCY_Y;
+		fixed_pos = 1;
+	}
+
+	/* -1,-1 marks to use the default ENTER_xx position of the map */
+	if ((x == -1 && y == -1) || MAP_FIXEDLOGIN(m))
+	{
+		x = MAP_ENTER_X(m);
+		y = MAP_ENTER_Y(m);
+	}
+
+	if (OUT_OF_MAP(m, x, y))
+	{
+		logger_print(LOG(BUG), "Supplied coordinates are not within the map %s (%d,%d)", m->path, x, y);
+		x = MAP_ENTER_X(m);
+		y = MAP_ENTER_Y(m);
+	}
+
+	if (!fixed_pos && arch_blocked(op->arch, op, m, x, y))
+	{
+		int i;
+
+		i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1 + 1);
+
+		if (i != -1)
+		{
+			x += freearr_x[i];
+			y += freearr_y[i];
+		}
+	}
+
+	if (!QUERY_FLAG(op, FLAG_REMOVED))
+	{
+		object_remove(op, 0);
+	}
+
+	if (op->map && op->type == PLAYER && op->map->events)
+	{
+		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, NULL, 0);
+	}
+
+	op->x = x;
+	op->y = y;
+
+	if (!insert_ob_in_map(op, m, NULL, 0))
+	{
+		return 0;
+	}
+
+	if (m->events)
+	{
+		trigger_map_event(MEVENT_ENTER, m, op, NULL, NULL, NULL, 0);
+	}
+
+	m->timeout = 0;
+
+	/* Do some action special for players after we have inserted them */
+	if (op->type == PLAYER)
+	{
+		if (CONTR(op))
+		{
+			strcpy(CONTR(op)->maplevel, m->path);
+			CONTR(op)->count = 0;
+		}
+
+		/* If the player is changing maps, we need to do some special things
+		 * Do this after the player is on the new map - otherwise the force swap of the
+		 * old map does not work. */
+		if (oldmap && oldmap != m && !oldmap->player_first)
+		{
+			set_map_timeout(oldmap);
+		}
+	}
+
+	/* Attempt to open a closed door. */
+	if (GET_MAP_FLAGS(op->map, op->x, op->y) & P_DOOR_CLOSED)
+	{
+		door_try_open(op, op->map, op->x, op->y, 0);
+	}
+
+	if (exit_ob)
+	{
+		if (exit_ob->sub_type == ST1_EXIT_SOUND)
+		{
+			play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
+		}
+
+		if (exit_ob->stats.dam && op->type == PLAYER)
+		{
+			attack_perform(exit_ob, op);
+		}
+	}
+
+	return 1;
+}

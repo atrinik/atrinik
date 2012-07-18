@@ -307,7 +307,6 @@ extern void version(object *op);
 extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
-extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
@@ -438,6 +437,7 @@ extern void init_object_initializers(void);
 extern int item_matched_string(object *pl, object *op, const char *name);
 extern int object_get_gender(object *op);
 extern void object_reverse_inventory(object *op);
+extern int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;

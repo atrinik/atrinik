@@ -212,7 +212,7 @@ struct plugin_hooklist
 	object *(*object_create_clone)(object *);
 	object *(*get_object)(void);
 	void (*copy_object)(object *, object *, int);
-	void (*enter_exit)(object *, object *);
+	int (*object_enter_map)(object *, object *, mapstruct *, int, int, uint8);
 	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
 	object *(*find_marked_object)(object *);
 	int (*cast_identify)(object *, int, object *, int);

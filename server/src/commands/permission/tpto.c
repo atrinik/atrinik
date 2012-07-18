@@ -35,8 +35,8 @@ void command_tpto(object *op, const char *command, char *params)
 {
 	char path[MAX_BUF], word[MAX_BUF];
 	size_t pos;
+	mapstruct *m;
 	int x, y;
-	object *dummy;
 
 	params = player_sanitize_input(params);
 	pos = 0;
@@ -58,14 +58,13 @@ void command_tpto(object *op, const char *command, char *params)
 		y = atoi(word);
 	}
 
-	dummy = get_object();
-	dummy->map = op->map;
-	dummy->stats.hp = x;
-	dummy->stats.sp = y;
-	FREE_AND_COPY_HASH(EXIT_PATH(dummy), path);
-	FREE_AND_COPY_HASH(dummy->name, path);
+	m = ready_map_name(path, 0);
 
-	enter_exit(op, dummy);
+	if (!m)
+	{
+		draw_info_format(COLOR_WHITE, op, "No such map: %s", path);
+		return;
+	}
 
-	object_destroy(dummy);
+	object_enter_map(op, NULL, m, x, y, 0);
 }

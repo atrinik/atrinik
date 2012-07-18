@@ -175,8 +175,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 {
 	int i, ret;
 
-	/* this is not 100% tested for mobs - enter_exit will still fail to return for mobs */
-	/* but some testing should make it for mobs too */
 	if (trap != NULL && EXIT_PATH(trap))
 	{
 		if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8))
@@ -184,7 +182,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 			draw_info(COLOR_NAVY, op, trap->msg);
 		}
 
-		enter_exit(op, trap);
+		object_enter_map(op, trap, NULL, 0, 0, 0);
 		return 1;
 	}
 	else if (randomly)

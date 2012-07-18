@@ -85,39 +85,6 @@ void version(object *op)
 }
 
 /**
- * This is a basic little function to put the player back to his
- * savebed. We do some error checking - it's possible that the
- * savebed map may no longer exist, so we make sure the player
- * goes someplace.
- * @param op The player object entering his savebed. */
-void enter_player_savebed(object *op)
-{
-	mapstruct *oldmap = op->map;
-	object *tmp = get_object();
-
-	FREE_AND_COPY_HASH(EXIT_PATH(tmp), CONTR(op)->savebed_map);
-	EXIT_X(tmp) = CONTR(op)->bed_x;
-	EXIT_Y(tmp) = CONTR(op)->bed_y;
-	enter_exit(op, tmp);
-
-	/* If the player has not changed maps and the name does not match
-	 * that of the savebed, his savebed map is gone.  Lets go back
-	 * to the emergency path.  Update what the players savebed is
-	 * while we're at it. */
-	if (oldmap == op->map && strcmp(CONTR(op)->savebed_map, oldmap->path))
-	{
-		logger_print(LOG(DEBUG), "Player %s savebed location %s is invalid - going to EMERGENCY_MAPPATH (%s)", query_name(op, NULL), CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
-		strcpy(CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
-		CONTR(op)->bed_x = EMERGENCY_X;
-		CONTR(op)->bed_y = EMERGENCY_Y;
-		FREE_AND_COPY_HASH(EXIT_PATH(tmp), CONTR(op)->savebed_map);
-		EXIT_X(tmp) = CONTR(op)->bed_x;
-		EXIT_Y(tmp) = CONTR(op)->bed_y;
-		enter_exit(op, tmp);
-	}
-}
-
-/**
  * All this really is is a glorified object_removeject that also updates the
  * counts on the map if needed and sets map timeout if needed.
  * @param op The object leaving the map. */
@@ -132,121 +99,6 @@ void leave_map(object *op)
 
 	op->map = NULL;
 	CONTR(op)->last_update = NULL;
-}
-
-/**
- * Moves the player from current map (if any) to new map.
- * map, x, y must be set.
- *
- * If default map coordinates are to be used, then the function that
- * calls this should figure them out.
- * @param op The object we are moving
- * @param newmap Map to move the object to - it could be the map he just
- * came from if the load failed for whatever reason.
- * @param x X position on the new map
- * @param y Y position on the new map
- * @param pos_flag If set, the function will not look for a free space
- * and move the object, even if the position is blocked. */
-static void enter_map(object *op, mapstruct *newmap, int x, int y, int pos_flag)
-{
-	int i = 0;
-	mapstruct *oldmap = op->map;
-
-	if (op->head)
-	{
-		op = op->head;
-		logger_print(LOG(BUG), "called from tail of object! (obj:%s map: %s (%d,%d))", op->name, newmap->path, x, y);
-	}
-
-	/* this is a last secure check. In fact, newmap MUST legal and we only
-	 * check x and y. No get_map_from_coord() - we want check that x,y is part of this newmap.
-	 * if not, we have somewhere missed some checks - give a note to the log. */
-	if (OUT_OF_MAP(newmap, x, y))
-	{
-		logger_print(LOG(BUG), "supplied coordinates are not within the map! (obj:%s map: %s (%d,%d))", op->name, newmap->path, x, y);
-		x = MAP_ENTER_X(newmap);
-		y = MAP_ENTER_Y(newmap);
-	}
-
-	/* try to find a spot for our object - (single arch or multi head)
-	 * but only when we don't put it on fix position  */
-	if (!pos_flag && arch_blocked(op->arch, op, newmap, x, y))
-	{
-		/* First choice blocked */
-		/* We try to find a spot for the player, starting closest in.
-		 * We could use find_first_free_spot, but that doesn't randomize it at all,
-		 * So for example, if the north space is free, you would always end up there even
-		 * if other spaces around are available.
-		 * Note that for the second and third calls, we could start at a position other
-		 * than one, but then we could end up on the other side of walls and so forth. */
-		i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE1 + 1);
-
-		if (i == -1)
-		{
-			i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE2 + 1);
-
-			if (i == -1)
-			{
-				i = find_free_spot(op->arch, NULL, newmap, x, y, 1, SIZEOFFREE + 1);
-			}
-		}
-
-		if (i == -1)
-		{
-			i = 0;
-		}
-	}
-
-	/* If it is a player login, he has yet to be inserted anyplace.
-	 * Otherwise, we need to deal with removing the player here. */
-	if (!QUERY_FLAG(op, FLAG_REMOVED))
-	{
-		object_remove(op, 0);
-	}
-
-	if (op->map && op->type == PLAYER && !op->head && op->map->events)
-	{
-		trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, NULL, 0);
-	}
-
-	op->x = x + freearr_x[i];
-	op->y = y + freearr_y[i];
-
-	if (!insert_ob_in_map(op, newmap, NULL, 0))
-	{
-		return;
-	}
-
-	if (newmap->events)
-	{
-		trigger_map_event(MEVENT_ENTER, newmap, op, NULL, NULL, NULL, 0);
-	}
-
-	newmap->timeout = 0;
-
-	/* Do some action special for players after we have inserted them */
-	if (op->type == PLAYER)
-	{
-		if (CONTR(op))
-		{
-			strcpy(CONTR(op)->maplevel, newmap->path);
-			CONTR(op)->count = 0;
-		}
-
-		/* If the player is changing maps, we need to do some special things
-		 * Do this after the player is on the new map - otherwise the force swap of the
-		 * old map does not work. */
-		if (oldmap != newmap && oldmap && !oldmap->player_first)
-		{
-			set_map_timeout(oldmap);
-		}
-
-		/* Attempt to open a closed door. */
-		if (GET_MAP_FLAGS(op->map, op->x, op->y) & P_DOOR_CLOSED)
-		{
-			door_try_open(op, op->map, op->x, op->y, 0);
-		}
-	}
 }
 
 /**
@@ -272,164 +124,6 @@ void set_map_timeout(mapstruct *map)
 	/* Save out the map. */
 	swap_map(map, 0);
 #endif
-}
-
-/**
- * Tries to move object to exit object.
- * @param op Player or monster object using the exit.
- * @param exit_ob Exit object (boat, exit, etc). If NULL, then
- * CONTR(op)->maplevel contains that map to move the object to, which is
- * used when loading the player object. */
-void enter_exit(object *op, object *exit_ob)
-{
-	mapstruct *m;
-	int x, y, pos_flag;
-
-	op = HEAD(op);
-
-	/* First, lets figure out what map we go to. */
-	if (exit_ob)
-	{
-		if (!EXIT_PATH(exit_ob))
-		{
-			return;
-		}
-
-		x = EXIT_X(exit_ob);
-		y = EXIT_Y(exit_ob);
-		pos_flag = QUERY_FLAG(exit_ob, FLAG_USE_FIX_POS);
-
-		if (strcmp(EXIT_PATH(exit_ob), "/random/") == 0)
-		{
-			char newmap_name[HUGE_BUF];
-			static uint64 reference_number = 0;
-			RMParms rp;
-
-			if (op->type != PLAYER)
-			{
-				return;
-			}
-
-			memset(&rp, 0, sizeof(RMParms));
-			rp.Xsize = -1;
-			rp.Ysize = -1;
-
-			if (exit_ob->msg)
-			{
-				set_random_map_variable(&rp, exit_ob->msg);
-			}
-
-			rp.origin_x = exit_ob->x;
-			rp.origin_y = exit_ob->y;
-			strncpy(rp.origin_map, op->map->path, sizeof(rp.origin_map) - 1);
-			rp.origin_map[sizeof(rp.origin_map) - 1] = '\0';
-
-			/* Pick a new pathname for the new map. Currently, we just use a
-			 * static variable and increment the counter by one each time. */
-			snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
-
-			/* Now to generate the actual map. */
-			m = generate_random_map(newmap_name, &rp);
-
-			/* Update the exit_ob so it now points directly at the newly created
-			 * random map. */
-			if (m)
-			{
-				x = EXIT_X(exit_ob) = MAP_ENTER_X(m);
-				y = EXIT_Y(exit_ob) = MAP_ENTER_Y(m);
-				FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), newmap_name);
-				FREE_AND_COPY_HASH(m->path, newmap_name);
-			}
-		}
-		else
-		{
-			if (exit_ob->map)
-			{
-				char *path;
-
-				path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
-				m = ready_map_name(path, 0);
-				free(path);
-
-				/* Failed to load a random map? */
-				if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0)
-				{
-					enter_player_savebed(op);
-					return;
-				}
-			}
-			else
-			{
-				m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
-			}
-
-			/* If exit is damned, update player's savebed position. */
-			if (QUERY_FLAG(exit_ob, FLAG_DAMNED) && m && op->type == PLAYER)
-			{
-				strncpy(CONTR(op)->savebed_map, m->path, sizeof(CONTR(op)->savebed_map) - 1);
-				CONTR(op)->savebed_map[sizeof(CONTR(op)->savebed_map) - 1] = '\0';
-				CONTR(op)->bed_x = x;
-				CONTR(op)->bed_y = y;
-				player_save(op);
-			}
-		}
-
-		if (!m)
-		{
-			logger_print(LOG(DEBUG), "Exit %s (%d,%d) on map %s leads no where.", query_name(exit_ob, op), exit_ob->x, exit_ob->y, exit_ob->map ? exit_ob->map->path ? exit_ob->map->path : "NO_PATH" : "NO_MAP");
-		}
-	}
-	else if (op->type == PLAYER)
-	{
-		m = ready_map_name(CONTR(op)->maplevel, 0);
-		x = op->x;
-		y = op->y;
-		pos_flag = 1;
-
-		if (!m)
-		{
-			if (strncmp(CONTR(op)->maplevel, "/random/", 8) == 0)
-			{
-				enter_player_savebed(op);
-				return;
-			}
-			else
-			{
-				m = ready_map_name(EMERGENCY_MAPPATH, 0);
-				op->x = EMERGENCY_X;
-				op->y = EMERGENCY_Y;
-			}
-		}
-	}
-
-	if (!m)
-	{
-		if (exit_ob)
-		{
-			draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, op));
-		}
-
-		return;
-	}
-
-	/* -1,-1 marks to use the default ENTER_xx position of the map */
-	if ((x == -1 && y == -1) || MAP_FIXEDLOGIN(m))
-	{
-		x = MAP_ENTER_X(m);
-		y = MAP_ENTER_Y(m);
-	}
-
-	if (exit_ob && exit_ob->sub_type == ST1_EXIT_SOUND)
-	{
-		play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
-	}
-
-	enter_map(op, m, x, y, pos_flag);
-
-	if (exit_ob && exit_ob->stats.dam && op->type == PLAYER)
-	{
-		attack_perform(exit_ob, op);
-	}
 }
 
 /**
@@ -835,7 +529,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 {
 	char *cleanpath, *path;
 	int i, j;
-	object *ob, *tmp, *tmp2, *dummy;
+	object *ob, *tmp, *tmp2;
 	mapstruct *oldmap, *newmap;
 
 	/* So we can transfer our items from the old apartment. */
@@ -879,11 +573,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 				/* We teleport any possible players here to emergency map. */
 				if (ob->type == PLAYER)
 				{
-					dummy = get_object();
-					dummy->map = ob->map;
-					FREE_AND_COPY_HASH(EXIT_PATH(dummy), EMERGENCY_MAPPATH);
-					FREE_AND_COPY_HASH(dummy->name, EMERGENCY_MAPPATH);
-					enter_exit(ob, dummy);
+					object_enter_map(ob, NULL, NULL, 0, 0, 0);
 					continue;
 				}
 

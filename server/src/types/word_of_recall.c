@@ -41,7 +41,7 @@ static void process_func(object *op)
 		}
 		else
 		{
-			enter_exit(op->env, op);
+			object_enter_map(op->env, op, NULL, 0, 0, 0);
 		}
 	}
 
