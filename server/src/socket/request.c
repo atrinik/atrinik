@@ -2035,7 +2035,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 
 			if (m)
 			{
-				map_force_reset(m);
+				m = map_force_reset(m);
 			}
 			else
 			{

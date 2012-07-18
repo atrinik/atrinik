@@ -33,7 +33,7 @@
 /** @copydoc command_func */
 void command_resetmap(object *op, const char *command, char *params)
 {
-	mapstruct *m;
+	mapstruct *m, *newmap;
 
 	if (!params)
 	{
@@ -54,11 +54,13 @@ void command_resetmap(object *op, const char *command, char *params)
 		return;
 	}
 
-	if (!map_force_reset(m))
+	newmap = map_force_reset(m);
+
+	if (!newmap)
 	{
 		draw_info_format(COLOR_WHITE, op, "Could not reset map: %s", m->path);
 		return;
 	}
 
-	draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s", m->path);
+	draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s", newmap->path);
 }

@@ -2647,8 +2647,8 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
  * Force the reset of a map, removing any players on it, swapping it out
  * and reloading it.
  * @param m Map to reset.
- * @return 1 on success, 0 on failure. */
-int map_force_reset(mapstruct *m)
+ * @return Reset map on success, NULL on failure. */
+mapstruct *map_force_reset(mapstruct *m)
 {
 	object *tmp, *next, **players;
 	size_t players_num, i;
@@ -2659,7 +2659,7 @@ int map_force_reset(mapstruct *m)
 	 * not in memory. */
 	if (!m || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0 || m->in_memory != MAP_IN_MEMORY)
 	{
-		return 0;
+		return NULL;
 	}
 
 	players = NULL;
@@ -2695,5 +2695,5 @@ int map_force_reset(mapstruct *m)
 		free(players);
 	}
 
-	return 1;
+	return m;
 }
