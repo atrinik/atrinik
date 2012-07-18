@@ -32,7 +32,7 @@ def main():
 		# Is the activator a legitimate guild member?
 		if guild.member_approved(activator.name) or "[OP]" in activator.Controller().cmd_permissions:
 			(m, x, y) = guild.get(guild.enter_pos)
-			activator.TeleportTo(m, x, y)
+			activator.TeleportTo(activator.map.GetPath(m), x, y)
 			inf.dialog_close()
 
 	# Leave the guild.

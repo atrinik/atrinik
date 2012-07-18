@@ -191,11 +191,11 @@ class Guild:
 	## are not currently located in the guild maps.
 	## @param player The player to check.
 	def member_kick(self, player):
-		if not player.map.path in self.get(self.maps):
+		if not player.map.path.GetPath(unique = False) in self.get(self.maps):
 			return
 
 		(m, x, y) = self.get(self.kick_pos)
-		player.TeleportTo(m, x, y)
+		player.TeleportTo(player.map.GetPath(m), x, y)
 
 	## Get the information about the specified guild member.
 	## @param name The guild member.

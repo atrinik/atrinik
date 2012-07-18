@@ -17,7 +17,7 @@ def main():
 		pinfo.last_grace = me.sp
 
 		info = apartment["apartments"][pinfo.slaying]
-		activator.TeleportTo(info["path"], info["x"], info["y"], True)
+		activator.TeleportTo(activator.map.GetPath(info["path"], True, activator.name), info["x"], info["y"])
 
 exec(open(CreatePathname("/python/generic/apartments.py")).read())
 main()
