@@ -166,12 +166,13 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 	memcpy(textwin->tabs[id].entries + textwin->tabs[id].entries_size, cp, len);
 	textwin->tabs[id].entries[textwin->tabs[id].entries_size + len] = '\0';
 	textwin->tabs[id].entries_size += len;
-	free(cp);
 
 	box.y = 0;
 	/* Get the string's height. */
-	text_show(NULL, textwin->font, str, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
-	scroll = box.h;
+	text_show(NULL, textwin->font, cp, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
+	scroll = box.h - 1;
+
+	free(cp);
 
 	/* Adjust the counts. */
 	textwin->tabs[id].num_lines += scroll;
