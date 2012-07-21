@@ -35,6 +35,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Release;" />
+		</VirtualTargets>
 		<Compiler>
 			<Add directory="..\..\src\include" />
 			<Add directory="..\..\src\toolkit\include" />
