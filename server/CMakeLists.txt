@@ -417,7 +417,7 @@ set(SOURCES_PLUGIN_ARENA
 add_library(plugin_arena MODULE ${SOURCES_PLUGIN_ARENA})
 
 # Set the preferred order of Python versions to find.
-set(Python_ADDITIONAL_VERSIONS 3.2 3.1 3.0 2.7 2.6)
+set(Python_ADDITIONAL_VERSIONS 3.2 3.1 3.0 2.7)
 set(CMAKE_USE_PYTHON_VERSION ${Python_ADDITIONAL_VERSIONS})
 # And try to find Python.
 find_package(PythonLibs)
