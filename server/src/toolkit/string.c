@@ -750,26 +750,81 @@ char *string_create_char_range(char start, char end)
  * 'str' is returned instead. */
 char *string_crypt(char *str, const char *salt)
 {
-#ifdef HAVE_CRYPT
-	static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
-	char s[2];
-
+#if defined(HAVE_CRYPT)
 	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	if (!salt)
 	{
-		size_t stringlen = strlen(c);
+		static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+		size_t stringlen;
+		char s[2];
 
+		stringlen = strlen(c);
 		s[0] = c[rndm(1, stringlen) - 1];
 		s[1] = c[rndm(1, stringlen) - 1];
-	}
-	else
-	{
-		s[0] = salt[0];
-		s[1] = salt[1];
+
+		return crypt(str, s);
 	}
 
-	return crypt(str, s);
+	return crypt(str, salt);
+#elif defined(WIN32)
+	HCRYPTPROV provider;
+	HCRYPTHASH hash;
+	DWORD resultlen = 0, i;
+	BYTE *result;
+	static char hashresult[HUGE_BUF];
+	char tmp[6];
+
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+	if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+	{
+		return str;
+	}
+
+	if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash))
+	{
+		CryptReleaseContext(provider, 0);
+		return str;
+	}
+
+	if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0))
+	{
+		CryptDestroyHash(hash);
+		CryptReleaseContext(provider, 0);
+		return str;
+	}
+
+	if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0))
+	{
+		CryptDestroyHash(hash);
+		CryptReleaseContext(provider, 0);
+		return str;
+	}
+
+	result = calloc(1, sizeof(BYTE) * resultlen);
+
+	if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0))
+	{
+		free(result);
+		CryptDestroyHash(hash);
+		CryptReleaseContext(provider, 0);
+		return str;
+	}
+
+	CryptDestroyHash(hash);
+	CryptReleaseContext(provider, 0);
+
+	for (i = 0; i < resultlen; i++)
+	{
+	    snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
+	    strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
+	    hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
+	}
+
+	free(result);
+
+	return hashresult;
 #else
 	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 	return str;
