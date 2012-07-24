@@ -57,6 +57,7 @@
 #	include <malloc.h>
 #	include <direct.h>
 #	include <shellapi.h>
+#	include <wincrypt.h>
 
 #	ifdef MINGW
 #		define HAVE_DIRENT_H
