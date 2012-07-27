@@ -89,7 +89,7 @@ class CommitChecker(threading.Thread):
 			# Acquire lock, store old revision number, and update with new one.
 			self._db_lock.acquire()
 			old_revno = self._db["branches"][url]["revno"]
-			#self._db["branches"][url]["revno"] = revno
+			self._db["branches"][url]["revno"] = revno
 			self._db_lock.release()
 
 			# If the previous revision number was not 0 and it is different from
