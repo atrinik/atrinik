@@ -114,80 +114,86 @@ class Bot(BaseSocket):
 
 	## Handle reading data from socket.
 	def handle_data(self):
-		# Less than 2 bytes read (possibly 0 so far), choose how much to read.
-		if self._readbuf_len < 2:
-			# If we read something already, check for bit marker and read more
-			# if applicable, as this is as 3-byte header.
-			if self._readbuf_len > 0 and struct.unpack("B", self._readbuf[:1])[0] & 0x80:
-				toread = 3 - self._readbuf_len
-			# Standard 2-byte header.
+		starttime = time.time()
+
+		while True:
+			if time.time() - starttime > 0.5:
+				break
+
+			# Less than 2 bytes read (possibly 0 so far), choose how much to read.
+			if self._readbuf_len < 2:
+				# If we read something already, check for bit marker and read more
+				# if applicable, as this is as 3-byte header.
+				if self._readbuf_len > 0 and struct.unpack("B", self._readbuf[:1])[0] & 0x80:
+					toread = 3 - self._readbuf_len
+				# Standard 2-byte header.
+				else:
+					toread = 2 - self._readbuf_len
+			# Exactly 2 bytes read; if the bit marker is set, read 1 more, as this
+			# a 3-byte header instead of the standard 2-byte one.
+			elif self._readbuf_len == 2 and struct.unpack("B", self._readbuf[:1])[0] & 0x80:
+				toread = 1
 			else:
-				toread = 2 - self._readbuf_len
-		# Exactly 2 bytes read; if the bit marker is set, read 1 more, as this
-		# a 3-byte header instead of the standard 2-byte one.
-		elif self._readbuf_len == 2 and struct.unpack("B", self._readbuf[:1])[0] & 0x80:
-			toread = 1
-		else:
-			# We got the header data, try to parse it.
-			if self._readbuf_len <= 3:
-				# Figure out the header length.
-				self._header_len = 3 if struct.unpack("B", self._readbuf[:1])[0] & 0x80 else 2
-				self._cmd_len = 0
+				# We got the header data, try to parse it.
+				if self._readbuf_len <= 3:
+					# Figure out the header length.
+					self._header_len = 3 if struct.unpack("B", self._readbuf[:1])[0] & 0x80 else 2
+					self._cmd_len = 0
 
-				# Unpack the header.
-				unpacked = struct.unpack("{0}B".format(self._header_len), self._readbuf[:self._header_len])
-				i = 0
+					# Unpack the header.
+					unpacked = struct.unpack("{0}B".format(self._header_len), self._readbuf[:self._header_len])
+					i = 0
 
-				# 3-byte header.
-				if self._header_len == 3:
-					self._cmd_len += (unpacked[i] & 0x7f) << 16
+					# 3-byte header.
+					if self._header_len == 3:
+						self._cmd_len += (unpacked[i] & 0x7f) << 16
+						i += 1
+
+					# 2-byte header or continuation of the above 3-byte one.
+					self._cmd_len += unpacked[i] << 8
 					i += 1
+					self._cmd_len += unpacked[i]
 
-				# 2-byte header or continuation of the above 3-byte one.
-				self._cmd_len += unpacked[i] << 8
-				i += 1
-				self._cmd_len += unpacked[i]
+				# Now we know exactly how much data to read to complete the
+				# command.
+				toread = self._cmd_len + self._header_len - self._readbuf_len
 
-			# Now we know exactly how much data to read to complete the
-			# command.
-			toread = self._cmd_len + self._header_len - self._readbuf_len
+			try:
+				# Try to read the data.
+				data = self.socket.recv(toread)
+			except socket.error:
+				return
 
-		try:
-			# Try to read the data.
-			data = self.socket.recv(toread)
-		except socket.error:
-			return
+			# Failed; reset connection.
+			if not data:
+				self._handle_data_reset()
+				self._mark_reconnect()
+				return
 
-		# Failed; reset connection.
-		if not data:
-			self._handle_data_reset()
-			self._mark_reconnect()
-			return
+			# Store the data and update the data's total length.
+			self._readbuf += data
+			self._readbuf_len += len(data)
 
-		# Store the data and update the data's total length.
-		self._readbuf += data
-		self._readbuf_len += len(data)
-
-		# Have we completed reading the data for the command yet?
-		if self._readbuf_len == self._cmd_len + self._header_len:
-			# Strip off the header bytes.
-			self._readbuf = self._readbuf[self._header_len:]
-			# Get the command ID.
-			(cmd_id,) = struct.unpack("B", self._readbuf[:1])
-
-			# Command #0 marks compressed data.
-			if cmd_id == 0:
-				# Figure out the uncompressed length.
-				ucomp_len = struct.unpack("I", self._readbuf[1:5][::-1])
-				# Uncompress the data.
-				self._readbuf = zlib.decompress(self._readbuf[5:])
-				# Get the actual command ID now.
+			# Have we completed reading the data for the command yet?
+			if self._readbuf_len == self._cmd_len + self._header_len:
+				# Strip off the header bytes.
+				self._readbuf = self._readbuf[self._header_len:]
+				# Get the command ID.
 				(cmd_id,) = struct.unpack("B", self._readbuf[:1])
 
-			# Handle the command.
-			self.ch.handle_command(cmd_id, self._readbuf[1:])
-			# Reset the internal pointers.
-			self._handle_data_reset()
+				# Command #0 marks compressed data.
+				if cmd_id == 0:
+					# Figure out the uncompressed length.
+					ucomp_len = struct.unpack("I", self._readbuf[1:5][::-1])
+					# Uncompress the data.
+					self._readbuf = zlib.decompress(self._readbuf[5:])
+					# Get the actual command ID now.
+					(cmd_id,) = struct.unpack("B", self._readbuf[:1])
+
+				# Handle the command.
+				self.ch.handle_command(cmd_id, self._readbuf[1:])
+				# Reset the internal pointers.
+				self._handle_data_reset()
 
 	## Handle anything extra.
 	def handle_extra(self):
