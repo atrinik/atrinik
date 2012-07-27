@@ -32,7 +32,7 @@
 #define PACKAGE_VERSION_MAJOR 3
 
 /* Minor version of the package. */
-#define PACKAGE_VERSION_MINOR 0
+#define PACKAGE_VERSION_MINOR 5
 
 /* Patch version of the package. */
 #define PACKAGE_VERSION_PATCH 0

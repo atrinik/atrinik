@@ -29,6 +29,6 @@
 #define PACKAGE_NAME "Atrinik Server"
 
 /* Version of the package. */
-#define PACKAGE_VERSION "3.0"
+#define PACKAGE_VERSION "3.5"
 
 #endif
