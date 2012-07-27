@@ -5,7 +5,7 @@
 import CommitChecker, time, threading, shelve
 from misc import *
 from Bot import *
-from IRC import *
+from CIA import *
 from howie import Howie
 
 try:
@@ -19,23 +19,28 @@ db_lock = threading.RLock()
 ## Create the database.
 db = shelve.open("bot.db", writeback = True)
 bots = []
-irc_instances = []
+cia = None
 
 ## The main function.
 def main():
 	# Create a new ConfigParser and read the config.
 	config = ConfigParser()
-	config.read(["config.cfg"])
-	chatbot = Howie.Howie()
+	config.readfp(open("config.cfg"))
+	config.read(["config-custom.cfg"])
+	chatbot = None
+
+	if config.getboolean("General", "cia"):
+		cia = CIA()
 
 	# Check configuration sections for game and IRC bots.
 	for section in config.sections():
 		if section.startswith("Game"):
+			if not chatbot:
+				chatbot = Howie.Howie()
+
 			bot = Bot((config.get(section, "host"), config.getint(section, "port"), config.get(section, "name"), config.get(section, "pswd")), bots, config, section)
 			bot.howie = chatbot
 			bots.append(bot)
-		elif section.startswith("IRC"):
-			irc_instances.append(IRC((config.get(section, "host"), config.getint(section, "port"), config.get(section, "name"), config.get(section, "pswd"), config.get(section, "channels").split(",")), config, section))
 
 	# If commits checker is enabled, do some work.
 	if CommitChecker.enabled:
@@ -46,8 +51,8 @@ def main():
 
 	# The main infinite loop.
 	while True:
-		# No bots and no IRC connections left, bail out.
-		if not bots and not irc_instances:
+		# No bots left, bail out.
+		if not bots and not cia:
 			print("No bots running left, bailing out.")
 			break
 
@@ -59,13 +64,13 @@ def main():
 		# again.
 		if CommitChecker.enabled and t1 >= commits_check:
 			# Create the commits checker thread and start it.
-			thread = CommitChecker.CommitChecker(config, db, db_lock, bots, irc_instances)
+			thread = CommitChecker.CommitChecker(config, db, db_lock, bots, cia)
 			thread.start()
 			# Update time of next check.
 			commits_check = t1 + config.getfloat("General", "commits_check_delay")
 
 		# Handle all active connections.
-		for connection in bots + irc_instances:
+		for connection in bots:
 			if not connection.handle_reconnect():
 				continue
 
@@ -86,7 +91,7 @@ try:
 	main()
 finally:
 	# Close all connections.
-	for connection in bots + irc_instances:
+	for connection in bots:
 		connection.close()
 
 	# Close the database.

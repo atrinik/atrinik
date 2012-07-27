@@ -22,6 +22,7 @@ RE:server/unit/.*
 *.db
 __pycache__
 server-custom.cfg
+config-custom.cfg
 permissions-custom.cfg
 
 # GNU/Linux

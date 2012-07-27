@@ -2,10 +2,12 @@
 ## Commits checker.
 
 import threading, re
+from xml.sax import saxutils
 
 try:
 	from bzrlib.repository import Repository
 	from bzrlib.branch import Branch
+	import bzrlib
 	enabled = True
 except ImportError:
 	print("WARNING: Could not import bzrlib, Bazaar-related operations will be disabled.")
@@ -18,20 +20,57 @@ class CommitChecker(threading.Thread):
 	## @param db The script's general database.
 	## @param db_lock The database's thread lock.
 	## @param bots List of bots.
-	## @param irc_instances List of IRC instances.
-	def __init__(self, config, db, db_lock, bots, irc_instances):
+	## @param cia CIA bot instance.
+	def __init__(self, config, db, db_lock, bots, cia):
 		self._config = config
 		self._db = db
 		self._db_lock = db_lock
 		self._bots = bots
-		self._irc_instances = irc_instances
+		self._cia = cia
 		threading.Thread.__init__(self)
+
+	def generate_cia_xml(self, branch, revno, revision, projectname):
+		delta = branch.repository.get_revision_delta(revision.revision_id)
+		authors = revision.get_apparent_authors()
+
+		files = []
+		[files.append(f) for (f,_,_) in delta.added]
+		[files.append(f) for (f,_,_) in delta.removed]
+		[files.append(f) for (_,f,_,_,_,_) in delta.renamed]
+		[files.append(f) for (f,_,_,_,_) in delta.modified]
+
+		authors_xml = "".join(["      <author>{0}</author>\n".format(saxutils.escape(re.sub(" \<.+\>", "", author))) for author in authors])
+
+		return """
+<message>
+	<generator>
+		<name>bzr</name>
+		<version>{0}</version>
+		<url>http://www.atrinik.org/</url>
+	</generator>
+	<source>
+		<project>{1}</project>
+		<module>{2}</module>
+	</source>
+	<timestamp>{3}</timestamp>
+	<body>
+		<commit>
+			<revision>{4}</revision>
+			<files>
+				{5}
+			</files>
+			{6}
+			<log>{7}</log>
+		</commit>
+	</body>
+</message>""".format(bzrlib.version_string, projectname, branch.nick, revision.timestamp, revno, "\n".join(["<file>{0}</file>".format(saxutils.escape(f)) for f in files]), authors_xml, saxutils.escape(revision.message))
 
 	## Run the thread.
 	def run(self):
 		# Go through configured branches.
-		for url in self._config.get("General", "branches").split(","):
-			# Acquire DB lock.
+		for entry in self._config.get("General", "branches").split(","):
+			(url, projectname) = entry.split(" ")
+
 			self._db_lock.acquire()
 
 			# Initialize the branch data at this URL if needed.
@@ -50,7 +89,7 @@ class CommitChecker(threading.Thread):
 			# Acquire lock, store old revision number, and update with new one.
 			self._db_lock.acquire()
 			old_revno = self._db["branches"][url]["revno"]
-			self._db["branches"][url]["revno"] = revno
+			#self._db["branches"][url]["revno"] = revno
 			self._db_lock.release()
 
 			# If the previous revision number was not 0 and it is different from
@@ -72,7 +111,5 @@ class CommitChecker(threading.Thread):
 						if bot.config.getboolean(bot.section, "dmsay_commits"):
 							bot.command_queue_add("/dmsay {0}".format(msg), bot.config.getfloat(bot.section, "delay"))
 
-					for irc in self._irc_instances:
-						for channel in irc.channels:
-							if irc.config.getboolean(irc.section, "notify_commits"):
-								irc.command_queue_add("PRIVMSG {0} :{1}\r\n".format(channel, msg), irc.config.getfloat(irc.section, "delay"))
+					if self._cia:
+						self._cia.submit(self.generate_cia_xml(branch, old_revno + i + 1, revision, projectname))
