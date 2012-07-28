@@ -724,11 +724,11 @@ void map_draw_map(void)
 		}
 		else if (cpl.target_hp > 25)
 		{
-			hp_color = COLOR_ORANGE;
+			hp_color = COLOR_YELLOW;
 		}
 		else if (cpl.target_hp > 10)
 		{
-			hp_color = COLOR_YELLOW;
+			hp_color = COLOR_ORANGE;
 		}
 		else
 		{
