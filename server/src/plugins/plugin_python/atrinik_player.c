@@ -382,7 +382,23 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 			return NULL;
 		}
 
-		if (format[i] == 'B')
+		if (format[i] == 'b')
+		{
+			if (PyInt_Check(value))
+			{
+				long val = PyLong_AsLong(value);
+
+				if (val < SINT8_MIN || val > SINT8_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				hooks->packet_append_sint8(packet, val);
+				continue;
+			}
+		}
+		else if (format[i] == 'B')
 		{
 			if (PyInt_Check(value))
 			{
@@ -395,11 +411,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 				}
 
 				hooks->packet_append_uint8(packet, val);
-			}
-			else
-			{
-				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
-				return NULL;
+				continue;
 			}
 		}
 		else if (format[i] == 'h')
@@ -415,11 +427,23 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 				}
 
 				hooks->packet_append_sint16(packet, val);
+				continue;
 			}
-			else
+		}
+		else if (format[i] == 'H')
+		{
+			if (PyInt_Check(value))
 			{
-				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
-				return NULL;
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT16_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				hooks->packet_append_uint16(packet, val);
+				continue;
 			}
 		}
 		else if (format[i] == 'i')
@@ -435,14 +459,26 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 				}
 
 				hooks->packet_append_sint32(packet, val);
-			}
-			else
-			{
-				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
-				return NULL;
+				continue;
 			}
 		}
-		else if (format[i] == 'L')
+		else if (format[i] == 'I')
+		{
+			if (PyInt_Check(value))
+			{
+				long val = PyLong_AsLong(value);
+
+				if (val < 0 || (unsigned long) val > UINT32_MAX)
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				hooks->packet_append_uint32(packet, val);
+				continue;
+			}
+		}
+		else if (format[i] == 'l')
 		{
 			if (PyInt_Check(value))
 			{
@@ -454,12 +490,24 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 					return NULL;
 				}
 
-				hooks->packet_append_uint64(packet, val);
+				hooks->packet_append_sint64(packet, val);
+				continue;
 			}
-			else
+		}
+		else if (format[i] == 'L')
+		{
+			if (PyInt_Check(value))
 			{
-				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
-				return NULL;
+				unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
+
+				if (PyErr_Occurred())
+				{
+					PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+					return NULL;
+				}
+
+				hooks->packet_append_uint64(packet, val);
+				continue;
 			}
 		}
 		else if (format[i] == 's')
@@ -467,13 +515,25 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 			if (PyString_Check(value))
 			{
 				hooks->packet_append_string_terminated(packet, PyString_AsString(value));
-			}
-			else
-			{
-				PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
-				return NULL;
+				continue;
 			}
 		}
+		else if (format[i] == 'x')
+		{
+			if (PyBytes_Check(value))
+			{
+				hooks->packet_append_data_len(packet, (uint8 *) PyBytes_AsString(value), PyBytes_Size(value));
+				continue;
+			}
+		}
+		else
+		{
+			PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal format specifier '%c'.", format[i]);
+			return NULL;
+		}
+
+		PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+		return NULL;
 	}
 
 	hooks->socket_send_packet(&pl->pl->socket, packet);
