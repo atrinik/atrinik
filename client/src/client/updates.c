@@ -59,7 +59,10 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 	unsigned char *dest;
 	FILE *fp;
 
-	file_updates_requested--;
+	if (file_updates_requested != 0)
+	{
+		file_updates_requested--;
+	}
 
 	packet_to_string(data, len, &pos, filename, sizeof(filename));
 	ucomp_len = packet_to_uint32(data, len, &pos);
