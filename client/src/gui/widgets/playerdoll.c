@@ -61,6 +61,7 @@ static void widget_draw(widgetdata *widget)
 	char *tooltip_text;
 	int i, xpos, ypos, mx, my;
 	SDL_Surface *texture_slot_border;
+	object *obj;
 
 	tooltip_text = NULL;
 	widget->redraw++;
@@ -101,7 +102,7 @@ static void widget_draw(widgetdata *widget)
 	{
 		surface_show(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], NULL, texture_slot_border);
 
-		if (!cpl.equipment[i])
+		if (cpl.equipment[i] == 0 || !(obj = object_find(cpl.equipment[i])))
 		{
 			continue;
 		}
@@ -109,12 +110,12 @@ static void widget_draw(widgetdata *widget)
 		xpos = player_doll_positions[i][0] + 2;
 		ypos = player_doll_positions[i][1] + 2;
 
-		object_show_centered(widget->surface, cpl.equipment[i], xpos, ypos);
+		object_show_centered(widget->surface, obj, xpos, ypos);
 
 		/* Prepare item name tooltip */
 		if (mx - widget->x > xpos && mx - widget->x <= xpos + INVENTORY_ICON_SIZE && my - widget->y > ypos && my - widget->y <= ypos + INVENTORY_ICON_SIZE)
 		{
-			tooltip_text = cpl.equipment[i]->s_name;
+			tooltip_text = obj->s_name;
 		}
 	}
 

@@ -205,7 +205,7 @@ typedef struct Player_Struct
 	 * Player's gender. */
 	uint8 gender;
 
-	object *equipment[PLAYER_EQUIP_MAX];
+	tag_t equipment[PLAYER_EQUIP_MAX];
 
 	uint32 path_attuned;
 
