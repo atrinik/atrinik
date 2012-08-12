@@ -72,7 +72,6 @@ def py_console_thread():
 	# Send the greeting message.
 	inf_data.append("Atrinik Python Console v{}".format(__VERSION__))
 	inf_data.append("Use exit() to exit the session.")
-	send_inf(thread.activator, "\n".join(inf_data))
 
 	# Now loop until we get killed.
 	while not thread.killed():
@@ -159,15 +158,14 @@ def main():
 			inf.dialog_close()
 
 		return
-	# Add the command to the existing thread's commands, if it exists.
-	elif thread:
-		thread.commands_lock.acquire()
-		thread.commands.append(msg)
-		thread.commands_lock.release()
-		return
 
-	# Thread doesn't exist yet, create it.
-	thread = PyConsoleThread(activator)
-	thread.start()
+	if not thread:
+		# Thread doesn't exist yet, create it.
+		thread = PyConsoleThread(activator)
+		thread.start()
+
+	thread.commands_lock.acquire()
+	thread.commands.append(msg if WhatIsMessage() else None)
+	thread.commands_lock.release()
 
 main()
