@@ -1717,7 +1717,7 @@ int faction_is_friend_of(object *mon, object *pl)
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
-	uint8 friend = 0;
+	uint8 is_friend = 0;
 	sint8 faction_friend = -1;
 
 	/* We are obviously friends with ourselves. */
@@ -1749,19 +1749,9 @@ int is_friend_of(object *op, object *obj)
 		return 0;
 	}
 
-	if (QUERY_FLAG(op, FLAG_FRIENDLY))
+	if (QUERY_FLAG(op, FLAG_FRIENDLY) == QUERY_FLAG(obj, FLAG_FRIENDLY))
 	{
-		if (QUERY_FLAG(obj, FLAG_FRIENDLY))
-		{
-			friend = 1;
-		}
-	}
-	else if (QUERY_FLAG(op, FLAG_MONSTER))
-	{
-		if (QUERY_FLAG(obj, FLAG_MONSTER) && !QUERY_FLAG(obj, FLAG_FRIENDLY))
-		{
-			friend = 1;
-		}
+		is_friend = 1;
 	}
 
 	/* Check factions. */
@@ -1776,10 +1766,10 @@ int is_friend_of(object *op, object *obj)
 
 	if (faction_friend != -1)
 	{
-		friend = faction_friend;
+		is_friend = faction_friend;
 	}
 
-	return friend;
+	return is_friend;
 }
 
 /**
