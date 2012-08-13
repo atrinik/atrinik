@@ -1031,8 +1031,7 @@ int finger_of_death(object *op, object *target)
 
 	if (QUERY_FLAG(target, FLAG_UNDEAD))
 	{
-		draw_info_format(COLOR_WHITE, op, "The %s looks stronger!", query_name(target, NULL));
-		target->stats.hp = target->stats.maxhp;
+		draw_info_format(COLOR_WHITE, op, "The spell seems ineffective against the %s!", query_name(target, NULL));
 
 		if (!OBJECT_VALID(target->enemy, target->enemy_count))
 		{
