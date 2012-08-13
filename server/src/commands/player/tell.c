@@ -73,7 +73,7 @@ void command_tell(object *op, const char *command, char *params)
 
 	logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);
 
-	snprintf(buf, sizeof(buf), "<a=#charnamereply>%s</a> tells you: %s", op->name, msg);
+	snprintf(buf, sizeof(buf), "<a=#charname>%s</a> tells you: %s", op->name, msg);
 	draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);
 	snprintf(buf, sizeof(buf), "You tell <a=#charname>%s</a>: %s", pl->ob->name, msg);
 	draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);

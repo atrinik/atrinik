@@ -84,7 +84,7 @@ void textwin_readjust(widgetdata *widget)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-	if (custom_data && string_startswith(anchor_action, "#charname"))
+	if (custom_data && strcmp(anchor_action, "#charname") == 0)
 	{
 		StringBuffer *sb;
 
@@ -385,12 +385,6 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 		{
 			free(name);
 			return;
-		}
-
-		if (strcmp(info.anchor_action, "#charnamereply") == 0)
-		{
-			strncpy(cpl.charname_reply, name, sizeof(cpl.charname_reply) - 1);
-			cpl.charname_reply[sizeof(cpl.charname_reply) - 1] = '\0';
 		}
 	}
 
