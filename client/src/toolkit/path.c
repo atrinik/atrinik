@@ -204,7 +204,7 @@ char *path_normalize(const char *path)
 
 	startsbpos = sb->pos;
 
-	while (string_get_word(path, &pos, '/', component, sizeof(component)))
+	while (string_get_word(path, &pos, '/', component, sizeof(component), 0))
 	{
 		if (strcmp(component, ".") == 0)
 		{

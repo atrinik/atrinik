@@ -39,7 +39,7 @@ void command_tell(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, ' ', name, sizeof(name)))
+	if (!string_get_word(params, &pos, ' ', name, sizeof(name), '"'))
 	{
 		draw_info(COLOR_WHITE, op, "Tell whom what?");
 		return;
@@ -68,7 +68,7 @@ void command_tell(object *op, const char *command, char *params)
 		return;
 	}
 
-	strncpy(pl->player_reply, name, sizeof(pl->player_reply) - 1);
+	strncpy(pl->player_reply, op->name, sizeof(pl->player_reply) - 1);
 	pl->player_reply[sizeof(pl->player_reply) - 1] = '\0';
 
 	logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);

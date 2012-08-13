@@ -2534,7 +2534,7 @@ static int player_load(player *pl, const char *path)
 
 			pos = 8;
 
-			if (string_get_word(buf, &pos, ' ', faction_id, sizeof(faction_id)))
+			if (string_get_word(buf, &pos, ' ', faction_id, sizeof(faction_id), 0))
 			{
 				rep = atoll(buf + pos);
 

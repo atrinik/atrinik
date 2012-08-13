@@ -39,7 +39,7 @@ void command_shutdown(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, ' ', when, sizeof(when)))
+	if (!string_get_word(params, &pos, ' ', when, sizeof(when), 0))
 	{
 		return;
 	}

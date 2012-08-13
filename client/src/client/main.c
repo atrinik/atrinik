@@ -117,8 +117,8 @@ static int game_status_chain(void)
 		for (i = 0; i < clioption_settings.servers_num; i++)
 		{
 			pos = 0;
-			string_get_word(clioption_settings.servers[i], &pos, ':', host, sizeof(host));
-			string_get_word(clioption_settings.servers[i], &pos, ':', port, sizeof(port));
+			string_get_word(clioption_settings.servers[i], &pos, ':', host, sizeof(host), 0);
+			string_get_word(clioption_settings.servers[i], &pos, ':', port, sizeof(port), 0);
 			port_num = atoi(port);
 			metaserver_add(host, port_num ? port_num : 13327, host, -1, "user server", "Server from command line --server option.");
 		}
@@ -311,7 +311,7 @@ static void clioptions_option_connect(const char *arg)
 
 	pos = idx = 0;
 
-	while (string_get_word(arg, &pos, ':', word, sizeof(word)))
+	while (string_get_word(arg, &pos, ':', word, sizeof(word), 0))
 	{
 		clioption_settings.connect[idx++] = strdup(word);
 	}

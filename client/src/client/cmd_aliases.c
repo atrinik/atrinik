@@ -163,7 +163,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 	pos = 0;
 	sb = stringbuffer_new();
 
-	while (string_get_word(cmd, &pos, ' ', word, sizeof(word)))
+	while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0))
 	{
 		if (stringbuffer_length(sb))
 		{

@@ -677,7 +677,7 @@ int get_money_from_string(const char *text, struct _money_block *money)
 
 	money->mode = MONEYSTRING_NOTHING;
 
-	while (string_get_word(text, &pos, ' ', word, sizeof(word)))
+	while (string_get_word(text, &pos, ' ', word, sizeof(word), 0))
 	{
 		if (!string_isdigit(word))
 		{
@@ -688,7 +688,7 @@ int get_money_from_string(const char *text, struct _money_block *money)
 
 		if (value > 0 && value < 1000000)
 		{
-			if (string_get_word(text, &pos, ' ', word, sizeof(word)))
+			if (string_get_word(text, &pos, ' ', word, sizeof(word), 0))
 			{
 				size_t len;
 

@@ -1991,7 +1991,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 	pos2 = 0;
 	ip_match = 0;
 
-	while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word)))
+	while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word), 0))
 	{
 		if (strcmp(ns->host, word) == 0)
 		{

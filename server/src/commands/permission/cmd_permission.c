@@ -40,7 +40,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 
 	pos = 0;
 
-	if (!string_get_word(params, &pos, ' ', word, sizeof(word)))
+	if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"'))
 	{
 		draw_info(COLOR_RED, op, "Usage: /cmd_permission <player> <add|remove|list> [permission]");
 		return;
@@ -54,7 +54,7 @@ void command_cmd_permission(object *op, const char *command, char *params)
 		return;
 	}
 
-	string_get_word(params, &pos, ' ', word, sizeof(word));
+	string_get_word(params, &pos, ' ', word, sizeof(word), 0);
 	params = player_sanitize_input(params + pos);
 
 	if (strcmp(word, "add") == 0)

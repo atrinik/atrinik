@@ -375,14 +375,17 @@ void string_newline_to_literal(char *str)
  * @param delim Delimeter character.
  * @param word Where to store the word.
  * @param wordsize Size of 'word'.
+ * @param surround Character that can surround a word, regardless of 'delim'.
  * @return 'word', NULL if 'word' is empty. */
-const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize)
+const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize, int surround)
 {
 	size_t i;
+	uint8 in_surround;
 
 	TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 	i = 0;
+	in_surround = 0;
 	str += (*pos);
 
 	while (str && *str != '\0' && *str == delim)
@@ -391,9 +394,13 @@ const char *string_get_word(const char *str, size_t *pos, char delim, char *word
 		(*pos)++;
 	}
 
-	while (str && *str != '\0' && *str != delim)
+	while (str && *str != '\0' && (*str != delim || in_surround))
 	{
-		if (i < wordsize - 1)
+		if (*str == surround)
+		{
+			in_surround = !in_surround;
+		}
+		else if (i < wordsize - 1)
 		{
 			word[i++] = *str;
 		}

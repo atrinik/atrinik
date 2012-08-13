@@ -870,7 +870,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 
 		pos = 0;
 
-		while (string_get_word(parameter, &pos, ':', word, sizeof(word)))
+		while (string_get_word(parameter, &pos, ':', word, sizeof(word), 0))
 		{
 			if (string_startswith(word, "/"))
 			{
@@ -1149,7 +1149,7 @@ static void menu_textwin_players(widgetdata *widget, widgetdata *menuitem, SDL_E
 	submenu = MENU(menuitem->env)->submenu;
 	pos = 0;
 
-	while (string_get_word(textwin->tabs[textwin->tab_selected].charnames, &pos, ':', charname, sizeof(charname)))
+	while (string_get_word(textwin->tabs[textwin->tab_selected].charnames, &pos, ':', charname, sizeof(charname), 0))
 	{
 		found = 0;
 

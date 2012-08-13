@@ -389,7 +389,7 @@ int client_command_check(const char *cmd)
 
 		pos = 5;
 
-		if (!string_get_word(cmd, &pos, ' ', type, sizeof(type)) || string_isempty(cmd + pos))
+		if (!string_get_word(cmd, &pos, ' ', type, sizeof(type), 0) || string_isempty(cmd + pos))
 		{
 			return 1;
 		}
@@ -407,7 +407,7 @@ int client_command_check(const char *cmd)
 		{
 			char tag[MAX_BUF];
 
-			if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag)) || string_isempty(cmd + pos))
+			if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag), 0) || string_isempty(cmd + pos))
 			{
 				packet_free(packet);
 				return 1;

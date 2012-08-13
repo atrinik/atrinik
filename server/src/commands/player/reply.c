@@ -46,6 +46,6 @@ void command_reply(object *op, const char *command, char *params)
 		return;
 	}
 
-	snprintf(newparams, sizeof(newparams), "%s %s", CONTR(op)->player_reply, params);
+	snprintf(newparams, sizeof(newparams), "\"%s\" %s", CONTR(op)->player_reply, params);
 	command_tell(op, command, newparams);
 }

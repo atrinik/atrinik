@@ -211,7 +211,7 @@ int metaserver_thread(void *dummy)
 
 			pos = 0;
 
-			while (string_get_word(data->memory, &pos, '\n', word, sizeof(word)))
+			while (string_get_word(data->memory, &pos, '\n', word, sizeof(word), 0))
 			{
 				parse_metaserver_data(word);
 			}
