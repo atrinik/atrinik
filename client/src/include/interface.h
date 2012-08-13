@@ -83,6 +83,11 @@ typedef struct interface_struct
 
 	/** If 1, enable text input. */
 	uint8 text_input;
+
+	/**
+	 * Text to prefix for autocompleting text. If NULL, autocompletion
+	 * will be disabled. */
+    char *text_autocomplete;
 } interface_struct;
 
 /**
@@ -115,6 +120,10 @@ typedef struct interface_struct
 #define CMD_INTERFACE_INPUT_ALLOW_EMPTY 8
 /** Scroll to the bottom when the interface is created. */
 #define CMD_INTERFACE_SCROLL_BOTTOM 9
+/** Text to prefix for autocompletion of text. */
+#define CMD_INTERFACE_AUTOCOMPLETE 10
+/** Restore previous interface data. */
+#define CMD_INTERFACE_RESTORE 11
 /*@}*/
 
 /**

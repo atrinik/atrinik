@@ -901,6 +901,7 @@ extern int string_startswith(const char *str, const char *cmp);
 extern int string_endswith(const char *str, const char *cmp);
 extern char *string_sub(const char *str, ssize_t start, ssize_t end);
 extern int string_isempty(const char *str);
+extern int string_iswhite(const char *str);
 extern int char_contains(const char c, const char *key);
 extern int string_contains(const char *str, const char *key);
 extern int string_contains_other(const char *str, const char *key);

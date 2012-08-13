@@ -647,6 +647,29 @@ int string_isempty(const char *str)
 }
 
 /**
+ * Checks whether the specified string consists of only whitespace
+ * characters.
+ * @param str String to check.
+ * @return 1 if 'str' consists of purely whitespace character, 0
+ * otherwise. */
+int string_iswhite(const char *str)
+{
+	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+	while (str && *str != '\0')
+	{
+		if (!isspace(*str))
+		{
+			return 0;
+		}
+
+		str++;
+	}
+
+	return 1;
+}
+
+/**
  * Check if the specified character equals to any of the characters in
  * 'key'.
  * @param c Character to check.

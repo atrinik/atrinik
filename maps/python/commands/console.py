@@ -7,8 +7,8 @@ from Interface import Interface
 import Common
 import threading, code
 
-## Version of the command.
-__VERSION__ = "1.1"
+## Version of the console.
+__VERSION__ = "1.2"
 ## The beginning of the thread name.
 __THREADNAME__ = "PyConsoleThread-"
 ## Maximum number of history lines.
@@ -36,17 +36,27 @@ class PyConsole(code.InteractiveConsole):
 
 ## The actual function that is called in the per-player console thread.
 def py_console_thread():
-	import time, collections, sys
+	import time, collections, sys, re
 	from Markup import markup_escape
 
 	# Sends an interface to the activator.
-	def send_inf(activator, msg):
+	def send_inf(activator, msg, autocomplete = None):
 		inf = Interface(activator, None)
-		inf.set_icon(activator.face[0])
-		inf.set_title(activator.name + "'s Python Console")
-		inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True)
-		inf.add_msg("<font=mono 12>" + msg + "</font>")
+
+		if msg:
+			inf.set_icon(activator.face[0])
+			inf.set_title(activator.name + "'s Python Console")
+			inf.add_msg("<font=mono 12>" + msg + "</font>")
+		else:
+			inf.restore()
+
+		inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True, autocomplete = "noinf::ac::", text = autocomplete if autocomplete else "")
 		inf.finish()
+
+	def autocomplete(matches):
+		obj, prop = matches.groups()
+
+		return obj + (prop if prop else "")
 
 	# Used to redirect stdout so that it writes the print() and the like
 	# data to the interface instead of stdout.
@@ -95,6 +105,10 @@ def py_console_thread():
 
 				if command.startswith("noinf::"):
 					command = command[7:]
+
+				if command.startswith("ac::"):
+					send_inf(thread.activator, None, re.sub(r"(\w+)(\.\w?)?", autocomplete, command[4:]))
+					continue
 
 				inf_data.append(">>> {}".format(command))
 				console.push(command)

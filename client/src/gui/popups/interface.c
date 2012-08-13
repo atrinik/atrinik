@@ -50,31 +50,35 @@ static text_input_history_struct *text_input_history = NULL;
 static text_input_struct text_input;
 
 /**
- * Destroy the interface data, if any. */
-static void interface_destroy(void)
+ * Destroy the specified interface data.
+ * @param data Interface data to destroy. */
+static void interface_destroy(interface_struct *data)
 {
-	if (!interface_data)
+	if (!data)
 	{
 		return;
 	}
 
-	free(interface_data->message);
-	free(interface_data->title);
+	free(data->message);
+	free(data->title);
 
-	if (interface_data->icon)
+	if (data->icon)
 	{
-		free(interface_data->icon);
+		free(data->icon);
 	}
 
-	if (interface_data->text_input_prepend)
+	if (data->text_input_prepend)
 	{
-		free(interface_data->text_input_prepend);
+		free(data->text_input_prepend);
 	}
 
-	utarray_free(interface_data->links);
-	free(interface_data);
+	if (data->text_autocomplete)
+	{
+		free(data->text_autocomplete);
+	}
 
-	interface_data = NULL;
+	utarray_free(data->links);
+	free(data);
 }
 
 /** @copydoc text_anchor_handle_func */
@@ -184,7 +188,8 @@ static int popup_draw_post_func(popup_struct *popup)
 /** @copydoc popup_struct::destroy_callback_func */
 static int popup_destroy_callback(popup_struct *popup)
 {
-	interface_destroy();
+	interface_destroy(interface_data);
+	interface_data = NULL;
 	interface_popup = NULL;
 	return 1;
 }
@@ -229,16 +234,12 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 	{
 		if (interface_data->text_input)
 		{
-			if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab)
-			{
-				text_input_add_char(&text_input, '\t');
-			}
-			else if (event->key.keysym.sym == SDLK_ESCAPE)
+			if (event->key.keysym.sym == SDLK_ESCAPE)
 			{
 				interface_data->text_input = 0;
 				return 1;
 			}
-			else if (IS_ENTER(event->key.keysym.sym))
+			else if (IS_ENTER(event->key.keysym.sym) || (event->key.keysym.sym == SDLK_TAB && interface_data->text_autocomplete && !string_iswhite(text_input.str) && text_input.pos == text_input.num))
 			{
 				char *input_string;
 
@@ -267,6 +268,11 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 						stringbuffer_append_string(sb, interface_data->text_input_prepend);
 					}
 
+					if (event->key.keysym.sym == SDLK_TAB)
+					{
+						stringbuffer_append_string(sb, interface_data->text_autocomplete);
+					}
+
 					stringbuffer_append_string(sb, input_string);
 
 					cp = stringbuffer_finish(sb);
@@ -277,6 +283,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 				free(input_string);
 
 				interface_data->text_input = 0;
+			}
+			else if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab)
+			{
+				text_input_add_char(&text_input, '\t');
 			}
 
 			if (text_input_event(&text_input, event))
@@ -376,6 +386,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	StringBuffer *sb_message;
 	size_t links_len, char_shortcuts_len, i;
 	SDL_Rect box;
+	interface_struct *old_interface_data;
 
 	if (len == 0)
 	{
@@ -413,8 +424,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		text_input_set_history(&text_input, text_input_history);
 	}
 
-	/* Destroy previous interface data. */
-	interface_destroy();
+	old_interface_data = interface_data;
 
 	/* Create new interface. */
 	interface_data = calloc(1, sizeof(*interface_data));
@@ -504,6 +514,20 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 				scroll_bottom = 1;
 				break;
 
+			case CMD_INTERFACE_AUTOCOMPLETE:
+			{
+				char text_autocomplete[HUGE_BUF];
+
+				packet_to_string(data, len, &pos, text_autocomplete, sizeof(text_autocomplete));
+				interface_data->text_autocomplete = strdup(text_autocomplete);
+				break;
+			}
+
+			case CMD_INTERFACE_RESTORE:
+				interface_destroy(interface_data);
+				interface_data = old_interface_data;
+				break;
+
 			default:
 				break;
 		}
@@ -552,6 +576,12 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	button_hello.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
 	button_hello.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
 	button_hello.font = button_close.font = FONT_ARIAL13;
+
+	/* Destroy previous interface data. */
+	if (interface_data != old_interface_data)
+	{
+		interface_destroy(old_interface_data);
+	}
 }
 
 /**

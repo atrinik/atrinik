@@ -7,6 +7,7 @@ class Interface:
 		self._text_input = None
 		self._activator = activator
 		self._npc = npc
+		self._restore = False
 
 		if npc:
 			self._icon = npc.face[0][:-1] + "1"
@@ -71,13 +72,17 @@ class Interface:
 	def set_title(self, title):
 		self._title = title
 
-	def set_text_input(self, text = "", prepend = "", allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False):
+	def set_text_input(self, text = "", prepend = "", allow_tab = False, allow_empty = False, cleanup_text = True, scroll_bottom = False, autocomplete = None):
 		self._text_input = text
 		self._text_input_prepend = self._get_dest(prepend)
 		self._allow_tab = allow_tab
 		self._allow_empty = allow_empty
 		self._cleanup_text = cleanup_text
 		self._scroll_bottom = scroll_bottom
+		self._autocomplete = autocomplete
+
+	def restore(self):
+		self._restore = True
 
 	def add_objects(self, objs):
 		if type(objs) != list:
@@ -95,7 +100,7 @@ class Interface:
 		self._activator.Controller().SendPacket(26, "", None)
 
 	def finish(self, disable_timeout = False):
-		if not self._msg:
+		if not self._msg and not self._restore:
 			return
 
 		pl = self._activator.Controller()
@@ -103,10 +108,14 @@ class Interface:
 		if self._npc:
 			SetReturnValue(1)
 
-		# Construct the base data packet; contains the interface message,
-		# the icon and the title.
-		fmt = "BsBsBs"
-		data = [0, self._msg, 2, self._icon, 3, self._title]
+		if not self._restore:
+			# Construct the base data packet; contains the interface message,
+			# the icon and the title.
+			fmt = "BsBsBs"
+			data = [0, self._msg, 2, self._icon, 3, self._title]
+		else:
+			fmt = "B"
+			data = [11]
 
 		# Add links to the data packet, if any.
 		for link in self._links:
@@ -137,6 +146,10 @@ class Interface:
 			if self._scroll_bottom:
 				fmt += "B"
 				data += [9]
+
+			if self._autocomplete:
+				fmt += "Bs"
+				data += [10, self._autocomplete]
 
 		# Send the data.
 		pl.SendPacket(26, fmt, *data)
