@@ -1398,6 +1398,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
 					hcenter_box.w = box ? (box->w - (dest->w - box->w)) : 0;
 					hcenter_box.h = 0;
+					hcenter_box.y = 0;
 					text_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
 					dest->y += ht / 2 - hcenter_box.h / 2;
 					info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
@@ -2530,6 +2531,7 @@ void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *b
 
 	box2.w = box ? box->w : 0;
 	box2.h = box ? box->h : 0;
+	box2.y = 0;
 
 	if (w)
 	{
