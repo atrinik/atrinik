@@ -144,13 +144,26 @@ void hfiles_init(void)
 }
 
 /**
+ * Find a help file by its name.
+ * @param name Name of the help file to find.
+ * @return Help file if found, NULL otherwise. */
+hfile_struct *help_find(const char *name)
+{
+	hfile_struct *hfile;
+
+	HASH_FIND_STR(hfiles, name, hfile);
+
+	return hfile;
+}
+
+/**
  * Show a help GUI.
  * @param name Name of the help file entry to show. */
 void help_show(const char *name)
 {
 	hfile_struct *hfile;
 
-	HASH_FIND_STR(hfiles, name, hfile);
+	hfile = help_find(name);
 	book_add_help_history(name);
 
 	if (!hfile)

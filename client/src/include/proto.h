@@ -323,9 +323,12 @@ extern void characters_open(void);
 extern void socket_command_characters(uint8 *data, size_t len, size_t pos);
 /* src/gui/popups/color_chooser.c */
 extern color_picker_struct *color_chooser_open(void);
+/* src/gui/popups/credits.c */
+extern void credits_show(void);
 /* src/gui/popups/help.c */
 extern void hfiles_deinit(void);
 extern void hfiles_init(void);
+extern hfile_struct *help_find(const char *name);
 extern void help_show(const char *name);
 extern void help_handle_tabulator(text_input_struct *text_input);
 /* src/gui/popups/interface.c */

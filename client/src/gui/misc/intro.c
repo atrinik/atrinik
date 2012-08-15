@@ -49,7 +49,7 @@ static uint32 eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8 eyes_draw = 1;
 /** Button buffer. */
-static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_quit;
+static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_credits, button_quit;
 
 /** The news list. */
 static list_struct *list_news = NULL;
@@ -141,6 +141,7 @@ void intro_show(void)
 		button_create(&button_settings);
 		button_create(&button_update);
 		button_create(&button_help);
+		button_create(&button_credits);
 		button_create(&button_quit);
 	}
 
@@ -282,7 +283,7 @@ void intro_show(void)
 	/* Show the news list. */
 	list_show(list_news, x + 13, y + 10);
 
-	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_quit.x = 489;
+	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = 489;
 	y += 2;
 
 	button_play.y = y + 10;
@@ -299,6 +300,9 @@ void intro_show(void)
 
 	button_help.y = y + 110;
 	button_show(&button_help, "Help");
+
+	button_credits.y = y + 135;
+	button_show(&button_credits, "Credits");
 
 	button_quit.y = y + 224;
 	button_show(&button_quit, "Quit");
@@ -356,6 +360,11 @@ int intro_event(SDL_Event *event)
 	else if (button_event(&button_help, event))
 	{
 		help_show("main screen");
+		return 1;
+	}
+	else if (button_event(&button_credits, event))
+	{
+		credits_show();
 		return 1;
 	}
 	else if (button_event(&button_quit, event))
