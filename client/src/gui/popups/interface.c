@@ -384,7 +384,6 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 {
 	uint8 scroll_bottom = 0, type;
 	StringBuffer *sb_message;
-	size_t links_len, char_shortcuts_len, i;
 	SDL_Rect box;
 	interface_struct *old_interface_data;
 
@@ -533,28 +532,33 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		}
 	}
 
-	links_len = utarray_len(interface_data->links);
-
-	if (links_len)
+	if (interface_data != old_interface_data)
 	{
-		stringbuffer_append_string(sb_message, "\n");
-	}
+		size_t links_len, char_shortcuts_len, i;
 
-	char_shortcuts_len = strlen(character_shortcuts);
+		links_len = utarray_len(interface_data->links);
 
-	for (i = 0; i < links_len; i++)
-	{
-		stringbuffer_append_string(sb_message, "\n");
-
-		if (i < char_shortcuts_len)
+		if (links_len)
 		{
-			stringbuffer_append_printf(sb_message, "<c=#AF7817>[%c]</c> ", character_shortcuts[i]);
+			stringbuffer_append_string(sb_message, "\n");
 		}
 
-		stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
-	}
+		char_shortcuts_len = strlen(character_shortcuts);
 
-	interface_data->message = stringbuffer_finish(sb_message);
+		for (i = 0; i < links_len; i++)
+		{
+			stringbuffer_append_string(sb_message, "\n");
+
+			if (i < char_shortcuts_len)
+			{
+				stringbuffer_append_printf(sb_message, "<c=#AF7817>[%c]</c> ", character_shortcuts[i]);
+			}
+
+			stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
+		}
+
+		interface_data->message = stringbuffer_finish(sb_message);
+	}
 
 	box.w = INTERFACE_TEXT_WIDTH;
 	box.h = INTERFACE_TEXT_HEIGHT;
