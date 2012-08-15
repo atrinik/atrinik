@@ -1852,7 +1852,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		SDL_Surface *ttf_surface;
 		char buf[2];
 		SDL_Color *use_color;
-		SDL_Rect dstrect;
+		SDL_Rect dstrect, srcrect;
 
 		buf[0] = c;
 		buf[1] = '\0';
@@ -1905,7 +1905,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				for (outline_y = -1; outline_y < 2; outline_y++)
 				{
 					outline_box.x = dest->x + outline_x;
-					outline_box.y = dest->y + outline_y;
+					outline_box.y = dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
 
 					if (flags & TEXT_SOLID)
 					{
@@ -1916,7 +1916,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, info->outline_color);
 					}
 
-					SDL_BlitSurface(ttf_surface, NULL, surface, &outline_box);
+					srcrect.x = 0;
+					srcrect.y = MAX(info->start_y - dest->y + outline_y, 0);
+					srcrect.w = ttf_surface->w;
+					srcrect.h = box && box->h ? MAX(MIN(box->h - (outline_box.y - info->start_y), ttf_surface->h), 0) : ttf_surface->h;
+
+					SDL_BlitSurface(ttf_surface, &srcrect, surface, &outline_box);
 					SDL_FreeSurface(ttf_surface);
 				}
 			}
@@ -1968,8 +1973,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		/* Output the rendered character to the screen and free the
 		 * used surface. */
 		dstrect.x = dest->x;
-		dstrect.y = dest->y;
-		SDL_BlitSurface(ttf_surface, NULL, surface, &dstrect);
+		dstrect.y = dest->y + MAX(info->start_y - dest->y, 0);
+		srcrect.x = 0;
+		srcrect.y = MAX(info->start_y - dest->y, 0);
+		srcrect.w = ttf_surface->w;
+		srcrect.h = box && box->h ? MAX(MIN(box->h - (dstrect.y - info->start_y), ttf_surface->h), 0) : ttf_surface->h;
+
+		SDL_BlitSurface(ttf_surface, &srcrect, surface, &dstrect);
 		SDL_FreeSurface(ttf_surface);
 	}
 
@@ -2174,14 +2184,19 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 	max_height = 0;
 	max_width = 0;
 
+	if (flags & TEXT_HEIGHT)
+	{
+		dest.y -= box->y;
+	}
+
 	while (cp[pos] != '\0')
 	{
 		/* Have we gone over the height limit yet? */
-		if (box && box->h && dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) - y > box->h)
+		if (box && box->h && dest.y + (flags & TEXT_LINES_CALC ? FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) : 0) - y > box->h)
 		{
 			/* We are calculating height/lines, keep going on but without
 			 * any more drawing. */
-			if (flags & (TEXT_HEIGHT | TEXT_LINES_CALC))
+			if ((flags & TEXT_LINES_CALC) || (flags & TEXT_HEIGHT && box->y == 0))
 			{
 				surface = NULL;
 			}
@@ -2208,19 +2223,17 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 				}
 			}
 
-			/* See if we should skip drawing. */
-			skip = (flags & TEXT_HEIGHT) && box->y && height / FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) < box->y;
-
+			skip = 0;
 			max_height = 0;
 
-			if (flags & TEXT_LINES_SKIP)
-			{
-				skip = box->y && lines - 1 < box->y;
-			}
-
+			/* See if we should skip drawing. */
 			if (flags & TEXT_MAX_WIDTH)
 			{
 				skip = 1;
+			}
+			else if (flags & TEXT_LINES_SKIP)
+			{
+				skip = box->y && lines - 1 < box->y;
 			}
 
 			info.height = height;
