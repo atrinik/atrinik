@@ -8,6 +8,7 @@ class Interface:
 		self._activator = activator
 		self._npc = npc
 		self._restore = False
+		self._append_text = None
 
 		if npc:
 			self._icon = npc.face[0][:-1] + "1"
@@ -81,6 +82,9 @@ class Interface:
 		self._scroll_bottom = scroll_bottom
 		self._autocomplete = autocomplete
 
+	def set_append_text(self, append_text):
+		self._append_text = append_text
+
 	def restore(self):
 		self._restore = True
 
@@ -116,6 +120,10 @@ class Interface:
 		else:
 			fmt = "B"
 			data = [11]
+
+		if self._append_text:
+			fmt += "Bs"
+			data += [12, self._append_text]
 
 		# Add links to the data packet, if any.
 		for link in self._links:

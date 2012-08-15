@@ -124,6 +124,8 @@ typedef struct interface_struct
 #define CMD_INTERFACE_AUTOCOMPLETE 10
 /** Restore previous interface data. */
 #define CMD_INTERFACE_RESTORE 11
+/** Text to append to the existing text. */
+#define CMD_INTERFACE_APPEND_TEXT 12
 /*@}*/
 
 /**

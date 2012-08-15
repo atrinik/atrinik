@@ -424,6 +424,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	}
 
 	old_interface_data = interface_data;
+	sb_message = NULL;
 
 	/* Create new interface. */
 	interface_data = calloc(1, sizeof(*interface_data));
@@ -431,7 +432,6 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 	interface_popup->selection_start = interface_popup->selection_end = -1;
 	interface_data->font = FONT_ARIAL11;
 	utarray_new(interface_data->links, &ut_str_icd);
-	sb_message = stringbuffer_new();
 
 	/* Parse the data. */
 	while (pos < len)
@@ -441,13 +441,13 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		switch (type)
 		{
 			case CMD_INTERFACE_TEXT:
-			{
-				char message[HUGE_BUF * 8];
+				if (!sb_message)
+				{
+					sb_message = stringbuffer_new();
+				}
 
-				packet_to_string(data, len, &pos, message, sizeof(message));
-				stringbuffer_append_string(sb_message, message);
+				packet_to_stringbuffer(data, len, &pos, sb_message);
 				break;
-			}
 
 			case CMD_INTERFACE_LINK:
 			{
@@ -527,12 +527,27 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 				interface_data = old_interface_data;
 				break;
 
+			case CMD_INTERFACE_APPEND_TEXT:
+				if (interface_data->message)
+				{
+					StringBuffer *sb;
+
+					sb = stringbuffer_new();
+					stringbuffer_append_string(sb, interface_data->message);
+					packet_to_stringbuffer(data, len, &pos, sb);
+
+					free(interface_data->message);
+					interface_data->message = stringbuffer_finish(sb);
+				}
+
+				break;
+
 			default:
 				break;
 		}
 	}
 
-	if (interface_data != old_interface_data)
+	if (sb_message)
 	{
 		size_t links_len, char_shortcuts_len, i;
 
@@ -558,6 +573,11 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 		}
 
 		interface_data->message = stringbuffer_finish(sb_message);
+	}
+
+	if (!interface_data->message)
+	{
+		interface_data->message = strdup("");
 	}
 
 	box.w = INTERFACE_TEXT_WIDTH;
