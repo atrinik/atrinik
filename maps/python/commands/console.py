@@ -30,17 +30,18 @@ class PyConsole(code.InteractiveConsole):
 		}
 		# The thread name will have the activator's name for uniqueness.
 		super(PyConsole, self).__init__(locals = _locals)
+		matches = []
 
 	def write(self, data):
 		self.inf_data.append(data)
 
 ## The actual function that is called in the per-player console thread.
 def py_console_thread():
-	import time, collections, sys, re
+	import time, collections, sys, re, inspect
 	from Markup import markup_escape
 
 	# Sends an interface to the activator.
-	def send_inf(activator, msg, autocomplete = None):
+	def send_inf(activator, msg, autocomplete = None, append_text = None):
 		inf = Interface(activator, None)
 
 		if msg:
@@ -51,12 +52,98 @@ def py_console_thread():
 			inf.restore()
 
 		inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True, autocomplete = "noinf::ac::", text = autocomplete if autocomplete else "")
+
+		if append_text:
+			inf.set_append_text("<font=mono 12>\n" + append_text + "</font>")
+
 		inf.finish()
 
-	def autocomplete(matches):
-		obj, prop = matches.groups()
+	def autocomplete_best_match(l):
+		l.sort()
+		match = l[0]
+		match_new = ""
 
-		return obj + (prop if prop else "")
+		for entry in l[1:]:
+			for i, c in enumerate(entry):
+				if i >= len(match) or match[i] != c:
+					break
+
+				match_new += c
+
+			if match_new:
+				match = match_new
+				match_new = ""
+
+		if match != l[0]:
+			matches = []
+
+			for entry in l:
+				if entry.startswith(match):
+					matches.append(match + "<i>" + entry[len(match):] + "</i>")
+
+			console.matches.append("<b>Possible matches</b>: {}".format(", ".join(matches)))
+
+		return match
+
+	def autocomplete_objs(matches):
+		obj, prop = matches.groups()
+		prop = prop if prop else ""
+		objs = []
+		props = []
+
+		for name in console.locals:
+			if not prop and name.startswith(obj):
+				objs.append(name)
+			elif prop and name == obj:
+				prop_name = prop[1:]
+
+				for attribute, val in inspect.getmembers(console.locals[name]):
+					if prop_name and not attribute.startswith(prop_name):
+						continue
+
+					props.append("{}{}".format(attribute, "(" if hasattr(val, "__call__") else ""))
+
+				break
+
+		if objs:
+			obj = autocomplete_best_match(objs)
+
+		if props:
+			prop = "." + autocomplete_best_match(props)
+
+		return obj + prop
+
+	def autocomplete_assignment(matches):
+		obj, assignment = matches.groups()
+		assignment = assignment.strip() if assignment else ""
+
+		try:
+			obj_type = eval("type({})".format(obj), console.locals)
+		except:
+			obj_type = None
+
+		if assignment:
+			assignments = []
+
+			for name in console.locals:
+				# Do not suggest incompatible variables...
+				if obj_type != None and not isinstance(console.locals[name], obj_type):
+					continue
+
+				if name.startswith(assignment):
+					assignments.append(name)
+
+			if assignments:
+				assignment = autocomplete_best_match(assignments)
+			elif "None".startswith(assignment):
+				assignment = "None"
+			elif obj_type == bool:
+				if "True".startswith(assignment):
+					assignment = "True"
+				elif "False".startswith(assignment):
+					assignment = "False"
+
+		return obj + "= " + assignment
 
 	# Used to redirect stdout so that it writes the print() and the like
 	# data to the interface instead of stdout.
@@ -107,7 +194,10 @@ def py_console_thread():
 					command = command[7:]
 
 				if command.startswith("ac::"):
-					send_inf(thread.activator, None, re.sub(r"(\w+)(\.\w?)?", autocomplete, command[4:]))
+					console.matches = []
+					text_input = re.sub(r"(\w+)(\.\w*)?", autocomplete_objs, command[4:])
+					text_input = re.sub(r"([^=]+)=(\s*\w*)?", autocomplete_assignment, text_input)
+					send_inf(thread.activator, None, text_input, "\n".join(console.matches))
 					continue
 
 				inf_data.append(">>> {}".format(command))
