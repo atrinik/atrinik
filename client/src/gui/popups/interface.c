@@ -282,7 +282,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 
 				free(input_string);
 
-				interface_data->text_input = 0;
+				if (event->key.keysym.sym != SDLK_TAB)
+				{
+					interface_data->text_input = 0;
+				}
 			}
 			else if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab)
 			{
