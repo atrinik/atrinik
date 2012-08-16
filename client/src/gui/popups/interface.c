@@ -526,8 +526,12 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 			}
 
 			case CMD_INTERFACE_RESTORE:
-				interface_destroy(interface_data);
-				interface_data = old_interface_data;
+				if (old_interface_data)
+				{
+					interface_destroy(interface_data);
+					interface_data = old_interface_data;
+				}
+
 				break;
 
 			case CMD_INTERFACE_APPEND_TEXT:
