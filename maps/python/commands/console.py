@@ -158,6 +158,9 @@ def py_console_thread():
 			if s != "\n":
 				self._inf_data += s.split("\n")
 
+		def flush(self):
+			pass
+
 	# Create a ring buffer.
 	inf_data = collections.deque(maxlen = __HISTORY__)
 	# Get the current thread.
