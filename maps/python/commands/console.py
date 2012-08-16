@@ -58,29 +58,29 @@ def py_console_thread():
 
 		inf.finish()
 
-	def autocomplete_best_match(l):
-		l.sort()
-		match = l[0]
+	def autocomplete_best_match(l, match = None):
 		match_new = ""
+		matches = []
+		l.sort()
 
-		for entry in l[1:]:
-			for i, c in enumerate(entry):
-				if i >= len(match) or match[i] != c:
-					break
+		for entry in l:
+			if match == None:
+				match = entry
+			else:
+				for i, c in enumerate(entry):
+					if i >= len(match) or match[i] != c:
+						break
 
-				match_new += c
+					match_new += c
 
-			if match_new:
-				match = match_new
-				match_new = ""
+				if match_new:
+					match = match_new
+					match_new = ""
 
-		if match != l[0]:
-			matches = []
+			if entry.startswith(match):
+				matches.append(match + "<i>" + entry[len(match):] + "</i>")
 
-			for entry in l:
-				if entry.startswith(match):
-					matches.append(match + "<i>" + entry[len(match):] + "</i>")
-
+		if len(matches) > 1:
 			console.matches.append("<b>Possible matches</b>: {}".format(", ".join(matches)))
 
 		return match
@@ -98,6 +98,9 @@ def py_console_thread():
 				prop_name = prop[1:]
 
 				for attribute, val in inspect.getmembers(console.locals[name]):
+					if attribute.startswith("_"):
+						continue
+
 					if prop_name and not attribute.startswith(prop_name):
 						continue
 
@@ -109,7 +112,7 @@ def py_console_thread():
 			obj = autocomplete_best_match(objs)
 
 		if props:
-			prop = "." + autocomplete_best_match(props)
+			prop = "." + autocomplete_best_match(props, "" if prop == "." else None)
 
 		return obj + prop
 
@@ -126,12 +129,12 @@ def py_console_thread():
 			assignments = []
 
 			for name in console.locals:
-				# Do not suggest incompatible variables...
-				if obj_type != None and not isinstance(console.locals[name], obj_type):
+				if not name.startswith(assignment):
 					continue
 
-				if name.startswith(assignment):
-					assignments.append(name)
+				# Do not suggest incompatible variables...
+				if hasattr(console.locals[name], "__call__") or (obj_type != None and isinstance(console.locals[name], obj_type)):
+					assignments.append("{}{}".format(name, "(" if hasattr(console.locals[name], "__call__") else ""))
 
 			if assignments:
 				assignment = autocomplete_best_match(assignments)
@@ -195,8 +198,8 @@ def py_console_thread():
 
 				if command.startswith("ac::"):
 					console.matches = []
-					text_input = re.sub(r"(\w+)(\.\w*)?", autocomplete_objs, command[4:])
-					text_input = re.sub(r"([^=]+)=(\s*\w*)?", autocomplete_assignment, text_input)
+					text_input = re.sub(r"(\w+)(\.\w*)?", autocomplete_objs, command[4:], 1)
+					text_input = re.sub(r"([^=]+)=(\s*\w*)?", autocomplete_assignment, text_input, 1)
 					send_inf(thread.activator, None, text_input, "\n".join(console.matches))
 					continue
 
