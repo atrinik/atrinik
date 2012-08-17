@@ -331,9 +331,10 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
 
 	if (getenv("KDE_FULL_SESSION"))
 	{
-		char buf[4096 * 4];
+		char strbuf[HUGE_BUF * 4], buf[HUGE_BUF * 4];
 
-		snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string:\"%s\"", str);
+		string_replace(str, "'", "\\'", strbuf, sizeof(strbuf));
+		snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string:'%s'", strbuf);
 
 		if (system(buf) != 0)
 		{
