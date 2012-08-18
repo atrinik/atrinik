@@ -800,7 +800,7 @@ arch table_wood1.111
 x 12
 y 23
 end
-arch horn_normal
+arch horn
 zoom_x -100
 layer 4
 sub_layer 1
