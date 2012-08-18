@@ -524,7 +524,9 @@ static void process_func(object *op)
 	/* If we don't have an enemy, do special movement or the like */
 	if (!enemy)
 	{
-		if (QUERY_FLAG(op, FLAG_ONLY_ATTACK))
+		object *spawn_point_info;
+
+		if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = present_in_ob(SPAWN_POINT_INFO, op)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount)))
 		{
 			object_remove(op, 0);
 			object_destroy(op);

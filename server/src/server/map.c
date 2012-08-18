@@ -873,9 +873,6 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 					{
 						head->last_sp = -1;
 						head->speed_left += 1.0f;
-
-						object_remove(head->enemy, 0);
-						object_destroy(head->enemy);
 						head->enemy = NULL;
 					}
 				}
