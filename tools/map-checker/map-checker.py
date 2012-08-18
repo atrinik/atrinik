@@ -246,51 +246,48 @@ def load_map(fp):
 	in_msg = False
 	msg_buf = ""
 
-	try:
-		for line in fp:
-			if line == "arch map\n":
-				in_map = True
-				continue
-			elif not in_map:
-				return {}
-			elif line == "end\n":
-				# Store the map's file name.
-				d["file"] = fp.name
+	for line in fp:
+		if line == "arch map\n":
+			in_map = True
+			continue
+		elif not in_map:
+			return {}
+		elif line == "end\n":
+			# Store the map's file name.
+			d["file"] = fp.name
 
-				# Strip off 'path' if possible.
-				if d["file"][:len(path)] == path:
-					d["file"] = d["file"][len(path) + 1:]
+			# Strip off 'path' if possible.
+			if d["file"][:len(path)] == path:
+				d["file"] = d["file"][len(path) + 1:]
 
-				# Load the objects on this map.
-				parser = ObjectParser(fp)
-				d["tiles"] = parser.map(d["file"])
+			# Load the objects on this map.
+			parser = ObjectParser(fp)
+			d["tiles"] = parser.map(d["file"])
 
-				return d
+			return d
 
-			# Start of message.
-			if line == "msg\n":
-				in_msg = True
-			# End of message.
-			elif line == "endmsg\n":
-				in_msg = False
-				# Add it to the dictionary, removing the last newline.
-				d["msg"] = msg_buf[:-1]
-			# Store it in a buffer.
-			elif in_msg:
-				msg_buf += line
-			# Map's attributes.
-			else:
-				space_pos = line.find(" ")
-				# Our value.
-				value = line[space_pos + 1:-1]
+		# Start of message.
+		if line == "msg\n":
+			in_msg = True
+		# End of message.
+		elif line == "endmsg\n":
+			in_msg = False
+			# Add it to the dictionary, removing the last newline.
+			d["msg"] = msg_buf[:-1]
+		# Store it in a buffer.
+		elif in_msg:
+			msg_buf += line
+		# Map's attributes.
+		else:
+			space_pos = line.find(" ")
+			# Our value.
+			value = line[space_pos + 1:-1]
 
-				if isint(value):
-					value = int(value)
+			if isint(value):
+				value = int(value)
 
-				# Add it to the dictionary.
-				d[line[:space_pos]] = value
-	except:
-		pass
+			# Add it to the dictionary.
+			d[line[:space_pos]] = value
 
 	return {}
 
@@ -936,13 +933,7 @@ class ObjectParser:
 	def map_parse_rec(self, archname, env = None):
 		# Find the archetype first.
 		def_archetype = get_archetype(archname)
-		archetype = dict(def_archetype)
-		invalid_arch = False
-
-		# Could not find it? Drop an error about it, but continue loading.
-		if not archetype:
-			invalid_arch = True
-			archetype = {}
+		archetype = dict(def_archetype) if def_archetype else {}
 
 		# Store its name.
 		archetype["archname"] = archname
@@ -966,7 +957,7 @@ class ObjectParser:
 			else:
 				parsed = self.parse(line, archetype)
 
-				if parsed:
+				if parsed and def_archetype:
 					(attr, value) = parsed
 
 					if not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
@@ -977,7 +968,7 @@ class ObjectParser:
 					if def_value == value or (value in (0, 0.0) and def_value == None):
 						archetype["same_attributes"] = True
 
-		if invalid_arch:
+		if not def_archetype:
 			env = get_env(archetype)
 			add_error(self.map_file, "Invalid archetype '{0}' found.".format(archetype["archname"]), errors.critical, "x" in env and env["x"] or 0, "y" in env and env["y"] or 0)
 
