@@ -1680,6 +1680,7 @@ void object_remove(object *op, int flags)
 {
 	if (QUERY_FLAG(op, FLAG_REMOVED))
 	{
+		logger_print(LOG(BUG), "Tried to remove an already removed object %s.", query_name(op, NULL));
 		return;
 	}
 
