@@ -41,9 +41,9 @@ server_struct *selected_server = NULL;
 /** System time counter in ms since program start. */
 uint32 LastTick;
 
-int f_custom_cursor = 0;
-int x_custom_cursor = 0;
-int y_custom_cursor = 0;
+texture_struct *cursor_texture;
+int cursor_x = -1;
+int cursor_y = -1;
 
 /* update map area */
 int map_redraw_flag;
@@ -234,19 +234,6 @@ void list_vid_modes(void)
 	{
 		logger_print(LOG(ERROR), "No video modes available!");
 		exit(1);
-	}
-}
-
-/**
- * Show a custom cursor. */
-static void DisplayCustomCursor(void)
-{
-	if (f_custom_cursor == MSCURSOR_MOVE)
-	{
-		SDL_Surface *cursor;
-
-		cursor = TEXTURE_CLIENT("mouse_cursor_move");
-		surface_show(ScreenSurface, x_custom_cursor - (cursor->w / 2), y_custom_cursor - (cursor->h / 2), NULL, cursor);
 	}
 }
 
@@ -469,6 +456,9 @@ int main(int argc, char *argv[])
 	scrollbar_init();
 	button_init();
 
+	SDL_ShowCursor(0);
+	cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+
 	sound_background_hook_register(sound_background_hook);
 
 	LastTick = anim_tick = SDL_GetTicks();
@@ -549,13 +539,13 @@ int main(int argc, char *argv[])
 				intro_show();
 			}
 
-			if (f_custom_cursor)
-			{
-				DisplayCustomCursor();
-			}
-
 			popup_render_all();
 			tooltip_show();
+
+			if (cursor_x != -1 && cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS)
+			{
+				surface_show(ScreenSurface, cursor_x - (texture_surface(cursor_texture)->w / 2), cursor_y - (texture_surface(cursor_texture)->h / 2), NULL, texture_surface(cursor_texture));
+			}
 		}
 		else
 		{

@@ -371,6 +371,10 @@ typedef struct widgetresize
 
 	/** The widget involved in the resize event. */
 	widgetdata *owner;
+
+	int xoff;
+
+	int yoff;
 } widgetresize;
 
 /** Macro to redraw widget using the array. */

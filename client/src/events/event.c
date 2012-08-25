@@ -165,8 +165,8 @@ int Event_PollInputDevice(void)
 			case SDL_KEYDOWN:
 				if (event.type == SDL_MOUSEMOTION)
 				{
-					x_custom_cursor = x;
-					y_custom_cursor = y;
+					cursor_x = x;
+					cursor_y = y;
 				}
 
 				if (popup_handle_event(&event))

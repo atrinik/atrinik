@@ -701,7 +701,7 @@ void map_draw_map(void)
 		}
 	}
 
-	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(x_custom_cursor, y_custom_cursor, &tx, &ty))
+	if (widget_mouse_event.owner == cur_widget[MAP_ID] && mouse_to_tile_coords(cursor_x, cursor_y, &tx, &ty))
 	{
 		map_draw_one(tx, ty, TEXTURE_CLIENT("square_highlight"));
 	}

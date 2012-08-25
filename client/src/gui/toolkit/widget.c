@@ -86,7 +86,7 @@ static widgetmove widget_event_move =
 /** This is used when resizing a widget with the mouse. */
 static widgetresize widget_event_resize =
 {
-	0, NULL
+	0, NULL, 0, 0
 };
 
 /**
@@ -1177,13 +1177,16 @@ int widgets_event(SDL_Event *event)
 		{
 			if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
 			{
-				resize_widget(widget, widget->resize_flags & ~(RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_w, widget->resize_flags & RESIZE_LEFT ? widget->x - event->motion.x + widget->w : event->motion.x - widget->x));
+				resize_widget(widget, widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_w, widget->w + (event->motion.x - widget_event_resize.xoff) * (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
 			}
 
 			if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
 			{
-				resize_widget(widget, widget->resize_flags & ~(RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_h, widget->resize_flags & RESIZE_TOP ? widget->y - event->motion.y + widget->h : event->motion.y - widget->y));
+				resize_widget(widget, widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_h, widget->h + (event->motion.y - widget_event_resize.yoff) * (widget->resize_flags & RESIZE_TOP ? -1 : 1)));
 			}
+
+			widget_event_resize.xoff = event->motion.x;
+			widget_event_resize.yoff = event->motion.y;
 		}
 
 		return 1;
@@ -1202,24 +1205,78 @@ int widgets_event(SDL_Event *event)
 		{
 			if (widget->resizeable)
 			{
+				int old_resize_flags;
+
+				old_resize_flags = widget->resize_flags;
 				widget->resize_flags = 0;
 
-				if (event->motion.y >= widget->y && event->motion.y <= widget->y + 2)
+#				define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
+
+				if (WIDGET_RESIZE_CHECK(y, 0, 2))
 				{
-					widget->resize_flags |= RESIZE_TOP;
+					widget->resize_flags = RESIZE_TOP;
 				}
-				else if (event->motion.y >= widget->y + widget->h - 2 && event->motion.y <= widget->y + widget->h)
+				else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h))
 				{
-					widget->resize_flags |= RESIZE_BOTTOM;
+					widget->resize_flags = RESIZE_BOTTOM;
+				}
+				else if (WIDGET_RESIZE_CHECK(x, 0, 2))
+				{
+					widget->resize_flags = RESIZE_LEFT;
+				}
+				else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w))
+				{
+					widget->resize_flags = RESIZE_RIGHT;
 				}
 
-				if (event->motion.x >= widget->x && event->motion.x <= widget->x + 2)
+				if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
 				{
-					widget->resize_flags |= RESIZE_LEFT;
+					if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05))
+					{
+						widget->resize_flags |= RESIZE_LEFT;
+					}
+					else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05, widget->w))
+					{
+						widget->resize_flags |= RESIZE_RIGHT;
+					}
 				}
-				else if (event->motion.x >= widget->x + widget->w - 2 && event->motion.x <= widget->x + widget->w)
+				else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
 				{
-					widget->resize_flags |= RESIZE_RIGHT;
+					if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05))
+					{
+						widget->resize_flags |= RESIZE_TOP;
+					}
+					else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05, widget->h))
+					{
+						widget->resize_flags |= RESIZE_BOTTOM;
+					}
+				}
+
+				if (old_resize_flags && !widget->resize_flags)
+				{
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+				}
+
+				if (widget->resize_flags)
+				{
+					if (widget->resize_flags == (RESIZE_TOP | RESIZE_LEFT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_RIGHT))
+					{
+						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tl2br");
+					}
+					else if (widget->resize_flags == (RESIZE_TOP | RESIZE_RIGHT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_LEFT))
+					{
+						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tr2bl");
+					}
+					else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+					{
+						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_hor");
+					}
+					else if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
+					{
+						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_ver");
+					}
+
+					return 1;
 				}
 			}
 		}
@@ -1238,6 +1295,8 @@ int widgets_event(SDL_Event *event)
 			{
 				widget_event_resize.active = 1;
 				widget_event_resize.owner = widget;
+				widget_event_resize.xoff = event->motion.x;
+				widget_event_resize.yoff = event->motion.y;
 				return 1;
 			}
 
@@ -1298,6 +1357,7 @@ int widget_event_start_move(widgetdata *widget)
 	x = widget->x + widget->w / 2;
 	y = widget->y + widget->h / 2;
 	SDL_WarpMouse(x, y);
+	cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_move");
 
 	/* we know this widget owns the mouse.. */
 	widget_event_move.active = 1;
@@ -1306,20 +1366,6 @@ int widget_event_start_move(widgetdata *widget)
 	widget_event_move.owner = widget;
 	widget_event_move.xOffset = x - widget->x;
 	widget_event_move.yOffset = y - widget->y;
-
-	/* enable the custom cursor */
-	f_custom_cursor = MSCURSOR_MOVE;
-	/* hide the system cursor */
-	SDL_ShowCursor(0);
-
-#ifdef WIN32
-	/* Workaround another bug with SDL 1.2.x on Windows. Make sure the cursor
-	 * is in the center of the screen if we are in fullscreen mode. */
-	if (ScreenSurface->flags & SDL_FULLSCREEN)
-	{
-		SDL_WarpMouse(ScreenSurface->w / 2, ScreenSurface->h / 2);
-	}
-#endif
 
 	return 1;
 }
@@ -1341,18 +1387,7 @@ int widget_event_move_stop(int x, int y)
 	/* No widgets are being moved now. */
 	widget_event_move.owner = NULL;
 
-	/* Disable the custom cursor. */
-	f_custom_cursor = 0;
-
-	/* Show the system cursor. */
-	SDL_ShowCursor(1);
-
-	/* Due to a bug in SDL 1.2.x, the mouse X/Y position is not updated
-	 * while in fullscreen with the cursor hidden, so we must take care
-	 * of it ourselves. Apparently SDL 1.3 should fix it.
-	 * See http://old.nabble.com/Mouse-movement-problems-in-fullscreen-mode-td20890669.html
-	 * for details. */
-	SDL_WarpMouse(x, y);
+	cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 
 	/* Somehow the owner before the widget dragging is gone now. Not a
 	 * good idea to carry on... */
@@ -1481,6 +1516,12 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
 		if (draw && widget->show && widget->draw_func)
 		{
+			if (widget->resize_flags && (cursor_x < widget->x || cursor_x > widget->x + widget->w || cursor_y < widget->y || cursor_y > widget->y + widget->h))
+			{
+				widget->resize_flags = 0;
+				cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+			}
+
 			if (widget->texture)
 			{
 				if (!widget->surface || widget->surface->w != widget->w || widget->surface->h != widget->h)

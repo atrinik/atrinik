@@ -32,10 +32,6 @@
 
 /** Color to use for the text window border. */
 static Uint32 textwin_border_color;
-/**
- * Color to use for the text window border when the mouse is hovering
- * over it. */
-static Uint32 textwin_border_color_selected;
 const char *const textwin_tab_names[] =
 {
 	"[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
@@ -46,7 +42,6 @@ const char *const textwin_tab_names[] =
 void textwin_init(void)
 {
 	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
-	textwin_border_color_selected = SDL_MapRGB(ScreenSurface->format, 177, 126, 5);
 }
 
 /**
@@ -608,7 +603,7 @@ static void widget_draw(widgetdata *widget)
 {
 	SDL_Rect box;
 	textwin_struct *textwin = TEXTWIN(widget);
-	int mx, my, alpha;
+	int alpha;
 
 	/* Sanity check. */
 	if (!textwin)
@@ -722,17 +717,10 @@ static void widget_draw(widgetdata *widget)
 	box.y = widget->y;
 	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
-	SDL_GetMouseState(&mx, &my);
-
-	if (mx < widget->x || mx > widget->x + widget->w || my < widget->y || my > widget->y + widget->h)
-	{
-		widget->resize_flags = 0;
-	}
-
-	BORDER_CREATE_TOP(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_TOP ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_BOTTOM ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_LEFT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_LEFT ? textwin_border_color_selected : textwin_border_color, 1);
-	BORDER_CREATE_RIGHT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, widget->resize_flags & RESIZE_RIGHT ? textwin_border_color_selected : textwin_border_color, 1);
+	BORDER_CREATE_TOP(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
+	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
+	BORDER_CREATE_LEFT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
+	BORDER_CREATE_RIGHT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
 }
 
 /** @copydoc widgetdata::event_func */
