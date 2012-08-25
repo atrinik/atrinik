@@ -427,12 +427,18 @@ char *text_escape_markup(const char *buf)
  * surface we're using.
  * @param surface The surface.
  * @param[out] mx Mouse X, may be modified.
- * @param[out] my Mouse Y, may be modified. */
-static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
+ * @param[out] my Mouse Y, may be modified.
+ * @return 1 if mouse-related checks can happen, 0 otherwise. */
+static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 {
+	if (popup_get_head() && surface != popup_get_head()->surface)
+	{
+		return 0;
+	}
+
 	if (surface == ScreenSurface)
 	{
-		return;
+		return 1;
 	}
 
 	if (text_offset_mx != -1 || text_offset_my != -1)
@@ -457,6 +463,8 @@ static void text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 			*my -= widget->y;
 		}
 	}
+
+	return 1;
 }
 
 /**
@@ -1556,9 +1564,8 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 				int tooltip_max_width;
 
 				SDL_GetMouseState(&mx, &my);
-				text_adjust_coords(surface, &mx, &my);
 
-				if (mx >= dest->x && my >= dest->y && sscanf(cp + 10, "%64s %64s %d %512[^>]>", tooltip_width, tooltip_height, &tooltip_max_width, tooltip_text) == 4)
+				if (text_adjust_coords(surface, &mx, &my) && mx >= dest->x && my >= dest->y && sscanf(cp + 10, "%64s %64s %d %512[^>]>", tooltip_width, tooltip_height, &tooltip_max_width, tooltip_text) == 4)
 				{
 					int wd, ht;
 
@@ -1870,28 +1877,37 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			state = SDL_GetMouseState(&mx, &my);
 			orig_mx = mx;
 			orig_my = my;
-			text_adjust_coords(surface, &mx, &my);
 
-			if (mx >= dest->x && mx < dest->x + width && my >= dest->y && my < dest->y + FONT_HEIGHT(*font))
+			if (text_adjust_coords(surface, &mx, &my))
 			{
-				static uint32 ticks = 0;
-
-				if (info->anchor_tag && state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125))
+				if (mx >= dest->x && mx < dest->x + width && my >= dest->y && my < dest->y + FONT_HEIGHT(*font))
 				{
-					ticks = SDL_GetTicks();
-					text_anchor_execute(info, NULL);
+					static uint32 ticks = 0;
+
+					if (info->anchor_tag)
+					{
+						if (state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125))
+						{
+							ticks = SDL_GetTicks();
+							text_anchor_execute(info, NULL);
+						}
+						else
+						{
+							cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_pointer");
+						}
+					}
+
+					if (*info->tooltip_text != '\0')
+					{
+						tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
+						tooltip_multiline(0);
+					}
 				}
 
-				if (*info->tooltip_text != '\0')
+				if (info->highlight && mx >= info->highlight_rect.x && mx < info->highlight_rect.x + info->highlight_rect.w && my >= info->highlight_rect.y && my < info->highlight_rect.y + info->highlight_rect.h)
 				{
-					tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
-					tooltip_multiline(0);
+					use_color = &info->highlight_color;
 				}
-			}
-
-			if (info->highlight && mx >= info->highlight_rect.x && mx < info->highlight_rect.x + info->highlight_rect.w && my >= info->highlight_rect.y && my < info->highlight_rect.y + info->highlight_rect.h)
-			{
-				use_color = &info->highlight_color;
 			}
 		}
 
@@ -2088,7 +2104,6 @@ int glyph_get_height(int font, char c)
 		color = select_color_orig; \
 		select_color_changed = 0; \
 	} \
-\
 	if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT) \
 	{ \
 		if (my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= old_x && mx <= old_x + glyph_get_width(FONT_TRY_INFO(font, info, surface), *cp)) \
@@ -2173,7 +2188,16 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 	if (selection_start && selection_end)
 	{
 		mstate = SDL_GetMouseState(&mx, &my);
-		text_adjust_coords(surface, &mx, &my);
+
+		if (!text_adjust_coords(surface, &mx, &my))
+		{
+			mstate = 0;
+		}
+
+		if (box && mx >= x && mx <= x + box->w && my >= y && my <= y + box->h)
+		{
+			cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_text");
+		}
 	}
 
 	/* Store the x/y. */
@@ -2257,6 +2281,18 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 				if (FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) > max_height)
 				{
 					max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
+				}
+			}
+
+			if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box && my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= dest.x && mx <= dest.x + (box->w - (dest.x - info.start_x)))
+			{
+				if (*selection_started)
+				{
+					*selection_end = cp - text;
+				}
+				else
+				{
+					*selection_start = cp - text;
 				}
 			}
 
@@ -2349,6 +2385,18 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 		if (FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) > max_height)
 		{
 			max_height = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));
+		}
+	}
+
+	if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box && my >= dest.y + max_height && my <= dest.y + max_height + (box->h - ((dest.y + max_height) - info.start_y)))
+	{
+		if (*selection_started)
+		{
+			*selection_end = cp - text;
+		}
+		else
+		{
+			*selection_start = cp - text;
 		}
 	}
 

@@ -708,9 +708,12 @@ static void widget_draw(widgetdata *widget)
 			textwin->scrollbar.px = widget->x;
 			textwin->scrollbar.py = widget->y;
 			scrollbar_show(&textwin->scrollbar, widget->surface, widget->w - 1 - textwin->scrollbar.background.w, TEXTWIN_TEXT_STARTY(widget) + yadjust);
-
-			widget->redraw = scrollbar_need_redraw(&textwin->scrollbar);
 		}
+	}
+
+	if (scrollbar_need_redraw(&textwin->scrollbar))
+	{
+		widget->redraw++;
 	}
 
 	box.x = widget->x;
@@ -754,11 +757,15 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		return 1;
 	}
 
+	if (event->type == SDL_MOUSEMOTION)
+	{
+		WIDGET_REDRAW(widget);
+	}
+
 	if (event->button.button == SDL_BUTTON_LEFT)
 	{
 		if (event->type == SDL_MOUSEBUTTONUP)
 		{
-			textwin->selection_started = 0;
 			return 1;
 		}
 		else if (event->type == SDL_MOUSEBUTTONDOWN)
@@ -771,7 +778,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		}
 		else if (event->type == SDL_MOUSEMOTION)
 		{
-			WIDGET_REDRAW(widget);
 			textwin->selection_started = 1;
 			return 1;
 		}

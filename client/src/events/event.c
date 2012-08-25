@@ -167,6 +167,7 @@ int Event_PollInputDevice(void)
 				{
 					cursor_x = x;
 					cursor_y = y;
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 				}
 
 				if (popup_handle_event(&event))

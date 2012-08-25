@@ -92,8 +92,6 @@ extern uint32 LastTick;
 extern texture_struct *cursor_texture;
 extern int cursor_x;
 extern int cursor_y;
-extern int x_custom_cursor;
-extern int y_custom_cursor;
 extern int map_redraw_flag;
 extern _anim_table *anim_table;
 extern Animations *animations;
@@ -533,6 +531,7 @@ extern int text_get_height(int font, const char *text, uint64 flags);
 extern void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h);
 extern void text_truncate_overflow(int font, char *text, int max_width);
 extern void text_anchor_parse(text_info_struct *info, const char *text);
+extern void text_create_cursor(SDL_Surface *surface, int x, int y, int w, int h);
 extern void text_enable_debug(void);
 /* src/gui/toolkit/text_input.c */
 extern text_input_history_struct *text_input_history_create(void);

@@ -111,7 +111,9 @@ David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
 Riccardo Iaconelli - GPLv3:
 	cursor_default.png
 	cursor_move.png
+	cursor_pointer.png
 	cursor_resize_tl2br.png
 	cursor_resize_tr2bl.png
 	cursor_resize_hor.png
 	cursor_resize_ver.png
+	cursor_text.png

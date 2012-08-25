@@ -288,7 +288,16 @@ int popup_handle_event(SDL_Event *event)
 		}
 		else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h)
 		{
-			if (event->button.button == SDL_BUTTON_LEFT)
+			if (event->type == SDL_MOUSEMOTION)
+			{
+				popup_head->redraw = 1;
+
+				if (event->button.button == SDL_BUTTON_LEFT)
+				{
+					popup_head->selection_started = 1;
+				}
+			}
+			else if (event->button.button == SDL_BUTTON_LEFT)
 			{
 				if (event->type == SDL_MOUSEBUTTONUP)
 				{
@@ -300,11 +309,6 @@ int popup_handle_event(SDL_Event *event)
 					popup_head->selection_start = -1;
 					popup_head->selection_end = -1;
 					popup_head->redraw = 1;
-				}
-				else if (event->type == SDL_MOUSEMOTION)
-				{
-					popup_head->redraw = 1;
-					popup_head->selection_started = 1;
 				}
 			}
 		}

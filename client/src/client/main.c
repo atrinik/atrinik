@@ -457,6 +457,7 @@ int main(int argc, char *argv[])
 	button_init();
 
 	SDL_ShowCursor(0);
+	cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 
 	sound_background_hook_register(sound_background_hook);
 
@@ -506,8 +507,6 @@ int main(int argc, char *argv[])
 
 		if (SDL_GetAppState() & SDL_APPACTIVE)
 		{
-			cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-
 			if (cpl.state == ST_PLAY)
 			{
 				if (LastTick - anim_tick > 110)
