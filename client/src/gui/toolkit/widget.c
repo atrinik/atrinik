@@ -1205,9 +1205,6 @@ int widgets_event(SDL_Event *event)
 		{
 			if (widget->resizeable)
 			{
-				int old_resize_flags;
-
-				old_resize_flags = widget->resize_flags;
 				widget->resize_flags = 0;
 
 #				define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
@@ -1252,30 +1249,8 @@ int widgets_event(SDL_Event *event)
 					}
 				}
 
-				if (old_resize_flags && !widget->resize_flags)
-				{
-					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-				}
-
 				if (widget->resize_flags)
 				{
-					if (widget->resize_flags == (RESIZE_TOP | RESIZE_LEFT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_RIGHT))
-					{
-						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tl2br");
-					}
-					else if (widget->resize_flags == (RESIZE_TOP | RESIZE_RIGHT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_LEFT))
-					{
-						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tr2bl");
-					}
-					else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
-					{
-						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_hor");
-					}
-					else if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
-					{
-						cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_ver");
-					}
-
 					return 1;
 				}
 			}
@@ -1357,7 +1332,6 @@ int widget_event_start_move(widgetdata *widget)
 	x = widget->x + widget->w / 2;
 	y = widget->y + widget->h / 2;
 	SDL_WarpMouse(x, y);
-	cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_move");
 
 	/* we know this widget owns the mouse.. */
 	widget_event_move.active = 1;
@@ -1516,10 +1490,29 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
 		if (draw && widget->show && widget->draw_func)
 		{
-			if (widget->resize_flags && (cursor_x < widget->x || cursor_x > widget->x + widget->w || cursor_y < widget->y || cursor_y > widget->y + widget->h))
+			if (widget->resize_flags)
 			{
-				widget->resize_flags = 0;
-				cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+				if (cursor_x < widget->x || cursor_x > widget->x + widget->w || cursor_y < widget->y || cursor_y > widget->y + widget->h)
+				{
+					widget->resize_flags = 0;
+				}
+
+				if (widget->resize_flags == (RESIZE_TOP | RESIZE_LEFT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_RIGHT))
+				{
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tl2br");
+				}
+				else if (widget->resize_flags == (RESIZE_TOP | RESIZE_RIGHT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_LEFT))
+				{
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tr2bl");
+				}
+				else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
+				{
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_hor");
+				}
+				else if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
+				{
+					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_ver");
+				}
 			}
 
 			if (widget->texture)
@@ -1574,6 +1567,11 @@ static void process_widgets_rec(int draw, widgetdata *widget)
  * This is now a wrapper function just to make the sanity checks before continuing with the actual handling. */
 void process_widgets(int draw)
 {
+	if (draw && widget_event_move.active)
+	{
+		cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_move");
+	}
+
 	process_widgets_rec(draw, widget_list_foot);
 }
 
