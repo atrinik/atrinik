@@ -32,7 +32,7 @@ class CIA:
 		pass
 
 	def submit(self, xml):
-		server = xmlrpclib.ServerProxy("http://cia.navi.cx")
+		server = xmlrpclib.ServerProxy("http://cia.vc")
 
 		try:
 			server.hub.deliver(xml)
