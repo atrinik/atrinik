@@ -63,7 +63,7 @@ class CommitChecker(threading.Thread):
 		[files.append(f) for (_,f,_,_,_,_) in delta.renamed]
 		[files.append(f) for (f,_,_,_,_) in delta.modified]
 
-		authors_xml = "".join(["      <author>{0}</author>\n".format(saxutils.escape(re.sub(" \<.+\>", "", author))) for author in authors])
+		authors_xml = "".join(["			<author>{0}</author>\n".format(saxutils.escape(re.sub(" \<.+\>", "", author))) for author in authors])
 
 		return """
 <message>
@@ -83,11 +83,10 @@ class CommitChecker(threading.Thread):
 			<files>
 				{5}
 			</files>
-			{6}
-			<log>{7}</log>
+			{6}<log>{7}</log>
 		</commit>
 	</body>
-</message>""".format(bzrlib.version_string, projectname, branch.nick, revision.timestamp, revno, "\n".join(["<file>{0}</file>".format(saxutils.escape(f)) for f in files]), authors_xml, saxutils.escape(revision.message))
+</message>""".format(bzrlib.version_string, projectname, branch.nick, int(revision.timestamp - revision.timezone), revno, "\n".join(["<file>{0}</file>".format(saxutils.escape(f)) for f in files]), authors_xml, saxutils.escape(revision.message))
 
 	## Run the thread.
 	def run(self):
