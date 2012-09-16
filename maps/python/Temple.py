@@ -31,12 +31,6 @@ class BaseTemple:
 		# - Name of the service, as it appears in the links
 		# - Explanation of the service.
 		self.services = {
-			"remove depletion": [
-				self._activator.level * 100,
-				25,
-				"Removal of depletion",
-				"Depletion occurs when you die, and it drains some of your stat attributes. In order to get them back, <green>remove depletion</green> prayer can be used. I can cast this prayer on you, if you wish.",
-			],
 			"remove curse": [
 				3000,
 				20,
@@ -137,7 +131,7 @@ class BaseTemple:
 						self._inf.add_msg("You pay {}.".format(CostString(service[0])), COLOR_YELLOW)
 
 					self._inf.add_msg("Okay, I will cast <green>{}</green> on you now.".format(msg))
-					self._me.Cast(GetSpellNr(msg), self._activator)
+					self._me.Cast(GetArchetype("spell_" + msg.replace(" ", "_")).clone.sp, self._activator)
 				else:
 					self._inf.add_msg("You do not have enough money...")
 
