@@ -1177,12 +1177,12 @@ int widgets_event(SDL_Event *event)
 		{
 			if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT))
 			{
-				resize_widget(widget, widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT), MAX(widget->min_w, widget->w + (event->motion.x - widget_event_resize.xoff) * (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
+				resize_widget(widget, widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT), MAX(MAX(5, widget->min_w), widget->w + (event->motion.x - widget_event_resize.xoff) * (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
 			}
 
 			if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM))
 			{
-				resize_widget(widget, widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM), MAX(widget->min_h, widget->h + (event->motion.y - widget_event_resize.yoff) * (widget->resize_flags & RESIZE_TOP ? -1 : 1)));
+				resize_widget(widget, widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM), MAX(MAX(5, widget->min_h), widget->h + (event->motion.y - widget_event_resize.yoff) * (widget->resize_flags & RESIZE_TOP ? -1 : 1)));
 			}
 
 			widget_event_resize.xoff = event->motion.x;
