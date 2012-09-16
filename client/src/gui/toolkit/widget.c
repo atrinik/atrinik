@@ -395,11 +395,6 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	widget->redraw = 1;
 	widget->menu_handle_func = widget_menu_handle;
 
-	if (!widget->texture && widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
-	{
-		widget_texture_create(widget);
-	}
-
 	if (widget_initializers[widget->type])
 	{
 		widget_initializers[widget->type](widget);
@@ -1513,6 +1508,11 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 				{
 					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_ver");
 				}
+			}
+
+			if (!widget->texture && widget->texture_type != WIDGET_TEXTURE_TYPE_NONE)
+			{
+				widget_texture_create(widget);
 			}
 
 			if (widget->texture)
