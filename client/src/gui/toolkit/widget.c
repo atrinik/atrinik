@@ -345,7 +345,7 @@ static void widget_texture_create(widgetdata *widget)
 
 	if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
 	{
-		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg><border=widget_border -1 -1 2>", widget->w, widget->h);
+		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg>", widget->w, widget->h);
 		widget->cw = MAX(0, widget->w - 2);
 		widget->ch = MAX(0, widget->h - 2);
 	}
@@ -1543,6 +1543,13 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 			if (widget->texture)
 			{
 				SDL_Rect box;
+
+				if (redraw && widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
+				{
+					box.w = widget->w;
+					box.h = widget->h;
+					text_show(widget->surface, FONT_ARIAL10, "<border=widget_border -1 -1 2>", 0, 0, COLOR_BLACK, TEXT_MARKUP, &box);
+				}
 
 				box.x = widget->x;
 				box.y = widget->y;
