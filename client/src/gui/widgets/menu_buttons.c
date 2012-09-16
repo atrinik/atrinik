@@ -85,7 +85,7 @@ static void widget_draw(widgetdata *widget)
 		/* Render the buttons. */
 		for (i = 0; i < NUM_BUTTONS; i++)
 		{
-			if (i && !(i % 3))
+			if (x + texture_surface(buttons[i].texture)->w > widget->w - 4)
 			{
 				x = 4;
 				y += texture_surface(buttons[i].texture)->h + 1;
