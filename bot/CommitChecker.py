@@ -86,7 +86,7 @@ class CommitChecker(threading.Thread):
 			{6}<log>{7}</log>
 		</commit>
 	</body>
-</message>""".format(bzrlib.version_string, projectname, branch.nick, int(revision.timestamp - revision.timezone), revno, "\n".join(["<file>{0}</file>".format(saxutils.escape(f)) for f in files]), authors_xml, saxutils.escape(revision.message))
+</message>""".format(bzrlib.version_string, projectname, branch.nick, int(revision.timestamp - revision.timezone), revno, "\n".join(["<file>{0}</file>".format(saxutils.escape(f)) for f in files]), authors_xml, saxutils.escape(revision.message + " -- :-)"))
 
 	## Run the thread.
 	def run(self):
