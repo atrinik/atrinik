@@ -72,27 +72,45 @@ static void widget_draw(widgetdata *widget)
 			box.h = widget->surface->h;
 			text_show(widget->surface, FONT_ARIAL11, buf, 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 		}
+		else if (strcmp(tmp->texture, "sphere") == 0)
+		{
+			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere_back %d %d 1>", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
+			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere_%s %d %d 1>", widget->id, widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
+			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere %d %d 1>", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
+		}
 		else
 		{
-			SDL_Surface *texture;
+			SDL_Rect box;
+			int thickness;
 
-			snprintf(buf, sizeof(buf), "stat_%s_back", tmp->texture);
-			texture = TEXTURE_CLIENT(buf);
-			surface_show(widget->surface, widget->surface->w / 2 - texture->w / 2, widget->surface->h / 2 - texture->h / 2, NULL, texture);
+			thickness = (double) MIN(widget->w, widget->h) * 0.15;
+			box.x = WIDGET_BORDER_SIZE;
+			box.y = WIDGET_BORDER_SIZE;
+			box.w = widget->w - WIDGET_BORDER_SIZE * 2;
+			box.h = widget->h - WIDGET_BORDER_SIZE * 2;
+			SDL_FillRect(widget->surface, &box, SDL_MapRGB(widget->surface->format, 0, 0, 0));
+			border_create_texture(widget->surface, &box, thickness, TEXTURE_CLIENT("stat_border"));
 
-			snprintf(buf, sizeof(buf), "stat_%s_%s", tmp->texture, widget->id);
-			texture = TEXTURE_CLIENT(buf);
+			box.x += thickness;
+			box.y += thickness;
+			box.w = MAX(0, box.w - thickness * 2);
+			box.h = MAX(0, box.h - thickness * 2);
 
-			box.x = 0;
-			box.y = texture->h - texture->h * ((double) curr / (double) max);
-			box.w = texture->w;
-			box.h = texture->h;
+			if (widget->w > widget->h)
+			{
+				box.w *= ((double) curr / (double) max);
+			}
+			else
+			{
+				int h;
 
-			surface_show(widget->surface, widget->surface->w / 2 - texture->w / 2, widget->surface->h / 2 - texture->h / 2 + box.y, &box, texture);
+				h = box.h * ((double) curr / (double) max);
+				box.y += box.h - h;
+				box.h = h;
+			}
 
-			snprintf(buf, sizeof(buf), "stat_%s", tmp->texture);
-			texture = TEXTURE_CLIENT(buf);
-			surface_show(widget->surface, widget->surface->w / 2 - texture->w / 2, widget->surface->h / 2 - texture->h / 2, NULL, texture);
+			snprintf(buf, sizeof(buf), "stat_bar_%s", widget->id);
+			surface_show_fill(widget->surface, box.x, box.y, NULL, TEXTURE_CLIENT(buf), &box);
 		}
 	}
 }
