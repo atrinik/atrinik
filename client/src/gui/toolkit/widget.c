@@ -346,8 +346,6 @@ static void widget_texture_create(widgetdata *widget)
 	if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
 	{
 		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg>", widget->w, widget->h);
-		widget->cw = MAX(0, widget->w - 2);
-		widget->ch = MAX(0, widget->h - 2);
 	}
 
 	widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
@@ -1548,7 +1546,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 				{
 					box.w = widget->w;
 					box.h = widget->h;
-					text_show(widget->surface, FONT_ARIAL10, "<border=widget_border -1 -1 2>", 0, 0, COLOR_BLACK, TEXT_MARKUP, &box);
+					text_show_format(widget->surface, FONT_ARIAL10, 0, 0, COLOR_BLACK, TEXT_MARKUP, &box, "<border=widget_border -1 -1 %d>", WIDGET_BORDER_SIZE);
 				}
 
 				box.x = widget->x;

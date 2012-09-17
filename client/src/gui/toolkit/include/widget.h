@@ -53,10 +53,6 @@ typedef struct widgetdata
 	/** Height. */
 	int h;
 
-	int cw;
-
-	int ch;
-
 	/** Is the widget moveable? */
 	uint8 moveable;
 
@@ -402,5 +398,7 @@ typedef struct widgetresize
 #define MENUITEM(__menuitem) \
 	(_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget)) ->subcontainer)) ->subcontainer_strip))
 #define INVENTORY(_widget) ((inventory_struct *) ((_widget)->subwidget))
+
+#define WIDGET_BORDER_SIZE 1
 
 #endif
