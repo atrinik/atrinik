@@ -1430,11 +1430,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			if (surface)
 			{
 				char face[MAX_BUF];
-				int wd, ht, fit_to_size = 0;
+				int wd, ht, fit_to_size, flip;
 
 				wd = ht = -1;
+				fit_to_size = flip = 0;
 
-				if (sscanf(cp + 6, "%255[^ >] %d %d %d>", face, &wd, &ht, &fit_to_size) >= 1)
+				if (sscanf(cp + 6, "%255[^ >] %d %d %d %d>", face, &wd, &ht, &fit_to_size, &flip) >= 1)
 				{
 					int id;
 					sprite_struct *icon_sprite;
@@ -1490,20 +1491,6 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							ht = icon_h;
 						}
 
-						if (icon_w > wd)
-						{
-							zoom_factor = (double) wd / icon_w;
-							icon_w *= zoom_factor;
-							icon_h *= zoom_factor;
-						}
-
-						if (icon_h > ht)
-						{
-							zoom_factor = (double) ht / icon_h;
-							icon_w *= zoom_factor;
-							icon_h *= zoom_factor;
-						}
-
 						if (fit_to_size)
 						{
 							if (icon_w < wd)
@@ -1521,6 +1508,20 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							}
 						}
 
+						if (icon_w > wd)
+						{
+							zoom_factor = (double) wd / icon_w;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
+						if (icon_h > ht)
+						{
+							zoom_factor = (double) ht / icon_h;
+							icon_w *= zoom_factor;
+							icon_h *= zoom_factor;
+						}
+
 						icon_box.x = border_left;
 						icon_box.y = border_up;
 						icon_box.w = icon_w;
@@ -1529,7 +1530,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						icon_dst.x = dest->x + wd / 2 - icon_w / 2;
 						icon_dst.y = dest->y + ht / 2 - icon_h / 2;
 
-						if (icon_w != icon_orig_w || icon_h != icon_orig_h)
+						if (icon_w != icon_orig_w || icon_h != icon_orig_h || flip != 0)
 						{
 							SDL_Surface *tmp_icon;
 							double zoom_x, zoom_y;
@@ -1537,10 +1538,20 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 							zoom_x = (double) icon_w / icon_orig_w;
 							zoom_y = (double) icon_h / icon_orig_h;
 
-							tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
-
 							icon_box.x *= zoom_x;
 							icon_box.y *= zoom_y;
+
+							if (flip & TEXT_FLIP_HORIZONTAL)
+							{
+								zoom_x *= -1;
+							}
+
+							if (flip & TEXT_FLIP_VERTICAL)
+							{
+								zoom_y *= -1;
+							}
+
+							tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, icon_w != icon_orig_w || icon_h != icon_orig_h ? setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH) : 0);
 
 							SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
 							SDL_FreeSurface(tmp_icon);
