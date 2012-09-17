@@ -64,6 +64,11 @@ static void widget_draw(widgetdata *widget)
 			curr = cpl.stats.food;
 			max = 999;
 		}
+		else if (strcmp(widget->id, "exp") == 0)
+		{
+			curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
+			max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
+		}
 		else
 		{
 			curr = max = 1;

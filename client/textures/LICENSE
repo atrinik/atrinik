@@ -81,11 +81,13 @@ Alex "Cleo" Tokar - GPLv2:
 	bar_mana.png
 	bar_mana_bg.png
 	stat_border.png
+	stat_bar_exp.png
 	stat_bar_food.png
 	stat_bar_health.png
 	stat_bar_mana.png
 	stat_sphere.png
 	stat_sphere_back.png
+	stat_sphere_exp.png
 	stat_sphere_food.png
 	stat_sphere_health.png
 	stat_sphere_mana.png
