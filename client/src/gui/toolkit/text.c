@@ -1431,11 +1431,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 			{
 				char face[MAX_BUF];
 				int wd, ht, fit_to_size, flip;
+				float show_percentage;
 
 				wd = ht = -1;
 				fit_to_size = flip = 0;
+				show_percentage = 1.0;
 
-				if (sscanf(cp + 6, "%255[^ >] %d %d %d %d>", face, &wd, &ht, &fit_to_size, &flip) >= 1)
+				if (sscanf(cp + 6, "%255[^ >] %d %d %d %d %f>", face, &wd, &ht, &fit_to_size, &flip, &show_percentage) >= 1)
 				{
 					int id;
 					sprite_struct *icon_sprite;
@@ -1465,6 +1467,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						int border_up, border_down, border_left, border_right;
 						SDL_Rect icon_box, icon_dst;
 						double zoom_factor;
+						double zoom_x, zoom_y;
 
 						if (icon_sprite)
 						{
@@ -1530,26 +1533,57 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 						icon_dst.x = dest->x + wd / 2 - icon_w / 2;
 						icon_dst.y = dest->y + ht / 2 - icon_h / 2;
 
+						zoom_x = (double) icon_w / icon_orig_w;
+						zoom_y = (double) icon_h / icon_orig_h;
+
+						icon_box.x *= zoom_x;
+						icon_box.y *= zoom_y;
+
+						if (flip & TEXT_FLIP_HORIZONTAL)
+						{
+							zoom_x *= -1;
+						}
+
+						if (flip & TEXT_FLIP_VERTICAL)
+						{
+							zoom_y *= -1;
+						}
+
+						if (show_percentage != 1.0)
+						{
+							// Left to right
+							if (show_percentage >= 6.0)
+							{
+								icon_box.w *= show_percentage - 6.0;
+							}
+							// Bottom to top
+							else if (show_percentage >= 4.0)
+							{
+								int offset;
+
+								offset = icon_box.h - ((float) icon_box.h * (show_percentage - 4.0));
+								icon_box.y += offset;
+								icon_dst.y += offset;
+							}
+							// Right to left
+							else if (show_percentage >= 2.0)
+							{
+								int offset;
+
+								offset = icon_box.w - ((float) icon_box.w * (show_percentage - 2.0));
+								icon_box.x += offset;
+								icon_dst.x += offset;
+							}
+							// Top to bottom
+							else
+							{
+								icon_box.h *= show_percentage;
+							}
+						}
+
 						if (icon_w != icon_orig_w || icon_h != icon_orig_h || flip != 0)
 						{
 							SDL_Surface *tmp_icon;
-							double zoom_x, zoom_y;
-
-							zoom_x = (double) icon_w / icon_orig_w;
-							zoom_y = (double) icon_h / icon_orig_h;
-
-							icon_box.x *= zoom_x;
-							icon_box.y *= zoom_y;
-
-							if (flip & TEXT_FLIP_HORIZONTAL)
-							{
-								zoom_x *= -1;
-							}
-
-							if (flip & TEXT_FLIP_VERTICAL)
-							{
-								zoom_y *= -1;
-							}
 
 							tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, icon_w != icon_orig_w || icon_h != icon_orig_h ? setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH) : 0);
 
