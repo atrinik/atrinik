@@ -933,11 +933,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		else if (!strncmp(cp, "<center>", 8))
 		{
 			/* Find the ending tag. */
-			char *pos = strstr(cp, "</center");
+			char *pos = strstr(cp, "</center>");
 
 			if (pos && box && box->w)
 			{
-				char *buf = malloc(pos - cp - 8);
+				char *buf = malloc(pos - cp - 8 + 1);
 				int w;
 
 				/* Copy the string between <center> and </center> to a
