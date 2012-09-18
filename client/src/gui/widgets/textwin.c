@@ -30,19 +30,12 @@
 
 #include <global.h>
 
-/** Color to use for the text window border. */
-static Uint32 textwin_border_color;
+/**
+ * Names of the text window tabs. */
 const char *const textwin_tab_names[] =
 {
 	"[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
-
-/**
- * Initialize text window variables. */
-void textwin_init(void)
-{
-	textwin_border_color = SDL_MapRGB(ScreenSurface->format, 96, 96, 96);
-}
 
 /**
  * Readjust text window's scroll/entries counts due to a font size
@@ -308,7 +301,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 
 	button_create(&textwin->tabs[textwin->tabs_num].button);
 	wd = text_get_width(textwin->tabs[textwin->tabs_num].button.font, TEXTWIN_TAB_NAME(&textwin->tabs[textwin->tabs_num]), 0) + 10;
-	snprintf(buf, sizeof(buf), "rectangle:%d,20,255;<border=#606060 %d 20>", wd, wd);
+	snprintf(buf, sizeof(buf), "rectangle:%d,20,255;<border=widget_border %d 20>", wd, wd);
 	textwin->tabs[textwin->tabs_num].button.texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
 	textwin->tabs[textwin->tabs_num].button.texture_over = textwin->tabs[textwin->tabs_num].button.texture_pressed = NULL;
 	textwin->tabs_num++;
@@ -670,7 +663,9 @@ static void widget_draw(widgetdata *widget)
 				}
 
 				yadjust = button_y + TEXTWIN_TAB_HEIGHT;
-				BORDER_CREATE_BOTTOM(widget->surface, 0, 0, widget->w, yadjust, textwin_border_color, 1);
+				box.w = widget->w;
+				box.h = 1;
+				surface_show_fill(widget->surface, 0, yadjust - box.h, NULL, TEXTURE_CLIENT("widget_border"), &box);
 				yadjust -= 1;
 			}
 
@@ -720,10 +715,9 @@ static void widget_draw(widgetdata *widget)
 	box.y = widget->y;
 	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
-	BORDER_CREATE_TOP(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
-	BORDER_CREATE_BOTTOM(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
-	BORDER_CREATE_LEFT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
-	BORDER_CREATE_RIGHT(ScreenSurface, widget->x, widget->y, widget->w, widget->h, textwin_border_color, 1);
+	box.w = widget->w;
+	box.h = widget->h;
+	border_create_texture(ScreenSurface, &box, 1, TEXTURE_CLIENT("widget_border"));
 }
 
 /** @copydoc widgetdata::event_func */

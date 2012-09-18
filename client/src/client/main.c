@@ -451,7 +451,6 @@ int main(int argc, char *argv[])
 		draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
 	}
 
-	textwin_init();
 	settings_apply();
 	scrollbar_init();
 	button_init();
