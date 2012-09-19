@@ -41,6 +41,9 @@ typedef struct widgetdata
 	/** Unique identifier. */
 	char *id;
 
+	/** Widget background; either a texture or a color using HTML notation. */
+	char bg[32];
+
 	/** X position. */
 	int x;
 
@@ -121,6 +124,11 @@ typedef struct widgetdata
 	int disable_snapping;
 
 	uint32 showed_ticks;
+
+	/**
+	 * If 1, this widget will not be rendered, but any items it contains
+	 * will still get processed and rendered. */
+	int hidden;
 
 	void (*draw_func)(struct widgetdata *widget);
 
@@ -380,6 +388,18 @@ typedef struct widgetresize
 { \
 	(_widget)->show = 1; \
 	(_widget)->showed_ticks = SDL_GetTicks(); \
+}
+
+#define WIDGET_SHOW_TOGGLE(_widget) \
+{ \
+	if (!(_widget)->show) \
+	{ \
+		WIDGET_SHOW(_widget); \
+	} \
+	else \
+	{ \
+		(_widget)->show = 0; \
+	} \
 }
 
 /* Macro to redraw all widgets of a particular type. Don't use this often. */

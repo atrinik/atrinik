@@ -455,7 +455,7 @@ static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 	}
 	else
 	{
-		widgetdata *widget = widget_find_by_surface(surface);
+		widgetdata *widget = widget_find(NULL, -1, NULL, surface);
 
 		if (widget)
 		{

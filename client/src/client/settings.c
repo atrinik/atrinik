@@ -485,17 +485,6 @@ static int setting_apply_always(int cat, int setting)
 {
 	switch (cat)
 	{
-		case OPT_CAT_GENERAL:
-			switch (setting)
-			{
-				/* Need to hide/show the playerdoll widget. */
-				case OPT_PLAYERDOLL:
-					cur_widget[PDOLL_ID]->show = setting_get_int(cat, setting);
-					return 1;
-			}
-
-			break;
-
 		case OPT_CAT_DEVEL:
 			switch (setting)
 			{

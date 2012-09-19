@@ -506,11 +506,7 @@ int keybind_process_command_up(const char *cmd)
 	{
 		cmd++;
 
-		if (!strcmp(cmd, "INVENTORY"))
-		{
-			cpl.inventory_focus = BELOW_INV_ID;
-		}
-		else if (!strcmp(cmd, "RUNON"))
+		if (!strcmp(cmd, "RUNON"))
 		{
 			move_keys(5);
 			cpl.run_on = 0;
@@ -542,11 +538,6 @@ int keybind_process_command_up(const char *cmd)
  * done so, even if the 'key up' event was handled by something else. */
 void keybind_state_ensure(void)
 {
-	if (cpl.inventory_focus != BELOW_INV_ID && !keybind_command_matches_state("?INVENTORY"))
-	{
-		keybind_process_command_up("?INVENTORY");
-	}
-
 	if (cpl.run_on && !keybind_command_matches_state("?RUNON"))
 	{
 		keybind_process_command_up("?RUNON");
@@ -731,23 +722,7 @@ int keybind_process_command(const char *cmd)
 		}
 		else if (!strncmp(cmd, "INVENTORY", 9))
 		{
-			if (!strcmp(cmd + 9, "_TOGGLE"))
-			{
-				if (cpl.inventory_focus == MAIN_INV_ID)
-				{
-					cpl.inventory_focus = BELOW_INV_ID;
-					return 1;
-				}
-			}
-
-			SetPriorityWidget(cur_widget[MAIN_INV_ID]);
-
-			if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
-			{
-				SetPriorityWidget(cur_widget[PDOLL_ID]);
-			}
-
-			cpl.inventory_focus = MAIN_INV_ID;
+			inventory_toggle_display();
 		}
 		else if (!strncmp(cmd, "RUNON", 5))
 		{
@@ -785,7 +760,7 @@ int keybind_process_command(const char *cmd)
 				widgetdata *widget;
 
 				cmd += 6;
-				widget = widget_find_by_type(QUICKSLOT_ID);
+				widget = widget_find(NULL, QUICKSLOT_ID, NULL, NULL);
 
 				if (strcmp(cmd, "NEXT") == 0)
 				{

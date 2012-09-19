@@ -1,9 +1,4 @@
 category General
-	setting Player doll
-		type bool
-		default off
-		desc Whether to always show the playerdoll.\nIf unchecked, the playerdoll is only shown while the inventory is open.
-	end
 	setting Show yourself targeted
 		type bool
 		default off

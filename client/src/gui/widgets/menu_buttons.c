@@ -117,7 +117,7 @@ static void widget_draw(widgetdata *widget)
 			{
 				widgetdata *tmp;
 
-				tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
+				tmp = widget_find(NULL, BUDDY_ID, button_images[i], NULL);
 				buttons[i].pressed_forced = tmp ? tmp->show : 0;
 			}
 
@@ -205,7 +205,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 			{
 				widgetdata *tmp;
 
-				tmp = widget_find_type_id(BUDDY_ID, button_images[i]);
+				tmp = widget_find(NULL, BUDDY_ID, button_images[i], NULL);
 				tmp->show = !tmp->show;
 				SetPriorityWidget(tmp);
 			}

@@ -71,11 +71,11 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
 	widgetdata *widget;
 
-	widget = widget_find_by_surface(list->surface);
+	widget = widget_find(NULL, -1, NULL, list->surface);
 
 	if (strcmp(widget->id, "buddy") == 0)
 	{
-		textwin_tab_open(widget_find_by_type(CHATWIN_ID), list->text[list->row_selected - 1][0]);
+		textwin_tab_open(widget_find(NULL, CHATWIN_ID, NULL, NULL), list->text[list->row_selected - 1][0]);
 	}
 }
 

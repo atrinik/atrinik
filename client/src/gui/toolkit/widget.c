@@ -109,11 +109,12 @@ static int widget_id_from_name(const char *name)
 	return -1;
 }
 
-static int widget_load(const char *path, uint8 defaults)
+static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
 {
 	FILE *fp;
 	char buf[HUGE_BUF], *end, *line, *cp;
 	widgetdata *widget;
+	int depth, old_depth;
 
 	fp = fopen_wrapper(path, "r");
 
@@ -123,6 +124,7 @@ static int widget_load(const char *path, uint8 defaults)
 	}
 
 	widget = NULL;
+	depth = old_depth = 0;
 
 	while (fgets(buf, sizeof(buf), fp))
 	{
@@ -138,16 +140,24 @@ static int widget_load(const char *path, uint8 defaults)
 			*end = '\0';
 		}
 
+		old_depth = depth;
+		depth = 0;
 		line = buf;
 
 		while (*line == '\t')
 		{
+			depth++;
 			line++;
 		}
 
 		if (string_startswith(line, "[") && string_endswith(line, "]"))
 		{
 			int id;
+
+			if (old_depth != 0)
+			{
+				insert_widget_in_container(widgets[old_depth - 1], widget);
+			}
 
 			cp = string_sub(line, 1, -1);
 			id = widget_id_from_name(cp);
@@ -160,6 +170,7 @@ static int widget_load(const char *path, uint8 defaults)
 			}
 
 			widget = defaults ? &def_widget[id] : create_widget_object(id);
+			widgets[depth] = widget;
 
 			if (defaults)
 			{
@@ -187,6 +198,11 @@ static int widget_load(const char *path, uint8 defaults)
 			else if (strcmp(cps[0], "texture_type") == 0)
 			{
 				widget->texture_type = atoi(cps[1]);
+			}
+			else if (strcmp(cps[0], "bg") == 0)
+			{
+				strncpy(widget->bg, cps[1], sizeof(widget->bg) - 1);
+				widget->bg[sizeof(widget->bg) - 1] = '\0';
 			}
 			else if (strcmp(cps[0], "moveable") == 0)
 			{
@@ -218,11 +234,11 @@ static int widget_load(const char *path, uint8 defaults)
 			}
 			else if (strcmp(cps[0], "w") == 0)
 			{
-				widget->w = atoi(cps[1]);
+				resize_widget(widget, RESIZE_RIGHT, atoi(cps[1]));
 			}
 			else if (strcmp(cps[0], "h") == 0)
 			{
-				widget->h = atoi(cps[1]);
+				resize_widget(widget, RESIZE_BOTTOM, atoi(cps[1]));
 			}
 			else if (strcmp(cps[0], "min_w") == 0)
 			{
@@ -242,6 +258,11 @@ static int widget_load(const char *path, uint8 defaults)
 		}
 	}
 
+	if (old_depth != 0)
+	{
+		insert_widget_in_container(widgets[old_depth - 1], widget);
+	}
+
 	return 1;
 }
 
@@ -250,6 +271,8 @@ static int widget_load(const char *path, uint8 defaults)
  * On failure, initialize the widgets with init_widgets_fromDefault() */
 void toolkit_widget_init(void)
 {
+	widgetdata *widgets[100];
+
 	widget_initializers[ACTIVE_EFFECTS_ID] = widget_active_effects_init;
 	widget_initializers[BUDDY_ID] = widget_buddy_init;
 	widget_initializers[CONTAINER_ID] = widget_container_init;
@@ -276,13 +299,13 @@ void toolkit_widget_init(void)
 	widget_initializers[TEXTURE_ID] = widget_texture_init;
 	widget_initializers[CHATWIN_ID] = widget_textwin_init;
 
-	if (!widget_load("data/interface.cfg", 1))
+	if (!widget_load("data/interface.cfg", 1, widgets))
 	{
 		logger_print(LOG(ERROR), "Could not load widget defaults from data/interface.cfg.");
 		exit(-1);
 	}
 
-	widget_load("settings/interface.cfg", 0);
+	widget_load("settings/interface.cfg", 0, widgets);
 	widgets_ensure_onscreen();
 }
 
@@ -326,7 +349,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 	}
 	else
 	{
-		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+		widget_menu_standard_items(widget, menu);
 
 		if (widget->sub_type == MAIN_INV_ID)
 		{
@@ -339,13 +362,73 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 	return 1;
 }
 
+void menu_container_move(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widget_event_start_move(widget->env ? widget->env : widget);
+}
+
+void menu_container_detach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *widget_container;
+
+	widget_container = widget->env;
+	detach_widget(widget);
+
+	if (!widget_container->inv)
+	{
+		remove_widget_object(widget_container);
+	}
+}
+
+void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *widget_container;
+
+	widget_container = create_widget_object(CONTAINER_ID);
+	widget_container->x = widget->x;
+	widget_container->y = widget->y;
+	insert_widget_in_container(widget_container, widget);
+}
+
+static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *submenu, *outermost;
+
+	submenu = MENU(menuitem->env)->submenu;
+	outermost = get_outermost_container(widget);
+
+	if (outermost->type == CONTAINER_ID)
+	{
+		add_menuitem(submenu, "Move", &menu_container_move, MENU_NORMAL, 0);
+	}
+
+	if (widget != outermost)
+	{
+		add_menuitem(submenu, "Detach", &menu_container_detach, MENU_NORMAL, 0);
+	}
+	else if (widget->type != CONTAINER_ID)
+	{
+		add_menuitem(submenu, "Attach", &menu_container_attach, MENU_NORMAL, 0);
+	}
+}
+
+void widget_menu_standard_items(widgetdata *widget, widgetdata *menu)
+{
+	if (widget->type != CONTAINER_ID)
+	{
+		add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+	}
+
+	add_menuitem(menu, "Container  >", &menu_container, MENU_SUBMENU, 0);
+}
+
 static void widget_texture_create(widgetdata *widget)
 {
 	char buf[MAX_BUF];
 
 	if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL)
 	{
-		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=widget_bg>", widget->w, widget->h);
+		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=%s>", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
 	}
 
 	widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
@@ -389,7 +472,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
 	/* allocate the widget node, this should always be the first function called in here */
 	widget = create_widget(widget_subtype_id);
 	widget->type = widget_type_id;
-	widget->name = strdup(widget_names[widget_type_id]);
+	widget->name = strdup(widget_names[widget_subtype_id]);
 	widget->redraw = 1;
 	widget->menu_handle_func = widget_menu_handle;
 
@@ -560,27 +643,46 @@ static void widget_ensure_onscreen(widgetdata *widget)
 {
 	int dx = 0, dy = 0;
 
-	if (setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
+	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS))
 	{
-		return;
+		if (widget->x < 0)
+		{
+			dx = -widget->x;
+		}
+		else if (widget->x + widget->w > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
+		{
+			dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->w - widget->x;
+		}
+
+		if (widget->y < 0)
+		{
+			dy = -widget->y;
+		}
+		else if (widget->y + widget->h > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
+		{
+			dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->h - widget->y;
+		}
 	}
 
-	if (widget->x < 0)
+	if (widget->env)
 	{
-		dx = -widget->x;
-	}
-	else if (widget->x + widget->w > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X))
-	{
-		dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->w - widget->x;
-	}
+		if (widget->x < widget->env->x)
+		{
+			dx = widget->env->x - widget->x;
+		}
+		else if (widget->x + widget->w > widget->env->x + widget->env->w)
+		{
+			dx = (widget->env->x + widget->env->w) - (widget->w + widget->x);
+		}
 
-	if (widget->y < 0)
-	{
-		dy = -widget->y;
-	}
-	else if (widget->y + widget->h > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y))
-	{
-		dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->h - widget->y;
+		if (widget->y < widget->env->y)
+		{
+			dy = widget->env->y - widget->y;
+		}
+		else if (widget->y + widget->h > widget->env->y + widget->env->h)
+		{
+			dy = (widget->env->y + widget->env->h) - (widget->h + widget->y);
+		}
 	}
 
 	move_widget_rec(widget, dx, dy);
@@ -931,52 +1033,57 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 			fprintf(fp, "%sid = %s\n", padding, widget->id);
 		}
 
-		if (widget->moveable != def_widget[widget->type].moveable)
+		if (widget->moveable != def_widget[widget->sub_type].moveable)
 		{
 			fprintf(fp, "%smoveable = %s\n", padding, widget->moveable ? "yes" : "no");
 		}
 
-		if (widget->show != def_widget[widget->type].show)
+		if (widget->show != def_widget[widget->sub_type].show)
 		{
 			fprintf(fp, "%sshown = %s\n", padding, widget->show ? "yes" : "no");
 		}
 
-		if (widget->resizeable != def_widget[widget->type].resizeable)
+		if (widget->resizeable != def_widget[widget->sub_type].resizeable)
 		{
 			fprintf(fp, "%sresizeable = %s\n", padding, widget->resizeable ? "yes" : "no");
 		}
 
-		if (widget->required != def_widget[widget->type].required)
+		if (widget->required != def_widget[widget->sub_type].required)
 		{
 			fprintf(fp, "%srequired = %s\n", padding, widget->required ? "yes" : "no");
 		}
 
-		if (widget->x != def_widget[widget->type].x)
+		if (widget->save != def_widget[widget->sub_type].save)
+		{
+			fprintf(fp, "%ssave = %s\n", padding, widget->save ? "yes" : "no");
+		}
+
+		if (widget->x != def_widget[widget->sub_type].x)
 		{
 			fprintf(fp, "%sx = %d\n", padding, widget->x);
 		}
 
-		if (widget->y != def_widget[widget->type].y)
+		if (widget->y != def_widget[widget->sub_type].y)
 		{
 			fprintf(fp, "%sy = %d\n", padding, widget->y);
 		}
 
-		if (widget->w != def_widget[widget->type].w)
+		if (widget->w != def_widget[widget->sub_type].w)
 		{
 			fprintf(fp, "%sw = %d\n", padding, widget->w);
 		}
 
-		if (widget->h != def_widget[widget->type].h)
+		if (widget->h != def_widget[widget->sub_type].h)
 		{
 			fprintf(fp, "%sh = %d\n", padding, widget->h);
 		}
 
-		if (widget->min_w != def_widget[widget->type].min_w)
+		if (widget->min_w != def_widget[widget->sub_type].min_w)
 		{
 			fprintf(fp, "%smin_w = %d\n", padding, widget->min_w);
 		}
 
-		if (widget->min_h != def_widget[widget->type].min_h)
+		if (widget->min_h != def_widget[widget->sub_type].min_h)
 		{
 			fprintf(fp, "%smin_h = %d\n", padding, widget->min_h);
 		}
@@ -1313,9 +1420,6 @@ int widget_event_start_move(widgetdata *widget)
 {
 	int x, y;
 
-	/* get the outermost container so we can move the container with everything in it */
-	widget = get_outermost_container(widget);
-
 	/* if its moveable, start moving it when the conditions warrant it, or else run away */
 	if (!widget->moveable)
 	{
@@ -1364,7 +1468,7 @@ int widget_event_move_stop(int x, int y)
 	}
 
 	/* Check to see if it's on top of a widget container. */
-	widget_container = get_widget_owner(x, y, widget->next, NULL);
+	widget_container = get_outermost_container(get_widget_owner(x, y, widget->next, NULL));
 
 	/* Attempt to insert it into the widget container if it exists. */
 	insert_widget_in_container(widget_container, widget);
@@ -1430,6 +1534,13 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 
 	do
 	{
+		/* skip if widget is hidden */
+		if (!widget->show)
+		{
+			widget = widget->next;
+			continue;
+		}
+
 		/* we want to get the first widget starting from the left hand side of the tree first */
 		if (widget->inv)
 		{
@@ -1440,13 +1551,6 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 			{
 				return success;
 			}
-		}
-
-		/* skip if widget is hidden */
-		if (!widget->show)
-		{
-			widget = widget->next;
-			continue;
 		}
 
 		switch (widget->type)
@@ -1481,7 +1585,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 			widget->background_func(widget);
 		}
 
-		if (draw && widget->show && widget->draw_func)
+		if (draw && widget->show && !widget->hidden && widget->draw_func)
 		{
 			if (widget->resize_flags)
 			{
@@ -1562,7 +1666,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 		/* we want to process the widgets starting from the right hand side of the tree first */
 		if (widget->inv_rev)
 		{
-			process_widgets_rec(draw, widget->inv_rev);
+			process_widgets_rec(widget->show ? draw : 0, widget->inv_rev);
 		}
 	}
 }
@@ -1890,69 +1994,47 @@ widgetdata *get_outermost_container(widgetdata *widget)
 }
 
 /**
- * Find a widget by its surface.
- * @param surface The surface to look for.
- * @return First widget with the passed surface, NULL if there isn't any
- * such widget. */
-widgetdata *widget_find_by_surface(SDL_Surface *surface)
-{
-	widgetdata *tmp;
-
-	for (tmp = widget_list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp->surface == surface)
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
-}
-
-/**
- * Find the first widget in the priority list that matches type 'type'.
- * @param type Widget type to look for.
+ * Find the first widget in the priority list.
+ * @param where Where to look for.
+ * @param type Widget type to look for. -1 for any type.
+ * @param id Identifier to look for. NULL for any identifier.
+ * @param surface Surface to look for. NULL for any surface.
  * @return Widget if found, NULL otherwise. */
-widgetdata *widget_find_by_type(int type)
+widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface)
 {
-	widgetdata *tmp;
+	widgetdata *tmp, *tmp2;
 
-	for (tmp = widget_list_head; tmp; tmp = tmp->next)
+	if (!where)
 	{
-		if (tmp->type == type)
+		where = widget_list_head;
+	}
+
+	for (tmp = where; tmp; tmp = tmp->next)
+	{
+		if ((type == -1 || tmp->type == type) && (id == NULL || strcmp(tmp->id, id) == 0) && (surface == NULL || tmp->surface == surface))
 		{
 			return tmp;
+		}
+
+		if (tmp->inv)
+		{
+			tmp2 = widget_find(tmp->inv, type, id, surface);
+
+			if (tmp2)
+			{
+				return tmp2;
+			}
 		}
 	}
 
 	return NULL;
 }
 
-/**
- * Find a widget by type and its identifier string.
- * @param type Widget type to look for.
- * @param id Identifier.
- * @return Matching widget if found, NULL otherwise. */
-widgetdata *widget_find_type_id(int type, const char *id)
+widgetdata *widget_find_create_id(int type, const char *id)
 {
 	widgetdata *tmp;
 
-	for (tmp = widget_list_head; tmp; tmp = tmp->next)
-	{
-		if (tmp->type == type && tmp->id && strcmp(tmp->id, id) == 0)
-		{
-			return tmp;
-		}
-	}
-
-	return NULL;
-}
-
-widgetdata *widget_find_create_type_id(int type, const char *id)
-{
-	widgetdata *tmp;
-
-	tmp = widget_find_type_id(type, id);
+	tmp = widget_find(NULL, type, id, NULL);
 
 	if (!tmp)
 	{
@@ -2113,6 +2195,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 					/* we have to set this, otherwise stupid things happen */
 					y = widget_container->inv_rev->y;
 				}
+
 				break;
 		}
 

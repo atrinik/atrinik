@@ -55,8 +55,6 @@ enum
  * Options in the ::OPT_CAT_GENERAL category. */
 enum
 {
-	/** Whether to always show the playerdoll. */
-	OPT_PLAYERDOLL,
 	/** Whether to target self if no target is selected. */
 	OPT_TARGET_SELF,
 	/** Collect mode. */

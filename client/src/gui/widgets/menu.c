@@ -72,7 +72,7 @@ void widget_highlight_menu(widgetdata *widget)
 		}
 
 		/* Only do any real working if the state of the menuitem changed. */
-		if (tmp->show == visible)
+		if (tmp->hidden != visible)
 		{
 			continue;
 		}
@@ -83,7 +83,7 @@ void widget_highlight_menu(widgetdata *widget)
 		/* Cursor has just started to hover over the menuitem. */
 		if (visible)
 		{
-			tmp->show = 1;
+			tmp->hidden = 0;
 
 			/* If the highlighted menuitem is a submenu, we need to create a submenu next to the menuitem. */
 			if (menuitem->menu_type == MENU_SUBMENU)
@@ -98,7 +98,7 @@ void widget_highlight_menu(widgetdata *widget)
 		/* Cursor no longer hovers over the menuitem. */
 		else
 		{
-			tmp->show = 0;
+			tmp->hidden = 1;
 
 			/* Let's check if we need to remove the submenu.
 			 * Don't remove it if the cursor is hovering over the submenu itself,
@@ -133,14 +133,14 @@ void widget_highlight_menu(widgetdata *widget)
 					else
 					{
 						/* Cursor is hovering over the submenu, so leave this menuitem highlighted. */
-						tmp->show = 1;
+						tmp->hidden = 0;
 					}
 				}
 				/* Cursor is not over a menu, so leave the menuitem containing the submenu highlighted.
 				 * We want to keep the submenu open, which should reduce annoyance if the user is not precise with the mouse. */
 				else
 				{
-					tmp->show = 1;
+					tmp->hidden = 0;
 				}
 			}
 		}

@@ -129,6 +129,25 @@ void inventory_filter_toggle(uint64 filter)
 }
 
 /**
+ * Toggle inventory display. */
+void inventory_toggle_display(void)
+{
+	widgetdata *widget;
+
+	widget = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL));
+	WIDGET_SHOW_TOGGLE(widget);
+
+	if (widget->show)
+	{
+		SetPriorityWidget(widget);
+	}
+	else
+	{
+		SetPriorityWidget(widget_find(NULL, BELOW_INV_ID, NULL, NULL));
+	}
+}
+
+/**
  * Render a single object in the inventory widget.
  *
  * If 'mx' and 'my' are not -1, no rendering is done and instead the
@@ -302,6 +321,8 @@ static void widget_draw(widgetdata *widget)
 	inventory = INVENTORY(widget);
 	widget->redraw++;
 
+	cpl.inventory_focus = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL))->show ? MAIN_INV_ID : BELOW_INV_ID;
+
 	if (widget->type == MAIN_INV_ID)
 	{
 		int face;
@@ -326,18 +347,8 @@ static void widget_draw(widgetdata *widget)
 			cpl.real_weight += tmp->weight * (float) tmp->nrof;
 		}
 
-		if (cpl.inventory_focus != widget->type)
+		if (0)
 		{
-			if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
-			{
-				cur_widget[PDOLL_ID]->show = 0;
-			}
-
-			if (widget->h != 32)
-			{
-				resize_widget(widget, RESIZE_BOTTOM, 32);
-			}
-
 			text_show(widget->surface, FONT_ARIAL10, "Carrying", 162, 4, COLOR_HGOLD, 0, NULL);
 			text_show_format(widget->surface, FONT_ARIAL10, 207, 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
 
@@ -355,16 +366,6 @@ static void widget_draw(widgetdata *widget)
 			}
 
 			return;
-		}
-
-		if (!setting_get_int(OPT_CAT_GENERAL, OPT_PLAYERDOLL))
-		{
-			cur_widget[PDOLL_ID]->show = 1;
-		}
-
-		if (widget->h != 129)
-		{
-			resize_widget(widget, RESIZE_BOTTOM, 129);
 		}
 
 		surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));

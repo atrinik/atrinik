@@ -243,12 +243,7 @@ static void upgrade_20_to_25(const char *from, const char *to)
 			{
 				int cat = -1, setting = -1;
 
-				if (!strcmp(option_name, "Playerdoll"))
-				{
-					cat = OPT_CAT_GENERAL;
-					setting = OPT_PLAYERDOLL;
-				}
-				else if (!strcmp(option_name, "Show yourself targeted"))
+				if (!strcmp(option_name, "Show yourself targeted"))
 				{
 					cat = OPT_CAT_GENERAL;
 					setting = OPT_TARGET_SELF;

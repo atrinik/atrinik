@@ -367,7 +367,7 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 	{
 		widgetdata *ignore_widget;
 
-		ignore_widget = widget_find_create_type_id(BUDDY_ID, "ignore");
+		ignore_widget = widget_find_create_id(BUDDY_ID, "ignore");
 
 		if (widget_buddy_check(ignore_widget, name) != -1)
 		{
@@ -456,7 +456,7 @@ void textwin_handle_copy(widgetdata *widget)
 
 	if (!widget)
 	{
-		widget = widget_find_by_type(CHATWIN_ID);
+		widget = widget_find(NULL, CHATWIN_ID, NULL, NULL);
 
 		if (!widget)
 		{
@@ -1043,7 +1043,7 @@ static int text_anchor_handle_players_tab(const char *anchor_action, const char 
 
 	if (strcmp(anchor_action, "#buddy") == 0 || strcmp(anchor_action, "#ignore") == 0)
 	{
-		widget = widget_find_create_type_id(BUDDY_ID, anchor_action + 1);
+		widget = widget_find_create_id(BUDDY_ID, anchor_action + 1);
 
 		if (widget_buddy_check(widget, buf) == -1)
 		{
@@ -1058,7 +1058,7 @@ static int text_anchor_handle_players_tab(const char *anchor_action, const char 
 	}
 	else if (strcmp(anchor_action, "#opentab") == 0)
 	{
-		widget = widget_find_by_type(CHATWIN_ID);
+		widget = widget_find(NULL, CHATWIN_ID, NULL, NULL);
 		textwin_tab_open(widget, buf);
 
 		return 1;
@@ -1103,13 +1103,13 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
 
 			cp = string_sub(label->text, 0, -3);
 
-			snprintf(buf, sizeof(buf), "<a=#buddy:%s>%s</a>", cp, widget_buddy_check(widget_find_type_id(BUDDY_ID, "buddy"), cp) == -1 ? "Add Buddy" : "Remove Buddy");
+			snprintf(buf, sizeof(buf), "<a=#buddy:%s>%s</a>", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "buddy", NULL), cp) == -1 ? "Add Buddy" : "Remove Buddy");
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
 			snprintf(buf, sizeof(buf), "<a=#opentab:%s>Open Tab</a>", cp);
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-			snprintf(buf, sizeof(buf), "<a=#ignore:%s>%s</a>", cp, widget_buddy_check(widget_find_type_id(BUDDY_ID, "ignore"), cp) == -1 ? "Ignore" : "Unignore");
+			snprintf(buf, sizeof(buf), "<a=#ignore:%s>%s</a>", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "ignore", NULL), cp) == -1 ? "Ignore" : "Unignore");
 			add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
 			free(cp);
@@ -1164,7 +1164,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 
 	menu = create_menu(event->motion.x, event->motion.y, widget);
 
-	add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+	widget_menu_standard_items(widget, menu);
 	add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
 	add_menuitem(menu, "Remove Window", &menu_remove_widget, MENU_NORMAL, 0);
 

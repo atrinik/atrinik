@@ -34,35 +34,12 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
-
 	/* Special case, menuitem is highlighted when mouse is moved over it. */
 	if (widget->sub_type == MENU_ID)
 	{
 		widget_highlight_menu(widget);
 	}
 
-	/* If we don't have a backbuffer, create it. */
-	if (!widget->surface)
-	{
-		widget->surface = SDL_CreateRGBSurface(get_video_flags(), widget->w, widget->h, video_get_bpp(), 0, 0, 0, 0);
-	}
-
-	if (widget->redraw)
-	{
-		widget->redraw = 0;
-
-		SDL_FillRect(widget->surface, NULL, 0);
-		box.x = 0;
-		box.y = 0;
-		box.w = widget->w;
-		box.h = widget->h;
-		border_create_color(widget->surface, &box, 1, "606060");
-	}
-
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
 /** @copydoc widgetdata::event_func */
@@ -91,6 +68,59 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 	return 0;
 }
 
+/** @copydoc widgetdata::load_func */
+static int widget_load(widgetdata *widget, const char *keyword, const char *parameter)
+{
+	_widget_container *container;
+
+	container = CONTAINER(widget);
+
+	if (strcmp(keyword, "padding") == 0)
+	{
+		int padding[5];
+
+		if (sscanf(parameter, "%d %d %d %d %d", &padding[0], &padding[1], &padding[2], &padding[3], &padding[4]) >= 4)
+		{
+			if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID)
+			{
+				_widget_container_strip *container_strip;
+
+				container_strip = CONTAINER_STRIP(widget);
+				container_strip->inner_padding = padding[4];
+			}
+
+			container->outer_padding_top = padding[0];
+			container->outer_padding_right = padding[1];
+			container->outer_padding_bottom = padding[2];
+			container->outer_padding_left = padding[3];
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/** @copydoc widgetdata::save_func */
+static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
+{
+	_widget_container *container;
+
+	container = CONTAINER(widget);
+
+	fprintf(fp, "%spadding = %d %d %d %d", padding, container->outer_padding_top, container->outer_padding_right, container->outer_padding_bottom, container->outer_padding_left);
+
+	if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID)
+	{
+		_widget_container_strip *container_strip;
+
+		container_strip = CONTAINER_STRIP(widget);
+		fprintf(fp, " %d", container_strip->inner_padding);
+	}
+
+	fprintf(fp, "\n");
+}
+
 /**
  * Initialize one container widget.
  * @param widget Widget to initialize. */
@@ -107,13 +137,11 @@ void widget_container_init(widgetdata *widget)
 	}
 
 	container->widget_type = -1;
-	container->outer_padding_top = 10;
-	container->outer_padding_bottom = 10;
-	container->outer_padding_left = 10;
-	container->outer_padding_right = 10;
 
 	widget->draw_func = widget_draw;
 	widget->event_func = widget_event;
+	widget->load_func = widget_load;
+	widget->save_func = widget_save;
 	widget->subwidget = container;
 
 	if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID)

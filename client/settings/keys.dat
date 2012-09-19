@@ -175,11 +175,6 @@ bind
 	command /region_map
 end
 bind
-	# tab
-	key 9
-	command ?RANGE
-end
-bind
 	# f
 	key 102
 	mod 3
@@ -206,13 +201,8 @@ bind
 	command /pray
 end
 bind
-	# left shift
-	key 304
-	command ?INVENTORY
-end
-bind
-	# right shift
-	key 303
+	# tab
+	key 9
 	command ?INVENTORY
 end
 bind

@@ -210,7 +210,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 
 	menu = create_menu(event->motion.x, event->motion.y, widget);
 
-	add_menuitem(menu, "Move Widget", &menu_move_widget, MENU_NORMAL, 0);
+	widget_menu_standard_items(widget, menu);
 	add_menuitem(menu, "Display  >", &menu_stat_display, MENU_SUBMENU, 0);
 
 	menu_finalize(menu);
