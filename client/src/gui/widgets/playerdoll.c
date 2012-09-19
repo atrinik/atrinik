@@ -94,7 +94,7 @@ static void widget_draw(widgetdata *widget)
 		rectangle_create(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
 	}
 
-	surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT("player_doll"));
+	surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT(cpl.gender == GENDER_FEMALE ? "player_doll_f" : "player_doll"));
 
 	SDL_GetMouseState(&mx, &my);
 
