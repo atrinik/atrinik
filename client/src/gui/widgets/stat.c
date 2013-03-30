@@ -90,7 +90,7 @@ static void widget_draw(widgetdata *widget)
 			box.w = widget->w - WIDGET_BORDER_SIZE * 2;
 			box.h = widget->h - WIDGET_BORDER_SIZE * 2;
 			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere_back %d %d 1>", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
-			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + 2, WIDGET_BORDER_SIZE + 2, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere_%s %d %d 1 0 %f>", widget->id, widget->w - WIDGET_BORDER_SIZE * 2 - 2 * 2, widget->h - WIDGET_BORDER_SIZE * 2 - 2 * 2, 4.0 + ((double) curr / (double) max));
+			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + 2, WIDGET_BORDER_SIZE + 2, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=stat_sphere_%s %d %d 1 0 %f>", widget->id, widget->w - WIDGET_BORDER_SIZE * 2 - 2 * 2, widget->h - WIDGET_BORDER_SIZE * 2 - 2 * 2, 4.0 + ((double) MAX(0, curr) / (double) max));
 			text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, &box, "<icon=stat_sphere %d %d 1>", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
 		}
 		else
@@ -112,13 +112,13 @@ static void widget_draw(widgetdata *widget)
 
 			if (widget->w > widget->h)
 			{
-				box.w *= ((double) curr / (double) max);
+				box.w *= ((double) MAX(0, curr) / (double) max);
 			}
 			else
 			{
 				int h;
 
-				h = box.h * ((double) curr / (double) max);
+				h = box.h * ((double) MAX(0, curr) / (double) max);
 				box.y += box.h - h;
 				box.h = h;
 			}
