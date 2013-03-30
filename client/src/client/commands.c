@@ -201,7 +201,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					break;
 
 				case CS_STAT_HP:
-					temp = packet_to_uint32(data, len, &pos);
+					temp = packet_to_sint32(data, len, &pos);
 
 					if (temp < cpl.stats.hp && cpl.stats.food)
 					{
@@ -218,17 +218,17 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 					break;
 
 				case CS_STAT_MAXHP:
-					cpl.stats.maxhp = packet_to_uint32(data, len, &pos);
+					cpl.stats.maxhp = packet_to_sint32(data, len, &pos);
 					widget_redraw_type_id(STAT_ID, "health");
 					break;
 
 				case CS_STAT_SP:
-					cpl.stats.sp = packet_to_uint16(data, len, &pos);
+					cpl.stats.sp = packet_to_sint16(data, len, &pos);
 					widget_redraw_type_id(STAT_ID, "mana");
 					break;
 
 				case CS_STAT_MAXSP:
-					cpl.stats.maxsp = packet_to_uint16(data, len, &pos);
+					cpl.stats.maxsp = packet_to_sint16(data, len, &pos);
 					widget_redraw_type_id(STAT_ID, "mana");
 					break;
 

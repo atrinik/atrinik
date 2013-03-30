@@ -237,10 +237,10 @@ void esrv_update_stats(player *pl)
 		AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
 		AddIfFloat(pl->last_weapon_speed, pl->ob->weapon_speed / (1000000 / MAX_TIME), CS_STAT_WEAPON_SPEED);
 		AddIfFloat(pl->last_weight_limit, PLAYER_WEIGHT_LIMIT(pl), CS_STAT_WEIGHT_LIM);
-		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, uint32);
-		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, uint32);
-		AddIfInt(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, uint16);
-		AddIfInt(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, uint16);
+		AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, sint32);
+		AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, sint32);
+		AddIfInt(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, sint16);
+		AddIfInt(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, sint16);
 		AddIfInt(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP, uint64);
 		AddIfInt(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC, uint16);
 		AddIfInt(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
