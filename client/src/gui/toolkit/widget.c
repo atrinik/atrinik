@@ -1468,10 +1468,10 @@ int widget_event_move_stop(int x, int y)
 	}
 
 	/* Check to see if it's on top of a widget container. */
-	widget_container = get_outermost_container(get_widget_owner(x, y, widget->next, NULL));
+	widget_container = get_outermost_container(get_widget_owner(x, y, get_outermost_container(widget)->next, NULL));
 
 	/* Attempt to insert it into the widget container if it exists. */
-	insert_widget_in_container(widget_container, widget);
+	insert_widget_in_container(widget_container, get_outermost_container(widget));
 
 	return 1;
 }
