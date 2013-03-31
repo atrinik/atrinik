@@ -2335,6 +2335,11 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 		widget_texture = add_texture(val ? "checkbox_on" : "checkbox_off");
 		insert_widget_in_container(widget_menuitem, widget_texture, 0);
 	}
+	else if (menu_type == MENU_RADIO)
+	{
+		widget_texture = add_texture(val ? "radio_on" : "radio_off");
+		insert_widget_in_container(widget_menuitem, widget_texture, 0);
+	}
 
 	insert_widget_in_container(widget_menuitem, widget_label, 0);
 	insert_widget_in_container(menu, widget_menuitem, 0);
@@ -2343,6 +2348,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 	menuitem = MENUITEM(widget_menuitem);
 	menuitem->menu_func_ptr = menu_func_ptr;
 	menuitem->menu_type = menu_type;
+	menuitem->val = val;
 
 	/* Sanity check. Menuitems should always exist inside a menu. */
 	if (widget_menuitem->env && widget_menuitem->env->sub_type == MENU_ID)
@@ -2356,7 +2362,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 			{
 				container_menuitem = CONTAINER(tmp);
 
-				if (menu_type == MENU_CHECKBOX)
+				if (menu_type == MENU_CHECKBOX || menu_type == MENU_RADIO)
 				{
 					resize_widget(tmp->inv, RESIZE_RIGHT, menu->w - tmp->inv_rev->w - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
 				}

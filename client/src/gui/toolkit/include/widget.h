@@ -253,6 +253,8 @@ typedef struct _menuitem
 
 	/** The type of menuitem. */
 	int menu_type;
+	
+	int val;
 } _menuitem;
 
 /** A mouse event. */

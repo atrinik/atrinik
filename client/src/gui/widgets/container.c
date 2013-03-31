@@ -59,6 +59,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
 		if (widget_mouse_event.owner && menuitem->menu_type != MENU_SUBMENU && menuitem->menu_func_ptr)
 		{
+			if (menuitem->menu_type == MENU_RADIO && menuitem->val != 0)
+			{
+				return 1;
+			}
+			
 			menuitem->menu_func_ptr(widget_mouse_event.owner, widget, event);
 		}
 
