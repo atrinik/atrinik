@@ -156,7 +156,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
 
 			if (old_depth != 0)
 			{
-				insert_widget_in_container(widgets[old_depth - 1], widget);
+				insert_widget_in_container(widgets[old_depth - 1], widget, 1);
 			}
 
 			cp = string_sub(line, 1, -1);
@@ -260,7 +260,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
 
 	if (old_depth != 0)
 	{
-		insert_widget_in_container(widgets[old_depth - 1], widget);
+		insert_widget_in_container(widgets[old_depth - 1], widget, 1);
 	}
 
 	return 1;
@@ -387,7 +387,7 @@ void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 	widget_container = create_widget_object(CONTAINER_ID);
 	widget_container->x = widget->x;
 	widget_container->y = widget->y;
-	insert_widget_in_container(widget_container, widget);
+	insert_widget_in_container(widget_container, widget, 0);
 }
 
 static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
@@ -1471,7 +1471,7 @@ int widget_event_move_stop(int x, int y)
 	widget_container = get_outermost_container(get_widget_owner(x, y, get_outermost_container(widget)->next, NULL));
 
 	/* Attempt to insert it into the widget container if it exists. */
-	insert_widget_in_container(widget_container, get_outermost_container(widget));
+	insert_widget_in_container(widget_container, get_outermost_container(widget), 0);
 
 	return 1;
 }
@@ -1848,7 +1848,7 @@ void SetPriorityWidget_reverse(widgetdata *node)
 	node->next = NULL;
 }
 
-void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget)
+void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget, int absolute)
 {
 	_widget_container *container;
 	_widget_container_strip *container_strip;
@@ -1913,7 +1913,7 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
 		}
 	}
 	/* no widgets inside it yet, so snap it to the bounds of the container */
-	else
+	else if (!absolute)
 	{
 		move_widget(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->y + container->outer_padding_top - widget->y);
 	}
@@ -2333,11 +2333,11 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 	if (menu_type == MENU_CHECKBOX)
 	{
 		widget_texture = add_texture(val ? "checkbox_on" : "checkbox_off");
-		insert_widget_in_container(widget_menuitem, widget_texture);
+		insert_widget_in_container(widget_menuitem, widget_texture, 0);
 	}
 
-	insert_widget_in_container(widget_menuitem, widget_label);
-	insert_widget_in_container(menu, widget_menuitem);
+	insert_widget_in_container(widget_menuitem, widget_label, 0);
+	insert_widget_in_container(menu, widget_menuitem, 0);
 
 	/* Add the pointer to the function to the menuitem. */
 	menuitem = MENUITEM(widget_menuitem);

@@ -580,7 +580,7 @@ extern widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widget
 extern void process_widgets(int draw);
 extern void SetPriorityWidget(widgetdata *node);
 extern void SetPriorityWidget_reverse(widgetdata *node);
-extern void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget);
+extern void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget, int absolute);
 extern widgetdata *get_outermost_container(widgetdata *widget);
 extern widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface);
 extern widgetdata *widget_find_create_id(int type, const char *id);
