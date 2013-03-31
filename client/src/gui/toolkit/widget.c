@@ -390,6 +390,62 @@ void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 	insert_widget_in_container(widget_container, widget, 0);
 }
 
+void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *tmp, *container;
+	_widget_label *label;
+	
+	container = get_innermost_container(widget);
+
+	for (tmp = menuitem->inv; tmp; tmp = tmp->next)
+	{
+		if (tmp->type == LABEL_ID)
+		{
+			label = LABEL(tmp);
+			logger_print(LOG(INFO), "%s, %s", label->text, container->texture ? container->texture->name : "NONE");
+			
+			SDL_FreeSurface(container->surface);
+			container->surface = NULL;
+			
+			container->texture_type = WIDGET_TEXTURE_TYPE_NORMAL;
+			container->texture = NULL;
+			
+			if (strcmp(label->text, "Blank") == 0)
+			{
+				strncpy(container->bg, "#000000", sizeof(container->bg) - 1);
+				container->bg[sizeof(container->bg) - 1] = '\0';
+			}
+			else if (strcmp(label->text, "Texturised") == 0)
+			{
+				strncpy(container->bg, "widget_bg", sizeof(container->bg) - 1);
+				container->bg[sizeof(container->bg) - 1] = '\0';
+			}
+			else if (strcmp(label->text, "Transparent") == 0)
+			{
+				container->texture_type = WIDGET_TEXTURE_TYPE_NONE;
+			}
+			
+			WIDGET_REDRAW(container);
+
+			break;
+		}
+	}
+}
+
+void menu_container_background(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+	widgetdata *submenu, *container;
+	int is_widget_bg;
+
+	submenu = MENU(menuitem->env)->submenu;
+	container = get_innermost_container(widget);
+	is_widget_bg = container->texture != NULL && strstr(container->texture->name, "widget_bg") != NULL;
+	
+	add_menuitem(submenu, "Blank", &menu_container_background_change, MENU_RADIO, container->texture != NULL && !is_widget_bg);
+	add_menuitem(submenu, "Texturised", &menu_container_background_change, MENU_RADIO, container->texture != NULL && is_widget_bg);
+	add_menuitem(submenu, "Transparent", &menu_container_background_change, MENU_RADIO, container->texture == NULL);
+}
+
 static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 	widgetdata *submenu, *outermost;
@@ -400,6 +456,7 @@ static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 	if (outermost->type == CONTAINER_ID)
 	{
 		add_menuitem(submenu, "Move", &menu_container_move, MENU_NORMAL, 0);
+		add_menuitem(submenu, "Background  >", &menu_container_background, MENU_SUBMENU, 0);
 	}
 
 	if (widget != outermost)
@@ -1086,6 +1143,16 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
 		if (widget->min_h != def_widget[widget->sub_type].min_h)
 		{
 			fprintf(fp, "%smin_h = %d\n", padding, widget->min_h);
+		}
+		
+		if (strcmp(widget->bg, def_widget[widget->sub_type].bg) != 0)
+		{
+			fprintf(fp, "%sbg = %s\n", padding, widget->bg);
+		}
+
+		if (widget->texture_type != def_widget[widget->sub_type].texture_type)
+		{
+			fprintf(fp, "%stexture_type = %d\n", padding, widget->texture_type);
 		}
 
 		if (widget->save_func)
@@ -1990,6 +2057,21 @@ widgetdata *get_outermost_container(widgetdata *widget)
 		widget = tmp;
 	}
 
+	return widget;
+}
+
+widgetdata *get_innermost_container(widgetdata *widget)
+{
+	widgetdata *tmp;
+	
+	for (tmp = widget; tmp; tmp = tmp->env)
+	{
+		if (tmp->type == CONTAINER_ID)
+		{
+			return tmp;
+		}
+	}
+	
 	return widget;
 }
 
