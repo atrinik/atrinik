@@ -123,7 +123,6 @@
 		<Unit filename="..\..\src\gui\widgets\playerdoll.c" />
 		<Unit filename="..\..\src\gui\widgets\playerinfo.c" />
 		<Unit filename="..\..\src\gui\widgets\quickslots.c" />
-		<Unit filename="..\..\src\gui\widgets\regen.c" />
 		<Unit filename="..\..\src\gui\widgets\skill_exp.c" />
 		<Unit filename="..\..\src\gui\widgets\skills.c" />
 		<Unit filename="..\..\src\gui\widgets\spells.c" />

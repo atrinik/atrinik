@@ -192,12 +192,12 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
 				case CS_STAT_REG_HP:
 					cpl.gen_hp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
-					WIDGET_REDRAW_ALL(REGEN_ID);
+					widget_redraw_type_id(STAT_ID, "health");
 					break;
 
 				case CS_STAT_REG_MANA:
 					cpl.gen_sp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
-					WIDGET_REDRAW_ALL(REGEN_ID);
+					widget_redraw_type_id(STAT_ID, "mana");
 					break;
 
 				case CS_STAT_HP:

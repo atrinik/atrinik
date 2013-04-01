@@ -234,7 +234,7 @@ extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int 
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation);
 extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
-extern void surface_set_alpha(SDL_Surface *surface, Uint8 alpha);
+extern void surface_set_alpha(SDL_Surface *surface, uint8 alpha);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
@@ -705,8 +705,6 @@ extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
 extern void quickslots_handle_key(int slot);
 extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
-/* src/gui/widgets/regen.c */
-extern void widget_regen_init(widgetdata *widget);
 /* src/gui/widgets/skill_exp.c */
 extern void widget_skill_exp_init(widgetdata *widget);
 /* src/gui/widgets/skills.c */

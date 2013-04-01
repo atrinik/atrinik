@@ -144,7 +144,6 @@ set(SOURCES
 	src/gui/widgets/playerdoll.c
 	src/gui/widgets/playerinfo.c
 	src/gui/widgets/quickslots.c
-	src/gui/widgets/regen.c
 	src/gui/widgets/skill_exp.c
 	src/gui/widgets/skills.c
 	src/gui/widgets/spells.c
