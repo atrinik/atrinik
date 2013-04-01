@@ -234,6 +234,7 @@ extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int 
 extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation);
 extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
+extern void surface_set_alpha(SDL_Surface *surface, Uint8 alpha);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
@@ -548,6 +549,7 @@ extern void text_input_add_char(text_input_struct *text_input, char c);
 extern int text_input_event(text_input_struct *text_input, SDL_Event *event);
 /* src/gui/toolkit/tooltip.c */
 extern void tooltip_create(int mx, int my, int font, const char *text);
+extern void tooltip_enable_delay(uint32 delay);
 extern void tooltip_multiline(int max_width);
 extern void tooltip_show(void);
 extern void tooltip_dismiss(void);

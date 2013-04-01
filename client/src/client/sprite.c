@@ -1063,3 +1063,43 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
 
 	border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
 }
+
+/**
+ * Changes alpha value of the specified surface. If the surface is per-pixel
+ * alpha, changes every pixel on the surface to match the specified alpha value.
+ * @param surface Surface to change alpha value of.
+ * @param alpha Alpha value to set.
+ */
+void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
+{
+	SDL_PixelFormat *fmt = surface->format;
+
+	if (fmt->Amask == 0)
+	{
+		SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+	}
+	else
+	{
+		int x, y;
+		uint8 bpp = fmt->BytesPerPixel;
+		float scale = alpha / 255.0f;
+
+		SDL_LockSurface(surface);
+
+		for (y = 0; y < surface->h; y++) 
+		{
+			for (x = 0; x < surface->w; x++)
+			{
+				uint8 r, g, b, a;
+				uint32 *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch + x * bpp);
+				
+				SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
+
+				*pixel_ptr = SDL_MapRGBA(fmt, r, g, b, scale * a);
+			}   
+
+		}
+		
+		SDL_UnlockSurface(surface);
+	}
+} 

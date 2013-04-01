@@ -36,6 +36,41 @@ static const char *const display_modes[] = {
 	"Sphere", "Bar", "Text"
 };
 
+/**
+ * Get data for the stat widget.
+ */
+static void stat_get_data(widgetdata *widget, int *curr, int *max, float *regen)
+{
+	if (strcmp(widget->id, "health") == 0)
+	{
+		*curr = cpl.stats.hp;
+		*max = cpl.stats.maxhp;
+		*regen = cpl.gen_hp;
+	}
+	else if (strcmp(widget->id, "mana") == 0)
+	{
+		*curr = cpl.stats.sp;
+		*max = cpl.stats.maxsp;
+		*regen = cpl.gen_sp;
+	}
+	else if (strcmp(widget->id, "food") == 0)
+	{
+		*curr = cpl.stats.food;
+		*max = 999;
+		*regen = 0;
+	}
+	else if (strcmp(widget->id, "exp") == 0)
+	{
+		*curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
+		*max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
+		*regen = 0;
+	}
+	else
+	{
+		*curr = *max = *regen = 1;
+	}
+}
+
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
@@ -46,38 +81,21 @@ static void widget_draw(widgetdata *widget)
 	if (widget->redraw)
 	{
 		int curr, max;
+		float regen;
 		char buf[MAX_BUF];
 		SDL_Rect box;
 
-		if (strcmp(widget->id, "health") == 0)
-		{
-			curr = cpl.stats.hp;
-			max = cpl.stats.maxhp;
-		}
-		else if (strcmp(widget->id, "mana") == 0)
-		{
-			curr = cpl.stats.sp;
-			max = cpl.stats.maxsp;
-		}
-		else if (strcmp(widget->id, "food") == 0)
-		{
-			curr = cpl.stats.food;
-			max = 999;
-		}
-		else if (strcmp(widget->id, "exp") == 0)
-		{
-			curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
-			max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
-		}
-		else
-		{
-			curr = max = 1;
-		}
+		stat_get_data(widget, &curr, &max, &regen);
 
 		if (strcmp(tmp->texture, "text") == 0)
 		{
 			snprintf(buf, sizeof(buf), "%s: %d/%d", widget->id, curr, max);
 			string_title(buf);
+			
+			if (regen)
+			{
+				snprintfcat(buf, sizeof(buf), "\nRegen: %2.1f/s", regen);
+			}
 
 			box.w = widget->surface->w;
 			box.h = widget->surface->h;
@@ -127,6 +145,31 @@ static void widget_draw(widgetdata *widget)
 			surface_show_fill(widget->surface, box.x, box.y, NULL, TEXTURE_CLIENT(buf), &box);
 		}
 	}
+}
+
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+	if (event->type == SDL_MOUSEMOTION)
+	{
+		int curr, max;
+		float regen;
+		
+		stat_get_data(widget, &curr, &max, &regen);
+		
+		if (regen)
+		{
+			char buf[MAX_BUF];
+			
+			snprintf(buf, sizeof(buf), "Regen: %2.1f/s", regen);
+			tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+			tooltip_enable_delay(300);
+		}
+		
+		return 1;
+	}
+	
+	return 0;
 }
 
 /** @copydoc widgetdata::deinit_func */
@@ -227,6 +270,7 @@ void widget_stat_init(widgetdata *widget)
 	tmp = calloc(1, sizeof(*tmp));
 
 	widget->draw_func = widget_draw;
+	widget->event_func = widget_event;
 	widget->deinit_func = widget_deinit;
 	widget->load_func = widget_load;
 	widget->save_func = widget_save;

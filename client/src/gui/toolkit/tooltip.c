@@ -40,6 +40,9 @@ static int tooltip_x = -1;
 static int tooltip_y = -1;
 static int tooltip_h = -1;
 static int tooltip_w = -1;
+static uint32 tooltip_created = 0;
+static uint32 tooltip_delay = 0;
+static uint8 tooltip_opacity = 0;
 
 /**
  * Creates a new tooltip. This must be called every frame in order for
@@ -50,11 +53,25 @@ static int tooltip_w = -1;
  * @param text The text to show in the tooltip. */
 void tooltip_create(int mx, int my, int font, const char *text)
 {
+	tooltip_delay = 0;
 	tooltip_font = font;
 	tooltip_x = mx;
 	tooltip_y = my;
 	strncpy(tooltip_text, text, sizeof(tooltip_text) - 1);
 	tooltip_text[sizeof(tooltip_text) - 1] = '\0';
+}
+
+/**
+ * Adds a delay before the tooltip is shown.
+ * @param Delay in milliseconds. */
+void tooltip_enable_delay(uint32 delay)
+{
+	tooltip_delay = delay;
+	
+	if (tooltip_created + delay < SDL_GetTicks())
+	{
+		tooltip_created = SDL_GetTicks();
+	}
 }
 
 /**
@@ -87,6 +104,21 @@ void tooltip_show(void)
 	if (tooltip_x == -1 || tooltip_y == -1)
 	{
 		return;
+	}
+	
+	if (tooltip_delay)
+	{
+		if (SDL_GetTicks() - tooltip_created < tooltip_delay)
+		{
+			tooltip_opacity = 0;
+			return;
+		}
+		
+		tooltip_created = SDL_GetTicks() + tooltip_delay;
+	}
+	else
+	{
+		tooltip_opacity = 255;
 	}
 
 	if (tooltip_w != -1)
@@ -125,8 +157,13 @@ void tooltip_show(void)
 		box.y -= (box.y + box.h + 1) - ScreenSurface->h;
 	}
 
-	SDL_FillRect(ScreenSurface, &box, -1);
-	text_show(ScreenSurface, tooltip_font, tooltip_text, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box);
+	boxRGBA(ScreenSurface, box.x, box.y, box.x + box.w, box.y + box.h, 255, 255, 255, tooltip_opacity);
+	text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "<alpha=%d>%s</alpha>", tooltip_opacity, tooltip_text);
+	
+	if (tooltip_delay)
+	{
+		tooltip_opacity = MIN(255, tooltip_opacity + 25);
+	}
 }
 
 /**

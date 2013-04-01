@@ -1989,7 +1989,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		}
 
 		/* Render the character. */
-		if (flags & TEXT_SOLID || info->used_alpha != 255)
+		if (flags & TEXT_SOLID)
 		{
 			ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *use_color);
 
@@ -2012,6 +2012,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 		else
 		{
 			ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *use_color);
+			
+			if (info->used_alpha != 255)
+			{
+				surface_set_alpha(ttf_surface, info->used_alpha);
+			}
 		}
 
 		if (info->in_strikethrough)
