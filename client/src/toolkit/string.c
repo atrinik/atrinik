@@ -974,3 +974,27 @@ char *string_repeat(const char *str, size_t num)
 
 	return ret;
 }
+
+/**
+ * Like snprintf(), but appends the formatted string to the specified buffer.
+ * The buffer must contain a null-byte.
+ * @param buf Buffer to append to.
+ * @param size Maximum size of the buffer. 
+ * @param fmt Format specifier.
+ * @param ... Format arguments.
+ * @return Length of string in the buffer.
+ */
+size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
+{
+	size_t result;
+	va_list args;
+	size_t len;
+	
+	len = strnlen(buf, size);
+
+	va_start(args, fmt);
+	result = vsnprintf(buf + len, size - len, fmt, args);
+	va_end(args);
+
+	return result + len;
+}

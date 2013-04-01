@@ -918,6 +918,7 @@ extern char *string_crypt(char *str, const char *salt);
 extern char *string_join(const char *delim, ...);
 extern char *string_join_array(const char *delim, char **array, size_t arraysize);
 extern char *string_repeat(const char *str, size_t num);
+extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
