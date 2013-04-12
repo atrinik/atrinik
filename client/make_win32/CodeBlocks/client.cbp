@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Atrinik Client" />
+		<Option pch_mode="0" />
+		<Option default_target="Release" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="..\..\..\client" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-Os" />
+				</Compiler>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Release;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option='-I&quot;&lt;INCLUDE&gt;\SDL&quot; -Dmain=SDL_main -mms-bitfields' />
+			<Add option="-DWIN32" />
+			<Add option="-DMINGW" />
+			<Add option="-DCURL_STATICLIB" />
+			<Add option="-DHAVE_SDL_MIXER" />
+			<Add directory="..\..\src\include" />
+			<Add directory="..\..\src\toolkit\include" />
+			<Add directory="..\..\src\gui\toolkit\include" />
+			<Add directory="include" />
+			<Add directory="include\SDL" />
+		</Compiler>
+		<Linker>
+			<Add library="mingw32" />
+			<Add library="wsock32" />
+			<Add directory="lib" />
+			<Add library="SDLmain" />
+			<Add library="SDL_image.dll" />
+			<Add library="SDL_mixer.dll" />
+			<Add library="SDL_ttf.dll" />
+			<Add library="SDL.dll" />
+			<Add library="curl" />
+			<Add library="zdll" />
+			<Add library="libwsock32.a" />
+			<Add library="libwinmm.a" />
+			<Add library="libpthread.a" />
+		</Linker>
+		<Unit filename="README" />
+		<Unit filename="..\..\src\client\animations.c" />
+		<Unit filename="..\..\src\client\client.c" />
+		<Unit filename="..\..\src\client\cmd_aliases.c" />
+		<Unit filename="..\..\src\client\commands.c" />
+		<Unit filename="..\..\src\client\curl.c" />
+		<Unit filename="..\..\src\client\image.c" />
+		<Unit filename="..\..\src\client\item.c" />
+		<Unit filename="..\..\src\client\keybind.c" />
+		<Unit filename="..\..\src\client\main.c" />
+		<Unit filename="..\..\src\client\menu.c" />
+		<Unit filename="..\..\src\client\metaserver.c" />
+		<Unit filename="..\..\src\client\misc.c" />
+		<Unit filename="..\..\src\client\player.c" />
+		<Unit filename="..\..\src\client\server_files.c" />
+		<Unit filename="..\..\src\client\server_settings.c" />
+		<Unit filename="..\..\src\client\settings.c" />
+		<Unit filename="..\..\src\client\socket.c" />
+		<Unit filename="..\..\src\client\sound.c" />
+		<Unit filename="..\..\src\client\sprite.c" />
+		<Unit filename="..\..\src\client\texture.c" />
+		<Unit filename="..\..\src\client\tilestretcher.c" />
+		<Unit filename="..\..\src\client\updates.c" />
+		<Unit filename="..\..\src\client\upgrader.c" />
+		<Unit filename="..\..\src\client\video.c" />
+		<Unit filename="..\..\src\client\wrapper.c" />
+		<Unit filename="..\..\src\events\event.c" />
+		<Unit filename="..\..\src\events\keys.c" />
+		<Unit filename="..\..\src\events\move.c" />
+		<Unit filename="..\..\src\gui\misc\effects.c" />
+		<Unit filename="..\..\src\gui\misc\game_news.c" />
+		<Unit filename="..\..\src\gui\misc\intro.c" />
+		<Unit filename="..\..\src\gui\popups\book.c" />
+		<Unit filename="..\..\src\gui\popups\characters.c" />
+		<Unit filename="..\..\src\gui\popups\color_chooser.c" />
+		<Unit filename="..\..\src\gui\popups\credits.c" />
+		<Unit filename="..\..\src\gui\popups\help.c" />
+		<Unit filename="..\..\src\gui\popups\interface.c" />
+		<Unit filename="..\..\src\gui\popups\login.c" />
+		<Unit filename="..\..\src\gui\popups\region_map.c" />
+		<Unit filename="..\..\src\gui\popups\settings.c" />
+		<Unit filename="..\..\src\gui\popups\settings_client.c" />
+		<Unit filename="..\..\src\gui\popups\settings_keybinding.c" />
+		<Unit filename="..\..\src\gui\popups\updater.c" />
+		<Unit filename="..\..\src\gui\toolkit\SDL_gfx.c" />
+		<Unit filename="..\..\src\gui\toolkit\SDL_rotozoom.c" />
+		<Unit filename="..\..\src\gui\toolkit\button.c" />
+		<Unit filename="..\..\src\gui\toolkit\color_picker.c" />
+		<Unit filename="..\..\src\gui\toolkit\list.c" />
+		<Unit filename="..\..\src\gui\toolkit\popup.c" />
+		<Unit filename="..\..\src\gui\toolkit\progress.c" />
+		<Unit filename="..\..\src\gui\toolkit\range_buttons.c" />
+		<Unit filename="..\..\src\gui\toolkit\scrollbar.c" />
+		<Unit filename="..\..\src\gui\toolkit\text.c" />
+		<Unit filename="..\..\src\gui\toolkit\text_input.c" />
+		<Unit filename="..\..\src\gui\toolkit\tooltip.c" />
+		<Unit filename="..\..\src\gui\toolkit\widget.c" />
+		<Unit filename="..\..\src\gui\widgets\active_effects.c" />
+		<Unit filename="..\..\src\gui\widgets\buddy.c" />
+		<Unit filename="..\..\src\gui\widgets\container.c" />
+		<Unit filename="..\..\src\gui\widgets\fps.c" />
+		<Unit filename="..\..\src\gui\widgets\input.c" />
+		<Unit filename="..\..\src\gui\widgets\inventory.c" />
+		<Unit filename="..\..\src\gui\widgets\label.c" />
+		<Unit filename="..\..\src\gui\widgets\main_lvl.c" />
+		<Unit filename="..\..\src\gui\widgets\map.c" />
+		<Unit filename="..\..\src\gui\widgets\mapname.c" />
+		<Unit filename="..\..\src\gui\widgets\menu.c" />
+		<Unit filename="..\..\src\gui\widgets\menu_buttons.c" />
+		<Unit filename="..\..\src\gui\widgets\mplayer.c" />
+		<Unit filename="..\..\src\gui\widgets\notification.c" />
+		<Unit filename="..\..\src\gui\widgets\party.c" />
+		<Unit filename="..\..\src\gui\widgets\playerdoll.c" />
+		<Unit filename="..\..\src\gui\widgets\playerinfo.c" />
+		<Unit filename="..\..\src\gui\widgets\quickslots.c" />
+		<Unit filename="..\..\src\gui\widgets\skill_exp.c" />
+		<Unit filename="..\..\src\gui\widgets\skills.c" />
+		<Unit filename="..\..\src\gui\widgets\spells.c" />
+		<Unit filename="..\..\src\gui\widgets\stat.c" />
+		<Unit filename="..\..\src\gui\widgets\texture.c" />
+		<Unit filename="..\..\src\gui\widgets\textwin.c" />
+		<Unit filename="..\..\src\toolkit\binreloc.c" />
+		<Unit filename="..\..\src\toolkit\bzr.c" />
+		<Unit filename="..\..\src\toolkit\clioptions.c" />
+		<Unit filename="..\..\src\toolkit\colorspace.c" />
+		<Unit filename="..\..\src\toolkit\console.c" />
+		<Unit filename="..\..\src\toolkit\datetime.c" />
+		<Unit filename="..\..\src\toolkit\logger.c" />
+		<Unit filename="..\..\src\toolkit\math.c" />
+		<Unit filename="..\..\src\toolkit\memory.c" />
+		<Unit filename="..\..\src\toolkit\mempool.c" />
+		<Unit filename="..\..\src\toolkit\packet.c" />
+		<Unit filename="..\..\src\toolkit\path.c" />
+		<Unit filename="..\..\src\toolkit\porting.c" />
+		<Unit filename="..\..\src\toolkit\sha1.c" />
+		<Unit filename="..\..\src\toolkit\shstr.c" />
+		<Unit filename="..\..\src\toolkit\signals.c" />
+		<Unit filename="..\..\src\toolkit\string.c" />
+		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
+		<Unit filename="..\..\src\toolkit\toolkit.c" />
+		<Unit filename="..\..\src\toolkit\x11.c" />
+		<Extensions>
+			<envvars />
+			<lib_finder />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

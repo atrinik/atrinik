@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="atrinik_server.cbp" active="1" />
+		<Project filename="server.cbp" active="1" />
 		<Project filename="plugin_arena.cbp" />
 		<Project filename="plugin_python.cbp" />
 	</Workspace>
