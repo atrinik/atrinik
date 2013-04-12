@@ -207,12 +207,15 @@ static void metaserver_update(void)
  * @return NULL. */
 static void *metaserver_thread(void *junk)
 {
+	(void) junk;
+	
 	while (1)
 	{
 		metaserver_update();
 		sleep(300);
 	}
+	
+	logger_print(LOG(INFO), "Metaserver thread exiting.");
 
-	(void) junk;
 	return NULL;
 }
