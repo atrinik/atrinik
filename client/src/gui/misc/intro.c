@@ -49,7 +49,7 @@ static uint32 eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8 eyes_draw = 1;
 /** Button buffer. */
-static button_struct button_play, button_refresh, button_settings, button_update, button_help, button_credits, button_quit;
+static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit;
 
 /** The news list. */
 static list_struct *list_news = NULL;
@@ -138,6 +138,7 @@ void intro_show(void)
 	{
 		button_create(&button_play);
 		button_create(&button_refresh);
+		button_create(&button_server);
 		button_create(&button_settings);
 		button_create(&button_update);
 		button_create(&button_help);
@@ -283,7 +284,7 @@ void intro_show(void)
 	/* Show the news list. */
 	list_show(list_news, x + 13, y + 10);
 
-	button_play.x = button_refresh.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = 489;
+	button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = 489;
 	y += 2;
 
 	button_play.y = y + 10;
@@ -291,17 +292,20 @@ void intro_show(void)
 
 	button_refresh.y = y + 35;
 	button_show(&button_refresh, "Refresh");
+	
+	button_server.y = y + 60;
+	button_show(&button_server, "Server");
 
-	button_settings.y = y + 60;
+	button_settings.y = y + 86;
 	button_show(&button_settings, "Settings");
 
-	button_update.y = y + 85;
+	button_update.y = y + 110;
 	button_show(&button_update, "Update");
 
-	button_help.y = y + 110;
+	button_help.y = y + 135;
 	button_show(&button_help, "Help");
 
-	button_credits.y = y + 135;
+	button_credits.y = y + 160;
 	button_show(&button_credits, "Credits");
 
 	button_quit.y = y + 224;
@@ -345,6 +349,11 @@ int intro_event(SDL_Event *event)
 			cpl.state = ST_META;
 		}
 
+		return 1;
+	}
+	else if (button_event(&button_server, event))
+	{
+		server_add_open();
 		return 1;
 	}
 	else if (button_event(&button_settings, event))

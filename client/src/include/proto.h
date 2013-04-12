@@ -340,6 +340,8 @@ extern void login_start(void);
 /* src/gui/popups/region_map.c */
 extern void region_map_clear(void);
 extern void socket_command_region_map(uint8 *data, size_t len, size_t pos);
+/* src/gui/popups/server_add.c */
+extern void server_add_open(void);
 /* src/gui/popups/settings.c */
 extern void settings_open(void);
 /* src/gui/popups/settings_client.c */
@@ -348,67 +350,6 @@ extern void settings_client_open(void);
 extern void settings_keybinding_open(void);
 /* src/gui/popups/updater.c */
 extern void updater_open(void);
-/* src/gui/toolkit/button.c */
-extern void button_init(void);
-extern void button_create(button_struct *button);
-extern void button_set_parent(button_struct *button, int px, int py);
-extern int button_need_redraw(button_struct *button);
-extern void button_show(button_struct *button, const char *text);
-extern int button_event(button_struct *button, SDL_Event *event);
-extern void button_tooltip(button_struct *button, int font, const char *text);
-/* src/gui/toolkit/color_picker.c */
-extern void color_picker_create(color_picker_struct *color_picker, int size);
-extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
-extern void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation);
-extern void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b);
-extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
-extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
-extern int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my);
-/* src/gui/toolkit/list.c */
-extern void list_set_parent(list_struct *list, int px, int py);
-extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
-extern void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
-extern void list_remove_row(list_struct *list, uint32 row);
-extern void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
-extern void list_set_font(list_struct *list, int font);
-extern void list_scrollbar_enable(list_struct *list);
-extern int list_need_redraw(list_struct *list);
-extern void list_show(list_struct *list, int x, int y);
-extern void list_clear_rows(list_struct *list);
-extern void list_clear(list_struct *list);
-extern void list_offsets_ensure(list_struct *list);
-extern void list_remove(list_struct *list);
-extern void list_scroll(list_struct *list, int up, int scroll);
-extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
-extern int list_handle_mouse(list_struct *list, SDL_Event *event);
-extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
-extern void list_sort(list_struct *list, int type);
-extern int list_set_selected(list_struct *list, const char *str, uint32 col);
-/* src/gui/toolkit/popup.c */
-extern popup_struct *popup_create(texture_struct *texture);
-extern void popup_destroy(popup_struct *popup);
-extern void popup_destroy_all(void);
-extern void popup_render(popup_struct *popup);
-extern void popup_render_all(void);
-extern int popup_handle_event(SDL_Event *event);
-extern popup_struct *popup_get_head(void);
-extern void popup_button_set_text(popup_button *button, const char *text);
-/* src/gui/toolkit/progress.c */
-extern void progress_dots_create(progress_dots *progress);
-extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
-extern int progress_dots_width(progress_dots *progress);
-/* src/gui/toolkit/range_buttons.c */
-extern int range_buttons_show(int x, int y, int *val, int advance);
-/* src/gui/toolkit/scrollbar.c */
-extern void scrollbar_init(void);
-extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
-extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
-extern void scrollbar_info_create(scrollbar_info_struct *info);
-extern void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll);
-extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
-extern void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
-extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
-extern int scrollbar_get_width(scrollbar_struct *scrollbar);
 /* src/gui/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
@@ -503,6 +444,67 @@ extern SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoo
 extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 extern SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 extern SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
+/* src/gui/toolkit/button.c */
+extern void button_init(void);
+extern void button_create(button_struct *button);
+extern void button_set_parent(button_struct *button, int px, int py);
+extern int button_need_redraw(button_struct *button);
+extern void button_show(button_struct *button, const char *text);
+extern int button_event(button_struct *button, SDL_Event *event);
+extern void button_tooltip(button_struct *button, int font, const char *text);
+/* src/gui/toolkit/color_picker.c */
+extern void color_picker_create(color_picker_struct *color_picker, int size);
+extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
+extern void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation);
+extern void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b);
+extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
+extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
+extern int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my);
+/* src/gui/toolkit/list.c */
+extern void list_set_parent(list_struct *list, int px, int py);
+extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
+extern void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
+extern void list_remove_row(list_struct *list, uint32 row);
+extern void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
+extern void list_set_font(list_struct *list, int font);
+extern void list_scrollbar_enable(list_struct *list);
+extern int list_need_redraw(list_struct *list);
+extern void list_show(list_struct *list, int x, int y);
+extern void list_clear_rows(list_struct *list);
+extern void list_clear(list_struct *list);
+extern void list_offsets_ensure(list_struct *list);
+extern void list_remove(list_struct *list);
+extern void list_scroll(list_struct *list, int up, int scroll);
+extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
+extern int list_handle_mouse(list_struct *list, SDL_Event *event);
+extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
+extern void list_sort(list_struct *list, int type);
+extern int list_set_selected(list_struct *list, const char *str, uint32 col);
+/* src/gui/toolkit/popup.c */
+extern popup_struct *popup_create(texture_struct *texture);
+extern void popup_destroy(popup_struct *popup);
+extern void popup_destroy_all(void);
+extern void popup_render(popup_struct *popup);
+extern void popup_render_all(void);
+extern int popup_handle_event(SDL_Event *event);
+extern popup_struct *popup_get_head(void);
+extern void popup_button_set_text(popup_button *button, const char *text);
+/* src/gui/toolkit/progress.c */
+extern void progress_dots_create(progress_dots *progress);
+extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
+extern int progress_dots_width(progress_dots *progress);
+/* src/gui/toolkit/range_buttons.c */
+extern int range_buttons_show(int x, int y, int *val, int advance);
+/* src/gui/toolkit/scrollbar.c */
+extern void scrollbar_init(void);
+extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
+extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines);
+extern void scrollbar_info_create(scrollbar_info_struct *info);
+extern void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll);
+extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
+extern void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y);
+extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
+extern int scrollbar_get_width(scrollbar_struct *scrollbar);
 /* src/gui/toolkit/text.c */
 extern font_struct fonts[FONTS_MAX];
 extern void text_init(void);

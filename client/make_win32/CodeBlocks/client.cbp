@@ -88,6 +88,7 @@
 		<Unit filename="..\..\src\gui\popups\interface.c" />
 		<Unit filename="..\..\src\gui\popups\login.c" />
 		<Unit filename="..\..\src\gui\popups\region_map.c" />
+		<Unit filename="..\..\src\gui\popups\server_add.c" />
 		<Unit filename="..\..\src\gui\popups\settings.c" />
 		<Unit filename="..\..\src\gui\popups\settings_client.c" />
 		<Unit filename="..\..\src\gui\popups\settings_keybinding.c" />

@@ -38,6 +38,7 @@ set(SOURCES
 	src/gui/popups/interface.c
 	src/gui/popups/login.c
 	src/gui/popups/region_map.c
+	src/gui/popups/server_add.c
 	src/gui/popups/settings.c
 	src/gui/popups/settings_client.c
 	src/gui/popups/settings_keybinding.c
