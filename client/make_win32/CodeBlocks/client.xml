@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Atrinik Client" />
+		<Option pch_mode="0" />
+		<Option default_target="Release" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="..\..\atrinik.exe" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="..\..\..\client" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-Os" />
+				</Compiler>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Release;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option='-I&quot;&lt;INCLUDE&gt;\SDL&quot; -Dmain=SDL_main -mms-bitfields' />
+			<Add option="-DWIN32" />
+			<Add option="-DMINGW" />
+			<Add option="-DCURL_STATICLIB" />
+			<Add option="-DHAVE_SDL_MIXER" />
+			<Add directory="..\..\src\include" />
+			<Add directory="..\..\src\toolkit\include" />
+			<Add directory="..\..\src\gui\toolkit\include" />
+			<Add directory="include" />
+			<Add directory="include\SDL" />
+		</Compiler>
+		<Linker>
+			<Add library="mingw32" />
+			<Add library="wsock32" />
+			<Add directory="lib" />
+			<Add library="SDLmain" />
+			<Add library="SDL_image.dll" />
+			<Add library="SDL_mixer.dll" />
+			<Add library="SDL_ttf.dll" />
+			<Add library="SDL.dll" />
+			<Add library="curl" />
+			<Add library="zdll" />
+			<Add library="libwsock32.a" />
+			<Add library="libwinmm.a" />
+			<Add library="libpthread.a" />
+		</Linker>
+		<Unit filename="README" />
+		<Projectunits />
+		<Extensions>
+			<envvars />
+			<lib_finder />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
