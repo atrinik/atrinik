@@ -449,7 +449,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 			sec = packet_to_sint32(data, len, pos);
 			packet_to_string(data, len, pos, msg, sizeof(msg));
 			
-			widget_active_effects_add(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
+			widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
 		}
 	}
 }

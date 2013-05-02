@@ -235,7 +235,12 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 		{
 			sint32 sec;
 			
-			sec = 60;
+			sec = -1;
+			
+			if (QUERY_FLAG(op, FLAG_IS_USED_UP))
+			{
+				sec = ABS(op->speed_left / op->speed / (1000000 / max_time));
+			}
 			
 			packet_append_sint32(packet, sec);
 			packet_append_string_terminated(packet, op->msg ? op->msg : "");

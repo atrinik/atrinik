@@ -734,7 +734,20 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 	if (!is_refresh)
 	{
 		SET_FLAG(force, FLAG_APPLIED);
+		SET_FLAG(force, FLAG_IS_USED_UP);
+		force->face = spells[spell_type].at->clone.face;
+		FREE_AND_COPY_HASH(force->name, spells[spell_type].name);
+		
+		if (spells[spell_type].at->clone.msg)
+		{
+			FREE_AND_COPY_HASH(force->msg, spells[spell_type].at->clone.msg);
+		}
+		
 		force = insert_ob_in_ob(force, tmp);
+	}
+	else
+	{
+		esrv_update_item(UPD_EXTRA, force);
 	}
 
 	if (msg_flag)
