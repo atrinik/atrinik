@@ -43,6 +43,19 @@ static void widget_draw(widgetdata *widget)
 
 }
 
+void widget_active_effects_add(widgetdata *widget, object *op, sint32 sec, const char *msg)
+{
+	if (!(op->flags & CS_FLAG_APPLIED))
+	{
+		return;
+	}
+	
+}
+
+void widget_active_effects_remove(widgetdata *widget, object *op)
+{
+}
+
 /**
  * Initialize one active effects widget. */
 void widget_active_effects_init(widgetdata *widget)

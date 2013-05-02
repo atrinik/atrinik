@@ -89,6 +89,87 @@ extern void command_version(object *op, const char *command, char *params);
 extern void command_whereami(object *op, const char *command, char *params);
 /* src/commands/player/who.c */
 extern void command_who(object *op, const char *command, char *params);
+/* src/loaders/map_header.c */
+extern int yy_map_headerleng;
+extern FILE *yy_map_headerin;
+extern FILE *yy_map_headerout;
+extern int yy_map_headerlineno;
+extern int yy_map_header_flex_debug;
+extern char *yy_map_headertext;
+extern int map_lex_load(mapstruct *m);
+extern void yy_map_headerrestart(FILE *input_file);
+extern void yy_map_headerpop_buffer_state(void);
+extern int yy_map_headerget_lineno(void);
+extern FILE *yy_map_headerget_in(void);
+extern FILE *yy_map_headerget_out(void);
+extern int yy_map_headerget_leng(void);
+extern char *yy_map_headerget_text(void);
+extern void yy_map_headerset_lineno(int line_number);
+extern void yy_map_headerset_in(FILE *in_str);
+extern void yy_map_headerset_out(FILE *out_str);
+extern int yy_map_headerget_debug(void);
+extern void yy_map_headerset_debug(int bdebug);
+extern int yy_map_headerlex_destroy(void);
+extern void yy_map_headerfree(void *ptr);
+extern int map_set_variable(mapstruct *m, char *buf);
+extern void free_map_header_loader(void);
+extern int load_map_header(mapstruct *m, FILE *fp);
+extern void save_map_header(mapstruct *m, FILE *fp, int flag);
+/* src/loaders/object.c */
+extern int yy_objectleng;
+extern FILE *yy_objectin;
+extern FILE *yy_objectout;
+extern int yy_objectlineno;
+extern int yy_object_flex_debug;
+extern char *yy_objecttext;
+extern int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
+extern void yy_objectrestart(FILE *input_file);
+extern void yy_objectpop_buffer_state(void);
+extern int yy_objectget_lineno(void);
+extern FILE *yy_objectget_in(void);
+extern FILE *yy_objectget_out(void);
+extern int yy_objectget_leng(void);
+extern char *yy_objectget_text(void);
+extern void yy_objectset_lineno(int line_number);
+extern void yy_objectset_in(FILE *in_str);
+extern void yy_objectset_out(FILE *out_str);
+extern int yy_objectget_debug(void);
+extern void yy_objectset_debug(int bdebug);
+extern int yy_objectlex_destroy(void);
+extern void yy_objectfree(void *ptr);
+extern int yyerror(char *s);
+extern void free_object_loader(void);
+extern void delete_loader_buffer(void *buffer);
+extern void *create_loader_buffer(void *fp);
+extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
+extern int set_variable(object *op, const char *buf);
+extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
+extern void save_object(FILE *fp, object *op);
+/* src/loaders/random_map.c */
+extern int yy_random_mapleng;
+extern FILE *yy_random_mapin;
+extern FILE *yy_random_mapout;
+extern int yy_random_maplineno;
+extern int yy_random_map_flex_debug;
+extern char *yy_random_maptext;
+extern int rmap_lex_read(RMParms *RP);
+extern void yy_random_maprestart(FILE *input_file);
+extern void yy_random_mappop_buffer_state(void);
+extern int yy_random_mapget_lineno(void);
+extern FILE *yy_random_mapget_in(void);
+extern FILE *yy_random_mapget_out(void);
+extern int yy_random_mapget_leng(void);
+extern char *yy_random_mapget_text(void);
+extern void yy_random_mapset_lineno(int line_number);
+extern void yy_random_mapset_in(FILE *in_str);
+extern void yy_random_mapset_out(FILE *out_str);
+extern int yy_random_mapget_debug(void);
+extern void yy_random_mapset_debug(int bdebug);
+extern int yy_random_maplex_destroy(void);
+extern void yy_random_mapfree(void *ptr);
+extern int load_parameters(FILE *fp, int bufstate, RMParms *RP);
+extern int set_random_map_variable(RMParms *rp, const char *buf);
+extern void free_random_map_loader(void);
 /* src/random_maps/decor.c */
 extern void put_decor(mapstruct *map, char **layout, RMParms *RP);
 /* src/random_maps/door.c */
@@ -498,14 +579,14 @@ extern ob_race *race_find(shstr *name);
 extern ob_race *race_get_random(void);
 extern void race_init(void);
 extern void race_free(void);
+/* src/server/re-cmp.c */
+extern const char *re_cmp(const char *str, const char *regexp);
 /* src/server/readable.c */
 extern int book_overflow(const char *buf1, const char *buf2, size_t booksize);
 extern void init_readable(void);
 extern object *get_random_mon(void);
 extern void tailor_readable_ob(object *book, int msg_type);
 extern void free_all_readable(void);
-/* src/server/re-cmp.c */
-extern const char *re_cmp(const char *str, const char *regexp);
 /* src/server/region.c */
 extern region *first_region;
 extern region *get_region_by_name(const char *region_name);
@@ -726,6 +807,313 @@ extern void play_sound_map(mapstruct *map, int type, const char *filename, int x
 /* src/socket/updates.c */
 extern void updates_init(void);
 extern void socket_command_request_update(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
+/* src/types/ability.c */
+extern void object_type_init_ability(void);
+/* src/types/amulet.c */
+extern void object_type_init_amulet(void);
+/* src/types/armour.c */
+extern void object_type_init_armour(void);
+/* src/types/arrow.c */
+extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
+extern sint16 arrow_get_damage(object *op, object *bow, object *arrow);
+extern object *arrow_find(object *op, shstr *type);
+extern void object_type_init_arrow(void);
+/* src/types/base_info.c */
+extern void object_type_init_base_info(void);
+/* src/types/beacon.c */
+extern void beacon_add(object *ob);
+extern void beacon_remove(object *ob);
+extern object *beacon_locate(shstr *name);
+extern void object_type_init_beacon(void);
+/* src/types/blindness.c */
+extern void object_type_init_blindness(void);
+/* src/types/book.c */
+extern void object_type_init_book(void);
+/* src/types/boots.c */
+extern void object_type_init_boots(void);
+/* src/types/bow.c */
+extern sint32 bow_get_ws(object *bow, object *arrow);
+extern int bow_get_skill(object *bow);
+extern void object_type_init_bow(void);
+/* src/types/bracers.c */
+extern void object_type_init_bracers(void);
+/* src/types/bullet.c */
+extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
+extern void object_type_init_bullet(void);
+/* src/types/button.c */
+extern void object_type_init_button(void);
+/* src/types/check_inv.c */
+extern object *check_inv(object *op, object *ob);
+extern void object_type_init_check_inv(void);
+/* src/types/class.c */
+extern void object_type_init_class(void);
+/* src/types/client_map_info.c */
+extern void object_type_init_client_map_info(void);
+/* src/types/cloak.c */
+extern void object_type_init_cloak(void);
+/* src/types/clock.c */
+extern void object_type_init_clock(void);
+/* src/types/common/apply.c */
+extern int common_object_apply(object *op, object *applier, int aflags);
+extern int object_apply_item(object *op, object *applier, int aflags);
+/* src/types/common/describe.c */
+extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
+/* src/types/common/move_on.c */
+extern int common_object_move_on(object *op, object *victim, object *originator, int state);
+/* src/types/common/process.c */
+extern int common_object_process_pre(object *op);
+extern void common_object_process(object *op);
+/* src/types/common/projectile.c */
+extern void common_object_projectile_process(object *op);
+extern object *common_object_projectile_move(object *op);
+extern object *common_object_projectile_stop_missile(object *op, int reason);
+extern object *common_object_projectile_stop_spell(object *op, int reason);
+extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
+extern int common_object_projectile_hit(object *op, object *victim);
+extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
+/* src/types/common/throw.c */
+extern int common_object_throw(object *op, object *shooter, int dir);
+/* src/types/compass.c */
+extern void object_type_init_compass(void);
+/* src/types/cone.c */
+extern void object_type_init_cone(void);
+/* src/types/confusion.c */
+extern void object_type_init_confusion(void);
+/* src/types/container.c */
+extern int check_magical_container(object *op, object *container);
+extern int container_close(object *applier, object *op);
+extern void object_type_init_container(void);
+/* src/types/corpse.c */
+extern void object_type_init_corpse(void);
+/* src/types/creator.c */
+extern void object_type_init_creator(void);
+/* src/types/dead_object.c */
+extern void object_type_init_dead_object(void);
+/* src/types/detector.c */
+extern void object_type_init_detector(void);
+/* src/types/director.c */
+extern void object_type_init_director(void);
+/* src/types/disease.c */
+extern int move_disease(object *disease);
+extern int infect_object(object *victim, object *disease, int force);
+extern void move_symptom(object *symptom);
+extern void check_physically_infect(object *victim, object *hitter);
+extern int cure_disease(object *sufferer, object *caster);
+extern int reduce_symptoms(object *sufferer, int reduction);
+extern void object_type_init_disease(void);
+/* src/types/door.c */
+extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
+extern object *find_key(object *op, object *door);
+extern void object_type_init_door(void);
+/* src/types/drink.c */
+extern void object_type_init_drink(void);
+/* src/types/duplicator.c */
+extern void object_type_init_duplicator(void);
+/* src/types/event_obj.c */
+extern void object_type_init_event_obj(void);
+/* src/types/exit.c */
+extern void object_type_init_exit(void);
+/* src/types/experience.c */
+extern void object_type_init_experience(void);
+/* src/types/firewall.c */
+extern void object_type_init_firewall(void);
+/* src/types/flesh.c */
+extern void object_type_init_flesh(void);
+/* src/types/floor.c */
+extern void object_type_init_floor(void);
+/* src/types/food.c */
+extern void object_type_init_food(void);
+/* src/types/force.c */
+extern void object_type_init_force(void);
+/* src/types/gate.c */
+extern void object_type_init_gate(void);
+/* src/types/gem.c */
+extern void object_type_init_gem(void);
+/* src/types/girdle.c */
+extern void object_type_init_girdle(void);
+/* src/types/gloves.c */
+extern void object_type_init_gloves(void);
+/* src/types/god.c */
+extern void object_type_init_god(void);
+/* src/types/gravestone.c */
+extern const char *gravestone_text(object *op);
+extern void object_type_init_gravestone(void);
+/* src/types/greaves.c */
+extern void object_type_init_greaves(void);
+/* src/types/handle.c */
+extern void object_type_init_handle(void);
+/* src/types/helmet.c */
+extern void object_type_init_helmet(void);
+/* src/types/holy_altar.c */
+extern void object_type_init_holy_altar(void);
+/* src/types/inorganic.c */
+extern void object_type_init_inorganic(void);
+/* src/types/jewel.c */
+extern void object_type_init_jewel(void);
+/* src/types/key.c */
+extern void object_type_init_key(void);
+/* src/types/light_apply.c */
+extern void object_type_init_light_apply(void);
+/* src/types/light_refill.c */
+extern void object_type_init_light_refill(void);
+/* src/types/light_source.c */
+extern void object_type_init_light_source(void);
+/* src/types/lightning.c */
+extern void object_type_init_lightning(void);
+/* src/types/magic_mirror.c */
+extern void magic_mirror_init(object *mirror);
+extern void magic_mirror_deinit(object *mirror);
+extern mapstruct *magic_mirror_get_map(object *mirror);
+extern void object_type_init_magic_mirror(void);
+/* src/types/map.c */
+extern void object_type_init_map(void);
+/* src/types/map_event_obj.c */
+extern void object_type_init_map_event_obj(void);
+/* src/types/map_info.c */
+extern void map_info_init(object *info);
+extern void object_type_init_map_info(void);
+/* src/types/marker.c */
+extern void object_type_init_marker(void);
+/* src/types/material.c */
+extern void object_type_init_material(void);
+/* src/types/misc_object.c */
+extern void object_type_init_misc_object(void);
+/* src/types/money.c */
+extern void object_type_init_money(void);
+/* src/types/monster.c */
+extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
+extern object *check_enemy(object *npc, rv_vector *rv);
+extern object *find_enemy(object *npc, rv_vector *rv);
+extern void object_type_init_monster(void);
+extern int talk_to_npc(object *op, object *npc, char *txt);
+extern int faction_is_friend_of(object *mon, object *pl);
+extern int is_friend_of(object *op, object *obj);
+extern int check_good_weapon(object *who, object *item);
+extern int check_good_armour(object *who, object *item);
+/* src/types/nugget.c */
+extern void object_type_init_nugget(void);
+/* src/types/organic.c */
+extern void object_type_init_organic(void);
+/* src/types/pearl.c */
+extern void object_type_init_pearl(void);
+/* src/types/pedestal.c */
+extern int pedestal_matches_obj(object *op, object *tmp);
+extern void object_type_init_pedestal(void);
+/* src/types/player.c */
+extern mempool_struct *pool_player;
+extern void player_init(void);
+extern void player_deinit(void);
+extern void player_disconnect_all(void);
+extern player *find_player(const char *plname);
+extern void display_motd(object *op);
+extern void free_player(player *pl);
+extern void give_initial_items(object *pl, treasurelist *items);
+extern int handle_newcs_player(player *pl);
+extern void do_some_living(object *op);
+extern void kill_player(object *op);
+extern void cast_dust(object *op, object *throw_ob, int dir);
+extern int pvp_area(object *attacker, object *victim);
+extern object *find_skill(object *op, int skillnr);
+extern int player_can_carry(object *pl, uint32 weight);
+extern char *player_get_race_class(object *op, char *buf, size_t size);
+extern void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y);
+extern void player_path_clear(player *pl);
+extern void player_path_handle(player *pl);
+extern sint64 player_faction_reputation(player *pl, shstr *faction);
+extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
+extern int player_has_region_map(player *pl, region *r);
+extern char *player_sanitize_input(char *str);
+extern void player_cleanup_name(char *str);
+extern object *find_marked_object(object *op);
+extern char *long_desc(object *tmp, object *caller);
+extern void examine(object *op, object *tmp, StringBuffer *sb_capture);
+extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
+extern void pick_up(object *op, object *alt, int no_mevent);
+extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
+extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
+extern void drop(object *op, object *tmp, int no_mevent);
+extern object *player_equipment_get(object *pl, int type);
+extern char *player_make_path(const char *name, const char *ext);
+extern int player_exists(const char *name);
+extern void player_save(object *op);
+extern void player_login(socket_struct *ns, const char *name, archetype *at);
+extern void object_type_init_player(void);
+/* src/types/player_mover.c */
+extern void object_type_init_player_mover(void);
+/* src/types/poisoning.c */
+extern void object_type_init_poisoning(void);
+/* src/types/potion.c */
+extern void object_type_init_potion(void);
+/* src/types/potion_effect.c */
+extern void object_type_init_potion_effect(void);
+/* src/types/power_crystal.c */
+extern void object_type_init_power_crystal(void);
+/* src/types/quest_container.c */
+extern void object_type_init_quest_container(void);
+/* src/types/random_drop.c */
+extern void object_type_init_random_drop(void);
+/* src/types/ring.c */
+extern void object_type_init_ring(void);
+/* src/types/rod.c */
+extern void object_type_init_rod(void);
+/* src/types/rune.c */
+extern void object_type_init_rune(void);
+/* src/types/savebed.c */
+extern void object_type_init_savebed(void);
+/* src/types/scroll.c */
+extern void object_type_init_scroll(void);
+/* src/types/shield.c */
+extern void object_type_init_shield(void);
+/* src/types/shop_floor.c */
+extern void object_type_init_shop_floor(void);
+/* src/types/shop_mat.c */
+extern void object_type_init_shop_mat(void);
+/* src/types/sign.c */
+extern void object_type_init_sign(void);
+/* src/types/skill.c */
+extern void object_type_init_skill(void);
+/* src/types/skill_item.c */
+extern void object_type_init_skill_item(void);
+/* src/types/sound_ambient.c */
+extern void sound_ambient_init(object *ob);
+extern void object_type_init_sound_ambient(void);
+/* src/types/spawn_point.c */
+extern void object_type_init_spawn_point(void);
+/* src/types/spawn_point_info.c */
+extern void object_type_init_spawn_point_info(void);
+/* src/types/spawn_point_mob.c */
+extern void object_type_init_spawn_point_mob(void);
+/* src/types/spell.c */
+extern void object_type_init_spell(void);
+/* src/types/spinner.c */
+extern void object_type_init_spinner(void);
+/* src/types/swarm_spell.c */
+extern void object_type_init_swarm_spell(void);
+/* src/types/symptom.c */
+extern void object_type_init_symptom(void);
+/* src/types/teleporter.c */
+extern void object_type_init_teleporter(void);
+/* src/types/treasure.c */
+extern void object_type_init_treasure(void);
+/* src/types/wall.c */
+extern void object_type_init_wall(void);
+/* src/types/wand.c */
+extern void object_type_init_wand(void);
+/* src/types/waypoint.c */
+extern object *get_active_waypoint(object *op);
+extern object *get_aggro_waypoint(object *op);
+extern object *get_return_waypoint(object *op);
+extern void waypoint_compute_path(object *waypoint);
+extern void waypoint_move(object *op, object *waypoint);
+extern void object_type_init_waypoint(void);
+/* src/types/wealth.c */
+extern void object_type_init_wealth(void);
+/* src/types/weapon.c */
+extern int weapon_determine_skill(object *op);
+extern object *weapon_get_skill(object *op, object *owner);
+extern void object_type_init_weapon(void);
+/* src/types/word_of_recall.c */
+extern void object_type_init_word_of_recall(void);
 /* src/toolkit/binreloc.c */
 extern void toolkit_binreloc_init(void);
 extern void toolkit_binreloc_deinit(void);
@@ -926,320 +1314,7 @@ extern void x11_window_activate(x11_display_type display, x11_window_type win, u
 extern int x11_clipboard_register_events(void);
 extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
 extern char *x11_clipboard_get(x11_display_type display, x11_window_type win);
-/* src/types/common/apply.c */
-extern int common_object_apply(object *op, object *applier, int aflags);
-extern int object_apply_item(object *op, object *applier, int aflags);
-/* src/types/common/describe.c */
-extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
-/* src/types/common/move_on.c */
-extern int common_object_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/common/process.c */
-extern int common_object_process_pre(object *op);
-extern void common_object_process(object *op);
-/* src/types/common/projectile.c */
-extern void common_object_projectile_process(object *op);
-extern object *common_object_projectile_move(object *op);
-extern object *common_object_projectile_stop_missile(object *op, int reason);
-extern object *common_object_projectile_stop_spell(object *op, int reason);
-extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
-extern int common_object_projectile_hit(object *op, object *victim);
-extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/common/throw.c */
-extern int common_object_throw(object *op, object *shooter, int dir);
-/* src/types/ability.c */
-extern void object_type_init_ability(void);
-/* src/types/amulet.c */
-extern void object_type_init_amulet(void);
-/* src/types/armour.c */
-extern void object_type_init_armour(void);
-/* src/types/arrow.c */
-extern sint16 arrow_get_wc(object *op, object *bow, object *arrow);
-extern sint16 arrow_get_damage(object *op, object *bow, object *arrow);
-extern object *arrow_find(object *op, shstr *type);
-extern void object_type_init_arrow(void);
-/* src/types/base_info.c */
-extern void object_type_init_base_info(void);
-/* src/types/beacon.c */
-extern void beacon_add(object *ob);
-extern void beacon_remove(object *ob);
-extern object *beacon_locate(shstr *name);
-extern void object_type_init_beacon(void);
-/* src/types/blindness.c */
-extern void object_type_init_blindness(void);
-/* src/types/book.c */
-extern void object_type_init_book(void);
-/* src/types/boots.c */
-extern void object_type_init_boots(void);
-/* src/types/bow.c */
-extern sint32 bow_get_ws(object *bow, object *arrow);
-extern int bow_get_skill(object *bow);
-extern void object_type_init_bow(void);
-/* src/types/bracers.c */
-extern void object_type_init_bracers(void);
-/* src/types/bullet.c */
-extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
-extern void object_type_init_bullet(void);
-/* src/types/button.c */
-extern void object_type_init_button(void);
-/* src/types/check_inv.c */
-extern object *check_inv(object *op, object *ob);
-extern void object_type_init_check_inv(void);
-/* src/types/class.c */
-extern void object_type_init_class(void);
-/* src/types/client_map_info.c */
-extern void object_type_init_client_map_info(void);
-/* src/types/cloak.c */
-extern void object_type_init_cloak(void);
-/* src/types/clock.c */
-extern void object_type_init_clock(void);
-/* src/types/compass.c */
-extern void object_type_init_compass(void);
-/* src/types/cone.c */
-extern void object_type_init_cone(void);
-/* src/types/confusion.c */
-extern void object_type_init_confusion(void);
-/* src/types/container.c */
-extern int check_magical_container(object *op, object *container);
-extern int container_close(object *applier, object *op);
-extern void object_type_init_container(void);
-/* src/types/corpse.c */
-extern void object_type_init_corpse(void);
-/* src/types/creator.c */
-extern void object_type_init_creator(void);
-/* src/types/dead_object.c */
-extern void object_type_init_dead_object(void);
-/* src/types/detector.c */
-extern void object_type_init_detector(void);
-/* src/types/director.c */
-extern void object_type_init_director(void);
-/* src/types/disease.c */
-extern int move_disease(object *disease);
-extern int infect_object(object *victim, object *disease, int force);
-extern void move_symptom(object *symptom);
-extern void check_physically_infect(object *victim, object *hitter);
-extern int cure_disease(object *sufferer, object *caster);
-extern int reduce_symptoms(object *sufferer, int reduction);
-extern void object_type_init_disease(void);
-/* src/types/door.c */
-extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
-extern object *find_key(object *op, object *door);
-extern void object_type_init_door(void);
-/* src/types/drink.c */
-extern void object_type_init_drink(void);
-/* src/types/duplicator.c */
-extern void object_type_init_duplicator(void);
-/* src/types/event_obj.c */
-extern void object_type_init_event_obj(void);
-/* src/types/exit.c */
-extern void object_type_init_exit(void);
-/* src/types/experience.c */
-extern void object_type_init_experience(void);
-/* src/types/firewall.c */
-extern void object_type_init_firewall(void);
-/* src/types/flesh.c */
-extern void object_type_init_flesh(void);
-/* src/types/floor.c */
-extern void object_type_init_floor(void);
-/* src/types/food.c */
-extern void object_type_init_food(void);
-/* src/types/force.c */
-extern void object_type_init_force(void);
-/* src/types/gate.c */
-extern void object_type_init_gate(void);
-/* src/types/gem.c */
-extern void object_type_init_gem(void);
-/* src/types/girdle.c */
-extern void object_type_init_girdle(void);
-/* src/types/gloves.c */
-extern void object_type_init_gloves(void);
-/* src/types/god.c */
-extern void object_type_init_god(void);
-/* src/types/gravestone.c */
-extern const char *gravestone_text(object *op);
-extern void object_type_init_gravestone(void);
-/* src/types/greaves.c */
-extern void object_type_init_greaves(void);
-/* src/types/handle.c */
-extern void object_type_init_handle(void);
-/* src/types/helmet.c */
-extern void object_type_init_helmet(void);
-/* src/types/holy_altar.c */
-extern void object_type_init_holy_altar(void);
-/* src/types/inorganic.c */
-extern void object_type_init_inorganic(void);
-/* src/types/jewel.c */
-extern void object_type_init_jewel(void);
-/* src/types/key.c */
-extern void object_type_init_key(void);
-/* src/types/light_apply.c */
-extern void object_type_init_light_apply(void);
-/* src/types/lightning.c */
-extern void object_type_init_lightning(void);
-/* src/types/light_refill.c */
-extern void object_type_init_light_refill(void);
-/* src/types/light_source.c */
-extern void object_type_init_light_source(void);
-/* src/types/magic_mirror.c */
-extern void magic_mirror_init(object *mirror);
-extern void magic_mirror_deinit(object *mirror);
-extern mapstruct *magic_mirror_get_map(object *mirror);
-extern void object_type_init_magic_mirror(void);
-/* src/types/map.c */
-extern void object_type_init_map(void);
-/* src/types/map_event_obj.c */
-extern void object_type_init_map_event_obj(void);
-/* src/types/map_info.c */
-extern void map_info_init(object *info);
-extern void object_type_init_map_info(void);
-/* src/types/marker.c */
-extern void object_type_init_marker(void);
-/* src/types/material.c */
-extern void object_type_init_material(void);
-/* src/types/misc_object.c */
-extern void object_type_init_misc_object(void);
-/* src/types/money.c */
-extern void object_type_init_money(void);
-/* src/types/monster.c */
-extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
-extern object *check_enemy(object *npc, rv_vector *rv);
-extern object *find_enemy(object *npc, rv_vector *rv);
-extern void object_type_init_monster(void);
-extern int talk_to_npc(object *op, object *npc, char *txt);
-extern int faction_is_friend_of(object *mon, object *pl);
-extern int is_friend_of(object *op, object *obj);
-extern int check_good_weapon(object *who, object *item);
-extern int check_good_armour(object *who, object *item);
-/* src/types/nugget.c */
-extern void object_type_init_nugget(void);
-/* src/types/organic.c */
-extern void object_type_init_organic(void);
-/* src/types/pearl.c */
-extern void object_type_init_pearl(void);
-/* src/types/pedestal.c */
-extern int pedestal_matches_obj(object *op, object *tmp);
-extern void object_type_init_pedestal(void);
-/* src/types/player.c */
-extern mempool_struct *pool_player;
-extern void player_init(void);
-extern void player_deinit(void);
-extern void player_disconnect_all(void);
-extern player *find_player(const char *plname);
-extern void display_motd(object *op);
-extern void free_player(player *pl);
-extern void give_initial_items(object *pl, treasurelist *items);
-extern int handle_newcs_player(player *pl);
-extern void do_some_living(object *op);
-extern void kill_player(object *op);
-extern void cast_dust(object *op, object *throw_ob, int dir);
-extern int pvp_area(object *attacker, object *victim);
-extern object *find_skill(object *op, int skillnr);
-extern int player_can_carry(object *pl, uint32 weight);
-extern char *player_get_race_class(object *op, char *buf, size_t size);
-extern void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y);
-extern void player_path_clear(player *pl);
-extern void player_path_handle(player *pl);
-extern sint64 player_faction_reputation(player *pl, shstr *faction);
-extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
-extern int player_has_region_map(player *pl, region *r);
-extern char *player_sanitize_input(char *str);
-extern void player_cleanup_name(char *str);
-extern object *find_marked_object(object *op);
-extern char *long_desc(object *tmp, object *caller);
-extern void examine(object *op, object *tmp, StringBuffer *sb_capture);
-extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
-extern void pick_up(object *op, object *alt, int no_mevent);
-extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
-extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
-extern void drop(object *op, object *tmp, int no_mevent);
-extern object *player_equipment_get(object *pl, int type);
-extern char *player_make_path(const char *name, const char *ext);
-extern int player_exists(const char *name);
-extern void player_save(object *op);
-extern void player_login(socket_struct *ns, const char *name, archetype *at);
-extern void object_type_init_player(void);
-/* src/types/player_mover.c */
-extern void object_type_init_player_mover(void);
-/* src/types/poisoning.c */
-extern void object_type_init_poisoning(void);
-/* src/types/potion.c */
-extern void object_type_init_potion(void);
-/* src/types/potion_effect.c */
-extern void object_type_init_potion_effect(void);
-/* src/types/power_crystal.c */
-extern void object_type_init_power_crystal(void);
-/* src/types/quest_container.c */
-extern void object_type_init_quest_container(void);
-/* src/types/random_drop.c */
-extern void object_type_init_random_drop(void);
-/* src/types/ring.c */
-extern void object_type_init_ring(void);
-/* src/types/rod.c */
-extern void object_type_init_rod(void);
-/* src/types/rune.c */
-extern void object_type_init_rune(void);
-/* src/types/savebed.c */
-extern void object_type_init_savebed(void);
-/* src/types/scroll.c */
-extern void object_type_init_scroll(void);
-/* src/types/shield.c */
-extern void object_type_init_shield(void);
-/* src/types/shop_floor.c */
-extern void object_type_init_shop_floor(void);
-/* src/types/shop_mat.c */
-extern void object_type_init_shop_mat(void);
-/* src/types/sign.c */
-extern void object_type_init_sign(void);
-/* src/types/skill.c */
-extern void object_type_init_skill(void);
-/* src/types/skill_item.c */
-extern void object_type_init_skill_item(void);
-/* src/types/sound_ambient.c */
-extern void sound_ambient_init(object *ob);
-extern void object_type_init_sound_ambient(void);
-/* src/types/spawn_point.c */
-extern void object_type_init_spawn_point(void);
-/* src/types/spawn_point_info.c */
-extern void object_type_init_spawn_point_info(void);
-/* src/types/spawn_point_mob.c */
-extern void object_type_init_spawn_point_mob(void);
-/* src/types/spell.c */
-extern void object_type_init_spell(void);
-/* src/types/spinner.c */
-extern void object_type_init_spinner(void);
-/* src/types/swarm_spell.c */
-extern void object_type_init_swarm_spell(void);
-/* src/types/symptom.c */
-extern void object_type_init_symptom(void);
-/* src/types/teleporter.c */
-extern void object_type_init_teleporter(void);
-/* src/types/treasure.c */
-extern void object_type_init_treasure(void);
-/* src/types/wall.c */
-extern void object_type_init_wall(void);
-/* src/types/wand.c */
-extern void object_type_init_wand(void);
-/* src/types/waypoint.c */
-extern object *get_active_waypoint(object *op);
-extern object *get_aggro_waypoint(object *op);
-extern object *get_return_waypoint(object *op);
-extern void waypoint_compute_path(object *waypoint);
-extern void waypoint_move(object *op, object *waypoint);
-extern void object_type_init_waypoint(void);
-/* src/types/wealth.c */
-extern void object_type_init_wealth(void);
-/* src/types/weapon.c */
-extern int weapon_determine_skill(object *op);
-extern object *weapon_get_skill(object *op, object *owner);
-extern void object_type_init_weapon(void);
-/* src/types/word_of_recall.c */
-extern void object_type_init_word_of_recall(void);
 /* src/loaders/map_header.c */
-extern int yy_map_headerleng;
-extern FILE *yy_map_headerin;
-extern FILE *yy_map_headerout;
-extern int yy_map_headerlineno;
-extern int yy_map_header_flex_debug;
-extern char *yy_map_headertext;
 extern int map_lex_load(mapstruct *m);
 extern void yy_map_headerrestart(FILE *input_file);
 extern void yy_map_headerpop_buffer_state(void);
@@ -1260,12 +1335,6 @@ extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
-extern int yy_objectleng;
-extern FILE *yy_objectin;
-extern FILE *yy_objectout;
-extern int yy_objectlineno;
-extern int yy_object_flex_debug;
-extern char *yy_objecttext;
 extern int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
 extern void yy_objectrestart(FILE *input_file);
 extern void yy_objectpop_buffer_state(void);
@@ -1290,12 +1359,6 @@ extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c*/
-extern int yy_random_mapleng;
-extern FILE *yy_random_mapin;
-extern FILE *yy_random_mapout;
-extern int yy_random_maplineno;
-extern int yy_random_map_flex_debug;
-extern char *yy_random_maptext;
 extern int rmap_lex_read(RMParms *RP);
 extern void yy_random_maprestart(FILE *input_file);
 extern void yy_random_mappop_buffer_state(void);

@@ -697,7 +697,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 	if (force == NULL)
 	{
-		force = get_archetype("force");
+		force = get_archetype("force_effect");
 	}
 
 	/* Mark this force with the originating spell */

@@ -231,6 +231,15 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 			packet_append_uint8(packet, op->level);
 			packet_append_sint64(packet, op->stats.exp);
 		}
+		else if (op->type == FORCE)
+		{
+			sint32 sec;
+			
+			sec = 60;
+			
+			packet_append_sint32(packet, sec);
+			packet_append_string_terminated(packet, op->msg ? op->msg : "");
+		}
 	}
 }
 

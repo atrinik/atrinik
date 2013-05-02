@@ -441,6 +441,16 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 
 			skills_update(tmp, skill_level, skill_exp);
 		}
+		else if (tmp->itype == TYPE_FORCE)
+		{
+			sint32 sec;
+			char msg[HUGE_BUF];
+			
+			sec = packet_to_sint32(data, len, pos);
+			packet_to_string(data, len, pos, msg, sizeof(msg));
+			
+			widget_active_effects_add(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
+		}
 	}
 }
 
