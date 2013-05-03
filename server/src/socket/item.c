@@ -231,7 +231,7 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 			packet_append_uint8(packet, op->level);
 			packet_append_sint64(packet, op->stats.exp);
 		}
-		else if (op->type == FORCE)
+		else if (op->type == FORCE || op->type == POISONING)
 		{
 			sint32 sec;
 			
@@ -239,7 +239,9 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 			
 			if (QUERY_FLAG(op, FLAG_IS_USED_UP))
 			{
-				sec = ABS(op->speed_left / op->speed / (1000000 / max_time));
+				sec = (int) (op->speed_left / op->speed / (float) (1000000 / max_time) + (1.0 / op->speed / (float) (1000000 / max_time) * (float) op->stats.food - 1));
+				sec = ABS(sec);
+				
 			}
 			
 			packet_append_sint32(packet, sec);

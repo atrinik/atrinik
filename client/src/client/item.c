@@ -204,7 +204,7 @@ void object_remove(object *op)
 	{
 		skills_remove(op);
 	}
-	else if (op->itype == TYPE_FORCE)
+	else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING)
 	{
 		widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
 	}

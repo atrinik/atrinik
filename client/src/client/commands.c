@@ -441,7 +441,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 
 			skills_update(tmp, skill_level, skill_exp);
 		}
-		else if (tmp->itype == TYPE_FORCE)
+		else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING)
 		{
 			sint32 sec;
 			char msg[HUGE_BUF];

@@ -60,6 +60,7 @@ static void poison_player(object *op, object *hitter, float dam)
 {
 	archetype *at;
 	object *tmp;
+	int dam2;
 
 	/* We only poison players and mobs! */
 	if (op->type != PLAYER && !QUERY_FLAG(op, FLAG_MONSTER))
@@ -75,6 +76,18 @@ static void poison_player(object *op, object *hitter, float dam)
 	at = find_archetype("poisoning");
 	tmp = present_arch_in_ob(at, op);
 
+	dam /= 2.0f;
+	dam2 = (int) ((int) dam + rndm(0, dam + 1));
+
+	if (dam2 > op->stats.maxhp / 3)
+	{
+		dam2 = op->stats.maxhp / 3;
+	}
+	else if (dam2 < 1)
+	{
+		dam2 = 1;
+	}
+
 	if (tmp == NULL)
 	{
 		if ((tmp = arch_to_object(at)) == NULL)
@@ -82,47 +95,33 @@ static void poison_player(object *op, object *hitter, float dam)
 			logger_print(LOG(BUG), "Failed to clone arch poisoning.");
 			return;
 		}
+
+		tmp->level = hitter->level;
+		tmp->stats.dam = dam2;
+		/* So we get credit for poisoning kills */
+		copy_owner(tmp, hitter);
+
+		if (op->type == PLAYER)
+		{
+			draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
+			SET_FLAG(tmp, FLAG_APPLIED);
+			insert_ob_in_ob(tmp, op);
+			fix_player(op);
+		}
+		/* It's a monster */
 		else
 		{
-			dam /= 2.0f;
-			tmp->stats.dam = (int) ((int) dam + rndm(0, dam + 1));
+			SET_FLAG(tmp, FLAG_APPLIED);
+			insert_ob_in_ob(tmp, op);
+			fix_monster(op);
 
-			if (tmp->stats.dam > op->stats.maxhp / 3)
+			if (hitter->type == PLAYER)
 			{
-				tmp->stats.dam = op->stats.maxhp / 3;
+				draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
 			}
-
-			if (tmp->stats.dam < 1)
+			else if (get_owner(hitter) && hitter->owner->type == PLAYER)
 			{
-				tmp->stats.dam = 1;
-			}
-
-			tmp->level = hitter->level;
-			/* So we get credit for poisoning kills */
-			copy_owner(tmp, hitter);
-
-			if (op->type == PLAYER)
-			{
-				draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
-				insert_ob_in_ob(tmp, op);
-				SET_FLAG(tmp, FLAG_APPLIED);
-				fix_player(op);
-			}
-			/* It's a monster */
-			else
-			{
-				insert_ob_in_ob(tmp, op);
-				SET_FLAG(tmp, FLAG_APPLIED);
-				fix_monster(op);
-
-				if (hitter->type == PLAYER)
-				{
-					draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
-				}
-				else if (get_owner(hitter) && hitter->owner->type == PLAYER)
-				{
-					draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
-				}
+				draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
 			}
 		}
 
@@ -131,6 +130,12 @@ static void poison_player(object *op, object *hitter, float dam)
 	else
 	{
 		tmp->stats.food++;
+		esrv_update_item(UPD_EXTRA, tmp);
+		
+		if (dam2 > tmp->stats.dam)
+		{
+			tmp->stats.dam = dam2;
+		}
 	}
 }
 

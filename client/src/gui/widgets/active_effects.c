@@ -82,15 +82,23 @@ static void widget_draw(widgetdata *widget)
 	if (SDL_GetTicks() - tmp->update_ticks > 1000)
 	{
 		uint8 redraw;
+		int sec;
 		
 		redraw = 0;
+		sec = (SDL_GetTicks() - tmp->update_ticks) / 1000;
 		tmp->update_ticks = SDL_GetTicks();
 		
 		DL_FOREACH(tmp->active_effects, effect)
 		{
 			if (effect->sec > 0)
 			{
-				effect->sec--;
+				effect->sec -= sec;
+				
+				if (effect->sec < 0)
+				{
+					effect->sec = 0;
+				}
+				
 				redraw = 1;
 			}
 		}
@@ -113,8 +121,6 @@ static void widget_draw(widgetdata *widget)
 	{
 		int x, y;
 		sprite_struct *sprite;
-		char buf[MAX_BUF];
-		SDL_Rect textbox;
 		
 		x = y = 0;
 		
@@ -123,6 +129,11 @@ static void widget_draw(widgetdata *widget)
 		DL_FOREACH(tmp->active_effects, effect)
 		{
 			sprite = FaceList[effect->op->face].sprite;
+			
+			if (!sprite)
+			{
+				continue;
+			}
 			
 			if (x + sprite->bitmap->w > widget->w)
 			{
@@ -137,18 +148,25 @@ static void widget_draw(widgetdata *widget)
 			}
 			
 			face_show(widget->surface, x, y, effect->op->face);
-			textbox.w = sprite->bitmap->w;
 			
-			if (effect->sec > 60)
+			if (effect->sec != -1)
 			{
-				snprintf(buf, sizeof(buf), "%d:%02d", effect->sec / 60, effect->sec % 60);
-			}
-			else
-			{
-				snprintf(buf, sizeof(buf), "%d", effect->sec);
-			}
+				SDL_Rect textbox;
+				char buf[MAX_BUF];
+				
+				textbox.w = sprite->bitmap->w;
+				
+				if (effect->sec > 60)
+				{
+					snprintf(buf, sizeof(buf), "%d:%02d", effect->sec / 60, effect->sec % 60);
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf), "%d", effect->sec);
+				}
 			
-			text_show(widget->surface, FONT_MONO8, buf, x, y + sprite->bitmap->h - FONT_HEIGHT(FONT_MONO8), COLOR_WHITE, TEXT_OUTLINE | TEXT_ALIGN_CENTER, &textbox);
+				text_show(widget->surface, FONT_MONO8, buf, x, y + sprite->bitmap->h - FONT_HEIGHT(FONT_MONO8), COLOR_WHITE, TEXT_OUTLINE | TEXT_ALIGN_CENTER, &textbox);
+			}
 			
 			x += sprite->bitmap->w + 5;
 		}
@@ -177,6 +195,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 		DL_FOREACH(tmp->active_effects, effect)
 		{
 			sprite = FaceList[effect->op->face].sprite;
+			
+			if (!sprite)
+			{
+				continue;
+			}
 			
 			if (x + sprite->bitmap->w > widget->w)
 			{
