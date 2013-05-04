@@ -622,6 +622,11 @@ int attack_perform(object *hitter, object *target)
 			damage[attacktype] += MAX(1, dam * ((double) hitter->attack[attacktype] * 0.01));
 		}
 	}
+	
+	if (hitter_ob->attack[ATNR_INTERNAL])
+	{
+		damage[ATNR_INTERNAL] = dam;
+	}
 
 	attack_absorb_damage(hitter, target, target, damage);
 
