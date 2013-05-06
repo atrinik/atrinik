@@ -844,6 +844,8 @@ char *string_crypt(char *str, const char *salt)
 
 	CryptDestroyHash(hash);
 	CryptReleaseContext(provider, 0);
+	
+	hashresult[0] = '\0';
 
 	for (i = 0; i < resultlen; i++)
 	{
