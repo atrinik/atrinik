@@ -358,4 +358,8 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 extern int usleep(uint32 usec);
 #endif
 
+#ifndef HAVE_STRNLEN
+extern size_t strnlen(const char *s, size_t max);
+#endif
+
 #endif
