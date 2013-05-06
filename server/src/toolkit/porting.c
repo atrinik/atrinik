@@ -344,6 +344,19 @@ int usleep(uint32 usec)
 
 	return 0;
 }
-#endif
+#	endif
+
+#	ifndef HAVE_STRNLEN
+size_t strnlen(const char *s, size_t max)
+{
+	const char *p;
+	
+	for (p = s; *p && max--; p++)
+	{
+	}
+	
+	return p - s;
+}
+#	endif
 
 #endif
