@@ -61,6 +61,7 @@
 
 #	ifdef MINGW
 #		define HAVE_DIRENT_H
+#		define HAVE_UNISTD_H
 #		define _set_fmode(_mode) \
 		{ \
 			_fmode = (_mode); \
