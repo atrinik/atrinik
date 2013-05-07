@@ -68,6 +68,7 @@ static int trigger_func(object *op, object *cause, int state)
 	}
 
 	created = 0;
+	roll = -1;
 
 	if (QUERY_FLAG(op, FLAG_SPLITTING))
 	{
@@ -95,7 +96,7 @@ static int trigger_func(object *op, object *cause, int state)
 			continue;
 		}
 
-		if (QUERY_FLAG(op, FLAG_SPLITTING) && roll != idx++)
+		if (roll != -1 && roll != idx++)
 		{
 			continue;
 		}
