@@ -897,14 +897,17 @@ void fix_player(object *op)
 			}
 		}
 
-		max_boni_hp += pl->equipment[i]->stats.maxhp;
-		max_boni_sp += pl->equipment[i]->stats.maxsp;
+		if (!IS_WEAPON(pl->equipment[i]) && !OBJECT_IS_RANGED(pl->equipment[i]))
+		{
+			max_boni_hp += pl->equipment[i]->stats.maxhp;
+			max_boni_sp += pl->equipment[i]->stats.maxsp;
 
-		pl->digestion += pl->equipment[i]->stats.food;
-		pl->gen_sp += pl->equipment[i]->stats.sp;
-		pl->gen_hp += pl->equipment[i]->stats.hp;
-		pl->gen_sp_armour += pl->equipment[i]->last_heal;
-
+			pl->digestion += pl->equipment[i]->stats.food;
+			pl->gen_sp += pl->equipment[i]->stats.sp;
+			pl->gen_hp += pl->equipment[i]->stats.hp;
+			pl->gen_sp_armour += pl->equipment[i]->last_heal;
+		}
+		
 		pl->item_power += pl->equipment[i]->item_power;
 
 		living_apply_flags(op, pl->equipment[i]);
