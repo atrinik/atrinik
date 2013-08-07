@@ -328,7 +328,8 @@ int main(int argc, char *argv[])
 {
 	char *path;
 	int done = 0;
-	uint32 anim_tick, frame_start_time;
+	uint32 anim_tick, frame_start_time, elapsed_time, fps_limit;
+	int fps_limits[] = {30, 60, 120, 0};
 	char version[MAX_BUF];
 
 	toolkit_import(binreloc);
@@ -558,18 +559,16 @@ int main(int argc, char *argv[])
 		SDL_Flip(ScreenSurface);
 
 		LastTick = SDL_GetTicks();
-
-		if (!setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME))
+		elapsed_time = SDL_GetTicks() - frame_start_time;
+		fps_limit = fps_limits[setting_get_int(OPT_CAT_CLIENT, OPT_FPS_LIMIT)];
+		
+		if (fps_limit != 0)
 		{
-			uint32 elapsed_time;
-
-			elapsed_time = SDL_GetTicks() - frame_start_time;
-
 			while (1)
 			{
-				if (elapsed_time < 1000 / FRAMES_PER_SECOND)
+				if (elapsed_time < 1000 / fps_limit)
 				{
-					SDL_Delay(MAX(1, 1000 / FRAMES_PER_SECOND - elapsed_time));
+					SDL_Delay(MAX(1, 1000 / fps_limit - elapsed_time));
 
 					if (!(SDL_GetAppState() & SDL_APPACTIVE) && SDL_GetTicks() - frame_start_time < 1000)
 					{
@@ -580,10 +579,6 @@ int main(int argc, char *argv[])
 
 				break;
 			}
-		}
-		else
-		{
-			SDL_Delay(setting_get_int(OPT_CAT_CLIENT, OPT_SLEEP_TIME));
 		}
 	}
 

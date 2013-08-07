@@ -97,12 +97,14 @@ category Client
 		default 2
 		desc How fast to repeat a held down key.
 	end
-	setting Sleep time
-		type range
-		range 0 - 1000
-		advance 5
-		default 0
-		desc If non-zero, will sleep the specified amount of milliseconds each frame. If zero, will use automatic fps capping, which results in best game-play experience.
+	setting FPS limiter
+		type select
+		option 30
+		option 60
+		option 120
+		option Unlimited
+		default 1
+		desc Limit FPS to the specified amount. The default value of 60 is highly recommended.
 	end
 	setting Disable file updates
 		type bool

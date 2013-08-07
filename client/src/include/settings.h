@@ -83,8 +83,8 @@ enum
 	OPT_ZOOM_SMOOTH,
 	/** Speed of key repeat. */
 	OPT_KEY_REPEAT_SPEED,
-	/** Sleep time each frame. */
-	OPT_SLEEP_TIME,
+	/** FPS limit. */
+	OPT_FPS_LIMIT,
 	/** Whether to disable server file updates. */
 	OPT_DISABLE_FILE_UPDATES,
 	/** Minimize latency at the expense of outgoing bandwidth. */

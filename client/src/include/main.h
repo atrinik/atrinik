@@ -29,8 +29,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-/** Maximum frames per second. */
-#define FRAMES_PER_SECOND 30
 #define COLOR_BUF 7
 
 #define SDL_DEFAULT_REPEAT_INTERVAL 30
