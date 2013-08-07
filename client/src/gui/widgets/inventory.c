@@ -315,11 +315,29 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
 static void widget_draw(widgetdata *widget)
 {
 	inventory_struct *inventory;
+	int w, h;
 	object *tmp, *tmp2;
 	uint32 i, r;
 
 	inventory = INVENTORY(widget);
 	widget->redraw++;
+	
+	w = MAX(widget->w - inventory->x * 2 - 9, INVENTORY_ICON_SIZE);
+	h = MAX(widget->h - inventory->y - inventory->x, INVENTORY_ICON_SIZE);
+	
+	if (inventory->w != w || inventory->h != h)
+	{
+		char buf[MAX_BUF];
+		
+		inventory->w = w;
+		inventory->h = h;
+
+		scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
+		inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
+
+		snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=inventory_bg><border=widget_border>", inventory->w + 1 * 2 + inventory->scrollbar.background.w, inventory->h + 1 * 2);
+		inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
+	}
 
 	cpl.inventory_focus = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL))->show ? MAIN_INV_ID : BELOW_INV_ID;
 
@@ -502,7 +520,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 void widget_inventory_init(widgetdata *widget)
 {
 	inventory_struct *inventory;
-	char buf[MAX_BUF];
 
 	inventory = calloc(1, sizeof(*inventory));
 
@@ -511,28 +528,19 @@ void widget_inventory_init(widgetdata *widget)
 		logger_print(LOG(ERROR), "OOM.");
 		exit(-1);
 	}
+	
+	scrollbar_info_create(&inventory->scrollbar_info);
 
 	if (widget->type == MAIN_INV_ID)
 	{
 		inventory->x = 3;
 		inventory->y = 31;
-		inventory->w = 256;
-		inventory->h = 96;
 	}
 	else if (widget->type == BELOW_INV_ID)
 	{
 		inventory->x = 5;
 		inventory->y = 19;
-		inventory->w = 256;
-		inventory->h = 32;
 	}
-
-	scrollbar_info_create(&inventory->scrollbar_info);
-	scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
-	inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
-
-	snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=inventory_bg><border=widget_border>", inventory->w + 1 * 2 + inventory->scrollbar.background.w, inventory->h + 1 * 2);
-	inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
 
 	widget->draw_func = widget_draw;
 	widget->event_func = widget_event;
