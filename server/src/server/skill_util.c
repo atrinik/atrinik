@@ -130,6 +130,14 @@ sint64 do_skill(object *op, int dir, const char *params)
 			return 0;
 	}
 
+	/* This is a good place to add experience for successfull use of skills.
+	 * Note that add_exp() will figure out player/monster experience
+	 * gain problems. */
+	if (success)
+	{
+		add_exp(op, success, op->chosen_skill->stats.sp, 0);
+	}
+
 	return success;
 }
 
@@ -529,92 +537,4 @@ object *skill_get(object *op, int skill_nr)
 	}
 
 	return NULL;
-}
-
-/**
- * Add experience to skill.
- * @param skill The skill.
- * @param exp_gain How much experience to add (or, in case the value being
- * negative, subtract).
- * @param exact If 1, experience gained will not be capped.
- * @return Experience gained. */
-sint64 skill_experience_add(object *skill, sint64 exp_gain, int exact)
-{
-	object *owner;
-
-	owner = skill->env;
-
-	/* Sanity check */
-	if (!owner || !skill)
-	{
-		return 0;
-	}
-
-	/* No exp gain for monsters. */
-	if (owner->type != PLAYER)
-	{
-		return 0;
-	}
-
-	/* No experience to gain/lose, nothing to do. */
-	if (exp_gain == 0)
-	{
-		return 0;
-	}
-
-	/* Can't add experience to maxed out skill, and can't subtract
-	 * experience if the skill doesn't have any experience left. */
-	if ((exp_gain > 0 && skill->level >= MAXLEVEL) || (exp_gain < 0 && skill->stats.exp == 0))
-	{
-		return 0;
-	}
-
-	/* General adjustments for playbalance */
-	if (!exact)
-	{
-		sint64 limit;
-
-		limit = (new_levels[skill->level + 1] - new_levels[skill->level]) / 4;
-
-		if (exp_gain > limit)
-		{
-			exp_gain = limit;
-		}
-	}
-
-	skill->stats.exp += exp_gain;
-
-	if (skill->stats.exp > (sint64) MAX_EXPERIENCE)
-	{
-		exp_gain = exp_gain - (skill->stats.exp - MAX_EXPERIENCE);
-		skill->stats.exp = MAX_EXPERIENCE;
-	}
-	else if (skill->stats.exp < 0)
-	{
-		exp_gain += skill->stats.exp;
-		skill->stats.exp = 0;
-	}
-
-	if (!QUERY_FLAG(skill, FLAG_STAND_STILL))
-	{
-		owner->stats.exp += exp_gain;
-	}
-
-	CONTR(owner)->stat_exp_gained += exp_gain;
-
-	if (exp_gain > 0)
-	{
-		draw_info_format(COLOR_WHITE, owner, "You gained %"FMT64" exp in skill %s.", exp_gain, skill->name);
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, owner, "You lost %"FMT64" exp in skill %s.", -exp_gain, skill->name);
-	}
-
-	player_lvl_adj(owner, skill);
-	player_lvl_adj(owner, NULL);
-
-	esrv_update_item(UPD_EXTRA, skill);
-
-	return exp_gain;
 }

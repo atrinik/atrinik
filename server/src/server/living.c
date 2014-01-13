@@ -785,7 +785,7 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == WEAPON || OBJECT_IS_RANGED(tmp))
 			{
-				if (tmp->type == WEAPON && pl->equipment[PLAYER_EQUIP_HAND_MAIN] && (!pl->equipment[PLAYER_EQUIP_HAND_OFF] || (pl->equipment[PLAYER_EQUIP_HAND_OFF]->type == SHIELD && !OBJECT_IS_RANGED(pl->equipment[PLAYER_EQUIP_HAND_MAIN]))))
+				if (tmp->type == WEAPON && pl->equipment[PLAYER_EQUIP_HAND_MAIN] && (!pl->equipment[PLAYER_EQUIP_HAND_OFF] || pl->equipment[PLAYER_EQUIP_HAND_OFF]->type == SHIELD))
 				{
 					pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
 				}
@@ -795,11 +795,7 @@ void fix_player(object *op)
 					{
 						pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
 					}
-					else if (pl->equipment[PLAYER_EQUIP_HAND_MAIN] && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->type == WEAPON && OBJECT_IS_RANGED(tmp))
-					{
-						pl->equipment[PLAYER_EQUIP_HAND_OFF] = pl->equipment[PLAYER_EQUIP_HAND_MAIN];
-					}
-					
+
 					pl->equipment[PLAYER_EQUIP_HAND_MAIN] = tmp;
 				}
 			}
@@ -842,7 +838,7 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == SHIELD)
 			{
-				if (!pl->equipment[PLAYER_EQUIP_HAND_OFF] || (pl->equipment[PLAYER_EQUIP_HAND_MAIN] && OBJECT_IS_RANGED(pl->equipment[PLAYER_EQUIP_HAND_MAIN]) && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->type == WEAPON))
+				if (!pl->equipment[PLAYER_EQUIP_HAND_OFF])
 				{
 					pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
 				}

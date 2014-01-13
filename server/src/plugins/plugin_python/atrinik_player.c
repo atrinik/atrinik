@@ -145,6 +145,29 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 }
 
 /**
+ * <h1>player.AddExp(int skill, int exp, int [exact = False])</h1>
+ * Add (or subtract) experience.
+ * @param skill ID of the skill to receive/lose exp in.
+ * @param exp How much exp to gain/lose.
+ * @param exact If True, the given exp will not be capped. */
+static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
+{
+	uint32 skill;
+	sint64 exp_gain;
+	int exact = 0;
+
+	if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp_gain, &exact))
+	{
+		return NULL;
+	}
+
+	hooks->add_exp(pl->pl->ob, exp_gain, skill, exact);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+/**
  * <h1>player.BankDeposit(string text)</h1>
  * Deposit money to bank.
  * @param text How much money to deposit, in string representation.
@@ -586,6 +609,7 @@ static PyMethodDef methods[] =
 {
 	{"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
 	{"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
+	{"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
 	{"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
 	{"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
 	{"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},

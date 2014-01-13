@@ -61,7 +61,7 @@ struct plugin_hooklist hooklist =
 	esrv_send_inventory,
 	get_archetype,
 	ready_map_name,
-	skill_experience_add,
+	add_exp,
 	determine_god,
 	find_god,
 	register_global_event,
@@ -175,7 +175,6 @@ struct plugin_hooklist hooklist =
 	string_join,
 	get_env_recursive,
 	set_variable,
-	level_exp,
 
 	season_name,
 	weekdays,

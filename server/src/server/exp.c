@@ -278,6 +278,88 @@ uint64 level_exp(int level, double expmul)
 }
 
 /**
+ * Add experience to player.
+ * @param op The player.
+ * @param exp_gain How much experience to add (or, in case the value being
+ * negative, subtract).
+ * @param skill_nr Skill ID.
+ * @param exact If 1, experience gained will not be capped.
+ * @return 0 on failure, experience gained on success. */
+sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
+{
+	object *exp_skill;
+
+	/* Sanity check */
+	if (!op)
+	{
+		return 0;
+	}
+
+	/* No exp gain for monsters */
+	if (op->type != PLAYER)
+	{
+		return 0;
+	}
+
+	if (skill_nr == CHOSEN_SKILL_NO)
+	{
+		return 0;
+	}
+
+	/* Now we grab the skill experience object from the player's shortcut
+	 * pointer array. */
+	exp_skill = CONTR(op)->skill_ptr[skill_nr];
+
+	/* Sanity */
+	if (!exp_skill)
+	{
+		return 0;
+	}
+
+	/* If we are full in this skill, there is nothing to do. */
+	if (exp_skill->level >= MAXLEVEL)
+	{
+		return 0;
+	}
+
+	/* General adjustments for playbalance */
+	if (!exact)
+	{
+		sint64 limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
+
+		if (exp_gain > limit)
+		{
+			exp_gain = limit;
+		}
+	}
+
+	exp_skill->stats.exp += exp_gain;
+
+	if (exp_skill->stats.exp > (sint64) MAX_EXPERIENCE)
+	{
+		exp_gain = exp_gain - (exp_skill->stats.exp - MAX_EXPERIENCE);
+		exp_skill->stats.exp = MAX_EXPERIENCE;
+	}
+
+	if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL))
+	{
+		op->stats.exp += exp_gain;
+	}
+
+	CONTR(op)->stat_exp_gained += exp_gain;
+
+	/* Notify the player of the exp gain */
+	draw_info_format(COLOR_WHITE, op, "You got %"FMT64" exp in skill %s.", exp_gain, skills[skill_nr].name);
+
+	player_lvl_adj(op, exp_skill);
+	player_lvl_adj(op, NULL);
+
+	esrv_update_item(UPD_EXTRA, exp_skill);
+
+	return exp_gain;
+}
+
+/**
  * For the new experience system. We are concerned with whether the
  * player gets more hp, sp and new levels.
  *

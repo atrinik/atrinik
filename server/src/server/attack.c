@@ -575,7 +575,7 @@ int attack_perform(object *hitter, object *target)
 		}
 	}
 
-	if (hitter_ob != hitter && hitter->stats.dam)
+	if (hitter_ob != hitter)
 	{
 		dam += rndm(hitter->stats.dam / 2 + 1, hitter->stats.dam);
 	}
@@ -614,18 +614,13 @@ int attack_perform(object *hitter, object *target)
 	{
 		if (hitter_ob->attack[attacktype])
 		{
-			damage[attacktype] = MAX(1, dam * ((double) hitter_ob->attack[attacktype] * 0.01));
-		}
+			damage[attacktype] = dam * ((double) hitter_ob->attack[attacktype] * 0.01);
 
-		if (hitter != hitter_ob && hitter->attack[attacktype])
-		{
-			damage[attacktype] += MAX(1, dam * ((double) hitter->attack[attacktype] * 0.01));
+			if (damage[attacktype] <= 0)
+			{
+				damage[attacktype] = 1;
+			}
 		}
-	}
-	
-	if (hitter_ob->attack[ATNR_INTERNAL])
-	{
-		damage[ATNR_INTERNAL] = dam;
 	}
 
 	attack_absorb_damage(hitter, target, target, damage);
@@ -639,7 +634,7 @@ int attack_perform(object *hitter, object *target)
 		shield = player_equipment_get(target, PLAYER_EQUIP_HAND_MAIN);
 
 		/* Main hand is not a weapon, so no shield. */
-		if (shield && shield->type != WEAPON)
+		if (shield->type != WEAPON)
 		{
 			shield = NULL;
 		}
