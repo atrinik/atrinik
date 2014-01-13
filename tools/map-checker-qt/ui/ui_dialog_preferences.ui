@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogPreferences</class>
+ <widget class="QDialog" name="DialogPreferences">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>437</width>
+    <height>345</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preferences</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="1" rowspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOk">
+       <property name="text">
+        <string>Ok</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonClose">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonApply">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <property name="tabsClosable">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="tab_general">
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QScrollArea" name="scrollArea_2">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>385</width>
+            <height>233</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Paths&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Arch</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="pref_general_path_dir_arch"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Maps</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="pref_general_path_dir_maps">
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QToolButton" name="fileChooser_pref_general_path_dir_maps">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QToolButton" name="fileChooser_pref_general_path_file_editor">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="pref_general_path_file_editor"/>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Editor</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QToolButton" name="fileChooser_pref_general_path_dir_arch">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_filters">
+      <attribute name="title">
+       <string>Filters</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="2" column="1">
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>385</width>
+            <height>233</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="pref_filters_error_level_low">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Low</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>&lt;b&gt;Error levels&lt;/b&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="pref_filters_error_level_warning">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Warning</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Show the following error levels:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QCheckBox" name="pref_filters_error_level_critical">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Critical</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Miscellaneous&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="pref_filters_error_level_medium">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Medium</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="pref_filters_error_level_high">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>High</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QCheckBox" name="pref_filters_ignore_event_maps">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10</string>
+             </property>
+             <property name="text">
+              <string>Ignore event maps</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Errors</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QScrollArea" name="scrollArea_3">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_5">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>385</width>
+            <height>233</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="pref_errors_decor_wall_l4">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Layer 4 object on square with a wall</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="pref_errors_decor_wall_l3">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Layer 3 object on square with a wall</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QCheckBox" name="pref_errors_sys_not_on_top">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>System object not on top of normal objects</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QCheckBox" name="pref_errors_deprecated_control_chars">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Check for deprecated control characters</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QCheckBox" name="pref_errors_layer_changed">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Layer changed from the default value</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="pref_errors_decor_wall_l2">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Layer 2 object on square with a wall</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="pref_errors_map_no_music">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Map with no music</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="pref_errors_map_no_region">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Map with no region</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Configure what kind of errors to check for.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>DialogPreferences</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>234</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
