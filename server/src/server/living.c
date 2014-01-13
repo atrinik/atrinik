@@ -570,7 +570,9 @@ void fix_player(object *op)
 {
 	int ring_count = 0;
 	int old_glow, max_boni_hp = 0, max_boni_sp = 0;
-	int i, light;
+	int i, j, light;
+	int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
+	int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
 	object *tmp;
 	float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
 	player *pl;
@@ -677,6 +679,14 @@ void fix_player(object *op)
 		CLEAR_FLAG(op, FLAG_SEE_IN_DARK);
 	}
 
+	memset(&protect_boni, 0, sizeof(protect_boni));
+	memset(&protect_mali, 0, sizeof(protect_mali));
+	memset(&protect_exact_boni, 0, sizeof(protect_exact_boni));
+	memset(&protect_exact_mali, 0, sizeof(protect_exact_mali));
+	memset(&potion_protection_bonus, 0, sizeof(potion_protection_bonus));
+	memset(&potion_protection_malus, 0, sizeof(potion_protection_malus));
+	memset(&potion_attack, 0, sizeof(potion_attack));
+
 	/* Initializing player arrays from the values in player archetype clone:  */
 	memset(&pl->equipment, 0, sizeof(pl->equipment));
 	memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
@@ -717,36 +727,25 @@ void fix_player(object *op)
 
 		if (QUERY_FLAG(tmp, FLAG_APPLIED))
 		{
-			if (!IS_ARMOR(tmp) && !IS_WEAPON(tmp) && !OBJECT_IS_RANGED(tmp) && tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
+			if (tmp->type == POTION_EFFECT)
 			{
 				for (i = 0; i < NROFATTACKS; i++)
 				{
-					if (tmp->protection[i])
+					if (tmp->protection[i] > potion_protection_bonus[i])
 					{
-						if (tmp->protection[i] < 0)
-						{
-							op->protection[i] = MAX(SINT8_MIN, op->protection[i] + tmp->protection[i]);
-						}
-						else if (tmp->protection[i] > op->protection[i])
-						{
-							op->protection[i] = MIN(tmp->protection[i], op->protection[i] + tmp->protection[i]);
-						}
+						potion_protection_bonus[i] = tmp->protection[i];
+					}
+					else if (tmp->protection[i] < potion_protection_malus[i])
+					{
+						potion_protection_malus[i] = tmp->protection[i];
 					}
 
-					if (tmp->attack[i])
+					if (tmp->attack[i] > potion_attack[i])
 					{
-						op->attack[i] = MIN(UINT8_MAX, MAX(0, op->attack[i] + tmp->attack[i]));
+						potion_attack[i] = tmp->attack[i];
 					}
 				}
 
-				if (tmp->stats.dam)
-				{
-					op->stats.dam += tmp->stats.dam + tmp->magic;
-				}
-			}
-
-			if (tmp->type == POTION_EFFECT)
-			{
 				living_apply_flags(op, tmp);
 			}
 			else if (tmp->type == CLASS || tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE || tmp->type == SYMPTOM)
@@ -763,6 +762,21 @@ void fix_player(object *op)
 
 				if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
 				{
+					if (tmp->stats.wc)
+					{
+						op->stats.wc += tmp->stats.wc + tmp->magic;
+					}
+
+					if (tmp->stats.dam)
+					{
+						op->stats.dam += tmp->stats.dam + tmp->magic;
+					}
+
+					if (tmp->stats.ac)
+					{
+						op->stats.ac += (tmp->stats.ac + tmp->magic);
+					}
+
 					op->stats.maxhp += tmp->stats.maxhp;
 					op->stats.maxsp += tmp->stats.maxsp;
 				}
@@ -777,6 +791,26 @@ void fix_player(object *op)
 					}
 				}
 
+				for (i = 0; i < NROFATTACKS; i++)
+				{
+					if (tmp->protection[i] > protect_exact_boni[i])
+					{
+						protect_exact_boni[i] = tmp->protection[i];
+					}
+					else if (tmp->protection[i] < 0)
+					{
+						protect_exact_mali[i] += (-tmp->protection[i]);
+					}
+
+					if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
+					{
+						if (tmp->attack[i] > 0)
+						{
+							op->attack[i] = MIN(UINT8_MAX, op->attack[i] + tmp->attack[i]);
+						}
+					}
+				}
+
 				living_apply_flags(op, tmp);
 			}
 			else if (tmp->type == AMULET)
@@ -785,18 +819,9 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == WEAPON || OBJECT_IS_RANGED(tmp))
 			{
-				if (tmp->type == WEAPON && pl->equipment[PLAYER_EQUIP_HAND_MAIN] && (!pl->equipment[PLAYER_EQUIP_HAND_OFF] || pl->equipment[PLAYER_EQUIP_HAND_OFF]->type == SHIELD))
+				if (!pl->equipment[PLAYER_EQUIP_WEAPON] || pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON)
 				{
-					pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
-				}
-				else if (!pl->equipment[PLAYER_EQUIP_HAND_MAIN] || pl->equipment[PLAYER_EQUIP_HAND_MAIN]->type == WEAPON)
-				{
-					if (QUERY_FLAG(tmp, FLAG_TWO_HANDED))
-					{
-						pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
-					}
-
-					pl->equipment[PLAYER_EQUIP_HAND_MAIN] = tmp;
+					pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
 				}
 			}
 			else if (tmp->type == GLOVES)
@@ -838,10 +863,7 @@ void fix_player(object *op)
 			}
 			else if (tmp->type == SHIELD)
 			{
-				if (!pl->equipment[PLAYER_EQUIP_HAND_OFF])
-				{
-					pl->equipment[PLAYER_EQUIP_HAND_OFF] = tmp;
-				}
+				pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
 			}
 			else if (tmp->type == LIGHT_APPLY)
 			{
@@ -867,9 +889,8 @@ void fix_player(object *op)
 			continue;
 		}
 
-		if (i == PLAYER_EQUIP_HAND_OFF && pl->equipment[PLAYER_EQUIP_HAND_MAIN] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_HAND_MAIN], FLAG_TWO_HANDED))
+		if (i == PLAYER_EQUIP_SHIELD && pl->equipment[PLAYER_EQUIP_WEAPON] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON], FLAG_TWO_HANDED))
 		{
-			pl->equipment[i] = pl->equipment[PLAYER_EQUIP_HAND_MAIN];
 			continue;
 		}
 
@@ -884,16 +905,51 @@ void fix_player(object *op)
 			max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
 		}
 
-		if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL)
+		if (pl->equipment[i]->stats.ac)
 		{
-			if (pl->equipment[i]->stats.exp > 0)
+			op->stats.ac += pl->equipment[i]->stats.ac + pl->equipment[i]->magic;
+		}
+
+		if (!OBJECT_IS_RANGED(pl->equipment[i]))
+		{
+			if (pl->equipment[i]->stats.wc)
 			{
-				added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
-				bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
+				op->stats.wc += pl->equipment[i]->stats.wc + pl->equipment[i]->magic;
 			}
-			else
+
+			if (pl->equipment[i]->stats.dam)
 			{
-				added_speed += (float) pl->equipment[i]->stats.exp;
+				op->stats.dam += pl->equipment[i]->stats.dam + pl->equipment[i]->magic;
+			}
+
+			for (j = 0; j < NROFATTACKS; j++)
+			{
+				if (pl->equipment[i]->protection[j] > 0)
+				{
+					protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
+				}
+				else if (pl->equipment[i]->protection[j] < 0)
+				{
+					protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
+				}
+
+				if (pl->equipment[i]->attack[j] > 0)
+				{
+					op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int) ((float) pl->equipment[i]->attack[j] * ((float) pl->equipment[i]->item_condition / 100.0f)));
+				}
+			}
+
+			if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL)
+			{
+				if (pl->equipment[i]->stats.exp > 0)
+				{
+					added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
+					bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
+				}
+				else
+				{
+					added_speed += (float) pl->equipment[i]->stats.exp;
+				}
 			}
 		}
 
@@ -911,6 +967,33 @@ void fix_player(object *op)
 		pl->item_power += pl->equipment[i]->item_power;
 
 		living_apply_flags(op, pl->equipment[i]);
+	}
+
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		if (potion_attack[i])
+		{
+			op->attack[i] = MIN(UINT8_MAX, op->attack[i] + potion_attack[i]);
+		}
+	}
+
+	for (i = 0; i < NROFATTACKS; i++)
+	{
+		int ptemp;
+
+		/* Add in the potion protections. */
+		if (potion_protection_bonus[i] > 0)
+		{
+			protect_boni[i] += ((100 - protect_boni[i]) * potion_protection_bonus[i]) / 100;
+		}
+
+		if (potion_protection_malus[i] < 0)
+		{
+			protect_mali[i] += ((100 - protect_mali[i]) * (-potion_protection_malus[i])) / 100;
+		}
+
+		ptemp = protect_boni[i] + protect_exact_boni[i] - protect_mali[i] - protect_exact_mali[i];
+		op->protection[i] = MIN(100, MAX(-100, ptemp));
 	}
 
 	if (added_speed >= 0)
@@ -1040,12 +1123,12 @@ void fix_player(object *op)
 		op->stats.sp = op->stats.maxsp;
 	}
 
-	if (pl->equipment[PLAYER_EQUIP_HAND_MAIN] && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->type == WEAPON && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->item_skill)
+	if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
 	{
-		op->weapon_speed = pl->equipment[PLAYER_EQUIP_HAND_MAIN]->last_grace;
-		op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_HAND_MAIN]->item_skill - 1);
-		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_HAND_MAIN]->item_skill - 1));
-		op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_HAND_MAIN]->item_condition) / 100.0f;
+		op->weapon_speed = pl->equipment[PLAYER_EQUIP_WEAPON]->last_grace;
+		op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
+		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
+		op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
 	}
 	else
 	{

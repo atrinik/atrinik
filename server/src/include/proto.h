@@ -271,10 +271,12 @@ extern object *get_archetype(const char *name);
 /* src/server/attack.c */
 extern char *attack_save[NROFATTACKS];
 extern char *attack_name[NROFATTACKS];
+extern int attack_ob(object *op, object *hitter);
+extern int hit_player(object *op, int dam, object *hitter, int type);
+extern void hit_map(object *op, int dir, int reduce);
+extern int kill_object(object *op, int dam, object *hitter, int type);
 extern void confuse_living(object *op);
 extern void paralyze_living(object *op, int dam);
-extern int attack_perform(object *hitter, object *target);
-extern void hit_map(object *op, int dir);
 extern int is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
 extern void ban_init(void);
@@ -386,8 +388,10 @@ extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
 extern void version(object *op);
+extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
+extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
@@ -628,13 +632,12 @@ extern int change_skill(object *who, int sk_index);
 extern int skill_attack(object *tmp, object *pl, int dir, char *string);
 extern int SK_level(object *op);
 extern object *SK_skill(object *op);
-extern object *skill_get(object *op, int skill_nr);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 extern int cast_wor(object *op, object *caster);
-extern int cast_destruction(object *op, object *caster, int dam);
+extern int cast_destruction(object *op, object *caster, int dam, int attacktype);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
@@ -1032,7 +1035,6 @@ extern void pick_up(object *op, object *alt, int no_mevent);
 extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
 extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
 extern void drop(object *op, object *tmp, int no_mevent);
-extern object *player_equipment_get(object *pl, int type);
 extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
@@ -1109,8 +1111,6 @@ extern void object_type_init_waypoint(void);
 /* src/types/wealth.c */
 extern void object_type_init_wealth(void);
 /* src/types/weapon.c */
-extern int weapon_determine_skill(object *op);
-extern object *weapon_get_skill(object *op, object *owner);
 extern void object_type_init_weapon(void);
 /* src/types/word_of_recall.c */
 extern void object_type_init_word_of_recall(void);

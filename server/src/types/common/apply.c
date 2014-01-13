@@ -61,7 +61,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 {
 	int basic_aflag;
 	object *tmp;
-	uint8 ring_left, weapon_offhand;
+	uint8 ring_left;
 
 	if (!op || !applier)
 	{
@@ -166,7 +166,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 	}
 
 	ring_left = 0;
-	weapon_offhand = 0;
 
 	/* This goes through and checks to see if the player already has
 	 * something of that type applied - if so, unapply it. */
@@ -180,10 +179,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 		if (tmp->type == RING && !ring_left)
 		{
 			ring_left = 1;
-		}
-		else if (tmp->type == WEAPON && !QUERY_FLAG(tmp, FLAG_TWO_HANDED) && !QUERY_FLAG(op, FLAG_TWO_HANDED) && !weapon_offhand)
-		{
-			weapon_offhand = 1;
 		}
 		else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK)
 		{
@@ -202,9 +197,9 @@ int object_apply_item(object *op, object *applier, int aflags)
 				return OBJECT_METHOD_ERROR;
 			}
 
-			if (CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN] && OBJECT_IS_RANGED(CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN]))
+			if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && OBJECT_IS_RANGED(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON]))
 			{
-				object_apply_item(CONTR(applier)->equipment[PLAYER_EQUIP_HAND_MAIN], applier, AP_UNAPPLY);
+				object_apply_item(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON], applier, AP_UNAPPLY);
 			}
 
 			draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));

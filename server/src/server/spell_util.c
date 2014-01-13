@@ -444,7 +444,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 			break;
 
 		case SP_DESTRUCTION:
-			success = cast_destruction(op, caster, 15);
+			success = cast_destruction(op, caster, 15, AT_MAGIC);
 			break;
 
 		case SP_TRANSFORM_WEALTH:
@@ -810,7 +810,7 @@ void explode_object(object *op)
 
 	copy_owner(tmp, op);
 	cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
-	hit_map(op, 0);
+	hit_map(op, 0, 0);
 
 	/* remove the firebullet */
 	if (!was_destroyed(op, op_tag))
@@ -877,14 +877,14 @@ void check_fired_arch(object *op)
 
 		tmp_tag = tmp->count;
 
-		dam = attack_perform(op, tmp);
+		dam = hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
 
 		if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0)
 		{
 			if (!QUERY_FLAG(op, FLAG_REMOVED))
 			{
 				object_remove(op, 0);
-				object_destroy(op);
+
 				return;
 			}
 		}

@@ -250,11 +250,11 @@ void esrv_update_stats(player *pl)
 		AddIfInt(pl->last_path_repelled, pl->ob->path_repelled, CS_STAT_PATH_REPELLED, uint32);
 		AddIfInt(pl->last_path_denied, pl->ob->path_denied, CS_STAT_PATH_DENIED, uint32);
 
-		if (pl->equipment[PLAYER_EQUIP_HAND_MAIN] && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_HAND_MAIN]->race)))
+		if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]->race)))
 		{
-			AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_HAND_MAIN], arrow), CS_STAT_RANGED_DAM, uint16);
-			AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_HAND_MAIN], arrow), CS_STAT_RANGED_WC, uint16);
-			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_HAND_MAIN], arrow), CS_STAT_RANGED_WS, uint32);
+			AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_DAM, uint16);
+			AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WC, uint16);
+			AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WS, uint32);
 		}
 		else
 		{
@@ -1495,9 +1495,9 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
 	if (tag)
 	{
-		if (pl->equipment[PLAYER_EQUIP_HAND_MAIN] && pl->equipment[PLAYER_EQUIP_HAND_MAIN]->count == tag)
+		if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->count == tag)
 		{
-			tmp = pl->equipment[PLAYER_EQUIP_HAND_MAIN];
+			tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
 		}
 		else
 		{
@@ -1512,7 +1512,7 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 	}
 	else
 	{
-		tmp = pl->equipment[PLAYER_EQUIP_HAND_MAIN];
+		tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
 	}
 
 	if (!tmp)

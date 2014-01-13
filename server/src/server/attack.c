@@ -51,6 +51,972 @@ char *attack_name[NROFATTACKS] =
 	"internal"
 };
 
+#define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
+#define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
+
+static int get_attack_mode(object **target, object **hitter,int *simple_attack);
+static int abort_attack(object *target, object *hitter, int simple_attack);
+static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc);
+static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage);
+static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum);
+static void poison_player(object *op, object *hitter, float dam);
+static void slow_living(object *op);
+static void blind_living(object *op, object *hitter, int dam);
+static int adj_attackroll(object *hitter, object *target);
+static int is_aimed_missile(object *op);
+
+/**
+ * Simple wrapper for attack_ob_simple(), will use hitter's values.
+ * @param op Victim.
+ * @param hitter Attacker.
+ * @return Dealt damage. */
+int attack_ob(object *op, object *hitter)
+{
+	if (op->head)
+	{
+		op = op->head;
+	}
+
+	if (hitter->head)
+	{
+		hitter = hitter->head;
+	}
+
+	return attack_ob_simple(op, hitter, hitter->stats.dam, hitter->stats.wc);
+}
+
+/**
+ * Handles simple attack cases.
+ * @param op Victim.
+ * @param hitter Attacker.
+ * @param base_dam Damage to do.
+ * @param base_wc WC to hit with.
+ * @return Dealt damage. */
+static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
+{
+	int simple_attack, roll, dam = 0;
+	tag_t op_tag, hitter_tag;
+
+	if (op->head)
+	{
+		op = op->head;
+	}
+
+	if (hitter->head)
+	{
+		hitter = hitter->head;
+	}
+
+	if (get_attack_mode(&op, &hitter, &simple_attack))
+	{
+		return 1;
+	}
+
+	/* Trigger the ATTACK event */
+	trigger_event(EVENT_ATTACK, hitter, hitter, op, NULL, 0, base_dam, base_wc, SCRIPT_FIX_ALL);
+
+	op_tag = op->count;
+	hitter_tag = hitter->count;
+
+	if (!hitter->stats.wc_range)
+	{
+		hitter->stats.wc_range = 20;
+	}
+
+	roll = rndm(0, hitter->stats.wc_range);
+
+	/* Adjust roll for various situations. */
+	if (!simple_attack)
+	{
+		roll += adj_attackroll(hitter, op);
+	}
+
+	/* So we do one swing */
+	if (hitter->type == PLAYER)
+	{
+		CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
+	}
+
+	/* Force player to face enemy */
+	if (hitter->type == PLAYER)
+	{
+		rv_vector dir;
+
+		if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE))
+		{
+			if (hitter->head)
+			{
+				hitter->head->anim_enemy_dir = dir.direction;
+				hitter->head->facing = dir.direction;
+			}
+			else
+			{
+				hitter->anim_enemy_dir = dir.direction;
+				hitter->facing = dir.direction;
+			}
+		}
+	}
+
+	/* See if we hit the creature */
+	if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc + roll)
+	{
+		int hitdam = base_dam;
+
+		/* At this point NO ONE will still sleep */
+		CLEAR_FLAG(op, FLAG_SLEEP);
+
+		if (hitter->type == ARROW)
+		{
+			play_sound_map(hitter->map, CMD_SOUND_EFFECT, "arrow_hit.ogg", hitter->x, hitter->y, 0, 0);
+		}
+		else
+		{
+			if (hitter->attack[ATNR_SLASH])
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_slash.ogg", hitter->x, hitter->y, 0, 0);
+			}
+			else if (hitter->attack[ATNR_CLEAVE])
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_cleave.ogg", hitter->x, hitter->y, 0, 0);
+			}
+			else if (hitter->attack[ATNR_IMPACT])
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_impact.ogg", hitter->x, hitter->y, 0, 0);
+			}
+			else
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_pierce.ogg", hitter->x, hitter->y, 0, 0);
+			}
+		}
+
+		/* Need to do at least 1 damage, otherwise there is no point
+		 * to go further and it will cause FPE's below. */
+		if (hitdam <= 0)
+		{
+			hitdam = 1;
+		}
+
+		/* Handle monsters that hit back */
+		if (!simple_attack && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter))
+		{
+			hit_player(hitter, rndm(0, op->stats.dam), op, AT_PHYSICAL);
+
+			if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
+			{
+				return dam;
+			}
+		}
+
+		dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter, AT_PHYSICAL);
+
+		if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack))
+		{
+			return dam;
+		}
+	}
+	/* We missed */
+	else
+	{
+		if (hitter->type != ARROW)
+		{
+			if (hitter->type == PLAYER)
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_player1.ogg", hitter->x, hitter->y, 0, 0);
+				draw_info_format(COLOR_ORANGE, hitter, "You miss %s!", op->name);
+
+				if (op->type == PLAYER)
+				{
+					draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
+				}
+			}
+			else
+			{
+				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_mob1.ogg", hitter->x, hitter->y, 0, 0);
+				draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
+			}
+		}
+	}
+
+	return dam;
+}
+
+/**
+ * Object is attacked by something.
+ *
+ * This isn't used just for players, but in fact most objects.
+ * @param op Object to be hit.
+ * @param dam Base damage - protections/vulnerabilities/slaying matches
+ * can modify it.
+ * @param hitter What is hitting the object.
+ * @param type Attacktype.
+ * @return Dealt damage. */
+int hit_player(object *op, int dam, object *hitter, int type)
+{
+	object *hit_obj, *hitter_owner, *target_obj;
+	int maxdam = 0;
+	int attacknum, hit_level;
+	int simple_attack;
+	int rtn_kill = 0;
+
+	/* If our target has no_damage 1 set, we can't hurt him. */
+	if ((op->type == PLAYER && CONTR(op)->tgm) || QUERY_FLAG(op, FLAG_INVULNERABLE))
+	{
+		return 0;
+	}
+
+	if (hitter->head)
+	{
+		hitter = hitter->head;
+	}
+
+	if (op->head)
+	{
+		op = op->head;
+	}
+
+	/* Check if the object to hit has any HP left */
+	if (op->stats.hp < 0)
+	{
+		return 0;
+	}
+
+	/* Get the hitter's owner. */
+	hitter_owner = get_owner(hitter);
+
+	/* Sanity check: If the hitter has ownercount (so it had an owner)
+	 * but the owner itself is no longer valid, we won't do any damage,
+	 * otherwise player could fire an arrow, logout, and the arrow itself
+	 * would cause damage to anything it hits, even friendly creatures. */
+	if (hitter->ownercount && !hitter_owner)
+	{
+		return 0;
+	}
+
+	if (hitter_owner)
+	{
+		hit_obj = hitter_owner;
+	}
+	else
+	{
+		hit_obj = hitter;
+	}
+
+	if (!(target_obj = get_owner(op)))
+	{
+		target_obj = op;
+	}
+
+	/* Get from hitter object the right skill level. */
+	if (hit_obj->type == PLAYER)
+	{
+		hit_level = SK_level(hit_obj);
+	}
+	else
+	{
+		hit_level = hitter->level;
+	}
+
+	/* Do not let friendly objects attack each other. */
+	if (is_friend_of(hit_obj, op))
+	{
+		return 0;
+	}
+
+	if (hit_level > target_obj->level && hit_obj->type == MONSTER)
+	{
+		dam += (int) ((float) (dam / 2) * ((float) (hit_level - target_obj->level) / (target_obj->level > 25 ? 25.0f : (float) target_obj->level)));
+	}
+
+	/* Check for PVP areas. */
+	if (op->type == PLAYER || (get_owner(op) && op->owner->type == PLAYER))
+	{
+		if (hitter->type == PLAYER || (get_owner(hitter) && hitter->owner->type == PLAYER))
+		{
+			if (!pvp_area(op->type == PLAYER ? op : get_owner(op), hitter->type == PLAYER ? hitter : get_owner(hitter)))
+			{
+				return 0;
+			}
+		}
+	}
+
+	/* Check objects are valid, on same map and set them to head when
+	 * needed. */
+	if (get_attack_mode(&op, &hitter, &simple_attack))
+	{
+		return 0;
+	}
+
+	/* Go through and hit the player with each attacktype, one by one.
+	 * hit_player_attacktype only figures out the damage, doesn't inflict
+	 * it. It will do the appropriate action for attacktypes with
+	 * effects (slow, paralization, etc). */
+	for (attacknum = 0; attacknum < NROFATTACKS; attacknum++)
+	{
+		if (hitter->attack[attacknum])
+		{
+			maxdam += hit_player_attacktype(op, hitter, dam, attacknum);
+		}
+	}
+
+	/* If one gets attacked, the attacker will become the enemy */
+	if (!OBJECT_VALID(op->enemy, op->enemy_count) && !IS_INVISIBLE(hit_obj, op) && !QUERY_FLAG(hit_obj, FLAG_INVULNERABLE))
+	{
+		set_npc_enemy(op, hit_obj, NULL);
+	}
+
+	/* This is needed to send the hit number animations to the clients */
+	if (op->damage_round_tag != global_round_tag)
+	{
+		op->last_damage = 0;
+		op->damage_round_tag = global_round_tag;
+	}
+
+	if (hit_obj->type == PLAYER)
+	{
+		CONTR(hit_obj)->stat_damage_dealt += maxdam;
+	}
+
+	if (target_obj->type == PLAYER)
+	{
+		CONTR(target_obj)->stat_damage_taken += maxdam;
+	}
+
+	op->last_damage += maxdam;
+
+	/* Damage the target got */
+	op->stats.hp -= maxdam;
+
+	/* Check to see if monster runs away. */
+	if ((op->stats.hp >= 0) && QUERY_FLAG(op, FLAG_MONSTER) && op->stats.hp < (signed short) (((float) op->run_away / 100.0f) * (float) op->stats.maxhp))
+	{
+		SET_FLAG(op, FLAG_RUN_AWAY);
+	}
+
+	/* rtn_kill is here negative! */
+	if ((rtn_kill = kill_object(op, dam, hitter, type)))
+	{
+		return (maxdam + rtn_kill + 1);
+	}
+
+	return maxdam;
+}
+
+/**
+ * Attack a spot on the map.
+ * @param op Object hitting the map.
+ * @param dir Direction op is hitting/going.
+ * @param reduce Whether to reduce the damage for multi-arch monsters.
+ * This will make it so that part of 4-tiles monster only gets hit for
+ * 1/4 of the damage, making storms fairer against multi-arch monsters. */
+void hit_map(object *op, int dir, int reduce)
+{
+	object *tmp, *owner;
+	mapstruct *m;
+	int x, y;
+	sint16 dam;
+
+	if (OBJECT_FREE(op))
+	{
+		return;
+	}
+
+	op = HEAD(op);
+
+	if (!op->map || !op->stats.dam)
+	{
+		return;
+	}
+
+	x = op->x + freearr_x[dir];
+	y = op->y + freearr_y[dir];
+	m = get_map_from_coord(op->map, &x, &y);
+
+	if (!m)
+	{
+		return;
+	}
+
+	owner = get_owner(op);
+
+	if (!owner)
+	{
+		owner = op;
+	}
+
+	owner = HEAD(owner);
+
+	FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
+	{
+		tmp = HEAD(tmp);
+
+		/* Cones with race set can only damage members of that race. */
+		if (op->type == CONE && op->race && tmp->race != op->race)
+		{
+			continue;
+		}
+
+		/* Check friendship status. */
+		if (is_friend_of(owner, tmp))
+		{
+			continue;
+		}
+
+		dam = op->stats.dam;
+
+		if (tmp->quick_pos && reduce)
+		{
+			dam /= (tmp->quick_pos >> 4) + 1;
+		}
+
+		hit_player(tmp, dam, op, AT_INTERNAL);
+	}
+	FOR_MAP_LAYER_END
+}
+
+/**
+ * Handles one attacktype's damage.
+ *
+ * This doesn't damage the creature, but returns how much it should
+ * take. However, it will do other effects (paralyzation, slow, etc).
+ * @param op Victim of the attack.
+ * @param hitter Attacker.
+ * @param damage Maximum dealt damage.
+ * @param attacknum Number of the attacktype of the attack.
+ * @return Damage to actually do. */
+static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
+{
+	double dam = (double) damage;
+
+	/* Sanity check */
+	if (dam < 0)
+	{
+		return 0;
+	}
+
+	if (hitter->slaying)
+	{
+		if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying)))
+		{
+			if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION))
+			{
+				damage = (int) ((double) damage * 2.25);
+			}
+			else
+			{
+				damage = (int) ((double) damage * 1.75);
+			}
+
+			dam = (double) damage;
+		}
+	}
+
+	/* AT_INTERNAL is supposed to do exactly dam. Put a case here so
+	 * people can't mess with that or it otherwise get confused. */
+	if (attacknum == ATNR_INTERNAL)
+	{
+		/* Adjust damage */
+		dam = dam * ((double) hitter->attack[ATNR_INTERNAL] / 100.0);
+
+		/* handle special object attacks */
+		/* we have a poison force object (that's the poison we had inserted) */
+		if (hitter->type == POISONING)
+		{
+			/* Map to poison... */
+			attacknum = ATNR_POISON;
+
+			if (op->protection[attacknum] == 100)
+			{
+				dam = 0;
+				send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+				return 0;
+			}
+
+			/* Reduce to % protection */
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
+		}
+
+		if (damage && dam < 1.0)
+		{
+			dam = 1.0;
+		}
+
+		send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+		return (int) dam;
+	}
+
+	/* Quick check for immunity - if so, we skip here.
+	 * Our formula is (100 - resist) / 100 - so test for 100 = zero division */
+	if (op->protection[attacknum] == 100)
+	{
+		ATTACK_HIT_DAMAGE(hitter, attacknum);
+		send_attack_msg(op, hitter, attacknum, 0, dam);
+		return 0;
+	}
+
+	switch (attacknum)
+	{
+		case ATNR_IMPACT:
+		case ATNR_SLASH:
+		case ATNR_CLEAVE:
+		case ATNR_PIERCE:
+			check_physically_infect(op, hitter);
+
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
+
+			if (damage && dam < 1.0)
+			{
+				dam = 1.0;
+			}
+
+			send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+			break;
+
+		case ATNR_POISON:
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
+
+			if (damage && dam < 1.0)
+			{
+				dam = 1.0;
+			}
+
+			send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+
+			if (dam && IS_LIVE(op))
+			{
+				poison_player(op, hitter, (float)dam);
+			}
+
+			break;
+
+		case ATNR_CONFUSION:
+		case ATNR_SLOW:
+		case ATNR_PARALYZE:
+		case ATNR_BLIND:
+		{
+			if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)))
+			{
+				if (attacknum == ATNR_CONFUSION)
+				{
+					if (hitter->type == PLAYER)
+					{
+						draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
+					}
+
+					confuse_living(op);
+				}
+				else if (attacknum == ATNR_SLOW)
+				{
+					if (hitter->type == PLAYER)
+					{
+						draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
+					}
+
+					slow_living(op);
+				}
+				else if (attacknum == ATNR_PARALYZE)
+				{
+					if (hitter->type == PLAYER)
+					{
+						draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
+					}
+
+					paralyze_living(op, (int) dam);
+				}
+				else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD))
+				{
+					if (hitter->type == PLAYER)
+					{
+						draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
+					}
+
+					if (op->type == PLAYER)
+					{
+						draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
+					}
+
+					blind_living(op, hitter, (int) dam);
+				}
+			}
+
+			dam = 0;
+		}
+
+		break;
+
+		default:
+			ATTACK_HIT_DAMAGE(hitter, attacknum);
+			ATTACK_PROTECT_DAMAGE(op, attacknum);
+
+			if (damage && dam < 1.0)
+			{
+				dam = 1.0;
+			}
+
+			send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+			break;
+	}
+
+	return (int) dam;
+}
+
+/**
+ * Send attack message for players.
+ * @param op Victim of the attack.
+ * @param hitter Attacker.
+ * @param attacknum ID of the attack type.
+ * @param dam Actual damage done.
+ * @param damage How much damage should have been done, not counting
+ * resists/protections/etc. */
+static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage)
+{
+	object *orig_hitter = hitter;
+
+	if (op->type == PLAYER)
+	{
+		draw_info_format(COLOR_PURPLE, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
+	}
+
+	if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER))
+	{
+		draw_info_format(COLOR_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attack_name[attacknum]);
+	}
+}
+
+/**
+ * One player gets exp by killing a monster.
+ * @param op Player. This should be the killer.
+ * @param exp_gain Experience to gain.
+ * @param skill Skill that was used to kill the monster. */
+static void share_kill_exp_one(object *op, sint64 exp_gain, object *skill)
+{
+	if (exp_gain)
+	{
+		add_exp(op, exp_gain, skill->stats.sp, 0);
+	}
+	else
+	{
+		draw_info(COLOR_WHITE, op, "Your enemy wasn't worth any experience to you.");
+	}
+}
+
+/**
+ * Share experience gained by killing a monster. This will fairly share
+ * experience between party members, or if none are present, it will use
+ * share_kill_exp_one() instead.
+ * @param op Player that killed the monster.
+ * @param exp_gain Experience to share.
+ * @param skill Skill that was used to kill the monster. */
+static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
+{
+	int shares = 0, count = 0;
+	party_struct *party;
+	objectlink *ol;
+
+	if (!CONTR(op)->party)
+	{
+		share_kill_exp_one(op, exp_gain, skill);
+		return;
+	}
+
+	party = CONTR(op)->party;
+
+	for (ol = party->members; ol; ol = ol->next)
+	{
+		if (on_same_map(ol->objlink.ob, op))
+		{
+			count++;
+			shares += (CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp]->level + 4);
+		}
+	}
+
+	if (count == 1 || shares > exp_gain)
+	{
+		share_kill_exp_one(op, exp_gain, skill);
+	}
+	else
+	{
+		sint64 share = exp_gain / shares, given = 0, nexp;
+
+		for (ol = party->members; ol; ol = ol->next)
+		{
+			if (ol->objlink.ob != op && on_same_map(ol->objlink.ob, op))
+			{
+				nexp = (CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp]->level + 4) * share;
+				add_exp(ol->objlink.ob, nexp, skill->stats.sp, 0);
+				given += nexp;
+			}
+		}
+
+		exp_gain -= given;
+		share_kill_exp_one(op, exp_gain, skill);
+	}
+}
+
+/**
+ * An object was killed, handle various things (logging, messages, ...).
+ * @param op What is being killed.
+ * @param dam Damage done to it.
+ * @param hitter What is hitting it.
+ * @param type The attacktype.
+ * @return Dealt damage. */
+int kill_object(object *op, int dam, object *hitter, int type)
+{
+	int maxdam, battleg;
+	sint64 exp_gain = 0;
+	object *owner;
+
+	/* Still got some HP left? */
+	if (op->stats.hp > 0)
+	{
+		return -1;
+	}
+
+	if (op->type == PLAYER && CONTR(op)->tgm)
+	{
+		return 0;
+	}
+
+	/* Trigger the DEATH event */
+	if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, type, 0, 0, SCRIPT_FIX_ALL))
+	{
+		return 0;
+	}
+
+	maxdam = op->stats.hp - 1;
+
+	/* Only when some damage is stored, and we're on a map. */
+	if (op->damage_round_tag == global_round_tag && op->map)
+	{
+		SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
+		SET_MAP_RTAG(op->map, op->x, op->y, global_round_tag);
+	}
+
+	if (op->map)
+	{
+		play_sound_map(op->map, CMD_SOUND_EFFECT, "kill.ogg", op->x, op->y, 0, 0);
+	}
+
+	/* Figure out who to credit for the kill. */
+	owner = get_owner(hitter);
+
+	if (!owner)
+	{
+		owner = hitter;
+	}
+
+	/* Is the victim in PvP area? */
+	battleg = pvp_area(NULL, op);
+
+	/* Player killed something. */
+	if (owner->type == PLAYER)
+	{
+		if (owner != hitter)
+		{
+			draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, owner, "You killed %s.", query_name(op, NULL));
+		}
+
+		if (op->type == MONSTER)
+		{
+			shstr *faction, *faction_kill_penalty;
+
+			CONTR(owner)->stat_kills_mob++;
+			statistic_update("kills", owner, 1, op->name);
+
+			if ((faction = object_get_value(op, "faction")) && (faction_kill_penalty = object_get_value(op, "faction_kill_penalty")))
+			{
+				player_faction_reputation_update(CONTR(owner), faction, -atoll(faction_kill_penalty));
+			}
+		}
+		else if (op->type == PLAYER)
+		{
+			CONTR(owner)->stat_kills_pvp++;
+		}
+	}
+
+	/* Killed a player in PvP area. */
+	if (battleg && op->type == PLAYER && owner->type == PLAYER)
+	{
+		draw_info(COLOR_WHITE, owner, "Your foe has fallen!\nVICTORY!!!");
+	}
+
+	/* Killed a monster and it wasn't in PvP area, so give exp. */
+	if (!battleg && owner->type == PLAYER && op->type != PLAYER)
+	{
+		object *skill;
+
+		/* Figure out the skill that should gain experience. If the hitter
+		 * has chosen_skill set, we will use that. */
+		if (hitter->chosen_skill)
+		{
+			skill = hitter->chosen_skill;
+		}
+		/* Otherwise try to use owner's chosen_skill. */
+		else
+		{
+			skill = owner->chosen_skill;
+		}
+
+		if (skill)
+		{
+			/* Calculate how much experience to gain. */
+			exp_gain = calc_skill_exp(owner, op, skill->level);
+			/* Give the experience, sharing it with party members if applicable. */
+			share_kill_exp(owner, exp_gain, skill);
+		}
+	}
+
+	/* Player has been killed. */
+	if (op->type == PLAYER)
+	{
+		/* Tell everyone that this player has died. */
+		if (get_owner(hitter))
+		{
+			draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
+		}
+		else
+		{
+			draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
+		}
+
+		/* Update player's killer. */
+		if (owner->type == PLAYER)
+		{
+			char race[MAX_BUF];
+
+			snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", owner->name, player_get_race_class(owner, race, sizeof(race)));
+		}
+		else
+		{
+			strncpy(CONTR(op)->killer, owner->name, sizeof(CONTR(op)->killer) - 1);
+		}
+
+		/* And actually kill the player. */
+		kill_player(op);
+	}
+	/* Monster or something else has been killed. */
+	else
+	{
+		/* Remove the monster from the active list. */
+		op->speed = 0.0f;
+		update_ob_speed(op);
+
+		/* Rules:
+		 * 1. Monster will drop corpse for his target, not the killer (unless killer == target).
+		 * 2. NPC kill hit will overwrite player target on drop.
+		 * 3. Kill hit will count if target was an NPC. */
+		if (owner->type != PLAYER || !op->enemy || op->enemy->type != PLAYER)
+		{
+			op->enemy = owner;
+			op->enemy_count = owner->count;
+		}
+
+		/* Monster killed another monster. */
+		if (hitter->type == MONSTER || (get_owner(hitter) && hitter->owner->type == MONSTER))
+		{
+			/* No loot */
+			SET_FLAG(op, FLAG_STARTEQUIP);
+			/* Force an empty corpse though. */
+			SET_FLAG(op, FLAG_CORPSE_FORCED);
+		}
+		/* No exp, no loot and no corpse. */
+		else if (!exp_gain)
+		{
+			SET_FLAG(op, FLAG_STARTEQUIP);
+		}
+
+		destruct_ob(op);
+	}
+
+	return maxdam;
+}
+
+/**
+ * Find correct parameters for attack, do some sanity checks.
+ * @param target Will point to victim's head.
+ * @param hitter Will point to hitter's head.
+ * @param simple_attack Will be 1 if one of victim or target isn't on a
+ * map, 0 otherwise.
+ * @return 0 if hitter can attack target, 1 otherwise. */
+static int get_attack_mode(object **target, object **hitter, int *simple_attack)
+{
+	if (OBJECT_FREE(*target) || OBJECT_FREE(*hitter))
+	{
+		return 1;
+	}
+
+	if ((*target)->head)
+	{
+		*target = (*target)->head;
+	}
+
+	if ((*hitter)->head)
+	{
+		*hitter = (*hitter)->head;
+	}
+
+	if ((*hitter)->env != NULL || (*target)->env != NULL || (*hitter)->map == NULL)
+	{
+		*simple_attack = 1;
+		return 0;
+	}
+
+	if (QUERY_FLAG(*target, FLAG_REMOVED) || QUERY_FLAG(*hitter, FLAG_REMOVED))
+	{
+		return 1;
+	}
+
+	*simple_attack = 0;
+	return 0;
+}
+
+/**
+ * Check if target and hitter are still in a relation similar to the one
+ * determined by get_attack_mode().
+ * @param target Who is attacked.
+ * @param hitter Who is attacking.
+ * @param simple_attack Previous mode as returned by get_attack_mode().
+ * @return 1 if the relation has changed, 0 otherwise. */
+static int abort_attack(object *target, object *hitter, int simple_attack)
+{
+	int new_mode;
+
+	if (hitter->env == target || target->env == hitter)
+	{
+		new_mode = 1;
+	}
+	else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL)
+	{
+		return 1;
+	}
+	else
+	{
+		new_mode = 0;
+	}
+
+	return new_mode != simple_attack;
+}
+
 /**
  * Poison a living thing.
  * @param op Victim.
@@ -285,618 +1251,82 @@ void paralyze_living(object *op, int dam)
 	}
 }
 
-static void attack_absorb_damage(object *hitter, object *target, object *item, int dam[])
+/**
+ * Adjustments to attack rolls by various conditions.
+ * @param hitter Who is hitting.
+ * @param target Victim of the attack.
+ * @return Adjustment to attack roll. */
+static int adj_attackroll(object *hitter, object *target)
 {
-	int attacktype;
-	object *skill;
+	object *attacker = hitter;
+	int adjust = 0;
 
-	if (!item)
-	{
-		return;
-	}
-
-	skill = NULL;
-
-	if (item->type == SHIELD || item->type == WEAPON)
-	{
-		int level;
-
-		level = SK_level(hitter);
-		skill = skill_get(target, SK_BLOCKING);
-
-		if (skill)
-		{
-			int chance;
-
-			chance = level - skill->level + rndm(0, 20);
-
-			if (chance > 1 && !rndm_chance(chance))
-			{
-				return;
-			}
-		}
-	}
-	else if (IS_ARMOR(item))
-	{
-		if (item->item_skill)
-		{
-			skill = skill_get(target, item->item_skill - 1);
-		}
-	}
-
-	if (!skill)
-	{
-		return;
-	}
-
-	for (attacktype = 0; attacktype < NROFATTACKS; attacktype++)
-	{
-		if (dam[attacktype])
-		{
-			dam[attacktype] = dam[attacktype] * ((double) (100 - (item->type == WEAPON ? 50 : item->protection[attacktype])) * 0.01);
-		}
-	}
-}
-
-static int attack_perform_attacktype(object *hitter, object *target, object *hitter_owner, int attacktype, int dam)
-{
-	if (!dam)
+	/* Safety */
+	if (!target || !hitter || !hitter->map || !target->map || !on_same_map(hitter, target))
 	{
 		return 0;
 	}
 
-	switch (attacktype)
+	/* Aimed missiles use the owning object's sight */
+	if (is_aimed_missile(hitter))
 	{
-		case ATNR_CONFUSION:
-		case ATNR_SLOW:
-		case ATNR_PARALYZE:
-		case ATNR_BLIND:
-			dam = 0;
-
-			if (IS_LIVE(target) && rndm_chance(attacktype == ATNR_SLOW ? 6 : 3))
-			{
-				if (attacktype == ATNR_CONFUSION)
-				{
-					if (target->type == PLAYER)
-					{
-						draw_info_format(COLOR_PURPLE, target, "%s confused you!", hitter->name);
-					}
-
-					if (hitter->type == PLAYER)
-					{
-						draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", target->name);
-					}
-
-					confuse_living(target);
-				}
-				else if (attacktype == ATNR_SLOW)
-				{
-					if (target->type == PLAYER)
-					{
-						draw_info_format(COLOR_PURPLE, target, "%s slowed you!", hitter->name);
-					}
-
-					if (hitter->type == PLAYER)
-					{
-						draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", target->name);
-					}
-
-					slow_living(target);
-				}
-				else if (attacktype == ATNR_PARALYZE)
-				{
-					if (target->type == PLAYER)
-					{
-						draw_info_format(COLOR_PURPLE, target, "%s paralyzed you!", hitter->name);
-					}
-
-					if (hitter->type == PLAYER)
-					{
-						draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", target->name);
-					}
-
-					paralyze_living(target, dam);
-				}
-				else if (attacktype == ATNR_BLIND && !QUERY_FLAG(target, FLAG_UNDEAD))
-				{
-					if (target->type == PLAYER)
-					{
-						draw_info_format(COLOR_PURPLE, target, "%s blinded you!", hitter->name);
-					}
-
-					if (hitter->type == PLAYER)
-					{
-						draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", target->name);
-					}
-
-					blind_living(target, hitter, dam);
-				}
-			}
-
-			break;
-
-		default:
-			if (target->type == PLAYER)
-			{
-				draw_info_format(COLOR_PURPLE, target, "%s hit you for %d damage.", hitter->name, dam);
-			}
-
-			if (hitter_owner->type == PLAYER)
-			{
-				draw_info_format(COLOR_ORANGE, hitter_owner, "You hit %s for %d with %s.", target->name, dam, attacktype == ATNR_INTERNAL ? hitter->name : attack_name[attacktype]);
-			}
-
-			break;
-	}
-
-	switch (attacktype)
-	{
-		case ATNR_IMPACT:
-		case ATNR_SLASH:
-		case ATNR_CLEAVE:
-		case ATNR_PIERCE:
-			if (hitter->type == ARROW)
-			{
-				play_sound_map(hitter->map, CMD_SOUND_EFFECT, "arrow_hit.ogg", hitter->x, hitter->y, 0, 0);
-			}
-			else
-			{
-				char buf[MAX_BUF];
-
-				snprintf(buf, sizeof(buf), "hit_%s.ogg", attack_name[attacktype]);
-				play_sound_map(hitter->map, CMD_SOUND_EFFECT, buf, hitter->x, hitter->y, 0, 0);
-			}
-
-			check_physically_infect(target, hitter);
-			break;
-
-		case ATNR_POISON:
-			poison_player(target, hitter, dam);
-			break;
-
-		default:
-			break;
-	}
-
-	return dam;
-}
-
-int attack_perform(object *hitter, object *target)
-{
-	int dam, damage[NROFATTACKS], roll, attacktype, bodypart, maxdam;
-	object *hitter_ob, *hitter_owner, *weapon, *hand_main, *hand_off, *shield;
-
-	if ((target->type == PLAYER && CONTR(target)->tgm) || QUERY_FLAG(target, FLAG_INVULNERABLE))
-	{
-		return -1;
-	}
-
-	hitter = HEAD(hitter);
-	target = HEAD(target);
-
-	hitter_owner = get_owner(hitter);
-
-	if (!hitter_owner)
-	{
-		hitter_owner = hitter;
-	}
-
-	if (is_friend_of(hitter_owner, target))
-	{
-		return -1;
-	}
-
-	/* Check for PVP areas. */
-	if (target->type == PLAYER && hitter_owner->type == PLAYER)
-	{
-		if (!pvp_area(target, hitter_owner))
+		if ((attacker = get_owner(hitter)) == NULL)
 		{
-			return -1;
+			attacker = hitter;
 		}
 	}
-
-	if (trigger_event(EVENT_ATTACK, hitter, hitter, target, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
+	else if (!IS_LIVE(hitter))
 	{
-		return -1;
+		return 0;
 	}
 
-	CLEAR_FLAG(target, FLAG_SLEEP);
-
-	/* If one gets attacked, the attacker will become the enemy */
-	if (!OBJECT_VALID(target->enemy, target->enemy_count) && !IS_INVISIBLE(hitter_owner, target) && !QUERY_FLAG(hitter_owner, FLAG_INVULNERABLE))
+	/* Invisible means, we can't see it - same for blind */
+	if (IS_INVISIBLE(target, attacker) || QUERY_FLAG(attacker, FLAG_BLIND))
 	{
-		set_npc_enemy(target, hitter_owner, NULL);
+		adjust -= 12;
 	}
 
-	/* Swing animation. */
-	if (hitter->type == PLAYER)
+	if (QUERY_FLAG(attacker, FLAG_SCARED))
 	{
-		CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
+		adjust -= 3;
 	}
 
-	/* Face the target. */
-	if (IS_LIVE(hitter))
+	if (QUERY_FLAG(target, FLAG_UNAGGRESSIVE))
 	{
-		rv_vector rv;
-
-		if (get_rangevector(hitter, target, &rv, RV_NO_DISTANCE))
-		{
-			hitter->anim_enemy_dir = rv.direction;
-			hitter->facing = rv.direction;
-		}
+		adjust += 1;
 	}
 
-	weapon = NULL;
-
-	/* Get the items in both hands. */
-	hand_main = player_equipment_get(hitter, PLAYER_EQUIP_HAND_MAIN);
-	hand_off = player_equipment_get(hitter, PLAYER_EQUIP_HAND_OFF);
-
-	/* If the main hand has a weapon, use it as the hitting object. */
-	if (hand_main && hand_main->type == WEAPON)
+	if (QUERY_FLAG(target, FLAG_SCARED))
 	{
-		hitter_ob = weapon = hand_main;
-	}
-	/* No weapon, so the hitter is also the hitting object (spell/arrow/etc). */
-	else
-	{
-		hitter_ob = hitter;
+		adjust += 1;
 	}
 
-	/* Offhand has a weapon, use it if main hand has no weapon or it does
-	 * but we roll 50/50 chance to use the offhand weapon. */
-	if (hand_off && hand_off->type == WEAPON && (!hand_main || rndm_chance(2)))
+	if (QUERY_FLAG(attacker, FLAG_CONFUSED))
 	{
-		hitter_ob = weapon = hand_off;
+		adjust -= 3;
 	}
 
-	/* Still no weapon; try to use the unarmed skill. */
-	if (!weapon)
+	/* If we attack at a different 'altitude' it's harder */
+	if (QUERY_FLAG(attacker, FLAG_FLYING) != QUERY_FLAG(target, FLAG_FLYING))
 	{
-		weapon = skill_get(hitter, SK_UNARMED);
-
-		if (weapon)
-		{
-			hitter_ob = weapon;
-		}
+		adjust -= 2;
 	}
 
-	dam = rndm(hitter_ob->stats.dam / 2 + 1, hitter_ob->stats.dam);
-
-	if (weapon)
-	{
-		object *skill;
-
-		skill = weapon_get_skill(weapon, hitter_owner);
-
-		if (skill)
-		{
-			dam *= LEVEL_DAMAGE(skill->level);
-		}
-	}
-
-	if (hitter_ob != hitter)
-	{
-		dam += rndm(hitter->stats.dam / 2 + 1, hitter->stats.dam);
-	}
-
-	if (hitter_ob->slaying)
-	{
-		if ((target->race && strstr(hitter_ob->slaying, target->race)) || strstr(target->arch->name, hitter_ob->slaying))
-		{
-			if (QUERY_FLAG(hitter_ob, FLAG_IS_ASSASSINATION))
-			{
-				dam = (int) ((double) dam * 2.25);
-			}
-			else
-			{
-				dam = (int) ((double) dam * 1.75);
-			}
-		}
-	}
-
-	memset(&damage, 0, sizeof(damage));
-
-	roll = rndm(1, 100);
-
-	for (attacktype = ATTACK_PHYSICAL_START; attacktype <= ATTACK_PHYSICAL_END; attacktype++)
-	{
-		roll -= hitter_ob->attack[attacktype];
-
-		if (roll <= 0)
-		{
-			damage[attacktype] = dam;
-			break;
-		}
-	}
-
-	for (attacktype = ATTACK_MAGICAL_START; attacktype <= ATTACK_MAGICAL_END; attacktype++)
-	{
-		if (hitter_ob->attack[attacktype])
-		{
-			damage[attacktype] = dam * ((double) hitter_ob->attack[attacktype] * 0.01);
-
-			if (damage[attacktype] <= 0)
-			{
-				damage[attacktype] = 1;
-			}
-		}
-	}
-
-	attack_absorb_damage(hitter, target, target, damage);
-
-	/* Try to use the shield in the offhand. */
-	shield = player_equipment_get(target, PLAYER_EQUIP_HAND_OFF);
-
-	/* Nothing in offhand, try to use main hand's weapon as a shield. */
-	if (!shield)
-	{
-		shield = player_equipment_get(target, PLAYER_EQUIP_HAND_MAIN);
-
-		/* Main hand is not a weapon, so no shield. */
-		if (shield->type != WEAPON)
-		{
-			shield = NULL;
-		}
-	}
-	/* Offhand is not a shield, so no shield. */
-	else if (shield->type != SHIELD)
-	{
-		shield = NULL;
-	}
-
-	attack_absorb_damage(hitter, target, shield, damage);
-
-	if (rndm_chance(10))
-	{
-		bodypart = PLAYER_EQUIP_HELM;
-	}
-	else if (rndm_chance(15))
-	{
-		bodypart = PLAYER_EQUIP_BOOTS;
-	}
-	else if (rndm_chance(10))
-	{
-		if (rndm(1, 10) > 5)
-		{
-			bodypart = PLAYER_EQUIP_GAUNTLETS;
-		}
-		else
-		{
-			bodypart = PLAYER_EQUIP_BRACERS;
-		}
-	}
-	else
-	{
-		if (rndm(1, 10) > 5)
-		{
-			bodypart = PLAYER_EQUIP_GREAVES;
-		}
-		else
-		{
-			bodypart = PLAYER_EQUIP_ARMOUR;
-		}
-	}
-
-	attack_absorb_damage(hitter, target, player_equipment_get(target, bodypart), damage);
-
-	if (bodypart == PLAYER_EQUIP_GREAVES || bodypart == PLAYER_EQUIP_ARMOUR)
-	{
-		attack_absorb_damage(hitter, target, player_equipment_get(target, PLAYER_EQUIP_CLOAK), damage);
-	}
-
-	if (bodypart == PLAYER_EQUIP_GREAVES && rndm_chance(25))
-	{
-		attack_absorb_damage(hitter, target, player_equipment_get(target, PLAYER_EQUIP_BELT), damage);
-	}
-
-	if (bodypart == PLAYER_EQUIP_GAUNTLETS && rndm_chance(50))
-	{
-		attack_absorb_damage(hitter, target, player_equipment_get(target, rndm_chance(2) ? PLAYER_EQUIP_RING_LEFT : PLAYER_EQUIP_RING_RIGHT), damage);
-	}
-
-	if (bodypart == PLAYER_EQUIP_ARMOUR && rndm_chance(75))
-	{
-		attack_absorb_damage(hitter, target, player_equipment_get(target, PLAYER_EQUIP_AMULET), damage);
-	}
-
-	for (attacktype = 0; attacktype < NROFATTACKS; attacktype++)
-	{
-		damage[attacktype] = attack_perform_attacktype(hitter, target, hitter_owner, attacktype, damage[attacktype]);
-
-		if (!damage[attacktype])
-		{
-			continue;
-		}
-
-		if (target->damage_round_tag != global_round_tag)
-		{
-			target->last_damage = 0;
-			target->damage_round_tag = global_round_tag;
-		}
-
-		if (hitter_owner->type == PLAYER)
-		{
-			CONTR(hitter_owner)->stat_damage_dealt += damage[attacktype];
-		}
-
-		if (target->type == PLAYER)
-		{
-			CONTR(target)->stat_damage_taken += damage[attacktype];
-		}
-
-		target->last_damage += damage[attacktype];
-		target->stats.hp -= damage[attacktype];
-		maxdam += damage[attacktype];
-	}
-
-	/* Target is still alive (for now). */
-	if (target->stats.hp > 0)
-	{
-		/* Check to see if monster runs away. */
-		if (QUERY_FLAG(target, FLAG_MONSTER) && target->stats.hp < (sint16) (((double) target->run_away / 100.0f) * (double) target->stats.maxhp))
-		{
-			SET_FLAG(target, FLAG_RUN_AWAY);
-		}
-	}
-	/* Target has reached the death threshold. */
-	else
-	{
-		int pvp;
-
-		/* Trigger the death event. */
-		if (trigger_event(EVENT_DEATH, hitter, target, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
-		{
-			return -1;
-		}
-
-		play_sound_map(target->map, CMD_SOUND_EFFECT, "kill.ogg", target->x, target->y, 0, 0);
-
-		/* Only when some damage is stored, and we're on a map. */
-		if (target->damage_round_tag == global_round_tag)
-		{
-			SET_MAP_DAMAGE(target->map, target->x, target->y, target->last_damage);
-			SET_MAP_RTAG(target->map, target->x, target->y, global_round_tag);
-		}
-
-		/* Is the victim in PvP area? */
-		pvp = pvp_area(NULL, target);
-
-		/* Player killed something. */
-		if (hitter_owner->type == PLAYER)
-		{
-			if (hitter_owner != hitter)
-			{
-				draw_info_format(COLOR_WHITE, hitter_owner, "You killed %s with %s.", target->name, query_name(hitter, hitter_owner));
-			}
-			else
-			{
-				draw_info_format(COLOR_WHITE, hitter_owner, "You killed %s.", target->name);
-			}
-
-			if (target->type == MONSTER)
-			{
-				shstr *faction, *faction_kill_penalty;
-
-				CONTR(hitter_owner)->stat_kills_mob++;
-				statistic_update("kills", hitter_owner, 1, target->name);
-
-				if ((faction = object_get_value(target, "faction")) && (faction_kill_penalty = object_get_value(target, "faction_kill_penalty")))
-				{
-					player_faction_reputation_update(CONTR(hitter_owner), faction, -atoll(faction_kill_penalty));
-				}
-			}
-			else if (target->type == PLAYER)
-			{
-				CONTR(hitter_owner)->stat_kills_pvp++;
-			}
-		}
-
-		/* Killed a player. */
-		if (target->type == PLAYER)
-		{
-			if (pvp)
-			{
-				draw_info(COLOR_WHITE, hitter_owner, "Your foe has fallen!\nVICTORY!!!");
-			}
-
-			/* Tell everyone that this player has died. */
-			if (hitter_owner != hitter)
-			{
-				draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter_owner->name, target->name, query_name(hitter, hitter_owner), pvp ? " (duel)" : "");
-			}
-			else
-			{
-				draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, target->name, pvp ? " (duel)" : "");
-			}
-
-			/* Update player's killer. */
-			if (hitter_owner->type == PLAYER)
-			{
-				char race[MAX_BUF];
-
-				snprintf(CONTR(target)->killer, sizeof(CONTR(target)->killer), "%s the %s", hitter_owner->name, player_get_race_class(hitter_owner, race, sizeof(race)));
-			}
-			else
-			{
-				strncpy(CONTR(target)->killer, hitter_owner->name, sizeof(CONTR(target)->killer) - 1);
-			}
-
-			/* And actually kill the player. */
-			kill_player(target);
-		}
-		/* Monster or something else has been killed. */
-		else
-		{
-			/* Rules:
-			 * 1. Monster will drop corpse for his target, not the killer (unless killer == target).
-			 * 2. NPC kill hit will override player target on drop.
-			 * 3. Kill hit will count if target was an NPC. */
-			if (hitter_owner->type != PLAYER || !target->enemy || target->enemy->type != PLAYER)
-			{
-				target->enemy = hitter_owner;
-				target->enemy_count = hitter_owner->count;
-			}
-
-			/* Monster killed another monster, so no loot, but force an empty
-			 * corpse anyway. */
-			if (hitter_owner->type == MONSTER)
-			{
-				SET_FLAG(target, FLAG_STARTEQUIP);
-				SET_FLAG(target, FLAG_CORPSE_FORCED);
-			}
-
-			destruct_ob(target);
-		}
-	}
-
-	return maxdam;
+	return adjust;
 }
 
 /**
- * Attack a spot on the map.
- * @param op Object hitting the map.
- * @param dir Direction op is hitting/going. */
-void hit_map(object *op, int dir)
+ * Determine if the object is an 'aimed' missile.
+ * @param op Object to check.
+ * @return 1 if aimed missile, 0 otherwise. */
+static int is_aimed_missile(object *op)
 {
-	object *tmp;
-	mapstruct *m;
-	int x, y;
-
-	if (OBJECT_FREE(op))
+	if (op && QUERY_FLAG(op, FLAG_FLYING) && op->type == ARROW)
 	{
-		return;
+		return 1;
 	}
 
-	op = HEAD(op);
-
-	if (!op->map || !op->stats.dam)
-	{
-		return;
-	}
-
-	x = op->x + freearr_x[dir];
-	y = op->y + freearr_y[dir];
-	m = get_map_from_coord(op->map, &x, &y);
-
-	if (!m)
-	{
-		return;
-	}
-
-	FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
-	{
-		tmp = HEAD(tmp);
-
-		/* Cones with race set can only damage members of that race. */
-		if (op->type == CONE && op->race && tmp->race != op->race)
-		{
-			continue;
-		}
-
-		attack_perform(op, tmp);
-	}
-	FOR_MAP_LAYER_END
+	return 0;
 }
 
 /**
@@ -907,15 +1337,15 @@ void hit_map(object *op, int dir)
  * @retval 1 Target is in range and we're facing it. */
 int is_melee_range(object *hitter, object *enemy)
 {
-	int xt, yt, i;
+	int xt, yt, s;
 	object *tmp;
 	mapstruct *mt;
 
 	/* Check squares around */
-	for (i = 0; i < SIZEOFFREE1 + 1; i++)
+	for (s = 0; s < 9; s++)
 	{
-		xt = hitter->x + freearr_x[i];
-		yt = hitter->y + freearr_y[i];
+		xt = hitter->x + freearr_x[s];
+		yt = hitter->y + freearr_y[s];
 
 		if (!(mt = get_map_from_coord(hitter->map, &xt, &yt)))
 		{

@@ -3691,7 +3691,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
 		if (exit_ob->stats.dam && op->type == PLAYER)
 		{
-			attack_perform(exit_ob, op);
+			hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
 		}
 	}
 

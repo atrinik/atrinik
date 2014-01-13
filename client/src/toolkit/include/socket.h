@@ -608,7 +608,7 @@ enum
 	PLAYER_EQUIP_AMULET,
 	/**
 	 * Weapon. */
-	PLAYER_EQUIP_HAND_MAIN,
+	PLAYER_EQUIP_WEAPON,
 	/**
 	 * Gauntlets. */
 	PLAYER_EQUIP_GAUNTLETS,
@@ -640,7 +640,7 @@ enum
 	PLAYER_EQUIP_BRACERS,
 	/**
 	 * Shield. */
-	PLAYER_EQUIP_HAND_OFF,
+	PLAYER_EQUIP_SHIELD,
 	/**
 	 * Light (lantern, torch). */
 	PLAYER_EQUIP_LIGHT,

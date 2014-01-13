@@ -525,12 +525,14 @@ void move_symptom(object *symptom)
 		return;
 	}
 
-	if (symptom->stats.dam <= 0)
+	if (symptom->stats.dam > 0)
 	{
-		symptom->stats.dam = (int) MAX((float) 1, (float) - victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0);
+		hit_player(victim, symptom->stats.dam, symptom, AT_INTERNAL);
 	}
-
-	attack_perform(symptom, victim);
+	else
+	{
+		hit_player(victim, (int) MAX((float) 1, (float) - victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0), symptom, AT_INTERNAL);
+	}
 
 	if (symptom->stats.maxsp > 0)
 	{

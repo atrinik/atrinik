@@ -195,7 +195,7 @@ struct plugin_hooklist
 	int (*manual_apply)(object *, object *, int);
 	void (*command_drop)(object *, const char *, char *);
 	int (*transfer_ob)(object *, int, int, int, object *, object *);
-	int (*attack_perform)(object *, object *);
+	int (*kill_object)(object *, int, object *, int);
 	void (*esrv_send_inventory)(object *, object *);
 	object *(*get_archetype)(const char *);
 	mapstruct *(*ready_map_name)(const char *, int);
@@ -265,6 +265,7 @@ struct plugin_hooklist
 	treasurelist *(*find_treasurelist)(const char *);
 	void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
 	void (*dump_object_rec)(object *, StringBuffer *);
+	int (*hit_player)(object *, int, object *, int);
 	int (*move_ob)(object *, int, object *);
 	mapstruct *(*get_empty_map)(int, int);
 	void (*set_map_darkness)(mapstruct *, int);

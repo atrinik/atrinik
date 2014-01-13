@@ -30,21 +30,6 @@
 
 #include <global.h>
 
-int weapon_determine_skill(object *op)
-{
-	if (op && op->type == WEAPON && op->item_skill)
-	{
-		return op->item_skill - 1;
-	}
-
-	return SK_UNARMED;
-}
-
-object *weapon_get_skill(object *op, object *owner)
-{
-	return skill_get(owner, weapon_determine_skill(op));
-}
-
 /**
  * Initialize the weapon type object methods. */
 void object_type_init_weapon(void)

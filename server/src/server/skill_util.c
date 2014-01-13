@@ -452,13 +452,20 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 
 	if (op->type == PLAYER)
 	{
-		op->chosen_skill = weapon_get_skill(CONTR(op)->equipment[PLAYER_EQUIP_HAND_MAIN], op);
+		if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill)
+		{
+			op->chosen_skill = CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
+		}
+		else
+		{
+			op->chosen_skill = CONTR(op)->skill_ptr[SK_UNARMED];
+		}
 	}
 
-	success = attack_perform(op, tmp);
+	success = attack_ob(tmp, op);
 
 	/* Print appropriate messages to the player. */
-	if (success > 0 && string != NULL)
+	if (success && string != NULL)
 	{
 		if (op->type == PLAYER)
 		{
@@ -512,28 +519,6 @@ object *SK_skill(object *op)
 	if (head->type == PLAYER && head->chosen_skill)
 	{
 		return head->chosen_skill;
-	}
-
-	return NULL;
-}
-
-object *skill_get(object *op, int skill_nr)
-{
-	if (op->type == PLAYER)
-	{
-		return CONTR(op)->skill_ptr[skill_nr];
-	}
-	else if (op->type == MONSTER)
-	{
-		object *tmp;
-
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == SKILL && tmp->stats.sp == skill_nr)
-			{
-				return tmp;
-			}
-		}
 	}
 
 	return NULL;
