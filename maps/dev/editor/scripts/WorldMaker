@@ -75,7 +75,7 @@ void checkDaList() {
     DestHeight = TileHeight.intValue() * (NumX.intValue() + NumY.intValue()) / 2;
 
     if (Location == null || Location.length() == 0) {
-        locationDir = globalSettings.getMapsDirectory();
+        locationDir = projectSettings.getMapsDirectory();
     } else {
         locationDir = new File(Location);
     }
