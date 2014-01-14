@@ -712,6 +712,50 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
 	switch (spell_type)
 	{
+		case SP_STRENGTH:
+			force->speed_left = -1;
+
+			if (tmp->type != PLAYER)
+			{
+				if (op->type == PLAYER)
+				{
+					draw_info(COLOR_WHITE, op, "You can't cast this kind of spell on your target.");
+				}
+
+				return 0;
+			}
+			else if (op->type == PLAYER && op != tmp)
+			{
+				draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
+			}
+
+			if (force->stats.Str < 2)
+			{
+				force->stats.Str++;
+
+				if (op->type == PLAYER && op != tmp)
+				{
+					draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
+				}
+			}
+			else
+			{
+				msg_flag = 0;
+				draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
+
+				if (op->type == PLAYER && op != tmp)
+				{
+					draw_info_format(COLOR_WHITE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
+				}
+			}
+
+			if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y))
+			{
+				logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+			}
+
+			break;
+
 		/* Attacktype protection spells */
 		case SP_PROT_COLD:
 			i = ATNR_COLD;
@@ -906,7 +950,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 		*done += 1;
 	}
 
-	if (mode == IDENTIFY_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level)
+	if (mode == IDENTIFY_NORMAL && op->type == PLAYER && *done > CONTR(op)->skill_ptr[SK_LITERACY]->level + op->stats.Int)
 	{
 		return 0;
 	}

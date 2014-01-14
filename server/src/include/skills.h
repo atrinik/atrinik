@@ -43,8 +43,8 @@ enum skillnrs
 
 	/** Can attack hand-to-hand */
 	SK_UNARMED,
-	/** Constitution. */
-	SK_CONSTITUTION,
+	/** @deprecated */
+	SK_KARATE,
 	/** Player can throw items */
 	SK_THROWING,
 

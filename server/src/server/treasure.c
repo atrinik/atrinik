@@ -2295,6 +2295,11 @@ jump_break1:
 
 				break;
 
+			case RUNE:
+				/* Artifact AND normal treasure runes! */
+				trap_adjust(op, difficulty);
+				break;
+
 			/* Generate some special food */
 			case FOOD:
 				if (rndm_chance(4))

@@ -128,13 +128,13 @@ static fields_struct fields[] =
 	{"ac", FIELDTYPE_SINT16, offsetof(object, stats.ac), FIELDFLAG_PLAYER_READONLY, 0},
 	{"wc_range", FIELDTYPE_UINT8, offsetof(object, stats.wc_range), 0, 0},
 
-	{"Str", FIELDTYPE_SINT8, offsetof(object, stats.Str), 0, 0},
-	{"Dex", FIELDTYPE_SINT8, offsetof(object, stats.Dex), 0, 0},
-	{"Con", FIELDTYPE_SINT8, offsetof(object, stats.Con), 0, 0},
-	{"Wis", FIELDTYPE_SINT8, offsetof(object, stats.Wis), 0, 0},
-	{"Cha", FIELDTYPE_SINT8, offsetof(object, stats.Cha), 0, 0},
-	{"Int", FIELDTYPE_SINT8, offsetof(object, stats.Int), 0, 0},
-	{"Pow", FIELDTYPE_SINT8, offsetof(object, stats.Pow), 0, 0},
+	{"Str", FIELDTYPE_SINT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
+	{"Dex", FIELDTYPE_SINT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
+	{"Con", FIELDTYPE_SINT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
+	{"Wis", FIELDTYPE_SINT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
+	{"Cha", FIELDTYPE_SINT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
+	{"Int", FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
+	{"Pow", FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
 
 	{"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
 	{"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
@@ -167,6 +167,35 @@ static fields_struct fields[] =
  * @defgroup plugin_python_object_functions Python object functions
  * Object related functions used in Atrinik Python plugin.
  *@{*/
+
+/**
+ * <h1>object.ActivateRune(object who)</h1>
+ * Activate a rune.
+ * @param who Who should be affected by the effects of the rune.
+ * @throws TypeError if 'object' is not of type @ref RUNE "TYPE_RUNE". */
+static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args)
+{
+	Atrinik_Object *who;
+
+	if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &who))
+	{
+		return NULL;
+	}
+
+	OBJEXISTCHECK(obj);
+	OBJEXISTCHECK(who);
+
+	if (obj->obj->type != RUNE)
+	{
+		PyErr_SetString(PyExc_TypeError, "object.ActivateRune(): 'object' is not a rune.");
+		return NULL;
+	}
+
+	hooks->rune_spring(obj->obj, who->obj);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 /**
  * <h1>object.TeleportTo(string map, int [x = -1], int [y = -1])</h1>
@@ -1594,6 +1623,7 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] =
 {
+	{"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
 	{"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
 	{"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
 	{"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},

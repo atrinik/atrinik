@@ -37,6 +37,8 @@
  * @param nearby Whether this door was opened by opening a nearby door. */
 static void door_open(object *ob, object *opener, uint8 nearby)
 {
+	object *tmp;
+
 	/* Already open, nothing to do. */
 	if (ob->last_eat)
 	{
@@ -44,6 +46,15 @@ static void door_open(object *ob, object *opener, uint8 nearby)
 	}
 
 	object_remove(ob, 0);
+
+	/* Spring any traps in the door's inventory. */
+	for (tmp = ob->inv; tmp; tmp = tmp->below)
+	{
+		if (tmp->type == RUNE && tmp->level)
+		{
+			rune_spring(tmp, opener);
+		}
+	}
 
 	/* Mark this door as opened. */
 	ob->last_eat = 1;
@@ -272,6 +283,10 @@ static void process_func(object *op)
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
+	(void) op;
+	(void) applier;
+	(void) aflags;
+
 	return OBJECT_METHOD_UNHANDLED;
 }
 

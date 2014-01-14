@@ -33,6 +33,166 @@
 #define ENCUMBRANCE_LIMIT 65.0f
 
 /**
+ * dam_bonus, thaco_bonus, weight limit all are based on strength. */
+int dam_bonus[MAX_STAT + 1] =
+{
+	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
+	0, 0, 0, 0, 0,
+	1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 10, 12
+};
+
+/** THAC0 bonus - WC bonus */
+int thaco_bonus[MAX_STAT + 1] =
+{
+	-5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
+	0, 0, 0, 0, 0,
+	1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8
+};
+
+/**
+ * Constitution bonus. */
+static float con_bonus[MAX_STAT + 1] =
+{
+	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
+	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
+};
+
+/**
+ * Power bonus. */
+static float pow_bonus[MAX_STAT + 1] =
+{
+	-0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
+	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
+};
+
+/**
+ * Speed bonus. Uses dexterity as its stat. */
+float speed_bonus[MAX_STAT + 1] =
+{
+	-0.4f, -0.4f, -0.3f, -0.3f, -0.2f,
+	-0.2f, -0.2f, -0.1f, -0.1f, -0.1f,
+	-0.05f, 0.0, 0.0f, 0.0f, 0.025f, 0.05f,
+	0.075f, 0.1f, 0.125f, 0.15f, 0.175f, 0.2f,
+	0.225f, 0.25f, 0.275f, 0.3f,
+	0.325f, 0.35f, 0.4f, 0.45f, 0.5f
+};
+
+/**
+ * The absolute most a character can carry - a character can't pick stuff
+ * up if it would put him above this limit.
+ *
+ * Value is in grams, so we don't need to do conversion later
+ *
+ * These limits are probably overly generous, but being there were no
+ * values before, you need to start someplace. */
+uint32 weight_limit[MAX_STAT + 1] =
+{
+	20000,
+	25000,	30000,	35000,	40000,	50000,
+	60000,	70000,	80000,	90000,	100000,
+	110000,	120000,	130000,	140000,	150000,
+	165000,	180000,	195000,	210000,	225000,
+	240000,	255000,	270000,	285000,	300000,
+	325000,	350000,	375000,	400000,	450000
+};
+
+/**
+ * Probability to learn a spell or skill, based on intelligence or
+ * wisdom. */
+int learn_spell[MAX_STAT + 1] =
+{
+	0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
+	100, 100, 100, 100, 100, 100
+};
+
+/**
+ * Probability to avoid something. */
+int savethrow[MAXLEVEL + 1] =
+{
+	18,
+	18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
+	9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6,
+	6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4,
+	4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2,
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+};
+
+/** Message when a player is drained of a stat. */
+static const char *const drain_msg[NUM_STATS] =
+{
+	"Oh no! You are weakened!",
+	"You're feeling clumsy!",
+	"You feel less healthy",
+	"You suddenly begin to lose your memory!",
+	"Your face gets distorted!",
+	"Watch out, your mind is going!",
+	"Your spirit feels drained!"
+};
+
+/** Message when a player has a stat restored. */
+const char *const restore_msg[NUM_STATS] =
+{
+	"You feel your strength return.",
+	"You feel your agility return.",
+	"You feel your health return.",
+	"You feel your wisdom return.",
+	"You feel your charisma return.",
+	"You feel your memory return.",
+	"You feel your spirits return."
+};
+
+/** Message when a player increases a stat. */
+static const char *const gain_msg[NUM_STATS] =
+{
+	"You feel stronger.",
+	"You feel more agile.",
+	"You feel healthy.",
+	"You feel wiser.",
+	"You seem to look better.",
+	"You feel smarter.",
+	"You feel more potent."
+};
+
+/** Message when a player decreases a stat. */
+const char *const lose_msg[NUM_STATS] =
+{
+	"You feel weaker!",
+	"You feel clumsy!",
+	"You feel less healthy!",
+	"You lose some of your memory!",
+	"You look ugly!",
+	"You feel stupid!",
+	"You feel less potent!"
+};
+
+/** Names of stats. */
+const char *const statname[NUM_STATS] =
+{
+	"strength",
+	"dexterity",
+	"constitution",
+	"wisdom",
+	"charisma",
+	"intelligence",
+	"power"
+};
+
+/** Short names of stats. */
+const char *const short_stat_name[NUM_STATS] =
+{
+	"Str",
+	"Dex",
+	"Con",
+	"Wis",
+	"Cha",
+	"Int",
+	"Pow"
+};
+
+/**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
  * @param stats Item to modify. Must not be NULL.
@@ -169,8 +329,9 @@ void check_stat_bounds(living *stats)
  * can be applied or not. */
 int change_abil(object *op, object *tmp)
 {
-	int flag = QUERY_FLAG(tmp, FLAG_APPLIED) ? 1 : -1, i, success = 0;
+	int flag = QUERY_FLAG(tmp, FLAG_APPLIED) ? 1 : -1, i, j, success = 0;
 	object refop;
+	int potion_max = 0;
 
 	/* Remember what object was like before it was changed. Note that
 	 * refop is a local copy of op only to be used for detecting changes
@@ -493,7 +654,66 @@ int change_abil(object *op, object *tmp)
 		}
 	}
 
+	if (!potion_max)
+	{
+		for (j = 0; j < NUM_STATS; j++)
+		{
+			if ((i = get_attr_value(&(tmp->stats), j)) != 0)
+			{
+				success = 1;
+
+				if ((i * flag) > 0)
+				{
+					draw_info(COLOR_WHITE, op, gain_msg[j]);
+				}
+				else
+				{
+					draw_info(COLOR_GRAY, op, lose_msg[j]);
+				}
+			}
+		}
+	}
+
 	return success;
+}
+
+/**
+ * Drains a random stat from op.
+ * @param op Object to drain. */
+void drain_stat(object *op)
+{
+	drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
+}
+
+/**
+ * Drain a specified stat from op.
+ * @param op Victim to drain.
+ * @param deplete_stats Statistic to drain. */
+void drain_specific_stat(object *op, int deplete_stats)
+{
+	object *tmp;
+	archetype *at = find_archetype("depletion");
+
+	if (!at)
+	{
+		logger_print(LOG(BUG), "Couldn't find archetype depletion.");
+		return;
+	}
+	else
+	{
+		tmp = present_arch_in_ob(at, op);
+
+		if (!tmp)
+		{
+			tmp = arch_to_object(at);
+			tmp = insert_ob_in_ob(tmp, op);
+			SET_FLAG(tmp, FLAG_APPLIED);
+		}
+	}
+
+	draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
+	change_attr_value(&tmp->stats, deplete_stats, -1);
+	fix_player(op);
 }
 
 static void living_apply_flags(object *op, object *tmp)
@@ -601,6 +821,11 @@ void fix_player(object *op)
 	pl->gen_sp = 1;
 	pl->gen_sp_armour = 0;
 	pl->item_power = 0;
+	
+	for (i = 0; i < NUM_STATS; i++)
+	{
+		set_attr_value(&op->stats, i, get_attr_value(&op->arch->clone.stats, i));
+	}
 
 	op->stats.wc = op->arch->clone.stats.wc;
 	op->stats.ac = op->arch->clone.stats.ac;
@@ -729,6 +954,11 @@ void fix_player(object *op)
 		{
 			if (tmp->type == POTION_EFFECT)
 			{
+				for (i = 0; i < NUM_STATS; i++)
+				{
+					change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+				}
+
 				for (i = 0; i < NROFATTACKS; i++)
 				{
 					if (tmp->protection[i] > potion_protection_bonus[i])
@@ -758,6 +988,11 @@ void fix_player(object *op)
 				if (ARMOUR_SPEED(tmp) && (float) ARMOUR_SPEED(tmp) / 10.0f < max)
 				{
 					max = ARMOUR_SPEED(tmp) / 10.0f;
+				}
+
+				for (i = 0; i < NUM_STATS; i++)
+				{
+					change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
 				}
 
 				if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING)
@@ -966,6 +1201,11 @@ void fix_player(object *op)
 		
 		pl->item_power += pl->equipment[i]->item_power;
 
+		for (j = 0; j < NUM_STATS; j++)
+		{
+			change_attr_value(&op->stats, j, get_attr_value(&pl->equipment[i]->stats, j));
+		}
+
 		living_apply_flags(op, pl->equipment[i]);
 	}
 
@@ -996,6 +1236,11 @@ void fix_player(object *op)
 		op->protection[i] = MIN(100, MAX(-100, ptemp));
 	}
 
+	check_stat_bounds(&op->stats);
+
+	/* Now the speed thing... */
+	op->speed += speed_bonus[op->stats.Dex];
+
 	if (added_speed >= 0)
 	{
 		op->speed += added_speed / 10.0f;
@@ -1025,24 +1270,20 @@ void fix_player(object *op)
 	else if (!pl->tgm)
 	{
 		/* Max kg we can carry */
-		double f = (PLAYER_WEIGHT_LIMIT(pl)) * ENCUMBRANCE_LIMIT;
+		double f = ((double) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
 
 		if (((sint32) f) <= op->carrying)
 		{
-			sint32 weight_limit;
-
-			weight_limit = PLAYER_WEIGHT_LIMIT(pl) * 1000.0;
-
-			if (op->carrying >= weight_limit)
+			if (op->carrying >= (sint32) weight_limit[op->stats.Str])
 			{
 				op->speed = 0.01f;
 			}
 			else
 			{
 				/* Total encumbrance weight part */
-				f = ((double) weight_limit - f);
+				f = ((double) weight_limit[op->stats.Str] - f);
 				/* Value from 0.0 to 1.0 encumbrance */
-				f = ((double) weight_limit - op->carrying) / f;
+				f = ((double) weight_limit[op->stats.Str] - op->carrying) / f;
 
 				if (f < 0.0f)
 				{
@@ -1075,8 +1316,9 @@ void fix_player(object *op)
 	op->stats.maxhp *= op->level + 3;
 	op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] ? pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
 
-	op->stats.maxhp += max_boni_hp;
-	op->stats.maxsp += max_boni_sp;
+	/* Now adjust with the % of the stats mali/boni. */
+	op->stats.maxhp += (int) ((float) op->stats.maxhp * con_bonus[op->stats.Con]) + max_boni_hp;
+	op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
 
 	/* HP/SP adjustments coming from class-defining object. */
 	if (CONTR(op)->class_ob)
@@ -1149,10 +1391,15 @@ void fix_player(object *op)
 		op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED)) / 2;
 	}
 
+	/* Now the last adds - stat bonus to damage and WC */
+	op->stats.dam += dam_bonus[op->stats.Str];
+
 	if (op->stats.dam < 0)
 	{
 		op->stats.dam = 0;
 	}
+
+	op->stats.wc += thaco_bonus[op->stats.Dex];
 
 	if (!pl->quest_container)
 	{

@@ -898,7 +898,18 @@ object *find_skill(object *op, int skillnr)
  * @return 1 if the player can carry that weight, 0 otherwise. */
 int player_can_carry(object *pl, uint32 weight)
 {
-	return (pl->carrying + weight) < (uint32) (PLAYER_WEIGHT_LIMIT(CONTR(pl)) * 1000.0);
+	uint32 effective_weight_limit;
+
+	if (pl->stats.Str <= MAX_STAT)
+	{
+		effective_weight_limit = weight_limit[pl->stats.Str];
+	}
+	else
+	{
+		effective_weight_limit = weight_limit[MAX_STAT];
+	}
+
+	return (pl->carrying + weight) < effective_weight_limit;
 }
 
 /**

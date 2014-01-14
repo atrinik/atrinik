@@ -350,6 +350,7 @@ extern char *query_base_name(object *op, object *caller);
 extern char *describe_item(object *op);
 extern int need_identify(object *op);
 extern void identify(object *op);
+extern void set_trapped_flag(object *op);
 /* src/server/light.c */
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
 extern void check_light_source_list(mapstruct *map);
@@ -364,11 +365,23 @@ extern void free_objectlinkpt(objectlink *obp);
 extern objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr);
 extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
 /* src/server/living.c */
+extern int dam_bonus[30 + 1];
+extern int thaco_bonus[30 + 1];
+extern float speed_bonus[30 + 1];
+extern uint32 weight_limit[30 + 1];
+extern int learn_spell[30 + 1];
+extern int savethrow[115 + 1];
+extern const char *const restore_msg[7];
+extern const char *const lose_msg[7];
+extern const char *const statname[7];
+extern const char *const short_stat_name[7];
 extern void set_attr_value(living *stats, int attr, sint8 value);
 extern void change_attr_value(living *stats, int attr, sint8 value);
 extern sint8 get_attr_value(living *stats, int attr);
 extern void check_stat_bounds(living *stats);
 extern int change_abil(object *op, object *tmp);
+extern void drain_stat(object *op);
+extern void drain_specific_stat(object *op, int deplete_stats);
 extern void fix_player(object *op);
 extern void fix_monster(object *op);
 extern object *insert_base_info_object(object *op);
@@ -388,10 +401,8 @@ extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
 extern void version(object *op);
-extern void enter_player_savebed(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
-extern void enter_exit(object *op, object *exit_ob);
 extern void process_events(mapstruct *map);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
@@ -600,6 +611,11 @@ extern char *get_region_msg(const region *r);
 extern object *get_jail_exit(object *op);
 extern void init_regions(void);
 extern void free_regions(void);
+/* src/server/rune.c */
+extern int trap_see(object *op, object *trap, int level);
+extern int trap_show(object *trap, object *where);
+extern int trap_disarm(object *disarmer, object *trap);
+extern void trap_adjust(object *trap, int difficulty);
 /* src/server/shop.c */
 extern sint64 query_cost(object *tmp, object *who, int flag);
 extern char *cost_string_from_value(sint64 cost);
@@ -621,7 +637,6 @@ extern int bank_deposit(object *op, const char *text, sint64 *value);
 extern int bank_withdraw(object *op, const char *text, sint64 *value);
 extern sint64 insert_coins(object *pl, sint64 value);
 /* src/server/skill_util.c */
-extern skill_struct skills[NROFSKILLS];
 extern float stat_exp_mult[30 + 1];
 extern sint64 do_skill(object *op, int dir, const char *params);
 extern sint64 calc_skill_exp(object *who, object *op, int level);
@@ -632,6 +647,10 @@ extern int change_skill(object *who, int sk_index);
 extern int skill_attack(object *tmp, object *pl, int dir, char *string);
 extern int SK_level(object *op);
 extern object *SK_skill(object *op);
+/* src/server/skills.c */
+extern skill_struct skills[NROFSKILLS];
+extern sint64 find_traps(object *pl, int level);
+extern sint64 remove_trap(object *op);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
@@ -1059,6 +1078,7 @@ extern void object_type_init_ring(void);
 /* src/types/rod.c */
 extern void object_type_init_rod(void);
 /* src/types/rune.c */
+extern void rune_spring(object *op, object *victim);
 extern void object_type_init_rune(void);
 /* src/types/savebed.c */
 extern void object_type_init_savebed(void);

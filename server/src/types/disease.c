@@ -424,6 +424,13 @@ static void do_symptoms(object *disease)
 		new_symptom->level = disease->level;
 		new_symptom->speed = disease->speed;
 		new_symptom->value = 0;
+		new_symptom->stats.Str = disease->stats.Str;
+		new_symptom->stats.Dex = disease->stats.Dex;
+		new_symptom->stats.Con = disease->stats.Con;
+		new_symptom->stats.Wis = disease->stats.Wis;
+		new_symptom->stats.Int = disease->stats.Int;
+		new_symptom->stats.Pow = disease->stats.Pow;
+		new_symptom->stats.Cha = disease->stats.Cha;
 		new_symptom->stats.sp  = disease->stats.sp;
 		new_symptom->stats.food = disease->last_eat;
 		new_symptom->stats.maxsp = disease->stats.maxsp;
@@ -462,6 +469,13 @@ static void do_symptoms(object *disease)
 		scale = (float) 1.0 + (float) symptom->value / (float) 100.0;
 
 		/* now rescale all the debilities */
+		symptom->stats.Str = (int) (scale * disease->stats.Str);
+		symptom->stats.Dex = (int) (scale * disease->stats.Dex);
+		symptom->stats.Con = (int) (scale * disease->stats.Con);
+		symptom->stats.Wis = (int) (scale * disease->stats.Wis);
+		symptom->stats.Int = (int) (scale * disease->stats.Int);
+		symptom->stats.Pow = (int) (scale * disease->stats.Pow);
+		symptom->stats.Cha = (int) (scale * disease->stats.Cha);
 		symptom->stats.dam = (int) (scale * disease->stats.dam);
 		symptom->stats.sp = (int) (scale * disease->stats.sp);
 		symptom->stats.food = (int) (scale * disease->last_eat);

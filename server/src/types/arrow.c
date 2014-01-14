@@ -58,7 +58,7 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
 		level = op->level;
 	}
 
-	return arrow->stats.wc + bow->magic + arrow->magic + level + bow->stats.wc;
+	return arrow->stats.wc + bow->magic + arrow->magic + level + thaco_bonus[op->stats.Dex] + bow->stats.wc;
 }
 
 /**
@@ -94,7 +94,7 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 
 	dam = arrow->stats.dam + arrow->magic;
 	dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(level))));
-	dam += dam * (bow->stats.dam + bow->magic) / 10;
+	dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
 
 	if (bow->item_condition > arrow->item_condition)
 	{

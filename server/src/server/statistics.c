@@ -120,12 +120,16 @@ void statistics_player_logout(player *pl)
 	statistic_update("arrows_fired", pl->ob, pl->stat_arrows_fired, NULL);
 	statistic_update("missiles_thrown", pl->ob, pl->stat_missiles_thrown, NULL);
 	statistic_update("books_read", pl->ob, pl->stat_books_read, NULL);
+	statistic_update("unique_books_read", pl->ob, pl->stat_unique_books_read, NULL);
 	statistic_update("potions_used", pl->ob, pl->stat_potions_used, NULL);
 	statistic_update("scrolls_used", pl->ob, pl->stat_scrolls_used, NULL);
 	statistic_update("exp_gained", pl->ob, pl->stat_exp_gained, NULL);
 	statistic_update("items_dropped", pl->ob, pl->stat_items_dropped, NULL);
 	statistic_update("items_picked", pl->ob, pl->stat_items_picked, NULL);
 	statistic_update("corpses_searched", pl->ob, pl->stat_corpses_searched, NULL);
+	statistic_update("traps_found", pl->ob, pl->stat_traps_found, NULL);
+	statistic_update("traps_disarmed", pl->ob, pl->stat_traps_disarmed, NULL);
+	statistic_update("traps_sprung", pl->ob, pl->stat_traps_sprung, NULL);
 	statistic_update("afk_used", pl->ob, pl->stat_afk_used, NULL);
 	statistic_update("formed_party", pl->ob, pl->stat_formed_party, NULL);
 	statistic_update("joined_party", pl->ob, pl->stat_joined_party, NULL);
