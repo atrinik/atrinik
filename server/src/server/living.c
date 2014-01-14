@@ -1129,7 +1129,7 @@ void fix_player(object *op)
 			continue;
 		}
 
-		if (i == PLAYER_EQUIP_AMMO)
+		if (i == PLAYER_EQUIP_AMMO || i == PLAYER_EQUIP_LIGHT)
 		{
 			continue;
 		}
