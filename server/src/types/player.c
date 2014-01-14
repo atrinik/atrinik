@@ -2544,6 +2544,8 @@ static int player_load(player *pl, const char *path)
 
 static void player_create(player *pl, const char *path, archetype *at, const char *name)
 {
+	char *cp;
+	
 	copy_object(&at->clone, pl->ob, 0);
 	pl->ob->custom_attrset = pl;
 	FREE_AND_COPY_HASH(pl->ob->name, name);
@@ -2552,9 +2554,12 @@ static void player_create(player *pl, const char *path, archetype *at, const cha
 	give_initial_items(pl->ob, pl->ob->randomitems);
 	trigger_global_event(GEVENT_BORN, pl->ob, NULL);
 	CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-
-	strncpy(pl->maplevel, first_map_path, sizeof(pl->maplevel) - 1);
+	
+	cp = map_get_path(NULL, first_map_path, 1, pl->ob->name);
+	strncpy(pl->maplevel, cp, sizeof(pl->maplevel) - 1);
 	pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+	free(cp);
+	
 	pl->ob->x = -1;
 	pl->ob->y = -1;
 }
