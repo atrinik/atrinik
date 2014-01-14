@@ -2511,7 +2511,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
 	path_tmp = NULL;
 
-	if (MAP_UNIQUE(m))
+	if (m != NULL && MAP_UNIQUE(m))
 	{
 		if (path && map_path_isabs(path))
 		{
@@ -2597,7 +2597,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 				return strdup(path);
 			}
 		}
-		else
+		else if (m != NULL)
 		{
 			char *filedir, *joined;
 
@@ -2629,6 +2629,10 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
 			free(joined);
 			free(filedir);
+		}
+		else
+		{
+			return strdup(EMERGENCY_MAPPATH);
 		}
 	}
 
