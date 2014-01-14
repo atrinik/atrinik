@@ -1,0 +1,6 @@
+# All text files should be LF by default.
+* text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
