@@ -2223,6 +2223,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 	if (op->nrof)
 	{
+		esrv_update_item(UPD_NROF, op);
 		return op;
 	}
 
