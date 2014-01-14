@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-11-04 Alex Tokar
+Modified: 2014-01-14 alex
 endmsg
 width 24
 height 24
@@ -2964,7 +2964,7 @@ x 20
 y 1
 end
 arch mover
-direction 7
+direction 6
 speed 1
 x 20
 y 1
@@ -2985,7 +2985,7 @@ y 3
 end
 arch mover
 speed 1
-direction 7
+direction 8
 x 20
 y 3
 end
@@ -3116,18 +3116,13 @@ arch water_dk
 x 21
 y 2
 end
-arch mover
-direction 7
-speed 1
-x 21
-y 2
-end
 arch water_dk4
 x 21
 y 3
 end
 arch mover
 speed 1
+direction 8
 x 21
 y 3
 end
@@ -3184,7 +3179,6 @@ x 21
 y 8
 arch ant_red
 no_pass 1
-monster 0
 name removable
 layer 4
 face trash_wood2.101
@@ -3201,7 +3195,6 @@ type 83
 end
 arch ant_red
 no_pass 1
-monster 0
 name removable
 layer 4
 face rock_wall8.101
@@ -3219,7 +3212,6 @@ z -20
 end
 arch ant_red
 no_pass 1
-monster 0
 name removable
 layer 4
 face trash_wood1.101
@@ -3236,7 +3228,6 @@ type 83
 end
 arch ant_red
 no_pass 1
-monster 0
 name removable
 layer 4
 face rock6.101
@@ -3253,7 +3244,6 @@ type 83
 end
 arch ant_red
 no_pass 1
-monster 0
 name removable
 layer 4
 face rock5.101
@@ -3304,18 +3294,12 @@ x 21
 y 12
 end
 arch mover
-direction 5
+direction 6
 speed 1
 x 21
 y 12
 end
 arch water_dk
-x 21
-y 13
-end
-arch mover
-direction 7
-speed 1
 x 21
 y 13
 end
