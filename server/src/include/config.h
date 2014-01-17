@@ -36,10 +36,6 @@
 #define PLUGINDIR "./"
 #endif
 
-/** Where the DM file is located. */
-#ifndef DMFILE
-#define DMFILE "dmfile"
-#endif
 
 /** Where bans are stored. */
 #ifndef BANFILE
