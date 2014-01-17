@@ -33,57 +33,50 @@
 /** @copydoc command_func */
 void command_rename(object *op, const char *command, char *params)
 {
-	object *tmp;
+    object *tmp;
 
-	tmp = find_marked_object(op);
+    tmp = find_marked_object(op);
 
-	if (!tmp)
-	{
-		draw_info(COLOR_WHITE, op, "No marked item to rename.");
-		return;
-	}
+    if (!tmp) {
+        draw_info(COLOR_WHITE, op, "No marked item to rename.");
+        return;
+    }
 
-	params = player_sanitize_input(params);
+    params = player_sanitize_input(params);
 
-	/* Clear custom name. */
-	if (!params)
-	{
-		if (!tmp->custom_name)
-		{
-			draw_info(COLOR_WHITE, op, "This item has no custom name.");
-			return;
-		}
+    /* Clear custom name. */
+    if (!params) {
+        if (!tmp->custom_name) {
+            draw_info(COLOR_WHITE, op, "This item has no custom name.");
+            return;
+        }
 
-		FREE_AND_CLEAR_HASH(tmp->custom_name);
-		draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
-	}
-	else
-	{
-		if (tmp->type == MONEY)
-		{
-			draw_info(COLOR_WHITE, op, "You cannot rename that item.");
-			return;
-		}
+        FREE_AND_CLEAR_HASH(tmp->custom_name);
+        draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
+    }
+    else {
+        if (tmp->type == MONEY) {
+            draw_info(COLOR_WHITE, op, "You cannot rename that item.");
+            return;
+        }
 
-		if (strlen(params) > 127)
-		{
-			draw_info(COLOR_WHITE, op, "New name is too long, maximum is 127 characters.");
-			return;
-		}
+        if (strlen(params) > 127) {
+            draw_info(COLOR_WHITE, op, "New name is too long, maximum is 127 characters.");
+            return;
+        }
 
-		if (tmp->custom_name && strcmp(tmp->custom_name, params) == 0)
-		{
-			draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
-			return;
-		}
+        if (tmp->custom_name && strcmp(tmp->custom_name, params) == 0) {
+            draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
+            return;
+        }
 
-		string_remove_markup(params);
-		/* Set custom name. */
-		FREE_AND_COPY_HASH(tmp->custom_name, params);
-		draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
-		CONTR(op)->stat_renamed_items++;
-	}
+        string_remove_markup(params);
+        /* Set custom name. */
+        FREE_AND_COPY_HASH(tmp->custom_name, params);
+        draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+        CONTR(op)->stat_renamed_items++;
+    }
 
-	esrv_update_item(UPD_NAME, tmp);
-	object_merge(tmp);
+    esrv_update_item(UPD_NAME, tmp);
+    object_merge(tmp);
 }

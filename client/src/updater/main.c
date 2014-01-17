@@ -41,42 +41,39 @@
 
 int main(int argc, char *argv[])
 {
-	char params[HUGE_BUF], path[HUGE_BUF], wdir[HUGE_BUF];
-	int i;
+    char params[HUGE_BUF], path[HUGE_BUF], wdir[HUGE_BUF];
+    int i;
 
-	params[0] = '\0';
+    params[0] = '\0';
 
-	/* Construct the command parameters from arguments. */
-	for (i = 1; i < argc; i++)
-	{
-		strncat(params, argv[i], sizeof(params) - strlen(params) - 1);
-	}
+    /* Construct the command parameters from arguments. */
+    for (i = 1; i < argc; i++) {
+        strncat(params, argv[i], sizeof(params) - strlen(params) - 1);
+    }
 
-	/* Check if we have upgrades to apply. */
-	snprintf(path, sizeof(path), "%s/.atrinik/temp", getenv("APPDATA"));
+    /* Check if we have upgrades to apply. */
+    snprintf(path, sizeof(path), "%s/.atrinik/temp", getenv("APPDATA"));
 
-	if (access(path, R_OK) == 0)
-	{
-		SHELLEXECUTEINFO shExecInfo;
+    if (access(path, R_OK) == 0) {
+        SHELLEXECUTEINFO shExecInfo;
 
-		shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		shExecInfo.fMask = 0;
-		shExecInfo.hwnd = NULL;
-		shExecInfo.lpVerb = "runas";
-		shExecInfo.lpFile = "atrinik_updater.bat";
-		shExecInfo.lpParameters = params;
-		shExecInfo.lpDirectory = NULL;
-		shExecInfo.nShow = SW_SHOW;
-		shExecInfo.hInstApp = NULL;
+        shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+        shExecInfo.fMask = 0;
+        shExecInfo.hwnd = NULL;
+        shExecInfo.lpVerb = "runas";
+        shExecInfo.lpFile = "atrinik_updater.bat";
+        shExecInfo.lpParameters = params;
+        shExecInfo.lpDirectory = NULL;
+        shExecInfo.nShow = SW_SHOW;
+        shExecInfo.hInstApp = NULL;
 
-		ShellExecuteEx(&shExecInfo);
-	}
-	/* No updates, execute the client. */
-	else
-	{
-		snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
-		ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
-	}
+        ShellExecuteEx(&shExecInfo);
+    }
+    /* No updates, execute the client. */
+    else {
+        snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
+        ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
+    }
 
-	return 0;
+    return 0;
 }

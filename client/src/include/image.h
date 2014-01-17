@@ -35,17 +35,17 @@
 /** Structure for bmap data. */
 typedef struct bmap_struct
 {
-	/** The name. */
-	char *name;
+    /** The name. */
+    char *name;
 
-	/** Size in bytes. */
-	size_t len;
+    /** Size in bytes. */
+    size_t len;
 
-	/** Position in atrinik.p0 file, if -1, it doesn't exist in the file. */
-	int pos;
+    /** Position in atrinik.p0 file, if -1, it doesn't exist in the file. */
+    int pos;
 
-	/** Checksum. */
-	unsigned long crc32;
+    /** Checksum. */
+    unsigned long crc32;
 } bmap_struct;
 
 #endif

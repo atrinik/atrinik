@@ -42,7 +42,7 @@ static uint8 did_init = 0;
  * Where to search for .bzr directory. */
 static const char *const branch_paths[] =
 {
-	".", ".."
+    ".", ".."
 };
 
 /**
@@ -54,13 +54,13 @@ static int branch_revision;
  * @internal */
 void toolkit_bzr_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(bzr)
-	{
-		toolkit_import(path);
+    TOOLKIT_INIT_FUNC_START(bzr)
+    {
+        toolkit_import(path);
 
-		branch_revision = -1;
-	}
-	TOOLKIT_INIT_FUNC_END()
+        branch_revision = -1;
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -68,10 +68,10 @@ void toolkit_bzr_init(void)
  * @internal */
 void toolkit_bzr_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(bzr)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(bzr)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -79,34 +79,30 @@ void toolkit_bzr_deinit(void)
  * in (if any). */
 int bzr_get_revision(void)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (branch_revision == -1)
-	{
-		size_t i;
-		char buf[MAX_BUF], *contents, *cps[2];
+    if (branch_revision == -1) {
+        size_t i;
+        char buf[MAX_BUF], *contents, *cps[2];
 
-		branch_revision = 0;
+        branch_revision = 0;
 
-		/* Try to find branch revision. */
-		for (i = 0; i < arraysize(branch_paths) && branch_revision == 0; i++)
-		{
-			snprintf(buf, sizeof(buf), "%s/.bzr/branch/last-revision", branch_paths[i]);
-			contents = path_file_contents(buf);
+        /* Try to find branch revision. */
+        for (i = 0; i < arraysize(branch_paths) && branch_revision == 0; i++) {
+            snprintf(buf, sizeof(buf), "%s/.bzr/branch/last-revision", branch_paths[i]);
+            contents = path_file_contents(buf);
 
-			if (!contents)
-			{
-				continue;
-			}
+            if (!contents) {
+                continue;
+            }
 
-			if (string_split(contents, cps, arraysize(cps), ' ') == 2)
-			{
-				branch_revision = atoi(cps[0]);
-			}
+            if (string_split(contents, cps, arraysize(cps), ' ') == 2) {
+                branch_revision = atoi(cps[0]);
+            }
 
-			free(contents);
-		}
-	}
+            free(contents);
+        }
+    }
 
-	return branch_revision;
+    return branch_revision;
 }

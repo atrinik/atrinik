@@ -33,19 +33,17 @@
 /** @copydoc command_func */
 void command_settime(object *op, const char *command, char *params)
 {
-	int hour;
-	timeofday_t tod;
+    int hour;
+    timeofday_t tod;
 
-	if (!params || sscanf(params, "%d", &hour) != 1 || hour < 0 || hour >= HOURS_PER_DAY)
-	{
-		return;
-	}
+    if (!params || sscanf(params, "%d", &hour) != 1 || hour < 0 || hour >= HOURS_PER_DAY) {
+        return;
+    }
 
-	get_tod(&tod);
+    get_tod(&tod);
 
-	while (tod.hour != hour)
-	{
-		tick_the_clock();
-		get_tod(&tod);
-	}
+    while (tod.hour != hour) {
+        tick_the_clock();
+        get_tod(&tod);
+    }
 }

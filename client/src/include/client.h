@@ -33,38 +33,38 @@
  * If more skills are added to server, this needs to get increased. */
 #define MAX_SKILL   6
 
-#define INPUT_MODE_NO		0
-#define INPUT_MODE_CONSOLE	1
-#define INPUT_MODE_NUMBER	2
+#define INPUT_MODE_NO       0
+#define INPUT_MODE_CONSOLE  1
+#define INPUT_MODE_NUMBER   2
 
 #define NUM_MODE_GET  1
 #define NUM_MODE_DROP 2
 
 typedef struct Animations
 {
-	/* 0 = all fields are invalid, 1 = anim is loaded */
-	int loaded;
+    /* 0 = all fields are invalid, 1 = anim is loaded */
+    int loaded;
 
-	/* Length of one a animation frame (num_anim / facings) */
-	int frame;
-	uint16 *faces;
+    /* Length of one a animation frame (num_anim / facings) */
+    int frame;
+    uint16 *faces;
 
-	/* Number of frames */
-	uint8 facings;
+    /* Number of frames */
+    uint8 facings;
 
-	/* Number of animations. Value of 2 means
-	 * only faces[0], [1] have meaningful values. */
-	uint8 num_animations;
-	uint8 flags;
+    /* Number of animations. Value of 2 means
+     * only faces[0], [1] have meaningful values. */
+    uint8 num_animations;
+    uint8 flags;
 } Animations;
 
 typedef struct _anim_table
 {
-	/* Length of anim_cmd data */
-	size_t len;
+    /* Length of anim_cmd data */
+    size_t len;
 
-	/* Faked animation command */
-	uint8 *anim_cmd;
+    /* Faked animation command */
+    uint8 *anim_cmd;
 }_anim_table;
 
 /**
@@ -75,17 +75,17 @@ typedef struct _anim_table
  * One command buffer. */
 typedef struct command_buffer
 {
-	/** Next command in queue. */
-	struct command_buffer *next;
+    /** Next command in queue. */
+    struct command_buffer *next;
 
-	/** Previous command in queue. */
-	struct command_buffer *prev;
+    /** Previous command in queue. */
+    struct command_buffer *prev;
 
-	/** Length of the data. */
-	int len;
+    /** Length of the data. */
+    int len;
 
-	/** The data. */
-	uint8 data[1];
+    /** The data. */
+    uint8 data[1];
 } command_buffer;
 
 /* ClientSocket could probably hold more of the global values - it could
@@ -93,7 +93,7 @@ typedef struct command_buffer
  * of globals. */
 typedef struct ClientSocket
 {
-	int fd;
+    int fd;
 } ClientSocket;
 
 /** Check if the keyword represents a true value. */
@@ -101,28 +101,28 @@ typedef struct ClientSocket
 /** Check if the keyword represents a false value. */
 #define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
 #define KEYWORD_TO_BOOLEAN(_keyword, _bool) \
-{ \
-	if (KEYWORD_IS_TRUE((_keyword))) \
-	{ \
-		(_bool) = 1; \
-	} \
-	else if (KEYWORD_IS_FALSE((_keyword))) \
-	{ \
-		(_bool) = 0; \
-	} \
-}
+    { \
+        if (KEYWORD_IS_TRUE((_keyword))) \
+        { \
+            (_bool) = 1; \
+        } \
+        else if (KEYWORD_IS_FALSE((_keyword))) \
+        { \
+            (_bool) = 0; \
+        } \
+    }
 
 /** Copies information from one color structure into another. */
 #define SDL_color_copy(_color, _color2) \
-{ \
-	(_color)->r = (_color2)->r; \
-	(_color)->g = (_color2)->g; \
-	(_color)->b = (_color2)->b; \
-}
+    { \
+        (_color)->r = (_color2)->r; \
+        (_color)->g = (_color2)->g; \
+        (_color)->b = (_color2)->b; \
+    }
 
 typedef struct socket_command_struct
 {
-	void (*handle_func)(uint8 *data, size_t len, size_t pos);
+    void (*handle_func)(uint8 *data, size_t len, size_t pos);
 } socket_command_struct;
 
 /**
@@ -143,17 +143,17 @@ typedef struct socket_command_struct
 
 typedef struct clioption_settings_struct
 {
-	char **servers;
+    char **servers;
 
-	size_t servers_num;
+    size_t servers_num;
 
-	char **metaservers;
+    char **metaservers;
 
-	size_t metaservers_num;
+    size_t metaservers_num;
 
-	char *connect[4];
+    char *connect[4];
 
-	char *game_news_url;
+    char *game_news_url;
 } clioption_settings_struct;
 
 #endif

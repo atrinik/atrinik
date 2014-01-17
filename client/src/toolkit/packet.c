@@ -48,12 +48,12 @@ static mempool_struct *pool_packets;
  * @internal */
 void toolkit_packet_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(packet)
-	{
-		toolkit_import(mempool);
-		pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(packet)
+    {
+        toolkit_import(mempool);
+        pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -61,11 +61,11 @@ void toolkit_packet_init(void)
  * @internal */
 void toolkit_packet_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(packet)
-	{
-		mempool_free(pool_packets);
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(packet)
+    {
+        mempool_free(pool_packets);
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -78,28 +78,27 @@ void toolkit_packet_deinit(void)
  * @return The allocated packet. */
 packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	packet = get_poolchunk(pool_packets);
-	packet->next = packet->prev = NULL;
-	packet->pos = 0;
-	packet->size = size;
-	packet->expand = expand;
-	packet->len = 0;
-	packet->data = NULL;
+    packet = get_poolchunk(pool_packets);
+    packet->next = packet->prev = NULL;
+    packet->pos = 0;
+    packet->size = size;
+    packet->expand = expand;
+    packet->len = 0;
+    packet->data = NULL;
 
-	/* Allocate the initial data block. */
-	if (packet->size)
-	{
-		packet->data = malloc(packet->size);
-	}
+    /* Allocate the initial data block. */
+    if (packet->size) {
+        packet->data = malloc(packet->size);
+    }
 
-	packet->ndelay = 0;
-	packet->type = type;
+    packet->ndelay = 0;
+    packet->type = type;
 
-	return packet;
+    return packet;
 }
 
 /**
@@ -107,14 +106,13 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
  * @param packet Packet to free. */
 void packet_free(packet_struct *packet)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (packet->data)
-	{
-		free(packet->data);
-	}
+    if (packet->data) {
+        free(packet->data);
+    }
 
-	return_poolchunk(packet, pool_packets);
+    return_poolchunk(packet, pool_packets);
 }
 
 /**
@@ -122,32 +120,31 @@ void packet_free(packet_struct *packet)
  * @param packet Packet to try to compress. */
 void packet_compress(packet_struct *packet)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 #if defined(COMPRESS_DATA_PACKETS) && COMPRESS_DATA_PACKETS
-	if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->type != CLIENT_CMD_DATA)
-	{
-		size_t new_size = compressBound(packet->len);
-		uint8 *dest;
+    if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->type != CLIENT_CMD_DATA) {
+        size_t new_size = compressBound(packet->len);
+        uint8 *dest;
 
-		dest = malloc(new_size + 5);
-		dest[0] = packet->type;
-		/* Add original length of the packet. */
-		dest[1] = (packet->len >> 24) & 0xff;
-		dest[2] = (packet->len >> 16) & 0xff;
-		dest[3] = (packet->len >> 8) & 0xff;
-		dest[4] = (packet->len) & 0xff;
-		packet->size = new_size + 5;
-		/* Compress it. */
-		compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
+        dest = malloc(new_size + 5);
+        dest[0] = packet->type;
+        /* Add original length of the packet. */
+        dest[1] = (packet->len >> 24) & 0xff;
+        dest[2] = (packet->len >> 16) & 0xff;
+        dest[3] = (packet->len >> 8) & 0xff;
+        dest[4] = (packet->len) & 0xff;
+        packet->size = new_size + 5;
+        /* Compress it. */
+        compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
 
-		free(packet->data);
-		packet->data = dest;
-		packet->len = new_size + 5;
-		packet->type = CLIENT_CMD_COMPRESSED;
-	}
+        free(packet->data);
+        packet->data = dest;
+        packet->len = new_size + 5;
+        packet->type = CLIENT_CMD_COMPRESSED;
+    }
 #else
-	(void) packet;
+    (void) packet;
 #endif
 }
 
@@ -155,45 +152,44 @@ void packet_compress(packet_struct *packet)
  * Enables NDELAY on the specified packet. */
 void packet_enable_ndelay(packet_struct *packet)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet->ndelay = 1;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet->ndelay = 1;
 }
 
 void packet_set_pos(packet_struct *packet, size_t pos)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet->len = pos;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet->len = pos;
 }
 
 size_t packet_get_pos(packet_struct *packet)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	return packet->len;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    return packet->len;
 }
 
 packet_struct *packet_dup(packet_struct *packet)
 {
-	packet_struct *cp;
+    packet_struct *cp;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	cp = packet_new(packet->type, packet->size, packet->expand);
-	cp->ndelay = packet->ndelay;
-	packet_append_data_len(cp, packet->data, packet->len);
+    cp = packet_new(packet->type, packet->size, packet->expand);
+    cp->ndelay = packet->ndelay;
+    packet_append_data_len(cp, packet->data, packet->len);
 
-	return cp;
+    return cp;
 }
 
 void packet_delete(packet_struct *packet, size_t pos, size_t len)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (packet->len - len + pos)
-	{
-		memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
-	}
+    if (packet->len - len + pos) {
+        memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
+    }
 
-	packet->len -= len;
+    packet->len -= len;
 }
 
 /**
@@ -203,312 +199,299 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
  * @param size How many bytes we need. */
 static void packet_ensure(packet_struct *packet, size_t size)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (packet->len + size < packet->size)
-	{
-		return;
-	}
+    if (packet->len + size < packet->size) {
+        return;
+    }
 
-	packet->size += MAX(packet->expand, size);
-	packet->data = realloc(packet->data, packet->size);
+    packet->size += MAX(packet->expand, size);
+    packet->data = realloc(packet->data, packet->size);
 
-	if (!packet->data)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (!packet->data) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 }
 
 void packet_merge(packet_struct *src, packet_struct *dst)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_append_data_len(dst, src->data, src->len);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_append_data_len(dst, src->data, src->len);
 }
 
 void packet_append_uint8(packet_struct *packet, uint8 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 1);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 1);
 
-	packet->data[packet->len++] = data;
+    packet->data[packet->len++] = data;
 }
 
 void packet_append_sint8(packet_struct *packet, sint8 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 1);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 1);
 
-	packet->data[packet->len++] = data;
+    packet->data[packet->len++] = data;
 }
 
 void packet_append_uint16(packet_struct *packet, uint16 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 2);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 2);
 
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_sint16(packet_struct *packet, sint16 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 2);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 2);
 
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_uint32(packet_struct *packet, uint32 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 4);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 4);
 
-	packet->data[packet->len++] = (data >> 24) & 0xff;
-	packet->data[packet->len++] = (data >> 16) & 0xff;
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 24) & 0xff;
+    packet->data[packet->len++] = (data >> 16) & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_sint32(packet_struct *packet, sint32 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 4);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 4);
 
-	packet->data[packet->len++] = (data >> 24) & 0xff;
-	packet->data[packet->len++] = (data >> 16) & 0xff;
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 24) & 0xff;
+    packet->data[packet->len++] = (data >> 16) & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_uint64(packet_struct *packet, uint64 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 8);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 8);
 
-	packet->data[packet->len++] = (data >> 56) & 0xff;
-	packet->data[packet->len++] = (data >> 48) & 0xff;
-	packet->data[packet->len++] = (data >> 40) & 0xff;
-	packet->data[packet->len++] = (data >> 32) & 0xff;
-	packet->data[packet->len++] = (data >> 24) & 0xff;
-	packet->data[packet->len++] = (data >> 16) & 0xff;
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 56) & 0xff;
+    packet->data[packet->len++] = (data >> 48) & 0xff;
+    packet->data[packet->len++] = (data >> 40) & 0xff;
+    packet->data[packet->len++] = (data >> 32) & 0xff;
+    packet->data[packet->len++] = (data >> 24) & 0xff;
+    packet->data[packet->len++] = (data >> 16) & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_sint64(packet_struct *packet, sint64 data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_ensure(packet, 8);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 8);
 
-	packet->data[packet->len++] = (data >> 56) & 0xff;
-	packet->data[packet->len++] = (data >> 48) & 0xff;
-	packet->data[packet->len++] = (data >> 40) & 0xff;
-	packet->data[packet->len++] = (data >> 32) & 0xff;
-	packet->data[packet->len++] = (data >> 24) & 0xff;
-	packet->data[packet->len++] = (data >> 16) & 0xff;
-	packet->data[packet->len++] = (data >> 8) & 0xff;
-	packet->data[packet->len++] = data & 0xff;
+    packet->data[packet->len++] = (data >> 56) & 0xff;
+    packet->data[packet->len++] = (data >> 48) & 0xff;
+    packet->data[packet->len++] = (data >> 40) & 0xff;
+    packet->data[packet->len++] = (data >> 32) & 0xff;
+    packet->data[packet->len++] = (data >> 24) & 0xff;
+    packet->data[packet->len++] = (data >> 16) & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
 }
 
 void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!data || len == 0)
-	{
-		return;
-	}
+    if (!data || len == 0) {
+        return;
+    }
 
-	packet_ensure(packet, len);
-	memcpy(packet->data + packet->len, data, len);
-	packet->len += len;
+    packet_ensure(packet, len);
+    memcpy(packet->data + packet->len, data, len);
+    packet->len += len;
 }
 
 void packet_append_string(packet_struct *packet, const char *data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_append_data_len(packet, (uint8 *) data, strlen(data));
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_append_data_len(packet, (uint8 *) data, strlen(data));
 }
 
 void packet_append_string_terminated(packet_struct *packet, const char *data)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	packet_append_string(packet, data);
-	packet_append_uint8(packet, '\0');
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_append_string(packet, data);
+    packet_append_uint8(packet, '\0');
 }
 
 uint8 packet_to_uint8(uint8 *data, size_t len, size_t *pos)
 {
-	uint8 ret;
+    uint8 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 1)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 1) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = data[*pos];
-	*pos += 1;
+    ret = data[*pos];
+    *pos += 1;
 
-	return ret;
+    return ret;
 }
 
 sint8 packet_to_sint8(uint8 *data, size_t len, size_t *pos)
 {
-	sint8 ret;
+    sint8 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 1)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 1) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = data[*pos];
-	*pos += 1;
+    ret = data[*pos];
+    *pos += 1;
 
-	return ret;
+    return ret;
 }
 
 uint16 packet_to_uint16(uint8 *data, size_t len, size_t *pos)
 {
-	uint16 ret;
+    uint16 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 2)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 2) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = (data[*pos] << 8) + data[*pos + 1];
-	*pos += 2;
+    ret = (data[*pos] << 8) + data[*pos + 1];
+    *pos += 2;
 
-	return ret;
+    return ret;
 }
 
 sint16 packet_to_sint16(uint8 *data, size_t len, size_t *pos)
 {
-	sint16 ret;
+    sint16 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 2)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 2) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = (data[*pos] << 8) + data[*pos + 1];
-	*pos += 2;
+    ret = (data[*pos] << 8) + data[*pos + 1];
+    *pos += 2;
 
-	return ret;
+    return ret;
 }
 
 uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos)
 {
-	uint32 ret;
+    uint32 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 4)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 4) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
-	*pos += 4;
+    ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
+    *pos += 4;
 
-	return ret;
+    return ret;
 }
 
 sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos)
 {
-	sint32 ret;
+    sint32 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 4)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 4) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
-	*pos += 4;
+    ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
+    *pos += 4;
 
-	return ret;
+    return ret;
 }
 
 uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos)
 {
-	uint64 ret;
+    uint64 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 8)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 8) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = ((uint64) data[*pos] << 56) + ((uint64) data[*pos + 1] << 48) + ((uint64) data[*pos + 2] << 40) + ((uint64) data[*pos + 3] << 32) + ((uint64) data[*pos + 4] << 24) + ((uint64) data[*pos + 5] << 16) + ((uint64) data[*pos + 6] << 8) + (uint64) data[*pos + 7];
-	*pos += 8;
+    ret = ((uint64) data[*pos] << 56) + ((uint64) data[*pos + 1] << 48) + ((uint64) data[*pos + 2] << 40) + ((uint64) data[*pos + 3] << 32) + ((uint64) data[*pos + 4] << 24) + ((uint64) data[*pos + 5] << 16) + ((uint64) data[*pos + 6] << 8) + (uint64) data[*pos + 7];
+    *pos += 8;
 
-	return ret;
+    return ret;
 }
 
 sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos)
 {
-	sint64 ret;
+    sint64 ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (len - *pos < 8)
-	{
-		*pos = len;
-		return 0;
-	}
+    if (len - *pos < 8) {
+        *pos = len;
+        return 0;
+    }
 
-	ret = ((sint64) data[*pos] << 56) + ((sint64) data[*pos + 1] << 48) + ((sint64) data[*pos + 2] << 40) + ((sint64) data[*pos + 3] << 32) + ((sint64) data[*pos + 4] << 24) + ((sint64) data[*pos + 5] << 16) + ((sint64) data[*pos + 6] << 8) + (sint64) data[*pos + 7];
-	*pos += 8;
+    ret = ((sint64) data[*pos] << 56) + ((sint64) data[*pos + 1] << 48) + ((sint64) data[*pos + 2] << 40) + ((sint64) data[*pos + 3] << 32) + ((sint64) data[*pos + 4] << 24) + ((sint64) data[*pos + 5] << 16) + ((sint64) data[*pos + 6] << 8) + (sint64) data[*pos + 7];
+    *pos += 8;
 
-	return ret;
+    return ret;
 }
 
 char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size)
 {
-	size_t i = 0;
-	char c;
+    size_t i = 0;
+    char c;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*pos < len && (c = (char) (data[(*pos)++])))
-	{
-		if (i < dest_size - 1)
-		{
-			dest[i++] = c;
-		}
-	}
+    while (*pos < len && (c = (char) (data[(*pos)++]))) {
+        if (i < dest_size - 1) {
+            dest[i++] = c;
+        }
+    }
 
-	dest[i] = '\0';
-	return dest;
+    dest[i] = '\0';
+    return dest;
 }
 
 void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb)
 {
-	char *str;
+    char *str;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	str = (char *) (data + *pos);
-	stringbuffer_append_string(sb, str);
-	*pos += strlen(str) + 1;
+    str = (char *) (data + *pos);
+    stringbuffer_append_string(sb, str);
+    *pos += strlen(str) + 1;
 }

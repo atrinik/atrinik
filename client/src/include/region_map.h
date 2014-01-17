@@ -49,103 +49,103 @@
 /** Single map. */
 typedef struct region_map_struct
 {
-	/** The map path. */
-	char *path;
+    /** The map path. */
+    char *path;
 
-	/** X position. */
-	int xpos;
+    /** X position. */
+    int xpos;
 
-	/** Y position. */
-	int ypos;
+    /** Y position. */
+    int ypos;
 } region_map_struct;
 
 /** Single map label. */
 typedef struct region_label_struct
 {
-	/** X position. */
-	int x;
+    /** X position. */
+    int x;
 
-	/** Y position. */
-	int y;
+    /** Y position. */
+    int y;
 
-	/** Unique name of the label. */
-	char *name;
+    /** Unique name of the label. */
+    char *name;
 
-	/** Text of the label (markup allowed). */
-	char *text;
+    /** Text of the label (markup allowed). */
+    char *text;
 
-	/**
-	 * The 'hidden' status of this label:
-	 *
-	 * <b>-1</b>: Shown by default.
-	 * <b>0</b>: Was hidden using label_hide but server told us to show it.
-	 * <b>1</b>: Hidden by label_hide command. */
-	int hidden;
+    /**
+     * The 'hidden' status of this label:
+     *
+     * <b>-1</b>: Shown by default.
+     * <b>0</b>: Was hidden using label_hide but server told us to show it.
+     * <b>1</b>: Hidden by label_hide command. */
+    int hidden;
 } region_label_struct;
 
 /** Map tooltips. */
 typedef struct region_map_tooltip
 {
-	/** X position. */
-	int x;
+    /** X position. */
+    int x;
 
-	/** Y position. */
-	int y;
+    /** Y position. */
+    int y;
 
-	/** Width. */
-	int w;
+    /** Width. */
+    int w;
 
-	/** Height. */
-	int h;
+    /** Height. */
+    int h;
 
-	/** Unique name of this tooltip. */
-	char *name;
+    /** Unique name of this tooltip. */
+    char *name;
 
-	/** Tooltip text. */
-	char *text;
+    /** Tooltip text. */
+    char *text;
 
-	/** Same as region_label_struct::hidden. */
-	int hidden;
+    /** Same as region_label_struct::hidden. */
+    int hidden;
 
-	/** Show an outline? */
-	uint8 outline;
+    /** Show an outline? */
+    uint8 outline;
 
-	/** Outline's color. */
-	SDL_Color outline_color;
+    /** Outline's color. */
+    SDL_Color outline_color;
 
-	/** Size of the outline. */
-	uint8 outline_size;
+    /** Size of the outline. */
+    uint8 outline_size;
 } region_map_tooltip;
 
 /** Map region definitions. */
 typedef struct region_map_def
 {
-	/** The maps. */
-	region_map_struct *maps;
+    /** The maps. */
+    region_map_struct *maps;
 
-	/** Number of maps. */
-	size_t num_maps;
+    /** Number of maps. */
+    size_t num_maps;
 
-	/** The tooltips. */
-	region_map_tooltip *tooltips;
+    /** The tooltips. */
+    region_map_tooltip *tooltips;
 
-	/** Number of tooltips. */
-	size_t num_tooltips;
+    /** Number of tooltips. */
+    size_t num_tooltips;
 
-	/** The map labels. */
-	region_label_struct *labels;
+    /** The map labels. */
+    region_label_struct *labels;
 
-	/** Number of labels. */
-	size_t num_labels;
+    /** Number of labels. */
+    size_t num_labels;
 
-	/** Pixel size of one map tile. */
-	int pixel_size;
+    /** Pixel size of one map tile. */
+    int pixel_size;
 
-	/** X Size of the map. */
-	int map_size_x;
+    /** X Size of the map. */
+    int map_size_x;
 
-	/** Y Size of the map. */
-	int map_size_y;
+    /** Y Size of the map. */
+    int map_size_y;
 } region_map_def;
 
 /**

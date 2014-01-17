@@ -38,77 +38,66 @@
  * @return Object that matches, NULL if none matched. */
 object *check_inv(object *op, object *ob)
 {
-	object *tmp, *ret;
+    object *tmp, *ret;
 
-	for (tmp = ob->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->inv && !IS_SYS_INVISIBLE(tmp))
-		{
-			ret = check_inv(op, tmp);
+    for (tmp = ob->inv; tmp; tmp = tmp->below) {
+        if (tmp->inv && !IS_SYS_INVISIBLE(tmp)) {
+            ret = check_inv(op, tmp);
 
-			if (ret)
-			{
-				return ret;
-			}
-		}
-		else
-		{
-			if (op->stats.hp && tmp->type != op->stats.hp)
-			{
-				continue;
-			}
+            if (ret) {
+                return ret;
+            }
+        }
+        else {
+            if (op->stats.hp && tmp->type != op->stats.hp) {
+                continue;
+            }
 
-			if (op->slaying && (op->stats.sp ? tmp->slaying : tmp->name) != op->slaying)
-			{
-				continue;
-			}
+            if (op->slaying && (op->stats.sp ? tmp->slaying : tmp->name) != op->slaying) {
+                continue;
+            }
 
-			if (op->race && tmp->arch->name != op->race)
-			{
-				continue;
-			}
+            if (op->race && tmp->arch->name != op->race) {
+                continue;
+            }
 
-			return tmp;
-		}
-	}
+            return tmp;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	object *match;
+    object *match;
 
-	(void) originator;
+    (void) originator;
 
-	if (victim->type != PLAYER)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (victim->type != PLAYER) {
+        return OBJECT_METHOD_OK;
+    }
 
-	match = check_inv(op, victim);
+    match = check_inv(op, victim);
 
-	if (match && op->last_sp)
-	{
-		if (op->last_heal)
-		{
-			decrease_ob(match);
-		}
+    if (match && op->last_sp) {
+        if (op->last_heal) {
+            decrease_ob(match);
+        }
 
-		connection_trigger(op, state);
-	}
-	else if (!match && !op->last_sp)
-	{
-		connection_trigger(op, state);
-	}
+        connection_trigger(op, state);
+    }
+    else if (!match && !op->last_sp) {
+        connection_trigger(op, state);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the inventory checker type object methods. */
 void object_type_init_check_inv(void)
 {
-	object_type_methods[CHECK_INV].move_on_func = move_on_func;
+    object_type_methods[CHECK_INV].move_on_func = move_on_func;
 }

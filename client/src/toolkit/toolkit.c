@@ -35,40 +35,36 @@ static size_t deinit_funcs_num = 0;
 
 void toolkit_import_register(toolkit_func func)
 {
-	deinit_funcs = realloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
-	deinit_funcs[deinit_funcs_num] = func;
-	deinit_funcs_num++;
+    deinit_funcs = realloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
+    deinit_funcs[deinit_funcs_num] = func;
+    deinit_funcs_num++;
 }
 
 int toolkit_check_imported(toolkit_func func)
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; i < deinit_funcs_num; i++)
-	{
-		if (deinit_funcs[i] == func)
-		{
-			return 1;
-		}
-	}
+    for (i = 0; i < deinit_funcs_num; i++) {
+        if (deinit_funcs[i] == func) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 void toolkit_deinit(void)
 {
-	size_t i;
+    size_t i;
 
-	for (i = deinit_funcs_num; i > 0; i--)
-	{
-		deinit_funcs[i - 1]();
-	}
+    for (i = deinit_funcs_num; i > 0; i--) {
+        deinit_funcs[i - 1]();
+    }
 
-	if (deinit_funcs)
-	{
-		free(deinit_funcs);
-		deinit_funcs = NULL;
-	}
+    if (deinit_funcs) {
+        free(deinit_funcs);
+        deinit_funcs = NULL;
+    }
 
-	deinit_funcs_num = 0;
+    deinit_funcs_num = 0;
 }

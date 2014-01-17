@@ -36,11 +36,11 @@
  * List of the archetype fields and their meaning. */
 static fields_struct fields[] =
 {
-	{"name", FIELDTYPE_SHSTR, offsetof(archetype, name), 0, 0},
-	{"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
-	{"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
-	{"more", FIELDTYPE_ARCH, offsetof(archetype, more), 0, 0},
-	{"clone", FIELDTYPE_OBJECT2, offsetof(archetype, clone), 0, 0}
+    {"name", FIELDTYPE_SHSTR, offsetof(archetype, name), 0, 0},
+    {"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
+    {"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
+    {"more", FIELDTYPE_ARCH, offsetof(archetype, more), 0, 0},
+    {"clone", FIELDTYPE_OBJECT2, offsetof(archetype, clone), 0, 0}
 };
 /* @endcparser */
 
@@ -51,7 +51,7 @@ static fields_struct fields[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
 {
-	return generic_field_getter((fields_struct *) context, at->at);
+    return generic_field_getter((fields_struct *) context, at->at);
 }
 
 /**
@@ -62,19 +62,18 @@ static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
  * @return The new wrapper. */
 static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	Atrinik_Archetype *at;
+    Atrinik_Archetype *at;
 
-	(void) args;
-	(void) kwds;
+    (void) args;
+    (void) kwds;
 
-	at = (Atrinik_Archetype *) type->tp_alloc(type, 0);
+    at = (Atrinik_Archetype *) type->tp_alloc(type, 0);
 
-	if (at)
-	{
-		at->at = NULL;
-	}
+    if (at) {
+        at->at = NULL;
+    }
 
-	return (PyObject *) at;
+    return (PyObject *) at;
 }
 
 /**
@@ -82,11 +81,11 @@ static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args, PyObj
  * @param pl The wrapper to free. */
 static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
 {
-	at->at = NULL;
+    at->at = NULL;
 #ifndef IS_PY_LEGACY
-	Py_TYPE(at)->tp_free((PyObject *) at);
+    Py_TYPE(at)->tp_free((PyObject *) at);
 #else
-	at->ob_type->tp_free((PyObject *) at);
+    at->ob_type->tp_free((PyObject *) at);
 #endif
 }
 
@@ -96,23 +95,22 @@ static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
  * @return Python object containing the name of the archetype. */
 static PyObject *Atrinik_Archetype_str(Atrinik_Archetype *at)
 {
-	return Py_BuildValue("s", at->at->name);
+    return Py_BuildValue("s", at->at->name);
 }
 
 static int Atrinik_Archetype_InternalCompare(Atrinik_Archetype *left, Atrinik_Archetype *right)
 {
-	return (left->at < right->at ? -1 : (left->at == right->at ? 0 : 1));
+    return (left->at < right->at ? -1 : (left->at == right->at ? 0 : 1));
 }
 
 static PyObject *Atrinik_Archetype_RichCompare(Atrinik_Archetype *left, Atrinik_Archetype *right, int op)
 {
-	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_ArchetypeType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_ArchetypeType))
-	{
-		Py_INCREF(Py_NotImplemented);
-		return Py_NotImplemented;
-	}
+    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_ArchetypeType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_ArchetypeType)) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
 
-	return generic_rich_compare(op, Atrinik_Archetype_InternalCompare(left, right));
+    return generic_rich_compare(op, Atrinik_Archetype_InternalCompare(left, right));
 }
 
 /**
@@ -123,37 +121,37 @@ static PyGetSetDef getseters[NUM_FIELDS + 1];
 PyTypeObject Atrinik_ArchetypeType =
 {
 #ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
 #else
-	PyObject_HEAD_INIT(NULL)
-	0,
+    PyObject_HEAD_INIT(NULL)
+    0,
 #endif
-	"Atrinik.Archetype",
-	sizeof(Atrinik_Archetype),
-	0,
-	(destructor) Atrinik_Archetype_dealloc,
-	NULL, NULL, NULL,
+    "Atrinik.Archetype",
+    sizeof(Atrinik_Archetype),
+    0,
+    (destructor) Atrinik_Archetype_dealloc,
+    NULL, NULL, NULL,
 #ifdef IS_PY3K
-	NULL,
+    NULL,
 #else
-	(cmpfunc) Atrinik_Archetype_InternalCompare,
+    (cmpfunc) Atrinik_Archetype_InternalCompare,
 #endif
-	0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Archetype_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik archetypes",
-	NULL, NULL,
-	(richcmpfunc) Atrinik_Archetype_RichCompare,
-	0, 0, 0,
-	NULL,
-	0,
-	getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Archetype_new,
-	0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0,
+    (reprfunc) Atrinik_Archetype_str,
+    0, 0, 0,
+    Py_TPFLAGS_DEFAULT,
+    "Atrinik archetypes",
+    NULL, NULL,
+    (richcmpfunc) Atrinik_Archetype_RichCompare,
+    0, 0, 0,
+    NULL,
+    0,
+    getseters,
+    0, 0, 0, 0, 0, 0, 0,
+    Atrinik_Archetype_new,
+    0, 0, 0, 0, 0, 0, 0, 0
 #ifndef IS_PY_LEGACY
-	, 0
+    , 0
 #endif
 };
 
@@ -163,33 +161,31 @@ PyTypeObject Atrinik_ArchetypeType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Archetype_init(PyObject *module)
 {
-	size_t i;
+    size_t i;
 
-	/* Field getters */
-	for (i = 0; i < NUM_FIELDS; i++)
-	{
-		PyGetSetDef *def = &getseters[i];
+    /* Field getters */
+    for (i = 0; i < NUM_FIELDS; i++) {
+        PyGetSetDef *def = &getseters[i];
 
-		def->name = fields[i].name;
-		def->get = (getter) get_attribute;
-		def->set = NULL;
-		def->doc = NULL;
-		def->closure = (void *) &fields[i];
-	}
+        def->name = fields[i].name;
+        def->get = (getter) get_attribute;
+        def->set = NULL;
+        def->doc = NULL;
+        def->closure = (void *) &fields[i];
+    }
 
-	getseters[i].name = NULL;
+    getseters[i].name = NULL;
 
-	Atrinik_ArchetypeType.tp_new = PyType_GenericNew;
+    Atrinik_ArchetypeType.tp_new = PyType_GenericNew;
 
-	if (PyType_Ready(&Atrinik_ArchetypeType) < 0)
-	{
-		return 0;
-	}
+    if (PyType_Ready(&Atrinik_ArchetypeType) < 0) {
+        return 0;
+    }
 
-	Py_INCREF(&Atrinik_ArchetypeType);
-	PyModule_AddObject(module, "Archetype", (PyObject *) &Atrinik_ArchetypeType);
+    Py_INCREF(&Atrinik_ArchetypeType);
+    PyModule_AddObject(module, "Archetype", (PyObject *) &Atrinik_ArchetypeType);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -198,22 +194,20 @@ int Atrinik_Archetype_init(PyObject *module)
  * @return Python object wrapping the real archetype. */
 PyObject *wrap_archetype(archetype *at)
 {
-	Atrinik_Archetype *wrapper;
+    Atrinik_Archetype *wrapper;
 
-	/* Return None if no archetype was to be wrapped. */
-	if (!at)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    /* Return None if no archetype was to be wrapped. */
+    if (!at) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-	wrapper = PyObject_NEW(Atrinik_Archetype, &Atrinik_ArchetypeType);
+    wrapper = PyObject_NEW(Atrinik_Archetype, &Atrinik_ArchetypeType);
 
-	if (wrapper)
-	{
-		wrapper->at = at;
-	}
+    if (wrapper) {
+        wrapper->at = at;
+    }
 
-	return (PyObject *) wrapper;
+    return (PyObject *) wrapper;
 }
 

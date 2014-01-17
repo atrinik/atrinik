@@ -35,42 +35,43 @@
  * create a new face with that color. */
 typedef struct new_face_struct
 {
-	/** Name of the face. */
-	char *name;
+    /** Name of the face. */
+    char *name;
 
-	/**
-	 * This is the image ID. It should be the same value as its position
-	 * in the array. */
-	uint16 number;
+    /**
+     * This is the image ID. It should be the same value as its position
+     * in the array. */
+    uint16 number;
 } New_Face;
 
 /** Map look structure. */
 typedef struct map_look_struct
 {
-	/** Face. */
-	New_Face *face;
+    /** Face. */
+    New_Face *face;
 
-	/** Flags. */
-	uint8 flags;
+    /** Flags. */
+    uint8 flags;
 } MapLook;
 
 /** Animations structure */
 typedef struct
 {
-	/** Name of the animation sequence. */
-	shstr *name;
+    /** Name of the animation sequence. */
+    shstr *name;
 
-	/** The different animations. */
-	Fontindex *faces;
+    /** The different animations. */
+    Fontindex *faces;
 
-	/** Where we are in the array. */
-	uint16 num;
+    /** Where we are in the array. */
+    uint16 num;
 
-	/** How many different faces to animate. */
-	uint8 num_animations;
+    /** How many different faces to animate. */
+    uint8 num_animations;
 
-	/** How many facings (9 and 25 are allowed only with the new ext anim system). */
-	uint8 facings;
+    /** How many facings (9 and 25 are allowed only with the new ext anim
+     * system). */
+    uint8 facings;
 } Animations;
 
 #endif

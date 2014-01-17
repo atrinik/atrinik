@@ -37,33 +37,31 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	int power_available, power_space, power_grab;
+    int power_available, power_space, power_grab;
 
-	(void) aflags;
+    (void) aflags;
 
-	power_available = applier->stats.sp - applier->stats.maxsp;
-	power_space = op->stats.maxsp - op->stats.sp;
-	power_grab = 0;
+    power_available = applier->stats.sp - applier->stats.maxsp;
+    power_space = op->stats.maxsp - op->stats.sp;
+    power_grab = 0;
 
-	if (power_available >= 0 && power_space > 0)
-	{
-		power_grab = MIN(power_space, applier->stats.sp / 2);
-	}
+    if (power_available >= 0 && power_space > 0) {
+        power_grab = MIN(power_space, applier->stats.sp / 2);
+    }
 
-	if (power_available < 0 && op->stats.sp > 0)
-	{
-		power_grab = -MIN(-power_available, op->stats.sp);
-	}
+    if (power_available < 0 && op->stats.sp > 0) {
+        power_grab = -MIN(-power_available, op->stats.sp);
+    }
 
-	applier->stats.sp -= power_grab;
-	op->stats.sp += power_grab;
+    applier->stats.sp -= power_grab;
+    op->stats.sp += power_grab;
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the power crystal type object methods. */
 void object_type_init_power_crystal(void)
 {
-	object_type_methods[POWER_CRYSTAL].apply_func = apply_func;
+    object_type_methods[POWER_CRYSTAL].apply_func = apply_func;
 }

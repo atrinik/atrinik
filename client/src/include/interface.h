@@ -33,60 +33,60 @@
  * Interface data. */
 typedef struct interface_struct
 {
-	/** Message contents. */
-	char *message;
+    /** Message contents. */
+    char *message;
 
-	/** Title text. */
-	char *title;
+    /** Title text. */
+    char *title;
 
-	/** Icon name. */
-	char *icon;
+    /** Icon name. */
+    char *icon;
 
-	/** Text to prepend to the text input string when sending it to NPC. */
-	char *text_input_prepend;
+    /** Text to prepend to the text input string when sending it to NPC. */
+    char *text_input_prepend;
 
-	/** Font used. */
-	int font;
+    /** Font used. */
+    int font;
 
-	/** Array of the shortcut-supporting links. */
-	UT_array *links;
+    /** Array of the shortcut-supporting links. */
+    UT_array *links;
 
-	/** Whether the interface should be destroyed. */
-	uint8 destroy;
+    /** Whether the interface should be destroyed. */
+    uint8 destroy;
 
-	/** Scroll offset. */
-	uint32 scroll_offset;
+    /** Scroll offset. */
+    uint32 scroll_offset;
 
-	/** Number of lines. */
-	uint32 num_lines;
+    /** Number of lines. */
+    uint32 num_lines;
 
-	/** Scrollbar. */
-	scrollbar_struct scrollbar;
+    /** Scrollbar. */
+    scrollbar_struct scrollbar;
 
-	/** Whether the user has progressed through the dialog. */
-	uint8 progressed;
+    /** Whether the user has progressed through the dialog. */
+    uint8 progressed;
 
-	/**
-	 * If progressed, how long until another progression may happen
-	 * (unless a new dialog has been opened of course, in which case this
-	 * is reset). */
-	uint32 progressed_ticks;
+    /**
+     * If progressed, how long until another progression may happen
+     * (unless a new dialog has been opened of course, in which case this
+     * is reset). */
+    uint32 progressed_ticks;
 
-	/** Whether to allow entering tabs. */
-	uint8 allow_tab;
+    /** Whether to allow entering tabs. */
+    uint8 allow_tab;
 
-	/** If 1, disable cleaning up text input string. */
-	uint8 input_cleanup_disable;
+    /** If 1, disable cleaning up text input string. */
+    uint8 input_cleanup_disable;
 
-	/** If 1, allow sending empty text input string. */
-	uint8 input_allow_empty;
+    /** If 1, allow sending empty text input string. */
+    uint8 input_allow_empty;
 
-	/** If 1, enable text input. */
-	uint8 text_input;
+    /** If 1, enable text input. */
+    uint8 text_input;
 
-	/**
-	 * Text to prefix for autocompleting text. If NULL, autocompletion
-	 * will be disabled. */
+    /**
+     * Text to prefix for autocompleting text. If NULL, autocompletion
+     * will be disabled. */
     char *text_autocomplete;
 } interface_struct;
 

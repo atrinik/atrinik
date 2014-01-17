@@ -37,54 +37,49 @@
  * @return 1 if the object matches, 0 otherwise. */
 int pedestal_matches_obj(object *op, object *tmp)
 {
-	/* Check type. */
-	if (op->stats.hp && tmp->type != op->stats.hp)
-	{
-		return 0;
-	}
+    /* Check type. */
+    if (op->stats.hp && tmp->type != op->stats.hp) {
+        return 0;
+    }
 
-	/* Check name. */
-	if (op->slaying && tmp->name != op->slaying)
-	{
-		return 0;
-	}
+    /* Check name. */
+    if (op->slaying && tmp->name != op->slaying) {
+        return 0;
+    }
 
-	/* Check archname. */
-	if (op->race && tmp->arch->name != op->race)
-	{
-		return 0;
-	}
+    /* Check archname. */
+    if (op->race && tmp->arch->name != op->race) {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 /** @copydoc object_methods::trigger_button_func */
 static int trigger_button_func(object *op, object *cause, int state)
 {
-	object *tmp, *head;
+    object *tmp, *head;
 
-	(void) cause;
-	(void) state;
+    (void) cause;
+    (void) state;
 
-	op->value = 0;
+    op->value = 0;
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
-	{
-		head = HEAD(tmp);
+    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above) {
+        head = HEAD(tmp);
 
-		if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON)) && pedestal_matches_obj(op, head))
-		{
-			op->value = 1;
-		}
-	}
+        if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON)) && pedestal_matches_obj(op, head)) {
+            op->value = 1;
+        }
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the pedestal type object methods. */
 void object_type_init_pedestal(void)
 {
-	object_type_methods[PEDESTAL].trigger_button_func = trigger_button_func;
-	object_type_methods[PEDESTAL].fallback = &object_type_methods[BUTTON];
+    object_type_methods[PEDESTAL].trigger_button_func = trigger_button_func;
+    object_type_methods[PEDESTAL].fallback = &object_type_methods[BUTTON];
 }

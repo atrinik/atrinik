@@ -34,15 +34,15 @@
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
 #define MAXDEPTH 10
 
-static char *yval(void);
+    static char *yval(void);
 
 /* that's needed to track the used buffers for recursive calling */
-static void *cur_buffer;
-static int object_load_flag;
-static int lex_error;
-static char msgbuf[HUGE_BUF * 4];
-static size_t msgbuf_len;
-static artifact *art_amask;
+    static void *cur_buffer;
+    static int object_load_flag;
+    static int lex_error;
+    static char msgbuf[HUGE_BUF * 4];
+    static size_t msgbuf_len;
+    static artifact *art_amask;
 
 /**
  * Utility macro to set or clear an object's flag depending whether the
@@ -51,16 +51,16 @@ static artifact *art_amask;
  * @param flag The flag we're setting
  * @param val Non-zero to set the flag, zero to clear the flag. */
 #define SET_OR_CLEAR_FLAG(op, flag, val)    \
-{                                           \
-	if (val)                                \
-	{                                       \
-		SET_FLAG(op, flag);                 \
-	}                                       \
-	else                                    \
-	{                                       \
-		CLEAR_FLAG(op, flag);               \
-	}                                       \
-}
+    {                                           \
+        if (val)                                \
+        {                                       \
+            SET_FLAG(op, flag);                 \
+        }                                       \
+        else                                    \
+        {                                       \
+            CLEAR_FLAG(op, flag);               \
+        }                                       \
+    }
 
 #define SET_ATTACK(op, type, val)  op->attack[type] = val;
 #define SET_PROTECTION(op, type, val)  op->protection[type] = val;
@@ -79,92 +79,84 @@ static artifact *art_amask;
  * Function basically has to find spaces, strip out extra, etc. strchr()
  * doesn't work as good because could also be tabs.
  * @param op Object in which to insert the value. */
-static void add_key_value(object *op)
-{
-	char *key = NULL, *value = NULL, *cp, *end;
+    static void add_key_value(object *op)
+    {
+        char *key = NULL, *value = NULL, *cp, *end;
 
-	/* First, skip over leading whitespace. */
-	for (cp = yytext; isspace(*cp); cp++)
-	{
-	}
+        /* First, skip over leading whitespace. */
+        for (cp = yytext; isspace(*cp); cp++) {
+        }
 
-	key = cp;
+        key = cp;
 
-	/* Now look for the end of the key/field name. */
-	for (; !isspace(*cp); cp++)
-	{
-		if (*cp == '\0')
-		{
-			/* Oops, ran out of string! Set the key with an empty value. */
-			object_set_value(op, key, NULL, 1);
-			return;
-		}
-	}
+        /* Now look for the end of the key/field name. */
+        for (; !isspace(*cp); cp++) {
+            if (*cp == '\0') {
+                /* Oops, ran out of string! Set the key with an empty value. */
+                object_set_value(op, key, NULL, 1);
+                return;
+            }
+        }
 
-	if (*cp == '\0')
-	{
-		object_set_value(op, key, NULL, 1);
-		return;
-	}
+        if (*cp == '\0') {
+            object_set_value(op, key, NULL, 1);
+            return;
+        }
 
-	/* Chop off the key, and start at the next character. */
-	*cp = '\0';
-	cp++;
+        /* Chop off the key, and start at the next character. */
+        *cp = '\0';
+        cp++;
 
-	if (*cp == '\0')
-	{
-		/* Was followed by one space? */
-		object_set_value(op, key, NULL, 1);
-		return;
-	}
+        if (*cp == '\0') {
+            /* Was followed by one space? */
+            object_set_value(op, key, NULL, 1);
+            return;
+        }
 
-	/* Now looking for the value. Skip over whitespace. */
-	for (; isspace(*cp); cp++)
-	{
-		if (*cp == '\0')
-		{
-			/* Guess not. */
-			object_set_value(op, key, NULL, 1);
-			return;
-		}
-	}
+        /* Now looking for the value. Skip over whitespace. */
+        for (; isspace(*cp); cp++) {
+            if (*cp == '\0') {
+                /* Guess not. */
+                object_set_value(op, key, NULL, 1);
+                return;
+            }
+        }
 
-	value = cp;
+        value = cp;
 
-	/* Got last character before NULL and strip
-	 * off tailing whitespace */
-	for (end = value + (strlen(cp) - 1); isspace(*end); end--)
-	{
-		if (end == value)
-		{
-			/* Still no value? */
-			object_set_value(op, key, NULL, 1);
-			return;
-		}
+        /* Got last character before NULL and strip
+         * off tailing whitespace */
+        for (end = value + (strlen(cp) - 1); isspace(*end); end--) {
+            if (end == value) {
+                /* Still no value? */
+                object_set_value(op, key, NULL, 1);
+                return;
+            }
 
-		*end = '\0';
-	}
+            *end = '\0';
+        }
 
-	object_set_value(op, key, value, 1);
+        object_set_value(op, key, value, 1);
+    }
+
+    static void set_random_protection(object *op, int val)
+    {
+        op->protection[RANDOM() % NROFATTACKS] = val;
+    }
+
+    static void set_random_attack(object *op, int val)
+    {
+        op->attack[RANDOM() % NROFATTACKS] = val;
+    }
+    %
 }
 
-static void set_random_protection(object *op, int val)
-{
-	op->protection[RANDOM() % NROFATTACKS] = val;
-}
+LF  \ x0A
+CR  \ x0D
+NL  {CR} ? {LF}
 
-static void set_random_attack(object *op, int val)
-{
-	op->attack[RANDOM() % NROFATTACKS] = val;
-}
-%}
-
-LF	\x0A
-CR	\x0D
-NL	{CR}?{LF}
-
-S	[ \t]+.+
-WS	[ \t]*{NL}
+S   [ \ t]+.+
+WS  [ \ t]*{NL}
 
 %x MESSAGE
 
@@ -180,719 +172,677 @@ WS	[ \t]*{NL}
 /* need yy_push_state, yy_pop_state */
 %option stack
 
-%%
+% %
 
 %{
-int ismore = 0;
-object *op = items[*depth];
-lex_error = 0;
-%}
-
-^arch{S}            {
-						/* If op->arch has been set, then this new object
-			 			 * must be part of the inventory. So process
-			 			 * appropriately. */
-						if (op->arch)
-						{
-							object *tmp;
-							artifact *art_amask_tmp;
-							const char *archname;
-
-							tmp = get_object();
-							archname = yval();
-							tmp->arch = find_archetype(yval());
-
-							if (tmp->arch != NULL)
-							{
-								copy_object(&tmp->arch->clone, tmp, 1);
-							}
-
-							(*depth)++;
-							items[*depth] = tmp;
-
-							art_amask_tmp = art_amask;
-							art_amask = NULL;
-
-							if (linemode == 0)
-							{
-								lex_load(depth, items, maxdepth, map_flags, linemode);
-								(*depth)--;
-
-								if (tmp->arch)
-								{
-									insert_ob_in_ob(tmp, op);
-								}
-								else
-								{
-									if (!arch_init)
-									{
-										logger_print(LOG(DEBUG), "Discarding object without arch: %s", archname);
-									}
-
-									object_destroy(tmp);
-								}
-							}
-
-							if (art_amask)
-							{
-								give_artifact_abilities(tmp, art_amask);
-							}
-
-							art_amask = art_amask_tmp;
-
-							if (!(map_flags & MAP_STYLE))
-							{
-								float old_sleft;
-
-								old_sleft = tmp->speed_left;
-
-								/* First adjust speed.
-								 * Only change something if we:
-								 *  1. Don't have speed_left set in the loading, or
-								 *  2. We have negative speed. */
-								if (old_sleft == tmp->speed_left && tmp->speed < 0.0f)
-								{
-									/* If we have now a negative speed - use default arch
-									 * speed left for new random set */
-									if (tmp->speed < 0.0f)
-										tmp->speed_left = tmp->arch->clone.speed_left + (float) (RANDOM() % 90) / 100.0f;
-								}
-
-								if (tmp->speed)
-								{
-									/* Put it on the active list. */
-									update_ob_speed(tmp);
-								}
-
-								/* We must do this after the insert_ob_in_ob().
-								 * We look if we have a treasure or something else.
-								 * If so, we transform it now to real items.
-								 * This here only handles inventory items, the "base"
-								 * items are handled in load_objects(). */
-								if (QUERY_FLAG(tmp, FLAG_AUTO_APPLY))
-								{
-									/* auto_apply() will clear FLAG_AUTO_APPLY */
-									auto_apply(tmp);
-								}
-								/* Here we can have an interesting problem when we have kind of
-								 * creators (like spawn points) which use the inv object as a clone
-								 * kind object. Then we don't want substitute the treasure here or the
-								 * generator will clone objects with same treasures over and over. */
-								else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT))
-								{
-									create_treasure(tmp->randomitems, tmp, 0, get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-								}
-
-								if (object_initializers[tmp->type])
-								{
-									object_initializers[tmp->type](tmp);
-								}
-							}
-						}
-						/* This is the actual archetype definition */
-						else
-						{
-							op->arch = find_archetype(yval());
-
-							if (op->arch != NULL)
-							{
-								/* Speed will handled in load_object() for this. */
-								copy_object(&op->arch->clone, op, 1);
-							}
-						}
-                    }
-
-^object{S}          {
-						char *yv = yval();
-
-						if (*yv == '\0')
-						{
-							logger_print(LOG(ERROR), "Object lacks name.");
-							exit(1);
-						}
-
-						if (op->arch != NULL)
-						{
-							FREE_AND_COPY_HASH(op->arch->name, yv);
-						}
-
-						FREE_AND_COPY_HASH(op->name, yv);
-						/* Ok - now we know the pre speed values are valid. */
-						object_load_flag = 1;
-                    }
-
-^msg{WS}            {
-						BEGIN(MESSAGE);
-						msgbuf[0] = '\0';
-						msgbuf_len = 0;
-                    }
-<MESSAGE>^endmsg{WS} {
-						BEGIN(INITIAL);
-
-						/* Remove last newline. */
-						msgbuf[msgbuf_len - 1] = '\0';
-						FREE_AND_COPY_HASH(op->msg, msgbuf);
-                     }
-<MESSAGE>.*{NL}	    {
-						memcpy(msgbuf + msgbuf_len, yytext, MIN((size_t) yyleng, sizeof(msgbuf) - msgbuf_len - 1));
-						msgbuf_len += yyleng;
-					}
-^name{S}            {
-						char *yv = yval();
-
-						if (*yv == '\0')
-						{
-							logger_print(LOG(ERROR), "Name without val");
-							exit(1);
-						}
-						else
-						{
-							FREE_AND_COPY_HASH(op->name, yv);
-						}
-                    }
-^custom_name{S}     {
-						char *yv = yval();
-
-						if (*yv == '\0')
-						{
-							logger_print(LOG(BUG), "Custom name without val.");
-						}
-						else
-						{
-							FREE_AND_COPY_HASH(op->custom_name, yv);
-
-							if (op->custom_name == shstr_cons.NONE)
-							{
-								FREE_AND_CLEAR_HASH(op->custom_name);
-							}
-						}
-                    }
-^race{S}            FREE_AND_COPY_HASH(op->race, yval());
-^slaying{S}         {
-						FREE_AND_COPY_HASH(op->slaying, yval());
-
-						if (op->slaying == shstr_cons.NONE)
-						{
-							FREE_AND_CLEAR_HASH(op->slaying);
-						}
-					}
-^artifact{S}        FREE_AND_COPY_HASH(op->artifact, yval());
-^amask{S}           {
-						art_amask = find_artifact_type(yval(), op->arch->clone.type);
-
-						if (!art_amask)
-						{
-							logger_print(LOG(BUG), "Invalid amask '%s'.", yval());
-						}
-					}
-^quickslot{S}       op->quickslot = IVAL;
-
-^other_arch{S}      op->other_arch = find_archetype(yval());
-^animation{S}       {
-						char *yv = yval();
-
-						if (!strcmp(yv, "NONE"))
-						{
-							op->animation_id = 0;
-						}
-						else
-						{
-							op->animation_id = find_animation(yv);
-						}
-                    }
-^inv_animation{S}   {
-						char *yv = yval();
-
-						if (!strcmp(yv, "NONE"))
-						{
-							op->inv_animation_id = 0;
-						}
-						else
-						{
-							op->inv_animation_id = find_animation(yv);
-						}
-                    }
-
-^more{WS}           {
-						/* We need to record that this is a multipart object,
-		       			 * so the calling function can glue things back together. */
-						ismore = 1;
-                    }
-
-^end{WS}            {
-						if (linemode)
-						{
-							/* Linemode is only set for artifact loading. */
-							if ((*depth) > 0)
-							{
-								insert_ob_in_ob(items[*depth], items[(*depth) - 1]);
-							}
-
-							return LL_NORMAL;
-						}
-
-						if (ismore)
-						{
-							return LL_MORE;
-						}
-						else
-						{
-							return LL_NORMAL;
-						}
-                    }
-^object_int1{S}     op->enemy_count = IVAL;
-^object_int2{S}     op->attacked_by_count = IVAL;
-^object_int3{S}     op->ownercount = IVAL;
-^last_heal{S}       op->last_heal = IVAL;
-^last_sp{S}         op->last_sp = IVAL;
-^last_grace{S}      op->last_grace = IVAL;
-^last_grace_add{S}  op->last_grace += IVAL;
-^last_eat{S}        op->last_eat = IVAL;
-^speed{S}           op->speed = FVAL;
-
-^speed_left{S}      op->speed_left = FVAL;
-^slow_move{S}       SET_OR_CLEAR_FLAG(op, FLAG_SLOW_MOVE, IVAL);
-^face{S}            {
-						int _face_ = find_face(yval(), 0);
-						op->face = &new_faces[_face_ ];
-
-						if (!_face_)
-						{
-							logger_print(LOG(BUG), "Object %s - can't find face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
-						}
-                    }
-^inv_face{S}        {
-						int _face_ = find_face(yval(), 0);
-						op->inv_face = &new_faces[_face_ ];
-
-						if (!_face_)
-						{
-							logger_print(LOG(BUG), "Object %s - can't find inv_face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
-						}
-                    }
-
-^str{S}             op->stats.Str = IVAL;
-^dex{S}             op->stats.Dex = IVAL;
-^con{S}             op->stats.Con = IVAL;
-^wis{S}             op->stats.Wis = IVAL;
-^cha{S}             op->stats.Cha = IVAL;
-^int{S}             op->stats.Int = IVAL;
-^pow{S}             op->stats.Pow = IVAL;
-^hp{S}              op->stats.hp = IVAL;
-^maxhp{S}           op->stats.maxhp = IVAL;
-^sp{S}              op->stats.sp = IVAL;
-^maxsp{S}           op->stats.maxsp = IVAL;
-^exp{S}             op->stats.exp = atoll(yval());
-^food{S}            op->stats.food = IVAL;
-^dam{S}             op->stats.dam = IVAL;
-^dam_add{S}         op->stats.dam += IVAL;
-^wc{S}              op->stats.wc = IVAL;
-^wc_add{S}          op->stats.wc += IVAL;
-^wc_range{S}        op->stats.wc_range = IVAL;
-^wc_range_add{S}    op->stats.wc_range += IVAL;
-^ac{S}              op->stats.ac = IVAL;
-^ac_add{S}          op->stats.ac += IVAL;
-^x{S}               op->x = IVAL;
-^y{S}               op->y = IVAL;
-^z{S}               op->z = IVAL;
-^zoom{S}            op->zoom_x = op->zoom_y = IVAL;
-^zoom_x{S}          op->zoom_x = IVAL;
-^zoom_y{S}          op->zoom_y = IVAL;
-^align{S}           op->align = IVAL;
-^alpha{S}           op->alpha = IVAL;
-^rotate{S}          op->rotate = IVAL;
-^nrof{S}            op->nrof = atol(yval());
-^level{S}           op->level = IVAL;
-^direction{S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
-^type{S}            op->type = IVAL;
-^material{S}        op->material = IVAL;
-^value{S}           op->value = atoll(yval());
-^weight{S}          op->weight = atol(yval());
-^carrying{S}        op->carrying = atol(yval());
-^path_attuned{S}    op->path_attuned = IVAL;
-^path_repelled{S}   op->path_repelled = IVAL;
-^path_denied{S}     op->path_denied = IVAL;
-^magic{S}           op->magic = IVAL;
-^state{S}           op->state = IVAL;
-^layer{S}           {
-						int val = IVAL;
-
-						op->layer = MAX(0, MIN(NUM_LAYERS, val));
-                    }
-^sub_layer{S}       {
-						int val = IVAL;
-
-						op->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, val));
-                    }
-^door_closed{S}     SET_OR_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
-^cursed_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
-^damned_perm{S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL);
-^one_drop{S}        SET_OR_CLEAR_FLAG(op, FLAG_ONE_DROP, IVAL);
-^is_trapped{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_TRAPPED, IVAL);
-^quest_item{S}      SET_OR_CLEAR_FLAG(op, FLAG_QUEST_ITEM, IVAL);
-^player_only{S}     SET_OR_CLEAR_FLAG(op, FLAG_PLAYER_ONLY, IVAL);
-^is_named{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
-^is_player{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL);
-^sys_object{S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
-^generator{S}       {}
-^can_stack{S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
-^is_thrown{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
-^auto_apply{S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
-^is_ready{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_READY, IVAL);
-^treasure{S}        {}
-^is_assassin{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
-^is_spell{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_SPELL, IVAL);
-^is_missile{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
-^draw_direction{S}  SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
-^draw_double{S}     SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);
-^draw_double_always{S} SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL);
-^see_invisible{S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
-^make_invisible{S}  SET_OR_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
-^make_ethereal{S}   SET_OR_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);
-^can_roll{S}        SET_OR_CLEAR_FLAG(op, FLAG_CAN_ROLL, IVAL);
-^connect_reset{S}   SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_RESET, IVAL);
-^is_turnable{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_TURNABLE, IVAL);
-^is_used_up{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_USED_UP, IVAL);
-^is_invisible{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_INVISIBLE, IVAL);
-^alive{S}           {}
-^applied{S}         SET_OR_CLEAR_FLAG(op, FLAG_APPLIED, IVAL);
-^unpaid{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNPAID, IVAL);
-^hidden{S}          SET_OR_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL);
-^no_pick{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PICK, IVAL);
-^no_pass{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PASS, IVAL);
-^no_teleport{S}     SET_OR_CLEAR_FLAG(op, FLAG_NO_TELEPORT, IVAL);
-^corpse{S}          SET_OR_CLEAR_FLAG(op, FLAG_CORPSE, IVAL);
-^corpse_forced{S}   SET_OR_CLEAR_FLAG(op, FLAG_CORPSE_FORCED, IVAL);
-
-^walk_on{S}         SET_OR_CLEAR_FLAG(op, FLAG_WALK_ON, IVAL);
-^walk_off{S}        SET_OR_CLEAR_FLAG(op, FLAG_WALK_OFF, IVAL);
-^fly_on{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLY_ON, IVAL);
-^fly_off{S}         SET_OR_CLEAR_FLAG(op, FLAG_FLY_OFF, IVAL);
-^is_animated{S}     SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
-^flying{S}          SET_OR_CLEAR_FLAG(op, FLAG_FLYING, IVAL);
-^monster{S}         SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
-^no_attack{S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
-^invulnerable{S}    SET_OR_CLEAR_FLAG(op, FLAG_INVULNERABLE, IVAL);
-^friendly{S}        {
-						if (IVAL)
-						{
-							SET_FLAG(op, FLAG_FRIENDLY);
-						}
-						else
-						{
-							CLEAR_FLAG(op, FLAG_FRIENDLY);
-						}
-                    }
-^identified{S}      {
-						if (IVAL)
-						{
-							SET_FLAG(op, FLAG_IDENTIFIED);
-						}
-						else
-						{
-							CLEAR_FLAG(op, FLAG_IDENTIFIED);
-						}
-                    }
-^reflecting{S}      SET_OR_CLEAR_FLAG(op, FLAG_REFLECTING, IVAL);
-^changing{S}        SET_OR_CLEAR_FLAG(op, FLAG_CHANGING, IVAL);
-^splitting{S}       SET_OR_CLEAR_FLAG(op, FLAG_SPLITTING, IVAL);
-^hitback{S}         SET_OR_CLEAR_FLAG(op, FLAG_HITBACK, IVAL);
-^startequip{S}      SET_OR_CLEAR_FLAG(op, FLAG_STARTEQUIP, IVAL);
-^blocksview{S}      SET_OR_CLEAR_FLAG(op, FLAG_BLOCKSVIEW, IVAL);
-^undead{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNDEAD, IVAL);
-^scared{S}          SET_OR_CLEAR_FLAG(op, FLAG_SCARED, IVAL);
-^unaggressive{S}    SET_OR_CLEAR_FLAG(op, FLAG_UNAGGRESSIVE, IVAL);
-^reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
-^reflect_spell{S}   SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
-^can_reflect_missile{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
-^can_reflect_spell{S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
-^no_magic{S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL);
-^no_fix_player{S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
-^tear_down{S}       {}
-^luck{S}            {}
-^run_away{S}        op->run_away = IVAL;
-^pass_thru{S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
-^can_pass_thru{S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
-^anim_speed{S}      op->anim_speed = IVAL;
-^container{S}       op->weight_limit = IVAL;
-^no_drop{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_DROP, IVAL);
-^behavior{S}        op->behavior = IVAL;
-^use_fix_pos{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
-^is_ethereal{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
-^two_handed{S}      SET_OR_CLEAR_FLAG(op, FLAG_TWO_HANDED, IVAL);
-^can_cast_spell{S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
-^can_use_scroll{S}  {}
-^can_use_range{S}   {}
-^can_use_bow{S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_BOW, IVAL);
-^can_use_armour{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL);
-^can_use_weapon{S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL);
-^can_use_ring{S}    {}
-^has_ready_range{S} {}
-^has_ready_bow{S}   SET_OR_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL);
-^xrays{S}           SET_OR_CLEAR_FLAG(op, FLAG_XRAYS, IVAL);
-^no_save{S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_SAVE, IVAL);
-^is_floor{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_FLOOR, IVAL);
-^is_male{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_MALE, IVAL);
-^is_female{S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_FEMALE, IVAL);
-^is_evil{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_EVIL, IVAL);
-^is_good{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_GOOD, IVAL);
-^is_neutral{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_NEUTRAL, IVAL);
-^lifesave{S}        SET_OR_CLEAR_FLAG(op, FLAG_LIFESAVE, IVAL);
-^sleep{S}           SET_OR_CLEAR_FLAG(op, FLAG_SLEEP, IVAL);
-^stand_still{S}     SET_OR_CLEAR_FLAG(op, FLAG_STAND_STILL, IVAL);
-^random_move{S}     SET_OR_CLEAR_FLAG(op, FLAG_RANDOM_MOVE, IVAL);
-^only_attack{S}     SET_OR_CLEAR_FLAG(op, FLAG_ONLY_ATTACK, IVAL);
-^berserk{S}         SET_OR_CLEAR_FLAG(op, FLAG_BERSERK, IVAL);
-^is_magical{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
-
-^connect_no_push{S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_PUSH, IVAL);
-^connect_no_release{S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_RELEASE, IVAL);
-
-	/* Start of various attacktypes */
-^attack_impact{S}   SET_ATTACK(op, ATNR_IMPACT, IVAL);
-^attack_slash{S}    SET_ATTACK(op, ATNR_SLASH, IVAL);
-^attack_cleave{S}   SET_ATTACK(op, ATNR_CLEAVE, IVAL);
-^attack_pierce{S}   SET_ATTACK(op, ATNR_PIERCE, IVAL);
-^attack_weaponmagic{S}    SET_ATTACK(op, ATNR_WEAPON_MAGIC, IVAL);
-
-^attack_fire{S}     SET_ATTACK(op, ATNR_FIRE, IVAL);
-^attack_cold{S}     SET_ATTACK(op, ATNR_COLD, IVAL);
-^attack_electricity{S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL);
-^attack_poison{S}   SET_ATTACK(op, ATNR_POISON, IVAL);
-^attack_acid{S}     SET_ATTACK(op, ATNR_ACID, IVAL);
-
-^attack_magic{S}    SET_ATTACK(op, ATNR_MAGIC, IVAL);
-^attack_mind{S}     SET_ATTACK(op, ATNR_MIND, IVAL);
-^attack_blind{S}    SET_ATTACK(op, ATNR_BLIND, IVAL);
-^attack_paralyze{S} SET_ATTACK(op, ATNR_PARALYZE, IVAL);
-^attack_force{S}    SET_ATTACK(op, ATNR_FORCE, IVAL);
-
-^attack_godpower{S} SET_ATTACK(op, ATNR_GODPOWER, IVAL);
-^attack_chaos{S}    SET_ATTACK(op, ATNR_CHAOS, IVAL);
-^attack_drain{S}    SET_ATTACK(op, ATNR_DRAIN, IVAL);
-^attack_slow{S}     SET_ATTACK(op, ATNR_SLOW, IVAL);
-^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
-
-^attack_internal{S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
-
-	/* The following attack types are deprecated and are here
-	 * for backwards compatibility. */
-^attack_psionic{S}  set_random_attack(op, IVAL);
-^attack_sonic{S}    set_random_attack(op, IVAL);
-^attack_demonic{S}  set_random_attack(op, IVAL);
-^attack_counterspell{S} set_random_attack(op, IVAL);
-^attack_purity{S}   set_random_attack(op, IVAL);
-^attack_life_steal{S} set_random_attack(op, IVAL);
-^attack_death{S}    set_random_attack(op, IVAL);
-^attack_time{S}     set_random_attack(op, IVAL);
-^attack_fear{S}     set_random_attack(op, IVAL);
-^attack_cancellation{S} set_random_attack(op, IVAL);
-^attack_depletion{S} set_random_attack(op, IVAL);
-^attack_ghosthit{S} set_random_attack(op, IVAL);
-
-	/* All these resists are deprecated and are here for
-	 * backwards compatibility. */
-^resist_impact{S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL);
-^resist_magic{S}    SET_PROTECTION(op, ATNR_MAGIC, IVAL);
-^resist_fire{S}     SET_PROTECTION(op, ATNR_FIRE, IVAL);
-^resist_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
-^resist_cold{S}     SET_PROTECTION(op, ATNR_COLD, IVAL);
-^resist_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
-^resist_acid{S}     SET_PROTECTION(op, ATNR_ACID, IVAL);
-^resist_drain{S}    SET_PROTECTION(op, ATNR_DRAIN, IVAL);
-^resist_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
-^resist_ghosthit{S} set_random_protection(op, IVAL);
-^resist_poison{S}   SET_PROTECTION(op, ATNR_POISON, IVAL);
-^resist_slow{S}     set_random_protection(op, IVAL);
-^resist_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
-^resist_time{S}     set_random_protection(op, IVAL);
-^resist_fear{S}     set_random_protection(op, IVAL);
-^resist_cancellation{S} set_random_protection(op, IVAL);
-^resist_depletion{S} set_random_protection(op, IVAL);
-^resist_death{S}    set_random_protection(op, IVAL);
-^resist_chaos{S}    SET_PROTECTION(op, ATNR_CHAOS, IVAL);
-^resist_counterspell{S} set_random_protection(op, IVAL);
-^resist_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
-^resist_purity{S}   set_random_protection(op, IVAL);
-^resist_blind{S}    SET_PROTECTION(op, ATNR_BLIND, IVAL);
-^resist_internal{S} set_random_protection(op, IVAL);
-^resist_life_steal{S} set_random_protection(op, IVAL);
-^resist_slash{S}    SET_PROTECTION(op, ATNR_SLASH, IVAL);
-^resist_cleave{S}   SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
-^resist_pierce{S}   SET_PROTECTION(op, ATNR_PIERCE, IVAL);
-^resist_nether{S}   set_random_protection(op, IVAL);
-^resist_sonic{S}    set_random_protection(op, IVAL);
-^resist_demonic{S}  set_random_protection(op, IVAL);
-^resist_psionic{S}  set_random_protection(op, IVAL);
-
-	/* Start of various protections */
-^protect_impact{S}  SET_PROTECTION(op, ATNR_IMPACT, IVAL);
-^protect_slash{S}   SET_PROTECTION(op, ATNR_SLASH, IVAL);
-^protect_cleave{S}  SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
-^protect_pierce{S}  SET_PROTECTION(op, ATNR_PIERCE, IVAL);
-^protect_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
-
-^protect_fire{S}    SET_PROTECTION(op, ATNR_FIRE, IVAL);
-^protect_cold{S}    SET_PROTECTION(op, ATNR_COLD, IVAL);
-^protect_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
-^protect_poison{S}  SET_PROTECTION(op, ATNR_POISON, IVAL);
-^protect_acid{S}    SET_PROTECTION(op, ATNR_ACID, IVAL);
-
-^protect_magic{S}   SET_PROTECTION(op, ATNR_MAGIC, IVAL);
-^protect_mind{S}    SET_PROTECTION(op, ATNR_MIND, IVAL);
-^protect_blind{S}   SET_PROTECTION(op, ATNR_BLIND, IVAL);
-^protect_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
-^protect_force{S}   SET_PROTECTION(op, ATNR_FORCE, IVAL);
-
-^protect_godpower{S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
-^protect_chaos{S}   SET_PROTECTION(op, ATNR_CHAOS, IVAL);
-^protect_drain{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
-^protect_slow{S} SET_PROTECTION(op, ATNR_SLOW, IVAL);
-^protect_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
-
-^protect_internal{S} SET_PROTECTION(op, ATNR_INTERNAL, IVAL);
-
-	/* The following protections are deprecated, and are here only
-	 * for backwards compatibility. */
-^protect_body{S} SET_PROTECTION(op, ATNR_BLIND, IVAL);
-^protect_psionic{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
-^protect_corruption{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
-^protect_spiritual{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
-^protect_death{S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
-
-^movement_type{S}   op->move_type = IVAL;
-^attack_move_type{S} op->attack_move_type = IVAL;
-
-^move_state{S}      op->move_status = IVAL;
-^confused{S}        SET_OR_CLEAR_FLAG(op, FLAG_CONFUSED, IVAL);
-^stealth{S}         SET_OR_CLEAR_FLAG(op, FLAG_STEALTH, IVAL);
-^connected{S}       connection_object_add(op, op->map, IVAL);
-^cursed{S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
-^damned{S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
-^is_buildable{S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
-^no_pvp{S}          SET_OR_CLEAR_FLAG(op, FLAG_NO_PVP, IVAL);
-^known_magical{S}   {/* Deprecated. */}
-^known_cursed{S}    {/* Deprecated. */}
-^attacktype{S}      {/* Deprecated. */}
-^can_use_skill{S}   {}
-^been_applied{S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
-^title{S}           {
-						char *y = yval();
-
-						if (*y == '\0')
-						{
-							logger_print(LOG(BUG), "Title without value.");
-						}
-						else
-						{
-							FREE_AND_COPY_HASH(op->title, y);
-
-							if (op->title == shstr_cons.NONE)
-							{
-								FREE_AND_CLEAR_HASH(op->title);
-							}
-						}
-                    }
-^outdoor{S}         SET_OR_CLEAR_FLAG(op, FLAG_OUTDOOR, IVAL);
-^unique{S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
-^inv_locked{S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
-^is_wooded{S}       {}
-^is_hilly{S}        {}
-^has_ready_skill{S} {}
-^has_ready_weapon{S} SET_OR_CLEAR_FLAG(op, FLAG_READY_WEAPON, IVAL);
-^no_skill_ident{S}  SET_OR_CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL);
-^glow_radius{S}     op->glow_radius = IVAL;
-^is_blind{S}        SET_OR_CLEAR_FLAG(op, FLAG_BLIND, IVAL);
-^can_see_in_dark{S} SET_OR_CLEAR_FLAG(op, FLAG_SEE_IN_DARK, IVAL);
-^is_cauldron{S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_CAULDRON, IVAL);
-^randomitems{S}     op->randomitems = find_treasurelist(yval());
-^is_dust{S}         SET_OR_CLEAR_FLAG(op, FLAG_DUST, IVAL);
-^no_steal{S}        {}
-^one_hit{S}         SET_OR_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
-
-^is_vul_elemental{S} {}
-^is_proof_elemental{S} {}
-^is_vul_magic{S}    {}
-^is_proof_magic{S}  {}
-^is_vul_physical{S} {}
-^is_proof_physical{S} {}
-^is_vul_sphere{S}   {}
-^is_proof_sphere{S} {}
-^is_indestructible{S} SET_OR_CLEAR_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
-
-	/* Ignore editor_folder values. */
-^editor_folder{S}   {}
-^sub_type{S}        op->sub_type = IVAL;
-^terrain_flag{S}    op->terrain_flag = IVAL;
-^terrain_type{S}    op->terrain_type = IVAL;
-^item_quality{S}    op->item_quality = IVAL;
-^item_condition{S}  op->item_condition = IVAL;
-^item_race{S}       op->item_race = IVAL;
-^item_skill{S}      op->item_skill = IVAL;
-^item_level{S}      op->item_level = IVAL;
-^item_level_art{S}  {
-						/* Artifact list token - Never use in real arches or maps. */
-						int ival_tmp = IVAL;
-
-						/* When we have an artifact which has a minimum use level of 10
-						 * but we give it a mithril armour of default use level 50,
-						 * we will create artifact mithril armour usable for level 10!
-						 * This code prevents such things from happening. */
-						if (ival_tmp <= 0)
-						{
-							op->item_level = -ival_tmp;
-						}
-						else if (ival_tmp > op->item_level)
-						{
-							op->item_level = ival_tmp;
-						}
-                    }
-^material_real{S}   {
-						op->material_real = IVAL;
-
-						if (!op->item_quality)
-						{
-							op->item_quality = material_real[op->material_real].quality;
-							op->item_condition = op->item_quality;
-						}
-                    }
-^mpart_id{S}        op->quick_pos |= (((char) IVAL) << 4);
-^mpart_nr{S}        op->quick_pos |= (char) IVAL;
-^weapon_speed{S}    {
-						op->weapon_speed = FVAL;
-						op->weapon_speed_left = 0;
-                    }
-^item_power{S}      op->item_power = IVAL;
-
-	/* Ignore empty lines, newlines we don't do above */
+    int ismore = 0;
+    object *op = items[*depth];
+    lex_error = 0;
+    %
+}
+
+^arch {S}            {
+    /* If op->arch has been set, then this new object
+     * must be part of the inventory. So process
+     * appropriately. */
+    if (op->arch) {
+        object *tmp;
+        artifact *art_amask_tmp;
+        const char *archname;
+
+        tmp = get_object();
+        archname = yval();
+        tmp->arch = find_archetype(yval());
+
+        if (tmp->arch != NULL) {
+            copy_object(&tmp->arch->clone, tmp, 1);
+        }
+
+        (*depth)++;
+        items[*depth] = tmp;
+
+        art_amask_tmp = art_amask;
+        art_amask = NULL;
+
+        if (linemode == 0) {
+            lex_load(depth, items, maxdepth, map_flags, linemode);
+            (*depth)--;
+
+            if (tmp->arch) {
+                insert_ob_in_ob(tmp, op);
+            }
+            else {
+                if (!arch_init) {
+                    logger_print(LOG(DEBUG), "Discarding object without arch: %s", archname);
+                }
+
+                object_destroy(tmp);
+            }
+        }
+
+        if (art_amask) {
+            give_artifact_abilities(tmp, art_amask);
+        }
+
+        art_amask = art_amask_tmp;
+
+        if (!(map_flags & MAP_STYLE)) {
+            float old_sleft;
+
+            old_sleft = tmp->speed_left;
+
+            /* First adjust speed.
+             * Only change something if we:
+             *  1. Don't have speed_left set in the loading, or
+             *  2. We have negative speed. */
+            if (old_sleft == tmp->speed_left && tmp->speed < 0.0f) {
+                /* If we have now a negative speed - use default arch
+                 * speed left for new random set */
+                if (tmp->speed < 0.0f)
+                    tmp->speed_left = tmp->arch->clone.speed_left + (float) (RANDOM() % 90) / 100.0f;
+            }
+
+            if (tmp->speed) {
+                /* Put it on the active list. */
+                update_ob_speed(tmp);
+            }
+
+            /* We must do this after the insert_ob_in_ob().
+             * We look if we have a treasure or something else.
+             * If so, we transform it now to real items.
+             * This here only handles inventory items, the "base"
+             * items are handled in load_objects(). */
+            if (QUERY_FLAG(tmp, FLAG_AUTO_APPLY)) {
+                /* auto_apply() will clear FLAG_AUTO_APPLY */
+                auto_apply(tmp);
+            }
+            /* Here we can have an interesting problem when we have kind of
+             * creators (like spawn points) which use the inv object as a clone
+             * kind object. Then we don't want substitute the treasure here or
+             * the
+             * generator will clone objects with same treasures over and over.
+             * */
+            else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT)) {
+                create_treasure(tmp->randomitems, tmp, 0, get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+            }
+
+            if (object_initializers[tmp->type]) {
+                object_initializers[tmp->type](tmp);
+            }
+        }
+    }
+    /* This is the actual archetype definition */
+    else {
+        op->arch = find_archetype(yval());
+
+        if (op->arch != NULL) {
+            /* Speed will handled in load_object() for this. */
+            copy_object(&op->arch->clone, op, 1);
+        }
+    }
+}
+
+^object {S}          {
+    char *yv = yval();
+
+    if (*yv == '\0') {
+        logger_print(LOG(ERROR), "Object lacks name.");
+        exit(1);
+    }
+
+    if (op->arch != NULL) {
+        FREE_AND_COPY_HASH(op->arch->name, yv);
+    }
+
+    FREE_AND_COPY_HASH(op->name, yv);
+    /* Ok - now we know the pre speed values are valid. */
+    object_load_flag = 1;
+}
+
+^msg {WS}            {
+    BEGIN(MESSAGE);
+    msgbuf[0] = '\0';
+    msgbuf_len = 0;
+}<
+MESSAGE>^endmsg {WS} {
+    BEGIN(INITIAL);
+
+    /* Remove last newline. */
+    msgbuf[msgbuf_len - 1] = '\0';
+    FREE_AND_COPY_HASH(op->msg, msgbuf);
+}<
+MESSAGE>.*{NL}     {
+    memcpy(msgbuf + msgbuf_len, yytext, MIN((size_t) yyleng, sizeof(msgbuf) - msgbuf_len - 1));
+    msgbuf_len += yyleng;
+}^
+name {S}            {
+    char *yv = yval();
+
+    if (*yv == '\0') {
+        logger_print(LOG(ERROR), "Name without val");
+        exit(1);
+    }
+    else {
+        FREE_AND_COPY_HASH(op->name, yv);
+    }
+}^
+custom_name {S}     {
+    char *yv = yval();
+
+    if (*yv == '\0') {
+        logger_print(LOG(BUG), "Custom name without val.");
+    }
+    else {
+        FREE_AND_COPY_HASH(op->custom_name, yv);
+
+        if (op->custom_name == shstr_cons.NONE) {
+            FREE_AND_CLEAR_HASH(op->custom_name);
+        }
+    }
+}^
+race {S}            FREE_AND_COPY_HASH(op->race, yval()); ^
+slaying {S}         {
+    FREE_AND_COPY_HASH(op->slaying, yval());
+
+    if (op->slaying == shstr_cons.NONE) {
+        FREE_AND_CLEAR_HASH(op->slaying);
+    }
+}^
+artifact {S}        FREE_AND_COPY_HASH(op->artifact, yval()); ^
+amask {S}           {
+    art_amask = find_artifact_type(yval(), op->arch->clone.type);
+
+    if (!art_amask) {
+        logger_print(LOG(BUG), "Invalid amask '%s'.", yval());
+    }
+}^
+quickslot {S}       op->quickslot = IVAL;
+
+^other_arch {S}      op->other_arch = find_archetype(yval()); ^
+animation {S}       {
+    char *yv = yval();
+
+    if (!strcmp(yv, "NONE")) {
+        op->animation_id = 0;
+    }
+    else {
+        op->animation_id = find_animation(yv);
+    }
+}^
+inv_animation {S}   {
+    char *yv = yval();
+
+    if (!strcmp(yv, "NONE")) {
+        op->inv_animation_id = 0;
+    }
+    else {
+        op->inv_animation_id = find_animation(yv);
+    }
+}
+
+^more {WS}           {
+    /* We need to record that this is a multipart object,
+     * so the calling function can glue things back together. */
+    ismore = 1;
+}
+
+^end {WS}            {
+    if (linemode) {
+        /* Linemode is only set for artifact loading. */
+        if ((*depth) > 0) {
+            insert_ob_in_ob(items[*depth], items[(*depth) - 1]);
+        }
+
+        return LL_NORMAL;
+    }
+
+    if (ismore) {
+        return LL_MORE;
+    }
+    else {
+        return LL_NORMAL;
+    }
+}^
+object_int1 {S}     op->enemy_count = IVAL; ^
+object_int2 {S}     op->attacked_by_count = IVAL; ^
+object_int3 {S}     op->ownercount = IVAL; ^
+last_heal {S}       op->last_heal = IVAL; ^
+last_sp {S}         op->last_sp = IVAL; ^
+last_grace {S}      op->last_grace = IVAL; ^
+last_grace_add {S}  op->last_grace += IVAL; ^
+last_eat {S}        op->last_eat = IVAL; ^
+speed {S}           op->speed = FVAL;
+
+^speed_left {S}      op->speed_left = FVAL; ^
+slow_move {S}       SET_OR_CLEAR_FLAG(op, FLAG_SLOW_MOVE, IVAL); ^
+face {S}            {
+    int _face_ = find_face(yval(), 0);
+    op->face = &new_faces[_face_ ];
+
+    if (!_face_) {
+        logger_print(LOG(BUG), "Object %s - can't find face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+    }
+}^
+inv_face {S}        {
+    int _face_ = find_face(yval(), 0);
+    op->inv_face = &new_faces[_face_ ];
+
+    if (!_face_) {
+        logger_print(LOG(BUG), "Object %s - can't find inv_face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+    }
+}
+
+^str {S}             op->stats.Str = IVAL; ^
+dex {S}             op->stats.Dex = IVAL; ^
+con {S}             op->stats.Con = IVAL; ^
+wis {S}             op->stats.Wis = IVAL; ^
+cha {S}             op->stats.Cha = IVAL; ^
+int {S}             op->stats.Int = IVAL; ^
+pow {S}             op->stats.Pow = IVAL; ^
+hp {S}              op->stats.hp = IVAL; ^
+maxhp {S}           op->stats.maxhp = IVAL; ^
+sp {S}              op->stats.sp = IVAL; ^
+maxsp {S}           op->stats.maxsp = IVAL; ^
+exp {S}             op->stats.exp = atoll(yval()); ^
+food {S}            op->stats.food = IVAL; ^
+dam {S}             op->stats.dam = IVAL; ^
+dam_add {S}         op->stats.dam += IVAL; ^
+wc {S}              op->stats.wc = IVAL; ^
+wc_add {S}          op->stats.wc += IVAL; ^
+wc_range {S}        op->stats.wc_range = IVAL; ^
+wc_range_add {S}    op->stats.wc_range += IVAL; ^
+ac {S}              op->stats.ac = IVAL; ^
+ac_add {S}          op->stats.ac += IVAL; ^
+x {S}               op->x = IVAL; ^
+y {S}               op->y = IVAL; ^
+z {S}               op->z = IVAL; ^
+zoom {S}            op->zoom_x = op->zoom_y = IVAL; ^
+zoom_x {S}          op->zoom_x = IVAL; ^
+zoom_y {S}          op->zoom_y = IVAL; ^
+align {S}           op->align = IVAL; ^
+alpha {S}           op->alpha = IVAL; ^
+rotate {S}          op->rotate = IVAL; ^
+nrof {S}            op->nrof = atol(yval()); ^
+level {S}           op->level = IVAL; ^
+direction {S}       op->facing = op->anim_last_facing = op->direction = (IVAL % 9); ^
+type {S}            op->type = IVAL; ^
+material {S}        op->material = IVAL; ^
+value {S}           op->value = atoll(yval()); ^
+weight {S}          op->weight = atol(yval()); ^
+carrying {S}        op->carrying = atol(yval()); ^
+path_attuned {S}    op->path_attuned = IVAL; ^
+path_repelled {S}   op->path_repelled = IVAL; ^
+path_denied {S}     op->path_denied = IVAL; ^
+magic {S}           op->magic = IVAL; ^
+state {S}           op->state = IVAL; ^
+layer {S}           {
+    int val = IVAL;
+
+    op->layer = MAX(0, MIN(NUM_LAYERS, val));
+}^
+sub_layer {S}       {
+    int val = IVAL;
+
+    op->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, val));
+}^
+door_closed {S}     SET_OR_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL); ^
+cursed_perm {S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL); ^
+damned_perm {S}     SET_OR_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL); ^
+one_drop {S}        SET_OR_CLEAR_FLAG(op, FLAG_ONE_DROP, IVAL); ^
+is_trapped {S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_TRAPPED, IVAL); ^
+quest_item {S}      SET_OR_CLEAR_FLAG(op, FLAG_QUEST_ITEM, IVAL); ^
+player_only {S}     SET_OR_CLEAR_FLAG(op, FLAG_PLAYER_ONLY, IVAL); ^
+is_named {S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL); ^
+is_player {S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL); ^
+sys_object {S}      SET_OR_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL); ^
+generator {S}       {}^
+can_stack {S}       SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL); ^
+is_thrown {S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL); ^
+auto_apply {S}      SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL); ^
+is_ready {S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_READY, IVAL); ^
+treasure {S}        {}^
+is_assassin {S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL); ^
+is_spell {S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_SPELL, IVAL); ^
+is_missile {S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL); ^
+draw_direction {S}  SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL); ^
+draw_double {S}     SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL); ^
+draw_double_always {S} SET_OR_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL); ^
+see_invisible {S}   SET_OR_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL); ^
+make_invisible {S}  SET_OR_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL); ^
+make_ethereal {S}   SET_OR_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL); ^
+can_roll {S}        SET_OR_CLEAR_FLAG(op, FLAG_CAN_ROLL, IVAL); ^
+connect_reset {S}   SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_RESET, IVAL); ^
+is_turnable {S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_TURNABLE, IVAL); ^
+is_used_up {S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_USED_UP, IVAL); ^
+is_invisible {S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_INVISIBLE, IVAL); ^
+alive {S}           {}^
+applied {S}         SET_OR_CLEAR_FLAG(op, FLAG_APPLIED, IVAL); ^
+unpaid {S}          SET_OR_CLEAR_FLAG(op, FLAG_UNPAID, IVAL); ^
+hidden {S}          SET_OR_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL); ^
+no_pick {S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PICK, IVAL); ^
+no_pass {S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_PASS, IVAL); ^
+no_teleport {S}     SET_OR_CLEAR_FLAG(op, FLAG_NO_TELEPORT, IVAL); ^
+corpse {S}          SET_OR_CLEAR_FLAG(op, FLAG_CORPSE, IVAL); ^
+corpse_forced {S}   SET_OR_CLEAR_FLAG(op, FLAG_CORPSE_FORCED, IVAL);
+
+^walk_on {S}         SET_OR_CLEAR_FLAG(op, FLAG_WALK_ON, IVAL); ^
+walk_off {S}        SET_OR_CLEAR_FLAG(op, FLAG_WALK_OFF, IVAL); ^
+fly_on {S}          SET_OR_CLEAR_FLAG(op, FLAG_FLY_ON, IVAL); ^
+fly_off {S}         SET_OR_CLEAR_FLAG(op, FLAG_FLY_OFF, IVAL); ^
+is_animated {S}     SET_OR_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL); ^
+flying {S}          SET_OR_CLEAR_FLAG(op, FLAG_FLYING, IVAL); ^
+monster {S}         SET_OR_CLEAR_FLAG(op, FLAG_MONSTER, IVAL); ^
+no_attack {S}       SET_OR_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL); ^
+invulnerable {S}    SET_OR_CLEAR_FLAG(op, FLAG_INVULNERABLE, IVAL); ^
+friendly {S}        {
+    if (IVAL) {
+        SET_FLAG(op, FLAG_FRIENDLY);
+    }
+    else {
+        CLEAR_FLAG(op, FLAG_FRIENDLY);
+    }
+}^
+identified {S}      {
+    if (IVAL) {
+        SET_FLAG(op, FLAG_IDENTIFIED);
+    }
+    else {
+        CLEAR_FLAG(op, FLAG_IDENTIFIED);
+    }
+}^
+reflecting {S}      SET_OR_CLEAR_FLAG(op, FLAG_REFLECTING, IVAL); ^
+changing {S}        SET_OR_CLEAR_FLAG(op, FLAG_CHANGING, IVAL); ^
+splitting {S}       SET_OR_CLEAR_FLAG(op, FLAG_SPLITTING, IVAL); ^
+hitback {S}         SET_OR_CLEAR_FLAG(op, FLAG_HITBACK, IVAL); ^
+startequip {S}      SET_OR_CLEAR_FLAG(op, FLAG_STARTEQUIP, IVAL); ^
+blocksview {S}      SET_OR_CLEAR_FLAG(op, FLAG_BLOCKSVIEW, IVAL); ^
+undead {S}          SET_OR_CLEAR_FLAG(op, FLAG_UNDEAD, IVAL); ^
+scared {S}          SET_OR_CLEAR_FLAG(op, FLAG_SCARED, IVAL); ^
+unaggressive {S}    SET_OR_CLEAR_FLAG(op, FLAG_UNAGGRESSIVE, IVAL); ^
+reflect_missile {S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL); ^
+reflect_spell {S}   SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL); ^
+can_reflect_missile {S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL); ^
+can_reflect_spell {S} SET_OR_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL); ^
+no_magic {S}        SET_OR_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL); ^
+no_fix_player {S}   SET_OR_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL); ^
+tear_down {S}       {}^
+luck {S}            {}^
+run_away {S}        op->run_away = IVAL; ^
+pass_thru {S}       SET_OR_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL); ^
+can_pass_thru {S}   SET_OR_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL); ^
+anim_speed {S}      op->anim_speed = IVAL; ^
+container {S}       op->weight_limit = IVAL; ^
+no_drop {S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_DROP, IVAL); ^
+behavior {S}        op->behavior = IVAL; ^
+use_fix_pos {S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL); ^
+is_ethereal {S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL); ^
+two_handed {S}      SET_OR_CLEAR_FLAG(op, FLAG_TWO_HANDED, IVAL); ^
+can_cast_spell {S}  SET_OR_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL); ^
+can_use_scroll {S}  {}^
+can_use_range {S}   {}^
+can_use_bow {S}     SET_OR_CLEAR_FLAG(op, FLAG_USE_BOW, IVAL); ^
+can_use_armour {S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL); ^
+can_use_weapon {S}  SET_OR_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL); ^
+can_use_ring {S}    {}^
+has_ready_range {S} {}^
+has_ready_bow {S}   SET_OR_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL); ^
+xrays {S}           SET_OR_CLEAR_FLAG(op, FLAG_XRAYS, IVAL); ^
+no_save {S}         SET_OR_CLEAR_FLAG(op, FLAG_NO_SAVE, IVAL); ^
+is_floor {S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_FLOOR, IVAL); ^
+is_male {S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_MALE, IVAL); ^
+is_female {S}       SET_OR_CLEAR_FLAG(op, FLAG_IS_FEMALE, IVAL); ^
+is_evil {S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_EVIL, IVAL); ^
+is_good {S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_GOOD, IVAL); ^
+is_neutral {S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_NEUTRAL, IVAL); ^
+lifesave {S}        SET_OR_CLEAR_FLAG(op, FLAG_LIFESAVE, IVAL); ^
+sleep {S}           SET_OR_CLEAR_FLAG(op, FLAG_SLEEP, IVAL); ^
+stand_still {S}     SET_OR_CLEAR_FLAG(op, FLAG_STAND_STILL, IVAL); ^
+random_move {S}     SET_OR_CLEAR_FLAG(op, FLAG_RANDOM_MOVE, IVAL); ^
+only_attack {S}     SET_OR_CLEAR_FLAG(op, FLAG_ONLY_ATTACK, IVAL); ^
+berserk {S}         SET_OR_CLEAR_FLAG(op, FLAG_BERSERK, IVAL); ^
+is_magical {S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
+
+^connect_no_push {S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_PUSH, IVAL); ^
+connect_no_release {S} SET_OR_CLEAR_FLAG(op, FLAG_CONNECT_NO_RELEASE, IVAL);
+
+/* Start of various attacktypes */
+^attack_impact {S}   SET_ATTACK(op, ATNR_IMPACT, IVAL); ^
+attack_slash {S}    SET_ATTACK(op, ATNR_SLASH, IVAL); ^
+attack_cleave {S}   SET_ATTACK(op, ATNR_CLEAVE, IVAL); ^
+attack_pierce {S}   SET_ATTACK(op, ATNR_PIERCE, IVAL); ^
+attack_weaponmagic {S}    SET_ATTACK(op, ATNR_WEAPON_MAGIC, IVAL);
+
+^attack_fire {S}     SET_ATTACK(op, ATNR_FIRE, IVAL); ^
+attack_cold {S}     SET_ATTACK(op, ATNR_COLD, IVAL); ^
+attack_electricity {S} SET_ATTACK(op, ATNR_ELECTRICITY, IVAL); ^
+attack_poison {S}   SET_ATTACK(op, ATNR_POISON, IVAL); ^
+attack_acid {S}     SET_ATTACK(op, ATNR_ACID, IVAL);
+
+^attack_magic {S}    SET_ATTACK(op, ATNR_MAGIC, IVAL); ^
+attack_mind {S}     SET_ATTACK(op, ATNR_MIND, IVAL); ^
+attack_blind {S}    SET_ATTACK(op, ATNR_BLIND, IVAL); ^
+attack_paralyze {S} SET_ATTACK(op, ATNR_PARALYZE, IVAL); ^
+attack_force {S}    SET_ATTACK(op, ATNR_FORCE, IVAL);
+
+^attack_godpower {S} SET_ATTACK(op, ATNR_GODPOWER, IVAL); ^
+attack_chaos {S}    SET_ATTACK(op, ATNR_CHAOS, IVAL); ^
+attack_drain {S}    SET_ATTACK(op, ATNR_DRAIN, IVAL); ^
+attack_slow {S}     SET_ATTACK(op, ATNR_SLOW, IVAL); ^
+attack_confusion {S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
+
+^attack_internal {S} SET_ATTACK(op, ATNR_INTERNAL, IVAL);
+
+/* The following attack types are deprecated and are here
+ * for backwards compatibility. */
+^attack_psionic {S}  set_random_attack(op, IVAL); ^
+attack_sonic {S}    set_random_attack(op, IVAL); ^
+attack_demonic {S}  set_random_attack(op, IVAL); ^
+attack_counterspell {S} set_random_attack(op, IVAL); ^
+attack_purity {S}   set_random_attack(op, IVAL); ^
+attack_life_steal {S} set_random_attack(op, IVAL); ^
+attack_death {S}    set_random_attack(op, IVAL); ^
+attack_time {S}     set_random_attack(op, IVAL); ^
+attack_fear {S}     set_random_attack(op, IVAL); ^
+attack_cancellation {S} set_random_attack(op, IVAL); ^
+attack_depletion {S} set_random_attack(op, IVAL); ^
+attack_ghosthit {S} set_random_attack(op, IVAL);
+
+/* All these resists are deprecated and are here for
+ * backwards compatibility. */
+^resist_impact {S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL); ^
+resist_magic {S}    SET_PROTECTION(op, ATNR_MAGIC, IVAL); ^
+resist_fire {S}     SET_PROTECTION(op, ATNR_FIRE, IVAL); ^
+resist_electricity {S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL); ^
+resist_cold {S}     SET_PROTECTION(op, ATNR_COLD, IVAL); ^
+resist_confusion {S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL); ^
+resist_acid {S}     SET_PROTECTION(op, ATNR_ACID, IVAL); ^
+resist_drain {S}    SET_PROTECTION(op, ATNR_DRAIN, IVAL); ^
+resist_weaponmagic {S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL); ^
+resist_ghosthit {S} set_random_protection(op, IVAL); ^
+resist_poison {S}   SET_PROTECTION(op, ATNR_POISON, IVAL); ^
+resist_slow {S}     set_random_protection(op, IVAL); ^
+resist_paralyze {S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL); ^
+resist_time {S}     set_random_protection(op, IVAL); ^
+resist_fear {S}     set_random_protection(op, IVAL); ^
+resist_cancellation {S} set_random_protection(op, IVAL); ^
+resist_depletion {S} set_random_protection(op, IVAL); ^
+resist_death {S}    set_random_protection(op, IVAL); ^
+resist_chaos {S}    SET_PROTECTION(op, ATNR_CHAOS, IVAL); ^
+resist_counterspell {S} set_random_protection(op, IVAL); ^
+resist_godpower {S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL); ^
+resist_purity {S}   set_random_protection(op, IVAL); ^
+resist_blind {S}    SET_PROTECTION(op, ATNR_BLIND, IVAL); ^
+resist_internal {S} set_random_protection(op, IVAL); ^
+resist_life_steal {S} set_random_protection(op, IVAL); ^
+resist_slash {S}    SET_PROTECTION(op, ATNR_SLASH, IVAL); ^
+resist_cleave {S}   SET_PROTECTION(op, ATNR_CLEAVE, IVAL); ^
+resist_pierce {S}   SET_PROTECTION(op, ATNR_PIERCE, IVAL); ^
+resist_nether {S}   set_random_protection(op, IVAL); ^
+resist_sonic {S}    set_random_protection(op, IVAL); ^
+resist_demonic {S}  set_random_protection(op, IVAL); ^
+resist_psionic {S}  set_random_protection(op, IVAL);
+
+/* Start of various protections */
+^protect_impact {S}  SET_PROTECTION(op, ATNR_IMPACT, IVAL); ^
+protect_slash {S}   SET_PROTECTION(op, ATNR_SLASH, IVAL); ^
+protect_cleave {S}  SET_PROTECTION(op, ATNR_CLEAVE, IVAL); ^
+protect_pierce {S}  SET_PROTECTION(op, ATNR_PIERCE, IVAL); ^
+protect_weaponmagic {S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
+
+^protect_fire {S}    SET_PROTECTION(op, ATNR_FIRE, IVAL); ^
+protect_cold {S}    SET_PROTECTION(op, ATNR_COLD, IVAL); ^
+protect_electricity {S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL); ^
+protect_poison {S}  SET_PROTECTION(op, ATNR_POISON, IVAL); ^
+protect_acid {S}    SET_PROTECTION(op, ATNR_ACID, IVAL);
+
+^protect_magic {S}   SET_PROTECTION(op, ATNR_MAGIC, IVAL); ^
+protect_mind {S}    SET_PROTECTION(op, ATNR_MIND, IVAL); ^
+protect_blind {S}   SET_PROTECTION(op, ATNR_BLIND, IVAL); ^
+protect_paralyze {S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL); ^
+protect_force {S}   SET_PROTECTION(op, ATNR_FORCE, IVAL);
+
+^protect_godpower {S} SET_PROTECTION(op, ATNR_GODPOWER, IVAL); ^
+protect_chaos {S}   SET_PROTECTION(op, ATNR_CHAOS, IVAL); ^
+protect_drain {S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL); ^
+protect_slow {S} SET_PROTECTION(op, ATNR_SLOW, IVAL); ^
+protect_confusion {S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
+
+^protect_internal {S} SET_PROTECTION(op, ATNR_INTERNAL, IVAL);
+
+/* The following protections are deprecated, and are here only
+ * for backwards compatibility. */
+^protect_body {S} SET_PROTECTION(op, ATNR_BLIND, IVAL); ^
+protect_psionic {S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL); ^
+protect_corruption {S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL); ^
+protect_spiritual {S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL); ^
+protect_death {S}   SET_PROTECTION(op, ATNR_DRAIN, IVAL);
+
+^movement_type {S}   op->move_type = IVAL; ^
+attack_move_type {S} op->attack_move_type = IVAL;
+
+^move_state {S}      op->move_status = IVAL; ^
+confused {S}        SET_OR_CLEAR_FLAG(op, FLAG_CONFUSED, IVAL); ^
+stealth {S}         SET_OR_CLEAR_FLAG(op, FLAG_STEALTH, IVAL); ^
+connected {S}       connection_object_add(op, op->map, IVAL); ^
+cursed {S}          SET_OR_CLEAR_FLAG(op, FLAG_CURSED, IVAL); ^
+damned {S}          SET_OR_CLEAR_FLAG(op, FLAG_DAMNED, IVAL); ^
+is_buildable {S}    SET_OR_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL); ^
+no_pvp {S}          SET_OR_CLEAR_FLAG(op, FLAG_NO_PVP, IVAL); ^
+known_magical {S}   { /* Deprecated. */}^
+known_cursed {S}    { /* Deprecated. */}^
+attacktype {S}      { /* Deprecated. */}^
+can_use_skill {S}   {}^
+been_applied {S}    SET_OR_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL); ^
+title {S}           {
+    char *y = yval();
+
+    if (*y == '\0') {
+        logger_print(LOG(BUG), "Title without value.");
+    }
+    else {
+        FREE_AND_COPY_HASH(op->title, y);
+
+        if (op->title == shstr_cons.NONE) {
+            FREE_AND_CLEAR_HASH(op->title);
+        }
+    }
+}^
+outdoor {S}         SET_OR_CLEAR_FLAG(op, FLAG_OUTDOOR, IVAL); ^
+unique {S}          SET_OR_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL); ^
+inv_locked {S}      SET_OR_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL); ^
+is_wooded {S}       {}^
+is_hilly {S}        {}^
+has_ready_skill {S} {}^
+has_ready_weapon {S} SET_OR_CLEAR_FLAG(op, FLAG_READY_WEAPON, IVAL); ^
+no_skill_ident {S}  SET_OR_CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL); ^
+glow_radius {S}     op->glow_radius = IVAL; ^
+is_blind {S}        SET_OR_CLEAR_FLAG(op, FLAG_BLIND, IVAL); ^
+can_see_in_dark {S} SET_OR_CLEAR_FLAG(op, FLAG_SEE_IN_DARK, IVAL); ^
+is_cauldron {S}     SET_OR_CLEAR_FLAG(op, FLAG_IS_CAULDRON, IVAL); ^
+randomitems {S}     op->randomitems = find_treasurelist(yval()); ^
+is_dust {S}         SET_OR_CLEAR_FLAG(op, FLAG_DUST, IVAL); ^
+no_steal {S}        {}^
+one_hit {S}         SET_OR_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
+
+^is_vul_elemental {S} {}^
+is_proof_elemental {S} {}^
+is_vul_magic {S}    {}^
+is_proof_magic {S}  {}^
+is_vul_physical {S} {}^
+is_proof_physical {S} {}^
+is_vul_sphere {S}   {}^
+is_proof_sphere {S} {}^
+is_indestructible {S} SET_OR_CLEAR_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
+
+/* Ignore editor_folder values. */
+^editor_folder {S}   {}^
+sub_type {S}        op->sub_type = IVAL; ^
+terrain_flag {S}    op->terrain_flag = IVAL; ^
+terrain_type {S}    op->terrain_type = IVAL; ^
+item_quality {S}    op->item_quality = IVAL; ^
+item_condition {S}  op->item_condition = IVAL; ^
+item_race {S}       op->item_race = IVAL; ^
+item_skill {S}      op->item_skill = IVAL; ^
+item_level {S}      op->item_level = IVAL; ^
+item_level_art {S}  {
+    /* Artifact list token - Never use in real arches or maps. */
+    int ival_tmp = IVAL;
+
+    /* When we have an artifact which has a minimum use level of 10
+     * but we give it a mithril armour of default use level 50,
+     * we will create artifact mithril armour usable for level 10!
+     * This code prevents such things from happening. */
+    if (ival_tmp <= 0) {
+        op->item_level = -ival_tmp;
+    }
+    else if (ival_tmp > op->item_level) {
+        op->item_level = ival_tmp;
+    }
+}^
+material_real {S}   {
+    op->material_real = IVAL;
+
+    if (!op->item_quality) {
+        op->item_quality = material_real[op->material_real].quality;
+        op->item_condition = op->item_quality;
+    }
+}^
+mpart_id {S}        op->quick_pos |= (((char) IVAL) << 4); ^
+mpart_nr {S}        op->quick_pos |= (char) IVAL; ^
+weapon_speed {S}    {
+    op->weapon_speed = FVAL;
+    op->weapon_speed_left = 0;
+}^
+item_power {S}      op->item_power = IVAL;
+
+/* Ignore empty lines, newlines we don't do above */
 <*>(^{WS})|{NL}     {}
-#.*{NL}             {}
+#.* {NL}             {}
 
-<<EOF>>             {
-						/* If we got an error, return the error.  Otherwise, return that we got EOF */
-						if (lex_error != 0)
-						{
-							return lex_error;
-						}
-						else
-						{
-							return LL_EOF;
-						}
-                    }
-.*                  {
-						add_key_value(op);
-                    }
-%%
+    <<EOF>>             {
+    /* If we got an error, return the error.  Otherwise, return that we got EOF
+     * */
+    if (lex_error != 0) {
+        return lex_error;
+    }
+    else {
+        return LL_EOF;
+    }
+    }
+    .*{
+    add_key_value(op);
+    }%
+    %
 
 /**
  * Used to report an error when parsing object data.
  * @param s The error to report.
  * @return Always returns -1. */
-int yyerror(char *s)
-{
-	logger_print(LOG(BUG), "%s: %s", s, yytext);
-	return -1;
-}
+    int yyerror(char *s)
+        {
+        logger_print(LOG(BUG), "%s: %s", s, yytext);
+        return -1;
+    }
 
 /**
  * Returns the next token for lex.
@@ -902,74 +852,66 @@ int yyerror(char *s)
  *
  * This skips over the space and returns the value, or "" if no value is
  * found. */
-static char *yval(void)
-{
-	static char *em = "";
-	char *cp, *end;
-	size_t len = yyleng;
+    static char *yval(void)
+        {
+        static char *em = "";
+        char *cp, *end;
+        size_t len = yyleng;
 
-	/* First skip over start of line, like animation or name */
-	for (cp = yytext; *cp != ' '; cp++, len--)
-	{
-		if (*cp == '\0')
-		{
-			return em;
-		}
-	}
+        /* First skip over start of line, like animation or name */
+        for (cp = yytext; *cp != ' '; cp++, len--) {
+            if (*cp == '\0') {
+                return em;
+            }
+        }
 
-	/* Skip over whitespace */
-	for (; *cp == ' '; cp++, len--)
-	{
-		if (*cp == '\0')
-		{
-			return em;
-		}
-	}
+        /* Skip over whitespace */
+        for (; *cp == ' '; cp++, len--) {
+            if (*cp == '\0') {
+                return em;
+            }
+        }
 
-	/* Get last character before null and strip
-	 * off trailing whitespace. */
-	for (end = cp + len - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--)
-	{
-		if (end == cp)
-		{
-			return em;
-		}
+        /* Get last character before null and strip
+         * off trailing whitespace. */
+        for (end = cp + len - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--) {
+            if (end == cp) {
+                return em;
+            }
 
-		*end = '\0';
-	}
+            *end = '\0';
+        }
 
-	return cp;
-}
+        return cp;
+    }
 
 /**
  * Frees all memory allocated by the object loader. */
-void free_object_loader(void)
-{
-	yylex_destroy();
-}
+    void free_object_loader(void)
+        {
+        yylex_destroy();
+    }
 
 /* Buffer functions - needed to make load_object() recursive save. */
-void delete_loader_buffer(void *buffer)
-{
-	if (buffer)
-	{
-		yy_delete_buffer(buffer);
-	}
-	else
-	{
-		yy_delete_buffer(YY_CURRENT_BUFFER);
-	}
+    void delete_loader_buffer(void *buffer)
+        {
+        if (buffer) {
+            yy_delete_buffer(buffer);
+        }
+        else {
+            yy_delete_buffer(YY_CURRENT_BUFFER);
+        }
 
-	cur_buffer = NULL;
-}
+        cur_buffer = NULL;
+    }
 
-void *create_loader_buffer(void *fp)
-{
-	cur_buffer = yy_create_buffer(fp, YY_BUF_SIZE);
-	yy_switch_to_buffer(cur_buffer);
+    void *create_loader_buffer(void *fp)
+        {
+        cur_buffer = yy_create_buffer(fp, YY_BUF_SIZE);
+        yy_switch_to_buffer(cur_buffer);
 
-	return cur_buffer;
-}
+        return cur_buffer;
+    }
 
 /**
  * Loads an object from the given file-pointer.
@@ -986,165 +928,144 @@ void *create_loader_buffer(void *fp)
  * - LO_NEWFILE (2): Disabled.
  * - LO_NOREAD (3): Disabled.
  * - LO_MEMORYMODE (4): Read from a memory buffer instead of a file. */
-int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags)
-{
-	int retval = 0;
-	float old_sleft;
-	char inbuf[HUGE_BUF];
-	object *items[MAXDEPTH];
-	int depth = 0;
+    int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags)
+        {
+        int retval = 0;
+        float old_sleft;
+        char inbuf[HUGE_BUF];
+        object *items[MAXDEPTH];
+        int depth = 0;
 
-	/* At this point we perhaps have an "arch" parse or an "object" parse
-	 * - we don't know. "arch" parse means, arches are loaded - we hit an
-	 * arch command and pre-load our object data - then we go on and
-	 * parse the difference in.
-	 *
-	 * If we hit an "object" command, we had outside this function
-	 * pre-loaded the arch.
-	 *
-	 * In the first case, the next two values are undefined - in the last
-	 * case, these values are the arch pre sets. We need to track this
-	 * down to adjust for the "real in-game" object the right speed and
-	 * speed_left. */
-	old_sleft = op->speed_left;
-	/* We assume an "arch" load as default */
-	object_load_flag = 0;
+        /* At this point we perhaps have an "arch" parse or an "object" parse
+         * - we don't know. "arch" parse means, arches are loaded - we hit an
+         * arch command and pre-load our object data - then we go on and
+         * parse the difference in.
+         *
+         * If we hit an "object" command, we had outside this function
+         * pre-loaded the arch.
+         *
+         * In the first case, the next two values are undefined - in the last
+         * case, these values are the arch pre sets. We need to track this
+         * down to adjust for the "real in-game" object the right speed and
+         * speed_left. */
+        old_sleft = op->speed_left;
+        /* We assume an "arch" load as default */
+        object_load_flag = 0;
 
-	items[0] = op;
-	art_amask = NULL;
+        items[0] = op;
+        art_amask = NULL;
 
-	if (bufstate == LO_REPEAT)
-	{
-		/* be sure we work on the right buffer */
-		if (cur_buffer != mybuffer)
-		{
-			cur_buffer = mybuffer;
-			yy_switch_to_buffer(mybuffer);
-		}
+        if (bufstate == LO_REPEAT) {
+            /* be sure we work on the right buffer */
+            if (cur_buffer != mybuffer) {
+                cur_buffer = mybuffer;
+                yy_switch_to_buffer(mybuffer);
+            }
 
-		retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-	}
-	else if (bufstate == LO_MEMORYMODE)
-	{
-		char *strptr = (char *) fp;
-		YY_BUFFER_STATE yybufstate;
-		int lcount = 0;
+            retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
+        }
+        else if (bufstate == LO_MEMORYMODE) {
+            char *strptr = (char *) fp;
+            YY_BUFFER_STATE yybufstate;
+            int lcount = 0;
 
-		/* We are object load but object is not called */
-		object_load_flag = 1;
+            /* We are object load but object is not called */
+            object_load_flag = 1;
 
-		/* We can be sure this will work - InitArtifact has tested this
-		 * before. */
-		while (1)
-		{
-			strptr += lcount;
-			/* We can even put this value at string start to save the
-			 * strlen */
-			lcount = strlen(strptr) + 1;
-			yybufstate = yy_scan_string(strptr);
-			/* Hopefully we have here an "end" - or we stay in this while
-			 * for a bit. */
-			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-			yy_delete_buffer(yybufstate);
+            /* We can be sure this will work - InitArtifact has tested this
+             * before. */
+            while (1) {
+                strptr += lcount;
+                /* We can even put this value at string start to save the
+                 * strlen */
+                lcount = strlen(strptr) + 1;
+                yybufstate = yy_scan_string(strptr);
+                /* Hopefully we have here an "end" - or we stay in this while
+                 * for a bit. */
+                retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
+                yy_delete_buffer(yybufstate);
 
-			if (retval == LL_NORMAL)
-			{
-				break;
-			}
-		}
+                if (retval == LL_NORMAL) {
+                    break;
+                }
+            }
 
-		/* Be sure we work on the right buffer */
-		if (cur_buffer)
-		{
-			yy_switch_to_buffer(cur_buffer);
-		}
-	}
-	else
-	{
-		YY_BUFFER_STATE yybufstate;
+            /* Be sure we work on the right buffer */
+            if (cur_buffer) {
+                yy_switch_to_buffer(cur_buffer);
+            }
+        }
+        else {
+            YY_BUFFER_STATE yybufstate;
 
-		while (fgets(inbuf, sizeof(inbuf) - 3, (FILE *) fp))
-		{
-			yybufstate = yy_scan_string(inbuf);
-			retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
-			yy_delete_buffer(yybufstate);
+            while (fgets(inbuf, sizeof(inbuf) - 3, (FILE *) fp)) {
+                yybufstate = yy_scan_string(inbuf);
+                retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
+                yy_delete_buffer(yybufstate);
 
-			if (retval == LL_NORMAL)
-			{
-				/* Be sure we work on the right buffer */
-				if (cur_buffer)
-				{
-					yy_switch_to_buffer(cur_buffer);
-				}
+                if (retval == LL_NORMAL) {
+                    /* Be sure we work on the right buffer */
+                    if (cur_buffer) {
+                        yy_switch_to_buffer(cur_buffer);
+                    }
 
-				if (depth == 0)
-				{
-					return retval;
-				}
-				else
-				{
-					depth--;
-				}
-			}
-		}
+                    if (depth == 0) {
+                        return retval;
+                    }
+                    else {
+                        depth--;
+                    }
+                }
+            }
 
-		logger_print(LOG(DEBUG), "Got EOF while scanning strings (%d)", retval);
+            logger_print(LOG(DEBUG), "Got EOF while scanning strings (%d)", retval);
 
-		/* Be sure we work on the right buffer */
-		if (cur_buffer)
-		{
-			yy_switch_to_buffer(cur_buffer);
-		}
+            /* Be sure we work on the right buffer */
+            if (cur_buffer) {
+                yy_switch_to_buffer(cur_buffer);
+            }
 
-		return LL_EOF;
-	}
+            return LL_EOF;
+        }
 
-	/* OK, now we have our old speed values and our new ones. */
-	if (!(map_flags & MAP_STYLE))
-	{
-		/* If set, our old speed values comes from a valid source
-		 * (arches?) outside. */
-		if (object_load_flag)
-		{
-			/* Only change something if we:
-			 *  1. Don't have speed_left set in the loading, or
-			 *  2. We have negative speed. */
-			if (old_sleft == op->speed_left && op->speed < 0.0f)
-			{
-				/* If we now have a negative speed, use default arch
-				 * speed left for new random set */
-				if (op->speed < 0.0f)
-				{
-					op->speed_left = op->speed_left + (float) (RANDOM() % 90) / 100.0f;
-				}
-			}
-		}
-		/* arch load... perhaps a map */
-		else
-		{
-			/* Only do this when we have not loaded a fix speed_left and
-			 * speed is lower than zero. */
-			if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left)
-			{
-				op->speed_left = op->speed_left + (float)(RANDOM() % 90) / 100.0f;
-			}
-		}
+        /* OK, now we have our old speed values and our new ones. */
+        if (!(map_flags & MAP_STYLE)) {
+            /* If set, our old speed values comes from a valid source
+             * (arches?) outside. */
+            if (object_load_flag) {
+                /* Only change something if we:
+                 *  1. Don't have speed_left set in the loading, or
+                 *  2. We have negative speed. */
+                if (old_sleft == op->speed_left && op->speed < 0.0f) {
+                    /* If we now have a negative speed, use default arch
+                     * speed left for new random set */
+                    if (op->speed < 0.0f) {
+                        op->speed_left = op->speed_left + (float) (RANDOM() % 90) / 100.0f;
+                    }
+                }
+            }
+            /* arch load... perhaps a map */
+            else {
+                /* Only do this when we have not loaded a fix speed_left and
+                 * speed is lower than zero. */
+                if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left) {
+                    op->speed_left = op->speed_left + (float)(RANDOM() % 90) / 100.0f;
+                }
+            }
 
-		if (art_amask)
-		{
-			give_artifact_abilities(op, art_amask);
-		}
+            if (art_amask) {
+                give_artifact_abilities(op, art_amask);
+            }
 
-		update_ob_speed(op);
+            update_ob_speed(op);
 
-		if (object_initializers[op->type])
-		{
-			object_initializers[op->type](op);
-		}
-	}
+            if (object_initializers[op->type]) {
+                object_initializers[op->type](op);
+            }
+        }
 
-	return retval;
-}
+        return retval;
+    }
 
 /**
  * This takes a buffer, scans it for variables, and sets those variables
@@ -1154,42 +1075,41 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
  * values.
  * @param op Object to alter.
  * @param buf Modifications to apply. */
-int set_variable(object *op, const char *buf)
-{
-	YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
-	int retval, depth;
-	object *items[MAXDEPTH];
+    int set_variable(object *op, const char *buf)
+        {
+        YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
+        int retval, depth;
+        object *items[MAXDEPTH];
 
-	yy_push_state(INITIAL);
-	yybufstate = yy_scan_string(buf);
+        yy_push_state(INITIAL);
+        yybufstate = yy_scan_string(buf);
 
-	items[0] = op;
-	depth = 0;
-	retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
+        items[0] = op;
+        depth = 0;
+        retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
 
-	if (yycurbuf)
-	{
-		yy_switch_to_buffer(yycurbuf);
-	}
+        if (yycurbuf) {
+            yy_switch_to_buffer(yycurbuf);
+        }
 
-	yy_delete_buffer(yybufstate);
-	yy_pop_state();
+        yy_delete_buffer(yybufstate);
+        yy_pop_state();
 
-	return retval;
-}
+        return retval;
+    }
 
 /** Adds a line to the buffer. */
-#define ADD_STRINGLINE_ENTRY(sb__, entryname__, entryvalue__) do {\
-	stringbuffer_append_string(sb__, entryname__);\
-	stringbuffer_append_string(sb__, entryvalue__);\
-	stringbuffer_append_string(sb__, "\n");\
-	} while (0)
+#define ADD_STRINGLINE_ENTRY(sb__, entryname__, entryvalue__) do { \
+        stringbuffer_append_string(sb__, entryname__); \
+        stringbuffer_append_string(sb__, entryvalue__); \
+        stringbuffer_append_string(sb__, "\n"); \
+} while (0)
 /** Adds a long to the buffer.  entryname__ must have a space at the end. */
 #define FAST_SAVE_LONG(sb__, entryname__, entryvalue__) \
-	stringbuffer_append_printf(sb__, "%s%ld\n", entryname__, (long int) entryvalue__)
+    stringbuffer_append_printf(sb__, "%s%ld\n", entryname__, (long int) entryvalue__)
 /** Adds a double to the buffer. entryname__ must have a space at the end. */
 #define FAST_SAVE_DOUBLE(sb__, entryname__, entryvalue__) \
-	stringbuffer_append_printf(sb__, "%s%f\n", entryname__, entryvalue__)
+    stringbuffer_append_printf(sb__, "%s%f\n", entryname__, entryvalue__)
 
 /**
  * Get difference between two objects, and save it in StringBuffer.
@@ -1199,523 +1119,424 @@ int set_variable(object *op, const char *buf)
  * @param sb String buffer to modify.
  * @param op What object the different values will be taken from.
  * @param op2 Object's original archetype. */
-void get_ob_diff(StringBuffer *sb, object *op, object *op2)
-{
-	key_value *my_field, *arch_field;
-	int tmp;
-
-	/* This saves the key/value lists. We do it first so that any
-	 * keys that match field names will be overwritten by the loader. */
-	for (my_field = op->key_values; my_field; my_field = my_field->next)
-	{
-		/* Find the field in the opposing member. */
-		arch_field = object_get_key_link(op2, my_field->key);
-
-		/* If there's no partnering field, or it's got a different value,
-		 * save our field. */
-		if (arch_field == NULL || my_field->value != arch_field->value)
-		{
-			stringbuffer_append_string(sb, my_field->key);
-			stringbuffer_append_string(sb, " ");
-
-			if (my_field->value)
-			{
-				stringbuffer_append_string(sb, my_field->value);
-			}
-
-			stringbuffer_append_string(sb, "\n");
-		}
-	}
-
-	if (op->name && op->name != op2->name)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "name ", op->name);
-	}
-
-	if (op->custom_name && op->custom_name != op2->custom_name)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "custom_name ", op->custom_name);
-	}
-
-	if (op->title && op->title != op2->title)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "title ", op->title);
-	}
-
-	if (op->race && op->race != op2->race)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "race ", op->race);
-	}
-
-	if (op->slaying && op->slaying != op2->slaying)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "slaying ", op->slaying);
-	}
-
-	if (op->msg && op->msg != op2->msg)
-	{
-		stringbuffer_append_string(sb, "msg\n");
-		stringbuffer_append_string(sb, op->msg);
-		stringbuffer_append_string(sb, "\nendmsg\n");
-	}
-
-	if (op->artifact && op->artifact != op2->artifact)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "artifact ", op->artifact);
-	}
-
-	if (op->other_arch != op2->other_arch && op->other_arch != NULL && op->other_arch->name)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "other_arch ", op->other_arch->name);
-	}
-
-	if (op->face != op2->face)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "face ", op->face->name);
-	}
-
-	if (op->inv_face != op2->inv_face)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "inv_face ", op->inv_face->name);
-	}
-
-	if (op->animation_id != op2->animation_id)
-	{
-		if (op->animation_id)
-		{
-			ADD_STRINGLINE_ENTRY(sb, "animation ", animations[GET_ANIM_ID(op)].name);
-		}
-		else
-		{
-			stringbuffer_append_string(sb, "animation NONE\n");
-		}
-	}
-
-	if (op->inv_animation_id != op2->inv_animation_id)
-	{
-		if (op->inv_animation_id)
-		{
-			ADD_STRINGLINE_ENTRY(sb, "inv_animation ", animations[GET_INV_ANIM_ID(op)].name);
-		}
-		else
-		{
-			stringbuffer_append_string(sb, "inv_animation NONE\n");
-		}
-	}
-
-	if (op->anim_speed != op2->anim_speed)
-	{
-		FAST_SAVE_LONG(sb, "anim_speed ", op->anim_speed);
-	}
-
-	if (op->stats.wc_range != op2->stats.wc_range)
-	{
-		FAST_SAVE_LONG(sb, "wc_range ", op->stats.wc_range);
-	}
-
-	if (op->stats.Str != op2->stats.Str)
-	{
-		FAST_SAVE_LONG(sb, "Str ", op->stats.Str);
-	}
-
-	if (op->stats.Dex != op2->stats.Dex)
-	{
-		FAST_SAVE_LONG(sb, "Dex ", op->stats.Dex);
-	}
-
-	if (op->stats.Con != op2->stats.Con)
-	{
-		FAST_SAVE_LONG(sb, "Con ", op->stats.Con);
-	}
-
-	if (op->stats.Wis != op2->stats.Wis)
-	{
-		FAST_SAVE_LONG(sb, "Wis ", op->stats.Wis);
-	}
-
-	if (op->stats.Pow != op2->stats.Pow)
-	{
-		FAST_SAVE_LONG(sb, "Pow ", op->stats.Pow);
-	}
-
-	if (op->stats.Cha != op2->stats.Cha)
-	{
-		FAST_SAVE_LONG(sb, "Cha ", op->stats.Cha);
-	}
-
-	if (op->stats.Int != op2->stats.Int)
-	{
-		FAST_SAVE_LONG(sb, "Int ", op->stats.Int);
-	}
-
-	if (op->stats.hp != op2->stats.hp)
-	{
-		FAST_SAVE_LONG(sb, "hp ", op->stats.hp);
-	}
-
-	if (op->stats.maxhp != op2->stats.maxhp)
-	{
-		FAST_SAVE_LONG(sb, "maxhp ", op->stats.maxhp);
-	}
-
-	if (op->stats.sp != op2->stats.sp)
-	{
-		FAST_SAVE_LONG(sb, "sp ", op->stats.sp);
-	}
-
-	if (op->stats.maxsp != op2->stats.maxsp)
-	{
-		FAST_SAVE_LONG(sb, "maxsp ", op->stats.maxsp);
-	}
-
-	if (op->stats.exp != op2->stats.exp)
-	{
-		stringbuffer_append_printf(sb, "exp %"FMT64"\n", op->stats.exp);
-	}
-
-	if (op->stats.food != op2->stats.food)
-	{
-		FAST_SAVE_LONG(sb, "food ", op->stats.food);
-	}
-
-	if (op->stats.dam != op2->stats.dam)
-	{
-		FAST_SAVE_LONG(sb, "dam ", op->stats.dam);
-	}
-
-	if (op->stats.wc != op2->stats.wc)
-	{
-		FAST_SAVE_LONG(sb, "wc ", op->stats.wc);
-	}
-
-	if (op->stats.ac != op2->stats.ac)
-	{
-		FAST_SAVE_LONG(sb, "ac ", op->stats.ac);
-	}
-
-	if (op->x != op2->x)
-	{
-		FAST_SAVE_LONG(sb, "x ", op->x);
-	}
-
-	if (op->z != op2->z)
-	{
-		FAST_SAVE_LONG(sb, "z ", op->z);
-	}
-
-	if (op->y != op2->y)
-	{
-		FAST_SAVE_LONG(sb, "y ", op->y);
-	}
-
-	if (op->zoom_x != op2->zoom_x)
-	{
-		FAST_SAVE_LONG(sb, "zoom_x ", op->zoom_x);
-	}
-
-	if (op->zoom_y != op2->zoom_y)
-	{
-		FAST_SAVE_LONG(sb, "zoom_y ", op->zoom_y);
-	}
-
-	if (op->align != op2->align)
-	{
-		FAST_SAVE_LONG(sb, "align ", op->align);
-	}
-
-	if (op->alpha != op2->alpha)
-	{
-		FAST_SAVE_LONG(sb, "alpha ", op->alpha);
-	}
-
-	if (op->rotate != op2->rotate)
-	{
-		FAST_SAVE_LONG(sb, "rotate ", op->rotate);
-	}
-
-	if (op->speed != op2->speed)
-	{
-		FAST_SAVE_DOUBLE(sb, "speed ", op->speed);
-	}
-
-	if (op->speed_left != op2->speed_left || op->speed_left)
-	{
-		FAST_SAVE_DOUBLE(sb, "speed_left ", op->speed_left);
-	}
-
-	if (op->material_real != op2->material_real)
-	{
-		FAST_SAVE_LONG(sb, "material_real ", op->material_real);
-	}
-
-	if (op->sub_type != op2->sub_type)
-	{
-		FAST_SAVE_LONG(sb, "sub_type ", op->sub_type);
-	}
-
-	if (op->terrain_flag != op2->terrain_flag)
-	{
-		FAST_SAVE_LONG(sb, "terrain_flag ", op->terrain_flag);
-	}
-
-	if (op->terrain_type != op2->terrain_type)
-	{
-		FAST_SAVE_LONG(sb, "terrain_type ", op->terrain_type);
-	}
-
-	if (op->item_quality != op2->item_quality)
-	{
-		FAST_SAVE_LONG(sb, "item_quality ", op->item_quality);
-	}
-
-	if (op->item_condition != op2->item_condition)
-	{
-		FAST_SAVE_LONG(sb, "item_condition ", op->item_condition);
-	}
-
-	if (op->item_race != op2->item_race)
-	{
-		FAST_SAVE_LONG(sb, "item_race ", op->item_race);
-	}
-
-	if (op->item_skill != op2->item_skill)
-	{
-		FAST_SAVE_LONG(sb, "item_skill ", op->item_skill);
-	}
-
-	if (op->item_level != op2->item_level)
-	{
-		FAST_SAVE_LONG(sb, "item_level ", op->item_level);
-	}
-
-	if (op->weapon_speed != op2->weapon_speed)
-	{
-		FAST_SAVE_DOUBLE(sb, "weapon_speed ", op->weapon_speed);
-	}
-
-	if (op->enemy_count != op2->enemy_count)
-	{
-		FAST_SAVE_LONG(sb, "object_int1 ", op->enemy_count);
-	}
-
-	if (op->attacked_by_count != op2->attacked_by_count)
-	{
-		FAST_SAVE_LONG(sb, "object_int2 ", op->attacked_by_count);
-	}
-
-	if (op->ownercount != op2->ownercount)
-	{
-		FAST_SAVE_LONG(sb, "object_int3 ", op->ownercount);
-	}
-
-	if (op->move_status != op2->move_status)
-	{
-		FAST_SAVE_LONG(sb, "move_state ", op->move_status);
-	}
-
-	if (op->move_type != op2->move_type)
-	{
-		FAST_SAVE_LONG(sb, "movement_type ", op->move_type);
-	}
-
-	if (op->attack_move_type != op2->attack_move_type)
-	{
-		FAST_SAVE_LONG(sb, "attack_move_type ", op->attack_move_type);
-	}
-
-	if (op->nrof != op2->nrof)
-	{
-		FAST_SAVE_LONG(sb, "nrof ", op->nrof);
-	}
-
-	if (op->level != op2->level)
-	{
-		FAST_SAVE_LONG(sb, "level ", op->level);
-	}
-
-	if (op->direction != op2->direction)
-	{
-		FAST_SAVE_LONG(sb, "direction ", op->direction);
-	}
-
-	if (op->type != op2->type)
-	{
-		FAST_SAVE_LONG(sb, "type ", op->type);
-	}
-
-	/* attack_save[] holds the attack form also for attack_xx */
-	for (tmp = 0; tmp < NROFATTACKS; tmp++)
-	{
-		if (op->attack[tmp] != op2->attack[tmp])
-		{
-			stringbuffer_append_printf(sb, "attack_%s %d\n", attack_save[tmp], op->attack[tmp]);
-		}
-	}
-
-	for (tmp = 0; tmp < NROFATTACKS; tmp++)
-	{
-		if (op->protection[tmp] != op2->protection[tmp])
-		{
-			stringbuffer_append_printf(sb, "protect_%s %d\n", attack_save[tmp], op->protection[tmp]);
-		}
-	}
-
-	if (op->layer != op2->layer)
-	{
-		FAST_SAVE_LONG(sb, "layer ", op->layer);
-	}
-
-	if (op->sub_layer != op2->sub_layer)
-	{
-		FAST_SAVE_LONG(sb, "sub_layer ", op->sub_layer);
-	}
-
-	if (op->path_attuned != op2->path_attuned)
-	{
-		FAST_SAVE_LONG(sb, "path_attuned ", op->path_attuned);
-	}
-
-	if (op->path_repelled != op2->path_repelled)
-	{
-		FAST_SAVE_LONG(sb, "path_repelled ", op->path_repelled);
-	}
-
-	if (op->path_denied != op2->path_denied)
-	{
-		FAST_SAVE_LONG(sb, "path_denied ", op->path_denied);
-	}
-
-	if (op->material != op2->material)
-	{
-		FAST_SAVE_LONG(sb, "material ", op->material);
-	}
-
-	if (op->value != op2->value)
-	{
-		stringbuffer_append_printf(sb, "value %"FMT64"\n", op->value);
-	}
-
-	if (op->carrying != op2->carrying)
-	{
-		FAST_SAVE_LONG(sb, "carrying ", op->carrying);
-	}
-
-	if (op->weight != op2->weight)
-	{
-		FAST_SAVE_LONG(sb, "weight ", op->weight);
-	}
-
-	if (op->state != op2->state)
-	{
-		FAST_SAVE_LONG(sb, "state ", op->state);
-	}
-
-	if (op->magic != op2->magic)
-	{
-		FAST_SAVE_LONG(sb, "magic ", op->magic);
-	}
-
-	if (op->last_heal != op2->last_heal)
-	{
-		FAST_SAVE_LONG(sb, "last_heal ", op->last_heal);
-	}
-
-	if (op->last_sp != op2->last_sp)
-	{
-		FAST_SAVE_LONG(sb, "last_sp ", op->last_sp);
-	}
-
-	if (op->last_grace != op2->last_grace)
-	{
-		FAST_SAVE_LONG(sb, "last_grace ", op->last_grace);
-	}
-
-	if (op->last_eat != op2->last_eat)
-	{
-		FAST_SAVE_LONG(sb, "last_eat ", op->last_eat);
-	}
-
-	if (QUERY_FLAG(op, FLAG_IS_LINKED) && (tmp = connection_object_get_value(op)))
-	{
-		FAST_SAVE_LONG(sb, "connected ", tmp);
-	}
-
-	if (op->glow_radius != op2->glow_radius)
-	{
-		FAST_SAVE_LONG(sb, "glow_radius ", op->glow_radius);
-	}
-
-	if (op->randomitems != op2->randomitems)
-	{
-		ADD_STRINGLINE_ENTRY(sb, "randomitems ", (op->randomitems ? op->randomitems->name : "none"));
-	}
-
-	if (op->run_away != op2->run_away)
-	{
-		FAST_SAVE_LONG(sb, "run_away ", op->run_away);
-	}
-
-	if (op->weight_limit != op2->weight_limit)
-	{
-		FAST_SAVE_LONG(sb, "container ", op->weight_limit);
-	}
-
-	if (op->behavior != op2->behavior)
-	{
-		FAST_SAVE_LONG(sb, "behavior ", op->behavior);
-	}
-
-	if (op->quickslot != op2->quickslot)
-	{
-		FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
-	}
-
-	if (op->item_power != op2->item_power)
-	{
-		FAST_SAVE_LONG(sb, "item_power ", op->item_power);
-	}
-
-	for (tmp = 0; tmp <= NUM_FLAGS; tmp++)
-	{
-		if (object_flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp)))
-		{
-			ADD_STRINGLINE_ENTRY(sb, object_flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
-		}
-	}
-}
+    void get_ob_diff(StringBuffer *sb, object *op, object *op2)
+        {
+        key_value *my_field, *arch_field;
+        int tmp;
+
+        /* This saves the key/value lists. We do it first so that any
+         * keys that match field names will be overwritten by the loader. */
+        for (my_field = op->key_values; my_field; my_field = my_field->next) {
+            /* Find the field in the opposing member. */
+            arch_field = object_get_key_link(op2, my_field->key);
+
+            /* If there's no partnering field, or it's got a different value,
+             * save our field. */
+            if (arch_field == NULL || my_field->value != arch_field->value) {
+                stringbuffer_append_string(sb, my_field->key);
+                stringbuffer_append_string(sb, " ");
+
+                if (my_field->value) {
+                    stringbuffer_append_string(sb, my_field->value);
+                }
+
+                stringbuffer_append_string(sb, "\n");
+            }
+        }
+
+        if (op->name && op->name != op2->name) {
+            ADD_STRINGLINE_ENTRY(sb, "name ", op->name);
+        }
+
+        if (op->custom_name && op->custom_name != op2->custom_name) {
+            ADD_STRINGLINE_ENTRY(sb, "custom_name ", op->custom_name);
+        }
+
+        if (op->title && op->title != op2->title) {
+            ADD_STRINGLINE_ENTRY(sb, "title ", op->title);
+        }
+
+        if (op->race && op->race != op2->race) {
+            ADD_STRINGLINE_ENTRY(sb, "race ", op->race);
+        }
+
+        if (op->slaying && op->slaying != op2->slaying) {
+            ADD_STRINGLINE_ENTRY(sb, "slaying ", op->slaying);
+        }
+
+        if (op->msg && op->msg != op2->msg) {
+            stringbuffer_append_string(sb, "msg\n");
+            stringbuffer_append_string(sb, op->msg);
+            stringbuffer_append_string(sb, "\nendmsg\n");
+        }
+
+        if (op->artifact && op->artifact != op2->artifact) {
+            ADD_STRINGLINE_ENTRY(sb, "artifact ", op->artifact);
+        }
+
+        if (op->other_arch != op2->other_arch && op->other_arch != NULL && op->other_arch->name) {
+            ADD_STRINGLINE_ENTRY(sb, "other_arch ", op->other_arch->name);
+        }
+
+        if (op->face != op2->face) {
+            ADD_STRINGLINE_ENTRY(sb, "face ", op->face->name);
+        }
+
+        if (op->inv_face != op2->inv_face) {
+            ADD_STRINGLINE_ENTRY(sb, "inv_face ", op->inv_face->name);
+        }
+
+        if (op->animation_id != op2->animation_id) {
+            if (op->animation_id) {
+                ADD_STRINGLINE_ENTRY(sb, "animation ", animations[GET_ANIM_ID(op)].name);
+            }
+            else {
+                stringbuffer_append_string(sb, "animation NONE\n");
+            }
+        }
+
+        if (op->inv_animation_id != op2->inv_animation_id) {
+            if (op->inv_animation_id) {
+                ADD_STRINGLINE_ENTRY(sb, "inv_animation ", animations[GET_INV_ANIM_ID(op)].name);
+            }
+            else {
+                stringbuffer_append_string(sb, "inv_animation NONE\n");
+            }
+        }
+
+        if (op->anim_speed != op2->anim_speed) {
+            FAST_SAVE_LONG(sb, "anim_speed ", op->anim_speed);
+        }
+
+        if (op->stats.wc_range != op2->stats.wc_range) {
+            FAST_SAVE_LONG(sb, "wc_range ", op->stats.wc_range);
+        }
+
+        if (op->stats.Str != op2->stats.Str) {
+            FAST_SAVE_LONG(sb, "Str ", op->stats.Str);
+        }
+
+        if (op->stats.Dex != op2->stats.Dex) {
+            FAST_SAVE_LONG(sb, "Dex ", op->stats.Dex);
+        }
+
+        if (op->stats.Con != op2->stats.Con) {
+            FAST_SAVE_LONG(sb, "Con ", op->stats.Con);
+        }
+
+        if (op->stats.Wis != op2->stats.Wis) {
+            FAST_SAVE_LONG(sb, "Wis ", op->stats.Wis);
+        }
+
+        if (op->stats.Pow != op2->stats.Pow) {
+            FAST_SAVE_LONG(sb, "Pow ", op->stats.Pow);
+        }
+
+        if (op->stats.Cha != op2->stats.Cha) {
+            FAST_SAVE_LONG(sb, "Cha ", op->stats.Cha);
+        }
+
+        if (op->stats.Int != op2->stats.Int) {
+            FAST_SAVE_LONG(sb, "Int ", op->stats.Int);
+        }
+
+        if (op->stats.hp != op2->stats.hp) {
+            FAST_SAVE_LONG(sb, "hp ", op->stats.hp);
+        }
+
+        if (op->stats.maxhp != op2->stats.maxhp) {
+            FAST_SAVE_LONG(sb, "maxhp ", op->stats.maxhp);
+        }
+
+        if (op->stats.sp != op2->stats.sp) {
+            FAST_SAVE_LONG(sb, "sp ", op->stats.sp);
+        }
+
+        if (op->stats.maxsp != op2->stats.maxsp) {
+            FAST_SAVE_LONG(sb, "maxsp ", op->stats.maxsp);
+        }
+
+        if (op->stats.exp != op2->stats.exp) {
+            stringbuffer_append_printf(sb, "exp %"FMT64 "\n", op->stats.exp);
+        }
+
+        if (op->stats.food != op2->stats.food) {
+            FAST_SAVE_LONG(sb, "food ", op->stats.food);
+        }
+
+        if (op->stats.dam != op2->stats.dam) {
+            FAST_SAVE_LONG(sb, "dam ", op->stats.dam);
+        }
+
+        if (op->stats.wc != op2->stats.wc) {
+            FAST_SAVE_LONG(sb, "wc ", op->stats.wc);
+        }
+
+        if (op->stats.ac != op2->stats.ac) {
+            FAST_SAVE_LONG(sb, "ac ", op->stats.ac);
+        }
+
+        if (op->x != op2->x) {
+            FAST_SAVE_LONG(sb, "x ", op->x);
+        }
+
+        if (op->z != op2->z) {
+            FAST_SAVE_LONG(sb, "z ", op->z);
+        }
+
+        if (op->y != op2->y) {
+            FAST_SAVE_LONG(sb, "y ", op->y);
+        }
+
+        if (op->zoom_x != op2->zoom_x) {
+            FAST_SAVE_LONG(sb, "zoom_x ", op->zoom_x);
+        }
+
+        if (op->zoom_y != op2->zoom_y) {
+            FAST_SAVE_LONG(sb, "zoom_y ", op->zoom_y);
+        }
+
+        if (op->align != op2->align) {
+            FAST_SAVE_LONG(sb, "align ", op->align);
+        }
+
+        if (op->alpha != op2->alpha) {
+            FAST_SAVE_LONG(sb, "alpha ", op->alpha);
+        }
+
+        if (op->rotate != op2->rotate) {
+            FAST_SAVE_LONG(sb, "rotate ", op->rotate);
+        }
+
+        if (op->speed != op2->speed) {
+            FAST_SAVE_DOUBLE(sb, "speed ", op->speed);
+        }
+
+        if (op->speed_left != op2->speed_left || op->speed_left) {
+            FAST_SAVE_DOUBLE(sb, "speed_left ", op->speed_left);
+        }
+
+        if (op->material_real != op2->material_real) {
+            FAST_SAVE_LONG(sb, "material_real ", op->material_real);
+        }
+
+        if (op->sub_type != op2->sub_type) {
+            FAST_SAVE_LONG(sb, "sub_type ", op->sub_type);
+        }
+
+        if (op->terrain_flag != op2->terrain_flag) {
+            FAST_SAVE_LONG(sb, "terrain_flag ", op->terrain_flag);
+        }
+
+        if (op->terrain_type != op2->terrain_type) {
+            FAST_SAVE_LONG(sb, "terrain_type ", op->terrain_type);
+        }
+
+        if (op->item_quality != op2->item_quality) {
+            FAST_SAVE_LONG(sb, "item_quality ", op->item_quality);
+        }
+
+        if (op->item_condition != op2->item_condition) {
+            FAST_SAVE_LONG(sb, "item_condition ", op->item_condition);
+        }
+
+        if (op->item_race != op2->item_race) {
+            FAST_SAVE_LONG(sb, "item_race ", op->item_race);
+        }
+
+        if (op->item_skill != op2->item_skill) {
+            FAST_SAVE_LONG(sb, "item_skill ", op->item_skill);
+        }
+
+        if (op->item_level != op2->item_level) {
+            FAST_SAVE_LONG(sb, "item_level ", op->item_level);
+        }
+
+        if (op->weapon_speed != op2->weapon_speed) {
+            FAST_SAVE_DOUBLE(sb, "weapon_speed ", op->weapon_speed);
+        }
+
+        if (op->enemy_count != op2->enemy_count) {
+            FAST_SAVE_LONG(sb, "object_int1 ", op->enemy_count);
+        }
+
+        if (op->attacked_by_count != op2->attacked_by_count) {
+            FAST_SAVE_LONG(sb, "object_int2 ", op->attacked_by_count);
+        }
+
+        if (op->ownercount != op2->ownercount) {
+            FAST_SAVE_LONG(sb, "object_int3 ", op->ownercount);
+        }
+
+        if (op->move_status != op2->move_status) {
+            FAST_SAVE_LONG(sb, "move_state ", op->move_status);
+        }
+
+        if (op->move_type != op2->move_type) {
+            FAST_SAVE_LONG(sb, "movement_type ", op->move_type);
+        }
+
+        if (op->attack_move_type != op2->attack_move_type) {
+            FAST_SAVE_LONG(sb, "attack_move_type ", op->attack_move_type);
+        }
+
+        if (op->nrof != op2->nrof) {
+            FAST_SAVE_LONG(sb, "nrof ", op->nrof);
+        }
+
+        if (op->level != op2->level) {
+            FAST_SAVE_LONG(sb, "level ", op->level);
+        }
+
+        if (op->direction != op2->direction) {
+            FAST_SAVE_LONG(sb, "direction ", op->direction);
+        }
+
+        if (op->type != op2->type) {
+            FAST_SAVE_LONG(sb, "type ", op->type);
+        }
+
+        /* attack_save[] holds the attack form also for attack_xx */
+        for (tmp = 0; tmp < NROFATTACKS; tmp++) {
+            if (op->attack[tmp] != op2->attack[tmp]) {
+                stringbuffer_append_printf(sb, "attack_%s %d\n", attack_save[tmp], op->attack[tmp]);
+            }
+        }
+
+        for (tmp = 0; tmp < NROFATTACKS; tmp++) {
+            if (op->protection[tmp] != op2->protection[tmp]) {
+                stringbuffer_append_printf(sb, "protect_%s %d\n", attack_save[tmp], op->protection[tmp]);
+            }
+        }
+
+        if (op->layer != op2->layer) {
+            FAST_SAVE_LONG(sb, "layer ", op->layer);
+        }
+
+        if (op->sub_layer != op2->sub_layer) {
+            FAST_SAVE_LONG(sb, "sub_layer ", op->sub_layer);
+        }
+
+        if (op->path_attuned != op2->path_attuned) {
+            FAST_SAVE_LONG(sb, "path_attuned ", op->path_attuned);
+        }
+
+        if (op->path_repelled != op2->path_repelled) {
+            FAST_SAVE_LONG(sb, "path_repelled ", op->path_repelled);
+        }
+
+        if (op->path_denied != op2->path_denied) {
+            FAST_SAVE_LONG(sb, "path_denied ", op->path_denied);
+        }
+
+        if (op->material != op2->material) {
+            FAST_SAVE_LONG(sb, "material ", op->material);
+        }
+
+        if (op->value != op2->value) {
+            stringbuffer_append_printf(sb, "value %"FMT64 "\n", op->value);
+        }
+
+        if (op->carrying != op2->carrying) {
+            FAST_SAVE_LONG(sb, "carrying ", op->carrying);
+        }
+
+        if (op->weight != op2->weight) {
+            FAST_SAVE_LONG(sb, "weight ", op->weight);
+        }
+
+        if (op->state != op2->state) {
+            FAST_SAVE_LONG(sb, "state ", op->state);
+        }
+
+        if (op->magic != op2->magic) {
+            FAST_SAVE_LONG(sb, "magic ", op->magic);
+        }
+
+        if (op->last_heal != op2->last_heal) {
+            FAST_SAVE_LONG(sb, "last_heal ", op->last_heal);
+        }
+
+        if (op->last_sp != op2->last_sp) {
+            FAST_SAVE_LONG(sb, "last_sp ", op->last_sp);
+        }
+
+        if (op->last_grace != op2->last_grace) {
+            FAST_SAVE_LONG(sb, "last_grace ", op->last_grace);
+        }
+
+        if (op->last_eat != op2->last_eat) {
+            FAST_SAVE_LONG(sb, "last_eat ", op->last_eat);
+        }
+
+        if (QUERY_FLAG(op, FLAG_IS_LINKED) && (tmp = connection_object_get_value(op))) {
+            FAST_SAVE_LONG(sb, "connected ", tmp);
+        }
+
+        if (op->glow_radius != op2->glow_radius) {
+            FAST_SAVE_LONG(sb, "glow_radius ", op->glow_radius);
+        }
+
+        if (op->randomitems != op2->randomitems) {
+            ADD_STRINGLINE_ENTRY(sb, "randomitems ", (op->randomitems ? op->randomitems->name : "none"));
+        }
+
+        if (op->run_away != op2->run_away) {
+            FAST_SAVE_LONG(sb, "run_away ", op->run_away);
+        }
+
+        if (op->weight_limit != op2->weight_limit) {
+            FAST_SAVE_LONG(sb, "container ", op->weight_limit);
+        }
+
+        if (op->behavior != op2->behavior) {
+            FAST_SAVE_LONG(sb, "behavior ", op->behavior);
+        }
+
+        if (op->quickslot != op2->quickslot) {
+            FAST_SAVE_LONG(sb, "quickslot ", op->quickslot);
+        }
+
+        if (op->item_power != op2->item_power) {
+            FAST_SAVE_LONG(sb, "item_power ", op->item_power);
+        }
+
+        for (tmp = 0; tmp <= NUM_FLAGS; tmp++) {
+            if (object_flag_names[tmp] && (QUERY_FLAG(op, tmp) != QUERY_FLAG(op2, tmp))) {
+                ADD_STRINGLINE_ENTRY(sb, object_flag_names[tmp], QUERY_FLAG(op, tmp) ? " 1" : " 0");
+            }
+        }
+        }
 
 /**
  * Dumps all variables in an object to a file. */
 void save_object(FILE *fp, object *op)
 {
-	archetype *at;
-	object *tmp;
-	StringBuffer *sb;
-	char *cp;
+    archetype *at;
+    object *tmp;
+    StringBuffer *sb;
+    char *cp;
 
-	if (!fp)
-	{
-		return;
-	}
+    if (!fp) {
+        return;
+    }
 
-	if ((at = op->arch) == NULL)
-	{
-		at = empty_archetype;
-	}
+    if ((at = op->arch) == NULL) {
+        at = empty_archetype;
+    }
 
-	fprintf(fp, "arch %s\n", at->name);
+    fprintf(fp, "arch %s\n", at->name);
 
-	sb = stringbuffer_new();
-	get_ob_diff(sb, op, &at->clone);
-	cp = stringbuffer_finish(sb);
+    sb = stringbuffer_new();
+    get_ob_diff(sb, op, &at->clone);
+    cp = stringbuffer_finish(sb);
 
-	fputs(cp, fp);
-	free(cp);
+    fputs(cp, fp);
+    free(cp);
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		save_object(fp, tmp);
-	}
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        save_object(fp, tmp);
+    }
 
-	fprintf(fp, "end\n");
+    fprintf(fp, "end\n");
 }

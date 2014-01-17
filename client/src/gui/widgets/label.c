@@ -34,47 +34,44 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	_widget_label *label;
+    _widget_label *label;
 
-	label = (_widget_label *) widget->subwidget;
+    label = (_widget_label *) widget->subwidget;
 
-	if (label->text)
-	{
-		text_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, TEXT_MARKUP, NULL);
-	}
+    if (label->text) {
+        text_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, TEXT_MARKUP, NULL);
+    }
 }
 
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
-	_widget_label *label;
+    _widget_label *label;
 
-	label = (_widget_label *) widget->subwidget;
+    label = (_widget_label *) widget->subwidget;
 
-	if (label->text)
-	{
-		free(label->text);
-	}
+    if (label->text) {
+        free(label->text);
+    }
 }
 
 /**
  * Initialize one label widget. */
 void widget_label_init(widgetdata *widget)
 {
-	_widget_label *label;
+    _widget_label *label;
 
-	label = calloc(1, sizeof(*label));
+    label = calloc(1, sizeof(*label));
 
-	if (!label)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(-1);
-	}
+    if (!label) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(-1);
+    }
 
-	label->font = FONT_ARIAL10;
-	label->color = COLOR_WHITE;
+    label->font = FONT_ARIAL10;
+    label->color = COLOR_WHITE;
 
-	widget->draw_func = widget_draw;
-	widget->deinit_func = widget_deinit;
-	widget->subwidget = label;
+    widget->draw_func = widget_draw;
+    widget->deinit_func = widget_deinit;
+    widget->subwidget = label;
 }

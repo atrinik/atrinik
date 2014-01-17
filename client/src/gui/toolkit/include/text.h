@@ -32,17 +32,17 @@
 /** One font. */
 typedef struct font_struct
 {
-	/** The font's path. */
-	const char *path;
+    /** The font's path. */
+    const char *path;
 
-	/** Size of the font. */
-	size_t size;
+    /** Size of the font. */
+    size_t size;
 
-	/** The actual font used by SDL_ttf. */
-	TTF_Font *font;
+    /** The actual font used by SDL_ttf. */
+    TTF_Font *font;
 
-	/** Maximum line height. */
-	int height;
+    /** Maximum line height. */
+    int height;
 } font_struct;
 
 /**
@@ -50,159 +50,160 @@ typedef struct font_struct
  * The font IDs. */
 enum
 {
-	/** Sans, 7px. */
-	FONT_SANS7,
-	/** Sans, 8px. */
-	FONT_SANS8,
-	/** Sans, 9px. */
-	FONT_SANS9,
-	/** Sans, 10px. */
-	FONT_SANS10,
-	/** Sans, 11px. */
-	FONT_SANS11,
-	/** Sans, 12px. */
-	FONT_SANS12,
-	/** Sans, 13px. */
-	FONT_SANS13,
-	/** Sans, 14px. */
-	FONT_SANS14,
-	/** Sans, 15px. */
-	FONT_SANS15,
-	/** Sans, 16px. */
-	FONT_SANS16,
-	/** Sans, 18px. */
-	FONT_SANS18,
-	/** Sans, 20px. */
-	FONT_SANS20,
-	/** Serif, 8px. */
-	FONT_SERIF8,
-	/** Serif, 10px. */
-	FONT_SERIF10,
-	/** Serif, 12px. */
-	FONT_SERIF12,
-	/** Serif, 14px. */
-	FONT_SERIF14,
-	/** Serif, 16px. */
-	FONT_SERIF16,
-	/** Serif, 18px. */
-	FONT_SERIF18,
-	/** Serif, 20px. */
-	FONT_SERIF20,
-	/** Serif, 22px. */
-	FONT_SERIF22,
-	/** Serif, 24px. */
-	FONT_SERIF24,
-	/** Serif, 26px. */
-	FONT_SERIF26,
-	/** Serif, 28px. */
-	FONT_SERIF28,
-	/** Serif, 30px. */
-	FONT_SERIF30,
-	/** Serif, 32px. */
-	FONT_SERIF32,
-	/** Serif, 34px. */
-	FONT_SERIF34,
-	/** Serif, 36px. */
-	FONT_SERIF36,
-	/** Serif, 38px. */
-	FONT_SERIF38,
-	/** Serif, 40px. */
-	FONT_SERIF40,
-	/** Mono, 8px. */
-	FONT_MONO8,
-	/** Mono, 9px. */
-	FONT_MONO9,
-	/** Mono, 10px. */
-	FONT_MONO10,
-	/** Mono, 12px. */
-	FONT_MONO12,
-	/** Mono, 14px. */
-	FONT_MONO14,
-	/** Mono, 16px. */
-	FONT_MONO16,
-	/** Mono, 18px. */
-	FONT_MONO18,
-	/** Mono, 20px. */
-	FONT_MONO20,
-	/** Arial, 8px. */
-	FONT_ARIAL8,
-	/** Arial, 10px, good for general drawing (looks the same across systems). */
-	FONT_ARIAL10,
-	/** Arial, 11px. */
-	FONT_ARIAL11,
-	/** Arial, 12px. */
-	FONT_ARIAL12,
-	/** Arial, 13px. */
-	FONT_ARIAL13,
-	/** Arial, 14px. */
-	FONT_ARIAL14,
-	/** Arial, 15px. */
-	FONT_ARIAL15,
-	/** Arial, 16px. */
-	FONT_ARIAL16,
-	/** Arial, 18px. */
-	FONT_ARIAL18,
-	/** Arial, 20px. */
-	FONT_ARIAL20,
-	/** Logisoso, 8px. */
-	FONT_LOGISOSO8,
-	/** Logisoso, 10px. */
-	FONT_LOGISOSO10,
-	/** Logisoso, 12px. */
-	FONT_LOGISOSO12,
-	/** Logisoso, 14px. */
-	FONT_LOGISOSO14,
-	/** Logisoso, 16px. */
-	FONT_LOGISOSO16,
-	/** Logisoso, 18px. */
-	FONT_LOGISOSO18,
-	/** Logisoso, 20px. */
-	FONT_LOGISOSO20,
-	/** Fanwood, 8px. */
-	FONT_FANWOOD8,
-	/** Fanwood, 10px. */
-	FONT_FANWOOD10,
-	/** Fanwood, 12px. */
-	FONT_FANWOOD12,
-	/** Fanwood, 14px. */
-	FONT_FANWOOD14,
-	/** Fanwood, 16px. */
-	FONT_FANWOOD16,
-	/** Fanwood, 18px. */
-	FONT_FANWOOD18,
-	/** Fanwood, 20px. */
-	FONT_FANWOOD20,
-	/** Courier, 8px. */
-	FONT_COURIER8,
-	/** Courier, 10px. */
-	FONT_COURIER10,
-	/** Courier, 12px. */
-	FONT_COURIER12,
-	/** Courier, 14px. */
-	FONT_COURIER14,
-	/** Courier, 16px. */
-	FONT_COURIER16,
-	/** Courier, 18px. */
-	FONT_COURIER18,
-	/** Courier, 20px. */
-	FONT_COURIER20,
-	/** Pecita, 8px. */
-	FONT_PECITA8,
-	/** Pecita, 10px. */
-	FONT_PECITA10,
-	/** Pecita, 12px. */
-	FONT_PECITA12,
-	/** Pecita, 14px. */
-	FONT_PECITA14,
-	/** Pecita, 16px. */
-	FONT_PECITA16,
-	/** Pecita, 18px. */
-	FONT_PECITA18,
-	/** Pecita, 20px. */
-	FONT_PECITA20,
+    /** Sans, 7px. */
+    FONT_SANS7,
+    /** Sans, 8px. */
+    FONT_SANS8,
+    /** Sans, 9px. */
+    FONT_SANS9,
+    /** Sans, 10px. */
+    FONT_SANS10,
+    /** Sans, 11px. */
+    FONT_SANS11,
+    /** Sans, 12px. */
+    FONT_SANS12,
+    /** Sans, 13px. */
+    FONT_SANS13,
+    /** Sans, 14px. */
+    FONT_SANS14,
+    /** Sans, 15px. */
+    FONT_SANS15,
+    /** Sans, 16px. */
+    FONT_SANS16,
+    /** Sans, 18px. */
+    FONT_SANS18,
+    /** Sans, 20px. */
+    FONT_SANS20,
+    /** Serif, 8px. */
+    FONT_SERIF8,
+    /** Serif, 10px. */
+    FONT_SERIF10,
+    /** Serif, 12px. */
+    FONT_SERIF12,
+    /** Serif, 14px. */
+    FONT_SERIF14,
+    /** Serif, 16px. */
+    FONT_SERIF16,
+    /** Serif, 18px. */
+    FONT_SERIF18,
+    /** Serif, 20px. */
+    FONT_SERIF20,
+    /** Serif, 22px. */
+    FONT_SERIF22,
+    /** Serif, 24px. */
+    FONT_SERIF24,
+    /** Serif, 26px. */
+    FONT_SERIF26,
+    /** Serif, 28px. */
+    FONT_SERIF28,
+    /** Serif, 30px. */
+    FONT_SERIF30,
+    /** Serif, 32px. */
+    FONT_SERIF32,
+    /** Serif, 34px. */
+    FONT_SERIF34,
+    /** Serif, 36px. */
+    FONT_SERIF36,
+    /** Serif, 38px. */
+    FONT_SERIF38,
+    /** Serif, 40px. */
+    FONT_SERIF40,
+    /** Mono, 8px. */
+    FONT_MONO8,
+    /** Mono, 9px. */
+    FONT_MONO9,
+    /** Mono, 10px. */
+    FONT_MONO10,
+    /** Mono, 12px. */
+    FONT_MONO12,
+    /** Mono, 14px. */
+    FONT_MONO14,
+    /** Mono, 16px. */
+    FONT_MONO16,
+    /** Mono, 18px. */
+    FONT_MONO18,
+    /** Mono, 20px. */
+    FONT_MONO20,
+    /** Arial, 8px. */
+    FONT_ARIAL8,
+    /** Arial, 10px, good for general drawing (looks the same across systems).
+     * */
+    FONT_ARIAL10,
+    /** Arial, 11px. */
+    FONT_ARIAL11,
+    /** Arial, 12px. */
+    FONT_ARIAL12,
+    /** Arial, 13px. */
+    FONT_ARIAL13,
+    /** Arial, 14px. */
+    FONT_ARIAL14,
+    /** Arial, 15px. */
+    FONT_ARIAL15,
+    /** Arial, 16px. */
+    FONT_ARIAL16,
+    /** Arial, 18px. */
+    FONT_ARIAL18,
+    /** Arial, 20px. */
+    FONT_ARIAL20,
+    /** Logisoso, 8px. */
+    FONT_LOGISOSO8,
+    /** Logisoso, 10px. */
+    FONT_LOGISOSO10,
+    /** Logisoso, 12px. */
+    FONT_LOGISOSO12,
+    /** Logisoso, 14px. */
+    FONT_LOGISOSO14,
+    /** Logisoso, 16px. */
+    FONT_LOGISOSO16,
+    /** Logisoso, 18px. */
+    FONT_LOGISOSO18,
+    /** Logisoso, 20px. */
+    FONT_LOGISOSO20,
+    /** Fanwood, 8px. */
+    FONT_FANWOOD8,
+    /** Fanwood, 10px. */
+    FONT_FANWOOD10,
+    /** Fanwood, 12px. */
+    FONT_FANWOOD12,
+    /** Fanwood, 14px. */
+    FONT_FANWOOD14,
+    /** Fanwood, 16px. */
+    FONT_FANWOOD16,
+    /** Fanwood, 18px. */
+    FONT_FANWOOD18,
+    /** Fanwood, 20px. */
+    FONT_FANWOOD20,
+    /** Courier, 8px. */
+    FONT_COURIER8,
+    /** Courier, 10px. */
+    FONT_COURIER10,
+    /** Courier, 12px. */
+    FONT_COURIER12,
+    /** Courier, 14px. */
+    FONT_COURIER14,
+    /** Courier, 16px. */
+    FONT_COURIER16,
+    /** Courier, 18px. */
+    FONT_COURIER18,
+    /** Courier, 20px. */
+    FONT_COURIER20,
+    /** Pecita, 8px. */
+    FONT_PECITA8,
+    /** Pecita, 10px. */
+    FONT_PECITA10,
+    /** Pecita, 12px. */
+    FONT_PECITA12,
+    /** Pecita, 14px. */
+    FONT_PECITA14,
+    /** Pecita, 16px. */
+    FONT_PECITA16,
+    /** Pecita, 18px. */
+    FONT_PECITA18,
+    /** Pecita, 20px. */
+    FONT_PECITA20,
 
-	/** Number of the fonts. */
-	FONTS_MAX
+    /** Number of the fonts. */
+    FONTS_MAX
 };
 
 /**
@@ -210,68 +211,68 @@ enum
  * drawing. */
 typedef struct text_info_struct
 {
-	/** Anchor tag position. */
-	char *anchor_tag;
+    /** Anchor tag position. */
+    char *anchor_tag;
 
-	/** Action anchor tag should execute. */
-	char anchor_action[HUGE_BUF];
+    /** Action anchor tag should execute. */
+    char anchor_action[HUGE_BUF];
 
-	/** Outline tag color. */
-	SDL_Color outline_color;
+    /** Outline tag color. */
+    SDL_Color outline_color;
 
-	/** Whether to show an outline. */
-	uint8 outline_show;
+    /** Whether to show an outline. */
+    uint8 outline_show;
 
-	/** Whether we are in old-style book title. */
-	uint8 in_book_title;
+    /** Whether we are in old-style book title. */
+    uint8 in_book_title;
 
-	/** Alpha. */
-	uint8 used_alpha;
+    /** Alpha. */
+    uint8 used_alpha;
 
-	/** Whether we are in bold tag. */
-	uint8 in_bold;
+    /** Whether we are in bold tag. */
+    uint8 in_bold;
 
-	/** Whether we are in italic tag. */
-	uint8 in_italic;
+    /** Whether we are in italic tag. */
+    uint8 in_italic;
 
-	/** Whether we are in underline tag. */
-	uint8 in_underline;
+    /** Whether we are in underline tag. */
+    uint8 in_underline;
 
-	/** Whether we are in strikethrough tag. */
-	uint8 in_strikethrough;
+    /** Whether we are in strikethrough tag. */
+    uint8 in_strikethrough;
 
-	/**
-	 *  If 1, the character is not being drawn due to line skip (due to
-	 * scroll value for example). */
-	uint8 obscured;
+    /**
+     *  If 1, the character is not being drawn due to line skip (due to
+     * scroll value for example). */
+    uint8 obscured;
 
-	/** Whether bold width is being calculated. */
-	uint8 calc_bold;
+    /** Whether bold width is being calculated. */
+    uint8 calc_bold;
 
-	/**
-	 * Whether font width (font changed using a tag) is being
-	 * calculated. */
-	int calc_font;
+    /**
+     * Whether font width (font changed using a tag) is being
+     * calculated. */
+    int calc_font;
 
-	/**
-	 * Used for calculations by the 'hcenter' tag. */
-	int hcenter_y;
+    /**
+     * Used for calculations by the 'hcenter' tag. */
+    int hcenter_y;
 
-	int height;
+    int height;
 
-	int start_x;
+    int start_x;
 
-	int start_y;
+    int start_y;
 
-	uint8 highlight;
+    uint8 highlight;
 
-	uint8 flip;
+    uint8 flip;
 
-	SDL_Rect highlight_rect;
+    SDL_Rect highlight_rect;
 
-	SDL_Color highlight_color;
+    SDL_Color highlight_color;
 
-	char tooltip_text[MAX_BUF * 2];
+    char tooltip_text[MAX_BUF * 2];
 } text_info_struct;
 
 /**

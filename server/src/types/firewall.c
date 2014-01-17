@@ -33,36 +33,33 @@
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	if (!op->last_eat || !op->map)
-	{
-		return;
-	}
+    if (!op->last_eat || !op->map) {
+        return;
+    }
 
-	cast_spell(op, op, op->direction, op->stats.dam, 1, CAST_NPC, op->race);
+    cast_spell(op, op, op->direction, op->stats.dam, 1, CAST_NPC, op->race);
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) state;
+    (void) state;
 
-	if (cause->last_eat)
-	{
-		op->last_eat = !op->last_eat;
-	}
-	else if (op->stats.maxsp)
-	{
-		op->direction = absdir(op->direction + op->stats.maxsp);
-		animate_turning(op);
-	}
+    if (cause->last_eat) {
+        op->last_eat = !op->last_eat;
+    }
+    else if (op->stats.maxsp) {
+        op->direction = absdir(op->direction + op->stats.maxsp);
+        animate_turning(op);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the firewall type object methods. */
 void object_type_init_firewall(void)
 {
-	object_type_methods[FIREWALL].process_func = process_func;
-	object_type_methods[FIREWALL].trigger_func = trigger_func;
+    object_type_methods[FIREWALL].process_func = process_func;
+    object_type_methods[FIREWALL].trigger_func = trigger_func;
 }

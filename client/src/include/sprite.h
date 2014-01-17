@@ -46,35 +46,35 @@
 /** Sprite structure. */
 typedef struct sprite_struct
 {
-	/** Rows of blank pixels before first color information. */
-	int border_up;
+    /** Rows of blank pixels before first color information. */
+    int border_up;
 
-	/** Border down. */
-	int border_down;
+    /** Border down. */
+    int border_down;
 
-	/** Border left. */
-	int border_left;
+    /** Border left. */
+    int border_left;
 
-	/** Border right. */
-	int border_right;
+    /** Border right. */
+    int border_right;
 
-	/** The sprite's bitmap. */
-	SDL_Surface *bitmap;
+    /** The sprite's bitmap. */
+    SDL_Surface *bitmap;
 
-	/** Red (infravision). */
-	SDL_Surface *red;
+    /** Red (infravision). */
+    SDL_Surface *red;
 
-	/** Gray (xray). */
-	SDL_Surface *grey;
+    /** Gray (xray). */
+    SDL_Surface *grey;
 
-	/** Fog of war. */
-	SDL_Surface *fog_of_war;
+    /** Fog of war. */
+    SDL_Surface *fog_of_war;
 
-	/** Overlay effect. */
-	SDL_Surface *effect;
+    /** Overlay effect. */
+    SDL_Surface *effect;
 
-	/** Dark levels. */
-	SDL_Surface *dark_level[DARK_LEVELS];
+    /** Dark levels. */
+    SDL_Surface *dark_level[DARK_LEVELS];
 } sprite_struct;
 
 /**
@@ -90,41 +90,41 @@ typedef struct sprite_struct
 /** Animation structure. */
 typedef struct _anim
 {
-	/** Pointer to next anim in queue. */
-	struct _anim *next;
+    /** Pointer to next anim in queue. */
+    struct _anim *next;
 
-	/** Pointer to anim before. */
-	struct _anim *before;
+    /** Pointer to anim before. */
+    struct _anim *before;
 
-	/** Type of the animation, one of @ref ANIM_xxx. */
-	int type;
+    /** Type of the animation, one of @ref ANIM_xxx. */
+    int type;
 
-	/** The time we started this anim. */
-	uint32 start_tick;
+    /** The time we started this anim. */
+    uint32 start_tick;
 
-	/** This is the end-tick. */
-	uint32 last_tick;
+    /** This is the end-tick. */
+    uint32 last_tick;
 
-	/** This is the number to display. */
-	int value;
+    /** This is the number to display. */
+    int value;
 
-	/** X position. */
-	int x;
+    /** X position. */
+    int x;
 
-	/** Y position. */
-	int y;
+    /** Y position. */
+    int y;
 
-	/** Movement in X per tick. */
-	int xoff;
+    /** Movement in X per tick. */
+    int xoff;
 
-	/** Movement in Y per tick. */
-	float yoff;
+    /** Movement in Y per tick. */
+    float yoff;
 
-	/** Map position X. */
-	int mapx;
+    /** Map position X. */
+    int mapx;
 
-	/** Map position Y. */
-	int mapy;
+    /** Map position Y. */
+    int mapy;
 }_anim;
 
 #define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))

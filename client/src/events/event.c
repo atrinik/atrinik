@@ -33,33 +33,31 @@ int old_mouse_y = 0;
 
 int event_dragging_check(void)
 {
-	int mx, my;
+    int mx, my;
 
-	if (!cpl.dragging_tag)
-	{
-		return 0;
-	}
+    if (!cpl.dragging_tag) {
+        return 0;
+    }
 
-	SDL_GetMouseState(&mx, &my);
+    SDL_GetMouseState(&mx, &my);
 
-	if (abs(cpl.dragging_startx - mx) < 3 && abs(cpl.dragging_starty - my) < 3)
-	{
-		return 0;
-	}
+    if (abs(cpl.dragging_startx - mx) < 3 && abs(cpl.dragging_starty - my) < 3) {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 void event_dragging_start(int tag, int mx, int my)
 {
-	cpl.dragging_tag = tag;
-	cpl.dragging_startx = mx;
-	cpl.dragging_starty = my;
+    cpl.dragging_tag = tag;
+    cpl.dragging_startx = mx;
+    cpl.dragging_starty = my;
 }
 
 void event_dragging_stop(void)
 {
-	cpl.dragging_tag = 0;
+    cpl.dragging_tag = 0;
 }
 
 /**
@@ -70,13 +68,12 @@ void event_dragging_stop(void)
  * @param height Height to set. */
 void resize_window(int width, int height)
 {
-	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
-	setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, height);
+    setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
+    setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, height);
 
-	if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS) && width > 100 && height > 100)
-	{
-		widgets_ensure_onscreen();
-	}
+    if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS) && width > 100 && height > 100) {
+        widgets_ensure_onscreen();
+    }
 }
 
 /**
@@ -84,169 +81,147 @@ void resize_window(int width, int height)
  * @return 1 if the the quit key was pressed, 0 otherwise */
 int Event_PollInputDevice(void)
 {
-	SDL_Event event;
-	int x, y, done = 0;
-	static Uint32 Ticks = 0;
-	int tx, ty;
-	SDLKey key;
+    SDL_Event event;
+    int x, y, done = 0;
+    static Uint32 Ticks = 0;
+    int tx, ty;
+    SDLKey key;
 
-	/* Execute mouse actions, even if mouse button is being held. */
-	if ((SDL_GetTicks() - Ticks > 125) || !Ticks)
-	{
-		if (cpl.state >= ST_PLAY)
-		{
-			/* Mouse gesture: hold right+left buttons or middle button
-			 * to fire. */
-			if (widget_mouse_event.owner == cur_widget[MAP_ID])
-			{
-				int state = SDL_GetMouseState(&x, &y);
+    /* Execute mouse actions, even if mouse button is being held. */
+    if ((SDL_GetTicks() - Ticks > 125) || !Ticks) {
+        if (cpl.state >= ST_PLAY) {
+            /* Mouse gesture: hold right+left buttons or middle button
+             * to fire. */
+            if (widget_mouse_event.owner == cur_widget[MAP_ID]) {
+                int state = SDL_GetMouseState(&x, &y);
 
-				if ((state == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mouse_to_tile_coords(x, y, &tx, &ty))
-				{
-					Ticks = SDL_GetTicks();
-					cpl.fire_on = 1;
-					move_keys(dir_from_tile_coords(tx, ty));
-					cpl.fire_on = 0;
-				}
-			}
-		}
-	}
+                if ((state == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mouse_to_tile_coords(x, y, &tx, &ty)) {
+                    Ticks = SDL_GetTicks();
+                    cpl.fire_on = 1;
+                    move_keys(dir_from_tile_coords(tx, ty));
+                    cpl.fire_on = 0;
+                }
+            }
+        }
+    }
 
-	while (SDL_PollEvent(&event))
-	{
-		x = event.motion.x;
-		y = event.motion.y;
+    while (SDL_PollEvent(&event)) {
+        x = event.motion.x;
+        y = event.motion.y;
 
-		if (event.type == SDL_KEYDOWN)
-		{
-			if (!keys[event.key.keysym.sym].pressed)
-			{
-				keys[event.key.keysym.sym].repeated = 0;
-				keys[event.key.keysym.sym].pressed = 1;
-				keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-			}
-		}
-		else if (event.type == SDL_KEYUP)
-		{
-			keys[event.key.keysym.sym].pressed = 0;
-		}
-		else if (event.type == SDL_MOUSEMOTION)
-		{
-			tooltip_dismiss();
-		}
+        if (event.type == SDL_KEYDOWN) {
+            if (!keys[event.key.keysym.sym].pressed) {
+                keys[event.key.keysym.sym].repeated = 0;
+                keys[event.key.keysym.sym].pressed = 1;
+                keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
+            }
+        }
+        else if (event.type == SDL_KEYUP) {
+            keys[event.key.keysym.sym].pressed = 0;
+        }
+        else if (event.type == SDL_MOUSEMOTION) {
+            tooltip_dismiss();
+        }
 
-		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINT)
-		{
-			screenshot_create(ScreenSurface);
-			continue;
-		}
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINT) {
+            screenshot_create(ScreenSurface);
+            continue;
+        }
 
-		switch (event.type)
-		{
-			/* Screen has been resized, update screen size. */
-			case SDL_VIDEORESIZE:
-				ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
+        switch (event.type) {
+            /* Screen has been resized, update screen size. */
+            case SDL_VIDEORESIZE:
+                ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
-				if (!ScreenSurface)
-				{
-					logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
-					exit(1);
-				}
+                if (!ScreenSurface) {
+                    logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
+                    exit(1);
+                }
 
-				/* Set resolution to custom. */
-				setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-				resize_window(event.resize.w, event.resize.h);
-				break;
+                /* Set resolution to custom. */
+                setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
+                resize_window(event.resize.w, event.resize.h);
+                break;
 
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEMOTION:
-			case SDL_KEYUP:
-			case SDL_KEYDOWN:
-				if (event.type == SDL_MOUSEMOTION)
-				{
-					cursor_x = x;
-					cursor_y = y;
-					cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-				}
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEMOTION:
+            case SDL_KEYUP:
+            case SDL_KEYDOWN:
+                if (event.type == SDL_MOUSEMOTION) {
+                    cursor_x = x;
+                    cursor_y = y;
+                    cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+                }
 
-				if (popup_handle_event(&event))
-				{
-					break;
-				}
+                if (popup_handle_event(&event)) {
+                    break;
+                }
 
-				if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP)
-				{
-					break;
-				}
+                if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
+                    break;
+                }
 
-				if (cpl.state <= ST_WAITFORPLAY && intro_event(&event))
-				{
-					break;
-				}
-				else if (cpl.state == ST_PLAY && widgets_event(&event))
-				{
-					break;
-				}
+                if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
+                    break;
+                }
+                else if (cpl.state == ST_PLAY && widgets_event(&event)) {
+                    break;
+                }
 
-				if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-				{
-					key_handle_event(&event.key);
-					break;
-				}
+                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                    key_handle_event(&event.key);
+                    break;
+                }
 
-				break;
+                break;
 
-			case SDL_QUIT:
-				done = 1;
-				break;
+            case SDL_QUIT:
+                done = 1;
+                break;
 
-			default:
-				break;
-		}
+            default:
+                break;
+        }
 
-		if (event.type == SDL_MOUSEBUTTONUP)
-		{
-			event_dragging_stop();
-		}
+        if (event.type == SDL_MOUSEBUTTONUP) {
+            event_dragging_stop();
+        }
 
-		old_mouse_y = y;
-	}
+        old_mouse_y = y;
+    }
 
-	for (key = 0; key < SDLK_LAST; key++)
-	{
-		/* Ignore modifier keys. */
-		if (KEY_IS_MODIFIER(key))
-		{
-			continue;
-		}
+    for (key = 0; key < SDLK_LAST; key++) {
+        /* Ignore modifier keys. */
+        if (KEY_IS_MODIFIER(key)) {
+            continue;
+        }
 
-		if (keys[key].pressed && keys[key].time + KEY_REPEAT_TIME - 5 < LastTick)
-		{
-			keys[key].time = LastTick + KEY_REPEAT_TIME - 5;
-			keys[key].repeated = 1;
-			event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
-		}
-	}
+        if (keys[key].pressed && keys[key].time + KEY_REPEAT_TIME - 5 < LastTick) {
+            keys[key].time = LastTick + KEY_REPEAT_TIME - 5;
+            keys[key].repeated = 1;
+            event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
+        }
+    }
 
-	return done;
+    return done;
 }
 
 void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
 {
-	SDL_Event event;
+    SDL_Event event;
 
-	event.type = type;
-	event.key.which = 0;
-	event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
-	event.key.keysym.unicode = key;
-	event.key.keysym.sym = key;
-	event.key.keysym.mod = mod;
-	SDL_PushEvent(&event);
+    event.type = type;
+    event.key.which = 0;
+    event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
+    event.key.keysym.unicode = key;
+    event.key.keysym.sym = key;
+    event.key.keysym.mod = mod;
+    SDL_PushEvent(&event);
 }
 
 void event_push_key_once(SDLKey key, SDLMod mod)
 {
-	event_push_key(SDL_KEYDOWN, key, mod);
-	event_push_key(SDL_KEYUP, key, mod);
+    event_push_key(SDL_KEYDOWN, key, mod);
+    event_push_key(SDL_KEYUP, key, mod);
 }

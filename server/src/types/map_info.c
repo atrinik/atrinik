@@ -33,45 +33,38 @@
  * @param info The info object. */
 void map_info_init(object *info)
 {
-	int x, y;
-	MapSpace *msp;
+    int x, y;
+    MapSpace *msp;
 
-	if (!info->map)
-	{
-		logger_print(LOG(BUG), "Map info object not on map.");
-		return;
-	}
+    if (!info->map) {
+        logger_print(LOG(BUG), "Map info object not on map.");
+        return;
+    }
 
-	for (x = info->x; x <= info->x + info->stats.hp; x++)
-	{
-		for (y = info->y; y <= info->y + info->stats.sp; y++)
-		{
-			if (OUT_OF_MAP(info->map, x, y))
-			{
-				logger_print(LOG(BUG), "Map info object (%d, %d) spans invalid area.", info->x, info->y);
-				return;
-			}
+    for (x = info->x; x <= info->x + info->stats.hp; x++) {
+        for (y = info->y; y <= info->y + info->stats.sp; y++) {
+            if (OUT_OF_MAP(info->map, x, y)) {
+                logger_print(LOG(BUG), "Map info object (%d, %d) spans invalid area.", info->x, info->y);
+                return;
+            }
 
-			msp = GET_MAP_SPACE_PTR(info->map, x, y);
-			msp->map_info = info;
-			msp->map_info_count = info->count;
+            msp = GET_MAP_SPACE_PTR(info->map, x, y);
+            msp->map_info = info;
+            msp->map_info_count = info->count;
 
-			if (QUERY_FLAG(info, FLAG_NO_MAGIC))
-			{
-				msp->extra_flags |= MSP_EXTRA_NO_MAGIC;
-			}
+            if (QUERY_FLAG(info, FLAG_NO_MAGIC)) {
+                msp->extra_flags |= MSP_EXTRA_NO_MAGIC;
+            }
 
-			if (QUERY_FLAG(info, FLAG_NO_PVP))
-			{
-				msp->extra_flags |= MSP_EXTRA_NO_PVP;
-			}
+            if (QUERY_FLAG(info, FLAG_NO_PVP)) {
+                msp->extra_flags |= MSP_EXTRA_NO_PVP;
+            }
 
-			if (QUERY_FLAG(info, FLAG_STAND_STILL))
-			{
-				msp->extra_flags |= MSP_EXTRA_NO_HARM;
-			}
-		}
-	}
+            if (QUERY_FLAG(info, FLAG_STAND_STILL)) {
+                msp->extra_flags |= MSP_EXTRA_NO_HARM;
+            }
+        }
+    }
 }
 
 /**

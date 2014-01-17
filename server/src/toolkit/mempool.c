@@ -65,12 +65,12 @@ static size_t mempool_chunks_num;
  * @internal */
 void toolkit_mempool_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(mempool)
-	{
-		mempool_chunks = NULL;
-		mempool_chunks_num = 0;
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(mempool)
+    {
+        mempool_chunks = NULL;
+        mempool_chunks_num = 0;
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -78,50 +78,47 @@ void toolkit_mempool_init(void)
  * @internal */
 void toolkit_mempool_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(mempool)
-	{
-		size_t i;
+    TOOLKIT_DEINIT_FUNC_START(mempool)
+    {
+        size_t i;
 
-		for (i = 0; i < mempool_chunks_num; i++)
-		{
-			free(mempool_chunks[i]);
-		}
+        for (i = 0; i < mempool_chunks_num; i++) {
+            free(mempool_chunks[i]);
+        }
 
-		if (mempool_chunks)
-		{
-			free(mempool_chunks);
-			mempool_chunks = NULL;
-		}
+        if (mempool_chunks) {
+            free(mempool_chunks);
+            mempool_chunks = NULL;
+        }
 
-		mempool_chunks_num = 0;
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+        mempool_chunks_num = 0;
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
- * Return the exponent exp needed to round n up to the nearest power of two, so that
+ * Return the exponent exp needed to round n up to the nearest power of two, so
+ * that
  * (1 << exp) >= n and (1 << (exp -1)) \< n */
 uint32 nearest_pow_two_exp(uint32 n)
 {
-	static const uint32 exp_lookup[65] =
-	{
-		0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
-	};
-	uint32 i;
+    static const uint32 exp_lookup[65] =
+    {
+        0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
+        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+    };
+    uint32 i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (n <= 64)
-	{
-		return exp_lookup[n];
-	}
+    if (n <= 64) {
+        return exp_lookup[n];
+    }
 
-	for (i = 7; (uint32) (1 << i) < n; i++)
-	{
-	}
+    for (i = 7; (uint32) (1 << i) < n; i++) {
+    }
 
-	return i;
+    return i;
 }
 
 /**
@@ -132,9 +129,9 @@ uint32 nearest_pow_two_exp(uint32 n)
  * @param destructor Destructor function. */
 void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	pool->constructor = constructor;
-	pool->destructor = destructor;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    pool->constructor = constructor;
+    pool->destructor = destructor;
 }
 
 /**
@@ -150,31 +147,30 @@ void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, ch
  * @return The created memory pool. */
 mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor)
 {
-	int i;
-	mempool_struct *pool;
+    int i;
+    mempool_struct *pool;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	pool = calloc(1, sizeof(mempool_struct));
+    pool = calloc(1, sizeof(mempool_struct));
 
-	pthread_mutex_init(&pool->mutex, NULL);
-	pool->chunk_description = description;
-	pool->expand_size = expand;
-	pool->chunksize = size;
-	pool->flags = flags;
-	pool->initialisator = initialisator;
-	pool->deinitialisator = deinitialisator;
-	pool->constructor = constructor;
-	pool->destructor = destructor;
+    pthread_mutex_init(&pool->mutex, NULL);
+    pool->chunk_description = description;
+    pool->expand_size = expand;
+    pool->chunksize = size;
+    pool->flags = flags;
+    pool->initialisator = initialisator;
+    pool->deinitialisator = deinitialisator;
+    pool->constructor = constructor;
+    pool->destructor = destructor;
 
-	for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++)
-	{
-		pool->freelist[i] = &end_marker;
-		pool->nrof_free[i] = 0;
-		pool->nrof_allocated[i] = 0;
-	}
+    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
+        pool->freelist[i] = &end_marker;
+        pool->nrof_free[i] = 0;
+        pool->nrof_allocated[i] = 0;
+    }
 
-	return pool;
+    return pool;
 }
 
 /**
@@ -182,8 +178,8 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
  * @param pool The mempool to free. */
 void mempool_free(mempool_struct *pool)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	free(pool);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    free(pool);
 }
 
 /**
@@ -195,64 +191,58 @@ void mempool_free(mempool_struct *pool)
  * for arrays of length 8 (2^3 = 8) */
 static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
 {
-	uint32 i;
-	mempool_chunk_struct *first, *ptr;
-	int chunksize_real, nrof_arrays;
+    uint32 i;
+    mempool_chunk_struct *first, *ptr;
+    int chunksize_real, nrof_arrays;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (pool->nrof_free[arraysize_exp] > 0)
-	{
-		logger_print(LOG(BUG), "called with chunks still available in pool");
-	}
+    if (pool->nrof_free[arraysize_exp] > 0) {
+        logger_print(LOG(BUG), "called with chunks still available in pool");
+    }
 
-	nrof_arrays = pool->expand_size >> arraysize_exp;
+    nrof_arrays = pool->expand_size >> arraysize_exp;
 
-	if (nrof_arrays == 0)
-	{
-		logger_print(LOG(DEBUG), "called with too big array size for its expand_size");
-		nrof_arrays = 1;
-	}
+    if (nrof_arrays == 0) {
+        logger_print(LOG(DEBUG), "called with too big array size for its expand_size");
+        nrof_arrays = 1;
+    }
 
-	chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
-	first = (mempool_chunk_struct *) calloc(1, nrof_arrays * chunksize_real);
+    chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
+    first = (mempool_chunk_struct *) calloc(1, nrof_arrays * chunksize_real);
 
-	if (first == NULL)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (first == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
 #ifndef PRODUCTION
-	mempool_chunks = realloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
-	mempool_chunks[mempool_chunks_num] = first;
-	mempool_chunks_num++;
+    mempool_chunks = realloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
+    mempool_chunks[mempool_chunks_num] = first;
+    mempool_chunks_num++;
 #endif
 
-	pool->freelist[arraysize_exp] = first;
-	pool->nrof_allocated[arraysize_exp] += nrof_arrays;
-	pool->nrof_free[arraysize_exp] = nrof_arrays;
+    pool->freelist[arraysize_exp] = first;
+    pool->nrof_allocated[arraysize_exp] += nrof_arrays;
+    pool->nrof_free[arraysize_exp] = nrof_arrays;
 
-	/* Set up the linked list */
-	ptr = first;
+    /* Set up the linked list */
+    ptr = first;
 
-	for (i = 0; (int) i < nrof_arrays - 1; i++)
-	{
-		if (pool->initialisator)
-		{
-			pool->initialisator(MEM_USERDATA(ptr));
-		}
+    for (i = 0; (int) i < nrof_arrays - 1; i++) {
+        if (pool->initialisator) {
+            pool->initialisator(MEM_USERDATA(ptr));
+        }
 
-		ptr = ptr->next = (mempool_chunk_struct *) (((char *) ptr) + chunksize_real);
-	}
+        ptr = ptr->next = (mempool_chunk_struct *) (((char *) ptr) + chunksize_real);
+    }
 
-	/* And the last element */
-	ptr->next = &end_marker;
+    /* And the last element */
+    ptr->next = &end_marker;
 
-	if (pool->initialisator)
-	{
-		pool->initialisator(MEM_USERDATA(ptr));
-	}
+    if (pool->initialisator) {
+        pool->initialisator(MEM_USERDATA(ptr));
+    }
 }
 
 /**
@@ -263,39 +253,35 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
  * @return  */
 void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 {
-	mempool_chunk_struct *new_obj;
+    mempool_chunk_struct *new_obj;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	pthread_mutex_lock(&pool->mutex);
+    pthread_mutex_lock(&pool->mutex);
 
-	if (pool->flags & MEMPOOL_BYPASS_POOLS)
-	{
-		new_obj = calloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
-		pool->nrof_allocated[arraysize_exp]++;
-	}
-	else
-	{
-		if (pool->nrof_free[arraysize_exp] == 0)
-		{
-			expand_mempool(pool, arraysize_exp);
-		}
+    if (pool->flags & MEMPOOL_BYPASS_POOLS) {
+        new_obj = calloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
+        pool->nrof_allocated[arraysize_exp]++;
+    }
+    else {
+        if (pool->nrof_free[arraysize_exp] == 0) {
+            expand_mempool(pool, arraysize_exp);
+        }
 
-		new_obj = pool->freelist[arraysize_exp];
-		pool->freelist[arraysize_exp] = new_obj->next;
-		pool->nrof_free[arraysize_exp]--;
-	}
+        new_obj = pool->freelist[arraysize_exp];
+        pool->freelist[arraysize_exp] = new_obj->next;
+        pool->nrof_free[arraysize_exp]--;
+    }
 
-	new_obj->next = NULL;
+    new_obj->next = NULL;
 
-	if (pool->constructor)
-	{
-		pool->constructor(MEM_USERDATA(new_obj));
-	}
+    if (pool->constructor) {
+        pool->constructor(MEM_USERDATA(new_obj));
+    }
 
-	pthread_mutex_unlock(&pool->mutex);
+    pthread_mutex_unlock(&pool->mutex);
 
-	return MEM_USERDATA(new_obj);
+    return MEM_USERDATA(new_obj);
 }
 
 /**
@@ -308,39 +294,34 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
  * @param pool  */
 void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool)
 {
-	mempool_chunk_struct *old = MEM_POOLDATA(data);
+    mempool_chunk_struct *old = MEM_POOLDATA(data);
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (CHUNK_FREE(data))
-	{
-		logger_print(LOG(BUG), "on already free chunk (pool '%s')", pool->chunk_description);
-		return;
-	}
+    if (CHUNK_FREE(data)) {
+        logger_print(LOG(BUG), "on already free chunk (pool '%s')", pool->chunk_description);
+        return;
+    }
 
-	pthread_mutex_lock(&pool->mutex);
+    pthread_mutex_lock(&pool->mutex);
 
-	if (pool->destructor)
-	{
-		pool->destructor(data);
-	}
+    if (pool->destructor) {
+        pool->destructor(data);
+    }
 
-	if (pool->flags & MEMPOOL_BYPASS_POOLS)
-	{
-		if (pool->deinitialisator)
-		{
-			pool->deinitialisator(MEM_USERDATA(old));
-		}
+    if (pool->flags & MEMPOOL_BYPASS_POOLS) {
+        if (pool->deinitialisator) {
+            pool->deinitialisator(MEM_USERDATA(old));
+        }
 
-		free(old);
-		pool->nrof_allocated[arraysize_exp]--;
-	}
-	else
-	{
-		old->next = pool->freelist[arraysize_exp];
-		pool->freelist[arraysize_exp] = old;
-		pool->nrof_free[arraysize_exp]++;
-	}
+        free(old);
+        pool->nrof_allocated[arraysize_exp]--;
+    }
+    else {
+        old->next = pool->freelist[arraysize_exp];
+        pool->freelist[arraysize_exp] = old;
+        pool->nrof_free[arraysize_exp]++;
+    }
 
-	pthread_mutex_unlock(&pool->mutex);
+    pthread_mutex_unlock(&pool->mutex);
 }

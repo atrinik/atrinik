@@ -42,46 +42,46 @@ typedef void (*command_func)(object *op, const char *command, char *params);
  * A single command. */
 typedef struct command_struct
 {
-	/**
-	 * Name of the command. */
-	char *name;
+    /**
+     * Name of the command. */
+    char *name;
 
-	/**
-	 * Handler function. */
-	command_func handle_func;
+    /**
+     * Handler function. */
+    command_func handle_func;
 
-	/**
-	 * Time the player must wait before doing another command. */
-	double delay;
+    /**
+     * Time the player must wait before doing another command. */
+    double delay;
 
-	/**
-	 * A combination of @ref COMMAND_xxx. */
-	uint64 flags;
+    /**
+     * A combination of @ref COMMAND_xxx. */
+    uint64 flags;
 
-	/**
-	 * Hash handle. */
-	UT_hash_handle hh;
+    /**
+     * Hash handle. */
+    UT_hash_handle hh;
 } command_struct;
 
 /**
  * A single permission group. */
 typedef struct permission_group_struct
 {
-	/**
-	 * Name, eg, '[OP]'. */
-	char *name;
+    /**
+     * Name, eg, '[OP]'. */
+    char *name;
 
-	/**
-	 * The command permissions for this group. */
-	char **cmd_permissions;
+    /**
+     * The command permissions for this group. */
+    char **cmd_permissions;
 
-	/**
-	 * Number of command permissions. */
-	size_t cmd_permissions_num;
+    /**
+     * Number of command permissions. */
+    size_t cmd_permissions_num;
 
-	/**
-	 * Hash handle. */
-	UT_hash_handle hh;
+    /**
+     * Hash handle. */
+    UT_hash_handle hh;
 } permission_group_struct;
 
 /**
@@ -98,10 +98,10 @@ typedef struct permission_group_struct
 
 /**
  * Shortcut macro for commands_add(). */
-#define COMMAND(__name) #__name, command_##__name
+#define COMMAND(__name) #__name, command_ ## __name
 
 /**
  * Execute the specific command. */
-#define COMMAND_EXECUTE(__op, __command, __params) command_##__command((__op), #__command, (__params))
+#define COMMAND_EXECUTE(__op, __command, __params) command_ ## __command((__op), #__command, (__params))
 
 #endif

@@ -33,30 +33,26 @@
 /** @copydoc command_func */
 void command_no_chat(object *op, const char *command, char *params)
 {
-	player *pl;
+    player *pl;
 
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Usage: /no_chat <player>");
-		return;
-	}
+    if (!params) {
+        draw_info(COLOR_WHITE, op, "Usage: /no_chat <player>");
+        return;
+    }
 
-	pl = find_player(params);
+    pl = find_player(params);
 
-	if (!pl)
-	{
-		draw_info(COLOR_WHITE, op, "No such player.");
-		return;
-	}
+    if (!pl) {
+        draw_info(COLOR_WHITE, op, "No such player.");
+        return;
+    }
 
-	if (pl->no_chat)
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
-		pl->no_chat = 0;
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
-		pl->no_chat = 1;
-	}
+    if (pl->no_chat) {
+        draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
+        pl->no_chat = 0;
+    }
+    else {
+        draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
+        pl->no_chat = 1;
+    }
 }

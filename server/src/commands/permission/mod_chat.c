@@ -33,30 +33,26 @@
 /** @copydoc command_func */
 void command_mod_chat(object *op, const char *command, char *params)
 {
-	player *pl;
-	char name[MAX_BUF];
+    player *pl;
+    char name[MAX_BUF];
 
-	params = player_sanitize_input(params);
+    params = player_sanitize_input(params);
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	logger_print(LOG(CHAT), "[MOD CHAT] [%s] %s", op->name, params);
+    logger_print(LOG(CHAT), "[MOD CHAT] [%s] %s", op->name, params);
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (commands_check_permission(pl, command))
-		{
-			snprintf(name, sizeof(name), "[Moderator] (<a=#charname>%s</a>)", op->name);
-		}
-		else
-		{
-			strncpy(name, "[Moderator]", sizeof(name) - 1);
-			name[sizeof(name) - 1] = '\0';
-		}
+    for (pl = first_player; pl; pl = pl->next) {
+        if (commands_check_permission(pl, command)) {
+            snprintf(name, sizeof(name), "[Moderator] (<a=#charname>%s</a>)", op->name);
+        }
+        else {
+            strncpy(name, "[Moderator]", sizeof(name) - 1);
+            name[sizeof(name) - 1] = '\0';
+        }
 
-		draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_BRIGHT_PURPLE, pl->ob, params);
-	}
+        draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_BRIGHT_PURPLE, pl->ob, params);
+    }
 }

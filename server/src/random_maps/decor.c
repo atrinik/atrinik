@@ -35,51 +35,44 @@
  * @param RP Parameters of the random map. */
 void put_decor(mapstruct *map, char **layout, RMParms *RP)
 {
-	mapstruct *decor_map;
-	char style_name[256];
-	int i, j;
-	object *new_decor_object;
+    mapstruct *decor_map;
+    char style_name[256];
+    int i, j;
+    object *new_decor_object;
 
-	if (RP->decorstyle[0] == '\0' || !strcmp(RP->decorstyle, "none"))
-	{
-		return;
-	}
+    if (RP->decorstyle[0] == '\0' || !strcmp(RP->decorstyle, "none")) {
+        return;
+    }
 
-	snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
-	decor_map = find_style(style_name, RP->decorstyle, -1);
+    snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
+    decor_map = find_style(style_name, RP->decorstyle, -1);
 
-	if (decor_map == NULL)
-	{
-		return;
-	}
+    if (decor_map == NULL) {
+        return;
+    }
 
-	for (i = 0; i < RP->Xsize - 1; i++)
-	{
-		for (j = 0; j < RP->Ysize - 1; j++)
-		{
-			if (RP->decorchance > 0 && RANDOM() % RP->decorchance)
-			{
-				continue;
-			}
+    for (i = 0; i < RP->Xsize - 1; i++) {
+        for (j = 0; j < RP->Ysize - 1; j++) {
+            if (RP->decorchance > 0 && RANDOM() % RP->decorchance) {
+                continue;
+            }
 
-			new_decor_object = pick_random_object(decor_map);
+            new_decor_object = pick_random_object(decor_map);
 
-			if (layout[i][j] == (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) ? '#' : '\0'))
-			{
-				object *this_object = get_object();
+            if (layout[i][j] == (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) ? '#' : '\0')) {
+                object *this_object = get_object();
 
-				copy_object(new_decor_object, this_object, 0);
-				this_object->x = i;
-				this_object->y = j;
+                copy_object(new_decor_object, this_object, 0);
+                this_object->x = i;
+                this_object->y = j;
 
-				if (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) && surround_flag2(layout, i, j, RP) & (4 | 8))
-				{
-					this_object->direction = 7;
-					SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);
-				}
+                if (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) && surround_flag2(layout, i, j, RP) & (4 | 8)) {
+                    this_object->direction = 7;
+                    SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);
+                }
 
-				insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-			}
-		}
-	}
+                insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            }
+        }
+    }
 }

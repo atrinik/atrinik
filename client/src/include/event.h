@@ -31,24 +31,24 @@
 
 enum
 {
-	DRAG_GET_STATUS = -1,
-	DRAG_NONE,
-	DRAG_QUICKSLOT,
-	DRAG_QUICKSLOT_SPELL
+    DRAG_GET_STATUS = -1,
+    DRAG_NONE,
+    DRAG_QUICKSLOT,
+    DRAG_QUICKSLOT_SPELL
 };
 
 /**
  * Key information. */
 typedef struct key_struct
 {
-	/** If 1, the key is pressed. */
-	uint8 pressed;
+    /** If 1, the key is pressed. */
+    uint8 pressed;
 
-	/** Last repeat time. */
-	uint32 time;
+    /** Last repeat time. */
+    uint32 time;
 
-	/** Whether the key is being repeated. */
-	uint8 repeated;
+    /** Whether the key is being repeated. */
+    uint8 repeated;
 } key_struct;
 
 #define EVENT_IS_MOUSE(_event) ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || (_event)->type == SDL_MOUSEMOTION)

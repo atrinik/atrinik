@@ -60,10 +60,10 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
  * @internal */
 void toolkit_stringbuffer_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(stringbuffer)
-	{
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(stringbuffer)
+    {
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -71,10 +71,10 @@ void toolkit_stringbuffer_init(void)
  * @internal */
 void toolkit_stringbuffer_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(stringbuffer)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(stringbuffer)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -82,20 +82,19 @@ void toolkit_stringbuffer_deinit(void)
  * @return The newly allocated string buffer. */
 StringBuffer *stringbuffer_new(void)
 {
-	StringBuffer *sb = malloc(sizeof(StringBuffer));
+    StringBuffer *sb = malloc(sizeof(StringBuffer));
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!sb)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (!sb) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	sb->size = MAX_BUF;
-	sb->buf = malloc(sb->size);
-	sb->pos = 0;
-	return sb;
+    sb->size = MAX_BUF;
+    sb->buf = malloc(sb->size);
+    sb->pos = 0;
+    return sb;
 }
 
 /**
@@ -106,14 +105,14 @@ StringBuffer *stringbuffer_new(void)
  * @return The result string; to free it, call free() on it. */
 char *stringbuffer_finish(StringBuffer *sb)
 {
-	char *result;
+    char *result;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	sb->buf[sb->pos] = '\0';
-	result = sb->buf;
-	free(sb);
-	return result;
+    sb->buf[sb->pos] = '\0';
+    result = sb->buf;
+    free(sb);
+    return result;
 }
 
 /**
@@ -126,13 +125,13 @@ char *stringbuffer_finish(StringBuffer *sb)
  * FREE_AND_CLEAR_HASH(). */
 const char *stringbuffer_finish_shared(StringBuffer *sb)
 {
-	char *str = stringbuffer_finish(sb);
-	const char *result = add_string(str);
+    char *str = stringbuffer_finish(sb);
+    const char *result = add_string(str);
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	free(str);
-	return result;
+    free(str);
+    return result;
 }
 
 /**
@@ -142,11 +141,11 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
  * @param len Length of the string. */
 void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	stringbuffer_ensure(sb, len + 1);
-	memcpy(sb->buf + sb->pos, str, len);
-	sb->pos += len;
+    stringbuffer_ensure(sb, len + 1);
+    memcpy(sb->buf + sb->pos, str, len);
+    sb->pos += len;
 }
 
 /**
@@ -155,8 +154,8 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t le
  * @param str The string to append. */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	stringbuffer_append_string_len(sb, str, strlen(str));
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    stringbuffer_append_string_len(sb, str, strlen(str));
 }
 
 /**
@@ -165,38 +164,34 @@ void stringbuffer_append_string(StringBuffer *sb, const char *str)
  * @param format The format string to append. */
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 {
-	size_t size = MAX_BUF;
+    size_t size = MAX_BUF;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (; ;)
-	{
-		int n;
-		va_list arg;
+    for (;; ) {
+        int n;
+        va_list arg;
 
-		stringbuffer_ensure(sb, size);
+        stringbuffer_ensure(sb, size);
 
-		va_start(arg, format);
-		n = vsnprintf(sb->buf + sb->pos, size, format, arg);
-		va_end(arg);
+        va_start(arg, format);
+        n = vsnprintf(sb->buf + sb->pos, size, format, arg);
+        va_end(arg);
 
-		if (n > -1 && (size_t) n < size)
-		{
-			sb->pos += (size_t) n;
-			break;
-		}
+        if (n > -1 && (size_t) n < size) {
+            sb->pos += (size_t) n;
+            break;
+        }
 
-		/* Precisely what is needed */
-		if (n > -1)
-		{
-			size = n + 1;
-		}
-		/* Twice the old size */
-		else
-		{
-			size *= 2;
-		}
-	}
+        /* Precisely what is needed */
+        if (n > -1) {
+            size = n + 1;
+        }
+        /* Twice the old size */
+        else {
+            size *= 2;
+        }
+    }
 }
 
 /**
@@ -206,11 +201,11 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
  * @param sb2 The string buffer to append; it must be different from sb. */
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	stringbuffer_ensure(sb, sb2->pos + 1);
-	memcpy(sb->buf + sb->pos, sb2->buf, sb2->pos);
-	sb->pos += sb2->pos;
+    stringbuffer_ensure(sb, sb2->pos + 1);
+    memcpy(sb->buf + sb->pos, sb2->buf, sb2->pos);
+    sb->pos += sb2->pos;
 }
 
 /**
@@ -219,10 +214,10 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
  * @param c The character to append. */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	stringbuffer_ensure(sb, 1 + 1);
-	sb->buf[sb->pos++] = c;
+    stringbuffer_ensure(sb, 1 + 1);
+    sb->buf[sb->pos++] = c;
 }
 
 /**
@@ -232,27 +227,25 @@ void stringbuffer_append_char(StringBuffer *sb, const char c)
  * @param len The number of bytes to allocate. */
 static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 {
-	char *tmp;
-	size_t new_size;
+    char *tmp;
+    size_t new_size;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (sb->pos + len <= sb->size)
-	{
-		return;
-	}
+    if (sb->pos + len <= sb->size) {
+        return;
+    }
 
-	new_size = sb->pos + len + MAX_BUF;
-	tmp = realloc(sb->buf, new_size);
+    new_size = sb->pos + len + MAX_BUF;
+    tmp = realloc(sb->buf, new_size);
 
-	if (tmp == NULL)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (tmp == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	sb->buf = tmp;
-	sb->size = new_size;
+    sb->buf = tmp;
+    sb->size = new_size;
 }
 
 /**
@@ -261,8 +254,8 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
  * @return Current length of 'sb'. */
 size_t stringbuffer_length(StringBuffer *sb)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	return sb->pos;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    return sb->pos;
 }
 
 /**
@@ -274,19 +267,17 @@ size_t stringbuffer_length(StringBuffer *sb)
  * not found. */
 ssize_t stringbuffer_index(StringBuffer *sb, char c)
 {
-	size_t i;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (i = 0; i < sb->pos; i++)
-	{
-		if (sb->buf[i] == c)
-		{
-			return i;
-		}
-	}
+    for (i = 0; i < sb->pos; i++) {
+        if (sb->buf[i] == c) {
+            return i;
+        }
+    }
 
-	return -1;
+    return -1;
 }
 
 /**
@@ -298,17 +289,15 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
  * not found. */
 ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
 {
-	size_t i;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (i = sb->pos; i > 0; i--)
-	{
-		if (sb->buf[i - 1] == c)
-		{
-			return i - 1;
-		}
-	}
+    for (i = sb->pos; i > 0; i--) {
+        if (sb->buf[i - 1] == c) {
+            return i - 1;
+        }
+    }
 
-	return -1;
+    return -1;
 }

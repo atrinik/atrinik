@@ -31,59 +31,52 @@
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
+    (void) originator;
 
-	if (!state)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (!state) {
+        return OBJECT_METHOD_OK;
+    }
 
-	if (victim->type == PLAYER && !get_payment(victim, victim->inv))
-	{
-		int i;
+    if (victim->type == PLAYER && !get_payment(victim, victim->inv)) {
+        int i;
 
-		i = find_free_spot(victim->arch, NULL, victim->map, victim->x, victim->y, 1, SIZEOFFREE1 + 1);
+        i = find_free_spot(victim->arch, NULL, victim->map, victim->x, victim->y, 1, SIZEOFFREE1 + 1);
 
-		if (i != -1)
-		{
-			object_remove(victim, 0);
-			victim->x += freearr_x[i];
-			victim->y += freearr_y[i];
-			insert_ob_in_map(victim, victim->map, op, 0);
-		}
+        if (i != -1) {
+            object_remove(victim, 0);
+            victim->x += freearr_x[i];
+            victim->y += freearr_y[i];
+            insert_ob_in_map(victim, victim->map, op, 0);
+        }
 
-		return OBJECT_METHOD_OK;
-	}
+        return OBJECT_METHOD_OK;
+    }
 
-	if (op->msg)
-	{
-		draw_info(COLOR_WHITE, victim, op->msg);
-	}
-	else
-	{
-		int sub_layer;
-		object *tmp;
+    if (op->msg) {
+        draw_info(COLOR_WHITE, victim, op->msg);
+    }
+    else {
+        int sub_layer;
+        object *tmp;
 
-		for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++)
-		{
-			tmp = GET_MAP_OB_LAYER(victim->map, victim->x, victim->y, LAYER_FLOOR, sub_layer);
+        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+            tmp = GET_MAP_OB_LAYER(victim->map, victim->x, victim->y, LAYER_FLOOR, sub_layer);
 
-			if (tmp && tmp->type == SHOP_FLOOR)
-			{
-				draw_info(COLOR_WHITE, victim, "Thank you for visiting our shop.");
-				break;
-			}
-		}
-	}
+            if (tmp && tmp->type == SHOP_FLOOR) {
+                draw_info(COLOR_WHITE, victim, "Thank you for visiting our shop.");
+                break;
+            }
+        }
+    }
 
-	teleport(op, SHOP_MAT, victim);
+    teleport(op, SHOP_MAT, victim);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the shop mat type object methods. */
 void object_type_init_shop_mat(void)
 {
-	object_type_methods[SHOP_MAT].move_on_func = move_on_func;
+    object_type_methods[SHOP_MAT].move_on_func = move_on_func;
 }

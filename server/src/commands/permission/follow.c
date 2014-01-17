@@ -33,29 +33,26 @@
 /** @copydoc command_func */
 void command_follow(object *op, const char *command, char *params)
 {
-	player *pl;
+    player *pl;
 
-	if (!params)
-	{
-		if (*CONTR(op)->followed_player != '\0')
-		{
-			draw_info_format(COLOR_WHITE, op, "You stop following %s.", CONTR(op)->followed_player);
-			CONTR(op)->followed_player[0] = '\0';
-		}
+    if (!params) {
+        if (*CONTR(op)->followed_player != '\0') {
+            draw_info_format(COLOR_WHITE, op, "You stop following %s.", CONTR(op)->followed_player);
+            CONTR(op)->followed_player[0] = '\0';
+        }
 
-		return;
-	}
+        return;
+    }
 
-	pl = find_player(params);
+    pl = find_player(params);
 
-	if (!pl)
-	{
-		draw_info(COLOR_WHITE, op, "No such player.");
-		return;
-	}
+    if (!pl) {
+        draw_info(COLOR_WHITE, op, "No such player.");
+        return;
+    }
 
-	strncpy(CONTR(op)->followed_player, params, sizeof(CONTR(op)->followed_player) - 1);
-	CONTR(op)->followed_player[sizeof(CONTR(op)->followed_player) - 1] = '\0';
+    strncpy(CONTR(op)->followed_player, params, sizeof(CONTR(op)->followed_player) - 1);
+    CONTR(op)->followed_player[sizeof(CONTR(op)->followed_player) - 1] = '\0';
 
-	draw_info_format(COLOR_GREEN, op, "Following %s.", params);
+    draw_info_format(COLOR_GREEN, op, "Following %s.", params);
 }

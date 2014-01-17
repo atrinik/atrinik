@@ -33,5 +33,5 @@
 /** @copydoc command_func */
 void command_version(object *op, const char *command, char *params)
 {
-	version(op);
+    version(op);
 }

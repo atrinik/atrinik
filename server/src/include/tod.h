@@ -63,32 +63,32 @@
 /** Represents the in-game time. */
 typedef struct _timeofday
 {
-	/** Year */
-	int year;
+    /** Year */
+    int year;
 
-	/** Month */
-	int month;
+    /** Month */
+    int month;
 
-	/** Day */
-	int day;
+    /** Day */
+    int day;
 
-	/** Day of week */
-	int dayofweek;
+    /** Day of week */
+    int dayofweek;
 
-	/** Hour */
-	int hour;
+    /** Hour */
+    int hour;
 
-	/** Minute */
-	int minute;
+    /** Minute */
+    int minute;
 
-	/** Week of month */
-	int weekofmonth;
+    /** Week of month */
+    int weekofmonth;
 
-	/** Season */
-	int season;
+    /** Season */
+    int season;
 
-	/** Period of day. */
-	int periodofday;
+    /** Period of day. */
+    int periodofday;
 } timeofday_t;
 
 #endif

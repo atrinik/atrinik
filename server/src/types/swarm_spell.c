@@ -31,66 +31,58 @@
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	int cardinal_adjust[9] = {-3, -2, -1, 0, 0, 0, 1, 2, 3};
-	int diagonal_adjust[10] = {-3, -2, -2, -1, 0, 0, 1, 2, 2, 3};
-	int x, y, basedir, adjustdir;
-	int target_x, target_y;
+    int cardinal_adjust[9] = {-3, -2, -1, 0, 0, 0, 1, 2, 3};
+    int diagonal_adjust[10] = {-3, -2, -2, -1, 0, 0, 1, 2, 2, 3};
+    int x, y, basedir, adjustdir;
+    int target_x, target_y;
 
-	if (op->stats.hp == 0 || !get_owner(op))
-	{
-		object_remove(op, 0);
-		return;
-	}
+    if (op->stats.hp == 0 || !get_owner(op)) {
+        object_remove(op, 0);
+        return;
+    }
 
-	op->stats.hp--;
-	basedir = op->direction;
+    op->stats.hp--;
+    basedir = op->direction;
 
-	if (basedir == 0)
-	{
-		basedir = get_random_dir();
-	}
+    if (basedir == 0) {
+        basedir = get_random_dir();
+    }
 
-	/* New offset calculation to make swarm element distribution
-	 * more uniform */
-	if (op->stats.hp)
-	{
-		if (basedir & 1)
-		{
-			adjustdir = cardinal_adjust[rndm(0, 8)];
-		}
-		else
-		{
-			adjustdir = diagonal_adjust[rndm(0, 9)];
-		}
-	}
-	/* Fire the last one from forward. */
-	else
-	{
-		adjustdir = 0;
-	}
+    /* New offset calculation to make swarm element distribution
+     * more uniform */
+    if (op->stats.hp) {
+        if (basedir & 1) {
+            adjustdir = cardinal_adjust[rndm(0, 8)];
+        }
+        else {
+            adjustdir = diagonal_adjust[rndm(0, 9)];
+        }
+    }
+    /* Fire the last one from forward. */
+    else {
+        adjustdir = 0;
+    }
 
-	target_x = op->x + freearr_x[absdir(basedir + adjustdir)];
-	target_y = op->y + freearr_y[absdir(basedir + adjustdir)];
+    target_x = op->x + freearr_x[absdir(basedir + adjustdir)];
+    target_y = op->y + freearr_y[absdir(basedir + adjustdir)];
 
-	/* Back up one space so we can hit point-blank targets, but this
-	 * necessitates extra get_map_from_coord check below */
-	x = target_x - freearr_x[basedir];
-	y = target_y - freearr_y[basedir];
+    /* Back up one space so we can hit point-blank targets, but this
+     * necessitates extra get_map_from_coord check below */
+    x = target_x - freearr_x[basedir];
+    y = target_y - freearr_y[basedir];
 
-	if (!get_map_from_coord(op->map, &x, &y))
-	{
-		return;
-	}
+    if (!get_map_from_coord(op->map, &x, &y)) {
+        return;
+    }
 
-	if (!wall(op->map, x, y))
-	{
-		fire_arch_from_position(op, op, x, y, basedir, op->other_arch, op->stats.sp, NULL);
-	}
+    if (!wall(op->map, x, y)) {
+        fire_arch_from_position(op, op, x, y, basedir, op->other_arch, op->stats.sp, NULL);
+    }
 }
 
 /**
  * Initialize the swarm spell type object methods. */
 void object_type_init_swarm_spell(void)
 {
-	object_type_methods[SWARM_SPELL].process_func = process_func;
+    object_type_methods[SWARM_SPELL].process_func = process_func;
 }

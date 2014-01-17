@@ -33,13 +33,12 @@
 /** @copydoc command_func */
 void command_gsay(object *op, const char *command, char *params)
 {
-	char newparams[HUGE_BUF];
+    char newparams[HUGE_BUF];
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	snprintf(newparams, sizeof(newparams), "say %s", params);
-	command_party(op, command, newparams);
+    snprintf(newparams, sizeof(newparams), "say %s", params);
+    command_party(op, command, newparams);
 }

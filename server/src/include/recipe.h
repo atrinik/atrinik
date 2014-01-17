@@ -32,52 +32,52 @@
 /** Recipe structure */
 typedef struct recipestruct
 {
-	/** Distinguishing name of product */
-	const char *title;
+    /** Distinguishing name of product */
+    const char *title;
 
-	/** The archetype of the final product made */
-	const char *arch_name;
+    /** The archetype of the final product made */
+    const char *arch_name;
 
-	/**
-	 * Chance that recipe for this item will appear in an alchemical
-	 * grimoire */
-	int chance;
+    /**
+     * Chance that recipe for this item will appear in an alchemical
+     * grimoire */
+    int chance;
 
-	/** An index value derived from formula ingredients */
-	int index;
+    /** An index value derived from formula ingredients */
+    int index;
 
-	/**
-	 * If defined, one of the formula ingredients is used as the basis
-	 * for the product object */
-	int transmute;
+    /**
+     * If defined, one of the formula ingredients is used as the basis
+     * for the product object */
+    int transmute;
 
-	/** The maximum number of items produced by the recipe */
-	int yield;
+    /** The maximum number of items produced by the recipe */
+    int yield;
 
-	/** Comma delimited list of ingredients */
-	linked_char *ingred;
+    /** Comma delimited list of ingredients */
+    linked_char *ingred;
 
-	/** Keycode needed to use the recipe */
-	const char *keycode;
+    /** Keycode needed to use the recipe */
+    const char *keycode;
 
-	/** Next recipe */
-	struct recipestruct *next;
+    /** Next recipe */
+    struct recipestruct *next;
 } recipe;
 
 /** Recipe list structure */
 typedef struct recipeliststruct
 {
-	/** Total chance */
-	int total_chance;
+    /** Total chance */
+    int total_chance;
 
-	/** Number of recipes in this list */
-	int number;
+    /** Number of recipes in this list */
+    int number;
 
-	/** Pointer to first recipe in this list */
-	struct recipestruct *items;
+    /** Pointer to first recipe in this list */
+    struct recipestruct *items;
 
-	/** Pointer to next recipe list */
-	struct recipeliststruct *next;
+    /** Pointer to next recipe list */
+    struct recipeliststruct *next;
 } recipelist;
 
 #endif

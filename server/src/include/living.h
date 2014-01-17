@@ -66,59 +66,59 @@
  * buttons, waypoints and a number of other objects. */
 typedef struct liv
 {
-	/** Experience. */
-	sint64 exp;
+    /** Experience. */
+    sint64 exp;
 
-	/** Hit points. */
-	sint32 hp;
+    /** Hit points. */
+    sint32 hp;
 
-	/** Max hit points. */
-	sint32 maxhp;
+    /** Max hit points. */
+    sint32 maxhp;
 
-	/** Spell points. Used to cast mage spells. */
-	sint16 sp;
+    /** Spell points. Used to cast mage spells. */
+    sint16 sp;
 
-	/** Max spell points. */
-	sint16 maxsp;
+    /** Max spell points. */
+    sint16 maxsp;
 
-	/** How much food in stomach. 0 = starved. */
-	sint16 food;
+    /** How much food in stomach. 0 = starved. */
+    sint16 food;
 
-	/** How much damage this object does when hitting. */
-	sint16 dam;
+    /** How much damage this object does when hitting. */
+    sint16 dam;
 
-	/** Weapon class. */
-	sint16 wc;
+    /** Weapon class. */
+    sint16 wc;
 
-	/** Armour class. */
-	sint16 ac;
+    /** Armour class. */
+    sint16 ac;
 
-	/**
-	 * Random value range we add to wc value of attacker:
-	 * wc + (random() % wc_range). If it's higher than
-	 * defender's AC then we can hit our enemy. */
-	uint8 wc_range;
+    /**
+     * Random value range we add to wc value of attacker:
+     * wc + (random() % wc_range). If it's higher than
+     * defender's AC then we can hit our enemy. */
+    uint8 wc_range;
 
-	/** Strength. */
-	sint8 Str;
+    /** Strength. */
+    sint8 Str;
 
-	/** Dexterity. */
-	sint8 Dex;
+    /** Dexterity. */
+    sint8 Dex;
 
-	/** Constitution. */
-	sint8 Con;
+    /** Constitution. */
+    sint8 Con;
 
-	/** Wisdom. */
-	sint8 Wis;
+    /** Wisdom. */
+    sint8 Wis;
 
-	/** Charisma. */
-	sint8 Cha;
+    /** Charisma. */
+    sint8 Cha;
 
-	/** Intelligence. */
-	sint8 Int;
+    /** Intelligence. */
+    sint8 Int;
 
-	/** Power. */
-	sint8 Pow;
+    /** Power. */
+    sint8 Pow;
 } living;
 
 #endif

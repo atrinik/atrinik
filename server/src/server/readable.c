@@ -39,11 +39,11 @@
 /** special structure, used only by art_name_array[] */
 typedef struct namebytype
 {
-	/** Generic name to call artifacts of this type */
-	char *name;
+    /** Generic name to call artifacts of this type */
+    char *name;
 
-	/** Matching type */
-	int type;
+    /** Matching type */
+    int type;
 } arttypename;
 
 /**
@@ -63,77 +63,77 @@ static size_t num_msgs = 0;
 /** Spellpath information */
 static uint32 spellpathdef[NRSPELLPATHS] =
 {
-	PATH_PROT,
-	PATH_FIRE,
-	PATH_FROST,
-	PATH_ELEC,
-	PATH_MISSILE,
-	PATH_SELF,
-	PATH_SUMMON,
-	PATH_ABJURE,
-	PATH_RESTORE,
-	PATH_DETONATE,
-	PATH_MIND,
-	PATH_CREATE,
-	PATH_TELE,
-	PATH_INFO,
-	PATH_TRANSMUTE,
-	PATH_TRANSFER,
-	PATH_TURNING,
-	PATH_WOUNDING,
-	PATH_DEATH,
-	PATH_LIGHT
+    PATH_PROT,
+    PATH_FIRE,
+    PATH_FROST,
+    PATH_ELEC,
+    PATH_MISSILE,
+    PATH_SELF,
+    PATH_SUMMON,
+    PATH_ABJURE,
+    PATH_RESTORE,
+    PATH_DETONATE,
+    PATH_MIND,
+    PATH_CREATE,
+    PATH_TELE,
+    PATH_INFO,
+    PATH_TRANSMUTE,
+    PATH_TRANSFER,
+    PATH_TURNING,
+    PATH_WOUNDING,
+    PATH_DEATH,
+    PATH_LIGHT
 };
 
 /** Path book information */
 static char *path_book_name[] =
 {
-	"codex",
-	"compendium",
-	"exposition",
-	"tables",
-	"treatise",
-	"devotional",
-	"devout notes",
-	"divine text",
-	"divine work",
-	"holy book",
-	"holy record",
-	"moral text",
-	"sacred guide",
-	"testament",
-	"transcript"
+    "codex",
+    "compendium",
+    "exposition",
+    "tables",
+    "treatise",
+    "devotional",
+    "devout notes",
+    "divine text",
+    "divine work",
+    "holy book",
+    "holy record",
+    "moral text",
+    "sacred guide",
+    "testament",
+    "transcript"
 };
 
 /** Used by spellpath texts */
 static char *path_author[] =
 {
-	"aether",
-	"astral byways",
-	"connections",
-	"the Grey Council",
-	"deep pathways",
-	"knowledge",
-	"magic",
-	"mystic ways",
-	"pathways",
-	"power",
-	"spells",
-	"transforms",
-	"the mystic veil",
-	"unknown spells",
-	"cults",
-	"joy",
-	"lasting curse",
-	"madness",
-	"religions",
-	"the dead",
-	"the gods",
-	"the heirophant",
-	"the poor priest",
-	"the priestess",
-	"pain",
-	"white"
+    "aether",
+    "astral byways",
+    "connections",
+    "the Grey Council",
+    "deep pathways",
+    "knowledge",
+    "magic",
+    "mystic ways",
+    "pathways",
+    "power",
+    "spells",
+    "transforms",
+    "the mystic veil",
+    "unknown spells",
+    "cults",
+    "joy",
+    "lasting curse",
+    "madness",
+    "religions",
+    "the dead",
+    "the gods",
+    "the heirophant",
+    "the poor priest",
+    "the priestess",
+    "pain",
+    "white"
 };
 
 /**
@@ -143,161 +143,161 @@ static char *path_author[] =
  * a message for this type of artifact. */
 static arttypename art_name_array[] =
 {
-	{"Helmet", HELMET},
-	{"Amulet", AMULET},
-	{"Shield", SHIELD},
-	{"Bracers", BRACERS},
-	{"Boots", BOOTS},
-	{"Cloak", CLOAK},
-	{"Gloves", GLOVES},
-	{"Girdle", GIRDLE},
-	{"Ring", RING},
-	{"Missile Weapon", BOW},
-	{"Missile", ARROW},
-	{"Hand Weapon", WEAPON},
-	{"Artifact", SKILL},
-	{"Food", FOOD},
-	{"Body Armour", ARMOUR}
+    {"Helmet", HELMET},
+    {"Amulet", AMULET},
+    {"Shield", SHIELD},
+    {"Bracers", BRACERS},
+    {"Boots", BOOTS},
+    {"Cloak", CLOAK},
+    {"Gloves", GLOVES},
+    {"Girdle", GIRDLE},
+    {"Ring", RING},
+    {"Missile Weapon", BOW},
+    {"Missile", ARROW},
+    {"Hand Weapon", WEAPON},
+    {"Artifact", SKILL},
+    {"Food", FOOD},
+    {"Body Armour", ARMOUR}
 };
 
 /** Artifact book information */
 static char *art_book_name[] =
 {
-	"collection",
-	"file",
-	"files",
-	"guide",
-	"handbook",
-	"index",
-	"inventory",
-	"list",
-	"listing",
-	"record",
-	"record book"
+    "collection",
+    "file",
+    "files",
+    "guide",
+    "handbook",
+    "index",
+    "inventory",
+    "list",
+    "listing",
+    "record",
+    "record book"
 };
 
 /** Used by artifact texts */
 static char *art_author[] =
 {
-	"ancient things",
-	"artifacts",
-	"Havlor",
-	"items",
-	"lost artifacts",
-	"the ancients",
-	"useful things"
+    "ancient things",
+    "artifacts",
+    "Havlor",
+    "items",
+    "lost artifacts",
+    "the ancients",
+    "useful things"
 };
 
 /** Monster book information */
 static char *mon_book_name[] =
 {
-	"bestiary",
-	"catalog",
-	"compilation",
-	"collection",
-	"encyclopedia",
-	"guide",
-	"handbook",
-	"list",
-	"manual",
-	"notes",
-	"record",
-	"register",
-	"volume"
+    "bestiary",
+    "catalog",
+    "compilation",
+    "collection",
+    "encyclopedia",
+    "guide",
+    "handbook",
+    "list",
+    "manual",
+    "notes",
+    "record",
+    "register",
+    "volume"
 };
 
 /** Used by monster bestiary texts */
 static char *mon_author[] =
 {
-	"beasts",
-	"creatures",
-	"dezidens",
-	"dwellers",
-	"evil nature",
-	"life",
-	"monsters",
-	"nature",
-	"new life",
-	"residents",
-	"the spawn",
-	"the living",
-	"things"
+    "beasts",
+    "creatures",
+    "dezidens",
+    "dwellers",
+    "evil nature",
+    "life",
+    "monsters",
+    "nature",
+    "new life",
+    "residents",
+    "the spawn",
+    "the living",
+    "things"
 };
 
 /**
  * Generic book information. */
 static char *book_name[] =
 {
-	"calendar",
-	"datebook",
-	"diary",
-	"guidebook",
-	"handbook",
-	"ledger",
-	"notes",
-	"notebook",
-	"octavo",
-	"pamphlet",
-	"practicum",
-	"script",
-	"transcript",
-	"catalog",
-	"compendium",
-	"guide",
-	"manual",
-	"opus",
-	"tome",
-	"treatise",
-	"volume",
-	"work"
+    "calendar",
+    "datebook",
+    "diary",
+    "guidebook",
+    "handbook",
+    "ledger",
+    "notes",
+    "notebook",
+    "octavo",
+    "pamphlet",
+    "practicum",
+    "script",
+    "transcript",
+    "catalog",
+    "compendium",
+    "guide",
+    "manual",
+    "opus",
+    "tome",
+    "treatise",
+    "volume",
+    "work"
 };
 
 /** Used by 'generic' books */
 static char *book_author[] =
 {
-	"Abdulah",
-	"Al'hezred",
-	"Alywn",
-	"Arundel",
-	"Arvind",
-	"Aerlingas",
-	"Bacon",
-	"Baliqendii",
-	"Bosworth",
-	"Beathis",
-	"Bertil",
-	"Cauchy",
-	"Chakrabarti",
-	"der Waalis",
-	"Dirk",
-	"Djwimii",
-	"Eisenstaadt",
-	"Fendris",
-	"Frank",
-	"Habbi",
-	"Harlod",
-	"Ichibod",
-	"Janus",
-	"June",
-	"Magnuson",
-	"Nandii",
-	"Nitfeder",
-	"Norris",
-	"Parael",
-	"Penhew",
-	"Sophia",
-	"Skilly",
-	"Tahir",
-	"Thockmorton",
-	"Thomas",
-	"van Helsing",
-	"van Pelt",
-	"Voormis",
-	"Xavier",
-	"Xeno",
-	"Zardoz",
-	"Zagy",
-	"Albertus Magnus",
+    "Abdulah",
+    "Al'hezred",
+    "Alywn",
+    "Arundel",
+    "Arvind",
+    "Aerlingas",
+    "Bacon",
+    "Baliqendii",
+    "Bosworth",
+    "Beathis",
+    "Bertil",
+    "Cauchy",
+    "Chakrabarti",
+    "der Waalis",
+    "Dirk",
+    "Djwimii",
+    "Eisenstaadt",
+    "Fendris",
+    "Frank",
+    "Habbi",
+    "Harlod",
+    "Ichibod",
+    "Janus",
+    "June",
+    "Magnuson",
+    "Nandii",
+    "Nitfeder",
+    "Norris",
+    "Parael",
+    "Penhew",
+    "Sophia",
+    "Skilly",
+    "Tahir",
+    "Thockmorton",
+    "Thomas",
+    "van Helsing",
+    "van Pelt",
+    "Voormis",
+    "Xavier",
+    "Xeno",
+    "Zardoz",
+    "Zagy",
+    "Albertus Magnus",
 };
 
 /**
@@ -309,24 +309,21 @@ static char *book_author[] =
  * @return 1 if overflow will occur, 0 otherwise. */
 static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
 {
-	size_t len1 = 0, len2 = 0;
+    size_t len1 = 0, len2 = 0;
 
-	if (buf1)
-	{
-		len1 = strlen(buf1);
-	}
+    if (buf1) {
+        len1 = strlen(buf1);
+    }
 
-	if (buf2)
-	{
-		len2 = strlen(buf2);
-	}
+    if (buf2) {
+        len2 = strlen(buf2);
+    }
 
-	if ((len1 + len2) >= bufsize)
-	{
-		return 1;
-	}
+    if ((len1 + len2) >= bufsize) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -338,106 +335,91 @@ static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
  * @return 1 if it will overflow, 0 otherwise. */
 int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 {
-	/* 2 less so always room for trailing \n */
-	if (buf_overflow(buf1, buf2, BOOK_BUF - 2) || buf_overflow(buf1, buf2, booksize))
-	{
-		return 1;
-	}
+    /* 2 less so always room for trailing \n */
+    if (buf_overflow(buf1, buf2, BOOK_BUF - 2) || buf_overflow(buf1, buf2, booksize)) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
  * Reads the messages file into the list pointed to by first_msg. */
 static void init_msgfile(void)
 {
-	FILE *fp;
-	char buf[MAX_BUF], fname[MAX_BUF], *cp;
+    FILE *fp;
+    char buf[MAX_BUF], fname[MAX_BUF], *cp;
 
-	snprintf(fname, sizeof(fname), "%s/messages", settings.libpath);
+    snprintf(fname, sizeof(fname), "%s/messages", settings.libpath);
 
-	fp = fopen(fname, "r");
+    fp = fopen(fname, "r");
 
-	if (fp)
-	{
-		int lineno, error_lineno = 0, in_msg = 0;
-		char msgbuf[HUGE_BUF];
+    if (fp) {
+        int lineno, error_lineno = 0, in_msg = 0;
+        char msgbuf[HUGE_BUF];
 
-		for (lineno = 1; fgets(buf, sizeof(buf), fp); lineno++)
-		{
-			if (*buf == '#' || (*buf == '\n' && !in_msg))
-			{
-				continue;
-			}
+        for (lineno = 1; fgets(buf, sizeof(buf), fp); lineno++) {
+            if (*buf == '#' || (*buf == '\n' && !in_msg)) {
+                continue;
+            }
 
-			cp = strchr(buf, '\n');
+            cp = strchr(buf, '\n');
 
-			if (cp)
-			{
-				while (cp > buf && (cp[-1] == ' ' || cp[-1] == '\t'))
-				{
-					cp--;
-				}
+            if (cp) {
+                while (cp > buf && (cp[-1] == ' ' || cp[-1] == '\t')) {
+                    cp--;
+                }
 
-				*cp = '\0';
-			}
+                *cp = '\0';
+            }
 
-			if (in_msg)
-			{
-				if (!strcmp(buf, "ENDMSG"))
-				{
-					if (strlen(msgbuf) > BOOK_BUF)
-					{
-						logger_print(LOG(BUG), "This string exceeded max book buf size: %s", msgbuf);
-					}
+            if (in_msg) {
+                if (!strcmp(buf, "ENDMSG")) {
+                    if (strlen(msgbuf) > BOOK_BUF) {
+                        logger_print(LOG(BUG), "This string exceeded max book buf size: %s", msgbuf);
+                    }
 
-					num_msgs++;
-					msgs = realloc(msgs, sizeof(char *) * num_msgs);
-					msgs[num_msgs - 1] = strdup(msgbuf);
-					in_msg = 0;
-				}
-				else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1))
-				{
-					strcat(msgbuf, buf);
-					strcat(msgbuf, "\n");
-				}
-				else if (error_lineno != 0)
-				{
-					logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
-					error_lineno = 0;
-				}
-			}
-			else if (!strcmp(buf, "MSG"))
-			{
-				error_lineno = lineno;
-				msgbuf[0] = '\0';
-				in_msg = 1;
-			}
-			else
-			{
-				logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
-			}
-		}
+                    num_msgs++;
+                    msgs = realloc(msgs, sizeof(char *) * num_msgs);
+                    msgs[num_msgs - 1] = strdup(msgbuf);
+                    in_msg = 0;
+                }
+                else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1)) {
+                    strcat(msgbuf, buf);
+                    strcat(msgbuf, "\n");
+                }
+                else if (error_lineno != 0) {
+                    logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
+                    error_lineno = 0;
+                }
+            }
+            else if (!strcmp(buf, "MSG")) {
+                error_lineno = lineno;
+                msgbuf[0] = '\0';
+                in_msg = 1;
+            }
+            else {
+                logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
+            }
+        }
 
-		fclose(fp);
-	}
+        fclose(fp);
+    }
 }
 
 /**
  * Initialize array of ::monsters. */
 static void init_mon_info(void)
 {
-	archetype *at;
+    archetype *at;
 
-	for (at = first_archetype; at; at = at->next)
-	{
-		if (QUERY_FLAG(&at->clone, FLAG_MONSTER))
-		{
-			num_monsters++;
-			monsters = realloc(monsters, sizeof(object *) * num_monsters);
-			monsters[num_monsters - 1] = &at->clone;
-		}
-	}
+    for (at = first_archetype; at; at = at->next) {
+        if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
+            num_monsters++;
+            monsters = realloc(monsters, sizeof(object *) * num_monsters);
+            monsters[num_monsters - 1] = &at->clone;
+        }
+    }
 }
 
 /**
@@ -448,8 +430,8 @@ static void init_mon_info(void)
  * all the readable information. */
 void init_readable(void)
 {
-	init_msgfile();
-	init_mon_info();
+    init_msgfile();
+    init_mon_info();
 }
 
 /**
@@ -463,34 +445,32 @@ void init_readable(void)
  * @param msgtype Message type. */
 static void new_text_name(object *book, int msgtype)
 {
-	const char *name;
+    const char *name;
 
-	if (book->type != BOOK)
-	{
-		return;
-	}
+    if (book->type != BOOK) {
+        return;
+    }
 
-	switch (msgtype)
-	{
-		case MSGTYPE_MONSTER:
-			name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
-			break;
+    switch (msgtype) {
+        case MSGTYPE_MONSTER:
+            name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
+            break;
 
-		case MSGTYPE_ARTIFACT:
-			name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
-			break;
+        case MSGTYPE_ARTIFACT:
+            name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
+            break;
 
-		case MSGTYPE_SPELLPATH:
-			name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
-			break;
+        case MSGTYPE_SPELLPATH:
+            name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
+            break;
 
-		case MSGTYPE_MSGFILE:
-		default:
-			name = book_name[rndm(1, arraysize(book_name)) - 1];
-			break;
-	}
+        case MSGTYPE_MSGFILE:
+        default:
+            name = book_name[rndm(1, arraysize(book_name)) - 1];
+            break;
+    }
 
-	FREE_AND_COPY_HASH(book->name, name);
+    FREE_AND_COPY_HASH(book->name, name);
 }
 
 /**
@@ -500,35 +480,33 @@ static void new_text_name(object *book, int msgtype)
  * @param msgtype Message type. */
 static void add_author(object *op, int msgtype)
 {
-	char title[MAX_BUF];
-	const char *name;
+    char title[MAX_BUF];
+    const char *name;
 
-	if (msgtype < 0 || strlen(op->msg) < 5)
-	{
-		return;
-	}
+    if (msgtype < 0 || strlen(op->msg) < 5) {
+        return;
+    }
 
-	switch (msgtype)
-	{
-		case MSGTYPE_MONSTER:
-			name = mon_author[rndm(1, arraysize(mon_author)) - 1];
-			break;
+    switch (msgtype) {
+        case MSGTYPE_MONSTER:
+            name = mon_author[rndm(1, arraysize(mon_author)) - 1];
+            break;
 
-		case MSGTYPE_ARTIFACT:
-			name = art_author[rndm(1, arraysize(art_author)) - 1];
-			break;
+        case MSGTYPE_ARTIFACT:
+            name = art_author[rndm(1, arraysize(art_author)) - 1];
+            break;
 
-		case MSGTYPE_SPELLPATH:
-			name = path_author[rndm(1, arraysize(path_author)) - 1];
-			break;
+        case MSGTYPE_SPELLPATH:
+            name = path_author[rndm(1, arraysize(path_author)) - 1];
+            break;
 
-		case MSGTYPE_MSGFILE:
-		default:
-			name = book_author[rndm(1, arraysize(book_author)) - 1];
-	}
+        case MSGTYPE_MSGFILE:
+        default:
+            name = book_author[rndm(1, arraysize(book_author)) - 1];
+    }
 
-	snprintf(title, sizeof(title), "of %s", name);
-	FREE_AND_COPY_HASH(op->title, title);
+    snprintf(title, sizeof(title), "of %s", name);
+    FREE_AND_COPY_HASH(op->title, title);
 }
 
 /**
@@ -542,15 +520,14 @@ static void add_author(object *op, int msgtype)
  * @param msgtype Message type to make. */
 static void change_book(object *book, int msgtype)
 {
-	if (book->type != BOOK || book->title)
-	{
-		return;
-	}
+    if (book->type != BOOK || book->title) {
+        return;
+    }
 
-	/* Random book name */
-	new_text_name(book, msgtype);
-	/* Random author */
-	add_author(book, msgtype);
+    /* Random book name */
+    new_text_name(book, msgtype);
+    /* Random author */
+    add_author(book, msgtype);
 }
 
 /**
@@ -558,13 +535,12 @@ static void change_book(object *book, int msgtype)
  * @return The monster object */
 object *get_random_mon(void)
 {
-	/* Safety. */
-	if (!monsters || !num_monsters)
-	{
-		return NULL;
-	}
+    /* Safety. */
+    if (!monsters || !num_monsters) {
+        return NULL;
+    }
 
-	return monsters[rndm(1, num_monsters) - 1];
+    return monsters[rndm(1, num_monsters) - 1];
 }
 
 /**
@@ -575,8 +551,8 @@ object *get_random_mon(void)
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-	snprintf(buf, size, "<title>%s</title>\n%s", mon->name, describe_item(mon));
-	return buf;
+    snprintf(buf, size, "<title>%s</title>\n%s", mon->name, describe_item(mon));
+    return buf;
 }
 
 /**
@@ -587,27 +563,25 @@ static char *mon_desc(object *mon, char *buf, size_t size)
  * @return 'buf'. */
 static char *mon_info_msg(char *buf, size_t booksize)
 {
-	char tmpbuf[HUGE_BUF], desc[MAX_BUF];
-	object *tmp;
+    char tmpbuf[HUGE_BUF], desc[MAX_BUF];
+    object *tmp;
 
-	/* Preamble */
-	strncpy(buf, "<title>Bestiary</title>\nHerein are detailed creatures found in the world around.\n", booksize - 1);
+    /* Preamble */
+    strncpy(buf, "<title>Bestiary</title>\nHerein are detailed creatures found in the world around.\n", booksize - 1);
 
-	/* Lets print info on as many monsters as will fit in our
-	 * document. */
-	while ((tmp = get_random_mon()))
-	{
-		snprintf(tmpbuf, sizeof(tmpbuf), "\n%s", mon_desc(tmp, desc, sizeof(desc)));
+    /* Lets print info on as many monsters as will fit in our
+     * document. */
+    while ((tmp = get_random_mon())) {
+        snprintf(tmpbuf, sizeof(tmpbuf), "\n%s", mon_desc(tmp, desc, sizeof(desc)));
 
-		if (!rndm(0, 6) || book_overflow(buf, tmpbuf, booksize))
-		{
-			break;
-		}
+        if (!rndm(0, 6) || book_overflow(buf, tmpbuf, booksize)) {
+            break;
+        }
 
-		snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", tmpbuf);
-	}
+        snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", tmpbuf);
+    }
 
-	return buf;
+    return buf;
 }
 
 /**
@@ -619,121 +593,109 @@ static char *mon_info_msg(char *buf, size_t booksize)
  * @return 'buf'. */
 static char *artifact_msg(int level, char *buf, size_t booksize)
 {
-	artifactlist *al;
-	artifact *art;
-	int chance, i, type, idx;
-	int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
-	char *final, *ch;
-	object *tmp = NULL;
-	StringBuffer *desc;
+    artifactlist *al;
+    artifact *art;
+    int chance, i, type, idx;
+    int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
+    char *final, *ch;
+    object *tmp = NULL;
+    StringBuffer *desc;
 
-	/* Values greater than 5 create msg buffers that are too big! */
-	if (book_entries > 5)
-	{
-		book_entries = 5;
-	}
+    /* Values greater than 5 create msg buffers that are too big! */
+    if (book_entries > 5) {
+        book_entries = 5;
+    }
 
-	/* Let's determine what kind of artifact type randomly.
-	 * Right now legal artifacts only come from those listed
-	 * in art_name_array. Also, we check to be sure an artifactlist
-	 * for that type exists! */
-	i = 0;
+    /* Let's determine what kind of artifact type randomly.
+     * Right now legal artifacts only come from those listed
+     * in art_name_array. Also, we check to be sure an artifactlist
+     * for that type exists! */
+    i = 0;
 
-	do
-	{
-		idx = rndm(1, arraysize(art_name_array)) - 1;
-		type = art_name_array[idx].type;
-		al = find_artifactlist(type);
-		i++;
-	}
-	while (al == NULL && i < 10);
+    do
+    {
+        idx = rndm(1, arraysize(art_name_array)) - 1;
+        type = art_name_array[idx].type;
+        al = find_artifactlist(type);
+        i++;
+    }
+    while (al == NULL && i < 10);
 
-	/* Unable to find a message */
-	if (i == 10)
-	{
-		snprintf(buf, booksize, "None");
-		return buf;
-	}
+    /* Unable to find a message */
+    if (i == 10) {
+        snprintf(buf, booksize, "None");
+        return buf;
+    }
 
-	/* There is no reason to start on the artifact list at the beginning. Lets
-	 * take our starting position randomly... */
-	art = al->items;
+    /* There is no reason to start on the artifact list at the beginning. Lets
+     * take our starting position randomly... */
+    art = al->items;
 
-	for (i = rndm(1, level) + rndm(0, 1); i > 0; i--)
-	{
-		/* Out of stuff, loop back around */
-		if (art == NULL)
-		{
-			art = al->items;
-		}
+    for (i = rndm(1, level) + rndm(0, 1); i > 0; i--) {
+        /* Out of stuff, loop back around */
+        if (art == NULL) {
+            art = al->items;
+        }
 
-		art = art->next;
-	}
+        art = art->next;
+    }
 
-	/* Ok, let's print out the contents */
-	snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+    /* Ok, let's print out the contents */
+    snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
-	/* Artifact msg attributes loop. Let's keep adding entries to the 'book'
-	 * as long as we have space up to the allowed max # (book_entries) */
-	while (book_entries > 0)
-	{
-		if (art == NULL)
-		{
-			art = al->items;
-		}
+    /* Artifact msg attributes loop. Let's keep adding entries to the 'book'
+     * as long as we have space up to the allowed max # (book_entries) */
+    while (book_entries > 0) {
+        if (art == NULL) {
+            art = al->items;
+        }
 
-		desc = stringbuffer_new();
-		tmp = get_archetype(art->def_at_name);
-		give_artifact_abilities(tmp, art);
-		SET_FLAG(tmp, FLAG_IDENTIFIED);
+        desc = stringbuffer_new();
+        tmp = get_archetype(art->def_at_name);
+        give_artifact_abilities(tmp, art);
+        SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-		stringbuffer_append_printf(desc, "\n<title>%s</title>\nIt is ", query_material_name(tmp));
+        stringbuffer_append_printf(desc, "\n<title>%s</title>\nIt is ", query_material_name(tmp));
 
-		/* Chance of finding. */
-		chance = 100 * ((float) art->chance / al->total_chance);
+        /* Chance of finding. */
+        chance = 100 * ((float) art->chance / al->total_chance);
 
-		if (chance >= 20)
-		{
-			stringbuffer_append_string(desc, "an uncommon");
-		}
-		else if (chance >= 10)
-		{
-			stringbuffer_append_string(desc, "an unusual");
-		}
-		else if (chance >= 5)
-		{
-			stringbuffer_append_string(desc, "a rare");
-		}
-		else
-		{
-			stringbuffer_append_string(desc, "a very rare");
-		}
+        if (chance >= 20) {
+            stringbuffer_append_string(desc, "an uncommon");
+        }
+        else if (chance >= 10) {
+            stringbuffer_append_string(desc, "an unusual");
+        }
+        else if (chance >= 5) {
+            stringbuffer_append_string(desc, "a rare");
+        }
+        else {
+            stringbuffer_append_string(desc, "a very rare");
+        }
 
-		/* Value of artifact. */
-		stringbuffer_append_printf(desc, " item with a value of %s.", cost_string_from_value(tmp->value));
+        /* Value of artifact. */
+        stringbuffer_append_printf(desc, " item with a value of %s.", cost_string_from_value(tmp->value));
 
-		if ((ch = describe_item(tmp)) && strlen(ch) > 1)
-		{
-			stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);
-		}
+        if ((ch = describe_item(tmp)) && strlen(ch) > 1) {
+            stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);
+        }
 
-		final = stringbuffer_finish(desc);
+        final = stringbuffer_finish(desc);
 
-		/* Add the buf if it will fit. */
-		if (book_overflow(buf, final, booksize))
-		{
-			free(final);
-			break;
-		}
+        /* Add the buf if it will fit. */
+        if (book_overflow(buf, final, booksize)) {
+            free(final);
+            break;
+        }
 
-		snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", final);
-		free(final);
+        snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", final);
+        free(final);
 
-		art = art->next;
-		book_entries--;
-	}
+        art = art->next;
+        book_entries--;
+    }
 
-	return buf;
+    return buf;
 }
 
 /**
@@ -745,55 +707,49 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return 'buf'. */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
-	int path = rndm(1, NRSPELLPATHS) - 1;
-	int i, did_first_sp = 0;
-	uint32 pnum = spellpathdef[path];
-	StringBuffer *desc;
-	char *final;
+    int path = rndm(1, NRSPELLPATHS) - 1;
+    int i, did_first_sp = 0;
+    uint32 pnum = spellpathdef[path];
+    StringBuffer *desc;
+    char *final;
 
-	desc = stringbuffer_new();
-	buf[0] = '\0';
+    desc = stringbuffer_new();
+    buf[0] = '\0';
 
-	/* Preamble */
-	stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
+    /* Preamble */
+    stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
 
-	/* Now go through the entire list of spells. Add appropriate spells
-	 * in our message buffer */
-	for (i = 0; i < NROFREALSPELLS; i++)
-	{
-		if (!(pnum & spells[i].path))
-		{
-			continue;
-		}
+    /* Now go through the entire list of spells. Add appropriate spells
+     * in our message buffer */
+    for (i = 0; i < NROFREALSPELLS; i++) {
+        if (!(pnum & spells[i].path)) {
+            continue;
+        }
 
-		if (strlen(spells[i].name) + stringbuffer_length(desc) >= booksize)
-		{
-			break;
-		}
+        if (strlen(spells[i].name) + stringbuffer_length(desc) >= booksize) {
+            break;
+        }
 
-		if (did_first_sp)
-		{
-			stringbuffer_append_string(desc, ",\n");
-		}
+        if (did_first_sp) {
+            stringbuffer_append_string(desc, ",\n");
+        }
 
-		did_first_sp = 1;
-		stringbuffer_append_string(desc, spells[i].name);
-	}
+        did_first_sp = 1;
+        stringbuffer_append_string(desc, spells[i].name);
+    }
 
-	final = stringbuffer_finish(desc);
+    final = stringbuffer_finish(desc);
 
-	/* Geez, no spells were generated. */
-	if (!did_first_sp)
-	{
-		snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n - no known spells exist -\n", final);
-	}
-	else
-	{
-		snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
-	}
+    /* Geez, no spells were generated. */
+    if (!did_first_sp) {
+        snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n - no known spells exist -\n", final);
+    }
+    else {
+        snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
+    }
 
-	free(final);
-	return buf;
+    free(final);
+    return buf;
 }
 
 /**
@@ -802,25 +758,22 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
  * @return Pointer to the generated message. */
 static char *msgfile_msg(size_t booksize)
 {
-	static char buf[BOOK_BUF];
-	char *msg = NULL;
+    static char buf[BOOK_BUF];
+    char *msg = NULL;
 
-	/* Get a random message. */
-	if (msgs && num_msgs)
-	{
-		msg = msgs[rndm(1, num_msgs) - 1];
-	}
+    /* Get a random message. */
+    if (msgs && num_msgs) {
+        msg = msgs[rndm(1, num_msgs) - 1];
+    }
 
-	if (msg && !book_overflow(buf, msg, booksize))
-	{
-		strncpy(buf, msg, sizeof(buf) - 1);
-	}
-	else
-	{
-		strncpy(buf, "*undecipherable text*", sizeof(buf) - 1);
-	}
+    if (msg && !book_overflow(buf, msg, booksize)) {
+        strncpy(buf, msg, sizeof(buf) - 1);
+    }
+    else {
+        strncpy(buf, "*undecipherable text*", sizeof(buf) - 1);
+    }
 
-	return buf;
+    return buf;
 }
 
 /**
@@ -840,65 +793,60 @@ static char *msgfile_msg(size_t booksize)
  * @author b.t. thomas@astro.psu.edu */
 void tailor_readable_ob(object *book, int msg_type)
 {
-	char msgbuf[BOOK_BUF];
-	int level = book->level ? (RANDOM () % book->level) + 1 : 1;
+    char msgbuf[BOOK_BUF];
+    int level = book->level ? (RANDOM () % book->level) + 1 : 1;
 
-	/* Safety. */
-	if (book->type != BOOK)
-	{
-		return;
-	}
+    /* Safety. */
+    if (book->type != BOOK) {
+        return;
+    }
 
-	/* If no level no point in doing any more... */
-	if (level <= 0)
-	{
-		return;
-	}
+    /* If no level no point in doing any more... */
+    if (level <= 0) {
+        return;
+    }
 
-	msg_type = msg_type > 0 ? msg_type : rndm(0, MSGTYPE_NUM);
+    msg_type = msg_type > 0 ? msg_type : rndm(0, MSGTYPE_NUM);
 
-	switch (msg_type)
-	{
-		case MSGTYPE_MONSTER:
-			mon_info_msg(msgbuf, BOOK_BUF);
-			break;
+    switch (msg_type) {
+        case MSGTYPE_MONSTER:
+            mon_info_msg(msgbuf, BOOK_BUF);
+            break;
 
-		case MSGTYPE_ARTIFACT:
-			artifact_msg(level, msgbuf, BOOK_BUF);
-			break;
+        case MSGTYPE_ARTIFACT:
+            artifact_msg(level, msgbuf, BOOK_BUF);
+            break;
 
-		case MSGTYPE_SPELLPATH:
-			spellpath_msg(level, msgbuf, BOOK_BUF);
-			break;
+        case MSGTYPE_SPELLPATH:
+            spellpath_msg(level, msgbuf, BOOK_BUF);
+            break;
 
-		case MSGTYPE_MSGFILE:
-		default:
-			strcpy(msgbuf, msgfile_msg( BOOK_BUF));
-			break;
-	}
+        case MSGTYPE_MSGFILE:
+        default:
+            strcpy(msgbuf, msgfile_msg( BOOK_BUF));
+            break;
+    }
 
-	/* Safety -- we get ugly map saves/crashes without this */
-	strcat(msgbuf, "\n");
+    /* Safety -- we get ugly map saves/crashes without this */
+    strcat(msgbuf, "\n");
 
-	if (strlen(msgbuf) > 1)
-	{
-		FREE_AND_COPY_HASH(book->msg, msgbuf);
-		/* Let's give the "book" a new name, which may be a compound word */
-		change_book(book, msg_type);
-	}
+    if (strlen(msgbuf) > 1) {
+        FREE_AND_COPY_HASH(book->msg, msgbuf);
+        /* Let's give the "book" a new name, which may be a compound word */
+        change_book(book, msg_type);
+    }
 }
 
 /**
  * Cleanup routine for readable stuff. */
 void free_all_readable(void)
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; i < num_msgs; i++)
-	{
-		free(msgs[i]);
-	}
+    for (i = 0; i < num_msgs; i++) {
+        free(msgs[i]);
+    }
 
-	free(msgs);
-	free(monsters);
+    free(msgs);
+    free(monsters);
 }

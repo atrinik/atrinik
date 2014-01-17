@@ -36,14 +36,13 @@ static object *free_objects = NULL;
  * @return The object. */
 static object *object_new(void)
 {
-	object *op = calloc(1, sizeof(object));
+    object *op = calloc(1, sizeof(object));
 
-	if (!op)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-	}
+    if (!op) {
+        logger_print(LOG(ERROR), "OOM.");
+    }
 
-	return op;
+    return op;
 }
 
 /**
@@ -52,19 +51,18 @@ static object *object_new(void)
  * @return The allocated objects in a list. */
 static object *objects_alloc(int nrof)
 {
-	object *op, *list;
-	int i;
+    object *op, *list;
+    int i;
 
-	list = op = object_new();
+    list = op = object_new();
 
-	for (i = 1; i < nrof; i++)
-	{
-		op->next = object_new();
-		op->next->prev = op;
-		op = op->next;
-	}
+    for (i = 1; i < nrof; i++) {
+        op->next = object_new();
+        op->next->prev = op;
+        op = op->next;
+    }
 
-	return list;
+    return list;
 }
 
 /**
@@ -72,28 +70,24 @@ static object *objects_alloc(int nrof)
  * @param op Start of the list. */
 void objects_free(object *op)
 {
-	object *next;
+    object *next;
 
-	while (op)
-	{
-		if (op->itype == TYPE_SPELL)
-		{
-			spells_remove(op);
-		}
-		else if (op->itype == TYPE_SKILL)
-		{
-			skills_remove(op);
-		}
+    while (op) {
+        if (op->itype == TYPE_SPELL) {
+            spells_remove(op);
+        }
+        else if (op->itype == TYPE_SKILL) {
+            skills_remove(op);
+        }
 
-		if (op->inv)
-		{
-			objects_free(op->inv);
-		}
+        if (op->inv) {
+            objects_free(op->inv);
+        }
 
-		next = op->next;
-		free(op);
-		op = next;
-	}
+        next = op->next;
+        free(op);
+        op = next;
+    }
 }
 /**
  * Find an object inside another object, but not inside inventories.
@@ -102,17 +96,15 @@ void objects_free(object *op)
  * @return Matching object if found, NULL otherwise. */
 object *object_find_object_inv(object *op, sint32 tag)
 {
-	object *tmp;
+    object *tmp;
 
-	for (tmp = op->inv; tmp; tmp = tmp->next)
-	{
-		if (tmp->tag == tag)
-		{
-			return op;
-		}
-	}
+    for (tmp = op->inv; tmp; tmp = tmp->next) {
+        if (tmp->tag == tag) {
+            return op;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -122,24 +114,20 @@ object *object_find_object_inv(object *op, sint32 tag)
  * @return Matching object if found, NULL otherwise. */
 object *object_find_object(object *op, sint32 tag)
 {
-	for (; op; op = op->next)
-	{
-		if (op->tag == tag)
-		{
-			return op;
-		}
-		else if (op->inv)
-		{
-			object *tmp = object_find_object(op->inv, tag);
+    for (; op; op = op->next) {
+        if (op->tag == tag) {
+            return op;
+        }
+        else if (op->inv) {
+            object *tmp = object_find_object(op->inv, tag);
 
-			if (tmp)
-			{
-				return tmp;
-			}
-		}
-	}
+            if (tmp) {
+                return tmp;
+            }
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -148,42 +136,36 @@ object *object_find_object(object *op, sint32 tag)
  * @return Matching object if found, NULL otherwise. */
 object *object_find(sint32 tag)
 {
-	object *op;
+    object *op;
 
-	if (tag == 0)
-	{
-		return cpl.below;
-	}
+    if (tag == 0) {
+        return cpl.below;
+    }
 
-	if (tag == -1)
-	{
-		return cpl.sack;
-	}
+    if (tag == -1) {
+        return cpl.sack;
+    }
 
-	/* Below the player. */
-	if (cpl.below)
-	{
-		op = object_find_object(cpl.below->inv, tag);
+    /* Below the player. */
+    if (cpl.below) {
+        op = object_find_object(cpl.below->inv, tag);
 
-		if (op)
-		{
-			return op;
-		}
-	}
+        if (op) {
+            return op;
+        }
+    }
 
-	/* Open container. */
-	if (cpl.sack)
-	{
-		op = object_find_object(cpl.sack->inv, tag);
+    /* Open container. */
+    if (cpl.sack) {
+        op = object_find_object(cpl.sack->inv, tag);
 
-		if (op)
-		{
-			return op;
-		}
-	}
+        if (op) {
+            return op;
+        }
+    }
 
-	/* Last attempt, inside the player. */
-	return object_find_object(cpl.ob, tag);
+    /* Last attempt, inside the player. */
+    return object_find_object(cpl.ob, tag);
 }
 
 /**
@@ -191,55 +173,46 @@ object *object_find(sint32 tag)
  * @param op What to remove. */
 void object_remove(object *op)
 {
-	if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack)
-	{
-		return;
-	}
+    if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack) {
+        return;
+    }
 
-	if (op->itype == TYPE_SPELL)
-	{
-		spells_remove(op);
-	}
-	else if (op->itype == TYPE_SKILL)
-	{
-		skills_remove(op);
-	}
-	else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING)
-	{
-		widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
-	}
+    if (op->itype == TYPE_SPELL) {
+        spells_remove(op);
+    }
+    else if (op->itype == TYPE_SKILL) {
+        skills_remove(op);
+    }
+    else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+        widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
+    }
 
-	if (op->inv)
-	{
-		object_remove_inventory(op);
-	}
+    if (op->inv) {
+        object_remove_inventory(op);
+    }
 
-	if (op->prev)
-	{
-		op->prev->next = op->next;
-	}
-	else
-	{
-		op->env->inv = op->next;
-	}
+    if (op->prev) {
+        op->prev->next = op->next;
+    }
+    else {
+        op->env->inv = op->next;
+    }
 
-	if (op->next)
-	{
-		op->next->prev = op->prev;
-	}
+    if (op->next) {
+        op->next->prev = op->prev;
+    }
 
-	/* Add object to the list of free objects. */
-	op->next = free_objects;
+    /* Add object to the list of free objects. */
+    op->next = free_objects;
 
-	if (op->next)
-	{
-		op->next->prev = op;
-	}
+    if (op->next) {
+        op->next->prev = op;
+    }
 
-	free_objects = op;
+    free_objects = op;
 
-	/* Clear the object so it can be reused. */
-	memset((void *) ((char *) op + offsetof(object, prev)), 0, sizeof(object) - offsetof(object, prev));
+    /* Clear the object so it can be reused. */
+    memset((void *) ((char *) op + offsetof(object, prev)), 0, sizeof(object) - offsetof(object, prev));
 }
 
 /**
@@ -247,15 +220,13 @@ void object_remove(object *op)
  * @param op The object to remove inventory of. */
 void object_remove_inventory(object *op)
 {
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	while (op->inv)
-	{
-		object_remove(op->inv);
-	}
+    while (op->inv) {
+        object_remove(op->inv);
+    }
 }
 
 /**
@@ -266,50 +237,42 @@ void object_remove_inventory(object *op)
  * inventory instead of the start. */
 static void object_add(object *env, object *op, int bflag)
 {
-	object *tmp;
+    object *tmp;
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	if (!bflag)
-	{
-		op->next = env->inv;
+    if (!bflag) {
+        op->next = env->inv;
 
-		if (op->next)
-		{
-			op->next->prev = op;
-		}
+        if (op->next) {
+            op->next->prev = op;
+        }
 
-		op->prev = NULL;
-		env->inv = op;
-		op->env = env;
-	}
-	else
-	{
-		for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next)
-		{
-		}
+        op->prev = NULL;
+        env->inv = op;
+        op->env = env;
+    }
+    else {
+        for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next) {
+        }
 
-		op->next = NULL;
-		op->prev = tmp;
-		op->env = env;
+        op->next = NULL;
+        op->prev = tmp;
+        op->env = env;
 
-		if (!tmp)
-		{
-			env->inv = op;
-		}
-		else
-		{
-			if (tmp->next)
-			{
-				tmp->next->prev = op;
-			}
+        if (!tmp) {
+            env->inv = op;
+        }
+        else {
+            if (tmp->next) {
+                tmp->next->prev = op;
+            }
 
-			tmp->next = op;
-		}
-	}
+            tmp->next = op;
+        }
+    }
 }
 
 /**
@@ -322,30 +285,27 @@ static void object_add(object *env, object *op, int bflag)
  * @return The created object. */
 object *object_create(object *env, sint32 tag, int bflag)
 {
-	object *op;
+    object *op;
 
-	/* Allocate more objects if needed. */
-	if (!free_objects)
-	{
-		free_objects = objects_alloc(NROF_ITEMS);
-	}
+    /* Allocate more objects if needed. */
+    if (!free_objects) {
+        free_objects = objects_alloc(NROF_ITEMS);
+    }
 
-	op = free_objects;
-	free_objects = free_objects->next;
+    op = free_objects;
+    free_objects = free_objects->next;
 
-	if (free_objects)
-	{
-		free_objects->prev = NULL;
-	}
+    if (free_objects) {
+        free_objects->prev = NULL;
+    }
 
-	op->tag = tag;
+    op->tag = tag;
 
-	if (env)
-	{
-		object_add(env, op, bflag);
-	}
+    if (env) {
+        object_add(env, op, bflag);
+    }
 
-	return op;
+    return op;
 }
 
 /**
@@ -353,17 +313,16 @@ object *object_create(object *env, sint32 tag, int bflag)
  * @param op Object. */
 void toggle_locked(object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	/* If object is on the ground, don't lock it. */
-	if (!op || !op->env || op->env->tag == 0)
-	{
-		return;
-	}
+    /* If object is on the ground, don't lock it. */
+    if (!op || !op->env || op->env->tag == 0) {
+        return;
+    }
 
-	packet = packet_new(SERVER_CMD_ITEM_LOCK, 8, 0);
-	packet_append_uint32(packet, op->tag);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_LOCK, 8, 0);
+    packet_append_uint32(packet, op->tag);
+    socket_send_packet(packet);
 }
 
 /**
@@ -371,26 +330,23 @@ void toggle_locked(object *op)
  * @param op The object. */
 void object_send_mark(object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	/* If object is on the ground, don't mark it. */
-	if (!op || !op->env || op->env->tag == 0)
-	{
-		return;
-	}
+    /* If object is on the ground, don't mark it. */
+    if (!op || !op->env || op->env->tag == 0) {
+        return;
+    }
 
-	if (cpl.mark_count == op->tag)
-	{
-		cpl.mark_count = -1;
-	}
-	else
-	{
-		cpl.mark_count = op->tag;
-	}
+    if (cpl.mark_count == op->tag) {
+        cpl.mark_count = -1;
+    }
+    else {
+        cpl.mark_count = op->tag;
+    }
 
-	packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
-	packet_append_uint32(packet, op->tag);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
+    packet_append_uint32(packet, op->tag);
+    socket_send_packet(packet);
 }
 
 /**
@@ -398,38 +354,37 @@ void object_send_mark(object *op)
  * @param op Object to ready. */
 void ready_object(object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	/* If object is on the ground, don't ready it. */
-	if (!op || !op->env || op->env->tag == 0)
-	{
-		return;
-	}
+    /* If object is on the ground, don't ready it. */
+    if (!op || !op->env || op->env->tag == 0) {
+        return;
+    }
 
-	packet = packet_new(SERVER_CMD_ITEM_READY, 8, 0);
-	packet_append_uint32(packet, op->tag);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_READY, 8, 0);
+    packet_append_uint32(packet, op->tag);
+    socket_send_packet(packet);
 }
 
 /**
  * Deinitialize the various objects of ::cpl structure. */
 void objects_deinit(void)
 {
-	objects_free(cpl.sack);
-	objects_free(cpl.below);
-	objects_free(cpl.ob);
+    objects_free(cpl.sack);
+    objects_free(cpl.below);
+    objects_free(cpl.ob);
 }
 
 /**
  * Initializes the various objects of ::cpl structure. */
 void objects_init(void)
 {
-	cpl.ob = object_new();
-	cpl.below = object_new();
-	cpl.sack = object_new();
+    cpl.ob = object_new();
+    cpl.below = object_new();
+    cpl.sack = object_new();
 
-	cpl.below->weight = -111;
-	cpl.sack->weight = -111;
+    cpl.below->weight = -111;
+    cpl.sack->weight = -111;
 }
 
 /**
@@ -437,66 +392,54 @@ void objects_init(void)
  * @param ob The object to animate. */
 static void animate_object(object *ob)
 {
-	if (ob->animation_id > 0)
-	{
-		check_animation_status(ob->animation_id);
-	}
+    if (ob->animation_id > 0) {
+        check_animation_status(ob->animation_id);
+    }
 
-	if (ob->animation_id > 0 && ob->anim_speed)
-	{
-		ob->last_anim++;
+    if (ob->animation_id > 0 && ob->anim_speed) {
+        ob->last_anim++;
 
-		if (ob->last_anim >= ob->anim_speed)
-		{
-			if (++ob->anim_state >= animations[ob->animation_id].frame)
-			{
-				ob->anim_state = 0;
-			}
+        if (ob->last_anim >= ob->anim_speed) {
+            if (++ob->anim_state >= animations[ob->animation_id].frame) {
+                ob->anim_state = 0;
+            }
 
-			if (ob->direction > animations[ob->animation_id].facings)
-			{
-				ob->face = animations[ob->animation_id].faces[ob->anim_state];
-			}
-			else
-			{
-				ob->face = animations[ob->animation_id].faces[animations[ob->animation_id].frame * ob->direction + ob->anim_state];
-			}
+            if (ob->direction > animations[ob->animation_id].facings) {
+                ob->face = animations[ob->animation_id].faces[ob->anim_state];
+            }
+            else {
+                ob->face = animations[ob->animation_id].faces[animations[ob->animation_id].frame * ob->direction + ob->anim_state];
+            }
 
-			ob->last_anim = 0;
-		}
-	}
+            ob->last_anim = 0;
+        }
+    }
 }
 
 /**
  * Animate all possible objects. */
 void animate_objects(void)
 {
-	object *ob;
+    object *ob;
 
-	if (cpl.ob)
-	{
-		/* For now, only the players inventory needs to be animated */
-		for (ob = cpl.ob->inv; ob; ob = ob->next)
-		{
-			animate_object(ob);
-		}
-	}
+    if (cpl.ob) {
+        /* For now, only the players inventory needs to be animated */
+        for (ob = cpl.ob->inv; ob; ob = ob->next) {
+            animate_object(ob);
+        }
+    }
 
-	if (cpl.below)
-	{
-		for (ob = cpl.below->inv; ob; ob = ob->next)
-		{
-			animate_object(ob);
-		}
-	}
+    if (cpl.below) {
+        for (ob = cpl.below->inv; ob; ob = ob->next) {
+            animate_object(ob);
+        }
+    }
 
-	if (cpl.sack)
-	{
-		for (ob = cpl.sack->inv; ob; ob = ob->next)
-		{
-			animate_object(ob);
-		}
-	}
+    if (cpl.sack) {
+        for (ob = cpl.sack->inv; ob; ob = ob->next) {
+            animate_object(ob);
+        }
+    }
 }
 
 /**
@@ -508,116 +451,100 @@ void animate_objects(void)
  * @param y Y position. */
 void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
 {
-	int temp, xstart, xlen, ystart, ylen;
-	sint16 face;
-	SDL_Rect box;
+    int temp, xstart, xlen, ystart, ylen;
+    sint16 face;
+    SDL_Rect box;
 
-	if (!FaceList[tmp->face].sprite)
-	{
-		return;
-	}
+    if (!FaceList[tmp->face].sprite) {
+        return;
+    }
 
-	/* Will be used for coordinate calculations. */
-	face = tmp->face;
+    /* Will be used for coordinate calculations. */
+    face = tmp->face;
 
-	/* If the item is animated, try to use the first animation face for
-	 * coordinate calculations to prevent 'jumping' of the animation. */
-	if (tmp->animation_id > 0)
-	{
-		check_animation_status(tmp->animation_id);
+    /* If the item is animated, try to use the first animation face for
+    * coordinate calculations to prevent 'jumping' of the animation. */
+    if (tmp->animation_id > 0) {
+        check_animation_status(tmp->animation_id);
 
-		if (animations[tmp->animation_id].num_animations && animations[tmp->animation_id].facings <= 1 && FaceList[animations[tmp->animation_id].faces[0]].sprite)
-		{
-			face = animations[tmp->animation_id].faces[0];
-		}
-	}
+        if (animations[tmp->animation_id].num_animations && animations[tmp->animation_id].facings <= 1 && FaceList[animations[tmp->animation_id].faces[0]].sprite) {
+            face = animations[tmp->animation_id].faces[0];
+        }
+    }
 
-	xstart = FaceList[face].sprite->border_left;
-	xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
-	ystart = FaceList[face].sprite->border_up;
-	ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
+    xstart = FaceList[face].sprite->border_left;
+    xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
+    ystart = FaceList[face].sprite->border_up;
+    ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
 
-	if (xlen > INVENTORY_ICON_SIZE)
-	{
-		box.w = INVENTORY_ICON_SIZE;
-		temp = (xlen - INVENTORY_ICON_SIZE) / 2;
-		box.x = xstart + temp;
-		xstart = 0;
-	}
-	else
-	{
-		box.w = xlen;
-		box.x = xstart;
-		xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
-	}
+    if (xlen > INVENTORY_ICON_SIZE) {
+        box.w = INVENTORY_ICON_SIZE;
+        temp = (xlen - INVENTORY_ICON_SIZE) / 2;
+        box.x = xstart + temp;
+        xstart = 0;
+    }
+    else {
+        box.w = xlen;
+        box.x = xstart;
+        xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
+    }
 
-	if (ylen > INVENTORY_ICON_SIZE)
-	{
-		box.h = INVENTORY_ICON_SIZE;
-		temp = (ylen - INVENTORY_ICON_SIZE) / 2;
-		box.y = ystart + temp;
-		ystart = 0;
-	}
-	else
-	{
-		box.h = ylen;
-		box.y = ystart;
-		ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
-	}
+    if (ylen > INVENTORY_ICON_SIZE) {
+        box.h = INVENTORY_ICON_SIZE;
+        temp = (ylen - INVENTORY_ICON_SIZE) / 2;
+        box.y = ystart + temp;
+        ystart = 0;
+    }
+    else {
+        box.h = ylen;
+        box.y = ystart;
+        ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
+    }
 
-	if (face != tmp->face)
-	{
-		temp = xstart - box.x;
+    if (face != tmp->face) {
+        temp = xstart - box.x;
 
-		box.x = 0;
-		box.w = FaceList[tmp->face].sprite->bitmap->w;
-		xstart = temp;
+        box.x = 0;
+        box.w = FaceList[tmp->face].sprite->bitmap->w;
+        xstart = temp;
 
-		temp = ystart - box.y + (FaceList[face].sprite->bitmap->h - FaceList[tmp->face].sprite->bitmap->h);
-		box.y = 0;
-		box.h = FaceList[tmp->face].sprite->bitmap->h;
-		ystart = temp;
+        temp = ystart - box.y + (FaceList[face].sprite->bitmap->h - FaceList[tmp->face].sprite->bitmap->h);
+        box.y = 0;
+        box.h = FaceList[tmp->face].sprite->bitmap->h;
+        ystart = temp;
 
-		if (xstart < 0)
-		{
-			box.x = -xstart;
-			box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
+        if (xstart < 0) {
+            box.x = -xstart;
+            box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
 
-			if (box.w > INVENTORY_ICON_SIZE)
-			{
-				box.w = INVENTORY_ICON_SIZE;
-			}
+            if (box.w > INVENTORY_ICON_SIZE) {
+                box.w = INVENTORY_ICON_SIZE;
+            }
 
-			xstart = 0;
-		}
-		else
-		{
-			if (box.w + xstart > INVENTORY_ICON_SIZE)
-			{
-				box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
-			}
-		}
+            xstart = 0;
+        }
+        else {
+            if (box.w + xstart > INVENTORY_ICON_SIZE) {
+                box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
+            }
+        }
 
-		if (ystart < 0)
-		{
-			box.y = -ystart;
-			box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
+        if (ystart < 0) {
+            box.y = -ystart;
+            box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
 
-			if (box.h > INVENTORY_ICON_SIZE)
-			{
-				box.h = INVENTORY_ICON_SIZE;
-			}
+            if (box.h > INVENTORY_ICON_SIZE) {
+                box.h = INVENTORY_ICON_SIZE;
+            }
 
-			ystart = 0;
-		}
-		else
-		{
-			if (box.h + ystart > INVENTORY_ICON_SIZE)
-			{
-				box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
-			}
-		}
-	}
+            ystart = 0;
+        }
+        else {
+            if (box.h + ystart > INVENTORY_ICON_SIZE) {
+                box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
+            }
+        }
+    }
 
-	surface_show(surface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
+    surface_show(surface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
 }

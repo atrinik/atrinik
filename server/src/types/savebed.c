@@ -31,29 +31,28 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	(void) op;
-	(void) aflags;
+    (void) op;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_OK;
+    }
 
-	/* Update respawn position. */
-	strcpy(CONTR(applier)->savebed_map, applier->map->path);
-	CONTR(applier)->bed_x = applier->x;
-	CONTR(applier)->bed_y = applier->y;
+    /* Update respawn position. */
+    strcpy(CONTR(applier)->savebed_map, applier->map->path);
+    CONTR(applier)->bed_x = applier->x;
+    CONTR(applier)->bed_y = applier->y;
 
-	draw_info(COLOR_WHITE, applier, "You save and your save bed location is updated.");
-	hiscore_check(applier, 0);
-	player_save(applier);
+    draw_info(COLOR_WHITE, applier, "You save and your save bed location is updated.");
+    hiscore_check(applier, 0);
+    player_save(applier);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the savebed type object methods. */
 void object_type_init_savebed(void)
 {
-	object_type_methods[SAVEBED].apply_func = apply_func;
+    object_type_methods[SAVEBED].apply_func = apply_func;
 }

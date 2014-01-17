@@ -36,14 +36,16 @@
  * to. */
 typedef struct mempool_chunk_struct
 {
-	/* This struct must always be padded for longword alignment of the data coming behind it.
-	 * Not a problem as long as we only keep a single pointer here, but be careful
-	 * if adding more data. */
+    /* This struct must always be padded for longword alignment of the data
+     * coming behind it.
+     * Not a problem as long as we only keep a single pointer here, but be
+     * careful
+     * if adding more data. */
 
-	/**
-	 * Used for the free list and the limbo list. NULL if this
-	 * memory chunk has been allocated and is in use */
-	struct mempool_chunk_struct *next;
+    /**
+     * Used for the free list and the limbo list. NULL if this
+     * memory chunk has been allocated and is in use */
+    struct mempool_chunk_struct *next;
 } mempool_chunk_struct;
 
 /** Optional initialisator to be called when expanding. */
@@ -63,41 +65,41 @@ typedef void (*chunk_destructor) (void *ptr);
 /** Data for a single memory pool */
 typedef struct mempool_struct
 {
-	/** Mutex protecting the mempool's data. */
-	pthread_mutex_t mutex;
+    /** Mutex protecting the mempool's data. */
+    pthread_mutex_t mutex;
 
-	/** Description of chunks. Mostly for debugging */
-	const char *chunk_description;
+    /** Description of chunks. Mostly for debugging */
+    const char *chunk_description;
 
-	/** How many chunks to allocate at each expansion */
-	uint32 expand_size;
+    /** How many chunks to allocate at each expansion */
+    uint32 expand_size;
 
-	/** size of chunks, excluding sizeof(mempool_chunk) and padding */
-	uint32 chunksize;
+    /** size of chunks, excluding sizeof(mempool_chunk) and padding */
+    uint32 chunksize;
 
-	/** Special handling flags. See definitions below */
-	uint32 flags;
+    /** Special handling flags. See definitions below */
+    uint32 flags;
 
-	/** Optional initialisator to be called when expanding */
-	chunk_initialisator initialisator;
+    /** Optional initialisator to be called when expanding */
+    chunk_initialisator initialisator;
 
-	/** Optional deinitialisator to be called when freeing */
-	chunk_deinitialisator deinitialisator;
+    /** Optional deinitialisator to be called when freeing */
+    chunk_deinitialisator deinitialisator;
 
-	/** Optional constructor to be called when getting chunks */
-	chunk_constructor constructor;
+    /** Optional constructor to be called when getting chunks */
+    chunk_constructor constructor;
 
-	/** Optional destructor to be called when returning chunks */
-	chunk_destructor destructor;
+    /** Optional destructor to be called when returning chunks */
+    chunk_destructor destructor;
 
-	/** First free chunk */
-	mempool_chunk_struct *freelist[MEMPOOL_NROF_FREELISTS];
+    /** First free chunk */
+    mempool_chunk_struct *freelist[MEMPOOL_NROF_FREELISTS];
 
-	/** Number of free. */
-	uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
+    /** Number of free. */
+    uint32 nrof_free[MEMPOOL_NROF_FREELISTS];
 
-	/** Number of allocated. */
-	uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
+    /** Number of allocated. */
+    uint32 nrof_allocated[MEMPOOL_NROF_FREELISTS];
 } mempool_struct;
 
 /** Get the memory management struct for a chunk of memory */

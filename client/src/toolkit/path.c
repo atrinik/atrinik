@@ -41,13 +41,13 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_path_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(path)
-	{
-		toolkit_import(logger);
-		toolkit_import(string);
-		toolkit_import(stringbuffer);
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(path)
+    {
+        toolkit_import(logger);
+        toolkit_import(string);
+        toolkit_import(stringbuffer);
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -55,10 +55,10 @@ void toolkit_path_init(void)
  * @internal */
 void toolkit_path_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(path)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(path)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -68,26 +68,25 @@ void toolkit_path_deinit(void)
  * @return The joined path; should be freed when no longer needed. */
 char *path_join(const char *path, const char *path2)
 {
-	StringBuffer *sb;
-	size_t len;
-	char *cp;
+    StringBuffer *sb;
+    size_t len;
+    char *cp;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	sb = stringbuffer_new();
-	stringbuffer_append_string(sb, path);
+    sb = stringbuffer_new();
+    stringbuffer_append_string(sb, path);
 
-	len = strlen(path);
+    len = strlen(path);
 
-	if (len && path[len - 1] != '/')
-	{
-		stringbuffer_append_string(sb, "/");
-	}
+    if (len && path[len - 1] != '/') {
+        stringbuffer_append_string(sb, "/");
+    }
 
-	stringbuffer_append_string(sb, path2);
-	cp = stringbuffer_finish(sb);
+    stringbuffer_append_string(sb, path2);
+    cp = stringbuffer_finish(sb);
 
-	return cp;
+    return cp;
 }
 
 /**
@@ -103,37 +102,33 @@ char *path_join(const char *path, const char *path2)
  * @author Hongli Lai (public domain) */
 char *path_dirname(const char *path)
 {
-	const char *end;
-	char *result;
+    const char *end;
+    char *result;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!path)
-	{
-		return NULL;
-	}
+    if (!path) {
+        return NULL;
+    }
 
-	end = strrchr(path, '/');
+    end = strrchr(path, '/');
 
-	if (!end)
-	{
-		return strdup(".");
-	}
+    if (!end) {
+        return strdup(".");
+    }
 
-	while (end > path && *end == '/')
-	{
-		end--;
-	}
+    while (end > path && *end == '/') {
+        end--;
+    }
 
-	result = strndup(path, end - path + 1);
+    result = strndup(path, end - path + 1);
 
-	if (result[0] == '\0')
-	{
-		free(result);
-		return strdup("/");
-	}
+    if (result[0] == '\0') {
+        free(result);
+        return strdup("/");
+    }
 
-	return result;
+    return result;
 }
 
 /**
@@ -148,24 +143,21 @@ char *path_dirname(const char *path)
  * needed. */
 char *path_basename(const char *path)
 {
-	const char *slash;
+    const char *slash;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!path)
-	{
-		return NULL;
-	}
+    if (!path) {
+        return NULL;
+    }
 
-	while ((slash = strrchr(path, '/')))
-	{
-		if (*(slash + 1) != '\0')
-		{
-			return strdup(slash + 1);
-		}
-	}
+    while ((slash = strrchr(path, '/'))) {
+        if (*(slash + 1) != '\0') {
+            return strdup(slash + 1);
+        }
+    }
 
-	return strdup(path);
+    return strdup(path);
 }
 
 /**
@@ -178,71 +170,60 @@ char *path_basename(const char *path)
  * @return The normalized path; never NULL. Must be freed. */
 char *path_normalize(const char *path)
 {
-	StringBuffer *sb;
-	size_t pos, startsbpos;
-	char component[MAX_BUF];
-	ssize_t last_slash;
+    StringBuffer *sb;
+    size_t pos, startsbpos;
+    char component[MAX_BUF];
+    ssize_t last_slash;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (string_isempty(path))
-	{
-		return strdup(".");
-	}
+    if (string_isempty(path)) {
+        return strdup(".");
+    }
 
-	sb = stringbuffer_new();
-	pos = 0;
+    sb = stringbuffer_new();
+    pos = 0;
 
-	if (string_startswith(path, "/"))
-	{
-		stringbuffer_append_string(sb, "/");
-	}
-	else if (string_startswith(path, "./"))
-	{
-		stringbuffer_append_string(sb, "./");
-	}
+    if (string_startswith(path, "/")) {
+        stringbuffer_append_string(sb, "/");
+    }
+    else if (string_startswith(path, "./")) {
+        stringbuffer_append_string(sb, "./");
+    }
 
-	startsbpos = sb->pos;
+    startsbpos = sb->pos;
 
-	while (string_get_word(path, &pos, '/', component, sizeof(component), 0))
-	{
-		if (strcmp(component, ".") == 0)
-		{
-			continue;
-		}
+    while (string_get_word(path, &pos, '/', component, sizeof(component), 0)) {
+        if (strcmp(component, ".") == 0) {
+            continue;
+        }
 
-		if (strcmp(component, "..") == 0)
-		{
-			if (sb->pos > startsbpos)
-			{
-				last_slash = stringbuffer_rindex(sb, '/');
+        if (strcmp(component, "..") == 0) {
+            if (sb->pos > startsbpos) {
+                last_slash = stringbuffer_rindex(sb, '/');
 
-				if (last_slash == -1)
-				{
-					logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
-					continue;
-				}
+                if (last_slash == -1) {
+                    logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
+                    continue;
+                }
 
-				sb->pos = last_slash;
-			}
-		}
-		else
-		{
-			if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/')
-			{
-				stringbuffer_append_string(sb, "/");
-			}
+                sb->pos = last_slash;
+            }
+        }
+        else {
+            if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/') {
+                stringbuffer_append_string(sb, "/");
+            }
 
-			stringbuffer_append_string(sb, component);
-		}
-	}
+            stringbuffer_append_string(sb, component);
+        }
+    }
 
-	if (sb->pos == 0)
-	{
-		stringbuffer_append_string(sb, ".");
-	}
+    if (sb->pos == 0) {
+        stringbuffer_append_string(sb, ".");
+    }
 
-	return stringbuffer_finish(sb);
+    return stringbuffer_finish(sb);
 }
 
 /**
@@ -251,36 +232,32 @@ char *path_normalize(const char *path)
  * @param path The path to check. */
 void path_ensure_directories(const char *path)
 {
-	char buf[MAXPATHLEN], *cp;
-	struct stat statbuf;
+    char buf[MAXPATHLEN], *cp;
+    struct stat statbuf;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!path || *path == '\0')
-	{
-		return;
-	}
+    if (!path || *path == '\0') {
+        return;
+    }
 
-	strncpy(buf, path, sizeof(buf) - 1);
-	buf[sizeof(buf) - 1] = '\0';
+    strncpy(buf, path, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = '\0';
 
-	cp = buf;
+    cp = buf;
 
-	while ((cp = strchr(cp + 1, '/')))
-	{
-		*cp = '\0';
+    while ((cp = strchr(cp + 1, '/'))) {
+        *cp = '\0';
 
-		if (stat(buf, &statbuf) || !S_ISDIR(statbuf.st_mode))
-		{
-			if (mkdir(buf, 0777))
-			{
-				logger_print(LOG(BUG), "Cannot mkdir %s: %s", buf, strerror(errno));
-				return;
-			}
-		}
+        if (stat(buf, &statbuf) || !S_ISDIR(statbuf.st_mode)) {
+            if (mkdir(buf, 0777)) {
+                logger_print(LOG(BUG), "Cannot mkdir %s: %s", buf, strerror(errno));
+                return;
+            }
+        }
 
-		*cp = '/';
-	}
+        *cp = '/';
+    }
 }
 
 /**
@@ -291,31 +268,28 @@ void path_ensure_directories(const char *path)
  * @return 1 on success, 0 on failure. */
 int path_copy_file(const char *src, FILE *dst, const char *mode)
 {
-	FILE *fp;
-	char buf[HUGE_BUF];
+    FILE *fp;
+    char buf[HUGE_BUF];
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!src || !dst || !mode)
-	{
-		return 0;
-	}
+    if (!src || !dst || !mode) {
+        return 0;
+    }
 
-	fp = fopen(src, mode);
+    fp = fopen(src, mode);
 
-	if (!fp)
-	{
-		return 0;
-	}
+    if (!fp) {
+        return 0;
+    }
 
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		fputs(buf, dst);
-	}
+    while (fgets(buf, sizeof(buf), fp)) {
+        fputs(buf, dst);
+    }
 
-	fclose(fp);
+    fclose(fp);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -324,16 +298,15 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
  * @return 1 if 'path' exists, 0 otherwise. */
 int path_exists(const char *path)
 {
-	struct stat statbuf;
+    struct stat statbuf;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (stat(path, &statbuf) != 0)
-	{
-		return 0;
-	}
+    if (stat(path, &statbuf) != 0) {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -342,24 +315,22 @@ int path_exists(const char *path)
  * @return 1 on success, 0 on failure. */
 int path_touch(const char *path)
 {
-	FILE *fp;
+    FILE *fp;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	path_ensure_directories(path);
-	fp = fopen(path, "w");
+    path_ensure_directories(path);
+    fp = fopen(path, "w");
 
-	if (!fp)
-	{
-		return 0;
-	}
+    if (!fp) {
+        return 0;
+    }
 
-	if (fclose(fp) == EOF)
-	{
-		return 0;
-	}
+    if (fclose(fp) == EOF) {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -368,16 +339,15 @@ int path_touch(const char *path)
  * @return Size of the file. */
 size_t path_size(const char *path)
 {
-	struct stat statbuf;
+    struct stat statbuf;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (stat(path, &statbuf) != 0)
-	{
-		return 0;
-	}
+    if (stat(path, &statbuf) != 0) {
+        return 0;
+    }
 
-	return statbuf.st_size;
+    return statbuf.st_size;
 }
 
 /**
@@ -387,27 +357,25 @@ size_t path_size(const char *path)
  * @return The loaded contents. Must be freed. */
 char *path_file_contents(const char *path)
 {
-	FILE *fp;
-	StringBuffer *sb;
-	char buf[MAX_BUF];
+    FILE *fp;
+    StringBuffer *sb;
+    char buf[MAX_BUF];
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	fp = fopen(path, "rb");
+    fp = fopen(path, "rb");
 
-	if (!fp)
-	{
-		return NULL;
-	}
+    if (!fp) {
+        return NULL;
+    }
 
-	sb = stringbuffer_new();
+    sb = stringbuffer_new();
 
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		stringbuffer_append_string(sb, buf);
-	}
+    while (fgets(buf, sizeof(buf), fp)) {
+        stringbuffer_append_string(sb, buf);
+    }
 
-	fclose(fp);
+    fclose(fp);
 
-	return stringbuffer_finish(sb);
+    return stringbuffer_finish(sb);
 }

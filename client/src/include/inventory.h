@@ -58,7 +58,8 @@
 #define INVENTORY_COLS(_inventory) ((_inventory)->w / INVENTORY_ICON_SIZE)
 /** Calculate number of rows in the inventory. */
 #define INVENTORY_ROWS(_inventory) ((_inventory)->h / INVENTORY_ICON_SIZE)
-/** Decide where to look for objects, depending on the inventory widget's type. */
+/** Decide where to look for objects, depending on the inventory widget's type.
+ * */
 #define INVENTORY_WHERE(_widget) ((_widget)->type == MAIN_INV_ID ? cpl.ob : cpl.below)
 /** Check whether the mouse is inside the inventory area. */
 #define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my) ((_mx) >= (_widget)->x + INVENTORY((_widget))->x && (_mx) < (_widget)->x + INVENTORY((_widget))->x + INVENTORY((_widget))->w && (_my) >= (_widget)->y + INVENTORY((_widget))->y && (_my) < (_widget)->y + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
@@ -67,29 +68,29 @@
  * The inventory data. */
 typedef struct inventory_struct
 {
-	/** Index of the selected object. */
-	uint32 selected;
+    /** Index of the selected object. */
+    uint32 selected;
 
-	/** X position of the inventory area. */
-	int x;
+    /** X position of the inventory area. */
+    int x;
 
-	/** Y position of the inventory area. */
-	int y;
+    /** Y position of the inventory area. */
+    int y;
 
-	/** Width of the inventory area. */
-	int w;
+    /** Width of the inventory area. */
+    int w;
 
-	/** Height of the inventory area. */
-	int h;
+    /** Height of the inventory area. */
+    int h;
 
-	/** The inventory scrollbar. */
-	scrollbar_struct scrollbar;
+    /** The inventory scrollbar. */
+    scrollbar_struct scrollbar;
 
-	/** Holds scrollbar information. */
-	scrollbar_info_struct scrollbar_info;
+    /** Holds scrollbar information. */
+    scrollbar_info_struct scrollbar_info;
 
-	/** Texture to use for the background. */
-	texture_struct *texture;
+    /** Texture to use for the background. */
+    texture_struct *texture;
 } inventory_struct;
 
 #endif

@@ -33,54 +33,49 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	if (widget->redraw)
-	{
-		widget->redraw = 0;
+    if (widget->redraw) {
+        widget->redraw = 0;
 
-		text_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
-		text_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+        text_show(widget->surface, FONT_ARIAL10, "Used", 4, 0, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+        text_show(widget->surface, FONT_ARIAL10, "Skill", 5, 9, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
-		text_show_format(widget->surface, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
-	}
+        text_show_format(widget->surface, FONT_ARIAL10, 40, 0, COLOR_WHITE, 0, NULL, "%1.2f sec", cpl.action_timer);
+    }
 
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+    box.x = widget->x;
+    box.y = widget->y;
+    SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget)
 {
-	static uint32 action_tick = 0;
+    static uint32 action_tick = 0;
 
-	/* Pre-emptively tick down the skill delay timer */
-	if (cpl.action_timer > 0)
-	{
-		if (LastTick - action_tick > 125)
-		{
-			cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
+    /* Pre-emptively tick down the skill delay timer */
+    if (cpl.action_timer > 0) {
+        if (LastTick - action_tick > 125) {
+            cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
 
-			if (cpl.action_timer < 0)
-			{
-				cpl.action_timer = 0;
-			}
+            if (cpl.action_timer < 0) {
+                cpl.action_timer = 0;
+            }
 
-			action_tick = LastTick;
-			WIDGET_REDRAW(widget);
-		}
-	}
-	else
-	{
-		action_tick = LastTick;
-	}
+            action_tick = LastTick;
+            WIDGET_REDRAW(widget);
+        }
+    }
+    else {
+        action_tick = LastTick;
+    }
 }
 
 /**
  * Initialize one skill experience widget. */
 void widget_skill_exp_init(widgetdata *widget)
 {
-	widget->draw_func = widget_draw;
-	widget->background_func = widget_background;
+    widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
 }

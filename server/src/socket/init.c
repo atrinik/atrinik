@@ -48,72 +48,66 @@ socket_struct *init_sockets;
  * point. */
 void init_connection(socket_struct *ns, const char *from_ip)
 {
-	int bufsize = 65535;
-	int oldbufsize;
-	socklen_t buflen = sizeof(int);
-	packet_struct *packet;
-	int i;
+    int bufsize = 65535;
+    int oldbufsize;
+    socklen_t buflen = sizeof(int);
+    packet_struct *packet;
+    int i;
 
 #ifdef WIN32
-	u_long temp = 1;
+    u_long temp = 1;
 
-	if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1)
-	{
-		logger_print(LOG(DEBUG), "Error on ioctlsocket.");
-	}
+    if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1) {
+        logger_print(LOG(DEBUG), "Error on ioctlsocket.");
+    }
 #else
-	if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1)
-	{
-		logger_print(LOG(DEBUG), "Error on fcntl.");
-	}
+    if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1) {
+        logger_print(LOG(DEBUG), "Error on fcntl.");
+    }
 #endif
 
-	if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1)
-	{
-		oldbufsize = 0;
-	}
+    if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1) {
+        oldbufsize = 0;
+    }
 
-	if (oldbufsize < bufsize)
-	{
-		if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)))
-		{
-			logger_print(LOG(DEBUG), "setsockopt unable to set output buf size to %d", bufsize);
-		}
-	}
+    if (oldbufsize < bufsize) {
+        if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize))) {
+            logger_print(LOG(DEBUG), "setsockopt unable to set output buf size to %d", bufsize);
+        }
+    }
 
-	ns->login_count = 0;
-	ns->keepalive = 0;
-	ns->addme = 0;
-	ns->faceset = 0;
-	ns->sound = 0;
-	ns->ext_title_flag = 1;
-	ns->state = ST_LOGIN;
-	ns->mapx = 17;
-	ns->mapy = 17;
-	ns->mapx_2 = 8;
-	ns->mapy_2 = 8;
-	ns->password_fails = 0;
-	ns->is_bot = 0;
-	ns->account = NULL;
+    ns->login_count = 0;
+    ns->keepalive = 0;
+    ns->addme = 0;
+    ns->faceset = 0;
+    ns->sound = 0;
+    ns->ext_title_flag = 1;
+    ns->state = ST_LOGIN;
+    ns->mapx = 17;
+    ns->mapy = 17;
+    ns->mapx_2 = 8;
+    ns->mapy_2 = 8;
+    ns->password_fails = 0;
+    ns->is_bot = 0;
+    ns->account = NULL;
 
-	for (i = 0; i < SERVER_FILES_MAX; i++)
-	{
-		ns->requested_file[i] = 0;
-	}
+    for (i = 0; i < SERVER_FILES_MAX; i++) {
+        ns->requested_file[i] = 0;
+    }
 
-	ns->packet_recv = packet_new(0, 1024 * 3, 0);
-	ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
+    ns->packet_recv = packet_new(0, 1024 * 3, 0);
+    ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
 
-	memset(&ns->lastmap, 0, sizeof(struct Map));
-	ns->packet_head = NULL;
-	ns->packet_tail = NULL;
-	pthread_mutex_init(&ns->packet_mutex, NULL);
+    memset(&ns->lastmap, 0, sizeof(struct Map));
+    ns->packet_head = NULL;
+    ns->packet_tail = NULL;
+    pthread_mutex_init(&ns->packet_mutex, NULL);
 
-	ns->host = strdup(from_ip);
+    ns->host = strdup(from_ip);
 
-	packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
-	packet_append_uint32(packet, SOCKET_VERSION);
-	socket_send_packet(ns, packet);
+    packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
+    packet_append_uint32(packet, SOCKET_VERSION);
+    socket_send_packet(ns, packet);
 }
 
 /**
@@ -121,126 +115,119 @@ void init_connection(socket_struct *ns, const char *from_ip)
  * memory. */
 void init_ericserver(void)
 {
-	struct sockaddr_in insock;
-	struct linger linger_opt;
+    struct sockaddr_in insock;
+    struct linger linger_opt;
 #ifndef WIN32
-	struct protoent *protox;
+    struct protoent *protox;
 
-#	ifdef HAVE_SYSCONF
-	socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
-#	else
-#		ifdef HAVE_GETDTABLESIZE
-	socket_info.max_filedescriptor = getdtablesize();
-#		else
-	"Unable to find usable function to get max filedescriptors";
-#		endif
-#	endif
+#   ifdef HAVE_SYSCONF
+    socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
+#   else
+#       ifdef HAVE_GETDTABLESIZE
+    socket_info.max_filedescriptor = getdtablesize();
+#       else
+    "Unable to find usable function to get max filedescriptors";
+#       endif
+#   endif
 #else
-	WSADATA w;
+    WSADATA w;
 
-	/* Used in select, ignored in winsockets */
-	socket_info.max_filedescriptor = 1;
-	/* This sets up all socket stuff */
-	WSAStartup(0x0101, &w);
+    /* Used in select, ignored in winsockets */
+    socket_info.max_filedescriptor = 1;
+    /* This sets up all socket stuff */
+    WSAStartup(0x0101, &w);
 #endif
 
-	socket_info.timeout.tv_sec = 0;
-	socket_info.timeout.tv_usec = 0;
-	socket_info.nconns = 0;
+    socket_info.timeout.tv_sec = 0;
+    socket_info.timeout.tv_usec = 0;
+    socket_info.nconns = 0;
 
-	socket_info.nconns = 1;
-	init_sockets = malloc(sizeof(socket_struct));
-	socket_info.allocated_sockets = 1;
+    socket_info.nconns = 1;
+    init_sockets = malloc(sizeof(socket_struct));
+    socket_info.allocated_sockets = 1;
 
 #ifndef WIN32
-	protox = getprotobyname("tcp");
+    protox = getprotobyname("tcp");
 
-	if (protox == NULL)
-	{
-		logger_print(LOG(BUG), "Error getting protox");
-		return;
-	}
+    if (protox == NULL) {
+        logger_print(LOG(BUG), "Error getting protox");
+        return;
+    }
 
-	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
 #else
-	init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
-	if (init_sockets[0].fd == -1)
-	{
-		logger_print(LOG(ERROR), "Cannot create socket: %s", strerror(errno));
-		exit(1);
-	}
+    if (init_sockets[0].fd == -1) {
+        logger_print(LOG(ERROR), "Cannot create socket: %s", strerror(errno));
+        exit(1);
+    }
 
-	insock.sin_family = AF_INET;
-	insock.sin_port = htons(settings.port);
-	insock.sin_addr.s_addr = htonl(INADDR_ANY);
+    insock.sin_family = AF_INET;
+    insock.sin_port = htons(settings.port);
+    insock.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	linger_opt.l_onoff = 0;
-	linger_opt.l_linger = 0;
+    linger_opt.l_onoff = 0;
+    linger_opt.l_linger = 0;
 
-	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger)))
-	{
-		logger_print(LOG(ERROR), "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
-		exit(1);
-	}
+    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger))) {
+        logger_print(LOG(ERROR), "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
+        exit(1);
+    }
 
-	/* Would be nice to have an autoconf check for this.  It appears that
-	 * these functions are both using the same calling syntax, just one
-	 * of them needs extra values passed. */
+    /* Would be nice to have an autoconf check for this.  It appears that
+     * these functions are both using the same calling syntax, just one
+     * of them needs extra values passed. */
 #if !defined(_WEIRD_OS_)
-	{
-		int tmp = 1;
+    {
+        int tmp = 1;
 
-		if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp)))
-		{
-			logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
-		}
-	}
+        if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp))) {
+            logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
+        }
+    }
 #else
-	if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0))
-	{
-		logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
-	}
+    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0)) {
+        logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
+    }
 #endif
 
-	if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1)
-	{
+    if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1) {
 #ifndef WIN32
-		close(init_sockets[0].fd);
+        close(init_sockets[0].fd);
 #else
-		shutdown(init_sockets[0].fd, SD_BOTH);
-		closesocket(init_sockets[0].fd);
+        shutdown(init_sockets[0].fd, SD_BOTH);
+        closesocket(init_sockets[0].fd);
 #endif
-		logger_print(LOG(ERROR), "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
-		exit(1);
-	}
+        logger_print(LOG(ERROR), "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
+        exit(1);
+    }
 
-	if (listen(init_sockets[0].fd, 5) == -1)
-	{
+    if (listen(init_sockets[0].fd, 5) == -1) {
 #ifndef WIN32
-		close(init_sockets[0].fd);
+        close(init_sockets[0].fd);
 #else
-		shutdown(init_sockets[0].fd, SD_BOTH);
-		closesocket(init_sockets[0].fd);
+        shutdown(init_sockets[0].fd, SD_BOTH);
+        closesocket(init_sockets[0].fd);
 #endif
-		logger_print(LOG(ERROR), "Cannot listen on socket: %s", strerror(errno));
-		exit(1);
-	}
+        logger_print(LOG(ERROR), "Cannot listen on socket: %s", strerror(errno));
+        exit(1);
+    }
 
-	init_sockets[0].state = ST_WAITING;
-	read_client_images();
-	updates_init();
-	init_srv_files();
+    init_sockets[0].state = ST_WAITING;
+    read_client_images();
+    updates_init();
+    init_srv_files();
 }
 
 /**
  * Frees all the memory that ericserver allocates. */
 void free_all_newserver(void)
 {
-	free_socket_images();
-	free(init_sockets);
+    free_socket_images();
+    free(init_sockets);
 }
 
 /**
@@ -252,33 +239,31 @@ void free_all_newserver(void)
 void free_newsocket(socket_struct *ns)
 {
 #ifndef WIN32
-	if (close(ns->fd))
+    if (close(ns->fd))
 #else
-	shutdown(ns->fd, SD_BOTH);
-	if (closesocket(ns->fd))
+    shutdown(ns->fd, SD_BOTH);
+    if (closesocket(ns->fd))
 #endif
-	{
+    {
 #ifdef ESRV_DEBUG
-		logger_print(LOG(DEBUG), "Error closing socket %d", ns->fd);
+        logger_print(LOG(DEBUG), "Error closing socket %d", ns->fd);
 #endif
-	}
+    }
 
-	if (ns->host)
-	{
-		free(ns->host);
-	}
+    if (ns->host) {
+        free(ns->host);
+    }
 
-	if (ns->account)
-	{
-		free(ns->account);
-	}
+    if (ns->account) {
+        free(ns->account);
+    }
 
-	packet_free(ns->packet_recv);
-	packet_free(ns->packet_recv_cmd);
+    packet_free(ns->packet_recv);
+    packet_free(ns->packet_recv_cmd);
 
-	socket_buffer_clear(ns);
+    socket_buffer_clear(ns);
 
-	memset(ns, 0, sizeof(ns));
+    memset(ns, 0, sizeof(ns));
 }
 
 /**
@@ -288,62 +273,58 @@ void free_newsocket(socket_struct *ns)
  * @param cmd The data command. */
 static void load_srv_file(char *fname, int id)
 {
-	FILE *fp;
-	char *contents, *compressed;
-	size_t fsize, numread;
-	struct stat statbuf;
+    FILE *fp;
+    char *contents, *compressed;
+    size_t fsize, numread;
+    struct stat statbuf;
 
-	if ((fp = fopen(fname, "rb")) == NULL)
-	{
-		logger_print(LOG(ERROR), "Can't open file %s", fname);
-		exit(1);
-	}
+    if ((fp = fopen(fname, "rb")) == NULL) {
+        logger_print(LOG(ERROR), "Can't open file %s", fname);
+        exit(1);
+    }
 
-	fstat(fileno(fp), &statbuf);
-	fsize = statbuf.st_size;
-	/* Allocate a buffer to hold the whole file. */
-	contents = malloc(fsize);
+    fstat(fileno(fp), &statbuf);
+    fsize = statbuf.st_size;
+    /* Allocate a buffer to hold the whole file. */
+    contents = malloc(fsize);
 
-	if (!contents)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (!contents) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	numread = fread(contents, 1, fsize, fp);
-	fclose(fp);
+    numread = fread(contents, 1, fsize, fp);
+    fclose(fp);
 
-	/* Get a crc from the uncompressed file. */
-	SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-	/* Store uncompressed length. */
-	SrvClientFiles[id].len_ucomp = numread;
+    /* Get a crc from the uncompressed file. */
+    SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+    /* Store uncompressed length. */
+    SrvClientFiles[id].len_ucomp = numread;
 
-	/* Calculate the upper bound of the compressed size. */
-	numread = compressBound(fsize);
-	/* Allocate a buffer to hold the compressed file. */
-	compressed = malloc(numread);
+    /* Calculate the upper bound of the compressed size. */
+    numread = compressBound(fsize);
+    /* Allocate a buffer to hold the compressed file. */
+    compressed = malloc(numread);
 
-	if (!compressed)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (!compressed) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
-	SrvClientFiles[id].file = malloc(numread);
+    compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+    SrvClientFiles[id].file = malloc(numread);
 
-	if (!SrvClientFiles[id].file)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (!SrvClientFiles[id].file) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	memcpy(SrvClientFiles[id].file, compressed, numread);
-	SrvClientFiles[id].len = numread;
+    memcpy(SrvClientFiles[id].file, compressed, numread);
+    SrvClientFiles[id].len = numread;
 
-	/* Free temporary buffers. */
-	free(contents);
-	free(compressed);
+    /* Free temporary buffers. */
+    free(contents);
+    free(compressed);
 }
 
 /**
@@ -351,91 +332,82 @@ static void load_srv_file(char *fname, int id)
  * data/server_settings file from it. */
 static void create_server_settings(void)
 {
-	char buf[MAX_BUF];
-	size_t i;
-	FILE *fp;
+    char buf[MAX_BUF];
+    size_t i;
+    FILE *fp;
 
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
+    snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
 
-	fp = fopen(buf, "wb");
+    fp = fopen(buf, "wb");
 
-	if (!fp)
-	{
-		logger_print(LOG(ERROR), "Couldn't create %s.", buf);
-		exit(1);
-	}
+    if (!fp) {
+        logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+        exit(1);
+    }
 
-	/* Copy the default. */
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.libpath);
+    /* Copy the default. */
+    snprintf(buf, sizeof(buf), "%s/server_settings", settings.libpath);
 
-	if (!path_copy_file(buf, fp, "r"))
-	{
-		logger_print(LOG(ERROR), "Couldn't copy %s.", buf);
-		exit(1);
-	}
+    if (!path_copy_file(buf, fp, "r")) {
+        logger_print(LOG(ERROR), "Couldn't copy %s.", buf);
+        exit(1);
+    }
 
-	for (i = 0; i < ALLOWED_CHARS_NUM; i++)
-	{
-		fprintf(fp, "text %s\n", settings.allowed_chars[i]);
-		fprintf(fp, "text %"FMT64U"-%"FMT64U"\n", (uint64) settings.limits[i][0], (uint64) settings.limits[i][1]);
-	}
+    for (i = 0; i < ALLOWED_CHARS_NUM; i++) {
+        fprintf(fp, "text %s\n", settings.allowed_chars[i]);
+        fprintf(fp, "text %"FMT64U "-%"FMT64U "\n", (uint64) settings.limits[i][0], (uint64) settings.limits[i][1]);
+    }
 
-	/* Add the level information. */
-	fprintf(fp, "level %d\n", MAXLEVEL);
+    /* Add the level information. */
+    fprintf(fp, "level %d\n", MAXLEVEL);
 
-	for (i = 0; i <= MAXLEVEL; i++)
-	{
-		fprintf(fp, "%"FMT64HEX"\n", new_levels[i]);
-	}
+    for (i = 0; i <= MAXLEVEL; i++) {
+        fprintf(fp, "%"FMT64HEX "\n", new_levels[i]);
+    }
 
-	fclose(fp);
+    fclose(fp);
 }
 
 /**
  * Initialize animations file for the client. */
 static void create_server_animations(void)
 {
-	char buf[MAX_BUF];
-	FILE *fp, *fp2;
+    char buf[MAX_BUF];
+    FILE *fp, *fp2;
 
-	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
+    snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
 
-	fp = fopen(buf, "wb");
+    fp = fopen(buf, "wb");
 
-	if (!fp)
-	{
-		logger_print(LOG(ERROR), "Couldn't create %s.", buf);
-		exit(1);
-	}
+    if (!fp) {
+        logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+        exit(1);
+    }
 
-	snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
-	fp2 = fopen(buf, "rb");
+    snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
+    fp2 = fopen(buf, "rb");
 
-	if (!fp2)
-	{
-		logger_print(LOG(ERROR), "Couldn't open %s.", buf);
-		exit(1);
-	}
+    if (!fp2) {
+        logger_print(LOG(ERROR), "Couldn't open %s.", buf);
+        exit(1);
+    }
 
-	while (fgets(buf, sizeof(buf), fp2))
-	{
-		/* Copy anything but face names. */
-		if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8))
-		{
-			fputs(buf, fp);
-		}
-		/* Transform face names into IDs. */
-		else
-		{
-			char *end = strchr(buf, '\n');
+    while (fgets(buf, sizeof(buf), fp2)) {
+        /* Copy anything but face names. */
+        if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8)) {
+            fputs(buf, fp);
+        }
+        /* Transform face names into IDs. */
+        else {
+            char *end = strchr(buf, '\n');
 
-			*end = '\0';
-			fprintf(fp, "%d\n", find_face(buf, 0));
-		}
-	}
+            *end = '\0';
+            fprintf(fp, "%d\n", find_face(buf, 0));
+        }
+    }
 
-	fclose(fp2);
-	fclose(fp);
+    fclose(fp2);
+    fclose(fp);
 }
 
 /**
@@ -445,41 +417,40 @@ static void create_server_animations(void)
  * Atrinik png file. */
 void init_srv_files(void)
 {
-	char buf[MAX_BUF];
+    char buf[MAX_BUF];
 
-	memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
+    memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
 
-	snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
-	load_srv_file(buf, SERVER_FILE_BMAPS);
+    snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
+    load_srv_file(buf, SERVER_FILE_BMAPS);
 
-	snprintf(buf, sizeof(buf), "%s/"UPDATES_FILE_NAME, settings.datapath);
-	load_srv_file(buf, SERVER_FILE_UPDATES);
+    snprintf(buf, sizeof(buf), "%s/"UPDATES_FILE_NAME, settings.datapath);
+    load_srv_file(buf, SERVER_FILE_UPDATES);
 
-	create_server_settings();
-	snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
-	load_srv_file(buf, SERVER_FILE_SETTINGS);
+    create_server_settings();
+    snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
+    load_srv_file(buf, SERVER_FILE_SETTINGS);
 
-	create_server_animations();
-	snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
-	load_srv_file(buf, SERVER_FILE_ANIMS);
+    create_server_animations();
+    snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
+    load_srv_file(buf, SERVER_FILE_ANIMS);
 
-	snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
-	load_srv_file(buf, SERVER_FILE_EFFECTS);
+    snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
+    load_srv_file(buf, SERVER_FILE_EFFECTS);
 
-	snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
-	load_srv_file(buf, SERVER_FILE_HFILES);
+    snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
+    load_srv_file(buf, SERVER_FILE_HFILES);
 }
 
 /**
  * Free all server files previously initialized by init_srv_files(). */
 void free_srv_files(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < SERVER_FILES_MAX; i++)
-	{
-		free(SrvClientFiles[i].file);
-	}
+    for (i = 0; i < SERVER_FILES_MAX; i++) {
+        free(SrvClientFiles[i].file);
+    }
 }
 
 /**
@@ -492,11 +463,11 @@ void free_srv_files(void)
  * @param id ID of the server file. */
 void send_srv_file(socket_struct *ns, int id)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
-	packet_append_uint8(packet, id);
-	packet_append_uint32(packet, SrvClientFiles[id].len_ucomp);
-	packet_append_data_len(packet, SrvClientFiles[id].file, SrvClientFiles[id].len);
-	socket_send_packet(ns, packet);
+    packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
+    packet_append_uint8(packet, id);
+    packet_append_uint32(packet, SrvClientFiles[id].len_ucomp);
+    packet_append_data_len(packet, SrvClientFiles[id].file, SrvClientFiles[id].len);
+    socket_send_packet(ns, packet);
 }

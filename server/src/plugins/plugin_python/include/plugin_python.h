@@ -36,29 +36,29 @@
 
 /** This is for allowing both python 3 and python 2. */
 #if PY_MAJOR_VERSION >= 3
-#	define IS_PY3K
+#   define IS_PY3K
 #else
-#	if PY_MINOR_VERSION >= 6
-#		define IS_PY26
-#	else
-#		define IS_PY_LEGACY
-#	endif
-#	if PY_MINOR_VERSION >= 5
-#		define IS_PY25
-#	endif
+#   if PY_MINOR_VERSION >= 6
+#       define IS_PY26
+#   else
+#       define IS_PY_LEGACY
+#   endif
+#   if PY_MINOR_VERSION >= 5
+#       define IS_PY25
+#   endif
 #endif
 
 /* Fake some Python 2.x functions for Python 3.x. */
 #ifdef IS_PY3K
-#	define PyString_Check PyUnicode_Check
-#	define PyString_AsString _PyUnicode_AsString
-#	define PyInt_Check PyLong_Check
-#	define PyInt_AsLong PyLong_AsLong
-	extern PyTypeObject PyIOBase_Type;
-#	define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
-#	define PyString_FromFormat PyUnicode_FromFormat
+#   define PyString_Check PyUnicode_Check
+#   define PyString_AsString _PyUnicode_AsString
+#   define PyInt_Check PyLong_Check
+#   define PyInt_AsLong PyLong_AsLong
+extern PyTypeObject PyIOBase_Type;
+#   define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
+#   define PyString_FromFormat PyUnicode_FromFormat
 #else
-#	define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
+#   define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif
 
 /** Name of the plugin. */
@@ -107,26 +107,26 @@ extern struct plugin_hooklist *hooks;
  * @param _sv_ Shared string.
  * @param _nv_ String to copy to the shared string. */
 #define FREE_AND_COPY_HASH(_sv_, _nv_)   \
-{                                        \
-	if (_sv_)                            \
-	{                                    \
-		hooks->free_string_shared(_sv_); \
-	}                                    \
+    {                                        \
+        if (_sv_)                            \
+        {                                    \
+            hooks->free_string_shared(_sv_); \
+        }                                    \
                                          \
-	_sv_ = hooks->add_string(_nv_);      \
-}
+        _sv_ = hooks->add_string(_nv_);      \
+    }
 /**
  * Free old hash and add a reference to the new one.
  * @param _sv_ Pointer to shared string.
  * @param _nv_ String to add reference to. Must be a shared string. */
 #define FREE_AND_CLEAR_HASH(_nv_)        \
-{                                        \
-	if (_nv_)                            \
-	{                                    \
-		hooks->free_string_shared(_nv_); \
-		_nv_ = NULL;                     \
-	}                                    \
-}
+    {                                        \
+        if (_nv_)                            \
+        {                                    \
+            hooks->free_string_shared(_nv_); \
+            _nv_ = NULL;                     \
+        }                                    \
+    }
 
 #undef SET_ANIMATION
 #define SET_ANIMATION(ob, newanim) ob->face = &(*hooks->new_faces)[(*hooks->animations)[ob->animation_id].faces[newanim]]
@@ -139,46 +139,46 @@ extern PyObject *AtrinikError;
 
 /** Raise an error using AtrinikError, and return NULL. */
 #define RAISE(msg)                        \
-{                                         \
-	PyErr_SetString(AtrinikError, (msg)); \
-	return NULL;                          \
-}
+    {                                         \
+        PyErr_SetString(AtrinikError, (msg)); \
+        return NULL;                          \
+    }
 /** Raise an error using AtrinikError, and return -1. */
 #define INTRAISE(msg)                        \
-{                                            \
-	PyErr_SetString(PyExc_TypeError, (msg)); \
-	return -1;                               \
-}
+    {                                            \
+        PyErr_SetString(PyExc_TypeError, (msg)); \
+        return -1;                               \
+    }
 
 /** The Python event context. */
 typedef struct _pythoncontext
 {
-	/** Next context. */
-	struct _pythoncontext *down;
+    /** Next context. */
+    struct _pythoncontext *down;
 
-	/** Event activator. */
-	object *activator;
+    /** Event activator. */
+    object *activator;
 
-	/** Object that has the event object. */
-	object *who;
+    /** Object that has the event object. */
+    object *who;
 
-	/** Other object involved. */
-	object *other;
+    /** Other object involved. */
+    object *other;
 
-	/** The actual event object. */
-	object *event;
+    /** The actual event object. */
+    object *event;
 
-	/** Text message (say event for example) */
-	char *text;
+    /** Text message (say event for example) */
+    char *text;
 
-	/** Event options. */
-	char *options;
+    /** Event options. */
+    char *options;
 
-	/** Return value of the event. */
-	int returnvalue;
+    /** Return value of the event. */
+    int returnvalue;
 
-	/** Integer parameters. */
-	int parms[4];
+    /** Integer parameters. */
+    int parms[4];
 } PythonContext;
 
 extern PythonContext *current_context;
@@ -186,76 +186,76 @@ extern PythonContext *current_context;
 /** Type used for integer constants. */
 typedef struct
 {
-	/** Name of the constant. */
-	const char *name;
+    /** Name of the constant. */
+    const char *name;
 
-	/** Value of the constant. */
-	const long value;
+    /** Value of the constant. */
+    const long value;
 } Atrinik_Constant;
 
 /** Types used in objects and maps structs. */
 typedef enum
 {
-	/** Pointer to shared string. */
-	FIELDTYPE_SHSTR,
-	/** Pointer to C string. */
-	FIELDTYPE_CSTR,
-	/** C string (array directly in struct). */
-	FIELDTYPE_CARY,
-	/** Unsigned int8. */
-	FIELDTYPE_UINT8,
-	/** Signed int8. */
-	FIELDTYPE_SINT8,
-	/** Unsigned int16. */
-	FIELDTYPE_UINT16,
-	/** Signed int16. */
-	FIELDTYPE_SINT16,
-	/** Unsigned int32. */
-	FIELDTYPE_UINT32,
-	/** Signed int32. */
-	FIELDTYPE_SINT32,
-	/** Unsigned int64. */
-	FIELDTYPE_UINT64,
-	/** Signed int64. */
-	FIELDTYPE_SINT64,
-	/** Float. */
-	FIELDTYPE_FLOAT,
-	/** Pointer to object. */
-	FIELDTYPE_OBJECT,
-	/** Object. */
-	FIELDTYPE_OBJECT2,
-	/** Pointer to map. */
-	FIELDTYPE_MAP,
-	/** Object pointer + tag. */
-	FIELDTYPE_OBJECTREF,
-	/** Pointer to region. */
-	FIELDTYPE_REGION,
-	/** Pointer to a party. */
-	FIELDTYPE_PARTY,
-	/** Pointer to an archetype. */
-	FIELDTYPE_ARCH,
-	/** Pointer to a player. */
-	FIELDTYPE_PLAYER,
-	/** Face pointer. */
-	FIELDTYPE_FACE,
-	/**
-	 * Animation ID. The field is actually uint16, but the result is a
-	 * tuple containing the animation name and the animation ID. */
-	FIELDTYPE_ANIMATION,
-	/** uint8 that only accepts True/False. */
-	FIELDTYPE_BOOLEAN,
-	/** AttrList field type; the field is an array. */
-	FIELDTYPE_LIST,
-	/** Player's command permissions. */
-	FIELDTYPE_CMD_PERMISSIONS,
-	/** Player's faction reputations. */
-	FIELDTYPE_FACTIONS,
-	/** Player's region maps. */
-	FIELDTYPE_REGION_MAPS,
-	/** Object's connection value. */
-	FIELDTYPE_CONNECTION,
-	/** Treasure list. */
-	FIELDTYPE_TREASURELIST
+    /** Pointer to shared string. */
+    FIELDTYPE_SHSTR,
+    /** Pointer to C string. */
+    FIELDTYPE_CSTR,
+    /** C string (array directly in struct). */
+    FIELDTYPE_CARY,
+    /** Unsigned int8. */
+    FIELDTYPE_UINT8,
+    /** Signed int8. */
+    FIELDTYPE_SINT8,
+    /** Unsigned int16. */
+    FIELDTYPE_UINT16,
+    /** Signed int16. */
+    FIELDTYPE_SINT16,
+    /** Unsigned int32. */
+    FIELDTYPE_UINT32,
+    /** Signed int32. */
+    FIELDTYPE_SINT32,
+    /** Unsigned int64. */
+    FIELDTYPE_UINT64,
+    /** Signed int64. */
+    FIELDTYPE_SINT64,
+    /** Float. */
+    FIELDTYPE_FLOAT,
+    /** Pointer to object. */
+    FIELDTYPE_OBJECT,
+    /** Object. */
+    FIELDTYPE_OBJECT2,
+    /** Pointer to map. */
+    FIELDTYPE_MAP,
+    /** Object pointer + tag. */
+    FIELDTYPE_OBJECTREF,
+    /** Pointer to region. */
+    FIELDTYPE_REGION,
+    /** Pointer to a party. */
+    FIELDTYPE_PARTY,
+    /** Pointer to an archetype. */
+    FIELDTYPE_ARCH,
+    /** Pointer to a player. */
+    FIELDTYPE_PLAYER,
+    /** Face pointer. */
+    FIELDTYPE_FACE,
+    /**
+     * Animation ID. The field is actually uint16, but the result is a
+     * tuple containing the animation name and the animation ID. */
+    FIELDTYPE_ANIMATION,
+    /** uint8 that only accepts True/False. */
+    FIELDTYPE_BOOLEAN,
+    /** AttrList field type; the field is an array. */
+    FIELDTYPE_LIST,
+    /** Player's command permissions. */
+    FIELDTYPE_CMD_PERMISSIONS,
+    /** Player's faction reputations. */
+    FIELDTYPE_FACTIONS,
+    /** Player's region maps. */
+    FIELDTYPE_REGION_MAPS,
+    /** Object's connection value. */
+    FIELDTYPE_CONNECTION,
+    /** Treasure list. */
+    FIELDTYPE_TREASURELIST
 } field_type;
 
 /**
@@ -291,19 +291,19 @@ int Atrinik_Object_init(PyObject *module);
 /** The Atrinik_Object structure. */
 typedef struct Atrinik_Object
 {
-	PyObject_HEAD
+    PyObject_HEAD
 
-	/** Pointer to the Atrinik object we wrap. */
-	object *obj;
+    /** Pointer to the Atrinik object we wrap. */
+    object *obj;
 
-	/** Pointer for iteration. */
-	struct Atrinik_Object *iter;
+    /** Pointer for iteration. */
+    struct Atrinik_Object *iter;
 
-	/** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
-	uint8 iter_type;
+    /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
+    uint8 iter_type;
 
-	/** ID of the object. */
-	tag_t count;
+    /** ID of the object. */
+    tag_t count;
 } Atrinik_Object;
 
 PyTypeObject Atrinik_MapType;
@@ -313,9 +313,9 @@ int Atrinik_Map_init(PyObject *module);
 /** The Atrinik_Map structure. */
 typedef struct
 {
-	PyObject_HEAD
-	/** Pointer to the Atrinik map we wrap. */
-	mapstruct *map;
+    PyObject_HEAD
+    /** Pointer to the Atrinik map we wrap. */
+    mapstruct *map;
 } Atrinik_Map;
 
 PyTypeObject Atrinik_PartyType;
@@ -325,9 +325,9 @@ int Atrinik_Party_init(PyObject *module);
 /** The Atrinik_Party structure. */
 typedef struct
 {
-	PyObject_HEAD
-	/** Pointer to the Atrinik party we wrap. */
-	party_struct *party;
+    PyObject_HEAD
+    /** Pointer to the Atrinik party we wrap. */
+    party_struct *party;
 } Atrinik_Party;
 
 PyTypeObject Atrinik_RegionType;
@@ -337,9 +337,9 @@ int Atrinik_Region_init(PyObject *module);
 /** The Atrinik_Region structure. */
 typedef struct
 {
-	PyObject_HEAD
-	/** Pointer to the Atrinik region we wrap. */
-	region *region;
+    PyObject_HEAD
+    /** Pointer to the Atrinik region we wrap. */
+    region *region;
 } Atrinik_Region;
 
 PyTypeObject Atrinik_PlayerType;
@@ -349,9 +349,9 @@ int Atrinik_Player_init(PyObject *module);
 /** The Atrinik_Player structure. */
 typedef struct
 {
-	PyObject_HEAD
-	/** Pointer to the Atrinik player we wrap. */
-	player *pl;
+    PyObject_HEAD
+    /** Pointer to the Atrinik player we wrap. */
+    player *pl;
 } Atrinik_Player;
 
 PyTypeObject Atrinik_ArchetypeType;
@@ -361,9 +361,9 @@ int Atrinik_Archetype_init(PyObject *module);
 /** The Atrinik_Archetype structure. */
 typedef struct
 {
-	PyObject_HEAD
-	/** Pointer to the Atrinik archetype we wrap. */
-	archetype *at;
+    PyObject_HEAD
+    /** Pointer to the Atrinik archetype we wrap. */
+    archetype *at;
 } Atrinik_Archetype;
 
 PyTypeObject Atrinik_AttrListType;
@@ -373,62 +373,62 @@ int Atrinik_AttrList_init(PyObject *module);
 /** The Atrinik_AttrList structure. */
 typedef struct
 {
-	PyObject_HEAD
+    PyObject_HEAD
 
-	/** Pointer to the structure the array is in. */
-	void *ptr;
+    /** Pointer to the structure the array is in. */
+    void *ptr;
 
-	/** Where in the structure the array is. */
-	size_t offset;
+    /** Where in the structure the array is. */
+    size_t offset;
 
-	/**
-	 * Type of the array being handled; for example,
-	 * @ref FIELDTYPE_REGION_MAPS. */
-	field_type field;
+    /**
+     * Type of the array being handled; for example,
+     * @ref FIELDTYPE_REGION_MAPS. */
+    field_type field;
 
-	/** Used to keep track of iteration index. */
-	unsigned PY_LONG_LONG iter;
+    /** Used to keep track of iteration index. */
+    unsigned PY_LONG_LONG iter;
 } Atrinik_AttrList;
 
 /** One cache entry. */
 typedef struct python_cache_entry
 {
-	/** The script file. */
-	char *file;
+    /** The script file. */
+    char *file;
 
-	/** The cached code. */
-	PyCodeObject *code;
+    /** The cached code. */
+    PyCodeObject *code;
 
-	/** Last cached time. */
-	time_t cached_time;
+    /** Last cached time. */
+    time_t cached_time;
 
-	/** Hash handle. */
-	UT_hash_handle hh;
+    /** Hash handle. */
+    UT_hash_handle hh;
 } python_cache_entry;
 
 /**
  * General structure for Python object fields. */
 typedef struct
 {
-	/**
-	 * Name of the field. */
-	char *name;
+    /**
+     * Name of the field. */
+    char *name;
 
-	/**
-	 * Field type. */
-	field_type type;
+    /**
+     * Field type. */
+    field_type type;
 
-	/**
-	 * Offset in player structure. */
-	size_t offset;
+    /**
+     * Offset in player structure. */
+    size_t offset;
 
-	/**
-	 * Flags for special handling. */
-	uint32 flags;
+    /**
+     * Flags for special handling. */
+    uint32 flags;
 
-	/**
-	 * Extra data for some special fields. */
-	uint32 extra_data;
+    /**
+     * Extra data for some special fields. */
+    uint32 extra_data;
 } fields_struct;
 
 /**
@@ -437,51 +437,51 @@ typedef struct
 #define NUM_FIELDS (sizeof(fields) / sizeof(fields[0]))
 
 #define OBJEXISTCHECK_INT(ob) \
-{ \
-	if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
-	{ \
-		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
-		return -1; \
-	} \
-}
+    { \
+        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
+        { \
+            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
+            return -1; \
+        } \
+    }
 
 #define OBJEXISTCHECK(ob) \
-{ \
-	if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
-	{ \
-		PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
-		return NULL; \
-	} \
-}
+    { \
+        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
+        { \
+            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
+            return NULL; \
+        } \
+    }
 
 /**
  * Helper macro for the object.SquaresAround() Python function. */
 #define SQUARES_AROUND_ADD(_m, _x, _y) \
-{ \
-	PyObject *tuple = PyTuple_New(3); \
+    { \
+        PyObject *tuple = PyTuple_New(3); \
 \
-	PyTuple_SET_ITEM(tuple, 0, wrap_map((_m))); \
-	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", (_x))); \
-	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", (_y))); \
-	PyList_Append(list, tuple); \
-}
+        PyTuple_SET_ITEM(tuple, 0, wrap_map((_m))); \
+        PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", (_x))); \
+        PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", (_y))); \
+        PyList_Append(list, tuple); \
+    }
 
 /**
  * Returns Py_True (increasing its reference) if 'val' is non-NULL, otherwise
  * returns Py_False. */
 #define Py_ReturnBoolean(val) \
-{ \
-	if ((val)) \
-	{ \
-		Py_INCREF(Py_True); \
-		return Py_True; \
-	} \
-	else \
-	{ \
-		Py_INCREF(Py_False); \
-		return Py_False; \
-	} \
-}
+    { \
+        if ((val)) \
+        { \
+            Py_INCREF(Py_True); \
+            return Py_True; \
+        } \
+        else \
+        { \
+            Py_INCREF(Py_False); \
+            return Py_False; \
+        } \
+    }
 
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);

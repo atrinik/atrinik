@@ -33,88 +33,77 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	/* If lit and in player's inventory, handle as normal item apply. */
-	if (op->glow_radius && op->env && op->env->type == PLAYER)
-	{
-		object_apply_item(op, applier, aflags);
+    /* If lit and in player's inventory, handle as normal item apply. */
+    if (op->glow_radius && op->env && op->env->type == PLAYER) {
+        object_apply_item(op, applier, aflags);
 
-		/* If the light is applied now, we don't want to go on and
-		 * extinguish it. */
-		if (QUERY_FLAG(op, FLAG_APPLIED))
-		{
-			return OBJECT_METHOD_OK;
-		}
-	}
+        /* If the light is applied now, we don't want to go on and
+         * extinguish it. */
+        if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            return OBJECT_METHOD_OK;
+        }
+    }
 
-	if (op->glow_radius)
-	{
-		op = object_stack_get_reinsert(op, 1);
+    if (op->glow_radius) {
+        op = object_stack_get_reinsert(op, 1);
 
-		draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", query_name(op, applier));
 
-		CLEAR_FLAG(op, FLAG_CHANGING);
+        CLEAR_FLAG(op, FLAG_CHANGING);
 
-		if (op->other_arch && op->other_arch->clone.sub_type & 1)
-		{
-			op->animation_id = op->other_arch->clone.animation_id;
-			op->state = 0;
-			SET_ANIMATION_STATE(op);
-			esrv_update_item(UPD_FACE | UPD_ANIM, op);
-		}
-		else
-		{
-			CLEAR_FLAG(op, FLAG_ANIMATE);
-			op->face = op->arch->clone.face;
-			esrv_update_item(UPD_FACE | UPD_ANIMSPEED, op);
-		}
+        if (op->other_arch && op->other_arch->clone.sub_type & 1) {
+            op->animation_id = op->other_arch->clone.animation_id;
+            op->state = 0;
+            SET_ANIMATION_STATE(op);
+            esrv_update_item(UPD_FACE | UPD_ANIM, op);
+        }
+        else {
+            CLEAR_FLAG(op, FLAG_ANIMATE);
+            op->face = op->arch->clone.face;
+            esrv_update_item(UPD_FACE | UPD_ANIMSPEED, op);
+        }
 
-		if (op->map)
-		{
-			adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-			update_object(op, UP_OBJ_FACE);
-		}
+        if (op->map) {
+            adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
+            update_object(op, UP_OBJ_FACE);
+        }
 
-		op->glow_radius = 0;
-	}
-	else if (op->last_sp)
-	{
-		op = object_stack_get_reinsert(op, 1);
+        op->glow_radius = 0;
+    }
+    else if (op->last_sp) {
+        op = object_stack_get_reinsert(op, 1);
 
-		draw_info_format(COLOR_WHITE, applier, "You light the %s.", query_name(op, NULL));
+        draw_info_format(COLOR_WHITE, applier, "You light the %s.", query_name(op, NULL));
 
-		/* Light source that burns out... */
-		if (op->last_eat)
-		{
-			SET_FLAG(op, FLAG_CHANGING);
-		}
+        /* Light source that burns out... */
+        if (op->last_eat) {
+            SET_FLAG(op, FLAG_CHANGING);
+        }
 
-		if (op->speed)
-		{
-			SET_FLAG(op, FLAG_ANIMATE);
-			op->animation_id = op->arch->clone.animation_id;
-			SET_ANIMATION_STATE(op);
-			esrv_update_item(UPD_FACE | UPD_ANIM | UPD_ANIMSPEED, op);
-		}
+        if (op->speed) {
+            SET_FLAG(op, FLAG_ANIMATE);
+            op->animation_id = op->arch->clone.animation_id;
+            SET_ANIMATION_STATE(op);
+            esrv_update_item(UPD_FACE | UPD_ANIM | UPD_ANIMSPEED, op);
+        }
 
-		op->glow_radius = op->last_sp;
+        op->glow_radius = op->last_sp;
 
-		if (op->map)
-		{
-			adjust_light_source(op->map, op->x, op->y, op->glow_radius);
-			update_object(op, UP_OBJ_FACE);
-		}
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", query_name(op, applier));
-	}
+        if (op->map) {
+            adjust_light_source(op->map, op->x, op->y, op->glow_radius);
+            update_object(op, UP_OBJ_FACE);
+        }
+    }
+    else {
+        draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", query_name(op, applier));
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the applyable light type object methods. */
 void object_type_init_light_apply(void)
 {
-	object_type_methods[LIGHT_APPLY].apply_func = apply_func;
+    object_type_methods[LIGHT_APPLY].apply_func = apply_func;
 }

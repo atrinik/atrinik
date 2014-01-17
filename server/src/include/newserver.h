@@ -40,132 +40,133 @@
  * to the client. */
 typedef struct MapCell_struct
 {
-	/** Cache of last sent ambient sound. */
-	tag_t sound_ambient_count;
+    /** Cache of last sent ambient sound. */
+    tag_t sound_ambient_count;
 
-	/* Everything below will be cleared by memset() in when the map
-	 * cell is no longer visible. */
+    /* Everything below will be cleared by memset() in when the map
+     * cell is no longer visible. */
 
-	/** Darkness cache. */
-	int	count;
+    /** Darkness cache. */
+    int count;
 
-	/** Faces we sent. */
-	sint16 faces[NUM_REAL_LAYERS];
+    /** Faces we sent. */
+    sint16 faces[NUM_REAL_LAYERS];
 
-	/** Multi-arch cache. */
-	uint8 quick_pos[NUM_REAL_LAYERS];
+    /** Multi-arch cache. */
+    uint8 quick_pos[NUM_REAL_LAYERS];
 
-	/** Flags cache. */
-	uint8 flags[NUM_REAL_LAYERS];
+    /** Flags cache. */
+    uint8 flags[NUM_REAL_LAYERS];
 
-	/**
-	 * Probe cache. No need for an array, since this only appears
-	 * for players or monsters, both on layer 6. */
-	uint8 probe;
+    /**
+     * Probe cache. No need for an array, since this only appears
+     * for players or monsters, both on layer 6. */
+    uint8 probe;
 
-	/**
-	 * Possible target object UID cache. */
-	tag_t target_object_count;
+    /**
+     * Possible target object UID cache. */
+    tag_t target_object_count;
 } MapCell;
 
 /** One map for a player. */
 struct Map
 {
-	/** The map cells. */
-	struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
+    /** The map cells. */
+    struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
 /** Possible socket statuses. */
 enum
 {
-	ST_AVAILABLE,
-	ST_WAITING,
-	ST_LOGIN,
-	ST_PLAYING,
-	ST_DEAD,
-	ST_ZOMBIE
+    ST_AVAILABLE,
+    ST_WAITING,
+    ST_LOGIN,
+    ST_PLAYING,
+    ST_DEAD,
+    ST_ZOMBIE
 };
 
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct
 {
-	/** The actual file descriptor we are using. */
-	int fd;
+    /** The actual file descriptor we are using. */
+    int fd;
 
-	/**
-	 * If someone is too long idle in the login, he will get
-	 * disconnected. */
-	int login_count;
+    /**
+     * If someone is too long idle in the login, he will get
+     * disconnected. */
+    int login_count;
 
-	/** X size of the map the client wants. */
-	int mapx;
+    /** X size of the map the client wants. */
+    int mapx;
 
-	/** Y size of the map the client wants. */
-	int mapy;
+    /** Y size of the map the client wants. */
+    int mapy;
 
-	/** X size of the map the client wants / 2. */
-	int mapx_2;
+    /** X size of the map the client wants / 2. */
+    int mapx_2;
 
-	/** Y size of the map the client wants / 2. */
-	int mapy_2;
+    /** Y size of the map the client wants / 2. */
+    int mapy_2;
 
-	/** Which host it is connected from (ip address). */
-	char *host;
+    /** Which host it is connected from (ip address). */
+    char *host;
 
-	/** Version of the client. */
-	uint32 socket_version;
+    /** Version of the client. */
+    uint32 socket_version;
 
-	/** Marker to see we must update the below windows of the tile the player is. */
-	uint32 update_tile;
+    /** Marker to see we must update the below windows of the tile the player
+     * is. */
+    uint32 update_tile;
 
-	/** Marker to map draw/draw below. */
-	uint32 below_clear:1;
+    /** Marker to map draw/draw below. */
+    uint32 below_clear : 1;
 
-	/** When set, a "connect" was initialized as "player". */
-	uint32 addme:1;
+    /** When set, a "connect" was initialized as "player". */
+    uint32 addme : 1;
 
-	/** Does the client want sound? */
-	uint32 sound:1;
+    /** Does the client want sound? */
+    uint32 sound : 1;
 
-	uint8 requested_file[SERVER_FILES_MAX];
+    uint8 requested_file[SERVER_FILES_MAX];
 
-	/** Is the client a bot? */
-	uint8 is_bot;
+    /** Is the client a bot? */
+    uint8 is_bot;
 
-	/** Start of drawing of look window. */
-	sint16 look_position;
+    /** Start of drawing of look window. */
+    sint16 look_position;
 
-	/** Faceset the client is using, default 0. */
-	uint8 faceset;
+    /** Faceset the client is using, default 0. */
+    uint8 faceset;
 
-	/**
-	 * How many times the player has failed to provide the right
-	 * password. */
-	uint8 password_fails;
+    /**
+     * How many times the player has failed to provide the right
+     * password. */
+    uint8 password_fails;
 
-	/** Send ext title to client. */
-	uint8 ext_title_flag;
+    /** Send ext title to client. */
+    uint8 ext_title_flag;
 
-	/** Current state of the socket. */
-	int state;
+    /** Current state of the socket. */
+    int state;
 
-	/** Last map. */
-	struct Map lastmap;
+    /** Last map. */
+    struct Map lastmap;
 
-	struct packet_struct *packet_head;
-	struct packet_struct *packet_tail;
-	pthread_mutex_t packet_mutex;
+    struct packet_struct *packet_head;
+    struct packet_struct *packet_tail;
+    pthread_mutex_t packet_mutex;
 
-	/**
-	 * Buffer for how many ticks have passed since the last keep alive
-	 * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
-	 * socket is disconnected. */
-	uint32 keepalive;
+    /**
+     * Buffer for how many ticks have passed since the last keep alive
+     * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
+     * socket is disconnected. */
+    uint32 keepalive;
 
-	char *account;
+    char *account;
 
-	struct packet_struct *packet_recv;
-	struct packet_struct *packet_recv_cmd;
+    struct packet_struct *packet_recv;
+    struct packet_struct *packet_recv_cmd;
 } socket_struct;
 
 /**
@@ -176,17 +177,17 @@ typedef struct socket_struct
 /** Holds some system related information. */
 typedef struct Socket_Info_struct
 {
-	/** Timeout for select. */
-	struct timeval timeout;
+    /** Timeout for select. */
+    struct timeval timeout;
 
-	/** Max filedescriptor on the system. */
-	int	max_filedescriptor;
+    /** Max filedescriptor on the system. */
+    int max_filedescriptor;
 
-	/** Number of connections. */
-	int	nconns;
+    /** Number of connections. */
+    int nconns;
 
-	/** Number of allocated in init_sockets. */
-	int allocated_sockets;
+    /** Number of allocated in init_sockets. */
+    int allocated_sockets;
 } Socket_Info;
 
 /**
@@ -194,23 +195,23 @@ typedef struct Socket_Info_struct
  * request. */
 typedef struct update_file_struct
 {
-	/** File's CRC32. */
-	unsigned long checksum;
+    /** File's CRC32. */
+    unsigned long checksum;
 
-	/** Length of the file. */
-	size_t len;
+    /** Length of the file. */
+    size_t len;
 
-	/** Uncompressed length of the file. */
-	size_t ucomp_len;
+    /** Uncompressed length of the file. */
+    size_t ucomp_len;
 
-	/** Name of the file. */
-	char *filename;
+    /** Name of the file. */
+    char *filename;
 
-	/** Compressed contents of the file. */
-	uint8 *contents;
+    /** Compressed contents of the file. */
+    uint8 *contents;
 
-	/** Packet to use for sending the file. */
-	struct packet_struct *packet;
+    /** Packet to use for sending the file. */
+    struct packet_struct *packet;
 } update_file_struct;
 
 /** Filename used to store information about the updated files. */

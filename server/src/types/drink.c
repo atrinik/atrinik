@@ -34,5 +34,5 @@
  * Initialize the drink type object methods. */
 void object_type_init_drink(void)
 {
-	object_type_methods[DRINK].fallback = &object_type_methods[FOOD];
+    object_type_methods[DRINK].fallback = &object_type_methods[FOOD];
 }

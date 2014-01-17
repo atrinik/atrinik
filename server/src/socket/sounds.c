@@ -48,28 +48,26 @@
  * @param volume Volume adjustment. */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	/* Player has disabled sound */
-	if (!pl->socket.sound)
-	{
-		return;
-	}
+    /* Player has disabled sound */
+    if (!pl->socket.sound) {
+        return;
+    }
 
-	packet = packet_new(CLIENT_CMD_SOUND, 64, 64);
-	packet_append_uint8(packet, type);
-	packet_append_string_terminated(packet, filename);
-	packet_append_sint8(packet, loop);
-	packet_append_uint8(packet, volume);
+    packet = packet_new(CLIENT_CMD_SOUND, 64, 64);
+    packet_append_uint8(packet, type);
+    packet_append_string_terminated(packet, filename);
+    packet_append_sint8(packet, loop);
+    packet_append_uint8(packet, volume);
 
-	/* Add X/Y offset for sound effects. */
-	if (type == CMD_SOUND_EFFECT)
-	{
-		packet_append_uint8(packet, x);
-		packet_append_uint8(packet, y);
-	}
+    /* Add X/Y offset for sound effects. */
+    if (type == CMD_SOUND_EFFECT) {
+        packet_append_uint8(packet, x);
+        packet_append_uint8(packet, y);
+    }
 
-	socket_send_packet(&pl->socket, packet);
+    socket_send_packet(&pl->socket, packet);
 }
 
 /**
@@ -85,36 +83,29 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
  * @param volume Volume adjustment. */
 void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume)
 {
-	object *pl;
-	int i;
-	rv_vector rv;
+    object *pl;
+    int i;
+    rv_vector rv;
 
-	if (!map || map->in_memory != MAP_IN_MEMORY)
-	{
-		return;
-	}
+    if (!map || map->in_memory != MAP_IN_MEMORY) {
+        return;
+    }
 
-	/* Check the map for players. */
-	for (pl = map->player_first; pl; pl = CONTR(pl)->map_above)
-	{
-		if ((POW2(pl->x - x) + POW2(pl->y - y)) <= MAX_SOUND_DISTANCE_SQUARED)
-		{
-			play_sound_player_only(CONTR(pl), type, filename, x - pl->x, y - pl->y, loop, volume);
-		}
-	}
+    /* Check the map for players. */
+    for (pl = map->player_first; pl; pl = CONTR(pl)->map_above) {
+        if ((POW2(pl->x - x) + POW2(pl->y - y)) <= MAX_SOUND_DISTANCE_SQUARED) {
+            play_sound_player_only(CONTR(pl), type, filename, x - pl->x, y - pl->y, loop, volume);
+        }
+    }
 
-	/* Check tiled maps for players. */
-	for (i = 0; i < TILED_NUM; i++)
-	{
-		if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY)
-		{
-			for (pl = map->tile_map[i]->player_first; pl; pl = CONTR(pl)->map_above)
-			{
-				if (get_rangevector_from_mapcoords(map, x, y, pl->map, pl->x, pl->y, &rv, RV_NO_DISTANCE) && POW2(rv.distance_x) + POW2(rv.distance_y) <= MAX_SOUND_DISTANCE_SQUARED)
-				{
-					play_sound_player_only(CONTR(pl), type, filename, rv.distance_x, rv.distance_y, loop, volume);
-				}
-			}
-		}
-	}
+    /* Check tiled maps for players. */
+    for (i = 0; i < TILED_NUM; i++) {
+        if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
+            for (pl = map->tile_map[i]->player_first; pl; pl = CONTR(pl)->map_above) {
+                if (get_rangevector_from_mapcoords(map, x, y, pl->map, pl->x, pl->y, &rv, RV_NO_DISTANCE) && POW2(rv.distance_x) + POW2(rv.distance_y) <= MAX_SOUND_DISTANCE_SQUARED) {
+                    play_sound_player_only(CONTR(pl), type, filename, rv.distance_x, rv.distance_y, loop, volume);
+                }
+            }
+        }
+    }
 }

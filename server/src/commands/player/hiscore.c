@@ -33,26 +33,22 @@
 /** @copydoc command_func */
 void command_hiscore(object *op, const char *command, char *params)
 {
-	int results;
+    int results;
 
-	results = 0;
+    results = 0;
 
-	if (params)
-	{
-		if (string_isdigit(params))
-		{
-			results = atoi(params);
-		}
-		else
-		{
-			if (strlen(params) < settings.limits[ALLOWED_CHARS_CHARNAME][0])
-			{
-				draw_info_format(COLOR_WHITE, op, "Your search term must be at least %"FMT64U" characters long.", (uint64) settings.limits[ALLOWED_CHARS_CHARNAME][0]);
-				return;
-			}
-		}
-	}
+    if (params) {
+        if (string_isdigit(params)) {
+            results = atoi(params);
+        }
+        else {
+            if (strlen(params) < settings.limits[ALLOWED_CHARS_CHARNAME][0]) {
+                draw_info_format(COLOR_WHITE, op, "Your search term must be at least %"FMT64U " characters long.", (uint64) settings.limits[ALLOWED_CHARS_CHARNAME][0]);
+                return;
+            }
+        }
+    }
 
-	results = MAX(25, MIN(50, results));
-	hiscore_display(op, results, params);
+    results = MAX(25, MIN(50, results));
+    hiscore_display(op, results, params);
 }

@@ -35,50 +35,44 @@
  * @param connected Connection ID of the object. */
 void connection_object_add(object *op, mapstruct *map, int connected)
 {
-	objectlink *ol2, *ol;
+    objectlink *ol2, *ol;
 
-	if (!op || !map)
-	{
-		return;
-	}
+    if (!op || !map) {
+        return;
+    }
 
-	/* Remove previous connection if any. */
-	if (QUERY_FLAG(op, FLAG_IS_LINKED))
-	{
-		connection_object_remove(op);
-	}
+    /* Remove previous connection if any. */
+    if (QUERY_FLAG(op, FLAG_IS_LINKED)) {
+        connection_object_remove(op);
+    }
 
-	SET_FLAG(op, FLAG_IS_LINKED);
-	op->path_attuned = connected;
+    SET_FLAG(op, FLAG_IS_LINKED);
+    op->path_attuned = connected;
 
-	for (ol = map->buttons; ol; ol = ol->next)
-	{
-		if (ol->value == connected)
-		{
-			break;
-		}
-	}
+    for (ol = map->buttons; ol; ol = ol->next) {
+        if (ol->value == connected) {
+            break;
+        }
+    }
 
-	ol2 = get_objectlink();
-	ol2->objlink.ob = op;
-	ol2->id = op->count;
+    ol2 = get_objectlink();
+    ol2->objlink.ob = op;
+    ol2->id = op->count;
 
-	/* Link to the existing one. */
-	if (ol)
-	{
-		ol2->next = ol->objlink.link;
-		ol->objlink.link = ol2;
-	}
-	/* Create new. */
-	else
-	{
-		ol = get_objectlink();
-		ol->value = connected;
+    /* Link to the existing one. */
+    if (ol) {
+        ol2->next = ol->objlink.link;
+        ol->objlink.link = ol2;
+    }
+    /* Create new. */
+    else {
+        ol = get_objectlink();
+        ol->value = connected;
 
-		ol->next = map->buttons;
-		map->buttons = ol;
-		ol->objlink.link = ol2;
-	}
+        ol->next = map->buttons;
+        map->buttons = ol;
+        ol->objlink.link = ol2;
+    }
 }
 
 /**
@@ -86,32 +80,27 @@ void connection_object_add(object *op, mapstruct *map, int connected)
  * @param op Object to remove. Must be on a map, and connected. */
 void connection_object_remove(object *op)
 {
-	objectlink *ol, **ol2, *tmp;
+    objectlink *ol, **ol2, *tmp;
 
-	if (!op->map)
-	{
-		return;
-	}
+    if (!op->map) {
+        return;
+    }
 
-	if (!QUERY_FLAG(op, FLAG_IS_LINKED))
-	{
-		return;
-	}
+    if (!QUERY_FLAG(op, FLAG_IS_LINKED)) {
+        return;
+    }
 
-	for (ol = op->map->buttons; ol; ol = ol->next)
-	{
-		for (ol2 = &ol->objlink.link; (tmp = *ol2); ol2 = &tmp->next)
-		{
-			if (tmp->objlink.ob == op)
-			{
-				*ol2 = tmp->next;
-				free_objectlink_simple(ol);
-				return;
-			}
-		}
-	}
+    for (ol = op->map->buttons; ol; ol = ol->next) {
+        for (ol2 = &ol->objlink.link; (tmp = *ol2); ol2 = &tmp->next) {
+            if (tmp->objlink.ob == op) {
+                *ol2 = tmp->next;
+                free_objectlink_simple(ol);
+                return;
+            }
+        }
+    }
 
-	CLEAR_FLAG(op, FLAG_IS_LINKED);
+    CLEAR_FLAG(op, FLAG_IS_LINKED);
 }
 
 /**
@@ -120,12 +109,11 @@ void connection_object_remove(object *op)
  * @return Connection ID, or 0 if not connected. */
 int connection_object_get_value(object *op)
 {
-	if (!op || !op->map || !QUERY_FLAG(op, FLAG_IS_LINKED))
-	{
-		return 0;
-	}
+    if (!op || !op->map || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
+        return 0;
+    }
 
-	return op->path_attuned;
+    return op->path_attuned;
 }
 
 /**
@@ -134,25 +122,21 @@ int connection_object_get_value(object *op)
  * @return ::objectlink for this object, or NULL. */
 static objectlink *connection_object_links(object *op)
 {
-	objectlink *ol, *ol2;
+    objectlink *ol, *ol2;
 
-	if (!op || !op->map)
-	{
-		return NULL;
-	}
+    if (!op || !op->map) {
+        return NULL;
+    }
 
-	for (ol = op->map->buttons; ol; ol = ol->next)
-	{
-		for (ol2 = ol->objlink.link; ol2; ol2 = ol2->next)
-		{
-			if (ol2->objlink.ob == op && ol2->id == op->count)
-			{
-				return ol->objlink.link;
-			}
-		}
-	}
+    for (ol = op->map->buttons; ol; ol = ol->next) {
+        for (ol2 = ol->objlink.link; ol2; ol2 = ol2->next) {
+            if (ol2->objlink.ob == op && ol2->id == op->count) {
+                return ol->objlink.link;
+            }
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -161,31 +145,27 @@ static objectlink *connection_object_links(object *op)
  * @param state The trigger state. */
 void connection_trigger(object *op, int state)
 {
-	objectlink *ol;
-	object *tmp;
+    objectlink *ol;
+    object *tmp;
 
-	for (ol = connection_object_links(op); ol; ol = ol->next)
-	{
-		tmp = ol->objlink.ob;
+    for (ol = connection_object_links(op); ol; ol = ol->next) {
+        tmp = ol->objlink.ob;
 
-		/* If the criteria isn't appropriate, don't do anything. */
-		if (state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH))
-		{
-			continue;
-		}
+        /* If the criteria isn't appropriate, don't do anything. */
+        if (state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH)) {
+            continue;
+        }
 
-		if (!state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE))
-		{
-			continue;
-		}
+        if (!state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE)) {
+            continue;
+        }
 
-		if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
-		{
-			continue;
-		}
+        if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+            continue;
+        }
 
-		object_trigger(tmp, op, state);
-	}
+        object_trigger(tmp, op, state);
+    }
 }
 
 /**
@@ -194,44 +174,37 @@ void connection_trigger(object *op, int state)
  * @param state The trigger state. */
 void connection_trigger_button(object *op, int state)
 {
-	objectlink *ol;
-	object *tmp;
-	sint64 old_state;
-	uint8 down;
+    objectlink *ol;
+    object *tmp;
+    sint64 old_state;
+    uint8 down;
 
-	old_state = op->value;
-	down = 0;
+    old_state = op->value;
+    down = 0;
 
-	for (ol = connection_object_links(op); ol; ol = ol->next)
-	{
-		tmp = ol->objlink.ob;
+    for (ol = connection_object_links(op); ol; ol = ol->next) {
+        tmp = ol->objlink.ob;
 
-		if (object_trigger_button(tmp, op, state) == OBJECT_METHOD_OK)
-		{
-			if (tmp->value)
-			{
-				down = 1;
+        if (object_trigger_button(tmp, op, state) == OBJECT_METHOD_OK) {
+            if (tmp->value) {
+                down = 1;
 
-				if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET))
-				{
-					tmp->value = 0;
-				}
-			}
-		}
-	}
+                if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET)) {
+                    tmp->value = 0;
+                }
+            }
+        }
+    }
 
-	if (down)
-	{
-		op->value = down;
-	}
+    if (down) {
+        op->value = down;
+    }
 
-	if (op->value != old_state)
-	{
-		connection_trigger(op, op->value);
-	}
+    if (op->value != old_state) {
+        connection_trigger(op, op->value);
+    }
 
-	if (op->value && QUERY_FLAG(op, FLAG_CONNECT_RESET))
-	{
-		op->value = 0;
-	}
+    if (op->value && QUERY_FLAG(op, FLAG_CONNECT_RESET)) {
+        op->value = 0;
+    }
 }

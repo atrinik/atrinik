@@ -31,41 +31,41 @@
 #include "zlib.h"
 
 /** Maximum different face sets. */
-#define MAX_FACE_SETS	1
+#define MAX_FACE_SETS   1
 
 /** Face info structure. */
 typedef struct FaceInfo
 {
-	/** Image data */
-	uint8 *data;
+    /** Image data */
+    uint8 *data;
 
-	/** Length of the XPM data */
-	uint16 datalen;
+    /** Length of the XPM data */
+    uint16 datalen;
 
-	/** Checksum of face data */
-	uint32 checksum;
+    /** Checksum of face data */
+    uint32 checksum;
 } FaceInfo;
 
 /** Face sets structure. */
 typedef struct
 {
-	/** Prefix */
-	char *prefix;
+    /** Prefix */
+    char *prefix;
 
-	/** Full name */
-	char *fullname;
+    /** Full name */
+    char *fullname;
 
-	/** Size */
-	char *size;
+    /** Size */
+    char *size;
 
-	/** Extension */
-	char *extension;
+    /** Extension */
+    char *extension;
 
-	/** Comment */
-	char *comment;
+    /** Comment */
+    char *comment;
 
-	/** Faces */
-	FaceInfo *faces;
+    /** Faces */
+    FaceInfo *faces;
 } FaceSets;
 
 /** The face sets. */
@@ -77,40 +77,35 @@ static FaceSets facesets[MAX_FACE_SETS];
  * @return 1 if the face set is valid, 0 otherwise */
 int is_valid_faceset(int fsn)
 {
-	if (fsn >= 0 && fsn < MAX_FACE_SETS && facesets[fsn].prefix)
-	{
-		return 1;
-	}
+    if (fsn >= 0 && fsn < MAX_FACE_SETS && facesets[fsn].prefix) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
  * Free all the information in face sets. */
 void free_socket_images(void)
 {
-	int num, q;
+    int num, q;
 
-	for (num = 0; num < MAX_FACE_SETS; num++)
-	{
-		if (facesets[num].prefix)
-		{
-			for (q = 0; q < nrofpixmaps; q++)
-			{
-				if (facesets[num].faces[q].data)
-				{
-					free(facesets[num].faces[q].data);
-				}
-			}
+    for (num = 0; num < MAX_FACE_SETS; num++) {
+        if (facesets[num].prefix) {
+            for (q = 0; q < nrofpixmaps; q++) {
+                if (facesets[num].faces[q].data) {
+                    free(facesets[num].faces[q].data);
+                }
+            }
 
-			free(facesets[num].prefix);
-			free(facesets[num].fullname);
-			free(facesets[num].size);
-			free(facesets[num].extension);
-			free(facesets[num].comment);
-			free(facesets[num].faces);
-		}
-	}
+            free(facesets[num].prefix);
+            free(facesets[num].fullname);
+            free(facesets[num].size);
+            free(facesets[num].extension);
+            free(facesets[num].comment);
+            free(facesets[num].faces);
+        }
+    }
 }
 
 /** Maximum possible size of a single image in bytes. */
@@ -127,149 +122,132 @@ void free_socket_images(void)
  * atrinik.1, atrinik.2, etc. */
 void read_client_images(void)
 {
-	char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
-	FILE *infile, *fbmap;
-	int num, len, file_num, i;
+    char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
+    FILE *infile, *fbmap;
+    int num, len, file_num, i;
 
-	memset(facesets, 0, sizeof(facesets));
+    memset(facesets, 0, sizeof(facesets));
 
-	snprintf(filename, sizeof(filename), "%s/image_info", settings.libpath);
-	infile = fopen(filename, "rb");
+    snprintf(filename, sizeof(filename), "%s/image_info", settings.libpath);
+    infile = fopen(filename, "rb");
 
-	if (!infile)
-	{
-		logger_print(LOG(ERROR), "Unable to open %s", filename);
-		exit(1);
-	}
+    if (!infile) {
+        logger_print(LOG(ERROR), "Unable to open %s", filename);
+        exit(1);
+    }
 
-	while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
-	{
-		if (buf[0] == '#')
-		{
-			continue;
-		}
+    while (fgets(buf, HUGE_BUF - 1, infile) != NULL) {
+        if (buf[0] == '#') {
+            continue;
+        }
 
-		if (string_split(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7)
-		{
-			logger_print(LOG(ERROR), "Bad line in image_info file: %s", buf);
-			exit(1);
-		}
-		else
-		{
-			len = atoi(cps[0]);
+        if (string_split(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7) {
+            logger_print(LOG(ERROR), "Bad line in image_info file: %s", buf);
+            exit(1);
+        }
+        else {
+            len = atoi(cps[0]);
 
-			if (len >= MAX_FACE_SETS)
-			{
-				logger_print(LOG(ERROR), "Too high a setnum in image_info file: %d > %d", len, MAX_FACE_SETS);
-				exit(1);
-			}
+            if (len >= MAX_FACE_SETS) {
+                logger_print(LOG(ERROR), "Too high a setnum in image_info file: %d > %d", len, MAX_FACE_SETS);
+                exit(1);
+            }
 
-			facesets[len].prefix = strdup(cps[1]);
-			facesets[len].fullname = strdup(cps[2]);
-			facesets[len].size = strdup(cps[4]);
-			facesets[len].extension = strdup(cps[5]);
-			facesets[len].comment = strdup(cps[6]);
-		}
-	}
+            facesets[len].prefix = strdup(cps[1]);
+            facesets[len].fullname = strdup(cps[2]);
+            facesets[len].size = strdup(cps[4]);
+            facesets[len].extension = strdup(cps[5]);
+            facesets[len].comment = strdup(cps[6]);
+        }
+    }
 
-	fclose(infile);
+    fclose(infile);
 
-	/* Loaded the faceset information - now need to load up the
-	 * actual faces. */
-	for (file_num = 0; file_num < MAX_FACE_SETS; file_num++)
-	{
-		/* If prefix is not set, this is not used */
-		if (!facesets[file_num].prefix)
-		{
-			continue;
-		}
+    /* Loaded the faceset information - now need to load up the
+     * actual faces. */
+    for (file_num = 0; file_num < MAX_FACE_SETS; file_num++) {
+        /* If prefix is not set, this is not used */
+        if (!facesets[file_num].prefix) {
+            continue;
+        }
 
-		facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
+        facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
 
-		snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.libpath, file_num);
-		snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
+        snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.libpath, file_num);
+        snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
 
-		if ((fbmap = fopen(buf, "wb")) == NULL)
-		{
-			logger_print(LOG(ERROR), "Unable to open %s", buf);
-			exit(1);
-		}
+        if ((fbmap = fopen(buf, "wb")) == NULL) {
+            logger_print(LOG(ERROR), "Unable to open %s", buf);
+            exit(1);
+        }
 
-		infile = fopen(filename, "rb");
+        infile = fopen(filename, "rb");
 
-		if (!infile)
-		{
-			logger_print(LOG(ERROR), "Unable to open %s", filename);
-			exit(1);
-		}
+        if (!infile) {
+            logger_print(LOG(ERROR), "Unable to open %s", filename);
+            exit(1);
+        }
 
-		while (fgets(buf, HUGE_BUF - 1, infile) != NULL)
-		{
-			if (strncmp(buf, "IMAGE ", 6) != 0)
-			{
-				logger_print(LOG(ERROR), "Bad image line - not IMAGE, instead: %s", buf);
-				exit(1);
-			}
+        while (fgets(buf, HUGE_BUF - 1, infile) != NULL) {
+            if (strncmp(buf, "IMAGE ", 6) != 0) {
+                logger_print(LOG(ERROR), "Bad image line - not IMAGE, instead: %s", buf);
+                exit(1);
+            }
 
-			num = atoi(buf + 6);
+            num = atoi(buf + 6);
 
-			if (num < 0 || num >= nrofpixmaps)
-			{
-				logger_print(LOG(ERROR), "Image num %d not in 0..%d: %s", num, nrofpixmaps, buf);
-				exit(1);
-			}
+            if (num < 0 || num >= nrofpixmaps) {
+                logger_print(LOG(ERROR), "Image num %d not in 0..%d: %s", num, nrofpixmaps, buf);
+                exit(1);
+            }
 
-			/* Skip across the number data */
-			for (cp = buf + 6; *cp != ' '; cp++)
-			{
-			}
+            /* Skip across the number data */
+            for (cp = buf + 6; *cp != ' '; cp++) {
+            }
 
-			len = atoi(cp);
+            len = atoi(cp);
 
-			if (len == 0 || len > MAX_IMAGE_SIZE)
-			{
-				logger_print(LOG(ERROR), "Length not valid: %d > %d: %s", len, MAX_IMAGE_SIZE, buf);
-				exit(1);
-			}
+            if (len == 0 || len > MAX_IMAGE_SIZE) {
+                logger_print(LOG(ERROR), "Length not valid: %d > %d: %s", len, MAX_IMAGE_SIZE, buf);
+                exit(1);
+            }
 
-			/* We don't actually care about the name if the image that
-			 * is embedded in the image file, so just ignore it. */
-			facesets[file_num].faces[num].datalen = len;
-			facesets[file_num].faces[num].data = malloc(len);
+            /* We don't actually care about the name if the image that
+             * is embedded in the image file, so just ignore it. */
+            facesets[file_num].faces[num].datalen = len;
+            facesets[file_num].faces[num].data = malloc(len);
 
-			if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1)
-			{
-				logger_print(LOG(ERROR), "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
-				exit(1);
-			}
+            if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1) {
+                logger_print(LOG(ERROR), "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
+                exit(1);
+            }
 
-			facesets[file_num].faces[num].checksum = (uint32) crc32(1L, facesets[file_num].faces[num].data, len);
-			snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[file_num].faces[num].checksum, new_faces[num].name);
-			fputs(buf, fbmap);
-		}
+            facesets[file_num].faces[num].checksum = (uint32) crc32(1L, facesets[file_num].faces[num].data, len);
+            snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[file_num].faces[num].checksum, new_faces[num].name);
+            fputs(buf, fbmap);
+        }
 
-		fclose(infile);
-		fclose(fbmap);
-	}
+        fclose(infile);
+        fclose(fbmap);
+    }
 }
 
 void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	uint16 facenum;
-	packet_struct *packet;
+    uint16 facenum;
+    packet_struct *packet;
 
-	facenum = packet_to_uint16(data, len, &pos);
+    facenum = packet_to_uint16(data, len, &pos);
 
-	if (facenum == 0 || facenum >= nrofpixmaps || !facesets[0].faces[facenum].data)
-	{
-		return;
-	}
+    if (facenum == 0 || facenum >= nrofpixmaps || !facesets[0].faces[facenum].data) {
+        return;
+    }
 
-	packet = packet_new(CLIENT_CMD_IMAGE, 16, 0);
-	packet_append_uint32(packet, facenum);
-	packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
-	packet_append_data_len(packet, facesets[0].faces[facenum].data, facesets[0].faces[facenum].datalen);
-	socket_send_packet(ns, packet);
+    packet = packet_new(CLIENT_CMD_IMAGE, 16, 0);
+    packet_append_uint32(packet, facenum);
+    packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
+    packet_append_data_len(packet, facesets[0].faces[facenum].data, facesets[0].faces[facenum].datalen);
+    socket_send_packet(ns, packet);
 }
 
 /**
@@ -280,13 +258,11 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t 
  * be NULL. */
 void face_get_data(int face, uint8 **ptr, uint16 *len)
 {
-	if (ptr)
-	{
-		*ptr = facesets[0].faces[face].data;
-	}
+    if (ptr) {
+        *ptr = facesets[0].faces[face].data;
+    }
 
-	if (len)
-	{
-		*len = facesets[0].faces[face].datalen;
-	}
+    if (len) {
+        *len = facesets[0].faces[face].datalen;
+    }
 }

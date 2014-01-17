@@ -34,11 +34,11 @@
  * One beacon. */
 typedef struct beacon_struct
 {
-	/** The beacon object. */
-	object *ob;
+    /** The beacon object. */
+    object *ob;
 
-	/** Hash handle. */
-	UT_hash_handle hh;
+    /** Hash handle. */
+    UT_hash_handle hh;
 } beacon_struct;
 
 /** Beacons hashtable. */
@@ -49,29 +49,28 @@ static beacon_struct *beacons = NULL;
  * @param ob Beacon to add. */
 void beacon_add(object *ob)
 {
-	beacon_struct *beacon;
-	object *env;
+    beacon_struct *beacon;
+    object *env;
 
-	env = get_env_recursive(ob);
+    env = get_env_recursive(ob);
 
-	if (MAP_UNIQUE(env->map) && !map_path_isabs(ob->name))
-	{
-		char *filedir, *pl_name, *joined;
+    if (MAP_UNIQUE(env->map) && !map_path_isabs(ob->name)) {
+        char *filedir, *pl_name, *joined;
 
-		filedir = path_dirname(env->map->path);
-		pl_name = path_basename(filedir);
-		joined = string_join("-", "/", pl_name, ob->name, NULL);
+        filedir = path_dirname(env->map->path);
+        pl_name = path_basename(filedir);
+        joined = string_join("-", "/", pl_name, ob->name, NULL);
 
-		FREE_AND_COPY_HASH(ob->name, joined);
+        FREE_AND_COPY_HASH(ob->name, joined);
 
-		free(joined);
-		free(pl_name);
-		free(filedir);
-	}
+        free(joined);
+        free(pl_name);
+        free(filedir);
+    }
 
-	beacon = malloc(sizeof(beacon_struct));
-	beacon->ob = ob;
-	HASH_ADD(hh, beacons, ob->name, sizeof(shstr *), beacon);
+    beacon = malloc(sizeof(beacon_struct));
+    beacon->ob = ob;
+    HASH_ADD(hh, beacons, ob->name, sizeof(shstr *), beacon);
 }
 
 /**
@@ -79,19 +78,17 @@ void beacon_add(object *ob)
  * @param ob Beacon to remove. */
 void beacon_remove(object *ob)
 {
-	beacon_struct *beacon;
+    beacon_struct *beacon;
 
-	HASH_FIND(hh, beacons, &ob->name, sizeof(shstr *), beacon);
+    HASH_FIND(hh, beacons, &ob->name, sizeof(shstr *), beacon);
 
-	if (beacon)
-	{
-		HASH_DEL(beacons, beacon);
-		free(beacon);
-	}
-	else
-	{
-		logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);
-	}
+    if (beacon) {
+        HASH_DEL(beacons, beacon);
+        free(beacon);
+    }
+    else {
+        logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);
+    }
 }
 
 /**
@@ -100,16 +97,15 @@ void beacon_remove(object *ob)
  * @return The beacon object if found, NULL otherwise. */
 object *beacon_locate(shstr *name)
 {
-	beacon_struct *beacon;
+    beacon_struct *beacon;
 
-	HASH_FIND(hh, beacons, &name, sizeof(shstr *), beacon);
+    HASH_FIND(hh, beacons, &name, sizeof(shstr *), beacon);
 
-	if (beacon)
-	{
-		return beacon->ob;
-	}
+    if (beacon) {
+        return beacon->ob;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**

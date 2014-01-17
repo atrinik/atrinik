@@ -39,51 +39,51 @@
  * Gender nouns. */
 const char *gender_noun[GENDER_MAX] =
 {
-	"neuter", "male", "female", "hermaphrodite"
+    "neuter", "male", "female", "hermaphrodite"
 };
 /**
  * Subjective pronouns. */
 const char *gender_subjective[GENDER_MAX] =
 {
-	"it", "he", "she", "it"
+    "it", "he", "she", "it"
 };
 /**
  * Subjective pronouns, with first letter in uppercase. */
 const char *gender_subjective_upper[GENDER_MAX] =
 {
-	"It", "He", "She", "It"
+    "It", "He", "She", "It"
 };
 /**
  * Objective pronouns. */
 const char *gender_objective[GENDER_MAX] =
 {
-	"it", "him", "her", "it"
+    "it", "him", "her", "it"
 };
 /**
  * Possessive pronouns. */
 const char *gender_possessive[GENDER_MAX] =
 {
-	"its", "his", "her", "its"
+    "its", "his", "her", "its"
 };
 /**
  * Reflexive pronouns. */
 const char *gender_reflexive[GENDER_MAX] =
 {
-	"itself", "himself", "herself", "itself"
+    "itself", "himself", "herself", "itself"
 };
 
 /**
  * Clear the player data like quickslots, inventory items, etc. */
 void clear_player(void)
 {
-	objects_deinit();
-	memset(&cpl, 0, sizeof(cpl));
-	cpl.mark_count = -1;
-	objects_init();
-	quickslots_init();
-	init_player_data();
-	skills_init();
-	WIDGET_REDRAW_ALL(SKILL_EXP_ID);
+    objects_deinit();
+    memset(&cpl, 0, sizeof(cpl));
+    cpl.mark_count = -1;
+    objects_init();
+    quickslots_init();
+    init_player_data();
+    skills_init();
+    WIDGET_REDRAW_ALL(SKILL_EXP_ID);
 }
 
 /**
@@ -94,9 +94,9 @@ void clear_player(void)
  * @param face Face ID. */
 void new_player(tag_t tag, long weight, short face)
 {
-	cpl.ob->tag = tag;
-	cpl.ob->weight = (float) weight / 1000;
-	cpl.ob->face = face;
+    cpl.ob->tag = tag;
+    cpl.ob->weight = (float) weight / 1000;
+    cpl.ob->face = face;
 }
 
 /**
@@ -104,11 +104,11 @@ void new_player(tag_t tag, long weight, short face)
  * @param tag Item tag. */
 void client_send_apply(tag_t tag)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
-	packet_append_uint32(packet, tag);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
+    packet_append_uint32(packet, tag);
+    socket_send_packet(packet);
 }
 
 /**
@@ -116,11 +116,11 @@ void client_send_apply(tag_t tag)
  * @param tag Item tag. */
 void client_send_examine(tag_t tag)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(SERVER_CMD_ITEM_EXAMINE, 8, 0);
-	packet_append_uint32(packet, tag);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_EXAMINE, 8, 0);
+    packet_append_uint32(packet, tag);
+    socket_send_packet(packet);
 }
 
 /**
@@ -130,13 +130,13 @@ void client_send_examine(tag_t tag)
  * @param nrof Number of objects from tag. */
 void client_send_move(int loc, int tag, int nrof)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(SERVER_CMD_ITEM_MOVE, 32, 0);
-	packet_append_uint32(packet, loc);
-	packet_append_uint32(packet, tag);
-	packet_append_uint32(packet, nrof);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_ITEM_MOVE, 32, 0);
+    packet_append_uint32(packet, loc);
+    packet_append_uint32(packet, tag);
+    packet_append_uint32(packet, nrof);
+    socket_send_packet(packet);
 }
 
 /**
@@ -146,36 +146,36 @@ void client_send_move(int loc, int tag, int nrof)
  * @return 1 if command was sent, 0 otherwise. */
 void send_command(const char *command)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(SERVER_CMD_PLAYER_CMD, 256, 128);
-	packet_append_string_terminated(packet, command);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_PLAYER_CMD, 256, 128);
+    packet_append_string_terminated(packet, command);
+    socket_send_packet(packet);
 }
 
 /**
  * Initialize player data. */
 void init_player_data(void)
 {
-	new_player(0, 0, 0);
+    new_player(0, 0, 0);
 
-	cpl.inventory_focus = BELOW_INV_ID;
+    cpl.inventory_focus = BELOW_INV_ID;
 
-	cpl.container_tag = -996;
+    cpl.container_tag = -996;
 
-	cpl.stats.maxsp = 1;
-	cpl.stats.maxhp = 1;
+    cpl.stats.maxsp = 1;
+    cpl.stats.maxhp = 1;
 
-	cpl.stats.speed = 1;
+    cpl.stats.speed = 1;
 
-	cpl.ob->nrof = 1;
-	cpl.partyname[0] = cpl.partyjoin[0] = '\0';
+    cpl.ob->nrof = 1;
+    cpl.partyname[0] = cpl.partyjoin[0] = '\0';
 
-	/* Avoid division by 0 errors */
-	cpl.stats.maxsp = 1;
-	cpl.stats.maxhp = 1;
+    /* Avoid division by 0 errors */
+    cpl.stats.maxsp = 1;
+    cpl.stats.maxhp = 1;
 
-	cpl.container_tag = -997;
+    cpl.container_tag = -997;
 }
 
 /**
@@ -185,65 +185,62 @@ void init_player_data(void)
  * didn't match any of the existing genders. */
 int gender_to_id(const char *gender)
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; i < GENDER_MAX; i++)
-	{
-		if (strcmp(gender_noun[i], gender) == 0)
-		{
-			return i;
-		}
-	}
+    for (i = 0; i < GENDER_MAX; i++) {
+        if (strcmp(gender_noun[i], gender) == 0) {
+            return i;
+        }
+    }
 
-	return -1;
+    return -1;
 }
 
 void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level)
 {
-	SDL_Surface *texture_bubble_on, *texture_bubble_off;
-	int line_width, offset, i;
-	double fractional, integral;
-	SDL_Rect box;
+    SDL_Surface *texture_bubble_on, *texture_bubble_off;
+    int line_width, offset, i;
+    double fractional, integral;
+    SDL_Rect box;
 
-	texture_bubble_on = TEXTURE_CLIENT("exp_bubble_on");
-	texture_bubble_off = TEXTURE_CLIENT("exp_bubble_off");
+    texture_bubble_on = TEXTURE_CLIENT("exp_bubble_on");
+    texture_bubble_off = TEXTURE_CLIENT("exp_bubble_off");
 
-	line_width = texture_bubble_on->w * EXP_PROGRESS_BUBBLES;
-	offset = (double) texture_bubble_on->h / 2.0 + 0.5;
-	fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
+    line_width = texture_bubble_on->w * EXP_PROGRESS_BUBBLES;
+    offset = (double) texture_bubble_on->h / 2.0 + 0.5;
+    fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
 
-	rectangle_create(surface, x, y, line_width + offset * 2, texture_bubble_on->h + offset * 4, "020202");
+    rectangle_create(surface, x, y, line_width + offset * 2, texture_bubble_on->h + offset * 4, "020202");
 
-	for (i = 0; i < EXP_PROGRESS_BUBBLES; i++)
-	{
-		surface_show(surface, x + offset + i * texture_bubble_on->w, y + offset, NULL, i < (int) integral ? texture_bubble_on : texture_bubble_off);
-	}
+    for (i = 0; i < EXP_PROGRESS_BUBBLES; i++) {
+        surface_show(surface, x + offset + i * texture_bubble_on->w, y + offset, NULL, i < (int) integral ? texture_bubble_on : texture_bubble_off);
+    }
 
-	box.x = x + offset;
-	box.y = y + texture_bubble_on->h + offset * 2;
-	box.w = line_width;
-	box.h = offset;
+    box.x = x + offset;
+    box.y = y + texture_bubble_on->h + offset * 2;
+    box.w = line_width;
+    box.h = offset;
 
-	rectangle_create(surface, box.x, box.y, box.w, box.h, "404040");
+    rectangle_create(surface, box.x, box.y, box.w, box.h, "404040");
 
-	box.w = (double) box.w * fractional;
-	rectangle_create(surface, box.x, box.y, box.w, box.h, "0000ff");
+    box.w = (double) box.w * fractional;
+    rectangle_create(surface, box.x, box.y, box.w, box.h, "0000ff");
 
-	box.y += offset / 4;
-	box.h /= 2;
-	rectangle_create(surface, box.x, box.y, box.w, box.h, "4040ff");
+    box.y += offset / 4;
+    box.h /= 2;
+    rectangle_create(surface, box.x, box.y, box.w, box.h, "4040ff");
 }
 
 char *player_make_path(const char *path)
 {
-	StringBuffer *sb;
-	char *server_name;
+    StringBuffer *sb;
+    char *server_name;
 
-	sb = stringbuffer_new();
-	server_name = strdup(selected_server->name);
-	string_replace_char(server_name, "/\\", ' ');
-	stringbuffer_append_printf(sb, "settings/servers/%s/%s/%s/%s", server_name, cpl.account, cpl.name, path);
-	free(server_name);
+    sb = stringbuffer_new();
+    server_name = strdup(selected_server->name);
+    string_replace_char(server_name, "/\\", ' ');
+    stringbuffer_append_printf(sb, "settings/servers/%s/%s/%s/%s", server_name, cpl.account, cpl.name, path);
+    free(server_name);
 
-	return stringbuffer_finish(sb);
+    return stringbuffer_finish(sb);
 }

@@ -38,44 +38,39 @@
  * @param RP Random map parameters. */
 void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP)
 {
-	mapstruct *style_map = NULL;
-	int failed_placements = 0, number_monsters = 0;
+    mapstruct *style_map = NULL;
+    int failed_placements = 0, number_monsters = 0;
 
-	style_map = find_style("/styles/monsterstyles", monsterstyle, difficulty);
+    style_map = find_style("/styles/monsterstyles", monsterstyle, difficulty);
 
-	if (style_map == NULL)
-	{
-		return;
-	}
+    if (style_map == NULL) {
+        return;
+    }
 
-	while (number_monsters < RP->num_monsters && failed_placements < 100)
-	{
-		object *this_monster = pick_random_object(style_map);
-		int x, y, freeindex;
+    while (number_monsters < RP->num_monsters && failed_placements < 100) {
+        object *this_monster = pick_random_object(style_map);
+        int x, y, freeindex;
 
-		if (this_monster == NULL)
-		{
-			return;
-		}
+        if (this_monster == NULL) {
+            return;
+        }
 
-		x = RANDOM() % RP->Xsize;
-		y = RANDOM() % RP->Ysize;
-		freeindex = find_first_free_spot(this_monster->arch, NULL, map, x, y);
+        x = RANDOM() % RP->Xsize;
+        y = RANDOM() % RP->Ysize;
+        freeindex = find_first_free_spot(this_monster->arch, NULL, map, x, y);
 
-		if (freeindex != -1)
-		{
-			object *new_monster = object_create_clone(this_monster);
+        if (freeindex != -1) {
+            object *new_monster = object_create_clone(this_monster);
 
-			x += freearr_x[freeindex];
-			y += freearr_y[freeindex];
-			new_monster->x = x;
-			new_monster->y = y;
-			insert_ob_in_map(new_monster, map, new_monster, INS_NO_MERGE | INS_NO_WALK_ON);
-			number_monsters++;
-		}
-		else
-		{
-			failed_placements++;
-		}
-	}
+            x += freearr_x[freeindex];
+            y += freearr_y[freeindex];
+            new_monster->x = x;
+            new_monster->y = y;
+            insert_ob_in_map(new_monster, map, new_monster, INS_NO_MERGE | INS_NO_WALK_ON);
+            number_monsters++;
+        }
+        else {
+            failed_placements++;
+        }
+    }
 }

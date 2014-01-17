@@ -29,15 +29,15 @@
 #include <global.h>
 #include <loader.h>
 
-int	global_darkness_table[MAX_DARKNESS + 1] =
+int global_darkness_table[MAX_DARKNESS + 1] =
 {
-	0, 20, 40, 80, 160, 320, 640, 1280
+    0, 20, 40, 80, 160, 320, 640, 1280
 };
 
 /** To get the reverse direction for all 8 tiled map index */
 int map_tiled_reverse[TILED_NUM] =
 {
-	2, 3, 0, 1, 6, 7, 4, 5
+    2, 3, 0, 1, 6, 7, 4, 5
 };
 
 #define DEBUG_OLDFLAGS 1
@@ -54,16 +54,15 @@ static void free_all_objects(mapstruct *m);
  * @return NULL if loading or tiling fails, loaded neighbor map otherwise. */
 static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
-	mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
+    mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
 
-	if (!map || map != orig_map->tile_map[tile_num])
-	{
-		logger_print(LOG(BUG), "Failed to connect map %s with tile #%d (%s).", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
-		FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
-		return NULL;
-	}
+    if (!map || map != orig_map->tile_map[tile_num]) {
+        logger_print(LOG(BUG), "Failed to connect map %s with tile #%d (%s).", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
+        FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
+        return NULL;
+    }
 
-	return map;
+    return map;
 }
 
 /**
@@ -78,87 +77,79 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
  * @todo A bidirectional breadth-first search would be more efficient. */
 static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, uint32 id, int level)
 {
-	int i;
+    int i;
 
-	if (map1 == map2)
-	{
-		return 1;
-	}
+    if (map1 == map2) {
+        return 1;
+    }
 
-	if (level <= 0)
-	{
-		return 0;
-	}
+    if (level <= 0) {
+        return 0;
+    }
 
-	level--;
-	map1->traversed = id;
+    level--;
+    map1->traversed = id;
 
-	/* Depth-first search for the destination map */
-	for (i = 0; i < TILED_NUM; i++)
-	{
-		if (map1->tile_path[i])
-		{
-			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(map1, i))
-				{
-					continue;
-				}
-			}
+    /* Depth-first search for the destination map */
+    for (i = 0; i < TILED_NUM; i++) {
+        if (map1->tile_path[i]) {
+            if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(map1, i)) {
+                    continue;
+                }
+            }
 
-			if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level)))
-			{
-				switch (i)
-				{
-					/* North */
-					case 0:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						return 1;
+            if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level))) {
+                switch (i) {
+                    /* North */
+                    case 0:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        return 1;
 
-					/* East */
-					case 1:
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* East */
+                    case 1:
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* South */
-					case 2:
-						*y += MAP_HEIGHT(map1);
-						return 1;
+                    /* South */
+                    case 2:
+                        *y += MAP_HEIGHT(map1);
+                        return 1;
 
-					/* West */
-					case 3:
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
+                    /* West */
+                    case 3:
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-					/* Northest */
-					case 4:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* Northest */
+                    case 4:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* Southest */
-					case 5:
-						*y += MAP_HEIGHT(map1);
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* Southest */
+                    case 5:
+                        *y += MAP_HEIGHT(map1);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* Southwest */
-					case 6:
-						*y += MAP_HEIGHT(map1);
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
+                    /* Southwest */
+                    case 6:
+                        *y += MAP_HEIGHT(map1);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-					/* Northwest */
-					case 7:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
-				}
-			}
-		}
-	}
+                    /* Northwest */
+                    case 7:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
+                }
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -183,101 +174,91 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
  * @return 1 if the two tiles are part of the same map, 0 otherwise. */
 static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y)
 {
-	int i;
-	static uint32 traversal_id = 0;
+    int i;
+    static uint32 traversal_id = 0;
 
-	/* Save some time in the simplest cases ( very similar to on_same_map() )*/
-	if (map1 == NULL || map2 == NULL)
-	{
-		return 0;
-	}
+    /* Save some time in the simplest cases ( very similar to on_same_map() )*/
+    if (map1 == NULL || map2 == NULL) {
+        return 0;
+    }
 
-	if (map1 == map2)
-	{
-		return 1;
-	}
+    if (map1 == map2) {
+        return 1;
+    }
 
-	for (i = 0; i < TILED_NUM; i++)
-	{
-		if (map1->tile_path[i])
-		{
-			if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(map1, i))
-				{
-					continue;
-				}
-			}
+    for (i = 0; i < TILED_NUM; i++) {
+        if (map1->tile_path[i]) {
+            if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(map1, i)) {
+                    continue;
+                }
+            }
 
-			if (map1->tile_map[i] == map2)
-			{
-				switch (i)
-				{
-					/* North */
-					case 0:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						return 1;
+            if (map1->tile_map[i] == map2) {
+                switch (i) {
+                    /* North */
+                    case 0:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        return 1;
 
-					/* East */
-					case 1:
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* East */
+                    case 1:
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* South */
-					case 2:
-						*y += MAP_HEIGHT(map1);
-						return 1;
+                    /* South */
+                    case 2:
+                        *y += MAP_HEIGHT(map1);
+                        return 1;
 
-					/* West */
-					case 3:
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
+                    /* West */
+                    case 3:
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-					/* Northeast */
-					case 4:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* Northeast */
+                    case 4:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* Southeast */
-					case 5:
-						*y += MAP_HEIGHT(map1);
-						*x += MAP_WIDTH(map1);
-						return 1;
+                    /* Southeast */
+                    case 5:
+                        *y += MAP_HEIGHT(map1);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-					/* Southwest */
-					case 6:
-						*y += MAP_HEIGHT(map1);
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
+                    /* Southwest */
+                    case 6:
+                        *y += MAP_HEIGHT(map1);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-					/* Northwest */
-					case 7:
-						*y -= MAP_HEIGHT(map1->tile_map[i]);
-						*x -= MAP_WIDTH(map1->tile_map[i]);
-						return 1;
-				}
-			}
-		}
-	}
+                    /* Northwest */
+                    case 7:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
+                }
+            }
+        }
+    }
 
-	/* Avoid overflow of traversal_id */
-	if (traversal_id == 4294967295U)
-	{
-		mapstruct *m;
+    /* Avoid overflow of traversal_id */
+    if (traversal_id == 4294967295U) {
+        mapstruct *m;
 
-		logger_print(LOG(DEBUG), "resetting traversal id");
+        logger_print(LOG(DEBUG), "resetting traversal id");
 
-		for (m = first_map; m != NULL; m = m->next)
-		{
-			m->traversed = 0;
-		}
+        for (m = first_map; m != NULL; m = m->next) {
+            m->traversed = 0;
+        }
 
-		traversal_id = 0;
-	}
+        traversal_id = 0;
+    }
 
-	/* Recursive search */
-	return relative_tile_position_rec(map1, map2, x, y, ++traversal_id, 2);
+    /* Recursive search */
+    return relative_tile_position_rec(map1, map2, x, y, ++traversal_id, 2);
 }
 
 /**
@@ -288,28 +269,24 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
  * NULL if no such map. */
 mapstruct *has_been_loaded_sh(shstr *name)
 {
-	mapstruct *map;
+    mapstruct *map;
 
-	if (!name || !*name)
-	{
-		return NULL;
-	}
+    if (!name || !*name) {
+        return NULL;
+    }
 
-	if (*name != '/' && *name != '.')
-	{
-		logger_print(LOG(DEBUG), "Found map name without starting '/' or '.' (%s)", name);
-		return NULL;
-	}
+    if (*name != '/' && *name != '.') {
+        logger_print(LOG(DEBUG), "Found map name without starting '/' or '.' (%s)", name);
+        return NULL;
+    }
 
-	for (map = first_map; map; map = map->next)
-	{
-		if (name == map->path)
-		{
-			break;
-		}
-	}
+    for (map = first_map; map; map = map->next) {
+        if (name == map->path) {
+            break;
+        }
+    }
 
-	return map;
+    return map;
 }
 
 /**
@@ -321,18 +298,16 @@ mapstruct *has_been_loaded_sh(shstr *name)
  * @return The full path. */
 char *create_pathname(const char *name)
 {
-	static char buf[MAX_BUF];
+    static char buf[MAX_BUF];
 
-	if (*name == '/')
-	{
-		snprintf(buf, sizeof(buf), "%s%s", settings.mapspath, name);
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "%s/%s", settings.mapspath, name);
-	}
+    if (*name == '/') {
+        snprintf(buf, sizeof(buf), "%s%s", settings.mapspath, name);
+    }
+    else {
+        snprintf(buf, sizeof(buf), "%s/%s", settings.mapspath, name);
+    }
 
-	return buf;
+    return buf;
 }
 
 /**
@@ -344,30 +319,26 @@ char *create_pathname(const char *name)
  * @return The absolute path. */
 static char *create_items_path(shstr *s)
 {
-	static char buf[MAX_BUF];
-	char *t;
+    static char buf[MAX_BUF];
+    char *t;
 
-	if (*s == '/')
-	{
-		s++;
-	}
+    if (*s == '/') {
+        s++;
+    }
 
-	snprintf(buf, sizeof(buf), "%s/unique-items/", settings.datapath);
+    snprintf(buf, sizeof(buf), "%s/unique-items/", settings.datapath);
 
-	for (t = buf + strlen(buf); *s; s++, t++)
-	{
-		if (*s == '/')
-		{
-			*t = '@';
-		}
-		else
-		{
-			*t = *s;
-		}
-	}
+    for (t = buf + strlen(buf); *s; s++, t++) {
+        if (*s == '/') {
+            *t = '@';
+        }
+        else {
+            *t = *s;
+        }
+    }
 
-	*t = '\0';
-	return buf;
+    *t = '\0';
+    return buf;
 }
 
 /**
@@ -385,12 +356,11 @@ static char *create_items_path(shstr *s)
  * @return 1 if a wall is present at the given location. */
 int wall(mapstruct *m, int x, int y)
 {
-	if (!(m = get_map_from_coord(m, &x, &y)))
-	{
-		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
-	}
+    if (!(m = get_map_from_coord(m, &x, &y))) {
+        return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
+    }
 
-	return (GET_MAP_FLAGS(m, x, y) & (P_DOOR_CLOSED | P_PLAYER_ONLY | P_NO_PASS | P_PASS_THRU));
+    return (GET_MAP_FLAGS(m, x, y) & (P_DOOR_CLOSED | P_PLAYER_ONLY | P_NO_PASS | P_PASS_THRU));
 }
 
 /**
@@ -402,14 +372,13 @@ int wall(mapstruct *m, int x, int y)
  * @return 1 if the given location blocks view. */
 int blocks_view(mapstruct *m, int x, int y)
 {
-	mapstruct *nm;
+    mapstruct *nm;
 
-	if (!(nm = get_map_from_coord(m, &x, &y)))
-	{
-		return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
-	}
+    if (!(nm = get_map_from_coord(m, &x, &y))) {
+        return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
+    }
 
-	return (GET_MAP_FLAGS(nm, x, y) & P_BLOCKSVIEW);
+    return (GET_MAP_FLAGS(nm, x, y) & P_BLOCKSVIEW);
 }
 
 /**
@@ -420,12 +389,11 @@ int blocks_view(mapstruct *m, int x, int y)
  * @return 1 if the given location blocks magic. */
 int blocks_magic(mapstruct *m, int x, int y)
 {
-	if (!(m = get_map_from_coord(m, &x, &y)))
-	{
-		return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
-	}
+    if (!(m = get_map_from_coord(m, &x, &y))) {
+        return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
+    }
 
-	return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
+    return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
 }
 
 /**
@@ -440,69 +408,58 @@ int blocks_magic(mapstruct *m, int x, int y)
  * @ref map_look_flags otherwise. */
 int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 {
-	int flags;
-	MapSpace *msp;
+    int flags;
+    MapSpace *msp;
 
-	flags = (msp = GET_MAP_SPACE_PTR(m, x, y))->flags;
+    flags = (msp = GET_MAP_SPACE_PTR(m, x, y))->flags;
 
-	/* Flying objects can move over various terrains. */
-	if (op && QUERY_FLAG(op, FLAG_FLYING))
-	{
-		terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK | TERRAIN_CLOUDWALK;
-	}
+    /* Flying objects can move over various terrains. */
+    if (op && QUERY_FLAG(op, FLAG_FLYING)) {
+        terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK | TERRAIN_CLOUDWALK;
+    }
 
-	/* First, look at the terrain. If we don't have a valid terrain flag,
-	 * this is forbidden to enter. */
-	if (msp->move_flags & ~terrain)
-	{
-		return ((flags & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU)) | P_NO_TERRAIN);
-	}
+    /* First, look at the terrain. If we don't have a valid terrain flag,
+     * this is forbidden to enter. */
+    if (msp->move_flags & ~terrain) {
+        return ((flags & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU)) | P_NO_TERRAIN);
+    }
 
-	if (flags & P_IS_MONSTER)
-	{
-		return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
-	}
+    if (flags & P_IS_MONSTER) {
+        return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
+    }
 
-	if (flags & P_NO_PASS)
-	{
-		if (!(flags & P_PASS_THRU) || !op || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU))
-		{
-			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
-		}
-	}
+    if (flags & P_NO_PASS) {
+        if (!(flags & P_PASS_THRU) || !op || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU)) {
+            return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
+        }
+    }
 
-	if (flags & P_IS_PLAYER)
-	{
-		if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) && !(msp->extra_flags & MSP_EXTRA_NO_PVP)))
-		{
-			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
-		}
+    if (flags & P_IS_PLAYER) {
+        if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) && !(msp->extra_flags & MSP_EXTRA_NO_PVP))) {
+            return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
+        }
 
-		if (op->type != PLAYER)
-		{
-			return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
-		}
-	}
+        if (op->type != PLAYER) {
+            return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
+        }
+    }
 
-	/* We have an object pointer - do some last checks */
-	if (op)
-	{
-		/* Player only space and not a player - no pass and possible checker here */
-		if ((flags & P_PLAYER_ONLY) && op->type != PLAYER)
-		{
-			return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV | P_PLAYER_ONLY));
-		}
+    /* We have an object pointer - do some last checks */
+    if (op) {
+        /* Player only space and not a player - no pass and possible checker
+         * here */
+        if ((flags & P_PLAYER_ONLY) && op->type != PLAYER) {
+            return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV | P_PLAYER_ONLY));
+        }
 
-		if (flags & P_CHECK_INV)
-		{
-			if (blocked_tile(op, m, x, y))
-			{
-				return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV));
-			}
-		}
-	}
+        if (flags & P_CHECK_INV) {
+            if (blocked_tile(op, m, x, y)) {
+                return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV));
+            }
+        }
+    }
 
-	return (flags & (P_DOOR_CLOSED));
+    return (flags & (P_DOOR_CLOSED));
 }
 
 /**
@@ -517,55 +474,48 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
  * the monster, return value of blocked() otherwise. */
 int blocked_link(object *op, int xoff, int yoff)
 {
-	object *tmp, *tmp2;
-	mapstruct *m;
-	int xtemp, ytemp, flags;
+    object *tmp, *tmp2;
+    mapstruct *m;
+    int xtemp, ytemp, flags;
 
-	for (tmp = op; tmp; tmp = tmp->more)
-	{
-		/* We search for this new position */
-		xtemp = tmp->arch->clone.x + xoff;
-		ytemp = tmp->arch->clone.y + yoff;
+    for (tmp = op; tmp; tmp = tmp->more) {
+        /* We search for this new position */
+        xtemp = tmp->arch->clone.x + xoff;
+        ytemp = tmp->arch->clone.y + yoff;
 
-		/* Check if match is a different part of us */
-		for (tmp2 = op; tmp2; tmp2 = tmp2->more)
-		{
-			/* If this is true, we can be sure this position is valid */
-			if (xtemp == tmp2->arch->clone.x && ytemp == tmp2->arch->clone.y)
-			{
-				break;
-			}
-		}
+        /* Check if match is a different part of us */
+        for (tmp2 = op; tmp2; tmp2 = tmp2->more) {
+            /* If this is true, we can be sure this position is valid */
+            if (xtemp == tmp2->arch->clone.x && ytemp == tmp2->arch->clone.y) {
+                break;
+            }
+        }
 
-		/* If this is NULL, tmp will move in a new node */
-		if (!tmp2)
-		{
-			xtemp = tmp->x + xoff;
-			ytemp = tmp->y + yoff;
+        /* If this is NULL, tmp will move in a new node */
+        if (!tmp2) {
+            xtemp = tmp->x + xoff;
+            ytemp = tmp->y + yoff;
 
-			/* If this new node is illegal, we can skip all */
-			if (!(m = get_map_from_coord(tmp->map, &xtemp, &ytemp)))
-			{
-				return -1;
-			}
+            /* If this new node is illegal, we can skip all */
+            if (!(m = get_map_from_coord(tmp->map, &xtemp, &ytemp))) {
+                return -1;
+            }
 
-			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
-			{
-				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
-				{
-					if (door_try_open(op, m, xtemp, ytemp, 0))
-					{
-						continue;
-					}
-				}
+            /* We use always head for tests - no need to copy any flags to the
+             * tail */
+            if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
+                if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS)) {
+                    if (door_try_open(op, m, xtemp, ytemp, 0)) {
+                        continue;
+                    }
+                }
 
-				return flags;
-			}
-		}
-	}
+                return flags;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -580,52 +530,45 @@ int blocked_link(object *op, int xoff, int yoff)
  * code duplication. */
 int blocked_link_2(object *op, mapstruct *map, int x, int y)
 {
-	object *tmp, *tmp2;
-	int xtemp, ytemp, flags;
-	mapstruct *m;
+    object *tmp, *tmp2;
+    int xtemp, ytemp, flags;
+    mapstruct *m;
 
-	for (tmp = op; tmp; tmp = tmp->more)
-	{
-		/* We search for this new position */
-		xtemp = x + tmp->arch->clone.x;
-		ytemp = y + tmp->arch->clone.y;
+    for (tmp = op; tmp; tmp = tmp->more) {
+        /* We search for this new position */
+        xtemp = x + tmp->arch->clone.x;
+        ytemp = y + tmp->arch->clone.y;
 
-		/* Check if match is a different part of us */
-		for (tmp2 = op; tmp2; tmp2 = tmp2->more)
-		{
-			/* If this is true, we can be sure this position is valid */
-			if (xtemp == tmp2->x && ytemp == tmp2->y)
-			{
-				break;
-			}
-		}
+        /* Check if match is a different part of us */
+        for (tmp2 = op; tmp2; tmp2 = tmp2->more) {
+            /* If this is true, we can be sure this position is valid */
+            if (xtemp == tmp2->x && ytemp == tmp2->y) {
+                break;
+            }
+        }
 
-		/* If this is NULL, tmp will move in a new node */
-		if (!tmp2)
-		{
-			/* If this new node is illegal, we can skip all */
-			if (!(m = get_map_from_coord(map, &xtemp, &ytemp)))
-			{
-				return -1;
-			}
+        /* If this is NULL, tmp will move in a new node */
+        if (!tmp2) {
+            /* If this new node is illegal, we can skip all */
+            if (!(m = get_map_from_coord(map, &xtemp, &ytemp))) {
+                return -1;
+            }
 
-			/* We use always head for tests - no need to copy any flags to the tail */
-			if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag)))
-			{
-				if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS))
-				{
-					if (door_try_open(op, m, xtemp, ytemp, 1))
-					{
-						continue;
-					}
-				}
+            /* We use always head for tests - no need to copy any flags to the
+             * tail */
+            if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
+                if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS)) {
+                    if (door_try_open(op, m, xtemp, ytemp, 1)) {
+                        continue;
+                    }
+                }
 
-				return flags;
-			}
-		}
-	}
+                return flags;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -638,45 +581,38 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
  * @return 1 if the tile is blocked, 0 otherwise. */
 int blocked_tile(object *op, mapstruct *m, int x, int y)
 {
-	object *tmp;
+    object *tmp;
 
-	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
-	{
-		/* This must be before the checks below. Code for inventory checkers. */
-		if (tmp->type == CHECK_INV && tmp->last_grace)
-		{
-			if (QUERY_FLAG(tmp, FLAG_XRAYS) && op->type != PLAYER)
-			{
-				continue;
-			}
+    for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
+        /* This must be before the checks below. Code for inventory checkers. */
+        if (tmp->type == CHECK_INV && tmp->last_grace) {
+            if (QUERY_FLAG(tmp, FLAG_XRAYS) && op->type != PLAYER) {
+                continue;
+            }
 
-			/* If last_sp is set, the player/monster needs an object,
-			 * so we check for it. If they don't have it, they can't
-			 * pass through this space. */
-			if (tmp->last_sp)
-			{
-				if (check_inv(tmp, op) == NULL)
-				{
-					return 1;
-				}
+            /* If last_sp is set, the player/monster needs an object,
+             * so we check for it. If they don't have it, they can't
+             * pass through this space. */
+            if (tmp->last_sp) {
+                if (check_inv(tmp, op) == NULL) {
+                    return 1;
+                }
 
-				continue;
-			}
-			/* In this case, the player must not have the object -
-			 * if they do, they can't pass through. */
-			else
-			{
-				if (check_inv(tmp, op) != NULL)
-				{
-					return 1;
-				}
+                continue;
+            }
+            /* In this case, the player must not have the object -
+             * if they do, they can't pass through. */
+            else {
+                if (check_inv(tmp, op) != NULL) {
+                    return 1;
+                }
 
-				continue;
-			}
-		}
-	}
+                continue;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -691,46 +627,39 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
  * @retval other Blocking flags from blocked(). */
 int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 {
-	archetype *tmp;
-	mapstruct *mt;
-	int xt, yt, t;
+    archetype *tmp;
+    mapstruct *mt;
+    int xt, yt, t;
 
-	if (op)
-	{
-		t = op->terrain_flag;
-	}
-	else
-	{
-		t = TERRAIN_ALL;
-	}
+    if (op) {
+        t = op->terrain_flag;
+    }
+    else {
+        t = TERRAIN_ALL;
+    }
 
-	if (at == NULL)
-	{
-		if (!(m = get_map_from_coord(m, &x, &y)))
-		{
-			return -1;
-		}
+    if (at == NULL) {
+        if (!(m = get_map_from_coord(m, &x, &y))) {
+            return -1;
+        }
 
-		return blocked(op, m, x, y, t);
-	}
+        return blocked(op, m, x, y, t);
+    }
 
-	for (tmp = at; tmp; tmp = tmp->more)
-	{
-		xt = x + tmp->clone.x;
-		yt = y + tmp->clone.y;
+    for (tmp = at; tmp; tmp = tmp->more) {
+        xt = x + tmp->clone.x;
+        yt = y + tmp->clone.y;
 
-		if (!(mt = get_map_from_coord(m, &xt, &yt)))
-		{
-			return -1;
-		}
+        if (!(mt = get_map_from_coord(m, &xt, &yt))) {
+            return -1;
+        }
 
-		if ((xt = blocked(op, mt, xt, yt, t)))
-		{
-			return xt;
-		}
-	}
+        if ((xt = blocked(op, mt, xt, yt, t))) {
+            return xt;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -741,74 +670,66 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
  * @param mapflags The same as we get with load_original_map(). */
 static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
-	int i;
-	void *mybuffer;
-	object *op;
+    int i;
+    void *mybuffer;
+    object *op;
 
-	op = get_object();
+    op = get_object();
 
-	/* To handle buttons correctly */
-	op->map = m;
-	mybuffer = create_loader_buffer(fp);
+    /* To handle buttons correctly */
+    op->map = m;
+    mybuffer = create_loader_buffer(fp);
 
-	while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags)))
-	{
-		if (i == LL_MORE)
-		{
-			logger_print(LOG(DEBUG), "object %s - its a tail!",query_short_name(op, NULL));
-			continue;
-		}
+    while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags))) {
+        if (i == LL_MORE) {
+            logger_print(LOG(DEBUG), "object %s - its a tail!",query_short_name(op, NULL));
+            continue;
+        }
 
-		/* If the archetype for the object is null, means that we
-		 * got an invalid object. Don't do anything with it - the game
-		 * will not be able to do anything with it either. */
-		if (op->arch == NULL)
-		{
-			logger_print(LOG(DEBUG), "object %s (%d)- invalid archetype. (pos:%d,%d)", query_short_name(op, NULL), op->type, op->x, op->y);
-			continue;
-		}
+        /* If the archetype for the object is null, means that we
+         * got an invalid object. Don't do anything with it - the game
+         * will not be able to do anything with it either. */
+        if (op->arch == NULL) {
+            logger_print(LOG(DEBUG), "object %s (%d)- invalid archetype. (pos:%d,%d)", query_short_name(op, NULL), op->type, op->x, op->y);
+            continue;
+        }
 
-		/* Do some safety for containers */
-		if (op->type == CONTAINER)
-		{
-			/* Used for containers as link to players viewing it */
-			op->attacked_by = NULL;
-			op->attacked_by_count = 0;
-			sum_weight(op);
-		}
+        /* Do some safety for containers */
+        if (op->type == CONTAINER) {
+            /* Used for containers as link to players viewing it */
+            op->attacked_by = NULL;
+            op->attacked_by_count = 0;
+            sum_weight(op);
+        }
 
-		if (op->type == MONSTER)
-		{
-			fix_monster(op);
-		}
+        if (op->type == MONSTER) {
+            fix_monster(op);
+        }
 
-		/* Important pre set for the animation/face of a object */
-		if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
-		}
+        /* Important pre set for the animation/face of a object */
+        if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE)) {
+            SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
+        }
 
-		insert_ob_in_map(op, m, op, INS_NO_MERGE | INS_NO_WALK_ON);
+        insert_ob_in_map(op, m, op, INS_NO_MERGE | INS_NO_WALK_ON);
 
-		/* auto_apply() will remove FLAG_AUTO_APPLY after first use */
-		if (QUERY_FLAG(op, FLAG_AUTO_APPLY))
-		{
-			auto_apply(op);
-		}
-		/* For fresh maps, create treasures */
-		else if ((mapflags & MAP_ORIGINAL) && op->randomitems)
-		{
-			create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-		}
+        /* auto_apply() will remove FLAG_AUTO_APPLY after first use */
+        if (QUERY_FLAG(op, FLAG_AUTO_APPLY)) {
+            auto_apply(op);
+        }
+        /* For fresh maps, create treasures */
+        else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
+            create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+        }
 
-		op = get_object();
-		op->map = m;
-	}
+        op = get_object();
+        op->map = m;
+    }
 
-	delete_loader_buffer(mybuffer);
+    delete_loader_buffer(mybuffer);
 
-	m->in_memory = MAP_IN_MEMORY;
-	check_light_source_list(m);
+    m->in_memory = MAP_IN_MEMORY;
+    check_light_source_list(m);
 }
 
 /**
@@ -818,94 +739,78 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * @param fp2 File to save unique objects. */
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
-	int x, y;
-	object *ob, *next, *head, *tmp, *owner;
-	uint8 unique;
+    int x, y;
+    object *ob, *next, *head, *tmp, *owner;
+    uint8 unique;
 
-	for (x = 0; x < MAP_WIDTH(m); x++)
-	{
-		for (y = 0; y < MAP_HEIGHT(m); y++)
-		{
-			unique = 0;
+    for (x = 0; x < MAP_WIDTH(m); x++) {
+        for (y = 0; y < MAP_HEIGHT(m); y++) {
+            unique = 0;
 
-			for (ob = GET_MAP_OB(m, x, y); ob; ob = next)
-			{
-				next = ob->above;
+            for (ob = GET_MAP_OB(m, x, y); ob; ob = next) {
+                next = ob->above;
 
-				if (ob->type == PLAYER)
-				{
-					continue;
-				}
+                if (ob->type == PLAYER) {
+                    continue;
+                }
 
-				head = HEAD(ob);
+                head = HEAD(ob);
 
-				if (QUERY_FLAG(head, FLAG_NO_SAVE))
-				{
-					object_remove(head, 0);
-					object_destroy(head);
-					continue;
-				}
-				else if (QUERY_FLAG(head, FLAG_SPAWN_MOB))
-				{
-					/* Try to find the spawn point information. */
-					for (tmp = head->inv; tmp; tmp = tmp->below)
-					{
-						if (tmp->type == SPAWN_POINT_INFO)
-						{
-							if (OBJECT_VALID(tmp->owner, tmp->ownercount) && tmp->owner->type == SPAWN_POINT)
-							{
-								tmp->owner->last_sp = -1;
-								tmp->owner->speed_left += 1.0f;
-								tmp->owner->enemy = NULL;
-							}
+                if (QUERY_FLAG(head, FLAG_NO_SAVE)) {
+                    object_remove(head, 0);
+                    object_destroy(head);
+                    continue;
+                }
+                else if (QUERY_FLAG(head, FLAG_SPAWN_MOB)) {
+                    /* Try to find the spawn point information. */
+                    for (tmp = head->inv; tmp; tmp = tmp->below) {
+                        if (tmp->type == SPAWN_POINT_INFO) {
+                            if (OBJECT_VALID(tmp->owner, tmp->ownercount) && tmp->owner->type == SPAWN_POINT) {
+                                tmp->owner->last_sp = -1;
+                                tmp->owner->speed_left += 1.0f;
+                                tmp->owner->enemy = NULL;
+                            }
 
-							break;
-						}
-					}
+                            break;
+                        }
+                    }
 
-					object_remove(head, 0);
-					object_destroy(head);
-					continue;
-				}
-				else if (head->type == SPAWN_POINT)
-				{
-					if (OBJECT_VALID(head->enemy, head->enemy_count))
-					{
-						head->last_sp = -1;
-						head->speed_left += 1.0f;
-						head->enemy = NULL;
-					}
-				}
+                    object_remove(head, 0);
+                    object_destroy(head);
+                    continue;
+                }
+                else if (head->type == SPAWN_POINT) {
+                    if (OBJECT_VALID(head->enemy, head->enemy_count)) {
+                        head->last_sp = -1;
+                        head->speed_left += 1.0f;
+                        head->enemy = NULL;
+                    }
+                }
 
-				/* Do not save tail parts. */
-				if (ob->head)
-				{
-					continue;
-				}
+                /* Do not save tail parts. */
+                if (ob->head) {
+                    continue;
+                }
 
-				owner = get_owner(head);
+                owner = get_owner(head);
 
-				if (owner)
-				{
-					clear_owner(head);
-				}
+                if (owner) {
+                    clear_owner(head);
+                }
 
-				if (QUERY_FLAG(head, FLAG_IS_FLOOR) && QUERY_FLAG(head, FLAG_UNIQUE))
-				{
-					unique = 1;
-				}
+                if (QUERY_FLAG(head, FLAG_IS_FLOOR) && QUERY_FLAG(head, FLAG_UNIQUE)) {
+                    unique = 1;
+                }
 
-				if (unique || QUERY_FLAG(head, FLAG_UNIQUE))
-				{
-					save_object(fp2, head);
-				}
-				else
-				{
-					save_object(fp, head);
-				}
-			}
-		}
-	}
+                if (unique || QUERY_FLAG(head, FLAG_UNIQUE)) {
+                    save_object(fp2, head);
+                }
+                else {
+                    save_object(fp, head);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -916,13 +821,12 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
  * @param value The darkness value. */
 void set_map_darkness(mapstruct *m, int value)
 {
-	if (value < 0 || value > MAX_DARKNESS)
-	{
-		value = MAX_DARKNESS;
-	}
+    if (value < 0 || value > MAX_DARKNESS) {
+        value = MAX_DARKNESS;
+    }
 
-	MAP_DARKNESS(m) = (sint32) value;
-	m->light_value = (sint32) global_darkness_table[value];
+    MAP_DARKNESS(m) = (sint32) value;
+    m->light_value = (sint32) global_darkness_table[value];
 }
 
 /**
@@ -930,36 +834,34 @@ void set_map_darkness(mapstruct *m, int value)
  * @return The new map structure. */
 mapstruct *get_linked_map(void)
 {
-	mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
+    mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
 
-	if (map == NULL)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (map == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 
-	if (first_map)
-	{
-		first_map->previous = map;
-	}
+    if (first_map) {
+        first_map->previous = map;
+    }
 
-	map->next = first_map;
-	first_map = map;
+    map->next = first_map;
+    first_map = map;
 
-	map->in_memory = MAP_SWAPPED;
+    map->in_memory = MAP_SWAPPED;
 
-	/* The maps used to pick up default x and y values from the
-	 * map archetype. Mimic that behavior. */
-	MAP_WIDTH(map) = 16;
-	MAP_HEIGHT(map) = 16;
-	MAP_RESET_TIMEOUT(map) = 0;
-	MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
-	set_map_darkness(map, MAP_DEFAULT_DARKNESS);
+    /* The maps used to pick up default x and y values from the
+     * map archetype. Mimic that behavior. */
+    MAP_WIDTH(map) = 16;
+    MAP_HEIGHT(map) = 16;
+    MAP_RESET_TIMEOUT(map) = 0;
+    MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
+    set_map_darkness(map, MAP_DEFAULT_DARKNESS);
 
-	MAP_ENTER_X(map) = 0;
-	MAP_ENTER_Y(map) = 0;
+    MAP_ENTER_X(map) = 0;
+    MAP_ENTER_Y(map) = 0;
 
-	return map;
+    return map;
 }
 
 /**
@@ -968,28 +870,25 @@ mapstruct *get_linked_map(void)
  * @param m Map to allocate spaces for. */
 static void allocate_map(mapstruct *m)
 {
-	m->in_memory = MAP_LOADING;
+    m->in_memory = MAP_LOADING;
 
-	if (m->spaces || m->bitmap)
-	{
-		logger_print(LOG(ERROR), "Callled with already allocated map (%s)", m->path);
-		exit(1);
-	}
+    if (m->spaces || m->bitmap) {
+        logger_print(LOG(ERROR), "Callled with already allocated map (%s)", m->path);
+        exit(1);
+    }
 
-	if (m->buttons)
-	{
-		logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
-	}
+    if (m->buttons) {
+        logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
+    }
 
-	m->spaces = calloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
+    m->spaces = calloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
 
-	m->bitmap = malloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32));
+    m->bitmap = malloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32));
 
-	if (m->spaces == NULL || m->bitmap == NULL)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(1);
-	}
+    if (m->spaces == NULL || m->bitmap == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(1);
+    }
 }
 
 /**
@@ -1001,14 +900,14 @@ static void allocate_map(mapstruct *m)
  * @return The new map structure. */
 mapstruct *get_empty_map(int sizex, int sizey)
 {
-	mapstruct *m = get_linked_map();
-	m->width = sizex;
-	m->height = sizey;
-	allocate_map(m);
+    mapstruct *m = get_linked_map();
+    m->width = sizex;
+    m->height = sizey;
+    allocate_map(m);
 
-	m->in_memory = MAP_IN_MEMORY;
+    m->in_memory = MAP_IN_MEMORY;
 
-	return m;
+    return m;
 }
 
 /**
@@ -1025,82 +924,72 @@ mapstruct *get_empty_map(int sizex, int sizey)
  * @return The loaded map structure, NULL on failure. */
 mapstruct *load_original_map(const char *filename, int flags)
 {
-	FILE *fp;
-	mapstruct *m;
-	char pathname[HUGE_BUF], tmp_fname[HUGE_BUF];
+    FILE *fp;
+    mapstruct *m;
+    char pathname[HUGE_BUF], tmp_fname[HUGE_BUF];
 
-	/* No sense in doing this all for random maps, it will all fail anyways. */
-	if (!strncmp(filename, "/random/", 8))
-	{
-		return NULL;
-	}
+    /* No sense in doing this all for random maps, it will all fail anyways. */
+    if (!strncmp(filename, "/random/", 8)) {
+        return NULL;
+    }
 
-	if (*filename != '/' && *filename != '.')
-	{
-		tmp_fname[0] = '/';
-		strcpy(tmp_fname + 1, filename);
-		filename = tmp_fname;
-	}
+    if (*filename != '/' && *filename != '.') {
+        tmp_fname[0] = '/';
+        strcpy(tmp_fname + 1, filename);
+        filename = tmp_fname;
+    }
 
-	if (flags & MAP_PLAYER_UNIQUE)
-	{
-		strcpy(pathname, filename);
-	}
-	else
-	{
-		strcpy(pathname, create_pathname(filename));
-	}
+    if (flags & MAP_PLAYER_UNIQUE) {
+        strcpy(pathname, filename);
+    }
+    else {
+        strcpy(pathname, create_pathname(filename));
+    }
 
-	if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname))
-	{
-		char *path;
+    if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname)) {
+        char *path;
 
-		path = path_basename(pathname);
-		string_replace_char(path, "$", '/');
-		fp = fopen(create_pathname(path), "rb");
-		free(path);
-	}
-	else
-	{
-		fp = fopen(pathname, "rb");
-	}
+        path = path_basename(pathname);
+        string_replace_char(path, "$", '/');
+        fp = fopen(create_pathname(path), "rb");
+        free(path);
+    }
+    else {
+        fp = fopen(pathname, "rb");
+    }
 
-	if (!fp)
-	{
-		logger_print(LOG(BUG), "Can't open map file %s", pathname);
-		return NULL;
-	}
+    if (!fp) {
+        logger_print(LOG(BUG), "Can't open map file %s", pathname);
+        return NULL;
+    }
 
-	m = get_linked_map();
+    m = get_linked_map();
 
-	FREE_AND_COPY_HASH(m->path, filename);
+    FREE_AND_COPY_HASH(m->path, filename);
 
-	if (flags & MAP_PLAYER_UNIQUE)
-	{
-		m->map_flags |= MAP_FLAG_UNIQUE;
-	}
+    if (flags & MAP_PLAYER_UNIQUE) {
+        m->map_flags |= MAP_FLAG_UNIQUE;
+    }
 
-	if (!load_map_header(m, fp))
-	{
-		logger_print(LOG(BUG), "Failure loading map header for %s, flags=%d", filename, flags);
-		delete_map(m);
-		return NULL;
-	}
+    if (!load_map_header(m, fp)) {
+        logger_print(LOG(BUG), "Failure loading map header for %s, flags=%d", filename, flags);
+        delete_map(m);
+        return NULL;
+    }
 
-	allocate_map(m);
+    allocate_map(m);
 
-	m->in_memory = MAP_LOADING;
-	load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
-	fclose(fp);
+    m->in_memory = MAP_LOADING;
+    load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
+    fclose(fp);
 
-	if (!MAP_DIFFICULTY(m))
-	{
-		logger_print(LOG(BUG), "Map %s has difficulty 0. Changing to 1.", filename);
-		MAP_DIFFICULTY(m) = 1;
-	}
+    if (!MAP_DIFFICULTY(m)) {
+        logger_print(LOG(BUG), "Map %s has difficulty 0. Changing to 1.", filename);
+        MAP_DIFFICULTY(m) = 1;
+    }
 
-	set_map_reset_time(m);
-	return m;
+    set_map_reset_time(m);
+    return m;
 }
 
 /**
@@ -1110,66 +999,59 @@ mapstruct *load_original_map(const char *filename, int flags)
  * option if we can't find the original map). */
 static mapstruct *load_temporary_map(mapstruct *m)
 {
-	FILE *fp;
-	char buf[MAX_BUF];
+    FILE *fp;
+    char buf[MAX_BUF];
 
-	if (!m->tmpname)
-	{
-		logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
-		strcpy(buf, m->path);
-		delete_map(m);
-		m = load_original_map(buf, 0);
+    if (!m->tmpname) {
+        logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
+        strcpy(buf, m->path);
+        delete_map(m);
+        m = load_original_map(buf, 0);
 
-		if (m == NULL)
-		{
-			return NULL;
-		}
+        if (m == NULL) {
+            return NULL;
+        }
 
-		return m;
-	}
+        return m;
+    }
 
-	fp = fopen(m->tmpname, "rb");
+    fp = fopen(m->tmpname, "rb");
 
-	if (!fp)
-	{
-		if (!strncmp(m->path, "/random/", 8))
-		{
-			return NULL;
-		}
+    if (!fp) {
+        if (!strncmp(m->path, "/random/", 8)) {
+            return NULL;
+        }
 
-		logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
-		strcpy(buf, m->path);
-		delete_map(m);
-		m = load_original_map(buf, 0);
+        logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
+        strcpy(buf, m->path);
+        delete_map(m);
+        m = load_original_map(buf, 0);
 
-		if (m == NULL)
-		{
-			return NULL;
-		}
+        if (m == NULL) {
+            return NULL;
+        }
 
-		return m;
-	}
+        return m;
+    }
 
-	if (!load_map_header(m, fp))
-	{
-		logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
-		delete_map(m);
-		m = load_original_map(m->path, 0);
+    if (!load_map_header(m, fp)) {
+        logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
+        delete_map(m);
+        m = load_original_map(m->path, 0);
 
-		if (m == NULL)
-		{
-			return NULL;
-		}
+        if (m == NULL) {
+            return NULL;
+        }
 
-		return m;
-	}
+        return m;
+    }
 
-	allocate_map(m);
+    allocate_map(m);
 
-	m->in_memory = MAP_LOADING;
-	load_objects (m, fp, 0);
-	fclose(fp);
-	return m;
+    m->in_memory = MAP_LOADING;
+    load_objects (m, fp, 0);
+    fclose(fp);
+    return m;
 }
 
 /**
@@ -1177,37 +1059,31 @@ static mapstruct *load_temporary_map(mapstruct *m)
  * @param m The map to go through. */
 static void delete_unique_items(mapstruct *m)
 {
-	int i, j, unique = 0;
-	object *op, *next;
+    int i, j, unique = 0;
+    object *op, *next;
 
-	for (i = 0; i < MAP_WIDTH(m); i++)
-	{
-		for (j = 0; j < MAP_HEIGHT(m); j++)
-		{
-			unique = 0;
+    for (i = 0; i < MAP_WIDTH(m); i++) {
+        for (j = 0; j < MAP_HEIGHT(m); j++) {
+            unique = 0;
 
-			for (op = GET_MAP_OB(m, i, j); op; op = next)
-			{
-				next = op->above;
+            for (op = GET_MAP_OB(m, i, j); op; op = next) {
+                next = op->above;
 
-				if (QUERY_FLAG(op, FLAG_IS_FLOOR) && QUERY_FLAG(op, FLAG_UNIQUE))
-				{
-					unique = 1;
-				}
+                if (QUERY_FLAG(op, FLAG_IS_FLOOR) && QUERY_FLAG(op, FLAG_UNIQUE)) {
+                    unique = 1;
+                }
 
-				if (op->head == NULL && (QUERY_FLAG(op, FLAG_UNIQUE) || unique))
-				{
-					if (QUERY_FLAG(op, FLAG_IS_LINKED))
-					{
-						connection_object_remove(op);
-					}
+                if (op->head == NULL && (QUERY_FLAG(op, FLAG_UNIQUE) || unique)) {
+                    if (QUERY_FLAG(op, FLAG_IS_LINKED)) {
+                        connection_object_remove(op);
+                    }
 
-					object_remove(op, 0);
-					object_destroy(op);
-				}
-			}
-		}
-	}
+                    object_remove(op, 0);
+                    object_destroy(op);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -1215,43 +1091,38 @@ static void delete_unique_items(mapstruct *m)
  * @param m The map to load unique items into. */
 static void load_unique_objects(mapstruct *m)
 {
-	FILE *fp;
-	int count;
-	char firstname[MAX_BUF];
+    FILE *fp;
+    int count;
+    char firstname[MAX_BUF];
 
-	for (count = 0; count < 10; count++)
-	{
-		sprintf(firstname, "%s.v%02d", create_items_path(m->path), count);
+    for (count = 0; count < 10; count++) {
+        sprintf(firstname, "%s.v%02d", create_items_path(m->path), count);
 
-		if (!access(firstname, R_OK))
-		{
-			break;
-		}
-	}
+        if (!access(firstname, R_OK)) {
+            break;
+        }
+    }
 
-	/* If we get here, we did not find any map */
-	if (count == 10)
-	{
-		return;
-	}
+    /* If we get here, we did not find any map */
+    if (count == 10) {
+        return;
+    }
 
-	fp = fopen(firstname, "rb");
+    fp = fopen(firstname, "rb");
 
-	if (!fp)
-	{
-		return;
-	}
+    if (!fp) {
+        return;
+    }
 
-	m->in_memory = MAP_LOADING;
+    m->in_memory = MAP_LOADING;
 
-	/* If we have loaded unique items from */
-	if (m->tmpname == NULL)
-	{
-		delete_unique_items(m);
-	}
+    /* If we have loaded unique items from */
+    if (m->tmpname == NULL) {
+        delete_unique_items(m);
+    }
 
-	load_objects(m, fp, 0);
-	fclose(fp);
+    load_objects(m, fp, 0);
+    fclose(fp);
 }
 
 /**
@@ -1266,98 +1137,83 @@ static void load_unique_objects(mapstruct *m)
  * @return  */
 int new_save_map(mapstruct *m, int flag)
 {
-	FILE *fp, *fp2;
-	char filename[MAX_BUF], buf[MAX_BUF];
+    FILE *fp, *fp2;
+    char filename[MAX_BUF], buf[MAX_BUF];
 
-	if (flag && !*m->path)
-	{
-		return -1;
-	}
+    if (flag && !*m->path) {
+        return -1;
+    }
 
-	if (flag || MAP_UNIQUE(m))
-	{
-		if (!MAP_UNIQUE(m))
-		{
-			strcpy(filename, create_pathname(m->path));
-		}
-		else
-		{
-			/* This ensures we always reload from original maps */
-			if (MAP_NOSAVE(m))
-			{
-				return 0;
-			}
+    if (flag || MAP_UNIQUE(m)) {
+        if (!MAP_UNIQUE(m)) {
+            strcpy(filename, create_pathname(m->path));
+        }
+        else {
+            /* This ensures we always reload from original maps */
+            if (MAP_NOSAVE(m)) {
+                return 0;
+            }
 
-			strcpy(filename, m->path);
-		}
+            strcpy(filename, m->path);
+        }
 
-		path_ensure_directories(filename);
-	}
-	else
-	{
-		if (m->tmpname == NULL)
-		{
-			char path[MAX_BUF];
+        path_ensure_directories(filename);
+    }
+    else {
+        if (m->tmpname == NULL) {
+            char path[MAX_BUF];
 
-			snprintf(path, sizeof(path), "%s/tmp", settings.datapath);
-			m->tmpname = tempnam(path, NULL);
-		}
+            snprintf(path, sizeof(path), "%s/tmp", settings.datapath);
+            m->tmpname = tempnam(path, NULL);
+        }
 
-		strcpy(filename, m->tmpname);
-	}
+        strcpy(filename, m->tmpname);
+    }
 
-	m->in_memory = MAP_SAVING;
-	fp = fopen(filename, "w");
+    m->in_memory = MAP_SAVING;
+    fp = fopen(filename, "w");
 
-	if (!fp)
-	{
-		logger_print(LOG(ERROR), "Can't open file %s for saving.", filename);
-		exit(1);
-	}
+    if (!fp) {
+        logger_print(LOG(ERROR), "Can't open file %s for saving.", filename);
+        exit(1);
+    }
 
-	save_map_header(m, fp, flag);
+    save_map_header(m, fp, flag);
 
-	/* Save unique items into fp2 */
-	fp2 = fp;
+    /* Save unique items into fp2 */
+    fp2 = fp;
 
-	if (!MAP_UNIQUE(m))
-	{
-		snprintf(buf, sizeof(buf), "%s.v00", create_items_path(m->path));
+    if (!MAP_UNIQUE(m)) {
+        snprintf(buf, sizeof(buf), "%s.v00", create_items_path(m->path));
 
-		if ((fp2 = fopen(buf, "w")) == NULL)
-		{
-			logger_print(LOG(BUG), "Can't open unique items file %s", buf);
-		}
+        if ((fp2 = fopen(buf, "w")) == NULL) {
+            logger_print(LOG(BUG), "Can't open unique items file %s", buf);
+        }
 
-		save_objects(m, fp, fp2);
+        save_objects(m, fp, fp2);
 
-		if (fp2)
-		{
-			if (ftell(fp2) == 0)
-			{
-				fclose(fp2);
-				unlink(buf);
-			}
-			else
-			{
-				fclose(fp2);
-				chmod(buf, SAVE_MODE);
-			}
-		}
-	}
-	/* Otherwise to the same file, like apartments */
-	else
-	{
-		save_objects(m, fp, fp);
-	}
+        if (fp2) {
+            if (ftell(fp2) == 0) {
+                fclose(fp2);
+                unlink(buf);
+            }
+            else {
+                fclose(fp2);
+                chmod(buf, SAVE_MODE);
+            }
+        }
+    }
+    /* Otherwise to the same file, like apartments */
+    else {
+        save_objects(m, fp, fp);
+    }
 
-	if (fp)
-	{
-		fclose(fp);
-	}
+    if (fp) {
+        fclose(fp);
+    }
 
-	chmod(filename, SAVE_MODE);
-	return 0;
+    chmod(filename, SAVE_MODE);
+    return 0;
 }
 
 /**
@@ -1365,23 +1221,20 @@ int new_save_map(mapstruct *m, int flag)
  * @param m The map. */
 static void free_all_objects(mapstruct *m)
 {
-	int x, y;
-	object *ob, *next, *head;
+    int x, y;
+    object *ob, *next, *head;
 
-	for (x = 0; x < MAP_WIDTH(m); x++)
-	{
-		for (y = 0; y < MAP_HEIGHT(m); y++)
-		{
-			for (ob = GET_MAP_OB(m, x, y); ob; ob = next)
-			{
-				next = ob->above;
-				head = HEAD(ob);
+    for (x = 0; x < MAP_WIDTH(m); x++) {
+        for (y = 0; y < MAP_HEIGHT(m); y++) {
+            for (ob = GET_MAP_OB(m, x, y); ob; ob = next) {
+                next = ob->above;
+                head = HEAD(ob);
 
-				object_remove(head, 0);
-				object_destroy(head);
-			}
-		}
-	}
+                object_remove(head, 0);
+                object_destroy(head);
+            }
+        }
+    }
 }
 
 /**
@@ -1392,65 +1245,57 @@ static void free_all_objects(mapstruct *m)
  * @param flag If set, free all objects on the map. */
 void free_map(mapstruct *m, int flag)
 {
-	int i;
+    int i;
 
-	if (!m->in_memory)
-	{
-		return;
-	}
+    if (!m->in_memory) {
+        return;
+    }
 
-	remove_light_source_list(m);
+    remove_light_source_list(m);
 
-	if (m->buttons)
-	{
-		free_objectlinkpt(m->buttons);
-	}
+    if (m->buttons) {
+        free_objectlinkpt(m->buttons);
+    }
 
-	if (flag && m->spaces)
-	{
-		free_all_objects(m);
-	}
+    if (flag && m->spaces) {
+        free_all_objects(m);
+    }
 
-	FREE_AND_NULL_PTR(m->name);
-	FREE_AND_NULL_PTR(m->bg_music);
-	FREE_AND_NULL_PTR(m->weather);
-	FREE_AND_NULL_PTR(m->spaces);
-	FREE_AND_NULL_PTR(m->msg);
-	m->buttons = NULL;
-	m->first_light = NULL;
+    FREE_AND_NULL_PTR(m->name);
+    FREE_AND_NULL_PTR(m->bg_music);
+    FREE_AND_NULL_PTR(m->weather);
+    FREE_AND_NULL_PTR(m->spaces);
+    FREE_AND_NULL_PTR(m->msg);
+    m->buttons = NULL;
+    m->first_light = NULL;
 
-	for (i = 0; i < TILED_NUM; i++)
-	{
-		/* Delete the backlinks in other tiled maps to our map */
-		if (m->tile_map[i])
-		{
-			if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m)
-			{
-				logger_print(LOG(BUG), "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
-			}
+    for (i = 0; i < TILED_NUM; i++) {
+        /* Delete the backlinks in other tiled maps to our map */
+        if (m->tile_map[i]) {
+            if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m) {
+                logger_print(LOG(BUG), "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+            }
 
-			m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
-			m->tile_map[i] = NULL;
-		}
+            m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
+            m->tile_map[i] = NULL;
+        }
 
-		FREE_AND_CLEAR_HASH(m->tile_path[i]);
-	}
+        FREE_AND_CLEAR_HASH(m->tile_path[i]);
+    }
 
-	if (m->events)
-	{
-		map_event *tmp, *next;
+    if (m->events) {
+        map_event *tmp, *next;
 
-		for (tmp = m->events; tmp; tmp = next)
-		{
-			next = tmp->next;
-			map_event_free(tmp);
-		}
+        for (tmp = m->events; tmp; tmp = next) {
+            next = tmp->next;
+            map_event_free(tmp);
+        }
 
-		m->events = NULL;
-	}
+        m->events = NULL;
+    }
 
-	FREE_AND_NULL_PTR(m->bitmap);
-	m->in_memory = MAP_SWAPPED;
+    FREE_AND_NULL_PTR(m->bitmap);
+    m->in_memory = MAP_SWAPPED;
 }
 
 /**
@@ -1459,44 +1304,38 @@ void free_map(mapstruct *m, int flag)
  * @param m The map to delete. */
 void delete_map(mapstruct *m)
 {
-	if (!m)
-	{
-		return;
-	}
+    if (!m) {
+        return;
+    }
 
-	if (m->in_memory == MAP_IN_MEMORY)
-	{
-		/* Change to MAP_SAVING, even though we are not,
-		 * so that object_remove doesn't do as much work. */
-		m->in_memory = MAP_SAVING;
-		free_map(m, 1);
-	}
-	else
-	{
-		remove_light_source_list(m);
-	}
+    if (m->in_memory == MAP_IN_MEMORY) {
+        /* Change to MAP_SAVING, even though we are not,
+         * so that object_remove doesn't do as much work. */
+        m->in_memory = MAP_SAVING;
+        free_map(m, 1);
+    }
+    else {
+        remove_light_source_list(m);
+    }
 
-	/* Remove m from the global map list */
-	if (m->next)
-	{
-		m->next->previous = m->previous;
-	}
+    /* Remove m from the global map list */
+    if (m->next) {
+        m->next->previous = m->previous;
+    }
 
-	if (m->previous)
-	{
-		m->previous->next = m->next;
-	}
-	/* If there is no previous, we are first map */
-	else
-	{
-		first_map = m->next;
-	}
+    if (m->previous) {
+        m->previous->next = m->next;
+    }
+    /* If there is no previous, we are first map */
+    else {
+        first_map = m->next;
+    }
 
-	/* tmpname can still be needed if the map is swapped out, so we don't
-	 * do it in free_map(). */
-	FREE_AND_NULL_PTR(m->tmpname);
-	FREE_AND_CLEAR_HASH(m->path);
-	free(m);
+    /* tmpname can still be needed if the map is swapped out, so we don't
+     * do it in free_map(). */
+    FREE_AND_NULL_PTR(m->tmpname);
+    FREE_AND_CLEAR_HASH(m->path);
+    free(m);
 }
 
 /**
@@ -1510,85 +1349,76 @@ void delete_map(mapstruct *m)
  * @return Pointer to the given map. */
 mapstruct *ready_map_name(const char *name, int flags)
 {
-	mapstruct *m;
-	shstr *name_sh;
+    mapstruct *m;
+    shstr *name_sh;
 
-	if (!name)
-	{
-		return NULL;
-	}
+    if (!name) {
+        return NULL;
+    }
 
-	/* Have we been at this level before? */
-	if (flags & MAP_NAME_SHARED)
-	{
-		m = has_been_loaded_sh(name);
-	}
-	else
-	{
-		/* Create a temporary shared string for the name if not explicitly given */
-		name_sh = add_string(name);
-		m = has_been_loaded_sh(name_sh);
-		free_string_shared(name_sh);
-	}
+    /* Have we been at this level before? */
+    if (flags & MAP_NAME_SHARED) {
+        m = has_been_loaded_sh(name);
+    }
+    else {
+        /* Create a temporary shared string for the name if not explicitly given
+         * */
+        name_sh = add_string(name);
+        m = has_been_loaded_sh(name_sh);
+        free_string_shared(name_sh);
+    }
 
-	/* Map is good to go, so just return it */
-	if (m && (m->in_memory == MAP_LOADING || m->in_memory == MAP_IN_MEMORY))
-	{
-		return m;
-	}
+    /* Map is good to go, so just return it */
+    if (m && (m->in_memory == MAP_LOADING || m->in_memory == MAP_IN_MEMORY)) {
+        return m;
+    }
 
-	if (!(flags & MAP_PLAYER_UNIQUE) && string_startswith(name, settings.datapath))
-	{
-		flags |= MAP_PLAYER_UNIQUE;
-	}
+    if (!(flags & MAP_PLAYER_UNIQUE) && string_startswith(name, settings.datapath)) {
+        flags |= MAP_PLAYER_UNIQUE;
+    }
 
-	/* Unique maps always get loaded from their original location, and never
-	 * a temp location.  Likewise, if map_flush is set, or we have never loaded
-	 * this map, load it now.  I removed the reset checking from here -
-	 * it seems the probability of a player trying to enter a map that should
-	 * reset but hasn't yet is quite low, and removing that makes this function
-	 * a bit cleaner (and players probably shouldn't rely on exact timing for
-	 * resets in any case - if they really care, they should use the 'maps command. */
-	if (!m || (flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE)))
-	{
-		/* First visit or time to reset */
-		if (m)
-		{
-			/* Doesn't make much difference */
-			clean_tmp_map(m);
-			delete_map(m);
-		}
+    /* Unique maps always get loaded from their original location, and never
+     * a temp location.  Likewise, if map_flush is set, or we have never loaded
+     * this map, load it now.  I removed the reset checking from here -
+     * it seems the probability of a player trying to enter a map that should
+     * reset but hasn't yet is quite low, and removing that makes this function
+     * a bit cleaner (and players probably shouldn't rely on exact timing for
+     * resets in any case - if they really care, they should use the 'maps
+     * command. */
+    if (!m || (flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE))) {
+        /* First visit or time to reset */
+        if (m) {
+            /* Doesn't make much difference */
+            clean_tmp_map(m);
+            delete_map(m);
+        }
 
-		/* Create and load a map */
-		if (!(m = load_original_map(name, (flags & MAP_PLAYER_UNIQUE))))
-		{
-			return NULL;
-		}
+        /* Create and load a map */
+        if (!(m = load_original_map(name, (flags & MAP_PLAYER_UNIQUE)))) {
+            return NULL;
+        }
 
-		/* If a player unique map, no extra unique object file to load.
-		 * if from the editor, likewise. */
-		if (!(flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE)))
-		{
-			load_unique_objects(m);
-		}
-	}
-	else
-	{
-		/* If in this loop, we found a temporary map, so load it up. */
-		m = load_temporary_map(m);
+        /* If a player unique map, no extra unique object file to load.
+         * if from the editor, likewise. */
+        if (!(flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE))) {
+            load_unique_objects(m);
+        }
+    }
+    else {
+        /* If in this loop, we found a temporary map, so load it up. */
+        m = load_temporary_map(m);
 
-		if (m == NULL)
-		{
-			return NULL;
-		}
+        if (m == NULL) {
+            return NULL;
+        }
 
-		load_unique_objects(m);
+        load_unique_objects(m);
 
-		clean_tmp_map(m);
-		m->in_memory = MAP_IN_MEMORY;
-	}
+        clean_tmp_map(m);
+        m->in_memory = MAP_IN_MEMORY;
+    }
 
-	return m;
+    return m;
 }
 
 /**
@@ -1596,32 +1426,29 @@ mapstruct *ready_map_name(const char *name, int flags)
  * @param m Map. */
 void clean_tmp_map(mapstruct *m)
 {
-	if (m->tmpname == NULL)
-	{
-		return;
-	}
+    if (m->tmpname == NULL) {
+        return;
+    }
 
-	unlink(m->tmpname);
+    unlink(m->tmpname);
 }
 
 /**
  * Free all allocated maps. */
 void free_all_maps(void)
 {
-	int real_maps = 0;
+    int real_maps = 0;
 
-	while (first_map)
-	{
-		/* I think some of the callers above before it gets here set this to be
-		 * saving, but we still want to free this data */
-		if (first_map->in_memory == MAP_SAVING)
-		{
-			first_map->in_memory = MAP_IN_MEMORY;
-		}
+    while (first_map) {
+        /* I think some of the callers above before it gets here set this to be
+         * saving, but we still want to free this data */
+        if (first_map->in_memory == MAP_SAVING) {
+            first_map->in_memory = MAP_IN_MEMORY;
+        }
 
-		delete_map(first_map);
-		real_maps++;
-	}
+        delete_map(first_map);
+        real_maps++;
+    }
 }
 
 /**
@@ -1633,147 +1460,123 @@ void free_all_maps(void)
  * @param y Y position on the given map. */
 void update_position(mapstruct *m, int x, int y)
 {
-	object *tmp;
-	int flags, move_flags;
+    object *tmp;
+    int flags, move_flags;
 
 #ifdef DEBUG_OLDFLAGS
-	int oldflags;
+    int oldflags;
 
-	if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE)))
-	{
-		logger_print(LOG(DEBUG), "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
-	}
+    if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE))) {
+        logger_print(LOG(DEBUG), "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
+    }
 #endif
 
-	/* save our update flag */
-	flags = oldflags & P_NEED_UPDATE;
+    /* save our update flag */
+    flags = oldflags & P_NEED_UPDATE;
 
-	/* update our flags */
-	if (oldflags & P_FLAGS_UPDATE)
-	{
-		move_flags = 0;
+    /* update our flags */
+    if (oldflags & P_FLAGS_UPDATE) {
+        move_flags = 0;
 
-		/* This is a key function and highly often called - every saved tick is good. */
-		for (tmp = GET_MAP_OB (m, x, y); tmp; tmp = tmp->above)
-		{
-			if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY))
-			{
-				flags |= P_PLAYER_ONLY;
-			}
+        /* This is a key function and highly often called - every saved tick is
+         * good. */
+        for (tmp = GET_MAP_OB (m, x, y); tmp; tmp = tmp->above) {
+            if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY)) {
+                flags |= P_PLAYER_ONLY;
+            }
 
-			if (tmp->type == CHECK_INV)
-			{
-				flags |= P_CHECK_INV;
-			}
+            if (tmp->type == CHECK_INV) {
+                flags |= P_CHECK_INV;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_IS_PLAYER))
-			{
-				flags |= P_IS_PLAYER;
-			}
+            if (QUERY_FLAG(tmp, FLAG_IS_PLAYER)) {
+                flags |= P_IS_PLAYER;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_DOOR_CLOSED))
-			{
-				flags |= P_DOOR_CLOSED;
-			}
+            if (QUERY_FLAG(tmp, FLAG_DOOR_CLOSED)) {
+                flags |= P_DOOR_CLOSED;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_MONSTER))
-			{
-				flags |= P_IS_MONSTER;
-			}
+            if (QUERY_FLAG(tmp, FLAG_MONSTER)) {
+                flags |= P_IS_MONSTER;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_NO_MAGIC))
-			{
-				flags |= P_NO_MAGIC;
-			}
+            if (QUERY_FLAG(tmp, FLAG_NO_MAGIC)) {
+                flags |= P_NO_MAGIC;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_BLOCKSVIEW))
-			{
-				flags |= P_BLOCKSVIEW;
-			}
+            if (QUERY_FLAG(tmp, FLAG_BLOCKSVIEW)) {
+                flags |= P_BLOCKSVIEW;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_WALK_ON))
-			{
-				flags |= P_WALK_ON;
-			}
+            if (QUERY_FLAG(tmp, FLAG_WALK_ON)) {
+                flags |= P_WALK_ON;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_WALK_OFF))
-			{
-				flags |= P_WALK_OFF;
-			}
+            if (QUERY_FLAG(tmp, FLAG_WALK_OFF)) {
+                flags |= P_WALK_OFF;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_FLY_ON))
-			{
-				flags |= P_FLY_ON;
-			}
+            if (QUERY_FLAG(tmp, FLAG_FLY_ON)) {
+                flags |= P_FLY_ON;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_FLY_OFF))
-			{
-				flags |= P_FLY_OFF;
-			}
+            if (QUERY_FLAG(tmp, FLAG_FLY_OFF)) {
+                flags |= P_FLY_OFF;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_NO_PASS))
-			{
-				if (flags & P_NO_PASS)
-				{
-					if (!QUERY_FLAG(tmp, FLAG_PASS_THRU))
-					{
-						flags &= ~P_PASS_THRU;
-					}
-				}
-				else
-				{
-					flags |= P_NO_PASS;
+            if (QUERY_FLAG(tmp, FLAG_NO_PASS)) {
+                if (flags & P_NO_PASS) {
+                    if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
+                        flags &= ~P_PASS_THRU;
+                    }
+                }
+                else {
+                    flags |= P_NO_PASS;
 
-					if (QUERY_FLAG(tmp, FLAG_PASS_THRU))
-					{
-						flags |= P_PASS_THRU;
-					}
-				}
-			}
+                    if (QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
+                        flags |= P_PASS_THRU;
+                    }
+                }
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_IS_FLOOR))
-			{
-				move_flags |= tmp->terrain_type;
-			}
+            if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
+                move_flags |= tmp->terrain_type;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_NO_PVP))
-			{
-				flags |= P_NO_PVP;
-			}
+            if (QUERY_FLAG(tmp, FLAG_NO_PVP)) {
+                flags |= P_NO_PVP;
+            }
 
-			if (tmp->type == MAGIC_MIRROR)
-			{
-				flags |= P_MAGIC_MIRROR;
-			}
+            if (tmp->type == MAGIC_MIRROR) {
+                flags |= P_MAGIC_MIRROR;
+            }
 
-			if (QUERY_FLAG(tmp, FLAG_OUTDOOR))
-			{
-				flags |= P_OUTDOOR;
-			}
-		}
+            if (QUERY_FLAG(tmp, FLAG_OUTDOOR)) {
+                flags |= P_OUTDOOR;
+            }
+        }
 
 #ifdef DEBUG_OLDFLAGS
-		/* We don't want to rely on this function to have accurate flags, but
-		 * since we're already doing the work, we calculate them here.
-		 * if they don't match, logic is broken someplace. */
-		if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR)))
-		{
-			logger_print(LOG(DEBUG), "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
-		}
+        /* We don't want to rely on this function to have accurate flags, but
+         * since we're already doing the work, we calculate them here.
+         * if they don't match, logic is broken someplace. */
+        if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR))) {
+            logger_print(LOG(DEBUG), "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
+        }
 #endif
 
-		SET_MAP_FLAGS(m, x, y, flags);
-		SET_MAP_MOVE_FLAGS(m, x, y, move_flags);
-	}
+        SET_MAP_FLAGS(m, x, y, flags);
+        SET_MAP_MOVE_FLAGS(m, x, y, move_flags);
+    }
 
-	/* Check if we must rebuild the map layers for client view */
-	if ((oldflags & P_FLAGS_ONLY) || !(oldflags & P_NEED_UPDATE))
-	{
-		return;
-	}
+    /* Check if we must rebuild the map layers for client view */
+    if ((oldflags & P_FLAGS_ONLY) || !(oldflags & P_NEED_UPDATE)) {
+        return;
+    }
 
-	/* Clear out need update flag */
-	SET_MAP_FLAGS(m, x, y, GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE);
+    /* Clear out need update flag */
+    SET_MAP_FLAGS(m, x, y, GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE);
 }
 
 /**
@@ -1781,19 +1584,17 @@ void update_position(mapstruct *m, int x, int y)
  * @param map Map to update. */
 void set_map_reset_time(mapstruct *map)
 {
-	uint32 timeout = MAP_RESET_TIMEOUT(map);
+    uint32 timeout = MAP_RESET_TIMEOUT(map);
 
-	if (timeout == 0)
-	{
-		timeout = MAP_DEFAULTRESET;
-	}
+    if (timeout == 0) {
+        timeout = MAP_DEFAULTRESET;
+    }
 
-	if (timeout >= MAP_MAXRESET)
-	{
-		timeout = MAP_MAXRESET;
-	}
+    if (timeout >= MAP_MAXRESET) {
+        timeout = MAP_MAXRESET;
+    }
 
-	MAP_WHEN_RESET(map) = seconds() + timeout;
+    MAP_WHEN_RESET(map) = seconds() + timeout;
 }
 
 /**
@@ -1809,186 +1610,152 @@ void set_map_reset_time(mapstruct *map)
  * map. */
 mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 {
-	/* m should never be null, but if a tiled map fails to load below, it
-	 * could happen. */
-	if (!m)
-	{
-		return NULL;
-	}
+    /* m should never be null, but if a tiled map fails to load below, it
+     * could happen. */
+    if (!m) {
+        return NULL;
+    }
 
-	/* Simple case - coordinates are within this local map. */
-	if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m))
-	{
-		return m;
-	}
+    /* Simple case - coordinates are within this local map. */
+    if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m)) {
+        return m;
+    }
 
-	/* West, Northwest or Southwest (3, 7 or 6) */
-	if (*x < 0)
-	{
-		/* Northwest */
-		if (*y < 0)
-		{
-			if (!m->tile_path[7])
-			{
-				return NULL;
-			}
+    /* West, Northwest or Southwest (3, 7 or 6) */
+    if (*x < 0) {
+        /* Northwest */
+        if (*y < 0) {
+            if (!m->tile_path[7]) {
+                return NULL;
+            }
 
-			if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(m, 7))
-				{
-					return NULL;
-				}
-			}
+            if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(m, 7)) {
+                    return NULL;
+                }
+            }
 
-			*y += MAP_HEIGHT(m->tile_map[7]);
-			*x += MAP_WIDTH(m->tile_map[7]);
-			return get_map_from_coord(m->tile_map[7], x, y);
-		}
+            *y += MAP_HEIGHT(m->tile_map[7]);
+            *x += MAP_WIDTH(m->tile_map[7]);
+            return get_map_from_coord(m->tile_map[7], x, y);
+        }
 
-		/* Southwest */
-		if (*y >= MAP_HEIGHT(m))
-		{
-			if (!m->tile_path[6])
-			{
-				return NULL;
-			}
+        /* Southwest */
+        if (*y >= MAP_HEIGHT(m)) {
+            if (!m->tile_path[6]) {
+                return NULL;
+            }
 
-			if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(m, 6))
-				{
-					return NULL;
-				}
-			}
+            if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(m, 6)) {
+                    return NULL;
+                }
+            }
 
-			*y -= MAP_HEIGHT(m);
-			*x += MAP_WIDTH(m->tile_map[6]);
-			return get_map_from_coord(m->tile_map[6], x, y);
-		}
+            *y -= MAP_HEIGHT(m);
+            *x += MAP_WIDTH(m->tile_map[6]);
+            return get_map_from_coord(m->tile_map[6], x, y);
+        }
 
-		/* West */
-		if (!m->tile_path[3])
-		{
-			return NULL;
-		}
+        /* West */
+        if (!m->tile_path[3]) {
+            return NULL;
+        }
 
-		if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY)
-		{
-			if (!load_and_link_tiled_map(m, 3))
-			{
-				return NULL;
-			}
-		}
+        if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY) {
+            if (!load_and_link_tiled_map(m, 3)) {
+                return NULL;
+            }
+        }
 
-		*x += MAP_WIDTH(m->tile_map[3]);
-		return get_map_from_coord(m->tile_map[3], x, y);
-	}
+        *x += MAP_WIDTH(m->tile_map[3]);
+        return get_map_from_coord(m->tile_map[3], x, y);
+    }
 
-	/* East, Northeast or Southeast (1, 4 or 5) */
-	if (*x >= MAP_WIDTH(m))
-	{
-		/* Northeast */
-		if (*y < 0)
-		{
-			if (!m->tile_path[4])
-			{
-				return NULL;
-			}
+    /* East, Northeast or Southeast (1, 4 or 5) */
+    if (*x >= MAP_WIDTH(m)) {
+        /* Northeast */
+        if (*y < 0) {
+            if (!m->tile_path[4]) {
+                return NULL;
+            }
 
-			if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(m, 4))
-				{
-					return NULL;
-				}
-			}
+            if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(m, 4)) {
+                    return NULL;
+                }
+            }
 
-			*y += MAP_HEIGHT(m->tile_map[4]);
-			*x -= MAP_WIDTH(m);
-			return get_map_from_coord(m->tile_map[4], x, y);
-		}
+            *y += MAP_HEIGHT(m->tile_map[4]);
+            *x -= MAP_WIDTH(m);
+            return get_map_from_coord(m->tile_map[4], x, y);
+        }
 
-		/* Southeast */
-		if (*y >= MAP_HEIGHT(m))
-		{
-			if (!m->tile_path[5])
-			{
-				return NULL;
-			}
+        /* Southeast */
+        if (*y >= MAP_HEIGHT(m)) {
+            if (!m->tile_path[5]) {
+                return NULL;
+            }
 
-			if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY)
-			{
-				if (!load_and_link_tiled_map(m, 5))
-				{
-					return NULL;
-				}
-			}
+            if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY) {
+                if (!load_and_link_tiled_map(m, 5)) {
+                    return NULL;
+                }
+            }
 
-			*y -= MAP_HEIGHT(m);
-			*x -= MAP_WIDTH(m);
-			return get_map_from_coord(m->tile_map[5], x, y);
-		}
+            *y -= MAP_HEIGHT(m);
+            *x -= MAP_WIDTH(m);
+            return get_map_from_coord(m->tile_map[5], x, y);
+        }
 
-		/* East */
-		if (!m->tile_path[1])
-		{
-			return NULL;
-		}
+        /* East */
+        if (!m->tile_path[1]) {
+            return NULL;
+        }
 
-		if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY)
-		{
-			if (!load_and_link_tiled_map(m, 1))
-			{
-				return NULL;
-			}
-		}
+        if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY) {
+            if (!load_and_link_tiled_map(m, 1)) {
+                return NULL;
+            }
+        }
 
-		*x -= MAP_WIDTH(m);
-		return get_map_from_coord(m->tile_map[1], x, y);
-	}
+        *x -= MAP_WIDTH(m);
+        return get_map_from_coord(m->tile_map[1], x, y);
+    }
 
-	/* Because we have tested x above, we don't need to check for
-	 * Northwest, Southwest, Northeast and Northwest here again. */
-	if (*y < 0)
-	{
-		if (!m->tile_path[0])
-		{
-			return NULL;
-		}
+    /* Because we have tested x above, we don't need to check for
+     * Northwest, Southwest, Northeast and Northwest here again. */
+    if (*y < 0) {
+        if (!m->tile_path[0]) {
+            return NULL;
+        }
 
-		if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY)
-		{
-			if (!load_and_link_tiled_map(m, 0))
-			{
-				return NULL;
-			}
-		}
+        if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY) {
+            if (!load_and_link_tiled_map(m, 0)) {
+                return NULL;
+            }
+        }
 
-		*y += MAP_HEIGHT(m->tile_map[0]);
-		return get_map_from_coord(m->tile_map[0], x, y);
-	}
+        *y += MAP_HEIGHT(m->tile_map[0]);
+        return get_map_from_coord(m->tile_map[0], x, y);
+    }
 
-	if (*y >= MAP_HEIGHT(m))
-	{
-		if (!m->tile_path[2])
-		{
-			return NULL;
-		}
+    if (*y >= MAP_HEIGHT(m)) {
+        if (!m->tile_path[2]) {
+            return NULL;
+        }
 
-		if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY)
-		{
-			if (!load_and_link_tiled_map(m, 2))
-			{
-				return NULL;
-			}
-		}
+        if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY) {
+            if (!load_and_link_tiled_map(m, 2)) {
+                return NULL;
+            }
+        }
 
-		*y -= MAP_HEIGHT(m);
-		return get_map_from_coord(m->tile_map[2], x, y);
-	}
+        *y -= MAP_HEIGHT(m);
+        return get_map_from_coord(m->tile_map[2], x, y);
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -2003,183 +1770,157 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
  * map. */
 mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
 {
-	if (!m)
-	{
-		*x = 0;
-		return NULL;
-	}
+    if (!m) {
+        *x = 0;
+        return NULL;
+    }
 
-	/* Simple case - coordinates are within this local map. */
-	if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m))
-	{
-		return m;
-	}
+    /* Simple case - coordinates are within this local map. */
+    if (*x >= 0 && *x < MAP_WIDTH(m) && *y >= 0 && *y < MAP_HEIGHT(m)) {
+        return m;
+    }
 
-	/* West, Northwest or Southwest (3, 7 or 6) */
-	if (*x < 0)
-	{
-		/* Northwest */
-		if (*y < 0)
-		{
-			if (!m->tile_path[7])
-			{
-				*x = 0;
-				return NULL;
-			}
+    /* West, Northwest or Southwest (3, 7 or 6) */
+    if (*x < 0) {
+        /* Northwest */
+        if (*y < 0) {
+            if (!m->tile_path[7]) {
+                *x = 0;
+                return NULL;
+            }
 
-			if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY)
-			{
-				*x = -1;
-				return NULL;
-			}
+            if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY) {
+                *x = -1;
+                return NULL;
+            }
 
-			*y += MAP_HEIGHT(m->tile_map[7]);
-			*x += MAP_WIDTH(m->tile_map[7]);
+            *y += MAP_HEIGHT(m->tile_map[7]);
+            *x += MAP_WIDTH(m->tile_map[7]);
 
-			return get_map_from_coord2(m->tile_map[7], x, y);
-		}
+            return get_map_from_coord2(m->tile_map[7], x, y);
+        }
 
-		/* Southwest */
-		if (*y >= MAP_HEIGHT(m))
-		{
-			if (!m->tile_path[6])
-			{
-				*x = 0;
-				return NULL;
-			}
+        /* Southwest */
+        if (*y >= MAP_HEIGHT(m)) {
+            if (!m->tile_path[6]) {
+                *x = 0;
+                return NULL;
+            }
 
-			if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY)
-			{
-				*x = -1;
-				return NULL;
-			}
+            if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY) {
+                *x = -1;
+                return NULL;
+            }
 
-			*y -= MAP_HEIGHT(m);
-			*x += MAP_WIDTH(m->tile_map[6]);
+            *y -= MAP_HEIGHT(m);
+            *x += MAP_WIDTH(m->tile_map[6]);
 
-			return get_map_from_coord2(m->tile_map[6], x, y);
-		}
+            return get_map_from_coord2(m->tile_map[6], x, y);
+        }
 
-		/* West */
-		if (!m->tile_path[3])
-		{
-			*x = 0;
-			return NULL;
-		}
+        /* West */
+        if (!m->tile_path[3]) {
+            *x = 0;
+            return NULL;
+        }
 
-		if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY)
-		{
-			*x = -1;
-			return NULL;
-		}
+        if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY) {
+            *x = -1;
+            return NULL;
+        }
 
-		*x += MAP_WIDTH(m->tile_map[3]);
-		return get_map_from_coord2(m->tile_map[3], x, y);
-	}
+        *x += MAP_WIDTH(m->tile_map[3]);
+        return get_map_from_coord2(m->tile_map[3], x, y);
+    }
 
-	/* East, Northeast or Southeast (1, 4 or 5) */
-	if (*x >= MAP_WIDTH(m))
-	{
-		/* Northeast */
-		if (*y < 0)
-		{
-			if (!m->tile_path[4])
-			{
-				*x = 0;
-				return NULL;
-			}
+    /* East, Northeast or Southeast (1, 4 or 5) */
+    if (*x >= MAP_WIDTH(m)) {
+        /* Northeast */
+        if (*y < 0) {
+            if (!m->tile_path[4]) {
+                *x = 0;
+                return NULL;
+            }
 
-			if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY)
-			{
-				*x = -1;
-				return NULL;
-			}
+            if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY) {
+                *x = -1;
+                return NULL;
+            }
 
-			*y += MAP_HEIGHT(m->tile_map[4]);
-			*x -= MAP_WIDTH(m);
+            *y += MAP_HEIGHT(m->tile_map[4]);
+            *x -= MAP_WIDTH(m);
 
-			return get_map_from_coord2(m->tile_map[4], x, y);
-		}
+            return get_map_from_coord2(m->tile_map[4], x, y);
+        }
 
-		/* Southeast */
-		if (*y >= MAP_HEIGHT(m))
-		{
-			if (!m->tile_path[5])
-			{
-				*x = 0;
-				return NULL;
-			}
+        /* Southeast */
+        if (*y >= MAP_HEIGHT(m)) {
+            if (!m->tile_path[5]) {
+                *x = 0;
+                return NULL;
+            }
 
-			if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY)
-			{
-				*x = -1;
-				return NULL;
-			}
+            if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY) {
+                *x = -1;
+                return NULL;
+            }
 
-			*y -= MAP_HEIGHT(m);
-			*x -= MAP_WIDTH(m);
+            *y -= MAP_HEIGHT(m);
+            *x -= MAP_WIDTH(m);
 
-			return get_map_from_coord2(m->tile_map[5], x, y);
-		}
+            return get_map_from_coord2(m->tile_map[5], x, y);
+        }
 
-		/* East */
-		if (!m->tile_path[1])
-		{
-			*x = 0;
-			return NULL;
-		}
+        /* East */
+        if (!m->tile_path[1]) {
+            *x = 0;
+            return NULL;
+        }
 
-		if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY)
-		{
-			*x = -1;
-			return NULL;
-		}
+        if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY) {
+            *x = -1;
+            return NULL;
+        }
 
-		*x -= MAP_WIDTH(m);
-		return get_map_from_coord2(m->tile_map[1], x, y);
-	}
+        *x -= MAP_WIDTH(m);
+        return get_map_from_coord2(m->tile_map[1], x, y);
+    }
 
-	/* Because we have tested x above, we don't need to check for
-	 * Northwest, Southwest, Northeast and Northwest here again. */
-	if (*y < 0)
-	{
-		if (!m->tile_path[0])
-		{
-			*x = 0;
-			return NULL;
-		}
+    /* Because we have tested x above, we don't need to check for
+     * Northwest, Southwest, Northeast and Northwest here again. */
+    if (*y < 0) {
+        if (!m->tile_path[0]) {
+            *x = 0;
+            return NULL;
+        }
 
-		if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY)
-		{
-			*x = -1;
-			return NULL;
-		}
+        if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY) {
+            *x = -1;
+            return NULL;
+        }
 
-		*y += MAP_HEIGHT(m->tile_map[0]);
+        *y += MAP_HEIGHT(m->tile_map[0]);
 
-		return get_map_from_coord2(m->tile_map[0], x, y);
-	}
+        return get_map_from_coord2(m->tile_map[0], x, y);
+    }
 
-	if (*y >= MAP_HEIGHT(m))
-	{
-		if (!m->tile_path[2])
-		{
-			*x = 0;
-			return NULL;
-		}
+    if (*y >= MAP_HEIGHT(m)) {
+        if (!m->tile_path[2]) {
+            *x = 0;
+            return NULL;
+        }
 
-		if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY)
-		{
-			*x = -1;
-			return NULL;
-		}
+        if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY) {
+            *x = -1;
+            return NULL;
+        }
 
-		*y -= MAP_HEIGHT(m);
-		return get_map_from_coord2(m->tile_map[2], x, y);
-	}
+        *y -= MAP_HEIGHT(m);
+        return get_map_from_coord2(m->tile_map[2], x, y);
+    }
 
-	*x = 0;
-	return NULL;
+    *x = 0;
+    return NULL;
 }
 
 /**
@@ -2207,57 +1948,54 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * @todo Document. */
 int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 {
-	if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE))
-	{
-		return 0;
-	}
+    if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE)) {
+        return 0;
+    }
 
-	retval->part = op1;
+    retval->part = op1;
 
-	/* If this is multipart, find the closest part now */
-	if (!(flags & RV_IGNORE_MULTIPART) && op1->more)
-	{
-		object *tmp, *best = NULL;
-		int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
+    /* If this is multipart, find the closest part now */
+    if (!(flags & RV_IGNORE_MULTIPART) && op1->more) {
+        object *tmp, *best = NULL;
+        int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
 
-		/* we just take the offset of the piece to head to figure
-		 * distance instead of doing all that work above again
-		 * since the distance fields we set above are positive in the
-		 * same axis as is used for multipart objects, the simply arithmetic
-		 * below works. */
-		for (tmp = op1->more; tmp; tmp = tmp->more)
-		{
-			tmpi = (retval->distance_x - tmp->arch->clone.x) * (retval->distance_x - tmp->arch->clone.x) + (retval->distance_y - tmp->arch->clone.y) * (retval->distance_y - tmp->arch->clone.y);
+        /* we just take the offset of the piece to head to figure
+         * distance instead of doing all that work above again
+         * since the distance fields we set above are positive in the
+         * same axis as is used for multipart objects, the simply arithmetic
+         * below works. */
+        for (tmp = op1->more; tmp; tmp = tmp->more) {
+            tmpi = (retval->distance_x - tmp->arch->clone.x) * (retval->distance_x - tmp->arch->clone.x) + (retval->distance_y - tmp->arch->clone.y) * (retval->distance_y - tmp->arch->clone.y);
 
-			if (tmpi < best_distance)
-			{
-				best_distance = tmpi;
-				best = tmp;
-			}
-		}
+            if (tmpi < best_distance) {
+                best_distance = tmpi;
+                best = tmp;
+            }
+        }
 
-		if (best)
-		{
-			retval->distance_x -= best->arch->clone.x;
-			retval->distance_y -= best->arch->clone.y;
-			retval->part = best;
-		}
-	}
+        if (best) {
+            retval->distance_x -= best->arch->clone.x;
+            retval->distance_y -= best->arch->clone.y;
+            retval->part = best;
+        }
+    }
 
-	retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
-	retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
+    retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
+    retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
 
-	return 1;
+    return 1;
 }
 
 /**
- * This is the base for get_rangevector above, but can more generally compute the
+ * This is the base for get_rangevector above, but can more generally compute
+ * the
  * rangvector between any two points on any maps.
  *
  * The part field of the rangevector is always set to NULL by this function.
  * (Since we don't actually know about any objects)
  *
- * If the function fails (because of the maps being separate), it will return FALSE and
+ * If the function fails (because of the maps being separate), it will return
+ * FALSE and
  * the vector is not otherwise touched. Otherwise it will return TRUE.
  *
  * Calculates manhattan distance (dx+dy) per default. (fast)
@@ -2268,92 +2006,79 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
  * @todo Document. */
 int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
 {
-	retval->part = NULL;
+    retval->part = NULL;
 
-	if (map1 == map2)
-	{
-		retval->distance_x = x2 - x;
-		retval->distance_y = y2 - y;
-	}
-	else if (map1->tile_map[0] == map2)
-	{
-		retval->distance_x = x2 - x;
-		retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-	}
-	else if (map1->tile_map[1] == map2)
-	{
-		retval->distance_y = y2 - y;
-		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-	}
-	else if (map1->tile_map[2] == map2)
-	{
-		retval->distance_x = x2 - x;
-		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-	}
-	else if (map1->tile_map[3] == map2)
-	{
-		retval->distance_y = y2 - y;
-		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-	}
-	else if (map1->tile_map[4] == map2)
-	{
-		retval->distance_y = -(y + (MAP_HEIGHT(map2)- y2));
-		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-	}
-	else if (map1->tile_map[5] == map2)
-	{
-		retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-	}
-	else if (map1->tile_map[6] == map2)
-	{
-		retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-	}
-	else if (map1->tile_map[7] == map2)
-	{
-		retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-		retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-	}
-	else if (flags & RV_RECURSIVE_SEARCH)
-	{
-		retval->distance_x = x2;
-		retval->distance_y = y2;
+    if (map1 == map2) {
+        retval->distance_x = x2 - x;
+        retval->distance_y = y2 - y;
+    }
+    else if (map1->tile_map[0] == map2) {
+        retval->distance_x = x2 - x;
+        retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
+    }
+    else if (map1->tile_map[1] == map2) {
+        retval->distance_y = y2 - y;
+        retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
+    }
+    else if (map1->tile_map[2] == map2) {
+        retval->distance_x = x2 - x;
+        retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
+    }
+    else if (map1->tile_map[3] == map2) {
+        retval->distance_y = y2 - y;
+        retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
+    }
+    else if (map1->tile_map[4] == map2) {
+        retval->distance_y = -(y + (MAP_HEIGHT(map2)- y2));
+        retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
+    }
+    else if (map1->tile_map[5] == map2) {
+        retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
+        retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
+    }
+    else if (map1->tile_map[6] == map2) {
+        retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
+        retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
+    }
+    else if (map1->tile_map[7] == map2) {
+        retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
+        retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
+    }
+    else if (flags & RV_RECURSIVE_SEARCH) {
+        retval->distance_x = x2;
+        retval->distance_y = y2;
 
-		if (!relative_tile_position(map1, map2, &retval->distance_x, &retval->distance_y))
-		{
-			return 0;
-		}
+        if (!relative_tile_position(map1, map2, &retval->distance_x, &retval->distance_y)) {
+            return 0;
+        }
 
-		retval->distance_x -= x;
-		retval->distance_y -= y;
-	}
-	else
-	{
-		return 0;
-	}
+        retval->distance_x -= x;
+        retval->distance_y -= y;
+    }
+    else {
+        return 0;
+    }
 
-	switch (flags & (0x04 | 0x08))
-	{
-		case RV_MANHATTAN_DISTANCE:
-			retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
-			break;
+    switch (flags & (0x04 | 0x08)) {
+        case RV_MANHATTAN_DISTANCE:
+            retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
+            break;
 
-		case RV_EUCLIDIAN_DISTANCE:
-			retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
-			break;
+        case RV_EUCLIDIAN_DISTANCE:
+            retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
+            break;
 
-		case RV_DIAGONAL_DISTANCE:
-			retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
-			break;
+        case RV_DIAGONAL_DISTANCE:
+            retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
+            break;
 
-		/* No distance calc */
-		case RV_NO_DISTANCE:
-			return 1;
-	}
+        /* No distance calc */
+        case RV_NO_DISTANCE:
+            return 1;
+    }
 
-	retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
-	return 1;
+    retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
+    return 1;
 }
 
 /**
@@ -2364,17 +2089,15 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
  * @return 1 if both objects are on same map, 0 otherwise. */
 int on_same_map(object *op1, object *op2)
 {
-	if (!op1->map || !op2->map)
-	{
-		return 0;
-	}
+    if (!op1->map || !op2->map) {
+        return 0;
+    }
 
-	if (op1->map == op2->map || op1->map->tile_map[0] == op2->map || op1->map->tile_map[1] == op2->map || op1->map->tile_map[2] == op2->map || op1->map->tile_map[3] == op2->map || op1->map->tile_map[4] == op2->map || op1->map->tile_map[5] == op2->map || op1->map->tile_map[6] == op2->map || op1->map->tile_map[7] == op2->map)
-	{
-		return 1;
-	}
+    if (op1->map == op2->map || op1->map->tile_map[0] == op2->map || op1->map->tile_map[1] == op2->map || op1->map->tile_map[2] == op2->map || op1->map->tile_map[3] == op2->map || op1->map->tile_map[4] == op2->map || op1->map->tile_map[5] == op2->map || op1->map->tile_map[6] == op2->map || op1->map->tile_map[7] == op2->map) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -2383,15 +2106,14 @@ int on_same_map(object *op1, object *op2)
  * @return Number of players on this map. */
 int players_on_map(mapstruct *m)
 {
-	object *tmp;
-	int count;
+    object *tmp;
+    int count;
 
-	for (count = 0, tmp = m->player_first; tmp; tmp = CONTR(tmp)->map_above)
-	{
-		count++;
-	}
+    for (count = 0, tmp = m->player_first; tmp; tmp = CONTR(tmp)->map_above) {
+        count++;
+    }
 
-	return count;
+    return count;
 }
 
 /**
@@ -2403,245 +2125,213 @@ int players_on_map(mapstruct *m)
  * @return Non zero if blocked, 0 otherwise. */
 int wall_blocked(mapstruct *m, int x, int y)
 {
-	int r;
+    int r;
 
-	if (!(m = get_map_from_coord(m, &x, &y)))
-	{
-		return 1;
-	}
+    if (!(m = get_map_from_coord(m, &x, &y))) {
+        return 1;
+    }
 
-	r = GET_MAP_FLAGS(m, x, y) & (P_NO_PASS | P_PASS_THRU);
+    r = GET_MAP_FLAGS(m, x, y) & (P_NO_PASS | P_PASS_THRU);
 
-	return r;
+    return r;
 }
 
 int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 {
-	MapSpace *msp;
-	uint8 outdoor;
-	int darkness;
+    MapSpace *msp;
+    uint8 outdoor;
+    int darkness;
 
-	if (mirror)
-	{
-		*mirror = NULL;
-	}
+    if (mirror) {
+        *mirror = NULL;
+    }
 
-	msp = GET_MAP_SPACE_PTR(m, x, y);
-	outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+    msp = GET_MAP_SPACE_PTR(m, x, y);
+    outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
 
-	if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0))
-	{
-		darkness = msp->light_value + global_darkness_table[world_darkness];
-	}
-	else
-	{
-		/* Check if map info object bound to this tile has a darkness. */
-		if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1)
-		{
-			int dark_value;
+    if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0)) {
+        darkness = msp->light_value + global_darkness_table[world_darkness];
+    }
+    else {
+        /* Check if map info object bound to this tile has a darkness. */
+        if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1) {
+            int dark_value;
 
-			dark_value = msp->map_info->item_power;
+            dark_value = msp->map_info->item_power;
 
-			if (dark_value < 0 || dark_value > MAX_DARKNESS)
-			{
-				dark_value = MAX_DARKNESS;
-			}
+            if (dark_value < 0 || dark_value > MAX_DARKNESS) {
+                dark_value = MAX_DARKNESS;
+            }
 
-			darkness = global_darkness_table[dark_value] + msp->light_value;
-		}
-		else
-		{
-			darkness = m->light_value + msp->light_value;
-		}
-	}
+            darkness = global_darkness_table[dark_value] + msp->light_value;
+        }
+        else {
+            darkness = m->light_value + msp->light_value;
+        }
+    }
 
-	if (msp->flags & P_MAGIC_MIRROR)
-	{
-		object *tmp;
-		magic_mirror_struct *m_data;
-		mapstruct *mirror_map;
+    if (msp->flags & P_MAGIC_MIRROR) {
+        object *tmp;
+        magic_mirror_struct *m_data;
+        mapstruct *mirror_map;
 
-		FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp)
-		{
-			if (tmp->type == MAGIC_MIRROR)
-			{
-				if (mirror)
-				{
-					*mirror = tmp;
-				}
+        FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp)
+        {
+            if (tmp->type == MAGIC_MIRROR) {
+                if (mirror) {
+                    *mirror = tmp;
+                }
 
-				m_data = MMIRROR(tmp);
+                m_data = MMIRROR(tmp);
 
-				if (m_data && (mirror_map = magic_mirror_get_map(tmp)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y))
-				{
-					MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
+                if (m_data && (mirror_map = magic_mirror_get_map(tmp)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
+                    MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
 
-					if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR))
-					{
-						darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
-					}
-					else
-					{
-						darkness = mirror_map->light_value + mirror_msp->light_value;
-					}
-				}
+                    if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR)) {
+                        darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
+                    }
+                    else {
+                        darkness = mirror_map->light_value + mirror_msp->light_value;
+                    }
+                }
 
-				break;
-			}
-		}
-		FOR_MAP_LAYER_END
-	}
+                break;
+            }
+        }
+        FOR_MAP_LAYER_END
+    }
 
-	return darkness;
+    return darkness;
 }
 
 int map_path_isabs(const char *path)
 {
-	if (*path == '/' || string_startswith(path, settings.datapath))
-	{
-		return 1;
-	}
+    if (*path == '/' || string_startswith(path, settings.datapath)) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name)
 {
-	char *path_tmp, *ret;
+    char *path_tmp, *ret;
 
-	path_tmp = NULL;
+    path_tmp = NULL;
 
-	if (m != NULL && MAP_UNIQUE(m))
-	{
-		if (path && map_path_isabs(path))
-		{
-			if (unique)
-			{
-				char *dir, *cp;
+    if (m != NULL && MAP_UNIQUE(m)) {
+        if (path && map_path_isabs(path)) {
+            if (unique) {
+                char *dir, *cp;
 
-				dir = path_dirname(m->path);
-				cp = strdup(path);
-				string_replace_char(cp, "/", '$');
+                dir = path_dirname(m->path);
+                cp = strdup(path);
+                string_replace_char(cp, "/", '$');
 
-				ret = path_join(dir, cp);
+                ret = path_join(dir, cp);
 
-				free(cp);
-				free(dir);
-			}
-			else
-			{
-				return strdup(path);
-			}
-		}
-		else
-		{
-			char *file, *filedir, *joined;
+                free(cp);
+                free(dir);
+            }
+            else {
+                return strdup(path);
+            }
+        }
+        else {
+            char *file, *filedir, *joined;
 
-			/* Demangle the original map path, and get the original
-			 * directory the map was in. */
-			file = path_basename(m->path);
-			string_replace_char(file, "$", '/');
-			filedir = path_dirname(file);
+            /* Demangle the original map path, and get the original
+             * directory the map was in. */
+            file = path_basename(m->path);
+            string_replace_char(file, "$", '/');
+            filedir = path_dirname(file);
 
-			if (!path)
-			{
-				path = path_tmp = path_basename(file);
-			}
+            if (!path) {
+                path = path_tmp = path_basename(file);
+            }
 
-			if (unique)
-			{
-				char *newpath, *dir;
+            if (unique) {
+                char *newpath, *dir;
 
-				/* Construct the new path. */
-				joined = path_join(filedir, path);
-				newpath = path_normalize(joined);
-				string_replace_char(newpath, "/", '$');
+                /* Construct the new path. */
+                joined = path_join(filedir, path);
+                newpath = path_normalize(joined);
+                string_replace_char(newpath, "/", '$');
 
-				/* We need the data directory the map is in. */
-				dir = path_dirname(m->path);
+                /* We need the data directory the map is in. */
+                dir = path_dirname(m->path);
 
-				/* Construct the path pointing inside the data directory. */
-				ret = path_join(dir, newpath);
+                /* Construct the path pointing inside the data directory. */
+                ret = path_join(dir, newpath);
 
-				free(newpath);
-				free(dir);
-			}
-			else
-			{
-				joined = path_join(filedir, path);
-				ret = path_normalize(joined);
-			}
+                free(newpath);
+                free(dir);
+            }
+            else {
+                joined = path_join(filedir, path);
+                ret = path_normalize(joined);
+            }
 
-			free(joined);
-			free(filedir);
-			free(file);
-		}
-	}
-	else
-	{
-		if (path && map_path_isabs(path))
-		{
-			if (unique && name)
-			{
-				char *cp;
+            free(joined);
+            free(filedir);
+            free(file);
+        }
+    }
+    else {
+        if (path && map_path_isabs(path)) {
+            if (unique && name) {
+                char *cp;
 
-				cp = strdup(path);
-				string_replace_char(cp, "/", '$');
+                cp = strdup(path);
+                string_replace_char(cp, "/", '$');
 
-				ret = player_make_path(name, cp);
+                ret = player_make_path(name, cp);
 
-				free(cp);
-			}
-			else
-			{
-				return strdup(path);
-			}
-		}
-		else if (m != NULL)
-		{
-			char *filedir, *joined;
+                free(cp);
+            }
+            else {
+                return strdup(path);
+            }
+        }
+        else if (m != NULL) {
+            char *filedir, *joined;
 
-			filedir = path_dirname(m->path);
+            filedir = path_dirname(m->path);
 
-			if (!path)
-			{
-				path = path_tmp = path_basename(m->path);
-			}
+            if (!path) {
+                path = path_tmp = path_basename(m->path);
+            }
 
-			if (unique && name)
-			{
-				char *newpath;
+            if (unique && name) {
+                char *newpath;
 
-				/* Construct the new path. */
-				joined = path_join(filedir, path);
-				newpath = path_normalize(joined);
-				string_replace_char(newpath, "/", '$');
+                /* Construct the new path. */
+                joined = path_join(filedir, path);
+                newpath = path_normalize(joined);
+                string_replace_char(newpath, "/", '$');
 
-				ret = player_make_path(name, newpath);
+                ret = player_make_path(name, newpath);
 
-				free(newpath);
-			}
-			else
-			{
-				joined = path_join(filedir, path);
-				ret = path_normalize(joined);
-			}
+                free(newpath);
+            }
+            else {
+                joined = path_join(filedir, path);
+                ret = path_normalize(joined);
+            }
 
-			free(joined);
-			free(filedir);
-		}
-		else
-		{
-			return strdup(EMERGENCY_MAPPATH);
-		}
-	}
+            free(joined);
+            free(filedir);
+        }
+        else {
+            return strdup(EMERGENCY_MAPPATH);
+        }
+    }
 
-	if (path_tmp)
-	{
-		free(path_tmp);
-	}
+    if (path_tmp) {
+        free(path_tmp);
+    }
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -2651,50 +2341,46 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
  * @return Reset map on success, NULL on failure. */
 mapstruct *map_force_reset(mapstruct *m)
 {
-	object *tmp, *next, **players;
-	size_t players_num, i;
-	shstr *path;
-	int flags;
+    object *tmp, *next, **players;
+    size_t players_num, i;
+    shstr *path;
+    int flags;
 
-	/* Cannot reset no-save unique maps, random maps, or maps that are
-	 * not in memory. */
-	if (!m || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0 || m->in_memory != MAP_IN_MEMORY)
-	{
-		return NULL;
-	}
+    /* Cannot reset no-save unique maps, random maps, or maps that are
+     * not in memory. */
+    if (!m || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0 || m->in_memory != MAP_IN_MEMORY) {
+        return NULL;
+    }
 
-	players = NULL;
-	players_num = 0;
+    players = NULL;
+    players_num = 0;
 
-	for (tmp = m->player_first; tmp; tmp = next)
-	{
-		next = CONTR(tmp)->map_above;
+    for (tmp = m->player_first; tmp; tmp = next) {
+        next = CONTR(tmp)->map_above;
 
-		leave_map(tmp);
-		players = realloc(players, sizeof(*players) * (players_num + 1));
-		players[players_num] = tmp;
-		players_num++;
-	}
+        leave_map(tmp);
+        players = realloc(players, sizeof(*players) * (players_num + 1));
+        players[players_num] = tmp;
+        players_num++;
+    }
 
-	m->reset_time = seconds();
-	m->map_flags |= MAP_FLAG_FIXED_RTIME;
-	/* Store the path, so we can load it after swapping is done. */
-	path = add_refcount(m->path);
-	flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
-	swap_map(m, 1);
+    m->reset_time = seconds();
+    m->map_flags |= MAP_FLAG_FIXED_RTIME;
+    /* Store the path, so we can load it after swapping is done. */
+    path = add_refcount(m->path);
+    flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
+    swap_map(m, 1);
 
-	m = ready_map_name(path, flags);
-	free_string_shared(path);
+    m = ready_map_name(path, flags);
+    free_string_shared(path);
 
-	for (i = 0; i < players_num; i++)
-	{
-		insert_ob_in_map(players[i], m, NULL, INS_NO_MERGE);
-	}
+    for (i = 0; i < players_num; i++) {
+        insert_ob_in_map(players[i], m, NULL, INS_NO_MERGE);
+    }
 
-	if (players)
-	{
-		free(players);
-	}
+    if (players) {
+        free(players);
+    }
 
-	return m;
+    return m;
 }

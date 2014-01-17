@@ -32,39 +32,38 @@
  * Start the base system, setting caption name and window icon. */
 void system_start(void)
 {
-	SDL_Surface *icon;
+    SDL_Surface *icon;
 
-	icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
+    icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
 
-	if (icon)
-	{
-		SDL_WM_SetIcon(icon, NULL);
-		SDL_FreeSurface(icon);
-	}
+    if (icon) {
+        SDL_WM_SetIcon(icon, NULL);
+        SDL_FreeSurface(icon);
+    }
 
-	SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
+    SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
 }
 
 /**
  * End the system. */
 void system_end(void)
 {
-	notification_destroy();
-	popup_destroy_all();
-	toolkit_widget_deinit();
-	curl_deinit();
-	socket_deinitialize();
-	effects_deinit();
-	sound_deinit();
-	cmd_aliases_deinit();
-	texture_deinit();
-	text_deinit();
-	hfiles_deinit();
-	settings_deinit();
-	keybind_deinit();
-	toolkit_deinit();
-	clioption_settings_deinit();
-	SDL_Quit();
+    notification_destroy();
+    popup_destroy_all();
+    toolkit_widget_deinit();
+    curl_deinit();
+    socket_deinitialize();
+    effects_deinit();
+    sound_deinit();
+    cmd_aliases_deinit();
+    texture_deinit();
+    text_deinit();
+    hfiles_deinit();
+    settings_deinit();
+    keybind_deinit();
+    toolkit_deinit();
+    clioption_settings_deinit();
+    SDL_Quit();
 }
 
 /**
@@ -75,38 +74,34 @@ void system_end(void)
  * @return 0 on success, -1 otherwise */
 static int mkdir_recurse(const char *path)
 {
-	char *copy, *p;
+    char *copy, *p;
 
-	p = copy = strdup(path);
+    p = copy = strdup(path);
 
-	do
-	{
-		p = strchr(p + 1, '/');
+    do
+    {
+        p = strchr(p + 1, '/');
 
-		if (p)
-		{
-			*p = '\0';
-		}
+        if (p) {
+            *p = '\0';
+        }
 
-		if (access(copy, F_OK) == -1)
-		{
-			if (mkdir(copy, 0755) == -1)
-			{
-				free(copy);
-				return -1;
-			}
-		}
+        if (access(copy, F_OK) == -1) {
+            if (mkdir(copy, 0755) == -1) {
+                free(copy);
+                return -1;
+            }
+        }
 
-		if (p)
-		{
-			*p = '/';
-		}
-	}
-	while (p);
+        if (p) {
+            *p = '/';
+        }
+    }
+    while (p);
 
-	free(copy);
+    free(copy);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -118,19 +113,18 @@ static int mkdir_recurse(const char *path)
  * @param path The path to ensure. */
 void mkdir_ensure(const char *path)
 {
-	char *stmp;
+    char *stmp;
 
-	stmp = strrchr(path, '/');
+    stmp = strrchr(path, '/');
 
-	if (stmp)
-	{
-		char ctmp;
+    if (stmp) {
+        char ctmp;
 
-		ctmp = stmp[0];
-		stmp[0] = '\0';
-		mkdir_recurse(path);
-		stmp[0] = ctmp;
-	}
+        ctmp = stmp[0];
+        stmp[0] = '\0';
+        mkdir_recurse(path);
+        stmp[0] = ctmp;
+    }
 }
 
 /**
@@ -139,35 +133,32 @@ void mkdir_ensure(const char *path)
  * @param filename_out Destination file. */
 void copy_file(const char *filename, const char *filename_out)
 {
-	FILE *fp, *fp_out;
-	char buf[HUGE_BUF];
+    FILE *fp, *fp_out;
+    char buf[HUGE_BUF];
 
-	fp = fopen(filename, "r");
+    fp = fopen(filename, "r");
 
-	if (!fp)
-	{
-		logger_print(LOG(BUG), "Failed to open '%s' for reading.", filename);
-		return;
-	}
+    if (!fp) {
+        logger_print(LOG(BUG), "Failed to open '%s' for reading.", filename);
+        return;
+    }
 
-	mkdir_ensure(filename_out);
+    mkdir_ensure(filename_out);
 
-	fp_out = fopen(filename_out, "w");
+    fp_out = fopen(filename_out, "w");
 
-	if (!fp_out)
-	{
-		logger_print(LOG(BUG), "Failed to open '%s' for writing.", filename_out);
-		fclose(fp);
-		return;
-	}
+    if (!fp_out) {
+        logger_print(LOG(BUG), "Failed to open '%s' for writing.", filename_out);
+        fclose(fp);
+        return;
+    }
 
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		fputs(buf, fp_out);
-	}
+    while (fgets(buf, sizeof(buf), fp)) {
+        fputs(buf, fp_out);
+    }
 
-	fclose(fp);
-	fclose(fp_out);
+    fclose(fp);
+    fclose(fp_out);
 }
 
 /**
@@ -178,15 +169,14 @@ void copy_file(const char *filename, const char *filename_out)
  * @param dst Where to copy the file/directory to. */
 void copy_if_exists(const char *from, const char *to, const char *src, const char *dst)
 {
-	char src_path[HUGE_BUF], dst_path[HUGE_BUF];
+    char src_path[HUGE_BUF], dst_path[HUGE_BUF];
 
-	snprintf(src_path, sizeof(src_path), "%s/%s", from, src);
-	snprintf(dst_path, sizeof(dst_path), "%s/%s", to, dst);
+    snprintf(src_path, sizeof(src_path), "%s/%s", from, src);
+    snprintf(dst_path, sizeof(dst_path), "%s/%s", to, dst);
 
-	if (access(src_path, R_OK) == 0)
-	{
-		copy_rec(src_path, dst_path);
-	}
+    if (access(src_path, R_OK) == 0) {
+        copy_rec(src_path, dst_path);
+    }
 }
 
 /**
@@ -196,44 +186,38 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
  * @param path What to remove. */
 void rmrf(const char *path)
 {
-	DIR *dir;
-	struct dirent *currentfile;
-	char buf[HUGE_BUF];
-	struct stat st;
+    DIR *dir;
+    struct dirent *currentfile;
+    char buf[HUGE_BUF];
+    struct stat st;
 
-	dir = opendir(path);
+    dir = opendir(path);
 
-	if (!dir)
-	{
-		return;
-	}
+    if (!dir) {
+        return;
+    }
 
-	while ((currentfile = readdir(dir)))
-	{
-		if (!strcmp(currentfile->d_name, ".") || !strcmp(currentfile->d_name, ".."))
-		{
-			continue;
-		}
+    while ((currentfile = readdir(dir))) {
+        if (!strcmp(currentfile->d_name, ".") || !strcmp(currentfile->d_name, "..")) {
+            continue;
+        }
 
-		snprintf(buf, sizeof(buf), "%s/%s", path, currentfile->d_name);
+        snprintf(buf, sizeof(buf), "%s/%s", path, currentfile->d_name);
 
-		if (stat(buf, &st) != 0)
-		{
-			continue;
-		}
+        if (stat(buf, &st) != 0) {
+            continue;
+        }
 
-		if (S_ISDIR(st.st_mode))
-		{
-			rmrf(buf);
-		}
-		else if (S_ISREG(st.st_mode))
-		{
-			unlink(buf);
-		}
-	}
+        if (S_ISDIR(st.st_mode)) {
+            rmrf(buf);
+        }
+        else if (S_ISREG(st.st_mode)) {
+            unlink(buf);
+        }
+    }
 
-	closedir(dir);
-	rmdir(path);
+    closedir(dir);
+    rmdir(path);
 }
 
 /**
@@ -242,53 +226,46 @@ void rmrf(const char *path)
  * @param dst Where to copy to. */
 void copy_rec(const char *src, const char *dst)
 {
-	struct stat st;
+    struct stat st;
 
-	/* Does it exist? */
-	if (stat(src, &st) != 0)
-	{
-		return;
-	}
+    /* Does it exist? */
+    if (stat(src, &st) != 0) {
+        return;
+    }
 
-	/* Copy directory contents. */
-	if (S_ISDIR(st.st_mode))
-	{
-		DIR *dir;
-		struct dirent *currentfile;
-		char dir_src[HUGE_BUF], dir_dst[HUGE_BUF];
+    /* Copy directory contents. */
+    if (S_ISDIR(st.st_mode)) {
+        DIR *dir;
+        struct dirent *currentfile;
+        char dir_src[HUGE_BUF], dir_dst[HUGE_BUF];
 
-		dir = opendir(src);
+        dir = opendir(src);
 
-		if (!dir)
-		{
-			return;
-		}
+        if (!dir) {
+            return;
+        }
 
-		/* Try to make the new directory. */
-		if (access(dst, R_OK) != 0)
-		{
-			mkdir(dst, 0755);
-		}
+        /* Try to make the new directory. */
+        if (access(dst, R_OK) != 0) {
+            mkdir(dst, 0755);
+        }
 
-		while ((currentfile = readdir(dir)))
-		{
-			if (currentfile->d_name[0] == '.')
-			{
-				continue;
-			}
+        while ((currentfile = readdir(dir))) {
+            if (currentfile->d_name[0] == '.') {
+                continue;
+            }
 
-			snprintf(dir_src, sizeof(dir_src), "%s/%s", src, currentfile->d_name);
-			snprintf(dir_dst, sizeof(dir_dst), "%s/%s", dst, currentfile->d_name);
-			copy_rec(dir_src, dir_dst);
-		}
+            snprintf(dir_src, sizeof(dir_src), "%s/%s", src, currentfile->d_name);
+            snprintf(dir_dst, sizeof(dir_dst), "%s/%s", dst, currentfile->d_name);
+            copy_rec(dir_src, dir_dst);
+        }
 
-		closedir(dir);
-	}
-	/* Copy file. */
-	else
-	{
-		copy_file(src, dst);
-	}
+        closedir(dir);
+    }
+    /* Copy file. */
+    else {
+        copy_file(src, dst);
+    }
 }
 
 /**
@@ -296,22 +273,21 @@ void copy_rec(const char *src, const char *dst)
  * @return The configuration directory. */
 const char *get_config_dir(void)
 {
-	const char *desc;
+    const char *desc;
 
 #ifdef LINUX
-	desc = getenv("HOME");
+    desc = getenv("HOME");
 #else
-	desc = getenv("APPDATA");
+    desc = getenv("APPDATA");
 #endif
 
-	/* Failed to find an usable destination, so store it in the
-	 * current directory. */
-	if (!desc || !*desc)
-	{
-		desc = ".";
-	}
+    /* Failed to find an usable destination, so store it in the
+     * current directory. */
+    if (!desc || !*desc) {
+        desc = ".";
+    }
 
-	return desc;
+    return desc;
 }
 
 /**
@@ -321,21 +297,20 @@ const char *get_config_dir(void)
  * @param fname File. */
 void get_data_dir_file(char *buf, size_t len, const char *fname)
 {
-	/* Try the current directory first. */
-	snprintf(buf, len, "./%s", fname);
+    /* Try the current directory first. */
+    snprintf(buf, len, "./%s", fname);
 
 #ifdef INSTALL_SUBDIR_SHARE
-	/* Not found, try the share directory since it was defined... */
-	if (access(buf, R_OK))
-	{
-		char *prefix;
+    /* Not found, try the share directory since it was defined... */
+    if (access(buf, R_OK)) {
+        char *prefix;
 
-		/* Get the prefix. */
-		prefix = binreloc_find_prefix("./");
-		/* Construct the path. */
-		snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE"/%s", prefix, fname);
-		free(prefix);
-	}
+        /* Get the prefix. */
+        prefix = binreloc_find_prefix("./");
+        /* Construct the path. */
+        snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE "/%s", prefix, fname);
+        free(prefix);
+    }
 #endif
 }
 
@@ -347,49 +322,42 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
  * @return The path to the file. */
 char *file_path(const char *fname, const char *mode)
 {
-	static char tmp[HUGE_BUF];
-	char *stmp, ctmp, version[MAX_BUF];
+    static char tmp[HUGE_BUF];
+    char *stmp, ctmp, version[MAX_BUF];
 
-	snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s/%s", get_config_dir(), package_get_version_partial(version, sizeof(version)), fname);
+    snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s/%s", get_config_dir(), package_get_version_partial(version, sizeof(version)), fname);
 
-	if (strchr(mode, 'w'))
-	{
-		if ((stmp = strrchr(tmp, '/')))
-		{
-			ctmp = stmp[0];
-			stmp[0] = '\0';
-			mkdir_recurse(tmp);
-			stmp[0] = ctmp;
-		}
-	}
-	else if (strchr(mode, '+') || strchr(mode, 'a'))
-	{
-		if (access(tmp, W_OK))
-		{
-			char otmp[HUGE_BUF];
+    if (strchr(mode, 'w')) {
+        if ((stmp = strrchr(tmp, '/'))) {
+            ctmp = stmp[0];
+            stmp[0] = '\0';
+            mkdir_recurse(tmp);
+            stmp[0] = ctmp;
+        }
+    }
+    else if (strchr(mode, '+') || strchr(mode, 'a')) {
+        if (access(tmp, W_OK)) {
+            char otmp[HUGE_BUF];
 
-			get_data_dir_file(otmp, sizeof(otmp), fname);
+            get_data_dir_file(otmp, sizeof(otmp), fname);
 
-			if ((stmp = strrchr(tmp, '/')))
-			{
-				ctmp = stmp[0];
-				stmp[0] = '\0';
-				mkdir_recurse(tmp);
-				stmp[0] = ctmp;
-			}
+            if ((stmp = strrchr(tmp, '/'))) {
+                ctmp = stmp[0];
+                stmp[0] = '\0';
+                mkdir_recurse(tmp);
+                stmp[0] = ctmp;
+            }
 
-			copy_file(otmp, tmp);
-		}
-	}
-	else
-	{
-		if (access(tmp, R_OK))
-		{
-			get_data_dir_file(tmp, sizeof(tmp), fname);
-		}
-	}
+            copy_file(otmp, tmp);
+        }
+    }
+    else {
+        if (access(tmp, R_OK)) {
+            get_data_dir_file(tmp, sizeof(tmp), fname);
+        }
+    }
 
-	return tmp;
+    return tmp;
 }
 
 /**
@@ -409,7 +377,7 @@ char *file_path(const char *fname, const char *mode)
  * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
-	return fopen(file_path(fname, mode), mode);
+    return fopen(file_path(fname, mode), mode);
 }
 
 /**
@@ -418,7 +386,7 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
  * @return Return value of IMG_Load().  */
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
-	return IMG_Load(file_path(file, "r"));
+    return IMG_Load(file_path(file, "r"));
 }
 
 /**
@@ -428,6 +396,6 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
  * @return Return value of TTF_OpenFont(). */
 TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
 {
-	return TTF_OpenFont(file_path(file, "r"), ptsize);
+    return TTF_OpenFont(file_path(file, "r"), ptsize);
 }
 /*@}*/

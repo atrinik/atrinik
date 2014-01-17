@@ -33,10 +33,9 @@
 /** @copydoc object_methods::move_on_func */
 int common_object_move_on(object *op, object *victim, object *originator, int state)
 {
-	if (OBJECT_IS_PROJECTILE(op))
-	{
-		return common_object_projectile_move_on(op, victim, originator, state);
-	}
+    if (OBJECT_IS_PROJECTILE(op)) {
+        return common_object_projectile_move_on(op, victim, originator, state);
+    }
 
-	return OBJECT_METHOD_UNHANDLED;
+    return OBJECT_METHOD_UNHANDLED;
 }

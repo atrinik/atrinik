@@ -34,5 +34,5 @@
  * Initialize the ring type object methods. */
 void object_type_init_ring(void)
 {
-	object_type_methods[RING].apply_func = object_apply_item;
+    object_type_methods[RING].apply_func = object_apply_item;
 }

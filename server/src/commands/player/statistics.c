@@ -33,24 +33,22 @@
 /** @copydoc command_func */
 void command_statistics(object *op, const char *command, char *params)
 {
-	size_t i;
+    size_t i;
 
-	draw_info_format(COLOR_WHITE, op, "Experience: %s", string_format_number_comma(op->stats.exp));
+    draw_info_format(COLOR_WHITE, op, "Experience: %s", string_format_number_comma(op->stats.exp));
 
-	if (op->level < MAXLEVEL)
-	{
-		char *cp = strdup(string_format_number_comma(level_exp(op->level + 1, 1.0)));
+    if (op->level < MAXLEVEL) {
+        char *cp = strdup(string_format_number_comma(level_exp(op->level + 1, 1.0)));
 
-		draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, string_format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
-		free(cp);
-	}
+        draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, string_format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
+        free(cp);
+    }
 
-	draw_info(COLOR_WHITE, op, "\nStat: Natural (Real)");
+    draw_info(COLOR_WHITE, op, "\nStat: Natural (Real)");
 
-	for (i = 0; i < NUM_STATS; i++)
-	{
-		draw_info_format(COLOR_WHITE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&op->arch->clone.stats, i), get_attr_value(&op->stats, i));
-	}
+    for (i = 0; i < NUM_STATS; i++) {
+        draw_info_format(COLOR_WHITE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&op->arch->clone.stats, i), get_attr_value(&op->stats, i));
+    }
 
-	draw_info_format(COLOR_WHITE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
+    draw_info_format(COLOR_WHITE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);
 }

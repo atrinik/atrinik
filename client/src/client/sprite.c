@@ -37,7 +37,7 @@ SDL_Surface *FormatHolder;
 /** Darkness alpha values. */
 static int dark_alpha[DARK_LEVELS] =
 {
-	0, 44, 80, 117, 153, 190, 226
+    0, 44, 80, 117, 153, 190, 226
 };
 
 static void red_scale(sprite_struct *sprite);
@@ -48,8 +48,8 @@ static void fow_scale(sprite_struct *sprite);
  * Initialize the sprite system. */
 void sprite_init_system(void)
 {
-	FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-	SDL_SetAlpha(FormatHolder, SDL_SRCALPHA, 255);
+    FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    SDL_SetAlpha(FormatHolder, SDL_SRCALPHA, 255);
 }
 
 /**
@@ -59,15 +59,14 @@ void sprite_init_system(void)
  * @return NULL if failed, the sprite otherwise. */
 sprite_struct *sprite_load_file(char *fname, uint32 flags)
 {
-	sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
+    sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
 
-	if (sprite == NULL)
-	{
-		logger_print(LOG(BUG), "Can't load sprite %s", fname);
-		return NULL;
-	}
+    if (sprite == NULL) {
+        logger_print(LOG(BUG), "Can't load sprite %s", fname);
+        return NULL;
+    }
 
-	return sprite;
+    return sprite;
 }
 
 /**
@@ -78,58 +77,50 @@ sprite_struct *sprite_load_file(char *fname, uint32 flags)
  * @return The sprite if success, NULL otherwise */
 sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 {
-	sprite_struct *sprite;
-	SDL_Surface *bitmap;
-	uint32 ckflags, tmp = 0;
+    sprite_struct *sprite;
+    SDL_Surface *bitmap;
+    uint32 ckflags, tmp = 0;
 
-	if (fname)
-	{
-		if (!(bitmap = IMG_Load_wrapper(fname)))
-		{
-			return NULL;
-		}
-	}
-	else
-	{
-		bitmap = IMG_LoadPNG_RW(rwop);
-	}
+    if (fname) {
+        if (!(bitmap = IMG_Load_wrapper(fname))) {
+            return NULL;
+        }
+    }
+    else {
+        bitmap = IMG_LoadPNG_RW(rwop);
+    }
 
-	if (!(sprite = malloc(sizeof(sprite_struct))))
-	{
-		return NULL;
-	}
+    if (!(sprite = malloc(sizeof(sprite_struct)))) {
+        return NULL;
+    }
 
-	memset(sprite, 0, sizeof(sprite_struct));
+    memset(sprite, 0, sizeof(sprite_struct));
 
-	ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
+    ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
 
-	if (bitmap->format->palette)
-	{
-		SDL_SetColorKey(bitmap, ckflags, (tmp = bitmap->format->colorkey));
-	}
-	/* We force a true color png to colorkey. Default colkey is black (0). */
-	else if (flag & SURFACE_FLAG_COLKEY_16M)
-	{
-		SDL_SetColorKey(bitmap, ckflags, 0);
-	}
+    if (bitmap->format->palette) {
+        SDL_SetColorKey(bitmap, ckflags, (tmp = bitmap->format->colorkey));
+    }
+    /* We force a true color png to colorkey. Default colkey is black (0). */
+    else if (flag & SURFACE_FLAG_COLKEY_16M) {
+        SDL_SetColorKey(bitmap, ckflags, 0);
+    }
 
-	surface_borders_get(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
+    surface_borders_get(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
 
-	/* We store our original bitmap */
-	sprite->bitmap = bitmap;
+    /* We store our original bitmap */
+    sprite->bitmap = bitmap;
 
-	if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA)
-	{
-		sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
-		SDL_FreeSurface(bitmap);
-	}
-	else if (flag & SURFACE_FLAG_DISPLAYFORMAT)
-	{
-		sprite->bitmap = SDL_DisplayFormat(bitmap);
-		SDL_FreeSurface(bitmap);
-	}
+    if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA) {
+        sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
+        SDL_FreeSurface(bitmap);
+    }
+    else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
+        sprite->bitmap = SDL_DisplayFormat(bitmap);
+        SDL_FreeSurface(bitmap);
+    }
 
-	return sprite;
+    return sprite;
 }
 
 /**
@@ -137,243 +128,205 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
  * @param sprite Sprite to free. */
 void sprite_free_sprite(sprite_struct *sprite)
 {
-	int i;
+    int i;
 
-	if (!sprite)
-	{
-		return;
-	}
+    if (!sprite) {
+        return;
+    }
 
-	if (sprite->bitmap)
-	{
-		SDL_FreeSurface(sprite->bitmap);
-	}
+    if (sprite->bitmap) {
+        SDL_FreeSurface(sprite->bitmap);
+    }
 
-	if (sprite->grey)
-	{
-		SDL_FreeSurface(sprite->grey);
-	}
+    if (sprite->grey) {
+        SDL_FreeSurface(sprite->grey);
+    }
 
-	if (sprite->red)
-	{
-		SDL_FreeSurface(sprite->red);
-	}
+    if (sprite->red) {
+        SDL_FreeSurface(sprite->red);
+    }
 
-	if (sprite->fog_of_war)
-	{
-		SDL_FreeSurface(sprite->fog_of_war);
-	}
+    if (sprite->fog_of_war) {
+        SDL_FreeSurface(sprite->fog_of_war);
+    }
 
-	if (sprite->effect)
-	{
-		SDL_FreeSurface(sprite->effect);
-	}
+    if (sprite->effect) {
+        SDL_FreeSurface(sprite->effect);
+    }
 
-	if (sprite->dark_level)
-	{
-		for (i = 0; i < DARK_LEVELS; i++)
-		{
-			if (sprite->dark_level[i])
-			{
-				SDL_FreeSurface(sprite->dark_level[i]);
-			}
-		}
-	}
+    if (sprite->dark_level) {
+        for (i = 0; i < DARK_LEVELS; i++) {
+            if (sprite->dark_level[i]) {
+                SDL_FreeSurface(sprite->dark_level[i]);
+            }
+        }
+    }
 
-	free(sprite);
+    free(sprite);
 }
 
 void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src)
 {
-	SDL_Rect dstrect;
+    SDL_Rect dstrect;
 
-	dstrect.x = x;
-	dstrect.y = y;
+    dstrect.x = x;
+    dstrect.y = y;
 
-	SDL_BlitSurface(src, srcrect, surface, &dstrect);
+    SDL_BlitSurface(src, srcrect, surface, &dstrect);
 }
 
 void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box)
 {
-	SDL_Rect dest, srcrect;
+    SDL_Rect dest, srcrect;
 
-	for (dest.x = 0; dest.x < box->w; dest.x += srcsize ? srcsize->w : src->w)
-	{
-		for (dest.y = 0; dest.y < box->h; dest.y += srcsize ? srcsize->h : src->h)
-		{
-			srcrect.x = srcsize ? MAX(0, srcsize->x) : 0;
-			srcrect.y = srcsize ? MAX(0, srcsize->y) : 0;
-			srcrect.w = MIN(srcsize ? srcsize->w : src->w, box->w - dest.x);
-			srcrect.h = MIN(srcsize ? srcsize->h : src->h, box->h - dest.y);
-			surface_show(surface, x + dest.x, y + dest.y, &srcrect, src);
-		}
-	}
+    for (dest.x = 0; dest.x < box->w; dest.x += srcsize ? srcsize->w : src->w) {
+        for (dest.y = 0; dest.y < box->h; dest.y += srcsize ? srcsize->h : src->h) {
+            srcrect.x = srcsize ? MAX(0, srcsize->x) : 0;
+            srcrect.y = srcsize ? MAX(0, srcsize->y) : 0;
+            srcrect.w = MIN(srcsize ? srcsize->w : src->w, box->w - dest.x);
+            srcrect.h = MIN(srcsize ? srcsize->h : src->h, box->h - dest.y);
+            surface_show(surface, x + dest.x, y + dest.y, &srcrect, src);
+        }
+    }
 }
 
 void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
-	int smooth;
+    int smooth;
 
-	if (stretch)
-	{
-		SDL_Surface *tmp;
-		Uint8 n = (stretch >> 24) & 0xFF;
-		Uint8 e = (stretch >> 16) & 0xFF;
-		Uint8 w = (stretch >> 8) & 0xFF;
-		Uint8 s = stretch & 0xFF;
+    if (stretch) {
+        SDL_Surface *tmp;
+        Uint8 n = (stretch >> 24) & 0xFF;
+        Uint8 e = (stretch >> 16) & 0xFF;
+        Uint8 w = (stretch >> 8) & 0xFF;
+        Uint8 s = stretch & 0xFF;
 
-		tmp = tile_stretch(src, n, e, s, w);
+        tmp = tile_stretch(src, n, e, s, w);
 
-		if (!tmp)
-		{
-			return;
-		}
+        if (!tmp) {
+            return;
+        }
 
-		y -= tmp->h - src->h;
-		src = tmp;
-	}
+        y -= tmp->h - src->h;
+        src = tmp;
+    }
 
-	/* If this is just a flip with no rotate, force disabled interpolation. */
-	if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) && (zoom_y == 0 || zoom_y == -100 || zoom_y == 100))
-	{
-		smooth = 0;
-	}
-	else
-	{
-		smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
-	}
+    /* If this is just a flip with no rotate, force disabled interpolation. */
+    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) && (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
+        smooth = 0;
+    }
+    else {
+        smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
+    }
 
-	if (rotate)
-	{
-		src = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+    if (rotate) {
+        src = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!src)
-		{
-			return;
-		}
-	}
-	else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100))
-	{
-		src = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+        if (!src) {
+            return;
+        }
+    }
+    else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
+        src = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-		if (!src)
-		{
-			return;
-		}
-	}
+        if (!src) {
+            return;
+        }
+    }
 
-	if (alpha)
-	{
-		SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
-	}
+    if (alpha) {
+        SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
+    }
 
-	surface_show(surface, x, y, srcrect, src);
+    surface_show(surface, x, y, srcrect, src);
 
-	if (alpha)
-	{
-		SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-	}
+    if (alpha) {
+        SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    }
 
-	if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate)
-	{
-		SDL_FreeSurface(src);
-	}
+    if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate) {
+        SDL_FreeSurface(src);
+    }
 }
 
 void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
-	SDL_Surface *src;
+    SDL_Surface *src;
 
-	if (!sprite)
-	{
-		return;
-	}
+    if (!sprite) {
+        return;
+    }
 
-	src = sprite->bitmap;
+    src = sprite->bitmap;
 
-	/* Is there an effect overlay active? */
-	if (effect_has_overlay())
-	{
-		/* There is one, so add an overlay to the image if there isn't
-		 * one yet. */
-		if (!sprite->effect)
-		{
-			effect_scale(sprite);
-		}
+    /* Is there an effect overlay active? */
+    if (effect_has_overlay()) {
+        /* There is one, so add an overlay to the image if there isn't
+         * one yet. */
+        if (!sprite->effect) {
+            effect_scale(sprite);
+        }
 
-		src = sprite->effect;
-	}
-	/* No overlay, but the image was previously overlayed; need to
-	 * free the dark surfaces so they can be re-rendered, without the
-	 * overlay. */
-	else if (sprite->effect)
-	{
-		uint8 i;
+        src = sprite->effect;
+    }
+    /* No overlay, but the image was previously overlayed; need to
+     * free the dark surfaces so they can be re-rendered, without the
+     * overlay. */
+    else if (sprite->effect) {
+        uint8 i;
 
-		SDL_FreeSurface(sprite->effect);
-		sprite->effect = NULL;
+        SDL_FreeSurface(sprite->effect);
+        sprite->effect = NULL;
 
-		for (i = 0; i < DARK_LEVELS; i++)
-		{
-			if (sprite->dark_level[i])
-			{
-				SDL_FreeSurface(sprite->dark_level[i]);
-				sprite->dark_level[i] = NULL;
-			}
-		}
-	}
+        for (i = 0; i < DARK_LEVELS; i++) {
+            if (sprite->dark_level[i]) {
+                SDL_FreeSurface(sprite->dark_level[i]);
+                sprite->dark_level[i] = NULL;
+            }
+        }
+    }
 
-	if (flags & SPRITE_FLAG_DARK)
-	{
-		/* Last dark level is "no color" */
-		if (dark_level == DARK_LEVELS)
-		{
-			return;
-		}
+    if (flags & SPRITE_FLAG_DARK) {
+        /* Last dark level is "no color" */
+        if (dark_level == DARK_LEVELS) {
+            return;
+        }
 
-		if (sprite->dark_level[dark_level])
-		{
-			src = sprite->dark_level[dark_level];
-		}
-		else
-		{
-			char buf[MAX_BUF];
+        if (sprite->dark_level[dark_level]) {
+            src = sprite->dark_level[dark_level];
+        }
+        else {
+            char buf[MAX_BUF];
 
-			src = SDL_DisplayFormatAlpha(src);
-			snprintf(buf, sizeof(buf), "rectangle:500,500,%d", dark_alpha[dark_level]);
-			SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, src, NULL);
-			sprite->dark_level[dark_level] = src;
-		}
-	}
-	else if (flags & SPRITE_FLAG_FOW)
-	{
-		if (!sprite->fog_of_war)
-		{
-			fow_scale(sprite);
-		}
+            src = SDL_DisplayFormatAlpha(src);
+            snprintf(buf, sizeof(buf), "rectangle:500,500,%d", dark_alpha[dark_level]);
+            SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, src, NULL);
+            sprite->dark_level[dark_level] = src;
+        }
+    }
+    else if (flags & SPRITE_FLAG_FOW) {
+        if (!sprite->fog_of_war) {
+            fow_scale(sprite);
+        }
 
-		src = sprite->fog_of_war;
-	}
-	else if (flags & SPRITE_FLAG_RED)
-	{
-		if (!sprite->red)
-		{
-			red_scale(sprite);
-		}
+        src = sprite->fog_of_war;
+    }
+    else if (flags & SPRITE_FLAG_RED) {
+        if (!sprite->red) {
+            red_scale(sprite);
+        }
 
-		src = sprite->red;
-	}
-	else if (flags & SPRITE_FLAG_GRAY)
-	{
-		if (!sprite->grey)
-		{
-			grey_scale(sprite);
-		}
+        src = sprite->red;
+    }
+    else if (flags & SPRITE_FLAG_GRAY) {
+        if (!sprite->grey) {
+            grey_scale(sprite);
+        }
 
-		src = sprite->grey;
-	}
+        src = sprite->grey;
+    }
 
-	surface_show_effects(surface, x, y, srcrect, src, alpha, stretch, zoom_x, zoom_y, rotate);
+    surface_show_effects(surface, x, y, srcrect, src, alpha, stretch, zoom_x, zoom_y, rotate);
 }
 
 /**
@@ -384,33 +337,30 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
  * @return The pixel. */
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
-	int bpp = surface->format->BytesPerPixel;
-	/* The address to the pixel we want to retrieve */
-	Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    int bpp = surface->format->BytesPerPixel;
+    /* The address to the pixel we want to retrieve */
+    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
-	switch (bpp)
-	{
-		case 1:
-			return *p;
+    switch (bpp) {
+        case 1:
+            return *p;
 
-		case 2:
-			return *(Uint16 *) p;
+        case 2:
+            return *(Uint16 *) p;
 
-		case 3:
-			if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			{
-				return p[0] << 16 | p[1] << 8 | p[2];
-			}
-			else
-			{
-				return p[0] | p[1] << 8 | p[2] << 16;
-			}
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                return p[0] << 16 | p[1] << 8 | p[2];
+            }
+            else {
+                return p[0] | p[1] << 8 | p[2] << 16;
+            }
 
-		case 4:
-			return *(Uint32 *) p;
-	}
+        case 4:
+            return *(Uint32 *) p;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -421,40 +371,37 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
  * @param pixel Pixel to put. */
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
-	int bpp = surface->format->BytesPerPixel;
-	/* The address to the pixel we want to set */
-	Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    int bpp = surface->format->BytesPerPixel;
+    /* The address to the pixel we want to set */
+    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
-	switch (bpp)
-	{
-		case 1:
-			*p = pixel;
-			break;
+    switch (bpp) {
+        case 1:
+            *p = pixel;
+            break;
 
-		case 2:
-			*(Uint16 *) p = pixel;
-			break;
+        case 2:
+            *(Uint16 *) p = pixel;
+            break;
 
-		case 3:
-			if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			{
-				p[0] = (pixel >> 16) & 0xff;
-				p[1] = (pixel >> 8) & 0xff;
-				p[2] = pixel & 0xff;
-			}
-			else
-			{
-				p[0] = pixel & 0xff;
-				p[1] = (pixel >> 8) & 0xff;
-				p[2] = (pixel >> 16) & 0xff;
-			}
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                p[0] = (pixel >> 16) & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = pixel & 0xff;
+            }
+            else {
+                p[0] = pixel & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = (pixel >> 16) & 0xff;
+            }
 
-			break;
+            break;
 
-		case 4:
-			*(Uint32 *) p = pixel;
-			break;
-	}
+        case 4:
+            *(Uint32 *) p = pixel;
+            break;
+    }
 }
 
 /**
@@ -462,23 +409,21 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
  * @param sprite Sprite. */
 static void red_scale(sprite_struct *sprite)
 {
-	int j, k;
-	Uint8 r, g, b, a;
-	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+    int j, k;
+    Uint8 r, g, b, a;
+    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
 
-	for (k = 0; k < temp->h; k++)
-	{
-		for (j = 0; j < temp->w; j++)
-		{
-			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-			r = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
-			g = b = 0;
-			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-		}
-	}
+    for (k = 0; k < temp->h; k++) {
+        for (j = 0; j < temp->w; j++) {
+            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
+            r = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            g = b = 0;
+            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+        }
+    }
 
-	sprite->red = SDL_DisplayFormatAlpha(temp);
-	SDL_FreeSurface(temp);
+    sprite->red = SDL_DisplayFormatAlpha(temp);
+    SDL_FreeSurface(temp);
 }
 
 /**
@@ -486,22 +431,20 @@ static void red_scale(sprite_struct *sprite)
  * @param sprite Sprite. */
 static void grey_scale(sprite_struct *sprite)
 {
-	int j, k;
-	Uint8 r, g, b, a;
-	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+    int j, k;
+    Uint8 r, g, b, a;
+    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
 
-	for (k = 0; k < temp->h; k++)
-	{
-		for (j = 0; j < temp->w; j++)
-		{
-			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-			r = g = b = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
-			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-		}
-	}
+    for (k = 0; k < temp->h; k++) {
+        for (j = 0; j < temp->w; j++) {
+            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
+            r = g = b = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+        }
+    }
 
-	sprite->grey = SDL_DisplayFormatAlpha(temp);
-	SDL_FreeSurface(temp);
+    sprite->grey = SDL_DisplayFormatAlpha(temp);
+    SDL_FreeSurface(temp);
 }
 
 /**
@@ -509,23 +452,21 @@ static void grey_scale(sprite_struct *sprite)
  * @param sprite Sprite. */
 static void fow_scale(sprite_struct *sprite)
 {
-	int j, k;
-	Uint8 r, g, b, a;
-	SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+    int j, k;
+    Uint8 r, g, b, a;
+    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
 
-	for (k = 0; k < temp->h; k++)
-	{
-		for (j = 0; j < temp->w; j++)
-		{
-			SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-			r = g = b = (int) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
-			b += 16;
-			putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-		}
-	}
+    for (k = 0; k < temp->h; k++) {
+        for (j = 0; j < temp->w; j++) {
+            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
+            r = g = b = (int) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
+            b += 16;
+            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+        }
+    }
 
-	sprite->fog_of_war = SDL_DisplayFormatAlpha(temp);
-	SDL_FreeSurface(temp);
+    sprite->fog_of_war = SDL_DisplayFormatAlpha(temp);
+    SDL_FreeSurface(temp);
 }
 
 /**
@@ -537,21 +478,18 @@ static void fow_scale(sprite_struct *sprite)
  * @return 1 if the border was found, 0 otherwise. */
 static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32 ckey)
 {
-	int x, y;
+    int x, y;
 
-	for (x = 0; x < surface->w; x++)
-	{
-		for (y = 0; y < surface->h; y++)
-		{
-			if (getpixel(surface, x, y) != ckey)
-			{
-				*pos = x;
-				return 1;
-			}
-		}
-	}
+    for (x = 0; x < surface->w; x++) {
+        for (y = 0; y < surface->h; y++) {
+            if (getpixel(surface, x, y) != ckey) {
+                *pos = x;
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -563,21 +501,18 @@ static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32 ckey)
  * @return 1 if the border was found, 0 otherwise. */
 static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32 ckey)
 {
-	int x, y;
+    int x, y;
 
-	for (x = surface->w - 1; x >= 0; x--)
-	{
-		for (y = 0; y < surface->h; y++)
-		{
-			if (getpixel(surface, x, y) != ckey)
-			{
-				*pos = (surface->w - 1) - x;
-				return 1;
-			}
-		}
-	}
+    for (x = surface->w - 1; x >= 0; x--) {
+        for (y = 0; y < surface->h; y++) {
+            if (getpixel(surface, x, y) != ckey) {
+                *pos = (surface->w - 1) - x;
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -589,21 +524,18 @@ static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32 ckey)
  * @return 1 if the border was found, 0 otherwise. */
 static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32 ckey)
 {
-	int x, y;
+    int x, y;
 
-	for (y = 0; y < surface->h; y++)
-	{
-		for (x = 0; x < surface->w; x++)
-		{
-			if (getpixel(surface, x, y) != ckey)
-			{
-				*pos = y;
-				return 1;
-			}
-		}
-	}
+    for (y = 0; y < surface->h; y++) {
+        for (x = 0; x < surface->w; x++) {
+            if (getpixel(surface, x, y) != ckey) {
+                *pos = y;
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -615,21 +547,18 @@ static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32 ckey)
  * @return 1 if the border was found, 0 otherwise. */
 static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32 color)
 {
-	int x, y;
+    int x, y;
 
-	for (y = surface->h - 1; y >= 0; y--)
-	{
-		for (x = 0; x < surface->w; x++)
-		{
-			if (getpixel(surface, x, y) != color)
-			{
-				*pos = (surface->h - 1) - y;
-				return 1;
-			}
-		}
-	}
+    for (y = surface->h - 1; y >= 0; y--) {
+        for (x = 0; x < surface->w; x++) {
+            if (getpixel(surface, x, y) != color) {
+                *pos = (surface->h - 1) - y;
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -645,23 +574,22 @@ static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32 colo
  * with 'color' color). */
 int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color)
 {
-	*top = 0;
-	*bottom = 0;
-	*left = 0;
-	*right = 0;
+    *top = 0;
+    *bottom = 0;
+    *left = 0;
+    *right = 0;
 
-	/* If the border was not found, it means the surface is completely
-	 * filled with 'color' color. */
-	if (!surface_border_get_top(surface, top, color))
-	{
-		return 0;
-	}
+    /* If the border was not found, it means the surface is completely
+     * filled with 'color' color. */
+    if (!surface_border_get_top(surface, top, color)) {
+        return 0;
+    }
 
-	surface_border_get_bottom(surface, bottom, color);
-	surface_border_get_left(surface, left, color);
-	surface_border_get_right(surface, right, color);
+    surface_border_get_bottom(surface, bottom, color);
+    surface_border_get_left(surface, left, color);
+    surface_border_get_right(surface, right, color);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -673,74 +601,69 @@ int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, 
  * @return  */
 struct _anim *add_anim(int type, int mapx, int mapy, int value)
 {
-	struct _anim *tmp, *anim;
-	int num_ticks;
+    struct _anim *tmp, *anim;
+    int num_ticks;
 
-	for (tmp = start_anim; tmp; tmp = tmp->next)
-	{
-		if (!tmp->next)
-		{
-			break;
-		}
-	}
+    for (tmp = start_anim; tmp; tmp = tmp->next) {
+        if (!tmp->next) {
+            break;
+        }
+    }
 
-	/* tmp == null - no anim in que, else tmp = last anim */
-	anim = (struct _anim *) malloc(sizeof(struct _anim));
+    /* tmp == null - no anim in que, else tmp = last anim */
+    anim = (struct _anim *) malloc(sizeof(struct _anim));
 
-	if (!tmp)
-	{
-		start_anim = anim;
-	}
-	else
-	{
-		tmp->next = anim;
-	}
+    if (!tmp) {
+        start_anim = anim;
+    }
+    else {
+        tmp->next = anim;
+    }
 
-	anim->before = tmp;
-	anim->next = NULL;
+    anim->before = tmp;
+    anim->next = NULL;
 
-	anim->type = type;
+    anim->type = type;
 
-	/* Starting X position */
-	anim->x = 0;
+    /* Starting X position */
+    anim->x = 0;
 
-	/* Starting Y position */
-	anim->y = -5;
-	anim->xoff = 0;
+    /* Starting Y position */
+    anim->y = -5;
+    anim->xoff = 0;
 
-	/* This looks like it makes it move up the screen -- was 0 */
-	anim->yoff = 1;
+    /* This looks like it makes it move up the screen -- was 0 */
+    anim->yoff = 1;
 
-	/* Map coordinates */
-	anim->mapx = mapx;
-	anim->mapy = mapy;
+    /* Map coordinates */
+    anim->mapx = mapx;
+    anim->mapy = mapy;
 
-	/* Amount of damage */
-	anim->value = value;
+    /* Amount of damage */
+    anim->value = value;
 
-	/* Current time in MilliSeconds */
-	anim->start_tick = LastTick;
+    /* Current time in MilliSeconds */
+    anim->start_tick = LastTick;
 
-	switch (type)
-	{
-		case ANIM_DAMAGE:
-			/* How many ticks to display */
-			num_ticks = 850;
-			anim->last_tick = anim->start_tick + num_ticks;
-			/* 850 ticks 25 pixel move up */
-			anim->yoff = (25.0f / 850.0f);
-			break;
+    switch (type) {
+        case ANIM_DAMAGE:
+            /* How many ticks to display */
+            num_ticks = 850;
+            anim->last_tick = anim->start_tick + num_ticks;
+            /* 850 ticks 25 pixel move up */
+            anim->yoff = (25.0f / 850.0f);
+            break;
 
-		case ANIM_KILL:
-			/* How many ticks to display */
-			num_ticks = 850;
-			anim->last_tick = anim->start_tick + num_ticks;
-			/* 850 ticks 25 pixel move up */
-			anim->yoff = (25.0f / 850.0f);
-			break;
-	}
+        case ANIM_KILL:
+            /* How many ticks to display */
+            num_ticks = 850;
+            anim->last_tick = anim->start_tick + num_ticks;
+            /* 850 ticks 25 pixel move up */
+            anim->yoff = (25.0f / 850.0f);
+            break;
+    }
 
-	return anim;
+    return anim;
 }
 
 /**
@@ -748,111 +671,100 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
  * @param anim The animation to remove. */
 void remove_anim(struct _anim *anim)
 {
-	struct _anim *tmp, *tmp_next;
+    struct _anim *tmp, *tmp_next;
 
-	if (!anim)
-	{
-		return;
-	}
+    if (!anim) {
+        return;
+    }
 
-	tmp = anim->before;
-	tmp_next = anim->next;
-	free(anim);
+    tmp = anim->before;
+    tmp_next = anim->next;
+    free(anim);
 
-	if (tmp)
-	{
-		tmp->next = tmp_next;
-	}
-	else
-	{
-		start_anim = tmp_next;
-	}
+    if (tmp) {
+        tmp->next = tmp_next;
+    }
+    else {
+        start_anim = tmp_next;
+    }
 
-	if (tmp_next)
-	{
-		tmp_next->before = tmp;
-	}
+    if (tmp_next) {
+        tmp_next->before = tmp;
+    }
 }
 
 /**
  * Walk through the map anim list, and display the anims. */
 void play_anims(void)
 {
-	struct _anim *anim, *tmp;
-	int xpos, ypos, tmp_off;
-	int num_ticks;
-	char buf[32];
-	int tmp_y;
+    struct _anim *anim, *tmp;
+    int xpos, ypos, tmp_off;
+    int num_ticks;
+    char buf[32];
+    int tmp_y;
 
-	for (anim = start_anim; anim; anim = tmp)
-	{
-		tmp = anim->next;
+    for (anim = start_anim; anim; anim = tmp) {
+        tmp = anim->next;
 
-		/* Have we passed the last tick */
-		if (LastTick > anim->last_tick)
-			remove_anim(anim);
-		else
-		{
-			num_ticks = LastTick - anim->start_tick;
+        /* Have we passed the last tick */
+        if (LastTick > anim->last_tick)
+            remove_anim(anim);
+        else {
+            num_ticks = LastTick - anim->start_tick;
 
-			switch (anim->type)
-			{
-				case ANIM_DAMAGE:
-					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
+            switch (anim->type) {
+                case ANIM_DAMAGE:
+                    tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
-					{
-						xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-						ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+                    if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
+                        xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+                        ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 
-						if (anim->value < 0)
-						{
-							snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-							text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
-						}
-						else
-						{
-							snprintf(buf, sizeof(buf), "%d", anim->value);
-							text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
-						}
-					}
+                        if (anim->value < 0) {
+                            snprintf(buf, sizeof(buf), "%d", abs(anim->value));
+                            text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
+                        }
+                        else {
+                            snprintf(buf, sizeof(buf), "%d", anim->value);
+                            text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
+                        }
+                    }
 
-					break;
+                    break;
 
-				case ANIM_KILL:
-					tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
+                case ANIM_KILL:
+                    tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
 
-					if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))
-					{
-						xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-						ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+                    if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
+                        xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
+                        ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
 
-						surface_show(ScreenSurface, xpos + anim->x - 5, ypos + tmp_y - 4, NULL, TEXTURE_CLIENT("death"));
-						snprintf(buf, sizeof(buf), "%d", anim->value);
+                        surface_show(ScreenSurface, xpos + anim->x - 5, ypos + tmp_y - 4, NULL, TEXTURE_CLIENT("death"));
+                        snprintf(buf, sizeof(buf), "%d", anim->value);
 
-						tmp_off = 0;
+                        tmp_off = 0;
 
-						/* Let's check the size of the value */
-						if (anim->value < 10)
-							tmp_off = 6;
-						else if (anim->value < 100)
-							tmp_off = 0;
-						else if (anim->value < 1000)
-							tmp_off = -6;
-						else if (anim->value < 10000)
-							tmp_off = -12;
+                        /* Let's check the size of the value */
+                        if (anim->value < 10)
+                            tmp_off = 6;
+                        else if (anim->value < 100)
+                            tmp_off = 0;
+                        else if (anim->value < 1000)
+                            tmp_off = -6;
+                        else if (anim->value < 10000)
+                            tmp_off = -12;
 
-						text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
-					}
+                        text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
+                    }
 
-					break;
+                    break;
 
-				default:
-					logger_print(LOG(BUG), "Unknown animation type");
-					break;
-			}
-		}
-	}
+                default:
+                    logger_print(LOG(BUG), "Unknown animation type");
+                    break;
+            }
+        }
+    }
 }
 
 /**
@@ -868,44 +780,40 @@ void play_anims(void)
  * @return  */
 int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2)
 {
-	int left1, left2;
-	int right1, right2;
-	int top1, top2;
-	int bottom1, bottom2;
+    int left1, left2;
+    int right1, right2;
+    int top1, top2;
+    int bottom1, bottom2;
 
-	left1 = x + sprite1->border_left;
-	left2 = x2 + sprite2->border_left;
+    left1 = x + sprite1->border_left;
+    left2 = x2 + sprite2->border_left;
 
-	right1 = x + sprite1->bitmap->w - sprite1->border_right;
-	right2 = x2 + sprite2->bitmap->w - sprite2->border_right;
+    right1 = x + sprite1->bitmap->w - sprite1->border_right;
+    right2 = x2 + sprite2->bitmap->w - sprite2->border_right;
 
-	top1 = y + sprite1->border_up;
-	top2 = y2 + sprite2->border_down;
+    top1 = y + sprite1->border_up;
+    top2 = y2 + sprite2->border_down;
 
-	bottom1 = y + sprite1->bitmap->h - sprite1->border_down;
-	bottom2 = y2 + sprite2->bitmap->h - sprite2->border_down;
+    bottom1 = y + sprite1->bitmap->h - sprite1->border_down;
+    bottom2 = y2 + sprite2->bitmap->h - sprite2->border_down;
 
-	if (bottom1 < top2)
-	{
-		return 0;
-	}
+    if (bottom1 < top2) {
+        return 0;
+    }
 
-	if (top1 > bottom2)
-	{
-		return 0;
-	}
+    if (top1 > bottom2) {
+        return 0;
+    }
 
-	if (right1 < left2)
-	{
-		return 0;
-	}
+    if (right1 < left2) {
+        return 0;
+    }
 
-	if (left1 > right2)
-	{
-		return 0;
-	}
+    if (left1 > right2) {
+        return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -914,25 +822,21 @@ int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprit
  * @param box Coordinates. */
 void surface_pan(SDL_Surface *surface, SDL_Rect *box)
 {
-	if (box->x >= surface->w - box->w)
-	{
-		box->x = (Sint16) (surface->w - box->w);
-	}
+    if (box->x >= surface->w - box->w) {
+        box->x = (Sint16) (surface->w - box->w);
+    }
 
-	if (box->x < 0)
-	{
-		box->x = 0;
-	}
+    if (box->x < 0) {
+        box->x = 0;
+    }
 
-	if (box->y >= surface->h - box->h)
-	{
-		box->y = (Sint16) (surface->h - box->h);
-	}
+    if (box->y >= surface->h - box->h) {
+        box->y = (Sint16) (surface->h - box->h);
+    }
 
-	if (box->y < 0)
-	{
-		box->y = 0;
-	}
+    if (box->y < 0) {
+        box->y = 0;
+    }
 }
 
 /**
@@ -944,24 +848,24 @@ void surface_pan(SDL_Surface *surface, SDL_Rect *box)
  * @param h Height of the frame. */
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	box.x = x;
-	box.y = y;
-	box.h = h;
-	box.w = 1;
-	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
-	box.x = x + w;
-	box.h++;
-	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
-	box.x = x;
-	box.y+= h;
-	box.w = w;
-	box.h = 1;
-	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
-	box.x++;
-	box.y = y;
-	SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+    box.x = x;
+    box.y = y;
+    box.h = h;
+    box.w = 1;
+    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+    box.x = x + w;
+    box.h++;
+    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+    box.x = x;
+    box.y+= h;
+    box.w = w;
+    box.h = 1;
+    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+    box.x++;
+    box.y = y;
+    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
 }
 
 /**
@@ -975,93 +879,91 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
  * @param size Border's size. */
 void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	/* Left border. */
-	box.x = x;
-	box.y = y;
-	box.h = h;
-	box.w = size;
-	SDL_FillRect(surface, &box, color);
+    /* Left border. */
+    box.x = x;
+    box.y = y;
+    box.h = h;
+    box.w = size;
+    SDL_FillRect(surface, &box, color);
 
-	/* Right border. */
-	box.x = x + w - size;
-	SDL_FillRect(surface, &box, color);
+    /* Right border. */
+    box.x = x + w - size;
+    SDL_FillRect(surface, &box, color);
 
-	/* Top border. */
-	box.x = x + size;
-	box.y = y;
-	box.w = w - size * 2;
-	box.h = size;
-	SDL_FillRect(surface, &box, color);
+    /* Top border. */
+    box.x = x + size;
+    box.y = y;
+    box.w = w - size * 2;
+    box.h = size;
+    SDL_FillRect(surface, &box, color);
 
-	/* Bottom border. */
-	box.y = y + h - size;
-	SDL_FillRect(surface, &box, color);
+    /* Bottom border. */
+    box.y = y + h - size;
+    SDL_FillRect(surface, &box, color);
 }
 
 void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color)
 {
-	SDL_Rect dst;
+    SDL_Rect dst;
 
-	dst.x = x;
-	dst.y = y;
-	dst.w = w;
-	dst.h = h;
-	SDL_FillRect(surface, &dst, color);
+    dst.x = x;
+    dst.y = y;
+    dst.w = w;
+    dst.h = h;
+    SDL_FillRect(surface, &dst, color);
 }
 
 void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color)
 {
-	uint32 color_mapped;
+    uint32 color_mapped;
 
-	color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
+    color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
 
-	BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
-	BORDER_CREATE_BOTTOM(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
-	BORDER_CREATE_LEFT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
-	BORDER_CREATE_RIGHT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+    BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+    BORDER_CREATE_BOTTOM(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+    BORDER_CREATE_LEFT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
+    BORDER_CREATE_RIGHT(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
 }
 
 void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation)
 {
-	SDL_Color color;
+    SDL_Color color;
 
-	if (!text_color_parse(color_notation, &color))
-	{
-		logger_print(LOG(BUG), "Invalid color: %s", color_notation);
-		return;
-	}
+    if (!text_color_parse(color_notation, &color)) {
+        logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+        return;
+    }
 
-	border_create_sdl_color(surface, coords, thickness, &color);
+    border_create_sdl_color(surface, coords, thickness, &color);
 }
 
 void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	box.w = coords->w;
-	box.h = thickness;
-	surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
-	surface_show_fill(surface, coords->x, coords->y + coords->h - thickness, NULL, texture, &box);
+    box.w = coords->w;
+    box.h = thickness;
+    surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
+    surface_show_fill(surface, coords->x, coords->y + coords->h - thickness, NULL, texture, &box);
 
-	box.w = thickness;
-	box.h = coords->h;
-	surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
-	surface_show_fill(surface, coords->x + coords->w - thickness, coords->y, NULL, texture, &box);
+    box.w = thickness;
+    box.h = coords->h;
+    surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
+    surface_show_fill(surface, coords->x + coords->w - thickness, coords->y, NULL, texture, &box);
 }
 
 void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation)
 {
-	SDL_Color color;
+    SDL_Color color;
 
-	if (!text_color_parse(color_notation, &color))
-	{
-		logger_print(LOG(BUG), "Invalid color: %s", color_notation);
-		return;
-	}
+    if (!text_color_parse(color_notation, &color)) {
+        logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+        return;
+    }
 
-	border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
+    border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
 }
 
 /**
@@ -1072,34 +974,30 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
  */
 void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
 {
-	SDL_PixelFormat *fmt = surface->format;
+    SDL_PixelFormat *fmt = surface->format;
 
-	if (fmt->Amask == 0)
-	{
-		SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
-	}
-	else
-	{
-		int x, y;
-		uint8 bpp = fmt->BytesPerPixel;
-		float scale = alpha / 255.0f;
+    if (fmt->Amask == 0) {
+        SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+    }
+    else {
+        int x, y;
+        uint8 bpp = fmt->BytesPerPixel;
+        float scale = alpha / 255.0f;
 
-		SDL_LockSurface(surface);
+        SDL_LockSurface(surface);
 
-		for (y = 0; y < surface->h; y++) 
-		{
-			for (x = 0; x < surface->w; x++)
-			{
-				uint8 r, g, b, a;
-				uint32 *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch + x * bpp);
-				
-				SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
+        for (y = 0; y < surface->h; y++) {
+            for (x = 0; x < surface->w; x++) {
+                uint8 r, g, b, a;
+                uint32 *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch + x * bpp);
 
-				*pixel_ptr = SDL_MapRGBA(fmt, r, g, b, scale * a);
-			}   
+                SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
 
-		}
-		
-		SDL_UnlockSurface(surface);
-	}
-} 
+                *pixel_ptr = SDL_MapRGBA(fmt, r, g, b, scale * a);
+            }
+
+        }
+
+        SDL_UnlockSurface(surface);
+    }
+}

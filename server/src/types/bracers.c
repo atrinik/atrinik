@@ -34,5 +34,5 @@
  * Initialize the bracers type object methods. */
 void object_type_init_bracers(void)
 {
-	object_type_methods[BRACERS].apply_func = object_apply_item;
+    object_type_methods[BRACERS].apply_func = object_apply_item;
 }

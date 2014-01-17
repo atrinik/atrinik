@@ -49,8 +49,8 @@
 static uint8 did_init = 0;
 
 #ifdef HAVE_READLINE
-#	include <readline/readline.h>
-#	include <readline/history.h>
+#   include <readline/readline.h>
+#   include <readline/history.h>
 #endif
 
 /**
@@ -88,47 +88,41 @@ static const char *current_prompt;
  * @param params Command parameters. */
 static void console_command_help(const char *params)
 {
-	size_t i;
+    size_t i;
 
-	/* Parameters provided, so give out info about the command. */
-	if (params)
-	{
-		for (i = 0; i < console_commands_num; i++)
-		{
-			if (strcmp(console_commands[i].command, params) == 0)
-			{
-				char *curr, *next, *cp;
+    /* Parameters provided, so give out info about the command. */
+    if (params) {
+        for (i = 0; i < console_commands_num; i++) {
+            if (strcmp(console_commands[i].command, params) == 0) {
+                char *curr, *next, *cp;
 
-				logger_print(LOG(INFO), "##### Command: %s #####", console_commands[i].command);
-				logger_print(LOG(INFO), " ");
+                logger_print(LOG(INFO), "##### Command: %s #####", console_commands[i].command);
+                logger_print(LOG(INFO), " ");
 
-				for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL)
-				{
-					cp = strndup(curr, next ? (size_t) (next - curr) : strlen(curr));
-					logger_print(LOG(INFO), "%s", cp);
-					free(cp);
-				}
+                for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL) {
+                    cp = strndup(curr, next ? (size_t) (next - curr) : strlen(curr));
+                    logger_print(LOG(INFO), "%s", cp);
+                    free(cp);
+                }
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		logger_print(LOG(INFO), "No such command '%s'.", params);
-	}
-	/* Otherwise brief information about all available commands. */
-	else
-	{
-		logger_print(LOG(INFO), "List of available commands:");
-		logger_print(LOG(INFO), " ");
+        logger_print(LOG(INFO), "No such command '%s'.", params);
+    }
+    /* Otherwise brief information about all available commands. */
+    else {
+        logger_print(LOG(INFO), "List of available commands:");
+        logger_print(LOG(INFO), " ");
 
-		for (i = 0; i < console_commands_num; i++)
-		{
-			logger_print(LOG(INFO), "    - %s: %s", console_commands[i].command, console_commands[i].desc_brief);
-		}
+        for (i = 0; i < console_commands_num; i++) {
+            logger_print(LOG(INFO), "    - %s: %s", console_commands[i].command, console_commands[i].desc_brief);
+        }
 
-		logger_print(LOG(INFO), " ");
-		logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specified command.");
-	}
+        logger_print(LOG(INFO), " ");
+        logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specified command.");
+    }
 }
 
 #ifdef HAVE_READLINE
@@ -138,108 +132,102 @@ static void console_command_help(const char *params)
  * @param line Line. */
 static void handle_line_fake(char *line)
 {
-	if (line)
-	{
-		rl_set_prompt(current_prompt);
-		rl_already_prompted = 1;
-	}
+    if (line) {
+        rl_set_prompt(current_prompt);
+        rl_already_prompted = 1;
+    }
 }
 
 /**
  * Handle enter key. */
 static int handle_enter(int cnt, int key)
 {
-	char *line;
+    char *line;
 
-	line = rl_copy_text(0, rl_end);
+    line = rl_copy_text(0, rl_end);
 
-	rl_point = rl_end;
-	rl_redisplay();
-	rl_crlf();
-	rl_on_new_line();
-	rl_replace_line("", 1);
+    rl_point = rl_end;
+    rl_redisplay();
+    rl_crlf();
+    rl_on_new_line();
+    rl_replace_line("", 1);
 
-	if (*line != '\0')
-	{
-		add_history(line);
-	}
+    if (*line != '\0') {
+        add_history(line);
+    }
 
-	pthread_mutex_lock(&command_process_queue_mutex);
-	utarray_push_back(command_process_queue, &line);
-	pthread_mutex_unlock(&command_process_queue_mutex);
+    pthread_mutex_lock(&command_process_queue_mutex);
+    utarray_push_back(command_process_queue, &line);
+    pthread_mutex_unlock(&command_process_queue_mutex);
 
-	free(line);
-	rl_redisplay();
-	rl_done = 1;
+    free(line);
+    rl_redisplay();
+    rl_done = 1;
 
-	return 0;
+    return 0;
 }
 
 /**
  * Command generator for readline's completion. */
 static char *command_generator(const char *text, int state)
 {
-	static size_t i, len;
-	char *command;
+    static size_t i, len;
+    char *command;
 
-	if (!state)
-	{
-		i = 0;
-		len = strlen(text);
-	}
+    if (!state) {
+        i = 0;
+        len = strlen(text);
+    }
 
-	while (i < console_commands_num)
-	{
-		command = console_commands[i].command;
-		i++;
+    while (i < console_commands_num) {
+        command = console_commands[i].command;
+        i++;
 
-		if (strncmp(command, text, len) == 0)
-		{
-			return strdup(command);
-		}
-	}
+        if (strncmp(command, text, len) == 0) {
+            return strdup(command);
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
  * Readline completion. */
 static char **readline_completion(const char *text, int start, int end)
 {
-	char **matches;
+    char **matches;
 
-	matches = NULL;
+    matches = NULL;
 
-	if (start == 0)
-	{
-		matches = rl_completion_matches(text, command_generator);
-	}
+    if (start == 0) {
+        matches = rl_completion_matches(text, command_generator);
+    }
 
-	return matches;
+    return matches;
 }
 
 /**
  * Overrides the logger's standard printing function. */
 static void console_print(const char *str)
 {
-	char *saved_line;
-	int saved_point;
+    char *saved_line;
+    int saved_point;
 
-	saved_line = rl_copy_text(0, rl_end);
-	saved_point = rl_point;
+    saved_line = rl_copy_text(0, rl_end);
+    saved_point = rl_point;
 
-	rl_set_prompt("");
-	rl_replace_line("", 0);
-	rl_redisplay();
+    rl_set_prompt("");
+    rl_replace_line("", 0);
+    rl_redisplay();
 
-	logger_do_print(str);
+    logger_do_print(str);
 
-	rl_set_prompt(current_prompt);
-	rl_replace_line(saved_line, 0);
-	rl_point = saved_point;
-	rl_redisplay();
+    rl_set_prompt(current_prompt);
+    rl_replace_line(saved_line, 0);
+    rl_point = saved_point;
+    rl_redisplay();
 
-	free(saved_line);
+    free(saved_line);
 }
 
 #endif
@@ -251,33 +239,31 @@ static void console_print(const char *str)
 static void *do_thread(void *dummy)
 {
 #ifndef HAVE_READLINE
-	char *line;
-	ssize_t numread;
-	size_t len;
+    char *line;
+    ssize_t numread;
+    size_t len;
 #endif
 
-	while (!thread_done)
-	{
+    while (!thread_done) {
 #ifdef HAVE_READLINE
-		rl_callback_read_char();
+        rl_callback_read_char();
 #else
-		line = NULL;
-		numread = getline(&line, &len, stdin);
+        line = NULL;
+        numread = getline(&line, &len, stdin);
 
-		if (numread <= 0)
-		{
-			continue;
-		}
+        if (numread <= 0) {
+            continue;
+        }
 
-		pthread_mutex_lock(&command_process_queue_mutex);
-		utarray_push_back(command_process_queue, &line);
-		pthread_mutex_unlock(&command_process_queue_mutex);
+        pthread_mutex_lock(&command_process_queue_mutex);
+        utarray_push_back(command_process_queue, &line);
+        pthread_mutex_unlock(&command_process_queue_mutex);
 #endif
 
-		usleep(10000);
-	}
+        usleep(10000);
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -285,55 +271,53 @@ static void *do_thread(void *dummy)
  * @internal */
 void toolkit_console_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(console)
-	{
-		int ret;
+    TOOLKIT_INIT_FUNC_START(console)
+    {
+        int ret;
 
-		toolkit_import(logger);
-		toolkit_import(memory);
-		console_commands = NULL;
-		console_commands_num = 0;
+        toolkit_import(logger);
+        toolkit_import(memory);
+        console_commands = NULL;
+        console_commands_num = 0;
 
-		utarray_new(command_process_queue, &ut_str_icd);
+        utarray_new(command_process_queue, &ut_str_icd);
 
 #ifdef HAVE_READLINE
-		rl_readline_name = "atrinik-server";
-		rl_initialize();
-		rl_attempted_completion_function = readline_completion;
+        rl_readline_name = "atrinik-server";
+        rl_initialize();
+        rl_attempted_completion_function = readline_completion;
 
-		current_prompt = "> ";
-		rl_set_prompt(current_prompt);
+        current_prompt = "> ";
+        rl_set_prompt(current_prompt);
 
-		if (rl_bind_key(RETURN, handle_enter))
-		{
-			logger_print(LOG(ERROR), "Could not bind enter.");
-			exit(1);
-		}
+        if (rl_bind_key(RETURN, handle_enter)) {
+            logger_print(LOG(ERROR), "Could not bind enter.");
+            exit(1);
+        }
 
-		rl_callback_handler_install(current_prompt, handle_line_fake);
-		logger_set_print_func(console_print);
+        rl_callback_handler_install(current_prompt, handle_line_fake);
+        logger_set_print_func(console_print);
 #endif
 
-		/* Add the 'help' command. */
-		console_command_add(
-			"help",
-			console_command_help,
-			"Displays this help.",
-			"Displays the help, listing available console commands, etc.\n\n"
-			"'help <command>' can be used to get more detailed help about the specified command."
-		);
+        /* Add the 'help' command. */
+        console_command_add(
+            "help",
+            console_command_help,
+            "Displays this help.",
+            "Displays the help, listing available console commands, etc.\n\n"
+            "'help <command>' can be used to get more detailed help about the specified command."
+            );
 
-		thread_done = 0;
-		pthread_mutex_init(&command_process_queue_mutex, NULL);
-		ret = pthread_create(&thread_id, NULL, do_thread, NULL);
+        thread_done = 0;
+        pthread_mutex_init(&command_process_queue_mutex, NULL);
+        ret = pthread_create(&thread_id, NULL, do_thread, NULL);
 
-		if (ret)
-		{
-			logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
-			exit(1);
-		}
-	}
-	TOOLKIT_INIT_FUNC_END()
+        if (ret) {
+            logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
+            exit(1);
+        }
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -341,40 +325,38 @@ void toolkit_console_init(void)
  * @internal */
 void toolkit_console_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(console)
-	{
-		size_t i;
+    TOOLKIT_DEINIT_FUNC_START(console)
+    {
+        size_t i;
 
-		thread_done = 1;
-		pthread_cancel(thread_id);
+        thread_done = 1;
+        pthread_cancel(thread_id);
 
-		for (i = 0; i < console_commands_num; i++)
-		{
-			free(console_commands[i].command);
-			free(console_commands[i].desc_brief);
-			free(console_commands[i].desc);
-		}
+        for (i = 0; i < console_commands_num; i++) {
+            free(console_commands[i].command);
+            free(console_commands[i].desc_brief);
+            free(console_commands[i].desc);
+        }
 
-		if (console_commands)
-		{
-			free(console_commands);
-			console_commands = NULL;
-		}
+        if (console_commands) {
+            free(console_commands);
+            console_commands = NULL;
+        }
 
-		console_commands_num = 0;
-		utarray_free(command_process_queue);
+        console_commands_num = 0;
+        utarray_free(command_process_queue);
 
-		logger_set_print_func(logger_do_print);
+        logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
-		rl_unbind_key(RETURN);
-		rl_callback_handler_remove();
+        rl_unbind_key(RETURN);
+        rl_callback_handler_remove();
 
-		rl_set_prompt("");
-		rl_redisplay();
+        rl_set_prompt("");
+        rl_redisplay();
 #endif
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -385,27 +367,25 @@ void toolkit_console_deinit(void)
  * @param desc More detailed description of the command. */
 void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc)
 {
-	size_t i;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	/* Make sure the command doesn't exist yet. */
-	for (i = 0; i < console_commands_num; i++)
-	{
-		if (strcmp(console_commands[i].command, command) == 0)
-		{
-			logger_print(LOG(BUG), "Tried to add duplicate entry for command '%s'.", command);
-			return;
-		}
-	}
+    /* Make sure the command doesn't exist yet. */
+    for (i = 0; i < console_commands_num; i++) {
+        if (strcmp(console_commands[i].command, command) == 0) {
+            logger_print(LOG(BUG), "Tried to add duplicate entry for command '%s'.", command);
+            return;
+        }
+    }
 
-	/* Add it to the commands array. */
-	console_commands = memory_reallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
-	console_commands[console_commands_num].command = strdup(command);
-	console_commands[console_commands_num].handle_func = handle_func;
-	console_commands[console_commands_num].desc_brief = strdup(desc_brief);
-	console_commands[console_commands_num].desc = strdup(desc);
-	console_commands_num++;
+    /* Add it to the commands array. */
+    console_commands = memory_reallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
+    console_commands[console_commands_num].command = strdup(command);
+    console_commands[console_commands_num].handle_func = handle_func;
+    console_commands[console_commands_num].desc_brief = strdup(desc_brief);
+    console_commands[console_commands_num].desc = strdup(desc);
+    console_commands_num++;
 }
 
 /**
@@ -413,51 +393,45 @@ void console_command_add(const char *command, console_command_func handle_func, 
  * main loop. */
 void console_command_handle(void)
 {
-	char **line, *cp;
-	size_t i;
+    char **line, *cp;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	pthread_mutex_lock(&command_process_queue_mutex);
-	line = (char **) utarray_front(command_process_queue);
-	pthread_mutex_unlock(&command_process_queue_mutex);
+    pthread_mutex_lock(&command_process_queue_mutex);
+    line = (char **) utarray_front(command_process_queue);
+    pthread_mutex_unlock(&command_process_queue_mutex);
 
-	if (!line)
-	{
-		return;
-	}
+    if (!line) {
+        return;
+    }
 
-	/* Remove the newline. */
-	cp = strchr(*line, '\n');
+    /* Remove the newline. */
+    cp = strchr(*line, '\n');
 
-	if (cp)
-	{
-		*cp = '\0';
-	}
+    if (cp) {
+        *cp = '\0';
+    }
 
-	/* Remove the command from the parameters. */
-	cp = strchr(*line, ' ');
+    /* Remove the command from the parameters. */
+    cp = strchr(*line, ' ');
 
-	if (cp)
-	{
-		*(cp++) = '\0';
+    if (cp) {
+        *(cp++) = '\0';
 
-		if (cp && *cp == '\0')
-		{
-			cp = NULL;
-		}
-	}
+        if (cp && *cp == '\0') {
+            cp = NULL;
+        }
+    }
 
-	for (i = 0; i < console_commands_num; i++)
-	{
-		if (strcmp(console_commands[i].command, *line) == 0)
-		{
-			console_commands[i].handle_func(cp);
-			break;
-		}
-	}
+    for (i = 0; i < console_commands_num; i++) {
+        if (strcmp(console_commands[i].command, *line) == 0) {
+            console_commands[i].handle_func(cp);
+            break;
+        }
+    }
 
-	pthread_mutex_lock(&command_process_queue_mutex);
-	utarray_erase(command_process_queue, 0, 1);
-	pthread_mutex_unlock(&command_process_queue_mutex);
+    pthread_mutex_lock(&command_process_queue_mutex);
+    utarray_erase(command_process_queue, 0, 1);
+    pthread_mutex_unlock(&command_process_queue_mutex);
 }

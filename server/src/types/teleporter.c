@@ -33,70 +33,60 @@
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	object *tmp, *next;
+    object *tmp, *next;
 
-	if (!op->map)
-	{
-		return;
-	}
+    if (!op->map) {
+        return;
+    }
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
-	{
-		next = tmp->above;
+    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next) {
+        next = tmp->above;
 
-		if (QUERY_FLAG(tmp, FLAG_NO_TELEPORT))
-		{
-			continue;
-		}
+        if (QUERY_FLAG(tmp, FLAG_NO_TELEPORT)) {
+            continue;
+        }
 
-		if (HAS_EVENT(op, EVENT_TRIGGER))
-		{
-			int ret;
+        if (HAS_EVENT(op, EVENT_TRIGGER)) {
+            int ret;
 
-			ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
+            ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING);
 
-			if (ret == 1)
-			{
-				return;
-			}
-			else if (ret == 2)
-			{
-				continue;
-			}
-		}
+            if (ret == 1) {
+                return;
+            }
+            else if (ret == 2) {
+                continue;
+            }
+        }
 
-		if (EXIT_PATH(op))
-		{
-			object_enter_map(tmp, op, NULL, 0, 0, 0);
-		}
-		else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1)
-		{
-			if (OUT_OF_MAP(op->map, EXIT_X(op), EXIT_Y(op)))
-			{
-				return;
-			}
+        if (EXIT_PATH(op)) {
+            object_enter_map(tmp, op, NULL, 0, 0, 0);
+        }
+        else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+            if (OUT_OF_MAP(op->map, EXIT_X(op), EXIT_Y(op))) {
+                return;
+            }
 
-			transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
-		}
-		else
-		{
-			teleport(op, TELEPORTER, tmp);
-		}
-	}
+            transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
+        }
+        else {
+            teleport(op, TELEPORTER, tmp);
+        }
+    }
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	process_func(op);
+    process_func(op);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the teleporter type object methods. */
 void object_type_init_teleporter(void)
 {
-	object_type_methods[TELEPORTER].process_func = process_func;
-	object_type_methods[TELEPORTER].trigger_func = trigger_func;
+    object_type_methods[TELEPORTER].process_func = process_func;
+    object_type_methods[TELEPORTER].trigger_func = trigger_func;
 }

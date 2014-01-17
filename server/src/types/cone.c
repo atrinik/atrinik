@@ -39,117 +39,104 @@
  * @param y Y position. */
 static int cone_exists(object *op, mapstruct *m, int x, int y)
 {
-	object *tmp;
+    object *tmp;
 
-	for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above)
-	{
-		if (op->type == tmp->type && op->weight_limit == tmp->weight_limit)
-		{
-			return 1;
-		}
-	}
+    for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
+        if (op->type == tmp->type && op->weight_limit == tmp->weight_limit) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	int i, x, y;
-	mapstruct *m;
-	object *tmp;
+    int i, x, y;
+    mapstruct *m;
+    object *tmp;
 
-	if (!op->map)
-	{
-		return;
-	}
+    if (!op->map) {
+        return;
+    }
 
-	if (QUERY_FLAG(op, FLAG_LIFESAVE))
-	{
-		hit_map(op, 0, 0);
-		return;
-	}
+    if (QUERY_FLAG(op, FLAG_LIFESAVE)) {
+        hit_map(op, 0, 0);
+        return;
+    }
 
-	hit_map(op, 0, 1);
+    hit_map(op, 0, 1);
 
-	if ((op->stats.hp -= 2) < 0)
-	{
-		object_remove(op, 0);
-		object_destroy(op);
-		return;
-	}
+    if ((op->stats.hp -= 2) < 0) {
+        object_remove(op, 0);
+        object_destroy(op);
+        return;
+    }
 
-	if (op->stats.food)
-	{
-		return;
-	}
+    if (op->stats.food) {
+        return;
+    }
 
-	op->stats.food = 1;
+    op->stats.food = 1;
 
-	for (i = -1; i < 2; i++)
-	{
-		x = op->x + freearr_x[absdir(op->stats.sp + i)];
-		y = op->y + freearr_y[absdir(op->stats.sp + i)];
-		m = get_map_from_coord(op->map, &x, &y);
+    for (i = -1; i < 2; i++) {
+        x = op->x + freearr_x[absdir(op->stats.sp + i)];
+        y = op->y + freearr_y[absdir(op->stats.sp + i)];
+        m = get_map_from_coord(op->map, &x, &y);
 
-		if (!m)
-		{
-			continue;
-		}
+        if (!m) {
+            continue;
+        }
 
-		if (wall(m, x, y) || cone_exists(op, m, x, y))
-		{
-			continue;
-		}
+        if (wall(m, x, y) || cone_exists(op, m, x, y)) {
+            continue;
+        }
 
-		/* Create the next part of the cone. */
-		tmp = arch_to_object(op->arch);
-		copy_owner(tmp, op);
-		tmp->weight_limit = op->weight_limit;
-		tmp->x = x;
-		tmp->y = y;
-		tmp->level = op->level;
-		tmp->stats.sp = op->stats.sp;
-		tmp->stats.hp = op->stats.hp + 1;
-		tmp->stats.maxhp = op->stats.maxhp;
-		tmp->stats.dam = op->stats.dam;
+        /* Create the next part of the cone. */
+        tmp = arch_to_object(op->arch);
+        copy_owner(tmp, op);
+        tmp->weight_limit = op->weight_limit;
+        tmp->x = x;
+        tmp->y = y;
+        tmp->level = op->level;
+        tmp->stats.sp = op->stats.sp;
+        tmp->stats.hp = op->stats.hp + 1;
+        tmp->stats.maxhp = op->stats.maxhp;
+        tmp->stats.dam = op->stats.dam;
 
-		tmp = insert_ob_in_map(tmp, m, op, 0);
+        tmp = insert_ob_in_map(tmp, m, op, 0);
 
-		if (!tmp)
-		{
-			continue;
-		}
-	}
+        if (!tmp) {
+            continue;
+        }
+    }
 }
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
+    (void) originator;
 
-	if (!state)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (!state) {
+        return OBJECT_METHOD_OK;
+    }
 
-	if (QUERY_FLAG(op, FLAG_SLOW_MOVE))
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (QUERY_FLAG(op, FLAG_SLOW_MOVE)) {
+        return OBJECT_METHOD_OK;
+    }
 
-	if (IS_LIVE(victim))
-	{
-		hit_player(victim, op->stats.dam, op, AT_INTERNAL);
-	}
+    if (IS_LIVE(victim)) {
+        hit_player(victim, op->stats.dam, op, AT_INTERNAL);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the cone type object methods. */
 void object_type_init_cone(void)
 {
-	object_type_methods[CONE].move_on_func = move_on_func;
-	object_type_methods[CONE].process_func = process_func;
+    object_type_methods[CONE].move_on_func = move_on_func;
+    object_type_methods[CONE].process_func = process_func;
 }

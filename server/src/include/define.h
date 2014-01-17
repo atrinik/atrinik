@@ -38,7 +38,7 @@
 #define DEFINE_H
 
 #ifndef NAME_MAX
-#	define NAME_MAX 255
+#   define NAME_MAX 255
 #endif
 
 /** The maximum legal value of any stat. */
@@ -626,37 +626,37 @@
  * @param xyz The object
  * @param p The flag to set */
 #define SET_FLAG(xyz, p) \
-	((xyz)->flags[p / 32] |= (1U << (p % 32)))
+    ((xyz)->flags[p / 32] |= (1U << (p % 32)))
 
 /**
  * Clear flag of an object.
  * @param xyz The object
  * @param p The flag to clear */
 #define CLEAR_FLAG(xyz, p) \
-	((xyz)->flags[p / 32] &= ~(1U << (p % 32)))
+    ((xyz)->flags[p / 32] &= ~(1U << (p % 32)))
 
 /**
  * Query flag of an object.
  * @param xyz The object
  * @param p The flag to query */
 #define QUERY_FLAG(xyz, p) \
-	((xyz)->flags[p / 32] & (1U << (p % 32)))
+    ((xyz)->flags[p / 32] & (1U << (p % 32)))
 
 /**
  * Toggle flag of an object.
  * @param xyz The object.
  * @param p The flag to toggle. */
 #define TOGGLE_FLAG(xyz, p) \
-{ \
-	if (QUERY_FLAG((xyz), (p))) \
-	{ \
-		CLEAR_FLAG((xyz), (p)); \
-	} \
-	else \
-	{ \
-		SET_FLAG((xyz), (p)); \
-	} \
-}
+    { \
+        if (QUERY_FLAG((xyz), (p))) \
+        { \
+            CLEAR_FLAG((xyz), (p)); \
+        } \
+        else \
+        { \
+            SET_FLAG((xyz), (p)); \
+        } \
+    }
 /*@}*/
 
 /**
@@ -668,44 +668,44 @@
  * we skip the call for the head in this way.
  *@{*/
 #define SET_MULTI_FLAG(xyz, p)                          \
-{                                                       \
-	object *_tos_;                                      \
+    {                                                       \
+        object *_tos_;                                      \
                                                         \
-	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-	{                                                   \
-		((_tos_)->flags[p / 32] |= (1U << (p % 32)));   \
-	}                                                   \
-}
+        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
+        {                                                   \
+            ((_tos_)->flags[p / 32] |= (1U << (p % 32)));   \
+        }                                                   \
+    }
 
 #define CLEAR_MULTI_FLAG(xyz, p)                        \
-{                                                       \
-	object *_tos_;                                      \
+    {                                                       \
+        object *_tos_;                                      \
                                                         \
-	for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-	{                                                   \
-		((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
-	}                                                   \
-}
+        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
+        {                                                   \
+            ((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
+        }                                                   \
+    }
 
 #define SET_OR_CLEAR_MULTI_FLAG(_head, _flag) \
-	if (QUERY_FLAG((_head), (_flag))) \
-	{ \
-		SET_MULTI_FLAG((_head)->more, (_flag)); \
-	} \
-	else \
-	{ \
-		CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-	}
+    if (QUERY_FLAG((_head), (_flag))) \
+    { \
+        SET_MULTI_FLAG((_head)->more, (_flag)); \
+    } \
+    else \
+    { \
+        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
+    }
 
 #define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag) \
-	if (QUERY_FLAG((_head), (_flag)) && !QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-	{ \
-		SET_MULTI_FLAG((_head)->more, (_flag)); \
-	} \
-	else if (!QUERY_FLAG((_head), (_flag)) && QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-	{ \
-		CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-	}
+    if (QUERY_FLAG((_head), (_flag)) && !QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
+    { \
+        SET_MULTI_FLAG((_head)->more, (_flag)); \
+    } \
+    else if (!QUERY_FLAG((_head), (_flag)) && QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
+    { \
+        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
+    }
 /*@}*/
 
 /**
@@ -1050,7 +1050,8 @@
 /**
  * Object name is "unique"- for artifacts like Stormbringer.
  *
- * Unique objects don't have a race or material (no "elven iron Stormbringer") */
+ * Unique objects don't have a race or material (no "elven iron Stormbringer")
+ * */
 #define FLAG_IS_NAMED 117
 /**
  * Monsters with this flag are created by spawn point and have a spawn
@@ -1115,10 +1116,10 @@
 
 /** Check if object has @ref FLAG_SYS_OBJECT set. */
 #define IS_SYS_INVISIBLE(__ob_) \
-	QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
+    QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
 /** Check if the object is invisible. */
 #define IS_INVISIBLE(__ob_, __player_) \
-	((QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE)) && ((__player_)->type != PLAYER || !CONTR((__player_))->tsi))
+    ((QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE)) && ((__player_)->type != PLAYER || !CONTR((__player_))->tsi))
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 
@@ -1246,64 +1247,62 @@
  * @param maxlen Maximum length of dest buffer. */
 static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, size_t maxlen)
 {
-	if (*curlen == (maxlen - 1))
-	{
-		return;
-	}
+    if (*curlen == (maxlen - 1)) {
+        return;
+    }
 
-	strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
-	dest[maxlen - 1] = 0;
-	*curlen += strlen(orig);
+    strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
+    dest[maxlen - 1] = 0;
+    *curlen += strlen(orig);
 
-	if (*curlen > (maxlen - 1))
-	{
-		*curlen = maxlen - 1;
-	}
+    if (*curlen > (maxlen - 1)) {
+        *curlen = maxlen - 1;
+    }
 }
 
 #define DESCRIBE_PATH(retbuf, variable, name)                        \
-	if (variable)                                                    \
-	{                                                                \
-		int i, j = 0;                                                \
-		strcat(retbuf, "(" name ": ");                               \
+    if (variable)                                                    \
+    {                                                                \
+        int i, j = 0;                                                \
+        strcat(retbuf, "(" name ": ");                               \
                                                                      \
-		for (i = 0; i < NRSPELLPATHS; i++)                           \
-		{                                                            \
-			if (variable & (1 << i))                                 \
-			{                                                        \
-				if (j)                                               \
-					strcat(retbuf, ", ");                            \
-				else                                                 \
-					j = 1;                                           \
+        for (i = 0; i < NRSPELLPATHS; i++)                           \
+        {                                                            \
+            if (variable & (1 << i))                                 \
+            {                                                        \
+                if (j)                                               \
+                    strcat(retbuf, ", ");                            \
+                else                                                 \
+                    j = 1;                                           \
                                                                      \
-				strcat(retbuf, spellpathnames[i]);                   \
-			}                                                        \
-		}                                                            \
+                strcat(retbuf, spellpathnames[i]);                   \
+            }                                                        \
+        }                                                            \
                                                                      \
-		strcat(retbuf, ")");                                         \
-	}
+        strcat(retbuf, ")");                                         \
+    }
 
 #define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen)      \
-	if (variable)                                                    \
-	{                                                                \
-		int i, j = 0;                                                \
-		safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
+    if (variable)                                                    \
+    {                                                                \
+        int i, j = 0;                                                \
+        safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
                                                                      \
-		for (i = 0; i < NRSPELLPATHS; i++)                           \
-		{                                                            \
-			if (variable & (1 << i))                                 \
-			{                                                        \
-				if (j)                                               \
-					safe_strcat(retbuf, ", ", len, maxlen);          \
-				else                                                 \
-					j = 1;                                           \
+        for (i = 0; i < NRSPELLPATHS; i++)                           \
+        {                                                            \
+            if (variable & (1 << i))                                 \
+            {                                                        \
+                if (j)                                               \
+                    safe_strcat(retbuf, ", ", len, maxlen);          \
+                else                                                 \
+                    j = 1;                                           \
                                                                      \
-				safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
-			}                                                        \
-		}                                                            \
+                safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
+            }                                                        \
+        }                                                            \
                                                                      \
-		safe_strcat(retbuf, ")", len, maxlen);                       \
-	}
+        safe_strcat(retbuf, ")", len, maxlen);                       \
+    }
 
 /**
  * Flags for object_apply_item().
@@ -1311,15 +1310,15 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
  * @anchor AP_xxx */
 enum apply_flag
 {
-	/* Basic flags, always use one of these */
-	AP_NULL = 0,
-	AP_APPLY = 1,
-	AP_UNAPPLY = 2,
-	AP_BASIC_FLAGS = 15,
-	/* Optional flags, for bitwise or with a basic flag */
-	AP_NO_MERGE = 16,
-	AP_IGNORE_CURSE = 32,
-	AP_NO_EVENT = 64
+    /* Basic flags, always use one of these */
+    AP_NULL = 0,
+    AP_APPLY = 1,
+    AP_UNAPPLY = 2,
+    AP_BASIC_FLAGS = 15,
+    /* Optional flags, for bitwise or with a basic flag */
+    AP_NO_MERGE = 16,
+    AP_IGNORE_CURSE = 32,
+    AP_NO_EVENT = 64
 };
 
 /** Cut off point of when an object is put on the active list or not */
@@ -1336,35 +1335,35 @@ enum apply_flag
  * dx & dy are input only and will not be changed.
  * All other parameters are the outputs which will be initialized */
 #define BRESENHAM_INIT(dx, dy, fraction, stepx, stepy, dx2, dy2)      \
-	{                                                                 \
-		(dx2) = (dx) << 1;                                            \
-		(dy2) = (dy) << 1;                                            \
+    {                                                                 \
+        (dx2) = (dx) << 1;                                            \
+        (dy2) = (dy) << 1;                                            \
                                                                       \
-		if ((dy) < 0)                                                 \
-		{                                                             \
-			(dy2) = -(dy2);                                           \
-			(stepy) = -1;                                             \
-		}                                                             \
-		else                                                          \
-		{                                                             \
-			(stepy) = 1;                                              \
-		}                                                             \
+        if ((dy) < 0)                                                 \
+        {                                                             \
+            (dy2) = -(dy2);                                           \
+            (stepy) = -1;                                             \
+        }                                                             \
+        else                                                          \
+        {                                                             \
+            (stepy) = 1;                                              \
+        }                                                             \
                                                                       \
-		if ((dx) < 0)                                                 \
-		{                                                             \
-			(dx2) = -(dx2);                                           \
-			(stepx) = -1;                                             \
-		}                                                             \
-		else                                                          \
-		{                                                             \
-			(stepx) = 1;                                              \
-		}                                                             \
+        if ((dx) < 0)                                                 \
+        {                                                             \
+            (dx2) = -(dx2);                                           \
+            (stepx) = -1;                                             \
+        }                                                             \
+        else                                                          \
+        {                                                             \
+            (stepx) = 1;                                              \
+        }                                                             \
                                                                       \
-		if ((dx2) > (dy2))                                            \
-			(fraction) = (dy2) - (dx) * (stepx);                      \
-		else                                                          \
-			(fraction) = (dx2) - (dy) * (stepy);                      \
-	}
+        if ((dx2) > (dy2))                                            \
+            (fraction) = (dy2) - (dx) * (stepx);                      \
+        else                                                          \
+            (fraction) = (dx2) - (dy) * (stepy);                      \
+    }
 
 /**
  * Bresenham line stepping macro.
@@ -1374,28 +1373,28 @@ enum apply_flag
  * stepx, stepy, dx2 and dy2 are input only and should also
  * be initialized by BRESENHAM_INIT */
 #define BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2)        \
-	if ((dx2) > (dy2))                                                \
-	{                                                                 \
-		if ((fraction) >= 0)                                          \
-		{                                                             \
-			(y) += (stepy);                                           \
-			(fraction) -= (dx2);                                      \
-		}                                                             \
+    if ((dx2) > (dy2))                                                \
+    {                                                                 \
+        if ((fraction) >= 0)                                          \
+        {                                                             \
+            (y) += (stepy);                                           \
+            (fraction) -= (dx2);                                      \
+        }                                                             \
                                                                       \
-		(x) += (stepx);                                               \
-		(fraction) += (dy2);                                          \
-	}                                                                 \
-	else                                                              \
-	{                                                                 \
-		if ((fraction) >= 0)                                          \
-		{                                                             \
-			(x) += (stepx);                                           \
-			(fraction) -= (dy2);                                      \
-		}                                                             \
+        (x) += (stepx);                                               \
+        (fraction) += (dy2);                                          \
+    }                                                                 \
+    else                                                              \
+    {                                                                 \
+        if ((fraction) >= 0)                                          \
+        {                                                             \
+            (x) += (stepx);                                           \
+            (fraction) -= (dy2);                                      \
+        }                                                             \
                                                                       \
-		(y) += (stepy);                                               \
-		(fraction) += (dx2);                                          \
-	}
+        (y) += (stepy);                                               \
+        (fraction) += (dx2);                                          \
+    }
 /*@}*/
 
 /** Name of the quest container archetype. */
@@ -1497,37 +1496,37 @@ enum apply_flag
  * @note Use @ref FOR_MAP_LAYER_BREAK to break out, instead of the
  * traditional 'break'.  */
 #define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _sub_layer, _obj) \
-{ \
-	int __sub_layer; \
-	object *__tmp, *__next; \
-	tag_t __next_tag; \
-	for (__sub_layer = ((_sub_layer) == -1 ? 0 : (_sub_layer)); __sub_layer < ((_layer) == LAYER_SYS ? 1 : ((_sub_layer) == -1 ? NUM_SUB_LAYERS : ((_sub_layer) + 1))); __sub_layer++) \
-	{ \
-		for (__tmp = (_layer) == LAYER_SYS ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
-		{ \
-			__next = __tmp->above; \
-			if (__next) \
-			{ \
-				__next_tag = __next->count; \
-			} \
-			(_obj) = __tmp;
+    { \
+        int __sub_layer; \
+        object *__tmp, *__next; \
+        tag_t __next_tag; \
+        for (__sub_layer = ((_sub_layer) == -1 ? 0 : (_sub_layer)); __sub_layer < ((_layer) == LAYER_SYS ? 1 : ((_sub_layer) == -1 ? NUM_SUB_LAYERS : ((_sub_layer) + 1))); __sub_layer++) \
+        { \
+            for (__tmp = (_layer) == LAYER_SYS ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
+            { \
+                __next = __tmp->above; \
+                if (__next) \
+                { \
+                    __next_tag = __next->count; \
+                } \
+                (_obj) = __tmp;
 
 /**
  * Break out of the loop. */
 #define FOR_MAP_LAYER_BREAK \
-			__sub_layer = NUM_SUB_LAYERS; \
-			break; \
+    __sub_layer = NUM_SUB_LAYERS; \
+    break; \
 
 /**
  * End the loop. */
 #define FOR_MAP_LAYER_END \
-			if (__next && !OBJECT_VALID(__next, __next_tag)) \
-			{ \
-				FOR_MAP_LAYER_BREAK; \
-			} \
-		} \
-	} \
-}
+    if (__next && !OBJECT_VALID(__next, __next_tag)) \
+    { \
+        FOR_MAP_LAYER_BREAK; \
+    } \
+    } \
+    } \
+    }
 /*@}*/
 
 #endif

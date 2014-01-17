@@ -89,10 +89,10 @@ dirs_make = ["server/lib", "server/data", "server/data/players", "server/data/tm
 # Binaries to copy. First parameter is an expression of what binaries
 # to copy, second one is whether they are required or not.
 binaries = [
-	["server/atrinik_server", True],
+	["server/atrinik-server", True],
 	["server/atrinik_server.exe", True],
 	["server/*.dll", False],
-	["client/atrinik-client", True],
+	["client/atrinik", True],
 	["client/atrinik.exe", True],
 	["client/*.dll", True],
 ]
@@ -162,32 +162,6 @@ for f in files:
 		debug("    Copying: {0}".format(src))
 		# Copy the file.
 		shutil.copyfile(src, "atrinik_map_maker/server/data/" + f)
-
-# Edit dmfile so everyone can be a DM.
-debug("Allowing anyone to become a DM...")
-
-# Original.
-dm_file = "atrinik_map_maker/server/data/dmfile"
-# Temporary.
-dm_file_tmp = "atrinik_map_maker/server/data/dmfile.tmp"
-fp_in = open(dm_file, "r")
-fp_out = open(dm_file_tmp, "w")
-
-# Go through the lines in the original, and put them to temporary one.
-for line in fp_in:
-	# If we find the line we're looking for, uncomment it and write it.
-	if line == "#*:*:*\n":
-		fp_out.write(line[1:])
-	else:
-		fp_out.write(line)
-
-fp_in.close()
-fp_out.close()
-
-# Remove the original file.
-os.remove(dm_file)
-# Copy the temporary file to the original one.
-shutil.move(dm_file_tmp, dm_file)
 
 # Copy plugin binaries.
 debug("Copying plugin binaries...")

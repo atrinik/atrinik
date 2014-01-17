@@ -37,87 +37,87 @@
 /** Button structure. */
 typedef struct button_struct
 {
-	/**
-	 * Surface to use for rendering. */
-	SDL_Surface *surface;
+    /**
+     * Surface to use for rendering. */
+    SDL_Surface *surface;
 
-	/** X position. */
-	int x;
+    /** X position. */
+    int x;
 
-	/** Y position. */
-	int y;
+    /** Y position. */
+    int y;
 
-	int px;
+    int px;
 
-	int py;
+    int py;
 
-	/**
-	 * Texture to normally use for the button. */
-	texture_struct *texture;
+    /**
+     * Texture to normally use for the button. */
+    texture_struct *texture;
 
-	/**
-	 * Texture to use if the mouse is over the button, NULL to use regular
-	 * one. */
-	texture_struct *texture_over;
+    /**
+     * Texture to use if the mouse is over the button, NULL to use regular
+     * one. */
+    texture_struct *texture_over;
 
-	/**
-	 * Texture to use if the button is being pressed, NULL to use regular
-	 * one. */
-	texture_struct *texture_pressed;
+    /**
+     * Texture to use if the button is being pressed, NULL to use regular
+     * one. */
+    texture_struct *texture_pressed;
 
-	/** Font used for the text. */
-	int font;
+    /** Font used for the text. */
+    int font;
 
-	/** Text flags. */
-	uint64 flags;
+    /** Text flags. */
+    uint64 flags;
 
-	/**
-	 * Whether to center the text vertically and horizontally. */
-	uint8 center;
+    /**
+     * Whether to center the text vertically and horizontally. */
+    uint8 center;
 
-	/** Color of the text. */
-	const char *color;
+    /** Color of the text. */
+    const char *color;
 
-	/** Color of the text's shadow. */
-	const char *color_shadow;
+    /** Color of the text's shadow. */
+    const char *color_shadow;
 
-	/** Color of the text if the mouse is over the button. */
-	const char *color_over;
+    /** Color of the text if the mouse is over the button. */
+    const char *color_over;
 
-	/** Color of the text's shadow if the mouse is over the button. */
-	const char *color_over_shadow;
+    /** Color of the text's shadow if the mouse is over the button. */
+    const char *color_over_shadow;
 
-	/** 1 if the mouse is over the button. */
-	int mouse_over;
+    /** 1 if the mouse is over the button. */
+    int mouse_over;
 
-	/**
-	 * 1 if the button is being pressed.
-	 * @private */
-	int pressed;
+    /**
+     * 1 if the button is being pressed.
+     * @private */
+    int pressed;
 
-	/** 1 if the button should be forced to be pressed. */
-	int pressed_forced;
+    /** 1 if the button should be forced to be pressed. */
+    int pressed_forced;
 
-	/** If 1, the button is in disabled state and cannot be pressed. */
-	int disabled;
+    /** If 1, the button is in disabled state and cannot be pressed. */
+    int disabled;
 
-	/** When the button was pressed. */
-	uint32 pressed_ticks;
+    /** When the button was pressed. */
+    uint32 pressed_ticks;
 
-	/** When the mouse started hovering over the button. */
-	uint32 hover_ticks;
+    /** When the mouse started hovering over the button. */
+    uint32 hover_ticks;
 
-	/** Ticks needed to trigger a repeat. */
-	uint32 pressed_repeat_ticks;
+    /** Ticks needed to trigger a repeat. */
+    uint32 pressed_repeat_ticks;
 
-	/**
-	 * Function called on button repeat
-	 * @param button The button. */
-	void (*repeat_func)(struct button_struct *button);
+    /**
+     * Function called on button repeat
+     * @param button The button. */
+    void (*repeat_func)(struct button_struct *button);
 
-	/**
-	 * Whether the button needs redrawing. */
-	uint8 redraw;
+    /**
+     * Whether the button needs redrawing. */
+    uint8 redraw;
 } button_struct;
 
 #endif

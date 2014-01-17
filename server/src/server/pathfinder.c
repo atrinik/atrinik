@@ -27,14 +27,18 @@
  * Pathfinding related code.
  *
  * Good pathfinding resources:
- * - Amit's Thoughts on Path-Finding and A-Star http://theory.stanford.edu/~amitp/GameProgramming/
- * - Smart Moves: Intelligent Pathfinding http://www.gamasutra.com/view/feature/3317/smart_move_intelligent_.php
+ * - Amit's Thoughts on Path-Finding and A-Star
+ * http://theory.stanford.edu/~amitp/GameProgramming/
+ * - Smart Moves: Intelligent Pathfinding
+ * http://www.gamasutra.com/view/feature/3317/smart_move_intelligent_.php
  *
  * Possible enhancements (profile and identify need before spending time on):
- *  - Replace the open list with a binary heap or skip list. Will enhance insertion performance.
+ *  - Replace the open list with a binary heap or skip list. Will enhance
+ * insertion performance.
  *
  * About monster-to-player paths:
- *  - use smaller max-number-of-nodes value (we don't want a mob running away across the map)
+ *  - use smaller max-number-of-nodes value (we don't want a mob running away
+ * across the map)
  *
  * @author Bjorn Axelsson (gecko@acc.umu.se) */
 
@@ -56,14 +60,15 @@ static int pathfinder_queue_last = 0;
 /** The pathfinder queue. */
 static struct
 {
-	/** Waypoint object. */
-	object *waypoint;
+    /** Waypoint object. */
+    object *waypoint;
 
-	/** Waypoint's ID. */
-	tag_t wp_count;
+    /** Waypoint's ID. */
+    tag_t wp_count;
 } pathfinder_queue[PATHFINDER_QUEUE_SIZE];
 
-/** This is used as static memory for search tree nodes (avoids lots of mallocs). */
+/** This is used as static memory for search tree nodes (avoids lots of
+ * mallocs). */
 #define PATHFINDER_NODEBUF 300
 /** Next node buf. */
 static int pathfinder_nodebuf_next = 0;
@@ -76,21 +81,19 @@ static path_node pathfinder_nodebuf[PATHFINDER_NODEBUF];
  * @return 1 on success, 0 on failure. */
 static int pathfinder_queue_enqueue(object *waypoint)
 {
-	/* Queue full? */
-	if (pathfinder_queue_last == pathfinder_queue_first - 1 || (pathfinder_queue_first == 0 && pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1))
-	{
-		return 0;
-	}
+    /* Queue full? */
+    if (pathfinder_queue_last == pathfinder_queue_first - 1 || (pathfinder_queue_first == 0 && pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1)) {
+        return 0;
+    }
 
-	pathfinder_queue[pathfinder_queue_last].waypoint = waypoint;
-	pathfinder_queue[pathfinder_queue_last].wp_count = waypoint->count;
+    pathfinder_queue[pathfinder_queue_last].waypoint = waypoint;
+    pathfinder_queue[pathfinder_queue_last].wp_count = waypoint->count;
 
-	if (++pathfinder_queue_last >= PATHFINDER_QUEUE_SIZE)
-	{
-		pathfinder_queue_last = 0;
-	}
+    if (++pathfinder_queue_last >= PATHFINDER_QUEUE_SIZE) {
+        pathfinder_queue_last = 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -99,23 +102,21 @@ static int pathfinder_queue_enqueue(object *waypoint)
  * @return The waypoint, NULL if the queue is empty. */
 static object *pathfinder_queue_dequeue(int *count)
 {
-	object *waypoint;
+    object *waypoint;
 
-	/* Queue empty? */
-	if (pathfinder_queue_last == pathfinder_queue_first)
-	{
-		return NULL;
-	}
+    /* Queue empty? */
+    if (pathfinder_queue_last == pathfinder_queue_first) {
+        return NULL;
+    }
 
-	waypoint = pathfinder_queue[pathfinder_queue_first].waypoint;
-	*count = pathfinder_queue[pathfinder_queue_first].wp_count;
+    waypoint = pathfinder_queue[pathfinder_queue_first].waypoint;
+    *count = pathfinder_queue[pathfinder_queue_first].wp_count;
 
-	if (++pathfinder_queue_first >= PATHFINDER_QUEUE_SIZE)
-	{
-		pathfinder_queue_first = 0;
-	}
+    if (++pathfinder_queue_first >= PATHFINDER_QUEUE_SIZE) {
+        pathfinder_queue_first = 0;
+    }
 
-	return waypoint;
+    return waypoint;
 }
 
 /**
@@ -123,53 +124,49 @@ static object *pathfinder_queue_dequeue(int *count)
  * @param waypoint Waypoint. */
 void request_new_path(object *waypoint)
 {
-	if (!waypoint || QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED))
-	{
-		return;
-	}
+    if (!waypoint || QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED)) {
+        return;
+    }
 
 #ifdef DEBUG_PATHFINDING
-	logger_print(LOG(DEBUG), "enqueing path request for >%s< -> >%s<", waypoint->env->name, waypoint->name);
+    logger_print(LOG(DEBUG), "enqueing path request for >%s< -> >%s<", waypoint->env->name, waypoint->name);
 #endif
 
-	if (pathfinder_queue_enqueue(waypoint))
-	{
-		SET_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
-		waypoint->owner = waypoint->env;
-		waypoint->ownercount = waypoint->env->count;
-	}
+    if (pathfinder_queue_enqueue(waypoint)) {
+        SET_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
+        waypoint->owner = waypoint->env;
+        waypoint->ownercount = waypoint->env->count;
+    }
 }
 
 /**
  * Get the next (valid) waypoint for which a path is requested */
 object *get_next_requested_path(void)
 {
-	object *waypoint;
-	tag_t count;
+    object *waypoint;
+    tag_t count;
 
-	do
-	{
-		waypoint = pathfinder_queue_dequeue((void *) &count);
+    do
+    {
+        waypoint = pathfinder_queue_dequeue((void *) &count);
 
-		if (waypoint == NULL)
-		{
-			return NULL;
-		}
+        if (waypoint == NULL) {
+            return NULL;
+        }
 
-		/* Verify the waypoint and its monster */
-		if (!OBJECT_VALID(waypoint, count) || !OBJECT_VALID(waypoint->owner, waypoint->ownercount) || !(QUERY_FLAG(waypoint, FLAG_CURSED) || QUERY_FLAG(waypoint, FLAG_DAMNED)) || (QUERY_FLAG(waypoint, FLAG_DAMNED) && !OBJECT_VALID(waypoint->enemy, waypoint->enemy_count)))
-		{
-			waypoint = NULL;
-		}
-	}
-	while (waypoint == NULL);
+        /* Verify the waypoint and its monster */
+        if (!OBJECT_VALID(waypoint, count) || !OBJECT_VALID(waypoint->owner, waypoint->ownercount) || !(QUERY_FLAG(waypoint, FLAG_CURSED) || QUERY_FLAG(waypoint, FLAG_DAMNED)) || (QUERY_FLAG(waypoint, FLAG_DAMNED) && !OBJECT_VALID(waypoint->enemy, waypoint->enemy_count))) {
+            waypoint = NULL;
+        }
+    }
+    while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
-	logger_print(LOG(DEBUG), "dequeued '%s' -> '%s'", waypoint->owner->name, waypoint->name);
+    logger_print(LOG(DEBUG), "dequeued '%s' -> '%s'", waypoint->owner->name, waypoint->name);
 #endif
 
-	CLEAR_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
-	return waypoint;
+    CLEAR_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
+    return waypoint;
 }
 
 /**
@@ -182,29 +179,28 @@ object *get_next_requested_path(void)
  * @return New node. */
 static path_node *make_node(mapstruct *map, sint16 x, sint16 y, uint16 cost, path_node *parent)
 {
-	path_node *node;
+    path_node *node;
 
-	/* Out of memory? */
-	if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF)
-	{
+    /* Out of memory? */
+    if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF) {
 #ifdef DEBUG_PATHFINDING
-		logger_print(LOG(DEBUG), "Out of static buffer memory (this is not a problem)");
+        logger_print(LOG(DEBUG), "Out of static buffer memory (this is not a problem)");
 #endif
-		return NULL;
-	}
+        return NULL;
+    }
 
-	node = &pathfinder_nodebuf[pathfinder_nodebuf_next++];
+    node = &pathfinder_nodebuf[pathfinder_nodebuf_next++];
 
-	node->next = NULL;
-	node->prev = NULL;
-	node->parent = parent;
-	node->map = map;
-	node->x = x;
-	node->y = y;
-	node->cost = cost;
-	node->heuristic = 0.0;
+    node->next = NULL;
+    node->prev = NULL;
+    node->parent = parent;
+    node->map = map;
+    node->x = x;
+    node->y = y;
+    node->cost = cost;
+    node->heuristic = 0.0;
 
-	return node;
+    return node;
 }
 
 /**
@@ -213,21 +209,18 @@ static path_node *make_node(mapstruct *map, sint16 x, sint16 y, uint16 cost, pat
  * @param list List to remove from. */
 static void remove_node(path_node *node, path_node **list)
 {
-	if (node->prev)
-	{
-		node->prev->next = node->next;
-	}
-	else
-	{
-		*list = node->next;
-	}
+    if (node->prev) {
+        node->prev->next = node->next;
+    }
+    else {
+        *list = node->next;
+    }
 
-	if (node->next)
-	{
-		node->next->prev = node->prev;
-	}
+    if (node->next) {
+        node->next->prev = node->prev;
+    }
 
-	node->next = node->prev = NULL;
+    node->next = node->prev = NULL;
 }
 
 /**
@@ -236,15 +229,14 @@ static void remove_node(path_node *node, path_node **list)
  * @param list List to insert into. */
 static void insert_node(path_node *node, path_node **list)
 {
-	if (*list)
-	{
-		(*list)->prev = node;
-	}
+    if (*list) {
+        (*list)->prev = node;
+    }
 
-	node->next = *list;
-	node->prev = NULL;
+    node->next = *list;
+    node->prev = NULL;
 
-	*list = node;
+    *list = node;
 }
 
 /**
@@ -254,44 +246,38 @@ static void insert_node(path_node *node, path_node **list)
  * @todo Make more efficient by using skip list or heaps. */
 static void insert_priority_node(path_node *node, path_node **list)
 {
-	path_node *tmp, *last, *insert_before = NULL;
+    path_node *tmp, *last, *insert_before = NULL;
 
-	/* Find node to insert before */
-	for (tmp = *list; tmp; tmp = tmp->next)
-	{
-		last = tmp;
+    /* Find node to insert before */
+    for (tmp = *list; tmp; tmp = tmp->next) {
+        last = tmp;
 
-		if (node->heuristic <= tmp->heuristic)
-		{
-			insert_before = tmp;
-			break;
-		}
-	}
+        if (node->heuristic <= tmp->heuristic) {
+            insert_before = tmp;
+            break;
+        }
+    }
 
-	/* Insert first */
-	if (insert_before == *list)
-	{
-		insert_node(node, list);
-	}
-	/* Insert last */
-	else if (!insert_before)
-	{
-		node->next = NULL;
-		node->prev = last;
-		last->next = node;
-	}
-	/* Insert in middle */
-	else
-	{
-		node->next = insert_before;
-		node->prev = insert_before->prev;
-		insert_before->prev = node;
+    /* Insert first */
+    if (insert_before == *list) {
+        insert_node(node, list);
+    }
+    /* Insert last */
+    else if (!insert_before) {
+        node->next = NULL;
+        node->prev = last;
+        last->next = node;
+    }
+    /* Insert in middle */
+    else {
+        node->next = insert_before;
+        node->prev = insert_before->prev;
+        insert_before->prev = node;
 
-		if (node->prev)
-		{
-			node->prev->next = node;
-		}
-	}
+        if (node->prev) {
+            node->prev->next = node;
+        }
+    }
 }
 
 /**
@@ -300,12 +286,15 @@ static void insert_priority_node(path_node *node, path_node **list)
  * Ideas on how to store paths:
  * - a) Store path as real waypoint objects (might be a lot of objects...)
  * - b) Store path as field in waypoints
- *   - b1) Linked list in i.e. ob->enemy (needs special free() call when removing object).
+ *   - b1) Linked list in i.e. ob->enemy (needs special free() call when
+ * removing object).
  *   - b2) In ASCII in waypoint->msg (will even be saved out).
  *     - b2.1) Direction list (e.g. 1234155532, compact but fragile)
- *     - b2.2) Map / coordinate list: (/dev/testmaps:13,12 14,12 ...) (human-readable (and editable), complex parsing)
+ *     - b2.2) Map / coordinate list: (/dev/testmaps:13,12 14,12 ...)
+ * (human-readable (and editable), complex parsing)
  *             Approx: 600 steps in one 4096 bytes msg field
- *     - b2.2.1) Hex (/dev/testmaps/xxx D,C E,C ...) (harder to read and write, more compact)
+ *     - b2.2.1) Hex (/dev/testmaps/xxx D,C E,C ...) (harder to read and write,
+ * more compact)
  *               Approx: 1000 steps in one 4096 bytes msg field
  *
  * @param path Path node.
@@ -313,27 +302,26 @@ static void insert_priority_node(path_node *node, path_node **list)
  * @todo Buffer overflow checking. */
 shstr *encode_path(path_node *path)
 {
-	char buf[HUGE_BUF];
-	char *bufptr = buf;
-	mapstruct *last_map = NULL;
-	path_node *tmp;
+    char buf[HUGE_BUF];
+    char *bufptr = buf;
+    mapstruct *last_map = NULL;
+    path_node *tmp;
 
-	for (tmp = path; tmp; tmp = tmp->next)
-	{
-		if (tmp->map != last_map)
-		{
-			bufptr += sprintf(bufptr, "%s%s", last_map ? "\n" : "", tmp->map->path);
-			last_map = tmp->map;
-		}
+    for (tmp = path; tmp; tmp = tmp->next) {
+        if (tmp->map != last_map) {
+            bufptr += sprintf(bufptr, "%s%s", last_map ? "\n" : "", tmp->map->path);
+            last_map = tmp->map;
+        }
 
-		bufptr += sprintf(bufptr, " %d,%d", tmp->x, tmp->y);
-	}
+        bufptr += sprintf(bufptr, " %d,%d", tmp->x, tmp->y);
+    }
 
-	return add_string(buf);
+    return add_string(buf);
 }
 
 /**
- * Get the next location from a textual path description (generated by encode_path()) starting
+ * Get the next location from a textual path description (generated by
+ * encode_path()) starting
  * from the character index indicated by off.
  *
  * Example text path description:
@@ -354,160 +342,151 @@ shstr *encode_path(path_node *path)
  * and off will not be touched. */
 int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y)
 {
-	const char *coord_start = buf + *off, *coord_end, *map_def = coord_start;
+    const char *coord_start = buf + *off, *coord_end, *map_def = coord_start;
 
-	if (buf == NULL || *map == NULL)
-	{
-		logger_print(LOG(BUG), "Illegal parameters.");
-		return 0;
-	}
+    if (buf == NULL || *map == NULL) {
+        logger_print(LOG(BUG), "Illegal parameters.");
+        return 0;
+    }
 
-	if (*mappath == NULL || **mappath == '\0')
-	{
-		/* Scan backwards from requested offset to previous linebreak or start of string */
-		for (map_def = coord_start; map_def > buf && *(map_def - 1) != '\n'; map_def--)
-		{
-		}
-	}
+    if (*mappath == NULL || **mappath == '\0') {
+        /* Scan backwards from requested offset to previous linebreak or start
+         * of string */
+        for (map_def = coord_start; map_def > buf && *(map_def - 1) != '\n'; map_def--) {
+        }
+    }
 
-	/* Extract map path if any at the current position (this part is only used when we go between
-	 * map tiles, or when we extract the first step) */
-	if (!isdigit(*map_def))
-	{
-		/* Temporary buffer for map path extraction */
-		char map_name[HUGE_BUF];
-		/* Find the end of the map path */
-		const char *mapend = strchr(map_def, ' ');
+    /* Extract map path if any at the current position (this part is only used
+     * when we go between
+     * map tiles, or when we extract the first step) */
+    if (!isdigit(*map_def)) {
+        /* Temporary buffer for map path extraction */
+        char map_name[HUGE_BUF];
+        /* Find the end of the map path */
+        const char *mapend = strchr(map_def, ' ');
 
-		if (mapend == NULL)
-		{
-			logger_print(LOG(BUG), "No delimeter after map name in path description '%s' off %d", buf, *off);
-			return 0;
-		}
+        if (mapend == NULL) {
+            logger_print(LOG(BUG), "No delimeter after map name in path description '%s' off %d", buf, *off);
+            return 0;
+        }
 
-		strncpy(map_name, map_def, mapend - map_def);
-		map_name[mapend - map_def] = '\0';
+        strncpy(map_name, map_def, mapend - map_def);
+        map_name[mapend - map_def] = '\0';
 
-		/* Store the new map path in the given shared string */
-		FREE_AND_COPY_HASH(*mappath, map_name);
+        /* Store the new map path in the given shared string */
+        FREE_AND_COPY_HASH(*mappath, map_name);
 
-		/* Adjust coordinate pointer to point after map path */
-		if (!isdigit(*coord_start))
-		{
-			coord_start = mapend + 1;
-		}
-	}
+        /* Adjust coordinate pointer to point after map path */
+        if (!isdigit(*coord_start)) {
+            coord_start = mapend + 1;
+        }
+    }
 
-	/* Select the map we are aiming at */
-	if (*mappath)
-	{
-		/* We assume map name is already normalized */
-		if (!*map || (*map)->path != *mappath)
-		{
-			*map = ready_map_name(*mappath, MAP_NAME_SHARED);
-		}
-	}
+    /* Select the map we are aiming at */
+    if (*mappath) {
+        /* We assume map name is already normalized */
+        if (!*map || (*map)->path != *mappath) {
+            *map = ready_map_name(*mappath, MAP_NAME_SHARED);
+        }
+    }
 
-	if (*map == NULL)
-	{
-		logger_print(LOG(BUG), "Couldn't load map from description '%s' off %d", buf, *off);
-		return 0;
-	}
+    if (*map == NULL) {
+        logger_print(LOG(BUG), "Couldn't load map from description '%s' off %d", buf, *off);
+        return 0;
+    }
 
-	/* Get the requested coordinate pair */
-	coord_end = coord_start + strcspn(coord_start, " \n");
+    /* Get the requested coordinate pair */
+    coord_end = coord_start + strcspn(coord_start, " \n");
 
-	if (coord_end == coord_start || sscanf(coord_start, "%d,%d", x, y) != 2)
-	{
-		logger_print(LOG(BUG), "Illegal coordinate pair in '%s' off %d", buf, *off);
-		return 0;
-	}
+    if (coord_end == coord_start || sscanf(coord_start, "%d,%d", x, y) != 2) {
+        logger_print(LOG(BUG), "Illegal coordinate pair in '%s' off %d", buf, *off);
+        return 0;
+    }
 
-	/* Adjust coordinates to be on the safe side */
-	*map = get_map_from_coord(*map, x, y);
+    /* Adjust coordinates to be on the safe side */
+    *map = get_map_from_coord(*map, x, y);
 
-	if (*map == NULL)
-	{
-		logger_print(LOG(BUG), "Location (%d, %d) is out of map", *x, *y);
-		return 0;
-	}
+    if (*map == NULL) {
+        logger_print(LOG(BUG), "Location (%d, %d) is out of map", *x, *y);
+        return 0;
+    }
 
-	/* Adjust the offset */
-	*off = coord_end - buf + (*coord_end ? 1 : 0);
+    /* Adjust the offset */
+    *off = coord_end - buf + (*coord_end ? 1 : 0);
 
-	return 1;
+    return 1;
 }
 
 /**
  * Compress a path by removing redundant segments.
  *
- * Current implementation removes segments that can be traversed by walking in a single direction.
+ * Current implementation removes segments that can be traversed by walking in a
+ * single direction.
  *
- * Something advanced could be to use a hughes transform / or something smart with cross products.
+ * Something advanced could be to use a hughes transform / or something smart
+ * with cross products.
  * @param path Path node.
  * @return Compressed path node. */
 path_node *compress_path(path_node *path)
 {
-	path_node *tmp, *next;
-	int last_dir;
-	rv_vector v;
+    path_node *tmp, *next;
+    int last_dir;
+    rv_vector v;
 
 #ifdef DEBUG_PATHFINDING
-	int removed_nodes = 0, total_nodes = 2;
+    int removed_nodes = 0, total_nodes = 2;
 #endif
 
-	/* Rules:
-	 *  - always leave first and last path nodes
-	 *  - if the movement direction of node n to n+1 is the same
-	 *    as for n-1 to n, then remove node n. */
+    /* Rules:
+     *  - always leave first and last path nodes
+     *  - if the movement direction of node n to n+1 is the same
+     *    as for n-1 to n, then remove node n. */
 
-	/* Guarantee at least length 3 */
-	if (path == NULL || path->next == NULL)
-	{
-		return path;
-	}
+    /* Guarantee at least length 3 */
+    if (path == NULL || path->next == NULL) {
+        return path;
+    }
 
-	next = path->next;
+    next = path->next;
 
-	get_rangevector_from_mapcoords(path->map, path->x, path->y, next->map, next->x, next->y, &v, RV_MANHATTAN_DISTANCE);
-	last_dir = v.direction;
+    get_rangevector_from_mapcoords(path->map, path->x, path->y, next->map, next->x, next->y, &v, RV_MANHATTAN_DISTANCE);
+    last_dir = v.direction;
 
-	for (tmp = next; tmp && tmp->next; tmp = next)
-	{
-		next = tmp->next;
+    for (tmp = next; tmp && tmp->next; tmp = next) {
+        next = tmp->next;
 
 #ifdef DEBUG_PATHFINDING
-		total_nodes++;
+        total_nodes++;
 #endif
-		get_rangevector_from_mapcoords(tmp->map, tmp->x, tmp->y, next->map, next->x, next->y, &v, RV_MANHATTAN_DISTANCE);
+        get_rangevector_from_mapcoords(tmp->map, tmp->x, tmp->y, next->map, next->x, next->y, &v, RV_MANHATTAN_DISTANCE);
 
-		if (last_dir == v.direction)
-		{
-			remove_node(tmp, &path);
+        if (last_dir == v.direction) {
+            remove_node(tmp, &path);
 #ifdef DEBUG_PATHFINDING
-			removed_nodes++;
+            removed_nodes++;
 #endif
-		}
-		else
-		{
-			last_dir = v.direction;
-		}
-	}
+        }
+        else {
+            last_dir = v.direction;
+        }
+    }
 
 #ifdef DEBUG_PATHFINDING
-	logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes, total_nodes, (float)removed_nodes * 100.0 / (float)total_nodes);
+    logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes, total_nodes, (float)removed_nodes * 100.0 / (float)total_nodes);
 #endif
 
-	return path;
+    return path;
 }
 
 /**
- * Heuristic used for A* search. Should return an estimate of the "cost" (number of moves)
+ * Heuristic used for A* search. Should return an estimate of the "cost" (number
+ * of moves)
  * needed to get from current to goal.
  *
  * If this function overestimates, we are not guaranteed an optimal path.
  *
- * get_rangevector() can fail here if there is no maptile path between start and goal.
+ * get_rangevector() can fail here if there is no maptile path between start and
+ * goal.
  * If it does, we have to return an @ref HEURISTIC_ERROR "error value".
  * @param start The initial starting position.
  * @param current Current position.
@@ -516,46 +495,40 @@ path_node *compress_path(path_node *path)
  * @todo Cache the results from get_rangevector() for better efficiency? */
 static float distance_heuristic(path_node *start, path_node *current, path_node *goal)
 {
-	rv_vector v1, v2;
-	float h;
+    rv_vector v1, v2;
+    float h;
 
-	/* Diagonal distance (not manhattan distance or euclidean distance!) */
-	if (goal->map == current->map)
-	{
-		/* Avoid a function call in simple case */
-		v1.distance_x = current->x - goal->x;
-		v1.distance_y = current->y - goal->y;
-		v1.distance = MAX(abs(v1.distance_x), abs(v1.distance_y));
-	}
-	else
-	{
-		if (!get_rangevector_from_mapcoords(current->map, current->x, current->y, goal->map, goal->x, goal->y, &v1, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE))
-		{
-			return HEURISTIC_ERROR;
-		}
-	}
+    /* Diagonal distance (not manhattan distance or euclidean distance!) */
+    if (goal->map == current->map) {
+        /* Avoid a function call in simple case */
+        v1.distance_x = current->x - goal->x;
+        v1.distance_y = current->y - goal->y;
+        v1.distance = MAX(abs(v1.distance_x), abs(v1.distance_y));
+    }
+    else {
+        if (!get_rangevector_from_mapcoords(current->map, current->x, current->y, goal->map, goal->x, goal->y, &v1, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
+            return HEURISTIC_ERROR;
+        }
+    }
 
-	h = (float) v1.distance;
+    h = (float) v1.distance;
 
-	/* Add straight-line preference by calculating cross product */
-	/* (gives better performance on open areas _and_ nicer-looking paths) */
-	if (goal->map == start->map)
-	{
-		/* Avoid a function call in simple case */
-		v2.distance_x = start->x - goal->x;
-		v2.distance_y = start->y - goal->y;
-	}
-	else
-	{
-		if (!get_rangevector_from_mapcoords(start->map, start->x, start->y, goal->map, goal->x, goal->y, &v2, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE))
-		{
-			return HEURISTIC_ERROR;
-		}
-	}
+    /* Add straight-line preference by calculating cross product */
+    /* (gives better performance on open areas _and_ nicer-looking paths) */
+    if (goal->map == start->map) {
+        /* Avoid a function call in simple case */
+        v2.distance_x = start->x - goal->x;
+        v2.distance_y = start->y - goal->y;
+    }
+    else {
+        if (!get_rangevector_from_mapcoords(start->map, start->x, start->y, goal->map, goal->x, goal->y, &v2, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE)) {
+            return HEURISTIC_ERROR;
+        }
+    }
 
-	h += abs(v1.distance_x * v2.distance_y - v2.distance_x * v1.distance_y) * 0.001f;
+    h += abs(v1.distance_x * v2.distance_y - v2.distance_x * v1.distance_y) * 0.001f;
 
-	return h;
+    return h;
 }
 
 /**
@@ -570,74 +543,68 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
  * or 1 if everything was ok. */
 static int find_neighbours(path_node *node, path_node **open_list, path_node *start, path_node *goal, object *op, uint32 id)
 {
-	int i, x2, y2;
-	mapstruct *map;
-	int block;
+    int i, x2, y2;
+    mapstruct *map;
+    int block;
 
-	for (i = 1; i < 9; i++)
-	{
-		x2 = node->x + freearr_x[i];
-		y2 = node->y + freearr_y[i];
+    for (i = 1; i < 9; i++) {
+        x2 = node->x + freearr_x[i];
+        y2 = node->y + freearr_y[i];
 
-		map = get_map_from_coord(node->map, &x2, &y2);
+        map = get_map_from_coord(node->map, &x2, &y2);
 
-		if (map && !QUERY_MAP_TILE_VISITED(map, x2, y2, id))
-		{
-			SET_MAP_TILE_VISITED(map, x2, y2, id);
+        if (map && !QUERY_MAP_TILE_VISITED(map, x2, y2, id)) {
+            SET_MAP_TILE_VISITED(map, x2, y2, id);
 
 #ifdef DEBUG_PATHFINDING
-			searched_nodes++;
+            searched_nodes++;
 #endif
 
-			if (op->type == PLAYER && CONTR(op)->tcl)
-			{
-				block = 0;
-			}
-			/* Multi-arch or not? (blocked_link_2 works for normal archs too, but is more expensive) */
-			else if (op->head || op->more)
-			{
-				block = blocked_link_2(op, map, x2, y2);
-			}
-			else
-			{
-				block = blocked(op, map, x2, y2, op->terrain_flag);
+            if (op->type == PLAYER && CONTR(op)->tcl) {
+                block = 0;
+            }
+            /* Multi-arch or not? (blocked_link_2 works for normal archs too,
+             * but is more expensive) */
+            else if (op->head || op->more) {
+                block = blocked_link_2(op, map, x2, y2);
+            }
+            else {
+                block = blocked(op, map, x2, y2, op->terrain_flag);
 
-				/* Check for possible door opening */
-				if (block == P_DOOR_CLOSED && door_try_open(op, map, x2, y2, 1))
-				{
-					block = 0;
-				}
-			}
+                /* Check for possible door opening */
+                if (block == P_DOOR_CLOSED && door_try_open(op, map, x2, y2, 1)) {
+                    block = 0;
+                }
+            }
 
-			if (!block)
-			{
-				path_node *new_node;
+            if (!block) {
+                path_node *new_node;
 
-				if ((new_node = make_node(map, (sint16)x2, (sint16)y2, (uint16)(node->cost + 1), node)))
-				{
-					new_node->heuristic = distance_heuristic(start, new_node, goal);
+                if ((new_node = make_node(map, (sint16)x2, (sint16)y2, (uint16)(node->cost + 1), node))) {
+                    new_node->heuristic = distance_heuristic(start, new_node, goal);
 
-					if (new_node->heuristic == HEURISTIC_ERROR)
-					{
-						return 0;
-					}
+                    if (new_node->heuristic == HEURISTIC_ERROR) {
+                        return 0;
+                    }
 
-					insert_priority_node(new_node, open_list);
-				}
-				else
-				{
-					return 0;
-				}
-			}
+                    insert_priority_node(new_node, open_list);
+                }
+                else {
+                    return 0;
+                }
+            }
 
-			/* TODO: might need to reopen neighbor nodes if their cost can be lowered from the new node.
-			 * (This requires us to store pointers to the tiles instead of bitmap.)
-			 * (Probably only required if we add different path costs to different terrains,
-			 * or support for doors/teleporters) */
-		}
-	}
+            /* TODO: might need to reopen neighbor nodes if their cost can be
+             * lowered from the new node.
+             * (This requires us to store pointers to the tiles instead of
+             * bitmap.)
+             * (Probably only required if we add different path costs to
+             * different terrains,
+             * or support for doors/teleporters) */
+        }
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -652,113 +619,100 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
  * @return Found path. */
 path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2)
 {
-	/* Closed nodes have been examined. Open are to be examined */
-	path_node *open_list, *closed_list;
-	path_node *found_path = NULL;
-	path_node start, goal;
-	static uint32 traversal_id = 0;
+    /* Closed nodes have been examined. Open are to be examined */
+    path_node *open_list, *closed_list;
+    path_node *found_path = NULL;
+    path_node start, goal;
+    static uint32 traversal_id = 0;
 
-	/* Avoid overflow of traversal_id */
-	if (traversal_id == UINT32_MAX)
-	{
-		mapstruct *m;
+    /* Avoid overflow of traversal_id */
+    if (traversal_id == UINT32_MAX) {
+        mapstruct *m;
 
-		for (m = first_map; m; m = m->next)
-		{
-			m->pathfinding_id = 0;
-		}
+        for (m = first_map; m; m = m->next) {
+            m->pathfinding_id = 0;
+        }
 
-		traversal_id = 0;
-	}
+        traversal_id = 0;
+    }
 
-	traversal_id++;
+    traversal_id++;
 
-	pathfinder_nodebuf_next = 0;
+    pathfinder_nodebuf_next = 0;
 
-	start.x = x;
-	start.y = y;
-	start.map = map1;
+    start.x = x;
+    start.y = y;
+    start.map = map1;
 
-	goal.x = x2;
-	goal.y = y2;
-	goal.map = map2;
+    goal.x = x2;
+    goal.y = y2;
+    goal.map = map2;
 
-	/* The initial tile */
-	open_list = make_node(map1, (sint16)x, (sint16)y, 0, NULL);
-	open_list->heuristic = distance_heuristic(&start, open_list, &goal);
-	closed_list = NULL;
-	SET_MAP_TILE_VISITED(map1, x, y, traversal_id);
+    /* The initial tile */
+    open_list = make_node(map1, (sint16)x, (sint16)y, 0, NULL);
+    open_list->heuristic = distance_heuristic(&start, open_list, &goal);
+    closed_list = NULL;
+    SET_MAP_TILE_VISITED(map1, x, y, traversal_id);
 
-	while (open_list)
-	{
-		/* Pick best node from open_list */
-		path_node *tmp = open_list;
+    while (open_list) {
+        /* Pick best node from open_list */
+        path_node *tmp = open_list;
 
-		/* Move node from open list to closed list */
-		remove_node(tmp, &open_list);
-		insert_node(tmp, &closed_list);
+        /* Move node from open list to closed list */
+        remove_node(tmp, &open_list);
+        insert_node(tmp, &closed_list);
 
-		/* Reached the goal? (Or at least the tile next to it?) */
-		if (tmp->heuristic <= 1.2)
-		{
-			path_node *tmp2;
+        /* Reached the goal? (Or at least the tile next to it?) */
+        if (tmp->heuristic <= 1.2) {
+            path_node *tmp2;
 
-			/* Move all nodes used in the path to the path list */
-			for (tmp2 = tmp; tmp2; tmp2 = tmp2->parent)
-			{
-				remove_node(tmp2, &closed_list);
-				insert_node(tmp2, &found_path);
-			}
+            /* Move all nodes used in the path to the path list */
+            for (tmp2 = tmp; tmp2; tmp2 = tmp2->parent) {
+                remove_node(tmp2, &closed_list);
+                insert_node(tmp2, &found_path);
+            }
 
-			break;
-		}
-		else
-		{
-			if (!find_neighbours(tmp, &open_list, &start, &goal, op, traversal_id))
-			{
-				break;
-			}
-		}
-	}
+            break;
+        }
+        else {
+            if (!find_neighbours(tmp, &open_list, &start, &goal, op, traversal_id)) {
+                break;
+            }
+        }
+    }
 
-	/* If no path was found, pick the path to the node closest to the target */
-	if (found_path == NULL)
-	{
-		path_node *best_node = NULL;
-		path_node *tmp;
+    /* If no path was found, pick the path to the node closest to the target */
+    if (found_path == NULL) {
+        path_node *best_node = NULL;
+        path_node *tmp;
 
-		/* Move best from the open list to the closed list */
-		if (open_list)
-		{
-			tmp = open_list;
-			remove_node(tmp, &open_list);
-			insert_node(tmp, &closed_list);
-		}
+        /* Move best from the open list to the closed list */
+        if (open_list) {
+            tmp = open_list;
+            remove_node(tmp, &open_list);
+            insert_node(tmp, &closed_list);
+        }
 
-		/* Scan through the closed list for a closer tile */
-		for (tmp = closed_list; tmp; tmp = tmp->next)
-		{
-			if (best_node == NULL || tmp->heuristic < best_node->heuristic || (tmp->heuristic == best_node->heuristic && tmp->cost < best_node->cost))
-			{
-				best_node = tmp;
-			}
-		}
+        /* Scan through the closed list for a closer tile */
+        for (tmp = closed_list; tmp; tmp = tmp->next) {
+            if (best_node == NULL || tmp->heuristic < best_node->heuristic || (tmp->heuristic == best_node->heuristic && tmp->cost < best_node->cost)) {
+                best_node = tmp;
+            }
+        }
 
-		/* Create a path if we found anything */
-		if (best_node)
-		{
-			for (tmp = best_node; tmp; tmp = tmp->parent)
-			{
-				remove_node(tmp, &closed_list);
-				insert_node(tmp, &found_path);
-			}
-		}
-	}
+        /* Create a path if we found anything */
+        if (best_node) {
+            for (tmp = best_node; tmp; tmp = tmp->parent) {
+                remove_node(tmp, &closed_list);
+                insert_node(tmp, &found_path);
+            }
+        }
+    }
 
 #ifdef DEBUG_PATHFINDING
-	logger_print(LOG(DEBUG), "Explored %d tiles, stored %d.", searched_nodes, pathfinder_nodebuf_next);
-	searched_nodes = 0;
+    logger_print(LOG(DEBUG), "Explored %d tiles, stored %d.", searched_nodes, pathfinder_nodebuf_next);
+    searched_nodes = 0;
 #endif
 
-	return found_path;
+    return found_path;
 }

@@ -33,53 +33,47 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	(void) aflags;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_OK;
+    }
 
-	/* If no map path specified, we assume it is the map path of the exit. */
-	if (!EXIT_PATH(op) && op->map)
-	{
-		FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->path);
-	}
+    /* If no map path specified, we assume it is the map path of the exit. */
+    if (!EXIT_PATH(op) && op->map) {
+        FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->path);
+    }
 
-	if (!EXIT_PATH(op) || (EXIT_Y(op) == -1 && EXIT_X(op) == -1))
-	{
-		if (!QUERY_FLAG(op, FLAG_SYS_OBJECT))
-		{
-			draw_info_format(COLOR_WHITE, applier, "The %s is closed.", query_name(op, NULL));
-		}
-	}
-	else
-	{
-		/* Don't display messages for random maps. */
-		if (op->msg && strncmp(EXIT_PATH(op), "/!", 2) != 0 && strncmp(EXIT_PATH(op), "/random/", 8) != 0)
-		{
-			draw_info(COLOR_NAVY, applier, op->msg);
-		}
+    if (!EXIT_PATH(op) || (EXIT_Y(op) == -1 && EXIT_X(op) == -1)) {
+        if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
+            draw_info_format(COLOR_WHITE, applier, "The %s is closed.", query_name(op, NULL));
+        }
+    }
+    else {
+        /* Don't display messages for random maps. */
+        if (op->msg && strncmp(EXIT_PATH(op), "/!", 2) != 0 && strncmp(EXIT_PATH(op), "/random/", 8) != 0) {
+            draw_info(COLOR_NAVY, applier, op->msg);
+        }
 
-		object_enter_map(applier, op, NULL, 0, 0, 0);
-	}
+        object_enter_map(applier, op, NULL, 0, 0, 0);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
-	(void) state;
+    (void) originator;
+    (void) state;
 
-	return apply_func(op, victim, 0);
+    return apply_func(op, victim, 0);
 }
 
 /**
  * Initialize the exit type object methods. */
 void object_type_init_exit(void)
 {
-	object_type_methods[EXIT].apply_func = apply_func;
-	object_type_methods[EXIT].move_on_func = move_on_func;
+    object_type_methods[EXIT].apply_func = apply_func;
+    object_type_methods[EXIT].move_on_func = move_on_func;
 }

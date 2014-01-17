@@ -1678,7 +1678,7 @@ if not cli:
 		def find_icon(self):
 			# Possible paths where our icon could be.
 			paths = [
-				"/usr/share/atrinik-client/bitmaps/icon.png",
+				"/usr/share/atrinik/bitmaps/icon.png",
 				"../../client/bitmaps/icon.png",
 			]
 

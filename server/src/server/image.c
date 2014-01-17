@@ -44,9 +44,9 @@ New_Face *new_faces;
  * created in a sorted order. */
 struct bmappair
 {
-	char *name;
+    char *name;
 
-	unsigned int number;
+    unsigned int number;
 };
 
 /**
@@ -71,7 +71,7 @@ int nrofpixmaps = 0;
  * Used for bsearch searching. */
 static int compar(struct bmappair *a, struct bmappair *b)
 {
-	return strcmp(a->name, b->name);
+    return strcmp(a->name, b->name);
 }
 
 /**
@@ -80,95 +80,84 @@ static int compar(struct bmappair *a, struct bmappair *b)
  * display the person is on will not make a difference). */
 int read_bmap_names(void)
 {
-	char buf[MAX_BUF], *cp;
-	FILE *fp;
-	int nrofbmaps = 0, i;
-	size_t line = 0;
+    char buf[MAX_BUF], *cp;
+    FILE *fp;
+    int nrofbmaps = 0, i;
+    size_t line = 0;
 
-	snprintf(buf, sizeof(buf), "%s/bmaps", settings.libpath);
+    snprintf(buf, sizeof(buf), "%s/bmaps", settings.libpath);
 
-	if ((fp = fopen(buf, "r")) == NULL)
-	{
-		logger_print(LOG(ERROR), "Can't open bmaps file: %s", buf);
-		exit(1);
-	}
+    if ((fp = fopen(buf, "r")) == NULL) {
+        logger_print(LOG(ERROR), "Can't open bmaps file: %s", buf);
+        exit(1);
+    }
 
-	/* First count how many bitmaps we have, so we can allocate correctly */
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		if (buf[0] != '#' && buf[0] != '\n')
-		{
-			nrofbmaps++;
-		}
-	}
+    /* First count how many bitmaps we have, so we can allocate correctly */
+    while (fgets(buf, sizeof(buf) - 1, fp)) {
+        if (buf[0] != '#' && buf[0] != '\n') {
+            nrofbmaps++;
+        }
+    }
 
-	rewind(fp);
+    rewind(fp);
 
-	xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
-	memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
+    xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
+    memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		if (*buf == '#')
-		{
-			continue;
-		}
+    while (fgets(buf, sizeof(buf) - 1, fp)) {
+        if (*buf == '#') {
+            continue;
+        }
 
-		cp = strchr(buf, '\n');
+        cp = strchr(buf, '\n');
 
-		if (cp)
-		{
-			*cp = '\0';
-		}
+        if (cp) {
+            *cp = '\0';
+        }
 
-		cp = strchr(buf, ' ');
+        cp = strchr(buf, ' ');
 
-		if (cp)
-		{
-			cp++;
-			xbm[nroffiles].name = strdup(cp);
-		}
-		else
-		{
-			xbm[nroffiles].name = strdup(buf);
-		}
+        if (cp) {
+            cp++;
+            xbm[nroffiles].name = strdup(cp);
+        }
+        else {
+            xbm[nroffiles].name = strdup(buf);
+        }
 
-		xbm[nroffiles].number = line;
+        xbm[nroffiles].number = line;
 
-		nroffiles++;
+        nroffiles++;
 
-		if ((int) line > nrofpixmaps)
-		{
-			nrofpixmaps++;
-		}
+        if ((int) line > nrofpixmaps) {
+            nrofpixmaps++;
+        }
 
-		line++;
-	}
+        line++;
+    }
 
-	fclose(fp);
+    fclose(fp);
 
-	new_faces = (New_Face *) malloc(sizeof(New_Face) * (nrofpixmaps + 1));
+    new_faces = (New_Face *) malloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
-	for (i = 0; i < nrofpixmaps + 1; i++)
-	{
-		new_faces[i].name = "";
-		new_faces[i].number = i;
-	}
+    for (i = 0; i < nrofpixmaps + 1; i++) {
+        new_faces[i].name = "";
+        new_faces[i].number = i;
+    }
 
-	for (i = 0; i < nroffiles; i++)
-	{
-		new_faces[xbm[i].number].name = xbm[i].name;
-	}
+    for (i = 0; i < nroffiles; i++) {
+        new_faces[xbm[i].number].name = xbm[i].name;
+    }
 
-	nrofpixmaps++;
+    nrofpixmaps++;
 
-	qsort(xbm, nrofbmaps, sizeof(struct bmappair), (void *) (int (*)())compar);
+    qsort(xbm, nrofbmaps, sizeof(struct bmappair), (void *) (int (*)())compar);
 
-	blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
-	next_item_face = &new_faces[find_face(NEXT_ITEM_FACE_NAME, 0)];
-	prev_item_face = &new_faces[find_face(PREVIOUS_ITEM_FACE_NAME, 0)];
+    blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
+    next_item_face = &new_faces[find_face(NEXT_ITEM_FACE_NAME, 0)];
+    prev_item_face = &new_faces[find_face(PREVIOUS_ITEM_FACE_NAME, 0)];
 
-	return nrofpixmaps;
+    return nrofpixmaps;
 }
 
 /**
@@ -180,30 +169,28 @@ int read_bmap_names(void)
  * @param error Value to return if face was not found. */
 int find_face(char *name, int error)
 {
-	struct bmappair *bp, tmp;
-	char *p;
+    struct bmappair *bp, tmp;
+    char *p;
 
-	if ((p = strchr(name, '\n')))
-	{
-		*p = '\0';
-	}
+    if ((p = strchr(name, '\n'))) {
+        *p = '\0';
+    }
 
-	tmp.name = name;
-	bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void *) (int (*)()) compar);
+    tmp.name = name;
+    bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void *) (int (*)())compar);
 
-	return bp ? bp->number : (unsigned int) error;
+    return bp ? bp->number : (unsigned int) error;
 }
 
 /** Deallocates memory allocated by read_bmap_names(). */
 void free_all_images(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < nroffiles; i++)
-	{
-		free(xbm[i].name);
-	}
+    for (i = 0; i < nroffiles; i++) {
+        free(xbm[i].name);
+    }
 
-	free(xbm);
-	free(new_faces);
+    free(xbm);
+    free(new_faces);
 }

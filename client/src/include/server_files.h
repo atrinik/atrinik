@@ -32,23 +32,23 @@
 /** One server file. */
 typedef struct server_files_struct
 {
-	/** If 0, will be (re-)loaded. */
-	uint8 loaded;
+    /** If 0, will be (re-)loaded. */
+    uint8 loaded;
 
-	/**
-	 * Update status of this file:
-	 *
-	 * - 0: Not being updated, or just finished updating.
-	 * - 1: Start updating the file the next time server_files_updating()
-	 *      is called.
-	 * - -1: The file is being updated. */
-	sint8 update;
+    /**
+     * Update status of this file:
+     *
+     * - 0: Not being updated, or just finished updating.
+     * - 1: Start updating the file the next time server_files_updating()
+     *      is called.
+     * - -1: The file is being updated. */
+    sint8 update;
 
-	/** Size of the file. */
-	size_t size;
+    /** Size of the file. */
+    size_t size;
 
-	/** Calculate checksum. */
-	unsigned long crc32;
+    /** Calculate checksum. */
+    unsigned long crc32;
 } server_files_struct;
 
 #endif

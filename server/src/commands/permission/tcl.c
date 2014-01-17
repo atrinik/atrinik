@@ -33,6 +33,6 @@
 /** @copydoc command_func */
 void command_tcl(object *op, const char *command, char *params)
 {
-	CONTR(op)->tcl = !CONTR(op)->tcl;
-	draw_info_format(COLOR_WHITE, op, "Toggled collision %s.", CONTR(op)->tcl ? "off" : "on");
+    CONTR(op)->tcl = !CONTR(op)->tcl;
+    draw_info_format(COLOR_WHITE, op, "Toggled collision %s.", CONTR(op)->tcl ? "off" : "on");
 }

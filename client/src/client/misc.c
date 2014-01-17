@@ -34,23 +34,21 @@
 void browser_open(const char *url)
 {
 #if defined(LINUX)
-	char buf[HUGE_BUF];
+    char buf[HUGE_BUF];
 
-	snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
+    snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
 
-	if (system(buf) != 0)
-	{
-		snprintf(buf, sizeof(buf), "x-www-browser \"%s\"", url);
+    if (system(buf) != 0) {
+        snprintf(buf, sizeof(buf), "x-www-browser \"%s\"", url);
 
-		if (system(buf) != 0)
-		{
-			logger_print(LOG(BUG), "Could not open '%s'.", url);
-		}
-	}
+        if (system(buf) != 0) {
+            logger_print(LOG(BUG), "Could not open '%s'.", url);
+        }
+    }
 #elif defined(WIN32)
-	ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
+    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
 #else
-	logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
+    logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
 #endif
 }
 
@@ -64,11 +62,11 @@ void browser_open(const char *url)
 char *package_get_version_full(char *dst, size_t dstlen)
 {
 #if PACKAGE_VERSION_PATCH == 0
-	package_get_version_partial(dst, dstlen);
+    package_get_version_partial(dst, dstlen);
 #else
-	snprintf(dst, dstlen, "%d.%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR, PACKAGE_VERSION_PATCH);
+    snprintf(dst, dstlen, "%d.%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR, PACKAGE_VERSION_PATCH);
 #endif
-	return dst;
+    return dst;
 }
 
 /**
@@ -79,15 +77,14 @@ char *package_get_version_full(char *dst, size_t dstlen)
  * @return 'dst' */
 char *package_get_version_partial(char *dst, size_t dstlen)
 {
-	/* Upgrader version will overrule the package version if the upgrader
-	 * is currently doing its job. */
-	if (upgrader_get_version_partial(dst, dstlen))
-	{
-		return dst;
-	}
+    /* Upgrader version will overrule the package version if the upgrader
+     * is currently doing its job. */
+    if (upgrader_get_version_partial(dst, dstlen)) {
+        return dst;
+    }
 
-	snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
-	return dst;
+    snprintf(dst, dstlen, "%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR);
+    return dst;
 }
 
 /**
@@ -97,20 +94,19 @@ char *package_get_version_partial(char *dst, size_t dstlen)
 int bmp2png(const char *path)
 {
 #if defined(LINUX)
-	char buf[HUGE_BUF];
+    char buf[HUGE_BUF];
 
-	snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
+    snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
 
-	if (system(buf) != 0)
-	{
-		logger_print(LOG(INFO), "Could not convert %s from BMP to PNG.", path);
-		return 0;
-	}
+    if (system(buf) != 0) {
+        logger_print(LOG(INFO), "Could not convert %s from BMP to PNG.", path);
+        return 0;
+    }
 
-	return 1;
+    return 1;
 #else
-	(void) path;
-	return 0;
+    (void) path;
+    return 0;
 #endif
 }
 
@@ -119,45 +115,39 @@ int bmp2png(const char *path)
  * @param surface The surface to take a screenshot of. */
 void screenshot_create(SDL_Surface *surface)
 {
-	char path[HUGE_BUF], timebuf[MAX_BUF];
-	struct timeval tv;
-	struct tm *tm;
+    char path[HUGE_BUF], timebuf[MAX_BUF];
+    struct timeval tv;
+    struct tm *tm;
 
-	if (!surface)
-	{
-		return;
-	}
+    if (!surface) {
+        return;
+    }
 
-	gettimeofday(&tv, NULL);
-	tm = localtime(&tv.tv_sec);
+    gettimeofday(&tv, NULL);
+    tm = localtime(&tv.tv_sec);
 
-	if (tm)
-	{
-		char timebuf2[MAX_BUF];
+    if (tm) {
+        char timebuf2[MAX_BUF];
 
-		strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
-		snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
-	}
-	else
-	{
-		draw_info(COLOR_RED, "Could not get time information.");
-		return;
-	}
+        strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
+        snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
+    }
+    else {
+        draw_info(COLOR_RED, "Could not get time information.");
+        return;
+    }
 
-	snprintf(path, sizeof(path), "%s/.atrinik/screenshots/Atrinik-%s.bmp", get_config_dir(), timebuf);
-	mkdir_ensure(path);
+    snprintf(path, sizeof(path), "%s/.atrinik/screenshots/Atrinik-%s.bmp", get_config_dir(), timebuf);
+    mkdir_ensure(path);
 
-	if (SDL_SaveBMP(surface, path) == 0)
-	{
-		draw_info_format(COLOR_GREEN, "Saved screenshot as %s successfully.", path);
+    if (SDL_SaveBMP(surface, path) == 0) {
+        draw_info_format(COLOR_GREEN, "Saved screenshot as %s successfully.", path);
 
-		if (bmp2png(path))
-		{
-			draw_info(COLOR_GREEN, "Converted to PNG successfully.");
-		}
-	}
-	else
-	{
-		draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
-	}
+        if (bmp2png(path)) {
+            draw_info(COLOR_GREEN, "Converted to PNG successfully.");
+        }
+    }
+    else {
+        draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
+    }
 }

@@ -33,21 +33,20 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	(void) aflags;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_OK;
+    }
 
-	draw_info_format(COLOR_WHITE, applier, "You touch the %s.", op->name);
+    draw_info_format(COLOR_WHITE, applier, "You touch the %s.", op->name);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the holy altar type object methods. */
 void object_type_init_holy_altar(void)
 {
-	object_type_methods[HOLY_ALTAR].apply_func = apply_func;
+    object_type_methods[HOLY_ALTAR].apply_func = apply_func;
 }

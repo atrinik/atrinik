@@ -33,33 +33,30 @@
 /** @copydoc command_func */
 void command_arrest(object *op, const char *command, char *params)
 {
-	object *dummy;
-	player *pl;
+    object *dummy;
+    player *pl;
 
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Usage: /arrest <player>");
-		return;
-	}
+    if (!params) {
+        draw_info(COLOR_WHITE, op, "Usage: /arrest <player>");
+        return;
+    }
 
-	pl = find_player(params);
+    pl = find_player(params);
 
-	if (!pl)
-	{
-		draw_info(COLOR_WHITE, op, "No such player.");
-		return;
-	}
+    if (!pl) {
+        draw_info(COLOR_WHITE, op, "No such player.");
+        return;
+    }
 
-	dummy = get_jail_exit(pl->ob);
+    dummy = get_jail_exit(pl->ob);
 
-	if (!dummy)
-	{
-		/* We have nowhere to send the prisoner....*/
-		draw_info(COLOR_RED, op, "Can't jail player, there is no map to hold them.");
-		return;
-	}
+    if (!dummy) {
+        /* We have nowhere to send the prisoner....*/
+        draw_info(COLOR_RED, op, "Can't jail player, there is no map to hold them.");
+        return;
+    }
 
-	object_enter_map(pl->ob, dummy, NULL, 0, 0, 0);
-	draw_info_format(COLOR_GREEN, op, "Jailed %s.", pl->ob->name);
-	logger_print(LOG(CHAT), "[ARREST] Player %s arrested by %s.", pl->ob->name, op->name);
+    object_enter_map(pl->ob, dummy, NULL, 0, 0, 0);
+    draw_info_format(COLOR_GREEN, op, "Jailed %s.", pl->ob->name);
+    logger_print(LOG(CHAT), "[ARREST] Player %s arrested by %s.", pl->ob->name, op->name);
 }

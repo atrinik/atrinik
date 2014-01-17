@@ -37,7 +37,7 @@
  * @return Firing speed. */
 sint32 bow_get_ws(object *bow, object *arrow)
 {
-	return (((float) bow->stats.sp / (1000000 / MAX_TIME)) + ((float) arrow->last_grace / (1000000 / MAX_TIME))) * 1000;
+    return (((float) bow->stats.sp / (1000000 / MAX_TIME)) + ((float) arrow->last_grace / (1000000 / MAX_TIME))) * 1000;
 }
 
 /**
@@ -46,100 +46,91 @@ sint32 bow_get_ws(object *bow, object *arrow)
  * @return Required skill to use the object. */
 int bow_get_skill(object *bow)
 {
-	if (bow->item_skill)
-	{
-		return bow->item_skill - 1;
-	}
+    if (bow->item_skill) {
+        return bow->item_skill - 1;
+    }
 
-	return SK_BOW_ARCHERY;
+    return SK_BOW_ARCHERY;
 }
 
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
-	object *arrow, *skill;
+    object *arrow, *skill;
 
-	arrow = arrow_find(shooter, op->race);
+    arrow = arrow_find(shooter, op->race);
 
-	if (!arrow)
-	{
-		draw_info_format(COLOR_WHITE, shooter, "You have no %s left.", op->race);
-		return OBJECT_METHOD_OK;
-	}
+    if (!arrow) {
+        draw_info_format(COLOR_WHITE, shooter, "You have no %s left.", op->race);
+        return OBJECT_METHOD_OK;
+    }
 
-	if (wall(shooter->map, shooter->x + freearr_x[dir], shooter->y + freearr_y[dir]))
-	{
-		draw_info(COLOR_WHITE, shooter, "Something is in the way.");
-		return OBJECT_METHOD_OK;
-	}
+    if (wall(shooter->map, shooter->x + freearr_x[dir], shooter->y + freearr_y[dir])) {
+        draw_info(COLOR_WHITE, shooter, "Something is in the way.");
+        return OBJECT_METHOD_OK;
+    }
 
-	if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT))
-	{
-		object *copy;
+    if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT)) {
+        object *copy;
 
-		copy = get_object();
-		copy_object(arrow, copy, 0);
-		CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
-		copy->nrof = 0;
-		arrow = copy;
-	}
-	else
-	{
-		arrow = object_stack_get_removed(arrow, 1);
-	}
+        copy = get_object();
+        copy_object(arrow, copy, 0);
+        CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
+        copy->nrof = 0;
+        arrow = copy;
+    }
+    else {
+        arrow = object_stack_get_removed(arrow, 1);
+    }
 
-	/* Save original WC, damage and range. */
-	arrow->last_heal = arrow->stats.wc;
-	arrow->stats.hp = arrow->stats.dam;
-	arrow->last_grace = arrow->last_sp;
+    /* Save original WC, damage and range. */
+    arrow->last_heal = arrow->stats.wc;
+    arrow->stats.hp = arrow->stats.dam;
+    arrow->last_grace = arrow->last_sp;
 
-	/* Determine how many tiles the arrow will fly. */
-	arrow->last_sp = op->last_sp + arrow->last_sp;
+    /* Determine how many tiles the arrow will fly. */
+    arrow->last_sp = op->last_sp + arrow->last_sp;
 
-	/* Get the used skill. */
-	skill = SK_skill(shooter);
+    /* Get the used skill. */
+    skill = SK_skill(shooter);
 
-	/* If we got the skill, add in the skill's modifiers. */
-	if (skill)
-	{
-		/* Add WC. */
-		arrow->stats.wc += skill->last_heal;
-		/* Add tiles range. */
-		arrow->last_sp += skill->last_sp;
-	}
+    /* If we got the skill, add in the skill's modifiers. */
+    if (skill) {
+        /* Add WC. */
+        arrow->stats.wc += skill->last_heal;
+        /* Add tiles range. */
+        arrow->last_sp += skill->last_sp;
+    }
 
-	/* Add WC and damage bonuses. */
-	arrow->stats.wc = arrow_get_wc(shooter, op, arrow);
-	arrow->stats.dam = arrow_get_damage(shooter, op, arrow);
+    /* Add WC and damage bonuses. */
+    arrow->stats.wc = arrow_get_wc(shooter, op, arrow);
+    arrow->stats.dam = arrow_get_damage(shooter, op, arrow);
 
-	/* Use the bow's WC range. */
-	arrow->stats.wc_range = op->stats.wc_range;
+    /* Use the bow's WC range. */
+    arrow->stats.wc_range = op->stats.wc_range;
 
-	if (delay)
-	{
-		*delay = op->stats.sp + arrow->last_grace;
-	}
+    if (delay) {
+        *delay = op->stats.sp + arrow->last_grace;
+    }
 
-	arrow = object_projectile_fire(arrow, shooter, dir);
+    arrow = object_projectile_fire(arrow, shooter, dir);
 
-	if (!arrow)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (!arrow) {
+        return OBJECT_METHOD_OK;
+    }
 
-	if (shooter->type == PLAYER)
-	{
-		CONTR(shooter)->stat_arrows_fired++;
-	}
+    if (shooter->type == PLAYER) {
+        CONTR(shooter)->stat_arrows_fired++;
+    }
 
-	play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
-	return OBJECT_METHOD_OK;
+    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the bow type object methods. */
 void object_type_init_bow(void)
 {
-	object_type_methods[BOW].apply_func = object_apply_item;
-	object_type_methods[BOW].ranged_fire_func = ranged_fire_func;
+    object_type_methods[BOW].apply_func = object_apply_item;
+    object_type_methods[BOW].ranged_fire_func = ranged_fire_func;
 }

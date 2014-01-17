@@ -37,47 +37,42 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
  * @return New layout. Must be freed by caller. */
 char **expand2x(char **layout, int xsize, int ysize)
 {
-	int i,j;
-	int nxsize = xsize * 2 - 1;
-	int nysize = ysize * 2 - 1;
+    int i,j;
+    int nxsize = xsize * 2 - 1;
+    int nysize = ysize * 2 - 1;
 
-	/* Allocate new layout */
-	char **newlayout = (char **) calloc(sizeof(char *), nxsize);
+    /* Allocate new layout */
+    char **newlayout = (char **) calloc(sizeof(char *), nxsize);
 
-	for (i = 0; i < nxsize; i++)
-	{
-		newlayout[i] = (char *) calloc(sizeof(char), nysize);
-	}
+    for (i = 0; i < nxsize; i++) {
+        newlayout[i] = (char *) calloc(sizeof(char), nysize);
+    }
 
-	for (i = 0; i < xsize; i++)
-	{
-		for (j = 0; j < ysize; j++)
-		{
-			switch (layout[i][j])
-			{
-				case '#':
-					expand_wall(newlayout, i, j, layout, xsize, ysize);
-					break;
+    for (i = 0; i < xsize; i++) {
+        for (j = 0; j < ysize; j++) {
+            switch (layout[i][j]) {
+                case '#':
+                    expand_wall(newlayout, i, j, layout, xsize, ysize);
+                    break;
 
-				case 'D':
-					expand_door(newlayout, i, j, layout, xsize, ysize);
-					break;
+                case 'D':
+                    expand_door(newlayout, i, j, layout, xsize, ysize);
+                    break;
 
-				default:
-					expand_misc(newlayout, i, j, layout);
-			}
-		}
-	}
+                default:
+                    expand_misc(newlayout, i, j, layout);
+            }
+        }
+    }
 
-	/* Free old layout */
-	for (i = 0; i < xsize; i++)
-	{
-		free(layout[i]);
-	}
+    /* Free old layout */
+    for (i = 0; i < xsize; i++) {
+        free(layout[i]);
+    }
 
-	free(layout);
+    free(layout);
 
-	return newlayout;
+    return newlayout;
 }
 
 /**
@@ -93,7 +88,7 @@ char **expand2x(char **layout, int xsize, int ysize)
  * for us.*/
 static void expand_misc(char **newlayout, int i, int j, char **layout)
 {
-	newlayout[i * 2][j * 2] = layout[i][j];
+    newlayout[i * 2][j * 2] = layout[i][j];
 }
 
 /**
@@ -111,27 +106,23 @@ static void expand_misc(char **newlayout, int i, int j, char **layout)
  * - <b>4</b>: Match on (i + 1, j + 1). */
 static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysize)
 {
-	int pattern = 0;
+    int pattern = 0;
 
-	if (i + 1 < xsize && layout[i + 1][j] == ch)
-	{
-		pattern |= 1;
-	}
+    if (i + 1 < xsize && layout[i + 1][j] == ch) {
+        pattern |= 1;
+    }
 
-	if (j + 1 < ysize)
-	{
-		if (layout[i][j + 1] == ch)
-		{
-			pattern |= 2;
-		}
+    if (j + 1 < ysize) {
+        if (layout[i][j + 1] == ch) {
+            pattern |= 2;
+        }
 
-		if (i + 1 < xsize && layout[i + 1][j + 1] == ch)
-		{
-			pattern |= 4;
-		}
-	}
+        if (i + 1 < xsize && layout[i + 1][j + 1] == ch) {
+            pattern |= 4;
+        }
+    }
 
-	return pattern;
+    return pattern;
 }
 
 /**
@@ -146,36 +137,31 @@ static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysi
  * @param ysize Y size of layout. */
 static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
 {
-	int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
-	int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
-	int both_pattern = wall_pattern | door_pattern;
+    int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
+    int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
+    int both_pattern = wall_pattern | door_pattern;
 
-	newlayout[i * 2][j * 2] = '#';
+    newlayout[i * 2][j * 2] = '#';
 
-	if (i + 1 < xsize)
-	{
-		/* join walls/doors to the right */
-		if (both_pattern & 1)
-		{
-			newlayout[i * 2 + 1][j * 2] = layout[i + 1][j];
-		}
-	}
+    if (i + 1 < xsize) {
+        /* join walls/doors to the right */
+        if (both_pattern & 1) {
+            newlayout[i * 2 + 1][j * 2] = layout[i + 1][j];
+        }
+    }
 
-	if (j + 1 < ysize)
-	{
-		/* join walls/doors to the bottom */
-		if (both_pattern & 2)
-		{
-			newlayout[i * 2][j * 2 + 1] = layout[i][j + 1];
-		}
+    if (j + 1 < ysize) {
+        /* join walls/doors to the bottom */
+        if (both_pattern & 2) {
+            newlayout[i * 2][j * 2 + 1] = layout[i][j + 1];
+        }
 
-		if (wall_pattern == 7)
-		{
-			/* if orig layout is a 2x2 wall block,
-			 * we fill the result with walls. */
-			newlayout[i * 2 + 1][j * 2 + 1] = '#';
-		}
-	}
+        if (wall_pattern == 7) {
+            /* if orig layout is a 2x2 wall block,
+             * we fill the result with walls. */
+            newlayout[i * 2 + 1][j * 2 + 1] = '#';
+        }
+    }
 }
 
 /**
@@ -191,39 +177,33 @@ static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize
  * @param ysize Y size of the non expanded layout */
 static void expand_door(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
 {
-	int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
-	int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
-	int join_pattern;
+    int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
+    int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
+    int join_pattern;
 
-	/* Doors "like" to connect to walls more than other doors. If there is
-	 * a wall and another door, this door will connect to the wall and
-	 * disconnect from the other door. */
-	if (wall_pattern & 3)
-	{
-		join_pattern = wall_pattern;
-	}
-	else
-	{
-		join_pattern = door_pattern;
-	}
+    /* Doors "like" to connect to walls more than other doors. If there is
+     * a wall and another door, this door will connect to the wall and
+     * disconnect from the other door. */
+    if (wall_pattern & 3) {
+        join_pattern = wall_pattern;
+    }
+    else {
+        join_pattern = door_pattern;
+    }
 
-	newlayout[i * 2][j * 2] = 'D';
+    newlayout[i * 2][j * 2] = 'D';
 
-	if (i + 1 < xsize)
-	{
-		/* There is a door/wall to the right */
-		if (join_pattern & 1)
-		{
-			newlayout[i * 2 + 1][j * 2] = 'D';
-		}
-	}
+    if (i + 1 < xsize) {
+        /* There is a door/wall to the right */
+        if (join_pattern & 1) {
+            newlayout[i * 2 + 1][j * 2] = 'D';
+        }
+    }
 
-	if (j + 1 < ysize)
-	{
-		/* There is a door/wall below */
-		if (join_pattern & 2)
-		{
-			newlayout[i * 2][j * 2 + 1] = 'D';
-		}
-	}
+    if (j + 1 < ysize) {
+        /* There is a door/wall below */
+        if (join_pattern & 2) {
+            newlayout[i * 2][j * 2 + 1] = 'D';
+        }
+    }
 }

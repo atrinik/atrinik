@@ -33,38 +33,34 @@
 /** @copydoc command_func */
 void command_tpto(object *op, const char *command, char *params)
 {
-	char path[MAX_BUF], word[MAX_BUF];
-	size_t pos;
-	mapstruct *m;
-	int x, y;
+    char path[MAX_BUF], word[MAX_BUF];
+    size_t pos;
+    mapstruct *m;
+    int x, y;
 
-	params = player_sanitize_input(params);
-	pos = 0;
+    params = player_sanitize_input(params);
+    pos = 0;
 
-	if (!params || !string_get_word(params, &pos, ' ', path, sizeof(path), 0))
-	{
-		return;
-	}
+    if (!params || !string_get_word(params, &pos, ' ', path, sizeof(path), 0)) {
+        return;
+    }
 
-	x = y = -1;
+    x = y = -1;
 
-	if (string_get_word(params, &pos, ' ', word, sizeof(word), 0) && string_isdigit(word))
-	{
-		x = atoi(word);
-	}
+    if (string_get_word(params, &pos, ' ', word, sizeof(word), 0) && string_isdigit(word)) {
+        x = atoi(word);
+    }
 
-	if (string_get_word(params, &pos, ' ', word, sizeof(word), 0) && string_isdigit(word))
-	{
-		y = atoi(word);
-	}
+    if (string_get_word(params, &pos, ' ', word, sizeof(word), 0) && string_isdigit(word)) {
+        y = atoi(word);
+    }
 
-	m = ready_map_name(path, 0);
+    m = ready_map_name(path, 0);
 
-	if (!m)
-	{
-		draw_info_format(COLOR_WHITE, op, "No such map: %s", path);
-		return;
-	}
+    if (!m) {
+        draw_info_format(COLOR_WHITE, op, "No such map: %s", path);
+        return;
+    }
 
-	object_enter_map(op, NULL, m, x, y, 0);
+    object_enter_map(op, NULL, m, x, y, 0);
 }

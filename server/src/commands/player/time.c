@@ -33,5 +33,5 @@
 /** @copydoc command_func */
 void command_time(object *op, const char *command, char *params)
 {
-	time_info(op);
+    time_info(op);
 }
