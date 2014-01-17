@@ -22,7 +22,7 @@ You have to build the binaries before running the script. The list of binaries t
 script needs can be found below. All the binaries should be 32-bit so they can be
 ran on 64-bit systems as well.
 
-server/atrinik_server:
+server/atrinik-server:
   GNU/Linux binary of the server.
 
 server/atrinik_server.exe:
@@ -38,7 +38,7 @@ server/plugins/*.so:
 server/plugins/*.dll:
   Windows plugin binaries. There must be at least one plugin.
 
-client/atrinik-client:
+client/atrinik:
   GNU/Linux binary of the client.
 
 client/atrinik.exe:

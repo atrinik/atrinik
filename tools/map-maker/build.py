@@ -89,10 +89,10 @@ dirs_make = ["server/lib", "server/data", "server/data/players", "server/data/tm
 # Binaries to copy. First parameter is an expression of what binaries
 # to copy, second one is whether they are required or not.
 binaries = [
-	["server/atrinik_server", True],
+	["server/atrinik-server", True],
 	["server/atrinik_server.exe", True],
 	["server/*.dll", False],
-	["client/atrinik-client", True],
+	["client/atrinik", True],
 	["client/atrinik.exe", True],
 	["client/*.dll", True],
 ]
