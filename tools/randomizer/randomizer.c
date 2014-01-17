@@ -54,27 +54,27 @@
 
 /* Structure for the random variations of arches */
 typedef struct random_variations_struct {
-	/* The variation ("1", "2", 3", "small", "large", etc) */
-	char random_var[MAX_BUF];
+    /* The variation ("1", "2", 3", "small", "large", etc) */
+    char random_var[MAX_BUF];
 
-	/* Next variation in this linked list */
-	struct random_variations_struct *next;
+    /* Next variation in this linked list */
+    struct random_variations_struct *next;
 } random_variations;
 
 /* Structure for the arches to randomize from file */
 typedef struct random_struct
 {
-	/* Name of arch to randomize */
-	char archname[MAX_BUF];
+    /* Name of arch to randomize */
+    char archname[MAX_BUF];
 
-	/* Number of possible variations */
-	int variations;
+    /* Number of possible variations */
+    int variations;
 
-	/* Start of the random variations list */
-	random_variations *randoms_start;
+    /* Start of the random variations list */
+    random_variations *randoms_start;
 
-	/* Next arch to randomize in this linked list */
-	struct random_struct *next;
+    /* Next arch to randomize in this linked list */
+    struct random_struct *next;
 } random_struct;
 
 /* Initialize random list to NULL */
@@ -83,209 +83,202 @@ random_struct *random_list = NULL;
 /* Signal handler for SIGSEGV -- make core with abort. */
 static void signal_sigsegv(int i)
 {
-	(void) i;
+    (void) i;
 
-	abort();
+    abort();
 }
 
 /* Random number function, with min and max */
 int rndm(int min, int max)
 {
-  	int diff;
+    int diff;
 
-  	diff = max - min + 1;
+    diff = max - min + 1;
 
-  	if (max < 1 || diff < 1)
-    	return min;
+    if (max < 1 || diff < 1)
+        return min;
 
-  	return (RANDOM() % diff + min);
+    return (RANDOM() % diff + min);
 }
 
 /* Parse the "random" file */
 static void parse_randoms()
 {
-	FILE *fh;
-	char line[MAX_BUF], name[MAX_BUF], randoms[MAX_BUF], *p;
-	random_struct *random_tmp;
-	random_variations *random_variations_tmp;
+    FILE *fh;
+    char line[MAX_BUF], name[MAX_BUF], randoms[MAX_BUF], *p;
+    random_struct *random_tmp;
+    random_variations *random_variations_tmp;
 
-	/* If failed to open the random file, just return. */
-	if ((fh = fopen("random", "r")) == NULL)
-		return;
+    /* If failed to open the random file, just return. */
+    if ((fh = fopen("random", "r")) == NULL)
+        return;
 
-	/* Loop through all the lines in the file */
-	while (fgets(line, MAX_BUF - 1, fh))
-	{
-		/* Ignore comments */
-		if (line[0] == '#')
-			continue;
+    /* Loop through all the lines in the file */
+    while (fgets(line, MAX_BUF - 1, fh)) {
+        /* Ignore comments */
+        if (line[0] == '#')
+            continue;
 
-		/* Scan the line for Name:, and store it */
-		if (sscanf(line, "Name: %s\n", name))
-		{
-			/* Loop through the next lines, and break out on Randoms: match. */
-			while (fgets(line, MAX_BUF - 1, fh))
-			{
-				/* Ignore comments */
-				if (line[0] == '#')
-					continue;
+        /* Scan the line for Name:, and store it */
+        if (sscanf(line, "Name: %s\n", name)) {
+            /* Loop through the next lines, and break out on Randoms: match. */
+            while (fgets(line, MAX_BUF - 1, fh)) {
+                /* Ignore comments */
+                if (line[0] == '#')
+                    continue;
 
-				/* Scan the next line for Randoms: and store it */
-				if (sscanf(line, "Randoms: %s\n", randoms))
-				{
-					/* Allocate a new random list structure */
-					random_tmp = (random_struct *) malloc(sizeof(random_struct));
+                /* Scan the next line for Randoms: and store it */
+                if (sscanf(line, "Randoms: %s\n", randoms)) {
+                    /* Allocate a new random list structure */
+                    random_tmp = (random_struct *) malloc(sizeof(random_struct));
 
-					/* Append the old list structure to it */
-					random_tmp->next = random_list;
+                    /* Append the old list structure to it */
+                    random_tmp->next = random_list;
 
-					/* Switch the old structure with this new one */
-					random_list = random_tmp;
+                    /* Switch the old structure with this new one */
+                    random_list = random_tmp;
 
-					/* Number of variations starts at 0 */
-					random_tmp->variations = 0;
+                    /* Number of variations starts at 0 */
+                    random_tmp->variations = 0;
 
-					/* Store the arch name to look for in the map file */
-					snprintf(random_tmp->archname, sizeof(random_tmp->archname), "%s", name);
+                    /* Store the arch name to look for in the map file */
+                    snprintf(random_tmp->archname, sizeof(random_tmp->archname), "%s", name);
 
-					/* Now loop through the random vriations by "," */
-					p = strtok(randoms, ",");
+                    /* Now loop through the random vriations by "," */
+                    p = strtok(randoms, ",");
 
-					while (p)
-					{
-						/* One more variation... */
-						random_tmp->variations++;
+                    while (p) {
+                        /* One more variation... */
+                        random_tmp->variations++;
 
-						/* Allocate a new list of random variations */
-						random_variations_tmp = (random_variations *) malloc(sizeof(random_variations));
+                        /* Allocate a new list of random variations */
+                        random_variations_tmp = (random_variations *) malloc(sizeof(random_variations));
 
-						/* Append the old list structure to it */
-						random_variations_tmp->next = random_tmp->randoms_start;
+                        /* Append the old list structure to it */
+                        random_variations_tmp->next = random_tmp->randoms_start;
 
-						/* Switch the old structure with this new one */
-						random_tmp->randoms_start = random_variations_tmp;
+                        /* Switch the old structure with this new one */
+                        random_tmp->randoms_start = random_variations_tmp;
 
-						/* Store the random variation */
-						snprintf(random_variations_tmp->random_var, sizeof(random_variations_tmp->random_var), "%s", p);
+                        /* Store the random variation */
+                        snprintf(random_variations_tmp->random_var, sizeof(random_variations_tmp->random_var), "%s", p);
 
-						p = strtok(NULL, ",");
-					}
+                        p = strtok(NULL, ",");
+                    }
 
-					break;
-				}
-			}
-		}
-	}
+                    break;
+                }
+            }
+        }
+    }
 
-	/* Close the file handle */
-	fclose(fh);
+    /* Close the file handle */
+    fclose(fh);
 }
 
 /* Main function of the randomizer */
 int main(int argc, char *argv[])
 {
-	random_struct *random_tmp;
-	random_variations *random_variations_tmp;
-	char archname[MAX_BUF], filename[MAX_BUF], line[MAX_BUF];
-	FILE *fh;
+    random_struct *random_tmp;
+    random_variations *random_variations_tmp;
+    char archname[MAX_BUF], filename[MAX_BUF], line[MAX_BUF];
+    FILE *fh;
 
-	(void) argc;
+    (void) argc;
 
-	/* Handle SIGSEGV (Segmentation fault) event, so we can dump core */
-	signal(SIGSEGV, signal_sigsegv);
+    /* Handle SIGSEGV (Segmentation fault) event, so we can dump core */
+    signal(SIGSEGV, signal_sigsegv);
 
-	/* If map file was not specified, show usage */
-	if (argv[1] == NULL)
-	{
-		fprintf(stdout, "Usage: %s <map file to randomize>\n", argv[0]);
-		exit(0);
-	}
-	/* Otherwise store the map file */
-	else
-		snprintf(filename, sizeof(filename), "%s", argv[1]);
+    /* If map file was not specified, show usage */
+    if (argv[1] == NULL) {
+        fprintf(stdout, "Usage: %s <map file to randomize>\n", argv[0]);
+        exit(0);
+    }
+    /* Otherwise store the map file */
+    else
+        snprintf(filename, sizeof(filename), "%s", argv[1]);
 
-	/* Now open the map file in read mode */
-	if ((fh = fopen(filename, "r")) == NULL)
-	{
-		fprintf(stdout, "ERROR: Failed to open specified file in read-only mode: '%s'\n", filename);
-		exit(0);
-	}
+    /* Now open the map file in read mode */
+    if ((fh = fopen(filename, "r")) == NULL) {
+        fprintf(stdout, "ERROR: Failed to open specified file in read-only mode: '%s'\n", filename);
+        exit(0);
+    }
 
-	/* Seed the random number */
-	SRANDOM(time(NULL));
+    /* Seed the random number */
+    SRANDOM(time(NULL));
 
-	/* Parse the "random" file */
-	parse_randoms();
+    /* Parse the "random" file */
+    parse_randoms();
 
-	/* Loop through all the lines of this map */
-	while (fgets(line, MAX_BUF, fh))
-	{
-		/* Check if this line has arch name, if so, store it */
-		if (sscanf(line, "arch %s\n", archname))
-		{
-			/* Loop through the linked list of arches to randomize */
-			for (random_tmp = random_list; random_tmp; random_tmp = random_tmp->next)
-			{
-				/* The arch name on map must match with the one from the list, at least partially */
-				if (strncmp(random_tmp->archname, archname, strlen(random_tmp->archname)) == 0)
-				{
-					int found = 0, i = 1, random_int = rndm(1, random_tmp->variations);
-					char tmparchname[MAX_BUF];
+    /* Loop through all the lines of this map */
+    while (fgets(line, MAX_BUF, fh)) {
+        /* Check if this line has arch name, if so, store it */
+        if (sscanf(line, "arch %s\n", archname)) {
+            /* Loop through the linked list of arches to randomize */
+            for (random_tmp = random_list; random_tmp; random_tmp = random_tmp->next) {
+                /* The arch name on map must match with the one from the list,
+                 * at least partially */
+                if (strncmp(random_tmp->archname, archname, strlen(random_tmp->archname)) == 0) {
+                    int found = 0, i = 1, random_int = rndm(1, random_tmp->variations);
+                    char tmparchname[MAX_BUF];
 
-					/* First loop through the random variations list. This is necessary so
-					 * that we know if we should randomize this arch. For example, do NOT
-					 * randomize grassd_m2 if grassd_ is on the list, and m2 is not on the
-					 * random variations list. */
-					for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next)
-					{
-						/* Store the arch name from the config file in a temporary buffer,
-						 * with both the (partial) arch name and the random variation. */
-						snprintf(tmparchname, sizeof(tmparchname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
+                    /* First loop through the random variations list. This is
+                     * necessary so
+                     * that we know if we should randomize this arch. For
+                     * example, do NOT
+                     * randomize grassd_m2 if grassd_ is on the list, and m2 is
+                     * not on the
+                     * random variations list. */
+                    for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next) {
+                        /* Store the arch name from the config file in a
+                         * temporary buffer,
+                         * with both the (partial) arch name and the random
+                         * variation. */
+                        snprintf(tmparchname, sizeof(tmparchname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
 
-						/* Compare it, for secure also compare the lengths */
-						if (strcmp(archname, tmparchname) == 0 && strlen(archname) == strlen(tmparchname))
-						{
-							/* Found it, break out and move on the next loop */
-							found = 1;
+                        /* Compare it, for secure also compare the lengths */
+                        if (strcmp(archname, tmparchname) == 0 && strlen(archname) == strlen(tmparchname)) {
+                            /* Found it, break out and move on the next loop */
+                            found = 1;
 
-							break;
-						}
-					}
+                            break;
+                        }
+                    }
 
-					/* Only if the above loop returned 1 */
-					if (found)
-					{
-						/* Second loop through the random variations list. Here we just
-						 * check if i is equal to the random number calculated above. */
-						for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next)
-						{
-							/* If i (variation ID) is equal to the random number,
-							 * overwrite the old arch name and break out. */
-							if (i == random_int)
-							{
-								snprintf(archname, sizeof(archname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
+                    /* Only if the above loop returned 1 */
+                    if (found) {
+                        /* Second loop through the random variations list. Here
+                        *  we just
+                        * check if i is equal to the random number calculated
+                        *  above. */
+                        for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next) {
+                            /* If i (variation ID) is equal to the random
+                             * number,
+                             * overwrite the old arch name and break out. */
+                            if (i == random_int) {
+                                snprintf(archname, sizeof(archname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
 
-								break;
-							}
+                                break;
+                            }
 
-							i++;
-						}
-					}
-				}
-			}
+                            i++;
+                        }
+                    }
+                }
+            }
 
-			/* Print out the arch name, even if we did no randomization */
-			fprintf(stdout, "arch %s\n", archname);
-		}
-		/* Normal line -- just print it out */
-		else
-			fprintf(stdout, "%s", line);
-	}
+            /* Print out the arch name, even if we did no randomization */
+            fprintf(stdout, "arch %s\n", archname);
+        }
+        /* Normal line -- just print it out */
+        else
+            fprintf(stdout, "%s", line);
+    }
 
-	/* Close the file handle */
-	fclose(fh);
+    /* Close the file handle */
+    fclose(fh);
 
-	/* Exit cleanly */
-	return 0;
+    /* Exit cleanly */
+    return 0;
 }
 

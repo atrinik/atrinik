@@ -32,19 +32,19 @@
 #define PLUGIN_H
 
 #ifndef WIN32
-#	include <dlfcn.h>
+#   include <dlfcn.h>
 #endif
 
 #undef MODULEAPI
 
 #ifdef WIN32
-#	ifdef PYTHON_PLUGIN_EXPORTS
-#		define MODULEAPI __declspec(dllexport)
-#	else
-#		define MODULEAPI __declspec(dllimport)
-#	endif
+#   ifdef PYTHON_PLUGIN_EXPORTS
+#       define MODULEAPI __declspec(dllexport)
+#   else
+#       define MODULEAPI __declspec(dllimport)
+#   endif
 #else
-#	define MODULEAPI
+#   define MODULEAPI
 #endif
 
 /**
@@ -88,7 +88,7 @@
 /** Button pushed, lever pulled, etc. */
 #define EVENT_TRIGGER 10
 /** Container closed. */
-#define EVENT_CLOSE	11
+#define EVENT_CLOSE 11
 /** Marks that we should process quests in this object. */
 #define EVENT_QUEST 13
 /** Ask script whether to show this object on map. */
@@ -173,175 +173,175 @@
  * add it here and to ::hooklist in plugins.c. */
 struct plugin_hooklist
 {
-	char *(*query_name)(object *, object *);
-	const char *(*re_cmp)(const char *, const char *);
-	object *(*present_in_ob)(unsigned char, object *);
-	int (*players_on_map)(mapstruct *);
-	char *(*create_pathname)(const char *);
-	void (*free_string_shared)(const char *);
-	const char *(*add_string)(const char *);
-	void (*object_remove)(object *, int);
-	void (*object_destroy)(object *);
-	void (*fix_player)(object *);
-	object *(*insert_ob_in_ob)(object *, object *);
-	void (*draw_info_map)(uint8, const char *, const char *, mapstruct *, int, int, int, object *, object *, const char *);
-	void (*rune_spring)(object *, object *);
-	int (*cast_spell)(object *, object *, int, int, int, int, const char *);
-	void (*update_ob_speed)(object *);
-	int (*change_skill)(object *, int);
-	void (*pick_up)(object *, object *, int);
-	mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
-	void (*esrv_send_item)(object *);
-	player *(*find_player)(const char *);
-	int (*manual_apply)(object *, object *, int);
-	void (*command_drop)(object *, const char *, char *);
-	int (*transfer_ob)(object *, int, int, int, object *, object *);
-	int (*kill_object)(object *, int, object *, int);
-	void (*esrv_send_inventory)(object *, object *);
-	object *(*get_archetype)(const char *);
-	mapstruct *(*ready_map_name)(const char *, int);
-	sint64 (*add_exp)(object *, sint64, int, int);
-	const char *(*determine_god)(object *);
-	object *(*find_god)(const char *);
-	void (*register_global_event)(const char *, int);
-	void (*unregister_global_event)(const char *, int);
-	object *(*load_object_str)(char *);
-	sint64 (*query_cost)(object *, object *, int);
-	sint64 (*query_money)(object *);
-	int (*pay_for_item)(object *, object *);
-	int (*pay_for_amount)(sint64, object *);
-	object *(*object_create_clone)(object *);
-	object *(*get_object)(void);
-	void (*copy_object)(object *, object *, int);
-	int (*object_enter_map)(object *, object *, mapstruct *, int, int, uint8);
-	void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
-	object *(*find_marked_object)(object *);
-	int (*cast_identify)(object *, int, object *, int);
-	archetype *(*find_archetype)(const char *);
-	object *(*arch_to_object)(archetype *);
-	object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);
-	char *(*cost_string_from_value)(sint64);
-	int (*bank_deposit)(object *, const char *, sint64 *value);
-	int (*bank_withdraw)(object *, const char *, sint64 *value);
-	sint64 (*bank_get_balance)(object *);
-	int (*swap_apartments)(const char *, const char *, int, int, object *);
-	int (*player_exists)(const char *);
-	void (*get_tod)(timeofday_t *);
-	const char *(*object_get_value)(const object *, const char *const);
-	int (*object_set_value)(object *, const char *, const char *, int);
-	void (*drop)(object *, object *, int);
-	char *(*query_short_name)(object *, object *);
-	object *(*beacon_locate)(shstr *);
-	char *(*strdup)(const char *);
-	void (*player_cleanup_name)(char *);
-	party_struct *(*find_party)(const char *);
-	void (*add_party_member)(party_struct *, object *);
-	void (*remove_party_member)(party_struct *, object *);
-	void (*send_party_message)(party_struct *, const char *, int, object *, object *);
-	void (*dump_object)(object *, StringBuffer *);
-	StringBuffer *(*stringbuffer_new)(void);
-	void (*stringbuffer_append_string)(StringBuffer *, const char *);
-	void (*stringbuffer_append_printf)(StringBuffer *, const char *, ...);
-	char *(*stringbuffer_finish)(StringBuffer *);
-	int (*find_face)(char *, int);
-	int (*find_animation)(char *);
-	void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
-	int (*was_destroyed)(object *, tag_t);
-	int (*object_get_gender)(object *);
-	int (*change_abil)(object *, object *);
-	object *(*decrease_ob_nr)(object *, uint32);
-	int (*wall)(mapstruct *, int, int);
-	int (*blocked)(object *, mapstruct *, int, int, int);
-	int (*get_rangevector)(object *, object *, rv_vector *, int);
-	int (*get_rangevector_from_mapcoords)(mapstruct *, int, int, mapstruct *, int, int, rv_vector *, int);
-	int (*player_can_carry)(object *, uint32);
-	cache_struct *(*cache_find)(shstr *);
-	int (*cache_add)(const char *, void *, uint32);
-	int (*cache_remove)(shstr *);
-	void (*cache_remove_by_flags)(uint32);
-	shstr *(*find_string)(const char *);
-	void (*command_take)(object *, const char *, char *);
-	void (*esrv_update_item)(int, object *);
-	void (*commands_handle)(object *, char *);
-	treasurelist *(*find_treasurelist)(const char *);
-	void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
-	void (*dump_object_rec)(object *, StringBuffer *);
-	int (*hit_player)(object *, int, object *, int);
-	int (*move_ob)(object *, int, object *);
-	mapstruct *(*get_empty_map)(int, int);
-	void (*set_map_darkness)(mapstruct *, int);
-	int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
-	void (*send_target_command)(player *);
-	void (*examine)(object *, object *, StringBuffer *sb_capture);
-	void (*draw_info)(const char *, object *, const char *);
-	void (*draw_info_format)(const char *, object *, const char *, ...);
-	void (*draw_info_type)(uint8, const char *, const char *, object *, const char *);
-	void (*draw_info_type_format)(uint8, const char *, const char *, object *, const char *, ...);
-	artifactlist *(*find_artifactlist)(int);
-	void (*give_artifact_abilities)(object *, artifact *);
-	int (*connection_object_get_value)(object *);
-	void (*connection_object_add)(object *, mapstruct *, int);
-	void (*connection_trigger)(object *, int);
-	void (*connection_trigger_button)(object *, int);
-	packet_struct *(*packet_new)(uint8, size_t, size_t);
-	void (*packet_free)(packet_struct *);
-	void (*packet_compress)(packet_struct *);
-	void (*packet_enable_ndelay)(packet_struct *);
-	void (*packet_set_pos)(packet_struct *, size_t);
-	size_t (*packet_get_pos)(packet_struct *);
-	void (*packet_merge)(packet_struct *, packet_struct *);
-	void (*packet_append_uint8)(packet_struct *, uint8);
-	void (*packet_append_sint8)(packet_struct *, sint8);
-	void (*packet_append_uint16)(packet_struct *, uint16);
-	void (*packet_append_sint16)(packet_struct *, sint16);
-	void (*packet_append_uint32)(packet_struct *, uint32);
-	void (*packet_append_sint32)(packet_struct *, sint32);
-	void (*packet_append_uint64)(packet_struct *, uint64);
-	void (*packet_append_sint64)(packet_struct *, sint64);
-	void (*packet_append_data_len)(packet_struct *, uint8 *, size_t);
-	void (*packet_append_string)(packet_struct *, const char *);
-	void (*packet_append_string_terminated)(packet_struct *, const char *);
-	void (*packet_append_map_name)(packet_struct *, object *, object *);
-	void (*packet_append_map_music)(packet_struct *, object *, object *);
-	void (*packet_append_map_weather)(packet_struct *, object *, object *);
-	void (*socket_send_packet)(socket_struct *, packet_struct *);
-	void (*logger_print)(const char *, const char *, uint64, const char *, ...);
-	void (*commands_add)(const char *, command_func, double, uint64);
-	int (*map_get_darkness)(mapstruct *, int, int, object **);
-	char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
+    char *(*query_name)(object *, object *);
+    const char *(*re_cmp)(const char *, const char *);
+    object *(*present_in_ob)(unsigned char, object *);
+    int (*players_on_map)(mapstruct *);
+    char *(*create_pathname)(const char *);
+    void (*free_string_shared)(const char *);
+    const char *(*add_string)(const char *);
+    void (*object_remove)(object *, int);
+    void (*object_destroy)(object *);
+    void (*fix_player)(object *);
+    object *(*insert_ob_in_ob)(object *, object *);
+    void (*draw_info_map)(uint8, const char *, const char *, mapstruct *, int, int, int, object *, object *, const char *);
+    void (*rune_spring)(object *, object *);
+    int (*cast_spell)(object *, object *, int, int, int, int, const char *);
+    void (*update_ob_speed)(object *);
+    int (*change_skill)(object *, int);
+    void (*pick_up)(object *, object *, int);
+    mapstruct *(*get_map_from_coord)(mapstruct *, int *, int *);
+    void (*esrv_send_item)(object *);
+    player *(*find_player)(const char *);
+    int (*manual_apply)(object *, object *, int);
+    void (*command_drop)(object *, const char *, char *);
+    int (*transfer_ob)(object *, int, int, int, object *, object *);
+    int (*kill_object)(object *, int, object *, int);
+    void (*esrv_send_inventory)(object *, object *);
+    object *(*get_archetype)(const char *);
+    mapstruct *(*ready_map_name)(const char *, int);
+    sint64 (*add_exp)(object *, sint64, int, int);
+    const char *(*determine_god)(object *);
+    object *(*find_god)(const char *);
+    void (*register_global_event)(const char *, int);
+    void (*unregister_global_event)(const char *, int);
+    object *(*load_object_str)(char *);
+    sint64 (*query_cost)(object *, object *, int);
+    sint64 (*query_money)(object *);
+    int (*pay_for_item)(object *, object *);
+    int (*pay_for_amount)(sint64, object *);
+    object *(*object_create_clone)(object *);
+    object *(*get_object)(void);
+    void (*copy_object)(object *, object *, int);
+    int (*object_enter_map)(object *, object *, mapstruct *, int, int, uint8);
+    void (*play_sound_map)(mapstruct *, int, const char *, int, int, int, int);
+    object *(*find_marked_object)(object *);
+    int (*cast_identify)(object *, int, object *, int);
+    archetype *(*find_archetype)(const char *);
+    object *(*arch_to_object)(archetype *);
+    object *(*insert_ob_in_map)(object *, mapstruct *, object *, int);
+    char *(*cost_string_from_value)(sint64);
+    int (*bank_deposit)(object *, const char *, sint64 *value);
+    int (*bank_withdraw)(object *, const char *, sint64 *value);
+    sint64 (*bank_get_balance)(object *);
+    int (*swap_apartments)(const char *, const char *, int, int, object *);
+    int (*player_exists)(const char *);
+    void (*get_tod)(timeofday_t *);
+    const char *(*object_get_value)(const object *, const char *const);
+    int (*object_set_value)(object *, const char *, const char *, int);
+    void (*drop)(object *, object *, int);
+    char *(*query_short_name)(object *, object *);
+    object *(*beacon_locate)(shstr *);
+    char *(*strdup)(const char *);
+    void (*player_cleanup_name)(char *);
+    party_struct *(*find_party)(const char *);
+    void (*add_party_member)(party_struct *, object *);
+    void (*remove_party_member)(party_struct *, object *);
+    void (*send_party_message)(party_struct *, const char *, int, object *, object *);
+    void (*dump_object)(object *, StringBuffer *);
+    StringBuffer *(*stringbuffer_new)(void);
+    void (*stringbuffer_append_string)(StringBuffer *, const char *);
+    void (*stringbuffer_append_printf)(StringBuffer *, const char *, ...);
+    char *(*stringbuffer_finish)(StringBuffer *);
+    int (*find_face)(char *, int);
+    int (*find_animation)(char *);
+    void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
+    int (*was_destroyed)(object *, tag_t);
+    int (*object_get_gender)(object *);
+    int (*change_abil)(object *, object *);
+    object *(*decrease_ob_nr)(object *, uint32);
+    int (*wall)(mapstruct *, int, int);
+    int (*blocked)(object *, mapstruct *, int, int, int);
+    int (*get_rangevector)(object *, object *, rv_vector *, int);
+    int (*get_rangevector_from_mapcoords)(mapstruct *, int, int, mapstruct *, int, int, rv_vector *, int);
+    int (*player_can_carry)(object *, uint32);
+    cache_struct *(*cache_find)(shstr *);
+    int (*cache_add)(const char *, void *, uint32);
+    int (*cache_remove)(shstr *);
+    void (*cache_remove_by_flags)(uint32);
+    shstr *(*find_string)(const char *);
+    void (*command_take)(object *, const char *, char *);
+    void (*esrv_update_item)(int, object *);
+    void (*commands_handle)(object *, char *);
+    treasurelist *(*find_treasurelist)(const char *);
+    void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
+    void (*dump_object_rec)(object *, StringBuffer *);
+    int (*hit_player)(object *, int, object *, int);
+    int (*move_ob)(object *, int, object *);
+    mapstruct *(*get_empty_map)(int, int);
+    void (*set_map_darkness)(mapstruct *, int);
+    int (*find_free_spot)(archetype *, object *, mapstruct *, int, int, int, int);
+    void (*send_target_command)(player *);
+    void (*examine)(object *, object *, StringBuffer *sb_capture);
+    void (*draw_info)(const char *, object *, const char *);
+    void (*draw_info_format)(const char *, object *, const char *, ...);
+    void (*draw_info_type)(uint8, const char *, const char *, object *, const char *);
+    void (*draw_info_type_format)(uint8, const char *, const char *, object *, const char *, ...);
+    artifactlist *(*find_artifactlist)(int);
+    void (*give_artifact_abilities)(object *, artifact *);
+    int (*connection_object_get_value)(object *);
+    void (*connection_object_add)(object *, mapstruct *, int);
+    void (*connection_trigger)(object *, int);
+    void (*connection_trigger_button)(object *, int);
+    packet_struct *(*packet_new)(uint8, size_t, size_t);
+    void (*packet_free)(packet_struct *);
+    void (*packet_compress)(packet_struct *);
+    void (*packet_enable_ndelay)(packet_struct *);
+    void (*packet_set_pos)(packet_struct *, size_t);
+    size_t (*packet_get_pos)(packet_struct *);
+    void (*packet_merge)(packet_struct *, packet_struct *);
+    void (*packet_append_uint8)(packet_struct *, uint8);
+    void (*packet_append_sint8)(packet_struct *, sint8);
+    void (*packet_append_uint16)(packet_struct *, uint16);
+    void (*packet_append_sint16)(packet_struct *, sint16);
+    void (*packet_append_uint32)(packet_struct *, uint32);
+    void (*packet_append_sint32)(packet_struct *, sint32);
+    void (*packet_append_uint64)(packet_struct *, uint64);
+    void (*packet_append_sint64)(packet_struct *, sint64);
+    void (*packet_append_data_len)(packet_struct *, uint8 *, size_t);
+    void (*packet_append_string)(packet_struct *, const char *);
+    void (*packet_append_string_terminated)(packet_struct *, const char *);
+    void (*packet_append_map_name)(packet_struct *, object *, object *);
+    void (*packet_append_map_music)(packet_struct *, object *, object *);
+    void (*packet_append_map_weather)(packet_struct *, object *, object *);
+    void (*socket_send_packet)(socket_struct *, packet_struct *);
+    void (*logger_print)(const char *, const char *, uint64, const char *, ...);
+    void (*commands_add)(const char *, command_func, double, uint64);
+    int (*map_get_darkness)(mapstruct *, int, int, object **);
+    char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
     int (*map_path_isabs)(const char *);
-	char *(*path_dirname)(const char *);
-	char *(*path_basename)(const char *);
-	char *(*string_join)(const char *delim, ...);
-	object *(*get_env_recursive)(object *);
-	int (*set_variable)(object *, const char *);
+    char *(*path_dirname)(const char *);
+    char *(*path_basename)(const char *);
+    char *(*string_join)(const char *delim, ...);
+    object *(*get_env_recursive)(object *);
+    int (*set_variable)(object *, const char *);
 
-	const char **season_name;
-	const char **weekdays;
-	const char **month_name;
-	const char **periodsofday;
-	spell_struct *spells;
-	struct shstr_constants *shstr_cons;
-	const char **gender_noun;
-	const char **gender_subjective;
-	const char **gender_subjective_upper;
-	const char **gender_objective;
-	const char **gender_possessive;
-	const char **gender_reflexive;
-	const char **object_flag_names;
-	int *freearr_x;
-	int *freearr_y;
-	player **first_player;
-	New_Face **new_faces;
-	int *nrofpixmaps;
-	Animations **animations;
-	int *num_animations;
-	archetype **first_archetype;
-	mapstruct **first_map;
-	party_struct **first_party;
-	region **first_region;
-	long *pticks;
-	settings_struct *settings;
+    const char **season_name;
+    const char **weekdays;
+    const char **month_name;
+    const char **periodsofday;
+    spell_struct *spells;
+    struct shstr_constants *shstr_cons;
+    const char **gender_noun;
+    const char **gender_subjective;
+    const char **gender_subjective_upper;
+    const char **gender_objective;
+    const char **gender_possessive;
+    const char **gender_reflexive;
+    const char **object_flag_names;
+    int *freearr_x;
+    int *freearr_y;
+    player **first_player;
+    New_Face **new_faces;
+    int *nrofpixmaps;
+    Animations **animations;
+    int *num_animations;
+    archetype **first_archetype;
+    mapstruct **first_map;
+    party_struct **first_party;
+    region **first_region;
+    long *pticks;
+    settings_struct *settings;
 };
 
 /** General API function. */
@@ -352,21 +352,21 @@ typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
 typedef void *(*f_plug_pinit) (void);
 
 #ifndef WIN32
-	/** Library handle. */
-#	define LIBPTRTYPE void *
-	/** Load a shared library. */
-#	define plugins_dlopen(fname) dlopen(fname, RTLD_NOW | RTLD_GLOBAL)
-	/** Unload a shared library. */
-#	define plugins_dlclose(lib) dlclose(lib)
-	/** Get a function from a shared library. */
-#	define plugins_dlsym(lib, name) dlsym(lib, name)
-	/** Library error. */
-#	define plugins_dlerror() dlerror()
+/** Library handle. */
+#   define LIBPTRTYPE void *
+/** Load a shared library. */
+#   define plugins_dlopen(fname) dlopen(fname, RTLD_NOW | RTLD_GLOBAL)
+/** Unload a shared library. */
+#   define plugins_dlclose(lib) dlclose(lib)
+/** Get a function from a shared library. */
+#   define plugins_dlsym(lib, name) dlsym(lib, name)
+/** Library error. */
+#   define plugins_dlerror() dlerror()
 #else
-#	define LIBPTRTYPE HMODULE
-#	define plugins_dlopen(fname) LoadLibrary(fname)
-#	define plugins_dlclose(lib) FreeLibrary(lib)
-#	define plugins_dlsym(lib, name) GetProcAddress(lib, name)
+#   define LIBPTRTYPE HMODULE
+#   define plugins_dlopen(fname) LoadLibrary(fname)
+#   define plugins_dlclose(lib) FreeLibrary(lib)
+#   define plugins_dlsym(lib, name) GetProcAddress(lib, name)
 #endif
 
 /** Check if the specified filename is a plugin file. */
@@ -375,29 +375,29 @@ typedef void *(*f_plug_pinit) (void);
 /** One loaded plugin. */
 typedef struct atrinik_plugin
 {
-	/** Event handler function. */
-	f_plug_api eventfunc;
+    /** Event handler function. */
+    f_plug_api eventfunc;
 
-	/** Plugin getProperty function. */
-	f_plug_api propfunc;
+    /** Plugin getProperty function. */
+    f_plug_api propfunc;
 
-	/** Plugin closePlugin function. */
-	f_plug_pinit closefunc;
+    /** Plugin closePlugin function. */
+    f_plug_pinit closefunc;
 
-	/** Pointer to the plugin library. */
-	LIBPTRTYPE libptr;
+    /** Pointer to the plugin library. */
+    LIBPTRTYPE libptr;
 
-	/** Plugin identification string. */
-	char id[MAX_BUF];
+    /** Plugin identification string. */
+    char id[MAX_BUF];
 
-	/** Plugin's full name. */
-	char fullname[MAX_BUF];
+    /** Plugin's full name. */
+    char fullname[MAX_BUF];
 
-	/** Global events registered. */
-	sint8 gevent[GEVENT_NUM];
+    /** Global events registered. */
+    sint8 gevent[GEVENT_NUM];
 
-	/** Next plugin in list. */
-	struct atrinik_plugin *next;
+    /** Next plugin in list. */
+    struct atrinik_plugin *next;
 } atrinik_plugin;
 
 /**

@@ -163,57 +163,57 @@
 
 /* new macros for map layer system */
 #define GET_MAP_SPACE_PTR(M_, X_, Y_) \
-	(&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
+    (&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
 
 #define GET_MAP_SPACE_FIRST(M_) \
-	((M_)->first)
+    ((M_)->first)
 #define GET_MAP_SPACE_LAST(M_) \
-	((M_)->last)
+    ((M_)->last)
 #define GET_MAP_SPACE_LAYER(M_, L_, SL_) \
-	((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1])
+    ((M_)->layer[NUM_LAYERS * (SL_) + (L_) -1])
 
 #define SET_MAP_SPACE_FIRST(M_, O_) \
-	((M_)->first = (O_))
+    ((M_)->first = (O_))
 #define SET_MAP_SPACE_LAST(M_, O_) \
-	((M_)->last = (O_))
+    ((M_)->last = (O_))
 #define SET_MAP_SPACE_LAYER(M_, L_, SL_, O_) \
-	((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1] = (O_))
+    ((M_)->layer[NUM_LAYERS * (SL_) + (L_) -1] = (O_))
 
 #define GET_MAP_UPDATE_COUNTER(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].update_tile)
+    ((M)->spaces[(X) + (M)->width * (Y)].update_tile)
 
 #define INC_MAP_UPDATE_COUNTER(M, X, Y) \
-	((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
+    ((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
 
 #define GET_MAP_MOVE_FLAGS(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].move_flags)
+    ((M)->spaces[(X) + (M)->width * (Y)].move_flags)
 #define SET_MAP_MOVE_FLAGS(M, X, Y, C) \
-	((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
+    ((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
 #define GET_MAP_FLAGS(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].flags)
+    ((M)->spaces[(X) + (M)->width * (Y)].flags)
 #define SET_MAP_FLAGS(M, X, Y, C) \
-	((M)->spaces[(X) + (M)->width * (Y)].flags = C)
+    ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
 #define GET_MAP_LIGHT(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].light)
+    ((M)->spaces[(X) + (M)->width * (Y)].light)
 #define SET_MAP_LIGHT(M, X, Y, L) \
-	((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
+    ((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
 
 #define GET_MAP_OB(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].first)
+    ((M)->spaces[(X) + (M)->width * (Y)].first)
 #define GET_MAP_OB_LAST(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].last)
+    ((M)->spaces[(X) + (M)->width * (Y)].last)
 #define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, _SL_) \
-	((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) - 1])
+    ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
 
 #define SET_MAP_DAMAGE(M, X, Y, tmp) \
-	((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
 #define GET_MAP_DAMAGE(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].last_damage)
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage)
 
 #define SET_MAP_RTAG(M, X, Y, tmp) \
-	((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
 #define GET_MAP_RTAG(M, X, Y) \
-	((M)->spaces[(X) + (M)->width * (Y)].round_tag)
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
 #define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
 
@@ -222,7 +222,7 @@
  * should almost always be using get_map_from_coord() instead, which
  * takes into account map tiling. */
 #define OUT_OF_MAP(M, X, Y) \
-	((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
+    ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
 /**
  * @defgroup map_look_flags Map look flags
@@ -310,63 +310,63 @@
 /** Single tile on a map */
 typedef struct MapSpace_s
 {
-	/** Start of the objects on this map tile */
-	object *first;
+    /** Start of the objects on this map tile */
+    object *first;
 
-	/** Array of visible layer objects. */
-	object *layer[NUM_REAL_LAYERS];
+    /** Array of visible layer objects. */
+    object *layer[NUM_REAL_LAYERS];
 
-	/** Last object in this list */
-	object *last;
+    /** Last object in this list */
+    object *last;
 
-	/** Map info object bound to this tile. */
-	object *map_info;
+    /** Map info object bound to this tile. */
+    object *map_info;
 
-	/** Ambient sound effect object bound to this tile. */
-	object *sound_ambient;
+    /** Ambient sound effect object bound to this tile. */
+    object *sound_ambient;
 
-	/** Used to create chained light source list. */
-	struct MapSpace_s *prev_light;
+    /** Used to create chained light source list. */
+    struct MapSpace_s *prev_light;
 
-	/** Used to create chained light source list. */
-	struct MapSpace_s *next_light;
+    /** Used to create chained light source list. */
+    struct MapSpace_s *next_light;
 
-	/** Tag for last_damage */
-	uint32 round_tag;
+    /** Tag for last_damage */
+    uint32 round_tag;
 
-	/** ID of ::map_info. */
-	tag_t map_info_count;
+    /** ID of ::map_info. */
+    tag_t map_info_count;
 
-	/** ID of ::sound_ambient. */
-	tag_t sound_ambient_count;
+    /** ID of ::sound_ambient. */
+    tag_t sound_ambient_count;
 
-	/** Counter for update tile */
-	uint32 update_tile;
+    /** Counter for update tile */
+    uint32 update_tile;
 
-	/** Light source counter - the higher the brighter light source here */
-	sint32 light_source;
+    /** Light source counter - the higher the brighter light source here */
+    sint32 light_source;
 
-	/**
-	 * How much light is on this tile. 0 = total dark
-	 * 255+ = full daylight. */
-	sint32 light_value;
+    /**
+     * How much light is on this tile. 0 = total dark
+     * 255+ = full daylight. */
+    sint32 light_value;
 
-	/**
-	 * Flags about this space
-	 * @see map_look_flags */
-	int flags;
+    /**
+     * Flags about this space
+     * @see map_look_flags */
+    int flags;
 
-	/** last_damage tmp backbuffer */
-	uint16 last_damage;
+    /** last_damage tmp backbuffer */
+    uint16 last_damage;
 
-	/** Terrain type flags (water, underwater,...) */
-	uint16 move_flags;
+    /** Terrain type flags (water, underwater,...) */
+    uint16 move_flags;
 
-	/** How much light this space provides */
-	uint8 light;
+    /** How much light this space provides */
+    uint8 light;
 
-	/** Extra flags from @ref MSP_EXTRA_xxx. */
-	uint8 extra_flags;
+    /** Extra flags from @ref MSP_EXTRA_xxx. */
+    uint8 extra_flags;
 } MapSpace;
 
 /**
@@ -411,22 +411,22 @@ typedef struct MapSpace_s
  *@{*/
 
 /** Default darkness */
-#define MAP_DEFAULT_DARKNESS	0
+#define MAP_DEFAULT_DARKNESS    0
 /*@}*/
 
 #define SET_MAP_TILE_VISITED(m, x, y, id)                                                    \
-{                                                                                            \
-	if ((m)->pathfinding_id != (id))                                                         \
-	{                                                                                        \
-		(m)->pathfinding_id = (id);                                                          \
-		memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
-	}                                                                                        \
+    {                                                                                            \
+        if ((m)->pathfinding_id != (id))                                                         \
+        {                                                                                        \
+            (m)->pathfinding_id = (id);                                                          \
+            memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
+        }                                                                                        \
                                                                                              \
-	(m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
-}
+        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
+    }
 
 #define QUERY_MAP_TILE_VISITED(m, x, y, id) \
-	((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
 /**
  * This is a game region.
@@ -435,68 +435,68 @@ typedef struct MapSpace_s
  * definition. */
 typedef struct region
 {
-	/** Pointer to next region, NULL for the last one */
-	struct region *next;
+    /** Pointer to next region, NULL for the last one */
+    struct region *next;
 
-	/**
-	 * Pointer to the region that is a parent of the current
-	 * region, if a value isn't defined in the current region
-	 * we traverse this series of pointers until it is. */
-	struct region *parent;
+    /**
+     * Pointer to the region that is a parent of the current
+     * region, if a value isn't defined in the current region
+     * we traverse this series of pointers until it is. */
+    struct region *parent;
 
-	/** Shortened name of the region as maps refer to it */
-	char *name;
+    /** Shortened name of the region as maps refer to it */
+    char *name;
 
-	/**
-	 * So that parent and child regions can be defined in
-	 * any order, we keep hold of the parent_name during
-	 * initialization, and the children get assigned to their
-	 * parents later. (before runtime on the server though)
-	 * nothing outside the init code should ever use this value. */
-	char *parent_name;
+    /**
+     * So that parent and child regions can be defined in
+     * any order, we keep hold of the parent_name during
+     * initialization, and the children get assigned to their
+     * parents later. (before runtime on the server though)
+     * nothing outside the init code should ever use this value. */
+    char *parent_name;
 
-	/**
-	 * Official title of the region, this might be defined
-	 * to be the same as name */
-	char *longname;
+    /**
+     * Official title of the region, this might be defined
+     * to be the same as name */
+    char *longname;
 
-	/** The description of the region. */
-	char *msg;
+    /** The description of the region. */
+    char *msg;
 
-	/** Where a player that is arrested in this region should be imprisoned. */
-	char *jailmap;
+    /** Where a player that is arrested in this region should be imprisoned. */
+    char *jailmap;
 
-	/** One of the maps in the region. */
-	char *map_first;
+    /** One of the maps in the region. */
+    char *map_first;
 
-	/** Client map background to use: if not set, will use transparency. */
-	char *map_bg;
+    /** Client map background to use: if not set, will use transparency. */
+    char *map_bg;
 
-	/**
-	 * If 1, the map will not be available unless the player has done
-	 * the quest to obtain it. */
-	uint8 map_quest;
+    /**
+     * If 1, the map will not be available unless the player has done
+     * the quest to obtain it. */
+    uint8 map_quest;
 
-	/** X coodinate in jailmap to which the player should be sent. */
-	sint16 jailx;
+    /** X coodinate in jailmap to which the player should be sent. */
+    sint16 jailx;
 
-	/** Y coodinate in jailmap to which the player should be sent. */
-	sint16 jaily;
+    /** Y coodinate in jailmap to which the player should be sent. */
+    sint16 jaily;
 } region;
 
 /**
  * A single map event, holding a pointer to map event object on map. */
 typedef struct map_event
 {
-	/** Next map event in linked list. */
-	struct map_event *next;
+    /** Next map event in linked list. */
+    struct map_event *next;
 
-	/** Pointer to the actual map event. */
-	object *event;
+    /** Pointer to the actual map event. */
+    object *event;
 
-	/**
-	 * Plugin the map event object is using. */
-	struct atrinik_plugin *plugin;
+    /**
+     * Plugin the map event object is using. */
+    struct atrinik_plugin *plugin;
 } map_event;
 
 /**
@@ -509,126 +509,126 @@ typedef struct map_event
  * tiling. */
 typedef struct mapdef
 {
-	/** Previous map before. If NULL we are first_map. */
-	struct mapdef *previous;
+    /** Previous map before. If NULL we are first_map. */
+    struct mapdef *previous;
 
-	/** Next map, linked list */
-	struct mapdef *next;
+    /** Next map, linked list */
+    struct mapdef *next;
 
-	/** Any maps tiled together to this one */
-	struct mapdef *tile_map[TILED_NUM];
+    /** Any maps tiled together to this one */
+    struct mapdef *tile_map[TILED_NUM];
 
-	/** Name of map as given by its creator */
-	char *name;
+    /** Name of map as given by its creator */
+    char *name;
 
-	/** Background music of the map */
-	char *bg_music;
+    /** Background music of the map */
+    char *bg_music;
 
-	/** Weather effect active on this map. */
-	char *weather;
+    /** Weather effect active on this map. */
+    char *weather;
 
-	/** Name of temporary file */
-	char *tmpname;
+    /** Name of temporary file */
+    char *tmpname;
 
-	/** Message map creator may have left */
-	char *msg;
+    /** Message map creator may have left */
+    char *msg;
 
-	/** Filename of the map (shared string now) */
-	shstr *path;
+    /** Filename of the map (shared string now) */
+    shstr *path;
 
-	/** Path to adjoining maps (shared strings) */
-	shstr *tile_path[TILED_NUM];
+    /** Path to adjoining maps (shared strings) */
+    shstr *tile_path[TILED_NUM];
 
-	/** Array of spaces on this map */
-	MapSpace *spaces;
+    /** Array of spaces on this map */
+    MapSpace *spaces;
 
-	/** List of tile spaces with light sources */
-	MapSpace *first_light;
+    /** List of tile spaces with light sources */
+    MapSpace *first_light;
 
-	/** Pointer to the region this map is in. */
-	struct region *region;
+    /** Pointer to the region this map is in. */
+    struct region *region;
 
-	/** Map-wide events for this map. */
-	struct map_event *events;
+    /** Map-wide events for this map. */
+    struct map_event *events;
 
-	/** Linked list of linked lists of buttons */
-	objectlink *buttons;
+    /** Linked list of linked lists of buttons */
+    objectlink *buttons;
 
-	/** Chained list of players on this map */
-	object *player_first;
+    /** Chained list of players on this map */
+    object *player_first;
 
-	/** Bitmap used for marking visited tiles in pathfinding */
-	uint32 *bitmap;
+    /** Bitmap used for marking visited tiles in pathfinding */
+    uint32 *bitmap;
 
-	/** For which traversal is @ref mapstruct::bitmap valid. */
-	uint32 pathfinding_id;
+    /** For which traversal is @ref mapstruct::bitmap valid. */
+    uint32 pathfinding_id;
 
-	/** Map flags for various map settings */
-	uint32 map_flags;
+    /** Map flags for various map settings */
+    uint32 map_flags;
 
-	/** When this map should reset */
-	uint32 reset_time;
+    /** When this map should reset */
+    uint32 reset_time;
 
-	/**
-	 * How many seconds must elapse before this map
-	 * should be reset */
-	uint32 reset_timeout;
+    /**
+     * How many seconds must elapse before this map
+     * should be reset */
+    uint32 reset_timeout;
 
-	/** When this reaches 0, the map will be swapped out. */
-	sint32 timeout;
+    /** When this reaches 0, the map will be swapped out. */
+    sint32 timeout;
 
-	/** How long to wait before a map is swapped out. */
-	uint32 swap_time;
+    /** How long to wait before a map is swapped out. */
+    uint32 swap_time;
 
-	/**
-	 * If not true, the map has been freed and must
-	 * be loaded before used. The map, omap and map_ob
-	 * arrays will be allocated when the map is loaded */
-	uint32 in_memory;
+    /**
+     * If not true, the map has been freed and must
+     * be loaded before used. The map, omap and map_ob
+     * arrays will be allocated when the map is loaded */
+    uint32 in_memory;
 
-	/** Used by relative_tile_position() to mark visited maps */
-	uint32 traversed;
+    /** Used by relative_tile_position() to mark visited maps */
+    uint32 traversed;
 
-	/**
-	 * Indicates the base light value on this map.
-	 *
-	 * This value is only used when the map is not marked as outdoor.
-	 * @see MAP_DEFAULT_DARKNESS */
-	int darkness;
+    /**
+     * Indicates the base light value on this map.
+     *
+     * This value is only used when the map is not marked as outdoor.
+     * @see MAP_DEFAULT_DARKNESS */
+    int darkness;
 
-	/**
-	 * The real light_value, built out from darkness and possible other
-	 * factors. */
-	int light_value;
+    /**
+     * The real light_value, built out from darkness and possible other
+     * factors. */
+    int light_value;
 
-	/**
-	 * What level the player should be to play here. Affects treasures,
-	 * random shops and various other things. */
-	int difficulty;
+    /**
+     * What level the player should be to play here. Affects treasures,
+     * random shops and various other things. */
+    int difficulty;
 
-	/** Height of the map. */
-	int height;
+    /** Height of the map. */
+    int height;
 
-	/** Width of the map. */
-	int width;
+    /** Width of the map. */
+    int width;
 
-	/**
-	 * Used to indicate the X position of where to put the player when he
-	 * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
-	 *
-	 * Also used by exits as the default X location if the exit doesn't
-	 * have one set.
-	 * @see MAP_FLAG_FIXED_LOGIN */
-	int enter_x;
+    /**
+     * Used to indicate the X position of where to put the player when he
+     * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
+     *
+     * Also used by exits as the default X location if the exit doesn't
+     * have one set.
+     * @see MAP_FLAG_FIXED_LOGIN */
+    int enter_x;
 
-	/**
-	 * Used to indicate the Y position of where to put the player when he
-	 * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
-	 *
-	 * Also used by exits as the default Y location if the exit doesn't
-	 * have one set.
-	 * @see MAP_FLAG_FIXED_LOGIN */
-	int enter_y;
+    /**
+     * Used to indicate the Y position of where to put the player when he
+     * logs in to the map if the map has flag MAP_FLAG_FIXED_LOGIN set.
+     *
+     * Also used by exits as the default Y location if the exit doesn't
+     * have one set.
+     * @see MAP_FLAG_FIXED_LOGIN */
+    int enter_y;
 } mapstruct;
 
 /**
@@ -636,20 +636,20 @@ typedef struct mapdef
  * creature is. */
 typedef struct rv_vector_s
 {
-	/** The distance away */
-	unsigned int distance;
+    /** The distance away */
+    unsigned int distance;
 
-	/** X distance away */
-	int distance_x;
+    /** X distance away */
+    int distance_x;
 
-	/** Y distance away */
-	int distance_y;
+    /** Y distance away */
+    int distance_y;
 
-	/** Atrinik direction scheme that the creature should head */
-	int direction;
+    /** Atrinik direction scheme that the creature should head */
+    int direction;
 
-	/** Part of the object that is closest. */
-	object *part;
+    /** Part of the object that is closest. */
+    object *part;
 } rv_vector;
 
 /**

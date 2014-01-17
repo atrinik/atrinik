@@ -41,52 +41,50 @@ static size_t file_updates_requested = 0;
  * @param filename What to request. */
 static void file_updates_request(char *filename)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	file_updates_requested++;
+    file_updates_requested++;
 
-	packet = packet_new(SERVER_CMD_REQUEST_UPDATE, 64, 64);
-	packet_append_string_terminated(packet, filename);
-	socket_send_packet(packet);
+    packet = packet_new(SERVER_CMD_REQUEST_UPDATE, 64, 64);
+    packet_append_string_terminated(packet, filename);
+    socket_send_packet(packet);
 
 }
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 {
-	char filename[MAX_BUF];
-	unsigned long ucomp_len;
-	unsigned char *dest;
-	FILE *fp;
+    char filename[MAX_BUF];
+    unsigned long ucomp_len;
+    unsigned char *dest;
+    FILE *fp;
 
-	if (file_updates_requested != 0)
-	{
-		file_updates_requested--;
-	}
+    if (file_updates_requested != 0) {
+        file_updates_requested--;
+    }
 
-	packet_to_string(data, len, &pos, filename, sizeof(filename));
-	ucomp_len = packet_to_uint32(data, len, &pos);
-	len -= pos;
+    packet_to_string(data, len, &pos, filename, sizeof(filename));
+    ucomp_len = packet_to_uint32(data, len, &pos);
+    len -= pos;
 
-	/* Uncompress it. */
-	dest = malloc(ucomp_len);
-	uncompress((Bytef *) dest, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len);
-	data = dest;
-	len = ucomp_len;
+    /* Uncompress it. */
+    dest = malloc(ucomp_len);
+    uncompress((Bytef *) dest, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len);
+    data = dest;
+    len = ucomp_len;
 
-	fp = fopen_wrapper(filename, "wb");
+    fp = fopen_wrapper(filename, "wb");
 
-	if (!fp)
-	{
-		logger_print(LOG(BUG), "Could not open file '%s' for writing.", filename);
-		free(dest);
-		return;
-	}
+    if (!fp) {
+        logger_print(LOG(BUG), "Could not open file '%s' for writing.", filename);
+        free(dest);
+        return;
+    }
 
-	/* Update the file. */
-	fwrite(data, 1, len, fp);
-	fclose(fp);
-	free(dest);
+    /* Update the file. */
+    fwrite(data, 1, len, fp);
+    fclose(fp);
+    free(dest);
 }
 
 /**
@@ -94,68 +92,63 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
  * @return 1 if we have finished, 0 otherwise. */
 int file_updates_finished(void)
 {
-	return file_updates_requested == 0;
+    return file_updates_requested == 0;
 }
 
 /**
  * Parse the updates srv file, and request updated files as needed. */
 void file_updates_parse(void)
 {
-	FILE *fp;
-	char buf[HUGE_BUF];
+    FILE *fp;
+    char buf[HUGE_BUF];
 
-	/* Is the feature disabled? */
-	if (setting_get_int(OPT_CAT_CLIENT, OPT_DISABLE_FILE_UPDATES))
-	{
-		return;
-	}
+    /* Is the feature disabled? */
+    if (setting_get_int(OPT_CAT_CLIENT, OPT_DISABLE_FILE_UPDATES)) {
+        return;
+    }
 
-	fp = server_file_open(SERVER_FILE_UPDATES);
+    fp = server_file_open(SERVER_FILE_UPDATES);
 
-	if (!fp)
-	{
-		return;
-	}
+    if (!fp) {
+        return;
+    }
 
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		char filename[MAX_BUF], crc_buf[MAX_BUF], *contents;
-		uint64 size;
-		size_t st_size, numread;
-		FILE *fp2;
-		unsigned long crc;
-		struct stat sb;
+    while (fgets(buf, sizeof(buf) - 1, fp)) {
+        char filename[MAX_BUF], crc_buf[MAX_BUF], *contents;
+        uint64 size;
+        size_t st_size, numread;
+        FILE *fp2;
+        unsigned long crc;
+        struct stat sb;
 
-		if (sscanf(buf, "%s %"FMT64U" %s", filename, &size, crc_buf) != 3)
-		{
-			continue;
-		}
+        if (sscanf(buf, "%s %"FMT64U " %s", filename, &size, crc_buf) != 3) {
+            continue;
+        }
 
-		fp2 = fopen_wrapper(filename, "rb");
+        fp2 = fopen_wrapper(filename, "rb");
 
-		/* No such file? Then we'll want to update this. */
-		if (!fp2)
-		{
-			file_updates_request(filename);
-			continue;
-		}
+        /* No such file? Then we'll want to update this. */
+        if (!fp2) {
+            file_updates_request(filename);
+            continue;
+        }
 
-		fstat(fileno(fp2), &sb);
-		st_size = sb.st_size;
-		contents = malloc(st_size);
-		numread = fread(contents, 1, st_size, fp2);
-		fclose(fp2);
+        fstat(fileno(fp2), &sb);
+        st_size = sb.st_size;
+        contents = malloc(st_size);
+        numread = fread(contents, 1, st_size, fp2);
+        fclose(fp2);
 
-		/* Get the CRC32... */
-		crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-		free(contents);
+        /* Get the CRC32... */
+        crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+        free(contents);
 
-		/* If the checksum or the size doesn't match, we'll want to update it. */
-		if (crc != strtoul(crc_buf, NULL, 16) || st_size != (size_t) size)
-		{
-			file_updates_request(filename);
-		}
-	}
+        /* If the checksum or the size doesn't match, we'll want to update it.
+         * */
+        if (crc != strtoul(crc_buf, NULL, 16) || st_size != (size_t) size) {
+            file_updates_request(filename);
+        }
+    }
 
-	fclose(fp);
+    fclose(fp);
 }

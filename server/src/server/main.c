@@ -63,25 +63,21 @@ static void do_specials(void);
  * shown to the player object using draw_info_format(). */
 void version(object *op)
 {
-	if (op)
-	{
-		int revision;
+    if (op) {
+        int revision;
 
-		revision = bzr_get_revision();
+        revision = bzr_get_revision();
 
-		if (revision)
-		{
-			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
-		}
-		else
-		{
-			draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
-		}
-	}
-	else
-	{
-		logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
-	}
+        if (revision) {
+            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
+        }
+        else {
+            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
+        }
+    }
+    else {
+        logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
+    }
 }
 
 /**
@@ -90,15 +86,14 @@ void version(object *op)
  * @param op The object leaving the map. */
 void leave_map(object *op)
 {
-	object_remove(op, 0);
+    object_remove(op, 0);
 
-	if (!op->map->player_first)
-	{
-		set_map_timeout(op->map);
-	}
+    if (!op->map->player_first) {
+        set_map_timeout(op->map);
+    }
 
-	op->map = NULL;
-	CONTR(op)->last_update = NULL;
+    op->map = NULL;
+    CONTR(op)->last_update = NULL;
 }
 
 /**
@@ -107,22 +102,20 @@ void leave_map(object *op)
 void set_map_timeout(mapstruct *map)
 {
 #if MAP_DEFAULTTIMEOUT
-	uint32 swap_time = MAP_SWAP_TIME(map);
+    uint32 swap_time = MAP_SWAP_TIME(map);
 
-	if (swap_time == 0)
-	{
-		swap_time = MAP_DEFAULTTIMEOUT;
-	}
+    if (swap_time == 0) {
+        swap_time = MAP_DEFAULTTIMEOUT;
+    }
 
-	if (swap_time >= MAP_MAXTIMEOUT)
-	{
-		swap_time = MAP_MAXTIMEOUT;
-	}
+    if (swap_time >= MAP_MAXTIMEOUT) {
+        swap_time = MAP_MAXTIMEOUT;
+    }
 
-	map->timeout = swap_time;
+    map->timeout = swap_time;
 #else
-	/* Save out the map. */
-	swap_map(map, 0);
+    /* Save out the map. */
+    swap_map(map, 0);
 #endif
 }
 
@@ -131,125 +124,107 @@ void set_map_timeout(mapstruct *map)
  * @sa process_players2(). */
 static void process_players1(void)
 {
-	player *pl, *plnext;
-	int retval;
+    player *pl, *plnext;
+    int retval;
 
-	for (pl = first_player; pl; pl = plnext)
-	{
-		plnext = pl->next;
+    for (pl = first_player; pl; pl = plnext) {
+        plnext = pl->next;
 
-		while ((retval = handle_newcs_player(pl)) == 1)
-		{
-		}
+        while ((retval = handle_newcs_player(pl)) == 1) {
+        }
 
-		if (retval == -1)
-		{
-			continue;
-		}
+        if (retval == -1) {
+            continue;
+        }
 
-		/* Update the next pointer, in case the above handle_newcs_player()
-		 * call(s) caused the previous next pointer to be freed (double
-		 * login kicked the playing character, for example). */
-		plnext = pl->next;
+        /* Update the next pointer, in case the above handle_newcs_player()
+         * call(s) caused the previous next pointer to be freed (double
+         * login kicked the playing character, for example). */
+        plnext = pl->next;
 
-		if (pl->followed_player[0])
-		{
-			player *followed = find_player(pl->followed_player);
+        if (pl->followed_player[0]) {
+            player *followed = find_player(pl->followed_player);
 
-			if (followed && followed->ob && followed->ob->map)
-			{
-				rv_vector rv;
+            if (followed && followed->ob && followed->ob->map) {
+                rv_vector rv;
 
-				if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4))
-				{
-					int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
+                if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4)) {
+                    int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
 
-					if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map))
-					{
-						object_remove(pl->ob, 0);
-						pl->ob->x = followed->ob->x + freearr_x[space];
-						pl->ob->y = followed->ob->y + freearr_y[space];
-						insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
-					}
-				}
-			}
-			else
-			{
-				draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
-				pl->followed_player[0] = '\0';
-			}
-		}
+                    if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map)) {
+                        object_remove(pl->ob, 0);
+                        pl->ob->x = followed->ob->x + freearr_x[space];
+                        pl->ob->y = followed->ob->y + freearr_y[space];
+                        insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
+                    }
+                }
+            }
+            else {
+                draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
+                pl->followed_player[0] = '\0';
+            }
+        }
 
-		/* Use the target system to hit our target - don't hit friendly
-		 * objects, ourselves or when we are not in combat mode. */
-		if (pl->target_object && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object))
-		{
-			if (global_round_tag >= pl->action_attack)
-			{
-				/* Now we force target as enemy */
-				pl->ob->enemy = pl->target_object;
-				pl->ob->enemy_count = pl->target_object_count;
+        /* Use the target system to hit our target - don't hit friendly
+         * objects, ourselves or when we are not in combat mode. */
+        if (pl->target_object && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object)) {
+            if (global_round_tag >= pl->action_attack) {
+                /* Now we force target as enemy */
+                pl->ob->enemy = pl->target_object;
+                pl->ob->enemy_count = pl->target_object_count;
 
-				if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob)
-				{
-					pl->ob->enemy = NULL;
-				}
-				else if (is_melee_range(pl->ob, pl->ob->enemy))
-				{
-					if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count))
-					{
-						set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
-					}
-					/* Our target already has an enemy - then note we had attacked */
-					else
-					{
-						pl->ob->enemy->attacked_by = pl->ob;
-						pl->ob->enemy->attacked_by_distance = 1;
-					}
+                if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
+                    pl->ob->enemy = NULL;
+                }
+                else if (is_melee_range(pl->ob, pl->ob->enemy)) {
+                    if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
+                        set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
+                    }
+                    /* Our target already has an enemy - then note we had
+                     * attacked */
+                    else {
+                        pl->ob->enemy->attacked_by = pl->ob;
+                        pl->ob->enemy->attacked_by_distance = 1;
+                    }
 
-					skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
+                    skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
 
-					pl->action_attack = global_round_tag + pl->ob->weapon_speed;
+                    pl->action_attack = global_round_tag + pl->ob->weapon_speed;
 
-					pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
-					pl->last_action_timer = 0;
-				}
-			}
-		}
+                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+                    pl->last_action_timer = 0;
+                }
+            }
+        }
 
-		if (pl->move_path)
-		{
-			player_path_handle(pl);
-		}
+        if (pl->move_path) {
+            player_path_handle(pl);
+        }
 
-		do_some_living(pl->ob);
+        do_some_living(pl->ob);
 
 #ifdef AUTOSAVE
-		/* Check for ST_PLAYING state so that we don't try to save off when
-		 * the player is logging in. */
-		if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING)
-		{
-			player_save(pl->ob);
-			pl->last_save_tick = pticks;
-			hiscore_check(pl->ob, 1);
-		}
+        /* Check for ST_PLAYING state so that we don't try to save off when
+         * the player is logging in. */
+        if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING) {
+            player_save(pl->ob);
+            pl->last_save_tick = pticks;
+            hiscore_check(pl->ob, 1);
+        }
 #endif
 
-		/* Update total playing time. */
-		if (pl->socket.state == ST_PLAYING && time(NULL) > pl->last_stat_time_played)
-		{
-			pl->last_stat_time_played = time(NULL);
+        /* Update total playing time. */
+        if (pl->socket.state == ST_PLAYING && time(NULL) > pl->last_stat_time_played) {
+            pl->last_stat_time_played = time(NULL);
 
-			if (pl->afk)
-			{
-				pl->stat_time_afk++;
-			}
-			else
-			{
-				pl->stat_time_played++;
-			}
-		}
-	}
+            if (pl->afk) {
+                pl->stat_time_afk++;
+            }
+            else {
+                pl->stat_time_played++;
+            }
+        }
+    }
 }
 
 /**
@@ -257,21 +232,18 @@ static void process_players1(void)
  * @sa process_players1(). */
 static void process_players2(void)
 {
-	player *pl;
+    player *pl;
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		/* Check if our target is still valid - if not, update client. */
-		if (pl->ob->map && (!pl->target_object || (pl->target_object != pl->ob && pl->target_object_count != pl->target_object->count) || QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE))))
-		{
-			send_target_command(pl);
-		}
+    for (pl = first_player; pl; pl = pl->next) {
+        /* Check if our target is still valid - if not, update client. */
+        if (pl->ob->map && (!pl->target_object || (pl->target_object != pl->ob && pl->target_object_count != pl->target_object->count) || QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))) {
+            send_target_command(pl);
+        }
 
-		if (pl->ob->speed_left > pl->ob->speed)
-		{
-			pl->ob->speed_left = pl->ob->speed;
-		}
-	}
+        if (pl->ob->speed_left > pl->ob->speed) {
+            pl->ob->speed_left = pl->ob->speed;
+        }
+    }
 }
 
 /**
@@ -279,194 +251,169 @@ static void process_players2(void)
  * @param map If not NULL, only process objects on that map. */
 void process_events(mapstruct *map)
 {
-	object *op;
-	tag_t tag;
+    object *op;
+    tag_t tag;
 
-	process_players1();
+    process_players1();
 
-	/* Put marker object at beginning of active list */
-	marker.active_next = active_objects;
+    /* Put marker object at beginning of active list */
+    marker.active_next = active_objects;
 
-	if (marker.active_next)
-	{
-		marker.active_next->active_prev = &marker;
-	}
+    if (marker.active_next) {
+        marker.active_next->active_prev = &marker;
+    }
 
-	marker.active_prev = NULL;
-	active_objects = &marker;
+    marker.active_prev = NULL;
+    active_objects = &marker;
 
-	while (marker.active_next)
-	{
-		op = marker.active_next;
-		tag = op->count;
+    while (marker.active_next) {
+        op = marker.active_next;
+        tag = op->count;
 
-		/* Move marker forward - swap op and marker */
-		op->active_prev = marker.active_prev;
+        /* Move marker forward - swap op and marker */
+        op->active_prev = marker.active_prev;
 
-		if (op->active_prev)
-		{
-			op->active_prev->active_next = op;
-		}
-		else
-		{
-			active_objects = op;
-		}
+        if (op->active_prev) {
+            op->active_prev->active_next = op;
+        }
+        else {
+            active_objects = op;
+        }
 
-		marker.active_next = op->active_next;
+        marker.active_next = op->active_next;
 
-		if (marker.active_next)
-		{
-			marker.active_next->active_prev = &marker;
-		}
+        if (marker.active_next) {
+            marker.active_next->active_prev = &marker;
+        }
 
-		marker.active_prev = op;
-		op->active_next = &marker;
+        marker.active_prev = op;
+        op->active_next = &marker;
 
-		/* Now process op */
-		if (OBJECT_FREE(op))
-		{
-			logger_print(LOG(BUG), "Free object on active list");
-			op->speed = 0;
-			update_ob_speed(op);
-			continue;
-		}
+        /* Now process op */
+        if (OBJECT_FREE(op)) {
+            logger_print(LOG(BUG), "Free object on active list");
+            op->speed = 0;
+            update_ob_speed(op);
+            continue;
+        }
 
-		if (QUERY_FLAG(op, FLAG_REMOVED))
-		{
-			op->speed = 0;
-			update_ob_speed(op);
-			continue;
-		}
+        if (QUERY_FLAG(op, FLAG_REMOVED)) {
+            op->speed = 0;
+            update_ob_speed(op);
+            continue;
+        }
 
-		if (!op->speed)
-		{
-			logger_print(LOG(BUG), "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
-			update_ob_speed(op);
-			continue;
-		}
+        if (!op->speed) {
+            logger_print(LOG(BUG), "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
+            update_ob_speed(op);
+            continue;
+        }
 
-		if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL)
-		{
-			logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
-			op->speed = 0;
-			update_ob_speed(op);
-			continue;
-		}
+        if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL) {
+            logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
+            op->speed = 0;
+            update_ob_speed(op);
+            continue;
+        }
 
-		if (map && op->map != map)
-		{
-			continue;
-		}
+        if (map && op->map != map) {
+            continue;
+        }
 
-		/* As long we are > 0, we are not ready to swing. */
-		if (op->weapon_speed_left > 0)
-		{
-			op->weapon_speed_left -= op->weapon_speed;
-		}
+        /* As long we are > 0, we are not ready to swing. */
+        if (op->weapon_speed_left > 0) {
+            op->weapon_speed_left -= op->weapon_speed;
+        }
 
-		if (op->speed_left > 0)
-		{
-			--op->speed_left;
-			object_process(op);
+        if (op->speed_left > 0) {
+            --op->speed_left;
+            object_process(op);
 
-			if (was_destroyed(op, tag))
-			{
-				continue;
-			}
-		}
+            if (was_destroyed(op, tag)) {
+                continue;
+            }
+        }
 
-		/* Handle archetype-field anim_speed differently when it comes to
-		 * the animation. If we have a value on this we don't animate it
-		 * at speed-events. */
-		if (QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			if (op->last_anim >= op->anim_speed)
-			{
-				animate_object(op, 1);
+        /* Handle archetype-field anim_speed differently when it comes to
+         * the animation. If we have a value on this we don't animate it
+         * at speed-events. */
+        if (QUERY_FLAG(op, FLAG_ANIMATE)) {
+            if (op->last_anim >= op->anim_speed) {
+                animate_object(op, 1);
 
-				/* Check for direction changing */
-				if (op->type == PLAYER && NUM_FACINGS(op) >= 25)
-				{
-					if (op->anim_moving_dir != -1)
-					{
-						op->anim_last_facing = op->anim_moving_dir;
-						op->anim_moving_dir = -1;
-					}
+                /* Check for direction changing */
+                if (op->type == PLAYER && NUM_FACINGS(op) >= 25) {
+                    if (op->anim_moving_dir != -1) {
+                        op->anim_last_facing = op->anim_moving_dir;
+                        op->anim_moving_dir = -1;
+                    }
 
-					if (op->anim_enemy_dir != -1)
-					{
-						op->anim_last_facing = op->anim_enemy_dir;
-						op->anim_enemy_dir = -1;
-					}
-				}
+                    if (op->anim_enemy_dir != -1) {
+                        op->anim_last_facing = op->anim_enemy_dir;
+                        op->anim_enemy_dir = -1;
+                    }
+                }
 
-				op->last_anim = 1;
-			}
-			else
-			{
-				/* Check for direction changing */
-				if (NUM_FACINGS(op) >= 25)
-				{
-					animate_object(op, 0);
-				}
+                op->last_anim = 1;
+            }
+            else {
+                /* Check for direction changing */
+                if (NUM_FACINGS(op) >= 25) {
+                    animate_object(op, 0);
+                }
 
-				op->last_anim++;
-			}
-		}
+                op->last_anim++;
+            }
+        }
 
-		if (op->speed_left <= 0)
-		{
-			op->speed_left += FABS(op->speed);
-		}
-	}
+        if (op->speed_left <= 0) {
+            op->speed_left += FABS(op->speed);
+        }
+    }
 
-	/* Remove marker object from active list */
-	if (marker.active_prev)
-	{
-		marker.active_prev->active_next = NULL;
-	}
-	else
-	{
-		active_objects = NULL;
-	}
+    /* Remove marker object from active list */
+    if (marker.active_prev) {
+        marker.active_prev->active_next = NULL;
+    }
+    else {
+        active_objects = NULL;
+    }
 
-	process_players2();
+    process_players2();
 }
 
 /**
  * Clean temporary map files. */
 void clean_tmp_files(void)
 {
-	mapstruct *m, *next;
+    mapstruct *m, *next;
 
-	/* We save the maps - it may not be intuitive why, but if there are
-	 * unique items, we need to save the map so they get saved off. */
-	for (m = first_map; m != NULL; m = next)
-	{
-		next = m->next;
+    /* We save the maps - it may not be intuitive why, but if there are
+     * unique items, we need to save the map so they get saved off. */
+    for (m = first_map; m != NULL; m = next) {
+        next = m->next;
 
-		if (m->in_memory == MAP_IN_MEMORY)
-		{
+        if (m->in_memory == MAP_IN_MEMORY) {
 #if RECYCLE_TMP_MAPS
-			swap_map(m, 0);
+            swap_map(m, 0);
 #else
-			new_save_map(m, 0);
-			clean_tmp_map(m);
+            new_save_map(m, 0);
+            clean_tmp_map(m);
 #endif
-		}
-	}
+        }
+    }
 
-	/* Write the clock */
-	write_todclock();
+    /* Write the clock */
+    write_todclock();
 }
 
 /**
  * Shut down the server, saving and freeing all data. */
 void server_shutdown(void)
 {
-	player_disconnect_all();
-	clean_tmp_files();
-	exit(0);
+    player_disconnect_all();
+    clean_tmp_files();
+    exit(0);
 }
 
 /**
@@ -476,44 +423,39 @@ void server_shutdown(void)
 static void dequeue_path_requests(void)
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
-	static struct timeval new_time;
-	long leftover_sec, leftover_usec;
-	object *wp;
+    static struct timeval new_time;
+    long leftover_sec, leftover_usec;
+    object *wp;
 
-	while ((wp = get_next_requested_path()))
-	{
-		waypoint_compute_path(wp);
+    while ((wp = get_next_requested_path())) {
+        waypoint_compute_path(wp);
 
-		(void) GETTIMEOFDAY(&new_time);
+        (void) GETTIMEOFDAY(&new_time);
 
-		leftover_sec = last_time.tv_sec - new_time.tv_sec;
-		leftover_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
+        leftover_sec = last_time.tv_sec - new_time.tv_sec;
+        leftover_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
 
-		/* This is very ugly, but probably the fastest for our use: */
-		while (leftover_usec < 0)
-		{
-			leftover_usec += 1000000;
-			leftover_sec -= 1;
-		}
-		while (leftover_usec > 1000000)
-		{
-			leftover_usec -= 1000000;
-			leftover_sec += 1;
-		}
+        /* This is very ugly, but probably the fastest for our use: */
+        while (leftover_usec < 0) {
+            leftover_usec += 1000000;
+            leftover_sec -= 1;
+        }
+        while (leftover_usec > 1000000) {
+            leftover_usec -= 1000000;
+            leftover_sec += 1;
+        }
 
-		/* Try to save about 10 ms */
-		if (leftover_sec < 1 && leftover_usec < 10000)
-		{
-			break;
-		}
-	}
+        /* Try to save about 10 ms */
+        if (leftover_sec < 1 && leftover_usec < 10000) {
+            break;
+        }
+    }
 #else
-	object *wp = get_next_requested_path();
+    object *wp = get_next_requested_path();
 
-	if (wp)
-	{
-		waypoint_compute_path(wp);
-	}
+    if (wp) {
+        waypoint_compute_path(wp);
+    }
 #endif
 }
 
@@ -527,170 +469,151 @@ static void dequeue_path_requests(void)
  * @return 1 on success, 0 on failure. */
 int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
-	char *cleanpath, *path;
-	int i, j;
-	object *ob, *tmp, *tmp2;
-	mapstruct *oldmap, *newmap;
+    char *cleanpath, *path;
+    int i, j;
+    object *ob, *tmp, *tmp2;
+    mapstruct *oldmap, *newmap;
 
-	/* So we can transfer our items from the old apartment. */
-	cleanpath = strdup(mapold);
-	string_replace_char(cleanpath, "/", '$');
-	path = player_make_path(op->name, cleanpath);
-	oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
-	free(path);
-	free(cleanpath);
+    /* So we can transfer our items from the old apartment. */
+    cleanpath = strdup(mapold);
+    string_replace_char(cleanpath, "/", '$');
+    path = player_make_path(op->name, cleanpath);
+    oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    free(path);
+    free(cleanpath);
 
-	if (!oldmap)
-	{
-		logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
-		return 0;
-	}
+    if (!oldmap) {
+        logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
+        return 0;
+    }
 
-	/* Our new map. */
-	cleanpath = strdup(mapnew);
-	string_replace_char(cleanpath, "/", '$');
-	path = player_make_path(op->name, cleanpath);
-	newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
-	free(path);
-	free(cleanpath);
+    /* Our new map. */
+    cleanpath = strdup(mapnew);
+    string_replace_char(cleanpath, "/", '$');
+    path = player_make_path(op->name, cleanpath);
+    newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    free(path);
+    free(cleanpath);
 
-	if (!newmap)
-	{
-		logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
-		return 0;
-	}
+    if (!newmap) {
+        logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
+        return 0;
+    }
 
-	/* Go through every square on old apartment map, looking for things
-	 * to transfer. */
-	for (i = 0; i < MAP_WIDTH(oldmap); i++)
-	{
-		for (j = 0; j < MAP_HEIGHT(oldmap); j++)
-		{
-			for (ob = GET_MAP_OB(oldmap, i, j); ob; ob = tmp2)
-			{
-				tmp2 = ob->above;
+    /* Go through every square on old apartment map, looking for things
+     * to transfer. */
+    for (i = 0; i < MAP_WIDTH(oldmap); i++) {
+        for (j = 0; j < MAP_HEIGHT(oldmap); j++) {
+            for (ob = GET_MAP_OB(oldmap, i, j); ob; ob = tmp2) {
+                tmp2 = ob->above;
 
-				/* We teleport any possible players here to emergency map. */
-				if (ob->type == PLAYER)
-				{
-					object_enter_map(ob, NULL, NULL, 0, 0, 0);
-					continue;
-				}
+                /* We teleport any possible players here to emergency map. */
+                if (ob->type == PLAYER) {
+                    object_enter_map(ob, NULL, NULL, 0, 0, 0);
+                    continue;
+                }
 
-				/* If it's sys_object 1, there's no need to transfer it. */
-				if (QUERY_FLAG(ob, FLAG_SYS_OBJECT))
-				{
-					continue;
-				}
+                /* If it's sys_object 1, there's no need to transfer it. */
+                if (QUERY_FLAG(ob, FLAG_SYS_OBJECT)) {
+                    continue;
+                }
 
-				/* A pickable item... Tranfer it */
-				if (!QUERY_FLAG(ob, FLAG_NO_PICK))
-				{
-					object_remove(ob, 0);
-					ob->x = x;
-					ob->y = y;
-					insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-				}
-				/* Fixed part of map */
-				else
-				{
-					/* Now we test for containers, because player
-					 * can have items stored in it. So, go through
-					 * the container and look for things to transfer. */
-					for (tmp = ob->inv; tmp; tmp = tmp2)
-					{
-						tmp2 = tmp->below;
+                /* A pickable item... Tranfer it */
+                if (!QUERY_FLAG(ob, FLAG_NO_PICK)) {
+                    object_remove(ob, 0);
+                    ob->x = x;
+                    ob->y = y;
+                    insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                }
+                /* Fixed part of map */
+                else {
+                    /* Now we test for containers, because player
+                     * can have items stored in it. So, go through
+                     * the container and look for things to transfer. */
+                    for (tmp = ob->inv; tmp; tmp = tmp2) {
+                        tmp2 = tmp->below;
 
-						if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_NO_PICK))
-						{
-							continue;
-						}
+                        if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_NO_PICK)) {
+                            continue;
+                        }
 
-						object_remove(tmp, 0);
-						tmp->x = x;
-						tmp->y = y;
-						insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-					}
-				}
-			}
-		}
-	}
+                        object_remove(tmp, 0);
+                        tmp->x = x;
+                        tmp->y = y;
+                        insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                    }
+                }
+            }
+        }
+    }
 
-	/* Save the map */
-	new_save_map(newmap, 0);
+    /* Save the map */
+    new_save_map(newmap, 0);
 
-	/* Check for old save bed */
-	if (strcmp(oldmap->path, CONTR(op)->savebed_map) == 0)
-	{
-		strcpy(CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
-		CONTR(op)->bed_x = EMERGENCY_X;
-		CONTR(op)->bed_y = EMERGENCY_Y;
-	}
+    /* Check for old save bed */
+    if (strcmp(oldmap->path, CONTR(op)->savebed_map) == 0) {
+        strcpy(CONTR(op)->savebed_map, EMERGENCY_MAPPATH);
+        CONTR(op)->bed_x = EMERGENCY_X;
+        CONTR(op)->bed_y = EMERGENCY_Y;
+    }
 
-	unlink(oldmap->path);
+    unlink(oldmap->path);
 
-	/* Free the maps */
-	free_map(newmap, 1);
-	free_map(oldmap, 1);
+    /* Free the maps */
+    free_map(newmap, 1);
+    free_map(oldmap, 1);
 
-	return 1;
+    return 1;
 }
 
 /**
  * Collection of functions to call from time to time. */
 static void do_specials(void)
 {
-	if (!(pticks % 2))
-	{
-		dequeue_path_requests();
-	}
+    if (!(pticks % 2)) {
+        dequeue_path_requests();
+    }
 
-	if (!(pticks % PTICKS_PER_CLOCK))
-	{
-		tick_the_clock();
-	}
+    if (!(pticks % PTICKS_PER_CLOCK)) {
+        tick_the_clock();
+    }
 
-	/* Clears the tmp-files of maps which have reset */
-	if (!(pticks % 509))
-	{
-		flush_old_maps();
-	}
+    /* Clears the tmp-files of maps which have reset */
+    if (!(pticks % 509)) {
+        flush_old_maps();
+    }
 
-	if (*settings.server_host != '\0' && !(pticks % 2521))
-	{
-		metaserver_info_update();
-	}
+    if (*settings.server_host != '\0' && !(pticks % 2521)) {
+        metaserver_info_update();
+    }
 }
 
 void shutdown_timer_start(long secs)
 {
-	shutdown_time = pticks + secs * (1000000 / max_time);
-	shutdown_active = 1;
+    shutdown_time = pticks + secs * (1000000 / max_time);
+    shutdown_active = 1;
 }
 
 void shutdown_timer_stop(void)
 {
-	shutdown_active = 0;
+    shutdown_active = 0;
 }
 
 static int shutdown_timer_check(void)
 {
-	if (!shutdown_active)
-	{
-		return 0;
-	}
+    if (!shutdown_active) {
+        return 0;
+    }
 
-	if (pticks >= shutdown_time)
-	{
-		return 1;
-	}
+    if (pticks >= shutdown_time) {
+        return 1;
+    }
 
-	if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time))
-	{
-		draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U":%02"FMT64U" minutes.", (uint64) ((shutdown_time - pticks) / (1000000 / max_time) / 60), (uint64) ((shutdown_time - pticks) / (1000000 / max_time) % 60));
-	}
+    if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time)) {
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / (1000000 / max_time) / 60), (uint64) ((shutdown_time - pticks) / (1000000 / max_time) % 60));
+    }
 
-	return 0;
+    return 0;
 }
 
 #ifdef HAVE_WORLD_MAKER
@@ -705,56 +628,53 @@ extern void world_maker();
 int main(int argc, char **argv)
 {
 #ifdef WIN32
-	/* Open all files in binary mode by default. */
-	_set_fmode(_O_BINARY);
+    /* Open all files in binary mode by default. */
+    _set_fmode(_O_BINARY);
 #endif
 
-	init(argc, argv);
-	init_plugins();
+    init(argc, argv);
+    init_plugins();
 
 #ifdef HAVE_WORLD_MAKER
-	if (settings.world_maker)
-	{
-		logger_print(LOG(INFO), "Running the world maker...");
-		world_maker();
-		exit(0);
-	}
+    if (settings.world_maker) {
+        logger_print(LOG(INFO), "Running the world maker...");
+        world_maker();
+        exit(0);
+    }
 #endif
 
-	memset(&marker, 0, sizeof(struct obj));
+    memset(&marker, 0, sizeof(struct obj));
 
-	logger_print(LOG(INFO), "Server ready. Waiting for connections...");
+    logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
-	for (; ;)
-	{
-		if (shutdown_timer_check())
-		{
-			break;
-		}
+    for (;; ) {
+        if (shutdown_timer_check()) {
+            break;
+        }
 
-		console_command_handle();
+        console_command_handle();
 
-		doeric_server();
+        doeric_server();
 
-		/* Global round ticker. */
-		global_round_tag++;
+        /* Global round ticker. */
+        global_round_tag++;
 
-		/* "do" something with objects with speed */
-		process_events(NULL);
+        /* "do" something with objects with speed */
+        process_events(NULL);
 
-		/* Removes unused maps after a certain timeout */
-		check_active_maps();
+        /* Removes unused maps after a certain timeout */
+        check_active_maps();
 
-		/* Routines called from time to time. */
-		do_specials();
+        /* Routines called from time to time. */
+        do_specials();
 
-		doeric_server_write();
+        doeric_server_write();
 
-		/* Sleep proper amount of time before next tick */
-		sleep_delta();
-	}
+        /* Sleep proper amount of time before next tick */
+        sleep_delta();
+    }
 
-	server_shutdown();
+    server_shutdown();
 
-	return 0;
+    return 0;
 }

@@ -50,11 +50,11 @@ static uint8 did_init = 0;
 static const int register_signals[] =
 {
 #ifndef WIN32
-	SIGHUP,
+    SIGHUP,
 #endif
-	SIGINT,
-	SIGTERM,
-	SIGSEGV
+    SIGINT,
+    SIGTERM,
+    SIGSEGV
 };
 
 /**
@@ -62,13 +62,12 @@ static const int register_signals[] =
  * @param signum ID of the signal being intercepted. */
 static void signal_handler(int signum)
 {
-	/* SIGSEGV, so abort instead of exiting normally. */
-	if (signum == SIGSEGV)
-	{
-		abort();
-	}
+    /* SIGSEGV, so abort instead of exiting normally. */
+    if (signum == SIGSEGV) {
+        abort();
+    }
 
-	exit(1);
+    exit(1);
 }
 
 /**
@@ -76,32 +75,30 @@ static void signal_handler(int signum)
  * @internal */
 void toolkit_signals_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(signals)
-	{
-		size_t i;
+    TOOLKIT_INIT_FUNC_START(signals)
+    {
+        size_t i;
 
-		/* Register the signals. */
-		for (i = 0; i < arraysize(register_signals); i++)
-		{
+        /* Register the signals. */
+        for (i = 0; i < arraysize(register_signals); i++) {
 #ifdef HAVE_SIGACTION
-			struct sigaction new_action, old_action;
+            struct sigaction new_action, old_action;
 
-			new_action.sa_handler = signal_handler;
-			sigemptyset(&new_action.sa_mask);
-			new_action.sa_flags = 0;
+            new_action.sa_handler = signal_handler;
+            sigemptyset(&new_action.sa_mask);
+            new_action.sa_flags = 0;
 
-			sigaction(register_signals[i], NULL, &old_action);
+            sigaction(register_signals[i], NULL, &old_action);
 
-			if (old_action.sa_handler != SIG_IGN)
-			{
-				sigaction(register_signals[i], &new_action, NULL);
-			}
+            if (old_action.sa_handler != SIG_IGN) {
+                sigaction(register_signals[i], &new_action, NULL);
+            }
 #else
-			signal(register_signals[i], signal_handler);
+            signal(register_signals[i], signal_handler);
 #endif
-		}
-	}
-	TOOLKIT_INIT_FUNC_END()
+        }
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -109,8 +106,8 @@ void toolkit_signals_init(void)
  * @internal */
 void toolkit_signals_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(signals)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(signals)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }

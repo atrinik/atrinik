@@ -33,21 +33,21 @@
  * A single race. */
 typedef struct ob_race
 {
-	/**
-	 * Name of this race. */
-	shstr *name;
+    /**
+     * Name of this race. */
+    shstr *name;
 
-	/**
-	 * The default corpse archetype of this race. */
-	struct archt *corpse;
+    /**
+     * The default corpse archetype of this race. */
+    struct archt *corpse;
 
-	/**
-	 * Linked list of monsters belonging to this race. */
-	struct oblnk *members;
+    /**
+     * Linked list of monsters belonging to this race. */
+    struct oblnk *members;
 
-	/**
-	 * Number of monsters belonging to this race. */
-	int num_members;
+    /**
+     * Number of monsters belonging to this race. */
+    int num_members;
 } ob_race;
 
 /**

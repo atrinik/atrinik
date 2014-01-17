@@ -33,29 +33,27 @@
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
-	int cost;
+    int cost;
 
-	cost = cast_spell(shooter, shooter, dir, op->stats.sp, 0, CAST_NORMAL, NULL);
+    cost = cast_spell(shooter, shooter, dir, op->stats.sp, 0, CAST_NORMAL, NULL);
 
-	if (cost)
-	{
-		shooter->stats.sp -= cost;
+    if (cost) {
+        shooter->stats.sp -= cost;
 
-		if (delay)
-		{
-			*delay = spells[op->stats.sp].time;
-		}
+        if (delay) {
+            *delay = spells[op->stats.sp].time;
+        }
 
-		return OBJECT_METHOD_OK;
-	}
+        return OBJECT_METHOD_OK;
+    }
 
-	return OBJECT_METHOD_UNHANDLED;
+    return OBJECT_METHOD_UNHANDLED;
 }
 
 /**
  * Initialize the spell type object methods. */
 void object_type_init_spell(void)
 {
-	object_type_methods[SPELL].apply_func = object_apply_item;
-	object_type_methods[SPELL].ranged_fire_func = ranged_fire_func;
+    object_type_methods[SPELL].apply_func = object_apply_item;
+    object_type_methods[SPELL].ranged_fire_func = ranged_fire_func;
 }

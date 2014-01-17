@@ -33,26 +33,25 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	timeofday_t tod;
+    timeofday_t tod;
 
-	(void) op;
-	(void) aflags;
+    (void) op;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
 
-	get_tod(&tod);
-	draw_info_format(COLOR_WHITE, applier, "It is %d minute%s past %d o'clock %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
-	play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, "clock.ogg", 0, 0, 0, 0);
+    get_tod(&tod);
+    draw_info_format(COLOR_WHITE, applier, "It is %d minute%s past %d o'clock %s.", tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"));
+    play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, "clock.ogg", 0, 0, 0, 0);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the clock type object methods. */
 void object_type_init_clock(void)
 {
-	object_type_methods[CLOCK].apply_func = apply_func;
+    object_type_methods[CLOCK].apply_func = apply_func;
 }

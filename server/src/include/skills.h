@@ -32,73 +32,73 @@
 /** Skill numbers. */
 enum skillnrs
 {
-	/** Player can attempt alchemical recipes. */
-	SK_ALCHEMY,
-	/** Can read books */
-	SK_LITERACY,
-	/** Sells items to shops at Cha + level-based bonus (30 max) */
-	SK_BARGAINING,
-	/** Player is able to alter maps like apartment in real-time. */
-	SK_CONSTRUCTION,
+    /** Player can attempt alchemical recipes. */
+    SK_ALCHEMY,
+    /** Can read books */
+    SK_LITERACY,
+    /** Sells items to shops at Cha + level-based bonus (30 max) */
+    SK_BARGAINING,
+    /** Player is able to alter maps like apartment in real-time. */
+    SK_CONSTRUCTION,
 
-	/** Can attack hand-to-hand */
-	SK_UNARMED,
-	/** @deprecated */
-	SK_KARATE,
-	/** Player can throw items */
-	SK_THROWING,
+    /** Can attack hand-to-hand */
+    SK_UNARMED,
+    /** @deprecated */
+    SK_KARATE,
+    /** Player can throw items */
+    SK_THROWING,
 
-	/** Player can cast magic spells */
-	SK_WIZARDRY_SPELLS,
-	/** Player use wands/horns/rods */
-	SK_MAGIC_DEVICES,
-	/** @deprecated */
-	SK_PRAYING,
+    /** Player can cast magic spells */
+    SK_WIZARDRY_SPELLS,
+    /** Player use wands/horns/rods */
+    SK_MAGIC_DEVICES,
+    /** @deprecated */
+    SK_PRAYING,
 
-	/** Player can find traps better */
-	SK_FIND_TRAPS,
-	/** Player can remove traps */
-	SK_REMOVE_TRAPS,
+    /** Player can find traps better */
+    SK_FIND_TRAPS,
+    /** Player can remove traps */
+    SK_REMOVE_TRAPS,
 
-	/** Player can use bows. */
-	SK_BOW_ARCHERY,
-	/** Player can use crossbows. */
-	SK_CROSSBOW_ARCHERY,
-	/** Player can use slings. */
-	SK_SLING_ARCHERY,
+    /** Player can use bows. */
+    SK_BOW_ARCHERY,
+    /** Player can use crossbows. */
+    SK_CROSSBOW_ARCHERY,
+    /** Player can use slings. */
+    SK_SLING_ARCHERY,
 
-	/** Player can use slash weapons. */
-	SK_SLASH_WEAPONS,
-	/** Player can use cleave weapons. */
-	SK_CLEAVE_WEAPONS,
-	/** Player can use pierce weapons. */
-	SK_PIERCE_WEAPONS,
-	/** Player can attack with impact weapons */
-	SK_IMPACT_WEAPONS,
+    /** Player can use slash weapons. */
+    SK_SLASH_WEAPONS,
+    /** Player can use cleave weapons. */
+    SK_CLEAVE_WEAPONS,
+    /** Player can use pierce weapons. */
+    SK_PIERCE_WEAPONS,
+    /** Player can attack with impact weapons */
+    SK_IMPACT_WEAPONS,
 
-	/** Player can use two-handed weapons. */
-	SK_TWOHANDS,
-	/** Player can use polearms. */
-	SK_POLEARMS,
+    /** Player can use two-handed weapons. */
+    SK_TWOHANDS,
+    /** Player can use polearms. */
+    SK_POLEARMS,
 
-	/** Inscription. */
-	SK_INSCRIPTION,
+    /** Inscription. */
+    SK_INSCRIPTION,
 
-	/** Number of the skills, always last. */
-	NROFSKILLS
+    /** Number of the skills, always last. */
+    NROFSKILLS
 };
 
 /** Skill structure for the skills array. */
 typedef struct skill_struct
 {
-	/** How to describe it to the player */
-	char *name;
+    /** How to describe it to the player */
+    char *name;
 
-	/** Pointer to the skill archetype in the archlist */
-	archetype *at;
+    /** Pointer to the skill archetype in the archlist */
+    archetype *at;
 
-	/** Base number of ticks it takes to use the skill */
-	short time;
+    /** Base number of ticks it takes to use the skill */
+    short time;
 } skill_struct;
 
 #endif

@@ -35,50 +35,50 @@
 
 typedef struct textwin_tab_struct
 {
-	uint8 type;
+    uint8 type;
 
-	char *name;
+    char *name;
 
-	char *entries;
+    char *entries;
 
-	size_t entries_size;
+    size_t entries_size;
 
-	/** Scroll offset. */
-	uint32 scroll_offset;
+    /** Scroll offset. */
+    uint32 scroll_offset;
 
-	/** Number of lines. */
-	uint32 num_lines;
+    /** Number of lines. */
+    uint32 num_lines;
 
-	button_struct button;
+    button_struct button;
 
-	char *charnames;
+    char *charnames;
 } textwin_tab_struct;
 
 /** Custom attributes for text window widgets. */
 typedef struct textwin_struct
 {
-	/** Font used. */
-	int font;
+    /** Font used. */
+    int font;
 
-	/** The scrollbar. */
-	scrollbar_struct scrollbar;
+    /** The scrollbar. */
+    scrollbar_struct scrollbar;
 
-	/** Whether there is anything in selection_start yet. */
-	uint8 selection_started;
+    /** Whether there is anything in selection_start yet. */
+    uint8 selection_started;
 
-	/** Start of selection. */
-	sint64 selection_start;
+    /** Start of selection. */
+    sint64 selection_start;
 
-	/** End of selection. */
-	sint64 selection_end;
+    /** End of selection. */
+    sint64 selection_end;
 
-	struct textwin_tab_struct *tabs;
+    struct textwin_tab_struct *tabs;
 
-	size_t tabs_num;
+    size_t tabs_num;
 
-	size_t tab_selected;
+    size_t tab_selected;
 
-	uint8 timestamps;
+    uint8 timestamps;
 } textwin_struct;
 
 #define TEXTWIN_TAB_HEIGHT 20

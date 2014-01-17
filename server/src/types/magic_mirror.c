@@ -38,54 +38,48 @@
  * @param mirror The magic mirror to initialize. */
 void magic_mirror_init(object *mirror)
 {
-	sint16 mirror_x, mirror_y;
+    sint16 mirror_x, mirror_y;
 
-	if (!mirror->map)
-	{
-		logger_print(LOG(BUG), "Magic mirror not on map.");
-		return;
-	}
+    if (!mirror->map) {
+        logger_print(LOG(BUG), "Magic mirror not on map.");
+        return;
+    }
 
-	mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
-	mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
+    mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
+    mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
 
-	/* X/Y adjust. */
-	if (mirror->stats.maxhp)
-	{
-		mirror_x += mirror->stats.maxhp;
-	}
+    /* X/Y adjust. */
+    if (mirror->stats.maxhp) {
+        mirror_x += mirror->stats.maxhp;
+    }
 
-	if (mirror->stats.maxsp)
-	{
-		mirror_y += mirror->stats.maxsp;
-	}
+    if (mirror->stats.maxsp) {
+        mirror_y += mirror->stats.maxsp;
+    }
 
-	/* No point in doing anything special if we're mirroring the same map. */
-	if (!mirror->slaying && mirror_x == mirror->x && mirror_y == mirror->y)
-	{
-		return;
-	}
+    /* No point in doing anything special if we're mirroring the same map. */
+    if (!mirror->slaying && mirror_x == mirror->x && mirror_y == mirror->y) {
+        return;
+    }
 
-	/* No map path specified, use mirror's map path. */
-	if (!mirror->slaying)
-	{
-		FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
-	}
-	else if (!map_path_isabs(mirror->slaying))
-	{
-		char *path;
+    /* No map path specified, use mirror's map path. */
+    if (!mirror->slaying) {
+        FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
+    }
+    else if (!map_path_isabs(mirror->slaying)) {
+        char *path;
 
-		path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);
-		FREE_AND_COPY_HASH(mirror->slaying, path);
-		free(path);
-	}
+        path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);
+        FREE_AND_COPY_HASH(mirror->slaying, path);
+        free(path);
+    }
 
-	/* Initialize custom_attrset. */
-	mirror->custom_attrset = malloc(sizeof(magic_mirror_struct));
-	/* Save x/y and clear map. */
-	MMIRROR(mirror)->x = mirror_x;
-	MMIRROR(mirror)->y = mirror_y;
-	MMIRROR(mirror)->map = NULL;
+    /* Initialize custom_attrset. */
+    mirror->custom_attrset = malloc(sizeof(magic_mirror_struct));
+    /* Save x/y and clear map. */
+    MMIRROR(mirror)->x = mirror_x;
+    MMIRROR(mirror)->y = mirror_y;
+    MMIRROR(mirror)->map = NULL;
 }
 
 /**
@@ -95,7 +89,7 @@ void magic_mirror_init(object *mirror)
  * @param mirror Magic mirror to deinitialize. */
 void magic_mirror_deinit(object *mirror)
 {
-	free(mirror->custom_attrset);
+    free(mirror->custom_attrset);
 }
 
 /**
@@ -106,26 +100,24 @@ void magic_mirror_deinit(object *mirror)
  * @return The map. Can be NULL in case of loading error. */
 mapstruct *magic_mirror_get_map(object *mirror)
 {
-	magic_mirror_struct *data = MMIRROR(mirror);
+    magic_mirror_struct *data = MMIRROR(mirror);
 
-	/* Map good to go? */
-	if (data->map && data->map->in_memory == MAP_IN_MEMORY)
-	{
-		/* Reset timeout so the mirrored map doesn't get swapped out. */
-		MAP_TIMEOUT(data->map) = MAP_DEFAULTTIMEOUT;
-		return data->map;
-	}
+    /* Map good to go? */
+    if (data->map && data->map->in_memory == MAP_IN_MEMORY) {
+        /* Reset timeout so the mirrored map doesn't get swapped out. */
+        MAP_TIMEOUT(data->map) = MAP_DEFAULTTIMEOUT;
+        return data->map;
+    }
 
-	/* Try to load the map. */
-	data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED);
+    /* Try to load the map. */
+    data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED);
 
-	if (!data->map)
-	{
-		logger_print(LOG(BUG), "Could not load map '%s'.", mirror->slaying);
-		return NULL;
-	}
+    if (!data->map) {
+        logger_print(LOG(BUG), "Could not load map '%s'.", mirror->slaying);
+        return NULL;
+    }
 
-	return data->map;
+    return data->map;
 }
 
 /**

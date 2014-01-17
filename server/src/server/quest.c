@@ -35,14 +35,14 @@
  * @param quest_name Name of the quest. */
 static void add_one_drop_quest_item(object *op, const char *quest_name)
 {
-	object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+    object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-	/* Mark this quest as completed. */
-	quest_container->magic = QUEST_STATUS_COMPLETED;
-	/* Store the quest name. */
-	FREE_AND_COPY_HASH(quest_container->name, quest_name);
-	/* Insert it inside player's quest container. */
-	insert_ob_in_ob(quest_container, CONTR(op)->quest_container);
+    /* Mark this quest as completed. */
+    quest_container->magic = QUEST_STATUS_COMPLETED;
+    /* Store the quest name. */
+    FREE_AND_COPY_HASH(quest_container->name, quest_name);
+    /* Insert it inside player's quest container. */
+    insert_ob_in_ob(quest_container, CONTR(op)->quest_container);
 }
 
 /**
@@ -53,18 +53,16 @@ static void add_one_drop_quest_item(object *op, const char *quest_name)
  * container, NULL if no matching quest found. */
 static object *find_quest(object *where, const char *quest_name)
 {
-	object *tmp;
+    object *tmp;
 
-	/* Go through the objects in the quest container */
-	for (tmp = where->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->name == quest_name)
-		{
-			return tmp;
-		}
-	}
+    /* Go through the objects in the quest container */
+    for (tmp = where->inv; tmp; tmp = tmp->below) {
+        if (tmp->name == quest_name) {
+            return tmp;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -80,37 +78,31 @@ static object *find_quest(object *where, const char *quest_name)
  * @return 1 if the player has the quest item, 0 otherwise. */
 static int has_quest_item(object *op, object *quest_item, sint32 flag, sint64 *num)
 {
-	object *tmp;
+    object *tmp;
 
-	/* Go through the objects in the object's inventory. */
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		/* Compare the values. */
-		if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag)))
-		{
-			if (num)
-			{
-				*num += MAX(1, tmp->nrof);
-			}
-			else
-			{
-				return 1;
-			}
-		}
+    /* Go through the objects in the object's inventory. */
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        /* Compare the values. */
+        if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name && (!flag || QUERY_FLAG(tmp, flag))) {
+            if (num) {
+                *num += MAX(1, tmp->nrof);
+            }
+            else {
+                return 1;
+            }
+        }
 
-		/* If it has inventory and is not a system object, go on recursively. */
-		if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT))
-		{
-			int ret = has_quest_item(tmp, quest_item, flag, num);
+        /* If it has inventory and is not a system object, go on recursively. */
+        if (tmp->inv && !QUERY_FLAG(tmp, FLAG_SYS_OBJECT)) {
+            int ret = has_quest_item(tmp, quest_item, flag, num);
 
-			if (ret && !num)
-			{
-				return 1;
-			}
-		}
-	}
+            if (ret && !num) {
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -120,174 +112,151 @@ static int has_quest_item(object *op, object *quest_item, sint32 flag, sint64 *n
  * @param quest_object Quest container (inside player), can be NULL. */
 static void check_quest_container(object *op, object *quest_container, object *quest_object)
 {
-	char buf[HUGE_BUF];
-	object *tmp;
+    char buf[HUGE_BUF];
+    object *tmp;
 
-	/* If this is not a one-drop item quest, it must first be accepted. */
-	if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED))
-	{
-		return;
-	}
+    /* If this is not a one-drop item quest, it must first be accepted. */
+    if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED)) {
+        return;
+    }
 
-	tmp = quest_container->inv;
+    tmp = quest_container->inv;
 
-	/* Check for events in this quest container. */
-	if (HAS_EVENT(quest_container, EVENT_TRIGGER))
-	{
-		/* Advance through the quest object's inventory, skipping the
-		 * event object. */
-		if (tmp->type == EVENT_OBJECT)
-		{
-			tmp = tmp->below;
-		}
+    /* Check for events in this quest container. */
+    if (HAS_EVENT(quest_container, EVENT_TRIGGER)) {
+        /* Advance through the quest object's inventory, skipping the
+         * event object. */
+        if (tmp->type == EVENT_OBJECT) {
+            tmp = tmp->below;
+        }
 
-		if (trigger_event(EVENT_TRIGGER, op, quest_container, tmp, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING))
-		{
-			return;
-		}
-	}
+        if (trigger_event(EVENT_TRIGGER, op, quest_container, tmp, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+            return;
+        }
+    }
 
-	switch (quest_container->sub_type)
-	{
-		case QUEST_TYPE_ITEM:
-		{
-			object *clone_ob;
-			int one_drop;
+    switch (quest_container->sub_type) {
+        case QUEST_TYPE_ITEM:
+        {
+            object *clone_ob;
+            int one_drop;
 
-			if (!tmp)
-			{
-				return;
-			}
+            if (!tmp) {
+                return;
+            }
 
-			one_drop = QUERY_FLAG(tmp, FLAG_ONE_DROP);
+            one_drop = QUERY_FLAG(tmp, FLAG_ONE_DROP);
 
-			/* Not one-drop, but we already have the quest object (keys,
-			 * for example). */
-			if (!one_drop && has_quest_item(op, tmp, 0, NULL))
-			{
-				return;
-			}
-			/* One-drop and we already found this quest object before
-			 * (Rhun's cloak, for example). */
-			else if (one_drop && quest_object)
-			{
-				return;
-			}
+            /* Not one-drop, but we already have the quest object (keys,
+             * for example). */
+            if (!one_drop && has_quest_item(op, tmp, 0, NULL)) {
+                return;
+            }
+            /* One-drop and we already found this quest object before
+             * (Rhun's cloak, for example). */
+            else if (one_drop && quest_object) {
+                return;
+            }
 
-			clone_ob = get_object();
-			copy_object_with_inv(tmp, clone_ob);
-			SET_FLAG(clone_ob, FLAG_IDENTIFIED);
-			/* Insert the quest item inside the player. */
-			insert_ob_in_ob(clone_ob, op);
+            clone_ob = get_object();
+            copy_object_with_inv(tmp, clone_ob);
+            SET_FLAG(clone_ob, FLAG_IDENTIFIED);
+            /* Insert the quest item inside the player. */
+            insert_ob_in_ob(clone_ob, op);
 
-			if (one_drop)
-			{
-				/* So the item will never drop again for this player. */
-				add_one_drop_quest_item(op, quest_container->name);
-				snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
-			}
-			else
-			{
-				snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone_ob, NULL));
-			}
+            if (one_drop) {
+                /* So the item will never drop again for this player. */
+                add_one_drop_quest_item(op, quest_container->name);
+                snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
+            }
+            else {
+                snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone_ob, NULL));
+            }
 
-			draw_map_text_anim(op, COLOR_NAVY, buf);
-			draw_info(COLOR_NAVY, op, buf);
-			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-			break;
-		}
+            draw_map_text_anim(op, COLOR_NAVY, buf);
+            draw_info(COLOR_NAVY, op, buf);
+            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
+            break;
+        }
 
-		case QUEST_TYPE_KILL:
-			/* The +1 makes it so no messages are displayed when player
-			 * kills more same monsters. */
-			if (quest_object->last_sp <= quest_object->last_grace + 1)
-			{
-				quest_object->last_sp++;
-			}
+        case QUEST_TYPE_KILL:
+            /* The +1 makes it so no messages are displayed when player
+             * kills more same monsters. */
+            if (quest_object->last_sp <= quest_object->last_grace + 1) {
+                quest_object->last_sp++;
+            }
 
-			/* Display an informative message about the quest status. */
-			if (quest_object->last_sp <= quest_object->last_grace)
-			{
-				if (quest_object->last_sp == quest_object->last_grace)
-				{
-					if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
-					{
-						snprintf(buf, sizeof(buf), "Quest '%s: %s' completed!\n", quest_object->env->name, quest_container->name);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
-					}
+            /* Display an informative message about the quest status. */
+            if (quest_object->last_sp <= quest_object->last_grace) {
+                if (quest_object->last_sp == quest_object->last_grace) {
+                    if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI) {
+                        snprintf(buf, sizeof(buf), "Quest '%s: %s' completed!\n", quest_object->env->name, quest_container->name);
+                    }
+                    else {
+                        snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_container->name);
+                    }
 
-					play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-				}
-				else
-				{
-					if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
-					{
-						snprintf(buf, sizeof(buf), "Quest %s (%s): %d/%d.\n", quest_object->env->name, quest_container->name, quest_object->last_sp, quest_object->last_grace);
-					}
-					else
-					{
-						snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_container->name, quest_object->last_sp, quest_object->last_grace);
-					}
-				}
+                    play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
+                }
+                else {
+                    if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI) {
+                        snprintf(buf, sizeof(buf), "Quest %s (%s): %d/%d.\n", quest_object->env->name, quest_container->name, quest_object->last_sp, quest_object->last_grace);
+                    }
+                    else {
+                        snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_container->name, quest_object->last_sp, quest_object->last_grace);
+                    }
+                }
 
-				draw_map_text_anim(op, COLOR_NAVY, buf);
-				draw_info(COLOR_NAVY, op, buf);
-			}
+                draw_map_text_anim(op, COLOR_NAVY, buf);
+                draw_info(COLOR_NAVY, op, buf);
+            }
 
-			break;
+            break;
 
-		case QUEST_TYPE_KILL_ITEM:
-		{
-			object *clone_ob;
-			sint64 num = 0;
+        case QUEST_TYPE_KILL_ITEM:
+        {
+            object *clone_ob;
+            sint64 num = 0;
 
-			/* Have we found this item already? */
-			if (!tmp || (!quest_object->last_grace && has_quest_item(op, tmp, FLAG_QUEST_ITEM, NULL)))
-			{
-				return;
-			}
+            /* Have we found this item already? */
+            if (!tmp || (!quest_object->last_grace && has_quest_item(op, tmp, FLAG_QUEST_ITEM, NULL))) {
+                return;
+            }
 
-			if (quest_object->last_grace)
-			{
-				has_quest_item(op, tmp, FLAG_QUEST_ITEM, &num);
+            if (quest_object->last_grace) {
+                has_quest_item(op, tmp, FLAG_QUEST_ITEM, &num);
 
-				if (num >= quest_object->last_grace)
-				{
-					return;
-				}
-			}
+                if (num >= quest_object->last_grace) {
+                    return;
+                }
+            }
 
-			clone_ob = get_object();
-			copy_object_with_inv(tmp, clone_ob);
-			SET_FLAG(clone_ob, FLAG_QUEST_ITEM);
-			SET_FLAG(clone_ob, FLAG_STARTEQUIP);
-			CLEAR_FLAG(clone_ob, FLAG_SYS_OBJECT);
-			/* Insert the quest item inside the player. */
-			clone_ob = insert_ob_in_ob(clone_ob, op);
+            clone_ob = get_object();
+            copy_object_with_inv(tmp, clone_ob);
+            SET_FLAG(clone_ob, FLAG_QUEST_ITEM);
+            SET_FLAG(clone_ob, FLAG_STARTEQUIP);
+            CLEAR_FLAG(clone_ob, FLAG_SYS_OBJECT);
+            /* Insert the quest item inside the player. */
+            clone_ob = insert_ob_in_ob(clone_ob, op);
 
-			if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI)
-			{
-				snprintf(buf, sizeof(buf), "Quest %s (%s): You found the quest item %s (%"FMT64"/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone_ob, NULL), num + 1, MAX(1, quest_object->last_grace));
-			}
-			else
-			{
-				snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone_ob, NULL));
-			}
+            if (quest_object->env->type == QUEST_CONTAINER && quest_object->env->sub_type == QUEST_TYPE_MULTI) {
+                snprintf(buf, sizeof(buf), "Quest %s (%s): You found the quest item %s (%"FMT64 "/%d)!\n", quest_object->env->name, quest_container->name, query_base_name(clone_ob, NULL), num + 1, MAX(1, quest_object->last_grace));
+            }
+            else {
+                snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s!\n", quest_container->name, query_base_name(clone_ob, NULL));
+            }
 
-			draw_map_text_anim(op, COLOR_NAVY, buf);
-			draw_info(COLOR_NAVY, op, buf);
+            draw_map_text_anim(op, COLOR_NAVY, buf);
+            draw_info(COLOR_NAVY, op, buf);
 
-			play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-			break;
-		}
+            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
+            break;
+        }
 
-		default:
-			logger_print(LOG(BUG), "Quest object '%s' has unknown sub type (%d).", quest_container->name, quest_container->sub_type);
-			break;
-	}
+        default:
+            logger_print(LOG(BUG), "Quest object '%s' has unknown sub type (%d).", quest_container->name, quest_container->sub_type);
+            break;
+    }
 }
 
 /**
@@ -300,26 +269,22 @@ static void check_quest_container(object *op, object *quest_container, object *q
  * @param quest_container The quest container. */
 void check_quest(object *op, object *quest_container)
 {
-	object *quest_object = find_quest(CONTR(op)->quest_container, quest_container->name);
+    object *quest_object = find_quest(CONTR(op)->quest_container, quest_container->name);
 
-	/* Handle multi-part quests. */
-	if (quest_container->sub_type == QUEST_TYPE_MULTI)
-	{
-		object *tmp;
+    /* Handle multi-part quests. */
+    if (quest_container->sub_type == QUEST_TYPE_MULTI) {
+        object *tmp;
 
-		/* No quest object, can't go on. */
-		if (!quest_object)
-		{
-			return;
-		}
+        /* No quest object, can't go on. */
+        if (!quest_object) {
+            return;
+        }
 
-		for (tmp = quest_container->inv; tmp; tmp = tmp->below)
-		{
-			check_quest_container(op, tmp, find_quest(quest_object, tmp->name));
-		}
-	}
-	else
-	{
-		check_quest_container(op, quest_container, quest_object);
-	}
+        for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
+            check_quest_container(op, tmp, find_quest(quest_object, tmp->name));
+        }
+    }
+    else {
+        check_quest_container(op, quest_container, quest_object);
+    }
 }

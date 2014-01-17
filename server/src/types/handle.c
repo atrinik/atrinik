@@ -33,93 +33,85 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	(void) aflags;
+    (void) aflags;
 
-	if (op->speed || (op->stats.exp == -1 && op->value))
-	{
-		if (op->msg)
-		{
-			draw_info(COLOR_WHITE, applier, op->msg);
-		}
-		else
-		{
-			draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
-		}
+    if (op->speed || (op->stats.exp == -1 && op->value)) {
+        if (op->msg) {
+            draw_info(COLOR_WHITE, applier, op->msg);
+        }
+        else {
+            draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
+        }
 
-		return OBJECT_METHOD_OK;
-	}
+        return OBJECT_METHOD_OK;
+    }
 
-	/* Toggle the state. */
-	op->value = !op->value;
-	op->state = op->value;
-	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
-	update_object(op, UP_OBJ_FACE);
+    /* Toggle the state. */
+    op->value = !op->value;
+    op->state = op->value;
+    SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
+    update_object(op, UP_OBJ_FACE);
 
-	/* Inform the applier. */
-	if (op->msg)
-	{
-		draw_info(COLOR_WHITE, applier, op->msg);
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
-		play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
-	}
+    /* Inform the applier. */
+    if (op->msg) {
+        draw_info(COLOR_WHITE, applier, op->msg);
+    }
+    else {
+        draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
+    }
 
-	connection_trigger(op, op->value);
+    connection_trigger(op, op->value);
 
-	if (op->stats.exp)
-	{
-		op->speed = 1.0 / op->stats.exp;
-		update_ob_speed(op);
-		op->speed_left = -1;
-	}
+    if (op->stats.exp) {
+        op->speed = 1.0 / op->stats.exp;
+        update_ob_speed(op);
+        op->speed_left = -1;
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) cause;
+    (void) cause;
 
-	if (op->speed || (op->stats.exp == -1 && op->value))
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (op->speed || (op->stats.exp == -1 && op->value)) {
+        return OBJECT_METHOD_OK;
+    }
 
-	op->value = state;
-	op->state = op->value;
-	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
-	update_object(op, UP_OBJ_FACE);
+    op->value = state;
+    op->state = op->value;
+    SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
+    update_object(op, UP_OBJ_FACE);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	op->speed = 0;
-	update_ob_speed(op);
+    op->speed = 0;
+    update_ob_speed(op);
 
-	if (op->stats.exp == -1)
-	{
-		return;
-	}
+    if (op->stats.exp == -1) {
+        return;
+    }
 
-	op->value = 0;
-	op->state = op->value;
-	SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
-	update_object(op, UP_OBJ_FACE);
+    op->value = 0;
+    op->state = op->value;
+    SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value);
+    update_object(op, UP_OBJ_FACE);
 
-	connection_trigger(op, op->value);
+    connection_trigger(op, op->value);
 }
 
 /**
  * Initialize the handle type object methods. */
 void object_type_init_handle(void)
 {
-	object_type_methods[TYPE_HANDLE].apply_func = apply_func;
-	object_type_methods[TYPE_HANDLE].trigger_func = trigger_func;
-	object_type_methods[TYPE_HANDLE].process_func = process_func;
+    object_type_methods[TYPE_HANDLE].apply_func = apply_func;
+    object_type_methods[TYPE_HANDLE].trigger_func = trigger_func;
+    object_type_methods[TYPE_HANDLE].process_func = process_func;
 }

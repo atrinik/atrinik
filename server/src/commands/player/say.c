@@ -33,13 +33,12 @@
 /** @copydoc command_func */
 void command_say(object *op, const char *command, char *params)
 {
-	params = player_sanitize_input(params);
+    params = player_sanitize_input(params);
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	logger_print(LOG(CHAT), "[SAY] [%s] %s", op->name, params);
-	draw_info_map(CHAT_TYPE_LOCAL, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
+    logger_print(LOG(CHAT), "[SAY] [%s] %s", op->name, params);
+    draw_info_map(CHAT_TYPE_LOCAL, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
 }

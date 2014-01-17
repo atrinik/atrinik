@@ -38,96 +38,85 @@
  * @return 1 if such object already exists, 0 otherwise. */
 static int creator_obj_exists(object *op, object *check)
 {
-	object *tmp;
+    object *tmp;
 
-	FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp)
-	{
-		if (tmp->arch == check->arch && tmp->name == check->name && tmp->type == check->type)
-		{
-			return 1;
-		}
-	}
-	FOR_MAP_LAYER_END
+    FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp)
+    {
+        if (tmp->arch == check->arch && tmp->name == check->name && tmp->type == check->type) {
+            return 1;
+        }
+    }
+    FOR_MAP_LAYER_END
 
-	return 0;
+    return 0;
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	int idx, roll;
-	object *tmp, *clone_ob;
-	uint8 created;
+    int idx, roll;
+    object *tmp, *clone_ob;
+    uint8 created;
 
-	(void) cause;
-	(void) state;
+    (void) cause;
+    (void) state;
 
-	if (op->stats.hp <= 0 && !QUERY_FLAG(op, FLAG_LIFESAVE))
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (op->stats.hp <= 0 && !QUERY_FLAG(op, FLAG_LIFESAVE)) {
+        return OBJECT_METHOD_OK;
+    }
 
-	created = 0;
-	roll = -1;
+    created = 0;
+    roll = -1;
 
-	if (QUERY_FLAG(op, FLAG_SPLITTING))
-	{
-		int num_obs;
+    if (QUERY_FLAG(op, FLAG_SPLITTING)) {
+        int num_obs;
 
-		num_obs = 0;
+        num_obs = 0;
 
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == EVENT_OBJECT)
-			{
-				continue;
-			}
+        for (tmp = op->inv; tmp; tmp = tmp->below) {
+            if (tmp->type == EVENT_OBJECT) {
+                continue;
+            }
 
-			num_obs++;
-		}
+            num_obs++;
+        }
 
-		roll = rndm(1, num_obs) - 1;
-	}
+        roll = rndm(1, num_obs) - 1;
+    }
 
-	for (tmp = op->inv, idx = 0; tmp; tmp = tmp->below)
-	{
-		if (tmp->type == EVENT_OBJECT)
-		{
-			continue;
-		}
+    for (tmp = op->inv, idx = 0; tmp; tmp = tmp->below) {
+        if (tmp->type == EVENT_OBJECT) {
+            continue;
+        }
 
-		if (roll != -1 && roll != idx++)
-		{
-			continue;
-		}
+        if (roll != -1 && roll != idx++) {
+            continue;
+        }
 
-		if (QUERY_FLAG(op, FLAG_ONE_DROP) && creator_obj_exists(op, tmp))
-		{
-			continue;
-		}
+        if (QUERY_FLAG(op, FLAG_ONE_DROP) && creator_obj_exists(op, tmp)) {
+            continue;
+        }
 
-		clone_ob = object_create_clone(tmp);
-		clone_ob->x = op->x;
-		clone_ob->y = op->y;
-		clone_ob = insert_ob_in_map(clone_ob, op->map, op, 0);
+        clone_ob = object_create_clone(tmp);
+        clone_ob->x = op->x;
+        clone_ob->y = op->y;
+        clone_ob = insert_ob_in_map(clone_ob, op->map, op, 0);
 
-		if (clone_ob)
-		{
-			created = 1;
-		}
-	}
+        if (clone_ob) {
+            created = 1;
+        }
+    }
 
-	if (created && !QUERY_FLAG(op, FLAG_LIFESAVE))
-	{
-		op->stats.hp--;
-	}
+    if (created && !QUERY_FLAG(op, FLAG_LIFESAVE)) {
+        op->stats.hp--;
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the creator type object methods. */
 void object_type_init_creator(void)
 {
-	object_type_methods[CREATOR].trigger_func = trigger_func;
+    object_type_methods[CREATOR].trigger_func = trigger_func;
 }

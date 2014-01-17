@@ -33,62 +33,56 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	object *light;
-	int capacity_missing, capacity_received;
+    object *light;
+    int capacity_missing, capacity_received;
 
-	(void) aflags;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
 
-	light = find_marked_object(applier);
+    light = find_marked_object(applier);
 
-	if (!light)
-	{
-		draw_info_format(COLOR_WHITE, applier, "You need to mark a light source that you want to refill.");
-		return OBJECT_METHOD_OK;
-	}
+    if (!light) {
+        draw_info_format(COLOR_WHITE, applier, "You need to mark a light source that you want to refill.");
+        return OBJECT_METHOD_OK;
+    }
 
-	if (light->type != LIGHT_APPLY || !light->race || light->race != op->race)
-	{
-		draw_info_format(COLOR_WHITE, applier, "You can't refill the %s with the %s.", query_name(light, applier), query_name(op, applier));
-		return OBJECT_METHOD_OK;
-	}
+    if (light->type != LIGHT_APPLY || !light->race || light->race != op->race) {
+        draw_info_format(COLOR_WHITE, applier, "You can't refill the %s with the %s.", query_name(light, applier), query_name(op, applier));
+        return OBJECT_METHOD_OK;
+    }
 
-	capacity_missing = light->stats.maxhp - light->stats.food;
+    capacity_missing = light->stats.maxhp - light->stats.food;
 
-	if (capacity_missing == 0)
-	{
-		draw_info_format(COLOR_WHITE, applier, "The %s is full and can't be refilled.", query_name(light, applier));
-		return OBJECT_METHOD_OK;
-	}
+    if (capacity_missing == 0) {
+        draw_info_format(COLOR_WHITE, applier, "The %s is full and can't be refilled.", query_name(light, applier));
+        return OBJECT_METHOD_OK;
+    }
 
-	capacity_received = MIN(capacity_missing, op->stats.food);
-	light->stats.food += capacity_received;
+    capacity_received = MIN(capacity_missing, op->stats.food);
+    light->stats.food += capacity_received;
 
-	draw_info_format(COLOR_WHITE, applier, "You refill the %s and it's now at %d%% of its capacity.", query_name(light, NULL), (int) ((double) light->stats.food / light->stats.maxhp * 100));
+    draw_info_format(COLOR_WHITE, applier, "You refill the %s and it's now at %d%% of its capacity.", query_name(light, NULL), (int) ((double) light->stats.food / light->stats.maxhp * 100));
 
-	/* Check whether the refilling object was all used up. If so,
-	 * decrease it, otherwise split it from the stack (if any) and
-	 * decrease the amount of units it gives back. */
-	if (op->stats.food - capacity_received <= 0)
-	{
-		decrease_ob(op);
-	}
-	else
-	{
-		op = object_stack_get_reinsert(op, 1);
-		op->stats.food -= capacity_received;
-	}
+    /* Check whether the refilling object was all used up. If so,
+     * decrease it, otherwise split it from the stack (if any) and
+     * decrease the amount of units it gives back. */
+    if (op->stats.food - capacity_received <= 0) {
+        decrease_ob(op);
+    }
+    else {
+        op = object_stack_get_reinsert(op, 1);
+        op->stats.food -= capacity_received;
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the light refill type object methods. */
 void object_type_init_light_refill(void)
 {
-	object_type_methods[LIGHT_REFILL].apply_func = apply_func;
+    object_type_methods[LIGHT_REFILL].apply_func = apply_func;
 }

@@ -41,10 +41,10 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_memory_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(memory)
-	{
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(memory)
+    {
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -52,10 +52,10 @@ void toolkit_memory_init(void)
  * @internal */
 void toolkit_memory_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(memory)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(memory)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -67,14 +67,13 @@ void toolkit_memory_deinit(void)
  * @return Resized pointer, NULL on failure. */
 void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
 {
-	void *new_ptr = realloc(ptr, new_size);
+    void *new_ptr = realloc(ptr, new_size);
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (new_ptr && new_size > old_size)
-	{
-		memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
-	}
+    if (new_ptr && new_size > old_size) {
+        memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
+    }
 
-	return new_ptr;
+    return new_ptr;
 }

@@ -33,22 +33,22 @@
  * The notification data. */
 typedef struct notification_struct
 {
-	/** Current alpha value of the notification surface. */
-	int alpha;
+    /** Current alpha value of the notification surface. */
+    int alpha;
 
-	/** Macro or command to execute when the notification is clicked. */
-	char *action;
+    /** Macro or command to execute when the notification is clicked. */
+    char *action;
 
-	/** Macro that is temporarily bound to the notification's action. */
-	char *shortcut;
+    /** Macro that is temporarily bound to the notification's action. */
+    char *shortcut;
 
-	/** When the notification was created. */
-	uint32 start_ticks;
+    /** When the notification was created. */
+    uint32 start_ticks;
 
-	/**
-	 * Milliseconds that must pass before the notification is
-	 * dismissed. */
-	uint32 delay;
+    /**
+     * Milliseconds that must pass before the notification is
+     * dismissed. */
+    uint32 delay;
 } notification_struct;
 
 /**

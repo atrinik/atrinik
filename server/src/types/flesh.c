@@ -34,5 +34,5 @@
  * Initialize the flesh type object methods. */
 void object_type_init_flesh(void)
 {
-	object_type_methods[FLESH].fallback = &object_type_methods[FOOD];
+    object_type_methods[FLESH].fallback = &object_type_methods[FOOD];
 }

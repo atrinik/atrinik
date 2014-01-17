@@ -32,29 +32,29 @@
 /** Path node */
 typedef struct astar_node
 {
-	/** Next node in linked list */
-	struct astar_node *next;
+    /** Next node in linked list */
+    struct astar_node *next;
 
-	/** Previous node in linked list */
-	struct astar_node *prev;
+    /** Previous node in linked list */
+    struct astar_node *prev;
 
-	/** Node this was reached from */
-	struct astar_node *parent;
+    /** Node this was reached from */
+    struct astar_node *parent;
 
-	/** Pointer to the map */
-	struct mapdef *map;
+    /** Pointer to the map */
+    struct mapdef *map;
 
-	/** X-Position in the map for this node */
-	sint16 x;
+    /** X-Position in the map for this node */
+    sint16 x;
 
-	/** Y-Position in the map for this object */
-	sint16 y;
+    /** Y-Position in the map for this object */
+    sint16 y;
 
-	/** Cost of reaching this node (distance from origin) */
-	uint16 cost;
+    /** Cost of reaching this node (distance from origin) */
+    uint16 cost;
 
-	/** Estimated cost of reaching the goal from this node */
-	float heuristic;
+    /** Estimated cost of reaching the goal from this node */
+    float heuristic;
 } path_node;
 
 /**

@@ -36,21 +36,19 @@
  * @param maze Where to look. */
 void find_top_left_corner(char **maze, int *cx, int *cy)
 {
-	(*cy)--;
+    (*cy)--;
 
-	/* Find the top wall. */
-	while (maze[*cx][*cy] == '\0')
-	{
-		(*cy)--;
-	}
+    /* Find the top wall. */
+    while (maze[*cx][*cy] == '\0') {
+        (*cy)--;
+    }
 
-	/* Proceed right until a corner is detected */
-	while (maze[*cx][*cy + 1] == '\0')
-	{
-		(*cx)++;
-	}
+    /* Proceed right until a corner is detected */
+    while (maze[*cx][*cy + 1] == '\0') {
+        (*cx)++;
+    }
 
-	/* cx and cy should now be the top-right corner of the onion layer */
+    /* cx and cy should now be the top-right corner of the onion layer */
 }
 
 /**
@@ -60,89 +58,79 @@ void find_top_left_corner(char **maze, int *cx, int *cy)
  * @return The generated layout. */
 char **make_square_spiral_layout(int xsize, int ysize)
 {
-	int i, j;
-	int cx = 0, cy = 0;
-	int tx, ty;
+    int i, j;
+    int cx = 0, cy = 0;
+    int tx, ty;
 
-	/* Generate and allocate a doorless, centered onion */
-	char **maze = map_gen_onion(xsize, ysize, OPT_CENTERED | OPT_NO_DOORS, 0);
+    /* Generate and allocate a doorless, centered onion */
+    char **maze = map_gen_onion(xsize, ysize, OPT_CENTERED | OPT_NO_DOORS, 0);
 
-	/* Find the layout center.  */
-	for (i = 0; i < xsize; i++)
-	{
-		for (j = 0; j < ysize; j++)
-		{
-			if (maze[i][j] == 'C')
-			{
-				cx = i;
-				cy = j;
-			}
-		}
-	}
+    /* Find the layout center.  */
+    for (i = 0; i < xsize; i++) {
+        for (j = 0; j < ysize; j++) {
+            if (maze[i][j] == 'C') {
+                cx = i;
+                cy = j;
+            }
+        }
+    }
 
-	tx = cx;
-	ty = cy;
+    tx = cx;
+    ty = cy;
 
-	while (1)
-	{
-		find_top_left_corner(maze, &tx, &ty);
+    while (1) {
+        find_top_left_corner(maze, &tx, &ty);
 
-		if (ty < 2 || tx < 2 || tx > xsize - 2 || ty > ysize - 2)
-		{
-			break;
-		}
+        if (ty < 2 || tx < 2 || tx > xsize - 2 || ty > ysize - 2) {
+            break;
+        }
 
-		/* make a vertical wall with a door */
-		make_wall(maze, tx, ty - 1, 1);
+        /* make a vertical wall with a door */
+        make_wall(maze, tx, ty - 1, 1);
 
-		/* convert the door that make_wall puts here to a wall */
-		maze[tx][ty - 1] = '#';
+        /* convert the door that make_wall puts here to a wall */
+        maze[tx][ty - 1] = '#';
 
-		/* make a doorway out of this layer */
-		maze[tx - 1][ty] = 'D';
+        /* make a doorway out of this layer */
+        maze[tx - 1][ty] = 'D';
 
-		/* walk left until we find the top-left corner */
-		while (maze[tx - 1][ty])
-		{
-			tx--;
-		}
+        /* walk left until we find the top-left corner */
+        while (maze[tx - 1][ty]) {
+            tx--;
+        }
 
-		/* make a horizontal wall with a door */
-		make_wall(maze, tx - 1, ty, 0);
+        /* make a horizontal wall with a door */
+        make_wall(maze, tx - 1, ty, 0);
 
-		/* walk down until we find the bottom-left corner */
-		while (maze[tx][ty + 1])
-		{
-			ty++;
-		}
+        /* walk down until we find the bottom-left corner */
+        while (maze[tx][ty + 1]) {
+            ty++;
+        }
 
-		/* make a vertical wall with a door */
-		make_wall(maze, tx, ty + 1, 1);
+        /* make a vertical wall with a door */
+        make_wall(maze, tx, ty + 1, 1);
 
-		/* walk rightuntil we find the bottom-right corner */
-		while (maze[tx + 1][ty])
-		{
-			tx++;
-		}
+        /* walk rightuntil we find the bottom-right corner */
+        while (maze[tx + 1][ty]) {
+            tx++;
+        }
 
-		/* make a horizontal wall with a door */
-		make_wall(maze, tx + 1, ty, 0);
+        /* make a horizontal wall with a door */
+        make_wall(maze, tx + 1, ty, 0);
 
-		/* set up for next layer. */
-		tx++;
-	}
+        /* set up for next layer. */
+        tx++;
+    }
 
-	/* place the exits.  */
-	if (RANDOM() % 2)
-	{
-		maze[cx][cy] = '>';
-		maze[xsize - 2][1] = '<';
-	}
-	else
-	{
-		maze[cx][cy] = '<';
-		maze[xsize - 2][1] = '>';
-	}
+    /* place the exits.  */
+    if (RANDOM() % 2) {
+        maze[cx][cy] = '>';
+        maze[xsize - 2][1] = '<';
+    }
+    else {
+        maze[cx][cy] = '<';
+        maze[xsize - 2][1] = '>';
+    }
 
-	return maze;
+    return maze;
 }

@@ -33,66 +33,55 @@
 /** @copydoc command_func */
 void command_drop(object *op, const char *command, char *params)
 {
-	object *tmp, *next;
-	int did_one = 0, missed = 0, ival;
+    object *tmp, *next;
+    int did_one = 0, missed = 0, ival;
 
-	if (!params)
-	{
-		draw_info(COLOR_WHITE, op, "Drop what?");
-		return;
-	}
+    if (!params) {
+        draw_info(COLOR_WHITE, op, "Drop what?");
+        return;
+    }
 
-	if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_DROP, op->map, op, NULL, NULL, params, 0))
-	{
-		return;
-	}
+    if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_DROP, op->map, op, NULL, NULL, params, 0)) {
+        return;
+    }
 
-	SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+    SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-	for (tmp = op->inv; tmp; tmp = next)
-	{
-		next = tmp->below;
+    for (tmp = op->inv; tmp; tmp = next) {
+        next = tmp->below;
 
-		if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_INVISIBLE(tmp, op))
-		{
-			continue;
-		}
+        if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_INVISIBLE(tmp, op)) {
+            continue;
+        }
 
-		ival = item_matched_string(op, tmp, params);
+        ival = item_matched_string(op, tmp, params);
 
-		if (ival > 0)
-		{
-			if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED))
-			{
-				missed++;
-			}
-			else
-			{
-				drop(op, tmp, 1);
-				did_one = 1;
-			}
-		}
-	}
+        if (ival > 0) {
+            if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED)) {
+                missed++;
+            }
+            else {
+                drop(op, tmp, 1);
+                did_one = 1;
+            }
+        }
+    }
 
-	CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
+    CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-	if (did_one)
-	{
-		fix_player(op);
-	}
-	else if (!missed)
-	{
-		draw_info(COLOR_WHITE, op, "Nothing to drop.");
-	}
+    if (did_one) {
+        fix_player(op);
+    }
+    else if (!missed) {
+        draw_info(COLOR_WHITE, op, "Nothing to drop.");
+    }
 
-	if (missed == 1)
-	{
-		draw_info(COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
-	}
-	else if (missed > 1)
-	{
-		draw_info_format(COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
-	}
+    if (missed == 1) {
+        draw_info(COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
+    }
+    else if (missed > 1) {
+        draw_info_format(COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
+    }
 
-	CONTR(op)->count = 0;
+    CONTR(op)->count = 0;
 }

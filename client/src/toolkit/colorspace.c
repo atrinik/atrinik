@@ -43,10 +43,10 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_colorspace_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(colorspace)
-	{
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(colorspace)
+    {
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -54,42 +54,38 @@ void toolkit_colorspace_init(void)
  * @internal */
 void toolkit_colorspace_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(colorspace)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(colorspace)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
  * @author LIBGIMP (GNU LGPL 3.0) */
 double colorspace_rgb_max(const double rgb[3])
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (rgb[0] > rgb[1])
-	{
-		return (rgb[0] > rgb[2]) ? rgb[0] : rgb[2];
-	}
-	else
-	{
-		return (rgb[1] > rgb[2]) ? rgb[1] : rgb[2];
-	}
+    if (rgb[0] > rgb[1]) {
+        return (rgb[0] > rgb[2]) ? rgb[0] : rgb[2];
+    }
+    else {
+        return (rgb[1] > rgb[2]) ? rgb[1] : rgb[2];
+    }
 }
 
 /**
  * @author LIBGIMP (GNU LGPL 3.0) */
 double colorspace_rgb_min(const double rgb[3])
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (rgb[0] < rgb[1])
-	{
-		return (rgb[0] < rgb[2]) ? rgb[0] : rgb[2];
-	}
-	else
-	{
-		return (rgb[1] < rgb[2]) ? rgb[1] : rgb[2];
-	}
+    if (rgb[0] < rgb[1]) {
+        return (rgb[0] < rgb[2]) ? rgb[0] : rgb[2];
+    }
+    else {
+        return (rgb[1] < rgb[2]) ? rgb[1] : rgb[2];
+    }
 }
 
 /**
@@ -97,44 +93,38 @@ double colorspace_rgb_min(const double rgb[3])
  * @author LIBGIMP (GNU LGPL 3.0) */
 void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
 {
-	double max, min, delta;
+    double max, min, delta;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	max = colorspace_rgb_max(rgb);
-	min = colorspace_rgb_min(rgb);
+    max = colorspace_rgb_max(rgb);
+    min = colorspace_rgb_min(rgb);
 
-	hsv[2] = max;
-	delta = max - min;
+    hsv[2] = max;
+    delta = max - min;
 
-	if (delta > 0.0001)
-	{
-		hsv[1] = delta / max;
+    if (delta > 0.0001) {
+        hsv[1] = delta / max;
 
-		if (rgb[0] == max)
-		{
-			hsv[0] = (rgb[1] - rgb[2]) / delta;
+        if (rgb[0] == max) {
+            hsv[0] = (rgb[1] - rgb[2]) / delta;
 
-			if (hsv[0] < 0.0)
-			{
-				hsv[0] += 6.0;
-			}
-		}
-		else if (rgb[1] == max)
-		{
-			hsv[0] = 2.0 + (rgb[2] - rgb[0]) / delta;
-		}
-		else if (rgb[2] == max)
-		{
-			hsv[0] = 4.0 + (rgb[0] - rgb[1]) / delta;
-		}
+            if (hsv[0] < 0.0) {
+                hsv[0] += 6.0;
+            }
+        }
+        else if (rgb[1] == max) {
+            hsv[0] = 2.0 + (rgb[2] - rgb[0]) / delta;
+        }
+        else if (rgb[2] == max) {
+            hsv[0] = 4.0 + (rgb[0] - rgb[1]) / delta;
+        }
 
-		hsv[0] /= 6.0;
-	}
-	else
-	{
-		hsv[0] = hsv[1] = 0.0;
-	}
+        hsv[0] /= 6.0;
+    }
+    else {
+        hsv[0] = hsv[1] = 0.0;
+    }
 }
 
 /**
@@ -142,72 +132,68 @@ void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
  * @author LIBGIMP (GNU LGPL 3.0) */
 void colorspace_hsv2rgb(const double hsv[3], double rgb[3])
 {
-	int i;
-	double f, w, q, t;
-	double hue;
+    int i;
+    double f, w, q, t;
+    double hue;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (hsv[1] == 0.0)
-	{
-		rgb[0] = hsv[2];
-		rgb[1] = hsv[2];
-		rgb[2] = hsv[2];
-	}
-	else
-	{
-		hue = hsv[0];
+    if (hsv[1] == 0.0) {
+        rgb[0] = hsv[2];
+        rgb[1] = hsv[2];
+        rgb[2] = hsv[2];
+    }
+    else {
+        hue = hsv[0];
 
-		if (hue == 1.0)
-		{
-			hue = 0.0;
-		}
+        if (hue == 1.0) {
+            hue = 0.0;
+        }
 
-		hue *= 6.0;
+        hue *= 6.0;
 
-		i = (int) hue;
-		f = hue - i;
-		w = hsv[2] * (1.0 - hsv[1]);
-		q = hsv[2] * (1.0 - (hsv[1] * f));
-		t = hsv[2] * (1.0 - (hsv[1] * (1.0 - f)));
+        i = (int) hue;
+        f = hue - i;
+        w = hsv[2] * (1.0 - hsv[1]);
+        q = hsv[2] * (1.0 - (hsv[1] * f));
+        t = hsv[2] * (1.0 - (hsv[1] * (1.0 - f)));
 
-		switch (i)
-		{
-			case 0:
-				rgb[0] = hsv[2];
-				rgb[1] = t;
-				rgb[2] = w;
-				break;
+        switch (i) {
+            case 0:
+                rgb[0] = hsv[2];
+                rgb[1] = t;
+                rgb[2] = w;
+                break;
 
-			case 1:
-				rgb[0] = q;
-				rgb[1] = hsv[2];
-				rgb[2] = w;
-				break;
+            case 1:
+                rgb[0] = q;
+                rgb[1] = hsv[2];
+                rgb[2] = w;
+                break;
 
-			case 2:
-				rgb[0] = w;
-				rgb[1] = hsv[2];
-				rgb[2] = t;
-				break;
+            case 2:
+                rgb[0] = w;
+                rgb[1] = hsv[2];
+                rgb[2] = t;
+                break;
 
-			case 3:
-				rgb[0] = w;
-				rgb[1] = q;
-				rgb[2] = hsv[2];
-				break;
+            case 3:
+                rgb[0] = w;
+                rgb[1] = q;
+                rgb[2] = hsv[2];
+                break;
 
-			case 4:
-				rgb[0] = t;
-				rgb[1] = w;
-				rgb[2] = hsv[2];
-				break;
+            case 4:
+                rgb[0] = t;
+                rgb[1] = w;
+                rgb[2] = hsv[2];
+                break;
 
-			case 5:
-				rgb[0] = hsv[2];
-				rgb[1] = w;
-				rgb[2] = q;
-				break;
-		}
-	}
+            case 5:
+                rgb[0] = hsv[2];
+                rgb[1] = w;
+                rgb[2] = q;
+                break;
+        }
+    }
 }

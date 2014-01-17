@@ -29,27 +29,28 @@
  * API usage:
  *
  * @code
-char *str = strdup("hello world");
-cache_struct *res;
-
-// CACHE_FLAG_AUTOFREE will automatically free the pointer.
-cache_add("cache_test", str, CACHE_FLAG_AUTOFREE);
-
-// The cache code stores the keys as shared strings, so you must attempt
-// to find the string first.
-res = cache_find(find_string("cache_test"));
-
-// Since it was added before, it should not be NULL here.
-if (res)
-{
-	// The cache uses void pointers, so you need to cast the returned pointer
-	// back to what it was.
-	printf("Found cache entry:\n%s\n", (char *) res->ptr);
-}
-
-// Remove the cache entry: after this call, 'str' is pointing to freed memory,
-// since CACHE_FLAG_AUTOFREE was set.
-cache_remove(find_string("cache_test"));
+ *    char *str = strdup("hello world");
+ *    cache_struct *res;
+ *
+ *    // CACHE_FLAG_AUTOFREE will automatically free the pointer.
+ *    cache_add("cache_test", str, CACHE_FLAG_AUTOFREE);
+ *
+ *    // The cache code stores the keys as shared strings, so you must attempt
+ *    // to find the string first.
+ *    res = cache_find(find_string("cache_test"));
+ *
+ *    // Since it was added before, it should not be NULL here.
+ *    if (res)
+ *    {
+ *     // The cache uses void pointers, so you need to cast the returned pointer
+ *     // back to what it was.
+ *     printf("Found cache entry:\n%s\n", (char *) res->ptr);
+ *    }
+ *
+ *    // Remove the cache entry: after this call, 'str' is pointing to freed
+ * memory,
+ *    // since CACHE_FLAG_AUTOFREE was set.
+ *    cache_remove(find_string("cache_test"));
  * @endcode */
 
 #include <global.h>
@@ -63,30 +64,25 @@ static size_t num_cache = 0;
  * Comparison function for binary search in cache_find(). */
 static int cache_compare(const void *one, const void *two)
 {
-	cache_struct *one_cache = (cache_struct *) one;
-	cache_struct *two_cache = (cache_struct *) two;
+    cache_struct *one_cache = (cache_struct *) one;
+    cache_struct *two_cache = (cache_struct *) two;
 
-	if (one == NULL)
-	{
-		return -1;
-	}
-	else if (two == NULL)
-	{
-		return 1;
-	}
+    if (one == NULL) {
+        return -1;
+    }
+    else if (two == NULL) {
+        return 1;
+    }
 
-	if (one_cache->key < two_cache->key)
-	{
-		return -1;
-	}
-	else if (one_cache->key > two_cache->key)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+    if (one_cache->key < two_cache->key) {
+        return -1;
+    }
+    else if (one_cache->key > two_cache->key) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
 /**
@@ -95,17 +91,16 @@ static int cache_compare(const void *one, const void *two)
  * @return Pointer to the cache entry, NULL if there is no such entry. */
 cache_struct *cache_find(shstr *key)
 {
-	cache_struct bkey;
+    cache_struct bkey;
 
-	/* Sanity. */
-	if (!cache || !num_cache || !key)
-	{
-		return NULL;
-	}
+    /* Sanity. */
+    if (!cache || !num_cache || !key) {
+        return NULL;
+    }
 
-	/* Attempt to find the cache entry. */
-	bkey.key = key;
-	return bsearch((void *) &bkey, cache, num_cache, sizeof(cache_struct), cache_compare);
+    /* Attempt to find the cache entry. */
+    bkey.key = key;
+    return bsearch((void *) &bkey, cache, num_cache, sizeof(cache_struct), cache_compare);
 }
 
 /**
@@ -117,43 +112,40 @@ cache_struct *cache_find(shstr *key)
  * 'key' already exists). */
 int cache_add(const char *key, void *ptr, uint32 flags)
 {
-	size_t i, ii;
-	shstr *sh_key = add_string(key);
+    size_t i, ii;
+    shstr *sh_key = add_string(key);
 
-	/* Sanity. */
-	if (!ptr || cache_find(sh_key))
-	{
-		return 0;
-	}
+    /* Sanity. */
+    if (!ptr || cache_find(sh_key)) {
+        return 0;
+    }
 
-	/* Increase the array's size. */
-	cache = realloc(cache, sizeof(cache_struct) * (num_cache + 1));
+    /* Increase the array's size. */
+    cache = realloc(cache, sizeof(cache_struct) * (num_cache + 1));
 
-	/* Now, insert the cache into the correct spot in the array. */
-	for (i = 0; i < num_cache; i++)
-	{
-		if (cache[i].key > sh_key)
-		{
-			break;
-		}
-	}
+    /* Now, insert the cache into the correct spot in the array. */
+    for (i = 0; i < num_cache; i++) {
+        if (cache[i].key > sh_key) {
+            break;
+        }
+    }
 
-	/* If this is not the special case of insertion at the last point, then shift everything. */
-	for (ii = num_cache; ii > i; ii--)
-	{
-		cache[ii] = cache[ii - 1];
-		/* Increase the ID, as it's getting moved upwards. */
-		cache[ii].id++;
-	}
+    /* If this is not the special case of insertion at the last point, then
+     * shift everything. */
+    for (ii = num_cache; ii > i; ii--) {
+        cache[ii] = cache[ii - 1];
+        /* Increase the ID, as it's getting moved upwards. */
+        cache[ii].id++;
+    }
 
-	/* Store the values. */
-	cache[i].key = sh_key;
-	cache[i].ptr = ptr;
-	cache[i].flags = flags;
-	cache[i].id = i;
-	num_cache++;
+    /* Store the values. */
+    cache[i].key = sh_key;
+    cache[i].ptr = ptr;
+    cache[i].flags = flags;
+    cache[i].id = i;
+    num_cache++;
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -162,50 +154,45 @@ int cache_add(const char *key, void *ptr, uint32 flags)
  * @return 1 on success, 0 on failure (cache entry not found). */
 int cache_remove(shstr *key)
 {
-	cache_struct *entry = cache_find(key);
-	size_t i;
+    cache_struct *entry = cache_find(key);
+    size_t i;
 
-	if (!entry)
-	{
-		return 0;
-	}
+    if (!entry) {
+        return 0;
+    }
 
-	/* The entry wants global events, so send one about it being removed. */
-	if (entry->flags & CACHE_FLAG_GEVENT)
-	{
-		trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) &entry->flags);
-	}
+    /* The entry wants global events, so send one about it being removed. */
+    if (entry->flags & CACHE_FLAG_GEVENT) {
+        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) &entry->flags);
+    }
 
-	/* Does it want to be freed automatically? */
-	if (entry->flags & CACHE_FLAG_AUTOFREE)
-	{
-		free(entry->ptr);
-	}
+    /* Does it want to be freed automatically? */
+    if (entry->flags & CACHE_FLAG_AUTOFREE) {
+        free(entry->ptr);
+    }
 
-	/* Shift the entries. */
-	for (i = entry->id + 1; i < num_cache; i++)
-	{
-		cache[i - 1] = cache[i];
-		/* Moving downwards, decrease ID. */
-		cache[i - 1].id--;
-	}
+    /* Shift the entries. */
+    for (i = entry->id + 1; i < num_cache; i++) {
+        cache[i - 1] = cache[i];
+        /* Moving downwards, decrease ID. */
+        cache[i - 1].id--;
+    }
 
-	/* Decrease the array's size. */
-	cache = realloc(cache, sizeof(cache_struct) * (num_cache - 1));
-	num_cache--;
+    /* Decrease the array's size. */
+    cache = realloc(cache, sizeof(cache_struct) * (num_cache - 1));
+    num_cache--;
 
-	return 1;
+    return 1;
 }
 
 /**
  * Remove all cache entries. */
 void cache_remove_all(void)
 {
-	/* Keep removing until there's nothing left. */
-	while (num_cache)
-	{
-		cache_remove(cache[0].key);
-	}
+    /* Keep removing until there's nothing left. */
+    while (num_cache) {
+        cache_remove(cache[0].key);
+    }
 }
 
 /**
@@ -213,15 +200,13 @@ void cache_remove_all(void)
  * @param flags One or a combination of @ref CACHE_FLAG_xxx. */
 void cache_remove_by_flags(uint32 flags)
 {
-	size_t i;
+    size_t i;
 
-	/* Search for matching entries, and remove them. */
-	for (i = 0; i < num_cache; i++)
-	{
-		if (cache[i].flags & flags)
-		{
-			cache_remove(cache[i].key);
-			i--;
-		}
-	}
+    /* Search for matching entries, and remove them. */
+    for (i = 0; i < num_cache; i++) {
+        if (cache[i].flags & flags) {
+            cache_remove(cache[i].key);
+            i--;
+        }
+    }
 }

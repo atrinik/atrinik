@@ -33,24 +33,22 @@
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
+    (void) originator;
 
-	if (pedestal_matches_obj(op, victim))
-	{
-		connection_trigger(op, state);
+    if (pedestal_matches_obj(op, victim)) {
+        connection_trigger(op, state);
 
-		if (op->last_heal)
-		{
-			decrease_ob(victim);
-		}
-	}
+        if (op->last_heal) {
+            decrease_ob(victim);
+        }
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the detector type object methods. */
 void object_type_init_detector(void)
 {
-	object_type_methods[DETECTOR].move_on_func = move_on_func;
+    object_type_methods[DETECTOR].move_on_func = move_on_func;
 }

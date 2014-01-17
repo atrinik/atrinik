@@ -33,19 +33,17 @@
 /** @copydoc command_func */
 void command_reply(object *op, const char *command, char *params)
 {
-	char newparams[HUGE_BUF];
+    char newparams[HUGE_BUF];
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	if (*CONTR(op)->player_reply == '\0')
-	{
-		draw_info(COLOR_WHITE, op, "There is no one you can reply to.");
-		return;
-	}
+    if (*CONTR(op)->player_reply == '\0') {
+        draw_info(COLOR_WHITE, op, "There is no one you can reply to.");
+        return;
+    }
 
-	snprintf(newparams, sizeof(newparams), "\"%s\" %s", CONTR(op)->player_reply, params);
-	command_tell(op, command, newparams);
+    snprintf(newparams, sizeof(newparams), "\"%s\" %s", CONTR(op)->player_reply, params);
+    command_tell(op, command, newparams);
 }

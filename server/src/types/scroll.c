@@ -33,55 +33,49 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *applier, object *op, int aflags)
 {
-	(void) aflags;
+    (void) aflags;
 
-	if (QUERY_FLAG(applier, FLAG_BLIND))
-	{
-		draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
-		return OBJECT_METHOD_OK;
-	}
+    if (QUERY_FLAG(applier, FLAG_BLIND)) {
+        draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
+        return OBJECT_METHOD_OK;
+    }
 
-	if (!QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		identify(op);
-	}
+    if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+        identify(op);
+    }
 
-	if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS)
-	{
-		draw_info(COLOR_WHITE, applier, "The scroll just doesn't make sense!");
-		return OBJECT_METHOD_OK;
-	}
+    if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
+        draw_info(COLOR_WHITE, applier, "The scroll just doesn't make sense!");
+        return OBJECT_METHOD_OK;
+    }
 
-	if (applier->type == PLAYER)
-	{
-		/* Players need a literacy skill to read scrolls. */
-		if (!change_skill(applier, SK_LITERACY))
-		{
-			draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
-			return OBJECT_METHOD_OK;
-		}
+    if (applier->type == PLAYER) {
+        /* Players need a literacy skill to read scrolls. */
+        if (!change_skill(applier, SK_LITERACY)) {
+            draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+            return OBJECT_METHOD_OK;
+        }
 
-		/* Also need the appropriate skill for the scroll's spell. */
-		if (!change_skill(applier, SK_WIZARDRY_SPELLS))
-		{
-			draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
-			return OBJECT_METHOD_OK;
-		}
+        /* Also need the appropriate skill for the scroll's spell. */
+        if (!change_skill(applier, SK_WIZARDRY_SPELLS)) {
+            draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
+            return OBJECT_METHOD_OK;
+        }
 
-		CONTR(applier)->stat_scrolls_used++;
-	}
+        CONTR(applier)->stat_scrolls_used++;
+    }
 
-	draw_info_format(COLOR_WHITE, applier, "The scroll of %s turns to dust.", spells[op->stats.sp].name);
+    draw_info_format(COLOR_WHITE, applier, "The scroll of %s turns to dust.", spells[op->stats.sp].name);
 
-	cast_spell(applier, op, applier->facing ? applier->facing : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
-	decrease_ob(op);
+    cast_spell(applier, op, applier->facing ? applier->facing : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
+    decrease_ob(op);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the scroll type object methods. */
 void object_type_init_scroll(void)
 {
-	object_type_methods[SCROLL].apply_func = apply_func;
+    object_type_methods[SCROLL].apply_func = apply_func;
 }

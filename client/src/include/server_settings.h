@@ -32,34 +32,34 @@
 /** Text IDs from server_settings file. */
 enum
 {
-	SERVER_TEXT_PROTECTION_GROUPS,
-	SERVER_TEXT_PROTECTION_LETTERS,
-	SERVER_TEXT_PROTECTION_FULL,
-	SERVER_TEXT_SPELL_PATHS,
-	SERVER_TEXT_ALLOWED_CHARS_ACCOUNT,
-	SERVER_TEXT_ALLOWED_CHARS_ACCOUNT_MAX,
-	SERVER_TEXT_ALLOWED_CHARS_CHARNAME,
-	SERVER_TEXT_ALLOWED_CHARS_CHARNAME_MAX,
-	SERVER_TEXT_ALLOWED_CHARS_PASSWORD,
-	SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX,
+    SERVER_TEXT_PROTECTION_GROUPS,
+    SERVER_TEXT_PROTECTION_LETTERS,
+    SERVER_TEXT_PROTECTION_FULL,
+    SERVER_TEXT_SPELL_PATHS,
+    SERVER_TEXT_ALLOWED_CHARS_ACCOUNT,
+    SERVER_TEXT_ALLOWED_CHARS_ACCOUNT_MAX,
+    SERVER_TEXT_ALLOWED_CHARS_CHARNAME,
+    SERVER_TEXT_ALLOWED_CHARS_CHARNAME_MAX,
+    SERVER_TEXT_ALLOWED_CHARS_PASSWORD,
+    SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX,
 
-	SERVER_TEXT_MAX
+    SERVER_TEXT_MAX
 };
 
 /** One character. */
 typedef struct char_struct
 {
-	/** The race name. */
-	char *name;
+    /** The race name. */
+    char *name;
 
-	/** Archetypes of the race's genders. */
-	char *gender_archetypes[GENDER_MAX];
+    /** Archetypes of the race's genders. */
+    char *gender_archetypes[GENDER_MAX];
 
-	/** Face names of the race's genders. */
-	char *gender_faces[GENDER_MAX];
+    /** Face names of the race's genders. */
+    char *gender_faces[GENDER_MAX];
 
-	/** Description of the race. */
-	char *desc;
+    /** Description of the race. */
+    char *desc;
 } char_struct;
 
 /**
@@ -67,29 +67,29 @@ typedef struct char_struct
  * file. */
 typedef struct server_settings
 {
-	/** Maximum reachable level. */
-	uint32 max_level;
+    /** Maximum reachable level. */
+    uint32 max_level;
 
-	/** Experience needed for each level. */
-	sint64 *level_exp;
+    /** Experience needed for each level. */
+    sint64 *level_exp;
 
-	/** Races that can be selected to be played. */
-	char_struct *characters;
+    /** Races that can be selected to be played. */
+    char_struct *characters;
 
-	/** Number of server_settings::characters. */
-	size_t num_characters;
+    /** Number of server_settings::characters. */
+    size_t num_characters;
 
-	/** Server-configured strings. */
-	char *text[SERVER_TEXT_MAX];
+    /** Server-configured strings. */
+    char *text[SERVER_TEXT_MAX];
 
-	/** Protection few-letter acronyms. */
-	char protection_letters[20][MAX_BUF];
+    /** Protection few-letter acronyms. */
+    char protection_letters[20][MAX_BUF];
 
-	/** Full protection names. */
-	char protection_full[20][MAX_BUF];
+    /** Full protection names. */
+    char protection_full[20][MAX_BUF];
 
-	/** Spell path names. */
-	char spell_paths[SPELL_PATH_NUM][MAX_BUF];
+    /** Spell path names. */
+    char spell_paths[SPELL_PATH_NUM][MAX_BUF];
 } server_settings;
 
 #endif

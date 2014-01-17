@@ -47,48 +47,48 @@
  * @anchor PARTY_LOOT_xxx */
 enum
 {
-	/**
-	 * Normal looting: any party member can loot the corpse. */
-	PARTY_LOOT_NORMAL,
-	/**
-	 * Only leader can loot the corpse. */
-	PARTY_LOOT_LEADER,
-	/**
-	 * Loot is randomly split between party members when the corpse is
-	 * opened. */
-	PARTY_LOOT_RANDOM,
-	/**
-	 * Total number of the modes. */
-	PARTY_LOOT_MAX
+    /**
+     * Normal looting: any party member can loot the corpse. */
+    PARTY_LOOT_NORMAL,
+    /**
+     * Only leader can loot the corpse. */
+    PARTY_LOOT_LEADER,
+    /**
+     * Loot is randomly split between party members when the corpse is
+     * opened. */
+    PARTY_LOOT_RANDOM,
+    /**
+     * Total number of the modes. */
+    PARTY_LOOT_MAX
 };
 
 /**
  * Party structure. */
 typedef struct party_struct
 {
-	/**
-	 * Name of the party leader. */
-	shstr *leader;
+    /**
+     * Name of the party leader. */
+    shstr *leader;
 
-	/**
-	 * Name of the party. */
-	shstr *name;
+    /**
+     * Name of the party. */
+    shstr *name;
 
-	/**
-	 * Password this party requires. */
-	char passwd[9];
+    /**
+     * Password this party requires. */
+    char passwd[9];
 
-	/**
-	 * Looting mode. One of @ref PARTY_LOOT_xxx. */
-	uint8 loot;
+    /**
+     * Looting mode. One of @ref PARTY_LOOT_xxx. */
+    uint8 loot;
 
-	/**
-	 * Party members. */
-	objectlink *members;
+    /**
+     * Party members. */
+    objectlink *members;
 
-	/**
-	 * Next party in the list. */
-	struct party_struct *next;
+    /**
+     * Next party in the list. */
+    struct party_struct *next;
 } party_struct;
 
 /**

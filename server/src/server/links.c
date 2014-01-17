@@ -36,14 +36,14 @@ mempool_struct *pool_objectlink;
  * Initialize the objectlink API. */
 void objectlink_init(void)
 {
-	pool_objectlink = mempool_create("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
+    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the objectlink API. */
 void objectlink_deinit(void)
 {
-	mempool_free(pool_objectlink);
+    mempool_free(pool_objectlink);
 }
 
 /**
@@ -51,10 +51,10 @@ void objectlink_deinit(void)
  * @return Pointer to the new objectlink */
 objectlink *get_objectlink(void)
 {
-	objectlink *ol = (objectlink *) get_poolchunk(pool_objectlink);
+    objectlink *ol = (objectlink *) get_poolchunk(pool_objectlink);
 
-	memset(ol, 0, sizeof(objectlink));
-	return ol;
+    memset(ol, 0, sizeof(objectlink));
+    return ol;
 }
 
 /**
@@ -62,12 +62,11 @@ objectlink *get_objectlink(void)
  * @param ol Object link to free. */
 void free_objectlink(objectlink *ol)
 {
-	if (OBJECT_VALID(ol->objlink.ob, ol->id))
-	{
-		CLEAR_FLAG(ol->objlink.ob, FLAG_IS_LINKED);
-	}
+    if (OBJECT_VALID(ol->objlink.ob, ol->id)) {
+        CLEAR_FLAG(ol->objlink.ob, FLAG_IS_LINKED);
+    }
 
-	free_objectlink_simple(ol);
+    free_objectlink_simple(ol);
 }
 
 /**
@@ -75,17 +74,15 @@ void free_objectlink(objectlink *ol)
  * @param ol The objectlink. */
 static void free_objectlink_recursive(objectlink *ol)
 {
-	if (ol->next)
-	{
-		free_objectlink_recursive(ol->next);
-	}
+    if (ol->next) {
+        free_objectlink_recursive(ol->next);
+    }
 
-	if (OBJECT_VALID(ol->objlink.ob, ol->id))
-	{
-		CLEAR_FLAG(ol->objlink.ob, FLAG_IS_LINKED);
-	}
+    if (OBJECT_VALID(ol->objlink.ob, ol->id)) {
+        CLEAR_FLAG(ol->objlink.ob, FLAG_IS_LINKED);
+    }
 
-	free_objectlink_simple(ol);
+    free_objectlink_simple(ol);
 }
 
 /**
@@ -95,103 +92,88 @@ static void free_objectlink_recursive(objectlink *ol)
  * @param obp The oblinkpt */
 void free_objectlinkpt(objectlink *obp)
 {
-	if (obp->next)
-	{
-		free_objectlinkpt(obp->next);
-	}
+    if (obp->next) {
+        free_objectlinkpt(obp->next);
+    }
 
-	if (obp->objlink.link)
-	{
-		free_objectlink_recursive(obp->objlink.link);
-	}
+    if (obp->objlink.link) {
+        free_objectlink_recursive(obp->objlink.link);
+    }
 
-	free_objectlink_simple(obp);
+    free_objectlink_simple(obp);
 }
 
 /**
  * Generic link function for object links. */
 objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr)
 {
-	/* Link it behind afterptr */
-	if (!beforeptr)
-	{
-		/* If not, we just have to update startptr and endptr */
-		if (afterptr)
-		{
-			/* Link between something? */
-			if (afterptr->next)
-			{
-				objptr->next = afterptr->next;
-				afterptr->next->prev = objptr;
-			}
+    /* Link it behind afterptr */
+    if (!beforeptr) {
+        /* If not, we just have to update startptr and endptr */
+        if (afterptr) {
+            /* Link between something? */
+            if (afterptr->next) {
+                objptr->next = afterptr->next;
+                afterptr->next->prev = objptr;
+            }
 
-			afterptr->next = objptr;
-			objptr->prev = afterptr;
-		}
+            afterptr->next = objptr;
+            objptr->prev = afterptr;
+        }
 
-		if (startptr && !*startptr)
-		{
-			*startptr = objptr;
-		}
+        if (startptr && !*startptr) {
+            *startptr = objptr;
+        }
 
-		if (endptr && (!*endptr || *endptr == afterptr))
-		{
-			*endptr = objptr;
-		}
-	}
-	/* Link it before beforeptr */
-	else if (!afterptr)
-	{
-		if (beforeptr->prev)
-		{
-			objptr->prev = beforeptr->prev;
-			beforeptr->prev->next = objptr;
-		}
+        if (endptr && (!*endptr || *endptr == afterptr)) {
+            *endptr = objptr;
+        }
+    }
+    /* Link it before beforeptr */
+    else if (!afterptr) {
+        if (beforeptr->prev) {
+            objptr->prev = beforeptr->prev;
+            beforeptr->prev->next = objptr;
+        }
 
-		beforeptr->prev = objptr;
-		objptr->next = beforeptr;
+        beforeptr->prev = objptr;
+        objptr->next = beforeptr;
 
-		/* We can't be endptr but perhaps start */
-		if (startptr && (!*startptr || *startptr == beforeptr))
-		{
-			*startptr = objptr;
-		}
-	}
-	/* Special: link together two lists/objects */
-	else
-	{
-		beforeptr->prev = objptr;
-		afterptr->next = objptr;
-		objptr->next = beforeptr;
-		objptr->prev = afterptr;
-	}
+        /* We can't be endptr but perhaps start */
+        if (startptr && (!*startptr || *startptr == beforeptr)) {
+            *startptr = objptr;
+        }
+    }
+    /* Special: link together two lists/objects */
+    else {
+        beforeptr->prev = objptr;
+        afterptr->next = objptr;
+        objptr->next = beforeptr;
+        objptr->prev = afterptr;
+    }
 
-	return objptr;
+    return objptr;
 }
 
 /**
  * Unlink object link from a list. */
 objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr)
 {
-	if (startptr && *startptr == objptr)
-	{
-		*startptr = objptr->next;
-	}
+    if (startptr && *startptr == objptr) {
+        *startptr = objptr->next;
+    }
 
-	if (endptr && *endptr == objptr)
-	{
-		*endptr = objptr->prev;
-	}
+    if (endptr && *endptr == objptr) {
+        *endptr = objptr->prev;
+    }
 
-	if (objptr->prev)
-	{
-		objptr->prev->next = objptr->next;
-	}
+    if (objptr->prev) {
+        objptr->prev->next = objptr->next;
+    }
 
-	if (objptr->next)
-	{
-		objptr->next->prev = objptr->prev;
-	}
+    if (objptr->next) {
+        objptr->next->prev = objptr->prev;
+    }
 
-	return objptr;
+    return objptr;
 }

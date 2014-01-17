@@ -100,24 +100,24 @@
 /** A single material. */
 typedef struct
 {
-	/** Name of the material. */
-	char *name;
+    /** Name of the material. */
+    char *name;
 } materialtype;
 
 /** A real material. */
 typedef struct _material_real_struct
 {
-	/** Name of this material. */
-	char name[MAX_BUF];
+    /** Name of this material. */
+    char name[MAX_BUF];
 
-	/** Material base quality. */
-	int quality;
+    /** Material base quality. */
+    int quality;
 
-	/** Back-reference to material type. */
-	int type;
+    /** Back-reference to material type. */
+    int type;
 
-	/** We can assign a default race for this material. */
-	int def_race;
+    /** We can assign a default race for this material. */
+    int def_race;
 } material_real_struct;
 
 #endif

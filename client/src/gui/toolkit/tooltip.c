@@ -53,12 +53,12 @@ static uint8 tooltip_opacity = 0;
  * @param text The text to show in the tooltip. */
 void tooltip_create(int mx, int my, int font, const char *text)
 {
-	tooltip_delay = 0;
-	tooltip_font = font;
-	tooltip_x = mx;
-	tooltip_y = my;
-	strncpy(tooltip_text, text, sizeof(tooltip_text) - 1);
-	tooltip_text[sizeof(tooltip_text) - 1] = '\0';
+    tooltip_delay = 0;
+    tooltip_font = font;
+    tooltip_x = mx;
+    tooltip_y = my;
+    strncpy(tooltip_text, text, sizeof(tooltip_text) - 1);
+    tooltip_text[sizeof(tooltip_text) - 1] = '\0';
 }
 
 /**
@@ -66,12 +66,11 @@ void tooltip_create(int mx, int my, int font, const char *text)
  * @param Delay in milliseconds. */
 void tooltip_enable_delay(uint32 delay)
 {
-	tooltip_delay = delay;
-	
-	if (tooltip_created + delay < SDL_GetTicks())
-	{
-		tooltip_created = SDL_GetTicks();
-	}
+    tooltip_delay = delay;
+
+    if (tooltip_created + delay < SDL_GetTicks()) {
+        tooltip_created = SDL_GetTicks();
+    }
 }
 
 /**
@@ -79,99 +78,88 @@ void tooltip_enable_delay(uint32 delay)
  * @param max_width Maximum width of the tooltip. */
 void tooltip_multiline(int max_width)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	box.x = 0;
-	box.y = 0;
-	box.w = max_width;
-	box.h = 0;
-	text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
-	tooltip_w = max_width;
-	tooltip_h = box.h;
+    box.x = 0;
+    box.y = 0;
+    box.w = max_width;
+    box.h = 0;
+    text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+    tooltip_w = max_width;
+    tooltip_h = box.h;
 
-	box.h = 0;
-	text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
-	tooltip_w = box.w;
+    box.h = 0;
+    text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+    tooltip_w = box.w;
 }
 
 /**
  * Actually show the tooltip. */
 void tooltip_show(void)
 {
-	SDL_Rect box, text_box;
+    SDL_Rect box, text_box;
 
-	/* No tooltip to show. */
-	if (tooltip_x == -1 || tooltip_y == -1)
-	{
-		return;
-	}
-	
-	if (tooltip_delay)
-	{
-		if (SDL_GetTicks() - tooltip_created < tooltip_delay)
-		{
-			tooltip_opacity = 0;
-			return;
-		}
-		
-		tooltip_created = SDL_GetTicks() + tooltip_delay;
-	}
-	else
-	{
-		tooltip_opacity = 255;
-	}
+    /* No tooltip to show. */
+    if (tooltip_x == -1 || tooltip_y == -1) {
+        return;
+    }
 
-	if (tooltip_w != -1)
-	{
-		text_box.w = tooltip_w;
-	}
-	else
-	{
-		text_box.w = text_get_width(tooltip_font, tooltip_text, TEXT_MARKUP);
-	}
+    if (tooltip_delay) {
+        if (SDL_GetTicks() - tooltip_created < tooltip_delay) {
+            tooltip_opacity = 0;
+            return;
+        }
 
-	if (tooltip_h != -1)
-	{
-		text_box.h = tooltip_h;
-	}
-	else
-	{
-		text_box.h = FONT_HEIGHT(tooltip_font);
-	}
+        tooltip_created = SDL_GetTicks() + tooltip_delay;
+    }
+    else {
+        tooltip_opacity = 255;
+    }
 
-	/* Generate the tooltip's background. */
-	box.x = tooltip_x + 9;
-	box.y = tooltip_y + 17;
-	box.w = text_box.w + 6;
-	box.h = text_box.h + 1;
+    if (tooltip_w != -1) {
+        text_box.w = tooltip_w;
+    }
+    else {
+        text_box.w = text_get_width(tooltip_font, tooltip_text, TEXT_MARKUP);
+    }
 
-	/* Push the tooltip to the left if it would go beyond maximum screen
-	 * size. */
-	if (box.x + box.w >= ScreenSurface->w)
-	{
-		box.x -= (box.x + box.w + 1) - ScreenSurface->w;
-	}
+    if (tooltip_h != -1) {
+        text_box.h = tooltip_h;
+    }
+    else {
+        text_box.h = FONT_HEIGHT(tooltip_font);
+    }
 
-	if (box.y + box.h >= ScreenSurface->h)
-	{
-		box.y -= (box.y + box.h + 1) - ScreenSurface->h;
-	}
+    /* Generate the tooltip's background. */
+    box.x = tooltip_x + 9;
+    box.y = tooltip_y + 17;
+    box.w = text_box.w + 6;
+    box.h = text_box.h + 1;
 
-	boxRGBA(ScreenSurface, box.x, box.y, box.x + box.w, box.y + box.h, 255, 255, 255, tooltip_opacity);
-	text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "<alpha=%d>%s</alpha>", tooltip_opacity, tooltip_text);
-	
-	if (tooltip_delay)
-	{
-		tooltip_opacity = MIN(255, tooltip_opacity + 25);
-	}
+    /* Push the tooltip to the left if it would go beyond maximum screen
+     * size. */
+    if (box.x + box.w >= ScreenSurface->w) {
+        box.x -= (box.x + box.w + 1) - ScreenSurface->w;
+    }
+
+    if (box.y + box.h >= ScreenSurface->h) {
+        box.y -= (box.y + box.h + 1) - ScreenSurface->h;
+    }
+
+    boxRGBA(ScreenSurface, box.x, box.y, box.x + box.w, box.y + box.h, 255, 255, 255, tooltip_opacity);
+    text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "<alpha=%d>%s</alpha>", tooltip_opacity, tooltip_text);
+
+    if (tooltip_delay) {
+        tooltip_opacity = MIN(255, tooltip_opacity + 25);
+    }
 }
 
 /**
  * Dismiss the currently shown tooltip. */
 void tooltip_dismiss(void)
 {
-	tooltip_x = -1;
-	tooltip_y = -1;
-	tooltip_w = -1;
-	tooltip_h = -1;
+    tooltip_x = -1;
+    tooltip_y = -1;
+    tooltip_w = -1;
+    tooltip_h = -1;
 }

@@ -33,20 +33,20 @@
  * tests. */
 void check_main(void)
 {
-	/* bugs */
-	check_bug_85();
+    /* bugs */
+    check_bug_85();
 
-	/* unit/commands */
-	check_commands_object();
+    /* unit/commands */
+    check_commands_object();
 
-	/* unit/server */
-	check_server_ban();
-	check_server_arch();
-	check_server_object();
-	check_server_re_cmp();
-	check_server_cache();
-	/* Anything that needs the shared string interface should go above
-	 * this line (arches, artifacts, players, etc). */
-	check_server_shstr();
-	check_server_utils();
+    /* unit/server */
+    check_server_ban();
+    check_server_arch();
+    check_server_object();
+    check_server_re_cmp();
+    check_server_cache();
+    /* Anything that needs the shared string interface should go above
+     * this line (arches, artifacts, players, etc). */
+    check_server_shstr();
+    check_server_utils();
 }

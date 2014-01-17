@@ -34,22 +34,22 @@
  * One command alias. */
 typedef struct cmd_alias_struct
 {
-	/**
-	 * Name of the command alias. */
-	char *name;
+    /**
+     * Name of the command alias. */
+    char *name;
 
-	/**
-	 * What to execute when there is an argument for the command. */
-	char *arg;
+    /**
+     * What to execute when there is an argument for the command. */
+    char *arg;
 
-	/**
-	 * What to execute when there isn't an argument for the command, or
-	 * if there is but cmd_alias_struct::arg is not set. */
-	char *noarg;
+    /**
+     * What to execute when there isn't an argument for the command, or
+     * if there is but cmd_alias_struct::arg is not set. */
+    char *noarg;
 
-	/**
-	 * Hash handle. */
-	UT_hash_handle hh;
+    /**
+     * Hash handle. */
+    UT_hash_handle hh;
 } cmd_alias_struct;
 
 /**
@@ -61,93 +61,82 @@ static cmd_alias_struct *cmd_aliases = NULL;
  * @param path Where to load the file from. */
 static void cmd_aliases_load(const char *path)
 {
-	FILE *fp;
-	char buf[HUGE_BUF], *end;
-	cmd_alias_struct *cmd_alias;
+    FILE *fp;
+    char buf[HUGE_BUF], *end;
+    cmd_alias_struct *cmd_alias;
 
-	fp = fopen_wrapper(path, "r");
+    fp = fopen_wrapper(path, "r");
 
-	if (!fp)
-	{
-		return;
-	}
+    if (!fp) {
+        return;
+    }
 
-	cmd_alias = NULL;
+    cmd_alias = NULL;
 
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		if (*buf == '#' || *buf == '\n')
-		{
-			continue;
-		}
+    while (fgets(buf, sizeof(buf) - 1, fp)) {
+        if (*buf == '#' || *buf == '\n') {
+            continue;
+        }
 
-		end = strchr(buf, '\n');
+        end = strchr(buf, '\n');
 
-		if (end)
-		{
-			*end = '\0';
-		}
+        if (end) {
+            *end = '\0';
+        }
 
-		if (string_startswith(buf, "[") && string_endswith(buf, "]"))
-		{
-			if (cmd_alias)
-			{
-				HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
-			}
+        if (string_startswith(buf, "[") && string_endswith(buf, "]")) {
+            if (cmd_alias) {
+                HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
+            }
 
-			cmd_alias = calloc(1, sizeof(*cmd_alias));
-			cmd_alias->name = string_sub(buf, 1, -1);
-		}
-		else if (string_startswith(buf, "arg = "))
-		{
-			cmd_alias->arg = string_sub(buf, 6, strlen(buf));
-		}
-		else if (string_startswith(buf, "noarg = "))
-		{
-			cmd_alias->noarg = string_sub(buf, 8, strlen(buf));
-		}
-	}
+            cmd_alias = calloc(1, sizeof(*cmd_alias));
+            cmd_alias->name = string_sub(buf, 1, -1);
+        }
+        else if (string_startswith(buf, "arg = ")) {
+            cmd_alias->arg = string_sub(buf, 6, strlen(buf));
+        }
+        else if (string_startswith(buf, "noarg = ")) {
+            cmd_alias->noarg = string_sub(buf, 8, strlen(buf));
+        }
+    }
 
-	if (cmd_alias)
-	{
-		HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
-	}
+    if (cmd_alias) {
+        HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
+    }
 
-	fclose(fp);
+    fclose(fp);
 }
 
 /**
  * Initialize the command aliases system. */
 void cmd_aliases_init(void)
 {
-	cmd_aliases_load("data/cmd_aliases.cfg");
-	cmd_aliases_load("settings/cmd_aliases.cfg");
+    cmd_aliases_load("data/cmd_aliases.cfg");
+    cmd_aliases_load("settings/cmd_aliases.cfg");
 }
 
 /**
  * Deinitialize the command aliases system. */
 void cmd_aliases_deinit(void)
 {
-	cmd_alias_struct *curr, *tmp;
+    cmd_alias_struct *curr, *tmp;
 
-	HASH_ITER(hh, cmd_aliases, curr, tmp)
-	{
-		HASH_DEL(cmd_aliases, curr);
+    HASH_ITER(hh, cmd_aliases, curr, tmp)
+    {
+        HASH_DEL(cmd_aliases, curr);
 
-		free(curr->name);
+        free(curr->name);
 
-		if (curr->arg)
-		{
-			free(curr->arg);
-		}
+        if (curr->arg) {
+            free(curr->arg);
+        }
 
-		if (curr->noarg)
-		{
-			free(curr->noarg);
-		}
+        if (curr->noarg) {
+            free(curr->noarg);
+        }
 
-		free(curr);
-	}
+        free(curr);
+    }
 }
 
 /**
@@ -156,147 +145,121 @@ void cmd_aliases_deinit(void)
  * @param params Parameters passed by the player. NULL if none. */
 static void cmd_aliases_execute(const char *cmd, const char *params)
 {
-	char word[MAX_BUF], *cp, *func_end;
-	StringBuffer *sb;
-	size_t pos;
+    char word[MAX_BUF], *cp, *func_end;
+    StringBuffer *sb;
+    size_t pos;
 
-	pos = 0;
-	sb = stringbuffer_new();
+    pos = 0;
+    sb = stringbuffer_new();
 
-	while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0))
-	{
-		if (stringbuffer_length(sb))
-		{
-			stringbuffer_append_string(sb, " ");
-		}
+    while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0)) {
+        if (stringbuffer_length(sb)) {
+            stringbuffer_append_string(sb, " ");
+        }
 
-		func_end = strchr(word, '>');
+        func_end = strchr(word, '>');
 
-		if (string_startswith(word, "<") && func_end)
-		{
-			char *func, *cps[2];
+        if (string_startswith(word, "<") && func_end) {
+            char *func, *cps[2];
 
-			func = string_sub(word, 1, func_end - word);
+            func = string_sub(word, 1, func_end - word);
 
-			if (string_split(func, cps, arraysize(cps), ':') == 2)
-			{
-				if (strcmp(cps[0], "get") == 0)
-				{
-					char *str, *cps2[2];
+            if (string_split(func, cps, arraysize(cps), ':') == 2) {
+                if (strcmp(cps[0], "get") == 0) {
+                    char *str, *cps2[2];
 
-					if (string_split(cps[1], cps2, arraysize(cps2), ';') < 1)
-					{
-						continue;
-					}
+                    if (string_split(cps[1], cps2, arraysize(cps2), ';') < 1) {
+                        continue;
+                    }
 
-					if (strcmp(cps2[0], "arg") == 0)
-					{
-						str = strdup(params ? params : "");
-					}
-					else if (strcmp(cps2[0], "mplayer") == 0)
-					{
-						if (sound_map_background(-1) && sound_playing_music())
-						{
-							str = strdup(sound_get_bg_music_basename());
-						}
-						else
-						{
-							str = strdup("nothing");
-						}
-					}
-					else
-					{
-						str = strdup("???");
-					}
+                    if (strcmp(cps2[0], "arg") == 0) {
+                        str = strdup(params ? params : "");
+                    }
+                    else if (strcmp(cps2[0], "mplayer") == 0) {
+                        if (sound_map_background(-1) && sound_playing_music()) {
+                            str = strdup(sound_get_bg_music_basename());
+                        }
+                        else {
+                            str = strdup("nothing");
+                        }
+                    }
+                    else {
+                        str = strdup("???");
+                    }
 
-					if (cps2[1])
-					{
-						if (strcmp(cps2[1], "upper") == 0)
-						{
-							string_toupper(str);
-						}
-						else if (strcmp(cps2[1], "lower") == 0)
-						{
-							string_tolower(str);
-						}
-						else if (strcmp(cps2[1], "capitalize") == 0)
-						{
-							string_capitalize(str);
-						}
-						else if (strcmp(cps2[1], "titlecase") == 0)
-						{
-							string_title(str);
-						}
-					}
+                    if (cps2[1]) {
+                        if (strcmp(cps2[1], "upper") == 0) {
+                            string_toupper(str);
+                        }
+                        else if (strcmp(cps2[1], "lower") == 0) {
+                            string_tolower(str);
+                        }
+                        else if (strcmp(cps2[1], "capitalize") == 0) {
+                            string_capitalize(str);
+                        }
+                        else if (strcmp(cps2[1], "titlecase") == 0) {
+                            string_title(str);
+                        }
+                    }
 
-					stringbuffer_append_string(sb, str);
-					free(str);
-				}
-				else if (strcmp(cps[0], "gender") == 0)
-				{
-					if (strcmp(cps[1], "possessive") == 0)
-					{
-						stringbuffer_append_string(sb, gender_possessive[cpl.gender]);
-					}
-					else if (strcmp(cps[1], "reflexive") == 0)
-					{
-						stringbuffer_append_string(sb, gender_reflexive[cpl.gender]);
-					}
-					else if (strcmp(cps[1], "subjective") == 0)
-					{
-						stringbuffer_append_string(sb, gender_subjective[cpl.gender]);
-					}
-				}
-				else if (strcmp(cps[0], "choice") == 0)
-				{
-					UT_array *strs;
-					char *s, **p;
-					size_t idx;
+                    stringbuffer_append_string(sb, str);
+                    free(str);
+                }
+                else if (strcmp(cps[0], "gender") == 0) {
+                    if (strcmp(cps[1], "possessive") == 0) {
+                        stringbuffer_append_string(sb, gender_possessive[cpl.gender]);
+                    }
+                    else if (strcmp(cps[1], "reflexive") == 0) {
+                        stringbuffer_append_string(sb, gender_reflexive[cpl.gender]);
+                    }
+                    else if (strcmp(cps[1], "subjective") == 0) {
+                        stringbuffer_append_string(sb, gender_subjective[cpl.gender]);
+                    }
+                }
+                else if (strcmp(cps[0], "choice") == 0) {
+                    UT_array *strs;
+                    char *s, **p;
+                    size_t idx;
 
-					utarray_new(strs, &ut_str_icd);
+                    utarray_new(strs, &ut_str_icd);
 
-					s = strtok(cps[1], ",");
+                    s = strtok(cps[1], ",");
 
-					while (s)
-					{
-						utarray_push_back(strs, &s);
-						s = strtok(NULL, ",");
-					}
+                    while (s) {
+                        utarray_push_back(strs, &s);
+                        s = strtok(NULL, ",");
+                    }
 
-					idx = rndm(1, utarray_len(strs)) - 1;
-					p = (char **) utarray_eltptr(strs, idx);
+                    idx = rndm(1, utarray_len(strs)) - 1;
+                    p = (char **) utarray_eltptr(strs, idx);
 
-					if (p)
-					{
-						stringbuffer_append_string(sb, *p);
-					}
+                    if (p) {
+                        stringbuffer_append_string(sb, *p);
+                    }
 
-					utarray_free(strs);
-				}
-				else if (strcmp(cps[0], "rndm") == 0)
-				{
-					int min, max;
+                    utarray_free(strs);
+                }
+                else if (strcmp(cps[0], "rndm") == 0) {
+                    int min, max;
 
-					if (sscanf(cps[1], "%d-%d", &min, &max) == 2)
-					{
-						stringbuffer_append_printf(sb, "%d", rndm(min, max));
-					}
-				}
-			}
+                    if (sscanf(cps[1], "%d-%d", &min, &max) == 2) {
+                        stringbuffer_append_printf(sb, "%d", rndm(min, max));
+                    }
+                }
+            }
 
-			free(func);
+            free(func);
 
-			stringbuffer_append_string(sb, func_end + 1);
-		}
-		else
-		{
-			stringbuffer_append_string(sb, word);
-		}
-	}
+            stringbuffer_append_string(sb, func_end + 1);
+        }
+        else {
+            stringbuffer_append_string(sb, word);
+        }
+    }
 
-	cp = stringbuffer_finish(sb);
-	send_command(cp);
-	free(cp);
+    cp = stringbuffer_finish(sb);
+    send_command(cp);
+    free(cp);
 }
 
 /**
@@ -305,48 +268,41 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
  * @return 1 if it was handled, 0 otherwise. */
 int cmd_aliases_handle(const char *cmd)
 {
-	if (cmd[0] == '/' && cmd[1] != '\0')
-	{
-		char *cp;
-		size_t cmd_len;
-		const char *params;
-		cmd_alias_struct *cmd_alias;
+    if (cmd[0] == '/' && cmd[1] != '\0') {
+        char *cp;
+        size_t cmd_len;
+        const char *params;
+        cmd_alias_struct *cmd_alias;
 
-		cmd++;
-		cp = strchr(cmd, ' ');
+        cmd++;
+        cp = strchr(cmd, ' ');
 
-		if (cp)
-		{
-			cmd_len = cp - cmd;
-			params = cp + 1;
+        if (cp) {
+            cmd_len = cp - cmd;
+            params = cp + 1;
 
-			if (*params == '\0')
-			{
-				params = NULL;
-			}
-		}
-		else
-		{
-			cmd_len = strlen(cmd);
-			params = NULL;
-		}
+            if (*params == '\0') {
+                params = NULL;
+            }
+        }
+        else {
+            cmd_len = strlen(cmd);
+            params = NULL;
+        }
 
-		HASH_FIND(hh, cmd_aliases, cmd, cmd_len, cmd_alias);
+        HASH_FIND(hh, cmd_aliases, cmd, cmd_len, cmd_alias);
 
-		if (cmd_alias)
-		{
-			if (params && cmd_alias->arg)
-			{
-				cmd_aliases_execute(cmd_alias->arg, params);
-			}
-			else if (cmd_alias->noarg)
-			{
-				cmd_aliases_execute(cmd_alias->noarg, params);
-			}
+        if (cmd_alias) {
+            if (params && cmd_alias->arg) {
+                cmd_aliases_execute(cmd_alias->arg, params);
+            }
+            else if (cmd_alias->noarg) {
+                cmd_aliases_execute(cmd_alias->noarg, params);
+            }
 
-			return 1;
-		}
-	}
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }

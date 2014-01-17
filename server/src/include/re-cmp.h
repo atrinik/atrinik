@@ -42,58 +42,58 @@
 
 typedef enum
 {
-	/* corresponds to e.g. . */
-	sel_any,
+    /* corresponds to e.g. . */
+    sel_any,
 
-	/* "           $ */
-	sel_end,
+    /* "           $ */
+    sel_end,
 
-	/* "           q */
-	sel_single,
+    /* "           q */
+    sel_single,
 
-	/* "           [A-F] */
-	sel_range,
+    /* "           [A-F] */
+    sel_range,
 
-	/* "           [AF-RqO-T] */
-	sel_array,
+    /* "           [AF-RqO-T] */
+    sel_array,
 
-	/* "           [^f] */
-	sel_not_single,
+    /* "           [^f] */
+    sel_not_single,
 
-	/* "           [^A-F] */
-	sel_not_range
+    /* "           [^A-F] */
+    sel_not_range
 } selection_type;
 
 typedef enum
 {
-	/* corresponds to no meta-char	*/
-	rep_once,
+    /* corresponds to no meta-char	*/
+    rep_once,
 
-	/* "       + */
-	rep_once_or_more,
+    /* "       + */
+    rep_once_or_more,
 
-	/* "       ? */
-	rep_null_or_once,
+    /* "       ? */
+    rep_null_or_once,
 
-	/* "       * */
-	rep_null_or_more
+    /* "       * */
+    rep_null_or_more
 } repetetion_type;
 
 typedef struct
 {
-	selection_type type;
+    selection_type type;
 
-	union
-	{
-		unsigned char single;
+    union
+    {
+        unsigned char single;
 
-		struct
-		{
-			unsigned char low, high;
-		} range;
+        struct
+        {
+            unsigned char low, high;
+        } range;
 
-		int array[UCHAR_MAX];
-	} u;
+        int array[UCHAR_MAX];
+    } u;
 
-	repetetion_type repeat;
+    repetetion_type repeat;
 } selection;

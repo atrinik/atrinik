@@ -31,31 +31,29 @@
 
 const int season_timechange[SEASONS_PER_YEAR][HOURS_PER_DAY] =
 {
-	{0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
-	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0, 0},
-	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
-	{0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0}
+    {0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0, 0},
+    {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0}
 };
 
 /**
  * Initializes the world darkness value. */
 void init_world_darkness(void)
 {
-	int i;
-	timeofday_t tod;
+    int i;
+    timeofday_t tod;
 
-	world_darkness = MAX_DARKNESS;
-	get_tod(&tod);
+    world_darkness = MAX_DARKNESS;
+    get_tod(&tod);
 
-	for (i = HOURS_PER_DAY / 2; i < HOURS_PER_DAY; i++)
-	{
-		world_darkness -= season_timechange[tod.season][i];
-	}
+    for (i = HOURS_PER_DAY / 2; i < HOURS_PER_DAY; i++) {
+        world_darkness -= season_timechange[tod.season][i];
+    }
 
-	for (i = 0; i < tod.hour + 1; i++)
-	{
-		world_darkness -= season_timechange[tod.season][i];
-	}
+    for (i = 0; i < tod.hour + 1; i++) {
+        world_darkness -= season_timechange[tod.season][i];
+    }
 }
 
 /**
@@ -66,15 +64,14 @@ void init_world_darkness(void)
  * Please don't modify tod in the dependant function. */
 void tick_the_clock(void)
 {
-	timeofday_t tod;
+    timeofday_t tod;
 
-	todtick++;
+    todtick++;
 
-	if (todtick % 20 == 0)
-	{
-		write_todclock();
-	}
+    if (todtick % 20 == 0) {
+        write_todclock();
+    }
 
-	get_tod(&tod);
-	world_darkness -= season_timechange[tod.season][tod.hour];
+    get_tod(&tod);
+    world_darkness -= season_timechange[tod.season][tod.hour];
 }

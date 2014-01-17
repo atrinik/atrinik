@@ -33,118 +33,100 @@
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	object *victim, *victim_next;
-	mapstruct *mt;
-	int xt, yt, dir = op->direction;
+    object *victim, *victim_next;
+    mapstruct *mt;
+    int xt, yt, dir = op->direction;
 
-	op->value = pticks;
+    op->value = pticks;
 
-	if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER)))
-	{
-		return;
-	}
+    if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER))) {
+        return;
+    }
 
-	/* Determine direction now for random movers so we do the right thing. */
-	if (!dir)
-	{
-		dir = get_random_dir();
-	}
+    /* Determine direction now for random movers so we do the right thing. */
+    if (!dir) {
+        dir = get_random_dir();
+    }
 
-	for (victim = GET_BOTTOM_MAP_OB(op); victim; victim = victim_next)
-	{
-		victim_next = victim->above;
+    for (victim = GET_BOTTOM_MAP_OB(op); victim; victim = victim_next) {
+        victim_next = victim->above;
 
-		if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp))
-		{
-			if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0)
-			{
-				destruct_ob(op);
-				return;
-			}
+        if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp)) {
+            if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0) {
+                destruct_ob(op);
+                return;
+            }
 
-			/* No direction, this means 'xrays 1' was set; so use the
-			 * victim's direction instead. */
-			if (!op->direction && QUERY_FLAG(op, FLAG_XRAYS))
-			{
-				dir = victim->direction;
-			}
+            /* No direction, this means 'xrays 1' was set; so use the
+             * victim's direction instead. */
+            if (!op->direction && QUERY_FLAG(op, FLAG_XRAYS)) {
+                dir = victim->direction;
+            }
 
-			xt = op->x + freearr_x[dir];
-			yt = op->y + freearr_y[dir];
+            xt = op->x + freearr_x[dir];
+            yt = op->y + freearr_y[dir];
 
-			if (!(mt = get_map_from_coord(op->map, &xt, &yt)))
-			{
-				return;
-			}
+            if (!(mt = get_map_from_coord(op->map, &xt, &yt))) {
+                return;
+            }
 
-			/* Flag to stop moving if there's a wall. */
-			if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, mt, xt, yt, victim->terrain_flag))
-			{
-				continue;
-			}
+            /* Flag to stop moving if there's a wall. */
+            if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, mt, xt, yt, victim->terrain_flag)) {
+                continue;
+            }
 
-			/* Unless there is an alive object or a player on the square
-			 * this object is being moved onto, disable the mover on that
-			 * square, if any. This is done so the object doesn't rocket
-			 * across a bunch of movers. */
-			if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER)))
-			{
-				object *nextmover;
+            /* Unless there is an alive object or a player on the square
+             * this object is being moved onto, disable the mover on that
+             * square, if any. This is done so the object doesn't rocket
+             * across a bunch of movers. */
+            if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER))) {
+                object *nextmover;
 
-				for (nextmover = GET_MAP_OB(mt, xt, yt); nextmover; nextmover = nextmover->above)
-				{
-					/* Only disable movers that didn't go this tick yet;
-					 * otherwise they wouldn't trigger on the next tick to
-					 * move objects they may have on top of them. */
-					if (nextmover->type == PLAYER_MOVER && nextmover->value != op->value)
-					{
-						nextmover->speed_left--;
-					}
-				}
-			}
+                for (nextmover = GET_MAP_OB(mt, xt, yt); nextmover; nextmover = nextmover->above) {
+                    /* Only disable movers that didn't go this tick yet;
+                     * otherwise they wouldn't trigger on the next tick to
+                     * move objects they may have on top of them. */
+                    if (nextmover->type == PLAYER_MOVER && nextmover->value != op->value) {
+                        nextmover->speed_left--;
+                    }
+                }
+            }
 
-			if (victim->type == PLAYER)
-			{
-				/* only level >=1 movers move people */
-				if (op->level)
-				{
-					victim->speed_left = -FABS(victim->speed);
-					move_object(victim, dir);
-					/* Clear player's path; they probably can't move there
-					 * any more after being pushed, or might not want to. */
-					player_path_clear(CONTR(victim));
-				}
-				else
-				{
-					continue;
-				}
-			}
-			else if (op->stats.hp)
-			{
-				move_object(victim, dir);
-			}
-			else
-			{
-				continue;
-			}
+            if (victim->type == PLAYER) {
+                /* only level >=1 movers move people */
+                if (op->level) {
+                    victim->speed_left = -FABS(victim->speed);
+                    move_object(victim, dir);
+                    /* Clear player's path; they probably can't move there
+                     * any more after being pushed, or might not want to. */
+                    player_path_clear(CONTR(victim));
+                }
+                else {
+                    continue;
+                }
+            }
+            else if (op->stats.hp) {
+                move_object(victim, dir);
+            }
+            else {
+                continue;
+            }
 
-			if (!op->stats.maxsp && op->stats.sp)
-			{
-				op->stats.maxsp = 2;
-			}
+            if (!op->stats.maxsp && op->stats.sp) {
+                op->stats.maxsp = 2;
+            }
 
-			/* flag to paralyze the player */
-			if (op->stats.sp)
-			{
-				victim->speed_left = -(op->stats.maxsp * FABS(victim->speed));
-			}
-		}
-	}
+            /* flag to paralyze the player */
+            if (op->stats.sp) {
+                victim->speed_left = -(op->stats.maxsp * FABS(victim->speed));
+            }
+        }
+    }
 }
 
 /**
  * Initialize the player mover type object methods. */
 void object_type_init_player_mover(void)
 {
-	object_type_methods[PLAYER_MOVER].process_func = process_func;
+    object_type_methods[PLAYER_MOVER].process_func = process_func;
 }

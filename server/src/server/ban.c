@@ -48,14 +48,14 @@ static mempool_struct *pool_ban;
  * Initialize the ban API. */
 void ban_init(void)
 {
-	pool_ban = mempool_create("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
+    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the ban API. */
 void ban_deinit(void)
 {
-	mempool_free(pool_ban);
+    mempool_free(pool_ban);
 }
 
 /**
@@ -64,15 +64,15 @@ void ban_deinit(void)
  * @param ip IP to ban. */
 static void add_ban_entry(char *name, char *ip)
 {
-	objectlink *ol = get_objectlink();
-	_ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_ban);
+    objectlink *ol = get_objectlink();
+    _ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_ban);
 
-	memset(gptr, 0, sizeof(_ban_struct));
-	ol->objlink.ban = gptr;
+    memset(gptr, 0, sizeof(_ban_struct));
+    ol->objlink.ban = gptr;
 
-	ol->objlink.ban->ip = strdup(ip);
-	FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
-	objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
+    ol->objlink.ban->ip = strdup(ip);
+    FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
+    objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
 }
 
 /**
@@ -80,70 +80,63 @@ static void add_ban_entry(char *name, char *ip)
  * @param ol Pointer to the objectlink to remove. */
 static void remove_ban_entry(objectlink *ol)
 {
-	free(ol->objlink.ban->ip);
-	FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
-	objectlink_unlink(&ban_list, NULL, ol);
-	return_poolchunk(ol->objlink.ban, pool_ban);
-	return_poolchunk(ol, pool_objectlink);
+    free(ol->objlink.ban->ip);
+    FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
+    objectlink_unlink(&ban_list, NULL, ol);
+    return_poolchunk(ol->objlink.ban, pool_ban);
+    return_poolchunk(ol, pool_objectlink);
 }
 
 /**
  * Load the ban file. */
 void load_bans_file(void)
 {
-	char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
-	FILE *fp;
+    char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
+    FILE *fp;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
+    snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
 
-	if (!(fp = fopen(filename, "r")))
-	{
-		return;
-	}
+    if (!(fp = fopen(filename, "r"))) {
+        return;
+    }
 
-	while (fgets(buf, sizeof(buf), fp))
-	{
-		/* Skip comments and blank lines. */
-		if (buf[0] == '#' || buf[0] == '\n')
-		{
-			continue;
-		}
+    while (fgets(buf, sizeof(buf), fp)) {
+        /* Skip comments and blank lines. */
+        if (buf[0] == '#' || buf[0] == '\n') {
+            continue;
+        }
 
-		if (sscanf(buf, "%s %s", name, ip) == 2)
-		{
-			add_ban_entry(name, ip);
-		}
-		else
-		{
-			logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
-		}
-	}
+        if (sscanf(buf, "%s %s", name, ip) == 2) {
+            add_ban_entry(name, ip);
+        }
+        else {
+            logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
+        }
+    }
 
-	fclose(fp);
+    fclose(fp);
 }
 
 /**
  * Save the bans file. */
 void save_bans_file(void)
 {
-	char filename[MAX_BUF];
-	FILE *fp;
-	objectlink *ol;
+    char filename[MAX_BUF];
+    FILE *fp;
+    objectlink *ol;
 
-	snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
+    snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
 
-	if (!(fp = fopen(filename, "w")))
-	{
-		logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
-		return;
-	}
+    if (!(fp = fopen(filename, "w"))) {
+        logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
+        return;
+    }
 
-	for (ol = ban_list; ol; ol = ol->next)
-	{
-		fprintf(fp, "%s %s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
-	}
+    for (ol = ban_list; ol; ol = ol->next) {
+        fprintf(fp, "%s %s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
+    }
 
-	fclose(fp);
+    fclose(fp);
 }
 
 /**
@@ -153,19 +146,17 @@ void save_bans_file(void)
  * @return 1 if banned, 0 if not. */
 int checkbanned(const char *name, char *ip)
 {
-	objectlink *ol;
+    objectlink *ol;
 
-	for (ol = ban_list; ol; ol = ol->next)
-	{
-		int name_matches = name && (ol->objlink.ban->name[0] == '*' || ol->objlink.ban->name == name);
+    for (ol = ban_list; ol; ol = ol->next) {
+        int name_matches = name && (ol->objlink.ban->name[0] == '*' || ol->objlink.ban->name == name);
 
-		if ((name_matches || ol->objlink.ban->name[0] == '*') && (ol->objlink.ban->ip[0] == '*' || strstr(ip, ol->objlink.ban->ip) || !strcmp(ip, ol->objlink.ban->ip)))
-		{
-			return 1;
-		}
-	}
+        if ((name_matches || ol->objlink.ban->name[0] == '*') && (ol->objlink.ban->ip[0] == '*' || strstr(ip, ol->objlink.ban->ip) || !strcmp(ip, ol->objlink.ban->ip))) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -175,22 +166,20 @@ int checkbanned(const char *name, char *ip)
  * @return 1 on success, 0 on failure. */
 int add_ban(char *input)
 {
-	char *tmp[2];
+    char *tmp[2];
 
-	if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0')
-	{
-		return 0;
-	}
+    if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0') {
+        return 0;
+    }
 
-	/* IPs with ':' in them will be impossible to remove once added. */
-	if (strstr(tmp[1], ":"))
-	{
-		return 0;
-	}
+    /* IPs with ':' in them will be impossible to remove once added. */
+    if (strstr(tmp[1], ":")) {
+        return 0;
+    }
 
-	add_ban_entry(tmp[0], tmp[1]);
-	save_bans_file();
-	return 1;
+    add_ban_entry(tmp[0], tmp[1]);
+    save_bans_file();
+    return 1;
 }
 
 /**
@@ -200,25 +189,22 @@ int add_ban(char *input)
  * @return 1 on success, 0 on failure. */
 int remove_ban(char *input)
 {
-	char *tmp[2];
-	objectlink *ol;
+    char *tmp[2];
+    objectlink *ol;
 
-	if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0')
-	{
-		return 0;
-	}
+    if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0') {
+        return 0;
+    }
 
-	for (ol = ban_list; ol; ol = ol->next)
-	{
-		if (!strcmp(ol->objlink.ban->name, tmp[0]) && !strcmp(ol->objlink.ban->ip, tmp[1]))
-		{
-			remove_ban_entry(ol);
-			save_bans_file();
-			return 1;
-		}
-	}
+    for (ol = ban_list; ol; ol = ol->next) {
+        if (!strcmp(ol->objlink.ban->name, tmp[0]) && !strcmp(ol->objlink.ban->ip, tmp[1])) {
+            remove_ban_entry(ol);
+            save_bans_file();
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -226,12 +212,11 @@ int remove_ban(char *input)
  * @param op Player object to print this information to. */
 void list_bans(object *op)
 {
-	objectlink *ol;
+    objectlink *ol;
 
-	draw_info(COLOR_WHITE, op, "List of bans:");
+    draw_info(COLOR_WHITE, op, "List of bans:");
 
-	for (ol = ban_list; ol; ol = ol->next)
-	{
-		draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
-	}
+    for (ol = ban_list; ol; ol = ol->next) {
+        draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
+    }
 }

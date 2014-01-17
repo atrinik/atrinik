@@ -30,63 +30,63 @@
 #define PORTING_H
 
 #ifndef _GNU_SOURCE
-#	define _GNU_SOURCE
+#   define _GNU_SOURCE
 #endif
 
 /* If we're not using GNU C, ignore __attribute__ */
 #ifndef __GNUC__
-#	define  __attribute__(x)
+#   define  __attribute__(x)
 #endif
 
 #ifdef WIN32
-#	ifndef STRICT
-#		define STRICT
-#	endif
+#   ifndef STRICT
+#       define STRICT
+#   endif
 
-#	if _MSC_VER > 1000
-#		pragma once
-#	endif
+#   if _MSC_VER > 1000
+#       pragma once
+#   endif
 
-#	define WIN32_LEAN_AND_MEAN
+#   define WIN32_LEAN_AND_MEAN
 
-#	include <windows.h>
-#	include <windowsx.h>
-#	include <mmsystem.h>
-#	include <winsock2.h>
-#	include <io.h>
-#	include <malloc.h>
-#	include <direct.h>
-#	include <shellapi.h>
-#	include <wincrypt.h>
+#   include <windows.h>
+#   include <windowsx.h>
+#   include <mmsystem.h>
+#   include <winsock2.h>
+#   include <io.h>
+#   include <malloc.h>
+#   include <direct.h>
+#   include <shellapi.h>
+#   include <wincrypt.h>
 
-#	ifdef MINGW
-#		define HAVE_DIRENT_H
-#		define HAVE_UNISTD_H
-#		define _set_fmode(_mode) \
-		{ \
-			_fmode = (_mode); \
-		}
-#	endif
+#   ifdef MINGW
+#       define HAVE_DIRENT_H
+#       define HAVE_UNISTD_H
+#       define _set_fmode(_mode) \
+    { \
+        _fmode = (_mode); \
+    }
+#   endif
 
-#	define mkdir(__a, __b) _mkdir(__a)
-#	define socklen_t int
-#	define sleep(_x) Sleep((_x) * 1000)
+#   define mkdir(__a, __b) _mkdir(__a)
+#   define socklen_t int
+#   define sleep(_x) Sleep((_x) * 1000)
 
-#	define HAVE_STRICMP 1
-#	define HAVE_STRNICMP 1
-#	define HAVE_ZLIB 1
-#	ifndef HAVE_STRERROR
-#		define HAVE_STRERROR 1
-#	endif
-#	define HAVE_SRAND 1
-#	define HAVE_FCNTL_H 1
-#	define HAVE_TIME_H 1
-#	define HAVE_STDDEF_H 1
+#   define HAVE_STRICMP 1
+#   define HAVE_STRNICMP 1
+#   define HAVE_ZLIB 1
+#   ifndef HAVE_STRERROR
+#       define HAVE_STRERROR 1
+#   endif
+#   define HAVE_SRAND 1
+#   define HAVE_FCNTL_H 1
+#   define HAVE_TIME_H 1
+#   define HAVE_STDDEF_H 1
 
-#	define PLUGIN_SUFFIX ".dll"
+#   define PLUGIN_SUFFIX ".dll"
 #else
-#	include <cmake.h>
-#	include <toolkit_cmake.h>
+#   include <cmake.h>
+#   include <toolkit_cmake.h>
 #endif
 
 #include <math.h>
@@ -103,131 +103,131 @@
 #include <pthread.h>
 
 #ifdef HAVE_FCNTL_H
-#	include <fcntl.h>
+#   include <fcntl.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
-#	include <unistd.h>
+#   include <unistd.h>
 #endif
 
 #ifdef HAVE_SYS_TIME_H
-#	include <sys/time.h>
+#   include <sys/time.h>
 #endif
 
 #ifdef HAVE_TIME_H
-#	include <time.h>
+#   include <time.h>
 #endif
 
 #ifdef HAVE_STDDEF_H
-#	include <stddef.h>
+#   include <stddef.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
-#	include <arpa/inet.h>
+#   include <arpa/inet.h>
 #endif
 
 #ifdef HAVE_CRYPT_H
-#	include <crypt.h>
+#   include <crypt.h>
 #endif
 
 #ifdef LINUX
-#	include <netdb.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
+#   include <netdb.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#   include <netinet/tcp.h>
 #endif
 
 #ifdef HAVE_DIRENT_H
-#	include <dirent.h>
-#	define NAMLEN(dirent) (strlen((dirent)->d_name))
+#   include <dirent.h>
+#   define NAMLEN(dirent) (strlen((dirent)->d_name))
 #elif defined(HAVE_SYS_NDIR_H) || defined(HAVE_SYS_DIR_H) || defined(HAVE_NDIR_H)
-#	define dirent direct
-#	define NAMLEN(dirent) ((dirent)->d_namlen)
-#	ifdef HAVE_SYS_NDIR_H
-#		include <sys/ndir.h>
-#	endif
-#	ifdef HAVE_SYS_DIR_H
-#		include <sys/dir.h>
-#	endif
-#	ifdef HAVE_NDIR_H
-#		include <ndir.h>
-#	endif
+#   define dirent direct
+#   define NAMLEN(dirent) ((dirent)->d_namlen)
+#   ifdef HAVE_SYS_NDIR_H
+#       include <sys/ndir.h>
+#   endif
+#   ifdef HAVE_SYS_DIR_H
+#       include <sys/dir.h>
+#   endif
+#   ifdef HAVE_NDIR_H
+#       include <ndir.h>
+#   endif
 #endif
 
 #ifdef HAVE_X11
-#	include <X11/Xlib.h>
-#	include <X11/Xatom.h>
-#	ifdef HAVE_X11_XMU
-#		include <X11/Xmu/Atoms.h>
-#	endif
+#   include <X11/Xlib.h>
+#   include <X11/Xatom.h>
+#   ifdef HAVE_X11_XMU
+#       include <X11/Xmu/Atoms.h>
+#   endif
 #endif
 
 #ifdef HAVE_SRANDOM
-#	define RANDOM() random()
-#	define SRANDOM(xyz) srandom(xyz)
+#   define RANDOM() random()
+#   define SRANDOM(xyz) srandom(xyz)
 #else
-#	ifdef HAVE_SRAND48
-#		define RANDOM() lrand48()
-#		define SRANDOM(xyz) srand48(xyz)
-#	else
-#		ifdef HAVE_SRAND
-#			define RANDOM() rand()
-#			define SRANDOM(xyz) srand(xyz)
-#		else
-#			error "Could not find a usable random routine"
-#		endif
-#	endif
+#   ifdef HAVE_SRAND48
+#       define RANDOM() lrand48()
+#       define SRANDOM(xyz) srand48(xyz)
+#   else
+#       ifdef HAVE_SRAND
+#           define RANDOM() rand()
+#           define SRANDOM(xyz) srand(xyz)
+#       else
+#           error "Could not find a usable random routine"
+#       endif
+#   endif
 #endif
 
 #ifdef HAVE_STRICMP
-#	define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
+#   define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
 #endif
 
 #ifdef HAVE_STRNICMP
-#	define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
+#   define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
 #endif
 
 #ifndef MIN
-#	define MIN(x, y) ((x) < (y) ? (x) : (y))
+#   define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
 #ifndef MAX
-#	define MAX(x, y) ((x) > (y) ? (x) : (y))
+#   define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
 #ifndef FABS
-#	define FABS(x) ((x) < 0 ? -(x) : (x))
+#   define FABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
 #ifndef ABS
-#	define ABS(x) ((x) < 0 ? -(x) : (x))
+#   define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
 /* Make sure M_PI is defined. */
 #ifndef M_PI
-#	define M_PI 3.141592654
+#   define M_PI 3.141592654
 #endif
 
 #ifndef F_OK
-#	define F_OK 6
+#   define F_OK 6
 #endif
 
 #ifndef R_OK
-#	define R_OK 6
+#   define R_OK 6
 #endif
 
 #ifndef W_OK
-#	define W_OK 2
+#   define W_OK 2
 #endif
 
 #ifndef MSG_DONTWAIT
-#	define MSG_DONTWAIT 0
+#   define MSG_DONTWAIT 0
 #endif
 
 /** uint32 */
 typedef unsigned int uint32;
 #ifndef UINT32_MAX
-#	define UINT32_MAX (4294967295U)
+#   define UINT32_MAX (4294967295U)
 #endif
 
 /** sint32 */
@@ -238,7 +238,7 @@ typedef signed int sint32;
 /** uint16 */
 typedef unsigned short uint16;
 #ifndef UINT16_MAX
-#	define UINT16_MAX (65535U)
+#   define UINT16_MAX (65535U)
 #endif
 
 /** sint16 */
@@ -249,7 +249,7 @@ typedef signed short sint16;
 /** uint8 */
 typedef unsigned char uint8;
 #ifndef UINT8_MAX
-#	define UINT8_MAX (255U)
+#   define UINT8_MAX (255U)
 #endif
 
 /** sint8 */
@@ -264,36 +264,36 @@ typedef unsigned short Fontindex;
 typedef unsigned int tag_t;
 
 #ifdef WIN32
-	typedef unsigned __int64            uint64;
-	typedef signed __int64              sint64;
-#	define atoll                        _atoi64
+typedef unsigned __int64 uint64;
+typedef signed __int64 sint64;
+#   define atoll                        _atoi64
 
-#	define FMT64                        "I64d"
-#	define FMT64U                       "I64u"
-#	define FMT64HEX                     "I64x"
+#   define FMT64                        "I64d"
+#   define FMT64U                       "I64u"
+#   define FMT64HEX                     "I64x"
 #else
-#	if SIZEOF_LONG == 8
-		typedef unsigned long           uint64;
-		typedef signed long             sint64;
-#		define FMT64                    "ld"
-#		define FMT64U                   "lu"
-#		define FMT64HEX                 "lx"
+#   if SIZEOF_LONG == 8
+typedef unsigned long uint64;
+typedef signed long sint64;
+#       define FMT64                    "ld"
+#       define FMT64U                   "lu"
+#       define FMT64HEX                 "lx"
 
-#	elif SIZEOF_LONG_LONG == 8
-		typedef unsigned long long      uint64;
-		typedef signed long long        sint64;
-#		define FMT64                    "lld"
-#		define FMT64U                   "llu"
-#		define FMT64HEX                 "llx"
+#   elif SIZEOF_LONG_LONG == 8
+typedef unsigned long long uint64;
+typedef signed long long sint64;
+#       define FMT64                    "lld"
+#       define FMT64U                   "llu"
+#       define FMT64HEX                 "llx"
 
-#	else
-#		error Do not know how to get a 64 bit value on this system.
-#		error Correct and send email to the Atrinik Team on how to do this.
-#	endif
+#   else
+#       error Do not know how to get a 64 bit value on this system.
+#       error Correct and send email to the Atrinik Team on how to do this.
+#   endif
 #endif
 
 #ifndef UINT64_MAX
-#	define UINT64_MAX (18446744073709551615LLU)
+#   define UINT64_MAX (18446744073709551615LLU)
 #endif
 
 #define SINT64_MIN (-9223372036854775807LL - 1)
@@ -301,18 +301,18 @@ typedef unsigned int tag_t;
 
 /* Only C99 has lrint. */
 #ifndef _ISOC99_SOURCE
-#	define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
+#   define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
 #endif
 
 #if defined(HAVE_X11)
-	typedef Display *x11_display_type;
-	typedef Window x11_window_type;
+typedef Display *x11_display_type;
+typedef Window x11_window_type;
 #elif defined(WIN32)
-	typedef HWND x11_display_type;
-	typedef HWND x11_window_type;
+typedef HWND x11_display_type;
+typedef HWND x11_window_type;
 #else
-	typedef void *x11_display_type;
-	typedef void *x11_window_type;
+typedef void *x11_display_type;
+typedef void *x11_window_type;
 #endif
 
 #ifndef HAVE_STRTOK_R
@@ -342,10 +342,10 @@ extern const char *strcasestr(const char *haystack, const char *needle);
 #ifndef HAVE_GETTIMEOFDAY
 struct timezone
 {
-	/* Minutes west of Greenwich. */
-	int tz_minuteswest;
-	/* Type of DST correction. */
-	int tz_dsttime;
+    /* Minutes west of Greenwich. */
+    int tz_minuteswest;
+    /* Type of DST correction. */
+    int tz_dsttime;
 };
 
 extern int gettimeofday(struct timeval *tv, struct timezone *tz);

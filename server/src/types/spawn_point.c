@@ -37,77 +37,73 @@
  * @return The generated monster, NULL on failure. */
 static object *spawn_point_generate(object *op, object *monster)
 {
-	int i;
-	object *tmp;
+    int i;
+    object *tmp;
 
-	i = find_first_free_spot(monster->arch, monster, op->map, op->x, op->y);
+    i = find_first_free_spot(monster->arch, monster, op->map, op->x, op->y);
 
-	if (i == -1)
-	{
-		return NULL;
-	}
+    if (i == -1) {
+        return NULL;
+    }
 
-	tmp = get_object();
-	monster->type = MONSTER;
-	copy_object(monster, tmp, 0);
-	monster->type = SPAWN_POINT_MOB;
+    tmp = get_object();
+    monster->type = MONSTER;
+    copy_object(monster, tmp, 0);
+    monster->type = SPAWN_POINT_MOB;
 
-	tmp->x = op->x + freearr_x[i];
-	tmp->y = op->y + freearr_y[i];
+    tmp->x = op->x + freearr_x[i];
+    tmp->y = op->y + freearr_y[i];
 
-	if (tmp->item_condition)
-	{
-		int level, min, max, diff;
+    if (tmp->item_condition) {
+        int level, min, max, diff;
 
-		level = MAX(1, MIN(tmp->level, MAXLEVEL));
-		diff = op->map->difficulty;
+        level = MAX(1, MIN(tmp->level, MAXLEVEL));
+        diff = op->map->difficulty;
 
-		switch (tmp->item_condition)
-		{
-			case SPAWN_RELATIVE_LEVEL_GREEN:
-				min = level_color[diff].green;
-				max = level_color[diff].blue - 1;
-				break;
+        switch (tmp->item_condition) {
+            case SPAWN_RELATIVE_LEVEL_GREEN:
+                min = level_color[diff].green;
+                max = level_color[diff].blue - 1;
+                break;
 
-			case SPAWN_RELATIVE_LEVEL_BLUE:
-				min = level_color[diff].blue;
-				max = level_color[diff].yellow - 1;
-				break;
+            case SPAWN_RELATIVE_LEVEL_BLUE:
+                min = level_color[diff].blue;
+                max = level_color[diff].yellow - 1;
+                break;
 
-			case SPAWN_RELATIVE_LEVEL_YELLOW:
-				min = level_color[diff].yellow;
-				max = level_color[diff].orange - 1;
-				break;
+            case SPAWN_RELATIVE_LEVEL_YELLOW:
+                min = level_color[diff].yellow;
+                max = level_color[diff].orange - 1;
+                break;
 
-			case SPAWN_RELATIVE_LEVEL_ORANGE:
-				min = level_color[diff].orange;
-				max = level_color[diff].red - 1;
-				break;
+            case SPAWN_RELATIVE_LEVEL_ORANGE:
+                min = level_color[diff].orange;
+                max = level_color[diff].red - 1;
+                break;
 
-			case SPAWN_RELATIVE_LEVEL_RED:
-				min = level_color[diff].red;
-				max = level_color[diff].purple - 1;
-				break;
+            case SPAWN_RELATIVE_LEVEL_RED:
+                min = level_color[diff].red;
+                max = level_color[diff].purple - 1;
+                break;
 
-			case SPAWN_RELATIVE_LEVEL_PURPLE:
-				min = level_color[diff].purple;
-				max = min + 1;
-				break;
+            case SPAWN_RELATIVE_LEVEL_PURPLE:
+                min = level_color[diff].purple;
+                max = min + 1;
+                break;
 
-			default:
-				min = level;
-				max = min;
-		}
+            default:
+                min = level;
+                max = min;
+        }
 
-		tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
-	}
+        tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
+    }
 
-	if (tmp->randomitems)
-	{
-		create_treasure(tmp->randomitems, tmp, 0, tmp->level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-	}
+    if (tmp->randomitems) {
+        create_treasure(tmp->randomitems, tmp, 0, tmp->level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+    }
 
-	return tmp;
+    return tmp;
 }
 
 /**
@@ -117,199 +113,174 @@ static object *spawn_point_generate(object *op, object *monster)
  * @return 1 if the monster can be generated, 0 otherwise. */
 static int spawn_point_can_generate(object *op, object *monster)
 {
-	shstr *spawn_time;
+    shstr *spawn_time;
 
-	if (!op->map)
-	{
-		return 0;
-	}
+    if (!op->map) {
+        return 0;
+    }
 
-	spawn_time = object_get_value(monster, "spawn_time");
+    spawn_time = object_get_value(monster, "spawn_time");
 
-	/* Check if the time is right for the monster to be spawned. */
-	if (spawn_time)
-	{
-		int hour, minute, hour2, minute2;
+    /* Check if the time is right for the monster to be spawned. */
+    if (spawn_time) {
+        int hour, minute, hour2, minute2;
 
-		if (sscanf(spawn_time, "%d:%d - %d:%d", &hour, &minute, &hour2, &minute2) == 4)
-		{
-			timeofday_t tod;
+        if (sscanf(spawn_time, "%d:%d - %d:%d", &hour, &minute, &hour2, &minute2) == 4) {
+            timeofday_t tod;
 
-			get_tod(&tod);
+            get_tod(&tod);
 
-			/* Same day. */
-			if (hour <= hour2)
-			{
-				if (tod.hour < hour || tod.hour > hour2)
-				{
-					return 0;
-				}
-			}
-			/* Overnight. */
-			else
-			{
-				if (tod.hour < hour && tod.hour > hour2)
-				{
-					return 0;
-				}
-			}
+            /* Same day. */
+            if (hour <= hour2) {
+                if (tod.hour < hour || tod.hour > hour2) {
+                    return 0;
+                }
+            }
+            /* Overnight. */
+            else {
+                if (tod.hour < hour && tod.hour > hour2) {
+                    return 0;
+                }
+            }
 
-			/* Check minutes. */
-			if ((tod.hour == hour && tod.minute < minute) || (tod.hour == hour2 && tod.minute > minute2))
-			{
-				return 0;
-			}
+            /* Check minutes. */
+            if ((tod.hour == hour && tod.minute < minute) || (tod.hour == hour2 && tod.minute > minute2)) {
+                return 0;
+            }
 
-			return 1;
-		}
-		else
-		{
-			logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
-		}
-	}
+            return 1;
+        }
+        else {
+            logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
+        }
+    }
 
-	return 1;
+    return 1;
 }
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	int total_chance, roll;
-	object *tmp, *tmp2, *monster, *copy;
+    int total_chance, roll;
+    object *tmp, *tmp2, *monster, *copy;
 
-	/* See if the spawn point should get a chance to do its processing. */
-	if (op->last_sp != -1 && op->last_grace && !rndm_chance(op->last_grace))
-	{
-		return;
-	}
+    /* See if the spawn point should get a chance to do its processing. */
+    if (op->last_sp != -1 && op->last_grace && !rndm_chance(op->last_grace)) {
+        return;
+    }
 
-	/* If the spawn point already has a generated monster, check whether
-	 * the generated monster is still allowed to be spawned. If not,
-	 * remove it and proceed normally. */
-	if (OBJECT_VALID(op->enemy, op->enemy_count))
-	{
-		if (spawn_point_can_generate(op, op->enemy))
-		{
-			return;
-		}
+    /* If the spawn point already has a generated monster, check whether
+     * the generated monster is still allowed to be spawned. If not,
+     * remove it and proceed normally. */
+    if (OBJECT_VALID(op->enemy, op->enemy_count)) {
+        if (spawn_point_can_generate(op, op->enemy)) {
+            return;
+        }
 
-		object_remove(op->enemy, 0);
-		object_destroy(op->enemy);
-		op->enemy = NULL;
-	}
+        object_remove(op->enemy, 0);
+        object_destroy(op->enemy);
+        op->enemy = NULL;
+    }
 
-	/* Calculate the total chance. */
-	total_chance = 0;
+    /* Calculate the total chance. */
+    total_chance = 0;
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type != SPAWN_POINT_MOB)
-		{
-			continue;
-		}
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        if (tmp->type != SPAWN_POINT_MOB) {
+            continue;
+        }
 
-		total_chance += MAX(1, tmp->enemy_count);
-	}
+        total_chance += MAX(1, tmp->enemy_count);
+    }
 
-	/* No total chance, this means there are no monsters in this spawn point. */
-	if (!total_chance)
-	{
-		return;
-	}
+    /* No total chance, this means there are no monsters in this spawn point. */
+    if (!total_chance) {
+        return;
+    }
 
-	/* Decide which monster to generate. */
-	roll = rndm(1, total_chance) - 1;
+    /* Decide which monster to generate. */
+    roll = rndm(1, total_chance) - 1;
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->type != SPAWN_POINT_MOB)
-		{
-			continue;
-		}
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        if (tmp->type != SPAWN_POINT_MOB) {
+            continue;
+        }
 
-		roll -= MAX(1, tmp->enemy_count);
+        roll -= MAX(1, tmp->enemy_count);
 
-		if (roll < 0)
-		{
-			break;
-		}
-	}
+        if (roll < 0) {
+            break;
+        }
+    }
 
-	/* Didn't find any monster to generate, or it can't be generated. */
-	if (!tmp || !spawn_point_can_generate(op, tmp))
-	{
-		return;
-	}
+    /* Didn't find any monster to generate, or it can't be generated. */
+    if (!tmp || !spawn_point_can_generate(op, tmp)) {
+        return;
+    }
 
-	/* Try to generate the monster. */
-	monster = spawn_point_generate(op, tmp);
+    /* Try to generate the monster. */
+    monster = spawn_point_generate(op, tmp);
 
-	if (!monster)
-	{
-		return;
-	}
+    if (!monster) {
+        return;
+    }
 
-	SET_MULTI_FLAG(monster, FLAG_SPAWN_MOB);
+    SET_MULTI_FLAG(monster, FLAG_SPAWN_MOB);
 
-	/* Link the generated monster to the spawn point. */
-	op->enemy = monster;
-	op->enemy_count = monster->count;
+    /* Link the generated monster to the spawn point. */
+    op->enemy = monster;
+    op->enemy_count = monster->count;
 
-	op->last_sp = 0;
+    op->last_sp = 0;
 
-	/* Clone the items the base monster had in its inventory, and insert
-	 * them into the generated monster. */
-	for (tmp = tmp->inv; tmp; tmp = tmp->below)
-	{
-		/* Process random drops... */
-		if (tmp->type == RANDOM_DROP)
-		{
-			if (tmp->weight_limit && !rndm_chance(tmp->weight_limit))
-			{
-				continue;
-			}
+    /* Clone the items the base monster had in its inventory, and insert
+     * them into the generated monster. */
+    for (tmp = tmp->inv; tmp; tmp = tmp->below) {
+        /* Process random drops... */
+        if (tmp->type == RANDOM_DROP) {
+            if (tmp->weight_limit && !rndm_chance(tmp->weight_limit)) {
+                continue;
+            }
 
-			for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below)
-			{
-				copy = get_object();
-				copy_object_with_inv(tmp2, copy);
-				insert_ob_in_ob(copy, monster);
-			}
-		}
-		else
-		{
-			copy = get_object();
-			copy_object_with_inv(tmp, copy);
-			insert_ob_in_ob(copy, monster);
-		}
-	}
+            for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below) {
+                copy = get_object();
+                copy_object_with_inv(tmp2, copy);
+                insert_ob_in_ob(copy, monster);
+            }
+        }
+        else {
+            copy = get_object();
+            copy_object_with_inv(tmp, copy);
+            insert_ob_in_ob(copy, monster);
+        }
+    }
 
-	/* Create spawn info. */
-	tmp = arch_to_object(op->other_arch);
-	/* Link the spawn point to the spawn info. */
-	tmp->owner = op;
-	tmp->ownercount = op->count;
-	insert_ob_in_ob(tmp, monster);
+    /* Create spawn info. */
+    tmp = arch_to_object(op->other_arch);
+    /* Link the spawn point to the spawn info. */
+    tmp->owner = op;
+    tmp->ownercount = op->count;
+    insert_ob_in_ob(tmp, monster);
 
-	/* Insert the generated monster into the map. */
-	insert_ob_in_map(monster, op->map, op, 0);
-	fix_monster(monster);
+    /* Insert the generated monster into the map. */
+    insert_ob_in_map(monster, op->map, op, 0);
+    fix_monster(monster);
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	(void) cause;
-	(void) state;
-	process_func(op);
+    (void) cause;
+    (void) state;
+    process_func(op);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the spawn point type object methods. */
 void object_type_init_spawn_point(void)
 {
-	object_type_methods[SPAWN_POINT].process_func = process_func;
-	object_type_methods[SPAWN_POINT].trigger_func = trigger_func;
+    object_type_methods[SPAWN_POINT].process_func = process_func;
+    object_type_methods[SPAWN_POINT].trigger_func = trigger_func;
 }

@@ -33,19 +33,17 @@
 /** @copydoc command_func */
 void command_chat(object *op, const char *command, char *params)
 {
-	if (CONTR(op)->no_chat)
-	{
-		draw_info(COLOR_WHITE, op, "You are no longer allowed to shout.");
-		return;
-	}
+    if (CONTR(op)->no_chat) {
+        draw_info(COLOR_WHITE, op, "You are no longer allowed to shout.");
+        return;
+    }
 
-	params = player_sanitize_input(params);
+    params = player_sanitize_input(params);
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	logger_print(LOG(CHAT), "[CHAT] [%s] %s", op->name, params);
-	draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
+    logger_print(LOG(CHAT), "[CHAT] [%s] %s", op->name, params);
+    draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
 }

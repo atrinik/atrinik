@@ -36,17 +36,17 @@
  * One keybind. */
 typedef struct keybind_struct
 {
-	/** Command to execute. */
-	char *command;
+    /** Command to execute. */
+    char *command;
 
-	/** Key bound. */
-	SDLKey key;
+    /** Key bound. */
+    SDLKey key;
 
-	/** Ctrl/shift/etc modifiers. */
-	SDLMod mod;
+    /** Ctrl/shift/etc modifiers. */
+    SDLMod mod;
 
-	/** Whether to trigger repeat. */
-	uint8 repeat;
+    /** Whether to trigger repeat. */
+    uint8 repeat;
 } keybind_struct;
 
 /** How quickly the key repeats. */

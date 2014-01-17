@@ -44,11 +44,11 @@
  * A single update file that is to be downloaded. */
 typedef struct update_file_struct
 {
-	/** File name to download. */
-	char *filename;
+    /** File name to download. */
+    char *filename;
 
-	/** SHA-1. */
-	char *sha1;
+    /** SHA-1. */
+    char *sha1;
 } update_file_struct;
 
 #endif

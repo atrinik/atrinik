@@ -33,32 +33,31 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	if (widget->redraw)
-	{
-		char buf[MAX_BUF];
+    if (widget->redraw) {
+        char buf[MAX_BUF];
 
-		widget->redraw = 0;
+        widget->redraw = 0;
 
-		text_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
+        text_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
-		snprintf(buf, sizeof(buf), "<b>%d</b>", cpl.stats.level);
-		text_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - text_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
+        snprintf(buf, sizeof(buf), "<b>%d</b>", cpl.stats.level);
+        text_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - text_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
 
-		text_show_format(widget->surface, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
+        text_show_format(widget->surface, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);
 
-		player_draw_exp_progress(widget->surface, 4, 35, cpl.stats.exp, cpl.stats.level);
-	}
+        player_draw_exp_progress(widget->surface, 4, 35, cpl.stats.exp, cpl.stats.level);
+    }
 
-	box.x = widget->x;
-	box.y = widget->y;
-	SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+    box.x = widget->x;
+    box.y = widget->y;
+    SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
 /**
  * Initialize one main level widget. */
 void widget_main_lvl_init(widgetdata *widget)
 {
-	widget->draw_func = widget_draw;
+    widget->draw_func = widget_draw;
 }

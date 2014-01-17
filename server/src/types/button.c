@@ -33,81 +33,76 @@
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) victim;
-	(void) originator;
+    (void) victim;
+    (void) originator;
 
-	if (op->speed || (op->stats.exp == -1 && op->value))
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (op->speed || (op->stats.exp == -1 && op->value)) {
+        return OBJECT_METHOD_OK;
+    }
 
-	connection_trigger_button(op, state);
+    connection_trigger_button(op, state);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	op->value = state;
+    op->value = state;
 
-	if (state && cause->stats.exp)
-	{
-		op->speed = 1.0 / cause->stats.exp;
-		update_ob_speed(op);
-		op->speed_left = -1;
-	}
+    if (state && cause->stats.exp) {
+        op->speed = 1.0 / cause->stats.exp;
+        update_ob_speed(op);
+        op->speed_left = -1;
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::trigger_button_func */
 static int trigger_button_func(object *op, object *cause, int state)
 {
-	object *tmp, *head;
-	sint32 total;
+    object *tmp, *head;
+    sint32 total;
 
-	(void) cause;
-	(void) state;
+    (void) cause;
+    (void) state;
 
-	total = 0;
+    total = 0;
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above)
-	{
-		head = HEAD(tmp);
+    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above) {
+        head = HEAD(tmp);
 
-		if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON)))
-		{
-			total += head->weight * MAX(1, (sint32) head->nrof) + head->carrying;
-		}
-	}
+        if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON))) {
+            total += head->weight * MAX(1, (sint32) head->nrof) + head->carrying;
+        }
+    }
 
-	op->value = total >= op->weight;
+    op->value = total >= op->weight;
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	op->speed = 0;
-	update_ob_speed(op);
+    op->speed = 0;
+    update_ob_speed(op);
 
-	if (op->stats.exp == -1)
-	{
-		return;
-	}
+    if (op->stats.exp == -1) {
+        return;
+    }
 
-	op->value = 0;
-	connection_trigger(op, op->value);
+    op->value = 0;
+    connection_trigger(op, op->value);
 }
 
 /**
  * Initialize the button type object methods. */
 void object_type_init_button(void)
 {
-	object_type_methods[BUTTON].move_on_func = move_on_func;
-	object_type_methods[BUTTON].trigger_func = trigger_func;
-	object_type_methods[BUTTON].trigger_button_func = trigger_button_func;
-	object_type_methods[BUTTON].process_func = process_func;
+    object_type_methods[BUTTON].move_on_func = move_on_func;
+    object_type_methods[BUTTON].trigger_func = trigger_func;
+    object_type_methods[BUTTON].trigger_button_func = trigger_button_func;
+    object_type_methods[BUTTON].process_func = process_func;
 }

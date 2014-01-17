@@ -30,8 +30,8 @@
 #define LOADER_H
 
 #define LL_IGNORED  -1
-#define LL_EOF	    0
-#define LL_MORE	    1
+#define LL_EOF      0
+#define LL_MORE     1
 #define LL_NORMAL   2
 #define LL_ERROR    3
 
@@ -39,7 +39,7 @@
 #define LO_REPEAT   0
 #define LO_LINEMODE 1
 #define LO_NEWFILE  2
-#define	LO_NOREAD   3
+#define LO_NOREAD   3
 #define LO_MEMORYMODE 4
 
 #endif

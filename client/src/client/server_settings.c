@@ -37,187 +37,159 @@ server_settings *s_settings = NULL;
  * Initialize the server settings from the srv file. */
 void server_settings_init(void)
 {
-	FILE *fp;
-	char buf[HUGE_BUF * 4], *cp;
-	int line = 0;
-	char_struct *cur_char = NULL;
-	size_t text_id = 0, i;
+    FILE *fp;
+    char buf[HUGE_BUF * 4], *cp;
+    int line = 0;
+    char_struct *cur_char = NULL;
+    size_t text_id = 0, i;
 
-	fp = server_file_open(SERVER_FILE_SETTINGS);
+    fp = server_file_open(SERVER_FILE_SETTINGS);
 
-	if (!fp)
-	{
-		return;
-	}
+    if (!fp) {
+        return;
+    }
 
-	server_settings_deinit();
-	s_settings = calloc(1, sizeof(server_settings));
+    server_settings_deinit();
+    s_settings = calloc(1, sizeof(server_settings));
 
-	while (fgets(buf, sizeof(buf) - 1, fp))
-	{
-		line++;
+    while (fgets(buf, sizeof(buf) - 1, fp)) {
+        line++;
 
-		if (*buf == '#')
-		{
-			continue;
-		}
+        if (*buf == '#') {
+            continue;
+        }
 
-		cp = strrchr(buf, '\n');
+        cp = strrchr(buf, '\n');
 
-		/* Eliminate newline. */
-		if (cp)
-		{
-			*cp = '\0';
-		}
+        /* Eliminate newline. */
+        if (cp) {
+            *cp = '\0';
+        }
 
-		if (*buf == '\0')
-		{
-			continue;
-		}
+        if (*buf == '\0') {
+            continue;
+        }
 
-		/* Parse the command. Unknown commands will be silently ignored. */
-		if (!strncmp(buf, "char ", 5))
-		{
-			s_settings->characters = memory_reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
-			cur_char = &s_settings->characters[s_settings->num_characters];
-			cur_char->name = strdup(buf + 5);
-		}
-		else if (!strncmp(buf, "gender ", 7))
-		{
-			char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
-			int gender_id;
+        /* Parse the command. Unknown commands will be silently ignored. */
+        if (!strncmp(buf, "char ", 5)) {
+            s_settings->characters = memory_reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
+            cur_char = &s_settings->characters[s_settings->num_characters];
+            cur_char->name = strdup(buf + 5);
+        }
+        else if (!strncmp(buf, "gender ", 7)) {
+            char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
+            int gender_id;
 
-			if (sscanf(buf + 7, "%s %s %s", gender, arch, face) == 3)
-			{
-				gender_id = gender_to_id(gender);
-				cur_char->gender_archetypes[gender_id] = strdup(arch);
-				cur_char->gender_faces[gender_id] = strdup(face);
-			}
-		}
-		else if (!strncmp(buf, "desc ", 5))
-		{
-			cur_char->desc = strdup(buf + 5);
-		}
-		else if (!strcmp(buf, "end"))
-		{
-			s_settings->num_characters++;
-		}
-		else if (!strncmp(buf, "level ", 6))
-		{
-			uint32 lev;
+            if (sscanf(buf + 7, "%s %s %s", gender, arch, face) == 3) {
+                gender_id = gender_to_id(gender);
+                cur_char->gender_archetypes[gender_id] = strdup(arch);
+                cur_char->gender_faces[gender_id] = strdup(face);
+            }
+        }
+        else if (!strncmp(buf, "desc ", 5)) {
+            cur_char->desc = strdup(buf + 5);
+        }
+        else if (!strcmp(buf, "end")) {
+            s_settings->num_characters++;
+        }
+        else if (!strncmp(buf, "level ", 6)) {
+            uint32 lev;
 
-			s_settings->max_level = atoi(buf + 6);
-			s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
+            s_settings->max_level = atoi(buf + 6);
+            s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
 
-			for (lev = 0; lev <= s_settings->max_level; lev++)
-			{
-				if (!fgets(buf, sizeof(buf) - 1, fp))
-				{
-					break;
-				}
+            for (lev = 0; lev <= s_settings->max_level; lev++) {
+                if (!fgets(buf, sizeof(buf) - 1, fp)) {
+                    break;
+                }
 
-				s_settings->level_exp[lev] = strtoull(buf, NULL, 16);
-			}
+                s_settings->level_exp[lev] = strtoull(buf, NULL, 16);
+            }
 
-			s_settings->level_exp[lev] = 0;
-		}
-		else if (!strncmp(buf, "text ", 5))
-		{
-			if (text_id < SERVER_TEXT_MAX)
-			{
-				size_t j = 0;
+            s_settings->level_exp[lev] = 0;
+        }
+        else if (!strncmp(buf, "text ", 5)) {
+            if (text_id < SERVER_TEXT_MAX) {
+                size_t j = 0;
 
-				s_settings->text[text_id] = strdup(buf + 5);
-				string_newline_to_literal(s_settings->text[text_id]);
+                s_settings->text[text_id] = strdup(buf + 5);
+                string_newline_to_literal(s_settings->text[text_id]);
 
-				if (text_id == SERVER_TEXT_PROTECTION_LETTERS)
-				{
-					cp = strtok(s_settings->text[text_id], " ");
+                if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
+                    cp = strtok(s_settings->text[text_id], " ");
 
-					while (cp)
-					{
-						strncpy(s_settings->protection_letters[j], cp, sizeof(*s_settings->protection_letters) - 1);
-						s_settings->protection_letters[j][sizeof(*s_settings->protection_letters) - 1] = '\0';
-						j++;
-						cp = strtok(NULL, " ");
-					}
-				}
-				else if (text_id == SERVER_TEXT_PROTECTION_FULL)
-				{
-					cp = strtok(s_settings->text[text_id], " ");
+                    while (cp) {
+                        strncpy(s_settings->protection_letters[j], cp, sizeof(*s_settings->protection_letters) - 1);
+                        s_settings->protection_letters[j][sizeof(*s_settings->protection_letters) - 1] = '\0';
+                        j++;
+                        cp = strtok(NULL, " ");
+                    }
+                }
+                else if (text_id == SERVER_TEXT_PROTECTION_FULL) {
+                    cp = strtok(s_settings->text[text_id], " ");
 
-					while (cp)
-					{
-						strncpy(s_settings->protection_full[j], cp, sizeof(*s_settings->protection_full) - 1);
-						s_settings->protection_full[j][sizeof(*s_settings->protection_full) - 1] = '\0';
-						j++;
-						cp = strtok(NULL, " ");
-					}
-				}
-				else if (text_id == SERVER_TEXT_SPELL_PATHS)
-				{
-					cp = strtok(s_settings->text[text_id], " ");
+                    while (cp) {
+                        strncpy(s_settings->protection_full[j], cp, sizeof(*s_settings->protection_full) - 1);
+                        s_settings->protection_full[j][sizeof(*s_settings->protection_full) - 1] = '\0';
+                        j++;
+                        cp = strtok(NULL, " ");
+                    }
+                }
+                else if (text_id == SERVER_TEXT_SPELL_PATHS) {
+                    cp = strtok(s_settings->text[text_id], " ");
 
-					while (cp)
-					{
-						strncpy(s_settings->spell_paths[j], cp, sizeof(*s_settings->spell_paths) - 1);
-						s_settings->spell_paths[j][sizeof(*s_settings->spell_paths) - 1] = '\0';
-						j++;
-						cp = strtok(NULL, " ");
-					}
-				}
+                    while (cp) {
+                        strncpy(s_settings->spell_paths[j], cp, sizeof(*s_settings->spell_paths) - 1);
+                        s_settings->spell_paths[j][sizeof(*s_settings->spell_paths) - 1] = '\0';
+                        j++;
+                        cp = strtok(NULL, " ");
+                    }
+                }
 
-				text_id++;
-			}
-			else
-			{
-				logger_print(LOG(BUG), "Error in settings file, more text entries than allowed on line %d.", line);
-			}
-		}
-	}
+                text_id++;
+            }
+            else {
+                logger_print(LOG(BUG), "Error in settings file, more text entries than allowed on line %d.", line);
+            }
+        }
+    }
 
-	for (i = text_id; i < SERVER_TEXT_MAX; i++)
-	{
-		s_settings->text[i] = strdup("???");
-	}
+    for (i = text_id; i < SERVER_TEXT_MAX; i++) {
+        s_settings->text[i] = strdup("???");
+    }
 
-	fclose(fp);
+    fclose(fp);
 }
 
 /**
  * Deinitialize the server settings. */
 void server_settings_deinit(void)
 {
-	size_t i, gender;
+    size_t i, gender;
 
-	if (!s_settings)
-	{
-		return;
-	}
+    if (!s_settings) {
+        return;
+    }
 
-	free(s_settings->level_exp);
+    free(s_settings->level_exp);
 
-	for (i = 0; i < s_settings->num_characters; i++)
-	{
-		free(s_settings->characters[i].name);
-		free(s_settings->characters[i].desc);
+    for (i = 0; i < s_settings->num_characters; i++) {
+        free(s_settings->characters[i].name);
+        free(s_settings->characters[i].desc);
 
-		for (gender = 0; gender < GENDER_MAX; gender++)
-		{
-			if (s_settings->characters[i].gender_archetypes[gender])
-			{
-				free(s_settings->characters[i].gender_archetypes[gender]);
-				free(s_settings->characters[i].gender_faces[gender]);
-			}
-		}
-	}
+        for (gender = 0; gender < GENDER_MAX; gender++) {
+            if (s_settings->characters[i].gender_archetypes[gender]) {
+                free(s_settings->characters[i].gender_archetypes[gender]);
+                free(s_settings->characters[i].gender_faces[gender]);
+            }
+        }
+    }
 
-	for (i = 0; i < SERVER_TEXT_MAX; i++)
-	{
-		free(s_settings->text[i]);
-	}
+    for (i = 0; i < SERVER_TEXT_MAX; i++) {
+        free(s_settings->text[i]);
+    }
 
-	free(s_settings->characters);
-	free(s_settings);
-	s_settings = NULL;
+    free(s_settings->characters);
+    free(s_settings);
+    s_settings = NULL;
 }

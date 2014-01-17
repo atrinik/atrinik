@@ -32,40 +32,40 @@
 /** cURL data. */
 typedef struct curl_data
 {
-	/** The data. Can be NULL in case we got no data from the url. */
-	char *memory;
+    /** The data. Can be NULL in case we got no data from the url. */
+    char *memory;
 
-	/** Size of the data. */
-	size_t size;
+    /** Size of the data. */
+    size_t size;
 
-	/** URL used. */
-	char *url;
+    /** URL used. */
+    char *url;
 
-	/**
-	 * Mutex to protect the data in this structure when accessed across
-	 * threads. */
-	SDL_mutex *mutex;
+    /**
+     * Mutex to protect the data in this structure when accessed across
+     * threads. */
+    SDL_mutex *mutex;
 
-	/** The thread. */
-	SDL_Thread *thread;
+    /** The thread. */
+    SDL_Thread *thread;
 
-	/**
-	 * State of the data:
-	 * - 0: still trying to get data (connecting to server, getting data,
-	 *      etc). While this is the state, no members of this structure
-	 *      should be accessed from the outside (at the very least not
-	 *      without mutex locking).
-	 * - -1: An error occurred trying to get the data.
-	 * - 1: cURL thread finished and the data is ready to be used. */
-	sint8 status;
+    /**
+     * State of the data:
+     * - 0: still trying to get data (connecting to server, getting data,
+     *      etc). While this is the state, no members of this structure
+     *      should be accessed from the outside (at the very least not
+     *      without mutex locking).
+     * - -1: An error occurred trying to get the data.
+     * - 1: cURL thread finished and the data is ready to be used. */
+    sint8 status;
 
-	/**
-	 * Will contain HTTP code. */
-	int http_code;
+    /**
+     * Will contain HTTP code. */
+    int http_code;
 
-	/**
-	 * cURL handle being used. */
-	CURL *handle;
+    /**
+     * cURL handle being used. */
+    CURL *handle;
 } curl_data;
 
 #define CURL_TIMEOUT 15

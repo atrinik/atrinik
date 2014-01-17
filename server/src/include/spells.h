@@ -102,7 +102,7 @@
 /**
  * Number of different spell types, should be have value of the highest
  * spell type. */
-#define SPELL_TYPE_NROF	   2
+#define SPELL_TYPE_NROF    2
 
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
@@ -124,71 +124,71 @@
 /** Spell structure. */
 typedef struct spell_struct
 {
-	/** Name of this spell. */
-	char name[BIG_NAME];
+    /** Name of this spell. */
+    char name[BIG_NAME];
 
-	/** Spellpoint cost to cast it. */
-	int sp;
+    /** Spellpoint cost to cast it. */
+    int sp;
 
-	/** How many ticks it takes to cast the spell. */
-	int time;
+    /** How many ticks it takes to cast the spell. */
+    int time;
 
-	/** From 1 to this value we will generate for potions/scrolls... */
-	int scrolls;
+    /** From 1 to this value we will generate for potions/scrolls... */
+    int scrolls;
 
-	/** If it can be used in wands, max # of charges. */
-	int charges;
+    /** If it can be used in wands, max # of charges. */
+    int charges;
 
-	/** If target spell, this is max range to target. */
-	int range;
+    /** If target spell, this is max range to target. */
+    int range;
 
-	/**
-	 * Used when we have an item of this kind of spell.
-	 * A magic potion has value x.
-	 *
-	 * We do: (x * value_mul) * level to increase the value.
-	 * @see object::value */
-	float value_mul;
+    /**
+     * Used when we have an item of this kind of spell.
+     * A magic potion has value x.
+     *
+     * We do: (x * value_mul) * level to increase the value.
+     * @see object::value */
+    float value_mul;
 
-	/** Base damage or hp of spell or summoned monster. */
-	int bdam;
+    /** Base damage or hp of spell or summoned monster. */
+    int bdam;
 
-	/** Base duration of spell or base range. */
-	int bdur;
+    /** Base duration of spell or base range. */
+    int bdur;
 
-	/** Levels you need over the min for the spell to gain one damage. */
-	int ldam;
+    /** Levels you need over the min for the spell to gain one damage. */
+    int ldam;
 
-	/** Levels you need over the min for the spell to gain one duration. */
-	int ldur;
+    /** Levels you need over the min for the spell to gain one duration. */
+    int ldur;
 
-	/**
-	 * Number of levels beyond minimum for spell point cost to increase
-	 * by amount equal to base cost.
-	 *
-	 * I.e. if base cost is 10 at level 2 and spl is 5, cost will
-	 * increase by 2 per level.
-	 *
-	 * If base cost is 5 and spl is 10, cost increases by 1 every 2
-	 * levels. */
-	int spl;
+    /**
+     * Number of levels beyond minimum for spell point cost to increase
+     * by amount equal to base cost.
+     *
+     * I.e. if base cost is 10 at level 2 and spl is 5, cost will
+     * increase by 2 per level.
+     *
+     * If base cost is 5 and spl is 10, cost increases by 1 every 2
+     * levels. */
+    int spl;
 
-	/** Sound the spell produces when cast. */
-	const char *sound;
+    /** Sound the spell produces when cast. */
+    const char *sound;
 
-	/** A combination of @ref SPELL_USE_xxx. */
-	int spell_use;
+    /** A combination of @ref SPELL_USE_xxx. */
+    int spell_use;
 
-	/** A combination of @ref SPELL_DESC_xxx. */
-	uint32 flags;
+    /** A combination of @ref SPELL_DESC_xxx. */
+    uint32 flags;
 
-	/** Path this spell belongs to. */
-	uint32 path;
+    /** Path this spell belongs to. */
+    uint32 path;
 
-	/** Pointer to archetype used by spell. */
-	char *archname;
+    /** Pointer to archetype used by spell. */
+    char *archname;
 
-	archetype *at;
+    archetype *at;
 } spell_struct;
 
 /** Marks no spell. */
@@ -206,58 +206,58 @@ typedef struct spell_struct
  * @anchor spell_numbers */
 enum spellnrs
 {
-	SP_FIRESTORM,
-	SP_ICESTORM,
-	SP_MINOR_HEAL,
-	SP_CURE_POISON,
-	SP_CURE_DISEASE,
-	SP_STRENGTH,
-	SP_IDENTIFY,
-	SP_ASTEROID,
-	SP_FROST_NOVA,
-	SP_REMOVE_CURSE,
-	SP_REMOVE_DAMNATION,
-	SP_CAUSE_LIGHT,
-	SP_CONFUSION,
-	SP_BULLET,
-	SP_UNUSED1,
-	SP_REMOVE_DEPLETION,
-	SP_PROBE,
-	SP_TOWN_PORTAL,
-	SP_CREATE_FOOD,
-	SP_WOR,
-	SP_CHARGING,
-	SP_GREATER_HEAL,
-	SP_RESTORATION,
-	SP_PROT_COLD,
-	SP_PROT_FIRE,
-	SP_PROT_ELEC,
-	SP_PROT_POISON,
-	SP_CONSECRATE,
-	SP_FINGER_DEATH,
-	SP_CAUSE_COLD,
-	SP_CAUSE_FLU,
-	SP_CAUSE_LEPROSY,
-	SP_CAUSE_SMALLPOX,
-	SP_CAUSE_PNEUMONIC_PLAGUE,
-	SP_METEOR,
-	SP_METEOR_SWARM,
-	SP_POISON_FOG,
-	SP_BULLET_SWARM,
-	SP_BULLET_STORM,
-	SP_DESTRUCTION,
-	SP_BOMB,
-	SP_CURE_CONFUSION,
-	SP_TRANSFORM_WEALTH,
-	SP_MAGIC_MISSILE,
-	SP_RAIN_HEAL,
-	SP_PARTY_HEAL,
-	SP_FROSTBOLT,
-	SP_FIREBOLT,
-	SP_LIGHTNING,
-	SP_FORKED_LIGHTNING,
-	SP_NEGABOLT,
-	SP_HOLYWORD
+    SP_FIRESTORM,
+    SP_ICESTORM,
+    SP_MINOR_HEAL,
+    SP_CURE_POISON,
+    SP_CURE_DISEASE,
+    SP_STRENGTH,
+    SP_IDENTIFY,
+    SP_ASTEROID,
+    SP_FROST_NOVA,
+    SP_REMOVE_CURSE,
+    SP_REMOVE_DAMNATION,
+    SP_CAUSE_LIGHT,
+    SP_CONFUSION,
+    SP_BULLET,
+    SP_UNUSED1,
+    SP_REMOVE_DEPLETION,
+    SP_PROBE,
+    SP_TOWN_PORTAL,
+    SP_CREATE_FOOD,
+    SP_WOR,
+    SP_CHARGING,
+    SP_GREATER_HEAL,
+    SP_RESTORATION,
+    SP_PROT_COLD,
+    SP_PROT_FIRE,
+    SP_PROT_ELEC,
+    SP_PROT_POISON,
+    SP_CONSECRATE,
+    SP_FINGER_DEATH,
+    SP_CAUSE_COLD,
+    SP_CAUSE_FLU,
+    SP_CAUSE_LEPROSY,
+    SP_CAUSE_SMALLPOX,
+    SP_CAUSE_PNEUMONIC_PLAGUE,
+    SP_METEOR,
+    SP_METEOR_SWARM,
+    SP_POISON_FOG,
+    SP_BULLET_SWARM,
+    SP_BULLET_STORM,
+    SP_DESTRUCTION,
+    SP_BOMB,
+    SP_CURE_CONFUSION,
+    SP_TRANSFORM_WEALTH,
+    SP_MAGIC_MISSILE,
+    SP_RAIN_HEAL,
+    SP_PARTY_HEAL,
+    SP_FROSTBOLT,
+    SP_FIREBOLT,
+    SP_LIGHTNING,
+    SP_FORKED_LIGHTNING,
+    SP_NEGABOLT,
+    SP_HOLYWORD
 };
 
 /** Multiplier for spell points cost based on the attenuation. */

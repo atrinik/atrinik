@@ -33,52 +33,42 @@
 /** @copydoc command_func */
 void command_ban(object *op, const char *command, char *params)
 {
-	size_t pos;
-	char word[MAX_BUF];
+    size_t pos;
+    char word[MAX_BUF];
 
-	pos = 0;
+    pos = 0;
 
-	if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"'))
-	{
-		return;
-	}
+    if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"')) {
+        return;
+    }
 
-	params = player_sanitize_input(params + pos);
+    params = player_sanitize_input(params + pos);
 
-	if (strcmp(word, "add") == 0)
-	{
-		if (!params)
-		{
-			return;
-		}
+    if (strcmp(word, "add") == 0) {
+        if (!params) {
+            return;
+        }
 
-		if (add_ban(params))
-		{
-			draw_info(COLOR_GREEN, op, "Added new ban successfully.");
-		}
-		else
-		{
-			draw_info(COLOR_RED, op, "Failed to add new ban!");
-		}
-	}
-	else if (strcmp(word, "remove") == 0)
-	{
-		if (!params)
-		{
-			return;
-		}
+        if (add_ban(params)) {
+            draw_info(COLOR_GREEN, op, "Added new ban successfully.");
+        }
+        else {
+            draw_info(COLOR_RED, op, "Failed to add new ban!");
+        }
+    }
+    else if (strcmp(word, "remove") == 0) {
+        if (!params) {
+            return;
+        }
 
-		if (remove_ban(params))
-		{
-			draw_info(COLOR_GREEN, op, "Removed ban successfully.");
-		}
-		else
-		{
-			draw_info(COLOR_RED, op, "Failed to remove ban!");
-		}
-	}
-	else if (strcmp(word, "list") == 0)
-	{
-		list_bans(op);
-	}
+        if (remove_ban(params)) {
+            draw_info(COLOR_GREEN, op, "Removed ban successfully.");
+        }
+        else {
+            draw_info(COLOR_RED, op, "Failed to remove ban!");
+        }
+    }
+    else if (strcmp(word, "list") == 0) {
+        list_bans(op);
+    }
 }

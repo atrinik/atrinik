@@ -47,21 +47,21 @@ static uint8 enabled = 1;
  * Initialize the metaserver data. */
 void metaserver_init(void)
 {
-	/* Initialize the data. */
-	server_head = NULL;
-	server_count = 0;
+    /* Initialize the data. */
+    server_head = NULL;
+    server_count = 0;
 
-	/* Initialize mutexes. */
-	metaserver_connecting_mutex = SDL_CreateMutex();
-	server_head_mutex = SDL_CreateMutex();
+    /* Initialize mutexes. */
+    metaserver_connecting_mutex = SDL_CreateMutex();
+    server_head_mutex = SDL_CreateMutex();
 }
 
 /**
  * Disable the metaserver. */
 void metaserver_disable(void)
 {
-	enabled = 0;
-	metaserver_connecting = 0;
+    enabled = 0;
+    metaserver_connecting = 0;
 }
 
 /**
@@ -69,14 +69,13 @@ void metaserver_disable(void)
  * @param info The data to parse. */
 static void parse_metaserver_data(char *info)
 {
-	char *tmp[6];
+    char *tmp[6];
 
-	if (!info || string_split(info, tmp, arraysize(tmp), ':') != 6)
-	{
-		return;
-	}
+    if (!info || string_split(info, tmp, arraysize(tmp), ':') != 6) {
+        return;
+    }
 
-	metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
+    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
 }
 
 /**
@@ -85,21 +84,19 @@ static void parse_metaserver_data(char *info)
  * @return The server if found, NULL otherwise. */
 server_struct *server_get_id(size_t num)
 {
-	server_struct *node;
-	size_t i;
+    server_struct *node;
+    size_t i;
 
-	SDL_LockMutex(server_head_mutex);
+    SDL_LockMutex(server_head_mutex);
 
-	for (node = server_head, i = 0; node; node = node->next, i++)
-	{
-		if (i == num)
-		{
-			break;
-		}
-	}
+    for (node = server_head, i = 0; node; node = node->next, i++) {
+        if (i == num) {
+            break;
+        }
+    }
 
-	SDL_UnlockMutex(server_head_mutex);
-	return node;
+    SDL_UnlockMutex(server_head_mutex);
+    return node;
 }
 
 /**
@@ -107,12 +104,12 @@ server_struct *server_get_id(size_t num)
  * @return The number. */
 size_t server_get_count(void)
 {
-	size_t count;
+    size_t count;
 
-	SDL_LockMutex(server_head_mutex);
-	count = server_count;
-	SDL_UnlockMutex(server_head_mutex);
-	return count;
+    SDL_LockMutex(server_head_mutex);
+    count = server_count;
+    SDL_UnlockMutex(server_head_mutex);
+    return count;
 }
 
 /**
@@ -121,41 +118,40 @@ size_t server_get_count(void)
  * @return 1 if we're connecting to the metaserver, 0 otherwise. */
 int ms_connecting(int val)
 {
-	int connecting;
+    int connecting;
 
-	SDL_LockMutex(metaserver_connecting_mutex);
-	connecting = metaserver_connecting;
+    SDL_LockMutex(metaserver_connecting_mutex);
+    connecting = metaserver_connecting;
 
-	/* More useful to return the old value than the one we're setting. */
-	if (val != -1)
-	{
-		metaserver_connecting = val;
-	}
+    /* More useful to return the old value than the one we're setting. */
+    if (val != -1) {
+        metaserver_connecting = val;
+    }
 
-	SDL_UnlockMutex(metaserver_connecting_mutex);
-	return connecting;
+    SDL_UnlockMutex(metaserver_connecting_mutex);
+    return connecting;
 }
 
 /**
  * Clear all data in the linked list of servers reported by metaserver. */
 void metaserver_clear_data(void)
 {
-	server_struct *node, *tmp;
+    server_struct *node, *tmp;
 
-	SDL_LockMutex(server_head_mutex);
+    SDL_LockMutex(server_head_mutex);
 
-	DL_FOREACH_SAFE(server_head, node, tmp)
-	{
-		DL_DELETE(server_head, node);
-		free(node->ip);
-		free(node->name);
-		free(node->version);
-		free(node->desc);
-		free(node);
-	}
+    DL_FOREACH_SAFE(server_head, node, tmp)
+    {
+        DL_DELETE(server_head, node);
+        free(node->ip);
+        free(node->name);
+        free(node->version);
+        free(node->desc);
+        free(node);
+    }
 
-	server_count = 0;
-	SDL_UnlockMutex(server_head_mutex);
+    server_count = 0;
+    SDL_UnlockMutex(server_head_mutex);
 }
 
 /**
@@ -169,20 +165,20 @@ void metaserver_clear_data(void)
  * @param desc Description of the server. */
 void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc)
 {
-	server_struct *node;
+    server_struct *node;
 
-	node = calloc(1, sizeof(*node));
-	node->player = player;
-	node->port = port;
-	node->ip = strdup(ip);
-	node->name = strdup(name);
-	node->version = strdup(version);
-	node->desc = strdup(desc);
+    node = calloc(1, sizeof(*node));
+    node->player = player;
+    node->port = port;
+    node->ip = strdup(ip);
+    node->name = strdup(name);
+    node->version = strdup(version);
+    node->desc = strdup(desc);
 
-	SDL_LockMutex(server_head_mutex);
-	DL_PREPEND(server_head, node);
-	server_count++;
-	SDL_UnlockMutex(server_head_mutex);
+    SDL_LockMutex(server_head_mutex);
+    DL_PREPEND(server_head, node);
+    server_count++;
+    SDL_UnlockMutex(server_head_mutex);
 }
 
 /**
@@ -195,39 +191,36 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
  * @return Always returns 0. */
 int metaserver_thread(void *dummy)
 {
-	size_t i;
-	curl_data *data;
+    size_t i;
+    curl_data *data;
 
-	/* Go through all the metaservers in the list */
-	for (i = clioption_settings.metaservers_num; i > 0; i--)
-	{
-		data = curl_data_new(clioption_settings.metaservers[i - 1]);
+    /* Go through all the metaservers in the list */
+    for (i = clioption_settings.metaservers_num; i > 0; i--) {
+        data = curl_data_new(clioption_settings.metaservers[i - 1]);
 
-		/* If the connection succeeded, break out. */
-		if (curl_connect(data) == 1 && data->memory)
-		{
-			char word[HUGE_BUF];
-			size_t pos;
+        /* If the connection succeeded, break out. */
+        if (curl_connect(data) == 1 && data->memory) {
+            char word[HUGE_BUF];
+            size_t pos;
 
-			pos = 0;
+            pos = 0;
 
-			while (string_get_word(data->memory, &pos, '\n', word, sizeof(word), 0))
-			{
-				parse_metaserver_data(word);
-			}
+            while (string_get_word(data->memory, &pos, '\n', word, sizeof(word), 0)) {
+                parse_metaserver_data(word);
+            }
 
-			curl_data_free(data);
-			break;
-		}
+            curl_data_free(data);
+            break;
+        }
 
-		curl_data_free(data);
-	}
+        curl_data_free(data);
+    }
 
-	SDL_LockMutex(metaserver_connecting_mutex);
-	/* We're not connecting anymore. */
-	metaserver_connecting = 0;
-	SDL_UnlockMutex(metaserver_connecting_mutex);
-	return 0;
+    SDL_LockMutex(metaserver_connecting_mutex);
+    /* We're not connecting anymore. */
+    metaserver_connecting = 0;
+    SDL_UnlockMutex(metaserver_connecting_mutex);
+    return 0;
 }
 
 /**
@@ -236,21 +229,19 @@ int metaserver_thread(void *dummy)
  * Works in a thread using SDL_CreateThread(). */
 void metaserver_get_servers(void)
 {
-	SDL_Thread *thread;
+    SDL_Thread *thread;
 
-	if (!enabled)
-	{
-		return;
-	}
+    if (!enabled) {
+        return;
+    }
 
-	SDL_LockMutex(metaserver_connecting_mutex);
-	metaserver_connecting = 1;
-	SDL_UnlockMutex(metaserver_connecting_mutex);
+    SDL_LockMutex(metaserver_connecting_mutex);
+    metaserver_connecting = 1;
+    SDL_UnlockMutex(metaserver_connecting_mutex);
 
-	thread = SDL_CreateThread(metaserver_thread, NULL);
+    thread = SDL_CreateThread(metaserver_thread, NULL);
 
-	if (!thread)
-	{
-		logger_print(LOG(ERROR), "Thread creation failed.");
-	}
+    if (!thread) {
+        logger_print(LOG(ERROR), "Thread creation failed.");
+    }
 }

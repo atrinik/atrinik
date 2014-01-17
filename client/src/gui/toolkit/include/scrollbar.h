@@ -33,90 +33,90 @@
  * Scrollbar element. */
 typedef struct scrollbar_element
 {
-	/** X position. */
-	int x;
+    /** X position. */
+    int x;
 
-	/** Y position. */
-	int y;
+    /** Y position. */
+    int y;
 
-	/** Width. */
-	int w;
+    /** Width. */
+    int w;
 
-	/** Height. */
-	int h;
+    /** Height. */
+    int h;
 
-	/** Highlight status; if 1, the mouse is over this element. */
-	uint8 highlight;
+    /** Highlight status; if 1, the mouse is over this element. */
+    uint8 highlight;
 
-	/**
-	 * Rendering function of this element.
-	 * @param surface Surface to render on.
-	 * @param box Where to draw.
-	 * @param elem The element.
-	 * @param horizontal Whether the scrollbar is horizontal. */
-	void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element, uint8 horizontal);
+    /**
+     * Rendering function of this element.
+     * @param surface Surface to render on.
+     * @param box Where to draw.
+     * @param elem The element.
+     * @param horizontal Whether the scrollbar is horizontal. */
+    void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element, uint8 horizontal);
 } scrollbar_element;
 
 /**
  * Holds scrollbar information. */
 typedef struct scrollbar_struct
 {
-	/** Pointer to the scroll offset. */
-	uint32 *scroll_offset;
+    /** Pointer to the scroll offset. */
+    uint32 *scroll_offset;
 
-	/** Pointer to number of lines. */
-	uint32 *num_lines;
+    /** Pointer to number of lines. */
+    uint32 *num_lines;
 
-	/** Maximum number of lines. */
-	uint32 max_lines;
+    /** Maximum number of lines. */
+    uint32 max_lines;
 
-	/** How much the arrows will adjust scroll offset. */
-	int arrow_adjust;
+    /** How much the arrows will adjust scroll offset. */
+    int arrow_adjust;
 
-	/**
-	 * Pointer that will be updated if redraw should be done due to
-	 * scroll offset change. Can be NULL, in which case it will not be
-	 * updated. */
-	uint8 *redraw;
+    /**
+     * Pointer that will be updated if redraw should be done due to
+     * scroll offset change. Can be NULL, in which case it will not be
+     * updated. */
+    uint8 *redraw;
 
-	/** X position of the scrollbar. */
-	int x;
+    /** X position of the scrollbar. */
+    int x;
 
-	/** Y position of the scrollbar. */
-	int y;
+    /** Y position of the scrollbar. */
+    int y;
 
-	/** Parent X position. */
-	int px;
+    /** Parent X position. */
+    int px;
 
-	/** Parent Y position. */
-	int py;
+    /** Parent Y position. */
+    int py;
 
-	/** Slider position. */
-	int old_slider_pos;
+    /** Slider position. */
+    int old_slider_pos;
 
-	/** Whether the slider is being dragged. */
-	uint8 dragging;
+    /** Whether the slider is being dragged. */
+    uint8 dragging;
 
-	/** Used to keep track of when to repeat a click. */
-	uint32 click_ticks;
+    /** Used to keep track of when to repeat a click. */
+    uint32 click_ticks;
 
-	/** How many ticks must pass before click repeat can occur. */
-	uint32 click_repeat_ticks;
+    /** How many ticks must pass before click repeat can occur. */
+    uint32 click_repeat_ticks;
 
-	/** Scrolling direction, one of @ref SCROLL_DIRECTION_xxx. */
-	int scroll_direction;
+    /** Scrolling direction, one of @ref SCROLL_DIRECTION_xxx. */
+    int scroll_direction;
 
-	/** The background. */
-	scrollbar_element background;
+    /** The background. */
+    scrollbar_element background;
 
-	/** Up arrow. */
-	scrollbar_element arrow_up;
+    /** Up arrow. */
+    scrollbar_element arrow_up;
 
-	/** Down arrow. */
-	scrollbar_element arrow_down;
+    /** Down arrow. */
+    scrollbar_element arrow_down;
 
-	/** The slider. */
-	scrollbar_element slider;
+    /** The slider. */
+    scrollbar_element slider;
 } scrollbar_struct;
 
 /**
@@ -124,14 +124,14 @@ typedef struct scrollbar_struct
  * information. */
 typedef struct scrollbar_info_struct
 {
-	/** @copydoc scrollbar_struct::scroll_offset */
-	uint32 scroll_offset;
+    /** @copydoc scrollbar_struct::scroll_offset */
+    uint32 scroll_offset;
 
-	/** @copydoc scrollbar_struct::num_lines */
-	uint32 num_lines;
+    /** @copydoc scrollbar_struct::num_lines */
+    uint32 num_lines;
 
-	/** @copydoc scrollbar_struct::redraw */
-	uint8 redraw;
+    /** @copydoc scrollbar_struct::redraw */
+    uint8 redraw;
 } scrollbar_info_struct;
 
 /**

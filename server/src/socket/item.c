@@ -42,61 +42,50 @@ static int check_container(object *pl, object *con);
  * @return Flags. */
 unsigned int query_flags(object *op)
 {
-	uint32 flags = 0;
+    uint32 flags = 0;
 
-	if (QUERY_FLAG(op, FLAG_APPLIED))
-	{
-		flags |= CS_FLAG_APPLIED;
-	}
+    if (QUERY_FLAG(op, FLAG_APPLIED)) {
+        flags |= CS_FLAG_APPLIED;
+    }
 
-	if (op->type == CONTAINER && (op->attacked_by || (!op->env && QUERY_FLAG(op, FLAG_APPLIED))))
-	{
-		flags |= CS_FLAG_CONTAINER_OPEN;
-	}
+    if (op->type == CONTAINER && (op->attacked_by || (!op->env && QUERY_FLAG(op, FLAG_APPLIED)))) {
+        flags |= CS_FLAG_CONTAINER_OPEN;
+    }
 
-	if (QUERY_FLAG(op, FLAG_IS_TRAPPED))
-	{
-		flags |= CS_FLAG_IS_TRAPPED;
-	}
+    if (QUERY_FLAG(op, FLAG_IS_TRAPPED)) {
+        flags |= CS_FLAG_IS_TRAPPED;
+    }
 
-	if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED))
-	{
-		if (QUERY_FLAG(op, FLAG_DAMNED))
-		{
-			flags |= CS_FLAG_DAMNED;
-		}
-		else if (QUERY_FLAG(op, FLAG_CURSED))
-		{
-			flags |= CS_FLAG_CURSED;
-		}
-	}
+    if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED)) {
+        if (QUERY_FLAG(op, FLAG_DAMNED)) {
+            flags |= CS_FLAG_DAMNED;
+        }
+        else if (QUERY_FLAG(op, FLAG_CURSED)) {
+            flags |= CS_FLAG_CURSED;
+        }
+    }
 
-	if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED))
-	{
-		flags |= CS_FLAG_IS_MAGICAL;
-	}
+    if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+        flags |= CS_FLAG_IS_MAGICAL;
+    }
 
-	if (QUERY_FLAG(op, FLAG_UNPAID))
-	{
-		flags |= CS_FLAG_UNPAID;
-	}
+    if (QUERY_FLAG(op, FLAG_UNPAID)) {
+        flags |= CS_FLAG_UNPAID;
+    }
 
-	if (QUERY_FLAG(op, FLAG_INV_LOCKED))
-	{
-		flags |= CS_FLAG_LOCKED;
-	}
+    if (QUERY_FLAG(op, FLAG_INV_LOCKED)) {
+        flags |= CS_FLAG_LOCKED;
+    }
 
-	if (QUERY_FLAG(op, FLAG_IS_READY))
-	{
-		flags |= CS_FLAG_IS_READY;
-	}
+    if (QUERY_FLAG(op, FLAG_IS_READY)) {
+        flags |= CS_FLAG_IS_READY;
+    }
 
-	if (QUERY_FLAG(op, FLAG_TWO_HANDED))
-	{
-		flags |= CS_FLAG_WEAPON_2H;
-	}
+    if (QUERY_FLAG(op, FLAG_TWO_HANDED)) {
+        flags |= CS_FLAG_WEAPON_2H;
+    }
 
-	return flags;
+    return flags;
 }
 
 /**
@@ -107,147 +96,119 @@ unsigned int query_flags(object *op)
  * @param flags Combination of @ref UPD_XXX. */
 static void add_object_to_packet(packet_struct *packet, object *op, object *pl, uint32 flags)
 {
-	packet_append_uint32(packet, op->count);
+    packet_append_uint32(packet, op->count);
 
-	if (flags & UPD_LOCATION)
-	{
-		packet_append_uint32(packet, op->env ? op->env->count : 0);
-	}
+    if (flags & UPD_LOCATION) {
+        packet_append_uint32(packet, op->env ? op->env->count : 0);
+    }
 
-	if (flags & UPD_FLAGS)
-	{
-		packet_append_uint32(packet, query_flags(op));
-	}
+    if (flags & UPD_FLAGS) {
+        packet_append_uint32(packet, query_flags(op));
+    }
 
-	if (flags & UPD_WEIGHT)
-	{
-		packet_append_uint32(packet, WEIGHT(op));
-	}
+    if (flags & UPD_WEIGHT) {
+        packet_append_uint32(packet, WEIGHT(op));
+    }
 
-	if (flags & UPD_FACE)
-	{
-		if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			packet_append_uint16(packet, op->inv_face->number);
-		}
-		else
-		{
-			packet_append_uint16(packet, op->face->number);
-		}
-	}
+    if (flags & UPD_FACE) {
+        if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            packet_append_uint16(packet, op->inv_face->number);
+        }
+        else {
+            packet_append_uint16(packet, op->face->number);
+        }
+    }
 
-	if (flags & UPD_DIRECTION)
-	{
-		packet_append_uint8(packet, op->facing);
-	}
+    if (flags & UPD_DIRECTION) {
+        packet_append_uint8(packet, op->facing);
+    }
 
-	if (flags & UPD_TYPE)
-	{
-		packet_append_uint8(packet, op->type);
-		packet_append_uint8(packet, op->sub_type);
+    if (flags & UPD_TYPE) {
+        packet_append_uint8(packet, op->type);
+        packet_append_uint8(packet, op->sub_type);
 
-		if (QUERY_FLAG(op, FLAG_IDENTIFIED))
-		{
-			packet_append_uint8(packet, op->item_quality);
-			packet_append_uint8(packet, op->item_condition);
-			packet_append_uint8(packet, op->item_level);
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            packet_append_uint8(packet, op->item_quality);
+            packet_append_uint8(packet, op->item_condition);
+            packet_append_uint8(packet, op->item_level);
 
-			if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1])
-			{
-				packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
-			}
-			else
-			{
-				packet_append_uint32(packet, 0);
-			}
-		}
-		else
-		{
-			packet_append_uint8(packet, 255);
-		}
-	}
+            if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1]) {
+                packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
+            }
+            else {
+                packet_append_uint32(packet, 0);
+            }
+        }
+        else {
+            packet_append_uint8(packet, 255);
+        }
+    }
 
-	if (flags & UPD_NAME)
-	{
-		packet_append_string_terminated(packet, op->custom_name ? op->custom_name : query_base_name(op, pl));
-	}
+    if (flags & UPD_NAME) {
+        packet_append_string_terminated(packet, op->custom_name ? op->custom_name : query_base_name(op, pl));
+    }
 
-	if (flags & UPD_ANIM)
-	{
-		packet_append_uint16(packet, op->animation_id);
-	}
+    if (flags & UPD_ANIM) {
+        packet_append_uint16(packet, op->animation_id);
+    }
 
-	if (flags & UPD_ANIMSPEED)
-	{
-		int anim_speed = 0;
+    if (flags & UPD_ANIMSPEED) {
+        int anim_speed = 0;
 
-		if (QUERY_FLAG(op, FLAG_ANIMATE))
-		{
-			if (op->anim_speed)
-			{
-				anim_speed = op->anim_speed;
-			}
-			else
-			{
-				if (FABS(op->speed) < 0.001)
-				{
-					anim_speed = 255;
-				}
-				else if (FABS(op->speed) >= 1.0)
-				{
-					anim_speed = 1;
-				}
-				else
-				{
-					anim_speed = (int) (1.0 / FABS(op->speed));
-				}
-			}
+        if (QUERY_FLAG(op, FLAG_ANIMATE)) {
+            if (op->anim_speed) {
+                anim_speed = op->anim_speed;
+            }
+            else {
+                if (FABS(op->speed) < 0.001) {
+                    anim_speed = 255;
+                }
+                else if (FABS(op->speed) >= 1.0) {
+                    anim_speed = 1;
+                }
+                else {
+                    anim_speed = (int) (1.0 / FABS(op->speed));
+                }
+            }
 
-			if (anim_speed > 255)
-			{
-				anim_speed = 255;
-			}
-		}
+            if (anim_speed > 255) {
+                anim_speed = 255;
+            }
+        }
 
-		packet_append_uint8(packet, anim_speed);
-	}
+        packet_append_uint8(packet, anim_speed);
+    }
 
-	if (flags & UPD_NROF)
-	{
-		packet_append_uint32(packet, op->nrof);
-	}
+    if (flags & UPD_NROF) {
+        packet_append_uint32(packet, op->nrof);
+    }
 
-	if (flags & UPD_EXTRA)
-	{
-		if (op->type == SPELL)
-		{
-			packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
-			packet_append_uint32(packet, spells[op->stats.sp].path);
-			packet_append_uint32(packet, spells[op->stats.sp].flags);
-			packet_append_string_terminated(packet, op->msg ? op->msg : "");
-		}
-		else if (op->type == SKILL)
-		{
-			packet_append_uint8(packet, op->level);
-			packet_append_sint64(packet, op->stats.exp);
-		}
-		else if (op->type == FORCE || op->type == POISONING)
-		{
-			sint32 sec;
-			
-			sec = -1;
-			
-			if (QUERY_FLAG(op, FLAG_IS_USED_UP))
-			{
-				sec = (int) (op->speed_left / op->speed / (float) (1000000 / max_time) + (1.0 / op->speed / (float) (1000000 / max_time) * (float) op->stats.food - 1));
-				sec = ABS(sec);
-				
-			}
-			
-			packet_append_sint32(packet, sec);
-			packet_append_string_terminated(packet, op->msg ? op->msg : "");
-		}
-	}
+    if (flags & UPD_EXTRA) {
+        if (op->type == SPELL) {
+            packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
+            packet_append_uint32(packet, spells[op->stats.sp].path);
+            packet_append_uint32(packet, spells[op->stats.sp].flags);
+            packet_append_string_terminated(packet, op->msg ? op->msg : "");
+        }
+        else if (op->type == SKILL) {
+            packet_append_uint8(packet, op->level);
+            packet_append_sint64(packet, op->stats.exp);
+        }
+        else if (op->type == FORCE || op->type == POISONING) {
+            sint32 sec;
+
+            sec = -1;
+
+            if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
+                sec = (int) (op->speed_left / op->speed / (float) (1000000 / max_time) + (1.0 / op->speed / (float) (1000000 / max_time) * (float) op->stats.food - 1));
+                sec = ABS(sec);
+
+            }
+
+            packet_append_sint32(packet, sec);
+            packet_append_string_terminated(packet, op->msg ? op->msg : "");
+        }
+    }
 }
 
 /**
@@ -257,37 +218,35 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
  * @param op Object of which inventory is going to be sent. */
 static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
 {
-	object *tmp;
+    object *tmp;
 
-	packet_append_uint32(packet, 0);
-	packet_append_uint32(packet, 0);
-	packet_append_sint32(packet, -1);
-	packet_append_uint16(packet, blank_face->number);
-	packet_append_uint8(packet, 0);
-	packet_append_string_terminated(packet, "in inventory");
-	packet_append_uint16(packet, 0);
-	packet_append_uint8(packet, 0);
-	packet_append_uint32(packet, 0);
+    packet_append_uint32(packet, 0);
+    packet_append_uint32(packet, 0);
+    packet_append_sint32(packet, -1);
+    packet_append_uint16(packet, blank_face->number);
+    packet_append_uint8(packet, 0);
+    packet_append_string_terminated(packet, "in inventory");
+    packet_append_uint16(packet, 0);
+    packet_append_uint8(packet, 0);
+    packet_append_uint32(packet, 0);
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 
-		if (tmp->inv && tmp->type != PLAYER)
-		{
-			esrv_draw_look_rec(pl, packet, tmp);
-		}
-	}
+        if (tmp->inv && tmp->type != PLAYER) {
+            esrv_draw_look_rec(pl, packet, tmp);
+        }
+    }
 
-	packet_append_uint32(packet, 0);
-	packet_append_uint32(packet, 0);
-	packet_append_sint32(packet, -1);
-	packet_append_uint16(packet, blank_face->number);
-	packet_append_uint8(packet, 0);
-	packet_append_string_terminated(packet, "end inventory");
-	packet_append_uint16(packet, 0);
-	packet_append_uint8(packet, 0);
-	packet_append_uint32(packet, 0);
+    packet_append_uint32(packet, 0);
+    packet_append_uint32(packet, 0);
+    packet_append_sint32(packet, -1);
+    packet_append_uint16(packet, blank_face->number);
+    packet_append_uint8(packet, 0);
+    packet_append_string_terminated(packet, "end inventory");
+    packet_append_uint16(packet, 0);
+    packet_append_uint8(packet, 0);
+    packet_append_uint32(packet, 0);
 }
 
 /**
@@ -298,80 +257,72 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
  * @param pl Player to draw the look window for. */
 void esrv_draw_look(object *pl)
 {
-	packet_struct *packet;
-	object *tmp, *last;
-	int start_look = 0, end_look = 0;
+    packet_struct *packet;
+    object *tmp, *last;
+    int start_look = 0, end_look = 0;
 
-	if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y))
-	{
-		return;
-	}
+    if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y)) {
+        return;
+    }
 
-	/* Grab last (top) object without browsing the objects. */
-	tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
+    /* Grab last (top) object without browsing the objects. */
+    tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
-	packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
-	packet_append_uint32(packet, 0);
-	packet_append_uint32(packet, 0);
-	packet_append_uint8(packet, 1);
+    packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
+    packet_append_uint32(packet, 0);
+    packet_append_uint32(packet, 0);
+    packet_append_uint8(packet, 1);
 
-	if (CONTR(pl)->socket.look_position)
-	{
-		packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
-		packet_append_uint32(packet, 0);
-		packet_append_sint32(packet, -1);
-		packet_append_uint16(packet, prev_item_face->number);
-		packet_append_uint8(packet, 0);
-		packet_append_string_terminated(packet, "Previous group of items");
-		packet_append_uint16(packet, 0);
-		packet_append_uint8(packet, 0);
-		packet_append_uint32(packet, 0);
-	}
+    if (CONTR(pl)->socket.look_position) {
+        packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
+        packet_append_uint32(packet, 0);
+        packet_append_sint32(packet, -1);
+        packet_append_uint16(packet, prev_item_face->number);
+        packet_append_uint8(packet, 0);
+        packet_append_string_terminated(packet, "Previous group of items");
+        packet_append_uint16(packet, 0);
+        packet_append_uint8(packet, 0);
+        packet_append_uint32(packet, 0);
+    }
 
-	for (last = NULL; tmp != last; tmp = tmp->below)
-	{
-		if (tmp == pl)
-		{
-			continue;
-		}
+    for (last = NULL; tmp != last; tmp = tmp->below) {
+        if (tmp == pl) {
+            continue;
+        }
 
-		/* Skip map mask, sys_objects and invisible objects when we can't
-		 * see them. */
-		if ((tmp->layer <= LAYER_FMASK || IS_INVISIBLE(tmp, pl)) && !CONTR(pl)->tsi)
-		{
-			continue;
-		}
+        /* Skip map mask, sys_objects and invisible objects when we can't
+         * see them. */
+        if ((tmp->layer <= LAYER_FMASK || IS_INVISIBLE(tmp, pl)) && !CONTR(pl)->tsi) {
+            continue;
+        }
 
-		if (++start_look < CONTR(pl)->socket.look_position)
-		{
-			continue;
-		}
+        if (++start_look < CONTR(pl)->socket.look_position) {
+            continue;
+        }
 
-		/* If we have too many items to send, send a 'next group' object
-		 * and leave here. */
-		if (++end_look > NUM_LOOK_OBJECTS)
-		{
-			packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
-			packet_append_uint32(packet, 0);
-			packet_append_sint32(packet, -1);
-			packet_append_uint16(packet, next_item_face->number);
-			packet_append_uint8(packet, 0);
-			packet_append_string_terminated(packet, "Next group of items");
-			packet_append_uint16(packet, 0);
-			packet_append_uint8(packet, 0);
-			packet_append_uint32(packet, 0);
-			break;
-		}
+        /* If we have too many items to send, send a 'next group' object
+         * and leave here. */
+        if (++end_look > NUM_LOOK_OBJECTS) {
+            packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
+            packet_append_uint32(packet, 0);
+            packet_append_sint32(packet, -1);
+            packet_append_uint16(packet, next_item_face->number);
+            packet_append_uint8(packet, 0);
+            packet_append_string_terminated(packet, "Next group of items");
+            packet_append_uint16(packet, 0);
+            packet_append_uint8(packet, 0);
+            packet_append_uint32(packet, 0);
+            break;
+        }
 
-		add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
 
-		if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER)
-		{
-			esrv_draw_look_rec(pl, packet, tmp);
-		}
-	}
+        if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER) {
+            esrv_draw_look_rec(pl, packet, tmp);
+        }
+    }
 
-	socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -379,12 +330,12 @@ void esrv_draw_look(object *pl)
  * @param op Player to close container of. */
 void esrv_close_container(object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
-	packet_append_sint32(packet, -1);
-	packet_append_sint32(packet, -1);
-	socket_send_packet(&CONTR(op)->socket, packet);
+    packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
+    packet_append_sint32(packet, -1);
+    packet_append_sint32(packet, -1);
+    socket_send_packet(&CONTR(op)->socket, packet);
 }
 
 /**
@@ -394,36 +345,32 @@ void esrv_close_container(object *op)
  * inventory of the player. */
 void esrv_send_inventory(object *pl, object *op)
 {
-	packet_struct *packet;
-	object *tmp;
+    packet_struct *packet;
+    object *tmp;
 
-	packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
+    packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
 
-	/* In this case we're sending a container inventory */
-	if (pl != op)
-	{
-		/* Container mode flag */
-		packet_append_sint32(packet, -1);
-	}
-	else
-	{
-		packet_append_sint32(packet, op->count);
-	}
+    /* In this case we're sending a container inventory */
+    if (pl != op) {
+        /* Container mode flag */
+        packet_append_sint32(packet, -1);
+    }
+    else {
+        packet_append_sint32(packet, op->count);
+    }
 
-	packet_append_uint32(packet, op->count);
-	packet_append_uint8(packet, 1);
+    packet_append_uint32(packet, op->count);
+    packet_append_uint8(packet, 1);
 
-	for (tmp = op->inv; tmp; tmp = tmp->below)
-	{
-		if (IS_INVISIBLE(tmp, pl))
-		{
-			continue;
-		}
+    for (tmp = op->inv; tmp; tmp = tmp->below) {
+        if (IS_INVISIBLE(tmp, pl)) {
+            continue;
+        }
 
-		add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
-	}
+        add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
+    }
 
-	socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -433,23 +380,21 @@ void esrv_send_inventory(object *pl, object *op)
  * @param op The object to update. */
 static void esrv_update_item_send(int flags, object *pl, object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	if (!CONTR(pl))
-	{
-		return;
-	}
+    if (!CONTR(pl)) {
+        return;
+    }
 
-	/* Can't see that item... */
-	if (IS_INVISIBLE(op, pl))
-	{
-		return;
-	}
+    /* Can't see that item... */
+    if (IS_INVISIBLE(op, pl)) {
+        return;
+    }
 
-	packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
-	packet_append_uint16(packet, flags);
-	add_object_to_packet(packet, op, pl, flags);
-	socket_send_packet(&CONTR(pl)->socket, packet);
+    packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
+    packet_append_uint16(packet, flags);
+    add_object_to_packet(packet, op, pl, flags);
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -459,26 +404,21 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
  * @param op The object to update. */
 void esrv_update_item(int flags, object *op)
 {
-	if (op->type == PLAYER)
-	{
-		esrv_update_item_send(flags, op, op);
-	}
-	else if (op->env)
-	{
-		if (op->env->type == CONTAINER)
-		{
-			object *tmp;
+    if (op->type == PLAYER) {
+        esrv_update_item_send(flags, op, op);
+    }
+    else if (op->env) {
+        if (op->env->type == CONTAINER) {
+            object *tmp;
 
-			for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
-			{
-				esrv_update_item_send(flags, tmp, op);
-			}
-		}
-		else if (op->env->type == PLAYER)
-		{
-			esrv_update_item_send(flags, op->env, op);
-		}
-	}
+            for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
+                esrv_update_item_send(flags, tmp, op);
+            }
+        }
+        else if (op->env->type == PLAYER) {
+            esrv_update_item_send(flags, op->env, op);
+        }
+    }
 }
 
 /**
@@ -487,25 +427,23 @@ void esrv_update_item(int flags, object *op)
  * @param op Object to send information of. */
 static void esrv_send_item_send(object *pl, object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	if (!CONTR(pl) || CONTR(pl)->socket.state != ST_PLAYING)
-	{
-		return;
-	}
+    if (!CONTR(pl) || CONTR(pl)->socket.state != ST_PLAYING) {
+        return;
+    }
 
-	/* Can't see that item... */
-	if (IS_INVISIBLE(op, pl))
-	{
-		return;
-	}
+    /* Can't see that item... */
+    if (IS_INVISIBLE(op, pl)) {
+        return;
+    }
 
-	packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
-	packet_append_sint32(packet, -4);
-	packet_append_uint32(packet, op->env->count);
-	packet_append_uint8(packet, 0);
-	add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
-	socket_send_packet(&CONTR(pl)->socket, packet);
+    packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
+    packet_append_sint32(packet, -4);
+    packet_append_uint32(packet, op->env->count);
+    packet_append_uint8(packet, 0);
+    add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -513,27 +451,23 @@ static void esrv_send_item_send(object *pl, object *op)
  * @param op Object to send information of. */
 void esrv_send_item(object *op)
 {
-	object *tmp;
+    object *tmp;
 
-	/* No object or object is not in inventory, nothing to do here. */
-	if (!op || !op->env)
-	{
-		return;
-	}
+    /* No object or object is not in inventory, nothing to do here. */
+    if (!op || !op->env) {
+        return;
+    }
 
-	if (op->env->type == CONTAINER)
-	{
-		/* Send the item information to all players that are looking
-		 * inside this container. */
-		for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
-		{
-			esrv_send_item_send(tmp, op);
-		}
-	}
-	else if (op->env->type == PLAYER)
-	{
-		esrv_send_item_send(op->env, op);
-	}
+    if (op->env->type == CONTAINER) {
+        /* Send the item information to all players that are looking
+         * inside this container. */
+        for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
+            esrv_send_item_send(tmp, op);
+        }
+    }
+    else if (op->env->type == PLAYER) {
+        esrv_send_item_send(op->env, op);
+    }
 }
 
 /**
@@ -542,22 +476,20 @@ void esrv_send_item(object *op)
  * @param op The item that was deleted. */
 static void esrv_del_item_send(object *pl, object *op)
 {
-	packet_struct *packet;
+    packet_struct *packet;
 
-	if (!CONTR(pl))
-	{
-		return;
-	}
+    if (!CONTR(pl)) {
+        return;
+    }
 
-	/* Can't see that item... */
-	if (IS_INVISIBLE(op, pl))
-	{
-		return;
-	}
+    /* Can't see that item... */
+    if (IS_INVISIBLE(op, pl)) {
+        return;
+    }
 
-	packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
-	packet_append_uint32(packet, op->count);
-	socket_send_packet(&CONTR(pl)->socket, packet);
+    packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
+    packet_append_uint32(packet, op->count);
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -565,53 +497,45 @@ static void esrv_del_item_send(object *pl, object *op)
  * @param op The item that was deleted. */
 void esrv_del_item(object *op)
 {
-	/* No object or object is not inside an inventory, nothing to do. */
-	if (!op || !op->env)
-	{
-		return;
-	}
+    /* No object or object is not inside an inventory, nothing to do. */
+    if (!op || !op->env) {
+        return;
+    }
 
-	if (op->env->type == CONTAINER)
-	{
-		object *tmp;
+    if (op->env->type == CONTAINER) {
+        object *tmp;
 
-		for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above)
-		{
-			esrv_del_item_send(tmp, op);
-		}
-	}
-	else if (op->env->type == PLAYER)
-	{
-		esrv_del_item_send(op->env, op);
-	}
+        for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
+            esrv_del_item_send(tmp, op);
+        }
+    }
+    else if (op->env->type == PLAYER) {
+        esrv_del_item_send(op->env, op);
+    }
 }
 
 /**
  * Recursive part of esrv_get_ob_from_count(). */
 static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 {
-	object *tmp, *head, *tmp2;
+    object *tmp, *head, *tmp2;
 
-	for (tmp = where; tmp; tmp = tmp->below)
-	{
-		head = HEAD(tmp);
+    for (tmp = where; tmp; tmp = tmp->below) {
+        head = HEAD(tmp);
 
-		if (head->count == count)
-		{
-			return head;
-		}
-		else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head)))
-		{
-			tmp2 = get_ob_from_count_rec(pl, head->inv, count);
+        if (head->count == count) {
+            return head;
+        }
+        else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head))) {
+            tmp2 = get_ob_from_count_rec(pl, head->inv, count);
 
-			if (tmp2)
-			{
-				return tmp2;
-			}
-		}
-	}
+            if (tmp2) {
+                return tmp2;
+            }
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -622,50 +546,45 @@ static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
  * @return The found object, NULL if it can't be found. */
 object *esrv_get_ob_from_count(object *pl, tag_t count)
 {
-	object *tmp;
+    object *tmp;
 
-	if (pl->count == count)
-	{
-		return pl;
-	}
+    if (pl->count == count) {
+        return pl;
+    }
 
-	tmp = get_ob_from_count_rec(pl, pl->inv, count);
+    tmp = get_ob_from_count_rec(pl, pl->inv, count);
 
-	if (tmp)
-	{
-		return tmp;
-	}
+    if (tmp) {
+        return tmp;
+    }
 
-	tmp = get_ob_from_count_rec(pl, GET_MAP_OB_LAST(pl->map, pl->x, pl->y), count);
+    tmp = get_ob_from_count_rec(pl, GET_MAP_OB_LAST(pl->map, pl->x, pl->y), count);
 
-	if (tmp)
-	{
-		return tmp;
-	}
+    if (tmp) {
+        return tmp;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	tag_t tag;
-	object *op;
+    tag_t tag;
+    object *op;
 
-	tag = packet_to_uint32(data, len, &pos);
+    tag = packet_to_uint32(data, len, &pos);
 
-	if (!tag)
-	{
-		return;
-	}
+    if (!tag) {
+        return;
+    }
 
-	op = esrv_get_ob_from_count(pl->ob, tag);
+    op = esrv_get_ob_from_count(pl->ob, tag);
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	examine(pl->ob, op, NULL);
+    examine(pl->ob, op, NULL);
 }
 
 /**
@@ -674,15 +593,13 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, siz
  * @param pl Inside which player to search in. */
 static void remove_quickslot(uint8 slot, player *pl)
 {
-	object *tmp;
+    object *tmp;
 
-	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->quickslot && tmp->quickslot == slot)
-		{
-			tmp->quickslot = 0;
-		}
-	}
+    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
+        if (tmp->quickslot && tmp->quickslot == slot) {
+            tmp->quickslot = 0;
+        }
+    }
 }
 
 /**
@@ -690,154 +607,137 @@ static void remove_quickslot(uint8 slot, player *pl)
  * @param pl Player to send the quickslots to. */
 void send_quickslots(player *pl)
 {
-	packet_struct *packet;
-	object *tmp;
+    packet_struct *packet;
+    object *tmp;
 
-	packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
+    packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
 
-	for (tmp = pl->ob->inv; tmp; tmp = tmp->below)
-	{
-		if (tmp->quickslot)
-		{
-			packet_append_uint8(packet, tmp->quickslot - 1);
-			packet_append_uint32(packet, tmp->count);
-		}
-	}
+    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
+        if (tmp->quickslot) {
+            packet_append_uint8(packet, tmp->quickslot - 1);
+            packet_append_uint32(packet, tmp->count);
+        }
+    }
 
-	socket_send_packet(&pl->socket, packet);
+    socket_send_packet(&pl->socket, packet);
 }
 
 void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	uint8 quickslot;
-	sint32 tag;
-	object *op;
+    uint8 quickslot;
+    sint32 tag;
+    object *op;
 
-	quickslot = packet_to_uint8(data, len, &pos);
+    quickslot = packet_to_uint8(data, len, &pos);
 
-	if (quickslot < 1 || quickslot > MAX_QUICKSLOT)
-	{
-		return;
-	}
+    if (quickslot < 1 || quickslot > MAX_QUICKSLOT) {
+        return;
+    }
 
-	tag = packet_to_sint32(data, len, &pos);
+    tag = packet_to_sint32(data, len, &pos);
 
-	if (!tag)
-	{
-		return;
-	}
+    if (!tag) {
+        return;
+    }
 
-	remove_quickslot(quickslot, pl);
+    remove_quickslot(quickslot, pl);
 
-	if (tag != -1)
-	{
-		op = esrv_get_ob_from_count(pl->ob, tag);
+    if (tag != -1) {
+        op = esrv_get_ob_from_count(pl->ob, tag);
 
-		if (!op)
-		{
-			return;
-		}
+        if (!op) {
+            return;
+        }
 
-		op->quickslot = quickslot;
-	}
+        op->quickslot = quickslot;
+    }
 }
 
 void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	uint32 tag;
-	object *op;
+    uint32 tag;
+    object *op;
 
-	tag = packet_to_uint32(data, len, &pos);
+    tag = packet_to_uint32(data, len, &pos);
 
-	if (!tag)
-	{
-		return;
-	}
+    if (!tag) {
+        return;
+    }
 
-	op = esrv_get_ob_from_count(pl->ob, tag);
+    op = esrv_get_ob_from_count(pl->ob, tag);
 
-	if (QUERY_FLAG(pl->ob, FLAG_REMOVED))
-	{
-		return;
-	}
+    if (QUERY_FLAG(pl->ob, FLAG_REMOVED)) {
+        return;
+    }
 
-	/* If the high bit is set, player applied a pseudo object. */
-	if (tag & 0x80000000)
-	{
-		pl->socket.look_position = tag & 0x7fffffff;
-		pl->socket.update_tile = 0;
-		return;
-	}
+    /* If the high bit is set, player applied a pseudo object. */
+    if (tag & 0x80000000) {
+        pl->socket.look_position = tag & 0x7fffffff;
+        pl->socket.update_tile = 0;
+        return;
+    }
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	player_apply(pl->ob, op, 0, 0);
+    player_apply(pl->ob, op, 0, 0);
 }
 
 void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	tag_t tag;
-	object *op;
+    tag_t tag;
+    object *op;
 
-	tag = packet_to_uint32(data, len, &pos);
+    tag = packet_to_uint32(data, len, &pos);
 
-	if (!tag)
-	{
-		return;
-	}
+    if (!tag) {
+        return;
+    }
 
-	op = esrv_get_ob_from_count(pl->ob, tag);
+    op = esrv_get_ob_from_count(pl->ob, tag);
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	/* Only lock item inside the player's own inventory */
-	if (is_player_inv(op) != pl->ob)
-	{
-		draw_info(COLOR_WHITE, pl->ob, "You can't lock items outside your inventory!");
-		return;
-	}
+    /* Only lock item inside the player's own inventory */
+    if (is_player_inv(op) != pl->ob) {
+        draw_info(COLOR_WHITE, pl->ob, "You can't lock items outside your inventory!");
+        return;
+    }
 
-	TOGGLE_FLAG(op, FLAG_INV_LOCKED);
-	esrv_update_item(UPD_FLAGS, op);
+    TOGGLE_FLAG(op, FLAG_INV_LOCKED);
+    esrv_update_item(UPD_FLAGS, op);
 }
 
 void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-	tag_t tag;
-	object *op;
+    tag_t tag;
+    object *op;
 
-	tag = packet_to_uint32(data, len, &pos);
+    tag = packet_to_uint32(data, len, &pos);
 
-	if (!tag)
-	{
-		return;
-	}
+    if (!tag) {
+        return;
+    }
 
-	op = esrv_get_ob_from_count(pl->ob, tag);
+    op = esrv_get_ob_from_count(pl->ob, tag);
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	if (pl->mark_count == op->count)
-	{
-		draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
-		pl->mark = NULL;
-		pl->mark_count = 0;
-	}
-	else
-	{
-		draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
-		pl->mark_count = op->count;
-		pl->mark = op;
-	}
+    if (pl->mark_count == op->count) {
+        draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
+        pl->mark = NULL;
+        pl->mark_count = 0;
+    }
+    else {
+        draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
+        pl->mark_count = op->count;
+        pl->mark = op;
+    }
 }
 
 /**
@@ -848,96 +748,82 @@ void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t
  * @param nrof How many objects to drop. */
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 {
-	object *op, *env;
-	int tmp;
+    object *op, *env;
+    int tmp;
 
-	op = esrv_get_ob_from_count(pl, tag);
+    op = esrv_get_ob_from_count(pl, tag);
 
-	if (!op)
-	{
-		return;
-	}
+    if (!op) {
+        return;
+    }
 
-	/* drop it to the ground */
-	if (!to)
-	{
-		if (op->map && !op->env)
-		{
-			return;
-		}
+    /* drop it to the ground */
+    if (!to) {
+        if (op->map && !op->env) {
+            return;
+        }
 
-		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
+        CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
-		if ((tmp = check_container(pl, op)))
-		{
-			draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-		}
-		else if (QUERY_FLAG(pl, FLAG_INV_LOCKED))
-		{
-			draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-		}
-		else
-		{
-			drop_object(pl, op, nrof, 0);
-		}
+        if ((tmp = check_container(pl, op))) {
+            draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
+        }
+        else if (QUERY_FLAG(pl, FLAG_INV_LOCKED)) {
+            draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
+        }
+        else {
+            drop_object(pl, op, nrof, 0);
+        }
 
-		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
+        CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
-		return;
-	}
-	/* Pick it up to the inventory */
-	else if (to == pl->count || (to == op->count && !op->env))
-	{
-		/* Return if player has already picked it up */
-		if (op->env == pl)
-		{
-			return;
-		}
+        return;
+    }
+    /* Pick it up to the inventory */
+    else if (to == pl->count || (to == op->count && !op->env)) {
+        /* Return if player has already picked it up */
+        if (op->env == pl) {
+            return;
+        }
 
-		CONTR(pl)->count = nrof;
-		/* It goes in player inv or readied container */
-		pick_up(pl, op, 0);
-		return;
-	}
+        CONTR(pl)->count = nrof;
+        /* It goes in player inv or readied container */
+        pick_up(pl, op, 0);
+        return;
+    }
 
-	/* If not dropped or picked up, we are putting it into a sack */
-	env = esrv_get_ob_from_count(pl, to);
+    /* If not dropped or picked up, we are putting it into a sack */
+    env = esrv_get_ob_from_count(pl, to);
 
-	if (!env)
-	{
-		return;
-	}
+    if (!env) {
+        return;
+    }
 
-	/* put_object_in_sack() presumes that necessary sanity checking has
-	 * already been done (eg, it can be picked up and fits in in a sack,
-	 * so check for those things. We should also check and make sure env
-	 * is in fact a container for that matter. */
-	if (env->type == CONTAINER && can_pick(pl, op) && sack_can_hold(pl, env, op, nrof))
-	{
-		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
-		tmp = check_container(pl, op);
+    /* put_object_in_sack() presumes that necessary sanity checking has
+     * already been done (eg, it can be picked up and fits in in a sack,
+     * so check for those things. We should also check and make sure env
+     * is in fact a container for that matter. */
+    if (env->type == CONTAINER && can_pick(pl, op) && sack_can_hold(pl, env, op, nrof)) {
+        CLEAR_FLAG(pl, FLAG_INV_LOCKED);
+        tmp = check_container(pl, op);
 
-		if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl)
-		{
-			draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-		}
-		else if (tmp && env->env != pl)
-		{
-			draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-		}
-		else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl)
-		{
-			draw_info(COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
-		}
-		else
-		{
-			put_object_in_sack(pl, env, op, nrof);
-		}
+        if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl) {
+            draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
+        }
+        else if (tmp && env->env != pl) {
+            draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
+        }
+        else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl) {
+            draw_info(COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
+        }
+        else {
+            put_object_in_sack(pl, env, op, nrof);
+        }
 
-		CLEAR_FLAG(pl, FLAG_INV_LOCKED);
+        CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
-		return;
-	}
+        return;
+    }
 }
 
 /**
@@ -950,30 +836,26 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
  * @return 0 if it can be dropped, non-zero otherwise. */
 static int check_container(object *pl, object *con)
 {
-	object *current, *next;
-	int ret = 0;
+    object *current, *next;
+    int ret = 0;
 
-	/* Only check stuff *inside* a container */
-	if (con->type != CONTAINER)
-	{
-		return 0;
-	}
+    /* Only check stuff *inside* a container */
+    if (con->type != CONTAINER) {
+        return 0;
+    }
 
-	for (current = con->inv; current != NULL; current = next)
-	{
-		next = current->below;
-		ret += check_container(pl, current);
+    for (current = con->inv; current != NULL; current = next) {
+        next = current->below;
+        ret += check_container(pl, current);
 
-		if (QUERY_FLAG(current, FLAG_STARTEQUIP))
-		{
-			ret += 1;
-		}
+        if (QUERY_FLAG(current, FLAG_STARTEQUIP)) {
+            ret += 1;
+        }
 
-		if (QUERY_FLAG(current, FLAG_INV_LOCKED))
-		{
-			SET_FLAG(pl, FLAG_INV_LOCKED);
-		}
-	}
+        if (QUERY_FLAG(current, FLAG_INV_LOCKED)) {
+            SET_FLAG(pl, FLAG_INV_LOCKED);
+        }
+    }
 
-	return ret;
+    return ret;
 }

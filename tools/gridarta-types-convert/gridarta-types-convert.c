@@ -5,11 +5,14 @@
  *
  * Files are placed in types documentation dir by default.
  *
- * To build: <pre>gcc -O3 -Wall -W -pedantic gridarta-types-convert.c -I../../server/src/include -o gridarta-types-convert</pre>
- * To run: <pre>./gridarta-types-convert ../../arch/dev/editor/conf/types.xml</pre>
+ * To build: <pre>gcc -O3 -Wall -W -pedantic gridarta-types-convert.c
+ * -I../../server/src/include -o gridarta-types-convert</pre>
+ * To run: <pre>./gridarta-types-convert
+ * ../../arch/dev/editor/conf/types.xml</pre>
  * (adjust the path according to your setup)
  *
- * Note that someone wishing to tweak this program should know the format of Gridarta's types.xml.
+ * Note that someone wishing to tweak this program should know the format of
+ * Gridarta's types.xml.
  *
  * Note that "attribute" is used for "field in a object/living structure".
  *
@@ -34,22 +37,22 @@ const char *type_dir = "types";
 /** One attribute in a type. */
 typedef struct
 {
-	char *field;
-	char *name;
-	char *description;
+    char *field;
+    char *name;
+    char *description;
 } type_attribute;
 
 /** One object type. */
 typedef struct
 {
-	int number;
-	char *name;
-	char *description;
-	char *use;
-	type_attribute **attributes;
-	int attribute_count;
-	char **required;
-	int require_count;
+    int number;
+    char *name;
+    char *description;
+    char *use;
+    type_attribute **attributes;
+    int attribute_count;
+    char **required;
+    int require_count;
 } type_definition;
 
 /** Defined types. */
@@ -66,9 +69,9 @@ type_definition *fallback_type = NULL;
 /** One list of fields to ignore. */
 typedef struct
 {
-	char *name;
-	int count;
-	char **fields;
+    char *name;
+    int count;
+    char **fields;
 } ignore_list;
 
 ignore_list **lists = NULL;
@@ -77,18 +80,18 @@ int list_count = 0;
 /** One type for an attribute. */
 typedef struct
 {
-	char **type;
-	int *number;
-	int count;
-	char *description;
+    char **type;
+    int *number;
+    int count;
+    char *description;
 } attribute_type;
 
 /** One attribute. */
 typedef struct
 {
-	char *field;
-	attribute_type **types;
-	int type_count;
+    char *field;
+    attribute_type **types;
+    int type_count;
 } attribute_definition;
 
 attribute_definition **attributes = NULL;
@@ -97,118 +100,118 @@ int attribute_count = 0;
 /** One flag. */
 typedef struct
 {
-	const char *field;
-	const char *code_name;
+    const char *field;
+    const char *code_name;
 } flag_definition;
 
 /** Flag mapping. */
 static const flag_definition flags[] =
 {
-	{"slow_move", "FLAG_SLOW_MOVE"},
-	{"door_closed", "FLAG_DOOR_CLOSED"},
-	{"cursed_perm", "FLAG_PERM_CURSED"},
-	{"damned_perm", "FLAG_PERM_DAMNED"},
-	{"one_drop", "FLAG_ONE_DROP"},
-	{"is_trapped", "FLAG_IS_TRAPPED"},
-	{"quest_item", "FLAG_QUEST_ITEM"},
-	{"player_only", "FLAG_PLAYER_ONLY"},
-	{"is_named", "FLAG_IS_NAMED"},
-	{"is_player", "FLAG_IS_PLAYER"},
-	{"is_aged", "FLAG_IS_AGED"},
-	{"sys_object", "FLAG_SYS_OBJECT"},
-	{"generator", "FLAG_GENERATOR"},
-	{"is_thrown", "FLAG_IS_THROWN"},
-	{"auto_apply", "FLAG_AUTO_APPLY"},
-	{"was_reflected", "FLAG_WAS_REFLECTED"},
-	{"is_assassin", "FLAG_IS_ASSASSINATION"},
-	{"is_missile", "FLAG_IS_MISSILE"},
-	{"see_invisible", "FLAG_SEE_INVISIBLE"},
-	{"make_invisible", "FLAG_MAKE_INVISIBLE"},
-	{"make_ethereal", "FLAG_MAKE_ETHEREAL"},
-	{"can_roll", "FLAG_CAN_ROLL"},
-	{"is_turnable", "FLAG_IS_TURNABLE"},
-	{"is_used_up", "FLAG_IS_USED_UP"},
-	{"is_invisible", "FLAG_IS_INVISIBLE"},
-	{"alive", "FLAG_ALIVE"},
-	{"applied", "FLAG_APPLIED"},
-	{"unpaid", "FLAG_UNPAID"},
-	{"no_pick", "FLAG_NO_PICK"},
-	{"no_pass", "FLAG_NO_PASS"},
-	{"no_teleport", "FLAG_NO_TELEPORT"},
-	{"corpse", "FLAG_CORPSE"},
-	{"corpse_forced", "FLAG_CORPSE_FORCED"},
-	{"walk_on", "FLAG_WALK_ON"},
-	{"walk_off", "FLAG_WALK_OFF"},
-	{"fly_on", "FLAG_FLY_ON"},
-	{"fly_off", "FLAG_FLY_OFF"},
-	{"is_animated", "FLAG_ANIMATE"},
-	{"flying", "FLAG_FLYING"},
-	{"monster", "FLAG_MONSTER"},
-	{"no_attack", "FLAG_NO_ATTACK"},
-	{"invulnerable", "FLAG_INVULNERABLE"},
-	{"friendly", "FLAG_FRIENDLY"},
-	{"identified", "FLAG_IDENTIFIED"},
-	{"reflecting", "FLAG_REFLECTING"},
-	{"changing", "FLAG_CHANGING"},
-	{"splitting", "FLAG_SPLITTING"},
-	{"hitback", "FLAG_HITBACK"},
-	{"startequip", "FLAG_STARTEQUIP"},
-	{"blocksview", "FLAG_BLOCKSVIEW"},
-	{"undead", "FLAG_UNDEAD"},
-	{"scared", "FLAG_SCARED"},
-	{"unaggressive", "FLAG_UNAGGRESSIVE"},
-	{"reflect_missile", "FLAG_REFL_MISSILE"},
-	{"reflect_spell", "FLAG_REFL_SPELL"},
-	{"no_magic", "FLAG_NO_MAGIC"},
-	{"no_cleric", "FLAG_NO_CLERIC"},
-	{"wiz", "FLAG_WIZ"},
-	{"was_wiz", "FLAG_WAS_WIZ"},
-	{"no_fix_player", "FLAG_NO_FIX_PLAYER"},
-	{"pass_thru", "FLAG_PASS_THRU"},
-	{"can_pass_thru", "FLAG_CAN_PASS_THRU"},
-	{"no_drop", "FLAG_NO_DROP"},
-	{"use_fix_pos", "FLAG_USE_FIX_POS"},
-	{"is_ethereal", "FLAG_IS_ETHEREAL"},
-	{"can_cast_spell", "FLAG_CAST_SPELL"},
-	{"can_use_bow", "FLAG_USE_BOW"},
-	{"can_use_armour", "FLAG_USE_ARMOUR"},
-	{"can_use_weapon", "FLAG_USE_WEAPON"},
-	{"has_ready_bow", "FLAG_READY_BOW"},
-	{"xrays", "FLAG_XRAYS"},
-	{"no_save", "FLAG_NO_SAVE"},
-	{"is_floor", "FLAG_IS_FLOOR"},
-	{"is_male", "FLAG_IS_MALE"},
-	{"is_female", "FLAG_IS_FEMALE"},
-	{"is_evil", "FLAG_IS_EVIL"},
-	{"is_good", "FLAG_IS_GOOD"},
-	{"is_neutral", "FLAG_IS_NEUTRAL"},
-	{"lifesave", "FLAG_LIFESAVE"},
-	{"sleep", "FLAG_SLEEP"},
-	{"stand_still", "FLAG_STAND_STILL"},
-	{"random_move", "FLAG_RANDOM_MOVE"},
-	{"only_attack", "FLAG_ONLY_ATTACK"},
-	{"berserk", "FLAG_BERSERK"},
-	{"is_magical", "FLAG_IS_MAGICAL"},
-	{"confused", "FLAG_CONFUSED"},
-	{"stealth", "FLAG_STEALTH"},
-	{"cursed", "FLAG_CURSED"},
-	{"damned", "FLAG_DAMNED"},
-	{"see_anywhere", "FLAG_SEE_ANYWHERE"},
-	{"known_magical", "FLAG_KNOWN_MAGICAL"},
-	{"known_cursed", "FLAG_KNOWN_CURSED"},
-	{"been_applied", "FLAG_BEEN_APPLIED"},
-	{"unique", "FLAG_UNIQUE"},
-	{"inv_locked", "FLAG_INV_LOCKED"},
-	{"has_ready_weapon", "FLAG_READY_WEAPON"},
-	{"no_skill_ident", "FLAG_NO_SKILL_IDENT"},
-	{"is_blind", "FLAG_BLIND"},
-	{"can_see_in_dark", "FLAG_SEE_IN_DARK"},
-	{"is_cauldron", "FLAG_IS_CAULDRON"},
-	{"is_dust", "FLAG_DUST"},
-	{"one_hit", "FLAG_ONE_HIT"},
-	{"is_indestructible", "FLAG_INDESTRUCTIBLE"},
-	{"can_stack", "FLAG_CAN_STACK"},
-	{NULL, NULL}
+    {"slow_move", "FLAG_SLOW_MOVE"},
+    {"door_closed", "FLAG_DOOR_CLOSED"},
+    {"cursed_perm", "FLAG_PERM_CURSED"},
+    {"damned_perm", "FLAG_PERM_DAMNED"},
+    {"one_drop", "FLAG_ONE_DROP"},
+    {"is_trapped", "FLAG_IS_TRAPPED"},
+    {"quest_item", "FLAG_QUEST_ITEM"},
+    {"player_only", "FLAG_PLAYER_ONLY"},
+    {"is_named", "FLAG_IS_NAMED"},
+    {"is_player", "FLAG_IS_PLAYER"},
+    {"is_aged", "FLAG_IS_AGED"},
+    {"sys_object", "FLAG_SYS_OBJECT"},
+    {"generator", "FLAG_GENERATOR"},
+    {"is_thrown", "FLAG_IS_THROWN"},
+    {"auto_apply", "FLAG_AUTO_APPLY"},
+    {"was_reflected", "FLAG_WAS_REFLECTED"},
+    {"is_assassin", "FLAG_IS_ASSASSINATION"},
+    {"is_missile", "FLAG_IS_MISSILE"},
+    {"see_invisible", "FLAG_SEE_INVISIBLE"},
+    {"make_invisible", "FLAG_MAKE_INVISIBLE"},
+    {"make_ethereal", "FLAG_MAKE_ETHEREAL"},
+    {"can_roll", "FLAG_CAN_ROLL"},
+    {"is_turnable", "FLAG_IS_TURNABLE"},
+    {"is_used_up", "FLAG_IS_USED_UP"},
+    {"is_invisible", "FLAG_IS_INVISIBLE"},
+    {"alive", "FLAG_ALIVE"},
+    {"applied", "FLAG_APPLIED"},
+    {"unpaid", "FLAG_UNPAID"},
+    {"no_pick", "FLAG_NO_PICK"},
+    {"no_pass", "FLAG_NO_PASS"},
+    {"no_teleport", "FLAG_NO_TELEPORT"},
+    {"corpse", "FLAG_CORPSE"},
+    {"corpse_forced", "FLAG_CORPSE_FORCED"},
+    {"walk_on", "FLAG_WALK_ON"},
+    {"walk_off", "FLAG_WALK_OFF"},
+    {"fly_on", "FLAG_FLY_ON"},
+    {"fly_off", "FLAG_FLY_OFF"},
+    {"is_animated", "FLAG_ANIMATE"},
+    {"flying", "FLAG_FLYING"},
+    {"monster", "FLAG_MONSTER"},
+    {"no_attack", "FLAG_NO_ATTACK"},
+    {"invulnerable", "FLAG_INVULNERABLE"},
+    {"friendly", "FLAG_FRIENDLY"},
+    {"identified", "FLAG_IDENTIFIED"},
+    {"reflecting", "FLAG_REFLECTING"},
+    {"changing", "FLAG_CHANGING"},
+    {"splitting", "FLAG_SPLITTING"},
+    {"hitback", "FLAG_HITBACK"},
+    {"startequip", "FLAG_STARTEQUIP"},
+    {"blocksview", "FLAG_BLOCKSVIEW"},
+    {"undead", "FLAG_UNDEAD"},
+    {"scared", "FLAG_SCARED"},
+    {"unaggressive", "FLAG_UNAGGRESSIVE"},
+    {"reflect_missile", "FLAG_REFL_MISSILE"},
+    {"reflect_spell", "FLAG_REFL_SPELL"},
+    {"no_magic", "FLAG_NO_MAGIC"},
+    {"no_cleric", "FLAG_NO_CLERIC"},
+    {"wiz", "FLAG_WIZ"},
+    {"was_wiz", "FLAG_WAS_WIZ"},
+    {"no_fix_player", "FLAG_NO_FIX_PLAYER"},
+    {"pass_thru", "FLAG_PASS_THRU"},
+    {"can_pass_thru", "FLAG_CAN_PASS_THRU"},
+    {"no_drop", "FLAG_NO_DROP"},
+    {"use_fix_pos", "FLAG_USE_FIX_POS"},
+    {"is_ethereal", "FLAG_IS_ETHEREAL"},
+    {"can_cast_spell", "FLAG_CAST_SPELL"},
+    {"can_use_bow", "FLAG_USE_BOW"},
+    {"can_use_armour", "FLAG_USE_ARMOUR"},
+    {"can_use_weapon", "FLAG_USE_WEAPON"},
+    {"has_ready_bow", "FLAG_READY_BOW"},
+    {"xrays", "FLAG_XRAYS"},
+    {"no_save", "FLAG_NO_SAVE"},
+    {"is_floor", "FLAG_IS_FLOOR"},
+    {"is_male", "FLAG_IS_MALE"},
+    {"is_female", "FLAG_IS_FEMALE"},
+    {"is_evil", "FLAG_IS_EVIL"},
+    {"is_good", "FLAG_IS_GOOD"},
+    {"is_neutral", "FLAG_IS_NEUTRAL"},
+    {"lifesave", "FLAG_LIFESAVE"},
+    {"sleep", "FLAG_SLEEP"},
+    {"stand_still", "FLAG_STAND_STILL"},
+    {"random_move", "FLAG_RANDOM_MOVE"},
+    {"only_attack", "FLAG_ONLY_ATTACK"},
+    {"berserk", "FLAG_BERSERK"},
+    {"is_magical", "FLAG_IS_MAGICAL"},
+    {"confused", "FLAG_CONFUSED"},
+    {"stealth", "FLAG_STEALTH"},
+    {"cursed", "FLAG_CURSED"},
+    {"damned", "FLAG_DAMNED"},
+    {"see_anywhere", "FLAG_SEE_ANYWHERE"},
+    {"known_magical", "FLAG_KNOWN_MAGICAL"},
+    {"known_cursed", "FLAG_KNOWN_CURSED"},
+    {"been_applied", "FLAG_BEEN_APPLIED"},
+    {"unique", "FLAG_UNIQUE"},
+    {"inv_locked", "FLAG_INV_LOCKED"},
+    {"has_ready_weapon", "FLAG_READY_WEAPON"},
+    {"no_skill_ident", "FLAG_NO_SKILL_IDENT"},
+    {"is_blind", "FLAG_BLIND"},
+    {"can_see_in_dark", "FLAG_SEE_IN_DARK"},
+    {"is_cauldron", "FLAG_IS_CAULDRON"},
+    {"is_dust", "FLAG_DUST"},
+    {"one_hit", "FLAG_ONE_HIT"},
+    {"is_indestructible", "FLAG_INDESTRUCTIBLE"},
+    {"can_stack", "FLAG_CAN_STACK"},
+    {NULL, NULL}
 };
 
 /**
@@ -217,157 +220,155 @@ static const flag_definition flags[] =
  * @return The flag if found, NULL otherwise. */
 const flag_definition *find_flag(const char *name)
 {
-	int flag;
+    int flag;
 
-	for (flag = 0; flags[flag].field; flag++)
-	{
-		if (!strcmp(flags[flag].field, name))
-		{
-			return &flags[flag];
-		}
-	}
+    for (flag = 0; flags[flag].field; flag++) {
+        if (!strcmp(flags[flag].field, name)) {
+            return &flags[flag];
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /** One type. */
 typedef struct
 {
-	const char *code_name;
-	int value;
+    const char *code_name;
+    int value;
 } type_name;
 
 /** All the types we want to create documentation for. */
 static type_name type_names[] = {
-	{"PLAYER", PLAYER},
-	{"BULLET", BULLET},
-	{"ROD", ROD},
-	{"TREASURE", TREASURE},
-	{"POTION", POTION},
-	{"FOOD", FOOD},
-	{"POISON", POISON},
-	{"BOOK", BOOK},
-	{"CLOCK", CLOCK},
-	{"FBULLET", FBULLET},
-	{"FBALL", FBALL},
-	{"LIGHTNING", LIGHTNING},
-	{"ARROW", ARROW},
-	{"BOW", BOW},
-	{"WEAPON", WEAPON},
-	{"ARMOUR", ARMOUR},
-	{"PEDESTAL", PEDESTAL},
-	{"ALTAR", ALTAR},
-	{"CONFUSION", CONFUSION},
-	{"LOCKED_DOOR", LOCKED_DOOR},
-	{"SPECIAL_KEY", SPECIAL_KEY},
-	{"MAP", MAP},
-	{"DOOR", DOOR},
-	{"KEY", KEY},
-	{"MMISSILE", MMISSILE},
-	{"TIMED_GATE", TIMED_GATE},
-	{"TRIGGER", TRIGGER},
-	{"GRIMREAPER", GRIMREAPER},
-	{"MAGIC_EAR", MAGIC_EAR},
-	{"TRIGGER_BUTTON", TRIGGER_BUTTON},
-	{"TRIGGER_ALTAR", TRIGGER_ALTAR},
-	{"TRIGGER_PEDESTAL", TRIGGER_PEDESTAL},
-	{"SHIELD", SHIELD},
-	{"HELMET", HELMET},
-	{"HORN", HORN},
-	{"MONEY", MONEY},
-	{"CLASS", CLASS},
-	{"GRAVESTONE", GRAVESTONE},
-	{"AMULET", AMULET},
-	{"PLAYERMOVER", PLAYERMOVER},
-	{"TELEPORTER", TELEPORTER},
-	{"CREATOR", CREATOR},
-	{"SKILL", SKILL},
-	{"EXPERIENCE", EXPERIENCE},
-	{"EARTHWALL", EARTHWALL},
-	{"GOLEM", GOLEM},
-	{"BOMB", BOMB},
-	{"THROWN_OBJ", THROWN_OBJ},
-	{"BLINDNESS", BLINDNESS},
-	{"GOD", GOD},
-	{"DETECTOR", DETECTOR},
-	{"DEAD_OBJECT", DEAD_OBJECT},
-	{"DRINK", DRINK},
-	{"MARKER", MARKER},
-	{"HOLY_ALTAR", HOLY_ALTAR},
-	{"PLAYER_CHANGER", PLAYER_CHANGER},
-	{"GEM", GEM},
-	{"FIRECHEST", FIRECHEST},
-	{"FIREWALL", FIREWALL},
-	{"CHECK_INV", CHECK_INV},
-	{"MOOD_FLOOR", MOOD_FLOOR},
-	{"EXIT", EXIT},
-	{"SHOP_FLOOR", SHOP_FLOOR},
-	{"SHOP_MAT", SHOP_MAT},
-	{"RING", RING},
-	{"FLOOR", FLOOR},
-	{"FLESH", FLESH},
-	{"INORGANIC", INORGANIC},
-	{"LIGHT_APPLY", LIGHT_APPLY},
-	{"LIGHTER", LIGHTER},
-	{"WALL", WALL},
-	{"LIGHT_SOURCE", LIGHT_SOURCE},
-	{"MISC_OBJECT", MISC_OBJECT},
-	{"MONSTER", MONSTER},
-	{"SPAWN_POINT", SPAWN_POINT},
-	{"LIGHT_REFILL", LIGHT_REFILL},
-	{"SPAWN_POINT_MOB", SPAWN_POINT_MOB},
-	{"SPAWN_POINT_INFO", SPAWN_POINT_INFO},
-	{"SPELLBOOK", SPELLBOOK},
-	{"ORGANIC", ORGANIC},
-	{"CLOAK", CLOAK},
-	{"CONE", CONE},
-	{"AURA", AURA},
-	{"SPINNER", SPINNER},
-	{"GATE", GATE},
-	{"BUTTON", BUTTON},
-	{"HANDLE", HANDLE},
-	{"PIT", PIT},
-	{"TRAPDOOR", TRAPDOOR},
-	{"WORD_OF_RECALL", WORD_OF_RECALL},
-	{"SIGN", SIGN},
-	{"BOOTS", BOOTS},
-	{"GLOVES", GLOVES},
-	{"BASE_INFO", BASE_INFO},
-	{"RANDOM_DROP", RANDOM_DROP},
-	{"CONVERTER", CONVERTER},
-	{"BRACERS", BRACERS},
-	{"POISONING", POISONING},
-	{"SAVEBED", SAVEBED},
-	{"POISONCLOUD", POISONCLOUD},
-	{"WAND", WAND},
-	{"ABILITY", ABILITY},
-	{"SCROLL", SCROLL},
-	{"DIRECTOR", DIRECTOR},
-	{"GIRDLE", GIRDLE},
-	{"FORCE", FORCE},
-	{"POTION_EFFECT", POTION_EFFECT},
-	{"JEWEL", JEWEL},
-	{"NUGGET", NUGGET},
-	{"EVENT_OBJECT", EVENT_OBJECT},
-	{"WAYPOINT_OBJECT", WAYPOINT_OBJECT},
-	{"QUEST_CONTAINER", QUEST_CONTAINER},
-	{"CLOSE_CON", CLOSE_CON},
-	{"CONTAINER", CONTAINER},
-	{"ARMOUR_IMPROVER", ARMOUR_IMPROVER},
-	{"WEAPON_IMPROVER", WEAPON_IMPROVER},
-	{"WEALTH", WEALTH},
-	{"SKILLSCROLL", SKILLSCROLL},
-	{"DEEP_SWAMP", DEEP_SWAMP},
-	{"IDENTIFY_ALTAR", IDENTIFY_ALTAR},
-	{"CANCELLATION", CANCELLATION},
-	{"BALL_LIGHTNING", BALL_LIGHTNING},
-	{"SWARM_SPELL", SWARM_SPELL},
-	{"RUNE", RUNE},
-	{"POWER_CRYSTAL", POWER_CRYSTAL},
-	{"CORPSE", CORPSE},
-	{"DISEASE", DISEASE},
-	{"SYMPTOM", SYMPTOM},
-	{NULL, 0}
+    {"PLAYER", PLAYER},
+    {"BULLET", BULLET},
+    {"ROD", ROD},
+    {"TREASURE", TREASURE},
+    {"POTION", POTION},
+    {"FOOD", FOOD},
+    {"POISON", POISON},
+    {"BOOK", BOOK},
+    {"CLOCK", CLOCK},
+    {"FBULLET", FBULLET},
+    {"FBALL", FBALL},
+    {"LIGHTNING", LIGHTNING},
+    {"ARROW", ARROW},
+    {"BOW", BOW},
+    {"WEAPON", WEAPON},
+    {"ARMOUR", ARMOUR},
+    {"PEDESTAL", PEDESTAL},
+    {"ALTAR", ALTAR},
+    {"CONFUSION", CONFUSION},
+    {"LOCKED_DOOR", LOCKED_DOOR},
+    {"SPECIAL_KEY", SPECIAL_KEY},
+    {"MAP", MAP},
+    {"DOOR", DOOR},
+    {"KEY", KEY},
+    {"MMISSILE", MMISSILE},
+    {"TIMED_GATE", TIMED_GATE},
+    {"TRIGGER", TRIGGER},
+    {"GRIMREAPER", GRIMREAPER},
+    {"MAGIC_EAR", MAGIC_EAR},
+    {"TRIGGER_BUTTON", TRIGGER_BUTTON},
+    {"TRIGGER_ALTAR", TRIGGER_ALTAR},
+    {"TRIGGER_PEDESTAL", TRIGGER_PEDESTAL},
+    {"SHIELD", SHIELD},
+    {"HELMET", HELMET},
+    {"HORN", HORN},
+    {"MONEY", MONEY},
+    {"CLASS", CLASS},
+    {"GRAVESTONE", GRAVESTONE},
+    {"AMULET", AMULET},
+    {"PLAYERMOVER", PLAYERMOVER},
+    {"TELEPORTER", TELEPORTER},
+    {"CREATOR", CREATOR},
+    {"SKILL", SKILL},
+    {"EXPERIENCE", EXPERIENCE},
+    {"EARTHWALL", EARTHWALL},
+    {"GOLEM", GOLEM},
+    {"BOMB", BOMB},
+    {"THROWN_OBJ", THROWN_OBJ},
+    {"BLINDNESS", BLINDNESS},
+    {"GOD", GOD},
+    {"DETECTOR", DETECTOR},
+    {"DEAD_OBJECT", DEAD_OBJECT},
+    {"DRINK", DRINK},
+    {"MARKER", MARKER},
+    {"HOLY_ALTAR", HOLY_ALTAR},
+    {"PLAYER_CHANGER", PLAYER_CHANGER},
+    {"GEM", GEM},
+    {"FIRECHEST", FIRECHEST},
+    {"FIREWALL", FIREWALL},
+    {"CHECK_INV", CHECK_INV},
+    {"MOOD_FLOOR", MOOD_FLOOR},
+    {"EXIT", EXIT},
+    {"SHOP_FLOOR", SHOP_FLOOR},
+    {"SHOP_MAT", SHOP_MAT},
+    {"RING", RING},
+    {"FLOOR", FLOOR},
+    {"FLESH", FLESH},
+    {"INORGANIC", INORGANIC},
+    {"LIGHT_APPLY", LIGHT_APPLY},
+    {"LIGHTER", LIGHTER},
+    {"WALL", WALL},
+    {"LIGHT_SOURCE", LIGHT_SOURCE},
+    {"MISC_OBJECT", MISC_OBJECT},
+    {"MONSTER", MONSTER},
+    {"SPAWN_POINT", SPAWN_POINT},
+    {"LIGHT_REFILL", LIGHT_REFILL},
+    {"SPAWN_POINT_MOB", SPAWN_POINT_MOB},
+    {"SPAWN_POINT_INFO", SPAWN_POINT_INFO},
+    {"SPELLBOOK", SPELLBOOK},
+    {"ORGANIC", ORGANIC},
+    {"CLOAK", CLOAK},
+    {"CONE", CONE},
+    {"AURA", AURA},
+    {"SPINNER", SPINNER},
+    {"GATE", GATE},
+    {"BUTTON", BUTTON},
+    {"HANDLE", HANDLE},
+    {"PIT", PIT},
+    {"TRAPDOOR", TRAPDOOR},
+    {"WORD_OF_RECALL", WORD_OF_RECALL},
+    {"SIGN", SIGN},
+    {"BOOTS", BOOTS},
+    {"GLOVES", GLOVES},
+    {"BASE_INFO", BASE_INFO},
+    {"RANDOM_DROP", RANDOM_DROP},
+    {"CONVERTER", CONVERTER},
+    {"BRACERS", BRACERS},
+    {"POISONING", POISONING},
+    {"SAVEBED", SAVEBED},
+    {"POISONCLOUD", POISONCLOUD},
+    {"WAND", WAND},
+    {"ABILITY", ABILITY},
+    {"SCROLL", SCROLL},
+    {"DIRECTOR", DIRECTOR},
+    {"GIRDLE", GIRDLE},
+    {"FORCE", FORCE},
+    {"POTION_EFFECT", POTION_EFFECT},
+    {"JEWEL", JEWEL},
+    {"NUGGET", NUGGET},
+    {"EVENT_OBJECT", EVENT_OBJECT},
+    {"WAYPOINT_OBJECT", WAYPOINT_OBJECT},
+    {"QUEST_CONTAINER", QUEST_CONTAINER},
+    {"CLOSE_CON", CLOSE_CON},
+    {"CONTAINER", CONTAINER},
+    {"ARMOUR_IMPROVER", ARMOUR_IMPROVER},
+    {"WEAPON_IMPROVER", WEAPON_IMPROVER},
+    {"WEALTH", WEALTH},
+    {"SKILLSCROLL", SKILLSCROLL},
+    {"DEEP_SWAMP", DEEP_SWAMP},
+    {"IDENTIFY_ALTAR", IDENTIFY_ALTAR},
+    {"CANCELLATION", CANCELLATION},
+    {"BALL_LIGHTNING", BALL_LIGHTNING},
+    {"SWARM_SPELL", SWARM_SPELL},
+    {"RUNE", RUNE},
+    {"POWER_CRYSTAL", POWER_CRYSTAL},
+    {"CORPSE", CORPSE},
+    {"DISEASE", DISEASE},
+    {"SYMPTOM", SYMPTOM},
+    {NULL, 0}
 };
 
 /** Maximum object types. */
@@ -384,30 +385,28 @@ static type_name type_names[] = {
  * @return The new type attribute. */
 type_attribute *get_attribute_for_type(type_definition *type, const char *attribute)
 {
-	type_attribute *ret;
-	int test;
+    type_attribute *ret;
+    int test;
 
-	for (test = 0; test < type->attribute_count; test++)
-	{
-		if (!strcmp(type->attributes[test]->field, attribute))
-		{
-			ret = type->attributes[test];
-			free(ret->name);
-			ret->name = NULL;
-			free(ret->description);
-			ret->description = NULL;
-			return ret;
-		}
-	}
+    for (test = 0; test < type->attribute_count; test++) {
+        if (!strcmp(type->attributes[test]->field, attribute)) {
+            ret = type->attributes[test];
+            free(ret->name);
+            ret->name = NULL;
+            free(ret->description);
+            ret->description = NULL;
+            return ret;
+        }
+    }
 
-	ret = calloc(1, sizeof(type_attribute));
-	ret->field = strdup(attribute);
+    ret = calloc(1, sizeof(type_attribute));
+    ret->field = strdup(attribute);
 
-	type->attribute_count++;
-	type->attributes = realloc(type->attributes, type->attribute_count * sizeof(type_attribute *));
-	type->attributes[type->attribute_count - 1] = ret;
+    type->attribute_count++;
+    type->attributes = realloc(type->attributes, type->attribute_count * sizeof(type_attribute *));
+    type->attributes[type->attribute_count - 1] = ret;
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -415,10 +414,10 @@ type_attribute *get_attribute_for_type(type_definition *type, const char *attrib
  * @param attr Attribute to free. */
 void free_attribute(type_attribute *attr)
 {
-	free(attr->field);
-	free(attr->name);
-	free(attr->description);
-	free(attr);
+    free(attr->field);
+    free(attr->name);
+    free(attr->description);
+    free(attr);
 }
 
 /**
@@ -427,24 +426,21 @@ void free_attribute(type_attribute *attr)
  * @param type Where to copy attributes to. */
 void copy_attributes(const type_definition *source, type_definition *type)
 {
-	int attr;
-	type_attribute *add;
+    int attr;
+    type_attribute *add;
 
-	if (!source || source->attribute_count == 0)
-	{
-		return;
-	}
+    if (!source || source->attribute_count == 0) {
+        return;
+    }
 
-	for (attr = 0; attr < source->attribute_count; attr++)
-	{
-		add = get_attribute_for_type(type, source->attributes[attr]->field);
-		add->name = strdup(source->attributes[attr]->name);
+    for (attr = 0; attr < source->attribute_count; attr++) {
+        add = get_attribute_for_type(type, source->attributes[attr]->field);
+        add->name = strdup(source->attributes[attr]->name);
 
-		if (source->attributes[attr]->description)
-		{
-			add->description = strdup(source->attributes[attr]->description);
-		}
-	}
+        if (source->attributes[attr]->description) {
+            add->description = strdup(source->attributes[attr]->description);
+        }
+    }
 }
 
 /**
@@ -452,29 +448,27 @@ void copy_attributes(const type_definition *source, type_definition *type)
  * @param type The type definition to copy default attribute to. */
 void copy_default_attributes(type_definition *type)
 {
-	if (!default_type)
-	{
-		return;
-	}
+    if (!default_type) {
+        return;
+    }
 
-	copy_attributes(default_type, type);
+    copy_attributes(default_type, type);
 }
 
 /**
  * Returns a new type_definition having the default attributes. */
 type_definition *get_type_definition()
 {
-	type_definition *ret = calloc(1, sizeof(type_definition));
+    type_definition *ret = calloc(1, sizeof(type_definition));
 
-	ret->attribute_count = 0;
-	ret->attributes = NULL;
+    ret->attribute_count = 0;
+    ret->attributes = NULL;
 
-	if (default_type)
-	{
-		copy_default_attributes(ret);
-	}
+    if (default_type) {
+        copy_default_attributes(ret);
+    }
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -483,37 +477,35 @@ type_definition *get_type_definition()
  * @return Type definition from ::types if found, NULL otherwise. */
 type_definition *find_type_definition(const char *name)
 {
-	int type;
+    int type;
 
-	for (type = 0; type < type_count; type++)
-	{
-		if (!strcmp(types[type]->name, name))
-		{
-			return types[type];
-		}
-	}
+    for (type = 0; type < type_count; type++) {
+        if (!strcmp(types[type]->name, name)) {
+            return types[type];
+        }
+    }
 
-	printf("Type not found for import: %s\n", name);
-	return NULL;
+    printf("Type not found for import: %s\n", name);
+    return NULL;
 }
 
 /** To sort attributes using qsort(). */
 int sort_type_attribute(const void *a, const void *b)
 {
-	const type_attribute **la = (const type_attribute **) a;
-	const type_attribute **lb = (const type_attribute **) b;
+    const type_attribute **la = (const type_attribute **) a;
+    const type_attribute **lb = (const type_attribute **) b;
 
-	return strcmp((*la)->name, (*lb)->name);
+    return strcmp((*la)->name, (*lb)->name);
 }
 
 /** Used for ::fake_names. */
 typedef struct
 {
-	/** Fake name. */
-	const char *fake_name;
+    /** Fake name. */
+    const char *fake_name;
 
-	/** Real name. */
-	char *real_name;
+    /** Real name. */
+    char *real_name;
 } fake_name_definition;
 
 /**
@@ -521,14 +513,14 @@ typedef struct
  * and "object_int1" is "enemy_count". */
 static fake_name_definition fake_names[] =
 {
-	{"animation", "animation_id"},
-	{"object_int1", "enemy_count"},
-	{"object_int2", "attacked_by_count"},
-	{"object_int3", "ownercount"},
-	{"movement_type", "move_type"},
-	{"sub_type", "sub_type"},
-	{"container", "weight_limit"},
-	{NULL, NULL}
+    {"animation", "animation_id"},
+    {"object_int1", "enemy_count"},
+    {"object_int2", "attacked_by_count"},
+    {"object_int3", "ownercount"},
+    {"movement_type", "move_type"},
+    {"sub_type", "sub_type"},
+    {"container", "weight_limit"},
+    {NULL, NULL}
 };
 
 /**
@@ -537,17 +529,15 @@ static fake_name_definition fake_names[] =
  * @return The real name, or the passed name if not found. */
 static char *find_fake_attr_name(char *name)
 {
-	int i;
+    int i;
 
-	for (i = 0; fake_names[i].fake_name; i++)
-	{
-		if (!strcmp(name, fake_names[i].fake_name))
-		{
-			return fake_names[i].real_name;
-		}
-	}
+    for (i = 0; fake_names[i].fake_name; i++) {
+        if (!strcmp(name, fake_names[i].fake_name)) {
+            return fake_names[i].real_name;
+        }
+    }
 
-	return name;
+    return name;
 }
 
 /**
@@ -556,17 +546,15 @@ static char *find_fake_attr_name(char *name)
  * @return The ignore list if found, NULL otherwise. */
 ignore_list *find_ignore_list(const char *name)
 {
-	int list;
+    int list;
 
-	for (list = 0; list < list_count; list++)
-	{
-		if (strcmp(lists[list]->name, name) == 0)
-		{
-			return lists[list];
-		}
-	}
+    for (list = 0; list < list_count; list++) {
+        if (strcmp(lists[list]->name, name) == 0) {
+            return lists[list];
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -577,23 +565,20 @@ ignore_list *find_ignore_list(const char *name)
  * @param attribute The attribute to remove. */
 void ignore_attribute(type_definition *type, const char *attribute)
 {
-	int find;
+    int find;
 
-	for (find = 0; find < type->attribute_count; find++)
-	{
-		if (!strcmp(attribute, type->attributes[find]->field))
-		{
-			free_attribute(type->attributes[find]);
+    for (find = 0; find < type->attribute_count; find++) {
+        if (!strcmp(attribute, type->attributes[find]->field)) {
+            free_attribute(type->attributes[find]);
 
-			if (find < type->attribute_count - 1)
-			{
-				type->attributes[find] = type->attributes[type->attribute_count-1];
-			}
+            if (find < type->attribute_count - 1) {
+                type->attributes[find] = type->attributes[type->attribute_count-1];
+            }
 
-			type->attribute_count--;
-			return;
-		}
-	}
+            type->attribute_count--;
+            return;
+        }
+    }
 }
 
 /**
@@ -602,18 +587,16 @@ void ignore_attribute(type_definition *type, const char *attribute)
  * @param list Ignore list. */
 void ignore_attributes(type_definition *type, ignore_list *list)
 {
-	int attr;
+    int attr;
 
-	if (!list)
-	{
-		printf("%s has empty ignore list?\n", type->name);
-		return;
-	}
+    if (!list) {
+        printf("%s has empty ignore list?\n", type->name);
+        return;
+    }
 
-	for (attr = 0; attr < list->count; attr++)
-	{
-		ignore_attribute(type, list->fields[attr]);
-	}
+    for (attr = 0; attr < list->count; attr++) {
+        ignore_attribute(type, list->fields[attr]);
+    }
 }
 
 /**
@@ -622,49 +605,46 @@ void ignore_attributes(type_definition *type, ignore_list *list)
  * @param buf Line read from the file, non processed. */
 void add_required_parameter(type_definition *type, const char *buf)
 {
-	char *sn, *en, *sv, *ev;
-	char value[200], name[200], temp[200];
-	const flag_definition *flag;
+    char *sn, *en, *sv, *ev;
+    char value[200], name[200], temp[200];
+    const flag_definition *flag;
 
-	if (type == fallback_type)
-	{
-		/* the "Misc" type has dummy requirements, don't take that into account. */
-		return;
-	}
+    if (type == fallback_type) {
+        /* the "Misc" type has dummy requirements, don't take that into account.
+         * */
+        return;
+    }
 
-	sn = strstr(buf, "arch");
+    sn = strstr(buf, "arch");
 
-	if (!sn)
-	{
-		return;
-	}
+    if (!sn) {
+        return;
+    }
 
-	sn = strchr(sn, '"');
-	en = strchr(sn + 1, '"');
-	sv = strstr(buf, "value");
-	sv = strchr(sv, '"');
-	ev = strchr(sv + 1, '"');
+    sn = strchr(sn, '"');
+    en = strchr(sn + 1, '"');
+    sv = strstr(buf, "value");
+    sv = strchr(sv, '"');
+    ev = strchr(sv + 1, '"');
 
-	name[en - sn - 1] = '\0';
-	strncpy(name, sn + 1, en - sn - 1);
-	value[ev - sv - 1] = '\0';
-	strncpy(value, sv + 1, ev - sv - 1);
+    name[en - sn - 1] = '\0';
+    strncpy(name, sn + 1, en - sn - 1);
+    value[ev - sv - 1] = '\0';
+    strncpy(value, sv + 1, ev - sv - 1);
 
-	type->require_count++;
-	type->required = realloc(type->required, type->require_count * sizeof(char *));
+    type->require_count++;
+    type->required = realloc(type->required, type->require_count * sizeof(char *));
 
-	flag = find_flag(name);
+    flag = find_flag(name);
 
-	if (flag)
-	{
-		snprintf(temp, sizeof(temp), "@ref %s %s", flag->code_name, strcmp(value, "0") ? "set" : "unset");
-	}
-	else
-	{
-		snprintf(temp, sizeof(temp), "@ref object::%s = %s", name, value);
-	}
+    if (flag) {
+        snprintf(temp, sizeof(temp), "@ref %s %s", flag->code_name, strcmp(value, "0") ? "set" : "unset");
+    }
+    else {
+        snprintf(temp, sizeof(temp), "@ref object::%s = %s", name, value);
+    }
 
-	type->required[type->require_count - 1] = strdup(temp);
+    type->required[type->require_count - 1] = strdup(temp);
 }
 
 /**
@@ -674,236 +654,196 @@ void add_required_parameter(type_definition *type, const char *buf)
  * @param block_end If encountered on a line, will stop reading. */
 void read_type(type_definition *type, FILE *file, const char *block_end)
 {
-	char buf[200], tmp[200];
-	char *find, *end;
-	type_attribute *attr;
+    char buf[200], tmp[200];
+    char *find, *end;
+    type_attribute *attr;
 
-	while (fgets(buf, sizeof(buf), file))
-	{
-		if (strstr(buf, block_end) != NULL)
-		{
-			if (type->attribute_count)
-			{
-				qsort(type->attributes, type->attribute_count, sizeof(type_attribute *), sort_type_attribute);
-			}
+    while (fgets(buf, sizeof(buf), file)) {
+        if (strstr(buf, block_end) != NULL) {
+            if (type->attribute_count) {
+                qsort(type->attributes, type->attribute_count, sizeof(type_attribute *), sort_type_attribute);
+            }
 
-			return;
-		}
+            return;
+        }
 
-		if (strstr(buf, "<description>") != NULL)
-		{
-			while (fgets(buf, sizeof(buf), file))
-			{
-				if (strstr(buf, "</description>") != NULL)
-				{
-					break;
-				}
-				else if (strstr(buf, "<![CDATA["))
-				{
-					continue;
-				}
+        if (strstr(buf, "<description>") != NULL) {
+            while (fgets(buf, sizeof(buf), file)) {
+                if (strstr(buf, "</description>") != NULL) {
+                    break;
+                }
+                else if (strstr(buf, "<![CDATA[")) {
+                    continue;
+                }
 
-				if (type->description)
-				{
-					type->description = realloc(type->description, strlen(type->description) + strlen(buf) + 1);
-					strcat(type->description, buf);
-				}
-				else
-				{
-					type->description = strdup(buf);
-				}
-			}
+                if (type->description) {
+                    type->description = realloc(type->description, strlen(type->description) + strlen(buf) + 1);
+                    strcat(type->description, buf);
+                }
+                else {
+                    type->description = strdup(buf);
+                }
+            }
 
-			find = strstr(type->description, "]]>");
+            find = strstr(type->description, "]]>");
 
-			if (find)
-			{
-				type->description[find-type->description] = '\0';
-			}
-			while (type->description[strlen(type->description) - 1] == '\n')
-			{
-				type->description[strlen(type->description) - 1] = '\0';
-			}
-		}
+            if (find) {
+                type->description[find-type->description] = '\0';
+            }
+            while (type->description[strlen(type->description) - 1] == '\n') {
+                type->description[strlen(type->description) - 1] = '\0';
+            }
+        }
 
-		if (strstr(buf, "<ignore_list") != NULL)
-		{
-			find = strstr(buf, "name=");
+        if (strstr(buf, "<ignore_list") != NULL) {
+            find = strstr(buf, "name=");
 
-			if (!find)
-			{
-				return;
-			}
+            if (!find) {
+                return;
+            }
 
-			find = strchr(find + 1, '"');
+            find = strchr(find + 1, '"');
 
-			if (!find)
-			{
-				return;
-			}
+            if (!find) {
+                return;
+            }
 
-			end = strchr(find + 1, '"');
+            end = strchr(find + 1, '"');
 
-			if (!end)
-			{
-				return;
-			}
+            if (!end) {
+                return;
+            }
 
-			tmp[end - find - 1] = '\0';
-			strncpy(tmp, find + 1, end-find - 1);
-			ignore_attributes(type, find_ignore_list(tmp));
-		}
+            tmp[end - find - 1] = '\0';
+            strncpy(tmp, find + 1, end-find - 1);
+            ignore_attributes(type, find_ignore_list(tmp));
+        }
 
-		if (strstr(buf, "<ignore>") != NULL)
-		{
-			while (fgets(buf, sizeof(buf), file))
-			{
-				if (strstr(buf, "</ignore>") != NULL)
-				{
-					break;
-				}
+        if (strstr(buf, "<ignore>") != NULL) {
+            while (fgets(buf, sizeof(buf), file)) {
+                if (strstr(buf, "</ignore>") != NULL) {
+                    break;
+                }
 
-				find = strstr(buf, "arch=");
+                find = strstr(buf, "arch=");
 
-				if (!find)
-				{
-					continue;
-				}
+                if (!find) {
+                    continue;
+                }
 
-				find = strchr(find + 1, '"');
+                find = strchr(find + 1, '"');
 
-				if (!find)
-				{
-					continue;
-				}
+                if (!find) {
+                    continue;
+                }
 
-				end = strchr(find + 1, '"');
+                end = strchr(find + 1, '"');
 
-				if (!end)
-				{
-					continue;
-				}
+                if (!end) {
+                    continue;
+                }
 
-				tmp[end-find - 1] = '\0';
-				strncpy(tmp, find + 1, end - find - 1);
-				ignore_attribute(type, tmp);
-			}
-		}
+                tmp[end-find - 1] = '\0';
+                strncpy(tmp, find + 1, end - find - 1);
+                ignore_attribute(type, tmp);
+            }
+        }
 
-		if (strstr(buf, "<required>") != NULL)
-		{
-			while (fgets(buf, sizeof(buf), file))
-			{
-				if (strstr(buf, "</required>") != NULL)
-				{
-					break;
-				}
+        if (strstr(buf, "<required>") != NULL) {
+            while (fgets(buf, sizeof(buf), file)) {
+                if (strstr(buf, "</required>") != NULL) {
+                    break;
+                }
 
-				add_required_parameter(type, buf);
-			}
-		}
+                add_required_parameter(type, buf);
+            }
+        }
 
-		if (strstr(buf, "<import_type") != NULL)
-		{
-			type_definition *import;
+        if (strstr(buf, "<import_type") != NULL) {
+            type_definition *import;
 
-			find = strstr(buf, "name=");
+            find = strstr(buf, "name=");
 
-			if (!find)
-			{
-				return;
-			}
+            if (!find) {
+                return;
+            }
 
-			find = strchr(find + 1, '"');
+            find = strchr(find + 1, '"');
 
-			if (!find)
-			{
-				return;
-			}
+            if (!find) {
+                return;
+            }
 
-			end = strchr(find + 1, '"');
+            end = strchr(find + 1, '"');
 
-			if (!end)
-			{
-				return;
-			}
+            if (!end) {
+                return;
+            }
 
-			tmp[end - find - 1] = '\0';
-			strncpy(tmp, find + 1, end - find - 1);
-			import = find_type_definition(tmp);
+            tmp[end - find - 1] = '\0';
+            strncpy(tmp, find + 1, end - find - 1);
+            import = find_type_definition(tmp);
 
-			if (import)
-			{
-				copy_attributes(import, type);
-			}
-			else
-			{
-				printf("%s: import %s not found\n", type->name, tmp);
-			}
-		}
+            if (import) {
+                copy_attributes(import, type);
+            }
+            else {
+                printf("%s: import %s not found\n", type->name, tmp);
+            }
+        }
 
-		if (strstr(buf, "<attribute") != NULL)
-		{
-			if (strstr(buf, "/>") != NULL)
-			{
-				continue;
-			}
+        if (strstr(buf, "<attribute") != NULL) {
+            if (strstr(buf, "/>") != NULL) {
+                continue;
+            }
 
-			find = strstr(buf, "arch");
+            find = strstr(buf, "arch");
 
-			if (!find)
-			{
-				continue;
-			}
+            if (!find) {
+                continue;
+            }
 
-			find = strchr(find, '"');
-			end = strchr(find + 1, '"');
+            find = strchr(find, '"');
+            end = strchr(find + 1, '"');
 
-			if (end == find + 1)
-			{
-				/* Empty arch, meaning inventory or such, ignore. */
-				continue;
-			}
+            if (end == find + 1) {
+                /* Empty arch, meaning inventory or such, ignore. */
+                continue;
+            }
 
-			tmp[end - find - 1] = '\0';
-			strncpy(tmp, find + 1, end - find - 1);
+            tmp[end - find - 1] = '\0';
+            strncpy(tmp, find + 1, end - find - 1);
 
-			attr = get_attribute_for_type(type, tmp);
+            attr = get_attribute_for_type(type, tmp);
 
-			find = strstr(buf, "editor");
-			find = strchr(find, '"');
-			end = strchr(find + 1, '"');
-			tmp[end - find - 1] = '\0';
-			strncpy(tmp, find + 1, end - find - 1);
-			attr->name = strdup(tmp);
+            find = strstr(buf, "editor");
+            find = strchr(find, '"');
+            end = strchr(find + 1, '"');
+            tmp[end - find - 1] = '\0';
+            strncpy(tmp, find + 1, end - find - 1);
+            attr->name = strdup(tmp);
 
-			while (fgets(buf, sizeof(buf), file))
-			{
-				if (strstr(buf, "</attribute>") != NULL)
-				{
-					break;
-				}
+            while (fgets(buf, sizeof(buf), file)) {
+                if (strstr(buf, "</attribute>") != NULL) {
+                    break;
+                }
 
-				if (attr->description)
-				{
-					attr->description = realloc(attr->description, strlen(attr->description) + strlen(buf) + 1);
-					strcat(attr->description, buf);
-				}
-				else
-				{
-					attr->description = strdup(buf);
-				}
-			}
+                if (attr->description) {
+                    attr->description = realloc(attr->description, strlen(attr->description) + strlen(buf) + 1);
+                    strcat(attr->description, buf);
+                }
+                else {
+                    attr->description = strdup(buf);
+                }
+            }
 
-			if (attr->description)
-			{
-				while (attr->description[strlen(attr->description) - 1] == '\n')
-				{
-					attr->description[strlen(attr->description) - 1] = '\0';
-				}
-			}
-		}
-	}
+            if (attr->description) {
+                while (attr->description[strlen(attr->description) - 1] == '\n') {
+                    attr->description[strlen(attr->description) - 1] = '\0';
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -912,25 +852,23 @@ void read_type(type_definition *type, FILE *file, const char *block_end)
  * @return Found/created attribute. */
 attribute_definition *get_attribute(const char *name)
 {
-	int attr;
-	attribute_definition *ret;
+    int attr;
+    attribute_definition *ret;
 
-	for (attr = 0; attr < attribute_count; attr++)
-	{
-		if (!strcmp(attributes[attr]->field, name))
-		{
-			return attributes[attr];
-		}
-	}
+    for (attr = 0; attr < attribute_count; attr++) {
+        if (!strcmp(attributes[attr]->field, name)) {
+            return attributes[attr];
+        }
+    }
 
-	ret = calloc(1, sizeof(attribute_definition));
-	attribute_count++;
-	attributes = realloc(attributes, attribute_count * sizeof(attribute_definition *));
-	attributes[attribute_count - 1] = ret;
+    ret = calloc(1, sizeof(attribute_definition));
+    attribute_count++;
+    attributes = realloc(attributes, attribute_count * sizeof(attribute_definition *));
+    attributes[attribute_count - 1] = ret;
 
-	ret->field = strdup(name);
+    ret->field = strdup(name);
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -941,33 +879,29 @@ attribute_definition *get_attribute(const char *name)
  * @return Attribute type. */
 attribute_type *get_description_for_attribute(attribute_definition *attribute, const char *description)
 {
-	int desc;
-	attribute_type *add;
+    int desc;
+    attribute_type *add;
 
-	for (desc = 0; desc < attribute->type_count; desc++)
-	{
-		if (!description && !attribute->types[desc]->description)
-		{
-			return attribute->types[desc];
-		}
+    for (desc = 0; desc < attribute->type_count; desc++) {
+        if (!description && !attribute->types[desc]->description) {
+            return attribute->types[desc];
+        }
 
-		if (description && attribute->types[desc]->description && !strcmp(description, attribute->types[desc]->description))
-		{
-			return attribute->types[desc];
-		}
-	}
+        if (description && attribute->types[desc]->description && !strcmp(description, attribute->types[desc]->description)) {
+            return attribute->types[desc];
+        }
+    }
 
-	add = calloc(1, sizeof(attribute_type));
-	attribute->type_count++;
-	attribute->types = realloc(attribute->types, attribute->type_count * sizeof(attribute_type));
-	attribute->types[attribute->type_count - 1] = add;
+    add = calloc(1, sizeof(attribute_type));
+    attribute->type_count++;
+    attribute->types = realloc(attribute->types, attribute->type_count * sizeof(attribute_type));
+    attribute->types[attribute->type_count - 1] = add;
 
-	if (description)
-	{
-		add->description = strdup(description);
-	}
+    if (description) {
+        add->description = strdup(description);
+    }
 
-	return add;
+    return add;
 }
 
 /**
@@ -977,14 +911,14 @@ attribute_type *get_description_for_attribute(attribute_definition *attribute, c
  * @param attr Attribute ID. */
 void add_type_to_attribute(attribute_definition *attribute, type_definition *type, int attr)
 {
-	attribute_type *att;
+    attribute_type *att;
 
-	att = get_description_for_attribute(attribute, type->attributes[attr]->description);
-	att->count++;
-	att->type = realloc(att->type, att->count * sizeof(const char *));
-	att->number = realloc(att->number, att->count * sizeof(int));
-	att->type[att->count - 1] = strdup(type->name);
-	att->number[att->count - 1] = type->number;
+    att = get_description_for_attribute(attribute, type->attributes[attr]->description);
+    att->count++;
+    att->type = realloc(att->type, att->count * sizeof(const char *));
+    att->number = realloc(att->number, att->count * sizeof(int));
+    att->type[att->count - 1] = strdup(type->name);
+    att->number[att->count - 1] = type->number;
 }
 
 /**
@@ -993,125 +927,112 @@ void add_type_to_attribute(attribute_definition *attribute, type_definition *typ
  * @param file File to read from. */
 void read_ignore_list(const char *name, FILE *file)
 {
-	char buf[200], tmp[200];
-	char *start, *end;
-	ignore_list *list;
+    char buf[200], tmp[200];
+    char *start, *end;
+    ignore_list *list;
 
-	list = calloc(1, sizeof(ignore_list));
-	list_count++;
-	lists = realloc(lists, list_count * sizeof(ignore_list *));
-	lists[list_count - 1] = list;
-	list->name = strdup(name);
+    list = calloc(1, sizeof(ignore_list));
+    list_count++;
+    lists = realloc(lists, list_count * sizeof(ignore_list *));
+    lists[list_count - 1] = list;
+    list->name = strdup(name);
 
-	while (fgets(buf, sizeof(buf), file))
-	{
-		if (strstr(buf, "</ignore_list>") != NULL)
-		{
-			return;
-		}
+    while (fgets(buf, sizeof(buf), file)) {
+        if (strstr(buf, "</ignore_list>") != NULL) {
+            return;
+        }
 
-		start = strstr(buf, "arch=");
+        start = strstr(buf, "arch=");
 
-		if (!start)
-		{
-			continue;
-		}
+        if (!start) {
+            continue;
+        }
 
-		start = strchr(start + 1, '"');
+        start = strchr(start + 1, '"');
 
-		if (!start)
-		{
-			continue;
-		}
+        if (!start) {
+            continue;
+        }
 
-		end = strchr(start + 1, '"');
+        end = strchr(start + 1, '"');
 
-		if (!end)
-		{
-			continue;
-		}
+        if (!end) {
+            continue;
+        }
 
-		tmp[end - start - 1] = '\0';
-		strncpy(tmp, start + 1, end - start - 1);
+        tmp[end - start - 1] = '\0';
+        strncpy(tmp, start + 1, end - start - 1);
 
-		list->count++;
-		list->fields = realloc(list->fields, list->count * sizeof(char *));
-		list->fields[list->count - 1] = strdup(tmp);
-	}
+        list->count++;
+        list->fields = realloc(list->fields, list->count * sizeof(char *));
+        list->fields[list->count - 1] = strdup(tmp);
+    }
 }
 
 /** Fields part of the living structure. */
 static const char *in_living[] =
 {
-	"exp",
+    "exp",
 
-	"hp",
-	"maxhp",
-	"sp",
-	"maxsp",
-	"grace",
-	"maxgrace",
+    "hp",
+    "maxhp",
+    "sp",
+    "maxsp",
+    "grace",
+    "maxgrace",
 
-	"food",
-	"dam",
-	"wc",
-	"ac",
-	"wc_range",
+    "food",
+    "dam",
+    "wc",
+    "ac",
+    "wc_range",
 
-	"Str",
-	"Dex",
-	"Con",
-	"Wis",
-	"Cha",
-	"Int",
-	"Pow",
-	"luck",
-	NULL
+    "Str",
+    "Dex",
+    "Con",
+    "Wis",
+    "Cha",
+    "Int",
+    "Pow",
+    "luck",
+    NULL
 };
 
 /** Custom attributes we know about, to point to the right page. */
 static const char *custom_attributes[] =
 {
-	NULL
+    NULL
 };
 
 int is_custom_attribute(const char *attribute)
 {
-	int val, i;
+    int val, i;
 
-	for (val = 0; custom_attributes[val] != NULL; val++)
-	{
-		if (!strcmp(custom_attributes[val], attribute))
-		{
-			return 1;
-		}
-	}
+    for (val = 0; custom_attributes[val] != NULL; val++) {
+        if (!strcmp(custom_attributes[val], attribute)) {
+            return 1;
+        }
+    }
 
-	if (!strncmp(attribute, "protection_", 11))
-	{
-		for (i = 0; i < NROFPROTECTIONS; i++)
-		{
-			if (!strcmp(attribute, protection_save[i]))
-			{
-				return 1;
-			}
-		}
-	}
+    if (!strncmp(attribute, "protection_", 11)) {
+        for (i = 0; i < NROFPROTECTIONS; i++) {
+            if (!strcmp(attribute, protection_save[i])) {
+                return 1;
+            }
+        }
+    }
 
-	if (!strncmp(attribute, "attack_", 7) || !strncmp(attribute, "resist_", 7))
-	{
-		attribute += 7;
+    if (!strncmp(attribute, "attack_", 7) || !strncmp(attribute, "resist_", 7)) {
+        attribute += 7;
 
-		for (i = 0; i < NROFATTACKS; i++)
-		{
-			if (!strcmp(attribute, resist_save[i]))
-			{
-				return 1;
-			}
-		}
-	}
+        for (i = 0; i < NROFATTACKS; i++) {
+            if (!strcmp(attribute, resist_save[i])) {
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -1120,37 +1041,32 @@ int is_custom_attribute(const char *attribute)
  * @param file File to write to. */
 void write_attribute_reference(char *attribute, FILE *file)
 {
-	const flag_definition *flag = find_flag(attribute);
-	int val;
+    const flag_definition *flag = find_flag(attribute);
+    int val;
 
-	if (flag)
-	{
-		fprintf(file, "%s", flag->code_name);
-		return;
-	}
+    if (flag) {
+        fprintf(file, "%s", flag->code_name);
+        return;
+    }
 
-	for (val = 0; in_living[val] != NULL; val++)
-	{
-		if (!strcmp(in_living[val], attribute))
-		{
-			fprintf(file, "liv::%s", attribute);
-			return;
-		}
-	}
+    for (val = 0; in_living[val] != NULL; val++) {
+        if (!strcmp(in_living[val], attribute)) {
+            fprintf(file, "liv::%s", attribute);
+            return;
+        }
+    }
 
-	if (is_custom_attribute(attribute))
-	{
-		fprintf(file, "page_custom_attributes \"%s\"", attribute);
-		return;
-	}
+    if (is_custom_attribute(attribute)) {
+        fprintf(file, "page_custom_attributes \"%s\"", attribute);
+        return;
+    }
 
-	if (!strcmp(attribute, "connected"))
-	{
-		fprintf(file, "page_connected \"connection value\"");
-		return;
-	}
+    if (!strcmp(attribute, "connected")) {
+        fprintf(file, "page_connected \"connection value\"");
+        return;
+    }
 
-	fprintf(file, "obj::%s", find_fake_attr_name(attribute));
+    fprintf(file, "obj::%s", find_fake_attr_name(attribute));
 }
 
 /**
@@ -1158,92 +1074,83 @@ void write_attribute_reference(char *attribute, FILE *file)
  * @param type Type definition to write. */
 void write_type_file(type_definition *type)
 {
-	FILE *file;
-	char buf[200];
-	int attr, req;
+    FILE *file;
+    char buf[200];
+    int attr, req;
 
-	snprintf(buf, sizeof(buf), "%s/%s/type_%d.dox", destination_dir, type_dir, type->number);
-	file = fopen(buf, "w+");
+    snprintf(buf, sizeof(buf), "%s/%s/type_%d.dox", destination_dir, type_dir, type->number);
+    file = fopen(buf, "w+");
 
-	fprintf(file, "/**\n");
+    fprintf(file, "/**\n");
 
-	/* Auto-generate documentation for the type, so no need to change define.h */
-	if (type->number > 0)
-	{
-		for (req = 0; type_names[req].code_name != NULL; req++)
-		{
-			if (type_names[req].value == type->number)
-			{
-				fprintf(file, "@var %s\nSee @ref page_type_%d\n*/\n\n/**\n", type_names[req].code_name, type->number);
-				break;
-			}
-		}
-	}
+    /* Auto-generate documentation for the type, so no need to change define.h
+     * */
+    if (type->number > 0) {
+        for (req = 0; type_names[req].code_name != NULL; req++) {
+            if (type_names[req].value == type->number) {
+                fprintf(file, "@var %s\nSee @ref page_type_%d\n*/\n\n/**\n", type_names[req].code_name, type->number);
+                break;
+            }
+        }
+    }
 
-	fprintf(file, "@page page_type_%d %s\n\n", type->number, type->name);
-	fprintf(file, "\n@section Description\n");
-	fprintf(file, "%s\n\n", type->description);
+    fprintf(file, "@page page_type_%d %s\n\n", type->number, type->name);
+    fprintf(file, "\n@section Description\n");
+    fprintf(file, "%s\n\n", type->description);
 
-	if (type != fallback_type)
-	{
-		fprintf(file, "\n\nType defined by:\n");
+    if (type != fallback_type) {
+        fprintf(file, "\n\nType defined by:\n");
 
-		if (type->number && type->number < OBJECT_TYPE_MAX)
-		{
-			fprintf(file, "- @ref object::type = %d\n", type->number);
-		}
+        if (type->number && type->number < OBJECT_TYPE_MAX) {
+            fprintf(file, "- @ref object::type = %d\n", type->number);
+        }
 
-		for (req = 0; req < type->require_count; req++)
-		{
-			fprintf(file, "- %s\n", type->required[req]);
-		}
-	}
+        for (req = 0; req < type->require_count; req++) {
+            fprintf(file, "- %s\n", type->required[req]);
+        }
+    }
 
-	fprintf(file, "\n\n@section Attributes\n\n");
-	fprintf(file, "<table>\n\t<tr>\n\t\t<th>Attribute</th>\n\t\t<th>Field</th>\n\t\t<th>Description</th>\n\t</tr>\n");
+    fprintf(file, "\n\n@section Attributes\n\n");
+    fprintf(file, "<table>\n\t<tr>\n\t\t<th>Attribute</th>\n\t\t<th>Field</th>\n\t\t<th>Description</th>\n\t</tr>\n");
 
-	for (attr = 0; attr < type->attribute_count; attr++)
-	{
-		fprintf(file, "\t<tr>\n\t\t<td>%s</td>\n\t\t<td>@ref ", type->attributes[attr]->name);
-		write_attribute_reference(type->attributes[attr]->field, file);
-		fprintf(file, "</td>\n\t\t<td>%s\n\t\t</td>\n\t</tr>\n", type->attributes[attr]->description ? type->attributes[attr]->description : "(no description)");
-	}
+    for (attr = 0; attr < type->attribute_count; attr++) {
+        fprintf(file, "\t<tr>\n\t\t<td>%s</td>\n\t\t<td>@ref ", type->attributes[attr]->name);
+        write_attribute_reference(type->attributes[attr]->field, file);
+        fprintf(file, "</td>\n\t\t<td>%s\n\t\t</td>\n\t</tr>\n", type->attributes[attr]->description ? type->attributes[attr]->description : "(no description)");
+    }
 
-	fprintf(file, "</table>\n*/\n");
+    fprintf(file, "</table>\n*/\n");
 
-	fclose(file);
+    fclose(file);
 }
 
 /** Write index of all types. */
 void write_type_index()
 {
-	FILE *index;
-	int type;
-	char buf[200];
+    FILE *index;
+    int type;
+    char buf[200];
 
-	snprintf(buf, sizeof(buf), "%s/%s/types.dox", destination_dir, type_dir);
-	index = fopen(buf, "w+");
+    snprintf(buf, sizeof(buf), "%s/%s/types.dox", destination_dir, type_dir);
+    index = fopen(buf, "w+");
 
-	if (index == NULL)
-	{
-		printf("Could not open %s\n", buf);
-		exit(0);
-	}
+    if (index == NULL) {
+        printf("Could not open %s\n", buf);
+        exit(0);
+    }
 
-	fprintf(index, "/**\n@page type_index Type index\n");
-	fprintf(index, "Types not listed here have the attributes defined in @ref page_type_0 \"this page\".\n\n");
+    fprintf(index, "/**\n@page type_index Type index\n");
+    fprintf(index, "Types not listed here have the attributes defined in @ref page_type_0 \"this page\".\n\n");
 
-	for (type = 0; type < type_count; type++)
-	{
-		if (types[type])
-		{
-			fprintf(index, "- @ref page_type_%d \"%s\"\n", types[type]->number, types[type]->name);
-		}
-	}
+    for (type = 0; type < type_count; type++) {
+        if (types[type]) {
+            fprintf(index, "- @ref page_type_%d \"%s\"\n", types[type]->number, types[type]->name);
+        }
+    }
 
-	fprintf(index, "*/\n");
+    fprintf(index, "*/\n");
 
-	fclose(index);
+    fclose(index);
 }
 
 /**
@@ -1251,168 +1158,149 @@ void write_type_index()
  * @param attribute Attribute definition to write. */
 void write_attribute_file(attribute_definition *attribute)
 {
-	FILE *file;
-	char buf[200];
-	int type, desc;
-	const char *end;
+    FILE *file;
+    char buf[200];
+    int type, desc;
+    const char *end;
 
-	snprintf(buf, sizeof(buf), "%s/%s/field_%s.dox", destination_dir, field_dir, attribute->field);
-	file = fopen(buf, "w+");
+    snprintf(buf, sizeof(buf), "%s/%s/field_%s.dox", destination_dir, field_dir, attribute->field);
+    file = fopen(buf, "w+");
 
-	fprintf(file, "/**\n@fn ");
-	write_attribute_reference(attribute->field, file);
+    fprintf(file, "/**\n@fn ");
+    write_attribute_reference(attribute->field, file);
 
-	fprintf(file, "\n@section Use\n");
+    fprintf(file, "\n@section Use\n");
 
-	fprintf(file, "<table>\n\t<tr>\n\t\t<th>Type(s)</th>\n\t\t<th>Description</th>\n\t</tr>");
+    fprintf(file, "<table>\n\t<tr>\n\t\t<th>Type(s)</th>\n\t\t<th>Description</th>\n\t</tr>");
 
-	for (desc = 0; desc < attribute->type_count; desc++)
-	{
-		fprintf(file, "\t<tr>\n\t\t<td>\n");
+    for (desc = 0; desc < attribute->type_count; desc++) {
+        fprintf(file, "\t<tr>\n\t\t<td>\n");
 
-		for (type = 0; type < attribute->types[desc]->count; type++)
-		{
-			if (type < attribute->types[desc]->count-1)
-			{
-				end = ", ";
-			}
-			else
-			{
-				end = "\n";
-			}
+        for (type = 0; type < attribute->types[desc]->count; type++) {
+            if (type < attribute->types[desc]->count-1) {
+                end = ", ";
+            }
+            else {
+                end = "\n";
+            }
 
-			fprintf(file, "@ref page_type_%d%s", attribute->types[desc]->number[type], end);
-		}
+            fprintf(file, "@ref page_type_%d%s", attribute->types[desc]->number[type], end);
+        }
 
-		fprintf(file, "\t\t</td><td>%s</td>\n\t</tr>\n", attribute->types[desc]->description ? attribute->types[desc]->description : "(no description)");
-	}
+        fprintf(file, "\t\t</td><td>%s</td>\n\t</tr>\n", attribute->types[desc]->description ? attribute->types[desc]->description : "(no description)");
+    }
 
-	fprintf(file, "\n*/\n");
-	fclose(file);
+    fprintf(file, "\n*/\n");
+    fclose(file);
 }
 
 /**
  * Main function of the program. */
 int main(int argc, char **argv)
 {
-	FILE *xml;
-	int number, attr, dummy;
-	char buf[200], tmp[200];
-	char *start, *end;
-	type_definition *type;
+    FILE *xml;
+    int number, attr, dummy;
+    char buf[200], tmp[200];
+    char *start, *end;
+    type_definition *type;
 
-	if (argc < 2)
-	{
-		printf("Syntax: %s /path/to/Gridarta/types.xml\n", argv[0]);
-		return 1;
-	}
+    if (argc < 2) {
+        printf("Syntax: %s /path/to/Gridarta/types.xml\n", argv[0]);
+        return 1;
+    }
 
-	/* Dummy type number for special types. */
-	dummy = OBJECT_TYPE_MAX+50;
-	xml = fopen(argv[1], "r");
+    /* Dummy type number for special types. */
+    dummy = OBJECT_TYPE_MAX+50;
+    xml = fopen(argv[1], "r");
 
-	if (!xml)
-	{
-		printf("Could not open file: %s\n", argv[1]);
-		return 1;
-	}
+    if (!xml) {
+        printf("Could not open file: %s\n", argv[1]);
+        return 1;
+    }
 
-	while (fgets(buf, sizeof(buf), xml) != NULL)
-	{
-		if (buf[0] == '#')
-		{
-			continue;
-		}
+    while (fgets(buf, sizeof(buf), xml) != NULL) {
+        if (buf[0] == '#') {
+            continue;
+        }
 
-		if (strstr(buf, "<default_type>"))
-		{
-			default_type = get_type_definition();
-			default_type->name = strdup("(default type)");
-			read_type(default_type, xml, "</default_type>");
-			continue;
-		}
+        if (strstr(buf, "<default_type>")) {
+            default_type = get_type_definition();
+            default_type->name = strdup("(default type)");
+            read_type(default_type, xml, "</default_type>");
+            continue;
+        }
 
-		if (strstr(buf, "<ignore_list") != NULL)
-		{
-			start = strstr(buf, "name=");
-			start = strchr(start + 1, '"');
-			end = strchr(start + 1, '"');
-			tmp[end - start - 1] = '\0';
-			strncpy(tmp, start + 1, end - start - 1);
-			read_ignore_list(tmp, xml);
-			continue;
-		}
+        if (strstr(buf, "<ignore_list") != NULL) {
+            start = strstr(buf, "name=");
+            start = strchr(start + 1, '"');
+            end = strchr(start + 1, '"');
+            tmp[end - start - 1] = '\0';
+            strncpy(tmp, start + 1, end - start - 1);
+            read_ignore_list(tmp, xml);
+            continue;
+        }
 
-		start = strstr(buf, "<type number");
+        start = strstr(buf, "<type number");
 
-		if (start)
-		{
-			start = strchr(start, '"');
-			end = strchr(start + 1, '"');
-			tmp[end - start - 1] = '\0';
-			strncpy(tmp, start + 1, end - start - 1);
+        if (start) {
+            start = strchr(start, '"');
+            end = strchr(start + 1, '"');
+            tmp[end - start - 1] = '\0';
+            strncpy(tmp, start + 1, end - start - 1);
 
-			number = atoi(tmp);
-			start = strstr(end, "name=");
-			start = strchr(start, '"');
-			end = strchr(start + 1, '"');
-			tmp[end - start - 1] = '\0';
-			strncpy(tmp, start + 1, end - start - 1);
+            number = atoi(tmp);
+            start = strstr(end, "name=");
+            start = strchr(start, '"');
+            end = strchr(start + 1, '"');
+            tmp[end - start - 1] = '\0';
+            strncpy(tmp, start + 1, end - start - 1);
 
-			if (!strcmp(tmp, "Misc"))
-			{
-				fallback_type = get_type_definition();
-				type = fallback_type;
-			}
-			else
-			{
-				if (number == 0)
-				{
-					number = dummy++;
-				}
+            if (!strcmp(tmp, "Misc")) {
+                fallback_type = get_type_definition();
+                type = fallback_type;
+            }
+            else {
+                if (number == 0) {
+                    number = dummy++;
+                }
 
-				type = get_type_definition();
-				type_count++;
-				types = realloc(types, type_count * sizeof(type_definition *));
-				types[type_count - 1] = type;
-			}
+                type = get_type_definition();
+                type_count++;
+                types = realloc(types, type_count * sizeof(type_definition *));
+                types[type_count - 1] = type;
+            }
 
-			type->number = number;
-			type->name = strdup(tmp);
+            type->number = number;
+            type->name = strdup(tmp);
 
-			read_type(type, xml, "</type>");
-		}
-	}
+            read_type(type, xml, "</type>");
+        }
+    }
 
-	free(fallback_type->description);
-	fallback_type->description = strdup("This type regroups all types who don't have a specific definition.");
+    free(fallback_type->description);
+    fallback_type->description = strdup("This type regroups all types who don't have a specific definition.");
 
-	for (number = 0; number < type_count; number++)
-	{
-		for (attr = 0; attr < types[number]->attribute_count; attr++)
-		{
-			add_type_to_attribute(get_attribute(types[number]->attributes[attr]->field), types[number], attr);
-		}
-	}
+    for (number = 0; number < type_count; number++) {
+        for (attr = 0; attr < types[number]->attribute_count; attr++) {
+            add_type_to_attribute(get_attribute(types[number]->attributes[attr]->field), types[number], attr);
+        }
+    }
 
-	write_type_index();
+    write_type_index();
 
-	for (number = 0; number < type_count; number++)
-	{
-		write_type_file(types[number]);
-	}
+    for (number = 0; number < type_count; number++) {
+        write_type_file(types[number]);
+    }
 
-	write_type_file(fallback_type);
+    write_type_file(fallback_type);
 
-	for (attr = 0; attr < attribute_count; attr++)
-	{
-		if (!is_custom_attribute(attributes[attr]->field))
-		{
-			write_attribute_file(attributes[attr]);
-		}
-	}
+    for (attr = 0; attr < attribute_count; attr++) {
+        if (!is_custom_attribute(attributes[attr]->field)) {
+            write_attribute_file(attributes[attr]);
+        }
+    }
 
-	fclose(xml);
-	free(types);
-	return 0;
+    fclose(xml);
+    free(types);
+    return 0;
 }

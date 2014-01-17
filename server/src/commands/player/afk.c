@@ -33,17 +33,15 @@
 /** @copydoc command_func */
 void command_afk(object *op, const char *command, char *params)
 {
-	if (CONTR(op)->afk)
-	{
-		CONTR(op)->afk = 0;
-		draw_info(COLOR_WHITE, op, "You are no longer AFK.");
-	}
-	else
-	{
-		CONTR(op)->afk = 1;
-		CONTR(op)->stat_afk_used++;
-		draw_info(COLOR_WHITE, op, "You are now AFK.");
-	}
+    if (CONTR(op)->afk) {
+        CONTR(op)->afk = 0;
+        draw_info(COLOR_WHITE, op, "You are no longer AFK.");
+    }
+    else {
+        CONTR(op)->afk = 1;
+        CONTR(op)->stat_afk_used++;
+        draw_info(COLOR_WHITE, op, "You are now AFK.");
+    }
 
-	CONTR(op)->socket.ext_title_flag = 1;
+    CONTR(op)->socket.ext_title_flag = 1;
 }

@@ -33,24 +33,22 @@
  * @param ob The object to initialize. */
 void sound_ambient_init(object *ob)
 {
-	MapSpace *msp;
+    MapSpace *msp;
 
-	/* Must be on map... */
-	if (!ob->map)
-	{
-		logger_print(LOG(BUG), "Ambient sound effect object not on map.");
-		return;
-	}
+    /* Must be on map... */
+    if (!ob->map) {
+        logger_print(LOG(BUG), "Ambient sound effect object not on map.");
+        return;
+    }
 
-	if (!ob->race || *ob->race == '\0')
-	{
-		logger_print(LOG(BUG), "Ambient sound effect object is missing sound effect filename.");
-		return;
-	}
+    if (!ob->race || *ob->race == '\0') {
+        logger_print(LOG(BUG), "Ambient sound effect object is missing sound effect filename.");
+        return;
+    }
 
-	msp = GET_MAP_SPACE_PTR(ob->map, ob->x, ob->y);
-	msp->sound_ambient = ob;
-	msp->sound_ambient_count = ob->count;
+    msp = GET_MAP_SPACE_PTR(ob->map, ob->x, ob->y);
+    msp->sound_ambient = ob;
+    msp->sound_ambient_count = ob->count;
 }
 
 /**

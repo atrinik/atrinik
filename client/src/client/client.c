@@ -51,34 +51,34 @@ ClientSocket csocket;
 /** Structure of all the socket commands */
 static socket_command_struct commands[CLIENT_CMD_NROF] =
 {
-	{socket_command_map},
-	{socket_command_drawinfo},
-	{socket_command_file_update},
-	{socket_command_item},
-	{socket_command_sound},
-	{socket_command_target},
-	{socket_command_item_update},
-	{socket_command_item_delete},
-	{socket_command_stats},
-	{socket_command_image},
-	{socket_command_anim},
-	{NULL},
-	{socket_command_player},
-	{socket_command_mapstats},
-	{NULL},
-	{socket_command_version},
-	{socket_command_setup},
-	{socket_command_control},
-	{socket_command_data},
-	{socket_command_characters},
-	{socket_command_book},
-	{socket_command_party},
-	{socket_command_quickslots},
-	{socket_command_compressed},
-	{socket_command_region_map},
-	{socket_command_sound_ambient},
-	{socket_command_interface},
-	{socket_command_notification}
+    {socket_command_map},
+    {socket_command_drawinfo},
+    {socket_command_file_update},
+    {socket_command_item},
+    {socket_command_sound},
+    {socket_command_target},
+    {socket_command_item_update},
+    {socket_command_item_delete},
+    {socket_command_stats},
+    {socket_command_image},
+    {socket_command_anim},
+    {NULL},
+    {socket_command_player},
+    {socket_command_mapstats},
+    {NULL},
+    {socket_command_version},
+    {socket_command_setup},
+    {socket_command_control},
+    {socket_command_data},
+    {socket_command_characters},
+    {socket_command_book},
+    {socket_command_party},
+    {socket_command_quickslots},
+    {socket_command_compressed},
+    {socket_command_region_map},
+    {socket_command_sound_ambient},
+    {socket_command_interface},
+    {socket_command_notification}
 };
 
 /**
@@ -86,22 +86,19 @@ static socket_command_struct commands[CLIENT_CMD_NROF] =
  * commands from server are received. */
 void DoClient(void)
 {
-	command_buffer *cmd;
+    command_buffer *cmd;
 
-	/* Handle all enqueued commands */
-	while ((cmd = get_next_input_command()))
-	{
-		if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func)
-		{
-			logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
-		}
-		else
-		{
-			commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
-		}
+    /* Handle all enqueued commands */
+    while ((cmd = get_next_input_command())) {
+        if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
+            logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
+        }
+        else {
+            commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
+        }
 
-		command_buffer_free(cmd);
-	}
+        command_buffer_free(cmd);
+    }
 }
 
 /**
@@ -109,15 +106,14 @@ void DoClient(void)
  * @param anum Animation ID. */
 void check_animation_status(int anum)
 {
-	/* Check if it has been loaded. */
-	if (animations[anum].loaded)
-	{
-		return;
-	}
+    /* Check if it has been loaded. */
+    if (animations[anum].loaded) {
+        return;
+    }
 
-	/* Mark this animation as loaded. */
-	animations[anum].loaded = 1;
+    /* Mark this animation as loaded. */
+    animations[anum].loaded = 1;
 
-	/* Same as server sends it */
-	socket_command_anim(anim_table[anum].anim_cmd, anim_table[anum].len, 0);
+    /* Same as server sends it */
+    socket_command_anim(anim_table[anum].anim_cmd, anim_table[anum].len, 0);
 }

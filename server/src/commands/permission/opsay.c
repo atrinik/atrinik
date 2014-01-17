@@ -33,22 +33,19 @@
 /** @copydoc command_func */
 void command_opsay(object *op, const char *command, char *params)
 {
-	player *pl;
+    player *pl;
 
-	params = player_sanitize_input(params);
+    params = player_sanitize_input(params);
 
-	if (!params)
-	{
-		return;
-	}
+    if (!params) {
+        return;
+    }
 
-	logger_print(LOG(CHAT), "[OPSAY] [%s] %s", op->name, params);
+    logger_print(LOG(CHAT), "[OPSAY] [%s] %s", op->name, params);
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (commands_check_permission(pl, command))
-		{
-			draw_info_type(CHAT_TYPE_OPERATOR, op->name, COLOR_RED, pl->ob, params);
-		}
-	}
+    for (pl = first_player; pl; pl = pl->next) {
+        if (commands_check_permission(pl, command)) {
+            draw_info_type(CHAT_TYPE_OPERATOR, op->name, COLOR_RED, pl->ob, params);
+        }
+    }
 }

@@ -87,8 +87,8 @@
  * can be written - otherwise, the number of bytes written will be returned
  * for both modes. */
 /*
-#define O_NDELAY O_NONBLOCK
-*/
+ * #define O_NDELAY O_NONBLOCK
+ */
 
 /**
  * MAP_DEFAULTTIMEOUT is the default number of ticks until a map is swapped out
@@ -146,7 +146,7 @@
  *
  * If you are running the game set-gid (to a games-group, for instance),
  * you must remember to make it writeable for the group (ie 0660). */
-#define	SAVE_MODE	0660
+#define SAVE_MODE   0660
 
 /**
  * How often (in seconds) the player is saved if he drops things. If it is
@@ -183,7 +183,8 @@
 #define COMPRESS_DATA_PACKETS 0
 
 /**
- * Only data packets longer than this will be compressed if @ref COMPRESS_DATA_PACKETS
+ * Only data packets longer than this will be compressed if @ref
+ * COMPRESS_DATA_PACKETS
  * is 1. This option shouldn't be too high, since in such case it would have
  * little effect, and not too low either, in which case it would do more
  * harm than good.

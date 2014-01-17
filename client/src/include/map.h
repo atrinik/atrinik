@@ -86,16 +86,16 @@
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
 #define GET_MAP_LAYER(_layer, _sub_layer) \
-	(NUM_LAYERS * (_sub_layer) + (_layer) - 1)
+    (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
 /** Multi part object tile structure */
 typedef struct _multi_part_tile
 {
-	/** X-offset */
-	int xoff;
+    /** X-offset */
+    int xoff;
 
-	/** Y-offset */
-	int yoff;
+    /** Y-offset */
+    int yoff;
 } _multi_part_tile;
 
 /** Table of predefined multi arch objects.
@@ -107,108 +107,108 @@ typedef struct _multi_part_tile
  * masks are. */
 typedef struct _multi_part_obj
 {
-	/** Natural xlen of the whole multi arch */
-	int xlen;
+    /** Natural xlen of the whole multi arch */
+    int xlen;
 
-	/** Same for ylen */
-	int ylen;
+    /** Same for ylen */
+    int ylen;
 
-	/** Tile */
-	_multi_part_tile part[16];
+    /** Tile */
+    _multi_part_tile part[16];
 } _multi_part_obj;
 
 /** Map data structure */
 typedef struct _mapdata
 {
-	/** Map name. */
-	char name[HUGE_BUF];
+    /** Map name. */
+    char name[HUGE_BUF];
 
-	/** New map name. */
-	char name_new[HUGE_BUF];
+    /** New map name. */
+    char name_new[HUGE_BUF];
 
-	uint32 name_fadeout_start;
+    uint32 name_fadeout_start;
 
-	/** X length. */
-	int xlen;
+    /** X length. */
+    int xlen;
 
-	/** Y length. */
-	int ylen;
+    /** Y length. */
+    int ylen;
 
-	/** Position X. */
-	int posx;
+    /** Position X. */
+    int posx;
 
-	/** Position Y. */
-	int posy;
+    /** Position Y. */
+    int posy;
 } _mapdata;
 
 /** Map cell structure. */
 typedef struct MapCell
 {
-	/** Position. */
-	uint8 quick_pos[NUM_REAL_LAYERS];
+    /** Position. */
+    uint8 quick_pos[NUM_REAL_LAYERS];
 
-	/** Player name color on this cell. */
-	char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
+    /** Player name color on this cell. */
+    char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
 
-	/** If this is where our enemy is. */
-	uint8 probe[NUM_REAL_LAYERS];
+    /** If this is where our enemy is. */
+    uint8 probe[NUM_REAL_LAYERS];
 
-	/** Cell darkness. */
-	uint8 darkness;
+    /** Cell darkness. */
+    uint8 darkness;
 
-	/** Object flags. */
-	uint8 flags[NUM_REAL_LAYERS];
+    /** Object flags. */
+    uint8 flags[NUM_REAL_LAYERS];
 
-	/** Double drawing. */
-	uint8 draw_double[NUM_REAL_LAYERS];
+    /** Double drawing. */
+    uint8 draw_double[NUM_REAL_LAYERS];
 
-	/** Alpha value. */
-	uint8 alpha[NUM_REAL_LAYERS];
+    /** Alpha value. */
+    uint8 alpha[NUM_REAL_LAYERS];
 
-	/** Faces. */
-	sint16 faces[NUM_REAL_LAYERS];
+    /** Faces. */
+    sint16 faces[NUM_REAL_LAYERS];
 
-	/** Height of this maptile. */
-	sint16 height[NUM_REAL_LAYERS];
+    /** Height of this maptile. */
+    sint16 height[NUM_REAL_LAYERS];
 
-	/** Zoom X. */
-	sint16 zoom_x[NUM_REAL_LAYERS];
+    /** Zoom X. */
+    sint16 zoom_x[NUM_REAL_LAYERS];
 
-	/** Zoom Y. */
-	sint16 zoom_y[NUM_REAL_LAYERS];
+    /** Zoom Y. */
+    sint16 zoom_y[NUM_REAL_LAYERS];
 
-	/** Align. */
-	sint16 align[NUM_REAL_LAYERS];
+    /** Align. */
+    sint16 align[NUM_REAL_LAYERS];
 
-	/** Rotate. */
-	sint16 rotate[NUM_REAL_LAYERS];
+    /** Rotate. */
+    sint16 rotate[NUM_REAL_LAYERS];
 
-	/** Whether to show the object in red. */
-	uint8 infravision[NUM_REAL_LAYERS];
+    /** Whether to show the object in red. */
+    uint8 infravision[NUM_REAL_LAYERS];
 
-	/** How we stretch this is really 8 char for N S E W. */
-	uint32 stretch[NUM_SUB_LAYERS];
+    /** How we stretch this is really 8 char for N S E W. */
+    uint32 stretch[NUM_SUB_LAYERS];
 
-	/** Name of player on this cell. */
-	char pname[NUM_REAL_LAYERS][64];
+    /** Name of player on this cell. */
+    char pname[NUM_REAL_LAYERS][64];
 
-	uint32 target_object_count[NUM_REAL_LAYERS];
+    uint32 target_object_count[NUM_REAL_LAYERS];
 
-	uint8 target_is_friend[NUM_REAL_LAYERS];
+    uint8 target_is_friend[NUM_REAL_LAYERS];
 } MapCell;
 
 /** Map structure. */
 typedef struct Map
 {
-	/** Map cells. */
-	struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
+    /** Map cells. */
+    struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
 } Map;
 
 typedef struct map_target_struct
 {
-	uint32 count;
-	int x;
-	int y;
+    uint32 count;
+    int x;
+    int y;
 } map_target_struct;
 
 /** Font used for the map name. */

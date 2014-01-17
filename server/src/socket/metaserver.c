@@ -35,17 +35,17 @@ static void *metaserver_thread(void *junk);
  * Metaserver update information structure. */
 typedef struct ms_update_info
 {
-	/**
-	 * Number of players in the game. */
-	char num_players[MAX_BUF];
+    /**
+     * Number of players in the game. */
+    char num_players[MAX_BUF];
 
-	/**
-	 * The port the server is using. */
-	char port[MAX_BUF];
+    /**
+     * The port the server is using. */
+    char port[MAX_BUF];
 
-	/**
-	 * Players currently in the game, separated by colons (':'). */
-	char *players;
+    /**
+     * Players currently in the game, separated by colons (':'). */
+    char *players;
 } ms_update_info;
 
 /**
@@ -60,61 +60,56 @@ static ms_update_info metaserver_info;
  * Updates the ::metaserver_info. */
 void metaserver_info_update(void)
 {
-	player *pl;
-	uint32 num_players = 0;
-	StringBuffer *sb = stringbuffer_new();
+    player *pl;
+    uint32 num_players = 0;
+    StringBuffer *sb = stringbuffer_new();
 
-	for (pl = first_player; pl; pl = pl->next)
-	{
-		if (stringbuffer_length(sb))
-		{
-			stringbuffer_append_string(sb, ":");
-		}
+    for (pl = first_player; pl; pl = pl->next) {
+        if (stringbuffer_length(sb)) {
+            stringbuffer_append_string(sb, ":");
+        }
 
-		stringbuffer_append_string(sb, pl->quick_name);
-		num_players++;
-	}
+        stringbuffer_append_string(sb, pl->quick_name);
+        num_players++;
+    }
 
-	pthread_mutex_lock(&ms_info_mutex);
+    pthread_mutex_lock(&ms_info_mutex);
 
-	if (metaserver_info.players)
-	{
-		free(metaserver_info.players);
-	}
+    if (metaserver_info.players) {
+        free(metaserver_info.players);
+    }
 
-	snprintf(metaserver_info.num_players, sizeof(metaserver_info.num_players), "%u", num_players);
-	metaserver_info.players = stringbuffer_finish(sb);
-	pthread_mutex_unlock(&ms_info_mutex);
+    snprintf(metaserver_info.num_players, sizeof(metaserver_info.num_players), "%u", num_players);
+    metaserver_info.players = stringbuffer_finish(sb);
+    pthread_mutex_unlock(&ms_info_mutex);
 }
 
 /**
  * Initialize the metaserver. */
 void metaserver_init(void)
 {
-	int ret;
-	pthread_t thread_id;
+    int ret;
+    pthread_t thread_id;
 
-	if (*settings.server_host == '\0')
-	{
-		return;
-	}
+    if (*settings.server_host == '\0') {
+        return;
+    }
 
-	pthread_mutex_init(&ms_info_mutex, NULL);
+    pthread_mutex_init(&ms_info_mutex, NULL);
 
-	memset(&metaserver_info, 0, sizeof(metaserver_info));
-	/* Store the port number. */
-	snprintf(metaserver_info.port, sizeof(metaserver_info.port), "%d", settings.port);
-	metaserver_info_update();
+    memset(&metaserver_info, 0, sizeof(metaserver_info));
+    /* Store the port number. */
+    snprintf(metaserver_info.port, sizeof(metaserver_info.port), "%d", settings.port);
+    metaserver_info_update();
 
-	/* Init global cURL */
-	curl_global_init(CURL_GLOBAL_ALL);
-	ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
+    /* Init global cURL */
+    curl_global_init(CURL_GLOBAL_ALL);
+    ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
 
-	if (ret)
-	{
-		logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
-		exit(1);
-	}
+    if (ret) {
+        logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
+        exit(1);
+    }
 }
 
 /**
@@ -126,80 +121,77 @@ void metaserver_init(void)
  * @return The real size of the data */
 static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
 {
-	size_t realsize = size * nmemb;
+    size_t realsize = size * nmemb;
 
-	(void) data;
+    (void) data;
 
-	logger_print(LOG(DEBUG), "Returned data: %s", (const char *) ptr);
+    logger_print(LOG(DEBUG), "Returned data: %s", (const char *) ptr);
 
-	return realsize;
+    return realsize;
 }
 
 /**
  * Do the metaserver updating. */
 static void metaserver_update(void)
 {
-	struct curl_httppost *formpost = NULL, *lastptr = NULL;
-	CURL *curl;
-	CURLcode res = 0;
+    struct curl_httppost *formpost = NULL, *lastptr = NULL;
+    CURL *curl;
+    CURLcode res = 0;
 
-	/* Hostname. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.server_host, CURLFORM_END);
+    /* Hostname. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.server_host, CURLFORM_END);
 
-	/* Server version. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, PACKAGE_VERSION, CURLFORM_END);
+    /* Server version. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, PACKAGE_VERSION, CURLFORM_END);
 
-	/* Server comment. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.server_desc, CURLFORM_END);
+    /* Server comment. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.server_desc, CURLFORM_END);
 
-	/* Server name. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.server_name, CURLFORM_END);
+    /* Server name. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.server_name, CURLFORM_END);
 
-	pthread_mutex_lock(&ms_info_mutex);
-	/* Number of players. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, metaserver_info.num_players, CURLFORM_END);
+    pthread_mutex_lock(&ms_info_mutex);
+    /* Number of players. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, metaserver_info.num_players, CURLFORM_END);
 
-	/* Player names. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, metaserver_info.players, CURLFORM_END);
+    /* Player names. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, metaserver_info.players, CURLFORM_END);
 
-	/* Port number. */
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.port, CURLFORM_END);
-	pthread_mutex_unlock(&ms_info_mutex);
+    /* Port number. */
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.port, CURLFORM_END);
+    pthread_mutex_unlock(&ms_info_mutex);
 
-	/* Init "easy" cURL */
-	curl = curl_easy_init();
+    /* Init "easy" cURL */
+    curl = curl_easy_init();
 
-	if (curl)
-	{
-		/* What URL that receives this POST */
-		curl_easy_setopt(curl, CURLOPT_URL, settings.metaserver_url);
-		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+    if (curl) {
+        /* What URL that receives this POST */
+        curl_easy_setopt(curl, CURLOPT_URL, settings.metaserver_url);
+        curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
-		/* Almost always, we will get HTTP data returned
-		 * to us - instead of it going to stderr,
-		 * we want to take care of it ourselves. */
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, metaserver_writer);
-		res = curl_easy_perform(curl);
+        /* Almost always, we will get HTTP data returned
+         * to us - instead of it going to stderr,
+         * we want to take care of it ourselves. */
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, metaserver_writer);
+        res = curl_easy_perform(curl);
 
-		if (res)
-		{
-			logger_print(LOG(DEBUG), "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
-		}
+        if (res) {
+            logger_print(LOG(DEBUG), "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
+        }
 
-		/* Always cleanup */
-		curl_easy_cleanup(curl);
-	}
+        /* Always cleanup */
+        curl_easy_cleanup(curl);
+    }
 
-	/* Free the form */
-	curl_formfree(formpost);
+    /* Free the form */
+    curl_formfree(formpost);
 
-	/* Output info that the data was updated. */
-	if (!res)
-	{
-		time_t now = time(NULL);
+    /* Output info that the data was updated. */
+    if (!res) {
+        time_t now = time(NULL);
 
-		logger_print(LOG(DEBUG), "Sent data at %.19s.", ctime(&now));
-	}
+        logger_print(LOG(DEBUG), "Sent data at %.19s.", ctime(&now));
+    }
 }
 
 /**
@@ -207,15 +199,14 @@ static void metaserver_update(void)
  * @return NULL. */
 static void *metaserver_thread(void *junk)
 {
-	(void) junk;
-	
-	while (1)
-	{
-		metaserver_update();
-		sleep(300);
-	}
-	
-	logger_print(LOG(INFO), "Metaserver thread exiting.");
+    (void) junk;
 
-	return NULL;
+    while (1) {
+        metaserver_update();
+        sleep(300);
+    }
+
+    logger_print(LOG(INFO), "Metaserver thread exiting.");
+
+    return NULL;
 }

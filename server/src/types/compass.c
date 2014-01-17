@@ -33,23 +33,22 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
+    const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
 
-	(void) op;
-	(void) aflags;
+    (void) op;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_OK;
+    }
 
-	draw_info_format(COLOR_WHITE, applier, "You are facing %s.", direction_names[absdir(applier->facing) - 1]);
-	return OBJECT_METHOD_OK;
+    draw_info_format(COLOR_WHITE, applier, "You are facing %s.", direction_names[absdir(applier->facing) - 1]);
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the compass type object methods. */
 void object_type_init_compass(void)
 {
-	object_type_methods[COMPASS].apply_func = apply_func;
+    object_type_methods[COMPASS].apply_func = apply_func;
 }

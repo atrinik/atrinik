@@ -43,10 +43,10 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_sha1_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(sha1)
-	{
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(sha1)
+    {
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -54,10 +54,10 @@ void toolkit_sha1_init(void)
  * @internal */
 void toolkit_sha1_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(sha1)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(sha1)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /*
@@ -65,22 +65,22 @@ void toolkit_sha1_deinit(void)
  */
 #ifndef GET_ULONG_BE
 #define GET_ULONG_BE(n,b,i)                             \
-{                                                       \
-    (n) = ( (unsigned long) (b)[(i)    ] << 24 )        \
-        | ( (unsigned long) (b)[(i) + 1] << 16 )        \
-        | ( (unsigned long) (b)[(i) + 2] <<  8 )        \
-        | ( (unsigned long) (b)[(i) + 3]       );       \
-}
+    {                                                       \
+        (n) = ( (unsigned long) (b)[(i)    ] << 24 )        \
+              | ( (unsigned long) (b)[(i) + 1] << 16 )        \
+              | ( (unsigned long) (b)[(i) + 2] <<  8 )        \
+              | ( (unsigned long) (b)[(i) + 3]       );       \
+    }
 #endif
 
 #ifndef PUT_ULONG_BE
 #define PUT_ULONG_BE(n,b,i)                             \
-{                                                       \
-    (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
-    (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
-    (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
-    (b)[(i) + 3] = (unsigned char) ( (n)       );       \
-}
+    {                                                       \
+        (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
+        (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
+        (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
+        (b)[(i) + 3] = (unsigned char) ( (n)       );       \
+    }
 #endif
 
 /*
@@ -122,16 +122,16 @@ static void sha1_process( sha1_context *ctx, const unsigned char data[64] )
 #define S(x,n) ((x << n) | ((x & 0xFFFFFFFF) >> (32 - n)))
 
 #define R(t)                                            \
-(                                                       \
-    temp = W[(t -  3) & 0x0F] ^ W[(t - 8) & 0x0F] ^     \
-           W[(t - 14) & 0x0F] ^ W[ t      & 0x0F],      \
-    ( W[t & 0x0F] = S(temp,1) )                         \
-)
+    (                                                       \
+        temp = W[(t -  3) & 0x0F] ^ W[(t - 8) & 0x0F] ^     \
+               W[(t - 14) & 0x0F] ^ W[ t      & 0x0F],      \
+        ( W[t & 0x0F] = S(temp,1) )                         \
+    )
 
 #define P(a,b,c,d,e,x)                                  \
-{                                                       \
-    e += S(a,5) + F(b,c,d) + K + x; b = S(b,30);        \
-}
+    {                                                       \
+        e += S(a,5) + F(b,c,d) + K + x; b = S(b,30);        \
+    }
 
     A = ctx->state[0];
     B = ctx->state[1];
@@ -274,33 +274,30 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     if( ctx->total[0] < (unsigned long) ilen )
         ctx->total[1]++;
 
-    if( left && ilen >= fill )
-    {
+    if( left && ilen >= fill ) {
         memcpy( (void *) (ctx->buffer + left),
-                (void *) input, fill );
+            (void *) input, fill );
         sha1_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
+    while( ilen >= 64 ) {
         sha1_process( ctx, input );
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 )
-    {
+    if( ilen > 0 ) {
         memcpy( (void *) (ctx->buffer + left),
-                (void *) input, ilen );
+            (void *) input, ilen );
     }
 }
 
 static const unsigned char sha1_padding[64] =
 {
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -315,8 +312,8 @@ void sha1_finish( sha1_context *ctx, unsigned char output[20] )
     unsigned long high, low;
     unsigned char msglen[8];
 
-    high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
+    high = ( ctx->total[0] >> 29 )|
+           ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_ULONG_BE( high, msglen, 0 );
@@ -371,8 +368,7 @@ int sha1_file( const char *path, unsigned char output[20] )
 
     memset( &ctx, 0, sizeof( sha1_context ) );
 
-    if( ferror( f ) != 0 )
-    {
+    if( ferror( f ) != 0 ) {
         fclose( f );
         return( 2 );
     }
@@ -389,8 +385,7 @@ void sha1_hmac_starts( sha1_context *ctx, const unsigned char *key, size_t keyle
     size_t i;
     unsigned char sum[20];
 
-    if( keylen > 64 )
-    {
+    if( keylen > 64 ) {
         sha1( key, keylen, sum );
         keylen = 20;
         key = sum;
@@ -399,8 +394,7 @@ void sha1_hmac_starts( sha1_context *ctx, const unsigned char *key, size_t keyle
     memset( ctx->ipad, 0x36, 64 );
     memset( ctx->opad, 0x5C, 64 );
 
-    for( i = 0; i < keylen; i++ )
-    {
+    for( i = 0; i < keylen; i++ ) {
         ctx->ipad[i] = (unsigned char)( ctx->ipad[i] ^ key[i] );
         ctx->opad[i] = (unsigned char)( ctx->opad[i] ^ key[i] );
     }

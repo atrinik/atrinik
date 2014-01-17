@@ -46,17 +46,17 @@
 /** Srv client files. */
 typedef struct _srv_client_files
 {
-	/** Compressed file data. */
-	uint8 *file;
+    /** Compressed file data. */
+    uint8 *file;
 
-	/** Compressed file length. */
-	size_t len;
+    /** Compressed file length. */
+    size_t len;
 
-	/** Original uncompressed file length */
-	size_t len_ucomp;
+    /** Original uncompressed file length */
+    size_t len_ucomp;
 
-	/** CRC32 sum. */
-	unsigned long crc;
+    /** CRC32 sum. */
+    unsigned long crc;
 } _srv_client_files;
 
 #endif

@@ -43,17 +43,17 @@
  * One 'cached' sound. */
 typedef struct sound_data_struct
 {
-	/** The sound's data. */
-	void *data;
+    /** The sound's data. */
+    void *data;
 
-	/** Sound's type, one of @ref SOUND_TYPE_xxx. */
-	int type;
+    /** Sound's type, one of @ref SOUND_TYPE_xxx. */
+    int type;
 
-	/** Filename that was used to load sound_data_struct::data from. */
-	char *filename;
+    /** Filename that was used to load sound_data_struct::data from. */
+    char *filename;
 
-	/** Hash handle. */
-	UT_hash_handle hh;
+    /** Hash handle. */
+    UT_hash_handle hh;
 } sound_data_struct;
 
 #define POW2(x) ((x) * (x))
@@ -65,26 +65,26 @@ typedef struct sound_data_struct
  * One ambient sound effect. */
 typedef struct sound_ambient_struct
 {
-	/** Next ambient sound effect in a doubly-linked list. */
-	struct sound_ambient_struct *next;
+    /** Next ambient sound effect in a doubly-linked list. */
+    struct sound_ambient_struct *next;
 
-	/** Previous ambient sound effect in a doubly-linked list. */
-	struct sound_ambient_struct *prev;
+    /** Previous ambient sound effect in a doubly-linked list. */
+    struct sound_ambient_struct *prev;
 
-	/** ID of the object the sound is coming from. */
-	int tag;
+    /** ID of the object the sound is coming from. */
+    int tag;
 
-	/** Channel ID we are playing the sound effect on. */
-	int channel;
+    /** Channel ID we are playing the sound effect on. */
+    int channel;
 
-	/** X position of the sound effect object on the client map. */
-	int x;
+    /** X position of the sound effect object on the client map. */
+    int x;
 
-	/** Y position of the sound effect object on the client map. */
-	int y;
+    /** Y position of the sound effect object on the client map. */
+    int y;
 
-	/** Maximum range. */
-	uint8 max_range;
+    /** Maximum range. */
+    uint8 max_range;
 } sound_ambient_struct;
 
 #endif

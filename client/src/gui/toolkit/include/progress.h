@@ -33,14 +33,14 @@
  * Dots progress indicator. */
 typedef struct progress_dots
 {
-	/** Last time when one of the dots was lit. */
-	uint32 ticks;
+    /** Last time when one of the dots was lit. */
+    uint32 ticks;
 
-	/** Which dot is currently lit. */
-	uint8 dot;
+    /** Which dot is currently lit. */
+    uint8 dot;
 
-	/** Whether the progress is done. */
-	uint8 done;
+    /** Whether the progress is done. */
+    uint8 done;
 } progress_dots;
 
 /** Number of progress dots shown. */

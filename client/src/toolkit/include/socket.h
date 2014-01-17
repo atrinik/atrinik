@@ -33,71 +33,71 @@
  * Commands used for sending data from client to server. */
 enum
 {
-	SERVER_CMD_CONTROL,
-	SERVER_CMD_ASK_FACE,
-	SERVER_CMD_SETUP,
-	SERVER_CMD_VERSION,
-	SERVER_CMD_REQUEST_FILE,
-	SERVER_CMD_CLEAR,
-	SERVER_CMD_REQUEST_UPDATE,
-	SERVER_CMD_KEEPALIVE,
-	SERVER_CMD_ACCOUNT,
-	SERVER_CMD_ITEM_EXAMINE,
-	SERVER_CMD_ITEM_APPLY,
-	SERVER_CMD_ITEM_MOVE,
-	/** @deprecated */
-	SERVER_CMD_REPLY,
-	SERVER_CMD_PLAYER_CMD,
-	SERVER_CMD_ITEM_LOCK,
-	SERVER_CMD_ITEM_MARK,
-	SERVER_CMD_FIRE,
-	SERVER_CMD_QUICKSLOT,
-	SERVER_CMD_QUESTLIST,
-	SERVER_CMD_MOVE_PATH,
-	SERVER_CMD_ITEM_READY,
-	SERVER_CMD_TALK,
-	SERVER_CMD_MOVE,
-	SERVER_CMD_TARGET,
+    SERVER_CMD_CONTROL,
+    SERVER_CMD_ASK_FACE,
+    SERVER_CMD_SETUP,
+    SERVER_CMD_VERSION,
+    SERVER_CMD_REQUEST_FILE,
+    SERVER_CMD_CLEAR,
+    SERVER_CMD_REQUEST_UPDATE,
+    SERVER_CMD_KEEPALIVE,
+    SERVER_CMD_ACCOUNT,
+    SERVER_CMD_ITEM_EXAMINE,
+    SERVER_CMD_ITEM_APPLY,
+    SERVER_CMD_ITEM_MOVE,
+    /** @deprecated */
+    SERVER_CMD_REPLY,
+    SERVER_CMD_PLAYER_CMD,
+    SERVER_CMD_ITEM_LOCK,
+    SERVER_CMD_ITEM_MARK,
+    SERVER_CMD_FIRE,
+    SERVER_CMD_QUICKSLOT,
+    SERVER_CMD_QUESTLIST,
+    SERVER_CMD_MOVE_PATH,
+    SERVER_CMD_ITEM_READY,
+    SERVER_CMD_TALK,
+    SERVER_CMD_MOVE,
+    SERVER_CMD_TARGET,
 
-	SERVER_CMD_NROF
+    SERVER_CMD_NROF
 };
 
 /**
  * All the possible socket commands. */
 enum
 {
-	CLIENT_CMD_MAP,
-	CLIENT_CMD_DRAWINFO,
-	CLIENT_CMD_FILE_UPDATE,
-	CLIENT_CMD_ITEM,
-	CLIENT_CMD_SOUND,
-	CLIENT_CMD_TARGET,
-	CLIENT_CMD_ITEM_UPDATE,
-	CLIENT_CMD_ITEM_DELETE,
-	CLIENT_CMD_STATS,
-	CLIENT_CMD_IMAGE,
-	CLIENT_CMD_ANIM,
-	/** @deprecated */
-	CLIENT_CMD_SKILL_READY,
-	CLIENT_CMD_PLAYER,
-	CLIENT_CMD_MAPSTATS,
-	/** @deprecated */
-	CLIENT_CMD_SKILL_LIST,
-	CLIENT_CMD_VERSION,
-	CLIENT_CMD_SETUP,
-	CLIENT_CMD_CONTROL,
-	CLIENT_CMD_DATA,
-	CLIENT_CMD_CHARACTERS,
-	CLIENT_CMD_BOOK,
-	CLIENT_CMD_PARTY,
-	CLIENT_CMD_QUICKSLOT,
-	CLIENT_CMD_COMPRESSED,
-	CLIENT_CMD_REGION_MAP,
-	CLIENT_CMD_SOUND_AMBIENT,
-	CLIENT_CMD_INTERFACE,
-	CLIENT_CMD_NOTIFICATION,
+    CLIENT_CMD_MAP,
+    CLIENT_CMD_DRAWINFO,
+    CLIENT_CMD_FILE_UPDATE,
+    CLIENT_CMD_ITEM,
+    CLIENT_CMD_SOUND,
+    CLIENT_CMD_TARGET,
+    CLIENT_CMD_ITEM_UPDATE,
+    CLIENT_CMD_ITEM_DELETE,
+    CLIENT_CMD_STATS,
+    CLIENT_CMD_IMAGE,
+    CLIENT_CMD_ANIM,
+    /** @deprecated */
+    CLIENT_CMD_SKILL_READY,
+    CLIENT_CMD_PLAYER,
+    CLIENT_CMD_MAPSTATS,
+    /** @deprecated */
+    CLIENT_CMD_SKILL_LIST,
+    CLIENT_CMD_VERSION,
+    CLIENT_CMD_SETUP,
+    CLIENT_CMD_CONTROL,
+    CLIENT_CMD_DATA,
+    CLIENT_CMD_CHARACTERS,
+    CLIENT_CMD_BOOK,
+    CLIENT_CMD_PARTY,
+    CLIENT_CMD_QUICKSLOT,
+    CLIENT_CMD_COMPRESSED,
+    CLIENT_CMD_REGION_MAP,
+    CLIENT_CMD_SOUND_AMBIENT,
+    CLIENT_CMD_INTERFACE,
+    CLIENT_CMD_NOTIFICATION,
 
-	CLIENT_CMD_NROF
+    CLIENT_CMD_NROF
 };
 
 #define MAP_UPDATE_CMD_SAME 0
@@ -444,34 +444,34 @@ enum
  * @defgroup CS_STAT_xx Client/server stats
  * IDs for the various stats that get sent across.
  *@{*/
-#define CS_STAT_HP	 			1
-#define CS_STAT_MAXHP			2
-#define CS_STAT_SP	 			3
-#define CS_STAT_MAXSP			4
-#define CS_STAT_STR	 			5
-#define CS_STAT_INT	 			6
-#define CS_STAT_WIS	 			7
-#define CS_STAT_DEX	 			8
-#define CS_STAT_CON	 			9
-#define CS_STAT_CHA				10
-#define CS_STAT_EXP				11
-#define CS_STAT_LEVEL			12
-#define CS_STAT_WC				13
-#define CS_STAT_AC				14
-#define CS_STAT_DAM				15
-#define CS_STAT_ARMOUR			16
-#define CS_STAT_SPEED			17
-#define CS_STAT_FOOD			18
+#define CS_STAT_HP              1
+#define CS_STAT_MAXHP           2
+#define CS_STAT_SP              3
+#define CS_STAT_MAXSP           4
+#define CS_STAT_STR             5
+#define CS_STAT_INT             6
+#define CS_STAT_WIS             7
+#define CS_STAT_DEX             8
+#define CS_STAT_CON             9
+#define CS_STAT_CHA             10
+#define CS_STAT_EXP             11
+#define CS_STAT_LEVEL           12
+#define CS_STAT_WC              13
+#define CS_STAT_AC              14
+#define CS_STAT_DAM             15
+#define CS_STAT_ARMOUR          16
+#define CS_STAT_SPEED           17
+#define CS_STAT_FOOD            18
 #define CS_STAT_WEAPON_SPEED 19
-#define CS_STAT_RANGE			20
-#define CS_STAT_TITLE			21
-#define CS_STAT_POW				22
-#define CS_STAT_FLAGS			25
-#define CS_STAT_WEIGHT_LIM		26
-#define CS_STAT_EXT_TITLE 		27
-#define CS_STAT_REG_HP 			28
-#define CS_STAT_REG_MANA 		29
-#define CS_STAT_TARGET_HP 		31
+#define CS_STAT_RANGE           20
+#define CS_STAT_TITLE           21
+#define CS_STAT_POW             22
+#define CS_STAT_FLAGS           25
+#define CS_STAT_WEIGHT_LIM      26
+#define CS_STAT_EXT_TITLE       27
+#define CS_STAT_REG_HP          28
+#define CS_STAT_REG_MANA        29
+#define CS_STAT_TARGET_HP       31
 
 #define CS_STAT_GENDER 35
 #define CS_STAT_ACTION_TIME 36
@@ -482,26 +482,26 @@ enum
 #define CS_STAT_PATH_REPELLED 41
 #define CS_STAT_PATH_DENIED 42
 
-#define CS_STAT_RESIST_START	100
-#define CS_STAT_RESIST_END		117
-#define CS_STAT_RES_PHYS		100
-#define CS_STAT_RES_MAG			101
-#define CS_STAT_RES_FIRE		102
-#define CS_STAT_RES_ELEC		103
-#define CS_STAT_RES_COLD		104
-#define CS_STAT_RES_CONF		105
-#define CS_STAT_RES_ACID		106
-#define CS_STAT_RES_DRAIN		107
-#define CS_STAT_RES_GHOSTHIT	108
-#define CS_STAT_RES_POISON		109
-#define CS_STAT_RES_SLOW		110
-#define CS_STAT_RES_PARA		111
-#define CS_STAT_TIME			112
-#define CS_STAT_RES_FEAR		113
-#define CS_STAT_RES_DEPLETE		114
-#define CS_STAT_RES_DEATH		115
-#define CS_STAT_RES_HOLYWORD	116
-#define CS_STAT_RES_BLIND		117
+#define CS_STAT_RESIST_START    100
+#define CS_STAT_RESIST_END      117
+#define CS_STAT_RES_PHYS        100
+#define CS_STAT_RES_MAG         101
+#define CS_STAT_RES_FIRE        102
+#define CS_STAT_RES_ELEC        103
+#define CS_STAT_RES_COLD        104
+#define CS_STAT_RES_CONF        105
+#define CS_STAT_RES_ACID        106
+#define CS_STAT_RES_DRAIN       107
+#define CS_STAT_RES_GHOSTHIT    108
+#define CS_STAT_RES_POISON      109
+#define CS_STAT_RES_SLOW        110
+#define CS_STAT_RES_PARA        111
+#define CS_STAT_TIME            112
+#define CS_STAT_RES_FEAR        113
+#define CS_STAT_RES_DEPLETE     114
+#define CS_STAT_RES_DEATH       115
+#define CS_STAT_RES_HOLYWORD    116
+#define CS_STAT_RES_BLIND       117
 
 #define CS_STAT_EQUIP_START 100
 #define CS_STAT_EQUIP_END 115
@@ -525,9 +525,9 @@ enum
  * floats to ints, and vice versa.
  *@{*/
 /** Integer representation (float to int) */
-#define FLOAT_MULTI	100000
+#define FLOAT_MULTI 100000
 /** Float representation (int to float) */
-#define FLOAT_MULTF	100000.0
+#define FLOAT_MULTF 100000.0
 /*@}*/
 
 /**
@@ -535,7 +535,8 @@ enum
  * These are the 'face flags' we grab out of the flags object structure
  * 1:1.
  *
- * We use a macro to get them from the object, doing it fast AND to mask the bigger
+ * We use a macro to get them from the object, doing it fast AND to mask the
+ * bigger
  * object flags to uint8.
  *@{*/
 
@@ -562,15 +563,15 @@ enum
  * Server file IDs. */
 enum
 {
-	SERVER_FILE_BMAPS,
-	SERVER_FILE_UPDATES,
-	SERVER_FILE_SETTINGS,
-	SERVER_FILE_ANIMS,
-	SERVER_FILE_EFFECTS,
-	SERVER_FILE_HFILES,
+    SERVER_FILE_BMAPS,
+    SERVER_FILE_UPDATES,
+    SERVER_FILE_SETTINGS,
+    SERVER_FILE_ANIMS,
+    SERVER_FILE_EFFECTS,
+    SERVER_FILE_HFILES,
 
-	/** Last index. */
-	SERVER_FILES_MAX
+    /** Last index. */
+    SERVER_FILES_MAX
 };
 
 #define CHAT_TYPE_ALL 1
@@ -600,57 +601,57 @@ enum
  * @anchor PLAYER_EQUIP_xxx */
 enum
 {
-	/**
-	 * Ammunition. */
-	PLAYER_EQUIP_AMMO,
-	/**
-	 * Amulet. */
-	PLAYER_EQUIP_AMULET,
-	/**
-	 * Weapon. */
-	PLAYER_EQUIP_WEAPON,
-	/**
-	 * Gauntlets. */
-	PLAYER_EQUIP_GAUNTLETS,
-	/**
-	 * Right ring. */
-	PLAYER_EQUIP_RING_RIGHT,
+    /**
+     * Ammunition. */
+    PLAYER_EQUIP_AMMO,
+    /**
+     * Amulet. */
+    PLAYER_EQUIP_AMULET,
+    /**
+     * Weapon. */
+    PLAYER_EQUIP_WEAPON,
+    /**
+     * Gauntlets. */
+    PLAYER_EQUIP_GAUNTLETS,
+    /**
+     * Right ring. */
+    PLAYER_EQUIP_RING_RIGHT,
 
-	/**
-	 * Helm. */
-	PLAYER_EQUIP_HELM,
-	/**
-	 * Armor. */
-	PLAYER_EQUIP_ARMOUR,
-	/**
-	 * Belt. */
-	PLAYER_EQUIP_BELT,
-	/**
-	 * Greaves. */
-	PLAYER_EQUIP_GREAVES,
-	/**
-	 * Boots. */
-	PLAYER_EQUIP_BOOTS,
+    /**
+     * Helm. */
+    PLAYER_EQUIP_HELM,
+    /**
+     * Armor. */
+    PLAYER_EQUIP_ARMOUR,
+    /**
+     * Belt. */
+    PLAYER_EQUIP_BELT,
+    /**
+     * Greaves. */
+    PLAYER_EQUIP_GREAVES,
+    /**
+     * Boots. */
+    PLAYER_EQUIP_BOOTS,
 
-	/**
-	 * Cloak. */
-	PLAYER_EQUIP_CLOAK,
-	/**
-	 * Bracers. */
-	PLAYER_EQUIP_BRACERS,
-	/**
-	 * Shield. */
-	PLAYER_EQUIP_SHIELD,
-	/**
-	 * Light (lantern, torch). */
-	PLAYER_EQUIP_LIGHT,
-	/**
-	 * Left ring. */
-	PLAYER_EQUIP_RING_LEFT,
+    /**
+     * Cloak. */
+    PLAYER_EQUIP_CLOAK,
+    /**
+     * Bracers. */
+    PLAYER_EQUIP_BRACERS,
+    /**
+     * Shield. */
+    PLAYER_EQUIP_SHIELD,
+    /**
+     * Light (lantern, torch). */
+    PLAYER_EQUIP_LIGHT,
+    /**
+     * Left ring. */
+    PLAYER_EQUIP_RING_LEFT,
 
-	/**
-	 * Maximum number of equipment. */
-	PLAYER_EQUIP_MAX
+    /**
+     * Maximum number of equipment. */
+    PLAYER_EQUIP_MAX
 };
 
 #endif

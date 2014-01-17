@@ -33,23 +33,23 @@
  * Texture types. */
 typedef enum texture_type_t
 {
-	TEXTURE_TYPE_SOFTWARE,
-	TEXTURE_TYPE_CLIENT,
+    TEXTURE_TYPE_SOFTWARE,
+    TEXTURE_TYPE_CLIENT,
 
-	TEXTURE_TYPE_NUM
+    TEXTURE_TYPE_NUM
 } texture_type_t;
 
 typedef struct texture_struct
 {
-	char *name;
+    char *name;
 
-	texture_type_t type;
+    texture_type_t type;
 
-	time_t last_used;
+    time_t last_used;
 
-	SDL_Surface *surface;
+    SDL_Surface *surface;
 
-	UT_hash_handle hh;
+    UT_hash_handle hh;
 } texture_struct;
 
 #define TEXTURE_FALLBACK_NAME "texture_fallback"

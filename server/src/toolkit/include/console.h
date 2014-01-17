@@ -39,17 +39,17 @@ typedef void (*console_command_func)(const char *params);
  * One console command. */
 typedef struct console_command_struct
 {
-	/** Name of the command. */
-	char *command;
+    /** Name of the command. */
+    char *command;
 
-	/** The function that will handle the command. */
-	console_command_func handle_func;
+    /** The function that will handle the command. */
+    console_command_func handle_func;
 
-	/** Brief, one-line description of the command. */
-	char *desc_brief;
+    /** Brief, one-line description of the command. */
+    char *desc_brief;
 
-	/** Detailed description of the command. */
-	char *desc;
+    /** Detailed description of the command. */
+    char *desc;
 } console_command_struct;
 
 #endif

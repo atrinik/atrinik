@@ -36,23 +36,23 @@
  * List of the map fields and their meaning. */
 static fields_struct fields[] =
 {
-	{"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
-	{"previous", FIELDTYPE_MAP, offsetof(mapstruct, previous), FIELDFLAG_READONLY, 0},
+    {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
+    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, previous), FIELDFLAG_READONLY, 0},
 
-	{"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
-	{"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
-	{"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
-	{"timeout", FIELDTYPE_SINT32, offsetof(mapstruct, timeout), 0, 0},
-	{"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
-	{"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
-	{"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
-	{"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0},
-	{"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), FIELDFLAG_READONLY, 0},
-	{"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
-	{"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
-	{"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
-	{"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0},
-	{"weather", FIELDTYPE_CSTR, offsetof(mapstruct, weather), 0, 0}
+    {"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
+    {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
+    {"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
+    {"timeout", FIELDTYPE_SINT32, offsetof(mapstruct, timeout), 0, 0},
+    {"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
+    {"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
+    {"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
+    {"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0},
+    {"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), FIELDFLAG_READONLY, 0},
+    {"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
+    {"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
+    {"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
+    {"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0},
+    {"weather", FIELDTYPE_CSTR, offsetof(mapstruct, weather), 0, 0}
 };
 /* @endcparser */
 
@@ -66,10 +66,10 @@ static fields_struct fields[] =
  * List of the map flags and their meaning. */
 static char *mapflag_names[] =
 {
-	"f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
-	NULL, "f_noharm", "f_nosummon", "f_fixed_login",
-	"f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
-	"f_no_save"
+    "f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
+    NULL, "f_noharm", "f_nosummon", "f_fixed_login",
+    "f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
+    "f_no_save"
 };
 /* @endcparser */
 
@@ -89,23 +89,21 @@ static char *mapflag_names[] =
  * @return The object if found. */
 static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *map, PyObject *args)
 {
-	int x, y;
-	object *val = NULL;
-	mapstruct *m = map->map;
+    int x, y;
+    object *val = NULL;
+    mapstruct *m = map->map;
 
-	if (!PyArg_ParseTuple(args, "ii", &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "ii", &x, &y)) {
+        return NULL;
+    }
 
-	if ((m = hooks->get_map_from_coord(m, &x, &y)))
-	{
-		/* Since map objects are loaded in reverse mode, the last one in
-		 * in the list is actually the first. */
-		val = GET_MAP_OB_LAST(m, x, y);
-	}
+    if ((m = hooks->get_map_from_coord(m, &x, &y))) {
+        /* Since map objects are loaded in reverse mode, the last one in
+         * in the list is actually the first. */
+        val = GET_MAP_OB_LAST(m, x, y);
+    }
 
-	return wrap_object(val);
+    return wrap_object(val);
 }
 
 /**
@@ -116,23 +114,21 @@ static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *map, PyObject *args)
  * @return The object if found. */
 static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
 {
-	int x, y;
-	object *val = NULL;
-	mapstruct *m = map->map;
+    int x, y;
+    object *val = NULL;
+    mapstruct *m = map->map;
 
-	if (!PyArg_ParseTuple(args, "ii", &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "ii", &x, &y)) {
+        return NULL;
+    }
 
-	if ((m = hooks->get_map_from_coord(m, &x, &y)))
-	{
-		/* Since map objects are loaded in reverse mode, the first one in
-		 * in the list is actually the last. */
-		val = GET_MAP_OB(m, x, y);
-	}
+    if ((m = hooks->get_map_from_coord(m, &x, &y))) {
+        /* Since map objects are loaded in reverse mode, the first one in
+         * in the list is actually the last. */
+        val = GET_MAP_OB(m, x, y);
+    }
 
-	return wrap_object(val);
+    return wrap_object(val);
 }
 
 /**
@@ -143,8 +139,9 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
  * Note that there is another way to loop through objects on a square:
  *
  * @code
-for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x, WhoIsActivator().y):
-	print(ob)
+ *    for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x,
+ * WhoIsActivator().y):
+ *     print(ob)
  * @endcode
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
@@ -156,39 +153,36 @@ for ob in WhoIsActivator().map.GetFirstObject(WhoIsActivator().x, WhoIsActivator
  * @return A list containing objects on the square with the specified layer. */
 static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 {
-	int x, y;
-	uint8 layer;
-	sint8 sub_layer = -1;
-	mapstruct *m;
-	PyObject *list;
-	object *tmp;
+    int x, y;
+    uint8 layer;
+    sint8 sub_layer = -1;
+    mapstruct *m;
+    PyObject *list;
+    object *tmp;
 
-	if (!PyArg_ParseTuple(args, "iib|B", &x, &y, &layer, &sub_layer))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "iib|B", &x, &y, &layer, &sub_layer)) {
+        return NULL;
+    }
 
-	/* Validate the layer ID. */
-	if (layer > NUM_LAYERS)
-	{
-		PyErr_SetString(PyExc_ValueError, "map.GetLayer(): Invalid layer ID.");
-		return NULL;
-	}
+    /* Validate the layer ID. */
+    if (layer > NUM_LAYERS) {
+        PyErr_SetString(PyExc_ValueError, "map.GetLayer(): Invalid layer ID.");
+        return NULL;
+    }
 
-	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
-	{
-		RAISE("map.GetLayer(): Unable to get map using get_map_from_coord().");
-	}
+    if (!(m = hooks->get_map_from_coord(map->map, &x, &y))) {
+        RAISE("map.GetLayer(): Unable to get map using get_map_from_coord().");
+    }
 
-	list = PyList_New(0);
+    list = PyList_New(0);
 
-	FOR_MAP_LAYER_BEGIN(m, x, y, layer, sub_layer, tmp)
-	{
-		PyList_Append(list, wrap_object(tmp));
-	}
-	FOR_MAP_LAYER_END
+    FOR_MAP_LAYER_BEGIN(m, x, y, layer, sub_layer, tmp)
+    {
+        PyList_Append(list, wrap_object(tmp));
+    }
+    FOR_MAP_LAYER_END
 
-	return list;
+    return list;
 }
 
 /**
@@ -200,26 +194,26 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
  * map can be None. */
 static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args)
 {
-	int x, y;
-	mapstruct *m;
-	PyObject *tuple;
+    int x, y;
+    mapstruct *m;
+    PyObject *tuple;
 
-	if (!PyArg_ParseTuple(args, "ii", &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "ii", &x, &y)) {
+        return NULL;
+    }
 
-	m = hooks->get_map_from_coord(map->map, &x, &y);
-	tuple = PyTuple_New(3);
-	PyTuple_SET_ITEM(tuple, 0, wrap_map(m));
-	PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", x));
-	PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", y));
+    m = hooks->get_map_from_coord(map->map, &x, &y);
+    tuple = PyTuple_New(3);
+    PyTuple_SET_ITEM(tuple, 0, wrap_map(m));
+    PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", x));
+    PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", y));
 
-	return tuple;
+    return tuple;
 }
 
 /**
- * <h1>map.PlaySound(string filename, int x, int y, int [type = @ref CMD_SOUND_EFFECT], int [loop = 0], int [volume = 0])</h1>
+ * <h1>map.PlaySound(string filename, int x, int y, int [type = @ref
+ * CMD_SOUND_EFFECT], int [loop = 0], int [volume = 0])</h1>
  * Play a sound on map.
  * @param filename Sound file to play.
  * @param x X position where the sound is playing from.
@@ -229,23 +223,24 @@ static PyObject *Atrinik_Map_GetMapFromCoord(Atrinik_Map *map, PyObject *args)
  * @param volume Volume adjustment. */
 static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"filename", "x", "y", "type", "loop", "volume", NULL};
-	const char *filename;
-	int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
+    static char *kwlist[] = {"filename", "x", "y", "type", "loop", "volume", NULL};
+    const char *filename;
+    int x, y, type = CMD_SOUND_EFFECT, loop = 0, volume = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|iii", kwlist, &filename, &x, &y, &type, &loop, &volume))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "sii|iii", kwlist, &filename, &x, &y, &type, &loop, &volume)) {
+        return NULL;
+    }
 
-	hooks->play_sound_map(map->map, type, filename, x, y, loop, volume);
+    hooks->play_sound_map(map->map, type, filename, x, y, loop, volume);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /**
- * <h1>map.DrawInfo(int x, int y, string message, int [color = @ref COLOR_BLUE], int [type = @ref CHAT_TYPE_GAME], string [name = None], int [distance = @ref MAP_INFO_NORMAL])</h1>
+ * <h1>map.DrawInfo(int x, int y, string message, int [color = @ref COLOR_BLUE],
+ * int [type = @ref CHAT_TYPE_GAME], string [name = None], int [distance = @ref
+ * MAP_INFO_NORMAL])</h1>
  * Send a message to all players on a map.
  * @param x X position on the map.
  * @param y Y position on the map.
@@ -259,25 +254,24 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObjec
  * hear the message. */
 static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"x", "y", "distance", "message", "color", "type", "name", NULL};
-	int x, y, distance;
-	const char *message, *color, *name;
-	uint8 type;
+    static char *kwlist[] = {"x", "y", "distance", "message", "color", "type", "name", NULL};
+    int x, y, distance;
+    const char *message, *color, *name;
+    uint8 type;
 
-	color = COLOR_BLUE;
-	type = CHAT_TYPE_GAME;
-	name = NULL;
-	distance = MAP_INFO_NORMAL;
+    color = COLOR_BLUE;
+    type = CHAT_TYPE_GAME;
+    name = NULL;
+    distance = MAP_INFO_NORMAL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|sbzi", kwlist, &x, &y, &message, &color, &type, &name, &distance))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|sbzi", kwlist, &x, &y, &message, &color, &type, &name, &distance)) {
+        return NULL;
+    }
 
-	hooks->draw_info_map(type, name, color, map->map, x, y, distance, NULL, NULL, message);
+    hooks->draw_info_map(type, name, color, map->map, x, y, distance, NULL, NULL, message);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /**
@@ -290,27 +284,25 @@ static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject
  * @return The created object. */
 static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 {
-	const char *archname;
-	int x, y;
-	archetype *arch;
-	object *newobj;
+    const char *archname;
+    int x, y;
+    archetype *arch;
+    object *newobj;
 
-	if (!PyArg_ParseTuple(args, "sii", &archname, &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "sii", &archname, &x, &y)) {
+        return NULL;
+    }
 
-	if (!(arch = hooks->find_archetype(archname)) || !(newobj = hooks->arch_to_object(arch)))
-	{
-		RAISE("map.CreateObject(): Invalid archetype.");
-		return NULL;
-	}
+    if (!(arch = hooks->find_archetype(archname)) || !(newobj = hooks->arch_to_object(arch))) {
+        RAISE("map.CreateObject(): Invalid archetype.");
+        return NULL;
+    }
 
-	newobj->x = x;
-	newobj->y = y;
-	newobj = hooks->insert_ob_in_map(newobj, map->map, NULL, 0);
+    newobj->x = x;
+    newobj->y = y;
+    newobj = hooks->insert_ob_in_map(newobj, map->map, NULL, 0);
 
-	return wrap_object(newobj);
+    return wrap_object(newobj);
 }
 
 /**
@@ -319,9 +311,9 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
  * @return The number of players on the map. */
 static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
 {
-	(void) args;
+    (void) args;
 
-	return Py_BuildValue("i", hooks->players_on_map(map->map));
+    return Py_BuildValue("i", hooks->players_on_map(map->map));
 }
 
 /**
@@ -330,17 +322,16 @@ static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *map, PyObject *args)
  * @return List containing pointers to player objects on the map. */
 static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 {
-	PyObject *list = PyList_New(0);
-	object *tmp;
+    PyObject *list = PyList_New(0);
+    object *tmp;
 
-	(void) args;
+    (void) args;
 
-	for (tmp = map->map->player_first; tmp; tmp = CONTR(tmp)->map_above)
-	{
-		PyList_Append(list, wrap_object(tmp));
-	}
+    for (tmp = map->map->player_first; tmp; tmp = CONTR(tmp)->map_above) {
+        PyList_Append(list, wrap_object(tmp));
+    }
 
-	return list;
+    return list;
 }
 
 /**
@@ -351,27 +342,25 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
  * @param y Y coordinate where to insert 'ob'. */
 static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 {
-	Atrinik_Object *obj;
-	sint16 x, y;
+    Atrinik_Object *obj;
+    sint16 x, y;
 
-	if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &obj, &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &obj, &x, &y)) {
+        return NULL;
+    }
 
-	OBJEXISTCHECK(obj);
+    OBJEXISTCHECK(obj);
 
-	if (!QUERY_FLAG(obj->obj, FLAG_REMOVED))
-	{
-		hooks->object_remove(obj->obj, 0);
-	}
+    if (!QUERY_FLAG(obj->obj, FLAG_REMOVED)) {
+        hooks->object_remove(obj->obj, 0);
+    }
 
-	obj->obj->x = x;
-	obj->obj->y = y;
-	hooks->insert_ob_in_map(obj->obj, map->map, NULL, 0);
+    obj->obj->x = x;
+    obj->obj->y = y;
+    hooks->insert_ob_in_map(obj->obj, map->map, NULL, 0);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /**
@@ -382,14 +371,13 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
  * @return A combination of @ref map_look_flags. */
 static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args)
 {
-	sint16 x, y;
+    sint16 x, y;
 
-	if (!PyArg_ParseTuple(args, "hh", &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "hh", &x, &y)) {
+        return NULL;
+    }
 
-	return Py_BuildValue("i", hooks->wall(map->map, x, y));
+    return Py_BuildValue("i", hooks->wall(map->map, x, y));
 }
 
 /**
@@ -408,23 +396,21 @@ static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args)
  * @return A combination of @ref map_look_flags. */
 static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
 {
-	Atrinik_Object *ob;
-	int x, y, terrain;
-	mapstruct *m;
+    Atrinik_Object *ob;
+    int x, y, terrain;
+    mapstruct *m;
 
-	if (!PyArg_ParseTuple(args, "O!iii", &Atrinik_ObjectType, &ob, &x, &y, &terrain))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "O!iii", &Atrinik_ObjectType, &ob, &x, &y, &terrain)) {
+        return NULL;
+    }
 
-	OBJEXISTCHECK(ob);
+    OBJEXISTCHECK(ob);
 
-	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
-	{
-		RAISE("Unable to get map using get_map_from_coord().");
-	}
+    if (!(m = hooks->get_map_from_coord(map->map, &x, &y))) {
+        RAISE("Unable to get map using get_map_from_coord().");
+    }
 
-	return Py_BuildValue("i", hooks->blocked(ob->obj, m, x, y, terrain));
+    return Py_BuildValue("i", hooks->blocked(ob->obj, m, x, y, terrain));
 }
 
 /**
@@ -443,35 +429,31 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *map, PyObject *args)
  * arrays otherwise. */
 static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *map, PyObject *args)
 {
-	Atrinik_Object *ob;
-	int x, y, start, stop;
-	mapstruct *m;
+    Atrinik_Object *ob;
+    int x, y, start, stop;
+    mapstruct *m;
 
-	if (!PyArg_ParseTuple(args, "O!iiii", &Atrinik_ObjectType, &ob, &x, &y, &start, &stop))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "O!iiii", &Atrinik_ObjectType, &ob, &x, &y, &start, &stop)) {
+        return NULL;
+    }
 
-	OBJEXISTCHECK(ob);
+    OBJEXISTCHECK(ob);
 
-	if (start < 0 || stop < 0)
-	{
-		PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'start' and 'stop' cannot be negative.");
-		return NULL;
-	}
+    if (start < 0 || stop < 0) {
+        PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'start' and 'stop' cannot be negative.");
+        return NULL;
+    }
 
-	if (stop > SIZEOFFREE)
-	{
-		PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'stop' cannot be higher than SIZEOFFREE.");
-		return NULL;
-	}
+    if (stop > SIZEOFFREE) {
+        PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'stop' cannot be higher than SIZEOFFREE.");
+        return NULL;
+    }
 
-	if (!(m = hooks->get_map_from_coord(map->map, &x, &y)))
-	{
-		return Py_BuildValue("i", -1);
-	}
+    if (!(m = hooks->get_map_from_coord(map->map, &x, &y))) {
+        return Py_BuildValue("i", -1);
+    }
 
-	return Py_BuildValue("i", hooks->find_free_spot(ob->obj->arch, ob->obj, m, x, y, start, stop + 1));
+    return Py_BuildValue("i", hooks->find_free_spot(ob->obj->arch, ob->obj, m, x, y, start, stop + 1));
 }
 
 /**
@@ -482,54 +464,53 @@ static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *map, PyObject *args)
  * @return The darkness value. */
 static PyObject *Atrinik_Map_GetDarkness(Atrinik_Map *map, PyObject *args)
 {
-	int x, y;
-	mapstruct *m;
+    int x, y;
+    mapstruct *m;
 
-	if (!PyArg_ParseTuple(args, "ii", &x, &y))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "ii", &x, &y)) {
+        return NULL;
+    }
 
-	m = hooks->get_map_from_coord(map->map, &x, &y);
+    m = hooks->get_map_from_coord(map->map, &x, &y);
 
-	if (!m)
-	{
-		RAISE("Unable to get map using get_map_from_coord().");
-	}
+    if (!m) {
+        RAISE("Unable to get map using get_map_from_coord().");
+    }
 
-	return Py_BuildValue("i", hooks->map_get_darkness(m, x, y, NULL));
+    return Py_BuildValue("i", hooks->map_get_darkness(m, x, y, NULL));
 }
 
 /**
- * <h1>map.GetPath(string [path = None], bool [unique = map.f_unique], string [name = None])</h1>
+ * <h1>map.GetPath(string [path = None], bool [unique = map.f_unique], string
+ * [name = None])</h1>
  * Construct a path based on the path of 'map', with 'path' appended.
- * @param path Path to append. If None, will append the filename of 'map' instead.
+ * @param path Path to append. If None, will append the filename of 'map'
+ * instead.
  * @param unique If True, construct a unique path.
  * @param name If 'map' is not unique and 'unique' is True, this is required
  * to determine which player the unique map belongs to.
  * @return The created path. */
 static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-	static char *kwlist[] = {"path", "unique", "name", NULL};
-	const char *path, *name;
-	int unique;
-	char *cp;
-	PyObject *ret;
+    static char *kwlist[] = {"path", "unique", "name", NULL};
+    const char *path, *name;
+    int unique;
+    char *cp;
+    PyObject *ret;
 
-	path = NULL;
-	unique = MAP_UNIQUE(map->map) ? 1 : 0;
-	name = NULL;
+    path = NULL;
+    unique = MAP_UNIQUE(map->map) ? 1 : 0;
+    name = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zis", kwlist, &path, &unique, &name))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zis", kwlist, &path, &unique, &name)) {
+        return NULL;
+    }
 
-	cp = hooks->map_get_path(map->map, path, unique, name);
-	ret = Py_BuildValue("s", cp);
-	free(cp);
+    cp = hooks->map_get_path(map->map, path, unique, name);
+    ret = Py_BuildValue("s", cp);
+    free(cp);
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -539,38 +520,35 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject 
  * @return The beacon if found, None otherwise. */
 static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 {
-	const char *name;
-	shstr *beacon_name = NULL;
-	object *myob;
+    const char *name;
+    shstr *beacon_name = NULL;
+    object *myob;
 
-	if (!PyArg_ParseTuple(args, "s", &name))
-	{
-		return NULL;
-	}
+    if (!PyArg_ParseTuple(args, "s", &name)) {
+        return NULL;
+    }
 
-	if (MAP_UNIQUE(map->map))
-	{
-		char *filedir, *pl_name, *joined;
+    if (MAP_UNIQUE(map->map)) {
+        char *filedir, *pl_name, *joined;
 
-		filedir = hooks->path_dirname(map->map->path);
-		pl_name = hooks->path_basename(filedir);
-		joined = hooks->string_join("-", "/", pl_name, name, NULL);
+        filedir = hooks->path_dirname(map->map->path);
+        pl_name = hooks->path_basename(filedir);
+        joined = hooks->string_join("-", "/", pl_name, name, NULL);
 
-		FREE_AND_COPY_HASH(beacon_name, joined);
+        FREE_AND_COPY_HASH(beacon_name, joined);
 
-		free(joined);
-		free(pl_name);
-		free(filedir);
-	}
-	else
-	{
-		FREE_AND_COPY_HASH(beacon_name, name);
-	}
+        free(joined);
+        free(pl_name);
+        free(filedir);
+    }
+    else {
+        FREE_AND_COPY_HASH(beacon_name, name);
+    }
 
-	myob = hooks->beacon_locate(beacon_name);
-	FREE_AND_CLEAR_HASH(beacon_name);
+    myob = hooks->beacon_locate(beacon_name);
+    FREE_AND_CLEAR_HASH(beacon_name);
 
-	return wrap_object(myob);
+    return wrap_object(myob);
 }
 
 /*@}*/
@@ -578,23 +556,23 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] =
 {
-	{"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
-	{"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
-	{"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
-	{"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
-	{"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
-	{"DrawInfo", (PyCFunction) Atrinik_Map_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
-	{"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
-	{"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
-	{"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
-	{"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
-	{"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
-	{"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
-	{"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
-	{"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
-	{"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS | METH_KEYWORDS, 0},
-	{"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
-	{NULL, NULL, 0, 0}
+    {"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
+    {"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
+    {"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
+    {"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS, 0},
+    {"PlaySound", (PyCFunction) Atrinik_Map_PlaySound, METH_VARARGS | METH_KEYWORDS, 0},
+    {"DrawInfo", (PyCFunction) Atrinik_Map_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
+    {"CreateObject", (PyCFunction) Atrinik_Map_CreateObject, METH_VARARGS, 0},
+    {"CountPlayers", (PyCFunction) Atrinik_Map_CountPlayers, METH_NOARGS, 0},
+    {"GetPlayers", (PyCFunction) Atrinik_Map_GetPlayers, METH_NOARGS, 0},
+    {"Insert", (PyCFunction) Atrinik_Map_Insert, METH_VARARGS, 0},
+    {"Wall", (PyCFunction) Atrinik_Map_Wall, METH_VARARGS, 0},
+    {"Blocked", (PyCFunction) Atrinik_Map_Blocked, METH_VARARGS, 0},
+    {"FreeSpot", (PyCFunction) Atrinik_Map_FreeSpot, METH_VARARGS, 0},
+    {"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
+    {"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS | METH_KEYWORDS, 0},
+    {"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
+    {NULL, NULL, 0, 0}
 };
 
 /**
@@ -604,7 +582,7 @@ static PyMethodDef MapMethods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *get_attribute(Atrinik_Map *map, void *context)
 {
-	return generic_field_getter((fields_struct *) context, map->map);
+    return generic_field_getter((fields_struct *) context, map->map);
 }
 
 /**
@@ -615,17 +593,15 @@ static PyObject *get_attribute(Atrinik_Map *map, void *context)
  * @return 0 on success, -1 on failure. */
 static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
 {
-	if (generic_field_setter((fields_struct *) context, map->map, value) == -1)
-	{
-		return -1;
-	}
+    if (generic_field_setter((fields_struct *) context, map->map, value) == -1) {
+        return -1;
+    }
 
-	if (((fields_struct *) context)->offset == offsetof(mapstruct, darkness))
-	{
-		hooks->set_map_darkness(map->map, map->map->darkness);
-	}
+    if (((fields_struct *) context)->offset == offsetof(mapstruct, darkness)) {
+        hooks->set_map_darkness(map->map, map->map->darkness);
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -637,16 +613,15 @@ static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
  * @retval NULL An error occurred. */
 static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
 {
-	size_t flagno = (size_t) context;
+    size_t flagno = (size_t) context;
 
-	/* Should not happen. */
-	if (flagno >= NUM_MAPFLAGS)
-	{
-		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
-		return NULL;
-	}
+    /* Should not happen. */
+    if (flagno >= NUM_MAPFLAGS) {
+        PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+        return NULL;
+    }
 
-	Py_ReturnBoolean(map->map->map_flags & (1 << flagno));
+    Py_ReturnBoolean(map->map->map_flags & (1 << flagno));
 }
 
 /**
@@ -657,30 +632,26 @@ static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
  * @return 0 on success, -1 on failure. */
 static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
 {
-	size_t flagno = (size_t) context;
+    size_t flagno = (size_t) context;
 
-	/* Should not happen. */
-	if (flagno >= NUM_MAPFLAGS)
-	{
-		PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
-		return -1;
-	}
+    /* Should not happen. */
+    if (flagno >= NUM_MAPFLAGS) {
+        PyErr_SetString(PyExc_OverflowError, "Invalid flag ID.");
+        return -1;
+    }
 
-	if (val == Py_True)
-	{
-		map->map->map_flags |= (1U << flagno);
-	}
-	else if (val == Py_False)
-	{
-		map->map->map_flags &= ~(1U << flagno);
-	}
-	else
-	{
-		PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
-		return -1;
-	}
+    if (val == Py_True) {
+        map->map->map_flags |= (1U << flagno);
+    }
+    else if (val == Py_False) {
+        map->map->map_flags &= ~(1U << flagno);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -691,19 +662,18 @@ static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
  * @return The new wrapper. */
 static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	Atrinik_Map *self;
+    Atrinik_Map *self;
 
-	(void) args;
-	(void) kwds;
+    (void) args;
+    (void) kwds;
 
-	self = (Atrinik_Map *) type->tp_alloc(type, 0);
+    self = (Atrinik_Map *) type->tp_alloc(type, 0);
 
-	if (self)
-	{
-		self->map = NULL;
-	}
+    if (self) {
+        self->map = NULL;
+    }
 
-	return (PyObject *) self;
+    return (PyObject *) self;
 }
 
 /**
@@ -711,11 +681,11 @@ static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args, PyObject *k
  * @param self The wrapper to free. */
 static void Atrinik_Map_dealloc(Atrinik_Map *self)
 {
-	self->map = NULL;
+    self->map = NULL;
 #ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 #else
-	self->ob_type->tp_free((PyObject *) self);
+    self->ob_type->tp_free((PyObject *) self);
 #endif
 }
 
@@ -725,26 +695,25 @@ static void Atrinik_Map_dealloc(Atrinik_Map *self)
  * @return Python object containing the map path and name of the map. */
 static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 {
-	char buf[HUGE_BUF];
+    char buf[HUGE_BUF];
 
-	snprintf(buf, sizeof(buf), "[%s \"%s\"]", self->map->path, self->map->name);
-	return Py_BuildValue("s", buf);
+    snprintf(buf, sizeof(buf), "[%s \"%s\"]", self->map->path, self->map->name);
+    return Py_BuildValue("s", buf);
 }
 
 static int Atrinik_Map_InternalCompare(Atrinik_Map *left, Atrinik_Map *right)
 {
-	return left->map < right->map ? -1 : (left->map == right->map ? 0 : 1);
+    return left->map < right->map ? -1 : (left->map == right->map ? 0 : 1);
 }
 
 static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, int op)
 {
-	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_MapType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_MapType))
-	{
-		Py_INCREF(Py_NotImplemented);
-		return Py_NotImplemented;
-	}
+    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_MapType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_MapType)) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
 
-	return generic_rich_compare(op, Atrinik_Map_InternalCompare(left, right));
+    return generic_rich_compare(op, Atrinik_Map_InternalCompare(left, right));
 }
 
 /** This is filled in when we initialize our map type. */
@@ -754,37 +723,37 @@ static PyGetSetDef getseters[NUM_FIELDS + NUM_MAPFLAGS + 1];
 PyTypeObject Atrinik_MapType =
 {
 #ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
 #else
-	PyObject_HEAD_INIT(NULL)
-	0,
+    PyObject_HEAD_INIT(NULL)
+    0,
 #endif
-	"Atrinik.Map",
-	sizeof(Atrinik_Map),
-	0,
-	(destructor) Atrinik_Map_dealloc,
-	NULL, NULL, NULL,
+    "Atrinik.Map",
+    sizeof(Atrinik_Map),
+    0,
+    (destructor) Atrinik_Map_dealloc,
+    NULL, NULL, NULL,
 #ifdef IS_PY3K
-	NULL,
+    NULL,
 #else
-	(cmpfunc) Atrinik_Map_InternalCompare,
+    (cmpfunc) Atrinik_Map_InternalCompare,
 #endif
-	0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Map_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik maps",
-	NULL, NULL,
-	(richcmpfunc) Atrinik_Map_RichCompare,
-	0, 0, 0,
-	MapMethods,
-	0,
-	getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Map_new,
-	0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0,
+    (reprfunc) Atrinik_Map_str,
+    0, 0, 0,
+    Py_TPFLAGS_DEFAULT,
+    "Atrinik maps",
+    NULL, NULL,
+    (richcmpfunc) Atrinik_Map_RichCompare,
+    0, 0, 0,
+    MapMethods,
+    0,
+    getseters,
+    0, 0, 0, 0, 0, 0, 0,
+    Atrinik_Map_new,
+    0, 0, 0, 0, 0, 0, 0, 0
 #ifndef IS_PY_LEGACY
-	, 0
+    , 0
 #endif
 };
 
@@ -794,45 +763,42 @@ PyTypeObject Atrinik_MapType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Map_init(PyObject *module)
 {
-	size_t i, flagno;
+    size_t i, flagno;
 
-	/* Field getters */
-	for (i = 0; i < NUM_FIELDS; i++)
-	{
-		PyGetSetDef *def = &getseters[i];
+    /* Field getters */
+    for (i = 0; i < NUM_FIELDS; i++) {
+        PyGetSetDef *def = &getseters[i];
 
-		def->name = fields[i].name;
-		def->get = (getter) get_attribute;
-		def->set = (setter) set_attribute;
-		def->doc = NULL;
-		def->closure = (void *) &fields[i];
-	}
+        def->name = fields[i].name;
+        def->get = (getter) get_attribute;
+        def->set = (setter) set_attribute;
+        def->doc = NULL;
+        def->closure = (void *) &fields[i];
+    }
 
-	/* Flag getters */
-	for (flagno = 0; flagno < NUM_MAPFLAGS; flagno++)
-	{
-		PyGetSetDef *def = &getseters[i++];
+    /* Flag getters */
+    for (flagno = 0; flagno < NUM_MAPFLAGS; flagno++) {
+        PyGetSetDef *def = &getseters[i++];
 
-		def->name = mapflag_names[flagno];
-		def->get = (getter) Map_GetFlag;
-		def->set = (setter) Map_SetFlag;
-		def->doc = NULL;
-		def->closure = (void *) flagno;
-	}
+        def->name = mapflag_names[flagno];
+        def->get = (getter) Map_GetFlag;
+        def->set = (setter) Map_SetFlag;
+        def->doc = NULL;
+        def->closure = (void *) flagno;
+    }
 
-	getseters[i].name = NULL;
+    getseters[i].name = NULL;
 
-	Atrinik_MapType.tp_new = PyType_GenericNew;
+    Atrinik_MapType.tp_new = PyType_GenericNew;
 
-	if (PyType_Ready(&Atrinik_MapType) < 0)
-	{
-		return 0;
-	}
+    if (PyType_Ready(&Atrinik_MapType) < 0) {
+        return 0;
+    }
 
-	Py_INCREF(&Atrinik_MapType);
-	PyModule_AddObject(module, "Map", (PyObject *) &Atrinik_MapType);
+    Py_INCREF(&Atrinik_MapType);
+    PyModule_AddObject(module, "Map", (PyObject *) &Atrinik_MapType);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -841,21 +807,19 @@ int Atrinik_Map_init(PyObject *module)
  * @return Python object wrapping the real map. */
 PyObject *wrap_map(mapstruct *what)
 {
-	Atrinik_Map *wrapper;
+    Atrinik_Map *wrapper;
 
-	/* Return None if no map was to be wrapped. */
-	if (!what)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    /* Return None if no map was to be wrapped. */
+    if (!what) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-	wrapper = PyObject_NEW(Atrinik_Map, &Atrinik_MapType);
+    wrapper = PyObject_NEW(Atrinik_Map, &Atrinik_MapType);
 
-	if (wrapper)
-	{
-		wrapper->map = what;
-	}
+    if (wrapper) {
+        wrapper->map = what;
+    }
 
-	return (PyObject *) wrapper;
+    return (PyObject *) wrapper;
 }

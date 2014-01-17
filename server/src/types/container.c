@@ -37,12 +37,11 @@
  * @return 1 if both op and container are magical containers, 0 otherwise. */
 int check_magical_container(object *op, object *container)
 {
-	if (op->type == CONTAINER && container->type == CONTAINER && op->weapon_speed != 1.0f && container->weapon_speed != 1.0f)
-	{
-		return 1;
-	}
+    if (op->type == CONTAINER && container->type == CONTAINER && op->weapon_speed != 1.0f && container->weapon_speed != 1.0f) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -52,99 +51,85 @@ int check_magical_container(object *op, object *container)
  * @param op The container. */
 static void container_open(object *applier, object *op)
 {
-	player *pl;
-	object *tmp;
+    player *pl;
+    object *tmp;
 
-	/* Safety. */
-	if (applier->type != PLAYER)
-	{
-		return;
-	}
+    /* Safety. */
+    if (applier->type != PLAYER) {
+        return;
+    }
 
-	pl = CONTR(applier);
+    pl = CONTR(applier);
 
-	/* Safety. */
-	if (op->attacked_by && op->attacked_by->type != PLAYER)
-	{
-		op->attacked_by = NULL;
-	}
+    /* Safety. */
+    if (op->attacked_by && op->attacked_by->type != PLAYER) {
+        op->attacked_by = NULL;
+    }
 
-	/* Check for quest containers. */
-	if (HAS_EVENT(op, EVENT_QUEST))
-	{
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == QUEST_CONTAINER)
-			{
-				check_quest(applier, tmp);
-			}
-		}
-	}
+    /* Check for quest containers. */
+    if (HAS_EVENT(op, EVENT_QUEST)) {
+        for (tmp = op->inv; tmp; tmp = tmp->below) {
+            if (tmp->type == QUEST_CONTAINER) {
+                check_quest(applier, tmp);
+            }
+        }
+    }
 
-	pl->container = op;
-	pl->container_count = op->count;
-	pl->container_above = op->attacked_by;
+    pl->container = op;
+    pl->container_count = op->count;
+    pl->container_above = op->attacked_by;
 
-	/* Already opened. */
-	if (op->attacked_by)
-	{
-		CONTR(op->attacked_by)->container_below = applier;
-	}
-	/* Not open yet. */
-	else
-	{
-		SET_FLAG(op, FLAG_APPLIED);
+    /* Already opened. */
+    if (op->attacked_by) {
+        CONTR(op->attacked_by)->container_below = applier;
+    }
+    /* Not open yet. */
+    else {
+        SET_FLAG(op, FLAG_APPLIED);
 
-		if (op->other_arch)
-		{
-			op->face = op->other_arch->clone.face;
-			op->animation_id = op->other_arch->clone.animation_id;
-			SET_ANIMATION_STATE(op);
-			esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
-		}
-		else
-		{
-			esrv_update_item(UPD_FLAGS, op);
-		}
+        if (op->other_arch) {
+            op->face = op->other_arch->clone.face;
+            op->animation_id = op->other_arch->clone.animation_id;
+            SET_ANIMATION_STATE(op);
+            esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
+        }
+        else {
+            esrv_update_item(UPD_FLAGS, op);
+        }
 
-		update_object(op, UP_OBJ_FACE);
+        update_object(op, UP_OBJ_FACE);
 
-		for (tmp = op->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == RUNE)
-			{
-				rune_spring(tmp, applier);
-			}
-			else if (tmp->type == MONSTER)
-			{
-				int i;
+        for (tmp = op->inv; tmp; tmp = tmp->below) {
+            if (tmp->type == RUNE) {
+                rune_spring(tmp, applier);
+            }
+            else if (tmp->type == MONSTER) {
+                int i;
 
-				object_remove(tmp, 0);
-				tmp->x = op->x;
-				tmp->y = op->y;
-				i = find_free_spot(tmp->arch, tmp, applier->map, tmp->x, tmp->y, 0, SIZEOFFREE1 + 1);
+                object_remove(tmp, 0);
+                tmp->x = op->x;
+                tmp->y = op->y;
+                i = find_free_spot(tmp->arch, tmp, applier->map, tmp->x, tmp->y, 0, SIZEOFFREE1 + 1);
 
-				if (i != -1)
-				{
-					tmp->x += freearr_x[i];
-					tmp->y += freearr_y[i];
-				}
+                if (i != -1) {
+                    tmp->x += freearr_x[i];
+                    tmp->y += freearr_y[i];
+                }
 
-				tmp = insert_ob_in_map(tmp, applier->map, tmp, 0);
+                tmp = insert_ob_in_map(tmp, applier->map, tmp, 0);
 
-				if (tmp)
-				{
-					fix_monster(tmp);
-					draw_info_format(COLOR_WHITE, applier, "A %s jumps out of the %s.", query_name(tmp, applier), query_base_name(op, applier));
-				}
-			}
-		}
-	}
+                if (tmp) {
+                    fix_monster(tmp);
+                    draw_info_format(COLOR_WHITE, applier, "A %s jumps out of the %s.", query_name(tmp, applier), query_base_name(op, applier));
+                }
+            }
+        }
+    }
 
-	esrv_send_inventory(applier, op);
-	pl->container_below = NULL;
-	op->attacked_by = applier;
-	op->attacked_by_count = applier->count;
+    esrv_send_inventory(applier, op);
+    pl->container_below = NULL;
+    op->attacked_by = applier;
+    op->attacked_by_count = applier->count;
 }
 
 /**
@@ -166,247 +151,212 @@ static void container_open(object *applier, object *op)
  * into the container, 0 otherwise. */
 int container_close(object *applier, object *op)
 {
-	if (!applier && !op)
-	{
-		return 0;
-	}
+    if (!applier && !op) {
+        return 0;
+    }
 
-	if (applier && applier->type == PLAYER)
-	{
-		player *pl;
+    if (applier && applier->type == PLAYER) {
+        player *pl;
 
-		pl = CONTR(applier);
+        pl = CONTR(applier);
 
-		/* No container, nothing to do. */
-		if (!pl->container)
-		{
-			return 0;
-		}
+        /* No container, nothing to do. */
+        if (!pl->container) {
+            return 0;
+        }
 
-		/* Make sure the object is valid. */
-		if (!OBJECT_VALID(pl->container, pl->container_count))
-		{
-			pl->container = NULL;
-			pl->container_count = 0;
-			return 0;
-		}
+        /* Make sure the object is valid. */
+        if (!OBJECT_VALID(pl->container, pl->container_count)) {
+            pl->container = NULL;
+            pl->container_count = 0;
+            return 0;
+        }
 
-		/* Only applier left, go ahead and close the container. */
-		if (!pl->container_below && !pl->container_above)
-		{
-			return container_close(NULL, pl->container);
-		}
+        /* Only applier left, go ahead and close the container. */
+        if (!pl->container_below && !pl->container_above) {
+            return container_close(NULL, pl->container);
+        }
 
-		/* The applier is at the beginning of the linked list. */
-		if (!pl->container_below)
-		{
-			pl->container->attacked_by = pl->container_above;
-			pl->container->attacked_by_count = pl->container_above->count;
-			CONTR(pl->container_above)->container_below = NULL;
-		}
-		/* Elsewhere in the list. */
-		else
-		{
-			CONTR(pl->container_below)->container_above = pl->container_above;
+        /* The applier is at the beginning of the linked list. */
+        if (!pl->container_below) {
+            pl->container->attacked_by = pl->container_above;
+            pl->container->attacked_by_count = pl->container_above->count;
+            CONTR(pl->container_above)->container_below = NULL;
+        }
+        /* Elsewhere in the list. */
+        else {
+            CONTR(pl->container_below)->container_above = pl->container_above;
 
-			if (pl->container_above)
-			{
-				CONTR(pl->container_above)->container_below = pl->container_below;
-			}
-		}
+            if (pl->container_above) {
+                CONTR(pl->container_above)->container_below = pl->container_below;
+            }
+        }
 
-		pl->container_above = NULL;
-		pl->container_below = NULL;
-		pl->container = NULL;
-		pl->container_count = 0;
-		esrv_close_container(applier);
-	}
-	else if (op)
-	{
-		object *tmp, *next;
+        pl->container_above = NULL;
+        pl->container_below = NULL;
+        pl->container = NULL;
+        pl->container_count = 0;
+        esrv_close_container(applier);
+    }
+    else if (op) {
+        object *tmp, *next;
 
-		CLEAR_FLAG(op, FLAG_APPLIED);
+        CLEAR_FLAG(op, FLAG_APPLIED);
 
-		if (op->other_arch)
-		{
-			op->face = op->arch->clone.face;
-			op->animation_id = op->arch->clone.animation_id;
-			SET_ANIMATION_STATE(op);
-			esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
-		}
-		else
-		{
-			esrv_update_item(UPD_FLAGS, op);
-		}
+        if (op->other_arch) {
+            op->face = op->arch->clone.face;
+            op->animation_id = op->arch->clone.animation_id;
+            SET_ANIMATION_STATE(op);
+            esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
+        }
+        else {
+            esrv_update_item(UPD_FLAGS, op);
+        }
 
-		update_object(op, UP_OBJ_FACE);
+        update_object(op, UP_OBJ_FACE);
 
-		for (tmp = op->attacked_by; tmp; tmp = next)
-		{
-			next = CONTR(tmp)->container_above;
+        for (tmp = op->attacked_by; tmp; tmp = next) {
+            next = CONTR(tmp)->container_above;
 
-			CONTR(tmp)->container = NULL;
-			CONTR(tmp)->container_count = 0;
-			CONTR(tmp)->container_below = NULL;
-			CONTR(tmp)->container_above = NULL;
-			esrv_close_container(tmp);
-		}
+            CONTR(tmp)->container = NULL;
+            CONTR(tmp)->container_count = 0;
+            CONTR(tmp)->container_below = NULL;
+            CONTR(tmp)->container_above = NULL;
+            esrv_close_container(tmp);
+        }
 
-		op->attacked_by = NULL;
-		op->attacked_by_count = 0;
+        op->attacked_by = NULL;
+        op->attacked_by_count = 0;
 
-		return 1;
-	}
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-	object *container, *tmp;
+    object *container, *tmp;
 
-	(void) aflags;
+    (void) aflags;
 
-	if (applier->type != PLAYER)
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
+    if (applier->type != PLAYER) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
 
-	container = CONTR(applier)->container;
+    container = CONTR(applier)->container;
 
-	if (op == NULL || op->type != CONTAINER || (container && container->type != CONTAINER))
-	{
-		return OBJECT_METHOD_UNHANDLED;
-	}
+    if (op == NULL || op->type != CONTAINER || (container && container->type != CONTAINER)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
 
-	/* Already opened container, so close it, even if the player wants to
-	 * open another container. */
-	if (container)
-	{
-		/* Trigger the CLOSE event. */
-		if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL))
-		{
-			return OBJECT_METHOD_OK;
-		}
+    /* Already opened container, so close it, even if the player wants to
+     * open another container. */
+    if (container) {
+        /* Trigger the CLOSE event. */
+        if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
+            return OBJECT_METHOD_OK;
+        }
 
-		if (container_close(applier, container))
-		{
-			draw_info_format(COLOR_WHITE, applier, "You close %s.", query_base_name(container, applier));
-		}
-		else
-		{
-			draw_info_format(COLOR_WHITE, applier, "You leave %s.", query_base_name(container, applier));
-		}
+        if (container_close(applier, container)) {
+            draw_info_format(COLOR_WHITE, applier, "You close %s.", query_base_name(container, applier));
+        }
+        else {
+            draw_info_format(COLOR_WHITE, applier, "You leave %s.", query_base_name(container, applier));
+        }
 
-		/* Applied the one we just closed, no need to go on. */
-		if (container == op)
-		{
-			return OBJECT_METHOD_OK;
-		}
-	}
+        /* Applied the one we just closed, no need to go on. */
+        if (container == op) {
+            return OBJECT_METHOD_OK;
+        }
+    }
 
-	/* If the player is trying to open it (which he must be doing if we
-	 * got here), and it is locked, check to see if player has the means
-	 * to open it. */
-	if (op->slaying || op->stats.maxhp)
-	{
-		/* Locked container. */
-		if (op->sub_type == ST1_CONTAINER_NORMAL)
-		{
-			tmp = find_key(applier, op);
+    /* If the player is trying to open it (which he must be doing if we
+     * got here), and it is locked, check to see if player has the means
+     * to open it. */
+    if (op->slaying || op->stats.maxhp) {
+        /* Locked container. */
+        if (op->sub_type == ST1_CONTAINER_NORMAL) {
+            tmp = find_key(applier, op);
 
-			if (tmp)
-			{
-				if (tmp->type == KEY)
-				{
-					draw_info_format(COLOR_WHITE, applier, "You unlock %s with %s.", query_base_name(op, applier), query_name(tmp, applier));
-				}
-				else if (tmp->type == FORCE)
-				{
-					draw_info_format(COLOR_WHITE, applier, "The %s is unlocked for you.", query_base_name(op, applier));
-				}
-			}
-			else
-			{
-				draw_info_format(COLOR_WHITE, applier, "You don't have the key to unlock %s.", query_base_name(op, applier));
-				return OBJECT_METHOD_UNHANDLED;
-			}
-		}
-		/* Personalized container. */
-		else
-		{
-			/* Party corpse. */
-			if (op->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(applier, op))
-			{
-				return OBJECT_METHOD_UNHANDLED;
-			}
-			/* Normal player-only corpse. */
-			else if (op->sub_type == ST1_CONTAINER_CORPSE_player && op->slaying != applier->name)
-			{
-				draw_info(COLOR_WHITE, applier, "It's not your bounty.");
-				return OBJECT_METHOD_UNHANDLED;
-			}
-		}
-	}
+            if (tmp) {
+                if (tmp->type == KEY) {
+                    draw_info_format(COLOR_WHITE, applier, "You unlock %s with %s.", query_base_name(op, applier), query_name(tmp, applier));
+                }
+                else if (tmp->type == FORCE) {
+                    draw_info_format(COLOR_WHITE, applier, "The %s is unlocked for you.", query_base_name(op, applier));
+                }
+            }
+            else {
+                draw_info_format(COLOR_WHITE, applier, "You don't have the key to unlock %s.", query_base_name(op, applier));
+                return OBJECT_METHOD_UNHANDLED;
+            }
+        }
+        /* Personalized container. */
+        else {
+            /* Party corpse. */
+            if (op->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(applier, op)) {
+                return OBJECT_METHOD_UNHANDLED;
+            }
+            /* Normal player-only corpse. */
+            else if (op->sub_type == ST1_CONTAINER_CORPSE_player && op->slaying != applier->name) {
+                draw_info(COLOR_WHITE, applier, "It's not your bounty.");
+                return OBJECT_METHOD_UNHANDLED;
+            }
+        }
+    }
 
-	/* The container is not in the applier's inventory. */
-	if (op->env != applier)
-	{
-		/* If in inventory of some other object other than the applier,
-		 * can't open it. */
-		if (op->env)
-		{
-			draw_info_format(COLOR_WHITE, applier, "You can't open %s.", query_base_name(op, applier));
-			return OBJECT_METHOD_UNHANDLED;
-		}
+    /* The container is not in the applier's inventory. */
+    if (op->env != applier) {
+        /* If in inventory of some other object other than the applier,
+         * can't open it. */
+        if (op->env) {
+            draw_info_format(COLOR_WHITE, applier, "You can't open %s.", query_base_name(op, applier));
+            return OBJECT_METHOD_UNHANDLED;
+        }
 
-		draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
-		container_open(applier, op);
+        draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
+        container_open(applier, op);
 
-		/* Handle party corpses. */
-		if (op->slaying && op->sub_type == ST1_CONTAINER_CORPSE_party)
-		{
-			party_handle_corpse(applier, op);
-		}
-	}
-	/* Container is in player's inventory. */
-	else
-	{
-		/* If it's readied, open it. */
-		if (QUERY_FLAG(op, FLAG_APPLIED))
-		{
-			draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
-			container_open(applier, op);
-		}
-		/* Otherwise ready it. */
-		else
-		{
-			draw_info_format(COLOR_WHITE, applier, "You readied %s.", query_base_name(op, applier));
-			SET_FLAG(op, FLAG_APPLIED);
+        /* Handle party corpses. */
+        if (op->slaying && op->sub_type == ST1_CONTAINER_CORPSE_party) {
+            party_handle_corpse(applier, op);
+        }
+    }
+    /* Container is in player's inventory. */
+    else {
+        /* If it's readied, open it. */
+        if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
+            container_open(applier, op);
+        }
+        /* Otherwise ready it. */
+        else {
+            draw_info_format(COLOR_WHITE, applier, "You readied %s.", query_base_name(op, applier));
+            SET_FLAG(op, FLAG_APPLIED);
 
-			update_object(op, UP_OBJ_FACE);
-			esrv_update_item(UPD_FLAGS, op);
-		}
-	}
+            update_object(op, UP_OBJ_FACE);
+            esrv_update_item(UPD_FLAGS, op);
+        }
+    }
 
-	/* If it's a corpse and it has not been searched before, add to
-	 * player's statistics. */
-	if ((op->sub_type == ST1_CONTAINER_CORPSE_party || op->sub_type == ST1_CONTAINER_CORPSE_player) && !QUERY_FLAG(op, FLAG_BEEN_APPLIED))
-	{
-		CONTR(applier)->stat_corpses_searched++;
-	}
+    /* If it's a corpse and it has not been searched before, add to
+     * player's statistics. */
+    if ((op->sub_type == ST1_CONTAINER_CORPSE_party || op->sub_type == ST1_CONTAINER_CORPSE_player) && !QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+        CONTR(applier)->stat_corpses_searched++;
+    }
 
-	/* Only after actually readying/opening the container we know more
-	 * about it. */
-	SET_FLAG(op, FLAG_BEEN_APPLIED);
+    /* Only after actually readying/opening the container we know more
+     * about it. */
+    SET_FLAG(op, FLAG_BEEN_APPLIED);
 
-	return 1;
+    return 1;
 }
 
 /**
  * Initialize the container type object methods. */
 void object_type_init_container(void)
 {
-	object_type_methods[CONTAINER].apply_func = apply_func;
+    object_type_methods[CONTAINER].apply_func = apply_func;
 }

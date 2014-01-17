@@ -32,57 +32,57 @@
 /** The artifact structure. */
 typedef struct artifactstruct
 {
-	/** Memory block with artifacts parse commands for loader.l. */
-	char *parse_text;
+    /** Memory block with artifacts parse commands for loader.l. */
+    char *parse_text;
 
-	/** The fake arch name when chained to arch list. */
-	const char *name;
+    /** The fake arch name when chained to arch list. */
+    const char *name;
 
-	/** We use this as marker for def_at is valid and quick name access. */
-	const char *def_at_name;
+    /** We use this as marker for def_at is valid and quick name access. */
+    const char *def_at_name;
 
-	/** Next artifact in the list. */
-	struct artifactstruct *next;
+    /** Next artifact in the list. */
+    struct artifactstruct *next;
 
-	/** List of allowed archetypes. */
-	linked_char *allowed;
+    /** List of allowed archetypes. */
+    linked_char *allowed;
 
-	/** The base archetype object. */
-	archetype def_at;
+    /** The base archetype object. */
+    archetype def_at;
 
-	/**
-	 * Treasure style.
-	 * @see @ref treasure_style */
-	int t_style;
+    /**
+     * Treasure style.
+     * @see @ref treasure_style */
+    int t_style;
 
-	/** Chance. */
-	uint16 chance;
+    /** Chance. */
+    uint16 chance;
 
-	/** Difficulty. */
-	uint8 difficulty;
+    /** Difficulty. */
+    uint8 difficulty;
 
-	/**
-	 * If set, the artifact will be directly copied to the object,
-	 * instead of just having the extra attributes added. */
-	uint8 copy_artifact;
+    /**
+     * If set, the artifact will be directly copied to the object,
+     * instead of just having the extra attributes added. */
+    uint8 copy_artifact;
 } artifact;
 
 /** Artifact list structure. */
 typedef struct artifactliststruct
 {
-	/** Next list. */
-	struct artifactliststruct *next;
+    /** Next list. */
+    struct artifactliststruct *next;
 
-	/** Items in this artifact list. */
-	struct artifactstruct *items;
+    /** Items in this artifact list. */
+    struct artifactstruct *items;
 
-	/** Sum of chance for all artifacts on this list. */
-	uint16 total_chance;
+    /** Sum of chance for all artifacts on this list. */
+    uint16 total_chance;
 
-	/**
-	 * Object type that this list represents.
-	 * -1 are "Allowed none" items. */
-	sint16 type;
+    /**
+     * Object type that this list represents.
+     * -1 are "Allowed none" items. */
+    sint16 type;
 } artifactlist;
 
 #endif

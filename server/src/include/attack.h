@@ -33,57 +33,57 @@
  * The attack IDs. */
 typedef enum _attacks
 {
-	/** Impact. */
-	ATNR_IMPACT,
-	/** Slash. */
-	ATNR_SLASH,
-	/** Cleave. */
-	ATNR_CLEAVE,
-	/** Pierce. */
-	ATNR_PIERCE,
-	/** Weapon magic. Common for spells like magic bullet. */
-	ATNR_WEAPON_MAGIC,
+    /** Impact. */
+    ATNR_IMPACT,
+    /** Slash. */
+    ATNR_SLASH,
+    /** Cleave. */
+    ATNR_CLEAVE,
+    /** Pierce. */
+    ATNR_PIERCE,
+    /** Weapon magic. Common for spells like magic bullet. */
+    ATNR_WEAPON_MAGIC,
 
-	/** Fire. */
-	ATNR_FIRE,
-	/** Cold. */
-	ATNR_COLD,
-	/** Electricity. */
-	ATNR_ELECTRICITY,
-	/** Poison, */
-	ATNR_POISON,
-	/** Acid. */
-	ATNR_ACID,
+    /** Fire. */
+    ATNR_FIRE,
+    /** Cold. */
+    ATNR_COLD,
+    /** Electricity. */
+    ATNR_ELECTRICITY,
+    /** Poison, */
+    ATNR_POISON,
+    /** Acid. */
+    ATNR_ACID,
 
-	/** Magic. */
-	ATNR_MAGIC,
-	/** Mind. */
-	ATNR_MIND,
-	/** Blind. */
-	ATNR_BLIND,
-	/** Paralyze. Affected object will be rooted to the spot. */
-	ATNR_PARALYZE,
-	/** Force. */
-	ATNR_FORCE,
+    /** Magic. */
+    ATNR_MAGIC,
+    /** Mind. */
+    ATNR_MIND,
+    /** Blind. */
+    ATNR_BLIND,
+    /** Paralyze. Affected object will be rooted to the spot. */
+    ATNR_PARALYZE,
+    /** Force. */
+    ATNR_FORCE,
 
-	/** Godpower. */
-	ATNR_GODPOWER,
-	/** Chaos. */
-	ATNR_CHAOS,
-	/** Drain. */
-	ATNR_DRAIN,
-	/** Slow. */
-	ATNR_SLOW,
-	/**
-	 * Confusion. Affected object will move in random directions until
-	 * the effect wears off. */
-	ATNR_CONFUSION,
+    /** Godpower. */
+    ATNR_GODPOWER,
+    /** Chaos. */
+    ATNR_CHAOS,
+    /** Drain. */
+    ATNR_DRAIN,
+    /** Slow. */
+    ATNR_SLOW,
+    /**
+     * Confusion. Affected object will move in random directions until
+     * the effect wears off. */
+    ATNR_CONFUSION,
 
-	/** Used for internal calculations. */
-	ATNR_INTERNAL,
+    /** Used for internal calculations. */
+    ATNR_INTERNAL,
 
-	/** Number of the attacks. */
-	NROFATTACKS
+    /** Number of the attacks. */
+    NROFATTACKS
 } _attacks;
 
 /**
@@ -96,15 +96,15 @@ typedef enum _attacks
  * @deprecated In the process of being phased out, do not use.
  *@{*/
 /** 1 */
-#define AT_PHYSICAL			0x00000001
+#define AT_PHYSICAL         0x00000001
 /** 2 */
-#define AT_MAGIC			0x00000002
+#define AT_MAGIC            0x00000002
 /** 128 */
-#define AT_DRAIN			0x00000080
+#define AT_DRAIN            0x00000080
 /** 1024 */
-#define AT_POISON			0x00000400
+#define AT_POISON           0x00000400
 /** 8388608 */
-#define AT_INTERNAL			0x00800000
+#define AT_INTERNAL         0x00800000
 /*@}*/
 
 #endif

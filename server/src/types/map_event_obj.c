@@ -33,35 +33,30 @@
 /** @copydoc object_methods::remove_map_func */
 static void remove_map_func(object *op)
 {
-	map_event *tmp, *prev = NULL;
+    map_event *tmp, *prev = NULL;
 
-	if (op->map->in_memory == MAP_SAVING)
-	{
-		return;
-	}
+    if (op->map->in_memory == MAP_SAVING) {
+        return;
+    }
 
-	for (tmp = op->map->events; tmp; prev = tmp, tmp = tmp->next)
-	{
-		if (tmp->event == op)
-		{
-			if (!prev)
-			{
-				op->map->events = tmp->next;
-			}
-			else
-			{
-				prev->next = tmp->next;
-			}
+    for (tmp = op->map->events; tmp; prev = tmp, tmp = tmp->next) {
+        if (tmp->event == op) {
+            if (!prev) {
+                op->map->events = tmp->next;
+            }
+            else {
+                prev->next = tmp->next;
+            }
 
-			map_event_free(tmp);
-			break;
-		}
-	}
+            map_event_free(tmp);
+            break;
+        }
+    }
 }
 
 /**
  * Initialize the map event object type object methods. */
 void object_type_init_map_event_obj(void)
 {
-	object_type_methods[MAP_EVENT_OBJ].remove_map_func = remove_map_func;
+    object_type_methods[MAP_EVENT_OBJ].remove_map_func = remove_map_func;
 }

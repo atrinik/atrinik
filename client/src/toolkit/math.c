@@ -43,11 +43,11 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_math_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(math)
-	{
-		SRANDOM(time(NULL));
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(math)
+    {
+        SRANDOM(time(NULL));
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -55,10 +55,10 @@ void toolkit_math_init(void)
  * @internal */
 void toolkit_math_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(math)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(math)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -67,32 +67,29 @@ void toolkit_math_deinit(void)
  * @return Integer square root. */
 unsigned long isqrt(unsigned long n)
 {
-	unsigned long op = n, res = 0, one;
+    unsigned long op = n, res = 0, one;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	/* "one" starts at the highest power of four <= than the argument. */
-	one = 1 << 30;
+    /* "one" starts at the highest power of four <= than the argument. */
+    one = 1 << 30;
 
-	while (one > op)
-	{
-		one >>= 2;
-	}
+    while (one > op) {
+        one >>= 2;
+    }
 
-	while (one != 0)
-	{
-		if (op >= res + one)
-		{
-			op -= res + one;
-			/* Faster than 2 * one. */
-			res += one << 1;
-		}
+    while (one != 0) {
+        if (op >= res + one) {
+            op -= res + one;
+            /* Faster than 2 * one. */
+            res += one << 1;
+        }
 
-		res >>= 1;
-		one >>= 2;
-	}
+        res >>= 1;
+        one >>= 2;
+    }
 
-	return res;
+    return res;
 }
 
 /**
@@ -108,15 +105,14 @@ unsigned long isqrt(unsigned long n)
  * @return The random number. */
 int rndm(int min, int max)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (max < 1 || max - min + 1 < 1)
-	{
-		logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
-		return min;
-	}
+    if (max < 1 || max - min + 1 < 1) {
+        logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
+        return min;
+    }
 
-	return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
+    return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
 
 /**
@@ -125,13 +121,12 @@ int rndm(int min, int max)
  * @return 1 if the chance of 1/n was successful, 0 otherwise. */
 int rndm_chance(uint32 n)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!n)
-	{
-		logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");
-		return 0;
-	}
+    if (!n) {
+        logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");
+        return 0;
+    }
 
-	return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
+    return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
 }

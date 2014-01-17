@@ -43,10 +43,10 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_datetime_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(datetime)
-	{
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(datetime)
+    {
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -54,10 +54,10 @@ void toolkit_datetime_init(void)
  * @internal */
 void toolkit_datetime_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(datetime)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(datetime)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -65,15 +65,15 @@ void toolkit_datetime_deinit(void)
  * @return UTC time as UNIX timestamp. */
 time_t datetime_getutc(void)
 {
-	time_t t;
-	struct tm *tm;
+    time_t t;
+    struct tm *tm;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	time(&t);
-	tm = gmtime(&t);
+    time(&t);
+    tm = gmtime(&t);
 
-	return mktime(tm);
+    return mktime(tm);
 }
 
 /**
@@ -82,6 +82,6 @@ time_t datetime_getutc(void)
  * @return Converted local time. */
 time_t datetime_utctolocal(time_t t)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	return t - (datetime_getutc() - time(NULL));
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    return t - (datetime_getutc() - time(NULL));
 }

@@ -33,19 +33,18 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	SDL_Rect box;
+    SDL_Rect box;
 
-	if (widget->redraw)
-	{
-		box.w = widget->w - 12;
-		box.h = 36;
-		text_show(widget->surface, FONT_ARIAL10, cpl.ext_title, 6, 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
-	}
+    if (widget->redraw) {
+        box.w = widget->w - 12;
+        box.h = 36;
+        text_show(widget->surface, FONT_ARIAL10, cpl.ext_title, 6, 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+    }
 }
 
 /**
  * Initialize one player info widget. */
 void widget_playerinfo_init(widgetdata *widget)
 {
-	widget->draw_func = widget_draw;
+    widget->draw_func = widget_draw;
 }

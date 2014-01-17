@@ -34,30 +34,28 @@
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-	_widget_texture *texture;
+    _widget_texture *texture;
 
-	texture = (_widget_texture *) widget->subwidget;
+    texture = (_widget_texture *) widget->subwidget;
 
-	if (texture->texture)
-	{
-		surface_show(ScreenSurface, widget->x, widget->y, NULL, texture_surface(texture->texture));
-	}
+    if (texture->texture) {
+        surface_show(ScreenSurface, widget->x, widget->y, NULL, texture_surface(texture->texture));
+    }
 }
 
 /**
  * Initialize one texture widget. */
 void widget_texture_init(widgetdata *widget)
 {
-	_widget_texture *texture;
+    _widget_texture *texture;
 
-	texture = calloc(1, sizeof(*texture));
+    texture = calloc(1, sizeof(*texture));
 
-	if (!texture)
-	{
-		logger_print(LOG(ERROR), "OOM.");
-		exit(-1);
-	}
+    if (!texture) {
+        logger_print(LOG(ERROR), "OOM.");
+        exit(-1);
+    }
 
-	widget->draw_func = widget_draw;
-	widget->subwidget = texture;
+    widget->draw_func = widget_draw;
+    widget->subwidget = texture;
 }

@@ -49,20 +49,20 @@
  * to get information about how much money to deposit/withdraw. */
 typedef struct _money_block
 {
-	/** One of @ref MONEYSTRING_xxx. */
-	int mode;
+    /** One of @ref MONEYSTRING_xxx. */
+    int mode;
 
-	/** Number of mithril coins. */
-	sint64 mithril;
+    /** Number of mithril coins. */
+    sint64 mithril;
 
-	/** Number of gold coins. */
-	sint64 gold;
+    /** Number of gold coins. */
+    sint64 gold;
 
-	/** Number of silver coins. */
-	sint64 silver;
+    /** Number of silver coins. */
+    sint64 silver;
 
-	/** Number of copper coins. */
-	sint64 copper;
+    /** Number of copper coins. */
+    sint64 copper;
 } _money_block;
 
 /**
@@ -119,63 +119,63 @@ typedef struct _money_block
  * @param _sv_ Shared string.
  * @param _nv_ String to copy to the shared string. */
 #define FREE_AND_COPY_HASH(_sv_, _nv_) \
-{                                      \
-	if (_sv_)                          \
-	{                                  \
-		free_string_shared(_sv_);      \
-	}                                  \
+    {                                      \
+        if (_sv_)                          \
+        {                                  \
+            free_string_shared(_sv_);      \
+        }                                  \
                                        \
-	_sv_ = add_string(_nv_);           \
-}
+        _sv_ = add_string(_nv_);           \
+    }
 /**
  * Free old hash and add a reference to the new one.
  * @param _sv_ Pointer to shared string.
  * @param _nv_ String to add reference to. Must be a shared string. */
 #define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
-{                                         \
-	if (_sv_)                             \
-	{                                     \
-		free_string_shared(_sv_);         \
-	}                                     \
+    {                                         \
+        if (_sv_)                             \
+        {                                     \
+            free_string_shared(_sv_);         \
+        }                                     \
                                           \
-	_sv_ = add_refcount(_nv_);            \
-}
+        _sv_ = add_refcount(_nv_);            \
+    }
 /**
  * Free and NULL a shared string.
  * @param _nv_ Shared string to free and NULL. */
 #define FREE_AND_CLEAR_HASH(_nv_) \
-{                                 \
-	if (_nv_)                     \
-	{                             \
-		free_string_shared(_nv_); \
-		_nv_ = NULL;              \
-	}                             \
-}
+    {                                 \
+        if (_nv_)                     \
+        {                             \
+            free_string_shared(_nv_); \
+            _nv_ = NULL;              \
+        }                             \
+    }
 /**
  * Free a shared string.
  * @param _nv_ Shared string to free. */
 #define FREE_ONLY_HASH(_nv_)  \
-if (_nv_)                     \
-{                             \
-	free_string_shared(_nv_); \
-}
+    if (_nv_)                     \
+    {                             \
+        free_string_shared(_nv_); \
+    }
 /**
  * Add reference to a non-null hash.
  * @param _nv_ Pointer to shared string. */
 #define ADD_REF_NOT_NULL_HASH(_nv_) \
-if (_nv_)                           \
-{                                   \
-	add_refcount(_nv_);             \
-}
+    if (_nv_)                           \
+    {                                   \
+        add_refcount(_nv_);             \
+    }
 /**
  * @copydoc FREE_AND_CLEAR_HASH
  * @warning Like FREE_AND_CLEAR_HASH(), but without { and }. */
 #define FREE_AND_CLEAR_HASH2(_nv_) \
-if (_nv_)                          \
-{                                  \
-	free_string_shared(_nv_);      \
-	_nv_ = NULL;                   \
-}
+    if (_nv_)                          \
+    {                                  \
+        free_string_shared(_nv_);      \
+        _nv_ = NULL;                   \
+    }
 /*@}*/
 
 #define SPAWN_RANDOM_RANGE 10000
@@ -231,11 +231,11 @@ if (_nv_)                          \
  * Used to link together shared strings. */
 typedef struct linked_char
 {
-	/** Shared string. */
-	shstr *name;
+    /** Shared string. */
+    shstr *name;
 
-	/** Next shared string. */
-	struct linked_char *next;
+    /** Next shared string. */
+    struct linked_char *next;
 } linked_char;
 
 #include <face.h>
@@ -278,9 +278,11 @@ typedef struct linked_char
 #define STRING_ARCH_NAME(__arch__) ((__arch__)->name ? (__arch__)->name : ">NULL<")
 /** Use to get a safe name of object, even if the object name is NULL. */
 #define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name ? (__ob__)->name : ">NULL<")
-/** Use to get a safe arch name of object, even if the object arch name is NULL. */
+/** Use to get a safe arch name of object, even if the object arch name is NULL.
+ * */
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
-/** Use to get a safe slaying value of an object, even if the slaying value is NULL. */
+/** Use to get a safe slaying value of an object, even if the slaying value is
+ * NULL. */
 #define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying ? (__ob__)->slaying : ">NULL<")
 
 /**
@@ -292,11 +294,11 @@ typedef struct linked_char
  * Set object's animation depending on its number of animations/facings,
  * direction and animation state. */
 #define SET_ANIMATION_STATE(ob) \
-if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
-{ \
-	SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + (ob)->state); \
-	update_object((ob), UP_OBJ_FACE); \
-}
+    if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
+    { \
+        SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + (ob)->state); \
+        update_object((ob), UP_OBJ_FACE); \
+    }
 /** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)
 /** Get object's inventory animation ID. */
@@ -308,131 +310,131 @@ if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABL
 
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
-{                                \
-	if (_xyz_)                   \
-	{                            \
-		free(_xyz_);             \
-	}                            \
+    {                                \
+        if (_xyz_)                   \
+        {                            \
+            free(_xyz_);             \
+        }                            \
                                  \
-	_xyz_ = NULL;                \
-}
+        _xyz_ = NULL;                \
+    }
 
 enum
 {
-	ALLOWED_CHARS_ACCOUNT,
-	ALLOWED_CHARS_CHARNAME,
-	ALLOWED_CHARS_PASSWORD,
+    ALLOWED_CHARS_ACCOUNT,
+    ALLOWED_CHARS_CHARNAME,
+    ALLOWED_CHARS_PASSWORD,
 
-	ALLOWED_CHARS_NUM
+    ALLOWED_CHARS_NUM
 };
 
 /**
  * The server settings. */
 typedef struct settings_struct
 {
-	/**
-	 * Port to use for client/server communication. */
-	uint16 port;
+    /**
+     * Port to use for client/server communication. */
+    uint16 port;
 
-	/**
-	 * Read only data files, such as the collected archetypes. */
-	char libpath[MAX_BUF];
+    /**
+     * Read only data files, such as the collected archetypes. */
+    char libpath[MAX_BUF];
 
-	/**
-	 * Player data, unique maps, etc. */
-	char datapath[MAX_BUF];
+    /**
+     * Player data, unique maps, etc. */
+    char datapath[MAX_BUF];
 
-	/**
-	 * Where the map files are. */
-	char mapspath[MAX_BUF];
+    /**
+     * Where the map files are. */
+    char mapspath[MAX_BUF];
 
-	/**
-	 * HTTP URL of the metaserver. */
-	char metaserver_url[MAX_BUF];
+    /**
+     * HTTP URL of the metaserver. */
+    char metaserver_url[MAX_BUF];
 
-	/**
-	 * Hostname of this server. */
-	char server_host[MAX_BUF];
+    /**
+     * Hostname of this server. */
+    char server_host[MAX_BUF];
 
-	/**
-	 * Name of this server. */
-	char server_name[MAX_BUF];
+    /**
+     * Name of this server. */
+    char server_name[MAX_BUF];
 
-	/**
-	 * Comment about the server we send to the metaserver. */
-	char server_desc[MAX_BUF];
+    /**
+     * Comment about the server we send to the metaserver. */
+    char server_desc[MAX_BUF];
 
-	/**
-	 * Location of the client maps. */
-	char client_maps_url[MAX_BUF];
+    /**
+     * Location of the client maps. */
+    char client_maps_url[MAX_BUF];
 
-	/**
-	 * Executing the world maker? */
-	uint8 world_maker;
+    /**
+     * Executing the world maker? */
+    uint8 world_maker;
 
-	/**
-	 * Where to store the world maker images. */
-	char world_maker_dir[MAX_BUF];
+    /**
+     * Where to store the world maker images. */
+    char world_maker_dir[MAX_BUF];
 
-	/**
-	 * Adjustment to maximum magical device level the player may use. */
-	sint8 magic_devices_level;
+    /**
+     * Adjustment to maximum magical device level the player may use. */
+    sint8 magic_devices_level;
 
-	/**
-	 * See note in server.cfg. */
-	double item_power_factor;
+    /**
+     * See note in server.cfg. */
+    double item_power_factor;
 
-	/**
-	 * Whether to reload Python modules whenever Python script executes. */
-	uint8 python_reload_modules;
+    /**
+     * Whether to reload Python modules whenever Python script executes. */
+    uint8 python_reload_modules;
 
-	/**
-	 * Comma-delimited list of permission groups each player
-	 * automatically has. */
-	char default_permission_groups[MAX_BUF];
+    /**
+     * Comma-delimited list of permission groups each player
+     * automatically has. */
+    char default_permission_groups[MAX_BUF];
 
-	/**
-	 * Allowed characters for certain strings. */
-	char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
+    /**
+     * Allowed characters for certain strings. */
+    char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
 
-	/**
-	 * Limits on the allowed characters. */
-	size_t limits[ALLOWED_CHARS_NUM][2];
+    /**
+     * Limits on the allowed characters. */
+    size_t limits[ALLOWED_CHARS_NUM][2];
 
-	/**
-	 * IPs allowed to remotely control the client. */
-	char control_allowed_ips[HUGE_BUF];
+    /**
+     * IPs allowed to remotely control the client. */
+    char control_allowed_ips[HUGE_BUF];
 
-	/**
-	 * Which player the remote command goes through, if applicable. */
-	char control_player[MAX_BUF];
+    /**
+     * Which player the remote command goes through, if applicable. */
+    char control_player[MAX_BUF];
 } settings_struct;
 
 /** Constant shared string pointers. */
 typedef struct shstr_constants
 {
-	const char *none;
-	const char *NONE;
-	const char *home;
-	const char *force;
-	const char *portal_destination_name;
-	const char *portal_active_name;
+    const char *none;
+    const char *NONE;
+    const char *home;
+    const char *force;
+    const char *portal_destination_name;
+    const char *portal_active_name;
 
-	const char *player_info;
-	const char *BANK_GENERAL;
+    const char *player_info;
+    const char *BANK_GENERAL;
 
-	const char *of_poison;
-	const char *of_hideous_poison;
+    const char *of_poison;
+    const char *of_hideous_poison;
 } shstr_constants;
 
 /** Ban structure. */
 typedef struct ban_struct
 {
-	/** Name of the banned player. */
-	const char *name;
+    /** Name of the banned player. */
+    const char *name;
 
-	/** Banned IP/hostname. */
-	char *ip;
+    /** Banned IP/hostname. */
+    char *ip;
 } _ban_struct;
 
 /**
@@ -450,21 +452,21 @@ typedef struct ban_struct
 /** One cache entry. */
 typedef struct cache_struct
 {
-	/** Key name this entry is identified by. */
-	shstr *key;
+    /** Key name this entry is identified by. */
+    shstr *key;
 
-	/** The cached data. */
-	void *ptr;
+    /** The cached data. */
+    void *ptr;
 
-	/** Type of the data, one of @ref CACHE_TYPE_xxx. */
-	uint32 flags;
+    /** Type of the data, one of @ref CACHE_TYPE_xxx. */
+    uint32 flags;
 
-	/** ID in the array. */
-	size_t id;
+    /** ID in the array. */
+    size_t id;
 } cache_struct;
 
 #ifndef tolower
-#	define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a': (C))
+#   define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a' : (C))
 #endif
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
@@ -484,7 +486,7 @@ typedef struct cache_struct
 #include "random_map.h"
 
 #ifndef GLOBAL_NO_PROTOTYPES
-#	include "proto.h"
+#   include "proto.h"
 #endif
 
 #include "plugin.h"

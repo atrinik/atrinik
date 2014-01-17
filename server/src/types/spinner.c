@@ -33,22 +33,21 @@
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
+    (void) originator;
 
-	if (!victim->direction || !state)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (!victim->direction || !state) {
+        return OBJECT_METHOD_OK;
+    }
 
-	victim->direction = absdir(victim->direction + op->direction);
-	update_turn_face(victim);
+    victim->direction = absdir(victim->direction + op->direction);
+    update_turn_face(victim);
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the spinner type object methods. */
 void object_type_init_spinner(void)
 {
-	object_type_methods[SPINNER].move_on_func = move_on_func;
+    object_type_methods[SPINNER].move_on_func = move_on_func;
 }

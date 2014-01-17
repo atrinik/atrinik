@@ -33,25 +33,22 @@
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-	if (op->env && op->env->map && op->env->type == PLAYER)
-	{
-		if (blocks_magic(op->env->map, op->env->x, op->env->y))
-		{
-			draw_info(COLOR_WHITE, op, "You feel something fizzle inside you.");
-		}
-		else
-		{
-			object_enter_map(op->env, op, NULL, 0, 0, 0);
-		}
-	}
+    if (op->env && op->env->map && op->env->type == PLAYER) {
+        if (blocks_magic(op->env->map, op->env->x, op->env->y)) {
+            draw_info(COLOR_WHITE, op, "You feel something fizzle inside you.");
+        }
+        else {
+            object_enter_map(op->env, op, NULL, 0, 0, 0);
+        }
+    }
 
-	object_remove(op, 0);
-	object_destroy(op);
+    object_remove(op, 0);
+    object_destroy(op);
 }
 
 /**
  * Initialize the word of recall type object methods. */
 void object_type_init_word_of_recall(void)
 {
-	object_type_methods[WORD_OF_RECALL].process_func = process_func;
+    object_type_methods[WORD_OF_RECALL].process_func = process_func;
 }

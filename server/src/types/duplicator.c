@@ -36,56 +36,51 @@
  * @param tmp The object to try to match. */
 static void duplicator_match_obj(object *op, object *tmp)
 {
-	if (op->slaying != tmp->arch->name)
-	{
-		return;
-	}
+    if (op->slaying != tmp->arch->name) {
+        return;
+    }
 
-	if (op->level <= 0)
-	{
-		destruct_ob(tmp);
-	}
-	else
-	{
-		tmp->nrof = MIN(SINT32_MAX, (uint64) tmp->nrof * op->level);
-	}
+    if (op->level <= 0) {
+        destruct_ob(tmp);
+    }
+    else {
+        tmp->nrof = MIN(SINT32_MAX, (uint64) tmp->nrof * op->level);
+    }
 }
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	(void) originator;
+    (void) originator;
 
-	if (state)
-	{
-		duplicator_match_obj(op, victim);
-	}
+    if (state) {
+        duplicator_match_obj(op, victim);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods::trigger_func */
 static int trigger_func(object *op, object *cause, int state)
 {
-	object *tmp, *next;
+    object *tmp, *next;
 
-	(void) cause;
-	(void) state;
+    (void) cause;
+    (void) state;
 
-	for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next)
-	{
-		next = tmp->above;
+    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next) {
+        next = tmp->above;
 
-		duplicator_match_obj(op, tmp);
-	}
+        duplicator_match_obj(op, tmp);
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the duplicator type object methods. */
 void object_type_init_duplicator(void)
 {
-	object_type_methods[DUPLICATOR].move_on_func = move_on_func;
-	object_type_methods[DUPLICATOR].trigger_func = trigger_func;
+    object_type_methods[DUPLICATOR].move_on_func = move_on_func;
+    object_type_methods[DUPLICATOR].trigger_func = trigger_func;
 }

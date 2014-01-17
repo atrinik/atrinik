@@ -68,21 +68,18 @@
  * to the correct type before usage. */
 static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
-	if (al->field == FIELDTYPE_CMD_PERMISSIONS)
-	{
-		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_cmd_permissions)));
-	}
-	else if (al->field == FIELDTYPE_FACTIONS)
-	{
-		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_faction_ids)));
-	}
-	else if (al->field == FIELDTYPE_REGION_MAPS)
-	{
-		return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_region_maps)));
-	}
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
+        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_cmd_permissions)));
+    }
+    else if (al->field == FIELDTYPE_FACTIONS) {
+        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_faction_ids)));
+    }
+    else if (al->field == FIELDTYPE_REGION_MAPS) {
+        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_region_maps)));
+    }
 
-	/* Not reached. */
-	return NULL;
+    /* Not reached. */
+    return NULL;
 }
 
 /**
@@ -91,12 +88,11 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
  * @return The length of the provided AttrList. */
 static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 {
-	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS)
-	{
-		return *(int *) attr_list_len_ptr(al);
-	}
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS) {
+        return *(int *) attr_list_len_ptr(al);
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -106,37 +102,33 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
  * @return 0 on success, -1 on failure. */
 static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
 {
-	void *ptr;
-	fields_struct field = {"xxx", 0, 0, 0, 0};
+    void *ptr;
+    fields_struct field = {"xxx", 0, 0, 0, 0};
 
-	ptr = (void *) ((char *) al->ptr + al->offset);
+    ptr = (void *) ((char *) al->ptr + al->offset);
 
-	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
-	{
-		field.type = FIELDTYPE_CSTR;
-		ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
-	}
-	else if (al->field == FIELDTYPE_FACTIONS)
-	{
-		unsigned PY_LONG_LONG len, i;
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+        field.type = FIELDTYPE_CSTR;
+        ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
+    }
+    else if (al->field == FIELDTYPE_FACTIONS) {
+        unsigned PY_LONG_LONG len, i;
 
-		len = attr_list_len(al);
-		field.type = FIELDTYPE_SINT64;
+        len = attr_list_len(al);
+        field.type = FIELDTYPE_SINT64;
 
-		for (i = 0; i < len; i++)
-		{
-			if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i])))
-			{
-				ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-				return generic_field_getter(&field, ptr);
-			}
-		}
+        for (i = 0; i < len; i++) {
+            if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i]))) {
+                ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
+                return generic_field_getter(&field, ptr);
+            }
+        }
 
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-	return generic_field_getter(&field, ptr);
+    return generic_field_getter(&field, ptr);
 }
 
 /**
@@ -146,34 +138,31 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
  * @return 1 if the value was found, 0 otherwise. */
 static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 {
-	unsigned PY_LONG_LONG i, len;
-	PyObject *check;
+    unsigned PY_LONG_LONG i, len;
+    PyObject *check;
 
-	if (al->field == FIELDTYPE_FACTIONS)
-	{
-		PyErr_SetString(PyExc_NotImplementedError, "Attribute list does not implement contains method.");
-		return -1;
-	}
+    if (al->field == FIELDTYPE_FACTIONS) {
+        PyErr_SetString(PyExc_NotImplementedError, "Attribute list does not implement contains method.");
+        return -1;
+    }
 
-	len = attr_list_len(al);
+    len = attr_list_len(al);
 
-	for (i = 0; i < len; i++)
-	{
-		/* attr_list_get() creates a new reference, so make sure to decrease
-		 * it later. */
-		check = attr_list_get(al, &i);
+    for (i = 0; i < len; i++) {
+        /* attr_list_get() creates a new reference, so make sure to decrease
+         * it later. */
+        check = attr_list_get(al, &i);
 
-		/* Compare the two objects... */
-		if (PyObject_RichCompareBool(check, value, Py_EQ) == 1)
-		{
-			Py_DECREF(check);
-			return 1;
-		}
+        /* Compare the two objects... */
+        if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
+            Py_DECREF(check);
+            return 1;
+        }
 
-		Py_DECREF(check);
-	}
+        Py_DECREF(check);
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -184,102 +173,90 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
  * @return 0 on success, -1 on failure. */
 static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 {
-	unsigned PY_LONG_LONG len;
-	void *ptr;
-	fields_struct field = {"xxx", 0, 0, 0, 0};
-	int ret;
-	unsigned PY_LONG_LONG i;
+    unsigned PY_LONG_LONG len;
+    void *ptr;
+    fields_struct field = {"xxx", 0, 0, 0, 0};
+    int ret;
+    unsigned PY_LONG_LONG i;
 
-	/* Get the current length of the list. */
-	len = attr_list_len(al);
-	ptr = (void *) ((char *) al->ptr + al->offset);
+    /* Get the current length of the list. */
+    len = attr_list_len(al);
+    ptr = (void *) ((char *) al->ptr + al->offset);
 
-	/* Command permissions. */
-	if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
-	{
-		i = *(unsigned PY_LONG_LONG *) idx;
+    /* Command permissions. */
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+        i = *(unsigned PY_LONG_LONG *) idx;
 
-		/* Over the maximum size; resize the array, as it's dynamic. */
-		if (i >= len)
-		{
-			/* Increase the number of commands... */
-			(*(int *) attr_list_len_ptr(al))++;
-			/* And resize it. */
-			*(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
-			/* Make sure ptr points to the right memory... */
-			ptr = (void *) ((char *) al->ptr + al->offset);
-			/* NULL the new member. */
-			(*(char ***) ptr)[i] = NULL;
-		}
+        /* Over the maximum size; resize the array, as it's dynamic. */
+        if (i >= len) {
+            /* Increase the number of commands... */
+            (*(int *) attr_list_len_ptr(al))++;
+            /* And resize it. */
+            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+            /* Make sure ptr points to the right memory... */
+            ptr = (void *) ((char *) al->ptr + al->offset);
+            /* NULL the new member. */
+            (*(char ***) ptr)[i] = NULL;
+        }
 
-		field.type = FIELDTYPE_CSTR;
-		ptr = &(*(char ***) ptr)[i];
-	}
-	/* Factions. */
-	else if (al->field == FIELDTYPE_FACTIONS)
-	{
-		field.type = FIELDTYPE_SINT64;
+        field.type = FIELDTYPE_CSTR;
+        ptr = &(*(char ***) ptr)[i];
+    }
+    /* Factions. */
+    else if (al->field == FIELDTYPE_FACTIONS) {
+        field.type = FIELDTYPE_SINT64;
 
-		/* Try to find an existing entry. */
-		for (i = 0; i < len; i++)
-		{
-			if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i])))
-			{
-				break;
-			}
-		}
+        /* Try to find an existing entry. */
+        for (i = 0; i < len; i++) {
+            if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i]))) {
+                break;
+            }
+        }
 
-		/* Doesn't exist, create it. */
-		if (i == len)
-		{
-			(*(int *) attr_list_len_ptr(al))++;
-			*(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-			*(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
-			*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
-			/* Make sure ptr points to the right memory... */
-			ptr = (void *) ((char *) al->ptr + offsetof(player, faction_reputation));
-			/* NULL the new member. */
-			(*(sint64 **) ptr)[i] = 0;
-		}
+        /* Doesn't exist, create it. */
+        if (i == len) {
+            (*(int *) attr_list_len_ptr(al))++;
+            *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
+            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
+            *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
+            /* Make sure ptr points to the right memory... */
+            ptr = (void *) ((char *) al->ptr + offsetof(player, faction_reputation));
+            /* NULL the new member. */
+            (*(sint64 **) ptr)[i] = 0;
+        }
 
-		ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-	}
-	else
-	{
-		PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
-		return -1;
-	}
+        ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
+    }
+    else {
+        PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
+        return -1;
+    }
 
-	ret = generic_field_setter(&field, ptr, value);
+    ret = generic_field_setter(&field, ptr, value);
 
-	/* Success! */
-	if (ret == 0)
-	{
-	}
-	/* Failure; overflow, invalid value or some other kind of error. */
-	else if (ret == -1)
-	{
-		if (i >= len)
-		{
-			/* We tried to add a new command permission and we have already
-			 * resized the array, so shrink it back now, as we failed. */
-			if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS)
-			{
-				/* Decrease the number of commands... */
-				(*(int *) attr_list_len_ptr(al))--;
-				/* And resize it. */
-				*(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
-			}
-			else if (al->field == FIELDTYPE_FACTIONS)
-			{
-				(*(int *) attr_list_len_ptr(al))--;
-				*(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-				*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
-			}
-		}
-	}
+    /* Success! */
+    if (ret == 0) {
+    }
+    /* Failure; overflow, invalid value or some other kind of error. */
+    else if (ret == -1) {
+        if (i >= len) {
+            /* We tried to add a new command permission and we have already
+             * resized the array, so shrink it back now, as we failed. */
+            if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+                /* Decrease the number of commands... */
+                (*(int *) attr_list_len_ptr(al))--;
+                /* And resize it. */
+                *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+            }
+            else if (al->field == FIELDTYPE_FACTIONS) {
+                (*(int *) attr_list_len_ptr(al))--;
+                *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
+                *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
+            }
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -290,101 +267,93 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
  * failure. */
 static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 {
-	void *idx;
+    void *idx;
 
-	if (al->field == FIELDTYPE_FACTIONS)
-	{
-		char *cstr;
+    if (al->field == FIELDTYPE_FACTIONS) {
+        char *cstr;
 
-		if (!PyString_Check(key))
-		{
-			PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
-			return NULL;
-		}
+        if (!PyString_Check(key)) {
+            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
+            return NULL;
+        }
 
-		cstr = PyString_AsString(key);
-		idx = cstr;
-	}
-	else
-	{
-		unsigned PY_LONG_LONG i, len;
+        cstr = PyString_AsString(key);
+        idx = cstr;
+    }
+    else {
+        unsigned PY_LONG_LONG i, len;
 
-		/* The key must be an integer. */
-		if (!PyInt_Check(key))
-		{
-			PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be an integer.");
-			return NULL;
-		}
+        /* The key must be an integer. */
+        if (!PyInt_Check(key)) {
+            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be an integer.");
+            return NULL;
+        }
 
-		i = PyLong_AsUnsignedLongLong(key);
+        i = PyLong_AsUnsignedLongLong(key);
 
-		if (PyErr_Occurred())
-		{
-			PyErr_SetString(PyExc_OverflowError, "__getitem__() failed; key's integer value is too large.");
-			return NULL;
-		}
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_OverflowError, "__getitem__() failed; key's integer value is too large.");
+            return NULL;
+        }
 
-		len = attr_list_len(al);
+        len = attr_list_len(al);
 
-		if (i > len)
-		{
-			PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"FMT64U") too big (len: %"FMT64U").", (uint64) i, (uint64) len);
-			return NULL;
-		}
+        if (i > len) {
+            PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"FMT64U ") too big (len: %"FMT64U ").", (uint64) i, (uint64) len);
+            return NULL;
+        }
 
-		idx = &i;
-	}
+        idx = &i;
+    }
 
-	return attr_list_get(al, idx);
+    return attr_list_get(al, idx);
 }
 
 /**
  * Implements the append() method; this is equivalent to the following:
  * @code
-attr_list[len(attr_list)] = xyz
+ *    attr_list[len(attr_list)] = xyz
  * @endcode
  * @param al The AttrList object.
  * @param value Value to append.
  * @return None. */
 static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 {
-	unsigned PY_LONG_LONG i;
+    unsigned PY_LONG_LONG i;
 
-	if (al->field == FIELDTYPE_FACTIONS)
-	{
-		PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement append method.");
-		return NULL;
-	}
+    if (al->field == FIELDTYPE_FACTIONS) {
+        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement append method.");
+        return NULL;
+    }
 
-	i = attr_list_len(al);
-	attr_list_set(al, &i, value);
+    i = attr_list_len(al);
+    attr_list_set(al, &i, value);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] =
 {
-	{"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
-	{"append", (PyCFunction) append, METH_O, 0},
-	{NULL, NULL, 0, 0}
+    {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
+    {"append", (PyCFunction) append, METH_O, 0},
+    {NULL, NULL, 0, 0}
 };
 
 static int InternalCompare(Atrinik_AttrList *left, Atrinik_AttrList *right)
 {
-	return (left->field < right->field ? -1 : (left->field == right->field ? 0 : 1));
+    return (left->field < right->field ? -1 : (left->field == right->field ? 0 : 1));
 }
 
 static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right, int op)
 {
-	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_AttrListType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_AttrListType))
-	{
-		Py_INCREF(Py_NotImplemented);
-		return Py_NotImplemented;
-	}
+    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_AttrListType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_AttrListType)) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
 
-	return generic_rich_compare(op, InternalCompare(left, right));
+    return generic_rich_compare(op, InternalCompare(left, right));
 }
 
 /**
@@ -393,15 +362,15 @@ static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right, in
  * @return New iteration object. */
 static PyObject *iter(PyObject *seq)
 {
-	Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *) seq;
+    Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *) seq;
 
-	al = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
-	al->iter = 0;
-	al->ptr = orig_al->ptr;
-	al->offset = orig_al->offset;
-	al->field = orig_al->field;
+    al = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
+    al->iter = 0;
+    al->ptr = orig_al->ptr;
+    al->offset = orig_al->offset;
+    al->field = orig_al->field;
 
-	return (PyObject *) al;
+    return (PyObject *) al;
 }
 
 /**
@@ -410,31 +379,28 @@ static PyObject *iter(PyObject *seq)
  * @return Next object from attribute list, NULL if the end was reached. */
 static PyObject *iternext(Atrinik_AttrList *al)
 {
-	/* Possible to continue iteration? */
-	if (al->iter < attr_list_len(al))
-	{
-		void *idx;
+    /* Possible to continue iteration? */
+    if (al->iter < attr_list_len(al)) {
+        void *idx;
 
-		al->iter++;
+        al->iter++;
 
-		if (al->field == FIELDTYPE_FACTIONS)
-		{
-			char *key = *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]);
+        if (al->field == FIELDTYPE_FACTIONS) {
+            char *key = *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]);
 
-			idx = key;
-		}
-		else
-		{
-			unsigned PY_LONG_LONG i = al->iter - 1;
+            idx = key;
+        }
+        else {
+            unsigned PY_LONG_LONG i = al->iter - 1;
 
-			idx = &i;
-		}
+            idx = &i;
+        }
 
-		return attr_list_get(al, idx);
-	}
+        return attr_list_get(al, idx);
+    }
 
-	/* Stop iteration. */
-	return NULL;
+    /* Stop iteration. */
+    return NULL;
 }
 
 /**
@@ -445,7 +411,7 @@ static PyObject *iternext(Atrinik_AttrList *al)
  * @return Length of the attribute list. */
 static Py_ssize_t __len__(Atrinik_AttrList *al)
 {
-	return attr_list_len(al);
+    return attr_list_len(al);
 }
 
 /**
@@ -454,19 +420,17 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
  * @return Return value of attr_list_set(). */
 static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 {
-	void *idx;
+    void *idx;
 
-	if (al->field == FIELDTYPE_FACTIONS)
-	{
-		idx = PyString_AsString(key);
-	}
-	else
-	{
-		unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(key);
-		idx = &i;
-	}
+    if (al->field == FIELDTYPE_FACTIONS) {
+        idx = PyString_AsString(key);
+    }
+    else {
+        unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(key);
+        idx = &i;
+    }
 
-	return attr_list_set(al, idx, value);
+    return attr_list_set(al, idx, value);
 }
 
 /**
@@ -475,16 +439,16 @@ static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
  * @return Return value of attr_list_contains(). */
 static int __contains__(Atrinik_AttrList *al, PyObject *value)
 {
-	return attr_list_contains(al, value);
+    return attr_list_contains(al, value);
 }
 
 /** Common sequence methods. */
 static PySequenceMethods SequenceMethods =
 {
-	(lenfunc) __len__,
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	(objobjproc) __contains__,
-	NULL, NULL
+    (lenfunc) __len__,
+    NULL, NULL, NULL, NULL, NULL, NULL,
+    (objobjproc) __contains__,
+    NULL, NULL
 };
 
 /**
@@ -492,52 +456,52 @@ static PySequenceMethods SequenceMethods =
  * __getitem__()) to. */
 static PyMappingMethods MappingMethods =
 {
-	(lenfunc) __len__,
-	(binaryfunc) __getitem__,
-	(objobjargproc) __setitem__,
+    (lenfunc) __len__,
+    (binaryfunc) __getitem__,
+    (objobjargproc) __setitem__,
 };
 
 /** AttrListType definition. */
 PyTypeObject Atrinik_AttrListType =
 {
 #ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
 #else
-	PyObject_HEAD_INIT(NULL)
-	0,
+    PyObject_HEAD_INIT(NULL)
+    0,
 #endif
-	"Atrinik.AttrList",
-	sizeof(Atrinik_AttrList),
-	0,
-	NULL,
-	NULL, NULL, NULL,
+    "Atrinik.AttrList",
+    sizeof(Atrinik_AttrList),
+    0,
+    NULL,
+    NULL, NULL, NULL,
 #ifdef IS_PY3K
-	NULL,
+    NULL,
 #else
-	(cmpfunc) InternalCompare,
+    (cmpfunc) InternalCompare,
 #endif
-	NULL,
-	0,
-	&SequenceMethods,
-	&MappingMethods,
-	0, 0,
-	NULL,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik attr lists",
-	NULL, NULL,
-	(richcmpfunc) RichCompare,
-	0,
-	(getiterfunc) iter,
-	(iternextfunc) iternext,
-	methods,
-	0,
-	NULL,
-	0, 0, 0, 0, 0, 0, 0,
-	NULL,
-	0, 0, 0, 0, 0, 0, 0, 0
+    NULL,
+    0,
+    &SequenceMethods,
+    &MappingMethods,
+    0, 0,
+    NULL,
+    0, 0, 0,
+    Py_TPFLAGS_DEFAULT,
+    "Atrinik attr lists",
+    NULL, NULL,
+    (richcmpfunc) RichCompare,
+    0,
+    (getiterfunc) iter,
+    (iternextfunc) iternext,
+    methods,
+    0,
+    NULL,
+    0, 0, 0, 0, 0, 0, 0,
+    NULL,
+    0, 0, 0, 0, 0, 0, 0, 0
 #ifndef IS_PY_LEGACY
-	, 0
+    , 0
 #endif
 };
 
@@ -547,17 +511,16 @@ PyTypeObject Atrinik_AttrListType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_AttrList_init(PyObject *module)
 {
-	Atrinik_AttrListType.tp_new = PyType_GenericNew;
+    Atrinik_AttrListType.tp_new = PyType_GenericNew;
 
-	if (PyType_Ready(&Atrinik_AttrListType) < 0)
-	{
-		return 0;
-	}
+    if (PyType_Ready(&Atrinik_AttrListType) < 0) {
+        return 0;
+    }
 
-	Py_INCREF(&Atrinik_AttrListType);
-	PyModule_AddObject(module, "AtrrList", (PyObject *) &Atrinik_AttrListType);
+    Py_INCREF(&Atrinik_AttrListType);
+    PyModule_AddObject(module, "AtrrList", (PyObject *) &Atrinik_AttrListType);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -569,16 +532,15 @@ int Atrinik_AttrList_init(PyObject *module)
  * @return The new wrapper object. */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {
-	Atrinik_AttrList *wrapper;
+    Atrinik_AttrList *wrapper;
 
-	wrapper = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
+    wrapper = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
 
-	if (wrapper)
-	{
-		wrapper->ptr = ptr;
-		wrapper->offset = offset;
-		wrapper->field = field;
-	}
+    if (wrapper) {
+        wrapper->ptr = ptr;
+        wrapper->offset = offset;
+        wrapper->field = field;
+    }
 
-	return (PyObject *) wrapper;
+    return (PyObject *) wrapper;
 }

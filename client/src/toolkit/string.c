@@ -42,12 +42,12 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_string_init(void)
 {
-	TOOLKIT_INIT_FUNC_START(string)
-	{
-		toolkit_import(math);
-		toolkit_import(stringbuffer);
-	}
-	TOOLKIT_INIT_FUNC_END()
+    TOOLKIT_INIT_FUNC_START(string)
+    {
+        toolkit_import(math);
+        toolkit_import(stringbuffer);
+    }
+    TOOLKIT_INIT_FUNC_END()
 }
 
 /**
@@ -55,10 +55,10 @@ void toolkit_string_init(void)
  * @internal */
 void toolkit_string_deinit(void)
 {
-	TOOLKIT_DEINIT_FUNC_START(string)
-	{
-	}
-	TOOLKIT_DEINIT_FUNC_END()
+    TOOLKIT_DEINIT_FUNC_START(string)
+    {
+    }
+    TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
@@ -67,35 +67,31 @@ void toolkit_string_deinit(void)
  * terminating null character) will be written to result. */
 void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
 {
-	size_t resultlen, keylen;
+    size_t resultlen, keylen;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	/* Special case to prevent infinite loop if key == replacement == "" */
-	if (strcmp(key, replacement) == 0)
-	{
-		snprintf(result, resultsize, "%s", src);
-		return;
-	}
+    /* Special case to prevent infinite loop if key == replacement == "" */
+    if (strcmp(key, replacement) == 0) {
+        snprintf(result, resultsize, "%s", src);
+        return;
+    }
 
-	keylen = strlen(key);
-	resultlen = 0;
+    keylen = strlen(key);
+    resultlen = 0;
 
-	while (*src != '\0' && resultlen + 1 < resultsize)
-	{
-		if (strncmp(src, key, keylen) == 0)
-		{
-			snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
-			resultlen += strlen(result + resultlen);
-			src += keylen;
-		}
-		else
-		{
-			result[resultlen++] = *src++;
-		}
-	}
+    while (*src != '\0' && resultlen + 1 < resultsize) {
+        if (strncmp(src, key, keylen) == 0) {
+            snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
+            resultlen += strlen(result + resultlen);
+            src += keylen;
+        }
+        else {
+            result[resultlen++] = *src++;
+        }
+    }
 
-	result[resultlen] = '\0';
+    result[resultlen] = '\0';
 }
 
 /**
@@ -106,83 +102,75 @@ void string_replace(const char *src, const char *key, const char *replacement, c
  * @param replacement What to replace matched characters with. */
 void string_replace_char(char *str, const char *key, const char replacement)
 {
-	size_t i;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*str != '\0')
-	{
-		if (key)
-		{
-			for (i = 0; key[i] != '\0'; i++)
-			{
-				if (key[i] == *str)
-				{
-					*str = replacement;
-					break;
-				}
-			}
-		}
-		else
-		{
-			*str = replacement;
-		}
+    while (*str != '\0') {
+        if (key) {
+            for (i = 0; key[i] != '\0'; i++) {
+                if (key[i] == *str) {
+                    *str = replacement;
+                    break;
+                }
+            }
+        }
+        else {
+            *str = replacement;
+        }
 
-		str++;
-	}
+        str++;
+    }
 }
 
 /**
- * Splits a string delimited by passed in sep value into characters into an array of strings.
+ * Splits a string delimited by passed in sep value into characters into an
+ * array of strings.
  * @param str The string to be split; will be modified.
  * @param array The string array; will be filled with pointers into str.
- * @param array_size The number of elements in array; if <code>str</code> contains more fields
+ * @param array_size The number of elements in array; if <code>str</code>
+ * contains more fields
  * excess fields are not split but included into the last element.
  * @param sep Separator to use.
- * @return The number of elements found; always less or equal to <code>array_size</code>. */
+ * @return The number of elements found; always less or equal to
+ * <code>array_size</code>. */
 size_t string_split(char *str, char *array[], size_t array_size, char sep)
 {
-	char *p;
-	size_t pos;
+    char *p;
+    size_t pos;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (pos = 0; pos < array_size; pos++)
-	{
-		array[pos] = NULL;
-	}
+    for (pos = 0; pos < array_size; pos++) {
+        array[pos] = NULL;
+    }
 
-	if (!str || *str == '\0' || array_size <= 0)
-	{
-		return 0;
-	}
+    if (!str || *str == '\0' || array_size <= 0) {
+        return 0;
+    }
 
-	pos = 0;
-	p = str;
+    pos = 0;
+    p = str;
 
-	while (pos < array_size)
-	{
-		array[pos++] = p;
+    while (pos < array_size) {
+        array[pos++] = p;
 
-		while (*p != '\0' && *p != sep)
-		{
-			p++;
-		}
+        while (*p != '\0' && *p != sep) {
+            p++;
+        }
 
-		if (pos >= array_size)
-		{
-			break;
-		}
+        if (pos >= array_size) {
+            break;
+        }
 
-		if (*p != sep)
-		{
-			break;
-		}
+        if (*p != sep) {
+            break;
+        }
 
-		*p++ = '\0';
-	}
+        *p++ = '\0';
+    }
 
-	return pos;
+    return pos;
 }
 
 /**
@@ -190,17 +178,15 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
  * @param buf The buffer to modify. */
 void string_replace_unprintable_chars(char *buf)
 {
-	char *p;
+    char *p;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (p = buf; *p != '\0'; p++)
-	{
-		if (*p < ' ' || *p > '~')
-		{
-			*p = ' ';
-		}
-	}
+    for (p = buf; *p != '\0'; p++) {
+        if (*p < ' ' || *p > '~') {
+            *p = ' ';
+        }
+    }
 }
 
 /**
@@ -209,29 +195,28 @@ void string_replace_unprintable_chars(char *buf)
  * @return Thousands-separated string. */
 char *string_format_number_comma(uint64 num)
 {
-	static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
-	char *buf;
-	int i = 0;
+    static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
+    char *buf;
+    int i = 0;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	buf = &retbuf[sizeof(retbuf) - 1];
-	*buf = '\0';
+    buf = &retbuf[sizeof(retbuf) - 1];
+    *buf = '\0';
 
-	do
-	{
-		if (i % 3 == 0 && i != 0)
-		{
-			*--buf = ',';
-		}
+    do
+    {
+        if (i % 3 == 0 && i != 0) {
+            *--buf = ',';
+        }
 
-		*--buf = '0' + num % 10;
-		num /= 10;
-		i++;
-	}
-	while (num != 0);
+        *--buf = '0' + num % 10;
+        num /= 10;
+        i++;
+    }
+    while (num != 0);
 
-	return buf;
+    return buf;
 }
 
 /**
@@ -242,17 +227,15 @@ char *string_format_number_comma(uint64 num)
  * @param str The string. */
 void string_remove_markup(char *str)
 {
-	char *cp;
+    char *cp;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (cp = str; *cp != '\0'; cp++)
-	{
-		if (*cp == '<')
-		{
-			*cp = ' ';
-		}
-	}
+    for (cp = str; *cp != '\0'; cp++) {
+        if (*cp == '<') {
+            *cp = ' ';
+        }
+    }
 }
 
 /**
@@ -260,13 +243,12 @@ void string_remove_markup(char *str)
  * @param str String to transform, will be modified. */
 void string_toupper(char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*str != '\0')
-	{
-		*str = toupper(*str);
-		str++;
-	}
+    while (*str != '\0') {
+        *str = toupper(*str);
+        str++;
+    }
 }
 
 /**
@@ -274,13 +256,12 @@ void string_toupper(char *str)
  * @param str String to transform, will be modified. */
 void string_tolower(char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*str != '\0')
-	{
-		*str = tolower(*str);
-		str++;
-	}
+    while (*str != '\0') {
+        *str = tolower(*str);
+        str++;
+    }
 }
 
 /**
@@ -291,28 +272,26 @@ void string_tolower(char *str)
  * @return 'str'. */
 char *string_whitespace_trim(char *str)
 {
-	char *cp;
-	size_t len;
+    char *cp;
+    size_t len;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	cp = str;
-	len = strlen(cp);
+    cp = str;
+    len = strlen(cp);
 
-	while (isspace(cp[len - 1]))
-	{
-		cp[--len] = '\0';
-	}
+    while (isspace(cp[len - 1])) {
+        cp[--len] = '\0';
+    }
 
-	while (isspace(*cp))
-	{
-		cp++;
-		len--;
-	}
+    while (isspace(*cp)) {
+        cp++;
+        len--;
+    }
 
-	memmove(str, cp, len + 1);
+    memmove(str, cp, len + 1);
 
-	return str;
+    return str;
 }
 
 /**
@@ -323,28 +302,24 @@ char *string_whitespace_trim(char *str)
  * @return 'str'. */
 char *string_whitespace_squeeze(char *str)
 {
-	size_t r, w;
+    size_t r, w;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (r = 0, w = 0; str[r] != '\0'; r++)
-	{
-		if (isspace(str[r]))
-		{
-			if (!w || !isspace(str[w - 1]))
-			{
-				str[w++] = ' ';
-			}
-		}
-		else
-		{
-			str[w++] = str[r];
-		}
-	}
+    for (r = 0, w = 0; str[r] != '\0'; r++) {
+        if (isspace(str[r])) {
+            if (!w || !isspace(str[w - 1])) {
+                str[w++] = ' ';
+            }
+        }
+        else {
+            str[w++] = str[r];
+        }
+    }
 
-	str[w] = '\0';
+    str[w] = '\0';
 
-	return str;
+    return str;
 }
 
 /**
@@ -354,15 +329,14 @@ char *string_whitespace_squeeze(char *str)
  * @param str Text to replace into. */
 void string_newline_to_literal(char *str)
 {
-	char *next;
+    char *next;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while ((next = strstr(str, "\\n")))
-	{
-		*next = '\n';
-		memmove(next + 1, next + 2, strlen(next) - 1);
-	}
+    while ((next = strstr(str, "\\n"))) {
+        *next = '\n';
+        memmove(next + 1, next + 2, strlen(next) - 1);
+    }
 }
 
 /**
@@ -379,39 +353,35 @@ void string_newline_to_literal(char *str)
  * @return 'word', NULL if 'word' is empty. */
 const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize, int surround)
 {
-	size_t i;
-	uint8 in_surround;
+    size_t i;
+    uint8 in_surround;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	i = 0;
-	in_surround = 0;
-	str += (*pos);
+    i = 0;
+    in_surround = 0;
+    str += (*pos);
 
-	while (str && *str != '\0' && *str == delim)
-	{
-		str++;
-		(*pos)++;
-	}
+    while (str && *str != '\0' && *str == delim) {
+        str++;
+        (*pos)++;
+    }
 
-	while (str && *str != '\0' && (*str != delim || in_surround))
-	{
-		if (*str == surround)
-		{
-			in_surround = !in_surround;
-		}
-		else if (i < wordsize - 1)
-		{
-			word[i++] = *str;
-		}
+    while (str && *str != '\0' && (*str != delim || in_surround)) {
+        if (*str == surround) {
+            in_surround = !in_surround;
+        }
+        else if (i < wordsize - 1) {
+            word[i++] = *str;
+        }
 
-		str++;
-		(*pos)++;
-	}
+        str++;
+        (*pos)++;
+    }
 
-	word[i] = '\0';
+    word[i] = '\0';
 
-	return *word == '\0' ? NULL : word;
+    return *word == '\0' ? NULL : word;
 }
 
 /**
@@ -421,29 +391,25 @@ const char *string_get_word(const char *str, size_t *pos, char delim, char *word
  * @param dir If 1, skip to the right, if -1, skip to the left. */
 void string_skip_word(const char *str, size_t *i, int dir)
 {
-	uint8 whitespace;
+    uint8 whitespace;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	whitespace = 1;
+    whitespace = 1;
 
-	/* Skip whitespace. */
-	while (((dir == -1 && *i != 0) || (dir == 1 && str[*i] != '\0')))
-	{
-		if (isspace(str[*i + MIN(0, dir)]))
-		{
-			if (!whitespace)
-			{
-				break;
-			}
-		}
-		else if (whitespace)
-		{
-			whitespace = 0;
-		}
+    /* Skip whitespace. */
+    while (((dir == -1 && *i != 0) || (dir == 1 && str[*i] != '\0'))) {
+        if (isspace(str[*i + MIN(0, dir)])) {
+            if (!whitespace) {
+                break;
+            }
+        }
+        else if (whitespace) {
+            whitespace = 0;
+        }
 
-		*i += dir;
-	}
+        *i += dir;
+    }
 }
 
 /**
@@ -451,24 +417,21 @@ void string_skip_word(const char *str, size_t *i, int dir)
  * @return 1 if the string is a digit, 0 otherwise. */
 int string_isdigit(const char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (*str == '-')
-	{
-		str++;
-	}
+    if (*str == '-') {
+        str++;
+    }
 
-	while (*str != '\0')
-	{
-		if (!isdigit(*str))
-		{
-			return 0;
-		}
+    while (*str != '\0') {
+        if (!isdigit(*str)) {
+            return 0;
+        }
 
-		str++;
-	}
+        str++;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -478,21 +441,19 @@ int string_isdigit(const char *str)
  * @param str String to capitalize. */
 void string_capitalize(char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!str || *str == '\0')
-	{
-		return;
-	}
+    if (!str || *str == '\0') {
+        return;
+    }
 
-	*str = toupper(*str);
-	str++;
+    *str = toupper(*str);
+    str++;
 
-	while (*str != '\0')
-	{
-		*str = tolower(*str);
-		str++;
-	}
+    while (*str != '\0') {
+        *str = tolower(*str);
+        str++;
+    }
 }
 
 /**
@@ -500,44 +461,37 @@ void string_capitalize(char *str)
  * @param str String to titlecase. */
 void string_title(char *str)
 {
-	uint8 previous_cased;
+    uint8 previous_cased;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!str)
-	{
-		return;
-	}
+    if (!str) {
+        return;
+    }
 
-	previous_cased = 0;
+    previous_cased = 0;
 
-	while (*str != '\0')
-	{
-		if (islower(*str))
-		{
-			if (!previous_cased)
-			{
-				*str = toupper(*str);
-			}
+    while (*str != '\0') {
+        if (islower(*str)) {
+            if (!previous_cased) {
+                *str = toupper(*str);
+            }
 
-			previous_cased = 1;
-		}
-		else if (isupper(*str))
-		{
-			if (previous_cased)
-			{
-				*str = tolower(*str);
-			}
+            previous_cased = 1;
+        }
+        else if (isupper(*str)) {
+            if (previous_cased) {
+                *str = tolower(*str);
+            }
 
-			previous_cased = 1;
-		}
-		else
-		{
-			previous_cased = 0;
-		}
+            previous_cased = 1;
+        }
+        else {
+            previous_cased = 0;
+        }
 
-		str++;
-	}
+        str++;
+    }
 }
 
 /**
@@ -547,19 +501,17 @@ void string_title(char *str)
  * @return 1 if 'str' starts with 'cmp', 0 otherwise. */
 int string_startswith(const char *str, const char *cmp)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (string_isempty(str) || string_isempty(cmp))
-	{
-		return 0;
-	}
+    if (string_isempty(str) || string_isempty(cmp)) {
+        return 0;
+    }
 
-	if (strncmp(str, cmp, strlen(cmp)) == 0)
-	{
-		return 1;
-	}
+    if (strncmp(str, cmp, strlen(cmp)) == 0) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -569,24 +521,22 @@ int string_startswith(const char *str, const char *cmp)
  * @return 1 if 'str' ends with 'cmp', 0 otherwise. */
 int string_endswith(const char *str, const char *cmp)
 {
-	ssize_t len;
+    ssize_t len;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (string_isempty(str) || string_isempty(cmp))
-	{
-		return 0;
-	}
+    if (string_isempty(str) || string_isempty(cmp)) {
+        return 0;
+    }
 
-	len = strlen(str) - strlen(cmp);
-	str += MAX(0, len);
+    len = strlen(str) - strlen(cmp);
+    str += MAX(0, len);
 
-	if (str && strcmp(str, cmp) == 0)
-	{
-		return 1;
-	}
+    if (str && strcmp(str, cmp) == 0) {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -594,12 +544,15 @@ int string_endswith(const char *str, const char *cmp)
  *
  * 'start' and 'end' can be negative.
  *
- * If 'start' is, eg, -10, the starting index will automatically become (strlen(str) - 10),
- * in other words, 10 characters from the right, and the ending index will become
+ * If 'start' is, eg, -10, the starting index will automatically become
+ * (strlen(str) - 10),
+ * in other words, 10 characters from the right, and the ending index will
+ * become
  * strlen(str), so you can use it to get the last 10 characters of a string, for
  * example.
  *
- * If 'end' is, eg, -1, the ending index will automatically become (strlen(str) - 1),
+ * If 'end' is, eg, -1, the ending index will automatically become (strlen(str)
+ * - 1),
  * in other words, one less character from the right. In this case, 'start'
  * is unmodified.
  *
@@ -615,30 +568,27 @@ int string_endswith(const char *str, const char *cmp)
  * @return The created substring; never NULL. Must be freed. */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
-	size_t n, max;
+    size_t n, max;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (end < 0)
-	{
-		end = strlen(str) + end;
-	}
-	else if (start < 0)
-	{
-		end = strlen(str);
-		start = end + start;
-	}
+    if (end < 0) {
+        end = strlen(str) + end;
+    }
+    else if (start < 0) {
+        end = strlen(str);
+        start = end + start;
+    }
 
-	if (!(str + start) || end - start < 0)
-	{
-		return strdup("");
-	}
+    if (!(str + start) || end - start < 0) {
+        return strdup("");
+    }
 
-	str += start;
-	max = strlen(str);
-	n = MIN(max, (size_t) (end - start));
+    str += start;
+    max = strlen(str);
+    n = MIN(max, (size_t) (end - start));
 
-	return strndup(str, n);
+    return strndup(str, n);
 }
 
 /**
@@ -648,9 +598,9 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
  * character. */
 int string_isempty(const char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	return !str || *str == '\0';
+    return !str || *str == '\0';
 }
 
 /**
@@ -661,19 +611,17 @@ int string_isempty(const char *str)
  * otherwise. */
 int string_iswhite(const char *str)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (str && *str != '\0')
-	{
-		if (!isspace(*str))
-		{
-			return 0;
-		}
+    while (str && *str != '\0') {
+        if (!isspace(*str)) {
+            return 0;
+        }
 
-		str++;
-	}
+        str++;
+    }
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -684,19 +632,17 @@ int string_iswhite(const char *str)
  * @return 1 if 'c' equals to any of the character in 'key', 0 otherwise. */
 int char_contains(const char c, const char *key)
 {
-	size_t i;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	for (i = 0; key[i] != '\0'; i++)
-	{
-		if (c == key[i])
-		{
-			return 1;
-		}
-	}
+    for (i = 0; key[i] != '\0'; i++) {
+        if (c == key[i]) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -706,19 +652,17 @@ int char_contains(const char c, const char *key)
  * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise. */
 int string_contains(const char *str, const char *key)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*str != '\0')
-	{
-		if (char_contains(*str, key))
-		{
-			return 1;
-		}
+    while (*str != '\0') {
+        if (char_contains(*str, key)) {
+            return 1;
+        }
 
-		str++;
-	}
+        str++;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -729,19 +673,17 @@ int string_contains(const char *str, const char *key)
  * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise. */
 int string_contains_other(const char *str, const char *key)
 {
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	while (*str != '\0')
-	{
-		if (!char_contains(*str, key))
-		{
-			return 1;
-		}
+    while (*str != '\0') {
+        if (!char_contains(*str, key)) {
+            return 1;
+        }
 
-		str++;
-	}
+        str++;
+    }
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -756,20 +698,19 @@ int string_contains_other(const char *str, const char *key)
  * @return The generated string; never NULL. Must be freed. */
 char *string_create_char_range(char start, char end)
 {
-	char *str, c;
+    char *str, c;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	str = malloc((end - start + 1) + 1);
+    str = malloc((end - start + 1) + 1);
 
-	for (c = start; c <= end; c++)
-	{
-		str[c - start] = c;
-	}
+    for (c = start; c <= end; c++) {
+        str[c - start] = c;
+    }
 
-	str[c - start] = '\0';
+    str[c - start] = '\0';
 
-	return str;
+    return str;
 }
 
 /**
@@ -781,85 +722,78 @@ char *string_create_char_range(char start, char end)
 char *string_crypt(char *str, const char *salt)
 {
 #if defined(HAVE_CRYPT)
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!salt)
-	{
-		static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
-		size_t stringlen;
-		char s[2];
+    if (!salt) {
+        static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+        size_t stringlen;
+        char s[2];
 
-		stringlen = strlen(c);
-		s[0] = c[rndm(1, stringlen) - 1];
-		s[1] = c[rndm(1, stringlen) - 1];
+        stringlen = strlen(c);
+        s[0] = c[rndm(1, stringlen) - 1];
+        s[1] = c[rndm(1, stringlen) - 1];
 
-		return crypt(str, s);
-	}
+        return crypt(str, s);
+    }
 
-	return crypt(str, salt);
+    return crypt(str, salt);
 #elif defined(WIN32)
-	HCRYPTPROV provider;
-	HCRYPTHASH hash;
-	DWORD resultlen = 0, i;
-	BYTE *result;
-	static char hashresult[HUGE_BUF];
-	char tmp[6];
+    HCRYPTPROV provider;
+    HCRYPTHASH hash;
+    DWORD resultlen = 0, i;
+    BYTE *result;
+    static char hashresult[HUGE_BUF];
+    char tmp[6];
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-	{
-		return str;
-	}
+    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+        return str;
+    }
 
-	if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash))
-	{
-		CryptReleaseContext(provider, 0);
-		return str;
-	}
+    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
 
-	if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0))
-	{
-		CryptDestroyHash(hash);
-		CryptReleaseContext(provider, 0);
-		return str;
-	}
+    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
 
-	if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0))
-	{
-		CryptDestroyHash(hash);
-		CryptReleaseContext(provider, 0);
-		return str;
-	}
+    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
 
-	result = calloc(1, sizeof(BYTE) * resultlen);
+    result = calloc(1, sizeof(BYTE) * resultlen);
 
-	if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0))
-	{
-		free(result);
-		CryptDestroyHash(hash);
-		CryptReleaseContext(provider, 0);
-		return str;
-	}
+    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
+        free(result);
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
 
-	CryptDestroyHash(hash);
-	CryptReleaseContext(provider, 0);
-	
-	hashresult[0] = '\0';
+    CryptDestroyHash(hash);
+    CryptReleaseContext(provider, 0);
 
-	for (i = 0; i < resultlen; i++)
-	{
-	    snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
-	    strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
-	    hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
-	}
+    hashresult[0] = '\0';
 
-	free(result);
+    for (i = 0; i < resultlen; i++) {
+        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
+        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
+        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
+    }
 
-	return hashresult;
+    free(result);
+
+    return hashresult;
 #else
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
-	return str;
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    return str;
 #endif
 }
 
@@ -875,29 +809,27 @@ char *string_crypt(char *str, const char *salt)
  * @return Joined string; never NULL. Must be freed. */
 char *string_join(const char *delim, ...)
 {
-	StringBuffer *sb;
-	va_list args;
-	const char *str;
+    StringBuffer *sb;
+    va_list args;
+    const char *str;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	sb = stringbuffer_new();
+    sb = stringbuffer_new();
 
-	va_start(args, delim);
+    va_start(args, delim);
 
-	while ((str = va_arg(args, const char *)))
-	{
-		if (sb->pos && delim)
-		{
-			stringbuffer_append_string(sb, delim);
-		}
+    while ((str = va_arg(args, const char *))) {
+        if (sb->pos && delim) {
+            stringbuffer_append_string(sb, delim);
+        }
 
-		stringbuffer_append_string(sb, str);
-	}
+        stringbuffer_append_string(sb, str);
+    }
 
-	va_end(args);
+    va_end(args);
 
-	return stringbuffer_finish(sb);
+    return stringbuffer_finish(sb);
 }
 
 /**
@@ -921,29 +853,26 @@ char *string_join(const char *delim, ...)
  * @return Joined string; never NULL. Must be freed. */
 char *string_join_array(const char *delim, char **array, size_t arraysize)
 {
-	StringBuffer *sb;
-	size_t i;
+    StringBuffer *sb;
+    size_t i;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	sb = stringbuffer_new();
+    sb = stringbuffer_new();
 
-	for (i = 0; i < arraysize; i++)
-	{
-		if (!array[i])
-		{
-			continue;
-		}
+    for (i = 0; i < arraysize; i++) {
+        if (!array[i]) {
+            continue;
+        }
 
-		if (sb->pos && delim)
-		{
-			stringbuffer_append_string(sb, delim);
-		}
+        if (sb->pos && delim) {
+            stringbuffer_append_string(sb, delim);
+        }
 
-		stringbuffer_append_string(sb, array[i]);
-	}
+        stringbuffer_append_string(sb, array[i]);
+    }
 
-	return stringbuffer_finish(sb);
+    return stringbuffer_finish(sb);
 }
 
 /**
@@ -958,45 +887,45 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
  * @return Constructed string; never NULL. Must be freed. */
 char *string_repeat(const char *str, size_t num)
 {
-	size_t len, i;
-	char *ret;
+    size_t len, i;
+    char *ret;
 
-	TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-	len = strlen(str);
-	ret = malloc(sizeof(char) * (len * num) + 1);
+    len = strlen(str);
+    ret = malloc(sizeof(char) * (len * num) + 1);
 
-	for (i = 0; i < num; i++)
-	{
-		/* Cannot overflow; 'ret' has been allocated to hold enough characters. */
-		strcpy(ret + (len * i), str);
-	}
+    for (i = 0; i < num; i++) {
+        /* Cannot overflow; 'ret' has been allocated to hold enough characters.
+         * */
+        strcpy(ret + (len * i), str);
+    }
 
-	ret[len * i] = '\0';
+    ret[len * i] = '\0';
 
-	return ret;
+    return ret;
 }
 
 /**
  * Like snprintf(), but appends the formatted string to the specified buffer.
  * The buffer must contain a null-byte.
  * @param buf Buffer to append to.
- * @param size Maximum size of the buffer. 
+ * @param size Maximum size of the buffer.
  * @param fmt Format specifier.
  * @param ... Format arguments.
  * @return Length of string in the buffer.
  */
 size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
 {
-	size_t result;
-	va_list args;
-	size_t len;
-	
-	len = strnlen(buf, size);
+    size_t result;
+    va_list args;
+    size_t len;
 
-	va_start(args, fmt);
-	result = vsnprintf(buf + len, size - len, fmt, args);
-	va_end(args);
+    len = strnlen(buf, size);
 
-	return result + len;
+    va_start(args, fmt);
+    result = vsnprintf(buf + len, size - len, fmt, args);
+    va_end(args);
+
+    return result + len;
 }

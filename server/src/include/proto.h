@@ -468,7 +468,7 @@ extern int freearr_x[49];
 extern int freearr_y[49];
 extern int maxfree[49];
 extern int freedir[49];
-extern void (*object_initializers[256])(object *);
+extern void (*object_initializers[256]) (object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *object_merge(object *op);

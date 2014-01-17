@@ -36,14 +36,14 @@
  * List of the region fields and their meaning. */
 static fields_struct fields[] =
 {
-	{"next", FIELDTYPE_REGION, offsetof(region, next), 0, 0},
-	{"parent", FIELDTYPE_REGION, offsetof(region, parent), 0, 0},
-	{"name", FIELDTYPE_CSTR, offsetof(region, name), 0, 0},
-	{"longname", FIELDTYPE_CSTR, offsetof(region, longname), 0, 0},
-	{"msg", FIELDTYPE_CSTR, offsetof(region, msg), 0, 0},
-	{"jailmap", FIELDTYPE_CSTR, offsetof(region, jailmap), 0, 0},
-	{"jailx", FIELDTYPE_SINT16, offsetof(region, jailx), 0, 0},
-	{"jaily", FIELDTYPE_SINT16, offsetof(region, jaily), 0, 0}
+    {"next", FIELDTYPE_REGION, offsetof(region, next), 0, 0},
+    {"parent", FIELDTYPE_REGION, offsetof(region, parent), 0, 0},
+    {"name", FIELDTYPE_CSTR, offsetof(region, name), 0, 0},
+    {"longname", FIELDTYPE_CSTR, offsetof(region, longname), 0, 0},
+    {"msg", FIELDTYPE_CSTR, offsetof(region, msg), 0, 0},
+    {"jailmap", FIELDTYPE_CSTR, offsetof(region, jailmap), 0, 0},
+    {"jailx", FIELDTYPE_SINT16, offsetof(region, jailx), 0, 0},
+    {"jaily", FIELDTYPE_SINT16, offsetof(region, jaily), 0, 0}
 };
 /* @endcparser */
 
@@ -54,7 +54,7 @@ static fields_struct fields[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
-	return generic_field_getter((fields_struct *) context, r->region);
+    return generic_field_getter((fields_struct *) context, r->region);
 }
 
 /**
@@ -65,19 +65,18 @@ static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
  * @return The new wrapper. */
 static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	Atrinik_Region *self;
+    Atrinik_Region *self;
 
-	(void) args;
-	(void) kwds;
+    (void) args;
+    (void) kwds;
 
-	self = (Atrinik_Region *) type->tp_alloc(type, 0);
+    self = (Atrinik_Region *) type->tp_alloc(type, 0);
 
-	if (self)
-	{
-		self->region = NULL;
-	}
+    if (self) {
+        self->region = NULL;
+    }
 
-	return (PyObject *) self;
+    return (PyObject *) self;
 }
 
 /**
@@ -85,11 +84,11 @@ static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args, PyObject
  * @param self The wrapper to free. */
 static void Atrinik_Region_dealloc(Atrinik_Region *self)
 {
-	self->region = NULL;
+    self->region = NULL;
 #ifndef IS_PY_LEGACY
-	Py_TYPE(self)->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 #else
-	self->ob_type->tp_free((PyObject *) self);
+    self->ob_type->tp_free((PyObject *) self);
 #endif
 }
 
@@ -99,23 +98,22 @@ static void Atrinik_Region_dealloc(Atrinik_Region *self)
  * @return Python object containing the name of the region. */
 static PyObject *Atrinik_Region_str(Atrinik_Region *self)
 {
-	return Py_BuildValue("s", self->region->name);
+    return Py_BuildValue("s", self->region->name);
 }
 
 static int Atrinik_Region_InternalCompare(Atrinik_Region *left, Atrinik_Region *right)
 {
-	return (left->region < right->region ? -1 : (left->region == right->region ? 0 : 1));
+    return (left->region < right->region ? -1 : (left->region == right->region ? 0 : 1));
 }
 
 static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region *right, int op)
 {
-	if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType))
-	{
-		Py_INCREF(Py_NotImplemented);
-		return Py_NotImplemented;
-	}
+    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType)) {
+        Py_INCREF(Py_NotImplemented);
+        return Py_NotImplemented;
+    }
 
-	return generic_rich_compare(op, Atrinik_Region_InternalCompare(left, right));
+    return generic_rich_compare(op, Atrinik_Region_InternalCompare(left, right));
 }
 
 /**
@@ -126,37 +124,37 @@ static PyGetSetDef getseters[NUM_FIELDS + 1];
 PyTypeObject Atrinik_RegionType =
 {
 #ifdef IS_PY3K
-	PyVarObject_HEAD_INIT(NULL, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
 #else
-	PyObject_HEAD_INIT(NULL)
-	0,
+    PyObject_HEAD_INIT(NULL)
+    0,
 #endif
-	"Atrinik.Region",
-	sizeof(Atrinik_Region),
-	0,
-	(destructor) Atrinik_Region_dealloc,
-	NULL, NULL, NULL,
+    "Atrinik.Region",
+    sizeof(Atrinik_Region),
+    0,
+    (destructor) Atrinik_Region_dealloc,
+    NULL, NULL, NULL,
 #ifdef IS_PY3K
-	NULL,
+    NULL,
 #else
-	(cmpfunc) Atrinik_Region_InternalCompare,
+    (cmpfunc) Atrinik_Region_InternalCompare,
 #endif
-	0, 0, 0, 0, 0, 0,
-	(reprfunc) Atrinik_Region_str,
-	0, 0, 0,
-	Py_TPFLAGS_DEFAULT,
-	"Atrinik regions",
-	NULL, NULL,
-	(richcmpfunc) Atrinik_Region_RichCompare,
-	0, 0, 0,
-	NULL,
-	0,
-	getseters,
-	0, 0, 0, 0, 0, 0, 0,
-	Atrinik_Region_new,
-	0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0,
+    (reprfunc) Atrinik_Region_str,
+    0, 0, 0,
+    Py_TPFLAGS_DEFAULT,
+    "Atrinik regions",
+    NULL, NULL,
+    (richcmpfunc) Atrinik_Region_RichCompare,
+    0, 0, 0,
+    NULL,
+    0,
+    getseters,
+    0, 0, 0, 0, 0, 0, 0,
+    Atrinik_Region_new,
+    0, 0, 0, 0, 0, 0, 0, 0
 #ifndef IS_PY_LEGACY
-	, 0
+    , 0
 #endif
 };
 
@@ -166,33 +164,31 @@ PyTypeObject Atrinik_RegionType =
  * @return 1 on success, 0 on failure. */
 int Atrinik_Region_init(PyObject *module)
 {
-	size_t i;
+    size_t i;
 
-	/* Field getters */
-	for (i = 0; i < NUM_FIELDS; i++)
-	{
-		PyGetSetDef *def = &getseters[i];
+    /* Field getters */
+    for (i = 0; i < NUM_FIELDS; i++) {
+        PyGetSetDef *def = &getseters[i];
 
-		def->name = fields[i].name;
-		def->get = (getter) Region_GetAttribute;
-		def->set = NULL;
-		def->doc = NULL;
-		def->closure = (void *) &fields[i];
-	}
+        def->name = fields[i].name;
+        def->get = (getter) Region_GetAttribute;
+        def->set = NULL;
+        def->doc = NULL;
+        def->closure = (void *) &fields[i];
+    }
 
-	getseters[i].name = NULL;
+    getseters[i].name = NULL;
 
-	Atrinik_RegionType.tp_new = PyType_GenericNew;
+    Atrinik_RegionType.tp_new = PyType_GenericNew;
 
-	if (PyType_Ready(&Atrinik_RegionType) < 0)
-	{
-		return 0;
-	}
+    if (PyType_Ready(&Atrinik_RegionType) < 0) {
+        return 0;
+    }
 
-	Py_INCREF(&Atrinik_RegionType);
-	PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
+    Py_INCREF(&Atrinik_RegionType);
+    PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -201,21 +197,19 @@ int Atrinik_Region_init(PyObject *module)
  * @return Python object wrapping the real region. */
 PyObject *wrap_region(region *what)
 {
-	Atrinik_Region *wrapper;
+    Atrinik_Region *wrapper;
 
-	/* Return None if no region was to be wrapped. */
-	if (!what)
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    /* Return None if no region was to be wrapped. */
+    if (!what) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-	wrapper = PyObject_NEW(Atrinik_Region, &Atrinik_RegionType);
+    wrapper = PyObject_NEW(Atrinik_Region, &Atrinik_RegionType);
 
-	if (wrapper)
-	{
-		wrapper->region = what;
-	}
+    if (wrapper) {
+        wrapper->region = what;
+    }
 
-	return (PyObject *) wrapper;
+    return (PyObject *) wrapper;
 }

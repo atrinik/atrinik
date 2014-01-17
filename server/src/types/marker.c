@@ -31,79 +31,67 @@
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
 {
-	object *tmp;
+    object *tmp;
 
-	(void) originator;
+    (void) originator;
 
-	if (victim->type != PLAYER || !state)
-	{
-		return OBJECT_METHOD_OK;
-	}
+    if (victim->type != PLAYER || !state) {
+        return OBJECT_METHOD_OK;
+    }
 
-	if (op->slaying)
-	{
-		for (tmp = victim->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == FORCE && tmp->slaying == op->slaying)
-			{
-				object_remove(tmp, 0);
-				object_destroy(tmp);
-				break;
-			}
-		}
-	}
+    if (op->slaying) {
+        for (tmp = victim->inv; tmp; tmp = tmp->below) {
+            if (tmp->type == FORCE && tmp->slaying == op->slaying) {
+                object_remove(tmp, 0);
+                object_destroy(tmp);
+                break;
+            }
+        }
+    }
 
-	if (op->race)
-	{
-		for (tmp = victim->inv; tmp; tmp = tmp->below)
-		{
-			if (tmp->type == FORCE && tmp->slaying == op->race)
-			{
-				break;
-			}
-		}
+    if (op->race) {
+        for (tmp = victim->inv; tmp; tmp = tmp->below) {
+            if (tmp->type == FORCE && tmp->slaying == op->race) {
+                break;
+            }
+        }
 
-		if (!tmp)
-		{
-			object *force;
+        if (!tmp) {
+            object *force;
 
-			force = get_archetype("force");
-			force->speed = 0;
+            force = get_archetype("force");
+            force->speed = 0;
 
-			if (op->stats.food)
-			{
-				force->speed = 0.01;
-				force->speed_left = -op->stats.food;
-			}
+            if (op->stats.food) {
+                force->speed = 0.01;
+                force->speed_left = -op->stats.food;
+            }
 
-			update_ob_speed(force);
-			FREE_AND_COPY_HASH(force->slaying, op->race);
-			insert_ob_in_ob(force, victim);
+            update_ob_speed(force);
+            FREE_AND_COPY_HASH(force->slaying, op->race);
+            insert_ob_in_ob(force, victim);
 
-			if (op->msg)
-			{
-				draw_info(COLOR_NAVY, victim, op->msg);
-			}
+            if (op->msg) {
+                draw_info(COLOR_NAVY, victim, op->msg);
+            }
 
-			if (op->stats.hp > 0)
-			{
-				op->stats.hp--;
+            if (op->stats.hp > 0) {
+                op->stats.hp--;
 
-				if (op->stats.hp == 0)
-				{
-					destruct_ob(op);
-					return OBJECT_METHOD_OK;
-				}
-			}
-		}
-	}
+                if (op->stats.hp == 0) {
+                    destruct_ob(op);
+                    return OBJECT_METHOD_OK;
+                }
+            }
+        }
+    }
 
-	return OBJECT_METHOD_OK;
+    return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the marker type object methods. */
 void object_type_init_marker(void)
 {
-	object_type_methods[MARKER].move_on_func = move_on_func;
+    object_type_methods[MARKER].move_on_func = move_on_func;
 }
