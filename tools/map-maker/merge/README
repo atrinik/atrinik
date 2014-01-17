@@ -7,8 +7,8 @@ use this package.
 
 == Map Editor ==
 
-To run Gridarta for Atrinik - the Atrinik map editor - you'll need Java 1.6. Download
-it from the Java website (http://www.java.com).
+To run Gridarta for Atrinik - the Atrinik map editor - you'll need Java 1.6 or later.
+Download it from the Java website (http://www.java.com).
 
 Note that on some versions of Java (generally the newer ones), you have to manually
 set the PATH environment variable. See http://www.jibble.org/settingupjava.php for
@@ -19,7 +19,7 @@ editor.
 
 == Server ==
 
-You need to download Python 3.2 from the Python website (http://www.python.org) and install
+You need to download Python 3.3 from the Python website (http://www.python.org) and install
 it to the default location.
 
 Simply double-click w32_start_server.bat and the server should start.
@@ -31,7 +31,7 @@ Double-click w32_start_client.bat.
 == Map Checker ==
 
 Map checker is a tool to check your maps located in tools/map-checker. To run it, you need
-Python 2.6 and PyGTK, which can be downloaded here: http://www.pygtk.org
+Python 2.7 and PyGTK, which can be downloaded here: http://www.pygtk.org
 
 Then simply execute map-checker.py in tools/map-checker with Python.
 
@@ -41,14 +41,14 @@ Then simply execute map-checker.py in tools/map-checker with Python.
 
 == Map Editor ==
 
-Download Java 1.6 from the Java website (http://www.java.com) or install it using
+Download Java 1.6 or later from the Java website (http://www.java.com) or install it using
 your favorite package manager. Then use:
 
 sh linux_start_client.sh
 
 == Server ==
 
-Use your favorite package manager to install Python 2.6 (or compile it from source).
+Use your favorite package manager to install Python 3.3 (or compile it from source).
 Then use this command:
 
 sh linux_start_server.sh
@@ -62,7 +62,7 @@ sh linux_start_client.sh
 == Map Checker ==
 
 Map checker is a tool to check your maps located in tools/map-checker. To run it, you need
-Python 2.6 (which you should have by now from the above server step) and PyGTK, which you
+Python 2.7 (which you should have by now from the above server step) and PyGTK, which you
 can install using your favorite package manager. After that, run this command:
 
-python2.6 tools/map-checker/map-checker.py
+python2.7 tools/map-checker/map-checker.py
