@@ -142,10 +142,10 @@ for d in dirs_make:
 	debug("    Creating: {0}".format(dst))
 	os.mkdir(dst)
 
-# Copy files from server/install to server/data.
-debug("Copying default files from install directory to data directory...")
+# Copy files from server/install_data to server/data.
+debug("Copying default files from install_data directory to data directory...")
 
-install_dir = "atrinik_map_maker/server/install"
+install_dir = "atrinik_map_maker/server/install_data"
 
 # Sanity check.
 if not os.path.exists(install_dir) or not os.path.isdir(install_dir):
