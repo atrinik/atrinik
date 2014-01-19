@@ -73,4 +73,11 @@ void command_tell(object *op, const char *command, char *params)
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);
     snprintf(buf, sizeof(buf), "You tell <a=#charname>%s</a>: %s", pl->ob->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
+
+    /* Check for AFK flag */
+    if (CONTR(pl->ob)->afk) {
+        snprintf(buf, sizeof(buf), "<a=#charname>%s</a> is AFK.", pl->ob->name);
+        draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
+    }
+
 }
