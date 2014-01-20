@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-01-20 Edwin Miltenburg
 endmsg
 width 24
 height 24
@@ -54,6 +54,19 @@ layer 4
 face floor_wood2.101
 end
 end
+arch creator
+connected 103
+lifesave 1
+one_drop 1
+y 21
+arch bridge_wood_EW.101
+align 27
+z 20
+rotate 128
+layer 4
+face floor_wood2.101
+end
+end
 arch water_lt2
 y 22
 end
@@ -64,6 +77,19 @@ y 22
 end
 arch creator
 connected 102
+lifesave 1
+one_drop 1
+y 22
+arch bridge_wood_EW.101
+align 56
+z 6
+rotate 128
+layer 3
+face floor_wood2.101
+end
+end
+arch creator
+connected 103
 lifesave 1
 one_drop 1
 y 22
@@ -135,6 +161,19 @@ hp 1
 sp 19
 end
 end
+arch creator
+connected 103
+lifesave 1
+one_drop 1
+x 1
+y 20
+arch portal_big
+no_pass 1
+is_invisible 1
+hp 1
+sp 19
+end
+end
 arch water_lt4
 x 1
 y 21
@@ -178,6 +217,20 @@ one_drop 1
 x 1
 y 21
 arch bridge_wood_NS.101
+end
+end
+arch creator
+connected 103
+lifesave 1
+one_drop 1
+x 1
+y 21
+arch water_lt4
+end
+arch portal_big
+is_invisible 1
+hp 1
+sp 19
 end
 end
 arch water_lt4
@@ -238,9 +291,46 @@ y 22
 arch bridge_wood_NS.101
 end
 end
+arch creator
+connected 103
+lifesave 1
+one_drop 1
+x 1
+y 22
+arch water_lt4
+end
+arch flagwall_short_brick1.111
+z -2
+align 1
+type 79
+layer 2
+no_teleport 1
+end
+arch portal_big
+is_invisible 1
+hp 1
+sp 19
+end
+end
 arch floor_sand_d3
 x 1
 y 23
+end
+arch floor_black1a
+x 2
+y 16
+end
+arch wall_cave1.181
+x 2
+y 16
+end
+arch floor_black1a
+x 2
+y 17
+end
+arch wall_cave1.171
+x 2
+y 17
 end
 arch floor_sand_d4
 x 2
@@ -270,6 +360,16 @@ arch water_lt
 x 2
 y 21
 end
+arch magic_mouth
+msg
+You hear a creaking sound. The bridge is moving!
+endmsg
+connected 100
+walk_on 0
+fly_on 0
+x 2
+y 21
+end
 arch water_lt4
 x 2
 y 22
@@ -287,18 +387,36 @@ arch floor_sand_d3
 x 2
 y 23
 end
-arch magic_mouth
-msg
-You hear a creaking sound. The bridge is moving!
-endmsg
-connected 100
-walk_on 0
-fly_on 0
+arch floor_black1a
+x 3
+y 16
+end
+arch wall_cave1.111
+x 3
+y 16
+end
+arch floor_black1a
 x 3
 y 17
 end
+arch button
+connected 103
+exp -1
+x 3
+y 17
+end
+arch spawn_point
+last_heal 1
+x 3
+y 17
+arch blob_acid
+is_invisible 1
+invulnerable 1
+no_attack 1
+type 83
+end
+end
 arch floor_black1a
-z 24
 x 3
 y 18
 end
@@ -307,7 +425,6 @@ x 3
 y 18
 end
 arch floor_black1a
-z 24
 x 3
 y 19
 end
@@ -359,16 +476,30 @@ x 3
 y 23
 end
 arch floor_black1a
-z 24
+x 4
+y 16
+end
+arch wall_cave1b.121
+x 4
+y 16
+end
+arch floor_black1a
+x 4
+y 17
+end
+arch wall_cave1.131
+x 4
+y 17
+end
+arch floor_black1a
 x 4
 y 18
 end
-arch wall_cave1.151
+arch wall_cave1b.141
 x 4
 y 18
 end
 arch floor_black1a
-z 24
 x 4
 y 19
 end
@@ -414,7 +545,6 @@ x 4
 y 23
 end
 arch floor_black1a
-z 24
 x 5
 y 18
 end
@@ -423,7 +553,6 @@ x 5
 y 18
 end
 arch floor_black1a
-z 24
 x 5
 y 19
 end
