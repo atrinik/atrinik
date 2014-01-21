@@ -1016,6 +1016,7 @@ char *player_sanitize_input(char *str)
     }
 
     string_replace_unprintable_chars(str);
+    string_remove_markup(str);
     string_whitespace_squeeze(str);
     string_whitespace_trim(str);
 
