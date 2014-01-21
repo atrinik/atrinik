@@ -33,15 +33,33 @@
 /** @copydoc command_func */
 void command_afk(object *op, const char *command, char *params)
 {
-    if (CONTR(op)->afk) {
-        CONTR(op)->afk = 0;
-        draw_info(COLOR_WHITE, op, "You are no longer AFK.");
+    params = player_sanitize_input(params);
+    
+    /* No auto-reply message given*/
+    if (!params) {
+        CONTR(op)->afk_auto_reply[0] = '\0';
+        /* Currently afk */
+        if (CONTR(op)->afk) {
+            CONTR(op)->afk = 0;
+            draw_info(COLOR_WHITE, op, "You are no longer AFK.");
+        }
+        /* Currently not afk */
+        else {
+            CONTR(op)->afk = 1;
+            CONTR(op)->stat_afk_used++;
+            draw_info(COLOR_WHITE, op, "You are now AFK.");
+        }
     }
+    /* Auto-reply message given */
     else {
         CONTR(op)->afk = 1;
         CONTR(op)->stat_afk_used++;
-        draw_info(COLOR_WHITE, op, "You are now AFK.");
+        draw_info_format(COLOR_WHITE, op, "You are now AFK. Auto-reply: %s", params);
+        
+        logger_print(LOG(CHAT), "[AFK] [%s] %s", op->name, params);
+        strncpy(CONTR(op)->afk_auto_reply, params, sizeof(CONTR(op)->afk_auto_reply) - 1);
+        CONTR(op)->afk_auto_reply[sizeof(CONTR(op)->afk_auto_reply) - 1] = '\0';
     }
-
+    
     CONTR(op)->socket.ext_title_flag = 1;
 }

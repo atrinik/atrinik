@@ -538,6 +538,10 @@ typedef struct pl_player
     /**
      * Player name to reply to. */
     char player_reply[64];
+    
+    /** Auto-reply message when AFK */
+    char afk_auto_reply[MAX_BUF];
+    
 } player;
 
 #endif
