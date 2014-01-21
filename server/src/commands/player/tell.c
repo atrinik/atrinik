@@ -71,10 +71,10 @@ void command_tell(object *op, const char *command, char *params)
 
     snprintf(buf, sizeof(buf), "<a=#charname>%s</a> tells you: %s", op->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);
-    
+
     snprintf(buf, sizeof(buf), "You tell <a=#charname>%s</a>: %s", pl->ob->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
-    
+
     /* Auto-reply message available */
     if (CONTR(pl->ob)->afk_auto_reply[0] != '\0') {
         snprintf(buf, sizeof(buf), "<a=#charname>%s</a> auto-replies: %s", pl->ob->name, CONTR(pl->ob)->afk_auto_reply);

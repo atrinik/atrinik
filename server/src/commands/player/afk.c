@@ -34,7 +34,7 @@
 void command_afk(object *op, const char *command, char *params)
 {
     params = player_sanitize_input(params);
-    
+
     /* No auto-reply message given*/
     if (!params) {
         CONTR(op)->afk_auto_reply[0] = '\0';
@@ -60,6 +60,6 @@ void command_afk(object *op, const char *command, char *params)
         strncpy(CONTR(op)->afk_auto_reply, params, sizeof(CONTR(op)->afk_auto_reply) - 1);
         CONTR(op)->afk_auto_reply[sizeof(CONTR(op)->afk_auto_reply) - 1] = '\0';
     }
-    
+
     CONTR(op)->socket.ext_title_flag = 1;
 }
