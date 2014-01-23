@@ -1283,7 +1283,6 @@ extern void string_replace_char(char *str, const char *key, const char replaceme
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);
 extern void string_replace_unprintable_chars(char *buf);
 extern char *string_format_number_comma(uint64 num);
-extern void string_remove_markup(char *str);
 extern void string_toupper(char *str);
 extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);

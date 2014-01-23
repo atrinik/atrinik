@@ -220,25 +220,6 @@ char *string_format_number_comma(uint64 num)
 }
 
 /**
- * Strips markup from a string.
- *
- * Replaces '<' characters with a space, effectively disabling any markup
- * (note that entities such as &lt; are still allowed).
- * @param str The string. */
-void string_remove_markup(char *str)
-{
-    char *cp;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    for (cp = str; *cp != '\0'; cp++) {
-        if (*cp == '<') {
-            *cp = ' ';
-        }
-    }
-}
-
-/**
  * Transforms a string to uppercase, in-place.
  * @param str String to transform, will be modified. */
 void string_toupper(char *str)
