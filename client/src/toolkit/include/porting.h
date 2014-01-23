@@ -82,6 +82,7 @@
 #   define HAVE_FCNTL_H 1
 #   define HAVE_TIME_H 1
 #   define HAVE_STDDEF_H 1
+#   define HAVE_STRDUP 1
 
 #   define PLUGIN_SUFFIX ".dll"
 #else
