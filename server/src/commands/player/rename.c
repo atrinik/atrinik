@@ -70,6 +70,7 @@ void command_rename(object *op, const char *command, char *params)
             return;
         }
 
+        string_remove_markup(params);
         /* Set custom name. */
         FREE_AND_COPY_HASH(tmp->custom_name, params);
         draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
