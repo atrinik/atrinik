@@ -280,7 +280,7 @@ void login_start(void)
     for (i = 0; i < LOGIN_TEXT_INPUT_NUM; i++) {
         text_input_create(&text_inputs[i]);
         text_inputs[i].character_check_func = text_input_character_check;
-        text_inputs[i].w = 150;
+        text_inputs[i].coords.w = 150;
         text_inputs[i].focus = 0;
     }
 
