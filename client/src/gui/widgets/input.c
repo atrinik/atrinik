@@ -65,8 +65,8 @@ static void widget_draw(widgetdata *widget)
     widget->redraw++;
 
     text_input = &WIDGET_INPUT(widget)->text_input;
-    text_input->w = widget->w - 16;
-    text_input_show(text_input, widget->surface, widget->w / 2 - text_input->w / 2, widget->h / 2 - text_input->h / 2 + 8);
+    text_input->coords.w = widget->w - 16;
+    text_input_show(text_input, widget->surface, widget->w / 2 - text_input->coords.w / 2, widget->h / 2 - text_input->coords.h / 2 + 8);
 
     text_truncate_overflow(FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 220);
     text_show(widget->surface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 8, 6, COLOR_HGOLD, 0, NULL);

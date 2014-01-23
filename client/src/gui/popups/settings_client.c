@@ -230,9 +230,8 @@ static void settings_list_reload(void)
             text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
             text_input_create(text_input);
             text_input_set(text_input, setting_get_str(setting_category_selected, i));
+            text_input->coords.w = 100;
             text_input->font = FONT_ARIAL10;
-            text_input->w = 100;
-            text_input->h = FONT_HEIGHT(text_input->font);
             text_input->focus = 0;
 
             if (setting->type == OPT_TYPE_COLOR) {
@@ -371,7 +370,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         }
 
         text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
-        dst.x -= text_input->w;
+        dst.x -= text_input->coords.w;
         text_input->focus = text_input_focused == text_input;
         text_input_set_parent(text_input, list->px, list->py);
         text_input_show(text_input, list->surface, dst.x, dst.y + 1);

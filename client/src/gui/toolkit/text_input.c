@@ -75,10 +75,16 @@ void text_input_create(text_input_struct *text_input)
 {
     memset(text_input, 0, sizeof(*text_input));
     text_input->focus = 1;
-    text_input->font = FONT_ARIAL11;
+    text_input->coords.w = 200;
     text_input->max = MIN(sizeof(text_input->str), 256);
-    text_input->w = 200;
-    text_input->h = FONT_HEIGHT(text_input->font);
+    
+    text_input_set_font(text_input, FONT_ARIAL11);
+}
+
+void text_input_set_font(text_input_struct *text_input, int font)
+{
+    text_input->font = font;
+    text_input->coords.h = FONT_HEIGHT(font) + TEXT_INPUT_PADDING * 2;
 }
 
 void text_input_reset(text_input_struct *text_input)
@@ -110,17 +116,13 @@ void text_input_set_parent(text_input_struct *text_input, int px, int py)
 
 int text_input_mouse_over(text_input_struct *text_input, int mx, int my)
 {
-    SDL_Rect coords;
-
     mx -= text_input->px;
     my -= text_input->py;
 
-    coords.x = text_input->x - 1;
-    coords.y = text_input->y - 1;
-    coords.w = text_input->w + 2;
-    coords.h = text_input->h + 2;
-
-    if (mx >= coords.x && mx < coords.x + coords.w && my >= coords.y && my < coords.y + coords.h) {
+    if (mx >= text_input->coords.x &&
+        my >= text_input->coords.y &&
+        mx < text_input->coords.x + text_input->coords.w &&
+        my < text_input->coords.y + text_input->coords.h) {
         return 1;
     }
 
@@ -143,21 +145,13 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     int underscore_width;
     size_t pos;
     char buf[HUGE_BUF], *cp;
-    SDL_Rect coords, box;
+    SDL_Rect box;
 
-    text_input->x = x;
-    text_input->y = y;
+    text_input->coords.x = x;
+    text_input->coords.y = y;
 
-    coords.x = text_input->x - 1;
-    coords.y = text_input->y - 1;
-    coords.w = text_input->w + 2;
-    coords.h = text_input->h + 2;
-    rectangle_create(surface, coords.x, coords.y, coords.w, coords.h, "000000");
-    coords.x -= 1;
-    coords.y -= 1;
-    coords.w += 2;
-    coords.h += 2;
-    border_create_color(surface, &coords, 1, "303030");
+    rectangle_create(surface, text_input->coords.x, text_input->coords.y, text_input->coords.w, text_input->coords.h, "000000");
+    border_create_color(surface, &text_input->coords, 1, "303030");
 
     cp = NULL;
     box.w = 0;
@@ -173,7 +167,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     /* Figure out the width by going backwards. */
     for (pos = text_input->pos; pos; pos--) {
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->w) {
+        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->coords.w) {
             break;
         }
 
@@ -194,9 +188,9 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
         strcat(buf, (text_input->str + pos) + (text_input->pos - pos));
     }
 
-    box.w = text_input->w;
-    box.h = text_input->h;
-    text_show(surface, text_input->font, buf, text_input->x, text_input->y, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+    box.w = text_input->coords.w - TEXT_INPUT_PADDING * 2;
+    box.h = text_input->coords.h - TEXT_INPUT_PADDING * 2;
+    text_show(surface, text_input->font, buf, text_input->coords.x + TEXT_INPUT_PADDING * 2, text_input->coords.y + TEXT_INPUT_PADDING * 2, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
 
     if (cp) {
         text_input_set(text_input, cp);

@@ -539,6 +539,7 @@ extern void text_enable_debug(void);
 extern text_input_history_struct *text_input_history_create(void);
 extern void text_input_history_free(text_input_history_struct *history);
 extern void text_input_create(text_input_struct *text_input);
+extern void text_input_set_font(text_input_struct *text_input, int font);
 extern void text_input_reset(text_input_struct *text_input);
 extern void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history);
 extern void text_input_set(text_input_struct *text_input, const char *str);

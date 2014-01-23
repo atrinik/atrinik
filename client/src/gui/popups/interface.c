@@ -167,7 +167,7 @@ static int popup_draw_post_func(popup_struct *popup)
     button_show(&button_close, "Close");
 
     if (interface_data->text_input) {
-        text_input_show(&text_input, ScreenSurface, popup->x + popup->surface->w / 2 - text_input.w / 2, popup->y + popup->surface->h - text_input.h - 15);
+        text_input_show(&text_input, ScreenSurface, popup->x + popup->surface->w / 2 - text_input.coords.w / 2, popup->y + popup->surface->h - text_input.coords.h - 15);
     }
 
     surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("interface_border"));

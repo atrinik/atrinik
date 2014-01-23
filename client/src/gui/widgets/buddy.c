@@ -428,5 +428,5 @@ void widget_buddy_init(widgetdata *widget)
 
     text_input_create(&tmp->text_input);
     tmp->text_input.focus = 0;
-    tmp->text_input.w = 60;
+    tmp->text_input.coords.w = 60;
 }

@@ -183,23 +183,23 @@ static int popup_draw(popup_struct *popup)
         text_input_set_parent(&text_input_key, popup->x, popup->y);
 
         text_input_show(&text_input_command, popup->surface, 160, popup->surface->h - 74);
-        text_input_show(&text_input_key, popup->surface, 160, popup->surface->h - 54);
+        text_input_show(&text_input_key, popup->surface, 160, popup->surface->h - 44);
 
-        box.w = text_input_key.w;
-        box.h = text_input_key.h;
+        box.w = text_input_key.coords.w;
+        box.h = text_input_key.coords.h;
 
         if (sscanf(text_input_key.str, "%d %d", &key, &mod) == 2 && key != SDLK_UNKNOWN) {
             char buf[MAX_BUF];
 
             keybind_get_key_shortcut(key, mod, buf, sizeof(buf));
-            text_show(popup->surface, text_input_key.font, buf, text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface, text_input_key.font, buf, text_input_key.coords.x, text_input_key.coords.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
         }
         else if (text_input_key.focus) {
-            text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.x, text_input_key.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.coords.x, text_input_key.coords.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
         }
 
-        button_apply.x = text_input_key.x + text_input_key.w - texture_surface(button_apply.texture)->w;
-        button_apply.y = text_input_key.y + 20;
+        button_apply.x = text_input_key.coords.x + text_input_key.coords.w - texture_surface(button_apply.texture)->w;
+        button_apply.y = text_input_key.coords.y + 20;
         button_show(&button_apply, "Apply");
     }
 

@@ -287,16 +287,16 @@ static int popup_draw(popup_struct *popup)
         button_character_female.y = button_character_male.y;
         button_show(&button_character_female, "Female");
 
-        box.w = text_inputs[TEXT_INPUT_CHARNAME].w;
+        box.w = text_inputs[TEXT_INPUT_CHARNAME].coords.w;
         text_show(popup->surface, FONT_ARIAL12, "Character name [<tooltip=Enter your character's name.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
         text_input_show(&text_inputs[TEXT_INPUT_CHARNAME], popup->surface, 50, 190);
 
-        button_done.x = text_inputs[TEXT_INPUT_CHARNAME].x + text_inputs[TEXT_INPUT_CHARNAME].w - texture_surface(button_done.texture)->w;
+        button_done.x = text_inputs[TEXT_INPUT_CHARNAME].coords.x + text_inputs[TEXT_INPUT_CHARNAME].coords.w - texture_surface(button_done.texture)->w;
         button_done.y = 210;
         button_show(&button_done, "Done");
     }
     else if (button_tab_password.pressed_forced) {
-        box.w = text_inputs[TEXT_INPUT_PASSWORD].w;
+        box.w = text_inputs[TEXT_INPUT_PASSWORD].coords.w;
         text_show(popup->surface, FONT_ARIAL12, "Current password [<tooltip=Enter your current password.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
         text_show(popup->surface, FONT_ARIAL12, "New password [<tooltip=Enter your new password.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
         text_show(popup->surface, FONT_ARIAL12, "Verify new password [<tooltip=Enter your new password again.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 172, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
@@ -305,7 +305,7 @@ static int popup_draw(popup_struct *popup)
         text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW], popup->surface, 50, 150);
         text_input_show(&text_inputs[TEXT_INPUT_PASSWORD_NEW2], popup->surface, 50, 190);
 
-        button_done.x = text_inputs[TEXT_INPUT_PASSWORD_NEW2].x + text_inputs[TEXT_INPUT_CHARNAME].w - texture_surface(button_done.texture)->w;
+        button_done.x = text_inputs[TEXT_INPUT_PASSWORD_NEW2].coords.x + text_inputs[TEXT_INPUT_CHARNAME].coords.w - texture_surface(button_done.texture)->w;
         button_done.y = 210;
         button_show(&button_done, "Done");
     }
@@ -530,7 +530,7 @@ void characters_open(void)
     for (i = 0; i < TEXT_INPUT_NUM; i++) {
         text_input_create(&text_inputs[i]);
         text_inputs[i].character_check_func = text_input_character_check;
-        text_inputs[i].w = 150;
+        text_inputs[i].coords.w = 150;
         text_inputs[i].focus = 0;
 
         if (i != TEXT_INPUT_CHARNAME) {

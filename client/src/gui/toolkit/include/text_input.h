@@ -79,21 +79,18 @@ typedef struct text_input_struct
      * Text flags. */
     int text_flags;
 
-    int x;
+    /**
+     * Coordinates of the text input.
+     * @warning Don't change this directly - use text_input_set_dimensions(). */
+    SDL_Rect coords;
 
-    int y;
-
+    /**
+     * Parent X. */
     int px;
 
+    /**
+     * Parent Y. */
     int py;
-
-    /**
-     * Width of the text input. */
-    int w;
-
-    /**
-     * Height of the text input. */
-    int h;
 
     /**
      * If 1, the text input has focus. */
@@ -103,5 +100,8 @@ typedef struct text_input_struct
 
     void (*show_edit_func)(struct text_input_struct *text_input);
 } text_input_struct;
+
+#define TEXT_INPUT_PADDING 2
+#define TEXT_INPUT_BORDER 1
 
 #endif

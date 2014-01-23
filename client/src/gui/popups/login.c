@@ -115,7 +115,7 @@ static int popup_draw(popup_struct *popup)
         event_push_key_once(SDLK_RETURN, 0);
     }
 
-    box.w = text_inputs[LOGIN_TEXT_INPUT_NAME].w;
+    box.w = text_inputs[LOGIN_TEXT_INPUT_NAME].coords.w;
     text_show(popup->surface, FONT_ARIAL12, "Account name [<tooltip=Enter your account's name.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
     text_show(popup->surface, FONT_ARIAL12, "Password [<tooltip=Enter your password.><h=#"COLOR_HGOLD ">?</h></tooltip>]", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
 
@@ -131,7 +131,7 @@ static int popup_draw(popup_struct *popup)
         text_input_show(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD2], popup->surface, 50, 190);
     }
 
-    button_done.x = text_inputs[LOGIN_TEXT_INPUT_NAME].x + text_inputs[LOGIN_TEXT_INPUT_NAME].w - texture_surface(button_done.texture)->w;
+    button_done.x = text_inputs[LOGIN_TEXT_INPUT_NAME].coords.x + text_inputs[LOGIN_TEXT_INPUT_NAME].coords.w - texture_surface(button_done.texture)->w;
     button_done.y = button_tab_register.pressed_forced ? 210 : 170;
     button_show(&button_done, "Done");
 
