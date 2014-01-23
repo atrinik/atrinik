@@ -232,7 +232,6 @@ struct plugin_hooklist
     void (*drop)(object *, object *, int);
     char *(*query_short_name)(object *, object *);
     object *(*beacon_locate)(shstr *);
-    char *(*strdup)(const char *);
     void (*player_cleanup_name)(char *);
     party_struct *(*find_party)(const char *);
     void (*add_party_member)(party_struct *, object *);

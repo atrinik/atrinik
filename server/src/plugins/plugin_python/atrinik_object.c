@@ -1971,7 +1971,7 @@ int Atrinik_Object_init(PyObject *module)
 
             strncpy(buf, "f_", sizeof(buf) - 1);
             strncat(buf, hooks->object_flag_names[flagno], sizeof(buf) - strlen(buf) - 1);
-            def->name = hooks->strdup(buf);
+            def->name = strdup(buf);
 
             def->get = (getter) Object_GetFlag;
             def->set = (setter) Object_SetFlag;

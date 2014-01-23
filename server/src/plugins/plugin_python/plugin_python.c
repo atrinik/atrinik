@@ -517,7 +517,7 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
     FILE *fp;
     PyObject *ret = NULL;
 
-    fullpath = hooks->strdup(hooks->create_pathname(path));
+    fullpath = strdup(hooks->create_pathname(path));
 
     fp = fopen(fullpath, "r");
 
@@ -664,7 +664,7 @@ static PyCodeObject *compilePython(char *filename)
         }
 
         cache = malloc(sizeof(*cache));
-        cache->file = hooks->strdup(filename);
+        cache->file = strdup(filename);
         cache->code = code;
         cache->cached_time = stat_buf.st_mtime;
         HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
@@ -881,7 +881,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    cp = hooks->strdup(name);
+    cp = strdup(name);
     hooks->player_cleanup_name(cp);
     ret = hooks->player_exists(cp);
     free(cp);
@@ -2084,7 +2084,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                     free(*(char **) field_ptr);
                 }
 
-                *(char **) field_ptr = hooks->strdup(PyString_AsString(value));
+                *(char **) field_ptr = strdup(PyString_AsString(value));
             }
             else {
                 INTRAISE("Illegal value for C string field.");
