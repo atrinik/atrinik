@@ -1505,6 +1505,7 @@ enum apply_flag
             for (__tmp = (_layer) == LAYER_SYS ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
             { \
                 __next = __tmp->above; \
+                __next_tag = 0; \
                 if (__next) \
                 { \
                     __next_tag = __next->count; \
