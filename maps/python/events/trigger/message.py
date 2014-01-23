@@ -5,9 +5,9 @@
 ## containers.
 
 def main():
-	if not pl:
-		return
+    if not pl:
+        return
 
-	pl.DrawInfo(WhatIsEvent().msg, COLOR_WHITE)
+    pl.DrawInfo(WhatIsEvent().msg, COLOR_WHITE)
 
 main()

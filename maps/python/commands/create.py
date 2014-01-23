@@ -4,70 +4,70 @@
 import re
 
 def main():
-	msg = WhatIsMessage()
+    msg = WhatIsMessage()
 
-	if not msg:
-		return
+    if not msg:
+        return
 
-	match = re.match(r"(?:(\d+) )?([^ ]+)(?: of (\w+))?(?: (.+))?", msg)
+    match = re.match(r"(?:(\d+) )?([^ ]+)(?: of (\w+))?(?: (.+))?", msg)
 
-	if not match:
-		return
+    if not match:
+        return
 
-	(num, archname, artname, attribs) = match.groups()
+    (num, archname, artname, attribs) = match.groups()
 
-	if not num:
-		num = 1
-	else:
-		num = int(num)
+    if not num:
+        num = 1
+    else:
+        num = int(num)
 
-	for i in range(num):
-		try:
-			obj = CreateObject(archname)
-		except AtrinikError as err:
-			pl.DrawInfo(str(err), COLOR_RED)
-			break
+    for i in range(num):
+        try:
+            obj = CreateObject(archname)
+        except AtrinikError as err:
+            pl.DrawInfo(str(err), COLOR_RED)
+            break
 
-		obj.f_identified = True
+        obj.f_identified = True
 
-		if artname:
-			try:
-				obj.Artificate(artname)
-			except AtrinikError as err:
-				obj.Destroy()
-				pl.DrawInfo(str(err), COLOR_RED)
-				break
+        if artname:
+            try:
+                obj.Artificate(artname)
+            except AtrinikError as err:
+                obj.Destroy()
+                pl.DrawInfo(str(err), COLOR_RED)
+                break
 
-		if attribs:
-			for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
-				if val.startswith('"') and val.endswith('"'):
-					val = val[1:-1]
+        if attribs:
+            for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
+                if val.startswith('"') and val.endswith('"'):
+                    val = val[1:-1]
 
-				try:
-					val = int(val)
-				except ValueError:
-					try:
-						val = float(val)
-					except ValueError:
-						pass
+                try:
+                    val = int(val)
+                except ValueError:
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        pass
 
-				if val == "None":
-					val = None
+                if val == "None":
+                    val = None
 
-				if hasattr(obj, attrib):
-					setattr(obj, attrib, val)
-				elif hasattr(obj, "f_" + attrib):
-					setattr(obj, "f_" + attrib, True if val else False)
-				else:
-					obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
+                if hasattr(obj, attrib):
+                    setattr(obj, attrib, val)
+                elif hasattr(obj, "f_" + attrib):
+                    setattr(obj, "f_" + attrib, True if val else False)
+                else:
+                    obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
 
-		if obj.f_monster:
-			activator.map.Insert(obj, activator.x, activator.y)
-			obj.Fix()
+        if obj.f_monster:
+            activator.map.Insert(obj, activator.x, activator.y)
+            obj.Fix()
 
-			if obj.randomitems:
-				obj.CreateTreasure(obj.randomitems, obj.level)
-		else:
-			obj.InsertInto(activator)
+            if obj.randomitems:
+                obj.CreateTreasure(obj.randomitems, obj.level)
+        else:
+            obj.InsertInto(activator)
 
 main()

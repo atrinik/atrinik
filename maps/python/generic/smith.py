@@ -7,8 +7,8 @@ from Smith import Smith
 inf = Interface(activator, me)
 
 def main():
-	smith = Smith(activator, me, inf)
-	smith.handle_chat(msg)
+    smith = Smith(activator, me, inf)
+    smith.handle_chat(msg)
 
 main()
 inf.finish()

@@ -13,4 +13,4 @@ me.z += 1
 # Shrinked to a very small size? Then set the is_used_up flag so it'll
 # get removed the next tick.
 if me.zoom_x == 30:
-	me.f_is_used_up = True
+    me.f_is_used_up = True

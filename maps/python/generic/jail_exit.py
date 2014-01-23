@@ -6,6 +6,6 @@ from Jail import Jail
 jail = Jail(me)
 
 def main():
-	jail.jail(activator, 300, False)
+    jail.jail(activator, 300, False)
 
 main()

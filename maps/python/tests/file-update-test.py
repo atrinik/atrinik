@@ -7,8 +7,8 @@ import os, zlib
 from urllib.request import urlopen
 
 def send_file_update(pl, url):
-	basename = os.path.basename(url)
-	f = urlopen(imgurl)
-	s = f.read()
-	f.close()
-	pl.SendPacket(2, "sIx", "textures/" + basename, len(s), zlib.compress(s))
+    basename = os.path.basename(url)
+    f = urlopen(imgurl)
+    s = f.read()
+    f.close()
+    pl.SendPacket(2, "sIx", "textures/" + basename, len(s), zlib.compress(s))

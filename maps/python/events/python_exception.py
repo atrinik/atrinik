@@ -13,15 +13,15 @@ exception = "".join(traceback.format_exception(exc_type, exc_value, exc_tracebac
 
 # Log the exception to the server log.
 for line in exception.split("\n"):
-	if line:
-		Atrinik.Logger("WARNING", line)
+    if line:
+        Atrinik.Logger("WARNING", line)
 
 # Escape the markup in the exception message, and print it out to all online DMs.
 exception = Markup.markup_escape(exception)
 player = Atrinik.GetFirst("player")
 
 while player:
-	if "[DEV]" in player.cmd_permissions or "[OP]" in player.cmd_permissions:
-		player.DrawInfo(exception, Atrinik.COLOR_RED)
+    if "[DEV]" in player.cmd_permissions or "[OP]" in player.cmd_permissions:
+        player.DrawInfo(exception, Atrinik.COLOR_RED)
 
-	player = player.next
+    player = player.next

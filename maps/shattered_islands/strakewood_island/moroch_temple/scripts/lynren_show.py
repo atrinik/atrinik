@@ -7,8 +7,8 @@ from Quests import RescuingLynren as quest
 qm = QuestManager(activator, quest)
 
 def main():
-	# If we completed the quest, hide the NPC.
-	if qm.completed():
-		SetReturnValue(1)
+    # If we completed the quest, hide the NPC.
+    if qm.completed():
+        SetReturnValue(1)
 
 main()

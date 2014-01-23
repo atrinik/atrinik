@@ -8,13 +8,13 @@ from Guild import Guild
 guild = Guild(GetOptions())
 
 def main():
-	if not guild.member_is_admin(activator.name) and not "[OP]" in activator.Controller().cmd_permissions:
-		pl.DrawInfo("Entry forbidden. Only guild administrators are permitted.", COLOR_RED)
-		pos = guild.get(guild.oracle_pos)
+    if not guild.member_is_admin(activator.name) and not "[OP]" in activator.Controller().cmd_permissions:
+        pl.DrawInfo("Entry forbidden. Only guild administrators are permitted.", COLOR_RED)
+        pos = guild.get(guild.oracle_pos)
 
-		if pos:
-			activator.SetPosition(pos[0], pos[1])
+        if pos:
+            activator.SetPosition(pos[0], pos[1])
 
-		SetReturnValue(1)
+        SetReturnValue(1)
 
 main()

@@ -10,12 +10,12 @@ options = GetOptions()
 d = GetEventParameters()[1]
 
 try:
-	# Get the floor on the square the object wants to move into.
-	floor = me.map.GetLayer(me.x + freearr_x[d], me.y + freearr_y[d], LAYER_FLOOR)[0]
+    # Get the floor on the square the object wants to move into.
+    floor = me.map.GetLayer(me.x + freearr_x[d], me.y + freearr_y[d], LAYER_FLOOR)[0]
 
-	if not re.match(options, floor.arch.name):
-		SetReturnValue(1)
-		# Stop showing the moving animation.
-		me.anim_moving_dir = -1
+    if not re.match(options, floor.arch.name):
+        SetReturnValue(1)
+        # Stop showing the moving animation.
+        me.anim_moving_dir = -1
 except:
-	pass
+    pass

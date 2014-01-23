@@ -6,12 +6,12 @@ from Interface import Interface
 inf = Interface(activator, me)
 
 def main():
-	if msg == "hello":
-		inf.add_msg("I'll haff ano'er beer peesh.")
-		inf.add_link("What a drunkard...", dest = "drunkard")
+    if msg == "hello":
+        inf.add_msg("I'll haff ano'er beer peesh.")
+        inf.add_link("What a drunkard...", dest = "drunkard")
 
-	elif msg == "drunkard":
-		inf.add_msg("I'm noh dwunk! I jus' lika dwenk. Or two.")
+    elif msg == "drunkard":
+        inf.add_msg("I'm noh dwunk! I jus' lika dwenk. Or two.")
 
 main()
 inf.finish()

@@ -6,15 +6,15 @@ from PostOffice import PostOffice
 post = PostOffice(activator.name)
 
 def main():
-	msgs = post.withdraw(activator, 0)
+    msgs = post.withdraw(activator, 0)
 
-	if msgs:
-		pl.DrawInfo("\n".join(msgs))
-	else:
-		pl.DrawInfo("There are no items for you.")
+    if msgs:
+        pl.DrawInfo("\n".join(msgs))
+    else:
+        pl.DrawInfo("There are no items for you.")
 
 try:
-	main()
+    main()
 finally:
-	post.db.close()
-	SetReturnValue(1)
+    post.db.close()
+    SetReturnValue(1)

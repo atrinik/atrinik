@@ -44,7 +44,7 @@ def _WriteINI(file, config=configDefaults):
         if value == "":
             continue
 
-        # Split the key into section and variable.		
+        # Split the key into section and variable.        
         section, var = string.split(key, ".", 1)
         if section != currentSection:
             # start a new section

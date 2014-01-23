@@ -28,13 +28,13 @@
 import xmlrpclib, socket
 
 class CIA:
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	def submit(self, xml):
-		server = xmlrpclib.ServerProxy("http://cia.vc")
+    def submit(self, xml):
+        server = xmlrpclib.ServerProxy("http://cia.vc")
 
-		try:
-			server.hub.deliver(xml)
-		except:
-			pass
+        try:
+            server.hub.deliver(xml)
+        except:
+            pass

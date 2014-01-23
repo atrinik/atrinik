@@ -7,8 +7,8 @@ from Bank import Bank
 inf = Interface(activator, me)
 
 def main():
-	bank = Bank(activator, me, inf)
-	bank.handle_chat(msg)
+    bank = Bank(activator, me, inf)
+    bank.handle_chat(msg)
 
 main()
 inf.finish()

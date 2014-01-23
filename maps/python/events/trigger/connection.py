@@ -19,28 +19,28 @@
 event = WhatIsEvent()
 
 def main():
-	# Get the configuration.
-	options = GetOptions().split(";")
-	m = me.map
+    # Get the configuration.
+    options = GetOptions().split(";")
+    m = me.map
 
-	if len(options) > 1 and options[1]:
-		m = m.GetPath(options[1])
+    if len(options) > 1 and options[1]:
+        m = m.GetPath(options[1])
 
-	# Set the return value, if any.
-	if len(options) > 2:
-		SetReturnValue(int(options[2]))
+    # Set the return value, if any.
+    if len(options) > 2:
+        SetReturnValue(int(options[2]))
 
-	# Try to find the beacon.
-	beacon = m.LocateBeacon(options[0])
+    # Try to find the beacon.
+    beacon = m.LocateBeacon(options[0])
 
-	if not beacon or not beacon.env:
-		raise AtrinikError("Could not find beacon {} or beacon is not inside inventory.".format(options[0]))
+    if not beacon or not beacon.env:
+        raise AtrinikError("Could not find beacon {} or beacon is not inside inventory.".format(options[0]))
 
-	# Apply the switch the beacon is in.
-	me.Apply(beacon.env, APPLY_TOGGLE | APPLY_NO_EVENT)
+    # Apply the switch the beacon is in.
+    me.Apply(beacon.env, APPLY_TOGGLE | APPLY_NO_EVENT)
 
-	# Send a message, if any.
-	if event.msg and pl:
-		pl.DrawInfo(event.msg, COLOR_WHITE)
+    # Send a message, if any.
+    if event.msg and pl:
+        pl.DrawInfo(event.msg, COLOR_WHITE)
 
 main()

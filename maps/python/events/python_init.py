@@ -6,8 +6,8 @@ sys.path.insert(0, CreatePathname("/python"))
 gc.enable()
 
 if os.path.exists(path):
-	files = os.listdir(path)
+    files = os.listdir(path)
 
-	for file in files:
-		if (file.endswith(".py")):
-			exec(open(os.path.join(path, file)).read())
+    for file in files:
+        if (file.endswith(".py")):
+            exec(open(os.path.join(path, file)).read())

@@ -13,26 +13,26 @@
 ## notification's action, for example, "?HELP".
 ## @param delay How long the delay should stay visible, in milliseconds.
 def Notification(pl, msg, action = None, shortcut = None, delay = 0):
-	fmt = "Bs"
-	data = [0, msg]
+    fmt = "Bs"
+    data = [0, msg]
 
-	# Add the action.
-	if action:
-		fmt += "Bs"
-		data += [1, action]
+    # Add the action.
+    if action:
+        fmt += "Bs"
+        data += [1, action]
 
-		# Add the shortcut, but only if there is an action.
-		if shortcut:
-			fmt += "Bs"
-			data += [2, shortcut]
+        # Add the shortcut, but only if there is an action.
+        if shortcut:
+            fmt += "Bs"
+            data += [2, shortcut]
 
-	# Add the delay.
-	if delay:
-		fmt += "Bi"
-		data += [3, delay]
+    # Add the delay.
+    if delay:
+        fmt += "Bi"
+        data += [3, delay]
 
-	# Send it off...
-	pl.SendPacket(27, fmt, *data)
+    # Send it off...
+    pl.SendPacket(27, fmt, *data)
 
 ## Send a map stats command.
 ## @pl Player to send the command to.
@@ -40,23 +40,23 @@ def Notification(pl, msg, action = None, shortcut = None, delay = 0):
 ## @music Map music to update.
 ## @weather Map weather to update.
 def MapStats(pl, name = None, music = None, weather = None):
-	fmt = ""
-	data = []
+    fmt = ""
+    data = []
 
-	# Add map name.
-	if name:
-		fmt += "Bs"
-		data += [1, name]
+    # Add map name.
+    if name:
+        fmt += "Bs"
+        data += [1, name]
 
-	# Add map music.
-	if music:
-		fmt += "Bs"
-		data += [2, music]
+    # Add map music.
+    if music:
+        fmt += "Bs"
+        data += [2, music]
 
-	# Add map weather.
-	if weather:
-		fmt += "Bs"
-		data += [3, weather]
+    # Add map weather.
+    if weather:
+        fmt += "Bs"
+        data += [3, weather]
 
-	# Send it off...
-	pl.SendPacket(13, fmt, *data)
+    # Send it off...
+    pl.SendPacket(13, fmt, *data)

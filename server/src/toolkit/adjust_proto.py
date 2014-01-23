@@ -3,7 +3,7 @@
 import sys
 
 if len(sys.argv) < 2:
-	sys.exit(0)
+    sys.exit(0)
 
 # Open the passed file and read all the lines.
 f = open(sys.argv[1], "r")
@@ -14,11 +14,11 @@ f.close()
 f = open(sys.argv[1], "w")
 
 for line in lines:
-	# Line has format specifiers, adjust it.
-	if line.find("format, ...);") != -1 or line.find("fmt, ...);") != -1:
-		commas = line.count(", ")
-		line = line.replace(", ...);", ", ...) __attribute__((format(printf, {0}, {1})));".format(commas, commas + 1))
+    # Line has format specifiers, adjust it.
+    if line.find("format, ...);") != -1 or line.find("fmt, ...);") != -1:
+        commas = line.count(", ")
+        line = line.replace(", ...);", ", ...) __attribute__((format(printf, {0}, {1})));".format(commas, commas + 1))
 
-	f.write(line)
+    f.write(line)
 
 f.close()

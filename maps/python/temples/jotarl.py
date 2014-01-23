@@ -7,8 +7,8 @@ import Temple
 inf = Interface(activator, me)
 
 def main():
-	temple = Temple.TempleJotarl(activator, me, inf)
-	temple.handle_chat(msg)
+    temple = Temple.TempleJotarl(activator, me, inf)
+    temple.handle_chat(msg)
 
 main()
 inf.finish()
