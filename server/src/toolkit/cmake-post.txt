@@ -18,7 +18,7 @@ endif (HAVE_READLINE)
 
 # Link X11 if available.
 if (HAVE_X11)
-	target_link_libraries(${EXECUTABLE} ${X11_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${X11_LIBRARIES})
 endif (HAVE_X11)
 
 # Link X11 XMU if available.
