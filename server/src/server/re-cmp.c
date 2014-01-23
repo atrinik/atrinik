@@ -32,8 +32,8 @@
  * Deliberate BUGS:
  *    - These tokens are not supported: | ( )
  *    - You will get the longest expansion of the _first_ string which
- *	matches the RE, not the longest string which would be the proper
- *	behavior for a RE-matcher.
+ *    matches the RE, not the longest string which would be the proper
+ *    behavior for a RE-matcher.
  *
  * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993 */
 

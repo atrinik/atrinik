@@ -66,7 +66,7 @@ typedef enum
 
 typedef enum
 {
-    /* corresponds to no meta-char	*/
+    /* corresponds to no meta-char */
     rep_once,
 
     /* "       + */
