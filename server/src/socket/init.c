@@ -263,7 +263,7 @@ void free_newsocket(socket_struct *ns)
 
     socket_buffer_clear(ns);
 
-    memset(ns, 0, sizeof(ns));
+    memset(ns, 0, sizeof(socket_struct));
 }
 
 /**
