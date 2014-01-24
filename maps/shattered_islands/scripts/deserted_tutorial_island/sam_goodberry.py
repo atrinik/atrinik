@@ -56,8 +56,8 @@ def main():
         if msg == "hello":
             barrel = activator.FindObject(INVENTORY_CONTAINERS, "deserted_island_filled_barrel")
 
-            inf.add_msg("Good job, {}!".format(activator.name))
             if barrel:
+                inf.add_msg("Good job, {}!".format(activator.name))
                 inf.add_msg("You give the water barrel to {}.".format(me.name), COLOR_YELLOW)
                 barrel.Remove()
 
@@ -136,11 +136,13 @@ def main():
                 saw = activator.FindObject(INVENTORY_CONTAINERS, "sam_goodberry_saw")
                 inf.set_title("Sailing the Ocean")
                 inf.set_icon(activator.arch.clone.face[0])
+
                 if saw:
                     inf.add_msg("You return the saw to {} and help him repair the boat.".format(me.name), COLOR_YELLOW)
                     saw.Remove()
                 else:
                     inf.add_msg("You help {} repair the boat.".format(me.name), COLOR_YELLOW)
+
                 inf.add_msg("After patching up the boat and setting everything in order, you set sail.", COLOR_YELLOW)
                 inf.add_msg("You feel tired after all that hard work, perhaps you should speak to {}...".format(me.name), COLOR_YELLOW)
                 activator.TeleportTo("/shattered_islands/world_af01", 4, 6)
