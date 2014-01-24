@@ -144,16 +144,28 @@ void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, siz
 void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
     uint32 ver;
+    packet_struct *packet;
+
+    /* Ignore multiple version commands. */
+    if (ns->socket_version != 0) {
+        return;
+    }
 
     ver = packet_to_uint32(data, len, &pos);
 
     if (ver == 0 || ver == 991017 || ver == 1055) {
-        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Your client is outdated!\nGo to http://www.atrinik.org/ and download the latest Atrinik client.");
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Your client is "
+            "outdated!\nGo to http://www.atrinik.org/ and download the latest "
+            "Atrinik client.");
         ns->state = ST_ZOMBIE;
         return;
     }
 
     ns->socket_version = ver;
+    
+    packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
+    packet_append_uint32(packet, SOCKET_VERSION);
+    socket_send_packet(ns, packet);
 }
 
 void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)

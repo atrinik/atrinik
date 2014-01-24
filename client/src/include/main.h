@@ -201,6 +201,10 @@ typedef enum player_state_t
     ST_CONNECT,
 
     /**
+     * Negotiate version information. */
+    ST_VERSION,
+
+    /**
      * Wait for setup command from the server. */
     ST_WAITSETUP,
 

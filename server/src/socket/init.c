@@ -51,7 +51,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     int bufsize = 65535;
     int oldbufsize;
     socklen_t buflen = sizeof(int);
-    packet_struct *packet;
     int i;
 
 #ifdef WIN32
@@ -104,10 +103,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     pthread_mutex_init(&ns->packet_mutex, NULL);
 
     ns->host = strdup(from_ip);
-
-    packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
-    packet_append_uint32(packet, SOCKET_VERSION);
-    socket_send_packet(ns, packet);
 }
 
 /**
@@ -234,7 +229,7 @@ void free_all_newserver(void)
  * Basically, all we need to do here is free all data structures that
  * might be associated with the socket.
  *
- * It is up to the called to update the list.
+ * It is up to the caller to update the list.
  * @param ns The socket. */
 void free_newsocket(socket_struct *ns)
 {
