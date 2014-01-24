@@ -14,6 +14,9 @@ endif (EXISTS build.user)
 # Need Flex...
 find_package(FLEX REQUIRED)
 
+# libpthread is required.
+find_package(Threads REQUIRED)
+
 # libdl is required.
 find_library(DL_LIBRARY dl)
 
@@ -132,6 +135,10 @@ target_link_libraries(${EXECUTABLE} ${DL_LIBRARY})
 
 # Link check.
 if (CHECK_LIBRARY)
+	if (UNIX AND NOT APPLE)
+		target_link_libraries(${EXECUTABLE} rt)
+	endif ()
+
 	target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
 endif (CHECK_LIBRARY)
 
@@ -139,6 +146,8 @@ endif (CHECK_LIBRARY)
 if (GD_LIBRARY)
 	target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
 endif (GD_LIBRARY)
+
+target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
