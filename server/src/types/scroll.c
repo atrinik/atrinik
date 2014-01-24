@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** @copydoc object_methods::apply_func */
-static int apply_func(object *applier, object *op, int aflags)
+static int apply_func(object *op, object *applier, int aflags)
 {
     (void) aflags;
 
