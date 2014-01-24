@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-01-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,32 +19,35 @@ tile_path_8 world_af04
 bg_music fireside.mid
 region deserted_tutorial_island
 end
-arch grassd_2
-end
-arch plant7
-end
 arch grassd_6
-y 1
-end
-arch plant14
-y 1
-end
-arch grassd_5
-y 2
+z 12
 end
 arch plant8
+end
+arch grassd_2
+z 8
+y 1
+end
+arch magic_mouth
+y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_2
+z 4
+y 2
+end
+arch plant_flower7
 y 2
 end
 arch grassd_6
-y 3
-end
-arch rock_big3
+z 4
 y 3
 end
 arch grassd_1
-y 4
-end
-arch plant7
+z 2
 y 4
 end
 arch grassd_6
@@ -131,49 +134,46 @@ end
 arch water_dk4
 y 23
 end
-arch grassd_7
-x 1
-end
-arch reed_sm1
-x 1
-end
 arch grassd_4
+z 12
+x 1
+end
+arch plant7
+x 1
+end
+arch grassd_5
+z 8
 x 1
 y 1
 end
-arch plant8
+arch plant3
 x 1
 y 1
+end
+arch magic_mouth
+x 1
+y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch grassd_7
-x 1
-y 2
-end
-arch plant8
+z 8
 x 1
 y 2
 end
 arch grassd_2
+z 4
 x 1
 y 3
 end
-arch rock_big3
-x 1
-y 3
-end
-arch grassd_1
-x 1
-y 4
-end
-arch rock_big1
+arch grassd_7
+z 2
 x 1
 y 4
 end
 arch grassd_3
-x 1
-y 5
-end
-arch plant7
 x 1
 y 5
 end
@@ -277,56 +277,54 @@ x 1
 y 23
 end
 arch grassd_1
+z 12
 x 2
 end
-arch reed_sm1
+arch plant8
 x 2
 end
-arch grassd_4
+arch grassd_7
+z 12
 x 2
 y 1
 end
-arch plant7
+arch magic_mouth
 x 2
 y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_3
+end
+arch grass_flowers2
+z 8
 x 2
 y 2
 end
-arch plant_mushroom4
+arch grassd_m1
 x 2
 y 2
+end
+arch grassd_7
+z 4
+x 2
+y 3
 end
 arch grassd_6
-x 2
-y 3
-end
-arch plant7
-x 2
-y 3
-end
-arch grassd_1
+z 2
 x 2
 y 4
 end
-arch rock_big1
+arch plant_flower1
 x 2
 y 4
 end
-arch grassd_3
-x 2
-y 5
-end
-arch rock_big3
+arch grassd_7
+z 2
 x 2
 y 5
 end
 arch grassd_4
-x 2
-y 6
-end
-arch plant7
 x 2
 y 6
 end
@@ -417,54 +415,48 @@ arch water_dk2
 x 2
 y 23
 end
-arch water_lt4
-name clean water
+arch grassd_7
+z 16
 x 3
 end
-arch grassd_m3
+arch plant7
 x 3
 end
-arch grassd_2
+arch grassd_7
+z 12
 x 3
 y 1
 end
-arch reed_sm1
+arch tree_a_08
+name thick branch tree
 x 3
 y 1
 end
 arch grassd_7
+z 8
 x 3
 y 2
 end
-arch plant7
-x 3
-y 2
-end
-arch grassd_6
+arch grass_flowers3
+z 4
 x 3
 y 3
 end
-arch grassd_3
+arch grassd_m2
+x 3
+y 3
+end
+arch grassd_7
+z 4
 x 3
 y 4
 end
-arch plant7
-x 3
-y 4
-end
-arch grassd_4
-x 3
-y 5
-end
-arch rock_big3
+arch grassd_7
+z 2
 x 3
 y 5
 end
 arch grassd_4
-x 3
-y 6
-end
-arch plant7
 x 3
 y 6
 end
@@ -555,64 +547,51 @@ arch water_dk3
 x 3
 y 23
 end
-arch water_lt
-name clean water
+arch grassd_1
+z 12
 x 4
 end
-arch grassd_m14
+arch plant8
 x 4
-end
-arch water_lt2
-name clean water
-x 4
-y 1
-end
-arch grassd_m3
-x 4
-y 1
 end
 arch grassd_2
+z 12
 x 4
-y 2
+y 1
 end
-arch reed_sm1
+arch magic_mouth
 x 4
-y 2
+y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch tree_a_01
-name thick branch tree
+end
+arch grassd_8
+z 8
 x 4
 y 2
 end
 arch grassd_5
+z 4
 x 4
 y 3
 end
-arch plant8
+arch stone1
 x 4
 y 3
 end
-arch grassd_4
+arch grassd_2
+z 4
 x 4
 y 4
 end
-arch plant8
-x 4
-y 4
-end
-arch grassd_1
-x 4
-y 5
-end
-arch rock_big1
+arch grassd_7
+z 2
 x 4
 y 5
 end
 arch grassd_2
-x 4
-y 6
-end
-arch plant7
 x 4
 y 6
 end
@@ -715,59 +694,59 @@ arch water_dk
 x 4
 y 23
 end
-arch water_lt3
-name clean water
-x 5
-end
-arch grassd_m11
-x 5
-end
-arch water_lt3
-name clean water
-x 5
-y 1
-end
-arch grassd_m5
-x 5
-y 1
-end
 arch grassd_4
+z 12
 x 5
-y 2
-end
-arch reed_sm1
-x 5
-y 2
-end
-arch grassd_8
-x 5
-y 3
 end
 arch plant7
 x 5
-y 3
 end
-arch grassd_8
+arch grassd_7
+z 8
 x 5
-y 4
+y 1
 end
-arch plant8
+arch magic_mouth
 x 5
-y 4
+y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch grassd_6
+z 8
+x 5
+y 2
+end
+arch plant3
+x 5
+y 2
+end
+arch grass_flowers2
+z 4
+x 5
+y 3
+end
+arch grassd_m1
+x 5
+y 3
+end
+arch grassd_1
+z 2
+x 5
+y 4
+end
+arch grassd_1
+z 2
 x 5
 y 5
 end
-arch rock_big3
+arch stone1
 x 5
 y 5
 end
 arch grassd_5
-x 5
-y 6
-end
-arch rock_big3
 x 5
 y 6
 end
@@ -875,42 +854,46 @@ arch water_dk4
 x 5
 y 23
 end
-arch water_lt4
-name clean water
+arch grassd_7
+z 12
 x 6
 end
-arch grassd_m5
+arch magic_mouth
 x 6
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_1
+end
+arch grassd_3
+z 8
 x 6
 y 1
 end
-arch reed_sm1
+arch magic_mouth
 x 6
 y 1
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_4
+end
+arch grassd_7
+z 4
 x 6
 y 2
 end
-arch reed_sm1
+arch plant10
 x 6
 y 2
 end
-arch grassd_1
+arch grassd_2
+z 4
 x 6
 y 3
 end
-arch plant7
-x 6
-y 3
-end
-arch grassd_1
-x 6
-y 4
-end
-arch plant8
+arch grassd_8
+z 2
 x 6
 y 4
 end
@@ -918,15 +901,7 @@ arch grassd_6
 x 6
 y 5
 end
-arch plant7
-x 6
-y 5
-end
 arch grassd_2
-x 6
-y 6
-end
-arch rock_big3
 x 6
 y 6
 end
@@ -1021,37 +996,38 @@ arch water_dk4
 x 6
 y 23
 end
-arch grassd_1
+arch grassd_7
+z 12
 x 7
 end
-arch reed_sm1
+arch magic_mouth
 x 7
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_4
+end
+arch grassd_7
+z 8
 x 7
 y 1
 end
-arch plant8
+arch plant_flower1
 x 7
 y 1
 end
 arch grassd_8
-x 7
-y 2
-end
-arch plant8
+z 4
 x 7
 y 2
 end
 arch grassd_3
+z 2
 x 7
 y 3
 end
-arch grassd_6
-x 7
-y 4
-end
-arch plant8
+arch grassd_3
+z 2
 x 7
 y 4
 end
@@ -1059,15 +1035,7 @@ arch grassd_1
 x 7
 y 5
 end
-arch rock_big1
-x 7
-y 5
-end
 arch grassd_7
-x 7
-y 6
-end
-arch rock_big1
 x 7
 y 6
 end
@@ -1170,29 +1138,27 @@ arch water_dk2
 x 7
 y 23
 end
-arch grassd_2
+arch grassd_7
+z 8
 x 8
 end
-arch plant8
-x 8
-end
-arch grassd_2
+arch grassd_1
+z 8
 x 8
 y 1
 end
-arch grassd_1
+arch tree_a_05
+name thick branch tree
 x 8
-y 2
+y 1
 end
-arch plant8
+arch grassd_8
+z 4
 x 8
 y 2
 end
 arch grassd_3
-x 8
-y 3
-end
-arch plant8
+z 2
 x 8
 y 3
 end
@@ -1200,15 +1166,11 @@ arch grassd_6
 x 8
 y 4
 end
-arch rock_big3
+arch plant10
 x 8
 y 4
 end
 arch grassd_6
-x 8
-y 5
-end
-arch rock_big3
 x 8
 y 5
 end
@@ -1217,10 +1179,6 @@ x 8
 y 6
 end
 arch grassd_m4
-x 8
-y 6
-end
-arch plant8
 x 8
 y 6
 end
@@ -1316,32 +1274,21 @@ x 8
 y 23
 end
 arch grassd_1
+z 4
 x 9
-end
-arch plant7
-x 9
-end
-arch grassd_8
-x 9
-y 1
-end
-arch plant7
-x 9
-y 1
-end
-arch grassd_7
-x 9
-y 2
-end
-arch rock_big3
-x 9
-y 2
 end
 arch grassd_5
+z 4
 x 9
-y 3
+y 1
 end
-arch rock_big3
+arch grassd_5
+z 4
+x 9
+y 2
+end
+arch grassd_7
+z 2
 x 9
 y 3
 end
@@ -1349,15 +1296,7 @@ arch grassd_6
 x 9
 y 4
 end
-arch rock_big1
-x 9
-y 4
-end
 arch grassd_8
-x 9
-y 5
-end
-arch plant7
 x 9
 y 5
 end
@@ -1452,33 +1391,29 @@ arch water_dk4
 x 9
 y 23
 end
-arch grassd_2
+arch grass_flowers1
+z 4
 x 10
 end
-arch plant8
+arch grassd_m2
 x 10
 end
-arch grassd_2
-x 10
-y 1
-end
-arch rock_big1
+arch grassd_1
+z 2
 x 10
 y 1
 end
-arch grassd_5
+arch grassd_7
+z 2
 x 10
 y 2
 end
-arch rock_big1
+arch plant5
 x 10
 y 2
 end
 arch grassd_7
-x 10
-y 3
-end
-arch plant8
+z 2
 x 10
 y 3
 end
@@ -1487,10 +1422,6 @@ x 10
 y 4
 end
 arch grassd_m4
-x 10
-y 4
-end
-arch plant8
 x 10
 y 4
 end
@@ -1602,24 +1533,15 @@ x 10
 y 23
 end
 arch grassd_7
+z 2
 x 11
 end
-arch rock_big3
-x 11
-end
-arch grassd_1
-x 11
-y 1
-end
-arch rock_big1
+arch grassd_7
+z 2
 x 11
 y 1
 end
 arch grassd_1
-x 11
-y 2
-end
-arch plant8
 x 11
 y 2
 end
@@ -1738,17 +1660,14 @@ arch water_dk
 x 11
 y 23
 end
-arch grassd_3
+arch grassd_7
+z 2
 x 12
 end
-arch rock_big3
+arch rock_big2
 x 12
 end
 arch grassd_7
-x 12
-y 1
-end
-arch plant7
 x 12
 y 1
 end
@@ -1757,10 +1676,6 @@ x 12
 y 2
 end
 arch grassd_m4
-x 12
-y 2
-end
-arch plant7
 x 12
 y 2
 end
@@ -1878,18 +1793,11 @@ end
 arch grassd_8
 x 13
 end
-arch rock_big1
-x 13
-end
 arch floor_ruin3
 x 13
 y 1
 end
 arch grassd_m4
-x 13
-y 1
-end
-arch plant7
 x 13
 y 1
 end
@@ -2008,9 +1916,6 @@ arch floor_ruin2
 x 14
 end
 arch grassd_m4
-x 14
-end
-arch plant8
 x 14
 end
 arch floor_ruin5

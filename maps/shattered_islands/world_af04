@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2014-01-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1810,15 +1810,23 @@ arch grass_thick2
 x 13
 y 15
 end
-arch grass_flowers1
+arch grass_thick1
 x 13
 y 16
 end
-arch grass_flowers1
+arch plant9
+x 13
+y 16
+end
+arch grass_thick3
 x 13
 y 17
 end
-arch grass_flowers2
+arch grass_thick2
+x 13
+y 18
+end
+arch plant_flower12
 x 13
 y 18
 end
@@ -1834,7 +1842,11 @@ arch grass_thick3
 x 13
 y 20
 end
-arch grass_thick3
+arch grass_flowers3
+x 13
+y 21
+end
+arch grassd_m1
 x 13
 y 21
 end
@@ -1938,35 +1950,43 @@ arch grassd_3
 x 14
 y 15
 end
-arch plant7
-x 14
-y 15
-end
 arch grassd_1
 x 14
 y 16
 end
-arch grass_thick3
+arch plant8
+x 14
+y 16
+end
+arch grassd_1
 x 14
 y 17
 end
-arch grass_thick1
+arch plant_big1
+x 14
+y 17
+end
+arch grass_flowers1
 x 14
 y 18
 end
-arch plant9
+arch grassd_m1
 x 14
 y 18
 end
-arch grass_thick3
+arch grassd_1
 x 14
 y 19
 end
-arch plant_flower12
+arch plant6
 x 14
 y 19
 end
-arch grass_thick3
+arch grassd_1
+x 14
+y 20
+end
+arch plant4
 x 14
 y 20
 end
@@ -2062,43 +2082,39 @@ arch grassd_2
 x 15
 y 13
 end
-arch grassd_6
+arch grassd_7
+z 2
 x 15
 y 14
 end
-arch plant8
+arch plant3
 x 15
 y 14
-end
-arch grassd_1
-x 15
-y 15
-end
-arch rock_big3
-x 15
-y 15
-end
-arch grassd_1
-x 15
-y 16
-end
-arch rock_big3
-x 15
-y 16
 end
 arch grassd_2
+z 2
+x 15
+y 15
+end
+arch grassd_3
+z 2
+x 15
+y 16
+end
+arch plant3
+x 15
+y 16
+end
+arch grassd_3
+z 2
 x 15
 y 17
 end
-arch rock_big1
+arch plant7
 x 15
 y 17
 end
 arch grassd_8
-x 15
-y 18
-end
-arch plant8
 x 15
 y 18
 end
@@ -2177,6 +2193,10 @@ arch grassd_4
 x 16
 y 8
 end
+arch small_stones
+x 16
+y 8
+end
 arch grassd_8
 x 16
 y 9
@@ -2201,75 +2221,51 @@ arch plant11
 x 16
 y 12
 end
-arch grassd_2
-x 16
-y 13
-end
-arch plant8
+arch grassd_7
+z 2
 x 16
 y 13
 end
 arch grassd_6
-x 16
-y 14
-end
-arch rock_big3
+z 2
 x 16
 y 14
 end
 arch grassd_7
+z 4
 x 16
 y 15
 end
-arch rock_big3
-x 16
-y 15
-end
-arch grassd_3
+arch grassd_4
+z 4
 x 16
 y 16
 end
-arch rock_big3
+arch grassd_8
+z 2
 x 16
-y 16
+y 17
 end
 arch grassd_3
-x 16
-y 17
-end
-arch rock_big3
-x 16
-y 17
-end
-arch grassd_6
+z 2
 x 16
 y 18
 end
-arch rock_big3
-x 16
-y 18
-end
-arch grassd_5
+arch grassd_7
+z 2
 x 16
 y 19
 end
-arch rock_big3
-x 16
-y 19
-end
-arch grassd_2
+arch grassd_8
+z 2
 x 16
 y 20
 end
-arch rock_big1
+arch plant_flower2
 x 16
 y 20
 end
-arch grassd_2
-x 16
-y 21
-end
-arch plant8
+arch grassd_8
 x 16
 y 21
 end
@@ -2278,10 +2274,6 @@ x 16
 y 22
 end
 arch grassd_4
-x 16
-y 23
-end
-arch plant2
 x 16
 y 23
 end
@@ -2345,99 +2337,89 @@ arch grassd_2
 x 17
 y 10
 end
-arch grassd_8
+arch grassd_7
+z 2
 x 17
 y 11
 end
-arch grassd_4
+arch grassd_5
+z 2
 x 17
 y 12
 end
-arch grassd_2
+arch grassd_7
+z 2
 x 17
 y 13
 end
-arch plant8
-x 17
-y 13
-end
-arch grassd_1
+arch grassd_7
+z 4
 x 17
 y 14
 end
-arch rock_big3
+arch grass_flowers1
+z 4
 x 17
-y 14
+y 15
+end
+arch grassd_m1
+x 17
+y 15
+end
+arch grass_flowers2
+z 4
+x 17
+y 16
+end
+arch grassd_m2
+x 17
+y 16
+end
+arch grassd_7
+z 4
+x 17
+y 17
+end
+arch tree_a_06
+name thick branch tree
+x 17
+y 17
 end
 arch grassd_3
-x 17
-y 15
-end
-arch rock_big3
-x 17
-y 15
-end
-arch grassd_7
-x 17
-y 16
-end
-arch rock_big1
-x 17
-y 16
-end
-arch blocked
-x 17
-y 17
-end
-arch rock_big3
-x 17
-y 17
-end
-arch blocked
+z 4
 x 17
 y 18
-end
-arch rock_big3
-x 17
-y 18
-end
-arch blocked
-x 17
-y 19
-end
-arch rock_big1
-x 17
-y 19
-end
-arch grassd_6
-x 17
-y 20
-end
-arch rock_big3
-x 17
-y 20
-end
-arch grassd_1
-x 17
-y 21
-end
-arch rock_big1
-x 17
-y 21
-end
-arch grassd_7
-x 17
-y 22
-end
-arch plant7
-x 17
-y 22
 end
 arch grassd_5
+z 4
+x 17
+y 19
+end
+arch plant_mushroom3
+x 17
+y 19
+end
+arch grassd_4
+z 2
+x 17
+y 20
+end
+arch grassd_7
+z 2
+x 17
+y 21
+end
+arch grassd_3
+z 2
+x 17
+y 22
+end
+arch grassd_7
+z 2
 x 17
 y 23
 end
-arch plant7
+arch plant1
 x 17
 y 23
 end
@@ -2501,121 +2483,90 @@ arch grassd_8
 x 18
 y 9
 end
-arch grassd_8
+arch grassd_7
+z 2
 x 18
 y 10
 end
-arch grassd_5
+arch grassd_2
+z 2
 x 18
 y 11
 end
-arch grassd_2
+arch grassd_3
+z 4
 x 18
 y 12
 end
-arch plant8
+arch tree_a_01
+name thick branch tree
 x 18
 y 12
 end
-arch grassd_6
-x 18
-y 13
-end
-arch rock_big1
+arch grassd_4
+z 4
 x 18
 y 13
 end
 arch grassd_1
+z 4
 x 18
 y 14
 end
-arch rock_big3
+arch plant9
 x 18
 y 14
 end
-arch grassd_5
+arch grassd_3
+z 8
 x 18
 y 15
 end
-arch rock_big1
-x 18
-y 15
-end
-arch grassd_4
+arch grassd_5
+z 8
 x 18
 y 16
 end
-arch rock_big3
-x 18
-y 16
-end
-arch blocked
+arch grassd_3
+z 8
 x 18
 y 17
 end
-arch rock_big1
-x 18
-y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
+arch grass_flowers1
+z 8
 x 18
 y 18
 end
-arch light1
+arch grassd_m2
 x 18
 y 18
 end
-arch sound_ambient
-race eerie.ogg
-item_condition 80
-item_level 4
-xrays 0
-x 18
-y 18
-end
-arch blocked
+arch grass_flowers3
+z 4
 x 18
 y 19
 end
-arch grassd_m7
+arch grassd_m1
 x 18
 y 19
-end
-arch rock_big1
-x 18
-y 19
-end
-arch grassd_7
-x 18
-y 20
-end
-arch rock_big3
-x 18
-y 20
 end
 arch grassd_5
+z 4
 x 18
-y 21
+y 20
 end
-arch rock_big1
+arch grassd_6
+z 4
 x 18
 y 21
 end
 arch grassd_7
+z 4
 x 18
 y 22
 end
-arch rock_big3
-x 18
-y 22
-end
-arch grassd_4
-x 18
-y 23
-end
-arch rock_big3
+arch grassd_3
+z 2
 x 18
 y 23
 end
@@ -2679,145 +2630,142 @@ arch plant2
 x 19
 y 9
 end
-arch grassd_4
-x 19
-y 10
-end
-arch plant16
+arch grassd_7
+z 2
 x 19
 y 10
 end
 arch grassd_6
+z 4
 x 19
 y 11
-end
-arch plant8
-x 19
-y 11
-end
-arch grassd_7
-x 19
-y 12
-end
-arch rock_big3
-x 19
-y 12
 end
 arch grassd_4
+z 4
+x 19
+y 12
+end
+arch grassd_6
+z 8
 x 19
 y 13
 end
-arch rock_big1
-x 19
-y 13
-end
-arch grassd_1
+arch grassd_6
+z 8
 x 19
 y 14
 end
-arch rock_big3
+arch plant_flower2
 x 19
 y 14
+end
+arch magic_mouth
+x 19
+y 14
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_6
+z 8
+x 19
+y 15
+end
+arch magic_mouth
+x 19
+y 15
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_6
+z 12
+x 19
+y 16
+end
+arch magic_mouth
+x 19
+y 16
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_6
+z 12
+x 19
+y 17
+end
+arch magic_mouth
+x 19
+y 17
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch grassd_7
-x 19
-y 15
-end
-arch rock_big3
-x 19
-y 15
-end
-arch grassd_2
-x 19
-y 16
-end
-arch rock_big3
-x 19
-y 16
-end
-arch blocked
-no_pass 0
-blocksview 0
-x 19
-y 17
-end
-arch grassd_m6
-x 19
-y 17
-end
-arch invis_exit
-slaying deserted_tutorial_island/mushroom_cavern
-hp 10
-sp 3
-last_eat 1
-x 19
-y 17
-end
-arch blocked
-no_pass 0
-blocksview 0
+z 8
 x 19
 y 18
 end
-arch grassd_m8
+arch magic_mouth
 x 19
 y 18
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch invis_exit
-slaying deserted_tutorial_island/mushroom_cavern
-hp 10
-sp 3
-last_eat 1
-x 19
-y 18
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch grassd_7
+z 8
 x 19
 y 19
 end
-arch grassd_m5
+arch magic_mouth
 x 19
 y 19
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch invis_exit
-slaying deserted_tutorial_island/mushroom_cavern
-hp 10
-sp 3
-last_eat 1
+end
+arch grass_flowers2
+z 8
 x 19
-y 19
+y 20
+end
+arch grassd_m1
+x 19
+y 20
+end
+arch magic_mouth
+x 19
+y 20
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch grassd_1
-x 19
-y 20
-end
-arch rock2
-x 19
-y 20
-end
-arch grassd_3
+z 8
 x 19
 y 21
 end
-arch rock_big3
-x 19
-y 21
-end
-arch grassd_8
+arch grassd_4
+z 4
 x 19
 y 22
 end
-arch rock_big3
-x 19
-y 22
-end
-arch grassd_3
+arch grassd_6
+z 4
 x 19
 y 23
 end
-arch rock_big3
+arch tree_a_07
+name thick branch tree
 x 19
 y 23
 end
@@ -2877,165 +2825,134 @@ arch plant_flower14
 x 20
 y 8
 end
-arch grassd_6
+arch grassd_7
+z 2
 x 20
 y 9
 end
-arch plant15
-x 20
-y 9
-end
-arch grassd_5
+arch grassd_7
+z 2
 x 20
 y 10
 end
-arch grassd_6
-x 20
-y 11
-end
-arch plant8
-x 20
-y 11
-end
-arch grassd_2
-x 20
-y 12
-end
-arch rock_big1
-x 20
-y 12
-end
-arch grassd_6
-x 20
-y 13
-end
-arch rock_big3
-x 20
-y 13
-end
 arch grassd_7
+z 4
 x 20
-y 14
-end
-arch rock_big1
-x 20
-y 14
-end
-arch grassd_2
-x 20
-y 15
-end
-arch rock_big1
-x 20
-y 15
+y 11
 end
 arch grassd_3
+z 8
 x 20
-y 16
-end
-arch plant14
-x 20
-y 16
-end
-arch magic_mouth
-direction 3
-splitting 1
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 16
-end
-arch grassd_6
-x 20
-y 17
-end
-arch mushroom_giant13
-name poisonous giant mushroom
-x 20
-y 17
-end
-arch magic_mouth
-direction 3
-splitting 1
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 17
-end
-arch grassd_8
-x 20
-y 18
-end
-arch magic_mouth
-direction 3
-splitting 1
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 18
-end
-arch grassd_2
-x 20
-y 19
-end
-arch stone1
-x 20
-y 19
-end
-arch magic_mouth
-direction 3
-splitting 1
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 19
-end
-arch grassd_3
-x 20
-y 20
-end
-arch magic_mouth
-direction 4
-splitting 1
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 20
-end
-arch magic_mouth
-direction 2
-notification_message Tutorial Available: Caverns
-notification_action /help basics_caverns
-notification_shortcut ?HELP
-x 20
-y 20
+y 12
 end
 arch grassd_5
+z 8
 x 20
-y 21
+y 13
 end
-arch plant4
+arch magic_mouth
 x 20
-y 21
+y 13
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_4
+end
+arch grassd_7
+z 12
 x 20
-y 22
+y 14
+end
+arch magic_mouth
+x 20
+y 14
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_7
+z 12
+x 20
+y 15
 end
 arch plant7
 x 20
+y 15
+end
+arch grassd_1
+z 12
+x 20
+y 16
+end
+arch plant7
+x 20
+y 16
+end
+arch grassd_5
+z 12
+x 20
+y 17
+end
+arch plant7
+x 20
+y 17
+end
+arch grassd_7
+z 12
+x 20
+y 18
+end
+arch plant7
+x 20
+y 18
+end
+arch grassd_7
+z 12
+x 20
+y 19
+end
+arch plant7
+x 20
+y 19
+end
+arch grassd_4
+z 12
+x 20
+y 20
+end
+arch magic_mouth
+x 20
+y 20
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_3
+z 8
+x 20
+y 21
+end
+arch magic_mouth
+x 20
+y 21
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_1
+z 8
+x 20
 y 22
 end
-arch grassd_8
+arch plant_flower1
 x 20
-y 23
+y 22
 end
-arch rock_big1
+arch grassd_7
+z 4
 x 20
 y 23
 end
@@ -3091,119 +3008,154 @@ arch grassd_5
 x 21
 y 8
 end
-arch grassd_2
+arch grassd_7
+z 2
 x 21
 y 9
 end
-arch grassd_4
+arch grassd_7
+z 4
 x 21
 y 10
 end
-arch grassd_1
+arch grass_flowers1
+z 4
 x 21
 y 11
 end
-arch plant7
+arch grassd_m1
 x 21
 y 11
-end
-arch grassd_3
-x 21
-y 12
-end
-arch rock_big3
-x 21
-y 12
-end
-arch grassd_7
-x 21
-y 13
-end
-arch rock_big1
-x 21
-y 13
-end
-arch grassd_4
-x 21
-y 14
-end
-arch plant7
-x 21
-y 14
-end
-arch grassd_5
-x 21
-y 15
-end
-arch plant7
-x 21
-y 15
-end
-arch tree_a_08
-name thick branch tree
-x 21
-y 15
-end
-arch grassd_5
-x 21
-y 16
-end
-arch tree_branch1
-x 21
-y 16
 end
 arch grassd_6
+z 8
+x 21
+y 12
+end
+arch magic_mouth
+x 21
+y 12
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_7
+z 12
+x 21
+y 13
+end
+arch magic_mouth
+x 21
+y 13
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_8
+z 12
+x 21
+y 14
+end
+arch plant8
+x 21
+y 14
+end
+arch tree_a_03
+name thick branch tree
+x 21
+y 14
+end
+arch grassd_4
+z 16
+x 21
+y 15
+end
+arch reed_sm3
+x 21
+y 15
+end
+arch grassd_7
+z 16
+x 21
+y 16
+end
+arch reed_sm1
+x 21
+y 16
+end
+arch grassd_7
+z 16
 x 21
 y 17
 end
-arch plant_mushroom4
+arch reed_sm1
 x 21
 y 17
 end
-arch grassd_1
+arch grassd_3
+z 16
 x 21
 y 18
 end
-arch plant13
+arch reed_sm1
 x 21
 y 18
 end
-arch grassd_5
+arch grassd_2
+z 16
 x 21
 y 19
 end
-arch plant_mushroom1
+arch reed_sm4
 x 21
 y 19
 end
-arch grassd_5
+arch grassd_3
+z 12
 x 21
 y 20
 end
-arch grassd_8
-x 21
-y 21
-end
-arch plant_mushroom4
-x 21
-y 21
-end
-arch grassd_1
-x 21
-y 22
-end
-arch tree_a_05
-name thick branch tree
-x 21
-y 22
-end
-arch grassd_5
-x 21
-y 23
-end
 arch plant7
 x 21
+y 20
+end
+arch grassd_7
+z 12
+x 21
+y 21
+end
+arch tree_a_02
+name thick branch tree
+x 21
+y 21
+end
+arch grassd_3
+z 8
+x 21
+y 22
+end
+arch magic_mouth
+x 21
+y 22
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_8
+z 8
+x 21
 y 23
+end
+arch magic_mouth
+x 21
+y 23
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch water_lt2
 x 22
@@ -3257,109 +3209,147 @@ arch plant12
 x 22
 y 8
 end
-arch grassd_8
-x 22
-y 9
-end
-arch plant_flower9
-x 22
-y 9
-end
 arch grassd_7
+z 2
+x 22
+y 9
+end
+arch grassd_5
+z 4
 x 22
 y 10
 end
-arch grassd_2
+arch plant_flower14
+x 22
+y 10
+end
+arch grassd_4
+z 8
 x 22
 y 11
 end
-arch plant8
-x 22
-y 11
-end
-arch grassd_6
+arch grassd_8
+z 8
 x 22
 y 12
 end
-arch rock_big3
+arch magic_mouth
 x 22
 y 12
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
 end
-arch grassd_1
+end
+arch grassd_7
+z 12
 x 22
 y 13
 end
-arch grassd_1
+arch plant8
+x 22
+y 13
+end
+arch grassd_3
+z 16
 x 22
 y 14
 end
-arch plant15
+arch reed_sm3
 x 22
 y 14
 end
-arch grassd_6
+arch grassd_8
+z 16
 x 22
 y 15
 end
-arch grassd_1
+arch reed_sm1
+x 22
+y 15
+end
+arch water_lt
+z 16
+name clean water
 x 22
 y 16
 end
-arch plant_mushroom5
+arch grassd_m4
 x 22
 y 16
 end
-arch grassd_1
+arch water_lt3
+z 16
+name clean water
 x 22
 y 17
 end
-arch grassd_4
+arch grassd_m9
+x 22
+y 17
+end
+arch water_plant2
+x 22
+y 17
+end
+arch water_lt
+z 16
+name clean water
 x 22
 y 18
 end
-arch plant7
+arch grassd_m3
 x 22
 y 18
 end
-arch grassd_3
+arch grassd_6
+z 16
 x 22
 y 19
 end
-arch plant8
+arch reed_sm1
 x 22
 y 19
 end
 arch grassd_7
+z 16
 x 22
 y 20
 end
-arch plant7
+arch reed_sm4
 x 22
 y 20
 end
-arch grassd_4
+arch grassd_7
+z 12
 x 22
 y 21
 end
-arch plant8
+arch plant7
 x 22
 y 21
 end
 arch grassd_7
+z 12
 x 22
 y 22
 end
-arch plant7
+arch plant8
 x 22
 y 22
 end
-arch grassd_3
+arch grassd_8
+z 12
 x 22
 y 23
 end
-arch plant2
+arch magic_mouth
 x 22
 y 23
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
 end
 arch water_md
 x 23
@@ -3413,115 +3403,142 @@ arch grassd_3
 x 23
 y 8
 end
-arch grassd_2
+arch grassd_7
+z 2
 x 23
 y 9
 end
-arch grassd_1
+arch grassd_2
+z 4
 x 23
 y 10
 end
-arch plant1
-x 23
-y 10
-end
-arch grassd_3
+arch grass_flowers1
+z 8
 x 23
 y 11
 end
-arch plant7
+arch grassd_m2
 x 23
 y 11
-end
-arch grassd_6
-x 23
-y 12
-end
-arch rock_big1
-x 23
-y 12
-end
-arch grassd_3
-x 23
-y 13
-end
-arch plant_big1
-x 23
-y 13
-end
-arch grassd_4
-x 23
-y 14
-end
-arch grassd_3
-x 23
-y 15
-end
-arch stone1
-x 23
-y 15
-end
-arch grassd_3
-x 23
-y 16
-end
-arch plant11
-x 23
-y 16
 end
 arch grassd_8
+z 12
 x 23
-y 17
+y 12
+end
+arch magic_mouth
+x 23
+y 12
+arch event_obj
+sub_type 10
+race scripts/deserted_tutorial_island/lake_trigger.py
+end
+end
+arch grassd_6
+z 12
+x 23
+y 13
 end
 arch plant8
 x 23
+y 13
+end
+arch grassd_4
+z 16
+x 23
+y 14
+end
+arch reed_sm1
+x 23
+y 14
+end
+arch water_lt2
+z 16
+name clean water
+x 23
+y 15
+end
+arch grassd_m4
+x 23
+y 15
+end
+arch water_lt3
+z 16
+name clean water
+x 23
+y 16
+end
+arch grassd_m13
+x 23
+y 16
+end
+arch water_lt4
+z 16
+x 23
 y 17
 end
-arch grassd_3
+arch water_lily
+x 23
+y 17
+end
+arch water_lt
+z 16
+name clean water
 x 23
 y 18
 end
-arch reed_sm1
+arch grassd_m14
 x 23
 y 18
 end
-arch grassd_4
+arch water_plant1
+x 23
+y 18
+end
+arch water_lt4
+z 16
+name clean water
 x 23
 y 19
 end
-arch reed_sm1
+arch grassd_m3
 x 23
 y 19
-end
-arch grassd_4
-x 23
-y 20
-end
-arch reed_sm1
-x 23
-y 20
-end
-arch grassd_3
-x 23
-y 21
-end
-arch reed_sm1
-x 23
-y 21
-end
-arch grassd_4
-x 23
-y 22
-end
-arch reed_sm1
-x 23
-y 22
 end
 arch grassd_6
+z 16
+x 23
+y 20
+end
+arch reed_sm1
+x 23
+y 20
+end
+arch grassd_1
+z 16
+x 23
+y 21
+end
+arch reed_sm1
+x 23
+y 21
+end
+arch grassd_7
+z 16
+x 23
+y 22
+end
+arch reed_sm4
+x 23
+y 22
+end
+arch grassd_8
+z 12
 x 23
 y 23
 end
-arch plant7
+arch plant8
 x 23
 y 23
 end
