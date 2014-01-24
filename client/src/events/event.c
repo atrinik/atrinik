@@ -169,7 +169,7 @@ int Event_PollInputDevice(void)
                     break;
                 }
 
-                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
                     key_handle_event(&event.key);
                     break;
                 }
