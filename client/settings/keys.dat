@@ -93,19 +93,16 @@ end
 bind
 	# l
 	key 108
-	mod 3
 	command ?LOCK
 end
 bind
 	# m
 	key 109
-	mod 3
 	command ?MARK
 end
 bind
 	# d
 	key 100
-	mod 3
 	repeat 1
 	command ?DROP
 end
@@ -177,7 +174,6 @@ end
 bind
 	# f
 	key 102
-	mod 3
 	command ?FIRE_READY
 end
 bind
@@ -226,77 +222,73 @@ bind
 	command ?FIREON
 end
 bind
-	# home
-	key 278
+	# 9
+	key 57
 	command ?QUICKSLOT_GROUP_PREV
 end
 bind
-	# end
-	key 279
+	# 0
+	key 48
 	command ?QUICKSLOT_GROUP_NEXT
-end
-bind
-	# f1
-	key 282
-	command ?QUICKSLOT_1
-end
-bind
-	# f2
-	key 283
-	command ?QUICKSLOT_2
-end
-bind
-	# f3
-	key 284
-	command ?QUICKSLOT_3
-end
-bind
-	# f4
-	key 285
-	command ?QUICKSLOT_4
-end
-bind
-	# f5
-	key 286
-	command ?QUICKSLOT_5
-end
-bind
-	# f6
-	key 287
-	command ?QUICKSLOT_6
-end
-bind
-	# f7
-	key 288
-	command ?QUICKSLOT_7
-end
-bind
-	# f8
-	key 289
-	command ?QUICKSLOT_8
 end
 bind
 	# 1
 	key 49
-	mod 3
-	command /invfilter all
+	command ?QUICKSLOT_1
 end
 bind
 	# 2
 	key 50
-	mod 3
-	command /invfilter applied
+	command ?QUICKSLOT_2
 end
 bind
 	# 3
 	key 51
-	mod 3
-	command /invfilter locked
+	command ?QUICKSLOT_3
 end
 bind
 	# 4
 	key 52
-	mod 3
+	command ?QUICKSLOT_4
+end
+bind
+	# 5
+	key 53
+	command ?QUICKSLOT_5
+end
+bind
+	# 6
+	key 54
+	command ?QUICKSLOT_6
+end
+bind
+	# 7
+	key 55
+	command ?QUICKSLOT_7
+end
+bind
+	# 8
+	key 56
+	command ?QUICKSLOT_8
+end
+bind
+	# unknown key
+	key 0
+	command /invfilter all
+end
+bind
+	# unknown key
+	key 0
+	command /invfilter applied
+end
+bind
+	# unknown key
+	key 0
+	command /invfilter locked
+end
+bind
+	# unknown key
+	key 0
 	command /invfilter unidentified
 end
 bind
