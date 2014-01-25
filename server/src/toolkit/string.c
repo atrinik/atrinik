@@ -540,7 +540,7 @@ int string_endswith(const char *str, const char *cmp)
  * Example:
  * @code
  * string_sub("hello world", 1, -1); --> "ello worl"
- * string_sub("hello world", 4, strlen("hello world")); --> "o world"
+ * string_sub("hello world", 4, 0); --> "o world"
  * string_sub("hello world", -5, 0); --> "world"
  * @endcode
  * @param str String to get a substring from.
@@ -549,15 +549,17 @@ int string_endswith(const char *str, const char *cmp)
  * @return The created substring; never NULL. Must be freed. */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
-    size_t n, max;
+    size_t n, str_len;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (end < 0) {
-        end = strlen(str) + end;
+    str_len = strlen(str);
+
+    if (end <= 0) {
+        end = str_len + end;
     }
-    else if (start < 0) {
-        end = strlen(str);
+
+    if (start < 0) {
         start = end + start;
     }
 
@@ -566,8 +568,7 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
     }
 
     str += start;
-    max = strlen(str);
-    n = MIN(max, (size_t) (end - start));
+    n = MIN(str_len, (size_t) (end - start));
 
     return strndup(str, n);
 }

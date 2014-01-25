@@ -220,25 +220,6 @@ char *string_format_number_comma(uint64 num)
 }
 
 /**
- * Strips markup from a string.
- *
- * Replaces '<' characters with a space, effectively disabling any markup
- * (note that entities such as &lt; are still allowed).
- * @param str The string. */
-void string_remove_markup(char *str)
-{
-    char *cp;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    for (cp = str; *cp != '\0'; cp++) {
-        if (*cp == '<') {
-            *cp = ' ';
-        }
-    }
-}
-
-/**
  * Transforms a string to uppercase, in-place.
  * @param str String to transform, will be modified. */
 void string_toupper(char *str)
@@ -559,7 +540,7 @@ int string_endswith(const char *str, const char *cmp)
  * Example:
  * @code
  * string_sub("hello world", 1, -1); --> "ello worl"
- * string_sub("hello world", 4, strlen("hello world")); --> "o world"
+ * string_sub("hello world", 4, 0); --> "o world"
  * string_sub("hello world", -5, 0); --> "world"
  * @endcode
  * @param str String to get a substring from.
@@ -568,15 +549,17 @@ int string_endswith(const char *str, const char *cmp)
  * @return The created substring; never NULL. Must be freed. */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
-    size_t n, max;
+    size_t n, str_len;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (end < 0) {
-        end = strlen(str) + end;
+    str_len = strlen(str);
+
+    if (end <= 0) {
+        end = str_len + end;
     }
-    else if (start < 0) {
-        end = strlen(str);
+
+    if (start < 0) {
         start = end + start;
     }
 
@@ -585,8 +568,7 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
     }
 
     str += start;
-    max = strlen(str);
-    n = MIN(max, (size_t) (end - start));
+    n = MIN(str_len, (size_t) (end - start));
 
     return strndup(str, n);
 }
