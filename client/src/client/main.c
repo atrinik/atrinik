@@ -154,7 +154,7 @@ static int game_status_chain(void)
         packet_append_uint32(packet, SOCKET_VERSION);
         socket_send_packet(packet);
 
-        cpl.state = ST_VERSION;
+        cpl.state = ST_WAITVERSION;
     }
     else if (cpl.state == ST_VERSION) {
         packet_struct *packet;

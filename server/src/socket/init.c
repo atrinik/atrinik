@@ -89,6 +89,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
     ns->password_fails = 0;
     ns->is_bot = 0;
     ns->account = NULL;
+    ns->socket_version = 0;
 
     for (i = 0; i < SERVER_FILES_MAX; i++) {
         ns->requested_file[i] = 0;
