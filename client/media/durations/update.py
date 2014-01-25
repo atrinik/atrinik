@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-import gst, gst.pbutils, os
+import sys, os
+
+try:
+    import gst, gst.pbutils
+except:
+    print("Could not import py-gst, make sure it's installed (Debian: python-gst0.10 package)")
+    sys.exit(1)
 
 class GSTFileInfo:
     def __init__(self):
