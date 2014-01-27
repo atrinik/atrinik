@@ -1235,6 +1235,11 @@ int widgets_event(SDL_Event *event)
     }
 
     if (EVENT_IS_MOUSE(event)) {
+        if (event->type == SDL_MOUSEBUTTONDOWN) {
+            /* Set the priority to this widget. */
+            SetPriorityWidget(widget);
+        }
+            
         if (!widget_event_respond(event->motion.x, event->motion.y)) {
             return 0;
         }
@@ -1283,9 +1288,6 @@ int widgets_event(SDL_Event *event)
             }
         }
         else if (event->type == SDL_MOUSEBUTTONDOWN) {
-            /* Set the priority to this widget. */
-            SetPriorityWidget(widget);
-
             /* Right mouse button was clicked, try to create menu. */
             if (event->button.button == SDL_BUTTON_RIGHT && !cur_widget[MENU_ID] && widget->menu_handle_func && widget->menu_handle_func(widget, event)) {
                 return 1;
