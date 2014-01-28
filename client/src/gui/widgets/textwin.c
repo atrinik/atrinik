@@ -37,6 +37,11 @@ const char *const textwin_tab_names[] =
     "[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
+const char *const textwin_tab_commands[] =
+{
+    "say", NULL, "chat", "say", "reply", "party say", "opsay"
+};
+
 /**
  * Readjust text window's scroll/entries counts due to a font size
  * change.
@@ -282,6 +287,13 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     snprintf(buf, sizeof(buf), "rectangle:%d,20,255;<border=widget_border %d 20>", wd, wd);
     textwin->tabs[textwin->tabs_num].button.texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
     textwin->tabs[textwin->tabs_num].button.texture_over = textwin->tabs[textwin->tabs_num].button.texture_pressed = NULL;
+
+    text_input_create(&textwin->tabs[textwin->tabs_num].text_input);
+    textwin->tabs[textwin->tabs_num].text_input.focus = 0;
+    textwin->tabs[textwin->tabs_num].text_input.max = 250;
+    textwin->tabs[textwin->tabs_num].text_input_history = text_input_history_create();
+    text_input_set_history(&textwin->tabs[textwin->tabs_num].text_input, textwin->tabs[textwin->tabs_num].text_input_history);
+    
     textwin->tabs_num++;
 
     qsort((void *) textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (void *) (int (*)())textwin_tab_compare);
@@ -541,7 +553,7 @@ void textwin_create_scrollbar(widgetdata *widget)
 {
     textwin_struct *textwin = TEXTWIN(widget);
 
-    scrollbar_create(&textwin->scrollbar, 9, TEXTWIN_TEXT_HEIGHT(widget), &textwin->tabs[textwin->tab_selected].scroll_offset, &textwin->tabs[textwin->tab_selected].num_lines, TEXTWIN_ROWS_VISIBLE(widget));
+    scrollbar_create(&textwin->scrollbar, TEXTWIN_SCROLLBAR_WIDTH(widget), TEXTWIN_SCROLLBAR_HEIGHT(widget), &textwin->tabs[textwin->tab_selected].scroll_offset, &textwin->tabs[textwin->tab_selected].num_lines, TEXTWIN_ROWS_VISIBLE(widget));
     textwin->scrollbar.redraw = &widget->redraw;
 }
 
@@ -641,6 +653,12 @@ static void widget_draw(widgetdata *widget)
                 textwin->tabs[textwin->tab_selected].charnames = charnames;
             }
 
+            if (textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1]) {
+                text_input_set_parent(&textwin->tabs[textwin->tab_selected].text_input, widget->x, widget->y);
+                textwin->tabs[textwin->tab_selected].text_input.coords.w = TEXTWIN_TEXT_INPUT_WIDTH(widget);
+                text_input_show(&textwin->tabs[textwin->tab_selected].text_input, widget->surface, TEXTWIN_TEXT_INPUT_STARTX(widget), TEXTWIN_TEXT_INPUT_STARTY(widget) + yadjust);
+            }
+
             textwin->scrollbar.max_lines = TEXTWIN_ROWS_VISIBLE(widget);
             textwin->scrollbar.px = widget->x;
             textwin->scrollbar.py = widget->y;
@@ -666,6 +684,31 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 {
     textwin_struct *textwin = TEXTWIN(widget);
 
+    if (event->type == SDL_MOUSEBUTTONDOWN) {
+        widgetdata *tmp;
+        text_input_struct *text_input;
+
+        if (textwin->tabs != NULL) {
+            text_input = &textwin->tabs[textwin->tab_selected].text_input;
+
+            if (text_input->focus == 0 && *text_input->str != '\0') {
+                text_input->focus = 1;
+                WIDGET_REDRAW(widget);
+            }
+        }
+
+        for (tmp = cur_widget[CHATWIN_ID]; tmp != NULL; tmp = tmp->type_next) {
+            if (tmp != widget && TEXTWIN(tmp)->tabs != NULL) {
+                text_input = &TEXTWIN(tmp)->tabs[TEXTWIN(tmp)->tab_selected].text_input;
+
+                if (text_input->focus == 1) {
+                    text_input->focus = 0;
+                    WIDGET_REDRAW(tmp);
+                }
+            }
+        }
+    }
+
     if (textwin->tabs_num > 1 && (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN)) {
         size_t i;
 
@@ -679,6 +722,53 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             if (textwin->tabs[i].button.redraw) {
                 WIDGET_REDRAW(widget);
             }
+        }
+    }
+
+    if (textwin->tabs != NULL && event->type == SDL_KEYDOWN && textwin->tabs[textwin->tab_selected].text_input.focus == 1 && widget == widget_find(NULL, CHATWIN_ID, NULL, NULL)) {
+        if (IS_ENTER(event->key.keysym.sym) && *(textwin->tabs[textwin->tab_selected].text_input.str) != '\0') {
+            StringBuffer *sb;
+            char *cp, *str;
+
+            sb = stringbuffer_new();
+
+            if (*(textwin->tabs[textwin->tab_selected].text_input.str) != '/') {
+                if (textwin->tabs[textwin->tab_selected].name != NULL) {
+                    stringbuffer_append_printf(sb, "/tell \"%s\" ", textwin->tabs[textwin->tab_selected].name);
+                }
+                else {
+                    stringbuffer_append_printf(sb, "/%s ", textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1]);
+                }
+            }
+
+            str = text_escape_markup(textwin->tabs[textwin->tab_selected].text_input.str);
+            stringbuffer_append_string(sb, str);
+            free(str);
+
+            cp = stringbuffer_finish(sb);
+            send_command_check(cp);
+            free(cp);
+        }
+
+        if (event->key.keysym.sym == SDLK_ESCAPE) {
+            textwin->tabs[textwin->tab_selected].text_input.focus = 0;
+            text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
+            WIDGET_REDRAW(widget);
+            return 1;
+        }
+        else if (event->key.keysym.sym == SDLK_TAB) {
+            help_handle_tabulator(&textwin->tabs[textwin->tab_selected].text_input);
+            WIDGET_REDRAW(widget);
+            return 1;
+        }
+        else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
+            if (IS_ENTER(event->key.keysym.sym)) {
+                text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
+                textwin->tabs[textwin->tab_selected].text_input.focus = 0;
+            }
+            
+            WIDGET_REDRAW(widget);
+            return 1;
         }
     }
 
@@ -1088,4 +1178,39 @@ void widget_textwin_init(widgetdata *widget)
     widget->subwidget = textwin;
 
     textwin_create_scrollbar(widget);
+}
+
+void widget_textwin_handle_console(const char *text)
+{
+    widgetdata *widget;
+    textwin_struct *textwin;
+
+    while (widget == NULL || widget->next != NULL) {
+        widget = widget_find(widget != NULL ? widget->next : NULL, CHATWIN_ID, NULL, NULL);
+
+        if (widget == NULL) {
+            break;
+        }
+
+        textwin = TEXTWIN(widget);
+
+        if (textwin->tabs != NULL && textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1] != NULL) {
+            break;
+        }
+    }
+
+    if (widget == NULL) {
+        logger_print(LOG(BUG), "Failed to find a text window.");
+        return;
+    }
+
+    text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
+    textwin->tabs[textwin->tab_selected].text_input.focus = 1;
+
+    if (text != NULL) {
+        text_input_set(&textwin->tabs[textwin->tab_selected].text_input, text);
+    }
+    
+    SetPriorityWidget(widget);
+    WIDGET_REDRAW(widget);
 }

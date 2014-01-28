@@ -542,17 +542,7 @@ int keybind_process_command(const char *cmd)
             }
         }
         else if (!strcmp(cmd, "CONSOLE")) {
-            widget_input_struct *input;
-
-            WIDGET_SHOW(cur_widget[INPUT_ID]);
-            SetPriorityWidget(cur_widget[INPUT_ID]);
-            input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
-            text_input_reset(&input->text_input);
-            snprintf(input->title_text, sizeof(input->title_text), "Send message to %s:", "[PUBLIC]");
-            strncpy(input->prepend_text, "/say ", sizeof(input->prepend_text) - 1);
-            input->prepend_text[sizeof(input->prepend_text) - 1] = '\0';
-            input->text_input.character_check_func = NULL;
-            text_input_set_history(&input->text_input, input->text_input_history);
+            widget_textwin_handle_console(NULL);
         }
         else if (!strcmp(cmd, "APPLY")) {
             widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
@@ -607,15 +597,13 @@ int keybind_process_command(const char *cmd)
             }
         }
         else if (!strncmp(cmd, "MCON", 4)) {
-            keybind_process_command("?CONSOLE");
-
             cmd += 4;
 
             while (*cmd == ' ') {
                 cmd++;
             }
 
-            text_input_set(&WIDGET_INPUT(cur_widget[INPUT_ID])->text_input, cmd);
+            widget_textwin_handle_console(cmd);
         }
         else if (!strcmp(cmd, "UP")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_UP);

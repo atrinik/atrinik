@@ -735,6 +735,7 @@ extern void widget_stat_init(widgetdata *widget);
 extern void widget_texture_init(widgetdata *widget);
 /* src/gui/widgets/textwin.c */
 extern const char *const textwin_tab_names[];
+extern const char *const textwin_tab_commands[];
 extern void textwin_readjust(widgetdata *widget);
 extern size_t textwin_tab_name_to_id(const char *name);
 extern void textwin_tab_free(textwin_tab_struct *tab);
@@ -750,6 +751,7 @@ extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
 extern int textwin_tabs_height(widgetdata *widget);
 extern void textwin_create_scrollbar(widgetdata *widget);
 extern void widget_textwin_init(widgetdata *widget);
+extern void widget_textwin_handle_console(const char *text);
 /* src/toolkit/binreloc.c */
 extern void toolkit_binreloc_init(void);
 extern void toolkit_binreloc_deinit(void);
@@ -899,7 +901,6 @@ extern void string_replace_char(char *str, const char *key, const char replaceme
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);
 extern void string_replace_unprintable_chars(char *buf);
 extern char *string_format_number_comma(uint64 num);
-extern void string_remove_markup(char *str);
 extern void string_toupper(char *str);
 extern void string_tolower(char *str);
 extern char *string_whitespace_trim(char *str);
