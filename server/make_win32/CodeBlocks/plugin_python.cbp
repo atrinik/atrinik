@@ -27,7 +27,7 @@
 				<Linker>
 					<Add library="winmm" />
 					<Add directory="Release" />
-					<Add directory="c:\Python33\libs" />
+					<Add directory="%SystemDrive%\Python33\libs" />
 					<Add library="libPython33.a" />
 				</Linker>
 				<ExtraCommands>
@@ -45,7 +45,7 @@
 			<Add directory="..\..\src\libs\zlib\include" />
 			<Add directory="include" />
 			<Add directory="..\..\src\plugins\plugin_python\include" />
-			<Add directory="c:\Python33\include" />
+			<Add directory="%SystemDrive%\Python33\include" />
 		</Compiler>
 
 		<Unit filename="..\..\src\plugins\plugin_python\include\atrinik_map.h" />
