@@ -1185,6 +1185,8 @@ void widget_textwin_handle_console(const char *text)
     widgetdata *widget;
     textwin_struct *textwin;
 
+    widget = NULL;
+
     while (widget == NULL || widget->next != NULL) {
         widget = widget_find(widget != NULL ? widget->next : NULL, CHATWIN_ID, NULL, NULL);
 
