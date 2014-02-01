@@ -51,7 +51,7 @@ build.user
 
 # Win32
 Thumbs.db
-dekstop.ini
+desktop.ini
 atrinik.exe
 atrinik_server.exe
 client/stdout.txt
