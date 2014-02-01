@@ -38,6 +38,7 @@ void command_afk(object *op, const char *command, char *params)
     /* No auto-reply message given*/
     if (!params) {
         CONTR(op)->afk_auto_reply[0] = '\0';
+
         /* Currently afk */
         if (CONTR(op)->afk) {
             CONTR(op)->afk = 0;

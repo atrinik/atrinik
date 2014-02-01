@@ -53,6 +53,7 @@ static void setting_load_value(setting_struct *setting, const char *str)
 {
     switch (setting->type) {
         case OPT_TYPE_BOOL:
+
             if (KEYWORD_IS_TRUE(str)) {
                 setting->val.i = 1;
             }
@@ -74,6 +75,7 @@ static void setting_load_value(setting_struct *setting, const char *str)
 
         case OPT_TYPE_INPUT_TEXT:
         case OPT_TYPE_COLOR:
+
             if (setting->val.str) {
                 free(setting->val.str);
             }
@@ -473,6 +475,7 @@ static void setting_apply_runtime(int cat, int setting)
 
                 /* Fullscreen change. */
                 case OPT_FULLSCREEN:
+
                     if ((setting_get_int(cat, setting) && !(ScreenSurface->flags & SDL_FULLSCREEN)) || (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN)) {
                         video_fullscreen_toggle(&ScreenSurface, NULL);
                     }
@@ -487,6 +490,7 @@ static void setting_apply_runtime(int cat, int setting)
                 /* Map width/height change. */
                 case OPT_MAP_WIDTH:
                 case OPT_MAP_HEIGHT:
+
                     if (setting_update_mapsize) {
                         packet_struct *packet;
 

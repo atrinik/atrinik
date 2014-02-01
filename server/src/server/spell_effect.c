@@ -374,6 +374,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
     switch (spell_type) {
         case SP_CURE_DISEASE:
+
             if (cure_disease(target, op)) {
                 success = 1;
             }
@@ -507,6 +508,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
             break;
 
         case SP_RESTORATION:
+
             if (cast_heal(op, level, target, SP_CURE_POISON)) {
                 success = 1;
             }

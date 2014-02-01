@@ -49,13 +49,13 @@ typedef struct mempool_chunk_struct
 } mempool_chunk_struct;
 
 /** Optional initialisator to be called when expanding. */
-typedef void (*chunk_initialisator) (void *ptr);
+typedef void (*chunk_initialisator)(void *ptr);
 /** Optional deinitialisator to be called when freeing. */
-typedef void (*chunk_deinitialisator) (void *ptr);
+typedef void (*chunk_deinitialisator)(void *ptr);
 /** Optional constructor to be called when getting chunks. */
-typedef void (*chunk_constructor) (void *ptr);
+typedef void (*chunk_constructor)(void *ptr);
 /** Optional destructor to be called when returning chunks. */
-typedef void (*chunk_destructor) (void *ptr);
+typedef void (*chunk_destructor)(void *ptr);
 
 /* Definitions used for array handling */
 #define MEMPOOL_NROF_FREELISTS 8

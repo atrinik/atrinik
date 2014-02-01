@@ -344,11 +344,11 @@ struct plugin_hooklist
 };
 
 /** General API function. */
-typedef void *(*f_plug_api) (int *type, ...);
+typedef void *(*f_plug_api)(int *type, ...);
 /** First function called in a plugin. */
-typedef void *(*f_plug_init) (struct plugin_hooklist *hooklist);
+typedef void *(*f_plug_init)(struct plugin_hooklist *hooklist);
 /** Function called after the plugin was initialized. */
-typedef void *(*f_plug_pinit) (void);
+typedef void *(*f_plug_pinit)(void);
 
 #ifndef WIN32
 /** Library handle. */

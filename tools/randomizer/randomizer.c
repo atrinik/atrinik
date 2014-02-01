@@ -248,9 +248,9 @@ int main(int argc, char *argv[])
                     /* Only if the above loop returned 1 */
                     if (found) {
                         /* Second loop through the random variations list. Here
-                        *  we just
-                        * check if i is equal to the random number calculated
-                        *  above. */
+                         *  we just
+                         * check if i is equal to the random number calculated
+                         *  above. */
                         for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next) {
                             /* If i (variation ID) is equal to the random
                              * number,

@@ -1558,6 +1558,7 @@ void update_position(mapstruct *m, int x, int y)
         }
 
 #ifdef DEBUG_OLDFLAGS
+
         /* We don't want to rely on this function to have accurate flags, but
          * since we're already doing the work, we calculate them here.
          * if they don't match, logic is broken someplace. */

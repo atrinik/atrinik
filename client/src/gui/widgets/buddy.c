@@ -318,6 +318,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (button_event(&tmp->buttons[i], event)) {
             switch (i) {
                 case BUTTON_ADD:
+
                     if (tmp->text_input.focus) {
                         if (*tmp->text_input.str != '\0') {
                             widget_buddy_add(widget, tmp->text_input.str, 1);

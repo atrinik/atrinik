@@ -1469,6 +1469,7 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 
         switch (widget->type) {
             default:
+
                 if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h)) {
                     return widget;
                 }

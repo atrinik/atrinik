@@ -866,7 +866,7 @@ void socket_command_version(uint8 *data, size_t len, size_t pos)
             "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
         return;
     }
-    
+
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
     cpl.state = ST_VERSION;
 }

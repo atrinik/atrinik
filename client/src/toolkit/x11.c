@@ -182,6 +182,7 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 #if defined(HAVE_X11)
+
     if (switch_desktop) {
         unsigned long *desktop;
 
@@ -271,6 +272,7 @@ int x11_clipboard_register_events(void)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
+
     if (!SDL_display) {
         return 0;
     }
@@ -305,6 +307,7 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
     }
 
 #ifdef HAVE_X11_XMU
+
     if (XGetSelectionOwner(display, XA_CLIPBOARD(display)) != win) {
         XSetSelectionOwner(display, XA_CLIPBOARD(display), win, CurrentTime);
     }
@@ -323,6 +326,7 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
 
     return 1;
 #elif defined(WIN32)
+
     if (OpenClipboard(win)) {
         SIZE_T i, size;
         HANDLE hMem;
@@ -436,6 +440,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
         XFree(src);
     }
 #elif defined(WIN32)
+
     if (IsClipboardFormatAvailable(CF_TEXT) && OpenClipboard(win)) {
         HANDLE hMem;
         char *src;

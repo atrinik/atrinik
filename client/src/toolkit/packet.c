@@ -123,6 +123,7 @@ void packet_compress(packet_struct *packet)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
 #if defined(COMPRESS_DATA_PACKETS) && COMPRESS_DATA_PACKETS
+
     if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->type != CLIENT_CMD_DATA) {
         size_t new_size = compressBound(packet->len);
         uint8 *dest;

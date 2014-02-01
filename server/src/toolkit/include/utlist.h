@@ -153,7 +153,7 @@
                 }                                                                                        \
                 _ls_insize *= 2;                                                                         \
             }                                                                                          \
-        } else _tmp=NULL; /* quiet gcc unused variable warning */                                    \
+        } else _tmp=NULL;  /* quiet gcc unused variable warning */                                    \
     } while (0)
 
 #define DL_SORT(list, cmp)                                                                     \
@@ -211,7 +211,7 @@
                 }                                                                                        \
                 _ls_insize *= 2;                                                                         \
             }                                                                                          \
-        } else _tmp=NULL; /* quiet gcc unused variable warning */                                    \
+        } else _tmp=NULL;  /* quiet gcc unused variable warning */                                    \
     } while (0)
 
 #define CDL_SORT(list, cmp)                                                                    \
@@ -281,7 +281,7 @@
                 }                                                                                        \
                 _ls_insize *= 2;                                                                         \
             }                                                                                          \
-        } else _tmp=NULL; /* quiet gcc unused variable warning */                                    \
+        } else _tmp=NULL;  /* quiet gcc unused variable warning */                                    \
     } while (0)
 
 /******************************************************************************

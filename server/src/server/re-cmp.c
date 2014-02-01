@@ -76,6 +76,7 @@ const char *re_cmp(const char *str, const char *regexp)
     }
 
 #ifdef SAFE_CHECKS
+
     if (regexp == NULL || str == NULL) {
         return NULL;
     }
@@ -114,6 +115,7 @@ const char *re_cmp(const char *str, const char *regexp)
     if (once) {
         switch (re_token[0]->repeat) {
             case rep_once:
+
                 if (matched == 0) {
                     return NULL;
                 }
@@ -121,6 +123,7 @@ const char *re_cmp(const char *str, const char *regexp)
                 break;
 
             case rep_once_or_more:
+
                 if (matched == 0) {
                     return NULL;
                 }
@@ -132,6 +135,7 @@ const char *re_cmp(const char *str, const char *regexp)
                 break;
 
             case rep_null_or_once:
+
                 if (matched == 0) {
                     return re_cmp_step(str, next_regexp, 1, 0) ? str : NULL;
                 }
@@ -139,6 +143,7 @@ const char *re_cmp(const char *str, const char *regexp)
                 break;
 
             case rep_null_or_more:
+
                 if (matched) {
                     if (re_cmp_step(str + 1, regexp, 0, 1)) {
                         return str;
@@ -162,6 +167,7 @@ const char *re_cmp(const char *str, const char *regexp)
 
             case rep_once_or_more:
             case rep_null_or_more:
+
                 if (re_cmp_step(str + 1, regexp, 0, 1)) {
                     return str;
                 }
@@ -242,6 +248,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
 
     switch (re_token[slot]->repeat) {
         case rep_once:
+
             /* (matches == 1) => (matched == 1) */
             if (matches == 1) {
                 return re_cmp_step(str + 1, next_regexp, slot + 1, 0);
@@ -250,6 +257,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
             return 0;
 
         case rep_once_or_more:
+
             /* (matched == 1) => (matches >= 1) */
             if (matched) {
                 /* First check if the current token repeats more */
@@ -263,6 +271,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
             return 0;
 
         case rep_null_or_once:
+
             /* We must go on to the next token, but should we advance str? */
             if (matches == 0) {
                 return re_cmp_step(str, next_regexp, slot + 1, 0);
@@ -275,6 +284,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
             return 0;
 
         case rep_null_or_more:
+
             if (matched) {
                 /* Look for further repeats, advance str */
                 if (re_cmp_step(str + 1, regexp, slot, matches)) {
@@ -357,6 +367,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
     unsigned char looking_at;
 
 #ifdef SAFE_CHECKS
+
     if (sel == NULL || regexp == NULL || *regexp == '\0') {
         return NULL;
     }
@@ -368,6 +379,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 
         switch (looking_at) {
             case '$':
+
                 if (quoted) {
                     quoted = 0;
                     sel->type = sel_single;
@@ -380,6 +392,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
                 break;
 
             case '.':
+
                 if (quoted) {
                     quoted = 0;
                     sel->type = sel_single;
@@ -392,6 +405,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
                 break;
 
             case '[':
+
                 /* The fun stuff... perhaps a little obfuscated since I
                  * don't trust the compiler to analyze liveness. */
                 if (quoted) {
@@ -444,6 +458,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
                                 /* On the form [A-G] or [^A-G]. Note that [G-A]
                                  * is a syntax error. Fair enough, I think. */
 #ifdef SAFE_CHECKS
+
                                 if (first > last) {
                                     return NULL;
                                 }
@@ -468,6 +483,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
                         if (last) {
                             /* It starts with a range */
 #ifdef SAFE_CHECKS
+
                             if (first > last) {
                                 return NULL;
                             }
@@ -499,6 +515,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
 
                                 if (looking_at != ']') {
 #ifdef SAFE_CHECKS
+
                                     if (previous > looking_at) {
                                         return NULL;
                                     }
@@ -528,6 +545,7 @@ static const char *re_get_token(selection *sel, const char *regexp)
                 break;
 
             case '\\':
+
                 if (quoted) {
                     quoted = 0;
                     sel->type = sel_single;

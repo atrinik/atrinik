@@ -118,6 +118,7 @@ sint64 do_skill(object *op, int dir, const char *params)
             break;
 
         case SK_THROWING:
+
             if (CONTR(op)->equipment[PLAYER_EQUIP_AMMO]) {
                 object_throw(CONTR(op)->equipment[PLAYER_EQUIP_AMMO], op, dir);
             }

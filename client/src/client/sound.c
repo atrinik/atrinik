@@ -587,7 +587,7 @@ void sound_music_seek(uint32 offset)
 
 #ifdef HAVE_SDL_MIXER
     Mix_RewindMusic();
-    
+
     if (Mix_SetMusicPosition(offset) == -1) {
         logger_print(LOG(BUG), "Mix_SetMusicPosition: %s", Mix_GetError());
     }

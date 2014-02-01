@@ -141,6 +141,7 @@ void load_treasures(void)
             if (!strncmp(buf, "treasureone", 11)) {
                 for (t = tl->items; t != NULL; t = t->next) {
 #ifdef TREASURE_DEBUG
+
                     if (t->next_yes || t->next_no) {
                         logger_print(LOG(BUG), "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
                     }
@@ -893,6 +894,7 @@ static void create_one_treasure(treasurelist *tl, object *op, int flag, int diff
 
     /* Well, at some point we should rework this whole system... */
 create_one_treasure_again_jmp:
+
     if (diff_tries > 10) {
         return;
     }
@@ -1342,6 +1344,7 @@ set_ring_bonus_jump1:
 
         case 11:
         case 12:
+
             if (!RANDOM() % 3) {
                 goto make_prot_items;
             }
@@ -1459,6 +1462,7 @@ make_prot_items:
         }
 
         case 20:
+
             if (op->type == AMULET) {
                 SET_FLAG(op, FLAG_REFL_SPELL);
                 op->value *= 11;
@@ -1477,6 +1481,7 @@ make_prot_items:
             break;
 
         case 21:
+
             if (op->type == AMULET) {
                 SET_FLAG(op, FLAG_REFL_MISSILE);
                 op->value *= 9;
@@ -1495,6 +1500,7 @@ make_prot_items:
             break;
 
         default:
+
             if (!bonus) {
                 bonus = 1;
             }
@@ -1796,12 +1802,14 @@ jump_break1:
             }
 
             case AMULET:
+
                 /* Since it's not just decoration */
                 if (op->arch == amulet_arch) {
                     op->value *= 5;
                 }
 
             case RING:
+
                 if (op->arch == NULL) {
                     object_remove(op, 0);
                     *op_ptr = op = NULL;
@@ -1867,6 +1875,7 @@ jump_break1:
                 break;
 
             case BOOK:
+
                 /* Is it an empty book? If yes let's make a special msg
                  * for it, and tailor its properties based on the creator
                  * and/or map level we found it on. */
@@ -1925,6 +1934,7 @@ jump_break1:
                 break;
 
             case WAND:
+
                 if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL) {
                     break;
                 }
@@ -1953,6 +1963,7 @@ jump_break1:
                 break;
 
             case ROD:
+
                 if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_ROD)) == SP_NO_SPELL) {
                     break;
                 }
@@ -1991,6 +2002,7 @@ jump_break1:
 
             /* Generate some special food */
             case FOOD:
+
                 if (rndm_chance(4)) {
                     generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
                 }
@@ -2061,6 +2073,7 @@ jump_break1:
     else {
         switch (op->type) {
             case ARROW:
+
                 if (op->slaying == shstr_cons.none) {
                     add_random_race(op);
                 }
@@ -2068,6 +2081,7 @@ jump_break1:
                 break;
 
             case WEAPON:
+
                 if (op->slaying == shstr_cons.none) {
                     add_random_race(op);
                 }
@@ -2610,6 +2624,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
     }
 
 set_material_real:
+
     /* Adjust quality - use material default value or quality adjustment */
     if (change_arch->quality != -1) {
         op->item_quality = change_arch->quality;

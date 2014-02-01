@@ -188,6 +188,7 @@ static void first_arch_pass(FILE *fp)
         switch (i) {
             /* A new archetype, just link it with the previous */
             case LL_NORMAL:
+
                 if (last_more != NULL) {
                     last_more->next = at;
                 }

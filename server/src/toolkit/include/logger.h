@@ -33,7 +33,7 @@
 
 typedef void (*logger_print_func)(const char *str);
 
-#define LOG(_level) #_level, __FUNCTION__, __LINE__
+#define LOG(_level) # _level, __FUNCTION__, __LINE__
 
 #ifdef WIN32
 #   define LOGGER_ESC_SEQ_BOLD ""

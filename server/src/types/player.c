@@ -1211,6 +1211,7 @@ char *long_desc(object *tmp, object *caller)
         case FLESH:
         case BOOK:
         case CONTAINER:
+
             if (*(cp = describe_item(tmp)) != '\0') {
                 size_t len;
 
@@ -1312,6 +1313,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
     switch (tmp->type) {
         case BOOK:
+
             if (tmp->msg) {
                 strcpy(buf, "Something is written in it.");
 
@@ -1354,6 +1356,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
             break;
 
         case CONTAINER:
+
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
                 if (tmp->race != NULL) {
                     if (tmp->weight_limit) {
@@ -1413,6 +1416,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
             break;
 
         case WAND:
+
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
                 snprintf(buf, sizeof(buf), "It has %d charges left.", tmp->stats.food);
             }
@@ -1420,6 +1424,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
             break;
 
         case POWER_CRYSTAL:
+
             /* Avoid division by zero... */
             if (tmp->stats.maxsp == 0) {
                 snprintf(buf, sizeof(buf), "It has capacity of %d.", tmp->stats.maxsp);
@@ -1921,6 +1926,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
     /* If SAVE_INTERVAL is commented out, we never want to save
      * the player here. */
 #ifdef SAVE_INTERVAL
+
     if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_UNPAID) && (tmp->nrof ? tmp->value * tmp->nrof : tmp->value > 2000) && (CONTR(op)->last_save_time + SAVE_INTERVAL) <= time(NULL)) {
         player_save(op);
         CONTR(op)->last_save_time = time(NULL);

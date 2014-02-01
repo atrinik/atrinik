@@ -584,6 +584,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
 
         /* Esc, let the list creator handle this if they want to. */
         case SDLK_ESCAPE:
+
             if (list->handle_esc_func) {
                 list->handle_esc_func(list);
             }
@@ -593,6 +594,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
         /* Enter. */
         case SDLK_RETURN:
         case SDLK_KP_ENTER:
+
             if (list->handle_enter_func) {
                 list->handle_enter_func(list, event);
             }

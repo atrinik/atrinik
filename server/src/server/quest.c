@@ -180,6 +180,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
         }
 
         case QUEST_TYPE_KILL:
+
             /* The +1 makes it so no messages are displayed when player
              * kills more same monsters. */
             if (quest_object->last_sp <= quest_object->last_grace + 1) {

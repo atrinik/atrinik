@@ -2062,6 +2062,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
     switch (field->type) {
         case FIELDTYPE_SHSTR:
+
             if (value == Py_None) {
                 FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
             }
@@ -2076,6 +2077,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_CSTR:
+
             if (value == Py_None) {
                 FREE_AND_NULL_PTR(*(char **) field_ptr);
             }
@@ -2093,6 +2095,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_CARY:
+
             if (value == Py_None) {
                 ((char *) field_ptr)[0] = '\0';
             }
@@ -2107,6 +2110,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_UINT8:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2124,6 +2128,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_SINT8:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2141,6 +2146,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_UINT16:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2158,6 +2164,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_SINT16:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2175,6 +2182,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_UINT32:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2192,6 +2200,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_SINT32:
+
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -2209,6 +2218,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_UINT64:
+
             if (PyInt_Check(value)) {
                 unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
 
@@ -2226,6 +2236,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_SINT64:
+
             if (PyInt_Check(value)) {
                 PY_LONG_LONG val = PyLong_AsLongLong(value);
 
@@ -2243,6 +2254,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_FLOAT:
+
             if (PyFloat_Check(value)) {
                 *(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
             }
@@ -2256,6 +2268,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_OBJECT:
+
             if (value == Py_None) {
                 *(object **) field_ptr = NULL;
             }
@@ -2274,6 +2287,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_MAP:
+
             if (value == Py_None) {
                 *(mapstruct **) field_ptr = NULL;
             }
@@ -2311,6 +2325,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         }
 
         case FIELDTYPE_REGION:
+
             if (value == Py_None) {
                 *(region **) field_ptr = NULL;
             }
@@ -2324,6 +2339,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_PARTY:
+
             if (value == Py_None) {
                 *(party_struct **) field_ptr = NULL;
             }
@@ -2337,6 +2353,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_ARCH:
+
             if (value == Py_None) {
                 *(archetype **) field_ptr = NULL;
             }
@@ -2365,6 +2382,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_PLAYER:
+
             if (value == Py_None) {
                 *(player **) field_ptr = NULL;
             }
@@ -2378,6 +2396,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_FACE:
+
             if (PyTuple_Check(value)) {
                 if (PyTuple_GET_SIZE(value) != 2) {
                     PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
@@ -2403,6 +2422,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_ANIMATION:
+
             if (PyTuple_Check(value)) {
                 if (PyTuple_GET_SIZE(value) != 2) {
                     PyErr_Format(PyExc_ValueError, "Tuple for animation field must have exactly two values.");
@@ -2428,6 +2448,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_BOOLEAN:
+
             if (value == Py_True) {
                 *(uint8 *) field_ptr = 1;
             }
@@ -2441,6 +2462,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             break;
 
         case FIELDTYPE_CONNECTION:
+
             if (PyInt_Check(value)) {
                 hooks->connection_object_add((object *) ptr, ((object *) ptr)->map, PyLong_AsLong(value));
             }
@@ -2449,6 +2471,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             }
 
         case FIELDTYPE_TREASURELIST:
+
             if (PyString_Check(value)) {
                 *(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
             }

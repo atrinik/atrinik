@@ -204,6 +204,7 @@ void sleep_delta(void)
 #ifndef WIN32
         select(0, NULL, NULL, NULL, &sleep_time);
 #else
+
         if (sleep_time.tv_sec) {
             Sleep(sleep_time.tv_sec * 1000);
         }

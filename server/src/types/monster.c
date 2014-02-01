@@ -118,6 +118,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 #ifdef DEBUG_PATHFINDING
             logger_print(LOG(DEBUG), "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
 #endif
+
             if (!return_wp) {
                 return_wp = arch_to_object(wp_archetype);
                 insert_ob_in_ob(return_wp, npc);
