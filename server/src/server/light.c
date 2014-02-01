@@ -342,6 +342,7 @@ void check_light_source_list(mapstruct *map)
 
                 switch (i) {
                     case TILED_NORTH:
+
                         if (y + light_mask_width[abs(intensity)] < MAP_HEIGHT(m)) {
                             reaching = 0;
                         }
@@ -349,6 +350,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_EAST:
+
                         if (x - light_mask_width[abs(intensity)] >= 0) {
                             reaching = 0;
                         }
@@ -356,6 +358,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_SOUTH:
+
                         if (y - light_mask_width[abs(intensity)] >= 0) {
                             reaching = 0;
                         }
@@ -363,6 +366,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_WEST:
+
                         if (x + light_mask_width[abs(intensity)] < MAP_WIDTH(m)) {
                             reaching = 0;
                         }
@@ -370,6 +374,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_NORTHEAST:
+
                         if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) || (x - light_mask_width[abs(intensity)]) >= 0) {
                             reaching = 0;
                         }
@@ -377,6 +382,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_SOUTHEAST:
+
                         if ((x - light_mask_width[abs(intensity)]) >= 0 || (y - light_mask_width[abs(intensity)]) >= 0) {
                             reaching = 0;
                         }
@@ -384,6 +390,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_SOUTHWEST:
+
                         if ((y - light_mask_width[abs(intensity)]) >= 0 || (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
                             reaching = 0;
                         }
@@ -391,6 +398,7 @@ void check_light_source_list(mapstruct *map)
                         break;
 
                     case TILED_NORTHWEST:
+
                         if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) || (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
                             reaching = 0;
                         }

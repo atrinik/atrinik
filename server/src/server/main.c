@@ -204,6 +204,7 @@ static void process_players1(void)
         do_some_living(pl->ob);
 
 #ifdef AUTOSAVE
+
         /* Check for ST_PLAYING state so that we don't try to save off when
          * the player is logging in. */
         if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING) {
@@ -636,6 +637,7 @@ int main(int argc, char **argv)
     init_plugins();
 
 #ifdef HAVE_WORLD_MAKER
+
     if (settings.world_maker) {
         logger_print(LOG(INFO), "Running the world maker...");
         world_maker();

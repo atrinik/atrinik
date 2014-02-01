@@ -2557,6 +2557,7 @@ int auto_apply(object *op)
 
     switch (op->type) {
         case SHOP_FLOOR:
+
             if (op->randomitems == NULL) {
                 return 0;
             }

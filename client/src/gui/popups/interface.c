@@ -295,6 +295,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 return 1;
 
             default:
+
                 if (!keys[event->key.keysym.sym].repeated) {
                     char c;
                     size_t i, len, links_len;
@@ -401,6 +402,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
 
         switch (type) {
             case CMD_INTERFACE_TEXT:
+
                 if (!sb_message) {
                     sb_message = stringbuffer_new();
                 }
@@ -482,6 +484,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
             }
 
             case CMD_INTERFACE_RESTORE:
+
                 if (old_interface_data) {
                     interface_destroy(interface_data);
                     interface_data = old_interface_data;
@@ -490,6 +493,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CMD_INTERFACE_APPEND_TEXT:
+
                 if (interface_data->message) {
                     StringBuffer *sb;
 

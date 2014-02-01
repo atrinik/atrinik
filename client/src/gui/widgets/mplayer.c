@@ -498,6 +498,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (button_event(&buttons[i], event)) {
             switch (i) {
                 case BUTTON_PLAY:
+
                     if (sound_map_background(-1)) {
                         sound_start_bg_music("no_music", 0, 0);
                         sound_map_background(0);

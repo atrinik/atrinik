@@ -55,6 +55,7 @@ void video_init(void)
 
     if (SDL_GetWMInfo(&info)) {
 #if defined(HAVE_X11)
+
         if (info.subsystem == SDL_SYSWM_X11) {
             SDL_display = info.info.x11.display;
             SDL_window = info.info.x11.window;

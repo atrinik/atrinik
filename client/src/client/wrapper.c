@@ -301,6 +301,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
     snprintf(buf, len, "./%s", fname);
 
 #ifdef INSTALL_SUBDIR_SHARE
+
     /* Not found, try the share directory since it was defined... */
     if (access(buf, R_OK)) {
         char *prefix;

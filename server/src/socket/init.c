@@ -60,6 +60,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
         logger_print(LOG(DEBUG), "Error on ioctlsocket.");
     }
 #else
+
     if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1) {
         logger_print(LOG(DEBUG), "Error on fcntl.");
     }
@@ -185,6 +186,7 @@ void init_ericserver(void)
         }
     }
 #else
+
     if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0)) {
         logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
     }
@@ -235,9 +237,11 @@ void free_all_newserver(void)
 void free_newsocket(socket_struct *ns)
 {
 #ifndef WIN32
+
     if (close(ns->fd))
 #else
     shutdown(ns->fd, SD_BOTH);
+
     if (closesocket(ns->fd))
 #endif
     {

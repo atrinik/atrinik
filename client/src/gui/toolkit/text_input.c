@@ -77,7 +77,7 @@ void text_input_create(text_input_struct *text_input)
     text_input->focus = 1;
     text_input->coords.w = 200;
     text_input->max = MIN(sizeof(text_input->str), 256);
-    
+
     text_input_set_font(text_input, FONT_ARIAL11);
 }
 

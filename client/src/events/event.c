@@ -148,6 +148,7 @@ int Event_PollInputDevice(void)
             case SDL_MOUSEMOTION:
             case SDL_KEYUP:
             case SDL_KEYDOWN:
+
                 if (event.type == SDL_MOUSEMOTION) {
                     cursor_x = x;
                     cursor_y = y;

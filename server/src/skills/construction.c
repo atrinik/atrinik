@@ -48,6 +48,7 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 
         switch (new_item->type) {
             case SIGN:
+
                 /* Allow signs to be built on books. */
                 if (tmp->type != BOOK) {
                     return 0;

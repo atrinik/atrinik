@@ -257,6 +257,7 @@ int party_can_open_corpse(object *pl, object *corpse)
 
         /* Only leader can access it. */
         case PARTY_LOOT_LEADER:
+
             if (pl->name != CONTR(pl)->party->leader) {
                 draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
                 return 0;

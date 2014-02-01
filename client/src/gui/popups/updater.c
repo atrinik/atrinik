@@ -252,6 +252,7 @@ static int popup_draw_post(popup_struct *popup)
                 }
 
 #ifdef WIN32
+
                 if (download_packages_num) {
                     download_package_process = 1;
                     download_package_next = 0;

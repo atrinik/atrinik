@@ -433,6 +433,7 @@ int socket_close(struct ClientSocket *csock)
     }
 
 #ifdef LINUX
+
     if (shutdown(csock->fd, SHUT_RDWR)) {
         perror("shutdown");
     }
@@ -610,6 +611,7 @@ static int socket_create(int *fd, char *host, int port)
     }
 
 #ifndef WIN32
+
     /* Set back to blocking. */
     if (fcntl(*fd, F_SETFL, flags) == -1) {
         logger_print(LOG(BUG), "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));

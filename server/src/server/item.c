@@ -349,6 +349,7 @@ char *query_short_name(object *op, object *caller)
 
     switch (op->type) {
         case CONTAINER:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 if (op->title) {
                     safe_strcat(buf, " ", &len, sizeof(buf));
@@ -407,6 +408,7 @@ char *query_short_name(object *op, object *caller)
         case WAND:
         case ROD:
         case POTION:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
                 if (!op->title) {
                     if (op->stats.sp != SP_NO_SPELL) {
@@ -431,6 +433,7 @@ char *query_short_name(object *op, object *caller)
         case SKILL:
         case AMULET:
         case RING:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 if (!op->title) {
                     /* If ring has a title, full description isn't so useful */
@@ -450,6 +453,7 @@ char *query_short_name(object *op, object *caller)
             break;
 
         default:
+
             if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
                 if (!IS_LIVE(op) && op->type != BASE_INFO) {
                     sprintf(buf2, " %+d", op->magic);
@@ -666,6 +670,7 @@ char *query_base_name(object *op, object *caller)
 
     switch (op->type) {
         case CONTAINER:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 if (op->title) {
                     safe_strcat(buf, " ", &len, sizeof(buf));
@@ -724,6 +729,7 @@ char *query_base_name(object *op, object *caller)
         case WAND:
         case ROD:
         case POTION:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 if (!op->title) {
                     if (op->stats.sp != SP_NO_SPELL) {
@@ -748,6 +754,7 @@ char *query_base_name(object *op, object *caller)
         case SKILL:
         case AMULET:
         case RING:
+
             if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 if (!op->title) {
                     /* If ring has a title, full description isn't so useful */
@@ -767,6 +774,7 @@ char *query_base_name(object *op, object *caller)
             break;
 
         default:
+
             if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
                 if (!IS_LIVE(op) && op->type != BASE_INFO) {
                     sprintf(buf2, " %+d", op->magic);
@@ -982,6 +990,7 @@ char *describe_item(object *op)
                 case GIRDLE:
                 case BRACERS:
                 case CLOAK:
+
                     if (ARMOUR_SPEED(op)) {
                         sprintf(buf, "(speed cap %1.2f)", ARMOUR_SPEED(op) / 10.0);
                         strcat(retbuf, buf);
@@ -1004,6 +1013,7 @@ char *describe_item(object *op)
 
                 case BOW:
                 case ARROW:
+
                     if (op->type == BOW) {
                         sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / (1000000 / MAX_TIME)));
                         strcat(retbuf, buf);
@@ -1076,6 +1086,7 @@ char *describe_item(object *op)
                 }
 
                 case POTION:
+
                     if (op->last_sp) {
                         sprintf(buf, "(range%+d)", op->last_sp);
                         strcat(retbuf, buf);
@@ -1084,6 +1095,7 @@ char *describe_item(object *op)
                     break;
 
                 case BOOK:
+
                     if (op->level) {
                         sprintf(buf, "(lvl %d)", op->level);
                         strcat(retbuf, buf);

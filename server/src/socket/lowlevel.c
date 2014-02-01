@@ -55,6 +55,7 @@ int socket_recv(socket_struct *ns)
     }
     else if (stat_ret < 0) {
 #ifdef WIN32
+
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
             if (WSAGetLastError() == WSAECONNRESET) {
                 logger_print(LOG(DEBUG), "Connection closed by client.");
@@ -66,6 +67,7 @@ int socket_recv(socket_struct *ns)
             return stat_ret;
         }
 #else
+
         if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
             logger_print(LOG(DEBUG), "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
             return stat_ret;
@@ -170,16 +172,20 @@ void socket_buffer_write(socket_struct *ns)
         }
 
 #ifndef WIN32
+
         if (!amt) {
             amt = max;
         }
         else
 #endif
+
         if (amt < 0) {
 #ifdef WIN32
+
             if (WSAGetLastError() != WSAEWOULDBLOCK) {
                 logger_print(LOG(DEBUG), "New socket write failed (%d).", WSAGetLastError());
 #else
+
             if (errno != EWOULDBLOCK) {
                 logger_print(LOG(DEBUG), "New socket write failed (%d: %s).", errno, strerror(errno));
 #endif

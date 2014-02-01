@@ -516,7 +516,7 @@ typedef unsigned char uint8_t;
 #define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :           \
                            (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
                             (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
-                              MUR_ONE_THREE(p))))
+                             MUR_ONE_THREE(p))))
 #endif
 #define MUR_ROTL32(x,r) (((x) << (r)) | ((x) >> (32 - (r))))
 #define MUR_FMIX(_h) \

@@ -332,6 +332,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
             break;
 
         case SP_PROBE:
+
             if (!dir) {
                 examine(op, op, NULL);
                 success = 1;

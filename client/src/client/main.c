@@ -158,7 +158,7 @@ static int game_status_chain(void)
     }
     else if (cpl.state == ST_VERSION) {
         packet_struct *packet;
-        
+
         packet = packet_new(SERVER_CMD_SETUP, 256, 256);
         packet_append_uint8(packet, CMD_SETUP_SOUND);
         packet_append_uint8(packet, 1);

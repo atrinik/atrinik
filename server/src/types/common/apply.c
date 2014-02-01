@@ -169,6 +169,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
     switch (op->type) {
         case WEAPON:
+
             if (!QUERY_FLAG(applier, FLAG_USE_WEAPON)) {
                 draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
                 return OBJECT_METHOD_ERROR;
@@ -192,6 +193,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case GIRDLE:
         case BRACERS:
         case CLOAK:
+
             if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR)) {
                 draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
                 return OBJECT_METHOD_ERROR;
@@ -209,6 +211,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case BOW:
         case SPELL:
         case SKILL:
+
             if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
                 draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill is too low to use %s.", query_name(op, applier));
                 return OBJECT_METHOD_ERROR;

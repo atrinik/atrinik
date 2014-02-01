@@ -39,7 +39,7 @@ const char *const textwin_tab_names[] =
 
 const char *const textwin_tab_commands[] =
 {
-    "say", NULL, "chat", "say", "reply", "party say", "opsay"
+    "say", NULL, "chat", "say", "reply", "guild", "party say", "opsay"
 };
 
 /**
@@ -293,7 +293,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     textwin->tabs[textwin->tabs_num].text_input.max = 250;
     textwin->tabs[textwin->tabs_num].text_input_history = text_input_history_create();
     text_input_set_history(&textwin->tabs[textwin->tabs_num].text_input, textwin->tabs[textwin->tabs_num].text_input_history);
-    
+
     textwin->tabs_num++;
 
     qsort((void *) textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (void *) (int (*)())textwin_tab_compare);
@@ -766,7 +766,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
                 textwin->tabs[textwin->tab_selected].text_input.focus = 0;
             }
-            
+
             WIDGET_REDRAW(widget);
             return 1;
         }
@@ -1212,7 +1212,7 @@ void widget_textwin_handle_console(const char *text)
     if (text != NULL) {
         text_input_set(&textwin->tabs[textwin->tab_selected].text_input, text);
     }
-    
+
     SetPriorityWidget(widget);
     WIDGET_REDRAW(widget);
 }
