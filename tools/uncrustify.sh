@@ -17,4 +17,4 @@ REPO_ROOT=`git rev-parse --show-toplevel`
 
 
 find "$REPO_ROOT" -name "*.[ch]" -and -not -path "*CMakeFiles*" -exec \
-    "$UNCRUSTIFY_PATH" --no-backup -c "$REPO_ROOT/uncrustify.cfg" {} \;
+    "$UNCRUSTIFY_PATH" --no-backup -c "$REPO_ROOT/tools/uncrustify.cfg" {} \;
