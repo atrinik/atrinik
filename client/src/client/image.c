@@ -352,6 +352,7 @@ static int load_picture_from_pack(int num)
     pbuf = malloc(bmaps[num].len);
 
     if (!fread(pbuf, bmaps[num].len, 1, stream)) {
+        free(pbuf);
         fclose(stream);
         return 0;
     }
