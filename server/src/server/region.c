@@ -140,7 +140,7 @@ object *get_jail_exit(object *op)
         }
     }
 
-    logger_print(LOG(DEBUG), "No suitable jailmap for region %s was found.", reg->name);
+    logger_print(LOG(DEBUG), "No suitable jailmap for region %s was found.", op->map->region->name);
     return NULL;
 }
 
