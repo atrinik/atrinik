@@ -16,5 +16,5 @@ fi
 REPO_ROOT=`git rev-parse --show-toplevel`
 
 find "$REPO_ROOT" -name "*.[ch]" -and -not -path "*CMakeFiles*" -and \
-    -not -path "src/loaders" -exec "$CPPCHECK_PATH" -q --force \
+    -not -path "*src/loaders*" -exec "$CPPCHECK_PATH" -q --force \
     --inline-suppr {} \;
