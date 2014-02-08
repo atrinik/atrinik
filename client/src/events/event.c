@@ -85,7 +85,7 @@ int Event_PollInputDevice(void)
     int x, y, done = 0;
     static Uint32 Ticks = 0;
     int tx, ty;
-    SDLKey key;
+    SDL_Keycode key;
 
     /* Execute mouse actions, even if mouse button is being held. */
     if ((SDL_GetTicks() - Ticks > 125) || !Ticks) {
@@ -123,12 +123,13 @@ int Event_PollInputDevice(void)
             tooltip_dismiss();
         }
 
-        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINT) {
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINTSCREEN) {
             screenshot_create(ScreenSurface);
             continue;
         }
 
         switch (event.type) {
+#if 0
             /* Screen has been resized, update screen size. */
             case SDL_VIDEORESIZE:
                 ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
@@ -142,10 +143,12 @@ int Event_PollInputDevice(void)
                 setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
                 resize_window(event.resize.w, event.resize.h);
                 break;
+#endif
 
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
             case SDL_MOUSEMOTION:
+            case SDL_MOUSEWHEEL:
             case SDL_KEYUP:
             case SDL_KEYDOWN:
 
@@ -192,7 +195,7 @@ int Event_PollInputDevice(void)
         old_mouse_y = y;
     }
 
-    for (key = 0; key < SDLK_LAST; key++) {
+    for (key = 0; key < SDL_NUM_SCANCODES; key++) {
         /* Ignore modifier keys. */
         if (KEY_IS_MODIFIER(key)) {
             continue;
@@ -208,20 +211,18 @@ int Event_PollInputDevice(void)
     return done;
 }
 
-void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
+void event_push_key(SDL_EventType type, SDL_Keycode key, SDL_Keymod mod)
 {
     SDL_Event event;
 
     event.type = type;
-    event.key.which = 0;
     event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
-    event.key.keysym.unicode = key;
     event.key.keysym.sym = key;
     event.key.keysym.mod = mod;
     SDL_PushEvent(&event);
 }
 
-void event_push_key_once(SDLKey key, SDLMod mod)
+void event_push_key_once(SDL_Keycode key, SDL_Keymod mod)
 {
     event_push_key(SDL_KEYDOWN, key, mod);
     event_push_key(SDL_KEYUP, key, mod);

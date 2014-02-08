@@ -152,15 +152,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         }
     }
     /* Mouse wheel? */
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-            scrollbar_scroll_adjust(&game_news->scrollbar, 1);
-            return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELUP) {
-            scrollbar_scroll_adjust(&game_news->scrollbar, -1);
-            return 1;
-        }
+    else if (event->type == SDL_MOUSEWHEEL) {
+        scrollbar_scroll_adjust(&game_news->scrollbar, event->wheel.y);
     }
 
     return -1;

@@ -748,6 +748,7 @@ uint8 effect_has_overlay(void)
  * @param sprite The sprite to add overlay to. */
 void effect_scale(sprite_struct *sprite)
 {
+#if 0
     int j, k, r, g, b, a, idx;
     Uint8 vals[4];
     SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
@@ -768,4 +769,5 @@ void effect_scale(sprite_struct *sprite)
 
     sprite->effect = SDL_DisplayFormatAlpha(temp);
     SDL_FreeSurface(temp);
+#endif
 }

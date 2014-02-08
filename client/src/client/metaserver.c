@@ -239,7 +239,7 @@ void metaserver_get_servers(void)
     metaserver_connecting = 1;
     SDL_UnlockMutex(metaserver_connecting_mutex);
 
-    thread = SDL_CreateThread(metaserver_thread, NULL);
+    thread = SDL_CreateThread(metaserver_thread, NULL, NULL);
 
     if (!thread) {
         logger_print(LOG(ERROR), "Thread creation failed.");

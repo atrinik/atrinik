@@ -35,13 +35,17 @@ x11_display_type SDL_display;
  * The window. */
 x11_window_type SDL_window;
 
+SDL_Window *window;
+SDL_Renderer *renderer;
+
 /**
  * Initialize the video system. */
 void video_init(void)
 {
     SDL_SysWMinfo info;
 
-    list_vid_modes();
+    window = SDL_CreateWindow(PACKAGE_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X), setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y), setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    renderer = SDL_CreateRenderer(window, -1, 0);
 
     if (!video_set_size()) {
         logger_print(LOG(ERROR), "Couldn't set video size: %s", SDL_GetError());
@@ -53,7 +57,7 @@ void video_init(void)
     /* Grab the window manager specific information. */
     SDL_VERSION(&info.version);
 
-    if (SDL_GetWMInfo(&info)) {
+    if (SDL_GetWindowWMInfo(window, &info)) {
 #if defined(HAVE_X11)
 
         if (info.subsystem == SDL_SYSWM_X11) {
@@ -71,159 +75,38 @@ void video_init(void)
 }
 
 /**
- * Get the bits per pixel value to use
- * @return Bits per pixel. */
-int video_get_bpp(void)
-{
-    return SDL_GetVideoInfo()->vfmt->BitsPerPixel;
-}
-
-/**
  * Sets the screen surface to a new size, after updating ::Screensize.
  * @return 1 on success, 0 on failure. */
 int video_set_size(void)
 {
-    SDL_Surface *new;
-
-    /* Try to set the video mode. */
-    new = SDL_SetVideoMode(setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X), setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y), video_get_bpp(), get_video_flags());
-
-    if (new) {
-        ScreenSurface = new;
-        return 1;
-    }
-
-    return 0;
+    SDL_RenderSetLogicalSize(renderer, setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X), setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y));
+    return 1;
 }
 
 /**
- * Calculate the video flags from the settings.
- * When settings are changed at runtime, this MUST be called again.
- * @return The flags */
-uint32 get_video_flags(void)
+ * Check if the client window is in fullscreen mode.
+ * @return 1 if the window is fullscreen, 0 otherwise. */
+int video_is_fullscreen(void)
 {
-    if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN)) {
-        return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT;
-    }
-    else {
-        return SDL_SWSURFACE | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_ANYFORMAT | SDL_RESIZABLE;
-    }
+    return SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN;
 }
 
 /**
  * Attempt to flip the video surface to fullscreen or windowed mode.
- *
- * Attempts to maintain the surface's state, but makes no guarantee
- * that pointers (i.e., the surface's pixels field) will be the same
- * after this call.
- *
- * @param surface Pointer to surface ptr to toggle. May be different
- * pointer on return. May be NULL on return due to failure.
- * @param flags Pointer to flags to set on surface. The value pointed
- * to will be XOR'd with SDL_FULLSCREEN before use. Actual flags set
- * will be filled into pointer. Contents are undefined on failure. Can
- * be NULL, in which case the surface's current flags are used.
  *  @return Non-zero on success, zero on failure. */
-int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
+int video_fullscreen_toggle(void)
 {
-    long framesize = 0;
-    void *pixels = NULL;
-    SDL_Rect clip;
-    uint32 tmpflags = 0;
-    int w = 0;
-    int h = 0;
-    int bpp = 0;
-    int grabmouse, showmouse;
-
-    grabmouse = SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON;
-    showmouse = SDL_ShowCursor(-1);
-
-    if ((!surface) || (!(*surface))) {
-        return 0;
-    }
-
-    if (SDL_WM_ToggleFullScreen(*surface)) {
-        if (flags) {
-            *flags ^= SDL_FULLSCREEN;
+    if (video_is_fullscreen()) {
+        if (SDL_SetWindowFullscreen(window, SDL_FALSE) < 0) {
+            return 0;
         }
 
         return 1;
     }
 
-    if (!(SDL_GetVideoInfo()->wm_available)) {
+    if (SDL_SetWindowFullscreen(window, SDL_TRUE) < 0) {
         return 0;
     }
-
-    tmpflags = (*surface)->flags;
-    w = (*surface)->w;
-    h = (*surface)->h;
-    bpp = (*surface)->format->BitsPerPixel;
-
-    if (flags == NULL) {
-        flags = &tmpflags;
-    }
-
-    if ((*surface = SDL_SetVideoMode(w, h, bpp, *flags)) == NULL) {
-        *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-    }
-    else {
-        return 1;
-    }
-
-    if (flags == NULL) {
-        flags = &tmpflags;
-    }
-
-    SDL_GetClipRect(*surface, &clip);
-
-    /* Save the contents of the screen. */
-    if ((!(tmpflags & SDL_OPENGL)) && (!(tmpflags & SDL_OPENGLBLIT))) {
-        framesize = (w * h) * ((*surface)->format->BytesPerPixel);
-        pixels = malloc(framesize);
-
-        if (pixels == NULL) {
-            return 0;
-        }
-
-        memcpy(pixels, (*surface)->pixels, framesize);
-    }
-
-    if (grabmouse) {
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-    }
-
-    SDL_ShowCursor(1);
-
-    *surface = SDL_SetVideoMode(w, h, bpp, (*flags) ^ SDL_FULLSCREEN);
-
-    if (*surface != NULL) {
-        *flags ^= SDL_FULLSCREEN;
-    }
-    else {
-        *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-
-        if (*surface == NULL) {
-            if (pixels) {
-                free(pixels);
-            }
-
-            return 0;
-        }
-    }
-
-    /* Unfortunately, you lose your OpenGL image until the next frame... */
-    if (pixels) {
-        memcpy((*surface)->pixels, pixels, framesize);
-        free(pixels);
-    }
-
-    SDL_SetClipRect(*surface, &clip);
-
-    if (grabmouse) {
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-    }
-
-    SDL_ShowCursor(showmouse);
 
     return 1;
 }

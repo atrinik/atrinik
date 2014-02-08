@@ -1283,7 +1283,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                             border_right = icon_sprite->border_right;
                         }
                         else {
-                            surface_borders_get(icon_surface, &border_up, &border_down, &border_left, &border_right, icon_surface->format->colorkey);
+                            uint32 colorkey;
+
+                            SDL_GetColorKey(icon_surface, &colorkey);
+                            surface_borders_get(icon_surface, &border_up, &border_down, &border_left, &border_right, colorkey);
                         }
 
                         icon_w = icon_orig_w = icon_surface->w - border_left - border_right;
@@ -1716,14 +1719,16 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 SDL_Surface *new_ttf_surface;
 
                 /* Remove black border. */
-                SDL_SetColorKey(ttf_surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+                SDL_SetColorKey(ttf_surface, 1, 0);
                 /* Set the opacity. */
-                SDL_SetAlpha(ttf_surface, SDL_SRCALPHA | SDL_RLEACCEL, info->used_alpha);
+                SDL_SetSurfaceAlphaMod(ttf_surface, info->used_alpha);
+#if 0
                 /* Create new surface to blit. */
                 new_ttf_surface = SDL_DisplayFormatAlpha(ttf_surface);
                 /* Free the old one. */
                 SDL_FreeSurface(ttf_surface);
                 ttf_surface = new_ttf_surface;
+#endif
             }
         }
         else {

@@ -385,7 +385,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
         else {
             char c;
 
-            c = event->key.keysym.unicode & 0xff;
+            c = event->key.keysym.scancode & 0xff;
 
             if (isprint(c) && (!text_input->character_check_func || text_input->character_check_func(text_input, c))) {
                 if (event->key.keysym.mod & KMOD_SHIFT) {

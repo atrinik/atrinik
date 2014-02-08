@@ -210,7 +210,7 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 }
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
-static int x11_clipboard_filter(const SDL_Event *event)
+static int x11_clipboard_filter(void *userdata, SDL_Event *event)
 {
     /* Post all non-window manager specific events */
     if (event->type != SDL_SYSWMEVENT) {
@@ -218,7 +218,7 @@ static int x11_clipboard_filter(const SDL_Event *event)
     }
 
     /* Handle window-manager specific clipboard events. */
-    switch (event->syswm.msg->event.xevent.type) {
+    switch (event->syswm.msg->msg.x11.event.type) {
         /* Copy the selection from XA_CUT_BUFFER0 to the requested property. */
         case SelectionRequest:
         {
@@ -228,7 +228,7 @@ static int x11_clipboard_filter(const SDL_Event *event)
             unsigned long nbytes, overflow;
             unsigned char *seln_data;
 
-            req = &event->syswm.msg->event.xevent.xselectionrequest;
+            req = &event->syswm.msg->msg.x11.event.xselectionrequest;
             sevent.xselection.type = SelectionNotify;
             sevent.xselection.display = req->display;
             sevent.xselection.selection = req->selection;
@@ -279,7 +279,7 @@ int x11_clipboard_register_events(void)
 
     /* Enable the special window hook events. */
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    SDL_SetEventFilter(x11_clipboard_filter);
+    SDL_SetEventFilter(x11_clipboard_filter, NULL);
 #endif
 
     return 1;
@@ -422,7 +422,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
             SDL_WaitEvent(&event);
 
             if (event.type == SDL_SYSWMEVENT) {
-                XEvent xevent = event.syswm.msg->event.xevent;
+                XEvent xevent = event.syswm.msg->msg.x11.event;
 
                 if ((xevent.type == SelectionNotify) && (xevent.xselection.requestor == owner)) {
                     selection_response = 1;

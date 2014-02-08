@@ -476,8 +476,8 @@ static void setting_apply_runtime(int cat, int setting)
                 /* Fullscreen change. */
                 case OPT_FULLSCREEN:
 
-                    if ((setting_get_int(cat, setting) && !(ScreenSurface->flags & SDL_FULLSCREEN)) || (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN)) {
-                        video_fullscreen_toggle(&ScreenSurface, NULL);
+                    if ((setting_get_int(cat, setting) && !video_is_fullscreen()) || (!setting_get_int(cat, setting) && video_is_fullscreen())) {
+                        video_fullscreen_toggle();
                     }
 
                     break;

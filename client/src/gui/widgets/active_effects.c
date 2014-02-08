@@ -108,8 +108,8 @@ static void widget_draw(widgetdata *widget)
             SDL_FreeSurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(), widget->w, widget->h, video_get_bpp(), 0, 0, 0, 0);
-        SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+        widget->surface = SDL_CreateRGBSurface(0, widget->w, widget->h, 32, 0, 0, 0, 0);
+        SDL_SetColorKey(widget->surface, 1, 0);
     }
 
     if (widget->redraw) {

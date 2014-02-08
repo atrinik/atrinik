@@ -930,7 +930,7 @@ static void widget_draw(widgetdata *widget)
     int mx, my;
 
     if (!widget->surface) {
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(), 850, 600, video_get_bpp(), 0, 0, 0, 0);
+        widget->surface = SDL_CreateRGBSurface(0, 850, 600, 32, 0, 0, 0, 0);
     }
 
     /* Make sure the map widget is always the last to handle events for. */

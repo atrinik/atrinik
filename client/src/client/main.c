@@ -210,22 +210,6 @@ static void play_action_sounds(void)
 }
 
 /**
- * List video modes available. */
-void list_vid_modes(void)
-{
-    SDL_Rect **modes;
-
-    /* Get available fullscreen/hardware modes */
-    modes = SDL_ListModes(NULL, SDL_HWACCEL);
-
-    /* Check if there are any modes available */
-    if (modes == (SDL_Rect **) 0) {
-        logger_print(LOG(ERROR), "No video modes available!");
-        exit(1);
-    }
-}
-
-/**
  * Hook for detecting background music changes. */
 static void sound_background_hook(void)
 {
@@ -407,7 +391,6 @@ int main(int argc, char *argv[])
     system_start();
     video_init();
     sprite_init_system();
-    SDL_EnableUNICODE(1);
     text_init();
     texture_init();
     sound_init();
@@ -476,7 +459,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (SDL_GetAppState() & SDL_APPACTIVE) {
+        if ((SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN) && !(SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)) {
             if (cpl.state == ST_PLAY) {
                 if (LastTick - anim_tick > 110) {
                     anim_tick = LastTick;
@@ -507,7 +490,7 @@ int main(int argc, char *argv[])
             popup_render_all();
             tooltip_show();
 
-            if (cursor_x != -1 && cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+            if (cursor_x != -1 && cursor_y != -1 && SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS) {
                 surface_show(ScreenSurface, cursor_x - (texture_surface(cursor_texture)->w / 2), cursor_y - (texture_surface(cursor_texture)->h / 2), NULL, texture_surface(cursor_texture));
             }
         }
@@ -518,7 +501,8 @@ int main(int argc, char *argv[])
         }
 
         texture_gc();
-        SDL_Flip(ScreenSurface);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
 
         LastTick = SDL_GetTicks();
         elapsed_time = SDL_GetTicks() - frame_start_time;
@@ -529,7 +513,7 @@ int main(int argc, char *argv[])
                 if (elapsed_time < 1000 / fps_limit) {
                     SDL_Delay(MAX(1, 1000 / fps_limit - elapsed_time));
 
-                    if (!(SDL_GetAppState() & SDL_APPACTIVE) && SDL_GetTicks() - frame_start_time < 1000) {
+                    if ((SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN) && !(SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) && SDL_GetTicks() - frame_start_time < 1000) {
                         SDL_PumpEvents();
                         continue;
                     }

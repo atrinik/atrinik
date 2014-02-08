@@ -1345,7 +1345,7 @@ int widget_event_start_move(widgetdata *widget)
 
     x = widget->x + widget->w / 2;
     y = widget->y + widget->h / 2;
-    SDL_WarpMouse(x, y);
+    SDL_WarpMouseInWindow(window, x, y);
 
     /* we know this widget owns the mouse.. */
     widget_event_move.active = 1;

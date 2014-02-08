@@ -51,7 +51,7 @@ typedef struct tColorY {
 Uint32 _colorkey(SDL_Surface *src)
 {
     Uint32 key = 0;
-#if (SDL_MINOR_VERSION == 3)
+#if (SDL_MINOR_VERSION == 3) || (SDL_MAJOR_VERSION == 2)
     SDL_GetColorKey(src, &key);
 #else
 
@@ -1090,11 +1090,10 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
     if (src == NULL)
         return (NULL);
 
-    if (src->flags & SDL_SRCCOLORKEY) {
-        colorkey = _colorkey(src);
-        SDL_GetRGB(colorkey, src->format, &r, &g, &b);
-        colorKeyAvailable = 1;
-    }
+    colorkey = _colorkey(src);
+    SDL_GetRGB(colorkey, src->format, &r, &g, &b);
+    colorKeyAvailable = 1;
+
     /*
      * Determine if source surface is 32bit or 8bit
      */
@@ -1126,7 +1125,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
         SDL_BlitSurface(src, NULL, rz_src, NULL);
 
         if(colorKeyAvailable)
-            SDL_SetColorKey(src, SDL_SRCCOLORKEY, colorkey);
+            SDL_SetColorKey(src, 1, colorkey);
         src_converted = 1;
         is32bit = 1;
     }
@@ -1229,8 +1228,8 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
             /*
              * Turn on source-alpha support
              */
-            SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-            SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+            SDL_SetSurfaceAlphaMod(rz_dst, 255);
+            SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
         }
         else {
             /*
@@ -1246,7 +1245,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
             transformSurfaceY(rz_src, rz_dst, dstwidthhalf, dstheighthalf,
                 (int) (sanglezoominv), (int) (canglezoominv),
                 flipx, flipy);
-            SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+            SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
         }
 
         /*
@@ -1325,8 +1324,8 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
             /*
              * Turn on source-alpha support
              */
-            SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-            SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+            SDL_SetSurfaceAlphaMod(rz_dst, 255);
+            SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
         }
         else {
             /*
@@ -1341,7 +1340,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              * Call the 8bit transformation routine to do the zooming
              */
             _zoomSurfaceY(rz_src, rz_dst, flipx, flipy);
-            SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+            SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
         }
 
         /*
@@ -1539,7 +1538,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
         /*
          * Turn on source-alpha support
          */
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);
     }
     else {
         /*
@@ -1553,7 +1552,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
          * Call the 8bit transformation routine to do the zooming
          */
         _zoomSurfaceY(rz_src, rz_dst, flipx, flipy);
-        SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+        SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
     }
 
     /*
@@ -1694,7 +1693,7 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
         /*
          * Turn on source-alpha support
          */
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);
     }
     else {
         /*
@@ -1708,7 +1707,7 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
          * Call the 8bit transformation routine to do the shrinking
          */
         _shrinkSurfaceY(rz_src, rz_dst, factorx, factory);
-        SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
+        SDL_SetColorKey(rz_dst, 1, _colorkey(rz_src));
     }
 
     /*

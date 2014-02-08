@@ -47,9 +47,9 @@ typedef struct texture_struct
 
     time_t last_used;
 
-    SDL_Surface *surface;
-
     UT_hash_handle hh;
+
+    SDL_Surface *surface;
 } texture_struct;
 
 #define TEXTURE_FALLBACK_NAME "texture_fallback"

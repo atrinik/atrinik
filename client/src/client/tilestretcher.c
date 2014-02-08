@@ -164,7 +164,7 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
     colors[ncol].b = blue;
     ncol++;
 
-    SDL_SetColors(dest, colors, 0, ncol);
+    SDL_SetPaletteColors(dest->format->palette, colors, 0, ncol);
     dest->format->palette->ncolors = ncol;
 
     return 0;
@@ -185,7 +185,7 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
  * is not tested and could cause problems. */
 int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness)
 {
-    Uint32 color;
+    Uint32 color, colorkey;
     Uint8 red, green, blue, alpha, alpha_2;
     Uint8 red_2, green_2, blue_2;
     Uint16 n;
@@ -199,9 +199,10 @@ int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x
     }
 
     color = getpixel(src, x, y);
+    SDL_GetColorKey(src, &colorkey);
 
     /* No need to copy transparent pixels */
-    if (src->format->BitsPerPixel == 8 && (color == src->format->colorkey)) {
+    if (src->format->BitsPerPixel == 8 && color == colorkey) {
         return 0;
     }
 
@@ -221,8 +222,9 @@ int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x
     blue = (n <= 255) ? n : 255;
 
     color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
+    SDL_GetColorKey(dest, &colorkey);
 
-    if (color == dest->format->colorkey) {
+    if (color == colorkey) {
         blue += 256 >> (8 - dest->format->Bloss);
         color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
     }
@@ -390,8 +392,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
     tmp = SDL_CreateRGBSurface(src->flags, src->w, src->h + n, src->format->BitsPerPixel, src->format->Rmask, src->format->Gmask, src->format->Bmask, src->format->Amask);
 
-    destination = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    destination = tmp;
     SDL_LockSurface(destination);
 
     color = getpixel(src, 0, 0);
@@ -407,7 +408,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     SDL_FillRect( destination, NULL, color);
 
     if (src->format->BitsPerPixel == 8) {
-        SDL_SetColorKey(destination, SDL_SRCCOLORKEY, color);
+        SDL_SetColorKey(destination, 1, color);
     }
 
     /* If the target is the same size we don't want copy_vertical_line()

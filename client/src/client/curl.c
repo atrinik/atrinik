@@ -279,7 +279,7 @@ curl_data *curl_download_start(const char *url)
     curl_data *data = curl_data_new(url);
 
     /* Create a new thread. */
-    data->thread = SDL_CreateThread(curl_connect, data);
+    data->thread = SDL_CreateThread(curl_connect, NULL, data);
 
     if (!data->thread) {
         logger_print(LOG(ERROR), "Thread creation failed.");
@@ -364,7 +364,10 @@ void curl_data_free(curl_data *data)
 {
     /* Still downloading? Kill the thread. */
     if (curl_download_finished(data) == 0) {
+        /* TODO reimplement */
+#if 0
         SDL_KillThread(data->thread);
+#endif
     }
 
     if (data->memory) {

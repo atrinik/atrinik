@@ -202,7 +202,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
     }
 
     /* Create a new surface. */
-    cur_widget[NOTIFICATION_ID]->surface = SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
+    cur_widget[NOTIFICATION_ID]->surface = SDL_CreateRGBSurface(0, box.w, box.h, 32, 0, 0, 0, 0);
 
     /* Fill the surface with the background color. */
     if (text_color_parse("e6e796", &color)) {
@@ -253,7 +253,7 @@ static void widget_draw(widgetdata *widget)
 
     dst.x = widget->x;
     dst.y = widget->y;
-    SDL_SetAlpha(widget->surface, SDL_SRCALPHA, notification->alpha);
+    SDL_SetSurfaceAlphaMod(widget->surface, notification->alpha);
     SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &dst);
 
     /* Do highlight. */

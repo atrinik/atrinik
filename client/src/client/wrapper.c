@@ -37,11 +37,9 @@ void system_start(void)
     icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
 
     if (icon) {
-        SDL_WM_SetIcon(icon, NULL);
+        SDL_SetWindowIcon(window, icon);
         SDL_FreeSurface(icon);
     }
-
-    SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
 }
 
 /**

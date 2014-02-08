@@ -2,6 +2,8 @@
 
 project(atrinik C)
 cmake_minimum_required(VERSION 2.6)
+INCLUDE(FindPkgConfig)
+
 set(EXECUTABLE atrinik)
 
 # Include build configuration.
@@ -11,31 +13,31 @@ if (EXISTS build.user)
 	include(build.user)
 endif (EXISTS build.user)
 
+PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 # SDL is required to run the client.
-find_package(SDL REQUIRED)
-include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIRS})
 set(HAVE_SDL true)
 
 # SDL_image is also required, otherwise no bitmaps or map images could be
 # displayed.
-find_package(SDL_image REQUIRED)
-include_directories(${SDLIMAGE_INCLUDE_DIR})
+PKG_SEARCH_MODULE(SDL2_IMAGE REQUIRED SDL2_image)
+include_directories(${SDL2IMAGE_INCLUDE_DIRS})
 set(HAVE_SDL_IMAGE true)
 
 # SDL_ttf is used for all text drawing, so it's required.
-find_package(SDL_ttf REQUIRED)
-include_directories(${SDLTTF_INCLUDE_DIR})
+PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
+include_directories(${SDL2TTF_INCLUDE_DIRS})
 set(HAVE_SDL_TTF true)
 
 # SDL_mixer is optional, as sound is not a must-have.
-find_package(SDL_mixer)
+PKG_SEARCH_MODULE(SDL2_MIXER SDL2_mixer)
 
-if (SDLMIXER_FOUND)
-	include_directories(${SDLMIXER_INCLUDE_DIR})
+if (SDL2_MIXER_FOUND)
+	include_directories(${SDL2MIXER_INCLUDE_DIRS})
 	set(HAVE_SDL_MIXER true)
-else (SDLMIXER_FOUND)
-	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
-endif (SDLMIXER_FOUND)
+else (SDL2_MIXER_FOUND)
+	message(STATUS "Warning: SDL2_mixer not found - sound support will be disabled")
+endif (SDL2_MIXER_FOUND)
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
@@ -76,13 +78,13 @@ add_executable(${EXECUTABLE} ${SOURCES})
 include(src/toolkit/cmake-post.txt)
 
 # Link all the available libraries.
-target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${SDL2_LIBRARIES})
+target_link_libraries(${EXECUTABLE} ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries(${EXECUTABLE} ${SDL2_TTF_LIBRARIES})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
-	target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
+	target_link_libraries(${EXECUTABLE} ${SDL2_MIXER_LIBRARIES})
 endif (HAVE_SDL_MIXER)
 
 # Get all the include directories used to compile the client.

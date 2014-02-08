@@ -48,8 +48,8 @@ static void fow_scale(sprite_struct *sprite);
  * Initialize the sprite system. */
 void sprite_init_system(void)
 {
-    FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-    SDL_SetAlpha(FormatHolder, SDL_SRCALPHA, 255);
+    FormatHolder = SDL_CreateRGBSurface(0, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    SDL_SetSurfaceAlphaMod(FormatHolder, 255);
 }
 
 /**
@@ -79,7 +79,7 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 {
     sprite_struct *sprite;
     SDL_Surface *bitmap;
-    uint32 ckflags, tmp = 0;
+    uint32 tmp = 0;
 
     if (fname) {
         if (!(bitmap = IMG_Load_wrapper(fname))) {
@@ -95,30 +95,19 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
     }
 
     memset(sprite, 0, sizeof(sprite_struct));
-
-    ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
-
     if (bitmap->format->palette) {
-        SDL_SetColorKey(bitmap, ckflags, (tmp = bitmap->format->colorkey));
+        SDL_GetColorKey(bitmap, &tmp);
+        SDL_SetColorKey(bitmap, 0, tmp);
     }
     /* We force a true color png to colorkey. Default colkey is black (0). */
     else if (flag & SURFACE_FLAG_COLKEY_16M) {
-        SDL_SetColorKey(bitmap, ckflags, 0);
+        SDL_SetColorKey(bitmap, 0, 0);
     }
 
     surface_borders_get(bitmap, &sprite->border_up, &sprite->border_down, &sprite->border_left, &sprite->border_right, tmp);
 
     /* We store our original bitmap */
     sprite->bitmap = bitmap;
-
-    if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA) {
-        sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
-        SDL_FreeSurface(bitmap);
-    }
-    else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
-        sprite->bitmap = SDL_DisplayFormat(bitmap);
-        SDL_FreeSurface(bitmap);
-    }
 
     return sprite;
 }
@@ -235,13 +224,13 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
     }
 
     if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
+        SDL_SetSurfaceAlphaMod(src, alpha);
     }
 
     surface_show(surface, x, y, srcrect, src);
 
     if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+        SDL_SetSurfaceAlphaMod(src, SDL_ALPHA_OPAQUE);
     }
 
     if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate) {
@@ -286,6 +275,7 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
         }
     }
 
+#if 0
     if (flags & SPRITE_FLAG_DARK) {
         /* Last dark level is "no color" */
         if (dark_level == DARK_LEVELS) {
@@ -325,6 +315,7 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
 
         src = sprite->grey;
     }
+#endif
 
     surface_show_effects(surface, x, y, srcrect, src, alpha, stretch, zoom_x, zoom_y, rotate);
 }
@@ -411,6 +402,7 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
  * @param sprite Sprite. */
 static void red_scale(sprite_struct *sprite)
 {
+#if 0
     int j, k;
     Uint8 r, g, b, a;
     SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
@@ -426,6 +418,7 @@ static void red_scale(sprite_struct *sprite)
 
     sprite->red = SDL_DisplayFormatAlpha(temp);
     SDL_FreeSurface(temp);
+#endif
 }
 
 /**
@@ -433,6 +426,7 @@ static void red_scale(sprite_struct *sprite)
  * @param sprite Sprite. */
 static void grey_scale(sprite_struct *sprite)
 {
+#if 0
     int j, k;
     Uint8 r, g, b, a;
     SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
@@ -447,6 +441,7 @@ static void grey_scale(sprite_struct *sprite)
 
     sprite->grey = SDL_DisplayFormatAlpha(temp);
     SDL_FreeSurface(temp);
+#endif
 }
 
 /**
@@ -454,6 +449,7 @@ static void grey_scale(sprite_struct *sprite)
  * @param sprite Sprite. */
 static void fow_scale(sprite_struct *sprite)
 {
+#if 0
     int j, k;
     Uint8 r, g, b, a;
     SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
@@ -469,6 +465,7 @@ static void fow_scale(sprite_struct *sprite)
 
     sprite->fog_of_war = SDL_DisplayFormatAlpha(temp);
     SDL_FreeSurface(temp);
+#endif
 }
 
 /**
@@ -976,6 +973,7 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
  */
 void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
 {
+#if 0
     SDL_PixelFormat *fmt = surface->format;
 
     if (fmt->Amask == 0) {
@@ -1002,4 +1000,5 @@ void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
 
         SDL_UnlockSurface(surface);
     }
+#endif
 }

@@ -575,8 +575,8 @@ static void widget_draw(widgetdata *widget)
             SDL_FreeSurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(), widget->w, widget->h, video_get_bpp(), 0, 0, 0, 0);
-        SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+        widget->surface = SDL_CreateRGBSurface(0, widget->w, widget->h, 32, 0, 0, 0, 0);
+        SDL_SetColorKey(widget->surface, 1, 0);
         textwin_readjust(widget);
     }
 
@@ -798,15 +798,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         }
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
-            scrollbar_scroll_adjust(&textwin->scrollbar, -1);
-            return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-            scrollbar_scroll_adjust(&textwin->scrollbar, 1);
-            return 1;
-        }
+    if (event->type == SDL_MOUSEWHEEL) {
+        scrollbar_scroll_adjust(&textwin->scrollbar, event->wheel.y);
+        return 1;
     }
 
     if (event->type == SDL_KEYDOWN) {

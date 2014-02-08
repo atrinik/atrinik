@@ -515,8 +515,7 @@ static int popup_draw_post_func(popup_struct *popup)
 
         /* Create the surface from downloaded data. */
         img = IMG_Load_RW(SDL_RWFromMem(data_png->memory, data_png->size), 1);
-        region_map_png = region_map_png_orig = SDL_DisplayFormat(img);
-        SDL_FreeSurface(img);
+        region_map_png = region_map_png_orig = img;
 
         map = rm_def_get_map(current_map);
 
@@ -638,23 +637,15 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        /* Zoom in. */
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
-            if (region_map_zoom < RM_ZOOM_MAX) {
-                region_map_resize(RM_ZOOM_PROGRESS);
-                return 1;
-            }
+    if (event->type == SDL_MOUSEWHEEL) {
+        if ((event->wheel.y > 0 && region_map_zoom < RM_ZOOM_MAX) || (event->wheel.y < 0 && region_map_zoom > RM_ZOOM_MIN)) {
+            region_map_resize(event->wheel.y * RM_ZOOM_PROGRESS);
+            return 1;
         }
-        /* Zoom out. */
-        else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-            if (region_map_zoom > RM_ZOOM_MIN) {
-                region_map_resize(-RM_ZOOM_PROGRESS);
-                return 1;
-            }
-        }
+    }
+    else if (event->type == SDL_MOUSEBUTTONDOWN) {
         /* Quickport. */
-        else if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
+        if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
             int xpos, ypos;
             size_t i;
 
