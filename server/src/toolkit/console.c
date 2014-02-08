@@ -273,8 +273,6 @@ void toolkit_console_init(void)
 {
     TOOLKIT_INIT_FUNC_START(console)
     {
-        int ret;
-
         toolkit_import(logger);
         toolkit_import(memory);
         console_commands = NULL;
@@ -306,18 +304,27 @@ void toolkit_console_init(void)
             "Displays this help.",
             "Displays the help, listing available console commands, etc.\n\n"
             "'help <command>' can be used to get more detailed help about the specified command."
-            );
-
-        thread_done = 0;
-        pthread_mutex_init(&command_process_queue_mutex, NULL);
-        ret = pthread_create(&thread_id, NULL, do_thread, NULL);
-
-        if (ret) {
-            logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
-            exit(1);
-        }
+        );
     }
     TOOLKIT_INIT_FUNC_END()
+}
+
+/**
+ * Start the console stdin-reading thread.
+ * @return 1 on success, 0 on failure. */
+int console_start_thread(void)
+{
+    int ret;
+
+    thread_done = 0;
+    pthread_mutex_init(&command_process_queue_mutex, NULL);
+    ret = pthread_create(&thread_id, NULL, do_thread, NULL);
+
+    if (ret != 0) {
+        return 0;
+    }
+
+    return 1;
 }
 
 /**

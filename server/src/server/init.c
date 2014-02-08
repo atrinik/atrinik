@@ -760,6 +760,8 @@ void init(int argc, char **argv)
     load_bans_file();
     statistics_init();
     reset_sleep();
+    init_plugins();
+    console_start_thread();
 }
 
 /**

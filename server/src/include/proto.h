@@ -468,7 +468,7 @@ extern int freearr_x[49];
 extern int freearr_y[49];
 extern int maxfree[49];
 extern int freedir[49];
-extern void (*object_initializers[256]) (object *);
+extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);
 extern object *object_merge(object *op);
@@ -1166,6 +1166,7 @@ extern void colorspace_rgb2hsv(const double rgb[3], double hsv[3]);
 extern void colorspace_hsv2rgb(const double hsv[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern void toolkit_console_init(void);
+extern int console_start_thread(void);
 extern void toolkit_console_deinit(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);

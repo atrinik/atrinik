@@ -784,6 +784,7 @@ extern void colorspace_rgb2hsv(const double rgb[3], double hsv[3]);
 extern void colorspace_hsv2rgb(const double hsv[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern void toolkit_console_init(void);
+extern int console_start_thread(void);
 extern void toolkit_console_deinit(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);

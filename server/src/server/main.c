@@ -634,7 +634,6 @@ int main(int argc, char **argv)
 #endif
 
     init(argc, argv);
-    init_plugins();
 
 #ifdef HAVE_WORLD_MAKER
 
