@@ -1110,6 +1110,10 @@ static void menu_textwin_players(widgetdata *widget, widgetdata *menuitem, SDL_E
     submenu = MENU(menuitem->env)->submenu;
     pos = 0;
 
+    if (textwin->tabs == NULL) {
+        return;
+    }
+
     while (string_get_word(textwin->tabs[textwin->tab_selected].charnames, &pos, ':', charname, sizeof(charname), 0)) {
         found = 0;
 
