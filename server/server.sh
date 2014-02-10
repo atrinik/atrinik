@@ -10,6 +10,7 @@ fi
 # 'data' directory doesn't exist, copy 'install' as 'data'.
 if [ ! -d "data" ]; then
 	cp -R "install_data" "data"
+	mkdir "data/tmp"
 fi
 
 # Copy all files from 'arch' to the 'lib' directory.
