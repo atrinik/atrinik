@@ -144,22 +144,47 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 }
 
 /**
- * <h1>player.AddExp(int skill, int exp, int [exact = False])</h1>
+ * <h1>player.AddExp(int|string skill, int exp, int [exact = False])</h1>
  * Add (or subtract) experience.
- * @param skill ID of the skill to receive/lose exp in.
+ * @param skill ID or name of the skill to receive/lose exp in.
  * @param exp How much exp to gain/lose.
  * @param exact If True, the given exp will not be capped. */
 static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 {
-    uint32 skill;
+    PyObject *skill;
+    uint32 skill_nr;
     sint64 exp_gain;
     int exact = 0;
 
-    if (!PyArg_ParseTuple(args, "IL|i", &skill, &exp_gain, &exact)) {
+    if (!PyArg_ParseTuple(args, "OL|i", &skill, &exp_gain, &exact)) {
         return NULL;
     }
 
-    hooks->add_exp(pl->pl->ob, exp_gain, skill, exact);
+    if (PyInt_Check(skill)) {
+        skill_nr = PyInt_AsLong(skill);
+    }
+    else if (PyString_Check(skill)) {
+        const char *skill_name;
+
+        skill_name = PyString_AsString(skill);
+
+        for (skill_nr = 0; skill_nr < NROFSKILLS; skill_nr++) {
+            if (strcmp(hooks->skills[skill_nr].name, skill_name) == 0) {
+                break;
+            }
+        }
+
+        if (skill_nr == NROFSKILLS) {
+            PyErr_Format(PyExc_ValueError, "AddExp(): Skill '%s' does not exist.", skill_name);
+            return NULL;
+        }
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Invalid object type for 'skill' parameter.");
+        return NULL;
+    }
+
+    hooks->add_exp(pl->pl->ob, exp_gain, skill_nr, exact);
 
     Py_INCREF(Py_None);
     return Py_None;
