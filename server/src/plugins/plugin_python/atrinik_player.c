@@ -162,6 +162,11 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 
     if (PyInt_Check(skill)) {
         skill_nr = PyInt_AsLong(skill);
+
+        if (skill_nr >= NROFSKILLS) {
+            PyErr_Format(PyExc_ValueError, "AddExp(): Skill ID '%d' is invalid; 0-%d should be used.", skill_nr, NROFSKILLS - 1);
+            return NULL;
+        }
     }
     else if (PyString_Check(skill)) {
         const char *skill_name;
