@@ -1129,6 +1129,8 @@ void fix_player(object *op)
         adjust_light_source(op->map, op->x, op->y, light - old_glow);
     }
 
+    op->stats.ac += op->level;
+
     op->stats.maxhp *= op->level + 3;
     op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] ? pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
 
