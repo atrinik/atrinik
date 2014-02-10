@@ -310,7 +310,7 @@ extern uint64 new_levels[115 + 2];
 extern _level_color level_color[201];
 extern uint64 level_exp(int level, double expmul);
 extern sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact);
-extern void player_lvl_adj(object *who, object *op);
+extern int exp_lvl_adj(object *who, object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);
 /* src/server/gods.c */
 extern object *find_god(const char *name);

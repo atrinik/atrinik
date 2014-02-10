@@ -342,8 +342,23 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
     /* Notify the player of the exp gain */
     draw_info_format(COLOR_WHITE, op, "You got %"FMT64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
 
-    player_lvl_adj(op, exp_skill);
-    player_lvl_adj(op, NULL);
+    if (exp_lvl_adj(op, exp_skill) + exp_lvl_adj(op, NULL) != 0) {
+        play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
+        fix_player(op);
+
+        /* Show the player some effects. */
+        if (op->map && level_up_arch) {
+            object *effect_ob;
+
+            /* Prepare effect */
+            effect_ob = arch_to_object(level_up_arch);
+            effect_ob->map = op->map;
+            effect_ob->x = op->x;
+            effect_ob->y = op->y;
+
+            insert_ob_in_map(effect_ob, effect_ob->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+        }
+    }
 
     esrv_update_item(UPD_EXTRA, exp_skill);
 
@@ -351,84 +366,52 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 }
 
 /**
- * For the new experience system. We are concerned with whether the
- * player gets more hp, sp and new levels.
+ * Attempt to increase player's or skill object's level, if enough experience
+ * has been reached.
  *
  * Will tell the player about changed levels.
- * @param who Player.
- * @param op What we are checking to gain the level (eg, skill). */
-void player_lvl_adj(object *who, object *op)
+ * @param who Player. Cannot be NULL.
+ * @param op What we are checking to gain the level (eg, skill). If NULL, will
+ * use 'who'.
+ * @return Amount of levels affected. 0 if no change. */
+int exp_lvl_adj(object *who, object *op)
 {
-    char buf[MAX_BUF];
+    if (who == NULL) {
+        return 0;
+    }
 
-    /* When rolling stats */
-    if (!op) {
+    if (op == NULL) {
         op = who;
     }
 
     if (op->level < MAXLEVEL && op->stats.exp >= (sint64) level_exp(op->level + 1, 1.0)) {
         op->level++;
 
-        /* Show the player some effects. */
-        if (op->type == SKILL && who && who->type == PLAYER && who->map) {
-            object *effect_ob;
-
-            play_sound_player_only(CONTR(who), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-
-            if (level_up_arch) {
-                /* Prepare effect */
-                effect_ob = arch_to_object(level_up_arch);
-                effect_ob->map = who->map;
-                effect_ob->x = who->x;
-                effect_ob->y = who->y;
-
-                insert_ob_in_map(effect_ob, effect_ob->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-            }
-        }
-
         if (op->level > 1 && op->type == SKILL) {
-            if (who) {
-                snprintf(buf, sizeof(buf), "You are now level %d in the skill %s.", op->level, op->name);
-                draw_info(COLOR_RED, who, buf);
-            }
+            draw_info_format(COLOR_RED, who, "You are now level %d in the skill %s.", op->level, op->name);
         }
         else {
-            if (who) {
-                snprintf(buf, sizeof(buf), "You are now level %d.", op->level);
-                draw_info(COLOR_RED, who, buf);
-            }
-        }
-
-        if (who) {
-            fix_player(who);
+            draw_info_format(COLOR_RED, who, "You are now level %d.", op->level);
         }
 
         /* To increase more levels. */
-        player_lvl_adj(who, op);
+        return exp_lvl_adj(who, op) + 1;
     }
     else if (op->level > 1 && op->stats.exp < (sint64) level_exp(op->level, 1.0)) {
         op->level--;
 
-        if (who) {
-            fix_player(who);
-        }
-
         if (op->type == SKILL) {
-            if (who) {
-                snprintf(buf, sizeof(buf), "-You are now level %d in the skill %s.", op->level, op->name);
-                draw_info(COLOR_RED, who, buf);
-            }
+            draw_info_format(COLOR_RED, who, "-You are now level %d in the skill %s.", op->level, op->name);
         }
         else {
-            if (who) {
-                snprintf(buf, sizeof(buf), "-You are now level %d.", op->level);
-                draw_info(COLOR_RED, who, buf);
-            }
+            draw_info_format(COLOR_RED, who, "-You are now level %d.", op->level);
         }
 
         /* To decrease more levels. */
-        player_lvl_adj(who, op);
+        return exp_lvl_adj(who, op) + 1;
     }
+
+    return 0;
 }
 
 /**
