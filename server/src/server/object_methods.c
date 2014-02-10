@@ -383,11 +383,17 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
 {
     object_methods *methods;
 
-    if (!dir) {
+    if (dir == 0 && op->type == BOW && shooter->type == PLAYER && OBJECT_VALID(CONTR(shooter)->target_object, CONTR(shooter)->target_object_count)) {
+        rv_vector rv;
+
+        dir = get_dir_to_target(shooter, CONTR(shooter)->target_object, &rv);
+    }
+
+    if (dir == 0) {
         dir = shooter->facing;
 
         /* Should not happen... */
-        if (!dir) {
+        if (dir == 0) {
             return OBJECT_METHOD_UNHANDLED;
         }
     }
