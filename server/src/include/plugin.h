@@ -341,6 +341,7 @@ struct plugin_hooklist
     region **first_region;
     long *pticks;
     settings_struct *settings;
+    skill_struct *skills;
 };
 
 /** General API function. */
