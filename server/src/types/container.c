@@ -290,19 +290,19 @@ static int apply_func(object *op, object *applier, int aflags)
             }
             else {
                 draw_info_format(COLOR_WHITE, applier, "You don't have the key to unlock %s.", query_base_name(op, applier));
-                return OBJECT_METHOD_UNHANDLED;
+                return OBJECT_METHOD_OK;
             }
         }
         /* Personalized container. */
         else {
             /* Party corpse. */
             if (op->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(applier, op)) {
-                return OBJECT_METHOD_UNHANDLED;
+                return OBJECT_METHOD_OK;
             }
             /* Normal player-only corpse. */
             else if (op->sub_type == ST1_CONTAINER_CORPSE_player && op->slaying != applier->name) {
                 draw_info(COLOR_WHITE, applier, "It's not your bounty.");
-                return OBJECT_METHOD_UNHANDLED;
+                return OBJECT_METHOD_OK;
             }
         }
     }
@@ -313,7 +313,7 @@ static int apply_func(object *op, object *applier, int aflags)
          * can't open it. */
         if (op->env) {
             draw_info_format(COLOR_WHITE, applier, "You can't open %s.", query_base_name(op, applier));
-            return OBJECT_METHOD_UNHANDLED;
+            return OBJECT_METHOD_OK;
         }
 
         draw_info_format(COLOR_WHITE, applier, "You open %s.", query_base_name(op, applier));
