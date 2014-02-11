@@ -144,19 +144,22 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 }
 
 /**
- * <h1>player.AddExp(int|string skill, int exp, int [exact = False])</h1>
+ * <h1>player.AddExp(int|string skill, int exp, int [exact = False], int [level = True])</h1>
  * Add (or subtract) experience.
  * @param skill ID or name of the skill to receive/lose exp in.
- * @param exp How much exp to gain/lose.
- * @param exact If True, the given exp will not be capped. */
+ * @param exp How much exp to gain/lose. If 'level' is true, this is the number
+ * of levels to gain/lose in the specified skill.
+ * @param exact If True, the given exp will not be capped.
+ * @param level If True, will calculate exact experience needed for next (or
+ * previous) level. */
 static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 {
     PyObject *skill;
     uint32 skill_nr;
     sint64 exp_gain;
-    int exact = 0;
+    int exact = 0, level = 0;
 
-    if (!PyArg_ParseTuple(args, "OL|i", &skill, &exp_gain, &exact)) {
+    if (!PyArg_ParseTuple(args, "OL|ii", &skill, &exp_gain, &exact, &level)) {
         return NULL;
     }
 
@@ -164,7 +167,7 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
         skill_nr = PyInt_AsLong(skill);
 
         if (skill_nr >= NROFSKILLS) {
-            PyErr_Format(PyExc_ValueError, "AddExp(): Skill ID '%d' is invalid; 0-%d should be used.", skill_nr, NROFSKILLS - 1);
+            PyErr_Format(PyExc_ValueError, "Skill ID '%d' is invalid; 0-%d should be used.", skill_nr, NROFSKILLS - 1);
             return NULL;
         }
     }
@@ -180,13 +183,23 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
         }
 
         if (skill_nr == NROFSKILLS) {
-            PyErr_Format(PyExc_ValueError, "AddExp(): Skill '%s' does not exist.", skill_name);
+            PyErr_Format(PyExc_ValueError, "Skill '%s' does not exist.", skill_name);
             return NULL;
         }
     }
     else {
         PyErr_SetString(PyExc_TypeError, "Invalid object type for 'skill' parameter.");
         return NULL;
+    }
+
+    if (pl->pl->skill_ptr[skill_nr] == NULL) {
+        PyErr_Format(AtrinikError, "Player %s does not have the skill '%s'.", pl->pl->ob->name, hooks->skills[skill_nr].name);
+        return NULL;
+    }
+
+    if (level != 0) {
+        level = MAX(1, MIN(MAXLEVEL, pl->pl->skill_ptr[skill_nr]->level + exp_gain));
+        exp_gain = hooks->level_exp(level, 1.0) - pl->pl->skill_ptr[skill_nr]->stats.exp;
     }
 
     hooks->add_exp(pl->pl->ob, exp_gain, skill_nr, exact);

@@ -314,6 +314,7 @@ struct plugin_hooklist
     char *(*string_join)(const char *delim, ...);
     object *(*get_env_recursive)(object *);
     int (*set_variable)(object *, const char *);
+    uint64 (*level_exp)(int, double);
 
     const char **season_name;
     const char **weekdays;

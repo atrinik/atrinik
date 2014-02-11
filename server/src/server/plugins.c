@@ -176,6 +176,7 @@ struct plugin_hooklist hooklist =
     string_join,
     get_env_recursive,
     set_variable,
+    level_exp,
 
     season_name,
     weekdays,
