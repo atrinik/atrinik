@@ -65,15 +65,15 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
     OBJEXISTCHECK(ob);
 
     if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
-        PyErr_SetString(PyExc_ValueError, "party.AddMember(): 'player' must be a player object.");
+        PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
     }
     else if (CONTR(ob->obj)->party) {
         if (CONTR(ob->obj)->party == party->party) {
-            RAISE("party.AddMember(): The specified player object is already in the specified party.");
+            RAISE("The specified player object is already in the specified party.");
         }
         else {
-            RAISE("party.AddMember(): The specified player object is already in another party.");
+            RAISE("The specified player object is already in another party.");
         }
     }
 
@@ -100,7 +100,7 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
     OBJEXISTCHECK(ob);
 
     if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
-        PyErr_SetString(PyExc_ValueError, "party.RemoveMember(): 'player' must be a player object.");
+        PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
     }
     else if (!CONTR(ob->obj)->party) {

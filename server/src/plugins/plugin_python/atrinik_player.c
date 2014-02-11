@@ -299,7 +299,7 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
     }
 
     if (pl->pl->socket.state != ST_PLAYING) {
-        PyErr_SetString(AtrinikError, "ExecuteCommand(): Player is not in a state to execute commands.");
+        PyErr_SetString(AtrinikError, "Player is not in a state to execute commands.");
         return NULL;
     }
 
@@ -402,13 +402,13 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 
     /* Must have at least 3 arguments. */
     if (PyTuple_Size(args) < 3) {
-        PyErr_SetString(PyExc_ValueError, "player.SendPacket(): Insufficient number of arguments.");
+        PyErr_SetString(PyExc_ValueError, "Insufficient number of arguments.");
         return NULL;
     }
 
     /* The first argument must be an integer. */
     if (!PyInt_Check(PyTuple_GET_ITEM(args, 0))) {
-        PyErr_SetString(PyExc_OverflowError, "player.SendPacket(): Illegal value for 'cmd' function argument.");
+        PyErr_SetString(PyExc_OverflowError, "Illegal value for 'cmd' function argument.");
         return NULL;
     }
 
@@ -416,7 +416,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
 
     /* It also must be uint8. */
     if (cmd < 0 || (unsigned long) cmd > UINT8_MAX) {
-        PyErr_SetString(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for 'cmd' function argument.");
+        PyErr_SetString(PyExc_OverflowError, "Invalid integer value for 'cmd' function argument.");
         return NULL;
     }
 
@@ -429,7 +429,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
         value = PyTuple_GetItem(args, 2 + i);
 
         if (!value) {
-            PyErr_SetString(PyExc_ValueError, "player.SendPacket(): Insufficient number of arguments.");
+            PyErr_SetString(PyExc_ValueError, "Insufficient number of arguments.");
             return NULL;
         }
 
@@ -438,7 +438,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < SINT8_MIN || val > SINT8_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -451,7 +451,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < 0 || (unsigned long) val > UINT8_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -464,7 +464,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < SINT16_MIN || val > SINT16_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -477,7 +477,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < 0 || (unsigned long) val > UINT16_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -490,7 +490,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < SINT32_MIN || val > SINT32_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -503,7 +503,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 long val = PyLong_AsLong(value);
 
                 if (val < 0 || (unsigned long) val > UINT32_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -516,7 +516,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 PY_LONG_LONG val = PyLong_AsLongLong(value);
 
                 if (PyErr_Occurred()) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -529,7 +529,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
 
                 if (PyErr_Occurred()) {
-                    PyErr_Format(PyExc_OverflowError, "player.SendPacket(): Invalid integer value for '%c' format specifier.", format[i]);
+                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
 
@@ -550,11 +550,11 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             }
         }
         else {
-            PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal format specifier '%c'.", format[i]);
+            PyErr_Format(PyExc_TypeError, "Illegal format specifier '%c'.", format[i]);
             return NULL;
         }
 
-        PyErr_Format(PyExc_TypeError, "player.SendPacket(): Illegal value for '%c' format specifier.", format[i]);
+        PyErr_Format(PyExc_TypeError, "Illegal value for '%c' format specifier.", format[i]);
         return NULL;
     }
 

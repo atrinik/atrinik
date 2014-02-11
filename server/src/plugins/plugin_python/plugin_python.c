@@ -1426,7 +1426,7 @@ static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
         return wrap_region(*hooks->first_region);
     }
 
-    PyErr_Format(PyExc_ValueError, "GetFirst(): '%s' is not a valid linked list.", what);
+    PyErr_Format(PyExc_ValueError, "'%s' is not a valid linked list.", what);
     return NULL;
 }
 
@@ -1481,7 +1481,7 @@ static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
     at = hooks->find_archetype(archname);
 
     if (!at) {
-        PyErr_Format(AtrinikError, "CreateObject(): The archetype '%s' doesn't exist.", archname);
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
         return NULL;
     }
 
@@ -1520,7 +1520,7 @@ static PyObject *Atrinik_GetArchetype(PyObject *self, PyObject *args)
     at = hooks->find_archetype(archname);
 
     if (!at) {
-        PyErr_Format(AtrinikError, "GetArchetype(): The archetype '%s' doesn't exist.", archname);
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
         return NULL;
     }
 

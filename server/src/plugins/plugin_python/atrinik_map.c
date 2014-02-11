@@ -166,12 +166,12 @@ static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 
     /* Validate the layer ID. */
     if (layer > NUM_LAYERS) {
-        PyErr_SetString(PyExc_ValueError, "map.GetLayer(): Invalid layer ID.");
+        PyErr_SetString(PyExc_ValueError, "Invalid layer ID.");
         return NULL;
     }
 
     if (!(m = hooks->get_map_from_coord(map->map, &x, &y))) {
-        RAISE("map.GetLayer(): Unable to get map using get_map_from_coord().");
+        RAISE("Unable to get map using get_map_from_coord().");
     }
 
     list = PyList_New(0);
@@ -294,7 +294,7 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
     }
 
     if (!(arch = hooks->find_archetype(archname)) || !(newobj = hooks->arch_to_object(arch))) {
-        RAISE("map.CreateObject(): Invalid archetype.");
+        RAISE("Invalid archetype.");
         return NULL;
     }
 
@@ -440,12 +440,12 @@ static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *map, PyObject *args)
     OBJEXISTCHECK(ob);
 
     if (start < 0 || stop < 0) {
-        PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'start' and 'stop' cannot be negative.");
+        PyErr_SetString(PyExc_ValueError, "'start' and 'stop' cannot be negative.");
         return NULL;
     }
 
     if (stop > SIZEOFFREE) {
-        PyErr_SetString(PyExc_ValueError, "map.FreeSpot(): 'stop' cannot be higher than SIZEOFFREE.");
+        PyErr_SetString(PyExc_ValueError, "'stop' cannot be higher than SIZEOFFREE.");
         return NULL;
     }
 

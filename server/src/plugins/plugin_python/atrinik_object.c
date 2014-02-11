@@ -186,7 +186,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
     OBJEXISTCHECK(who);
 
     if (obj->obj->type != RUNE) {
-        PyErr_SetString(PyExc_TypeError, "object.ActivateRune(): 'object' is not a rune.");
+        PyErr_SetString(PyExc_TypeError, "'object' is not a rune.");
         return NULL;
     }
 
@@ -219,7 +219,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
     m = hooks->ready_map_name(path, 0);
 
     if (!m) {
-        PyErr_Format(AtrinikError, "object.TeleportTo(): Could not load map %s.", path);
+        PyErr_Format(AtrinikError, "Could not load map %s.", path);
         return NULL;
     }
 
@@ -298,7 +298,7 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
         hooks->command_take(obj->obj, "take", PyString_AsString(what));
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "object.Take(): Argument 'what' must be either Atrinik object or string.");
+        PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
 
@@ -324,7 +324,7 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
         hooks->command_drop(obj->obj, "drop", PyString_AsString(what));
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "object.Drop(): Argument 'what' must be either Atrinik object or string.");
+        PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
 
@@ -441,7 +441,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 
     /* Cannot kill objects that are not alive or on map. */
     if (!target->obj->map || !IS_LIVE(target->obj)) {
-        PyErr_SetString(PyExc_ValueError, "object.Hit(): Invalid object to hit/kill.");
+        PyErr_SetString(PyExc_ValueError, "Invalid object to hit/kill.");
         return NULL;
     }
 
@@ -573,7 +573,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
     at = hooks->find_archetype(archname);
 
     if (!at) {
-        PyErr_Format(AtrinikError, "object.CreateObject(): The archetype '%s' doesn't exist.", archname);
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
         return NULL;
     }
 
@@ -660,7 +660,7 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, 
     OBJEXISTCHECK(obj);
 
     if (!archname && !name && !title && type == -1 && !unpaid) {
-        PyErr_SetString(PyExc_ValueError, "object.FindObject(): No conditions to search for given.");
+        PyErr_SetString(PyExc_ValueError, "No conditions to search for given.");
         return NULL;
     }
 
@@ -1208,7 +1208,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
     OBJEXISTCHECK(what);
 
     if (range == 0) {
-        PyErr_SetString(PyExc_ValueError, "SquaresAround(): 'range' must be higher than 0.");
+        PyErr_SetString(PyExc_ValueError, "'range' must be higher than 0.");
         return NULL;
     }
 
@@ -1365,10 +1365,10 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
     /* Invalid treasure list. */
     if (!t) {
         if (treasure_name) {
-            PyErr_Format(PyExc_ValueError, "CreateTreasure(): '%s' is not a valid treasure list.", treasure_name);
+            PyErr_Format(PyExc_ValueError, "'%s' is not a valid treasure list.", treasure_name);
         }
         else {
-            PyErr_SetString(PyExc_ValueError, "CreateTreasure(): Object has no treasure list.");
+            PyErr_SetString(PyExc_ValueError, "Object has no treasure list.");
         }
 
         return NULL;
@@ -1416,7 +1416,7 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
     OBJEXISTCHECK(obj);
 
     if (!obj->obj->map) {
-        PyErr_SetString(AtrinikError, "object.Move(): Object not on map.");
+        PyErr_SetString(AtrinikError, "Object not on map.");
         return NULL;
     }
 
