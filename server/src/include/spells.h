@@ -260,10 +260,6 @@ enum spellnrs
     SP_HOLYWORD
 };
 
-/** Multiplier for spell points cost based on the attenuation. */
-#define PATH_SP_MULT(op, spell) (((op->path_attuned & spell->path) ? 0.8 : 1) * ((op->path_repelled & spell->path) ? 1.25 : 1))
-#define PATH_DMG_MULT(op, spell) (((op->path_attuned & spell->path) ? 1.25 : 1) * ((op->path_repelled & spell->path) ? 0.7 : 1))
-
 /**
  * @defgroup CAST_xxx Casting modes
  * Various casting modes.
