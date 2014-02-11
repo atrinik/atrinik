@@ -1475,33 +1475,6 @@ value 2500
 item_power 1
 end
 
-Allowed robe
-chance 50
-artifact robe_min_wis
-def_arch robe
-Object
-title of minor wisdom
-type 87
-Wis 1
-is_magical 1
-value 2500
-item_power 1
-end
-
-Allowed robe
-chance 50
-artifact robe_min_cha
-def_arch robe
-Object
-title of minor charisma
-type 87
-Cha 1
-face robe_blue.101
-is_magical 1
-value 2500
-item_power 1
-end
-
 Allowed cape
 chance 50
 artifact cape_woe
@@ -2190,38 +2163,6 @@ value 5000
 item_power 1
 end
 
-Allowed all
-chance 20
-difficulty 2
-artifact girdle_min_wis
-def_arch girdle
-Object
-title of minor wisdom
-Wis 1
-item_level_art 2
-face girdle_yellow.101
-type 113
-is_magical 1
-value 5000
-item_power 1
-end
-
-Allowed all
-chance 20
-difficulty 2
-artifact girdle_min_cha
-def_arch girdle
-Object
-title of minor charisma
-Cha 1
-item_level_art 2
-face girdle_yellow.101
-type 113
-is_magical 1
-value 5000
-item_power 1
-end
-
 #####################
 # Gauntlets, gloves #
 #####################
@@ -2294,36 +2235,6 @@ Object
 title of minor power
 Pow 1
 item_level_art 2
-type 100
-is_magical 1
-value 5000
-item_power 1
-end
-
-Allowed all
-chance 20
-difficulty 2
-artifact gauntlet_wis
-def_arch gauntlets
-Object
-title of minor wisdom
-Wis 1
-item_level_art 2
-type 100
-is_magical 1
-value 5000
-item_power 1
-end
-
-Allowed all
-chance 20
-difficulty 2
-artifact gauntlet_cha
-def_arch gauntlets
-Object
-title of minor charisma
-item_level_art 2
-Cha 1
 type 100
 is_magical 1
 value 5000
@@ -2457,21 +2368,6 @@ end
 Allowed all
 chance 30
 difficulty 5
-artifact helm_min_wis
-def_arch helm_iron
-Object
-title of minor wisdom
-item_level_art 3
-type 34
-is_magical 1
-Wis 1
-value 3000
-item_power 1
-end
-
-Allowed all
-chance 30
-difficulty 5
 artifact helm_min_pow
 def_arch helm_iron
 Object
@@ -2480,21 +2376,6 @@ item_level_art 3
 type 34
 is_magical 1
 Pow 1
-value 3000
-item_power 1
-end
-
-Allowed all
-chance 30
-difficulty 5
-artifact helm_min_cha
-def_arch helm_iron
-Object
-title of minor charisma
-item_level_art 3
-type 34
-is_magical 1
-Cha 1
 value 3000
 item_power 1
 end
@@ -2797,22 +2678,6 @@ end
 Allowed all
 chance 20
 difficulty 2
-artifact bracers_cha
-def_arch bracers_ac
-Object
-title of minor charisma
-face bracers5.101
-item_level_art 2
-Cha 1
-type 104
-is_magical 1
-value 5000
-item_power 1
-end
-
-Allowed all
-chance 20
-difficulty 2
 artifact bracers_pow
 def_arch bracers_ac
 Object
@@ -2820,22 +2685,6 @@ title of minor power
 face bracers6.101
 item_level_art 2
 Pow 1
-type 104
-is_magical 1
-value 5000
-item_power 1
-end
-
-Allowed all
-chance 20
-difficulty 2
-artifact bracers_wis
-def_arch bracers_ac
-Object
-title of minor wisdom
-face bracers6.101
-item_level_art 2
-Wis 1
 type 104
 is_magical 1
 value 5000
@@ -3187,19 +3036,6 @@ end
 
 Allowed all
 chance 20
-artifact weapon_wisdom
-def_arch sword
-Object
-title of wisdom
-Wis 1
-type 15
-is_magical 1
-value 4500
-item_power 1
-end
-
-Allowed all
-chance 20
 artifact weapon_int
 def_arch sword
 Object
@@ -3218,19 +3054,6 @@ def_arch sword
 Object
 title of power
 Pow 1
-type 15
-is_magical 1
-value 4500
-item_power 1
-end
-
-Allowed all
-chance 20
-artifact weapon_charisma
-def_arch sword
-Object
-title of charisma
-Cha 1
 type 15
 is_magical 1
 value 4500
