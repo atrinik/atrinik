@@ -67,7 +67,6 @@
 		<Unit filename="..\..\src\commands\permission\tls.c" />
 		<Unit filename="..\..\src\commands\permission\tp.c" />
 		<Unit filename="..\..\src\commands\permission\tphere.c" />
-		<Unit filename="..\..\src\commands\permission\tpto.c" />
 		<Unit filename="..\..\src\commands\permission\tsi.c" />
 		<Unit filename="..\..\src\commands\player\afk.c" />
 		<Unit filename="..\..\src\commands\player\apply.c" />

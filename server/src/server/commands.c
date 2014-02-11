@@ -181,7 +181,6 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(tls), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tp), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tphere), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tpto), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tsi), 0.0, COMMAND_PERMISSION);
 
         /* [player] */
