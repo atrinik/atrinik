@@ -303,6 +303,11 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
         return 0;
     }
 
+    /* No experience to gain/lose, nothing to do. */
+    if (exp_gain == 0) {
+        return 0;
+    }
+
     /* Now we grab the skill experience object from the player's shortcut
      * pointer array. */
     exp_skill = CONTR(op)->skill_ptr[skill_nr];
@@ -312,14 +317,17 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
         return 0;
     }
 
-    /* If we are full in this skill, there is nothing to do. */
-    if (exp_skill->level >= MAXLEVEL) {
+    /* Can't add experience to maxed out skill, and can't subtract
+     * experience if the skill doesn't have any experience left. */
+    if ((exp_gain > 0 && exp_skill->level >= MAXLEVEL) || (exp_gain < 0 && exp_skill->stats.exp == 0)) {
         return 0;
     }
 
     /* General adjustments for playbalance */
     if (!exact) {
-        sint64 limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
+        sint64 limit;
+
+        limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
 
         if (exp_gain > limit) {
             exp_gain = limit;
@@ -332,6 +340,10 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
         exp_gain = exp_gain - (exp_skill->stats.exp - MAX_EXPERIENCE);
         exp_skill->stats.exp = MAX_EXPERIENCE;
     }
+    else if (exp_skill->stats.exp < 0) {
+        exp_gain += exp_skill->stats.exp;
+        exp_skill->stats.exp = 0;
+    }
 
     if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL)) {
         op->stats.exp += exp_gain;
@@ -339,8 +351,13 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
     CONTR(op)->stat_exp_gained += exp_gain;
 
-    /* Notify the player of the exp gain */
-    draw_info_format(COLOR_WHITE, op, "You got %"FMT64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
+    /* Notify the player of the exp gain/loss. */
+    if (exp_gain > 0) {
+        draw_info_format(COLOR_WHITE, op, "You got %"FMT64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
+    }
+    else {
+        draw_info_format(COLOR_WHITE, op, "You lost %"FMT64 " exp in skill %s.", -exp_gain, skills[skill_nr].name);
+    }
 
     if (exp_lvl_adj(op, exp_skill) + exp_lvl_adj(op, NULL) != 0) {
         play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
