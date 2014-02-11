@@ -1498,16 +1498,15 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
             }
             else {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
-                goto dirty_little_jump1;
             }
         }
-        else {
+
+        if (!QUERY_FLAG(tmp, FLAG_UNPAID) && tmp->type != MONEY) {
             object *floor_ob;
-dirty_little_jump1:
 
             floor_ob = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
-            if (floor_ob && floor_ob->type == SHOP_FLOOR && tmp->type != MONEY) {
+            if (floor_ob && floor_ob->type == SHOP_FLOOR) {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
             }
         }
