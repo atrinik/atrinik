@@ -473,14 +473,13 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
  * @retval 1 Player has paid for everything. */
 int get_payment(object *pl, object *op)
 {
-    char buf[MAX_BUF];
     int ret = 1;
 
     if (op != NULL && op->inv) {
         ret = get_payment(pl, op->inv);
     }
 
-    if (!ret) {
+    if (ret == 0) {
         return 0;
     }
 
@@ -488,18 +487,14 @@ int get_payment(object *pl, object *op)
         ret = get_payment(pl, op->below);
     }
 
-    if (!ret) {
+    if (ret == 0) {
         return 0;
     }
 
     if (op != NULL && QUERY_FLAG(op, FLAG_UNPAID)) {
-        strncpy(buf, query_cost_string(op, pl, COST_BUY), sizeof(buf));
-
         if (!pay_for_item(op, pl)) {
-            sint64 i = query_cost(op, pl, COST_BUY) - query_money(pl);
-
             CLEAR_FLAG(op, FLAG_UNPAID);
-            draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(i), query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(query_cost(op, pl, COST_BUY) - query_money(pl)), query_name(op, NULL));
             SET_FLAG(op, FLAG_UNPAID);
             return 0;
         }
@@ -508,7 +503,7 @@ int get_payment(object *pl, object *op)
             CLEAR_FLAG(op, FLAG_STARTEQUIP);
 
             if (pl->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
+                draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", query_cost_string(op, pl, COST_BUY), query_name(op, NULL));
             }
 
             /* If the object wasn't merged, send flags update. */
