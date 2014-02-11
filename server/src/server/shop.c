@@ -511,7 +511,10 @@ int get_payment(object *pl, object *op)
                 draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", buf, query_name(op, NULL));
             }
 
-            object_merge(op);
+            /* If the object wasn't merged, send flags update. */
+            if (object_merge(op) == op) {
+                esrv_update_item(UPD_FLAGS, op);
+            }
         }
     }
 
