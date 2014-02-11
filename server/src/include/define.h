@@ -1446,13 +1446,17 @@ enum apply_flag
  * After this many characters in the message, for each X characters,
  * @ref INTERFACE_TIMEOUT_SECONDS will be added to the timeout, where X =
  * the value of this constant. */
-#define INTERFACE_TIMEOUT_CHARS 500
+#define INTERFACE_TIMEOUT_CHARS 50
 /**
  * @see INTERFACE_TIMEOUT_CHARS */
-#define INTERFACE_TIMEOUT_SECONDS 30
+#define INTERFACE_TIMEOUT_SECONDS 5
 /**
  * Initial number of seconds for the timeout. */
-#define INTERFACE_TIMEOUT_INITIAL 60
+#define INTERFACE_TIMEOUT_INITIAL 5
+/**
+ * Maximum number of seconds the NPC may stop moving for, regardless of
+ * message length. */
+#define INTERFACE_TIMEOUT_MAX 60 * 5
 /*@}*/
 
 /** Check if the keyword represents a true value. */

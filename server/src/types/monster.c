@@ -353,6 +353,7 @@ static int monster_can_move(object *op)
 static void monster_update_move_timeout(object *op, int len)
 {
     shstr *timeout;
+    int seconds;
     long ticks;
 
     /* No movement type or random movement set, no need to set timeout. */
@@ -361,7 +362,8 @@ static void monster_update_move_timeout(object *op, int len)
     }
 
     timeout = object_get_value(op, "npc_move_timeout");
-    ticks = pticks + ((long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 / MAX_TIME);
+    seconds = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
+    ticks = pticks + MIN(seconds, INTERFACE_TIMEOUT_MAX) * (1000000 / MAX_TIME);
 
     if (!timeout || ticks > atol(timeout)) {
         char buf[MAX_BUF];
@@ -1421,8 +1423,16 @@ int talk_to_npc(object *op, object *npc, char *txt)
     char *cp;
 
     if (HAS_EVENT(npc, EVENT_SAY)) {
+        int ret;
+
         /* Trigger the SAY event */
-        return trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
+        ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
+
+        if (ret > 0) {
+            monster_update_move_timeout(npc, ret);
+        }
+
+        return ret != 0;
     }
 
     if (!npc->msg || *npc->msg != '@') {
