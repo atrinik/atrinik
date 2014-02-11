@@ -1479,7 +1479,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     }
 
     if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))) {
-        strcpy(buf, "It is made of: ");
+        snprintf(buf, sizeof(buf), "%s made of: ", tmp->nrof > 1 ? "They are" : "It is");
 
         for (i = 0; i < NROFMATERIALS; i++) {
             if (tmp->material & (1 << i)) {
