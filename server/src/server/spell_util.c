@@ -969,7 +969,7 @@ int SP_level_strength_adjust(object *caster, int spell_type)
  * @param caster What is casting the spell.
  * @param spell_type Spell ID.
  * @param caster_level Level of caster. If -1, will use SK_level() to
- * determine caster's level.
+ * determine caster's level. Will also avoid affecting the cost with paths.
  * @return Spell points cost. */
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
@@ -983,7 +983,11 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
         sp = spells[spell_type].sp;
     }
 
-    return (int) ((float) sp * (float) PATH_SP_MULT(caster, s));
+    if (caster_level == -1) {
+        sp = (int) ((float) sp * (float) PATH_SP_MULT(caster, s));
+    }
+
+    return sp;
 }
 
 /**
