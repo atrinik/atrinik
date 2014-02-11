@@ -44,7 +44,7 @@ def main():
 
         inf.add_msg("<title>" + name.capitalize() + " Apartment</title>")
 
-        if pinfo.slaying == name:
+        if pinfo and pinfo.slaying == name:
             inf.add_msg("But it seems you already own the {} apartment here!".format(name))
             return
 
