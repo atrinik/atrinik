@@ -1307,10 +1307,8 @@ is_magical 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -1398,10 +1396,8 @@ cursed 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -1488,10 +1484,8 @@ cursed 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -1609,21 +1603,6 @@ value 4500
 item_power 3
 end
 
-Allowed robe
-chance 25
-difficulty 7
-artifact robe_beguilement
-def_arch robe
-Object
-title of beguilement
-type 87
-Cha 2
-face cloak_darkred.101
-is_magical 1
-value 5500
-item_power 3
-end
-
 ################
 # Body armours #
 ################
@@ -1655,10 +1634,8 @@ damned_perm 1
 Str -5
 Con -5
 Dex -5
-Wis -5
 Int -5
 Pow -5
-Cha -5
 value 40
 item_power 1
 end
@@ -1869,7 +1846,7 @@ def_arch chain_mail
 Object
 title of Irial
 type 16
-Cha 2
+Dex 1
 is_magical 1
 msg
 This armour, which is of elven origin, is beautifully decorated with ancient emblems.
@@ -1909,10 +1886,8 @@ damned_perm 1
 Str -5
 Con -5
 Dex -5
-Wis -5
 Int -5
 Pow -5
-Cha -5
 value 3000
 item_power 1
 end
@@ -2486,7 +2461,8 @@ item_level_art 35
 type 34
 is_magical 1
 ac_add 1
-Cha 1
+Con 1
+Str 1
 protect_fire 17
 value 2500
 msg
@@ -2496,7 +2472,7 @@ msg
   The dwarves specialized in equipment which helped them
   survive their environment.
 endmsg
-item_power 2
+item_power 4
 end
 
 Allowed all
@@ -2570,8 +2546,9 @@ item_level_art 10
 type 34
 is_magical 1
 value 1000
-Cha 3
-item_power 1
+Pow 1
+Int 1
+item_power 2
 end
 
 Allowed crown_generic
@@ -2586,9 +2563,9 @@ item_level_art 25
 type 34
 is_magical 1
 value 6400
-Cha 2
-Wis 1
-item_power 2
+Int 2
+Pow 2
+item_power 5
 end
 
 Allowed crown_generic
@@ -3728,9 +3705,8 @@ maxhp 50
 stealth 1
 path_attuned 256
 path_repelled 131072
-Cha 1
-Pow 1
-Wis 2
+Int 1
+Pow 3
 sp 1
 material 0
 item_power 10
@@ -3757,7 +3733,7 @@ is_magical 1
 path_attuned 65536
 path_repelled 64
 sp 1
-Wis 1
+Pow 1
 item_power 5
 end
 
@@ -3782,7 +3758,7 @@ is_magical 1
 sp 2
 Int 1
 path_attuned 65664
-Wis 2
+Pow 1
 item_power 10
 end
 
@@ -3804,10 +3780,9 @@ material 0
 type 70
 value 224000
 is_magical 1
-Wis 2
+Pow 2
 Int 2
 sp 2
-Cha 2
 path_attuned 257
 path_repelled 131072
 protect_weaponmagic 15
@@ -3833,10 +3808,8 @@ is_magical 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -3856,10 +3829,8 @@ damned_perm 1
 Str -5
 Con -5
 Dex -5
-Wis -5
 Int -5
 Pow -5
-Cha -5
 value 30
 is_named 1
 item_power 1
@@ -3884,10 +3855,8 @@ is_magical 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -3911,10 +3880,8 @@ is_magical 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -3938,10 +3905,8 @@ is_magical 1
 Str -1
 Con -1
 Dex -1
-Wis -1
 Int -1
 Pow -1
-Cha -1
 value 50
 item_power 1
 end
@@ -4337,7 +4302,7 @@ face amulet_lif.101
 is_magical 1
 type 39
 material 256
-Wis 2
+Pow 1
 value 26000
 path_attuned 385
 item_quality 100
@@ -4993,8 +4958,9 @@ artifact shield_holy_light
 def_arch shield_high
 Object
 title of Holy Light
-Cha 5
 ac_add 1
+Int 2
+Pow 2
 reflect_spell 1
 protect_fire 25
 protect_cold 25
@@ -5208,7 +5174,6 @@ protect_pierce 3
 # Leather, magic material
 material 264
 ac 0
-Cha -6
 Str -1
 Con -4
 # Hunger +1
