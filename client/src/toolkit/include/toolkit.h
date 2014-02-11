@@ -37,6 +37,7 @@
 /* Now all the other header files that are part of the toolkit. */
 #include <binreloc.h>
 #include <clioptions.h>
+#include <common.h>
 #include <console.h>
 #include <logger.h>
 #include <mempool.h>
