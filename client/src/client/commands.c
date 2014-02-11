@@ -309,14 +309,17 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_PATH_ATTUNED:
                     cpl.path_attuned = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
                     break;
 
                 case CS_STAT_PATH_REPELLED:
                     cpl.path_repelled = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
                     break;
 
                 case CS_STAT_PATH_DENIED:
                     cpl.path_denied = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
                     break;
 
                 case CS_STAT_EXP:
