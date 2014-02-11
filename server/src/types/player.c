@@ -1248,26 +1248,13 @@ char *long_desc(object *tmp, object *caller)
  * @param tmp Object to examine. */
 void examine(object *op, object *tmp, StringBuffer *sb_capture)
 {
-    char buf[VERY_BIG_BUF], tmp_buf[64];
     int i;
 
     if (tmp == NULL) {
         return;
     }
 
-    strcpy(buf, "That is ");
-    strncat(buf, long_desc(tmp, op), VERY_BIG_BUF - strlen(buf) - 1);
-    buf[VERY_BIG_BUF - 1] = '\0';
-
-    /* Only add this for usable items, not for objects like walls or
-     * floors for example. */
-    if (!QUERY_FLAG(tmp, FLAG_IDENTIFIED) && need_identify(tmp)) {
-        strncat(buf, " (unidentified)", VERY_BIG_BUF - strlen(buf) - 1);
-    }
-
-    buf[VERY_BIG_BUF - 1] = '\0';
-    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
-    buf[0] = '\0';
+    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "That is %s%s", long_desc(tmp, op), !QUERY_FLAG(tmp, FLAG_IDENTIFIED) && need_identify(tmp) ? " (unidentified)" : "");
 
     if (tmp->custom_name) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "You name it %s.", tmp->custom_name);
@@ -1307,184 +1294,164 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
             }
         }
-
-        buf[0] = '\0';
     }
 
     switch (tmp->type) {
         case BOOK:
-
+        {
             if (tmp->msg) {
-                strcpy(buf, "Something is written in it.");
+                draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Something is written in it.");
 
                 if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT)) {
                     int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
 
-                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
-
                     /* Gray. */
                     if (tmp->level < level_color[level].green) {
-                        strcpy(buf, "It seems to contain no knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain no knowledge you could learn from.");
                     }
                     /* Green. */
                     else if (tmp->level < level_color[level].blue) {
-                        strcpy(buf, "It seems to contain tiny bits of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain tiny bits of knowledge you could learn from.");
                     }
                     /* Blue. */
                     else if (tmp->level < level_color[level].yellow) {
-                        strcpy(buf, "It seems to contain a small amount of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a small amount of knowledge you could learn from.");
                     }
                     /* Yellow. */
                     else if (tmp->level < level_color[level].orange) {
-                        strcpy(buf, "It seems to contain an average amount of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain an average amount of knowledge you could learn from.");
                     }
                     /* Orange. */
                     else if (tmp->level < level_color[level].red) {
-                        strcpy(buf, "It seems to contain a moderate amount of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a moderate amount of knowledge you could learn from.");
                     }
                     /* Red. */
                     else if (tmp->level < level_color[level].purple) {
-                        strcpy(buf, "It seems to contain a fair amount of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a fair amount of knowledge you could learn from.");
                     }
                     /* Purple. */
                     else {
-                        strcpy(buf, "It seems to contain a great amount of knowledge you could learn from.");
+                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a great amount of knowledge you could learn from.");
                     }
                 }
             }
 
             break;
+        }
 
         case CONTAINER:
-
+        {
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
                 if (tmp->race != NULL) {
                     if (tmp->weight_limit) {
-                        snprintf(buf, sizeof(buf), "It can hold only %s and its weight limit is %.1f kg.", tmp->race, (float) tmp->weight_limit / 1000.0f);
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s and its weight limit is %.1f kg.", tmp->race, (float) tmp->weight_limit / 1000.0f);
                     }
                     else {
-                        snprintf(buf, sizeof(buf), "It can hold only %s.", tmp->race);
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
                     }
 
                     /* Has magic modifier? */
                     if (tmp->weapon_speed != 1.0f) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
-
                         /* Bad */
                         if (tmp->weapon_speed > 1.0f) {
-                            snprintf(buf, sizeof(buf), "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
+                            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
                         }
                         /* Good */
                         else {
-                            snprintf(buf, sizeof(buf), "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
+                            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
                         }
                     }
                 }
                 else {
                     if (tmp->weight_limit) {
-                        snprintf(buf, sizeof(buf), "Its weight limit is %.1f kg.", (float)tmp->weight_limit / 1000.0f);
-                    }
-
-                    /* Has magic modifier? */
-                    if (tmp->weapon_speed != 1.0f) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
-
-                        /* Bad */
-                        if (tmp->weapon_speed > 1.0f) {
-                            snprintf(buf, sizeof(buf), "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
-                        }
-                        /* Good */
-                        else {
-                            snprintf(buf, sizeof(buf), "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
-                        }
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float)tmp->weight_limit / 1000.0f);
                     }
                 }
-
-                draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
 
                 if (tmp->weapon_speed == 1.0f) {
-                    snprintf(buf, sizeof(buf), "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
                 }
                 else if (tmp->weapon_speed > 1.0f) {
-                    snprintf(buf, sizeof(buf), "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
                 }
                 else {
-                    snprintf(buf, sizeof(buf), "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
                 }
             }
 
             break;
+        }
 
         case WAND:
-
+        {
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
-                snprintf(buf, sizeof(buf), "It has %d charges left.", tmp->stats.food);
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has %d charges left.", tmp->stats.food);
             }
 
             break;
+        }
 
         case POWER_CRYSTAL:
-
+        {
             /* Avoid division by zero... */
             if (tmp->stats.maxsp == 0) {
-                snprintf(buf, sizeof(buf), "It has capacity of %d.", tmp->stats.maxsp);
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.", tmp->stats.maxsp);
             }
             else {
+                const char *charge;
+
+                i = (tmp->stats.sp * 10) / tmp->stats.maxsp;
+
+                if (tmp->stats.sp == 0) {
+                    charge = "empty";
+                }
+                else if (i == 0) {
+                    charge = "almost empty";
+                }
+                else if (i < 3) {
+                    charge = "partially filled";
+                }
+                else if (i < 6) {
+                    charge = "half full";
+                }
+                else if (i < 9) {
+                    charge = "well charged";
+                }
+                else if (tmp->stats.sp == tmp->stats.maxsp) {
+                    charge = "fully charged";
+                }
+                else {
+                    charge = "almost full";
+                }
+
                 /* Higher capacity crystals */
                 if (tmp->stats.maxsp > 1000) {
                     i = (tmp->stats.maxsp % 1000) / 100;
 
-                    if (i) {
-                        snprintf(tmp_buf, sizeof(tmp_buf), "It has capacity of %d.%dk and is ", tmp->stats.maxsp / 1000, i);
+                    if (i != 0) {
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.%dk and is %s.", tmp->stats.maxsp / 1000, i, charge);
                     }
                     else {
-                        snprintf(tmp_buf, sizeof(tmp_buf), "It has capacity of %dk and is ", tmp->stats.maxsp / 1000);
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %dk and is %s.", tmp->stats.maxsp / 1000, charge);
                     }
                 }
                 else {
-                    snprintf(tmp_buf, sizeof(tmp_buf), "It has capacity of %d and is ", tmp->stats.maxsp);
-                }
-
-                strcat(buf, tmp_buf);
-                i = (tmp->stats.sp * 10) / tmp->stats.maxsp;
-
-                if (tmp->stats.sp == 0) {
-                    strcat(buf, "empty.");
-                }
-                else if (i == 0) {
-                    strcat(buf, "almost empty.");
-                }
-                else if (i < 3) {
-                    strcat(buf, "partially filled.");
-                }
-                else if (i < 6) {
-                    strcat(buf, "half full.");
-                }
-                else if (i < 9) {
-                    strcat(buf, "well charged.");
-                }
-                else if (tmp->stats.sp == tmp->stats.maxsp) {
-                    strcat(buf, "fully charged.");
-                }
-                else {
-                    strcat(buf, "almost full.");
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d and is %s.", tmp->stats.maxsp, charge);
                 }
             }
 
             break;
-    }
-
-    if (buf[0] != '\0') {
-        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, buf);
+        }
     }
 
     if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))) {
+        char buf[MAX_BUF];
+
         snprintf(buf, sizeof(buf), "%s made of: ", tmp->nrof > 1 ? "They are" : "It is");
 
         for (i = 0; i < NROFMATERIALS; i++) {
             if (tmp->material & (1 << i)) {
-                strcat(buf, materials[i].name);
-                strcat(buf, " ");
+                snprintfcat(buf, sizeof(buf), "%s ", materials[i].name);
             }
         }
 
