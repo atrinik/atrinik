@@ -73,6 +73,9 @@
 #define PATH_DEATH      0x00040000
 /** Light. */
 #define PATH_LIGHT      0x00080000
+
+/** Number of the different paths. */
+#define PATH_NUM        20
 /*@}*/
 
 /**

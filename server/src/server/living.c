@@ -572,6 +572,36 @@ int change_abil(object *op, object *tmp)
         }
     }
 
+    /* Messages for changed attuned/repelled/denied paths. */
+    if (op->path_attuned != refop.path_attuned || op->path_repelled != refop.path_repelled || op->path_denied != refop.path_denied) {
+        uint32 path;
+
+        for (i = 0; i < PATH_NUM; i++) {
+            path = 1U << i;
+
+            if ((op->path_attuned & path) && !(refop.path_attuned & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
+            }
+            else if ((refop.path_attuned & path) && !(op->path_attuned & path)) {
+                draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
+            }
+
+            if ((op->path_repelled & path) && !(refop.path_repelled & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical powers repelled from the path of %s.", spellpathnames[i]);
+            }
+            else if ((refop.path_repelled & path) && !(op->path_repelled & path)) {
+                draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers repelled from the path of %s.", spellpathnames[i]);
+            }
+
+            if ((op->path_denied & path) && !(refop.path_denied & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical powers shift, and become unable to cast spells from the path of %s.", spellpathnames[i]);
+            }
+            else if ((refop.path_denied & path) && !(op->path_denied & path)) {
+                draw_info_format(COLOR_GRAY, op, "You feel your magical powers shift, and become able to cast spells from the path of %s.", spellpathnames[i]);
+            }
+        }
+    }
+
     if (tmp->type == POISONING) {
         success = 1;
 
