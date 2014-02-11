@@ -110,7 +110,7 @@ class Interface:
         pl = self._activator.Controller()
 
         if self._npc:
-            SetReturnValue(1)
+            SetReturnValue(-1 if disable_timeout or self._restore else len(self._msg))
 
         if not self._restore:
             # Construct the base data packet; contains the interface message,
@@ -161,14 +161,3 @@ class Interface:
 
         # Send the data.
         pl.SendPacket(26, fmt, *data)
-
-        # If there is any movement behavior, update the amount of time
-        # the NPC should pause moving for.
-        if self._npc and not disable_timeout and (self._npc.move_type or self._npc.f_random_move):
-            from Atrinik import GetTicks, INTERFACE_TIMEOUT_CHARS, INTERFACE_TIMEOUT_SECONDS, INTERFACE_TIMEOUT_INITIAL, MAX_TIME
-
-            timeout = self._npc.ReadKey("npc_move_timeout")
-            ticks = GetTicks() + ((int(max(INTERFACE_TIMEOUT_CHARS, len(self._msg)) / INTERFACE_TIMEOUT_CHARS * INTERFACE_TIMEOUT_SECONDS)) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL) * (1000000 // MAX_TIME)
-
-            if not timeout or ticks > int(timeout):
-                self._npc.WriteKey("npc_move_timeout", str(ticks))
