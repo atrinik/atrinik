@@ -86,7 +86,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     /* Save original WC, damage and range. */
     arrow->last_heal = arrow->stats.wc;
     arrow->stats.hp = arrow->stats.dam;
-    arrow->last_grace = arrow->last_sp;
+    arrow->stats.sp = arrow->last_sp;
 
     /* Determine how many tiles the arrow will fly. */
     arrow->last_sp = op->last_sp + arrow->last_sp;

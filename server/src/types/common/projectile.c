@@ -165,13 +165,18 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         /* Restore WC, damage and range. */
         op->stats.wc = op->last_heal;
         op->stats.dam = op->stats.hp;
-        op->last_sp = op->last_grace;
+        op->last_sp = op->stats.sp;
 
-        op->last_heal = op->stats.hp = op->last_grace = 0;
+        op->last_heal = op->stats.hp = op->last_grace = op->stats.sp = 0;
 
-        /* Reset level and speed. */
+        /* Reset level, speed and wc_range. */
         op->level = op->arch->clone.level;
         op->speed = op->arch->clone.speed;
+        op->stats.wc_range = op->arch->clone.stats.wc_range;
+
+        if (QUERY_FLAG(&op->arch->clone, FLAG_CAN_STACK)) {
+            SET_FLAG(op, FLAG_CAN_STACK);
+        }
 
         if (!owner || owner->type != PLAYER) {
             SET_FLAG(op, FLAG_IS_USED_UP);
