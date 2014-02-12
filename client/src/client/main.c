@@ -279,7 +279,6 @@ static void clioptions_option_connect(const char *arg)
     char word[MAX_BUF];
 
     pos = idx = 0;
-    logger_print(LOG(INFO), "%s", arg);
 
     while (string_get_word(arg, &pos, ':', word, sizeof(word), 0)) {
         clioption_settings.connect[idx] = strdup(word);
