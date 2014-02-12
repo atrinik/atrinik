@@ -946,10 +946,11 @@ void fix_player(object *op)
             else if (tmp->type == AMULET) {
                 pl->equipment[PLAYER_EQUIP_AMULET] = tmp;
             }
-            else if (tmp->type == WEAPON || OBJECT_IS_RANGED(tmp)) {
-                if (!pl->equipment[PLAYER_EQUIP_WEAPON] || pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON) {
-                    pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
-                }
+            else if (tmp->type == WEAPON) {
+                pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
+            }
+            else if (OBJECT_IS_RANGED(tmp)) {
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] = tmp;
             }
             else if (tmp->type == GLOVES) {
                 pl->equipment[PLAYER_EQUIP_GAUNTLETS] = tmp;
@@ -1001,7 +1002,12 @@ void fix_player(object *op)
             continue;
         }
 
-        if (i == PLAYER_EQUIP_SHIELD && pl->equipment[PLAYER_EQUIP_WEAPON] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON], FLAG_TWO_HANDED)) {
+        /* No bonuses from the shield, if a two-handed weapon or ranged weapon
+         * is equipped. */
+        if (i == PLAYER_EQUIP_SHIELD &&(
+                (pl->equipment[PLAYER_EQUIP_WEAPON]        && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON],        FLAG_TWO_HANDED)) ||
+                (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], FLAG_TWO_HANDED))
+            )) {
             continue;
         }
 

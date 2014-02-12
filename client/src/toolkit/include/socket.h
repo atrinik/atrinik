@@ -611,12 +611,14 @@ enum
      * Weapon. */
     PLAYER_EQUIP_WEAPON,
     /**
+     * Ranged weapon. */
+    PLAYER_EQUIP_WEAPON_RANGED,
+    /**
      * Gauntlets. */
     PLAYER_EQUIP_GAUNTLETS,
     /**
      * Right ring. */
     PLAYER_EQUIP_RING_RIGHT,
-
     /**
      * Helm. */
     PLAYER_EQUIP_HELM,
@@ -632,7 +634,6 @@ enum
     /**
      * Boots. */
     PLAYER_EQUIP_BOOTS,
-
     /**
      * Cloak. */
     PLAYER_EQUIP_CLOAK,

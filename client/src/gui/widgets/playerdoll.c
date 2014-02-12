@@ -39,15 +39,14 @@ static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
     {22, 6},
     {22, 44},
     {22, 82},
+    {22, 82},
     {22, 120},
     {22, 158},
-
     {62, 6},
     {62, 44},
     {62, 82},
     {62, 120},
     {62, 158},
-
     {102, 6},
     {102, 44},
     {102, 82},
@@ -100,7 +99,8 @@ static void widget_draw(widgetdata *widget)
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
         surface_show(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], NULL, texture_slot_border);
 
-        if (cpl.equipment[i] == 0 || !(obj = object_find(cpl.equipment[i]))) {
+        if ((i == PLAYER_EQUIP_WEAPON && cpl.equipment[PLAYER_EQUIP_WEAPON_RANGED] != 0) ||
+            (cpl.equipment[i] == 0 || !(obj = object_find(cpl.equipment[i])))) {
             continue;
         }
 
