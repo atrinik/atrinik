@@ -1249,7 +1249,6 @@ int need_identify(object *op)
         case WAND:
         case ROD:
         case SCROLL:
-        case SKILL:
         case FOOD:
         case POTION:
         case BOW:
