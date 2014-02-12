@@ -366,38 +366,59 @@ int CAN_MERGE(object *ob1, object *ob2)
         return 0;
     }
 
+    if (ob1 == ob2) {
+        return 0;
+    }
+
     /* Do not merge objects if nrof would overflow. We use SINT32_MAX
      * because sint32 is often used to store nrof instead of uint32. */
     if (ob1->nrof + ob2->nrof > SINT32_MAX) {
         return 0;
     }
 
-    /* just some quick hack */
-    if (ob1->type == MONEY && ob1->type == ob2->type && ob1->arch == ob2->arch) {
-        return 1;
-    }
-
-    /* Gecko: Moved out special handling of event object nrof */
-    /* important: don't merge objects with glow_radius set - or we come
-     * in heavy side effect situations. Because we really not know what
-     * our calling function will do after this merge (and the calling function
-     * then must first find out a merge has happen or not). The sense of stacks
-     * are to store inactive items. Because glow_radius items can be active even
-     * when not applied, merging is simply wrong here. MT. */
-    if (((!ob1->nrof || !ob2->nrof) && ob1->type != EVENT_OBJECT) || ob1->glow_radius || ob2->glow_radius) {
+    /* Do not allow merging objects if either has nrof of 0 and it's
+     * not an event object (those normally have nrof of 0 but they are
+     * allowed to merge. */
+    if ((!ob1->nrof || !ob2->nrof) && ob1->type != EVENT_OBJECT) {
         return 0;
     }
 
-    /* just a brain dead long check for things NEVER NEVER should be different
-     * this is true under all circumstances for all objects. */
-    if (ob1->type != ob2->type || ob1 == ob2 || ob1->arch != ob2->arch || ob1->sub_type != ob2->sub_type || ob1->material != ob2->material || ob1->material_real != ob2->material_real || ob1->magic != ob2->magic || ob1->item_quality != ob2->item_quality || ob1->item_condition != ob2->item_condition || ob1->item_race != ob2->item_race || ob1->speed != ob2->speed || ob1->value !=ob2->value || ob1->weight != ob2->weight) {
+    /* Do not ever merge objects with glow radius, since more objects with
+     * the same glow_radius actually generate more light than one object. */
+    if (ob1->glow_radius || ob2->glow_radius) {
         return 0;
     }
 
-    /* Gecko: added bad special check for event objects
-     * Idea is: if inv is identical events only then go ahead and merge)
-     * This goes hand in hand with the event keeping addition in get_split_ob()
-     * */
+    /* Check attributes that cannot ever merge if they're different. */
+    if (ob1->arch               != ob2->arch ||
+        ob1->item_condition     != ob2->item_condition ||
+        ob1->item_level         != ob2->item_level ||
+        ob1->item_power         != ob2->item_power ||
+        ob1->item_quality       != ob2->item_quality ||
+        ob1->item_race          != ob2->item_race ||
+        ob1->item_skill         != ob2->item_skill ||
+        ob1->level              != ob2->level ||
+        ob1->magic              != ob2->magic ||
+        ob1->material           != ob2->material ||
+        ob1->material_real      != ob2->material_real ||
+        ob1->other_arch         != ob2->other_arch ||
+        ob1->path_attuned       != ob2->path_attuned ||
+        ob1->path_denied        != ob2->path_denied ||
+        ob1->path_repelled      != ob2->path_repelled ||
+        ob1->randomitems        != ob2->randomitems ||
+        ob1->speed              != ob2->speed ||
+        ob1->sub_type           != ob2->sub_type ||
+        ob1->terrain_flag       != ob2->terrain_flag ||
+        ob1->terrain_type       != ob2->terrain_type ||
+        ob1->type               != ob2->type ||
+        ob1->value              != ob2->value ||
+        ob1->weapon_speed       != ob2->weapon_speed ||
+        ob1->weight             != ob2->weight) {
+        return 0;
+    }
+
+    /* If the inventory consists only of event objects, and the event objects
+     * are the same, allow merging. */
     if (ob1->inv || ob2->inv) {
         object *tmp1, *tmp2;
 
@@ -431,24 +452,38 @@ int CAN_MERGE(object *ob1, object *ob2)
         }
     }
 
-    /* Check the refcount pointer */
-    if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race || ob1->slaying != ob2->slaying || ob1->msg != ob2->msg || ob1->artifact != ob2->artifact) {
+    /* Check the shared strings of both objects. */
+    if (ob1->name           != ob2->name ||
+        ob1->title          != ob2->title ||
+        ob1->race           != ob2->race ||
+        ob1->slaying        != ob2->slaying ||
+        ob1->msg            != ob2->msg ||
+        ob1->artifact       != ob2->artifact ||
+        ob1->custom_name    != ob2->custom_name) {
         return 0;
     }
 
-    /* Compare the static arrays/structs */
-    if ((memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0) || (memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0) || (memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0)) {
+    /* Compare arrays and structures the object has (stats, protections, etc) */
+    if (memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0 ||
+        memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack) != 0) ||
+        memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0) {
         return 0;
     }
 
     /* Ignore REMOVED and BEEN_APPLIED */
-    if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | (1 << FLAG_REMOVED) | (1 << FLAG_BEEN_APPLIED)) != (ob2->flags[0] | (1 << FLAG_REMOVED) | (1 << FLAG_BEEN_APPLIED)) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power) {
+    if ((ob1->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) !=
+        (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
+        (ob1->flags[1]) != (ob2->flags[1]) ||
+        (ob1->flags[2]) != (ob2->flags[2]) ||
+        (ob1->flags[3]) != (ob2->flags[3])) {
         return 0;
     }
 
-    /* Face can be difficult - but inv_face should never be different or obj is
-     * different! */
-    if (ob1->face != ob2->face || ob1->inv_face != ob2->inv_face || ob1->animation_id != ob2->animation_id || ob1->inv_animation_id != ob2->inv_animation_id) {
+    /* Compare face and animation IDs. */
+    if (ob1->face               != ob2->face ||
+        ob1->inv_face           != ob2->inv_face ||
+        ob1->animation_id       != ob2->animation_id ||
+        ob1->inv_animation_id   != ob2->inv_animation_id) {
         return 0;
     }
 
@@ -466,11 +501,6 @@ int CAN_MERGE(object *ob1, object *ob2)
         else {
             return compare_ob_value_lists(ob1, ob2);
         }
-    }
-
-    /* Don't merge items with differing custom names. */
-    if (ob1->custom_name != ob2->custom_name) {
-        return 0;
     }
 
     /* Can merge! */
