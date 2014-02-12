@@ -117,17 +117,6 @@ sint64 do_skill(object *op, int dir, const char *params)
             success = skill_inscription(op, params);
             break;
 
-        case SK_THROWING:
-
-            if (CONTR(op)->equipment[PLAYER_EQUIP_AMMO]) {
-                object_throw(CONTR(op)->equipment[PLAYER_EQUIP_AMMO], op, dir);
-            }
-            else {
-                draw_info(COLOR_WHITE, op, "You don't have any ammunition readied to throw.");
-            }
-
-            break;
-
         default:
             draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
             return 0;

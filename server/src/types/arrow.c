@@ -178,12 +178,98 @@ static object *projectile_stop_func(object *op, int reason)
     return op;
 }
 
+/** @copydoc object_methods::ranged_fire_func */
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
+{
+    object *skill;
+
+    if (dir == 0) {
+        draw_info(COLOR_WHITE, shooter, "You can't throw that at yourself.");
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (QUERY_FLAG(op, FLAG_STARTEQUIP)) {
+        draw_info(COLOR_WHITE, shooter, "The gods won't let you throw that.");
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (op->weight <= 0 || QUERY_FLAG(op, FLAG_NO_DROP)) {
+        draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", query_base_name(op, shooter));
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (QUERY_FLAG(op, FLAG_APPLIED) && OBJECT_CURSED(op)) {
+        draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!", query_base_name(op, shooter));
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    op = object_stack_get_removed(op, 1);
+
+    /* Save original WC, damage and range. */
+    op->last_heal = op->stats.wc;
+    op->stats.hp = op->stats.dam;
+    op->stats.sp = op->last_sp;
+
+    /* Calculate moving speed. */
+    op->speed = MIN(1.0f, ((shooter->type == PLAYER ? speed_bonus[shooter->stats.Str] : 0.0f) + 1.0f) / 1.5f);
+
+    logger_print(LOG(INFO), "speed: %f", op->speed);
+
+    /* Get the used skill. */
+    skill = SK_skill(shooter);
+
+    /* If we got the skill, add in the skill's modifiers. */
+    if (skill) {
+        /* Add WC. */
+        op->stats.wc += skill->last_heal;
+        /* Add tiles range. */
+        op->last_sp += skill->last_sp;
+    }
+
+    op->stats.dam += op->magic;
+    op->stats.wc += SK_level(shooter);
+    op->stats.wc += op->magic;
+
+    if (shooter->type == PLAYER) {
+        op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
+        op->stats.wc += thaco_bonus[shooter->stats.Dex];
+    }
+    else {
+        op->stats.wc += 5;
+    }
+
+    op->stats.dam = (sint16) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
+
+    if (op->item_quality) {
+        op->stats.dam = MAX(0, (sint16) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
+    }
+
+    if (delay) {
+        *delay = op->last_grace;
+    }
+
+    op = object_projectile_fire(op, shooter, dir);
+
+    if (op == NULL) {
+        return OBJECT_METHOD_OK;
+    }
+
+    if (shooter->type == PLAYER) {
+        CONTR(shooter)->stat_missiles_thrown++;
+    }
+
+    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "throw.ogg", shooter->x, shooter->y, 0, 0);
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the arrow type object methods. */
 void object_type_init_arrow(void)
 {
     object_type_methods[ARROW].apply_func = object_apply_item;
     object_type_methods[ARROW].projectile_stop_func = projectile_stop_func;
+    object_type_methods[ARROW].ranged_fire_func = ranged_fire_func;
     object_type_methods[ARROW].process_func = common_object_projectile_process;
     object_type_methods[ARROW].projectile_move_func = common_object_projectile_move;
     object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;

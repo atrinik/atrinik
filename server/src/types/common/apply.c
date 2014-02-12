@@ -42,7 +42,7 @@ static int object_apply_item_check_type(object *op, object *tmp)
         return 0;
     }
 
-    if (op->type == tmp->type) {
+    if (op->type == tmp->type && QUERY_FLAG(op, FLAG_IS_THROWN) == QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
         return 1;
     }
 

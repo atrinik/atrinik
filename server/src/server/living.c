@@ -940,7 +940,7 @@ void fix_player(object *op)
 
                 living_apply_flags(op, tmp);
             }
-            else if (tmp->type == ARROW) {
+            else if (tmp->type == ARROW && !QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
                 pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
             }
             else if (tmp->type == AMULET) {

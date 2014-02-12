@@ -1309,8 +1309,8 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
     tag = packet_to_uint32(data, len, &pos);
 
     if (tag) {
-        if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->count == tag) {
-            tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
+        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->count == tag) {
+            tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
         }
         else {
             for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
@@ -1321,7 +1321,11 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
         }
     }
     else {
-        tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
+        tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
+
+        if (!tmp && pl->equipment[PLAYER_EQUIP_AMMO] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_AMMO], FLAG_IS_THROWN)) {
+            tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
+        }
     }
 
     if (!tmp) {
