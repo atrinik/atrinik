@@ -170,6 +170,8 @@ typedef struct object_methods
 #define OBJECT_PROJECTILE_STOP_HIT 2
 /** Projectile has hit a wall. */
 #define OBJECT_PROJECTILE_STOP_WALL 3
+/** Projectile has been picked up. */
+#define OBJECT_PROJECTILE_PICKUP 4
 /*@}*/
 
 #endif
