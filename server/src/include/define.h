@@ -621,26 +621,29 @@
  * Basic macros to do the above.
  *@{*/
 
+/** Macro for getting flag's bitmask value. */
+#define FLAG_BITMASK(p) (1U << (p % 32))
+
 /**
  * Set flag of of an object.
  * @param xyz The object
  * @param p The flag to set */
 #define SET_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] |= (1U << (p % 32)))
+    ((xyz)->flags[p / 32] |= FLAG_BITMASK(p))
 
 /**
  * Clear flag of an object.
  * @param xyz The object
  * @param p The flag to clear */
 #define CLEAR_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] &= ~(1U << (p % 32)))
+    ((xyz)->flags[p / 32] &= ~FLAG_BITMASK(p))
 
 /**
  * Query flag of an object.
  * @param xyz The object
  * @param p The flag to query */
 #define QUERY_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] & (1U << (p % 32)))
+    ((xyz)->flags[p / 32] & FLAG_BITMASK(p))
 
 /**
  * Toggle flag of an object.
