@@ -77,10 +77,6 @@ unsigned int query_flags(object *op)
         flags |= CS_FLAG_LOCKED;
     }
 
-    if (QUERY_FLAG(op, FLAG_IS_READY)) {
-        flags |= CS_FLAG_IS_READY;
-    }
-
     if (QUERY_FLAG(op, FLAG_TWO_HANDED)) {
         flags |= CS_FLAG_WEAPON_2H;
     }

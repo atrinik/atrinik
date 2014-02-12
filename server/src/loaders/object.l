@@ -494,7 +494,6 @@ lex_error = 0;
 ^can_stack{S}        SET_OR_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
 ^is_thrown{S}        SET_OR_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
 ^auto_apply{S}       SET_OR_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
-^is_ready{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_READY, IVAL);
 ^treasure{S}         {}
 ^is_assassin{S}      SET_OR_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
 ^is_spell{S}         SET_OR_CLEAR_FLAG(op, FLAG_IS_SPELL, IVAL);

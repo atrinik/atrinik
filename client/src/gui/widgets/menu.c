@@ -162,7 +162,6 @@ void widget_highlight_menu(widgetdata *widget)
             }
             else if (submenuitem->menu_func_ptr == menu_inventory_submenu_more) {
                 add_menuitem(tmp_menu->submenu, "Drop all", &menu_inventory_dropall, MENU_NORMAL, 0);
-                add_menuitem(tmp_menu->submenu, "Ready", &menu_inventory_ready, MENU_NORMAL, 0);
                 add_menuitem(tmp_menu->submenu, "Mark", &menu_inventory_mark, MENU_NORMAL, 0);
                 add_menuitem(tmp_menu->submenu, "Lock", &menu_inventory_lock, MENU_NORMAL, 0);
                 add_menuitem(tmp_menu->submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);

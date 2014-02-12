@@ -577,9 +577,6 @@ int keybind_process_command(const char *cmd)
         else if (!strcmp(cmd, "TARGET_FRIEND")) {
             map_target_handle(1);
         }
-        else if (!strcmp(cmd, "FIRE_READY")) {
-            widget_inventory_handle_ready(cur_widget[cpl.inventory_focus]);
-        }
         else if (!strcmp(cmd, "SPELL_LIST")) {
             cur_widget[SPELLS_ID]->show = !cur_widget[SPELLS_ID]->show;
             SetPriorityWidget(cur_widget[SPELLS_ID]);

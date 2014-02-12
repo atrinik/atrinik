@@ -641,16 +641,9 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 
     if (tmp->flags & CS_FLAG_APPLIED) {
         surface_show(surface, x, y, NULL, TEXTURE_CLIENT("apply"));
-
-        if (tmp->flags & CS_FLAG_IS_READY) {
-            surface_show(surface, x, y + 8, NULL, TEXTURE_CLIENT("fire_ready"));
-        }
     }
     else if (tmp->flags & CS_FLAG_UNPAID) {
         surface_show(surface, x, y, NULL, TEXTURE_CLIENT("unpaid"));
-    }
-    else if (tmp->flags & CS_FLAG_IS_READY) {
-        surface_show(surface, x, y, NULL, TEXTURE_CLIENT("fire_ready"));
     }
 
     if (tmp->flags & CS_FLAG_LOCKED) {
@@ -758,16 +751,6 @@ void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *ev
 void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
     keybind_process_command("?LOCK");
-}
-
-/**
- * The 'Ready' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_ready(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    keybind_process_command("?FIRE_READY");
 }
 
 /**
@@ -1010,24 +993,4 @@ void widget_inventory_handle_drop(widgetdata *widget)
     draw_info_format(COLOR_DGOLD, "drop %s", ob->s_name);
     client_send_move(loc, ob->tag, nrof);
     sound_play_effect("drop.ogg", 100);
-}
-
-/**
- * Handle the 'ready' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_ready(widgetdata *widget)
-{
-    object *ob;
-
-    if (widget->type != MAIN_INV_ID) {
-        return;
-    }
-
-    ob = widget_inventory_get_selected(widget);
-
-    if (!ob) {
-        return;
-    }
-
-    ready_object(ob);
 }

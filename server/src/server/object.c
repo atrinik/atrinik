@@ -442,7 +442,7 @@ int CAN_MERGE(object *ob1, object *ob2)
     }
 
     /* Ignore REMOVED and BEEN_APPLIED */
-    if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300 | (1 << FLAG_IS_READY)) != (ob2->flags[0] | 0x300 | (1 << FLAG_IS_READY)) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power) {
+    if (ob1->randomitems != ob2->randomitems || ob1->other_arch != ob2->other_arch || (ob1->flags[0] | 0x300) != (ob2->flags[0] | 0x300) || ob1->flags[1] != ob2->flags[1] || ob1->flags[2] != ob2->flags[2] || ob1->flags[3] != ob2->flags[3] || ob1->path_attuned != ob2->path_attuned || ob1->path_repelled != ob2->path_repelled || ob1->path_denied != ob2->path_denied || ob1->terrain_type != ob2->terrain_type || ob1->terrain_flag != ob2->terrain_flag || ob1->weapon_speed != ob2->weapon_speed || ob1->magic != ob2->magic || ob1->item_level != ob2->item_level || ob1->item_skill != ob2->item_skill || ob1->glow_radius != ob2->glow_radius  || ob1->level != ob2->level || ob1->item_power != ob2->item_power) {
         return 0;
     }
 
@@ -1525,7 +1525,6 @@ void object_remove(object *op, int flags)
     SET_FLAG(op, FLAG_REMOVED);
     SET_FLAG(op, FLAG_OBJECT_WAS_MOVED);
     op->quickslot = 0;
-    CLEAR_FLAG(op, FLAG_IS_READY);
 
     /* In this case, the object to be removed is in someone's
      * inventory. */
@@ -1902,7 +1901,6 @@ object *object_stack_get(object *op, uint32 nrof)
     copy_object_with_inv(op, split);
 
     split->nrof = nrof;
-    CLEAR_FLAG(split, FLAG_IS_READY);
 
     return split;
 }

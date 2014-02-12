@@ -1297,46 +1297,6 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t
     player_path_add(pl, m, xt, yt);
 }
 
-void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-    tag_t tag;
-    object *tmp;
-
-    tag = packet_to_uint32(data, len, &pos);
-
-    if (!tag) {
-        return;
-    }
-
-    /* Try to look for objects to unready first. */
-    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
-        if (QUERY_FLAG(tmp, FLAG_IS_READY)) {
-            CLEAR_FLAG(tmp, FLAG_IS_READY);
-            esrv_update_item(UPD_FLAGS, tmp);
-            fix_player(pl->ob);
-            draw_info_format(COLOR_WHITE, pl->ob, "Unready %s.", query_base_name(tmp, pl->ob));
-
-            /* If we wanted to unready the object, no point in going on. */
-            if (tmp->count == tag) {
-                return;
-            }
-
-            break;
-        }
-    }
-
-    /* If we are here, we want to ready an object. */
-    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
-        if (tmp->count == tag) {
-            SET_FLAG(tmp, FLAG_IS_READY);
-            esrv_update_item(UPD_FLAGS, tmp);
-            fix_player(pl->ob);
-            draw_info_format(COLOR_WHITE, pl->ob, "Ready %s as ammunition.", query_base_name(tmp, pl->ob));
-            break;
-        }
-    }
-}
-
 void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
     int dir;

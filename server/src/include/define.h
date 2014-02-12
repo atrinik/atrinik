@@ -729,7 +729,7 @@
  * The object flags.
  *
  * Unused: 77, 78, 128, 98, 81, 82, 104, 105, 106, 107, 108,
- * 109, 96, 87, 88, 54, 53, 89, 79, 44, 48.
+ * 109, 96, 87, 88, 54, 53, 89, 79, 44, 48, 19.
  *
  * @note
  * ::object_flag_names has text-representations of these flags, used for
@@ -796,9 +796,6 @@
 /**
  * Will be applied when created (treasure chest for example). */
 #define FLAG_AUTO_APPLY 18
-/**
- * The object is readied (arrows, bolts, quivers, etc). */
-#define FLAG_IS_READY 19
 /**
  * Neutrally aligned object. */
 #define FLAG_IS_NEUTRAL 20

@@ -350,23 +350,6 @@ void object_send_mark(object *op)
 }
 
 /**
- * Ready an object for firing.
- * @param op Object to ready. */
-void ready_object(object *op)
-{
-    packet_struct *packet;
-
-    /* If object is on the ground, don't ready it. */
-    if (!op || !op->env || op->env->tag == 0) {
-        return;
-    }
-
-    packet = packet_new(SERVER_CMD_ITEM_READY, 8, 0);
-    packet_append_uint32(packet, op->tag);
-    socket_send_packet(packet);
-}
-
-/**
  * Deinitialize the various objects of ::cpl structure. */
 void objects_deinit(void)
 {

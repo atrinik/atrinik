@@ -54,6 +54,7 @@ enum
     SERVER_CMD_QUICKSLOT,
     SERVER_CMD_QUESTLIST,
     SERVER_CMD_MOVE_PATH,
+    /** @deprecated */
     SERVER_CMD_ITEM_READY,
     SERVER_CMD_TALK,
     SERVER_CMD_MOVE,
@@ -405,11 +406,8 @@ enum
  * The item is trapped. */
 #define CS_FLAG_IS_TRAPPED 128
 /**
- * The item is readied ammunition. */
-#define CS_FLAG_IS_READY 256
-/**
  * The item is a two-handed weapon. */
-#define CS_FLAG_WEAPON_2H 512
+#define CS_FLAG_WEAPON_2H 256
 /*@}*/
 
 /**
