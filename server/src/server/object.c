@@ -474,7 +474,8 @@ int CAN_MERGE(object *ob1, object *ob2)
     if ((ob1->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) !=
         (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
         (ob1->flags[1]) != (ob2->flags[1]) ||
-        (ob1->flags[2]) != (ob2->flags[2]) ||
+        (ob1->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) !=
+        (ob2->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) ||
         (ob1->flags[3]) != (ob2->flags[3])) {
         return 0;
     }
