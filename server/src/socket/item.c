@@ -585,6 +585,17 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, siz
     }
 
     examine(pl->ob, op, NULL);
+
+    if (pl->tsi) {
+        StringBuffer *sb;
+        char *cp;
+
+        sb = stringbuffer_new();
+        dump_object(op, sb);
+        cp = stringbuffer_finish(sb);
+        draw_info(COLOR_WHITE, pl->ob, cp);
+        free(cp);
+    }
 }
 
 /**
