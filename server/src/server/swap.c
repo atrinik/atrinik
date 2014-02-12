@@ -49,10 +49,6 @@ static void write_map_log(void)
         /* If tmpname is null, it is probably a unique player map,
          * so don't save information on it. */
         if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7)) {
-            /* the 0 written out is a leftover from the lock number for
-             * unique items and second one is from encounter maps.
-             * Keep using it so that old temp files continue
-             * to work. */
             fprintf(fp, "%s:%s:%ld:%d:%d\n", map->path, map->tmpname, (map->reset_time == -1 ? -1 : map->reset_time - current_time), map->difficulty, map->darkness);
         }
     }
