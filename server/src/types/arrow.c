@@ -182,8 +182,8 @@ static object *projectile_stop_func(object *op, int reason)
  * Initialize the arrow type object methods. */
 void object_type_init_arrow(void)
 {
+    object_type_methods[ARROW].apply_func = object_apply_item;
     object_type_methods[ARROW].projectile_stop_func = projectile_stop_func;
-
     object_type_methods[ARROW].process_func = common_object_projectile_process;
     object_type_methods[ARROW].projectile_move_func = common_object_projectile_move;
     object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;

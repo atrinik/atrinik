@@ -845,11 +845,6 @@ void fix_player(object *op)
     memcpy(&op->attack, &op->arch->clone.attack, sizeof(op->attack));
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
-        if (QUERY_FLAG(tmp, FLAG_IS_READY)) {
-            pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
-            continue;
-        }
-
         if (tmp->type == QUEST_CONTAINER) {
             pl->quest_container = tmp;
             continue;
@@ -944,6 +939,9 @@ void fix_player(object *op)
                 }
 
                 living_apply_flags(op, tmp);
+            }
+            else if (tmp->type == ARROW) {
+                pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
             }
             else if (tmp->type == AMULET) {
                 pl->equipment[PLAYER_EQUIP_AMULET] = tmp;

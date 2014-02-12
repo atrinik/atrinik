@@ -127,6 +127,7 @@ int object_apply_item(object *op, object *applier, int aflags)
             case ROD:
             case SPELL:
             case SKILL:
+            case ARROW:
                 draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
                 break;
 
@@ -213,6 +214,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case BOW:
         case SPELL:
         case SKILL:
+        case ARROW:
 
             if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
                 draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill is too low to use %s.", query_name(op, applier));
