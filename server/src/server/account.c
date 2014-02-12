@@ -159,20 +159,24 @@ static int account_load(account_struct *account, const char *path)
 static void account_send_characters(socket_struct *ns, account_struct *account)
 {
     packet_struct *packet;
-    size_t i;
 
     packet = packet_new(CLIENT_CMD_CHARACTERS, 64, 64);
-    packet_append_string_terminated(packet, ns->account);
-    packet_append_string_terminated(packet, ns->host);
-    packet_append_string_terminated(packet, account->last_host);
-    packet_append_uint64(packet, account->last_time);
 
-    for (i = 0; i < account->characters_num; i++) {
-        packet_append_string_terminated(packet, account->characters[i].at->name);
-        packet_append_string_terminated(packet, account->characters[i].name);
-        packet_append_string_terminated(packet, account->characters[i].region_name);
-        packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
-        packet_append_uint8(packet, account->characters[i].level);
+    if (account) {
+        size_t i;
+
+        packet_append_string_terminated(packet, ns->account);
+        packet_append_string_terminated(packet, ns->host);
+        packet_append_string_terminated(packet, account->last_host);
+        packet_append_uint64(packet, account->last_time);
+
+        for (i = 0; i < account->characters_num; i++) {
+            packet_append_string_terminated(packet, account->characters[i].at->name);
+            packet_append_string_terminated(packet, account->characters[i].name);
+            packet_append_string_terminated(packet, account->characters[i].region_name);
+            packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
+            packet_append_uint8(packet, account->characters[i].level);
+        }
     }
 
     socket_send_packet(ns, packet);
@@ -210,6 +214,7 @@ void account_login(socket_struct *ns, char *name, char *password)
 
     if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid name and/or password.");
+        account_send_characters(ns, NULL);
         return;
     }
 
@@ -218,18 +223,21 @@ void account_login(socket_struct *ns, char *name, char *password)
 
     if (!path_exists(path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "No such account.");
+        account_send_characters(ns, NULL);
         free(path);
         return;
     }
 
     if (!account_load(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
+        account_send_characters(ns, NULL);
         free(path);
         return;
     }
 
     if (strcmp(string_crypt(password, account.password), account.password) != 0) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
+        account_send_characters(ns, NULL);
         account_free(&account);
         free(path);
 
