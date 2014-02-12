@@ -15,8 +15,6 @@ fi
 
 # Copy all files from 'arch' to the 'lib' directory.
 cp ../arch/* lib > /dev/null 2>&1
-# Clean up 'tmp' directory in 'data'.
-rm data/tmp/* > /dev/null 2>&1
 
 if [ -f "server-custom.cfg" ]; then
 	CLI_CONFIG="--config=server-custom.cfg"

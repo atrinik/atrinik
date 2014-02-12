@@ -68,18 +68,6 @@
  * players, monsters, or items with speed 1 can do one thing. */
 #define MAX_TIME 125000
 
-/**
- * Set this if you want the temporary maps to be saved and reused across
- * Atrinik runs.  This can be especially useful for single player
- * servers, but even holds use for multiplayer servers.  The file used
- * is updated each time a temp map is updated.
- * Note that the file used to store this information is stored in
- * the LIB directory. Running multiple Atrinik servers with the same LIB
- * directory will cause serious problems, simply because in order for
- * this to really work, the filename must be constant so the next run
- * knows where to find the information. */
-#define RECYCLE_TMP_MAPS 0
-
 /* If you get a complaint about O_NDELAY not being known/undefined, try
  * uncommenting this.
  * This may cause problems - O_NONBLOCK will return -1 on blocking writes

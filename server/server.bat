@@ -12,7 +12,6 @@ if not exist "data" (
 )
 
 copy ..\arch\*.* lib\*.*
-del /q data\tmp\*
 
 if exist "server-custom.cfg" (
 	set CLI_CONFIG=--config=server-custom.cfg

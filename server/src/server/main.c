@@ -395,17 +395,22 @@ void clean_tmp_files(void)
         next = m->next;
 
         if (m->in_memory == MAP_IN_MEMORY) {
-#if RECYCLE_TMP_MAPS
-            swap_map(m, 0);
-#else
-            new_save_map(m, 0);
-            clean_tmp_map(m);
-#endif
+            if (settings.recycle_tmp_maps) {
+                swap_map(m, 0);
+            }
+            else {
+                new_save_map(m, 0);
+                clean_tmp_map(m);
+            }
         }
     }
 
     /* Write the clock */
     write_todclock();
+
+    if (settings.recycle_tmp_maps) {
+        write_map_log();
+    }
 }
 
 /**

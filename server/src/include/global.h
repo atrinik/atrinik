@@ -408,6 +408,10 @@ typedef struct settings_struct
     /**
      * Which player the remote command goes through, if applicable. */
     char control_player[MAX_BUF];
+
+    /**
+     * Whether to recycle tmp maps or not. */
+    uint8 recycle_tmp_maps;
 } settings_struct;
 
 /** Constant shared string pointers. */

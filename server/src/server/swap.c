@@ -28,10 +28,9 @@
 
 #include <global.h>
 
-#if RECYCLE_TMP_MAPS
 /**
  * Write maps log. */
-static void write_map_log(void)
+void write_map_log(void)
 {
     FILE *fp;
     mapstruct *map;
@@ -49,13 +48,12 @@ static void write_map_log(void)
         /* If tmpname is null, it is probably a unique player map,
          * so don't save information on it. */
         if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7)) {
-            fprintf(fp, "%s:%s:%ld:%d:%d\n", map->path, map->tmpname, (map->reset_time == -1 ? -1 : map->reset_time - current_time), map->difficulty, map->darkness);
+            fprintf(fp, "%s:%s:%ld:%d:%d\n", map->path, map->tmpname, (map->reset_time - current_time), map->difficulty, map->darkness);
         }
     }
 
     fclose(fp);
 }
-#endif
 
 /**
  * Read map log. */
@@ -158,10 +156,6 @@ void swap_map(mapstruct *map, int force_flag)
     else {
         free_map(map, 1);
     }
-
-#if RECYCLE_TMP_MAPS
-    write_map_log();
-#endif
 }
 
 /**

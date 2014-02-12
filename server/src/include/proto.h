@@ -37,8 +37,6 @@ extern void command_tls(object *op, const char *command, char *params);
 extern void command_tp(object *op, const char *command, char *params);
 /* src/commands/permission/tphere.c */
 extern void command_tphere(object *op, const char *command, char *params);
-/* src/commands/permission/tpto.c */
-extern void command_tpto(object *op, const char *command, char *params);
 /* src/commands/permission/tsi.c */
 extern void command_tsi(object *op, const char *command, char *params);
 /* src/commands/player/afk.c */
@@ -692,6 +690,7 @@ extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, sint64 i, const char *buf);
 extern void statistics_player_logout(player *pl);
 /* src/server/swap.c */
+extern void write_map_log(void);
 extern void read_map_log(void);
 extern void swap_map(mapstruct *map, int force_flag);
 extern void check_active_maps(void);
@@ -813,7 +812,6 @@ extern void draw_client_map2(object *pl);
 extern void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_clear(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void socket_command_item_ready(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);

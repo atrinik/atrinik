@@ -370,6 +370,11 @@ static void clioptions_option_control_player(const char *arg)
     settings.control_player[sizeof(settings.control_player) - 1] = '\0';
 }
 
+static void clioptions_option_recycle_tmp_maps(const char *arg)
+{
+    settings.recycle_tmp_maps = 1;
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -607,7 +612,18 @@ static void init_library(int argc, char *argv[])
         1,
         "",
         ""
-        );
+    );
+
+    clioptions_add(
+        "recycle_tmp_maps",
+        NULL,
+        clioptions_option_recycle_tmp_maps,
+        0,
+        "If enabled, reuse temporary map files across server runs.",
+        "Set this if you want the temporary maps to be saved and reused "
+        "across Atrinik runs. This can be especially useful for single player "
+        "servers, but even holds use for multiplayer servers."
+    );
 
     memset(&settings, 0, sizeof(settings));
     clioptions_load_config("server.cfg", "[General]");
