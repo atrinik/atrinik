@@ -221,6 +221,10 @@ typedef enum player_state_t
     ST_LOGIN,
 
     /**
+     * Wait for login response. */
+    ST_WAITLOGIN,
+
+    /**
      * Choosing which character to play with. */
     ST_CHARACTERS,
 

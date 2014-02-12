@@ -101,18 +101,29 @@ static int popup_draw(popup_struct *popup)
         return 1;
     }
 
-    if (clioption_settings.connect[1]) {
-        text_input_set(&text_inputs[LOGIN_TEXT_INPUT_NAME], clioption_settings.connect[1]);
-        free(clioption_settings.connect[1]);
-        clioption_settings.connect[1] = NULL;
-        event_push_key_once(SDLK_RETURN, 0);
-    }
+    if ((string_isempty(clioption_settings.connect[0]) || strcasecmp(selected_server->name, clioption_settings.connect[0]) == 0) &&
+        cpl.state < ST_WAITLOGIN) {
+        if (clioption_settings.connect[1]) {
+            text_input_set(&text_inputs[LOGIN_TEXT_INPUT_NAME], clioption_settings.connect[1]);
 
-    if (clioption_settings.connect[2]) {
-        text_input_set(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD], clioption_settings.connect[2]);
-        free(clioption_settings.connect[2]);
-        clioption_settings.connect[2] = NULL;
-        event_push_key_once(SDLK_RETURN, 0);
+            if (!clioption_settings.reconnect) {
+                free(clioption_settings.connect[1]);
+                clioption_settings.connect[1] = NULL;
+            }
+
+            event_push_key_once(SDLK_RETURN, 0);
+        }
+
+        if (clioption_settings.connect[2]) {
+            text_input_set(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD], clioption_settings.connect[2]);
+
+            if (!clioption_settings.reconnect) {
+                free(clioption_settings.connect[2]);
+                clioption_settings.connect[2] = NULL;
+            }
+
+            event_push_key_once(SDLK_RETURN, 0);
+        }
     }
 
     box.w = text_inputs[LOGIN_TEXT_INPUT_NAME].coords.w;
@@ -158,7 +169,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         return 1;
     }
 
-    if (cpl.state < ST_LOGIN || !file_updates_finished()) {
+    if (cpl.state != ST_LOGIN || !file_updates_finished()) {
         return -1;
     }
 
@@ -209,6 +220,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 text_inputs[text_input_current].focus = 1;
 
                 socket_send_packet(packet);
+                cpl.state = ST_WAITLOGIN;
+
                 return 1;
             }
 

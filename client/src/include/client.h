@@ -154,6 +154,8 @@ typedef struct clioption_settings_struct
     char *connect[4];
 
     char *game_news_url;
+
+    uint8 reconnect;
 } clioption_settings_struct;
 
 #endif

@@ -279,9 +279,12 @@ static void clioptions_option_connect(const char *arg)
     char word[MAX_BUF];
 
     pos = idx = 0;
+    logger_print(LOG(INFO), "%s", arg);
 
     while (string_get_word(arg, &pos, ':', word, sizeof(word), 0)) {
-        clioption_settings.connect[idx++] = strdup(word);
+        clioption_settings.connect[idx] = strdup(word);
+        string_whitespace_trim(clioption_settings.connect[idx]);
+        idx++;
     }
 }
 
@@ -298,6 +301,11 @@ static void clioptions_option_text_debug(const char *arg)
 static void clioptions_option_game_news_url(const char *arg)
 {
     clioption_settings.game_news_url = strdup(arg);
+}
+
+static void clioptions_option_reconnect(const char *arg)
+{
+    clioption_settings.reconnect = 1;
 }
 
 /**
@@ -379,7 +387,16 @@ int main(int argc, char *argv[])
         0,
         "",
         ""
-        );
+    );
+
+    clioptions_add(
+        "reconnect",
+        NULL,
+        clioptions_option_reconnect,
+        0,
+        "",
+        ""
+    );
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
     clioptions_load_config(file_path("client.cfg", "r"), "[General]");

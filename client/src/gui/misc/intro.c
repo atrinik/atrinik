@@ -173,11 +173,6 @@ void intro_show(void)
             }
 
             list_add(list_servers, i, 2, buf);
-
-            if (clioption_settings.connect[0] && strcasecmp(clioption_settings.connect[0], node->name) == 0) {
-                list_servers->row_selected = i + 1;
-                event_push_key_once(SDLK_RETURN, 0);
-            }
         }
 
         /* Store the new count. */
@@ -289,6 +284,26 @@ void intro_show(void)
 
     button_quit.y = y + 224;
     button_show(&button_quit, "Quit");
+
+    if (clioption_settings.connect[0] && cpl.state < ST_STARTCONNECT) {
+        size_t i;
+
+        for (i = 0; i < server_count; i++) {
+            node = server_get_id(i);
+
+            if (strcasecmp(clioption_settings.connect[0], node->name) == 0) {
+                list_servers->row_selected = i + 1;
+
+                if (!clioption_settings.reconnect) {
+                    free(clioption_settings.connect[0]);
+                    clioption_settings.connect[0] = NULL;
+                }
+
+                event_push_key_once(SDLK_RETURN, 0);
+                break;
+            }
+        }
+    }
 }
 
 /**

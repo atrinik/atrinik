@@ -578,6 +578,12 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
     uint8 level;
     size_t race, gender;
 
+    if (len == 0) {
+        cpl.state = ST_LOGIN;
+        clioption_settings.reconnect = 0;
+        return;
+    }
+
     if (cpl.state != ST_CHARACTERS) {
         characters_open();
         cpl.state = ST_CHARACTERS;
@@ -606,11 +612,17 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
         }
 
         /* If we have specified a character in '--connect' command line
-        * option, update the selected row and create an enter event. */
-        if (clioption_settings.connect[3] && strcasecmp(clioption_settings.connect[3], name) == 0) {
+         * option, update the selected row and create an enter event. */
+        if ((string_isempty(clioption_settings.connect[0]) || strcasecmp(selected_server->name, clioption_settings.connect[0]) == 0) &&
+            clioption_settings.connect[3] && (strcasecmp(clioption_settings.connect[3], name) == 0 ||
+                (string_isdigit(clioption_settings.connect[3]) && (uint32) atoi(clioption_settings.connect[3]) == list_characters->rows + 1))) {
             list_characters->row_selected = list_characters->rows + 1;
-            free(clioption_settings.connect[3]);
-            clioption_settings.connect[3] = NULL;
+
+            if (!clioption_settings.reconnect) {
+                free(clioption_settings.connect[3]);
+                clioption_settings.connect[3] = NULL;
+            }
+
             event_push_key_once(SDLK_RETURN, 0);
         }
 
