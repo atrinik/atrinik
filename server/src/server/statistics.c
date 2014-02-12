@@ -120,6 +120,7 @@ void statistics_player_logout(player *pl)
     statistic_update("potions_used", pl->ob, pl->stat_potions_used, NULL);
     statistic_update("scrolls_used", pl->ob, pl->stat_scrolls_used, NULL);
     statistic_update("exp_gained", pl->ob, pl->stat_exp_gained, NULL);
+    statistic_update("exp_lost", pl->ob, pl->stat_exp_lost, NULL);
     statistic_update("items_dropped", pl->ob, pl->stat_items_dropped, NULL);
     statistic_update("items_picked", pl->ob, pl->stat_items_picked, NULL);
     statistic_update("corpses_searched", pl->ob, pl->stat_corpses_searched, NULL);

@@ -345,11 +345,22 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
         exp_skill->stats.exp = 0;
     }
 
-    if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL)) {
-        op->stats.exp += exp_gain;
-    }
+    if (exp_gain > 0) {
+        if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL)) {
+            op->stats.exp += exp_gain;
 
-    CONTR(op)->stat_exp_gained += exp_gain;
+            if (op->stats.exp >= (sint64) MAX_EXPERIENCE) {
+                exp_gain = exp_gain - (op->stats.exp - MAX_EXPERIENCE);
+                op->stats.exp = MAX_EXPERIENCE;
+            }
+        }
+
+        CONTR(op)->stat_exp_gained += exp_gain;
+    }
+    else if (exp_gain < 0) {
+        link_player_skills(op);
+        CONTR(op)->stat_exp_lost += -exp_gain;
+    }
 
     /* Notify the player of the exp gain/loss. */
     if (exp_gain > 0) {

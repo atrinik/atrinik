@@ -385,6 +385,9 @@ typedef struct pl_player
     /** Total experience gained. */
     uint64 stat_exp_gained;
 
+    /** Total experience lost. */
+    uint64 stat_exp_lost;
+
     /** Total number of items dropped. */
     uint64 stat_items_dropped;
 
