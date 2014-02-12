@@ -165,7 +165,9 @@ int object_apply_item(object *op, object *applier, int aflags)
         }
     }
 
-    op = object_stack_get_reinsert(op, 1);
+    if (!QUERY_FLAG(op, FLAG_CAN_STACK)) {
+        op = object_stack_get_reinsert(op, 1);
+    }
 
     switch (op->type) {
         case WEAPON:
