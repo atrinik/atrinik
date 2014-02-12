@@ -213,8 +213,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     /* Calculate moving speed. */
     op->speed = MIN(1.0f, ((shooter->type == PLAYER ? speed_bonus[shooter->stats.Str] : 0.0f) + 1.0f) / 1.5f);
 
-    logger_print(LOG(INFO), "speed: %f", op->speed);
-
     /* Get the used skill. */
     skill = SK_skill(shooter);
 
