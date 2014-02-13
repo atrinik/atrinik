@@ -1,0 +1,5 @@
+In order to install Gridarta, download a weekly build from
+http://www.atrinik.org/editor/AtrinikEditor.jar and put it into this directory.
+
+Alternatively, you can run the ./build.sh script to build your own jar from the
+source, if you have it downloaded.
