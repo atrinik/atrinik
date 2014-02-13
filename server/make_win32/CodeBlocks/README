@@ -1,6 +1,28 @@
 To build the Atrinik server with Code::Blocks, you will need to:
 
 1. Install Code::Blocks with MinGW compiler
-2. Run Setup.bat, which will unpack the tar.gz files
+
+2. Download Flex binary from http://gnuwin32.sourceforge.net/downlinks/flex-bin-zip.php (main page: http://gnuwin32.sourceforge.net/packages/flex.htm)
+   Download pthread, zlib and cURL lib and dll files, place the dll files in the server root directory, and the lib files in a structure like so:
+   - server
+     - make_win32
+       - CodeBlocks
+         - share
+           - include
+             - curl
+               - curl.h
+               - ...
+             - pthread.h
+             - zlib.h
+             - ...
+           - lib
+             - libcurl.a
+             - ...
+
+   For your convenience, you can download all of the dll and lib files used to compile the official server from here:
+     lib files: http://www.atrinik.org/download/win32/atrinik-server-share-codeblocks.zip (extract here)
+     dll files: http://www.atrinik.org/download/win32/atrinik-server-dll-codeblocks.zip (extract in server root directory)
+
 3. Double click on the Code::Blocks workspace file
+
 4. Build workspace
