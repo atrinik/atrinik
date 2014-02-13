@@ -59,10 +59,10 @@
  * For each level we store an own bitmap copy. */
 #define DARK_LEVELS 7
 
-#define DIRECTORY_SFX "sfx"
+#define DIRECTORY_SFX "sound/effects"
 #define DIRECTORY_CACHE "cache"
 #define DIRECTORY_GFX_USER "gfx_user"
-#define DIRECTORY_MEDIA "media"
+#define DIRECTORY_MEDIA "sound/background"
 
 /**
  * If 1, used memory is freed on shutdown, allowing easier memory leak
