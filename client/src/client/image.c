@@ -129,14 +129,13 @@ void read_bmaps_p0(void)
     size_t len;
     bmap_struct *bmap;
 
+    memset((void *) bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
+
     fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "%s doesn't exist.", FILE_ATRINIK_P0);
-        exit(1);
+        return;
     }
-
-    memset((void *) bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
 
     tmp_buf_size = 24 * 1024;
     tmp_buf = malloc(tmp_buf_size);
