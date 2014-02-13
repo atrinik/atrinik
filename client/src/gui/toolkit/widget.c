@@ -273,7 +273,7 @@ void toolkit_widget_init(void)
 
     if (!widget_load("data/interface.cfg", 1, widgets)) {
         logger_print(LOG(ERROR), "Could not load widget defaults from data/interface.cfg.");
-        exit(-1);
+        exit(1);
     }
 
     widget_load("settings/interface.cfg", 0, widgets);

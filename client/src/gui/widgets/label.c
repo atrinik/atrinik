@@ -65,7 +65,7 @@ void widget_label_init(widgetdata *widget)
 
     if (!label) {
         logger_print(LOG(ERROR), "OOM.");
-        exit(-1);
+        exit(1);
     }
 
     label->font = FONT_ARIAL10;

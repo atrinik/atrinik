@@ -128,7 +128,7 @@ void widget_container_init(widgetdata *widget)
 
     if (!container) {
         logger_print(LOG(ERROR), "OOM.");
-        exit(-1);
+        exit(1);
     }
 
     container->widget_type = -1;
@@ -146,7 +146,7 @@ void widget_container_init(widgetdata *widget)
 
         if (!container_strip) {
             logger_print(LOG(ERROR), "OOM.");
-            exit(-1);
+            exit(1);
         }
 
         container_strip->inner_padding = 10;
@@ -160,7 +160,7 @@ void widget_container_init(widgetdata *widget)
 
             if (!menu) {
                 logger_print(LOG(ERROR), "OOM.");
-                exit(-1);
+                exit(1);
             }
 
             container_strip->subcontainer_strip = menu;
@@ -172,7 +172,7 @@ void widget_container_init(widgetdata *widget)
 
             if (!menuitem) {
                 logger_print(LOG(ERROR), "OOM.");
-                exit(-1);
+                exit(1);
             }
 
             menuitem->menu_type = MENU_NORMAL;

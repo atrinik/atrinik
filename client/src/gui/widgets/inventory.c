@@ -459,7 +459,7 @@ void widget_inventory_init(widgetdata *widget)
 
     if (!inventory) {
         logger_print(LOG(ERROR), "OOM.");
-        exit(-1);
+        exit(1);
     }
 
     scrollbar_info_create(&inventory->scrollbar_info);

@@ -53,7 +53,7 @@ void widget_texture_init(widgetdata *widget)
 
     if (!texture) {
         logger_print(LOG(ERROR), "OOM.");
-        exit(-1);
+        exit(1);
     }
 
     widget->draw_func = widget_draw;
