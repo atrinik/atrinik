@@ -24,6 +24,15 @@ __pycache__
 server-custom.cfg
 config-custom.cfg
 permissions-custom.cfg
+*.jar
+*.tar.gz
+*.mp3
+*.ogg
+*.s3m
+*.mod
+*.xm
+*.mid
+client/sound
 
 # GNU/Linux
 core
@@ -52,8 +61,7 @@ build.user
 # Win32
 Thumbs.db
 desktop.ini
-atrinik.exe
-atrinik_server.exe
+*.exe
 client/stdout.txt
 client/stderr.txt
 *.cbTemp
@@ -70,4 +78,3 @@ semaphore.h
 **/CodeBlocks/lib
 client/timidity/
 client/timidity.cfg
-client/up_dater.exe
