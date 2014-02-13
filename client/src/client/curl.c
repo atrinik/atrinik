@@ -283,6 +283,7 @@ curl_data *curl_download_start(const char *url)
 
     if (!data->thread) {
         logger_print(LOG(ERROR), "Thread creation failed.");
+        exit(1);
     }
 
     return data;

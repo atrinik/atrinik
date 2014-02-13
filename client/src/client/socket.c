@@ -358,12 +358,14 @@ void socket_thread_start(void)
 
     if (input_thread == NULL) {
         logger_print(LOG(ERROR), "Unable to start socket thread: %s", SDL_GetError());
+        exit(1);
     }
 
     output_thread = SDL_CreateThread(writer_thread_loop, NULL);
 
     if (output_thread == NULL) {
         logger_print(LOG(ERROR), "Unable to start socket thread: %s", SDL_GetError());
+        exit(1);
     }
 }
 

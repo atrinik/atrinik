@@ -166,6 +166,7 @@ void text_init(void)
 
         if (!font) {
             logger_print(LOG(ERROR), "Unable to load font (%s): %s", fonts[i].path, TTF_GetError());
+            exit(1);
         }
 
         fonts[i].font = font;

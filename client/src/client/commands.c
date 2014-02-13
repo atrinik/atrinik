@@ -909,6 +909,7 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
 
     if (!dest) {
         logger_print(LOG(ERROR), "OOM.");
+        exit(1);
     }
 
     dest[0] = type;

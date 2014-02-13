@@ -243,5 +243,6 @@ void metaserver_get_servers(void)
 
     if (!thread) {
         logger_print(LOG(ERROR), "Thread creation failed.");
+        exit(1);
     }
 }

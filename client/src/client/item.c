@@ -40,6 +40,7 @@ static object *object_new(void)
 
     if (!op) {
         logger_print(LOG(ERROR), "OOM.");
+        exit(1);
     }
 
     return op;

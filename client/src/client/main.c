@@ -488,7 +488,7 @@ int main(int argc, char *argv[])
          * action */
         if (cpl.state != ST_PLAY) {
             if (!game_status_chain()) {
-                logger_print(LOG(ERROR), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
+                logger_print(LOG(BUG), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
             }
         }
 
