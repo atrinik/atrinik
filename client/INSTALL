@@ -34,3 +34,9 @@ the chosen IDE's directory for further instructions.
 Make sure to read MIDI.txt in the make_win32 directory for instructions
 how to install GUS-compatible patches, in order to correctly play MIDI
 files in the client.
+
+Installing music and sound files files
+=================================================
+
+Media files: Clone the following repository into client/sound:
+https://github.com/atrinik/atrinik-sound
