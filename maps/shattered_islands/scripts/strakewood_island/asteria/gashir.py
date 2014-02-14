@@ -15,16 +15,16 @@ class BartenderGashir(Bartender):
         self._inf.add_msg("Welcome to Asterian Arms Tavern.")
         self._inf.add_msg("I'm {}, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following provisions.".format(self._me.name))
 
-        if not qm.completed_part(1):
+        if not qm.completed("deliver"):
             self._inf.add_msg("Unfortunately, it appears we are fresh out of our local specialty, the Charob Beer. If you want to buy some, you'll have to wait until the shipment arrives. In the meantime, maybe you could check down at the brewery to see what is holding my shipment up...")
 
-            if qm.finished(1):
+            if qm.finished("deliver"):
                 self._inf.add_link("I have your shipment of Charob Beer.", dest = "shipment")
 
         self._create_provisions()
 
     def _can_buy(self, obj):
-        if obj.arch.name == "beer_charob" and not qm.completed_part(1):
+        if obj.arch.name == "beer_charob" and not qm.completed("deliver"):
             return False
 
         return True
@@ -48,12 +48,12 @@ class BartenderGashir(Bartender):
 
 def main():
     if msg == "shipment":
-        if qm.started_part(1) and qm.finished(1):
+        if qm.finished("deliver"):
             inf.add_msg("Finally, I get my shipment of Charob Beer!")
             inf.add_msg("You hand over the shipment of the Charob Beer.", COLOR_YELLOW)
             inf.add_msg("Thank you! Now I can serve you with Charob Beer. I am sure you'll get a payment for your delivery too!")
-            qm.start(2)
-            qm.complete(1, sound = None)
+            qm.start("reward")
+            qm.complete("deliver")
     else:
         bartender = BartenderGashir(activator, me, WhatIsEvent(), inf)
         bartender.handle_msg(msg)

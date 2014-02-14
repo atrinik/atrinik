@@ -8,18 +8,18 @@ ShipmentOfCharobBeer = {
     "quest_name": "Shipment of Charob Beer",
     "type": QUEST_TYPE_MULTI,
     "message": "Deliver Charob Beer to the Asterian Arms Tavern.",
-    "parts": [
-        {
+    "parts": {
+        "deliver": {
             "message": "Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.",
             "type": QUEST_TYPE_KILL_ITEM,
             "arch_name": "barrel2.101",
             "item_name": "shipment of Charob Beer",
         },
-        {
+        "reward": {
             "message": "Gashir, the bartender in Asterian Arms Tavern, was pleased with the delivery, and has suggested that you go speak with Steve Bruck for a payment.",
             "type": QUEST_TYPE_SPECIAL,
         },
-    ],
+    },
 }
 
 ## The Fort Sether Illness quest.
