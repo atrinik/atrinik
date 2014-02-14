@@ -328,6 +328,11 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 o
     the_map.cells[x][y].alpha[layer] = alpha;
     the_map.cells[x][y].rotate[layer] = rotate;
     the_map.cells[x][y].infravision[layer] = infravision;
+
+    if (the_map.cells[x][y].target_object_count[layer] != target_object_count || the_map.cells[x][y].target_is_friend[layer] != target_is_friend) {
+        cpl.target_object_index = 0;
+    }
+
     the_map.cells[x][y].target_object_count[layer] = target_object_count;
     the_map.cells[x][y].target_is_friend[layer] = target_is_friend;
 }
