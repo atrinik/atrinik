@@ -30,4 +30,9 @@ can_use_weapon 1
 is_player 1
 weight 53000
 food 750
+Str 14
+Dex 14
+Con 13
+Int 12
+Pow 12
 end
