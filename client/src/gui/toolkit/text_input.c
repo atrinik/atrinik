@@ -167,7 +167,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     /* Figure out the width by going backwards. */
     for (pos = text_input->pos; pos; pos--) {
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->coords.w) {
+        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
         }
 
@@ -190,7 +190,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 
     box.w = text_input->coords.w - TEXT_INPUT_PADDING * 2;
     box.h = text_input->coords.h - TEXT_INPUT_PADDING * 2;
-    text_show(surface, text_input->font, buf, text_input->coords.x + TEXT_INPUT_PADDING * 2, text_input->coords.y + TEXT_INPUT_PADDING * 2, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+    text_show(surface, text_input->font, buf, text_input->coords.x + TEXT_INPUT_PADDING, text_input->coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
 
     if (cp) {
         text_input_set(text_input, cp);
