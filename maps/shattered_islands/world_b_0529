@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-09-23 Alex Tokar
+Modified: 2014-02-14 alex
 endmsg
 width 24
 height 24
@@ -1428,7 +1428,7 @@ arch quest_container
 name Fort Sether Illness
 sub_type 4
 arch quest_container
-name part 4
+name get hearts
 sub_type 2
 arch bone_skull
 name sword spider's heart
