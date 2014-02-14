@@ -101,6 +101,7 @@ static int game_status_chain(void)
     if (cpl.state == ST_INIT) {
         clear_map();
         effect_stop();
+        sound_ambient_clear();
         cpl.state = ST_META;
     }
     else if (cpl.state == ST_META) {
