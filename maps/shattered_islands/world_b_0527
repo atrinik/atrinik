@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2011-05-11 Alex Tokar
+Modified: 2014-02-14 alex
 endmsg
 width 24
 height 24
@@ -549,6 +549,46 @@ arch fwall_rock3
 x 4
 y 18
 end
+arch floor_sand_d1
+x 4
+y 20
+end
+arch fwall_rock3
+x 4
+y 20
+end
+arch floor_sand_d2
+x 4
+y 21
+end
+arch fwall_rock2
+no_pass 0
+x 4
+y 21
+end
+arch hole
+msg
+You climb back up to the Fort Sether storage room...
+endmsg
+sub_layer 1
+z 12
+align 12
+walk_on 1
+fly_on 1
+slaying world_a_0527
+hp 4
+sp 21
+x 4
+y 21
+end
+arch floor_sand_d4
+x 4
+y 22
+end
+arch fwall_rock1
+x 4
+y 22
+end
 arch floor_sand_d4
 x 5
 end
@@ -699,11 +739,52 @@ arch fwall_rock3
 x 5
 y 18
 end
+arch floor_sand_d4
+x 5
+y 20
+end
+arch fwall_rock3
+x 5
+y 20
+end
+arch plant1_wall.151
+x 5
+y 20
+end
+arch floor_sand_d2
+x 5
+y 21
+end
+arch floor_sand_d4
+x 5
+y 22
+end
+arch fwall_rock2
+no_pass 0
+x 5
+y 22
+end
+arch floor_sand_d3
+x 5
+y 23
+end
+arch fwall_rock3
+x 5
+y 23
+end
+arch floor_sand_d3
+x 6
+y 4
+end
+arch fwall_rock1
+x 6
+y 4
+end
 arch floor_sand_d2
 x 6
 y 5
 end
-arch fwall_rock1
+arch fwall_rock3
 x 6
 y 5
 end
@@ -738,6 +819,54 @@ end
 arch fwall_rock1
 x 6
 y 9
+end
+arch floor_sand_d2
+x 6
+y 10
+end
+arch mushroom_spot1
+x 6
+y 10
+end
+arch light1
+x 6
+y 10
+end
+arch spawn_point
+x 6
+y 10
+arch spider
+level 11
+type 83
+end
+end
+arch floor_sand_d1
+x 6
+y 11
+end
+arch mushroom_spot1
+x 6
+y 11
+end
+arch light1
+x 6
+y 11
+end
+arch floor_sand_d1
+x 6
+y 12
+end
+arch spider_web
+x 6
+y 12
+end
+arch floor_sand_d3
+x 6
+y 13
+end
+arch dirt_floor4
+x 6
+y 13
 end
 arch floor_sand_d1
 x 6
@@ -778,6 +907,163 @@ end
 arch fwall_rock1
 x 6
 y 19
+end
+arch floor_sand_d3
+x 6
+y 20
+end
+arch fwall_rock3
+x 6
+y 20
+end
+arch floor_sand_d4
+x 6
+y 21
+end
+arch dirt_floor3
+x 6
+y 21
+end
+arch floor_sand_d4
+x 6
+y 22
+end
+arch crystal_purple_s
+x 6
+y 22
+end
+arch light5
+x 6
+y 22
+end
+arch floor_sand_d3
+x 6
+y 23
+end
+arch fwall_rock2
+x 6
+y 23
+end
+arch floor_sand_d1
+x 7
+y 3
+end
+arch fwall_rock2
+x 7
+y 3
+end
+arch floor_sand_d3
+x 7
+y 4
+end
+arch fwall_rock2
+no_pass 0
+x 7
+y 4
+end
+arch hole
+msg
+You climb through a hole in the wall.
+endmsg
+sub_layer 1
+z 12
+align -10
+walk_on 1
+fly_on 1
+hp 9
+sp 3
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch dirt_floor3
+x 7
+y 5
+end
+arch floor_sand_d4
+x 7
+y 6
+end
+arch spider_web
+x 7
+y 6
+end
+arch floor_sand_d1
+x 7
+y 7
+end
+arch mushroom_spot2
+x 7
+y 7
+end
+arch light1
+x 7
+y 7
+end
+arch floor_sand_d3
+x 7
+y 8
+end
+arch mushroom_spot1
+x 7
+y 8
+end
+arch light1
+x 7
+y 8
+end
+arch floor_sand_d1
+x 7
+y 9
+end
+arch spider_web
+x 7
+y 9
+end
+arch floor_sand_d4
+x 7
+y 10
+end
+arch spider_web
+x 7
+y 10
+end
+arch floor_sand_d2
+x 7
+y 11
+end
+arch blood_floor2
+x 7
+y 11
+end
+arch floor_sand_d1
+x 7
+y 12
+end
+arch floor_sand_d3
+x 7
+y 13
+end
+arch plant_mushroom3
+x 7
+y 13
+end
+arch floor_sand_d3
+x 7
+y 14
+end
+arch hole
+msg
+You crawl through a tiny tunnel...
+endmsg
+slaying world_b_0527
+hp 7
+sp 20
+x 7
+y 14
 end
 arch floor_sand_d3
 x 7
@@ -811,6 +1097,36 @@ arch fwall_rock2
 x 7
 y 19
 end
+arch floor_sand_d3
+x 7
+y 20
+end
+arch hole
+msg
+You crawl through a tiny tunnel...
+endmsg
+slaying world_b_0527
+hp 7
+sp 14
+x 7
+y 20
+end
+arch floor_sand_d3
+x 7
+y 21
+end
+arch floor_sand_d2
+x 7
+y 22
+end
+arch floor_sand_d1
+x 7
+y 23
+end
+arch fwall_rock3
+x 7
+y 23
+end
 arch floor_sand_d4
 x 8
 y 2
@@ -824,6 +1140,21 @@ x 8
 y 3
 end
 arch fwall_rock2
+no_pass 0
+x 8
+y 3
+end
+arch hole
+msg
+You climb through a hole in the wall.
+endmsg
+sub_layer 1
+z 12
+align 12
+walk_on 1
+fly_on 1
+hp 7
+sp 5
 x 8
 y 3
 end
@@ -842,6 +1173,66 @@ end
 arch fwall_rock2
 x 8
 y 5
+end
+arch floor_sand_d4
+x 8
+y 6
+end
+arch small_stones
+x 8
+y 6
+end
+arch floor_sand_d2
+x 8
+y 7
+end
+arch spider_web
+x 8
+y 7
+end
+arch floor_sand_d4
+x 8
+y 8
+end
+arch floor_sand_d3
+x 8
+y 9
+end
+arch floor_sand_d4
+x 8
+y 10
+end
+arch dirt_floor3
+x 8
+y 10
+end
+arch floor_sand_d2
+x 8
+y 11
+end
+arch spider_web
+x 8
+y 11
+end
+arch floor_sand_d3
+x 8
+y 12
+end
+arch plant_mushroom1
+x 8
+y 12
+end
+arch floor_sand_d4
+x 8
+y 13
+end
+arch spider_web
+x 8
+y 13
+end
+arch floor_sand_d2
+x 8
+y 14
 end
 arch floor_sand_d3
 x 8
@@ -878,6 +1269,34 @@ end
 arch fwall_rock1
 x 8
 y 19
+end
+arch floor_sand_d1
+x 8
+y 20
+end
+arch fwall_rock2
+x 8
+y 20
+end
+arch floor_sand_d1
+x 8
+y 21
+end
+arch floor_sand_d1
+x 8
+y 22
+end
+arch blood_floor2
+x 8
+y 22
+end
+arch floor_sand_d4
+x 8
+y 23
+end
+arch fwall_rock1
+x 8
+y 23
 end
 arch floor_sand_d3
 x 9
@@ -936,6 +1355,90 @@ arch fwall_rock1
 x 9
 y 5
 end
+arch floor_sand_d2
+x 9
+y 6
+end
+arch crystal_red_s
+x 9
+y 6
+end
+arch light5
+x 9
+y 6
+end
+arch floor_sand_d4
+x 9
+y 7
+end
+arch dirt_floor1
+x 9
+y 7
+end
+arch floor_sand_d2
+x 9
+y 8
+end
+arch plant_mushroom5
+x 9
+y 8
+end
+arch floor_sand_d1
+x 9
+y 9
+end
+arch light1
+x 9
+y 9
+end
+arch spawn_point
+x 9
+y 9
+arch spider
+level 11
+type 83
+end
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch spider_web
+x 9
+y 10
+end
+arch floor_sand_d4
+x 9
+y 11
+end
+arch mushroom_giant7
+x 9
+y 11
+end
+arch floor_sand_d1
+x 9
+y 12
+end
+arch spider_web
+x 9
+y 12
+end
+arch floor_sand_d1
+x 9
+y 13
+end
+arch floor_sand_d4
+x 9
+y 14
+end
+arch mushroom_spot1
+x 9
+y 14
+end
+arch light1
+x 9
+y 14
+end
 arch floor_sand_d1
 x 9
 y 15
@@ -967,6 +1470,42 @@ end
 arch fwall_rock1
 x 9
 y 19
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch fwall_rock2
+x 9
+y 20
+end
+arch floor_sand_d1
+x 9
+y 21
+end
+arch fwall_rock2
+x 9
+y 21
+end
+arch floor_sand_d1
+x 9
+y 22
+end
+arch mushroom_spot1
+x 9
+y 22
+end
+arch light1
+x 9
+y 22
+end
+arch floor_sand_d3
+x 9
+y 23
+end
+arch fwall_rock3
+x 9
+y 23
 end
 arch floor_sand_d1
 x 10
@@ -1018,6 +1557,70 @@ arch fwall_rock3
 x 10
 y 5
 end
+arch floor_sand_d1
+x 10
+y 6
+end
+arch mushroom_spot2
+x 10
+y 6
+end
+arch light1
+x 10
+y 6
+end
+arch spawn_point
+x 10
+y 6
+arch spider
+level 11
+type 83
+end
+end
+arch floor_sand_d3
+x 10
+y 7
+end
+arch spider_web
+x 10
+y 7
+end
+arch floor_sand_d4
+x 10
+y 8
+end
+arch floor_sand_d1
+x 10
+y 9
+end
+arch floor_sand_d1
+x 10
+y 10
+end
+arch floor_sand_d4
+x 10
+y 11
+end
+arch spider_web
+x 10
+y 11
+end
+arch floor_sand_d4
+x 10
+y 12
+end
+arch floor_sand_d2
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch floor_sand_d1
+x 10
+y 15
+end
 arch floor_sand_d4
 x 10
 y 16
@@ -1041,6 +1644,30 @@ end
 arch fwall_rock2
 x 10
 y 19
+end
+arch floor_sand_d1
+x 10
+y 21
+end
+arch fwall_rock3
+x 10
+y 21
+end
+arch floor_sand_d1
+x 10
+y 22
+end
+arch fwall_rock3
+x 10
+y 22
+end
+arch floor_sand_d1
+x 10
+y 23
+end
+arch fwall_rock1
+x 10
+y 23
 end
 arch floor_sand_d4
 x 11
@@ -1125,6 +1752,82 @@ end
 arch fwall_rock1
 x 11
 y 11
+end
+arch floor_sand_d1
+x 11
+y 12
+end
+arch mushroom_spot2
+x 11
+y 12
+end
+arch light1
+x 11
+y 12
+end
+arch spawn_point
+x 11
+y 12
+arch spider_widow
+name sword spider
+level 11
+exp 97
+attack_cleave 90
+Wis 4
+protect_impact 5
+protect_slash 5
+protect_cleave 5
+protect_pierce 5
+type 83
+arch quest_container
+name Fort Sether Illness
+sub_type 4
+arch quest_container
+name part 4
+sub_type 2
+arch bone_skull
+name sword spider's heart
+face heart.101
+nrof 1
+weight 100
+value 50
+can_stack 1
+no_pick 0
+identified 1
+item_quality 100
+item_condition 100
+end
+end
+end
+end
+end
+arch floor_sand_d3
+x 11
+y 13
+end
+arch mushroom_spot2
+x 11
+y 13
+end
+arch light1
+x 11
+y 13
+end
+arch floor_sand_d4
+x 11
+y 14
+end
+arch dirt_floor3
+x 11
+y 14
+end
+arch spider_web
+x 11
+y 14
+end
+arch floor_sand_d2
+x 11
+y 15
 end
 arch floor_sand_d4
 x 11
@@ -1248,6 +1951,10 @@ end
 arch fwall_rock2
 x 12
 y 14
+end
+arch floor_sand_d1
+x 12
+y 15
 end
 arch floor_sand_d2
 x 12
