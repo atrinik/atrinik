@@ -6,7 +6,8 @@ qm = QuestManagerMulti(activator, quest)
 def main():
     SetReturnValue(1)
 
-    if qm.finished(6):
+    if qm.finished("get branches"):
+        pl.DrawInfo("You should return with the branches to Sam Goodberry.", COLOR_YELLOW)
         return
 
     for (m, x, y) in activator.SquaresAround(1):

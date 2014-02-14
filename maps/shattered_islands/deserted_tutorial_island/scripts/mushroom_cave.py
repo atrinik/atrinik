@@ -4,7 +4,7 @@ from Quests import EscapingDesertedIsland as quest
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if qm.started_part(5) and not qm.completed_part(5) and not qm.finished(5):
+    if qm.need_finish("get mushrooms"):
         me.f_quest_item = True
         me.f_startequip = True
         me.f_identified = True

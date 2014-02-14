@@ -7,7 +7,7 @@ qm = QuestManagerMulti(activator, quest)
 inf = Interface(activator, me)
 
 def main():
-    if not qm.started_part(1):
+    if not qm.started("explore"):
         if msg == "hello":
             inf.add_msg("There you are, <i>{}</i>! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.".format(activator.name))
             inf.add_link("Who are you?", dest = "who")
@@ -32,27 +32,27 @@ def main():
             inf.add_msg("Hm, good point. We have to be careful out here... Well, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.")
             inf.add_objects([me.FindObject(archname = "compass"), me.FindObject(archname = "torch")])
             Notification(activator.Controller(), "Tutorial Available: Inventory Interaction", "/help basics_inventory_interaction", "?HELP", 90000)
-            qm.start(1)
+            qm.start("explore")
 
-    elif not qm.completed_part(1):
+    elif not qm.completed("explore"):
         if msg == "hello":
             inf.add_msg("Well? Have you found a source of clean water yet? No? Well hurry up then, there has to be a source here somewhere!")
 
-    elif qm.started_part(2) and not qm.completed_part(2):
+    elif qm.need_complete("exploration report"):
         if msg == "hello":
             inf.add_msg("Well? Have you found a source of clean water yet?")
             inf.add_msg("You tell {} about the lake.".format(me.name), COLOR_YELLOW)
             inf.add_msg("Fantastic! Here, take this empty barrel and go fill it up with the water from that lake. We will need it if we are to escape this island.")
             inf.add_objects(me.FindObject(archname = "deserted_island_empty_barrel"))
             Notification(activator.Controller(), "Tutorial Available: Quest List", "/help basics_quest_list", "?HELP", 90000)
-            qm.start(3)
-            qm.complete(2, sound = False)
+            qm.start("fill barrel")
+            qm.complete("exploration report")
 
-    elif qm.started_part(3) and not qm.completed_part(3):
+    elif qm.need_complete("fill barrel"):
         if msg == "hello":
             inf.add_msg("Please, take the empty barrel I have given you to the lake you found and fill it up with water.")
 
-    elif qm.started_part(4) and not qm.completed_part(4):
+    elif qm.need_complete("return barrel"):
         if msg == "hello":
             barrel = activator.FindObject(INVENTORY_CONTAINERS, "deserted_island_filled_barrel")
 
@@ -75,16 +75,16 @@ def main():
         elif msg == "havelook":
             inf.add_msg("Very well. However, be careful. Even if this looks like a deserted island, you never know... Here, take some more torches, just in case.")
             inf.add_objects(me.FindObject(archname = "torch"))
-            qm.start(5)
-            qm.complete(4, sound = False)
+            qm.start("get mushrooms")
+            qm.complete("return barrel")
 
-    elif qm.started_part(5) and not qm.completed_part(5):
-        if qm.finished(5):
+    elif qm.need_complete("get mushrooms"):
+        if qm.finished("get mushrooms"):
             if msg == "hello":
                 inf.add_msg("Very good. We have enough mushrooms to last us for a while now. Keep some of those, while I store the rest. There we go. Now, we should think about leaving this island.")
                 Notification(activator.Controller(), "Tutorial Available: Hunger", "/help basics_hunger", "?HELP", 90000)
                 inf.add_link("How do we do that?", dest = "dothat")
-                qm.complete(5, skip_completion = True)
+                qm.complete("get mushrooms", skip_completion = True)
 
                 mushrooms = me.FindObject(archname = "mushroom1").Clone()
                 mushrooms.InsertInto(activator)
@@ -92,17 +92,17 @@ def main():
             if msg == "hello":
                 from Language import int2english
 
-                num = qm.num2finish(5)
+                num = qm.num2finish("get mushrooms")
 
                 inf.add_msg("Ah, you're back soon, it seems! But have you found any mushrooms?")
                 inf.add_msg("{} checks how many mushrooms you have found.".format(me.name), COLOR_YELLOW)
 
-                if num == quest["parts"][5 - 1]["num"]:
+                if num == quest["parts"]["get mushrooms"]["num"]:
                     inf.add_msg("None? Well, keep looking, there are sure to be some edible ones around here somewhere, perhaps in a nearby cavern...")
                 else:
                     inf.add_msg("Ah, you have found some! Very good. However, it seems we need at least {} more.".format(int2english(num)))
 
-    elif not qm.started_part(6):
+    elif not qm.started("get branches"):
         if msg == "hello":
             inf.add_msg("We should think about leaving this island soon, {}.".format(activator.name))
             inf.add_link("How do we do that?", dest = "dothat")
@@ -116,10 +116,10 @@ def main():
             inf.add_msg("You can interact with the saw while standing next to a tree in order to cut down some branches.", COLOR_YELLOW)
             inf.add_objects(me.FindObject(archname = "sam_goodberry_saw"))
 
-            qm.start(6)
+            qm.start("get branches")
 
-    elif qm.started_part(6) and not qm.completed_part(6):
-        if qm.finished(6):
+    elif qm.need_complete("get branches"):
+        if qm.finished("get branches"):
             if msg == "hello":
                 inf.add_msg("Ah, perfect! If you can lend me a hand, we can repair this boat in no time at all with the tree branches that you collected, and then we can set sail.")
                 inf.add_link("Where are we heading though?", dest = "heading")
@@ -142,7 +142,7 @@ def main():
                 inf.add_msg("After patching up the boat and setting everything in order, you set sail.", COLOR_YELLOW)
                 inf.add_msg("You feel tired after all that hard work, perhaps you should speak to {}...".format(me.name), COLOR_YELLOW)
                 activator.TeleportTo("/shattered_islands/world_af01", 4, 6)
-                qm.complete(6, sound = "fanfare6.ogg")
+                qm.complete("get branches", sound = "fanfare6.ogg")
         else:
             inf.add_msg("We need some thick branches to repair the boat, {}.".format(activator.name))
 
