@@ -165,25 +165,25 @@ static int popup_draw(popup_struct *popup)
     button_set_parent(&button_apply, popup->x, popup->y);
 
     button_new.x = 30;
-    button_new.y = popup->surface->h - 74;
+    button_new.y = popup->surface->h - 72;
     button_show(&button_new, "Add");
 
     button_remove.x = 30;
-    button_remove.y = popup->surface->h - 51;
+    button_remove.y = popup->surface->h - 49;
     button_show(&button_remove, "Remove");
 
     if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT) {
         int key, mod;
 
-        text_show_shadow(popup->surface, FONT_ARIAL11, "Command: ", 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-        text_show_shadow(popup->surface, FONT_ARIAL11, "Key: ", 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, 0, NULL);
-        text_show_shadow(popup->surface, FONT_ARIAL10, "Press ESC to cancel.", 160, popup->surface->h - 36, COLOR_WHITE, COLOR_BLACK, 0, NULL);
+        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Command: </hcenter>", text_input_command.coords.h);
+        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Key: </hcenter>", text_input_command.coords.h);
+        text_show_shadow_format(popup->surface, FONT_ARIAL10, 160, text_input_key.coords.y + text_input_key.coords.h + 5, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Press ESC to cancel.</hcenter>", button_apply.texture->surface->h);
 
         text_input_set_parent(&text_input_command, popup->x, popup->y);
         text_input_set_parent(&text_input_key, popup->x, popup->y);
 
-        text_input_show(&text_input_command, popup->surface, 160, popup->surface->h - 74);
-        text_input_show(&text_input_key, popup->surface, 160, popup->surface->h - 44);
+        text_input_show(&text_input_command, popup->surface, 160, popup->surface->h - 72);
+        text_input_show(&text_input_key, popup->surface, 160, popup->surface->h - 49);
 
         box.w = text_input_key.coords.w;
         box.h = text_input_key.coords.h;
@@ -192,14 +192,14 @@ static int popup_draw(popup_struct *popup)
             char buf[MAX_BUF];
 
             keybind_get_key_shortcut(key, mod, buf, sizeof(buf));
-            text_show(popup->surface, text_input_key.font, buf, text_input_key.coords.x, text_input_key.coords.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface, text_input_key.font, buf, text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
         }
         else if (text_input_key.focus) {
-            text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.coords.x, text_input_key.coords.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
         }
 
         button_apply.x = text_input_key.coords.x + text_input_key.coords.w - texture_surface(button_apply.texture)->w;
-        button_apply.y = text_input_key.coords.y + 20;
+        button_apply.y = text_input_key.coords.y + text_input_key.coords.h + 5;
         button_show(&button_apply, "Apply");
     }
 
