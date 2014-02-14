@@ -447,11 +447,10 @@ enum
 #define CS_STAT_SP              3
 #define CS_STAT_MAXSP           4
 #define CS_STAT_STR             5
-#define CS_STAT_INT             6
-#define CS_STAT_WIS             7
-#define CS_STAT_DEX             8
-#define CS_STAT_CON             9
-#define CS_STAT_CHA             10
+#define CS_STAT_DEX             6
+#define CS_STAT_CON             7
+#define CS_STAT_INT             8
+#define CS_STAT_POW             9
 #define CS_STAT_EXP             11
 #define CS_STAT_LEVEL           12
 #define CS_STAT_WC              13
@@ -460,10 +459,9 @@ enum
 #define CS_STAT_ARMOUR          16
 #define CS_STAT_SPEED           17
 #define CS_STAT_FOOD            18
-#define CS_STAT_WEAPON_SPEED 19
+#define CS_STAT_WEAPON_SPEED    19
 #define CS_STAT_RANGE           20
 #define CS_STAT_TITLE           21
-#define CS_STAT_POW             22
 #define CS_STAT_FLAGS           25
 #define CS_STAT_WEIGHT_LIM      26
 #define CS_STAT_EXT_TITLE       27
