@@ -1528,6 +1528,10 @@ int is_friend_of(object *op, object *obj)
     uint8 is_friend = 0;
     sint8 faction_friend = -1;
 
+    if (op == NULL || obj == NULL) {
+        return 0;
+    }
+
     /* We are obviously friends with ourselves. */
     if (op == obj) {
         return 1;
