@@ -7,7 +7,7 @@ qm = QuestManagerMulti(activator, quest)
 inf = Interface(activator, me)
 
 def main():
-    if not qm.started_part(1):
+    if not qm.started("speak priest"):
         if msg == "hello":
             inf.add_msg("There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now.")
             inf.add_msg("At any rate, we did it - we managed to reach Incuna. We should resupply and head to Strakewood at last - but don't worry, I'll handle that and anything else we may need.")
@@ -23,7 +23,7 @@ def main():
             sack.InsertInto(activator)
             inf.add_link("I'll do that.", action = "close")
             Notification(activator.Controller(), "Tutorial Available: Containers", "/help basics_containers", "?HELP", 90000)
-            qm.start(1)
+            qm.start("speak priest")
 
     elif qm.completed():
         if msg == "hello":
