@@ -11,7 +11,7 @@ inf = Interface(activator, me)
 
 def main():
     # Agreed to investigate the illness.
-    if not qm.completed_part(1):
+    if not qm.completed("figure"):
         if msg == "hello":
             inf.add_msg("Well, hello there! I am {} the kobold. Don't you think my garden is just beautiful?".format(me.name))
             inf.add_link("Your garden?", dest = "garden")
@@ -26,16 +26,16 @@ def main():
             inf.add_msg("Oh right, sorry! Let me close it again... I forgot it has ingredients that make most creatures sick...")
 
             # Now we know the cause of the illness, onto the next part we go.
-            if qm.started_part(1):
+            if qm.started("figure"):
                 inf.add_msg("As the potion closes, you start feeling better again. Perhaps you should report your findings to Gwenty...", COLOR_YELLOW)
-                qm.start(2)
-                qm.complete(1, sound = None)
+                qm.start("ask advice")
+                qm.complete("figure")
             else:
                 inf.add_msg("As the potion closes, you start feeling better again.", COLOR_YELLOW)
     # Reported to Gwenty about the kobold.
-    elif qm.started_part(3) and not qm.completed_part(3) and activator.FindObject(mode = INVENTORY_CONTAINERS, name = "Gwenty's Potion"):
+    elif qm.need_complete("deliver potion") and activator.FindObject(mode = INVENTORY_CONTAINERS, name = "Gwenty's Potion"):
         # Accept Kobold's mini-quest
-        if not qm.started_part(4):
+        if not qm.started("get hearts"):
             if msg == "hello":
                 inf.add_msg("Well, hello there again! My garden is just bea--")
                 inf.add_msg("You interrupt Brownrott and explain to him about the illness in Fort Sether and his potion...", COLOR_YELLOW)
@@ -45,16 +45,16 @@ def main():
             elif msg == "want":
                 inf.add_msg("Spider hearts, of course, I want spider hearts - they are very tasty, but the spiders are dangerous.")
                 inf.add_msg("Bring me 10 sword spider hearts, and I'll mix your potion with mine. You can find those spiders around in this cave. I usually stay far away from them, but their hearts sure are delicious...")
-                qm.start(4)
+                qm.start("get hearts")
         # Finished his mini-quest yet?
-        elif qm.finished(4):
+        elif qm.finished("get hearts"):
             if msg == "hello":
                 inf.add_msg("Mmm! Delicious sword spider hearts! I like you! Mmm! Alright, let's mix the potions then!")
                 inf.add_msg("You hand the 10 sword spider hearts and the potion to Brownrott.", COLOR_YELLOW)
                 activator.FindObject(mode = INVENTORY_CONTAINERS, name = "Gwenty's Potion").Remove()
-                qm.start(5)
-                qm.complete(4, sound = None)
-                qm.complete(3, sound = None)
+                qm.start("reward")
+                qm.complete("get hearts")
+                qm.complete("deliver potion")
                 inf.add_msg("There! All done. Thank you again for the sword spider hearts! Mmm!")
                 inf.add_msg("You should report the good news to Gwenty.", COLOR_YELLOW)
         # Not yet.

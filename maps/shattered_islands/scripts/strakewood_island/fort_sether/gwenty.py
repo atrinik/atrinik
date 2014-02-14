@@ -19,7 +19,7 @@ def main():
         temple.hello_msg = "We won't forget what you have done for us, {}.".format(activator.name)
         temple.handle_chat(msg)
     # Not started the quest, try offering the quest.
-    elif not qm.started_part(1):
+    elif not qm.started("figure"):
         if msg == "hello":
             inf.add_msg("Welcome, stranger. I'd like to help you by offering my usual priest services, however, the illness that is going on in the fort is keeping me rather busy, so if you'll excuse me...")
             inf.add_link("What sort of illness?", dest = "illness")
@@ -43,15 +43,15 @@ def main():
             inf.add_msg("Ah, yes! Thank you. Your help is much appreciated...")
             inf.add_msg("I'm not sure where the disease is originating from. The only thing I can think of is the water, which we get from an underground river of sorts.")
             inf.add_msg("It would certainly be worth investigating the river... perhaps something is going on down there. The fastest way to do that would be to climb down using one of the water wells in the fort.")
-            qm.start(1)
+            qm.start("figure")
     # Accepted the quest, but haven't met the kobold yet.
-    elif qm.started_part(1) and not qm.started_part(2):
+    elif qm.need_complete("figure"):
         if msg == "hello":
             inf.add_msg("You agreed to help us {}, no?".format(activator.name))
             inf.add_msg("I still suspect the cause of the illness is the water, which we get from an underground river of sorts.")
             inf.add_msg("It would certainly be worth investigating the river... perhaps something is going on down there. The fastest way to do that would be to climb down using one of the water wells in the fort.")
     # Met the kobold.
-    elif qm.started_part(2) and not qm.started_part(3):
+    elif qm.need_complete("ask advice"):
         if msg == "hello":
             inf.add_msg("Well? Have you investigated the water wells yet?")
             inf.add_link("Yes...", dest = "yes")
@@ -61,10 +61,10 @@ def main():
             inf.add_msg("Indeed? So it was the water, like I thought... Well, I think I know how to mend this particular problem...")
             inf.add_objects(me.FindObject(name = "Gwenty's Potion"))
             inf.add_msg("Here. Take that potion, and bring it to the kobold. Tell him he needs to mix it with his own. It should cancel out the negative effects it causes to us humans, but still make it effective for his garden. It might take some persuading, however...")
-            qm.start(3, sound = None)
-            qm.complete(2)
+            qm.start("deliver potion")
+            qm.complete("ask advice")
     # Got the potion from Gwenty, but have not convinced the kobold yet.
-    elif qm.started_part(3) and not qm.completed_part(3):
+    elif qm.need_complete("deliver potion"):
         if msg == "hello":
             inf.add_msg("So, have you convinced the kobold to mix his potion with the one I gave you?")
             inf.add_link("Still working on it.", dest = "working")
@@ -80,7 +80,7 @@ def main():
             inf.add_msg("What?! Well, it's not irreplaceable, but please, don't go wasting it and just convince the kobold to mix it with his potion... Here, take this spare one I have, and be more careful with it...")
             inf.add_objects(me.FindObject(name = "Gwenty's Potion"))
     # Convinced the kobold to mix the two potions.
-    elif qm.started_part(5):
+    elif qm.need_complete("reward"):
         if msg == "hello":
             inf.add_msg("So, have you convinced the kobold to mix his potion with the one I gave you?")
             inf.add_link("Yes, I have.", dest = "yes")
@@ -89,7 +89,7 @@ def main():
             inf.add_msg("That's great news, {}! I knew I could count on you. You have my thanks, as well as that of all the people in the fort. We can now drink the water safely again...".format(activator.name))
             inf.add_msg("As for your reward... Please, accept these coins from me. Also, since I'm no longer busy tending all the sick guards, I can now resume offering you my regular services.")
             inf.add_objects(me.FindObject(archname = "silvercoin"))
-            qm.complete(sound = None)
+            qm.complete("reward")
 
 main()
 inf.finish()
