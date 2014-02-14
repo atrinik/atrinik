@@ -148,12 +148,18 @@
 	</attribute>
 	<attribute arch="layer" editor="layer" type="int">
 		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
+	</attribute>
+	<attribute arch="sub_layer" editor="sub layer" type="int">
+		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
 	</attribute>
 	<attribute arch="face" editor="image" type="facename">
 		The image name defines what image is displayed for this object
@@ -226,8 +232,14 @@
 	<attribute arch="z" editor="height" type="int">
 		Adjusts Y position of the object as it appears on the map.
 	</attribute>
-	<attribute arch="zoom" editor="zoom" type="int" min="0" max="255">
+	<attribute arch="zoom" editor="zoom" type="int" min="-32768" max="32767">
 		How much to zoom the object on the map.
+	</attribute>
+	<attribute arch="zoom_x" editor="horizontal zoom" type="int" min="-32768" max="32767">
+		How much to horizontally zoom the object on the map.
+	</attribute>
+	<attribute arch="zoom_y" editor="vertical zoom" type="int" min="-32768" max="32767">
+		How much to vertically zoom the object on the map.
 	</attribute>
 	<attribute arch="align" editor="align" type="int">
 		X align of the object on the map.
@@ -603,162 +615,6 @@
 	</attribute>
 </type>
 
-<type number="18" name="Altar" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		When a player puts a defined number of certain items on the
-		altar, then either a spell is cast (on the player) or a
-		connection is triggered. If the latter is the case, the altar
-		works only once. Either way, the sacrificed item disappears.
-	]]>
-	</description>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="match item name" type="string">
-		This string specifies the item that must be put on the altar to
-		activate it. It can either be the name of an archetype, or
-		directly the name of an object. Yet, titles are not recognized by
-		altars. Remember to put a note somewhere, telling the player what
-		he is expected to drop on the altar. Often this is put in the
-		altar's name: E.g. "drop 100 platinums".
-	</attribute>
-	<attribute arch="food" editor="drop amount" type="int" min="0" max="32767">
-		The drop amount specifies the amount of items (specified in
-		&lt;match item name&gt;) that must be dropped to activate the
-		altar.
-
-		If &lt;match item name&gt; is set to "money", then the value of
-		the sacrificed money must be equal to &lt;drop amount&gt; (ie, if
-		food = 200, then 200 silver, 20 gold, or 4 platinum will all
-		work.)
-	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		If a connection value is set, the altar will trigger all objects
-		with the same value when activated. This will only work once.
-	</attribute>
-	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
-		If set, connection triggers that were done because something (such
-		as a button being unpressed) was released will be ignored.
-	</attribute>
-	<attribute arch="connect_no_push" editor="ignore connection push" type="bool">
-		If set, connection triggers that were done because something (such
-		as a button being pressed) was pushed will be ignored.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
-	</attribute>
-	<attribute arch="sp" editor="spell" type="nz_spell">
-		When activated, the selected &lt;spell&gt; will be cast (once, on
-		the player). This should work for any given spell. The altar will
-		work infinitely in this way. Don't set both &lt;spell&gt; and
-		&lt;connection&gt; for one altar.
-	</attribute>
-	<attribute arch="level" editor="spell level" type="int" min="0" max="115">
-		Set the power level of the spell.
-	</attribute>
-	<attribute arch="last_sp" editor="cast to direction" type="list_direction">
-		The spell will be cast in this direction. Note, that if the altar
-		should cast a healing spell on the player, this must be direction
-		0. For other spells like firestorm, it should be set a valid
-		point of the compass direction.
-	</attribute>
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch_begin="msg" arch_end="endmsg" editor="message" type="text">
-		This text will be displayed to the player in the exact moment
-		when the altar is activated.
-	</attribute>
-</type>
-
-<type number="31" name="Altar Trigger" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Altar_triggers work pretty much like normal altars
-		(drop sacrifice -&gt; connection activated), except for the fact that
-		they reset after usage. Hence, altar_triggers can be used infinitely.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Altar Triggers are very useful if you want to charge a price for:
-		<ul>
-			<li>an item: Connect the altar (set "last_sp 1") to a
-				creator.</li>
-			<li>opening a gate: Connect the altar (set "last_sp 0") to
-				the gate.</li>
-			<li>information: Connect the altar (set "last_sp 1") to a
-				magic mouth.</li>
-		</ul>
-
-		The big advantage over normal altars is the infinite usability of
-		altar triggers! If there are ten players on one server, they're
-		quite grateful if things work more than once.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="match item name" type="string">
-		This string specifies the item that must be put on the altar to
-		activate it. It can either be the name of an archetype, or
-		directly the name of an object. Yet, titles are not recognized by
-		altars. Remember to put a note somewhere, telling the player what
-		he is expected to drop on the altar. Often this is put in the
-		altar's name: E.g. "drop 100 platinums".
-	</attribute>
-	<attribute arch="food" editor="drop amount" type="int" min="0" max="32767">
-		The drop amount specifies the amount of items (specified in
-		&lt;match item name&gt;) that must be dropped to activate the
-		altar.
-
-		If &lt;match item name&gt; is set to "money", then the value of
-		the sacrificed money must be equal to &lt;drop amount&gt; (ie, if
-		food = 200, then 200 silver, 20 gold, or 4 platinum will all
-		work).
-	</attribute>
-	<attribute arch="exp" editor="reset time" type="int">
-		Being activated, the altar will reset after "reset time"
-		ticks. After reset, the altar is ready to be activated once
-		again. If 0, the altar will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.
-	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		If a connection value is set, the altar will trigger all objects
-		with the same value when activated. This can be used infinitely.
-
-		The altar will reset itself after some time, specified by
-		&lt;reset time&gt;.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
-	</attribute>
-	<attribute arch="last_sp" editor="ignore reset" type="bool">
-		If this attribute is enabled, the altar trigger won't push the
-		connected value by altar reset. Only ONCE by dropping the
-		sacrifice. This is typically used when the altar is connected to
-		a creator, e.g. for selling tickets.
-
-		If this attribute is disabled (default), the altar trigger will
-		push the connected value TWICE per sacrifice: First by dropping
-		sacrifice, second by reset. This mode is typically used for
-		altars being connected to gates, resulting in the gate being
-		opened and closed again.
-	</attribute>
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch_begin="msg" arch_end="endmsg" editor="message" type="text">
-		This text will be displayed to the player in the exact moment
-		when the altar is activated.
-	</attribute>
-</type>
-
 <type number="39" name="Amulet">
 	<ignore>
 		<ignore_list name="default_setting" />
@@ -917,15 +773,6 @@
 			Positive &lt;mana bonus&gt; increases the mana points.
 			Negative decreases them (decrease can't reduce the total mana
 			of the wearer below 1).
-		</attribute>
-		<attribute arch="grace" editor="grace regen." type="int">
-			Positive &lt;grace regen.&gt; bonus speeds up the player's
-			grace regeneration. Negative values slow it down.
-		</attribute>
-		<attribute arch="maxgrace" editor="grace bonus" type="int">
-			Positive &lt;grace bonus&gt; increases the hit points.
-			Negative decreases them (decrease can't reduce the total
-			grace of the wearer below 1).
 		</attribute>
 		<attribute arch="food" editor="food bonus" type="int">
 			Positive &lt;food bonus&gt; slows down the player's
@@ -1382,8 +1229,6 @@
 		connection value gets triggered a second time.
 	]]>
 	</description>
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch="no_pick" value="1" type="fixed" />
 	<attribute arch="weight" editor="press weight" type="string">
 		The button is pressed (triggered), as soon as
 		&lt;press weight&gt; grams are placed on top of it.
@@ -1392,6 +1237,17 @@
 		Every time the button is pressed or released, all objects with
 		the same &lt;connection&gt; value are activated.
 	</attribute>
+	<attribute arch="exp" editor="reset time" type="int">
+		Being activated, the button will reset after "reset time"
+		ticks. After reset, the button is ready to be activated once
+		again. If -1, the button will never reset and won't be possible
+		to trigger again.
+	</attribute>
+	<attribute arch="last_eat" editor="connection flag" type="bool">
+		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
+	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
@@ -1399,10 +1255,6 @@
 	<attribute arch="connect_no_push" editor="ignore connection push" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
 	</attribute>
 	<attribute arch="connect_reset" editor="reset connection" type="bool">
 		Will reset the connection, so it will be triggered next time something
@@ -1414,41 +1266,7 @@
 
 		Part 3 can be avoided if this option is combined with "walk off" unset.
 	</attribute>
-	<attribute arch="walk_off" editor="walk off" type="bool">
-		Whether to trigger the connection when the object is released. Do
-		not change unless "connection reset" is set.
-	</attribute>
-	<attribute arch_begin="msg" arch_end="endmsg" editor="description" type="text">
-		This text may describe the item.
-	</attribute>
-</type>
 
-<type number="30" name="Trigger Button" inv="">
-	<import_type name="Button" />
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		When a predefined amount of weight is placed on a trigger button,
-		the connection value is triggered. In most cases this happens
-		when a player or monster steps on it. Trigger button objects work
-		like triggers - after they get triggered, they will reset
-		automatically and send another trigger signal to the connected
-		objects. This will happen even the player/object which triggered
-		the button is still on it. In the time between trigger and reset,
-		the trigger button can't be triggered.
-	]]>
-	</description>
-	<attribute arch="exp" editor="reset time" type="int">
-		Being activated, the button will reset after "reset time"
-		ticks. After reset, the button is ready to be activated once
-		again. If 0, the button will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.
-	</attribute>
 </type>
 
 <type number="122" name="Container">
@@ -1528,57 +1346,6 @@
 	</attribute>
 </type>
 
-<type number="103" name="Converter" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Converters are like "exchange tables". When the player drops a
-		specific type of items, they get converted into other items, at a
-		predefined exchange-ratio.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Converters are better than shopping with doormats, because the
-		converters never get sold out. For some items like food or jewels
-		those "exchange tables" are really nice, while for the more
-		important stuff like potions converters should not exist.
-		<br><br>
-		VERY IMPORTANT: Be careful with the exchange-ratio! When you drop
-		items on a converter, the stuff you get must be of equal or
-		lesser value than before! (Except if you are using "rare" items
-		like dragonscales for payment). The code will not check if your
-		ratio is sane, so the player could gain infinite wealth by using
-		your converter.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="cost arch" type="string">
-		&lt;Cost arch&gt; is the name of the archetype the player has to
-		put on the converter, as payment.
-	</attribute>
-	<attribute arch="food" editor="cost number" type="int">
-		The player has to put &lt;cost number&gt; items of
-		&lt;cost arch&gt; on the converter, in order to get
-		&lt;receive number&gt; items of &lt;receive arch&gt;.
-	</attribute>
-	<attribute arch="other_arch" editor="receive arch" type="string">
-		&lt;receive arch&gt; is the name of the archetype to convert
-		into.
-	</attribute>
-	<attribute arch="sp" editor="receive number" type="int">
-		The player has to put &lt;cost number&gt; items of
-		&lt;cost arch&gt; on the converter, in order to get
-		&lt;receive number&gt; items of &lt;receive arch&gt;.
-	</attribute>
-	<attribute arch_begin="msg" arch_end="endmsg" editor="description" type="text">
-		This text may contain a description of the converter.
-	</attribute>
-</type>
-
 <type number="42" name="Creator" inv="" allows_all_inv="yes">
 	<ignore>
 		<ignore_list name="system_object" />
@@ -1586,27 +1353,11 @@
 	</ignore>
 	<description>
 	<![CDATA[
-		A creator is an object which creates another object when it is
-		triggered. The child object can be anything. Creators are VERY
-		useful for all kinds of map mechanisms.
+		When a creator is triggered, all non-event objects inside of its
+		inventory are cloned and put on the same square as the creator is
+		on.
 	]]>
 	</description>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="other_arch" editor="create arch" type="string">
-		This string defines the object that will be created. You can
-		choose any of the existing arches.
-
-		If you leave this empty, the creator will clone any non-system objects
-		from its inventory instead (sort of like the spawn point).
-
-		Creators can't create mobs, use spawn points for that.
-	</attribute>
-	<attribute arch="splitting" editor="random clone" type="bool">
-		Setting this will make the creator clone a single, randomly picked,
-		non-system object from its inventory instead of all of them.
-
-		(Only used if "create arch" is unset)
-	</attribute>
 	<attribute arch="connected" editor="connection" type="int">
 		Whenever the connection value is activated, the creator gets
 		triggered.
@@ -1619,81 +1370,20 @@
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 	</attribute>
+	<attribute arch="hp" editor="number of uses" type="int">
+		The creator can be triggered this many times before it's disabled.
+	</attribute>
 	<attribute arch="lifesave" editor="infinite uses" type="bool">
 		If &lt;infinite uses&gt; is set, the creator will work
 		infinitely, regardless of the value in &lt;number of uses&gt;.
 	</attribute>
+	<attribute arch="splitting" editor="random clone" type="bool">
+		Setting this will make the creator clone a single, randomly picked,
+		object from its inventory instead of all of them.
+	</attribute>
 	<attribute arch="one_drop" editor="check before creation" type="bool">
 		Makes the creator check for already existing objects on top of it before
 		creating. Avoids creating lots of duplicates if no-one picks the items up.
-	</attribute>
-	<attribute arch="hp" editor="number of uses" type="int">
-		The creator can be triggered &lt;number of uses&gt; times, thus
-		creating that many objects, before it dissappears.
-
-		Default is &lt;number of uses&gt; 1 (-&gt; one-time usage).
-	</attribute>
-	<attribute arch="slaying" editor="name of creation" type="string">
-		The created object will bear the name specified in
-		&lt;name creation&gt;. If nothing is set, the standard name of
-		the archetype is used.
-
-		(Only used if "create arch" is set)
-	</attribute>
-	<attribute arch="level" editor="level of creation" type="int">
-		The created object will be of that level. If zero/unset, the
-		standard level of the archetype is used.
-
-		(Only used if "create arch" is set)
-	</attribute>
-</type>
-
-<type number="51" name="Detector" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Detectors work quite much like inventory checkers/pedestals: If
-		the detector finds a specific object, it toggles its connected
-		value.
-		<br><br><br>
-		What is "unique" about them, compared to inventory
-		checkers/pedestals?
-		<br><br>
-		First, detectors check their square for a match periodically, not
-		instantly. Second, detectors check directly for object names.
-		Third, detectors do not check the inventory of players/monsters.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		There is one major speciality about detectors: You can detect
-		spells blown over a detector! To detect a lighting bolt for
-		example, set "slaying ligthing" and "speed 1.0". In combination
-		with spellcasting walls, this can be very useful for map mechanisms.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="match name" type="string">
-		&lt;Match name&gt; specifies the name of the object we are
-		looking for. Actually it does also check for the
-		&lt;key string&gt; in key-objects, but for this case inventory
-		checkers are often more powerful to use.
-	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		When the detector is triggered, all objects with the same
-		connection value get activated.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
-	</attribute>
-	<attribute arch="speed" editor="detection speed" type="float">
-		This value defines the time between two detector checks. If you
-		want the detector to behave almost like pedestals/buttons, set
-		speed rather high, like &lt;detection speed&gt; 1.0.
 	</attribute>
 </type>
 
@@ -1708,27 +1398,10 @@
 		projectiles that fly past. Unlike spinners, directors always move
 		objects in the same direction. It does not make a difference from
 		what angle you shoot into it.
-
-		Directors are visible by default.
 	]]>
 	</description>
-	<use>
-	<![CDATA[
-		Directors are rarely used in maps. Sometimes they are placed to
-		change the direction of spells coming out of magic walls,
-		"channeling" spell-projectiles in some direction. When doing
-		this, <b>never place directors facing each other with magic walls
-		fireing into them!</b> The spell-projectiles bouncing between the
-		directors would accumulate to huge numbers and at some point slow
-		down the server by eating memory and CPU.
-		<br><br>
-		You'd better not place directors in monster vs. player combat
-		areas too much, because that freaks out wizard-type players.
-	]]>
-	</use>
 	<attribute arch="connected" editor="connection" type="int">
-		If a connection value is set, the director will be turnable when
-		a handle or button is used.
+		When triggered, the director will turn "turn value" steps.
 	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
@@ -1738,16 +1411,15 @@
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 	</attribute>
-	<attribute arch="sp" editor="reflect to direction" type="list_direction">
-		Projectiles will leave the director flying in the selected
-		&lt;direction&gt;. A director with direction &lt;none&gt; simply
-		stops projectiles.
-	</attribute>
 	<attribute arch="maxsp" editor="turn value" type="int">
-		If object is turned, turn it "turn value" steps every time.
+		How many steps to turn when the director's connection is triggered.
 	</attribute>
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch="fly_on" value="1" type="fixed" />
+	<attribute arch="walk_on" editor="walk on" type="bool">
+		Affect walking creatures.
+	</attribute>
+	<attribute arch="fly_on" editor="fly on" type="bool">
+		Affect flying creatures.
+	</attribute>
 </type>
 
 <type number="158" name="Disease" inv="">
@@ -1820,23 +1492,6 @@
 			times outside a host before it vanishes. A negative value
 			means the disease lasts for permanent (which is only
 			recommended to use in maps without monsters).
-		</attribute>
-		<attribute arch="maxgrace" editor="curing duration" type="int">
-			The disease will last in the host for &lt;curing duration&gt;
-			"disease moves" (assuming the host survives and doesn't use a
-			curing spell).
-
-			After this period the disease is naturally cured, which
-			provides the host with immunity from this particular disease
-			of lower or equal level.
-
-			A negative value means the disease can never be cured
-			naturally.
-
-			Note that this value can be further modulated by spell
-			parameters, if the disease is registered as spell in the
-			code. Due to that, most default diseases take a lot longer to
-			cure than it seems.
 		</attribute>
 		<attribute arch="speed" editor="moving speed" type="float">
 			The &lt;speed&gt; of the disease determines how fast the
@@ -1995,29 +1650,18 @@
 		walking into it, or by pressing apply when standing on the exit.
 	]]>
 	</description>
-	<use>
-	<![CDATA[
-		If you want to have an invisible exit, set invisible (of course
-		apply by walking too).
-		<br><br>
-		You can be quite creative with the outlook of secret exits (their
-		"face", and "animation").
-		Don't forget to give the player reliable hints about them though.
-	]]>
-	</use>
 	<attribute arch="slaying" editor="exit path" type="map_path">
 		The exit path defines the map that the player is transferred to.
 
 		You can enter an absolute path, beginning with '/' (for example
 		"/tutorial"). It can also be a relative path, not beginning with
 		'/' (on the map "/shattered_islands/world_0303" for example I
-		could use the relative path "0304"). Use relative paths whenever
-		possible! Note that upper/lower case must always be set
+		could use the relative path "world_0304"). Use relative paths
+		whenever possible! Note that upper/lower case must always be set
 		correctly. However, please use lower case only.
 
-		It is well possible to have an exit pointing to the same map that
-		the exit is on. If slaying is not set in an exit, the player will
-		see a message like "The exit is closed".
+		If the path is not set, it is automatically assumed to be the same
+		as the map the exit is on.
 	</attribute>
 	<attribute arch="hp" editor="destination X" type="int">
 		The exit destinations define the map coordinates where the exit
@@ -2038,23 +1682,52 @@
 		Flying means the player is levitating. E.g. wearing levitation
 		boots.
 	</attribute>
+	<attribute arch="last_eat" editor="unique destination" type="bool">
+		This flag defines the destined map as "personal unique map". If
+		set, there will be a seperate version of that map for every
+		player out there.
+
+		An exit pointing outside of a personal unique map must have the
+		"unique destination" flag unset.
+	</attribute>
+	<attribute arch="dam" editor="base damage" type="int">
+		How much damage is inflicted to the player using the exit.
+	</attribute>
+	<attribute arch="level" editor="level" type="int">
+		Level at which to hit the player with 'base damage'.
+	</attribute>
+	<section name="attack">
+		<attribute arch="attack_impact" editor="impact attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_slash" editor="slash attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_cleave" editor="cleave attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_pierce" editor="pierce attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_weaponmagic" editor="w.magic attack %" length="15" type="int" min="-100" max="100" />
+
+		<attribute arch="attack_fire" editor="fire attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_cold" editor="cold attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_electricity" editor="electricity attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_poison" editor="poison attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
+
+		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
+
+		<attribute arch="attack_godpower" editor="godpower attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_chaos" editor="chaos attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_drain" editor="drain attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_slow" editor="slow attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_confusion" editor="confusion attack %" length="15" type="int" min="-100" max="100" />
+
+		<attribute arch="attack_internal" editor="internal attack %" length="15" type="int" min="-100" max="100" />
+	</section>
 	<attribute arch_begin="msg" arch_end="endmsg" editor="exit message" type="text">
 		If set, this message will be displayed to the player when he
 		applies the exit. This is quite useful to throw in some
 		"role-play feeling": "As you enter the dark cave you hear the
 		sound of rustling dragonscales...".
-	</attribute>
-	<attribute arch="last_eat" editor="unique destination" type="bool">
-		This flag defines the destined map as "personal unique map". If
-		set, there will be a seperate version of that map for every
-		player out there. This feature is used for the permanent
-		apartments.
-
-		It should not be used for anything else other than apartments,
-		since Atrinik is a multiplayer game.
-
-		An exit pointing outside of a personal unique map must have the
-		"unique destination" flag unset.
 	</attribute>
 </type>
 
@@ -2158,7 +1831,7 @@
 		<attribute arch="terrain_type" editor="terrain type" type="bitmask_terrain">
 			The &lt;terrain type&gt; defines what kind of environment
 			exists on this tile. This can be anything from normal land (=
-			"none") to water, fire etc. Only creatures whith appropriate
+			"none") to water, fire etc. Only creatures with appropriate
 			terrain abilities can pass over this square.
 		</attribute>
 	</section>
@@ -2341,11 +2014,16 @@
 		maps more complex than "one-way".
 	]]>
 	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
 	<attribute arch="connected" editor="connection" type="int">
-		Whenever a "signal" object is triggered, all objects with
-		identical &lt;connection&gt; value get activated. This only makes
-		sense together with &lt;blocking passage&gt; disabled.
+		When triggered, the gate will start closing if it's open, and
+		start opening if it's closed.
+	</attribute>
+	<attribute arch="maxhp" editor="time delay" type="int">
+		If set and the gate is triggered, the gate will stay in the
+		new condition for the specified amount of time, by which it
+		will reset back to the previous state.
+
+		A value of 10 is around 5 seconds.
 	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
@@ -2354,47 +2032,6 @@
 	<attribute arch="connect_no_push" editor="ignore connection push" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
-	</attribute>
-	<attribute arch="pass_thru" editor="ethereal can pass" type="bool">
-		If no_pass (blocking passage) is set, no one can pass. If this
-		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
-		pass. This is used for example for ghosts who move through doors.
-	</attribute>
-</type>
-
-<type number="26" name="Timed Gate" inv="">
-	<import_type name="Gate" />
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Timed Gates are like normal gates except they close automatically
-		after a set time. Timed Gates can be opened by activating a
-		button/trigger, by speaking passwords (magic ear) or carrying
-		special key-objects (inventory checker).
-		<br><br>
-		Unlike locked doors, timed gates can get shut again after a player
-		has passed, which makes them more practical in many cases.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Use timed gates to divide your maps into seperated areas. After
-		solving area A, the player gains access to area B, and so on.
-		Make your maps more complex than "one-way". You can use the auto
-		close feature for many tricks. You can force your player after
-		triggering the gate to make a choice (get one of both but you
-		can't go back) or you trigger a timed gate somewhere else on the
-		map and your player must enter it in a set time limit (and when
-		he fails he can try it again).
-	]]>
-	</use>
-	<attribute arch="maxhp" editor="condition time delay" type="int">
-		When triggered, this is the time the timed gate will stay in the
-		new condition, until it resets itself. When opened, it stays this
-		time open, then it closes. 10 ticks are around 5 seconds.
 	</attribute>
 </type>
 
@@ -2414,6 +2051,17 @@
 		Every time the handle is applied, all objects with the same
 		&lt;connection&gt; value are activated.
 	</attribute>
+	<attribute arch="exp" editor="reset time" type="int">
+		Being activated, the handle will reset after "reset time"
+		ticks. After reset, the handle is ready to be activated once
+		again. If -1, the handle will never reset and won't be possible
+		to trigger again.
+	</attribute>
+	<attribute arch="last_eat" editor="connection flag" type="bool">
+		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
+	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
@@ -2421,44 +2069,6 @@
 	<attribute arch="connect_no_push" editor="ignore connection push" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
-	</attribute>
-	<attribute arch_begin="msg" arch_end="endmsg" editor="description" type="text">
-		This text may describe the item.
-	</attribute>
-</type>
-
-<type number="27" name="Handle Trigger" inv="">
-	<import_type name="Handle" />
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Handle triggers are handles which reset after a short period of
-		time. Every time it is either applied or reset, the connection
-		value is triggered.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		When you connect an ordinary handle to a gate, the gate normally
-		remains opened after the first player passed. If you want to keep
-		the gate shut, connecting it to a handle trigger is an easy
-		solution.
-	]]>
-	</use>
-	<attribute arch="exp" editor="reset time" type="int">
-		Being activated, the handle will reset after "reset time"
-		ticks. After reset, the handle is ready to be activated once
-		again. If 0, the handle will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.
 	</attribute>
 </type>
 
@@ -2473,22 +2083,10 @@
 		This object will do damage to all enemy creatures standing on it. It is
 		perfect for implementing things like lava.
 		<br><br>
-		Damage is taken in regular time intervals. Remember to set an attack type
-		accordingly.
+		Damage is taken in regular time intervals, or just when a creature
+		moves over it. Remember to set an attack type accordingly.
 	]]>
 	</description>
-	<use>
-	<![CDATA[
-		Like magic walls, damagers add a permanent thrill to your map.
-		You can use them to safely chase off weak players, or just
-		to have something different.
-		<br><br>
-		They can also be used to slow down any creatures standing on top of
-		them.
-	]]>
-	</use>
-	<attribute arch="lifesave" value="1" type="fixed" />
-	<attribute arch="walk_on" value="1" type="fixed" />
 	<attribute arch="name" editor="name" type="string">
 		The name of the damager. This is so the player knows what is hitting them,
 		and in case they die, the killer's name.
@@ -2502,8 +2100,14 @@
 	</attribute>
 	<attribute arch="speed" editor="damaging speed" type="float">
 		Controls how often the damager hits creatures standing on top of it.
-
-		If 0, no damage will be done.
+	</attribute>
+	<attribute arch="walk_on" editor="walk on" type="bool">
+		Whether to trigger the damager each time an object walks on top
+		of it.
+	</attribute>
+	<attribute arch="fly_on" editor="fly on" type="bool">
+		Whether to trigger the damager each time an object flies on top
+		of it.
 	</attribute>
 	<attribute arch="friendly" editor="friendly" type="bool">
 		If set, the damager will not attack friendly creatures (players, NPCs, etc)
@@ -2542,11 +2146,19 @@
 	</section>
 	<section name="terrain">
 		<attribute arch="slow_move" editor="slow movement" type="bool">
-			If set, 'slow movement penalty' will take effect.
+			If set, 'slow movement penalty' will take effect. Remember to
+			set "walk on" and "fly on" according to which creatures
+			should be slowed down.
 		</attribute>
 		<attribute arch="exp" editor="slow movement penalty" type="int">
 			If set to a value greater than zero, all creatures moving over this
 			spot will be slower than normal.
+
+			This is the amount of ticks that they will be frozen for.
+		</attribute>
+		<attribute arch="terrain_flag" editor="affect terrains" type="bitmask_terrain">
+			Which terrain types the slow movement penalty will affect. If
+			none, all terrains will be affected.
 		</attribute>
 	</section>
 </type>
@@ -2563,10 +2175,8 @@
 		already follow that god, you may get some extra bonuses.
 	]]>
 	</description>
-	<attribute arch="no_pick" value="1" type="fixed" />
 	<attribute arch="other_arch" editor="god name" type="string">
-		The altar belongs to the god of the given name. Possible options
-		for &lt;god name&gt; are: Tabernacle, Moroch.
+		The altar belongs to the god of the given name.
 	</attribute>
 	<attribute arch="level" editor="reconsecrate level" type="int">
 		To re-consecrate an altar, the player's divine prayers level must
@@ -2613,12 +2223,9 @@
 		Sets the &lt;spell&gt; of the horn. Consider twice before handing
 		out any horns to players, since they can be used endlessly
 		without any mana cost!
-
-		Horns with heal/restoration/protection spells, IF available, MUST
-		be very very VERY difficult to get!
 	</attribute>
 	<attribute arch="level" editor="casting level" type="int" min="0" max="115">
-		The casting level of the &lt;spell&gt; determines it's power. For
+		The casting level of the &lt;spell&gt; determines its power. For
 		attack spells, level should not be set too high.
 	</attribute>
 	<attribute arch="last_grace" editor="use speed" type="int">
@@ -2635,15 +2242,6 @@
 		amount of spellpoints. Make sure it is enough to cast the
 		contained spell at least once. But don't set the value too high,
 		as that might make the horn way too effective.
-	</attribute>
-	<attribute arch="make_invisible" editor="make invisible" type="bool">
-		When applied the user gets invisible. He cannot be seen by
-		players or monsters unless they have "see invisible" power.
-	</attribute>
-	<attribute arch="make_ethereal" editor="make ethereal" type="bool">
-		When applied the user gets ethereal. He will be seen as
-		transparent. He can move through walls and doors which have the
-		PASS_THRU flag set (like ghosts and other non physical monsters).
 	</attribute>
 	<attribute arch="startequip" editor="god-given item" type="bool">
 		A god-given item vanishes as soon as the player drops it to the
@@ -2697,15 +2295,6 @@
 		amount of spellpoints. Make sure it is enough to cast the
 		contained spell at least once. But don't set the value too high,
 		as that might make the rod too effective.
-	</attribute>
-	<attribute arch="make_invisible" editor="make invisible" type="bool">
-		When applied the user gets invisible. He cannot be seen by
-		players or monsters unless they have "see invisible" power.
-	</attribute>
-	<attribute arch="make_ethereal" editor="make ethereal" type="bool">
-		When applied the user gets ethereal. He will be seen as
-		transparent. He can move through walls and doors which have the
-		PASS_THRU flag set (like ghosts and other non physical monsters).
 	</attribute>
 	<attribute arch="startequip" editor="god-given item" type="bool">
 		A god-given item vanishes as soon as the player drops it to the
@@ -2789,65 +2378,45 @@
 		simple but effective.
 	]]>
 	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
+	<attribute arch="connected" editor="connection" type="int">
+		Whenever the inventory checker is triggered, all connected
+		objects get triggered. This only makes sense together with
+		"blocking passage" disabled.
+	</attribute>
+	<attribute arch="last_eat" editor="connection flag" type="bool">
+		Signals the connected object(s) to do a different action.
+	</attribute>
 	<attribute arch="slaying" editor="match key string" type="string">
 		This string specifies the object we are looking for: We have a
 		match if the player does/don't carry a key object or a mark with
 		identical &lt;key string&gt;. This string is compared to the name
 		of an object. If the "match = slaying field" is set, the text is
-		compared to the slaying field of the object we search for. This
-		can make sense if we really want avoid any problems with user set
-		names of objects.
+		compared to the slaying field of the object we search for.
 	</attribute>
 	<attribute arch="sp" editor="match = slaying field" type="bool">
 		Enabled means key text is compared to the slaying field of an
-		object and NOT to the name.
+		object and not the name.
 	</attribute>
 	<attribute arch="race" editor="match arch name" type="string">
-		This string specifies the object we are looking for: We have a
-		match if the player does/don't carry an object of archetype
-		&lt;match arch name&gt;.
+		Arch name of the object to match.
 	</attribute>
 	<attribute arch="hp" editor="match type" type="int">
-		This value specifies the object we are looking for: We have a
-		match if the player does/don't carry an object that is of type
-		&lt;match type&gt;.
-
-		Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and
-		&lt;blocking passage&gt; enabled. Now you have an inventory
-		checker blocking all players that carry any kind of melee weapon.
-		To pass, a player is forced to leave behind all his weaponry.
+		Type of the object to match.
 	</attribute>
 	<attribute arch="last_sp" editor="match = having" type="bool">
 		Enabled means having that object is a match. Disabled means not
 		having that object is a match.
 	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		Whenever the inventory checker is triggered, all objects with
-		identical &lt;connection&gt; value get activated. This only makes
-		sense together with &lt;blocking passage&gt; disabled.
-	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
-	</attribute>
 	<attribute arch="last_grace" editor="blocking passage" type="bool">
 		If set, only players meeting the match criteria can pass through
-		that space. If unset (default), the inventory checker acts like a
-		trigger/button.
+		the square the inventory checker is on. If unset (default), the
+		inventory checker acts like a pedestal/detector.
 	</attribute>
 	<attribute arch="last_heal" editor="remove match" type="bool">
-		&lt;Remove match&gt; means remove object if found. Setting this
-		is usually not recommended because inventory checkers are in
-		general invisible. So, unlike for altars/locked doors, the player
-		won't expect to lose an object when walking over that square. And
-		he doesn't even get a message either.
-
-		So, *if* you enable &lt;remove match&gt;, make sure to inform the
-		player what's going on!
+		If set, the matching object will be removed.
 	</attribute>
 	<attribute arch="xrays" editor="affect players only" type="bool">
-		If enabled, only players will be affected by the &lt;blocking passage&gt;
+		If enabled, only players will be affected by the "blocking passage"
 		setting, while any other object will be able to pass through (as
 		long as it can move).
 	</attribute>
@@ -2904,7 +2473,7 @@
 	</attribute>
 </type>
 
-<type number="20" name="Locked Door" inv="">
+<type number="20" name="Door" inv="">
 	<ignore>
 		<ignore_list name="non_pickable" />
 		<ignore_list name="default_setting" />
@@ -2923,7 +2492,6 @@
 		that string.
 	]]>
 	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
 	<attribute arch="pass_thru" editor="ethereal can pass" type="bool">
 		If no_pass (blocking passage) is set, no one can pass. If this
 		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
@@ -2935,75 +2503,15 @@
 		It is VERY important to set the &lt;key string&gt; to something that
 		is unique among the Atrinik maps.
 	</attribute>
-	<attribute arch="other_arch" editor="change to object" type="string">
-		If set, the door will when opened change permanently to this
-		object. If not set, the door will be used as "auto-closing" door,
-		using the open counter value.
-	</attribute>
 	<attribute arch="sp" editor="open counter" type="int">
 		An opened door will auto-close after some time. The higher this
 		value the longer the door will stay open.
-	</attribute>
-	<attribute arch="cursed" editor="open nearby doors" type="bool">
-		Once this door is opened, all nearby doors with this flag on will
-		open at once as well.
 	</attribute>
 	<attribute arch_begin="msg" arch_end="endmsg" editor="lock message" type="text">
 		When a player is trying to open the door without carrying the
 		appropriate key, this text is displayed to the player. This is
 		a good opportunity to place hints about the special key needed
 		to unlock the door.
-	</attribute>
-</type>
-
-<type number="29" name="Magic Ear" inv="">
-	<ignore>
-		<ignore_list name="system_object" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Magic ears trigger a connected value when the player speaks a
-		specific keyword.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Whenever you put magic ears on your maps, make sure there are
-		CLEAR and RELIABLE hints about the keywords somewhere. Don't make
-		something like a gate that is opened by speaking "open" or
-		"sesame", expecting the player to figure this out all by himself.
-		<br><br>
-		Magic ears are typically used for interaction with NPCs. You
-		can create the impression that the NPC actually *does* something
-		according to his conversation with a player. Mostly this means
-		opening a gate or handing out some item, but you could be quite
-		creative here.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="connected" editor="connection" type="int">
-		The magic ear will trigger all objects with the same connection
-		value, every time it is activated.
-	</attribute>
-	<attribute arch="xrays" editor="all players in range" type="bool">
-		If on, all players in range will receive the magic ear's message,
-		instead of just the player who activated it.
-	</attribute>
-	<attribute arch_begin="msg" arch_end="endmsg" editor="keyword-matching" type="text">
-		This textfield contains the keyword-matching-syntax. The text
-		should have the following format:
-
-		"@match &lt;keyword1&gt;|&lt;keyword2&gt;|... ".
-
-		Any number of keywords from one to infinite is allowed. Make sure
-		they are seperated by a '|'.
-
-		Examples: "@match yes", "@match gold|treasure". The connected
-		value will be triggerd when the player speaks any of the given
-		keywords within a two-square radius.
-
-		IMPORTANT: Upper/lower case does not make a difference.
 	</attribute>
 </type>
 
@@ -3072,42 +2580,27 @@
 		test the spell you want to use with a wall.
 	]]>
 	</description>
-	<use>
-	<![CDATA[
-		Spellcasting walls pose an interesting alternative to monsters.
-		Usually they are set to be undestroyable ("alive 0"). Thus, while
-		monsters in a map can be cleared out, the magic walls remain. Low
-		level characters for example will not be able to pass through
-		their spell-area, hence they cannot loot a map that a high level
-		character might have cleared out.
-		<br><br>
-		Another point of magic walls is that if the player dies, he has
-		to face them all again. Magic walls can add a kind of "permanent
-		thrill" to your maps.
-	]]>
-	</use>
-	<attribute arch="last_eat" editor="casting on/off" type="bool">
-		If set the wall is "on" and casts spells - if not set the wall is
-		"off" and doesn't cast spells (but can be turned on).
-	</attribute>
 	<attribute arch="dam" editor="spell" type="nz_spell">
-		The magic wall will cast this &lt;spell&gt;.
+		The magic wall will cast this spell.
 	</attribute>
 	<attribute arch="level" editor="spell level" type="int" min="0" max="115">
-		The wall will cast it's spells at level &lt;spell level&gt;.
-		"level 1" walls cast spells at minimal strength. "level 115"
-		walls cast deadly spells. Arch default is level 1 - you should
-		always set this value to meet the overall difficulty of your map.
+		The wall will cast its spell at this level.
 	</attribute>
 	<attribute arch="speed" editor="casting speed" type="float">
-		The &lt;casting speed&gt; defines the spellcasting speed of the
-		wall. You can fine-tune how long the duration between two casts
-		shall be.
+		Defines the spellcasting speed of the wall. You can fine-tune how
+		long the duration between two casts shall be.
 	</attribute>
 	<attribute arch="connected" editor="connection" type="int">
-		Every time the &lt;connection&gt; value is triggered, the wall
-		will cast it's spell. You should set &lt;casting speed&gt; to
-		zero, or this won't have much visible effect.
+		Connection ID for the magic wall.
+	</attribute>
+	<attribute arch="last_eat" editor="casting on/off" type="bool">
+		If set, the wall is on and casts spells in regular intervals.
+		This setting can be toggled by a connected object with
+		"connection flag" set.
+	</attribute>
+	<attribute arch="maxsp" editor="turn steps" type="int">
+		If set and the magic wall is triggered by an object without
+		"connection signal" set, the magic wall will turn this many steps.
 	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
@@ -3117,67 +2610,6 @@
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 	</attribute>
-	<attribute arch="maxsp" editor="turn steps" type="int">
-		If set and a connected object without "last_eat 1" gives signal,
-		the magic wall turns this steps.
-	</attribute>
-	<attribute arch="no_pass" editor="blocking passage" type="bool">
-		If set, the object cannot be passed by players nor monsters.
-	</attribute>
-	<attribute arch="pass_thru" editor="ethereal can pass" type="bool">
-		If no_pass (blocking passage) is set, no one can pass. If this
-		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
-		pass. This is used for example for ghosts who move through doors.
-	</attribute>
-	<section name="destroyable">
-		<attribute arch="alive" editor="is destroyable" type="bool">
-			Walls with &lt;is destroyable&gt; enabled can be attacked and
-			(eventually) destroyed by the player. If disabled, all other
-			attributes on this tab, as well as resistances, are
-			meaningless.
-		</attribute>
-		<attribute arch="hp" editor="hitpoints" type="int">
-			The more &lt;hitpoints&gt; the wall has, the longer it takes
-			to be destroyed.
-		</attribute>
-		<attribute arch="maxhp" editor="max hitpoints" type="int">
-			&lt;Max hitpoints&gt; are the maximum amount of hitpoints the
-			wall can have. This only makes sense if the wall can regain
-			health.
-		</attribute>
-		<attribute arch="ac" editor="armour class" type="int">
-			A magic wall of high &lt;armour class&gt; is less likely to
-			get hit from an opponent. &lt;armour class&gt; can be
-			considered the "counterpiece" to &lt;weapon class&gt;.
-		</attribute>
-	</section>
-	<section name="protections">
-		<attribute arch="protect_impact" editor="impact protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_slash" editor="slash protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_cleave" editor="cleave protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_pierce" editor="pierce protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_weaponmagic" editor="w.magic protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_fire" editor="fire protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_cold" editor="cold protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_electricity" editor="electricity protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_poison" editor="poison protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_godpower" editor="godpower protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_chaos" editor="chaos protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_drain" editor="drain protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_slow" editor="slow protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_confusion" editor="confusion protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_internal" editor="internal protect %" length="15" type="int" min="-100" max="100" />
-	</section>
 </type>
 
 <type number="55" name="Marker" inv="">
@@ -3189,64 +2621,37 @@
 	<![CDATA[
 		A marker is an object that inserts an invisible force (a mark)
 		into a player stepping on it. This force does nothing except
-		containing a &lt;key string&gt; which can be discovered by
-		detectors or inventory checkers. It is also possible to use
-		markers for removing marks again.
+		contain a "key string"; which can be discovered by inventory
+		checkers. It is also possible to use markers for removing marks
+		again.
 		<br><br>
 		Note that the player has no possibility to "see" his own marks,
 		except by the effect that they cause on the maps.
 	]]>
 	</description>
-	<use>
-	<![CDATA[
-		Markers hold real cool possibilities for map-making. I encourage
-		you to use them frequently. However there is one negative point
-		about markers: Players don't "see" what's going on with them. It
-		is your task, as map-creator, to make sure the player is always
-		well informed and never confused.
-		<br><br>
-		Please avoid infinite markers when they aren't needed. They're
-		using a little space in the player file after all, so if there
-		is no real purpose, set an expire time.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="key string" type="string">
-		The &lt;key string&gt; can be detected by inventory checkers/
-		detectors. If the player already has a force with that
-		&lt;key string&gt;, there won't be inserted a second one.
-	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		When the detector is triggered, all objects with the same
-		connection value get activated.
-	</attribute>
-	<attribute arch="speed" editor="marking speed" type="float">
-		The &lt;marking speed&gt; defines how quickly it will mark
-		something standing on the marker. Set this value rather high to
-		make sure the player really gets his mark. I think
-		&lt;marking speed&gt; 1.0 should do fine.
+	<attribute arch="race" editor="key string" type="string">
+		The key string to insert into the passing player. If a marker
+		with the same key string already exists, a new one won't be
+		inserted.
 	</attribute>
 	<attribute arch="food" editor="mark duration" type="int">
-		This value defines the duration of the force it inserts. If
-		nonzero, the duration of the player's mark is finite: about 1
-		food per 10 seconds. &lt;mark duration&gt; zero/unset means the
-		mark will stay on the player forever.
+		How long the mark will remain on the player. If zero, the mark
+		will never vanish automatically. A value of 1 is about 10
+		seconds.
 	</attribute>
-	<attribute arch="name" editor="delete mark" type="string">
-		When the player steps onto the marker, all existing forces in
-		the player's inventory with a &lt;key string&gt; matching
-		&lt;delete mark&gt; will be removed. If you don't want to remove
-		any marks, leave this textfield empty.
-
-		Note that the string &lt;delete mark&gt; is set as the name of
-		this marker. So don't be confused, and remember changing the
-		name will take effect on the marker's functionality.
+	<attribute arch="slaying" editor="delete mark" type="string">
+		If set, the marker with this key string will be removed when the
+		player passes over the marker.
+	</attribute>
+	<attribute arch="walk_on" editor="walk on" type="bool">
+		Whether to mark creatures walking onto the marker.
+	</attribute>
+	<attribute arch="fly_on" editor="fly on" type="bool">
+		Whether to mark creatures flying onto the marker.
 	</attribute>
 	<attribute arch_begin="msg" arch_end="endmsg" editor="marking message" type="text">
 		In the moment when the player gets marked, this text is displayed
-		to him. You should really set a message in any marker you create,
-		because it's the only way for the player to notice what's going
-		on.
+		to him.
 	</attribute>
 </type>
 
@@ -3292,7 +2697,6 @@
 		in role-playing environments.
 	]]>
 	</description>
-	<attribute arch="alive" value="1" type="fixed" />
 	<attribute arch="randomitems" editor="treasurelist" type="treasurelist">
 		When the monster is killed, items from the treasurelist will drop
 		to the ground. This is a common way to reward players for killing
@@ -3868,58 +3272,6 @@
 	</section>
 </type>
 
-<type number="65" name="Mood Floor" inv="">
-	<ignore>
-		<attribute arch="damned" />
-		<ignore_list name="system_object" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		As the name implies, mood floors can change the "mood" of a
-		monster/NPC. For example, an unagressive monster could be turned
-		mad to start attacking. Similar, an agressive monster could be
-		calmed down.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Mood floors are absolutely cool for NPC interaction. To make an
-		unaggressive monster/NPC attack, put a creator with "other_arch
-		furious_floor" under it. Connect the creator to a magic ear, so
-		the player speaks a keyword like "stupid sucker" - and the
-		monster attacks.
-		<br><br>
-		To turn an NPC into a pet, put a charm floor under it and connect
-		it directly to a magic_ear. Then the player speaks a keyword like
-		"help me" - and the NPC joins him as pet.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="last_sp" editor="mood" type="list_mood">
-		&lt;mood&gt; is used to determine what will happen to the monster
-		when affected by the mood floor:
-
-		furious: Makes all monsters aggressive.
-		angry: As above but pets are unaffected.
-		calm: Makes all monsters unaggressive.
-		sleep: Puts all monsters to sleep.
-		charm: Turns monster into a pet of person who triggers the
-		       square. This setting is not enabled for continous
-			   operation, you need to insert a &lt;connection&gt; value!
-	</attribute>
-	<attribute arch="connected" editor="connection" type="int">
-		This should only be set in combination with 'charm' mood.
-		Normally, monsters are affected by the mood floor as soon as they
-		step on it. But charming (monster -&gt; pet) is too powerful,
-		so it needs to be activated.
-
-		Typically it is connected to an altar, for buying a "hireling".
-		But a powerful pet could as well be the reward for solving a
-		quest. Or even better: It could be *part* of a quest!
-	</attribute>
-</type>
-
 <type number="40" name="Mover" inv="">
 	<ignore>
 		<ignore_list name="non_pickable" />
@@ -3995,7 +3347,7 @@
 		<attribute arch="level" editor="move players" type="bool">
 			Move players.
 		</attribute>
-		<attribute arch="grace" editor="move walking creatures" type="bool">
+		<attribute arch="hp" editor="move walking creatures" type="bool">
 			Move creatures/monsters/NPCs.
 
 			This feature provides you with the possibility to make NPCs
@@ -4020,40 +3372,31 @@
 	</ignore>
 	<description>
 	<![CDATA[
-		Pedestals are designed to detect certain types of living objects
-		or keys. When a predefined type of living creature steps on the
-		pedestal, the connected value is triggered.
+		Pedestals can be used to detect a mobile object moving over the
+		pedestal, using pre-defined set of matching rules. All of the set
+		rules must match for the pedestal to trigger its connection value.
 
-		There are 2 ways to use a Pedestal:
-		<br>
-		1) If the slaying text = "player", then the Pedestal triggers
-		   when a player moves over it.
-		2) If not "player", the slaying text is compared to the race name
-		   of an object above it. ]]>
-	</description>
-	<use>
-	<![CDATA[
-		If you want to create a place where only players of a certain
-		race can enter, put a teleporter over your pedestal. So the
-		teleporter is only activated for players of the matching race. Do
-		not use gates, because many other players could sneak in.
+		If there are no match rules set, the pedestal will trigger for
+		any object moving on top of it.
 	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="slaying" editor="match text" type="string">
-		The &lt;match race&gt; defines the object we're looking for. If
-		&lt;match race&gt; matches the monster's or the player's race, we
-		have a match. Yes, pedestals can detect a player's race! E.g. you
-		could create a place where only fireborns can enter, by setting
-		"slaying unnatural".
-
-		If it is set to "player", any player stepping on the pedestal is
-		a match. Very useful if you want to open a gate for players but
-		not for monsters.
+	</description>
+	<attribute arch="hp" editor="match type" type="int">
+		Type of the object to match.
+	</attribute>
+	<attribute arch="slaying" editor="match name" type="string">
+		Name of the object to match.
+	</attribute>
+	<attribute arch="race" editor="match archname" type="string">
+		Archname of the object to match.
 	</attribute>
 	<attribute arch="connected" editor="connection" type="int">
 		When the pedestal is triggered, all objects with the same
 		connection value get activated.
+	</attribute>
+	<attribute arch="last_eat" editor="connection flag" type="bool">
+		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
 	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
@@ -4063,9 +3406,10 @@
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 	</attribute>
-	<attribute arch="last_eat" editor="connection flag1" type="bool">
-		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
+	<attribute arch="exp" editor="reset time" type="int">
+		Being activated, the pedestal will reset after "reset time"
+		ticks. After reset, the pedestal is ready to be activated once
+		again.
 	</attribute>
 	<attribute arch="connect_reset" editor="reset connection" type="bool">
 		Will reset the connection, so it will be triggered next time something
@@ -4077,213 +3421,76 @@
 
 		Part 3 can be avoided if this option is combined with "walk off" unset.
 	</attribute>
+	<attribute arch="walk_on" editor="walk on" type="bool">
+		Whether to trigger the connection when an object walks on the
+		pedestal.
+	</attribute>
 	<attribute arch="walk_off" editor="walk off" type="bool">
-		Whether to trigger the connection when the object is released. Do
-		not change unless "connection reset" is set.
+		Whether to trigger the connection when an object walks off the
+		pedestal. Should be left on, unless "reset connection" is enabled
+		or "walk on" is disabled.
 	</attribute>
-	<attribute arch="walk_on" value="1" type="fixed" />
+	<attribute arch="fly_on" editor="fly on" type="bool">
+		Whether to trigger the connection when an object flies on the
+		pedestal.
+	</attribute>
+	<attribute arch="fly_off" editor="fly off" type="bool">
+		Whether to trigger the connection when an object flies off the
+		pedestal. Should be left on, unless "reset connection" is enabled
+		or "fly on" is disabled.
+	</attribute>
 </type>
 
-<type number="32" name="Trigger Pedestal" inv="">
-	<import_type name="Pedestal" />
+<type number="51" name="Detector" inv="">
 	<ignore>
 		<ignore_list name="non_pickable" />
 		<ignore_list name="default_setting" />
 	</ignore>
 	<description>
 	<![CDATA[
-		Trigger Pedestals are like normal Pedestals but they reset after
-		they got triggered automatically. In the reset time they can't be
-		triggered again. They are designed to detect certain types of
-		living objects or keys. When a predefined type of living creature
-		steps on the pedestal, the connected value is triggered.
-
-		There are 2 ways to use a Pedestal:
-		<br>
-		1) If the slaying text = "player", then the Pedestal triggers
-		   when a player moves over it.
-		2) If not "player", the slaying text is compared to the race name
-		   of an object above it.
+		Detectors are like pedestals, but they always trigger depending
+		on the move/fly on/off settings, and do not require the "release"
+		event that pedestals usually need. They can also remove matching
+		objects.
 	]]>
 	</description>
-	<use>
-	 <![CDATA[
-		If you want to create a place where only players of a certain
-		race can enter, put a teleporter over your pedestal. So the
-		teleporter is only activated for players of the matching race. Do
-		not use gates, because many other players could sneak in.
-	]]>
-	</use>
-	<attribute arch="exp" editor="reset time" type="int">
-		Being activated, the pedestal will reset after "reset time"
-		ticks. After reset, the pedestal is ready to be activated once
-		again. If 0, the pedestal will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.
+	<attribute arch="hp" editor="match type" type="int">
+		Type of the object to match.
 	</attribute>
-</type>
-
-<type number="94" name="Pit" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Pits are holes, transporting the player when he walks (and falls)
-		into them. A speciality about pits is that they don't transport
-		the player to the exact destination, but within a two-square
-		radius of the destination (never on blocked squares).
-		<br>
-		Optionally, pits can get closed and opened, similar to gates.
-		<br><br>
-		Monsters and items are affected by pits just as well as players.
-		Even multipart monsters can fall through them, given enough space.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Pits can add interesting effects to your map. When using them,
-		make sure to use them in a "logical way": Pits should always drop
-		the player to some kind of lower level. They should not be used
-		to randomly interconnect maps like teleporters do.
-	]]>
-	</use>
+	<attribute arch="slaying" editor="match name" type="string">
+		Name of the object to match.
+	</attribute>
+	<attribute arch="race" editor="match archname" type="string">
+		Archname of the object to match.
+	</attribute>
+	<attribute arch="last_heal" editor="remove match" type="bool">
+		If set, the matching object will be removed.
+	</attribute>
 	<attribute arch="connected" editor="connection" type="int">
-		When a &lt;connection&gt; value is set, the pit can be
-		opened/closed by activating the connection.
+		When the detector is triggered, all objects with the same
+		connection value get activated.
 	</attribute>
-	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
-		If set, connection triggers that were done because something (such
-		as a button being unpressed) was released will be ignored.
+	<attribute arch="last_eat" editor="connection flag" type="bool">
+		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
 	</attribute>
-	<attribute arch="connect_no_push" editor="ignore connection push" type="bool">
-		If set, connection triggers that were done because something (such
-		as a button being pressed) was pushed will be ignored.
+	<attribute arch="walk_on" editor="walk on" type="bool">
+		Whether to trigger the connection when an object walks on the
+		detector.
 	</attribute>
-	<attribute arch="slaying" editor="exit path" type="map_path">
-		The exit path defines the map that the player is transferred to.
-
-		You can enter an absolute path, beginning with '/' (for example
-		"/tutorial"). It can also be a relative path, not beginning with
-		'/' (on the map "/shattered_islands/world_0303" for example I
-		could use the relative path "0304"). Use relative paths whenever
-		possible! Note that upper/lower case must always be set
-		correctly. However, please use lower case only.
-
-		It is well possible to have an exit pointing to the same map that
-		the exit is on. If slaying is not set in an exit, the player will
-		see a message like "The exit is closed".
+	<attribute arch="walk_off" editor="walk off" type="bool">
+		Whether to trigger the connection when an object walks off the
+		detector.
 	</attribute>
-	<attribute arch="hp" editor="destination X" type="int">
-		The pit will transport creatures (and items) randomly into a
-		two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the pit will act like
-		being filled up and not work anymore!
+	<attribute arch="fly_on" editor="fly on" type="bool">
+		Whether to trigger the connection when an object flies on the
+		detector.
 	</attribute>
-	<attribute arch="sp" editor="destination Y" type="int">
-		The pit will transport creatures (and items) randomly into a
-		two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the pit will act like
-		being filled up and not work anymore!
+	<attribute arch="fly_off" editor="fly off" type="bool">
+		Whether to trigger the connection when an object flies off the
+		detector.
 	</attribute>
-	<attribute arch="last_sp" editor="transfer flag" type="bool">
-		If the transfer flag is set, the destination values are used in a
-		special way - instead of marking a fixed position, they are used
-		to define a "drop area" where the player drops randomly.
-	</attribute>
-	<attribute arch="walk_on" editor="swallow walking" type="bool">
-		If set, all walking creatures will fall into the pit. This does
-		NOT need to be set for closed pits!
-	</attribute>
-	<attribute arch="fly_on" editor="swallow flying" type="bool">
-		If set, all flying creatures will fall into the pit as well. This
-		is not the behaviour expected from a pit, and it should only be
-		used for map-mechanisms (e.g. for transporting flying monsters).
-
-		An interesting side-effect: If this flag is enabled, spell
-		effects like fire/snow also make their way through the pit.
-	</attribute>
-</type>
-
-<type number="7" name="Poison Food">
-	<ignore>
-		<attribute arch="cursed" />
-		<attribute arch="damned" />
-		<attribute arch="speed_left" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		When eating, the player's stomach is drained by 1/4 of food and
-		the player is poisoned (a DOT poisoned force is inserted in the
-		player). Until the DOT (DOT = Damage Over Time) force wears out,
-		the player gets damage all x ticks.
-
-		Also stats and resists can be affected.
-	]]>
-	</description>
-	<attribute arch="dam" editor="damage" type="int">
-		A poison with a positive &lt;damage&gt; value will hit the player
-		all ticks with it adjusted by level.
-	</attribute>
-	<attribute arch="level" editor="poison level" type="int" min="0" max="115">
-		Set the power level of the poison.
-	</attribute>
-	<attribute arch="last_heal" editor="# of DOT ticks" type="int">
-		When a poison force is created after someone is affected by this
-		poison food this value sets how often the DOT force applies
-		damage before it wears out.
-		(DOT = Damage Over Time)
-	</attribute>
-	<attribute arch="speed_left" editor="speed of DOT ticks" type="float">
-		This value sets the speed of the DOT ticks. Careful - a value of
-		1 means damage every game tick - that can be 9 per second!
-		(DOT = Damage Over Time)
-	</attribute>
-	<attribute arch="cursed" editor="cursed" type="bool">
-		Turn positive effects negative and then double all negative
-		effects.
-	</attribute>
-	<attribute arch="damned" editor="damned" type="bool">
-		Turn positive effects negative and then triple all negative
-		effects.
-	</attribute>
-	<section name="Force Effects">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
-		<attribute arch="protect_impact" editor="impact protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_slash" editor="slash protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_cleave" editor="cleave protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_pierce" editor="pierce protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_weaponmagic" editor="w.magic protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_fire" editor="fire protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_cold" editor="cold protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_electricity" editor="electricity protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_poison" editor="poison protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_godpower" editor="godpower protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_chaos" editor="chaos protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_drain" editor="drain protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_slow" editor="slow protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_confusion" editor="confusion protect %" length="15" type="int" min="-100" max="100" />
-
-		<attribute arch="protect_internal" editor="internal protect %" length="15" type="int" min="-100" max="100" />
-	</section>
 </type>
 
 <type number="86" name="Organic">
@@ -4522,7 +3729,7 @@
 	</attribute>
 </type>
 
-<type number="154" name="Rune &amp; Trap" inv="122">
+<type number="154" name="Rune" inv="122">
 	<ignore>
 		<ignore_list name="non_pickable" />
 		<ignore_list name="default_setting" />
@@ -4913,7 +4120,7 @@
 	</attribute>
 </type>
 
-<type number="98" name="Sign &amp; MagicMouth" inv="">
+<type number="98" name="Sign" inv="">
 	<ignore>
 		<ignore_list name="non_pickable" />
 		<ignore_list name="default_setting" />
@@ -5023,9 +4230,32 @@
 	<attribute arch_begin="msg" arch_end="endmsg" editor="message" type="text">
 		This text will be displayed to the player.
 	</attribute>
+	<section name="notification">
+		<attribute arch="notification_message" editor="message" type="string">
+			Notification message to show below the map name.
+		</attribute>
+		<attribute arch="notification_action" editor="action" type="string">
+			Action to execute when the notification is triggered - either a
+			keybinding macro (starting with a question mark, for example,
+			?HELP), or a command beginning with a slash.
+		</attribute>
+		<attribute arch="notification_shortcut" editor="shortcut" type="string">
+			Keybinding macro that will be temporarily used for the notification -
+			for example, one could use ?CONSOLE to make the enter key (default)
+			execute the notification action - until the notification disappears
+			(fade out, or dismissed by actually triggering its action).
+		</attribute>
+		<attribute arch="notification_delay" editor="delay" type="int">
+			Time in milliseconds that the notification will stay visible.
+			About 5 seconds before the time runs out, the notification will
+			start fading out (thus, the client forces the delay to be at least
+			5 seconds, even if you use a smaller value). The default delay is
+			30 seconds.
+		</attribute>
+	</section>
 </type>
 
-<type number="21" name="Special Key">
+<type number="21" name="Key">
 	<ignore>
 		<attribute arch="material" />
 		<ignore_list name="default_setting" />
@@ -5063,37 +4293,6 @@
 	</attribute>
 </type>
 
-<type number="85" name="Spellbook">
-	<ignore>
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		By reading a spellbook, the player has a chance of learning the
-		contained spell. Once learned from a book, the spell is available
-		forever. Spellbooks with high level spells require some skill
-		level to read.
-	]]>
-	</description>
-	<attribute arch="sp" editor="spell" type="nz_spell">
-		The book will contain the specified spell. You could
-		alternatively use the spell name.
-	</attribute>
-	<attribute arch="slaying" editor="spell name" type="string">
-		This string also defines the contained spell (just like field
-		above), but here you write the spell's name directly.
-		Setting both &lt;spell&gt; and &lt;spell name&gt; makes no sense.
-	</attribute>
-	<attribute arch="startequip" editor="god-given item" type="bool">
-		A god-given item vanishes as soon as the player drops it to the
-		ground.
-	</attribute>
-	<attribute arch_begin="msg" arch_end="endmsg" editor="description" type="text">
-		This text may contain a nice description of the spellbook's cover
-		or something.
-	</attribute>
-</type>
-
 <type number="90" name="Spinner" inv="">
 	<ignore>
 		<ignore_list name="non_pickable" />
@@ -5123,38 +4322,6 @@
 	</use>
 	<attribute arch="walk_on" value="1" type="fixed" />
 	<attribute arch="fly_on" value="1" type="fixed" />
-</type>
-
-<type number="138" name="Swamp" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Swamp areas show a special behaviour:
-
-		When a player stands still on a swamp square for too long, he
-		will start to sink in and eventually drown and die. Items dropped
-		on the swamp sink in and disappear.
-	]]>
-	</description>
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch="is_floor" value="1" type="fixed" />
-	<attribute arch="speed" editor="drowning speed" type="float">
-		The higher this value, the faster will players and items sink
-		into the swamp. Swamp with very high drowning speed can be a
-		nasty and unexpected death-trap.
-
-		Players should get a warning before such areas.
-	</attribute>
-	<attribute arch="slow_move" editor="slow movement" type="bool">
-		If set, 'slow movement penalty' will take effect.
-	</attribute>
-	<attribute arch="exp" editor="slow movement penalty" type="int">
-		If set to a value greater than zero, all creatures moving over this
-		spot will be slower than normal.
-	</attribute>
 </type>
 
 <type number="41" name="Teleporter" inv="">
@@ -5232,72 +4399,6 @@
 	</attribute>
 </type>
 
-<type number="95" name="Trapdoor" inv="">
-	<ignore>
-		<ignore_list name="non_pickable" />
-		<ignore_list name="default_setting" />
-	</ignore>
-	<description>
-	<![CDATA[
-		Trapdoors are very similar to pits. The difference is that they
-		can not be closed. Instead, the weight of the object on the
-		trapdoor determines whether it slams the trapdoor open and falls
-		through or not.
-		<br>
-		Once a trapdoor has been opened (by a creature or items of
-		sufficient weight), it remains open, acting like an opened pit.
-	]]>
-	</description>
-	<use>
-	<![CDATA[
-		Trapdoors should be used in the same fashion as pits:
-
-		They should always drop the victims to some kind of lower level.
-		They are not supposed to be used to randomly interconnect maps
-		like teleporters.
-	]]>
-	</use>
-	<attribute arch="no_pick" value="1" type="fixed" />
-	<attribute arch="walk_on" value="1" type="fixed" />
-	<attribute arch="weight" editor="hold weight" type="int">
-		This value defines how much weight the trapdoor can hold. Once
-		items or creatures are gathered on the trapdoor, with a total
-		weight surpassing this value, then the trapdoor will open and
-		things start falling through.
-	</attribute>
-	<attribute arch="slaying" editor="exit path" type="map_path">
-		The exit path defines the map that the player is transferred to.
-
-		You can enter an absolute path, beginning with '/' (for example
-		"/tutorial"). It can also be a relative path, not beginning with
-		'/' (on the map "/shattered_islands/world_0303" for example I
-		could use the relative path "0304"). Use relative paths whenever
-		possible! Note that upper/lower case must always be set
-		correctly. However, please use lower case only.
-
-		It is well possible to have an exit pointing to the same map that
-		the exit is on. If slaying is not set in an exit, the player will
-		see a message like "The exit is closed".
-	</attribute>
-	<attribute arch="hp" editor="destination X" type="int">
-		The trapdoor will transport creatures (and items) randomly into
-		a two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the trapdoor will act like
-		being filled up and not work anymore!
-	</attribute>
-	<attribute arch="sp" editor="destination Y" type="int">
-		The trapdoor will transport creatures (and items) randomly into
-		a two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the trapdoor will act like
-		being filled up and not work anymore!
-	</attribute>
-	<attribute arch="last_sp" editor="transfer flag" type="bool">
-		If the transfer flag is set, the destination values are used in a
-		special way - instead of marking a fixed position, they are used
-		to define a "drop area" where the player drops randomly.
-	</attribute>
-</type>
-
 <type number="4" name="Treasure">
 	<ignore>
 		<attribute arch="nrof" />
@@ -5317,22 +4418,12 @@
 	<attribute arch="randomitems" editor="treasurelist" type="treasurelist">
 		This entry determines what kind of treasure will appear.
 	</attribute>
-	<attribute arch="auto_apply" editor="auto-generate" type="bool">
-		"Auto-generate" must be set in order to have the treasure be
-		created when the map is loaded.
-		If you want to create a random treasure chest, you unset this
-		flag. That way, the player has to apply the object (the chest),
-		then the treasure is generated.
-	</attribute>
 	<attribute arch="exp" editor="quality level" type="int">
 		The &lt;quality level&gt; will be used for the quality of the
 		generated treasure instead of the map difficulty (as was done
 		with shops).
 
 		If zero/unset, the map difficulty will instead be used.
-
-		(Example for comparison: Shop floors generate treasure of
-		&lt;quality level&gt; 5 per default).
 	</attribute>
 </type>
 
@@ -5475,15 +4566,6 @@
 			Positive &lt;mana bonus&gt; increases the mana points.
 			Negative decreases them (decrease can't reduce the total mana
 			of the wearer below 1).
-		</attribute>
-		<attribute arch="grace" editor="grace regen." type="int">
-			Positive &lt;grace regen.&gt; bonus speeds up the player's
-			grace regeneration. Negative values slow it down.
-		</attribute>
-		<attribute arch="maxgrace" editor="grace bonus" type="int">
-			Positive &lt;grace bonus&gt; increases the hit points.
-			Negative decreases them (decrease can't reduce the total
-			grace of the wearer below 1).
 		</attribute>
 		<attribute arch="food" editor="food bonus" type="int">
 			Positive &lt;food bonus&gt; slows down the player's
@@ -5672,6 +4754,9 @@
 	<attribute arch="slaying" editor="option" type="string">
 		This string is given the event as option string.
 	</attribute>
+	<attribute arch="lifesave" editor="players only" type="bool">
+		If set, this event will only be activated by players.
+	</attribute>
 	<attribute arch="path_attuned" editor="AI events" type="bitmask_event_ai">
 		A combination of AI events this object wants to receive.
 	</attribute>
@@ -5761,7 +4846,7 @@
 		Amount of time the mob should wait at this waypoint before
 		proceeding to the next.
 	</attribute>
-	<attribute arch="grace" editor="trigger distance" type="int">
+	<attribute arch="maxsp" editor="trigger distance" type="int">
 		How far away from the exact position will the waypoint be
 		considered to be reached.
 

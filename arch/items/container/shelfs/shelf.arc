@@ -1,5 +1,5 @@
 Object shelf1.111
-name cabinet
+name shelf
 face shelf1.111
 animation shelf1.111
 is_animated 0
@@ -18,7 +18,7 @@ weapon_speed 1.0
 end
 
 Object shelf2.111
-name cabinet
+name shelf
 face shelf2.111
 animation shelf2.111
 is_animated 0
@@ -37,7 +37,7 @@ weapon_speed 1.0
 end
 
 Object shelf3.111
-name bookcase
+name shelf
 face shelf3.111
 animation shelf3.111
 is_animated 0
@@ -56,7 +56,7 @@ weapon_speed 1.0
 end
 
 Object shelf3a.111
-name bookcase
+name shelf
 face shelf3a.111
 animation shelf3a.111
 is_animated 0
@@ -75,7 +75,7 @@ weapon_speed 1.0
 end
 
 Object shelf3b.111
-name bookcase
+name shelf
 face shelf3b.111
 animation shelf3b.111
 is_animated 0
@@ -94,7 +94,7 @@ weapon_speed 1.0
 end
 
 Object shelf3c.111
-name bookcase
+name shelf
 face shelf3c.111
 animation shelf3c.111
 is_animated 0
@@ -113,7 +113,7 @@ weapon_speed 1.0
 end
 
 Object shelf3_dem1.111
-name demolished bookcase
+name demolished shelf
 face shelf3_dem1.111
 animation shelf3_dem1.111
 is_animated 0
@@ -132,7 +132,7 @@ weapon_speed 1.0
 end
 
 Object shelf3_dem2.111
-name demolished bookcase
+name demolished shelf
 face shelf3_dem2.111
 animation shelf3_dem2.111
 is_animated 0
@@ -151,7 +151,7 @@ weapon_speed 1.0
 end
 
 Object shelf3_dem3.111
-name demolished bookcase
+name demolished shelf
 face shelf3_dem3.111
 animation shelf3_dem3.111
 is_animated 0
