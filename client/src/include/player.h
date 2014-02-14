@@ -51,7 +51,7 @@
 
 typedef struct Stat_struct
 {
-    sint8 Str, Dex, Con, Wis, Cha, Int, Pow;
+    sint8 Str, Dex, Con, Int, Pow;
 
     /** Weapon class. */
     sint16 wc;

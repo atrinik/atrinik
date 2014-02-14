@@ -217,95 +217,29 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                     break;
 
                 case CS_STAT_STR:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Str) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Str = temp;
-                    break;
-
                 case CS_STAT_INT:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Int) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Int = temp;
-                    break;
-
                 case CS_STAT_POW:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Pow) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Pow = temp;
-                    break;
-
-                case CS_STAT_WIS:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Wis) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Wis = temp;
-                    break;
-
                 case CS_STAT_DEX:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Dex) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Dex = temp;
-                    break;
-
                 case CS_STAT_CON:
-                    temp = packet_to_uint8(data, len, &pos);
+                {
+                    sint8 *stat;
+                    uint8 stat_new;
 
-                    if (temp > cpl.stats.Con) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
+                    stat = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
+                    stat_new = packet_to_uint8(data, len, &pos);
+
+                    if (*stat != -1) {
+                        if (stat_new > *stat) {
+                            cpl.warn_statup = 1;
+                        }
+                        else if (stat_new < *stat) {
+                            cpl.warn_statdown = 1;
+                        }
                     }
 
-                    cpl.stats.Con = temp;
+                    *stat = stat_new;
                     break;
-
-                case CS_STAT_CHA:
-                    temp = packet_to_uint8(data, len, &pos);
-
-                    if (temp > cpl.stats.Cha) {
-                        cpl.warn_statup = 1;
-                    }
-                    else {
-                        cpl.warn_statdown = 1;
-                    }
-
-                    cpl.stats.Cha = temp;
-                    break;
+                }
 
                 case CS_STAT_PATH_ATTUNED:
                     cpl.path_attuned = packet_to_uint32(data, len, &pos);

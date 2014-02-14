@@ -78,6 +78,7 @@ void clear_player(void)
 {
     objects_deinit();
     memset(&cpl, 0, sizeof(cpl));
+    cpl.stats.Str = cpl.stats.Dex = cpl.stats.Con = cpl.stats.Int = cpl.stats.Pow = -1;
     cpl.mark_count = -1;
     objects_init();
     quickslots_init();

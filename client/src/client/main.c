@@ -131,7 +131,6 @@ static int game_status_chain(void)
 
         clear_map();
         map_redraw_flag = 1;
-        clear_player();
         cpl.state = ST_WAITLOOP;
     }
     else if (cpl.state == ST_STARTCONNECT) {
@@ -150,6 +149,7 @@ static int game_status_chain(void)
 
         socket_thread_start();
         region_map_clear();
+        clear_player();
 
         packet = packet_new(SERVER_CMD_VERSION, 16, 0);
         packet_append_uint32(packet, SOCKET_VERSION);
