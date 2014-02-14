@@ -289,6 +289,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     textwin->tabs[textwin->tabs_num].button.texture_over = textwin->tabs[textwin->tabs_num].button.texture_pressed = NULL;
 
     text_input_create(&textwin->tabs[textwin->tabs_num].text_input);
+    text_input_set_font(&textwin->tabs[textwin->tabs_num].text_input, textwin->font);
     textwin->tabs[textwin->tabs_num].text_input.focus = 0;
     textwin->tabs[textwin->tabs_num].text_input.max = 250;
     textwin->tabs[textwin->tabs_num].text_input_history = text_input_history_create();
@@ -938,6 +939,12 @@ static void textwin_font_adjust(widgetdata *widget, int adjust)
     font = MAX(FONT_ARIAL10, MIN(FONT_ARIAL16, textwin->font + adjust));
 
     if (textwin->font != font) {
+        size_t i;
+
+        for (i = 0; i < textwin->tabs_num; i++) {
+            text_input_set_font(&textwin->tabs[i].text_input, font);
+        }
+
         textwin->font = font;
         textwin_readjust(widget);
         WIDGET_REDRAW(widget);
