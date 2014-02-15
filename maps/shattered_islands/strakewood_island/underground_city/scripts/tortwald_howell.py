@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if not qm.started_part(1):
+    if not qm.started("deliver tortwalds letter"):
         if msg == "hello":
             inf.add_msg("*sob*... Hello there...")
             inf.add_link("Who are you?", dest = "who")
@@ -35,9 +35,9 @@ def main():
         elif msg == "sure":
             inf.add_msg("Thank you... Here's the letter. Please, deliver it to my wife, Rienn Howell in Fort Ghzal...")
             inf.add_objects(me.FindObject(archname = "two_lovers_doomed_letter1"))
-            qm.start(1)
+            qm.start("deliver tortwalds letter")
 
-    elif not qm.completed_part(1):
+    elif not qm.completed("deliver tortwalds letter"):
         if msg == "hello":
             inf.add_msg("*sobs*... Have you delivered the letter yet?")
             inf.add_link("Working on it.", dest = "working")
@@ -45,7 +45,7 @@ def main():
         elif msg == "working":
             inf.add_msg("Please, deliver it to my wife, Rienn Howell in Fort Ghzal...")
 
-    elif qm.started_part(2) and not qm.completed_part(2):
+    elif qm.need_complete("deliver rienns letter"):
         if msg == "hello":
             inf.add_msg("*sobs*... Have you delivered the letter yet?")
             inf.add_link("Yes, take this letter from your wife.", dest = "takeletter")
@@ -54,7 +54,7 @@ def main():
             inf.add_msg("You have a letter for me from my dear Rienn? Oh... thank you...")
             inf.add_msg("Here, take this key... it supposedly opens something around here, but before I could figure it out, I was captured... and... thank you again.")
             inf.add_objects(me.FindObject(archname = "uc_ii_skull_key"))
-            qm.complete(2)
+            qm.complete("deliver rienns letter")
 
     else:
         if msg == "hello":

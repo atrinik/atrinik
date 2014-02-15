@@ -143,20 +143,20 @@ TwoLoversDoomed = {
     "quest_name": "Two Lovers Doomed",
     "type": QUEST_TYPE_MULTI,
     "message": "",
-    "parts": [
-        {
+    "parts": {
+        "deliver tortwalds letter": {
             "message": "You have found the guard Tortwald Howell imprisoned deep inside the Underground City. He has asked you to deliver a letter to his love, Rienn Howell, in Fort Ghzal.",
             "type": QUEST_TYPE_KILL_ITEM,
             "arch_name": "two_lovers_doomed_letter1",
             "item_name": "Tortwald's letter",
         },
-        {
+        "deliver rienns letter": {
             "message": "After delivering Tortwald Howell's letter to Rienn Howell, she has asked you to deliver a letter of her own to Tortwald.",
             "type": QUEST_TYPE_KILL_ITEM,
             "arch_name": "two_lovers_doomed_letter2",
             "item_name": "Rienn's letter",
         },
-    ],
+    },
 }
 
 GallansRevenge = {
