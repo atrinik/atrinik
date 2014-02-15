@@ -254,7 +254,7 @@ static PyObject *Atrinik_Map_PlaySound(Atrinik_Map *map, PyObject *args, PyObjec
  * hear the message. */
 static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject *keywds)
 {
-    static char *kwlist[] = {"x", "y", "distance", "message", "color", "type", "name", NULL};
+    static char *kwlist[] = {"x", "y", "message", "color", "type", "name", "distance", NULL};
     int x, y, distance;
     const char *message, *color, *name;
     uint8 type;
