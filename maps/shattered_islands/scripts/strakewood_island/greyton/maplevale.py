@@ -13,11 +13,11 @@ def main():
         inf.add_msg("Greetings, {}. I am {}, a priest of the elven god Llwyfen.".format(activator.name, me.name))
         inf.add_msg("I'm also the mayor of Brynknot, and I'm currently attending to some business here in Greyton.")
 
-    if not qm.started_part(1):
+    if not qm.started("portal found"):
         if msg == "hello":
             greeting()
 
-    elif not qm.completed_part(1):
+    elif not qm.completed("portal found"):
         if msg == "hello":
             greeting()
             inf.add_link("I have found a portal sealed by the powers of Llwyfen.", dest = "sealedportal")
@@ -30,25 +30,25 @@ def main():
         elif msg == "alright":
             inf.add_msg("Very well then. Take the amulet, and go investigate what's beyond that strange portal.")
             inf.add_objects(me.FindObject(archname = "amulet_llwyfen"))
-            qm.start(2)
-            qm.complete(1, sound = None)
+            qm.start("portal investigate")
+            qm.complete("portal found")
 
-    elif qm.started_part(2) and not qm.completed_part(2):
+    elif qm.need_complete("portal investigate"):
         if msg == "hello":
             inf.add_msg("I have asked you to investigate the area beyond the strange portal that you told me about in the Underground City. Have you learned anything yet?")
 
-            if qm.finished(2):
+            if qm.finished("portal investigate"):
                 inf.add_link("Yes, I found this note.", dest = "foundnote")
             else:
                 inf.add_link("Not yet.", action = "close")
 
-        elif qm.finished(2):
+        elif qm.finished("portal investigate"):
             if msg == "foundnote":
                 inf.add_msg("You hand over the note...", COLOR_YELLOW)
                 inf.add_msg("Hmm! This note is most troubling indeed.")
                 inf.add_msg("Please go see Talthor Redeye, the captain of the Brynknot guards, immediately. I'll send a runner to explain the situation to him, but he'll likely have some orders for you. You should be able to find him in his office, above the guard barracks.")
-                qm.start(3)
-                qm.complete(2, sound = None)
+                qm.start("speak captain")
+                qm.complete("portal investigate")
 
     elif qm.completed():
         if msg == "hello":

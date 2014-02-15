@@ -116,27 +116,27 @@ LlwyfenPortal = {
     "quest_name": "Portal of Llwyfen",
     "type": QUEST_TYPE_MULTI,
     "messages": "",
-    "parts": [
-        {
+    "parts": {
+        "portal found": {
             "message": "You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.",
             "type": QUEST_TYPE_SPECIAL,
         },
-        {
+        "portal investigate": {
             "message": "Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.",
             "type": QUEST_TYPE_KILL_ITEM,
             "arch_name": "llwyfen_portal_nyhelobo_note",
             "item_name": "Letter from Nyhelobo to oty captain",
         },
-        {
+        "speak captain": {
             "message": "You have delivered the note you found in the passage beyond the portal in Underground City to Maplevale. After reading it, Maplevale told you to go speak to Talthor Redeye, the captain of the Brynknot guards, immediately.",
             "type": QUEST_TYPE_SPECIAL,
         },
-        {
+        "kill boss": {
             "message": "Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.",
             "type": QUEST_TYPE_KILL,
             "num": 1,
         },
-    ],
+    },
 }
 
 TwoLoversDoomed = {

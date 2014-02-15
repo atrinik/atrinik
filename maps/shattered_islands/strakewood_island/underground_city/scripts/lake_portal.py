@@ -8,12 +8,12 @@ from Quests import LlwyfenPortal as quest
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if not qm.started_part(1) or not qm.completed_part(1):
+    if not qm.completed("portal found"):
         pl.DrawInfo("The portal bounces you away as soon as you touch it. It appears to be sealed by the powers of the elven god Llwyfen.", COLOR_RED)
 
-        if not qm.started_part(1):
+        if not qm.started("portal found"):
             pl.DrawInfo("Perhaps you should search for a priest of Llwyfen to learn more.", COLOR_YELLOW)
-            qm.start(1)
+            qm.start("portal found")
 
         d = random.randint(1, SIZEOFFREE1)
         activator.TeleportTo(activator.map.path, activator.x + freearr_x[d], activator.y + freearr_y[d])
