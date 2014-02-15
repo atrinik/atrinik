@@ -24,7 +24,7 @@ def flash_light():
 
 def main():
     if location == "lab":
-        if qm.started_part(1) and not qm.finished(1) and not qm.completed_part(1):
+        if qm.need_finish("enhance crystal alchemists"):
             crystal_exchange("gandyld_crystal_1", "gandyld_crystal_2")
             pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of light occurs, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", COLOR_YELLOW)
             flash_light()
@@ -32,7 +32,7 @@ def main():
             SetReturnValue(1)
 
     elif location == "lab_rhun":
-        if qm.started_part(2) and not qm.finished(2) and not qm.completed_part(2):
+        if qm.need_finish("enhance crystal rhun"):
             crystal_exchange("gandyld_crystal_2", "gandyld_crystal_3")
             pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of bright light occurs, followed by a loud crackling noise, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", COLOR_YELLOW)
             flash_light()

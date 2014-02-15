@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if not qm.started_part(1):
+    if not qm.started("enhance crystal alchemists"):
         if msg == "hello":
             inf.add_msg("{} mumbles something and slowly turns his attention to you.".format(me.name), COLOR_YELLOW)
             inf.add_msg("What is it? Can't you see I'm busy here?")
@@ -40,40 +40,40 @@ def main():
             inf.add_objects(me.FindObject(archname = "gandyld_crystal_1"))
             inf.add_msg("Now, listen. I have heard that King Rhun's alchemists are trying to come up with a concoction that would enhance the mana limit of weak crystals, like the one I have just given you. It is strange to see giants coming up with magical enchantments, so it may not even work, or maybe explode on contact with the crystal. However, feel free to go and check it out, but if you do and it works, please come back so I can examine the crystal.")
             inf.add_msg("The heart of the Giant Mountains, just north of here, is King Rhun's domain. He has an outpost of sorts at the very peak of the mountains, where it is so cold most don't even dare approach. The concoction is likely to be in a cauldron or a pool in their laboratory. Be careful.")
-            qm.start(1)
+            qm.start("enhance crystal alchemists")
 
-    elif not qm.completed_part(1):
+    elif not qm.completed("enhance crystal alchemists"):
         if msg == "hello":
             inf.add_msg("So, how did it go? Have you found the concoction and managed to enhance the crystal I have given you?")
 
-            if not qm.finished(1):
+            if not qm.finished("enhance crystal alchemists"):
                 inf.add_link("Working on it...", action = "close")
             else:
                 inf.add_link("Yes, it worked. See for yourself...", dest = "worked")
 
-        elif qm.finished(1):
+        elif qm.finished("enhance crystal alchemists"):
             if msg == "worked":
                 inf.add_msg("Hmm, I see! That is very interesting... and rather odd. You can still smell the brimstone too...")
                 inf.add_msg("Very well... Seeing that their enchantment works, it is rather worrying. Maybe the giants are becoming intelligent? Hm... King Rhun is rather intelligent for a giant, and likes to experiment with alchemy and some magic, but most other giants? Very strange indeed.")
                 inf.add_msg("At any rate, this seems like the sort of thing King Rhun would be interested in experimenting with, making it better. If you can find his concoction, you might be able to improve the crystal I have given you even further. I suggest trying to look for his vault or similar.")
-                qm.start(2)
-                qm.complete(1, sound = False)
+                qm.start("enhance crystal rhun")
+                qm.complete("enhance crystal alchemists")
 
-    elif not qm.completed_part(2):
+    elif not qm.completed("enhance crystal rhun"):
         if msg == "hello":
             inf.add_msg("So, how did it go? Have you found the concoction and managed to further enhance the crystal I have given you?")
 
-            if not qm.finished(2):
+            if not qm.finished("enhance crystal rhun"):
                 inf.add_link("Working on it...", action = "close")
             else:
                 inf.add_link("Yes, I found it and it worked. See for yourself...", dest = "worked")
 
-        elif qm.finished(2):
+        elif qm.finished("enhance crystal rhun"):
             if msg == "worked":
                 inf.add_msg("Well, well... very interesting, {}. Thank you for the information, it's likely going to be quite valuable in my own research.".format(activator.name))
                 inf.add_objects(me.FindObject(archname = "silvercoin"))
                 inf.add_msg("Use that enhanced mana crystal well.")
-                qm.complete(2)
+                qm.complete("enhance crystal rhun")
 
     else:
         if msg == "hello":

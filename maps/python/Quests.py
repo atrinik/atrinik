@@ -222,20 +222,20 @@ GandyldsManaCrystal = {
     "quest_name": "Gandyld's Mana Crystal",
     "type": QUEST_TYPE_MULTI,
     "message": "Gandyld, an old mage living east of Aris, has given you his spare mana crystal.",
-    "parts": [
-        {
+    "parts": {
+        "enhance crystal alchemists": {
             "message": "Since the crystal is rather weak, Gandyld has suggested that you go check out his information about King Rhun's alchemists coming up with a concoction that could enhance mana crystals. King Rhun's domain is in the heart of Giant Mountains, and his outpost is at the very peak of the mountains. The concoction would likely be in a cauldron or a pool in their laboratory.",
             "arch_name": "gandyld_crystal_2",
             "item_name": "Gandyld's Mana Crystal",
             "quest_item_keep": True,
             "type": QUEST_TYPE_KILL_ITEM,
         },
-        {
+        "enhance crystal rhun": {
             "message": "Gandyld suspects that since King Rhun likes to experiment with alchemy, he might have found a way to make the concoction even better. If so, it would probably be in his vault or similar.",
             "arch_name": "gandyld_crystal_3",
             "item_name": "Gandyld's Mana Crystal",
             "quest_item_keep": True,
             "type": QUEST_TYPE_KILL_ITEM,
         },
-    ],
+    },
 }
