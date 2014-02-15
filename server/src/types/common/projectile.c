@@ -187,7 +187,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         op->stats.dam = op->stats.hp;
         op->last_sp = op->stats.sp;
 
-        op->last_heal = op->stats.hp = op->last_grace = op->stats.sp = 0;
+        op->last_heal = op->stats.hp = op->stats.sp = 0;
 
         /* Reset level, speed and wc_range. */
         op->level = op->arch->clone.level;
