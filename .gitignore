@@ -33,6 +33,7 @@ permissions-custom.cfg
 *.xm
 *.mid
 client/sound
+arch/dev/editor/pickmaps/*/*
 
 # GNU/Linux
 core
