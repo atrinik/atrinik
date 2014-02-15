@@ -640,14 +640,16 @@ int main(int argc, char **argv)
 
     init(argc, argv);
 
-#ifdef HAVE_WORLD_MAKER
-
     if (settings.world_maker) {
+#ifdef HAVE_WORLD_MAKER
         logger_print(LOG(INFO), "Running the world maker...");
         world_maker();
         exit(0);
-    }
+#else
+        logger_print(LOG(ERROR), "Cannot run world maker; server was not compiled with libgd, exiting...");
+        exit(1);
 #endif
+    }
 
     memset(&marker, 0, sizeof(struct obj));
 
