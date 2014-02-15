@@ -304,11 +304,3 @@ class QuestManagerMulti(QuestManagerBase):
             return -1
 
         return self._num2finish(obj, self.quest["parts"][part])
-
-    def completed_part(self, part):
-        print("completed_part(part) method is deprecated, use completed(part)")
-        return self.completed(part)
-
-    def started_part(self, part):
-        print("started_part(part) method is deprecated, use started(part)")
-        return self.started(part)
