@@ -397,6 +397,7 @@ int CAN_MERGE(object *ob1, object *ob2)
         ob1->item_quality       != ob2->item_quality ||
         ob1->item_race          != ob2->item_race ||
         ob1->item_skill         != ob2->item_skill ||
+        ob1->last_grace         != ob2->last_grace ||
         ob1->level              != ob2->level ||
         ob1->magic              != ob2->magic ||
         ob1->material           != ob2->material ||
