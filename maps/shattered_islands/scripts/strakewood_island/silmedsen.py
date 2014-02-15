@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if qm.started_part(5) and not qm.started_part(6):
+    if qm.started("get wood") and not qm.started("get morliana water"):
         if msg == "hello":
             inf.add_msg("The tree doesn't seem to notice your presence...", COLOR_YELLOW)
             inf.add_link("Can I have some of your branches?", dest = "havesome")
@@ -22,9 +22,9 @@ def main():
         elif msg == "alright":
             inf.add_msg("Good... I have heard the water that surrounds the Great Blue Crystal in Morliana is clean and fresh... Bring me some in this empty potion bottle and you can have some of my branches...")
             inf.add_objects(me.FindObject(archname = "silmedsen_potion_bottle"))
-            qm.start(6)
+            qm.start("get morliana water")
 
-    elif qm.started_part(6) and not qm.completed_part(6) and not qm.finished(5):
+    elif qm.need_complete("get morliana water"):
         obj = activator.FindObject(archname = "silmedsen_potion_bottle_filled")
 
         if msg == "hello":
@@ -40,6 +40,7 @@ def main():
                 obj.Remove()
                 inf.add_msg("Good... Thank you... Now I can go back to resting... Accept these branches as my gift to you...")
                 inf.add_objects(me.FindObject(archname = "silmedsen_branches"))
+                qm.complete("get morliana water")
 
     else:
         if msg == "hello":

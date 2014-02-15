@@ -9,10 +9,10 @@ inf = Interface(activator, me)
 qm = QuestManagerMulti(activator, quest)
 
 def main():
-    if not qm.started_part(1):
+    if not qm.started("get shard"):
         if msg == "hello":
             inf.add_msg("Well, hello there! Isn't this experiment simply fascinating?")
-            inf.add_link("Tell me more about the experiment", dest = "experiment")
+            inf.add_link("Tell me more about the experiment.", dest = "experiment")
 
         elif msg == "experiment":
             inf.add_msg("You don't know about it? We are trying to figure out the exact properties of this shard, which came from the Great Blue Crystal. But I assume you know all about that already.")
@@ -25,44 +25,44 @@ def main():
 
         elif msg == "help":
             inf.add_msg("Hm... Sorry? Oh, do you really want to help me? Very well then. Please go to Brynknot and find someone who collected a shard of the crystal, and bring it back to me. The owner will probably be a mage or alchemist. I heard there was an alchemist in Brynknot, it could be him...")
-            qm.start(1)
+            qm.start("get shard")
 
-    elif not qm.completed_part(1):
+    elif not qm.completed("get shard"):
         if msg == "hello":
             inf.add_msg("Have you found the crystal shard yet?")
 
-            if not qm.finished(1):
+            if not qm.finished("get shard"):
                 inf.add_link("Working on it...", action = "close")
             else:
                 inf.add_link("Yes, here you go.", dest = "herego")
 
-        elif qm.finished(1):
+        elif qm.finished("get shard"):
             if msg == "herego":
                 inf.add_msg("You hand the blue crystal fragment to {} and tell him about the earthquake and the investigation...".format(me.name), COLOR_YELLOW)
                 inf.add_msg("Thank you {}. That is indeed very interesting report you have from Jonaslen... And the fragment! My piece and this fragment look very much alike. It is odd... My piece came from the sky, and the fragment came from the ground?... Hmmm... This is very confusing indeed. Please, go back to Brynknot and ask Jonaslen whether there were reports of a flash in the sky just before the earthquake.".format(activator.name))
-                qm.start(2)
-                qm.complete(1, sound = None)
+                qm.start("ask about flash")
+                qm.complete("get shard")
 
-    elif qm.started_part(2) and not qm.started_part(4):
+    elif not qm.completed("report about flash"):
         if msg == "hello":
             inf.add_msg("Did you ask Jonaslen whether there were reports of a flash in the sky just before the earthquake?")
 
-            if not qm.completed_part(2):
+            if not qm.completed("ask about flash"):
                 inf.add_link("Working on it...", action = "close")
             else:
                 inf.add_link("Yes...", dest = "yes")
 
-        elif qm.completed_part(2):
+        elif qm.completed("ask about flash"):
             if msg == "yes":
                 inf.add_msg("That makes sense... Quite interesting, it seems the crystal that shattered in Brynknot was the same as the one here in Morliana, the Great Blue Crystal, and both fell from the sky... Well, I need to construct a telescope so I can study the sky to see if there are any more crystals we should know about. But I need some special glass lens crystal first... Would you get it for me, please?")
                 inf.add_link("Sure.", dest = "sure")
 
             elif msg == "sure":
                 inf.add_msg("Great! I have heard Morg'eean the kobold trader south of Asteria trades clear crystals, you should be able to find one in his little shop.")
-                qm.start(4)
-                qm.complete(3, sound = None)
+                qm.start("get clear crystal")
+                qm.complete("report about flash")
 
-    elif qm.started_part(4) and not qm.started_part(5):
+    elif qm.need_complete("get clear crystal"):
         obj = activator.FindObject(archname = "jewel_generic", name = "clear crystal")
 
         if msg == "hello":
@@ -78,19 +78,19 @@ def main():
                 obj.Decrease()
                 inf.add_msg("You hand one clear crystal to {}.".format(me.name), COLOR_YELLOW)
                 inf.add_msg("That's a perfect clear crystal, thank you! Now, I need a stand to mount the telescope on. It needs to be a very sturdy one... The wood from the ancient tree Silmedsen should do. I have heard he was located south of Asteria Swamp, near Fort Sether...")
-                qm.start(5)
-                qm.complete(4, sound = False)
+                qm.start("get wood")
+                qm.complete("get clear crystal")
 
-    elif qm.started_part(5) and not qm.completed_part(5):
+    elif qm.need_complete("get wood"):
         if msg == "hello":
             inf.add_msg("Have you found the wood from the ancient tree Silmedsen yet? I have heard he was located south of Asteria Swamp, near Fort Sether...")
 
-            if not qm.finished(5):
+            if not qm.finished("get wood"):
                 inf.add_link("Working on it...", action = "close")
             else:
                 inf.add_link("Yes, here you go.", dest = "herego")
 
-        elif qm.finished(5):
+        elif qm.finished("get wood"):
             if msg == "herego":
                 inf.add_msg("That's great wood, just perfect, thank you. Now I can finish the telescope... Please, accept this gift from me. It's some protection against the winter here in the cold North.")
                 inf.add_objects(list(me.FindObject(archname = "sack").inv))
