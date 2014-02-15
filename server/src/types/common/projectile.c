@@ -29,6 +29,25 @@
 
 #include <global.h>
 
+/**
+ * Attempts to stick a projectile such as an arrow into the victim.
+ * @param op Projectile.
+ * @param victim Victim.
+ * @return Pointer to the projectile, which may or may not have merged. */
+static object *projectile_stick(object *op, object *victim)
+{
+    /* Only insert arrows, and as long as they are no more than 1kg, and can be
+     * picked up. */
+    if (op->type != ARROW || op->weight > 1000 || QUERY_FLAG(op, FLAG_NO_PICK)) {
+        return op;
+    }
+
+    object_remove(op, 0);
+    op = insert_ob_in_ob(op, victim);
+
+    return op;
+}
+
 /** @copydoc object_methods::process_func */
 void common_object_projectile_process(object *op)
 {
@@ -107,6 +126,7 @@ void common_object_projectile_process(object *op)
                 ret = object_projectile_hit(op, tmp);
 
                 if (ret == OBJECT_METHOD_OK) {
+                    op = projectile_stick(op, tmp);
                     object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
                     return;
                 }
@@ -321,6 +341,7 @@ int common_object_projectile_move_on(object *op, object *victim, object *origina
     ret = object_projectile_hit(op, victim);
 
     if (ret == OBJECT_METHOD_OK) {
+        op = projectile_stick(op, victim);
         object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
         return OBJECT_METHOD_OK;
     }
