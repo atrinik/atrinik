@@ -389,6 +389,13 @@ int CAN_MERGE(object *ob1, object *ob2)
         return 0;
     }
 
+    /* Do not merge arrows with different owners. */
+    if (ob1->type == ARROW && ob2->type == ARROW &&
+        ob1->attacked_by_count != 0 && ob2->attacked_by_count != 0 &&
+        ob1->attacked_by_count != ob2->attacked_by_count) {
+        return 0;
+    }
+
     /* Check attributes that cannot ever merge if they're different. */
     if (ob1->arch               != ob2->arch ||
         ob1->item_condition     != ob2->item_condition ||
@@ -886,7 +893,6 @@ void initialize_object(object *op)
     op->anim_last_facing_last = -1;
 
     op->face = blank_face;
-    op->attacked_by_count = -1;
 
     /* give the object a new (unique) count tag */
     op->count = ++ob_count;
@@ -1307,53 +1313,46 @@ void drop_ob_inv(object *ob)
         }
     }
 
-    tmp_op = ob->inv;
-
-    while (tmp_op != NULL) {
+    for (tmp_op = ob->inv; tmp_op != NULL; tmp_op = tmp) {
         tmp = tmp_op->below;
-        /* Inv-no check off / This will be destroyed in next loop of object_gc()
-         * */
         object_remove(tmp_op, 0);
 
         if (tmp_op->type == QUEST_CONTAINER) {
-            /* Legal, non freed enemy */
             if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count) {
                 check_quest(enemy, tmp_op);
             }
+
+            continue;
         }
-        else if (!(QUERY_FLAG(ob, FLAG_STARTEQUIP) || (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP))))) {
-            tmp_op->x = ob->x, tmp_op->y = ob->y;
 
-            /* Always clear these in case the monster used the item */
-            CLEAR_FLAG(tmp_op, FLAG_APPLIED);
-            CLEAR_FLAG(tmp_op, FLAG_BEEN_APPLIED);
+        if ((QUERY_FLAG(ob, FLAG_STARTEQUIP) && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0)) ||
+            (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))) {
+            continue;
+        }
 
-            /* If we have a corpse put the item in it */
-            if (corpse) {
-                insert_ob_in_ob(tmp_op, corpse);
+        tmp_op->x = ob->x;
+        tmp_op->y = ob->y;
+
+        /* Always clear these in case the monster used the item */
+        CLEAR_FLAG(tmp_op, FLAG_APPLIED);
+        CLEAR_FLAG(tmp_op, FLAG_BEEN_APPLIED);
+
+        /* If we have a corpse put the item in it */
+        if (corpse && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0 && enemy != NULL && tmp_op->attacked_by_count != enemy->count)) {
+            insert_ob_in_ob(tmp_op, corpse);
+        }
+        else if (tmp_op->type != RUNE) {
+            if (ob->env) {
+                insert_ob_in_ob(tmp_op, ob->env);
             }
             else {
-                /* don't drop traps from a container to the floor.
-                 * removing the container where a trap is applied will
-                 * neutralize the trap too
-                 * Also not drop it in env - be safe here */
-                if (tmp_op->type != RUNE) {
-                    if (ob->env) {
-                        insert_ob_in_ob(tmp_op, ob->env);
-                    }
-                    /* Insert in same map as the env */
-                    else {
-                        insert_ob_in_map(tmp_op, ob->map, NULL, 0);
-                    }
-                }
+                insert_ob_in_map(tmp_op, ob->map, NULL, 0);
             }
         }
-
-        tmp_op = tmp;
     }
 
     /* Drop the corpse */
-    if (corpse || QUERY_FLAG(ob, FLAG_CORPSE_FORCED)) {
+    if (corpse) {
         if (enemy && enemy->type == PLAYER) {
             if (enemy->count == ob->enemy_count) {
                 FREE_AND_ADD_REF_HASH(corpse->slaying, enemy->name);

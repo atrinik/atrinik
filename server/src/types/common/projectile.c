@@ -36,10 +36,18 @@
  * @return Pointer to the projectile, which may or may not have merged. */
 static object *projectile_stick(object *op, object *victim)
 {
+    object *owner;
+
     /* Only insert arrows, and as long as they are no more than 1kg, and can be
      * picked up. */
     if (op->type != ARROW || op->weight > 1000 || QUERY_FLAG(op, FLAG_NO_PICK)) {
         return op;
+    }
+
+    owner = get_owner(op);
+
+    if (owner) {
+        op->attacked_by_count = owner->count;
     }
 
     object_remove(op, 0);
@@ -152,7 +160,10 @@ object *common_object_projectile_move(object *op)
 /** @copydoc object_methods::projectile_stop_func */
 object *common_object_projectile_stop_missile(object *op, int reason)
 {
-    (void) reason;
+    /* Reset 'owner' when picking it up. */
+    if (reason == OBJECT_PROJECTILE_PICKUP) {
+        op->attacked_by_count = 0;
+    }
 
     /* Already stopped, nothing to do. */
     if (!op->speed) {

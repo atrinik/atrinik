@@ -76,6 +76,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
         copy = get_object();
         copy_object(arrow, copy, 0);
         CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
+        SET_FLAG(copy, FLAG_NO_PICK);
         copy->nrof = 0;
         arrow = copy;
     }

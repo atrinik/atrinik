@@ -155,29 +155,6 @@ object *arrow_find(object *op, shstr *type)
     return NULL;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
-static object *projectile_stop_func(object *op, int reason)
-{
-    object *owner;
-
-    owner = get_owner(op);
-
-    op = common_object_projectile_stop_missile(op, reason);
-
-    if (!op) {
-        return NULL;
-    }
-
-    if (owner && owner->type == PLAYER && QUERY_FLAG(op, FLAG_STAND_STILL)) {
-        pick_up(owner, op, 0);
-        return op;
-    }
-
-    object_merge(op);
-
-    return op;
-}
-
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 {
@@ -266,8 +243,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 void object_type_init_arrow(void)
 {
     object_type_methods[ARROW].apply_func = object_apply_item;
-    object_type_methods[ARROW].projectile_stop_func = projectile_stop_func;
     object_type_methods[ARROW].ranged_fire_func = ranged_fire_func;
+    object_type_methods[ARROW].projectile_stop_func = common_object_projectile_stop_missile;
     object_type_methods[ARROW].process_func = common_object_projectile_process;
     object_type_methods[ARROW].projectile_move_func = common_object_projectile_move;
     object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;
