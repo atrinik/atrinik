@@ -59,7 +59,6 @@ void object_methods_init(void)
     object_methods_base.describe_func = common_object_describe;
     object_methods_base.process_func = common_object_process;
     object_methods_base.move_on_func = common_object_move_on;
-    object_methods_base.throw_func = common_object_throw;
     object_methods_base.projectile_fire_func = common_object_projectile_fire_missile;
     object_methods_base.projectile_move_func = common_object_projectile_move;
     object_methods_base.projectile_hit_func = common_object_projectile_hit;
@@ -410,20 +409,6 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->ranged_fire_func) {
             return methods->ranged_fire_func(op, shooter, dir, delay);
-        }
-    }
-
-    return OBJECT_METHOD_UNHANDLED;
-}
-
-/** @copydoc object_methods::throw_func */
-int object_throw(object *op, object *shooter, int dir)
-{
-    object_methods *methods;
-
-    for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
-        if (methods->throw_func) {
-            return methods->throw_func(op, shooter, dir);
         }
     }
 

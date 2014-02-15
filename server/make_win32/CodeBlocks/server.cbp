@@ -208,7 +208,6 @@
 		<Unit filename="..\..\src\types\common\move_on.c" />
 		<Unit filename="..\..\src\types\common\process.c" />
 		<Unit filename="..\..\src\types\common\projectile.c" />
-		<Unit filename="..\..\src\types\common\throw.c" />
 		<Unit filename="..\..\src\types\compass.c" />
 		<Unit filename="..\..\src\types\cone.c" />
 		<Unit filename="..\..\src\types\confusion.c" />

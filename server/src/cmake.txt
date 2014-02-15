@@ -139,7 +139,6 @@ set(SOURCES
 	src/types/common/move_on.c
 	src/types/common/process.c
 	src/types/common/projectile.c
-	src/types/common/throw.c
 	src/types/compass.c
 	src/types/cone.c
 	src/types/confusion.c
