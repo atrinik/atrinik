@@ -126,7 +126,6 @@ void common_object_projectile_process(object *op)
                 ret = object_projectile_hit(op, tmp);
 
                 if (ret == OBJECT_METHOD_OK) {
-                    op = projectile_stick(op, tmp);
                     object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
                     return;
                 }
@@ -312,6 +311,8 @@ int common_object_projectile_hit(object *op, object *victim)
     if (op->stats.dam > 0) {
         int dam;
 
+        op = projectile_stick(op, victim);
+
         OBJ_DESTROYED_BEGIN(op);
         dam = hit_player(victim, op->stats.dam, op, 0);
 
@@ -341,7 +342,6 @@ int common_object_projectile_move_on(object *op, object *victim, object *origina
     ret = object_projectile_hit(op, victim);
 
     if (ret == OBJECT_METHOD_OK) {
-        op = projectile_stick(op, victim);
         object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
         return OBJECT_METHOD_OK;
     }
