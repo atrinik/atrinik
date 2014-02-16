@@ -622,10 +622,6 @@ static int shutdown_timer_check(void)
     return 0;
 }
 
-#ifdef HAVE_WORLD_MAKER
-extern void world_maker();
-#endif
-
 /**
  * The main function.
  * @param argc Number of arguments.

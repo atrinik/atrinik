@@ -487,6 +487,10 @@ typedef struct cache_struct
 #define SCRIPT_FIX_NOTHING 0
 /*@}*/
 
+#ifdef HAVE_WORLD_MAKER
+void world_maker();
+#endif
+
 #include "random_map.h"
 
 #ifndef GLOBAL_NO_PROTOTYPES
