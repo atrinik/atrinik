@@ -353,7 +353,7 @@ static int monster_can_move(object *op)
 static void monster_update_move_timeout(object *op, int len)
 {
     shstr *timeout;
-    int seconds;
+    int secs;
     long ticks;
 
     /* No movement type or random movement set, no need to set timeout. */
@@ -362,8 +362,8 @@ static void monster_update_move_timeout(object *op, int len)
     }
 
     timeout = object_get_value(op, "npc_move_timeout");
-    seconds = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
-    ticks = pticks + MIN(seconds, INTERFACE_TIMEOUT_MAX) * (1000000 / MAX_TIME);
+    secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
+    ticks = pticks + MIN(secs, INTERFACE_TIMEOUT_MAX) * (1000000 / MAX_TIME);
 
     if (!timeout || ticks > atol(timeout)) {
         char buf[MAX_BUF];
