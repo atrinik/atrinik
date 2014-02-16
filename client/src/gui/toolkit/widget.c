@@ -441,6 +441,7 @@ static void widget_texture_create(widgetdata *widget)
         snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=%s>", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
     }
 
+    texture_delete(widget->texture);
     widget->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
 }
 
