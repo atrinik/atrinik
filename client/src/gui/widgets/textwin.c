@@ -194,10 +194,10 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
 static int textwin_tab_compare(const void *a, const void *b)
 {
-    textwin_tab_struct *tab_one, *tab_two;
+    const textwin_tab_struct *tab_one, *tab_two;
 
-    tab_one = (textwin_tab_struct *) a;
-    tab_two = (textwin_tab_struct *) b;
+    tab_one = (const textwin_tab_struct *) a;
+    tab_two = (const textwin_tab_struct *) b;
 
     if (tab_one->name && !tab_two->name) {
         return 1;
