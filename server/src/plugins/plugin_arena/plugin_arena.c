@@ -358,7 +358,7 @@ static int arena_full(arena_maps_struct *arena_map)
  * @param exit_ob The entrance object.
  * @param arena_script Configuration script for this arena.
  * @return 0 to operate the entrance (teleport the player), 1 otherwise. */
-int arena_enter(object *who, object *exit_ob, const char *arena_script)
+static int arena_enter(object *who, object *exit_ob, const char *arena_script)
 {
     char *path;
     arena_maps_struct *arena_maps_tmp;
@@ -476,7 +476,7 @@ int arena_enter(object *who, object *exit_ob, const char *arena_script)
  * @param who The object applying this sign.
  * @param path The map path of the arena.
  * @return Always returns 1, to never output sign message. */
-int arena_sign(object *who, const char *path)
+static int arena_sign(object *who, const char *path)
 {
     arena_maps_struct *arena_maps_tmp;
 
