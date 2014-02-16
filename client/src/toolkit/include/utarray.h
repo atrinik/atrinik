@@ -211,11 +211,14 @@ typedef struct {
 #define utarray_back(a) (((a)->i) ? (_utarray_eltptr(a,(a)->i-1)) : NULL)
 #define utarray_eltidx(a,e) (((char*)(e) >= (char*)((a)->d)) ? (ssize_t) (((char*)(e) - (char*)((a)->d))/(a)->icd->sz) : -1)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 /* last we pre-define a few icd for common utarrays of ints and strings */
 static void utarray_str_cpy(void *dst, const void *src) {
     char **_src = (char**)src, **_dst = (char**)dst;
     *_dst = (*_src == NULL) ? NULL : strdup(*_src);
 }
+#pragma GCC diagnostic pop
 static void utarray_str_dtor(void *elt) {
     char **eltc = (char**)elt;
 
