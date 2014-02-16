@@ -189,6 +189,18 @@ void texture_deinit(void)
 }
 
 /**
+ * Delete the specified texture. */
+void texture_delete(texture_struct *texture)
+{
+    if (texture == NULL) {
+        return;
+    }
+
+    HASH_DEL(textures[texture->type], texture);
+    texture_free(texture);
+}
+
+/**
  * Reload all textures. */
 void texture_reload(void)
 {

@@ -237,6 +237,7 @@ extern void surface_set_alpha(SDL_Surface *surface, uint8 alpha);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
+extern void texture_delete(texture_struct *texture);
 extern void texture_reload(void);
 extern void texture_gc(void);
 extern texture_struct *texture_get(texture_type_t type, const char *name);
