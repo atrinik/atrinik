@@ -114,7 +114,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
  * @return Return value of strcmp(). */
 static int updates_file_compare(const void *a, const void *b)
 {
-    return strcmp(((update_file_struct *) a)->filename, ((update_file_struct *) b)->filename);
+    return strcmp(((const update_file_struct *) a)->filename, ((const update_file_struct *) b)->filename);
 }
 
 /**

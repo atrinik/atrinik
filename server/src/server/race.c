@@ -118,8 +118,8 @@ static void race_add(shstr *race_name, object *ob)
  * Comparison function for binary search in race_find(). */
 static int race_compare(const void *one, const void *two)
 {
-    ob_race *one_race = (ob_race *) one;
-    ob_race *two_race = (ob_race *) two;
+    const ob_race *one_race = (const ob_race *) one;
+    const ob_race *two_race = (const ob_race *) two;
 
     if (one == NULL) {
         return -1;
