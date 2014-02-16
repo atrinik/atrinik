@@ -197,7 +197,7 @@ int gender_to_id(const char *gender)
     return -1;
 }
 
-void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level)
+void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level)
 {
     SDL_Surface *texture_bubble_on, *texture_bubble_off;
     int line_width, offset, i;
@@ -209,7 +209,7 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, ui
 
     line_width = texture_bubble_on->w * EXP_PROGRESS_BUBBLES;
     offset = (double) texture_bubble_on->h / 2.0 + 0.5;
-    fractional = modf(((double) (exp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
+    fractional = modf(((double) (xp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
 
     rectangle_create(surface, x, y, line_width + offset * 2, texture_bubble_on->h + offset * 4, "020202");
 
