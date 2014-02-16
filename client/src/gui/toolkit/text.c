@@ -1493,15 +1493,15 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             return 4;
         }
         else if (!strncmp(cp, "<line=", 6)) {
-            int x1, y1, x2, y2;
+            int x, y, x2, y2;
 
-            if ((surface || info->obscured) && sscanf(cp + 6, "%d,%d,%d,%d", &x1, &y1, &x2, &y2) == 4) {
+            if ((surface || info->obscured) && sscanf(cp + 6, "%d,%d,%d,%d", &x, &y, &x2, &y2) == 4) {
                 if (info->obscured) {
-                    y1 = MAX(0, y1 - info->height);
+                    y = MAX(0, y - info->height);
                     y2 = MAX(1, y2 - info->height);
                 }
 
-                lineRGBA(surface, dest->x + x1, dest->y + y1, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
+                lineRGBA(surface, dest->x + x, dest->y + y, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
             }
 
             return strchr(cp + 6, '>') - cp + 1;
