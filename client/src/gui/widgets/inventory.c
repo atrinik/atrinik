@@ -297,6 +297,7 @@ static void widget_draw(widgetdata *widget)
         scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
         inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
 
+        texture_delete(inventory->texture);
         snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=inventory_bg><border=widget_border>", inventory->w + 1 * 2 + inventory->scrollbar.background.w, inventory->h + 1 * 2);
         inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
     }
