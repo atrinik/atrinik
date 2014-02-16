@@ -915,10 +915,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         else if (!strncmp(cp, "<img=", 5)) {
             if (surface) {
                 char face[MAX_BUF];
-                int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, width = 0, height = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
+                int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, wd = 0, ht = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
                 uint32 stretch = 0;
 
-                if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %d %d %d %u %d %d>", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &width, &height) >= 1) {
+                if (sscanf(cp, "<img=%128[^ >] %d %d %d %d %d %d %d %d %d %d %u %d %d>", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &wd, &ht) >= 1) {
                     int id;
 
                     id = get_bmap_id(face);
@@ -968,14 +968,14 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                             }
                         }
 
-                        if (width || height) {
+                        if (wd || ht) {
                             srcrect.x = 0;
                             srcrect.y = 0;
-                            srcrect.w = width;
-                            srcrect.h = height;
+                            srcrect.w = wd;
+                            srcrect.h = ht;
                         }
 
-                        map_sprite_show(surface, dest->x + x, dest->y + y, width || height ? &srcrect : NULL, FaceList[id].sprite, sprite_flags, dark_level, alpha, stretch, zoom_x, zoom_y, rotate);
+                        map_sprite_show(surface, dest->x + x, dest->y + y, wd || ht ? &srcrect : NULL, FaceList[id].sprite, sprite_flags, dark_level, alpha, stretch, zoom_x, zoom_y, rotate);
                     }
                 }
             }
