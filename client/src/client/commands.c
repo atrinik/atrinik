@@ -222,22 +222,22 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 case CS_STAT_DEX:
                 case CS_STAT_CON:
                 {
-                    sint8 *stat;
+                    sint8 *stat_curr;
                     uint8 stat_new;
 
-                    stat = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
+                    stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
                     stat_new = packet_to_uint8(data, len, &pos);
 
-                    if (*stat != -1) {
-                        if (stat_new > *stat) {
+                    if (*stat_curr != -1) {
+                        if (stat_new > *stat_curr) {
                             cpl.warn_statup = 1;
                         }
-                        else if (stat_new < *stat) {
+                        else if (stat_new < *stat_curr) {
                             cpl.warn_statdown = 1;
                         }
                     }
 
-                    *stat = stat_new;
+                    *stat_curr = stat_new;
                     break;
                 }
 
