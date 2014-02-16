@@ -926,6 +926,7 @@ sint64 insert_coins(object *pl, sint64 value)
     int count;
     object *tmp, *pouch;
     archetype *at;
+    uint32 n;
 
     for (count = 0; coins[count]; count++) {
         at = find_archetype(coins[count]);
@@ -936,17 +937,14 @@ sint64 insert_coins(object *pl, sint64 value)
         else if ((value / at->clone.value) > 0) {
             for (pouch = pl->inv; pouch; pouch = pouch->below) {
                 if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold")) {
-                    int w = (int) ((float) at->clone.weight * pouch->weapon_speed);
-                    uint32 n = (uint32) (value / at->clone.value);
+                    double w;
 
-                    /* Prevent FPE */
-                    if (w == 0) {
-                        w = 1;
-                    }
+                    w = (float) at->clone.weight * pouch->weapon_speed;
+                    n = (uint32) (value / at->clone.value);
 
                     if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (sint32) pouch->weight_limit)) {
-                        if (pouch->weight_limit && ((sint32)pouch->weight_limit-pouch->carrying) / w < (sint32) n) {
-                            n = (pouch->weight_limit-pouch->carrying) / w;
+                        if (w > 0.0 && pouch->weight_limit && ((sint32) pouch->weight_limit - pouch->carrying) / w < (sint32) n) {
+                            n = (pouch->weight_limit - pouch->carrying) / w;
                         }
 
                         tmp = get_object();
@@ -959,11 +957,29 @@ sint64 insert_coins(object *pl, sint64 value)
             }
 
             if (value / at->clone.value > 0) {
+                n = (uint32) (value / at->clone.value);
+
+                if (n > 0 && pl->carrying + at->clone.weight <= (sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)]) {
+                    if (((sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight < (sint32) n) {
+                        n = ((sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight;
+                    }
+
+                    tmp = get_object();
+                    copy_object(&at->clone, tmp, 0);
+                    tmp->nrof = n;
+                    value -= tmp->nrof * tmp->value;
+                    insert_ob_in_ob(tmp, pl);
+                }
+            }
+
+            if (value / at->clone.value > 0) {
                 tmp = get_object();
                 copy_object(&at->clone, tmp, 0);
-                tmp->nrof = (uint32) (value / tmp->value);
+                tmp->nrof = (uint32) (value / at->clone.value);
                 value -= tmp->nrof * tmp->value;
-                insert_ob_in_ob(tmp, pl);
+                tmp->x = pl->x;
+                tmp->y = pl->y;
+                insert_ob_in_map(tmp, pl->map, NULL, 0);
             }
         }
     }
