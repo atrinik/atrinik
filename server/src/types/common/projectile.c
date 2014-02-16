@@ -47,6 +47,7 @@ static object *projectile_stick(object *op, object *victim)
     owner = get_owner(op);
 
     if (owner) {
+        op->attacked_by = owner;
         op->attacked_by_count = owner->count;
     }
 
@@ -162,6 +163,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 {
     /* Reset 'owner' when picking it up. */
     if (reason == OBJECT_PROJECTILE_PICKUP) {
+        op->attacked_by = NULL;
         op->attacked_by_count = 0;
     }
 

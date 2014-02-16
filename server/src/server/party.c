@@ -32,16 +32,18 @@
  * String representations of the party looting modes. */
 const char *const party_loot_modes[PARTY_LOOT_MAX] =
 {
-    "normal", "leader", "random"
+    "normal", "leader", "owner", "random", "split"
 };
 
 /**
  * Explanation of the party modes. */
 const char *const party_loot_modes_help[PARTY_LOOT_MAX] =
 {
-    "everyone is able to loot the corpse",
-    "only the leader can loot the corpse",
-    "loot is randomly split between party members when the corpse is opened"
+    "everyone in the party is able to loot the corpse",
+    "only the party leader can loot the corpse",
+    "only the corpse owner can loot the corpse; standard behavior when outside of a party",
+    "loot is randomly split between party members when the corpse is opened",
+    "loot is evenly split between party members when the corpse is opened"
 };
 
 /** The party list. */
@@ -186,24 +188,53 @@ party_struct *find_party(const char *name)
 }
 
 /**
+ * Check if player can open a party corpse.
+ * @param pl Player trying to open the corpse.
+ * @param corpse The corpse.
+ * @return 1 if we can open the corpse, 0 otherwise. */
+int party_can_open_corpse(object *pl, object *corpse)
+{
+    /* Check if the player is in the same party. */
+    if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name) {
+        draw_info(COLOR_WHITE, pl, "It's not your party's bounty.");
+        return 0;
+    }
+
+    switch (CONTR(pl)->party->loot) {
+        /* Normal: anyone can access it. */
+        case PARTY_LOOT_NORMAL:
+        default:
+            return 1;
+
+        /* Only leader can access it. */
+        case PARTY_LOOT_LEADER:
+
+            if (pl->name != CONTR(pl)->party->leader) {
+                draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
+                return 0;
+            }
+
+            return 1;
+    }
+}
+
+/**
  * Randomly split corpse's loot between party's members.
  * @param pl Player that opened the corpse.
  * @param corpse The corpse. */
 static void party_loot_random(object *pl, object *corpse)
 {
     int count = 0, pl_id;
-    party_struct *party = CONTR(pl)->party;
+    party_struct *party;
     objectlink *ol;
     object *tmp, *tmp_next;
+
+    party = CONTR(pl)->party;
 
     for (ol = party->members; ol; ol = ol->next) {
         if (on_same_map(ol->objlink.ob, pl)) {
             count++;
         }
-    }
-
-    if (count == 1) {
-        return;
     }
 
     for (tmp = corpse->inv; tmp; tmp = tmp_next) {
@@ -237,33 +268,102 @@ static void party_loot_random(object *pl, object *corpse)
 }
 
 /**
- * Check if player can open a party corpse.
- * @param pl Player trying to open the corpse.
- * @param corpse The corpse.
- * @return 1 if we can open the corpse, 0 otherwise. */
-int party_can_open_corpse(object *pl, object *corpse)
+ * Evenly split corpse's loot between party's members.
+ * @param pl Player that opened the corpse.
+ * @param corpse The corpse. */
+static void party_loot_split(object *pl, object *corpse)
 {
-    /* Check if the player is in the same party. */
-    if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name) {
-        draw_info(COLOR_WHITE, pl, "It's not your party's bounty.");
-        return 0;
-    }
+    party_struct *party;
+    objectlink *ol, *ol_loot, *ol_next;
+    uint32 count;
+    sint64 value;
+    object *tmp, *next;
 
-    switch (CONTR(pl)->party->loot) {
-        /* Normal: anyone can access it. */
-        case PARTY_LOOT_NORMAL:
-        default:
-            return 1;
+    party = CONTR(pl)->party;
+    ol_loot = NULL;
+    count = 0;
+    value = 0;
 
-        /* Only leader can access it. */
-        case PARTY_LOOT_LEADER:
-
-            if (pl->name != CONTR(pl)->party->leader) {
-                draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
-                return 0;
+    for (ol = party->members; ol != NULL; ol = ol->next) {
+        if (on_same_map(ol->objlink.ob, pl)) {
+            if (party->loot_idx == count) {
+                ol_loot = ol;
             }
 
-            return 1;
+            count++;
+        }
+    }
+
+    if (party->loot_idx >= count) {
+        party->loot_idx = 0;
+        ol_loot = party->members;
+    }
+
+    /* Sanity check. */
+    if (ol_loot == NULL) {
+        return;
+    }
+
+    for (tmp = corpse->inv; tmp; tmp = next) {
+        next = tmp->below;
+
+        /* Skip unpickable objects. */
+        if (!can_pick(pl, tmp)) {
+            continue;
+        }
+
+        if (tmp->type == MONEY) {
+            value += tmp->value * tmp->nrof;
+            object_remove(tmp, 0);
+            continue;
+        }
+
+        for (ol = ol_loot; ol != NULL; ol = ol_next) {
+            ol_next = ol->next;
+
+            if (ol_next == NULL) {
+                ol_next = party->members;
+            }
+
+            if (on_same_map(ol->objlink.ob, pl) && player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+                object_remove(tmp, 0);
+                insert_ob_in_ob(tmp, ol->objlink.ob);
+                break;
+            }
+
+            if (ol == ol_loot) {
+                break;
+            }
+        }
+
+        party->loot_idx++;
+        ol_loot = ol_loot->next;
+
+        if (party->loot_idx >= count) {
+            party->loot_idx = 0;
+            ol_loot = party->members;
+        }
+    }
+
+    if (value > 0) {
+        sint64 value_split;
+        uint32 num;
+
+        for (num = 0, ol = party->members; ol; ol = ol->next) {
+            if (on_same_map(ol->objlink.ob, pl)) {
+                value_split = value / count;
+
+                if (num == 0) {
+                    value_split += value % count;
+                }
+
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", cost_string_from_value(value_split));
+                insert_coins(ol->objlink.ob, value_split);
+
+                num++;
+            }
+        }
     }
 }
 
@@ -273,14 +373,33 @@ int party_can_open_corpse(object *pl, object *corpse)
  * @param corpse The corpse. */
 void party_handle_corpse(object *pl, object *corpse)
 {
+    object *tmp, *next;
+
     /* Sanity check. */
     if (!CONTR(pl)->party) {
         return;
     }
 
+    /* Reclaim arrows. */
+    for (tmp = corpse->inv; tmp; tmp = next) {
+        next = tmp->below;
+
+        if (tmp->type == ARROW && OBJECT_VALID(tmp->attacked_by, tmp->attacked_by_count) &&
+            tmp->attacked_by->type == PLAYER && CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
+            on_same_map(tmp->attacked_by, pl)) {
+            if (can_pick(tmp->attacked_by, tmp) && player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
+                pick_up(tmp->attacked_by, tmp, 0);
+            }
+        }
+    }
+
     switch (CONTR(pl)->party->loot) {
         case PARTY_LOOT_RANDOM:
             party_loot_random(pl, corpse);
+            break;
+
+        case PARTY_LOOT_SPLIT:
+            party_loot_split(pl, corpse);
             break;
     }
 }

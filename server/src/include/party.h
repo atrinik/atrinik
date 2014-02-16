@@ -54,9 +54,15 @@ enum
      * Only leader can loot the corpse. */
     PARTY_LOOT_LEADER,
     /**
+     * Only corpse owner can loot the corpse. */
+    PARTY_LOOT_OWNER,
+    /**
      * Loot is randomly split between party members when the corpse is
      * opened. */
     PARTY_LOOT_RANDOM,
+    /**
+     * Loot is evenly split between party members when the corpse is opened. */
+    PARTY_LOOT_SPLIT,
     /**
      * Total number of the modes. */
     PARTY_LOOT_MAX
@@ -81,6 +87,10 @@ typedef struct party_struct
     /**
      * Looting mode. One of @ref PARTY_LOOT_xxx. */
     uint8 loot;
+
+    /**
+     * Index for some looting modes. */
+    uint32 loot_idx;
 
     /**
      * Party members. */

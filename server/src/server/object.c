@@ -1338,7 +1338,11 @@ void drop_ob_inv(object *ob)
         CLEAR_FLAG(tmp_op, FLAG_BEEN_APPLIED);
 
         /* If we have a corpse put the item in it */
-        if (corpse && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0 && enemy != NULL && tmp_op->attacked_by_count != enemy->count)) {
+        if (corpse && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0 &&
+            enemy != NULL && OBJECT_VALID(tmp_op->attacked_by, tmp_op->attacked_by_count) &&
+            tmp_op->attacked_by_count != enemy->count && !(tmp_op->attacked_by->type == PLAYER &&
+            enemy->type == PLAYER && CONTR(tmp_op->attacked_by)->party != NULL &&
+            CONTR(tmp_op->attacked_by)->party == CONTR(enemy)->party))) {
             insert_ob_in_ob(tmp_op, corpse);
         }
         else if (tmp_op->type != RUNE) {
@@ -1364,7 +1368,7 @@ void drop_ob_inv(object *ob)
 
         /* Change sub_type to mark this corpse */
         if (corpse->slaying) {
-            if (CONTR(enemy)->party) {
+            if (CONTR(enemy)->party && CONTR(enemy)->party->loot != PARTY_LOOT_OWNER) {
                 FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
                 corpse->sub_type = ST1_CONTAINER_CORPSE_party;
             }
