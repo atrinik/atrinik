@@ -373,7 +373,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
     }
 
     if (flags & UPD_WEIGHT) {
-        tmp->weight = (double) packet_to_uint32(data, len, pos) / 1000.0;
+        tmp->weight = packet_to_uint32(data, len, pos) / 1000.0;
     }
 
     if (flags & UPD_FACE) {
