@@ -59,7 +59,6 @@ extern void object_remove_inventory(object *op);
 extern object *object_create(object *env, sint32 tag, int bflag);
 extern void toggle_locked(object *op);
 extern void object_send_mark(object *op);
-extern void ready_object(object *op);
 extern void objects_deinit(void);
 extern void objects_init(void);
 extern void animate_objects(void);
@@ -137,7 +136,7 @@ extern void client_send_move(int loc, int tag, int nrof);
 extern void send_command(const char *command);
 extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
-extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 exp, uint8 level);
+extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level);
 extern char *player_make_path(const char *path);
 /* src/client/server_files.c */
 extern void server_files_init(void);
@@ -652,7 +651,6 @@ extern void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL
 extern void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inventory_ready(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void widget_inventory_handle_apply(widgetdata *widget);
 extern void widget_inventory_handle_examine(widgetdata *widget);
@@ -660,7 +658,6 @@ extern void widget_inventory_handle_mark(widgetdata *widget);
 extern void widget_inventory_handle_lock(widgetdata *widget);
 extern void widget_inventory_handle_get(widgetdata *widget);
 extern void widget_inventory_handle_drop(widgetdata *widget);
-extern void widget_inventory_handle_ready(widgetdata *widget);
 /* src/gui/widgets/label.c */
 extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/main_lvl.c */
@@ -717,7 +714,7 @@ extern void skills_init(void);
 extern int skill_find(const char *name, size_t *id);
 extern int skill_find_object(object *op, size_t *id);
 extern skill_entry_struct *skill_get(size_t id);
-extern void skills_update(object *op, uint8 level, sint64 exp);
+extern void skills_update(object *op, uint8 level, sint64 xp);
 extern void skills_remove(object *op);
 extern void widget_skills_init(widgetdata *widget);
 /* src/gui/widgets/spells.c */
