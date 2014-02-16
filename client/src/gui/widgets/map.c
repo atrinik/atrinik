@@ -737,16 +737,16 @@ static void send_target(int x, int y, uint32 count)
 
 static int map_target_cmp(const void *a, const void *b)
 {
-    double x1, y1, x2, y2;
+    double x, y, x2, y2;
     unsigned long dist1, dist2;
 
-    x1 = ((const map_target_struct *) a)->x - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2.0f);
-    y1 = ((const map_target_struct *) a)->y - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2.0f);
+    x = ((const map_target_struct *) a)->x - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2.0f);
+    y = ((const map_target_struct *) a)->y - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2.0f);
 
     x2 = ((const map_target_struct *) b)->x - (setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2.0f);
     y2 = ((const map_target_struct *) b)->y - (setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2.0f);
 
-    dist1 = isqrt(x1 * x1 + y1 * y1);
+    dist1 = isqrt(x * x + y * y);
     dist2 = isqrt(x2 * x2 + y2 * y2);
 
     if (dist1 < dist2) {
