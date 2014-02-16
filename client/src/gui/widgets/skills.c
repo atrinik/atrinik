@@ -177,7 +177,7 @@ skill_entry_struct *skill_get(size_t id)
     return skill_list[id];
 }
 
-void skills_update(object *op, uint8 level, sint64 exp)
+void skills_update(object *op, uint8 level, sint64 xp)
 {
     size_t skill_id;
     skill_entry_struct *skill;
@@ -195,7 +195,7 @@ void skills_update(object *op, uint8 level, sint64 exp)
     }
 
     skill->level = level;
-    skill->exp = exp;
+    skill->exp = xp;
 
     skill_list_reload();
 }
