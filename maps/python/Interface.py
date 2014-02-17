@@ -161,3 +161,12 @@ class Interface:
 
         # Send the data.
         pl.SendPacket(26, fmt, *data)
+
+class InterfaceBuilder(Interface):
+    def finish(self, msg):
+        try:
+            getattr(self, "dialog_" + msg)()
+        except AttributeError:
+            pass
+            
+        Interface.finish(self)
