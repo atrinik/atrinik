@@ -14,14 +14,14 @@ class Interface:
             self._icon = npc.face[0][:-1] + "1"
             self._title = npc.name
 
-    def add_msg(self, msg, color = None, newline = True):
+    def add_msg(self, msg, color = None, newline = True, **keywds):
         if newline and self._msg:
             self._msg += "\n\n"
 
         if color:
             self._msg += "<c=#" + color + ">"
 
-        self._msg += msg.format(activator = self._activator, npc = self._npc)
+        self._msg += msg.format(activator = self._activator, npc = self._npc, **keywds)
 
         if color:
             self._msg += "</c>"
@@ -171,5 +171,5 @@ class InterfaceBuilder(Interface):
             getattr(self, "dialog_" + msg)()
         except AttributeError:
             self.dialog(msg)
-            
+
         Interface.finish(self)
