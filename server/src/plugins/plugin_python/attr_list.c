@@ -362,7 +362,7 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 /**
  * Implements the remove() method.
  * @param al The AttrList object.
- * @param value Value to append.
+ * @param value Value to remove.
  * @return None. */
 static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
 {
