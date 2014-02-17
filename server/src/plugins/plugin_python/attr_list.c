@@ -98,9 +98,12 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 /**
  * Get value from an AttrList object.
  * @param al The AttrList object.
- * @param idx Pointer to the index value/key.
+ * @param key Index of the value to get. Can be NULL, in which case 'idx' or
+ * 'str' will be used instead, depending on the type.
+ * @param idx Index of the value to get.
+ * @param str String index of the value to get.
  * @return 0 on success, -1 on failure. */
-static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
+static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, const char *str)
 {
     void *ptr;
     fields_struct field = {"xxx", 0, 0, 0, 0};
@@ -108,17 +111,25 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, void *idx)
     ptr = (void *) ((char *) al->ptr + al->offset);
 
     if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+        if (key) {
+            idx = PyLong_AsUnsignedLongLong(key);
+        }
+
         field.type = FIELDTYPE_CSTR;
-        ptr = &(*(char ***) ptr)[*(unsigned PY_LONG_LONG *) idx];
+        ptr = &(*(char ***) ptr)[idx];
     }
     else if (al->field == FIELDTYPE_FACTIONS) {
         unsigned PY_LONG_LONG len, i;
+
+        if (key) {
+            str = PyString_AsString(key);
+        }
 
         len = attr_list_len(al);
         field.type = FIELDTYPE_SINT64;
 
         for (i = 0; i < len; i++) {
-            if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i]))) {
+            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
                 ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
                 return generic_field_getter(&field, ptr);
             }
@@ -151,7 +162,7 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
     for (i = 0; i < len; i++) {
         /* attr_list_get() creates a new reference, so make sure to decrease
          * it later. */
-        check = attr_list_get(al, &i);
+        check = attr_list_get(al, NULL, i, NULL);
 
         /* Compare the two objects... */
         if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
@@ -168,10 +179,12 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 /**
  * Set new value for an array member that AttrList object is wrapping.
  * @param al The AttrList object.
- * @param idx Pointer to the index value/key.
+ * @param key Index of the value to get. Can be NULL, in which case 'idx' will
+ * be used instead.
+ * @param idx Index of the value to get.
  * @param value New value to set.
  * @return 0 on success, -1 on failure. */
-static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
+static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, PyObject *value)
 {
     unsigned PY_LONG_LONG len;
     void *ptr;
@@ -185,7 +198,7 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 
     /* Command permissions. */
     if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
-        i = *(unsigned PY_LONG_LONG *) idx;
+        i = key ? PyLong_AsUnsignedLongLong(key) : idx;
 
         /* Over the maximum size; resize the array, as it's dynamic. */
         if (i >= len) {
@@ -204,11 +217,14 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
     }
     /* Factions. */
     else if (al->field == FIELDTYPE_FACTIONS) {
+        char *str;
+
+        str = PyString_AsString(key);
         field.type = FIELDTYPE_SINT64;
 
         /* Try to find an existing entry. */
         for (i = 0; i < len; i++) {
-            if (!strcmp((const char *) (char *) idx, *(const char **) (&(*(shstr ***) ptr)[i]))) {
+            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
                 break;
             }
         }
@@ -263,25 +279,17 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 }
 
 /**
- * Implements the __getitem__() method.
+ * Implements value checking for both getter and setter methods.
  * @param al The AttrList object.
  * @param key Index to try and find.
- * @return The object from the AttrList at the specified index, NULL on
- * failure. */
-static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
+ * @return 'key' if the value is valid, NULL otherwise. */
+static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
 {
-    void *idx;
-
     if (al->field == FIELDTYPE_FACTIONS) {
-        char *cstr;
-
         if (!PyString_Check(key)) {
             PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
             return NULL;
         }
-
-        cstr = PyString_AsString(key);
-        idx = cstr;
     }
     else {
         unsigned PY_LONG_LONG i, len;
@@ -305,11 +313,26 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
             PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"FMT64U ") too big (len: %"FMT64U ").", (uint64) i, (uint64) len);
             return NULL;
         }
-
-        idx = &i;
     }
 
-    return attr_list_get(al, idx);
+    return key;
+}
+
+/**
+ * Implements the __getitem__() method.
+ * @param al The AttrList object.
+ * @param key Index to try and find.
+ * @return The object from the AttrList at the specified index, NULL on
+ * failure. */
+static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
+{
+    key = __getsetitem__(al, key);
+
+    if (key == NULL) {
+        return NULL;
+    }
+
+    return attr_list_get(al, key, 0, NULL);
 }
 
 /**
@@ -330,7 +353,7 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
     }
 
     i = attr_list_len(al);
-    attr_list_set(al, &i, value);
+    attr_list_set(al, NULL, i, value);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -384,22 +407,13 @@ static PyObject *iternext(Atrinik_AttrList *al)
 {
     /* Possible to continue iteration? */
     if (al->iter < attr_list_len(al)) {
-        void *idx;
-
         al->iter++;
 
         if (al->field == FIELDTYPE_FACTIONS) {
-            char *key = *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]);
-
-            idx = key;
-        }
-        else {
-            unsigned PY_LONG_LONG i = al->iter - 1;
-
-            idx = &i;
+            return attr_list_get(al, NULL, 0, *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]));
         }
 
-        return attr_list_get(al, idx);
+        return attr_list_get(al, NULL, al->iter - 1, NULL);
     }
 
     /* Stop iteration. */
@@ -423,17 +437,13 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
  * @return Return value of attr_list_set(). */
 static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 {
-    void *idx;
+    key = __getsetitem__(al, key);
 
-    if (al->field == FIELDTYPE_FACTIONS) {
-        idx = PyString_AsString(key);
-    }
-    else {
-        unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(key);
-        idx = &i;
+    if (key == NULL) {
+        return -1;
     }
 
-    return attr_list_set(al, idx, value);
+    return attr_list_set(al, key, 0, value);
 }
 
 /**
