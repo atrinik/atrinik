@@ -396,12 +396,37 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
     return Py_None;
 }
 
+/**
+ * Implements the clear() method.
+ * @param al The AttrList object.
+ * @return None. */
+static PyObject *attr_list_clear(Atrinik_AttrList *al)
+{
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+        if (*(char ***) ((void *) ((char *) al->ptr + al->offset)) != NULL) {
+            free(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
+            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
+            (*(int *) attr_list_len_ptr(al)) = 0;
+
+            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
+        }
+    }
+    else {
+        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement clear method.");
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] =
 {
     {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
     {"append", (PyCFunction) append, METH_O, 0},
     {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
+    {"clear", (PyCFunction) attr_list_clear, METH_NOARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
