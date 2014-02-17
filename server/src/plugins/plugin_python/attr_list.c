@@ -359,11 +359,49 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
     return Py_None;
 }
 
+/**
+ * Implements the remove() method.
+ * @param al The AttrList object.
+ * @param value Value to append.
+ * @return None. */
+static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
+{
+    unsigned PY_LONG_LONG i, len;
+    PyObject *check;
+
+    if (al->field == FIELDTYPE_FACTIONS) {
+        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement remove method.");
+        return NULL;
+    }
+
+    len = attr_list_len(al);
+
+    for (i = 0; i < len; i++) {
+        /* attr_list_get() creates a new reference, so make sure to decrease
+         * it later. */
+        check = attr_list_get(al, NULL, i, NULL);
+
+        /* Compare the two objects... */
+        if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
+            Py_DECREF(check);
+            Py_INCREF(Py_None);
+            attr_list_set(al, NULL, i, Py_None);
+            break;
+        }
+
+        Py_DECREF(check);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] =
 {
     {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
     {"append", (PyCFunction) append, METH_O, 0},
+    {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
     {NULL, NULL, 0, 0}
 };
 
