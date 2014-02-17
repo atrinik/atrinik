@@ -348,12 +348,6 @@ static void widget_draw(widgetdata *widget)
         surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
     }
 
-    if (inventory->scrollbar_info.redraw) {
-        inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
-        inventory->scrollbar_info.redraw = 0;
-    }
-
-    /* Make sure the scroll offset and the selected object ID are valid. */
     widget_inventory_handle_arrow_key(widget, SDLK_UNKNOWN);
 
     for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv; tmp; tmp = tmp->next) {
@@ -376,10 +370,14 @@ static void widget_draw(widgetdata *widget)
         }
     }
 
-    inventory->scrollbar_info.num_lines = ceil((double) i / INVENTORY_COLS(inventory));
     inventory->scrollbar.px = widget->x;
     inventory->scrollbar.py = widget->y;
     scrollbar_show(&inventory->scrollbar, widget->surface, inventory->x + inventory->w, inventory->y);
+
+    if (inventory->scrollbar_info.redraw) {
+        inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
+        inventory->scrollbar_info.redraw = 0;
+    }
 }
 
 /** @copydoc widgetdata::event_func */
@@ -390,6 +388,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     inventory = INVENTORY(widget);
 
     if (scrollbar_event(&inventory->scrollbar, event)) {
+        if (inventory->scrollbar_info.redraw) {
+            inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
+            inventory->scrollbar_info.redraw = 0;
+        }
+
         return 1;
     }
 
@@ -558,6 +561,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
     inventory_struct *inventory;
     int selected, max;
+    uint32 offset;
 
     inventory = INVENTORY(widget);
     selected = inventory->selected;
@@ -594,22 +598,20 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         selected = max - 1;
     }
 
-    if ((uint32) selected != inventory->selected) {
-        uint32 offset;
+    inventory->selected = selected;
+    offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
 
-        inventory->selected = selected;
-        offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
-
-        if (inventory->scrollbar_info.scroll_offset > offset) {
-            inventory->scrollbar_info.scroll_offset = offset;
-        }
-        else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset) {
-            inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
-        }
+    if (inventory->scrollbar_info.scroll_offset > offset) {
+        inventory->scrollbar_info.scroll_offset = offset;
+    }
+    else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset) {
+        inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
     }
 
+    inventory->scrollbar_info.num_lines = ceil(max / (double) INVENTORY_COLS(inventory));
     /* Makes sure the scroll offset doesn't overflow. */
     scrollbar_scroll_adjust(&inventory->scrollbar, 0);
+    inventory->scrollbar_info.redraw = 0;
 }
 
 /**
