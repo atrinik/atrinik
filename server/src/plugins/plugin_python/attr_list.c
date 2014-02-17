@@ -236,6 +236,9 @@ static int attr_list_set(Atrinik_AttrList *al, void *idx, PyObject *value)
 
     /* Success! */
     if (ret == 0) {
+        if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
+            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
+        }
     }
     /* Failure; overflow, invalid value or some other kind of error. */
     else if (ret == -1) {
