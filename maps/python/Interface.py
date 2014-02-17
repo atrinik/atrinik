@@ -21,7 +21,7 @@ class Interface:
         if color:
             self._msg += "<c=#" + color + ">"
 
-        self._msg += msg
+        self._msg += msg.format(activator = self._activator, npc = self._npc)
 
         if color:
             self._msg += "</c>"
