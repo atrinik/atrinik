@@ -1,5 +1,8 @@
 from Atrinik import SetReturnValue, Type
 
+class OutOfLoopException:
+    pass
+
 class Interface:
     def __init__(self, activator, npc):
         self._msg = ""
@@ -173,3 +176,57 @@ class InterfaceBuilder(Interface):
             self.dialog(msg)
 
         Interface.finish(self)
+        
+class InterfaceBuilderQuest(Interface):
+    def _part_dialog(self, qm, part):
+        """
+        Checks which dialog to use, depending on state of the quest's part.
+        @param qm Quest Manager.
+        @param part Name of the quest part.
+        @return Dialog to use, None if no applicable dialog can be found.
+        """
+        if not qm.started(part):
+            ret = "need_start"
+        elif qm.finished(part):
+            ret = "need_finish"
+        elif not qm.completed(part):
+            ret = "need_complete"
+        else:
+            return
+            
+        self.dialog = part + "_" + ret
+        raise OutOfLoopException
+        
+    def finish(self, d, qm, msg):
+        self.dialog = None
+        
+        # Quest is completed, regardless of parts, so show completed dialog.
+        if qm.completed():
+            self.dialog = "completed"
+        # Check parts...
+        elif "parts" in qm.quest:
+            try:
+                for part in qm.quest["parts"]:
+                    for part2 in qm.quest["parts"][part]["requires"]:
+                        self._part_dialog(qm, part2)
+                            
+                    self._part_dialog(qm, part)
+            except OutOfLoopException:
+                pass
+        elif not qm.started():
+            self.dialog = "need_start"
+        elif qm.finished():
+            self.dialog = "need_finish"
+        elif not qm.need_complete():
+            self.dialog = "need_complete"
+        
+        dialog = "InterfaceDialog"
+        
+        if self.dialog and dialog + "_" + self.dialog in d:
+            dialog += "_" + self.dialog
+        
+        c = d[dialog](self._activator, self._npc)
+        c.qm = qm
+        getattr(c, "dialog_" + msg)()
+            
+        Interface.finish(c)
