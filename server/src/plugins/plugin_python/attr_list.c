@@ -386,14 +386,16 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
             Py_DECREF(check);
             Py_INCREF(Py_None);
             attr_list_set(al, NULL, i, Py_None);
-            break;
+
+            Py_INCREF(Py_None);
+            return Py_None;
         }
 
         Py_DECREF(check);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    PyErr_SetString(PyExc_ValueError, "Value is not in attribute list.");
+    return NULL;
 }
 
 /**
