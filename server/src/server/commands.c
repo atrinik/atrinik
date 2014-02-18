@@ -164,7 +164,6 @@ void toolkit_commands_init(void)
         /* [operator] */
         commands_add(COMMAND(arrest), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(ban), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(cmd_permission), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);

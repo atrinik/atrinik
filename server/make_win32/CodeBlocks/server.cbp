@@ -50,7 +50,6 @@
 		<Unit filename="README" />
 		<Unit filename="..\..\src\commands\permission\arrest.c" />
 		<Unit filename="..\..\src\commands\permission\ban.c" />
-		<Unit filename="..\..\src\commands\permission\cmd_permission.c" />
 		<Unit filename="..\..\src\commands\permission\follow.c" />
 		<Unit filename="..\..\src\commands\permission\freeze.c" />
 		<Unit filename="..\..\src\commands\permission\kick.c" />

@@ -1,7 +1,6 @@
 set(SOURCES
 	src/commands/permission/arrest.c
 	src/commands/permission/ban.c
-	src/commands/permission/cmd_permission.c
 	src/commands/permission/follow.c
 	src/commands/permission/freeze.c
 	src/commands/permission/kick.c
