@@ -125,11 +125,14 @@ class QuestManagerBase:
                 else:
                     tmp.Remove()
 
-    def need_complete(self, *args, **kwargs):
-        return self.started(*args, **kwargs) and not self.completed(*args, **kwargs)
+    def need_start(self, *args, **kwargs):
+        return not self.started(*args, **kwargs)
 
     def need_finish(self, *args, **kwargs):
         return self.started(*args, **kwargs) and not self.finished(*args, **kwargs) and not self.completed(*args, **kwargs)
+
+    def need_complete(self, *args, **kwargs):
+        return self.started(*args, **kwargs) and self.finished(*args, **kwargs) and not self.completed(*args, **kwargs)
 
 ## The Quest Manager class.
 class QuestManager(QuestManagerBase):
