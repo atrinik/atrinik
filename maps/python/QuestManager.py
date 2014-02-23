@@ -95,6 +95,9 @@ class QuestManagerBase:
         elif quest["type"] == QUEST_TYPE_KILL_ITEM:
             if self._get_quest_item_num(obj, quest) >= max(1, obj.last_grace):
                 return True
+        # Other type of quest, just return True.
+        else:
+            return True
 
         return False
 
@@ -181,30 +184,85 @@ class QuestManagerMulti(QuestManagerBase):
     ## Internal function to start part of a quest.
     ## @param part Name of the part.
     def _start_part(self, part):
-        _part = self.quest["parts"][part]
-        _create_quest_object(self.quest_object, _part["type"], part, _part.get("message", None), _part.get("num", 0))
+        part, quest = self._get_part(part)
+        _create_quest_object(self.quest_object, quest["type"], part, quest.get("message", None), quest.get("num", 0))
+
+    def _get_part(self, part):
+        if type(part) is str:
+            return part, self.quest["parts"][part]
+
+        newpart = self.quest
+
+        for val in part:
+            newpart = newpart["parts"][val]
+
+        return val, newpart
 
     ## Start (part of) the quest.
     ## @param part If None, will start all parts of the quest, otherwise
     ## only the specified part name.
     ## @warning No checking whether part was already started or not is
     ## performed.
-    def start(self, part = None, sound = "learnspell.ogg"):
+    def start(self, part, sound = "learnspell.ogg"):
         # Create the quest object holding the parts.
         if not self.quest_object:
             self.quest_object = _create_quest_object(self.activator.Controller().quest_container, QUEST_TYPE_MULTI, self.quest["quest_name"], self.quest.get("message", None))
 
-        # Start specified part?
-        if part:
-            self._start_part(part)
-        # Start all parts.
-        else:
-            for part in self.quest["parts"]:
-                self._start_part(part)
+        self._start_part(part)
 
         if sound and self.sound_last != sound:
             self.activator.Controller().Sound(sound)
             self.sound_last = sound
+
+    ## Complete (part of) the quest.
+    ## @param part If None, complete all parts of the quest, otherwise
+    ## only the specified part.
+    def complete(self, part, sound = "learnspell.ogg", skip_completion = False):
+        if sound and self.sound_last != sound:
+            self.activator.Controller().Sound(sound)
+            self.sound_last = sound
+
+        part, quest = self._get_part(part)
+        obj = self.quest_object.FindObject(name = part)
+
+        if not obj:
+            return
+
+        # Mark the quest part as completed.
+        obj.magic = QUEST_STATUS_COMPLETED
+        self._complete(obj, quest)
+
+        if skip_completion:
+            return
+
+        # Check all quest parts. If all are completed, complete the
+        # entire quest.
+        for obj in self.quest_object.inv:
+            if obj.magic != QUEST_STATUS_COMPLETED:
+                return
+
+        # Complete the quest itself now.
+        self.quest_object.magic = QUEST_STATUS_COMPLETED
+
+    ## Check if the specified (part of) quest has been finished.
+    ## @param part If None, will check all parts, otherwise only the
+    ## specified part ID.
+    ## @return True if (part of) the quest has been finished, False
+    ## otherwise.
+    def finished(self, part = None):
+        if part == None:
+            return QuestManagerBase.finished(self)
+
+        if not self.started():
+            return False
+
+        part, quest = self._get_part(part)
+        obj = self.quest_object.FindObject(name = part)
+
+        if not obj:
+            return False
+
+        return self._finished(obj, quest)
 
     def started(self, part = None):
         if not QuestManagerBase.started(self):
@@ -213,72 +271,9 @@ class QuestManagerMulti(QuestManagerBase):
         if part == None:
             return True
 
+        part, quest = self._get_part(part)
+
         return self.quest_object.FindObject(name = part) != None
-
-    ## Check if the specified (part of) quest has been finished.
-    ## @param part If None, will check all parts, otherwise only the
-    ## specified part ID.
-    ## @return True if (part of) the quest has been finished, False
-    ## otherwise.
-    def finished(self, part = None):
-        if not self.started():
-            return False
-
-        # Check part of the quest.
-        if part:
-            obj = self.quest_object.FindObject(name = part)
-
-            if not obj:
-                return False
-
-            return self._finished(obj, self.quest["parts"][part])
-        # Otherwise all.
-        else:
-            parts = self.quest["parts"].keys()
-
-            for obj in self.quest_object.inv:
-                if not self._finished(obj, self.quest["parts"][obj.name]):
-                    return False
-
-                parts.remove(obj.name)
-
-            return len(parts) == 0
-
-    ## Complete (part of) the quest.
-    ## @param part If None, complete all parts of the quest, otherwise
-    ## only the specified part.
-    def complete(self, part = None, sound = "learnspell.ogg", skip_completion = False):
-        if sound and self.sound_last != sound:
-            self.activator.Controller().Sound(sound)
-            self.sound_last = sound
-
-        # Complete specified part of the quest.
-        if part:
-            # Find the quest part object.
-            obj = self.quest_object.FindObject(name = part)
-
-            # Mark the quest part as completed.
-            if obj:
-                obj.magic = QUEST_STATUS_COMPLETED
-                self._complete(obj, self.quest["parts"][part])
-
-            if skip_completion:
-                return
-
-            # Check all quest parts. If all are completed, complete the
-            # entire quest.
-            for obj in self.quest_object.inv:
-                if obj.magic != QUEST_STATUS_COMPLETED:
-                    return
-        # Complete all parts of the quest.
-        else:
-            for obj in self.quest_object.inv:
-                if obj.magic != QUEST_STATUS_COMPLETED:
-                    obj.magic = QUEST_STATUS_COMPLETED
-                    self._complete(obj, self.quest["parts"][obj.name])
-
-        # Complete the quest itself now.
-        self.quest_object.magic = QUEST_STATUS_COMPLETED
 
     def completed(self, part = None):
         if part == None:
@@ -287,12 +282,10 @@ class QuestManagerMulti(QuestManagerBase):
         if not self.started():
             return False
 
+        part, quest = self._get_part(part)
         obj = self.quest_object.FindObject(name = part)
 
-        if not obj:
-            return False
-
-        if obj.magic != QUEST_STATUS_COMPLETED:
+        if not obj or obj.magic != QUEST_STATUS_COMPLETED:
             return False
 
         return True
@@ -301,9 +294,10 @@ class QuestManagerMulti(QuestManagerBase):
         if not self.quest_object:
             return -1
 
+        part, quest = self._get_part(part)
         obj = self.quest_object.FindObject(name = part)
 
         if not obj:
             return -1
 
-        return self._num2finish(obj, self.quest["parts"][part])
+        return self._num2finish(obj, quest)
