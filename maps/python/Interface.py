@@ -1,8 +1,5 @@
 from Atrinik import SetReturnValue, Type
 
-class OutOfLoopException:
-    pass
-
 class Interface:
     def __init__(self, activator, npc):
         self._msg = ""
@@ -169,64 +166,74 @@ class InterfaceBuilder(Interface):
     def dialog(self, msg):
         pass
 
-    def finish(self, msg):
-        try:
-            getattr(self, "dialog_" + msg)()
-        except AttributeError:
-            self.dialog(msg)
+    def finish(self, msg, c = None):
+        if c == None:
+            c = self
 
-        Interface.finish(self)
-        
-class InterfaceBuilderQuest(Interface):
-    def _part_dialog(self, qm, part):
-        """
-        Checks which dialog to use, depending on state of the quest's part.
-        @param qm Quest Manager.
-        @param part Name of the quest part.
-        @return Dialog to use, None if no applicable dialog can be found.
-        """
-        if not qm.started(part):
-            ret = "need_start"
-        elif qm.finished(part):
-            ret = "need_finish"
-        elif not qm.completed(part):
-            ret = "need_complete"
+        fnc = getattr(c, "dialog_" + msg, None)
+
+        if fnc == None:
+            c.dialog(msg)
         else:
-            return
-            
-        self.dialog = part + "_" + ret
-        raise OutOfLoopException
-        
+            fnc()
+
+        Interface.finish(c)
+
+class InterfaceBuilderQuest(InterfaceBuilder):
+    def _part_dialog(self, part, checks):
+        for check in checks:
+            name = "_".join((self.dialog, check, part[-1:][0]))
+
+            if not name in self.locals:
+                continue
+
+            if getattr(self.qm, check)(part):
+                self.dialog = name
+                return True
+
+        return False
+
+    def _check_parts(self, parts, name = []):
+        for part in parts:
+            l = name + [part]
+
+            if self._part_dialog(l, checks = ["need_start", "need_finish"]):
+                return True
+
+            if self.qm.need_complete(l) and "parts" in parts[part]:
+                if self._check_parts(parts[part]["parts"], l):
+                    return True
+
+            if self._part_dialog(l, checks = ["need_complete"]):
+                return True
+
+        return False
+
     def finish(self, d, qm, msg):
-        self.dialog = None
-        
+        self.qm = qm
+        self.locals = d
+        self.dialog = "InterfaceDialog"
+        dialog = None
+
         # Quest is completed, regardless of parts, so show completed dialog.
         if qm.completed():
-            self.dialog = "completed"
+            dialog = "completed"
         # Check parts...
-        elif "parts" in qm.quest:
-            try:
-                for part in qm.quest["parts"]:
-                    for part2 in qm.quest["parts"][part]["requires"]:
-                        self._part_dialog(qm, part2)
-                            
-                    self._part_dialog(qm, part)
-            except OutOfLoopException:
-                pass
-        elif not qm.started():
-            self.dialog = "need_start"
-        elif qm.finished():
-            self.dialog = "need_finish"
-        elif not qm.need_complete():
-            self.dialog = "need_complete"
-        
-        dialog = "InterfaceDialog"
-        
-        if self.dialog and dialog + "_" + self.dialog in d:
-            dialog += "_" + self.dialog
-        
-        c = d[dialog](self._activator, self._npc)
+        elif "parts":
+            self._check_parts(qm.quest["parts"])
+        # Check the quest itself.
+        else:
+            if qm.need_start():
+                dialog = "need_start"
+            elif qm.need_finish():
+                dialog = "need_finish"
+            elif qm.need_complete():
+                dialog = "need_complete"
+
+        if dialog and self.dialog + "_" + dialog in self.locals:
+            self.dialog += "_" + dialog
+
+        c = self.locals[self.dialog](self._activator, self._npc)
         c.qm = qm
-        getattr(c, "dialog_" + msg)()
-            
-        Interface.finish(c)
+
+        InterfaceBuilder.finish(self, msg, c)
