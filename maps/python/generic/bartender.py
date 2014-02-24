@@ -1,14 +1,13 @@
 ## @file
 ## Generic script to handle bartenders, using the Tavern API.
 
-from Interface import Interface
+from Interface import InterfaceBuilder
 from Tavern import Bartender
 
-inf = Interface(activator, me)
+class InterfaceDialog(Bartender, InterfaceBuilder):
+    """
+    Dialog when talking to the bartender.
+    """
 
-def main():
-    bartender = Bartender(activator, me, WhatIsEvent(), inf)
-    bartender.handle_msg(msg)
-
-main()
-inf.finish()
+ib = InterfaceDialog(activator, me)
+ib.finish(msg)
