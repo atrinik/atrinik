@@ -74,7 +74,7 @@ class QuestManagerBase:
 
         if restored != 0:
             self.quest_container.magic = max(0, self.quest_container.magic - restored)
-            self.quest_container.exp = time.time()
+            self.quest_container.exp = int(time.time())
 
         return max(0, self.get_qp_max() - self.get_qp_current())
 
@@ -85,7 +85,7 @@ class QuestManagerBase:
         self.quest_container.magic += 1
 
         if self.quest_container.exp == 0:
-            self.quest_container.exp = time.time()
+            self.quest_container.exp = int(time.time())
 
     ## Check if the quest has been started.
     def started(self):
