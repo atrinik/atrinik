@@ -2500,7 +2500,13 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         case FIELDTYPE_CSTR:
         {
             char *str = *(char **) field_ptr;
-            return Py_BuildValue("s", str ? str : "");
+
+            if (str == NULL) {
+                Py_INCREF(Py_None);
+                return Py_None;
+            }
+
+            return Py_BuildValue("s", str);
         }
 
         case FIELDTYPE_CARY:
