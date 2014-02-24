@@ -3,6 +3,7 @@
 ## quests to provide common quest-related functions.
 
 from Atrinik import *
+import time
 
 ## Create a new quest container object.
 ## @param where Where to insert the object.
@@ -42,10 +43,50 @@ class QuestManagerBase:
     ## @param activator The activator object.
     ## @param quest Information about the quest as a dictionary.
     def __init__(self, activator, quest):
+        if activator.type != Types.PLAYER:
+            return
+
+        self.quest_container = activator.Controller().quest_container
         self.quest_object = get_quest_object(activator, quest["quest_name"])
         self.quest = quest
         self.activator = activator
         self.sound_last = None
+
+        if self.quest.get("repeat", False) and
+           self.get_qp_remaining() != 0 and self.completed():
+            self.quest_object.Remove()
+            self.quest_object = None
+        
+    def get_qp_max(self):
+        return int(max(1, self.activator.level * 0.35 + 0.5))
+        
+    def get_qp_restored(self):
+        max = self.get_qp_max()
+        return min(int((time.time() - self.quest_container.exp) / (60 * 60) * (max * 0.10)), max)
+        
+    def get_qp_current(self):
+        return self.quest_container.magic
+        
+    def get_qp_remaining(self):
+        if not self.quest.get("repeat", False):
+            return -1
+
+        restored = self.get_qp_restored()
+
+        if restored != 0:
+            self.quest_container.magic = max(0, self.quest_container.magic - restored)
+            self.quest_container.exp = time.time()
+
+        return max(0, self.get_qp_max() - self.get_qp_current())
+        
+    def use_qp(self):
+        if not self.quest.get("repeat", False):
+            return
+
+        self.quest_container.magic += 1
+
+        if self.quest_container.exp == 0:
+            self.quest_container.exp = time.time()
 
     ## Check if the quest has been started.
     def started(self):
@@ -55,6 +96,10 @@ class QuestManagerBase:
     def completed(self):
         if not self.started():
             return 0
+
+        # If no more quest points, the quest is "completed for now".
+        if self.get_qp_remaining() == 0:
+            return 1
 
         # Check the quest object's magic field to see if the quest has
         # been completed.
