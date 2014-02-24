@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-01 emperorbma
+Modified: 2014-02-24 alex
 endmsg
 width 24
 height 24
@@ -579,20 +579,35 @@ level 26
 direction 1
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/asteria/gashir.py
+race /shattered_islands/scripts/strakewood_island/asteria/gashir.py
 arch beer_charob
+msg
+It is quite good quality!
+endmsg
 identified 1
 end
 arch drink_generic
+msg
+Thirsty? Nothing like fresh water!
+endmsg
 identified 1
 end
 arch food_generic
+msg
+It's really tasty, I tell you.
+endmsg
 identified 1
 end
 arch booze2
+msg
+Please be careful though, it is really strong!
+endmsg
 identified 1
 end
 arch booze_generic
+msg
+Enjoy!
+endmsg
 identified 1
 end
 end
