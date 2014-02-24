@@ -52,21 +52,20 @@ class QuestManagerBase:
         self.activator = activator
         self.sound_last = None
 
-        if self.quest.get("repeat", False) and
-           self.get_qp_remaining() != 0 and self.completed():
+        if self.quest.get("repeat", False) and self.get_qp_remaining() != 0 and self.completed():
             self.quest_object.Remove()
             self.quest_object = None
-        
+
     def get_qp_max(self):
         return int(max(1, self.activator.level * 0.35 + 0.5))
-        
+
     def get_qp_restored(self):
-        max = self.get_qp_max()
-        return min(int((time.time() - self.quest_container.exp) / (60 * 60) * (max * 0.10)), max)
-        
+        qp_max = self.get_qp_max()
+        return min(int((time.time() - self.quest_container.exp) / (60 * 60) * (qp_max * 0.10)), qp_max)
+
     def get_qp_current(self):
         return self.quest_container.magic
-        
+
     def get_qp_remaining(self):
         if not self.quest.get("repeat", False):
             return -1
@@ -78,7 +77,7 @@ class QuestManagerBase:
             self.quest_container.exp = time.time()
 
         return max(0, self.get_qp_max() - self.get_qp_current())
-        
+
     def use_qp(self):
         if not self.quest.get("repeat", False):
             return
