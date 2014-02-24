@@ -53,8 +53,9 @@ class QuestManagerBase:
         self.sound_last = None
 
         if self.quest.get("repeat", False) and self.get_qp_remaining() != 0 and self.completed():
-            self.quest_object.Remove()
-            self.quest_object = None
+            if self.quest.quest_object.exp == 0 or self.quest.quest_object.exp >= int(time.time()):
+                self.quest_object.Remove()
+                self.quest_object = None
 
     def get_qp_max(self):
         return int(max(1, self.activator.level * 0.35 + 0.5))
@@ -86,6 +87,11 @@ class QuestManagerBase:
 
         if self.quest_container.exp == 0:
             self.quest_container.exp = int(time.time())
+
+        delay = self.quest.get("repeat_delay", None)
+
+        if delay:
+            self.quest_object.exp = int(time.time()) + delay
 
     ## Check if the quest has been started.
     def started(self):
