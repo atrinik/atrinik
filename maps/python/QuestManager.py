@@ -211,6 +211,7 @@ class QuestManager(QuestManagerBase):
     def complete(self, sound = "learnspell.ogg"):
         # Mark the quest as completed.
         self.quest_object.magic = QUEST_STATUS_COMPLETED
+        self.use_qp()
 
         if sound and self.sound_last != sound:
             self.activator.Controller().Sound(sound)
@@ -293,6 +294,7 @@ class QuestManagerMulti(QuestManagerBase):
 
         # Complete the quest itself now.
         self.quest_object.magic = QUEST_STATUS_COMPLETED
+        self.use_qp()
 
     ## Check if the specified (part of) quest has been finished.
     ## @param part If None, will check all parts, otherwise only the
