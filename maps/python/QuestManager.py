@@ -43,7 +43,7 @@ class QuestManagerBase:
     ## @param activator The activator object.
     ## @param quest Information about the quest as a dictionary.
     def __init__(self, activator, quest):
-        if activator.type != Types.PLAYER:
+        if activator.type != Type.PLAYER:
             return
 
         self.quest_container = activator.Controller().quest_container
