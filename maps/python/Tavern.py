@@ -32,16 +32,23 @@ class Bartender:
             name = obj.GetName()
             self.add_link(name.capitalize(), dest = "buy " + name)
 
+    def show_buy_icon(self, obj, buying = True):
+        name = obj.GetName()
+
+        if buying:
+            name += " for {}".format(CostString(obj.value))
+
+        self.add_msg_icon(obj.face[0], name)
+
     def show_buy(self, obj):
         self.add_msg("Ah, excellent choice!")
-        self.add_msg_icon(obj.face[0], obj.GetName() + " for " + CostString(obj.value))
+        self.show_buy_icon(obj)
         self.add_msg("How many do you want to purchase?")
         self.show_provision(obj)
 
     def show_bought(self, obj):
-        self.add_msg("You pay {}.".format(CostString(obj.value * obj.nrof)), color = COLOR_YELLOW)
         self.add_msg("Here you go!")
-        self.add_msg_icon(obj.face[0], obj.GetName())
+        self.show_buy_icon(obj, buying = False)
         self.add_msg(obj.msg or "Pleasure doing business with you!")
 
     def show_fail_weight(self):
@@ -81,6 +88,8 @@ class Bartender:
                 clone = obj.Clone()
                 # Adjust the nrof.
                 clone.nrof = num
+
+                self.add_msg("You pay {}.".format(CostString(obj.value * num)), color = COLOR_YELLOW)
                 self.show_bought(clone)
 
                 # Reset value and msg to arch default so the provisions stack
