@@ -79,9 +79,7 @@ class InterfaceDialog_need_complete_deliver_potion(InterfaceBuilderQuest):
     def dialog_working(self):
         self.add_msg("Very well...")
 
-class InterfaceDialog_need_finish_deliver_potion(
-    InterfaceDialog_need_complete_deliver_potion
-):
+class InterfaceDialog_need_finish_deliver_potion(InterfaceDialog_need_complete_deliver_potion):
     """
     Still need to deliver the potion to Brownrott, but lost the potion.
     """
