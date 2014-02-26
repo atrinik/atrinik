@@ -13,16 +13,6 @@ class InterfaceDialog(InterfaceBuilderQuest):
     def dialog_hello(self):
         self.add_msg("Welcome to Charob Beer's Shipping Department. I am as usual overworked and underpaid.")
 
-class InterfaceDialog_completed(InterfaceBuilderQuest):
-    """
-    Tell the player to come back soon when the quest has been completed,
-    as this is a repeat quest.
-    """
-
-    def dialog_hello(self):
-        InterfaceDialog.dialog_hello(self)
-        self.add_msg("Thank you for the help with that shipment. I'll tell you when I need you for another delivery.")
-
 class InterfaceDialog_need_start_deliver(InterfaceBuilderQuest):
     """
     Offer the quest to the player.
@@ -85,6 +75,16 @@ class InterfaceDialog_need_complete_reward(InterfaceDialog):
         self.add_objects(me.FindObject(archname = "silvercoin"))
 
         self.qm.complete("reward")
+
+class InterfaceDialog_completed(InterfaceBuilderQuest):
+    """
+    Tell the player to come back soon when the quest has been completed,
+    as this is a repeat quest.
+    """
+
+    def dialog_hello(self):
+        InterfaceDialog.dialog_hello(self)
+        self.add_msg("Thank you for the help with that shipment. I'll tell you when I need you for another delivery.")
 
 qm = QuestManagerMulti(activator, quest)
 ib = InterfaceBuilderQuest(activator, me)

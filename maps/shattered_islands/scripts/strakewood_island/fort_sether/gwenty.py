@@ -8,22 +8,6 @@ from Interface import InterfaceBuilderQuest
 from Quests import FortSetherIllness as quest
 import Temple
 
-class InterfaceDialog_completed(InterfaceBuilderQuest):
-    """
-    Quest has been completed, offer usual temple services.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(InterfaceBuilderQuest, self).__init__(*args, **kwargs)
-        self.temple = Temple.TempleGrunhilde(activator, me, self)
-
-    def dialog_hello(self):
-        self.temple.hello_msg = "We won't forget what you have done for us, {}.".format(activator.name)
-        self.temple.handle_chat(msg)
-
-    def dialog(self, msg):
-        self.temple.handle_chat(msg)
-
 class InterfaceDialog_need_start_figure(InterfaceBuilderQuest):
     """
     Player has not yet agreed to figuring out the cause of the sickness.
@@ -126,6 +110,22 @@ class InterfaceDialog_need_complete_reward(InterfaceBuilderQuest):
         self.add_objects(me.FindObject(archname = "silvercoin"))
 
         self.qm.complete("reward")
+
+class InterfaceDialog_completed(InterfaceBuilderQuest):
+    """
+    Quest has been completed, offer usual temple services.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(InterfaceBuilderQuest, self).__init__(*args, **kwargs)
+        self.temple = Temple.TempleGrunhilde(activator, me, self)
+
+    def dialog_hello(self):
+        self.temple.hello_msg = "We won't forget what you have done for us, {}.".format(activator.name)
+        self.temple.handle_chat(msg)
+
+    def dialog(self, msg):
+        self.temple.handle_chat(msg)
 
 qm = QuestManagerMulti(activator, quest)
 ib = InterfaceBuilderQuest(activator, me)

@@ -6,15 +6,6 @@ from QuestManager import QuestManagerMulti
 from Interface import InterfaceBuilderQuest
 from Quests import FortSetherIllness as quest
 
-class InterfaceDialog_completed(InterfaceBuilderQuest):
-    """
-    Quest has been completed.
-    """
-
-    def dialog_hello(self):
-        self.add_msg("Well, hello there again! My garden is just beautiful, isn't it?")
-        self.add_link("Right...", action = "close")
-
 class InterfaceDialog(InterfaceBuilderQuest):
     """
     Quest has not been completed yet, give the kobold some interesting
@@ -89,6 +80,15 @@ class InterfaceDialog_need_complete_get_hearts(InterfaceBuilderQuest):
         qm.start("reward")
         qm.complete(["deliver_potion", "get_hearts"])
         qm.complete("deliver_potion")
+
+class InterfaceDialog_completed(InterfaceBuilderQuest):
+    """
+    Quest has been completed.
+    """
+
+    def dialog_hello(self):
+        self.add_msg("Well, hello there again! My garden is just beautiful, isn't it?")
+        self.add_link("Right...", action = "close")
 
 qm = QuestManagerMulti(activator, quest)
 ib = InterfaceBuilderQuest(activator, me)
