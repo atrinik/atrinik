@@ -10,7 +10,7 @@ ShipmentOfCharobBeer = {
     "repeat": True,
     "repeat_delay": 60 * 5,
     "type": QUEST_TYPE_MULTI,
-    "message": "Deliver Charob Beer to the Asterian Arms Tavern.",
+    "message": "",
     "parts": OrderedDict({
         "deliver": {
             "message": "Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.",
