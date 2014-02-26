@@ -192,7 +192,7 @@ class QuestManager(QuestManagerBase):
     ## Start a quest.
     ## @param sound If not None, will play this sound effect.
     def start(self, sound = "learnspell.ogg"):
-        self.quest_object = _create_quest_object(self.activator.Controller().quest_container, self.quest["type"], self.quest["quest_name"], "message" in self.quest and self.quest["message"] or None, self.quest["type"] == QUEST_TYPE_KILL and self.quest["kills"] or 0)
+        self.quest_object = _create_quest_object(self.activator.Controller().quest_container, self.quest["type"], self.quest["quest_name"], self.quest.get("message", None), self.quest.get("num", 0))
 
         if sound and self.sound_last != sound:
             self.activator.Controller().Sound(sound)
