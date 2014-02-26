@@ -219,7 +219,7 @@ class InterfaceBuilderQuest(InterfaceBuilder):
         if qm.completed():
             dialog = "completed"
         # Check parts...
-        elif "parts":
+        elif "parts" in qm.quest:
             self._check_parts(qm.quest["parts"])
         # Check the quest itself.
         else:
