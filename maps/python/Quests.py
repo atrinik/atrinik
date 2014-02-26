@@ -29,10 +29,10 @@ ShipmentOfCharobBeer = {
 FortSetherIllness = {
     "quest_name": "Fort Sether Illness",
     "type": QUEST_TYPE_MULTI,
-    "message": "Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.",
+    "message": "",
     "parts": OrderedDict({
         "figure": {
-            "message": "Figure out what is causing the illness in Fort Sether.",
+            "message": "Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.",
             "type": QUEST_TYPE_SPECIAL,
         },
         "report": {
