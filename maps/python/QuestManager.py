@@ -188,6 +188,9 @@ class QuestManagerBase:
         return self.started(*args, **kwargs) and self.finished(*args, **kwargs) and not self.completed(*args, **kwargs)
 
 ## The Quest Manager class.
+##
+## @deprecated This API is deprecated; use QuestManagerMulti to build new (even
+## single-part) quests.
 class QuestManager(QuestManagerBase):
     ## Start a quest.
     ## @param sound If not None, will play this sound effect.
