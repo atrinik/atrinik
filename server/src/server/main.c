@@ -647,6 +647,7 @@ int main(int argc, char **argv)
 #endif
     }
 
+    console_start_thread();
     memset(&marker, 0, sizeof(struct obj));
 
     logger_print(LOG(INFO), "Server ready. Waiting for connections...");

@@ -777,7 +777,6 @@ void init(int argc, char **argv)
     statistics_init();
     reset_sleep();
     init_plugins();
-    console_start_thread();
 }
 
 /**
