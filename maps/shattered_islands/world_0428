@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-23 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2813,7 +2813,7 @@ type 83
 level 20
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/fortress_guard.py
+race /interfaces/quests/fort_sether_illness/quest.xml
 end
 end
 end
