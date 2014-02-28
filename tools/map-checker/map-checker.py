@@ -1532,7 +1532,7 @@ if not cli:
             # Extend the PATH environment variable with the script's dir.
             envs["PATH"] += delimiter + os.path.dirname(__file__)
             # Execute Gridarta.
-            subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs)
+            subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs, cwd = os.path.realpath(arch_dir + "/../editor"))
 
         # The save button. Will save output in the tree view to file.
         def save_button(self, b):
