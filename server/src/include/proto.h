@@ -3,8 +3,6 @@
 extern void command_arrest(object *op, const char *command, char *params);
 /* src/commands/permission/ban.c */
 extern void command_ban(object *op, const char *command, char *params);
-/* src/commands/permission/cmd_permission.c */
-extern void command_cmd_permission(object *op, const char *command, char *params);
 /* src/commands/permission/follow.c */
 extern void command_follow(object *op, const char *command, char *params);
 /* src/commands/permission/freeze.c */
@@ -334,6 +332,7 @@ extern int world_darkness;
 extern unsigned long todtick;
 extern char first_map_path[256];
 extern void free_strings(void);
+extern void cleanup(void);
 extern void init_globals(void);
 extern void write_todclock(void);
 extern void init(int argc, char **argv);
@@ -549,7 +548,6 @@ extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
 extern object *object_projectile_stop(object *op, int reason);
 extern int object_ranged_fire(object *op, object *shooter, int dir, double *delay);
-extern int object_throw(object *op, object *shooter, int dir);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -891,8 +889,6 @@ extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
 extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/common/throw.c */
-extern int common_object_throw(object *op, object *shooter, int dir);
 /* src/types/compass.c */
 extern void object_type_init_compass(void);
 /* src/types/cone.c */

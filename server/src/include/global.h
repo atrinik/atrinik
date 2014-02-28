@@ -373,6 +373,10 @@ typedef struct settings_struct
     uint8 world_maker;
 
     /**
+     * Running unit tests? */
+    uint8 unit_tests;
+
+    /**
      * Where to store the world maker images. */
     char world_maker_dir[MAX_BUF];
 
