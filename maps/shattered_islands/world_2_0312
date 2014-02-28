@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -552,7 +552,9 @@ zoom 80
 x 6
 y 19
 arch quest_container
-name Lairwenn's Notes
+name lairwenn_notes
+arch quest_container
+name get_notes
 sub_type 2
 arch note
 msg
@@ -560,6 +562,7 @@ msg
 endmsg
 no_skill_ident 1
 name Lairwenn's Notes
+end
 end
 end
 end

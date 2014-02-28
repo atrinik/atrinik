@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-04 Alex Tokar
+Modified: 2014-02-28 alex
 endmsg
 width 24
 height 24
@@ -2032,7 +2032,7 @@ sp 11
 wc 60
 end
 arch quest_container
-name Underground City Key 2
+sub_type 3
 arch key2
 msg
 Key from Bordok, a lost soul guarding a library deep within Underground City.

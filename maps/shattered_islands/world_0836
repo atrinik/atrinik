@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 emperorbma
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2346,12 +2346,15 @@ direction 7
 x 13
 y 10
 arch quest_container
-name Rescuing Lynren
+name rescuing_lynren
+arch quest_container
+name fetch_book
 sub_type 2
 arch book
 name Lynren's book of holy word
 face tome_gold.101
 type 79
+end
 end
 end
 end
