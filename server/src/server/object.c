@@ -3120,6 +3120,10 @@ void object_reverse_inventory(object *op)
         return;
     }
 
+    if (op->inv->inv) {
+        object_reverse_inventory(op->inv);
+    }
+
     next = op->inv->below;
     op->inv->above = NULL;
     op->inv->below = NULL;
