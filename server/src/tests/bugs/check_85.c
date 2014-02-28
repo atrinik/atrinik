@@ -43,9 +43,9 @@ START_TEST(test_run)
     fail_if(list == NULL, "Couldn't find 'random_talisman' treasure list to start the test.");
 
     for (i = 0; i < 2000; i++) {
-        tmp = generate_treasure(list, MAXLEVEL, list->artifact_chance);
+        tmp = generate_treasure(list, 999, 100);
 
-        if (tmp && !strcmp(tmp->artifact, "amulet_shielding")) {
+        if (tmp && strcmp(tmp->arch->name, "amulet_shielding") == 0) {
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
                 fail("Managed to create cursed amulet of minor shielding (i: %d).", i);
             }
