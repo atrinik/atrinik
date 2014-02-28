@@ -29,10 +29,29 @@
 #include <check.h>
 #include <check_proto.h>
 
+/*
+ * Setup function. */
+void check_setup(void)
+{
+    init(0, NULL);
+}
+
+/*
+ * Cleanup function. */
+void check_teardown(void)
+{
+    cleanup();
+}
+
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
 void check_main(void)
 {
+    toolkit_import(path);
+    path_ensure_directories("unit/bugs/");
+    path_ensure_directories("unit/commands/");
+    path_ensure_directories("unit/server/");
+
     /* bugs */
     check_bug_85();
 

@@ -24,12 +24,7 @@
 
 #include <global.h>
 #include <check.h>
-
-static void setup(void)
-{
-    toolkit_deinit();
-    toolkit_import(shstr);
-}
+#include <check_proto.h>
 
 START_TEST(test_add_string)
 {
@@ -117,7 +112,7 @@ static Suite *shstr_suite(void)
     Suite *s = suite_create("shstr");
     TCase *tc_core = tcase_create("Core");
 
-    tcase_add_checked_fixture(tc_core, setup, NULL);
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_add_string);
@@ -134,7 +129,6 @@ void check_server_shstr(void)
     Suite *s = shstr_suite();
     SRunner *sr = srunner_create(s);
 
-    path_ensure_directories("unit/server/");
     srunner_set_xml(sr, "unit/server/shstr.xml");
     srunner_set_log(sr, "unit/server/shstr.out");
     srunner_run_all(sr, CK_ENV);

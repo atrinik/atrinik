@@ -59,7 +59,7 @@ static Suite *bug_suite(void)
     Suite *s = suite_create("bug");
     TCase *tc_core = tcase_create("Core");
 
-    tcase_add_checked_fixture(tc_core, NULL, NULL);
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_run);
@@ -72,7 +72,6 @@ void check_bug_85(void)
     Suite *s = bug_suite();
     SRunner *sr = srunner_create(s);
 
-    path_ensure_directories("unit/bugs/");
     srunner_set_xml(sr, "unit/bugs/85.xml");
     srunner_set_log(sr, "unit/bugs/85.out");
     srunner_run_all(sr, CK_ENV);
