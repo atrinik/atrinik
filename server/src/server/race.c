@@ -176,6 +176,9 @@ void race_init(void)
     archetype *at, *tmp;
     size_t i;
 
+    races = NULL;
+    num_races = 0;
+
     for (at = first_archetype; at; at = at->next) {
         if (at->clone.type == MONSTER || at->clone.type == PLAYER) {
             race_add(at->clone.race, &at->clone);
