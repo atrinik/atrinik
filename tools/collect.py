@@ -29,7 +29,6 @@ import sys, os, getopt, shutil
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import re
-import json
 
 # Adjust the recursion limit.
 sys.setrecursionlimit(50000)
@@ -133,10 +132,10 @@ def _collect_parts(file, parent, definition, npcs):
             definition["parts"] = OrderedDict()
 
         uid = re.sub(r"\W+", "", part.get("uid"))
-        part_def = OrderedDict({
+        part_def = {
             "name": part.get("name", uid),
             "message": "\n".join(message.text for message in part.iterfind("message")),
-        })
+        }
 
         for attr in ["item", "kill"]:
             elem = next(part.iterfind(attr), None)
@@ -270,8 +269,47 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
         npcs[npc]["code"] += code
 
+def _dump_quest(definition, indent = 1, pretty = False):
+    s = "OrderedDict((" if type(definition) is OrderedDict else "{"
+
+    if pretty:
+        s += "\n"
+
+    for key in definition:
+        if pretty:
+            s += " " * 4 * indent
+
+        if type(definition) is OrderedDict:
+            s += "(\"{key}\", ".format(**locals())
+        else:
+            s += "\"{key}\": ".format(**locals())
+
+        if type(definition[key]) is str:
+            s += "\"{}\"".format(definition[key])
+        elif type(definition[key]) is int:
+            s += "{}".format(definition[key])
+        else:
+            s += _dump_quest(definition[key], indent + 1)
+
+        if type(definition) is OrderedDict:
+            s += ")"
+
+        s += ","
+
+        if pretty:
+            s += "\n"
+
+    if pretty:
+        s += " " * 4 * (indent - 1)
+
+    s += "))" if type(definition) is OrderedDict else "}"
+
+    return s
+
 def collect_quests():
     quests = open(os.path.join(paths["maps"], "python", "InterfaceQuests.py"), "wb")
+
+    quests.write("from collections import OrderedDict\n")
 
     for file in find_files(paths["maps"], ".xml"):
         tree = ET.parse(file)
@@ -297,9 +335,7 @@ def collect_quests():
             _make_interface(file, quest, npcs)
             _collect_parts(file, quest, quest_def, npcs)
 
-            quests.write("{} = ".format(uid))
-            quests.write(json.dumps(quest_def))
-            quests.write("\n")
+            quests.write("{} = {}\n".format(uid, _dump_quest(quest_def)))
 
         for npc in npcs:
             fh = open(os.path.join(os.path.dirname(file), npc + ".py"), "wb+")
