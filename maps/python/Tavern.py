@@ -50,7 +50,7 @@ class Bartender(InterfaceBuilder):
     def show_bought(self, obj):
         self.add_msg("Here you go!")
         self.show_buy_icon(obj, buying = False)
-        self.add_msg(obj.msg or "Pleasure doing business with you!")
+        self.add_msg("Pleasure doing business with you!")
 
     def show_fail_weight(self):
         self.add_msg("You can't carry that much weight...")
@@ -93,10 +93,9 @@ class Bartender(InterfaceBuilder):
                 self.add_msg("You pay {}.".format(CostString(obj.value * num)), color = COLOR_YELLOW)
                 self.show_bought(clone)
 
-                # Reset value and msg to arch default so the provisions stack
+                # Reset value to arch default so the provisions stack
                 # properly with regular food drops.
                 clone.value = clone.arch.clone.value
-                clone.msg = clone.arch.clone.msg
 
                 # Insert the clone into the player.
                 clone.InsertInto(self._activator)
