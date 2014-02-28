@@ -350,6 +350,9 @@ static void init_msgfile(void)
     FILE *fp;
     char buf[MAX_BUF], fname[MAX_BUF], *cp;
 
+    msgs = NULL;
+    num_msgs = 0;
+
     snprintf(fname, sizeof(fname), "%s/messages", settings.libpath);
 
     fp = fopen(fname, "r");
