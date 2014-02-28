@@ -101,6 +101,9 @@ int read_bmap_names(void)
 
     rewind(fp);
 
+    nrofpixmaps = 0;
+    nroffiles = 0;
+
     xbm = (struct bmappair *) malloc(sizeof(struct bmappair) * (nrofbmaps + 1));
     memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
