@@ -32,15 +32,16 @@
  * Add a one drop quest item to player's quest container, to mark that
  * it has been dropped for that player and will never drop for him again.
  * @param op The player.
- * @param quest_name Name of the quest. */
-static void add_one_drop_quest_item(object *op, const char *quest_name)
+ * @param quest_object The quest object. */
+static void add_one_drop_quest_item(object *op, object *quest_object)
 {
     object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
     /* Mark this quest as completed. */
     quest_container->magic = QUEST_STATUS_COMPLETED;
-    /* Store the quest name. */
-    FREE_AND_COPY_HASH(quest_container->name, quest_name);
+    /* Store the quest UID and name. */
+    FREE_AND_COPY_HASH(quest_container->name, quest_object->name);
+    FREE_AND_COPY_HASH(quest_container->race, quest_object->race);
     /* Insert it inside player's quest container. */
     insert_ob_in_ob(quest_container, CONTR(op)->quest_container);
 }
@@ -115,8 +116,8 @@ static void check_quest_container(object *op, object *quest_container, object *q
     char buf[HUGE_BUF];
     object *tmp;
 
-    /* If this is not a one-drop item quest, it must first be accepted. */
-    if (quest_container->sub_type != QUEST_TYPE_ITEM && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED)) {
+    /* If this is not a drop item quest, it must first be accepted. */
+    if (quest_container->sub_type != QUEST_TYPE_ITEM_DROP && (!quest_object || quest_object->magic == QUEST_STATUS_COMPLETED)) {
         return;
     }
 
@@ -168,7 +169,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
 
             if (one_drop) {
                 /* So the item will never drop again for this player. */
-                add_one_drop_quest_item(op, quest_container->name);
+                add_one_drop_quest_item(op, quest_container);
                 snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
             }
             else {
