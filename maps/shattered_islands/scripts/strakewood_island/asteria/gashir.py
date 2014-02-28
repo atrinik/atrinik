@@ -6,7 +6,7 @@ from Interface import InterfaceBuilderQuest
 from Quests import ShipmentOfCharobBeer as quest
 from Tavern import Bartender
 
-class InterfaceDialog(Bartender, InterfaceBuilderQuest):
+class InterfaceDialog(Bartender):
     """
     Default dialog when talking to the bartender.
     """
@@ -21,6 +21,17 @@ class InterfaceDialog(Bartender, InterfaceBuilderQuest):
             return False
 
         return True
+
+    def show_bought(self, obj):
+        self.add_msg("Here you go!")
+        self.show_buy_icon(obj, buying = False)
+        self.add_msg({
+            "booze_generic": "Enjoy!",
+            "booze2": "Please be careful though, it is really strong!",
+            "food_generic": "It's really tasty, I tell you.",
+            "drink_generic": "Thirsty? Nothing like fresh water!",
+            "beer_charob": "It is quite good quality!",
+        }[obj.arch.name])
 
 class InterfaceDialog_need_start_deliver(InterfaceDialog):
     """
