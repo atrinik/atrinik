@@ -34,6 +34,7 @@ permissions-custom.cfg
 *.mid
 client/sound
 arch/dev/editor/pickmaps/*/*
+maps/interfaces/**/*.py
 
 # GNU/Linux
 core
