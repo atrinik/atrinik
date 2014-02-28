@@ -26,6 +26,10 @@
 # Script to collect archetypes, artifacts, treasures, etc.
 
 import sys, os, getopt, shutil
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
+import re
+import json
 
 # Adjust the recursion limit.
 sys.setrecursionlimit(50000)
@@ -122,6 +126,205 @@ def collect_artifacts():
         file_copy(file, artifacts)
 
     artifacts.close()
+
+def _collect_parts(file, parent, definition, npcs):
+    for part in parent.iterfind("part"):
+        if not "parts" in definition:
+            definition["parts"] = OrderedDict()
+
+        uid = re.sub(r"\W+", "", part.get("uid"))
+        part_def = OrderedDict({
+            "name": part.get("name", uid),
+            "message": "\n".join(message.text for message in part.iterfind("message")),
+        })
+
+        for attr in ["item", "kill"]:
+            elem = next(part.iterfind(attr), None)
+
+            if elem is not None:
+                part_def[attr] = elem.attrib
+
+                if "nrof" in part_def[attr]:
+                    part_def[attr]["nrof"] = int(part_def[attr]["nrof"])
+
+        definition["parts"][uid] = part_def
+        _collect_parts(file, part, definition["parts"][uid], npcs)
+        _make_interface(file, part, npcs, uid)
+
+def _make_interface(file, parent, npcs, part_uid = None):
+    for interface in parent.findall("interface"):
+        npc = re.sub(r"\W+", "", interface.get("npc").lower().replace(" ", "_"))
+
+        if not npc in npcs:
+            npcs[npc] = {
+                "code": "",
+                "quest_uid": None,
+                "import": [],
+            }
+
+        if parent.tag == "quest":
+            npcs[npc]["quest_uid"] = parent.get("uid")
+
+        state = interface.get("state")
+        inherit = interface.get("inherit")
+
+        if inherit and inherit.find(".") != -1 and not inherit in npcs[npc]["import"]:
+            npcs[npc]["import"].append(inherit)
+
+        if state == None:
+            dialog_uid = ""
+        else:
+            dialog_uid = "_" + state
+
+            if parent.tag == "part":
+                dialog_uid += "_" + parent.get("uid")
+
+        if inherit == None:
+            dialog_inherit = "InterfaceBuilder"
+        elif inherit == "":
+            dialog_inherit = "InterfaceDialog"
+        elif inherit.find(".") != -1:
+            dialog_inherit = inherit[inherit.find(".") + 1:]
+        else:
+            dialog_inherit = "InterfaceDialog_" + inherit
+
+        code = ""
+        code += "class InterfaceDialog{dialog_uid}({dialog_inherit}):\n".format(**locals())
+
+        for action in interface.findall("action"):
+            for line in action.text.split("\n"):
+                code += " " * 4 + line.rstrip() + "\n"
+
+        for dialog in interface.findall("dialog"):
+            dialog_name = dialog.get("name", "")
+
+            if dialog_name:
+                dialog_name = "_" + dialog_name
+                dialog_args = ""
+            else:
+                dialog_args = ", msg"
+
+            code += " " * 4 + "def dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
+
+            if dialog.get("inherit") == "start":
+                code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+
+            for elem in dialog:
+                if elem.tag == "message":
+                    color = elem.get("color", "")
+
+                    if color:
+                        color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
+
+                    code += " " * 4 * 2 + "self.add_msg(\"{elem.text}\"{color})\n".format(**locals())
+                elif elem.tag == "choice":
+                    if not "random.choice" in npcs[npc]["import"]:
+                        npcs[npc]["import"].append("random.choice")
+
+                    code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"{elem.text}\"".format(elem = msg) for msg in elem.findall("message")))
+                elif elem.tag == "item":
+                    item_args = []
+
+                    for attr, attr2 in [("arch", "archname"), ("name", "name")]:
+                        val = elem.get(attr)
+
+                        if val:
+                            item_args.append("{attr2} = \"{val}\"".format(**locals()))
+
+                    item_args = ", ".join(item_args)
+
+                    code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
+
+            for response in dialog.findall("response"):
+                message = response.get("message")
+                link_args = ""
+
+                for attr, attr2 in [("destination", "dest"), ("action", "action")]:
+                    val = response.get(attr)
+
+                    if val:
+                        link_args += ", {attr2} = \"{val}\"".format(**locals())
+
+                code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+
+            for action in dialog.findall("action"):
+                if action.text:
+                    for line in action.text.split("\n"):
+                        code += " " * 4 * 2 + line.rstrip() + "\n"
+
+                for attr in ["start", "complete"]:
+                    val = action.get(attr)
+
+                    if val:
+                        split = val.split("::")
+
+                        if len(split) > 1:
+                            val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
+                        else:
+                            val = "\"{}\"".format(val)
+
+                        code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+
+            if dialog.get("inherit") == "end":
+                code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+
+        npcs[npc]["code"] += code
+
+def collect_quests():
+    quests = open(os.path.join(paths["maps"], "python", "InterfaceQuests.py"), "wb")
+
+    for file in find_files(paths["maps"], ".xml"):
+        tree = ET.parse(file)
+        root = tree.getroot()
+
+        npcs = {}
+
+        _make_interface(file, root, npcs)
+
+        for quest in root.findall("quest"):
+            uid = re.sub(r"\W+", "", quest.get("uid"))
+            quest_def = {
+                "name": quest.get("name"),
+                "uid": uid,
+            }
+
+            for attr in ["repeat", "repeat_delay"]:
+                val = quest.get(attr)
+
+                if val:
+                    quest_def[attr] = val
+
+            _make_interface(file, quest, npcs)
+            _collect_parts(file, quest, quest_def, npcs)
+
+            quests.write("{} = ".format(uid))
+            quests.write(json.dumps(quest_def))
+            quests.write("\n")
+
+        for npc in npcs:
+            fh = open(os.path.join(os.path.dirname(file), npc + ".py"), "wb+")
+
+            code = [npcs[npc]["code"]]
+
+            if npcs[npc]["quest_uid"]:
+                fh.write("from QuestManager import QuestManager\n")
+                fh.write("from InterfaceQuests import {}\n".format(npcs[npc]["quest_uid"]))
+
+            for key in npcs[npc]["import"]:
+                fh.write("from {} import {}\n".format(*key.split(".")))
+
+            fh.write("from Interface import InterfaceBuilder\n")
+            fh.write(npcs[npc]["code"])
+            fh.write("ib = InterfaceBuilder(activator, me)\n")
+
+            if npcs[npc]["quest_uid"]:
+                fh.write("ib.set_quest(QuestManager(activator, {}))\n".format(npcs[npc]["quest_uid"]))
+
+            fh.write("ib.finish(locals(), msg)\n")
+
+            fh.close()
+
+    quests.close()
 
 # Print usage.
 def usage():
