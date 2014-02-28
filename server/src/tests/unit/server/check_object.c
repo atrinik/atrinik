@@ -331,7 +331,6 @@ START_TEST(test_was_destroyed)
     object_remove(ob, 0);
     fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object was only removed from map.");
     object_destroy(ob);
-    object_destroy(ob2);
     fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
     fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
 }
