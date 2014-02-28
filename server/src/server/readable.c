@@ -413,6 +413,9 @@ static void init_mon_info(void)
 {
     archetype *at;
 
+    monsters = NULL;
+    num_monsters = 0;
+
     for (at = first_archetype; at; at = at->next) {
         if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
             num_monsters++;
