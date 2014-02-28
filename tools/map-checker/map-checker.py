@@ -1530,7 +1530,7 @@ if not cli:
             envs = dict(os.environ)
             delimiter = ";" if sys.platform.startswith("win") else ":"
             # Extend the PATH environment variable with the script's dir.
-            envs["PATH"] += delimiter + os.path.dirname(__file__)
+            envs["PATH"] += delimiter + os.path.abspath(os.path.dirname(__file__))
             # Execute Gridarta.
             subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs, cwd = os.path.realpath(arch_dir + "/../editor"))
 
