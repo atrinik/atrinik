@@ -233,12 +233,12 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     if color:
                         color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
 
-                    class_code += " " * 4 * 2 + "self.add_msg(\"{elem.text}\"{color})\n".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_msg(\"\"\"{elem.text}\"\"\"{color})\n".format(**locals())
                 elif elem.tag == "choice":
                     if not "random.choice" in npcs[npc]["import"]:
                         npcs[npc]["import"].append("random.choice")
 
-                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"{elem.text}\"".format(elem = msg) for msg in elem.findall("message")))
+                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
                 elif elem.tag == "item":
                     item_args = []
 
