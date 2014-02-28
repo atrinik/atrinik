@@ -238,12 +238,12 @@ static void check_quest_container(object *op, object *quest_container, object *q
             SET_FLAG(clone_ob, FLAG_STARTEQUIP);
             CLEAR_FLAG(clone_ob, FLAG_SYS_OBJECT);
 
-            /* Insert the quest item inside the player. */
-            clone_ob = insert_ob_in_ob(clone_ob, op);
-
             snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s (%"FMT64 "/%d)!\n", STRING_SAFE(quest_object->race), query_base_name(clone_ob, NULL), num + MAX(1, clone_ob->nrof), MAX(1, quest_object->last_grace));
             draw_map_text_anim(op, COLOR_NAVY, buf);
             draw_info(COLOR_NAVY, op, buf);
+
+            /* Insert the quest item inside the player. */
+            clone_ob = insert_ob_in_ob(clone_ob, op);
 
             play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
             break;
