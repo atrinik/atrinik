@@ -26,7 +26,7 @@
 #include <check.h>
 #include <stdarg.h>
 
-static Suite *shstr_suite(void)
+static Suite *utils_suite(void)
 {
     Suite *s = suite_create("utils");
     TCase *tc_core = tcase_create("Core");
@@ -40,7 +40,7 @@ static Suite *shstr_suite(void)
 
 void check_server_utils(void)
 {
-    Suite *s = shstr_suite();
+    Suite *s = utils_suite();
     SRunner *sr = srunner_create(s);
 
     path_ensure_directories("unit/server/");
