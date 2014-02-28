@@ -655,6 +655,9 @@ def check_obj(obj, map):
             if obj["race"].startswith("..") and obj["race"].find("/python") != -1:
                 add_error(map["file"], "Event object '{0}' is using a relative path to point to the global /python directory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
+            if not os.path.isfile(os.path.join(os.path.dirname(__file__), path) + (map["file"] if not obj["race"].startswith("/") else "") + obj["race"]):
+                add_error(map["file"], "Event object '{0}' has a path that doesn't exist.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
     if obj["type"] == types.beacon:
         if not "name" in obj:
             add_error(map["file"], "Beacon '{0}' is missing name.".format(obj["archname"]), errors.critical, env["x"], env["y"])
