@@ -352,6 +352,29 @@ START_TEST(test_load_object_str)
 }
 END_TEST
 
+START_TEST(test_object_reverse_inventory)
+{
+    char *cp, *cp2;
+    object *ob;
+    StringBuffer *sb;
+
+    cp = strdup("arch empty_archetype\nname empty_archetype 1\narch empty_archetype\nname empty_archetype 1-1\nend\narch empty_archetype\nname empty_archetype 1-4\narch empty_archetype\nname empty_archetype 1-4-1\narch empty_archetype\nname empty_archetype 1-4-1-1\narch empty_archetype\nname empty_archetype 1-4-1-1-5\nend\narch empty_archetype\nname empty_archetype 1-4-1-1-4\nend\narch empty_archetype\nname empty_archetype 1-4-1-1-3\nend\narch empty_archetype\nname empty_archetype 1-4-1-1-2\nend\narch empty_archetype\nname empty_archetype 1-4-1-1-1\nend\nend\nend\nend\narch empty_archetype\nname empty_archetype 1-3\narch empty_archetype\nname empty_archetype 1-3-1\narch empty_archetype\nname empty_archetype 1-3-1-1\nend\narch empty_archetype\nname empty_archetype 1-3-1-2\narch empty_archetype\nname empty_archetype 1-3-1-2-2\nend\narch empty_archetype\nname empty_archetype 1-3-1-2-1\nend\nend\narch empty_archetype\nname empty_archetype 1-3-1-1\narch empty_archetype\nname empty_archetype 1-3-1-1-3\nend\narch empty_archetype\nname empty_archetype 1-3-1-1-2\nend\narch empty_archetype\nname empty_archetype 1-3-1-1-1\nend\nend\nend\nend\narch empty_archetype\nname empty_archetype 1-2\narch empty_archetype\nname empty_archetype 1-2-3\narch empty_archetype\nname empty_archetype 1-2-3-2\nend\narch empty_archetype\nname empty_archetype 1-2-3-1\nend\nend\narch empty_archetype\nname empty_archetype 1-2-2\narch empty_archetype\nname empty_archetype 1-2-2-1\narch empty_archetype\nname empty_archetype 1-2-2-1-1\nend\nend\narch empty_archetype\nname empty_archetype 1-2-2-2\nend\narch empty_archetype\nname empty_archetype 1-2-2-1\nend\nend\narch empty_archetype\nname empty_archetype 1-2-1\nend\nend\narch empty_archetype\nname empty_archetype 1-1\narch empty_archetype\nname empty_archetype 1-1-2\narch empty_archetype\nname empty_archetype 1-1-2-2\nend\narch empty_archetype\nname empty_archetype 1-1-2-1\nend\nend\narch empty_archetype\nname empty_archetype 1-1-1\narch empty_archetype\nname empty_archetype 1-1-1-1\nend\nend\nend\nend\n");
+    ob = load_object_str(cp);
+
+    object_reverse_inventory(ob);
+
+    sb = stringbuffer_new();
+    dump_object_rec(ob, sb);
+    cp2 = stringbuffer_finish(sb);
+
+    fail_unless(strcmp(cp, cp2) == 0, "Did not correctly reverse order of objects");
+
+    object_destroy(ob);
+    free(cp);
+    free(cp2);
+}
+END_TEST
+
 static Suite *object_suite(void)
 {
     Suite *s = suite_create("object");
@@ -374,6 +397,7 @@ static Suite *object_suite(void)
     tcase_add_test(tc_core, test_object_create_clone);
     tcase_add_test(tc_core, test_was_destroyed);
     tcase_add_test(tc_core, test_load_object_str);
+    tcase_add_test(tc_core, test_object_reverse_inventory);
 
     return s;
 }
