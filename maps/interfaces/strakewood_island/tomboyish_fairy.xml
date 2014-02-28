@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Eye'm the strongest!</message>
+            <response message="You're the strongest?" destination="the strongest" />
+            <response message="No way, that's impossible!" destination="not the strongest" />
+            <response message="You're the strongest fairy... maybe." destination="strongest fairy" />
+            <response message="What?  Are you dumb or something?" destination="idiot" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+
+        <dialog name="the strongest">
+            <choice>
+                <message>Yay!</message>
+                <message>Yeah. I'm the best.</message>
+                <message>There are no buses in Gensokyo.</message>
+                <message>Eye'm a genius!</message>
+                <message>So, what was I doing, again...?</message>
+            </choice>
+            <response message="OK." destination="hello" />
+            <response message="Well, that was stupid." destination="idiot" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+        <dialog name="strong" inherit="the strongest" />
+        <dialog name="cirno" inherit="the strongest" />
+
+        <dialog name="not the strongest">
+            <choice>
+                <message>Eye said Eye'm the strongest!</message>
+                <message>I'll cryo-freeze you along with some English beef!</message>
+                <message>This atmosphere... it smells like WAR!</message>
+                <message>I'm going to beat you for that.</message>
+                <message>Freeze to death! Freeze to death!</message>
+            </choice>
+            <response message="Whatever." destination="hello" />
+            <response message="You must be stupid or something." destination="idiot" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+        <dialog name="weak" inherit="not the strongest" />
+        <dialog name="strongest fairy" inherit="not the strongest" />
+
+        <dialog name="idiot">
+            <choice>
+                <message>Hey!  Eye'm not dumb.</message>
+                <message>The one saying "idiot" is an idiot.</message>
+            </choice>
+            <response message="OK." destination="hello" />
+            <response message="That was childish." destination="idiot" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+        <dialog name="baka" inherit="idiot" />
+        <dialog name="nineball" inherit="idiot" />
+        <dialog name="marukyuu" inherit="idiot" />
+        <dialog>
+            <action><![CDATA[
+if msg == "(9)":
+    self.dialog_idiot()
+            ]]></action>
+        </dialog>
+    </interface>
+</root>
