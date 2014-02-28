@@ -41,7 +41,7 @@ static void add_one_drop_quest_item(object *op, object *quest_object)
     quest_container->magic = QUEST_STATUS_COMPLETED;
     /* Store the quest UID and name. */
     FREE_AND_COPY_HASH(quest_container->name, quest_object->name);
-    FREE_AND_COPY_HASH(quest_container->race, quest_object->race);
+    FREE_AND_COPY_HASH(quest_container->race, quest_object->race ? quest_object->race : quest_object->name);
     /* Insert it inside player's quest container. */
     insert_ob_in_ob(quest_container, CONTR(op)->quest_container);
 }
@@ -170,7 +170,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
             if (one_drop) {
                 /* So the item will never drop again for this player. */
                 add_one_drop_quest_item(op, quest_container);
-                snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", quest_container->name);
+                snprintf(buf, sizeof(buf), "You solved the one drop quest %s!\n", STRING_SAFE(quest_container->race));
             }
             else {
                 snprintf(buf, sizeof(buf), "You found the special drop %s!\n", query_short_name(clone_ob, NULL));
@@ -195,10 +195,10 @@ static void check_quest_container(object *op, object *quest_container, object *q
                 if (quest_object->last_sp == quest_object->last_grace) {
                     play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 
-                    snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", quest_object->race);
+                    snprintf(buf, sizeof(buf), "Quest '%s' completed!\n", STRING_SAFE(quest_object->race));
                 }
                 else {
-                    snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", quest_object->race, quest_object->last_sp, quest_object->last_grace);
+                    snprintf(buf, sizeof(buf), "Quest %s: %d/%d.\n", STRING_SAFE(quest_object->race), quest_object->last_sp, quest_object->last_grace);
                 }
 
                 draw_map_text_anim(op, COLOR_NAVY, buf);
@@ -241,7 +241,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
             /* Insert the quest item inside the player. */
             clone_ob = insert_ob_in_ob(clone_ob, op);
 
-            snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s (%"FMT64 "/%d)!\n", quest_object->race, query_base_name(clone_ob, NULL), num + MAX(1, clone_ob->nrof), MAX(1, quest_object->last_grace));
+            snprintf(buf, sizeof(buf), "Quest %s: You found the quest item %s (%"FMT64 "/%d)!\n", STRING_SAFE(quest_object->race), query_base_name(clone_ob, NULL), num + MAX(1, clone_ob->nrof), MAX(1, quest_object->last_grace));
             draw_map_text_anim(op, COLOR_NAVY, buf);
             draw_info(COLOR_NAVY, op, buf);
 
