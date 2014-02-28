@@ -163,10 +163,10 @@ static const Atrinik_Constant constants[] =
     {"PLAYER_EQUIP_LIGHT", PLAYER_EQUIP_LIGHT},
     {"PLAYER_EQUIP_RING_LEFT", PLAYER_EQUIP_RING_LEFT},
 
-    {"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
     {"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
-    {"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
-    {"QUEST_TYPE_MULTI", QUEST_TYPE_MULTI},
+    {"QUEST_TYPE_ITEM", QUEST_TYPE_ITEM},
+    {"QUEST_TYPE_ITEM_DROP", QUEST_TYPE_ITEM_DROP},
+    {"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
     {"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
 
     {"PARTY_MESSAGE_STATUS", PARTY_MESSAGE_STATUS},
@@ -684,6 +684,32 @@ static int do_script(PythonContext *context, const char *filename)
         path = hooks->map_get_path(env->map, filename, 0, NULL);
         FREE_AND_COPY_HASH(context->event->race, path);
         free(path);
+    }
+
+    if (context->event != NULL && hooks->string_endswith(context->event->race, ".xml")) {
+        char *path, *dirname, inf_filename[MAX_BUF];
+        const char *cp;
+        size_t i;
+
+        for (cp = context->who->name, i = 0; *cp != '\0'; cp++) {
+            if (i == sizeof(inf_filename) - 1) {
+                break;
+            }
+
+            if (*cp == '_' || *cp == ' ' || isalpha(*cp) || isdigit(*cp)) {
+                inf_filename[i] = *cp == ' ' ? '_' : tolower(*cp);
+                i++;
+            }
+        }
+
+        inf_filename[i] = '\0';
+        strncat(inf_filename, ".py", sizeof(inf_filename) - i - 1);
+
+        dirname = hooks->path_dirname(context->event->race);
+        path = hooks->path_join(dirname, inf_filename);
+        FREE_AND_COPY_HASH(context->event->race, path);
+        free(path);
+        free(dirname);
     }
 
     gilstate = PyGILState_Ensure();

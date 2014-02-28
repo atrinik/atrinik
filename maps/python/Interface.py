@@ -163,23 +163,8 @@ class Interface:
         pl.SendPacket(26, fmt, *data)
 
 class InterfaceBuilder(Interface):
-    def dialog(self, msg):
-        pass
+    qm = None
 
-    def finish(self, msg, c = None):
-        if c == None:
-            c = self
-
-        fnc = getattr(c, "dialog_" + msg, None)
-
-        if fnc == None:
-            c.dialog(msg)
-        else:
-            fnc()
-
-        Interface.finish(c)
-
-class InterfaceBuilderQuest(InterfaceBuilder):
     def _part_dialog(self, part, checks):
         for check in checks:
             name = "_".join((self.dialog, check, part[-1:][0]))
@@ -209,31 +194,44 @@ class InterfaceBuilderQuest(InterfaceBuilder):
 
         return False
 
-    def finish(self, d, qm, msg):
+    def set_quest(self, qm):
         self.qm = qm
+
+    def dialog(self, msg):
+        pass
+
+    def finish(self, d, msg):
         self.locals = d
         self.dialog = "InterfaceDialog"
         dialog = None
 
-        # Quest is completed, regardless of parts, so show completed dialog.
-        if qm.completed():
-            dialog = "completed"
-        # Check parts...
-        elif "parts" in qm.quest:
-            self._check_parts(qm.quest["parts"])
-        # Check the quest itself.
-        else:
-            if qm.need_start():
-                dialog = "need_start"
-            elif qm.need_finish():
-                dialog = "need_finish"
-            elif qm.need_complete():
-                dialog = "need_complete"
+        # Do some quest handling.
+        if self.qm:
+            # Quest is completed, regardless of parts, so show completed dialog.
+            if self.qm.completed():
+                dialog = "completed"
+            # Check parts...
+            elif "parts" in self.qm.quest:
+                self._check_parts(self.qm.quest["parts"])
+            # Check the quest itself.
+            else:
+                if self.qm.need_start():
+                    dialog = "need_start"
+                elif self.qm.need_finish():
+                    dialog = "need_finish"
+                elif self.qm.need_complete():
+                    dialog = "need_complete"
 
         if dialog and self.dialog + "_" + dialog in self.locals:
             self.dialog += "_" + dialog
 
         c = self.locals[self.dialog](self._activator, self._npc)
-        c.qm = qm
+        c.set_quest(self.qm)
+        fnc = getattr(c, "dialog_" + msg, None)
 
-        InterfaceBuilder.finish(self, msg, c)
+        if fnc == None:
+            c.dialog(msg)
+        else:
+            fnc()
+
+        Interface.finish(c)
