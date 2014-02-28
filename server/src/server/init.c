@@ -664,6 +664,7 @@ void init_globals(void)
     first_treasurelist = NULL;
     first_artifactlist = NULL;
     first_archetype = NULL;
+    first_region = NULL;
     first_map = NULL;
     init_strings();
     init_object_initializers();
