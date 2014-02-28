@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Hello there. I am {npc.name} the mage, studying Promethia Island.</message>
+            <response message="Tell me more about this Promethia Island." destination="more" />
+        </dialog>
+        <dialog name="more">
+            <message>It is a small island south of Strakewood Island. The interesting part is the volcano on the island.</message>
+            <message>The island can be reached by taking a ship on the eastern shore of Strakewood, roughly southeast from here.</message>
+            <response message="Tell me about the volcano." destination="volcano" />
+        </dialog>
+        <dialog name="volcano">
+            <message>The volcano is said to be very deep, with an almost infinite depth.</message>
+        </dialog>
+    </interface>
+</root>

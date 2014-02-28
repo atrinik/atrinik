@@ -1656,7 +1656,7 @@ level 58
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/ixovolth.py
+race /interfaces/strakewood_island/fort_sether/ixovolth.xml
 end
 end
 end
