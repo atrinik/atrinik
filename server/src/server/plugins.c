@@ -178,6 +178,7 @@ struct plugin_hooklist hooklist =
     set_variable,
     level_exp,
     string_endswith,
+    string_sub,
     path_join,
 
     season_name,
