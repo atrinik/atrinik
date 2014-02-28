@@ -65,8 +65,6 @@ void check_main(void)
     check_server_object();
     check_server_re_cmp();
     check_server_cache();
-    /* Anything that needs the shared string interface should go above
-     * this line (arches, artifacts, players, etc). */
     check_server_shstr();
     check_server_utils();
 }
