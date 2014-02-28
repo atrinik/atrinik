@@ -2,10 +2,11 @@
 ## API for handling taverns.
 
 from Atrinik import *
+from Interface import InterfaceBuilder
 from Language import int2english
 import re
 
-class Bartender:
+class Bartender(InterfaceBuilder):
     max_provisions = 100
 
     def find_provision(self, name):
