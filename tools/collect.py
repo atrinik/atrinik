@@ -152,7 +152,12 @@ def _collect_parts(file, parent, definition, npcs):
 
 def _make_interface(file, parent, npcs, part_uid = None):
     for interface in parent.findall("interface"):
-        npc = re.sub(r"\W+", "", interface.get("npc").lower().replace(" ", "_"))
+        npc = interface.get("npc")
+
+        if npc:
+            npc = re.sub(r"\W+", "", npc.lower().replace(" ", "_"))
+        else:
+            npc = os.path.basename(file)[:-4]
 
         if not npc in npcs:
             npcs[npc] = {
@@ -190,9 +195,11 @@ def _make_interface(file, parent, npcs, part_uid = None):
         code = ""
         code += "class InterfaceDialog{dialog_uid}({dialog_inherit}):\n".format(**locals())
 
+        class_code = ""
+
         for action in interface.findall("action"):
             for line in action.text.split("\n"):
-                code += " " * 4 + line.rstrip() + "\n"
+                class_code += " " * 4 + line.rstrip() + "\n"
 
         for dialog in interface.findall("dialog"):
             dialog_name = dialog.get("name", "")
@@ -203,10 +210,10 @@ def _make_interface(file, parent, npcs, part_uid = None):
             else:
                 dialog_args = ", msg"
 
-            code += " " * 4 + "def dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
+            class_code += " " * 4 + "def dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
 
             if dialog.get("inherit") == "start":
-                code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+                class_code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
 
             for elem in dialog:
                 if elem.tag == "message":
@@ -215,12 +222,12 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     if color:
                         color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
 
-                    code += " " * 4 * 2 + "self.add_msg(\"{elem.text}\"{color})\n".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_msg(\"{elem.text}\"{color})\n".format(**locals())
                 elif elem.tag == "choice":
                     if not "random.choice" in npcs[npc]["import"]:
                         npcs[npc]["import"].append("random.choice")
 
-                    code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"{elem.text}\"".format(elem = msg) for msg in elem.findall("message")))
+                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"{elem.text}\"".format(elem = msg) for msg in elem.findall("message")))
                 elif elem.tag == "item":
                     item_args = []
 
@@ -232,7 +239,7 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
                     item_args = ", ".join(item_args)
 
-                    code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
 
             for response in dialog.findall("response"):
                 message = response.get("message")
@@ -244,12 +251,12 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     if val:
                         link_args += ", {attr2} = \"{val}\"".format(**locals())
 
-                code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+                class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
 
             for action in dialog.findall("action"):
                 if action.text:
                     for line in action.text.split("\n"):
-                        code += " " * 4 * 2 + line.rstrip() + "\n"
+                        class_code += " " * 4 * 2 + line.rstrip() + "\n"
 
                 for attr in ["start", "complete"]:
                     val = action.get(attr)
@@ -262,10 +269,15 @@ def _make_interface(file, parent, npcs, part_uid = None):
                         else:
                             val = "\"{}\"".format(val)
 
-                        code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+                        class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
 
             if dialog.get("inherit") == "end":
-                code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+                class_code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+
+        if not class_code:
+            class_code += " " * 4 + "pass\n"
+
+        code += class_code
 
         npcs[npc]["code"] += code
 

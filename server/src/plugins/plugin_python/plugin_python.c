@@ -687,29 +687,41 @@ static int do_script(PythonContext *context, const char *filename)
     }
 
     if (context->event != NULL && hooks->string_endswith(context->event->race, ".xml")) {
-        char *path, *dirname, inf_filename[MAX_BUF];
-        const char *cp;
-        size_t i;
+        char *path;
 
-        for (cp = context->who->name, i = 0; *cp != '\0'; cp++) {
-            if (i == sizeof(inf_filename) - 1) {
-                break;
+        if (hooks->string_endswith(context->event->race, "quest.xml")) {
+            char *dirname, inf_filename[MAX_BUF];
+            const char *cp;
+            size_t i;
+
+            for (cp = context->who->name, i = 0; *cp != '\0'; cp++) {
+                if (i == sizeof(inf_filename) - 1) {
+                    break;
+                }
+
+                if (*cp == '_' || *cp == ' ' || isalpha(*cp) || isdigit(*cp)) {
+                    inf_filename[i] = *cp == ' ' ? '_' : tolower(*cp);
+                    i++;
+                }
             }
 
-            if (*cp == '_' || *cp == ' ' || isalpha(*cp) || isdigit(*cp)) {
-                inf_filename[i] = *cp == ' ' ? '_' : tolower(*cp);
-                i++;
-            }
+            inf_filename[i] = '\0';
+            strncat(inf_filename, ".py", sizeof(inf_filename) - i - 1);
+
+            dirname = hooks->path_dirname(context->event->race);
+            path = hooks->path_join(dirname, inf_filename);
+            free(dirname);
+        }
+        else {
+            char *cp;
+
+            cp = hooks->string_sub(context->event->race, 0, -3);
+            path = hooks->string_join("", cp, "py", NULL);
+            free(cp);
         }
 
-        inf_filename[i] = '\0';
-        strncat(inf_filename, ".py", sizeof(inf_filename) - i - 1);
-
-        dirname = hooks->path_dirname(context->event->race);
-        path = hooks->path_join(dirname, inf_filename);
         FREE_AND_COPY_HASH(context->event->race, path);
         free(path);
-        free(dirname);
     }
 
     gilstate = PyGILState_Ensure();
