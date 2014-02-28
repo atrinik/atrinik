@@ -48,6 +48,7 @@ void check_teardown(void)
 void check_main(void)
 {
     toolkit_import(path);
+
     path_ensure_directories("unit/bugs/");
     path_ensure_directories("unit/commands/");
     path_ensure_directories("unit/server/");
