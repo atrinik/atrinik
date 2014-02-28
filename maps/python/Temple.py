@@ -48,10 +48,6 @@ class Temple(InterfaceBuilder):
     def dialog_hello(self):
         """Default hello dialog handler."""
 
-        self.add_msg("Welcome to my tavern, dear customer! I am {npc.name}, the bartender.")
-        self.add_msg("I can offer you the following provisions.")
-        self.show_provisions()
-
         self.add_msg("Welcome to the church of {god}. I am {npc.name}, a devoted servant of {god}.", god = self.temple_name)
 
         if self.enemy_temple_name:
@@ -61,7 +57,7 @@ class Temple(InterfaceBuilder):
 
         self.add_link("Tell me about {}.".format(self.temple_name), dest = self.temple_name)
 
-        if self.templeenemy_temple_name:
+        if self.enemy_temple_name:
             self.add_link("Tell me about {}.".format(self.enemy_temple_name), dest = self.enemy_temple_name)
 
     def dialog(self, msg):
