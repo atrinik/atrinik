@@ -2286,7 +2286,7 @@ is_female 1
 type 83
 arch event_obj
 sub_type 6
-race /python/temples/shaligar.py
+race /interfaces/temples/shaligar.xml
 end
 end
 end
@@ -2838,7 +2838,7 @@ is_female 1
 type 83
 arch event_obj
 sub_type 6
-race /python/temples/terria.py
+race /interfaces/temples/terria.xml
 end
 end
 end
