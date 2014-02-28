@@ -93,6 +93,7 @@ void check_commands_object(void)
     Suite *s = object_suite();
     SRunner *sr = srunner_create(s);
 
+    path_ensure_directories("unit/commands/");
     srunner_set_xml(sr, "unit/commands/object.xml");
     srunner_set_log(sr, "unit/commands/object.out");
     srunner_run_all(sr, CK_ENV);

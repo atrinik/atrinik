@@ -134,6 +134,7 @@ void check_server_shstr(void)
     Suite *s = shstr_suite();
     SRunner *sr = srunner_create(s);
 
+    path_ensure_directories("unit/server/");
     srunner_set_xml(sr, "unit/server/shstr.xml");
     srunner_set_log(sr, "unit/server/shstr.out");
     srunner_run_all(sr, CK_ENV);

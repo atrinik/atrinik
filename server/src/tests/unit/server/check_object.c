@@ -382,6 +382,7 @@ void check_server_object(void)
     Suite *s = object_suite();
     SRunner *sr = srunner_create(s);
 
+    path_ensure_directories("unit/server/");
     srunner_set_xml(sr, "unit/server/object.xml");
     srunner_set_log(sr, "unit/server/object.out");
     srunner_run_all(sr, CK_ENV);

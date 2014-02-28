@@ -72,6 +72,7 @@ void check_bug_85(void)
     Suite *s = bug_suite();
     SRunner *sr = srunner_create(s);
 
+    path_ensure_directories("unit/bugs/");
     srunner_set_xml(sr, "unit/bugs/85.xml");
     srunner_set_log(sr, "unit/bugs/85.out");
     srunner_run_all(sr, CK_ENV);

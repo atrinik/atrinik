@@ -61,6 +61,7 @@ void check_server_re_cmp(void)
     Suite *s = re_cmp_suite();
     SRunner *sr = srunner_create(s);
 
+    path_ensure_directories("unit/server/");
     srunner_set_xml(sr, "unit/server/re_cmp.xml");
     srunner_set_log(sr, "unit/server/re_cmp.out");
     srunner_run_all(sr, CK_ENV);
