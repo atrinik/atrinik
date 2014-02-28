@@ -218,7 +218,7 @@ class InterfaceBuilder(Interface):
 
         c = self.locals[self.dialog](self._activator, self._npc)
         c.set_quest(self.qm)
-        fnc = getattr(c, "dialog_" + msg, None)
+        fnc = getattr(c, "dialog_" + msg.replace(" ", "_"), None)
 
         if fnc == None:
             c.dialog(msg)

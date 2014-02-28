@@ -184,16 +184,16 @@ def _make_interface(file, parent, npcs, part_uid = None):
                 dialog_uid += "_" + parent.get("uid")
 
         if inherit == None:
-            dialog_inherit = "InterfaceBuilder"
+            interface_inherit = "InterfaceBuilder"
         elif inherit == "":
-            dialog_inherit = "InterfaceDialog"
+            interface_inherit = "InterfaceDialog"
         elif inherit.find(".") != -1:
-            dialog_inherit = inherit[inherit.find(".") + 1:]
+            interface_inherit = inherit[inherit.find(".") + 1:]
         else:
-            dialog_inherit = "InterfaceDialog_" + inherit
+            interface_inherit = "InterfaceDialog_" + inherit
 
         code = ""
-        code += "class InterfaceDialog{dialog_uid}({dialog_inherit}):\n".format(**locals())
+        code += "class InterfaceDialog{dialog_uid}({interface_inherit}):\n".format(**locals())
 
         class_code = ""
 
@@ -205,15 +205,25 @@ def _make_interface(file, parent, npcs, part_uid = None):
             dialog_name = dialog.get("name", "")
 
             if dialog_name:
-                dialog_name = "_" + dialog_name
+                dialog_name = "_" + dialog_name.replace(" ", "_")
                 dialog_args = ""
             else:
                 dialog_args = ", msg"
 
             class_code += " " * 4 + "def dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
 
-            if dialog.get("inherit") == "start":
-                class_code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+            dialog_inherit = "self" if inherit == None else interface_inherit
+            dialog_inherit_name = dialog.get("inherit")
+
+            if not dialog_inherit_name:
+                dialog_inherit_name = dialog_name
+            else:
+                dialog_inherit_name = "_" + dialog_inherit_name.replace(" ", "_")
+
+            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_inherit_name}(self)\n".format(**locals())
+
+            if dialog.get("inherit_process") == "start" or (not dialog.get("inherit_process") and dialog.get("inherit")):
+                class_code += dialog_inherit_code
 
             for elem in dialog:
                 if elem.tag == "message":
@@ -271,8 +281,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
                         class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
 
-            if dialog.get("inherit") == "end":
-                class_code += " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_name}(self)\n".format(**locals())
+            if dialog.get("inherit_process") == "end":
+                class_code += dialog_inherit_code
 
         if not class_code:
             class_code += " " * 4 + "pass\n"
