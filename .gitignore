@@ -35,6 +35,7 @@ permissions-custom.cfg
 client/sound
 arch/dev/editor/pickmaps/*/*
 maps/interfaces/**/*.py
+maps/python/InterfaceQuests.py
 
 # GNU/Linux
 core
