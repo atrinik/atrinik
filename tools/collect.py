@@ -214,13 +214,14 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
             dialog_inherit = "self" if inherit == None else interface_inherit
             dialog_inherit_name = dialog.get("inherit")
+            dialog_inherit_args = "" if inherit == None else "self"
 
             if not dialog_inherit_name:
                 dialog_inherit_name = dialog_name
             else:
                 dialog_inherit_name = "_" + dialog_inherit_name.replace(" ", "_")
 
-            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_inherit_name}(self)\n".format(**locals())
+            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
 
             if dialog.get("inherit_process") == "start" or (not dialog.get("inherit_process") and dialog.get("inherit")):
                 class_code += dialog_inherit_code
