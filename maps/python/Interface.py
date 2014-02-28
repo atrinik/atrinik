@@ -210,17 +210,8 @@ class InterfaceBuilder(Interface):
             # Quest is completed, regardless of parts, so show completed dialog.
             if self.qm.completed():
                 dialog = "completed"
-            # Check parts...
-            elif "parts" in self.qm.quest:
-                self._check_parts(self.qm.quest["parts"])
-            # Check the quest itself.
             else:
-                if self.qm.need_start():
-                    dialog = "need_start"
-                elif self.qm.need_finish():
-                    dialog = "need_finish"
-                elif self.qm.need_complete():
-                    dialog = "need_complete"
+                self._check_parts(self.qm.quest["parts"])
 
         if dialog and self.dialog + "_" + dialog in self.locals:
             self.dialog += "_" + dialog
