@@ -444,6 +444,68 @@ START_TEST(test_string_endswith)
 }
 END_TEST
 
+START_TEST(test_string_sub)
+{
+    char *cp;
+
+    cp = string_sub("hello world", 1, -1);
+    fail_unless(strcmp(cp, "ello worl") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 0, 0);
+    fail_unless(strcmp(cp, "hello world") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 1, 0);
+    fail_unless(strcmp(cp, "ello world") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 0, -1);
+    fail_unless(strcmp(cp, "hello worl") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", -1, -1);
+    fail_unless(strcmp(cp, "l") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 4, 0);
+    fail_unless(strcmp(cp, "o world") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", -5, 0);
+    fail_unless(strcmp(cp, "world") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 20, 0);
+    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", -20, -20);
+    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 0, -20);
+    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", -20, 0);
+    fail_unless(strcmp(cp, "hello world") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", -500, 2);
+    fail_unless(strcmp(cp, "he") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 0, -500);
+    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+
+    cp = string_sub("hello world", 5, -500);
+    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -469,6 +531,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_title);
     tcase_add_test(tc_core, test_string_startswith);
     tcase_add_test(tc_core, test_string_endswith);
+    tcase_add_test(tc_core, test_string_sub);
 
     return s;
 }
