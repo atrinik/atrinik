@@ -123,6 +123,13 @@ START_TEST(test_string_split)
     fail_unless(strcmp(cps[5], "y") == 0, "Split string doesn't have the correct output.");
     free(cp);
 
+    /* Attempt to split empty string. */
+    cp = strdup("");
+    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 0, "Splitting the string didn't return correct number of results.");
+    fail_unless(cps[0] == NULL, "Split string doesn't have the correct output.");
+    fail_unless(cps[1] == NULL, "Split string doesn't have the correct output.");
+    free(cp);
+
     /* Attempt to split several one-character words, and the result would not
      * fit into the array. */
     cp = strdup("q w e r t y");
