@@ -320,6 +320,31 @@ START_TEST(test_string_get_word)
 }
 END_TEST
 
+START_TEST(test_string_skip_word)
+{
+    char *cp;
+    size_t pos;
+
+    cp = strdup("hello world");
+    pos = 0;
+    string_skip_word(cp, &pos, 1);
+    fail_unless(strcmp(cp + pos, " world") == 0, "Didn't skip word correctly.");
+    string_skip_word(cp, &pos, 1);
+    fail_unless(strcmp(cp + pos, "") == 0, "Didn't skip word correctly.");
+    free(cp);
+
+    cp = strdup("hello world");
+    pos = strlen(cp);
+    string_skip_word(cp, &pos, -1);
+    fail_unless(strcmp(cp + pos, "world") == 0, "Didn't skip word correctly.");
+    string_skip_word(cp, &pos, -1);
+    fail_unless(strcmp(cp + pos, "hello world") == 0, "Didn't skip word correctly.");
+    string_skip_word(cp, &pos, 1);
+    fail_unless(strcmp(cp + pos, " world") == 0, "Didn't skip word correctly.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -339,6 +364,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_whitespace_squeeze);
     tcase_add_test(tc_core, test_string_newline_to_literal);
     tcase_add_test(tc_core, test_string_get_word);
+    tcase_add_test(tc_core, test_string_skip_word);
 
     return s;
 }
