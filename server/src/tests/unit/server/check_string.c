@@ -532,6 +532,18 @@ START_TEST(test_string_iswhite)
 }
 END_TEST
 
+START_TEST(test_char_contains)
+{
+    fail_unless(char_contains('q', "qwerty") == 1, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('\n', "hello\nworld") == 1, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('\n', "\t") == 0, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('Q', "qwerty") == 0, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('a', "qwerty") == 0, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('\t', "qwerty") == 0, "char_contains() didn't return correct value.");
+    fail_unless(char_contains('\n', "qwerty") == 0, "char_contains() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -560,6 +572,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_sub);
     tcase_add_test(tc_core, test_string_isempty);
     tcase_add_test(tc_core, test_string_iswhite);
+    tcase_add_test(tc_core, test_char_contains);
 
     return s;
 }
