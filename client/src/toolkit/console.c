@@ -280,23 +280,6 @@ void toolkit_console_init(void)
 
         utarray_new(command_process_queue, &ut_str_icd);
 
-#ifdef HAVE_READLINE
-        rl_readline_name = "atrinik-server";
-        rl_initialize();
-        rl_attempted_completion_function = readline_completion;
-
-        current_prompt = "> ";
-        rl_set_prompt(current_prompt);
-
-        if (rl_bind_key(RETURN, handle_enter)) {
-            logger_print(LOG(ERROR), "Could not bind enter.");
-            exit(1);
-        }
-
-        rl_callback_handler_install(current_prompt, handle_line_fake);
-        logger_set_print_func(console_print);
-#endif
-
         /* Add the 'help' command. */
         console_command_add(
             "help",
@@ -315,6 +298,23 @@ void toolkit_console_init(void)
 int console_start_thread(void)
 {
     int ret;
+
+#ifdef HAVE_READLINE
+    rl_readline_name = "atrinik-server";
+    rl_initialize();
+    rl_attempted_completion_function = readline_completion;
+
+    current_prompt = "> ";
+    rl_set_prompt(current_prompt);
+
+    if (rl_bind_key(RETURN, handle_enter)) {
+        logger_print(LOG(ERROR), "Could not bind enter.");
+        exit(1);
+    }
+
+    rl_callback_handler_install(current_prompt, handle_line_fake);
+    logger_set_print_func(console_print);
+#endif
 
     thread_done = 0;
     pthread_mutex_init(&command_process_queue_mutex, NULL);

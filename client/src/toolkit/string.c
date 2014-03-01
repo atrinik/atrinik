@@ -557,10 +557,18 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 
     if (end <= 0) {
         end = str_len + end;
+
+        if (end < 0) {
+            end = 0;
+        }
     }
 
     if (start < 0) {
         start = end + start;
+
+        if (start < 0) {
+            start = 0;
+        }
     }
 
     if (!(str + start) || end - start < 0) {
