@@ -420,6 +420,18 @@ START_TEST(test_string_title)
 }
 END_TEST
 
+START_TEST(test_string_startswith)
+{
+    fail_unless(string_startswith("hello world", "hello") == 1, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("", "") == 0, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("hello world", "") == 0, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("", "hello") == 0, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("hello world", "hi") == 0, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("hello world", "h") == 1, "string_startswith() didn't return correct value.");
+    fail_unless(string_startswith("hello", "hello world") == 0, "string_startswith() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -443,6 +455,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_isdigit);
     tcase_add_test(tc_core, test_string_capitalize);
     tcase_add_test(tc_core, test_string_title);
+    tcase_add_test(tc_core, test_string_startswith);
 
     return s;
 }
