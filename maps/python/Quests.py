@@ -103,14 +103,6 @@ TwoLoversDoomed = {
     }),
 }
 
-MelanyesLostWalkingStick = {
-    "quest_name": "Melanye's Lost Walking Stick",
-    "type": QUEST_TYPE_KILL_ITEM,
-    "arch_name": "melanye_walking_stick",
-    "item_name": "Melanye's Walking Stick",
-    "message": "Melanye in Brynknot Tavern has asked you to bring her back her walking stick, which was stolen in the middle of the night by some evil treant, waking up the old woman, who saw the evil treant running to the east...",
-}
-
 ConstructionOfTelescope = {
     "quest_name": "Construction of Telescope",
     "type": QUEST_TYPE_MULTI,
