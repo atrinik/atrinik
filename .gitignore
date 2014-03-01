@@ -17,7 +17,8 @@ tools/map-checker/config.cfg
 codeblocks.txt
 visualc*.txt
 logfile.log
-server/unit/
+server/unit/**/*.out
+server/unit/**/*.xml
 ./server/tools/upgrade/config.cfg
 *.db
 __pycache__
