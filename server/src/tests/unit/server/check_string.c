@@ -345,6 +345,19 @@ START_TEST(test_string_skip_word)
 }
 END_TEST
 
+START_TEST(test_string_isdigit)
+{
+    fail_unless(string_isdigit("10") == 1, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("10000000000000") == 1, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("1234567890") == 1, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("0") == 1, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("1") == 1, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("x") == 0, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("hello world") == 0, "string_isdigit() didn't return correct value.");
+    fail_unless(string_isdigit("hell0 w0rld") == 0, "string_isdigit() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -365,6 +378,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_newline_to_literal);
     tcase_add_test(tc_core, test_string_get_word);
     tcase_add_test(tc_core, test_string_skip_word);
+    tcase_add_test(tc_core, test_string_isdigit);
 
     return s;
 }
