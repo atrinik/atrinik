@@ -113,17 +113,14 @@ if (CHECK_LIBRARY)
 		src/tests/unit/server/check_object.c
 		src/tests/unit/server/check_re_cmp.c
 		src/tests/unit/server/check_shstr.c
+        src/tests/unit/server/check_string.c
 		src/tests/unit/server/check_utils.c)
-elseif (CHECK_LIBRARY)
-	set(SOURCES_CHECK)
 endif (CHECK_LIBRARY)
 
 # Find the world maker files, if enabled.
 if (HAVE_WORLD_MAKER)
 	set(SOURCES_WORLD_MAKER
 		src/modules/world_maker.c)
-elseif (HAVE_WORLD_MAKER)
-	set(SOURCES_WORLD_MAKER)
 endif (HAVE_WORLD_MAKER)
 
 # Compile the sources into an executable.

@@ -19,6 +19,8 @@ extern void check_server_object(void);
 extern void check_server_re_cmp(void);
 /* src/tests/unit/server/check_shstr.c */
 extern void check_server_shstr(void);
+/* src/tests/unit/server/check_string.c */
+extern void check_server_string(void);
 /* src/tests/unit/server/check_utils.c*/
 extern void check_server_utils(void);
 #endif

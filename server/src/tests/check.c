@@ -66,5 +66,6 @@ void check_main(void)
     check_server_re_cmp();
     check_server_cache();
     check_server_shstr();
+    check_server_string();
     check_server_utils();
 }
