@@ -544,6 +544,14 @@ START_TEST(test_char_contains)
 }
 END_TEST
 
+START_TEST(test_string_contains)
+{
+    fail_unless(string_contains("hello world", "qwerty") == 1, "string_contains() didn't return correct value.");
+    fail_unless(string_contains("hello world", " ") == 1, "string_contains() didn't return correct value.");
+    fail_unless(string_contains("hello world", "\t") == 0, "string_contains() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -573,6 +581,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_isempty);
     tcase_add_test(tc_core, test_string_iswhite);
     tcase_add_test(tc_core, test_char_contains);
+    tcase_add_test(tc_core, test_string_contains);
 
     return s;
 }
