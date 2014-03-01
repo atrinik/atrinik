@@ -247,6 +247,32 @@ START_TEST(test_string_whitespace_trim)
 }
 END_TEST
 
+START_TEST(test_string_whitespace_squeeze)
+{
+    char *cp;
+
+    cp = strdup(" hello world ");
+    string_whitespace_squeeze(cp);
+    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup(" hello         world ");
+    string_whitespace_squeeze(cp);
+    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("      hello    world ");
+    string_whitespace_squeeze(cp);
+    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("hello  world     ");
+    string_whitespace_squeeze(cp);
+    fail_unless(strcmp(cp, "hello world ") == 0, "Squeezed string doesn't match expected output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -263,6 +289,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_toupper);
     tcase_add_test(tc_core, test_string_tolower);
     tcase_add_test(tc_core, test_string_whitespace_trim);
+    tcase_add_test(tc_core, test_string_whitespace_squeeze);
 
     return s;
 }
