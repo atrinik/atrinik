@@ -164,6 +164,16 @@ START_TEST(test_string_replace_unprintable_char)
 }
 END_TEST
 
+START_TEST(test_string_format_number_comma)
+{
+    fail_unless(strcmp(string_format_number_comma(100), "100") == 0, "Formatted string doesn't have correct output.");
+    fail_unless(strcmp(string_format_number_comma(1000), "1,000") == 0, "Formatted string doesn't have correct output.");
+    fail_unless(strcmp(string_format_number_comma(123456789), "123,456,789") == 0, "Formatted string doesn't have correct output.");
+    fail_unless(strcmp(string_format_number_comma(99999999999999999), "99,999,999,999,999,999") == 0, "Formatted string doesn't have correct output.");
+    fail_unless(strcmp(string_format_number_comma(UINT64_MAX), "18,446,744,073,709,551,615") == 0, "Formatted string doesn't have correct output.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -176,6 +186,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_replace_char);
     tcase_add_test(tc_core, test_string_split);
     tcase_add_test(tc_core, test_string_replace_unprintable_char);
+    tcase_add_test(tc_core, test_string_format_number_comma);
 
     return s;
 }
