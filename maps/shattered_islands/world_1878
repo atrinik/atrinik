@@ -2060,7 +2060,7 @@ item_level 1
 type 83
 arch event_obj
 sub_type 6
-race scripts/lyondale_archipelago/wizard/baldoth.py
+race /interfaces/lyondale_archipelago/wizard/baldoth.xml
 end
 end
 end

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Welcome to the Wizards' Tower island in Lyondale Archipelago.</message>
+            <message>If you are seeking the knowledge about Thelras or magic, I recommend you go see Teldach inside the tower.</message>
+            <response message="Tell me about Thelras." destination="tellthelras" />
+            <response message="Who is Teldach?" destination="whoteldach" />
+        </dialog>
+        <dialog name="tellthelras">
+            <message>We Thelras are heavy users of magic. Spellcasting, wands, potions, horns, things like that. Our magic abilities are far greater than that of any other race.</message>
+            <message>For more information, go see Teldach to learn about more about Thelras.</message>
+            <response message="Who is Teldach?" destination="whoteldach" />
+        </dialog>
+        <dialog name="whoteldach">
+            <message>Teldach is the oldest of our race. He's just inside the tower; you should go see him.</message>
+        </dialog>
+    </interface>
+</root>
