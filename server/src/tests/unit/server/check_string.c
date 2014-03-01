@@ -561,6 +561,24 @@ START_TEST(test_string_contains_other)
 }
 END_TEST
 
+START_TEST(test_string_create_char_range)
+{
+    char *cp;
+
+    cp = string_create_char_range('a', 'z');
+    fail_unless(strcmp(cp, "abcdefghijklmnopqrstuvwxyz") == 0, "string_create_char_range() didn't return correct result.");
+    free(cp);
+
+    cp = string_create_char_range('A', 'Z');
+    fail_unless(strcmp(cp, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 0, "string_create_char_range() didn't return correct result.");
+    free(cp);
+
+    cp = string_create_char_range('0', '9');
+    fail_unless(strcmp(cp, "0123456789") == 0, "string_create_char_range() didn't return correct result.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -592,6 +610,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_char_contains);
     tcase_add_test(tc_core, test_string_contains);
     tcase_add_test(tc_core, test_string_contains_other);
+    tcase_add_test(tc_core, test_string_create_char_range);
 
     return s;
 }
