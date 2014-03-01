@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Welcome to my shop. Here you can buy various scrolls to help you in your adventures.</message>
+            <message>Have you heard about the legendary smoking pipe? They say it's the best pipe for smoking pipeweed.</message>
+            <response message="Tell me more..." destination="tellmore" />
+        </dialog>
+        <dialog name="tellmore">
+            <message>If you smoke some pipeweed using that smoking pipe, you will be granted confusion and weapon magic protection, or so the rumour says.</message>
+            <message>It has long been lost, however...</message>
+            <response message="Any ideas where it could be?" destination="location" />
+        </dialog>
+        <dialog name="location">
+            <message>Well, some rumours say that the fierce dragon leader Scursaur has it in his possession.</message>
+            <message>Of course, that's just a silly rumour... a dragon with a smoking pipe...</message>
+            <response message="Tell me about Scursaur." destination="aboutleader" />
+        </dialog>
+        <dialog name="aboutleader">
+            <message>He is the leader of the dragons on the Dragons Island. Apparently it's possible to get to Dragons Island by completing the Underground Maze under Promethia Island.</message>
+            <message>I wouldn't go there if I were you, though. The maze is one thing, but those dragons were sealed on that island for a reason...</message>
+            <message>At any rate, the smoking pipe is most likely not even there, anyway. It would be a waste of time to go looking for it there.</message>
+        </dialog>
+    </interface>
+</root>
