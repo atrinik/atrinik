@@ -140,6 +140,30 @@ START_TEST(test_string_split)
 }
 END_TEST
 
+START_TEST(test_string_replace_unprintable_char)
+{
+    char *cp;
+
+    /* Replace tabs with spaces. */
+    cp = strdup("\thello\tworld");
+    string_replace_unprintable_chars(cp);
+    fail_unless(strcmp(cp, " hello world") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    free(cp);
+
+    /* Replace empty string. */
+    cp = strdup("");
+    string_replace_unprintable_chars(cp);
+    fail_unless(strcmp(cp, "") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    free(cp);
+
+    /* Replace string that consists of only unprintable characters. */
+    cp = strdup("\t\n\n\t\t\t\b\b");
+    string_replace_unprintable_chars(cp);
+    fail_unless(strcmp(cp, "        ") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -151,6 +175,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_replace);
     tcase_add_test(tc_core, test_string_replace_char);
     tcase_add_test(tc_core, test_string_split);
+    tcase_add_test(tc_core, test_string_replace_unprintable_char);
 
     return s;
 }
