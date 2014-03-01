@@ -432,6 +432,18 @@ START_TEST(test_string_startswith)
 }
 END_TEST
 
+START_TEST(test_string_endswith)
+{
+    fail_unless(string_endswith("hello world", "world") == 1, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("hello world", "d") == 1, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("", "") == 0, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("", "world") == 0, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("hello world", "") == 0, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("world", "hello world") == 0, "string_endswith() didn't return correct value.");
+    fail_unless(string_endswith("hello world", "hello world") == 1, "string_endswith() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -456,6 +468,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_capitalize);
     tcase_add_test(tc_core, test_string_title);
     tcase_add_test(tc_core, test_string_startswith);
+    tcase_add_test(tc_core, test_string_endswith);
 
     return s;
 }
