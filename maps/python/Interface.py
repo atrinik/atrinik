@@ -1,4 +1,5 @@
 from Atrinik import SetReturnValue, Type
+import re
 
 class Interface:
     def __init__(self, activator, npc):
@@ -164,6 +165,7 @@ class Interface:
 
 class InterfaceBuilder(Interface):
     qm = None
+    matchers = []
 
     def _part_dialog(self, part, checks):
         for check in checks:
@@ -218,6 +220,13 @@ class InterfaceBuilder(Interface):
 
         c = self.locals[self.dialog](self._activator, self._npc)
         c.set_quest(self.qm)
+
+        for expr, callback in c.matchers:
+            if re.match(expr, msg):
+                callback(c)
+                Interface.finish(c)
+                return
+
         fnc = getattr(c, "dialog_" + msg.replace(" ", "_"), None)
 
         if fnc == None:
