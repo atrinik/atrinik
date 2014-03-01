@@ -675,6 +675,10 @@ static int do_script(PythonContext *context, const char *filename)
     PyObject *dict, *ret;
     PyGILState_STATE gilstate;
 
+    if (filename == NULL) {
+        return 0;
+    }
+
     if (context->event && !hooks->map_path_isabs(filename)) {
         char *path;
         object *env;
