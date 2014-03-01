@@ -506,6 +506,17 @@ START_TEST(test_string_sub)
 }
 END_TEST
 
+START_TEST(test_string_isempty)
+{
+    fail_unless(string_isempty(NULL) == 1, "string_isempty() didn't return correct value.");
+    fail_unless(string_isempty("") == 1, "string_isempty() didn't return correct value.");
+    fail_unless(string_isempty("1") == 0, "string_isempty() didn't return correct value.");
+    fail_unless(string_isempty("hello world") == 0, "string_isempty() didn't return correct value.");
+    fail_unless(string_isempty(" ") == 0, "string_isempty() didn't return correct value.");
+    fail_unless(string_isempty("   ") == 0, "string_isempty() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -532,6 +543,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_startswith);
     tcase_add_test(tc_core, test_string_endswith);
     tcase_add_test(tc_core, test_string_sub);
+    tcase_add_test(tc_core, test_string_isempty);
 
     return s;
 }
