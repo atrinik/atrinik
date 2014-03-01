@@ -22,8 +22,7 @@
             <response message="Well, that was stupid." destination="idiot" />
             <response message="Goodbye." action="close" />
         </dialog>
-        <dialog name="strong" inherit="the strongest" />
-        <dialog name="cirno" inherit="the strongest" />
+        <dialog regex="(strong|cirno)" inherit="the strongest" />
 
         <dialog name="not the strongest">
             <choice>
@@ -37,8 +36,7 @@
             <response message="You must be stupid or something." destination="idiot" />
             <response message="Goodbye." action="close" />
         </dialog>
-        <dialog name="weak" inherit="not the strongest" />
-        <dialog name="strongest fairy" inherit="not the strongest" />
+        <dialog regex="(weak|strongest fairy)" inherit="not the strongest" />
 
         <dialog name="idiot">
             <choice>
@@ -49,14 +47,6 @@
             <response message="That was childish." destination="idiot" />
             <response message="Goodbye." action="close" />
         </dialog>
-        <dialog name="baka" inherit="idiot" />
-        <dialog name="nineball" inherit="idiot" />
-        <dialog name="marukyuu" inherit="idiot" />
-        <dialog>
-            <action><![CDATA[
-if msg == "(9)":
-    self.dialog_idiot()
-            ]]></action>
-        </dialog>
+        <dialog regex="(baka|nineball|marukyuu|\(9\))" inherit="idiot" />
     </interface>
 </root>
