@@ -174,6 +174,27 @@ START_TEST(test_string_format_number_comma)
 }
 END_TEST
 
+START_TEST(test_string_toupper)
+{
+    char *cp;
+
+    cp = strdup("hello world");
+    string_toupper(cp);
+    fail_unless(strcmp(cp, "HELLO WORLD") == 0, "Transformed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("Hello");
+    string_toupper(cp);
+    fail_unless(strcmp(cp, "HELLO") == 0, "Transformed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("");
+    string_toupper(cp);
+    fail_unless(strcmp(cp, "") == 0, "Transformed string doesn't match expected output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -187,6 +208,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_split);
     tcase_add_test(tc_core, test_string_replace_unprintable_char);
     tcase_add_test(tc_core, test_string_format_number_comma);
+    tcase_add_test(tc_core, test_string_toupper);
 
     return s;
 }
