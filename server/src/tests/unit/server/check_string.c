@@ -100,6 +100,39 @@ START_TEST(test_string_replace_char)
 }
 END_TEST
 
+START_TEST(test_string_split)
+{
+    char *cp, *cps[20], *cps2[2];
+
+    /* Attempt to split two words separated by spaces. */
+    cp = strdup("hello world");
+    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 2, "Splitting the string didn't return correct number of results.");
+    fail_unless(strcmp(cps[0], "hello") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[1], "world") == 0, "Split string doesn't have the correct output.");
+    fail_unless(cps[2] == NULL, "Split string doesn't have the correct output.");
+    free(cp);
+
+    /* Attempt to split several one-character words. */
+    cp = strdup("q w e r t y");
+    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 6, "Splitting the string didn't return correct number of results.");
+    fail_unless(strcmp(cps[0], "q") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[1], "w") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[2], "e") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[3], "r") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[4], "t") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps[5], "y") == 0, "Split string doesn't have the correct output.");
+    free(cp);
+
+    /* Attempt to split several one-character words, and the result would not
+     * fit into the array. */
+    cp = strdup("q w e r t y");
+    fail_unless(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' ') == 2, "Splitting the string didn't return correct number of results.");
+    fail_unless(strcmp(cps2[0], "q") == 0, "Split string doesn't have the correct output.");
+    fail_unless(strcmp(cps2[1], "w e r t y") == 0, "Split string doesn't have the correct output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -110,6 +143,7 @@ static Suite *string_suite(void)
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_string_replace);
     tcase_add_test(tc_core, test_string_replace_char);
+    tcase_add_test(tc_core, test_string_split);
 
     return s;
 }
