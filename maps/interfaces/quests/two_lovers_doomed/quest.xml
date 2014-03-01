@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <quest uid="two_lovers_doomed" name="Two Lovers Doomed">
+        <interface npc="Rienn Howell">
+            <dialog name="hello">
+                <message color="yellow">{npc.name} doesn't seem to notice you and continues to stare in the direction of the ruins north...</message>
+            </dialog>
+        </interface>
+
+        <interface npc="Tortwald Howell" state="completed">
+            <dialog name="hello">
+                <message>Thank you...</message>
+            </dialog>
+        </interface>
+
+        <part uid="deliver_tortwalds_letter" name="Tortwald's Letter">
+            <message>You have found the guard Tortwald Howell imprisoned deep inside the Underground City. He has asked you to deliver a letter to his love, Rienn Howell, in Fort Ghzal.</message>
+            <item arch="two_lovers_doomed_letter1" name="Tortwald's letter" />
+
+            <interface npc="Tortwald Howell" state="need_start">
+                <dialog name="hello">
+                    <message>*sob*... Hello there...</message>
+                    <response message="Who are you?" destination="who" />
+                </dialog>
+                <dialog name="who">
+                    <message>I'm {npc.name}, a guard from Fort Ghzal...</message>
+                    <response message="What are you doing here?" destination="doing" />
+                </dialog>
+                <dialog name="doing">
+                    <message>I was captured by the creatures living in this terrible place... I don't know what they want to do with me...</message>
+                    <response message="Can I help you?" destination="help" />
+                </dialog>
+                <dialog name="help">
+                    <message>No... I'm too weak to escape... And these bars are impervious to everything I have tried... But... Would you, please, deliver a letter to my wife in Fort Ghzal for me...?</message>
+                    <response message="Sure." destination="sure" />
+                    <response message="No, too busy." destination="no" />
+                </dialog>
+                <dialog name="no">
+                    <message>*sobs*... Please?</message>
+                    <response message="Alright then." destination="sure" />
+                    <response message="I said no! I don't have time for your sniveling." action="close" />
+                </dialog>
+                <dialog name="sure">
+                    <message>Thank you... Here's the letter. Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
+                    <item arch="two_lovers_doomed_letter1" />
+                    <action start="deliver_tortwalds_letter" />
+                </dialog>
+            </interface>
+
+            <interface npc="Tortwald Howell" state="need_complete">
+                <dialog name="hello">
+                    <message>*sobs*... Have you delivered the letter yet?</message>
+                    <response message="Working on it." destination="working" />
+                </dialog>
+                <dialog name="working">
+                    <message>Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Rienn Howell" state="need_complete" inherit="">
+                <dialog name="hello" inherit_process="start">
+                    <response message="Here, take this letter from your husband..." destination="takeletter" />
+                </dialog>
+                <dialog name="takeletter">
+                    <message>Oh! He has been gone for a long time now...</message>
+                    <message>Thank you, adventurer... Please, take this letter and deliver it to him...</message>
+                    <item arch="two_lovers_doomed_letter2" />
+                    <action start="deliver_rienns_letter" />
+                    <action complete="deliver_tortwalds_letter" />
+                </dialog>
+            </interface>
+        </part>
+
+        <part uid="deliver_rienns_letter" name="Rienn's Letter">
+            <message>After delivering Tortwald Howell's letter to Rienn Howell, she has asked you to deliver a letter of her own to Tortwald.</message>
+            <item arch="two_lovers_doomed_letter2" name="Rienn's letter" />
+
+            <interface npc="Tortwald Howell" state="need_complete">
+                <dialog name="hello">
+                    <message>*sobs*... Have you delivered the letter yet?</message>
+                    <response message="Yes, take this letter from your wife." destination="takeletter" />
+                </dialog>
+                <dialog name="takeletter">
+                    <message>You have a letter for me from my dear Rienn? Oh... thank you...</message>
+                    <message>Here, take this key... it supposedly opens something around here, but before I could figure it out, I was captured... and... thank you again.</message>
+                    <item arch="uc_ii_skull_key" />
+                    <action complete="deliver_rienns_letter" />
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</root>
