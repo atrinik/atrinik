@@ -103,13 +103,6 @@ TwoLoversDoomed = {
     }),
 }
 
-GallansRevenge = {
-    "quest_name": "Galann's Revenge",
-    "type": QUEST_TYPE_KILL,
-    "num": 1,
-    "message": "Galann Strongfist, the old smith of Brynknot has asked you to go to the Old Outpost north of Aris in the Giant Mountains and kill Torathog the stone giant in revenge.",
-}
-
 MelanyesLostWalkingStick = {
     "quest_name": "Melanye's Lost Walking Stick",
     "type": QUEST_TYPE_KILL_ITEM,
