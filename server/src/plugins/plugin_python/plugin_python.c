@@ -686,10 +686,10 @@ static int do_script(PythonContext *context, const char *filename)
         free(path);
     }
 
-    if (context->event != NULL && hooks->string_endswith(context->event->race, ".xml")) {
+    if (context->event != NULL && hooks->string_endswith(filename, ".xml")) {
         char *path;
 
-        if (hooks->string_endswith(context->event->race, "quest.xml")) {
+        if (hooks->string_endswith(filename, "quest.xml")) {
             char *dirname, inf_filename[MAX_BUF];
             const char *cp;
             size_t i;
@@ -708,14 +708,14 @@ static int do_script(PythonContext *context, const char *filename)
             inf_filename[i] = '\0';
             strncat(inf_filename, ".py", sizeof(inf_filename) - i - 1);
 
-            dirname = hooks->path_dirname(context->event->race);
+            dirname = hooks->path_dirname(filename);
             path = hooks->path_join(dirname, inf_filename);
             free(dirname);
         }
         else {
             char *cp;
 
-            cp = hooks->string_sub(context->event->race, 0, -3);
+            cp = hooks->string_sub(filename, 0, -3);
             path = hooks->string_join("", cp, "py", NULL);
             free(cp);
         }
