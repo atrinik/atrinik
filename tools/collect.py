@@ -150,6 +150,67 @@ def _collect_parts(file, parent, definition, npcs):
         _collect_parts(file, part, definition["parts"][uid], npcs)
         _make_interface(file, part, npcs, uid)
 
+def _process_dialog_elems(dialog, npc):
+    s = ""
+
+    for elem in dialog:
+        if elem.tag == "message":
+            color = elem.get("color", "")
+
+            if color:
+                color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
+
+            s += " " * 4 * 2 + "self.add_msg(\"\"\"{elem.text}\"\"\"{color})\n".format(**locals())
+        elif elem.tag == "choice":
+            if not "random.choice" in npc["import"]:
+                npc["import"].append("random.choice")
+
+            s += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
+        elif elem.tag == "item":
+            item_args = []
+
+            for attr, attr2 in [("arch", "archname"), ("name", "name")]:
+                val = elem.get(attr)
+
+                if val:
+                    item_args.append("{attr2} = \"{val}\"".format(**locals()))
+
+            item_args = ", ".join(item_args)
+
+            s += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
+
+    for response in dialog.findall("response"):
+        message = response.get("message")
+        link_args = ""
+
+        for attr, attr2 in [("destination", "dest"), ("action", "action")]:
+            val = response.get(attr)
+
+            if val:
+                link_args += ", {attr2} = \"{val}\"".format(**locals())
+
+        s += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+
+    for action in dialog.findall("action"):
+        if action.text:
+            for line in action.text.split("\n"):
+                s += " " * 4 * 2 + line.rstrip() + "\n"
+
+        for attr in ["start", "complete"]:
+            val = action.get(attr)
+
+            if val:
+                split = val.split("::")
+
+                if len(split) > 1:
+                    val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
+                else:
+                    val = "\"{}\"".format(val)
+
+                s += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+
+    return s
+
 def _make_interface(file, parent, npcs, part_uid = None):
     for interface in parent.findall("interface"):
         npc = interface.get("npc")
@@ -201,8 +262,12 @@ def _make_interface(file, parent, npcs, part_uid = None):
             for line in action.text.split("\n"):
                 class_code += " " * 4 + line.rstrip() + "\n"
 
+        regex_matchers = []
+
         for dialog in interface.findall("dialog"):
             dialog_name = dialog.get("name", "")
+            dialog_regex = dialog.get("regex")
+            dialog_prepend = ""
 
             if dialog_name:
                 dialog_name = "_" + dialog_name.replace(" ", "_")
@@ -210,9 +275,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
             else:
                 dialog_args = ", msg"
 
-            class_code += " " * 4 + "def dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
-
             dialog_inherit = "self" if inherit == None else interface_inherit
+            dialog_inherit2 = "" if inherit == None else interface_inherit + "."
             dialog_inherit_name = dialog.get("inherit")
             dialog_inherit_args = "" if inherit == None else "self"
 
@@ -223,67 +287,33 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
             dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
 
-            if dialog.get("inherit_process") == "start" or (not dialog.get("inherit_process") and dialog.get("inherit")):
+            if dialog_regex:
+                dialog_prepend = "regex_"
+                regex_matchers.append((dialog_regex, "{dialog_prepend}dialog{dialog_name}".format(**locals()) if dialog_name else "{dialog_inherit2}dialog{dialog_inherit_name}".format(**locals())))
+
+            if not dialog_regex or dialog_name:
+                class_code += " " * 4 + "def {dialog_prepend}dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
+
+            if dialog.get("inherit_process") == "start" or (not dialog.get("inherit_process") and dialog.get("inherit") and dialog_name):
                 class_code += dialog_inherit_code
 
-            for elem in dialog:
-                if elem.tag == "message":
-                    color = elem.get("color", "")
-
-                    if color:
-                        color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
-
-                    class_code += " " * 4 * 2 + "self.add_msg(\"\"\"{elem.text}\"\"\"{color})\n".format(**locals())
-                elif elem.tag == "choice":
-                    if not "random.choice" in npcs[npc]["import"]:
-                        npcs[npc]["import"].append("random.choice")
-
-                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
-                elif elem.tag == "item":
-                    item_args = []
-
-                    for attr, attr2 in [("arch", "archname"), ("name", "name")]:
-                        val = elem.get(attr)
-
-                        if val:
-                            item_args.append("{attr2} = \"{val}\"".format(**locals()))
-
-                    item_args = ", ".join(item_args)
-
-                    class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
-
-            for response in dialog.findall("response"):
-                message = response.get("message")
-                link_args = ""
-
-                for attr, attr2 in [("destination", "dest"), ("action", "action")]:
-                    val = response.get(attr)
-
-                    if val:
-                        link_args += ", {attr2} = \"{val}\"".format(**locals())
-
-                class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
-
-            for action in dialog.findall("action"):
-                if action.text:
-                    for line in action.text.split("\n"):
-                        class_code += " " * 4 * 2 + line.rstrip() + "\n"
-
-                for attr in ["start", "complete"]:
-                    val = action.get(attr)
-
-                    if val:
-                        split = val.split("::")
-
-                        if len(split) > 1:
-                            val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
-                        else:
-                            val = "\"{}\"".format(val)
-
-                        class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+            if not dialog_regex or dialog_name:
+                class_code += _process_dialog_elems(dialog, npcs[npc])
 
             if dialog.get("inherit_process") == "end":
                 class_code += dialog_inherit_code
+
+        matchers_code = ""
+
+        if regex_matchers:
+            matchers_code += " " * 4 + "matchers = ["
+
+            for expr, dest in regex_matchers:
+                matchers_code += "(r\"\"\"{expr}\"\"\", {dest}),".format(**locals())
+
+            matchers_code += "]\n"
+
+        class_code += matchers_code
 
         if not class_code:
             class_code += " " * 4 + "pass\n"
