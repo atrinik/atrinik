@@ -273,6 +273,27 @@ START_TEST(test_string_whitespace_squeeze)
 }
 END_TEST
 
+START_TEST(test_string_newline_to_literal)
+{
+    char *cp;
+
+    cp = strdup("hello\\nworld");
+    string_newline_to_literal(cp);
+    fail_unless(strcmp(cp, "hello\nworld") == 0, "Didn't correctly replace \\n by literal newline character.");
+    free(cp);
+
+    cp = strdup("\\n\\n\\n");
+    string_newline_to_literal(cp);
+    fail_unless(strcmp(cp, "\n\n\n") == 0, "Didn't correctly replace \\n by literal newline character.");
+    free(cp);
+
+    cp = strdup("");
+    string_newline_to_literal(cp);
+    fail_unless(strcmp(cp, "") == 0, "Didn't correctly replace \\n by literal newline character.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -290,6 +311,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_tolower);
     tcase_add_test(tc_core, test_string_whitespace_trim);
     tcase_add_test(tc_core, test_string_whitespace_squeeze);
+    tcase_add_test(tc_core, test_string_newline_to_literal);
 
     return s;
 }
