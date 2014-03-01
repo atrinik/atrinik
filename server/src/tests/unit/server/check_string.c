@@ -552,6 +552,15 @@ START_TEST(test_string_contains)
 }
 END_TEST
 
+START_TEST(test_string_contains_other)
+{
+    fail_unless(string_contains_other("Qwerty", "qwerty") == 1, "string_contains_other() didn't return correct value.");
+    fail_unless(string_contains_other("qwerty", "qwerty") == 0, "string_contains_other() didn't return correct value.");
+    fail_unless(string_contains_other("hello world", "qwerty") == 1, "string_contains_other() didn't return correct value.");
+    fail_unless(string_contains_other("     \t\t\n", "\t\n ") == 0, "string_contains_other() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -582,6 +591,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_iswhite);
     tcase_add_test(tc_core, test_char_contains);
     tcase_add_test(tc_core, test_string_contains);
+    tcase_add_test(tc_core, test_string_contains_other);
 
     return s;
 }
