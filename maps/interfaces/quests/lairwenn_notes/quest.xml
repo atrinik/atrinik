@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <quest uid="lairwenn_notes" name="Lairwenn's Notes">
+        <interface npc="Lairwenn" state="completed">
+            <dialog name="hello">
+                <action><![CDATA[
+pen = self._npc.FindObject(name = "writing pen")
+self.add_msg("Thank you for finding my notes earlier. Would you like to buy an extra writing pen for mere {}?".format(CostString(pen.value)))
+                ]]></action>
+                <response message="Sure, why not." destination="buypen" />
+                <response message="No thanks." action="close" />
+            </dialog>
+            <dialog name="buypen">
+                <action><![CDATA[
+pen = self._npc.FindObject(name = "writing pen")
+if self._activator.PayAmount(pen.value):
+    self.add_msg("You pay {}.".format(CostString(pen.value)), color = COLOR_YELLOW)
+    self.add_msg("Here you go dear, a top-quality writing pen!")
+    self.add_objects(pen)
+else:
+    self.add_msg("Oh dear, it seems you don't have enough money!")
+                ]]></action>
+            </dialog>
+        </interface>
+
+        <part uid="get_notes" name="Finding the Notes">
+            <message>Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.</message>
+            <item arch="note" name="Lairwenn's Notes" />
+
+            <interface npc="Lairwenn" state="need_start">
+                <dialog name="hello">
+                    <message>Welcome to the Brynknot Library... I'm {npc.name}, the librarian.</message>
+                    <message>Please excuse me, I seem to have lost my notes somewhere...</message>
+                    <response message="You lost your notes?" destination="lostnotes" />
+                </dialog>
+                <dialog name="lostnotes">
+                    <message>I hurriedly put them away while searching for this book, and then a while later I remembered about the notes but I can't find them now! And I really need them to finish this document I'm working on...</message>
+                    <response message="Can I help you in your search?" destination="helpsearch" />
+                </dialog>
+                <dialog name="helpsearch">
+                    <message>I would certainly appreciate it my dear! The notes are somewhere in this library, I just can't seem to find them...</message>
+                    <action start="get_notes" />
+                </dialog>
+            </interface>
+
+            <interface npc="Lairwenn" state="need_finish">
+                <dialog name="hello">
+                    <message color="yellow">{npc.name} sighs.</message>
+                    <message>I'm trying to remember where I put them, but I just can't... Please continue your search my dear, they should be somewhere in this library...</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Lairwenn" state="need_complete">
+                <dialog name="hello">
+                    <message>You found my notes!</message>
+                    <message>...</message>
+                    <message>They were in the luggage on the top floor? How curious... Well, thank you my dear! I think I have something here that may be useful on your adventures... Now, where did I put it...</message>
+                    <message color="yellow">{npc.name} thinks for a moment.</message>
+                    <message>Just pulling your leg my dear! Here it is, a writing pen will be useful, will it not?</message>
+                    <item name="writing pen" />
+                    <action complete="get_notes" />
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</root>

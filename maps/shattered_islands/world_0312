@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-02-28 Alex Tokar
+Modified: 2014-03-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -733,7 +733,7 @@ cursed 1
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/lairwenn.py
+race /interfaces/quests/lairwenn_notes/quest.xml
 end
 arch writing_pen
 end
