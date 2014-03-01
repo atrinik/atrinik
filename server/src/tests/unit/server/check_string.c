@@ -216,6 +216,37 @@ START_TEST(test_string_tolower)
 }
 END_TEST
 
+START_TEST(test_string_whitespace_trim)
+{
+    char *cp;
+
+    cp = strdup("            ");
+    string_whitespace_trim(cp);
+    fail_unless(strcmp(cp, "") == 0, "Trimmed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("hello world        \t\t");
+    string_whitespace_trim(cp);
+    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("           hello world");
+    string_whitespace_trim(cp);
+    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("\t              hello world   \t   ");
+    string_whitespace_trim(cp);
+    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("   hello world   ");
+    string_whitespace_trim(cp);
+    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -231,6 +262,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_format_number_comma);
     tcase_add_test(tc_core, test_string_toupper);
     tcase_add_test(tc_core, test_string_tolower);
+    tcase_add_test(tc_core, test_string_whitespace_trim);
 
     return s;
 }
