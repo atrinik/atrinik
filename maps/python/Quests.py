@@ -25,42 +25,6 @@ ShipmentOfCharobBeer = {
     }),
 }
 
-## The Fort Sether Illness quest.
-FortSetherIllness = {
-    "quest_name": "Fort Sether Illness",
-    "type": QUEST_TYPE_MULTI,
-    "message": "",
-    "parts": OrderedDict({
-        "figure": {
-            "message": "Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.",
-            "type": QUEST_TYPE_SPECIAL,
-        },
-        "report": {
-            "message": "You found a kobold named Brownrott below Fort Sether, with a most extraordinary garden. He has shown you a potion he uses to make his garden grow well, and its smell drove you nauseous. Perhaps you should ask Gwenty, the priestess in Fort Sether, for advice.",
-            "type": QUEST_TYPE_SPECIAL,
-        },
-        "deliver_potion": {
-            "message": "Gwenty, the priestess in Fort Sether, has given you a potion to mix with Brownrott's one. He may need some persuading, however...",
-            "type": QUEST_TYPE_KILL_ITEM,
-            "arch_name": "bone_skull",
-            "item_name": "Gwenty's Potion",
-            "parts": OrderedDict({
-                "get_hearts": {
-                    "message": "Just as you thought, Brownrott was very reluctant to mix his potion with yours, and has asked you to bring him 10 sword spider hearts first, which can be found by killing sword spiders below Fort Sether.",
-                    "type": QUEST_TYPE_KILL_ITEM,
-                    "arch_name": "bone_skull",
-                    "item_name": "sword spider's heart",
-                    "num": 10,
-                },
-            }),
-        },
-        "reward": {
-            "message": "After delivering the spider hearts to Brownrott, he mixed his potion with yours. You should report to Gwenty for a reward.",
-            "type": QUEST_TYPE_SPECIAL,
-        },
-    }),
-}
-
 EscapingDesertedIsland = {
     "quest_name": "Escaping the Deserted Island",
     "type": QUEST_TYPE_MULTI,
@@ -117,33 +81,6 @@ LairwennsNotes = {
     "arch_name": "note",
     "item_name": "Lairwenn's Notes",
     "message": "Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.",
-}
-
-LlwyfenPortal = {
-    "quest_name": "Portal of Llwyfen",
-    "type": QUEST_TYPE_MULTI,
-    "messages": "",
-    "parts": {
-        "portal found": {
-            "message": "You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.",
-            "type": QUEST_TYPE_SPECIAL,
-        },
-        "portal investigate": {
-            "message": "Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.",
-            "type": QUEST_TYPE_KILL_ITEM,
-            "arch_name": "llwyfen_portal_nyhelobo_note",
-            "item_name": "Letter from Nyhelobo to oty captain",
-        },
-        "speak captain": {
-            "message": "You have delivered the note you found in the passage beyond the portal in Underground City to Maplevale. After reading it, Maplevale told you to go speak to Talthor Redeye, the captain of the Brynknot guards, immediately.",
-            "type": QUEST_TYPE_SPECIAL,
-        },
-        "kill boss": {
-            "message": "Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.",
-            "type": QUEST_TYPE_KILL,
-            "num": 1,
-        },
-    },
 }
 
 TwoLoversDoomed = {
