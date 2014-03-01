@@ -294,6 +294,32 @@ START_TEST(test_string_newline_to_literal)
 }
 END_TEST
 
+START_TEST(test_string_get_word)
+{
+    char *cp, word[MAX_BUF];
+    size_t pos;
+
+    cp = strdup("hello world");
+    pos = 0;
+    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "hello") == 0, "Didn't get correct word.");
+    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "world") == 0, "Didn't get correct word.");
+    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    free(cp);
+
+    cp = strdup("/teleport 'Player Name'");
+    pos = 0;
+    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "/teleport") == 0, "Didn't get correct word.");
+    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), '\''), "Player Name") == 0, "Didn't get correct word.");
+    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    free(cp);
+
+    cp = strdup("");
+    pos = 0;
+    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -312,6 +338,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_whitespace_trim);
     tcase_add_test(tc_core, test_string_whitespace_squeeze);
     tcase_add_test(tc_core, test_string_newline_to_literal);
+    tcase_add_test(tc_core, test_string_get_word);
 
     return s;
 }
