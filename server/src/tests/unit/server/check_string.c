@@ -70,6 +70,36 @@ START_TEST(test_string_replace)
 }
 END_TEST
 
+START_TEST(test_string_replace_char)
+{
+    char *cp;
+
+    /* Attempt to replace "a", "e" and "o" characters with spaces. */
+    cp = strdup("hello world hello");
+    string_replace_char(cp, "aeo", ' ');
+    fail_unless(strcmp(cp, "h ll  w rld h ll ") == 0, "Replaced string does not match expected output.");
+    free(cp);
+
+    /* Attempt to replace any character with space. */
+    cp = strdup("hello world");
+    string_replace_char(cp, NULL, ' ');
+    fail_unless(strcmp(cp, "           ") == 0, "Replaced string does not match expected output.");
+    free(cp);
+
+    /* Replace newlines and tabs with spaces. */
+    cp = strdup("\thello\n\t\tworld\n");
+    string_replace_char(cp, "\n\t", ' ');
+    fail_unless(strcmp(cp, " hello   world ") == 0, "Replaced string does not match expected output.");
+    free(cp);
+
+    /* Replace forward-slashes with a dollar sign. */
+    cp = strdup("/shattered_islands/world_0112");
+    string_replace_char(cp, "/", '$');
+    fail_unless(strcmp(cp, "$shattered_islands$world_0112") == 0, "Replaced string does not match expected output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -79,6 +109,7 @@ static Suite *string_suite(void)
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_string_replace);
+    tcase_add_test(tc_core, test_string_replace_char);
 
     return s;
 }
