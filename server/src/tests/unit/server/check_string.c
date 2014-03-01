@@ -26,6 +26,50 @@
 #include <check.h>
 #include <check_proto.h>
 
+START_TEST(test_string_replace)
+{
+    char buf[MAX_BUF], buf2[6];
+
+    /* Check simple replacement */
+    string_replace("hello world", "world", "Earth", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "hello Earth") == 0, "Failed to replace 'world' with 'Earth' in string.");
+
+    /* Try to replace spaces with nothing */
+    string_replace("hello           world", " ", "", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "helloworld") == 0, "Failed to replace spaces with nothing.");
+
+    /* Make sure nothing is replaced when replacing "hello" with "world" in an
+     * empty string. */
+    string_replace("", "hello", "world", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "") == 0, "Empty string changed after replacing 'hello' with 'world'.");
+
+    /* Make sure nothing is replaced when replacing "hello" with "world" in a
+     * string that doesn't contain "hello". */
+    string_replace("hi world", "hello", "world", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "hi world") == 0, "String changed after replacing 'hello' with 'world' but 'hello' was not in string.");
+
+    /* Make sure that when both key and replacement are the same, the string
+     * remains the same. */
+    string_replace("hello world", "hello", "hello", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "hello world") == 0, "String changed after replacing 'hello' with 'hello'.");
+
+    /* Make sure that nothing changes when both key and replacement are an
+     * empty string. */
+    string_replace("hello world", "", "", buf, sizeof(buf));
+    fail_unless(strcmp(buf, "hello world") == 0, "String changed when both key and replacement were an empty string.");
+
+    /* Make sure buffer overflow doesn't happen when the buffer is not large
+     * enough. */
+    string_replace("hello world", "world", "Earth", buf2, sizeof(buf2));
+    fail_unless(strcmp(buf2, "hello") == 0, "Replaced string does not match expected output.");
+
+    /* Make sure buffer overflow doesn't happen when the buffer is not large
+     * enough, and a replacement occurs prior to reaching the buffer limit. */
+    string_replace("hello world", "hello", "", buf2, sizeof(buf2));
+    fail_unless(strcmp(buf2, " worl") == 0, "Replaced string does not match expected output.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -34,6 +78,7 @@ static Suite *string_suite(void)
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
+    tcase_add_test(tc_core, test_string_replace);
 
     return s;
 }
