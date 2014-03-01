@@ -517,6 +517,21 @@ START_TEST(test_string_isempty)
 }
 END_TEST
 
+START_TEST(test_string_iswhite)
+{
+    fail_unless(string_iswhite(NULL) == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("      ") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite(" ") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("\n\n  ") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("\n \n") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("\t\t\t") == 1, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("hello world") == 0, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("h i") == 0, "string_iswhite() didn't return correct value.");
+    fail_unless(string_iswhite("\thi\t") == 0, "string_iswhite() didn't return correct value.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -544,6 +559,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_endswith);
     tcase_add_test(tc_core, test_string_sub);
     tcase_add_test(tc_core, test_string_isempty);
+    tcase_add_test(tc_core, test_string_iswhite);
 
     return s;
 }
