@@ -389,6 +389,37 @@ START_TEST(test_string_capitalize)
 }
 END_TEST
 
+START_TEST(test_string_title)
+{
+    char *cp;
+
+    cp = strdup("hello world");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Hello World") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("Hello World");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Hello World") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("HELLO");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Hello") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("MiXeD CaSe");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Mixed Case") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("");
+    string_title(cp);
+    fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -411,6 +442,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_skip_word);
     tcase_add_test(tc_core, test_string_isdigit);
     tcase_add_test(tc_core, test_string_capitalize);
+    tcase_add_test(tc_core, test_string_title);
 
     return s;
 }
