@@ -579,6 +579,36 @@ START_TEST(test_string_create_char_range)
 }
 END_TEST
 
+START_TEST(test_string_join)
+{
+    char *cp;
+
+    cp = string_join(NULL, "hello", "world", NULL);
+    fail_unless(strcmp(cp, "helloworld") == 0, "string_join() didn't return correct result.");
+    free(cp);
+
+    cp = string_join(" ", "hello", "world", NULL);
+    fail_unless(strcmp(cp, "hello world") == 0, "string_join() didn't return correct result.");
+    free(cp);
+
+    cp = string_join(", ", "hello", "world", NULL);
+    fail_unless(strcmp(cp, "hello, world") == 0, "string_join() didn't return correct result.");
+    free(cp);
+
+    cp = string_join(NULL, "world", NULL);
+    fail_unless(strcmp(cp, "world") == 0, "string_join() didn't return correct result.");
+    free(cp);
+
+    cp = string_join("\n", "hello", NULL);
+    fail_unless(strcmp(cp, "hello") == 0, "string_join() didn't return correct result.");
+    free(cp);
+
+    cp = string_join("\n", "hello", "world", "hi", NULL);
+    fail_unless(strcmp(cp, "hello\nworld\nhi") == 0, "string_join() didn't return correct result.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -611,6 +641,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_contains);
     tcase_add_test(tc_core, test_string_contains_other);
     tcase_add_test(tc_core, test_string_create_char_range);
+    tcase_add_test(tc_core, test_string_join);
 
     return s;
 }
