@@ -442,7 +442,12 @@ void account_login_char(socket_struct *ns, char *name)
     }
 
     path = account_make_path(ns->account);
-    account_load(&account, path);
+
+    if (!account_load(&account, path)) {
+        free(path);
+        return;
+    }
+
     free(path);
 
     for (i = 0; i < account.characters_num; i++) {
