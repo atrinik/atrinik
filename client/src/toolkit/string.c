@@ -919,3 +919,61 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
 
     return result + len;
 }
+
+/**
+ * Converts unsigned char array into a hexadecimal char representation.
+ * @param str Unsigned char array.
+ * @param len Number of elements in 'str'.
+ * @param result Where to store the result.
+ * @param resultsize Size of 'result'.
+ * @return 'result'.
+ */
+char *string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize)
+{
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        if (i * 2 + 1 >= resultsize - 1) {
+            break;
+        }
+
+        sprintf(result + (i * 2), "%02X", str[i]);
+    }
+
+    result[i * 2] = '\0';
+
+    return result;
+}
+
+/**
+ * Does the reverse of string_tohex(), loading hexadecimal back into unsigned
+ * char.
+ * @param str String to load from.
+ * @param len Length of 'str'.
+ * @param result Where to store the result.
+ * @param resultsize Number of elements in 'result'.
+ * @return 'result'.
+ */
+unsigned char *string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize)
+{
+    size_t i, j;
+    unsigned char c, found;
+
+    for (found = 0, i = 0, j = 0; i < len && j < resultsize; i++) {
+        if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= '0' && str[i] <= '9')) {
+            c = (c << 4) | ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
+            found++;
+        }
+
+        if (found == 2) {
+            found = 0;
+            result[j++] = c;
+        }
+    }
+
+    for ( ; j < resultsize; j++) {
+        result[j] = 0;
+    }
+
+    return result;
+}
