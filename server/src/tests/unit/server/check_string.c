@@ -695,6 +695,29 @@ START_TEST(test_snprintfcat)
 }
 END_TEST
 
+START_TEST(test_string_tohex)
+{
+    char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
+    unsigned char cp[] = {0xff, 0x00, 0x03};
+
+    string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf));
+    fail_unless(strcmp(buf, "68656C6C6F20776F726C64") == 0, "string_tohex() didn't return correct result.");
+
+    string_tohex(cp, arraysize(cp), buf, sizeof(buf));
+    fail_unless(strcmp(buf, "FF0003") == 0, "string_tohex() didn't return correct result.");
+
+    /* Test buffer overflows. */
+    string_tohex(cp, arraysize(cp), buf2, sizeof(buf2));
+    fail_unless(strcmp(buf2, "FF00") == 0, "string_tohex() didn't return correct result.");
+
+    string_tohex(cp, arraysize(cp), buf3, sizeof(buf3));
+    fail_unless(strcmp(buf3, "FF00") == 0, "string_tohex() didn't return correct result.");
+
+    string_tohex(cp, arraysize(cp), buf4, sizeof(buf4));
+    fail_unless(strcmp(buf4, "FF0003") == 0, "string_tohex() didn't return correct result.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -731,6 +754,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_join_array);
     tcase_add_test(tc_core, test_string_repeat);
     tcase_add_test(tc_core, test_snprintfcat);
+    tcase_add_test(tc_core, test_string_tohex);
 
     return s;
 }
