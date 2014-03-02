@@ -34,12 +34,12 @@
 			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\random_maps" />
 			<Add directory="..\..\src\tests" />
-			<Add directory="include" />
+			<Add directory="share\include" />
 		</Compiler>
 		<Linker>
 			<Add library="mingw32" />
 			<Add library="wsock32" />
-			<Add directory="lib" />
+			<Add directory="share\lib" />
 			<Add option="-s" />
 			<Add library="curl" />
 			<Add library="zdll" />

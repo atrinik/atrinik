@@ -30,13 +30,13 @@
 			<Add directory="..\..\src\include" />
 			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\gui\toolkit\include" />
-			<Add directory="include" />
-			<Add directory="include\SDL" />
+			<Add directory="share\include" />
+			<Add directory="share\include\SDL" />
 		</Compiler>
 		<Linker>
 			<Add library="mingw32" />
 			<Add library="wsock32" />
-			<Add directory="lib" />
+			<Add directory="share\lib" />
 			<Add library="SDLmain" />
 			<Add library="SDL_image.dll" />
 			<Add library="SDL_mixer.dll" />
