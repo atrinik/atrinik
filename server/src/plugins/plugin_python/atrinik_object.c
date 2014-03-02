@@ -1620,6 +1620,10 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         return -1;
     }
 
+    if (field->offset == offsetof(object, type) && obj->obj->type == PLAYER) {
+        obj->obj->type = MONSTER;
+    }
+
     hooks->esrv_send_item(obj->obj);
 
     /* Special handling for some player stuff. */
