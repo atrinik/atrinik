@@ -1299,7 +1299,6 @@ extern int char_contains(const char c, const char *key);
 extern int string_contains(const char *str, const char *key);
 extern int string_contains_other(const char *str, const char *key);
 extern char *string_create_char_range(char start, char end);
-extern char *string_crypt(char *str, const char *salt);
 extern char *string_join(const char *delim, ...);
 extern char *string_join_array(const char *delim, char **array, size_t arraysize);
 extern char *string_repeat(const char *str, size_t num);
