@@ -383,7 +383,7 @@ def collect_quests():
                 val = quest.get(attr)
 
                 if val:
-                    quest_def[attr] = val
+                    quest_def[attr] = int(val)
 
             _make_interface(file, quest, npcs)
             _collect_parts(file, quest, quest_def, npcs)
