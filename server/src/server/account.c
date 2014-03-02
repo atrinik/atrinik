@@ -40,6 +40,8 @@ typedef struct account_struct
 
     unsigned char salt[ACCOUNT_PASSWORD_SIZE];
 
+    char *password_old;
+
     char *last_host;
 
     time_t last_time;
@@ -74,6 +76,10 @@ static void account_free(account_struct *account)
         free(account->last_host);
     }
 
+    if (account->password_old) {
+        free(account->password_old);
+    }
+
     for (i = 0; i < account->characters_num; i++) {
         free(account->characters[i].name);
     }
@@ -81,6 +87,69 @@ static void account_free(account_struct *account)
     if (account->characters) {
         free(account->characters);
     }
+}
+
+static char *account_old_crypt(char *str, const char *salt)
+{
+#if defined(HAVE_CRYPT)
+    return crypt(str, salt);
+#elif defined(WIN32)
+    HCRYPTPROV provider;
+    HCRYPTHASH hash;
+    DWORD resultlen = 0, i;
+    BYTE *result;
+    static char hashresult[HUGE_BUF];
+    char tmp[6];
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+        return str;
+    }
+
+    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    result = calloc(1, sizeof(BYTE) * resultlen);
+
+    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
+        free(result);
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    CryptDestroyHash(hash);
+    CryptReleaseContext(provider, 0);
+
+    hashresult[0] = '\0';
+
+    for (i = 0; i < resultlen; i++) {
+        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
+        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
+        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
+    }
+
+    free(result);
+
+    return hashresult;
+#else
+    return str;
+#endif
 }
 
 static void account_set_password(account_struct *account, const char *password)
@@ -98,6 +167,10 @@ static void account_set_password(account_struct *account, const char *password)
 static int account_check_password(account_struct *account, char *password)
 {
     unsigned char output[ACCOUNT_PASSWORD_SIZE];
+
+    if (account->password_old) {
+        return strcmp(account_old_crypt(password, account->password_old), account->password_old) == 0;
+    }
 
     PKCS5_PBKDF2_HMAC((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, output);
 
@@ -159,7 +232,14 @@ static int account_load(account_struct *account, const char *path)
         }
 
         if (strncmp(buf, "pswd ", 5) == 0) {
-            if (string_fromhex(buf + 5, strlen(buf + 5), account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+            size_t len;
+
+            len = strlen(buf + 5);
+
+            if (len == 13 || len == 40) {
+                account->password_old = strdup(buf + 5);
+            }
+            else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
                 memset(account->password, 0, sizeof(account->password));
             }
@@ -293,6 +373,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         }
 
         return;
+    }
+
+    if (account.password_old) {
+        account_set_password(&account, password);
     }
 
     ns->account = strdup(name);
