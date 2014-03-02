@@ -22,51 +22,43 @@
 * The author can be reached at admin@atrinik.org                        *
 ************************************************************************/
 
-/* This is the main file for unit tests. From here, we call all unit
- * test functions. */
-
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
 
-/*
- * Setup function. */
-void check_setup(void)
+START_TEST(test_PKCS5_PBKDF2_HMAC)
 {
-    init(0, NULL);
+    unsigned char result[32];
+    char hex[64 + 1];
+
+    PKCS5_PBKDF2_HMAC((unsigned char *) "Pa$$w0rd", strlen("Pa$$w0rd"), (unsigned char *) "xxx", strlen("xxx"), 4096, 32, result);
+
+    fail_unless(string_tohex(result, 32, hex, sizeof(hex)) == 64, "string_tohex() didn't return correct value.");
+    fail_unless(strcmp(hex, "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA") == 0, "PKCS5_PBKDF2_HMAC() didn't return correct result.");
+}
+END_TEST
+
+static Suite *pbkdf2_suite(void)
+{
+    Suite *s = suite_create("pbkdf2");
+    TCase *tc_core = tcase_create("Core");
+
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+
+    suite_add_tcase(s, tc_core);
+    tcase_add_test(tc_core, test_PKCS5_PBKDF2_HMAC);
+
+    return s;
 }
 
-/*
- * Cleanup function. */
-void check_teardown(void)
+void check_server_pbkdf2(void)
 {
-    cleanup();
-}
+    Suite *s = pbkdf2_suite();
+    SRunner *sr = srunner_create(s);
 
-/* The main unit test function. Calls other functions to do the unit
- * tests. */
-void check_main(void)
-{
-    toolkit_import(path);
-
-    path_ensure_directories("unit/bugs/");
-    path_ensure_directories("unit/commands/");
-    path_ensure_directories("unit/server/");
-
-    /* bugs */
-    check_bug_85();
-
-    /* unit/commands */
-    check_commands_object();
-
-    /* unit/server */
-    check_server_ban();
-    check_server_arch();
-    check_server_object();
-    check_server_pbkdf2();
-    check_server_re_cmp();
-    check_server_cache();
-    check_server_shstr();
-    check_server_string();
-    check_server_utils();
+    srunner_set_xml(sr, "unit/server/pbkdf2.xml");
+    srunner_set_log(sr, "unit/server/pbkdf2.out");
+    srunner_run_all(sr, CK_ENV);
+    srunner_ntests_failed(sr);
+    srunner_free(sr);
 }

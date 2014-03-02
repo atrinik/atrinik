@@ -111,6 +111,7 @@ if (CHECK_LIBRARY)
 		src/tests/unit/server/check_ban.c
 		src/tests/unit/server/check_cache.c
 		src/tests/unit/server/check_object.c
+        src/tests/unit/server/check_pbkdf2.c
 		src/tests/unit/server/check_re_cmp.c
 		src/tests/unit/server/check_shstr.c
         src/tests/unit/server/check_string.c

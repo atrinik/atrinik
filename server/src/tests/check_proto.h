@@ -15,6 +15,8 @@ extern void check_server_ban(void);
 extern void check_server_cache(void);
 /* src/tests/unit/server/check_object.c */
 extern void check_server_object(void);
+/* src/tests/unit/server/check_pbkdf2.c */
+extern void check_server_pbkdf2(void);
 /* src/tests/unit/server/check_re_cmp.c */
 extern void check_server_re_cmp(void);
 /* src/tests/unit/server/check_shstr.c */
