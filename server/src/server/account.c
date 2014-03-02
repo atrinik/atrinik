@@ -147,8 +147,7 @@ static int account_load(account_struct *account, const char *path)
         return 0;
     }
 
-    account->characters = NULL;
-    account->characters_num = 0;
+    memset(account, 0, sizeof(*account));
 
     while (fgets(buf, sizeof(buf), fp)) {
         end = strchr(buf, '\n');
