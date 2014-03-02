@@ -1243,6 +1243,8 @@ extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
+/* src/toolkit/pbkdf2.c */
+extern void PKCS5_PBKDF2_HMAC(unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
@@ -1302,6 +1304,8 @@ extern char *string_join(const char *delim, ...);
 extern char *string_join_array(const char *delim, char **array, size_t arraysize);
 extern char *string_repeat(const char *str, size_t num);
 extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+extern char *string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize);
+extern unsigned char *string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

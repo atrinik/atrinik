@@ -176,6 +176,7 @@
 		<Unit filename="..\..\src\toolkit\mempool.c" />
 		<Unit filename="..\..\src\toolkit\packet.c" />
 		<Unit filename="..\..\src\toolkit\path.c" />
+		<Unit filename="..\..\src\toolkit\pbkdf2.c" />
 		<Unit filename="..\..\src\toolkit\porting.c" />
 		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\shstr.c" />
