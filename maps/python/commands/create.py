@@ -38,6 +38,10 @@ def main():
                 pl.DrawInfo(str(err), COLOR_RED)
                 break
 
+        if obj.type == Type.PLAYER:
+            obj.type = Type.MONSTER
+            obj.f_monster = True
+
         if attribs:
             for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
                 if val.startswith('"') and val.endswith('"'):
@@ -54,7 +58,9 @@ def main():
                 if val == "None":
                     val = None
 
-                if hasattr(obj, attrib):
+                if attrib == "type" and val == Type.PLAYER:
+                    pass
+                elif hasattr(obj, attrib):
                     setattr(obj, attrib, val)
                 elif hasattr(obj, "f_" + attrib):
                     setattr(obj, "f_" + attrib, True if val else False)
