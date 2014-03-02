@@ -58,9 +58,7 @@ def main():
                 if val == "None":
                     val = None
 
-                if attrib == "type" and val == Type.PLAYER:
-                    pass
-                elif hasattr(obj, attrib):
+                if hasattr(obj, attrib):
                     setattr(obj, attrib, val)
                 elif hasattr(obj, "f_" + attrib):
                     setattr(obj, "f_" + attrib, True if val else False)
