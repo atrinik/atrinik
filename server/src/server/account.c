@@ -70,7 +70,9 @@ static void account_free(account_struct *account)
 {
     size_t i;
 
-    free(account->last_host);
+    if (account->last_host) {
+        free(account->last_host);
+    }
 
     for (i = 0; i < account->characters_num; i++) {
         free(account->characters[i].name);
