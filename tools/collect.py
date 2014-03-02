@@ -143,8 +143,9 @@ def _collect_parts(file, parent, definition, npcs):
             if elem is not None:
                 part_def[attr] = elem.attrib
 
-                if "nrof" in part_def[attr]:
-                    part_def[attr]["nrof"] = int(part_def[attr]["nrof"])
+                for attr2 in ["nrof", "keep"]:
+                    if attr2 in part_def[attr]:
+                        part_def[attr][attr2] = int(part_def[attr][attr2])
 
         definition["parts"][uid] = part_def
         _collect_parts(file, part, definition["parts"][uid], npcs)
