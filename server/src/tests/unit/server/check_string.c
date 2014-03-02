@@ -609,6 +609,44 @@ START_TEST(test_string_join)
 }
 END_TEST
 
+START_TEST(test_string_join_array)
+{
+    char *cp;
+    char *cps[] = {"hello", "world"};
+    char *cps2[] = {"hello"};
+    char *cps3[] = {"hello", "world", "hi"};
+    char *cps4[] = {"hello", NULL, "world"};
+
+    cp = string_join_array(NULL, cps, arraysize(cps));
+    fail_unless(strcmp(cp, "helloworld") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array(" ", cps, arraysize(cps));
+    fail_unless(strcmp(cp, "hello world") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array(", ", cps, arraysize(cps));
+    fail_unless(strcmp(cp, "hello, world") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array(NULL, cps2, arraysize(cps2));
+    fail_unless(strcmp(cp, "hello") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array("\n", cps2, arraysize(cps2));
+    fail_unless(strcmp(cp, "hello") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array("\n", cps3, arraysize(cps3));
+    fail_unless(strcmp(cp, "hello\nworld\nhi") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+
+    cp = string_join_array("\n", cps4, arraysize(cps4));
+    fail_unless(strcmp(cp, "hello\nworld") == 0, "string_join_array() didn't return correct result.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -642,6 +680,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_contains_other);
     tcase_add_test(tc_core, test_string_create_char_range);
     tcase_add_test(tc_core, test_string_join);
+    tcase_add_test(tc_core, test_string_join_array);
 
     return s;
 }
