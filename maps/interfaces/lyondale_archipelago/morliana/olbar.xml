@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Greetings {activator.name}. I am {npc.name}, the head researcher.</message>
+            <message>Most assistants are with Albar in the eastern wing doing experiments on the Great Blue Crystal shard. I am currently researching the cave south of the town.</message>
+            <response message="Tell me more about the cave." destination="tellmore" />
+        </dialog>
+        <dialog name="tellmore">
+            <message>The cave is said to open each year when the Season of the Blizzard starts, and closes again when the season ends. The rumor is that some creature called Hierro lurks inside, but that's probably just a myth.</message>
+        </dialog>
+    </interface>
+</root>
