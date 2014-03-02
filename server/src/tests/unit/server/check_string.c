@@ -700,20 +700,20 @@ START_TEST(test_string_tohex)
     char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
     unsigned char cp[] = {0xff, 0x00, 0x03};
 
-    string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf));
+    fail_unless(string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf)) == strlen("68656C6C6F20776F726C64"), "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf, "68656C6C6F20776F726C64") == 0, "string_tohex() didn't return correct result.");
 
-    string_tohex(cp, arraysize(cp), buf, sizeof(buf));
+    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf)) == 6, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf, "FF0003") == 0, "string_tohex() didn't return correct result.");
 
     /* Test buffer overflows. */
-    string_tohex(cp, arraysize(cp), buf2, sizeof(buf2));
+    fail_unless(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2)) == 4, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf2, "FF00") == 0, "string_tohex() didn't return correct result.");
 
-    string_tohex(cp, arraysize(cp), buf3, sizeof(buf3));
+    fail_unless(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3)) == 4, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf3, "FF00") == 0, "string_tohex() didn't return correct result.");
 
-    string_tohex(cp, arraysize(cp), buf4, sizeof(buf4));
+    fail_unless(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4)) == 6, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf4, "FF0003") == 0, "string_tohex() didn't return correct result.");
 }
 END_TEST
@@ -722,16 +722,16 @@ START_TEST(test_string_fromhex)
 {
     unsigned char buf[MAX_BUF], buf2[2];
 
-    string_fromhex("FF03", strlen("FF03"), buf, arraysize(buf));
+    fail_unless(string_fromhex("FF03", strlen("FF03"), buf, arraysize(buf)) == 2, "string_fromhex() didn't return correct value.");
     fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
 
-    string_fromhex("FF       03", strlen("FF       03"), buf, arraysize(buf));
+    fail_unless(string_fromhex("FF       03", strlen("FF       03"), buf, arraysize(buf)) == 2, "string_fromhex() didn't return correct value.");
     fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
 
-    string_fromhex("FF3", strlen("FF3"), buf, arraysize(buf));
-    fail_unless(buf[0] == 0xFF && buf[1] == 0x00, "string_fromhex() didn't return correct result.");
+    fail_unless(string_fromhex("FF3", strlen("FF3"), buf, arraysize(buf)) == 1, "string_fromhex() didn't return correct value.");
+    fail_unless(buf[0] == 0xFF, "string_fromhex() didn't return correct result.");
 
-    string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2));
+    fail_unless(string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2)) == 2, "string_fromhex() didn't return correct value.");
     fail_unless(buf2[0] == 0xFF && buf2[1] == 0x03, "string_fromhex() didn't return correct result.");
 }
 END_TEST
