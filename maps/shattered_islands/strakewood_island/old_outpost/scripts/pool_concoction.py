@@ -1,42 +1,37 @@
 ## @file
 ## Script for concoction pools in Old Outpost.
 
-from QuestManager import QuestManagerMulti
-from Quests import GandyldsManaCrystal as quest
+from QuestManager import QuestManager
+from InterfaceQuests import gandyld_mana_crystal
 
-location = GetOptions()
-qm = QuestManagerMulti(activator, quest)
+options = GetOptions()
+qm = QuestManager(activator, gandyld_mana_crystal)
 
-def crystal_exchange(arch1, arch2):
-    old = activator.FindObject(archname = arch1)
-    new = activator.CreateObject(arch2)
-    # Preserve number of spell points.
-    new.sp = old.sp
-    # Remove old one.
-    old.Remove()
+def main():
+    if not qm.need_finish(options):
+        return
 
-# Flash of light effect.
-def flash_light():
+    SetReturnValue(1)
+
     obj = activator.map.CreateObject("light9", activator.x, activator.y)
     obj.speed = 0.5
     obj.f_is_used_up = True
     obj.food = 1
 
-def main():
-    if location == "lab":
-        if qm.need_finish("enhance crystal alchemists"):
-            crystal_exchange("gandyld_crystal_1", "gandyld_crystal_2")
-            pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of light occurs, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", COLOR_YELLOW)
-            flash_light()
-            activator.Controller().Sound("learnspell.ogg")
-            SetReturnValue(1)
+    old = activator.FindObject(name = gandyld_mana_crystal["parts"][options]["item"]["name"])
+    new = activator.CreateObject(gandyld_mana_crystal["parts"][options]["item"]["arch"])
 
-    elif location == "lab_rhun":
-        if qm.need_finish("enhance crystal rhun"):
-            crystal_exchange("gandyld_crystal_2", "gandyld_crystal_3")
-            pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of bright light occurs, followed by a loud crackling noise, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", COLOR_YELLOW)
-            flash_light()
-            activator.Controller().Sound("magic_elec.ogg")
-            SetReturnValue(1)
+    # If the old mana crystal exists, preserve number of spell points the
+    # player may have stored inside it, then destroy it.
+    if old:
+        new.sp = old.sp
+        old.Destroy()
+
+    if options == "enhance_crystal_alchemists":
+        pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of light occurs, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", color = COLOR_YELLOW)
+        activator.Controller().Sound("learnspell.ogg")
+    elif options == "enhance_crystal_rhun":
+        pl.DrawInfo("\nYou dip the mana crystal into the pool. A flash of bright light occurs, followed by a loud crackling noise, and the crystal seems to be glowing even brighter than before... Perhaps you should report to Gandyld.", color = COLOR_YELLOW)
+        activator.Controller().Sound("magic_elec.ogg")
 
 main()
