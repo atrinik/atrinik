@@ -718,6 +718,24 @@ START_TEST(test_string_tohex)
 }
 END_TEST
 
+START_TEST(test_string_fromhex)
+{
+    unsigned char buf[MAX_BUF], buf2[2];
+
+    string_fromhex("FF03", strlen("FF03"), buf, arraysize(buf));
+    fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
+
+    string_fromhex("FF       03", strlen("FF       03"), buf, arraysize(buf));
+    fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
+
+    string_fromhex("FF3", strlen("FF3"), buf, arraysize(buf));
+    fail_unless(buf[0] == 0xFF && buf[1] == 0x00, "string_fromhex() didn't return correct result.");
+
+    string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2));
+    fail_unless(buf2[0] == 0xFF && buf2[1] == 0x03, "string_fromhex() didn't return correct result.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -755,6 +773,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_repeat);
     tcase_add_test(tc_core, test_snprintfcat);
     tcase_add_test(tc_core, test_string_tohex);
+    tcase_add_test(tc_core, test_string_fromhex);
 
     return s;
 }
