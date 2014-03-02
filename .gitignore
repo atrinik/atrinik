@@ -14,8 +14,6 @@ server/data
 server/lib
 editor/*.conf
 tools/map-checker/config.cfg
-codeblocks.txt
-visualc*.txt
 logfile.log
 server/unit/**/*.out
 server/unit/**/*.xml
@@ -27,12 +25,6 @@ config-custom.cfg
 permissions-custom.cfg
 *.jar
 *.tar.gz
-*.mp3
-*.ogg
-*.s3m
-*.mod
-*.xm
-*.mid
 client/sound
 arch/dev/editor/pickmaps/*/*
 maps/interfaces/**/*.py
@@ -63,7 +55,8 @@ build.user
 .directory
 
 # Win32
-Thumbs.db
+codeblocks.txt
+visualc*.txt
 desktop.ini
 *.exe
 client/stdout.txt
@@ -72,13 +65,12 @@ client/stderr.txt
 *.depend
 .objs
 Release
+Debug
 pthread.h
 sched.h
 semaphore.h
 *.dll
 *.layout
-**/CodeBlocks/bin
-**/CodeBlocks/include
-**/CodeBlocks/lib
+**/CodeBlocks/share
 client/timidity/
 client/timidity.cfg
