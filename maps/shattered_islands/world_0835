@@ -493,7 +493,7 @@ level 18
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/asteria/princess_helena.py
+race /interfaces/strakewood_island/asteria/princess_helena.xml
 end
 end
 end
