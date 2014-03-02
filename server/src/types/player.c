@@ -2263,6 +2263,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
         player_create(pl, path, at, name);
     }
 
+    pl->ob->type = PLAYER;
     pl->ob->custom_attrset = pl;
     pl->ob->speed_left = 0.5;
 
