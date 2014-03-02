@@ -30,9 +30,15 @@
 
 #include <global.h>
 
+#define ACCOUNT_CHARACTERS_LIMIT 16
+#define ACCOUNT_PASSWORD_SIZE 32
+#define ACCOUNT_PASSWORD_ITERATIONS 4096
+
 typedef struct account_struct
 {
-    char *password;
+    unsigned char password[ACCOUNT_PASSWORD_SIZE];
+
+    unsigned char salt[ACCOUNT_PASSWORD_SIZE];
 
     char *last_host;
 
@@ -52,8 +58,6 @@ typedef struct account_struct
     size_t characters_num;
 } account_struct;
 
-#define ACCOUNT_CHARACTERS_LIMIT 16
-
 void account_init(void)
 {
 }
@@ -66,7 +70,6 @@ static void account_free(account_struct *account)
 {
     size_t i;
 
-    free(account->password);
     free(account->last_host);
 
     for (i = 0; i < account->characters_num; i++) {
@@ -78,9 +81,31 @@ static void account_free(account_struct *account)
     }
 }
 
+static void account_set_password(account_struct *account, const char *password)
+{
+    size_t i;
+
+    /* Create a truly random 256-bit salt. */
+    for (i = 0; i < ACCOUNT_PASSWORD_SIZE; i++) {
+        account->salt[i] = rndm(1, 256) - 1;
+    }
+
+    PKCS5_PBKDF2_HMAC((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, account->password);
+}
+
+static int account_check_password(account_struct *account, char *password)
+{
+    unsigned char output[ACCOUNT_PASSWORD_SIZE];
+
+    PKCS5_PBKDF2_HMAC((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, output);
+
+    return memcmp(account->password, output, sizeof(output)) == 0;
+}
+
 static int account_save(account_struct *account, const char *path)
 {
     FILE *fp;
+    char hex[ACCOUNT_PASSWORD_SIZE * 2 + 1];
     size_t i;
 
     fp = fopen(path, "w");
@@ -90,7 +115,8 @@ static int account_save(account_struct *account, const char *path)
         return 0;
     }
 
-    fprintf(fp, "pswd %s\n", account->password);
+    fprintf(fp, "pswd %s\n", string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, arraysize(hex)));
+    fprintf(fp, "salt %s\n", string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, arraysize(hex)));
     fprintf(fp, "host %s\n", account->last_host);
     fprintf(fp, "time %"FMT64U "\n", (uint64) account->last_time);
 
@@ -126,7 +152,10 @@ static int account_load(account_struct *account, const char *path)
         }
 
         if (strncmp(buf, "pswd ", 5) == 0) {
-            account->password = strdup(buf + 5);
+            string_fromhex(buf + 5, strlen(buf + 5), account->password, ACCOUNT_PASSWORD_SIZE);
+        }
+        else if (strncmp(buf, "salt ", 5) == 0) {
+            string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE);
         }
         else if (strncmp(buf, "host ", 5) == 0) {
             account->last_host = strdup(buf + 5);
@@ -235,7 +264,7 @@ void account_login(socket_struct *ns, char *name, char *password)
         return;
     }
 
-    if (strcmp(string_crypt(password, account.password), account.password) != 0) {
+    if (!account_check_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_send_characters(ns, NULL);
         account_free(&account);
@@ -307,7 +336,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     path_ensure_directories(path);
 
-    account.password = string_crypt(password, NULL);
+    account_set_password(&account, password);
     account.last_host = ns->host;
     account.last_time = datetime_getutc();
     account.characters = NULL;
@@ -496,15 +525,14 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
         return;
     }
 
-    if (strcmp(string_crypt(password, account.password), account.password) != 0) {
+    if (!account_check_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_free(&account);
         free(path);
         return;
     }
 
-    free(account.password);
-    account.password = strdup(string_crypt(password_new, NULL));
+    account_set_password(&account, password_new);
 
     if (account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");
