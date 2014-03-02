@@ -1593,6 +1593,7 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
 {
     fields_struct *field = (fields_struct *) context;
+    int ret;
 
     OBJEXISTCHECK_INT(obj);
 
@@ -1600,7 +1601,22 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         INTRAISE("Trying to modify a field that is read-only for player objects.");
     }
 
-    if (generic_field_setter(field, obj->obj, value) == -1) {
+    if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer))) {
+        hooks->object_remove(obj->obj, 0);
+    }
+
+    ret = generic_field_setter(field, obj->obj, value);
+
+    if (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer)) {
+        obj->obj->layer = MAX(0, MIN(NUM_LAYERS, obj->obj->layer));
+        obj->obj->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer));
+
+        if (obj->obj->map != NULL) {
+            hooks->insert_ob_in_map(obj->obj, obj->obj->map, NULL, 0);
+        }
+    }
+
+    if (ret == -1) {
         return -1;
     }
 
