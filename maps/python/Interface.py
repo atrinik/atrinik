@@ -199,6 +199,9 @@ class InterfaceBuilder(Interface):
     def set_quest(self, qm):
         self.qm = qm
 
+    def precond(self):
+        return True
+
     def dialog(self, msg):
         pass
 
@@ -220,6 +223,10 @@ class InterfaceBuilder(Interface):
 
         c = self.locals[self.dialog](self._activator, self._npc)
         c.set_quest(self.qm)
+
+        if not c.precond():
+            Interface.finish(c)
+            return
 
         for expr, callback in c.matchers:
             if re.match(expr, msg):
