@@ -115,8 +115,14 @@ static int account_save(account_struct *account, const char *path)
         return 0;
     }
 
-    fprintf(fp, "pswd %s\n", string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, arraysize(hex)));
-    fprintf(fp, "salt %s\n", string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, arraysize(hex)));
+    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+        fprintf(fp, "pswd %s\n", hex);
+    }
+
+    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+        fprintf(fp, "salt %s\n", hex);
+    }
+
     fprintf(fp, "host %s\n", account->last_host);
     fprintf(fp, "time %"FMT64U "\n", (uint64) account->last_time);
 
@@ -152,10 +158,16 @@ static int account_load(account_struct *account, const char *path)
         }
 
         if (strncmp(buf, "pswd ", 5) == 0) {
-            string_fromhex(buf + 5, strlen(buf + 5), account->password, ACCOUNT_PASSWORD_SIZE);
+            if (string_fromhex(buf + 5, strlen(buf + 5), account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+                logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
+                memset(account->password, 0, sizeof(account->password));
+            }
         }
         else if (strncmp(buf, "salt ", 5) == 0) {
-            string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE);
+            if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+                logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
+                memset(account->salt, 0, sizeof(account->salt));
+            }
         }
         else if (strncmp(buf, "host ", 5) == 0) {
             account->last_host = strdup(buf + 5);

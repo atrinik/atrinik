@@ -842,9 +842,9 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
  * @param len Number of elements in 'str'.
  * @param result Where to store the result.
  * @param resultsize Size of 'result'.
- * @return 'result'.
+ * @return Number of characters written into 'result'.
  */
-char *string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize)
+size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize)
 {
     size_t i;
 
@@ -858,7 +858,7 @@ char *string_tohex(const unsigned char *str, size_t len, char *result, size_t re
 
     result[i * 2] = '\0';
 
-    return result;
+    return i * 2;
 }
 
 /**
@@ -868,9 +868,9 @@ char *string_tohex(const unsigned char *str, size_t len, char *result, size_t re
  * @param len Length of 'str'.
  * @param result Where to store the result.
  * @param resultsize Number of elements in 'result'.
- * @return 'result'.
+ * @return How many elements have been filled into 'result'.
  */
-unsigned char *string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize)
+size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize)
 {
     size_t i, j;
     unsigned char c, found;
@@ -887,9 +887,5 @@ unsigned char *string_fromhex(char *str, size_t len, unsigned char *result, size
         }
     }
 
-    for ( ; j < resultsize; j++) {
-        result[j] = 0;
-    }
-
-    return result;
+    return j;
 }
