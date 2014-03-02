@@ -665,6 +665,36 @@ START_TEST(test_string_repeat)
 }
 END_TEST
 
+START_TEST(test_snprintfcat)
+{
+    char buf[MAX_BUF], buf2[8];
+
+    snprintf(buf, sizeof(buf), "%s", "hello");
+    fail_unless(snprintfcat(buf, sizeof(buf), " %s", "world") == 11, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf, "hello world") == 0, "snprintfcat() didn't return correct result.");
+
+    snprintf(buf, sizeof(buf), "%s %d", "hello", 10);
+    fail_unless(snprintfcat(buf, sizeof(buf), " %s", "world") == 14, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf, "hello 10 world") == 0, "snprintfcat() didn't return correct result.");
+
+    snprintf(buf, sizeof(buf), "%s", "hello");
+    fail_unless(snprintfcat(buf, sizeof(buf), "%s", "") == 5, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf, "hello") == 0, "snprintfcat() didn't return correct result.");
+
+    snprintf(buf2, sizeof(buf2), "%s", "hello");
+    fail_unless(snprintfcat(buf2, sizeof(buf2), " %s", "world") == 11, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf2, "hello w") == 0, "snprintfcat() didn't return correct result.");
+
+    snprintf(buf2, sizeof(buf2), "%s", "testing");
+    fail_unless(snprintfcat(buf2, sizeof(buf2), "%s", "world") == 12, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf2, "testing") == 0, "snprintfcat() didn't return correct result.");
+
+    snprintf(buf2, sizeof(buf2), "%s", "testing");
+    fail_unless(snprintfcat(buf2, sizeof(buf2), " %s", "world") == 13, "snprintfcat() didn't return correct value.");
+    fail_unless(strcmp(buf2, "testing") == 0, "snprintfcat() didn't return correct result.");
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -700,6 +730,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_join);
     tcase_add_test(tc_core, test_string_join_array);
     tcase_add_test(tc_core, test_string_repeat);
+    tcase_add_test(tc_core, test_snprintfcat);
 
     return s;
 }
