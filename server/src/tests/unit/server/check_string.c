@@ -647,6 +647,24 @@ START_TEST(test_string_join_array)
 }
 END_TEST
 
+START_TEST(test_string_repeat)
+{
+    char *cp;
+
+    cp = string_repeat("hello", 5);
+    fail_unless(strcmp(cp, "hellohellohellohellohello") == 0, "string_repeat() didn't return correct result.");
+    free(cp);
+
+    cp = string_repeat("hello", 1);
+    fail_unless(strcmp(cp, "hello") == 0, "string_repeat() didn't return correct result.");
+    free(cp);
+
+    cp = string_repeat("hello", 0);
+    fail_unless(strcmp(cp, "") == 0, "string_repeat() didn't return correct result.");
+    free(cp);
+}
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -681,6 +699,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_string_create_char_range);
     tcase_add_test(tc_core, test_string_join);
     tcase_add_test(tc_core, test_string_join_array);
+    tcase_add_test(tc_core, test_string_repeat);
 
     return s;
 }
