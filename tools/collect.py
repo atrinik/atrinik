@@ -266,36 +266,34 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
                 elif elem.tag == "inherit":
                     class_code += dialog_inherit_code
+                elif elem.tag == "response":
+                    message = elem.get("message")
+                    link_args = ""
 
-            for response in dialog.findall("response"):
-                message = response.get("message")
-                link_args = ""
+                    for attr, attr2 in [("destination", "dest"), ("action", "action")]:
+                        val = elem.get(attr)
 
-                for attr, attr2 in [("destination", "dest"), ("action", "action")]:
-                    val = response.get(attr)
+                        if val:
+                            link_args += ", {attr2} = \"{val}\"".format(**locals())
 
-                    if val:
-                        link_args += ", {attr2} = \"{val}\"".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+                elif elem.tag == "action":
+                    if elem.text:
+                        for line in elem.text.split("\n"):
+                            class_code += " " * 4 * 2 + line.rstrip() + "\n"
 
-                class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+                    for attr in ["start", "complete"]:
+                        val = elem.get(attr)
 
-            for action in dialog.findall("action"):
-                if action.text:
-                    for line in action.text.split("\n"):
-                        class_code += " " * 4 * 2 + line.rstrip() + "\n"
+                        if val:
+                            split = val.split("::")
 
-                for attr in ["start", "complete"]:
-                    val = action.get(attr)
+                            if len(split) > 1:
+                                val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
+                            else:
+                                val = "\"{}\"".format(val)
 
-                    if val:
-                        split = val.split("::")
-
-                        if len(split) > 1:
-                            val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
-                        else:
-                            val = "\"{}\"".format(val)
-
-                        class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+                            class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
 
         matchers_code = ""
 
