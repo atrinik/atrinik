@@ -58,7 +58,8 @@
             </interface>
 
             <interface npc="Rienn Howell" state="need_complete" inherit="">
-                <dialog name="hello" inherit_process="start">
+                <dialog name="hello">
+                    <inherit />
                     <response message="Here, take this letter from your husband..." destination="takeletter" />
                 </dialog>
                 <dialog name="takeletter">

@@ -31,7 +31,8 @@
             <message>You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.</message>
 
             <interface npc="Maplevale" state="need_complete" inherit="">
-                <dialog name="hello" inherit_process="start">
+                <dialog name="hello">
+                    <inherit />
                     <response message="I have found a portal sealed by the powers of Llwyfen." destination="sealedportal" />
                 </dialog>
                 <dialog name="sealedportal">

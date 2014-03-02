@@ -93,7 +93,8 @@
             </interface>
 
             <interface npc="Brownrott" state="need_complete" inherit="">
-                <dialog name="whynot" inherit_process="start">
+                <dialog name="whynot">
+                    <inherit />
                     <message color="yellow">Perhaps you should report your findings to Gwenty...</message>
                     <action start="report" />
                     <action complete="figure" />
@@ -135,7 +136,8 @@
             </interface>
 
             <interface npc="Gwenty" state="need_finish" inherit="need_complete_deliver_potion">
-                <dialog name="hello" inherit_process="start">
+                <dialog name="hello">
+                    <inherit />
                     <response message="I lost the potion you gave me..." destination="lost" />
                 </dialog>
                 <dialog name="lost">
