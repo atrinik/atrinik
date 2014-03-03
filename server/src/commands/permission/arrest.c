@@ -37,7 +37,7 @@ void command_arrest(object *op, const char *command, char *params)
     player *pl;
 
     if (!params) {
-        draw_info(COLOR_WHITE, op, "Usage: /arrest <player>");
+        draw_info(COLOR_WHITE, op, "Usage: /arrest &lt;player&gt;");
         return;
     }
 
