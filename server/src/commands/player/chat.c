@@ -34,7 +34,7 @@
 void command_chat(object *op, const char *command, char *params)
 {
     if (CONTR(op)->no_chat) {
-        draw_info(COLOR_WHITE, op, "You are no longer allowed to shout.");
+        draw_info(COLOR_WHITE, op, "You are no longer allowed to chat.");
         return;
     }
 
