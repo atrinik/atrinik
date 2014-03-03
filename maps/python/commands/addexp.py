@@ -2,13 +2,14 @@
 ## Implements the /addexp command.
 
 import re
+from Markup import markup_escape
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+)) ((?:\")?([^\d]+)(?:\")?|(\d+)) (-?\d+)( (?:level|lvl)(?:s)?)?", WhatIsMessage() or "")
 
     if not match:
         activator.Controller().DrawInfo(
-            "Usage: /addexp &lt;[\"]player name[\"]&gt; &lt;skill number|skill name&gt; &lt;experience|levels&gt; ['levels']\n"
+            markup_escape("Usage: /addexp <[\"]player name[\"]> &lt;skill number|skill name&gt; <experience|levels> ['levels']\n") +
             "Examples:\n"
             "<b>/addexp Dummy slash weapons 125</b> - adds 125 exp to slash weapons of 'Dummy'\n"
             "<b>/addexp Dummy wizardry spells 100 levels</b> - adds 100 levels to wizardry spells of 'Dummy'\n"
