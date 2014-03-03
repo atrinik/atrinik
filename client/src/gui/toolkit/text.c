@@ -1023,7 +1023,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
             }
         }
-        else if (tag_len == 1 && strncmp(tag, "title", tag_len) == 0) {
+        else if (tag_len == 5 && strncmp(tag, "title", tag_len) == 0) {
             if (!(flags & TEXT_NO_FONT_CHANGE)) {
                 if (surface || info->obscured) {
                     *font = FONT_SERIF14;
