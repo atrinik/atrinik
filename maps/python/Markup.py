@@ -5,6 +5,8 @@ from Atrinik import *
 
 ## The markup escape table.
 _markup_escape_table = {
+    "]": "&rsqb;",
+    "[": "&lsqb;",
     ">": "&gt;",
     "<": "&lt;",
 }
