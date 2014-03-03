@@ -3,13 +3,14 @@
 
 import re
 from Interface import Interface
+from Markup import markup_escape
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+))( (removeall|(add|remove) ([^ ]+)|add))?", msg)
 
     if not match:
         activator.Controller().DrawInfo(
-            "Usage: /cmd_permission &lt;[\"]player name[\"]&gt;",
+            markup_escape("Usage: /cmd_permission <[\"]player name[\"]>"),
             color = COLOR_WHITE
         )
         return
