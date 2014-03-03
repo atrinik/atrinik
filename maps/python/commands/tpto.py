@@ -2,13 +2,14 @@
 ## Implements the /tpto command.
 
 import re
+from Markup import markup_escape
 
 def main():
     match = re.match(r"([^ ]+)(?: (\d+))?(?: (\d+))?(?: (unique)(?:\:((?:\")(.+)(?:\")|([^ ]+)))?)?", WhatIsMessage() or "")
 
     if not match:
         activator.Controller().DrawInfo(
-            "Usage: /tpto &lt;path&gt; [x] [y] ['unique'[':'[\"]player name[\"]]]\n"
+            markup_escape("Usage: /tpto <path> [x] [y] ['unique'[':'[\"]player name[\"]]]\n") +
             "Examples:\n"
             "<b>/tpto /shattered_islands/world_0110</b> - teleports to world_0110, at default map enter x/y\n"
             "<b>/tpto world_0505</b> - teleports to world_0505 map, relative to the map path you're at\n"
