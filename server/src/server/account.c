@@ -101,8 +101,6 @@ static char *account_old_crypt(char *str, const char *salt)
     static char hashresult[HUGE_BUF];
     char tmp[6];
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
     if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
         return str;
     }
