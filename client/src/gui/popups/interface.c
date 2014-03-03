@@ -527,7 +527,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
             stringbuffer_append_string(sb_message, "\n");
 
             if (i < char_shortcuts_len) {
-                stringbuffer_append_printf(sb_message, "<c=#AF7817>[%c]</c> ", character_shortcuts[i]);
+                stringbuffer_append_printf(sb_message, "<c=#AF7817>&lsqb;%c&rsqb;</c> ", character_shortcuts[i]);
             }
 
             stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
