@@ -14,9 +14,9 @@
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<ExtraCommands>
-					<Add before="..\tools\flex.exe -i -Pyy_object -o..\..\src\loaders\object.c  ..\..\src\loaders\object.l" />
-					<Add before="..\tools\flex.exe -i -Pyy_random_map -o..\..\src\loaders\random_map.c  ..\..\src\loaders\random_map.l" />
-					<Add before="..\tools\flex.exe -i -Pyy_map_header -o..\..\src\loaders\map_header.c  ..\..\src\loaders\map_header.l" />
+					<Add before="flex.exe -i -Pyy_object -o..\..\src\loaders\object.c  ..\..\src\loaders\object.l" />
+					<Add before="flex.exe -i -Pyy_random_map -o..\..\src\loaders\random_map.c  ..\..\src\loaders\random_map.l" />
+					<Add before="flex.exe -i -Pyy_map_header -o..\..\src\loaders\map_header.c  ..\..\src\loaders\map_header.l" />
 				</ExtraCommands>
 			</Target>
 		</Build>
