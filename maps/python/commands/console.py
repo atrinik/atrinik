@@ -47,14 +47,14 @@ def py_console_thread():
         if msg:
             inf.set_icon(activator.face[0])
             inf.set_title(activator.name + "'s Python Console")
-            inf.add_msg("<font=mono 12>" + msg + "</font>")
+            inf.add_msg("[font=mono 12]" + msg + "[/font]")
         else:
             inf.restore()
 
         inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True, autocomplete = "noinf::ac::", text = autocomplete if autocomplete else "")
 
         if append_text:
-            inf.set_append_text("<font=mono 12>\n" + append_text + "</font>")
+            inf.set_append_text("[font=mono 12]\n" + append_text + "[/font]")
 
         inf.finish()
 

@@ -580,9 +580,9 @@ static const char *get_playername_color(object *pl, object *op)
 
 void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
 {
-    packet_append_string(packet, "[b]<o=0,0,0>");
+    packet_append_string(packet, "[b][o=#000000]");
     packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
-    packet_append_string_terminated(packet, "</o>[/b]");
+    packet_append_string_terminated(packet, "[/o][/b]");
 }
 
 void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
@@ -1167,7 +1167,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
     }
 
     sb = stringbuffer_new();
-    stringbuffer_append_string(sb, "<book=Quest List>[title]Incomplete quests:[/title]\n");
+    stringbuffer_append_string(sb, "[book]Quest List[/book][title]Incomplete quests:[/title]\n");
 
     /* First show incomplete quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
@@ -1195,7 +1195,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
 
             switch (tmp2->sub_type) {
                 case QUEST_TYPE_KILL:
-                    stringbuffer_append_printf(sb, "\n<x=10>Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
+                    stringbuffer_append_printf(sb, "\n[x=10]Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
                     break;
             }
         }

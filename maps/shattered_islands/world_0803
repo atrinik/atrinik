@@ -2,7 +2,7 @@ arch map
 name Clearhaven
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-11-10 Alex Tokar
+Modified: 2014-03-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -24,7 +24,7 @@ arch water_lt2
 end
 arch client_map_info
 msg
-<font=serif.ttf 24>Eld Woods Island</font>
+[font=serif.ttf 24]Eld Woods Island[/font]
 endmsg
 name eld_woods_island
 sub_type 1

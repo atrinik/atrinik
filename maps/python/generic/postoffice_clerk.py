@@ -52,7 +52,7 @@ def main():
             inf.add_msg("The following items have been sent to you:\n", newline = False)
 
             for i, item in enumerate(items):
-                inf.add_msg("\n#{0}: {1} ({2}) (<a=:withdraw {0}>withdraw</a>, <a=:delete {0}>delete</a>)".format(i + 1, item["name"], item["from"]), newline = False)
+                inf.add_msg("\n#{0}: {1} ({2}) ([a=:withdraw {0}]withdraw[/a], [a=:delete {0}]delete[/a])".format(i + 1, item["name"], item["from"]), newline = False)
 
             inf.add_link("I'd like to withdraw all.", dest = "withdraw 0")
         else:

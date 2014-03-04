@@ -22,7 +22,7 @@ def main():
         lever.Apply(lever)
     else:
         inf.add_msg("You notice a strange writing on the gate...", COLOR_YELLOW)
-        inf.add_msg("<font=pecita 20><o=#0083ff>[center]Pedo mellon a mino![/center]</o></font>")
+        inf.add_msg("[font=pecita 20][o=#0083ff][center]Pedo mellon a mino![/center][/o][/font]")
         inf.add_msg("It seems some kind of passphrase is needed to activate it.", COLOR_YELLOW)
         inf.set_text_input()
 

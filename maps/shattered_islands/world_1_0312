@@ -314,7 +314,7 @@ x 3
 y 16
 arch event_obj
 msg
-<yellow>You rummage through the notes in the desk's drawers, but find nothing of interest.</yellow>
+[yellow]You rummage through the notes in the desk's drawers, but find nothing of interest.[/yellow]
 endmsg
 sub_type 1
 race /python/events/trigger/message.py

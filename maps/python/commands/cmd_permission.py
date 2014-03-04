@@ -45,7 +45,7 @@ def main():
 
     for tmp in pl.Controller().cmd_permissions:
         if tmp:
-            inf.add_msg("\n    {perm} <y=-2><a=:/cmd_permission {activator.name} remove {perm}>x</a>", perm = tmp, newline = False)
+            inf.add_msg("\n    {perm} [y=-2][a=:/cmd_permission {activator.name} remove {perm}]x[/a]", perm = tmp, newline = False)
 
     inf.add_link("Add permission", dest = "/cmd_permission {} add".format(activator.name))
     inf.add_link("Remove all permissions", dest = "/cmd_permission {} removeall".format(activator.name))

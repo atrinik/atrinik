@@ -558,7 +558,7 @@ name get_notes
 sub_type 2
 arch note
 msg
-<i>You are unable to read the handwritten notes.</i>
+[i]You are unable to read the handwritten notes.[/i]
 endmsg
 no_skill_ident 1
 name Lairwenn's Notes

@@ -79,7 +79,7 @@ def main():
             inf.add_msg("Hm, you're already learned in the ways of {}. This means that I will need to remove the previous enchantment, and this will cost you {}. Is that okay?".format(pluralize(class_ob.name), CostString(enchant_removal_cost)))
 
         inf.add_msg("Bonuses:", COLOR_GREEN)
-        inf.add_msg("\n<padding=10>" + "\n".join(pc.get_class_bonuses(name)) + "</padding>", COLOR_GREEN, newline = False)
+        inf.add_msg("\n[padding=10]" + "\n".join(pc.get_class_bonuses(name)) + "[/padding]", COLOR_GREEN, newline = False)
 
         inf.add_link("Yes, teach me the ways of {}.".format(pluralize(name)), dest = "teach2 " + name)
 

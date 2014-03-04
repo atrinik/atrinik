@@ -502,7 +502,7 @@ def_arch tome_indigo
 Object
 name Orthrack: A Tale of Kings, Queens and Heroes Part XVI
 msg
-<font=mono.ttf>
+[font=mono.ttf]
 
 
         -.._ _____________________________________________ _..-
@@ -522,7 +522,7 @@ msg
         __,' _|_________________________________________|_ `.__
            _|_____________________________________________|_
           |_________________________________________________|
-</font>
+[/font]
 endmsg
 no_pick 1
 end

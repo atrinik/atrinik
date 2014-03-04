@@ -1,61 +1,61 @@
 help main
 title General Help
 msg
-Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at <a=url>http://www.atrinik.org</a> for FAQ, playing guides, and more.
+Atrinik is a Multiplayer Online Role-Playing Game started by Alex Tokar in 2009. Visit the Atrinik website at [a=url]http://www.atrinik.org[/a] for FAQ, playing guides, and more.
 
 Quick help:
 
 Move with numpad keys. Press C to toggle combat mode on/off. Press X to target nearest enemy. Press S to target nearest friend. Press A to apply things on ground or in your inventory. Press ENTER to show the console box. Press SHIFT to show your inventory. Use ARROW keys to move around in your inventory. Hold ALT + direction to run. Hold CTRL + direction to cast/shoot.
 
 [title]See Also:[/title]
-List of <a=help>contributors</a>
+List of [a=help]contributors[/a]
 
 [title]Useful Commands[/title]
-<a=help>afk</a>
-<a=help>apply</a>
-<a=help>cast</a>
-<a=help>drop</a>
-<a=help>drop_key</a>
-<a=help>emotions</a>
-<a=help>get</a>
-<a=help>guild</a>
-<a=help>guildmembers</a>
-<a=help>hiscore</a>
-<a=help>ignore</a>
-<a=help>left</a>
-<a=help>mapinfo</a>
-<a=help>mark</a>
-<a=help>motd</a>
-<a=help>ms_privacy</a>
-<a=help>music_pause</a>
-<a=help>music_resume</a>
-<a=help>np</a>
-<a=help>party</a>
-<a=help>pray</a>
-<a=help>push</a>
-<a=help>ready_skill</a>
-<a=help>ready_spell</a>
-<a=help>rename</a>
-<a=help>reply</a>
-<a=help>right</a>
-<a=help>roll</a>
-<a=help>run</a>
-<a=help>run_stop</a>
-<a=help>save</a>
-<a=help>say</a>
-<a=help>shout</a>
-<a=help>statistics</a>
-<a=help>take</a>
-<a=help>tell</a>
-<a=help>time</a>
-<a=help>use_skill</a>
-<a=help>version</a>
-<a=help>whereami</a>
-<a=help>who</a>
+[a=help]afk[/a]
+[a=help]apply[/a]
+[a=help]cast[/a]
+[a=help]drop[/a]
+[a=help]drop_key[/a]
+[a=help]emotions[/a]
+[a=help]get[/a]
+[a=help]guild[/a]
+[a=help]guildmembers[/a]
+[a=help]hiscore[/a]
+[a=help]ignore[/a]
+[a=help]left[/a]
+[a=help]mapinfo[/a]
+[a=help]mark[/a]
+[a=help]motd[/a]
+[a=help]ms_privacy[/a]
+[a=help]music_pause[/a]
+[a=help]music_resume[/a]
+[a=help]np[/a]
+[a=help]party[/a]
+[a=help]pray[/a]
+[a=help]push[/a]
+[a=help]ready_skill[/a]
+[a=help]ready_spell[/a]
+[a=help]rename[/a]
+[a=help]reply[/a]
+[a=help]right[/a]
+[a=help]roll[/a]
+[a=help]run[/a]
+[a=help]run_stop[/a]
+[a=help]save[/a]
+[a=help]say[/a]
+[a=help]shout[/a]
+[a=help]statistics[/a]
+[a=help]take[/a]
+[a=help]tell[/a]
+[a=help]time[/a]
+[a=help]use_skill[/a]
+[a=help]version[/a]
+[a=help]whereami[/a]
+[a=help]who[/a]
 
 [title]Miscellaneous[/title]
-<a=help>drop and take</a>
-<a=help>writing pen</a>
+[a=help]drop and take[/a]
+[a=help]writing pen[/a]
 endmsg
 end
 
@@ -76,9 +76,9 @@ This would always unapply the item 'amulet' from your inventory, never applying 
 /apply -u amulet
 [p]
 [title]See Also:[/title]
-<a=help>drop</a>
-<a=help>drop_key</a>
-<a=help>get</a>
+[a=help]drop[/a]
+[a=help]drop_key[/a]
+[a=help]get[/a]
 endmsg
 end
 
@@ -100,7 +100,7 @@ The run command is used to prepare your character for running. Your character wi
 /run
 [p]
 [title]See Also:[/title]
-<a=help>run_stop</a>
+[a=help]run_stop[/a]
 endmsg
 end
 
@@ -114,7 +114,7 @@ The stop run command is used to stop your character from being in 'run mode' by 
 /run_stop
 [p]
 [title]See Also:[/title]
-<a=help>run</a>
+[a=help]run[/a]
 endmsg
 end
 
@@ -140,9 +140,9 @@ The shout command is the main communication command. It will display your messag
 /shout &lt;your message&gt;
 [p]
 [title]See Also:[/title]
-<a=help>reply</a>
-<a=help>say</a>
-<a=help>tell</a>
+[a=help]reply[/a]
+[a=help]say[/a]
+[a=help]tell[/a]
 endmsg
 end
 
@@ -156,9 +156,9 @@ The tell command is used to send a private message to another player online. Onl
 /tell &lt;name&gt; [your message]
 [p]
 [title]See Also:[/title]
-<a=help>reply</a>
-<a=help>say</a>
-<a=help>shout</a>
+[a=help]reply[/a]
+[a=help]say[/a]
+[a=help]shout[/a]
 endmsg
 end
 
@@ -172,9 +172,9 @@ The reply command is used to reply to the last player that sent you a private me
 /reply [your message]
 [p]
 [title]See Also:[/title]
-<a=help>say</a>
-<a=help>shout</a>
-<a=help>tell</a>
+[a=help]say[/a]
+[a=help]shout[/a]
+[a=help]tell[/a]
 endmsg
 end
 
@@ -220,31 +220,31 @@ Allows you to become a Dungeon Master, if you are allowed to.
 /dm
 [p]
 [title]See Also:[/title]
-<a=help>addexp</a>
-<a=help>arrest</a>
-<a=help>ban</a>
-<a=help>cmd_permission</a>
-<a=help>create</a>
-<a=help>dmsay</a>
-<a=help>dm_light</a>
-<a=help>dm_password</a>
-<a=help>dm_stealth</a>
-<a=help>follow</a>
-<a=help>goto</a>
-<a=help>insert_into</a>
-<a=help>kick</a>
-<a=help>motd_set</a>
-<a=help>patch</a>
-<a=help>plugin</a>
-<a=help>plugout</a>
-<a=help>pluglist</a>
-<a=help>remove</a>
-<a=help>resetmap</a>
-<a=help>shutdown</a>
-<a=help>shutdown_now</a>
-<a=help>summon</a>
-<a=help>teleport</a>
-<a=help>wizpass</a>
+[a=help]addexp[/a]
+[a=help]arrest[/a]
+[a=help]ban[/a]
+[a=help]cmd_permission[/a]
+[a=help]create[/a]
+[a=help]dmsay[/a]
+[a=help]dm_light[/a]
+[a=help]dm_password[/a]
+[a=help]dm_stealth[/a]
+[a=help]follow[/a]
+[a=help]goto[/a]
+[a=help]insert_into[/a]
+[a=help]kick[/a]
+[a=help]motd_set[/a]
+[a=help]patch[/a]
+[a=help]plugin[/a]
+[a=help]plugout[/a]
+[a=help]pluglist[/a]
+[a=help]remove[/a]
+[a=help]resetmap[/a]
+[a=help]shutdown[/a]
+[a=help]shutdown_now[/a]
+[a=help]summon[/a]
+[a=help]teleport[/a]
+[a=help]wizpass[/a]
 endmsg
 end
 
@@ -348,7 +348,7 @@ To kick another player from your party:
 /party kick &lt;name&gt;
 [p]
 [title]See Also:[/title]
-<a=help>gsay</a>
+[a=help]gsay[/a]
 endmsg
 end
 
@@ -368,10 +368,10 @@ msg
 The drop key is by default bound to the D key. It is used to drop items from your inventory by selecting them with the ARROW keys.
 [p]
 [title]See Also:[/title]
-<a=help>apply</a>
-<a=help>drop</a>
-<a=help>get</a>
-<a=help>take</a>
+[a=help]apply[/a]
+[a=help]drop[/a]
+[a=help]get[/a]
+[a=help]take[/a]
 endmsg
 end
 
@@ -442,13 +442,13 @@ msg
 You can use the /drop command to drop specific items from your inventory. If you have a container open, dropped items from your inventory will go into the container (even if the container is in your inventory). It has the same syntax as the /take command.
 
 For syntax and usage, see
-<a=help>drop and take</a>.
+[a=help]drop and take[/a].
 [p]
 [title]See Also:[/title]
-<a=help>apply</a>
-<a=help>drop_key</a>
-<a=help>get</a>
-<a=help>take</a>
+[a=help]apply[/a]
+[a=help]drop_key[/a]
+[a=help]get[/a]
+[a=help]take[/a]
 endmsg
 end
 
@@ -459,12 +459,12 @@ msg
 The /take command can be used to take items on floor, or items in your currently open container (even if you have the container in your inventory). It has the same syntax as the /drop command.
 
 For syntax and usage, see
-<a=help>drop and take</a>.
+[a=help]drop and take[/a].
 [p]
 [title]See Also:[/title]
-<a=help>apply</a>
-<a=help>drop_key</a>
-<a=help>get</a>
+[a=help]apply[/a]
+[a=help]drop_key[/a]
+[a=help]get[/a]
 endmsg
 end
 
@@ -476,9 +476,9 @@ The get command is used to get an item from the floor. If there are multiple ite
 However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -&gt; General -&gt; Collect All Items.
 [p]
 [title]See Also:[/title]
-<a=help>apply</a>
-<a=help>drop</a>
-<a=help>drop_key</a>
+[a=help]apply[/a]
+[a=help]drop[/a]
+[a=help]drop_key[/a]
 endmsg
 end
 
@@ -492,8 +492,8 @@ The push command is used to push objects out of your way. Rolling objects like b
 /push
 [p]
 [title]See Also:[/title]
-<a=help>left</a>
-<a=help>right</a>
+[a=help]left[/a]
+[a=help]right[/a]
 endmsg
 end
 
@@ -507,8 +507,8 @@ The left command is used to turn your character left.
 /left
 [p]
 [title]See Also:[/title]
-<a=help>push</a>
-<a=help>right</a>
+[a=help]push[/a]
+[a=help]right[/a]
 endmsg
 end
 
@@ -522,8 +522,8 @@ The right command is used to turn your character right.
 /right
 [p]
 [title]See Also:[/title]
-<a=help>push</a>
-<a=help>left</a>
+[a=help]push[/a]
+[a=help]left[/a]
 endmsg
 end
 
@@ -649,9 +649,9 @@ This command does not require you to type anything before your message; you just
 [your message]
 
 [title]See Also:[/title]
-<a=help>reply</a>
-<a=help>shout</a>
-<a=help>tell</a>
+[a=help]reply[/a]
+[a=help]shout[/a]
+[a=help]tell[/a]
 endmsg
 end
 
@@ -718,8 +718,8 @@ This command allows you to summon a player next to yourself. The summoned player
 /summon [player name]
 [p]
 [title]See Also:[/title]
-<a=help>goto</a>
-<a=help>teleport</a>
+[a=help]goto[/a]
+[a=help]teleport[/a]
 endmsg
 end
 
@@ -727,14 +727,14 @@ help teleport
 autocomplete_wiz 1
 title Teleport Command
 msg
-This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have <a=help>dm_stealth</a> on.
+This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have [a=help]dm_stealth[/a] on.
 
 [title]Syntax:[/title]
 /teleport [player name]
 [p]
 [title]See Also:[/title]
-<a=help>goto</a>
-<a=help>summon</a>
+[a=help]goto[/a]
+[a=help]summon[/a]
 endmsg
 end
 
@@ -748,8 +748,8 @@ The goto command is used to teleport yourself to a specified map path, with opti
 /goto [map path] [x] [y]
 [p]
 [title]See Also:[/title]
-<a=help>summon</a>
-<a=help>teleport</a>
+[a=help]summon[/a]
+[a=help]teleport[/a]
 endmsg
 end
 
@@ -763,7 +763,7 @@ The kick command is used to kick another player from the game.
 /kick [player]
 [p]
 [title]See Also:[/title]
-<a=help>ban</a>
+[a=help]ban[/a]
 endmsg
 end
 
@@ -791,7 +791,7 @@ Remove Noob's ban (same syntax as above applies):
 
 [p]
 [title]See Also:[/title]
-<a=help>kick</a>
+[a=help]kick[/a]
 endmsg
 end
 
@@ -805,8 +805,8 @@ This command will load a plugin based on its filename.
 /plugin [filename]
 [p]
 [title]See Also:[/title]
-<a=help>pluglist</a>
-<a=help>plugout</a>
+[a=help]pluglist[/a]
+[a=help]plugout[/a]
 endmsg
 end
 
@@ -820,8 +820,8 @@ This command will unload a specified plugin.
 /plugout [plugin]
 [p]
 [title]See Also:[/title]
-<a=help>plugin</a>
-<a=help>pluglist</a>
+[a=help]plugin[/a]
+[a=help]pluglist[/a]
 endmsg
 end
 
@@ -835,8 +835,8 @@ This command will show currently loaded plugins, along with loadable plugins fro
 /pluglist
 [p]
 [title]See Also:[/title]
-<a=help>plugin</a>
-<a=help>plugout</a>
+[a=help]plugin[/a]
+[a=help]plugout[/a]
 endmsg
 end
 
@@ -850,7 +850,7 @@ This command will start a shutdown timer that will shutdown the server in specif
 /shutdown [seconds] [reason]
 [p]
 [title]See Also:[/title]
-<a=help>shutdown_now</a>
+[a=help]shutdown_now[/a]
 endmsg
 end
 
@@ -864,7 +864,7 @@ This command will instantly shutdown the server.
 /shutdown_now
 [p]
 [title]See Also:[/title]
-<a=help>shutdown</a>
+[a=help]shutdown[/a]
 endmsg
 end
 
@@ -982,7 +982,7 @@ msg
 This command allows you to insert marked item inside another object.
 
 [title]Syntax:[/title]
-/insert_into [<a=help>object_id</a>]
+/insert_into [[a=help]object_id[/a]]
 endmsg
 end
 
@@ -993,7 +993,7 @@ msg
 This command is used to remove another object from the game (cannot be used on players).
 
 [title]Syntax:[/title]
-/remove [<a=help>object_id</a>]
+/remove [[a=help]object_id[/a]]
 endmsg
 end
 
@@ -1004,7 +1004,7 @@ msg
 This command can be used to patch an attribute of an object.
 
 [title]Syntax:[/title]
-/patch [<a=help>object_id</a>] [attribute] [value]
+/patch [[a=help]object_id[/a]] [attribute] [value]
 
 [title]Examples:[/title]
 /patch guard friendly 0
@@ -1092,10 +1092,10 @@ You can ignore another player's chat from various chat types using the ignore co
 [title]Syntax:[/title]
 /ignore &lt;player name&gt; &lt;chat type&gt;
 
-Where:<padding=4>
+Where:[padding=4]
 [b]player name[/b]: Name of the player to ignore (or [b]*[/b] to ignore all players)
 [b]chat type[/b]: Chat type to ignore the player from, one of: [b]say[/b], [b]shout[/b], [b]tell[/b], [b]emote[/b] or [b]*[/b] (all the chat types)
-</padding>
+[/padding]
 endmsg
 end
 
@@ -1108,9 +1108,9 @@ The [b]/use_skill[/b] command can be used to use a skill, for example, the [b]co
 [title]Syntax:[/title]
 /use_skill &lt;skill name&gt;
 
-Where:<padding=4>
+Where:[padding=4]
 [b]skill name[/b]: Full name of the skill to use, for example, [b]construction[/b]
-</padding>
+[/padding]
 endmsg
 end
 
@@ -1123,9 +1123,9 @@ The [/b]/ready_spell[/b] command can be used to ready a spell into the range box
 [title]Syntax:[/title]
 /ready_spell &lt;spell name&gt;
 
-Where:<padding=4>
+Where:[padding=4]
 [b]spell name[/b]: Full name of the spell to ready, for example, [b]magic bullet[/b]
-</padding>
+[/padding]
 endmsg
 end
 
@@ -1138,9 +1138,9 @@ The [/b]/ready_skill[/b] command can be used to ready a skill.
 [title]Syntax:[/title]
 /ready_skill &lt;skill name&gt;
 
-Where:<padding=4>
+Where:[padding=4]
 [b]skill name[/b]: Full name of the skill to ready, for example, [b]construction[/b]
-</padding>
+[/padding]
 endmsg
 end
 
@@ -1156,28 +1156,28 @@ end
 help contributors
 title Atrinik Contributors
 msg
-<font=sans 14>[b]<o=#000000><c=#cf6900>Programming:</c></o>[/b]</font><padding=4>
+[font=sans 14][b][o=#000000][c=#cf6900]Programming:[/c][/o][/b][/font][padding=4]
 Alex "[b]Cleo[/b]" Tokar (+maps)
 Daniel "[b]Lippy[/b]" Liptrot
 Dantee
 Lagaro
-</padding>
-<font=sans 14>[b]<o=#000000><c=#cf6900>Maps:</c></o>[/b]</font><padding=4>
+[/padding]
+[font=sans 14][b][o=#000000][c=#cf6900]Maps:[/c][/o][/b][/font][padding=4]
 Asa "[b]Evilasa[/b]" Hurren
 Brian "[b]Gramlath[/b]" Angeletti (+graphics)
 Edwin "[b]Mamoru[/b]" Miltenburg (+music)
 Matthew "[b]Idicus[/b]" Bostick
-</padding>
-<font=sans 14>[b]<o=#000000><c=#cf6900>Graphics:</c></o>[/b]</font><padding=4>
+[/padding]
+[font=sans 14][b][o=#000000][c=#cf6900]Graphics:[/c][/o][/b][/font][padding=4]
 James "[b]Jlittle[/b]" Little (+programming)
 Glenn Hanna
 
-<a=url:http://rephial.org>Angband</a>, <a=url:http://crossmagi.sourceforge.net>Crossmagi</a>, <a=url:http://www.freedink.org>GNU FreeDink</a>, <a=url:http://reinerstileset.4players.de/englisch.html>Reiner's Tilesets</a>, <a=url:http://rltiles.sf.net>RLTiles</a>, <a=url:http://wesnoth.org/>Wesnoth</a>
-</padding>
-<font=sans 14>[b]<o=#000000><c=#cf6900>Other:</c></o>[/b]</font><padding=4>
+[a=url:http://rephial.org]Angband[/a], [a=url:http://crossmagi.sourceforge.net]Crossmagi[/a], [a=url:http://www.freedink.org]GNU FreeDink[/a], [a=url:http://reinerstileset.4players.de/englisch.html]Reiner's Tilesets[/a], [a=url:http://rltiles.sf.net]RLTiles[/a], [a=url:http://wesnoth.org/]Wesnoth[/a]
+[/padding]
+[font=sans 14][b][o=#000000][c=#cf6900]Other:[/c][/o][/b][/font][padding=4]
 David "[b]Ddhanna[/b]" Hanna
 Pete "[b]Arantor[/b]" Spicer
-</padding>
+[/padding]
 endmsg
 end
 
@@ -1249,7 +1249,7 @@ end
 help party list
 title Party List Widget
 msg
-The party widget allows you to form and join parties. While in a party, you can chat with fellow members of the party using the <a=help:gsay>/gsay</a> command. In addition, you will automatically share gained experience with your party members, but only if they are nearby.
+The party widget allows you to form and join parties. While in a party, you can chat with fellow members of the party using the [a=help:gsay]/gsay[/a] command. In addition, you will automatically share gained experience with your party members, but only if they are nearby.
 
 [title]Controls[/title]
 
@@ -1257,9 +1257,9 @@ In order to join a party, double-click the party name in the list. If no party i
 
 After joining/forming a party, the list will switch to show you the party members, including their HP, mana and grace bars. You can switch back to the list of parties using the [b]Parties[/b] button, and back to members using [b]Members[/b] button.
 
-If you are currently a member of a party, additional buttons will be available, including the [b]Leave[/b] button, using which you can leave the party at any time. There is also a [b]Password[/b] button, with which you can change the party password, but only if you are the party leader. The [b]Chat[/b] button will pop up the regular text input, with <a=help:gsay>/gsay</a> prefixed, so you can immediately type in your party chat message.
+If you are currently a member of a party, additional buttons will be available, including the [b]Leave[/b] button, using which you can leave the party at any time. There is also a [b]Password[/b] button, with which you can change the party password, but only if you are the party leader. The [b]Chat[/b] button will pop up the regular text input, with [a=help:gsay]/gsay[/a] prefixed, so you can immediately type in your party chat message.
 
-For more advanced controls, see the documentation for the <a=help:party>/party command</a>.
+For more advanced controls, see the documentation for the [a=help:party]/party command[/a].
 endmsg
 end
 
@@ -1285,7 +1285,7 @@ title Settings
 msg
 Inside this popup, you can change various settings - for example, your keybindings (macros), your character's password (if you're currently in-game), or client-related settings.
 
-When you open this popup, you will see <a=help:client settings>Client Settings</a> and <a=help:keybinding settings>Key Settings</a>. If you are currently in-game, you will also see [b]Logout[/b] (which logs you out of the game) and [b]Back to Play[/b] (which closes the popup). Also if you're in-game, you will see a <a=help:password change>Password</a> button on the top left.
+When you open this popup, you will see [a=help:client settings]Client Settings[/a] and [a=help:keybinding settings]Key Settings[/a]. If you are currently in-game, you will also see [b]Logout[/b] (which logs you out of the game) and [b]Back to Play[/b] (which closes the popup). Also if you're in-game, you will see a [a=help:password change]Password[/a] button on the top left.
 
 [title]Controls[/title]
 
@@ -1368,7 +1368,7 @@ end
 help password change
 title Password Change
 msg
-If you are logged in, you can change your character's password by clicking the [b]Password[/b] button in the <a=help:esc menu>settings</a> popup ("ESC menu").
+If you are logged in, you can change your character's password by clicking the [b]Password[/b] button in the [a=help:esc menu]settings[/a] popup ("ESC menu").
 
 You will need to provide the current password of your character, and the new one.
 endmsg
@@ -1378,7 +1378,7 @@ help np
 title Now Playing Command
 autocomplete 1
 msg
-If you are currently playing a music file from the <a=help:music player>music player widget</a>, this command will display the currently playing music for nearby players to see in their chat windows, using the /me command.
+If you are currently playing a music file from the [a=help:music player]music player widget[/a], this command will display the currently playing music for nearby players to see in their chat windows, using the /me command.
 
 [title]Syntax:[/title]
 
@@ -1398,7 +1398,7 @@ Pauses currently playing background music, if any.
 
 [title]See Also:[/title]
 
-<a=help>music_resume</a>
+[a=help]music_resume[/a]
 endmsg
 end
 
@@ -1414,7 +1414,7 @@ Resumes previously paused music.
 
 [title]See Also:[/title]
 
-<a=help>music_pause</a>
+[a=help]music_pause[/a]
 endmsg
 end
 
@@ -1469,7 +1469,7 @@ Target the NPC by right-clicking them on the map, and then click the [b]Hello[/b
 
 You can use the text input to talk to nearby players. This can be accessed by pressing [b]ENTER[/b]. If you type text in the text input and then press [b]ENTER[/b] again, your message will be heard by all nearby players.
 
-It is also possible to use commands in the text input. For example, typing [b]/shout Hello all![/b] in the text input and pressing [b]ENTER[/b] would shout out the message [b]Hello all![/b] for all online players to see. There are other chat-related commands, such as [b]/tell &lt;player&gt; Private message[/b], among others. See the <a=help:chat_guide>Chat Guide</a> for more details. You can also check out the list of <a=help:commands>commands</a> that you can use in the text input.
+It is also possible to use commands in the text input. For example, typing [b]/shout Hello all![/b] in the text input and pressing [b]ENTER[/b] would shout out the message [b]Hello all![/b] for all online players to see. There are other chat-related commands, such as [b]/tell &lt;player&gt; Private message[/b], among others. See the [a=help:chat_guide]Chat Guide[/a] for more details. You can also check out the list of [a=help:commands]commands[/a] that you can use in the text input.
 endmsg
 end
 
@@ -1542,14 +1542,14 @@ msg
 [title]Taking And Dropping Items[/title]
 
 [b]Keyboard:[/b]
-In order to take an item from the ground, select it in the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and press [b]G[/b] key. The object will be picked up straight into your inventory.
+In order to take an item from the ground, select it in the screen that shows items [a=help:basics_object_interaction]below your feet[/a], and press [b]G[/b] key. The object will be picked up straight into your inventory.
 
-If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a> and select the item that you want to drop, then press the [b]D[/b] key.
+If you want to drop an item from your inventory, [a=help:basics_inventory_interaction]open the inventory[/a] and select the item that you want to drop, then press the [b]D[/b] key.
 
 [b]Mouse:[/b]
-In order to take an item from the ground, drag it from the screen that shows items <a=help:basics_object_interaction>below your feet</a>, and drop it into your inventory screen.
+In order to take an item from the ground, drag it from the screen that shows items [a=help:basics_object_interaction]below your feet[/a], and drop it into your inventory screen.
 
-If you want to drop an item from your inventory, <a=help:basics_inventory_interaction>open the inventory</a>, drag the item to drop, and drop it anywhere on the visible map area.
+If you want to drop an item from your inventory, [a=help:basics_inventory_interaction]open the inventory[/a], drag the item to drop, and drop it anywhere on the visible map area.
 
 [title]Multiple Items[/title]
 
@@ -1564,9 +1564,9 @@ msg
 
 Containers are useful for sorting items in your inventory, for example, a container loot, important items, or food. You can even have your character automatically pick up items into the specified container, instead of into the inventory. Containers are also often used part of areas such as treasure vaults, buildings, homes, etc, such as chests, lockers, drawers, shelves, etc, and sometimes contain items of importance, loot, quest items, etc.
 
-In order to open a container <a=help:basics_object_interaction>below your feet</a>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
+In order to open a container [a=help:basics_object_interaction]below your feet[/a], simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
 
-Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become [i]readied[/i], and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
+Containers in your [a=help:basics_inventory_interaction]inventory[/a] behave slighty differently. If you interact with them once, they will become [i]readied[/i], and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
 
 You can only have one container open at any time (be it in your inventory, or below your feet).
 endmsg

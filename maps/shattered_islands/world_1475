@@ -427,7 +427,7 @@ msg
 @match ^hello$
 Hmm... This note sure talks about some strange things... Hmm...
 
-<yellow>Clayrell doesn't seem to notice you...</yellow>
+[yellow]Clayrell doesn't seem to notice you...[/yellow]
 endmsg
 name Clayrell
 animation thelra_male
