@@ -1147,7 +1147,7 @@ end
 help writing pen
 title Writing Pen
 msg
-<book>Inscription Skill</book>You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
+[book]Inscription Skill[/book]You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
 
 /use_skill inscription &lt;message to write&gt;
 endmsg

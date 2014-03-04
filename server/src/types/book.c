@@ -122,9 +122,9 @@ static int apply_func(object *op, object *applier, int aflags)
     CONTR(applier)->stat_books_read++;
 
     packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
-    packet_append_string(packet, "<book>");
+    packet_append_string(packet, "[book]");
     packet_append_string(packet, query_base_name(op, applier));
-    packet_append_string(packet, "</book>");
+    packet_append_string(packet, "[/book]");
     packet_append_string_terminated(packet, op->msg);
     socket_send_packet(&CONTR(applier)->socket, packet);
 

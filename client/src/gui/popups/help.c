@@ -113,7 +113,7 @@ void hfiles_init(void)
             }
             else if (!strncmp(buf, "title ", 6)) {
                 *end = '\0';
-                snprintf(message, sizeof(message), "<book>%s</book>", buf + 6);
+                snprintf(message, sizeof(message), "[book]%s[/book]", buf + 6);
             }
         }
         else if (!strncmp(buf, "help ", 5)) {

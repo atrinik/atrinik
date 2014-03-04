@@ -91,7 +91,7 @@ Object
 name Lothost's Notes
 level 25
 msg
-<book>The Abandoned Mine</book>[title]Entrance[/title]
+[book]The Abandoned Mine[/book][title]Entrance[/title]
 The entrance has an inscription written on the gate:
 
 [b]Pedo mellon a minno![/b]
