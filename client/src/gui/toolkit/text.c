@@ -1882,7 +1882,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
         /* Is this a newline, or word wrap was set and we are over
          * maximum width? */
-        if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '[' ? 0 : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) > box->w)) {
+        if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && (cp[pos] == '[' || cp[pos] == '<') ? 0 : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) > box->w)) {
             /* Store the last space. */
             if (is_lf || last_space == 0) {
                 last_space = pos;
