@@ -250,7 +250,7 @@ static void widget_draw(widgetdata *widget)
 
         buttons[BUTTON_PARTIES].x = 244;
         buttons[BUTTON_PARTIES].y = 38;
-        button_show(&buttons[BUTTON_PARTIES], list_contents == CMD_PARTY_LIST ? "<u>Parties</u>" : "Parties");
+        button_show(&buttons[BUTTON_PARTIES], list_contents == CMD_PARTY_LIST ? "[u]Parties[/u]" : "Parties");
 
         buttons[BUTTON_MEMBERS].x = buttons[BUTTON_FORM].x = 244;
         buttons[BUTTON_MEMBERS].y = buttons[BUTTON_FORM].y = 60;
@@ -259,7 +259,7 @@ static void widget_draw(widgetdata *widget)
             button_show(&buttons[BUTTON_FORM], "Form");
         }
         else {
-            button_show(&buttons[BUTTON_MEMBERS], list_contents == CMD_PARTY_WHO ? "<u>Members</u>" : "Members");
+            button_show(&buttons[BUTTON_MEMBERS], list_contents == CMD_PARTY_WHO ? "[u]Members[/u]" : "Members");
             buttons[BUTTON_LEAVE].x = buttons[BUTTON_PASSWORD].x = buttons[BUTTON_CHAT].x = 244;
             buttons[BUTTON_LEAVE].y = 82;
             buttons[BUTTON_PASSWORD].y = 104;
