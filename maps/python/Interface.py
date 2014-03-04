@@ -20,26 +20,26 @@ class Interface:
             self._msg += "\n\n"
 
         if color:
-            self._msg += "<c=#" + color + ">"
+            self._msg += "[c=#" + color + "]"
 
         self._msg += msg.format(activator = self._activator, npc = self._npc, **keywds)
 
         if color:
-            self._msg += "</c>"
+            self._msg += "[/c]"
 
     def add_msg_icon(self, icon, desc = "", fit = False):
         self._msg += "\n\n"
-        self._msg += "<bar=#000000 52 52><border=#606060 52 52><x=1><y=1><icon="
+        self._msg += "[bar=#000000 52 52][border=#606060 52 52][x=1][y=1][icon="
         self._msg += icon
         self._msg += " 50 50"
 
         if fit:
             self._msg += " 1"
 
-        self._msg += "><x=-1><y=-1>"
-        self._msg += "<padding=60><hcenter=50>"
+        self._msg += "][x=-1][y=-1]"
+        self._msg += "[padding=60][hcenter=50]"
         self._msg += desc
-        self._msg += "</hcenter></padding>"
+        self._msg += "[/hcenter][/padding]"
 
     def add_msg_icon_object(self, obj):
         self.add_msg_icon(obj.face[0], obj.GetName())
@@ -62,9 +62,9 @@ class Interface:
         dest = self._get_dest(dest)
 
         if dest or action:
-            self._links.append("<a=" + action + ":" + dest + ">" + link + "</a>")
-        elif not link.startswith("<a"):
-            self._links.append("<a>" + link + "</a>")
+            self._links.append("[a=" + action + ":" + dest + "]" + link + "[/a]")
+        elif not link.startswith("[a"):
+            self._links.append("[a]" + link + "[/a]")
         else:
             self._links.append(link)
 
