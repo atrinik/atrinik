@@ -35,7 +35,7 @@ def precond(self):
             <response message="A drunk." destination="drunkard2" />
         </dialog>
         <dialog name="drunkard2">
-            <message>I'm &lt;b&gt;NOT&lt;/b&gt; a drunk!</message>
+            <message>I'm [b]NOT[/b] a drunk!</message>
             <response message="Yes you are." destination="drunkard3" />
         </dialog>
         <dialog name="drunkard3">
