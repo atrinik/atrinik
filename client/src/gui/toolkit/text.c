@@ -984,11 +984,6 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         else if (tag_len == 6 && strncmp(tag, "/alpha", tag_len) == 0) {
             info->used_alpha = 255;
         }
-        else if (tag_len >= 5 && strncmp(tag, "book=", 5) == 0) {
-            if (flags & TEXT_LINES_CALC) {
-                book_name_change(tag + 5, pos - cp - 6);
-            }
-        }
         else if (tag_len == 4 && strncmp(tag, "book", tag_len) == 0) {
             if (c == '[') {
                 tag2 = strstr(tag + tag_len, "[/book]");
