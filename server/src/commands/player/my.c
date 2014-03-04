@@ -42,6 +42,6 @@ void command_my(object *op, const char *command, char *params)
     }
 
     logger_print(LOG(CHAT), "[MY] [%s] %s", op->name, params);
-    snprintf(buf, sizeof(buf), "<a=#charname>%s</a>'s %s", op->name, params);
+    snprintf(buf, sizeof(buf), "[a=#charname]%s[/a]'s %s", op->name, params);
     draw_info_map(CHAT_TYPE_LOCAL, NULL, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 }
